@@ -18,7 +18,6 @@ import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
-import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Docente;
@@ -45,7 +44,6 @@ public class ContratoController {
         try {
 
             List<ContratoDocente> contratos = service.allByDynatable(filter, new Docente(id));
-//            List<ContratoDocente> contratos = new ArrayList<>();
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
             for (ContratoDocente cd : contratos) {
@@ -55,8 +53,16 @@ public class ContratoController {
                     "situacion.*",
                     "dedicacion.*",
                     "estadoEnum",
-                    "resolucionFacultad.*",
-                    "resolucionConsejo.*",
+                    "resolucionFacultad.id",
+                    "resolucionFacultad.serie",
+                    "resolucionFacultad.numero",
+                    "resolucionFacultad.descripcion",
+                    "resolucionFacultad.fechaRegistro",
+                    "resolucionConsejo.id",
+                    "resolucionConsejo.serie",
+                    "resolucionConsejo.numero",
+                    "resolucionConsejo.descripcion",
+                    "resolucionConsejo.fechaRegistro",
                     "cicloInicioContrato.id",
                     "cicloInicioContrato.descripcion",
                     "cicloFinContrato.id",
@@ -131,8 +137,7 @@ public class ContratoController {
             ArrayNode jCiclo = new ArrayNode(jsonFactory);
             for (Resolucion resolucion : resoluciones) {
                 jCiclo.add(JsonHelper.createJson(resolucion, jsonFactory, new String[]{
-                    "id",
-                    "descripcion",}));
+                    "id", "descripcion"}));
             }
             response.setData(jCiclo);
             response.setTotal(jCiclo.size());
@@ -154,9 +159,9 @@ public class ContratoController {
             List<Resolucion> resoluciones = service.searchResolucionFacultad(nombre);
             ArrayNode jCiclo = new ArrayNode(jsonFactory);
             for (Resolucion resolucion : resoluciones) {
+                System.out.println("Descripcion ::" + resolucion.getDescripcion());
                 jCiclo.add(JsonHelper.createJson(resolucion, jsonFactory, new String[]{
-                    "id",
-                    "descripcion",}));
+                    "id", "descripcion"}));
             }
             response.setData(jCiclo);
             response.setTotal(jCiclo.size());
@@ -175,7 +180,6 @@ public class ContratoController {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         JsonResponse response = new JsonResponse();
-
         try {
             service.addResolucionFacultad(new ContratoDocente(id), resolucionFacultad, ds);
             response.setMessage("Resolución de facultad agregada");

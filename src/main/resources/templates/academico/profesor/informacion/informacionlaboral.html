@@ -18,63 +18,63 @@
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="item in props.data"> 
-                    <td class="v-middle text-center">
-                        <span>  {{ item.cicloInicioContrato.descripcion }} </span> 
-                    </td>
-                    <td class="v-middle text-center">
-                        <span>  {{ item.cicloFinContrato.descripcion }} </span> 
+            <tr v-for="item in props.data"> 
+                <td class="v-middle text-center">
+                    <span>  {{ item.cicloInicioContrato.descripcion }} </span> 
+                </td>
+                <td class="v-middle text-center">
+                    <span>  {{ item.cicloFinContrato.descripcion }} </span> 
 
-                    </td>
-                    <td class="v-middle">
-                        <span class="block"> {{ item.categoria.nombre }} </span>
-                        <span class="block small text-muted"> {{ item.categoria.codigo }} </span>
-                    </td>
-                    <td class="v-middle">
-                        <span class="block"> {{ item.dedicacion.nombre }} </span>
-                        <span class="block small text-muted"> {{ item.dedicacion.codigo }} </span>
-                    </td>
-                    <td class="v-middle">
-                        <span class="block"> {{ item.situacion.nombre }} </span>
-                        <span class="block small text-muted"> {{ item.situacion.codigo }} </span>
-                    </td>
-                    <td class="v-middle">
-                        <div v-if="item.resolucionFacultad.id">
-                            <a class="block pointer bold text-info-dk"> {{ item.resolucionFacultad.descripcion }} </a>
-                            <span class="block small text-muted"> {{ item.resolucionFacultad.fechaRegistro }} </span>
-                        </div>
-                    </td>
-                    <td class="v-middle">
-                        <div v-if="item.resolucionConsejo.id">
-                            <a class="block pointer bold"> {{ item.resolucionConsejo.descripcion }} </a>
-                            <span class="block small text-muted"> {{ item.resolucionConsejo.fechaRegistro }} </span>
-                        </div>
-                    </td>
-                    <td class="v-middle text-center">
-                        <span class="label" v-bind:class="labelContrato[item.estadoEnum.name]">  {{ item.estadoEnum.value }} </span> 
+                </td>
+                <td class="v-middle">
+                    <span class="block"> {{ item.categoria.nombre }} </span>
+                    <span class="block small text-muted"> {{ item.categoria.codigo }} </span>
+                </td>
+                <td class="v-middle">
+                    <span class="block"> {{ item.dedicacion.nombre }} </span>
+                    <span class="block small text-muted"> {{ item.dedicacion.codigo }} </span>
+                </td>
+                <td class="v-middle">
+                    <span class="block"> {{ item.situacion.nombre }} </span>
+                    <span class="block small text-muted"> {{ item.situacion.codigo }} </span>
+                </td>
+                <td class="v-middle">
+                    <div v-if="item.resolucionFacultad.id">
+                        <a class="block pointer bold text-info-dk"> {{ item.resolucionFacultad.descripcion }} </a>
+                        <span class="block small text-muted"> {{ item.resolucionFacultad.fechaRegistro }} </span>
+                    </div>
+                </td>
+                <td class="v-middle">
+                    <div v-if="item.resolucionConsejo.id">
+                        <a class="block pointer bold"> {{ item.resolucionConsejo.descripcion }} </a>
+                        <span class="block small text-muted"> {{ item.resolucionConsejo.fechaRegistro }} </span>
+                    </div>
+                </td>
+                <td class="v-middle text-center">
+                    <span class="label" v-bind:class="labelContrato[item.estadoEnum.name]">  {{ item.estadoEnum.value }} </span> 
 
-                    </td>
-                    <td class="v-middle">
-                        <div class="dropdown actions" v-if=" item.estadoEnum.name === 'RESL' || !item.resolucionFacultad.id || !item.resolucionConsejo.id || item.estadoEnum.name==='ACT'">
-                            <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="glyphicon glyphicon-cog"></i></a>
-                            <ul class="dropdown-menu pull-right" >
-                                <li role="presentation" v-if="item.estadoEnum.name === 'RESL'">
-                                    <a href="#" v-on:click="addVistoBueno(item)">Visto bueno de Estudios</a>
-                                </li>
-                                <li role="presentation" v-if="!item.resolucionFacultad.id">
-                                    <a href="#" v-on:click="addResolucionFacultad(item)">Agregar Resolución de Facultad</a>
-                                </li>
-                                <li role="presentation" v-if="!item.resolucionConsejo.id">
-                                    <a href="#" v-on:click="addResolucionConsejo(item)">Agregar Resolución de CUN</a>
-                                </li>
-                                <li role="presentation" v-if="item.estadoEnum.name === 'ACT'">
-                                    <a href="#" v-on:click="finalizar(item)">Finalizar Contrato</a>
-                                </li>
-                            </ul>
+                </td>
+                <td class="v-middle">
+                    <div class="dropdown actions" v-if=" item.estadoEnum.name === 'RESL' || !item.resolucionFacultad.id || !item.resolucionConsejo.id || item.estadoEnum.name==='ACT'">
+                        <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="glyphicon glyphicon-cog"></i></a>
+                        <ul class="dropdown-menu pull-right" >
+                            <li role="presentation" v-if="item.estadoEnum.name === 'RESL'">
+                                <a href="#" v-on:click="addVistoBueno(item)">Visto bueno de Estudios</a>
+                            </li>
+                            <li role="presentation" v-if="!item.resolucionFacultad.id">
+                                <a href="#" v-on:click="addResolucionFacultad(item)">Agregar Resolución de Facultad</a>
+                            </li>
+                            <li role="presentation" v-if="!item.resolucionConsejo.id">
+                                <a href="#" v-on:click="addResolucionConsejo(item)">Agregar Resolución de CUN</a>
+                            </li>
+                            <li role="presentation" v-if="item.estadoEnum.name === 'ACT'">
+                                <a href="#" v-on:click="finalizar(item)">Finalizar Contrato</a>
+                            </li>
+                        </ul>
 
-                        </div>
-                    </td>
-                </tr>
+                    </div>
+                </td>
+            </tr>
             </tbody>
         </table>
     </template>

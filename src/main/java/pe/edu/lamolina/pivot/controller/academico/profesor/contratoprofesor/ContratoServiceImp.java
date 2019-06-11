@@ -161,7 +161,8 @@ public class ContratoServiceImp implements ContratoService {
 
     @Override
     public List<Resolucion> searchResolucionConsejo(String nombre) {
-        return resolucionDAO.all();
+        nombre = "%" + nombre.replaceAll(" ", "%") + "%";
+        return resolucionDAO.allByNombre(nombre);
     }
 
     @Override

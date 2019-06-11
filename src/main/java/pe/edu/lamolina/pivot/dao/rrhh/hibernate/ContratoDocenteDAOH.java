@@ -24,6 +24,8 @@ public class ContratoDocenteDAOH extends AbstractEasyDAO<ContratoDocente> implem
         DynatableSql sql = new DynatableSql(filter)
                 .from(ContratoDocente.class, "cd")
                 .join("cicloInicioContrato", "docente d")
+                .leftJoin("resolucionFacultad ref", "resolucionConsejo rec")
+                .leftJoin("ref.oficina", "rec.oficina")
                 .left("categoria", "situacion", "dedicacion", "cicloFinContrato")
                 .filter("d.id", docente)
                 .orderBy("cd.id desc");
@@ -52,6 +54,16 @@ public class ContratoDocenteDAOH extends AbstractEasyDAO<ContratoDocente> implem
                 .__().endBlock()
                 .endBlock();
 
+        return all(sql);
+    }
+
+    @Override
+    public List<ContratoDocente> allByDocente(List<Long> idsDoc) {
+        Octavia sql = Octavia.query()
+                .from(ContratoDocente.class, "cd")
+                .join("docente d", "categoria", "dedicacion", "situacion")
+                .join("cicloInicioContrato", "cicloFinContrato")
+                .in("d.id", idsDoc);
         return all(sql);
     }
 

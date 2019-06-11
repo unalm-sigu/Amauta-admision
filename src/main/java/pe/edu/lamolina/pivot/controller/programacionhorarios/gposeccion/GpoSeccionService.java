@@ -29,7 +29,6 @@ import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.horario.HorarioAula;
 import pe.edu.lamolina.model.horario.HorarioSeccion;
 import pe.edu.lamolina.model.horario.TipoGrupoHoras;
-import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.zelper.enums.TipoRestriccionEnum;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -59,7 +58,7 @@ public interface GpoSeccionService {
 
     List<GrupoSeccion> saveGpoSeccionHeader(GrupoSeccion grupoSeccion, CicloAcademico cicloAcademico, DataSessionPivot ds);
 
-    GrupoSeccion findGpoSeccion(Long id);
+    GrupoSeccion findGpoSeccion(Long id, DataSessionPivot ds);
 
     List<GrupoHoras> allByTipoGrupoHorasCiclo(TipoGrupoHoras tipoGrupoHoras, CicloAcademico cicloAcademico);
 

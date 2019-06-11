@@ -102,6 +102,7 @@ import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.horario.HorarioAula;
 import pe.edu.lamolina.model.horario.HorarioSeccion;
 import pe.edu.lamolina.model.horario.TipoGrupoHoras;
+import pe.edu.lamolina.model.rrhh.ContratoDocente;
 import pe.edu.lamolina.model.vacantes.VacanteAlumno;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoEvaluacionDAO;
 import pe.edu.lamolina.pivot.dao.academico.CarreraDAO;
@@ -133,6 +134,7 @@ import pe.edu.lamolina.pivot.dao.academico.MatriculaCursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaResumenDAO;
 import pe.edu.lamolina.pivot.dao.academico.PrecioCursoEstructuraDAO;
 import pe.edu.lamolina.pivot.dao.finanza.PagoHoraDocenteDAO;
+import pe.edu.lamolina.pivot.dao.rrhh.ContratoDocenteDAO;
 
 @Service
 @Transactional(readOnly = true)
@@ -250,6 +252,9 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     @Autowired
     MatriculaResumenDAO matriculaResumenDAO;
 
+    @Autowired
+    ContratoDocenteDAO contratoDocenteDAO;
+
     @Override
     public CicloAcademico findCiclo(CicloAcademico cicloAcademico) {
         return cicloAcademicoDAO.find(cicloAcademico);
@@ -266,8 +271,9 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     }
 
     @Override
-    public GrupoSeccion findGpoSeccion(Long id) {
+    public GrupoSeccion findGpoSeccion(Long id, DataSessionPivot ds) {
         GrupoSeccion gpoSecc = grupoSeccionDAO.find(id);
+
         List<Seccion> secciones = seccionDAO.allByGposSeccion(gpoSecc);
         List<CuotasGrupoHoras> allCountCuotasGrupoHorases = cuotaGpoHorasDAO.allByAnexoCiclo(gpoSecc.getAnexoBoletin(), gpoSecc.getCicloAcademico());
 
@@ -313,8 +319,14 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         }
 
         List<DocenteSeccion> docenteSeccion = docenteSeccionDAO.allBySecciones(secciones);
+        List<Long> idsDoc = docenteSeccion.stream().map(x -> x.getDocente().getId()).collect(Collectors.toList());
+        List<ContratoDocente> contratos = contratoDocenteDAO.allByDocente(idsDoc);
+        Map<Long, ContratoDocente> mapDocente = TypesUtil.convertListToMap("docente.id", contratos);
+        for (DocenteSeccion docSeccion : docenteSeccion) {
+            ContratoDocente contrDoc = mapDocente.get(docSeccion.getDocente().getId());
+            docSeccion.setContratoDocente(contrDoc);
+        }
         Map<Long, List<DocenteSeccion>> mapDocSeccion = TypesUtil.convertListToMapList("seccion.id", docenteSeccion);
-
         List<RestriccionModalidad> restriccionesMod = restriccionModalidadDAO.allActivasBySecciones(secciones);
         List<RestriccionFacultad> restriccionesFac = restriccionFacultadDAO.allActivasBySecciones(secciones);
         List<RestriccionCarrera> restriccionesCarr = restriccionCarreraDAO.allActivasBySecciones(secciones);

@@ -10,8 +10,6 @@
     <div class="col-md-2 bold">Busqueda por departamento</div>
 </div>
 
-
-
 <table class="table">
     <thead> 
         <tr > 
@@ -124,11 +122,36 @@
                         <input type="text" readonly="" class="form-control" 
                                v-model="docSeccion.fechaFin"/>
                     </div>
-
+                    <div class="block" v-if="docSeccion.estado == 'ACT'">
+                        <span class="font-roman text-lg m-r-md" v-text="docSeccion.contratoDocente.cicloInicioContrato.descripcion"></span>
+                        <span class="font-roman text-lg m-l-md" v-text="docSeccion.contratoDocente.cicloFinContrato.descripcion"></span>
+                    </div>
                 </div>
             </td>
 
-            <td></td>
+            <td class="text-center v-middle">
+                <div  v-if="docSeccion.contratoDocente.id != ''">
+                    <div v-if="docSeccion.contratoDocente.categoria.codigo != 'MINE'">
+                        <small class="block">
+                            <strong class="">
+                                <span class="" v-text="docSeccion.contratoDocente.estadoEnum.value"></span>
+                            </strong>
+                        </small>
+                    </div>
+                    <small class="block">
+                        <strong class="text-primary">Categoria:</strong>
+                        <span v-text="docSeccion.contratoDocente.categoria.nombre">Nombre Categoria</span>
+                    </small>
+                    <small class="block">
+                        <strong class="text-primary">Dedicacion:</strong>
+                        <span v-text="docSeccion.contratoDocente.dedicacion.nombre">Nombre Dedicacion</span>
+                    </small>
+                    <small class="block">
+                        <strong class="text-primary">Situacion:</strong>
+                        <span v-text="docSeccion.contratoDocente.situacion.nombre">Nombre Situacion</span>
+                    </small>
+                </div>
+            </td>
 
             <td class="text-center v-middle">
                 <span class="label" v-bind:class="getEstadoClass(docSeccion.estado)">
