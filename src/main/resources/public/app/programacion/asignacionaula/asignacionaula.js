@@ -31,6 +31,23 @@ var app = new Vue({
                             MODAL.hideWait();
                         }
                     });
+        },
+        editarGpoSecciones(item) {
+            console.dir(item);
+            let $vue = this;
+            let lista = item.idsGpoSecciones;
+            if (lista == "") {
+                return;
+            }
+            console.dir(lista);
+            let listaEncode = Base64.encode(lista);
+            let first = lista.split(",")[0];
+            location.href = APP.url("academico/gposeccion/" + first + "/editar") + $vue.getOrigenURL() + "&ids=" + listaEncode;
+        },
+        getOrigenURL() {
+            var url = window.location.href;
+            console.log(url)
+            return "?origen=" + Base64.encode(url);
         }
     }
 })

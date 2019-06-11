@@ -3,6 +3,7 @@ package pe.edu.lamolina.pivot.dao.horario.hibernate;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.hibernate.Query;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
@@ -566,6 +567,17 @@ public class HorarioAulaDAOH extends AbstractEasyDAO<HorarioAula> implements Hor
         strb.append(" delete from  HorarioAula ha where ha.cursoMasivoExamen.id=:CURSOMASIVO ");
         Query query = getCurrentSession().createQuery(strb.toString());
         query.setParameter("CURSOMASIVO", cursoMasivoExamen.getId());
+        query.executeUpdate();
+    }
+
+    @Override
+    public void deleteBySecciones(List<Seccion> secciones) {
+        List<Long> seccionesIds = secciones.stream().map(x -> x.getId()).collect(Collectors.toList());
+        StringBuilder strb = new StringBuilder();
+        strb.append(" delete from  HorarioAula ha where ha.seccion.id in :SECCIONES");
+
+        Query query = getCurrentSession().createQuery(strb.toString());
+        query.setParameter("SECCIONES", seccionesIds);
         query.executeUpdate();
     }
 

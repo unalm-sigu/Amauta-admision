@@ -128,7 +128,7 @@
                                                          class="circle-recorrido bgr-success">{{item.gruposUtilizadosTeoria}}</div>
                                                     <div v-else="" class="circle-recorrido bgr-warning">{{item.gruposUtilizadosTeoria}}</div>
                                                 </td>
-                                                <td class="v-middle text-center pointer" v-on:click="editarGpoSecciones(item,'PRA')"> 
+                                                <td class="v-middle text-center pointer" v-on:click="editarGpoSecciones(item)"> 
                                                     <div v-if="item.utilizadasPractica > item.cuotasPractica"
                                                          class="circle-recorrido bgr-danger">{{item.gruposUtilizadosPractica}}</div>
                                                     <div v-else-if="item.utilizadasPractica == item.cuotasPractica"

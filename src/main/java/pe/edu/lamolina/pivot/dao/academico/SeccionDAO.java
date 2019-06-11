@@ -113,4 +113,6 @@ public interface SeccionDAO extends EasyDAO<Seccion> {
 
     List<Seccion> allByCicloAndNombreLimit(CicloAcademico ciclo, RolExamenes rolExamenes, String nombre);
 
+    List<Seccion> allSeccionesAulaAutoByCiclo(CicloAcademico ciclo);
+
 }
