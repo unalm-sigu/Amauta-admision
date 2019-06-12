@@ -6,6 +6,7 @@ import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import static pe.edu.lamolina.model.enums.ResolucionEstadoEnum.ACT;
 import pe.edu.lamolina.model.tramite.Resolucion;
 import pe.edu.lamolina.pivot.dao.tramite.ResolucionDAO;
 
@@ -93,13 +94,13 @@ public class ResolucionDAOH extends AbstractEasyDAO<Resolucion> implements Resol
     public List<Resolucion> allByNombre(String nombre) {
         Octavia sql = Octavia.query()
                 .from(Resolucion.class, "r")
+                .join("oficina o")
+                .filter("r.estado", ACT)
                 .beginBlock()
                 .__().filter("r.serie", "like", nombre)
                 .__().filter("r.numero", "like", nombre)
-                .__().filter("r.fecha", "like", nombre)
-                .endBlock()
-                .limit(10);
-        return sql.all(getCurrentSession());
+                .endBlock();
+        return all(sql);
     }
 
 }

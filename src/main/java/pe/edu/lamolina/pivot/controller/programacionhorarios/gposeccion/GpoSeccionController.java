@@ -217,7 +217,7 @@ public class GpoSeccionController {
             Model model, HttpSession session) {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-        GrupoSeccion gpoSeccion = service.findGpoSeccion(gpoSeccId);
+        GrupoSeccion gpoSeccion = service.findGpoSeccion(gpoSeccId, ds);
 
         String fechaMin = null;
         String fechaMax = null;
@@ -253,7 +253,7 @@ public class GpoSeccionController {
         JsonResponse response = new JsonResponse();
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            GrupoSeccion gpoSeccion = service.findGpoSeccion(gpoSeccId);
+            GrupoSeccion gpoSeccion = service.findGpoSeccion(gpoSeccId, ds);
 
             String fechaMin = null;
             String fechaMax = null;
@@ -2559,17 +2559,27 @@ public class GpoSeccionController {
             List<DocenteSeccion> docentesSeccion = seccion.getDocenteSeccion();
             ArrayNode arrayProfeSecc = new ArrayNode(JsonNodeFactory.instance);
 
-//            if (TipoDictadoGrupoSeccionEnum.MOD.name().equalsIgnoreCase(gpoSeccion.getTipoDictado())) {
-//                fechaMin = TypesUtil.getStringDate(gpoSeccion.getFechaInicioModular(), "dd/MM/yyyy");
-//                fechaMax = TypesUtil.getStringDate(gpoSeccion.getFechaFinModular(), "dd/MM/yyyy");
-//            }
             for (DocenteSeccion docSeccion : docentesSeccion) {
                 ObjectNode nodeProfe = JsonHelper.createJson(docSeccion, JsonNodeFactory.instance, true, new String[]{
                     "*",
                     "docente.codigo",
                     "docente.persona.id",
-                    "docente.persona.apellidosNombres"
-                });
+                    "docente.persona.apellidosNombres",
+                    "contratoDocente.id",
+                    "contratoDocente.estadoEnum",
+                    "contratoDocente.categoria.id",
+                    "contratoDocente.categoria.codigo",
+                    "contratoDocente.cicloInicioContrato.id",
+                    "contratoDocente.cicloInicioContrato.descripcion",
+                    "contratoDocente.cicloInicioContrato.descripcion2",
+                    "contratoDocente.cicloFinContrato.id",
+                    "contratoDocente.cicloFinContrato.descripcion",
+                    "contratoDocente.cicloFinContrato.descripcion2",
+                    "contratoDocente.docente.id",
+                    "contratoDocente.docente.persona.id",
+                    "contratoDocente.categoria.id", "contratoDocente.categoria.nombre", "contratoDocente.categoria.codigo",
+                    "contratoDocente.dedicacion.id", "contratoDocente.dedicacion.nombre", "contratoDocente.dedicacion.codigo",
+                    "contratoDocente.situacion.id", "contratoDocente.situacion.codigo", "contratoDocente.situacion.nombre",});
                 nodeProfe.put("docenteNN", docSeccion.getDocente().getCodigo().equals(Constantine.DOCENTE_INDETERMINADO));
                 nodeProfe.put("fechaInicioMin", fechaMin);
                 nodeProfe.put("fechaFinMax", fechaMax);

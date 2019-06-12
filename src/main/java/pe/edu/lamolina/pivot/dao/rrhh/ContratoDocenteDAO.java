@@ -13,4 +13,6 @@ public interface ContratoDocenteDAO extends EasyDAO<ContratoDocente> {
 
     List<ContratoDocente> allByPeriodoDocente(CicloAcademico cicloInicio, CicloAcademico cicloFin, Docente docente);
 
+    List<ContratoDocente> allByDocente(List<Long> idsDoc);
+
 }
