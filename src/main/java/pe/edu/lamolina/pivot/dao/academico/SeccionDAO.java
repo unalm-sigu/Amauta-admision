@@ -117,4 +117,6 @@ public interface SeccionDAO extends EasyDAO<Seccion> {
 
     void updateAulaAignacionAutoByCiclo(CicloAcademico cicloAcademico, Boolean asignacion);
 
+    void resetAsignacionAulaAuto(List<Seccion> secciones);
+
 }

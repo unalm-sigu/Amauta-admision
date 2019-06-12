@@ -724,4 +724,17 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
         this.update(sql);
     }
 
+    @Override
+    public void resetAsignacionAulaAuto(List<Seccion> secciones) {
+        if (secciones != null && !secciones.isEmpty()) {
+            List<Long> seccionesIds = secciones.stream().map(x -> x.getId()).collect(Collectors.toList());
+            StringBuilder strb = new StringBuilder();
+            strb.append(" update Seccion sec set sec.aula=null, sec.aulaAsignadaAuto=false  where sec.id in :SECCIONES");
+
+            Query query = getCurrentSession().createQuery(strb.toString());
+            query.setParameterList("SECCIONES", seccionesIds);
+            query.executeUpdate();
+        }
+    }
+
 }

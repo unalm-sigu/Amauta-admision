@@ -21,30 +21,57 @@ var app = new Vue({
             if (vue.asignacionAula == null) {
                 vue.asignacionAula = {id: ""};
             }
-            AXIOS.post(`${this.URL}/procesarAsignacionAulas`, vue.asignacionAula)
-                    .then(response => {
-                        if (response.data.success) {
-                            this.asignacionAula = response.data.data;
-                            MODAL.hideWait();
-                        } else {
-                            notify(response.data.message, 'error');
-                            MODAL.hideWait();
-                        }
-                    });
+            bootbox.confirm({
+                message: "¿Está seguro que desea eliminar la asignación de aulas?",
+                buttons: {
+                    confirm: {label: 'Si', className: "btn-warning btn-modal btn-procesar"},
+                    cancel: {label: 'Cancelar', className: "btn-link btn-modal"}
+                },
+                callback: function (result) {
+                    if (result) {
+                        AXIOS.post(`${vue.URL}/procesarAsignacionAulas`, vue.asignacionAula)
+                                .then(response => {
+                                    if (response.data.success) {
+                                        vue.asignacionAula = response.data.data;
+                                        MODAL.hideWait();
+                                    } else {
+                                        notify(response.data.message, 'error');
+                                        MODAL.hideWait();
+                                    }
+                                });
+                    }
+                }
+            });
+
         }, eliminarAsignacion() {
             let vue = this;
             MODAL.showWait("Espere un momento por favor");
-            AXIOS.post(`${this.URL}/aliminarAsignacion`, vue.asignacionAula)
-                    .then(response => {
-                        if (response.data.success) {
-                            //  vue.asignacionAula = response.data.data;
-                            vue.loadAsignacionAula();
-                            MODAL.hideWait();
-                        } else {
-                            notify(response.data.message, 'error');
-                            MODAL.hideWait();
-                        }
-                    });
+
+            bootbox.confirm({
+                message: "¿Está seguro que desea eliminar la asignación de aulas?",
+                buttons: {
+                    confirm: {label: 'Si', className: "btn-warning btn-modal btn-procesar"},
+                    cancel: {label: 'Cancelar', className: "btn-link btn-modal"}
+                },
+                callback: function (result) {
+                    if (result) {
+                        AXIOS.post(`${vue.URL}/aliminarAsignacion`, vue.asignacionAula)
+                                .then(response => {
+                                    if (response.data.success) {
+                                        vue.asignacionAula = null;
+                                        //  vue.asignacionAula = response.data.data;
+                                        // vue.loadAsignacionAula();
+                                        MODAL.hideWait();
+                                    } else {
+                                        notify(response.data.message, 'error');
+                                        MODAL.hideWait();
+                                    }
+                                });
+                    }
+                }
+            });
+
+
         }, loadAsignacionAula() {
             let vue = this;
             AXIOS.post(`${this.URL}/loadAsignacionAula`, vue.asignacionAula)
