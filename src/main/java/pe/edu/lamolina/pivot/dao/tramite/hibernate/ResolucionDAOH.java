@@ -6,17 +6,18 @@ import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import static pe.edu.lamolina.model.enums.ResolucionEstadoEnum.ACT;
 import pe.edu.lamolina.model.tramite.Resolucion;
 import pe.edu.lamolina.pivot.dao.tramite.ResolucionDAO;
 
 @Repository
 public class ResolucionDAOH extends AbstractEasyDAO<Resolucion> implements ResolucionDAO {
-    
+
     public ResolucionDAOH() {
         super();
         setClazz(Resolucion.class);
     }
-    
+
     @Override
     public Resolucion find() {
         Octavia sql = new Octavia()
@@ -26,7 +27,7 @@ public class ResolucionDAOH extends AbstractEasyDAO<Resolucion> implements Resol
                 .left("ur.persona per", "ua.persona per 2");
         return this.find(sql);
     }
-    
+
     @Override
     public List<Resolucion> allByDyna(DynatableFilter filter) {
         DynatableSql sql = new DynatableSql(filter)
@@ -38,7 +39,7 @@ public class ResolucionDAOH extends AbstractEasyDAO<Resolucion> implements Resol
                 .limit(25);
         return this.all(sql);
     }
-    
+
     @Override
     public void updateResolucion(Resolucion resolucion) {
         Octavia octavia = Octavia.update(Resolucion.class);
@@ -49,7 +50,7 @@ public class ResolucionDAOH extends AbstractEasyDAO<Resolucion> implements Resol
         octavia.set(resolucion, "fechaActualizacion");
         this.update(octavia);
     }
-    
+
     @Override
     public void updateResolucionFile(Resolucion resolucion) {
         Octavia octavia = Octavia.update(Resolucion.class);
@@ -59,7 +60,7 @@ public class ResolucionDAOH extends AbstractEasyDAO<Resolucion> implements Resol
         octavia.set(resolucion, "estado");
         this.update(octavia);
     }
-    
+
     @Override
     public void updateEstado(Resolucion resolucion) {
         Octavia octavia = Octavia.update(Resolucion.class);
@@ -68,7 +69,7 @@ public class ResolucionDAOH extends AbstractEasyDAO<Resolucion> implements Resol
         octavia.set(resolucion, "estado");
         this.update(octavia);
     }
-    
+
     @Override
     public void updateEstadoCicloRei(Resolucion resolucion) {
         Octavia octavia = Octavia.update(Resolucion.class);
@@ -78,7 +79,7 @@ public class ResolucionDAOH extends AbstractEasyDAO<Resolucion> implements Resol
         octavia.set(resolucion, "cicloReincorporacion");
         this.update(octavia);
     }
-    
+
     @Override
     public Resolucion findById(Long resolucion) {
         Octavia sql = new Octavia()
@@ -88,17 +89,18 @@ public class ResolucionDAOH extends AbstractEasyDAO<Resolucion> implements Resol
                 .filter("id", resolucion);
         return this.find(sql);
     }
-    
+
     @Override
     public List<Resolucion> allByNombre(String nombre) {
         Octavia sql = Octavia.query()
                 .from(Resolucion.class, "r")
                 .join("oficina o")
+                .filter("r.estado", ACT)
                 .beginBlock()
                 .__().filter("r.serie", "like", nombre)
                 .__().filter("r.numero", "like", nombre)
                 .endBlock();
         return all(sql);
     }
-    
+
 }
