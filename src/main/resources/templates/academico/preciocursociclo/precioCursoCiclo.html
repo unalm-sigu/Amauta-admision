@@ -5,7 +5,7 @@
 
     <body>
         <div layout:fragment="main">
-            <div id="preciocursocicloVUE">
+            <div id="preciocursocicloVUE" v-cloak="">
                 <header class="header b-b padder-lg">
                     <h2 th:text="|Curso Ciclo Académico ${ciclo.descripcion}|">Curso Ciclo Académico</h2> 
                 </header>
@@ -36,14 +36,14 @@
                                         </div>
                                     </div>
 
-                                    <div class="col-md-2">
-
+                                    <div class="col-md-2" >
+                                     
                                         <div class="btn-group" v-if="verTabla" >
                                             <a href="#" class="btn btn-success btn-sm" v-on:click.prevent="verGuardar()" v-if="!guardaPrecio">Guardar</a>                            
                                         </div>                                                              
                                     </div>
 
-                                    <div class="col-md-2">
+                                    <div class="col-md-2" v-if="ciclo.tipoNivelacion">
                                         <a href="#" class="btn btn-success btn-sm" v-on:click.prevent="configurarCantidadAlumno()" >Configurar Cantidad Alumno</a>                            
                                     </div>
 
@@ -55,13 +55,18 @@
                                             <tr> 
                                                 <th class="col-md-4 v-middle text-center">Curso</th>
                                                 <th class="col-md-1 v-middle text-center">Tipo Curricula</th>
-                                                <th class="col-md-2 v-middle text-center">Grupos</th>
-                                                <th class="v-middle text-center">Personalizado</th>
-                                                <th class="col-md-1 v-middle text-center">Precio</th>
-                                                <th class="col-md-2 v-middle text-center">Precio Adicional</th>
-                                                <th class="col-md-2 v-middle text-center">Mínimo Requerido Alumnos por Curso</th>
-                                                <th class="col-md-1 v-middle"></th>
-
+                                                <th class="col-md-1 v-middle text-center">Grupos</th>
+                                                <template v-if="ciclo.tipoNivelacion">
+                                                    <th class="v-middle text-center">Personalizado</th>
+                                                    <th class="col-md-1 v-middle text-center">Precio</th>
+                                                    <th class="col-md-2 v-middle text-center">Precio Adicional</th>
+                                                    <th class="col-md-2 v-middle text-center">Mínimo Requerido Alumnos por Curso</th>
+                                                    <th class="col-md-1 v-middle"></th>
+                                                </template>
+                                                <template v-if="ciclo.tipoRegular">
+                                                    <th class="col-md-3 v-middle text-center">Tipo de Carpeta Teórica</th>
+                                                    <th class="col-md-3 v-middle text-center">Tipo de Carpeta Práctica</th>
+                                                </template>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -80,6 +85,7 @@
                                                 <td class="v-middle text-center"> 
                                                     {{item.cantidadGpoSecc}}
                                                 </td>
+                                               <template v-if="ciclo.tipoNivelacion">
                                                 <td class="v-middle text-center">
                                                     <i v-if="item.precioPersonalizado!=0 " class="fa fa-check-square-o fa-lg text-success"></i>
                                                     <i v-else-if="item.precioAdicional>0" class="fa fa-check-square-o fa-lg text-success"></i>
@@ -108,7 +114,53 @@
                                                         </ul>
                                                     </div>
                                                 </td>
-
+                                                <td class="v-middle col-md-1">
+                                                    <div class="actions">
+                                                        <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="glyphicon glyphicon-cog"></i></a>
+                                                        <ul class="dropdown-menu pull-right">
+                                                            <li><a v-on:click="editarmodal(item)">Configuración curso</a></li>
+                                                        </ul>
+                                                    </div>
+                                                </td>
+                                                </template>
+                                                <template v-if="ciclo.tipoRegular">
+                                                    <td class="v-middle text-center"> 
+                                                        
+                                                        <multiselect 
+                                                            v-if="verTabla"
+                                                            v-model="item.tipoCarpetaTeoria"
+                                                            v-bind:options='tipoCarpetas'
+                                                            label='nombre'
+                                                            track-by='id'
+                                                            placeholder="Seleccione una carpeta teórica"
+                                                            deselect-label=""
+                                                            select-label=""
+                                                            v-bind:allow-empty="false"
+                                                            v-bind:preselect="false"
+                                                            >
+                                                        </multiselect>
+                                                        
+                                                        <span  v-else="" v-text="item.tipoCarpetaTeoria.nombre"></span>
+                                                    </td>
+                                                    <td class="v-middle text-center"> 
+                                                        
+                                                        <multiselect 
+                                                            v-if="verTabla"
+                                                            v-model="item.tipoCarpetaPractica"
+                                                            v-bind:options='tipoCarpetas'
+                                                            label='nombre'
+                                                            track-by='id'
+                                                            placeholder="Seleccione una carpeta práctica"
+                                                            deselect-label=""
+                                                            select-label=""
+                                                            v-bind:allow-empty="false"
+                                                            v-bind:preselect="false"
+                                                            >
+                                                        </multiselect>
+                                                        
+                                                        <span  v-else="" v-text="item.tipoCarpetaPractica.nombre"></span>
+                                                    </td>
+                                                </template>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -161,6 +213,7 @@
             <script th:inline="javascript">
                 /*<![CDATA[*/
                 var tipoCarpetasJson = /*[[${tipoCarpetas}]]*/ 'json';
+                var cicloJson = /*[[${cicloJson}]]*/ 'json';
                 /*]]>*/
             </script>
             <div th:substituteby="_modules/vue-modal"/>

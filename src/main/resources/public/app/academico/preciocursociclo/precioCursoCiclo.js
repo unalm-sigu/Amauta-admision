@@ -23,12 +23,14 @@ new Vue({
         },
         cantidadalumno: {general: null, carrera: null},
         cursoCicloAcademico: '',
-        tipoCarpetas: []
+        tipoCarpetas: [],
+        ciclo: JSON.parse(cicloJson)
     },
     mounted() {
         let $vue = this;
         $(".numerico").numeric({negative: false});
         $vue.tipoCarpetas = JSON.parse(tipoCarpetasJson);
+      
     },
     updated() {
         let $vue = this;

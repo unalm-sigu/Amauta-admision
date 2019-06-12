@@ -44,6 +44,13 @@ public class PrecioCursoCicloController {
         model.addAttribute("ciclo", ds.getCicloAcademico());
         model.addAttribute("tipoCarpetas", createTipoCarpetaJson(tipoCarpeta).toString());
 
+        ObjectNode jCiclo = JsonHelper.createJson(ds.getCicloAcademico(), JsonNodeFactory.instance, true, new String[]{
+            "*",
+            "tipoRegular",
+            "tipoNivelacion"
+        });
+        model.addAttribute("cicloJson", jCiclo.toString());
+
         return "academico/preciocursociclo/precioCursoCiclo";
     }
 
@@ -106,7 +113,7 @@ public class PrecioCursoCicloController {
         }
         return response;
     }
-    
+
     @ResponseBody
     @RequestMapping("update")
     public JsonResponse update(@RequestBody CursoCicloAcademico cursoCicloAcademico, HttpSession session) {
