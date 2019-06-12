@@ -55,7 +55,7 @@ new Vue({
                 $vue.reloadaulalist();
             }
         }
-
+        $vue.loadModulosByOficina();
         $global.$on("changehorario", function () {
             $vue.changehorario();
         });
@@ -218,7 +218,7 @@ new Vue({
             $vue.$refs.raptor.querie.push({name: 'rangofecha', value: $vue.rangofecha});
 
             $vue.$refs.raptor.querie.push({name: 'fechafin', value: $vue.rangofecha ? $vue.reservaaula.fechaFin : ''});
-            $vue.$refs.raptor.querie.push({name: 'modulo', value: $vue.moduloselecto.id != null ? $vue.moduloselecto.id : ''});
+            $vue.$refs.raptor.querie.push({name: 'modulo', value: ($vue.moduloselecto != null && $vue.moduloselecto.id != null) ? $vue.moduloselecto.id : ''});
 
             var diahora = $vue.jsonaulahorario.map(function (v, i) {
                 return v.id;
@@ -351,6 +351,27 @@ new Vue({
                     $vue.isSearchingModulos = false;
                     if (response.success) {
                         $vue.modulos = response.data;
+                    } else {
+                        notify(response.message, "error");
+                    }
+                },
+                error() {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+        }, loadModulosByOficina() {
+            let $vue = this;
+            $vue.isSearchingModulos = true;
+            $.ajax({
+                url: APP.url('tramite/aula/allAulaModulos'),
+                dataType: 'json',
+                type: 'POST',
+                async: true,
+                success(response) {
+                    $vue.isSearchingModulos = false;
+                    if (response.success) {
+                        $vue.modulos = response.data;
+                        console.dir($vue.modulos);
                     } else {
                         notify(response.message, "error");
                     }
