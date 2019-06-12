@@ -16,6 +16,15 @@ public class AsignacionAulaDAOH extends AbstractEasyDAO<AsignacionAula> implemen
     }
 
     @Override
+    public AsignacionAula find(long id) {
+        Octavia sql = Octavia.query()
+                .from(AsignacionAula.class, "asi")
+                .join("cicloAcademico ca")
+                .filter("asi.id", id);
+        return find(sql);
+    }
+
+    @Override
     public AsignacionAula findByCiclo(CicloAcademico cicloAcademico) {
         Octavia sql = Octavia.query()
                 .from(AsignacionAula.class, "sec")

@@ -16,12 +16,12 @@ var app = new Vue({
         getEstadoClass(estado) {
             return "label " + APP.getEstadoClass(estado);
         }, procesarAsignacionAulas() {
-            let asignacionAula = {id: ""};
-            if (this.asignacionAula != null) {
-                asignacionAula = this.asignacionAula;
-            }
+            let vue = this;
             MODAL.showWait("Espere un momento por favor");
-            AXIOS.post(`${this.URL}/procesarAsignacionAulas`, asignacionAula)
+            if (vue.asignacionAula == null) {
+                vue.asignacionAula = {id: ""};
+            }
+            AXIOS.post(`${this.URL}/procesarAsignacionAulas`, vue.asignacionAula)
                     .then(response => {
                         if (response.data.success) {
                             this.asignacionAula = response.data.data;
@@ -29,6 +29,30 @@ var app = new Vue({
                         } else {
                             notify(response.data.message, 'error');
                             MODAL.hideWait();
+                        }
+                    });
+        }, eliminarAsignacion() {
+            let vue = this;
+            MODAL.showWait("Espere un momento por favor");
+            AXIOS.post(`${this.URL}/aliminarAsignacion`, vue.asignacionAula)
+                    .then(response => {
+                        if (response.data.success) {
+                            //  vue.asignacionAula = response.data.data;
+                            vue.loadAsignacionAula();
+                            MODAL.hideWait();
+                        } else {
+                            notify(response.data.message, 'error');
+                            MODAL.hideWait();
+                        }
+                    });
+        }, loadAsignacionAula() {
+            let vue = this;
+            AXIOS.post(`${this.URL}/loadAsignacionAula`, vue.asignacionAula)
+                    .then(response => {
+                        if (response.data.success) {
+                            vue.asignacionAula = response.data.data;
+                        } else {
+                            notify(response.data.message, 'error');
                         }
                     });
         },
