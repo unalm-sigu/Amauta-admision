@@ -3,6 +3,7 @@ package pe.edu.lamolina.pivot.dao.academico.hibernate;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.hibernate.Query;
 import pe.edu.lamolina.pivot.dao.academico.SeccionDAO;
 import org.springframework.stereotype.Repository;
@@ -135,6 +136,19 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
                 .filter("ca.id", ciclo)
                 .filter("sec.aulaAsignadaAuto", Boolean.TRUE);
         return all(sql);
+    }
+
+    @Override
+    public void updateAulaAignacionAutoByCiclo(CicloAcademico cicloAcademico, Boolean asignacion) {
+//        StringBuilder queryStr = new StringBuilder();
+//        queryStr.append("update Seccion sec set sec.aulaAsignadaAuto=:PRM_ASIGNACION where sec.id in (");
+//        queryStr.append("Select sec.id from Seccion sec inner join sec.grupoSeccion gSec inner join gSec.cicloAcademico ca where sec.aulaAsignadaAuto:PRM_ASIGNACION and ca.id=:PRM_CICLO");
+//        queryStr.append(")");
+//
+//        Query query = getCurrentSession().createQuery(queryStr.toString());
+//        query.setParameter("PRM_ASIGNACION", asignacion);
+//        query.setParameter("PRM_CICLO", cicloAcademico);
+//        query.executeUpdate();
     }
 
     @Override
@@ -708,6 +722,19 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
             sql.set(seccion, column);
         }
         this.update(sql);
+    }
+
+    @Override
+    public void resetAsignacionAulaAuto(List<Seccion> secciones) {
+        if (secciones != null && !secciones.isEmpty()) {
+            List<Long> seccionesIds = secciones.stream().map(x -> x.getId()).collect(Collectors.toList());
+            StringBuilder strb = new StringBuilder();
+            strb.append(" update Seccion sec set sec.aula=null, sec.aulaAsignadaAuto=false  where sec.id in :SECCIONES");
+
+            Query query = getCurrentSession().createQuery(strb.toString());
+            query.setParameterList("SECCIONES", seccionesIds);
+            query.executeUpdate();
+        }
     }
 
 }

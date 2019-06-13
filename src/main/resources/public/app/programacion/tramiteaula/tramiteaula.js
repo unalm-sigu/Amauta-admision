@@ -10,6 +10,23 @@ new Vue({
         tramiteresumen: {tramite: {}},
         dias: [],
         horas: [],
+        configConfirmar: VUE_MODAL.structFormAjax({
+            id: "formConfirmModal",
+            header: true,
+            title: 'Confirmar',
+            okbtn: 'Confirmar',
+            okclass: "btn-danger",
+            form: "formConfirmModal"
+        }),
+        configRechazar: VUE_MODAL.structFormAjax({
+            id: "formRechazarModal",
+            header: true,
+            title: 'Rechazar',
+            okbtn: 'Rechazar',
+            okclass: "btn-danger",
+            form: "formRechazarModal"
+        }),
+        configConfirmAction: VUE_MODAL.structConfirm({}),
     },
     mounted: function () {
         let $vue = this;

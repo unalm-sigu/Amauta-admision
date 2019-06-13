@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
@@ -190,9 +191,13 @@ public class PrecioCursoCicloServiceImp implements PrecioCursoCicloService {
     @Transactional
     public void update(CursoCicloAcademico cursoCicloAcademicoForm, DataSessionPivot ds) {
 
-        CursoCicloAcademico cursoCicloAcademicoBD = cursoCicloAcademicoDAO.find(cursoCicloAcademicoForm.getId());
-        cursoCicloAcademicoBD.setTipoCarpetaTeoria(cursoCicloAcademicoForm.getTipoCarpetaTeoria());
-        cursoCicloAcademicoBD.setTipoCarpetaPractica(cursoCicloAcademicoForm.getTipoCarpetaPractica());
-        cursoCicloAcademicoDAO.update(cursoCicloAcademicoBD);
+//        CursoCicloAcademico cursoCicloAcademicoBD = cursoCicloAcademicoDAO.find(cursoCicloAcademicoForm.getId());
+//        cursoCicloAcademicoBD.setTipoCarpetaTeoria(cursoCicloAcademicoForm.getTipoCarpetaTeoria());
+//        cursoCicloAcademicoBD.setTipoCarpetaPractica(cursoCicloAcademicoForm.getTipoCarpetaPractica());
+//        cursoCicloAcademicoDAO.update(cursoCicloAcademicoBD);
+        CursoCicloAcademico cursoCicloAcademicoUpd = new CursoCicloAcademico(cursoCicloAcademicoForm.getId());
+        cursoCicloAcademicoUpd.setTipoCarpetaTeoria(cursoCicloAcademicoForm.getTipoCarpetaTeoria().getId() == null ? null : cursoCicloAcademicoForm.getTipoCarpetaTeoria());
+        cursoCicloAcademicoUpd.setTipoCarpetaPractica(cursoCicloAcademicoForm.getTipoCarpetaPractica().getId() == null ? null : cursoCicloAcademicoForm.getTipoCarpetaPractica());
+        cursoCicloAcademicoDAO.updateColumns(cursoCicloAcademicoUpd, "tipoCarpetaTeoria", "tipoCarpetaPractica");
     }
 }

@@ -127,18 +127,36 @@ public class AsignacionAulaServiceImp implements AsignacionAulaService {
         return idsGpoSeccion.isEmpty() ? "" : String.join(",", idsGpoSeccion);
     }
 
-    public void deleteAsignacion(AsignacionAula asignacionAula, CicloAcademico cicloAcademico) {
+    @Override
+    @Transactional
+    public void deleteAsignacion(AsignacionAula asignacionAula) {
         if (asignacionAula.getId() != null) {
-            List<Seccion> seccionesByCiclo = seccionDAO.allForAsignacionAulaByCiclo(cicloAcademico, SeccionEstadoEnum.ACT);
-            seccionesByCiclo.removeIf(x -> !x.getAulaAsignadaAuto());
+            asignacionAula = asignacionAulaDAO.find(asignacionAula.getId());
+            List<Seccion> seccionesByCiclo = seccionDAO.allSeccionesAulaAutoByCiclo(asignacionAula.getCicloAcademico());
+            /*   for (Seccion seccion : seccionesByCiclo) {
+                seccion.setAulaAsignadaAuto(Boolean.FALSE);
+                seccion.setAula(null);
+                seccionDAO.update(seccion);
+            }*/
+            seccionDAO.resetAsignacionAulaAuto(seccionesByCiclo);
+            // seccionesByCiclo.removeIf(x -> !x.getAulaAsignadaAuto());
             horarioAulaDAO.deleteBySecciones(seccionesByCiclo);
+            //  seccionDAO.updateAulaAignacionAutoByCiclo(asignacionAula.getCicloAcademico(), Boolean.FALSE);
+            asignacionAulaDAO.delete(asignacionAula);
         }
+    }
+
+    @Override
+    public AsignacionAula findAsignacionAula(AsignacionAula asignacionAula) {
+        return asignacionAulaDAO.find(asignacionAula.getId());
     }
 
     @Override
     @Transient
     public AsignacionAula procesarAsignacionAulas(AsignacionAula asignacionAula, DataSessionPivot ds) {
-        this.deleteAsignacion(asignacionAula, ds.getCicloAcademico());
+        if (asignacionAula != null && asignacionAula.getId() != null) {
+            this.deleteAsignacion(asignacionAula);
+        }
         List<CursoCicloAcademico> cursosCiclosAcademicos = cursoCicloAcademicoDAO.allByCiclo(ds.getCicloAcademico(), CicloAcademicoEstadoEnum.ACT);
 
         List<Seccion> seccionesByCiclo = seccionDAO.allForAsignacionAulaByCiclo(ds.getCicloAcademico(), SeccionEstadoEnum.ACT);
@@ -287,7 +305,9 @@ public class AsignacionAulaServiceImp implements AsignacionAulaService {
                 }
             }
         }
-
+        if (asignacionAula != null) {
+            asignacionAula = new AsignacionAula();
+        }
         asignacionAula.setCicloAcademico(ds.getCicloAcademico());
         asignacionAula.setSeccionesModificadas(BigDecimal.ZERO.intValue());
         asignacionAula.setSeccionesProgramadas(seccionesProgramadas);

@@ -572,13 +572,15 @@ public class HorarioAulaDAOH extends AbstractEasyDAO<HorarioAula> implements Hor
 
     @Override
     public void deleteBySecciones(List<Seccion> secciones) {
-        List<Long> seccionesIds = secciones.stream().map(x -> x.getId()).collect(Collectors.toList());
-        StringBuilder strb = new StringBuilder();
-        strb.append(" delete from  HorarioAula ha where ha.seccion.id in :SECCIONES");
+        if (secciones != null && !secciones.isEmpty()) {
+            List<Long> seccionesIds = secciones.stream().map(x -> x.getId()).collect(Collectors.toList());
+            StringBuilder strb = new StringBuilder();
+            strb.append(" delete from  HorarioAula ha where ha.seccion.id in :SECCIONES");
 
-        Query query = getCurrentSession().createQuery(strb.toString());
-        query.setParameter("SECCIONES", seccionesIds);
-        query.executeUpdate();
+            Query query = getCurrentSession().createQuery(strb.toString());
+            query.setParameterList("SECCIONES", seccionesIds);
+            query.executeUpdate();
+        }
     }
 
 }

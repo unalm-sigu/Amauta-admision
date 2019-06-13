@@ -2,7 +2,6 @@ package pe.edu.lamolina.pivot.controller.general.aula;
 
 import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
-import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.general.Oficina;
@@ -39,5 +38,9 @@ public interface AulaService {
     Aula findAulaFull(Aula aulaForm);
 
     List<TipoCarpeta> allTipoCarpeta();
+
+    List<Aula> allAulaByOficinaSuperior(DataSessionPivot ds);
+
+    List<Aula> allAulaByAulaSuperior(List<Aula> listAulaSuperior);
 
 }

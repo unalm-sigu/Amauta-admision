@@ -335,4 +335,14 @@ public class AulaServiceImp implements AulaService {
         return tipoCarpetaDAO.all();
     }
 
+    @Override
+    public List<Aula> allAulaByOficinaSuperior(DataSessionPivot ds) {
+        return aulaDAO.allByListOficinaSupervisora(ds.getOficinas());
+    }
+
+    @Override
+    public List<Aula> allAulaByAulaSuperior(List<Aula> listAulaSuperior) {
+        return aulaDAO.allByAulasSuperiores(listAulaSuperior);
+    }
+
 }

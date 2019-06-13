@@ -10,4 +10,6 @@ public interface TipoCarpetaService {
 
     void save(TipoCarpeta tipoCarpeta, DataSessionPivot ds);
 
+    void editar(TipoCarpeta tipoCarpeta, DataSessionPivot ds);
+
 }

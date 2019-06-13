@@ -129,4 +129,13 @@ public class CursoCicloAcademicoDAOH extends AbstractEasyDAO<CursoCicloAcademico
         return find(sql);
     }
 
+    @Override
+    public void updateColumns(CursoCicloAcademico cursoCicloAcademico, String... columns) {
+        Octavia octavia = Octavia.update(CursoCicloAcademico.class);
+        for (String column : columns) {
+            octavia.set(cursoCicloAcademico, column);
+        }
+        this.update(octavia);
+    }
+
 }

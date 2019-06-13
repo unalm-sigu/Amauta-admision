@@ -10,6 +10,10 @@ interface AsignacionAulaService {
 
     AsignacionAula findAsignacionAulaByCiclo(CicloAcademico cicloAcademico);
 
+    void deleteAsignacion(AsignacionAula asignacionAula);
+
     AsignacionAula procesarAsignacionAulas(AsignacionAula asignacionAula, DataSessionPivot ds);
+
+    AsignacionAula findAsignacionAula(AsignacionAula asignacionAula);
 
 }
