@@ -30,7 +30,7 @@ new Vue({
         let $vue = this;
         $(".numerico").numeric({negative: false});
         $vue.tipoCarpetas = JSON.parse(tipoCarpetasJson);
-      
+
     },
     updated() {
         let $vue = this;
@@ -139,6 +139,10 @@ new Vue({
 
             $vue.tipoCarpetasTeorias = [];
             $vue.isLoading = true;
+        },
+        changeTipoCarpeta(cursoCiclo) {
+            this.cursoCicloAcademico = cursoCiclo;
+            this.updateModal();
         },
         updateModal() {
             let $vue = this;

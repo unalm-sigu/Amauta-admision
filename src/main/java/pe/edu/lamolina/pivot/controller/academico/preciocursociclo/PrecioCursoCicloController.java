@@ -69,6 +69,7 @@ public class PrecioCursoCicloController {
             for (CursoCicloAcademico cursoCiclo : cursosCiclo) {
                 ObjectNode node = JsonHelper.createJson(cursoCiclo, JsonNodeFactory.instance, true,
                         new String[]{
+                            "id",
                             "curso.id", "curso.estado", "curso.codigo",
                             "curso.nombre", "curso.tpc", "curso.departamentoAcademico.nombre",
                             "cicloAcademico.descripcion",
