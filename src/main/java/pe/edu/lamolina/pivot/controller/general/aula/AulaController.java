@@ -496,7 +496,7 @@ public class AulaController {
         return response;
     }
 
-    @RequestMapping("oficinas")
+    @RequestMapping("horarios")
     public String oficinas(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         CicloAcademico ciclo = ds.getCicloAcademico();
@@ -509,7 +509,7 @@ public class AulaController {
         model.addAttribute("listAula", createListAulaJSON(listAula).toString());
         model.addAttribute("ciclo", ciclo);
 
-        return "general/aula/oficinas";
+        return "general/aula/horarios";
     }
 
     private ArrayNode createOficinasJSON(List<Oficina> oficinas) {

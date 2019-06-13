@@ -1,7 +1,7 @@
 Vue.component("multiselect", window.VueMultiselect.default)
 
 new Vue({
-    el: '#oficinasVUE',
+    el: '#horariosVUE',
     data: {
         bgColorClass: {Habilitado: '', Inhabilitado: ''},
         consjerosURL: APP.url(rutaModulo + '/list'),
@@ -41,17 +41,11 @@ new Vue({
 
     },
     methods: {
-        back() {
-
-        },
-        next() {
-
-        },
         inputAulaSuperior() {
             let $vue = this;
             $vue.listAulaOptions = [];
-            $vue.aula = null;
             $vue.getListAulas();
+            $vue.aula = $vue.listAulaOptions[0];
         },
         loadComponent() {
             let $vue = this;
@@ -110,9 +104,10 @@ new Vue({
                         console.log("excedio");
                     } else {
                         $vue.aulaSuperior = Object.assign({}, $vue.listAulaSuperior[status]);
-                        $vue.aula = null;
                         $vue.listAulaOptions = [];
                         $vue.getListAulas();
+                        $vue.aula = $vue.listAulaOptions[0];
+                        $vue.loadComponent();
                     }
                 }
             }

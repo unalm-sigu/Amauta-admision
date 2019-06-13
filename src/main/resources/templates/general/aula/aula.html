@@ -8,19 +8,16 @@
     <div layout:fragment="main">
         <div id="aulaVUE">
             <header class="header b-b padder-lg">
-
                 <div class="pull-right m-t-md">                 
-                    <div class="btn-group">
-                        <a type="button" class="btn btn-primary" th:href="@{'/general/aula/oficinas'}">Pantalla Completa</a>
-                        <a type="button" class="btn btn-success" th:href="@{'/general/aula/nuevo'}">Nuevo</a>
-                    </div>
+                    <a type="button" class="btn btn-primary" th:href="@{'/general/aula/horarios'}">Pantalla Completa</a>  
+                    <a type="button" class="btn btn-success" th:href="@{'/general/aula/nuevo'}">Nuevo</a>
                 </div> 
                 <h2 th:text="${'Lista de ambientes '+ ciclo.descripcion}"></h2>
             </header>
             <section class="wrapper-lg">
                 <section class="panel">
                     <section class="panel-body">
- 
+
                         <table class="table table-striped" id="dynaTable">
                             <thead> 
                                 <tr class=""> 

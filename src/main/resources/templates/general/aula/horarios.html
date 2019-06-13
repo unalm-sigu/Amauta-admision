@@ -1,71 +1,91 @@
 <html layout:decorator="_layout/layout2">
     <head>
-        <title>Oficinas</title>
+        <title>Horarios de Aula</title>
     <div th:substituteby="_layout/includes :: styles-upload"></div>
+    <style>
+        .padre {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .hijo {
+            width: 120px;
+        }
+    </style>
 </head>
 <body>
     <div layout:fragment="main">
         <section class="panel-body">
-            <div id="oficinasVUE">
+            <div id="horariosVUE">
                 <div class="col-md-10 col-md-offset-1">
                     <div class="panel panel-primary">
                         <div class="panel-heading">
-                            <h3 class="panel-title" th:inline="text">Oficina Aula - [[${ciclo.descripcion2}]]</h3>
+                            <h3 class="panel-title" th:inline="text">Horarios de Aula</h3>
                         </div>
-                        <div class="panel-body">
+                        <div class="panel-body padre">
                             <div class="col-md-12">
-                                <div class="col-md-6">
-                                    <div class="col-md-1"><button type="button" class="btn btn-default" v-on:click="changeAulaSuperior('back')"><i class="fa fa-chevron-left"></i></button></div>
-                                    <div class="col-md-10"> 
-                                        <multiselect 
-                                            v-model="aulaSuperior"
-                                            v-bind:options='listAulaSuperior'
-                                            label='nombre'
-                                            track-by='id'
-                                            placeholder="Seleccione el modulo"
-                                            v-bind:internal-search="false"
-                                            v-bind:allow-empty="false"
-                                            v-bind:show-labels="false"
-                                            v-bind:hide-selected="false"
-                                            v-on:input="inputAulaSuperior"
-                                            >listAulaOptions
-                                        </multiselect></div>
-                                    <div class="col-md-1"><button type="button" class="btn btn-default" v-on:click="changeAulaSuperior('next')"><i class="fa fa-chevron-right"></i></button></div>
+                                <div class="row">
+                                    <div class="col-md-6 text-center">
+                                        <form class="form-inline m-b-lg">
+                                            <button type="button" class="btn btn-default" v-on:click="changeAulaSuperior('back')"><i class="fa fa-chevron-left"></i></button>                                    <div class="form-group">
+                                                <multiselect
+                                                    v-model="aulaSuperior"
+                                                    v-bind:options='listAulaSuperior'
+                                                    label='nombre'
+                                                    track-by='id'
+                                                    placeholder="Seleccione el modulo"
+                                                    v-bind:internal-search="false"
+                                                    v-bind:allow-empty="false"
+                                                    v-bind:show-labels="false"
+                                                    v-bind:hide-selected="false"
+                                                    style='width: 350px'
+                                                    v-on:input="inputAulaSuperior"
+                                                    >
+                                                </multiselect>                 
+                                            </div>
+                                            <button type="button" class="btn btn-default" v-on:click="changeAulaSuperior('next')"><i class="fa fa-chevron-right"></i></button>
+                                        </form>
+                                    </div>
+                                    <div class="col-md-6 text-center">
+                                        <form class="form-inline m-b-lg">
+                                            <label style="font-size: 1.3em;" >Aula &nbsp; </label>
+                                            <button type="button" class="btn btn-default" v-on:click="changeAula('back')"><i class="fa fa-chevron-left"></i></button>                                    <div class="form-group">
+                                                <multiselect 
+                                                    v-model="aula"
+                                                    v-bind:options='listAulaOptions'
+                                                    label='codigo'
+                                                    track-by='id'
+                                                    style='width: 200px'
+                                                    placeholder="Seleccione el codigo"
+                                                    v-bind:internal-search="false"
+                                                    v-bind:allow-empty="false"
+                                                    v-bind:show-labels="false"
+                                                    v-bind:hide-selected="false"
+                                                    v-on:input="inputAula"
+                                                    >
+                                                </multiselect>               
+                                            </div>
+                                            <button type="button" class="btn btn-default" v-on:click="changeAula('next')"><i class="fa fa-chevron-right"></i></button>
+                                        </form>
+                                    </div>
                                 </div>
-                                <div class="col-md-6">
-                                    <div class="col-md-2 vertical-text"><span>Aula</span></div>
-                                    <div class="col-md-1"><button type="button" class="btn btn-default" v-on:click="changeAula('back')"><i class="fa fa-chevron-left"></i></button></div>
-                                    <div class="col-md-8"> 
-                                        <multiselect 
-                                            v-model="aula"
-                                            v-bind:options='listAulaOptions'
-                                            label='codigo'
-                                            track-by='id'
-                                            placeholder="Seleccione el codigo de aula"
-                                            v-bind:internal-search="false"
-                                            v-bind:allow-empty="false"
-                                            v-bind:show-labels="false"
-                                            v-bind:hide-selected="false"
-                                            v-on:input="inputAula"
-                                            >
-                                        </multiselect></div>
-                                    <div class="col-md-1"><button type="button" class="btn btn-default" v-on:click="changeAula('next')"><i class="fa fa-chevron-right"></i></button></div>
-                                </div> 
-                            </div>
-                            <div class="col-md-12">
-
+                                <div class="col-md-12 text-center">
+                                    <div class="row">
+                                        <span style="font-size: 1.6em;">Semana {{fechaInicio}} - {{fechaFin}}</span> 
+                                    </div>
+                                </div>
                                 <table class="table table-bordered text-center" v-if="aula!=null">
                                     <thead>
                                         <tr>
-                                            <th style="width: 12.5%" class="text-center">Hora</th>
-                                            <th style="width: 12.5%" class="text-center" 
+                                            <th style="width: 10%" class="text-center">Hora</th>
+                                            <th style="width: 10%" class="text-center" 
                                                 v-for="dia in dias">
                                                 {{dia.nombre}}
                                             </th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr v-for="hora in horas">
+                                        <tr v-for="hora in horas" class='hijo'>
                                             <td class="v-middle">
                                                 <span class="bold"
                                                       >
@@ -167,11 +187,6 @@
                                     </tbody>
                                 </table>
                             </div>
-                            <div v-if="aula==null">
-                                <span>
-                                    Seleccione una determinada aula
-                                </span>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -189,7 +204,7 @@
             var rutaModulo = 'general/aula';
             /*]]>*/
         </script>
-        <script th:src="@{/app/general/aula/oficinas.js}" charset="utf-8"></script>
+        <script th:src="@{/app/general/aula/horarios.js}" charset="utf-8"></script>
     </div>
 
 </body>
