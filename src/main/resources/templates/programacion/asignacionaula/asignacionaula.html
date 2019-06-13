@@ -10,8 +10,11 @@
 
                 <header class="header b-b padder-lg">
 
-                    <div class="pull-right m-t-md">                 
-                        <a class="btn btn-success" type="button" v-on:click="procesarAsignacionAulas">Procesar</a>
+                    <div class="pull-right m-t-md m-r-sm">                 
+                        <a class="btn btn-warning" type="button" v-if="asignacionAula!=null" v-on:click="eliminarAsignacion">Eliminar Asignacion</a>
+                    </div>  
+                    <div class="pull-right m-t-md m-r-sm">                 
+                        <a class="btn btn-success" type="button"  v-on:click="procesarAsignacionAulas">Procesar</a>
                     </div>  
                     <h2>Asignación Aulas</h2>
                 </header>
@@ -31,8 +34,8 @@
                                         Secciones Asignadas
                                     </div>
                                     <a class="col-md-3 pointer" 
-                                          v-on:click="editarGpoSecciones(asignacionAula)"
-                                          v-text="asignacionAula.seccionesAsignadas">
+                                       v-on:click="editarGpoSecciones(asignacionAula)"
+                                       v-text="asignacionAula.seccionesAsignadas">
 
                                     </a>
                                 </div>

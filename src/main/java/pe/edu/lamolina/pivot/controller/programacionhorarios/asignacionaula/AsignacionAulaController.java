@@ -85,6 +85,27 @@ public class AsignacionAulaController {
     }
 
     @ResponseBody
+    @RequestMapping(value = "loadAsignacionAula", method = RequestMethod.POST)
+    public JsonResponse loadAsignacionAula(@RequestBody AsignacionAula asignacionAula) {
+        JsonResponse response = new JsonResponse();
+        try {
+            asignacionAula = asignacionAulaService.findAsignacionAula(asignacionAula);
+            ObjectNode jAsignacionAula = JsonHelper.createJson(asignacionAula, JsonNodeFactory.instance, true,
+                    new String[]{
+                        "*",
+                        "cicloAcademico.*"
+                    }
+            );
+            response.setData(jAsignacionAula);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
     @RequestMapping(value = "procesarAsignacionAulas", method = RequestMethod.POST)
     public JsonResponse procesarAsignacionAulas(@RequestBody AsignacionAula asignacionAula,
             HttpSession session, HttpServletRequest request) {
@@ -102,6 +123,27 @@ public class AsignacionAulaController {
                     });
             response.setData(jAsignacionAula);
             response.setMessage("Aulas asignadas correctamente.");
+            response.setSuccess(Boolean.TRUE);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "aliminarAsignacion", method = RequestMethod.POST)
+    public JsonResponse aliminarAsignacion(@RequestBody AsignacionAula asignacionAula,
+            HttpSession session, HttpServletRequest request) {
+        logger.debug("aliminarAsignacion");
+        JsonResponse response = new JsonResponse();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        ds.setFechaAccionAudit(new Date());
+        try {
+            asignacionAulaService.deleteAsignacion(asignacionAula);
+            //     response.setData(jAsignacionAula);
+            response.setMessage("Asignación de aulas eliminada.");
             response.setSuccess(Boolean.TRUE);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);

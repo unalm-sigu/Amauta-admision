@@ -21,7 +21,6 @@ import pe.edu.lamolina.model.enums.TipoAulaEnum;
 import pe.edu.lamolina.model.enums.TipoOficinaEnum;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Oficina;
-import pe.edu.lamolina.model.general.TipoAula;
 
 @Repository
 public class AulaDAOH extends AbstractEasyDAO<Aula> implements AulaDAO {
@@ -125,6 +124,18 @@ public class AulaDAOH extends AbstractEasyDAO<Aula> implements AulaDAO {
                 .from(Aula.class, "au")
                 .join("au.aulaSuperior aus", "au.oficinaSupervisora ofi")
                 .filter("ofi.id", oficina);
+        return sql.all(getCurrentSession());
+    }
+
+    @Override
+    public List<Aula> allPabellonesByOficina(Oficina oficina, EstadoEnum... estados) {
+        List<EstadoEnum> lEstados = Arrays.asList(estados);
+        Octavia sql = Octavia.query()
+                .selectDistinct("aus")
+                .from(Aula.class, "au")
+                .join("au.aulaSuperior aus", "au.oficinaSupervisora ofi")
+                .filter("ofi.id", oficina)
+                .in("au.estado", lEstados);
         return sql.all(getCurrentSession());
     }
 
@@ -354,7 +365,6 @@ public class AulaDAOH extends AbstractEasyDAO<Aula> implements AulaDAO {
 
     @Override
     public List<Aula> allByListOficinaSupervisora(List<Oficina> oficinas) {
-
         Octavia sql = Octavia.query().selectDistinct("aus")
                 .from(Aula.class, "au")
                 .join("aulaSuperior aus", "oficinaSupervisora ofi")

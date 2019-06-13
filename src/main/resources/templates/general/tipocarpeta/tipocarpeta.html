@@ -23,25 +23,34 @@
                         <section class="panel-body">
 
                             <table class="table table-condensed table-hover">
+                                <thead> 
+                                    <tr>
+                                        <th class="col-md-4 text-center">Código</th>
+                                        <th class="col-md-7 text-center v-middle">Nombre</th>
+                                        <th class="col-md-1 text-center v-middle">Buscar Aula</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
                                 <tbody>
-
                                     <tr v-for="item in tipocarpetas">
-                                        <td class="v-middle col-sm-12">
-
-                                            <span class="block bold">{{item.nombre}}</span>
-
-                                            <table v-if="item.tipoCarpetas.length>0" class="table m-t-md">
-                                                <tbody>
-                                                    <tr  v-for="hijo in  item.tipoCarpetas">
-                                                        <td class="v-middle col-sm-12">
-                                                            <span class="block m-l-lg">- {{hijo.nombre}}</span>
-                                                        </td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-
+                                        <td v-bind:style="!item.tipoCarpetaPadre ? 'padding-left: 50px;' : ''">
+                                            <span >{{item.codigo}}</span>
                                         </td>
-
+                                        <td>
+                                            <span >{{item.nombre}}</span>
+                                        </td>
+                                        <td>
+                                            <span >{{item.buscarAula}}</span>
+                                        </td>
+                                        <td>
+                                            <div class="actions">
+                                                <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="glyphicon glyphicon-cog"></i></a>
+                                                <ul class="dropdown-menu pull-right" >
+                                                    <li v-if='item.tipoCarpetaPadre'><a class="btn-link modificar" v-on:click="agregarTipoCarpetaHija(item)">Agregar</a></li>
+                                                    <li><a class="btn-link modificar" v-on:click="editar(item)">Editar</a></li>
+                                                </ul>
+                                            </div>
+                                        </td>
                                     </tr>
 
                                 </tbody>

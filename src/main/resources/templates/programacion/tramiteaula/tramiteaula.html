@@ -70,6 +70,9 @@
                                                 </td>
 
                                                 <td class="v-middle">
+                                                    <pre v-if="false">
+                                                        {{item.tramite.alumno}}
+                                                    </pre>
                                                     <p v-if="item.tipoSolicitante='OFI'">{{item.tramite.oficina.nombre}}</p>
                                                     <p v-if="item.tipoSolicitante='EMP'">{{item.tramite.empresa.razonSocial}}</p>
                                                     <p v-if="item.tipoSolicitante='ALU'">{{item.tramite.alumno.persona.nombreCompleto}}</p>
@@ -139,7 +142,7 @@
 
 
                 <modal-vik ref="confirmModal"
-                           v-bind="dataConfirmModal"
+                           v-bind="configConfirmar"
                            v-bind:okaction="saveConfirmModal">
                     <div slot="body">
 
@@ -165,7 +168,7 @@
 
 
                 <modal-vik ref="rechazarModal"
-                           v-bind="dataRechazarModal"
+                           v-bind="configRechazar"
                            v-bind:okaction="saveRechazarModal">
                     <div slot="body">
 

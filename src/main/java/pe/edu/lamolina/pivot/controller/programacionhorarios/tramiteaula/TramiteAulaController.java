@@ -396,6 +396,30 @@ public class TramiteAulaController {
     }
 
     @ResponseBody
+    @RequestMapping("allAulaModulos")
+    public JsonResponse allAulaModulos(HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+            JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+            ArrayNode jsonList = new ArrayNode(jsonFactory);
+            List<Aula> aulas = service.allAulaModuloByOficina(ds.getOficinaMain());
+
+            for (Aula aula : aulas) {
+                ObjectNode json = JsonHelper.createJson(aula, JsonNodeFactory.instance, true, new String[]{"*"});
+                jsonList.add(json);
+            }
+            response.setData(jsonList);
+            response.setTotal(jsonList.size());
+            response.setSuccess(true);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
     @RequestMapping("allOficina")
     public JsonResponse allOficina(@RequestParam("nombre") String nombre, HttpSession session) {
 
