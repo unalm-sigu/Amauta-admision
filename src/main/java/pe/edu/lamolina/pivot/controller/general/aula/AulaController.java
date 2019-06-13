@@ -496,4 +496,42 @@ public class AulaController {
         return response;
     }
 
+    @RequestMapping("oficinas")
+    public String oficinas(Model model, HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        CicloAcademico ciclo = ds.getCicloAcademico();
+
+        List<Aula> listAulaSuperior = service.allAulaByOficinaSuperior(ds);
+        List<Aula> listAula = service.allAulaByAulaSuperior(listAulaSuperior);
+
+        model.addAttribute("oficinas", createOficinasJSON(ds.getOficinas()).toString());
+        model.addAttribute("listAulaSuperior", createListAulaJSON(listAulaSuperior).toString());
+        model.addAttribute("listAula", createListAulaJSON(listAula).toString());
+        model.addAttribute("ciclo", ciclo);
+
+        return "general/aula/oficinas";
+    }
+
+    private ArrayNode createOficinasJSON(List<Oficina> oficinas) {
+        ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+        for (Oficina oficina : oficinas) {
+            ObjectNode node = JsonHelper.createJson(oficina, JsonNodeFactory.instance, true, new String[]{
+                "id", "nombre", "codigo"
+            });
+            array.add(node);
+        }
+        return array;
+    }
+
+    private ArrayNode createListAulaJSON(List<Aula> listAula) {
+        ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+        for (Aula aula : listAula) {
+            ObjectNode node = JsonHelper.createJson(aula, JsonNodeFactory.instance, true, new String[]{
+                "id", "nombre", "codigo", "aulaSuperior.id"
+            });
+            array.add(node);
+        }
+        return array;
+    }
+
 }

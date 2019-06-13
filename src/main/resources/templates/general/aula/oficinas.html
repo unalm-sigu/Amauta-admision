@@ -1,0 +1,196 @@
+<html layout:decorator="_layout/layout2">
+    <head>
+        <title>Oficinas</title>
+    <div th:substituteby="_layout/includes :: styles-upload"></div>
+</head>
+<body>
+    <div layout:fragment="main">
+        <section class="panel-body">
+            <div id="oficinasVUE">
+                <div class="col-md-10 col-md-offset-1">
+                    <div class="panel panel-primary">
+                        <div class="panel-heading">
+                            <h3 class="panel-title" th:inline="text">Oficina Aula - [[${ciclo.descripcion2}]]</h3>
+                        </div>
+                        <div class="panel-body">
+                            <div class="col-md-12">
+                                <div class="col-md-6">
+                                    <div class="col-md-1"><button type="button" class="btn btn-default" v-on:click="changeAulaSuperior('back')"><i class="fa fa-chevron-left"></i></button></div>
+                                    <div class="col-md-10"> 
+                                        <multiselect 
+                                            v-model="aulaSuperior"
+                                            v-bind:options='listAulaSuperior'
+                                            label='nombre'
+                                            track-by='id'
+                                            placeholder="Seleccione el modulo"
+                                            v-bind:internal-search="false"
+                                            v-bind:allow-empty="false"
+                                            v-bind:show-labels="false"
+                                            v-bind:hide-selected="false"
+                                            v-on:input="inputAulaSuperior"
+                                            >listAulaOptions
+                                        </multiselect></div>
+                                    <div class="col-md-1"><button type="button" class="btn btn-default" v-on:click="changeAulaSuperior('next')"><i class="fa fa-chevron-right"></i></button></div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="col-md-2 vertical-text"><span>Aula</span></div>
+                                    <div class="col-md-1"><button type="button" class="btn btn-default" v-on:click="changeAula('back')"><i class="fa fa-chevron-left"></i></button></div>
+                                    <div class="col-md-8"> 
+                                        <multiselect 
+                                            v-model="aula"
+                                            v-bind:options='listAulaOptions'
+                                            label='codigo'
+                                            track-by='id'
+                                            placeholder="Seleccione el codigo de aula"
+                                            v-bind:internal-search="false"
+                                            v-bind:allow-empty="false"
+                                            v-bind:show-labels="false"
+                                            v-bind:hide-selected="false"
+                                            v-on:input="inputAula"
+                                            >
+                                        </multiselect></div>
+                                    <div class="col-md-1"><button type="button" class="btn btn-default" v-on:click="changeAula('next')"><i class="fa fa-chevron-right"></i></button></div>
+                                </div> 
+                            </div>
+                            <div class="col-md-12">
+
+                                <table class="table table-bordered text-center" v-if="aula!=null">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 12.5%" class="text-center">Hora</th>
+                                            <th style="width: 12.5%" class="text-center" 
+                                                v-for="dia in dias">
+                                                {{dia.nombre}}
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr v-for="hora in horas">
+                                            <td class="v-middle">
+                                                <span class="bold"
+                                                      >
+                                                    {{hora.descripcion}}
+                                                </span>
+                                            </td>
+                                            <td  v-for="dia in hora.dias" class="text-center"> 
+
+                                                <div v-if="dia.mainHorarioAula.id"  class="dropdown notas-cepre">
+
+                                                    <a v-on:mouseover="onmousein($event)" v-on:mouseleave="onmouseout($event)" class="dropdown-toggle" href="#" data-toggle="dropdown" >
+                                                        <strong v-if="dia.mainHorarioAula.seccion">{{dia.mainHorarioAula.seccion.codigo2}}</strong>  
+                                                        <strong v-if="dia.mainHorarioAula.reservaAula.tramite.serie">{{dia.mainHorarioAula.reservaAula.tramite.serie}} - {{dia.mainHorarioAula.reservaAula.tramite.numero}}</strong>  
+                                                        <b class="caret"></b> 
+                                                    </a>
+
+                                                    <div class="dropdown-menu dropdown-box">
+                                                        <div class="row m-l-xs m-r-xs">
+
+                                                            <span class="block bg-warning">
+                                                                <strong class="text-black m-t-lg m-l-xs m-b-lg " > {{dia.mainHorarioAula.tipoEnum.descripcion}}  </strong>
+                                                            </span>
+
+                                                            <span v-if="dia.mainHorarioAula.seccion.grupoSeccion.curso.codigo" class="disabled block docente-uno">
+                                                                <strong> {{dia.mainHorarioAula.seccion.grupoSeccion.curso.codigo}}</strong>
+                                                                {{dia.mainHorarioAula.seccion.grupoSeccion.curso.nombre}}
+                                                            </span>
+
+                                                            <span v-if="dia.mainHorarioAula.reservaAula.tramite.numero"  class="disabled block docente-uno">
+                                                                Reserva Ambiente
+                                                            </span>
+
+                                                            <span v-if="dia.mainHorarioAula.reservaAula.estado" class="v-middle text-left">
+                                                                <span class="label label-primary" v-if="dia.mainHorarioAula.reservaAula.estado=='ACT'"> Activo </span>
+                                                                <span class="label label-success" v-if="dia.mainHorarioAula.reservaAula.estado=='RES'"> Reservado </span>
+                                                                <span class="label label-default" v-if="dia.mainHorarioAula.reservaAula.estado=='PEND'"> Pendiente </span>
+                                                                <span class="label label-danger" v-if="dia.mainHorarioAula.reservaAula.estado=='ANU'"> Anulado </span>
+                                                            </span>
+
+                                                            <span v-if="dia.mainHorarioAula.seccion.docenteSeccion.length" class="block" style="margin-top:5px;margin-bottom:5px;">
+
+                                                                <strong> Docentes </strong> 
+
+                                                                <ul class="otros-docente">
+                                                                    <li v-for="(item, index )  in dia.mainHorarioAula.seccion.docenteSeccion" class="prof">
+                                                                        <p>
+                                                                            <strong>
+                                                                                <i v-if="index==0" class="fa fa-shield" aria-hidden="true"></i> 
+                                                                                <i v-else="index==0" class="fa fa-user" aria-hidden="true"></i> 
+                                                                                {{item.docente.codigo}} 
+                                                                            </strong> 
+                                                                            <span v-if="item.docente.codigo!='N.N.'">{{item.docente.persona.nomPaternoMat}}</span>
+                                                                            <span v-else="item.docente.codigo!='N.N.'">Desconocido</span>
+                                                                        </p>
+                                                                    </li>
+                                                                    <li v-if="dia.mainHorarioAula.seccion.sizeDocente>2" class="prof"><span>Otros...</span></li>
+                                                                </ul>
+
+                                                            </span>
+
+                                                            <span v-if="dia.mainHorarioAula.seccion.codigo2" class="block">
+                                                                <strong> Sección </strong> {{dia.mainHorarioAula.seccion.codigo2}}
+                                                            </span>
+
+                                                            <span v-if="dia.mainHorarioAula.seccion.grupoHoras.codigo" class="block">
+                                                                <strong> Grupo </strong>  {{dia.mainHorarioAula.seccion.grupoHoras.codigo}}
+                                                            </span>
+
+                                                            <span v-if="dia.mainHorarioAula.reservaAula.tramite.tipoSolicitante" class="v-middle">
+                                                                <p v-if="dia.mainHorarioAula.reservaAula.tramite.tipoSolicitante=='OFI'"><strong> Oficina: </strong> {{dia.mainHorarioAula.reservaAula.tramite.oficina.nombre}}</p>
+                                                                <p v-if="dia.mainHorarioAula.reservaAula.tramite.tipoSolicitante=='EMP'">{{dia.mainHorarioAula.reservaAula.tramite.empresa.razonSocial}}</p>
+                                                                <p v-if="dia.mainHorarioAula.reservaAula.tramite.tipoSolicitante=='ALU'">{{dia.mainHorarioAula.reservaAula.tramite.alumno.persona.nombreCompleto}}</p>
+                                                                <p v-if="dia.mainHorarioAula.reservaAula.tramite.tipoSolicitante=='DOC'">{{dia.mainHorarioAula.reservaAula.tramite.docente.persona.nombreCompleto}}</p>
+                                                            </span>
+
+                                                            <span v-if="dia.mainHorarioAula.reservaAula.motivo" class="block">
+                                                                <strong> Motivo: </strong>  {{dia.mainHorarioAula.reservaAula.motivo}}
+                                                            </span>
+
+                                                            <span v-if="dia.mainHorarioAula.tipo=='DICT'" class="block">
+                                                                <strong> Periodo  </strong> De  {{dia.mainHorarioAula.seccion.grupoSeccion.fechaInicioPeriodo}} al {{dia.mainHorarioAula.seccion.grupoSeccion.fechaFinPeriodo}}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <span v-if="dia.mainHorarioAula"
+                                                      class="text-muted block">
+                                                    {{dia.mainHorarioAula.seccion.grupoHoras.codigo}}
+                                                </span>
+
+                                            </td>
+                                        </tr>
+                                        <tr v-if="horas.length == 0">
+                                            <td v-bind:colspan="1+dias.length" class="text-left">
+                                                Sin horario.
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div v-if="aula==null">
+                                <span>
+                                    Seleccione una determinada aula
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <div layout:fragment="js">
+        <script  th:inline="javascript" >
+            /*<![CDATA[*/
+            var listOficinaJson = /*[[${oficinas}]]*/ 'json';
+            var listAulaSuperiorJson = /*[[${listAulaSuperior}]]*/ 'json';
+            var listAulaJson = /*[[${listAula}]]*/ 'json';
+            var rutaModulo = 'general/aula';
+            /*]]>*/
+        </script>
+        <script th:src="@{/app/general/aula/oficinas.js}" charset="utf-8"></script>
+    </div>
+
+</body>
+</html>

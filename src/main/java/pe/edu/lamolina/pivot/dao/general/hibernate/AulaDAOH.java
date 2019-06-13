@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pe.edu.lamolina.pivot.dao.general.AulaDAO;
@@ -360,6 +361,17 @@ public class AulaDAOH extends AbstractEasyDAO<Aula> implements AulaDAO {
                 .filter("ta.codigo", tipoAulaEnum)
                 .orderBy("au.nombre");
         return sql.all(getCurrentSession());
+    }
+
+    @Override
+    public List<Aula> allByListOficinaSupervisora(List<Oficina> oficinas) {
+        Octavia sql = Octavia.query().selectDistinct("aus")
+                .from(Aula.class, "au")
+                .join("aulaSuperior aus", "oficinaSupervisora ofi")
+                .in("ofi.id", oficinas)
+                .orderBy("aus.nombre");
+
+        return all(sql);
     }
 
 }
