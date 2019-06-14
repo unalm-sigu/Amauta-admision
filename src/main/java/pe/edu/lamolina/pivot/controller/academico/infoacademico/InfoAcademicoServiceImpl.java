@@ -3,6 +3,7 @@ package pe.edu.lamolina.pivot.controller.academico.infoacademico;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.common.base.Strings;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -751,19 +752,39 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
         alumnoDAO.update(alumnoBD);
 
         List<PlanCurricular> planes = planCurricularDAO.allActivoByOrientacion(carrOri, orientacionBD);
+        Map<String, CicloAcademico> mapCiclosPlanes = TypesUtil.convertListToMap("cicloInicioVigencia.codigo", "cicloInicioVigencia", planes);
+           Map<String, PlanCurricular> mapPlanesByCiclo = TypesUtil.convertListToMap("cicloInicioVigencia.codigo", planes);
+        List<String> codigosCiclosPlanes = new ArrayList<String>(mapCiclosPlanes.keySet());
+
+        Collections.sort(codigosCiclosPlanes);
+        Collections.reverse(codigosCiclosPlanes);
+
         if (planes.isEmpty() || planes.size() > 1) {
+            String codigoCicloAlumno = (String) ObjectUtil.getParentTree(alumnoBD, "cicloIngreso.codigo");
+
+            String codigoCicloPlan = this.getIndiceCicloAcademico(codigoCicloAlumno, codigosCiclosPlanes);
+
+            PlanCurricular planBD = mapPlanesByCiclo.get(codigoCicloPlan);
             alumnoCursoSimultaneoDAO.deleteAllByAlumno(alumnoBD);
             alumnoCursoCurriculaDAO.deleteAllByAlumno(alumnoBD);
             alumnoAvanceCurricularDAO.deleteAllByAlumno(alumnoBD);
 
-            alumnoBD.setPlanCurricular(null);
+            alumnoBD.setPlanCurricular(planBD);
             alumnoDAO.update(alumnoBD);
-            return;
+        }else{            
+            alumnoBD.setPlanCurricular(planes.get(0));
+            alumnoDAO.update(alumnoBD);
         }
 
-        alumnoBD.setPlanCurricular(planes.get(0));
-        alumnoDAO.update(alumnoBD);
         avanceCurricularService.generarAvanceCurricularByAlumno(alumnoBD, ds);
     }
 
+    private String getIndiceCicloAcademico(String codigoCicloAlumno, List<String> codigosCiclosPlanes) {
+        for (String codigoCicloPlan : codigosCiclosPlanes) {
+            if (codigoCicloAlumno.compareTo(codigoCicloPlan) >= 0) {
+                return codigoCicloPlan;
+            }
+        }
+        return null;
+    }
 }

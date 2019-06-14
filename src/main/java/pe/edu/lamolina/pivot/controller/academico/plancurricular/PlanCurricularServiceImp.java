@@ -202,7 +202,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
 
     @Override
     public Long countAlumnosByPlanCurricular(PlanCurricular planCurricular) {
-        logger.debug("ID PLAN CURRICULAR {}", planCurricular.getId());
+
         return alumnoDAO.countByPlanCurricular(planCurricular);
     }
 
@@ -230,7 +230,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
     @Transactional
     public void saveGrupoEquivalente(GrupoCursoEquivalente grupo, DataSessionPivot ds) {
         if (grupo.getCursoEquivalente() == null) {
-            logger.debug("Curso equivalente es null");
+
             return;
         }
 
@@ -248,7 +248,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
 
     public void saveGrupoEquivalenteElectivo(GrupoCursoEquivalenteElectivo grupo, DataSessionPivot ds) {
         if (grupo.getCursoEquivalenteElectivo() == null) {
-            logger.debug("Curso equivalente es null");
+
             return;
         }
 
@@ -1298,7 +1298,6 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
     @Override
     public void asignacionMasivaCursoCurricula(Carrera carrera, DataSessionPivot ds) {
 
-        logger.debug("*********carrera {}", carrera.getId());
         List<PlanCurricular> planesCurricular = planCurricularDAO.allActivosByCarrera(carrera);
         List<PlanCurricular> planesCurriculars = planCurricularDAO.all();
 
@@ -1307,7 +1306,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
 
         CicloAcademico cicloInicia = null;
         cicloInicia = planesCurricular.stream().map(x -> x.getCicloInicioVigencia()).min(Comparator.comparing(CicloAcademico::getCodigo)).get();
-        logger.debug("*********Ciclo Inicia {}", cicloInicia.getCodigo());
+
 //        for (PlanCurricular plan : planesCurricular) {
 //            CicloAcademico cicloPlan = plan.getCicloInicioVigencia();
 //            if (cicloInicia == null) {
@@ -1318,8 +1317,8 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
 //                cicloInicia = cicloPlan;
 //            }
 //        }
-
-        Map<String, PlanCurricular> mapPlanesByCiclo = TypesUtil.convertListToMap("cicloInicioVigencia.codigo", planesCurricular);
+        
+        Map<String, List<PlanCurricular>> mapPlanesByCiclo = TypesUtil.convertListToMapList("cicloInicioVigencia.codigo", planesCurricular);
 
         Map<String, CicloAcademico> mapCiclosPlanes = TypesUtil.convertListToMap("cicloInicioVigencia.codigo", "cicloInicioVigencia", planesCurricular);
 
@@ -1330,7 +1329,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
         Collections.reverse(codigosCiclosPlanes);
 
         for (String intt : codigosCiclosPlanes) {
-            logger.debug("===================={}", intt);
+
         }
 
         Map<Long, List<CursoCurricula>> mapCursoCurriculaAll = new LinkedHashMap();
@@ -1381,18 +1380,19 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
             cursoAprobado.setVecesCursadoTransient(cursoVeces.getVecesCursado());
         }
         List<TipoCursoCurricula> tipoCursoCurriculas = tipoCursoCurriculaDAO.all();
-        logger.debug("alumnos {} ", alumnos.size());
+
         List<AlumnoAvanceCurricular> alumnosAvanceCurriculars = alumnoAvanceCurricularDAO.allByAlumnos(alumnos);
-        logger.debug("avances {} ", alumnosAvanceCurriculars.size());
+
         List<ResumenPlanCurricular> alumnosResumenPlanCurriculars = resumenPlanCurricularDAO.all();
-        logger.debug("resumenes {} ", alumnosResumenPlanCurriculars.size());
 
         for (Alumno alumno : alumnos) {
+
+            OrientacionCarrera orientacionCarrera = alumno.getOrientacionCarrera();
+
             List<AlumnoAvanceCurricular> avanceCurriculars = alumnosAvanceCurriculars.stream().filter(x -> Objects.equals(x.getAlumno().getId(), alumno.getId())).collect(Collectors.toList());
-            logger.debug("alumno avance {} ", avanceCurriculars.size());
 
             String codigoCicloAlumno = (String) ObjectUtil.getParentTree(alumno, "cicloIngreso.codigo");
-            logger.debug("{} de {} ::::: alumno {} cicloIngreso {}", count, alumnos.size(), alumno.getId(), codigoCicloAlumno);
+
             count++;
             if (Strings.isNullOrEmpty(codigoCicloAlumno)) {
                 visorAsignaCurricula.incrementar(carrera);
@@ -1402,18 +1402,26 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
             String codigoCicloPlan = this.getIndiceCicloAcademico(codigoCicloAlumno, codigosCiclosPlanes);
             if (codigoCicloPlan == null) {
                 visorAsignaCurricula.incrementar(carrera);
-                logger.debug("no se encontro ciclo-plan para este ciclo {}", codigoCicloAlumno);
+
                 continue;
             }
 
-            PlanCurricular planBD = mapPlanesByCiclo.get(codigoCicloPlan);
-            if (planBD == null) {
+            List<PlanCurricular> planesBD = mapPlanesByCiclo.get(codigoCicloPlan);
+            if (planesBD.isEmpty()) {
                 visorAsignaCurricula.incrementar(carrera);
-                logger.debug("no se encontro plan para este ciclo {}", codigoCicloPlan);
+
                 continue;
             }
+            PlanCurricular planCurricularBD = null;
+            if (orientacionCarrera != null) {
+                planCurricularBD = planesBD.stream().filter(x -> Objects.equals(x.getOrientacionCarrera().getId(), orientacionCarrera.getId())).findAny().orElse(null);
+            } else {
+                planCurricularBD = planesBD.get(0);
+            }
+
+            PlanCurricular planBD = planCurricularBD;
+
             List<ResumenPlanCurricular> resumenPlanCurriculars = alumnosResumenPlanCurriculars.stream().filter(x -> Objects.equals(x.getPlanCurricular().getId(), planBD.getId())).collect(Collectors.toList());
-            logger.debug("alumno resumen curricula {} ", resumenPlanCurriculars.size());
 
             List<AlumnoCicloCurso> alumnoCursosVecesLlevado = fillList(mapAlumnoCursosVecesLlevado.get(alumno.getId()));
             Map<String, AlumnoCicloCurso> mapCursosVecesLlevado = TypesUtil.convertListToMap("alumnoCursoKey", alumnoCursosVecesLlevado);
@@ -1460,22 +1468,20 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
 
     @Override
     public void desvincularMasivaCursoCurricula(Carrera carrera, DataSessionPivot ds) {
-        logger.debug("*********carrera {}", carrera.getId());
+
         List<PlanCurricular> planesCurricular = planCurricularDAO.allActivosByCarrera(carrera);
-        logger.debug("*********planesCurricular {}", planesCurricular.size());
+
         Assert.isFalse(planesCurricular.isEmpty(), "La especialización no cuenta con planes curriculares activos.");
         CicloAcademico cicloInicia = null;
         cicloInicia = planesCurricular.stream().map(x -> x.getCicloInicioVigencia()).min(Comparator.comparing(CicloAcademico::getCodigo)).get();
-        logger.debug("*********Ciclo Inicia {}", cicloInicia.getCodigo());
 
         List<Alumno> alumnos = alumnoDAO.allByCarreraCicloMayores(carrera, cicloInicia.getCodigo());
         visorAsignaCurricula.putTope(carrera, alumnos.size() * 2);
 
         for (Alumno alumno : alumnos) {
-            logger.debug("Enviando al alumno " + alumno.getCodigo());
+
             avanceCurricularAsincronoService.limpiarAlumno(alumno);
         }
-        logger.debug("total se enviaron " + alumnos.size() + " alumnos");
 
     }
 
