@@ -21,4 +21,6 @@ public interface PlanCurricularDAO extends EasyDAO<PlanCurricular> {
 
     public List<PlanCurricular> allActivo();
 
+    public List<PlanCurricular> findById(PlanCurricular planCurricular);
+
 }

@@ -13,6 +13,7 @@ import pe.edu.lamolina.model.academico.CursoCurricula;
 import static pe.edu.lamolina.model.enums.CursoCurriculaEstadoEnum.APR;
 import static pe.edu.lamolina.model.enums.CursoCurriculaEstadoEnum.CONV;
 import static pe.edu.lamolina.model.enums.CursoCurriculaEstadoEnum.EQUIV;
+import static pe.edu.lamolina.model.enums.EstadoEnum.INA;
 import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.EEP;
 import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.ELE;
 import pe.edu.lamolina.model.matricula.AlumnoCursoCurricula;
@@ -35,6 +36,10 @@ public class AlumnoCursoCurriculaDAOH extends AbstractEasyDAO<AlumnoCursoCurricu
                 .join("alumno alu", "curso cur")
                 .left("cursoCurricula ccur", "cursoOpcional", "tipoCursoCurricula tcc")
                 .filter("alumno", alumno)
+                .beginBlock()
+                .__().filter("estadoRegistro", "!=", INA)
+                .__().isNull("estadoRegistro")
+                .endBlock()
                 .filter("tcc.codigo", "!=", EEP.name())
                 .orderBy("acc.numeroCiclo");
 
@@ -50,6 +55,10 @@ public class AlumnoCursoCurriculaDAOH extends AbstractEasyDAO<AlumnoCursoCurricu
                 .left("alumno alu", "curso cur", "tipoCursoCurricula tc")
                 .left("cursoCurricula ccur", "cursoOpcional")
                 .filter("alumno", alumno)
+                .beginBlock()
+                .__().filter("estadoRegistro", "!=", INA)
+                .__().isNull("estadoRegistro")
+                .endBlock()
                 .filter("tc.codigo", "!=", EEP.name())
                 .orderBy("acc.numeroCiclo");
 
@@ -64,6 +73,10 @@ public class AlumnoCursoCurriculaDAOH extends AbstractEasyDAO<AlumnoCursoCurricu
                 .isNull("cursoOpcional")
                 .left("alumno alu", "curso cur", "tipoCursoCurricula tc")
                 .left("cursoCurricula ccur", "cursoOpcional")
+                .beginBlock()
+                .__().filter("estadoRegistro", "!=", INA)
+                .__().isNull("estadoRegistro")
+                .endBlock()
                 .filter("alumno", alumno)
                 .orderBy("acc.numeroCiclo");
 
@@ -102,6 +115,10 @@ public class AlumnoCursoCurriculaDAOH extends AbstractEasyDAO<AlumnoCursoCurricu
                 .join("tipoCursoCurricula tc")
                 .filter("acc.alumno", alumno)
                 .notIn("tc.codigo", Arrays.asList(EEP.name(), ELE.name()))
+                .beginBlock()
+                .__().filter("estadoRegistro", "!=", INA)
+                .__().isNull("estadoRegistro")
+                .endBlock()
                 .orderBy("acc.numeroCiclo");
         return all(sql);
     }

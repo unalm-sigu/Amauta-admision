@@ -1317,7 +1317,6 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
 //                cicloInicia = cicloPlan;
 //            }
 //        }
-        
         Map<String, List<PlanCurricular>> mapPlanesByCiclo = TypesUtil.convertListToMapList("cicloInicioVigencia.codigo", planesCurricular);
 
         Map<String, CicloAcademico> mapCiclosPlanes = TypesUtil.convertListToMap("cicloInicioVigencia.codigo", "cicloInicioVigencia", planesCurricular);
@@ -1386,7 +1385,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
         List<ResumenPlanCurricular> alumnosResumenPlanCurriculars = resumenPlanCurricularDAO.all();
 
         for (Alumno alumno : alumnos) {
-
+            logger.debug("ALuMNO {}", alumno.getCodigo());
             OrientacionCarrera orientacionCarrera = alumno.getOrientacionCarrera();
 
             List<AlumnoAvanceCurricular> avanceCurriculars = alumnosAvanceCurriculars.stream().filter(x -> Objects.equals(x.getAlumno().getId(), alumno.getId())).collect(Collectors.toList());

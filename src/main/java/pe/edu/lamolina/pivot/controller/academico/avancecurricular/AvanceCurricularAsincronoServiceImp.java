@@ -220,18 +220,22 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
 
         Map<TipoCursoCurriculaEnum, Integer> creditos = new HashMap();
         Map<TipoCursoCurriculaEnum, Integer> cursos = new HashMap();
+        Map<TipoCursoCurriculaEnum, Boolean> excepción = new HashMap();
+
+        ResumenPlanCurricular resumenPlanCurricularELC = resumenPlanCurriculars.stream().filter(x -> x.getTipoCursoCurricula().getCodigoEnum() == ELC).findAny().orElse(null);
+        ResumenPlanCurricular resumenPlanCurricularELE = resumenPlanCurriculars.stream().filter(x -> x.getTipoCursoCurricula().getCodigoEnum() == ELE).findAny().orElse(null);
 
         for (TipoCursoCurricula tipo : tipos.values()) {
             creditos.put(tipo.getCodigoEnum(), 0);
             cursos.put(tipo.getCodigoEnum(), 0);
+            excepción.put(tipo.getCodigoEnum(), Boolean.FALSE);
         }
-        ResumenPlanCurricular resumenPlanCurricular = resumenPlanCurriculars.stream().filter(x -> x.getTipoCursoCurricula().getCodigoEnum() == ELC).findAny().orElse(null);
-        ResumenPlanCurricular resumenPlanCurricularELE = resumenPlanCurriculars.stream().filter(x -> x.getTipoCursoCurricula().getCodigoEnum() == ELE).findAny().orElse(null);
         alumnoCursoNew.addAll(alumnoCursoElcCarreraNew);
         Collections.sort(alumnoCursoNew, new AlumnoCursoCurricula.CompareCodigo());
+        Collections.sort(alumnoCursoNew, new AlumnoCursoCurricula.CompareCreditos());
         List<Long> idsEEP = new ArrayList();
         Integer sum = 0;
-        Integer credAdic = CREDITOS_ADIC_ELC;
+
         for (AlumnoCursoCurricula curso : alumnoCursoNew) {
 
             if (curso.getVecesCursado() == 0) {
@@ -245,17 +249,28 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
 
                 tipo = curso.getTipoCursoCurricula().getCodigoEnum();
 
-                ResumenPlanCurricular rpc = resumenPlanCurriculars.stream().filter(x -> x.getTipoCursoCurricula().getCodigoEnum() == curso.getTipoCursoCurricula().getCodigoEnum()).findAny().orElse(null);
+                ResumenPlanCurricular rpc = resumenPlanCurriculars.stream().filter(x -> x.getTipoCursoCurricula().getCodigoEnum() == curso.getTipoCursoCurricula().getCodigoEnum()).findAny().orElse(new ResumenPlanCurricular());
                 if (rpc == null) {
                     continue;
                 }
                 Integer prevCreditos = creditos.get(tipo);
                 prevCreditos += curso.getCreditos();
 
-                if (Arrays.asList(ELE, ELC).contains(tipo)) {
+                if (Arrays.asList(ELE, ELC, CULT, PROD, TECIND).contains(tipo)) {
+                    Integer tmp = 0;
+                    Boolean res = prevCreditos >= rpc.getCreditos();
+                    if (Arrays.asList(ELE, ELC).contains(tipo) && resumenPlanCurricularELE.getCreditos() > 0) {
+                        tmp = creditos.get(tipo == ELC ? ELE : ELC);
+                        sum = tmp + prevCreditos;
+                        resumenPlanCurricularELC = resumenPlanCurricularELC == null ? new ResumenPlanCurricular() : resumenPlanCurricularELC;
+                        res = sum >= resumenPlanCurricularELC.getCreditos();
+                    }
 
-                    if (prevCreditos >= rpc.getCreditos() + (tipo == ELE ? credAdic : 0)) {
-                        credAdic = 0;
+                    if (res) {
+                        res = excepción.get(tipo);
+                        excepción.replace(tipo, Boolean.TRUE);
+                    }
+                    if (res || rpc.getCreditos() == 0) {
                         tipo = EEP;
                         prevCreditos = creditos.get(tipo);
                         prevCreditos += curso.getCreditos();
@@ -617,6 +632,9 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
             alumnoCursoSimultaneoDAO.save(alumnoCursoSimultaneo);
         }
         for (AlumnoCicloCurso cursosAprobado : cursosAprobados) {
+            if (cursosAprobado.getTipoCursoCurricula() != null && cursosAprobado.getTipoCursoCurricula().getCodigoEnum() == EEP) {
+                cursosAprobado.setTipoCursoCurricula(null);
+            }
             alumnoCicloCursoDAO.updateCurso(cursosAprobado);
         }
 
