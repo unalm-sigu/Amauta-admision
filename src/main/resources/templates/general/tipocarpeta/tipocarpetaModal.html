@@ -1,6 +1,6 @@
 <modal-vik ref="modalnuevoTipocarpeta"
            v-bind="modalnuevoTipocarpeta"
-           v-bind:okaction="tipoCarpeta.id == null ?  save : update">
+           v-bind:okaction="tipoCarpeta.id == null ?  save : save">
 
     <div slot="body">   
         <form  method="post" id="formTipocarpeta"   data-parsley-validate="true">
@@ -45,3 +45,33 @@
         </form>
     </div>
 </modal-vik>
+<!-- 
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label> Código </label>
+                        <input name="codigo" type="text" required="true" v-model="tipoCarpeta.codigo" class="form-control capitalizes" />
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label> Nombre </label>
+                        <input name="nombre" type="text" required="true" v-model="tipoCarpeta.nombre" class="form-control col-md-12 capitalizes" />
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label> Es Padre </label>
+                        <input name="esPadre" type="text"  class="form-control"/>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label> Búsqueda </label>
+                        <input type="number" required="true" v-model="tipoCarpeta.buscarAula" class="form-control col-md-12 capitalizes" />
+                    </div>
+                </div>
+            </div>
+-->

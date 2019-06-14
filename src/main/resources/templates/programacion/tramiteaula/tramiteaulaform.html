@@ -186,7 +186,7 @@
                                         <label>Solicitante </label>
 
                                         <multiselect 
-                                            v-model='tiposolicitante'
+                                            v-model='reservaaula.tipoSolicitante'
                                             v-bind:internal-search='false'
                                             v-bind:limit='15'
                                             v-bind:options='tiposSolicitante'
@@ -334,9 +334,11 @@
 
                                 <p class="block"> 
                                     <span>Capacidad seleccionada: <b v-text="capacidadseleccinado"></b> .   </span>
-                                    <span  v-if="capacidadfaltante>0" class="text-danger">Capacidad faltante: <b v-text="capacidadfaltante"></b> .    </span>
-                                    <span  v-else="capacidadfaltante>0" class="text-primary">Capacidad Exceso: <b v-text="Math.abs(capacidadfaltante)"></b> .  </span>
+                                    <span  v-if="capacidadfaltante>0" class="text-danger">Capacidad faltante: <b v-text="capacidadfaltante"></b>  .    </span>
+                                    <span  v-else="capacidadfaltante>0" class="text-primary">Capacidad Exceso: <b v-if="!isNaN(capacidadfaltante)" v-text="Math.abs(capacidadfaltante)"></b><b v-else="">_</b> .  </span>
                                     <span>Total de Aulas Seleccionadas : <b v-text="totalaulas"></b>.    </span>
+
+                                  
                                 </p>
 
                                 <div class="col-sm-12"></div>
@@ -353,14 +355,13 @@
                                         <div slot="header">
 
                                             <div class="form-group">
-
+                                                <!--        v-on:search-change="searchModulos" -->
                                                 <multiselect v-model='moduloselecto'
-                                                             v-bind:internal-search='false'
+                                                             v-bind:internal-search='true'
                                                              v-bind:limit='15'
                                                              v-on:input="changemodulo"
-                                                             v-on:search-change="searchModulos"
                                                              v-bind:options='modulos'
-                                                             v-bind:allow-empty="false"
+                                                             v-bind:allow-empty="true"
                                                              placeholder="Módulo"
                                                              deselect-label=""
                                                              select-label=""
@@ -402,7 +403,8 @@
                                                 <thead> 
                                                     <tr>
                                                         <th></th>
-                                                        <th class="col-xs-9 text-center">Ambiente</th>
+                                                        <th class="col-xs-3 text-center">Módulo</th>
+                                                        <th class="col-xs-6 text-center">Ambiente</th>
                                                         <th class="col-xs-2 text-center v-middle">Situación</th>
                                                         <th class="col-xs-1 text-center v-middle">Capacidad</th>
                                                         <th></th>
@@ -414,7 +416,10 @@
                                                         <td class="v-middle">
                                                             <i class="fa fa-calendar pointer" aria-hidden="true"></i>
                                                         </td>
-
+                                                        <td>
+                                                            <strong>{{item.aulaSuperior.nombre}}</strong>
+                                                            <p>{{item.aulaSuperior.codigo}}</p>
+                                                        </td>
                                                         <td class="v-middle">
                                                             <strong>{{item.nombre}}</strong>
                                                             <p>{{item.codigo}}</p>

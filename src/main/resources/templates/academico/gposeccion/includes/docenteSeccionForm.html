@@ -13,12 +13,12 @@
 <table class="table">
     <thead> 
         <tr > 
-            <th class="col-md-2">Docente</th>
-            <th class="col-md-1 text-center">Principal</th>
+            <th class="col-md-3">Docente</th>
+            <th class="text-center">Principal</th>
             <th class="col-md-2 text-center">%Carga</th>
             <th class="col-md-4 text-center">Periodo clases</th>
-            <th class="col-md-2 text-center">Situación Laboral</th>
-            <th class="col-md-1 text-center">Estado</th>
+            <th class="col-md-3 text-center">Situación Laboral</th>
+            <th class="text-center">Estado</th>
             <th class=""></th>
             <th class=""></th>
         </tr>
@@ -52,9 +52,8 @@
                     <span class="block">{{docSeccion.docente.codigo}}</span>
                 </span>
             </td>
-            <td class="text-center">
-                <label class="switch"
-                       v-if="docSeccion.estado == 'ACT'">
+            <td class="text-center v-middle">
+                <label v-if="docSeccion.estado == 'ACT'" class="switch">
                     <input type="checkbox" 
                            value="1" 
                            v-model="docSeccion.principal" 
@@ -62,76 +61,71 @@
                            v-on:change="cambiarDocPrincipal(docSeccion)"/>
                     <span></span>
                 </label>
-                <i class="fa fa-check-square-o fa-2x text-dark"
-                   v-if="docSeccion.estado != 'ACT'"></i>
+                <i v-else-if="docSeccion.principal==1" class="fa fa-check-square-o fa-2x text-dark"></i>
+                <i v-else="" class="fa fa-times-circle-o fa-2x text-dark"></i>
             </td>
-            <td>
-                <!-- 
-                <input v-model="docSeccion.porcentajeCarga"
-                       name="porcentajeCarga"
-                       v-on:blur ="cambiarPorcentajeCarga(docSeccion,$event)"
-                       v-on:keyup.enter="cambiarPorcentajeCarga(docSeccion,$event)"
-                       class="form-control text-right"
-                       required="true"
-                       min="1"
-                       v-bind:readonly="docSeccion.estado != 'ACT'"
-                       data-parsley-group="porcentaje-car"
-                       data-parsley-type="number"
-                       />
-                -->
-                <div class="input-group">
+            <td class="text-center v-middle">
+                <div v-if="docSeccion.estado == 'ACT'" class="input-group" >
                     <input type="text" 
                            v-model="docSeccion.porcentajeCargaFraccion"
                            v-on:blur ="cambiarPorcentajeCarga(docSeccion,$event)"
                            v-on:keyup.enter="cambiarPorcentajeCarga(docSeccion,$event)"
                            class="form-control" 
                            required="true"
-                           v-bind:readonly="docSeccion.estado != 'ACT'"
                            data-parsley-group="porcentaje-car"/>
                     <span class="input-group-addon" 
-                          v-text="docSeccion.porcentajeCarga+' %'"></span>
+                          v-text="docSeccion.porcentajeCarga+'%'"></span>
                 </div>
+                <div v-else="">{{docSeccion.porcentajeCarga}}%</div>
             </td>
-            <td class="text-center">
+            <td class="text-center v-middle">
+                <span v-if="docSeccion.estado == 'ACT'">
+                    <table width="100%">
+                        <tbody>
+                            <tr>
+                                <td width="50%" style="padding: 0; padding-right: 2px;">
+                                    <span>
+                                        <v-date-picker v-model="docSeccion.fechaInicio"
+                                                       v-bind:id="'fechaInicio'+index"
+                                                       v-bind:startdate="docSeccion.fechaInicioMin"
+                                                       v-bind:enddate="docSeccion.fechaFinMax" 
+                                                       v-on:changedate="cambiarFechaIniPeriodo(docSeccion,$event)"
+                                                       required="true"></v-date-picker>
+                                    </span>
 
-                <div class="col-md-12">
-
-
-                    <div v-if="docSeccion.estado != 'ACT'" class="col-md-6">
-                        <input type="text" readonly="" class="form-control" 
-                               v-model="docSeccion.fechaInicio"/>
-                    </div>
-                    <div v-if="docSeccion.estado != 'ACT'" class="col-md-6">
-                        <input type="text" readonly="" class="form-control" 
-                               v-model="docSeccion.fechaFin"/>
-                    </div>
-                    <div class="block" v-if="docSeccion.contratoDocente.id != ''">
-                        <span class="font-roman text-lg m-r-md" v-text="docSeccion.contratoDocente.cicloInicioContrato.descripcion"></span>
-                        <span class="font-roman text-lg m-l-md" v-text="docSeccion.contratoDocente.cicloFinContrato.descripcion"></span>
-                    </div>
-                    <div v-else="">
-                        <v-date-picker v-model="docSeccion.fechaInicio"
-                                       v-bind:id="'fechaInicio'+index"
-                                       v-bind:startdate="docSeccion.fechaInicioMin"
-                                       v-bind:enddate="docSeccion.fechaFinMax" 
-                                       v-on:changedate="cambiarFechaIniPeriodo(docSeccion,$event)"
-                                       v-if="docSeccion.estado == 'ACT'"
-                                       required="true"
-                                       class="col-md-6"></v-date-picker>
-                        <v-date-picker v-model="docSeccion.fechaFin"
-                                       v-bind:id="'fechaFin'+index"
-                                       v-bind:startdate="docSeccion.fechaInicioMin"
-                                       v-bind:enddate="docSeccion.fechaFinMax" 
-                                       v-on:changedate="cambiarFechaFinPeriodo(docSeccion,$event)"
-                                       v-if="docSeccion.estado == 'ACT'"
-                                       required="true"
-                                       class="col-md-6"></v-date-picker>
-                    </div>
-                </div>
+                                    <div v-if="docSeccion.estado != 'ACT'" class="col-md-6">
+                                        <input type="text" readonly="" class="form-control" 
+                                               v-model="docSeccion.fechaInicio"/>
+                                    </div>
+                                </td>
+                                <td width="50%" style="padding: 0; padding-left: 2px;">
+                                    <span>
+                                        <v-date-picker v-model="docSeccion.fechaFin"
+                                                       v-bind:id="'fechaFin'+index"
+                                                       v-bind:startdate="docSeccion.fechaInicioMin"
+                                                       v-bind:enddate="docSeccion.fechaFinMax" 
+                                                       v-on:changedate="cambiarFechaFinPeriodo(docSeccion,$event)"
+                                                       required="true"></v-date-picker>
+                                    </span>
+                                    <div v-if="docSeccion.estado != 'ACT'" class="col-md-6">
+                                        <input type="text" readonly="" class="form-control" 
+                                               v-model="docSeccion.fechaFin"/>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </span>
+                <span v-else="">
+                    <span v-if="docSeccion.fechaInicio != '' ">
+                        <strong v-text="docSeccion.fechaInicio"></strong> al
+                        <strong v-text="docSeccion.fechaFin"></strong>
+                    </span>
+                </span>
             </td>
 
             <td class="text-center v-middle">
-                <div  v-if="docSeccion.contratoDocente.id != ''">
+                <div v-if="docSeccion.contratoDocente.id != ''">
                     <div v-if="docSeccion.contratoDocente.categoria.codigo != 'MINE'">
                         <small class="block">
                             <strong class="">

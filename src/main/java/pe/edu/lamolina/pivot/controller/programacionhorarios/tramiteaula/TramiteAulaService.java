@@ -45,4 +45,6 @@ public interface TramiteAulaService {
 
     List<AulaReservada> allAulaReservada(ReservaAula reservaAula);
 
+    List<Aula> allAulaModuloByOficina(Oficina oficina);
+
 }

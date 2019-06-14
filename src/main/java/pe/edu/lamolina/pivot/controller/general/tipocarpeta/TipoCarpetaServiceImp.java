@@ -1,5 +1,6 @@
 package pe.edu.lamolina.pivot.controller.general.tipocarpeta;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import org.slf4j.Logger;
@@ -23,19 +24,32 @@ public class TipoCarpetaServiceImp implements TipoCarpetaService {
 
     @Override
     public List<TipoCarpeta> allTipoCarpeta(DataSessionPivot ds) {
+        List<TipoCarpeta> result = new ArrayList<>();
         List<TipoCarpeta> tipoCarpetas = tipoCarpetaDAO.allTipoCarpeta();
         List<TipoCarpeta> tipoCarpetasHijas = tipoCarpetaDAO.allByTipoCarpetas(tipoCarpetas);
         Map<Long, List<TipoCarpeta>> tipoCarpetasHijasMap = TypesUtil.convertListToMapList("tipoCarpetaSuperior.id", tipoCarpetasHijas);
         for (TipoCarpeta tipoCarpeta : tipoCarpetas) {
-            tipoCarpeta.setTipoCarpetas(tipoCarpetasHijasMap.get(tipoCarpeta.getId()));
+            tipoCarpeta.setTipoCarpetaPadre(true);
+            result.add(tipoCarpeta);
+            if (tipoCarpetasHijasMap.get(tipoCarpeta.getId()) != null) {
+                for (TipoCarpeta tipoCarpeta1 : tipoCarpetasHijasMap.get(tipoCarpeta.getId())) {
+                    result.add(tipoCarpeta1);
+                }
+            }
         }
-        return tipoCarpetas;
+        return result;
     }
 
     @Override
     @Transactional
     public void save(TipoCarpeta tipoCarpeta, DataSessionPivot ds) {
         tipoCarpetaDAO.save(tipoCarpeta);
+    }
+
+    @Override
+    @Transactional
+    public void editar(TipoCarpeta tipoCarpeta, DataSessionPivot ds) {
+        tipoCarpetaDAO.update(tipoCarpeta);
     }
 
 }

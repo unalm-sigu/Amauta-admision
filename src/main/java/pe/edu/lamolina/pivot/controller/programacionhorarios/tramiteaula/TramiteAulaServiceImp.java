@@ -543,6 +543,11 @@ public class TramiteAulaServiceImp implements TramiteAulaService {
     }
 
     @Override
+    public List<Aula> allAulaModuloByOficina(Oficina oficina) {
+        return aulaDAO.allPabellonesByOficina(oficina);
+    }
+
+    @Override
     public List<Dia> allDia() {
         return diaDAO.all();
     }
