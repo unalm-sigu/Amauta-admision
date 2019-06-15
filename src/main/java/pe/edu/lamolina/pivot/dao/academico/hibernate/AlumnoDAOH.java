@@ -501,7 +501,7 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
                 .from(Alumno.class, "alu")
                 .join("persona per", "carrera car", "car.facultad fa")
                 .leftJoin("per.tipoDocumento td", "cicloActivo ci", "planCurricular")
-                .leftJoin("modalidadEstudio me", "situacionAcademica situ")
+                .leftJoin("modalidadEstudio me", "situacionAcademica situ", "orientacionCarrera oc")
                 .leftJoin("cicloIngreso cci")
                 .filter("car.id", carrera)
                 .filter("cci.codigo", ">=", codigoCiclo);
