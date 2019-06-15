@@ -1,5 +1,6 @@
 package pe.edu.lamolina.pivot.controller.general.aula;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -13,6 +14,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +28,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
@@ -53,6 +56,9 @@ public class AulaController {
 
     @Autowired
     AulaService service;
+
+    @Autowired
+    PdfHorariosAula pdfHorariosAula;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -447,8 +453,10 @@ public class AulaController {
                             "dias.mainHorarioAula.seccion.grupoSeccion.tipoDictado",
                             "dias.mainHorarioAula.seccion.grupoSeccion.curso.codigo",
                             "dias.mainHorarioAula.seccion.grupoSeccion.curso.nombre",
+                            "dias.mainHorarioAula.seccion.grupoSeccion.curso.tpc",
                             "dias.mainHorarioAula.seccion.docenteSeccion.docente.codigo",
                             "dias.mainHorarioAula.seccion.docenteSeccion.docente.persona.nomPaternoMat",
+                            "dias.mainHorarioAula.seccion.docenteSeccion.docente.persona.apellidosNombres",
                             "dias.mainHorarioAula.seccion.grupoHoras.codigo",
                             "dias.mainHorarioAula.reservaAula.estado",
                             "dias.mainHorarioAula.reservaAula.motivo",
@@ -494,6 +502,60 @@ public class AulaController {
             ExceptionHandler.handleException(e, response);
         }
         return response;
+    }
+
+    @RequestMapping("generatorpdf")
+    public ModelAndView generatorpdf(HorariosAulaPDFBean horariosAulaPdfBean, Model model, HttpSession session, HttpServletResponse response) throws Exception {
+
+        logger.debug("******** fin {}", horariosAulaPdfBean.getFechaFin());
+        logger.debug("******** inicio {}", horariosAulaPdfBean.getFechaInicio());
+
+        Aula aulaForm = new ObjectMapper().readValue(horariosAulaPdfBean.getStrAula(), Aula.class);
+        aulaForm.setFechaFin(horariosAulaPdfBean.getFechaFin());
+        aulaForm.setFechaInicio(horariosAulaPdfBean.getFechaInicio());
+
+        Aula aulaSuperiorForm = new ObjectMapper().readValue(horariosAulaPdfBean.getStrAulaSuperior(), Aula.class);
+        List<Dia> dias = service.allDia();
+
+        ObjectUtil.printAttr(aulaForm);
+        ObjectUtil.printAttr(aulaSuperiorForm);
+
+        Aula aulaBD = service.findAulaFull(aulaForm);
+
+        List<Hora> horasEncontradas = new ArrayList<>();
+        for (HorarioAula horarioAula : aulaBD.getHorariosAula()) {
+            if (!horasEncontradas.contains(horarioAula.getHora())) {
+                horasEncontradas.add(horarioAula.getHora());
+            }
+        }
+
+        Collections.sort(horasEncontradas, (p1, p2) -> p1.getNumero().compareTo(p2.getNumero()));
+
+        List<HorarioAula> horarios = aulaBD.getHorariosAula();
+
+        Map<String, HorarioAula> diasHoras = horarios.stream().collect(Collectors.toMap(x -> x.getHora().getId() + "-" + x.getDia().getId(), x -> x, (f, s) -> s));
+
+        for (Hora horasEncontrada : horasEncontradas) {
+            List<Dia> diass = new ArrayList();
+            for (Dia dia : dias) {
+                Dia diaClone = dia.clone();
+                diaClone.setMainHorarioAula(null);
+                String key = horasEncontrada.getId() + "-" + dia.getId();
+                HorarioAula horarioAula = diasHoras.get(key);
+                diaClone.setMainHorarioAula(horarioAula);
+                diass.add(diaClone);
+            }
+            horasEncontrada.setDias(diass);
+        }
+
+        model.addAttribute("aula", aulaBD);
+        model.addAttribute("aulaSuperior", aulaSuperiorForm);
+        model.addAttribute("dias", dias);
+        model.addAttribute("horas", horasEncontradas);
+        model.addAttribute("fechaFin", horariosAulaPdfBean.getFechaFin());
+        model.addAttribute("fechaInicio", horariosAulaPdfBean.getFechaInicio());
+
+        return new ModelAndView(pdfHorariosAula);
     }
 
     @RequestMapping("horarios")

@@ -3,8 +3,6 @@ Vue.component("multiselect", window.VueMultiselect.default)
 new Vue({
     el: '#horariosVUE',
     data: {
-        bgColorClass: {Habilitado: '', Inhabilitado: ''},
-        consjerosURL: APP.url(rutaModulo + '/list'),
         listOficina: JSON.parse(listOficinaJson),
         listAulaSuperior: JSON.parse(listAulaSuperiorJson),
         listAula: JSON.parse(listAulaJson),
@@ -14,7 +12,8 @@ new Vue({
         horas: [],
         dias: [],
         fechaInicio: null,
-        fechaFin: null
+        fechaFin: null,
+        horariosAulaPDFBean: {}
     },
     created: function () {
         let $vue = this;
@@ -49,6 +48,9 @@ new Vue({
         },
         loadComponent() {
             let $vue = this;
+            console.log($vue.fechaInicio);
+            console.log($vue.fechaFin);
+
             $.ajax({
                 method: 'POST',
                 url: APP.url('general/aula/loadModalAulaHorario'),
@@ -136,6 +138,46 @@ new Vue({
                 }
             }
         },
+        descargaPDF() {
+            let $vue = this;
+
+            var horasClone = Object.assign([], $vue.horas);
+
+            for (var i = 0; i < horasClone.length; i++) {
+                for (var f = 0; f < horasClone[i].dias.length; f++) {
+                    horasClone[i].dias[f].mainHorarioAula.estadoEnum = undefined;
+                    horasClone[i].dias[f].mainHorarioAula.tipoEnum = undefined;
+                }
+            }
+
+            $vue.horariosAulaPDFBean.aulaSuperior = $vue.aulaSuperior;
+            $vue.horariosAulaPDFBean.aula = $vue.aula;
+            $vue.horariosAulaPDFBean.dias = $vue.dias;
+            $vue.horariosAulaPDFBean.horas = horasClone;
+
+            console.log(JSON.stringify($vue.aula));
+
+            $vue.aula.tipoAmbienteEnum = undefined;
+
+            $.fileDownload("/" + rutaModulo + "/generatorpdf", {
+                httpMethod: "POST",
+                data: {
+                    strAula: JSON.stringify($vue.aula),
+                    strAulaSuperior: JSON.stringify($vue.aulaSuperior),
+                    fechaInicio: $vue.fechaInicio,
+                    fechaFin: $vue.fechaFin
+                },
+                successCallback: function (responseHtml, url) {
+                    console.log('aqui');
+                },
+                onFail: function (e) {
+                    console.log(e);
+                },
+                failCallback: function (responseHtml, url) {
+                    notify(MESSAGES.errorComunicacion, 'error')
+                }
+            });
+        }
     }
 });
 
