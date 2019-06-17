@@ -204,11 +204,6 @@ public class TestServiceImp implements TestService {
         CicloAcademico cicloActivo = cicloAcademicoDAO.findActivo(new ModalidadEstudio(1));
         List<Alumno> alumnosAcumulados = new ArrayList<>();
         for (String year : allYears) {
-            /*
-            if (TypesUtil.getInt(year) != null && TypesUtil.getInt(year) < 2015) {
-                continue;
-            }
-             */
             List<Alumno> alumnos = alumnoDAO.allPendingPREPromedioByCicloYear(year);
             alumnosAcumulados.addAll(alumnos);
             logger.info("Año {}, Alumnos {}, Acumulados {}", year, alumnos.size(), alumnosAcumulados.size());
