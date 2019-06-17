@@ -160,9 +160,9 @@ public class TestServiceImp implements TestService {
         List<CicloAcademico> ciclosActivos = cicloAcademicoDAO.allActivosAlModalidades();
 
         for (CicloAcademico cicloAcademico : ciclos) {
-            if (!cicloAcademico.getModalidadEstudio().isPregrado()) {
-                continue;
-            }
+//            if (!cicloAcademico.getModalidadEstudio().isPregrado()) {
+//                continue;
+//            }
             CicloAcademico cicloActivoByModalidad = ciclosActivos.stream()
                     .filter(x -> x.getModalidadEstudio().equals(cicloAcademico.getModalidadEstudio()))
                     .findFirst().orElse(null);
