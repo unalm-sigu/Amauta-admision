@@ -19,6 +19,7 @@ import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.CicloAcademicoEstadoEnum;
+import pe.edu.lamolina.model.enums.SituacionAcademicaEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 import pe.edu.lamolina.pivot.controller.academico.calculonotas.CalculoNotasService;
 import pe.edu.lamolina.pivot.controller.academico.promedio.ContadorComponent;
@@ -248,6 +249,48 @@ public class TestServiceImp implements TestService {
             promedioService.trasladoPromediosSource(matriculaCurso, ds);
 
             //  }
+        }
+    }
+
+    @Override
+    public void promediarfullBySituacion(String sit, DataSessionPivot ds) {
+        List<String> allYears = alumnoDAO.allYearsCiclos();
+        List<CicloAcademico> ciclos = cicloAcademicoDAO.all();
+
+        CicloAcademico cicloActivo = cicloAcademicoDAO.findActivo(new ModalidadEstudio(1));
+        List<Alumno> alumnosAcumulados = new ArrayList<>();
+        for (String year : allYears) {
+            List<Alumno> alumnos = alumnoDAO.allPendingPREPromedioByCicloYear(year);
+            alumnosAcumulados.addAll(alumnos);
+            logger.info("Año {}, Alumnos {}, Acumulados {}", year, alumnos.size(), alumnosAcumulados.size());
+        }
+        contadorComponent.iniciar(alumnosAcumulados.size());
+        for (Alumno alumno : alumnosAcumulados) {
+            if (alumno.getSituacionAcademica().getCodigoEnum() != SituacionAcademicaEnum.get(sit)) {
+                continue;
+            }
+            promedioService.promediarAllCicloAsync(alumno, cicloActivo, ciclos, null, ds);
+        }
+    }
+
+    @Override
+    public void promediarepgfullBySituacion(String sit, DataSessionPivot ds) {
+        List<String> allYears = alumnoDAO.allYearsCiclos();
+        List<CicloAcademico> ciclos = cicloAcademicoDAO.all();
+
+        CicloAcademico cicloActivo = cicloAcademicoDAO.findActivo(new ModalidadEstudio(2));
+        List<Alumno> alumnosAcumulados = new ArrayList<>();
+        for (String year : allYears) {
+            List<Alumno> alumnos = alumnoDAO.allPendingEpgPromedioByCicloYear(year);
+            alumnosAcumulados.addAll(alumnos);
+            logger.info("Año {}, Alumnos {}, Acumulados {}", year, alumnos.size(), alumnosAcumulados.size());
+        }
+        contadorComponent.iniciar(alumnosAcumulados.size());
+        for (Alumno alumno : alumnosAcumulados) {
+            if (alumno.getSituacionAcademica().getCodigoEnum() != SituacionAcademicaEnum.get(sit)) {
+                continue;
+            }
+            promedioService.promediarAllCicloAsync(alumno, cicloActivo, ciclos, null, ds);
         }
     }
 
