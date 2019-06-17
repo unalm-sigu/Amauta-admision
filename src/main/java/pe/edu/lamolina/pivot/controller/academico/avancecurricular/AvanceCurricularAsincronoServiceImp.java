@@ -1143,6 +1143,8 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
                     cursosOpcionalesNew.setVecesCursado(0);
                     cursosOpcionalesNew.setCreditos(cursoMatriculado.getCreditos());
                     alumnoCursoNew.add(cursosOpcionalesNew);
+                    
+                    cursoMatriculado.setTipoCursoCurricula(tipoCursoCurricula);
                 }
             }
         }
