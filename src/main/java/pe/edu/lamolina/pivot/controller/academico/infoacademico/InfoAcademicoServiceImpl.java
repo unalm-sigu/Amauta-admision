@@ -3,14 +3,18 @@ package pe.edu.lamolina.pivot.controller.academico.infoacademico;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.google.common.base.Strings;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -161,15 +165,26 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
         }
 
         List<AlumnoCursoCurricula> ciclosAlumno = alumnoCursoCurriculaDAO.allCiclosAlumno(alumno);
+//             cicloInicia = planesCurricular.stream().map(x -> x.getCicloInicioVigencia()).min(Comparator.comparing(CicloAcademico::getCodigo)).get();
+        AlumnoCursoCurricula max = ciclosAlumno.stream().max(Comparator.comparing(AlumnoCursoCurricula::getNumeroCiclo)).get();
         Map<Integer, Long> counters = ciclosAlumno.stream()
                 .collect(Collectors.groupingBy(c -> c.getNumeroCiclo(),
                         Collectors.counting()));
 
-        for (Map.Entry<Integer, Long> entry : counters.entrySet()) {
+        Set<Map.Entry<Integer, Long>> entry = counters.entrySet();
+        for (Integer i = 1; i <= max.getNumeroCiclo(); i++) {
+            Integer a = i;
+
+            Map.Entry<Integer, Long> value = entry.stream().filter(x -> Objects.equals(x.getKey(), a)).findAny().orElse(null);
+            if (value == null) {
+                counters.put(a, 0l);
+                entry = counters.entrySet();
+                value = entry.stream().filter(x -> Objects.equals(x.getKey(), a)).findAny().orElse(null);
+            }
             ObjectNode objCiclo = new ObjectNode(JsonNodeFactory.instance);
-            objCiclo.put("numeroRoman", NumberFormat.roman(entry.getKey()));
-            objCiclo.put("cantidad", "(" + entry.getValue() + ")");
-            objCiclo.put("numero", entry.getKey());
+            objCiclo.put("numeroRoman", NumberFormat.roman(value.getKey()));
+            objCiclo.put("cantidad", "(" + value.getValue() + ")");
+            objCiclo.put("numero", value.getKey());
             ciclosJson.add(objCiclo);
         }
         avanceCurrJson.set("ciclos", ciclosJson);
@@ -753,7 +768,7 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
 
         List<PlanCurricular> planes = planCurricularDAO.allActivoByOrientacion(carrOri, orientacionBD);
         Map<String, CicloAcademico> mapCiclosPlanes = TypesUtil.convertListToMap("cicloInicioVigencia.codigo", "cicloInicioVigencia", planes);
-           Map<String, PlanCurricular> mapPlanesByCiclo = TypesUtil.convertListToMap("cicloInicioVigencia.codigo", planes);
+        Map<String, PlanCurricular> mapPlanesByCiclo = TypesUtil.convertListToMap("cicloInicioVigencia.codigo", planes);
         List<String> codigosCiclosPlanes = new ArrayList<String>(mapCiclosPlanes.keySet());
 
         Collections.sort(codigosCiclosPlanes);
@@ -771,7 +786,7 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
 
             alumnoBD.setPlanCurricular(planBD);
             alumnoDAO.update(alumnoBD);
-        }else{            
+        } else {
             alumnoBD.setPlanCurricular(planes.get(0));
             alumnoDAO.update(alumnoBD);
         }
