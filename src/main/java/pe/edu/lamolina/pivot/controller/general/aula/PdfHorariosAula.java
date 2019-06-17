@@ -42,6 +42,7 @@ public class PdfHorariosAula extends AbstractOnlyPdfView {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final String title = "Horarios Aula";
+    private final int totalColumna = 7;
 
     @Override
     protected void buildPdfMetadata(Map<String, Object> model, Document document, HttpServletRequest request) {
@@ -64,7 +65,9 @@ public class PdfHorariosAula extends AbstractOnlyPdfView {
         List<Dia> dias = (List<Dia>) model.get("dias");
         List<Hora> horas = (List<Hora>) model.get("horas");
 
-        this.documentHeader(writer, aula, aulaSuperior, dias);
+        PdfPTable table = new PdfPTable(totalColumna);
+
+        this.documentHeader(writer, aula, aulaSuperior, dias, table);
 
         List<String> rows = new ArrayList();
         this.generateContent(rows, dias);
@@ -82,9 +85,9 @@ public class PdfHorariosAula extends AbstractOnlyPdfView {
         return this.title + " " + aulaSuperior.getNombre() + " " + aula.getCodigo() + " " + namedate;
     }
 
-    private void documentHeader(PdfWriter writer, Aula aula, Aula aulaSuperior, List<Dia> dias) throws DocumentException {
+    private void documentHeader(PdfWriter writer, Aula aula, Aula aulaSuperior, List<Dia> dias, PdfPTable table) throws DocumentException {
 
-        PdfPTable table = new PdfPTable(7);
+//        PdfPTable table = new PdfPTable(7);
         table.setWidths(new int[]{1, 3, 3, 3, 3, 3, 3});
         table.setTotalWidth(770);
         table.setLockedWidth(true);
@@ -129,7 +132,7 @@ public class PdfHorariosAula extends AbstractOnlyPdfView {
         cell = new PdfPCell(phr);
         cell.setColspan(1);
         cell.setRowspan(2);
-        cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+         cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
         cell.setHorizontalAlignment(Element.ALIGN_CENTER);
         table.addCell(cell);
 
@@ -168,7 +171,7 @@ public class PdfHorariosAula extends AbstractOnlyPdfView {
             PdfPCell cell = new PdfPCell(new Phrase(hora.getDescripcion(), bodyText));
             table.addCell(cell);
             for (Dia dia : hora.getDias()) {
-                
+
                 String firstLine = "z";
                 cell = new PdfPCell(new Phrase(firstLine, bodyText));
                 table.addCell(cell);
