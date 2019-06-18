@@ -17,4 +17,6 @@ public interface HistoriaLaboratorioDAO extends EasyDAO<HistoriaLaboratorio> {
 
     List<HistoriaLaboratorio> allByPersonaFilterFecha(List<Persona> personas, Date fecha);
 
+    void updateColumns(HistoriaLaboratorio historiaLaboratorio, String... columns);
+
 }

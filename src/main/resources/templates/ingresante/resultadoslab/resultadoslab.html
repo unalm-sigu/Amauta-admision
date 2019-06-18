@@ -60,7 +60,7 @@
                                                     <th class="col-xs-5 v-middle">Alumno</th>
                                                     <th class="col-xs-1 v-middle text-center">Muestra Abs</th>
                                                     <th class="col-xs-1 v-middle text-center">Estándar Abs</th>
-                                                    <th class="col-xs-1 v-middle text-center">Hemoglobina g/dL</th>
+                                                    <th class="col-xs-1 v-middle text-center b-r">Hemoglobina g/dL</th>
                                                     <th class="col-xs-3 v-middle text-center">Sangre</th>
                                                     <th class=""></th>
                                                     <th></th>
@@ -107,17 +107,17 @@
 
                                                     <td  class="v-middle" >       
                                                         <div v-if="item.laboratorio.id != ''">
-                                                            <input v-model="item.laboratorio.valorMuestra" type="text" class="form-control decimal" />        
+                                                            <input v-model="item.laboratorio.valorMuestra" v-on:keyup="saveOtherColumns(item)" type="text" class="form-control decimal" />        
                                                         </div>
                                                     </td>
 
                                                     <td  class="v-middle" >       
                                                         <div  v-if="item.laboratorio.id != ''">
-                                                            <input v-model="item.laboratorio.estandar" type="text" class="form-control decimal" />        
+                                                            <input v-model="item.laboratorio.estandar" v-on:keyup="saveOtherColumns(item)" type="text" class="form-control decimal" />        
                                                         </div>
                                                     </td>
 
-                                                    <td  class="v-middle" >       
+                                                    <td  class="v-middle b-r" >       
                                                         <div  v-if="item.laboratorio.id != ''">
                                                             <input v-model="item.laboratorio.hemoglobina" type="text" class="form-control decimal" disabled="" />        
                                                         </div>
