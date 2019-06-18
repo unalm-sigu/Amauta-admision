@@ -104,8 +104,7 @@
                                     <tbody>
                                         <tr v-for="hora in horas" class='hijo'>
                                             <td class="v-middle">
-                                                <span class="bold"
-                                                      >
+                                                <span class="bold">
                                                     {{hora.descripcion}}
                                                 </span>
                                             </td>
@@ -144,7 +143,7 @@
 
                                                             <span v-if="dia.mainHorarioAula.seccion.docenteSeccion.length" class="block" style="margin-top:5px;margin-bottom:5px;">
 
-                                                                <strong> Docentes </strong> 
+                                                                <strong> Docentes </strong>
 
                                                                 <ul class="otros-docente">
                                                                     <li v-for="(item, index )  in dia.mainHorarioAula.seccion.docenteSeccion" class="prof">
@@ -189,9 +188,9 @@
                                                     </div>
                                                 </div>
 
-                                                <span v-if="dia.mainHorarioAula"
-                                                      class="text-muted block">
-                                                    {{dia.mainHorarioAula.seccion.grupoHoras.codigo}}
+                                                                                                <span v-if="dia.mainHorarioAula"
+                                                                                                      class="text-muted block">
+                                                                                                    {{dia.mainHorarioAula.seccion.grupoHoras.codigo}}
                                                 </span>
 
                                             </td>
@@ -200,9 +199,13 @@
                                             <td v-bind:colspan="1+dias.length" class="text-left">
                                                 Sin horario.
                                             </td>
-                                        </tr>
+                                        </tr>  
                                     </tbody>
                                 </table>
+                                <span class="pull-right m-t-md">
+                                    <a class="btn btn-success" v-on:click="descargaPDF" >Descargar</a>
+                                    <!--<a class="btn btn-success" href="/general/aula/generatorpdf"  >Descargar</a>-->
+                                </span>
                             </div>
                         </div>
                     </div>
@@ -213,6 +216,7 @@
     </div>
 
     <div layout:fragment="js">
+        <div th:substituteby="_layout/includes :: javascript-filedownload"/>
         <script  th:inline="javascript" >
             /*<![CDATA[*/
             var listOficinaJson = /*[[${oficinas}]]*/ 'json';

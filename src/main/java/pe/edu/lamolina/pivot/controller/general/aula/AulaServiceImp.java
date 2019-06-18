@@ -320,7 +320,7 @@ public class AulaServiceImp implements AulaService {
             }
         }
 
-        List<DocenteSeccion> docenteSecciones = docenteSeccionDAO.allActivosBySeccionesOrderPrincipalLimit(secciones);
+        List<DocenteSeccion> docenteSecciones = docenteSeccionDAO.allPrincipalesBySecciones(secciones);
         Map<Long, List<DocenteSeccion>> docenteSeccionesMap = TypesUtil.convertListToMapList("seccion.id", docenteSecciones);
 
         for (HorarioAula horariosAula : horariosAulas) {
