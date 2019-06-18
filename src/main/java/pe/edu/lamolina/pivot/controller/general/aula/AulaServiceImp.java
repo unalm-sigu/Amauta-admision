@@ -27,12 +27,15 @@ import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.EventoAcademicoEnum;
 import pe.edu.lamolina.model.enums.TipoAmbienteEnum;
 import pe.edu.lamolina.model.enums.TipoDictadoGrupoSeccionEnum;
+import pe.edu.lamolina.model.enums.TipoGrupoHorasEnum;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.general.Sede;
 import pe.edu.lamolina.model.general.TipoAula;
 import pe.edu.lamolina.model.general.TipoCarpeta;
+import pe.edu.lamolina.model.horario.DiaHoraGrupo;
+import pe.edu.lamolina.model.horario.GrupoHoras;
 import pe.edu.lamolina.model.horario.HorarioAula;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.dao.academico.DocenteSeccionDAO;
@@ -44,6 +47,8 @@ import pe.edu.lamolina.pivot.dao.general.OficinaDAO;
 import pe.edu.lamolina.pivot.dao.general.SedeDAO;
 import pe.edu.lamolina.pivot.dao.general.TipoAulaDAO;
 import pe.edu.lamolina.pivot.dao.general.TipoCarpetaDAO;
+import pe.edu.lamolina.pivot.dao.horario.DiaHoraGrupoDAO;
+import pe.edu.lamolina.pivot.dao.horario.GrupoHorasDAO;
 import pe.edu.lamolina.pivot.dao.horario.HorarioAulaDAO;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -80,6 +85,9 @@ public class AulaServiceImp implements AulaService {
 
     @Autowired
     EventoCicloAcademicoDAO eventoCicloAcademicoDAO;
+
+    @Autowired
+    DiaHoraGrupoDAO diaHoraGrupoDAO;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -343,6 +351,16 @@ public class AulaServiceImp implements AulaService {
     @Override
     public List<Aula> allAulaByAulaSuperior(List<Aula> listAulaSuperior) {
         return aulaDAO.allByAulasSuperiores(listAulaSuperior);
+    }
+
+    @Override
+    public List<Dia> allDiaForPrinter() {
+        return diaDAO.allDiaForPrinter();
+    }
+
+    @Override
+    public List<DiaHoraGrupo> allDiaHoraGrupoByCicloRegular(CicloAcademico cicloAcademico) {
+        return diaHoraGrupoDAO.allByTipoGpoEnumCiclo(TipoGrupoHorasEnum.REGULAR, cicloAcademico);
     }
 
 }
