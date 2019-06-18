@@ -15,7 +15,7 @@ new Vue({
     },
     mounted: function () {
         let $vue = this;
-        console.log("laboratorioActual", $vue.laboratorioActual);
+        // console.log("laboratorioActual", $vue.laboratorioActual);
         $vue.loadTurnos();
     },
     methods: {
@@ -168,6 +168,16 @@ new Vue({
                 console.log(turno)
                 location.href = APP.url('ingresante/muestraslab/listaExcelAtendidos?turno=' + turno)
             }
+        }, verMuestra(recorridoIngresante) {
+            console.log("verMuestra");
+            console.dir(recorridoIngresante);
+            let actividadIngresante = recorridoIngresante.actividadIngresante.filter(opt => opt.tipoActividadIngresante.tipoRECEP && opt.estadoAct);
+            if (actividadIngresante != null && actividadIngresante.length > 0) {
+                console.log("found");
+                console.dir(actividadIngresante);
+                return true;
+            }
+            return false;
         }
     }
 });
