@@ -519,23 +519,11 @@ public class AulaController {
         List<Aula> listAulaSuperior = service.allAulaByOficinaSuperior(ds);
         List<Aula> listAula = service.allAulaByAulaSuperior(listAulaSuperior);
 
-        model.addAttribute("oficinas", createOficinasJSON(ds.getOficinas()).toString());
         model.addAttribute("listAulaSuperior", createListAulaJSON(listAulaSuperior).toString());
         model.addAttribute("listAula", createListAulaJSON(listAula).toString());
         model.addAttribute("ciclo", ciclo);
 
-        return "general/aula/horarios";
-    }
-
-    private ArrayNode createOficinasJSON(List<Oficina> oficinas) {
-        ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
-        for (Oficina oficina : oficinas) {
-            ObjectNode node = JsonHelper.createJson(oficina, JsonNodeFactory.instance, true, new String[]{
-                "id", "nombre", "codigo"
-            });
-            array.add(node);
-        }
-        return array;
+        return "general/aula/horarioAulaVistaCompleta";
     }
 
     private ArrayNode createListAulaJSON(List<Aula> listAula) {
