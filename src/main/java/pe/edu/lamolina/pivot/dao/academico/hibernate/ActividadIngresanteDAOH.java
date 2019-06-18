@@ -7,6 +7,7 @@ import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.ActividadIngresante;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.RecorridoIngresante;
+import pe.edu.lamolina.model.academico.TipoActividadIngresante;
 import pe.edu.lamolina.pivot.dao.academico.ActividadIngresanteDAO;
 
 @Repository
@@ -32,6 +33,16 @@ public class ActividadIngresanteDAOH extends AbstractEasyDAO<ActividadIngresante
                 //.filter("estado", ActividadIngresanteEnum.COMP)
                 .filter("ca.id", cicloAcademico);
         return all(sql);
+    }
+
+    @Override
+    public ActividadIngresante findByRecorridoTipoActividad(RecorridoIngresante recorrido, TipoActividadIngresante tipoActividad) {
+        Octavia sql = Octavia.query()
+                .from(ActividadIngresante.class, "ai")
+                .join("recorridoIngresante ri", "tipoActividadIngresante tai")
+                .filter("ri.id", recorrido)
+                .filter("tai.id", tipoActividad);
+        return find(sql);
     }
 
 }

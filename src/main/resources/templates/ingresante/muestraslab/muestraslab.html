@@ -244,8 +244,10 @@
                                                                 <input v-model="item.laboratorio.numeroMuestra" type="text" class="form-control" disabled=""/>        
                                                             </div>
 
+
                                                             <div v-if="verTurno || verTodos">
-                                                                <div v-if="item.laboratorio.numeroMuestra==''" class="form-group col-md-6">
+                                                                <!-- v-if="item.laboratorio.numeroMuestra==''"  -->
+                                                                <div v-if="item.tieneActividadRECEP &amp;&amp; item.laboratorio.numeroMuestra==''" class="form-group col-md-6">
                                                                     <a type="button" class="btn btn-success" v-on:click="asignarNumLab(item)">Asignar</a>
                                                                 </div>
                                                                 <div v-if="item.laboratorio.numeroMuestra!=''" class="form-group col-md-6">
