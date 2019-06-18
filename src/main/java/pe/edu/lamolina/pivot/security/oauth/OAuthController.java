@@ -114,7 +114,7 @@ public class OAuthController {
                 boolean esIoera = false;
                 List<Rol> roles = ds.getRoles();
                 for (Rol role : roles) {
-                    if (role.getCodigoEnum() != RolEnum.IOREA) {
+                    if (role.getCodigoEnum() == RolEnum.IOREA) {
                         esIoera = true;
                     }
                 }
