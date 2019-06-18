@@ -242,6 +242,25 @@ public class TestController {
     }
 
     @ResponseBody
+    @RequestMapping("promediarfullbysituacion/{sit}")
+    public String promediarfullBySituacion(@PathVariable("sit") String sit, HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        ds.setFechaAccionAudit(new Date());
+        service.promediarfullBySituacion(sit, ds);
+        return "yeah";
+    }
+
+    @ResponseBody
+    @RequestMapping("promediarepgfullbysituacion/{sit}")
+    public String promediarepgfullBySituacion(@PathVariable("sit") String sit, HttpSession session) {
+        logger.info("promediarepgfull");
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        service.promediarepgfullBySituacion(sit, ds);
+
+        return "yeah";
+    }
+
+    @ResponseBody
     @RequestMapping("promediarepgfull")
     public String promediarepgfull(HttpSession session) {
         logger.info("promediarepgfull");

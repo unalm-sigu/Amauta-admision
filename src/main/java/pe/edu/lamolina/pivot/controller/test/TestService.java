@@ -21,4 +21,8 @@ public interface TestService {
 
     void calcularAllPromediosByCiclo(DataSessionPivot ds);
 
+    public void promediarfullBySituacion(String sit, DataSessionPivot ds);
+
+    public void promediarepgfullBySituacion(String sit, DataSessionPivot ds);
+
 }

@@ -1987,3 +1987,17 @@ textarea {
 .prof:nth-child(even){
    background-color: #ddd;
 }
+@media (min-width: 768px) and (max-width: 1024px) and (orientation: landscape){
+           
+    .login-bg{
+        max-height: 800px;
+    }
+            
+         
+        }
+        @media (min-width: 320px) and (max-width: 480px){
+            .login-bg{
+        height: 800px;
+    display: inherit;
+    }
+        }
