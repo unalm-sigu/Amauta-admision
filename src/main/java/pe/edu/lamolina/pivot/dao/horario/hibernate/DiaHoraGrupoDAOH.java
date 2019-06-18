@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.enums.TipoGrupoHorasEnum;
 import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.horario.DiaHoraGrupo;
 import pe.edu.lamolina.model.horario.GrupoHoras;
@@ -82,7 +83,7 @@ public class DiaHoraGrupoDAOH extends AbstractEasyDAO<DiaHoraGrupo> implements D
 
         return all(sql);
     }
-    
+
     @Override
     public List<DiaHoraGrupo> allByTipoGpoCiclo(TipoGrupoHoras tipoGrupoHoras, CicloAcademico cicloAcademico) {
         Octavia sql = Octavia.query()
@@ -155,6 +156,18 @@ public class DiaHoraGrupoDAOH extends AbstractEasyDAO<DiaHoraGrupo> implements D
                 .in("dhg.id", diaHoraGrupo);
 
         return all(sql);
+    }
+
+    @Override
+    public List<DiaHoraGrupo> allByTipoGpoEnumCiclo(TipoGrupoHorasEnum tipoGrupoHorasEnum, CicloAcademico cicloAcademico) {
+        Octavia sql = Octavia.query()
+                .from(DiaHoraGrupo.class, "dhg")
+                .join("grupoHorario gh", "cicloAcademico ciclo", "dia dia", "hora hora", "gh.tipoGrupoHoras tgh")
+                .filter("tgh.tipo", tipoGrupoHorasEnum)
+                .filter("ciclo.id", cicloAcademico);
+
+        return all(sql);
+
     }
 
 }
