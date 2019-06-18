@@ -2,6 +2,7 @@ package pe.edu.lamolina.pivot.controller.general.aula;
 
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -27,12 +28,15 @@ import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.EventoAcademicoEnum;
 import pe.edu.lamolina.model.enums.TipoAmbienteEnum;
 import pe.edu.lamolina.model.enums.TipoDictadoGrupoSeccionEnum;
+import pe.edu.lamolina.model.enums.TipoGrupoHorasEnum;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.general.Sede;
 import pe.edu.lamolina.model.general.TipoAula;
 import pe.edu.lamolina.model.general.TipoCarpeta;
+import pe.edu.lamolina.model.horario.DiaHoraGrupo;
+import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.horario.HorarioAula;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.dao.academico.DocenteSeccionDAO;
@@ -44,6 +48,8 @@ import pe.edu.lamolina.pivot.dao.general.OficinaDAO;
 import pe.edu.lamolina.pivot.dao.general.SedeDAO;
 import pe.edu.lamolina.pivot.dao.general.TipoAulaDAO;
 import pe.edu.lamolina.pivot.dao.general.TipoCarpetaDAO;
+import pe.edu.lamolina.pivot.dao.horario.DiaHoraGrupoDAO;
+import pe.edu.lamolina.pivot.dao.horario.HoraDAO;
 import pe.edu.lamolina.pivot.dao.horario.HorarioAulaDAO;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -80,6 +86,12 @@ public class AulaServiceImp implements AulaService {
 
     @Autowired
     EventoCicloAcademicoDAO eventoCicloAcademicoDAO;
+
+    @Autowired
+    DiaHoraGrupoDAO diaHoraGrupoDAO;
+
+    @Autowired
+    HoraDAO horaDAO;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -308,7 +320,7 @@ public class AulaServiceImp implements AulaService {
             }
         }
 
-        List<DocenteSeccion> docenteSecciones = docenteSeccionDAO.allActivosBySeccionesOrderPrincipalLimit(secciones);
+        List<DocenteSeccion> docenteSecciones = docenteSeccionDAO.allPrincipalesBySecciones(secciones);
         Map<Long, List<DocenteSeccion>> docenteSeccionesMap = TypesUtil.convertListToMapList("seccion.id", docenteSecciones);
 
         for (HorarioAula horariosAula : horariosAulas) {
@@ -343,6 +355,98 @@ public class AulaServiceImp implements AulaService {
     @Override
     public List<Aula> allAulaByAulaSuperior(List<Aula> listAulaSuperior) {
         return aulaDAO.allByAulasSuperiores(listAulaSuperior);
+    }
+
+    @Override
+    public List<Dia> allDiaForPrinter() {
+        return diaDAO.allDiaForPrinter();
+    }
+
+    @Override
+    public List<DiaHoraGrupo> allDiaHoraGrupoByCicloRegular(CicloAcademico cicloAcademico) {
+        return diaHoraGrupoDAO.allByTipoGpoEnumCiclo(TipoGrupoHorasEnum.REGULAR, cicloAcademico);
+    }
+
+    @Override
+    public List<Hora> returnHorasEncontradas(Aula aulaBD, List<Dia> dias, DataSessionPivot ds) {
+
+        List<DiaHoraGrupo> listdiaHoraGrupo = this.allDiaHoraGrupoByCicloRegular(ds.getCicloAcademico());
+
+        List<Hora> horasEncontradas = new ArrayList<>();
+        for (HorarioAula horarioAula : aulaBD.getHorariosAula()) {
+            if (!horasEncontradas.contains(horarioAula.getHora())) {
+                horasEncontradas.add(horarioAula.getHora());
+            }
+        }
+
+        Collections.sort(horasEncontradas, (horas1, horas2) -> horas1.getNumero().compareTo(horas2.getNumero()));
+
+        List<HorarioAula> horarios = aulaBD.getHorariosAula();
+
+        Map<String, HorarioAula> diasHorasMap = horarios.stream().collect(Collectors.toMap(x -> x.getHora().getId() + "-" + x.getDia().getId(), x -> x, (f, s) -> s));
+
+        Map<String, DiaHoraGrupo> diaHoraGrupoMap = listdiaHoraGrupo.stream().collect(Collectors.toMap(x -> x.getHora().getId() + "-" + x.getDia().getId(), x -> x, (f, s) -> s));
+
+        for (Hora horasEncontrada : horasEncontradas) {
+            List<Dia> diass = new ArrayList();
+            for (Dia dia : dias) {
+                Dia diaClone = dia.clone();
+                diaClone.setMainHorarioAula(null);
+                diaClone.setGrupohoras(null);
+                String key = horasEncontrada.getId() + "-" + dia.getId();
+                HorarioAula horarioAula = diasHorasMap.get(key);
+                DiaHoraGrupo diaHoraGrupo = diaHoraGrupoMap.get(key);
+                diaClone.setMainHorarioAula(horarioAula);
+                if (diaHoraGrupo != null) {
+                    ObjectUtil.printAttr(diaHoraGrupo.getGrupoHorario());
+                    diaClone.setGrupohoras(diaHoraGrupo.getGrupoHorario());
+                }
+                diass.add(diaClone);
+            }
+            horasEncontrada.setDias(diass);
+        }
+        return horasEncontradas;
+    }
+
+    @Override
+    public List<Hora> returnHorasEcontradasModal(Aula aula, List<Dia> dias) {
+
+        List<Hora> horasEncontradas = new ArrayList<>();
+        for (HorarioAula horarioAula : aula.getHorariosAula()) {
+            if (!horasEncontradas.contains(horarioAula.getHora())) {
+                horasEncontradas.add(horarioAula.getHora());
+            }
+        }
+
+        Collections.sort(horasEncontradas, (horas1, horas2) -> horas1.getNumero().compareTo(horas2.getNumero()));
+
+        List<HorarioAula> horarios = aula.getHorariosAula();
+
+        Map<String, HorarioAula> diasHorasMap = horarios.stream().collect(Collectors.toMap(x -> x.getHora().getId() + "-" + x.getDia().getId(), x -> x, (f, s) -> s));
+
+        for (Hora horasEncontrada : horasEncontradas) {
+            List<Dia> diass = new ArrayList();
+            for (Dia dia : dias) {
+                Dia diaClone = dia.clone();
+                diaClone.setMainHorarioAula(null);
+                String key = horasEncontrada.getId() + "-" + dia.getId();
+                HorarioAula horarioAula = diasHorasMap.get(key);
+                diaClone.setMainHorarioAula(horarioAula);
+                diass.add(diaClone);
+            }
+            horasEncontrada.setDias(diass);
+        }
+
+        return horasEncontradas;
+    }
+
+    @Override
+    public List<Hora> allHorasHorario() {
+        Hora horaInicial = horaDAO.findByNumeroHora(8); // 8AM
+        Hora horaFinal = horaDAO.findByNumeroHora(21); // 9PM
+
+        return horaDAO.allByInicioFin(horaInicial, horaFinal);
+
     }
 
 }

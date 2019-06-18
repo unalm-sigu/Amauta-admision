@@ -3,7 +3,6 @@ Vue.component("multiselect", window.VueMultiselect.default)
 new Vue({
     el: '#horariosVUE',
     data: {
-        listOficina: JSON.parse(listOficinaJson),
         listAulaSuperior: JSON.parse(listAulaSuperiorJson),
         listAula: JSON.parse(listAulaJson),
         listAulaOptions: [],
@@ -141,23 +140,9 @@ new Vue({
         descargaPDF() {
             let $vue = this;
 
-            var horasClone = Object.assign([], $vue.horas);
-
-            for (var i = 0; i < horasClone.length; i++) {
-                for (var f = 0; f < horasClone[i].dias.length; f++) {
-                    horasClone[i].dias[f].mainHorarioAula.estadoEnum = undefined;
-                    horasClone[i].dias[f].mainHorarioAula.tipoEnum = undefined;
-                }
-            }
-
             $vue.horariosAulaPDFBean.aulaSuperior = $vue.aulaSuperior;
             $vue.horariosAulaPDFBean.aula = $vue.aula;
-            $vue.horariosAulaPDFBean.dias = $vue.dias;
-            $vue.horariosAulaPDFBean.horas = horasClone;
-
-            console.log(JSON.stringify($vue.aula));
-
-            $vue.aula.tipoAmbienteEnum = undefined;
+            $vue.horariosAulaPDFBean.aula.tipoAmbienteEnum = undefined;
 
             $.fileDownload("/" + rutaModulo + "/generatorpdf", {
                 httpMethod: "POST",

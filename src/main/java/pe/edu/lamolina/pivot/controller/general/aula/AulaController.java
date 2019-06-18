@@ -44,6 +44,8 @@ import pe.edu.lamolina.model.enums.TipoAmbienteEnum;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.general.Oficina;
+import pe.edu.lamolina.model.horario.DiaHoraGrupo;
+import pe.edu.lamolina.model.horario.GrupoHoras;
 import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.horario.HorarioAula;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
@@ -404,39 +406,14 @@ public class AulaController {
             JsonNodeFactory factory = JsonNodeFactory.instance;
 
             Aula aula = service.findAulaFull(aulaForm);
-
             List<Dia> dias = service.allDia();
-            List<Hora> horasEncontradas = new ArrayList<>();
-            for (HorarioAula horarioAula : aula.getHorariosAula()) {
-                if (!horasEncontradas.contains(horarioAula.getHora())) {
-                    horasEncontradas.add(horarioAula.getHora());
-                }
-            }
-
-            Collections.sort(horasEncontradas, (p1, p2) -> p1.getNumero().compareTo(p2.getNumero()));
+            List<Hora> horasEncontradas = service.returnHorasEcontradasModal(aula, dias);
 
             ObjectNode data = new ObjectNode(factory);
             ArrayNode diasJson = new ArrayNode(factory);
 
             for (Dia dia : dias) {
                 diasJson.add(JsonHelper.createJson(dia, factory));
-            }
-
-            List<HorarioAula> horarios = aula.getHorariosAula();
-
-            Map<String, HorarioAula> diasHoras = horarios.stream().collect(Collectors.toMap(x -> x.getHora().getId() + "-" + x.getDia().getId(), x -> x, (f, s) -> s));
-
-            for (Hora horasEncontrada : horasEncontradas) {
-                List<Dia> diass = new ArrayList();
-                for (Dia dia : dias) {
-                    Dia diaClone = dia.clone();
-                    diaClone.setMainHorarioAula(null);
-                    String key = horasEncontrada.getId() + "-" + dia.getId();
-                    HorarioAula horarioAula = diasHoras.get(key);
-                    diaClone.setMainHorarioAula(horarioAula);
-                    diass.add(diaClone);
-                }
-                horasEncontrada.setDias(diass);
             }
 
             ArrayNode horasJson = new ArrayNode(factory);
@@ -510,48 +487,24 @@ public class AulaController {
         logger.debug("******** fin {}", horariosAulaPdfBean.getFechaFin());
         logger.debug("******** inicio {}", horariosAulaPdfBean.getFechaInicio());
 
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
         Aula aulaForm = new ObjectMapper().readValue(horariosAulaPdfBean.getStrAula(), Aula.class);
+        Aula aulaSuperiorForm = new ObjectMapper().readValue(horariosAulaPdfBean.getStrAulaSuperior(), Aula.class);
         aulaForm.setFechaFin(horariosAulaPdfBean.getFechaFin());
         aulaForm.setFechaInicio(horariosAulaPdfBean.getFechaInicio());
 
-        Aula aulaSuperiorForm = new ObjectMapper().readValue(horariosAulaPdfBean.getStrAulaSuperior(), Aula.class);
-        List<Dia> dias = service.allDia();
-
-        ObjectUtil.printAttr(aulaForm);
-        ObjectUtil.printAttr(aulaSuperiorForm);
-
+        List<Dia> dias = service.allDiaForPrinter();
         Aula aulaBD = service.findAulaFull(aulaForm);
 
-        List<Hora> horasEncontradas = new ArrayList<>();
-        for (HorarioAula horarioAula : aulaBD.getHorariosAula()) {
-            if (!horasEncontradas.contains(horarioAula.getHora())) {
-                horasEncontradas.add(horarioAula.getHora());
-            }
-        }
-
-        Collections.sort(horasEncontradas, (p1, p2) -> p1.getNumero().compareTo(p2.getNumero()));
-
-        List<HorarioAula> horarios = aulaBD.getHorariosAula();
-
-        Map<String, HorarioAula> diasHoras = horarios.stream().collect(Collectors.toMap(x -> x.getHora().getId() + "-" + x.getDia().getId(), x -> x, (f, s) -> s));
-
-        for (Hora horasEncontrada : horasEncontradas) {
-            List<Dia> diass = new ArrayList();
-            for (Dia dia : dias) {
-                Dia diaClone = dia.clone();
-                diaClone.setMainHorarioAula(null);
-                String key = horasEncontrada.getId() + "-" + dia.getId();
-                HorarioAula horarioAula = diasHoras.get(key);
-                diaClone.setMainHorarioAula(horarioAula);
-                diass.add(diaClone);
-            }
-            horasEncontrada.setDias(diass);
-        }
+        List<Hora> horasEncontradasGet = service.returnHorasEncontradas(aulaBD, dias, ds);
+        List<Hora> horasBase = service.allHorasHorario();
 
         model.addAttribute("aula", aulaBD);
         model.addAttribute("aulaSuperior", aulaSuperiorForm);
         model.addAttribute("dias", dias);
-        model.addAttribute("horas", horasEncontradas);
+        model.addAttribute("horasBase", horasBase);
+        model.addAttribute("horas", horasEncontradasGet);
         model.addAttribute("fechaFin", horariosAulaPdfBean.getFechaFin());
         model.addAttribute("fechaInicio", horariosAulaPdfBean.getFechaInicio());
 
@@ -566,23 +519,11 @@ public class AulaController {
         List<Aula> listAulaSuperior = service.allAulaByOficinaSuperior(ds);
         List<Aula> listAula = service.allAulaByAulaSuperior(listAulaSuperior);
 
-        model.addAttribute("oficinas", createOficinasJSON(ds.getOficinas()).toString());
         model.addAttribute("listAulaSuperior", createListAulaJSON(listAulaSuperior).toString());
         model.addAttribute("listAula", createListAulaJSON(listAula).toString());
         model.addAttribute("ciclo", ciclo);
 
         return "general/aula/horarioAulaVistaCompleta";
-    }
-
-    private ArrayNode createOficinasJSON(List<Oficina> oficinas) {
-        ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
-        for (Oficina oficina : oficinas) {
-            ObjectNode node = JsonHelper.createJson(oficina, JsonNodeFactory.instance, true, new String[]{
-                "id", "nombre", "codigo"
-            });
-            array.add(node);
-        }
-        return array;
     }
 
     private ArrayNode createListAulaJSON(List<Aula> listAula) {

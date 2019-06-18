@@ -7,7 +7,6 @@ import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Element;
 import com.itextpdf.text.Font;
 import com.itextpdf.text.Font.FontFamily;
-import com.itextpdf.text.FontFactory;
 import com.itextpdf.text.PageSize;
 import com.itextpdf.text.Phrase;
 import com.itextpdf.text.Rectangle;
@@ -17,7 +16,6 @@ import com.itextpdf.text.pdf.PdfWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
@@ -27,7 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import pe.edu.lamolina.model.academico.DocenteSeccion;
+import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.horario.Hora;
@@ -42,7 +40,6 @@ public class PdfHorariosAula extends AbstractOnlyPdfView {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final String title = "Horarios Aula";
-    private final int totalColumna = 7;
 
     @Override
     protected void buildPdfMetadata(Map<String, Object> model, Document document, HttpServletRequest request) {
@@ -53,7 +50,7 @@ public class PdfHorariosAula extends AbstractOnlyPdfView {
         document.addTitle(this.title);
         document.addSubject("subject cualquiera");
         document.setPageSize(PageSize.A4.rotate());
-        document.setMargins(36, 36, 130, 36);
+        document.setMargins(36, 36, 40, 36);
 
     }
 
@@ -64,15 +61,11 @@ public class PdfHorariosAula extends AbstractOnlyPdfView {
         Aula aulaSuperior = (Aula) model.get("aulaSuperior");
         List<Dia> dias = (List<Dia>) model.get("dias");
         List<Hora> horas = (List<Hora>) model.get("horas");
+        List<Hora> horasBase = (List<Hora>) model.get("horasBase");
 
-        PdfPTable table = new PdfPTable(totalColumna);
-
-        this.documentHeader(writer, aula, aulaSuperior, dias, table);
-
-        List<String> rows = new ArrayList();
-        this.generateContent(rows, dias);
-
-        this.documentBody(horas, document);
+        PdfPTable table = this.createTable();
+        this.documentHeader(aula, aulaSuperior, dias, table);
+        this.documentBody(horas, horasBase, document, table);
         document.newPage();
 
         String nombre = this.getUnTitle(aulaSuperior, aula);
@@ -82,17 +75,13 @@ public class PdfHorariosAula extends AbstractOnlyPdfView {
 
     private String getUnTitle(Aula aulaSuperior, Aula aula) {
         String namedate = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
-        return this.title + " " + aulaSuperior.getNombre() + " " + aula.getCodigo() + " " + namedate;
+        return this.title + " " + aulaSuperior.getNombre() + "-" + aula.getCodigo() + " " + namedate;
     }
 
-    private void documentHeader(PdfWriter writer, Aula aula, Aula aulaSuperior, List<Dia> dias, PdfPTable table) throws DocumentException {
+    private void documentHeader(Aula aula, Aula aulaSuperior, List<Dia> dias, PdfPTable table) throws DocumentException {
 
-//        PdfPTable table = new PdfPTable(7);
-        table.setWidths(new int[]{1, 3, 3, 3, 3, 3, 3});
-        table.setTotalWidth(770);
-        table.setLockedWidth(true);
-
-        Font fontHeader = new Font(Font.FontFamily.HELVETICA, 10, Font.NORMAL, BaseColor.BLACK);
+        Font fontHeaderPDF = new Font(Font.FontFamily.HELVETICA, 9, Font.NORMAL, BaseColor.BLACK);
+        Font fontHeaderTable = new Font(Font.FontFamily.HELVETICA, 8, Font.BOLD, BaseColor.WHITE);
 
         List<String> rows = new ArrayList();
 
@@ -111,12 +100,12 @@ public class PdfHorariosAula extends AbstractOnlyPdfView {
             String fila = (String) rows.get(i);
             StringTokenizer st = new StringTokenizer(fila, "|");
 
-            PdfPCell cell = new PdfPCell(new Phrase(st.nextToken(), fontHeader));
+            PdfPCell cell = new PdfPCell(new Phrase(st.nextToken(), fontHeaderPDF));
             cell.setColspan(2);
             cell.setBorder(Rectangle.NO_BORDER);
             table.addCell(cell);
 
-            cell = new PdfPCell(new Phrase(st.nextToken(), fontHeader));
+            cell = new PdfPCell(new Phrase(st.nextToken(), fontHeaderPDF));
             cell.setColspan(20);
             cell.setBorder(Rectangle.NO_BORDER);
             table.addCell(cell);
@@ -126,95 +115,171 @@ public class PdfHorariosAula extends AbstractOnlyPdfView {
         Phrase phr = null;
         PdfPCell cell = null;
 
-        logger.debug("******* cantidad dias {}", dias.size());
-
-        phr = new Phrase("Hora", fontHeader);
+        phr = new Phrase("Hora", fontHeaderTable);
         cell = new PdfPCell(phr);
-        cell.setColspan(1);
-        cell.setRowspan(2);
-         cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+        cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
         cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+        cell.setBackgroundColor(BaseColor.BLACK);
         table.addCell(cell);
 
         for (Dia dia : dias) {
-            phr = new Phrase(dia.getNombre(), fontHeader);
+            phr = new Phrase(dia.getNombre().toUpperCase(), fontHeaderTable);
             cell = new PdfPCell(phr);
-            cell.setColspan(1);
-            cell.setRowspan(2);
             cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
             cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+            cell.setBackgroundColor(BaseColor.BLACK);
             table.addCell(cell);
         }
-
-        HeaderTableDiario event = new HeaderTableDiario();
-        event.setFontHeader(fontHeader);
-        event.setTable(table);
-        writer.setPageEvent(event);
-
     }
 
-    private void documentBody(List<Hora> horas, Document document) throws DocumentException {
-//        PdfPTable table1 = new PdfPTable(1);
-//        table1.setWidthPercentage(100);
-//        table1.addCell("HOLA");
-//        document.add(table1);
+    private void documentBody(List<Hora> horas, List<Hora> horasBase, Document document, PdfPTable table) throws DocumentException {
 
-        List<String> rows = new ArrayList();
+        int totalColumna = 7;
+        int columnaHoraEspacio = 1;
+        int totalColumnaContenido = totalColumna - columnaHoraEspacio;
 
-        //    this.generateContent(rows, dias);
-        PdfPTable table = new PdfPTable(7);
-        table.setWidthPercentage(100);
+        Map<Long, Hora> mapHoraEncontrado = TypesUtil.convertListToMap("id", horas);
 
-        Font bodyText = new Font(FontFamily.HELVETICA, 12, Font.NORMAL, BaseColor.BLACK);
+        Font bodyText = new Font(FontFamily.HELVETICA, 7, Font.NORMAL, BaseColor.BLACK);
+        Font timeText = new Font(FontFamily.HELVETICA, 8, Font.NORMAL, BaseColor.BLACK);
 
-        for (Hora hora : horas) {
-            PdfPCell cell = new PdfPCell(new Phrase(hora.getDescripcion(), bodyText));
+        for (Hora horaBase : horasBase) {
+
+            // primera celda de hora
+            PdfPCell cell = new PdfPCell(new Phrase(horaBase.getDescripcion2(), timeText));
+            cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+            cell.setFixedHeight(34);
             table.addCell(cell);
-            for (Dia dia : hora.getDias()) {
 
-                String firstLine = "z";
-                cell = new PdfPCell(new Phrase(firstLine, bodyText));
-                table.addCell(cell);
+            Hora hora = mapHoraEncontrado.get(horaBase.getId());
 
+            if (hora != null) {
+                table = this.construccionCeldas(table, hora, bodyText, totalColumnaContenido);
+            } else {
+                table = this.construccionCeldasVacias(table, totalColumnaContenido);
             }
-            table.addCell(cell);
-
         }
 
-//        Map<Integer, Integer> indxMerge = new LinkedHashMap<>();
-//        indxMerge.put(2, 2);
-//        indxMerge.put(4, 4);
-//        for (int i = 0; i < rows.size(); i++) {
-//
-//            String fila = (String) rows.get(i);
-//            StringTokenizer st = new StringTokenizer(fila, "|");
-//
-//            int j = 0;
-//
-//            while (st.hasMoreTokens()) {
-//
-//                String token = st.nextToken();
-//                PdfPCell cell = new PdfPCell(new Phrase(token, bodyText));
-//                cell.setColspan(7);
-//                table.addCell(cell);
-//
-//            }
-//        }
-        table.addCell("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
         document.add(table);
-        document.add(new Chunk(".333333333333333", new Font(FontFamily.COURIER, 10, Font.NORMAL, BaseColor.BLACK)));
+        document.add(new Chunk("shot invisible", new Font(FontFamily.COURIER, 10, Font.NORMAL, BaseColor.WHITE)));
     }
 
-    private void generateContent(List<String> rows, List<Dia> dias) {
+    private PdfPTable createTable() throws DocumentException {
 
-        logger.debug("******** detro del generateContent dias cantidad {}", dias.size());
+        PdfPTable table = new PdfPTable(7);
+        table.setWidths(new int[]{1, 3, 3, 3, 3, 3, 3});
+        table.setTotalWidth(770);
+        table.setLockedWidth(true);
+        table.setSpacingAfter(0f);
+        table.setSpacingBefore(0f);
+        table.setPaddingTop(0f);
 
-        StringBuilder sb = new StringBuilder();
-        sb.append("TEST");
-        sb.append("-");
-        sb.append("testing");
-        rows.add(sb.toString());
+        return table;
+    }
 
+    private PdfPTable construccionCeldas(PdfPTable table, Hora hora, Font bodyText, int totalColumnaContenido) throws DocumentException {
+
+        for (int i = 0; i < totalColumnaContenido; i++) {
+
+            // creacion tabla compuesta 
+            PdfPTable innerTable = new PdfPTable(1);
+            innerTable.getDefaultCell().setBorder(0);
+            innerTable.setWidths(new int[]{1});
+            innerTable.setWidthPercentage(100);
+            innerTable.setSpacingBefore(0f);
+            innerTable.setSpacingAfter(0f);
+            innerTable.setPaddingTop(0f);
+
+            String gpoCodigo = hora.getDias().get(i).getGrupohoras() == null ? "" : hora.getDias().get(i).getGrupohoras().getCodigo();
+
+            // fila
+            String line = gpoCodigo;
+            PdfPCell cellInner = new PdfPCell(new Phrase(line, bodyText));
+            cellInner.setVerticalAlignment(Element.ALIGN_MIDDLE);
+            cellInner.setHorizontalAlignment(Element.ALIGN_CENTER);
+            cellInner.setBorder(Rectangle.NO_BORDER);
+            cellInner.setPaddingLeft(0f);
+            cellInner.setPaddingRight(0f);
+            cellInner.setPaddingTop(0f);
+            cellInner.setPaddingBottom(0f);
+
+            String codigoCurso = hora.getDias().get(i).getMainHorarioAula() == null ? "" : hora.getDias().get(i).getMainHorarioAula().getSeccion().getGrupoSeccion().getCurso().getCodigo();
+            String tcp = hora.getDias().get(i).getMainHorarioAula() == null ? "" : hora.getDias().get(i).getMainHorarioAula().getSeccion().getGrupoSeccion().getCurso().getTpc();
+            String seccionCodigo2 = hora.getDias().get(i).getMainHorarioAula() == null ? "" : hora.getDias().get(i).getMainHorarioAula().getSeccion().getCodigo2();
+            String codigoGpoHoras = hora.getDias().get(i).getMainHorarioAula() == null ? "" : hora.getDias().get(i).getMainHorarioAula().getSeccion().getGrupoHoras().getCodigo();
+
+            // primera fila
+            String firstLine = (codigoCurso == "" ? "" : codigoCurso + " " + tcp + " / " + seccionCodigo2 + " " + codigoGpoHoras);
+            PdfPCell cellInner1 = new PdfPCell(new Phrase(firstLine, bodyText));
+            cellInner1.setVerticalAlignment(Element.ALIGN_MIDDLE);
+            cellInner1.setHorizontalAlignment(Element.ALIGN_LEFT);
+            cellInner1.setBorder(Rectangle.NO_BORDER);
+            cellInner1.setPaddingLeft(0f);
+            cellInner1.setPaddingRight(0f);
+            cellInner1.setPaddingTop(0f);
+            cellInner1.setPaddingBottom(0f);
+
+            // segunda fila //35 caracteres para la celda
+            String nombreCurso = hora.getDias().get(i).getMainHorarioAula() == null ? "" : hora.getDias().get(i).getMainHorarioAula().getSeccion().getGrupoSeccion().getCurso().getNombre();
+            String secondLine = (nombreCurso.length() > 35 ? nombreCurso.substring(0, 35) : nombreCurso);
+            PdfPCell cellInner2 = new PdfPCell(new Phrase(secondLine, bodyText));
+            cellInner2.setVerticalAlignment(Element.ALIGN_MIDDLE);
+            cellInner2.setHorizontalAlignment(Element.ALIGN_LEFT);
+            cellInner2.setBorder(Rectangle.NO_BORDER);
+            cellInner2.setPaddingLeft(0f);
+            cellInner2.setPaddingRight(0f);
+            cellInner2.setPaddingTop(0f);
+            cellInner2.setPaddingBottom(0f);
+            cellInner2.setNoWrap(true);
+
+            innerTable.addCell(cellInner);
+            innerTable.addCell(cellInner1);
+            innerTable.addCell(cellInner2);
+
+            // tercera fila
+                if (hora.getDias().get(i).getMainHorarioAula() != null && hora.getDias().get(i).getMainHorarioAula().getSeccion().getDocenteSeccion() != null && !hora.getDias().get(i).getMainHorarioAula().getSeccion().getDocenteSeccion().isEmpty()) {
+
+                String docenteCodigo = hora.getDias().get(i).getMainHorarioAula().getSeccion().getDocenteSeccion().get(0).getDocente().getCodigo();
+                String docenteApNombres = hora.getDias().get(i).getMainHorarioAula().getSeccion().getDocenteSeccion().get(0).getDocente().getPersona() == null ? "Desconocido" : hora.getDias().get(i).getMainHorarioAula().getSeccion().getDocenteSeccion().get(0).getDocente().getPersona().getNombrePaternoMat();
+                String triLine = docenteCodigo + " " + docenteApNombres;
+
+                PdfPCell cellInner3 = new PdfPCell(new Phrase(triLine, bodyText));
+                cellInner3.setVerticalAlignment(Element.ALIGN_MIDDLE);
+                cellInner3.setHorizontalAlignment(Element.ALIGN_LEFT);
+                cellInner3.setBorder(Rectangle.NO_BORDER);
+                cellInner3.setPaddingLeft(0f);
+                cellInner3.setPaddingRight(0f);
+                cellInner3.setPaddingTop(0f);
+                cellInner3.setPaddingBottom(0f);
+
+                innerTable.addCell(cellInner3);
+
+            } else {
+
+                PdfPCell cellInner3 = new PdfPCell(new Phrase("", bodyText));
+                cellInner3.setBorder(Rectangle.NO_BORDER);
+                innerTable.addCell(cellInner3);
+            }
+
+            table.addCell(innerTable);
+        }
+        return table;
+    }
+
+    private PdfPTable construccionCeldasVacias(PdfPTable table, int totalColumnaContenido) {
+        Font font = new Font(FontFamily.HELVETICA, 8, Font.NORMAL, BaseColor.BLACK);
+
+        for (int i = 0; i < totalColumnaContenido; i++) {
+            PdfPCell cell = new PdfPCell(new Phrase("", font));
+            cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+            cell.setFixedHeight(34);
+
+            table.addCell(cell);
+        }
+
+        return table;
     }
 
 }

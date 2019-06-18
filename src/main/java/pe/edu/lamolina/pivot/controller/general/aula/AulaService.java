@@ -2,12 +2,15 @@ package pe.edu.lamolina.pivot.controller.general.aula;
 
 import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.general.Sede;
 import pe.edu.lamolina.model.general.TipoAula;
 import pe.edu.lamolina.model.general.TipoCarpeta;
+import pe.edu.lamolina.model.horario.DiaHoraGrupo;
+import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -42,5 +45,15 @@ public interface AulaService {
     List<Aula> allAulaByOficinaSuperior(DataSessionPivot ds);
 
     List<Aula> allAulaByAulaSuperior(List<Aula> listAulaSuperior);
+
+    List<Dia> allDiaForPrinter();
+
+    List<DiaHoraGrupo> allDiaHoraGrupoByCicloRegular(CicloAcademico cicloAcademico);
+
+    List<Hora> returnHorasEncontradas(Aula aulaBD, List<Dia> dias, DataSessionPivot ds);
+
+    List<Hora> returnHorasEcontradasModal(Aula aula, List<Dia> dias);
+
+    List<Hora> allHorasHorario();
 
 }

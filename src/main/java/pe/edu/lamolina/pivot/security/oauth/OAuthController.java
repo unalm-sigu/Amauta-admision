@@ -28,6 +28,7 @@ import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.enums.MenuTipoEnum;
+import pe.edu.lamolina.model.enums.RolEnum;
 import pe.edu.lamolina.model.seguridad.Menu;
 import pe.edu.lamolina.model.seguridad.Rol;
 import pe.edu.lamolina.pivot.config.DespliegueConfig;
@@ -99,6 +100,30 @@ public class OAuthController {
     public String loginGoogle(@PathVariable String email, HttpSession session, Model model, HttpServletRequest servlet) {
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+            if (ds == null && !despliegueConfig.getLagunas()) {
+                return "redirect:/";
+            }
+
+            if (ds != null && !despliegueConfig.getLagunas()) {
+                Rol rol = ds.getRolActivo();
+                if (rol == null) {
+                    return "redirect:/";
+                }
+
+                boolean esIoera = false;
+                List<Rol> roles = ds.getRoles();
+                for (Rol role : roles) {
+                    if (role.getCodigoEnum() != RolEnum.IOREA) {
+                        esIoera = true;
+                    }
+                }
+
+                if (!esIoera) {
+                    return "redirect:/";
+                }
+            }
+
             serviceProvider.loginManually(email, session, servlet);
             ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             serviceProvider.createLogJson(ds, session);
