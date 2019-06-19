@@ -162,15 +162,10 @@ $(function () {
         descargaPDF: function (e, $this) {
             e.preventDefault();
             var rec = APP.recDynatable(dynatable, e);
-
             var idAula = rec.id;
-            var codigo = rec.codigo;
-            var pabellon = rec.pabellon;
-            var idpabellon = rec.idpabellon;
+            var aulaSuperior = rec.idpabellon;
             console.log(idAula);
-            console.log(codigo);
-            console.log(pabellon);
-            console.log(idpabellon);
+            console.log(aulaSuperior);
 
             var now = moment();
             var day = now.day();
@@ -178,33 +173,24 @@ $(function () {
             var init = now.add(-first, 'days').format('DD/MM/YYYY');
             var end = now.add(6, 'days').format('DD/MM/YYYY');
 
-            console.log(init);
-            console.log(end);
-
-//
-////            var aulaSuperior = 
-//            $vue.horariosAulaPDFBean.aulaSuperior = $vue.aulaSuperior;
-//            $vue.horariosAulaPDFBean.aula = Object.assign({}, $vue.aula);
-//            $vue.horariosAulaPDFBean.aula.tipoAmbienteEnum = undefined;
-//
-//            $.fileDownload("/general/aula/generatorpdf", {
-//                httpMethod: "POST",
-//                data: {
-//                    strAula: JSON.stringify($vue.aula),
-//                    strAulaSuperior: JSON.stringify($vue.aulaSuperior),
-//                    fechaInicio: init,
-//                    fechaFin: end
-//                },
-//                successCallback: function (responseHtml, url) {
-//                    console.log('aqui');
-//                },
-//                onFail: function (e) {
-//                    console.log(e);
-//                },
-//                failCallback: function (responseHtml, url) {
-//                    notify(MESSAGES.errorComunicacion, 'error')
-//                }
-//            });
+            $.fileDownload("/general/aula/generatorpdf", {
+                httpMethod: "POST",
+                data: {
+                    strAula: JSON.stringify({id: idAula}),
+                    strAulaSuperior: JSON.stringify({id: aulaSuperior}),
+                    fechaInicio: init,
+                    fechaFin: end
+                },
+                successCallback: function (responseHtml, url) {
+                    console.log('aqui');
+                },
+                onFail: function (e) {
+                    console.log(e);
+                },
+                failCallback: function (responseHtml, url) {
+                    notify(MESSAGES.errorComunicacion, 'error')
+                }
+            });
         }
     };
 

@@ -13,14 +13,14 @@ import com.itextpdf.text.Rectangle;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.StringTokenizer;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,9 +62,11 @@ public class PdfHorariosAula extends AbstractOnlyPdfView {
         List<Dia> dias = (List<Dia>) model.get("dias");
         List<Hora> horas = (List<Hora>) model.get("horas");
         List<Hora> horasBase = (List<Hora>) model.get("horasBase");
+        Date fechaFin = (Date) model.get("fechaFin");
+        Date fechaInicio = (Date) model.get("fechaInicio");
 
         PdfPTable table = this.createTable();
-        this.documentHeader(aula, aulaSuperior, dias, table);
+        this.documentHeader(aula, aulaSuperior, dias, table, fechaInicio, fechaFin);
         this.documentBody(horas, horasBase, document, table);
         document.newPage();
 
@@ -78,43 +80,49 @@ public class PdfHorariosAula extends AbstractOnlyPdfView {
         return this.title + " " + aulaSuperior.getNombre() + "-" + aula.getCodigo() + " " + namedate;
     }
 
-    private void documentHeader(Aula aula, Aula aulaSuperior, List<Dia> dias, PdfPTable table) throws DocumentException {
+    private void documentHeader(Aula aula, Aula aulaSuperior, List<Dia> dias, PdfPTable table, Date dateInicial, Date dateFinal) throws DocumentException, ParseException {
 
         Font fontHeaderPDF = new Font(Font.FontFamily.HELVETICA, 9, Font.NORMAL, BaseColor.BLACK);
         Font fontHeaderTable = new Font(Font.FontFamily.HELVETICA, 8, Font.BOLD, BaseColor.WHITE);
 
-        List<String> rows = new ArrayList();
-
-        StringBuilder str = new StringBuilder();
-        str.append(this.title);
-        str.append("|").append(aulaSuperior.getNombre());
-        rows.add(str.toString());
-
-        str = new StringBuilder();
-        str.append("Aula");
-        str.append("|").append(aula.getCodigo());
-        rows.add(str.toString());
-
-        for (int i = 0; i < rows.size(); i++) {
-
-            String fila = (String) rows.get(i);
-            StringTokenizer st = new StringTokenizer(fila, "|");
-
-            PdfPCell cell = new PdfPCell(new Phrase(st.nextToken(), fontHeaderPDF));
-            cell.setColspan(2);
-            cell.setBorder(Rectangle.NO_BORDER);
-            table.addCell(cell);
-
-            cell = new PdfPCell(new Phrase(st.nextToken(), fontHeaderPDF));
-            cell.setColspan(20);
-            cell.setBorder(Rectangle.NO_BORDER);
-            table.addCell(cell);
-
-        }
-
         Phrase phr = null;
         PdfPCell cell = null;
 
+        String semanaActual = this.returnSemana(dateInicial, dateFinal);
+
+        phr = new Phrase(aulaSuperior.getNombre(), fontHeaderPDF);
+        cell = new PdfPCell(phr);
+        cell.setVerticalAlignment(Element.ALIGN_LEFT);
+        cell.setHorizontalAlignment(Element.ALIGN_LEFT);
+        cell.setColspan(3);
+        cell.setBorder(Rectangle.NO_BORDER);
+        table.addCell(cell);
+
+        phr = new Phrase("Aula " + aula.getCodigo() + " " + aula.getNombre(), fontHeaderPDF);
+        cell = new PdfPCell(phr);
+        cell.setVerticalAlignment(Element.ALIGN_LEFT);
+        cell.setHorizontalAlignment(Element.ALIGN_LEFT);
+        cell.setColspan(4);
+        cell.setBorder(Rectangle.NO_BORDER);
+        table.addCell(cell);
+
+        phr = new Phrase("Semana", fontHeaderPDF);
+        cell = new PdfPCell(phr);
+        cell.setVerticalAlignment(Element.ALIGN_LEFT);
+        cell.setHorizontalAlignment(Element.ALIGN_LEFT);
+        cell.setColspan(3);
+        cell.setBorder(Rectangle.NO_BORDER);
+        table.addCell(cell);
+
+        phr = new Phrase(semanaActual, fontHeaderPDF);
+        cell = new PdfPCell(phr);
+        cell.setVerticalAlignment(Element.ALIGN_LEFT);
+        cell.setHorizontalAlignment(Element.ALIGN_LEFT);
+        cell.setColspan(4);
+        cell.setBorder(Rectangle.NO_BORDER);
+        table.addCell(cell);
+
+        // table
         phr = new Phrase("Hora", fontHeaderTable);
         cell = new PdfPCell(phr);
         cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
@@ -238,7 +246,7 @@ public class PdfHorariosAula extends AbstractOnlyPdfView {
             innerTable.addCell(cellInner2);
 
             // tercera fila
-                if (hora.getDias().get(i).getMainHorarioAula() != null && hora.getDias().get(i).getMainHorarioAula().getSeccion().getDocenteSeccion() != null && !hora.getDias().get(i).getMainHorarioAula().getSeccion().getDocenteSeccion().isEmpty()) {
+            if (hora.getDias().get(i).getMainHorarioAula() != null && hora.getDias().get(i).getMainHorarioAula().getSeccion().getDocenteSeccion() != null && !hora.getDias().get(i).getMainHorarioAula().getSeccion().getDocenteSeccion().isEmpty()) {
 
                 String docenteCodigo = hora.getDias().get(i).getMainHorarioAula().getSeccion().getDocenteSeccion().get(0).getDocente().getCodigo();
                 String docenteApNombres = hora.getDias().get(i).getMainHorarioAula().getSeccion().getDocenteSeccion().get(0).getDocente().getPersona() == null ? "Desconocido" : hora.getDias().get(i).getMainHorarioAula().getSeccion().getDocenteSeccion().get(0).getDocente().getPersona().getNombrePaternoMat();
@@ -280,6 +288,27 @@ public class PdfHorariosAula extends AbstractOnlyPdfView {
         }
 
         return table;
+    }
+
+    private String returnSemana(Date dateInicial, Date dateFinal) {
+
+        DateTime dateTimeInicial = new DateTime(dateInicial);
+        DateTime dateTimeFinal = new DateTime(dateFinal);
+
+        String semanaActual = "";
+
+        if (dateTimeInicial.getMonthOfYear() == (dateTimeFinal.getMonthOfYear())) {
+            String dt1 = TypesUtil.getStringDate(dateInicial, "'Del' dd 'al'", "es");
+            String dt2 = TypesUtil.getStringDate(dateFinal, " dd 'de' MMMM 'del' yyyy", "es");
+            semanaActual = dt1 + dt2;
+        } else {
+            String dt1 = TypesUtil.getStringDate(dateInicial, "'Del' dd 'de' MMMM 'al'", "es");
+            String dt2 = TypesUtil.getStringDate(dateFinal, " dd 'de' MMMM 'del' yyyy", "es");
+            semanaActual = dt1 + dt2;
+        }
+
+        return semanaActual;
+
     }
 
 }

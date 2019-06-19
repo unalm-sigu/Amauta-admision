@@ -11,8 +11,7 @@ new Vue({
         horas: [],
         dias: [],
         fechaInicio: null,
-        fechaFin: null,
-        horariosAulaPDFBean: {}
+        fechaFin: null
     },
     created: function () {
         let $vue = this;
@@ -136,32 +135,6 @@ new Vue({
                     }
                 }
             }
-        },
-        descargaPDF() {
-            let $vue = this;
-
-            $vue.horariosAulaPDFBean.aulaSuperior = $vue.aulaSuperior;
-            $vue.horariosAulaPDFBean.aula = $vue.aula;
-            $vue.horariosAulaPDFBean.aula.tipoAmbienteEnum = undefined;
-
-            $.fileDownload("/" + rutaModulo + "/generatorpdf", {
-                httpMethod: "POST",
-                data: {
-                    strAula: JSON.stringify($vue.aula),
-                    strAulaSuperior: JSON.stringify($vue.aulaSuperior),
-                    fechaInicio: $vue.fechaInicio,
-                    fechaFin: $vue.fechaFin
-                },
-                successCallback: function (responseHtml, url) {
-                    console.log('aqui');
-                },
-                onFail: function (e) {
-                    console.log(e);
-                },
-                failCallback: function (responseHtml, url) {
-                    notify(MESSAGES.errorComunicacion, 'error')
-                }
-            });
         }
     }
 });

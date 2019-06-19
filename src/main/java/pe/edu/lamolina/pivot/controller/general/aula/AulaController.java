@@ -8,12 +8,8 @@ import java.beans.PropertyEditorSupport;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
@@ -44,10 +40,7 @@ import pe.edu.lamolina.model.enums.TipoAmbienteEnum;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.general.Oficina;
-import pe.edu.lamolina.model.horario.DiaHoraGrupo;
-import pe.edu.lamolina.model.horario.GrupoHoras;
 import pe.edu.lamolina.model.horario.Hora;
-import pe.edu.lamolina.model.horario.HorarioAula;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.constant.Messages;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -123,6 +116,7 @@ public class AulaController {
                 node.put("pisos", aula.getPisos());
                 node.put("aforo", aula.getAforo());
                 node.put("pabellon", (String) ObjectUtil.getParentTree(aula, "aulaSuperior.nombre"));
+                node.put("idpabellon", (Long) ObjectUtil.getParentTree(aula, "aulaSuperior.id"));
                 node.put("capacidad", aula.getCapacidadAula());
                 node.put("sede", aula.getSede() != null ? aula.getSede().getNombre() : "");
                 node.put("tipoAula", aula.getTipoAula() != null ? aula.getTipoAula().getNombre() : "");
@@ -484,9 +478,6 @@ public class AulaController {
     @RequestMapping("generatorpdf")
     public ModelAndView generatorpdf(HorariosAulaPDFBean horariosAulaPdfBean, Model model, HttpSession session, HttpServletResponse response) throws Exception {
 
-        logger.debug("******** fin {}", horariosAulaPdfBean.getFechaFin());
-        logger.debug("******** inicio {}", horariosAulaPdfBean.getFechaInicio());
-
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
         Aula aulaForm = new ObjectMapper().readValue(horariosAulaPdfBean.getStrAula(), Aula.class);
@@ -496,12 +487,13 @@ public class AulaController {
 
         List<Dia> dias = service.allDiaForPrinter();
         Aula aulaBD = service.findAulaFull(aulaForm);
+        Aula aulaSuperior = service.findById(aulaSuperiorForm);
 
         List<Hora> horasEncontradasGet = service.returnHorasEncontradas(aulaBD, dias, ds);
         List<Hora> horasBase = service.allHorasHorario();
 
         model.addAttribute("aula", aulaBD);
-        model.addAttribute("aulaSuperior", aulaSuperiorForm);
+        model.addAttribute("aulaSuperior", aulaSuperior);
         model.addAttribute("dias", dias);
         model.addAttribute("horasBase", horasBase);
         model.addAttribute("horas", horasEncontradasGet);
