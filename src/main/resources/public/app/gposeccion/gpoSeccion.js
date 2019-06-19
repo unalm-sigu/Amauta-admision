@@ -583,13 +583,13 @@ new Vue({
         },
         verBoletin() {
             let $vue = this;
-
-            VUE_MODAL.configure($vue.configConfirmAction, {
+            $vue.configConfirmAction = VUE_MODAL.structConfirm({
                 message: "¿Seguro que desea que se visualice este ciclo en el boletín?",
                 okbtn: "Si, visibilizar boletín",
                 okclass: "btn-success",
                 okbtnprocessing: '<i class="fa fa-spinner fa-pulse fa-fw"></i> Visibilizando...',
                 okaction: function () {
+
                     $.ajax({
                         method: 'POST',
                         async: false,
@@ -608,8 +608,9 @@ new Vue({
                             notify(MESSAGES.errorComunicacion, 'error');
                         }
                     });
-                },
+                }
             });
+
             $vue.$refs.modalConfirmAction.open();
 
 //            bootbox.confirm({
@@ -645,7 +646,7 @@ new Vue({
 
             let $vue = this;
 
-            VUE_MODAL.configure($vue.configConfirmAction, {
+            $vue.configConfirmAction = VUE_MODAL.structConfirm({
                 message: "¿Seguro que desea dar por finalizada la clonación? <p>Recuerde que después de esta acción ya no podrá limpiar los datos de este ciclo.</p>",
                 okbtn: "Si, finalizar",
                 okclass: "btn-warning",
