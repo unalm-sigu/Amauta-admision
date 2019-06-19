@@ -164,8 +164,8 @@ $(function () {
             var rec = APP.recDynatable(dynatable, e);
             var idAula = rec.id;
             var aulaSuperior = rec.idpabellon;
-            console.log(idAula);
-            console.log(aulaSuperior);
+//            console.log(idAula);
+//            console.log(aulaSuperior);
 
             var now = moment();
             var day = now.day();
@@ -182,7 +182,7 @@ $(function () {
                     fechaFin: end
                 },
                 successCallback: function (responseHtml, url) {
-                    console.log('aqui');
+//                    console.log('aqui');
                 },
                 onFail: function (e) {
                     console.log(e);

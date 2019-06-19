@@ -28,9 +28,6 @@ new Vue({
         $vue.fechaInicio = init;
         $vue.fechaFin = end;
 
-        console.log(JSON.stringify($vue.listAulaOptions));
-        console.log(JSON.stringify($vue.fechaFin));
-
         $vue.loadComponent();
     },
     mounted: function () {
@@ -43,11 +40,10 @@ new Vue({
             $vue.listAulaOptions = [];
             $vue.getListAulas();
             $vue.aula = $vue.listAulaOptions[0];
+            $vue.loadComponent();
         },
         loadComponent() {
             let $vue = this;
-            console.log($vue.fechaInicio);
-            console.log($vue.fechaFin);
 
             $.ajax({
                 method: 'POST',
@@ -101,7 +97,7 @@ new Vue({
                     var status = (direccion == 'next' ? i + 1 : i - 1)
 
                     if (status >= total || status < 0) {
-                        console.log("excedio");
+//                        console.log("excedio");
                     } else {
                         $vue.aulaSuperior = Object.assign({}, $vue.listAulaSuperior[status]);
                         $vue.listAulaOptions = [];
@@ -128,7 +124,7 @@ new Vue({
                     var status = (direccion == 'next' ? i + 1 : i - 1)
 
                     if (status >= total || status < 0) {
-                        console.log("excedio");
+//                        console.log("excedio");
                     } else {
                         $vue.aula = Object.assign({}, $vue.listAulaOptions[status]);
                         $vue.loadComponent();
