@@ -492,6 +492,7 @@ public class AulaController {
         List<Hora> horasEncontradasGet = service.returnHorasEncontradas(aulaBD, dias, ds);
         List<Hora> horasBase = service.allHorasHorario();
 
+        model.addAttribute("cicloAcademico", ds.getCicloAcademico());
         model.addAttribute("aula", aulaBD);
         model.addAttribute("aulaSuperior", aulaSuperior);
         model.addAttribute("dias", dias);
