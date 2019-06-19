@@ -111,7 +111,15 @@ public class OAuthController {
                     return "redirect:/";
                 }
 
-                if (rol.getCodigoEnum() != RolEnum.IOREA) {
+                boolean esIoera = false;
+                List<Rol> roles = ds.getRoles();
+                for (Rol role : roles) {
+                    if (role.getCodigoEnum() == RolEnum.IOREA) {
+                        esIoera = true;
+                    }
+                }
+
+                if (!esIoera) {
                     return "redirect:/";
                 }
             }

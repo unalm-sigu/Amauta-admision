@@ -515,7 +515,7 @@ public class AulaController {
         model.addAttribute("listAula", createListAulaJSON(listAula).toString());
         model.addAttribute("ciclo", ciclo);
 
-        return "general/aula/horarios";
+        return "general/aula/horarioAulaVistaCompleta";
     }
 
     private ArrayNode createListAulaJSON(List<Aula> listAula) {
