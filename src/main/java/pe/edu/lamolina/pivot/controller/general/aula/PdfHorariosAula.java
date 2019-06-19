@@ -54,7 +54,7 @@ public class PdfHorariosAula extends AbstractOnlyPdfView {
         document.addTitle(this.title);
         document.addSubject("subject cualquiera");
         document.setPageSize(PageSize.A4.rotate());
-        document.setMargins(36, 36, 40, 36);
+        document.setMargins(36, 36, 38, 35);
 
     }
 
@@ -73,7 +73,7 @@ public class PdfHorariosAula extends AbstractOnlyPdfView {
         int totalColumn = 7;
         PdfPTable table = this.createTable(totalColumn);
         this.documentHeader(aula, aulaSuperior, dias, table, fechaInicio, fechaFin);
-        this.documentBody(horas, horasBase, document, table, totalColumn);
+        this.documentBody(horas, horasBase, document, table, cicloAcademico, totalColumn);
         this.documentFooter(table, cicloAcademico, totalColumn, document);
 
         document.newPage();
@@ -148,7 +148,7 @@ public class PdfHorariosAula extends AbstractOnlyPdfView {
         }
     }
 
-    private void documentBody(List<Hora> horas, List<Hora> horasBase, Document document, PdfPTable table, int totalColumn) throws DocumentException {
+    private void documentBody(List<Hora> horas, List<Hora> horasBase, Document document, PdfPTable table, CicloAcademico cicloAcademico, int totalColumn) throws DocumentException {
 
         int columnaHoraEspacio = 1;
         int totalColumnaContenido = totalColumn - columnaHoraEspacio;
@@ -174,7 +174,43 @@ public class PdfHorariosAula extends AbstractOnlyPdfView {
             } else {
                 table = this.construccionCeldasVacias(table, totalColumnaContenido);
             }
+
         }
+
+        PdfPCell cellFooter = new PdfPCell(new Phrase("CICLO " + cicloAcademico.getDescripcion(), bodyText));
+        cellFooter.setVerticalAlignment(Element.ALIGN_LEFT);
+        cellFooter.setHorizontalAlignment(Element.ALIGN_LEFT);
+        cellFooter.setColspan(2);
+        cellFooter.setPaddingLeft(0f);
+        cellFooter.setPaddingRight(0f);
+        cellFooter.setPaddingTop(1f);
+        cellFooter.setPaddingBottom(0f);
+        cellFooter.setBorder(Rectangle.NO_BORDER);
+        table.addCell(cellFooter);
+
+        PdfPCell cellFooter2 = new PdfPCell(new Phrase("OFICINA DE ESTUDIOS Y REGISTROS ACADÉMICOS", bodyText));
+        cellFooter2.setVerticalAlignment(Element.ALIGN_LEFT);
+        cellFooter2.setHorizontalAlignment(Element.ALIGN_LEFT);
+        cellFooter2.setColspan(3);
+        cellFooter2.setPaddingLeft(0f);
+        cellFooter2.setPaddingRight(0f);
+        cellFooter2.setPaddingTop(1f);
+        cellFooter2.setPaddingBottom(0f);
+        cellFooter2.setBorder(Rectangle.NO_BORDER);
+        table.addCell(cellFooter2);
+
+        Date now = new Date();
+        String fechaActual = TypesUtil.getStringDate(now, " dddd dd 'de' MMMM 'de' yyyy", "es");
+
+        PdfPCell cellFooter3 = new PdfPCell(new Phrase("La Molina, " + fechaActual, bodyText));
+        cellFooter3.setHorizontalAlignment(Element.ALIGN_RIGHT);
+        cellFooter3.setColspan(2);
+        cellFooter3.setPaddingLeft(0f);
+        cellFooter3.setPaddingRight(0f);
+        cellFooter3.setPaddingTop(1f);
+        cellFooter3.setPaddingBottom(0f);
+        cellFooter3.setBorder(Rectangle.NO_BORDER);
+        table.addCell(cellFooter3);
 
         document.add(table);
         document.add(new Chunk("shot invisible", new Font(FontFamily.COURIER, 1, Font.NORMAL, BaseColor.WHITE)));
@@ -358,9 +394,8 @@ public class PdfHorariosAula extends AbstractOnlyPdfView {
     }
 
     private void documentFooter(PdfPTable table, CicloAcademico cicloAcademico, int totalColumn, Document document) throws DocumentException {
-        Font timeText = new Font(FontFamily.HELVETICA, 8, Font.NORMAL, BaseColor.BLACK);
-        document.add(new Chunk("CICLO " + cicloAcademico.getDescripcion(), new Font(timeText)));
-
+//        Font timeText = new Font(FontFamily.HELVETICA, 8, Font.NORMAL, BaseColor.BLACK);
+//        document.add(new Chunk("CICLO " + cicloAcademico.getDescripcion(), new Font(timeText)));
     }
 
     private String returnObjetTipoSolicitante(Tramite tramite) {
