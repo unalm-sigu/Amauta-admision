@@ -449,4 +449,9 @@ public class AulaServiceImp implements AulaService {
 
     }
 
+    @Override
+    public Aula findById(Aula aulaSuperiorForm) {
+        return aulaDAO.find(aulaSuperiorForm.getId());
+    }
+
 }
