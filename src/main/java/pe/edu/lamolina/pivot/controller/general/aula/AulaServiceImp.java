@@ -398,7 +398,7 @@ public class AulaServiceImp implements AulaService {
                 DiaHoraGrupo diaHoraGrupo = diaHoraGrupoMap.get(key);
                 diaClone.setMainHorarioAula(horarioAula);
                 if (diaHoraGrupo != null) {
-                    ObjectUtil.printAttr(diaHoraGrupo.getGrupoHorario());
+//                    ObjectUtil.printAttr(diaHoraGrupo.getGrupoHorario());
                     diaClone.setGrupohoras(diaHoraGrupo.getGrupoHorario());
                 }
                 diass.add(diaClone);

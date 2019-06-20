@@ -1,6 +1,7 @@
 <template id="cancelarSeccionComp">
     <div>
         <div th:substituteby="_modules/vue-modal-confirm"></div>
+        
         <form id="frmCancelarSeccion">
             <h3>Alumnos de la Sección</h3>
             <div class="form-group">
@@ -98,7 +99,7 @@
                                        href="#" data-toggle="tooltip" data-html="true" data-placement="left" v-bind:title='mSec.matriculaResumen.alumno.motivo'>
                                         <span class="label label-danger" >{{mSec.matriculaResumen.alumno.estadoEnum.value}} </span>
                                     </a>
-                                
+
                                     <span v-if="mSec.estado=='MAT'" class="label label-success">{{mSec.estadoEnum.value}} </span>
                                     <span v-if="mSec.estado=='RCA'" class="label label-danger">{{mSec.estadoEnum.value}} </span>
                                 </span>

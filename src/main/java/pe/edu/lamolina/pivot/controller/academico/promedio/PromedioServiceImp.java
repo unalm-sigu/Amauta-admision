@@ -1183,7 +1183,7 @@ public class PromedioServiceImp implements PromedioService {
                 alumnoCicloDAO.save(alumnoCicloCorrespSgtRegular);
             } else {
                 List<AlumnoCicloCurso> alusCicloCursos = alumnoCicloCursoDAO.allActivoByAlumnoCiclo(alumnoCicloCorrespSgtRegular);
-                ObjectUtil.eliminarAttrSinId(alumnoCicloCorrespSgtRegular);
+//                ObjectUtil.eliminarAttrSinId(alumnoCicloCorrespSgtRegular);
                 if (alusCicloCursos.isEmpty()) {
                     alumnoCicloCorrespSgtRegular.setEstadoEnum(EstadoMatriculaEnum.INH);
                     alumnoCicloCorrespSgtRegular.setSituacionInicio(situacionAcademicaFinal);

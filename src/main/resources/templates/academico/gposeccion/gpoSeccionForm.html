@@ -461,7 +461,6 @@
                                             </td>
                                             <td class="v-middle">
                                                 <input type="hidden" v-bind:value="seccion.id"/>
-
                                                 <div class="dropdown actions">
 
                                                     <a class="dropdown-toggle" href="#" data-toggle="dropdown"
@@ -597,7 +596,6 @@
                                             </div>
                                         </div>
                                     </div>
-
                                 </section>
                             </section>
                         </transition>
@@ -605,7 +603,7 @@
                 </section>
             </div>
 
-            <div th:substituteby="academico/gposeccion/gpoSeccionFormModal"/>
+            <div th:substituteby="academico/gposeccion/gpoSeccionFormModal"></div>
             <div th:substituteby="_modules/vue-modal-confirm"></div>
 
         </div>

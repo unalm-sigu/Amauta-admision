@@ -18,7 +18,7 @@ public interface CicloAcademicoDAO extends EasyDAO<CicloAcademico> {
 
     List<CicloAcademico> allForChanges(Integer maxResultado, ModalidadEstudio modalidad);
 
-    CicloAcademico findAnteriorRegular(CicloAcademico ciclo);
+    List<CicloAcademico> findAnteriorRegular(CicloAcademico ciclo);
 
     CicloAcademico findAnteriorActivo(CicloAcademico ciclo);
 

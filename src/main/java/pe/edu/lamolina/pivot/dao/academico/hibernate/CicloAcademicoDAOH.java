@@ -100,7 +100,7 @@ public class CicloAcademicoDAOH extends AbstractEasyDAO<CicloAcademico> implemen
     }
 
     @Override
-    public CicloAcademico findAnteriorRegular(CicloAcademico ciclo) {
+    public List<CicloAcademico> findAnteriorRegular(CicloAcademico ciclo) {
         Octavia sql = Octavia.query()
                 .from(CicloAcademico.class, "ca")
                 .join("modalidadEstudio me")
@@ -110,7 +110,7 @@ public class CicloAcademicoDAOH extends AbstractEasyDAO<CicloAcademico> implemen
                 .orderBy("ca.year DESC", "ca.numeroCiclo DESC")
                 .limit(1);
 
-        return find(sql);
+        return all(sql);
     }
 
     @Override

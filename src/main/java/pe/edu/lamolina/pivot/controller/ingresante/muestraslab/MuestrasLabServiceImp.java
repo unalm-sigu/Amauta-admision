@@ -288,7 +288,7 @@ public class MuestrasLabServiceImp implements MuestrasLabService {
         recorrido.setNumeroMuestraSangre(laboratorio.getNumeroMuestra());
         recorridoIngresanteDAO.update(recorrido);
 
-        TipoActividadIngresante tipoActividad = tipoActividadIngresanteDAO.findCodigo(TipoActividadIngresanteEnum.PAGOEXAMED);
+        TipoActividadIngresante tipoActividad = tipoActividadIngresanteDAO.findCodigo(TipoActividadIngresanteEnum.LAB);
         ActividadIngresante actividad = actividadIngresanteDAO.findByRecorridoTipoActividad(recorrido, tipoActividad);
         if (actividad == null) {
             actividad = new ActividadIngresante();

@@ -1050,6 +1050,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
             if (requisitos == null || validarSimultaneos(requisitosSimultaneo, requisitos, mapCursosCurriculaAlu, evaluado, ds)) {
                 if (requisitosSimultaneo.size() > 0) {
                     evaluado.setEstadoEnum(SIM);
+                    evaluado.setEsSimultaneo(Boolean.TRUE);
                     cursosSimultaneoAlu.addAll(requisitosSimultaneo);
                 } else {
                     evaluado.setEstadoEnum(evaluado.getEstadoEnum());

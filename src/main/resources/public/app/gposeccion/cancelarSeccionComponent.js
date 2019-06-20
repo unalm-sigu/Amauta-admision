@@ -5,7 +5,7 @@ Vue.component("cancelar-seccion-component", {
     }, data: function () {
         return {
             matriculasSeccion: [],
-            configConfirmAction: VUE_MODAL.structConfirm({})
+            configConfirmAction: VUE_MODAL.structConfirm({id: "husdIUHIUbiukkjh893434hhh"})
         }
     },
     mounted: function () {
@@ -57,6 +57,7 @@ Vue.component("cancelar-seccion-component", {
                     : ("los " + $vue.seccionWorking.matriculados + " alumnos matriculados serán retirados");
 
             $vue.configConfirmAction = VUE_MODAL.structConfirm({
+                id: "husdIUHIUbiukkjh893434hhh",
                 message: "Al cancelar esta sección, " + alus + ".<br/><br/>¿Desea continuar?",
                 okbtn: "Si, cancelar",
                 okclass: "btn-danger",
@@ -64,7 +65,7 @@ Vue.component("cancelar-seccion-component", {
                 okaction: $vue.cancelarSeccion
             });
 
-            $vue.$refs.modalConfirmAction.open();
+            $vue.$refs.modalConfirmActionCancel.open();
         },
         cancelarSeccion() {
             let $vue = this;
