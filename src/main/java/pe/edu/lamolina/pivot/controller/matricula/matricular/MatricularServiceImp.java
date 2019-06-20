@@ -126,9 +126,12 @@ public class MatricularServiceImp implements MatricularService {
 //        }
         List<MatriculaResumen> resumenes = matriculaResumenDAO.allByCicloMat(cicloAcademico);
         List<MatriculaCurso> matriculaCursosNoSim = matriculaCursoDAO.allByMatriculaResumenes(resumenes);
+        List<Curso> cursosNoSim = matriculaCursosNoSim.stream().map(x -> x.getCurso()).distinct().collect(Collectors.toList());
         Map<Long, List< MatriculaCurso>> mapMatResumenNoSim = TypesUtil.convertListToMapList("matriculaResumen.id", matriculaCursosNoSim);
 
         List<MatriculaSimultaneo> matriculaSim = matriculaSimultaneoDAO.allByMatriculaResumen(resumenes);
+        List<Curso> cursosSim = matriculaSim.stream().map(x -> x.getMatriculaCurso().getCurso()).distinct().collect(Collectors.toList());
+        cursosNoSim.addAll(cursosSim);
         Map<Long, List< MatriculaCurso>> mapMatResumenSim = TypesUtil.convertListToMapList("matriculaCurso.matriculaResumen.id", "matriculaCurso", matriculaSim);
 
         List<MatriculaSeccion> matriculaSeccions = matriculaSeccionDAO.allByMatriculaResumenes(resumenes, cicloAcademico);
@@ -136,6 +139,10 @@ public class MatricularServiceImp implements MatricularService {
 
         List<VacanteAlumno> vacanteAlumnos = vacanteAlumnoDAO.allActivoBySecciones(seccions);
         Map<Long, List<VacanteAlumno>> vacanteAlumnosMap = TypesUtil.convertListToMapList("seccion.id", vacanteAlumnos);
+
+        cursosNoSim = cursosNoSim.stream().distinct().collect(Collectors.toList());
+        notify.setTotalCurso(cursosNoSim.size());
+        notify.setTotalSeccion(seccions.size());
 
         Collections.sort(resumenes, new MatriculaResumen.ComparePrioridad());
 
@@ -179,6 +186,9 @@ public class MatricularServiceImp implements MatricularService {
             seccionDAO.updateMatriculados(seccion);
         }
         for (MatriculaResumen matri : listMatriculados) {
+            if (matri.getCursosMatriculados() == 0) {
+                matri.setEstadoEnum(EstadoMatriculaEnum.NMAT);
+            }
             matriculaResumenDAO.updateCreditos(matri);
         }
         TurnoAtencion lastTurnoAtencionByConfig = turnoAtencionDAO.findLastByConfiguracion(turnoAtencion.getConfiguracionTurnosAtencion());
@@ -212,12 +222,10 @@ public class MatricularServiceImp implements MatricularService {
         List<MatriculaSeccion> matriculaSeccionMatTemp = new ArrayList();
         List<MatriculaSeccion> matriculaSeccionNvacTemp = new ArrayList();
         List<MatriculaCurso> matriculaCursoMatriculados = new ArrayList();
+
         for (MatriculaResumen resumene : resumenes) {
             List<MatriculaCurso> matriculaCursosNoSim = mapMatResumenNoSim.get(resumene.getId());
             List<MatriculaCurso> matriculaCursoSim = mapMatResumenSim.get(resumene.getId());
-
-            notify.setTotalCurso(matriculaCursosNoSim.size());
-            notify.setTotalSeccion(matriculaSeccions.size());
 
             matriculaCursosFiltrados = data(cursoCurriculaEnum, matriculaCursosNoSim, noMatriculadosELC, matriculaSeccions);
 
@@ -235,7 +243,7 @@ public class MatricularServiceImp implements MatricularService {
                     mapMatriculadosSeccion,
                     listMatriculados,
                     ds);
-
+            matriculaCursoSim = matriculaCursoSim == null ? new ArrayList() : matriculaCursoSim;
             matriculaCursosFiltrados = data(cursoCurriculaEnum, matriculaCursoSim, noMatriculadosELC, matriculaSeccions);
             if (!matriculaCursosFiltrados.isEmpty()) {
 
