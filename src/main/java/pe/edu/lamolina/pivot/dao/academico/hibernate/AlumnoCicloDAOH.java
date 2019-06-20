@@ -738,7 +738,7 @@ public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements Alu
                 .from(AlumnoCiclo.class, "ac")
                 .join("cicloAcademico ca", "alumno alu")
                 .filter("ca.id", cicloAnt)
-                .in("estado", Arrays.asList(NMAT, INH, MAT));
+                .in("estado", Arrays.asList(NMAT, INH));
 
         return sql.all(getCurrentSession());
     }

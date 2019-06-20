@@ -204,6 +204,8 @@ var app = new Vue({
         this.oficinas = JSON.parse(oficinasJson);
         this.loadDataPantalla();
         this.departamento = this.grupoSeccion.curso.departamentoAcademico;
+        
+        console.log( this.grupoSeccion);
     },
     mounted: function () {
         let $vue = this;
