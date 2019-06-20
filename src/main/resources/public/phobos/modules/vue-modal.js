@@ -28,6 +28,10 @@ Vue.component('modal-vik', {
         disabledok: {type: Boolean, default: false},
         bodyBlocker: {type: Boolean, default: true},
         showBody: {type: Boolean, default: true},
+        waiting: {type: Boolean, default: false},
+        messageWait: {type: String, default: "Espere por favor..."},
+        footerTmpWait: {type: Boolean, default: true},
+        headerTmpWait: {type: Boolean, default: true},
     },
     data() {
         return {
@@ -71,7 +75,28 @@ Vue.component('modal-vik', {
         },
         open() {
             let $vue = this;
+            $vue.waiting = false;
+            $vue.messageWait = "Espere por favor...";
             $('#' + $vue.id).modal('show');
+        },
+        showWait(msg) {
+            let $vue = this;
+
+            $vue.waiting = true;
+            $vue.headerTmpWait = $vue.header;
+            $vue.footerTmpWait = $vue.footer;
+            $vue.header = false;
+            $vue.footer = false;
+
+            if (msg != undefined) {
+                $vue.messageWait = msg;
+            }
+        },
+        hideWait() {
+            let $vue = this;
+            $vue.waiting = false;
+            $vue.header = $vue.headerTmpWait;
+            $vue.footer = $vue.footerTmpWait;
         },
         close() {
             let $vue = this;
