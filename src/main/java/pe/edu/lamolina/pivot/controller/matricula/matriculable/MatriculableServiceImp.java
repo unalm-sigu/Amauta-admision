@@ -912,9 +912,7 @@ public class MatriculableServiceImp implements MatriculableService {
     public void verificarAlumnosNmat(DataSessionPivot ds) {
 
         CicloAcademico cicloActivo = ds.getCicloAcademico();
-        CicloAcademico cicloAnt = cicloAcademicoDAO.findAnteriorRegular(cicloActivo);
-
-        logger.debug("Ciclo Anterior {}", cicloAnt.getCodigo());
+        List<CicloAcademico> cicloAnt = cicloAcademicoDAO.findAnteriorRegular(cicloActivo);
 
         List<AlumnoCiclo> alumnoCiclos = alumnoCicloDAO.allByNmatAndInh(cicloAnt);
         logger.debug("Cantidad de alumnos {}", alumnoCiclos.size());
