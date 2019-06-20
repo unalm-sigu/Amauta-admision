@@ -106,4 +106,6 @@ public interface AlumnoCicloDAO extends EasyDAO<AlumnoCiclo> {
     AlumnoCiclo findLastNotInSituacion(Alumno alumno, SituacionAcademicaEnum... situacionAcademicaEnums);
 
     void updateColumns(AlumnoCiclo alumnoCiclo, String... columns);
+
+    AlumnoCiclo findLastByAlumnoAndSituacion(Alumno alumno, SituacionAcademicaEnum... situacionesAcademicas);
 }
