@@ -25,9 +25,12 @@
         <span class="block"><b>Cap.</b> {{:capacidad}}</span>
         {{/if}}
     </td>
-    <td class="v-middle">
+    <td class="v-middle"> 
         {{if pabellon}}
         <span class="block">{{:pabellon}}</span>
+        {{/if}}
+        {{if idpabellon}}
+        <span style="display: none">{{:idpabellon}}</span>
         {{/if}}
         {{if piso}}
         <span class="block">Planta {{:piso}}</span>
@@ -92,7 +95,9 @@
                 <li><a th:href="@{'/general/aula/inventario/{{:id}}'}" class="" >Inventario</a></li>
                 <li><a th:href="@{'/general/aula/inventario/{{:id}}/resumen'}" class="" >Resumen Inventario</a></li>
                 {{/if}}
-
+                {{if tipoAmbiente == 'AMB'}}
+                <li><a class="descarga-pdf">Reporte PDF</a></li>
+                {{/if}}
 
             </ul>
         </div>

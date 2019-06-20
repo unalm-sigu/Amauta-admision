@@ -161,6 +161,67 @@ public class ResultadosLabServiceImp implements ResultadosLabService {
     }
 
     @Override
+    @Transactional
+    public void saveOtherColumns(HistoriaLaboratorio laboratorio) {
+
+        BigDecimal valorMuestra = laboratorio.getValorMuestra();
+        BigDecimal estandar = laboratorio.getEstandar();
+        BigDecimal hemoglobina = null;
+        if (valorMuestra != null && estandar != null) {
+            hemoglobina = valorMuestra.multiply(new BigDecimal(18)).divide(estandar, 2, RoundingMode.DOWN);
+            BigDecimal tope = new BigDecimal(0.5);
+            BigDecimal decimalRevisar = hemoglobina.multiply(new BigDecimal(10)).remainder(BigDecimal.ONE);
+            if (decimalRevisar.compareTo(tope) == 1) {
+                // redondear
+                hemoglobina = hemoglobina.setScale(1, RoundingMode.HALF_UP);
+            } else {
+                //truncar
+                hemoglobina = hemoglobina.setScale(1, RoundingMode.DOWN);
+            }
+        }
+        if (laboratorio.getId() == null) {
+            DiarioLaboratorio diario = getDiarioLabActual();
+            laboratorio.setDiarioLaboratorio(diario);
+            laboratorio.setFechaAnalisis(new Date());
+
+            laboratorio.setValorMuestra(valorMuestra);
+            laboratorio.setEstandar(estandar);
+            laboratorio.setHemoglobina(hemoglobina);
+            historiaLaboratorioDAO.save(laboratorio);
+        } else {
+            HistoriaLaboratorio historiaLaboratorioUpd = new HistoriaLaboratorio(laboratorio.getId());
+            historiaLaboratorioUpd.setValorMuestra(laboratorio.getValorMuestra());
+            historiaLaboratorioUpd.setEstandar(laboratorio.getEstandar());
+            historiaLaboratorioUpd.setHemoglobina(hemoglobina);
+            historiaLaboratorioDAO.updateColumns(historiaLaboratorioUpd, "valorMuestra", "estandar", "hemoglobina");
+        }
+    }
+
+    @Override
+    @Transactional
+    public void saveSangre(HistoriaLaboratorio laboratorio) {
+
+//        if (laboratorio.getValorMuestra() == null && laboratorio.getEstandar() == null) {
+//            throw new PhobosException("Ingrese la Muestra Abs y la Estándar Abs");
+//        }
+        if (laboratorio.getId() == null) {
+            DiarioLaboratorio diario = getDiarioLabActual();
+            laboratorio.setDiarioLaboratorio(diario);
+            laboratorio.setFechaAnalisis(new Date());
+
+            HistoriaLaboratorio historiaLaboratorioSave = new HistoriaLaboratorio(laboratorio.getId());
+            historiaLaboratorioSave.setTipoSangre(laboratorio.getTipoSangreEnum().name());
+            historiaLaboratorioSave.setFactorRH(laboratorio.getFactorRHEnum().name());
+            historiaLaboratorioDAO.save(laboratorio);
+        } else {
+            HistoriaLaboratorio historiaLaboratorioUpd = new HistoriaLaboratorio(laboratorio.getId());
+            historiaLaboratorioUpd.setTipoSangre(laboratorio.getTipoSangreEnum().name());
+            historiaLaboratorioUpd.setFactorRH(laboratorio.getFactorRHEnum().name());
+            historiaLaboratorioDAO.updateColumns(historiaLaboratorioUpd, "tipoSangre", "factorRH");
+        }
+    }
+
+    @Override
     public List<HistoriaClinica> allHistoriaByPersonas(List<Persona> personas) {
         return historiaClinicaDAO.allByPersonas(personas);
     }

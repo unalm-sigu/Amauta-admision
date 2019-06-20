@@ -10,6 +10,7 @@ import pe.edu.lamolina.model.general.Sede;
 import pe.edu.lamolina.model.general.TipoAula;
 import pe.edu.lamolina.model.general.TipoCarpeta;
 import pe.edu.lamolina.model.horario.DiaHoraGrupo;
+import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -48,5 +49,13 @@ public interface AulaService {
     List<Dia> allDiaForPrinter();
 
     List<DiaHoraGrupo> allDiaHoraGrupoByCicloRegular(CicloAcademico cicloAcademico);
+
+    List<Hora> returnHorasEncontradas(Aula aulaBD, List<Dia> dias, DataSessionPivot ds);
+
+    List<Hora> returnHorasEcontradasModal(Aula aula, List<Dia> dias);
+
+    List<Hora> allHorasHorario();
+
+    Aula findById(Aula aulaSuperiorForm);
 
 }

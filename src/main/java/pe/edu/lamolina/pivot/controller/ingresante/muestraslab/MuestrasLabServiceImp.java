@@ -16,17 +16,25 @@ import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.model.academico.ActividadIngresante;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.RecorridoIngresante;
+import pe.edu.lamolina.model.academico.TipoActividadIngresante;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
+import pe.edu.lamolina.model.enums.ExamenMedicoEstadoEnum;
+import pe.edu.lamolina.model.enums.RecorridoIngresanteEstadoEnum;
+import pe.edu.lamolina.model.enums.TipoActividadIngresanteEnum;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.inscripcion.TurnoEntrevistaObuae;
 import pe.edu.lamolina.model.medico.HistoriaClinica;
 import pe.edu.lamolina.model.medico.HistoriaEnfermedad;
 import pe.edu.lamolina.model.medico.HistoriaLaboratorio;
 import pe.edu.lamolina.model.medico.Paciente;
+import pe.edu.lamolina.pivot.dao.academico.ActividadIngresanteDAO;
 import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.RecorridoIngresanteDAO;
+import pe.edu.lamolina.pivot.dao.academico.TipoActividadIngresanteDAO;
 import pe.edu.lamolina.pivot.dao.general.PersonaDAO;
 import pe.edu.lamolina.pivot.dao.laboratorio.HistoriaLaboratorioDAO;
 import pe.edu.lamolina.pivot.dao.medico.HistoriaClinicaDAO;
@@ -65,6 +73,12 @@ public class MuestrasLabServiceImp implements MuestrasLabService {
 
     @Autowired
     PersonaDAO personaDAO;
+
+    @Autowired
+    TipoActividadIngresanteDAO tipoActividadIngresanteDAO;
+
+    @Autowired
+    ActividadIngresanteDAO actividadIngresanteDAO;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -108,10 +122,13 @@ public class MuestrasLabServiceImp implements MuestrasLabService {
 
         List<HistoriaLaboratorio> laboratorios = historiaLaboratorioDAO.allByPersonas(personas);
         List<HistoriaClinica> historiasClinicas = historiaClinicaDAO.allByPersonas(personas);
+        List<ActividadIngresante> actividadIngresantes = actividadIngresanteDAO.allByRecorridoIngresantes(recorridos);
         List<HistoriaEnfermedad> historiasEnfermedades = historiaEnfermedadDAO.allRiesgoByHistoriasClinicas(historiasClinicas);
+
         Map<Long, HistoriaLaboratorio> mapLaboratorio = TypesUtil.convertListToMap("historiaClinica.paciente.persona.id", laboratorios);
         Map<Long, HistoriaClinica> mapHistoriaClinica = TypesUtil.convertListToMap("paciente.persona.id", historiasClinicas);
         Map<Long, List<HistoriaEnfermedad>> mapHistoriaEnfermedad = TypesUtil.convertListToMapList("historiaClinica.paciente.persona.id", historiasEnfermedades);
+        Map<Long, List<ActividadIngresante>> mapRecorridoIngresantes = TypesUtil.convertListToMapList("recorridoIngresante.id", actividadIngresantes);
 
         for (RecorridoIngresante reco : recorridos) {
             Persona persona = reco.getAlumno().getPersona();
@@ -128,7 +145,7 @@ public class MuestrasLabServiceImp implements MuestrasLabService {
             if (historiaEnfermedades != null && !historiaEnfermedades.isEmpty()) {
                 reco.setTieneRiesgo(Boolean.TRUE);
             }
-
+            reco.setActividadIngresante(mapRecorridoIngresantes.get(reco.getId()));
         }
     }
 
@@ -271,6 +288,26 @@ public class MuestrasLabServiceImp implements MuestrasLabService {
         recorrido.setNumeroMuestraSangre(laboratorio.getNumeroMuestra());
         recorridoIngresanteDAO.update(recorrido);
 
+        TipoActividadIngresante tipoActividad = tipoActividadIngresanteDAO.findCodigo(TipoActividadIngresanteEnum.PAGOEXAMED);
+        ActividadIngresante actividad = actividadIngresanteDAO.findByRecorridoTipoActividad(recorrido, tipoActividad);
+        if (actividad == null) {
+            actividad = new ActividadIngresante();
+            actividad.setTipoActividadIngresante(tipoActividad);
+            actividad.setRecorridoIngresante(recorrido);
+
+            actividad.setFechaEjecucion(today);
+            actividad.setFechaRegistro(today);
+            actividad.setEstadoEnum(RecorridoIngresanteEstadoEnum.ACT);
+            actividad.setUserEjecucion(GlobalConstantine.USUARIO_ADMIN);
+            actividadIngresanteDAO.save(actividad);
+        } else {
+            actividad.setFechaEjecucion(today);
+            actividad.setFechaRegistro(today);
+            actividad.setEstadoEnum(RecorridoIngresanteEstadoEnum.ACT);
+            actividad.setUserEjecucion(GlobalConstantine.USUARIO_ADMIN);
+            actividadIngresanteDAO.update(actividad);
+        }
+
         visorMuestrasLab.incrementaNumLab();
     }
 
@@ -297,6 +334,10 @@ public class MuestrasLabServiceImp implements MuestrasLabService {
         recorridoIngresanteDAO.update(recorrido);
 
         historiaLaboratorioDAO.delete(laboratorioBD);
+
+        TipoActividadIngresante tipoActividad = tipoActividadIngresanteDAO.findCodigo(TipoActividadIngresanteEnum.PAGOEXAMED);
+        ActividadIngresante actividad = actividadIngresanteDAO.findByRecorridoTipoActividad(recorrido, tipoActividad);
+        actividadIngresanteDAO.delete(actividad);
     }
 
     @Override

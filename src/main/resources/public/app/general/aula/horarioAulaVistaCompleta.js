@@ -3,7 +3,6 @@ Vue.component("multiselect", window.VueMultiselect.default)
 new Vue({
     el: '#horariosVUE',
     data: {
-        listOficina: JSON.parse(listOficinaJson),
         listAulaSuperior: JSON.parse(listAulaSuperiorJson),
         listAula: JSON.parse(listAulaJson),
         listAulaOptions: [],
@@ -12,8 +11,7 @@ new Vue({
         horas: [],
         dias: [],
         fechaInicio: null,
-        fechaFin: null,
-        horariosAulaPDFBean: {}
+        fechaFin: null
     },
     created: function () {
         let $vue = this;
@@ -30,9 +28,6 @@ new Vue({
         $vue.fechaInicio = init;
         $vue.fechaFin = end;
 
-        console.log(JSON.stringify($vue.listAulaOptions));
-        console.log(JSON.stringify($vue.fechaFin));
-
         $vue.loadComponent();
     },
     mounted: function () {
@@ -45,11 +40,10 @@ new Vue({
             $vue.listAulaOptions = [];
             $vue.getListAulas();
             $vue.aula = $vue.listAulaOptions[0];
+            $vue.loadComponent();
         },
         loadComponent() {
             let $vue = this;
-            console.log($vue.fechaInicio);
-            console.log($vue.fechaFin);
 
             $.ajax({
                 method: 'POST',
@@ -103,7 +97,7 @@ new Vue({
                     var status = (direccion == 'next' ? i + 1 : i - 1)
 
                     if (status >= total || status < 0) {
-                        console.log("excedio");
+//                        console.log("excedio");
                     } else {
                         $vue.aulaSuperior = Object.assign({}, $vue.listAulaSuperior[status]);
                         $vue.listAulaOptions = [];
@@ -130,53 +124,13 @@ new Vue({
                     var status = (direccion == 'next' ? i + 1 : i - 1)
 
                     if (status >= total || status < 0) {
-                        console.log("excedio");
+//                        console.log("excedio");
                     } else {
                         $vue.aula = Object.assign({}, $vue.listAulaOptions[status]);
                         $vue.loadComponent();
                     }
                 }
             }
-        },
-        descargaPDF() {
-            let $vue = this;
-
-            var horasClone = Object.assign([], $vue.horas);
-
-            for (var i = 0; i < horasClone.length; i++) {
-                for (var f = 0; f < horasClone[i].dias.length; f++) {
-                    horasClone[i].dias[f].mainHorarioAula.estadoEnum = undefined;
-                    horasClone[i].dias[f].mainHorarioAula.tipoEnum = undefined;
-                }
-            }
-
-            $vue.horariosAulaPDFBean.aulaSuperior = $vue.aulaSuperior;
-            $vue.horariosAulaPDFBean.aula = $vue.aula;
-            $vue.horariosAulaPDFBean.dias = $vue.dias;
-            $vue.horariosAulaPDFBean.horas = horasClone;
-
-            console.log(JSON.stringify($vue.aula));
-
-            $vue.aula.tipoAmbienteEnum = undefined;
-
-            $.fileDownload("/" + rutaModulo + "/generatorpdf", {
-                httpMethod: "POST",
-                data: {
-                    strAula: JSON.stringify($vue.aula),
-                    strAulaSuperior: JSON.stringify($vue.aulaSuperior),
-                    fechaInicio: $vue.fechaInicio,
-                    fechaFin: $vue.fechaFin
-                },
-                successCallback: function (responseHtml, url) {
-                    console.log('aqui');
-                },
-                onFail: function (e) {
-                    console.log(e);
-                },
-                failCallback: function (responseHtml, url) {
-                    notify(MESSAGES.errorComunicacion, 'error')
-                }
-            });
         }
     }
 });

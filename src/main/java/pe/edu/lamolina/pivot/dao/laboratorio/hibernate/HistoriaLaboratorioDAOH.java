@@ -61,4 +61,13 @@ public class HistoriaLaboratorioDAOH extends AbstractEasyDAO<HistoriaLaboratorio
         return all(sql);
     }
 
+    @Override
+    public void updateColumns(HistoriaLaboratorio historiaLaboratorio, String... columns) {
+        Octavia sql = Octavia.update(HistoriaLaboratorio.class, "se");
+        for (String column : columns) {
+            sql.set(historiaLaboratorio, column);
+        }
+        this.update(sql);
+    }
+
 }

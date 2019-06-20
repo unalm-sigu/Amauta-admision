@@ -19,7 +19,7 @@
                     <section class="panel-body">
 
                         <table class="table table-striped" id="dynaTable">
-                            <thead> 
+                            <thead>
                                 <tr class=""> 
                                     <th class="col-md-3">Nombre</th>
                                     <th class="col-md-1 text-center">Aforo Capacidad</th>
@@ -145,6 +145,7 @@
     </div>
 
     <div layout:fragment="js">
+        <div th:substituteby="_layout/includes :: javascript-filedownload"/>
         <!--<div th:substituteby="_modules/vue-raptor-table"></div>-->
         <div th:substituteby="_layout/includes :: javascript-dynatable"/>
         <script th:src="@{/app/general/aula/aulaHorarioComponent.js}" charset="utf-8"></script>

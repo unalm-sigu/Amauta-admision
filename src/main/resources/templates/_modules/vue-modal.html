@@ -15,9 +15,23 @@
                                 <h4 class="modal-title">{{ title }}</h4>
                             </slot>
                         </div>
-
+                        
                         <div id="div-body-modal" v-bind:style="showBody? '' : 'opacity: 0.5;' " class="modal-body" v-bind:class="modalscroll">
-                            <slot name="body">
+                            <div v-if="waiting" style="text-align: center;">
+                                <table style="width: 100%; margin: 10px;">
+                                    <tbody>
+                                        <tr>
+                                            <td width="100">
+                                                <i class="fa fa-spinner fa-pulse fa-3x fa-fw"></i>
+                                            </td>
+                                            <td width="*" style="text-align: left; vertical-align: text-top;">
+                                                <div style="font-size: 30px; font-weight: bold; color: #0A3158;" v-html="messageWait">Procesando...</div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <slot v-else="" name="body">
                                 <p>Modal Body</p>
                             </slot>
                         </div>

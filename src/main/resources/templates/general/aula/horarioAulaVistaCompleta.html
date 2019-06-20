@@ -14,20 +14,20 @@
         .wrapper-lg{
             padding: 0px;
         }
-           .form-multiselect{
-                width: 300px;
-            }
+        .form-multiselect{
+            width: 300px;
+        }
         @media (min-width: 768px) and (max-width: 1024px) and (orientation: landscape){
             .table{
                 width: 880px;
             }
-            
-         
+
+
         }
         @media (min-width: 320px) and (max-width: 480px){
-            
+
         }
-       
+
     </style>
 </head>
 <body>
@@ -46,18 +46,18 @@
                                         <form class="form-inline m-b-lg">
                                             <button type="button" class="btn btn-default" v-on:click="changeAulaSuperior('back')"><i class="fa fa-chevron-left"></i></button>                                    <div class="form-group">
                                                 <multiselect class="form-multiselect"
-                                                    v-model="aulaSuperior"
-                                                    v-bind:options='listAulaSuperior'
-                                                    label='nombre'
-                                                    track-by='id'
-                                                    placeholder="Seleccione el modulo"
-                                                    v-bind:internal-search="false"
-                                                    v-bind:allow-empty="false"
-                                                    v-bind:show-labels="false"
-                                                    v-bind:hide-selected="false"
-                                                    v-bind:searchable="false"
-                                                    v-on:input="inputAulaSuperior"
-                                                    >
+                                                             v-model="aulaSuperior"
+                                                             v-bind:options='listAulaSuperior'
+                                                             label='nombre'
+                                                             track-by='id'
+                                                             placeholder="Seleccione el modulo"
+                                                             v-bind:internal-search="false"
+                                                             v-bind:allow-empty="false"
+                                                             v-bind:show-labels="false"
+                                                             v-bind:hide-selected="false"
+                                                             v-bind:searchable="false"
+                                                             v-on:input="inputAulaSuperior"
+                                                             >
                                                 </multiselect>                 
                                             </div>
                                             <button type="button" class="btn btn-default" v-on:click="changeAulaSuperior('next')"><i class="fa fa-chevron-right"></i></button>
@@ -104,8 +104,7 @@
                                     <tbody>
                                         <tr v-for="hora in horas" class='hijo'>
                                             <td class="v-middle">
-                                                <span class="bold"
-                                                      >
+                                                <span class="bold">
                                                     {{hora.descripcion}}
                                                 </span>
                                             </td>
@@ -200,9 +199,12 @@
                                             <td v-bind:colspan="1+dias.length" class="text-left">
                                                 Sin horario.
                                             </td>
-                                        </tr>
+                                        </tr>  
                                     </tbody>
                                 </table>
+                                <span class="pull-right m-t-md">
+                                    <a class="btn btn-default" href="/general/aula" >Regresar</a>
+                                </span>
                             </div>
                         </div>
                     </div>
@@ -213,15 +215,15 @@
     </div>
 
     <div layout:fragment="js">
+        <div th:substituteby="_layout/includes :: javascript-filedownload"/>
         <script  th:inline="javascript" >
             /*<![CDATA[*/
-            var listOficinaJson = /*[[${oficinas}]]*/ 'json';
             var listAulaSuperiorJson = /*[[${listAulaSuperior}]]*/ 'json';
             var listAulaJson = /*[[${listAula}]]*/ 'json';
             var rutaModulo = 'general/aula';
             /*]]>*/
         </script>
-        <script th:src="@{/app/general/aula/horarios.js}" charset="utf-8"></script>
+        <script th:src="@{/app/general/aula/horarioAulaVistaCompleta.js}" charset="utf-8"></script>
     </div>
 
 </body>

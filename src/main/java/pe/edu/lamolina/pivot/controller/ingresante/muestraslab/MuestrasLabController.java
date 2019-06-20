@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.InputStream;
+import java.math.BigDecimal;
 import java.util.List;
 import javax.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +23,7 @@ import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.edu.lamolina.model.academico.ActividadIngresante;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.RecorridoIngresante;
 import pe.edu.lamolina.model.constantines.GlobalMessages;
@@ -276,8 +278,24 @@ public class MuestrasLabController {
                         "laboratorio.fechaMuestra",
                         "laboratorio.idRecorridoIngresante",
                         "laboratorio.historiaClinica.id",
-                        "tieneRiesgo"
+                        "tieneRiesgo",
+                        "actividadIngresante.estado",
+                        "actividadIngresante.tipoActividadIngresante",
+                        "actividadIngresante.tipoActividadIngresante.tipoEXAMED",
+                        "actividadIngresante.estadoAct"
                     });
+//            ArrayNode jActividadIngresante = new ArrayNode(JsonNodeFactory.instance);
+//            for (ActividadIngresante actividadIngresante : reco.getActividadIngresante()) {
+//                ObjectNode actIngresante = JsonHelper.createJson(actividadIngresante, JsonNodeFactory.instance, true,
+//                        new String[]{
+//                            "estado",
+//                            "tipoActividadIngresante.tipoEXAMED",
+//                            "estadoAct"
+//                        });
+//            }
+
+            ActividadIngresante actividadIngRECEP = reco.getActividadIngresante().stream().filter(x -> x.getTipoActividadIngresante().isTipoRECEP()).findFirst().orElse(null);
+            node.put("tieneActividadRECEP", (actividadIngRECEP != null && actividadIngRECEP.isEstadoAct()));
             array.add(node);
         }
         return array;

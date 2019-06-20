@@ -691,7 +691,7 @@ var app = new Vue({
                 $vue.$refs.modalConfirmAction.close();
 
                 setTimeout(function () {
-                    VUE_MODAL.configure($vue.configConfirmAction, {
+                    $vue.configConfirmAction = VUE_MODAL.structConfirm({
                         message: "Al anular esta sección, se eliminará el grupo. ¿Desea continuar?",
                         okbtn: "Si, continuar",
                         okclass: "btn-warning",
@@ -2084,7 +2084,8 @@ var app = new Vue({
                 return true;
             }
             return false;
-        }, rowSeccionStyles(index, seccion) {
+        },
+        rowSeccionStyles(index, seccion) {
             let rows = $('#tblSecciones').find('> tbody > tr');
             let row = rows[index];
             if (row != null) {

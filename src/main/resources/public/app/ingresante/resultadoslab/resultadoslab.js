@@ -67,6 +67,25 @@ new Vue({
                     }
                 }
             });
+        }, saveOtherColumns(item) {
+            delete item.laboratorio.tipoSangreEnum;
+            delete item.laboratorio.factorRHEnum;
+            let $vue = this;
+            $.ajax({
+                method: 'POST',
+                url: APP.url('ingresante/resultadoslab/saveOtherColumns'),
+                data: JSON.stringify(item.laboratorio),
+                contentType: "application/json",
+                success: function (response) {
+                    if (response.success) {
+                        console.log("response", response.data);
+                        notify(response.message, 'info');
+                        $vue.$refs.raptorRL.loadRemoteData();
+                    } else {
+                        notify(response.message, 'error');
+                    }
+                }
+            });
         },
 
         loadTipoSangre() {
