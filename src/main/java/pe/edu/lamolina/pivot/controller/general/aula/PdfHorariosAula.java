@@ -17,6 +17,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -74,7 +75,6 @@ public class PdfHorariosAula extends AbstractOnlyPdfView {
         PdfPTable table = this.createTable(totalColumn);
         this.documentHeader(aula, aulaSuperior, dias, table, fechaInicio, fechaFin);
         this.documentBody(horas, horasBase, document, table, cicloAcademico, totalColumn);
-        this.documentFooter(table, cicloAcademico, totalColumn, document);
 
         document.newPage();
 
@@ -106,7 +106,7 @@ public class PdfHorariosAula extends AbstractOnlyPdfView {
         cell.setBorder(Rectangle.NO_BORDER);
         table.addCell(cell);
 
-        phr = new Phrase("Aula " + aula.getCodigo() + " " + aula.getNombre(), fontHeaderPDF);
+        phr = new Phrase("Aula " + aula.getCodigo() + " " + (aula.getNombre() == null ? "" : aula.getNombre()), fontHeaderPDF);
         cell = new PdfPCell(phr);
         cell.setVerticalAlignment(Element.ALIGN_LEFT);
         cell.setHorizontalAlignment(Element.ALIGN_LEFT);
@@ -131,7 +131,7 @@ public class PdfHorariosAula extends AbstractOnlyPdfView {
         table.addCell(cell);
 
         // table
-        phr = new Phrase("Hora", fontHeaderTable);
+        phr = new Phrase("HORA", fontHeaderTable);
         cell = new PdfPCell(phr);
         cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
         cell.setHorizontalAlignment(Element.ALIGN_CENTER);
@@ -177,40 +177,7 @@ public class PdfHorariosAula extends AbstractOnlyPdfView {
 
         }
 
-        PdfPCell cellFooter = new PdfPCell(new Phrase("CICLO " + cicloAcademico.getDescripcion(), bodyText));
-        cellFooter.setVerticalAlignment(Element.ALIGN_LEFT);
-        cellFooter.setHorizontalAlignment(Element.ALIGN_LEFT);
-        cellFooter.setColspan(2);
-        cellFooter.setPaddingLeft(0f);
-        cellFooter.setPaddingRight(0f);
-        cellFooter.setPaddingTop(1f);
-        cellFooter.setPaddingBottom(0f);
-        cellFooter.setBorder(Rectangle.NO_BORDER);
-        table.addCell(cellFooter);
-
-        PdfPCell cellFooter2 = new PdfPCell(new Phrase("OFICINA DE ESTUDIOS Y REGISTROS ACADÉMICOS", bodyText));
-        cellFooter2.setVerticalAlignment(Element.ALIGN_LEFT);
-        cellFooter2.setHorizontalAlignment(Element.ALIGN_LEFT);
-        cellFooter2.setColspan(3);
-        cellFooter2.setPaddingLeft(0f);
-        cellFooter2.setPaddingRight(0f);
-        cellFooter2.setPaddingTop(1f);
-        cellFooter2.setPaddingBottom(0f);
-        cellFooter2.setBorder(Rectangle.NO_BORDER);
-        table.addCell(cellFooter2);
-
-        Date now = new Date();
-        String fechaActual = TypesUtil.getStringDate(now, " dddd dd 'de' MMMM 'de' yyyy", "es");
-
-        PdfPCell cellFooter3 = new PdfPCell(new Phrase("La Molina, " + fechaActual, bodyText));
-        cellFooter3.setHorizontalAlignment(Element.ALIGN_RIGHT);
-        cellFooter3.setColspan(2);
-        cellFooter3.setPaddingLeft(0f);
-        cellFooter3.setPaddingRight(0f);
-        cellFooter3.setPaddingTop(1f);
-        cellFooter3.setPaddingBottom(0f);
-        cellFooter3.setBorder(Rectangle.NO_BORDER);
-        table.addCell(cellFooter3);
+        this.documentFooter(table, cicloAcademico);
 
         document.add(table);
         document.add(new Chunk("shot invisible", new Font(FontFamily.COURIER, 1, Font.NORMAL, BaseColor.WHITE)));
@@ -393,11 +360,6 @@ public class PdfHorariosAula extends AbstractOnlyPdfView {
 
     }
 
-    private void documentFooter(PdfPTable table, CicloAcademico cicloAcademico, int totalColumn, Document document) throws DocumentException {
-//        Font timeText = new Font(FontFamily.HELVETICA, 8, Font.NORMAL, BaseColor.BLACK);
-//        document.add(new Chunk("CICLO " + cicloAcademico.getDescripcion(), new Font(timeText)));
-    }
-
     private String returnObjetTipoSolicitante(Tramite tramite) {
         String tipSolicitante = tramite.getTipoSolicitante();
         String tipoSolicitanteName = "";
@@ -436,6 +398,47 @@ public class PdfHorariosAula extends AbstractOnlyPdfView {
         }
 
         return estado;
+    }
+
+    private void documentFooter(PdfPTable table, CicloAcademico cicloAcademico) {
+        Font fontFooterPDF = new Font(Font.FontFamily.HELVETICA, 7, Font.NORMAL, BaseColor.BLACK);
+
+        PdfPCell cellFooter = new PdfPCell(new Phrase("CICLO " + cicloAcademico.getDescripcion(), fontFooterPDF));
+        cellFooter.setVerticalAlignment(Element.ALIGN_LEFT);
+        cellFooter.setHorizontalAlignment(Element.ALIGN_LEFT);
+        cellFooter.setColspan(2);
+        cellFooter.setPaddingLeft(0f);
+        cellFooter.setPaddingRight(0f);
+        cellFooter.setPaddingTop(1f);
+        cellFooter.setPaddingBottom(0f);
+        cellFooter.setBorder(Rectangle.NO_BORDER);
+        table.addCell(cellFooter);
+
+        PdfPCell cellFooter2 = new PdfPCell(new Phrase("OFICINA DE ESTUDIOS Y REGISTROS ACADÉMICOS", fontFooterPDF));
+        cellFooter2.setVerticalAlignment(Element.ALIGN_LEFT);
+        cellFooter2.setHorizontalAlignment(Element.ALIGN_LEFT);
+        cellFooter2.setColspan(3);
+        cellFooter2.setPaddingLeft(0f);
+        cellFooter2.setPaddingRight(0f);
+        cellFooter2.setPaddingTop(1f);
+        cellFooter2.setPaddingBottom(0f);
+        cellFooter2.setBorder(Rectangle.NO_BORDER);
+        table.addCell(cellFooter2);
+
+//        String fechaActual = TypesUtil.getStringDate(now, " dd 'de' MMMM 'de' yyyy", "es");
+        Date now = new Date();
+        SimpleDateFormat sdf = new SimpleDateFormat("EEEE dd 'de' MMMMM 'del' yyyy ", new Locale("es", "ES"));
+        String fechaActual = sdf.format(now);
+
+        PdfPCell cellFooter3 = new PdfPCell(new Phrase("La Molina, " + fechaActual, fontFooterPDF));
+        cellFooter3.setHorizontalAlignment(Element.ALIGN_RIGHT);
+        cellFooter3.setColspan(2);
+        cellFooter3.setPaddingLeft(0f);
+        cellFooter3.setPaddingRight(0f);
+        cellFooter3.setPaddingTop(1f);
+        cellFooter3.setPaddingBottom(0f);
+        cellFooter3.setBorder(Rectangle.NO_BORDER);
+        table.addCell(cellFooter3);
     }
 
 }
