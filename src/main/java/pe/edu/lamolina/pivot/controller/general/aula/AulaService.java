@@ -56,4 +56,6 @@ public interface AulaService {
 
     List<Hora> allHorasHorario();
 
+    Aula findById(Aula aulaSuperiorForm);
+
 }

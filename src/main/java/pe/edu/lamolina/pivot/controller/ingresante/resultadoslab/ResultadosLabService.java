@@ -40,4 +40,8 @@ public interface ResultadosLabService {
 
     List<RecorridoIngresante> allRecorridosConMuestra(TurnoEntrevistaObuae turno, CicloAcademico ciclo);
 
+    void saveSangre(HistoriaLaboratorio laboratorio);
+
+    void saveOtherColumns(HistoriaLaboratorio laboratorio);
+
 }

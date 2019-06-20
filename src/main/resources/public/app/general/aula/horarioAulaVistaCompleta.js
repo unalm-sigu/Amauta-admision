@@ -11,8 +11,7 @@ new Vue({
         horas: [],
         dias: [],
         fechaInicio: null,
-        fechaFin: null,
-        horariosAulaPDFBean: {}
+        fechaFin: null
     },
     created: function () {
         let $vue = this;
@@ -29,9 +28,6 @@ new Vue({
         $vue.fechaInicio = init;
         $vue.fechaFin = end;
 
-        console.log(JSON.stringify($vue.listAulaOptions));
-        console.log(JSON.stringify($vue.fechaFin));
-
         $vue.loadComponent();
     },
     mounted: function () {
@@ -44,11 +40,10 @@ new Vue({
             $vue.listAulaOptions = [];
             $vue.getListAulas();
             $vue.aula = $vue.listAulaOptions[0];
+            $vue.loadComponent();
         },
         loadComponent() {
             let $vue = this;
-            console.log($vue.fechaInicio);
-            console.log($vue.fechaFin);
 
             $.ajax({
                 method: 'POST',
@@ -102,7 +97,7 @@ new Vue({
                     var status = (direccion == 'next' ? i + 1 : i - 1)
 
                     if (status >= total || status < 0) {
-                        console.log("excedio");
+//                        console.log("excedio");
                     } else {
                         $vue.aulaSuperior = Object.assign({}, $vue.listAulaSuperior[status]);
                         $vue.listAulaOptions = [];
@@ -129,39 +124,13 @@ new Vue({
                     var status = (direccion == 'next' ? i + 1 : i - 1)
 
                     if (status >= total || status < 0) {
-                        console.log("excedio");
+//                        console.log("excedio");
                     } else {
                         $vue.aula = Object.assign({}, $vue.listAulaOptions[status]);
                         $vue.loadComponent();
                     }
                 }
             }
-        },
-        descargaPDF() {
-            let $vue = this;
-
-            $vue.horariosAulaPDFBean.aulaSuperior = $vue.aulaSuperior;
-            $vue.horariosAulaPDFBean.aula = $vue.aula;
-            $vue.horariosAulaPDFBean.aula.tipoAmbienteEnum = undefined;
-
-            $.fileDownload("/" + rutaModulo + "/generatorpdf", {
-                httpMethod: "POST",
-                data: {
-                    strAula: JSON.stringify($vue.aula),
-                    strAulaSuperior: JSON.stringify($vue.aulaSuperior),
-                    fechaInicio: $vue.fechaInicio,
-                    fechaFin: $vue.fechaFin
-                },
-                successCallback: function (responseHtml, url) {
-                    console.log('aqui');
-                },
-                onFail: function (e) {
-                    console.log(e);
-                },
-                failCallback: function (responseHtml, url) {
-                    notify(MESSAGES.errorComunicacion, 'error')
-                }
-            });
         }
     }
 });

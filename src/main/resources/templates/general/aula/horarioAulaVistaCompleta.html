@@ -14,20 +14,20 @@
         .wrapper-lg{
             padding: 0px;
         }
-           .form-multiselect{
-                width: 300px;
-            }
+        .form-multiselect{
+            width: 300px;
+        }
         @media (min-width: 768px) and (max-width: 1024px) and (orientation: landscape){
             .table{
                 width: 880px;
             }
-            
-         
+
+
         }
         @media (min-width: 320px) and (max-width: 480px){
-            
+
         }
-       
+
     </style>
 </head>
 <body>
@@ -46,18 +46,18 @@
                                         <form class="form-inline m-b-lg">
                                             <button type="button" class="btn btn-default" v-on:click="changeAulaSuperior('back')"><i class="fa fa-chevron-left"></i></button>                                    <div class="form-group">
                                                 <multiselect class="form-multiselect"
-                                                    v-model="aulaSuperior"
-                                                    v-bind:options='listAulaSuperior'
-                                                    label='nombre'
-                                                    track-by='id'
-                                                    placeholder="Seleccione el modulo"
-                                                    v-bind:internal-search="false"
-                                                    v-bind:allow-empty="false"
-                                                    v-bind:show-labels="false"
-                                                    v-bind:hide-selected="false"
-                                                    v-bind:searchable="false"
-                                                    v-on:input="inputAulaSuperior"
-                                                    >
+                                                             v-model="aulaSuperior"
+                                                             v-bind:options='listAulaSuperior'
+                                                             label='nombre'
+                                                             track-by='id'
+                                                             placeholder="Seleccione el modulo"
+                                                             v-bind:internal-search="false"
+                                                             v-bind:allow-empty="false"
+                                                             v-bind:show-labels="false"
+                                                             v-bind:hide-selected="false"
+                                                             v-bind:searchable="false"
+                                                             v-on:input="inputAulaSuperior"
+                                                             >
                                                 </multiselect>                 
                                             </div>
                                             <button type="button" class="btn btn-default" v-on:click="changeAulaSuperior('next')"><i class="fa fa-chevron-right"></i></button>
@@ -143,7 +143,7 @@
 
                                                             <span v-if="dia.mainHorarioAula.seccion.docenteSeccion.length" class="block" style="margin-top:5px;margin-bottom:5px;">
 
-                                                                <strong> Docentes </strong>
+                                                                <strong> Docentes </strong> 
 
                                                                 <ul class="otros-docente">
                                                                     <li v-for="(item, index )  in dia.mainHorarioAula.seccion.docenteSeccion" class="prof">
@@ -188,9 +188,9 @@
                                                     </div>
                                                 </div>
 
-                                                                                                <span v-if="dia.mainHorarioAula"
-                                                                                                      class="text-muted block">
-                                                                                                    {{dia.mainHorarioAula.seccion.grupoHoras.codigo}}
+                                                <span v-if="dia.mainHorarioAula"
+                                                      class="text-muted block">
+                                                    {{dia.mainHorarioAula.seccion.grupoHoras.codigo}}
                                                 </span>
 
                                             </td>
@@ -203,8 +203,7 @@
                                     </tbody>
                                 </table>
                                 <span class="pull-right m-t-md">
-                                    <a class="btn btn-success" v-on:click="descargaPDF" >Descargar</a>
-                                    <!--<a class="btn btn-success" href="/general/aula/generatorpdf"  >Descargar</a>-->
+                                    <a class="btn btn-default" href="/general/aula" >Regresar</a>
                                 </span>
                             </div>
                         </div>

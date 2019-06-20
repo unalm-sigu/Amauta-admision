@@ -242,7 +242,7 @@ public class PromedioServiceImp implements PromedioService {
 
     public void analizedCastigados(Alumno alumno, CicloAcademico cicloActivo) {
         if (alumno.getSituacionAcademica().isTrikeado() || alumno.getSituacionAcademica().isCodigoS6()) {
-            ModalidadEstudioEnum MODALIDAD_ESTUDIO_ENUM = ModalidadEstudioEnum.get(alumno.getModalidadEstudio().getCodigo());
+            ModalidadEstudioEnum MODALIDAD_ESTUDIO_ENUM = ModalidadEstudioEnum.valueOf(alumno.getModalidadEstudio().getCodigo());
             CicloAcademico ultimoCicloRegular = alumno.getCicloActivoRegular();
             CicloAcademico cicloSuspendido = cicloAcademicoDAO.findSiguienteRegularActivo(ultimoCicloRegular, MODALIDAD_ESTUDIO_ENUM);
             AlumnoCiclo alumnoCicloSusp = alumnoCicloDAO.findByAlumnoCiclo(alumno, cicloSuspendido);
