@@ -262,7 +262,7 @@ public class PromedioServiceImp implements PromedioService {
             CicloAcademico siguienteCicloRegularHabil = cicloAcademicoDAO.findSiguienteRegularActivo(cicloSuspendido, MODALIDAD_ESTUDIO_ENUM);
             CicloAcademico siguienteCicloNivHabil = cicloAcademicoDAO.findSiguienteNivelacionActivo(cicloActivo, MODALIDAD_ESTUDIO_ENUM);
 
-            if (alumno.getCicloActivoRegular().getCodigoInt() <= cicloActivo.getCodigoInt()) {
+            if (!cicloActivo.equals(cicloSuspendido) && alumno.getCicloActivoRegular().getCodigoInt() <= cicloActivo.getCodigoInt()) {
                 Alumno alumnoUpd = new Alumno(alumno.getId());
                 alumnoUpd.setSituacionAcademica(alumnoCicloSusp.getSituacionFinal());
                 alumnoDAO.updateSituacionAcad(alumnoUpd);
@@ -478,7 +478,6 @@ public class PromedioServiceImp implements PromedioService {
         logger.debug("Alumno Id {}, Codigo {}", alumno.getId(), alumno.getCodigo());
         logger.debug("Ciclos matriculados del alumno {}", String.join(",", ciclos));
 
-        int idx = 0;
         for (AlumnoCiclo alumnoCicloEach : alumnosCiclosByAlumno) {
             CicloAcademico ciclo = alumnoCicloEach.getCicloAcademico();
             logger.debug("################# Ciclo Padre {} {} {} ", ciclo.getId(), ciclo.getYear(), ciclo.getNumeroCiclo());
@@ -489,7 +488,6 @@ public class PromedioServiceImp implements PromedioService {
             List<AlumnoCicloCurso> alumnoCicloCursoAnteriores = allOperativesByModalidadEstudio.stream()
                     .filter(x -> x.getAlumnoCiclo().getCicloAcademico().getCodigoInt() < ciclo.getCodigoInt())
                     .collect(Collectors.toList());
-            idx++;
             this.promediarHistorialNotasDiciembre(alumno, cicloActivo, ciclo, ds, null, alumnoCicloCursoByCiclo, alumnoCicloCursoAnteriores);
         }
 

@@ -266,7 +266,6 @@ public class TestController {
         logger.info("promediarepgfull");
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         service.promediarfullBySituacion(sit, ds, ModalidadEstudioEnum.EPG);
-
         return "yeah";
     }
 
