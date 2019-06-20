@@ -46,7 +46,8 @@ public class MatriculaSimultaneoDAOH extends AbstractEasyDAO<MatriculaSimultaneo
                 .from(MatriculaSimultaneo.class, "ms")
                 .join("matriculaCurso mc", "matriculaCursoSimultaneo mcs", "mc.matriculaResumen mr")
                 .join("mc.curso cur1", "mcs.curso cur2")
-                .in("mr.id", resumenes);
+                .in("mr.id", resumenes)
+                .orderBy("mr.prioridad");
         return all(sql);
     }
 
