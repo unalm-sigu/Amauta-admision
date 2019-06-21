@@ -145,6 +145,21 @@ public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements Alu
     }
 
     @Override
+    public AlumnoCiclo findLastByAlumnoAndSituacion(Alumno alumno, SituacionAcademicaEnum... situacionesAcademicas) {
+        List<SituacionAcademicaEnum> situaciones = Arrays.asList(situacionesAcademicas);
+        Octavia sql = Octavia.query()
+                .from(AlumnoCiclo.class, "ac")
+                .join("alumno alu", "cicloAcademico ca", "carrera car")
+                .left("situacionInicio si", "situacionFinal sf", "orientacionCarrera oc")
+                .filter("alu.id", alumno)
+                //      .filter("ac.estado", EstadoMatriculaEnum.MAT.name())
+                .in("sf.codigo", situaciones.stream().map(x -> x.getValue()).collect(Collectors.toList()))
+                .orderBy("ca.codigo desc")
+                .limit(BigDecimal.ONE.intValue());
+        return find(sql);
+    }
+
+    @Override
     public AlumnoCiclo findLastNotInSituacion(Alumno alumno, SituacionAcademicaEnum... situacionAcademicaEnums) {
         List<SituacionAcademicaEnum> situaciones = Arrays.asList(situacionAcademicaEnums);
         Octavia sql = Octavia.query()

@@ -226,7 +226,8 @@ public class MatricularServiceImp implements MatricularService {
         for (MatriculaResumen resumene : resumenes) {
             List<MatriculaCurso> matriculaCursosNoSim = mapMatResumenNoSim.get(resumene.getId());
             List<MatriculaCurso> matriculaCursoSim = mapMatResumenSim.get(resumene.getId());
-
+            
+            matriculaCursosNoSim = matriculaCursosNoSim == null ? new ArrayList() : matriculaCursosNoSim;
             matriculaCursosFiltrados = data(cursoCurriculaEnum, matriculaCursosNoSim, noMatriculadosELC, matriculaSeccions);
 
             matObligatorios(

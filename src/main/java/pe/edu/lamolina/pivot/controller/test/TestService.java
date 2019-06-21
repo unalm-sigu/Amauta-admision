@@ -1,6 +1,7 @@
 package pe.edu.lamolina.pivot.controller.test;
 
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface TestService {
@@ -13,16 +14,12 @@ public interface TestService {
 
     void promediarciclocod(String cicloCod, DataSessionPivot ds);
 
-    void promediarepgfull(DataSessionPivot ds);
-
-    void promediarfull(DataSessionPivot ds);
+    void promediarfull(DataSessionPivot ds, ModalidadEstudioEnum modalidadEstudioEnum);
 
     void promediarAll(Long cicloId, DataSessionPivot ds);
 
     void calcularAllPromediosByCiclo(DataSessionPivot ds);
 
-    public void promediarfullBySituacion(String sit, DataSessionPivot ds);
-
-    public void promediarepgfullBySituacion(String sit, DataSessionPivot ds);
+    public void promediarfullBySituacion(String sit, DataSessionPivot ds, ModalidadEstudioEnum modalidadEstudioEnum);
 
 }

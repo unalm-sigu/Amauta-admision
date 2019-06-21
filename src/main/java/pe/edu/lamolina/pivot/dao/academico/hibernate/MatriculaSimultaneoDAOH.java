@@ -8,6 +8,7 @@ import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.MatriculaCurso;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
+import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.PMAT;
 import pe.edu.lamolina.model.matricula.MatriculaSimultaneo;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaSimultaneoDAO;
 
@@ -47,6 +48,7 @@ public class MatriculaSimultaneoDAOH extends AbstractEasyDAO<MatriculaSimultaneo
                 .join("matriculaCurso mc", "matriculaCursoSimultaneo mcs", "mc.matriculaResumen mr")
                 .join("mc.curso cur1", "mcs.curso cur2")
                 .in("mr.id", resumenes)
+                .filter("mc.estado", PMAT)
                 .orderBy("mr.prioridad");
         return all(sql);
     }
