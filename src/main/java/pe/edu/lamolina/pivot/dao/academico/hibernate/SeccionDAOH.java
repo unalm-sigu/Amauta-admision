@@ -21,6 +21,9 @@ import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
+import static pe.edu.lamolina.model.enums.SeccionEstadoEnum.ACT;
+import static pe.edu.lamolina.model.enums.SeccionEstadoEnum.ANU;
+import static pe.edu.lamolina.model.enums.SeccionEstadoEnum.BLO;
 import pe.edu.lamolina.model.enums.TipoGrupoHorasEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 import static pe.edu.lamolina.model.enums.TipoSeccionEnum.TCUR;
@@ -255,13 +258,15 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
     }
 
     @Override
-    public List<Seccion> allByGposSeccionOrderedByCodigo2(CicloAcademico cicloAcademico) {
+    public List<Seccion> allForBoletinByCiclo(CicloAcademico cicloAcademico) {
         Octavia sql = Octavia.query()
                 .from(Seccion.class, "sec")
-                .join("grupoSeccion gs", "gs.curso cur", "docenteSeccion ds")
-                .join("gs.cicloAcademico ca")
+                .join("grupoSeccion gs", "gs.curso cur")
+                .join("gs.cicloAcademico ca", "gs.anexoBoletin ab", "ab.anexoSuperior")
                 .left("grupoHoras gh", "aula au")
                 .filter("ca.id", cicloAcademico)
+                .in("sec.estado", Arrays.asList(ACT, BLO, ANU))
+                .filter("cur.codigo", "<>", "CI0000")
                 .orderBy("sec.codigo2");
         return all(sql);
     }

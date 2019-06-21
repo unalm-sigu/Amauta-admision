@@ -221,4 +221,18 @@ public class AnexoBoletinDAOH extends AbstractEasyDAO<AnexoBoletin> implements A
         return all(sql);
     }
 
+    @Override
+    public List<AnexoBoletin> allTodosByCiclo(CicloAcademico ciclo) {
+        Octavia sql = Octavia.query()
+                .selectDistinct("ab")
+                .from(DocenteSeccion.class, "dsec")
+                .join("dsec.seccion sec", "sec.grupoSeccion gs", "gs.cicloAcademico ci", "gs.curso cu")
+                .join("gs.anexoBoletin ab", "ab.anexoSuperior abs")
+                .filter("ci.id", ciclo)
+                .filter("sec.estado", SeccionEstadoEnum.ACT.name())
+                .filter("dsec.estado", EstadoEnum.ACT.name())
+                .filter("cu.codigo", "<>", "CI0000");
+        return all(sql);
+    }
+
 }
