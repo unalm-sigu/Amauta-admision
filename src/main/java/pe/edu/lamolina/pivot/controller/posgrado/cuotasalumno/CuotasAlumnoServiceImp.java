@@ -16,6 +16,7 @@ import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.enums.AlumnoCuotaEstadoEnum;
+import pe.edu.lamolina.model.enums.DeudaEstadoEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.posgrado.AlumnoConceptoMatricula;
 import pe.edu.lamolina.model.posgrado.AlumnoCuotaMatricula;
@@ -181,7 +182,7 @@ public class CuotasAlumnoServiceImp implements CuotasAlumnoService {
             for (int i = 1; i <= alumnoResumenCuotas.getCuotas(); i++) {
                 AlumnoCuotaMatricula alumnoCuotaMatricula = new AlumnoCuotaMatricula();
                 alumnoCuotaMatricula.setAmortizado(BigDecimal.ZERO);
-                alumnoCuotaMatricula.setEstado(AlumnoCuotaEstadoEnum.PEN);
+                alumnoCuotaMatricula.setEstadoEnum(DeudaEstadoEnum.PEN);
                 alumnoCuotaMatricula.setFechaEmision(today.toDate());
                 alumnoCuotaMatricula.setFechaPago(today.toDate());
 
@@ -222,7 +223,7 @@ public class CuotasAlumnoServiceImp implements CuotasAlumnoService {
 
         for (AlumnoCuotaMatricula alumnoCuotaMatricula : alumnoResumenCuotas.getAlumnoCuotasMatricula()) {
             alumnoCuotaMatricula.setAlumnoResumenCuotas(alumnoResumenCuotas);
-            alumnoCuotaMatricula.setEstado(AlumnoCuotaEstadoEnum.PEN);
+            alumnoCuotaMatricula.setEstadoEnum(DeudaEstadoEnum.PEN);
             alumnoCuotaMatricula.setFechaEmision(today.toDate());
             alumnoCuotaMatricula.setFechaPago(today.toDate());
             //  alumnoCuotaMatriculaDAO.save(alumnoCuotaMatricula);
