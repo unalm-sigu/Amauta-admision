@@ -9,7 +9,6 @@ import pe.edu.lamolina.model.enums.TipoAulaEnum;
 import pe.edu.lamolina.model.enums.TipoOficinaEnum;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Oficina;
-import pe.edu.lamolina.model.general.TipoAula;
 
 public interface AulaDAO extends EasyDAO<Aula> {
 
@@ -60,6 +59,7 @@ public interface AulaDAO extends EasyDAO<Aula> {
     Aula findAulaMaxAforo(OficinaEnum oficinaEnum, EstadoEnum estadoEnum);
 
     List<Aula> allPabellonesByOficina(Oficina oficina, EstadoEnum... estados);
+
     List<Aula> allByListOficinaSupervisora(List<Oficina> oficinas);
 
 }

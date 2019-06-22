@@ -307,19 +307,21 @@ public class AulaServiceImp implements AulaService {
 
         List<Seccion> secciones = horariosAulas.stream().filter(x -> x.getSeccion() != null).map(x -> x.getSeccion()).collect(Collectors.toList());
 
-        Map<Long, CicloAcademico> ciclosXid = TypesUtil.convertListToMap("grupoSeccion.cicloAcademico.id", "grupoSeccion.cicloAcademico", secciones);
-        List<CicloAcademico> cicloAcademicos = ciclosXid.values().stream().collect(Collectors.toList());
-        List<EventoCicloAcademico> eventoCicloAcademicos = eventoCicloAcademicoDAO.allActivoByCicloTipoEvento(cicloAcademicos, EventoAcademicoEnum.CLASES_PRE);
-        Map<Long, EventoCicloAcademico> eventoAcademicoXcicloAcademico = TypesUtil.convertListToMap("cicloAcademico.id", eventoCicloAcademicos);
-        for (Seccion seccione : secciones) {
-            GrupoSeccion grupoSeccion = seccione.getGrupoSeccion();
-            if (TipoDictadoGrupoSeccionEnum.SEM.name().equalsIgnoreCase(grupoSeccion.getTipoDictado())) {
-                EventoCicloAcademico evento = eventoAcademicoXcicloAcademico.get(grupoSeccion.getCicloAcademico().getId());
-                grupoSeccion.setFechaInicioPeriodo(evento.getFechaInicio());
-                grupoSeccion.setFechaFinPeriodo(evento.getFechaFin());
-            }
-        }
-
+//        Map<Long, CicloAcademico> mapCiclos = TypesUtil.convertListToMap("grupoSeccion.cicloAcademico.id", "grupoSeccion.cicloAcademico", secciones);
+//        List<CicloAcademico> ciclos = mapCiclos.values().stream().collect(Collectors.toList());
+//        List<EventoCicloAcademico> eventoClases = eventoCicloAcademicoDAO.allActivoByCicloTipoEvento(ciclos, EventoAcademicoEnum.CLASES_PRE);
+//        List<EventoCicloAcademico> eventoClasesEpg = eventoCicloAcademicoDAO.allActivoByCicloTipoEvento(ciclos, EventoAcademicoEnum.CLASES_EPG);
+//        eventoClases.addAll(eventoClasesEpg);
+//
+//        Map<Long, EventoCicloAcademico> mapEventoClases = TypesUtil.convertListToMap("cicloAcademico.id", eventoClases);
+//        for (Seccion seccion : secciones) {
+//            GrupoSeccion gpoSecc = seccion.getGrupoSeccion();
+//            if (TipoDictadoGrupoSeccionEnum.SEM.name().equalsIgnoreCase(gpoSecc.getTipoDictado())) {
+//                EventoCicloAcademico evento = mapEventoClases.get(gpoSecc.getCicloAcademico().getId());
+//                gpoSecc.setFechaInicioPeriodo(evento.getFechaInicio());
+//                gpoSecc.setFechaFinPeriodo(evento.getFechaFin());
+//            }
+//        }
         List<DocenteSeccion> docenteSecciones = docenteSeccionDAO.allPrincipalesBySecciones(secciones);
         Map<Long, List<DocenteSeccion>> docenteSeccionesMap = TypesUtil.convertListToMapList("seccion.id", docenteSecciones);
 
@@ -368,11 +370,11 @@ public class AulaServiceImp implements AulaService {
     }
 
     @Override
-    public List<Hora> returnHorasEncontradas(Aula aulaBD, List<Dia> dias, DataSessionPivot ds) {
+    public List<Hora> returnHorasEncontradas(Aula aulaBD, List<Dia> dias, CicloAcademico ciclo) {
 
-        List<DiaHoraGrupo> listdiaHoraGrupo = this.allDiaHoraGrupoByCicloRegular(ds.getCicloAcademico());
+        List<DiaHoraGrupo> diasHorasGposRegulares = diaHoraGrupoDAO.allByTipoGpoEnumCiclo(TipoGrupoHorasEnum.REGULAR, ciclo);
 
-        List<Hora> horasEncontradas = new ArrayList<>();
+        List<Hora> horasEncontradas = new ArrayList();
         for (HorarioAula horarioAula : aulaBD.getHorariosAula()) {
             if (!horasEncontradas.contains(horarioAula.getHora())) {
                 horasEncontradas.add(horarioAula.getHora());
@@ -385,7 +387,7 @@ public class AulaServiceImp implements AulaService {
 
         Map<String, HorarioAula> diasHorasMap = horarios.stream().collect(Collectors.toMap(x -> x.getHora().getId() + "-" + x.getDia().getId(), x -> x, (f, s) -> s));
 
-        Map<String, DiaHoraGrupo> diaHoraGrupoMap = listdiaHoraGrupo.stream().collect(Collectors.toMap(x -> x.getHora().getId() + "-" + x.getDia().getId(), x -> x, (f, s) -> s));
+        Map<String, DiaHoraGrupo> diaHoraGrupoMap = diasHorasGposRegulares.stream().collect(Collectors.toMap(x -> x.getHora().getId() + "-" + x.getDia().getId(), x -> x, (f, s) -> s));
 
         for (Hora horasEncontrada : horasEncontradas) {
             List<Dia> diass = new ArrayList();
@@ -398,7 +400,6 @@ public class AulaServiceImp implements AulaService {
                 DiaHoraGrupo diaHoraGrupo = diaHoraGrupoMap.get(key);
                 diaClone.setMainHorarioAula(horarioAula);
                 if (diaHoraGrupo != null) {
-//                    ObjectUtil.printAttr(diaHoraGrupo.getGrupoHorario());
                     diaClone.setGrupohoras(diaHoraGrupo.getGrupoHorario());
                 }
                 diass.add(diaClone);

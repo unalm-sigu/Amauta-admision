@@ -1,6 +1,8 @@
 package pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.reporte;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,19 +14,26 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.model.academico.AnexoBoletin;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.Facultad;
+import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
+import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
+import pe.edu.lamolina.model.horario.HorarioSeccion;
 import pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.GpoSeccionResumen;
+import pe.edu.lamolina.pivot.dao.academico.AnexoBoletinDAO;
 import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.DocenteSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.GrupoSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.ModalidadEstudioDAO;
+import pe.edu.lamolina.pivot.dao.academico.SeccionDAO;
+import pe.edu.lamolina.pivot.dao.horario.HorarioSeccionDAO;
 
 @Service
 @Transactional(readOnly = true)
@@ -43,6 +52,15 @@ public class GpoReporteServiceImp implements GpoReporteService {
 
     @Autowired
     ModalidadEstudioDAO modalidadEstudioDAO;
+
+    @Autowired
+    AnexoBoletinDAO anexoBoletinDAO;
+
+    @Autowired
+    SeccionDAO seccionDAO;
+
+    @Autowired
+    HorarioSeccionDAO horarioSeccionDAO;
 
     @Override
     public CicloAcademico findCiclo(CicloAcademico cicloAcademico) {
@@ -277,6 +295,86 @@ public class GpoReporteServiceImp implements GpoReporteService {
             }
         }
         return total;
+    }
+
+    @Override
+    public List<AnexoBoletin> getAnexosForBoletin(CicloAcademico ciclo) {
+
+        List<AnexoBoletin> anexos = anexoBoletinDAO.allTodosByCiclo(ciclo);
+        Collections.sort(anexos, (a1, a2) -> a1.getOrden().compareTo(a2.getOrden()));
+
+        for (AnexoBoletin anexo : anexos) {
+            anexo.setGruposSecciones(new ArrayList());
+        }
+        Map<Long, AnexoBoletin> mapAnexoSuper = TypesUtil.convertListToMap("anexoSuperior.id", "anexoSuperior", anexos);
+        Map<Long, AnexoBoletin> mapAnexos = TypesUtil.convertListToMap("id", anexos);
+
+        List<AnexoBoletin> anexosSuper = new ArrayList(mapAnexoSuper.values());
+        for (AnexoBoletin anexo : anexosSuper) {
+            anexo.setAnexosBoletinHijos(new ArrayList());
+        }
+        for (AnexoBoletin anexo : anexos) {
+            AnexoBoletin anexoPadre = mapAnexoSuper.get(anexo.getAnexoSuperior().getId());
+            anexoPadre.getAnexosBoletinHijos().add(anexo);
+            anexo.setAnexoSuperior(anexoPadre);
+        }
+
+        List<Seccion> secciones = seccionDAO.allForBoletinByCiclo(ciclo);
+        List<HorarioSeccion> horariosSecciones = horarioSeccionDAO.allBySecciones(secciones);
+        Map<Long, List<HorarioSeccion>> mapHorarios = TypesUtil.convertListToMapList("seccion.id", horariosSecciones);
+        Map<Long, Seccion> mapSeccion = TypesUtil.convertListToMap("id", secciones);
+        for (Seccion secc : secciones) {
+            if (secc.getGrupoSeccion().getCurso().getCodigo().equals("CC5002")) {
+                System.out.println("codigo2 " + secc.getCodigo2() + " - estado " + secc.getEstado());
+            }
+            List<HorarioSeccion> horarioSecc = TypesUtil.getListNotNull(mapHorarios.get(secc.getId()));
+            secc.setHorarioSeccion(horarioSecc);
+            secc.setDocenteSeccion(new ArrayList());
+        }
+
+        Map<Long, GrupoSeccion> mapGpoSeccion = TypesUtil.convertListToMap("grupoSeccion.id", "grupoSeccion", secciones);
+        List<GrupoSeccion> gpoSecciones = new ArrayList(mapGpoSeccion.values());
+
+        Map<String, Curso> mapCursos = new LinkedHashMap();
+        Map<Long, Curso> mapCursosTmp = TypesUtil.convertListToMap("curso.id", "curso", gpoSecciones);
+        List<Curso> cursosTmp = new ArrayList(mapCursosTmp.values());
+        for (Curso cursoTmp : cursosTmp) {
+            for (AnexoBoletin anexo : anexos) {
+                Curso curso = cursoTmp.clone();
+                curso.setGrupoSeccion(new ArrayList());
+                mapCursos.put(anexo.getId() + "-" + curso.getId(), curso);
+            }
+        }
+
+        for (GrupoSeccion gpoSecc : gpoSecciones) {
+            AnexoBoletin anexo = mapAnexos.get(gpoSecc.getAnexoBoletin().getId());
+            anexo.getGruposSecciones().add(gpoSecc);
+
+            Curso cursoTmp = gpoSecc.getCurso();
+            Curso curso = mapCursos.get(anexo.getId() + "-" + cursoTmp.getId());
+            curso.getGrupoSeccion().add(gpoSecc);
+
+            gpoSecc.setSecciones(new ArrayList());
+            gpoSecc.setAnexoBoletin(anexo);
+            gpoSecc.setCurso(curso);
+        }
+
+        for (Seccion secc : secciones) {
+            GrupoSeccion gpoSecc = mapGpoSeccion.get(secc.getGrupoSeccion().getId());
+            gpoSecc.getSecciones().add(secc);
+            secc.setGrupoSeccion(gpoSecc);
+        }
+
+        List<DocenteSeccion> docentesSecciones = docenteSeccionDAO.allActivosBySecciones(secciones);
+        for (DocenteSeccion profeSecc : docentesSecciones) {
+            Seccion secc = mapSeccion.get(profeSecc.getSeccion().getId());
+            secc.getDocenteSeccion().add(profeSecc);
+            profeSecc.setSeccion(secc);
+        }
+
+        Collections.sort(anexosSuper, (a1, a2) -> a1.getOrden().compareTo(a2.getOrden()));
+
+        return anexosSuper;
     }
 
 }

@@ -21,6 +21,7 @@ import java.util.Locale;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,10 +38,7 @@ import pe.edu.lamolina.model.tramite.Tramite;
 import pe.edu.lamolina.pivot.zelper.pdf.AbstractOnlyPdfView;
 
 @Component
-public class PdfHorariosAula extends AbstractOnlyPdfView {
-
-    @Autowired
-    AulaService service;
+public class HorarioAulaSemanalPDF extends AbstractOnlyPdfView {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -55,7 +53,7 @@ public class PdfHorariosAula extends AbstractOnlyPdfView {
         document.addTitle(this.title);
         document.addSubject("subject cualquiera");
         document.setPageSize(PageSize.A4.rotate());
-        document.setMargins(36, 36, 38, 35);
+        document.setMargins(36, 36, 10, 35);
 
     }
 
@@ -90,48 +88,20 @@ public class PdfHorariosAula extends AbstractOnlyPdfView {
 
     private void documentHeader(Aula aula, Aula aulaSuperior, List<Dia> dias, PdfPTable table, Date dateInicial, Date dateFinal) throws DocumentException, ParseException {
 
-        Font fontHeaderPDF = new Font(Font.FontFamily.HELVETICA, 9, Font.NORMAL, BaseColor.BLACK);
-        Font fontHeaderTable = new Font(Font.FontFamily.HELVETICA, 8, Font.BOLD, BaseColor.WHITE);
+        Font headerFont = new Font(Font.FontFamily.HELVETICA, 8, Font.BOLD, BaseColor.WHITE);
 
         Phrase phr = null;
         PdfPCell cell = null;
 
+        String aulaText = aulaSuperior == null ? "" : (aulaSuperior.getNombre() + " - ");
+        aulaText += "Aula " + aula.getCodigo();
+        aulaText += StringUtils.isEmpty(aula.getNombre()) ? "" : (" " + aula.getNombre());
+        addCeldaHeader(aulaText, table);
+
         String semanaActual = this.returnSemana(dateInicial, dateFinal);
+        addCeldaHeader("Semana " + semanaActual, table);
 
-        phr = new Phrase(aulaSuperior.getNombre(), fontHeaderPDF);
-        cell = new PdfPCell(phr);
-        cell.setVerticalAlignment(Element.ALIGN_LEFT);
-        cell.setHorizontalAlignment(Element.ALIGN_LEFT);
-        cell.setColspan(3);
-        cell.setBorder(Rectangle.NO_BORDER);
-        table.addCell(cell);
-
-        phr = new Phrase("Aula " + aula.getCodigo() + " " + (aula.getNombre() == null ? "" : aula.getNombre()), fontHeaderPDF);
-        cell = new PdfPCell(phr);
-        cell.setVerticalAlignment(Element.ALIGN_LEFT);
-        cell.setHorizontalAlignment(Element.ALIGN_LEFT);
-        cell.setColspan(4);
-        cell.setBorder(Rectangle.NO_BORDER);
-        table.addCell(cell);
-
-        phr = new Phrase("Semana", fontHeaderPDF);
-        cell = new PdfPCell(phr);
-        cell.setVerticalAlignment(Element.ALIGN_LEFT);
-        cell.setHorizontalAlignment(Element.ALIGN_LEFT);
-        cell.setColspan(3);
-        cell.setBorder(Rectangle.NO_BORDER);
-        table.addCell(cell);
-
-        phr = new Phrase(semanaActual, fontHeaderPDF);
-        cell = new PdfPCell(phr);
-        cell.setVerticalAlignment(Element.ALIGN_LEFT);
-        cell.setHorizontalAlignment(Element.ALIGN_LEFT);
-        cell.setColspan(4);
-        cell.setBorder(Rectangle.NO_BORDER);
-        table.addCell(cell);
-
-        // table
-        phr = new Phrase("HORA", fontHeaderTable);
+        phr = new Phrase("HORA", headerFont);
         cell = new PdfPCell(phr);
         cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
         cell.setHorizontalAlignment(Element.ALIGN_CENTER);
@@ -139,7 +109,7 @@ public class PdfHorariosAula extends AbstractOnlyPdfView {
         table.addCell(cell);
 
         for (Dia dia : dias) {
-            phr = new Phrase(dia.getNombre().toUpperCase(), fontHeaderTable);
+            phr = new Phrase(dia.getNombre().toUpperCase(), headerFont);
             cell = new PdfPCell(phr);
             cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
             cell.setHorizontalAlignment(Element.ALIGN_CENTER);
@@ -155,22 +125,23 @@ public class PdfHorariosAula extends AbstractOnlyPdfView {
 
         Map<Long, Hora> mapHoraEncontrado = TypesUtil.convertListToMap("id", horas);
 
-        Font bodyText = new Font(FontFamily.HELVETICA, 7, Font.NORMAL, BaseColor.BLACK);
-        Font timeText = new Font(FontFamily.HELVETICA, 8, Font.NORMAL, BaseColor.BLACK);
+        Font bodyFont = new Font(FontFamily.HELVETICA, 7, Font.NORMAL, BaseColor.BLACK);
+        Font timeFont = new Font(FontFamily.HELVETICA, 10, Font.NORMAL, BaseColor.BLACK);
+        Font letterFont = new Font(FontFamily.HELVETICA, 9, Font.BOLD, BaseColor.BLACK);
 
         for (Hora horaBase : horasBase) {
 
             // primera celda de hora
-            PdfPCell cell = new PdfPCell(new Phrase(horaBase.getDescripcion2(), timeText));
+            PdfPCell cell = new PdfPCell(new Phrase(horaBase.getDescripcion2(), timeFont));
             cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
             cell.setHorizontalAlignment(Element.ALIGN_CENTER);
-            cell.setFixedHeight(34);
+            cell.setFixedHeight(35);
             table.addCell(cell);
 
             Hora hora = mapHoraEncontrado.get(horaBase.getId());
 
             if (hora != null) {
-                table = this.construccionCeldas(table, hora, bodyText, totalColumnaContenido);
+                table = this.construccionCeldas(table, hora, bodyFont, letterFont, totalColumnaContenido);
             } else {
                 table = this.construccionCeldasVacias(table, totalColumnaContenido);
             }
@@ -196,7 +167,7 @@ public class PdfHorariosAula extends AbstractOnlyPdfView {
         return table;
     }
 
-    private PdfPTable construccionCeldas(PdfPTable table, Hora hora, Font bodyText, int totalColumnaContenido) throws DocumentException {
+    private PdfPTable construccionCeldas(PdfPTable table, Hora hora, Font bodyFont, Font letterFont, int totalColumnaContenido) throws DocumentException {
 
         for (int i = 0; i < totalColumnaContenido; i++) {
 
@@ -210,54 +181,17 @@ public class PdfHorariosAula extends AbstractOnlyPdfView {
             innerTable.setPaddingTop(0f);
 
             String gpoCodigo = hora.getDias().get(i).getGrupohoras() == null ? "" : hora.getDias().get(i).getGrupohoras().getCodigo();
-
-            // fila
-            String line = gpoCodigo;
-            PdfPCell cellInner = new PdfPCell(new Phrase(line, bodyText));
-            cellInner.setVerticalAlignment(Element.ALIGN_MIDDLE);
-            cellInner.setHorizontalAlignment(Element.ALIGN_CENTER);
-            cellInner.setBorder(Rectangle.NO_BORDER);
-            cellInner.setPaddingLeft(0f);
-            cellInner.setPaddingRight(0f);
-            cellInner.setPaddingTop(0f);
-            cellInner.setPaddingBottom(0f);
+            addCeldaCenterBody(gpoCodigo, innerTable, letterFont);
 
             if (hora.getDias().get(i).getMainHorarioAula() != null && hora.getDias().get(i).getMainHorarioAula().getReservaAula() != null) {
+                addCeldaLeftBody("Reserva Ambiente", innerTable, bodyFont);
 
                 ReservaAula ReservaAula = hora.getDias().get(i).getMainHorarioAula().getReservaAula();
-
-                PdfPCell cellInner1 = new PdfPCell(new Phrase("Reserva Ambiente", bodyText));
-                cellInner1.setVerticalAlignment(Element.ALIGN_MIDDLE);
-                cellInner1.setHorizontalAlignment(Element.ALIGN_LEFT);
-                cellInner1.setBorder(Rectangle.NO_BORDER);
-                cellInner1.setPaddingLeft(0f);
-                cellInner1.setPaddingRight(0f);
-                cellInner1.setPaddingTop(0f);
-                cellInner1.setPaddingBottom(0f);
-
                 String secondLine = this.returnObjetTipoSolicitante(ReservaAula.getTramite()); // return nombre
-                PdfPCell cellInner2 = new PdfPCell(new Phrase((secondLine.length() > 35 ? secondLine.substring(0, 35) : secondLine), bodyText));
-                cellInner2.setVerticalAlignment(Element.ALIGN_MIDDLE);
-                cellInner2.setHorizontalAlignment(Element.ALIGN_LEFT);
-                cellInner2.setBorder(Rectangle.NO_BORDER);
-                cellInner2.setPaddingLeft(0f);
-                cellInner2.setPaddingRight(0f);
-                cellInner2.setPaddingTop(0f);
-                cellInner2.setPaddingBottom(0f);
+                addCeldaLeftBody(secondLine.length() > 35 ? secondLine.substring(0, 35) : secondLine, innerTable, bodyFont);
 
                 String triedLine = this.returnEstadoReserva(ReservaAula); // return estado
-                PdfPCell cellInner3 = new PdfPCell(new Phrase(triedLine, bodyText));
-                cellInner3.setVerticalAlignment(Element.ALIGN_MIDDLE);
-                cellInner3.setHorizontalAlignment(Element.ALIGN_LEFT);
-                cellInner3.setBorder(Rectangle.NO_BORDER);
-                cellInner3.setPaddingLeft(0f);
-                cellInner3.setPaddingRight(0f);
-                cellInner3.setPaddingTop(0f);
-                cellInner3.setPaddingBottom(0f);
-
-                innerTable.addCell(cellInner1);
-                innerTable.addCell(cellInner2);
-                innerTable.addCell(cellInner3);
+                addCeldaLeftBody(triedLine, innerTable, bodyFont);
 
             } else {
 
@@ -268,32 +202,12 @@ public class PdfHorariosAula extends AbstractOnlyPdfView {
 
                 // primera fila
                 String firstLine = (codigoCurso == "" ? "" : codigoCurso + " " + tcp + " / " + seccionCodigo2 + " " + codigoGpoHoras);
-                PdfPCell cellInner1 = new PdfPCell(new Phrase(firstLine, bodyText));
-                cellInner1.setVerticalAlignment(Element.ALIGN_MIDDLE);
-                cellInner1.setHorizontalAlignment(Element.ALIGN_LEFT);
-                cellInner1.setBorder(Rectangle.NO_BORDER);
-                cellInner1.setPaddingLeft(0f);
-                cellInner1.setPaddingRight(0f);
-                cellInner1.setPaddingTop(0f);
-                cellInner1.setPaddingBottom(0f);
+                addCeldaLeftBody(firstLine, innerTable, bodyFont);
 
                 // segunda fila //35 caracteres para la celda
                 String nombreCurso = hora.getDias().get(i).getMainHorarioAula() == null ? "" : hora.getDias().get(i).getMainHorarioAula().getSeccion().getGrupoSeccion().getCurso().getNombre();
                 String secondLine = (nombreCurso.length() > 35 ? nombreCurso.substring(0, 35) : nombreCurso);
-                PdfPCell cellInner2 = new PdfPCell(new Phrase(secondLine, bodyText));
-                cellInner2.setVerticalAlignment(Element.ALIGN_MIDDLE);
-                cellInner2.setHorizontalAlignment(Element.ALIGN_LEFT);
-                cellInner2.setBorder(Rectangle.NO_BORDER);
-                cellInner2.setPaddingLeft(0f);
-                cellInner2.setPaddingRight(0f);
-                cellInner2.setPaddingTop(0f);
-                cellInner2.setPaddingBottom(0f);
-                cellInner2.setNoWrap(true);
-
-                innerTable.addCell(cellInner);
-                innerTable.addCell(cellInner1);
-                innerTable.addCell(cellInner2);
-
+                addCeldaLeftBody(secondLine, innerTable, bodyFont);
                 // tercera fila
                 if (hora.getDias().get(i).getMainHorarioAula() != null && hora.getDias().get(i).getMainHorarioAula().getSeccion().getDocenteSeccion() != null && !hora.getDias().get(i).getMainHorarioAula().getSeccion().getDocenteSeccion().isEmpty()) {
 
@@ -301,22 +215,10 @@ public class PdfHorariosAula extends AbstractOnlyPdfView {
                     String docenteApNombres = hora.getDias().get(i).getMainHorarioAula().getSeccion().getDocenteSeccion().get(0).getDocente().getPersona() == null ? "Desconocido" : hora.getDias().get(i).getMainHorarioAula().getSeccion().getDocenteSeccion().get(0).getDocente().getPersona().getNombrePaternoMat();
                     String triLine = docenteCodigo + " " + docenteApNombres;
 
-                    PdfPCell cellInner3 = new PdfPCell(new Phrase(triLine, bodyText));
-                    cellInner3.setVerticalAlignment(Element.ALIGN_MIDDLE);
-                    cellInner3.setHorizontalAlignment(Element.ALIGN_LEFT);
-                    cellInner3.setBorder(Rectangle.NO_BORDER);
-                    cellInner3.setPaddingLeft(0f);
-                    cellInner3.setPaddingRight(0f);
-                    cellInner3.setPaddingTop(0f);
-                    cellInner3.setPaddingBottom(0f);
-
-                    innerTable.addCell(cellInner3);
+                    addCeldaLeftBody(triLine, innerTable, bodyFont);
 
                 } else {
-
-                    PdfPCell cellInner3 = new PdfPCell(new Phrase("", bodyText));
-                    cellInner3.setBorder(Rectangle.NO_BORDER);
-                    innerTable.addCell(cellInner3);
+                    addCeldaLeftBody("", innerTable, bodyFont);
                 }
             }
             table.addCell(innerTable);
@@ -347,11 +249,11 @@ public class PdfHorariosAula extends AbstractOnlyPdfView {
         String semanaActual = "";
 
         if (dateTimeInicial.getMonthOfYear() == (dateTimeFinal.getMonthOfYear())) {
-            String dt1 = TypesUtil.getStringDate(dateInicial, "'Del' dd 'al'", "es");
+            String dt1 = TypesUtil.getStringDate(dateInicial, "'del' dd 'al'", "es");
             String dt2 = TypesUtil.getStringDate(dateFinal, " dd 'de' MMMM 'del' yyyy", "es");
             semanaActual = dt1 + dt2;
         } else {
-            String dt1 = TypesUtil.getStringDate(dateInicial, "'Del' dd 'de' MMMM 'al'", "es");
+            String dt1 = TypesUtil.getStringDate(dateInicial, "'del' dd 'de' MMMM 'al'", "es");
             String dt2 = TypesUtil.getStringDate(dateFinal, " dd 'de' MMMM 'del' yyyy", "es");
             semanaActual = dt1 + dt2;
         }
@@ -439,6 +341,43 @@ public class PdfHorariosAula extends AbstractOnlyPdfView {
         cellFooter3.setPaddingBottom(0f);
         cellFooter3.setBorder(Rectangle.NO_BORDER);
         table.addCell(cellFooter3);
+    }
+
+    private void addCeldaHeader(String titulo, PdfPTable table) {
+        Font fontHeaderPDF = new Font(Font.FontFamily.HELVETICA, 12, Font.BOLD, BaseColor.BLACK);
+        Phrase phr = new Phrase(titulo, fontHeaderPDF);
+        PdfPCell cell = new PdfPCell(phr);
+        cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+        cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+        cell.setColspan(7);
+        cell.setBorder(Rectangle.NO_BORDER);
+        table.addCell(cell);
+    }
+
+    private void addCeldaLeftBody(String contenido, PdfPTable table, Font bodyFont) {
+        Phrase phr = new Phrase(contenido, bodyFont);
+        PdfPCell cell = new PdfPCell(phr);
+        cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+        cell.setHorizontalAlignment(Element.ALIGN_LEFT);
+        cell.setBorder(Rectangle.NO_BORDER);
+        cell.setPaddingLeft(0f);
+        cell.setPaddingRight(0f);
+        cell.setPaddingTop(0f);
+        cell.setPaddingBottom(0f);
+        table.addCell(cell);
+    }
+
+    private void addCeldaCenterBody(String contenido, PdfPTable table, Font bodyFont) {
+        Phrase phr = new Phrase(contenido, bodyFont);
+        PdfPCell cell = new PdfPCell(phr);
+        cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+        cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+        cell.setBorder(Rectangle.NO_BORDER);
+        cell.setPaddingLeft(0f);
+        cell.setPaddingRight(0f);
+        cell.setPaddingTop(0f);
+        cell.setPaddingBottom(0f);
+        table.addCell(cell);
     }
 
 }

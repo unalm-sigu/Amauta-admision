@@ -53,7 +53,7 @@ public class AulaController {
     AulaService service;
 
     @Autowired
-    PdfHorariosAula pdfHorariosAula;
+    HorarioAulaSemanalPDF horarioAulaSemanalPDF;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -481,15 +481,14 @@ public class AulaController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
         Aula aulaForm = new ObjectMapper().readValue(horariosAulaPdfBean.getStrAula(), Aula.class);
-        Aula aulaSuperiorForm = new ObjectMapper().readValue(horariosAulaPdfBean.getStrAulaSuperior(), Aula.class);
         aulaForm.setFechaFin(horariosAulaPdfBean.getFechaFin());
         aulaForm.setFechaInicio(horariosAulaPdfBean.getFechaInicio());
 
         List<Dia> dias = service.allDiaForPrinter();
         Aula aulaBD = service.findAulaFull(aulaForm);
-        Aula aulaSuperior = service.findById(aulaSuperiorForm);
+        Aula aulaSuperior = aulaBD.getAulaSuperior();
 
-        List<Hora> horasEncontradasGet = service.returnHorasEncontradas(aulaBD, dias, ds);
+        List<Hora> horasConHorarios = service.returnHorasEncontradas(aulaBD, dias, ds.getCicloAcademico());
         List<Hora> horasBase = service.allHorasHorario();
 
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
@@ -497,11 +496,11 @@ public class AulaController {
         model.addAttribute("aulaSuperior", aulaSuperior);
         model.addAttribute("dias", dias);
         model.addAttribute("horasBase", horasBase);
-        model.addAttribute("horas", horasEncontradasGet);
+        model.addAttribute("horas", horasConHorarios);
         model.addAttribute("fechaFin", horariosAulaPdfBean.getFechaFin());
         model.addAttribute("fechaInicio", horariosAulaPdfBean.getFechaInicio());
 
-        return new ModelAndView(pdfHorariosAula);
+        return new ModelAndView(horarioAulaSemanalPDF);
     }
 
     @RequestMapping("horarios")
