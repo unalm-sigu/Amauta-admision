@@ -205,7 +205,7 @@ public class BoletinPDF extends AbstractOnlyPdfView {
 
                     addCeldaConte(gpoTeo, colorBordeTop, colorBordeBottom, colorBordeBlack, colorBordeGray, Element.ALIGN_CENTER, rowspan, table, fontConte);
                     addCeldaConte(aulaTeo, colorBordeTop, colorBordeBottom, colorBordeGray, colorBordeGray, Element.ALIGN_CENTER, rowspan, table, fontConte);
-                    addCeldaSeccion(secc, colorBordeTop, colorBordeBottom, colorBordeGray, colorBordeGray, Element.ALIGN_CENTER, rowspan, table, fontConte);
+                    addCeldaSeccion(secc, colorBordeTop, colorBordeBottom, colorBordeGray, colorBordeGray, rowspan, table, fontConte);
                     addCeldaConte(gpoPra, colorBordeTop, colorBordeBottom, colorBordeGray, colorBordeGray, Element.ALIGN_CENTER, rowspan, table, fontConte);
                     addCeldaConte(aulaPra, colorBordeTop, colorBordeBottom, colorBordeGray, colorBordeGray, Element.ALIGN_CENTER, rowspan, table, fontConte);
 
@@ -306,7 +306,7 @@ public class BoletinPDF extends AbstractOnlyPdfView {
     private PdfPTable createTable(int columnTotal) throws DocumentException {
 
         PdfPTable table = new PdfPTable(columnTotal);
-        table.setWidths(new int[]{1, 1, 1, 1, 1, 3, 1, 2, 2, 1});
+        table.setWidths(new int[]{3, 3, 3, 3, 3, 6, 3, 4, 5, 3});
         table.setTotalWidth(500);
         table.setLockedWidth(true);
         table.setSpacingAfter(0f);
@@ -349,7 +349,6 @@ public class BoletinPDF extends AbstractOnlyPdfView {
             BaseColor colorBordeBottom,
             BaseColor colorBordeLeft,
             BaseColor colorBordeRight,
-            int align,
             int rowspan, PdfPTable table, Font bodyFont) {
 
         Font fontDirigido = new Font(Font.FontFamily.HELVETICA, 6, Font.BOLD, BaseColor.BLUE);
@@ -401,7 +400,6 @@ public class BoletinPDF extends AbstractOnlyPdfView {
         }
 
         cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
-//        cell.setHorizontalAlignment(align);
         cell.setUseVariableBorders(true);
         cell.setBorderColorTop(colorBordeTop);
         cell.setBorderColorBottom(colorBordeBottom);
