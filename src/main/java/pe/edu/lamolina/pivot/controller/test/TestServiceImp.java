@@ -19,6 +19,7 @@ import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.CicloAcademicoEstadoEnum;
+import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.SituacionAcademicaEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 import pe.edu.lamolina.pivot.controller.academico.calculonotas.CalculoNotasService;
@@ -161,17 +162,14 @@ public class TestServiceImp implements TestService {
         List<CicloAcademico> ciclosActivos = cicloAcademicoDAO.allActivosAlModalidades();
 
         for (CicloAcademico cicloAcademico : ciclos) {
-//            if (!cicloAcademico.getModalidadEstudio().isPregrado()) {
-//                continue;
-//            }
-            CicloAcademico cicloActivoByModalidad = ciclosActivos.stream()
-                    .filter(x -> x.getModalidadEstudio().equals(cicloAcademico.getModalidadEstudio()))
-                    .findFirst().orElse(null);
             List<MatriculaResumen> matriculasResumen = matriculaResumenDAO.allByCicloFull(cicloAcademico);
             logger.info("matriculas resumen encontradas {}, del ciclo {}", matriculasResumen.size(), cicloAcademico.toString());
 
             for (MatriculaResumen mResumen : matriculasResumen) {
                 Alumno alumno = mResumen.getAlumno();
+                CicloAcademico cicloActivoByModalidad = ciclosActivos.stream()
+                        .filter(x -> x.getModalidadEstudio().getCodigoEnum().equals(alumno.getModalidadEstudio().getOperativeModalidadEnum()))
+                        .findFirst().orElse(null);
                 promedioService.promediarAllCicloAsync(alumno, cicloActivoByModalidad, ciclosAll, null, ds);
             }
         }
@@ -179,33 +177,14 @@ public class TestServiceImp implements TestService {
 
     @Override
     @Transactional
-    public void promediarepgfull(DataSessionPivot ds) {
+    public void promediarfull(DataSessionPivot ds, ModalidadEstudioEnum modalidadEstudioEnum) {
         List<String> allYears = alumnoDAO.allYearsCiclos();
         List<CicloAcademico> ciclos = cicloAcademicoDAO.all();
 
-        CicloAcademico cicloActivo = cicloAcademicoDAO.findActivo(new ModalidadEstudio(2));
+        CicloAcademico cicloActivo = cicloAcademicoDAO.findActivo(ModalidadEstudioEnum.PRE);
         List<Alumno> alumnosAcumulados = new ArrayList<>();
         for (String year : allYears) {
-            List<Alumno> alumnos = alumnoDAO.allPendingEpgPromedioByCicloYear(year);
-            alumnosAcumulados.addAll(alumnos);
-            logger.info("Año {}, Alumnos {}, Acumulados {}", year, alumnos.size(), alumnosAcumulados.size());
-        }
-        contadorComponent.iniciar(alumnosAcumulados.size());
-        for (Alumno alumno : alumnosAcumulados) {
-            promedioService.promediarAllCicloAsync(alumno, cicloActivo, ciclos, null, ds);
-        }
-    }
-
-    @Override
-    @Transactional
-    public void promediarfull(DataSessionPivot ds) {
-        List<String> allYears = alumnoDAO.allYearsCiclos();
-        List<CicloAcademico> ciclos = cicloAcademicoDAO.all();
-
-        CicloAcademico cicloActivo = cicloAcademicoDAO.findActivo(new ModalidadEstudio(1));
-        List<Alumno> alumnosAcumulados = new ArrayList<>();
-        for (String year : allYears) {
-            List<Alumno> alumnos = alumnoDAO.allPendingPREPromedioByCicloYear(year);
+            List<Alumno> alumnos = alumnoDAO.allPendingPromedioByCicloYearAndModalidadEst(year, ModalidadEstudioEnum.PRE);
             alumnosAcumulados.addAll(alumnos);
             logger.info("Año {}, Alumnos {}, Acumulados {}", year, alumnos.size(), alumnosAcumulados.size());
         }
@@ -253,35 +232,14 @@ public class TestServiceImp implements TestService {
     }
 
     @Override
-    public void promediarfullBySituacion(String sit, DataSessionPivot ds) {
+    public void promediarfullBySituacion(String sit, DataSessionPivot ds, ModalidadEstudioEnum modalidadEstudioEnum) {
         List<String> allYears = alumnoDAO.allYearsCiclos();
         List<CicloAcademico> ciclos = cicloAcademicoDAO.all();
 
-        CicloAcademico cicloActivo = cicloAcademicoDAO.findActivo(new ModalidadEstudio(1));
+        CicloAcademico cicloActivo = cicloAcademicoDAO.findActivo(modalidadEstudioEnum);
         List<Alumno> alumnosAcumulados = new ArrayList<>();
         for (String year : allYears) {
-            List<Alumno> alumnos = alumnoDAO.allPendingPREPromedioByCicloYear(year);
-            alumnosAcumulados.addAll(alumnos);
-            logger.info("Año {}, Alumnos {}, Acumulados {}", year, alumnos.size(), alumnosAcumulados.size());
-        }
-        contadorComponent.iniciar(alumnosAcumulados.size());
-        for (Alumno alumno : alumnosAcumulados) {
-            if (alumno.getSituacionAcademica().getCodigoEnum() != SituacionAcademicaEnum.get(sit)) {
-                continue;
-            }
-            promedioService.promediarAllCicloAsync(alumno, cicloActivo, ciclos, null, ds);
-        }
-    }
-
-    @Override
-    public void promediarepgfullBySituacion(String sit, DataSessionPivot ds) {
-        List<String> allYears = alumnoDAO.allYearsCiclos();
-        List<CicloAcademico> ciclos = cicloAcademicoDAO.all();
-
-        CicloAcademico cicloActivo = cicloAcademicoDAO.findActivo(new ModalidadEstudio(2));
-        List<Alumno> alumnosAcumulados = new ArrayList<>();
-        for (String year : allYears) {
-            List<Alumno> alumnos = alumnoDAO.allPendingEpgPromedioByCicloYear(year);
+            List<Alumno> alumnos = alumnoDAO.allPendingPromedioByCicloYearAndModalidadEst(year, modalidadEstudioEnum);
             alumnosAcumulados.addAll(alumnos);
             logger.info("Año {}, Alumnos {}, Acumulados {}", year, alumnos.size(), alumnosAcumulados.size());
         }

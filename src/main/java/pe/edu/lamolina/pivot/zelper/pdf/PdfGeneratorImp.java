@@ -36,7 +36,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.spring4.SpringTemplateEngine;
-import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 
@@ -68,6 +67,8 @@ public class PdfGeneratorImp implements PdfGenerator {
 
     @Override
     public String generateDocument(PdfContent pdfContent, String subFolder, Rectangle rectangle) {
+        long t1 = System.currentTimeMillis();
+        logger.debug("1 :: ");
         logger.debug("Entro a generar documento pdf");
         Document docPDF = new Document(rectangle);
         docPDF.addCreationDate();
@@ -84,10 +85,15 @@ public class PdfGeneratorImp implements PdfGenerator {
 
         String resultado = "";
         String filePath = null;
+        logger.debug("2 :::: " + (System.currentTimeMillis() - t1));
+        t1 = System.currentTimeMillis();
+
         try {
             filePath = documentPdfAdmisionFilename(documentoPdfEnum, subFolder);
             logger.debug("Generara el documento {}", filePath);
             File filex = new File(filePath);
+            logger.debug("3 :::: " + (System.currentTimeMillis() - t1));
+            t1 = System.currentTimeMillis();
 
             FileOutputStream fileout;
             fileout = new FileOutputStream(filex);
@@ -95,18 +101,28 @@ public class PdfGeneratorImp implements PdfGenerator {
 
             docPDF.open();
             docPDF.add(new Chunk(""));
+            logger.debug("3.5 :::: " + (System.currentTimeMillis() - t1));
+            t1 = System.currentTimeMillis();
 
             String htmlContent = this.templateEngine.process(pdfContent.getTemplate(), pdfContent.getContext());
+            logger.debug("4 :::: " + (System.currentTimeMillis() - t1));
+            t1 = System.currentTimeMillis();
 
             HtmlCleaner cleaner = new HtmlCleaner();
             TagNode node = cleaner.clean(htmlContent);
             resultado = cleaner.getInnerHtml(node);
+            logger.debug("5 :::: " + (System.currentTimeMillis() - t1));
+            t1 = System.currentTimeMillis();
 
             HtmlPipelineContext htmlContext = new HtmlPipelineContext(null);
             htmlContext.setTagFactory(Tags.getHtmlTagProcessorFactory());
             htmlContext.setImageProvider(new PdfImageProvider());
+            logger.debug("6 :::: " + (System.currentTimeMillis() - t1));
+            t1 = System.currentTimeMillis();
 
             CSSResolver cssResolver = new StyleAttrCSSResolver();
+            logger.debug("7 :::: " + (System.currentTimeMillis() - t1));
+            t1 = System.currentTimeMillis();
             //    logger.debug("La ruta del css es {}", this.getClass().getResource(PDF_CSS).getFile());
             /*
             InputStream csspathtest = new FileInputStream(new File(this.getClass().getResource(PDF_CSS).getFile()));
@@ -118,16 +134,22 @@ public class PdfGeneratorImp implements PdfGenerator {
 
             XMLWorker worker = new XMLWorker(pipeline, true);
             XMLParser p = new XMLParser(worker);
+            logger.debug("8 :::: " + (System.currentTimeMillis() - t1));
+            t1 = System.currentTimeMillis();
 
             if (resultado != null) {
                 p.parse(new StringReader(resultado));
             }
+            logger.debug("9 :::: " + (System.currentTimeMillis() - t1));
+            t1 = System.currentTimeMillis();
 
         } catch (Exception e) {
             e.printStackTrace();
         }
 
         docPDF.close();
+        logger.debug("10 :::: " + (System.currentTimeMillis() - t1));
+        t1 = System.currentTimeMillis();
         logger.debug("Se genero el documento pdf {}", filePath);
         return filePath;
     }

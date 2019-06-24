@@ -18,7 +18,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
+import pe.edu.lamolina.pivot.controller.general.aula.HorariosAulaPDFBean;
 import pe.edu.lamolina.pivot.controller.programacionhorarios.boletinacademico.BoletinAcademicoExcelView;
+import pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.reporte.BoletinPDF;
 import pe.edu.lamolina.pivot.zelper.pdf.PdfService;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
@@ -33,7 +35,10 @@ public class ReporteController {
     @Autowired
     BoletinAcademicoExcelView boletinAcademicoExcelView;
 
-    @RequestMapping("programacionHorarios")
+    @Autowired
+    BoletinPDF boletinPDF;
+
+    @RequestMapping("programacionHorariosQQ")
     public void programacionHorarios(HttpServletResponse response,
             Model model,
             HttpSession session) throws IOException {
@@ -73,6 +78,16 @@ public class ReporteController {
 
             }
         }
+    }
+
+    @RequestMapping("programacionHorarios")
+    public ModelAndView generatorpdf(Model model, HttpSession session, HttpServletResponse response) throws Exception {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+        CicloAcademico ciclo = ds.getCicloAcademico();
+
+        return new ModelAndView(boletinPDF);
+
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/reporteboletinexcel")

@@ -8,6 +8,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.model.academico.AnexoBoletin;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Facultad;
@@ -42,6 +44,9 @@ public class GpoReporteController {
 
     @Autowired
     PdfHtmlView pdfHtmlView;
+
+    @Autowired
+    BoletinPDF boletinPDF;
 
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {
@@ -97,8 +102,8 @@ public class GpoReporteController {
 
         StringBuilder sb = new StringBuilder();
         sb.append(TypesUtil.getStringDate(date, " dd 'de' MMMM 'de' yyyy ", "es"));
-        
-        List<DepartamentoAcademico> departamentoAcademicos=service.allDepartamentoAcademico(cicloAcademico);
+
+        List<DepartamentoAcademico> departamentoAcademicos = service.allDepartamentoAcademico(cicloAcademico);
 
         model.addAttribute("departamentoAcademicos", departamentoAcademicos);
         model.addAttribute("fecha", sb.toString());
@@ -111,7 +116,7 @@ public class GpoReporteController {
 
     @RequestMapping("reporteVeranoDocenteDepartamento")
     public ModelAndView reporteVeranoDocenteDepartamento(Model model, HttpSession session) {
-        
+
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         CicloAcademico cicloAcademico = ds.getCicloAcademico();
 
@@ -119,8 +124,8 @@ public class GpoReporteController {
 
         StringBuilder sb = new StringBuilder();
         sb.append(TypesUtil.getStringDate(date, " dd 'de' MMMM 'de' yyyy ", "es"));
-        
-        List<DepartamentoAcademico> departamentoAcademicos=service.allDepartamentoAcademico(cicloAcademico);
+
+        List<DepartamentoAcademico> departamentoAcademicos = service.allDepartamentoAcademico(cicloAcademico);
 
         model.addAttribute("departamentoAcademicos", departamentoAcademicos);
         model.addAttribute("fecha", sb.toString());
@@ -133,7 +138,7 @@ public class GpoReporteController {
 
     @RequestMapping("reporteVeranoPagoCurso")
     public ModelAndView reporteVeranoPagoCurso(TramiteDocumentoAcademico tramiteDocumentoAcademicoForm, Model model, HttpSession session) {
-        
+
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         CicloAcademico cicloAcademico = ds.getCicloAcademico();
 
@@ -141,8 +146,8 @@ public class GpoReporteController {
 
         StringBuilder sb = new StringBuilder();
         sb.append(TypesUtil.getStringDate(date, " dd 'de' MMMM 'de' yyyy ", "es"));
-        
-        List<DepartamentoAcademico> departamentoAcademicos=service.allDepartamentoAcademico(cicloAcademico);
+
+        List<DepartamentoAcademico> departamentoAcademicos = service.allDepartamentoAcademico(cicloAcademico);
 
         model.addAttribute("departamentoAcademicos", departamentoAcademicos);
         model.addAttribute("fecha", sb.toString());
@@ -163,8 +168,8 @@ public class GpoReporteController {
 
         StringBuilder sb = new StringBuilder();
         sb.append(TypesUtil.getStringDate(date, " dd 'de' MMMM 'de' yyyy ", "es"));
-        
-        List<Facultad> falcultades=service.allDepartamentoAcademicoXfacultad(cicloAcademico);
+
+        List<Facultad> falcultades = service.allDepartamentoAcademicoXfacultad(cicloAcademico);
 
         model.addAttribute("falcultades", falcultades);
         model.addAttribute("fecha", sb.toString());
@@ -174,8 +179,20 @@ public class GpoReporteController {
 
         return new ModelAndView(pdfHtmlView);
     }
-    
-    
+
+    @RequestMapping("boletinPDF")
+    public ModelAndView boletinPDF(Model model, HttpSession session, HttpServletResponse response) throws Exception {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        CicloAcademico ciclo = ds.getCicloAcademico();
+
+        List<AnexoBoletin> anexosSuper = service.getAnexosForBoletin(ciclo);
+
+        model.addAttribute("ciclo", ciclo);
+        model.addAttribute("anexosSuper", anexosSuper);
+
+        return new ModelAndView(boletinPDF);
+    }
+
     private ObjectNode createResumenJson(GpoSeccionResumen resumen) {
         ObjectNode nodeJson = JsonHelper.createJson(resumen, JsonNodeFactory.instance, true, new String[]{"*"});
         return nodeJson;

@@ -21,6 +21,7 @@ import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.PlanCalificacion;
 import pe.edu.lamolina.model.academico.Seccion;
+import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 import pe.edu.lamolina.pivot.controller.academico.calculonotas.CalculoNotasService;
 import pe.edu.lamolina.pivot.controller.academico.promedio.ContadorComponent;
@@ -237,26 +238,7 @@ public class TestController {
         logger.info("promediarful");
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         ds.setFechaAccionAudit(new Date());
-        service.promediarfull(ds);
-        return "yeah";
-    }
-
-    @ResponseBody
-    @RequestMapping("promediarfullbysituacion/{sit}")
-    public String promediarfullBySituacion(@PathVariable("sit") String sit, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-        ds.setFechaAccionAudit(new Date());
-        service.promediarfullBySituacion(sit, ds);
-        return "yeah";
-    }
-
-    @ResponseBody
-    @RequestMapping("promediarepgfullbysituacion/{sit}")
-    public String promediarepgfullBySituacion(@PathVariable("sit") String sit, HttpSession session) {
-        logger.info("promediarepgfull");
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-        service.promediarepgfullBySituacion(sit, ds);
-
+        service.promediarfull(ds, ModalidadEstudioEnum.PRE);
         return "yeah";
     }
 
@@ -265,17 +247,33 @@ public class TestController {
     public String promediarepgfull(HttpSession session) {
         logger.info("promediarepgfull");
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-        service.promediarepgfull(ds);
+        service.promediarfull(ds, ModalidadEstudioEnum.EPG);
+        return "yeah";
+    }
 
+    @ResponseBody
+    @RequestMapping("promediarfullbysituacion/{sit}")
+    public String promediarfullBySituacion(@PathVariable("sit") String sit, HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        ds.setFechaAccionAudit(new Date());
+        service.promediarfullBySituacion(sit, ds, ModalidadEstudioEnum.PRE);
+        return "yeah";
+    }
+
+    @ResponseBody
+    @RequestMapping("promediarepgfullbysituacion/{sit}")
+    public String promediarepgfullBySituacion(@PathVariable("sit") String sit, HttpSession session) {
+        logger.info("promediarepgfull");
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        service.promediarfullBySituacion(sit, ds, ModalidadEstudioEnum.EPG);
         return "yeah";
     }
 
     @ResponseBody
     @RequestMapping("promediarciclocod/{ciclo}")
-    public String promediarAll(@PathVariable("ciclo") String cicloCod, HttpSession session) {
+    public String promediarciclocod(@PathVariable("ciclo") String cicloCod, HttpSession session) {
         logger.info("promediarciclocod {}", cicloCod);
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-
         service.promediarciclocod(cicloCod, ds);
         return "yeah";
     }

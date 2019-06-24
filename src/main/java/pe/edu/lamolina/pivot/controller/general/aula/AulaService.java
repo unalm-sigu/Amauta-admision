@@ -50,7 +50,7 @@ public interface AulaService {
 
     List<DiaHoraGrupo> allDiaHoraGrupoByCicloRegular(CicloAcademico cicloAcademico);
 
-    List<Hora> returnHorasEncontradas(Aula aulaBD, List<Dia> dias, DataSessionPivot ds);
+    List<Hora> returnHorasEncontradas(Aula aulaBD, List<Dia> dias, CicloAcademico ciclo);
 
     List<Hora> returnHorasEcontradasModal(Aula aula, List<Dia> dias);
 

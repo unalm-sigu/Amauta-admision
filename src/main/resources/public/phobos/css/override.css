@@ -454,7 +454,17 @@ div.pregunta_marco_desempeno:hover{
     .login-wrapper .box {
         width: 90%;
     }
+    
+    .login-header{
+        height: 60px;
+    }
 
+    .login-copyright{
+        position: fixed;
+    }
+    .login-footer{
+        position: fixed;
+    }
 
 }
 

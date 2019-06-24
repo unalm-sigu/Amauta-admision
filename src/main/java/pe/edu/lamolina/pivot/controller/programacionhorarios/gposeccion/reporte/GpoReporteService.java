@@ -1,6 +1,7 @@
 package pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.reporte;
 
 import java.util.List;
+import pe.edu.lamolina.model.academico.AnexoBoletin;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Facultad;
@@ -15,5 +16,7 @@ public interface GpoReporteService {
     List<DepartamentoAcademico> allDepartamentoAcademico(CicloAcademico cicloAcademico);
 
     List<Facultad> allDepartamentoAcademicoXfacultad(CicloAcademico cicloAcademico);
+
+    List<AnexoBoletin> getAnexosForBoletin(CicloAcademico ciclo);
 
 }
