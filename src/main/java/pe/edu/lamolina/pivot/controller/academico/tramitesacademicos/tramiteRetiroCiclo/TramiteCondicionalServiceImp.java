@@ -407,7 +407,7 @@ public class TramiteCondicionalServiceImp implements TramiteCondicionalService {
     @Override
     @Transactional
     public void saveReincorporacion(Tramite tramite, DataSessionPivot ds) {
-        if (tramite.getCicloAcademicoResolucion().getId() != ds.getCicloAcademico().getId()) {
+        if (!Objects.equals(tramite.getCicloAcademicoResolucion().getId(), ds.getCicloAcademico().getId())) {
             throw new PhobosException("El alumno debe reincorporarce en el ciclo actual.");
         }
 
