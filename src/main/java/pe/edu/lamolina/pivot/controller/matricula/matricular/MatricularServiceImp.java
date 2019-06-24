@@ -476,7 +476,7 @@ public class MatricularServiceImp implements MatricularService {
             logger.debug("alumno {}", alumno.getId());
             logger.debug("seccion {}", seccion.getId());
 
-            if (matriculaCurso.getEstadoEnum() != EstadoMatriculaEnum.MAT) {
+            if (matriculaCurso.getEstadoEnum() != EstadoMatriculaEnum.MAT && !seccion.getIsTipoSeccionTCUR()) {
                 matriculaCurso.setEstadoEnum(EstadoMatriculaEnum.MAT);
                 AlumnoCursoCurricula alumnoCursoCurricula = alumnoCursoCurriculas.stream().
                         filter(x -> Objects.equals(x.getAlumno().getId(), alumno.getId())
