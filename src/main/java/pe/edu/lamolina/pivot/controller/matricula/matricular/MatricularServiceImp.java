@@ -1,6 +1,5 @@
 package pe.edu.lamolina.pivot.controller.matricula.matricular;
 
-import static groovy.util.Eval.x;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -9,7 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import static org.codehaus.groovy.runtime.DefaultGroovyMethods.collect;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
@@ -56,102 +55,102 @@ import pe.edu.lamolina.pivot.zelper.model.Notificacion;
 @Service
 @Transactional(readOnly = true)
 public class MatricularServiceImp implements MatricularService {
-
+    
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
+    
     @Autowired
     TurnoAtencionDAO turnoAtencionDAO;
-
+    
     @Autowired
     MatriculaCursoDAO matriculaCursoDAO;
-
+    
     @Autowired
     MatriculaSeccionDAO matriculaSeccionDAO;
-
+    
     @Autowired
     MatriculaResumenDAO matriculaResumenDAO;
-
+    
     @Autowired
     MatriculaSimultaneoDAO matriculaSimultaneoDAO;
-
+    
     @Autowired
     VacanteAlumnoDAO vacanteAlumnoDAO;
-
+    
     @Autowired
     GrupoSeccionDAO grupoSeccionDAO;
-
+    
     @Autowired
     private SimpMessagingTemplate messagingTemplate;
-
+    
     @Autowired
     CicloAcademicoDAO cicloAcademicoDAO;
-
+    
     @Autowired
     AlumnoCursoCurriculaDAO alumnoCursoCurriculaDAO;
-
+    
     @Autowired
     SeccionDAO seccionDAO;
-
+    
     @Override
     public TurnoAtencion findTurnoAtencion(Long turnoAtencion) {
         return turnoAtencionDAO.findById(turnoAtencion);
     }
-
+    
     @Override
     @Transactional
     public void matricular(TurnoAtencion turnoAtencionForm, DataSessionPivot ds) {
         matricularBarrido(turnoAtencionForm, ds);
-
+        
     }
-
+    
     private void matricularBarrido(TurnoAtencion turnoAtencionForm, DataSessionPivot ds) {
         logger.debug("**init matricula**");
-
+        
         Notificacion notify = new Notificacion();
-
+        
         CicloAcademico cicloAcademico = ds.getCicloAcademico();
-
+        
         Date date = new Date();
         TurnoAtencion turnoAtencion = turnoAtencionDAO.findById(turnoAtencionForm.getId());
         boolean beetwen = date.after(turnoAtencion.getFechaHoraEspera()) && date.before(turnoAtencion.getFechaHoraFin());
-
+        
         logger.debug("date {} inicio {} fin {} ",
                 new DateTime(date).toString("dd/MM/yyyy HH:mm"),
                 new DateTime(turnoAtencion.getFechaHoraEspera()).toString("dd/MM/yyyy HH:mm"),
                 new DateTime(turnoAtencion.getFechaHoraFin()).toString("dd/MM/yyyy HH:mm")
         );
-
-//        if (!beetwen) {
-//            throw new PhobosException("No está dentro del horario de matrícula");
-//        }
+        
+        if (!beetwen) {
+            throw new PhobosException("No está dentro del horario de matrícula");
+        }
         List<MatriculaResumen> resumenes = matriculaResumenDAO.allByCicloMat(cicloAcademico);
         List<MatriculaCurso> matriculaCursosNoSim = matriculaCursoDAO.allByMatriculaResumenes(resumenes);
         List<Curso> cursosNoSim = matriculaCursosNoSim.stream().map(x -> x.getCurso()).distinct().collect(Collectors.toList());
         Map<Long, List< MatriculaCurso>> mapMatResumenNoSim = TypesUtil.convertListToMapList("matriculaResumen.id", matriculaCursosNoSim);
-
+        
         List<MatriculaSimultaneo> matriculaSim = matriculaSimultaneoDAO.allByMatriculaResumen(resumenes);
         List<Curso> cursosSim = matriculaSim.stream().map(x -> x.getMatriculaCurso().getCurso()).distinct().collect(Collectors.toList());
         cursosNoSim.addAll(cursosSim);
         Map<Long, List< MatriculaCurso>> mapMatResumenSim = TypesUtil.convertListToMapList("matriculaCurso.matriculaResumen.id", "matriculaCurso", matriculaSim);
-
+        
         List<MatriculaSeccion> matriculaSeccions = matriculaSeccionDAO.allByMatriculaResumenes(resumenes, cicloAcademico);
         List<Seccion> seccions = matriculaSeccions.stream().map(x -> x.getSeccion()).distinct().collect(Collectors.toList());
-
+        
         List<VacanteAlumno> vacanteAlumnos = vacanteAlumnoDAO.allActivoBySecciones(seccions);
         Map<Long, List<VacanteAlumno>> vacanteAlumnosMap = TypesUtil.convertListToMapList("seccion.id", vacanteAlumnos);
-
+        
         cursosNoSim = cursosNoSim.stream().distinct().collect(Collectors.toList());
         notify.setTotalCurso(cursosNoSim.size());
         notify.setTotalSeccion(seccions.size());
-
+        
         Collections.sort(resumenes, new MatriculaResumen.ComparePrioridad());
-
+        List<MatriculaResumen> listNoMatriculados = new ArrayList<>();
         List<MatriculaResumen> listMatriculados = new ArrayList<>();
         List<Alumno> alumnos = resumenes.stream().map(x -> x.getAlumno()).collect(Collectors.toList());
         List<AlumnoCursoCurricula> alumnoCursoCurriculas = alumnoCursoCurriculaDAO.allByAlumnos(alumnos);
         Map<Long, Integer> mapVacantesDisponibles = TypesUtil.convertListToMap("id", "vacantesDisponibles", seccions);
         Map<Long, Integer> mapMatriculadosSeccion = TypesUtil.convertListToMap("id", "matriculados", seccions);
-
+        
         procesarData(OBL,
                 resumenes,
                 notify,
@@ -164,8 +163,9 @@ public class MatricularServiceImp implements MatricularService {
                 matriculaSim,
                 mapMatriculadosSeccion,
                 listMatriculados,
+                listNoMatriculados,
                 ds);
-
+        
         procesarData(EEP,
                 resumenes,
                 notify,
@@ -178,6 +178,7 @@ public class MatricularServiceImp implements MatricularService {
                 matriculaSim,
                 mapMatriculadosSeccion,
                 listMatriculados,
+                listNoMatriculados,
                 ds);
         for (Map.Entry<Long, Integer> entry : mapMatriculadosSeccion.entrySet()) {
             Seccion seccion = new Seccion();
@@ -187,9 +188,16 @@ public class MatricularServiceImp implements MatricularService {
         }
         for (MatriculaResumen matri : listMatriculados) {
             if (matri.getCursosMatriculados() == 0) {
-                matri.setEstadoEnum(EstadoMatriculaEnum.NMAT);
+                matri.setEstado(EstadoMatriculaEnum.NMAT.name());
             }
             matriculaResumenDAO.updateCreditos(matri);
+        }
+        listNoMatriculados = listNoMatriculados.stream().distinct().collect(Collectors.toList());
+        for (MatriculaResumen noMatri : listNoMatriculados) {
+            if (noMatri.getCursosMatriculados() == 0) {
+                noMatri.setEstado(EstadoMatriculaEnum.NMAT.name());
+                matriculaResumenDAO.updateCreditos(noMatri);
+            }
         }
         TurnoAtencion lastTurnoAtencionByConfig = turnoAtencionDAO.findLastByConfiguracion(turnoAtencion.getConfiguracionTurnosAtencion());
         if (lastTurnoAtencionByConfig.getId().compareTo(turnoAtencion.getId()) == 0) {
@@ -199,7 +207,7 @@ public class MatricularServiceImp implements MatricularService {
             cicloAcademicoDAO.updateFechasTurnosAignadosDisponibles(cicloAcademico);
         }
     }
-
+    
     public void procesarData(
             TipoCursoCurriculaEnum cursoCurriculaEnum,
             List<MatriculaResumen> resumenes,
@@ -213,23 +221,24 @@ public class MatricularServiceImp implements MatricularService {
             List<MatriculaSimultaneo> matriculaSim,
             Map<Long, Integer> mapMatriculadosSeccion,
             List<MatriculaResumen> listMatriculados,
+            List<MatriculaResumen> listNoMatriculados,
             DataSessionPivot ds) {
-
+        
         List<MatriculaCurso> noMatriculadosELC = new ArrayList();
         List<MatriculaCurso> matriculaCursosFiltrados = new ArrayList();
-
+        
         List<VacanteAlumno> vacantesAlumnoTemp = new ArrayList();
         List<MatriculaSeccion> matriculaSeccionMatTemp = new ArrayList();
         List<MatriculaSeccion> matriculaSeccionNvacTemp = new ArrayList();
         List<MatriculaCurso> matriculaCursoMatriculados = new ArrayList();
-
+        
         for (MatriculaResumen resumene : resumenes) {
             List<MatriculaCurso> matriculaCursosNoSim = mapMatResumenNoSim.get(resumene.getId());
             List<MatriculaCurso> matriculaCursoSim = mapMatResumenSim.get(resumene.getId());
             
             matriculaCursosNoSim = matriculaCursosNoSim == null ? new ArrayList() : matriculaCursosNoSim;
             matriculaCursosFiltrados = data(cursoCurriculaEnum, matriculaCursosNoSim, noMatriculadosELC, matriculaSeccions);
-
+            
             matObligatorios(
                     matriculaCursosFiltrados,
                     noMatriculadosELC,
@@ -243,11 +252,12 @@ public class MatricularServiceImp implements MatricularService {
                     matriculaCursoMatriculados,
                     mapMatriculadosSeccion,
                     listMatriculados,
+                    listNoMatriculados,
                     ds);
             matriculaCursoSim = matriculaCursoSim == null ? new ArrayList() : matriculaCursoSim;
             matriculaCursosFiltrados = data(cursoCurriculaEnum, matriculaCursoSim, noMatriculadosELC, matriculaSeccions);
             if (!matriculaCursosFiltrados.isEmpty()) {
-
+                
                 matSimObligatorios(matriculaCursosFiltrados,
                         noMatriculadosELC,
                         matriculaSim,
@@ -261,10 +271,11 @@ public class MatricularServiceImp implements MatricularService {
                         mapMatriculadosSeccion,
                         vacantesAlumnoTemp,
                         listMatriculados,
+                        listNoMatriculados,
                         ds);
             }
         }
-
+        
         if (!vacantesAlumnoTemp.isEmpty()) {
             vacanteAlumnoDAO.updateEstado(vacantesAlumnoTemp);
         }
@@ -274,9 +285,9 @@ public class MatricularServiceImp implements MatricularService {
         if (!matriculaSeccionNvacTemp.isEmpty()) {
             matriculaSeccionDAO.updateEstado(matriculaSeccionNvacTemp, NVAC);
         }
-
+        
     }
-
+    
     private List<MatriculaCurso> data(TipoCursoCurriculaEnum cursoCurriculaEnum,
             List<MatriculaCurso> matriculaCursos,
             List<MatriculaCurso> noMatriculadosELC,
@@ -285,7 +296,7 @@ public class MatricularServiceImp implements MatricularService {
             List<MatriculaSeccion> matriculaSeccion = matriculaSeccions.stream().
                     filter(x -> Objects.equals(x.getSeccion().getGrupoSeccion().getCurso().getId(), matCur.getCurso().getId())
                     && Objects.equals(x.getMatriculaResumen().getId(), matCur.getMatriculaResumen().getId())).collect(Collectors.toList());
-
+            
             matCur.setGrupoSeccion(matriculaSeccion.get(0).getSeccion().getGrupoSeccion());
             matCur.setMatriculaSeccion(matriculaSeccion);
         }
@@ -294,13 +305,13 @@ public class MatricularServiceImp implements MatricularService {
         if (cursoCurriculaEnum == OBL) {
             matriculaCursosTemp = matriculaCursos.stream().filter(x -> x.getTipoCursoCurricula().getCodigoEnum() != EEP).collect(Collectors.toList());
         } else {
-
+            
             matriculaCursosTemp = matriculaCursos.stream().filter(x -> x.getTipoCursoCurricula().getCodigoEnum() == EEP).collect(Collectors.toList());
             validadEEP(matriculaCursosTemp, noMatriculadosELC);
         }
         return matriculaCursosTemp;
     }
-
+    
     private void validadEEP(List<MatriculaCurso> matriculaCursosTemp, List<MatriculaCurso> noMatriculadosELC) {
         for (MatriculaCurso matriculaCursoTemp : matriculaCursosTemp) {
             MatriculaResumen matriculaResumen = matriculaCursoTemp.getMatriculaResumen();
@@ -316,7 +327,7 @@ public class MatricularServiceImp implements MatricularService {
             }
         }
     }
-
+    
     private void matObligatorios(
             List<MatriculaCurso> matriculaCursosTemp,
             List<MatriculaCurso> noMatriculadosELC,
@@ -330,6 +341,7 @@ public class MatricularServiceImp implements MatricularService {
             List<MatriculaCurso> matriculaCursoMatriculados,
             Map<Long, Integer> mapMatriculadosSeccion,
             List<MatriculaResumen> listMatriculados,
+            List<MatriculaResumen> listNoMatriculados,
             DataSessionPivot ds
     ) {
         Long idMatCurso = -1l;
@@ -338,7 +350,7 @@ public class MatricularServiceImp implements MatricularService {
             Curso curso = matriculaCurso.getCurso();
             MatriculaResumen mr = matriculaCurso.getMatriculaResumen();
             Alumno alumno = mr.getAlumno();
-
+            
             for (MatriculaSeccion matriculaSeccion : matriculaCurso.getMatriculaSeccion()) {
                 Boolean cumple = false;
                 Seccion seccion = matriculaSeccion.getSeccion();
@@ -346,7 +358,7 @@ public class MatricularServiceImp implements MatricularService {
                     continue;
                 }
                 Integer vac = mapVacantesDisponibles.get(seccion.getId());
-
+                
                 cumple = vac >= 1;
                 matricularAll(cumple,
                         vacanteAlumnosMap,
@@ -367,6 +379,7 @@ public class MatricularServiceImp implements MatricularService {
                         vac,
                         vacantesAlumnoTemp,
                         listMatriculados,
+                        listNoMatriculados,
                         ds);
                 if (cumple && !Objects.equals(idMatCurso, matriculaCurso.getId())) {
                     logger.debug("Entre.....");
@@ -378,9 +391,9 @@ public class MatricularServiceImp implements MatricularService {
                 }
             }
         }
-
+        
     }
-
+    
     private void matSimObligatorios(
             List<MatriculaCurso> matriculaCursoTemp,
             List<MatriculaCurso> noMatriculadosELC,
@@ -395,6 +408,7 @@ public class MatricularServiceImp implements MatricularService {
             Map<Long, Integer> mapMatriculadosSeccion,
             List<VacanteAlumno> vacantesAlumnoTemp,
             List<MatriculaResumen> listMatriculados,
+            List<MatriculaResumen> listNoMatriculados,
             DataSessionPivot ds
     ) {
         Map<Long, MatriculaCurso> map = TypesUtil.convertListToMap("matriculaCurso.id", "matriculaCursoSimultaneo", matriculaCursosSim);
@@ -415,7 +429,7 @@ public class MatricularServiceImp implements MatricularService {
                 }
                 Integer vac = mapVacantesDisponibles.get(seccion.getId());
                 cumple = !cumple ? cumple : vac >= 1;
-
+                
                 matricularAll(cumple,
                         vacanteAlumnosMap,
                         seccion,
@@ -435,6 +449,7 @@ public class MatricularServiceImp implements MatricularService {
                         vac,
                         vacantesAlumnoTemp,
                         listMatriculados,
+                        listNoMatriculados,
                         ds);
                 if (cumple && !Objects.equals(idMatCurso, matriculaCurso.getId())) {
                     logger.debug("Entre.....");
@@ -445,11 +460,11 @@ public class MatricularServiceImp implements MatricularService {
                     idMatCurso = matriculaCurso.getId();
                 }
             }
-
+            
         }
-
+        
     }
-
+    
     private void matricularAll(Boolean cumple,
             Map<Long, List<VacanteAlumno>> vacanteAlumnosMap,
             Seccion seccion,
@@ -469,39 +484,42 @@ public class MatricularServiceImp implements MatricularService {
             Integer vac,
             List<VacanteAlumno> vacantesAlumnoTemp,
             List<MatriculaResumen> listMatriculados,
+            List<MatriculaResumen> listNoMatriculados,
             DataSessionPivot ds
     ) {
         if (cumple) {
             VacanteAlumno vacante = this.getVacanteAlumno(vacanteAlumnosMap, seccion, ds.getUsuario());
             logger.debug("alumno {}", alumno.getId());
             logger.debug("seccion {}", seccion.getId());
-
-            if (matriculaCurso.getEstadoEnum() != EstadoMatriculaEnum.MAT) {
+            
+            if (matriculaCurso.getEstadoEnum() != EstadoMatriculaEnum.MAT && !seccion.getIsTipoSeccionTCUR()) {
                 matriculaCurso.setEstadoEnum(EstadoMatriculaEnum.MAT);
                 AlumnoCursoCurricula alumnoCursoCurricula = alumnoCursoCurriculas.stream().
                         filter(x -> Objects.equals(x.getAlumno().getId(), alumno.getId())
                         && Objects.equals(x.getCurso().getId(), curso.getId())
                         ).findAny().orElse(null);
                 this.actualizarAlumnoCursoCurricula(EstadoMatriculaEnum.MAT, alumnoCursoCurricula);
+                matriculaCurso.setFechaMatricula(new Date());
+                matriculaCurso.setUserMatricula(ds.getUsuario());
                 matriculaCursoDAO.update(matriculaCurso);
                 matriculaCursoMatriculados.add(matriculaCurso);
-
+                
             }
-
+            
             Integer matriculadosSeccion = mapMatriculadosSeccion.get(seccion.getId());
             matriculadosSeccion += 1;
             mapMatriculadosSeccion.replace(seccion.getId(), matriculadosSeccion);
-
+            
             matriculaSeccion.setEstadoEnum(EstadoMatriculaEnum.MAT);
             matriculaSeccionMatTemp.add(matriculaSeccion);
-
+            
             vacante.setAlumno(alumno);
             vacante.setEstadoEnum(EstadoVacanteAlumnoEnum.OCUP);
             vacantesAlumnoTemp.add(vacante);
-
+            
             vac -= 1;
             mapVacantesDisponibles.replace(seccion.getId(), vac);
-
+            
             if (seccion.getIsTipoSeccionPCUR()) {
                 vac = mapVacantesDisponibles.get(seccion.getSeccionSuperior().getId());
                 MatriculaSeccion ms = matriculaCurso.getMatriculaSeccion().stream().filter(x -> Objects.equals(x.getSeccion().getId(), seccion.getSeccionSuperior().getId())).findAny().orElse(null);
@@ -509,7 +527,7 @@ public class MatricularServiceImp implements MatricularService {
                         seccion.getSeccionSuperior(), matriculaCurso, alumnoCursoCurriculas,
                         alumno, curso, notify, matriculaSeccionMatTemp, matriculaSeccionNvacTemp,
                         mapMatriculadosSeccion, mr, mapVacantesDisponibles, matriculaCursoMatriculados,
-                        noMatriculadosELC, ms, vac, vacantesAlumnoTemp, listMatriculados, ds);
+                        noMatriculadosELC, ms, vac, vacantesAlumnoTemp, listMatriculados, listNoMatriculados, ds);
             }
         } else {
             matriculaCurso.setEstadoEnum(NVAC);
@@ -528,19 +546,19 @@ public class MatricularServiceImp implements MatricularService {
             matriculaSeccion.setEstadoEnum(EstadoMatriculaEnum.NVAC);
             matriculaSeccionNvacTemp.add(matriculaSeccion);
             noMatriculadosELC.add(matriculaCurso);
-
+            listNoMatriculados.add(mr);
             if (seccion.getIsTipoSeccionPCUR()) {
                 MatriculaSeccion ms = matriculaCurso.getMatriculaSeccion().stream().filter(x -> Objects.equals(x.getSeccion().getId(), seccion.getSeccionSuperior().getId())).findAny().orElse(null);
                 matricularAll(cumple, vacanteAlumnosMap,
                         seccion.getSeccionSuperior(), matriculaCurso,
                         alumnoCursoCurriculas, alumno, curso, notify, matriculaSeccionMatTemp,
                         matriculaSeccionNvacTemp, mapMatriculadosSeccion, mr, mapVacantesDisponibles,
-                        matriculaCursoMatriculados, noMatriculadosELC, ms, vac, vacantesAlumnoTemp, listMatriculados, ds);
+                        matriculaCursoMatriculados, noMatriculadosELC, ms, vac, vacantesAlumnoTemp, listMatriculados, listNoMatriculados, ds);
             }
 //                    matriculaSeccionDAO.update(matriculaSeccion);
         }
     }
-
+    
     public void actualizarAlumnoCursoCurricula(Alumno alumno, Curso curso, CursoCurriculaEstadoEnum cursoCurriculaEstadoEnum) {
         AlumnoCursoCurricula alumnoCursoCurricula = alumnoCursoCurriculaDAO.findByAlumnoCurso(alumno, curso);
         AlumnoCursoCurricula alumnoCursoCurriculaUpd = new AlumnoCursoCurricula();
@@ -554,7 +572,7 @@ public class MatricularServiceImp implements MatricularService {
         }
         alumnoCursoCurriculaDAO.updateEstado(alumnoCursoCurriculaUpd);
     }
-
+    
     public void actualizarAlumnoCursoCurricula(EstadoMatriculaEnum estadoMatriculaEnum, AlumnoCursoCurricula alumnoCursoCurricula) {
         AlumnoCursoCurricula alumnoCursoCurriculaUpd = new AlumnoCursoCurricula();
         alumnoCursoCurriculaUpd.setId(alumnoCursoCurricula.getId());
@@ -563,20 +581,20 @@ public class MatricularServiceImp implements MatricularService {
         if (alumnoCursoCurricula.getEsSimultaneo()) {
             alumnoCursoCurriculaUpd.setEstadoEnum(CursoCurriculaEstadoEnum.SIM);
         }
-
+        
         alumnoCursoCurriculaDAO.updateEstado(alumnoCursoCurriculaUpd);
     }
-
+    
     @Override
     public Long countAllAlumnoPrematriculado(CicloAcademico cicloAcademico) {
         return matriculaCursoDAO.countAllAlumnoPrematriculado(cicloAcademico);
     }
-
+    
     @Override
     public Long countAllSeccionPrematriculado(CicloAcademico cicloAcademico) {
         return matriculaSeccionDAO.countAllSeccionPrematriculado(cicloAcademico);
     }
-
+    
     private VacanteAlumno getVacanteAlumno(Map<Long, List<VacanteAlumno>> vacanteAlumnosMap, Seccion seccion, Usuario usuario) {
 //        logger.debug("iniciando buequeda de vacante alumno");
         int vacantes = seccion.getVacantes();
@@ -637,9 +655,9 @@ public class MatricularServiceImp implements MatricularService {
         }
         return vacanteAlumno;
     }
-
+    
     private void notify(Notificacion notify, Usuario usuario) {
         messagingTemplate.convertAndSendToUser(usuario.getGoogle(), "/monitoreo/notify", notify);
     }
-
+    
 }
