@@ -1,4 +1,4 @@
-package pe.edu.lamolina.pivot.controller.programacionhorarios.loadprogramacion;
+ package pe.edu.lamolina.pivot.controller.programacionhorarios.loadprogramacion;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
