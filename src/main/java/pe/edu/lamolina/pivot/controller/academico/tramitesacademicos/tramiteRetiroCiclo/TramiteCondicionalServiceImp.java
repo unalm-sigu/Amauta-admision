@@ -318,7 +318,7 @@ public class TramiteCondicionalServiceImp implements TramiteCondicionalService {
 
         RetiroCiclo retiroCiclobd = retiroCicloDAO.findByTramite(tramiteForm);
         retiroCiclobd.setEstado(TramiteEstadoEnum.valueOf(tramiteForm.getEstado()));
-        
+
         EstadoTramite estadoTramite = null;
         if (tramiteForm.getEstadoEnum() == TramiteEstadoEnum.ACEP) {
             estadoTramite = estadoTramiteDAO.findByCodigo(EstadoTramiteEnum.SOL_ACEP);
@@ -329,7 +329,7 @@ public class TramiteCondicionalServiceImp implements TramiteCondicionalService {
         tramite.setEstadoTramite(estadoTramite);
         tramite.setEstadoEnum(TramiteEstadoEnum.valueOf(tramiteForm.getEstado()));
         tramiteDAO.update(tramite);
-        
+
         Alumno alumno = retiroCiclobd.getAlumno();
         MatriculaResumen matriculaResumen = new MatriculaResumen();
         if (retiroCiclobd.getEstadoEnum() == TramiteEstadoEnum.RCHZ) {
