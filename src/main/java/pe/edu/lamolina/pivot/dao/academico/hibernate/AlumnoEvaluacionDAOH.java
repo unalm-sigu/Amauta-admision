@@ -185,7 +185,6 @@ public class AlumnoEvaluacionDAOH extends AbstractEasyDAO<AlumnoEvaluacion> impl
         if (idAlumno != null) {
             sql.filter("alu.id", idAlumno);
         }
-
         return find(sql);
     }
 

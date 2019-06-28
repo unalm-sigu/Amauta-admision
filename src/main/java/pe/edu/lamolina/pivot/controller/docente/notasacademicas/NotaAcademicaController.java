@@ -1047,6 +1047,7 @@ public class NotaAcademicaController {
         logger.debug("matricula seccion {}", matriculaSeccionId);
         MatriculaSeccion matriculaSeccion = service.findMatriculaSeccion(matriculaSeccionId);
         GrupoSeccion grupoSeccion = service.findGrupo(matriculaSeccion.getSeccion().getGrupoSeccion().getId());
+        SistemaNotas sistemaNotas = service.findSistemaNotaById(grupoSeccion.getPlanCalificacion().getSistemaNotas().getId());
         logger.debug("alumno {}", matriculaSeccion.getMatriculaResumen().getAlumno().getPersona().getNombreCompleto());
         logger.debug("curso {}", matriculaSeccion.getSeccion().getGrupoSeccion().getCurso().getNombre());
 
@@ -1054,7 +1055,7 @@ public class NotaAcademicaController {
         model.addAttribute("alumnoPer", matriculaSeccion.getMatriculaResumen().getAlumno().getPersona());
         model.addAttribute("curso", matriculaSeccion.getSeccion().getGrupoSeccion().getCurso());
         model.addAttribute("seccion", matriculaSeccion.getSeccion());
-        model.addAttribute("sistemaNotas", grupoSeccion.getPlanCalificacion().getSistemaNotas());
+        model.addAttribute("sistemaNotas", sistemaNotas);
 
         List<Evaluacion> evaluacionesBySeccionFinal = service.allEvaluacionesByTipoSeccion(matriculaSeccion.getSeccion());
 
