@@ -912,8 +912,10 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
         } else {
             cursosOpcionalesNew.setCurso(alumnoCicloCurso.getCurso());
         }
-        cursosOpcionalesNew.setCursoOpcional(opcionalCurricula);
-        cursosOpcionalesNew.setCursoCurricula(cursoCurricula);
+        if (tipoCursoCurricula.getCodigoEnum() == ELC) {            
+            cursosOpcionalesNew.setCursoOpcional(opcionalCurricula);
+            cursosOpcionalesNew.setCursoCurricula(cursoCurricula);
+        }
         cursosOpcionalesNew.setValidado(true);
         cursosOpcionalesNew.setVecesCursado(alumnoCicloCurso.getVecesCursadoTransient());
         alumnoCursoElecCarreraNew.add(cursosOpcionalesNew);
@@ -1144,7 +1146,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
                     cursosOpcionalesNew.setVecesCursado(0);
                     cursosOpcionalesNew.setCreditos(cursoMatriculado.getCreditos());
                     alumnoCursoNew.add(cursosOpcionalesNew);
-                    
+
                     cursoMatriculado.setTipoCursoCurricula(tipoCursoCurricula);
                 }
             }

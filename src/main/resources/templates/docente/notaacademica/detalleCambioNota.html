@@ -22,8 +22,8 @@
             </select>
         </div>
     </div>
-    <div class="form-group" th:if="${curso.creditos==null}">
-        curso <span th:text="${curso.id}"></span>
+    <div class="form-group" th:if="${curso.tieneCreditosVariables}">
+     
         <div class="col-md-6">
             <label>Letra anterior:</label>
             <input id="txtLetraAnterior"

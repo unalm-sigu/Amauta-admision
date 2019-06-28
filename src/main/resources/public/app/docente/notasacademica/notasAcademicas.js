@@ -645,7 +645,6 @@ $(function () {
 
                         $("#txtLetraAnterior").val(response.data.notaLetra);
                         $("[name='letraInicial']").val(response.data.notaLetra);
-
                     }
                 },
                 error: function () {

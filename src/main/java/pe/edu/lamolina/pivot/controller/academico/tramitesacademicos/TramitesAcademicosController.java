@@ -229,8 +229,8 @@ public class TramitesAcademicosController {
             }
 
             json.setData(array);
-            json.setTotal(tramites.size());
-            json.setFiltered(tramites.size());
+            json.setTotal(filter.getTotal());
+            json.setFiltered(filter.getFiltered());
 
         } catch (Exception e) {
             e.printStackTrace();

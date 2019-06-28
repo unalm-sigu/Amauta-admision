@@ -62,7 +62,7 @@ new Vue({
         on: function() {
             let vue = this;
             swal({
-                title: "¿Seguro que desea iniciar la matricula?",
+                title: "¿Seguro que desea iniciar el proceso de asignación de vacantes?",
                 icon: "warning",
                 buttons: ['cancelar', 'aceptar'],
                 dangerMode: true,

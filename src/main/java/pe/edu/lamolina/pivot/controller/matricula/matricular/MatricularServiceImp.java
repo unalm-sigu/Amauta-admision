@@ -499,6 +499,8 @@ public class MatricularServiceImp implements MatricularService {
                         && Objects.equals(x.getCurso().getId(), curso.getId())
                         ).findAny().orElse(null);
                 this.actualizarAlumnoCursoCurricula(EstadoMatriculaEnum.MAT, alumnoCursoCurricula);
+                matriculaCurso.setFechaMatricula(new Date());
+                matriculaCurso.setUserMatricula(ds.getUsuario());
                 matriculaCursoDAO.update(matriculaCurso);
                 matriculaCursoMatriculados.add(matriculaCurso);
                 
