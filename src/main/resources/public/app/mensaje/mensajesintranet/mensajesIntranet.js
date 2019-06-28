@@ -11,7 +11,7 @@ new Vue({
         cicloAcademico: JSON.parse(cicloJson),
         addMensajeria: {
             id: 'modalMensajeria',
-            header: 'true',
+            header: true,
             title: 'Crear Mensajeria',
             okbtn: 'Guardar',
             showaccept: true,

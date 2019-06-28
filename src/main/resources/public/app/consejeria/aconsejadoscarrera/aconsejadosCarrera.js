@@ -19,7 +19,7 @@ new Vue({
         isLoading: false,
         consejeroModal: {
             id: 'consejeroModal',
-            header: 'true',
+            header: true,
             title: "Consejeros",
             okbtn: 'Agregar',
             showaccept: true
