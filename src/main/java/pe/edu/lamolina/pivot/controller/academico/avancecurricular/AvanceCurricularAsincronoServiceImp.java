@@ -912,8 +912,8 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
         } else {
             cursosOpcionalesNew.setCurso(alumnoCicloCurso.getCurso());
         }
-        cursosOpcionalesNew.setCursoOpcional(opcionalCurricula);
-        cursosOpcionalesNew.setCursoCurricula(cursoCurricula);
+//        cursosOpcionalesNew.setCursoOpcional(opcionalCurricula);
+//        cursosOpcionalesNew.setCursoCurricula(cursoCurricula);
         cursosOpcionalesNew.setValidado(true);
         cursosOpcionalesNew.setVecesCursado(alumnoCicloCurso.getVecesCursadoTransient());
         alumnoCursoElecCarreraNew.add(cursosOpcionalesNew);
