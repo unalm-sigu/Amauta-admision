@@ -2,6 +2,7 @@ package pe.edu.lamolina.pivot.zelper;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import org.joda.time.DateTime;
 
 public class Laboratory {
 
@@ -26,6 +27,9 @@ public class Laboratory {
         System.out.println("Fac2 :" + factor2);
         BigDecimal puntajePrioridad = factor1.divide(factor2, 6, RoundingMode.HALF_UP);
         System.out.println(puntajePrioridad);
+
+        DateTime d = new DateTime();
+        System.out.println(d.getSecondOfDay());
     }
 
 }
