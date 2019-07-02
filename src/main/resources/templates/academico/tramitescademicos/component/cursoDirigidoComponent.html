@@ -3,10 +3,10 @@
         <a class="btn btn-primary pull-right m-b-sm" v-bind:href="`${URL_TRAMITE}/cursodirigido/${tramite.id}/reporte`"> Descargar Informe </a>
         <div id="tabs" class=" tabbable-line">	
             <ul class="nav nav-tabs">
-                <li class="active">
+<!--                <li class="active">
                     <a  href="#1" data-toggle="tab">Curso</a>
-                </li>
-                <li>
+                </li>-->
+                <li class="active">
                     <a href="#2" data-toggle="tab">Malla Curricular</a>
                 </li>
                 <li>
@@ -24,8 +24,8 @@
             </ul>
 
             <div class="tab-content ">
-                <div class="tab-pane active" id="1">
-                </div>
+<!--                <div class="tab-pane active" id="1">
+                </div>-->
                 <div class="tab-pane" id="2">
                     <malla-component v-bind:alumno="tramite.alumno" ref="loadMalla"></malla-component>
                 </div>

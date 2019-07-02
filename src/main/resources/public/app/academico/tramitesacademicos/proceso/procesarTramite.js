@@ -8,6 +8,7 @@ new Vue({
         compomentProps: null,
         accionSeleccionada: null,
         processingAjaxData: null,
+//        oficina: JSON.parse(oficinasJson)
     }, created: function () {
         console.log("created");
         this.tramite = JSON.parse(tramiteJson);
@@ -30,7 +31,7 @@ new Vue({
                         console.dir($vue.componentForm);
                         //    var returnParams = Object.assign(params, $vue.ajaxdata);
                         console.log("compomentProps");
-                        $vue.compomentProps = {alumno: $vue.tramite.alumno, tramite: $vue.tramite, oficina: $vue.oficina.id};
+                        $vue.compomentProps = {alumno: $vue.tramite.alumno, tramite: $vue.tramite};
                         console.log($vue.compomentProps);
                     }
                 }

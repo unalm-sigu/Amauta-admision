@@ -36,6 +36,7 @@ import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.notify.Notificaciones;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.general.Oficina;
+import pe.edu.lamolina.model.tramite.CursoDirigido;
 import pe.edu.lamolina.model.tramite.Reincorporacion;
 import pe.edu.lamolina.model.tramite.TramiteReunionConsejo;
 import pe.edu.lamolina.model.tramite.Resolucion;
@@ -130,7 +131,7 @@ public class ResolucionController {
             }
             List<CicloAcademico> ciclos = service.allCiclosToReincorporacion();
 
-            ObjectNode resolucionJson = JsonHelper.createJson(resolucion, jc, 
+            ObjectNode resolucionJson = JsonHelper.createJson(resolucion, jc,
                     new String[]{"*",
                         "oficina.id",
                         "cicloReincorporacion.*",
@@ -244,7 +245,7 @@ public class ResolucionController {
             CicloAcademico ciclo = ds.getCicloAcademico();
             DateTime today = new DateTime();
 
-            List<Resolucion> resoluciones = service.allResolucionesByFilter(filter);
+            List<Resolucion> resoluciones = service.allResolucionesByFilter(filter, ds);
             logger.debug("cantidad de resoluciones " + resoluciones.size());
 
             for (Resolucion resolucionEach : resoluciones) {
@@ -285,29 +286,49 @@ public class ResolucionController {
                 json.setTotal(0);
                 return json;
             }
-            List<Reincorporacion> reincorporaciones = service.allReincorporacionByFilter(filter, new Resolucion(resolucionId));
-            logger.debug("cantidad de reincorporaciones " + reincorporaciones.size());
+            Resolucion resolucion = service.findResolucion(resolucionId);
+            if (resolucion.getTipoResolucion().getEsTipoResolucionRei()) {
 
-            for (Reincorporacion reincorporacion : reincorporaciones) {
+                List<Reincorporacion> reincorporaciones = service.allReincorporacionByFilter(filter, new Resolucion(resolucionId));
+                logger.debug("cantidad de reincorporaciones " + reincorporaciones.size());
 
-                ObjectNode reincorporacionJson = JsonHelper.createJson(reincorporacion, JsonNodeFactory.instance,
-                        new String[]{
-                            "*",
-                            "tramite.*",
-                            "tramite.tipoTramite.*",
-                            "tramite.persona.*",
-                            "estadoTramite.*",
-                            "cicloReincorporacion.*",
-                            "resolucion.*",
-                            "userRegistro.*",
-                            "userRegistro.persona.*"
-                        });
-                array.add(reincorporacionJson);
+                for (Reincorporacion reincorporacion : reincorporaciones) {
+
+                    ObjectNode reincorporacionJson = JsonHelper.createJson(reincorporacion, JsonNodeFactory.instance,
+                            new String[]{
+                                "*",
+                                "tramite.*",
+                                "tramite.tipoTramite.*",
+                                "tramite.persona.*",
+                                "estadoTramite.*",
+                                "cicloReincorporacion.*",
+                                "resolucion.*",
+                                "userRegistro.*",
+                                "userRegistro.persona.*"
+                            });
+                    array.add(reincorporacionJson);
+                }
+            } else if (resolucion.getTipoResolucion().getEsTipoCursoDirigido()) {
+                List<CursoDirigido> list = service.allCursoDirigido(filter, resolucion);
+                for (CursoDirigido cursoDirigido : list) {
+                    ObjectNode cursoDiri = JsonHelper.createJson(cursoDirigido, JsonNodeFactory.instance,
+                            new String[]{
+                                "*",
+                                "tramite.*",
+                                "tramite.tipoTramite.*",
+                                "tramite.persona.*",
+                                "estado.*",
+                                "resolucion.*",
+                                "userRegistro.*",
+                                "userRegistro.persona.*"
+                            });
+                    array.add(cursoDiri);
+                }
             }
 
             json.setData(array);
-            json.setTotal(reincorporaciones.size());
-            json.setFiltered(reincorporaciones.size());
+            json.setTotal(filter.getTotal());
+            json.setFiltered(filter.getFiltered());
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -358,20 +379,44 @@ public class ResolucionController {
                 "estadoTramite.esSolicitudHistorialRevisado",
                 "estadoTramite.esConsejoFacultad"
             };
+            String[] mapperCursodirigido = new String[]{
+                "estado.nombre",
+                "estado.id",
+                "estado.nombre",};
 
+            ArrayNode reincorporaciones = null;
+            ArrayNode cursoDirigidos = null;
             for (TramiteReunionConsejo tramiteReunionConsejo : alumnosReunionConsejo) {
-                if (resolucionId == null) {
-                    tramiteReunionConsejo.setSeleccionado(Boolean.TRUE);
-                } else {
-                    Tramite tramite = service.findTramite(tramiteReunionConsejo.getTramite().getId());
-                    Reincorporacion reincorporacion = tramite.getReincorporaciones().get(0);
-                    tramiteReunionConsejo.setSeleccionado(reincorporacion.getAceptado() == 1 ? true : false);
-                }
-                ArrayNode reincorporaciones = null;
-                if (tramiteReunionConsejo.getTramite().getReincorporaciones() != null && !tramiteReunionConsejo.getTramite().getReincorporaciones().isEmpty()) {
-                    reincorporaciones = new ArrayNode(JsonNodeFactory.instance);
-                    for (Reincorporacion reincorporacionEach : tramiteReunionConsejo.getTramite().getReincorporaciones()) {
-                        reincorporaciones.addPOJO(JsonHelper.createJson(reincorporacionEach, JsonNodeFactory.instance, false, mapperReincorporacion));
+                if (tramiteReunionConsejo.getTramite().getTipoTramite().getEsTipoTramiteRei()) {
+
+                    if (resolucionId == null) {
+                        tramiteReunionConsejo.setSeleccionado(Boolean.TRUE);
+                    } else {
+                        Tramite tramite = service.findTramite(tramiteReunionConsejo.getTramite().getId());
+                        Reincorporacion reincorporacion = tramite.getReincorporaciones().get(0);
+                        tramiteReunionConsejo.setSeleccionado(reincorporacion.getAceptado() == 1 ? true : false);
+                    }
+
+                    if (tramiteReunionConsejo.getTramite().getReincorporaciones() != null && !tramiteReunionConsejo.getTramite().getReincorporaciones().isEmpty()) {
+                        reincorporaciones = new ArrayNode(JsonNodeFactory.instance);
+                        for (Reincorporacion reincorporacionEach : tramiteReunionConsejo.getTramite().getReincorporaciones()) {
+                            reincorporaciones.addPOJO(JsonHelper.createJson(reincorporacionEach, JsonNodeFactory.instance, false, mapperReincorporacion));
+                        }
+                    }
+                } else if (tramiteReunionConsejo.getTramite().getTipoTramite().getEsTipoTramiteCurDir()) {
+                    if (resolucionId == null) {
+                        tramiteReunionConsejo.setSeleccionado(Boolean.TRUE);
+                    } else {
+                        Tramite tramite = service.findTramite(tramiteReunionConsejo.getTramite().getId());
+                        CursoDirigido cursoDirigido = tramite.getCursoDirigido().get(0);
+                        tramiteReunionConsejo.setSeleccionado(cursoDirigido.getAceptado());
+                    }
+
+                    if (tramiteReunionConsejo.getTramite().getCursoDirigido() != null && !tramiteReunionConsejo.getTramite().getCursoDirigido().isEmpty()) {
+                        cursoDirigidos = new ArrayNode(JsonNodeFactory.instance);
+                        for (CursoDirigido cursoDirigido : tramiteReunionConsejo.getTramite().getCursoDirigido()) {
+                            cursoDirigidos.addPOJO(JsonHelper.createJson(cursoDirigido, JsonNodeFactory.instance, false, mapperCursodirigido));
+                        }
                     }
                 }
 
@@ -379,6 +424,9 @@ public class ResolucionController {
                 ObjectNode tramiteJson = (ObjectNode) reunionConseJson.get("tramite");
                 if (reincorporaciones != null) {
                     tramiteJson.set("reincorporaciones", reincorporaciones);
+                } else if (cursoDirigidos != null) {
+                    tramiteJson.set("reincorporaciones", cursoDirigidos);
+
                 }
                 reunionConseJson.replace("tramite", tramiteJson);
                 array.add(reunionConseJson);
@@ -467,7 +515,7 @@ public class ResolucionController {
     @RequestMapping("succesSaveResVB")
     public String succesSaveResVB(RedirectAttributes redirectAttr, HttpSession session) {
         Notificaciones.crearMsg("Visto Bueno registrado correctamente.", redirectAttr);
-        return "redirect:/academico/deleteGrupoSeccion";
+        return "redirect:/academico/resolucion";
     }
 
     @ResponseBody

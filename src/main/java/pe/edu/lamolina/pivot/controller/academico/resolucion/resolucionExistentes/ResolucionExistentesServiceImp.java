@@ -35,6 +35,7 @@ import pe.edu.lamolina.model.general.TipoDocumentoCompania;
 import pe.edu.lamolina.model.matricula.AlumnoCursoCurricula;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.tramite.CambioNota;
+import pe.edu.lamolina.model.tramite.CursoDirigido;
 import pe.edu.lamolina.model.tramite.EstadoTramite;
 import pe.edu.lamolina.model.tramite.Reincorporacion;
 import pe.edu.lamolina.model.tramite.Resolucion;
@@ -51,6 +52,7 @@ import pe.edu.lamolina.pivot.dao.academico.AlumnoCursoCurriculaDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.tramite.CambioNotaDAO;
+import pe.edu.lamolina.pivot.dao.tramite.CursoDirigidoDAO;
 import pe.edu.lamolina.pivot.dao.tramite.EstadoTramiteDAO;
 import pe.edu.lamolina.pivot.dao.tramite.ReincorporacionDAO;
 import pe.edu.lamolina.pivot.dao.tramite.ResolucionDAO;
@@ -75,6 +77,8 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
 
     @Autowired
     ResolucionDAO resolucionDAO;
+    @Autowired
+    CursoDirigidoDAO cursoDirigidoDAO;
 
     @Autowired
     ReincorporacionDAO reincorporacionDAO;
@@ -390,5 +394,10 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
     public List<CambioNota> allCambioNota(Resolucion resolucionDB) {
         return cambioNotaDAO.allByResolucion(resolucionDB);
 
+    }
+
+    @Override
+    public List<CursoDirigido> allCursodirigido(Resolucion resolucionDB) {
+        return cursoDirigidoDAO.allByResolucion(resolucionDB);
     }
 }

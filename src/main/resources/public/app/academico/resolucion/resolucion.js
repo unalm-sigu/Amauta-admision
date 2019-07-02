@@ -44,6 +44,7 @@ var app = new Vue({
         alumnosReincorporacion: [],
         alumnosRetiroCiclo: [],
         alumnosCambioNota: [],
+        alumnosCursoDirigido: [],
         tipo: ""
     }, created: function () {
 
@@ -263,6 +264,7 @@ var app = new Vue({
                 success: function (response) {
                     if (response.success) {
                         notify(response.message, "info");
+                        $vue.$refs.tblResoluciones.loadRemoteData();
                         $vue.$refs.modalConfirmar.close();
                     } else {
                         notify(response.message, "error");
@@ -292,8 +294,10 @@ var app = new Vue({
                             $vue.alumnosReincorporacion = response.data;
                         } else if ($vue.tipo == "RCI") {
                             $vue.alumnosRetiroCiclo = response.data;
-                        } else {
+                        } else if ($vue.tipo == "CAM_NOTA") {
                             $vue.alumnosCambioNota = response.data;
+                        } else if ($vue.tipo == "CURDIR") {
+                            $vue.alumnosCursoDirigido = response.data;
                         }
                         $vue.$refs.modalAlumnos.open();
                     } else {
@@ -304,6 +308,14 @@ var app = new Vue({
                     notify(MESSAGES.errorComunicacion, "error");
                 }
             });
+        },
+        urlAcademico(item) {
+            let $vue = this;
+            return APP.url('academico/alumno/' + item.alumno.id + '/infoacademico') + $vue.getOrigenURL();
+        },
+        getOrigenURL() {
+            var url = window.location.href;
+            return "?origen=" + Base64.encode(url);
         }
     }
 })

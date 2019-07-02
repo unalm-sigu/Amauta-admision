@@ -26,11 +26,12 @@ public class TramiteDAOH extends AbstractEasyDAO<Tramite> implements TramiteDAO 
     public List<Tramite> allByFilter(DynatableFilter filter) {
         DynatableSql sql = new DynatableSql(filter)
                 .from(Tramite.class, "t")
-                .join("compania", "persona", "alumno al", "tipoTramite tt")
+                .join("compania", "persona", "alumno al", "tipoTramite tt", "al.planCurricular")
                 .left("al.carrera car", "car.facultad ")
-                .left("tt.oficina ofi")
+                .left("tt.oficina ofi", "oficina tramofi")
+                .left("tramofi.personaJefe" , "tramofi.jefeEncargado")
                 .left("userRegistro ur", "ur.persona urp")
-//                .left("reincorporaciones")
+                //                .left("reincorporaciones")
                 .filter("ofi.id", OficinaEnum.OERA.getId());
         return this.all(sql);
     }
@@ -60,9 +61,7 @@ public class TramiteDAOH extends AbstractEasyDAO<Tramite> implements TramiteDAO 
     @Override
     public void updateObservacion(Tramite tramite) {
         Octavia octavia = Octavia.update(Tramite.class);
-        octavia.set(tramite, "estado");
-        octavia.set(tramite, "userModificacion");
-        octavia.set(tramite, "fechaModificacion");
+        octavia.set(tramite, "observacion");
         this.update(octavia);
     }
 
@@ -82,7 +81,7 @@ public class TramiteDAOH extends AbstractEasyDAO<Tramite> implements TramiteDAO 
         Octavia sql = new Octavia()
                 .from(Tramite.class, "tram")
                 .join("cicloAcademico aca", "compania", "tipoTramite")
-                .left("userRegistro user", "user.persona", "alumno alum")
+                .left("userRegistro user", "user.persona", "alumno alum", "alum.planCurricular")
                 .filter("tram.id", tramite);
         return find(sql);
     }

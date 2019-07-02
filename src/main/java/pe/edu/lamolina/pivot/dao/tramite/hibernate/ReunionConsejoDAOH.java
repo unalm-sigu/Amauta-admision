@@ -2,6 +2,7 @@ package pe.edu.lamolina.pivot.dao.tramite.hibernate;
 
 import java.util.Date;
 import java.util.List;
+import org.joda.time.DateTime;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
@@ -32,9 +33,11 @@ public class ReunionConsejoDAOH extends AbstractEasyDAO<ReunionConsejo> implemen
 
     @Override
     public List<ReunionConsejo> allByOficina(Oficina oficina) {
+        DateTime hoy = new DateTime();
         Octavia sql = Octavia.query()
                 .from(ReunionConsejo.class, "rc")
                 .join("oficina ofi")
+                .filter("fecha", ">=", hoy.toDate())
                 .filter("ofi.id", oficina);
         return all(sql);
     }
@@ -50,10 +53,12 @@ public class ReunionConsejoDAOH extends AbstractEasyDAO<ReunionConsejo> implemen
 
     @Override
     public List<ReunionConsejo> allByDynatable(DynatableFilter filter, List<Oficina> oficina) {
+        DateTime hoy = new DateTime();
         DynatableSql sql = new DynatableSql(filter)
                 .from(ReunionConsejo.class, "rc")
                 .join("rc.oficina ofi")
                 .in("ofi.id", oficina)
+                .filter("fecha", ">=", hoy.toDate())
                 .searchFields("gh.codigo");
         return sql.all(getCurrentSession());
     }
