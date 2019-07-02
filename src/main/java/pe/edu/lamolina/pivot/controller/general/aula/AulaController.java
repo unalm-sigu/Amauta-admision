@@ -105,34 +105,40 @@ public class AulaController {
             ArrayNode array = new ArrayNode(jFactory);
 
             for (Aula aula : aulas) {
-                ObjectNode node = new ObjectNode(jFactory);
+                ObjectNode node = JsonHelper.createJson(aula, jFactory, true, new String[]{
+                    "id", "codigo", "nombre", "tipoAmbienteEnum", "tipoAmbiente", "piso", "pisos",
+                    "aforo", "capacidadAula", "estado", "estadoEnum", "motivoAnulacion",
+                    "aulaSuperior.id", "aulaSuperior.nombre",
+                    "sede.id", "sede.nombre",
+                    "tipoAula.id", "tipoAula.nombre",
+                    "tipoCarpeta.id", "tipoCarpeta.nombre",
+                    "oficinaSupervisora.id", "oficinaSupervisora.nombre"
+                });
 
-                node.put("id", aula.getId());
-                node.put("codigo", aula.getCodigo());
-                node.put("nombre", aula.getNombre());
-                node.put("tipoAmbienteEnum", aula.getTipoAmbienteEnum().getValue());
-                node.put("tipoAmbiente", aula.getTipoAmbiente());
-                node.put("piso", aula.getPiso());
-                node.put("pisos", aula.getPisos());
-                node.put("aforo", aula.getAforo());
-                node.put("pabellon", (String) ObjectUtil.getParentTree(aula, "aulaSuperior.nombre"));
-                node.put("idpabellon", (Long) ObjectUtil.getParentTree(aula, "aulaSuperior.id"));
-                node.put("capacidad", aula.getCapacidadAula());
-                node.put("sede", aula.getSede() != null ? aula.getSede().getNombre() : "");
-                node.put("tipoAula", aula.getTipoAula() != null ? aula.getTipoAula().getNombre() : "");
-                node.put("tipoCarpeta", aula.getTipoCarpeta() != null ? "" + ObjectUtil.getParentTree(aula, "tipoCarpeta.nombre") : "");
-                node.put("gestor", aula.getOficinaSupervisora() != null ? aula.getOficinaSupervisora().getNombre() : "");
-                node.put("estado", aula.getEstado());
-                node.put("estadoEnum", aula.getEstadoEnum().getValue());
-                node.put("motivo", aula.getMotivoAnulacion());
+//                node.put("id", aula.getId());
+//                node.put("codigo", aula.getCodigo());
+//                node.put("nombre", aula.getNombre());
+//                node.put("tipoAmbienteEnum", aula.getTipoAmbienteEnum().getValue());
+//                node.put("tipoAmbiente", aula.getTipoAmbiente());
+//                node.put("piso", aula.getPiso());
+//                node.put("pisos", aula.getPisos());
+//                node.put("aforo", aula.getAforo());
+//                node.put("pabellon", (String) ObjectUtil.getParentTree(aula, "aulaSuperior.nombre"));
+//                node.put("idpabellon", (Long) ObjectUtil.getParentTree(aula, "aulaSuperior.id"));
+//                node.put("capacidad", aula.getCapacidadAula());
+//                node.put("sede", aula.getSede() != null ? aula.getSede().getNombre() : "");
+//                node.put("tipoAula", aula.getTipoAula() != null ? aula.getTipoAula().getNombre() : "");
+//                node.put("tipoCarpeta", aula.getTipoCarpeta() != null ? "" + ObjectUtil.getParentTree(aula, "tipoCarpeta.nombre") : "");
+//                node.put("gestor", aula.getOficinaSupervisora() != null ? aula.getOficinaSupervisora().getNombre() : "");
+//                node.put("estado", aula.getEstado());
+//                node.put("estadoEnum", aula.getEstadoEnum().getValue());
+//                node.put("motivo", aula.getMotivoAnulacion());
                 node.put("aulasContenido", aula.getAulasContenido().size());
 
                 ArrayNode arrayHijas = new ArrayNode(jFactory);
                 List<Aula> aulasHijas = aula.getAulasContenido();
                 for (Aula aulaHija : aulasHijas) {
-                    ObjectNode nodeHija = new ObjectNode(jFactory);
-                    nodeHija.put("codigo", aulaHija.getCodigo());
-                    nodeHija.put("nombre", aulaHija.getNombre());
+                    ObjectNode nodeHija = JsonHelper.createJson(aulaHija, jFactory, true, new String[]{"id", "codigo", "nombre"});
                     arrayHijas.add(nodeHija);
                 }
                 node.set("aulasHijas", arrayHijas);

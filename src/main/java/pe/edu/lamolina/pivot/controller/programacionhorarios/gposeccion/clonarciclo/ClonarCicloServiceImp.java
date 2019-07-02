@@ -224,6 +224,10 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
         Map<Long, List<Seccion>> seccionesMap = TypesUtil.convertListToMapList("grupoSeccion.id", secciones);
         for (GrupoSeccion gsOrigene : gsOrigenes) {
             List<Seccion> seccionesGpo = seccionesMap.get(gsOrigene.getId());
+            System.out.println("gsOrigene ::: " + gsOrigene.getCodigo2());
+            for (Seccion secc : seccionesGpo) {
+                System.out.println("\tsecc ::: " + secc.getCodigo2());
+            }
             Collections.sort(seccionesGpo, new Seccion.CompareCodigo2());
             gsOrigene.setSecciones(seccionesGpo);
 

@@ -326,14 +326,20 @@ public class BoletinPDF extends AbstractOnlyPdfView {
             int rowspan, PdfPTable table, Font bodyFont) {
 
         PdfPCell cell = new PdfPCell();
+        float padding = 4f;
+
         String[] prafes = contenido.split(" y ");
         for (int i = 0; i < prafes.length; i++) {
-            Phrase phr = new Phrase(prafes[i], bodyFont);
-            cell.addElement(phr);
+            Paragraph p = new Paragraph(prafes[i].replaceAll(" de ", " "), bodyFont);
+            p.setAlignment(Element.ALIGN_CENTER);
+            p.setPaddingTop(0f);
+            if (i == prafes.length - 1) {
+                p.setSpacingAfter(padding);
+            }
+            cell.addElement(p);
         }
 
         cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
-        cell.setHorizontalAlignment(align);
         cell.setUseVariableBorders(true);
         cell.setBorderColorTop(colorBordeTop);
         cell.setBorderColorBottom(colorBordeBottom);
@@ -354,11 +360,11 @@ public class BoletinPDF extends AbstractOnlyPdfView {
         Font fontDirigido = new Font(Font.FontFamily.HELVETICA, 6, Font.BOLD, BaseColor.BLUE);
         Font fontDanger = new Font(Font.FontFamily.HELVETICA, 6, Font.BOLD, BaseColor.RED);
         Font fontWarning = new Font(Font.FontFamily.HELVETICA, 6, Font.BOLD, BaseColor.ORANGE);
-        float padding = 5f;
+        float padding = 4f;
 
         PdfPCell cell = new PdfPCell();
         {
-            Paragraph p = new Paragraph(new Paragraph(seccion.getCodigo2(), bodyFont));
+            Paragraph p = new Paragraph(seccion.getCodigo2(), bodyFont);
             p.setAlignment(Element.ALIGN_CENTER);
             p.setPaddingTop(0f);
 
@@ -371,7 +377,7 @@ public class BoletinPDF extends AbstractOnlyPdfView {
 
         if (seccion.getEstadoEnum() == SeccionEstadoEnum.ACT) {
         } else if (seccion.getEstadoEnum() == SeccionEstadoEnum.BLO) {
-            Paragraph p = new Paragraph(new Paragraph(seccion.getEstadoEnum().getValue(), fontWarning));
+            Paragraph p = new Paragraph(seccion.getEstadoEnum().getValue(), fontWarning);
             p.setAlignment(Element.ALIGN_CENTER);
             p.setPaddingTop(0f);
 
@@ -381,7 +387,7 @@ public class BoletinPDF extends AbstractOnlyPdfView {
             cell.addElement(p);
 
         } else {
-            Paragraph p = new Paragraph(new Paragraph(seccion.getEstadoEnum().getValue(), fontDanger));
+            Paragraph p = new Paragraph(seccion.getEstadoEnum().getValue(), fontDanger);
             p.setAlignment(Element.ALIGN_CENTER);
             p.setPaddingTop(0f);
 
@@ -392,7 +398,7 @@ public class BoletinPDF extends AbstractOnlyPdfView {
         }
 
         if (seccion.getGrupoSeccion().getCursoDirigido()) {
-            Paragraph p = new Paragraph(new Paragraph("Dirigido", fontDirigido));
+            Paragraph p = new Paragraph("Dirigido", fontDirigido);
             p.setAlignment(Element.ALIGN_CENTER);
             p.setPaddingTop(0f);
             p.setSpacingAfter(padding);
