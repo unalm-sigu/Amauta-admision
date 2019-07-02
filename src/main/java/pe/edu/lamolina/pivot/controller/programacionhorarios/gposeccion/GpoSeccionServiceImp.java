@@ -493,7 +493,9 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             gpoSeccNew.setHorasPractica(horasPractica);
             gpoSeccNew.setHorasTeoria(horasTeoria);
             gpoSeccNew.setEstadoEnum(SeccionEstadoEnum.ACT);
-
+            if (gpoSeccForm.getCursoDirigido()) {
+                gpoSeccNew.setDocenteResponsable(gpoSeccForm.getDocenteResponsable());
+            }
             gpoSeccNew = saveGpoSeccion(gpoSeccNew, ciclo, codigo, codigo2, curso, ds);
             codigosByCiclo.add(codigo);
             codigos2ByCiclo.add(codigo2);
