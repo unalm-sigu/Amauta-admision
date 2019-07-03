@@ -217,6 +217,9 @@ public class PromedioServiceImp implements PromedioService {
         contadorComponent.incrementar();
         alumno = alumno.clone();
         logger.info("Promediar Alumno {}", alumno.getCodigo());
+        if (alumno.getSituacionAcademica().isCodigoR()) {
+            throw new PhobosException("No se puede calcular la situación, en situacion Renunciante.");
+        }
         try {
 
             this.analizeAlumnoCiclos(alumno, allOperativesByModalidadEstudio);
@@ -260,7 +263,6 @@ public class PromedioServiceImp implements PromedioService {
 
 //            CicloAcademico siguienteCicloRegularHabil = cicloAcademicoDAO.findSiguienteRegularActivo(cicloInha, MODALIDAD_ESTUDIO_ENUM);
 //            CicloAcademico siguienteCicloNivHabil = cicloAcademicoDAO.findSiguienteNivelacionActivo(cicloActivo, MODALIDAD_ESTUDIO_ENUM);
-
             if (!cicloActivo.equals(cicloInha) && alumno.getCicloActivoRegular().getCodigoInt() <= cicloActivo.getCodigoInt()) {
                 Alumno alumnoUpd = new Alumno(alumno.getId());
                 alumnoUpd.setSituacionAcademica(alumnoCicloInha.getSituacionFinal());
@@ -379,20 +381,18 @@ public class PromedioServiceImp implements PromedioService {
                     alumnoCiclo.setSituacionFinal(situacionN);
                 }
 
-            } else {
-                if (alumnoCiclo.getCicloAcademico().equals(alumno.getCicloIngreso())) {
-                    alumnoCiclo.setSituacionInicio(situacion8);
-                    if (alumnoCiclo.isEstadoRetiradoCic()) {
-                        alumnoCiclo.setSituacionFinal(alumnoCiclo.getSituacionInicio());
-                    }
-                    alumnoCicloDAO.update(alumnoCiclo);
-                } else {
-                    alumnoCiclo.setSituacionInicio(situacion9);
-                    if (alumnoCiclo.isEstadoRetiradoCic()) {
-                        alumnoCiclo.setSituacionFinal(alumnoCiclo.getSituacionInicio());
-                    }
-                    alumnoCicloDAO.update(alumnoCiclo);
+            } else if (alumnoCiclo.getCicloAcademico().equals(alumno.getCicloIngreso())) {
+                alumnoCiclo.setSituacionInicio(situacion8);
+                if (alumnoCiclo.isEstadoRetiradoCic()) {
+                    alumnoCiclo.setSituacionFinal(alumnoCiclo.getSituacionInicio());
                 }
+                alumnoCicloDAO.update(alumnoCiclo);
+            } else {
+                alumnoCiclo.setSituacionInicio(situacion9);
+                if (alumnoCiclo.isEstadoRetiradoCic()) {
+                    alumnoCiclo.setSituacionFinal(alumnoCiclo.getSituacionInicio());
+                }
+                alumnoCicloDAO.update(alumnoCiclo);
             }
         } else {
             //EPG
@@ -489,12 +489,10 @@ public class PromedioServiceImp implements PromedioService {
         } else if ((ciclosEstudiados.intValue() == 1 || ciclosEstudiados.intValue() == 2) && alumno.isPregrado()) {
             if (TypesUtil.getInt(alumnoCiclo.getCicloAcademico().getCodigo()) >= 201710) {
                 situacionAcademicaFinal = situacionAcademicaDAO.findByCodigo(SituacionAcademicaEnum.S_N.getValue());
+            } else if (alumnoCiclo.isAprobado() || ciclosEstudiados.intValue() == 1) {
+                situacionAcademicaFinal = situacionAcademicaDAO.findByCodigo(SituacionAcademicaEnum.S_N.getValue());
             } else {
-                if (alumnoCiclo.isAprobado() || ciclosEstudiados.intValue() == 1) {
-                    situacionAcademicaFinal = situacionAcademicaDAO.findByCodigo(SituacionAcademicaEnum.S_N.getValue());
-                } else {
-                    situacionAcademicaFinal = situacionAcademicaDAO.findByCodigo(SituacionAcademicaEnum.S_1.getValue());
-                }
+                situacionAcademicaFinal = situacionAcademicaDAO.findByCodigo(SituacionAcademicaEnum.S_1.getValue());
             }
         } else if (alumnoCiclo.getSituacionInicio().isCodigoS4()) {
             if (alumnoCiclo.isAprobado()) {
@@ -557,14 +555,12 @@ public class PromedioServiceImp implements PromedioService {
                 alumnoCiclo.setEstaAprobado(BigDecimal.ZERO.intValue());
                 alumnoCicloDAO.save(alumnoCiclo);
                 alumno.getId();
-            } else {
-                if (alumnoCiclo.isNoMatriculado() || alumnoCiclo.isEstadoRetiradoCic()) {
-                    SituacionAcademica situacionInicio = alumnoCicloAnterior == null ? alumno.getSituacionAcademica() : alumnoCicloAnterior.getSituacionFinal();
-                    alumnoCiclo.setSituacionInicio(situacionInicio);
-                    alumnoCiclo.setSituacionFinal(situacionInicio);
-                    alumnoCicloDAO.update(alumnoCiclo);
-                    alumno.getId();
-                }
+            } else if (alumnoCiclo.isNoMatriculado() || alumnoCiclo.isEstadoRetiradoCic()) {
+                SituacionAcademica situacionInicio = alumnoCicloAnterior == null ? alumno.getSituacionAcademica() : alumnoCicloAnterior.getSituacionFinal();
+                alumnoCiclo.setSituacionInicio(situacionInicio);
+                alumnoCiclo.setSituacionFinal(situacionInicio);
+                alumnoCicloDAO.update(alumnoCiclo);
+                alumno.getId();
             }
 
             if (alumnoCicloCurso == null) {
@@ -706,41 +702,39 @@ public class PromedioServiceImp implements PromedioService {
             for (AlumnoCiclo alumnoCiclo : alumnosCiclosByAlumno) {
                 this.analizarDesertorByCiclo(alumno, cicloActivo, alumnoCiclo.getCicloAcademico(), ds);
             }
-        } else {
-            if (!alumno.getSituacionAcademica().isCodigoS7()) {
-                if (alumno.getCicloIngreso() != null) {
-                    int ciclosNmat = cicloRegularesByModalidad.stream().filter(x -> x.getCodigoInt() >= alumno.getCicloIngreso().getCodigoInt())
+        } else if (!alumno.getSituacionAcademica().isCodigoS7()) {
+            if (alumno.getCicloIngreso() != null) {
+                int ciclosNmat = cicloRegularesByModalidad.stream().filter(x -> x.getCodigoInt() >= alumno.getCicloIngreso().getCodigoInt())
+                        .collect(Collectors.toList())
+                        .size();
+                int diffYears = cicloActivo.getYear() - alumno.getCicloIngreso().getYear();
+                if (alumno.isQuintoSecundaria()) {
+                    if (diffYears >= 1) {
+                        Alumno alumnoUpd = new Alumno(alumno.getId());
+                        alumnoUpd.setSituacionAcademica(new SituacionAcademica(SituacionAcademicaEnum.S_8.getId()));
+                        alumnoDAO.updateSituacionAcad(alumnoUpd);
+                    }
+                    if (diffYears == 1) {
+                        return;
+                    }
+                    ciclosNmat = cicloRegularesByModalidad.stream()
+                            .filter(x -> x.getCodigoInt() >= alumno.getCicloIngreso().getCodigoInt())
+                            .filter(x -> x.getYear() != (cicloActivo.getYear() + 1))
                             .collect(Collectors.toList())
                             .size();
-                    int diffYears = cicloActivo.getYear() - alumno.getCicloIngreso().getYear();
-                    if (alumno.isQuintoSecundaria()) {
-                        if (diffYears >= 1) {
-                            Alumno alumnoUpd = new Alumno(alumno.getId());
-                            alumnoUpd.setSituacionAcademica(new SituacionAcademica(SituacionAcademicaEnum.S_8.getId()));
-                            alumnoDAO.updateSituacionAcad(alumnoUpd);
-                        }
-                        if (diffYears == 1) {
-                            return;
-                        }
-                        ciclosNmat = cicloRegularesByModalidad.stream()
-                                .filter(x -> x.getCodigoInt() >= alumno.getCicloIngreso().getCodigoInt())
-                                .filter(x -> x.getYear() != (cicloActivo.getYear() + 1))
-                                .collect(Collectors.toList())
-                                .size();
+                }
+                if (alumno.getSituacionAcademica().isCodigoS8() || alumno.getSituacionAcademica().isCodigoN()) {
+                    SituacionAcademica situacion = null;
+                    if (ciclosNmat == 1) {
+                        situacion = new SituacionAcademica(SituacionAcademicaEnum.S_9.getId());
                     }
-                    if (alumno.getSituacionAcademica().isCodigoS8() || alumno.getSituacionAcademica().isCodigoN()) {
-                        SituacionAcademica situacion = null;
-                        if (ciclosNmat == 1) {
-                            situacion = new SituacionAcademica(SituacionAcademicaEnum.S_9.getId());
-                        }
-                        if (ciclosNmat > 1) {
-                            situacion = new SituacionAcademica(SituacionAcademicaEnum.S_7.getId());
-                        }
-                        if (situacion != null) {
-                            Alumno alumnoUpd = new Alumno(alumno.getId());
-                            alumnoUpd.setSituacionAcademica(situacion);
-                            alumnoDAO.updateSituacionAcad(alumnoUpd);
-                        }
+                    if (ciclosNmat > 1) {
+                        situacion = new SituacionAcademica(SituacionAcademicaEnum.S_7.getId());
+                    }
+                    if (situacion != null) {
+                        Alumno alumnoUpd = new Alumno(alumno.getId());
+                        alumnoUpd.setSituacionAcademica(situacion);
+                        alumnoDAO.updateSituacionAcad(alumnoUpd);
                     }
                 }
             }
@@ -1519,10 +1513,8 @@ public class PromedioServiceImp implements PromedioService {
             if (nota.compareTo(new BigDecimal(13)) >= 0) {
                 aprobado = BigDecimal.ONE.intValue();
             }
-        } else {
-            if (nota.compareTo(new BigDecimal(11)) >= 0) {
-                aprobado = BigDecimal.ONE.intValue();
-            }
+        } else if (nota.compareTo(new BigDecimal(11)) >= 0) {
+            aprobado = BigDecimal.ONE.intValue();
         }
         return aprobado;
     }
