@@ -444,7 +444,7 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
                             horarioTCUR.add(horarioSecc);
                         }
                     }
-
+                   // dhgdhd, ver auka de seccionnew
                 }
 
                 List<DocenteSeccion> docenteSeccion = seccOrigen.getDocenteSeccion();
