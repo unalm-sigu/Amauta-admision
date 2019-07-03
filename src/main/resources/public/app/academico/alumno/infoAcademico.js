@@ -14,8 +14,14 @@ new Vue({
             horario: false,
             malla: false,
             aportes: false
+        },
+        preRequisitos: [],
+        modalPreRequisito: {
+            id: 'modalPreRequisito',
+            header: true,
+            title: 'Pre Requisitos ',
+            showaccept: false
         }
-
     },
     computed: {
         tituloHorario() {
@@ -107,6 +113,21 @@ new Vue({
                 return "active";
             }
         },
+        styleEstadoCurr(nombre) {
+            if (nombre === 'APR' || nombre === 'EQUIV' || nombre === 'CONV') {
+                return "text-success";
+            } else if (nombre === 'SIM') {
+                return "text-warning";
+            } else if (nombre === 'NREQ') {
+                return "text-secondary";
+            } else if (nombre === 'HAB') {
+                return "text-primary";
+            } else if (nombre === 'MAT') {
+                return "text-primary bold";
+            } else if (nombre === 'PEND') {
+                return "text-warning ";
+            }
+        },
         reiniciarPlanes() {
             let $vue = this;
             $vue.reloadAlumno();
@@ -117,6 +138,14 @@ new Vue({
             let $vue = this;
             $vue.reloadAlumno();
             $vue.loadPages.malla = false;
+        },
+        modalPreRequisitos(cursoCurricula) {
+            let $vue = this;
+            $vue.preRequisitos = cursoCurricula.prerrequisitos;
+            if ($vue.preRequisitos.length == 0) {
+                return;
+            }
+            $vue.$refs.modalPreRequisito.open();
         }
     }
 });

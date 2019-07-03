@@ -19,6 +19,7 @@ import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.TurnoAtencion;
 import pe.edu.lamolina.model.consejeria.AlumnoConsejero;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
+import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.INH;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.MAT;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.NMAT;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.PMAT;
@@ -33,7 +34,6 @@ import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_9;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.pivot.controller.academico.alumno.AlumnoResumen;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
-import static pe.edu.lamolina.pivot.zelper.constant.Constantine.ID_CONSEJERO_NN;
 
 @Repository
 public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> implements MatriculaResumenDAO {
@@ -60,6 +60,7 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
                 .from(MatriculaResumen.class, "mr")
                 .join("alumno alu", "cicloAcademico ca", "alu.modalidadEstudio me")
                 .left("alu.cicloActivo aluca", "alu.situacionAcademica sa")
+                .filter("estado", "!=", INH)
                 .filter("ca.id", ciclo);
 
         return all(sql);

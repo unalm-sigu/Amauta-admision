@@ -49,6 +49,7 @@
                         <th class="col-md-1 v-middle text-center">Tipo</th>
                         <th class="col-md-1 v-middle"></th>
                         <th class="col-md-2 v-middle">Curso</th>
+                        <th class="col-md-1 v-middle">Pre requisitos</th>
                         <th class="col-md-1 v-middle text-center">Veces Cursado</th>
                         <th class="col-md-1 v-middle text-center">Créditos</th>
                         <th class="col-md-1 v-middle text-center">Nota</th>
@@ -70,7 +71,10 @@
                             <span v-text="item.curso.nombre"></span>
                         </td>
                         <td  class="v-middle text-center" > 
-                            <span v-if="item.vecesCursado != '0' " v-text="item.vecesCursado"></span>
+                            <span v-if="item.cantRequisitos != null" v-bind:class="styleCountRequisitos(item.cantRequisitos) " v-text="item.cantRequisitos" v-on:click="modalPreRequisitos(item)"></span>
+                        </td>
+                        <td  class="v-middle text-center" > 
+                            <span v-if="item.vecesCursado != '0' " v-text="item.vecesCursado" ></span>
                         </td>
                         <td  class="v-middle text-center"> 
                             <span class="estado-gray" v-text="item.creditos"></span>

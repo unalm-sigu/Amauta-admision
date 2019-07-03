@@ -94,10 +94,13 @@ public class MatriculableController {
         AlumnoResumen resumen = service.allResumenAlumnosByCicloRol(ds.getCicloAcademico(), null, null);
 
         for (TipoCondicionalEnum value : TipoCondicionalEnum.values()) {
-            ObjectNode obj = new ObjectNode(JsonNodeFactory.instance);
-            obj.put("name", value.name());
-            obj.put("value", value.getValue());
-            array.add(obj);
+            if (value == TipoCondicionalEnum.OTRO) {
+                
+                ObjectNode obj = new ObjectNode(JsonNodeFactory.instance);
+                obj.put("name", value.name());
+                obj.put("value", value.getValue());
+                array.add(obj);
+            }
         }
         model.addAttribute("resumen", JsonHelper.createJson(resumen, JsonNodeFactory.instance, new String[]{"*"}));
         model.addAttribute("ciclo", JsonHelper.createJson(cicloAcademico, JsonNodeFactory.instance, new String[]{"*"}));
