@@ -1077,14 +1077,12 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             grupoSeccionReturn.setCurso(curso);
             return grupoSeccionReturn;
 
-        } else {
-            if (seccionesOperativas.isEmpty()) {
-                GrupoSeccion grupoSeccionUpd = new GrupoSeccion(grupoSeccion.getId());
-                grupoSeccionUpd.setEstadoEnum(SeccionEstadoEnum.ANU);
-                grupoSeccionUpd.setUsuarioModificacion(ds.getUsuario());
-                grupoSeccionUpd.setFechaModificacion(today.toDate());
-                grupoSeccionDAO.updateEstadoFechaModUsuarioMod(grupoSeccion);
-            }
+        } else if (seccionesOperativas.isEmpty()) {
+            GrupoSeccion grupoSeccionUpd = new GrupoSeccion(grupoSeccion.getId());
+            grupoSeccionUpd.setEstadoEnum(SeccionEstadoEnum.ANU);
+            grupoSeccionUpd.setUsuarioModificacion(ds.getUsuario());
+            grupoSeccionUpd.setFechaModificacion(today.toDate());
+            grupoSeccionDAO.updateEstadoFechaModUsuarioMod(grupoSeccion);
         }
         return grupoSeccion;
     }
@@ -1402,9 +1400,8 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
                 vacanteAlumno.setUserRegistro(ds.getUsuario());
                 vacanteAlumnoDAO.save(vacanteAlumno);
             }
-        } else {
-            //si se asignaron mas vacantes de las que habia
-            if (seccionForm.getVacantes() > vacantesAlumnoBySeccion.size()) {
+        } else //si se asignaron mas vacantes de las que habia
+         if (seccionForm.getVacantes() > vacantesAlumnoBySeccion.size()) {
                 int diff = seccionForm.getVacantes() - vacantesAlumnoBySeccion.size();
                 for (int i = 1; i <= diff; i++) {
                     VacanteAlumno vacanteAlumnoEach = new VacanteAlumno();
@@ -1437,7 +1434,6 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
                     }
                 }
             }
-        }
         this.actualizarVacantesTCUR(grupoSeccion, ds, today);
         this.actualizarBoletin();
     }
@@ -1497,9 +1493,8 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
                 vacanteAlumno.setUserRegistro(ds.getUsuario());
                 vacanteAlumnoDAO.save(vacanteAlumno);
             }
-        } else {
-            //si se asignaron mas vacantes de las que habia
-            if (seccionTCUR.getVacantes() > vacantesAlumnoBySeccion.size()) {
+        } else //si se asignaron mas vacantes de las que habia
+         if (seccionTCUR.getVacantes() > vacantesAlumnoBySeccion.size()) {
                 int diff = seccionTCUR.getVacantes() - vacantesAlumnoBySeccion.size();
                 for (int i = 1; i <= diff; i++) {
                     VacanteAlumno vacanteAlumnoEach = new VacanteAlumno();
@@ -1532,7 +1527,6 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
                     }
                 }
             }
-        }
 
     }
 
@@ -1640,16 +1634,14 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
                     if ((i + 1) % 2 == 0) {
                         //fechas fin
                         lastFechaFin = new DateTime(new DateTime(fechasPeriodos.get(i)).toLocalDate().toDate());
-                    } else {
-                        //fechas ini
-                        if (lastFechaFin != null) {
+                    } else //fechas ini
+                     if (lastFechaFin != null) {
                             lastFechaFin = lastFechaFin.plusDays(1);
                             if (!lastFechaFin.equals(fechaEach)) {
                                 errorPeriodoClases = Boolean.TRUE;
                                 break;
                             }
                         }
-                    }
                 }
             }
         }
@@ -2037,16 +2029,16 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         List<HorarioAula> horariosAulas = horarioAulaDAO.allByAula(aula, cicloAcademico);
         List<HorarioSeccion> horariosSeccion = horarioSeccionDAO.allBySeccion(seccion);
 
+        ModalidadEstudio modalidadCurso = seccion.getGrupoSeccion().getCurso().getModalidadEstudio();
+        EventoCicloAcademico eventoAcademico = this.getEventoCicloAcademico(cicloAcademico, modalidadCurso);
+
         if (aula.getPermiteCruce() == 0) {
             logger.debug("no permite cruce horario");
-            for (HorarioSeccion horarioSeccionEach : horariosSeccion) {
-                for (HorarioAula horarioAulaEach : horariosAulas) {
-                    if (horarioSeccionEach.getHoraDia().equals(horarioAulaEach.getHoraDia())) {
-                        if (horarioAulaEach.getSeccion().getId().compareTo(seccion.getId()) != 0) {
-                            throw new PhobosException("Aula ocupada para el grupo seleccionado");
-                        }
-                    }
-                }
+            List<String> diasHorasSeccion = horariosSeccion.stream().map(x -> x.getIdDiaHora()).collect(Collectors.toList());
+
+            List<HorarioAula> horariosAulasFound = horarioAulaDAO.allRangoDiaByDiasHoras(diasHorasSeccion, eventoAcademico.getFechaInicio(), eventoAcademico.getFechaFin());
+            if (!horariosAulasFound.isEmpty()) {
+                throw new PhobosException("Aula ocupada para el grupo seleccionado");
             }
         }
 
@@ -2054,9 +2046,6 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         if (aulaAntes != null) {
             horarioAulaDAO.deleteBySeccionAula(seccion, aulaAntes);
         }
-
-        ModalidadEstudio modalidadCurso = seccion.getGrupoSeccion().getCurso().getModalidadEstudio();
-        EventoCicloAcademico eventoAcademico = this.getEventoCicloAcademico(cicloAcademico, modalidadCurso);
 
         HorarioAula horarioAula = null;
 
