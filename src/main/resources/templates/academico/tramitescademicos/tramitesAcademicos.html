@@ -75,6 +75,9 @@
                                                 <small class="block text-muted" 
                                                        v-if="item.tipoTramite.esTipoTramiteCurDir">
                                                     Curso Dirigido: {{item.estadoTramite.nombre}}
+                                                    <br/>
+                                                    Docente Asignado : {{item.cursodirigido.docenteAsignado.persona.apellidosNombres}} 
+                                                    ({{item.cursodirigido.docenteAsignado.codigo}})
                                                 </small>
                                                 <small class="block text-muted" 
                                                        v-if="item.tramiteReunionConsejo">
@@ -88,23 +91,25 @@
                                                 </small>
                                             </td>
                                             <td>
-                                                <div class="dropdown actions" v-if="item.accionesTramite &amp;&amp; item.estadoTramite.isVisibleBandeja">
+                                                <div class="dropdown actions" >
                                                     <a class="dropdown-toggle" data-toggle="dropdown">
                                                         <i class="glyphicon glyphicon-cog"></i>
                                                     </a> 
-                                                    <ul class="dropdown-menu pull-right"> 
+                                                    <ul class="dropdown-menu pull-right" > 
 
-                                                        <li v-if="item.formularioEstadoTramite.id">
+                                                        <li v-if="item.accionesTramite &amp;&amp; item.estadoTramite.isVisibleBandeja">
                                                             <a class="btn-link pointer" 
-                                                               v-on:click="procesarTramite(item,$event)">
+                                                               v-on:click="procesarTramite(item,$event)" v-if="item.formularioEstadoTramite.id">
                                                                 Procesar</a>
-                                                        </li>
-                                                        <li v-for="accion in item.accionesTramite" v-if="item.formularioEstadoTramite.id==null">
+
                                                             <a class="btn-link pointer" 
-                                                               v-on:click="cambiarEstadoReincorporacion(item,accion.id,$event)">
+                                                               v-on:click="cambiarEstadoReincorporacion(item,accion.id,$event)" v-for="accion in item.accionesTramite" v-if="item.formularioEstadoTramite.id==null">
                                                                 {{accion.opcion}}</a>
                                                         </li>
+                                                        <li role="presentation" class="divider"></li>
+                                                        <li><a v-bind:href="urlAcademico(item)">Información académica</a></li>
                                                     </ul>
+
                                                 </div>
                                             </td>
                                         </tr>

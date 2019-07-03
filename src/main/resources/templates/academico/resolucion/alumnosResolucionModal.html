@@ -6,8 +6,8 @@
                 <thead>
                     <tr>
                         <th>Alumno</th>
-                        <th>Ciclo</th>
-                        <th v-if="tipo=='CAM_NOTA'">Curso</th>
+                        <th  v-if="tipo!='CURDIR'">Ciclo</th>
+                        <th v-if="tipo=='CAM_NOTA' || tipo=='CURDIR'">Curso</th>
                         <th v-if="tipo=='CAM_NOTA'">Nota</th>
                     </tr>
                 </thead>
@@ -52,7 +52,17 @@
                         <td>
                             <span v-text="item.nota"></span>
                         </td>
-
+                    </tr>
+                    <tr v-for="item in alumnosCursoDirigido" v-if="tipo == 'CURDIR'"
+                        >
+                        <td>
+                            <a class="block" v-text="item.tramite.alumno.persona.nombreCompleto"></a>
+                            <span class="block" v-text="item.tramite.alumno.codigo"></span>
+                            <span > {{item.tramite.alumno.persona.tipoDocumento.simbolo}} - {{item.tramite.alumno.persona.numeroDocIdentidad}}</span>
+                        </td>
+                        <td>
+                            <span v-text="item.curso.nombre"></span>
+                        </td>
                     </tr>
                 </tbody>
             </table>

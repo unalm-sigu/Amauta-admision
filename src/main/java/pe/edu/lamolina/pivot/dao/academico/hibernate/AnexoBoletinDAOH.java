@@ -9,6 +9,7 @@ import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.AnexoBoletin;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.enums.EstadoEnum;
@@ -20,6 +21,7 @@ import static pe.edu.lamolina.model.enums.GrupoAnexoEnum.DPTO;
 import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
 import pe.edu.lamolina.pivot.controller.academico.anexoboletin.AnexoResumen;
 import pe.edu.lamolina.pivot.dao.academico.AnexoBoletinDAO;
+import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 
 @Repository
 public class AnexoBoletinDAOH extends AbstractEasyDAO<AnexoBoletin> implements AnexoBoletinDAO {
@@ -178,6 +180,18 @@ public class AnexoBoletinDAOH extends AbstractEasyDAO<AnexoBoletin> implements A
                 .filter("abs.id", anexoSuperior)
                 .filter("ab.orden", orden)
                 .filter("ab.estado", EstadoEnum.ACT);
+
+        return find(sql);
+    }
+
+    @Override
+    public AnexoBoletin findDepartamento(DepartamentoAcademico departamentoAcademico) {
+        Octavia sql = Octavia.query()
+                .from(AnexoBoletin.class, "ab")
+                .join("anexoSuperior abs", "departamentoAcademico da")
+                .filter("ab.estado", EstadoEnum.ACT)
+                .filter("abs.id", Constantine.ANEXO_SUP_DEP_ACAD)
+                .filter("da.id", departamentoAcademico);
 
         return find(sql);
     }

@@ -16,6 +16,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import org.apache.commons.io.IOUtils;
@@ -48,19 +49,22 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.enums.OficinaEnum;
+import static pe.edu.lamolina.model.enums.OficinaEnum.OERA;
 import pe.edu.lamolina.model.enums.TipoOficinaEnum;
+import static pe.edu.lamolina.model.enums.TipoOficinaEnum.FAC;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.tramite.AccionTramiteAcademico;
+import pe.edu.lamolina.model.tramite.CursoDirigido;
 import pe.edu.lamolina.model.tramite.ReunionConsejo;
 import pe.edu.lamolina.model.tramite.Tramite;
 import pe.edu.lamolina.model.tramite.TramiteReunionConsejo;
 import pe.edu.lamolina.pivot.controller.academico.reunionconsejo.ReunionConsejoService;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.constant.Messages;
-import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.pivot.controller.academico.infoacademico.InfoAcademicoService;
 import pe.edu.lamolina.pivot.controller.general.oficina.OficinaService;
+import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
 @RequestMapping("academico/tramiteacademico")
@@ -160,14 +164,15 @@ public class TramitesAcademicosController {
             CicloAcademico ciclo = ds.getCicloAcademico();
             Docente docente = ds.getDocente();
             DateTime dateTime = new DateTime();
+            List<Oficina> oficinas = new ArrayList();
 
-            List<Tramite> tramites = tramitesAcademicosService.allTramitesByFilter(filter);
-            logger.debug(this.getClass() + " Cantidad de tramites {}", tramites.size());
+            List<Tramite> tramites = tramitesAcademicosService.allTramitesByFilter(filter, ds);
 
             String[] mapperTramite = new String[]{
                 "*",
                 "persona.*",
                 "alumno.*",
+                "alumno.planCurricular.*",
                 "alumno.carrera.*",
                 "alumno.carrera.facultad.*",
                 "compania.*",
@@ -203,12 +208,15 @@ public class TramitesAcademicosController {
             JsonNodeFactory jc = JsonNodeFactory.instance;
             for (Tramite tramite : tramites) {
                 ObjectNode tramiteJson = JsonHelper.createJson(tramite, jc, false, mapperTramiteComplex);
-                //   ArrayNode reincorporaciones = null;
 
-                //     if (tramite.getReincorporaciones() != null && !tramite.getReincorporaciones().isEmpty()) {
-                //       Reincorporacion reincorporacion = tramite.getReincorporaciones().get(0);
-                //        tramiteJson.set("reincorporacion", JsonHelper.createJson(reincorporacion, jc, false, mapperReincorporacion));
-                //     }
+                if (tramite.isTipoCursoDirigido()) {
+                    CursoDirigido cursoDirigido = tramite.getCursoDirigido().get(0);
+                    tramiteJson.set("cursodirigido", JsonHelper.createJson(cursoDirigido, jc, false, new String[]{
+                        "*",
+                        "docenteAsignado.*",
+                        "docenteAsignado.persona.*"
+                    }));
+                }
                 if (tramite.getTramitesReunionConsejo() != null && !tramite.getTramitesReunionConsejo().isEmpty()) {
                     TramiteReunionConsejo tramiteReunionConsejo = tramite.getTramitesReunionConsejo().get(0);
                     tramiteJson.set("tramiteReunionConsejo", JsonHelper.createJson(tramiteReunionConsejo, jc, false, mapperReunionConsejo));
@@ -216,6 +224,7 @@ public class TramitesAcademicosController {
                 ArrayNode accionesTramiteJson = new ArrayNode(jc);
 
                 for (AccionTramiteAcademico accionTramiteAcademico : tramite.getAccionesTramitesAcademico()) {
+
                     accionesTramiteJson.add(JsonHelper.createJson(accionTramiteAcademico, jc, new String[]{
                         "*",
                         "estadoTramiteInicio.id",
@@ -245,7 +254,7 @@ public class TramitesAcademicosController {
         List<Oficina> oficinas = new ArrayList();
         oficinas = findOficina(oficinas, ds);
         if (oficinas.isEmpty()) {
-            return "/";
+            return "redirect:/academico/tramiteacademico";
         }
         model.addAttribute("oficinas", jsonArrayNode(oficinas));
         return "academico/reunionconsejo/reunionconsejo";
@@ -384,7 +393,7 @@ public class TramitesAcademicosController {
             @PathVariable("tramite") Long tramiteId,
             HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-        
+
         ObjectNode tramiteJson = JsonHelper.createJson(new Tramite(tramiteId), JsonNodeFactory.instance);
 
         model.addAttribute("tramiteJson", tramiteJson.toString());
@@ -397,7 +406,7 @@ public class TramitesAcademicosController {
         List<Oficina> oficinas = new ArrayList();
         oficinas = findOficina(oficinas, ds);
         if (oficinas.isEmpty()) {
-            return "/";
+            return "redirect:/academico/tramiteacademico";
         }
         model.addAttribute("oficinas", jsonArrayNode(oficinas));
         model.addAttribute("horasBD", horasJson.toString());

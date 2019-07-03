@@ -12,6 +12,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
@@ -215,6 +216,7 @@ public class AporteAlumnoServiceImp implements AporteAlumnoService {
         /* Aporte Semestral */
         if (aporte.getCodigoEnum() == AportesEnum.A01) {
             AporteSemestral apoSem = aporteSemestralDAO.findActivoByAlumno(alumno, aporte);
+            Assert.isNotNull(apoSem, "El alumno no cuenta con aporte semestral");
             AporteAlumnoCiclo aac = new AporteAlumnoCiclo();
             aac.setAporteCiclo(aporteCiclo);
             aac.setEstadoEnum(EstadoAporteEnum.DEBE);

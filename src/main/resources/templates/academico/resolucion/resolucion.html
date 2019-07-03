@@ -89,7 +89,7 @@
                                     <td>
                                         <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="glyphicon glyphicon-cog"></i></a>
                                         <ul class="dropdown-menu pull-right" >
-                                            <li role="presentation">
+                                            <li role="presentation" v-if='item.autorizado'>
                                                 <a class="aceptar-expandir-sistema"  
                                                    v-on:click="editarResolucion(item,$event)" href="#"
                                                    v-if="item.esEstadoCre &amp;&amp; (item.aplicacionDirecta == null || item.aplicacionDirecta == 0 )">
@@ -211,7 +211,7 @@
                            v-bind:okaction="saveConfirmarSubirDocumento">
                     <div slot="body">
                         <form id="frmConfirmar">
-                            <div class="row">
+                            <div class="row" v-if="resolucion != null &AMP;&AMP; resolucion.tipoResolucion.codigo == 'REI'">
                                 <div class="col-lg-6">
                                     <label>Ciclo Académico</label>
                                     <div class="form-group">
@@ -284,7 +284,7 @@
                                                     <label class="switch">
                                                         <input  type="checkbox" 
                                                                 value="1"
-                                                                checked="{{item.aceptado}}"
+                                                                v-model="item.aceptado"
                                                                 disabled="true"/>
                                                         <span></span>
                                                     </label>

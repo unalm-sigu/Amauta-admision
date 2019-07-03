@@ -544,7 +544,7 @@ public class TramiteCondicionalServiceImp implements TramiteCondicionalService {
         resolucion.setFechaRegistro(new Date());
         resolucion.setTipoResolucion(tipoResolucion);
         resolucion.setUserRegistro(dsp.getUsuario());
-        resolucion.setAplicacionDirecta(0l);
+        resolucion.setAplicacionDirecta(1l);
         resolucionDAO.save(resolucion);
 
         return resolucion;

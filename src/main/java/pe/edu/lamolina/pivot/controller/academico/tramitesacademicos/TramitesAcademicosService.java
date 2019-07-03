@@ -17,7 +17,7 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface TramitesAcademicosService {
 
-    List<Tramite> allTramitesByFilter(DynatableFilter filter);
+    List<Tramite> allTramitesByFilter(DynatableFilter filter , DataSessionPivot dsp);
 
     void aceptarSolReincorporacion(Tramite tramite, AccionTramiteAcademico accionTramiteAcademico, DataSessionPivot ds);
 

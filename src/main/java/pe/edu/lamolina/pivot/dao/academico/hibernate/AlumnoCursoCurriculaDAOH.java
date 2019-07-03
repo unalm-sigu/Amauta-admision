@@ -137,7 +137,7 @@ public class AlumnoCursoCurriculaDAOH extends AbstractEasyDAO<AlumnoCursoCurricu
     public AlumnoCursoCurricula findByAlumnoCurso(Alumno alumno, Curso curso) {
         Octavia sql = Octavia.query()
                 .from(AlumnoCursoCurricula.class, "acc")
-                .join("alumno al", "curso cu")
+                .join("alumno al", "curso cu", "tipoCursoCurricula")
                 .leftJoin("cicloAprobado ci", "cursoCurricula cc", "cursoOpcional co", "tipoCursoCurriculaOrigen")
                 .filter("al.id", alumno)
                 .filter("cu.id", curso)

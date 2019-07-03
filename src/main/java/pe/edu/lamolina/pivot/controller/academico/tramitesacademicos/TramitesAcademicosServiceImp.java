@@ -34,7 +34,11 @@ import pe.edu.lamolina.model.academico.PlanCurricular;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
+import pe.edu.lamolina.model.enums.OficinaEnum;
+import static pe.edu.lamolina.model.enums.OficinaEnum.OERA;
 import pe.edu.lamolina.model.enums.OrigenDataSituacionAcademicaEnum;
+import pe.edu.lamolina.model.enums.TipoOficinaEnum;
+import static pe.edu.lamolina.model.enums.TipoOficinaEnum.FAC;
 import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
 import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.general.Oficina;
@@ -79,6 +83,8 @@ import pe.edu.lamolina.pivot.zelper.pdf.PdfGenerator;
 import pe.edu.lamolina.pivot.zelper.pdf.TipoPdfEnum;
 import pe.edu.lamolina.pivot.controller.academico.infoacademico.InfoAcademicoService;
 import pe.edu.lamolina.pivot.controller.academico.promedio.PromedioService;
+import pe.edu.lamolina.pivot.controller.academico.reunionconsejo.ReunionConsejoService;
+import pe.edu.lamolina.pivot.controller.general.oficina.OficinaService;
 import pe.edu.lamolina.pivot.controller.matricula.matriculable.MatriculableService;
 
 @Service
@@ -165,17 +171,28 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
     @Autowired
     MatriculableService matriculableService;
 
+    @Autowired
+    OficinaService oficinaService;
+
+    @Autowired
+    ReunionConsejoService reunionConsejoService;
+
     private DateTime today = new DateTime();
 
     @Override
-    public List<Tramite> allTramitesByFilter(DynatableFilter filter) {
+    public List<Tramite> allTramitesByFilter(DynatableFilter filter, DataSessionPivot ds) {
         List<Tramite> tramites = tramiteDAO.allByFilter(filter);
         List<AccionTramiteAcademico> accionesTramitesAcademicos = accionTramiteAcademicoDAO.all();
         List<FormularioEstadoTramite> formulariosEstadoTramite = formularioEstadoTramiteDAO.all();
         List<Reincorporacion> reincorporacions = reincorporacionDAO.allByTramite(tramites);
+        List<CursoDirigido> cursosDirigidos = cursoDirigidoDAO.allByTramites(tramites);
+        List<Oficina> oficinas = new ArrayList();
         for (Tramite tramite : tramites) {
+
             List<Reincorporacion> reincorporacionesTramite = reincorporacions.stream().filter(x -> Objects.equals(x.getTramite().getId(), tramite.getId())).collect(Collectors.toList());
+            List<CursoDirigido> cursosDirigidosTramite = cursosDirigidos.stream().filter(x -> Objects.equals(x.getTramite().getId(), tramite.getId())).collect(Collectors.toList());
             tramite.setReincorporaciones(reincorporacionesTramite);
+            tramite.setCursoDirigido(cursosDirigidosTramite);
 
             TramiteReunionConsejo tramiteReunionConsejo = tramiteReunionConsejoDAO.findByTramite(tramite);
 
@@ -196,8 +213,27 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
                     tramite.setEstadoTramite(cd.getEstado());
                 }
             }
-
-            List<AccionTramiteAcademico> accionesTramitesAcademicosBy = accionesTramitesAcademicos.stream().filter(
+            List<AccionTramiteAcademico> accionesTramitesAcademicosBy = new ArrayList<>();
+            CursoDirigido cursoDirigido = null;
+            if (tramite.isTipoCursoDirigido()) {
+                cursoDirigido = tramite.getCursoDirigido().get(0);
+                if (cursoDirigido.getEstado().getEsRevicionDepartamento()) {
+                    if (tramite.getOficina().getJefeEncargado() != null && !Objects.equals(tramite.getOficina().getJefeEncargado().getId(), ds.getPersona().getId())) {
+                        continue;
+                    } else if (tramite.getOficina().getJefeEncargado() == null && !Objects.equals(tramite.getOficina().getPersonaJefe().getId(), ds.getPersona().getId())) {
+                        continue;
+                    }
+                }
+                if (cursoDirigido.getEstado().getEsVBDepartamentoDocente()) {
+                    this.findOficina(oficinas, ds);
+                    Long instancia = cursoDirigido.getFacultad().getId();
+                    if (!oficinas.stream().anyMatch(x -> Objects.equals(x.getInstanciaOficina(), instancia) && x.getTipoOficina().getCodigoEnum() == FAC)
+                            || (ds.getOficinaMain() != null && ds.getOficinaMain().getCodigoEnum() == OERA)) {
+                        continue;
+                    }
+                }
+            }
+            accionesTramitesAcademicosBy = accionesTramitesAcademicos.stream().filter(
                     req -> req.getTipoTramite().equals(tramite.getTipoTramite())
                     && req.getEstadoTramiteInicio().equals(tramite.getEstadoTramite())
             ).collect(Collectors.toList());
@@ -310,12 +346,23 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
         }
         if (accionTramiteAcademico.getEstadoTramiteFinal().getEsControlCalidad()) {
             //Si no hubo modificaciones en el historial del alumno, creamos la autorizacion registro
+//            if (tramite.getTipoTramite().getEsTipoTramiteCurDir()) {
+//            accionTramiteAcademico.setOficinaDestino(tramiteForm.getOficina());
+//            }
             if (autorizacionRegistro == null) {
                 this.crearAutorizacionRegistro(tramite.getAlumno(), tramite, ds);
             }
         }
+        if (tramite.getTipoTramite().getEsTipoTramiteCurDir()) {
+            CursoDirigido cursoDirigido = cursoDirigidoDAO.findByTramite(tramite);
+            Oficina oficinaDestino = oficinaDAO.findByTipoAndFacultad(FAC, cursoDirigido.getFacultad());
+            accionTramiteAcademico.setOficinaDestino(oficinaDestino);
+            accionTramiteAcademico.setOficinaOrigen(oficinaDestino);
 
-        if (accionTramiteAcademico.getEstadoTramiteFinal().getEsRechazarSolicitud()) {
+        }
+
+        if (accionTramiteAcademico.getEstadoTramiteFinal()
+                .getEsRechazarSolicitud()) {
             List<AlumnoCicloCurso> alumnoCicloCursos = alumnoCicloCursoDAO.allByAutorizacionRegistro(autorizacionRegistro);
             for (AlumnoCicloCurso alumnoCicloCurso : alumnoCicloCursos) {
                 if (ObjectUtil.getParentTree(alumnoCicloCurso, "alumnoCicloCursoOrigen.id") != null) {
@@ -730,4 +777,22 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
         return accionTramiteAcademicoReturn;
     }
 
+    private List<Oficina> findOficina(List<Oficina> oficinas, DataSessionPivot ds) {
+        List<Oficina> oficinasMain = oficinaService.allOficinasMainByPersona(ds.getPersona());
+
+        for (Oficina oficina : oficinasMain) {
+            logger.debug("codigo oficina es {}", oficina.getCodigo());
+            logger.debug("tipo oficina es {} ", oficina.getTipoOficina().getCodigo());
+
+            if (oficina.getCodigoEnum() == OficinaEnum.OERA) {
+                oficinas.addAll(reunionConsejoService.allOficinaFac());
+                break;
+            }
+            if (oficina.getTipoOficina().getCodigoEnum() == TipoOficinaEnum.FAC) {
+                oficinas.add(oficina);
+            }
+
+        }
+        return oficinas;
+    }
 }

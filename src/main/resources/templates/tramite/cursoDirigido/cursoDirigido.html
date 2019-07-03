@@ -100,7 +100,7 @@
                                                         <span class="block text-muted"> {{item.estado.nombre}}</span>
                                                     </td>
                                                     <td class="v-middle">
-                                                        <div class="actions">
+                                                        <div class="actions" v-if="item.estado.codigo == 'SOL_CUR_DIR'">
                                                             <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="glyphicon glyphicon-option-vertical"></i></a>
                                                             <ul class="dropdown-menu pull-right" >
                                                                 <li v-for="accion in item.accionTramite"><a  href="#" v-on:click="actualizar(item, accion)" v-text="accion.opcion">Ver Trámite</a></li>

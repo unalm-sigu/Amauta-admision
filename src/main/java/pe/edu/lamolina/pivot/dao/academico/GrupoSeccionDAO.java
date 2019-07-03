@@ -82,4 +82,6 @@ public interface GrupoSeccionDAO extends EasyDAO<GrupoSeccion> {
 
     void updateCodigo2(List<GrupoSeccion> gpoSecciones);
 
+    public GrupoSeccion findByCursoAndDirigido(Curso curso, CicloAcademico cicloAcademico);
+
 }
