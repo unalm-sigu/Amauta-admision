@@ -218,16 +218,14 @@
                                     <div id="footerOficina" class="">
 
                                         <button class="btn btn-primary" 
-                                                type="submit"
-                                                v-on:click.prevent="save"     
-                                                v-if="!newCola" v-text="'Guardar'"
-                                                ></button> 
+                                                type="button"
+                                                v-on:click="save"     
+                                                v-if="!newCola" >Guardar</button> 
 
                                         <button class="btn btn-primary" 
-                                                type="submit"
-                                                v-on:click.prevent="update"      
-                                                v-if="newCola" v-text="'Actualizar'"
-                                                ></button>  
+                                                type="button"
+                                                v-on:click="update"      
+                                                v-if="newCola" >Actualizar</button>  
 
                                         <a th:href="${origen}" class="btn btn-link" >Regresar</a>
 

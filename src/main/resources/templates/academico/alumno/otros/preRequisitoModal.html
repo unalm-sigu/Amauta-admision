@@ -1,0 +1,47 @@
+<modal-vik ref="modalPreRequisito"
+           v-bind="modalPreRequisito">
+
+    <div slot="body">
+
+        <form >
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th class="col-md-1 text-center v-middle">Código</th>
+                        <th class="col-md-6 text-center v-middle">Nombre</th>
+                        <th class="col-md-1 text-center ">Simultáneo</th>
+                        <th class="col-md-1 text-center v-middle">Nª Ciclo</th>
+                        <th class="col-md-2 text-center v-middle">Tipo curso</th>
+                        <th class="col-md-1 text-center v-middle">Estado</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    <tr v-for="requisito in  preRequisitos">
+                        <td class="text-center v-middle">
+                            <span class="block">{{requisito.codigo}}</span>                  
+                            <small class="block text-primary" >{{requisito.codigo2}}</small>
+
+                        </td>
+                        <td class="v-middle">
+                            <span class="block">{{requisito.curso}}</span>
+                            <small class="block text-primary" > <i class="fa fa-bookmark-o"></i> &nbsp;{{requisito.tpc}} &nbsp;&nbsp; {{requisito.tipoDictadoCurso}}</small>
+                        </td>
+                        <td class="text-center v-middle">
+                            <i class="fa fa-check-square-o fa-2x text-success" v-if="requisito.simultaneo == 1"></i>
+                            <i class="fa fa-times-circle fa-2x text-danger" v-else=""></i>
+                        </td>
+                        <td class="text-center v-middle">{{requisito.numeroRomano}}</td>
+                        <td class="text-center v-middle">{{requisito.tipoCurso}}</td>
+                        <td class="text-center v-middle" >
+                            <span v-if="requisito.estadoMatricula != null &amp;&amp; (requisito.estado == 'SIM' || requisito.estado == 'HAB')" v-bind:class="styleEstadoCurr(requisito.estadoMatricula)" v-text="requisito.estadoMatricula"></span>
+                            <span v-bind:class="styleEstadoCurr(requisito.estado)">{{requisito.estado}}</span>
+                        </td>
+                    </tr>                  
+                </tbody>
+            </table>
+
+        </form>
+
+    </div>
+</modal-vik>

@@ -26,7 +26,6 @@ public class TramiteReunionConsejoDAOH extends AbstractEasyDAO<TramiteReunionCon
                 .join("reunionConsejo rc", "tramite tram")
                 .join("tram.alumno alu", "alu.persona per", "tram.tipoTramite tt")
                 .left("arc.userRegistro ur", "arc.userActualizacion ua")
-                .left("tram.reincorporaciones")
                 .filter("rc.id", reunionConsejo);
         if (tipoTramite != null) {
 

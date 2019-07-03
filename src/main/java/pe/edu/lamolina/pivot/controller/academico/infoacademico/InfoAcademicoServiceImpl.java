@@ -6,10 +6,8 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,6 +39,7 @@ import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.OrientacionCarrera;
 import pe.edu.lamolina.model.academico.PlanCurricular;
+import pe.edu.lamolina.model.academico.RequisitoCursoCurricula;
 import pe.edu.lamolina.model.academico.ResumenPlanCurricular;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.aporte.AporteAlumnoCiclo;
@@ -72,6 +71,7 @@ import pe.edu.lamolina.pivot.dao.academico.MatriculaResumenDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.OrientacionCarreraDAO;
 import pe.edu.lamolina.pivot.dao.academico.PlanCurricularDAO;
+import pe.edu.lamolina.pivot.dao.academico.RequisitoCursoCurriculaDAO;
 import pe.edu.lamolina.pivot.dao.academico.ResumenPlanCurricularDAO;
 import pe.edu.lamolina.pivot.dao.aporte.AporteAlumnoCicloDAO;
 import pe.edu.lamolina.pivot.dao.general.DiaDAO;
@@ -136,6 +136,9 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
     HorarioSeccionDAO horarioSeccionDAO;
 
     @Autowired
+    RequisitoCursoCurriculaDAO requisitoCursoCurriculaDAO;
+
+    @Autowired
     DiaDAO diaDAO;
 
     @Autowired
@@ -192,6 +195,11 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
         List<CursoCurricula> cursosCicloPlan = cursoCurriculaDAO.allByPlanCurricular(alumno.getPlanCurricular());
         List<AlumnoCursoCurricula> cursosPlanAlumno = alumnoCursoCurriculaDAO.allByAlumnoCursosCurricula(alumno, cursosCicloPlan);
         List<AlumnoCursoCurricula> cursosPlanAlumnoOpcional = alumnoCursoCurriculaDAO.allByAlumnoCursosOpcional(alumno);
+        List<RequisitoCursoCurricula> requisitoCursoCurriculas = requisitoCursoCurriculaDAO.allByCursosCurricula(cursosCicloPlan);
+        Map<Long, Long> mapRequisitoByCurricula = requisitoCursoCurriculas.stream().collect(Collectors.groupingBy(x -> x.getCursoCurricula().getId(), Collectors.counting()));
+        Map<Long, List<RequisitoCursoCurricula>> mapCountRequisitos = TypesUtil.convertListToMapList("cursoCurricula.id", requisitoCursoCurriculas);
+        Map<Long, AlumnoCursoCurricula> mapAlumnoCurso = TypesUtil.convertListToMap("cursoCurricula.id", cursosPlanAlumno);
+
         List<AlumnoCursoCurricula> cursosComodin = alumnoCursoCurriculaDAO.allByAlumnoComodin(alumno);
         for (AlumnoCursoCurricula alumnoCursoCurricula : cursosPlanAlumno) {
             ObjectNode objNode = JsonHelper.createJson(alumnoCursoCurricula, JsonNodeFactory.instance, true, new String[]{
@@ -206,6 +214,30 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
                 "tipoCursoCurricula.codigo",
                 "cicloAprobado.descripcion"
             });
+
+            Long countReq = mapRequisitoByCurricula.get(alumnoCursoCurricula.getCursoCurricula().getId());
+            objNode.put("cantRequisitos", countReq == null ? 0 : countReq);
+            List<RequisitoCursoCurricula> preRequisitos = mapCountRequisitos.get(alumnoCursoCurricula.getCursoCurricula().getId());
+
+            ArrayNode arrayPreRequisitos = new ArrayNode(JsonNodeFactory.instance);
+            List<RequisitoCursoCurricula> cursosRequisitos = preRequisitos == null ? new ArrayList<>() : preRequisitos;
+            for (RequisitoCursoCurricula requisito : cursosRequisitos) {
+                ObjectNode nodeRequisito = new ObjectNode(JsonNodeFactory.instance);
+                nodeRequisito.put("curso", requisito.getCursoRequisito().getCurso().getNombre());
+                nodeRequisito.put("codigo", requisito.getCursoRequisito().getCurso().getCodigo());
+                nodeRequisito.put("codigo2", requisito.getCursoRequisito().getCurso().getCodigoAnterior1());
+                nodeRequisito.put("simultaneo", requisito.getSimultaneo());
+                nodeRequisito.put("tipoCurso", requisito.getCursoRequisito().getTipoCursoCurricula().getNombre());
+                nodeRequisito.put("numeroRomano", NumberFormat.roman(requisito.getCursoRequisito().getNumeroCiclo()));
+                nodeRequisito.put("tpc", requisito.getCursoRequisito().getCurso().getTpc());
+                nodeRequisito.put("tipoDictadoCurso", requisito.getCursoRequisito().getCurso().getTipoCursoEnum().getValue());
+
+                AlumnoCursoCurricula alumnoCurs = mapAlumnoCurso.get(requisito.getCursoRequisito().getId());
+                nodeRequisito.put("estado", alumnoCurs.getEstadoEnum().name());
+                nodeRequisito.put("estadoMatricula", alumnoCurs.getEstadoMatricula());
+                arrayPreRequisitos.add(nodeRequisito);
+            }
+            objNode.set("prerrequisitos", arrayPreRequisitos);
             cursosJson.add(objNode);
         }
         for (AlumnoCursoCurricula alumnoCursoCurricula : cursosPlanAlumnoOpcional) {

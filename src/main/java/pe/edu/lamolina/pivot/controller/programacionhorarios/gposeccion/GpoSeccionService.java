@@ -207,4 +207,6 @@ public interface GpoSeccionService {
 
     List<RestriccionRepitencia> allRestriccionRepitenciaActivasBySeccion(Seccion seccion);
 
+    public GrupoSeccion findByCursoAndDocenteDirigido(Curso curso, Docente docenteAsignado, CicloAcademico academico);
+
 }

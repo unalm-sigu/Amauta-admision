@@ -119,4 +119,8 @@ public interface Constantine {
     String CODIGO_CURSO_DEP = "EG1006";
 
     List<Long> GRUPOS_HORAS_UNUSED = Arrays.asList(23L, 24L);
+
+    // Anexo Superior
+    Long ANEXO_SUP_DEP_ACAD = 2l;
+
 }
