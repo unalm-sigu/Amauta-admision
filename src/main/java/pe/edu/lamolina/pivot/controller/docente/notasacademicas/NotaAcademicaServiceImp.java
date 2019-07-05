@@ -1263,48 +1263,76 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
             }
         }
         grupoSeccion.getCurso().getTipoCurso();
+        secciones.removeIf(x -> !x.isEstadoActivo());
+        boolean evaluacionesGeneradas = false;
         for (Seccion seccionEach : secciones) {
-            if (seccionEach.getEstado().equals("INA")) {
-                logger.debug("");
-            }
-            if (!seccionEach.isEstadoActivo()) {
-                continue;
-            }
             logger.debug("aceptarExpansion ############################################");
             logger.debug("Seccion Tipo {}", seccionEach.getTipoSeccionEnum().name());
-            for (EvaluacionExpandida evaluacionExpandida : planEvaluacionesExpandidas) {
+            logger.debug("Seccion Tipo Evaluacion {}", seccionEach.getTipoSeccionEnum().getTipoSeccionEvalEnum());
+            EvaluacionExpandida evalExpandidaBySeccion = planEvaluacionesExpandidas.stream()
+                    .filter(x -> x.getTipoSeccionEvalEnum() == seccionEach.getTipoSeccionEnum().getTipoSeccionEvalEnum())
+                    .findFirst().orElse(null);
+            if (evalExpandidaBySeccion != null) {
+                logger.debug("Tipo Evaluacion {}", evalExpandidaBySeccion.getTipoSeccionEvalEnum().name());
+                this.crearEvaluacion(evaluacionSeccion, seccionEach, evalExpandidaBySeccion);
+                evaluacionesGeneradas = true;
+            }
 
-                logger.debug("Tipo evaluacion en seccion {}", seccionEach.getTipoSeccionEnum().getTipoSeccionEvalEnum().name());
-                logger.debug("Tipo Evaluacion {}", evaluacionExpandida.getTipoSeccionEvalEnum().name());
+//            for (EvaluacionExpandida evaluacionExpandida : planEvaluacionesExpandidas) {
+//
+//                logger.debug("Tipo evaluacion en seccion {}", seccionEach.getTipoSeccionEnum().getTipoSeccionEvalEnum().name());
+//                logger.debug("Tipo Evaluacion {}", evaluacionExpandida.getTipoSeccionEvalEnum().name());
+//
+//                if (seccionEach.getTipoSeccionEnum().getTipoSeccionEvalEnum().equals(
+//                        evaluacionExpandida.getTipoSeccionEvalEnum())) {
+//
+//                    Evaluacion evaluacion = new Evaluacion();
+//                    evaluacion.create(evaluacionSeccion, seccionEach, evaluacionExpandida);
+//                    if (evaluacionExpandida.getEvaluacionesExpandidas() != null && !evaluacionExpandida.getEvaluacionesExpandidas().isEmpty()) {
+//                        evaluacion.setEvaluaciones(new ArrayList<>());
+//                        for (EvaluacionExpandida evalExp : evaluacionExpandida.getEvaluacionesExpandidas()) {
+//                            Evaluacion evaluacionChild = new Evaluacion();
+//                            evaluacionChild.create(evaluacionSeccion, seccionEach, evalExp);
+//                            evaluacionChild.setEvaluacionSuperior(evaluacion);
+//                            evaluacion.getEvaluaciones().add(evaluacionChild);
+//                        }
+//                    }
+//                    if (evaluacion.getDocenteEvaluador() == null) {
+//                        List<DocenteSeccion> docentesSecc = docenteSeccionDAO.allPersonasActivasBySecciones(evaluacion.getSeccionResponsable());
+//                        if (docentesSecc.size() == 1) {
+//                            Docente profe = docentesSecc.get(0).getDocente();
+//                            evaluacion.setDocenteEvaluador(profe);
+//                        }
+//                    }
+//                    evaluacionDAO.save(evaluacion);
+//                }
+//            }
+        }
+        if (!evaluacionesGeneradas) {
+            throw new PhobosException("Error, no se generarón evaluaciones.");
+        }
+    }
 
-                if (seccionEach.getTipoSeccionEnum().getTipoSeccionEvalEnum().equals(
-                        evaluacionExpandida.getTipoSeccionEvalEnum())) {
-                    /*
-                if (seccionEach.getTipoSeccionEnum().getTipoCursoEum().equals(curso.getTipoCursoEnum())) {
-                     */
-                    Evaluacion evaluacion = new Evaluacion();
-                    evaluacion.create(evaluacionSeccion, seccionEach, evaluacionExpandida);
-                    if (evaluacionExpandida.getEvaluacionesExpandidas() != null && !evaluacionExpandida.getEvaluacionesExpandidas().isEmpty()) {
-                        evaluacion.setEvaluaciones(new ArrayList<>());
-                        for (EvaluacionExpandida evalExp : evaluacionExpandida.getEvaluacionesExpandidas()) {
-                            Evaluacion evaluacionChild = new Evaluacion();
-                            evaluacionChild.create(evaluacionSeccion, seccionEach, evalExp);
-                            evaluacionChild.setEvaluacionSuperior(evaluacion);
-                            evaluacion.getEvaluaciones().add(evaluacionChild);
-                        }
-                    }
-                    if (evaluacion.getDocenteEvaluador() == null) {
-                        List<DocenteSeccion> docentesSecc = docenteSeccionDAO.allPersonasActivasBySecciones(evaluacion.getSeccionResponsable());
-                        if (docentesSecc.size() == 1) {
-                            Docente profe = docentesSecc.get(0).getDocente();
-                            evaluacion.setDocenteEvaluador(profe);
-                        }
-                    }
-                    evaluacionDAO.save(evaluacion);
-                }
+    public void crearEvaluacion(EvaluacionSeccion evaluacionSeccion, Seccion seccion, EvaluacionExpandida evaluacionExpandida) {
+        Evaluacion evaluacion = new Evaluacion();
+        evaluacion.create(evaluacionSeccion, seccion, evaluacionExpandida);
+        if (evaluacionExpandida.getEvaluacionesExpandidas() != null && !evaluacionExpandida.getEvaluacionesExpandidas().isEmpty()) {
+            evaluacion.setEvaluaciones(new ArrayList<>());
+            for (EvaluacionExpandida evalExp : evaluacionExpandida.getEvaluacionesExpandidas()) {
+                Evaluacion evaluacionChild = new Evaluacion();
+                evaluacionChild.create(evaluacionSeccion, seccion, evalExp);
+                evaluacionChild.setEvaluacionSuperior(evaluacion);
+                evaluacion.getEvaluaciones().add(evaluacionChild);
             }
         }
-
+        if (evaluacion.getDocenteEvaluador() == null) {
+            List<DocenteSeccion> docentesSecc = docenteSeccionDAO.allPersonasActivasBySecciones(evaluacion.getSeccionResponsable());
+            if (docentesSecc.size() == 1) {
+                Docente profe = docentesSecc.get(0).getDocente();
+                evaluacion.setDocenteEvaluador(profe);
+            }
+        }
+        evaluacionDAO.save(evaluacion);
     }
 
     @Override

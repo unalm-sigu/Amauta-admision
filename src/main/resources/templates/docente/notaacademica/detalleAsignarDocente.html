@@ -32,6 +32,7 @@
                     <span th:text="${eval.tipoSeccionEnum.value}"></span>
                 </td>
                 <td class="text-center">
+                    <span th:text="${eval.notasIngresadas}"></span>
                     <select  th:name="${'evaluaciones['+iterStat.index +'].docenteEvaluador.id'}"
                              class="form-control item-select2"
                              th:disabled="${eval.notasIngresadas==true}"
