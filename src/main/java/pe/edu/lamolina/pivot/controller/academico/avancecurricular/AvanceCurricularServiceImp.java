@@ -378,9 +378,9 @@ public class AvanceCurricularServiceImp implements AvanceCurricularService {
         List<CursoOpcionalCurricula> cursoOpcionalAllPlanes = cursoOpcionalCurriculaDAO.allByPlanCurricular(planCurriculars);
         Map<Long, List<CursoOpcionalCurricula>> mapCursoOpcionalAll = TypesUtil.convertListToMapList("planCurricular.id", cursoOpcionalAllPlanes);
 
-        List<MatriculaCurso> cursosMatriculados = matriculaCursoDAO.allActivoByAlumnoCicloActivo(alumno);
-        List<AlumnoCicloCurso> cursosAprobados = alumnoCicloCursoDAO.allAprobadoActivoByAlumno(alumno);
-        List<AlumnoCicloCurso> cursosDesapr = alumnoCicloCursoDAO.allDesaproActivoByAlumno(alumno);
+        List<MatriculaCurso> cursosMatriculados = matriculaCursoDAO.allActivoByAlumnoCicloActivo(alumnoBD);
+        List<AlumnoCicloCurso> cursosAprobados = alumnoCicloCursoDAO.allAprobadoActivoByAlumno(alumnoBD);
+        List<AlumnoCicloCurso> cursosDesapr = alumnoCicloCursoDAO.allDesaproActivoByAlumno(alumnoBD);
         for (AlumnoCicloCurso alumnoCicloCurso : cursosDesapr) {
             if (cursosAprobados.stream().filter(x -> Objects.equals(x.getCurso().getId(), alumnoCicloCurso.getCurso().getId())).findAny().orElse(null) == null) {
                 cursosAprobados.add(alumnoCicloCurso);
@@ -389,7 +389,7 @@ public class AvanceCurricularServiceImp implements AvanceCurricularService {
         List<CursoEquivalenteElectivo> cursoEquivalenteElectivos = cursoEquivalenteElectivoDAO.allCursoPlanCurricula(Arrays.asList(alumnoBD.getPlanCurricular()));
         List<ResumenPlanCurricular> resumenPlanCurriculars = resumenPlanCurricularDAO.allByPlan(alumnoBD.getPlanCurricular());
         List<TipoCursoCurricula> tipoCursoCurriculas = tipoCursoCurriculaDAO.all();
-        List<AlumnoAvanceCurricular> avanceCurriculars = alumnoAvanceCurricularDAO.allByAlumno(alumno);
+        List<AlumnoAvanceCurricular> avanceCurriculars = alumnoAvanceCurricularDAO.allByAlumno(alumnoBD);
 
         List<Alumno> alumnos = new ArrayList();
         alumnos.add(alumno);

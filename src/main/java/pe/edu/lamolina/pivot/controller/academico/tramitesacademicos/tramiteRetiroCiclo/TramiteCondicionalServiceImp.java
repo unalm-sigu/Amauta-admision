@@ -336,12 +336,14 @@ public class TramiteCondicionalServiceImp implements TramiteCondicionalService {
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
 
             matriculaResumen = matriculaResumenDAO.findByAlumnoCiclo(alumno, cicloAcademico);
+            if (matriculaResumen != null) {
 
-            JsonResponse jsonResponse = responseRestService.updateRest(matriculaResumen, ds);
+                JsonResponse jsonResponse = responseRestService.updateRest(matriculaResumen, ds);
 
-            Assert.isTrue(jsonResponse.getSuccess(), "Se produjo un error al eliminar la matrícula. Comuniquese con mesa de ayuda.");
+                Assert.isTrue(jsonResponse.getSuccess(), "Se produjo un error al eliminar la matrícula. Comuniquese con mesa de ayuda.");
 
-            matriculaResumenDAO.delete(matriculaResumen);
+                matriculaResumenDAO.delete(matriculaResumen);
+            }
 
         } else {
             Resolucion resolucion = createResolucion(tramiteForm.getResolucion(), TipoResolucionEnum.RCI, ds);
@@ -518,12 +520,14 @@ public class TramiteCondicionalServiceImp implements TramiteCondicionalService {
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
 
             matriculaResumen = matriculaResumenDAO.findByAlumnoCiclo(alumno, cicloAcademico);
+            if (matriculaResumen != null) {
+                
+                JsonResponse jsonResponse = responseRestService.updateRest(matriculaResumen, ds);
 
-            JsonResponse jsonResponse = responseRestService.updateRest(matriculaResumen, ds);
+                Assert.isTrue(jsonResponse.getSuccess(), "Se produjo un error al eliminar la matrícula. Comuniquese con mesa de ayuda.");
 
-            Assert.isTrue(jsonResponse.getSuccess(), "Se produjo un error al eliminar la matrícula. Comuniquese con mesa de ayuda.");
-
-            matriculaResumenDAO.delete(matriculaResumen);
+                matriculaResumenDAO.delete(matriculaResumen);
+            }
 
         } else {
             Resolucion resolucion = createResolucion(tramiteForm.getResolucion(), TipoResolucionEnum.REIC, ds);
@@ -606,12 +610,14 @@ public class TramiteCondicionalServiceImp implements TramiteCondicionalService {
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
 
             matriculaResumen = matriculaResumenDAO.findByAlumnoCiclo(alumno, cicloAcademico);
+            if (matriculaResumen != null) {
+                
+                JsonResponse jsonResponse = responseRestService.updateRest(matriculaResumen, ds);
 
-            JsonResponse jsonResponse = responseRestService.updateRest(matriculaResumen, ds);
+                Assert.isTrue(jsonResponse.getSuccess(), "Se produjo un error al eliminar la matrícula. Comuniquese con mesa de ayuda.");
 
-            Assert.isTrue(jsonResponse.getSuccess(), "Se produjo un error al eliminar la matrícula. Comuniquese con mesa de ayuda.");
-
-            matriculaResumenDAO.delete(matriculaResumen);
+                matriculaResumenDAO.delete(matriculaResumen);
+            }
 
         } else {
             EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigo(EstadoTramiteEnum.SOL_ACEP);
