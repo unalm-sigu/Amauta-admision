@@ -64,6 +64,7 @@ public class RetiroCicloDAOH extends AbstractEasyDAO<RetiroCiclo> implements Ret
                 .from(RetiroCiclo.class, "rc")
                 .join("alumno al", "cicloAcademico ca", "cicloRegistro cr")
                 .join("al.situacionAcademica")
+                .filter("esCondicional", 1)
                 .filter("cr.id", ciclo);
 
         return all(sql);
@@ -75,6 +76,7 @@ public class RetiroCicloDAOH extends AbstractEasyDAO<RetiroCiclo> implements Ret
                 .from(RetiroCiclo.class, "rc")
                 .join("alumno al", "cicloAcademico ca", "cicloRegistro cr")
                 .in("al.id", alumnos)
+                .filter("esCondicional",1)
                 .filter("cr.id", ciclo);
 
         return all(sql);

@@ -210,6 +210,7 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
                 "curso.nombre",
                 "curso.tpc",
                 "cursoCurricula.tipoCursoCurricula.nombre",
+                "cursoCurricula.creditosRequisito",
                 "tipoCursoCurricula.nombre",
                 "tipoCursoCurricula.codigo",
                 "cicloAprobado.descripcion"

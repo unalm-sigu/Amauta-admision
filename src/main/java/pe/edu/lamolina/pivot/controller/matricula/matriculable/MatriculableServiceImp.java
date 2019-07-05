@@ -344,7 +344,6 @@ public class MatriculableServiceImp implements MatriculableService {
         }
 
         for (Alumno alumnoTramite : alumosConTramite) {
-            updateCursoApro(alumnoTramite, ds);
             Alumno alumno = mapMatriculableCondicional.get(alumnoTramite.getId());
             if (alumno != null) {
                 continue;
@@ -768,7 +767,7 @@ public class MatriculableServiceImp implements MatriculableService {
         matri.setAlumno(alumno);
         matri.setCicloAcademico(ds.getCicloAcademico());
         matri.setSituacionInicio(alumno.getSituacionAcademica());
-        
+
         matri.setUserRegistro(ds.getUsuario());
         matri.setFechaRegistro(new Date());
         matri.setCreditosMatriculados(0);
