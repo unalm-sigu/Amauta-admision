@@ -389,6 +389,7 @@ public class MatriculableServiceImp implements MatriculableService {
     }
 
     @Override
+    @Async
     public void revisarSituacionAcademica(Alumno alumno, DataSessionPivot ds) {
         promedioService.calulcarSituacionAcademica(alumno, ds);
     }

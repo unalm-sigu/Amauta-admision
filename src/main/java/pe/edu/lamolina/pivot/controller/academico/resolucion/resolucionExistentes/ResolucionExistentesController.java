@@ -1,5 +1,6 @@
 package pe.edu.lamolina.pivot.controller.academico.resolucion.resolucionExistentes;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -169,12 +170,15 @@ public class ResolucionExistentesController {
 
             ArrayNode data = new ArrayNode(JsonNodeFactory.instance);
             if (resolucion.getTipoResolucion().getCodigo().equals(REIC.name())) {
-
                 List<Alumno> alumnos = service.saveReincorporacion(resolucion, ds.getUsuario(), ds);
-
+                for (Alumno alumno : alumnos) {
+                    matriculableService.revisarSituacionAcademica(alumno, ds);
+                }
             } else if (resolucion.getTipoResolucion().getCodigo().equals(RCI.name())) {
                 List<Alumno> alumnos = service.saveRetiroCiclo(resolucion, ds.getUsuario(), ds);
-
+                for (Alumno alumno : alumnos) {
+                    matriculableService.revisarSituacionAcademica(alumno, ds);
+                }
             } else {
                 List<Alumno> alumnos = service.saveCambioNota(resolucion, ds.getUsuario(), ds);
 
@@ -257,8 +261,7 @@ public class ResolucionExistentesController {
                         "curso.*",
                         "tramite.alumno.*",
                         "tramite.alumno.persona.*",
-                        "tramite.alumno.persona.tipoDocumento.*",
-//                        "cicloAcademico.*"
+                        "tramite.alumno.persona.tipoDocumento.*", //                        "cicloAcademico.*"
                     });
                     objectNode.put("tipo", CURDIR.name());
                     array.add(objectNode);

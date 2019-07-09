@@ -186,7 +186,7 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
             alumnos.add(reincorporacione.getAlumno());
         }
         for (Alumno alumno : alumnos) {
-            matriculableService.revisarSituacionAcademica(alumno, ds);
+//            matriculableService.revisarSituacionAcademica(alumno, ds);
             matriculableService.saveMatriculable(alumno, TipoCondicionalEnum.REI.name(), ds);
         }
         return alumnos;
@@ -237,12 +237,12 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
             List<CicloAcademico> ciclo = alumnoCiclos.stream().map(x -> x.getCicloAcademico()).collect(Collectors.toList());
             Boolean exist = false;
             for (CicloAcademico cicloAcademico : ciclo) {
-                if (Objects.equals(cicloAcademico.getId(), retiroCiclo.getCicloAcademico().getId())) {
+                if (Objects.equals(cicloAcademico.getId(), retiroCicloForm.getCicloAcademico().getId())) {
                     exist = true;
                     break;
                 }
             }
-            Assert.isTrue(exist, "El alumno " + alumnoDB.getPersona().getApellidosNombres() + " no tiene actividad en el ciclo " + retiroCiclo.getCicloAcademico().getDescripcion());
+            Assert.isTrue(exist, "El alumno " + alumnoDB.getPersona().getApellidosNombres() + " no tiene actividad en el ciclo " + retiroCicloForm.getCicloAcademico().getDescripcion());
 
             DateTime today = new DateTime();
             TipoDocumentoCompania tipoDocumentoCompania = tipoDocumentoCompaniaDAO.findByCodigo(TipoDocumentoCompaniaEnum.TRAM);
@@ -267,11 +267,8 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
             retiroCiclo = retiroCicloForm;
             retiroCiclo.setEstado(TramiteEstadoEnum.ACEP);
             retiroCiclo.setTipoEnum(TipoRetiroCicloEnum.EXCEP);
-            retiroCiclo.setAlumno(retiroCiclo.getAlumno());
-            retiroCiclo.setCicloAcademico(retiroCiclo.getCicloAcademico());
             retiroCiclo.setCicloRegistro(ds.getCicloAcademico());
             retiroCiclo.setUsuario(ds.getUsuario());
-            retiroCiclo.setMotivo(retiroCiclo.getMotivo());
             retiroCiclo.setTramite(tramite);
             retiroCiclo.setResolucion(resolucion);
             retiroCicloDAO.save(retiroCiclo);
@@ -295,7 +292,7 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
             alumnos.add(alumnoDB);
         }
         for (Alumno alumno : alumnos) {
-            matriculableService.revisarSituacionAcademica(alumno, ds);
+
             avanceCurricularService.generarAvanceCurricularByAlumno(alumno, ds);
             matriculableService.saveMatriculable(alumno, TipoCondicionalEnum.RETIRO_CICLO.name(), ds);
         }
