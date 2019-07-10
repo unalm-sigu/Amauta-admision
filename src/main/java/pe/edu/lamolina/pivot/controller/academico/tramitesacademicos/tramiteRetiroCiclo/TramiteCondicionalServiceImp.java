@@ -28,26 +28,33 @@ import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.TurnoAtencion;
-import pe.edu.lamolina.model.enums.AmbienteAplicacionEnum;
 import pe.edu.lamolina.model.enums.CursoCurriculaEstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import pe.edu.lamolina.model.enums.EstadoTramiteEnum;
-import pe.edu.lamolina.model.enums.ParametrosSistemasEnum;
 import pe.edu.lamolina.model.enums.ResolucionEstadoEnum;
-import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_4;
-import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_6;
+import pe.edu.lamolina.model.enums.SituacionAcademicaEnum;
+import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_1;
+import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_2;
+import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_2U;
+import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_3;
+import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_3U;
+import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_4U;
+import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_5;
+import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_6U;
+import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_8;
+import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_9;
+import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_EM;
+import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_N;
+import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_TU;
 import pe.edu.lamolina.model.enums.TipoCondicionalEnum;
 import pe.edu.lamolina.model.enums.TipoDocumentoCompaniaEnum;
 import pe.edu.lamolina.model.enums.TipoResolucionEnum;
-import pe.edu.lamolina.model.enums.TipoRetiroCicloEnum;
 import pe.edu.lamolina.model.enums.TipoTramiteEnum;
 import pe.edu.lamolina.model.enums.TokenEstadoEnum;
 import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
-import pe.edu.lamolina.model.general.Parametro;
 import pe.edu.lamolina.model.general.SerieDocumento;
 import pe.edu.lamolina.model.general.TipoDocumentoCompania;
 import pe.edu.lamolina.model.matricula.AlumnoCursoCurricula;
-import pe.edu.lamolina.model.seguridad.Sistema;
 import pe.edu.lamolina.model.seguridad.TokenIngresante;
 import pe.edu.lamolina.model.tramite.CambioNota;
 import pe.edu.lamolina.model.tramite.EstadoTramite;
@@ -57,7 +64,6 @@ import pe.edu.lamolina.model.tramite.RetiroCiclo;
 import pe.edu.lamolina.model.tramite.TipoResolucion;
 import pe.edu.lamolina.model.tramite.TipoTramite;
 import pe.edu.lamolina.model.tramite.Tramite;
-import pe.edu.lamolina.pivot.config.DespliegueConfig;
 import pe.edu.lamolina.pivot.controller.academico.avancecurricular.AvanceCurricularService;
 import pe.edu.lamolina.pivot.controller.academico.infoacademico.InfoAcademicoService;
 import pe.edu.lamolina.pivot.controller.bienestar.alumnoAporte.AporteAlumnoService;
@@ -76,7 +82,6 @@ import pe.edu.lamolina.pivot.dao.academico.MatriculaSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaSimultaneoDAO;
 import pe.edu.lamolina.pivot.dao.academico.SeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.TurnoAtencionDAO;
-import pe.edu.lamolina.pivot.dao.general.ParametroDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.TokenIngresanteDAO;
 import pe.edu.lamolina.pivot.dao.tramite.CambioNotaDAO;
 import pe.edu.lamolina.pivot.dao.tramite.EstadoTramiteDAO;
@@ -132,16 +137,10 @@ public class TramiteCondicionalServiceImp implements TramiteCondicionalService {
     ResolucionDAO resolucionDAO;
 
     @Autowired
-    ParametroDAO parametroDAO;
-
-    @Autowired
     AlumnoCicloDAO alumnoCicloDAO;
 
     @Autowired
     TokenIngresanteDAO tokenIngresanteDAO;
-
-    @Autowired
-    DespliegueConfig despliegueConfig;
 
     @Autowired
     AporteAlumnoService aporteAlumnoService;
@@ -183,6 +182,7 @@ public class TramiteCondicionalServiceImp implements TramiteCondicionalService {
 
     @Autowired
     EstadoTramiteDAO estadoTramiteDAO;
+
     @Autowired
     CambioNotaDAO cambioNotaDAO;
 
@@ -334,9 +334,9 @@ public class TramiteCondicionalServiceImp implements TramiteCondicionalService {
         MatriculaResumen matriculaResumen = new MatriculaResumen();
         if (retiroCiclobd.getEstadoEnum() == TramiteEstadoEnum.RCHZ) {
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
-
+            List<SituacionAcademicaEnum> situaciones = Arrays.asList(S_N, S_1, S_2, S_3, S_5, S_8, S_9, S_3U, S_2U, S_4U, S_6U, S_TU, S_EM);
             matriculaResumen = matriculaResumenDAO.findByAlumnoCiclo(alumno, cicloAcademico);
-            if (matriculaResumen != null) {
+            if (matriculaResumen != null && !situaciones.contains(matriculaResumen.getAlumno().getSituacionAcademica().getCodigoEnum())) {
 
                 JsonResponse jsonResponse = responseRestService.updateRest(matriculaResumen, ds);
 
@@ -369,14 +369,6 @@ public class TramiteCondicionalServiceImp implements TramiteCondicionalService {
             matriculableService.revisarSituacionAcademica(alumno, ds);
             avanceCurricularService.generarAvanceCurricularByAlumno(alumno, ds);
         }
-    }
-
-    @Override
-    public Parametro findParametro(ParametrosSistemasEnum parametrosSistemasEnum) {
-
-        return parametroDAO.findBySistemaAmbienteParametrosSistemas(new Sistema(despliegueConfig.getSistema()),
-                AmbienteAplicacionEnum.valueOf(despliegueConfig.getAmbiente().toUpperCase()),
-                parametrosSistemasEnum);
     }
 
     @Override
@@ -453,6 +445,7 @@ public class TramiteCondicionalServiceImp implements TramiteCondicionalService {
         reincorporacione.setMotivoDesercion(tramite.getMotivoResolucion());
         reincorporacione.setFacultad(facultad);
         reincorporacione.setTramite(tramite);
+        reincorporacione.setAceptado(0);
         reincorporacione.setEsCondicional(Boolean.TRUE);
         reincorporacionDAO.save(reincorporacione);
 
@@ -588,6 +581,7 @@ public class TramiteCondicionalServiceImp implements TramiteCondicionalService {
         cambioNota.setCurso(tramite.getCursoResolucion());
         cambioNota.setCicloAcademico(tramite.getCicloAcademicoResolucion());
         cambioNota.setFechaRegistro(new Date());
+        cambioNota.setAceptado(Boolean.FALSE);
         cambioNotaDAO.save(cambioNota);
     }
 
@@ -602,6 +596,7 @@ public class TramiteCondicionalServiceImp implements TramiteCondicionalService {
         Alumno alumno = cambioNota.getAlumno();
         MatriculaResumen matriculaResumen = new MatriculaResumen();
         if (tramiteForm.getEstadoEnum() != TramiteEstadoEnum.ACEP) {
+            List<SituacionAcademicaEnum> situaciones = Arrays.asList(S_N, S_1, S_2, S_3, S_5, S_8, S_9, S_3U, S_2U, S_4U, S_6U, S_TU, S_EM);
             EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigo(EstadoTramiteEnum.RHZ_SOL);
             tramite.setEstadoEnum(TramiteEstadoEnum.valueOf(tramiteForm.getEstado()));
             tramite.setEstadoTramite(estadoTramite);
@@ -610,7 +605,7 @@ public class TramiteCondicionalServiceImp implements TramiteCondicionalService {
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
 
             matriculaResumen = matriculaResumenDAO.findByAlumnoCiclo(alumno, cicloAcademico);
-            if (matriculaResumen != null) {
+            if (matriculaResumen != null && !situaciones.contains(matriculaResumen.getAlumno().getSituacionAcademica().getCodigoEnum())) {
 
                 JsonResponse jsonResponse = responseRestService.updateRest(matriculaResumen, ds);
 

@@ -145,6 +145,7 @@ public class ResolucionServiceImp implements ResolucionService {
     
     @Autowired
     OficinaDAO oficinaDAO;
+    
     @Autowired
     AnexoBoletinDAO anexoBoletinDAO;
     

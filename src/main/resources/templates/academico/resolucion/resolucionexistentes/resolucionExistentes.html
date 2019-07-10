@@ -75,7 +75,7 @@
                                         <div class="form-group">
                                             <input type="text"
                                                    v-model="resolucion.serie"
-                                                   class="form-control" 
+                                                   class="form-control numerico" 
                                                    required="true"></input>
                                         </div>
                                     </div>
@@ -84,7 +84,7 @@
                                         <div class="form-group">
                                             <input type="text"
                                                    v-model="resolucion.numero"
-                                                   class="form-control" 
+                                                   class="form-control numerico" 
                                                    required="true"> </input>
                                         </div>
                                     </div>
@@ -122,8 +122,12 @@
                                             <th class="col-md-2 text-center" v-if="isCambioNota">Tipo Tramite</th>
                                             <th class="col-md-3 text-center" v-if="!isCambioNota">Motivo</th>
                                             <th class="col-md-2 text-center" v-if="isCambioNota">Motivo</th>
-                                            <th class="col-md-3 text-center" v-if="!isCambioNota">Ciclo</th>
-                                            <th class="col-md-2 text-center" v-if="isCambioNota">Ciclo</th>
+                                            <th class="col-md-3 text-center" v-if="!isCambioNota">Ciclo
+                                                <span v-if='isRetiroCiclo'> a retirar</span>
+                                                <span v-if='isReincorporacion'> a reincorporar</span>
+                                            </th>
+                                            <th class="col-md-2 text-center" v-if="isCambioNota">Ciclo                                               
+                                            </th>
                                             <th class="col-md-2 text-center" v-if="isCambioNota">Curso</th>
                                             <th class="col-md-1 text-center" v-if="isCambioNota">Nota</th>
                                             <th ></th>
@@ -283,6 +287,7 @@
                                                             required="true"
                                                             v-bind:allow-empty="true"
                                                             :show-labels="false"
+                                                            v-on:select="cicloCambioNota($event,cambioNota)"
                                                             deselect-label="No se puede eliminar este valor" 
                                                             >
                                                         </multiselect>
@@ -295,12 +300,11 @@
                                                     <div class="form-group">
                                                         <multiselect v-model="cambioNota.curso" 
                                                                      v-bind:options='cursos'
-                                                                     v-on:search-change="loadCursos($event,cambioNota)"
                                                                      label='nombre'
                                                                      track-by='id'
                                                                      v-bind:show-labels="false"
                                                                      v-bind:allow-empty="false"
-                                                                     v-bind:internal-search='false'
+                                                                     v-bind:internal-search='true'
                                                                      placeholder="Ingresa un caracter"                                         
                                                                      required="true"  >
                                                         </multiselect>

@@ -23,6 +23,7 @@ import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.enums.CursoCurriculaEstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import pe.edu.lamolina.model.enums.EstadoTramiteEnum;
+import pe.edu.lamolina.model.enums.OrigenDataSituacionAcademicaEnum;
 import pe.edu.lamolina.model.enums.ResolucionEstadoEnum;
 import pe.edu.lamolina.model.enums.TipoCondicionalEnum;
 import pe.edu.lamolina.model.enums.TipoDocumentoCompaniaEnum;
@@ -181,6 +182,7 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
             reincorporacione.setEstadoTramite(estadoTramite);
             reincorporacione.setUserRegistro(usuario);
             reincorporacione.setFacultad(facultad);
+            reincorporacione.setEsCondicional(Boolean.FALSE);
             reincorporacione.setTramite(tramite);
             reincorporacionDAO.save(reincorporacione);
             alumnos.add(reincorporacione.getAlumno());
@@ -269,6 +271,7 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
             retiroCiclo.setTipoEnum(TipoRetiroCicloEnum.EXCEP);
             retiroCiclo.setCicloRegistro(ds.getCicloAcademico());
             retiroCiclo.setUsuario(ds.getUsuario());
+            retiroCiclo.setEsCondicional(false);
             retiroCiclo.setTramite(tramite);
             retiroCiclo.setResolucion(resolucion);
             retiroCicloDAO.save(retiroCiclo);
@@ -370,6 +373,8 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
             cambioNotaNew.setCicloAcademico(cambioNota.getCicloAcademico());
             cambioNotaNew.setResolucion(resolucion);
             cambioNotaNew.setFechaRegistro(new Date());
+            cambioNotaNew.setAceptado(Boolean.TRUE);
+            cambioNotaNew.setEsCondicional(Boolean.FALSE);
             cambioNotaDAO.save(cambioNotaNew);
 
             AlumnoCicloCurso alumnoCicloCurso = alumnoCicloCursoDAO.findByAlumnoCicloCurso(alumno, cambioNota.getCicloAcademico(), cambioNota.getCurso());
@@ -393,13 +398,13 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
             alumnoCicloCursosMod.setTipoCursoCurricula(alumnoCicloCurso.getTipoCursoCurricula());
             alumnoCicloCursosMod.setUsuarioRegistro(ds.getUsuario());
             alumnoCicloCursosMod.setVecesCursado(alumnoCicloCurso.getVecesCursado());
+            alumnoCicloCursosMod.setOrigenData(OrigenDataSituacionAcademicaEnum.MOD);
             alumnoCicloCursoDAO.save(alumnoCicloCursosMod);
 
             alumnos.add(alumno);
         }
         for (Alumno alumno : alumnos) {
             avanceCurricularService.generarAvanceCurricularByAlumno(alumno, ds);
-            matriculableService.saveMatriculable(alumno, TipoCondicionalEnum.CAMBIO_NOTA.name(), ds);
         }
         return alumnos;
     }

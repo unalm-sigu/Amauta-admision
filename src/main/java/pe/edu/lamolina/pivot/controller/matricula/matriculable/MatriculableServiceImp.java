@@ -45,7 +45,6 @@ import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.SituacionAcademica;
 import pe.edu.lamolina.model.academico.TurnoAtencion;
-import pe.edu.lamolina.model.enums.CursoCurriculaEstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.EPG;
@@ -56,10 +55,8 @@ import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_2;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_2U;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_3;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_3U;
-import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_4;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_4U;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_5;
-import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_6;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_6U;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_8;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_9;
@@ -70,8 +67,9 @@ import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_TU;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_X;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_XD;
 import pe.edu.lamolina.model.enums.TipoCondicionalEnum;
-import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
-import pe.edu.lamolina.model.matricula.AlumnoCursoCurricula;
+import static pe.edu.lamolina.model.enums.TramiteEstadoEnum.ACEP;
+import static pe.edu.lamolina.model.enums.TramiteEstadoEnum.PEND;
+import pe.edu.lamolina.model.tramite.CambioNota;
 import pe.edu.lamolina.model.tramite.Reincorporacion;
 import pe.edu.lamolina.model.tramite.RetiroCiclo;
 import pe.edu.lamolina.pivot.controller.academico.alumno.AlumnoResumen;
@@ -91,6 +89,7 @@ import pe.edu.lamolina.pivot.dao.academico.MatriculaResumenDAO;
 import pe.edu.lamolina.pivot.dao.academico.ModalidadEstudioDAO;
 import pe.edu.lamolina.pivot.dao.academico.SituacionAcademicaDAO;
 import pe.edu.lamolina.pivot.dao.academico.TurnoAtencionDAO;
+import pe.edu.lamolina.pivot.dao.tramite.CambioNotaDAO;
 import pe.edu.lamolina.pivot.dao.tramite.ReincorporacionDAO;
 import pe.edu.lamolina.pivot.dao.tramite.RetiroCicloDAO;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
@@ -152,6 +151,9 @@ public class MatriculableServiceImp implements MatriculableService {
 
     @Autowired
     ReincorporacionDAO reincorporacionDAO;
+
+    @Autowired
+    CambioNotaDAO cambioNotaDAO;
 
     @Override
     public AlumnoResumen allResumenAlumnosByCicloRol(CicloAcademico cicloAcademico, String codigo, List<Long> filtros) {
@@ -275,8 +277,12 @@ public class MatriculableServiceImp implements MatriculableService {
         CicloAcademico cicloAntes = cicloAcademicoDAO.findAnteriorActivo(cicloBD);
 
         List<RetiroCiclo> retiroCiclos = retiroCicloDAO.allByCiclo(ciclo);
+        List<Reincorporacion> reincorporacion = reincorporacionDAO.allByCicloReincorporacion(ciclo);
+        List<CambioNota> cambioNota = cambioNotaDAO.allByCicloRegistro(ciclo);
         List<Alumno> alumosConTramite = retiroCiclos.stream().map(x -> x.getAlumno()).collect(Collectors.toList());
-
+        alumosConTramite.addAll(reincorporacion.stream().filter(x -> x.getEsCondicional() && Arrays.asList(PEND.name()).contains(x.getTramite().getEstado())).map(x -> x.getAlumno()).collect(Collectors.toList()));
+        alumosConTramite.addAll(cambioNota.stream().filter(x -> x.getEsCondicional()).map(x -> x.getAlumno()).collect(Collectors.toList()));
+      
         List<CicloAcademico> ciclosIngresantes = Arrays.asList(cicloBD, cicloAntes);
         ModalidadEstudio modalidad = cicloBD.getModalidadEstudio();
 
@@ -389,7 +395,7 @@ public class MatriculableServiceImp implements MatriculableService {
     }
 
     @Override
-    @Async
+    @Transactional
     public void revisarSituacionAcademica(Alumno alumno, DataSessionPivot ds) {
         promedioService.calulcarSituacionAcademica(alumno, ds);
     }
@@ -751,6 +757,7 @@ public class MatriculableServiceImp implements MatriculableService {
     @Override
     @Transactional
     public void saveMatriculable(Alumno alumnoForm, String tipoCondicional, DataSessionPivot ds) {
+
         CicloAcademico ciclo = cicloAcademicoDAO.find(ds.getCicloAcademico());
         if (ciclo.getFechaMatriculables() == null) {
             return;
@@ -761,6 +768,7 @@ public class MatriculableServiceImp implements MatriculableService {
         matri = matri == null ? new MatriculaResumen() : matri;
 
         SituacionAcademica sit = alumno.getSituacionAcademica();
+
         ModalidadEstudio modalidad = alumno.getModalidadEstudio();
         List<SituacionAcademicaEnum> sitEnum = Arrays.asList(S_8, S_9);
         List<ModalidadEstudioEnum> modEnum = Arrays.asList(EPG, ESP);

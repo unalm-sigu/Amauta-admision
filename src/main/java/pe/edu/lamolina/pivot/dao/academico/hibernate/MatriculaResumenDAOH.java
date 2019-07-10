@@ -47,7 +47,7 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
     public MatriculaResumen findByAlumnoCiclo(Alumno alumno, CicloAcademico ciclo) {
         Octavia sql = Octavia.query()
                 .from(MatriculaResumen.class, "mr")
-                .join("alumno alu", "cicloAcademico ca")
+                .join("alumno alu", "cicloAcademico ca", "alu.situacionAcademica ")
                 .filter("alu.id", alumno)
                 .filter("ca.id", ciclo);
 

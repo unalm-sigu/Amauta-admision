@@ -23,8 +23,6 @@ public interface TramiteCondicionalService {
 
     public void updateRetiroCiclo(Tramite tramite, DataSessionPivot ds);
 
-    public Parametro findParametro(ParametrosSistemasEnum parametrosSistemasEnum);
-
     public List<Alumno> allAlumnoByNombre(String nombre, DataSessionPivot ds);
 
     public void createToken(DataSessionPivot ds);

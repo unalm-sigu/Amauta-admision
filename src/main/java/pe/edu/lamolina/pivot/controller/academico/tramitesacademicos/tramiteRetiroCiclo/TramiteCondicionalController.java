@@ -204,7 +204,6 @@ public class TramiteCondicionalController {
             service.createToken(ds);
             MatriculaResumen matriculaResumen = new MatriculaResumen();
             if (tramite.getTipoTramite().getCodigo().equals(TipoTramiteEnum.RCI.name())) {
-
                 service.updateRetiroCiclo(tramite, ds);
             } else if (tramite.getTipoTramite().getCodigo().equals(TipoTramiteEnum.REI.name())) {
                 service.updateReincorporacion(tramite, ds);
@@ -268,7 +267,7 @@ public class TramiteCondicionalController {
     @ResponseBody
     @RequestMapping("allCursosAlumnoByName")
     public JsonResponse allCursosAlumnoByName(
-            @RequestParam(value = "nombre", required = true) String nombre,
+            @RequestParam(value = "nombre", required = false) String nombre,
             @RequestParam(value = "idAlumno", required = true) Long idAlumno,
             @RequestParam(value = "idCiclo", required = true) Long idCiclo,
             HttpSession session) {

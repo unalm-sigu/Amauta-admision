@@ -67,28 +67,21 @@ var app = new Vue({
 
             }
         },
-        loadCursos(nombre, item) {
+        cicloCambioNota(ciclo, item) {
             let $vue = this;
-            this.isLoading = true
-            if (item.alumno == null || item.cicloAcademico == null) {
-                return;
-            }
-            if (nombre != '' || nombre != null || nombre != undefined) {
+            $.ajax({
+                url: APP.url("academico/tramitecondicional/allCursosAlumnoByName"),
+                dataType: 'json',
+                type: 'post',
+                data: {idAlumno: item.alumno.id, idCiclo: ciclo.id}
+            }).then(response => {
+                if (response.success) {
+                    $vue.cursos = response.data;
+                }
 
-                $.ajax({
-                    url: APP.url("academico/tramitecondicional/allCursosAlumnoByName"),
-                    dataType: 'json',
-                    type: 'post',
-                    data: {nombre: nombre, idAlumno: item.alumno.id, idCiclo: item.cicloAcademico.id}
-                }).then(response => {
-                    if (response.success) {
-                        $vue.cursos = response.data;
-                    }
+                this.isLoading = false;
+            })
 
-                    this.isLoading = false;
-                })
-
-            }
         },
         addResolucion() {
             let $vue = this;

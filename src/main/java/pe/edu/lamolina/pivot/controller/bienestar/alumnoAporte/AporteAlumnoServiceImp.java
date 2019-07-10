@@ -112,7 +112,7 @@ public class AporteAlumnoServiceImp implements AporteAlumnoService {
 
         JsonResponse jsonResponse = responseRestService.generarAporte(alumno, ds);
 
-        Assert.isTrue(jsonResponse.getSuccess(), "Se produjo un error al eliminar la matrícula. Comuniquese con mesa de ayuda.");
+        Assert.isTrue(jsonResponse.getSuccess(), "Se produjo un error al agregar aportes. Comuniquese con mesa de ayuda.");
 
 //
 //        MatriculaResumen matriResumen = matriculaResumenDAO.findByAlumnoCiclo(alumno, ciclo);

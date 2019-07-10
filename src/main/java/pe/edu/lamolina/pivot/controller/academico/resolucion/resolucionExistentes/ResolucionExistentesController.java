@@ -33,6 +33,21 @@ import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.enums.SituacionAcademicaEnum;
+import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_1;
+import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_2;
+import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_2U;
+import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_3;
+import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_3U;
+import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_4U;
+import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_5;
+import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_6U;
+import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_8;
+import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_9;
+import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_EM;
+import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_N;
+import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_TU;
+import pe.edu.lamolina.model.enums.TipoCondicionalEnum;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.CAM_NOTA;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.CURDIR;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.RCI;
@@ -180,8 +195,15 @@ public class ResolucionExistentesController {
                     matriculableService.revisarSituacionAcademica(alumno, ds);
                 }
             } else {
+                List<SituacionAcademicaEnum> situaciones = Arrays.asList(S_N, S_1, S_2, S_3, S_5, S_8, S_9, S_3U, S_2U, S_4U, S_6U, S_TU, S_EM);
                 List<Alumno> alumnos = service.saveCambioNota(resolucion, ds.getUsuario(), ds);
-
+                for (Alumno alumno : alumnos) {
+                    matriculableService.revisarSituacionAcademica(alumno, ds);
+                    if (!situaciones.contains(alumno.getSituacionAcademica().getCodigoEnum())) {
+                        continue;
+                    }
+                    matriculableService.saveMatriculable(alumno, TipoCondicionalEnum.CAMBIO_NOTA.name(), ds);
+                }
             }
 
             response.setMessage("Se realizó el registro satisfactoriamente.");
