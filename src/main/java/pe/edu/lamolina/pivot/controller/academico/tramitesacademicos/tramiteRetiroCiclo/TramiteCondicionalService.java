@@ -6,6 +6,7 @@ import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
+import pe.edu.lamolina.model.enums.ParametrosSistemasEnum;
 import pe.edu.lamolina.model.general.Parametro;
 import pe.edu.lamolina.model.tramite.RetiroCiclo;
 import pe.edu.lamolina.model.tramite.TipoTramite;
@@ -22,7 +23,7 @@ public interface TramiteCondicionalService {
 
     public void updateRetiroCiclo(Tramite tramite, DataSessionPivot ds);
 
-    public Parametro findParametro();
+    public Parametro findParametro(ParametrosSistemasEnum parametrosSistemasEnum);
 
     public List<Alumno> allAlumnoByNombre(String nombre, DataSessionPivot ds);
 
