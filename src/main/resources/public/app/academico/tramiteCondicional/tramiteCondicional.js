@@ -123,6 +123,7 @@ var app = new Vue({
         },
         openTramiteResol(item, val) {
             let $vue = this;
+            $vue.resolucion = {};
             $vue.dataTemp = {};
             $vue.dataTemp = Object.assign({}, item);
             $vue.dataTemp.estado = val == 0 ? 'RCHZ' : 'ACEP'
@@ -151,6 +152,9 @@ var app = new Vue({
                 success: function (response) {
                     if (response.success) {
                         $vue.$refs.load.loadRemoteData();
+                        if ($vue.dataTemp.estado == 'ACEP' && $vue.dataTemp.tipoTramite.codigo == 'CAM_NOTA') {
+                            $vue.verificarEliminarMat();
+                        }
                         $vue.dataTemp = {};
                         notify(response.message, "success");
                     }
@@ -162,7 +166,22 @@ var app = new Vue({
                     MODAL.hideWait();
                 }
             });
-
+        },
+        verificarEliminarMat() {
+            let $vue = this;
+            $.ajax({
+                method: 'POST',
+                url: APP.url('academico/tramitecondicional/verificarEliminarMat'),
+                data: JSON.stringify($vue.dataTemp),
+                contentType: "application/json",
+                success: function (response) {
+                   
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                    MODAL.hideWait();
+                }
+            });
         }
     }
 })

@@ -184,18 +184,26 @@ public class ResolucionExistentesController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
             ArrayNode data = new ArrayNode(JsonNodeFactory.instance);
+            List<SituacionAcademicaEnum> situaciones = Arrays.asList(S_N, S_1, S_2, S_3, S_5, S_8, S_9, S_3U, S_2U, S_4U, S_6U, S_TU, S_EM);
             if (resolucion.getTipoResolucion().getCodigo().equals(REIC.name())) {
                 List<Alumno> alumnos = service.saveReincorporacion(resolucion, ds.getUsuario(), ds);
                 for (Alumno alumno : alumnos) {
                     matriculableService.revisarSituacionAcademica(alumno, ds);
+                    if (!situaciones.contains(alumno.getSituacionAcademica().getCodigoEnum())) {
+                        continue;
+                    }
+                    matriculableService.saveMatriculable(alumno, TipoCondicionalEnum.REI.name(), ds);
                 }
             } else if (resolucion.getTipoResolucion().getCodigo().equals(RCI.name())) {
                 List<Alumno> alumnos = service.saveRetiroCiclo(resolucion, ds.getUsuario(), ds);
                 for (Alumno alumno : alumnos) {
                     matriculableService.revisarSituacionAcademica(alumno, ds);
+                    if (!situaciones.contains(alumno.getSituacionAcademica().getCodigoEnum())) {
+                        continue;
+                    }
+                    matriculableService.saveMatriculable(alumno, TipoCondicionalEnum.RETIRO_CICLO.name(), ds);
                 }
             } else {
-                List<SituacionAcademicaEnum> situaciones = Arrays.asList(S_N, S_1, S_2, S_3, S_5, S_8, S_9, S_3U, S_2U, S_4U, S_6U, S_TU, S_EM);
                 List<Alumno> alumnos = service.saveCambioNota(resolucion, ds.getUsuario(), ds);
                 for (Alumno alumno : alumnos) {
                     matriculableService.revisarSituacionAcademica(alumno, ds);

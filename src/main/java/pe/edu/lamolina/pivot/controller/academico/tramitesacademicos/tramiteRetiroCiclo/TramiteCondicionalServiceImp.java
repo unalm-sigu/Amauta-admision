@@ -31,6 +31,7 @@ import pe.edu.lamolina.model.academico.TurnoAtencion;
 import pe.edu.lamolina.model.enums.CursoCurriculaEstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import pe.edu.lamolina.model.enums.EstadoTramiteEnum;
+import pe.edu.lamolina.model.enums.OrigenDataSituacionAcademicaEnum;
 import pe.edu.lamolina.model.enums.ResolucionEstadoEnum;
 import pe.edu.lamolina.model.enums.SituacionAcademicaEnum;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_1;
@@ -342,7 +343,8 @@ public class TramiteCondicionalServiceImp implements TramiteCondicionalService {
 
                 Assert.isTrue(jsonResponse.getSuccess(), "Se produjo un error al eliminar la matrícula. Comuniquese con mesa de ayuda.");
 
-                matriculaResumenDAO.delete(matriculaResumen);
+                matriculaResumen.setEstadoEnum(EstadoMatriculaEnum.INH);
+                matriculaResumenDAO.update(matriculaResumen);
             }
 
         } else {
@@ -366,7 +368,7 @@ public class TramiteCondicionalServiceImp implements TramiteCondicionalService {
                 alumnoCicloCurso.setEstado(EstadoMatriculaEnum.RCI);
                 alumnoCicloCursoDAO.update(alumnoCicloCurso);
             }
-            matriculableService.revisarSituacionAcademica(alumno, ds);
+
             avanceCurricularService.generarAvanceCurricularByAlumno(alumno, ds);
         }
     }
@@ -384,7 +386,7 @@ public class TramiteCondicionalServiceImp implements TramiteCondicionalService {
         TokenIngresante token = new TokenIngresante();
         token.setEstado(TokenEstadoEnum.ACT);
         token.setFechaRegistro(new Date());
-        token.setFechaVencimiento(new DateTime().plusSeconds(5).toDate());
+        token.setFechaVencimiento(new DateTime().plusSeconds(15).toDate());
         token.setPersona(ds.getPersona());
         token.setValor(valor);
         token.setUserRegistro(ds.getUsuario());
@@ -519,14 +521,15 @@ public class TramiteCondicionalServiceImp implements TramiteCondicionalService {
 
                 Assert.isTrue(jsonResponse.getSuccess(), "Se produjo un error al eliminar la matrícula. Comuniquese con mesa de ayuda.");
 
-                matriculaResumenDAO.delete(matriculaResumen);
+                matriculaResumen.setEstadoEnum(EstadoMatriculaEnum.INH);
+                matriculaResumenDAO.update(matriculaResumen);
             }
 
         } else {
             Resolucion resolucion = createResolucion(tramiteForm.getResolucion(), TipoResolucionEnum.REIC, ds);
             reincorporacion.setResolucion(resolucion);
             reincorporacionDAO.update(reincorporacion);
-            matriculableService.revisarSituacionAcademica(alumno, ds);
+
         }
     }
 
@@ -583,26 +586,66 @@ public class TramiteCondicionalServiceImp implements TramiteCondicionalService {
         cambioNota.setFechaRegistro(new Date());
         cambioNota.setAceptado(Boolean.FALSE);
         cambioNotaDAO.save(cambioNota);
+
+        MatriculaResumen matriculaResumen = matriculaResumenDAO.findByFilter(ds.getCicloAcademico(), alumno, EstadoMatriculaEnum.NMAT);
+        if (matriculaResumen != null) {
+            CicloAcademico ciclo = cicloAcademicoDAO.find(ds.getCicloAcademico());
+            if (ciclo.getFechaPrioridades() != null) {
+                matriculaResumen.setMotivoMatriculable(tramite.getMotivoResolucion());
+                matriculaResumen.setEsCondicional(true);
+                matriculaResumen.setFechaCondicional(new Date());
+
+                AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findActivosRegularesByCicloResumen(alumno.getCicloActivoRegular(), alumno);
+                matriculaResumen = matriculableConector.procesarPrioridadAlumno(matriculaResumen, alumnoCiclo);
+
+                MatriculaResumen matriculaAnt = matriculaResumenDAO.findByAntPrioridad(matriculaResumen, ds.getCicloAcademico(), alumno.getCreditosAprobados() > CAPA_ULTIMO_CICLO ? true : false);
+                MatriculaResumen matriculaDes = matriculaResumenDAO.findByDesPrioridad(matriculaResumen, ds.getCicloAcademico(), alumno.getCreditosAprobados() > CAPA_ULTIMO_CICLO ? true : false);
+                if (matriculaAnt != null && matriculaDes != null) {
+
+                    BigDecimal prioridad = matriculaAnt.getPrioridad().add(matriculaDes.getPrioridad()).divide(new BigDecimal(2));
+                    matriculaResumen.setPrioridad(prioridad);
+                    if (ciclo.getFechaTurnosAsignados() != null) {
+                        TurnoAtencion turnoAlumno = turnoAtencionDAO.findById(matriculaResumen.getTurnoAtencion().getId());
+                        TurnoAtencion turnosAtencion = turnoAtencionDAO.findByPrioridad(prioridad, ds.getCicloAcademico());
+                        if (turnoAlumno.getId() != turnosAtencion.getId()) {
+                            BigDecimal numPrioridad = turnosAtencion.getPrioridadFin().add(new BigDecimal("0.01"));
+                            Integer cantAlum = turnosAtencion.getAlumnos() + 1;
+                            turnosAtencion.setAlumnos(cantAlum);
+                            turnosAtencion.setPrioridadFin(numPrioridad);
+                            turnoAtencionDAO.update(turnosAtencion);
+                        }
+
+                        matriculaResumen.setTurnoAtencion(turnosAtencion);
+
+                    }
+                    matriculaResumenDAO.update(matriculaResumen);
+                }
+            }
+
+        } else {
+            matriculableService.saveMatriculable(alumno, TipoCondicionalEnum.REI.name(), ds);
+
+        }
     }
 
     @Override
     @Transactional
     public void updateCambioNota(Tramite tramiteForm, DataSessionPivot ds) {
+
+        CicloAcademico cicloAcademico = ds.getCicloAcademico();
         CambioNota cambioNota = cambioNotaDAO.findByTramite(tramiteForm);
         cambioNota.setEstado(TramiteEstadoEnum.valueOf(tramiteForm.getEstado()));
 
         Tramite tramite = tramiteDAO.findById(tramiteForm);
+        Alumno alumno = alumnoDAO.findAllInfo(cambioNota.getAlumno().getId());
 
-        Alumno alumno = cambioNota.getAlumno();
+        List<SituacionAcademicaEnum> situaciones = Arrays.asList(S_N, S_1, S_2, S_3, S_5, S_8, S_9, S_3U, S_2U, S_4U, S_6U, S_TU, S_EM);
         MatriculaResumen matriculaResumen = new MatriculaResumen();
         if (tramiteForm.getEstadoEnum() != TramiteEstadoEnum.ACEP) {
-            List<SituacionAcademicaEnum> situaciones = Arrays.asList(S_N, S_1, S_2, S_3, S_5, S_8, S_9, S_3U, S_2U, S_4U, S_6U, S_TU, S_EM);
             EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigo(EstadoTramiteEnum.RHZ_SOL);
             tramite.setEstadoEnum(TramiteEstadoEnum.valueOf(tramiteForm.getEstado()));
             tramite.setEstadoTramite(estadoTramite);
             tramiteDAO.update(tramite);
-
-            CicloAcademico cicloAcademico = ds.getCicloAcademico();
 
             matriculaResumen = matriculaResumenDAO.findByAlumnoCiclo(alumno, cicloAcademico);
             if (matriculaResumen != null && !situaciones.contains(matriculaResumen.getAlumno().getSituacionAcademica().getCodigoEnum())) {
@@ -611,7 +654,8 @@ public class TramiteCondicionalServiceImp implements TramiteCondicionalService {
 
                 Assert.isTrue(jsonResponse.getSuccess(), "Se produjo un error al eliminar la matrícula. Comuniquese con mesa de ayuda.");
 
-                matriculaResumenDAO.delete(matriculaResumen);
+                matriculaResumen.setEstadoEnum(EstadoMatriculaEnum.INH);
+                matriculaResumenDAO.update(matriculaResumen);
             }
 
         } else {
@@ -627,18 +671,13 @@ public class TramiteCondicionalServiceImp implements TramiteCondicionalService {
             cambioNotaDAO.update(cambioNota);
 
             AlumnoCicloCurso alumnoCicloCurso = alumnoCicloCursoDAO.findByAlumnoCicloCurso(alumno, cambioNota.getCicloAcademico(), cambioNota.getCurso());
-            alumnoCicloCurso.setEstado(EstadoMatriculaEnum.NMOD);
-            alumnoCicloCurso.setFechaModificacion(new Date());
-            alumnoCicloCurso.setUserModificacion(ds.getUsuario());
-            alumnoCicloCurso.setRegistroActivo(0);
-            alumnoCicloCursoDAO.update(alumnoCicloCurso);
 
             AlumnoCicloCurso alumnoCicloCursosMod = new AlumnoCicloCurso();
             alumnoCicloCursosMod.setAlumnoCiclo(alumnoCicloCurso.getAlumnoCiclo());
             alumnoCicloCursosMod.setCreditos(alumnoCicloCurso.getCreditos());
             alumnoCicloCursosMod.setCurso(alumnoCicloCurso.getCurso());
             alumnoCicloCursosMod.setCursoEquivalente(alumnoCicloCurso.getCursoEquivalente());
-            alumnoCicloCursosMod.setEstaAprobado(alumnoCicloCurso.getEstaAprobado());
+            alumnoCicloCursosMod.setEstaAprobado(evaluateEstaAprobado(tramiteForm.getNotaResolucion(), alumno));
             alumnoCicloCursosMod.setEstado(alumnoCicloCurso.getEstadoEnum());
             alumnoCicloCursosMod.setFechaMigracion(alumnoCicloCurso.getFechaMigracion());
             alumnoCicloCursosMod.setFechaRegistro(new Date());
@@ -647,12 +686,51 @@ public class TramiteCondicionalServiceImp implements TramiteCondicionalService {
             alumnoCicloCursosMod.setTipoCursoCurricula(alumnoCicloCurso.getTipoCursoCurricula());
             alumnoCicloCursosMod.setUsuarioRegistro(ds.getUsuario());
             alumnoCicloCursosMod.setVecesCursado(alumnoCicloCurso.getVecesCursado());
+            alumnoCicloCursosMod.setOrigenData(OrigenDataSituacionAcademicaEnum.MOD);
             alumnoCicloCursoDAO.save(alumnoCicloCursosMod);
 
-            matriculableService.revisarSituacionAcademica(alumno, ds);
+            alumnoCicloCurso.setEstado(EstadoMatriculaEnum.NMOD);
+            alumnoCicloCurso.setFechaModificacion(new Date());
+            alumnoCicloCurso.setUserModificacion(ds.getUsuario());
+            alumnoCicloCurso.setRegistroActivo(0);
+            alumnoCicloCursoDAO.update(alumnoCicloCurso);
+
+            logger.debug("Situación academica {}", alumno.getSituacionAcademica().getCodigo());
             avanceCurricularService.generarAvanceCurricularByAlumno(alumno, ds);
+
         }
 
+    }
+
+    private Integer evaluateEstaAprobado(BigDecimal nota, Alumno alumno) {
+        Integer aprobado = BigDecimal.ZERO.intValue();
+        if (alumno.isPostgrado()) {
+            if (nota.compareTo(new BigDecimal(13)) >= 0) {
+                aprobado = BigDecimal.ONE.intValue();
+            }
+        } else if (nota.compareTo(new BigDecimal(11)) >= 0) {
+            aprobado = BigDecimal.ONE.intValue();
+        }
+        return aprobado;
+    }
+
+    @Override
+    @Transactional
+    public void evaluarEliminarMatriculable(Alumno alumno, CicloAcademico cicloAcademico, DataSessionPivot ds) {
+        List<SituacionAcademicaEnum> situaciones = Arrays.asList(S_N, S_1, S_2, S_3, S_5, S_8, S_9, S_3U, S_2U, S_4U, S_6U, S_TU, S_EM);
+        alumno = alumnoDAO.findAllInfo(alumno.getId());
+        logger.debug("Situación academica {}", alumno.getSituacionAcademica().getCodigo());
+        if (!situaciones.contains(alumno.getSituacionAcademica().getCodigoEnum())) {
+            MatriculaResumen matriculaResumen = matriculaResumenDAO.findByAlumnoCiclo(alumno, cicloAcademico);
+            if (matriculaResumen != null) {
+
+                JsonResponse jsonResponse = responseRestService.updateRest(matriculaResumen, ds);
+
+                Assert.isTrue(jsonResponse.getSuccess(), "Se produjo un error al eliminar la matrícula. Comuniquese con mesa de ayuda.");
+
+                matriculaResumenDAO.delete(matriculaResumen);
+            }
+        }
     }
 
     @Override

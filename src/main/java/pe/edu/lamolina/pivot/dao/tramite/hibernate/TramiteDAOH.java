@@ -1,5 +1,6 @@
 package pe.edu.lamolina.pivot.dao.tramite.hibernate;
 
+import java.util.Arrays;
 import java.util.List;
 import pe.edu.lamolina.pivot.dao.tramite.TramiteDAO;
 import org.springframework.stereotype.Repository;
@@ -8,9 +9,12 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.RCI;
 import pe.edu.lamolina.model.enums.EstadoTramiteEnum;
 import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.enums.TipoTramiteEnum;
+import static pe.edu.lamolina.model.enums.TipoTramiteEnum.CAM_NOTA;
+import static pe.edu.lamolina.model.enums.TipoTramiteEnum.REI;
 import pe.edu.lamolina.model.tramite.Reincorporacion;
 import pe.edu.lamolina.model.tramite.Tramite;
 
@@ -92,11 +96,16 @@ public class TramiteDAOH extends AbstractEasyDAO<Tramite> implements TramiteDAO 
 
     @Override
     public List<Tramite> allReiAndRetByCiclo(CicloAcademico cicloAcademico, DynatableFilter filter) {
-        Octavia sql = new Octavia()
+        DynatableSql sql = new DynatableSql(filter)
                 .from(Tramite.class, "tram")
-                .join("cicloAcademico aca", "compania", "tipoTramite")
+                .join("cicloAcademico aca", "compania", "tipoTramite tt")
                 .left("alumno alum", "alum.carrera car", "alum.persona per", "per.tipoDocumento", "car.facultad")
-                .filter("aca.id", cicloAcademico);
+                .searchFields("alum.estado", "alum.codigo", "per.numeroDocIdentidad")
+                .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
+                .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
+                .filter("aca.id", cicloAcademico)
+                .in("tt.codigo", Arrays.asList(RCI.name(), CAM_NOTA.name(), REI.name()))
+                .orderBy("tram.id desc");
 
         return all(sql);
     }
