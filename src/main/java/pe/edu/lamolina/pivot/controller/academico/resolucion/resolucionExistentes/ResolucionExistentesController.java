@@ -189,27 +189,27 @@ public class ResolucionExistentesController {
                 List<Alumno> alumnos = service.saveReincorporacion(resolucion, ds.getUsuario(), ds);
                 for (Alumno alumno : alumnos) {
                     matriculableService.revisarSituacionAcademica(alumno, ds);
-                    if (!situaciones.contains(alumno.getSituacionAcademica().getCodigoEnum())) {
-                        continue;
-                    }
+//                    if (!situaciones.contains(alumno.getSituacionAcademica().getCodigoEnum())) {
+//                        continue;
+//                    }
                     matriculableService.saveMatriculable(alumno, TipoCondicionalEnum.REI.name(), ds);
                 }
             } else if (resolucion.getTipoResolucion().getCodigo().equals(RCI.name())) {
                 List<Alumno> alumnos = service.saveRetiroCiclo(resolucion, ds.getUsuario(), ds);
                 for (Alumno alumno : alumnos) {
                     matriculableService.revisarSituacionAcademica(alumno, ds);
-                    if (!situaciones.contains(alumno.getSituacionAcademica().getCodigoEnum())) {
-                        continue;
-                    }
+//                    if (!situaciones.contains(alumno.getSituacionAcademica().getCodigoEnum())) {
+//                        continue;
+//                    }
                     matriculableService.saveMatriculable(alumno, TipoCondicionalEnum.RETIRO_CICLO.name(), ds);
                 }
             } else {
                 List<Alumno> alumnos = service.saveCambioNota(resolucion, ds.getUsuario(), ds);
                 for (Alumno alumno : alumnos) {
                     matriculableService.revisarSituacionAcademica(alumno, ds);
-                    if (!situaciones.contains(alumno.getSituacionAcademica().getCodigoEnum())) {
-                        continue;
-                    }
+//                    if (!situaciones.contains(alumno.getSituacionAcademica().getCodigoEnum())) {
+//                        continue;
+//                    }
                     matriculableService.saveMatriculable(alumno, TipoCondicionalEnum.CAMBIO_NOTA.name(), ds);
                 }
             }
