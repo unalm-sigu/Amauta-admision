@@ -67,7 +67,7 @@ import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_TU;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_X;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_XD;
 import pe.edu.lamolina.model.enums.TipoCondicionalEnum;
-import static pe.edu.lamolina.model.enums.TramiteEstadoEnum.ACEP;
+import static pe.edu.lamolina.model.enums.TipoTramiteEnum.CAM_NOTA;
 import static pe.edu.lamolina.model.enums.TramiteEstadoEnum.PEND;
 import pe.edu.lamolina.model.tramite.CambioNota;
 import pe.edu.lamolina.model.tramite.Reincorporacion;
@@ -282,7 +282,7 @@ public class MatriculableServiceImp implements MatriculableService {
         List<Alumno> alumosConTramite = retiroCiclos.stream().map(x -> x.getAlumno()).collect(Collectors.toList());
         alumosConTramite.addAll(reincorporacion.stream().filter(x -> x.getEsCondicional() && Arrays.asList(PEND.name()).contains(x.getTramite().getEstado())).map(x -> x.getAlumno()).collect(Collectors.toList()));
         alumosConTramite.addAll(cambioNota.stream().filter(x -> x.getEsCondicional()).map(x -> x.getAlumno()).collect(Collectors.toList()));
-      
+
         List<CicloAcademico> ciclosIngresantes = Arrays.asList(cicloBD, cicloAntes);
         ModalidadEstudio modalidad = cicloBD.getModalidadEstudio();
 
@@ -758,11 +758,18 @@ public class MatriculableServiceImp implements MatriculableService {
     @Transactional
     public void saveMatriculable(Alumno alumnoForm, String tipoCondicional, DataSessionPivot ds) {
 
+
         CicloAcademico ciclo = cicloAcademicoDAO.find(ds.getCicloAcademico());
         if (ciclo.getFechaMatriculables() == null) {
             return;
         }
         Alumno alumno = alumnoDAO.find(alumnoForm);
+        if (tipoCondicional.equals(CAM_NOTA.name())) {
+            List<SituacionAcademicaEnum> situaciones = Arrays.asList(S_N, S_1, S_2, S_3, S_5, S_8, S_9, S_3U, S_2U, S_4U, S_6U, S_TU, S_EM);
+            if (!situaciones.contains(alumno.getSituacionAcademica().getCodigoEnum())) {
+                return;
+            }
+        }
 
         MatriculaResumen matri = matriculaResumenDAO.findByAlumnoCiclo(alumno, ciclo);
         matri = matri == null ? new MatriculaResumen() : matri;
@@ -833,8 +840,8 @@ public class MatriculableServiceImp implements MatriculableService {
 
             matriculaResumenDAO.save(matri);
         }
-        logger.debug("id matricula {}" , matri.getId());
-        aporteAlumnoService.generarAportes(alumno, ds.getCicloAcademico(),matri, ds);
+        logger.debug("id matricula {}", matri.getId());
+        aporteAlumnoService.generarAportes(alumno, ds.getCicloAcademico(), matri, ds);
 
     }
 
