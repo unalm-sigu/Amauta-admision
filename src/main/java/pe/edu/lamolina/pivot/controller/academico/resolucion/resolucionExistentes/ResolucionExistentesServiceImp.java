@@ -1,5 +1,6 @@
 package pe.edu.lamolina.pivot.controller.academico.resolucion.resolucionExistentes;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -187,10 +188,6 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
             reincorporacionDAO.save(reincorporacione);
             alumnos.add(reincorporacione.getAlumno());
         }
-        for (Alumno alumno : alumnos) {
-//            matriculableService.revisarSituacionAcademica(alumno, ds);
-            matriculableService.saveMatriculable(alumno, TipoCondicionalEnum.REI.name(), ds);
-        }
         return alumnos;
     }
 
@@ -297,7 +294,7 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
         for (Alumno alumno : alumnos) {
 
             avanceCurricularService.generarAvanceCurricularByAlumno(alumno, ds);
-            matriculableService.saveMatriculable(alumno, TipoCondicionalEnum.RETIRO_CICLO.name(), ds);
+
         }
         return alumnos;
     }
@@ -378,18 +375,13 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
             cambioNotaDAO.save(cambioNotaNew);
 
             AlumnoCicloCurso alumnoCicloCurso = alumnoCicloCursoDAO.findByAlumnoCicloCurso(alumno, cambioNota.getCicloAcademico(), cambioNota.getCurso());
-            alumnoCicloCurso.setEstado(EstadoMatriculaEnum.NMOD);
-            alumnoCicloCurso.setFechaModificacion(new Date());
-            alumnoCicloCurso.setUserModificacion(ds.getUsuario());
-            alumnoCicloCurso.setRegistroActivo(0);
-            alumnoCicloCursoDAO.update(alumnoCicloCurso);
 
             AlumnoCicloCurso alumnoCicloCursosMod = new AlumnoCicloCurso();
             alumnoCicloCursosMod.setAlumnoCiclo(alumnoCicloCurso.getAlumnoCiclo());
             alumnoCicloCursosMod.setCreditos(alumnoCicloCurso.getCreditos());
             alumnoCicloCursosMod.setCurso(alumnoCicloCurso.getCurso());
             alumnoCicloCursosMod.setCursoEquivalente(alumnoCicloCurso.getCursoEquivalente());
-            alumnoCicloCursosMod.setEstaAprobado(alumnoCicloCurso.getEstaAprobado());
+            alumnoCicloCursosMod.setEstaAprobado(evaluateEstaAprobado(cambioNota.getNota(), alumno));
             alumnoCicloCursosMod.setEstado(alumnoCicloCurso.getEstadoEnum());
             alumnoCicloCursosMod.setFechaMigracion(alumnoCicloCurso.getFechaMigracion());
             alumnoCicloCursosMod.setFechaRegistro(new Date());
@@ -400,6 +392,12 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
             alumnoCicloCursosMod.setVecesCursado(alumnoCicloCurso.getVecesCursado());
             alumnoCicloCursosMod.setOrigenData(OrigenDataSituacionAcademicaEnum.MOD);
             alumnoCicloCursoDAO.save(alumnoCicloCursosMod);
+
+            alumnoCicloCurso.setEstado(EstadoMatriculaEnum.NMOD);
+            alumnoCicloCurso.setFechaModificacion(new Date());
+            alumnoCicloCurso.setUserModificacion(ds.getUsuario());
+            alumnoCicloCurso.setRegistroActivo(0);
+            alumnoCicloCursoDAO.update(alumnoCicloCurso);
 
             alumnos.add(alumno);
         }
@@ -418,5 +416,17 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
     @Override
     public List<CursoDirigido> allCursodirigido(Resolucion resolucionDB) {
         return cursoDirigidoDAO.allByResolucion(resolucionDB);
+    }
+
+    private Integer evaluateEstaAprobado(BigDecimal nota, Alumno alumno) {
+        Integer aprobado = BigDecimal.ZERO.intValue();
+        if (alumno.isPostgrado()) {
+            if (nota.compareTo(new BigDecimal(13)) >= 0) {
+                aprobado = BigDecimal.ONE.intValue();
+            }
+        } else if (nota.compareTo(new BigDecimal(11)) >= 0) {
+            aprobado = BigDecimal.ONE.intValue();
+        }
+        return aprobado;
     }
 }

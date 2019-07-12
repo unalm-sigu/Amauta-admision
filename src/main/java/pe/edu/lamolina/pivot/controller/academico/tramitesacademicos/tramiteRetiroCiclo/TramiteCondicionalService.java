@@ -39,4 +39,5 @@ public interface TramiteCondicionalService {
 
     public List<Curso> allCursosByName(String nombre, Alumno alumno, CicloAcademico academico, DataSessionPivot ds);
 
+    void evaluarEliminarMatriculable(Alumno alumno, CicloAcademico cicloAcademico, DataSessionPivot ds);
 }

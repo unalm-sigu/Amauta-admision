@@ -43,7 +43,7 @@
                             <div class="form-group">
                                 <input type="text"
                                        v-model="resolucion.serie"
-                                       class="form-control" 
+                                       class="form-control numeric" 
                                        required="true"></input>
                             </div>
                         </div>
@@ -54,7 +54,7 @@
                             <div class="form-group">
                                 <input type="text"
                                        v-model="resolucion.numero"
-                                       class="form-control" 
+                                       class="form-control numeric" 
                                        required="true"> </input>
                             </div>
                         </div>
@@ -62,7 +62,9 @@
                     <div class="form-group row" v-if="dataTemp.tipoTramite &amp;&amp; dataTemp.tipoTramite.codigo == 'CAM_NOTA'">
                         <div class="col-md-12">
                             <label>Nota</label>
-                            <input class="form-control numeric" v-model="dataTemp.notaResolucion" required=""></input>
+                            <div class="form-group">
+                                <input type="text" class="form-control numeric" v-model="dataTemp.notaResolucion" required="true"></input>
+                            </div>
                         </div>
                     </div>
                 </div>

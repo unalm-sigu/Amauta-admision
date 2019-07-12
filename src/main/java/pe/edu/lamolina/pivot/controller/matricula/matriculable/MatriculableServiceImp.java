@@ -833,8 +833,8 @@ public class MatriculableServiceImp implements MatriculableService {
 
             matriculaResumenDAO.save(matri);
         }
-
-        aporteAlumnoService.generarAportes(alumno, ds.getCicloAcademico(), ds);
+        logger.debug("id matricula {}" , matri.getId());
+        aporteAlumnoService.generarAportes(alumno, ds.getCicloAcademico(),matri, ds);
 
     }
 

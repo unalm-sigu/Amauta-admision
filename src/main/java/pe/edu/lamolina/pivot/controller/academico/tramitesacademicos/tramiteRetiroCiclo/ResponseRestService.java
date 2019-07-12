@@ -9,5 +9,7 @@ public interface ResponseRestService {
 
     public JsonResponse updateRest(MatriculaResumen matriculaResumen, DataSessionPivot ds);
 
-    JsonResponse generarAporte(Alumno alumno, DataSessionPivot ds);
+    JsonResponse generarAporte(Alumno alumno, MatriculaResumen matriculaResumen, DataSessionPivot ds);
+
+    void createToken(DataSessionPivot ds);
 }

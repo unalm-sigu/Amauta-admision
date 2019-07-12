@@ -9,8 +9,11 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.lang3.RandomStringUtils;
+import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
@@ -44,12 +47,15 @@ import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_6;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_6U;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_8;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_9;
+import pe.edu.lamolina.model.enums.TokenEstadoEnum;
 import pe.edu.lamolina.model.finanzas.Acreencia;
 import pe.edu.lamolina.model.finanzas.CuentaBancaria;
 import pe.edu.lamolina.model.finanzas.DeudaAlumno;
 import pe.edu.lamolina.model.general.Oficina;
+import pe.edu.lamolina.model.seguridad.TokenIngresante;
 import pe.edu.lamolina.model.tramite.Reincorporacion;
 import pe.edu.lamolina.pivot.controller.academico.tramitesacademicos.tramiteRetiroCiclo.ResponseRestService;
+import pe.edu.lamolina.pivot.controller.academico.tramitesacademicos.tramiteRetiroCiclo.TramiteCondicionalService;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaResumenDAO;
 import pe.edu.lamolina.pivot.dao.aporte.AporteAlumnoCicloDAO;
@@ -59,6 +65,7 @@ import pe.edu.lamolina.pivot.dao.aporte.GeneracionAportesDAO;
 import pe.edu.lamolina.pivot.dao.aporte.ResumenAporteAlumnoDAO;
 import pe.edu.lamolina.pivot.dao.finanza.AcreenciaDAO;
 import pe.edu.lamolina.pivot.dao.finanza.DeudaAlumnoDAO;
+import pe.edu.lamolina.pivot.dao.seguridad.TokenIngresanteDAO;
 import pe.edu.lamolina.pivot.dao.tramite.ReincorporacionDAO;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -100,8 +107,9 @@ public class AporteAlumnoServiceImp implements AporteAlumnoService {
     ResponseRestService responseRestService;
 
     @Override
-    public void generarAportes(Alumno alumno, CicloAcademico ciclo, DataSessionPivot ds) {
-
+    @Transactional
+    public void generarAportes(Alumno alumno, CicloAcademico ciclo, MatriculaResumen matriculaResumen, DataSessionPivot ds) {
+        responseRestService.createToken(ds);
         GeneracionAportes generador = generacionAportesDAO.findByCicloAcademico(ciclo);
         if (generador == null) {
             return;
@@ -110,7 +118,7 @@ public class AporteAlumnoServiceImp implements AporteAlumnoService {
             return;
         }
 
-        JsonResponse jsonResponse = responseRestService.generarAporte(alumno, ds);
+        JsonResponse jsonResponse = responseRestService.generarAporte(alumno, matriculaResumen, ds);
 
         Assert.isTrue(jsonResponse.getSuccess(), "Se produjo un error al agregar aportes. Comuniquese con mesa de ayuda.");
 
