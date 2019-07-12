@@ -1269,23 +1269,24 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
             logger.debug("aceptarExpansion ############################################");
             logger.debug("Seccion Tipo {}", seccionEach.getTipoSeccionEnum().name());
             logger.debug("Seccion Tipo Evaluacion {}", seccionEach.getTipoSeccionEnum().getTipoSeccionEvalEnum());
-            EvaluacionExpandida evalExpandidaBySeccion = planEvaluacionesExpandidas.stream()
-                    .filter(x -> x.getTipoSeccionEvalEnum() == seccionEach.getTipoSeccionEnum().getTipoSeccionEvalEnum())
-                    .findFirst().orElse(null);
-            if (evalExpandidaBySeccion != null) {
-                logger.debug("Tipo Evaluacion {}", evalExpandidaBySeccion.getTipoSeccionEvalEnum().name());
-                this.crearEvaluacion(evaluacionSeccion, seccionEach, evalExpandidaBySeccion);
-                evaluacionesGeneradas = true;
-            }
+//            EvaluacionExpandida evalExpandidaBySeccion = planEvaluacionesExpandidas.stream()
+//                    .filter(x -> x.getTipoSeccionEvalEnum() == seccionEach.getTipoSeccionEnum().getTipoSeccionEvalEnum())
+//                    .findFirst().orElse(null);
+//            if (evalExpandidaBySeccion != null) {
+//                logger.debug("Tipo Evaluacion {}", evalExpandidaBySeccion.getTipoSeccionEvalEnum().name());
+//                this.crearEvaluacion(evaluacionSeccion, seccionEach, evalExpandidaBySeccion);
+//                evaluacionesGeneradas = true;
+//            }
 
-//            for (EvaluacionExpandida evaluacionExpandida : planEvaluacionesExpandidas) {
-//
-//                logger.debug("Tipo evaluacion en seccion {}", seccionEach.getTipoSeccionEnum().getTipoSeccionEvalEnum().name());
-//                logger.debug("Tipo Evaluacion {}", evaluacionExpandida.getTipoSeccionEvalEnum().name());
-//
-//                if (seccionEach.getTipoSeccionEnum().getTipoSeccionEvalEnum().equals(
-//                        evaluacionExpandida.getTipoSeccionEvalEnum())) {
-//
+            for (EvaluacionExpandida evaluacionExpandida : planEvaluacionesExpandidas) {
+
+                logger.debug("Tipo evaluacion en seccion {}", seccionEach.getTipoSeccionEnum().getTipoSeccionEvalEnum().name());
+                logger.debug("Tipo Evaluacion {}", evaluacionExpandida.getTipoSeccionEvalEnum().name());
+
+                if (seccionEach.getTipoSeccionEnum().getTipoSeccionEvalEnum().equals(
+                        evaluacionExpandida.getTipoSeccionEvalEnum())) {
+                    this.crearEvaluacion(evaluacionSeccion, seccionEach, evaluacionExpandida);
+                    evaluacionesGeneradas = true;
 //                    Evaluacion evaluacion = new Evaluacion();
 //                    evaluacion.create(evaluacionSeccion, seccionEach, evaluacionExpandida);
 //                    if (evaluacionExpandida.getEvaluacionesExpandidas() != null && !evaluacionExpandida.getEvaluacionesExpandidas().isEmpty()) {
@@ -1305,8 +1306,8 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
 //                        }
 //                    }
 //                    evaluacionDAO.save(evaluacion);
-//                }
-//            }
+                }
+            }
         }
         if (!evaluacionesGeneradas) {
             throw new PhobosException("Error, no se generarón evaluaciones.");

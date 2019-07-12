@@ -171,7 +171,7 @@ public class NotaAcademicaController {
                 String secciones = "";
 
                 for (Seccion seccion : grupoSeccion.getSecciones()) {
-                    secciones += seccion.getId() + "|" + seccion.getCodigo2() + "|";
+                    secciones += seccion.getId() + "|" + seccion.getCodigo2() + "(" + seccion.getTipoSeccion() + ")" + "|";
 
                     if (ObjectUtil.getParentTree(seccion, "grupoHoras") != null) {
                         secciones += seccion.getGrupoHoras().getId() + "|" + seccion.getGrupoHoras().getCodigo() + "|";
