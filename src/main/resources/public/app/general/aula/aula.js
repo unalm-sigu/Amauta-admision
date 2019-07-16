@@ -257,12 +257,12 @@ new Vue({
 
         },
         verInventario(item) {
-            location.href = APP.url('general/aula/inventario/' + item.id);
+            location.href = APP.url(rutaModulo + '/inventario/' + item.id);
             // /general/aula/inventario/234
         },
         verInventarioResumen(item) {
-            location.href = APP.url('general/aula/inventario/' + item.id + '/resumen');
-            //  /general/aula/inventario/35345/resumen
+            location.href = APP.url((rutaModulo + '/inventario/' + item.id + '/resumen');
+                    //  /general/aula/inventario/35345/resumen
         },
         horarioSemanalPDF(item) {
 
