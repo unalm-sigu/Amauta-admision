@@ -1,6 +1,5 @@
 package pe.edu.lamolina.pivot.controller.academico.resolucion.resolucionExistentes;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -120,7 +119,7 @@ public class ResolucionExistentesController {
 
         List<TipoResolucion> tipoResolucions = service.allTipoResolucion();
         for (TipoResolucion tipoResolucion : tipoResolucions) {
-            if (Arrays.asList(RCI.name(), REIC.name(), CAM_NOTA.name()).contains(tipoResolucion.getCodigo())) {
+            if (Arrays.asList(RCI.name(), REIC.name(), CAM_NOTA.name(), CURDIR.name()).contains(tipoResolucion.getCodigo())) {
                 tipoResolucionJson.add(JsonHelper.createJson(tipoResolucion, JsonNodeFactory.instance, new String[]{"*"}));
             }
         }
@@ -189,25 +188,22 @@ public class ResolucionExistentesController {
                 List<Alumno> alumnos = service.saveReincorporacion(resolucion, ds.getUsuario(), ds);
                 for (Alumno alumno : alumnos) {
                     matriculableService.revisarSituacionAcademica(alumno, ds);
-
                     matriculableService.saveMatriculable(alumno, TipoCondicionalEnum.REI.name(), ds);
                 }
             } else if (resolucion.getTipoResolucion().getCodigo().equals(RCI.name())) {
                 List<Alumno> alumnos = service.saveRetiroCiclo(resolucion, ds.getUsuario(), ds);
                 for (Alumno alumno : alumnos) {
                     matriculableService.revisarSituacionAcademica(alumno, ds);
-
                     matriculableService.saveMatriculable(alumno, TipoCondicionalEnum.RETIRO_CICLO.name(), ds);
                 }
-            } else {
+            } else if (resolucion.getTipoResolucion().getCodigo().equals(CAM_NOTA.name())) {
                 List<Alumno> alumnos = service.saveCambioNota(resolucion, ds.getUsuario(), ds);
                 for (Alumno alumno : alumnos) {
                     matriculableService.revisarSituacionAcademica(alumno, ds);
-//                    if (!situaciones.contains(alumno.getSituacionAcademica().getCodigoEnum())) {
-//                        continue;
-//                    }
                     matriculableService.saveMatriculable(alumno, TipoCondicionalEnum.CAMBIO_NOTA.name(), ds);
                 }
+            } else {
+                service.saveCursoDirigido(resolucion, ds.getUsuario(), ds);
             }
 
             response.setMessage("Se realizó el registro satisfactoriamente.");

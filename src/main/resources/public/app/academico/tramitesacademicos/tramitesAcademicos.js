@@ -175,6 +175,10 @@ var app = new Vue({
         getOrigenURL() {
             var url = window.location.href;
             return "?origen=" + Base64.encode(url);
+        },
+        urlReporteDirigido(item) {
+            let $vue = this;
+            return APP.url('academico/tramiteacademico/cursodirigido/' + item.id + '/reporte');
         }
     }
 })
