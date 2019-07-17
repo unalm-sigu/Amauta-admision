@@ -20,6 +20,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -354,7 +355,7 @@ public class AulaController {
 
     @ResponseBody
     @RequestMapping("cambioEstado")
-    public JsonResponse cambioEstadoOrientacionCarrera(Aula aula, HttpSession session) {
+    public JsonResponse cambioEstado(@RequestBody Aula aula, HttpSession session) {
         JsonResponse response = new JsonResponse();
         response.setSuccess(false);
 
@@ -381,9 +382,8 @@ public class AulaController {
 
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            service.eliminarAula(aula, ds);
-
-            response.setMessage("Se cambio de estado satisfactoriamente.");
+            service.eliminarAula(aula);
+            response.setMessage("El registro fue eliminado satisfactoriamente.");
             response.setSuccess(true);
 
         } catch (PhobosException e) {

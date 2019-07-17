@@ -34,7 +34,7 @@ public interface AulaService {
 
     void cambioEstado(Aula aula, DataSessionPivot ds);
 
-    void eliminarAula(Aula aula, DataSessionPivot ds);
+    void eliminarAula(Aula aula);
 
     List<Dia> allDia();
 
