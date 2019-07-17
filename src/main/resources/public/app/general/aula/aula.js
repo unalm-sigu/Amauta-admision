@@ -295,6 +295,7 @@ new Vue({
             $vue.aula = {};
             $vue.aula = Object.assign({}, item);
             $vue.aula.estado = newEstado; //set nuevo estado
+            $("#" + $vue.modalCambioEstado.form).parsley().destroy();
             $vue.openModal("cambioEstado");
         },
         editar(item) {
