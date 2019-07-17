@@ -603,7 +603,7 @@ public class PromedioServiceImp implements PromedioService {
             AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findByAlumnoCiclo(alumno, cicloAcademico);
             AlumnoCicloCurso alumnoCicloCurso = alumnoCicloCursoDAO.findByAlumnoCicloCurso(alumno, cicloAcademico, curso);
             DateTime today = new DateTime(ds.getFechaAccionAudit());
-
+            
             if (alumnoCiclo == null) {
                 SituacionAcademica situacionAcademicaComodin = situacionAcademicaDAO.findByCodigo(SituacionAcademicaEnum.S_00.getValue());
                 alumnoCiclo = new AlumnoCiclo();

@@ -342,23 +342,24 @@ new Vue({
         },
         verificarAlumnosNmat() {
             let $vue = this;
-            MODAL.showWait("Espere un momento por favor");
-            $.ajax({
-                method: 'POST',
-                url: APP.url('academico/matriculable/verificarAlumnosNmat'),
-                success: function (response) {
-                    if (response.success) {
-                        $vue.findCiclo();
-                        $vue.$refs.load.loadRemoteData();
-                        MODAL.hideWait();
-                        notify(response.message, "success");
-                    }
-                },
-                error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
-                    MODAL.hideWait();
-                }
-            });
+            
+//            MODAL.showWait("Espere un momento por favor");
+//            $.ajax({
+//                method: 'POST',
+//                url: APP.url('academico/matriculable/verificarAlumnosNmat'),
+//                success: function (response) {
+//                    if (response.success) {
+//                        $vue.findCiclo();
+//                        $vue.$refs.load.loadRemoteData();
+//                        MODAL.hideWait();
+//                        notify(response.message, "success");
+//                    }
+//                },
+//                error: function () {
+//                    notify(MESSAGES.errorComunicacion, "error");
+//                    MODAL.hideWait();
+//                }
+//            });
         },
         beneficiar(item) {
             let $vue = this;

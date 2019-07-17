@@ -117,8 +117,8 @@ public class MatriculaCursoDAOH extends AbstractEasyDAO<MatriculaCurso> implemen
         Octavia sql = Octavia.query()
                 .from(MatriculaCurso.class, "mc")
                 .join("matriculaResumen mr", "mr.alumno alu", "mr.cicloAcademico ca", "curso cu")
-                .join("alu.persona per")
-                .leftJoin("per.tipoDocumento")
+                .join("alu.persona per", "alu.carrera")
+                .leftJoin("per.tipoDocumento", "alu.orientacionCarrera")
                 .orderBy("ca.codigo asc")
                 .exists(sqlSubquery)
                 .linkedBy("alu.id", "alu1.id");
