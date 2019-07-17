@@ -484,7 +484,7 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
             EstadoTramite estado = cursoDirigidoForm.getSeleccionado() ? estadoTramite : estadoTramiteRech;
             TramiteEstadoEnum estadotram = cursoDirigidoForm.getSeleccionado() ? TramiteEstadoEnum.ACEP : TramiteEstadoEnum.RCHZ;
             CursoDirigido cursoDirigidoTram = map.get(cursoDirigidoForm.getAlumno().getId());
-            Assert.isNotNull(cursoDirigidoTram, "El alumno " + cursoDirigidoForm.getAlumno().getPersona().getApellidosNombres() + " no cuenta con un tramite de curso dirigido.");
+            Assert.isNotNull(cursoDirigidoTram, "El alumno " + cursoDirigidoForm.getAlumno().getPersona().getNombreCompleto() + " no cuenta con un tramite de curso dirigido.");
             cursoDirigidoTram.setResolucion(resolucion);
             cursoDirigidoTram.setDocenteAsignado(cursoDirigidoForm.getDocenteAsignado());
             cursoDirigidoTram.setEstado(estado);
