@@ -399,7 +399,8 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
         evaluacionEliminada.setFechaRegistro(today.toDate());
 
         evaluacionEliminada.setAlumnoEvaluacionElims(new ArrayList<>());
-
+        List<CicloAcademico> cicloAcademicos = cicloAcademicoDAO.allActivosAlModalidades();
+        Map<Long, CicloAcademico> mapCicloAcademico = TypesUtil.convertListToMap("modalidadEstudio.id", cicloAcademicos);
         List<MatriculaSeccion> marticulasSeccion = new ArrayList();
         for (AlumnoEvaluacion alumnoEvaluacion : alumnoEvaluaciones) {
             AlumnoEvaluacionElim alumnoEvaluacionElim = new AlumnoEvaluacionElim();
@@ -414,10 +415,10 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
             matSecc.setSeccion(evaluacion.getSeccionResponsable());
 
             marticulasSeccion.add(matSecc);
-
+            CicloAcademico academico = mapCicloAcademico.get(alumno.getModalidadEstudio().getId());
             MatriculaCurso matriculaCurso = matriculaCursoDAO.findByAlumnoCursoCiclo(alumno,
                     evaluacion.getSeccionResponsable().getGrupoSeccion().getCurso(),
-                    ds.getCicloAcademico());
+                    academico);
             matriculaCurso.setCreditosAprobados(null);
             matriculaCursoDAO.update(matriculaCurso);
         }
@@ -1648,8 +1649,8 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
     }
 
     @Override
-    public List<AlumnoEvaluacion> allEvaluacionsByFilter(Alumno alumno, Curso curso, CicloAcademico cicloAcademico) {
-        return alumnoEvaluacionDAO.allByAlumnoCursoCiclo(alumno, curso, cicloAcademico);
+    public List<AlumnoEvaluacion> allEvaluacionsByFilter(Alumno alumno, Curso curso, CicloAcademico cicloAcademico, CicloAcademico academicoMOD) {
+        return alumnoEvaluacionDAO.allByAlumnoCursoCiclo(alumno, curso, cicloAcademico, academicoMOD);
     }
 
     @Override

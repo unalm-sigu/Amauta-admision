@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.zelpers.miscelanea.NumberFormat;
-import pe.albatross.zelpers.miscelanea.ObjectUtil;
+import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.albatross.zelpers.miscelanea.math.Fraxtion;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoEvaluacion;
@@ -37,7 +37,9 @@ import pe.edu.lamolina.model.enums.MotivoAnulacionEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.controller.test.VisorCalculoNotas;
+import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoEvaluacionDAO;
+import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.EvaluacionDAO;
 import pe.edu.lamolina.pivot.dao.academico.EvaluacionExpandidaDAO;
 import pe.edu.lamolina.pivot.dao.academico.GrupoSeccionDAO;
@@ -79,7 +81,13 @@ public class CalculoNotasServiceImp implements CalculoNotasService {
     MatriculaSeccionDAO matriculaSeccionDAO;
 
     @Autowired
+    CicloAcademicoDAO cicloAcademicoDAO;
+
+    @Autowired
     NotaLetraDAO notaLetraDAO;
+
+    @Autowired
+    AlumnoDAO alumnoDAO;
 
     @Override
     @Transactional
@@ -110,12 +118,15 @@ public class CalculoNotasServiceImp implements CalculoNotasService {
     @Override
     @Transactional
     public void calcularNotasAlumno(Alumno alumno, GrupoSeccion grupoSeccion, Curso curso, CicloAcademico ciclo, Usuario usuario) {
-
+        alumno = alumnoDAO.find(alumno);
+        List<CicloAcademico> cicloAcademicos = cicloAcademicoDAO.allActivosAlModalidades();
+        Map<Long, CicloAcademico> mapCicloAcademico = TypesUtil.convertListToMap("modalidadEstudio.id", cicloAcademicos);
+        CicloAcademico academicoMod = mapCicloAcademico.get(alumno.getModalidadEstudio().getId());
         logger.debug("\n\n\n");
-        logger.debug("Calcular nota alumno {} gpoSecc {} curso {} ciclo {}", alumno.getId(), grupoSeccion.getId(), curso.getId(), ciclo.getId());
+        logger.debug("Calcular nota alumno {} gpoSecc {} curso {} ciclo {}", alumno.getId(), grupoSeccion.getId(), curso.getId(), academicoMod.getId());
 
         grupoSeccion = grupoSeccionDAO.find(grupoSeccion.getId());
-        MatriculaCurso matriculaCurso = matriculaCursoDAO.findByAlumnoCursoCiclo(alumno, curso, ciclo);
+        MatriculaCurso matriculaCurso = matriculaCursoDAO.findByAlumnoCursoCiclo(alumno, curso, academicoMod);
 
         Map<String, NotaLetra> mapNotaLetra = new HashMap<>();
         List<NotaLetra> notasLetras = notaLetraDAO.all();
@@ -124,7 +135,7 @@ public class CalculoNotasServiceImp implements CalculoNotasService {
         }
 
         int cant = 0;
-        List<AlumnoEvaluacion> evaluacionesAlumno = alumnoEvaluacionDAO.allByAlumnoCursoCiclo(alumno, curso, ciclo);
+        List<AlumnoEvaluacion> evaluacionesAlumno = alumnoEvaluacionDAO.allByAlumnoCursoCiclo(alumno, curso, ciclo, academicoMod);
         for (AlumnoEvaluacion nota : evaluacionesAlumno) {
             if (nota.getEstadoEnum() != AlumnoEvaluacionEstadoEnum.CALC) {
                 cant++;
