@@ -161,7 +161,7 @@ public class MatriculableServiceImp implements MatriculableService {
     }
 
     @Override
-    public List<MatriculaResumen> allAlumnosByCicloRolDynatable(DynatableFilter filter, CicloAcademico cicloAcademico, String codigo, List<Long> filtros) {
+    public List<MatriculaResumen> allAlumnosByCicloRolDynatable(DynatableFilter filter, List<CicloAcademico> cicloAcademico, String codigo, List<Long> filtros) {
         return matriculaResumenDAO.allByCicloRolDynatable(filter, cicloAcademico, codigo, filtros);
     }
 
@@ -758,7 +758,6 @@ public class MatriculableServiceImp implements MatriculableService {
     @Transactional
     public void saveMatriculable(Alumno alumnoForm, String tipoCondicional, DataSessionPivot ds) {
 
-
         CicloAcademico ciclo = cicloAcademicoDAO.find(ds.getCicloAcademico());
         if (ciclo.getFechaMatriculables() == null) {
             return;
@@ -954,6 +953,11 @@ public class MatriculableServiceImp implements MatriculableService {
             matriculaResumen.setFechaBeneficiadoUtlCiclo(null);
         }
         matriculaResumenDAO.updateBeneficiado(matriculaResumen);
+    }
+
+    @Override
+    public List<CicloAcademico> allCiclosActivos() {
+        return cicloAcademicoDAO.allActivosAlModalidades();
     }
 
 }

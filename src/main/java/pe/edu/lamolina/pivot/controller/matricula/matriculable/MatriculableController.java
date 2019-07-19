@@ -145,8 +145,8 @@ public class MatriculableController {
         try {
 
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
-
-            List<MatriculaResumen> matriculables = service.allAlumnosByCicloRolDynatable(filter, ds.getCicloAcademico(), ds.getRolActivo().getCodigo(), filtros);
+            List<CicloAcademico> cicloAcademicos = service.allCiclosActivos();
+            List<MatriculaResumen> matriculables = service.allAlumnosByCicloRolDynatable(filter, cicloAcademicos, ds.getRolActivo().getCodigo(), filtros);
             for (MatriculaResumen matriculable : matriculables) {
                 ObjectNode node = JsonHelper.createJson(matriculable, JsonNodeFactory.instance, true,
                         new String[]{

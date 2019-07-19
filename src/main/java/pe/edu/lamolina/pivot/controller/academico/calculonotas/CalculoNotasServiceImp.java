@@ -3,6 +3,7 @@ package pe.edu.lamolina.pivot.controller.academico.calculonotas;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -17,7 +18,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.zelpers.miscelanea.NumberFormat;
-import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.albatross.zelpers.miscelanea.math.Fraxtion;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoEvaluacion;
@@ -33,6 +33,9 @@ import pe.edu.lamolina.model.academico.ResumenAlumnoEvaluacion;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.AlumnoEvaluacionEstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoEnum;
+import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.EPG;
+import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.PRE;
+import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.VIS;
 import pe.edu.lamolina.model.enums.MotivoAnulacionEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 import pe.edu.lamolina.model.seguridad.Usuario;
@@ -120,8 +123,12 @@ public class CalculoNotasServiceImp implements CalculoNotasService {
     public void calcularNotasAlumno(Alumno alumno, GrupoSeccion grupoSeccion, Curso curso, CicloAcademico ciclo, Usuario usuario) {
         alumno = alumnoDAO.find(alumno);
         List<CicloAcademico> cicloAcademicos = cicloAcademicoDAO.allActivosAlModalidades();
-        Map<Long, CicloAcademico> mapCicloAcademico = TypesUtil.convertListToMap("modalidadEstudio.id", cicloAcademicos);
-        CicloAcademico academicoMod = mapCicloAcademico.get(alumno.getModalidadEstudio().getId());
+        CicloAcademico academicoMod = null;
+        if (Arrays.asList(PRE, VIS).contains(alumno.getModalidadEstudio().getCodigoEnum())) {
+            academicoMod = cicloAcademicos.stream().filter(x -> x.getModalidadEstudio().getCodigoEnum() == PRE).findAny().orElse(null);
+        } else {
+            academicoMod = cicloAcademicos.stream().filter(x -> x.getModalidadEstudio().getCodigoEnum() == EPG).findAny().orElse(null);
+        }
         logger.debug("\n\n\n");
         logger.debug("Calcular nota alumno {} gpoSecc {} curso {} ciclo {}", alumno.getId(), grupoSeccion.getId(), curso.getId(), academicoMod.getId());
 
