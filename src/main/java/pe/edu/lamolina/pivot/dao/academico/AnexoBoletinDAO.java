@@ -5,6 +5,7 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.easydao.EasyDAO;
 import pe.edu.lamolina.model.academico.AnexoBoletin;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.pivot.controller.academico.anexoboletin.AnexoResumen;
 
 public interface AnexoBoletinDAO extends EasyDAO<AnexoBoletin> {
@@ -36,5 +37,7 @@ public interface AnexoBoletinDAO extends EasyDAO<AnexoBoletin> {
     List<AnexoBoletin> allHijosWithCursos(CicloAcademico ciclo);
 
     List<AnexoBoletin> allTodosByCiclo(CicloAcademico ciclo);
+
+    AnexoBoletin findDepartamento(DepartamentoAcademico departamentoAcademico);
 
 }

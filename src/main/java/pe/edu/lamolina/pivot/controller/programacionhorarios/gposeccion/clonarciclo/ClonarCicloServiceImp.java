@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.CodeGenerator;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.CicloAcademico;
@@ -48,12 +49,14 @@ import pe.edu.lamolina.model.enums.TipoCicloEnum;
 import pe.edu.lamolina.model.enums.TipoCreditoEnum;
 import pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum;
 import pe.edu.lamolina.model.enums.TipoDictadoGrupoSeccionEnum;
+import pe.edu.lamolina.model.enums.TipoHorarioAulaEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.horario.DiaHoraGrupo;
 import pe.edu.lamolina.model.horario.GrupoHoras;
+import pe.edu.lamolina.model.horario.HorarioAula;
 import pe.edu.lamolina.model.horario.HorarioSeccion;
 import pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.GpoSeccionResumen;
 import pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.GpoSeccionService;
@@ -76,6 +79,7 @@ import pe.edu.lamolina.pivot.dao.academico.SeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.TipoCursoCurriculaDAO;
 import pe.edu.lamolina.pivot.dao.general.DiaDAO;
 import pe.edu.lamolina.pivot.dao.horario.DiaHoraGrupoDAO;
+import pe.edu.lamolina.pivot.dao.horario.HorarioAulaDAO;
 import pe.edu.lamolina.pivot.dao.horario.HorarioSeccionDAO;
 import pe.edu.lamolina.pivot.dao.vacante.VacanteAlumnoDAO;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -152,6 +156,9 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
     @Autowired
     EvaluacionExpandidaDAO evaluacionExpandidaDAO;
 
+    @Autowired
+    HorarioAulaDAO horarioAulaDAO;
+
     @Override
     @Transactional
     public void clonarCiclo(CicloClonacionBean cicloClonacionBean, DataSessionPivot ds) {
@@ -224,6 +231,10 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
         Map<Long, List<Seccion>> seccionesMap = TypesUtil.convertListToMapList("grupoSeccion.id", secciones);
         for (GrupoSeccion gsOrigene : gsOrigenes) {
             List<Seccion> seccionesGpo = seccionesMap.get(gsOrigene.getId());
+            System.out.println("gsOrigene ::: " + gsOrigene.getCodigo2());
+            for (Seccion secc : seccionesGpo) {
+                System.out.println("\tsecc ::: " + secc.getCodigo2());
+            }
             Collections.sort(seccionesGpo, new Seccion.CompareCodigo2());
             gsOrigene.setSecciones(seccionesGpo);
 
@@ -421,6 +432,16 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
                         seccNew.setGrupoHoras(null);
                         System.out.println("Cruzado");
                     }
+                    if (gpoNew != null && ObjectUtil.getParentTree(seccNew, "aula.id") != null) {
+                        List<String> diasHorasSeccion = diasHorasSecc.stream().map(x -> x.getIdDiaHora()).collect(Collectors.toList());
+                        if (!seccNew.getAula().getPermiteCruceBool()) {
+                            List<HorarioAula> horariosAulasFound = horarioAulaDAO.allRangoDiaByDiasHoras(diasHorasSeccion, eventoDictadoClases.getFechaInicio(), eventoDictadoClases.getFechaFin());
+                            if (!horariosAulasFound.isEmpty()) {
+                                seccNew.setAula(null);
+                            }
+                        }
+                    }
+
                 }
                 seccionDAO.save(seccNew);
 
@@ -434,13 +455,31 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
                         horarioSecc.setFechaInicio(eventoDictadoClases.getFechaInicio());
                         horarioSecc.setFechaFin(eventoDictadoClases.getFechaFin());
                         horarioSecc.setEstadoEnum(EstadoHorarioAulaEnum.ACT);
+                        if (ObjectUtil.getParentTree(seccNew, "aula.id") != null) {
+                            horarioSecc.setAula(seccNew.getAula());
+                        }
                         horarioSeccionDAO.save(horarioSecc);
+
+                        if (ObjectUtil.getParentTree(seccNew, "aula.id") != null) {
+                            for (DiaHoraGrupo diaHoraGrupoEach : diasHorasSecc) {
+                                HorarioAula horarioAula = new HorarioAula();
+                                horarioAula.setAula(seccNew.getAula());
+                                horarioAula.setDia(diaHoraGrupoEach.getDia());
+                                horarioAula.setHora(diaHoraGrupoEach.getHora());
+                                horarioAula.setSeccion(seccNew);
+                                horarioAula.setEstadoEnum(EstadoHorarioAulaEnum.ACT);
+                                horarioAula.setTipoEnum(TipoHorarioAulaEnum.DICT);
+                                horarioAula.setFechaInicio(eventoDictadoClases.getFechaInicio());
+                                horarioAula.setFechaFin(eventoDictadoClases.getFechaFin());
+                                horarioAulaDAO.save(horarioAula);
+                            }
+                        }
 
                         if (seccNew.getIsTipoSeccionTCUR()) { // is es TCUR
                             horarioTCUR.add(horarioSecc);
                         }
                     }
-
+                    // dhgdhd, ver auka de seccionnew
                 }
 
                 List<DocenteSeccion> docenteSeccion = seccOrigen.getDocenteSeccion();

@@ -549,7 +549,7 @@ new Vue({
         },
         verLimpiarCiclo() {
             let $vue = this;
-            VUE_MODAL.configure($vue.configConfirmAction, {
+            $vue.configConfirmAction = VUE_MODAL.structConfirm({
                 message: "¿Desea eliminar todos los registros del ciclo?",
                 okbtn: "Si, eliminar",
                 okclass: "btn-danger",

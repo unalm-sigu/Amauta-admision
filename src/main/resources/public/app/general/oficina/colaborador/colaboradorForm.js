@@ -204,6 +204,7 @@ new Vue({
                 return;
             }
             self.btnEnable();
+
             $vue.colaborador.persona = $vue.persona;
             $vue.colaborador.persona.fechaNacer = moment($vue.colaborador.persona.fechaNacer, "dd/MM/yyyy");
             $vue.colaboradorData.colaborador = $vue.colaborador;

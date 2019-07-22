@@ -167,6 +167,14 @@ var app = new Vue({
             event.preventDefault();
 
             location.href = APP.url("academico/tramiteacademico/procesar/" + item.id);
+        },
+        urlAcademico(item) {
+            let $vue = this;
+            return APP.url('academico/alumno/' + item.alumno.id + '/infoacademico') + $vue.getOrigenURL();
+        },
+        getOrigenURL() {
+            var url = window.location.href;
+            return "?origen=" + Base64.encode(url);
         }
     }
 })

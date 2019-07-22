@@ -47,7 +47,7 @@ Vue.component("avance-component", {
             let $vue = this;
             let cred = 0;
             let cur = 0;
-            
+
             for (var i = 0; i < $vue.resumenAlumno.length; i++) {
                 let res = $vue.resumenAlumno[i];
                 if (res.tipoCursoCurricula.codigo == 'EEP' || res.tipoCursoCurricula.codigo == 'DEP') {
@@ -62,7 +62,7 @@ Vue.component("avance-component", {
             let $vue = this;
             let cred = 0;
             let cur = 0;
-            
+
             for (var i = 0; i < $vue.resumenPlan.length; i++) {
                 let res = $vue.resumenPlan[i];
                 if (res.tipoCursoCurricula.codigo == 'EEP' || res.tipoCursoCurricula.codigo == 'DEP') {
@@ -82,7 +82,7 @@ Vue.component("avance-component", {
                 }
             }
             return 0;
-            
+
         },
         cursosAlumnos(item) {
             let $vue = this;
@@ -107,14 +107,14 @@ Vue.component("avance-component", {
             } else {
                 tabSize = $vue.showCiclo - 1;
             }
-            
+
             if (index === tabSize) {
                 return "active";
             }
         },
         styleNotaCurri(nota) {
             if (nota === "") {
-                
+
             } else {
                 return "estado-blue";
             }
@@ -134,9 +134,17 @@ Vue.component("avance-component", {
                 return "text-warning ";
             }
         },
+        styleCountRequisitos(prerequisitos) {
+            
+            if (prerequisitos == 0) {
+                return "estado-red";
+            } else {
+                return "estado-blue";
+            }
+        },
         cargaAvance() {
             let $vue = this;
-            
+
             $.ajax({
                 method: 'GET',
                 url: APP.url('academico/alumno/' + $vue.alumno.id + '/avance'),
@@ -159,7 +167,7 @@ Vue.component("avance-component", {
 //                notify('Debe cambiar antes el plan curricular', 'error');
 //                return;
 //            }
-            
+
             MODAL.showWait("Espere un momento por favor");
             $.ajax({
                 method: 'GET',
@@ -204,6 +212,11 @@ Vue.component("avance-component", {
                     notify("No se pudo cargar la lista de planes curriculares disponibles para el alumno", "error");
                 }
             });
+        },
+        modalPreRequisitos(cursoCurricula) {
+            let $vue = this;
+            console.log(cursoCurricula.prerrequisitos);
+            $vue.$root.modalPreRequisitos(cursoCurricula);
         }
     }
 });

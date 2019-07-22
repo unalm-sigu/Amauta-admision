@@ -344,7 +344,6 @@ public class MatriculableServiceImp implements MatriculableService {
         }
 
         for (Alumno alumnoTramite : alumosConTramite) {
-            updateCursoApro(alumnoTramite, ds);
             Alumno alumno = mapMatriculableCondicional.get(alumnoTramite.getId());
             if (alumno != null) {
                 continue;
@@ -769,6 +768,8 @@ public class MatriculableServiceImp implements MatriculableService {
         matri.setCicloAcademico(ds.getCicloAcademico());
         matri.setSituacionInicio(alumno.getSituacionAcademica());
 
+        matri.setUserRegistro(ds.getUsuario());
+        matri.setFechaRegistro(new Date());
         matri.setCreditosMatriculados(0);
         matri.setCreditosRetirados(0);
         matri.setCursosMatriculados(0);
@@ -781,7 +782,7 @@ public class MatriculableServiceImp implements MatriculableService {
         matri.setNotaFinal("0");
         matri.setEstadoEnum(EstadoMatriculaEnum.NMAT);
         matri.setMotivoMatriculable(alumnoForm.getMotivoMatriculable());
-        matri.setEsCondicional(alumno.getEsMatriculaCondicional());
+        matri.setEsCondicional(alumnoForm.getEsMatriculaCondicional());
 
         if (!sitEnum.contains(sit.getCodigoEnum()) && !modEnum.contains(modalidad.getCodigoEnum()) && ciclo.getFechaPrioridades() != null) {
             AlumnoCiclo alumnoCiclo = null;
@@ -796,8 +797,8 @@ public class MatriculableServiceImp implements MatriculableService {
 
             matri = matriculableConector.procesarPrioridadAlumno(matri, alumnoCiclo);
 
-            MatriculaResumen matriculaAnt = matriculaResumenDAO.findByAntPrioridad(matri, ds.getCicloAcademico(), alumno.getCreditosAprobados() > CAPA_ULTIMO_CICLO ? true : false);
-            MatriculaResumen matriculaDes = matriculaResumenDAO.findByDesPrioridad(matri, ds.getCicloAcademico(), alumno.getCreditosAprobados() > CAPA_ULTIMO_CICLO ? true : false);
+            MatriculaResumen matriculaAnt = matriculaResumenDAO.findByAntPrioridad(matri, ds.getCicloAcademico(), (alumno.getCreditosAprobados() > CAPA_ULTIMO_CICLO));
+            MatriculaResumen matriculaDes = matriculaResumenDAO.findByDesPrioridad(matri, ds.getCicloAcademico(), (alumno.getCreditosAprobados() > CAPA_ULTIMO_CICLO));
             if (matriculaAnt != null && matriculaDes != null) {
 
                 BigDecimal prioridad = matriculaAnt.getPrioridad().add(matriculaDes.getPrioridad()).divide(new BigDecimal(2));

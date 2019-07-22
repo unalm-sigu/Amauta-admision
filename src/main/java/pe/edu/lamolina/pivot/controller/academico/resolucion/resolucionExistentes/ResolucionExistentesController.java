@@ -32,12 +32,13 @@ import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
-import pe.edu.lamolina.model.enums.TipoCondicionalEnum;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.CAM_NOTA;
+import static pe.edu.lamolina.model.enums.TipoResolucionEnum.CURDIR;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.RCI;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.REIC;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.tramite.CambioNota;
+import pe.edu.lamolina.model.tramite.CursoDirigido;
 import pe.edu.lamolina.model.tramite.Reincorporacion;
 import pe.edu.lamolina.model.tramite.Resolucion;
 import pe.edu.lamolina.model.tramite.RetiroCiclo;
@@ -170,13 +171,13 @@ public class ResolucionExistentesController {
             if (resolucion.getTipoResolucion().getCodigo().equals(REIC.name())) {
 
                 List<Alumno> alumnos = service.saveReincorporacion(resolucion, ds.getUsuario(), ds);
-                
+
             } else if (resolucion.getTipoResolucion().getCodigo().equals(RCI.name())) {
                 List<Alumno> alumnos = service.saveRetiroCiclo(resolucion, ds.getUsuario(), ds);
-               
+
             } else {
                 List<Alumno> alumnos = service.saveCambioNota(resolucion, ds.getUsuario(), ds);
-                
+
             }
 
             response.setMessage("Se realizó el registro satisfactoriamente.");
@@ -205,6 +206,7 @@ public class ResolucionExistentesController {
             List<Reincorporacion> reincorporacions = new ArrayList<>();
             List<RetiroCiclo> retiroCiclos = new ArrayList<>();
             List<CambioNota> cambioNotas = new ArrayList<>();
+            List<CursoDirigido> cursoDirigidos = new ArrayList<>();
             ObjectNode objectNode = new ObjectNode(JsonNodeFactory.instance);
             if (resolucionDB.getTipoResolucion().getCodigo().equals(REIC.name())) {
                 reincorporacions = service.allReincorporacionByResolucion(resolucionDB);
@@ -233,7 +235,7 @@ public class ResolucionExistentesController {
                     objectNode.put("tipo", RCI.name());
                     array.add(objectNode);
                 }
-            } else {
+            } else if (resolucionDB.getTipoResolucion().getCodigo().equals(CAM_NOTA.name())) {
                 cambioNotas = service.allCambioNota(resolucionDB);
                 for (CambioNota cambioNota : cambioNotas) {
                     objectNode = JsonHelper.createJson(cambioNota, JsonNodeFactory.instance, new String[]{
@@ -245,6 +247,20 @@ public class ResolucionExistentesController {
                         "cicloAcademico.*"
                     });
                     objectNode.put("tipo", CAM_NOTA.name());
+                    array.add(objectNode);
+                }
+            } else if (resolucionDB.getTipoResolucion().getCodigo().equals(CURDIR.name())) {
+                cursoDirigidos = service.allCursodirigido(resolucionDB);
+                for (CursoDirigido cursoDir : cursoDirigidos) {
+                    objectNode = JsonHelper.createJson(cursoDir, JsonNodeFactory.instance, new String[]{
+                        "*",
+                        "curso.*",
+                        "tramite.alumno.*",
+                        "tramite.alumno.persona.*",
+                        "tramite.alumno.persona.tipoDocumento.*",
+//                        "cicloAcademico.*"
+                    });
+                    objectNode.put("tipo", CURDIR.name());
                     array.add(objectNode);
                 }
             }

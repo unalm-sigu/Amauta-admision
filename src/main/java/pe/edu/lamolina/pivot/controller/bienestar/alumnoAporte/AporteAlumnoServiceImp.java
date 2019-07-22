@@ -12,6 +12,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
@@ -215,6 +216,7 @@ public class AporteAlumnoServiceImp implements AporteAlumnoService {
         /* Aporte Semestral */
         if (aporte.getCodigoEnum() == AportesEnum.A01) {
             AporteSemestral apoSem = aporteSemestralDAO.findActivoByAlumno(alumno, aporte);
+            Assert.isNotNull(apoSem, "El alumno no cuenta con aporte semestral");
             AporteAlumnoCiclo aac = new AporteAlumnoCiclo();
             aac.setAporteCiclo(aporteCiclo);
             aac.setEstadoEnum(EstadoAporteEnum.DEBE);
@@ -289,7 +291,7 @@ public class AporteAlumnoServiceImp implements AporteAlumnoService {
         CicloAcademico ciclo = aportante.getMatriculaResumen().getCicloAcademico();
 
         /* Reincorporacion */
-        if (aporte.getCodigoEnum() == AportesEnum.A38) {
+        if (aporte.getCodigoEnum() == AportesEnum.A37) {
             Reincorporacion reincorpora = reincorporacionDAO.findByAlumnoCiclo(alumno, ciclo);
             if (reincorpora != null) {
                 BigDecimal monto = aporteCiclo.getMontoFijo();
@@ -319,12 +321,12 @@ public class AporteAlumnoServiceImp implements AporteAlumnoService {
         }
 
         /* Viene de Suspension */
-        if (aporte.getCodigoEnum() == AportesEnum.A28
+        if (aporte.getCodigoEnum() == AportesEnum.A43
                 && Arrays.asList(S_3, S_3U).contains(alumno.getSituacionAcademica().getCodigoEnum())) {
 
         }
         /* A pesar de estar Suspendidos van a estudiar */
-        if (aporte.getCodigoEnum() == AportesEnum.A28
+        if (aporte.getCodigoEnum() == AportesEnum.A43
                 && Arrays.asList(S_6U, S_6, S_4, S_4U).contains(alumno.getSituacionAcademica().getCodigoEnum())) {
 
         }

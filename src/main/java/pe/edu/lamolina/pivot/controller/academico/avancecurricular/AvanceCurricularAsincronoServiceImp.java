@@ -912,7 +912,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
         } else {
             cursosOpcionalesNew.setCurso(alumnoCicloCurso.getCurso());
         }
-        if (tipoCursoCurricula.getCodigoEnum() == ELC) {            
+        if (tipoCursoCurricula.getCodigoEnum() != ELE) {            
             cursosOpcionalesNew.setCursoOpcional(opcionalCurricula);
             cursosOpcionalesNew.setCursoCurricula(cursoCurricula);
         }
