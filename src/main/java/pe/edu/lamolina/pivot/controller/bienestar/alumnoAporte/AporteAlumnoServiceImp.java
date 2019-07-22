@@ -107,7 +107,7 @@ public class AporteAlumnoServiceImp implements AporteAlumnoService {
     ResponseRestService responseRestService;
 
     @Override
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void generarAportes(Alumno alumno, CicloAcademico ciclo, MatriculaResumen matriculaResumen, DataSessionPivot ds) {
         responseRestService.createToken(ds);
         GeneracionAportes generador = generacionAportesDAO.findByCicloAcademico(ciclo);

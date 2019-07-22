@@ -19,14 +19,20 @@ import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
+import pe.edu.lamolina.model.academico.AnexoBoletin;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.Facultad;
+import pe.edu.lamolina.model.academico.GrupoSeccion;
+import pe.edu.lamolina.model.academico.MatriculaCurso;
+import pe.edu.lamolina.model.academico.MatriculaResumen;
+import pe.edu.lamolina.model.academico.MatriculaSeccion;
+import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.CursoCurriculaEstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import pe.edu.lamolina.model.enums.EstadoTramiteEnum;
 import pe.edu.lamolina.model.enums.OrigenDataSituacionAcademicaEnum;
 import pe.edu.lamolina.model.enums.ResolucionEstadoEnum;
-import pe.edu.lamolina.model.enums.TipoCondicionalEnum;
 import pe.edu.lamolina.model.enums.TipoDocumentoCompaniaEnum;
 import pe.edu.lamolina.model.enums.TipoResolucionEnum;
 import pe.edu.lamolina.model.enums.TipoRetiroCicloEnum;
@@ -36,6 +42,7 @@ import pe.edu.lamolina.model.general.SerieDocumento;
 import pe.edu.lamolina.model.general.TipoDocumentoCompania;
 import pe.edu.lamolina.model.matricula.AlumnoCursoCurricula;
 import pe.edu.lamolina.model.seguridad.Usuario;
+import pe.edu.lamolina.model.tramite.AccionTramiteAcademico;
 import pe.edu.lamolina.model.tramite.CambioNota;
 import pe.edu.lamolina.model.tramite.CursoDirigido;
 import pe.edu.lamolina.model.tramite.EstadoTramite;
@@ -47,12 +54,19 @@ import pe.edu.lamolina.model.tramite.TipoTramite;
 import pe.edu.lamolina.model.tramite.Tramite;
 import pe.edu.lamolina.pivot.controller.academico.avancecurricular.AvanceCurricularService;
 import pe.edu.lamolina.pivot.controller.matricula.matriculable.MatriculableService;
+import pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.GpoSeccionService;
 import pe.edu.lamolina.pivot.controller.seriedocumento.SerieDocumentoService;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloCursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCursoCurriculaDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
+import pe.edu.lamolina.pivot.dao.academico.AnexoBoletinDAO;
 import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
+import pe.edu.lamolina.pivot.dao.academico.MatriculaCursoDAO;
+import pe.edu.lamolina.pivot.dao.academico.MatriculaResumenDAO;
+import pe.edu.lamolina.pivot.dao.academico.MatriculaSeccionDAO;
+import pe.edu.lamolina.pivot.dao.academico.SeccionDAO;
+import pe.edu.lamolina.pivot.dao.tramite.AccionTramiteAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.tramite.CambioNotaDAO;
 import pe.edu.lamolina.pivot.dao.tramite.CursoDirigidoDAO;
 import pe.edu.lamolina.pivot.dao.tramite.EstadoTramiteDAO;
@@ -110,7 +124,21 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
     @Autowired
     CambioNotaDAO cambioNotaDAO;
     @Autowired
+    AnexoBoletinDAO anexoBoletinDAO;
+    @Autowired
+    AccionTramiteAcademicoDAO accionTramiteAcademicoDAO;
+    @Autowired
+    SeccionDAO seccionDAO;
+    @Autowired
+    MatriculaSeccionDAO matriculaSeccionDAO;
+    @Autowired
+    MatriculaCursoDAO matriculaCursoDAO;
+    @Autowired
+    MatriculaResumenDAO matriculaResumenDAO;
+    @Autowired
     AvanceCurricularService avanceCurricularService;
+    @Autowired
+    GpoSeccionService gpoSeccionService;
 
     @Override
     public List<Alumno> allAlumnoByOficina(String nombre, Long instanciaOficina) {
@@ -428,5 +456,113 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
             aprobado = BigDecimal.ONE.intValue();
         }
         return aprobado;
+    }
+
+    @Override
+    @Transactional
+    public void saveCursoDirigido(Resolucion resolucionForm, Usuario usuario, DataSessionPivot ds) {
+
+        TipoResolucion tipoResolucion = tipoResolucionDAO.finByCodigo(TipoResolucionEnum.CURDIR);
+        Resolucion resolucion = new Resolucion();
+        resolucion.setOficina(resolucionForm.getOficina());
+        resolucion.setFecha(resolucionForm.getFecha());
+        resolucion.setNumero(resolucionForm.getNumero());
+        resolucion.setSerie(resolucionForm.getSerie());
+        resolucion.setEstadoEnum(ResolucionEstadoEnum.VB_RES);
+        resolucion.setFechaRegistro(new Date());
+        resolucion.setTipoResolucion(tipoResolucion);
+        resolucion.setUserRegistro(usuario);
+        resolucion.setAplicacionDirecta(1l);
+        resolucionDAO.save(resolucion);
+
+        Assert.isFalse(resolucionForm.getCursoDirigido().isEmpty(), "Debe Agregar alumnos.");
+        List<CursoDirigido> cursoDirigidos = cursoDirigidoDAO.allByCicloAcademicoSol(ds.getCicloAcademico());
+        Map<Long, CursoDirigido> map = TypesUtil.convertListToMap("tramite.alumno.id", cursoDirigidos);
+        EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigo(EstadoTramiteEnum.RES_FAC);
+        EstadoTramite estadoTramiteRech = estadoTramiteDAO.findByCodigo(EstadoTramiteEnum.RHZ_SOL);
+        for (CursoDirigido cursoDirigidoForm : resolucionForm.getCursoDirigido()) {
+            EstadoTramite estado = cursoDirigidoForm.getSeleccionado() ? estadoTramite : estadoTramiteRech;
+            TramiteEstadoEnum estadotram = cursoDirigidoForm.getSeleccionado() ? TramiteEstadoEnum.ACEP : TramiteEstadoEnum.RCHZ;
+            CursoDirigido cursoDirigidoTram = map.get(cursoDirigidoForm.getAlumno().getId());
+            Assert.isNotNull(cursoDirigidoTram, "El alumno " + cursoDirigidoForm.getAlumno().getPersona().getNombreCompleto() + " no cuenta con un tramite de curso dirigido.");
+            cursoDirigidoTram.setResolucion(resolucion);
+            cursoDirigidoTram.setDocenteAsignado(cursoDirigidoForm.getDocenteAsignado());
+            cursoDirigidoTram.setEstado(estado);
+            cursoDirigidoDAO.update(cursoDirigidoTram);
+
+            Tramite tramite = cursoDirigidoTram.getTramite();
+            tramite.setEstadoEnum(estadotram);
+            tramiteDAO.update(tramite);
+
+            if (!cursoDirigidoTram.getSeleccionado()) {
+                continue;
+            }
+            AnexoBoletin anexoBoletin = anexoBoletinDAO.findDepartamento(cursoDirigidoTram.getCurso().getDepartamentoAcademico());
+            Assert.isNotNull(anexoBoletin, "No existe el anexo boletín para el departamento " + cursoDirigidoTram.getCurso().getDepartamentoAcademico().getNombre());
+            List<GrupoSeccion> grupoSeccions = null;
+            GrupoSeccion grupoSeccion = gpoSeccionService.findByCursoAndDocenteDirigido(cursoDirigidoTram.getCurso(), cursoDirigidoTram.getDocenteAsignado(), ds.getCicloAcademico());
+            if (grupoSeccion == null) {
+                grupoSeccion = new GrupoSeccion();
+                grupoSeccion.setCantidad(1);
+                grupoSeccion.setCursoDirigido(Boolean.TRUE);
+                grupoSeccion.setCurso(cursoDirigidoTram.getCurso());
+                grupoSeccion.setDocenteResponsable(cursoDirigidoTram.getDocenteAsignado());
+                grupoSeccion.setAnexoBoletin(anexoBoletin);
+                grupoSeccions = gpoSeccionService.saveGpoSeccionHeader(grupoSeccion, ds.getCicloAcademico(), ds);
+            } else {
+                grupoSeccions = new ArrayList<>();
+                grupoSeccions.add(grupoSeccion);
+            }
+            this.matricular(grupoSeccions.get(0), cursoDirigidoTram.getTramite().getAlumno(), cursoDirigidoTram.getCurso(), ds.getUsuario(), ds.getCicloAcademico());
+        }
+    }
+
+    @Transactional
+    private void matricular(GrupoSeccion gpoSeccion, Alumno alumno, Curso curso, Usuario usuario, CicloAcademico academico) {
+
+        MatriculaResumen matriculaResumen = matriculaResumenDAO.findByAlumnoCiclo(alumno, academico);
+        List<Seccion> seccions = seccionDAO.allActivosByGpoSeccion(gpoSeccion);
+        for (Seccion seccion : seccions) {
+            seccion.setVacantes(seccion.getVacantes() + 1);
+            seccion.setMatriculados(seccion.getMatriculados() + 1);
+            seccionDAO.update(seccion);
+
+            MatriculaSeccion matriculaSeccion = new MatriculaSeccion();
+            matriculaSeccion.setEstadoEnum(EstadoMatriculaEnum.MAT);
+            matriculaSeccion.setFechaRegistro(new Date());
+            matriculaSeccion.setUserRegistro(usuario);
+            matriculaSeccion.setSeccion(seccion);
+            matriculaSeccion.setMatriculaResumen(matriculaResumen);
+            matriculaSeccion.setVisible(1);
+            matriculaSeccion.setFechaMatricula(new Date());
+            matriculaSeccion.setUserMatricula(usuario);
+
+            matriculaSeccionDAO.save(matriculaSeccion);
+        }
+        AlumnoCursoCurricula alumnoCursoCurricula = alumnoCursoCurriculaDAO.findByAlumnoCurso(alumno, curso);
+        alumnoCursoCurricula.setEstadoMatriculaEnum(EstadoMatriculaEnum.MAT);
+        alumnoCursoCurriculaDAO.updateEstado(alumnoCursoCurricula);
+
+        MatriculaCurso matriculaCurso = new MatriculaCurso();
+        matriculaCurso.setCurso(curso);
+        matriculaCurso.setEstadoEnum(EstadoMatriculaEnum.MAT);
+        matriculaCurso.setMatriculaResumen(matriculaResumen);
+        matriculaCurso.setNotaAcumulada("0");
+        matriculaCurso.setNotaAvance("0");
+        matriculaCurso.setNotaFinal("0");
+        matriculaCurso.setPorcentajeAvanceNota(0);
+        matriculaCurso.setCreditosAprobados(0);
+        matriculaCurso.setCreditos(curso.getCreditos());
+        matriculaCurso.setTipoCursoCurricula(alumnoCursoCurricula.getTipoCursoCurricula());
+        matriculaCurso.setInasistencias(0);
+        matriculaCurso.setInasistenciasExoneradas(0);
+        matriculaCurso.setUserMatricula(usuario);
+        matriculaCurso.setFechaMatricula(new Date());
+        matriculaCursoDAO.save(matriculaCurso);
+
+        matriculaResumen.setEstadoEnum(EstadoMatriculaEnum.MAT);
+        matriculaResumen.setCursosMatriculados(matriculaResumen.getCursosMatriculados() + 1);
+        matriculaResumen.setCreditosMatriculados(matriculaResumen.getCreditosMatriculados() + curso.getCreditos());
+        matriculaResumenDAO.update(matriculaResumen);
     }
 }

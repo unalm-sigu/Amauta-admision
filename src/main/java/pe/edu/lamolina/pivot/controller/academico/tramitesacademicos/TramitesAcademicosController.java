@@ -16,7 +16,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import org.apache.commons.io.IOUtils;
@@ -49,9 +48,7 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.enums.OficinaEnum;
-import static pe.edu.lamolina.model.enums.OficinaEnum.OERA;
 import pe.edu.lamolina.model.enums.TipoOficinaEnum;
-import static pe.edu.lamolina.model.enums.TipoOficinaEnum.FAC;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.tramite.AccionTramiteAcademico;
@@ -63,6 +60,7 @@ import pe.edu.lamolina.pivot.controller.academico.reunionconsejo.ReunionConsejoS
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.constant.Messages;
 import pe.edu.lamolina.pivot.controller.academico.infoacademico.InfoAcademicoService;
+import pe.edu.lamolina.pivot.controller.academico.resolucion.ResolucionService;
 import pe.edu.lamolina.pivot.controller.general.oficina.OficinaService;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -82,7 +80,8 @@ public class TramitesAcademicosController {
     InfoAcademicoService infoAcademicoService;
     @Autowired
     OficinaService oficinaService;
-
+    @Autowired
+    ResolucionService resolucionService;
     private String[] alumnoCicloMapper = new String[]{"*",
         "alumno.id",
         "alumno.codigo",
@@ -149,6 +148,13 @@ public class TramitesAcademicosController {
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        ArrayNode oficinasJson = new ArrayNode(JsonNodeFactory.instance);
+        List<Oficina> oficinas = resolucionService.allOFicinasByUser(ds);
+        for (Oficina oficina : oficinas) {
+            ObjectNode oficinaJson = JsonHelper.createJson(oficina, JsonNodeFactory.instance, new String[]{"*"});
+            oficinasJson.add(oficinaJson);
+        }
+        model.addAttribute("oficinas", oficinasJson);
         model.addAttribute("ciclo", ds.getCicloAcademico());
         return "academico/tramitescademicos/tramitesAcademicos";
     }
@@ -213,6 +219,7 @@ public class TramitesAcademicosController {
                     CursoDirigido cursoDirigido = tramite.getCursoDirigido().get(0);
                     tramiteJson.set("cursodirigido", JsonHelper.createJson(cursoDirigido, jc, false, new String[]{
                         "*",
+                        "curso.nombre",
                         "docenteAsignado.*",
                         "docenteAsignado.persona.*"
                     }));
@@ -822,6 +829,35 @@ public class TramitesAcademicosController {
             arrayNode.add(JsonHelper.createJson(oficina, JsonNodeFactory.instance, new String[]{"*"}));
         }
         return arrayNode;
+    }
+
+    // Temporal
+    @ResponseBody
+    @RequestMapping("findDocente")
+    public JsonResponse findAlumno(
+            @RequestParam("nombre") String nombre,
+            HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            ArrayNode arrDocentes = new ArrayNode(JsonNodeFactory.instance);
+            List<Docente> docentes = tramitesAcademicosService.allByNombre(nombre);
+            for (Docente docente : docentes) {
+                arrDocentes.add(JsonHelper.createJson(docente, JsonNodeFactory.instance, new String[]{
+                    "*",
+                    "persona.*"
+                }));
+            }
+            response.setSuccess(Boolean.TRUE);
+            response.setData(arrDocentes);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (RuntimeException e) {
+            ExceptionHandler.handleSpecial(e, response, e.getLocalizedMessage());
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
     }
 
 }

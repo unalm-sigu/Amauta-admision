@@ -3,6 +3,7 @@ package pe.edu.lamolina.pivot.controller.academico.calculonotas;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -17,7 +18,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.zelpers.miscelanea.NumberFormat;
-import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.math.Fraxtion;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoEvaluacion;
@@ -33,11 +33,16 @@ import pe.edu.lamolina.model.academico.ResumenAlumnoEvaluacion;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.AlumnoEvaluacionEstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoEnum;
+import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.EPG;
+import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.PRE;
+import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.VIS;
 import pe.edu.lamolina.model.enums.MotivoAnulacionEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.controller.test.VisorCalculoNotas;
+import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoEvaluacionDAO;
+import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.EvaluacionDAO;
 import pe.edu.lamolina.pivot.dao.academico.EvaluacionExpandidaDAO;
 import pe.edu.lamolina.pivot.dao.academico.GrupoSeccionDAO;
@@ -79,7 +84,13 @@ public class CalculoNotasServiceImp implements CalculoNotasService {
     MatriculaSeccionDAO matriculaSeccionDAO;
 
     @Autowired
+    CicloAcademicoDAO cicloAcademicoDAO;
+
+    @Autowired
     NotaLetraDAO notaLetraDAO;
+
+    @Autowired
+    AlumnoDAO alumnoDAO;
 
     @Override
     @Transactional
@@ -110,12 +121,19 @@ public class CalculoNotasServiceImp implements CalculoNotasService {
     @Override
     @Transactional
     public void calcularNotasAlumno(Alumno alumno, GrupoSeccion grupoSeccion, Curso curso, CicloAcademico ciclo, Usuario usuario) {
-
+        alumno = alumnoDAO.find(alumno);
+        List<CicloAcademico> cicloAcademicos = cicloAcademicoDAO.allActivosAlModalidades();
+        CicloAcademico academicoMod = null;
+        if (Arrays.asList(PRE, VIS).contains(alumno.getModalidadEstudio().getCodigoEnum())) {
+            academicoMod = cicloAcademicos.stream().filter(x -> x.getModalidadEstudio().getCodigoEnum() == PRE).findAny().orElse(null);
+        } else {
+            academicoMod = cicloAcademicos.stream().filter(x -> x.getModalidadEstudio().getCodigoEnum() == EPG).findAny().orElse(null);
+        }
         logger.debug("\n\n\n");
-        logger.debug("Calcular nota alumno {} gpoSecc {} curso {} ciclo {}", alumno.getId(), grupoSeccion.getId(), curso.getId(), ciclo.getId());
+        logger.debug("Calcular nota alumno {} gpoSecc {} curso {} ciclo {}", alumno.getId(), grupoSeccion.getId(), curso.getId(), academicoMod.getId());
 
         grupoSeccion = grupoSeccionDAO.find(grupoSeccion.getId());
-        MatriculaCurso matriculaCurso = matriculaCursoDAO.findByAlumnoCursoCiclo(alumno, curso, ciclo);
+        MatriculaCurso matriculaCurso = matriculaCursoDAO.findByAlumnoCursoCiclo(alumno, curso, academicoMod);
 
         Map<String, NotaLetra> mapNotaLetra = new HashMap<>();
         List<NotaLetra> notasLetras = notaLetraDAO.all();
@@ -124,7 +142,7 @@ public class CalculoNotasServiceImp implements CalculoNotasService {
         }
 
         int cant = 0;
-        List<AlumnoEvaluacion> evaluacionesAlumno = alumnoEvaluacionDAO.allByAlumnoCursoCiclo(alumno, curso, ciclo);
+        List<AlumnoEvaluacion> evaluacionesAlumno = alumnoEvaluacionDAO.allByAlumnoCursoCiclo(alumno, curso, ciclo, academicoMod);
         for (AlumnoEvaluacion nota : evaluacionesAlumno) {
             if (nota.getEstadoEnum() != AlumnoEvaluacionEstadoEnum.CALC) {
                 cant++;

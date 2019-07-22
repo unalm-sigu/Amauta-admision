@@ -1059,7 +1059,7 @@ public class NotaAcademicaController {
         List<Evaluacion> evaluacionesBySeccionFinal = service.allEvaluacionesByTipoSeccion(matriculaSeccion.getSeccion());
 
         List<AlumnoEvaluacion> alumnosEvaluaciones = service.allEvaluacionsByFilter(matriculaSeccion.getMatriculaResumen().getAlumno(),
-                matriculaSeccion.getSeccion().getGrupoSeccion().getCurso(), cicloAcademico);
+                matriculaSeccion.getSeccion().getGrupoSeccion().getCurso(), cicloAcademico, matriculaSeccion.getMatriculaResumen().getCicloAcademico());
         List<Evaluacion> evaluacionesDisponibles = new ArrayList<>();
 
         for (AlumnoEvaluacion alumnoEvaluacion : alumnosEvaluaciones) {

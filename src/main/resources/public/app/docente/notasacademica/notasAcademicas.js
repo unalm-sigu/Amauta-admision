@@ -682,7 +682,7 @@ $(function () {
                 inputOptions: [
                     {
                         text: 'Entiendo que al entregar el acta ya no podré modificar las notas de los estudiantes',
-                        value: '1',
+                        value: '1'
                     }
                 ],
                 callback: function (result) {

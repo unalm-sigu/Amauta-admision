@@ -58,6 +58,9 @@ import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoGrupoSeccionEnum;
 import pe.edu.lamolina.model.enums.EstadoPlanCalificaEnum;
 import pe.edu.lamolina.model.enums.LoggerAccionEnum;
+import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.EPG;
+import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.PRE;
+import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.VIS;
 import pe.edu.lamolina.model.enums.MotivoAnulacionEnum;
 import pe.edu.lamolina.model.enums.TipoCicloEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
@@ -373,6 +376,7 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
     @Override
     @Transactional
     public List<MatriculaSeccion> eliminarNotas(Evaluacion evaluacion, DataSessionPivot ds) {
+
         evaluacion = evaluacionDAO.find(evaluacion.getId());
 
         if (evaluacion.getSeccionResponsable().getGrupoSeccion().isEstadoGrupoCerrado()) {
@@ -399,6 +403,7 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
         evaluacionEliminada.setFechaRegistro(today.toDate());
 
         evaluacionEliminada.setAlumnoEvaluacionElims(new ArrayList<>());
+        List<CicloAcademico> cicloAcademicos = cicloAcademicoDAO.allActivosAlModalidades();
 
         List<MatriculaSeccion> marticulasSeccion = new ArrayList();
         for (AlumnoEvaluacion alumnoEvaluacion : alumnoEvaluaciones) {
@@ -414,10 +419,16 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
             matSecc.setSeccion(evaluacion.getSeccionResponsable());
 
             marticulasSeccion.add(matSecc);
+            CicloAcademico academico = null;
+            if (Arrays.asList(PRE, VIS).contains(alumno.getModalidadEstudio().getCodigoEnum())) {
+                academico = cicloAcademicos.stream().filter(x -> x.getModalidadEstudio().getCodigoEnum() == PRE).findAny().orElse(null);
+            } else {
+                academico = cicloAcademicos.stream().filter(x -> x.getModalidadEstudio().getCodigoEnum() == EPG).findAny().orElse(null);
+            }
 
             MatriculaCurso matriculaCurso = matriculaCursoDAO.findByAlumnoCursoCiclo(alumno,
                     evaluacion.getSeccionResponsable().getGrupoSeccion().getCurso(),
-                    ds.getCicloAcademico());
+                    academico);
             matriculaCurso.setCreditosAprobados(null);
             matriculaCursoDAO.update(matriculaCurso);
         }
@@ -1648,8 +1659,8 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
     }
 
     @Override
-    public List<AlumnoEvaluacion> allEvaluacionsByFilter(Alumno alumno, Curso curso, CicloAcademico cicloAcademico) {
-        return alumnoEvaluacionDAO.allByAlumnoCursoCiclo(alumno, curso, cicloAcademico);
+    public List<AlumnoEvaluacion> allEvaluacionsByFilter(Alumno alumno, Curso curso, CicloAcademico cicloAcademico, CicloAcademico academicoMOD) {
+        return alumnoEvaluacionDAO.allByAlumnoCursoCiclo(alumno, curso, cicloAcademico, academicoMOD);
     }
 
     @Override

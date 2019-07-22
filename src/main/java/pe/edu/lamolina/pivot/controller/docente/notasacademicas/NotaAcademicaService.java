@@ -122,7 +122,7 @@ public interface NotaAcademicaService {
 
     MatriculaSeccion findMatriculaSeccion(Long id);
 
-    List<AlumnoEvaluacion> allEvaluacionsByFilter(Alumno alumno, Curso curso, CicloAcademico cicloAcademico);
+    List<AlumnoEvaluacion> allEvaluacionsByFilter(Alumno alumno, Curso curso, CicloAcademico cicloAcademico, CicloAcademico academicoMOD);
 
     AlumnoEvaluacion findAlumnoEvaluacion(Long id, Long idEvaluacion, Long idAlumno);
 

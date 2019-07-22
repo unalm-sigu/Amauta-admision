@@ -1,6 +1,9 @@
 package pe.edu.lamolina.pivot.controller.academico.tramitesacademicos;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import pe.edu.lamolina.pivot.zelper.bean.FormDataBean;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -11,6 +14,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -22,13 +26,16 @@ import org.thymeleaf.context.Context;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.CursoCurricula;
+import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
+import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.PlanCurricular;
 import pe.edu.lamolina.model.academico.Seccion;
@@ -86,6 +93,7 @@ import pe.edu.lamolina.pivot.controller.academico.promedio.PromedioService;
 import pe.edu.lamolina.pivot.controller.academico.reunionconsejo.ReunionConsejoService;
 import pe.edu.lamolina.pivot.controller.general.oficina.OficinaService;
 import pe.edu.lamolina.pivot.controller.matricula.matriculable.MatriculableService;
+import pe.edu.lamolina.pivot.dao.academico.DocenteDAO;
 
 @Service
 @Transactional(readOnly = true)
@@ -173,6 +181,9 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
 
     @Autowired
     OficinaService oficinaService;
+
+    @Autowired
+    DocenteDAO docenteDAO;
 
     @Autowired
     ReunionConsejoService reunionConsejoService;
@@ -492,9 +503,12 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
         tramite = tramiteDAO.find(tramite.getId());
         CursoDirigido cursoDirigido = cursoDirigidoDAO.findByTramite(tramite);
 
+        FormDataBean data = convertStringToJSON(cursoDirigido.getSituacionActual());
+
         Alumno alumno = tramite.getAlumno();
         CicloAcademico cicloAcademico = ds.getCicloAcademico();
 
+        MatriculaResumen matriculaResumen = matriculaResumenDAO.findByAlumnoCiclo(alumno, cicloAcademico);
         List<MatriculaSeccion> matriculados = matriculaSeccionDAO.allMatriculadosByAlumnoCiclo(alumno, cicloAcademico);
 
         Map<GrupoSeccion, List<Seccion>> gpoSecciones = matriculados.stream().map(MatriculaSeccion::getSeccion).collect(Collectors.groupingBy(x -> x.getGrupoSeccion()));
@@ -532,6 +546,11 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
         ctx.setVariable("alumnoCiclo", alumnoCiclo);
         ctx.setVariable("matriculados", matriculados);
         ctx.setVariable("gpoSecciones", gpoSecciones);
+        ctx.setVariable("cursoDirigido", cursoDirigido);
+        ctx.setVariable("matriculaResumen", matriculaResumen);
+
+        ctx.setVariable("situacionActual", data);
+        ctx.setVariable("fecha", TypesUtil.getStringDate(new DateTime().toDate(), " dd 'de' MMMM 'del' yyyy", "es"));
         ctx.setVariable("alumnoCicloCurso", alumnoCicloCursoDAO.allByAlumnoOrderByCurso(alumno));
 
         PdfContent pdfMatriculados = new PdfContent();
@@ -554,6 +573,10 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
         pdfHorario.setContext(ctx);
         pdfHorario.setTipoPdfEnum(TipoPdfEnum.HORARIO);
 
+        PdfContent pdfCursoDirigido = new PdfContent();
+        pdfCursoDirigido.setContext(ctx);
+        pdfCursoDirigido.setTipoPdfEnum(TipoPdfEnum.DETALLE_CURSO_DIRIGIDO);
+
         List<Dia> dias = diaDAO.allDia();
         List<HorarioSeccion> hss = infoAcademicoService.allSeccionHorarioAlumnoByAlumnoCicloACademico(alumno, cicloAcademico);
         List<Hora> horas = findLimiteHoras(hss);
@@ -562,6 +585,7 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
         ctx.setVariable("datosHorario", findHorario(alumno, cicloAcademico, horas, dias));
 
         List<String> pdfs = Arrays.asList(
+                pdfGenerator.generateDocument(pdfCursoDirigido),
                 pdfGenerator.generateDocument(pdfPlanCurricular),
                 pdfGenerator.generateDocument(pdfHistorial),
                 pdfGenerator.generateDocument(pdfHistorialListado),
@@ -575,7 +599,9 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
     private List<Hora> findLimiteHoras(List<HorarioSeccion> clases) {
         Hora horaMin = null;
         Hora horaMax = null;
-
+        if (clases.isEmpty()) {
+            return new ArrayList<>();
+        }
         for (HorarioSeccion hs : clases) {
             if (horaMin == null || hs.getHora().getCodigo().compareTo(horaMin.getCodigo()) < 0) {
                 horaMin = hs.getHora();
@@ -584,6 +610,7 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
                 horaMax = hs.getHora();
             }
         }
+
         return horaDAO.allByInicioFin(horaMin, horaMax);
     }
 
@@ -794,5 +821,21 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
 
         }
         return oficinas;
+    }
+
+    private FormDataBean convertStringToJSON(String situacionActual) {
+        ObjectMapper mapper = new ObjectMapper();
+        FormDataBean obj = new FormDataBean();
+        try {
+            obj = (FormDataBean) mapper.readValue(situacionActual, FormDataBean.class);
+        } catch (IOException ex) {
+            java.util.logging.Logger.getLogger(TramitesAcademicosServiceImp.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return obj;
+    }
+
+    @Override
+    public List<Docente> allByNombre(String nombre) {
+        return docenteDAO.allByName(nombre);
     }
 }

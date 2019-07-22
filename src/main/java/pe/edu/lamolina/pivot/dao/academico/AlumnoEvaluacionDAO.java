@@ -20,7 +20,7 @@ public interface AlumnoEvaluacionDAO extends EasyDAO<AlumnoEvaluacion> {
 
     List<AlumnoEvaluacion> allBySeccion(Long idSeccion);
 
-    List<AlumnoEvaluacion> allByAlumnoCursoCiclo(Alumno alumno, Curso curso, CicloAcademico ciclo);
+    List<AlumnoEvaluacion> allByAlumnoCursoCiclo(Alumno alumno, Curso curso, CicloAcademico ciclo, CicloAcademico cicloMod);
 
     AlumnoEvaluacion findByFilter(Long id, Long idEvaluacion, Long idAlumno);
 

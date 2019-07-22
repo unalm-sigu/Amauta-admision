@@ -146,6 +146,7 @@ public class AuditorServiceImpl implements AuditorService {
 
                 //nota
                 StringBuilder strbNota = new StringBuilder();
+              
                 if (StringUtils.isNotBlank(alumnoEvaluacion.getValorLetra())) {
                     strbNota.append(alumnoEvaluacion.getValorLetra());
                 }

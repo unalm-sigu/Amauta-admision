@@ -76,6 +76,8 @@
                                                        v-if="item.tipoTramite.esTipoTramiteCurDir">
                                                     Curso Dirigido: {{item.estadoTramite.nombre}}
                                                     <br/>
+                                                    Curso : {{item.cursodirigido.curso.nombre}} 
+                                                    <br/>
                                                     Docente Asignado : {{item.cursodirigido.docenteAsignado.persona.apellidosNombres}} 
                                                     ({{item.cursodirigido.docenteAsignado.codigo}})
                                                 </small>
@@ -108,6 +110,7 @@
                                                         </li>
                                                         <li role="presentation" class="divider"></li>
                                                         <li><a v-bind:href="urlAcademico(item)">Información académica</a></li>
+                                                        <li v-if="item.tipoTramite.codigo == 'CURDIR'"><a v-bind:href="urlReporteDirigido(item)">Reporte</a></li>
                                                     </ul>
 
                                                 </div>
