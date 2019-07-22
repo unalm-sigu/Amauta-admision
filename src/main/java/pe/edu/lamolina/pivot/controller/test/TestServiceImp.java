@@ -129,7 +129,7 @@ public class TestServiceImp implements TestService {
     @Override
     @Transactional
     public void trasladarMatriculaCursoForPromedios(DataSessionPivot ds) {
-        List<CicloAcademico> ciclos = cicloAcademicoDAO.allWithInitAndOrderBy(2017, "ca.codigo asc", CicloAcademicoEstadoEnum.ACT, CicloAcademicoEstadoEnum.CER, CicloAcademicoEstadoEnum.PEND);
+        List<CicloAcademico> ciclos = cicloAcademicoDAO.allWithInitAndOrderBy(2019, "ca.codigo asc", CicloAcademicoEstadoEnum.CER, CicloAcademicoEstadoEnum.PEND);
         //   List<GrupoSeccion> gruposSeccionesByCiclo=gruposecc
         for (CicloAcademico cicloAcademico : ciclos) {
             List<MatriculaResumen> matriculasResumen = matriculaResumenDAO.allByCiclo(cicloAcademico);
@@ -148,6 +148,29 @@ public class TestServiceImp implements TestService {
                 promedioService.trasladarInformcionForHistorial(matriculaResumen, matriculasCurso, matriculasSeccion, ds, false);
             }
         }
+    }
+
+    @Override
+    @Transactional
+    public void trasladarMatriculaCursoForPromediosCiclo(DataSessionPivot ds, String codigo, Long modalidad) {
+        CicloAcademico cicloAcademico = cicloAcademicoDAO.findByCodigoModalidadEstudio(codigo, new ModalidadEstudio(modalidad));
+        //   List<GrupoSeccion> gruposSeccionesByCiclo=gruposecc
+        List<MatriculaResumen> matriculasResumen = matriculaResumenDAO.allByCiclo(cicloAcademico);
+        List<MatriculaCurso> matriculasCurso = matriculaCursoDAO.allByCicloFull(cicloAcademico);
+        if (matriculasResumen.isEmpty()) {
+            return;
+        }
+        List<MatriculaSeccion> matriculasSeccion = matriculaSeccionDAO.allActivesByMatriculaResumen(matriculasResumen);
+        if (matriculasSeccion.isEmpty()) {
+            return;
+        }
+
+        visorCalculoNotas.iniciar();
+        visorCalculoNotas.setCantidadTotal(matriculasResumen.size());
+        for (MatriculaResumen matriculaResumen : matriculasResumen) {
+            promedioService.trasladarInformcionForHistorial(matriculaResumen, matriculasCurso, matriculasSeccion, ds, false);
+        }
+
     }
 
     @Override

@@ -30,7 +30,6 @@ import pe.edu.lamolina.model.academico.Egresado;
 import pe.edu.lamolina.model.academico.MatriculaCurso;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
-import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.SituacionAcademica;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import pe.edu.lamolina.model.enums.EstadoTramiteEnum;
@@ -38,11 +37,7 @@ import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.NotaLetraEnum;
 import pe.edu.lamolina.model.enums.OrigenDataSituacionAcademicaEnum;
 import pe.edu.lamolina.model.enums.SituacionAcademicaEnum;
-import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_7;
-import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_EM;
-import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_X;
-import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_XD;
-import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_D;
+import static pe.edu.lamolina.model.enums.TipoCreditoEnum.VAR;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.tramite.EstadoTramite;
 import pe.edu.lamolina.model.tramite.Reincorporacion;
@@ -608,7 +603,7 @@ public class PromedioServiceImp implements PromedioService {
             AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findByAlumnoCiclo(alumno, cicloAcademico);
             AlumnoCicloCurso alumnoCicloCurso = alumnoCicloCursoDAO.findByAlumnoCicloCurso(alumno, cicloAcademico, curso);
             DateTime today = new DateTime(ds.getFechaAccionAudit());
-
+            
             if (alumnoCiclo == null) {
                 SituacionAcademica situacionAcademicaComodin = situacionAcademicaDAO.findByCodigo(SituacionAcademicaEnum.S_00.getValue());
                 alumnoCiclo = new AlumnoCiclo();
@@ -1366,7 +1361,12 @@ public class PromedioServiceImp implements PromedioService {
             alumnoCicloCurso = new AlumnoCicloCurso();
             alumnoCicloCurso.setAlumnoCiclo(alumnoCiclo);
             //  alumnoCicloCurso.setAutorizacionRegistro(autorizacionRegistro); wtf
-            alumnoCicloCurso.setCreditos(matriculaCurso.getCreditos());
+            if (curso.isTieneCreditosVariables()) {
+
+                alumnoCicloCurso.setCreditos(matriculaCurso.getCreditosAprobados());
+            } else {
+                alumnoCicloCurso.setCreditos(matriculaCurso.getCreditos());
+            }
             alumnoCicloCurso.setCurso(curso);
 
             Integer aprobado = evaluateEstaAprobado(matriculaCurso, alumno);
@@ -1386,6 +1386,11 @@ public class PromedioServiceImp implements PromedioService {
             alumnoCicloCurso.getId();
 
         } else {
+            if (curso.isTieneCreditosVariables()) {
+                alumnoCicloCurso.setCreditos(matriculaCurso.getCreditosAprobados());
+            } else {
+                alumnoCicloCurso.setCreditos(matriculaCurso.getCreditos());
+            }
             alumnoCicloCurso.setFechaModificacion(today.toDate());
             alumnoCicloCurso.setNota(matriculaCurso.getNotaFinal());
             alumnoCicloCurso.setUserModificacion(ds.getUsuario());

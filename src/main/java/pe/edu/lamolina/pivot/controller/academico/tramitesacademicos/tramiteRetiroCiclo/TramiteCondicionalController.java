@@ -29,6 +29,7 @@ import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
@@ -37,12 +38,14 @@ import pe.edu.lamolina.model.enums.TipoTramiteEnum;
 import static pe.edu.lamolina.model.enums.TipoTramiteEnum.CAM_NOTA;
 import static pe.edu.lamolina.model.enums.TipoTramiteEnum.RCI;
 import static pe.edu.lamolina.model.enums.TipoTramiteEnum.REI;
+import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.tramite.TipoTramite;
 import pe.edu.lamolina.model.tramite.Tramite;
 import pe.edu.lamolina.pivot.controller.academico.avancecurricular.AvanceCurricularService;
 import pe.edu.lamolina.pivot.controller.academico.resolucion.ResolucionService;
 import pe.edu.lamolina.pivot.controller.academico.resolucion.resolucionExistentes.ResolucionExistenteService;
+import pe.edu.lamolina.pivot.controller.bienestar.alumnoAporte.AporteAlumnoService;
 import pe.edu.lamolina.pivot.controller.matricula.matriculable.MatriculableService;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -67,6 +70,9 @@ public class TramiteCondicionalController {
 
     @Autowired
     ResolucionService resolucionService;
+
+    @Autowired
+    AporteAlumnoService aporteAlumnoService;
 
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {
@@ -148,8 +154,8 @@ public class TramiteCondicionalController {
             }
             json.setData(arrayNode);
             json.setFiltered(filter.getFiltered());
-            json.setTotal(filter.getTotal());
-            json.setHeader(filter);
+            json.setTotal(10);
+
         } catch (Exception e) {
             e.printStackTrace();
             json.setTotal(0);
@@ -204,16 +210,41 @@ public class TramiteCondicionalController {
             service.createToken(ds);
             MatriculaResumen matriculaResumen = new MatriculaResumen();
             if (tramite.getTipoTramite().getCodigo().equals(TipoTramiteEnum.RCI.name())) {
-
                 service.updateRetiroCiclo(tramite, ds);
             } else if (tramite.getTipoTramite().getCodigo().equals(TipoTramiteEnum.REI.name())) {
                 service.updateReincorporacion(tramite, ds);
             } else if (tramite.getTipoTramite().getCodigo().equals(TipoTramiteEnum.CAM_NOTA.name())) {
                 service.updateCambioNota(tramite, ds);
             }
-
+            matriculableService.revisarSituacionAcademica(tramite.getAlumno(), ds);
+            aporteAlumnoService.generarAportes(tramite.getAlumno(), ds.getCicloAcademico(), null, ds);
             response.setData(JsonHelper.createJson(matriculaResumen, jsonFactory, new String[]{"id"}));
             response.setMessage("Se actualizó satisfactoriamente.");
+            response.setSuccess(Boolean.TRUE);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("verificarEliminarMat")
+    public JsonResponse evaluarEliminarMatriculable(
+            @RequestBody Tramite tramite,
+            Model model,
+            HttpSession session) {
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            service.createToken(ds);
+            service.evaluarEliminarMatriculable(tramite.getAlumno(), ds.getCicloAcademico(), ds);
+
             response.setSuccess(Boolean.TRUE);
 
         } catch (PhobosException e) {
@@ -268,7 +299,7 @@ public class TramiteCondicionalController {
     @ResponseBody
     @RequestMapping("allCursosAlumnoByName")
     public JsonResponse allCursosAlumnoByName(
-            @RequestParam(value = "nombre", required = true) String nombre,
+            @RequestParam(value = "nombre", required = false) String nombre,
             @RequestParam(value = "idAlumno", required = true) Long idAlumno,
             @RequestParam(value = "idCiclo", required = true) Long idCiclo,
             HttpSession session) {

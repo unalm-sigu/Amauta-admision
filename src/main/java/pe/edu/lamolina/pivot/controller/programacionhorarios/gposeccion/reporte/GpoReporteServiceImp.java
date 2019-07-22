@@ -300,6 +300,7 @@ public class GpoReporteServiceImp implements GpoReporteService {
     @Override
     public List<AnexoBoletin> getAnexosForBoletin(CicloAcademico ciclo) {
 
+        List<AnexoBoletin> anexosAlt = anexoBoletinDAO.all();
         List<AnexoBoletin> anexos = anexoBoletinDAO.allTodosByCiclo(ciclo);
         Collections.sort(anexos, (a1, a2) -> a1.getOrden().compareTo(a2.getOrden()));
 
@@ -348,6 +349,9 @@ public class GpoReporteServiceImp implements GpoReporteService {
 
         for (GrupoSeccion gpoSecc : gpoSecciones) {
             AnexoBoletin anexo = mapAnexos.get(gpoSecc.getAnexoBoletin().getId());
+            if (anexo == null) { //CHECK THIS
+                continue;
+            }
             anexo.getGruposSecciones().add(gpoSecc);
 
             Curso cursoTmp = gpoSecc.getCurso();

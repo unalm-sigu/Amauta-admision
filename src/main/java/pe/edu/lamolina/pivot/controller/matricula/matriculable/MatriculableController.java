@@ -94,12 +94,13 @@ public class MatriculableController {
         AlumnoResumen resumen = service.allResumenAlumnosByCicloRol(ds.getCicloAcademico(), null, null);
 
         for (TipoCondicionalEnum value : TipoCondicionalEnum.values()) {
-
-            ObjectNode obj = new ObjectNode(JsonNodeFactory.instance);
-            obj.put("name", value.name());
-            obj.put("value", value.getValue());
-            array.add(obj);
-
+            if (value == TipoCondicionalEnum.OTRO) {
+                
+                ObjectNode obj = new ObjectNode(JsonNodeFactory.instance);
+                obj.put("name", value.name());
+                obj.put("value", value.getValue());
+                array.add(obj);
+            }
         }
         model.addAttribute("resumen", JsonHelper.createJson(resumen, JsonNodeFactory.instance, new String[]{"*"}));
         model.addAttribute("ciclo", JsonHelper.createJson(cicloAcademico, JsonNodeFactory.instance, new String[]{"*"}));
@@ -144,12 +145,12 @@ public class MatriculableController {
         try {
 
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
-
-            List<MatriculaResumen> matriculables = service.allAlumnosByCicloRolDynatable(filter, ds.getCicloAcademico(), ds.getRolActivo().getCodigo(), filtros);
+            List<CicloAcademico> cicloAcademicos = service.allCiclosActivos();
+            List<MatriculaResumen> matriculables = service.allAlumnosByCicloRolDynatable(filter, cicloAcademicos, ds.getRolActivo().getCodigo(), filtros);
             for (MatriculaResumen matriculable : matriculables) {
                 ObjectNode node = JsonHelper.createJson(matriculable, JsonNodeFactory.instance, true,
                         new String[]{
-                            "id", "prioridad", "puntajePrioridad", "cursosMatriculados", "cursosRetirados", "motivoMatriculable", "esBeneficiadoUltimoCiclo",
+                            "id", "prioridad", "puntajePrioridad", "cursosMatriculados", "cursosRetirados", "motivoMatriculable", "esBeneficiadoUltimoCiclo", "esCondicional",
                             "prioridadAnterior", "alumno.persona.rutaFoto", "alumno.persona.tipoFoto", "alumno.persona.emailCompania", "alumno.persona.numeroDocIdentidad",
                             "creditosMatriculados", "creditosRetirados", "estado", "estadoEnum", "alumno.codigo",
                             "promedioSemestral",

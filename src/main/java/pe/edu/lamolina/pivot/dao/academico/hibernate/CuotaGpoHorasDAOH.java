@@ -203,7 +203,8 @@ public class CuotaGpoHorasDAOH extends AbstractEasyDAO<CuotasGrupoHoras> impleme
                 .filter("ca.id", cicloAcademico)
                 .filter("ofi.codigo", OficinaEnum.OERA)
                 .groupBy("gHor.letra");
-        return TypesUtil.getInt(sql.find(getCurrentSession()));
+        Integer result = TypesUtil.getInt(sql.find(getCurrentSession()));
+        return result == null ? 0 : result;
     }
 
     @Override

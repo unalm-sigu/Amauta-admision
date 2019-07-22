@@ -5,7 +5,7 @@ Vue.component('file-upload', VueUploadComponent);
 var app = new Vue({
     el: '#resolucionReinForm',
     data: {
-        resolucion: {reincorporaciones: [], retiroCiclo: [], cambioNota: []},
+        resolucion: {reincorporaciones: [], retiroCiclo: [], cambioNota: [], cursoDirigido: []},
         oficinas: JSON.parse(oficinasJson),
         ciclos: JSON.parse(ciclosJson),
         tiposResolucion: JSON.parse(tiposResolucionJson),
@@ -15,9 +15,11 @@ var app = new Vue({
         },
         alumnos: [],
         cursos: [],
+        docentes: [],
         isReincorporacion: false,
         isRetiroCiclo: false,
-        isCambioNota: false
+        isCambioNota: false,
+        isCursoDirigido: false
     }, created: function () {
 
     }, mounted: function () {
@@ -29,12 +31,15 @@ var app = new Vue({
             $vue.isRetiroCiclo = false;
             $vue.isReincorporacion = false;
             $vue.isCambioNota = false;
+            $vue.isCursoDirigido = false;
             if (item.codigo == "RCI") {
                 $vue.isRetiroCiclo = true;
             } else if (item.codigo == "REIC") {
                 $vue.isReincorporacion = true;
-            } else {
+            } else if (item.codigo == "CAM_NOTA") {
                 $vue.isCambioNota = true;
+            } else {
+                $vue.isCursoDirigido = true;
             }
         },
         customLabel( {persona, codigo}){
@@ -67,28 +72,21 @@ var app = new Vue({
 
             }
         },
-        loadCursos(nombre, item) {
+        cicloCambioNota(ciclo, item) {
             let $vue = this;
-            this.isLoading = true
-            if (item.alumno == null || item.cicloAcademico == null) {
-                return;
-            }
-            if (nombre != '' || nombre != null || nombre != undefined) {
+            $.ajax({
+                url: APP.url("academico/tramitecondicional/allCursosAlumnoByName"),
+                dataType: 'json',
+                type: 'post',
+                data: {idAlumno: item.alumno.id, idCiclo: ciclo.id}
+            }).then(response => {
+                if (response.success) {
+                    $vue.cursos = response.data;
+                }
 
-                $.ajax({
-                    url: APP.url("academico/tramitecondicional/allCursosAlumnoByName"),
-                    dataType: 'json',
-                    type: 'post',
-                    data: {nombre: nombre, idAlumno: item.alumno.id, idCiclo: item.cicloAcademico.id}
-                }).then(response => {
-                    if (response.success) {
-                        $vue.cursos = response.data;
-                    }
+                this.isLoading = false;
+            })
 
-                    this.isLoading = false;
-                })
-
-            }
         },
         addResolucion() {
             let $vue = this;
@@ -101,6 +99,10 @@ var app = new Vue({
             } else if ($vue.isCambioNota) {
                 var cambioNota = {};
                 $vue.resolucion.cambioNota.push(cambioNota);
+            } else if ($vue.isCursoDirigido) {
+                var cursoDirigido = {};
+                $vue.resolucion.cursoDirigido.push(cursoDirigido);
+
             }
         },
         deleteItem(index) {
@@ -111,7 +113,8 @@ var app = new Vue({
                 $vue.resolucion.retiroCiclo.splice(index, 1);
             } else if ($vue.isCambioNota) {
                 $vue.resolucion.cambioNota.splice(index, 1);
-
+            } else if ($vue.isCursoDirigido) {
+                $vue.resolucion.cursoDirigido.splice(index, 1);
             }
         },
         oficinaSelect(ofi) {
@@ -140,7 +143,7 @@ var app = new Vue({
                 success: function (response) {
                     if (response.success) {
                         notify(response.message, 'info');
-                        $vue.resolucion = {reincorporaciones: [], retiroCiclo: [], cambioNota: []};
+                        $vue.resolucion = {reincorporaciones: [], retiroCiclo: [], cambioNota: [], cursoDirigido: []};
                         $vue.alumnos = [];
                     } else {
                         notify(response.message, 'error');
@@ -151,6 +154,27 @@ var app = new Vue({
                     notify(MESSAGES.errorComunicacion, "error");
                 }
             });
-        }
+        },
+        findDocente(nombre) {
+            let $vue = this;
+            $.ajax({
+                method: 'POST',
+                url: APP.url('academico/tramiteacademico/findDocente'),
+                data: {nombre: nombre},
+                success: function (response) {
+                    if (response.success) {
+                        $vue.docentes = response.data;
+                    } else {
+                        notify(response.message, "error");
+                    }
+                },
+                error: function (response) {
+                    notify(response.message, "error");
+                }
+            });
+        },
+        customLabelDocente( { persona }){
+            return `${persona.nombreCompleto} `;
+        },
     }
 })

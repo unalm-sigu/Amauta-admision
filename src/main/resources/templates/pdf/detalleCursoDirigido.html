@@ -1,0 +1,216 @@
+<html>
+    <head>
+        <title th:inline="text"> Curso Dirigido </title>
+        <style>
+            body{
+                font-size: 14px !important;	
+            }
+
+            .fecha {
+                font-size: 10px;
+                font-style: italic;
+            }
+
+            .table{
+                font-size:14px !important;
+                border: solid .25px;
+                border-collapse: collapse;
+            }
+            .tabled{
+                font-size:14px !important;
+                border-collapse: collapse;
+            }
+
+            .text-center {
+                text-align: center;
+            }
+
+            .text-right{
+                text-align: right;
+            }
+
+            table td {
+                padding: 8px !important;
+            }
+
+            .table-plan {
+                width: 100%;
+            }
+            .table-dirigido {
+                width: 50%;
+            }
+            .tableCred {
+                width: 80%;
+            }
+            div {
+                padding-top: 15px;
+            }
+            .table-cretidos > tbody > tr > td, .table-plan > thead > tr > td  {
+                border-bottom: solid .25px;
+            }
+            .table-dirigido > tbody > tr > td, .table-plan > thead > tr > td  {
+                border-bottom: solid .25px;
+            }
+            .table-plan > tbody > tr > td, .table-plan > thead > tr > td  {
+                border-top: solid .25px;
+                border-bottom: solid .25px;
+            }
+        </style>
+
+
+    </head>
+    <body>
+
+        <div style="text-align: center">
+            <b class="block" th:inline="text"> CURSO DIRIGIDO </b>
+        </div>
+        <div style="text-align: right; padding-top: 20px; padding-bottom: 20px;">
+            <span class="fecha" th:text="${fecha}">La Molina, miércoles 8 de agosto de 2018</span>
+        </div>
+        <div >            
+            <table class="tabled table-dirigido" align="center">
+                <tbody >
+                    <tr >
+                        <td> 
+                            <span >Tramite N°: </span>
+                        </td>
+                        <td>
+                            <span th:text="${cursoDirigido.tramite.numero}"></span>/<span th:text="${cursoDirigido.tramite.serie}"></span>
+                        </td>
+
+                    </tr>
+                    <tr >
+                        <td> 
+                            <span >Asunto: </span>
+                        </td>
+                        <td>
+                            <span th:text="${cursoDirigido.tramite.tipoTramite.nombre}"></span>
+                        </td>
+
+                    </tr>
+                    <tr >
+                        <td >
+                            <span >del </span>
+                        </td>
+                        <td>
+                            <span th:text="'Departamento de Registro'"></span>
+                        </td>
+                    </tr>
+                    <tr >
+                        <td>
+                            <span >Al </span>
+                        </td>
+                        <td>
+                            <span th:text="'Decano de la facultad de '+${alumno.carrera.facultad.nombre}"></span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <br/>
+        <div>
+            <span >Informamos a usted que <b th:text="${alumno.persona.apellidosNombres}"></b> con matricula <b th:text="${alumno.codigo}"></b> de la especialidad de <b th:text="${alumno.carrera.facultad.nombre}"></b> en el 
+                presente ciclo se ha matriculado en <b th:text="${matriculaResumen.creditosMatriculados}"></b> créditos. Y a la fecha su resumen académico es el siguiente.</span>
+        </div>
+
+        <div >            
+            <table  >
+                <tbody >
+                    <tr >
+                        <td> 
+                            <span >Créditos Cursados Acumulados: </span><span th:text="${alumno.creditosCursados}"></span>
+                        </td>
+                        <td> 
+                            <span >Promedio Ponderado Semestral: </span><span th:text="${alumno.promedioAcumuladoFixed}"></span>
+                        </td>
+                    </tr>
+                    <tr >
+                        <td> 
+                            <span >Créditos Aprobados Acumulados: </span><span th:text="${alumno.creditosAprobados}"></span>
+                        </td>
+                        <td> 
+                            <span >Promedio Ponderado Acumulados: </span><span th:text="${alumno.creditosAprobados}"></span>
+                        </td>
+                    </tr>
+                    <tr >
+                        <td>
+                            <span >Créditos Convalidados: </span><span > 10</span>
+                        </td>
+                        <td>
+                            <span >Situación Académica: </span><span th:text="${alumno.situacionAcademica.nombre}"></span>
+                        </td>
+                    </tr>
+                    <tr >
+                        <td >
+                            <span >Créditos Aprobados de carrera: </span><span th:text="${alumno.creditosCarreraAprobados}"></span>
+                        </td>
+                        <td >
+                            <span >Profesor Consejero: </span><span th:text="${alumno.consejero.colaborador.persona.apellidosNombres}"></span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div>
+            <table class="table table-plan">
+                <tbody >
+                    <tr>
+                        <td style="width: 25%"><b> Tramite </b></td>
+                        <td> 
+                            <small >Serie: <span th:text="${cursoDirigido.tramite.serie}"> nombre </span></small>
+                            <br/>
+                            <small >Número: <span th:text="${cursoDirigido.tramite.numero}"> nombre </span></small>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="width: 25%"><b> Curso </b></td>
+                        <td>
+
+                            <span th:text="${cursoDirigido.curso.nombre}"> nombre </span>
+                            <br/>
+                            <span th:text="'Código: ' + ${cursoDirigido.curso.codigo}"> nombre </span>
+                            <br/>
+                            <span th:text="'Créditos: ' + ${cursoDirigido.curso.creditos}"> creditos </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="width: 35%"><b> Docente </b></td>
+                        <td>
+                            <p th:text="${cursoDirigido.docenteAsignado.persona.apellidosNombres}" style="padding-top: 2px; padding-bottom: 2px;"> nombre </p>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td style="width: 25%" ><b> Situación </b></td>
+                        <td >
+                            <div  class=" col-md-6">
+                                <label class="bold"> Programación:  </label>
+                                <span th:text="${situacionActual.programado}"></span>
+                            </div>
+                            <div  th:if="${not #lists.isEmpty(situacionActual.vacantes)}">
+                                <label class="bold"> Vacancia en secciones: </label>
+                                <div class="form-group" th:each="vac : ${situacionActual.vacantes}"  >
+                                    <span  th:text="'Código sección: ' + ${vac.seccion}" ></span>
+                                    <br/>
+                                    <span >Disponibilidad:</span>
+                                    <span th:if="${vac.disponibilidad}" >Sí</span>
+                                    <span  th:unless="${vac.disponibilidad}" >No</span>
+                                </div>
+                            </div>
+                            <div th:if="${not #lists.isEmpty(situacionActual.cruceHorario)}">
+                                <label class="bold"> Cruce de horarios: </label>
+                                <div class="form-group"  th:each="cruceHor : ${situacionActual.cruceHorario}"  >
+                                    <span th:text="'Curso:' + ${cruceHor.curso}" ></span>
+                                    <br/>
+                                    <span >Horario</span>
+                                    <span th:text="${cruceHor.horario}" ></span>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+    </body>
+</html>

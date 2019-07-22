@@ -36,4 +36,6 @@ public interface ResolucionExistenteService {
 
     public List<CursoDirigido> allCursodirigido(Resolucion resolucionDB);
 
+    public void saveCursoDirigido(Resolucion resolucion, Usuario usuario, DataSessionPivot ds);
+
 }

@@ -53,21 +53,18 @@ public class BoletinAcademicoExcelView extends AbstractPOIExcelView {
     @Override
     protected void buildExcelDocument(Map<String, Object> map, Workbook workBook, HttpServletRequest request, HttpServletResponse response) throws Exception {
         String fechaRep = " - " + new DateTime().toString("dd/MM/yyyy H:mm");
-
-        CicloAcademico ciclo = service.findCicloAcademicoActivo();
+        CicloAcademico ciclo = (CicloAcademico) map.get("cicloAcademico");
         List<AnexoBoletin> anexosBoletin = service.allAnexosByCiclo(ciclo);
         for (AnexoBoletin anexoBoletin : anexosBoletin) {
             Sheet sheet = workBook.createSheet(anexoBoletin.getNombre());
-            this.createSheet(workBook, anexoBoletin, sheet);
+            this.createSheet(workBook, ciclo, anexoBoletin, sheet);
         }
 
         String nombreReporte = "Boletin";
         response.setHeader("Content-Disposition", "attachment; filename=\"" + nombreReporte + fechaRep + ".xlsx\"");
     }
 
-    private void createSheet(Workbook workBook, AnexoBoletin anexoBoletin, Sheet sheet) {
-
-        CicloAcademico ciclo = service.findCicloAcademicoActivo();
+    private void createSheet(Workbook workBook, CicloAcademico ciclo, AnexoBoletin anexoBoletin, Sheet sheet) {
 
         int totalColumns = 11;
         int rowIndice = 0;
@@ -79,7 +76,7 @@ public class BoletinAcademicoExcelView extends AbstractPOIExcelView {
         for (AnexoBoletin anexosBoletinHijo : anexoBoletin.getAnexosBoletinHijos()) {
             logger.debug("          Anexo Boletin Hijo {} id {}", anexosBoletinHijo.getNombre(), anexosBoletinHijo.getId());
             Row row = sheet.createRow(rowIndice++);
-            this.createHeader1(workBook, sheet, row, 0, "Anexo " + anexosBoletinHijo.getNombre());
+            this.createHeader1(workBook, sheet, row, 0, "Anexo: " + anexosBoletinHijo.getNombre() + " Ciclo: " + ciclo.getDescripcion());
             sheet.addMergedRegion(new CellRangeAddress(row.getRowNum(), row.getRowNum(), 0, totalColumns));
             //
             row = sheet.createRow(rowIndice++);

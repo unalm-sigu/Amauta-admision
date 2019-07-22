@@ -13,6 +13,7 @@ public enum TipoPdfEnum {
     HISTORIAL_ACADEMICO_LISTADO("HistorialAcademicoListado", "pdf/historialAcademicoListado", "Historial Académico", "Historial Académico"),
     PLAN_CURRICULAR("SubvencionCargaAdicional", "pdf/planCurricular", "Plan Curricular", "Plan Curricular"),
     CURSOS_MATRICULADOS("CursosMatriculados", "pdf/cursosMatriculados", "Cursos Matriculados", "Cursos Matriculados"),
+    DETALLE_CURSO_DIRIGIDO("DetalleCursoDirigido", "pdf/detalleCursoDirigido", "Curso Dirigido", "Curso Dirigido"),
     HORARIO("Horario", "pdf/horario", "Horario", "Horario"),
     PROGRAMACION_HORARIOS("ProgramacionHorarios", "pdf/programacionHorarios", "Programacion de Horarios", "Programacion de Horarios");
 

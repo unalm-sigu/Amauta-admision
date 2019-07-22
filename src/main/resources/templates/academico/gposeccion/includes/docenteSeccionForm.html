@@ -58,7 +58,8 @@
                            value="1" 
                            v-model="docSeccion.principal" 
                            v-bind:disabled="docSeccion.principal==1"
-                           v-on:change="cambiarDocPrincipal(docSeccion)"/>
+                           v-on:change="cambiarDocPrincipal(docSeccion)"
+                           required="true"/>
                     <span></span>
                 </label>
                 <i v-else-if="docSeccion.principal==1" class="fa fa-check-square-o fa-2x text-dark"></i>

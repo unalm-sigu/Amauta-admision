@@ -75,7 +75,7 @@
                                         <div class="form-group">
                                             <input type="text"
                                                    v-model="resolucion.serie"
-                                                   class="form-control" 
+                                                   class="form-control numerico" 
                                                    required="true"></input>
                                         </div>
                                     </div>
@@ -84,7 +84,7 @@
                                         <div class="form-group">
                                             <input type="text"
                                                    v-model="resolucion.numero"
-                                                   class="form-control" 
+                                                   class="form-control numerico" 
                                                    required="true"> </input>
                                         </div>
                                     </div>
@@ -122,10 +122,16 @@
                                             <th class="col-md-2 text-center" v-if="isCambioNota">Tipo Tramite</th>
                                             <th class="col-md-3 text-center" v-if="!isCambioNota">Motivo</th>
                                             <th class="col-md-2 text-center" v-if="isCambioNota">Motivo</th>
-                                            <th class="col-md-3 text-center" v-if="!isCambioNota">Ciclo</th>
-                                            <th class="col-md-2 text-center" v-if="isCambioNota">Ciclo</th>
+                                            <th class="col-md-3 text-center" v-if="!isCambioNota &amp;&amp; !isCursoDirigido">Ciclo
+                                                <span v-if='isRetiroCiclo'> a retirar</span>
+                                                <span v-if='isReincorporacion'> a reincorporar</span>
+                                            </th>
+                                            <th class="col-md-2 text-center" v-if="isCambioNota">Ciclo                                               
+                                            </th>
                                             <th class="col-md-2 text-center" v-if="isCambioNota">Curso</th>
                                             <th class="col-md-1 text-center" v-if="isCambioNota">Nota</th>
+                                            <th class="col-md-3 text-center" v-if="isCursoDirigido">Docente</th>
+                                            <th ></th>
                                             <th ></th>
                                         </tr>
                                     </thead>
@@ -283,6 +289,7 @@
                                                             required="true"
                                                             v-bind:allow-empty="true"
                                                             :show-labels="false"
+                                                            v-on:select="cicloCambioNota($event,cambioNota)"
                                                             deselect-label="No se puede eliminar este valor" 
                                                             >
                                                         </multiselect>
@@ -295,12 +302,11 @@
                                                     <div class="form-group">
                                                         <multiselect v-model="cambioNota.curso" 
                                                                      v-bind:options='cursos'
-                                                                     v-on:search-change="loadCursos($event,cambioNota)"
                                                                      label='nombre'
                                                                      track-by='id'
                                                                      v-bind:show-labels="false"
                                                                      v-bind:allow-empty="false"
-                                                                     v-bind:internal-search='false'
+                                                                     v-bind:internal-search='true'
                                                                      placeholder="Ingresa un caracter"                                         
                                                                      required="true"  >
                                                         </multiselect>
@@ -312,6 +318,73 @@
                                                 <div class="col-md-12">
                                                     <input class="form-control numerico" v-model="cambioNota.nota" required=""></input>
                                                 </div>
+                                            </td>
+                                            <td>
+                                                <a v-on:click="deleteItem(index)" class="btn btn-danger">
+                                                    <i class="fa fa-trash-o " aria-hidden="true"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        <tr v-for="(cursoDirigido , index) in resolucion.cursoDirigido" v-if="isCursoDirigido"> 
+                                            <td class="v-middle text-center">
+                                                <div class="form-group">
+                                                    <div class="col-md-12">
+                                                        <multiselect v-model="cursoDirigido.alumno" 
+                                                                     v-bind:options='alumnos'
+                                                                     v-on:search-change="loadAlumno"
+                                                                     v-bind:custom-label='customLabel'
+                                                                     track-by='id'
+                                                                     v-bind:show-labels="false"
+                                                                     v-bind:allow-empty="false"
+                                                                     deselect-label="No se puede eliminar este valor"
+                                                                     v-bind:internal-search='false'
+                                                                     placeholder="Ingresa un caracter como mínimo" >
+                                                            <template slot="option" slot-scope="props">
+                                                                <div class="option__desc">
+                                                                    <span class="option__title block bold">{{ props.option.persona.nombreCompleto }} </span>
+                                                                    <span class="option__small">{{ props.option.persona.tipoDocumento.simbolo }} - {{ props.option.persona.numeroDocIdentidad }}</span>
+                                                                </div>
+                                                            </template>
+                                                        </multiselect>
+                                                        <input v-model="cursoDirigido.alumno" required="true" type="text" class="hide"/>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="v-middle text-center">
+                                                <span v-if="resolucion.tipoResolucion != null" class="block text-muted" v-text="resolucion.tipoResolucion.nombre"></span>
+                                            </td>
+                                            <td class="v-middle text-left">
+                                                <input class="form-control" v-model="cursoDirigido.motivo" required="true" type="text"/>
+                                            </td>
+                                            <td class="v-middle text-left">
+                                                <div class="col-md-12">
+                                                    <div class="form-group">
+                                                        <multiselect 
+                                                            v-model="cursoDirigido.docenteAsignado" 
+                                                            v-bind:options="docentes"
+                                                            v-on:search-change="findDocente"
+                                                            placeholder="Seleccione un docente"
+                                                            label="nombre"
+                                                            v-bind:show-labels="false"
+                                                            v-bind:custom-label='customLabelDocente'
+                                                            v-bind:allow-empty="false"
+                                                            deselect-label="No se puede eliminar este valor"
+                                                            track-by="id" 
+                                                            required="true"
+                                                            >
+                                                        </multiselect>
+                                                        <input v-model="cursoDirigido.docenteAsignado" required="true" type="text" class="hide"/>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <label class="switch">
+                                                    <input type="checkbox" 
+                                                           v-bind:value="cursoDirigido.seleccionado" 
+                                                           v-model="cursoDirigido.seleccionado"
+                                                           checked="1"/>
+                                                    <span class="slider round"></span>
+                                                </label>
                                             </td>
                                             <td>
                                                 <a v-on:click="deleteItem(index)" class="btn btn-danger">

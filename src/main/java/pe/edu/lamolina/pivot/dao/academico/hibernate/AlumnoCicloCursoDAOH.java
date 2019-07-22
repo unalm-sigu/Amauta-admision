@@ -1,6 +1,7 @@
 package pe.edu.lamolina.pivot.dao.academico.hibernate;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.List;
 import org.hibernate.Query;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloCursoDAO;
@@ -561,18 +562,21 @@ public class AlumnoCicloCursoDAOH extends AbstractEasyDAO<AlumnoCicloCurso> impl
 
     @Override
     public List<AlumnoCicloCurso> allByNombre(Alumno alumno, CicloAcademico academico, String nombre) {
-        nombre = "%" + nombre.replaceAll(" ", "%") + "%";
         Octavia sql = Octavia.query()
                 .from(AlumnoCicloCurso.class, "acc")
                 .join("alumnoCiclo ac", "ac.alumno al", "ac.cicloAcademico aca", "acc.curso cu")
                 .left("cu.departamentoAcademico")
                 .filter("al.id", alumno)
-                .filter("aca.id", academico)
-                .beginBlock()
-                .__().filter("cu.nombre", "like", nombre)
-                .__().filter("cu.codigo", "like", nombre)
-                .endBlock()
-                .filter("acc.registroActivo", BigDecimal.ONE.intValue());
+                .filter("aca.id", academico);
+        if (nombre != null) {
+            nombre = "%" + nombre.replaceAll(" ", "%") + "%";
+            sql.beginBlock()
+                    .__().filter("cu.nombre", "like", nombre)
+                    .__().filter("cu.codigo", "like", nombre)
+                    .endBlock();
+        }
+        sql.filter("acc.registroActivo", BigDecimal.ONE.intValue())
+                .notIn("acc.estado", Arrays.asList(RCU.name(), RCI.name()));
 
         return all(sql);
     }

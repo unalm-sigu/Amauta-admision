@@ -94,7 +94,8 @@ public class ReporteController {
     public ModelAndView reporteboletin(Model model, HttpSession session) {
 //        RolExamenes rol = service.find(id);
 //        service.infoReporteAulas(model, rol);
-
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        model.addAttribute("cicloAcademico", ds.getCicloAcademico());
         return new ModelAndView(boletinAcademicoExcelView);
     }
 

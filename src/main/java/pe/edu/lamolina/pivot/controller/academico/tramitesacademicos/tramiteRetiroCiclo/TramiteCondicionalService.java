@@ -6,6 +6,7 @@ import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
+import pe.edu.lamolina.model.enums.ParametrosSistemasEnum;
 import pe.edu.lamolina.model.general.Parametro;
 import pe.edu.lamolina.model.tramite.RetiroCiclo;
 import pe.edu.lamolina.model.tramite.TipoTramite;
@@ -21,8 +22,6 @@ public interface TramiteCondicionalService {
     public void saveRetiroCiclo(Tramite tramite, DataSessionPivot ds);
 
     public void updateRetiroCiclo(Tramite tramite, DataSessionPivot ds);
-
-    public Parametro findParametro();
 
     public List<Alumno> allAlumnoByNombre(String nombre, DataSessionPivot ds);
 
@@ -40,4 +39,5 @@ public interface TramiteCondicionalService {
 
     public List<Curso> allCursosByName(String nombre, Alumno alumno, CicloAcademico academico, DataSessionPivot ds);
 
+    void evaluarEliminarMatriculable(Alumno alumno, CicloAcademico cicloAcademico, DataSessionPivot ds);
 }
