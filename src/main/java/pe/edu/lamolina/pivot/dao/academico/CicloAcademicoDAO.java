@@ -10,6 +10,8 @@ import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 
 public interface CicloAcademicoDAO extends EasyDAO<CicloAcademico> {
 
+    List<CicloAcademico> allCiclos();
+
     CicloAcademico findActivo(ModalidadEstudio modalidad);
 
     CicloAcademico findActivo(ModalidadEstudioEnum modalidadEnum);

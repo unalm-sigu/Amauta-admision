@@ -16,7 +16,7 @@ public interface CalculoNotasService {
 
     void recalcularAllResumenEvalAlumno(Alumno alumno, GrupoSeccion grupoSeccion, int envio, DataSessionPivot ds);
 
-    void calcularNotasAlumno(Alumno alumno, GrupoSeccion grupoSeccion, Curso curso, CicloAcademico ciclo, Usuario usuario);
+    void calcularNotasAlumno(Alumno alumno, GrupoSeccion grupoSeccion, Usuario usuario); // Curso curso , CicloAcademico ciclo
 
     void calcularNotas(EvaluacionExpandida evaluacionExpandida, CicloAcademico cicloAcademico, Usuario usuario);
 
