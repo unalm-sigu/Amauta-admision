@@ -422,7 +422,7 @@ public class PromedioServiceImp implements PromedioService {
     @Override
     @Transactional(readOnly = false)
     public void calulcarSituacionAcademica(Alumno alumno, DataSessionPivot ds) {
-        contadorComponent.iniciar(1);
+//        contadorComponent.iniciar(1);
         if (ds.getFechaAccionAudit() == null) {
             ds.setFechaAccionAudit(new Date());
         }

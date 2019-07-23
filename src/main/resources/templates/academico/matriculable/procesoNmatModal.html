@@ -1,0 +1,12 @@
+<modal-vik ref="modalProcesos"
+           v-bind="modalProcesos">
+    <div slot="body">
+        <h5>{{messageAvance}}</h5>
+        <div class="progress">
+            <div class="progress-bar progress-bar-primary progress-bar-striped active" role="progressbar" v-bind:style="{width: porcentajeAvance +'%'}">
+                {{porcentajeAvance}}% Completado..
+            </div>
+        </div>
+    </div>
+
+</modal-vik>
