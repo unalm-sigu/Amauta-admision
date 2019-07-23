@@ -3,6 +3,7 @@ package pe.edu.lamolina.pivot.dao.academico.hibernate;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import org.springframework.cache.annotation.Cacheable;
 import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
@@ -30,6 +31,15 @@ public class CicloAcademicoDAOH extends AbstractEasyDAO<CicloAcademico> implemen
     public CicloAcademicoDAOH() {
         super();
         setClazz(CicloAcademico.class);
+    }
+
+    @Override
+    @Cacheable("allCiclos")
+    public List<CicloAcademico> allCiclos() {
+        Octavia sql = Octavia.query()
+                .from(CicloAcademico.class, "ca")
+                .join("modalidadEstudio me");
+        return all(sql);
     }
 
     @Override
@@ -226,7 +236,7 @@ public class CicloAcademicoDAOH extends AbstractEasyDAO<CicloAcademico> implemen
                 .join("ca.modalidadEstudio me")
                 .in("ca.estado", Arrays.asList(ACT, CER, PEND, CFG))
                 .filter("ca.tipo", "REG")
-//                .filter("me.codigo", ModalidadEstudioEnum.PRE)
+                //                .filter("me.codigo", ModalidadEstudioEnum.PRE)
                 .orderBy("ca.year desc", "ca.numeroCiclo desc")
                 .limit(cantidadCiclos);
 

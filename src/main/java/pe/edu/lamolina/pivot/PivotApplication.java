@@ -2,6 +2,7 @@ package pe.edu.lamolina.pivot;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.scheduling.annotation.EnableAsync;
@@ -15,6 +16,7 @@ import pe.edu.lamolina.pivot.controller.seguridad.menu.MenuService;
 
 @EnableAsync
 @SpringBootApplication
+@EnableCaching
 @ComponentScan(basePackages = {"pe.edu.lamolina.pivot", "pe.albatross.zelpers"})
 public class PivotApplication extends WebMvcConfigurerAdapter {
 

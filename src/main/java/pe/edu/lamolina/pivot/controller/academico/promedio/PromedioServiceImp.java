@@ -220,10 +220,10 @@ public class PromedioServiceImp implements PromedioService {
             this.analizeAlumnoCiclos(alumno, allOperativesByModalidadEstudio);
             allOperativesByModalidadEstudio = alumnoCicloCursoDAO.allOperativesByAlumno(alumno);
 
-            this.promediarAlumno(alumno, cicloActivo, allOperativesByModalidadEstudio, ds);
+            this.promediarAlumno(alumno, cicloActivo, allOperativesByModalidadEstudio, ds); //cambia situacion academica
             this.analizarEgresado(alumno, ds);
             //Crea alumnociclos con nmat
-            this.analizarDesertor(alumno, cicloActivo, ciclos, ds);
+            this.analizarDesertor(alumno, cicloActivo, ciclos, ds); //slw
             this.analizeReincorporacion(alumno, cicloActivo);
             this.analizedCastigados(alumno, cicloActivo);
 
@@ -258,7 +258,8 @@ public class PromedioServiceImp implements PromedioService {
 
 //            CicloAcademico siguienteCicloRegularHabil = cicloAcademicoDAO.findSiguienteRegularActivo(cicloInha, MODALIDAD_ESTUDIO_ENUM);
 //            CicloAcademico siguienteCicloNivHabil = cicloAcademicoDAO.findSiguienteNivelacionActivo(cicloActivo, MODALIDAD_ESTUDIO_ENUM);
-            if (!cicloActivo.equals(cicloInha) && alumno.getCicloActivoRegular().getCodigoInt() <= cicloActivo.getCodigoInt()) {
+//alumno.getCicloActivoRegular()
+            if (cicloActivo.getCodigoInt() > cicloInha.getCodigoInt() && alumno.getCicloActivoRegular().getCodigoInt() <= cicloActivo.getCodigoInt()) {
                 Alumno alumnoUpd = new Alumno(alumno.getId());
                 alumnoUpd.setSituacionAcademica(alumnoCicloInha.getSituacionFinal());
                 alumnoDAO.updateSituacionAcad(alumnoUpd);
@@ -603,7 +604,7 @@ public class PromedioServiceImp implements PromedioService {
             AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findByAlumnoCiclo(alumno, cicloAcademico);
             AlumnoCicloCurso alumnoCicloCurso = alumnoCicloCursoDAO.findByAlumnoCicloCurso(alumno, cicloAcademico, curso);
             DateTime today = new DateTime(ds.getFechaAccionAudit());
-            
+
             if (alumnoCiclo == null) {
                 SituacionAcademica situacionAcademicaComodin = situacionAcademicaDAO.findByCodigo(SituacionAcademicaEnum.S_00.getValue());
                 alumnoCiclo = new AlumnoCiclo();
