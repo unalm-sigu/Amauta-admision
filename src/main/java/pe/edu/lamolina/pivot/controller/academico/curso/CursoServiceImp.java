@@ -123,6 +123,7 @@ public class CursoServiceImp implements CursoService {
         }
 
         cursoBD.setTipoCreditoEnum(curso.getTipoCreditoEnum());
+        cursoBD.setTipoCursoEnum(curso.getTipoCursoEnum());
         cursoBD.setHorasTeoria(curso.getHorasTeoria());
         cursoBD.setHorasPractica(curso.getHorasPractica());
         cursoBD.setHorasTeoriaVerano(curso.getHorasTeoriaVerano());
