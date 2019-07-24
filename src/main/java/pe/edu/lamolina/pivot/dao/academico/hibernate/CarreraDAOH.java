@@ -306,8 +306,8 @@ public class CarreraDAOH extends AbstractEasyDAO<Carrera> implements CarreraDAO 
                 .selectDistinct("carr")
                 .from(MatriculaResumen.class, "mr")
                 .join("alumno al", "cicloAcademico ci")
-                .leftJoin("areaPosgrado ap")
                 .join("al.modalidadEstudio me", "al.carrera carr", "carr.facultad")
+                .leftJoin("carr.areaPosgrado ap")
                 .filter("ci.id", ciclo)
                 .filter("me.codigo", ModalidadEstudioEnum.PRE)
                 .orderBy("carr.nombre");
@@ -322,7 +322,7 @@ public class CarreraDAOH extends AbstractEasyDAO<Carrera> implements CarreraDAO 
                 .selectDistinct("carr")
                 .from(MatriculaResumen.class, "mr")
                 .join("mr.alumno al", "al.modalidadEstudio me", "al.carrera carr", "mr.cicloAcademico ci", "carr.facultad fac")
-                .leftJoin("areaPosgrado ap")
+                .leftJoin("carr.areaPosgrado ap")
                 .filter("ci.id", ciclo)
                 .in("fac.id", facultades)
                 .filter("me.codigo", ModalidadEstudioEnum.PRE)
