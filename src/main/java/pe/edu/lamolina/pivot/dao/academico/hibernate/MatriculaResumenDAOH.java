@@ -49,7 +49,7 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
                 .from(MatriculaResumen.class, "mr")
                 .join("alumno alu", "cicloAcademico ca", "alu.situacionAcademica ")
                 .filter("alu.id", alumno)
-                .filter("ca.id", ciclo);
+                .filter("ca.codigo", ciclo.getCodigo());
 
         return find(sql);
     }

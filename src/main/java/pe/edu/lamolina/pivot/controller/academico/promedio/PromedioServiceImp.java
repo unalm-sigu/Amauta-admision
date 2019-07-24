@@ -141,12 +141,12 @@ public class PromedioServiceImp implements PromedioService {
     public void trasladarInformcionForHistorial(MatriculaResumen matriculaResumen, List<MatriculaCurso> matriculasCurso, List<MatriculaSeccion> matriculasSeccion, DataSessionPivot ds, boolean calcularSituacion) {
         visorCalculoNotas.incrementarCantidad();
         List<MatriculaCurso> matriculasCursoByAlumno = matriculasCurso.stream()
-                .filter(x -> x.getMatriculaResumen().getAlumno().equals(matriculaResumen.getAlumno()))
+                .filter(x -> x.getMatriculaResumen().getAlumno().getId().equals(matriculaResumen.getAlumno().getId()))
                 .collect(Collectors.toList());
-        List<MatriculaSeccion> matriculasSeccionByAlumno = matriculasSeccion.stream().filter(x -> x.getMatriculaResumen().equals(matriculaResumen)).collect(Collectors.toList());
+        List<MatriculaSeccion> matriculasSeccionByAlumno = matriculasSeccion.stream().filter(x -> x.getMatriculaResumen().getId().equals(matriculaResumen.getId())).collect(Collectors.toList());
         for (MatriculaCurso matriculaCurso : matriculasCursoByAlumno) {
             MatriculaSeccion matriculaSeccion = matriculasSeccionByAlumno
-                    .stream().filter(x -> x.getSeccion().getGrupoSeccion().getCurso().equals(matriculaCurso.getCurso())).findFirst().orElse(null);
+                    .stream().filter(x -> x.getSeccion().getGrupoSeccion().getCurso().getId().equals(matriculaCurso.getCurso().getId())).findFirst().orElse(null);
             if (matriculaSeccion != null && matriculaSeccion.getSeccion().getGrupoSeccion().isEstadoGrupoCerrado()) {
                 this.trasladoPromediosSource2(matriculaCurso, matriculasCursoByAlumno, ds);
             }
@@ -637,6 +637,11 @@ public class PromedioServiceImp implements PromedioService {
                 alumnoCicloCurso.setNota(matriculaCurso.getNotaFinal());
                 alumnoCicloCurso.setEstado(matriculaCurso.getEstadoEnum());
                 alumnoCicloCurso.setUserModificacion(ds.getUsuario());
+                if (curso.isTieneCreditosVariables()) {
+                    alumnoCicloCurso.setCreditos(matriculaCurso.getCreditosAprobados());
+                } else {
+                    alumnoCicloCurso.setCreditos(matriculaCurso.getCreditos());
+                }
                 Integer aprobado = evaluateEstaAprobado(matriculaCurso, alumno);
                 alumnoCicloCurso.setEstaAprobado(aprobado);
                 alumnoCicloCurso.setVecesCursado(this.countVecesAnteriores(matriculasCursosByAlumno, cicloAcademico, curso) + 1);
