@@ -119,11 +119,11 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
         sql.append(" inner join al.modalidadEstudio moe ");
         sql.append(" inner join car.facultad fac ");
         sql.append(" where ");
-        sql.append(" ca.id=:prm_ciclo ");
+        sql.append(" ca.codigo=:prm_ciclo ");
 
         Query query = getCurrentSession().createQuery(sql.toString());
         //  query.setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
-        query.setParameter("prm_ciclo", ciclo.getId());
+        query.setParameter("prm_ciclo", ciclo.getCodigo());
         query.setString("PRE", PRE.name());
         query.setString("EPG", EPG.name());
         query.setString("VIS", VIS.name());
