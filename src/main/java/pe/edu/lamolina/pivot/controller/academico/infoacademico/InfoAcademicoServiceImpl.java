@@ -823,8 +823,12 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
             alumnoBD.setPlanCurricular(planes.get(0));
             alumnoDAO.update(alumnoBD);
         }
+        if (alumnoBD.getModalidadEstudio().isPregrado()) {
+            avanceCurricularService.generarAvanceCurricularByAlumno(alumnoBD, ds);
+        } else if (alumnoBD.getModalidadEstudio().isPostgrado()) {
+            avanceCurricularService.generarAvanceCurricularByAlumnoPost(alumnoBD, ds);
 
-        avanceCurricularService.generarAvanceCurricularByAlumno(alumnoBD, ds);
+        }
     }
 
     private String getIndiceCicloAcademico(String codigoCicloAlumno, List<String> codigosCiclosPlanes) {

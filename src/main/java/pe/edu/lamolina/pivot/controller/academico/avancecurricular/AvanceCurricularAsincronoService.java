@@ -87,4 +87,10 @@ public interface AvanceCurricularAsincronoService {
             List<PlanCurricular> planCurriculars,
             Map<Long, List<CursoCurricula>> mapCursoCurriculaAll,
             DataSessionPivot ds);
+
+    public void procesarAlumnoSincronoPros(Alumno alumnoBD, Map<Long, CursoCurricula> mapCursoCurricula,
+            Map<String, AlumnoCicloCurso> mapCursosVecesLlevado, List<MatriculaCurso> cursosMatriculados,
+            List<AlumnoCicloCurso> cursosAprobados, Map<Long, CursoCurricula> mapCursoCurriculaByCurso,
+            List<CursoOpcionalCurricula> cursoOpcionaPlan,
+            List<ResumenPlanCurricular> resumenPlanCurriculars, DataSessionPivot ds);
 }

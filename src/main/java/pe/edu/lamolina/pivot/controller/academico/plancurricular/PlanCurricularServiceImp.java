@@ -50,6 +50,7 @@ import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.enums.TipoCreditoEnum;
 import pe.edu.lamolina.model.enums.TipoCurriculaEnum;
+import pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum;
 import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.CULT;
 import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.DEP;
 import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.EAD;
@@ -1585,7 +1586,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
                 rpcs = new ResumenPlanCurricular();
                 rpcs.setCreditos(count);
                 rpcs.setCursos(cursoCurriculas.size());
-                rpcs.setMinimoCreditos(cursoCurriculas.size());
+                rpcs.setMinimoCreditos(count);
                 rpcs.setPlanCurricular(planCurricular);
                 rpcs.setTipoCursoCurricula(tipoCursoCurricula);
                 resumenPlanCurricularDAO.save(rpcs);
@@ -1599,4 +1600,41 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
         }
     }
 
+    @Override
+    @Transactional
+    public void allUpdateResumenPost() {
+        List<PlanCurricular> planCurriculars = planCurricularDAO.allActivo();
+        planCurriculars = planCurriculars.stream().filter(x -> x.getCarrera().getModalidadEstudio().isPostgrado()).collect(Collectors.toList());
+        List<ResumenPlanCurricular> resumenPlanCurriculars = resumenPlanCurricularDAO.allByPlanes(planCurriculars);
+        List<TipoCursoCurricula> tipoCursoCurriculas = tipoCursoCurriculaDAO.all();
+        for (PlanCurricular planCurricular : planCurriculars) {
+            List<ResumenPlanCurricular> resumen = resumenPlanCurriculars.stream().filter(x -> Objects.equals(x.getPlanCurricular().getId(), planCurricular.getId())).collect(Collectors.toList());
+            List<CursoCurricula> cursoCurriculas = cursoCurriculaDAO.allByPlanCurricular(planCurricular);
+            Map<Long, ResumenPlanCurricular> mapResumen = TypesUtil.convertListToMap("tipoCursoCurricula.id", resumen);
+            Map<TipoCursoCurriculaEnum, Integer> mapTipoCurso = cursoCurriculas.stream().collect(Collectors.groupingBy(CursoCurricula::getTipoCursoCurriculaEnum, Collectors.summingInt(x -> x.getCreditos())));
+            for (TipoCursoCurricula tcc : tipoCursoCurriculas) {
+                ResumenPlanCurricular curricular = mapResumen.get(tcc.getId());
+                if (mapTipoCurso.get(tcc.getCodigoEnum()) == null) {
+                    continue;
+                }
+                int count = mapTipoCurso.get(tcc.getCodigoEnum());
+                if (!cursoCurriculas.isEmpty() && curricular == null) {
+                    curricular = new ResumenPlanCurricular();
+                    curricular.setCreditos(count);
+                    curricular.setCursos(cursoCurriculas.size());
+                    curricular.setMinimoCreditos(count);
+                    curricular.setPlanCurricular(planCurricular);
+                    curricular.setTipoCursoCurricula(tcc);
+                    resumenPlanCurricularDAO.save(curricular);
+                }
+                if (!cursoCurriculas.isEmpty() && curricular != null) {
+                    curricular.setCreditos(count);
+                    curricular.setMinimoCreditos(count);
+                    curricular.setCursos(cursoCurriculas.size());
+                    resumenPlanCurricularDAO.update(curricular);
+                }
+            }
+
+        }
+    }
 }
