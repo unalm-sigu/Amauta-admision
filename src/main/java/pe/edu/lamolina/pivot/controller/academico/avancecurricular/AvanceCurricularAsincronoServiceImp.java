@@ -76,7 +76,6 @@ import pe.edu.lamolina.pivot.dao.academico.RequisitoCursoCurriculaDAO;
 import pe.edu.lamolina.pivot.dao.academico.ResumenPlanCurricularDAO;
 import pe.edu.lamolina.pivot.dao.academico.TipoCursoCurriculaDAO;
 import pe.edu.lamolina.pivot.dao.tramite.RetiroCicloDAO;
-import static pe.edu.lamolina.pivot.zelper.constant.Constantine.CREDITOS_ADIC_ELC;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service

@@ -35,9 +35,16 @@ new Vue({
             let $vue = this;
             return APP.url('academico/alumno/' + item.id + '/gomatricula') + $vue.getOrigenURL();
         },
+        urlConfigCursos(item) {
+            let $vue = this;
+            return APP.url('academico/alumno/' + item.id + '/configcursos') + $vue.getOrigenURL();
+        },
         getOrigenURL() {
             var url = window.location.href;
             return "?origen=" + Base64.encode(url);
+        },
+        isPosgrado(modalidad) {
+            return modalidad.codigo == 'EPG' ? true : false;
         },
         verModalidades(tipo) {
             let $vue = this;

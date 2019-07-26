@@ -462,7 +462,7 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
                 continue;
             }
 
-            calculoNotasService.calcularNotasAlumno(alumno, gpoSecc, gpoSecc.getCurso(), gpoSecc.getCicloAcademico(), ds.getUsuario());
+            calculoNotasService.calcularNotasAlumno(alumno, gpoSecc, ds.getUsuario());
 
         }
 
@@ -1554,7 +1554,7 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
             CicloAcademico ciclo = gpoSeccion.getCicloAcademico();
 
             Alumno alumno = matSecc.getMatriculaResumen().getAlumno();
-            calculoNotasService.calcularNotasAlumno(alumno, gpoSeccion, curso, ciclo, ds.getUsuario());
+            calculoNotasService.calcularNotasAlumno(alumno, gpoSeccion, ds.getUsuario());
         }
     }
 
@@ -1748,8 +1748,6 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
         //);
         calculoNotasService.calcularNotasAlumno(reclamoNota.getAlumno(), //evaluacion,
                 grupoSeccion,
-                grupoSeccion.getCurso(),
-                grupoSeccion.getCicloAcademico(),
                 ds.getUsuario());
 
         auditorService.auditSaveNotas(LoggerAccionEnum.GRABAR_NOTAS_ACADEMICAS_CAMBIO_NOTA, evaluacion,

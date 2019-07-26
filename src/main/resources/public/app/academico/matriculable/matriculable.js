@@ -1,5 +1,4 @@
 Vue.component("multiselect", window.VueMultiselect.default);
-console.log(JSON.parse(cicloJson));
 new Vue({
     el: '#matriculableVUE',
     data: {
@@ -38,8 +37,21 @@ new Vue({
             okbtn: "Aceptar",
             showaccept: true
         },
+        modalProcesos: {
+            id: 'modalProcesos',
+            styleModal: {'background-color': '#D8D8D8'},
+            dataBackdrop: 'static',
+            dataKeyboard: 'false',
+            header: false,
+            footer: false,
+            
+        },
         matriculableSelected: {},
-        tipoCondicional: {}
+        tipoCondicional: {},
+        messageAvance: 0,
+        porcentajeAvance: 0,
+        configConfirmAction: VUE_MODAL.structConfirm({}),
+        procesando: false
 
     },
     mounted: function () {
@@ -138,7 +150,6 @@ new Vue({
         },
         findCiclo() {
             let $vue = this;
-
             $.ajax({
                 method: 'POST',
                 url: APP.url('academico/matriculable/ciclo'),
@@ -340,26 +351,74 @@ new Vue({
             var url = window.location.href;
             return "?origen=" + Base64.encode(url);
         },
-        verificarAlumnosNmat() {
+        revisar() {
             let $vue = this;
-            
-//            MODAL.showWait("Espere un momento por favor");
-//            $.ajax({
-//                method: 'POST',
-//                url: APP.url('academico/matriculable/verificarAlumnosNmat'),
-//                success: function (response) {
-//                    if (response.success) {
-//                        $vue.findCiclo();
-//                        $vue.$refs.load.loadRemoteData();
-//                        MODAL.hideWait();
-//                        notify(response.message, "success");
-//                    }
-//                },
-//                error: function () {
-//                    notify(MESSAGES.errorComunicacion, "error");
-//                    MODAL.hideWait();
-//                }
-//            });
+            MODAL.showWait("Espere un momento por favor");
+            $.ajax({
+                method: 'POST',
+                url: APP.url('academico/matriculable/verificarAvance'),
+                success: function (response) {
+                    if (!response.success) {
+                        MODAL.hideWait();
+                        $vue.messageAvance = response.message;
+                        $vue.porcentajeAvance = response.data;
+                        $vue.verificarAlumnosNmat();
+                        $vue.$refs.modalProcesos.open();
+                        MODAL.hideWait();
+                    } else {
+                        let msg = "¿Está seguro que desea verificar los no matriculados?";
+                        let btn = "Si, verificar";
+                        $vue.configConfirmAction.message = msg;
+                        $vue.configConfirmAction.okbtn = btn;
+                        $vue.configConfirmAction.okaction = $vue.verificarAlumnosNmat;
+                        $vue.styleProgress = 'width: ' + $vue.porcentProgress + '%';
+                        $vue.$refs.modalConfirmAction.open();
+
+                        $vue.procesando = true;
+                        $vue.showProgress = true;
+                        MODAL.hideWait();
+                    }
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                    MODAL.hideWait();
+                }
+            });
+        },
+        verificarAlumnosNmat(item) {
+            let $vue = this;
+            if ($vue.procesando) {
+                $vue.$refs.modalConfirmAction.close();
+                $vue.$refs.modalProcesos.open();
+            }
+            $.ajax({
+                method: 'POST',
+                url: APP.url('academico/matriculable/verificarAlumnosNmat'),
+                success: function (response) {
+                    if (!response.success) {
+                        $vue.messageAvance = response.message;
+                        $vue.porcentajeAvance = response.data;
+                        $vue.procesando = true;
+
+                        setTimeout(function () {
+                            $vue.verificarAlumnosNmat(1);
+                        }, 1000);
+                    } else {
+                        $vue.showProgress = false;
+                        $vue.procesando = true;
+                        bootbox.alert({
+                            message: 'Proceso finalizado',
+                            callback: function () {
+                                $vue.$refs.modalProcesos.close();
+                            }
+                        });
+                    }
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                    MODAL.hideWait();
+                }
+            });
         },
         beneficiar(item) {
             let $vue = this;

@@ -33,6 +33,7 @@ import pe.edu.lamolina.model.academico.ResumenAlumnoEvaluacion;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.AlumnoEvaluacionEstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoEnum;
+import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.EPG;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.PRE;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.VIS;
@@ -100,7 +101,7 @@ public class CalculoNotasServiceImp implements CalculoNotasService {
             Curso curso = gpoSeccion.getCurso();
             CicloAcademico ciclo = gpoSeccion.getCicloAcademico();
             Alumno alumno = matSecc.getMatriculaResumen().getAlumno();
-            calcularNotasAlumno(alumno, gpoSeccion, curso, ciclo, ds.getUsuario());
+            calcularNotasAlumno(alumno, gpoSeccion, ds.getUsuario());
         }
     }
 
@@ -111,7 +112,7 @@ public class CalculoNotasServiceImp implements CalculoNotasService {
 
         visorCalculoNotas.incrementarCantidad();
         Curso curso = grupoSeccion.getCurso();
-        calcularNotasAlumno(alumno, grupoSeccion, curso, grupoSeccion.getCicloAcademico(), ds.getUsuario());
+        calcularNotasAlumno(alumno, grupoSeccion, ds.getUsuario());
 
         visorCalculoNotas.incrementarProcesados();
         visorCalculoNotas.reporte();
@@ -120,20 +121,24 @@ public class CalculoNotasServiceImp implements CalculoNotasService {
 
     @Override
     @Transactional
-    public void calcularNotasAlumno(Alumno alumno, GrupoSeccion grupoSeccion, Curso curso, CicloAcademico ciclo, Usuario usuario) {
+    public void calcularNotasAlumno(Alumno alumno, GrupoSeccion grupoSeccion, Usuario usuario) { //, CicloAcademico ciclo
+        Curso curso = grupoSeccion.getCurso();
         alumno = alumnoDAO.find(alumno);
-        List<CicloAcademico> cicloAcademicos = cicloAcademicoDAO.allActivosAlModalidades();
-        CicloAcademico academicoMod = null;
-        if (Arrays.asList(PRE, VIS).contains(alumno.getModalidadEstudio().getCodigoEnum())) {
-            academicoMod = cicloAcademicos.stream().filter(x -> x.getModalidadEstudio().getCodigoEnum() == PRE).findAny().orElse(null);
-        } else {
-            academicoMod = cicloAcademicos.stream().filter(x -> x.getModalidadEstudio().getCodigoEnum() == EPG).findAny().orElse(null);
-        }
+        //   List<CicloAcademico> cicloAcademicos = cicloAcademicoDAO.allActivosAlModalidades();
+        List<CicloAcademico> cicloAcademicos = cicloAcademicoDAO.allCiclos();
+        CicloAcademico cicloAcademicoGpoSeccion = grupoSeccion.getCicloAcademico();
+
+        final ModalidadEstudioEnum fModalidadEstudioAlumno = alumno.getModalidadEstudio().getOperativeModalidadEnum();
+        CicloAcademico cicloAcademicoByModalidad = cicloAcademicos.stream()
+                .filter(x -> x.getCodigo().equals(cicloAcademicoGpoSeccion.getCodigo()))
+                .filter(x -> fModalidadEstudioAlumno == x.getModalidadEstudio().getCodigoEnum())
+                .findFirst().orElse(null);
+
         logger.debug("\n\n\n");
-        logger.debug("Calcular nota alumno {} gpoSecc {} curso {} ciclo {}", alumno.getId(), grupoSeccion.getId(), curso.getId(), academicoMod.getId());
+        logger.debug("Calcular nota alumno {} gpoSecc {} curso {} ciclo {}", alumno.getId(), grupoSeccion.getId(), curso.getId(), cicloAcademicoGpoSeccion.toString());
 
         grupoSeccion = grupoSeccionDAO.find(grupoSeccion.getId());
-        MatriculaCurso matriculaCurso = matriculaCursoDAO.findByAlumnoCursoCiclo(alumno, curso, academicoMod);
+        MatriculaCurso matriculaCurso = matriculaCursoDAO.findByAlumnoCursoCiclo(alumno, curso, cicloAcademicoByModalidad);
 
         Map<String, NotaLetra> mapNotaLetra = new HashMap<>();
         List<NotaLetra> notasLetras = notaLetraDAO.all();
@@ -142,7 +147,7 @@ public class CalculoNotasServiceImp implements CalculoNotasService {
         }
 
         int cant = 0;
-        List<AlumnoEvaluacion> evaluacionesAlumno = alumnoEvaluacionDAO.allByAlumnoCursoCiclo(alumno, curso, ciclo, academicoMod);
+        List<AlumnoEvaluacion> evaluacionesAlumno = alumnoEvaluacionDAO.allByAlumnoCursoCiclo(alumno, curso, cicloAcademicoGpoSeccion, cicloAcademicoByModalidad);
         for (AlumnoEvaluacion nota : evaluacionesAlumno) {
             if (nota.getEstadoEnum() != AlumnoEvaluacionEstadoEnum.CALC) {
                 cant++;
@@ -330,7 +335,7 @@ public class CalculoNotasServiceImp implements CalculoNotasService {
             }
         }
 
-        logger.debug("Finalizó calculo notas del alumno {} gpoSecc {} curso {} ciclo {}", alumno.getId(), grupoSeccion.getId(), curso.getId(), ciclo.getId());
+        logger.debug("Finalizó calculo notas del alumno {} gpoSecc {} curso {} ciclo {}", alumno.getId(), grupoSeccion.getId(), curso.getId(), cicloAcademicoGpoSeccion);
     }
 
     private void calcularNotaEvaluacion(EvaluacionExpandida configEvaluacion, Fraxtion pesoGrupo, Fraxtion pesoPadre, List<Fraxtion> notas, List<Fraxtion> pesos) {
@@ -677,7 +682,7 @@ public class CalculoNotasServiceImp implements CalculoNotasService {
                 continue;
             }
 
-            this.calcularNotasAlumno(alumno, gpoSecc, gpoSecc.getCurso(), gpoSecc.getCicloAcademico(), usuario);
+            this.calcularNotasAlumno(alumno, gpoSecc, usuario);
 
         }
     }

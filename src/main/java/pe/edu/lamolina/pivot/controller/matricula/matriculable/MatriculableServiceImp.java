@@ -77,6 +77,7 @@ import pe.edu.lamolina.pivot.controller.academico.avancecurricular.AvanceCurricu
 import pe.edu.lamolina.pivot.controller.academico.promedio.PromedioService;
 import pe.edu.lamolina.pivot.controller.bienestar.alumnoAporte.AporteAlumnoService;
 import pe.edu.lamolina.pivot.controller.matricula.configuracionturno.ConfiguracionMatriculaService;
+import pe.edu.lamolina.pivot.controller.visores.RespositorVisor;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCursoCurriculaDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
@@ -154,6 +155,9 @@ public class MatriculableServiceImp implements MatriculableService {
 
     @Autowired
     CambioNotaDAO cambioNotaDAO;
+
+    @Autowired
+    RespositorVisor respositorVisor;
 
     @Override
     public AlumnoResumen allResumenAlumnosByCicloRol(CicloAcademico cicloAcademico, String codigo, List<Long> filtros) {
@@ -923,21 +927,24 @@ public class MatriculableServiceImp implements MatriculableService {
         }
     }
 
+    @Async
     @Override
     @Transactional
-    public void verificarAlumnosNmat(DataSessionPivot ds) {
+    public void verificarAlumnosNmat(DataSessionPivot ds, List<AlumnoCiclo> alumnoCiclos) {
 
-        CicloAcademico cicloActivo = ds.getCicloAcademico();
-        List<CicloAcademico> cicloAnt = cicloAcademicoDAO.findAnteriorRegular(cicloActivo);
-
-        List<AlumnoCiclo> alumnoCiclos = alumnoCicloDAO.allByNmatAndInh(cicloAnt);
         logger.debug("Cantidad de alumnos {}", alumnoCiclos.size());
+        CicloAcademico academico = ds.getCicloAcademico();
+
         for (AlumnoCiclo alumnoCiclo : alumnoCiclos) {
+          
             logger.info("Alumno codigo {}", alumnoCiclo.getAlumno().getCodigo());
+            logger.debug("Cantidad de {} total {}", respositorVisor.getContador(), respositorVisor.getCantidadTotal());
             this.revisarSituacionAcademica(alumnoCiclo.getAlumno(), ds);
+            respositorVisor.incrementar();
+            logger.debug("Cantidad de {} total {}", respositorVisor.getContador(), respositorVisor.getCantidadTotal());
         }
-        cicloActivo.setFechaVerificaNmat(new Date());
-        cicloAcademicoDAO.update(cicloActivo);
+        academico.setFechaVerificaNmat(new Date());
+        cicloAcademicoDAO.update(academico);
 
     }
 
@@ -958,6 +965,15 @@ public class MatriculableServiceImp implements MatriculableService {
     @Override
     public List<CicloAcademico> allCiclosActivos() {
         return cicloAcademicoDAO.allActivosAlModalidades();
+    }
+
+    @Override
+    public List<AlumnoCiclo> allAlumnosCicloNmat(CicloAcademico cicloActivo) {
+
+        List<CicloAcademico> cicloAnt = cicloAcademicoDAO.findAnteriorRegular(cicloActivo);
+        List<AlumnoCiclo> alumnoCiclos = alumnoCicloDAO.allByNmatAndInh(cicloAnt);
+        respositorVisor.iniciar(alumnoCiclos.size());
+        return alumnoCiclos;
     }
 
 }

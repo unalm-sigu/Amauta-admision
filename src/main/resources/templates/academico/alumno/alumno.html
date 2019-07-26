@@ -141,6 +141,7 @@
                                                             <li><a v-bind:href="urlDataPersonal(item)">Modificar datos</a></li>
                                                             <li><a v-bind:href="urlAcademico(item)">Información académica</a></li>
                                                             <li><a v-bind:href="urlMatricula(item)">Matricula</a></li>
+                                                            <li><a v-if='isPosgrado(item.modalidadEstudio)' v-bind:href="urlConfigCursos(item)">Configurar Curso</a></li>
                                                         </ul>
                                                     </div>
                                                 </td>
@@ -157,7 +158,6 @@
             </div>
         </div>
         <div layout:fragment="js">
-            
             <div th:substituteby="_modules/vue-raptor-table"></div>
             <script th:src="@{/app/academico/alumno/alumno.js}" charset="utf-8"></script>
         </div>

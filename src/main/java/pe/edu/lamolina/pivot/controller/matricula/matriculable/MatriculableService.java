@@ -4,6 +4,7 @@ import java.util.List;
 import org.springframework.web.multipart.MultipartFile;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.ConfiguracionTurnosAtencion;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
@@ -56,10 +57,12 @@ public interface MatriculableService {
 
     void inhabilitarMatriculable(MatriculaResumen matriculaResumen, DataSessionPivot ds);
 
-    public void verificarAlumnosNmat(DataSessionPivot ds);
+    public void verificarAlumnosNmat(DataSessionPivot ds, List<AlumnoCiclo> alumnoCiclos);
 
     public void beneficiar(MatriculaResumen matriculaResumen, DataSessionPivot ds);
 
     public List<CicloAcademico> allCiclosActivos();
+
+    public List<AlumnoCiclo> allAlumnosCicloNmat(CicloAcademico cicloActivo);
 
 }

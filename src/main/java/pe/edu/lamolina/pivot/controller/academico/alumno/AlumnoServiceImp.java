@@ -21,11 +21,14 @@ import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.Curso;
+import pe.edu.lamolina.model.academico.CursoCicloAcademico;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.SituacionAcademica;
 import pe.edu.lamolina.model.enums.AlumnoEstadoEnum;
 import pe.edu.lamolina.model.enums.AmbienteAplicacionEnum;
 import pe.edu.lamolina.model.enums.ContenidoEmailEnum;
+import pe.edu.lamolina.model.enums.CursoCurriculaEstadoEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.enums.ParametrosSistemasEnum;
@@ -41,6 +44,7 @@ import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.general.TipoDocIdentidad;
 import pe.edu.lamolina.model.general.TipoOficina;
 import pe.edu.lamolina.model.inscripcion.ContenidoCarta;
+import pe.edu.lamolina.model.matricula.AlumnoCursoCurricula;
 import pe.edu.lamolina.model.seguridad.Rol;
 import pe.edu.lamolina.model.seguridad.Sistema;
 import pe.edu.lamolina.model.seguridad.TokenIngresante;
@@ -49,15 +53,20 @@ import pe.edu.lamolina.model.seguridad.UsuarioRol;
 import pe.edu.lamolina.pivot.config.DespliegueConfig;
 import pe.edu.lamolina.pivot.controller.academico.avancecurricular.AvanceCurricularService;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloCursoDAO;
+import pe.edu.lamolina.pivot.dao.academico.AlumnoCursoCurriculaDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.pivot.dao.academico.CarreraDAO;
 import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
+import pe.edu.lamolina.pivot.dao.academico.CursoCicloAcademicoDAO;
+import pe.edu.lamolina.pivot.dao.academico.CursoCurriculaDAO;
+import pe.edu.lamolina.pivot.dao.academico.CursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.DocenteSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaCursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.ModalidadEstudioDAO;
 import pe.edu.lamolina.pivot.dao.academico.OrientacionCarreraDAO;
 import pe.edu.lamolina.pivot.dao.academico.SituacionAcademicaDAO;
+import pe.edu.lamolina.pivot.dao.academico.TipoCursoCurriculaDAO;
 import pe.edu.lamolina.pivot.dao.general.ColaboradorDAO;
 import pe.edu.lamolina.pivot.dao.general.ContenidoCartaDAO;
 import pe.edu.lamolina.pivot.dao.general.DiaDAO;
@@ -132,6 +141,16 @@ public class AlumnoServiceImp implements AlumnoService {
     DespliegueConfig despliegueConfig;
     @Autowired
     ParametroDAO parametroDAO;
+    @Autowired
+    AlumnoCursoCurriculaDAO alumnoCursoCurriculaDAO;
+    @Autowired
+    CursoCicloAcademicoDAO cursoCicloAcademicoDAO;
+    @Autowired
+    TipoCursoCurriculaDAO tipoCursoCurriculaDAO;
+    @Autowired
+    CursoCurriculaDAO cursoCurriculaDAO;
+    @Autowired
+    CursoDAO cursoDAO;
 
     @Override
     public List<Alumno> allAlumnosByCicloDynatable(DynatableFilter filter, List<Carrera> carreras) {
@@ -638,6 +657,52 @@ public class AlumnoServiceImp implements AlumnoService {
         Parametro paramRutaIntranet = parametroDAO.findBySistemaAmbienteParametrosSistemas(sistema, ambiente, ParametrosSistemasEnum.SALTO_PIVOT_MATRICULA);
         logger.debug("********************** paramRutaMatricula {} path {}", paramRutaIntranet.getId(), paramRutaIntranet.getValor());
         return paramRutaIntranet;
+    }
+
+    @Override
+    public List<AlumnoCursoCurricula> allCursosByAlumno(Alumno alumno, DynatableFilter filter) {
+        Alumno alumnoDB = alumnoDAO.find(alumno);
+        ModalidadEstudio modalidad = modalidadEstudioDAO.findByCodigo(ModalidadEstudioEnum.EPG);
+        if (alumnoDB == null) {
+            throw new PhobosException("No existe datos del alumno");
+        }
+        if (alumnoDB.getModalidadEstudio() != modalidad) {
+            throw new PhobosException("Alumno no pertenece a la modalidad");
+        }
+        return alumnoCursoCurriculaDAO.allByAlumnoAndModalidad(alumno, filter);
+    }
+
+    @Override
+    public List<CursoCicloAcademico> allCursoCiclo(String nombre, CicloAcademico cicloAcademico) {
+        nombre = forLike(nombre);
+        return cursoCicloAcademicoDAO.allByCicloAndNombre(cicloAcademico, nombre);
+    }
+
+    @Override
+    @Transactional
+    public void saveCursoCurricula(AlumnoCursoCurricula alumnoCursoCurricula, CicloAcademico cicloAcademico) {
+        if (alumnoCursoCurricula.getAlumno() == null || alumnoCursoCurricula.getCurso() == null) {
+            throw new PhobosException("Ingrese los campos requeridos");
+        }
+        Alumno alumnoDB = alumnoDAO.find(alumnoCursoCurricula.getAlumno());
+        Curso cursoDB = cursoDAO.findCurso(alumnoCursoCurricula.getCurso());
+        if (alumnoDB == null) {
+            throw new PhobosException("No existe datos del alumno");
+        }
+        AlumnoCursoCurricula alumnoCursoCuri = alumnoCursoCurriculaDAO.findByAlumnoCurso(alumnoDB, cursoDB);
+        if (alumnoCursoCuri != null) {
+            throw new PhobosException("El curso ya fue asignado a este alumno");
+        }
+        AlumnoCursoCurricula newcursoCurricula = new AlumnoCursoCurricula();
+        newcursoCurricula.setAlumno(alumnoCursoCurricula.getAlumno());
+        newcursoCurricula.setCurso(alumnoCursoCurricula.getCurso());
+        newcursoCurricula.setVecesCursado(BigDecimal.ZERO.intValue());
+        newcursoCurricula.setEstadoEnum(CursoCurriculaEstadoEnum.HAB);
+        alumnoCursoCurriculaDAO.save(newcursoCurricula);
+    }
+
+    private String forLike(String nombre) {
+        return "%" + nombre.replaceAll(" ", "%") + "%";
     }
 
 }

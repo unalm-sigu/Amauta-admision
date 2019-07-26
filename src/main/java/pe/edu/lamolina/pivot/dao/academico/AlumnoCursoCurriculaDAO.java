@@ -1,11 +1,13 @@
 package pe.edu.lamolina.pivot.dao.academico;
 
 import java.util.List;
+import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.easydao.EasyDAO;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.CursoCurricula;
+import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.matricula.AlumnoCursoCurricula;
 
 public interface AlumnoCursoCurriculaDAO extends EasyDAO<AlumnoCursoCurricula> {
@@ -26,15 +28,17 @@ public interface AlumnoCursoCurriculaDAO extends EasyDAO<AlumnoCursoCurricula> {
 
     List<AlumnoCursoCurricula> allByAlumnoCicloRegularAct(Alumno alumno, CicloAcademico cicloAcademico);
 
-    public List<AlumnoCursoCurricula> allByAlumnosCurso(List<Alumno> alumnos, Curso curso);
+    List<AlumnoCursoCurricula> allByAlumnosCurso(List<Alumno> alumnos, Curso curso);
 
-    public List<AlumnoCursoCurricula> allByAlumnosApr(List<Alumno> alumnos);
+    List<AlumnoCursoCurricula> allByAlumnosApr(List<Alumno> alumnos);
 
-    public List<AlumnoCursoCurricula> allByAlumnoApro(Alumno alumnoBD);
+    List<AlumnoCursoCurricula> allByAlumnoApro(Alumno alumnoBD);
 
     List<AlumnoCursoCurricula> allByAlumnoCursosOpcional(Alumno alumno);
 
     List<AlumnoCursoCurricula> allByAlumnoComodin(Alumno alumno);
 
-    public List<AlumnoCursoCurricula> allByAlumnos(List<Alumno> alumnos);
+    List<AlumnoCursoCurricula> allByAlumnos(List<Alumno> alumnos);
+
+    List<AlumnoCursoCurricula> allByAlumnoAndModalidad(Alumno alumno, DynatableFilter filter);
 }
