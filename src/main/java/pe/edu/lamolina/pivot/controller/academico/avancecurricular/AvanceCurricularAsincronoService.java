@@ -92,5 +92,9 @@ public interface AvanceCurricularAsincronoService {
             Map<String, AlumnoCicloCurso> mapCursosVecesLlevado, List<MatriculaCurso> cursosMatriculados,
             List<AlumnoCicloCurso> cursosAprobados, Map<Long, CursoCurricula> mapCursoCurriculaByCurso,
             List<CursoOpcionalCurricula> cursoOpcionaPlan,
-            List<ResumenPlanCurricular> resumenPlanCurriculars, DataSessionPivot ds);
+            List<ResumenPlanCurricular> resumenPlanCurriculars,
+            List<TipoCursoCurricula> tipoCursoCurriculas,
+            List<AlumnoAvanceCurricular> avanceCurriculars,
+            List<AlumnoCursoCurricula> alumnoCursoOld,
+            DataSessionPivot ds);
 }
