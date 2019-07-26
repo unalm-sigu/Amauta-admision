@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.Assert;
+import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.NumberFormat;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
@@ -449,13 +449,24 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
 
         alumnoBD.setPlanCurricular(planCurricularBD);
         alumnoDAO.update(alumnoBD);
+        if (alumnoBD.getModalidadEstudio().isPregrado()) {
+            avanceCurricularService.generarAvanceCurricularByAlumno(alumno, ds);
+        } else {
+            avanceCurricularService.generarAvanceCurricularByAlumnoPost(alumno, ds);
 
-        avanceCurricularService.generarAvanceCurricularByAlumno(alumno, ds);
+        }
+
     }
 
     @Override
     public void generarAvance(Alumno alumno, DataSessionPivot ds) {
-        avanceCurricularService.generarAvanceCurricularByAlumno(alumno, ds);
+        alumno = alumnoDAO.find(alumno);
+        if (alumno.getModalidadEstudio().isPregrado()) {
+            avanceCurricularService.generarAvanceCurricularByAlumno(alumno, ds);
+        } else {
+            avanceCurricularService.generarAvanceCurricularByAlumnoPost(alumno, ds);
+
+        }
     }
 
     @Override
@@ -823,8 +834,13 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
             alumnoBD.setPlanCurricular(planes.get(0));
             alumnoDAO.update(alumnoBD);
         }
+        if (alumnoBD.getModalidadEstudio().isPregrado()) {
+            avanceCurricularService.generarAvanceCurricularByAlumno(alumnoBD, ds);
+        } else if (alumnoBD.getModalidadEstudio().isPostgrado()) {
+            Assert.isNotNull(alumnoBD.getPlanCurricular(), "La orientación no cuenta con plan curricular.");
+            avanceCurricularService.generarAvanceCurricularByAlumnoPost(alumnoBD, ds);
 
-        avanceCurricularService.generarAvanceCurricularByAlumno(alumnoBD, ds);
+        }
     }
 
     private String getIndiceCicloAcademico(String codigoCicloAlumno, List<String> codigosCiclosPlanes) {

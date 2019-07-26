@@ -35,7 +35,7 @@ public class MatriculaCursoDAOH extends AbstractEasyDAO<MatriculaCurso> implemen
         Octavia sql = Octavia.query()
                 .from(MatriculaCurso.class, "mc")
                 .join("matriculaResumen mr", "mr.alumno alu", "mr.cicloAcademico ca", "curso cu")
-                .filter("ca.id", ciclo)
+                .filter("ca.codigo", ciclo.getCodigo())
                 .filter("alu.id", alumno)
                 .filter("cu.id", curso);
 

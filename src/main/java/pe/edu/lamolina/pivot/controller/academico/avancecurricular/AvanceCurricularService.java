@@ -11,4 +11,6 @@ public interface AvanceCurricularService {
     void generarAvanceCurricularByAlumno(Alumno alumno, DataSessionPivot ds);
 
     void desvincularCursoCurricula(PlanCurricular plan, DataSessionPivot ds);
+
+    public void generarAvanceCurricularByAlumnoPost(Alumno alumnoBD, DataSessionPivot ds);
 }

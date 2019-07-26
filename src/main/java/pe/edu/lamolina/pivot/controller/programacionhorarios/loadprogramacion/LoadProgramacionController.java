@@ -93,7 +93,6 @@ public class LoadProgramacionController {
         JsonResponse json = new JsonResponse();
 
         try {
-
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             Map<String, String> rutas = service.loadArchivosHorario(files);
             service.inicioProcesarArchivos(rutas, ds.getCicloAcademico(), ds);
@@ -109,7 +108,6 @@ public class LoadProgramacionController {
         } finally {
             return json;
         }
-
     }
 
     @ResponseBody

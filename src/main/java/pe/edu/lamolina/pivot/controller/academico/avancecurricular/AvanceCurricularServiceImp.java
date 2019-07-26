@@ -446,4 +446,54 @@ public class AvanceCurricularServiceImp implements AvanceCurricularService {
         }
     }
 
+    @Override
+    @Transactional
+    public void generarAvanceCurricularByAlumnoPost(Alumno alumnoBD, DataSessionPivot ds) {
+        alumnoBD = alumnoDAO.findAllInfo(alumnoBD.getId());
+        Map<Long, CursoCurricula> mapCursoCurricula = new HashMap<>();
+        Map<Long, CursoCurricula> mapCursoCurriculaByCurso = new HashMap<>();
+        List<AlumnoCursoCurricula> alumnoCursoOld = alumnoCursoCurriculaDAO.allByAlumnoApro(alumnoBD);
+        List<CursoCurricula> cursoCurriculas = cursoCurriculaDAO.allByPlanCurricular(alumnoBD.getPlanCurricular());
+        List<CursoOpcionalCurricula> cursoOpcionaPlan = cursoOpcionalCurriculaDAO.allByPlanCurricular(alumnoBD.getPlanCurricular());
+        List<TipoCursoCurricula> tipoCursoCurriculas = tipoCursoCurriculaDAO.all();
+        obtenerDataPost(cursoCurriculas, mapCursoCurricula, mapCursoCurriculaByCurso);
+        List<MatriculaCurso> cursosMatriculados = matriculaCursoDAO.allActivoByAlumnoCicloActivo(alumnoBD);
+        List<AlumnoCicloCurso> cursosAprobados = alumnoCicloCursoDAO.allAprobadoActivoByAlumno(alumnoBD);
+        List<ResumenPlanCurricular> resumenPlanCurriculars = resumenPlanCurricularDAO.allByPlan(alumnoBD.getPlanCurricular());
+        List<AlumnoAvanceCurricular> avanceCurriculars = alumnoAvanceCurricularDAO.allByAlumno(alumnoBD);
+        List<Alumno> alumnos = new ArrayList();
+        alumnos.add(alumnoBD);
+        List<AlumnoCicloCurso> cursosVecesLlevado = alumnoCicloCursoDAO.allVecesLlevadoByAlumnos(alumnos);
+        Map<String, AlumnoCicloCurso> mapCursosVecesLlevado = TypesUtil.convertListToMap("alumnoCursoKey", cursosVecesLlevado);
+        for (AlumnoCicloCurso cursoAprobado : cursosAprobados) {
+            cursoAprobado.setVecesCursadoTransient(0);
+            AlumnoCicloCurso cursoVeces = mapCursosVecesLlevado.get(cursoAprobado.getAlumnoCursoKey());
+            if (cursoVeces == null) {
+                continue;
+            }
+            cursoAprobado.setVecesCursadoTransient(cursoVeces.getVecesCursado());
+        }
+
+        avanceCurricularAsincronoService.procesarAlumnoSincronoPros(
+                alumnoBD,
+                mapCursoCurricula,
+                mapCursosVecesLlevado,
+                cursosMatriculados,
+                cursosAprobados,
+                mapCursoCurriculaByCurso,
+                cursoOpcionaPlan,
+                resumenPlanCurriculars,
+                tipoCursoCurriculas,
+                avanceCurriculars,
+                alumnoCursoOld,
+                ds);
+    }
+
+    private void obtenerDataPost(List<CursoCurricula> cursosCurricula, Map<Long, CursoCurricula> mapCursoCurricula, Map<Long, CursoCurricula> mapCursoCurriculaByCurso) {
+        for (CursoCurricula cursoCurricula : cursosCurricula) {
+
+            mapCursoCurricula.put(cursoCurricula.getId(), cursoCurricula);
+            mapCursoCurriculaByCurso.put(cursoCurricula.getCurso().getId(), cursoCurricula);
+        }
+    }
 }

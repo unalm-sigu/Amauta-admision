@@ -133,4 +133,6 @@ public interface PlanCurricularService {
 
     public void allUpdateResumen();
 
+    public void allUpdateResumenPost();
+
 }
