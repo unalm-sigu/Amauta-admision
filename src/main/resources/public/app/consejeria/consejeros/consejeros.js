@@ -7,7 +7,7 @@ new Vue({
         consjerosURL: APP.url(rutaModulo + '/list'),
         configNuevoConsejero: {
             id: 'nuevoConsejeroModal',
-            header: 'true',
+            header: true,
             title: "Añadir Consejeros",
             okbtn: 'Agregar',
             showaccept: true

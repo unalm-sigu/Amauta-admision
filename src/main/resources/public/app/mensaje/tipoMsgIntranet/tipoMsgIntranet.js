@@ -9,7 +9,7 @@ new Vue({
         tipoEnums: JSON.parse(tipoMsjIntraEnums),
         addTipoMsgIntranet: {
             id: 'modalTipoMsgIntranet',
-            header: 'true',
+            header: true,
             title: 'Crear Tipo Mensaje Intranet',
             okbtn: 'Guardar',
             showaccept: true,

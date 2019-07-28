@@ -29,7 +29,6 @@ public class CursoCicloAcademicoDAOH extends AbstractEasyDAO<CursoCicloAcademico
         Octavia sql = Octavia.query(CursoCicloAcademico.class, "cca")
                 .join("curso c", "cicloAcademico ca")
                 .filter("ca.id", cicloDestino);
-
         return all(sql);
     }
 
@@ -136,6 +135,21 @@ public class CursoCicloAcademicoDAOH extends AbstractEasyDAO<CursoCicloAcademico
             octavia.set(cursoCicloAcademico, column);
         }
         this.update(octavia);
+    }
+
+    @Override
+    public List<CursoCicloAcademico> allByCicloAndNombre(CicloAcademico cicloAcademico, String nombre) {
+        Octavia sql = Octavia.query(CursoCicloAcademico.class, "cca")
+                .join("curso c", "cicloAcademico ca")
+                .leftJoin("tipoCursoCurricula")
+                .beginBlock()
+                .__().filter("c.codigo", "like", nombre)
+                .__().filter("c.nombre", "like", nombre)
+                .__().filter("c.tipoCurso", "like", nombre)
+                .endBlock()
+                .filter("ca.id", cicloAcademico)
+                .limit(20);
+        return all(sql);
     }
 
 }

@@ -8,7 +8,7 @@ new Vue({
         detalleGrupo: {},
         modalDetalleGrupo: {
             id: 'modalDetalleGrupo',
-            header: 'true',
+            header: true,
             title: 'Crear Detale de Grupo',
             okbtn: 'Guardar',
             showaccept: true,

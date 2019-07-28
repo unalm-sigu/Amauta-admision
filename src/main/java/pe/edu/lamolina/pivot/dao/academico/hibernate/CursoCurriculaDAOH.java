@@ -148,4 +148,23 @@ public class CursoCurriculaDAOH extends AbstractEasyDAO<CursoCurricula> implemen
         return all(sql);
     }
 
+    @Override
+    public CursoCurricula findByTipoCC(TipoCursoCurricula tipo) {
+        Octavia sql = Octavia.query()
+                .from(CursoCurricula.class, "cc")
+                .join("tipoCursoCurricula tcc", "planCurricular pc")
+                .filter("tcc.id", tipo);
+        return find(sql);
+    }
+
+    @Override
+    public CursoCurricula findByCursoAndTipo(TipoCursoCurricula tipo, Curso curso) {
+        Octavia sql = Octavia.query()
+                .from(CursoCurricula.class, "cc")
+                .join("tipoCursoCurricula tcc", "planCurricular pc", "curso cr")
+                .filter("cr.id", curso)
+                .filter("tcc.id", tipo);
+        return find(sql);
+    }
+
 }

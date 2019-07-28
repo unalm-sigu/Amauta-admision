@@ -1,0 +1,25 @@
+<modal-vik ref="cursoCurriculaModal"
+           v-bind="cursoCurriculaModal"
+           v-bind:okaction="saveCursoCurriculaAlumno">
+    <div slot="body">
+        <div id="cursocurriculaForm" data-parsley-validate="true">
+            <div class="form-group">
+                <label for="curso"><strong class="text-md">Curso</strong></label>
+                <multiselect 
+                    v-model="cursoCurricula.curso" 
+                    v-bind:options='cursos'
+                    label='nombre'
+                    track-by='id'
+                    v-on:search-change="searchCurso">
+                    <template slot="option" slot-scope="props">
+                        <div class="option__desc">
+                            <span class="option__title text-primary bold">{{ props.option.codigo }}</span>
+                            <span class="option__small">{{ props.option.nombre }}</span>
+                        </div>
+                    </template>
+                </multiselect>
+                <input class="hide" v-model="cursoCurricula.curso.id" required="required"/>
+            </div>
+        </div>
+    </div>
+</modal-vik>
