@@ -254,7 +254,7 @@ public class MatriculableServiceImp implements MatriculableService {
         List<Long> alumnosIds = alumnos.stream().map(x -> x.getId()).collect(Collectors.toList());
         System.out.println("Finalmente quedan " + alumnosIds.size() + " alumnos EPG para ser matriculables");
         if (!alumnosIds.isEmpty()) {
-            matriculaResumenDAO.saveMatriculables(alumnosIds, ciclo);
+            matriculaResumenDAO.saveMatriculables(alumnosIds, cicloEpg);
         }
 //        for (Alumno alumno : alumnos) {
 //            MatriculaResumen matriculable = new MatriculaResumen();
