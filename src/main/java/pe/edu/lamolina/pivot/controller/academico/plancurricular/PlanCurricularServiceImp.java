@@ -42,6 +42,7 @@ import pe.edu.lamolina.model.academico.RequisitoCursoCurricula;
 import pe.edu.lamolina.model.academico.RequisitoCursoOpcional;
 import pe.edu.lamolina.model.academico.ResumenPlanCurricular;
 import pe.edu.lamolina.model.academico.TipoCursoCurricula;
+import pe.edu.lamolina.model.posgrado.CursoHabilEscuela;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import static pe.edu.lamolina.model.enums.EstadoEnum.ACT;
 import static pe.edu.lamolina.model.enums.EstadoEnum.CRE;
@@ -95,6 +96,7 @@ import pe.edu.lamolina.pivot.dao.academico.RequisitoCursoOpcionalDAO;
 import pe.edu.lamolina.pivot.dao.academico.ResumenPlanCurricularDAO;
 import pe.edu.lamolina.pivot.dao.academico.TipoCursoCurriculaDAO;
 import pe.edu.lamolina.pivot.dao.general.ColaboradorDAO;
+import pe.edu.lamolina.pivot.dao.posgrado.CursoHabilEscuelaDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.UsuarioRolDAO;
 import static pe.edu.lamolina.pivot.zelper.constant.Constantine.CODIGO_CURSO_DEP;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -128,6 +130,9 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
 
     @Autowired
     RequisitoCursoCurriculaDAO requisitoCursoCurriculaDAO;
+
+    @Autowired
+    CursoHabilEscuelaDAO cursoHabilEscuelaDAO;
 
     @Autowired
     CursoAdicionalCurriculaDAO cursoAdicionalCurriculaDAO;
@@ -1298,6 +1303,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
     @Async
     @Override
     public void asignacionMasivaCursoCurricula(Carrera carrera, DataSessionPivot ds) {
+        carrera = carreraDAO.find(carrera.getId());
 
         List<PlanCurricular> planesCurricular = planCurricularDAO.allActivosByCarrera(carrera);
         List<PlanCurricular> planesCurriculars = planCurricularDAO.all();
@@ -1323,14 +1329,15 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
         Map<String, CicloAcademico> mapCiclosPlanes = TypesUtil.convertListToMap("cicloInicioVigencia.codigo", "cicloInicioVigencia", planesCurricular);
 
         List<Alumno> alumnos = alumnoDAO.allByCarreraCicloMayores(carrera, cicloInicia.getCodigo());
+        List<CursoHabilEscuela> cursosHabilEscuela = new ArrayList();
+        if (carrera.getModalidadEstudio().isPostgrado()) {
+            cursosHabilEscuela = cursoHabilEscuelaDAO.allAlumnos(alumnos);
+        }
+        Map<Long, List<CursoHabilEscuela>> mapCursoHabilEscuela = TypesUtil.convertListToMapList("alumno.id", cursosHabilEscuela);
         List<String> codigosCiclosPlanes = new ArrayList<String>(mapCiclosPlanes.keySet());
 
         Collections.sort(codigosCiclosPlanes);
         Collections.reverse(codigosCiclosPlanes);
-
-        for (String intt : codigosCiclosPlanes) {
-
-        }
 
         Map<Long, List<CursoCurricula>> mapCursoCurriculaAll = new LinkedHashMap();
         Map<Long, CursoCurricula> mapCursoCurriculaByCurso = new HashMap<>();
@@ -1386,7 +1393,8 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
         List<ResumenPlanCurricular> alumnosResumenPlanCurriculars = resumenPlanCurricularDAO.all();
 
         for (Alumno alumno : alumnos) {
-            logger.debug("ALuMNO {}", alumno.getCodigo());
+
+            List<CursoHabilEscuela> habilEscuelas = mapCursoHabilEscuela.get(alumno.getId());
             OrientacionCarrera orientacionCarrera = alumno.getOrientacionCarrera();
 
             List<AlumnoAvanceCurricular> avanceCurriculars = alumnosAvanceCurriculars.stream().filter(x -> Objects.equals(x.getAlumno().getId(), alumno.getId())).collect(Collectors.toList());
@@ -1452,6 +1460,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
                     mapCursoOpcionalAll,
                     planesCurriculars,
                     mapCursoCurriculaAllPlanes,
+                    habilEscuelas,
                     ds);
         }
 

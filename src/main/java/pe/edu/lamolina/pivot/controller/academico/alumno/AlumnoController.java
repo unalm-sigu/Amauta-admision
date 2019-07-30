@@ -445,7 +445,7 @@ public class AlumnoController {
         JsonResponse response = new JsonResponse();
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            service.saveCursoCurricula(alumnoCursoCurricula, ds.getCicloAcademico());
+            service.saveCursoCurricula(alumnoCursoCurricula, ds.getCicloAcademico(), ds.getUsuario());
             response.setSuccess(Boolean.TRUE);
             response.setMessage("Curso Agregado");
         } catch (PhobosException e) {

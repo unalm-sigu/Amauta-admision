@@ -29,11 +29,14 @@ import pe.edu.lamolina.model.enums.AlumnoEstadoEnum;
 import pe.edu.lamolina.model.enums.AmbienteAplicacionEnum;
 import pe.edu.lamolina.model.enums.ContenidoEmailEnum;
 import pe.edu.lamolina.model.enums.CursoCurriculaEstadoEnum;
+import pe.edu.lamolina.model.enums.CursoHabilEstadoEnum;
+import static pe.edu.lamolina.model.enums.EstadoEnum.ACT;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.enums.ParametrosSistemasEnum;
 import pe.edu.lamolina.model.enums.PersonaEstadoEnum;
 import pe.edu.lamolina.model.enums.RolEnum;
+import pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum;
 import pe.edu.lamolina.model.enums.TipoOficinaEnum;
 import pe.edu.lamolina.model.enums.TokenEstadoEnum;
 import pe.edu.lamolina.model.enums.UserEstadoEnum;
@@ -45,6 +48,7 @@ import pe.edu.lamolina.model.general.TipoDocIdentidad;
 import pe.edu.lamolina.model.general.TipoOficina;
 import pe.edu.lamolina.model.inscripcion.ContenidoCarta;
 import pe.edu.lamolina.model.matricula.AlumnoCursoCurricula;
+import pe.edu.lamolina.model.posgrado.CursoHabilEscuela;
 import pe.edu.lamolina.model.seguridad.Rol;
 import pe.edu.lamolina.model.seguridad.Sistema;
 import pe.edu.lamolina.model.seguridad.TokenIngresante;
@@ -75,6 +79,7 @@ import pe.edu.lamolina.pivot.dao.general.PersonaDAO;
 import pe.edu.lamolina.pivot.dao.general.TipoDocIdentidadDAO;
 import pe.edu.lamolina.pivot.dao.horario.HoraDAO;
 import pe.edu.lamolina.pivot.dao.horario.HorarioSeccionDAO;
+import pe.edu.lamolina.pivot.dao.posgrado.CursoHabilEscuelaDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.RolDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.SistemaDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.TokenIngresanteDAO;
@@ -149,6 +154,8 @@ public class AlumnoServiceImp implements AlumnoService {
     TipoCursoCurriculaDAO tipoCursoCurriculaDAO;
     @Autowired
     CursoCurriculaDAO cursoCurriculaDAO;
+    @Autowired
+    CursoHabilEscuelaDAO cursoHabilEscuelaDAO;
     @Autowired
     CursoDAO cursoDAO;
 
@@ -680,7 +687,7 @@ public class AlumnoServiceImp implements AlumnoService {
 
     @Override
     @Transactional
-    public void saveCursoCurricula(AlumnoCursoCurricula alumnoCursoCurricula, CicloAcademico cicloAcademico) {
+    public void saveCursoCurricula(AlumnoCursoCurricula alumnoCursoCurricula, CicloAcademico cicloAcademico, Usuario usuario) {
         if (alumnoCursoCurricula.getAlumno() == null || alumnoCursoCurricula.getCurso() == null) {
             throw new PhobosException("Ingrese los campos requeridos");
         }
@@ -697,8 +704,22 @@ public class AlumnoServiceImp implements AlumnoService {
         newcursoCurricula.setAlumno(alumnoCursoCurricula.getAlumno());
         newcursoCurricula.setCurso(alumnoCursoCurricula.getCurso());
         newcursoCurricula.setVecesCursado(BigDecimal.ZERO.intValue());
+        newcursoCurricula.setNumeroCiclo(1);
         newcursoCurricula.setEstadoEnum(CursoCurriculaEstadoEnum.HAB);
+        newcursoCurricula.setCreditos(alumnoCursoCurricula.getCurso().getCreditos());
+        newcursoCurricula.setTipoCursoCurricula(tipoCursoCurriculaDAO.findByCodigo(TipoCursoCurriculaEnum.EAD));
         alumnoCursoCurriculaDAO.save(newcursoCurricula);
+        
+        CursoHabilEscuela cursoHabilEscuela = new CursoHabilEscuela();
+        cursoHabilEscuela.setAlumno(alumnoDB);
+        cursoHabilEscuela.setCicloAcademico(cicloAcademico);
+        cursoHabilEscuela.setCurso(cursoDB);
+        cursoHabilEscuela.setFechaRegistro(new Date());
+        cursoHabilEscuela.setUserRegistro(usuario);
+        cursoHabilEscuela.setEstadoEnum(CursoHabilEstadoEnum.HAB);
+        cursoHabilEscuelaDAO.save(cursoHabilEscuela);
+        
+      
     }
 
     private String forLike(String nombre) {

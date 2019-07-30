@@ -57,6 +57,6 @@ public interface AlumnoService {
 
     List<CursoCicloAcademico> allCursoCiclo(String nombre, CicloAcademico cicloAcademico);
 
-    void saveCursoCurricula(AlumnoCursoCurricula alumnoCursoCurricula, CicloAcademico cicloAcademico);
+    void saveCursoCurricula(AlumnoCursoCurricula alumnoCursoCurricula, CicloAcademico cicloAcademico, Usuario usuario);
 
 }

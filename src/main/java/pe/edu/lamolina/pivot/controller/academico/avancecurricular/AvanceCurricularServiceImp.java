@@ -34,6 +34,7 @@ import pe.edu.lamolina.model.academico.ResumenPlanCurricular;
 import pe.edu.lamolina.model.academico.TipoCursoCurricula;
 import pe.edu.lamolina.model.matricula.AlumnoAvanceCurricular;
 import pe.edu.lamolina.model.matricula.AlumnoCursoCurricula;
+import pe.edu.lamolina.model.posgrado.CursoHabilEscuela;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoAvanceCurricularDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloCursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloDAO;
@@ -50,6 +51,7 @@ import pe.edu.lamolina.pivot.dao.academico.PlanCurricularDAO;
 import pe.edu.lamolina.pivot.dao.academico.RequisitoCursoCurriculaDAO;
 import pe.edu.lamolina.pivot.dao.academico.ResumenPlanCurricularDAO;
 import pe.edu.lamolina.pivot.dao.academico.TipoCursoCurriculaDAO;
+import pe.edu.lamolina.pivot.dao.posgrado.CursoHabilEscuelaDAO;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service
@@ -109,6 +111,9 @@ public class AvanceCurricularServiceImp implements AvanceCurricularService {
     @Autowired
     CursoEquivalenteElectivoDAO cursoEquivalenteElectivoDAO;
 
+    @Autowired
+    CursoHabilEscuelaDAO cursoHabilEscuelaDAO;
+
     @Override
     @Transactional
     public void generarAvanceCurricularByPlanCurricular(PlanCurricular planCurricular, DataSessionPivot ds) {
@@ -136,14 +141,16 @@ public class AvanceCurricularServiceImp implements AvanceCurricularService {
         Map<String, CicloAcademico> mapCiclosPlanes = TypesUtil.convertListToMap("cicloInicioVigencia.codigo", "cicloInicioVigencia", planesCurricular);
 
         List<Alumno> alumnos = alumnoDAO.allByPlanCurricular(planCurricular);
+        List<CursoHabilEscuela> cursosHabilEscuela = new ArrayList();
+        if (planCurricular.getCarrera().getModalidadEstudio().isPostgrado()) {
+            cursosHabilEscuela = cursoHabilEscuelaDAO.allAlumnos(alumnos);
+        }
+        Map<Long, List<CursoHabilEscuela>> mapCursoHabilEscuela = TypesUtil.convertListToMap("alumno.id", cursosHabilEscuela);
+
         List<String> codigosCiclosPlanes = new ArrayList<String>(mapCiclosPlanes.keySet());
 
         Collections.sort(codigosCiclosPlanes);
         Collections.reverse(codigosCiclosPlanes);
-
-        for (String intt : codigosCiclosPlanes) {
-
-        }
 
         Map<Long, List<CursoCurricula>> mapCursoCurriculaAll = new LinkedHashMap();
         Map<Long, CursoCurricula> mapCursoCurriculaByCurso = new HashMap<>();
@@ -199,6 +206,7 @@ public class AvanceCurricularServiceImp implements AvanceCurricularService {
         List<ResumenPlanCurricular> alumnosResumenPlanCurriculars = resumenPlanCurricularDAO.all();
 
         for (Alumno alumno : alumnos) {
+            List<CursoHabilEscuela> habilEscuelas = mapCursoHabilEscuela.get(alumno.getId());
             logger.debug("ALuMNO {}", alumno.getCodigo());
             OrientacionCarrera orientacionCarrera = alumno.getOrientacionCarrera();
 
@@ -262,6 +270,7 @@ public class AvanceCurricularServiceImp implements AvanceCurricularService {
                     mapCursoOpcionalAll,
                     planesCurriculars,
                     mapCursoCurriculaAllPlanes,
+                    habilEscuelas,
                     ds);
         }
     }
@@ -463,6 +472,7 @@ public class AvanceCurricularServiceImp implements AvanceCurricularService {
         List<AlumnoAvanceCurricular> avanceCurriculars = alumnoAvanceCurricularDAO.allByAlumno(alumnoBD);
         List<Alumno> alumnos = new ArrayList();
         alumnos.add(alumnoBD);
+        List<CursoHabilEscuela> cursoHabilEscuelas = cursoHabilEscuelaDAO.allAlumnos(alumnos);
         List<AlumnoCicloCurso> cursosVecesLlevado = alumnoCicloCursoDAO.allVecesLlevadoByAlumnos(alumnos);
         Map<String, AlumnoCicloCurso> mapCursosVecesLlevado = TypesUtil.convertListToMap("alumnoCursoKey", cursosVecesLlevado);
         for (AlumnoCicloCurso cursoAprobado : cursosAprobados) {
@@ -486,6 +496,7 @@ public class AvanceCurricularServiceImp implements AvanceCurricularService {
                 tipoCursoCurriculas,
                 avanceCurriculars,
                 alumnoCursoOld,
+                cursoHabilEscuelas,
                 ds);
     }
 
