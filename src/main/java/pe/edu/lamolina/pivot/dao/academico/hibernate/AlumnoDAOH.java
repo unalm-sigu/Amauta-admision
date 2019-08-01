@@ -90,7 +90,7 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
     public Alumno findByCodigo(String codigoAlumno) {
         Octavia sql = Octavia.query()
                 .from(Alumno.class, "alu")
-                .join("persona per")
+                .join("modalidadEstudio me", "persona per")
                 .filter("alu.codigo", codigoAlumno);
 
         return find(sql);

@@ -1,0 +1,52 @@
+<modal-vik ref="modalOmisoEleccion"
+           v-bind="modalOmisoEleccion"
+           v-bind:okaction="save">
+
+    <div slot="body">
+        <form id="formNuevo" data-parsley-validate="true">
+            <div class="form-group">
+                <label> Alumno </label>
+                <multiselect v-model="alumnoOmisoEleccion.alumno" 
+                             v-bind:options='alumnos'
+                             v-bind:internal-search="false"
+                             v-bind:loading="isLoading"
+                             v-on:search-change="loadAlumno"
+                             v-bind:custom-label="customLabel"
+                             label='nombre'
+                             track-by='id'
+                             placeholder="Seleccione un alumno">
+                </multiselect>
+                <input class="hidden" v-model="alumnoOmisoEleccion.alumno" required=""/>
+            </div>
+            <div class="form-group">
+                <label> Ciclo </label>
+                <multiselect v-model="alumnoOmisoEleccion.cicloAcademico" 
+                             v-bind:options='ciclos'
+                             v-bind:internal-search="true"
+                             label='codigo'
+                             track-by='id'
+                             placeholder="Seleccione un ciclo">
+                </multiselect>
+                <input class="hidden" v-model="alumnoOmisoEleccion.cicloAcademico" required=""/>
+            </div>
+            <div class="form-group">
+                <label> Motivo </label>
+                <multiselect v-model="alumnoOmisoEleccion.motivo" 
+                             v-bind:options='motivos'
+                             v-bind:internal-search="false"
+                             label='value'
+                             track-by='name'
+                             placeholder="Seleccione un motivo">
+                </multiselect>
+                <input class="hidden" v-model="alumnoOmisoEleccion.cicloAcademico" required=""/>
+            </div>
+            <div class="form-group">
+                <label> Monto </label>
+                <input class="form-control col-md-4 numeric" v-model="alumnoOmisoEleccion.multa" required=""/>
+            </div>
+        </form>
+    </div>
+</modal-vik>
+
+
+

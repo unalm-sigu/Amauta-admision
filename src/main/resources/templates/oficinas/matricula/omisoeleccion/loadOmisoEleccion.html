@@ -1,0 +1,97 @@
+<html layout:decorator="_layout/layout3">
+    <head>
+        <title>Carga de Deudas </title>
+    </head>
+
+    <body>
+        <div layout:fragment="main">
+            <header class="page-header">
+            </header>
+            <section class="panel" id="loadArchivoEleccionesVUE">
+                <section class="panel-body">
+
+                    <div class="row">
+                        <div class="col-md-6 col-md-offset-3">
+                            <div class="panel panel-primary">
+                                <div class="panel-heading">
+                                    <h3 class="panel-title">Carga de alumnos con deuda por elecciones</h3>
+                                </div>
+
+                                <div class="panel-body">
+                                    <form id="formLoadFiles" enctype="multipart/form-data" method="POST" th:action="@{/oficinas/matricula/omisoeleccion/}">
+                                        <div class="form-group col-md-4">
+                                            <label> Ciclo </label>
+                                            <multiselect v-model="cicloAcademico" 
+                                                         v-bind:options='ciclos'
+                                                         v-bind:internal-search="true"
+                                                         label='codigo'
+                                                         track-by='id'
+                                                         placeholder="Seleccione un ciclo">
+                                            </multiselect>
+                                            <input class="hidden" v-model="cicloAcademico" required=""/>
+                                        </div>
+                                        <div class="row m-b-md">
+                                            <div class="col-md-9"> 
+
+                                                <span class="block">Seleccionar un archivo y presione el botón <strong>Iniciar Carga</strong>.</span>
+
+                                                <div class="form-group">
+                                                    <br/>
+                                                    <input  class="btn btn-default" type="file" v-on:change="getImage"  accept=".xls,.xlsx" required=""/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <span id="footerLoadAbonos" class="col-md-12 text-center">
+                                            <a class="btn btn-link" th:href="@{'/oficinas/matricula/omisoeleccion'}">Regresar</a>
+                                            <button type="button" class="btn btn-primary"  v-on:click.prevent="startUpload">
+                                                {{btnText}}
+                                            </button>
+                                        </span>
+                                    </form>
+                                </div>
+
+                            </div>
+                            <br/>
+
+                            <div id="pandelObservados" class="panel panel-success" v-if="datos.length > 0">
+                                <div class="panel-heading">
+                                    <h3 class="panel-title">Registros observados</h3>
+                                </div>
+                                <div class="panel-body">
+                                    <div id="observados"> 
+                                        <table class="table table-striped">
+                                            <thead>
+                                                <tr>
+                                                    <th>Observaciones</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr v-for="item in datos">
+                                                    <td>{{item}}</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+            </section>
+
+
+        </div>
+
+        <div layout:fragment="js">
+              <script  th:inline="javascript" >
+                /*<![CDATA[*/
+                var cicloJson = /*[[${ciclos.toString()}]]*/ '';
+                /*]]>*/
+            </script>
+            <script th:src="@{/app/oficinas/matricula/omisoeleccion/loadArchivoElecciones.js}" charset="utf-8"></script>
+        </div>
+
+    </body>
+</html>

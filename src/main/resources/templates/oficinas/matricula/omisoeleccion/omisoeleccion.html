@@ -1,0 +1,123 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title> Deudas Materiales </title>
+
+    </head>
+
+    <body>
+        <div id ="omisioVUE" layout:fragment="main">
+            <header class="header b-b padder-lg">
+                <div class="btn-group pull-right">
+                    <button type="button" class="btn btn-primary dropdown-toggle pull-right" data-toggle="dropdown">
+                        Acciones &nbsp; <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li> <a  type="button" v-bind:href="'omisoeleccion/load'">Cargar Datos</a></li>
+                        <li> <a  type="button" v-on:click="openNuevo">Nueva Deuda</a></li>
+                    </ul>
+                </div>
+                <h2> Deudas Elecciones </h2>
+            </header>
+
+            <section class="wrapper-lg">
+                <section class="panel">
+                    <section class="panel-body">
+                        <raptor-table v-bind:url="alumnosURL" v-bind:preload="true" ref="load">
+                            <template scope="props" >
+                                <table class="table table-striped table-hover">
+                                    <thead> 
+                                        <tr>
+                                            <th class="col-md-4" colspan="2"></th><!--  //-->
+                                            <th class="col-md-3 text-center">Estado</th>
+                                            <th class="col-md-3 text-center v-middle">Motivo</th>
+                                            <th class="col-md-1 text-center v-middle">Ciclo</th>
+                                            <th class="col-md-1 text-center v-middle">Monto</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    <template  v-for="item in props.data" >
+                                        <tr v-for="(deudas,idx) in item.alumnoOmisoEleccions">
+                                            <td class="v-middle" v-bind:rowspan="getRows(item)" v-if="idx == 0">
+                                                <div class="pull-left">
+                                                    <div v-if="item.persona.tipoFoto=='POSTUL' "
+                                                         class="img-responsive img-thumbnail img-circle div-foto-list">
+                                                        <img class="img-foto-list" v-bind:src="item.persona.rutaFoto" />
+                                                    </div>
+
+                                                    <img v-else-if="item.persona.tipoFoto=='COMUN' " 
+                                                         class="img-responsive img-thumbnail img-circle div-foto-alumno-list" 
+                                                         v-bind:src="item.persona.rutaFoto" />
+
+                                                    <img v-else="" 
+                                                         class="img-foto-tempo img-responsive img-thumbnail img-circle" 
+                                                         v-bind:src="item.persona.rutaFoto" />
+                                                </div>
+                                            </td>
+                                            <td class="v-middle" v-bind:rowspan="getRows(item)" v-if="idx == 0">
+                                                <a  class="block text-primary bold h5 m-b-xs m-t-xs" >
+                                                    {{item.persona.nombreCompleto}}
+                                                </a>
+                                                <span class="block">
+                                                    Matrícula: {{item.codigo}}
+                                                </span>
+                                                <span class="block">
+                                                    Modalidad: {{item.modalidadEstudio.nombre}}
+                                                </span>
+                                                <small v-if="item.persona.numeroDocIdentidad != '' " class="block bold">
+                                                    {{item.persona.tipoDocumento.simbolo}} {{item.persona.numeroDocIdentidad}}
+                                                </small>
+                                            </td>
+
+                                            <td class="v-middle text-center" >
+                                                <span class="label " v-bind:class="getClass(deudas.estadoEnum.name)" v-text="deudas.estadoEnum.value"></span>
+                                            </td>
+
+                                            <td class="v-middle text-center" >
+                                                <span v-text="deudas.motivoEnum.value"></span>
+                                            </td>
+
+                                            <td class="v-middle" >
+                                                <span v-text="deudas.cicloAcademico.codigo"></span>
+                                            </td>
+
+                                            <td class="text-center v-middle" >
+                                                <span v-text="deudas.multa"></span>
+                                            </td>
+                                            <td class="v-middle" v-bind:rowspan="getRows(item)" v-if="idx == 0">
+                                                <div class="actions">
+                                                    <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="glyphicon glyphicon-cog"></i></a>
+                                                    <ul class="dropdown-menu pull-right">
+                                                        <li><a v-on:click="openAnular(item)">Anular Deuda</a></li>
+                                                    </ul>
+                                                </div>
+                                            </td>
+                                        </tr>
+
+                                    </template>
+                                    </tbody>
+                                </table>
+                            </template>
+                        </raptor-table>
+
+                    </section>
+                </section>
+            </section>
+            <div th:substituteby="oficinas/matricula/omisoeleccion/omisoEleccionModal"/>
+            <div th:substituteby="oficinas/matricula/omisoeleccion/anularOmisoEleccionModal"/>
+        </div>
+
+        <div layout:fragment="js">
+            <script  th:inline="javascript" >
+                /*<![CDATA[*/
+                var cicloJson = /*[[${ciclos.toString()}]]*/ '';
+                var motivosJson = /*[[${motivos.toString()}]]*/ '';
+                /*]]>*/
+            </script>
+            <div th:substituteby="_modules/vue-modal"/>
+            <div th:substituteby="_modules/vue-raptor-table"></div>
+            <script th:src="@{/app/oficinas/matricula/omisoeleccion/omisoEleccion.js}" charset="utf-8"></script>
+        </div>
+
+    </body>
+</html>
