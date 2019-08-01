@@ -45,6 +45,7 @@ var app = new Vue({
         alumnosRetiroCiclo: [],
         alumnosCambioNota: [],
         alumnosCursoDirigido: [],
+        alumnoTramiteTraslado: {},
         tipo: ""
     }, created: function () {
 
@@ -298,6 +299,8 @@ var app = new Vue({
                             $vue.alumnosCambioNota = response.data;
                         } else if ($vue.tipo == "CURDIR") {
                             $vue.alumnosCursoDirigido = response.data;
+                        } else if ($vue.tipo == "TRAS") {
+                            $vue.alumnoTramiteTraslado = response.data[0]; ///retorn solo 1 registro
                         }
                         $vue.$refs.modalAlumnos.open();
                     } else {

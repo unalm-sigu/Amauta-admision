@@ -5,7 +5,7 @@ Vue.component('file-upload', VueUploadComponent);
 var app = new Vue({
     el: '#resolucionReinForm',
     data: {
-        resolucion: {reincorporaciones: [], retiroCiclo: [], cambioNota: [], cursoDirigido: []},
+        resolucion: {reincorporaciones: [], retiroCiclo: [], cambioNota: [], cursoDirigido: [], tramiteTraslado: []},
         oficinas: JSON.parse(oficinasJson),
         ciclos: JSON.parse(ciclosJson),
         tiposResolucion: JSON.parse(tiposResolucionJson),
@@ -19,7 +19,8 @@ var app = new Vue({
         isReincorporacion: false,
         isRetiroCiclo: false,
         isCambioNota: false,
-        isCursoDirigido: false
+        isCursoDirigido: false,
+        isTraslado: false
     }, created: function () {
 
     }, mounted: function () {
@@ -32,12 +33,15 @@ var app = new Vue({
             $vue.isReincorporacion = false;
             $vue.isCambioNota = false;
             $vue.isCursoDirigido = false;
+            $vue.isTraslado = false;
             if (item.codigo == "RCI") {
                 $vue.isRetiroCiclo = true;
             } else if (item.codigo == "REIC") {
                 $vue.isReincorporacion = true;
             } else if (item.codigo == "CAM_NOTA") {
                 $vue.isCambioNota = true;
+            } else if (item.codigo == "TRAS") {
+                $vue.isTraslado = true;
             } else {
                 $vue.isCursoDirigido = true;
             }
@@ -48,7 +52,7 @@ var app = new Vue({
             }
             return "";
         },
-        loadAlumno(nombre) {
+        loadAlumno(nombre) {    
             let $vue = this;
             this.isLoading = true
             if ($vue.resolucion.oficina == null) {
@@ -102,7 +106,9 @@ var app = new Vue({
             } else if ($vue.isCursoDirigido) {
                 var cursoDirigido = {};
                 $vue.resolucion.cursoDirigido.push(cursoDirigido);
-
+            } else if ($vue.isTraslado) {
+                var traslado = {};
+                $vue.resolucion.tramiteTraslado.push(traslado);
             }
         },
         deleteItem(index) {
@@ -115,6 +121,8 @@ var app = new Vue({
                 $vue.resolucion.cambioNota.splice(index, 1);
             } else if ($vue.isCursoDirigido) {
                 $vue.resolucion.cursoDirigido.splice(index, 1);
+            } else if ($vue.isTraslado) {
+                $vue.resolucion.tramiteTraslado.splice(index, 1);
             }
         },
         oficinaSelect(ofi) {
@@ -143,7 +151,7 @@ var app = new Vue({
                 success: function (response) {
                     if (response.success) {
                         notify(response.message, 'info');
-                        $vue.resolucion = {reincorporaciones: [], retiroCiclo: [], cambioNota: [], cursoDirigido: []};
+                        $vue.resolucion = {reincorporaciones: [], retiroCiclo: [], cambioNota: [], cursoDirigido: [], tramiteTraslado: []};
                         $vue.alumnos = [];
                     } else {
                         notify(response.message, 'error');

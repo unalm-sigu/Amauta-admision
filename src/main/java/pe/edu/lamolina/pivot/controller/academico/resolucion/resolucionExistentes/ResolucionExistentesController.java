@@ -47,6 +47,7 @@ import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_EM;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_N;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_TU;
 import pe.edu.lamolina.model.enums.TipoCondicionalEnum;
+import static pe.edu.lamolina.model.enums.TipoCondicionalEnum.TRAS;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.CAM_NOTA;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.CURDIR;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.RCI;
@@ -58,6 +59,7 @@ import pe.edu.lamolina.model.tramite.Reincorporacion;
 import pe.edu.lamolina.model.tramite.Resolucion;
 import pe.edu.lamolina.model.tramite.RetiroCiclo;
 import pe.edu.lamolina.model.tramite.TipoResolucion;
+import pe.edu.lamolina.model.tramite.TramiteTraslado;
 import pe.edu.lamolina.pivot.controller.academico.avancecurricular.AvanceCurricularService;
 import pe.edu.lamolina.pivot.controller.academico.resolucion.ResolucionService;
 import pe.edu.lamolina.pivot.controller.matricula.matriculable.MatriculableService;
@@ -119,7 +121,7 @@ public class ResolucionExistentesController {
 
         List<TipoResolucion> tipoResolucions = service.allTipoResolucion();
         for (TipoResolucion tipoResolucion : tipoResolucions) {
-            if (Arrays.asList(RCI.name(), REIC.name(), CAM_NOTA.name(), CURDIR.name()).contains(tipoResolucion.getCodigo())) {
+            if (Arrays.asList(RCI.name(), REIC.name(), CAM_NOTA.name(), CURDIR.name(), TRAS.name()).contains(tipoResolucion.getCodigo())) {
                 tipoResolucionJson.add(JsonHelper.createJson(tipoResolucion, JsonNodeFactory.instance, new String[]{"*"}));
             }
         }
@@ -202,6 +204,8 @@ public class ResolucionExistentesController {
                     matriculableService.revisarSituacionAcademica(alumno, ds);
                     matriculableService.saveMatriculable(alumno, TipoCondicionalEnum.CAMBIO_NOTA.name(), ds);
                 }
+            } else if (resolucion.getTipoResolucion().getCodigo().equals(TRAS.name())) {
+                service.saveTramiteTraslado(resolucion, ds.getUsuario(), ds.getCicloAcademico(), ds.getCompania());
             } else {
                 service.saveCursoDirigido(resolucion, ds.getUsuario(), ds);
             }
@@ -233,6 +237,7 @@ public class ResolucionExistentesController {
             List<RetiroCiclo> retiroCiclos = new ArrayList<>();
             List<CambioNota> cambioNotas = new ArrayList<>();
             List<CursoDirigido> cursoDirigidos = new ArrayList<>();
+            TramiteTraslado tramiteTraslado = new TramiteTraslado();
             ObjectNode objectNode = new ObjectNode(JsonNodeFactory.instance);
             if (resolucionDB.getTipoResolucion().getCodigo().equals(REIC.name())) {
                 reincorporacions = service.allReincorporacionByResolucion(resolucionDB);
@@ -288,6 +293,17 @@ public class ResolucionExistentesController {
                     objectNode.put("tipo", CURDIR.name());
                     array.add(objectNode);
                 }
+            } else if (resolucionDB.getTipoResolucion().getCodigo().equals(TRAS.name())) {
+                tramiteTraslado = service.findTramiteTraslado(resolucionDB);
+                objectNode = JsonHelper.createJson(tramiteTraslado, JsonNodeFactory.instance, new String[]{
+                    "*",
+                    "tramite.cicloAcademico.id", "tramite.cicloAcademico.descripcion",
+                    "tramite.alumno.*",
+                    "tramite.alumno.persona.*",
+                    "tramite.alumno.persona.tipoDocumento.*"
+                });
+                objectNode.put("tipo", TRAS.name());
+                array.add(objectNode);
             }
             response.setSuccess(Boolean.TRUE);
             response.setData(array);
