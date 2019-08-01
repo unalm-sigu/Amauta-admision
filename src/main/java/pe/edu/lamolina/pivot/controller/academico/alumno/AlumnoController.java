@@ -454,4 +454,16 @@ public class AlumnoController {
         return response;
     }
 
+    @RequestMapping("{idAlumno}/trasladoexterno")
+    public String convalTrasladoExterno(@PathVariable("idAlumno") Long idAlumno,
+            @RequestParam(value = "origen", required = false) String origen,
+            Model model, HttpSession session) {
+        Alumno alumno = service.findAlumnoFisico(idAlumno);
+        model.addAttribute("origen", getOrigen(origen));
+        model.addAttribute("idAlumno", alumno.getId());
+        model.addAttribute("alumnoJson", JsonHelper.createJson(alumno, JsonNodeFactory.instance, new String[]{"*", "persona.*"}));
+        model.addAttribute("rutaModulo", rutaModulo);
+        return "academico/alumno/trasladoexterno/trasladoexterno";
+    }
+
 }
