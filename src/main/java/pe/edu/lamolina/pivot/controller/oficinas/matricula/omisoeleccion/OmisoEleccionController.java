@@ -126,7 +126,7 @@ public class OmisoEleccionController {
 
             service.saveOmision(omisoEleccion, ds);
             response.setSuccess(true);
-            response.setMessage("Restricción levantada");
+            response.setMessage("Se realizó el registro.");
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
@@ -145,7 +145,7 @@ public class OmisoEleccionController {
 
             service.anularOmision(alumno.getAlumnoOmisoEleccions(), ds);
             response.setSuccess(true);
-            response.setMessage("Restricción levantada");
+            response.setMessage("Se realizó la actualización satisfactoriamente.");
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
