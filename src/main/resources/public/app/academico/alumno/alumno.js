@@ -39,6 +39,10 @@ new Vue({
             let $vue = this;
             return APP.url('academico/alumno/' + item.id + '/configcursos') + $vue.getOrigenURL();
         },
+        urlConvalidarTraslado(item) {
+            let $vue = this;
+            return APP.url('academico/alumno/' + item.id + '/trasladoexterno') + $vue.getOrigenURL();
+        },
         getOrigenURL() {
             var url = window.location.href;
             return "?origen=" + Base64.encode(url);

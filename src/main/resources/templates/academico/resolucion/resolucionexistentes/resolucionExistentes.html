@@ -120,7 +120,7 @@
                                             <th class="col-md-3 text-center">Persona</th>
                                             <th class="col-md-3 text-center" v-if="!isCambioNota">Tipo Tramite</th>
                                             <th class="col-md-2 text-center" v-if="isCambioNota">Tipo Tramite</th>
-                                            <th class="col-md-3 text-center" v-if="!isCambioNota">Motivo</th>
+                                            <th class="col-md-3 text-center" v-if="!isCambioNota &amp;&amp; !isTraslado">Motivo</th>
                                             <th class="col-md-2 text-center" v-if="isCambioNota">Motivo</th>
                                             <th class="col-md-3 text-center" v-if="!isCambioNota &amp;&amp; !isCursoDirigido">Ciclo
                                                 <span v-if='isRetiroCiclo'> a retirar</span>
@@ -392,6 +392,46 @@
                                                 </a>
                                             </td>
                                         </tr>
+                                        <tr v-for="(tramiteTraslado , index) in resolucion.tramiteTraslado" v-if="isTraslado"> 
+                                            <td class="v-middle text-center">
+                                                <div class="form-group">
+                                                    <div class="col-md-12">
+                                                        <multiselect v-model="tramiteTraslado.alumno" 
+                                                                     v-bind:options='alumnos'
+                                                                     v-on:search-change="loadAlumno"
+                                                                     v-bind:custom-label='customLabel'
+                                                                     track-by='id'
+                                                                     v-bind:show-labels="false"
+                                                                     v-bind:allow-empty="false"
+                                                                     deselect-label="No se puede eliminar este valor"
+                                                                     v-bind:internal-search='false'
+                                                                     placeholder="Ingresa un caracter como mínimo" >
+                                                            <template slot="option" slot-scope="props">
+                                                                <div class="option__desc">
+                                                                    <span class="option__title block bold">{{ props.option.persona.nombreCompleto }} </span>
+                                                                    <span class="option__small">{{ props.option.persona.tipoDocumento.simbolo }} - {{ props.option.persona.numeroDocIdentidad }}</span>
+                                                                </div>
+                                                            </template>
+                                                        </multiselect>
+                                                        <input v-model="tramiteTraslado.alumno" required="true" type="text" class="hide"/>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="v-middle text-center">
+                                                <span v-if="resolucion.tipoResolucion != null" class="block text-muted" v-text="resolucion.tipoResolucion.nombre"></span>
+                                            </td> 
+                                            <td class="v-middle text-center">
+                                                <span th:text="${ciclo.descripcion}" class="block text-muted"></span>                                            
+                                            </td> 
+                                            <td class="v-middle text-center">
+                                            </td> 
+                                            <td class="v-middle text-center">
+                                                <a v-on:click="deleteItem(index)" class="btn btn-danger">
+                                                    <i class="fa fa-trash-o " aria-hidden="true"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        
                                     </tbody>
                                 </table>
 

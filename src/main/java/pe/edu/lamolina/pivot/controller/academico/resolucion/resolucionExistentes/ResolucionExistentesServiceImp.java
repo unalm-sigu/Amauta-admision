@@ -38,11 +38,11 @@ import pe.edu.lamolina.model.enums.TipoResolucionEnum;
 import pe.edu.lamolina.model.enums.TipoRetiroCicloEnum;
 import pe.edu.lamolina.model.enums.TipoTramiteEnum;
 import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
+import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.general.SerieDocumento;
 import pe.edu.lamolina.model.general.TipoDocumentoCompania;
 import pe.edu.lamolina.model.matricula.AlumnoCursoCurricula;
 import pe.edu.lamolina.model.seguridad.Usuario;
-import pe.edu.lamolina.model.tramite.AccionTramiteAcademico;
 import pe.edu.lamolina.model.tramite.CambioNota;
 import pe.edu.lamolina.model.tramite.CursoDirigido;
 import pe.edu.lamolina.model.tramite.EstadoTramite;
@@ -52,6 +52,7 @@ import pe.edu.lamolina.model.tramite.RetiroCiclo;
 import pe.edu.lamolina.model.tramite.TipoResolucion;
 import pe.edu.lamolina.model.tramite.TipoTramite;
 import pe.edu.lamolina.model.tramite.Tramite;
+import pe.edu.lamolina.model.tramite.TramiteTraslado;
 import pe.edu.lamolina.pivot.controller.academico.avancecurricular.AvanceCurricularService;
 import pe.edu.lamolina.pivot.controller.matricula.matriculable.MatriculableService;
 import pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.GpoSeccionService;
@@ -77,6 +78,7 @@ import pe.edu.lamolina.pivot.dao.tramite.TipoDocumentoCompaniaDAO;
 import pe.edu.lamolina.pivot.dao.tramite.TipoResolucionDAO;
 import pe.edu.lamolina.pivot.dao.tramite.TipoTramiteDAO;
 import pe.edu.lamolina.pivot.dao.tramite.TramiteDAO;
+import pe.edu.lamolina.pivot.dao.tramite.TramiteTrasladoDAO;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service
@@ -135,6 +137,8 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
     MatriculaCursoDAO matriculaCursoDAO;
     @Autowired
     MatriculaResumenDAO matriculaResumenDAO;
+    @Autowired
+    TramiteTrasladoDAO tramiteTrasladoDAO;
     @Autowired
     AvanceCurricularService avanceCurricularService;
     @Autowired
@@ -565,4 +569,61 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
         matriculaResumen.setCreditosMatriculados(matriculaResumen.getCreditosMatriculados() + curso.getCreditos());
         matriculaResumenDAO.update(matriculaResumen);
     }
+
+    @Override
+    @Transactional
+    public void saveTramiteTraslado(Resolucion resolucionForm, Usuario usuario, CicloAcademico cicloAcademico, Compania compania) {
+
+        TipoResolucion tipoResolucion = tipoResolucionDAO.finByCodigo(TipoResolucionEnum.TRAS);
+        Resolucion resolucion = new Resolucion();
+        resolucion.setOficina(resolucionForm.getOficina());
+        resolucion.setFecha(resolucionForm.getFecha());
+        resolucion.setNumero(resolucionForm.getNumero());
+        resolucion.setSerie(resolucionForm.getSerie());
+        resolucion.setEstadoEnum(ResolucionEstadoEnum.VB_RES);
+        resolucion.setFechaRegistro(new Date());
+        resolucion.setTipoResolucion(tipoResolucion);
+        resolucion.setUserRegistro(usuario);
+        resolucion.setAplicacionDirecta(1l);
+        resolucionDAO.save(resolucion);
+
+        Assert.isFalse(resolucionForm.getTramiteTraslado().isEmpty(), "Debe Agregar alumnos.");
+        EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigo(EstadoTramiteEnum.SOL_ACEP);
+        for (TramiteTraslado tramiteTraslado : resolucionForm.getTramiteTraslado()) {
+
+            Tramite tramite = new Tramite();
+            DateTime today = new DateTime();
+            TipoDocumentoCompania tipoDocumentoCompania = tipoDocumentoCompaniaDAO.findByCodigo(TipoDocumentoCompaniaEnum.TRAM);
+            SerieDocumento serieDocumento = serieDocumentoService.getCorrelativo(tipoDocumentoCompania, Long.valueOf(today.getYear()), usuario);
+            TipoTramite tipoTramite = tipoTramiteDAO.findByCodigo(TipoTramiteEnum.TRAS.name());
+            Alumno alumno = alumnoDAO.find(tramiteTraslado.getAlumno());
+
+            tramite.setActivo(true);
+            tramite.setCompania(compania);
+            tramite.setAlumno(alumno);
+            tramite.setCicloAcademico(cicloAcademico);
+            tramite.setEstadoEnum(TramiteEstadoEnum.ACEP);
+            tramite.setEstadoTramite(estadoTramite);
+            tramite.setFechaRegistro(new Date());
+            tramite.setPersona(alumno.getPersona());
+            tramite.setTipoTramite(tipoTramite);
+            tramite.setNumero(Long.valueOf(serieDocumento.getNumeroDocumento()));
+            tramite.setSerie(Long.valueOf(serieDocumento.getNumeroSerie()));
+            tramite.setUserRegistro(usuario);
+            tramiteDAO.save(tramite);
+
+            tramiteTraslado.setTramite(tramite);
+            tramiteTraslado.setCicloAcademico(cicloAcademico);
+            tramiteTraslado.setResolucion(resolucion);
+            tramiteTraslado.setFechaRegistro(new Date());
+            tramiteTraslado.setUserRegistro(usuario);
+            tramiteTrasladoDAO.save(tramiteTraslado);
+        }
+    }
+
+    @Override
+    public TramiteTraslado findTramiteTraslado(Resolucion resolucionDB) {
+        return tramiteTrasladoDAO.findByResolucion(resolucionDB);
+    }
+
 }

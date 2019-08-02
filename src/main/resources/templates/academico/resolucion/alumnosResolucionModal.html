@@ -64,6 +64,17 @@
                             <span v-text="item.curso.nombre"></span>
                         </td>
                     </tr>
+                    <tr v-if="tipo == 'TRAS'">
+                        <td>
+                            <a class="block" v-text="alumnoTramiteTraslado.tramite.alumno.persona.nombreCompleto"></a>
+                            <span class="block">Código: {{alumnoTramiteTraslado.tramite.alumno.codigo}}</span>
+                            
+                            <span v-if="alumnoTramiteTraslado.tramite.alumno.persona.numeroDocIdentidad != null"> {{alumnoTramiteTraslado.tramite.alumno.persona.tipoDocumento.simbolo}} - {{alumnoTramiteTraslado.tramite.alumno.persona.numeroDocIdentidad}}</span>
+                        </td>
+                        <td>
+                            <span class="block" v-text="alumnoTramiteTraslado.tramite.cicloAcademico.descripcion"></span>
+                        </td>
+                    </tr>
                 </tbody>
             </table>
         </div>
