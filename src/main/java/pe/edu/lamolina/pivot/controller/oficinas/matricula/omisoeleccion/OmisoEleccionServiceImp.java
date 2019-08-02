@@ -1,9 +1,11 @@
 package pe.edu.lamolina.pivot.controller.oficinas.matricula.omisoeleccion;
 
+import static groovy.util.Eval.x;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -30,11 +32,25 @@ import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoOmisoEleccion;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.aporte.AporteAlumnoCiclo;
+import pe.edu.lamolina.model.aporte.ResumenAporteAlumno;
+import pe.edu.lamolina.model.enums.AportesEnum;
+import static pe.edu.lamolina.model.enums.AportesEnum.A46;
 import pe.edu.lamolina.model.enums.DeudaEstadoEnum;
+import pe.edu.lamolina.model.enums.EstadoAporteEnum;
+import static pe.edu.lamolina.model.enums.EstadoAporteEnum.DEBE;
+import pe.edu.lamolina.model.enums.NombreTablasEnum;
+import pe.edu.lamolina.model.enums.OficinaEnum;
+import pe.edu.lamolina.model.finanzas.Acreencia;
+import pe.edu.lamolina.model.finanzas.DeudaAlumno;
+import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoOmisoEleccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
+import pe.edu.lamolina.pivot.dao.aporte.AporteAlumnoCicloDAO;
+import pe.edu.lamolina.pivot.dao.aporte.ResumenAporteAlumnoDAO;
+import pe.edu.lamolina.pivot.dao.finanza.AcreenciaDAO;
 import pe.edu.lamolina.pivot.dao.finanza.DeudaAlumnoDAO;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -52,10 +68,19 @@ public class OmisoEleccionServiceImp implements OmisoEleccionService {
     CicloAcademicoDAO cicloAcademicoDAO;
 
     @Autowired
+    AporteAlumnoCicloDAO aporteAlumnoCicloDAO;
+
+    @Autowired
     DeudaAlumnoDAO deudaAlumnoDAO;
 
     @Autowired
+    ResumenAporteAlumnoDAO resumenAporteAlumnoDAO;
+
+    @Autowired
     AlumnoDAO alumnoDAO;
+
+    @Autowired
+    AcreenciaDAO acreenciaDAO;
 
     @Override
     @Transactional
@@ -204,7 +229,17 @@ public class OmisoEleccionServiceImp implements OmisoEleccionService {
     @Override
     @Transactional
     public void anularOmision(List<AlumnoOmisoEleccion> omisoEleccion, DataSessionPivot ds) {
+
         String motivoAnula = omisoEleccion.get(0).getMotivoAnulacion();
+        Alumno alumno = alumnoDAO.find(omisoEleccion.get(0).getAlumno());
+        CicloAcademico cicloAcademicoMod = cicloAcademicoDAO.findByCodigoModalidadEstudio(ds.getCicloAcademico().getCodigo(), alumno.getModalidadEstudio());
+
+        List<AporteAlumnoCiclo> aporteAlumnoCiclo = aporteAlumnoCicloDAO.allByAlumnoCiclo(alumno, cicloAcademicoMod);
+        ResumenAporteAlumno resumenAporteAlumno = resumenAporteAlumnoDAO.findByAlumnoCicloAcademico(alumno, cicloAcademicoMod);
+
+        AporteAlumnoCiclo alumnoCiclo = aporteAlumnoCiclo.stream().filter(x -> Arrays.asList(AportesEnum.A04, A46).contains(x.getAporteCiclo().getAporte().getCodigoEnum()) && x.getEstadoEnum() == DEBE).findAny().orElse(null);
+        DeudaAlumno deudaAlumno = alumnoCiclo.getDeudaAlumno();
+        BigDecimal montorest = BigDecimal.ZERO;
         for (AlumnoOmisoEleccion alumnoOmisoEleccion : omisoEleccion) {
             if (alumnoOmisoEleccion.getSeleccionado()) {
                 alumnoOmisoEleccion.setEstadoEnum(DeudaEstadoEnum.ANU);
@@ -212,9 +247,58 @@ public class OmisoEleccionServiceImp implements OmisoEleccionService {
                 alumnoOmisoEleccion.setFechaAnulacion(new Date());
                 alumnoOmisoEleccion.setUserAnulacion(ds.getUsuario());
                 alumnoOmisoEleccionDAO.updateAnulacion(alumnoOmisoEleccion);
+
+                montorest = montorest.add(alumnoOmisoEleccion.getMulta());
+
             }
+        }
+        if (alumnoCiclo != null) {
+            alumnoCiclo.setMonto(alumnoCiclo.getMonto().subtract(montorest));
+
+            if (deudaAlumno != null) {
+                deudaAlumno.setMonto(deudaAlumno.getMonto().subtract(montorest));
+
+                Acreencia acreencia = acreenciaDAO.findByDeudaAlumno(deudaAlumno);
+                acreencia.setEstadoEnum(DeudaEstadoEnum.ANU);
+                acreencia.setFechaAnulacion(new Date());
+                acreencia.setUsuarioAnulacion(ds.getUsuario());
+                acreenciaDAO.update(acreencia);
+
+                if (deudaAlumno.getMonto().compareTo(BigDecimal.ZERO) > 1) {
+
+                    Acreencia acreenciaNew = new Acreencia();
+                    acreenciaNew.setDeudaAlumno(deudaAlumno);
+                    acreenciaNew.setOficina(new Oficina(OficinaEnum.OBUAE.getId()));
+                    acreenciaNew.setTablaEnum(NombreTablasEnum.FIN_DEUDA_ALUMNO);
+                    acreenciaNew.setInstanciaTabla(deudaAlumno.getId());
+                    acreenciaNew.setEstadoEnum(DeudaEstadoEnum.DEU);
+                    acreenciaNew.setMonto(deudaAlumno.getMonto());
+                    acreenciaNew.setAbono(BigDecimal.ZERO);
+                    acreenciaNew.setPersona(alumno.getPersona());
+                    acreenciaNew.setCuentaBancaria(deudaAlumno.getCuentaBancaria());
+                    acreenciaNew.setFechaDocumento(new Date());
+                    acreenciaNew.setUsuarioRegistro(ds.getUsuario());
+                    acreenciaNew.setFechaVencimiento(alumnoCiclo.getFechaVencimiento());
+                    acreenciaNew.setFechaRegistro(new Date());
+                    acreenciaDAO.save(acreenciaNew);
+                } else {
+                    deudaAlumno.setEstadoEnum(DeudaEstadoEnum.ANU);
+                }
+                deudaAlumnoDAO.update(deudaAlumno);
+
+            }
+            if (alumnoCiclo.getMonto().compareTo(BigDecimal.ZERO) == 0) {
+                alumnoCiclo.setEstadoEnum(EstadoAporteEnum.ANU);
+            }
+            aporteAlumnoCicloDAO.update(alumnoCiclo);
+
+            resumenAporteAlumno.setMontoInicial(resumenAporteAlumno.getMontoInicial().subtract(montorest));
+            resumenAporteAlumno.setMontoPendiente(resumenAporteAlumno.getMontoPendiente().subtract(montorest));
+            resumenAporteAlumno.setMontoTotal(resumenAporteAlumno.getMontoTotal().subtract(montorest));
+            resumenAporteAlumnoDAO.update(resumenAporteAlumno);
 
         }
+
     }
 
     @Override

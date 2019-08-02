@@ -98,6 +98,7 @@ public class OmisoEleccionController {
                 for (AlumnoOmisoEleccion alumnoOmisoEleccion : alumno.getAlumnoOmisoEleccions()) {
                     ObjectNode nodeOmiso = JsonHelper.createJson(alumnoOmisoEleccion, factory, new String[]{
                         "*",
+                        "alumno.id",
                         "cicloAcademico.*"});
                     arrayOmiso.add(nodeOmiso);
                 }
