@@ -98,6 +98,7 @@ public class OmisoEleccionController {
                 for (AlumnoOmisoEleccion alumnoOmisoEleccion : alumno.getAlumnoOmisoEleccions()) {
                     ObjectNode nodeOmiso = JsonHelper.createJson(alumnoOmisoEleccion, factory, new String[]{
                         "*",
+                        "alumno.id",
                         "cicloAcademico.*"});
                     arrayOmiso.add(nodeOmiso);
                 }
@@ -142,7 +143,7 @@ public class OmisoEleccionController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
         try {
-
+            alumno.getAlumnoOmisoEleccions().get(0).setMotivoAnulacion(alumno.getMotivoAnulacion());
             service.anularOmision(alumno.getAlumnoOmisoEleccions(), ds);
             response.setSuccess(true);
             response.setMessage("Se realizó la actualización satisfactoriamente.");

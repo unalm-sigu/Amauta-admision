@@ -8,6 +8,7 @@ import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.AlumnoOmisoEleccion;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import static pe.edu.lamolina.model.enums.EstadoAporteEnum.DEBE;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoOmisoEleccionDAO;
 
 @Repository
@@ -61,7 +62,8 @@ public class AlumnoOmisoEleccionDAOH extends AbstractEasyDAO<AlumnoOmisoEleccion
                 .join("alumno al", "cicloAcademico ca")
                 .filter("motivo", omisoEleccion.getMotivo())
                 .filter("al.id", omisoEleccion.getAlumno())
-                .filter("ca.id", omisoEleccion.getCicloAcademico());
+                .filter("ca.id", omisoEleccion.getCicloAcademico())
+                .filter("estado", DEBE.name());
         return find(sql);
     }
 
