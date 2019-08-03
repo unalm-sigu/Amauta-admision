@@ -387,8 +387,15 @@ public class CursoDAOH extends AbstractEasyDAO<Curso> implements CursoDAO {
                 .__().filter("cur.codigo", "like", parametro)
                 .endBlock()
                 .limit(6);
-
         return all(sql);
+    }
+
+    @Override
+    public Curso findCurso(Curso curso) {
+        Octavia sql = Octavia.query()
+                .from(Curso.class, "cu")
+                .filter("cu.id", curso);
+        return find(sql);
     }
 
 }

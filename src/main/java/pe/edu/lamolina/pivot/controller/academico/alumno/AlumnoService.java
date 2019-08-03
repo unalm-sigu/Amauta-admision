@@ -5,13 +5,17 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.CursoCicloAcademico;
+import pe.edu.lamolina.model.academico.CursoConvalidado;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.SituacionAcademica;
 import pe.edu.lamolina.model.enums.ParametrosSistemasEnum;
 import pe.edu.lamolina.model.general.Parametro;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.general.TipoDocIdentidad;
+import pe.edu.lamolina.model.matricula.AlumnoCursoCurricula;
 import pe.edu.lamolina.model.seguridad.Usuario;
+import pe.edu.lamolina.model.tramite.TramiteTraslado;
 
 public interface AlumnoService {
 
@@ -48,5 +52,21 @@ public interface AlumnoService {
     Parametro findParametroByEnum(ParametrosSistemasEnum parametrosSistemasEnum);
 
     String goMatricula(Long idAlumno, Usuario usuario);
+
+    List<AlumnoCursoCurricula> allCursosByAlumno(Alumno alumno, DynatableFilter filter);
+
+    List<CursoCicloAcademico> allCursoCiclo(String nombre, CicloAcademico cicloAcademico);
+
+    void saveCursoCurricula(AlumnoCursoCurricula alumnoCursoCurricula, CicloAcademico cicloAcademico, Usuario usuario);
+
+    List<AlumnoCursoCurricula> allAlumnoCursoCurso(Alumno alumno);
+
+    List<TramiteTraslado> allTramiteTrasladoByAlumno(Alumno alumno);
+
+    void saveListCursoConvalidado(TrasladoBean trasladoBean, Usuario usuario, CicloAcademico cicloAcademico);
+
+    List<CursoConvalidado> alllCursoConvalidadoInTraslado(List<TramiteTraslado> listTramiteTraslado);
+
+    void verificarTramiteTraslado(Alumno alumno);
 
 }

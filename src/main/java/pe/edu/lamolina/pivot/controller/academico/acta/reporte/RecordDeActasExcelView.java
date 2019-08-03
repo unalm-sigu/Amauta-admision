@@ -29,7 +29,7 @@ import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.Seccion;
-import pe.edu.lamolina.model.enums.EstadoEnum;
+import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
 
 @Component
 public class RecordDeActasExcelView extends AbstractPOIExcelView {
@@ -89,7 +89,7 @@ public class RecordDeActasExcelView extends AbstractPOIExcelView {
                     secciones += ",";
                     docentesSeccion = sec.getDocenteSeccion();
                     for (DocenteSeccion docentesSeccionEach : docentesSeccion) {
-                        if (docentesSeccionEach.getEstadoEnum().equals(EstadoEnum.ACT)) {
+                        if (docentesSeccionEach.getEstadoEnum() == SeccionEstadoEnum.ACT) {
                             if (docentesSeccionEach.esDocentePrincipal()) {
                                 docentesPrincipal.add(docentesSeccionEach.getDocente());
                             }
@@ -201,12 +201,10 @@ public class RecordDeActasExcelView extends AbstractPOIExcelView {
                     if (isHeaderTotal) {
                         isHeader = false;
                     }
+                } else if (TypesUtil.getInt(token) != null) {
+                    this.createCellNumber(row, j, token, cellBody);
                 } else {
-                    if (TypesUtil.getInt(token) != null) {
-                        this.createCellNumber(row, j, token, cellBody);
-                    } else {
-                        this.createCell(row, j, token, cellBody);
-                    }
+                    this.createCell(row, j, token, cellBody);
                 }
                 j++;
             }

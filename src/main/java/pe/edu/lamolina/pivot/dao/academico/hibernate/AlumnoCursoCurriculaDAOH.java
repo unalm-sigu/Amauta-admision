@@ -5,11 +5,14 @@ import java.util.List;
 import org.hibernate.Query;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
+import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.CursoCurricula;
+import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import static pe.edu.lamolina.model.enums.CursoCurriculaEstadoEnum.APR;
 import static pe.edu.lamolina.model.enums.CursoCurriculaEstadoEnum.CONV;
 import static pe.edu.lamolina.model.enums.CursoCurriculaEstadoEnum.EQUIV;
@@ -137,7 +140,8 @@ public class AlumnoCursoCurriculaDAOH extends AbstractEasyDAO<AlumnoCursoCurricu
     public AlumnoCursoCurricula findByAlumnoCurso(Alumno alumno, Curso curso) {
         Octavia sql = Octavia.query()
                 .from(AlumnoCursoCurricula.class, "acc")
-                .join("alumno al", "curso cu", "tipoCursoCurricula")
+                .join("alumno al", "curso cu")
+                .leftJoin("tipoCursoCurricula")
                 .leftJoin("cicloAprobado ci", "cursoCurricula cc", "cursoOpcional co", "tipoCursoCurriculaOrigen")
                 .filter("al.id", alumno)
                 .filter("cu.id", curso)
@@ -211,4 +215,27 @@ public class AlumnoCursoCurriculaDAOH extends AbstractEasyDAO<AlumnoCursoCurricu
         return all(sql);
     }
 
+    @Override
+    public List<AlumnoCursoCurricula> allByAlumnoAndModalidad(Alumno alumno, DynatableFilter filter) {
+        DynatableSql sql = new DynatableSql(filter)
+                .from(AlumnoCursoCurricula.class, "acc")
+                .join("alumno al", "al.persona", "curso cur")
+                .leftJoin("cursoCurricula cc", "al.modalidadEstudio mde", "cicloAprobado")
+                .leftJoin("tipoCursoCurricula tcc", "tipoCursoCurriculaOrigen", "cursoOpcional")
+                .filter("al.id", alumno)
+                .searchFields("acc.creditos", "acc.numeroCiclo", "cur.codigo", "cur.nombre");
+        return all(sql);
+    }
+
+    @Override
+    public List<AlumnoCursoCurricula> all(Alumno alumno) {
+        Octavia sql = Octavia.query()
+                .from(AlumnoCursoCurricula.class, "acc")
+                .leftJoin("tipoCursoCurricula tcc", "alumno alu", "curso cur")
+                .filter("alu.id", alumno)
+                .orderBy("acc.numeroCiclo");
+        
+        return all(sql);
+
+    }
 }

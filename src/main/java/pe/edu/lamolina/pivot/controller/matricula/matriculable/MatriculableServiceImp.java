@@ -77,6 +77,7 @@ import pe.edu.lamolina.pivot.controller.academico.avancecurricular.AvanceCurricu
 import pe.edu.lamolina.pivot.controller.academico.promedio.PromedioService;
 import pe.edu.lamolina.pivot.controller.bienestar.alumnoAporte.AporteAlumnoService;
 import pe.edu.lamolina.pivot.controller.matricula.configuracionturno.ConfiguracionMatriculaService;
+import pe.edu.lamolina.pivot.controller.visores.RespositorVisor;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCursoCurriculaDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
@@ -155,13 +156,16 @@ public class MatriculableServiceImp implements MatriculableService {
     @Autowired
     CambioNotaDAO cambioNotaDAO;
 
+    @Autowired
+    RespositorVisor respositorVisor;
+
     @Override
     public AlumnoResumen allResumenAlumnosByCicloRol(CicloAcademico cicloAcademico, String codigo, List<Long> filtros) {
         return matriculaResumenDAO.findResumenByCicloRolDynateable(cicloAcademico, codigo, filtros);
     }
 
     @Override
-    public List<MatriculaResumen> allAlumnosByCicloRolDynatable(DynatableFilter filter, CicloAcademico cicloAcademico, String codigo, List<Long> filtros) {
+    public List<MatriculaResumen> allAlumnosByCicloRolDynatable(DynatableFilter filter, List<CicloAcademico> cicloAcademico, String codigo, List<Long> filtros) {
         return matriculaResumenDAO.allByCicloRolDynatable(filter, cicloAcademico, codigo, filtros);
     }
 
@@ -250,7 +254,7 @@ public class MatriculableServiceImp implements MatriculableService {
         List<Long> alumnosIds = alumnos.stream().map(x -> x.getId()).collect(Collectors.toList());
         System.out.println("Finalmente quedan " + alumnosIds.size() + " alumnos EPG para ser matriculables");
         if (!alumnosIds.isEmpty()) {
-            matriculaResumenDAO.saveMatriculables(alumnosIds, ciclo);
+            matriculaResumenDAO.saveMatriculables(alumnosIds, cicloEpg);
         }
 //        for (Alumno alumno : alumnos) {
 //            MatriculaResumen matriculable = new MatriculaResumen();
@@ -758,7 +762,6 @@ public class MatriculableServiceImp implements MatriculableService {
     @Transactional
     public void saveMatriculable(Alumno alumnoForm, String tipoCondicional, DataSessionPivot ds) {
 
-
         CicloAcademico ciclo = cicloAcademicoDAO.find(ds.getCicloAcademico());
         if (ciclo.getFechaMatriculables() == null) {
             return;
@@ -924,21 +927,24 @@ public class MatriculableServiceImp implements MatriculableService {
         }
     }
 
+    @Async
     @Override
     @Transactional
-    public void verificarAlumnosNmat(DataSessionPivot ds) {
+    public void verificarAlumnosNmat(DataSessionPivot ds, List<AlumnoCiclo> alumnoCiclos) {
 
-        CicloAcademico cicloActivo = ds.getCicloAcademico();
-        List<CicloAcademico> cicloAnt = cicloAcademicoDAO.findAnteriorRegular(cicloActivo);
-
-        List<AlumnoCiclo> alumnoCiclos = alumnoCicloDAO.allByNmatAndInh(cicloAnt);
         logger.debug("Cantidad de alumnos {}", alumnoCiclos.size());
+        CicloAcademico academico = ds.getCicloAcademico();
+
         for (AlumnoCiclo alumnoCiclo : alumnoCiclos) {
+          
             logger.info("Alumno codigo {}", alumnoCiclo.getAlumno().getCodigo());
+            logger.debug("Cantidad de {} total {}", respositorVisor.getContador(), respositorVisor.getCantidadTotal());
             this.revisarSituacionAcademica(alumnoCiclo.getAlumno(), ds);
+            respositorVisor.incrementar();
+            logger.debug("Cantidad de {} total {}", respositorVisor.getContador(), respositorVisor.getCantidadTotal());
         }
-        cicloActivo.setFechaVerificaNmat(new Date());
-        cicloAcademicoDAO.update(cicloActivo);
+        academico.setFechaVerificaNmat(new Date());
+        cicloAcademicoDAO.update(academico);
 
     }
 
@@ -954,6 +960,20 @@ public class MatriculableServiceImp implements MatriculableService {
             matriculaResumen.setFechaBeneficiadoUtlCiclo(null);
         }
         matriculaResumenDAO.updateBeneficiado(matriculaResumen);
+    }
+
+    @Override
+    public List<CicloAcademico> allCiclosActivos() {
+        return cicloAcademicoDAO.allActivosAlModalidades();
+    }
+
+    @Override
+    public List<AlumnoCiclo> allAlumnosCicloNmat(CicloAcademico cicloActivo) {
+
+        List<CicloAcademico> cicloAnt = cicloAcademicoDAO.findAnteriorRegular(cicloActivo);
+        List<AlumnoCiclo> alumnoCiclos = alumnoCicloDAO.allByNmatAndInh(cicloAnt);
+        respositorVisor.iniciar(alumnoCiclos.size());
+        return alumnoCiclos;
     }
 
 }

@@ -71,10 +71,11 @@
                                                         </a>
                                                         <span v-else="" class="estado-gray">{{item.aulasContenido}}</span>
                                                     </span>
-
-                                                    <a v-else-if="item.cantidadinventarios > 0" v-on:click="verInventario(item)" class="pointer">
-                                                        <i class="fa fa-tasks" aria-hidden="true"></i>
-                                                    </a>
+                                                    <span v-if="item.tipoAmbiente != 'EDI'">
+                                                        <a v-if="item.cantidadinventarios > 0" v-on:click="verInventario(item)" class="pointer">
+                                                            <i class="fa fa-tasks" aria-hidden="true"></i>
+                                                        </a>
+                                                    </span>
                                                 </td>
 
                                                 <td class="v-middle">
@@ -95,17 +96,15 @@
                                                         </a> 
 
                                                         <ul class="dropdown-menu pull-right">
-                                                            <li v-if="item.estado == 'ACT' "><a class="" v-on:click="editar(item)">Editar</a></li>
-                                                            <li v-if="item.estado == 'ACT' "><a class="change-estado pointer" >Desactivar</a></li>
-                                                            <li v-if="item.estado == 'ACT' "><a class="pointer ver-aula-horario" rel='{{:id}}'>Ver horario</a></li>
-
-                                                            <li v-if="item.estado != 'ACT' "><a class="change-estado pointer" >Activar</a></li>
-
-                                                            <li><a class="eliminar-aula pointer" >Eliminar</a></li>
+                                                            <li v-if="item.estado == 'ACT' "><a v-on:click="editar(item)">Editar</a></li>
+                                                            <li v-if="item.estado == 'ACT' "><a v-on:click="cambiarEstado(item, 'INA')">Desactivar</a></li>
+                                                            <li v-if="item.estado == 'INA' "><a v-on:click="cambiarEstado(item, 'ACT')">Activar</a></li>
+                                                            <li v-if="item.estado == 'ACT' "><a v-on:click="verHorarioAula(item)">Ver horario</a></li>
+                                                            <li><a v-on:click='eliminarAula(item)'>Eliminar</a></li>
 
                                                             <template v-if="item.tipoAmbiente != 'EDI' ">
                                                                 <li class="divider"></li>
-                                                                <li><a v-on:click="verInventario(item)" >Inventario</a></li>
+                                                                <li><a v-on:click="verInventarioPage(item)" >Inventario</a></li>
                                                                 <li><a v-on:click="verInventarioResumen(item)" >Resumen Inventario</a></li>
                                                                 <li><a v-on:click="horarioSemanalPDF(item)" class="descarga-pdf">Reporte PDF</a></li>
                                                             </template>
@@ -238,21 +237,23 @@
                         </section>
                     </section>
                 </section>
+                
+                <div th:substituteby="general/aula/modalAula"/>
             </div>
-            <div th:substituteby="templates/modal"/>
-            <div th:substituteby="general/aula/modalAula"/>
             <div th:substituteby="general/aula/aulaHorarioComponent"/>
-            <script id="aulaTemplate" type="text/x-jsrender" class="hide"><div th:substituteby="general/aula/aulaTemplate"/></script>
+
+            <div th:substituteby="templates/modal"/>
+            <!--<script id="aulaTemplate" type="text/x-jsrender" class="hide"><div th:substituteby="general/aula/aulaTemplate"/></script>-->
         </div>
 
-        <div layout:fragment="js">
+        <div layout:fragment="js" th:remove="tag">
             <script  th:inline="javascript" >
                 /*<![CDATA[*/
                 var rutaModulo = 'general/aula';
                 /*]]>*/
             </script>
-            <div th:substituteby="_layout/includes :: javascript-filedownload"/>
             <div th:substituteby="_modules/vue-modal"/>
+            <div th:substituteby="_layout/includes :: javascript-filedownload"/>
             <div th:substituteby="_modules/vue-raptor-table"></div>
             <!--<div th:substituteby="_layout/includes :: javascript-dynatable"/>-->
             <script th:src="@{/app/general/aula/aulaHorarioComponent.js}" charset="utf-8"></script>

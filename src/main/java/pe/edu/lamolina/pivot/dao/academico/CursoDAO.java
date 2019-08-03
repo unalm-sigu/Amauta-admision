@@ -57,4 +57,6 @@ public interface CursoDAO extends EasyDAO<Curso> {
 
     List<Curso> searchLikeNombreNotIn(String parametro, List<Curso> cursos);
 
+    Curso findCurso(Curso curso);
+
 }

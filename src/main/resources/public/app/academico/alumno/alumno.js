@@ -35,9 +35,31 @@ new Vue({
             let $vue = this;
             return APP.url('academico/alumno/' + item.id + '/gomatricula') + $vue.getOrigenURL();
         },
+        urlConfigCursos(item) {
+            let $vue = this;
+            return APP.url('academico/alumno/' + item.id + '/configcursos') + $vue.getOrigenURL();
+        },
+        urlConvalidarTraslado(item) {
+            let $vue = this;
+
+            axios.post("/academico/alumno/verificarTramiteTraslado", item)
+                    .then(response => {
+                        if (response.data.success) {
+                            location.href = '/academico/alumno/' + item.id + '/trasladoexterno' + $vue.getOrigenURL();
+                        } else {
+                            notify("El alumno " + item.persona.apellidosNombres + " no tiene resolución de traslado externo", "warning");
+                        }
+                    }).catch(e => {
+                notify(MESSAGES.errorComunicacion, "error");
+            });
+//            return APP.url('academico/alumno/' + item.id + '/trasladoexterno') + $vue.getOrigenURL();
+        },
         getOrigenURL() {
             var url = window.location.href;
             return "?origen=" + Base64.encode(url);
+        },
+        isPosgrado(modalidad) {
+            return modalidad.codigo == 'EPG' ? true : false;
         },
         verModalidades(tipo) {
             let $vue = this;

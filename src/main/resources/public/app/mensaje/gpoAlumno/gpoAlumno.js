@@ -6,7 +6,7 @@ new Vue({
         cicloAcademico: JSON.parse(cicloJson),
         addGpoAlumno: {
             id: 'modalGpoAlumno',
-            header: 'true',
+            header: true,
             title: 'Crear Grupo Alumno',
             okbtn: 'Guardar',
             showaccept: true,

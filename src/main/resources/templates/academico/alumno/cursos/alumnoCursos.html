@@ -1,0 +1,39 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title> Nuevo Alumno Fisico </title>
+    </head>
+    <body>
+        <section layout:fragment="main">
+            <div id="alumnoCursosVUE" v-cloak=''>
+                <header class="header b-b padder-lg">
+                    <div class="btn-group pull-right">
+                        <a class="btn btn-primary" v-on:click="opencursoCurrila">Nuevo Curso</a>
+                    </div>
+                    <h3 class="text-primary" v-text='alumno.persona.nombreCompleto'></h3>
+                </header>
+                <section   class="wrapper-lg">
+                    <section class="panel">
+                        <section class="panel-body">
+                            <div th:substituteby="academico/alumno/cursos/alumnoCursosList"/>
+                        </section>
+                    </section>
+                </section>
+                <div th:substituteby="academico/alumno/cursos/alumnoCursosModal"/>
+            </div>
+            <div th:substituteby="templates/modal"/>
+            <script  th:inline="javascript" >
+                /*<![CDATA[*/
+                var rutaModulo = /*[[${rutaModulo}]]*/'';
+                var idAlumno = /*[[${idAlumno}]]*/ null;
+                var origen = /*[[${origen}]]*/ '';
+                var alumnoJson = /*[[${alumnoJson.toString()}]]*/null;
+                /*]]>*/
+            </script>
+        </section>
+        <div layout:fragment="js">
+            <div th:substituteby="_modules/vue-raptor-table"></div>
+            <div th:substituteby="_modules/vue-modal"></div>
+            <script th:src="@{/app/academico/alumno/alumnoCursos.js}" charset="utf-8"></script>
+        </div>
+    </body>
+</html>

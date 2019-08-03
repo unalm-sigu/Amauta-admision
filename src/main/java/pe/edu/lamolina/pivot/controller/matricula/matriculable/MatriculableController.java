@@ -34,6 +34,7 @@ import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.NumberFormat;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.ConfiguracionTurnosAtencion;
@@ -47,6 +48,8 @@ import static pe.edu.lamolina.model.enums.RolEnum.TODO;
 import pe.edu.lamolina.model.enums.TipoCicloEnum;
 import pe.edu.lamolina.model.enums.TipoCondicionalEnum;
 import pe.edu.lamolina.pivot.controller.academico.alumno.AlumnoResumen;
+import pe.edu.lamolina.pivot.controller.academico.promedio.ContadorComponent;
+import pe.edu.lamolina.pivot.controller.visores.RespositorVisor;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.constant.Messages;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -59,6 +62,9 @@ public class MatriculableController {
 
     @Autowired
     MatriculableService service;
+
+    @Autowired
+    RespositorVisor repositorVisor;
 
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {
@@ -95,7 +101,7 @@ public class MatriculableController {
 
         for (TipoCondicionalEnum value : TipoCondicionalEnum.values()) {
             if (value == TipoCondicionalEnum.OTRO) {
-                
+
                 ObjectNode obj = new ObjectNode(JsonNodeFactory.instance);
                 obj.put("name", value.name());
                 obj.put("value", value.getValue());
@@ -145,8 +151,8 @@ public class MatriculableController {
         try {
 
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
-
-            List<MatriculaResumen> matriculables = service.allAlumnosByCicloRolDynatable(filter, ds.getCicloAcademico(), ds.getRolActivo().getCodigo(), filtros);
+            List<CicloAcademico> cicloAcademicos = service.allCiclosActivos();
+            List<MatriculaResumen> matriculables = service.allAlumnosByCicloRolDynatable(filter, cicloAcademicos, ds.getRolActivo().getCodigo(), filtros);
             for (MatriculaResumen matriculable : matriculables) {
                 ObjectNode node = JsonHelper.createJson(matriculable, JsonNodeFactory.instance, true,
                         new String[]{
@@ -514,11 +520,33 @@ public class MatriculableController {
         JsonResponse response = new JsonResponse();
 
         try {
+            if (repositorVisor.isLibre()) {
+                List<AlumnoCiclo> alumnoCiclos = service.allAlumnosCicloNmat(ds.getCicloAcademico());
 
-            service.verificarAlumnosNmat(ds);
-            response.setMessage("Se verificó satisfactoriamente.");
-            response.setSuccess(true);
+                service.verificarAlumnosNmat(ds, alumnoCiclos);
+            }
+            response.setData(repositorVisor.porcentajeAvance());
+            response.setMessage(repositorVisor.getMessage());
+            response.setSuccess(repositorVisor.isLibre());
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
 
+    }
+
+    @ResponseBody
+    @RequestMapping("verificarAvance")
+    public JsonResponse verificarAvance(HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        JsonResponse response = new JsonResponse();
+
+        try {
+            response.setData(repositorVisor.porcentajeAvance());
+            response.setMessage(repositorVisor.getMessage());
+            response.setSuccess(repositorVisor.isLibre());
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {

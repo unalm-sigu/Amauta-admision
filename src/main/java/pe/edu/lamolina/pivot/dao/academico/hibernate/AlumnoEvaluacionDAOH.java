@@ -19,33 +19,34 @@ import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.MAT;
 
 @Repository
 public class AlumnoEvaluacionDAOH extends AbstractEasyDAO<AlumnoEvaluacion> implements AlumnoEvaluacionDAO {
-
+    
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
+    
     public AlumnoEvaluacionDAOH() {
         super();
         setClazz(AlumnoEvaluacion.class);
     }
-
+    
     @Override
     public List<AlumnoEvaluacion> allByFilter(Long idEvaluacionSeccion, Long idGrupoSeccion, Long idSeccion, Long idEvaluacion) {
         return this.allByFilter(idEvaluacionSeccion, idGrupoSeccion, idSeccion, idEvaluacion, null);
     }
-
+    
     @Override
     public List<AlumnoEvaluacion> allByEvaluacionExp(Long idEvaluacionExpandida) {
         return this.allByFilter(null, null, null, null, idEvaluacionExpandida);
     }
-
+    
     @Override
     public List<AlumnoEvaluacion> allByFilter(Long idEvaluacionSeccion, Long idGrupoSeccion, Long idSeccion, Long idEvaluacion, Long idEvaluacionExpandida) {
-
+        
         Octavia sql = Octavia.query()
                 .from(AlumnoEvaluacion.class, "aeva")
+                .join("alumno al", "al.modalidadEstudio")
                 .join("evaluacion eva", "eva.evaluacionSeccion es", "eva.tipoEvaluacion te")
                 .join("es.grupoSeccion gs", "eva.evaluacionExpandida evaex")
                 .left("eva.seccionResponsable sr", "eva.evaluacionSuperior evaSup", "evaSup.tipoEvaluacion te2");
-
+        
         if (idEvaluacionSeccion != null) {
             sql.filter("es.id", idEvaluacionSeccion);
         }
@@ -61,10 +62,10 @@ public class AlumnoEvaluacionDAOH extends AbstractEasyDAO<AlumnoEvaluacion> impl
         if (idEvaluacionExpandida != null) {
             sql.filter("evaex.id", idEvaluacionExpandida);
         }
-
+        
         return all(sql);
     }
-
+    
     @Override
     public List<AlumnoEvaluacion> allByFilter(Long idEvaluacionSeccion, Long idGrupoSeccion, Long idSeccion, Long idALumno, Long idCurso, Long idCicloAcademico, String orderBy) {
         Octavia sql = Octavia.query()
@@ -72,7 +73,7 @@ public class AlumnoEvaluacionDAOH extends AbstractEasyDAO<AlumnoEvaluacion> impl
                 .join("evaluacion eva", "alumno alu", "usuarioIngresoNota ureg", "ureg.persona per")
                 .join("eva.evaluacionSeccion es", "eva.tipoEvaluacion te", "es.grupoSeccion gs", "gs.curso cur", "gs.cicloAcademico cic")
                 .left("eva.seccionResponsable sr", "eva.evaluacionSuperior evaSup", "evaSup.tipoEvaluacion te2");
-
+        
         if (orderBy != null) {
             sql.orderBy(orderBy);
         }
@@ -94,10 +95,10 @@ public class AlumnoEvaluacionDAOH extends AbstractEasyDAO<AlumnoEvaluacion> impl
         if (idCicloAcademico != null) {
             sql.filter("cic.id", idCicloAcademico);
         }
-
+        
         return all(sql);
     }
-
+    
     @Override
     public List<AlumnoEvaluacion> allBySeccion(Long idSeccion) {
         Octavia sql = Octavia.query()
@@ -106,13 +107,13 @@ public class AlumnoEvaluacionDAOH extends AbstractEasyDAO<AlumnoEvaluacion> impl
                 .join("eva.evaluacionSeccion es", "eva.tipoEvaluacion te", "es.grupoSeccion gs")
                 .left("eva.seccionResponsable sr")
                 .filter("sr.id", idSeccion);
-
+        
         return all(sql);
     }
-
+    
     @Override
-    public List<AlumnoEvaluacion> allByAlumnoCursoCiclo(Alumno alumno, Curso curso, CicloAcademico ciclo) {
-
+    public List<AlumnoEvaluacion> allByAlumnoCursoCiclo(Alumno alumno, Curso curso, CicloAcademico ciclo, CicloAcademico cicloMod) {
+        
         StringBuilder sql = new StringBuilder();
         sql.append("  from ").append(AlumnoEvaluacion.class.getName()).append(" as ae ");
         sql.append("  join fetch ae.evaluacion eva ");
@@ -131,7 +132,7 @@ public class AlumnoEvaluacionDAOH extends AbstractEasyDAO<AlumnoEvaluacion> impl
         sql.append("         from ").append(MatriculaSeccion.class.getName()).append(" ms ");
         sql.append("         join ms.matriculaResumen mr ");
         sql.append("        where mr.alumno.id = alu.id ");
-        sql.append("          and mr.cicloAcademico.id = ca.id ");
+        sql.append("          and mr.cicloAcademico.id = :CICLOMOD ");
         sql.append("          and ms.seccion.id = sec.id ");
         sql.append("          and ms.estado = :ESTADO ");
         sql.append("   ) ");
@@ -140,34 +141,35 @@ public class AlumnoEvaluacionDAOH extends AbstractEasyDAO<AlumnoEvaluacion> impl
         sql.append("         from ").append(MatriculaCurso.class.getName()).append(" mc ");
         sql.append("         join mc.matriculaResumen mr ");
         sql.append("        where mr.alumno.id = alu.id ");
-        sql.append("          and mr.cicloAcademico.id = ca.id ");
+        sql.append("          and mr.cicloAcademico.id = :CICLOMOD ");
         sql.append("          and mc.curso.id = cur.id ");
         sql.append("          and mc.estado = :ESTADO ");
         sql.append("   ) ");
         sql.append(" and evae.estado = 'ACT' ");
-
+        
         if (alumno != null) {
             sql.append("   and alu.id = :ALUMNO ");
         }
         if (curso != null) {
             sql.append("   and cur.id = :CURSO ");
         }
-
+        
         Query query = getCurrentSession().createQuery(sql.toString());
         query.setLong("CICLO", ciclo.getId());
+        query.setLong("CICLOMOD", cicloMod.getId());
         query.setString("ESTADO", MAT.name());
-
+        
         if (alumno != null) {
             query.setLong("ALUMNO", alumno.getId());
         }
         if (curso != null) {
             query.setLong("CURSO", curso.getId());
         }
-
+        
         return query.list();
-
+        
     }
-
+    
     @Override
     public AlumnoEvaluacion findByFilter(Long id, Long idEvaluacion, Long idAlumno) {
         Octavia sql = Octavia.query()
@@ -175,7 +177,7 @@ public class AlumnoEvaluacionDAOH extends AbstractEasyDAO<AlumnoEvaluacion> impl
                 .join("evaluacion eva", "alumno alu")
                 .join("eva.evaluacionSeccion es", "eva.tipoEvaluacion te", "es.grupoSeccion g")
                 .leftJoin("eva.seccionResponsable srs");
-
+        
         if (id != null) {
             sql.filter("aeva.id", id);
         }
@@ -187,7 +189,7 @@ public class AlumnoEvaluacionDAOH extends AbstractEasyDAO<AlumnoEvaluacion> impl
         }
         return find(sql);
     }
-
+    
     @Override
     public void deleteByEvaluacion(Evaluacion evaluacion) {
         String strQuery = "delete from AlumnoEvaluacion eva where eva.evaluacion.id=:prm_evaluacion";
@@ -195,5 +197,5 @@ public class AlumnoEvaluacionDAOH extends AbstractEasyDAO<AlumnoEvaluacion> impl
         query.setLong("prm_evaluacion", evaluacion.getId());
         query.executeUpdate();
     }
-
+    
 }

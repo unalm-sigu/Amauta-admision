@@ -179,9 +179,7 @@ new Vue({
                 success: function (response) {
                     if (response.success) {
                         var horaPost = moment.utc(response.data[0].end, 'YYYY-MM-DD');
-                        var hoyFormat = moment(horaPost)
-                                .add(1, 'days');
-                        console.log(hoyFormat.format('YYYY-MM-DD'));
+                        var hoyFormat = moment(horaPost).add(1, 'days');
                         response.data[0].end = hoyFormat.format('YYYY-MM-DD');
                         vue.$refs.fullcalendar.addEventSource(response.data);
                     } else {

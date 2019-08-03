@@ -300,6 +300,16 @@ public class TestController {
     }
 
     @ResponseBody
+    @RequestMapping("trasladarInformcionForHistorialCiclo/{codigo}/{mod}")
+    public String trasladarMatriculaCursoForPromediosCiclo(@PathVariable("codigo") String codigo, @PathVariable("mod") Long modalidad, HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        ds.setFechaAccionAudit(new Date());
+
+        service.trasladarMatriculaCursoForPromediosCiclo(ds, codigo, modalidad);
+        return "yeah";
+    }
+
+    @ResponseBody
     @RequestMapping("trasladarInformcionForHistorial/{alumno}")
     public String trasladarMatriculaCursoForPromedios(HttpSession session, @PathVariable("alumno") Long alumnoId) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);

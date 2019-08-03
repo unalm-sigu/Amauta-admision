@@ -3,6 +3,7 @@ package pe.edu.lamolina.pivot.controller.academico.resolucion.resolucionExistent
 import java.util.List;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.tramite.CambioNota;
 import pe.edu.lamolina.model.tramite.CursoDirigido;
@@ -10,6 +11,7 @@ import pe.edu.lamolina.model.tramite.Reincorporacion;
 import pe.edu.lamolina.model.tramite.Resolucion;
 import pe.edu.lamolina.model.tramite.RetiroCiclo;
 import pe.edu.lamolina.model.tramite.TipoResolucion;
+import pe.edu.lamolina.model.tramite.TramiteTraslado;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface ResolucionExistenteService {
@@ -35,5 +37,11 @@ public interface ResolucionExistenteService {
     public List<CambioNota> allCambioNota(Resolucion resolucionDB);
 
     public List<CursoDirigido> allCursodirigido(Resolucion resolucionDB);
+
+    public void saveCursoDirigido(Resolucion resolucion, Usuario usuario, DataSessionPivot ds);
+
+    void saveTramiteTraslado(Resolucion resolucion, Usuario usuario, CicloAcademico cicloAcademico, Compania compania);
+
+    TramiteTraslado findTramiteTraslado(Resolucion resolucionDB);
 
 }

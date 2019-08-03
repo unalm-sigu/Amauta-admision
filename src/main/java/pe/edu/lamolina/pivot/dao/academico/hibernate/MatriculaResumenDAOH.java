@@ -49,7 +49,7 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
                 .from(MatriculaResumen.class, "mr")
                 .join("alumno alu", "cicloAcademico ca", "alu.situacionAcademica ")
                 .filter("alu.id", alumno)
-                .filter("ca.id", ciclo);
+                .filter("ca.codigo", ciclo.getCodigo());
 
         return find(sql);
     }
@@ -119,11 +119,11 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
         sql.append(" inner join al.modalidadEstudio moe ");
         sql.append(" inner join car.facultad fac ");
         sql.append(" where ");
-        sql.append(" ca.id=:prm_ciclo ");
+        sql.append(" ca.codigo=:prm_ciclo ");
 
         Query query = getCurrentSession().createQuery(sql.toString());
         //  query.setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
-        query.setParameter("prm_ciclo", ciclo.getId());
+        query.setParameter("prm_ciclo", ciclo.getCodigo());
         query.setString("PRE", PRE.name());
         query.setString("EPG", EPG.name());
         query.setString("VIS", VIS.name());
@@ -132,7 +132,7 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
     }
 
     @Override
-    public List<MatriculaResumen> allByCicloRolDynatable(DynatableFilter filter, CicloAcademico ciclo, String codigo, List<Long> filtros) {
+    public List<MatriculaResumen> allByCicloRolDynatable(DynatableFilter filter, List<CicloAcademico> ciclos, String codigo, List<Long> filtros) {
 
         DynatableSql sql = new DynatableSql(filter);
         switch (RolEnum.valueOf(codigo)) {
@@ -143,7 +143,7 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
                         .join("alumno al", "cicloAcademico ca", "al.persona per", "per.tipoDocumento tdoc", "al.carrera car", "al.situacionAcademica sita")
                         .join("ca.modalidadEstudio moe", "car.facultad fac")
                         .leftJoin("al.cicloIngreso ci", "al.cicloActivo cia", "turnoAtencion ta", "cicloAcademicoInfo")
-                        .filter("ca.id", ciclo)
+                        .in("ca.id", ciclos)
                         .searchFields("car.nombre", "fac.nombre", "al.codigo", "mr.prioridad", "mr.puntajePrioridad")
                         .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                         .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
@@ -156,7 +156,7 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
                         .join("alumno al", "cicloAcademico ca", "al.persona per", "per.tipoDocumento tdoc", "al.carrera car", "al.situacionAcademica sita")
                         .join("ca.modalidadEstudio moe", "car.facultad fac")
                         .leftJoin("al.cicloIngreso ci", "al.cicloActivo cia", "turnoAtencion ta", "cicloAcademicoInfo")
-                        .filter("ca.id", ciclo)
+                        .in("ca.id", ciclos)
                         .searchFields("car.nombre", "fac.nombre", "al.codigo", "mr.prioridad", "mr.puntajePrioridad")
                         .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                         .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")

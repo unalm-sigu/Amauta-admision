@@ -15,6 +15,7 @@ import pe.edu.lamolina.model.academico.ResumenPlanCurricular;
 import pe.edu.lamolina.model.academico.TipoCursoCurricula;
 import pe.edu.lamolina.model.matricula.AlumnoAvanceCurricular;
 import pe.edu.lamolina.model.matricula.AlumnoCursoCurricula;
+import pe.edu.lamolina.model.posgrado.CursoHabilEscuela;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface AvanceCurricularAsincronoService {
@@ -86,5 +87,17 @@ public interface AvanceCurricularAsincronoService {
             Map<Long, List<CursoOpcionalCurricula>> mapCursoOpcionalAll,
             List<PlanCurricular> planCurriculars,
             Map<Long, List<CursoCurricula>> mapCursoCurriculaAll,
+            List<CursoHabilEscuela> habilEscuelas,
+            DataSessionPivot ds);
+
+    public void procesarAlumnoSincronoPros(Alumno alumnoBD, Map<Long, CursoCurricula> mapCursoCurricula,
+            Map<String, AlumnoCicloCurso> mapCursosVecesLlevado, List<MatriculaCurso> cursosMatriculados,
+            List<AlumnoCicloCurso> cursosAprobados, Map<Long, CursoCurricula> mapCursoCurriculaByCurso,
+            List<CursoOpcionalCurricula> cursoOpcionaPlan,
+            List<ResumenPlanCurricular> resumenPlanCurriculars,
+            List<TipoCursoCurricula> tipoCursoCurriculas,
+            List<AlumnoAvanceCurricular> avanceCurriculars,
+            List<AlumnoCursoCurricula> alumnoCursoOld,
+            List<CursoHabilEscuela> cursoHabilEscuelas,
             DataSessionPivot ds);
 }

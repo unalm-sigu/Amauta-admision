@@ -11,7 +11,6 @@ new Vue({
     },
     created() {
         let vue = this;
-        // console.log(alumno);
     },
     mounted: function () {
         let vue = this;

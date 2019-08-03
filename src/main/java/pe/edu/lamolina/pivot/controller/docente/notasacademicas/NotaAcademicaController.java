@@ -43,7 +43,6 @@ import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.NumberFormat;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
-import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoEvaluacion;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
@@ -1060,7 +1059,7 @@ public class NotaAcademicaController {
         List<Evaluacion> evaluacionesBySeccionFinal = service.allEvaluacionesByTipoSeccion(matriculaSeccion.getSeccion());
 
         List<AlumnoEvaluacion> alumnosEvaluaciones = service.allEvaluacionsByFilter(matriculaSeccion.getMatriculaResumen().getAlumno(),
-                matriculaSeccion.getSeccion().getGrupoSeccion().getCurso(), cicloAcademico);
+                matriculaSeccion.getSeccion().getGrupoSeccion().getCurso(), cicloAcademico, matriculaSeccion.getMatriculaResumen().getCicloAcademico());
         List<Evaluacion> evaluacionesDisponibles = new ArrayList<>();
 
         for (AlumnoEvaluacion alumnoEvaluacion : alumnosEvaluaciones) {

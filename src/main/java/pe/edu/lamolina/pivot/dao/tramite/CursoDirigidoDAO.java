@@ -3,6 +3,7 @@ package pe.edu.lamolina.pivot.dao.tramite;
 import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.easydao.EasyDAO;
+import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.tramite.CursoDirigido;
@@ -22,4 +23,6 @@ public interface CursoDirigidoDAO extends EasyDAO<CursoDirigido> {
     public List<CursoDirigido> allByResolucion(DynatableFilter filter, Resolucion resolucion);
 
     public List<CursoDirigido> allByResolucion(Resolucion resolucion);
+
+    public List<CursoDirigido> allByCicloAcademicoSol(CicloAcademico cicloAcademico);
 }

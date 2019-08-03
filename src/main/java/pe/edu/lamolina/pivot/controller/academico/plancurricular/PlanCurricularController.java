@@ -1693,4 +1693,24 @@ public class PlanCurricularController {
         }
         return response;
     }
+    @ResponseBody
+    @RequestMapping("allUpdateResumenPost")
+    public JsonResponse allUpdateResumenPost(HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            service.allUpdateResumenPost();
+            response.setSuccess(true);
+            response.setMessage("Se modifico el resumen exitosamente");
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (RuntimeException e) {
+            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
 }

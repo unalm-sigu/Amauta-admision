@@ -22,6 +22,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -36,6 +37,8 @@ import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.CursoCicloAcademico;
+import pe.edu.lamolina.model.academico.CursoConvalidado;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.enums.AmbienteAplicacionEnum;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.EPG;
@@ -44,7 +47,9 @@ import pe.edu.lamolina.model.enums.ParametrosSistemasEnum;
 import pe.edu.lamolina.model.enums.TipoOficinaEnum;
 import pe.edu.lamolina.model.general.Parametro;
 import pe.edu.lamolina.model.general.Persona;
+import pe.edu.lamolina.model.matricula.AlumnoCursoCurricula;
 import pe.edu.lamolina.model.seguridad.Usuario;
+import pe.edu.lamolina.model.tramite.TramiteTraslado;
 import pe.edu.lamolina.pivot.config.DespliegueConfig;
 import pe.edu.lamolina.pivot.controller.academico.visitante.AlumnoHelper;
 import pe.edu.lamolina.pivot.controller.seguridad.verificador.VerificadorService;
@@ -56,6 +61,7 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 public class AlumnoController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final String rutaModulo = this.getClass().getAnnotation(RequestMapping.class).value()[0];
 
     @Autowired
     AlumnoService service;
@@ -364,6 +370,187 @@ public class AlumnoController {
             return sb.toString();
         }
         return "redirect:/";
+    }
+
+    @RequestMapping("{idAlumno}/configcursos")
+    public String configcursos(@PathVariable("idAlumno") Long idAlumno,
+            @RequestParam(value = "origen", required = false) String origen,
+            Model model, HttpSession session) {
+        Alumno alumno = service.findAlumnoFisico(idAlumno);
+        model.addAttribute("origen", getOrigen(origen));
+        model.addAttribute("idAlumno", alumno.getId());
+        model.addAttribute("alumnoJson", JsonHelper.createJson(alumno, JsonNodeFactory.instance, new String[]{"*", "persona.*"}));
+        model.addAttribute("rutaModulo", rutaModulo);
+        return "academico/alumno/cursos/alumnoCursos";
+    }
+
+    @ResponseBody
+    @RequestMapping("allCursoCurriculaAlumno/{idAlumno}")
+    public DynatableResponse allCursos(DynatableFilter filter, @PathVariable("idAlumno") Long idAlumno) {
+        DynatableResponse response = new DynatableResponse();
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        ArrayNode array = new ArrayNode(jsonFactory);
+        try {
+            System.out.println("ID ALUMNO :::" + idAlumno);
+            List<AlumnoCursoCurricula> cursos = service.allCursosByAlumno(new Alumno(idAlumno), filter);
+            System.out.println("CURSOS:::" + cursos.size());
+            cursos.forEach(curso -> {
+                ObjectNode node = JsonHelper.createJson(curso, jsonFactory,
+                        new String[]{
+                            "*",
+                            "alumno.*",
+                            "cursoCurricula.*",
+                            "tipoCursoCurriculaOrigen.*",
+                            "tipoCursoCurricula.*",
+                            "cursoOpcional.*",
+                            "curso.*",
+                            "cicloAprobado.*",});
+                array.add(node);
+            });
+            response.setData(array);
+            response.setTotal(filter.getTotal());
+            response.setFiltered(filter.getFiltered());
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.setTotal(0);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("allCursoCiclo")
+    public JsonResponse allCursoCiclo(@RequestParam("nombre") String nombre, HttpSession session) {
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            ArrayNode array = new ArrayNode(jsonFactory);
+            List<CursoCicloAcademico> cursos = service.allCursoCiclo(nombre, ds.getCicloAcademico());
+            for (CursoCicloAcademico curso : cursos) {
+                ObjectNode node = JsonHelper.createJson(curso.getCurso(), jsonFactory,
+                        new String[]{"id", "codigo", "nombre", "creditos", "tipoCurso", "tipoCurricula"});
+                array.add(node);
+            }
+            response.setData(array);
+            response.setTotal(array.size());
+            response.setSuccess(true);
+
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("saveCursoCurricula")
+    public JsonResponse saveCursoCurricula(@RequestBody AlumnoCursoCurricula alumnoCursoCurricula, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            service.saveCursoCurricula(alumnoCursoCurricula, ds.getCicloAcademico(), ds.getUsuario());
+            response.setSuccess(Boolean.TRUE);
+            response.setMessage("Curso Agregado");
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        }
+        return response;
+    }
+
+    @RequestMapping("{idAlumno}/trasladoexterno")
+    public String convalTrasladoExterno(@PathVariable("idAlumno") Long idAlumno,
+            @RequestParam(value = "origen", required = false) String origen, Model model, HttpSession session) {
+
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+            Alumno alumno = service.findAlumnoFisico(idAlumno);
+            List<TramiteTraslado> listTramiteTraslado = service.allTramiteTrasladoByAlumno(alumno);
+            model.addAttribute("origen", getOrigen(origen));
+            model.addAttribute("listAlumnoCursoCurriculaJson", createListAlumnoCursoCurricula(service.allAlumnoCursoCurso(alumno)));
+            model.addAttribute("listCursoConvalidadoJson", createListCursoConvalidado(service.alllCursoConvalidadoInTraslado(listTramiteTraslado)));
+            model.addAttribute("cicloJson", JsonHelper.createJson(ds.getCicloAcademico(), JsonNodeFactory.instance, new String[]{"id", "descripcion"}));
+            model.addAttribute("alumnoJson", createAlumnoJson(alumno));
+            model.addAttribute("rutaModulo", rutaModulo);
+            model.addAttribute("listTramiteTrasladoJson", createListTramiteTrasladoJson(listTramiteTraslado));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "academico/alumno/trasladoexterno/trasladoexterno";
+    }
+
+    @ResponseBody
+    @RequestMapping("saveListCursoConvalidado")
+    public JsonResponse saveListCursoConvalidado(@RequestBody TrasladoBean trasladoBean, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            service.saveListCursoConvalidado(trasladoBean, ds.getUsuario(), ds.getCicloAcademico());
+            response.setSuccess(Boolean.TRUE);
+            response.setMessage("Los cursos fueron registrados satisfactoriamente.");
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("verificarTramiteTraslado")
+    public JsonResponse verificarTramiteTraslado(@RequestBody Alumno alumno, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            service.verificarTramiteTraslado(alumno);
+            response.setSuccess(Boolean.TRUE);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        }
+        return response;
+    }
+
+    private ArrayNode createListAlumnoCursoCurricula(List<AlumnoCursoCurricula> listAlumnoCursoCurricula) {
+        ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+        for (AlumnoCursoCurricula item : listAlumnoCursoCurricula) {
+            ObjectNode node = JsonHelper.createJson(item, JsonNodeFactory.instance, new String[]{
+                "id", "numeroCiclo",
+                "tipoCursoCurricula.id", "tipoCursoCurricula.nombre", "tipoCursoCurricula.codigo",
+                "curso.id", "curso.codigo", "curso.nombre", "curso.creditos", "curso.tipoCurso"});
+            array.add(node);
+        }
+        return array;
+    }
+
+    private ArrayNode createListCursoConvalidado(List<CursoConvalidado> listCursoConvalidado) {
+        ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+        for (CursoConvalidado item : listCursoConvalidado) {
+            ObjectNode node = JsonHelper.createJson(item, JsonNodeFactory.instance, new String[]{
+                "id", "fechaRegistro", "curso.id", "curso.nombre", "curso.codigo", "curso.creditos", "curso.tipoCurso"});
+            array.add(node);
+        }
+        return array;
+    }
+
+    private ObjectNode createAlumnoJson(Alumno alumno) {
+        return JsonHelper.createJson(alumno, JsonNodeFactory.instance, new String[]{
+            "*", "modalidadEstudio.id", "modalidadEstudio.codigo",
+            "carrera.id", "carrera.nombre", "carrera.facultad.id", "carrera.facultad.nombre",
+            "persona.*", "persona.tipoDocumento.id", "persona.tipoDocumento.simbolo"
+        });
+    }
+
+    private ArrayNode createListTramiteTrasladoJson(List<TramiteTraslado> listTramiteTraslado) {
+        ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+        for (TramiteTraslado item : listTramiteTraslado) {
+            ObjectNode node = JsonHelper.createJson(item, JsonNodeFactory.instance, new String[]{
+                "id", "estado", "tramite.id",
+                "tramite.alumno.persona.id", "cicloAcademico.id",
+                "resolucion.id", "resolucion.fecha", "resolucion.estado",
+                "resolucion.serie", "resolucion.numero", "resolucion.rutaUrl", "resolucion.fechaRegistro",
+                "resolucion.userRegistro.persona.apellidosNombres",
+                "resolucion.tipoResolucion.id", "resolucion.tipoResolucion.nombre",
+                "resolucion.oficina.id", "resolucion.oficina.codigo", "resolucion.oficina.nombre"
+            });
+            array.add(node);
+        }
+        return array;
     }
 
 }
