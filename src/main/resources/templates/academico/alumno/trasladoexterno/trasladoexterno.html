@@ -3,7 +3,7 @@
         <title>Alumnos</title> 
     </head>
     <body>
-        <section  layout:fragment="main">
+        <section layout:fragment="main">
             <div id="convalTrasladoExterno" v-cloak="">
                 <header class="header b-b padder-lg">
                     <h2>Convalidación de Traslado Externo</h2>
@@ -27,9 +27,7 @@
                                             <img v-else-if="alumno.persona.tipoFoto=='COMUN'"
                                                  class="img-responsive img-thumbnail img-circle" 
                                                  v-bind:src="alumno.persona.rutaFoto" />
-
-                                            <img v-else="" 
-                                                 class="img-foto-tempo img-responsive img-thumbnail img-circle" v-bind:src="alumno.persona.rutaFoto" />
+                                            <img v-else="" class="img-foto-tempo img-responsive img-thumbnail img-circle" v-bind:src="alumno.persona.rutaFoto" />
                                         </td>
                                         <td class="col-lg-4 v-middle">
                                             <div class='text-left'>
@@ -65,10 +63,9 @@
                                         </td>
                                         <td class="col-lg-5">
                                             <div class="alert alert-warning text-center" v-if="tramiteTrasladoActivo === null" role="alert">
-                                                Actualmente no cuenta con una resolucion de traslado externo activo.
+                                                Actualmente no cuenta con una resolución de traslado externo activo.
                                             </div>
                                         </td>
-
                                     </tr>
                                 </tbody>
                             </table>
@@ -162,8 +159,8 @@
                                                 <div class="col-md-2">
                                                     <div class="col-md-12">
                                                         <span><b>Fecha Resolución: </b>{{item.resolucion.fecha}}</span>
-                                                        <span v-if="item.estado === 'ACT'" class="badge badge-success"><b>Estado: </b>{{returnEstado(item.estado)}}</span>
-                                                        <span v-if="item.estado === 'INA'" class="badge badge-secondary"><b>Estado: </b>{{returnEstado(item.estado)}}</span>
+                                                        <p v-if="item.estado === 'ACT'"><b>Estado: </b> <span class="label label-success" >{{returnEstado(item.estado)}}</span></p>
+                                                        <p v-if="item.estado === 'INA'"><b>Estado: </b> <span class="label label-default" >{{returnEstado(item.estado)}}</span></p>
                                                     </div> 
                                                 </div> 
                                                 <div class="col-md-4">
