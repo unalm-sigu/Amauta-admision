@@ -29,6 +29,7 @@ import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.CursoCurriculaEstadoEnum;
+import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import pe.edu.lamolina.model.enums.EstadoTramiteEnum;
 import pe.edu.lamolina.model.enums.OrigenDataSituacionAcademicaEnum;
@@ -617,6 +618,7 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
             tramiteTraslado.setResolucion(resolucion);
             tramiteTraslado.setFechaRegistro(new Date());
             tramiteTraslado.setUserRegistro(usuario);
+            tramiteTraslado.setEstado(EstadoEnum.ACT.name());
             tramiteTrasladoDAO.save(tramiteTraslado);
         }
     }

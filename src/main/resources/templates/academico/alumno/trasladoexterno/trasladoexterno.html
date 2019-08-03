@@ -1,11 +1,211 @@
-
-<html>
+<html layout:decorator="_layout/layout">
     <head>
-        <title>TODO supply a title</title>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Alumnos</title> 
     </head>
     <body>
-        <div>TODO write content</div>
+        <section  layout:fragment="main">
+            <div id="convalTrasladoExterno" v-cloak="">
+                <header class="header b-b padder-lg">
+                    <h2>Convalidación de Traslado Externo</h2>
+                    <div class="pull-right m-t-md">
+                        <a th:href="${origen}" class="btn btn-default">Regresar</a>
+                    </div>
+                    <header-info-component v-bind:alumno="alumno"></header-info-component>
+                    <div style="height: 50px"></div>
+                </header>
+                <div class="wrapper-md">
+                    <section class="panel">
+                        <section class="panel-body">
+                            <table>
+                                <tbody>
+                                    <tr>
+                                        <td class="col-lg-2 v-middle">
+                                            <div v-if="alumno.persona.tipoFoto=='POSTUL'" 
+                                                 class="img-responsive img-thumbnail img-circle div-foto-list">
+                                                <img class="img-foto-list" v-bind:src="alumno.persona.rutaFoto" />
+                                            </div>
+                                            <img v-else-if="alumno.persona.tipoFoto=='COMUN'"
+                                                 class="img-responsive img-thumbnail img-circle" 
+                                                 v-bind:src="alumno.persona.rutaFoto" />
+
+                                            <img v-else="" 
+                                                 class="img-foto-tempo img-responsive img-thumbnail img-circle" v-bind:src="alumno.persona.rutaFoto" />
+                                        </td>
+                                        <td class="col-lg-4 v-middle">
+                                            <div class='text-left'>
+                                                <div class="row h5 m-t-n m-b" v-if="alumno.persona.paterno != null ">
+                                                    <div class="col-lg-2 bold">Paterno</div>
+                                                    <div class="col-lg-10" v-text="alumno.persona.paterno"></div>
+                                                </div>
+                                                <div class="row h5 m-t-xs m-b" v-if="alumno.persona.materno != null ">
+                                                    <div class="col-lg-2 bold">Materno</div>
+                                                    <div class="col-lg-10" v-text="alumno.persona.materno"></div>
+                                                </div>
+                                                <div class="row h5 m-t-xs m-b">
+                                                    <div class="col-lg-2 bold">Nombres</div>
+                                                    <div class="col-lg-10" v-text="alumno.persona.nombres"></div>
+                                                </div>
+                                                <div class="row h5 m-t-xs m-b" v-if="alumno.persona.sexo != null ">
+                                                    <div class="col-lg-2 bold">Sexo</div>
+                                                    <div class="col-lg-10" v-text="alumno.persona.sexoEnum.value"></div>
+                                                </div>
+                                                <div class="row h5 m-t-xs m-b" v-if="alumno.persona.numeroDocIdentidad != null ">
+                                                    <div class="col-lg-2 bold" v-text="alumno.persona.tipoDocumento.simbolo"></div>
+                                                    <div class="col-lg-10" v-text="alumno.persona.numeroDocIdentidad"></div>
+                                                </div>
+                                                <div class="row h5 m-t-xs m-b" v-if="alumno.carrera.facultad != null ">
+                                                    <div class="col-lg-2 bold">Facultad</div>
+                                                    <div class="col-lg-10" v-text="alumno.carrera.facultad.nombre"></div>
+                                                </div>
+                                                <div class="row h5 m-t-xs m-b" v-if="alumno.carrera != null">
+                                                    <div class="col-lg-2 bold">Carrera</div>
+                                                    <div class="col-lg-10" v-text="alumno.carrera.nombre"></div>
+                                                </div> 
+                                            </div>
+                                        </td>
+                                        <td class="col-lg-5">
+                                            <div class="alert alert-warning text-center" v-if="tramiteTrasladoActivo === null" role="alert">
+                                                Actualmente no cuenta con una resolucion de traslado externo activo.
+                                            </div>
+                                        </td>
+
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <br/>
+                            <hr/>
+
+                            <div class="row" v-if="tramiteTrasladoActivo != null">
+                                <div class="col-md-12">
+                                    <div class="col-md-7">
+                                        <multiselect v-model="almCursCurricula" 
+                                                     v-bind:options='listAlumnoCursoCOptions'
+                                                     v-bind:custom-label="customLabel"
+                                                     track-by='id'
+                                                     label="nombre"
+                                                     placeholder="Seleccionar curso"
+                                                     deselect-label=""
+                                                     select-label=""
+                                                     v-bind:allow-empty="false"
+                                                     v-bind:preselect="false"
+                                                     >
+                                            <template slot="option" slot-scope="props">
+                                                <span class="option__title text-primary"><b>{{ props.option.curso.nombre }} - {{ props.option.curso.codigo }}</b> </span>
+                                                <div class="option__desc">
+                                                    <span class="option__small text-default"><b>Créditos: </b>  {{ props.option.curso.creditos}}  :  <b>Número de Ciclo Académico: </b>  {{ props.option.numeroCiclo }}</span>
+                                                </div>
+                                            </template>
+                                            <template slot="noOptions">La lista se encuentra vacía</template>
+                                            <template slot="noResult">No se encontraron resultados</template>
+                                        </multiselect>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <button class="btn btn-primary" v-on:click="addCurso">Agregar</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <section class="panel">
+                                    <section class="panel-body">
+
+                                        <table class="table table-striped table-hover">
+                                            <thead>
+                                                <tr>
+                                                    <th class="col-md-8" >Curso</th>
+                                                    <th class="col-md-3 text-center">Créditos</th>
+                                                    <th class="col-md-1"></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr v-for="(item, index) in listCursoConvalidado">
+                                                    <td  class="v-middle">
+                                                        <span class="text-primary"><b>{{item.curso.nombre}}</b></span>
+                                                        <p><b> Código: </b>{{item.curso.codigo}} <b> Tipo: </b>{{returnTipoCurso(item.curso.tipoCurso)}}</p>
+                                                    </td>
+                                                    <td  class="v-middle text-center">
+                                                        <span v-text="item.curso.creditos"></span>
+                                                    </td>
+                                                    <td  class="v-middle text-center">
+                                                        <a v-if="item.id === null" v-on:click="deleteItem(index, item)" class="btn btn-danger">
+                                                            <i class="fa fa-trash-o " aria-hidden="true"></i>
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                                <tr v-if="listCursoConvalidado.length !== 0">
+                                                    <td  class="v-middle"></td>
+                                                    <td  class="v-middle text-center"> Total: <b>{{total}}</b></td>
+                                                    <td  class="v-middle"></td> 
+                                                </tr>
+                                            </tbody>
+                                        </table>
+
+                                        <h5 class="m-l-md"><b>   Resolución</b></h5>
+                                        <div v-for="item in listTramiteTraslado"> 
+                                            <div class="row col-md-12">
+                                                <div class="col-md-3">
+                                                    <div class="col-md-12">
+                                                        <span><b>Tipo Resolución: </b>{{item.resolucion.tipoResolucion.nombre}}</span>
+                                                    </div>
+                                                    <div class="col-md-12">
+                                                        <span><b>Oficina: </b>{{item.resolucion.oficina.nombre}}</span>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <div class="col-md-3"><b>Documentos: </b></div>
+                                                    <div class="col-md-6">
+                                                        <span class="block text-muted">Número: {{item.resolucion.numero}}</span> 
+                                                        <span class="block text-muted">Serie: {{item.resolucion.serie}}</span>
+                                                        <span v-if="item.resolucion.rutaUrl != null" class="block text-muted">Url: <a v-bind:href="item.resolucion.rutaUrl" target="_blank">Link</a></span>
+                                                    </div> 
+                                                </div> 
+                                                <div class="col-md-2">
+                                                    <div class="col-md-12">
+                                                        <span><b>Fecha Resolución: </b>{{item.resolucion.fecha}}</span>
+                                                        <span v-if="item.estado === 'ACT'" class="badge badge-success"><b>Estado: </b>{{returnEstado(item.estado)}}</span>
+                                                        <span v-if="item.estado === 'INA'" class="badge badge-secondary"><b>Estado: </b>{{returnEstado(item.estado)}}</span>
+                                                    </div> 
+                                                </div> 
+                                                <div class="col-md-4">
+                                                    <div class="col-md-2"><b>Registro: </b></div>
+                                                    <div class="col-md-10">
+                                                        <span class="block text-muted">Usuario: {{item.resolucion.userRegistro.persona.apellidosNombres}}</span> 
+                                                        <span class="block text-muted">Fecha: {{item.resolucion.fechaRegistro}}</span>
+                                                    </div> 
+                                                </div> 
+                                            </div> 
+
+                                            <div class="row col-md-12"><br/></div>
+
+                                        </div>
+                                    </section>
+                                </section>
+                            </div>
+                            <div class="row col-md-12" v-if="listCursoConvalidado.length !== 0 &amp;&amp; tramiteTrasladoActivo != null">
+                                <button class="btn btn-success pull-right" v-on:click="save">Convalidar cursos</button>
+                            </div>
+                        </section>
+                    </section>
+                </div>
+                <!--                <div th:substituteby="academico/alumno/otros/preRequisitoModal"/>-->
+            </div>
+            <div th:substituteby="academico/alumno/includes/headerInfo"/>
+        </section>
+        <div layout:fragment="js">
+            <script th:inline="javascript">
+                /*<![CDATA[*/
+                var alumnoJson = /*[[${alumnoJson.toString()}]]*/ 'json';
+                var cicloJson = /*[[${cicloJson.toString()}]]*/ 'json';
+                var listTramiteTrasladoJson = /*[[${listTramiteTrasladoJson.toString()}]]*/ 'json';
+                var listAlumnoCursoCurriculaJson = /*[[${listAlumnoCursoCurriculaJson.toString()}]]*/ 'json';
+                var listCursoConvalidadoJson = /*[[${listCursoConvalidadoJson.toString()}]]*/ 'json';
+                var rutaModulo = /*[[${rutaModulo}]]*/ '';
+                var origen = /*[[${origen}]]*/ '';
+                /*]]>*/
+            </script>
+            <div th:substituteby="_modules/vue-modal"/>
+            <script th:src="@{/app/academico/alumno/headerInfoComponent.js}" charset="utf-8"></script> 
+            <script th:src="@{/app/academico/alumno/trasladoexterno/trasladoexterno.js}" charset="utf-8"></script>
+        </div>
     </body>
 </html>

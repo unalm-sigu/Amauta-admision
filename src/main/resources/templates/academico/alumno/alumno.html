@@ -142,7 +142,7 @@
                                                             <li><a v-bind:href="urlAcademico(item)">Información académica</a></li>
                                                             <li><a v-bind:href="urlMatricula(item)">Matricula</a></li>
                                                             <li><a v-if='isPosgrado(item.modalidadEstudio)' v-bind:href="urlConfigCursos(item)">Configurar Curso</a></li>
-                                                            <li><a v-if='isPosgrado(item.modalidadEstudio)' v-bind:href="urlConvalidarTraslado(item)">Convalidar Traslado Externo</a></li>
+                                                            <li><a v-on:click="urlConvalidarTraslado(item)">Convalidar Traslado Externo</a></li>
                                                         </ul>
                                                     </div>
                                                 </td>
