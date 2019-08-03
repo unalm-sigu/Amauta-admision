@@ -31,6 +31,7 @@ import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Facultad;
@@ -429,6 +430,7 @@ public class OficinaController {
     public JsonResponse asignarJefe(@RequestBody Oficina oficina, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
+            TypesUtil.delay(5000);
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             service.asignarJefe(oficina, ds);
             response.setMessage("Jefe asignado satisfactoriamente.");
@@ -447,6 +449,7 @@ public class OficinaController {
     public JsonResponse actualizarJefe(@RequestBody Oficina oficina, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
+            TypesUtil.delay(5000);
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             service.actualizarJefe(oficina, ds);
             response.setMessage("Jefe asignado satisfactoriamente.");
@@ -465,6 +468,7 @@ public class OficinaController {
     public JsonResponse asignarEncargado(@RequestBody Oficina oficina, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
+            TypesUtil.delay(5000);
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
             service.asignarEncargado(oficina, ds);
@@ -483,6 +487,7 @@ public class OficinaController {
     public JsonResponse actualizarEncargado(@RequestBody Oficina oficina, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
+            TypesUtil.delay(5000);
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             service.actualizarEncargado(oficina, ds);
             response.setMessage("Jefe asignado satisfactoriamente.");
@@ -501,6 +506,7 @@ public class OficinaController {
     public JsonResponse retirarJefe(Oficina oficina, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
+            TypesUtil.delay(5000);
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
             service.retirarJefe(oficina, ds);
@@ -519,6 +525,7 @@ public class OficinaController {
     public JsonResponse retirarEncargado(@RequestBody AusenciaJefe ausencia, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
+            TypesUtil.delay(5000);
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
             service.retirarEncargado(ausencia, ds);
@@ -596,7 +603,7 @@ public class OficinaController {
     }
 
     private ObjectNode createOficinaJson(Oficina oficina) {
-        ObjectNode node = JsonHelper.createJson(oficina, JsonNodeFactory.instance, true, new String[]{
+        ObjectNode node = JsonHelper.createJson(oficina, JsonNodeFactory.instance, new String[]{
             "id", "nombre", "codigo", "estadoEnum", "estado", "motivoAusenciaJefe", "referenciaUbicacion",
             "fechaInicioJefatura", "fechaEncargatura", "telefonos", "anexos", "email", "webSite", "codigoDocumento",
             "instanciaOficina",
