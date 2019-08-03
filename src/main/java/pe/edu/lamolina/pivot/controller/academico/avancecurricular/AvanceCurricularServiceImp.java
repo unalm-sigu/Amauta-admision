@@ -470,6 +470,9 @@ public class AvanceCurricularServiceImp implements AvanceCurricularService {
         List<AlumnoCicloCurso> cursosAprobados = alumnoCicloCursoDAO.allAprobadoActivoByAlumno(alumnoBD);
         List<ResumenPlanCurricular> resumenPlanCurriculars = resumenPlanCurricularDAO.allByPlan(alumnoBD.getPlanCurricular());
         List<AlumnoAvanceCurricular> avanceCurriculars = alumnoAvanceCurricularDAO.allByAlumno(alumnoBD);
+        List<CursoEquivalente> cursoEquivalentes = cursoEquivalenteDAO.allActivoByPlanCurricular(alumnoBD.getPlanCurricular());
+        List<CursoEquivalenteElectivo> cursoEquivalentesElectivo = cursoEquivalenteElectivoDAO.allActivoByPlanCurricular(alumnoBD.getPlanCurricular());
+        
         List<Alumno> alumnos = new ArrayList();
         alumnos.add(alumnoBD);
         List<CursoHabilEscuela> cursoHabilEscuelas = cursoHabilEscuelaDAO.allAlumnos(alumnos);

@@ -1132,7 +1132,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
             Map<Long, List<CursoCurricula>> mapCursoCurriculaAll,
             List<CursoHabilEscuela> habilEscuelas,
             DataSessionPivot ds) {
-
+//  Map<Long, List<CursoEquivalente>> mapCursosEquivalentes, List<CursoEquivalenteElectivo> equivalenteElectivos,
         Carrera carrera = alumno.getCarrera();
         this.settingPlanCurricular(alumno, planBD);
 
