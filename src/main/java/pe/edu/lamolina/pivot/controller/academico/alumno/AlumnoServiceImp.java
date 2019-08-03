@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
@@ -18,11 +19,15 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.NumberFormat;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.academico.AlumnoCiclo;
+import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.CursoCicloAcademico;
+import pe.edu.lamolina.model.academico.CursoConvalidado;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.SituacionAcademica;
 import pe.edu.lamolina.model.enums.AlumnoEstadoEnum;
@@ -30,9 +35,11 @@ import pe.edu.lamolina.model.enums.AmbienteAplicacionEnum;
 import pe.edu.lamolina.model.enums.ContenidoEmailEnum;
 import pe.edu.lamolina.model.enums.CursoCurriculaEstadoEnum;
 import pe.edu.lamolina.model.enums.CursoHabilEstadoEnum;
-import static pe.edu.lamolina.model.enums.EstadoEnum.ACT;
+import pe.edu.lamolina.model.enums.EstadoEnum;
+import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.OficinaEnum;
+import pe.edu.lamolina.model.enums.OrigenDataSituacionAcademicaEnum;
 import pe.edu.lamolina.model.enums.ParametrosSistemasEnum;
 import pe.edu.lamolina.model.enums.PersonaEstadoEnum;
 import pe.edu.lamolina.model.enums.RolEnum;
@@ -54,14 +61,17 @@ import pe.edu.lamolina.model.seguridad.Sistema;
 import pe.edu.lamolina.model.seguridad.TokenIngresante;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.seguridad.UsuarioRol;
+import pe.edu.lamolina.model.tramite.TramiteTraslado;
 import pe.edu.lamolina.pivot.config.DespliegueConfig;
 import pe.edu.lamolina.pivot.controller.academico.avancecurricular.AvanceCurricularService;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloCursoDAO;
+import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCursoCurriculaDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.pivot.dao.academico.CarreraDAO;
 import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.CursoCicloAcademicoDAO;
+import pe.edu.lamolina.pivot.dao.academico.CursoConvalidadoDAO;
 import pe.edu.lamolina.pivot.dao.academico.CursoCurriculaDAO;
 import pe.edu.lamolina.pivot.dao.academico.CursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.DocenteSeccionDAO;
@@ -85,6 +95,7 @@ import pe.edu.lamolina.pivot.dao.seguridad.SistemaDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.TokenIngresanteDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.UsuarioDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.UsuarioRolDAO;
+import pe.edu.lamolina.pivot.dao.tramite.TramiteTrasladoDAO;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.mail.MailerService;
 
@@ -158,6 +169,12 @@ public class AlumnoServiceImp implements AlumnoService {
     CursoHabilEscuelaDAO cursoHabilEscuelaDAO;
     @Autowired
     CursoDAO cursoDAO;
+    @Autowired
+    TramiteTrasladoDAO tramiteTrasladoDAO;
+    @Autowired
+    CursoConvalidadoDAO cursoConvalidadoDAO;
+    @Autowired
+    AlumnoCicloDAO alumnoCicloDAO;
 
     @Override
     public List<Alumno> allAlumnosByCicloDynatable(DynatableFilter filter, List<Carrera> carreras) {
@@ -709,7 +726,7 @@ public class AlumnoServiceImp implements AlumnoService {
         newcursoCurricula.setCreditos(alumnoCursoCurricula.getCurso().getCreditos());
         newcursoCurricula.setTipoCursoCurricula(tipoCursoCurriculaDAO.findByCodigo(TipoCursoCurriculaEnum.EAD));
         alumnoCursoCurriculaDAO.save(newcursoCurricula);
-        
+
         CursoHabilEscuela cursoHabilEscuela = new CursoHabilEscuela();
         cursoHabilEscuela.setAlumno(alumnoDB);
         cursoHabilEscuela.setCicloAcademico(cicloAcademico);
@@ -718,12 +735,140 @@ public class AlumnoServiceImp implements AlumnoService {
         cursoHabilEscuela.setUserRegistro(usuario);
         cursoHabilEscuela.setEstadoEnum(CursoHabilEstadoEnum.HAB);
         cursoHabilEscuelaDAO.save(cursoHabilEscuela);
-        
-      
+
     }
 
     private String forLike(String nombre) {
         return "%" + nombre.replaceAll(" ", "%") + "%";
+    }
+
+    @Override
+    public List<AlumnoCursoCurricula> allAlumnoCursoCurso(Alumno alumno) {
+        return alumnoCursoCurriculaDAO.all(alumno);
+    }
+
+    @Override
+    public List<TramiteTraslado> allTramiteTrasladoByAlumno(Alumno alumno) {
+        return tramiteTrasladoDAO.allByAlumno(alumno);
+    }
+
+    @Override
+    @Transactional
+    public void saveListCursoConvalidado(TrasladoBean trasladoBean, Usuario usuario, CicloAcademico cicloAcademicoSesion) {
+
+        Alumno alumno = trasladoBean.getAlumno();
+        Integer total = trasladoBean.getTotal();
+        List<CursoConvalidado> listCursoConvalidado = trasladoBean.getListCursoConvalidado();
+        TramiteTraslado tramiteTraslado = trasladoBean.getTramiteTraslado();
+
+        AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findByAlumnoCiclo(alumno, tramiteTraslado.getCicloAcademico());
+
+        if (alumnoCiclo != null) {
+
+//            logger.debug("*********** alumnoCiclo existente: id  {}", alumnoCiclo.getId());
+            alumnoCiclo.setUserModificacion(usuario);
+            alumnoCiclo.setFechaModificacion(new Date());
+            alumnoCiclo.setCreditosConvalidados(total);
+            alumnoCicloDAO.update(alumnoCiclo);
+
+            List<AlumnoCicloCurso> listAlumnoCicloCurso = alumnoCicloCursoDAO.allByAlumnoCiclo(alumnoCiclo);
+//            logger.debug("*********** listAlumnoCicloCurso   {}", listAlumnoCicloCurso.size());
+
+            Map<Long, AlumnoCicloCurso> mapListAlumnoCicloCurso = TypesUtil.convertListToMap("curso.id", listAlumnoCicloCurso);
+
+            for (CursoConvalidado cursoConvalidado : listCursoConvalidado) {
+
+//                logger.debug("*********** AlumnoCicloCurso CURSO ID {}", cursoConvalidado.getCurso().getId());
+
+                AlumnoCicloCurso alumnoCicloCursoFound = mapListAlumnoCicloCurso.get(cursoConvalidado.getCurso().getId());
+
+                if (alumnoCicloCursoFound == null) {
+//                    logger.debug("*********** AlumnoCicloCurso inexistente");
+                    this.saveAlumnoCicloCurso(usuario, cursoConvalidado.getCurso(), alumnoCiclo);
+                } else {
+//                    logger.debug("*********** AlumnoCicloCurso existente: id  {}", alumnoCicloCursoFound.getId());
+                    alumnoCicloCursoFound.setFechaModificacion(new Date());
+                    alumnoCicloCursoFound.setUserModificacion(usuario);
+                    alumnoCicloCursoFound.setNota("TE");
+                    alumnoCicloCursoFound.setRegistroActivo(0);
+                    alumnoCicloCursoDAO.update(alumnoCicloCursoFound);
+                }
+                cursoConvalidado.setUserRegistro(usuario);
+                cursoConvalidado.setFechaRegistro(new Date());
+                cursoConvalidadoDAO.save(cursoConvalidado);
+            }
+
+        } else {
+//            logger.debug("*********** alumnoCiclo inexistente");
+
+            alumnoCiclo = this.saveAlumnoCiclo(alumno, usuario, cicloAcademicoSesion, total);
+            for (CursoConvalidado cursoConvalidado : listCursoConvalidado) {
+                this.saveAlumnoCicloCurso(usuario, cursoConvalidado.getCurso(), alumnoCiclo);
+                cursoConvalidado.setUserRegistro(usuario);
+                cursoConvalidado.setFechaRegistro(new Date());
+                cursoConvalidadoDAO.save(cursoConvalidado);
+            }
+        }
+        this.saveTramiteTraslado(tramiteTraslado);
+    }
+
+    @Override
+    public List<CursoConvalidado> alllCursoConvalidadoInTraslado(List<TramiteTraslado> listTramiteTraslado) {
+        return cursoConvalidadoDAO.allInTramiteTraslado(listTramiteTraslado);
+    }
+
+    @Transactional
+    public void saveTramiteTraslado(TramiteTraslado tramiteTraslado) {
+        TramiteTraslado tramiteTrasladoBD = tramiteTrasladoDAO.find(tramiteTraslado.getId());
+        tramiteTrasladoBD.setEstado(EstadoEnum.ACT.name());
+        tramiteTrasladoDAO.update(tramiteTrasladoBD);
+    }
+
+    @Transactional
+    private void saveAlumnoCicloCurso(Usuario user, Curso curso, AlumnoCiclo alumnoCiclo) {
+        AlumnoCicloCurso alumnoCicloCurso = new AlumnoCicloCurso();
+        alumnoCicloCurso.setFechaRegistro(new Date());
+        alumnoCicloCurso.setUsuarioRegistro(user);
+        alumnoCicloCurso.setCurso(curso);
+        alumnoCicloCurso.setCreditos(curso.getCreditos());
+        alumnoCicloCurso.setNota("TE");
+        alumnoCicloCurso.setEstado(EstadoMatriculaEnum.TRAS);
+        alumnoCicloCurso.setEstaAprobado(1);
+        alumnoCicloCurso.setRegistroActivo(0);
+        alumnoCicloCurso.setOrigenData(OrigenDataSituacionAcademicaEnum.TE);
+        alumnoCicloCurso.setAlumnoCiclo(alumnoCiclo);
+        alumnoCicloCurso.setVecesCursado(1);
+        alumnoCicloCursoDAO.save(alumnoCicloCurso);
+    }
+
+    @Transactional
+    private AlumnoCiclo saveAlumnoCiclo(Alumno alumno, Usuario user, CicloAcademico cicloAcademicoSesion, Integer total) {
+        AlumnoCiclo alumnoCiclo = new AlumnoCiclo();
+        alumnoCiclo.setAlumno(alumno);
+        alumnoCiclo.setCicloAcademico(cicloAcademicoSesion);
+        alumnoCiclo.setUserRegistro(user);
+        alumnoCiclo.setFechaRegistro(new Date());
+        alumnoCiclo.setCarrera(alumno.getCarrera());
+        alumnoCiclo.setEstadoEnum(EstadoMatriculaEnum.TRAS);
+        alumnoCiclo.setEstaAprobado(1);
+        alumnoCiclo.setCursosAprobados(0);
+        alumnoCiclo.setCursosInscritos(0);
+        alumnoCiclo.setPromedioAcumulado(BigDecimal.ZERO);
+        alumnoCiclo.setPromedioCiclo(BigDecimal.ZERO);
+        alumnoCiclo.setCreditosConvalidados(total);
+        alumnoCiclo.setCreditosAprobadosAcumulados(0);
+        alumnoCiclo.setCreditosAprobadosCiclo(0);
+        alumnoCiclo.setCreditosCursadosCiclo(0);
+        alumnoCiclo.setCreditosAcumulados(0);
+        alumnoCicloDAO.save(alumnoCiclo);
+        return alumnoCiclo;
+    }
+
+    @Override
+    public void verificarTramiteTraslado(Alumno alumno) {
+        if (tramiteTrasladoDAO.allByAlumno(alumno) == null || tramiteTrasladoDAO.allByAlumno(alumno).isEmpty()) {
+            throw new PhobosException("El alumno con id" + alumno.getId() + " no tiene resolución de traslado externo");
+        }
     }
 
 }

@@ -37,7 +37,6 @@ import pe.edu.lamolina.model.general.PerfilCompania;
 import pe.edu.lamolina.model.seguridad.FuncionRol;
 import pe.edu.lamolina.model.seguridad.Menu;
 import pe.edu.lamolina.model.seguridad.Rol;
-import pe.edu.lamolina.model.seguridad.RolSistema;
 import pe.edu.lamolina.model.seguridad.Sistema;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.config.DespliegueConfig;

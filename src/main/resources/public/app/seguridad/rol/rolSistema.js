@@ -15,11 +15,12 @@ new Vue({
             showaccept: false,
             modalscroll: 'modal-scroll-fix-500'
         },
-        dataModalFuncion: {
+        dataModalFuncion: VUE_MODAL.structFormAjax({
+            id: 'idModalFunciones',
             title: 'Relacionar Función',
             showaccept: false,
             modalscroll: 'modal-scroll-fix-500'
-        },
+        }),
         dataModalRol: {
             title: 'Nuevo Rol',
         }
@@ -38,6 +39,7 @@ new Vue({
             console.log("wkj5nkjnt4kj35n")
         },
         relacionarFuncion: function (rol) {
+            console.log("skjfbksdjfjk")
             let vue = this;
             vue.rol = rol;
             vue.allFuncion(rol);
@@ -68,7 +70,6 @@ new Vue({
             $.ajax({
                 url: APP.url('seguridad/rol/allfuncionrol'),
                 type: 'POST',
-                async: false,
                 data: {'rol.id': rol.id, 'perfilCompania.tipo': 'FUNCION'},
                 success: function (response) {
                     if (response.success) {

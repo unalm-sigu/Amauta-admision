@@ -41,4 +41,6 @@ public interface AlumnoCursoCurriculaDAO extends EasyDAO<AlumnoCursoCurricula> {
     List<AlumnoCursoCurricula> allByAlumnos(List<Alumno> alumnos);
 
     List<AlumnoCursoCurricula> allByAlumnoAndModalidad(Alumno alumno, DynatableFilter filter);
+
+    List<AlumnoCursoCurricula> all(Alumno alumno);
 }

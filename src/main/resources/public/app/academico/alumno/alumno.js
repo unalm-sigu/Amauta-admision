@@ -41,7 +41,18 @@ new Vue({
         },
         urlConvalidarTraslado(item) {
             let $vue = this;
-            return APP.url('academico/alumno/' + item.id + '/trasladoexterno') + $vue.getOrigenURL();
+
+            axios.post("/academico/alumno/verificarTramiteTraslado", item)
+                    .then(response => {
+                        if (response.data.success) {
+                            location.href = '/academico/alumno/' + item.id + '/trasladoexterno' + $vue.getOrigenURL();
+                        } else {
+                            notify("El alumno " + item.persona.apellidosNombres + " no tiene resolución de traslado externo", "warning");
+                        }
+                    }).catch(e => {
+                notify(MESSAGES.errorComunicacion, "error");
+            });
+//            return APP.url('academico/alumno/' + item.id + '/trasladoexterno') + $vue.getOrigenURL();
         },
         getOrigenURL() {
             var url = window.location.href;

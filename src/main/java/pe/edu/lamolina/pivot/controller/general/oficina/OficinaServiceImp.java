@@ -152,15 +152,11 @@ public class OficinaServiceImp implements OficinaService {
         Map<Long, List<AusenciaJefe>> mapAusencias = TypesUtil.convertListToMapList("oficina.id", ausencias);
 
         TypesUtil tu = new TypesUtil();
-        ObjectUtil.printAttr(tu);
-        tu.getRandom();
-        tu.getUnixTime();
 
         for (Oficina oficina : oficinas) {
 
-            List<Colaborador> colaboradoresOfi = mapColaboradores.get(oficina.getId());
-            colaboradoresOfi = tu.getListNotNull(null);
-            oficina.setColaborador(colaboradoresOfi);
+            List<Colaborador> colaboradoresByOficina = TypesUtil.getListNotNull(mapColaboradores.get(oficina.getId()));
+            oficina.setColaborador(colaboradoresByOficina);
 
             oficina.setAusenciasJefe(new ArrayList());
             if (oficina.getJefeEncargado() == null) {
