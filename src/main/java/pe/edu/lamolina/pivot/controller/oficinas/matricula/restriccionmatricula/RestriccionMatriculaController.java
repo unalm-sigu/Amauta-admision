@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -18,14 +19,11 @@ import org.springframework.web.multipart.MultipartFile;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
+import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
-import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.DeudaMaterialAlumno;
-import pe.edu.lamolina.model.academico.TipoDeudaMaterial;
-import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
-import pe.edu.lamolina.model.general.Persona;
-import pe.edu.lamolina.model.misc.FotoHelper;
+import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -40,8 +38,19 @@ public class RestriccionMatriculaController {
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
-        List<TipoDeudaMaterial> tiposDeuda = service.allTipoDeudaAlumno();
-        model.addAttribute("tiposDeuda", tiposDeuda);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        List<Oficina> oficinas = ds.getOficinas();
+        if (oficinas.stream().filter(x -> x.isOficinaOera()).findAny().orElse(null) != null) {
+            oficinas = service.allOficina();
+        }
+        ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+        for (Oficina oficina : oficinas) {
+            ObjectNode node = JsonHelper.createJson(oficina, JsonNodeFactory.instance, new String[]{
+                "*"});
+            array.add(node);
+        }
+
+        model.addAttribute("oficinas", array);
         return "oficinas/matricula/restriccionmatricula/restriccionMatricula";
     }
 
@@ -49,38 +58,21 @@ public class RestriccionMatriculaController {
     @RequestMapping("list")
     public DynatableResponse list(DynatableFilter filter, HttpSession session) {
         DynatableResponse json = new DynatableResponse();
-
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         try {
-            FotoHelper helper = new FotoHelper();
             JsonNodeFactory factory = JsonNodeFactory.instance;
             ArrayNode array = new ArrayNode(factory);
-            List<DeudaMaterialAlumno> deudas = service.allDeudaAlumno(filter);
+            List<DeudaMaterialAlumno> deudas = service.allDeudaAlumno(filter, ds);
 
             for (DeudaMaterialAlumno deuda : deudas) {
-                ObjectNode node = new ObjectNode(factory);
-                Alumno alumno = deuda.getAlumno();
-                Persona persona = alumno.getPersona();
+                ObjectNode node = JsonHelper.createJson(deuda, factory, new String[]{
+                    "*",
+                    "alumno.*",
+                    "alumno.modalidadEstudio.*",
+                    "alumno.persona.*",
+                    "alumno.persona.tipoDocumento.*",
+                    "oficina.*",});
 
-                node.put("id", deuda.getId());
-                node.put("nombre", persona.getNombreCompleto());
-                node.put("codigo", alumno.getCodigo());
-                node.put("tipoDoc", persona.getTipoDocumento().getSimbolo());
-                node.put("numeroDoc", persona.getNumeroDocIdentidad());
-                node.put("carrera", alumno.getCarrera().getNombre());
-                node.put("telefono", persona.getTelefono());
-                node.put("rutaIcono", persona.getFoto());
-                node.put("rutaFoto", helper.getRutaFoto(persona.getFoto(), persona.getSexo()));
-                node.put("descripcion", deuda.getDescripcion());
-                node.put("estado", deuda.getEstadoEnum().getValue());
-                node.put("tipo", deuda.getTipoDeudaMaterial().getNombre());
-                node.put("respNombre", deuda.getTipoDeudaMaterial().getResponsable().getPersona().getNombreCompleto());
-                node.put("respTelefono", deuda.getTipoDeudaMaterial().getResponsable().getTelefono());
-                node.put("respOficina", deuda.getTipoDeudaMaterial().getResponsable().getOficina().getNombre());
-                if (alumno.getModalidadEstudio().getCodigoEnum() == ModalidadEstudioEnum.EPG) {
-                    node.put("modalidadEstudio", alumno.getCarrera().getTipoEnum().getValue());
-                } else {
-                    node.put("modalidadEstudio", alumno.getModalidadEstudio().getNombre());
-                }
                 array.add(node);
             }
             json.setData(array);
@@ -116,7 +108,7 @@ public class RestriccionMatriculaController {
 
     @ResponseBody
     @RequestMapping("anular")
-    public JsonResponse deuda(DeudaMaterialAlumno deuda, HttpSession session) {
+    public JsonResponse deuda(@RequestBody DeudaMaterialAlumno deuda, HttpSession session) {
         JsonResponse response = new JsonResponse();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
@@ -134,7 +126,7 @@ public class RestriccionMatriculaController {
 
     @ResponseBody
     @RequestMapping("guardar")
-    public JsonResponse guardar(DeudaMaterialAlumno deuda) {
+    public JsonResponse guardar(@RequestBody DeudaMaterialAlumno deuda) {
         JsonResponse response = new JsonResponse();
         try {
             service.guardarDeuda(deuda);
@@ -148,12 +140,29 @@ public class RestriccionMatriculaController {
         return response;
     }
 
+    @ResponseBody
+    @RequestMapping("save")
+    public JsonResponse save(@RequestBody DeudaMaterialAlumno deuda, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            service.save(deuda, ds);
+            response.setSuccess(true);
+            response.setMessage("Restricción actualizada");
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
     @RequestMapping("upload")
     public String upload(Model model, HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        List<Oficina> Oficinas = ds.getOficinas();
 
-        List<TipoDeudaMaterial> tiposDeuda = service.allTipoDeudaAlumno();
-
-        model.addAttribute("tiposDeuda", tiposDeuda);
+        model.addAttribute("oficinas", Oficinas);
 
         return "oficinas/matricula/restriccionmatricula/restriccionMatriculaUpload";
 
@@ -162,13 +171,13 @@ public class RestriccionMatriculaController {
     @ResponseBody
     @RequestMapping("cargarDatos")
     public JsonResponse cargarDatos(@RequestParam("file") MultipartFile file,
-            @RequestParam("idTipoDeudaAlumno") Long idTipoDeudaAlumno,
+            @RequestParam("idOficina") Long oficinaId,
             Model model, HttpSession session) {
         JsonResponse json = new JsonResponse();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
         try {
-            List<String> observados = service.cargarDeudas(file, new TipoDeudaMaterial(idTipoDeudaAlumno), ds);
+            List<String> observados = service.cargarDeudas(file, new Oficina(oficinaId), ds);
             if (observados.isEmpty()) {
                 json.setData(null);
             } else {

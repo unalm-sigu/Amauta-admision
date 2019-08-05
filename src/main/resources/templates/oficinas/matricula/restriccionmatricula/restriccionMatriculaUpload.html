@@ -29,10 +29,10 @@
                                                 <label>Tipo</label>
                                             </div>
                                             <div class="col-md-4">                            
-                                                <select class="form-control select2" name="idTipoDeudaAlumno">
-                                                    <option th:each="tipoDeuda :${tiposDeuda}"
-                                                            th:value="${tipoDeuda.id}"
-                                                            th:text="${tipoDeuda.nombre}"></option>
+                                                <select class="form-control select2" name="idOficina">
+                                                    <option th:each="ofic :${oficinas}"
+                                                            th:value="${ofic.id}"
+                                                            th:text="${ofic.nombre}"></option>
                                                 </select>
                                             </div>
                                         </div>

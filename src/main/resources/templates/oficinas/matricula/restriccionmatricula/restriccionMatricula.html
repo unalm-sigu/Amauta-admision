@@ -1,62 +1,132 @@
 <html layout:decorator="_layout/layout">
     <head>
         <title> Deudas Materiales </title>
-    <div th:substituteby="_layout/includes :: styles-dynatable"></div>
-</head>
+    </head>
 
-<body>
-    <div layout:fragment="main">
-        <header class="header b-b padder-lg">
-            <div class="pull-right m-t-md">                 
-                <a th:href="@{'/oficinas/matricula/restriccionmatricula/upload'}" class="btn btn-success" type="button" id="btnAddPersona">Cargar Datos</a>
-            </div>  
+    <body>
+        <div id="restriccionVUE" layout:fragment="main">
+            <header class="header b-b padder-lg">
+                <div class="btn-group pull-right">
+                    <button type="button" class="btn btn-primary dropdown-toggle pull-right" data-toggle="dropdown">
+                        Acciones &nbsp; <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li>   <a v-bind:href="'/oficinas/matricula/restriccionmatricula/upload'"  type="button" >Cargar Datos</a></li>
+                        <li> <a  type="button" v-on:click="modal(null,3)">Nueva Deuda</a></li>
+                    </ul>
+                </div>
+                <h2> Deudas Materiales </h2>
+            </header>
 
-            <h2> Deudas Materiales </h2>
-            
-        </header>
-            
-        <section class="wrapper-lg">
-            <section class="panel">
-                <section class="panel-body">
-                    <div class="m-t-lg m-l-n col-lg-4" id="headDynatable">
-                        <div class="">
-                            <select class="form-control select2" id="tipoDeuda">
-                                <option th:each="tipo : ${tiposDeuda}"
-                                        th:value="${tipo.id}"
-                                        th:text="${tipo.nombre}"></option>
-                            </select>
+            <section class="wrapper-lg">
+                <section class="panel">
+                    <section class="panel-body">
+                        <div class="form-group col-md-4" >
+
+                            <multiselect v-model="oficina" 
+                                         v-bind:options='oficinas'
+                                         v-bind:internal-search="true"
+                                         label='nombre'
+                                         track-by='id'
+                                         v-on:select="findbyOficina($event,1)"
+                                         v-on:remove='findbyOficina($event,0)'
+                                         placeholder="Seleccione una oficina">
+                            </multiselect>
+
                         </div>
-                    </div>
-                    <table id="dynaTable" class="table table-striped">
-                        <thead class="panel panel-heading">
-                            <tr>
-                                <th class="col-md-1"></th>
-                                <th class="col-md-3">Alumno</th>
-                                <th class="col-md-3">Tipo</th>
-                                <th class="col-md-3">Descripción</th>
-                                <th class="col-md-2 text-center">Estado</th>
-                                <th></th>
-                            </tr> 
-                        </thead>
-                        <tbody></tbody>
-                    </table>
+                        <raptor-table v-bind:url="deudasURL" v-bind:preload="true" ref="load">
+                            <template scope="props" >
+                                <table  class="table table-striped">
+                                    <thead class="panel panel-heading">
+                                        <tr>
+                                            <th class="col-md-4" colspan="2"></th>
+                                            <th class="col-md-3">Oficina</th>
+                                            <th class="col-md-3">Descripción</th>
+                                            <th class="col-md-2 text-center">Estado</th>
+                                            <th></th>
+                                        </tr> 
+                                    </thead>
+                                    <tbody>
+                                        <tr  v-for="item in props.data" >
+                                            <td class="v-middle">
+                                                <div class="pull-left">
+                                                    <div v-if="item.alumno.persona.tipoFoto=='POSTUL' "
+                                                         class="img-responsive img-thumbnail img-circle div-foto-list">
+                                                        <img class="img-foto-list" v-bind:src="item.alumno.persona.rutaFoto" />
+                                                    </div>
+
+                                                    <img v-else-if="item.alumno.persona.tipoFoto=='COMUN' " 
+                                                         class="img-responsive img-thumbnail img-circle div-foto-alumno-list" 
+                                                         v-bind:src="item.alumno.persona.rutaFoto" />
+
+                                                    <img v-else="" 
+                                                         class="img-foto-tempo img-responsive img-thumbnail img-circle" 
+                                                         v-bind:src="item.alumno.persona.rutaFoto" />
+                                                </div>
+                                            </td>
+                                            <td class="v-middle">
+                                                <a  class="block text-primary bold h5 m-b-xs m-t-xs" >
+                                                    {{item.alumno.persona.nombreCompleto}}
+                                                </a>
+                                                <span class="block">
+                                                    Matrícula: {{item.alumno.codigo}}
+                                                </span>
+                                                <span class="block">
+                                                    Modalidad: {{item.alumno.modalidadEstudio.nombre}}
+                                                </span>
+                                                <small v-if="item.alumno.persona.numeroDocIdentidad != '' " class="block bold">
+                                                    {{item.alumno.persona.tipoDocumento.simbolo}} {{item.alumno.persona.numeroDocIdentidad}}
+                                                </small>
+                                            </td>
+                                            <td class="v-middle">
+                                                <span class="block bold"> {{item.oficina.nombre}} </span>
+                                                <small class="block text-muted"> Contacto </small>
+                                                <small class="block text-muted">{{item.oficina.telefono}} </small>
+                                                <small class="block text-muted">{{item.oficina.anexo}} </small>
+                                                <small class="block text-muted">{{item.oficina.email}} </small>
+                                            </td>
+
+                                            <td class="v-middle">
+                                                {{item.descripcion}}
+                                            </td>
+                                            <td class="v-middle text-center">
+                                                <span class="label " v-bind:class="getClass(item.estado)">{{item.estadoEnum.value}} </span>
+                                            </td>
+
+                                            <td class="v-middle"> 
+                                                <div class="dropdown actions">
+                                                    <a class="dropdown-toggle" data-toggle="dropdown">
+                                                        <i class="glyphicon glyphicon-option-vertical"></i>
+                                                    </a> 
+                                                    <ul class="dropdown-menu pull-right pointer">
+                                                        <li><a  v-on:click="modal(item,1)">Editar</a></li>
+                                                        <li><a v-if="item.estado == 'REST'" v-on:click="levantar(item)">Levantar</a></li>
+                                                        <li><a v-if="item.estado == 'REST'" v-on:click="modal(item,2)">Anular</a></li>
+                                                    </ul>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </template>
+                        </raptor-table>
+                    </section>
                 </section>
             </section>
-        </section>
 
-        <form id="formPersonaEdit"  action="" method="POST">
-            <input type="hidden" name="origen" value="" id="origenUrl"/>
-        </form>
+            <div th:substituteby="oficinas/matricula/restriccionmatricula/restriccionMatriculaModals"></div>        
+        </div>
 
-        <div th:substituteby="templates/modal"></div>
-        <div th:substituteby="oficinas/matricula/restriccionmatricula/restriccionMatriculaModals"/>
-        <script id="templateDeudaAlumno" type="text/x-jsrender" class="hide" ><div th:substituteby="oficinas/matricula/restriccionmatricula/restriccionMatriculaTemplate"/></script>
-    </div>
+        <div layout:fragment="js">
+            <script  th:inline="javascript" >
+                /*<![CDATA[*/
+                var oficinasJson = /*[[${oficinas.toString()}]]*/ '';
+                /*]]>*/
+            </script>
+            <div th:substituteby="_modules/vue-modal"/>
+            <div th:substituteby="_modules/vue-raptor-table"></div>
+            <script th:src="@{/app/oficinas/matricula/restriccionmatricula/restriccionMatricula.js}" charset="utf-8"></script>
+        </div>
 
-    <div layout:fragment="js">
-        <div th:substituteby="_layout/includes :: javascript-dynatable"/>
-        <script th:src="@{/app/oficinas/matricula/restriccionmatricula/restriccionMatricula.js}" charset="utf-8"></script>
-    </div>
-
-</body>
+    </body>
 </html>

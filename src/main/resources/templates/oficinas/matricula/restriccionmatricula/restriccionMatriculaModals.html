@@ -1,4 +1,4 @@
-<div id="divEditar" type="text/x-jsrender" class="hide" >
+<!--<div id="divEditar" type="text/x-jsrender" class="hide" >
     <form name="formEditar" data-parsley-validate="true">
         <input type="hidden" name="id" value="{{:id}}"/>
         <div class="form-group">
@@ -6,8 +6,8 @@
             <span class="form-control"> {{:nombre}} </span>
         </div>
         <div class="form-group">
-            <label> Tipo </label>
-            <span class="form-control"> {{:tipo}} </span>
+            <label> Oficina </label>
+            <span class="form-control"> {{:oficina}} </span>
         </div>
         <div class="form-group">
             <label>Descripción</label>
@@ -24,8 +24,8 @@
             <span class="form-control"> {{:nombre}} </span>
         </div>
         <div class="form-group">
-            <label> Tipo </label>
-            <span class="form-control"> {{:tipo}} </span>
+            <label> Oficina </label>
+            <span class="form-control"> {{:oficina}} </span>
         </div>
         <div class="form-group">
             <label> Descripción </label>
@@ -37,5 +37,128 @@
         </div>
     </form>
 </div>
+<div id="divNevo" type="text/x-jsrender" class="hide" >
+    <form name="formNuevo" data-parsley-validate="true">
+        <input type="hidden" name="id" value="{{:id}}"/>
+        <div class="form-group">
+            <label> Deudor </label>
+            <div class="">
+                <select class="form-control select2" id="oficina">
+                    <option th:each="ofic : ${oficinas}"
+                            th:value="${ofic.id}"
+                            th:text="${ofic.nombre}"></option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label> Oficina </label>
+            <span class="form-control"> {{:oficina}} </span>
+        </div>
+        <div class="form-group">
+            <label> Descripción </label>
+            <span class="form-control"> {{:descripcion}} </span>
+        </div>
+        <div class="form-group">
+            <label>Motivo</label>
+            <textarea name="motivoAnulacion" row="6" required="true" type="text" data-trigger="change" class="form-control"/>
+        </div>
+    </form>
+</div>-->
+<!--
+-->
+<modal-vik ref="modalEdit"
+           v-bind="modalEdit"
+           v-bind:okaction="editar">
+
+    <div slot="body" v-if="temp.id!=null">
+        <form id="formEdit" data-parsley-validate="true"> 
+            <div class="form-group">
+                <label> Deudor </label>
+                <span class="form-control" v-text="temp.alumno.persona.nombreCompleto">  </span>
+            </div>
+            <div class="form-group">
+                <label> Oficina </label>
+                <span class="form-control" v-text="temp.oficina.nombre">  </span>
+            </div>
+            <div class="form-group">
+                <label>Descripción</label>
+                <textarea rows="6" required="true" type="text" name="descripcion" v-model="temp.descripcion" class="form-control"/>
+            </div>
+        </form>
+    </div>
+</modal-vik>
+<modal-vik ref="modalAnular"
+           v-bind="modalAnular"
+           v-bind:okaction="anular">
+
+    <div slot="body" v-if="temp.id!=null">
+        <form id="formAnular" data-parsley-validate="true"> 
+            <input type="hidden" name="id" value="{{:id}}"/>
+            <div class="form-group">
+                <label> Deudor </label>
+                <span class="form-control" v-text="temp.alumno.persona.nombreCompleto"> </span>
+            </div>
+            <div class="form-group">
+                <label> Oficina </label>
+                <span class="form-control"  v-text="temp.oficina.nombre">  </span>
+            </div>
+            <div class="form-group">
+                <label> Descripción </label>
+                <span class="form-control" v-text="temp.descripcion"> </span>
+            </div>
+            <div class="form-group">
+                <label>Motivo</label>
+                <textarea name="motivoAnulacion" row="6" required="true" type="text" data-trigger="change"  v-model="temp.motivoAnulacion" class="form-control"/>
+            </div>
+        </form>
+    </div>
+</modal-vik>
+<modal-vik ref="modalNuevo"
+           v-bind="modalNuevo"
+           v-bind:okaction="save">
+
+    <div slot="body" >
+        <form id="formNuevo" data-parsley-validate="true"> 
+            <div class="form-group">
+                <label> Deudor </label>
+                <multiselect v-model="temp.alumno" 
+                             v-bind:options='alumnos'
+                             v-on:search-change="loadAlumno"
+                             v-bind:custom-label='customLabel'
+                             track-by='id'
+                             v-bind:show-labels="false"
+                             v-bind:allow-empty="false"
+                             v-bind:internal-search='false'
+                             placeholder="Ingresa un caracter como mínimo"
+                             required="true" >
+                    <template slot="option" slot-scope="props">
+                        <div class="option__desc">
+                            <span class="option__title block bold">{{ props.option.persona.nombreCompleto }} </span>
+                            <span class="option__small">{{ props.option.persona.tipoDocumento.simbolo }} - {{ props.option.persona.numeroDocIdentidad }}</span>
+                        </div>
+                    </template>
+                </multiselect>
+                <input class="hidden" v-model="temp.alumno" required="true"/> 
+            </div>
+            <div class="form-group">
+                <label> Oficina </label>
+                <multiselect v-model="temp.oficina" 
+                             v-bind:options='oficinas'
+                             v-bind:internal-search="true"
+                             label='nombre'
+                             track-by='id'
+                             placeholder="Seleccione una oficina">
+                </multiselect>
+                <input class="hidden" v-model="temp.oficina" required="true"/>
+            </div>
+            <div class="form-group">
+                <label> Descripción </label>
+                <input class="form-control" v-model="temp.descripcion" required="true"/>
+            </div>
+
+        </form>
+    </div>
+</modal-vik>
+
 
 

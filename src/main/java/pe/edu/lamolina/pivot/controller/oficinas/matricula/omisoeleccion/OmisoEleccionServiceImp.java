@@ -237,7 +237,7 @@ public class OmisoEleccionServiceImp implements OmisoEleccionService {
         List<AporteAlumnoCiclo> aporteAlumnoCiclo = aporteAlumnoCicloDAO.allByAlumnoCiclo(alumno, cicloAcademicoMod);
         ResumenAporteAlumno resumenAporteAlumno = resumenAporteAlumnoDAO.findByAlumnoCicloAcademico(alumno, cicloAcademicoMod);
 
-        AporteAlumnoCiclo alumnoCiclo = aporteAlumnoCiclo.stream().filter(x -> Arrays.asList(AportesEnum.A04, A46).contains(x.getAporteCiclo().getAporte().getCodigoEnum()) && x.getEstadoEnum() == DEBE).findAny().orElse(null);
+        AporteAlumnoCiclo alumnoCiclo = aporteAlumnoCiclo.stream().filter(x -> Arrays.asList(AportesEnum.A04, A46).contains(x.getAporteCiclo().getAporte().getCodigoEnum())).findAny().orElse(null);
         DeudaAlumno deudaAlumno = alumnoCiclo.getDeudaAlumno();
         BigDecimal montorest = BigDecimal.ZERO;
         for (AlumnoOmisoEleccion alumnoOmisoEleccion : omisoEleccion) {
@@ -253,6 +253,9 @@ public class OmisoEleccionServiceImp implements OmisoEleccionService {
             }
         }
         if (alumnoCiclo != null) {
+
+            Assert.isTrue(alumnoCiclo.getEstadoEnum() == DEBE, "El alumno ya pagó la deuda no se puede anular.");
+
             alumnoCiclo.setMonto(alumnoCiclo.getMonto().subtract(montorest));
 
             if (deudaAlumno != null) {
