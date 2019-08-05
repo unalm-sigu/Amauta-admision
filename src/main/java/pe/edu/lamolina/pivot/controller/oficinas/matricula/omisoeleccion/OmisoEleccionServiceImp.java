@@ -114,8 +114,8 @@ public class OmisoEleccionServiceImp implements OmisoEleccionService {
     }
 
     private void procesarArchivo(MultipartFile file, List<CicloAcademico> cicloAcademicos, List<String> observados, List<AlumnoOmisoEleccion> deudas, DataSessionPivot ds) {
-        List<AlumnoOmisoEleccion> alumnoOmisoEleccions = alumnoOmisoEleccionDAO.allByCiclo(cicloAcademicos);
-        Map<String, AlumnoOmisoEleccion> mapAlumno = TypesUtil.convertListToMap("key", alumnoOmisoEleccions);
+//        List<AlumnoOmisoEleccion> alumnoOmisoEleccions = alumnoOmisoEleccionDAO.allByCiclo(cicloAcademicos);
+//        Map<String, AlumnoOmisoEleccion> mapAlumno = TypesUtil.convertListToMap("key", alumnoOmisoEleccions);
         Map<Long, CicloAcademico> mapCiclos = TypesUtil.convertListToMap("modalidadEstudio.id", cicloAcademicos);
         Map<Long, String> mapObservados = new HashMap<>();
         Set<String> registrados = new HashSet<>();
@@ -139,14 +139,12 @@ public class OmisoEleccionServiceImp implements OmisoEleccionService {
                 String nombre = getCellValue(1, row);
                 String motivo = getCellValue(2, row);
                 String multa = getCellValue(3, row);
-
-                if (!NVOTO.equals(motivo) && !NMBR.name().equals(motivo)) {
-                     mapObservados.put(Long.parseLong("" + fila), "Valor incorrecto en la fila " + fila + ". Los motivos son NVOT (No votó ) o NMBR (Omisión miembro de mesa).");
-                }
-                
                 if (StringUtils.isEmpty(nroMatricula) || StringUtils.isEmpty(motivo) || StringUtils.isEmpty(multa)) {
 //                    mapObservados.put(Long.parseLong("" + fila), "La fila  " + fila + " tiene campos vacíos.");
                     return;
+                }
+                if (!NVOTO.name().equals(motivo) && !NMBR.name().equals(motivo)) {
+                    mapObservados.put(Long.parseLong("" + fila), "Valor incorrecto en la fila " + fila + ". Los motivos son NVOT (No votó ) o NMBR (Omisión miembro de mesa).");
                 }
 
                 Alumno alumnoBD = alumnoDAO.findByCodigo(nroMatricula);
@@ -157,9 +155,9 @@ public class OmisoEleccionServiceImp implements OmisoEleccionService {
                 }
                 CicloAcademico cicloAcademico = mapCiclos.get(alumnoBD.getModalidadEstudio().getId());
                 String key = alumnoBD.getId() + "-" + cicloAcademico.getId() + "-" + motivo;
-                if (registrados.contains(key) || mapAlumno.get(key) != null) {
+                if (registrados.contains(key)) {
                     if (!mapObservados.containsKey(alumnoBD.getId())) {
-                        mapObservados.put(alumnoBD.getId(), "El alumno con código " + nroMatricula + " ya tiene registrada una deuda de este tipo. (Fila " + fila + ")");
+                        mapObservados.put(alumnoBD.getId(), "El alumno con código " + nroMatricula + " ya tiene registrada una deuda de este tipo " + motivo + ". (Fila " + fila + ")");
                     }
                     continue;
                 }
