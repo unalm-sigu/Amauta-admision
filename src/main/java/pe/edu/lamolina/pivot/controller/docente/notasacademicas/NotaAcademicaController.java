@@ -179,7 +179,7 @@ public class NotaAcademicaController {
                     }
                     secciones += (seccion.getVerInformacion() ? (seccion.getMatriculados() > 0 ? "VER" : "SIN-ALU") : "NO-VER") + ",";
                 }
-                node.put("secciones", secciones.substring(0, secciones.length() - 1));
+                node.put("secciones", secciones != "" ? secciones.substring(0, secciones.length() - 1) : "");
 
                 boolean tienePlanCalificacion = false;
                 boolean verOpciones = false;
