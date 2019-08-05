@@ -175,28 +175,20 @@ public class RestriccionMatriculaServiceImp implements RestriccionMatriculaServi
                 String descripcion = getCellValue(2, row);
 
                 if (StringUtils.isEmpty(nroMatricula) || StringUtils.isEmpty(descripcion)) {
-                    continue;
+                    return;
                 }
 
                 Alumno alumnoBD = alumnoDAO.findByCodigo(nroMatricula);
 
                 if (alumnoBD == null) {
                     String error = " (Fila " + fila + ")";
-                    throw new PhobosException("No existe un alumno con el número de matrícula " + nroMatricula + error);
+                    mapObservados.put(Long.parseLong(fila + ""), "No existe un alumno con el número de matrícula " + nroMatricula + error);
                 }
 
                 DeudaMaterialAlumno deuda = new DeudaMaterialAlumno();
                 deuda.setOficina(oficina);
                 deuda.setAlumno(alumnoBD);
                 deuda.setDescripcion(descripcion);
-
-                if (registrados.contains(alumnoBD.getId()) || deudaRepetida(deuda)) {
-                    if (!mapObservados.containsKey(alumnoBD.getId())) {
-                        mapObservados.put(alumnoBD.getId(), "El alumno con código " + nroMatricula + " ya tiene registrada una deuda de este tipo. (Fila " + fila + ")");
-                    }
-                    continue;
-                }
-
                 deuda.setEstado(DeudaAlumnoEstadoEnum.REST);
                 deuda.setFechaRegistro(fechaRegistro);
                 deuda.setUserRegistro(userRegistro);
