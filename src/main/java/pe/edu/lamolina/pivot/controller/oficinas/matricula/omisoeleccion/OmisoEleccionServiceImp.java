@@ -1,6 +1,5 @@
 package pe.edu.lamolina.pivot.controller.oficinas.matricula.omisoeleccion;
 
-import static groovy.util.Eval.x;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -39,6 +38,8 @@ import static pe.edu.lamolina.model.enums.AportesEnum.A46;
 import pe.edu.lamolina.model.enums.DeudaEstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoAporteEnum;
 import static pe.edu.lamolina.model.enums.EstadoAporteEnum.DEBE;
+import static pe.edu.lamolina.model.enums.MotivoOmisoEnum.NMBR;
+import static pe.edu.lamolina.model.enums.MotivoOmisoEnum.NVOTO;
 import pe.edu.lamolina.model.enums.NombreTablasEnum;
 import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.finanzas.Acreencia;
@@ -139,8 +140,12 @@ public class OmisoEleccionServiceImp implements OmisoEleccionService {
                 String motivo = getCellValue(2, row);
                 String multa = getCellValue(3, row);
 
+                if (!NVOTO.equals(motivo) && !NMBR.name().equals(motivo)) {
+                     mapObservados.put(Long.parseLong("" + fila), "Valor incorrecto en la fila " + fila + ". Los motivos son NVOT (No votó ) o NMBR (Omisión miembro de mesa).");
+                }
+                
                 if (StringUtils.isEmpty(nroMatricula) || StringUtils.isEmpty(motivo) || StringUtils.isEmpty(multa)) {
-                    mapObservados.put(Long.parseLong("" + fila), "La fila  " + fila + " tiene campos vacíos.");
+//                    mapObservados.put(Long.parseLong("" + fila), "La fila  " + fila + " tiene campos vacíos.");
                     return;
                 }
 
