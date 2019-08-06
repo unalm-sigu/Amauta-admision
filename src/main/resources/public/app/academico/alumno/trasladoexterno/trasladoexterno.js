@@ -8,7 +8,8 @@ new Vue({
         listAlumnoCursoCurricula: JSON.parse(listAlumnoCursoCurriculaJson),
         listCursoConvalidado: JSON.parse(listCursoConvalidadoJson),
         listAlumnoCursoCOptions: [],
-        almCursCurricula: null,
+        curso: null,
+        cursos: [],
         tramiteTrasladoActivo: {tipoTraslado: null, id: null},
         total: 0
     },
@@ -49,6 +50,27 @@ new Vue({
 
             }
         },
+        loadCursos(nombre) {
+            let $vue = this;
+            this.isLoading = true
+
+            if (nombre != '' || nombre != null || nombre != undefined) {
+
+                $.ajax({
+                    url: APP.url("academico/alumno/allCurso"),
+                    dataType: 'json',
+                    type: 'post',
+                    data: {nombre: nombre}
+                }).then(response => {
+                    if (response.success) {
+                        $vue.cursos = response.data;
+                    }
+
+                    this.isLoading = false;
+                })
+
+            }
+        },
         listUpdate(item) {
             let $vue = this;
             for (var i = 0; i < $vue.listAlumnoCursoCOptions.length; i++) {
@@ -72,19 +94,19 @@ new Vue({
         },
         addCurso() {
             let $vue = this;
-            if ($vue.almCursCurricula === null) {
+            if ($vue.curso === null) {
                 notify("Debe seleccionar un curso para agregar.", "warning")
                 return;
             }
-            let objectClone = Object.assign({}, $vue.almCursCurricula);
+            let objectClone = Object.assign({}, $vue.curso);
             $vue.listUpdate(objectClone);
-            $vue.listCursoConvalidado.push({id: null, curso: objectClone.curso, tramiteTraslado: {id: $vue.tramiteTrasladoActivo.id, alumno: $vue.alumno}});
-            $vue.updateTotalCreditos($vue.almCursCurricula, "add");
-            $vue.almCursCurricula = null;
+            $vue.listCursoConvalidado.push({id: null, curso: objectClone, tramiteTraslado: {id: $vue.tramiteTrasladoActivo.id, alumno: $vue.alumno}});
+            $vue.updateTotalCreditos($vue.curso, "add");
+            $vue.curso = null;
         },
         deleteItem(index, item) {
             let $vue = this;
-            $vue.updateTotalCreditos(item, "remove");
+            $vue.updateTotalCreditos(item.curso, "remove");
             $vue.listCursoConvalidado.splice(index, 1);
             $vue.updateListOptions();
 
@@ -92,11 +114,11 @@ new Vue({
         updateTotalCreditos(item, param) {
             let $vue = this;
             if (param === "add") {
-                $vue.total = $vue.total + (item.curso.creditos);
+                $vue.total = $vue.total + (item.creditos);
             }
 
             if (param === "remove") {
-                $vue.total = $vue.total - (item.curso.creditos);
+                $vue.total = $vue.total - (item.creditos);
             }
         },
         findTramiteTrasladoActivo() {

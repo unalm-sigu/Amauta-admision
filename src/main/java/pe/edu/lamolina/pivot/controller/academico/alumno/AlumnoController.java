@@ -37,6 +37,7 @@ import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.CursoCicloAcademico;
 import pe.edu.lamolina.model.academico.CursoConvalidado;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
@@ -476,6 +477,32 @@ public class AlumnoController {
             e.printStackTrace();
         }
         return "academico/alumno/trasladoexterno/trasladoexterno";
+    }
+
+    @ResponseBody
+    @RequestMapping("allCurso")
+    public JsonResponse allCurso(@RequestParam("nombre") String nombre, HttpSession session) {
+
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            ArrayNode jsonList = new ArrayNode(jsonFactory);
+            List<Curso> cursos = service.allCurso(nombre);
+            for (Curso curso : cursos) {
+                ObjectNode json = JsonHelper.createJson(curso, jsonFactory, new String[]{"*"});
+
+                jsonList.add(json);
+            }
+            response.setData(jsonList);
+            response.setTotal(jsonList.size());
+            response.setSuccess(true);
+
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
     }
 
     @ResponseBody

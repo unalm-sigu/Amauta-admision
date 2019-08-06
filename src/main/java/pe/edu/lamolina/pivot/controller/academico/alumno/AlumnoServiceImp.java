@@ -872,4 +872,11 @@ public class AlumnoServiceImp implements AlumnoService {
         }
     }
 
+    @Override
+    public List<Curso> allCurso(String nombre) {
+
+        return cursoDAO.allCursoByName(nombre);
+
+    }
+
 }
