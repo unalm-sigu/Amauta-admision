@@ -1395,7 +1395,14 @@ public class LoadProgramacionServiceImp implements LoadProgramacionService {
 
         long t1 = System.currentTimeMillis();
         logger.debug("saveAlumnos");
-        this.saveAlumnos(alumnos, ciclo, mapKeyPersonas, mapDNIPersonas, mapIdPersonas, mapAlumnos, mapSituaciones, ds);
+        List<Alumno> alumnosnuevos = new ArrayList();
+        for (Alumno alu : alumnos) {
+            if (mapAlumnos.get(alu.getCodigo()) == null) {
+                continue;
+            }
+            alumnosnuevos.add(alu);
+        }
+        this.saveAlumnos(alumnosnuevos, ciclo, mapKeyPersonas, mapDNIPersonas, mapIdPersonas, mapAlumnos, mapSituaciones, ds);
         long t2 = System.currentTimeMillis();
         logger.debug("\tsaveAlumnos ejecutado en {} mseg", (t2 - t1));
 
