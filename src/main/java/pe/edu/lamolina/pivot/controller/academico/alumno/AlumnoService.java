@@ -63,7 +63,7 @@ public interface AlumnoService {
 
     List<TramiteTraslado> allTramiteTrasladoByAlumno(Alumno alumno);
 
-    void saveListCursoConvalidado(TrasladoBean trasladoBean, Usuario usuario, CicloAcademico cicloAcademico);
+    List<CursoConvalidado> saveListCursoConvalidado(TrasladoBean trasladoBean, Usuario usuario, CicloAcademico cicloAcademico);
 
     List<CursoConvalidado> alllCursoConvalidadoInTraslado(List<TramiteTraslado> listTramiteTraslado);
 
