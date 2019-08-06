@@ -26,4 +26,6 @@ public interface EgresadoDAO extends EasyDAO<Egresado> {
 
     List<Egresado> allByControlMeritoFacultad(DynatableFilter filter, ControlMeritoEgresado controlBD);
 
+    public List<Egresado> allByAlumnos(List<Alumno> alumnos);
+
 }

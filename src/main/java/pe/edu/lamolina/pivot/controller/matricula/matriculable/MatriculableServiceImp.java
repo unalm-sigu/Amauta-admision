@@ -37,6 +37,7 @@ import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCiclo;
+import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.ConfiguracionTurnosAtencion;
 import pe.edu.lamolina.model.academico.Egresado;
@@ -46,6 +47,7 @@ import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.SituacionAcademica;
 import pe.edu.lamolina.model.academico.TurnoAtencion;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
+import pe.edu.lamolina.model.enums.EstadoTramiteEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.EPG;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.ESP;
@@ -70,14 +72,17 @@ import pe.edu.lamolina.model.enums.TipoCondicionalEnum;
 import static pe.edu.lamolina.model.enums.TipoTramiteEnum.CAM_NOTA;
 import static pe.edu.lamolina.model.enums.TramiteEstadoEnum.PEND;
 import pe.edu.lamolina.model.tramite.CambioNota;
+import pe.edu.lamolina.model.tramite.EstadoTramite;
 import pe.edu.lamolina.model.tramite.Reincorporacion;
 import pe.edu.lamolina.model.tramite.RetiroCiclo;
 import pe.edu.lamolina.pivot.controller.academico.alumno.AlumnoResumen;
 import pe.edu.lamolina.pivot.controller.academico.avancecurricular.AvanceCurricularService;
+import pe.edu.lamolina.pivot.controller.academico.promedio.PromedioReviewService;
 import pe.edu.lamolina.pivot.controller.academico.promedio.PromedioService;
 import pe.edu.lamolina.pivot.controller.bienestar.alumnoAporte.AporteAlumnoService;
 import pe.edu.lamolina.pivot.controller.matricula.configuracionturno.ConfiguracionMatriculaService;
 import pe.edu.lamolina.pivot.controller.visores.RespositorVisor;
+import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloCursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCursoCurriculaDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
@@ -124,6 +129,11 @@ public class MatriculableServiceImp implements MatriculableService {
     @Autowired
     EgresadoDAO egresadoDAO;
     @Autowired
+    ReincorporacionDAO reincorporacionDAO;
+
+    @Autowired
+    AlumnoCicloCursoDAO alumnoCicloCursoDAO;
+    @Autowired
     ConfiguracionTurnosAtencionDAO configuracionTurnosAtencionDAO;
 
     @Autowired
@@ -139,6 +149,9 @@ public class MatriculableServiceImp implements MatriculableService {
     PromedioService promedioService;
 
     @Autowired
+    PromedioReviewService promedioReviewService;
+
+    @Autowired
     AlumnoCursoCurriculaDAO alumnoCursoCurriculaDAO;
 
     @Autowired
@@ -149,9 +162,6 @@ public class MatriculableServiceImp implements MatriculableService {
 
     @Autowired
     AvanceCurricularService avanceCurricularService;
-
-    @Autowired
-    ReincorporacionDAO reincorporacionDAO;
 
     @Autowired
     CambioNotaDAO cambioNotaDAO;
@@ -402,6 +412,20 @@ public class MatriculableServiceImp implements MatriculableService {
     @Transactional
     public void revisarSituacionAcademica(Alumno alumno, DataSessionPivot ds) {
         promedioService.calulcarSituacionAcademica(alumno, ds);
+    }
+
+    @Transactional
+    private void revisarSituacionAcademicaReview(Alumno alumno, CicloAcademico cicloActivo,
+            List<CicloAcademico> ciclos,
+            List<AlumnoCicloCurso> allOperativesByModalidadEstudioDB,
+            List<AlumnoCiclo> allAlumnoCiclos,
+            Map<String, SituacionAcademica> mapSituacionAcademicas,
+            Map<Long, List<AlumnoCicloCurso>> mapAllCicloCurso,
+            Map<Long, AlumnoCiclo> mapAllAlumnoCicloByCiclo,
+            Egresado egresado,
+            List<Reincorporacion> reincorporacionesByAlumno,
+            DataSessionPivot ds) {
+        promedioReviewService.calulcarSituacionAcademicaReview(alumno, cicloActivo, ciclos, allOperativesByModalidadEstudioDB, allAlumnoCiclos, mapSituacionAcademicas, mapAllCicloCurso, mapAllAlumnoCicloByCiclo, egresado, reincorporacionesByAlumno, ds);
     }
 
     @Override
@@ -932,20 +956,60 @@ public class MatriculableServiceImp implements MatriculableService {
     @Transactional
     public void verificarAlumnosNmat(DataSessionPivot ds, List<AlumnoCiclo> alumnoCiclos) {
 
+        List<Alumno> alumnos = alumnoCiclos.stream().map(x -> x.getAlumno()).collect(Collectors.toList());
+        alumnos = alumnoDAO.allInfoByAlumno(alumnos);
         logger.debug("Cantidad de alumnos {}", alumnoCiclos.size());
         CicloAcademico academico = ds.getCicloAcademico();
+        List<CicloAcademico> ciclosAcademicos = cicloAcademicoDAO.all();
+        List<CicloAcademico> ciclosActivo = cicloAcademicoDAO.allActivos();
+        Map<String, CicloAcademico> mapCiclo = TypesUtil.convertListToMap("modalidadEstudio.codigo", ciclosActivo);
+        Map<Long, Alumno> mapAlumno = TypesUtil.convertListToMap("id", alumnos);
+
+        List<AlumnoCicloCurso> alumnoCicloCursos = alumnoCicloCursoDAO.allOperativesByAlumnos(alumnos);
+        Map<Long, List<AlumnoCicloCurso>> mapAlumnoCicloCurso = TypesUtil.convertListToMapList("alumnoCiclo.alumno.id", alumnoCicloCursos);
+
+        List<AlumnoCiclo> alumnosCiclos = alumnoCicloDAO.allByAlumnos(alumnos);
+        Map<Long, List<AlumnoCiclo>> mapAlumnoCiclo = TypesUtil.convertListToMapList("alumno.id", alumnosCiclos);
+
+        List<Egresado> egresados = egresadoDAO.allByAlumnos(alumnos);
+        Map<Long, Egresado> mapEgresados = TypesUtil.convertListToMap("alumno.id", egresados);
+
+        List<Reincorporacion> reincorporacions = reincorporacionDAO.allByEstadoTramiteAndAlumnos(alumnos, new EstadoTramite(EstadoTramiteEnum.SOL_ACEP.getId()));
+        Map<Long, List<Reincorporacion>> mapReincorporaciones = TypesUtil.convertListToMapList("alumno.id", reincorporacions);
+
+        List<SituacionAcademica> situacionAcademicas = situacionAcademicaDAO.all();
+        Map<String, SituacionAcademica> mapSituacionAcademicas = TypesUtil.convertListToMap("codigo", situacionAcademicas);
 
         for (AlumnoCiclo alumnoCiclo : alumnoCiclos) {
-          
-            logger.info("Alumno codigo {}", alumnoCiclo.getAlumno().getCodigo());
-            logger.debug("Cantidad de {} total {}", respositorVisor.getContador(), respositorVisor.getCantidadTotal());
-            this.revisarSituacionAcademica(alumnoCiclo.getAlumno(), ds);
-            respositorVisor.incrementar();
+//            CicloAcademico cicloActivoMod = mapCiclo.get(alumnoCiclo.getAlumno().getModalidadEstudio().getCodigo());
+//            List<AlumnoCicloCurso> allAlumnoCicloCurso = mapAlumnoCicloCurso.get(alumnoCiclo.getAlumno().getId());
+//            List<AlumnoCiclo> allAlumnoCiclos = mapAlumnoCiclo.get(alumnoCiclo.getAlumno().getId());
+//            Egresado egresado = mapEgresados.get(alumnoCiclo.getAlumno().getId());
+//            List<Reincorporacion> reincorporac = mapReincorporaciones.get(alumnoCiclo.getAlumno().getId());
+//            logger.info("Alumno codigo {}", alumnoCiclo.getAlumno().getCodigo());
+//            logger.debug("Cantidad de {} total {}", respositorVisor.getContador(), respositorVisor.getCantidadTotal());
+//            Map<Long, AlumnoCiclo> mapAllAlumnoCicloByCiclo = TypesUtil.convertListToMap("cicloAcademico.id", allAlumnoCiclos);
+//            Map<Long, List<AlumnoCicloCurso>> mapAllAlumnoCicloByAlumnoCiclo = TypesUtil.convertListToMapList("alumnoCiclo.id", fillList(allAlumnoCicloCurso));
+//            Alumno alumno = mapAlumno.get(alumnoCiclo.getAlumno().getId());
+//            this.revisarSituacionAcademicaReview(alumno,
+//                    cicloActivoMod, ciclosAcademicos,
+//                    fillList(allAlumnoCicloCurso), allAlumnoCiclos,
+//                    mapSituacionAcademicas, mapAllAlumnoCicloByAlumnoCiclo, mapAllAlumnoCicloByCiclo, egresado, reincorporac, ds);
+//            this.revisarSituacionAcademicaReview(alumnoCiclo.getAlumno(), cicloActivoMod, allAlumnoCicloCurso, ciclosAcademicos, allAlumnoCiclos, ds);
+this.revisarSituacionAcademica(alumnoCiclo.getAlumno(), ds);
+respositorVisor.incrementar();
             logger.debug("Cantidad de {} total {}", respositorVisor.getContador(), respositorVisor.getCantidadTotal());
         }
         academico.setFechaVerificaNmat(new Date());
         cicloAcademicoDAO.update(academico);
 
+    }
+
+    private List fillList(List list) {
+        if (list == null) {
+            return new ArrayList();
+        }
+        return list;
     }
 
     @Override

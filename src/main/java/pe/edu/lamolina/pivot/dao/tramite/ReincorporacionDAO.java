@@ -34,4 +34,6 @@ public interface ReincorporacionDAO extends EasyDAO<Reincorporacion> {
     public List<Reincorporacion> allByTramitesCondicional(List<Tramite> tramites);
     
     List<Reincorporacion> allByTramite(List<Tramite> tramite);
+
+    public List<Reincorporacion> allByEstadoTramiteAndAlumnos(List<Alumno> alumnos, EstadoTramite estadoTramite);
 }
