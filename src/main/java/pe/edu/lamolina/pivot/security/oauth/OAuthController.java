@@ -10,7 +10,9 @@ import com.github.scribejava.core.model.Response;
 import com.github.scribejava.core.model.Verb;
 import com.github.scribejava.core.oauth.OAuth20Service;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -62,7 +64,11 @@ public class OAuthController {
     public String loginGoogle() {
 
         OAuth20Service service = serviceProvider.getService();
-        return "redirect:" + service.getAuthorizationUrl();
+
+        Map<String, String> additionalParams = new HashMap();
+        additionalParams.put("prompt", "select_account");
+
+        return "redirect:" + service.getAuthorizationUrl(additionalParams);
     }
 
     @RequestMapping(value = "callback", method = RequestMethod.GET)

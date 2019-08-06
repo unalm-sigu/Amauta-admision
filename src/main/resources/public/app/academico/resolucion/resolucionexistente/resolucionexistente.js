@@ -40,7 +40,7 @@ var app = new Vue({
                 $vue.isReincorporacion = true;
             } else if (item.codigo == "CAM_NOTA") {
                 $vue.isCambioNota = true;
-            } else if (item.codigo == "TRAS") {
+            } else if (item.codigo == "TRAS" || item.codigo == "INTES") {
                 $vue.isTraslado = true;
             } else {
                 $vue.isCursoDirigido = true;
