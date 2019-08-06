@@ -132,4 +132,15 @@ public class ReincorporacionDAOH extends AbstractEasyDAO<Reincorporacion> implem
 
         return all(sql);
     }
+
+    @Override
+    public List<Reincorporacion> allByEstadoTramiteAndAlumnos(List<Alumno> alumnos, EstadoTramite estadoTramite) {
+        Octavia sql = Octavia.query()
+                .from(Reincorporacion.class, "rei")
+                .join("alumno alu", "estadoTramite et", "cicloReincorporacion cr")
+                .left("tramite tra", "facultad fac", "resolucion res")
+                .filter("et.id", estadoTramite)
+                .in("alu.id", alumnos);
+        return all(sql);
+    }
 }

@@ -37,7 +37,8 @@ public class TramiteTrasladoDAOH extends AbstractEasyDAO<TramiteTraslado> implem
                 .from(TramiteTraslado.class, "tras")
                 .join("tramite tra", "resolucion res", "cicloAcademico cic")
                 .leftJoin("tra.alumno al", "res.tipoResolucion", "res.oficina", "userRegistro ur", "ur.persona per")
-                .filter("al.id", alumno);
+                .filter("al.id", alumno)
+                .orderBy("tras.id desc");
 
         return all(sql);
     }

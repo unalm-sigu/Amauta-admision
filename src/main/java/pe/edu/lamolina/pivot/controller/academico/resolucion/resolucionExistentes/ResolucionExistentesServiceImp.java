@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.zelpers.miscelanea.Assert;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
@@ -38,6 +39,7 @@ import pe.edu.lamolina.model.enums.TipoDocumentoCompaniaEnum;
 import pe.edu.lamolina.model.enums.TipoResolucionEnum;
 import pe.edu.lamolina.model.enums.TipoRetiroCicloEnum;
 import pe.edu.lamolina.model.enums.TipoTramiteEnum;
+import pe.edu.lamolina.model.enums.TipoTramiteTrasladoEnum;
 import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
 import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.general.SerieDocumento;
@@ -575,7 +577,6 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
     @Transactional
     public void saveTramiteTraslado(Resolucion resolucionForm, Usuario usuario, CicloAcademico cicloAcademico, Compania compania) {
 
-        TipoResolucion tipoResolucion = tipoResolucionDAO.finByCodigo(TipoResolucionEnum.TRAS);
         Resolucion resolucion = new Resolucion();
         resolucion.setOficina(resolucionForm.getOficina());
         resolucion.setFecha(resolucionForm.getFecha());
@@ -583,8 +584,8 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
         resolucion.setSerie(resolucionForm.getSerie());
         resolucion.setEstadoEnum(ResolucionEstadoEnum.VB_RES);
         resolucion.setFechaRegistro(new Date());
-        resolucion.setTipoResolucion(tipoResolucion);
         resolucion.setUserRegistro(usuario);
+        resolucion.setTipoResolucion(resolucionForm.getTipoResolucion());
         resolucion.setAplicacionDirecta(1l);
         resolucionDAO.save(resolucion);
 
@@ -617,6 +618,11 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
             tramiteTraslado.setCicloAcademico(cicloAcademico);
             tramiteTraslado.setResolucion(resolucion);
             tramiteTraslado.setFechaRegistro(new Date());
+            if (resolucionForm.getTipoResolucion().getCodigo().equals(TipoResolucionEnum.TRAS.name())) {
+                tramiteTraslado.setTipoTramiteTrasladoEnum(TipoTramiteTrasladoEnum.TRAS);
+            } else if (resolucionForm.getTipoResolucion().getCodigo().equals(TipoResolucionEnum.INTES.name())) {
+                tramiteTraslado.setTipoTramiteTrasladoEnum(TipoTramiteTrasladoEnum.INTES);
+            }
             tramiteTraslado.setUserRegistro(usuario);
             tramiteTraslado.setEstado(EstadoEnum.ACT.name());
             tramiteTrasladoDAO.save(tramiteTraslado);

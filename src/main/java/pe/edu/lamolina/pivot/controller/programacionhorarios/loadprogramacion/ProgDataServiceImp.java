@@ -309,7 +309,7 @@ public class ProgDataServiceImp implements ProgDataService {
         personaDAO.update(main);
 
         for (Persona persona : personasVinculadas) {
-            Usuario user = usuarioDAO.findByPersona(persona);
+            Usuario user = usuarioDAO.findByPersonaId(persona);
             if (user == null) {
                 continue;
             }

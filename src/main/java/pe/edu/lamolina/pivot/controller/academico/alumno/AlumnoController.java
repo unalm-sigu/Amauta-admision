@@ -482,9 +482,13 @@ public class AlumnoController {
     @RequestMapping("saveListCursoConvalidado")
     public JsonResponse saveListCursoConvalidado(@RequestBody TrasladoBean trasladoBean, HttpSession session) {
         JsonResponse response = new JsonResponse();
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        ArrayNode array = new ArrayNode(jsonFactory);
+
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            service.saveListCursoConvalidado(trasladoBean, ds.getUsuario(), ds.getCicloAcademico());
+            List<CursoConvalidado> listCursoConvalidado = service.saveListCursoConvalidado(trasladoBean, ds.getUsuario(), ds.getCicloAcademico());
+            response.setData(createListCursoConvalidado(listCursoConvalidado));
             response.setSuccess(Boolean.TRUE);
             response.setMessage("Los cursos fueron registrados satisfactoriamente.");
         } catch (PhobosException e) {
@@ -522,7 +526,7 @@ public class AlumnoController {
         ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
         for (CursoConvalidado item : listCursoConvalidado) {
             ObjectNode node = JsonHelper.createJson(item, JsonNodeFactory.instance, new String[]{
-                "id", "fechaRegistro", "curso.id", "curso.nombre", "curso.codigo", "curso.creditos", "curso.tipoCurso"});
+                "id", "nota", "fechaRegistro", "curso.id", "curso.nombre", "curso.codigo", "curso.creditos", "curso.tipoCurso"});
             array.add(node);
         }
         return array;
@@ -540,7 +544,7 @@ public class AlumnoController {
         ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
         for (TramiteTraslado item : listTramiteTraslado) {
             ObjectNode node = JsonHelper.createJson(item, JsonNodeFactory.instance, new String[]{
-                "id", "estado", "tramite.id",
+                "id", "estado", "tipoTraslado", "tramite.id",
                 "tramite.alumno.persona.id", "cicloAcademico.id",
                 "resolucion.id", "resolucion.fecha", "resolucion.estado",
                 "resolucion.serie", "resolucion.numero", "resolucion.rutaUrl", "resolucion.fechaRegistro",
