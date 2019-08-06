@@ -1397,7 +1397,7 @@ public class LoadProgramacionServiceImp implements LoadProgramacionService {
         logger.debug("saveAlumnos");
         List<Alumno> alumnosnuevos = new ArrayList();
         for (Alumno alu : alumnos) {
-            if (mapAlumnos.get(alu.getCodigo()) == null) {
+            if (mapAlumnos.get(alu.getCodigo()) != null) {
                 continue;
             }
             alumnosnuevos.add(alu);
