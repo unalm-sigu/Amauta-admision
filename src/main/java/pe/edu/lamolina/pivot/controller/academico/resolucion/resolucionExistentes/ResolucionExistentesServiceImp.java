@@ -14,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.zelpers.miscelanea.Assert;
-import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
@@ -37,6 +36,7 @@ import pe.edu.lamolina.model.enums.OrigenDataSituacionAcademicaEnum;
 import pe.edu.lamolina.model.enums.ResolucionEstadoEnum;
 import pe.edu.lamolina.model.enums.TipoDocumentoCompaniaEnum;
 import pe.edu.lamolina.model.enums.TipoResolucionEnum;
+import static pe.edu.lamolina.model.enums.TipoResolucionEnum.INTES;
 import pe.edu.lamolina.model.enums.TipoRetiroCicloEnum;
 import pe.edu.lamolina.model.enums.TipoTramiteEnum;
 import pe.edu.lamolina.model.enums.TipoTramiteTrasladoEnum;
@@ -597,7 +597,12 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
             DateTime today = new DateTime();
             TipoDocumentoCompania tipoDocumentoCompania = tipoDocumentoCompaniaDAO.findByCodigo(TipoDocumentoCompaniaEnum.TRAM);
             SerieDocumento serieDocumento = serieDocumentoService.getCorrelativo(tipoDocumentoCompania, Long.valueOf(today.getYear()), usuario);
-            TipoTramite tipoTramite = tipoTramiteDAO.findByCodigo(TipoTramiteEnum.TRAS.name());
+            TipoTramite tipoTramite = null;
+            if (resolucionForm.getTipoResolucion().getCodigo().equals(INTES.name())) {
+                tipoTramite = tipoTramiteDAO.findByCodigo(TipoTramiteEnum.INTES.name());
+            } else {
+                tipoTramite = tipoTramiteDAO.findByCodigo(TipoTramiteEnum.TRAS.name());
+            }
             Alumno alumno = alumnoDAO.find(tramiteTraslado.getAlumno());
 
             tramite.setActivo(true);
