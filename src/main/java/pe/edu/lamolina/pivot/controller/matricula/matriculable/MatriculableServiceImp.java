@@ -175,7 +175,7 @@ public class MatriculableServiceImp implements MatriculableService {
     }
 
     @Override
-    public List<MatriculaResumen> allAlumnosByCicloRolDynatable(DynatableFilter filter, List<CicloAcademico> cicloAcademico, String codigo, List<Long> filtros) {
+    public List<MatriculaResumen> allAlumnosByCicloRolDynatable(DynatableFilter filter, CicloAcademico cicloAcademico, String codigo, List<Long> filtros) {
         return matriculaResumenDAO.allByCicloRolDynatable(filter, cicloAcademico, codigo, filtros);
     }
 
