@@ -160,7 +160,6 @@ public class RecorridoIngresanteDAOH extends AbstractEasyDAO<RecorridoIngresante
                 .filter("ci.id", ciclo)
                 .orderBy("ri.numeroAtencion asc");
 
-        System.out.println(sql.toString());
         return all(sql);
     }
 
