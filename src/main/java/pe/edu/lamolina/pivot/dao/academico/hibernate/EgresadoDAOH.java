@@ -142,4 +142,14 @@ public class EgresadoDAOH extends AbstractEasyDAO<Egresado> implements EgresadoD
         return all(sql);
     }
 
+    @Override
+    public List<Egresado> allByAlumnos(List<Alumno> alumnos) {
+        Octavia sql = Octavia.query()
+                .from(Egresado.class, "e")
+                .join("alumno alu")
+                .in("alu.id", alumnos);
+
+        return all(sql);
+    }
+
 }

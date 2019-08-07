@@ -79,6 +79,14 @@ public class LoadProgramacionController {
         return "academico/loadprogramacion/loadProgramacion";
     }
 
+    @RequestMapping(value = "alumnos", method = RequestMethod.GET)
+    public String indexAlumno(Model model, HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        model.addAttribute("ciclo", ds.getCicloAcademico());
+        model.addAttribute("visor", visor);
+        return "academico/loadprogramacion/loadProgramacionAlumnos";
+    }
+
     @RequestMapping("colgados")
     public String colgados(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
@@ -96,6 +104,29 @@ public class LoadProgramacionController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             Map<String, String> rutas = service.loadArchivosHorario(files);
             service.inicioProcesarArchivos(rutas, ds.getCicloAcademico(), ds);
+
+            json.setSuccess(true);
+            json.setMessage("Archivos enviados satisfactoriamente");
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, json);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, json);
+
+        } finally {
+            return json;
+        }
+    }
+
+    @ResponseBody
+    @RequestMapping("uploadFileAlumnos")
+    public JsonResponse uploadFileAlumnos(@RequestParam("file") MultipartFile[] file, Model model, HttpSession session) {
+        JsonResponse json = new JsonResponse();
+
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            Map<String, String> rutas = service.loadArchivosAlumnos(file);
+            service.inicioProcesarArchivoAlumno(rutas, ds.getCicloAcademico(), ds);
 
             json.setSuccess(true);
             json.setMessage("Archivos enviados satisfactoriamente");

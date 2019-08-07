@@ -1353,4 +1353,86 @@ public class LoadProgramacionServiceImp implements LoadProgramacionService {
         }
     }
 
+    @Override
+    public void inicioProcesarArchivoAlumno(Map<String, String> rutas, CicloAcademico ciclo, DataSessionPivot ds) {
+        visor.iniciar();
+        logger.debug("CICLO  {} {} {} ", ciclo.getId(), ciclo.getYear(), ciclo.getNumeroCiclo());
+        visor.agregarLog("ciclo", "inicio", "Ciclo " + ciclo.getId() + " " + ciclo.getYear() + " " + ciclo.getNumeroCiclo(), false, "info");
+
+        String rutaFileAlumno = rutas.get("Alumnos.xls");
+        visor.agregarLog("inicio", "inicio", "rutaFileAlumno: " + rutaFileAlumno, false, "info");
+
+        List<Alumno> alumnos = crearAlumnos(rutaFileAlumno);
+        visor.inicializar("alu", alumnos.size());
+
+        List<Persona> personasDB = personaDAO.all();
+        Map<String, List<Persona>> mapKeyPersonas = TypesUtil.convertListToMapList("key", personasDB);
+        Map<Long, Persona> mapIdPersonas = TypesUtil.convertListToMap("id", personasDB);
+        Map<String, Persona> mapDNIPersonas = new LinkedHashMap();
+        for (Persona persona : personasDB) {
+            if (visor.isStop()) {
+                throw new PhobosException("Carga detenida intespestivamente");
+            }
+
+            if (persona.getTipoDocumento() != null && persona.getNumeroDocIdentidad() != null) {
+                mapDNIPersonas.put(persona.getIdentificacion(), persona);
+            }
+        }
+
+        Map<String, AlumnoBlocked> mapBloqueados = new LinkedHashMap();
+        progDataService.revisarBloqueados(mapBloqueados);
+
+        List<Alumno> alumnosDB = alumnoDAO.all();
+        Map<String, Alumno> mapAlumnos = TypesUtil.convertListToMap("codigo", alumnosDB);
+        for (Alumno alumno : alumnosDB) {
+            Persona persona = mapIdPersonas.get(alumno.getPersona().getId());
+            if (persona != null) {
+                alumno.setPersona(persona);
+            }
+        }
+        List<SituacionAcademica> situaciones = situacionAcademicaDAO.all();
+        Map<String, SituacionAcademica> mapSituaciones = TypesUtil.convertListToMap("codigo", situaciones);
+
+        long t1 = System.currentTimeMillis();
+        logger.debug("saveAlumnos");
+        List<Alumno> alumnosnuevos = new ArrayList();
+        for (Alumno alu : alumnos) {
+            if (mapAlumnos.get(alu.getCodigo()) != null) {
+                continue;
+            }
+            alumnosnuevos.add(alu);
+        }
+        this.saveAlumnos(alumnosnuevos, ciclo, mapKeyPersonas, mapDNIPersonas, mapIdPersonas, mapAlumnos, mapSituaciones, ds);
+        long t2 = System.currentTimeMillis();
+        logger.debug("\tsaveAlumnos ejecutado en {} mseg", (t2 - t1));
+
+    }
+
+    @Override
+    public Map<String, String> loadArchivosAlumnos(MultipartFile[] files) {
+        List<String> nombreFiles = Arrays.asList("Alumnos.xls");
+
+        Map<String, String> mapRutaFiles = new HashMap();
+        if (files.length != 1) {
+            throw new PhobosException("Deben ser 1 archivos de carga");
+        }
+        for (MultipartFile file : files) {
+            String nombre = file.getOriginalFilename();
+            mapRutaFiles.put(nombre, nombre);
+        }
+        for (String name : nombreFiles) {
+            String nfile = mapRutaFiles.get(name);
+            if (nfile == null) {
+                throw new PhobosException("No está enviando el archivo " + name);
+            }
+        }
+
+        for (MultipartFile file : files) {
+            String nombre = file.getOriginalFilename();
+            String ruta = saveFile(file);
+            mapRutaFiles.put(nombre, ruta);
+        }
+        return mapRutaFiles;
+    }
+
 }

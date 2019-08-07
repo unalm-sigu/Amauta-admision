@@ -8,15 +8,20 @@ new Vue({
         listAlumnoCursoCurricula: JSON.parse(listAlumnoCursoCurriculaJson),
         listCursoConvalidado: JSON.parse(listCursoConvalidadoJson),
         listAlumnoCursoCOptions: [],
-        almCursCurricula: null,
-        tramiteTrasladoActivo: null,
+        curso: null,
+        cursos: [],
+        tramiteTrasladoActivo: {tipoTraslado: null, id: null},
         total: 0
     },
-    mounted: function () {
+    created: function () {
         let $vue = this;
         $vue.updateListOptions();
         $vue.countTotal();
         $vue.findTramiteTrasladoActivo();
+    },
+    mounted: function () {
+        let $vue = this;
+
     },
     methods: {
         customLabel(item) {
@@ -45,6 +50,27 @@ new Vue({
 
             }
         },
+        loadCursos(nombre) {
+            let $vue = this;
+            this.isLoading = true
+
+            if (nombre != '' || nombre != null || nombre != undefined) {
+
+                $.ajax({
+                    url: APP.url("academico/alumno/allCurso"),
+                    dataType: 'json',
+                    type: 'post',
+                    data: {nombre: nombre}
+                }).then(response => {
+                    if (response.success) {
+                        $vue.cursos = response.data;
+                    }
+
+                    this.isLoading = false;
+                })
+
+            }
+        },
         listUpdate(item) {
             let $vue = this;
             for (var i = 0; i < $vue.listAlumnoCursoCOptions.length; i++) {
@@ -68,19 +94,19 @@ new Vue({
         },
         addCurso() {
             let $vue = this;
-            if ($vue.almCursCurricula === null) {
+            if ($vue.curso === null) {
                 notify("Debe seleccionar un curso para agregar.", "warning")
                 return;
             }
-            let objectClone = Object.assign({}, $vue.almCursCurricula);
+            let objectClone = Object.assign({}, $vue.curso);
             $vue.listUpdate(objectClone);
-            $vue.listCursoConvalidado.push({id: null, curso: objectClone.curso, tramiteTraslado: {id: $vue.tramiteTrasladoActivo.id, alumno: $vue.alumno}});
-            $vue.updateTotalCreditos($vue.almCursCurricula, "add");
-            $vue.almCursCurricula = null;
+            $vue.listCursoConvalidado.push({id: null, curso: objectClone, tramiteTraslado: {id: $vue.tramiteTrasladoActivo.id, alumno: $vue.alumno}});
+            $vue.updateTotalCreditos($vue.curso, "add");
+            $vue.curso = null;
         },
         deleteItem(index, item) {
             let $vue = this;
-            $vue.updateTotalCreditos(item, "remove");
+            $vue.updateTotalCreditos(item.curso, "remove");
             $vue.listCursoConvalidado.splice(index, 1);
             $vue.updateListOptions();
 
@@ -88,18 +114,34 @@ new Vue({
         updateTotalCreditos(item, param) {
             let $vue = this;
             if (param === "add") {
-                $vue.total = $vue.total + (item.curso.creditos);
+                if (item.curso != null) {
+                    $vue.total = $vue.total + (item.curso.creditos);
+                } else {
+                    $vue.total = $vue.total + (item.creditos);
+                }
             }
 
             if (param === "remove") {
-                $vue.total = $vue.total - (item.curso.creditos);
+                if (item.curso != null) {
+                    $vue.total = $vue.total + (item.curso.creditos);
+                } else {
+                    $vue.total = $vue.total + (item.creditos);
+                }
             }
         },
         findTramiteTrasladoActivo() {
             let $vue = this;
             for (var i = 0; i < $vue.listTramiteTraslado.length; i++) {
-                if ($vue.listTramiteTraslado[i].estado == 'ACT') {
+                if ($vue.listTramiteTraslado[i].estado === 'ACT') {
                     $vue.tramiteTrasladoActivo = $vue.listTramiteTraslado[i];
+                }
+            }
+        },
+        desactivarTraslados() {
+            let $vue = this;
+            for (var i = 0; i < $vue.listTramiteTraslado.length; i++) {
+                if ($vue.listTramiteTraslado[i].estado === 'ACT') {
+                    $vue.listTramiteTraslado[i].estado = 'INA';
                 }
             }
         },
@@ -118,18 +160,49 @@ new Vue({
                 return;
             }
 
-            let trasladoBean = {listCursoConvalidado: list, total: $vue.total, alumno: $vue.alumno, tramiteTraslado: $vue.tramiteTrasladoActivo};
+            if ($vue.tramiteTrasladoActivo.tipoTraslado === 'INTES') {
+                var form = $("#formTraslado");
+                if (!form.parsley().validate()) {
+                    notify("Debe completar todos los campos requeridos", "error");
+                    return;
+                }
+            }
 
-            axios.post("/" + rutaModulo + "/saveListCursoConvalidado", trasladoBean)
-                    .then(response => {
-                        if (response.data.success) {
-                            notify(response.data.message, "success");
-                        } else {
-                            notify(response.data.message, "warning");
-                        }
-                    }).catch(e => {
-                notify(MESSAGES.errorComunicacion, "error");
+            let trasladoBean = {listCursoConvalidado: list, total: $vue.total, alumno: $vue.alumno, tramiteTraslado: Object.assign({}, $vue.tramiteTrasladoActivo)};
+            let texto = (list.length > 1 ? 'los ' + list.length + ' cursos seleccionados?' : 'el curso seleccionado?');
+            let txtAdvertencia = " <b>Sí acepta, ya no podrá convalidar otros cursos hasta una nueva resolución.</b>";
+            bootbox.confirm({
+                message: '¿Está seguro que desea convalidar ' + texto + txtAdvertencia,
+                buttons: {
+                    confirm: {label: 'Sí, aceptar', className: "btn-warning"},
+                    cancel: {label: 'Cancelar', className: "btn-link"}
+                },
+                callback: function (result) {
+                    if (result) {
+
+                        axios.post("/" + rutaModulo + "/saveListCursoConvalidado", trasladoBean)
+                                .then(response => {
+                                    if (response.data.success) {
+                                        notify(response.data.message, "success");
+                                        $vue.listCursoConvalidado = response.data.data;
+                                        $vue.updateListOptions();
+                                        $vue.countTotal();
+                                        $vue.findTramiteTrasladoActivo();
+                                        $vue.tramiteTrasladoActivo = {tipoTraslado: null, id: null};
+                                        $vue.desactivarTraslados();
+
+                                    } else {
+                                        notify(response.data.message, "warning");
+                                    }
+                                }).catch(e => {
+                            notify(MESSAGES.errorComunicacion, "error");
+                        });
+
+                    }
+                }
             });
+
+
         }
     }
 });

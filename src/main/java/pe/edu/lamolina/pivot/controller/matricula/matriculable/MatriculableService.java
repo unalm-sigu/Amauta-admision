@@ -15,7 +15,7 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface MatriculableService {
 
-    List<MatriculaResumen> allAlumnosByCicloRolDynatable(DynatableFilter filter, List<CicloAcademico> cicloAcademico, String codigo, List<Long> filtros);
+    List<MatriculaResumen> allAlumnosByCicloRolDynatable(DynatableFilter filter, CicloAcademico cicloAcademico, String codigo, List<Long> filtros);
 
     MatriculableResumen findResumenByCiclo(CicloAcademico cicloAcademico);
 

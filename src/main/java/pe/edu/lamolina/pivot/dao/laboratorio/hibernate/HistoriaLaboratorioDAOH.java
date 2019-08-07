@@ -42,7 +42,9 @@ public class HistoriaLaboratorioDAOH extends AbstractEasyDAO<HistoriaLaboratorio
         Octavia sql = Octavia.query()
                 .from(HistoriaLaboratorio.class, "hl")
                 .join("historiaClinica hc", "hc.paciente pac", "pac.persona per")
-                .in("per.id", personas);
+                .in("per.id", personas)
+                .filter("fechaMuestra", ">", new DateTime("2019-07-01").toDate());
+        System.out.println(sql.toString());
         return all(sql);
     }
 

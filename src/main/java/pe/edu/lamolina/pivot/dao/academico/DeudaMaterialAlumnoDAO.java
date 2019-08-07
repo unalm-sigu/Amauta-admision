@@ -5,12 +5,12 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.easydao.EasyDAO;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.DeudaMaterialAlumno;
-import pe.edu.lamolina.model.academico.TipoDeudaMaterial;
+import pe.edu.lamolina.model.general.Oficina;
 
 public interface DeudaMaterialAlumnoDAO extends EasyDAO<DeudaMaterialAlumno> {
 
-    List<DeudaMaterialAlumno> allByDynatableTipoDeuda(DynatableFilter filter, TipoDeudaMaterial tipo);
+    List<DeudaMaterialAlumno> allByDynatableTipoDeuda(DynatableFilter filter, List<Oficina> oficina);
 
-    DeudaMaterialAlumno findByTipoAlumno(TipoDeudaMaterial tipo, Alumno alumno);
+    DeudaMaterialAlumno findByTipoAlumno(Oficina oficina, Alumno alumno);
 
 }

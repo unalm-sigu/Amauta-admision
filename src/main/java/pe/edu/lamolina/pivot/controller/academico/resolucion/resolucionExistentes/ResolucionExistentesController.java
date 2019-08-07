@@ -47,6 +47,7 @@ import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_EM;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_N;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_TU;
 import pe.edu.lamolina.model.enums.TipoCondicionalEnum;
+import static pe.edu.lamolina.model.enums.TipoCondicionalEnum.INTES;
 import static pe.edu.lamolina.model.enums.TipoCondicionalEnum.TRAS;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.CAM_NOTA;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.CURDIR;
@@ -121,7 +122,7 @@ public class ResolucionExistentesController {
 
         List<TipoResolucion> tipoResolucions = service.allTipoResolucion();
         for (TipoResolucion tipoResolucion : tipoResolucions) {
-            if (Arrays.asList(RCI.name(), REIC.name(), CAM_NOTA.name(), CURDIR.name(), TRAS.name()).contains(tipoResolucion.getCodigo())) {
+            if (Arrays.asList(RCI.name(), REIC.name(), CAM_NOTA.name(), CURDIR.name(), TRAS.name(), INTES.name()).contains(tipoResolucion.getCodigo())) {
                 tipoResolucionJson.add(JsonHelper.createJson(tipoResolucion, JsonNodeFactory.instance, new String[]{"*"}));
             }
         }
@@ -204,7 +205,7 @@ public class ResolucionExistentesController {
                     matriculableService.revisarSituacionAcademica(alumno, ds);
                     matriculableService.saveMatriculable(alumno, TipoCondicionalEnum.CAMBIO_NOTA.name(), ds);
                 }
-            } else if (resolucion.getTipoResolucion().getCodigo().equals(TRAS.name())) {
+            } else if (resolucion.getTipoResolucion().getCodigo().equals(TRAS.name()) || resolucion.getTipoResolucion().getCodigo().equals(INTES.name())) {
                 service.saveTramiteTraslado(resolucion, ds.getUsuario(), ds.getCicloAcademico(), ds.getCompania());
             } else {
                 service.saveCursoDirigido(resolucion, ds.getUsuario(), ds);

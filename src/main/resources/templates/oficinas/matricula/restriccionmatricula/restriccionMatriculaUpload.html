@@ -29,10 +29,10 @@
                                                 <label>Tipo</label>
                                             </div>
                                             <div class="col-md-4">                            
-                                                <select class="form-control select2" name="idTipoDeudaAlumno">
-                                                    <option th:each="tipoDeuda :${tiposDeuda}"
-                                                            th:value="${tipoDeuda.id}"
-                                                            th:text="${tipoDeuda.nombre}"></option>
+                                                <select class="form-control select2" name="idOficina">
+                                                    <option th:each="ofic :${oficinas}"
+                                                            th:value="${ofic.id}"
+                                                            th:text="${ofic.nombre}"></option>
                                                 </select>
                                             </div>
                                         </div>
@@ -44,9 +44,9 @@
                                             <span class="block underline">Carga restrcciones de matrícula (archivo .xlsx) </span>
                                             <span class="block">Seleccionar el archivo y presione el botón <strong>Iniciar Carga</strong>.</span>
                                             <p>
-                                                <a class="bold block" href="https://lamolina-admision.s3.amazonaws.com/publico/formatos/Formato%20de%20Carga%20Ingresantes%20CEPRE.xls">
+<!--                                                <a class="bold block" href="https://lamolina-admision.s3.amazonaws.com/publico/formatos/Formato%20de%20Carga%20Ingresantes%20CEPRE.xls">
                                                     <i class="fa fa-file-excel-o"></i> Formato de carga de restricciones
-                                                </a>
+                                                </a>-->
                                             </p>
                                             <div class="form-group">
                                                 <span class="btn bg-gradient">

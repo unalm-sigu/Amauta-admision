@@ -580,4 +580,19 @@ public class AlumnoCicloCursoDAOH extends AbstractEasyDAO<AlumnoCicloCurso> impl
 
         return all(sql);
     }
+
+    @Override
+    public List<AlumnoCicloCurso> allOperativesByAlumnos(List<Alumno> alumnos) {
+        Octavia sql = Octavia.query()
+                .from(AlumnoCicloCurso.class, "acc")
+                .join("alumnoCiclo ac", "ac.alumno al", "ac.cicloAcademico ca", "acc.curso cu")
+                .join("ac.carrera")
+                .left("ac.situacionFinal", "ac.orientacionCarrera", "ac.situacionInicio")
+                .in("al.id", alumnos)
+                .filter("acc.estado", EstadoMatriculaEnum.MAT.name())
+                .filter("acc.registroActivo", BigDecimal.ONE.intValue())
+                .orderBy("ca.codigo desc", "cu.nombre");
+
+        return sql.all(getCurrentSession());
+    }
 }

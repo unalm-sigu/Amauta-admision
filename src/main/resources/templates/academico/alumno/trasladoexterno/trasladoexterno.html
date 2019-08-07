@@ -62,7 +62,7 @@
                                             </div>
                                         </td>
                                         <td class="col-lg-5">
-                                            <div class="alert alert-warning text-center" v-if="tramiteTrasladoActivo === null" role="alert">
+                                            <div class="alert alert-warning text-center" v-if="tramiteTrasladoActivo.id === null" role="alert">
                                                 Actualmente no cuenta con una resolución de traslado externo activo.
                                             </div>
                                         </td>
@@ -72,12 +72,12 @@
                             <br/>
                             <hr/>
 
-                            <div class="row" v-if="tramiteTrasladoActivo != null">
+                            <div class="row" v-if="tramiteTrasladoActivo.id != null">
                                 <div class="col-md-12">
                                     <div class="col-md-7">
-                                        <multiselect v-model="almCursCurricula" 
-                                                     v-bind:options='listAlumnoCursoCOptions'
-                                                     v-bind:custom-label="customLabel"
+                                        <multiselect v-model="curso" 
+                                                     v-bind:options='cursos'
+                                                     v-on:search-change="loadCursos"
                                                      track-by='id'
                                                      label="nombre"
                                                      placeholder="Seleccionar curso"
@@ -87,9 +87,9 @@
                                                      v-bind:preselect="false"
                                                      >
                                             <template slot="option" slot-scope="props">
-                                                <span class="option__title text-primary"><b>{{ props.option.curso.nombre }} - {{ props.option.curso.codigo }}</b> </span>
+                                                <span class="option__title text-primary"><b>{{ props.option.nombre }} - {{ props.option.codigo }}</b> </span>
                                                 <div class="option__desc">
-                                                    <span class="option__small text-default"><b>Créditos: </b>  {{ props.option.curso.creditos}}  :  <b>Número de Ciclo Académico: </b>  {{ props.option.numeroCiclo }}</span>
+                                                    <span class="option__small text-default"><b>Créditos: </b>  {{ props.option.creditos}} </span>
                                                 </div>
                                             </template>
                                             <template slot="noOptions">La lista se encuentra vacía</template>
@@ -105,16 +105,16 @@
                             <div class="row">
                                 <section class="panel">
                                     <section class="panel-body">
-
                                         <table class="table table-striped table-hover">
                                             <thead>
                                                 <tr>
-                                                    <th class="col-md-8" >Curso</th>
+                                                    <th class="col-md-7" >Curso</th>
+                                                    <th class="col-md-1 text-center" v-if="tramiteTrasladoActivo.tipoTraslado == 'INTES'">Nota</th>
                                                     <th class="col-md-3 text-center">Créditos</th>
                                                     <th class="col-md-1"></th>
                                                 </tr>
                                             </thead>
-                                            <tbody>
+                                            <tbody v-if="tramiteTrasladoActivo.tipoTraslado == 'TRAS'">
                                                 <tr v-for="(item, index) in listCursoConvalidado">
                                                     <td  class="v-middle">
                                                         <span class="text-primary"><b>{{item.curso.nombre}}</b></span>
@@ -130,6 +130,32 @@
                                                     </td>
                                                 </tr>
                                                 <tr v-if="listCursoConvalidado.length !== 0">
+                                                    <td  class="v-middle"></td>
+                                                    <td  class="v-middle text-center"> Total: <b>{{total}}</b></td>
+                                                    <td  class="v-middle"></td> 
+                                                </tr>
+                                            </tbody>
+                                            <tbody v-else="" id="formTraslado" data-parsley-validate="true">
+                                                <tr v-for="(item, index) in listCursoConvalidado">
+                                                    <td class="v-middle">
+                                                        <span class="text-primary"><b>{{item.curso.nombre}}</b></span>
+                                                        <p><b> Código: </b>{{item.curso.codigo}} <b> Tipo: </b>{{returnTipoCurso(item.curso.tipoCurso)}}</p>
+                                                    </td>
+                                                    <td class="v-middle text-center">
+                                                        <span v-if="item.id !== null" v-text="item.nota"></span>
+                                                        <input v-if="item.id === null &amp;&amp; tramiteTrasladoActivo.tipoTraslado == 'INTES'" v-model="item.nota" class="form-control" required="true"></input>
+                                                    </td>
+                                                    <td class="v-middle text-center">
+                                                        <span v-text="item.curso.creditos"></span>
+                                                    </td>
+                                                    <td class="v-middle text-center">
+                                                        <a v-if="item.id === null" v-on:click="deleteItem(index, item)" class="btn btn-danger">
+                                                            <i class="fa fa-trash-o " aria-hidden="true"></i>
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                                <tr v-if="listCursoConvalidado.length !== 0">
+                                                    <td  class="v-middle"></td>
                                                     <td  class="v-middle"></td>
                                                     <td  class="v-middle text-center"> Total: <b>{{total}}</b></td>
                                                     <td  class="v-middle"></td> 
@@ -178,7 +204,7 @@
                                     </section>
                                 </section>
                             </div>
-                            <div class="row col-md-12" v-if="listCursoConvalidado.length !== 0 &amp;&amp; tramiteTrasladoActivo != null">
+                            <div class="row col-md-12" v-if="listCursoConvalidado.length !== 0 &amp;&amp; tramiteTrasladoActivo.id != null">
                                 <button class="btn btn-success pull-right" v-on:click="save">Convalidar cursos</button>
                             </div>
                         </section>

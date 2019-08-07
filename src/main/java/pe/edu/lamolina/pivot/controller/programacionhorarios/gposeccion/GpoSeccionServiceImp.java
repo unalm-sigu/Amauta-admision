@@ -140,87 +140,87 @@ import pe.edu.lamolina.pivot.dao.rrhh.ContratoDocenteDAO;
 @Service
 @Transactional(readOnly = true)
 public class GpoSeccionServiceImp implements GpoSeccionService {
-    
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    
+
     @Autowired
     GrupoSeccionDAO grupoSeccionDAO;
-    
+
     @Autowired
     AnexoBoletinDAO anexoBoletinDAO;
-    
+
     @Autowired
     SeccionDAO seccionDAO;
-    
+
     @Autowired
     DocenteSeccionDAO docenteSeccionDAO;
-    
+
     @Autowired
     CursoDAO cursoDAO;
-    
+
     @Autowired
     DocenteDAO docenteDAO;
-    
+
     @Autowired
     TipoGrupoHorasDAO tipoGrupoHorasDAO;
-    
+
     @Autowired
     DiaHoraGrupoDAO diaHoraGrupoDAO;
-    
+
     @Autowired
     GrupoHorasDAO grupoHorasDAO;
-    
+
     @Autowired
     DiaDAO diaDAO;
-    
+
     @Autowired
     HoraDAO horaDAO;
-    
+
     @Autowired
     AulaDAO aulaDAO;
-    
+
     @Autowired
     HorarioSeccionDAO horarioSeccionDAO;
-    
+
     @Autowired
     HorarioAulaDAO horarioAulaDAO;
-    
+
     @Autowired
     OficinaDAO oficinaDAO;
-    
+
     @Autowired
     FacultadDAO facultadDAO;
-    
+
     @Autowired
     ModalidadEstudioDAO modalidadEstudioDAO;
-    
+
     @Autowired
     CarreraDAO carreraDAO;
-    
+
     @Autowired
     RestriccionModalidadDAO restriccionModalidadDAO;
-    
+
     @Autowired
     RestriccionCarreraDAO restriccionCarreraDAO;
-    
+
     @Autowired
     RestriccionFacultadDAO restriccionFacultadDAO;
-    
+
     @Autowired
     RestriccionRepitenciaDAO restriccionRepitenciaDAO;
-    
+
     @Autowired
     TipoRepitenciaDAO tipoRepitenciaDAO;
-    
+
     @Autowired
     MatriculaSeccionDAO matriculaSeccionDAO;
-    
+
     @Autowired
     VacanteAlumnoDAO vacanteAlumnoDAO;
-    
+
     @Autowired
     AlumnoEvaluacionDAO alumnoEvaluacionDAO;
-    
+
     @Autowired
     EventoCicloAcademicoDAO eventoCicloAcademicoDAO;
     @Autowired
@@ -237,53 +237,53 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     CursoCicloAcademicoDAO cursoCicloAcademicoDAO;
     @Autowired
     CambioAulaGrupoDAO cambioAulaGrupoDAO;
-    
+
     @Autowired
     PrecioCursoEstructuraDAO precioCursoEstructuraDAO;
-    
+
     @Autowired
     PagoHoraDocenteDAO pagoHoraDocenteDAO;
-    
+
     @Autowired
     CuotaGpoHorasDAO cuotaGpoHorasDAO;
-    
+
     @Autowired
     MatriculaCursoDAO matriculaCursoDAO;
-    
+
     @Autowired
     MatriculaResumenDAO matriculaResumenDAO;
-    
+
     @Autowired
     ContratoDocenteDAO contratoDocenteDAO;
-    
+
     @Override
     public CicloAcademico findCiclo(CicloAcademico cicloAcademico) {
         return cicloAcademicoDAO.find(cicloAcademico);
     }
-    
+
     @Override
     public Oficina findOficinaOera() {
         return oficinaDAO.findByCode("OERA");
     }
-    
+
     @Override
     public List<Oficina> allOficinas(Compania compania) {
         return oficinaDAO.allByCompania(compania);
     }
-    
+
     @Override
     public GrupoSeccion findGpoSeccion(Long id, DataSessionPivot ds) {
         GrupoSeccion gpoSecc = grupoSeccionDAO.find(id);
-        
+
         List<Seccion> secciones = seccionDAO.allByGposSeccion(gpoSecc);
         List<CuotasGrupoHoras> allCountCuotasGrupoHorases = cuotaGpoHorasDAO.allByAnexoCiclo(gpoSecc.getAnexoBoletin(), gpoSecc.getCicloAcademico());
-        
+
         for (Seccion secc : secciones) {
             if (secc.getGrupoHoras() != null) {
                 secc.setGrupoHoras(secc.getGrupoHoras().clone());
             }
         }
-        
+
         secciones.stream()
                 .filter(z -> z.getAula() != null)
                 .filter(z -> z.getGrupoHoras() != null)
@@ -298,15 +298,15 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
                     }
                 });
         gpoSecc.setSecciones(secciones);
-        
+
         CicloAcademico ciclo = gpoSecc.getCicloAcademico();
         Curso curso = gpoSecc.getCurso();
         String tpc = gpoSecc.getCurso().getTpc();
         if (ciclo.getTipoEnum() == TipoCicloEnum.NIV) {
             CursoCicloAcademico cursoCiclo = cursoCicloAcademicoDAO.findByCursoCiclo(curso, ciclo);
-            
+
             PrecioCursoEstructura precioCurso = precioCursoEstructuraDAO.findByTpcCiclo(tpc, ciclo);
-            
+
             if (cursoCiclo != null) {
                 curso.setPrecio(cursoCiclo.getPrecio().add(cursoCiclo.getPrecioAdicional()));
             } else {
@@ -318,7 +318,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
                 curso.setPrecioTpc(BigDecimal.ZERO);
             }
         }
-        
+
         List<DocenteSeccion> docenteSeccion = docenteSeccionDAO.allBySecciones(secciones);
         List<Long> idsDoc = docenteSeccion.stream().map(x -> x.getDocente().getId()).collect(Collectors.toList());
         List<ContratoDocente> contratos = contratoDocenteDAO.allByDocente(idsDoc);
@@ -334,14 +334,14 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         List<RestriccionRepitencia> restriccionesRep = restriccionRepitenciaDAO.allActivasBySecciones(secciones);
         List<AmpliacionVacantes> ampliaciones = ampliacionVacanteDAO.allBySecciones(secciones);
         List<CambioAulaGrupo> cambiosAulaGpo = cambioAulaGrupoDAO.allBySecciones(secciones);
-        
+
         Map<Long, List<RestriccionModalidad>> mapRestriccionMod = TypesUtil.convertListToMapList("seccion.id", restriccionesMod);
         Map<Long, List<RestriccionFacultad>> mapRestriccionFac = TypesUtil.convertListToMapList("seccion.id", restriccionesFac);
         Map<Long, List<RestriccionCarrera>> mapRestriccionCarr = TypesUtil.convertListToMapList("seccion.id", restriccionesCarr);
         Map<Long, List<RestriccionRepitencia>> mapRestriccionRep = TypesUtil.convertListToMapList("seccion.id", restriccionesRep);
         Map<Long, List<AmpliacionVacantes>> mapAmpliaciones = TypesUtil.convertListToMapList("seccion.id", ampliaciones);
         Map<Long, List<CambioAulaGrupo>> mapCambioAulaGpo = TypesUtil.convertListToMapList("seccion.id", cambiosAulaGpo);
-        
+
         for (Seccion seccion : secciones) {
             seccion.setDocenteSeccion(getList(mapDocSeccion.get(seccion.getId())));
             seccion.setRestriccionesModalidad(getList(mapRestriccionMod.get(seccion.getId())));
@@ -351,59 +351,59 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             seccion.setAmpliacionesVacantes(getList(mapAmpliaciones.get(seccion.getId())));
             seccion.setCambioAulaGrupos(getList(mapCambioAulaGpo.get(seccion.getId())));
         }
-        
+
         return gpoSecc;
     }
-    
+
     @Override
     public List<GrupoSeccion> allByDynatable(DynatableFilter filter, CicloAcademico ciclo) {
         List<GrupoSeccion> gsecciones = grupoSeccionDAO.allByDynatable(filter, ciclo);
         List<Seccion> secciones = seccionDAO.allByGposSeccion(gsecciones);
-        
+
         Map<Long, List<Seccion>> mapSecciones = TypesUtil.convertListToMapList("grupoSeccion.id", secciones);
         for (GrupoSeccion gseccion : gsecciones) {
             List<Seccion> seccionesGpo = mapSecciones.get(gseccion.getId());
             gseccion.setSecciones(seccionesGpo == null ? new ArrayList() : seccionesGpo);
         }
-        
+
         List<DocenteSeccion> docenteSeccion = docenteSeccionDAO.allBySecciones(secciones);
         Map<Long, List<DocenteSeccion>> mapDocSeccion = TypesUtil.convertListToMapList("seccion.id", docenteSeccion);
-        
+
         List<RestriccionModalidad> restriccionesMod = restriccionModalidadDAO.allActivasBySecciones(secciones);
         List<RestriccionFacultad> restriccionesFac = restriccionFacultadDAO.allActivasBySecciones(secciones);
         List<RestriccionCarrera> restriccionesCarr = restriccionCarreraDAO.allActivasBySecciones(secciones);
         List<RestriccionRepitencia> restriccionesRep = restriccionRepitenciaDAO.allActivasBySecciones(secciones);
-        
+
         Map<Long, List<RestriccionModalidad>> mapRestriccionMod = TypesUtil.convertListToMapList("seccion.id", restriccionesMod);
         Map<Long, List<RestriccionFacultad>> mapRestriccionFac = TypesUtil.convertListToMapList("seccion.id", restriccionesFac);
         Map<Long, List<RestriccionCarrera>> mapRestriccionCarr = TypesUtil.convertListToMapList("seccion.id", restriccionesCarr);
         Map<Long, List<RestriccionRepitencia>> mapRestriccionRep = TypesUtil.convertListToMapList("seccion.id", restriccionesRep);
-        
+
         for (Seccion seccion : secciones) {
             List<DocenteSeccion> doceentesSecc = getList(mapDocSeccion.get(seccion.getId()));
             seccion.setDocenteSeccion(doceentesSecc);
-            
+
             List<RestriccionModalidad> restriccionesModSecc = getList(mapRestriccionMod.get(seccion.getId()));
             seccion.setRestriccionesModalidad(restriccionesModSecc);
-            
+
             List<RestriccionFacultad> restriccionesFacSecc = getList(mapRestriccionFac.get(seccion.getId()));
             seccion.setRestriccionesFacultad(restriccionesFacSecc);
-            
+
             List<RestriccionCarrera> restriccionesCarrSecc = getList(mapRestriccionCarr.get(seccion.getId()));
             seccion.setRestriccionesCarrera(restriccionesCarrSecc);
-            
+
             List<RestriccionRepitencia> restriccionesRepSecc = getList(mapRestriccionRep.get(seccion.getId()));
             seccion.setRestriccionesRepitencia(restriccionesRepSecc);
         }
-        
+
         return gsecciones;
     }
-    
+
     @Override
     public List<GrupoSeccion> allCleanByDynatable(DynatableFilter filter, CicloAcademico ciclo) {
         return grupoSeccionDAO.allByDynatable(filter, ciclo);
     }
-    
+
     @Override
     @Transactional
     public void cambiarEstadoGpoSeccion(SeccionEstadoEnum estadoEnum, GrupoSeccion grupoSeccion, DataSessionPivot ds) {
@@ -414,7 +414,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             grupoSeccion.setUsuarioModificacion(ds.getUsuario());
             grupoSeccion.setFechaModificacion(today.toDate());
             grupoSeccionDAO.updateEstadoFechaModUsuarioMod(grupoSeccion);
-            
+
         } else if (estadoEnum == SeccionEstadoEnum.ANU) {
             for (Seccion seccion : grupoSeccion.getSecciones()) {
                 List<MatriculaSeccion> matriculasSeccion = matriculaSeccionDAO.allMatriculadosBySeccion(seccion);
@@ -431,19 +431,19 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             grupoSeccionDAO.updateEstadoFechaModUsuarioMod(grupoSeccion);
         }
     }
-    
+
     @Override
     public List<GrupoHoras> allGrupoHorasZetasDyna(DynatableFilter filter, CicloAcademico cicloAcademico) {
         List<GrupoHoras> grupos = grupoHorasDAO.allZetasByDynatable(filter);
         List<DiaHoraGrupo> horariosGrupos = diaHoraGrupoDAO.allByGruposCiclo(grupos, cicloAcademico);
         Map<Long, List<DiaHoraGrupo>> mapHorarioByGpo = TypesUtil.convertListToMapList("grupoHorario.id", horariosGrupos);
-        
+
         for (GrupoHoras grupo : grupos) {
             grupo.setDiaHoraGrupo(createList(mapHorarioByGpo.get(grupo.getId())));
         }
         return grupos;
     }
-    
+
     @Override
     public List<GrupoHoras> allGrupoByTipoGpoSeccionDynatable(DynatableFilter filter,
             TipoGrupoHoras tipoGrupoHoras,
@@ -461,13 +461,13 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         long t4 = System.currentTimeMillis();
         System.out.println("allGposByTipo horariosGrupos en " + (t4 - t1) + " mseg");
         Map<Long, List<DiaHoraGrupo>> mapHorarioByGpo = TypesUtil.convertListToMapList("grupoHorario.id", horariosGrupos);
-        
+
         for (GrupoHoras grupo : grupos) {
             grupo.setDiaHoraGrupo(createList(mapHorarioByGpo.get(grupo.getId())));
         }
         return grupos;
     }
-    
+
     @Override
     @Transactional
     public List<GrupoSeccion> saveGpoSeccionHeader(GrupoSeccion gpoSeccForm, CicloAcademico ciclo, DataSessionPivot ds) {
@@ -477,10 +477,10 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         List<String> codigosByCiclo = grupoSeccionDAO.allCodigoByCiclo(ciclo);
         List<String> codigos2ByCiclo = grupoSeccionDAO.allCodigo2ByCiclo(ciclo);
         Curso curso = cursoDAO.find(gpoSeccForm.getCurso().getId());
-        
+
         Integer horasTeoria = curso.getHorasTeoria() == null ? 0 : curso.getHorasTeoria();
         Integer horasPractica = curso.getHorasPractica() == null ? 0 : curso.getHorasPractica();
-        
+
         List<GrupoSeccion> gpoSecciones = new ArrayList();
         Integer cantidad = gpoSeccForm.getCantidad();
         for (int i = 0; i < cantidad; i++) {
@@ -507,19 +507,19 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         }
         return gpoSecciones;
     }
-    
+
     private GrupoSeccion saveGpoSeccion(
             GrupoSeccion grupoSeccion,
             CicloAcademico ciclo,
             String codigo,
             String codigo2,
             Curso curso, DataSessionPivot ds) {
-        
+
         grupoSeccion.setVersion(BigDecimal.ONE.toString());
         grupoSeccion.setEstadoGrupoEnum(EstadoGrupoSeccionEnum.ABI);
         grupoSeccion.setEstadoPlanEnum(EstadoPlanCalificaEnum.PEND);
         grupoSeccion.setTipoDictadoEnum(TipoDictadoGrupoSeccionEnum.SEM);
-        
+
         Integer horasTeoria = grupoSeccion.getHorasTeoria();
         Integer horasPractica = grupoSeccion.getHorasPractica();
         EventoCicloAcademico eventoDictadoClases = getEventoDictadoClases(ciclo, curso);
@@ -532,7 +532,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         final BigDecimal PORCENTAJE_CARGA = new BigDecimal(100);
         final String PORCENTAJE_CARGA_FRACCION = "100";
         Date today = new Date();
-        
+
         grupoSeccion.setSecciones(new ArrayList());
         if (curso.isTipoCursoTEO()) {
             Seccion seccionTEO = new Seccion();
@@ -546,7 +546,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             seccionTEO.setTipoSeccionEnum(TipoSeccionEnum.TEO);
             seccionTEO.setSituacionDocenteEnum(SituacionDocenteEnum.COR);
             seccionTEO.setHorasSemanales(horasTeoria);
-            
+
             seccionTEO.setDocenteSeccion(new ArrayList<>());
             DocenteSeccion docenteSeccion = new DocenteSeccion();
             docenteSeccion.setDocente(docenteDefault);
@@ -559,10 +559,10 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             docenteSeccion.setPorcentajeCarga(PORCENTAJE_CARGA);
             docenteSeccion.setPorcentajeCargaFraccion(PORCENTAJE_CARGA_FRACCION);
             seccionTEO.getDocenteSeccion().add(docenteSeccion);
-            
+
             grupoSeccion.getSecciones().add(seccionTEO);
         }
-        
+
         if (curso.isTipoCursoPRA()) {
             Seccion seccionPRA = new Seccion();
             seccionPRA.setGrupoSeccion(grupoSeccion);
@@ -577,7 +577,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             seccionPRA.setCodigo2(codigo2 + "1");
             seccionPRA.setFechaRegistro(today);
             seccionPRA.setUserRegistro(ds.getUsuario());
-            
+
             seccionPRA.setDocenteSeccion(new ArrayList<>());
             DocenteSeccion docenteSeccion = new DocenteSeccion();
             docenteSeccion.setDocente(docenteDefault);
@@ -590,10 +590,10 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             docenteSeccion.setPorcentajeCarga(PORCENTAJE_CARGA);
             docenteSeccion.setPorcentajeCargaFraccion(PORCENTAJE_CARGA_FRACCION);
             seccionPRA.getDocenteSeccion().add(docenteSeccion);
-            
+
             grupoSeccion.getSecciones().add(seccionPRA);
         }
-        
+
         if (curso.isTipoCursoTEOPRA()) {
             Seccion seccionTCUR = new Seccion();
             seccionTCUR.setGrupoSeccion(grupoSeccion);
@@ -608,7 +608,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             seccionTCUR.setCodigo2(codigo2 + "0");
             seccionTCUR.setFechaRegistro(today);
             seccionTCUR.setUserRegistro(ds.getUsuario());
-            
+
             seccionTCUR.setDocenteSeccion(new ArrayList<>());
             DocenteSeccion docenteSeccion = new DocenteSeccion();
             docenteSeccion.setDocente(docenteDefault);
@@ -621,9 +621,9 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             docenteSeccion.setPorcentajeCarga(PORCENTAJE_CARGA);
             docenteSeccion.setPorcentajeCargaFraccion(PORCENTAJE_CARGA_FRACCION);
             seccionTCUR.getDocenteSeccion().add(docenteSeccion);
-            
+
             grupoSeccion.getSecciones().add(seccionTCUR);
-            
+
             Seccion seccionPCUR = new Seccion();
             seccionPCUR.setGrupoSeccion(grupoSeccion);
             seccionPCUR.setEstadoEnum(SeccionEstadoEnum.CRE);
@@ -640,7 +640,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             seccionPCUR.setUserRegistro(ds.getUsuario());
             seccionPCUR.setSeccionSuperior(seccionTCUR);
             seccionPCUR.setDocenteSeccion(new ArrayList<>());
-            
+
             DocenteSeccion docenteSeccion2 = new DocenteSeccion();
             docenteSeccion2.setDocente(docenteDefault);
             docenteSeccion2.setCodigoSeccion(seccionPCUR.getCodigo());
@@ -652,14 +652,14 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             docenteSeccion2.setPorcentajeCarga(PORCENTAJE_CARGA);
             docenteSeccion2.setPorcentajeCargaFraccion(PORCENTAJE_CARGA_FRACCION);
             seccionPCUR.getDocenteSeccion().add(docenteSeccion2);
-            
+
             grupoSeccion.getSecciones().add(seccionPCUR);
         }
-        
+
         grupoSeccionDAO.save(grupoSeccion);
         return grupoSeccion;
     }
-    
+
     @Override
     @Transactional
     public void addSeccion(GrupoSeccion grupoSeccion) {
@@ -668,10 +668,10 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         Docente docenteDefault = docenteDAO.findByCode(Constantine.DOCENTE_INDETERMINADO);
         List<Seccion> secciones = seccionDAO.allByGposSeccion(grupoSeccion);
         DateTime today = new DateTime();
-        
+
         final BigDecimal PORCENTAJE_CARGA = new BigDecimal(100);
         final String PORCENTAJE_CARGA_FRACCION = "100";
-        
+
         Seccion seccionTCUR = secciones.stream().filter(x -> x.getIsTipoSeccionTCUR()).findAny().orElse(null);
         Seccion seccionPCUR = new Seccion();
         seccionPCUR.setGrupoSeccion(grupoSeccion);
@@ -682,7 +682,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         seccionPCUR.setTipoSeccionEnum(TipoSeccionEnum.PCUR);
         seccionPCUR.setSituacionDocenteEnum(SituacionDocenteEnum.ERR);
         seccionPCUR.setHorasSemanales(curso.getHorasPractica());
-        
+
         seccionPCUR.setDocenteSeccion(new ArrayList());
         DocenteSeccion docenteSeccion2 = new DocenteSeccion();
         docenteSeccion2.setDocente(docenteDefault);
@@ -694,11 +694,11 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         docenteSeccion2.setPorcentajeCarga(PORCENTAJE_CARGA);
         docenteSeccion2.setPorcentajeCargaFraccion(PORCENTAJE_CARGA_FRACCION);
         seccionPCUR.getDocenteSeccion().add(docenteSeccion2);
-        
+
         seccionDAO.save(seccionPCUR);
         this.actualizarBoletin();
     }
-    
+
     private String getNextCode1(List<Seccion> secciones) {
         String codeGpo = secciones.get(0).getCodigo().substring(0, 3);
         List<String> codes = new ArrayList();
@@ -706,9 +706,9 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             codes.add(secc.getCodigo());
         }
         return CodeGenerator.getNextCode4(codes, codeGpo);
-        
+
     }
-    
+
     private String getNextCode2(List<Seccion> secciones) {
         String codeGpo = secciones.get(0).getCodigo2().substring(0, 3);
         List<String> codes = new ArrayList();
@@ -716,26 +716,26 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             codes.add(secc.getCodigo2());
         }
         return CodeGenerator.getNextCode4(codes, codeGpo);
-        
+
     }
-    
+
     @Override
     @Transactional
     public void addDocenteSeccion(Seccion seccion, CicloAcademico cicloAcademico) {
         seccion = seccionDAO.find(seccion.getId());
         Curso curso = seccion.getGrupoSeccion().getCurso();
         EventoCicloAcademico eventoDictadoClases = getEventoDictadoClases(cicloAcademico, curso);
-        
+
         Docente docenteDefault = docenteDAO.findByCode(Constantine.DOCENTE_INDETERMINADO);
         List<DocenteSeccion> docenteSeccions = docenteSeccionDAO.allActivosBySeccion(seccion);
-        
+
         Fraxtion fraxtion100 = new Fraxtion(100);
         Fraxtion fraxtionSum = new Fraxtion(0);
         for (DocenteSeccion profeSecc : docenteSeccions) {
             fraxtionSum = fraxtionSum.add(new Fraxtion(profeSecc.getPorcentajeCargaFraccion()));
         }
         Fraxtion restFraccion = fraxtion100.substract(fraxtionSum);
-        
+
         DocenteSeccion docenteSeccion = new DocenteSeccion();
         docenteSeccion.setDocente(docenteDefault);
         docenteSeccion.setCodigoSeccion(seccion.getCodigo());
@@ -752,25 +752,25 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         docenteSeccion.setPorcentajeCarga(restFraccion.getValue(2));
         docenteSeccion.setPorcentajeCargaFraccion(restFraccion.toString());
         docenteSeccionDAO.save(docenteSeccion);
-        
+
         docenteSeccions.add(docenteSeccion);
         //    EventoCicloAcademico eventoClases = getEventoDictadoClases(cicloAcademico, seccionDB.getGrupoSeccion().getCurso());
         this.analizedDocenteSeccion(seccion, docenteSeccions, eventoDictadoClases);
     }
-    
+
     @Override
     @Transactional
     public void updateDocenteSecFechaInicio(DocenteSeccion profeSeccForm, CicloAcademico cicloAcademico) {
-        
+
         DocenteSeccion profeSeccDB = docenteSeccionDAO.find(profeSeccForm.getId());
         List<DocenteSeccion> profesSecc = docenteSeccionDAO.allBySeccion(profeSeccDB.getSeccion());
-        
+
         if (profeSeccDB.getFechaFin() != null) {
             if (profeSeccForm.getFechaInicio().compareTo(profeSeccDB.getFechaFin()) >= 0) {
                 throw new PhobosException("La fecha de inicio no puede ser mayor o igual a la fecha final");
             }
         }
-        
+
         for (DocenteSeccion profeSec : profesSecc) {
             if (profeSec.getId() == profeSeccForm.getId().longValue()) {
                 continue;
@@ -796,24 +796,24 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         docenteSeccionDAO.updateFechaInicio(profeSeccDB);
         evaluateSeccion(profeSeccDB.getSeccion());
         this.actualizarBoletin();
-        
+
         EventoCicloAcademico eventoClases = getEventoDictadoClases(cicloAcademico, profeSeccDB.getSeccion().getGrupoSeccion().getCurso());
         this.analizedDocenteSeccion(profeSeccDB.getSeccion(), profesSecc, eventoClases);
     }
-    
+
     @Override
     @Transactional
     public void updateDocenteSecFechaFin(DocenteSeccion profeSeccForm, CicloAcademico cicloAcademico) {
-        
+
         DocenteSeccion profeSeccDB = docenteSeccionDAO.find(profeSeccForm.getId());
         List<DocenteSeccion> profesSecc = docenteSeccionDAO.allBySeccion(profeSeccDB.getSeccion());
-        
+
         if (profeSeccDB.getFechaInicio() != null) {
             if (profeSeccDB.getFechaInicio().compareTo(profeSeccForm.getFechaFin()) >= 0) {
                 throw new PhobosException("La fecha final no puede ser menor o igual a la fecha de inicio");
             }
         }
-        
+
         for (DocenteSeccion profeSec : profesSecc) {
             if (profeSec.getId() == profeSeccForm.getId().longValue()) {
                 continue;
@@ -842,17 +842,17 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         profeSeccDB.setFechaFin(profeSeccForm.getFechaFin());
         docenteSeccionDAO.updateFechaFin(profeSeccDB);
         evaluateSeccion(profeSeccDB.getSeccion());
-        
+
         this.actualizarBoletin();
         EventoCicloAcademico eventoClases = getEventoDictadoClases(cicloAcademico, profeSeccDB.getSeccion().getGrupoSeccion().getCurso());
         this.analizedDocenteSeccion(profeSeccDB.getSeccion(), profesSecc, eventoClases);
     }
-    
+
     @Override
     @Transactional
     public void evaluateSeccion(Seccion seccion) {
         List<DocenteSeccion> lstDocSec = docenteSeccionDAO.allBySeccion(seccion);
-        
+
         BigDecimal total = BigDecimal.ZERO;
         boolean dateIsOk = true;
         for (DocenteSeccion docenteSeccion : lstDocSec) {
@@ -873,7 +873,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             logger.debug("NADA AUN ? ");
         }
     }
-    
+
     private void fixEncuesta(List<DocenteSeccion> lstDocSec) {
         if (lstDocSec.size() == 1) {
             EncuestaDocente encuesta = encuestaDocenteDAO.findByDocenteSeccion(lstDocSec.get(0));
@@ -898,7 +898,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             }
         }
     }
-    
+
     @Override
     @Transactional
     public void deleteSeccion(Seccion seccionToDelete) {
@@ -907,7 +907,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         if (secciones.size() == 1) {
             throw new PhobosException("No se pueden eliminar todas las secciones del grupo");
         }
-        
+
         Seccion seccionTCUR = null;
         Integer vacantes = BigDecimal.ZERO.intValue();
         for (Seccion seccionEach : secciones) {
@@ -919,7 +919,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
                     vacantes = vacantes + seccionEach.getVacantes();
                 }
             }
-            
+
         }
         if (seccionTCUR != null) {
             seccionTCUR.setVacantes(vacantes);
@@ -938,7 +938,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         }
         seccionDAO.delete(seccionToDelete);
     }
-    
+
     @Override
     @Transactional
     public void activarSeccion(Seccion seccionForm, DataSessionPivot ds) {
@@ -946,14 +946,14 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         if (seccionBD.getEstadoEnum() == SeccionEstadoEnum.ACT) {
             throw new PhobosException("Esta sección ya esta activada");
         }
-        
+
         DateTime today = new DateTime();
         seccionBD.setUsuarioModificacion(ds.getUsuario());
         seccionBD.setFechaModificacion(today.toDate());
         seccionBD.setEstadoEnum(SeccionEstadoEnum.ACT);
         seccionDAO.updateEstadoFechaModUsuarioMod(seccionBD);
         logger.debug("seccionDAO.updateEstadoFechaModUsuarioMod(seccionBD);");
-        
+
         GrupoSeccion gpoSecc = seccionBD.getGrupoSeccion();
         Curso curso = seccionBD.getGrupoSeccion().getCurso();
         if (curso.isTipoCursoTEOPRA()) {
@@ -966,11 +966,11 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
                 logger.debug("seccionDAO.updateEstadoFechaModUsuarioMod(seccionTCUR);");
             }
         }
-        
+
         this.actualizarVacantesTCUR(gpoSecc, ds, today);
         this.actualizarBoletin();
     }
-    
+
     @Override
     @Transactional
     public void bloquearSeccion(Seccion seccion, DataSessionPivot ds) {
@@ -980,11 +980,11 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         seccion.setFechaModificacion(today.toDate());
         seccion.setEstadoEnum(SeccionEstadoEnum.BLO);
         seccionDAO.updateEstadoFechaModUsuarioMod(seccion);
-        
+
         this.actualizarVacantesTCUR(seccion.getGrupoSeccion(), ds, today);
         this.actualizarBoletin();
     }
-    
+
     @Override
     @Transactional
     public GrupoSeccion anularSeccion(Seccion seccioForm, DataSessionPivot ds) {
@@ -996,19 +996,19 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         // validar matricula seccion, sin importar estado
         List<AlumnoEvaluacion> alumnoEvaluacion = alumnoEvaluacionDAO.allBySeccion(seccionBD.getId());
         Assert.isTrue(alumnoEvaluacion.isEmpty(), "La sección tiene notas registradas");
-        
+
         List<HorarioSeccion> horarioSecc = horarioSeccionDAO.allBySeccion(seccionBD);
         for (HorarioSeccion hSecc : horarioSecc) {
             horarioSeccionDAO.delete(hSecc);
         }
-        
+
         List<HorarioAula> horarioAula = horarioAulaDAO.allBySeccion(seccionBD);
         for (HorarioAula hSecc : horarioAula) {
             horarioAulaDAO.delete(hSecc);
         }
-        
+
         List<MatriculaSeccion> matriculasSeccionAlState = matriculaSeccionDAO.allBySeccion(seccionBD);
-        
+
         if (matriculasSeccionAlState.isEmpty()) {
             List<DocenteSeccion> docentesSec = docenteSeccionDAO.allBySeccion(seccionBD);
             for (DocenteSeccion docenteSeccion : docentesSec) {
@@ -1034,9 +1034,9 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             for (RestriccionRepitencia restricc : restriccionRep) {
                 restriccionRepitenciaDAO.delete(restricc);
             }
-            
+
             seccionDAO.delete(seccionBD);
-            
+
             List<Seccion> seccionesActivas = seccionDAO.allOperativesByGpoSeccion(grupoSeccion);
             Collections.sort(seccionesActivas, (Seccion va1, Seccion va2) -> va1.getCodigo2().compareTo(va2.getCodigo2()));
             int i = 0;
@@ -1050,17 +1050,17 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
                 }
                 i++;
             }
-            
+
         } else {
             seccionBD.setUsuarioModificacion(ds.getUsuario());
             seccionBD.setFechaModificacion(today.toDate());
             seccionBD.setEstadoEnum(SeccionEstadoEnum.ANU);
             seccionDAO.updateEstadoFechaModUsuarioMod(seccionBD);
         }
-        
+
         this.actualizarVacantesTCUR(seccionBD.getGrupoSeccion(), ds, today);
         this.actualizarBoletin();
-        
+
         if (grupoSeccion.getCurso().isTipoCursoTEOPRA()) {
             if (seccionBD.isTipoSeccionPCUR()) {
                 List<Seccion> secciones = seccionDAO.allOperativesByGpoSeccion(grupoSeccion);
@@ -1071,16 +1071,16 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
                 }
             }
         }
-        
+
         List<Seccion> seccionesOperativas = seccionDAO.allOperativesByGpoSeccion(grupoSeccion);
         List<Seccion> allSecciones = seccionDAO.allByGpoSeccion(grupoSeccion);
-        
+
         if (allSecciones.isEmpty()) {
             grupoSeccionDAO.deleteGrupoSeccion(grupoSeccion);
             GrupoSeccion grupoSeccionReturn = new GrupoSeccion();
             grupoSeccionReturn.setCurso(curso);
             return grupoSeccionReturn;
-            
+
         } else if (seccionesOperativas.isEmpty()) {
             GrupoSeccion grupoSeccionUpd = new GrupoSeccion(grupoSeccion.getId());
             grupoSeccionUpd.setEstadoEnum(SeccionEstadoEnum.ANU);
@@ -1090,7 +1090,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         }
         return grupoSeccion;
     }
-    
+
     @Override
     @Transactional
     public void cancelarSeccion(Seccion seccionForm, DataSessionPivot ds) {
@@ -1098,80 +1098,80 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         Seccion seccionBD = seccionDAO.find(seccionForm.getId());
         Assert.isNotNull(seccionBD, "La sección que desea cancelar no existe en el sistema");
         Assert.isTrue(seccionBD.getEstadoEnum() == SeccionEstadoEnum.ACT, "La sección que desea cancelar debe estar activa");
-        
+
         List<MatriculaSeccion> matriculadosSeccionPRA = matriculaSeccionDAO.allMatriculadosBySeccion(seccionBD);
         Assert.isFalse(matriculadosSeccionPRA.isEmpty(), "Solo se puede cancelar una sección con alumnos matriculados");
         Assert.isTrue(matriculadosSeccionPRA.size() == seccionBD.getMatriculados(), "La cantidad de matriculados no coincide con el dato en la sección");
-        
+
         List<MatriculaSeccion> matriculadosSeccionTEO = new ArrayList();
         Seccion seccionSup = seccionBD.getSeccionSuperior();
         if (seccionSup != null) {
             matriculadosSeccionTEO = matriculaSeccionDAO.allMatriculadosBySeccion(seccionSup);
         }
-        
+
         Curso curso = seccionBD.getGrupoSeccion().getCurso();
         List<MatriculaResumen> resumenes = matriculadosSeccionPRA.stream().map(x -> x.getMatriculaResumen()).collect(Collectors.toList());
         List<MatriculaCurso> matriculadosCurso = matriculaCursoDAO.allByMatriculaResumenCurso(resumenes, curso);
-        
+
         for (MatriculaCurso matCurso : matriculadosCurso) {
             Alumno alumno = matCurso.getMatriculaResumen().getAlumno();
             Assert.isTrue(matCurso.getEstadoEnum() == EstadoMatriculaEnum.MAT, "El alumno con matrícula " + alumno.getCodigo() + " tiene data erronea en matricula-curso");
         }
-        
+
         for (MatriculaCurso matCurso : matriculadosCurso) {
             matCurso.setEstadoEnum(EstadoMatriculaEnum.NMAT);
             matCurso.setUserAnula(ds.getUsuario());
             matCurso.setFechaAnula(today.toDate());
-            
+
             MatriculaResumen resumen = matCurso.getMatriculaResumen();
             resumen.setCreditosMatriculados(resumen.getCreditosMatriculados() - matCurso.getCreditos());
             resumen.setCursosMatriculados(resumen.getCursosMatriculados() - 1);
-            
+
             if (resumen.getCursosMatriculados() == 0) {
                 resumen.setEstadoEnum(EstadoMatriculaEnum.NMAT);
             }
-            
+
             matriculaCursoDAO.update(matCurso);
             matriculaResumenDAO.update(resumen);
         }
-        
+
         for (MatriculaSeccion matSecc : matriculadosSeccionPRA) {
             matSecc.setEstadoEnum(EstadoMatriculaEnum.RCA);
             matSecc.setUserAnula(ds.getUsuario());
             matSecc.setFechaAnula(today.toDate());
             matriculaSeccionDAO.update(matSecc);
         }
-        
+
         for (MatriculaSeccion matSecc : matriculadosSeccionTEO) {
             matSecc.setEstadoEnum(EstadoMatriculaEnum.RCA);
             matSecc.setUserAnula(ds.getUsuario());
             matSecc.setFechaAnula(today.toDate());
             matriculaSeccionDAO.update(matSecc);
         }
-        
+
         seccionBD.setMatriculados(0);
         seccionBD.setEstadoEnum(SeccionEstadoEnum.CAN);
         seccionBD.setUsuarioModificacion(ds.getUsuario());
         seccionBD.setFechaModificacion(today.toDate());
         seccionBD.setMotivoCancelacion(seccionForm.getMotivoCancelacion());
         seccionDAO.update(seccionBD);
-        
+
         GrupoSeccion gpoSeccBD = seccionBD.getGrupoSeccion();
-        
+
         if (seccionSup != null) {
             seccionSup.setMatriculados(seccionSup.getMatriculados() - matriculadosSeccionPRA.size());
             seccionSup.setUsuarioModificacion(ds.getUsuario());
             seccionSup.setFechaModificacion(today.toDate());
             if (seccionSup.getMatriculados() == 0) {
                 seccionSup.setEstadoEnum(SeccionEstadoEnum.CAN);
-                
+
                 gpoSeccBD.setEstadoEnum(SeccionEstadoEnum.CAN);
                 gpoSeccBD.setFechaModificacion(today.toDate());
                 gpoSeccBD.setUsuarioModificacion(ds.getUsuario());
                 grupoSeccionDAO.update(gpoSeccBD);
             }
             seccionDAO.update(seccionSup);
-            
+
         } else {
             gpoSeccBD.setEstadoEnum(SeccionEstadoEnum.CAN);
             gpoSeccBD.setFechaModificacion(today.toDate());
@@ -1179,33 +1179,34 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             grupoSeccionDAO.update(gpoSeccBD);
         }
     }
-    
+
     @Override
     @Transactional
     public void deleteDocSeccion(DocenteSeccion docenteSeccion, CicloAcademico cicloAcademico) {
         docenteSeccion = docenteSeccionDAO.find(docenteSeccion.getId());
+        Seccion seccion = docenteSeccion.getSeccion().clone();
         docenteSeccionDAO.delete(docenteSeccion);
-        
-        List<DocenteSeccion> docentesSec = docenteSeccionDAO.allBySeccion(docenteSeccion.getSeccion());
-        
-        EventoCicloAcademico eventoClases = getEventoDictadoClases(cicloAcademico, docenteSeccion.getSeccion().getGrupoSeccion().getCurso());
-        this.analizedDocenteSeccion(docenteSeccion.getSeccion(), docentesSec, eventoClases);
+
+        List<DocenteSeccion> docentesSec = docenteSeccionDAO.allBySeccion(seccion);
+
+        EventoCicloAcademico eventoCslases = getEventoDictadoClases(cicloAcademico, docenteSeccion.getSeccion().getGrupoSeccion().getCurso());
+        this.analizedDocenteSeccion(docenteSeccion.getSeccion(), docentesSec, eventoCslases);
     }
-    
+
     @Override
     public List<DocenteSeccion> allDocentesSeccionBySeccion(Seccion seccion) {
         List<DocenteSeccion> docentesSeccion = docenteSeccionDAO.allBySeccion(seccion);
         //Collections.sort(docentesSeccion, (DocenteSeccion va1, DocenteSeccion va2) -> va1.getId().compareTo(va2.getId()));
         return docentesSeccion;
     }
-    
+
     public static String generateCodigo(String codigo) {
         if (StringUtils.isBlank(codigo)) {
             return "001";
         }
         String letterPart = codigo.substring(0, 1);
         Integer numericPart = Integer.parseInt(codigo.substring(1, 3));
-        
+
         if (numericPart == 99) {
             if (StringUtils.isNumeric(letterPart)) {
                 Integer letterPartInt = Integer.parseInt(letterPart);
@@ -1224,32 +1225,32 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         numericPart++;
         return letterPart + String.format("%02d", numericPart);
     }
-    
+
     @Override
     public List<AnexoBoletin> allAnexosSuperiores() {
         return anexoBoletinDAO.allAnexosSuperiores();
     }
-    
+
     @Override
     public List<Curso> allCursosForProgramacion(String nomString) {
         return cursoDAO.allForProgramacion(nomString);
     }
-    
+
     @Override
     public List<AnexoBoletin> allAnexoBoletionHijos() {
         return anexoBoletinDAO.allAnexosHijos();
     }
-    
+
     @Override
     public AnexoBoletin findAnexoBoletin(Long idAnexoBoletin) {
         return anexoBoletinDAO.find(idAnexoBoletin);
     }
-    
+
     @Override
     public Curso findCurso(Long id) {
         return cursoDAO.find(id);
     }
-    
+
     @Override
     public List<Seccion> allSeccionesByGrupo(GrupoSeccion grupoSeccion, List<DocenteSeccion> docentesSeccion) {
         List<Seccion> secciones = seccionDAO.allByGposSeccion(grupoSeccion);
@@ -1257,20 +1258,20 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         List<RestriccionFacultad> restriccionesFacultad = restriccionFacultadDAO.allActivasBySecciones(secciones);
         List<RestriccionModalidad> restriccionesModalidad = restriccionModalidadDAO.allActivasBySecciones(secciones);
         List<RestriccionRepitencia> restriccionRepitencia = restriccionRepitenciaDAO.allActivasBySecciones(secciones);
-        
+
         Map<Long, List<RestriccionCarrera>> mapRestrCarr = TypesUtil.convertListToMapList("seccion.id", restriccionesCarrera);
         Map<Long, List<RestriccionFacultad>> mapRestrFacu = TypesUtil.convertListToMapList("seccion.id", restriccionesFacultad);
         Map<Long, List<RestriccionModalidad>> mapRestrModa = TypesUtil.convertListToMapList("seccion.id", restriccionesModalidad);
         Map<Long, List<RestriccionRepitencia>> mapRestrRepi = TypesUtil.convertListToMapList("seccion.id", restriccionRepitencia);
         Map<Long, List<DocenteSeccion>> mapProfeSecc = TypesUtil.convertListToMapList("seccion.id", docentesSeccion);
-        
+
         for (Seccion seccion : secciones) {
             restriccionesCarrera = createList(mapRestrCarr.get(seccion.getId()));
             restriccionesFacultad = createList(mapRestrFacu.get(seccion.getId()));
             restriccionesModalidad = createList(mapRestrModa.get(seccion.getId()));
             restriccionRepitencia = createList(mapRestrRepi.get(seccion.getId()));
             List<DocenteSeccion> docentesSecc = createList(mapProfeSecc.get(seccion.getId()));
-            
+
             seccion.setRestriccionesCarrera(restriccionesCarrera);
             seccion.setRestriccionesFacultad(restriccionesFacultad);
             seccion.setRestriccionesModalidad(restriccionesModalidad);
@@ -1279,19 +1280,19 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         }
         return secciones;
     }
-    
+
     private List createList(List lista) {
         if (lista == null) {
             return new ArrayList();
         }
         return lista;
     }
-    
+
     @Override
     public List<Docente> allDocenterByNombre(String nombre, String codigoDep) {
         return docenteDAO.allByNombreFilter(nombre, 10, codigoDep);
     }
-    
+
     @Override
     public List<Aula> searchAulaByName(String nombre, Long seccionId, CicloAcademico ciclo) {
         Seccion seccion = seccionDAO.find(seccionId);
@@ -1300,21 +1301,21 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         for (HorarioSeccion hdiaSecc : horarioSeccion) {
             diaHoras.add(hdiaSecc.getHoraDia());
         }
-        
+
         nombre = "%" + nombre.replaceAll(" ", "%") + "%";
-        
+
         List<Aula> aulas = aulaDAO.searchByNombreFilter(nombre, 15);
         Seccion seccionDb = seccionDAO.find(seccion);
-        
+
         ModalidadEstudio modalidadCurso = seccionDb.getGrupoSeccion().getCurso().getModalidadEstudio();
         EventoCicloAcademico eventoAcademico = this.getEventoCicloAcademico(ciclo, modalidadCurso);
-        
+
         logger.debug("***eventoAcademico*** {}", eventoAcademico != null);
         if (eventoAcademico != null) {
             logger.debug("***eventoAcademico {}", eventoAcademico.getId());
             logger.debug("***inicio  {} fin {}", eventoAcademico.getFechaInicio(), eventoAcademico.getFechaFin());
         }
-        
+
         List<HorarioAula> horariosAula = new ArrayList();
         if (!aulas.isEmpty() && !diaHoras.isEmpty()) {
             horariosAula = horarioAulaDAO.allByAulasCicloDiasHoras(aulas, eventoAcademico, diaHoras);
@@ -1324,16 +1325,16 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             if (horariosAula.isEmpty()) {
                 continue;
             }
-            
+
             HorarioAula horarioAulaFound = horariosAula.stream().filter(req -> req.getAula().getId().equals(aulaEach.getId())).findFirst().orElse(null);
             if (horarioAulaFound != null) {
                 aulaEach.setDisponible(false);
             }
         }
-        
+
         return aulas;
     }
-    
+
     @Override
     @Transactional
     public void cambiarDocentePrincipal(DocenteSeccion docenteSeccion) {
@@ -1347,33 +1348,33 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         docenteSeccionDAO.updatePrincipal(docenteSeccion);
         this.actualizarBoletin();
     }
-    
+
     @Override
     @Transactional
     public void actualizarDocente(Long docenteSeccionId, Long docenteId, CicloAcademico cicloAcademico) {
         DocenteSeccion docenteSeccion = docenteSeccionDAO.find(docenteSeccionId);
         docenteSeccion.setDocente(new Docente(docenteId));
         docenteSeccionDAO.updateDocente(docenteSeccion);
-        
+
         List<DocenteSeccion> docentesSeccion = docenteSeccionDAO.allBySeccion(docenteSeccion.getSeccion());
-        
+
         EventoCicloAcademico eventoClases = getEventoDictadoClases(cicloAcademico, docenteSeccion.getSeccion().getGrupoSeccion().getCurso());
         this.analizedDocenteSeccion(docenteSeccion.getSeccion(), docentesSeccion, eventoClases);
     }
-    
+
     @Override
     @Transactional
     public void actualizarSeccionResctriccionCapa(Seccion seccionForm, DataSessionPivot ds) {
         seccionDAO.updateRestriccionCapa(seccionForm);
     }
-    
+
     @Override
     @Transactional
     public void actualizarSeccionVacantes(Seccion seccionForm, DataSessionPivot ds) {
         DateTime today = new DateTime();
         Seccion seccioDB = seccionDAO.find(seccionForm.getId());
         GrupoSeccion grupoSeccion = grupoSeccionDAO.findLock(seccioDB.getGrupoSeccion().getId());
-        
+
         logger.debug("grupoSeccion:::  {}", grupoSeccion.getId());
         //validar seccion seleccionada
         if (ObjectUtil.getParentTree(seccioDB, "aula.id") != null) {
@@ -1443,18 +1444,18 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         this.actualizarVacantesTCUR(grupoSeccion, ds, today);
         this.actualizarBoletin();
     }
-    
+
     @Transactional(propagation = Propagation.MANDATORY)
     private void actualizarVacantesTCUR(GrupoSeccion grupoSeccion, DataSessionPivot ds, DateTime today) {
         if (!grupoSeccion.getCurso().isTipoCursoTEOPRA()) {
             return;
         }
-        
+
         List<Seccion> secciones = seccionDAO.allOperativesByGpoSeccion(grupoSeccion);
-        
+
         Seccion seccionTCUR = new Seccion();
         Integer vacantes = BigDecimal.ZERO.intValue();
-        
+
         for (Seccion seccionEach : secciones) {
             if (seccionEach.isTipoSeccionTCUR()) {
                 seccionTCUR = seccionEach;
@@ -1465,7 +1466,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
                 vacantes = vacantes + seccionEach.getVacantes();
             }
         }
-        
+
         seccionTCUR.setVacantes(vacantes);
         if (ObjectUtil.getParentTree(seccionTCUR, "aula.id") != null) {
             if (seccionTCUR.getAula().getCapacidadAula().compareTo(seccionTCUR.getVacantes()) < 0) {
@@ -1474,19 +1475,19 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         }
         List<MatriculaSeccion> matriculasSeccionTCUR = new ArrayList();
         List<VacanteAlumno> vacantesAlumnoBySeccion = new ArrayList();
-        
+
         if (seccionTCUR.getId() != null) {
             matriculasSeccionTCUR = matriculaSeccionDAO.allMatriculadosBySeccion(seccionTCUR);
             vacantesAlumnoBySeccion = vacanteAlumnoDAO.allActivosBySeccion(seccionTCUR);
         }
-        
+
         if (matriculasSeccionTCUR.size() > seccionTCUR.getVacantes()) {
             throw new PhobosException("Error. Las matriculas para la sección teoria superan la cantidad de vacantes asignadas.");
         }
         seccionDAO.updateSeccionVacantes(seccionTCUR);
-        
+
         Collections.sort(vacantesAlumnoBySeccion, (VacanteAlumno va1, VacanteAlumno va2) -> va1.getNumero().compareTo(va2.getNumero()));
-        
+
         if (vacantesAlumnoBySeccion.isEmpty()) {
             for (int i = 1; i <= seccionTCUR.getVacantes(); i++) {
                 VacanteAlumno vacanteAlumno = new VacanteAlumno();
@@ -1535,15 +1536,15 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
                 }
             }
         }
-        
+
     }
-    
+
     @Override
     @Transactional
     public void updatePorcentajeAvance(DocenteSeccion profeSeccForm, CicloAcademico cicloAcademico) {
         DocenteSeccion profeSeccBDMain = docenteSeccionDAO.find(profeSeccForm.getId());
         List<DocenteSeccion> profesSecc = docenteSeccionDAO.allBySeccion(profeSeccBDMain.getSeccion());
-        
+
         Fraxtion total = new Fraxtion(BigDecimal.ZERO);
         for (DocenteSeccion profeSecc : profesSecc) {
             if (profeSecc.getId() == profeSeccForm.getId().longValue()) {
@@ -1560,21 +1561,21 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         Fraxtion porcentaje = new Fraxtion(profeSeccForm.getPorcentajeCargaFraccion());
         total = total.add(porcentaje);
         Fraxtion cien = new Fraxtion(100L);
-        
+
         if (total.compareTo(cien) > 0) {
             throw new PhobosException("El porcentaje de carga no puede exceder el 100%. Usted ingresó " + porcentaje.getValue(2) + "%");
         }
         profeSeccBDMain.setPorcentajeCargaFraccion(porcentaje.toString());
         profeSeccBDMain.setPorcentajeCarga(porcentaje.getValue(2));
         docenteSeccionDAO.update(profeSeccBDMain);
-        
+
         evaluateSeccion(profeSeccBDMain.getSeccion());
         this.actualizarBoletin();
-        
+
         EventoCicloAcademico eventoClases = getEventoDictadoClases(cicloAcademico, profeSeccBDMain.getSeccion().getGrupoSeccion().getCurso());
         this.analizedDocenteSeccion(profeSeccBDMain.getSeccion(), profesSecc, eventoClases);
     }
-    
+
     @Override
     @Transactional
     public List<DocenteSeccion> analizedDocenteSeccion(GrupoSeccion grupoSeccion, CicloAcademico cicloAcademico) {
@@ -1588,11 +1589,11 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         }
         return docentesSeccion;
     }
-    
+
     private void analizedDocenteSeccion(
             Seccion seccion, List<DocenteSeccion> docentesSeccion,
             EventoCicloAcademico eventoClases) {
-        
+
         Boolean errorPorcentajeCarga = Boolean.FALSE;
         Boolean errorPeriodoClases = Boolean.FALSE;
 
@@ -1603,9 +1604,9 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             fechaIniClases = new DateTime(seccion.getGrupoSeccion().getFechaInicioModular());
             fechaFinClases = new DateTime(seccion.getGrupoSeccion().getFechaFinModular());
         }
-        
+
         Collections.sort(docentesSeccion, (DocenteSeccion va1, DocenteSeccion va2) -> va1.getId().compareTo(va2.getId()));
-        
+
         List<Date> fechasPeriodos = new ArrayList();
         for (DocenteSeccion docenteSeccion : docentesSeccion) {
             if (docenteSeccion.getFechaInicio() != null) {
@@ -1618,7 +1619,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         Collections.sort(fechasPeriodos, (Date va1, Date va2) -> va1.compareTo(va2));
         if (fechasPeriodos.size() % 2 != 0 || (fechasPeriodos.size() / 2) != docentesSeccion.size()) {
             errorPeriodoClases = Boolean.TRUE;
-            
+
         } else {
             DateTime fechaMinPeriodo = null;
             DateTime fechaMaxPeriodo = null;
@@ -1626,17 +1627,17 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
                 fechaMinPeriodo = new DateTime(new DateTime(fechasPeriodos.get(0)).toLocalDate().toDate());
                 fechaMaxPeriodo = new DateTime(new DateTime(fechasPeriodos.get(fechasPeriodos.size() - 1)).toLocalDate().toDate());
             }
-            
+
             if (!fechaIniClases.equals(fechaMinPeriodo)) {
                 errorPeriodoClases = Boolean.TRUE;
             }
             if (!fechaFinClases.equals(fechaMaxPeriodo)) {
                 errorPeriodoClases = Boolean.TRUE;
             }
-            
+
             if (!errorPeriodoClases) {
                 DateTime lastFechaFin = null;
-                
+
                 for (int i = 0; i < fechasPeriodos.size(); i++) {
                     DateTime fechaEach = new DateTime(new DateTime(fechasPeriodos.get(i)).toLocalDate().toDate());
                     if ((i + 1) % 2 == 0) {
@@ -1663,57 +1664,57 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         }
         seccionDAO.updateSituacionDocente(seccion);
     }
-    
+
     @Override
     public Seccion findSeccion(Long seccionId) {
         Seccion seccion = seccionDAO.find(seccionId);
-        
+
         List<HorarioSeccion> horariosSecc = horarioSeccionDAO.allBySeccion(seccion);
         seccion.setHorarioSeccion(horariosSecc);
-        
+
         return seccion;
     }
-    
+
     @Override
     public Seccion findSeccionWithRestriccions(Long seccionId) {
         Seccion seccion = seccionDAO.find(seccionId);
         List<HorarioSeccion> horariosSeccion = horarioSeccionDAO.allBySeccion(seccion);
         seccion.setHorarioSeccion(horariosSeccion);
-        
+
         List<RestriccionCarrera> restriccionesCarrera = restriccionCarreraDAO.allActivasBySeccion(seccion);
         List<RestriccionFacultad> restriccionesFacultad = restriccionFacultadDAO.allActivasBySeccion(seccion);
         List<RestriccionModalidad> restriccionesModalidad = restriccionModalidadDAO.allActivasBySeccion(seccion);
         List<RestriccionRepitencia> restriccionRepitencias = restriccionRepitenciaDAO.allActivasBySeccion(seccion);
-        
+
         seccion.setRestriccionesCarrera(restriccionesCarrera);
         seccion.setRestriccionesFacultad(restriccionesFacultad);
         seccion.setRestriccionesModalidad(restriccionesModalidad);
         seccion.setRestriccionesRepitencia(restriccionRepitencias);
-        
+
         return seccion;
     }
-    
+
     @Override
     public List<GrupoHoras> allByTipoGrupoHorasCiclo(TipoGrupoHoras tipoGrupoHoras, CicloAcademico cicloAcademico) {
         return grupoHorasDAO.allByTipoGrupoHora(tipoGrupoHoras, cicloAcademico);
     }
-    
+
     @Override
     public List<GrupoHoras> allGrupoHorasBySeccionAndTipoGrupoHoras(Seccion seccion, TipoGrupoHoras tipoGrupoHoras, CicloAcademico cicloAcademico) {
         if (seccion.getTotalHorasSemanales() == 0) {
             return new ArrayList();
         }
-        
+
         List<GrupoHoras> grupoHoras = grupoHorasDAO.allByTipoGrupoHora(tipoGrupoHoras, cicloAcademico);
         List<DiaHoraGrupo> horariosTodosGrupos = diaHoraGrupoDAO.allByGruposCiclo(grupoHoras, cicloAcademico);
         Map<Long, List<DiaHoraGrupo>> mapHorariosByGpo = TypesUtil.convertListToMapList("grupoHorario.id", horariosTodosGrupos);
-        
+
         for (GrupoHoras grupoHora : grupoHoras) {
             List<DiaHoraGrupo> horarioGpo = createList(mapHorariosByGpo.get(grupoHora.getId()));
             Collections.sort(horarioGpo, (p1, p2) -> p1.getHora().getNumero().compareTo(p2.getHora().getNumero()));
             grupoHora.setDiaHoraGrupo(horarioGpo);
         }
-        
+
         List<GrupoHoras> grupoHorasFiltrado = new ArrayList();
 
         //buscando grupos con las horas requeridas por dia (filtramos los grupos horas)
@@ -1738,19 +1739,19 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         }
         long t2 = System.currentTimeMillis();
         System.out.println("Busqueda de " + loop + " coincidencias en " + (t2 - t1) + " mseg");
-        
+
         return grupoHorasFiltrado;
     }
-    
+
     private boolean existeCoincidencia(Map<Long, Object> mapDias, int horasSemanales) {
         int minimo = 5000;
-        
+
         for (int i = 0; i < mapDias.size(); i++) {
             List<Map<Long, Object>> busquedas = new ArrayList();
             Map<Long, Object> mapTempo = new LinkedHashMap();
             Map<String, String> existentes = new LinkedHashMap();
             Commutator.findConmutation(mapDias, mapTempo, i + 1, busquedas, existentes);
-            
+
             for (Map<Long, Object> busqueda : busquedas) {
                 int total = 0;
                 for (Map.Entry<Long, Object> entry : busqueda.entrySet()) {
@@ -1770,49 +1771,49 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         }
         return false;
     }
-    
+
     @Override
     public TipoGrupoHoras findTipoGrupoHoraByTipo(TipoGrupoHorasEnum tipoGrupoHorasEnum) {
         TipoGrupoHoras tipoGrupoHoraZeta = tipoGrupoHorasDAO.findByTipo(tipoGrupoHorasEnum);
         return tipoGrupoHoraZeta;
     }
-    
+
     @Override
     public TipoGrupoHoras findTipoGpoByEnumCiclo(TipoGrupoHorasEnum tipoGrupoHorasEnum, CicloAcademico cicloAcademico) {
         TipoGrupoHoras tipoGrupoHoraZeta = tipoGrupoHorasDAO.findByTipoCiclo(tipoGrupoHorasEnum, cicloAcademico);
         return tipoGrupoHoraZeta;
     }
-    
+
     @Override
     public List<TipoGrupoHoras> allGrupoHorasActivosTipoAndCiclo(CicloAcademico cicloAcademico, TipoGrupoHorasEnum tipoGrupoHorasEnum) {
         return tipoGrupoHorasDAO.allActiveByTipoCiclo(cicloAcademico, tipoGrupoHorasEnum);
     }
-    
+
     @Override
     public List<DiaHoraGrupo> allDiaHoraGrupoByGrupo(GrupoHoras grupoHoras, CicloAcademico cicloAcademico) {
         return diaHoraGrupoDAO.allByGrupoCiclo(grupoHoras, cicloAcademico);
     }
-    
+
     @Override
     public List<DiaHoraGrupo> allDiaHoraGrupoByTipo(TipoGrupoHoras tipoGrupoHoras, CicloAcademico cicloAcademico) {
         return diaHoraGrupoDAO.allByTipoGpoCiclo(tipoGrupoHoras, cicloAcademico);
     }
-    
+
     @Override
     public TipoGrupoHoras findTipoGrupoHoras(Long idTipoGrupoHoras) {
         return tipoGrupoHorasDAO.find(idTipoGrupoHoras);
     }
-    
+
     @Override
     public List<Dia> allDia() {
         return diaDAO.allDia();
     }
-    
+
     @Override
     public List<Hora> allHora() {
         return horaDAO.all();
     }
-    
+
     @Override
     @Transactional
     public void saveSeccionGrupoHorario(Seccion seccion, GrupoHoras grupoHorario, CicloAcademico cicloAcademico) {
@@ -1823,7 +1824,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
                 throw new PhobosException("Debe seleccionar las horas");
             }
         }
-        
+
         List<HorarioSeccion> horariosSeccion = horarioSeccionDAO.allBySeccion(seccion);
         List<HorarioAula> horariosAula = horarioAulaDAO.allBySeccionCiclo(seccion, cicloAcademico);
         if (grupoHorario == null) {
@@ -1835,12 +1836,12 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         }
         Map<Long, Hora> mapHoras = TypesUtil.convertListToMap("id", horaDAO.all());
         Map<Long, Dia> mapDias = TypesUtil.convertListToMap("id", diaDAO.all());
-        
+
         for (DiaHoraGrupo horaDia : grupoHorario.getDiaHoraGrupo()) {
             horaDia.setHora(mapHoras.get(horaDia.getHora().getId()));
             horaDia.setDia(mapDias.get(horaDia.getDia().getId()));
         }
-        
+
         Map<String, DiaHoraGrupo> mapHDiaGpo = TypesUtil.convertListToMap("horaDia", grupoHorario.getDiaHoraGrupo());
         if (seccion.getAula() != null && seccion.getAula().getPermiteCruce() == BigDecimal.ZERO.intValue()) {
             List<HorarioAula> horarioTotalAula = horarioAulaDAO.allByAulaCiclo(seccion.getAula(), cicloAcademico);
@@ -1859,7 +1860,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
                 throw new PhobosException("Hay cruce de horario el " + dia.getNombre() + " a la(s) " + hora.getDescripcion());
             }
         }
-        
+
         if (seccion.getSeccionSuperior() != null) {
             List<HorarioSeccion> horarioTCUR = horarioSeccionDAO.allBySeccion(seccion.getSeccionSuperior());
             for (HorarioSeccion horarioSecc : horarioTCUR) {
@@ -1873,11 +1874,11 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
                 throw new PhobosException("Hay cruce de horario con la teoria el " + dia.getNombre() + " a la(s) " + hora.getDescripcion());
             }
         }
-        
+
         if (seccion.getTipoSeccionEnum() == TipoSeccionEnum.TCUR) {
             List<Seccion> seccionesPCUR = seccionDAO.allByGposSeccion(seccion.getGrupoSeccion());
             seccionesPCUR.removeIf(Seccion::isTipoSeccionTCUR);
-            
+
             List<HorarioSeccion> horariosPCUR = horarioSeccionDAO.allBySecciones(seccionesPCUR);
             for (HorarioSeccion horarioSecc : horariosPCUR) {
                 String horaDia = horarioSecc.getHoraDia();
@@ -1896,19 +1897,19 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
         //seccion.setHorarioSeccion(horariosSeccion);
         seccion.setGrupoHoras(grupoHorario);
-        
+
         List<DiaHoraGrupo> horarioGpo = grupoHorario.getDiaHoraGrupo();
         ListsInspector inspector = TypesUtil.analizeLists(horariosSeccion, horarioGpo, "horaDia");
         List<HorarioSeccion> muertosHSecc = inspector.getDeadList();
         List<DiaHoraGrupo> nuevosHSecc = inspector.getNewList();
-        
+
         if (!muertosHSecc.isEmpty()) {
             horarioSeccionDAO.deleteAllInList(muertosHSecc);
         }
-        
+
         ModalidadEstudio modalidadCurso = seccion.getGrupoSeccion().getCurso().getModalidadEstudio();
         EventoCicloAcademico eventoAcademico = this.getEventoCicloAcademico(cicloAcademico, modalidadCurso);
-        
+
         for (DiaHoraGrupo diaHoraGrupoEach : nuevosHSecc) {
             HorarioSeccion horarioSeccion = new HorarioSeccion();
             horarioSeccion.setDia(diaHoraGrupoEach.getDia());
@@ -1922,17 +1923,17 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             }
             horarioSeccionDAO.save(horarioSeccion);
         }
-        
+
         inspector = TypesUtil.analizeLists(horariosAula, horarioGpo, "horaDia");
         List<HorarioAula> muertosHAula = inspector.getDeadList();
         List<DiaHoraGrupo> nuevosHAula = inspector.getNewList();
-        
+
         if (!muertosHSecc.isEmpty()) {
             horarioAulaDAO.deleteAllInList(muertosHAula);
         }
-        
+
         if (seccion.getAula() != null) {
-            
+
             for (DiaHoraGrupo diaHoraGrupoEach : nuevosHAula) {
                 HorarioAula horarioAula = new HorarioAula();
                 horarioAula.setAula(seccion.getAula());
@@ -1948,7 +1949,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
                 horarioAulaDAO.save(horarioAula);
             }
         }
-        
+
         seccionDAO.updateSeccionGrupoHora(seccion);
         this.actualizarBoletin();
         //actualizar grupo horas anterior
@@ -1958,25 +1959,25 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         //actualizar grupo horas actual
         this.actualizarCuotaAnexo(seccion, seccionDB.getGrupoSeccion().getCicloAcademico());
     }
-    
+
     private void actualizarCuotaAnexo(Seccion seccion, CicloAcademico cicloAcademico) {
         GrupoHoras gpoHoras = seccion.getGrupoHoras();
         GrupoSeccion grupoSeccionBD = grupoSeccionDAO.find(seccion.getGrupoSeccion().getId());
-        
+
         logger.debug("grupo horas, codigo {}, letra {}", gpoHoras.getCodigo(), gpoHoras.getLetra());
         if (gpoHoras != null) {
             if (StringUtils.isEmpty(gpoHoras.getLetra())) {
                 gpoHoras = grupoHorasDAO.find(gpoHoras);
             }
-            
+
             AnexoBoletin anexoBoletin = grupoSeccionBD.getAnexoBoletin();
-            
+
             CuotasGrupoHoras cuotasGrupoHoras = cuotaGpoHorasDAO.findByAnexoAndCicloAndGpoHoras(anexoBoletin, cicloAcademico, gpoHoras.getLetra());
             if (cuotasGrupoHoras != null) {
                 Integer countForCuotasGrupoHoras = cuotaGpoHorasDAO.countSeccionesByAnexoCicloLetraGpo(anexoBoletin, cicloAcademico, gpoHoras.getLetra(), gpoHoras.getTipoSeccion());
                 CuotasGrupoHoras cuotasGrupoHorasUpd = new CuotasGrupoHoras();
                 cuotasGrupoHorasUpd.setId(cuotasGrupoHoras.getId());
-                
+
                 String columna = "utilizadasTeoria";
                 if (gpoHoras.getTipoSeccion().equals("TEO")) {
                     cuotasGrupoHorasUpd.setUtilizadasTeoria(countForCuotasGrupoHoras);
@@ -1988,29 +1989,29 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             }
         }
     }
-    
+
     @Override
     @Transactional
     public void saveAula(Seccion seccionForm, Aula aulaForm, DataSessionPivot ds) {
-        
+
         Seccion seccion = seccionDAO.find(seccionForm);
-        
+
         Aula aula = null;
         if (aulaForm.getId() != null) {
             aula = aulaDAO.find(aulaForm.getId());
         } else if (!Strings.isNullOrEmpty(aulaForm.getCodigo())) {
             aula = aulaDAO.findActiveByCode(aulaForm.getCodigo());
         }
-        
+
         if (ObjectUtil.getParentTree(seccion, "aula.id") != null && aula == null) {
             horarioAulaDAO.deleteBySeccionAula(seccion, seccion.getAula());
         }
-        
+
         if (aula == null) {
             //don't touch  
             seccion.setAula(aula);
             seccionDAO.update(seccion);
-            
+
             List<HorarioSeccion> horariosSeccion = horarioSeccionDAO.allBySeccion(seccion);
             for (HorarioSeccion horarioSeccion : horariosSeccion) {
                 horarioSeccion.setAula(aula);
@@ -2018,58 +2019,58 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             }
             return;
         }
-        
+
         Assert.isNotNull(aula.getCapacidadAula(), "Esta aula no tiene configurado la capacidad");
-        
+
         Aula aulaAntes = seccion.getAula();
         if (aulaAntes != null) {
             if (seccion.getAula().getId().compareTo(aula.getId()) == 0) {
                 throw new PhobosException("Esta sección ya tiene asignada esta aula.");
             }
         }
-        
+
         if (seccion.getVacantes() != null) {
             if (seccion.getVacantes().compareTo(aula.getCapacidadAula()) > 0) {
                 throw new PhobosException("La capacidad del aula no abarca las vacantes de la sección.");
             }
         }
-        
+
         CicloAcademico cicloAcademico = ds.getCicloAcademico();
-        
+
         List<HorarioAula> horariosAulas = horarioAulaDAO.allByAula(aula, cicloAcademico);
         List<HorarioSeccion> horariosSeccion = horarioSeccionDAO.allBySeccion(seccion);
-        
+
         ModalidadEstudio modalidadCurso = seccion.getGrupoSeccion().getCurso().getModalidadEstudio();
         EventoCicloAcademico eventoAcademico = this.getEventoCicloAcademico(cicloAcademico, modalidadCurso);
-        
+
         if (aula.getPermiteCruce() == 0) {
             logger.debug("no permite cruce horario");
             List<String> diasHorasSeccion = horariosSeccion.stream().map(x -> x.getIdDiaHora()).collect(Collectors.toList());
-            
+
             List<HorarioAula> horariosAulasFound = horarioAulaDAO.allRangoDiaByDiasHoras(diasHorasSeccion, eventoAcademico.getFechaInicio(), eventoAcademico.getFechaFin());
             if (!horariosAulasFound.isEmpty()) {
                 throw new PhobosException("Aula ocupada para el grupo seleccionado");
             }
         }
-        
+
         seccion.setAula(aula);
         if (aulaAntes != null) {
             horarioAulaDAO.deleteBySeccionAula(seccion, aulaAntes);
         }
-        
+
         HorarioAula horarioAula = null;
-        
+
         LOOP_HORARIO_SECCION:
         for (HorarioSeccion horarioSeccionEach : horariosSeccion) {
             horarioSeccionEach.setAula(aula);
             horarioSeccionDAO.update(horarioSeccionEach);
-            
+
             for (HorarioAula horarioAulaEach : horariosAulas) {
                 if (horarioSeccionEach.getHoraDia().equals(horarioAulaEach.getHoraDia())) {
                     continue LOOP_HORARIO_SECCION;
                 }
             }
-            
+
             horarioAula = new HorarioAula();
             horarioAula.setAula(aula);
             horarioAula.setDia(horarioSeccionEach.getDia());
@@ -2077,30 +2078,30 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             horarioAula.setSeccion(seccion);
             horarioAula.setEstadoEnum(EstadoHorarioAulaEnum.ACT);
             horarioAula.setTipoEnum(TipoHorarioAulaEnum.DICT);
-            
+
             if (eventoAcademico != null) {
                 horarioAula.setFechaInicio(eventoAcademico.getFechaInicio());
                 horarioAula.setFechaFin(eventoAcademico.getFechaFin());
             }
-            
+
             horarioAulaDAO.save(horarioAula);
         }
-        
+
         seccionDAO.updateSeccionAula(seccion);
         this.actualizarBoletin();
     }
-    
+
     @Override
     @Transactional
     public void saveRestriccion(Seccion seccion, DataSessionPivot ds, TipoRestriccionEnum tipoRestriccionEnum, List<Long> restricciones) {
         DateTime today = new DateTime();
-        
+
         if (tipoRestriccionEnum.equals(TipoRestriccionEnum.ESP)) {
             List<Carrera> carrerasSeleccionadas = new ArrayList<>();
             for (Long restriccionEach : restricciones) {
                 carrerasSeleccionadas.add(new Carrera(restriccionEach));
             }
-            
+
             List<RestriccionCarrera> restriccionesCarrera = restriccionCarreraDAO.allActivasBySeccion(seccion);
             List<RestriccionFacultad> restriccionesFacultad = restriccionFacultadDAO.allActivasBySeccion(seccion);
             List<RestriccionModalidad> restriccionesModalidad = restriccionModalidadDAO.allActivasBySeccion(seccion);
@@ -2126,27 +2127,27 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
                     restriccionCarreraDAO.save(restriccionCarrera);
                 }
             }
-            
+
             for (RestriccionFacultad restriccionFacultadEach : restriccionesFacultad) {
                 restriccionFacultadEach.setEstadoEnum(EstadoEnum.INA);
                 restriccionFacultadEach.setFechaModificacion(today.toDate());
                 restriccionFacultadEach.setUsuarioModificacion(ds.getUsuario());
                 restriccionFacultadDAO.updateEstadoFechaUsuario(restriccionFacultadEach);
             }
-            
+
             for (RestriccionModalidad restriccionModalidadEach : restriccionesModalidad) {
                 restriccionModalidadEach.setEstadoEnum(EstadoEnum.INA);
                 restriccionModalidadEach.setFechaModificacion(today.toDate());
                 restriccionModalidadEach.setUsuarioModificacion(ds.getUsuario());
                 restriccionModalidadDAO.updateEstadoFechaUsuario(restriccionModalidadEach);
             }
-            
+
         } else if (tipoRestriccionEnum.equals(TipoRestriccionEnum.FAC)) {
             List<Facultad> facultadesSeleccionadas = new ArrayList();
             for (Long restriccionEach : restricciones) {
                 facultadesSeleccionadas.add(new Facultad(restriccionEach));
             }
-            
+
             List<RestriccionFacultad> restriccionesFacultad = restriccionFacultadDAO.allActivasBySeccion(seccion);
             List<RestriccionCarrera> restriccionesCarrera = restriccionCarreraDAO.allActivasBySeccion(seccion);
             List<RestriccionModalidad> restriccionesModalidad = restriccionModalidadDAO.allActivasBySeccion(seccion);
@@ -2172,14 +2173,14 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
                     restriccionFacultadDAO.save(restriccionFacultad);
                 }
             }
-            
+
             for (RestriccionCarrera restriccionCarreraEach : restriccionesCarrera) {
                 restriccionCarreraEach.setEstadoEnum(EstadoEnum.INA);
                 restriccionCarreraEach.setFechaModificacion(today.toDate());
                 restriccionCarreraEach.setUsuarioModificacion(ds.getUsuario());
                 restriccionCarreraDAO.updateEstadoFechaUsuario(restriccionCarreraEach);
             }
-            
+
             for (RestriccionModalidad restriccionModalidadEach : restriccionesModalidad) {
                 restriccionModalidadEach.setEstadoEnum(EstadoEnum.INA);
                 restriccionModalidadEach.setFechaModificacion(today.toDate());
@@ -2191,7 +2192,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             for (Long restriccionEach : restricciones) {
                 modalidadesSeleccioandas.add(new ModalidadEstudio(restriccionEach));
             }
-            
+
             List<RestriccionModalidad> restriccionesModalidad = restriccionModalidadDAO.allActivasBySeccion(seccion);
             List<RestriccionCarrera> restriccionesCarrera = restriccionCarreraDAO.allActivasBySeccion(seccion);
             List<RestriccionFacultad> restriccionesFacultad = restriccionFacultadDAO.allActivasBySeccion(seccion);
@@ -2217,14 +2218,14 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
                     restriccionModalidadDAO.save(restriccionModalidad);
                 }
             }
-            
+
             for (RestriccionCarrera restriccionCarreraEach : restriccionesCarrera) {
                 restriccionCarreraEach.setEstadoEnum(EstadoEnum.INA);
                 restriccionCarreraEach.setFechaModificacion(today.toDate());
                 restriccionCarreraEach.setUsuarioModificacion(ds.getUsuario());
                 restriccionCarreraDAO.updateEstadoFechaUsuario(restriccionCarreraEach);
             }
-            
+
             for (RestriccionFacultad restriccionFacultadEach : restriccionesFacultad) {
                 restriccionFacultadEach.setEstadoEnum(EstadoEnum.INA);
                 restriccionFacultadEach.setFechaModificacion(today.toDate());
@@ -2234,12 +2235,12 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         }
         this.actualizarBoletin();
     }
-    
+
     @Override
     @Transactional
     public void saveTipoRepitenciaRestriccion(Seccion seccion, List<TipoRepitencia> tiposRestriccionesSeleccionados, DataSessionPivot ds) {
         DateTime today = new DateTime();
-        
+
         List<RestriccionRepitencia> restriccionesRepitencia = restriccionRepitenciaDAO.allActivasBySeccion(seccion);
 
         //desactivamos los que ya no estan seleccionados
@@ -2265,17 +2266,17 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             }
         }
     }
-    
+
     @Override
     public List<Aula> allPabellonesByOficina(Oficina oficina) {
         return aulaDAO.allPabellonesByOficina(oficina);
     }
-    
+
     @Override
     public List<HorarioAula> allHorariosAula(Aula aula, CicloAcademico cicloAcademico) {
         return horarioAulaDAO.allByAula(aula, cicloAcademico);
     }
-    
+
     @Override
     public List<Aula> allAulasByPabellon(Seccion seccion, Aula pabellon, CicloAcademico cicloAcademico) {
         List<String> diaHoras = new ArrayList();
@@ -2283,7 +2284,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         for (HorarioSeccion hdiaSecc : horarioSeccion) {
             diaHoras.add(hdiaSecc.getHoraDia());
         }
-        
+
         Seccion seccionDb = seccionDAO.find(seccion);
         ModalidadEstudio modalidadCurso = seccionDb.getGrupoSeccion().getCurso().getModalidadEstudio();
         EventoCicloAcademico eventoAcademico = this.getEventoCicloAcademico(cicloAcademico, modalidadCurso);
@@ -2292,7 +2293,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             logger.debug("***eventoAcademico {}", eventoAcademico.getId());
             logger.debug("***inicio  {} fin {}", eventoAcademico.getFechaInicio(), eventoAcademico.getFechaFin());
         }
-        
+
         List<HorarioAula> horariosAula = new ArrayList();
         logger.debug("***pabellon *** {}", pabellon.getId());
         if (!diaHoras.isEmpty()) {
@@ -2301,7 +2302,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             }
         }
         logger.debug("***horariosAula existe *** {}", horariosAula.isEmpty());
-        
+
         Aula aulaActual = seccion.getAula();
         List<Aula> aulas = aulaDAO.allByPabellon(pabellon);
         for (Aula aulaEach : aulas) {
@@ -2324,16 +2325,16 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
                 aulaEach.setDisponible(Boolean.TRUE);
             }
         }
-        
+
         return aulas;
     }
-    
+
     @Override
     public Aula findAula(Long aulaId) {
         Aula aula = aulaDAO.find(aulaId);
         return aula;
     }
-    
+
     @Override
     public Aula findAulaFull(Long aulaId, CicloAcademico cicloAcademico) {
         Aula aula = aulaDAO.find(aulaId);
@@ -2342,27 +2343,27 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         aula.setHorariosAula(horariosAulas);
         return aula;
     }
-    
+
     @Override
     public List<Oficina> allOficinasWithAula(List<Oficina> oficinas) {
         return oficinaDAO.allByOficinaWithAulas(oficinas);
     }
-    
+
     @Override
     public List<Aula> allPabellonesByOficinasNoOera(List<Oficina> oficinas) {
         return aulaDAO.allPabellonesByOficinasNoOera(oficinas);
     }
-    
+
     @Override
     public GrupoHoras findGrupoHorasWithHorario(Seccion seccion, CicloAcademico ciclo) {
         GrupoHoras grupoHoras = seccion.getGrupoHoras();
         return this.findGrupoHorasWithHorario(seccion, grupoHoras, ciclo);
     }
-    
+
     @Override
     public GrupoHoras findGrupoHorasWithHorario(Seccion seccion, GrupoHoras grupoHoras, CicloAcademico ciclo) {
         Map<String, HorarioSeccion> mapHorarioSecc = TypesUtil.convertListToMap("horaDia", horarioSeccionDAO.allBySeccion(seccion));
-        
+
         GrupoHoras gpoBD = grupoHorasDAO.find(grupoHoras);
         List<DiaHoraGrupo> horarioGpo = new ArrayList();
         List<DiaHoraGrupo> diaHoraGpo = diaHoraGrupoDAO.allByGrupoCiclo(gpoBD, ciclo);
@@ -2376,12 +2377,12 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         gpoBD.setDiaHoraGrupo(horarioGpo);
         return gpoBD;
     }
-    
+
     @Override
     public GrupoHoras findGrupoHoras(GrupoHoras grupoHoras, CicloAcademico ciclo) {
         return grupoHorasDAO.find(grupoHoras);
     }
-    
+
     @Override
     public GrupoHoras findGrupoHorasFull(GrupoHoras grupoHoras, CicloAcademico cicloAcademico) {
         grupoHoras = grupoHorasDAO.find(grupoHoras);
@@ -2389,7 +2390,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         grupoHoras.setDiaHoraGrupo(diasHorasGrupo);
         return grupoHoras;
     }
-    
+
     @Override
     public GpoSeccionResumen resumenByCiclo(CicloAcademico ciclo) {
         GpoSeccionResumen resumen = grupoSeccionDAO.resumenByCiclo(ciclo);
@@ -2397,55 +2398,55 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         resumen.setDepartamentos(resumen.getDepartamentos() == null ? 0 : resumen.getDepartamentos());
         resumen.setIngresantes(resumen.getIngresantes() == null ? 0 : resumen.getIngresantes());
         resumen.setPostGrados(resumen.getPostGrados() == null ? 0 : resumen.getPostGrados());
-        
+
         return resumen;
     }
-    
+
     @Override
     public List<AnexoBoletin> allAnexosBySuperiorCiclo(String anexoSuperior, CicloAcademico ciclo) {
         GrupoAnexoEnum gpoAnexoE = GrupoAnexoEnum.get2(anexoSuperior);
         System.out.println(gpoAnexoE.name());
         System.out.println(gpoAnexoE.getValue());
-        
+
         return anexoBoletinDAO.allBySuperiorCiclo(new AnexoBoletin(gpoAnexoE.getValue()), ciclo);
     }
-    
+
     @Override
     public List<Facultad> allFacultadesActivas() {
         return facultadDAO.allActivos();
     }
-    
+
     @Override
     public List<ModalidadEstudio> allModalidadesEstudioActivas() {
         return modalidadEstudioDAO.allRegularesActivas();
     }
-    
+
     @Override
     public List<Carrera> allCarrerasActivas() {
         return carreraDAO.allActivas();
     }
-    
+
     @Override
     public List<Carrera> allCarrerasActivasPrePost() {
         List<String> modalidades = new ArrayList<>();
         modalidades.add(ModalidadEstudioEnum.PRE.name());
         modalidades.add(ModalidadEstudioEnum.EPG.name());
-        
+
         return carreraDAO.allActivasByModalidades(modalidades);
     }
-    
+
     @Override
     public List<TipoRepitencia> allTipoRepitencia() {
         return tipoRepitenciaDAO.all();
     }
-    
+
     @Override
     public List<EventoCicloAcademico> allEventoCicloAcademicoForPeriodo(CicloAcademico cicloAcademico) {
         List<EventoAcademicoEnum> eventos = Arrays.asList(EventoAcademicoEnum.CLASES_PRE, EventoAcademicoEnum.CLASES_VER);
         List<EventoCicloAcademico> eventosCiclosAcademicos = eventoCicloAcademicoDAO.allActivosByCicloEventos(cicloAcademico, eventos);
         return eventosCiclosAcademicos;
     }
-    
+
     @Override
     public List<Date> allDatesEventoCicloAcademicoForPeriodo(CicloAcademico cicloAcademico) {
         List<EventoCicloAcademico> eventosCicloAcademicos = this.allEventoCicloAcademicoForPeriodo(cicloAcademico);
@@ -2457,23 +2458,23 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         Collections.sort(fechas, (Date va1, Date va2) -> va1.compareTo(va2));
         return fechas;
     }
-    
+
     @Override
     public EventoCicloAcademico findEventoAcademico(CicloAcademico cicloAcademico, Curso curso) {
         return this.getEventoDictadoClases(cicloAcademico, curso);
     }
-    
+
     @Override
     public GrupoHoras findGrupoHorasForDirectUpdate(String code, CicloAcademico cicloAcademico, Seccion seccion) {
         if (StringUtils.isEmpty(code)) {
             return null;
         }
-        
+
         GrupoHoras grupoHorario = grupoHorasDAO.findByCodeTipoCiclo(code, cicloAcademico.getTipoEnum());
         if (grupoHorario == null) {
             throw new PhobosException("Grupo Horario ingresado no existe");
         }
-        
+
         List<Dia> dias = diaDAO.all();
         List<DiaHoraGrupo> diasHorasGpo = diaHoraGrupoDAO.allByGrupoCiclo(grupoHorario, cicloAcademico);
         if (seccion.getHorasSemanales() == 0) {
@@ -2481,28 +2482,28 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         }
         List<DiaHoraGrupo> diasGrupoSecc = searchDiasHorasByHorasSemanales(diasHorasGpo, seccion.getHorasSemanales(), dias);
         grupoHorario.setDiaHoraGrupo(diasGrupoSecc);
-        
+
         return grupoHorario;
     }
-    
+
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public List<DiaHoraGrupo> searchDiasHorasByHorasSemanales(List<DiaHoraGrupo> diasHorasGrupo, Integer horasSemanales, List<Dia> dias) {
         if (horasSemanales == 0) {
             throw new PhobosException("Esta sección no puede asignarse un grupo con horas semanales");
         }
-        
+
         if (diasHorasGrupo.isEmpty()) {
             return new ArrayList();
         }
-        
+
         Collections.sort(diasHorasGrupo, (p1, p2) -> p1.getHora().getNumero().compareTo(p2.getHora().getNumero()));
-        
+
         List<DiaHoraGrupo> diasHorasTempo;
         Map<Long, Object> mapDias = new LinkedHashMap();
         for (Dia dia : dias) {
             diasHorasTempo = new ArrayList();
-            
+
             for (DiaHoraGrupo diaHora : diasHorasGrupo) {
                 if (diaHora.getDia().getId() == dia.getId().longValue()) {
                     diasHorasTempo.add(diaHora);
@@ -2512,7 +2513,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
                 mapDias.put(dia.getId(), diasHorasTempo);
             }
         }
-        
+
         List<DiaHoraGrupo> diasHorasSeccion = new ArrayList();
         List<Map<Long, Object>> busquedas = Commutator.create(mapDias);
         for (Map<Long, Object> busqueda : busquedas) {
@@ -2527,18 +2528,18 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
                 break;
             }
         }
-        
+
         if (diasHorasSeccion.isEmpty()) {
             throw new PhobosException("Grupo Horario no es compatible con las horas semanales de la sección");
         }
         return diasHorasSeccion;
     }
-    
+
     @Override
     public List<HorarioSeccion> allHorarioSeccion(Seccion seccion) {
         return horarioSeccionDAO.allBySeccion(seccion);
     }
-    
+
     private int cociente(int acumulador, int dvdo, int dvsor) {
         if (dvdo > dvsor) {
             return cociente(acumulador + 1, dvdo - dvsor, dvsor);
@@ -2546,7 +2547,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             return acumulador;
         }
     }
-    
+
     public List<String> getCodes(int inicio, int cantidad) {
         List<String> codes = new ArrayList();
         for (int i = inicio; i < cantidad + inicio; i++) {
@@ -2554,7 +2555,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         }
         return codes;
     }
-    
+
     private String getCode(int i) {
         if (i < 1000) {
             return NumberFormat.codigo(i, 3, '0');
@@ -2563,42 +2564,42 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         int q = cociente(0, (i - 999), 100);
         String le = Character.toString((char) (65 + q));
         if (i > 1990 && i < 2010) {
-            
+
             logger.debug("i = {} {}, r {}, q {} ", i, le, r, q);
         }
-        
+
         return le + NumberFormat.codigo(r, 2, '0');
     }
-    
+
     @Override
     @Transactional
     public List<GrupoSeccion> clonar(GrupoSeccion grupoSeccion, Integer veces, DataSessionPivot ds) {
         GrupoSeccion gpoSeccBD = grupoSeccionDAO.find(grupoSeccion.getId());
         Curso curso = gpoSeccBD.getCurso();
         CicloAcademico ciclo = gpoSeccBD.getCicloAcademico();
-        
+
         EventoCicloAcademico eventoDictadoClases = getEventoDictadoClases(ciclo, curso);
         List<String> codigosByCiclo = grupoSeccionDAO.allCodigoByCiclo(ciclo);
         List<String> codigos2ByCiclo = grupoSeccionDAO.allCodigo2ByCiclo(ciclo);
-        
+
         int horasTeoria = getHorasCurso(curso, ciclo, TipoSeccionEnum.TEO);
         int horasPractica = getHorasCurso(curso, ciclo, TipoSeccionEnum.PRA);
-        
+
         Docente docenteDefault = docenteDAO.findByCode(Constantine.DOCENTE_INDETERMINADO);
-        
+
         final BigDecimal PORCENTAJE_CARGA = new BigDecimal(100);
         final String PORCENTAJE_CARGA_FRACCION = "100";
-        
+
         List<GrupoSeccion> gpoSeccClones = new ArrayList<>();
         for (int i = 0; i < veces; i++) {
             GrupoSeccion gpoSeccClon = new GrupoSeccion();
-            
+
             String codigo = CodeGenerator.getNextCode(codigosByCiclo, 0);
             String codigo2 = CodeGenerator.getNextCode(codigos2ByCiclo, 0);
-            
+
             codigosByCiclo.add(codigo);
             codigos2ByCiclo.add(codigo2);
-            
+
             gpoSeccClon.setCurso(curso);
             gpoSeccClon.setCodigo(codigo);
             gpoSeccClon.setCodigo2(codigo2);
@@ -2611,11 +2612,11 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             gpoSeccClon.setAnexoBoletin(gpoSeccBD.getAnexoBoletin());
             gpoSeccClon.setHorasPractica(horasPractica);
             gpoSeccClon.setHorasTeoria(horasTeoria);
-            
+
             DateTime today = new DateTime();
-            
+
             gpoSeccClon.setSecciones(new ArrayList<Seccion>());
-            
+
             if (curso.isTipoCursoTEO()) {
                 Seccion seccionTEO = new Seccion();
                 seccionTEO.setGrupoSeccion(gpoSeccClon);
@@ -2627,9 +2628,9 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
                 seccionTEO.setCodigo2(seccionTEO.getCodigo());
                 seccionTEO.setFechaRegistro(today.toDate());
                 seccionTEO.setUserRegistro(ds.getUsuario());
-                
+
                 seccionTEO.setDocenteSeccion(new ArrayList());
-                
+
                 DocenteSeccion docenteSeccion = new DocenteSeccion();
                 docenteSeccion.setDocente(docenteDefault);
                 docenteSeccion.setCodigoSeccion(seccionTEO.getCodigo());
@@ -2641,10 +2642,10 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
                 docenteSeccion.setPorcentajeCarga(PORCENTAJE_CARGA);
                 docenteSeccion.setPorcentajeCargaFraccion(PORCENTAJE_CARGA_FRACCION);
                 seccionTEO.getDocenteSeccion().add(docenteSeccion);
-                
+
                 gpoSeccClon.getSecciones().add(seccionTEO);
             }
-            
+
             if (curso.isTipoCursoPRA()) {
                 Seccion seccionPRA = new Seccion();
                 seccionPRA.setGrupoSeccion(gpoSeccClon);
@@ -2656,9 +2657,9 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
                 seccionPRA.setCodigo2(seccionPRA.getCodigo());
                 seccionPRA.setFechaRegistro(today.toDate());
                 seccionPRA.setUserRegistro(ds.getUsuario());
-                
+
                 seccionPRA.setDocenteSeccion(new ArrayList());
-                
+
                 DocenteSeccion docenteSeccion = new DocenteSeccion();
                 docenteSeccion.setDocente(docenteDefault);
                 docenteSeccion.setCodigoSeccion(seccionPRA.getCodigo());
@@ -2670,10 +2671,10 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
                 docenteSeccion.setPorcentajeCarga(PORCENTAJE_CARGA);
                 docenteSeccion.setPorcentajeCargaFraccion(PORCENTAJE_CARGA_FRACCION);
                 seccionPRA.getDocenteSeccion().add(docenteSeccion);
-                
+
                 gpoSeccClon.getSecciones().add(seccionPRA);
             }
-            
+
             if (curso.isTipoCursoTEOPRA()) {
                 Seccion seccionTCUR = new Seccion();
                 seccionTCUR.setGrupoSeccion(gpoSeccClon);
@@ -2685,9 +2686,9 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
                 seccionTCUR.setCodigo2(seccionTCUR.getCodigo());
                 seccionTCUR.setFechaRegistro(today.toDate());
                 seccionTCUR.setUserRegistro(ds.getUsuario());
-                
+
                 seccionTCUR.setDocenteSeccion(new ArrayList());
-                
+
                 DocenteSeccion docenteSeccion = new DocenteSeccion();
                 docenteSeccion.setDocente(docenteDefault);
                 docenteSeccion.setCodigoSeccion(seccionTCUR.getCodigo());
@@ -2699,9 +2700,9 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
                 docenteSeccion.setPorcentajeCarga(PORCENTAJE_CARGA);
                 docenteSeccion.setPorcentajeCargaFraccion(PORCENTAJE_CARGA_FRACCION);
                 seccionTCUR.getDocenteSeccion().add(docenteSeccion);
-                
+
                 gpoSeccClon.getSecciones().add(seccionTCUR);
-                
+
                 Seccion seccionPCUR = new Seccion();
                 seccionPCUR.setGrupoSeccion(gpoSeccClon);
                 seccionPCUR.setSeccionSuperior(seccionTCUR);
@@ -2713,9 +2714,9 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
                 seccionPCUR.setCodigo2(seccionPCUR.getCodigo());
                 seccionPCUR.setFechaRegistro(today.toDate());
                 seccionPCUR.setUserRegistro(ds.getUsuario());
-                
+
                 seccionPCUR.setDocenteSeccion(new ArrayList());
-                
+
                 DocenteSeccion docenteSeccion2 = new DocenteSeccion();
                 docenteSeccion2.setDocente(docenteDefault);
                 docenteSeccion2.setCodigoSeccion(seccionPCUR.getCodigo());
@@ -2727,17 +2728,17 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
                 docenteSeccion2.setPorcentajeCarga(PORCENTAJE_CARGA);
                 docenteSeccion2.setPorcentajeCargaFraccion(PORCENTAJE_CARGA_FRACCION);
                 seccionPCUR.getDocenteSeccion().add(docenteSeccion2);
-                
+
                 gpoSeccClon.getSecciones().add(seccionPCUR);
             }
             grupoSeccionDAO.save(gpoSeccClon);
-            
+
             gpoSeccClones.add(gpoSeccClon);
-            
+
         }
         return gpoSeccClones;
     }
-    
+
     private Integer getHorasCurso(Curso curso, CicloAcademico ciclo, TipoSeccionEnum tipoSecc) {
         int factorHoras = 0;
         if (ciclo.getTipoEnum() == TipoCicloEnum.REG) {
@@ -2745,10 +2746,10 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         } else if (ciclo.getTipoEnum() == TipoCicloEnum.NIV) {
             factorHoras = 3;
         }
-        
+
         int horasTeoria = 0;
         int horasPractica = 0;
-        
+
         try {
             if (curso.getTipoCreditoEnum() == TipoCreditoEnum.FIJO) {
                 horasTeoria = curso.getHorasTeoria() * factorHoras;
@@ -2765,30 +2766,30 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         }
         throw new PhobosException("Error en la estructura del curso " + curso.getCodigo() + " " + curso.getNombre());
     }
-    
+
     private EventoCicloAcademico getEventoDictadoClases(CicloAcademico ciclo, Curso curso) {
         EventoAcademicoEnum eventoClasesEnum = ciclo.getTipoEnum() == TipoCicloEnum.NIV ? CLASES_VER : CLASES_PRE;
         EventoCicloAcademico eventoDictadoVeranoPregrado = eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(ciclo, eventoClasesEnum);
         EventoCicloAcademico eventoDictadoPosgrado = eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(ciclo, CLASES_EPG);
-        
+
         EventoCicloAcademico eventoDictadoClases = eventoDictadoVeranoPregrado;
         if (ciclo.getTipoEnum() == TipoCicloEnum.REG && curso.getModalidadEstudio().isPostgrado()) {
             eventoDictadoClases = eventoDictadoPosgrado;
         }
-        
+
         return eventoDictadoClases;
     }
-    
+
     @Override
     public List<GrupoSeccion> allCleanByDynatableGruposSeccion(DynatableFilter filter, CicloAcademico ciclo, List<GrupoSeccion> gpos) {
         return grupoSeccionDAO.allByDynatableGruposSeccion(filter, ciclo, gpos);
     }
-    
+
     @Override
     public Long contarGpoSecc(CicloAcademico ciclo) {
         return grupoSeccionDAO.contarByCiclo(ciclo);
     }
-    
+
     @Override
     @Transactional
     public void actualizarBoletin() {
@@ -2798,14 +2799,14 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         cicloUpd.setActualizarBoletin(Boolean.TRUE);
         cicloAcademicoDAO.updateActualizarBoletin(cicloUpd);
     }
-    
+
     private List getList(List lista) {
         if (lista == null) {
             return new ArrayList();
         }
         return lista;
     }
-    
+
     private EventoCicloAcademico getEventoCicloAcademico(CicloAcademico cicloAcademico, ModalidadEstudio modalidadCurso) {
         EventoAcademicoEnum eventoEnum = cicloAcademico.getTipoEnum() == TipoCicloEnum.NIV ? CLASES_VER
                 : (modalidadCurso.isPostgrado() ? CLASES_EPG : (modalidadCurso.isPregrado() ? CLASES_PRE : null));
@@ -2815,16 +2816,16 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         EventoCicloAcademico eventoCiclo = eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(cicloAcademico, eventoEnum);
         return eventoCiclo;
     }
-    
+
     @Override
     @Transactional
     public CursoCicloAcademico findCursoCicloAcademico(Curso cursoForm, CicloAcademico cicloForm) {
         CursoCicloAcademico cca = cursoCicloAcademicoDAO.findByCursoCiclo(cursoForm, cicloForm);
-        
+
         if (cca == null) {
             Curso cursoBD = cursoDAO.find(cursoForm.getId());
             CicloAcademico cicloBD = cicloAcademicoDAO.find(cicloForm);
-            
+
             cca = new CursoCicloAcademico();
             cca.setCurso(cursoBD);
             cca.setCicloAcademico(cicloForm);
@@ -2840,7 +2841,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             if (cicloBD.getTipoEnum() == TipoCicloEnum.REG) {
                 cca.setHorasSemanalesTeoria(cursoBD.getHorasTeoria());
                 cca.setHorasSemanalesPractica(cursoBD.getHorasPractica());
-                
+
             } else if (cicloBD.getTipoEnum() == TipoCicloEnum.NIV) {
                 cca.setHorasSemanalesTeoria(cursoBD.getHorasTeoriaVerano());
                 cca.setHorasSemanalesPractica(cursoBD.getHorasPracticaVerano());
@@ -2849,7 +2850,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         }
         return cca;
     }
-    
+
     @Override
     @Transactional
     public void generarpagodocente(DocenteSeccion docenteSeccion, DataSessionPivot ds) {
@@ -2880,7 +2881,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             }
             BigDecimal semanasClasesDecimal = new BigDecimal(semanasClases);
             BigDecimal matriculadosDecimal = new BigDecimal(matriculados);
-            
+
             BigDecimal montoPagar = factor.multiply(pago)
                     .multiply(horasSemanalesDecimal)
                     .multiply(matriculadosDecimal)
@@ -2890,14 +2891,14 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             docenteSeccionDAO.update(docenteSeccionDb);
         }
     }
-    
+
     @Override
     @Transactional
     public void recrearVacanteAlumno(CicloAcademico ciclo, DataSessionPivot ds) {
         List<Seccion> secciones = seccionDAO.allByCiclo(ciclo);
         List<VacanteAlumno> vacAlumnos = vacanteAlumnoDAO.allActivoBySecciones(secciones);
         Map<Long, List<VacanteAlumno>> mapVacAlumnos = TypesUtil.convertListToMapList("seccion.id", vacAlumnos);
-        
+
         for (Seccion secc : secciones) {
             if (secc.getEstadoEnum() != SeccionEstadoEnum.ACT) {
                 continue;
@@ -2919,11 +2920,11 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
                 va.setActivo(1);
                 vacanteAlumnoDAO.save(va);
             }
-            
+
         }
-        
+
     }
-    
+
     private void completarDocentes(List<HorarioAula> horariosAulas) {
         List<Seccion> secciones = horariosAulas.stream().map(x -> x.getSeccion()).collect(Collectors.toList());
         List<DocenteSeccion> docenteSecciones = docenteSeccionDAO.allActivosBySeccionesOrderPrincipalLimit(secciones);
@@ -2946,13 +2947,13 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             }
         }
     }
-    
+
     @Override
     public List<RestriccionRepitencia> allRestriccionRepitenciaActivasBySeccion(Seccion seccion) {
         List<RestriccionRepitencia> restricciones = restriccionRepitenciaDAO.allActivasBySeccion(seccion);
         return restricciones;
     }
-    
+
     @Override
     public GrupoSeccion findByCursoAndDocenteDirigido(Curso curso, Docente docenteAsignado, CicloAcademico academico) {
         GrupoSeccion grupoSeccion = grupoSeccionDAO.findByCursoAndDirigido(curso, academico);
@@ -2960,12 +2961,12 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             return grupoSeccion;
         }
         List<Seccion> seccions = seccionDAO.allActivosByGpoSeccion(grupoSeccion);
-        
+
         List<DocenteSeccion> docenteSeccions = docenteSeccionDAO.allActivosBySecciones(seccions);
         if (!docenteSeccions.stream().allMatch(x -> Objects.equals(x.getDocente().getId(), docenteAsignado.getId()))) {
             return null;
         }
         return grupoSeccion;
     }
-    
+
 }

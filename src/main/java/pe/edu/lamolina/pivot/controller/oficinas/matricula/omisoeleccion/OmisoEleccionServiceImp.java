@@ -1,6 +1,5 @@
 package pe.edu.lamolina.pivot.controller.oficinas.matricula.omisoeleccion;
 
-import static groovy.util.Eval.x;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -39,6 +38,8 @@ import static pe.edu.lamolina.model.enums.AportesEnum.A46;
 import pe.edu.lamolina.model.enums.DeudaEstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoAporteEnum;
 import static pe.edu.lamolina.model.enums.EstadoAporteEnum.DEBE;
+import static pe.edu.lamolina.model.enums.MotivoOmisoEnum.NMBR;
+import static pe.edu.lamolina.model.enums.MotivoOmisoEnum.NVOTO;
 import pe.edu.lamolina.model.enums.NombreTablasEnum;
 import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.finanzas.Acreencia;
@@ -113,8 +114,8 @@ public class OmisoEleccionServiceImp implements OmisoEleccionService {
     }
 
     private void procesarArchivo(MultipartFile file, List<CicloAcademico> cicloAcademicos, List<String> observados, List<AlumnoOmisoEleccion> deudas, DataSessionPivot ds) {
-        List<AlumnoOmisoEleccion> alumnoOmisoEleccions = alumnoOmisoEleccionDAO.allByCiclo(cicloAcademicos);
-        Map<String, AlumnoOmisoEleccion> mapAlumno = TypesUtil.convertListToMap("key", alumnoOmisoEleccions);
+//        List<AlumnoOmisoEleccion> alumnoOmisoEleccions = alumnoOmisoEleccionDAO.allByCiclo(cicloAcademicos);
+//        Map<String, AlumnoOmisoEleccion> mapAlumno = TypesUtil.convertListToMap("key", alumnoOmisoEleccions);
         Map<Long, CicloAcademico> mapCiclos = TypesUtil.convertListToMap("modalidadEstudio.id", cicloAcademicos);
         Map<Long, String> mapObservados = new HashMap<>();
         Set<String> registrados = new HashSet<>();
@@ -138,10 +139,12 @@ public class OmisoEleccionServiceImp implements OmisoEleccionService {
                 String nombre = getCellValue(1, row);
                 String motivo = getCellValue(2, row);
                 String multa = getCellValue(3, row);
-
                 if (StringUtils.isEmpty(nroMatricula) || StringUtils.isEmpty(motivo) || StringUtils.isEmpty(multa)) {
-                    mapObservados.put(Long.parseLong("" + fila), "La fila  " + fila + " tiene campos vacíos.");
+//                    mapObservados.put(Long.parseLong("" + fila), "La fila  " + fila + " tiene campos vacíos.");
                     return;
+                }
+                if (!NVOTO.name().equals(motivo) && !NMBR.name().equals(motivo)) {
+                    mapObservados.put(Long.parseLong("" + fila), "Valor incorrecto en la fila " + fila + ". Los motivos son NVOT (No votó ) o NMBR (Omisión miembro de mesa).");
                 }
 
                 Alumno alumnoBD = alumnoDAO.findByCodigo(nroMatricula);
@@ -152,9 +155,9 @@ public class OmisoEleccionServiceImp implements OmisoEleccionService {
                 }
                 CicloAcademico cicloAcademico = mapCiclos.get(alumnoBD.getModalidadEstudio().getId());
                 String key = alumnoBD.getId() + "-" + cicloAcademico.getId() + "-" + motivo;
-                if (registrados.contains(key) || mapAlumno.get(key) != null) {
+                if (registrados.contains(key)) {
                     if (!mapObservados.containsKey(alumnoBD.getId())) {
-                        mapObservados.put(alumnoBD.getId(), "El alumno con código " + nroMatricula + " ya tiene registrada una deuda de este tipo. (Fila " + fila + ")");
+                        mapObservados.put(alumnoBD.getId(), "El alumno con código " + nroMatricula + " ya tiene registrada una deuda de este tipo " + motivo + ". (Fila " + fila + ")");
                     }
                     continue;
                 }
@@ -237,7 +240,7 @@ public class OmisoEleccionServiceImp implements OmisoEleccionService {
         List<AporteAlumnoCiclo> aporteAlumnoCiclo = aporteAlumnoCicloDAO.allByAlumnoCiclo(alumno, cicloAcademicoMod);
         ResumenAporteAlumno resumenAporteAlumno = resumenAporteAlumnoDAO.findByAlumnoCicloAcademico(alumno, cicloAcademicoMod);
 
-        AporteAlumnoCiclo alumnoCiclo = aporteAlumnoCiclo.stream().filter(x -> Arrays.asList(AportesEnum.A04, A46).contains(x.getAporteCiclo().getAporte().getCodigoEnum()) && x.getEstadoEnum() == DEBE).findAny().orElse(null);
+        AporteAlumnoCiclo alumnoCiclo = aporteAlumnoCiclo.stream().filter(x -> Arrays.asList(AportesEnum.A04, A46).contains(x.getAporteCiclo().getAporte().getCodigoEnum())).findAny().orElse(null);
         DeudaAlumno deudaAlumno = alumnoCiclo.getDeudaAlumno();
         BigDecimal montorest = BigDecimal.ZERO;
         for (AlumnoOmisoEleccion alumnoOmisoEleccion : omisoEleccion) {
@@ -253,6 +256,9 @@ public class OmisoEleccionServiceImp implements OmisoEleccionService {
             }
         }
         if (alumnoCiclo != null) {
+
+            Assert.isTrue(alumnoCiclo.getEstadoEnum() == DEBE, "El alumno ya pagó la deuda no se puede anular.");
+
             alumnoCiclo.setMonto(alumnoCiclo.getMonto().subtract(montorest));
 
             if (deudaAlumno != null) {

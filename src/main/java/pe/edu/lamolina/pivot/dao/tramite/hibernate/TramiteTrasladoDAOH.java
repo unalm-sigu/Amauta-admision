@@ -22,9 +22,9 @@ public class TramiteTrasladoDAOH extends AbstractEasyDAO<TramiteTraslado> implem
         Octavia sql = new Octavia()
                 .from(TramiteTraslado.class, "tras")
                 .join("tramite tra", "tra.tipoTramite")
-                .left("tra.cicloAcademico cic", "tra.alumno al", "al.persona per", "userRegistro ur", "ur.persona per")
+                .left("tra.cicloAcademico cic", "tra.alumno al", "al.persona per", "userRegistro ur", "ur.persona per1")
                 .join("al.carrera car", "car.facultad fa", "resolucion res")
-                .leftJoin("per.tipoDocumento td", "al.cicloActivo cia", "al.cicloIngreso ci", "al.modalidadEstudio me", "al.situacionAcademica situ")
+                .leftJoin("per.tipoDocumento td","per1.tipoDocumento ", "al.cicloActivo cia", "al.cicloIngreso ci", "al.modalidadEstudio me", "al.situacionAcademica situ")
                 .leftJoin("per.paisNacer", "al.orientacionCarrera")
                 .filter("res.id", resolucion);
 
@@ -37,7 +37,8 @@ public class TramiteTrasladoDAOH extends AbstractEasyDAO<TramiteTraslado> implem
                 .from(TramiteTraslado.class, "tras")
                 .join("tramite tra", "resolucion res", "cicloAcademico cic")
                 .leftJoin("tra.alumno al", "res.tipoResolucion", "res.oficina", "userRegistro ur", "ur.persona per")
-                .filter("al.id", alumno);
+                .filter("al.id", alumno)
+                .orderBy("tras.id desc");
 
         return all(sql);
     }

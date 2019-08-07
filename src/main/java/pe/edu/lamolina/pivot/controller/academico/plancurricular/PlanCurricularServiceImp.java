@@ -1613,7 +1613,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
     @Transactional
     public void allUpdateResumenPost() {
         List<PlanCurricular> planCurriculars = planCurricularDAO.allActivo();
-        planCurriculars = planCurriculars.stream().filter(x -> x.getCarrera().getModalidadEstudio().isPostgrado()).collect(Collectors.toList());
+//        planCurriculars = planCurriculars.stream().filter(x -> x.getCarrera().getModalidadEstudio().isPostgrado()).collect(Collectors.toList());
         List<ResumenPlanCurricular> resumenPlanCurriculars = resumenPlanCurricularDAO.allByPlanes(planCurriculars);
         List<TipoCursoCurricula> tipoCursoCurriculas = tipoCursoCurriculaDAO.all();
         for (PlanCurricular planCurricular : planCurriculars) {
@@ -1621,16 +1621,18 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
             List<CursoCurricula> cursoCurriculas = cursoCurriculaDAO.allByPlanCurricular(planCurricular);
             Map<Long, ResumenPlanCurricular> mapResumen = TypesUtil.convertListToMap("tipoCursoCurricula.id", resumen);
             Map<TipoCursoCurriculaEnum, Integer> mapTipoCurso = cursoCurriculas.stream().collect(Collectors.groupingBy(CursoCurricula::getTipoCursoCurriculaEnum, Collectors.summingInt(x -> x.getCreditos())));
+            Map<Long, List<CursoCurricula>> mapTipoCursoCoun = TypesUtil.convertListToMapList("tipoCursoCurricula.id", cursoCurriculas);
             for (TipoCursoCurricula tcc : tipoCursoCurriculas) {
                 ResumenPlanCurricular curricular = mapResumen.get(tcc.getId());
                 if (mapTipoCurso.get(tcc.getCodigoEnum()) == null) {
                     continue;
                 }
                 int count = mapTipoCurso.get(tcc.getCodigoEnum());
+                List<CursoCurricula> countCur = mapTipoCursoCoun.get(tcc.getId());
                 if (!cursoCurriculas.isEmpty() && curricular == null) {
                     curricular = new ResumenPlanCurricular();
                     curricular.setCreditos(count);
-                    curricular.setCursos(cursoCurriculas.size());
+                    curricular.setCursos(countCur.size());
                     curricular.setMinimoCreditos(count);
                     curricular.setPlanCurricular(planCurricular);
                     curricular.setTipoCursoCurricula(tcc);
@@ -1639,7 +1641,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
                 if (!cursoCurriculas.isEmpty() && curricular != null) {
                     curricular.setCreditos(count);
                     curricular.setMinimoCreditos(count);
-                    curricular.setCursos(cursoCurriculas.size());
+                    curricular.setCursos(countCur.size());
                     resumenPlanCurricularDAO.update(curricular);
                 }
             }
