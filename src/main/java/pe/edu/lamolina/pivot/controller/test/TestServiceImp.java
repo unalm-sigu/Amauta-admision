@@ -382,6 +382,9 @@ public class TestServiceImp implements TestService {
             for (Alumno alumno : alumnos) {
 
                 MatriculaResumen matResumen = mapMatriculaRes.get(alumno.getId());
+                if (matResumen == null) {
+                    continue;
+                }
                 List<MatriculaCurso> matriculasCursoMat = fillList(mapMatriculaCursoByMr.get(matResumen.getId()));
                 List<MatriculaSeccion> matriculaSecc = fillList(mapMatriculaSeccByMr.get(matResumen.getId()));
 
