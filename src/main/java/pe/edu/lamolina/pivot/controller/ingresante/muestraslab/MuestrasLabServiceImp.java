@@ -266,6 +266,8 @@ public class MuestrasLabServiceImp implements MuestrasLabService {
 
         visorMuestrasLab.setCicloAcademico(ciclo);
         visorMuestrasLab.setNumeroLab(numLab);
+        logger.debug("ciclo {} de arranque ", ciclo.getId());
+        logger.debug("numLab {} de arranque ", numLab);
 
     }
 
