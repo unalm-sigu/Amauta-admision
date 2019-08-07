@@ -296,10 +296,10 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
     @Override
     public void deleteMatriculable(CicloAcademico cicloAcademico) {
         StringBuilder strb = new StringBuilder("delete from MatriculaResumen mr ");
-        strb.append(" where mr.cicloAcademico.id = :ciclo");
+        strb.append(" where mr.cicloAcademico.codigo = :ciclo");
 
         Query query = getCurrentSession().createQuery(strb.toString());
-        query.setParameter("ciclo", cicloAcademico.getId());
+        query.setParameter("ciclo", cicloAcademico.getCodigo());
         query.executeUpdate();
     }
 

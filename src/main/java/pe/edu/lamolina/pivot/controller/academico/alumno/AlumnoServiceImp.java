@@ -788,7 +788,7 @@ public class AlumnoServiceImp implements AlumnoService {
                     alumnoCicloCursoFound.setFechaModificacion(new Date());
                     alumnoCicloCursoFound.setUserModificacion(usuario);
                     alumnoCicloCursoFound.setNota(cursoConvalidado.getNota() == null ? "TE" : cursoConvalidado.getNota());
-                    alumnoCicloCursoFound.setRegistroActivo(0);
+                    alumnoCicloCursoFound.setRegistroActivo(1);
                     alumnoCicloCursoDAO.update(alumnoCicloCursoFound);
                 }
                 cursoConvalidado.setUserRegistro(usuario);
@@ -835,7 +835,7 @@ public class AlumnoServiceImp implements AlumnoService {
         alumnoCicloCurso.setNota(cursoConvalidado.getNota() == null ? "TE" : cursoConvalidado.getNota());
         alumnoCicloCurso.setEstado(EstadoMatriculaEnum.MAT);
         alumnoCicloCurso.setEstaAprobado(1);
-        alumnoCicloCurso.setRegistroActivo(0);
+        alumnoCicloCurso.setRegistroActivo(1);
         alumnoCicloCurso.setOrigenData(OrigenDataSituacionAcademicaEnum.TE);
         alumnoCicloCurso.setAlumnoCiclo(alumnoCiclo);
         alumnoCicloCurso.setVecesCursado(1);
