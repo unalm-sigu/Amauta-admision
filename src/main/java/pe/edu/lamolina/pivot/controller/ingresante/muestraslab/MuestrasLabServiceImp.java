@@ -248,11 +248,14 @@ public class MuestrasLabServiceImp implements MuestrasLabService {
     @Override
     public void inicializarVisor() {
         CicloAcademico ciclo = cicloAcademicoDAO.findActivoAdmisionPregrado();
+        System.out.println("ciclo.lab=" + ciclo.getId());
         List<RecorridoIngresante> listaRecorridos = recorridoIngresanteDAO.allByCiclo(ciclo);
+        System.out.println("Recorridos=" + listaRecorridos.size());
         List<Persona> listaPersonas = new ArrayList();
         for (RecorridoIngresante elem : listaRecorridos) {
             listaPersonas.add(elem.getAlumno().getPersona());
         }
+        System.out.println("Personas=" + listaPersonas.size());
 
         List<HistoriaLaboratorio> laboratorios = historiaLaboratorioDAO.allByPersonas(listaPersonas);
 
@@ -266,6 +269,7 @@ public class MuestrasLabServiceImp implements MuestrasLabService {
 
         visorMuestrasLab.setCicloAcademico(ciclo);
         visorMuestrasLab.setNumeroLab(numLab);
+        System.out.println("numLab=" + numLab);
 
     }
 
