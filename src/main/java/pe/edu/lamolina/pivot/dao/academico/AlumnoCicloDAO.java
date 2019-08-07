@@ -110,4 +110,5 @@ public interface AlumnoCicloDAO extends EasyDAO<AlumnoCiclo> {
     AlumnoCiclo findLastByAlumnoAndSituacion(Alumno alumno, SituacionAcademicaEnum... situacionesAcademicas);
 
     public List<AlumnoCiclo> allByAlumnos(List<Alumno> alumnos);
+
 }
