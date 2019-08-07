@@ -355,10 +355,10 @@ public class TestServiceImp implements TestService {
         List<RetiroCurso> retirosCursos = retiroCursoDAO.allInfo();
         Map<Long, List<RetiroCurso>> mapRetiroCursoByciclo = TypesUtil.convertListToMap("cicloAcademico.id", retirosCursos);
 
-        List<MatriculaResumen> matriculasResumen = matriculaResumenDAO.allByCiclos(ciclos);
+        List<MatriculaResumen> matriculasResumenes = matriculaResumenDAO.allByCiclos(ciclos);
         List<MatriculaCurso> matriculasCurso = matriculaCursoDAO.allByCiclosFull(ciclos);
-        List<MatriculaSeccion> matriculasSeccion = matriculaSeccionDAO.allActivesByMatriculaResumen(matriculasResumen);
-        Map<Long, List<MatriculaResumen>> mapMatriculaResumen = TypesUtil.convertListToMapList("cicloAcademico.id", matriculasResumen);
+        List<MatriculaSeccion> matriculasSeccion = matriculaSeccionDAO.allActivesByMatriculaResumen(matriculasResumenes);
+        Map<Long, List<MatriculaResumen>> mapMatriculaResumen = TypesUtil.convertListToMapList("cicloAcademico.id", matriculasResumenes);
         Map<Long, List<MatriculaCurso>> mapMatriculaCursoByMr = TypesUtil.convertListToMapList("matriculaResumen.id", matriculasCurso);
         Map<Long, List<MatriculaSeccion>> mapMatriculaSeccByMr = TypesUtil.convertListToMapList("matriculaResumen.id", matriculasSeccion);
         for (CicloAcademico cicloAcademico : ciclos) {
@@ -368,7 +368,7 @@ public class TestServiceImp implements TestService {
             List<RetiroCurso> retiroCursos = fillList(mapRetiroCursoByciclo.get(cicloAcademico.getId()));
             Map<Long, List<RetiroCurso>> mapRetiroCursoAlumno = TypesUtil.convertListToMapList("alumno.id", retiroCursos);
 
-            matriculasResumen = mapMatriculaResumen.get(cicloAcademico.getId());
+            List<MatriculaResumen> matriculasResumen = mapMatriculaResumen.get(cicloAcademico.getId());
             if (matriculasResumen.isEmpty()) {
                 continue;
             }
@@ -387,7 +387,9 @@ public class TestServiceImp implements TestService {
                 }
                 List<MatriculaCurso> matriculasCursoMat = fillList(mapMatriculaCursoByMr.get(matResumen.getId()));
                 List<MatriculaSeccion> matriculaSecc = fillList(mapMatriculaSeccByMr.get(matResumen.getId()));
-
+                if (matriculaSecc.isEmpty()) {
+                    continue;
+                }
                 RetiroCiclo retiroCiclo = mapRetiroByAlumno.get(alumno.getId());
                 List<RetiroCiclo> allRetiroCicloAlumno = fillList(mapAllRetiroByAlumno.get(alumno.getId()));
                 Map<Long, RetiroCiclo> mapRetiroByCicloAlumno = TypesUtil.convertListToMap("cicloAcademico.id", allRetiroCicloAlumno);
