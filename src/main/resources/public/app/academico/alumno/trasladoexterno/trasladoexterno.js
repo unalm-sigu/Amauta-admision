@@ -114,11 +114,19 @@ new Vue({
         updateTotalCreditos(item, param) {
             let $vue = this;
             if (param === "add") {
-                $vue.total = $vue.total + (item.creditos);
+                if (item.curso != null) {
+                    $vue.total = $vue.total + (item.curso.creditos);
+                } else {
+                    $vue.total = $vue.total + (item.creditos);
+                }
             }
 
             if (param === "remove") {
-                $vue.total = $vue.total - (item.creditos);
+                if (item.curso != null) {
+                    $vue.total = $vue.total + (item.curso.creditos);
+                } else {
+                    $vue.total = $vue.total + (item.creditos);
+                }
             }
         },
         findTramiteTrasladoActivo() {
