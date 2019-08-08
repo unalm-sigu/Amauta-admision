@@ -17,7 +17,7 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface PromedioReviewService {
 
-    void trasladarInformcionForHistorial(MatriculaResumen matriculaResumen, List<MatriculaCurso> matriculasCurso, List<MatriculaSeccion> matriculasSeccion, DataSessionPivot ds, Map<Long, RetiroCiclo> mapRetiro,
+    void trasladarInformcionForHistorial(List<MatriculaResumen> matriculaResumen, List<MatriculaCurso> matriculasCurso, List<MatriculaSeccion> matriculasSeccion, DataSessionPivot ds, Map<Long, RetiroCiclo> mapRetiro,
             Map<Long, List<AlumnoCicloCurso>> mapAlumnoCicloCurso,
             Map<Long, AlumnoCiclo> mapalumnoCiclo,
             SituacionAcademica situacionAcademicaComodin, boolean calcularSituacion);
