@@ -408,8 +408,10 @@ public class CicloAcademicoDAOH extends AbstractEasyDAO<CicloAcademico> implemen
     public List<CicloAcademico> all() {
         Octavia sql = Octavia.query()
                 .from(CicloAcademico.class, "ca")
+                .join("modalidadEstudio me")
                 .in("estado", Arrays.asList(ACT, CER, PEND, CFG))
-                .orderBy("year desc", "numeroCiclo desc");
+                .in("me.codigo", Arrays.asList(ModalidadEstudioEnum.PRE, ModalidadEstudioEnum.EPG))
+                .orderBy("ca.year desc", "ca.numeroCiclo desc");
         return all(sql);
     }
 

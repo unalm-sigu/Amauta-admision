@@ -381,6 +381,17 @@ public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements Alu
     }
 
     @Override
+    public void updateSituacionInicioFinalEstado(AlumnoCiclo alumnoCiclo) {
+        Octavia octavia = Octavia.update(AlumnoCiclo.class);
+        octavia.set(alumnoCiclo, "situacionInicio");
+        octavia.set(alumnoCiclo, "situacionFinal");
+        octavia.set(alumnoCiclo, "estado");
+        octavia.set(alumnoCiclo, "fechaModificacion");
+        octavia.set(alumnoCiclo, "userModificacion");
+        this.update(octavia);
+    }
+
+    @Override
     public void updateSituacionFinal(AlumnoCiclo alumnoCiclo) {
         Octavia octavia = Octavia.update(AlumnoCiclo.class);
         octavia.set(alumnoCiclo, "situacionFinal");
@@ -448,6 +459,18 @@ public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements Alu
                 .leftJoin("situacionInicio si", "situacionFinal sf")
                 .leftJoin("userModificacion um", "userRegistro ur")
                 .filter("cicloAcademico", ciclo);
+
+        return all(sql);
+    }
+
+    @Override
+    public List<AlumnoCiclo> allWithSituacionByAlumnos(List<Alumno> alumnos) {
+        Octavia sql = Octavia.query()
+                .from(AlumnoCiclo.class, "ac")
+                .join("alumno alu", "cicloAcademico ca")
+                .leftJoin("situacionInicio si", "situacionFinal sf")
+                .leftJoin("userModificacion um", "userRegistro ur")
+                .in("alu.id", alumnos);
 
         return all(sql);
     }
@@ -821,6 +844,17 @@ public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements Alu
                 .in("ca.id", ciclos);
 
         return sql.all(getCurrentSession());
+    }
+
+    @Override
+    public void deleteById(AlumnoCiclo alumnoCiclo) {
+        StringBuilder sql = new StringBuilder();
+        sql.append("delete from ").append(AlumnoCiclo.class.getSimpleName()).append(" ");
+        sql.append("where id = :IDD ");
+
+        Query query = getCurrentSession().createQuery(sql.toString());
+        query.setParameter("IDD", alumnoCiclo.getId());
+        query.executeUpdate();
     }
 
 }
