@@ -29,4 +29,6 @@ public interface RetiroCicloDAO extends EasyDAO<RetiroCiclo> {
 
     public RetiroCiclo findByTramite(Tramite tramite);
 
+    public List<RetiroCiclo> allInfo();
+
 }

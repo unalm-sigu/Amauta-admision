@@ -4,34 +4,24 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import pe.edu.lamolina.model.academico.Alumno;
-import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
-import pe.edu.lamolina.model.academico.Egresado;
 import pe.edu.lamolina.model.academico.MatriculaCurso;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
-import pe.edu.lamolina.model.academico.SituacionAcademica;
-import pe.edu.lamolina.model.tramite.Reincorporacion;
+import pe.edu.lamolina.model.tramite.RetiroCiclo;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface PromedioReviewService {
 
-    void trasladarInformcionForHistorial(MatriculaResumen matriculaResumen, List<MatriculaCurso> matriculasCurso, List<MatriculaSeccion> matriculasSeccion, DataSessionPivot ds, boolean calcularSituacion);
+    void trasladarInformcionForHistorial(MatriculaResumen matriculaResumen, List<MatriculaCurso> matriculasCurso, List<MatriculaSeccion> matriculasSeccion, DataSessionPivot ds, Map<Long, RetiroCiclo> mapRetiro, boolean calcularSituacion);
 
     void promedio(MatriculaCurso matriculaCurso, DataSessionPivot ds, boolean calcularSituacionAcadFinal);
 
     void promediarAllCicloAsync(Alumno alumno, CicloAcademico cicloActivo, List<CicloAcademico> ciclos, List<AlumnoCicloCurso> allOperativesByModalidadEstudio, DataSessionPivot ds);
 
-    void promediarAllCicloSync(Alumno alumno, CicloAcademico cicloActivo, List<CicloAcademico> ciclos,
-            List<AlumnoCicloCurso> allOperativesByModalidadEstudioDB, List<AlumnoCiclo> allAlumnoCiclos,
-            Map<String, SituacionAcademica> mapSituacionAcademicas,
-            Map<Long, List<AlumnoCicloCurso>> mapAllCicloCurso,
-            Map<Long, AlumnoCiclo> mapAllAlumnoCicloByCiclo,
-            Egresado egresado,
-            List<Reincorporacion> reincorporacionesByAlumno,
-            DataSessionPivot ds);
+    void promediarAllCicloSync(Alumno alumno, CicloAcademico cicloActivo, List<CicloAcademico> ciclos, List<AlumnoCicloCurso> allOperativesByModalidadEstudio, DataSessionPivot ds);
 
     void trasladoPromediosSource(MatriculaCurso matriculaCurso, DataSessionPivot ds);
 
@@ -39,21 +29,10 @@ public interface PromedioReviewService {
             Curso curso,
             MatriculaCurso matriculaCurso,
             CicloAcademico cicloAcademico,
+            Map<Long, RetiroCiclo> mapRetiro,
             DataSessionPivot ds);
 
     void calulcarSituacionAcademica(Alumno alumno, DataSessionPivot ds);
-
-    void calulcarSituacionAcademicaReview(Alumno alumno, 
-            CicloAcademico cicloActivo,
-            List<CicloAcademico> ciclos,
-            List<AlumnoCicloCurso> allOperativesByModalidadEstudioDB, 
-            List<AlumnoCiclo> allAlumnoCiclos,
-            Map<String, SituacionAcademica> mapSituacionAcademicas,
-            Map<Long, List<AlumnoCicloCurso>> mapAllCicloCurso,
-            Map<Long, AlumnoCiclo> mapAllAlumnoCicloByCiclo,
-            Egresado egresado,
-            List<Reincorporacion> reincorporacionesByAlumno,
-            DataSessionPivot ds);
 
     void calulcarSituacionAcademicaNewSession(Alumno alumno, DataSessionPivot ds);
 

@@ -63,4 +63,6 @@ public interface MatriculaSeccionDAO extends EasyDAO<MatriculaSeccion> {
 
     void deleteAllByCiclo(CicloAcademico ciclo);
 
+    public List<MatriculaSeccion> allByMatriculaResumenes(List<MatriculaResumen> asList);
+
 }
