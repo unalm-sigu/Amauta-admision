@@ -583,13 +583,15 @@ public class TestServiceImp implements TestService {
 
                 MatriculaSeccion matriculaSeccion = matriculaSeccions
                         .stream().filter(x -> x.getSeccion().getGrupoSeccion().getCurso().getId().equals(matriculaCurso.getCurso().getId())).findFirst().orElse(null);
-                if (RCU != matriculaSeccion.getEstadoEnum()) {
+                String keys = matriculaCurso.getCurso().getId() + "-" + cicloAcademico.getId();
+                if (mapRetiroCurso.get(keys) != null) {
+                    if (RCU != matriculaSeccion.getEstadoEnum()) {
 
-                    matriculaSeccion.setEstadoEnum(EstadoMatriculaEnum.RCU);
-                    matriculaSeccionDAO.update(matriculaSeccion);
+                        matriculaSeccion.setEstadoEnum(EstadoMatriculaEnum.RCU);
+                        matriculaSeccionDAO.update(matriculaSeccion);
+                    }
                 }
 
-                String keys = matriculaCurso.getCurso().getId() + "-" + cicloAcademico.getId();
                 if (mapRetiroCurso.get(keys) != null) {
                     if (RCU != matriculaCurso.getEstadoEnum()) {
                         matriculaCurso.setEstadoEnum(EstadoMatriculaEnum.RCU);

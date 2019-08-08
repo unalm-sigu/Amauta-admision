@@ -34,6 +34,9 @@ import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.SituacionAcademica;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
+import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.RCI;
+import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.RCU;
+import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.RET;
 import pe.edu.lamolina.model.enums.EstadoTramiteEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.NotaLetraEnum;
@@ -150,6 +153,7 @@ public class PromedioReviewServiceImp implements PromedioReviewService {
 //        visorCalculoNotas.incrementarCantidad();
 
         for (MatriculaResumen matriculaResumen : matriculaResumenes) {
+//            logger.debug("##################Matricula {} {} {} ", matriculaResumen.getCicloAcademico().getId(), matriculaResumen.getCicloAcademico().getYear(), matriculaResumen.getCicloAcademico().getNumeroCiclo());
 
             List<MatriculaCurso> matriculasCursoByAlumno = allMatriculasCursosAlumno.stream()
                     .filter(x -> x.getMatriculaResumen().getId().equals(matriculaResumen.getId()))
@@ -624,45 +628,53 @@ public class PromedioReviewServiceImp implements PromedioReviewService {
         //  logger.debug("generar historial notas, alumno {} ciclo {}", alumno.getId(), cicloAcademico.getId());
 //            Map<Long, AlumnoCiclo> mapalumnoCiclo = TypesUtil.convertListToMap("cicloAcademico.id", matriculasCursosByAlumno);
 //            Map<Long, List<AlumnoCicloCurso>> mapAlumnoCicloCurso = TypesUtil.convertListToMap("curso.id", matriculasCursosByAlumno);
-        logger.debug("##################Ciclo Alumno ciclo {} {} {} ", cicloAcademico.getId(), cicloAcademico.getYear(), cicloAcademico.getNumeroCiclo());
+//        logger.debug("######################################################################## Ciclo Alumno ciclo {} {} {} ", cicloAcademico.getId(), cicloAcademico.getYear(), cicloAcademico.getNumeroCiclo());
 
         RetiroCiclo retiroCiclo = mapRetiro.get(cicloAcademico.getId());
-        Boolean isRetiradoCiclo = retiroCiclo != null && retiroCiclo.getEstadoEnum() == TramiteEstadoEnum.ACEP;
+        Boolean isRetiradoCiclo = (retiroCiclo != null && retiroCiclo.getEstadoEnum() == TramiteEstadoEnum.ACEP);
         AlumnoCiclo alumnoCiclo = mapalumnoCiclo.get(cicloAcademico.getId());
         List<AlumnoCicloCurso> alumnoCicloCursoTem = new ArrayList<>();
         if (alumnoCiclo != null) {
             List<AlumnoCicloCurso> alumnoCicloCurso = fillList(mapAlumnoCicloCurso.get(alumnoCiclo.getId()));
             Map<Long, List<AlumnoCicloCurso>> mapAlumnoCicloCursoByCurso = TypesUtil.convertListToMapList("curso.id", alumnoCicloCurso);
-            alumnoCicloCursoTem = mapAlumnoCicloCursoByCurso.get(curso.getId()); // Por si hay cursos repetidos en el ciclo
+            alumnoCicloCursoTem = fillList(mapAlumnoCicloCursoByCurso.get(curso.getId())); // Por si hay cursos repetidos en el ciclo
         }
         DateTime today = new DateTime(ds.getFechaAccionAudit());
 
         if (alumnoCiclo == null && !isRetiradoCiclo) {
-            alumnoCiclo = new AlumnoCiclo();
-            alumnoCiclo.defaultValuesToCreate(alumno, cicloAcademico, ds.getUsuario(), today);
-            alumnoCiclo.setEstadoEnum(matriculaCurso.getMatriculaResumen().getEstadoEnum());
-            alumnoCiclo.setSituacionInicio(situacionAcademicaComodin);
-            alumnoCiclo.setEstaAprobado(BigDecimal.ZERO.intValue());
-            alumnoCiclo.setCreditosConvalidados(BigDecimal.ZERO.intValue());
-            alumnoCicloDAO.save(alumnoCiclo);
-            alumnoCiclo.getId();
+            if (!Arrays.asList(RET.name(), RCI.name()).contains(matriculaCurso.getMatriculaResumen().getEstado())) {
+                alumnoCiclo = new AlumnoCiclo();
+                alumnoCiclo.defaultValuesToCreate(alumno, cicloAcademico, ds.getUsuario(), today);
+                alumnoCiclo.setEstadoEnum(matriculaCurso.getMatriculaResumen().getEstadoEnum());
+                alumnoCiclo.setSituacionInicio(situacionAcademicaComodin);
+                alumnoCiclo.setEstaAprobado(BigDecimal.ZERO.intValue());
+                alumnoCiclo.setCreditosConvalidados(BigDecimal.ZERO.intValue());
+                alumnoCicloDAO.save(alumnoCiclo);
+                logger.debug("########################################################################################## PARA GUARDAR {} {} {} {}", cicloAcademico.getId(), cicloAcademico.getYear(), cicloAcademico.getNumeroCiclo(), matriculaCurso.getEstado());
+                mapalumnoCiclo.put(cicloAcademico.getId(), alumnoCiclo);
+            }
+
         } else if (alumnoCiclo != null && !isRetiradoCiclo) {
             AlumnoCiclo alumnoCicloUpd = new AlumnoCiclo(alumnoCiclo.getId());
             alumnoCicloUpd.setEstadoEnum(EstadoMatriculaEnum.MAT);
             alumnoCicloDAO.updateColumns(alumnoCicloUpd, "estado");
         }
 
-        if (alumnoCicloCursoTem.isEmpty() && !isRetiradoCiclo) {
-            AlumnoCicloCurso alumnoCicloCursoNew = new AlumnoCicloCurso();
-            alumnoCicloCursoNew.defaultValuesToCreate(alumnoCiclo, curso, matriculaCurso, ds.getUsuario(), today);
-            Integer aprobado = evaluateEstaAprobado(matriculaCurso, alumno);
-            alumnoCicloCursoNew.setEstaAprobado(aprobado);
+        if (alumnoCicloCursoTem.isEmpty() ) {
+            if (!Arrays.asList(RET.name(), RCI.name(), RCU.name()).contains(matriculaCurso.getEstado())) {
 
-            //  alumnoCicloCurso.setVecesCursado(alumnoCicloCursoDAO.countByCursoAlumnoAnterioresCiclo(curso, alumno, cicloAcademico).intValue() + 1);
-            alumnoCicloCursoNew.setVecesCursado(this.countVecesAnteriores(matriculasCursosByAlumno, cicloAcademico, curso) + 1);
-            alumnoCicloCursoNew.setVecesCursadoRegular(this.countVecesAnterioresReg(matriculasCursosByAlumno, cicloAcademico, curso) + 1);
-            alumnoCicloCursoDAO.save(alumnoCicloCursoNew);
-            alumnoCicloCursoNew.getId();
+                AlumnoCicloCurso alumnoCicloCursoNew = new AlumnoCicloCurso();
+                alumnoCicloCursoNew.defaultValuesToCreate(alumnoCiclo, curso, matriculaCurso, ds.getUsuario(), today);
+                Integer aprobado = evaluateEstaAprobado(matriculaCurso, alumno);
+                alumnoCicloCursoNew.setEstaAprobado(aprobado);
+
+                //  alumnoCicloCurso.setVecesCursado(alumnoCicloCursoDAO.countByCursoAlumnoAnterioresCiclo(curso, alumno, cicloAcademico).intValue() + 1);
+                alumnoCicloCursoNew.setVecesCursado(this.countVecesAnteriores(matriculasCursosByAlumno, cicloAcademico, curso) + 1);
+                alumnoCicloCursoNew.setVecesCursadoRegular(this.countVecesAnterioresReg(matriculasCursosByAlumno, cicloAcademico, curso) + 1);
+                logger.debug("################## PARA GUARDAR ALUMNO CICLO CURSO {} {} {} {} {}", cicloAcademico.getId(), cicloAcademico.getYear(), cicloAcademico.getNumeroCiclo(), curso.getNombre(), matriculaCurso.getEstado());
+                alumnoCicloCursoDAO.save(alumnoCicloCursoNew);
+            }
+
         } else {
             Map<String, AlumnoCicloCurso> map = new HashMap<>();
             Boolean retirado = false;

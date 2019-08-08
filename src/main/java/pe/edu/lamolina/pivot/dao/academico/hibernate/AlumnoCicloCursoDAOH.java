@@ -19,6 +19,7 @@ import pe.edu.lamolina.model.academico.SituacionAcademica;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.RCI;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.RCU;
+import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.RET;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.TipoCicloEnum;
 import pe.edu.lamolina.model.tramite.AutorizacionRegistro;
@@ -613,6 +614,9 @@ public class AlumnoCicloCursoDAOH extends AbstractEasyDAO<AlumnoCicloCurso> impl
         Octavia sql = Octavia.query()
                 .from(AlumnoCicloCurso.class, "acc")
                 .join("alumnoCiclo ac", "ac.alumno al", "ac.cicloAcademico ca", "acc.curso cur")
+                .in("acc.estado", Arrays.asList(EstadoMatriculaEnum.MAT.name(), RCI.name(), RET.name(), RCU.name()))
+                .in("ac.estado", Arrays.asList(EstadoMatriculaEnum.MAT.name(), RCI.name(), RET.name(), RCU.name()))
+//                .filter("acc.registroActivo", BigDecimal.ONE.intValue())
                 .in("ac.id", alumnosCiclos);
         return all(sql);
     }
