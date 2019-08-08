@@ -373,11 +373,11 @@ public class PromedioReviewServiceImp implements PromedioReviewService {
     }
 
     public void evaluarPrimerCiclo(Alumno alumno, AlumnoCiclo alumnoCiclo) {
-        SituacionAcademica situacionN = new SituacionAcademica(SituacionAcademicaEnum.S_N.getId());
-        SituacionAcademica situacion8 = new SituacionAcademica(SituacionAcademicaEnum.S_8.getId());
-        SituacionAcademica situacion9 = new SituacionAcademica(SituacionAcademicaEnum.S_9.getId());
-        SituacionAcademica situacionQ = new SituacionAcademica(SituacionAcademicaEnum.S_Q.getId());
-        SituacionAcademica situacion7 = new SituacionAcademica(SituacionAcademicaEnum.S_7.getId());
+        SituacionAcademica situacionN = new SituacionAcademica(SituacionAcademicaEnum.S_N);
+        SituacionAcademica situacion8 = new SituacionAcademica(SituacionAcademicaEnum.S_8);
+        SituacionAcademica situacion9 = new SituacionAcademica(SituacionAcademicaEnum.S_9);
+        SituacionAcademica situacionQ = new SituacionAcademica(SituacionAcademicaEnum.S_Q);
+        SituacionAcademica situacion7 = new SituacionAcademica(SituacionAcademicaEnum.S_7);
 
         if (alumno.isPregrado()) {
             if (alumno.isQuintoSecundaria()) {
@@ -800,7 +800,7 @@ public class PromedioReviewServiceImp implements PromedioReviewService {
                 if (alumno.isQuintoSecundaria()) {
                     if (diffYears >= 1) {
                         Alumno alumnoUpd = new Alumno(alumno.getId());
-                        alumnoUpd.setSituacionAcademica(new SituacionAcademica(SituacionAcademicaEnum.S_8.getId()));
+                        alumnoUpd.setSituacionAcademica(new SituacionAcademica(SituacionAcademicaEnum.S_8));
                         alumnoDAO.updateSituacionAcad(alumnoUpd);
                     }
                     if (diffYears == 1) {
@@ -815,10 +815,10 @@ public class PromedioReviewServiceImp implements PromedioReviewService {
                 if (alumno.getSituacionAcademica().isCodigoS8() || alumno.getSituacionAcademica().isCodigoN()) {
                     SituacionAcademica situacion = null;
                     if (ciclosNmat == 1) {
-                        situacion = new SituacionAcademica(SituacionAcademicaEnum.S_9.getId());
+                        situacion = new SituacionAcademica(SituacionAcademicaEnum.S_9);
                     }
                     if (ciclosNmat > 1) {
-                        situacion = new SituacionAcademica(SituacionAcademicaEnum.S_7.getId());
+                        situacion = new SituacionAcademica(SituacionAcademicaEnum.S_7);
                     }
                     if (situacion != null) {
                         Alumno alumnoUpd = new Alumno(alumno.getId());
@@ -988,9 +988,9 @@ public class PromedioReviewServiceImp implements PromedioReviewService {
             situacionFinalForTrika = situacionAcademicaFinal;
             if (situacionAcademicaFinal.isCodigoS6()) {
                 if (alumnoCiclo.isUltimoCiclo()) {
-                    situacionFinalForTrika = new SituacionAcademica(SituacionAcademicaEnum.S_3U.getId());
+                    situacionFinalForTrika = new SituacionAcademica(SituacionAcademicaEnum.S_3U);
                 } else {
-                    situacionFinalForTrika = new SituacionAcademica(SituacionAcademicaEnum.S_3.getId());
+                    situacionFinalForTrika = new SituacionAcademica(SituacionAcademicaEnum.S_3);
                 }
             }
 
@@ -1030,12 +1030,12 @@ public class PromedioReviewServiceImp implements PromedioReviewService {
             SituacionAcademica situacionFinalForSuspension = null;
             if (!alumnoCiclo.isAprobado()) {
                 if (alumnoCiclo.isUltimoCiclo()) {
-                    situacionFinalForSuspension = new SituacionAcademica(SituacionAcademicaEnum.S_3U.getId());
+                    situacionFinalForSuspension = new SituacionAcademica(SituacionAcademicaEnum.S_3U);
                 } else {
-                    situacionFinalForSuspension = new SituacionAcademica(SituacionAcademicaEnum.S_3.getId());
+                    situacionFinalForSuspension = new SituacionAcademica(SituacionAcademicaEnum.S_3);
                 }
             } else {
-                situacionFinalForSuspension = new SituacionAcademica(SituacionAcademicaEnum.S_N.getId());
+                situacionFinalForSuspension = new SituacionAcademica(SituacionAcademicaEnum.S_N);
             }
 
             if (alumnoCicloCorrespSgtRegular == null) {
