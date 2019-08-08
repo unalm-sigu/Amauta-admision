@@ -93,15 +93,15 @@ public interface AlumnoCicloDAO extends EasyDAO<AlumnoCiclo> {
 
     List<AlumnoCiclo> allActivosRegularesByCicloResumen(CicloAcademico ciclo);
 
-    public AlumnoCiclo findActivosRegularesByCicloResumen(CicloAcademico cicloAcademico, Alumno alumno);
+     AlumnoCiclo findActivosRegularesByCicloResumen(CicloAcademico cicloAcademico, Alumno alumno);
 
     void updateSituacionFinalOnly(AlumnoCiclo alumnoCiclo);
 
-    public List<AlumnoCiclo> allByNmatAndInh(List<CicloAcademico> cicloAnt);
+     List<AlumnoCiclo> allByNmatAndInh(List<CicloAcademico> cicloAnt);
 
     AlumnoCiclo findActivosRegularesByCiclo(CicloAcademico ciclo, Alumno alumno);
 
-    public List<AlumnoCiclo> allByAlumnoDescRegular(Alumno alumno);
+     List<AlumnoCiclo> allByAlumnoDescRegular(Alumno alumno);
 
     AlumnoCiclo findLastNotInSituacion(Alumno alumno, SituacionAcademicaEnum... situacionAcademicaEnums);
 
@@ -109,5 +109,7 @@ public interface AlumnoCicloDAO extends EasyDAO<AlumnoCiclo> {
 
     AlumnoCiclo findLastByAlumnoAndSituacion(Alumno alumno, SituacionAcademicaEnum... situacionesAcademicas);
 
-    public List<AlumnoCiclo> allByAlumnos(List<Alumno> alumnos);
+     List<AlumnoCiclo> allByAlumnos(List<Alumno> alumnos);
+
+     List<AlumnoCiclo> allWithSituacionByCiclo(CicloAcademico cicloAcademico);
 }

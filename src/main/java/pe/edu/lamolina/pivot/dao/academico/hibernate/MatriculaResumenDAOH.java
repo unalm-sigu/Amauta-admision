@@ -287,7 +287,6 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
         strb.append(" mr.cicloAcademicoInfo = :nuleable  ");
         strb.append(" where mr.id in ( :ids )");
 
-        
         Query query = getCurrentSession().createQuery(strb.toString());
         query.setParameter("nuleable", null);
         query.setParameterList("ids", matriculables);
@@ -300,7 +299,7 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
         strb.append(" where ca.codigo = :ciclo ");
 
         Query query = getCurrentSession().createSQLQuery(strb.toString())
-        .setString("ciclo", cicloAcademico.getCodigo());
+                .setString("ciclo", cicloAcademico.getCodigo());
         query.executeUpdate();
     }
 

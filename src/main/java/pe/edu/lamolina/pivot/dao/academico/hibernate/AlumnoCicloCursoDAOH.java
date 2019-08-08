@@ -595,4 +595,5 @@ public class AlumnoCicloCursoDAOH extends AbstractEasyDAO<AlumnoCicloCurso> impl
 
         return sql.all(getCurrentSession());
     }
+
 }
