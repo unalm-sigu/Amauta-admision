@@ -98,4 +98,6 @@ public interface AlumnoCicloCursoDAO extends EasyDAO<AlumnoCicloCurso> {
 
     List<AlumnoCicloCurso> allOperativesByAlumnos(List<Alumno> alumnos);
 
+    List<AlumnoCicloCurso> allByAlumnoCicloCurso(Alumno alumno, CicloAcademico cicloAcademico, Curso curso);
+
 }

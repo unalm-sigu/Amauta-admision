@@ -414,20 +414,6 @@ public class MatriculableServiceImp implements MatriculableService {
         promedioService.calulcarSituacionAcademica(alumno, ds);
     }
 
-    @Transactional
-    private void revisarSituacionAcademicaReview(Alumno alumno, CicloAcademico cicloActivo,
-            List<CicloAcademico> ciclos,
-            List<AlumnoCicloCurso> allOperativesByModalidadEstudioDB,
-            List<AlumnoCiclo> allAlumnoCiclos,
-            Map<String, SituacionAcademica> mapSituacionAcademicas,
-            Map<Long, List<AlumnoCicloCurso>> mapAllCicloCurso,
-            Map<Long, AlumnoCiclo> mapAllAlumnoCicloByCiclo,
-            Egresado egresado,
-            List<Reincorporacion> reincorporacionesByAlumno,
-            DataSessionPivot ds) {
-        promedioReviewService.calulcarSituacionAcademicaReview(alumno, cicloActivo, ciclos, allOperativesByModalidadEstudioDB, allAlumnoCiclos, mapSituacionAcademicas, mapAllCicloCurso, mapAllAlumnoCicloByCiclo, egresado, reincorporacionesByAlumno, ds);
-    }
-
     @Override
     public void revisarSituacionesAcademicas(CicloAcademico ciclo, DataSessionPivot ds) {
         CicloAcademico cicloBD = cicloAcademicoDAO.find(ciclo.getId());
@@ -996,8 +982,8 @@ public class MatriculableServiceImp implements MatriculableService {
 //                    fillList(allAlumnoCicloCurso), allAlumnoCiclos,
 //                    mapSituacionAcademicas, mapAllAlumnoCicloByAlumnoCiclo, mapAllAlumnoCicloByCiclo, egresado, reincorporac, ds);
 //            this.revisarSituacionAcademicaReview(alumnoCiclo.getAlumno(), cicloActivoMod, allAlumnoCicloCurso, ciclosAcademicos, allAlumnoCiclos, ds);
-this.revisarSituacionAcademica(alumnoCiclo.getAlumno(), ds);
-respositorVisor.incrementar();
+            this.revisarSituacionAcademica(alumnoCiclo.getAlumno(), ds);
+            respositorVisor.incrementar();
             logger.debug("Cantidad de {} total {}", respositorVisor.getContador(), respositorVisor.getCantidadTotal());
         }
         academico.setFechaVerificaNmat(new Date());

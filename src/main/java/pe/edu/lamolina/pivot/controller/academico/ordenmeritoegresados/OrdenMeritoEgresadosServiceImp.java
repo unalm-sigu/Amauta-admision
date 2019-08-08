@@ -7,7 +7,6 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Egresado;
@@ -22,11 +22,12 @@ import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.ControlMeritoEgresado;
 import pe.edu.lamolina.model.academico.Facultad;
-import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.enums.ControlOrdenMeritoEscalaEnum;
 import pe.edu.lamolina.model.enums.ControlOrdenMeritoEstadoEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
+import pe.edu.lamolina.model.seguridad.Usuario;
+import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.pivot.dao.academico.CarreraDAO;
 import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.ControlMeritoEgresadoDAO;
@@ -56,6 +57,8 @@ public class OrdenMeritoEgresadosServiceImp implements OrdenMeritoEgresadosServi
     ModalidadEstudioDAO modalidadEstudioDAO;
     @Autowired
     CarreraDAO carreraDAO;
+    @Autowired
+    AlumnoDAO alumnoDAO;
 
     @Override
     @Transactional
@@ -355,6 +358,36 @@ public class OrdenMeritoEgresadosServiceImp implements OrdenMeritoEgresadosServi
     @Override
     public ControlMeritoEgresado find(Long id) {
         return controlOrdenMeritoDAO.find(id);
+    }
+
+    @Override
+    public List<Alumno> allAlumnoLikeNombres(String parametro) {
+        parametro = "%" + parametro.replaceAll(" ", "%") + "%";
+        ModalidadEstudio modalidad = modalidadEstudioDAO.findByCodigo(ModalidadEstudioEnum.PRE);
+        return alumnoDAO.allByNameModalidadEstudioCiclo(parametro, modalidad, new CicloAcademico());
+    }
+
+    @Override
+    @Transactional
+    public void saveEgresado(Egresado egresado, Usuario usuario) {
+
+        Alumno almForm = egresado.getAlumno();
+        Egresado egresadoBD = egresadoDAO.findByAlumno(almForm);
+
+        if (egresadoBD != null) {
+            throw new PhobosException("El alumno " + almForm.getPersona().getNombreCompleto() + " ya se encuentra registrado como egresado.");
+        }
+
+        egresado.setEsPrincipal(0);
+        egresado.setUserRegistroEgresado(usuario.getId());
+        egresado.setFechaRegistroEgresado(new Date());
+        egresado.setCarrera(almForm.getCarrera());
+//        egresado.setFechaEgresado(fechaEgresado);
+
+        if (almForm.getCarrera().getFacultad() != null) {
+            egresado.setFacultad(almForm.getCarrera().getFacultad());
+        }
+        egresadoDAO.save(egresado);
     }
 
 }

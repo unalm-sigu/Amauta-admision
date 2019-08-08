@@ -13,6 +13,7 @@
                     <ul class="dropdown-menu pointer">
                         <li><a v-on:click="generarDatos"> Generar Datos </a></li>
                         <li><a v-on:click="calcularMeritos"> Calcular Méritos </a></li>
+                        <li><a v-on:click="openModal('modalAgregarAlumno')"> Agregar Alumno </a></li>
                     </ul>
                 </div> 
                 <p class="h2" th:inline="text"> Orden de Mérito Egresados [[${ciclo.descripcion}]] </p>
@@ -69,6 +70,8 @@
                     </section>
                 </section>
             </section>
+
+            <div th:substituteby="academico/ordenmeritoegresados/agregarAlumnoModal"/>
         </div>
     </div>
 

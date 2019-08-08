@@ -810,4 +810,5 @@ public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements Alu
                 .in("alu.id", alumnos);
         return all(sql);
     }
+
 }

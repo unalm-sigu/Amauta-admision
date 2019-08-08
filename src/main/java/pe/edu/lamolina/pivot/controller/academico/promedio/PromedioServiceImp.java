@@ -235,6 +235,7 @@ public class PromedioServiceImp implements PromedioService {
         if (alumno.getSituacionAcademica().isCodigoR()) {
             throw new PhobosException("No se puede calcular la situación, en situacion Renunciante.");
         }
+
         try {
 
             this.analizeAlumnoCiclos(alumno, alumnoCiclos, allOperativesByModalidadEstudio);
@@ -252,6 +253,7 @@ public class PromedioServiceImp implements PromedioService {
             alumnoDAO.updatePromedioProcesado(alumnoUpd);
 
             contadorComponent.incrementarProcesados();
+
         } catch (Exception e) {
             String excepcion = this.messageException(e);
             String error = "####Error en el hilo alumno " + alumno.getCodigo() + " ciclo activo " + alumno.getCicloActivo().getCodigo();
@@ -475,7 +477,11 @@ public class PromedioServiceImp implements PromedioService {
     }
 
     @Transactional(propagation = Propagation.SUPPORTS)
-    private void promediarAlumno(Alumno alumno, CicloAcademico cicloActivo, List<AlumnoCicloCurso> allOperativesByModalidadEstudio, DataSessionPivot ds) {
+    private void promediarAlumno(
+            Alumno alumno, 
+            CicloAcademico cicloActivo, 
+            List<AlumnoCicloCurso> allOperativesByModalidadEstudio, 
+            DataSessionPivot ds) {
 
         List<AlumnoCiclo> alumnosCiclosByAlumno = alumnoCicloDAO.allActivesByAlumnoAsc(alumno);
         List<String> ciclos = alumnosCiclosByAlumno.stream().map(x -> x.getCicloAcademico().getCodigo()).collect(Collectors.toList());
