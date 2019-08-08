@@ -587,6 +587,8 @@ public class PromedioServiceImp implements PromedioService {
 //        logger.debug("Ciclos matriculados del alumno {}", String.join(",", ciclos));
         Map<Long, List<AlumnoCicloCurso>> mapAlumnoCicloCurso = TypesUtil.convertListToMapList("alumnoCiclo.id", allOperativesByModalidadEstudio);
 
+        List<AlumnoCiclo> alumnosCiclosAllNuevos = new ArrayList();
+
         logger.debug("alumnosCiclosByAlumno.size ::: {}", alumnosCiclosByAlumno.size());
         for (AlumnoCiclo alumnoCicloEach : alumnosCiclosByAlumno) {
             CicloAcademico ciclo = alumnoCicloEach.getCicloAcademico();
@@ -598,9 +600,13 @@ public class PromedioServiceImp implements PromedioService {
             List<AlumnoCicloCurso> alumnoCicloCursoAnteriores = allOperativesByModalidadEstudio.stream()
                     .filter(x -> x.getAlumnoCiclo().getCicloAcademico().getCodigoInt() < ciclo.getCodigoInt())
                     .collect(Collectors.toList());
-            this.promediarHistorialNotas(alumno, ciclosAll, cicloActivo, ciclo, ds, alumnosCiclosByAlumno,
+            List<AlumnoCiclo> alumnosCicloNuevos = this.promediarHistorialNotas(alumno, ciclosAll, cicloActivo, ciclo, ds, 
+                    alumnosCiclosByAlumno,
                     mapAlumnoCicloCurso, alumnoCicloCursoByCiclo, alumnoCicloCursoAnteriores);
+            alumnosCiclosAllNuevos.addAll(alumnosCicloNuevos);
         }
+
+        alumnosCiclosByAlumno.addAll(alumnosCiclosAllNuevos);
 
     }
 
@@ -1137,7 +1143,7 @@ public class PromedioServiceImp implements PromedioService {
     }
 
     @Transactional(propagation = Propagation.SUPPORTS)
-    private void promediarHistorialNotas(
+    private List<AlumnoCiclo> promediarHistorialNotas(
             Alumno alumno,
             List<CicloAcademico> ciclosAll,
             CicloAcademico cicloActivo,
@@ -1151,6 +1157,8 @@ public class PromedioServiceImp implements PromedioService {
         logger.debug("$$$$$$$$$$$$$$ promediarHistorialNotas Ciclo Activo {} , Ciclo Academico {} {} {}",
                 cicloActivo.toString(),
                 cicloAcademico.toString());
+
+        List<AlumnoCiclo> alumnoCicloxxx = new ArrayList();
 
         Map<String, List<CicloAcademico>> mapCiclo = TypesUtil.convertListToMapList("codigo", ciclosAll);
 
@@ -1259,7 +1267,8 @@ public class PromedioServiceImp implements PromedioService {
                 alumnoCicloCorrespSgtRegular.setSituacionFinal(situacionFinalForTrika);
                 alumnoCicloCorrespSgtRegular.setCreditosConvalidados(BigDecimal.ZERO.intValue());
                 alumnoCicloDAO.save(alumnoCicloCorrespSgtRegular);
-                alumnoCiclos.add(alumnoCicloCorrespSgtRegular);
+                alumnoCicloxxx.add(alumnoCicloCorrespSgtRegular);
+                logger.debug("AGREGANDO..........");
 
             } else {
                 //List<AlumnoCicloCurso> alusCicloCursos = alumnoCicloCursoDAO.allByAlumnoCicloNoFilters(alumnoCicloCorrespSgtRegular);
@@ -1300,7 +1309,8 @@ public class PromedioServiceImp implements PromedioService {
                 alumnoCicloCorrespSgtRegular.setSituacionFinal(situacionFinalForSuspension);
                 alumnoCicloCorrespSgtRegular.setCreditosConvalidados(BigDecimal.ZERO.intValue());
                 alumnoCicloDAO.save(alumnoCicloCorrespSgtRegular);
-                alumnoCiclos.add(alumnoCicloCorrespSgtRegular);
+                alumnoCicloxxx.add(alumnoCicloCorrespSgtRegular);
+                logger.debug("AGREGANDO..........2222");
 
             } else {
                 //List<AlumnoCicloCurso> alusCicloCursos = alumnoCicloCursoDAO.allActivoByAlumnoCiclo(alumnoCicloCorrespSgtRegular);
@@ -1320,6 +1330,8 @@ public class PromedioServiceImp implements PromedioService {
                 }
             }
         }
+
+        return alumnoCicloxxx;
 
         /*
         if (alumnoCicloCorrespSgtRegularPrevio != null) {
