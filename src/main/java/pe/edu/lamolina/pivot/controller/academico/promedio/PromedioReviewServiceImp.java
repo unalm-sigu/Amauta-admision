@@ -2,6 +2,7 @@ package pe.edu.lamolina.pivot.controller.academico.promedio;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
@@ -139,7 +140,12 @@ public class PromedioReviewServiceImp implements PromedioReviewService {
 //    @Async
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = false)
-    public void trasladarInformcionForHistorial(MatriculaResumen matriculaResumen, List<MatriculaCurso> matriculasCurso, List<MatriculaSeccion> matriculasSeccion, DataSessionPivot ds, Map<Long, RetiroCiclo> mapRetiro, boolean calcularSituacion) {
+    public void trasladarInformcionForHistorial(MatriculaResumen matriculaResumen, List<MatriculaCurso> matriculasCurso,
+            List<MatriculaSeccion> matriculasSeccion, DataSessionPivot ds, Map<Long, RetiroCiclo> mapRetiro,
+            Map<Long, List<AlumnoCicloCurso>> mapAlumnoCicloCurso,
+            Map<Long, AlumnoCiclo> mapalumnoCiclo,
+            SituacionAcademica situacionAcademicaComodin,
+            boolean calcularSituacion) {
         visorCalculoNotas.incrementarCantidad();
         List<MatriculaCurso> matriculasCursoByAlumno = matriculasCurso.stream()
                 .filter(x -> x.getMatriculaResumen().getAlumno().getId().equals(matriculaResumen.getAlumno().getId()))
@@ -149,7 +155,7 @@ public class PromedioReviewServiceImp implements PromedioReviewService {
             MatriculaSeccion matriculaSeccion = matriculasSeccionByAlumno
                     .stream().filter(x -> x.getSeccion().getGrupoSeccion().getCurso().getId().equals(matriculaCurso.getCurso().getId())).findFirst().orElse(null);
             if (matriculaSeccion != null && matriculaSeccion.getSeccion().getGrupoSeccion().isEstadoGrupoCerrado()) {
-                this.trasladoPromediosSource2(matriculaCurso, matriculasCursoByAlumno, mapRetiro, ds);
+                this.trasladoPromediosSource2(matriculaCurso, matriculasCursoByAlumno, mapRetiro, mapAlumnoCicloCurso, mapalumnoCiclo, situacionAcademicaComodin, ds);
             }
         }
         if (calcularSituacion) {
@@ -161,11 +167,15 @@ public class PromedioReviewServiceImp implements PromedioReviewService {
         visorCalculoNotas.reporte();
     }
 
-    public void trasladoPromediosSource2(MatriculaCurso matriculaCurso, List<MatriculaCurso> matriculaCursos, Map<Long, RetiroCiclo> mapRetiro, DataSessionPivot ds) {
+    public void trasladoPromediosSource2(MatriculaCurso matriculaCurso, List<MatriculaCurso> matriculaCursos, Map<Long, RetiroCiclo> mapRetiro,
+            Map<Long, List<AlumnoCicloCurso>> mapAlumnoCicloCurso,
+            Map<Long, AlumnoCiclo> mapalumnoCiclo,
+            SituacionAcademica situacionAcademicaComodin,
+            DataSessionPivot ds) {
         Alumno alumno = matriculaCurso.getMatriculaResumen().getAlumno();
         CicloAcademico cicloAcademico = matriculaCurso.getMatriculaResumen().getCicloAcademico();
         Curso curso = matriculaCurso.getCurso();
-        generarHistorialNotas2(alumno, curso, matriculaCurso, cicloAcademico, matriculaCursos, mapRetiro, ds);
+        generarHistorialNotas2(alumno, curso, matriculaCurso, cicloAcademico, matriculaCursos, mapRetiro, mapAlumnoCicloCurso, mapalumnoCiclo, situacionAcademicaComodin, ds);
     }
 
     @Override
@@ -601,17 +611,22 @@ public class PromedioReviewServiceImp implements PromedioReviewService {
             CicloAcademico cicloAcademico,
             List<MatriculaCurso> matriculasCursosByAlumno,
             Map<Long, RetiroCiclo> mapRetiro,
+            Map<Long, List<AlumnoCicloCurso>> mapAlumnoCicloCurso,
+            Map<Long, AlumnoCiclo> mapalumnoCiclo,
+            SituacionAcademica situacionAcademicaComodin,
             DataSessionPivot ds) {
         try {
             //  logger.debug("generar historial notas, alumno {} ciclo {}", alumno.getId(), cicloAcademico.getId());
+//            Map<Long, AlumnoCiclo> mapalumnoCiclo = TypesUtil.convertListToMap("cicloAcademico.id", matriculasCursosByAlumno);
+//            Map<Long, List<AlumnoCicloCurso>> mapAlumnoCicloCurso = TypesUtil.convertListToMap("curso.id", matriculasCursosByAlumno);
             RetiroCiclo retiroCiclo = mapRetiro.get(cicloAcademico.getId());
             Boolean isRetirado = retiroCiclo != null && retiroCiclo.getEstadoEnum() == TramiteEstadoEnum.ACEP;
-            AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findByAlumnoCiclo(alumno, cicloAcademico);
-            List<AlumnoCicloCurso> alumnoCicloCurso = alumnoCicloCursoDAO.allByAlumnoCicloCurso(alumno, cicloAcademico, curso);
+            AlumnoCiclo alumnoCiclo = mapalumnoCiclo.get(alumno.getId());
+            List<AlumnoCicloCurso> alumnoCicloCurso = fillList(mapAlumnoCicloCurso.get(curso.getId()));
             DateTime today = new DateTime(ds.getFechaAccionAudit());
 
             if (alumnoCiclo == null) {
-                SituacionAcademica situacionAcademicaComodin = situacionAcademicaDAO.findByCodigo(SituacionAcademicaEnum.S_00.getValue());
+//                SituacionAcademica situacionAcademicaComodin = situacionAcademicaDAO.findByCodigo(SituacionAcademicaEnum.S_00.getValue());
                 alumnoCiclo = new AlumnoCiclo();
                 alumnoCiclo.defaultValuesToCreate(alumno, cicloAcademico, ds.getUsuario(), today);
                 if (isRetirado) {
@@ -701,6 +716,13 @@ public class PromedioReviewServiceImp implements PromedioReviewService {
             e.printStackTrace();
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
         }
+    }
+
+    private List fillList(List lista) {
+        if (lista == null) {
+            return new ArrayList();
+        }
+        return lista;
     }
 
     public Integer countVecesAnteriores(List<MatriculaCurso> matriculasCursosAlumno, CicloAcademico cicloAcademico, Curso curso) {

@@ -111,4 +111,6 @@ public interface AlumnoCicloDAO extends EasyDAO<AlumnoCiclo> {
 
     public List<AlumnoCiclo> allByAlumnos(List<Alumno> alumnos);
 
+    public List<AlumnoCiclo> allByCicloAcademicos(List<CicloAcademico> ciclos);
+
 }
