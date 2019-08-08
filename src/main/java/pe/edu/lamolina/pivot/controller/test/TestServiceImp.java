@@ -429,10 +429,14 @@ public class TestServiceImp implements TestService {
     @Override
     @Transactional
     public void trasladarMatriculaCursoForPromediosReview(DataSessionPivot ds, Long idAlumno) {
+
+        logger.debug("COMENZAMOOOOOOOOOOOO.........");
+        logger.info("COMENZAMOOOOOOOOOOOO......... iNFO");
+        logger.trace("COMENZAMOOOOOOOOOOOO......... TRACE");
         List<CicloAcademico> ciclos = cicloAcademicoDAO.allWithInitAndOrderBy(2017, "ca.codigo asc", CicloAcademicoEstadoEnum.CER, CicloAcademicoEstadoEnum.PEND);
         //   List<GrupoSeccion> gruposSeccionesByCiclo=gruposecc
         List<RetiroCiclo> retirosCiclos = retiroCicloDAO.allInfo();
-
+        logger.debug("Retirosssss...");
 //        Map<Long, List<RetiroCiclo>> mapRetiroByciclo = TypesUtil.convertListToMapList("cicloAcademico.id", retirosCiclos);
         Map<Long, List<RetiroCiclo>> mapAllRetiroByAlumno = TypesUtil.convertListToMapList("alumno.id", retirosCiclos);
 
@@ -441,8 +445,11 @@ public class TestServiceImp implements TestService {
         Map<Long, List<RetiroCurso>> mapRetiroCursoAlumno = TypesUtil.convertListToMapList("alumno.id", retirosCursos);
 
         List<MatriculaResumen> matriculasResumenes = matriculaResumenDAO.allByCiclos(ciclos);
+        logger.debug("MAtricula Resumen...");
         List<MatriculaCurso> matriculasCurso = matriculaCursoDAO.allByCiclosFull(ciclos);
+        logger.debug("MAtricula Curso...");
         List<MatriculaSeccion> matriculasSeccion = matriculaSeccionDAO.allByMatriculaResumenes(matriculasResumenes);
+        logger.debug("MAtricula Seccion...");
 //        Map<Long, List<MatriculaResumen>> mapMatriculaResumen = TypesUtil.convertListToMapList("cicloAcademico.id", matriculasResumenes);
         Map<Long, List<MatriculaResumen>> mapMatriculaResumenByAlumno = TypesUtil.convertListToMapList("alumno.id", matriculasResumenes);
 
@@ -453,46 +460,54 @@ public class TestServiceImp implements TestService {
         Map<Long, List<MatriculaSeccion>> mapMatriculaSeccByAlumno = TypesUtil.convertListToMapList("matriculaResumen.alumno.id", matriculasSeccion);
 
         List<AlumnoCiclo> alumnosCiclos = alumnoCicloDAO.allByCicloAcademicos(ciclos);
+        logger.debug("Alumno Ciclo...");
         Map<Long, List<AlumnoCiclo>> mapAlumnoCiclo = TypesUtil.convertListToMapList("alumno.id", alumnosCiclos);
 
         List<AlumnoCicloCurso> alumnoCicloCurso = alumnoCicloCursoDAO.allByAlumnosCiclos(alumnosCiclos);
+        logger.debug("Alumno Ciclo Curso...");
         Map<Long, List<AlumnoCicloCurso>> mapAlumnoCicloCursoByAlumCi = TypesUtil.convertListToMapList("alumnoCiclo.id", alumnoCicloCurso);
 
         SituacionAcademica situacionAcademicaComodin = situacionAcademicaDAO.findByCodigo(SituacionAcademicaEnum.S_00.getValue());
+        logger.debug("Situaciones ...");
 
         List<Alumno> alumnoos = matriculasResumenes.stream().map(x -> x.getAlumno()).distinct().collect(Collectors.toList());
 
         visorCalculoNotas.iniciar();
         visorCalculoNotas.setCantidadTotal(alumnoos.size());
+        int i = 1;
         for (Alumno alumnoo : alumnoos) {
-            if (idAlumno == null || (idAlumno != null && Objects.equals(alumnoo.getId(), idAlumno))) {
+            logger.debug("Alumno {} {}", alumnoo.getCodigo(), alumnoo.getId());
 
-                List<RetiroCiclo> allRetiroCicloAlumno = fillList(mapAllRetiroByAlumno.get(alumnoo.getId()));
-                Map<Long, RetiroCiclo> mapRetiroByCicloAlumno = TypesUtil.convertListToMap("cicloAcademico.id", allRetiroCicloAlumno);
-                List<RetiroCurso> retiroCursos = fillList(mapRetiroCursoAlumno.get(alumnoo.getId()));
+//            if (idAlumno == null || (idAlumno != null && Objects.equals(alumnoo.getId(), idAlumno))) {
+            List<RetiroCiclo> allRetiroCicloAlumno = fillList(mapAllRetiroByAlumno.get(alumnoo.getId()));
+            Map<Long, RetiroCiclo> mapRetiroByCicloAlumno = TypesUtil.convertListToMap("cicloAcademico.id", allRetiroCicloAlumno);
+            List<RetiroCurso> retiroCursos = fillList(mapRetiroCursoAlumno.get(alumnoo.getId()));
 
-                List<MatriculaResumen> matriculaResumens = mapMatriculaResumenByAlumno.get(alumnoo.getId());
+            List<MatriculaResumen> matriculaResumens = mapMatriculaResumenByAlumno.get(alumnoo.getId());
 
-                for (MatriculaResumen matriculaResumen : matriculaResumens) {
-                    RetiroCiclo retiroCiclo = mapRetiroByCicloAlumno.get(matriculaResumen.getCicloAcademico().getId());
-                    List<MatriculaCurso> matriculaCursos = fillList(mapMatriculaCursoByMr.get(matriculaResumen.getId()));
-                    List<MatriculaSeccion> matriculaSeccions = fillList(mapMatriculaSeccByMr.get(matriculaResumen.getId()));
-                    trasladarMatriculaCursoForPromediosAlumnoTest(matriculaResumen.getCicloAcademico(), retiroCiclo, retiroCursos, matriculaResumen, matriculaCursos, matriculaSeccions, ds);
-                }
-                List<MatriculaCurso> allMatriculasCursosAlumno = fillList(allByAlumno.get(alumnoo.getId()));
-                List<MatriculaSeccion> matriculaSeccions = fillList(mapMatriculaSeccByAlumno.get(alumnoo.getId()));
-
-                List<AlumnoCiclo> alumnoCiclos = fillList(mapAlumnoCiclo.get(alumnoo.getId()));
-                if (alumnoCiclos.isEmpty()) {
-                    continue;
-                }
-                Map<Long, AlumnoCiclo> mapAlumnoCicloByCiclo = TypesUtil.convertListToMap("cicloAcademico.id", alumnoCiclos);
-
-                promedioReviewService.trasladarInformcionForHistorial(matriculaResumens, allMatriculasCursosAlumno, matriculaSeccions, ds, mapRetiroByCicloAlumno, mapAlumnoCicloCursoByAlumCi, mapAlumnoCicloByCiclo, situacionAcademicaComodin, false);
-
-                visorCalculoNotas.incrementarProcesados();
-                visorCalculoNotas.reporte();
+            for (MatriculaResumen matriculaResumen : matriculaResumens) {
+                RetiroCiclo retiroCiclo = mapRetiroByCicloAlumno.get(matriculaResumen.getCicloAcademico().getId());
+                List<MatriculaCurso> matriculaCursos = fillList(mapMatriculaCursoByMr.get(matriculaResumen.getId()));
+                List<MatriculaSeccion> matriculaSeccions = fillList(mapMatriculaSeccByMr.get(matriculaResumen.getId()));
+                trasladarMatriculaCursoForPromediosAlumnoTest(matriculaResumen.getCicloAcademico(), retiroCiclo, retiroCursos, matriculaResumen, matriculaCursos, matriculaSeccions, ds);
             }
+            List<MatriculaCurso> allMatriculasCursosAlumno = fillList(allByAlumno.get(alumnoo.getId()));
+            List<MatriculaSeccion> matriculaSeccions = fillList(mapMatriculaSeccByAlumno.get(alumnoo.getId()));
+
+            List<AlumnoCiclo> alumnoCiclos = fillList(mapAlumnoCiclo.get(alumnoo.getId()));
+            if (alumnoCiclos.isEmpty()) {
+                continue;
+            }
+            Map<Long, AlumnoCiclo> mapAlumnoCicloByCiclo = TypesUtil.convertListToMap("cicloAcademico.id", alumnoCiclos);
+
+            promedioReviewService.trasladarInformcionForHistorial(matriculaResumens, allMatriculasCursosAlumno, matriculaSeccions, ds, mapRetiroByCicloAlumno, mapAlumnoCicloCursoByAlumCi, mapAlumnoCicloByCiclo, situacionAcademicaComodin, false);
+
+            visorCalculoNotas.incrementarProcesados();
+            visorCalculoNotas.reporte();
+
+            logger.debug("avance {} de {}", i, alumnoos.size());
+            i++;
+//            }
         }
 
     }
