@@ -411,24 +411,28 @@ public class TestServiceImp implements TestService {
 
             List<RetiroCiclo> allRetiroCicloAlumno = fillList(mapAllRetiroByAlumno.get(alumnoo.getId()));
             Map<Long, RetiroCiclo> mapRetiroByCicloAlumno = TypesUtil.convertListToMap("cicloAcademico.id", allRetiroCicloAlumno);
-            List<RetiroCurso> retiroCursos = mapRetiroCursoAlumno.get(alumnoo.getId());
+            List<RetiroCurso> retiroCursos = fillList(mapRetiroCursoAlumno.get(alumnoo.getId()));
 
             List<MatriculaResumen> matriculaResumens = mapMatriculaResumenByAlumno.get(alumnoo.getId());
 
             for (MatriculaResumen matriculaResumen : matriculaResumens) {
                 RetiroCiclo retiroCiclo = mapRetiroByCicloAlumno.get(matriculaResumen.getCicloAcademico().getId());
-                List<MatriculaCurso> matriculaCursos = mapMatriculaCursoByMr.get(matriculaResumen.getId());
-                List<MatriculaSeccion> matriculaSeccions = mapMatriculaSeccByMr.get(matriculaResumen.getId());
+                List<MatriculaCurso> matriculaCursos = fillList(mapMatriculaCursoByMr.get(matriculaResumen.getId()));
+                List<MatriculaSeccion> matriculaSeccions = fillList(mapMatriculaSeccByMr.get(matriculaResumen.getId()));
                 trasladarMatriculaCursoForPromediosAlumnoTest(matriculaResumen.getCicloAcademico(), retiroCiclo, retiroCursos, matriculaResumen, matriculaCursos, matriculaSeccions, ds);
             }
             List<MatriculaCurso> allMatriculasCursosAlumno = allByAlumno.get(alumnoo.getId());
             List<MatriculaSeccion> matriculaSeccions = mapMatriculaSeccByAlumno.get(alumnoo.getId());
 
-            List<AlumnoCiclo> alumnoCiclos = mapAlumnoCiclo.get(alumnoo.getId());
+            List<AlumnoCiclo> alumnoCiclos = fillList(mapAlumnoCiclo.get(alumnoo.getId()));
+            if (alumnoCiclos.isEmpty()) {
+                continue;
+            }
             Map<Long, AlumnoCiclo> mapAlumnoCicloByCiclo = TypesUtil.convertListToMap("cicloAcademico.id", alumnoCiclos);
 
             promedioReviewService.trasladarInformcionForHistorial(matriculaResumens, allMatriculasCursosAlumno, matriculaSeccions, ds, mapRetiroByCicloAlumno, mapAlumnoCicloCursoByAlumCi, mapAlumnoCicloByCiclo, situacionAcademicaComodin, false);
-         
+
+            visorCalculoNotas.incrementarProcesados();
             visorCalculoNotas.reporte();
         }
 
@@ -539,7 +543,7 @@ public class TestServiceImp implements TestService {
 
                 String keys = matriculaCurso.getCurso().getId() + "-" + cicloAcademico.getId();
                 if (mapRetiroCurso.get(keys) != null) {
-                    if (RCU != matriculaSeccion.getEstadoEnum()) {
+                    if (RCU != matriculaCurso.getEstadoEnum()) {
                         matriculaCurso.setEstadoEnum(EstadoMatriculaEnum.RCU);
                         matriculaCursoDAO.updateColumns(matriculaCurso, "estado");
                     }

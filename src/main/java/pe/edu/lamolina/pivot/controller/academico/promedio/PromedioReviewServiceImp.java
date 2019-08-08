@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -619,74 +620,57 @@ public class PromedioReviewServiceImp implements PromedioReviewService {
             Map<Long, AlumnoCiclo> mapalumnoCiclo,
             SituacionAcademica situacionAcademicaComodin,
             DataSessionPivot ds) {
-        try {
-            //  logger.debug("generar historial notas, alumno {} ciclo {}", alumno.getId(), cicloAcademico.getId());
+//        try {
+        //  logger.debug("generar historial notas, alumno {} ciclo {}", alumno.getId(), cicloAcademico.getId());
 //            Map<Long, AlumnoCiclo> mapalumnoCiclo = TypesUtil.convertListToMap("cicloAcademico.id", matriculasCursosByAlumno);
 //            Map<Long, List<AlumnoCicloCurso>> mapAlumnoCicloCurso = TypesUtil.convertListToMap("curso.id", matriculasCursosByAlumno);
-            RetiroCiclo retiroCiclo = mapRetiro.get(cicloAcademico.getId());
-            Boolean isRetirado = retiroCiclo != null && retiroCiclo.getEstadoEnum() == TramiteEstadoEnum.ACEP;
-            AlumnoCiclo alumnoCiclo = mapalumnoCiclo.get(cicloAcademico.getId());
-            List<AlumnoCicloCurso> alumnoCicloCurso = fillList(mapAlumnoCicloCurso.get(curso.getId()));
-            DateTime today = new DateTime(ds.getFechaAccionAudit());
+        logger.debug("##################Ciclo Alumno ciclo {} {} {} ", cicloAcademico.getId(), cicloAcademico.getYear(), cicloAcademico.getNumeroCiclo());
 
-            if (alumnoCiclo == null) {
-//                SituacionAcademica situacionAcademicaComodin = situacionAcademicaDAO.findByCodigo(SituacionAcademicaEnum.S_00.getValue());
-                alumnoCiclo = new AlumnoCiclo();
-                alumnoCiclo.defaultValuesToCreate(alumno, cicloAcademico, ds.getUsuario(), today);
-                if (isRetirado) {
-                    alumnoCiclo.setEstadoEnum(EstadoMatriculaEnum.RCI);
-                } else {
-                    alumnoCiclo.setEstadoEnum(matriculaCurso.getMatriculaResumen().getEstadoEnum());
-                }
-                alumnoCiclo.setSituacionInicio(situacionAcademicaComodin);
-                alumnoCiclo.setEstaAprobado(BigDecimal.ZERO.intValue());
-                alumnoCiclo.setCreditosConvalidados(BigDecimal.ZERO.intValue());
-                alumnoCicloDAO.save(alumnoCiclo);
-                alumnoCiclo.getId();
-            } else {
-                AlumnoCiclo alumnoCicloUpd = new AlumnoCiclo(alumnoCiclo.getId());
-                alumnoCicloUpd.setEstadoEnum(EstadoMatriculaEnum.MAT);
-                alumnoCicloDAO.updateColumns(alumnoCicloUpd, "estado");
-            }
+        RetiroCiclo retiroCiclo = mapRetiro.get(cicloAcademico.getId());
+        Boolean isRetiradoCiclo = retiroCiclo != null && retiroCiclo.getEstadoEnum() == TramiteEstadoEnum.ACEP;
+        AlumnoCiclo alumnoCiclo = mapalumnoCiclo.get(cicloAcademico.getId());
+        List<AlumnoCicloCurso> alumnoCicloCursoTem = new ArrayList<>();
+        if (alumnoCiclo != null) {
+            List<AlumnoCicloCurso> alumnoCicloCurso = fillList(mapAlumnoCicloCurso.get(alumnoCiclo.getId()));
+            Map<Long, List<AlumnoCicloCurso>> mapAlumnoCicloCursoByCurso = TypesUtil.convertListToMapList("curso.id", alumnoCicloCurso);
+            alumnoCicloCursoTem = mapAlumnoCicloCursoByCurso.get(curso.getId()); // Por si hay cursos repetidos en el ciclo
+        }
+        DateTime today = new DateTime(ds.getFechaAccionAudit());
 
-            if (alumnoCicloCurso.isEmpty()) {
-                AlumnoCicloCurso alumnoCicloCursoNew = new AlumnoCicloCurso();
-                alumnoCicloCursoNew.defaultValuesToCreate(alumnoCiclo, curso, matriculaCurso, ds.getUsuario(), today);
-                Integer aprobado = evaluateEstaAprobado(matriculaCurso, alumno);
-                alumnoCicloCursoNew.setEstaAprobado(aprobado);
+        if (alumnoCiclo == null && !isRetiradoCiclo) {
+            alumnoCiclo = new AlumnoCiclo();
+            alumnoCiclo.defaultValuesToCreate(alumno, cicloAcademico, ds.getUsuario(), today);
+            alumnoCiclo.setEstadoEnum(matriculaCurso.getMatriculaResumen().getEstadoEnum());
+            alumnoCiclo.setSituacionInicio(situacionAcademicaComodin);
+            alumnoCiclo.setEstaAprobado(BigDecimal.ZERO.intValue());
+            alumnoCiclo.setCreditosConvalidados(BigDecimal.ZERO.intValue());
+            alumnoCicloDAO.save(alumnoCiclo);
+            alumnoCiclo.getId();
+        } else if (alumnoCiclo != null && !isRetiradoCiclo) {
+            AlumnoCiclo alumnoCicloUpd = new AlumnoCiclo(alumnoCiclo.getId());
+            alumnoCicloUpd.setEstadoEnum(EstadoMatriculaEnum.MAT);
+            alumnoCicloDAO.updateColumns(alumnoCicloUpd, "estado");
+        }
 
-                //  alumnoCicloCurso.setVecesCursado(alumnoCicloCursoDAO.countByCursoAlumnoAnterioresCiclo(curso, alumno, cicloAcademico).intValue() + 1);
-                alumnoCicloCursoNew.setVecesCursado(this.countVecesAnteriores(matriculasCursosByAlumno, cicloAcademico, curso) + 1);
-                alumnoCicloCursoNew.setVecesCursadoRegular(this.countVecesAnterioresReg(matriculasCursosByAlumno, cicloAcademico, curso) + 1);
-                alumnoCicloCursoDAO.save(alumnoCicloCursoNew);
-                alumnoCicloCursoNew.getId();
-            } else {
+        if (alumnoCicloCursoTem.isEmpty() && !isRetiradoCiclo) {
+            AlumnoCicloCurso alumnoCicloCursoNew = new AlumnoCicloCurso();
+            alumnoCicloCursoNew.defaultValuesToCreate(alumnoCiclo, curso, matriculaCurso, ds.getUsuario(), today);
+            Integer aprobado = evaluateEstaAprobado(matriculaCurso, alumno);
+            alumnoCicloCursoNew.setEstaAprobado(aprobado);
 
-                Boolean retirado = false;
-                for (AlumnoCicloCurso alumnoCicloCursoTemp : alumnoCicloCurso) {
-                    if (isRetirado) {
-                        if (!retirado) {
-                            retirado = true;
-                            alumnoCicloCursoTemp.setFechaModificacion(today.toDate());
-                            alumnoCicloCursoTemp.setNota(matriculaCurso.getNotaFinal());
-                            alumnoCicloCursoTemp.setEstado(matriculaCurso.getEstadoEnum());
-                            alumnoCicloCursoTemp.setUserModificacion(ds.getUsuario());
-                            if (curso.isTieneCreditosVariables()) {
-                                alumnoCicloCursoTemp.setCreditos(matriculaCurso.getCreditosAprobados());
-                            } else {
-                                alumnoCicloCursoTemp.setCreditos(matriculaCurso.getCreditos());
-                            }
-                            Integer aprobado = evaluateEstaAprobado(matriculaCurso, alumno);
-                            alumnoCicloCursoTemp.setEstaAprobado(aprobado);
-                            alumnoCicloCursoTemp.setVecesCursado(this.countVecesAnteriores(matriculasCursosByAlumno, cicloAcademico, curso) + 1);
-                            alumnoCicloCursoTemp.setVecesCursadoRegular(this.countVecesAnterioresReg(matriculasCursosByAlumno, cicloAcademico, curso) + 1);
-                            alumnoCicloCursoDAO.update(alumnoCicloCursoTemp);
+            //  alumnoCicloCurso.setVecesCursado(alumnoCicloCursoDAO.countByCursoAlumnoAnterioresCiclo(curso, alumno, cicloAcademico).intValue() + 1);
+            alumnoCicloCursoNew.setVecesCursado(this.countVecesAnteriores(matriculasCursosByAlumno, cicloAcademico, curso) + 1);
+            alumnoCicloCursoNew.setVecesCursadoRegular(this.countVecesAnterioresReg(matriculasCursosByAlumno, cicloAcademico, curso) + 1);
+            alumnoCicloCursoDAO.save(alumnoCicloCursoNew);
+            alumnoCicloCursoNew.getId();
+        } else {
+            Map<String, AlumnoCicloCurso> map = new HashMap<>();
+            Boolean retirado = false;
+            for (AlumnoCicloCurso alumnoCicloCursoTemp : alumnoCicloCursoTem) {
 
-                        } else {
-                            alumnoCicloCursoTemp.setRegistroActivo(0);
-                            alumnoCicloCursoDAO.update(alumnoCicloCursoTemp);
-                        }
-                    } else {
+                if (isRetiradoCiclo) {
+                    if (!retirado) {
+                        retirado = true;
                         alumnoCicloCursoTemp.setFechaModificacion(today.toDate());
                         alumnoCicloCursoTemp.setNota(matriculaCurso.getNotaFinal());
                         alumnoCicloCursoTemp.setEstado(matriculaCurso.getEstadoEnum());
@@ -702,24 +686,49 @@ public class PromedioReviewServiceImp implements PromedioReviewService {
                         alumnoCicloCursoTemp.setVecesCursadoRegular(this.countVecesAnterioresReg(matriculasCursosByAlumno, cicloAcademico, curso) + 1);
                         alumnoCicloCursoDAO.update(alumnoCicloCursoTemp);
 
-                        alumnoCicloCursoTemp.getId();
+                    } else {
+                        alumnoCicloCursoTemp.setRegistroActivo(0);
+                        alumnoCicloCursoDAO.update(alumnoCicloCursoTemp);
+                    }
+                } else {
+                    if (map.get(alumnoCiclo.getId() + "-" + curso.getId()) == null) {
+
+                        alumnoCicloCursoTemp.setFechaModificacion(today.toDate());
+                        alumnoCicloCursoTemp.setNota(matriculaCurso.getNotaFinal());
+                        alumnoCicloCursoTemp.setEstado(matriculaCurso.getEstadoEnum());
+                        alumnoCicloCursoTemp.setUserModificacion(ds.getUsuario());
+                        if (curso.isTieneCreditosVariables()) {
+                            alumnoCicloCursoTemp.setCreditos(matriculaCurso.getCreditosAprobados());
+                        } else {
+                            alumnoCicloCursoTemp.setCreditos(matriculaCurso.getCreditos());
+                        }
+                        Integer aprobado = evaluateEstaAprobado(matriculaCurso, alumno);
+                        alumnoCicloCursoTemp.setEstaAprobado(aprobado);
+                        alumnoCicloCursoTemp.setVecesCursado(this.countVecesAnteriores(matriculasCursosByAlumno, cicloAcademico, curso) + 1);
+                        alumnoCicloCursoTemp.setVecesCursadoRegular(this.countVecesAnterioresReg(matriculasCursosByAlumno, cicloAcademico, curso) + 1);
+                        alumnoCicloCursoDAO.update(alumnoCicloCursoTemp);
+                    } else {
+                        alumnoCicloCursoTemp.setRegistroActivo(0);
+                        alumnoCicloCursoDAO.update(alumnoCicloCursoTemp);
                     }
                 }
+                map.put(alumnoCiclo.getId() + "-" + curso.getId(), alumnoCicloCursoTemp);
             }
-            //  this.promediarHistorialNotas2(alumno, cicloAcademico, matriculasCursosByAlumno, usuario, today);
-
-        } catch (Exception e) {
-            String excepcion = this.messageException(e);
-            String error = "####Error en el hilo alumno " + alumno.getId()
-                    + " ciclo " + cicloAcademico.getId();
-            logger.error(error);//, e 
-            visorCalculoNotas.agregarError(error);
-            //LoggerAccionEnum.RECAUDA_DEUDA_HANDLE_MESSAGE;
-
-            auditorService.auditTrasladoNotasToHistorial(alumno, curso, cicloAcademico, matriculaCurso, ds, e);
-            e.printStackTrace();
-            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
         }
+        //  this.promediarHistorialNotas2(alumno, cicloAcademico, matriculasCursosByAlumno, usuario, today);
+
+//        } catch (Exception e) {
+//            String excepcion = this.messageException(e);
+//            String error = "####Error en el hilo alumno " + alumno.getId()
+//                    + " ciclo " + cicloAcademico.getId();
+//            logger.error(error);//, e 
+//            visorCalculoNotas.agregarError(error);
+//            //LoggerAccionEnum.RECAUDA_DEUDA_HANDLE_MESSAGE;
+//
+//            auditorService.auditTrasladoNotasToHistorial(alumno, curso, cicloAcademico, matriculaCurso, ds, e);
+//            e.printStackTrace();
+//            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+//        }
     }
 
     private List fillList(List lista) {
