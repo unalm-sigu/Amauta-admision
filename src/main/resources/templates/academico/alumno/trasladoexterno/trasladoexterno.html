@@ -75,9 +75,9 @@
                             <div class="row" v-if="tramiteTrasladoActivo.id != null">
                                 <div class="col-md-12">
                                     <div class="col-md-7">
-                                        <multiselect v-model="almCursCurricula" 
-                                                     v-bind:options='listAlumnoCursoCOptions'
-                                                     v-bind:custom-label="customLabel"
+                                        <multiselect v-model="curso" 
+                                                     v-bind:options='cursos'
+                                                     v-on:search-change="loadCursos"
                                                      track-by='id'
                                                      label="nombre"
                                                      placeholder="Seleccionar curso"
@@ -87,9 +87,9 @@
                                                      v-bind:preselect="false"
                                                      >
                                             <template slot="option" slot-scope="props">
-                                                <span class="option__title text-primary"><b>{{ props.option.curso.nombre }} - {{ props.option.curso.codigo }}</b> </span>
+                                                <span class="option__title text-primary"><b>{{ props.option.nombre }} - {{ props.option.codigo }}</b> </span>
                                                 <div class="option__desc">
-                                                    <span class="option__small text-default"><b>Créditos: </b>  {{ props.option.curso.creditos}}  :  <b>Número de Ciclo Académico: </b>  {{ props.option.numeroCiclo }}</span>
+                                                    <span class="option__small text-default"><b>Créditos: </b>  {{ props.option.creditos}} </span>
                                                 </div>
                                             </template>
                                             <template slot="noOptions">La lista se encuentra vacía</template>
@@ -109,7 +109,7 @@
                                             <thead>
                                                 <tr>
                                                     <th class="col-md-7" >Curso</th>
-                                                    <th class="col-md-1 text-center" >Nota</th>
+                                                    <th class="col-md-1 text-center" v-if="tramiteTrasladoActivo.tipoTraslado == 'INTES'">Nota</th>
                                                     <th class="col-md-3 text-center">Créditos</th>
                                                     <th class="col-md-1"></th>
                                                 </tr>
@@ -135,7 +135,7 @@
                                                     <td  class="v-middle"></td> 
                                                 </tr>
                                             </tbody>
-                                            <tbody id="formTraslado" data-parsley-validate="true">
+                                            <tbody v-else="" id="formTraslado" data-parsley-validate="true">
                                                 <tr v-for="(item, index) in listCursoConvalidado">
                                                     <td class="v-middle">
                                                         <span class="text-primary"><b>{{item.curso.nombre}}</b></span>

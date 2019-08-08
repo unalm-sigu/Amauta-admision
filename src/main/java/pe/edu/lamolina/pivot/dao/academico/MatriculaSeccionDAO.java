@@ -63,6 +63,7 @@ public interface MatriculaSeccionDAO extends EasyDAO<MatriculaSeccion> {
 
     void deleteAllByCiclo(CicloAcademico ciclo);
 
+    public List<MatriculaSeccion> allByMatriculaResumenes(List<MatriculaResumen> asList);
     List<MatriculaSeccion> allByGrupoSeccion(List<GrupoSeccion> gruposSeccion, EstadoMatriculaEnum... estadosMatriculaSeccion);
 
 }

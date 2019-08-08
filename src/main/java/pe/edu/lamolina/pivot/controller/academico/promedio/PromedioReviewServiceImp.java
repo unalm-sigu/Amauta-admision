@@ -5,11 +5,10 @@ import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -35,14 +34,19 @@ import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.SituacionAcademica;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
+import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.RCI;
+import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.RCU;
+import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.RET;
 import pe.edu.lamolina.model.enums.EstadoTramiteEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.NotaLetraEnum;
 import pe.edu.lamolina.model.enums.OrigenDataSituacionAcademicaEnum;
 import pe.edu.lamolina.model.enums.SituacionAcademicaEnum;
+import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.tramite.EstadoTramite;
 import pe.edu.lamolina.model.tramite.Reincorporacion;
+import pe.edu.lamolina.model.tramite.RetiroCiclo;
 import pe.edu.lamolina.pivot.controller.academico.situacionacademica.SituacionAcademicaService;
 import pe.edu.lamolina.pivot.controller.auditor.AuditorService;
 import pe.edu.lamolina.pivot.controller.interceptor.InterceptorService;
@@ -140,33 +144,47 @@ public class PromedioReviewServiceImp implements PromedioReviewService {
 //    @Async
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = false)
-    public void trasladarInformcionForHistorial(MatriculaResumen matriculaResumen, List<MatriculaCurso> matriculasCurso, List<MatriculaSeccion> matriculasSeccion, DataSessionPivot ds, boolean calcularSituacion) {
-        visorCalculoNotas.incrementarCantidad();
-        List<MatriculaCurso> matriculasCursoByAlumno = matriculasCurso.stream()
-                .filter(x -> x.getMatriculaResumen().getAlumno().getId().equals(matriculaResumen.getAlumno().getId()))
-                .collect(Collectors.toList());
-        List<MatriculaSeccion> matriculasSeccionByAlumno = matriculasSeccion.stream().filter(x -> x.getMatriculaResumen().getId().equals(matriculaResumen.getId())).collect(Collectors.toList());
-        for (MatriculaCurso matriculaCurso : matriculasCursoByAlumno) {
-            MatriculaSeccion matriculaSeccion = matriculasSeccionByAlumno
-                    .stream().filter(x -> x.getSeccion().getGrupoSeccion().getCurso().getId().equals(matriculaCurso.getCurso().getId())).findFirst().orElse(null);
-            if (matriculaSeccion != null && matriculaSeccion.getSeccion().getGrupoSeccion().isEstadoGrupoCerrado()) {
-                this.trasladoPromediosSource2(matriculaCurso, matriculasCursoByAlumno, ds);
+    public void trasladarInformcionForHistorial(List<MatriculaResumen> matriculaResumenes, List<MatriculaCurso> allMatriculasCursosAlumno,
+            List<MatriculaSeccion> matriculasSeccion, DataSessionPivot ds, Map<Long, RetiroCiclo> mapRetiroByCicloAlumno,
+            Map<Long, List<AlumnoCicloCurso>> mapAlumnoCicloCurso,
+            Map<Long, AlumnoCiclo> mapalumnoCiclo,
+            SituacionAcademica situacionAcademicaComodin,
+            boolean calcularSituacion) {
+//        visorCalculoNotas.incrementarCantidad();
+
+        for (MatriculaResumen matriculaResumen : matriculaResumenes) {
+//            logger.debug("##################Matricula {} {} {} ", matriculaResumen.getCicloAcademico().getId(), matriculaResumen.getCicloAcademico().getYear(), matriculaResumen.getCicloAcademico().getNumeroCiclo());
+
+            List<MatriculaCurso> matriculasCursoByAlumno = allMatriculasCursosAlumno.stream()
+                    .filter(x -> x.getMatriculaResumen().getId().equals(matriculaResumen.getId()))
+                    .collect(Collectors.toList());
+            List<MatriculaSeccion> matriculasSeccionByAlumno = matriculasSeccion.stream().filter(x -> x.getMatriculaResumen().getId().equals(matriculaResumen.getId())).collect(Collectors.toList());
+            for (MatriculaCurso matriculaCurso : matriculasCursoByAlumno) {
+                MatriculaSeccion matriculaSeccion = matriculasSeccionByAlumno
+                        .stream().filter(x -> x.getSeccion().getGrupoSeccion().getCurso().getId().equals(matriculaCurso.getCurso().getId())).findFirst().orElse(null);
+                if (matriculaSeccion != null && matriculaSeccion.getSeccion().getGrupoSeccion().isEstadoGrupoCerrado()) {
+                    this.trasladoPromediosSource2(matriculaCurso, allMatriculasCursosAlumno, mapRetiroByCicloAlumno, mapAlumnoCicloCurso, mapalumnoCiclo, situacionAcademicaComodin, ds);
+                }
+            }
+            if (calcularSituacion) {
+                CicloAcademico cicloActivo = cicloAcademicoDAO.findActivo(matriculaResumen.getAlumno().getModalidadEstudio());
+                List<AlumnoCicloCurso> allOperativesByModalidadEstudio = alumnoCicloCursoDAO.allOperativesByAlumno(matriculaResumen.getAlumno());
+                this.promediarAllCicloSync(matriculaResumen.getAlumno(), cicloActivo, cicloAcademicoDAO.all(), allOperativesByModalidadEstudio, ds);
             }
         }
-        if (calcularSituacion) {
-            CicloAcademico cicloActivo = cicloAcademicoDAO.findActivo(matriculaResumen.getAlumno().getModalidadEstudio());
-            List<AlumnoCicloCurso> allOperativesByModalidadEstudio = alumnoCicloCursoDAO.allOperativesByAlumno(matriculaResumen.getAlumno());
-//            this.promediarAllCicloSync(matriculaResumen.getAlumno(), cicloActivo, cicloAcademicoDAO.all(), allOperativesByModalidadEstudio, ds);
-        }
-        visorCalculoNotas.incrementarProcesados();
-        visorCalculoNotas.reporte();
+//        visorCalculoNotas.incrementarProcesados();
+//        visorCalculoNotas.reporte();
     }
 
-    public void trasladoPromediosSource2(MatriculaCurso matriculaCurso, List<MatriculaCurso> matriculaCursos, DataSessionPivot ds) {
+    public void trasladoPromediosSource2(MatriculaCurso matriculaCurso, List<MatriculaCurso> matriculaCursos, Map<Long, RetiroCiclo> mapRetiro,
+            Map<Long, List<AlumnoCicloCurso>> mapAlumnoCicloCurso,
+            Map<Long, AlumnoCiclo> mapalumnoCiclo,
+            SituacionAcademica situacionAcademicaComodin,
+            DataSessionPivot ds) {
         Alumno alumno = matriculaCurso.getMatriculaResumen().getAlumno();
         CicloAcademico cicloAcademico = matriculaCurso.getMatriculaResumen().getCicloAcademico();
         Curso curso = matriculaCurso.getCurso();
-        generarHistorialNotas2(alumno, curso, matriculaCurso, cicloAcademico, matriculaCursos, ds);
+        generarHistorialNotas2(alumno, curso, matriculaCurso, cicloAcademico, matriculaCursos, mapRetiro, mapAlumnoCicloCurso, mapalumnoCiclo, situacionAcademicaComodin, ds);
     }
 
     @Override
@@ -182,7 +200,7 @@ public class PromedioReviewServiceImp implements PromedioReviewService {
 
         DateTime today = new DateTime();
 
-        generarHistorialNotas(alumno, curso, matriculaCurso, cicloAcademico, ds);
+        generarHistorialNotas(alumno, curso, matriculaCurso, cicloAcademico, null, ds);
 
         AlumnoCiclo alumnoCicloSiguiente = alumnoCicloDAO.findActiveSiguienteByAlumno(alumno, cicloAcademico);
         MatriculaCurso matriculaCursoSiguiente = null;
@@ -205,19 +223,12 @@ public class PromedioReviewServiceImp implements PromedioReviewService {
         }
         alumno = alumnoDAO.findAllInfo(alumno.getId());
         List<AlumnoCicloCurso> alumnoCicloCursos = alumnoCicloCursoDAO.allOperativesByAlumno(alumno);
-//        this.promediarAllCicloSync(alumno, cicloActivo, cicloAcademicoDAO.all(), alumnoCicloCursos, ds);
+        this.promediarAllCicloSync(alumno, cicloActivo, cicloAcademicoDAO.all(), alumnoCicloCursos, ds);
     }
 
     @Override
     @Transactional
-    public void promediarAllCicloSync(Alumno alumno, CicloAcademico cicloActivo, List<CicloAcademico> ciclos,
-            List<AlumnoCicloCurso> allOperativesByModalidadEstudioDB, List<AlumnoCiclo> allAlumnoCiclos,
-            Map<String, SituacionAcademica> mapSituacionAcademicas,
-            Map<Long, List<AlumnoCicloCurso>> mapAllCicloCurso,
-            Map<Long, AlumnoCiclo> mapAllAlumnoCicloByCiclo,
-            Egresado egresado,
-            List<Reincorporacion> reincorporacionesByAlumno,
-            DataSessionPivot ds) {
+    public void promediarAllCicloSync(Alumno alumno, CicloAcademico cicloActivo, List<CicloAcademico> ciclos, List<AlumnoCicloCurso> allOperativesByModalidadEstudio, DataSessionPivot ds) {
         contadorComponent.incrementar();
         alumno = alumno.clone();
         logger.info("Promediar Alumno {}", alumno.getCodigo());
@@ -225,16 +236,16 @@ public class PromedioReviewServiceImp implements PromedioReviewService {
             throw new PhobosException("No se puede calcular la situación, en situacion Renunciante.");
         }
         try {
-            SituacionAcademica situacionTrika = mapSituacionAcademicas.get(SituacionAcademicaEnum.S_T.getValue());
-            List<AlumnoCicloCurso> allOperativesByModalidadEstudioClone = new ArrayList(fillList(allOperativesByModalidadEstudioDB));
-            this.analizeAlumnoCiclos(alumno, fillList(allOperativesByModalidadEstudioDB), mapAllCicloCurso, allAlumnoCiclos);
 
-            this.promediarAlumno(alumno, cicloActivo, allOperativesByModalidadEstudioClone, allAlumnoCiclos, situacionTrika, mapAllCicloCurso, ciclos, ds); //cambia situacion academica
-            this.analizarEgresado(alumno, mapSituacionAcademicas.get(SituacionAcademicaEnum.S_EM.getValue()), mapAllAlumnoCicloByCiclo, egresado, ds);
+            this.analizeAlumnoCiclos(alumno, allOperativesByModalidadEstudio);
+            allOperativesByModalidadEstudio = alumnoCicloCursoDAO.allOperativesByAlumno(alumno);
+
+            this.promediarAlumno(alumno, cicloActivo, allOperativesByModalidadEstudio, ds); //cambia situacion academica
+            this.analizarEgresado(alumno, ds);
             //Crea alumnociclos con nmat
-            this.analizarDesertor(alumno, cicloActivo, ciclos, allAlumnoCiclos, ds); //slw
-            this.analizeReincorporacion(alumno, cicloActivo, reincorporacionesByAlumno, allAlumnoCiclos);
-            this.analizedCastigados(alumno, cicloActivo, allAlumnoCiclos, ciclos);
+            this.analizarDesertor(alumno, cicloActivo, ciclos, ds); //slw
+            this.analizeReincorporacion(alumno, cicloActivo);
+            this.analizedCastigados(alumno, cicloActivo);
 
             Alumno alumnoUpd = new Alumno(alumno.getId());
             alumnoUpd.setPromedioProcesado(Boolean.TRUE);
@@ -255,29 +266,15 @@ public class PromedioReviewServiceImp implements PromedioReviewService {
 
     }
 
-    private List fillList(List list) {
-        if (list == null) {
-            return new ArrayList();
-        }
-        return list;
-    }
-
-    public void analizedCastigados(Alumno alumno, CicloAcademico cicloActivo, List<AlumnoCiclo> allAlumnoCiclos, List<CicloAcademico> allCiclos) {
+    public void analizedCastigados(Alumno alumno, CicloAcademico cicloActivo) {
         if (alumno.getSituacionAcademica().isTrikeado() || alumno.getSituacionAcademica().isCodigoS6()) {
             ModalidadEstudioEnum MODALIDAD_ESTUDIO_ENUM = alumno.getModalidadEstudio().getOperativeModalidadEnum();
 
-            AlumnoCiclo alumnoCicloSuspendido = allAlumnoCiclos.stream().filter(x -> x.getCicloAcademico().isTipoRegular() && x.getSituacionFinal().getCodigoEnum() == alumno.getSituacionAcademica().getCodigoEnum()).findAny().orElse(null); //alumnoCicloDAO.findLastByAlumnoAndSituacion(alumno, alumno.getSituacionAcademica().getCodigoEnum());
+            AlumnoCiclo alumnoCicloSuspendido = alumnoCicloDAO.findLastByAlumnoAndSituacion(alumno, alumno.getSituacionAcademica().getCodigoEnum());
             CicloAcademico cicloSuspendido = alumnoCicloSuspendido.getCicloAcademico();
-            if (MODALIDAD_ESTUDIO_ENUM == ModalidadEstudioEnum.ESP) {
-                MODALIDAD_ESTUDIO_ENUM = ModalidadEstudioEnum.EPG;
-            }
-            if (MODALIDAD_ESTUDIO_ENUM == ModalidadEstudioEnum.VIS) {
-                MODALIDAD_ESTUDIO_ENUM = ModalidadEstudioEnum.PRE;
-            }
-            ModalidadEstudioEnum estudioEnum = MODALIDAD_ESTUDIO_ENUM;
-            CicloAcademico cicloInha = allCiclos.stream().filter(x -> x.getModalidadEstudio().getCodigoEnum() == estudioEnum && x.getCodigoInt() > cicloSuspendido.getCodigoInt()).findAny().orElse(null);
-//            cicloAcademicoDAO.findSiguienteRegularActivo(cicloSuspendido, MODALIDAD_ESTUDIO_ENUM);
-            AlumnoCiclo alumnoCicloInha = allAlumnoCiclos.stream().filter(x -> Objects.equals(x.getCicloAcademico().getId(), cicloInha.getId())).findAny().orElse(null);// alumnoCicloDAO.findByAlumnoCiclo(alumno, cicloInha);
+
+            CicloAcademico cicloInha = cicloAcademicoDAO.findSiguienteRegularActivo(cicloSuspendido, MODALIDAD_ESTUDIO_ENUM);
+            AlumnoCiclo alumnoCicloInha = alumnoCicloDAO.findByAlumnoCiclo(alumno, cicloInha);
 
 //            CicloAcademico siguienteCicloRegularHabil = cicloAcademicoDAO.findSiguienteRegularActivo(cicloInha, MODALIDAD_ESTUDIO_ENUM);
 //            CicloAcademico siguienteCicloNivHabil = cicloAcademicoDAO.findSiguienteNivelacionActivo(cicloActivo, MODALIDAD_ESTUDIO_ENUM);
@@ -290,14 +287,14 @@ public class PromedioReviewServiceImp implements PromedioReviewService {
         }
     }
 
-    private void analizeReincorporacion(Alumno alumno, CicloAcademico cicloActivo, List<Reincorporacion> reincorporacionesByAlumno, List<AlumnoCiclo> alumnoCiclos) {
-//        List<Reincorporacion> reincorporacionesByAlumno = reincorporacionDAO.allByEstadoTramiteAndAlumnoRei(alumno, new EstadoTramite(EstadoTramiteEnum.SOL_ACEP.getId()));
+    private void analizeReincorporacion(Alumno alumno, CicloAcademico cicloActivo) {
+        List<Reincorporacion> reincorporacionesByAlumno = reincorporacionDAO.allByEstadoTramiteAndAlumnoRei(alumno, new EstadoTramite(EstadoTramiteEnum.SOL_ACEP.getId()));
         if (!reincorporacionesByAlumno.isEmpty()) {
             Collections.sort(reincorporacionesByAlumno, (p1, p2) -> Integer.valueOf(p2.getCicloReincorporacion().getCodigo()).compareTo(Integer.valueOf(p1.getCicloReincorporacion().getCodigo())));
             CicloAcademico cicloAcademicoRei = reincorporacionesByAlumno.get(0).getCicloReincorporacion();
 
             if (cicloActivo.equals(cicloAcademicoRei)) {
-                AlumnoCiclo alumnoCiclo = alumnoCiclos.stream().filter(x -> x.getCicloAcademico().isTipoRegular() && x.getSituacionFinal().isCodigoD()).findAny().orElse(null);//alumnoCicloDAO.findLastNotInSituacion(alumno, SituacionAcademicaEnum.S_D);
+                AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findLastNotInSituacion(alumno, SituacionAcademicaEnum.S_D);
                 if (alumnoCiclo.getSituacionFinal().isCodigoD()) { //to delete
                     alumno.setSituacionAcademica(alumnoCiclo.getSituacionInicio());
                 } else {
@@ -308,10 +305,10 @@ public class PromedioReviewServiceImp implements PromedioReviewService {
         }
     }
 
-    private void analizeAlumnoCiclos(Alumno alumno, List<AlumnoCicloCurso> alumnoCicloCursos, Map<Long, List<AlumnoCicloCurso>> mapTipoCurso, List<AlumnoCiclo> alumnosCiclosByAlumno) {
+    private void analizeAlumnoCiclos(Alumno alumno, List<AlumnoCicloCurso> alumnoCicloCursos) {
         logger.debug("analizeAlumnoCiclos");
         //Todoas los alumnos ciclos
-
+        List<AlumnoCiclo> alumnosCiclosByAlumno = alumnoCicloDAO.allByAlumno(alumno);
         List<String> ciclosStr = alumnosCiclosByAlumno.stream()
                 .map(x -> x.getCicloAcademico().getCodigo())
                 .collect(Collectors.toList());
@@ -338,7 +335,7 @@ public class PromedioReviewServiceImp implements PromedioReviewService {
                     .collect(Collectors.toList());
             alumnosCiclosCursosByAluCic = this.analizedAlumnoCicloCursosByCiclo(alumnosCiclosCursosByAluCic);
             if (alumnosCiclosCursosByAluCic.isEmpty()) {
-                int count = fillList(mapTipoCurso.get(alumnoCiclo.getId())).size();
+                Long count = alumnoCicloCursoDAO.countByAlumnoCiclo(alumnoCiclo);
                 if (count == 0) {
                     alumnoCicloDAO.delete(alumnoCiclo);
                     if (idx > 0) {
@@ -422,16 +419,17 @@ public class PromedioReviewServiceImp implements PromedioReviewService {
         }
     }
 
-    private void analizarEgresado(Alumno alumno, SituacionAcademica situacionAcademicaEM, Map<Long, AlumnoCiclo> mapAllAlumnoCicloByCiclo, Egresado egresado, DataSessionPivot ds) {
-//        Egresado egresado = egresadoDAO.findPrincipalByAlumno(alumno);s
+    private void analizarEgresado(Alumno alumno, DataSessionPivot ds) {
+        Egresado egresado = egresadoDAO.findPrincipalByAlumno(alumno);
         if (egresado != null && egresado.getCicloAcademico() != null) {
 
-//            SituacionAcademica situacionAcademicaEM = situacionAcademicaDAO.findByCodigo(SituacionAcademicaEnum.S_EM.getValue());
-            AlumnoCiclo alumnoCicloEgresado = mapAllAlumnoCicloByCiclo.get(alumno.getCicloActivo().getId());//alumnoCicloDAO.findByAlumnoCiclo(alumno, alumno.getCicloActivo());
+            SituacionAcademica situacionAcademicaEM = situacionAcademicaDAO.findByCodigo(SituacionAcademicaEnum.S_EM.getValue());
+
+            AlumnoCiclo alumnoCicloEgresado = alumnoCicloDAO.findByAlumnoCiclo(alumno, alumno.getCicloActivo());
             alumnoCicloEgresado.setSituacionFinal(situacionAcademicaEM);
             alumnoCicloDAO.update(alumnoCicloEgresado);
 
-            AlumnoCiclo alumnoCicloActiveAntrior = mapAllAlumnoCicloByCiclo.get(egresado.getCicloAcademico().getId());//alumnoCicloDAO.findActiveAnteriorByAlumno(alumno, egresado.getCicloAcademico());
+            AlumnoCiclo alumnoCicloActiveAntrior = alumnoCicloDAO.findActiveAnteriorByAlumno(alumno, egresado.getCicloAcademico());
             if (alumnoCicloActiveAntrior != null) {
                 alumnoCicloActiveAntrior.setSituacionFinal(situacionAcademicaEM);
                 alumnoCicloDAO.update(alumnoCicloActiveAntrior);
@@ -452,27 +450,7 @@ public class PromedioReviewServiceImp implements PromedioReviewService {
         alumno = alumnoDAO.findAllInfo(alumno.getId());
         CicloAcademico cicloActivo = cicloAcademicoDAO.findActivo(alumno.getModalidadEstudio().getOperativeModalidadEnum());
         List<AlumnoCicloCurso> alumnoCicloCursos = alumnoCicloCursoDAO.allOperativesByAlumno(alumno);
-//        this.promediarAllCicloSync(alumno, cicloActivo, cicloAcademicoDAO.all(), alumnoCicloCursos, ds);
-    }
-
-    @Override
-    @Transactional(readOnly = false)
-    public void calulcarSituacionAcademicaReview(Alumno alumno, CicloAcademico cicloActivo,
-            List<CicloAcademico> ciclos,
-            List<AlumnoCicloCurso> allOperativesByModalidadEstudioDB,
-            List<AlumnoCiclo> allAlumnoCiclos,
-            Map<String, SituacionAcademica> mapSituacionAcademicas,
-            Map<Long, List<AlumnoCicloCurso>> mapAllCicloCurso,
-            Map<Long, AlumnoCiclo> mapAllAlumnoCicloByCiclo,
-            Egresado egresado,
-            List<Reincorporacion> reincorporacionesByAlumno,
-            DataSessionPivot ds) {
-//        contadorComponent.iniciar(1);
-        if (ds.getFechaAccionAudit() == null) {
-            ds.setFechaAccionAudit(new Date());
-        }
-//        Map<Long, List<AlumnoCicloCurso>> mapAllCicloCurso = TypesUtil.convertListToMap("alumnoCiclo.id", allAlumnoCicloCursos);
-        this.promediarAllCicloSync(alumno, cicloActivo, ciclos, allOperativesByModalidadEstudioDB, allAlumnoCiclos, mapSituacionAcademicas, mapAllCicloCurso, mapAllAlumnoCicloByCiclo, egresado, reincorporacionesByAlumno, ds);
+        this.promediarAllCicloSync(alumno, cicloActivo, cicloAcademicoDAO.all(), alumnoCicloCursos, ds);
     }
 
     @Async
@@ -496,11 +474,9 @@ public class PromedioReviewServiceImp implements PromedioReviewService {
     }
 
     @Transactional(propagation = Propagation.SUPPORTS)
-    private void promediarAlumno(Alumno alumno, CicloAcademico cicloActivo, List<AlumnoCicloCurso> allOperativesByModalidadEstudio,
-            List<AlumnoCiclo> allAlumnoCiclosBD, SituacionAcademica situacionTrika,
-            Map<Long, List<AlumnoCicloCurso>> mapAllCicloCurso, List<CicloAcademico> allCiclos, DataSessionPivot ds) {
+    private void promediarAlumno(Alumno alumno, CicloAcademico cicloActivo, List<AlumnoCicloCurso> allOperativesByModalidadEstudio, DataSessionPivot ds) {
 
-        List<AlumnoCiclo> alumnosCiclosByAlumno = allAlumnoCiclosBD.stream().filter(x -> x.isMatriculado()).collect(Collectors.toList());
+        List<AlumnoCiclo> alumnosCiclosByAlumno = alumnoCicloDAO.allActivesByAlumnoAsc(alumno);
         List<String> ciclos = alumnosCiclosByAlumno.stream().map(x -> x.getCicloAcademico().getCodigo()).collect(Collectors.toList());
         logger.debug("Alumno Id {}, Codigo {}", alumno.getId(), alumno.getCodigo());
         logger.debug("Ciclos matriculados del alumno {}", String.join(",", ciclos));
@@ -515,7 +491,7 @@ public class PromedioReviewServiceImp implements PromedioReviewService {
             List<AlumnoCicloCurso> alumnoCicloCursoAnteriores = allOperativesByModalidadEstudio.stream()
                     .filter(x -> x.getAlumnoCiclo().getCicloAcademico().getCodigoInt() < ciclo.getCodigoInt())
                     .collect(Collectors.toList());
-            this.promediarHistorialNotas(alumno, cicloActivo, ciclo, ds, null, alumnoCicloCursoByCiclo, alumnoCicloCursoAnteriores, allAlumnoCiclosBD, allOperativesByModalidadEstudio, situacionTrika, mapAllCicloCurso, allCiclos);
+            this.promediarHistorialNotas(alumno, cicloActivo, ciclo, ds, null, alumnoCicloCursoByCiclo, alumnoCicloCursoAnteriores);
         }
 
     }
@@ -566,6 +542,7 @@ public class PromedioReviewServiceImp implements PromedioReviewService {
             Curso curso,
             MatriculaCurso matriculaCurso,
             CicloAcademico cicloAcademico,
+            Map<Long, RetiroCiclo> mapRetiro,
             DataSessionPivot ds) {
         try {
             logger.debug("generar historial notas, alumno {} ciclo {}", alumno.getId(), cicloAcademico.getId());
@@ -642,15 +619,30 @@ public class PromedioReviewServiceImp implements PromedioReviewService {
             MatriculaCurso matriculaCurso,
             CicloAcademico cicloAcademico,
             List<MatriculaCurso> matriculasCursosByAlumno,
+            Map<Long, RetiroCiclo> mapRetiro,
+            Map<Long, List<AlumnoCicloCurso>> mapAlumnoCicloCurso,
+            Map<Long, AlumnoCiclo> mapalumnoCiclo,
+            SituacionAcademica situacionAcademicaComodin,
             DataSessionPivot ds) {
-        try {
-            //  logger.debug("generar historial notas, alumno {} ciclo {}", alumno.getId(), cicloAcademico.getId());
-            AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findByAlumnoCiclo(alumno, cicloAcademico);
-            AlumnoCicloCurso alumnoCicloCurso = alumnoCicloCursoDAO.findByAlumnoCicloCurso(alumno, cicloAcademico, curso);
-            DateTime today = new DateTime(ds.getFechaAccionAudit());
+//        try {
+        //  logger.debug("generar historial notas, alumno {} ciclo {}", alumno.getId(), cicloAcademico.getId());
+//            Map<Long, AlumnoCiclo> mapalumnoCiclo = TypesUtil.convertListToMap("cicloAcademico.id", matriculasCursosByAlumno);
+//            Map<Long, List<AlumnoCicloCurso>> mapAlumnoCicloCurso = TypesUtil.convertListToMap("curso.id", matriculasCursosByAlumno);
+//        logger.debug("######################################################################## Ciclo Alumno ciclo {} {} {} ", cicloAcademico.getId(), cicloAcademico.getYear(), cicloAcademico.getNumeroCiclo());
 
-            if (alumnoCiclo == null) {
-                SituacionAcademica situacionAcademicaComodin = situacionAcademicaDAO.findByCodigo(SituacionAcademicaEnum.S_00.getValue());
+        RetiroCiclo retiroCiclo = mapRetiro.get(cicloAcademico.getId());
+        Boolean isRetiradoCiclo = (retiroCiclo != null && retiroCiclo.getEstadoEnum() == TramiteEstadoEnum.ACEP);
+        AlumnoCiclo alumnoCiclo = mapalumnoCiclo.get(cicloAcademico.getId());
+        List<AlumnoCicloCurso> alumnoCicloCursoTem = new ArrayList<>();
+        if (alumnoCiclo != null) {
+            List<AlumnoCicloCurso> alumnoCicloCurso = fillList(mapAlumnoCicloCurso.get(alumnoCiclo.getId()));
+            Map<Long, List<AlumnoCicloCurso>> mapAlumnoCicloCursoByCurso = TypesUtil.convertListToMapList("curso.id", alumnoCicloCurso);
+            alumnoCicloCursoTem = fillList(mapAlumnoCicloCursoByCurso.get(curso.getId())); // Por si hay cursos repetidos en el ciclo
+        }
+        DateTime today = new DateTime(ds.getFechaAccionAudit());
+
+        if (alumnoCiclo == null && !isRetiradoCiclo) {
+            if (!Arrays.asList(RET.name(), RCI.name()).contains(matriculaCurso.getMatriculaResumen().getEstado())) {
                 alumnoCiclo = new AlumnoCiclo();
                 alumnoCiclo.defaultValuesToCreate(alumno, cicloAcademico, ds.getUsuario(), today);
                 alumnoCiclo.setEstadoEnum(matriculaCurso.getMatriculaResumen().getEstadoEnum());
@@ -658,55 +650,107 @@ public class PromedioReviewServiceImp implements PromedioReviewService {
                 alumnoCiclo.setEstaAprobado(BigDecimal.ZERO.intValue());
                 alumnoCiclo.setCreditosConvalidados(BigDecimal.ZERO.intValue());
                 alumnoCicloDAO.save(alumnoCiclo);
-                alumnoCiclo.getId();
-            } else {
-                AlumnoCiclo alumnoCicloUpd = new AlumnoCiclo(alumnoCiclo.getId());
-                alumnoCicloUpd.setEstadoEnum(EstadoMatriculaEnum.MAT);
-                alumnoCicloDAO.updateColumns(alumnoCicloUpd, "estado");
+                logger.debug("########################################################################################## PARA GUARDAR {} {} {} {}", cicloAcademico.getId(), cicloAcademico.getYear(), cicloAcademico.getNumeroCiclo(), matriculaCurso.getEstado());
+                mapalumnoCiclo.put(cicloAcademico.getId(), alumnoCiclo);
             }
 
-            if (alumnoCicloCurso == null) {
-                alumnoCicloCurso = new AlumnoCicloCurso();
-                alumnoCicloCurso.defaultValuesToCreate(alumnoCiclo, curso, matriculaCurso, ds.getUsuario(), today);
+        } else if (alumnoCiclo != null && !isRetiradoCiclo) {
+            AlumnoCiclo alumnoCicloUpd = new AlumnoCiclo(alumnoCiclo.getId());
+            alumnoCicloUpd.setEstadoEnum(EstadoMatriculaEnum.MAT);
+            alumnoCicloDAO.updateColumns(alumnoCicloUpd, "estado");
+        }
+
+        if (alumnoCicloCursoTem.isEmpty()) {
+            if (!Arrays.asList(RET.name(), RCI.name(), RCU.name()).contains(matriculaCurso.getEstado())) {
+
+                AlumnoCicloCurso alumnoCicloCursoNew = new AlumnoCicloCurso();
+                alumnoCicloCursoNew.defaultValuesToCreate(alumnoCiclo, curso, matriculaCurso, ds.getUsuario(), today);
                 Integer aprobado = evaluateEstaAprobado(matriculaCurso, alumno);
-                alumnoCicloCurso.setEstaAprobado(aprobado);
+                alumnoCicloCursoNew.setEstaAprobado(aprobado);
 
                 //  alumnoCicloCurso.setVecesCursado(alumnoCicloCursoDAO.countByCursoAlumnoAnterioresCiclo(curso, alumno, cicloAcademico).intValue() + 1);
-                alumnoCicloCurso.setVecesCursado(this.countVecesAnteriores(matriculasCursosByAlumno, cicloAcademico, curso) + 1);
-                alumnoCicloCurso.setVecesCursadoRegular(this.countVecesAnterioresReg(matriculasCursosByAlumno, cicloAcademico, curso) + 1);
-                alumnoCicloCursoDAO.save(alumnoCicloCurso);
-                alumnoCicloCurso.getId();
-            } else {
-                alumnoCicloCurso.setFechaModificacion(today.toDate());
-                alumnoCicloCurso.setNota(matriculaCurso.getNotaFinal());
-                alumnoCicloCurso.setEstado(matriculaCurso.getEstadoEnum());
-                alumnoCicloCurso.setUserModificacion(ds.getUsuario());
-                if (curso.isTieneCreditosVariables()) {
-                    alumnoCicloCurso.setCreditos(matriculaCurso.getCreditosAprobados());
-                } else {
-                    alumnoCicloCurso.setCreditos(matriculaCurso.getCreditos());
-                }
-                Integer aprobado = evaluateEstaAprobado(matriculaCurso, alumno);
-                alumnoCicloCurso.setEstaAprobado(aprobado);
-                alumnoCicloCurso.setVecesCursado(this.countVecesAnteriores(matriculasCursosByAlumno, cicloAcademico, curso) + 1);
-                alumnoCicloCurso.setVecesCursadoRegular(this.countVecesAnterioresReg(matriculasCursosByAlumno, cicloAcademico, curso) + 1);
-                alumnoCicloCursoDAO.update(alumnoCicloCurso);
-                alumnoCicloCurso.getId();
+                alumnoCicloCursoNew.setVecesCursado(this.countVecesAnteriores(matriculasCursosByAlumno, cicloAcademico, curso) + 1);
+                alumnoCicloCursoNew.setVecesCursadoRegular(this.countVecesAnterioresReg(matriculasCursosByAlumno, cicloAcademico, curso) + 1);
+                logger.debug("################## PARA GUARDAR ALUMNO CICLO CURSO {} {} {} {} {}", cicloAcademico.getId(), cicloAcademico.getYear(), cicloAcademico.getNumeroCiclo(), curso.getNombre(), matriculaCurso.getEstado());
+                alumnoCicloCursoDAO.save(alumnoCicloCursoNew);
             }
-            //  this.promediarHistorialNotas2(alumno, cicloAcademico, matriculasCursosByAlumno, usuario, today);
 
-        } catch (Exception e) {
-            String excepcion = this.messageException(e);
-            String error = "####Error en el hilo alumno " + alumno.getId()
-                    + " ciclo " + cicloAcademico.getId();
-            logger.error(error);//, e 
-            visorCalculoNotas.agregarError(error);
-            //LoggerAccionEnum.RECAUDA_DEUDA_HANDLE_MESSAGE;
+        } else {
+            Map<String, AlumnoCicloCurso> map = new HashMap<>();
+            Boolean retirado = false;
+            for (AlumnoCicloCurso alumnoCicloCursoTemp : alumnoCicloCursoTem) {
 
-            auditorService.auditTrasladoNotasToHistorial(alumno, curso, cicloAcademico, matriculaCurso, ds, e);
-            e.printStackTrace();
-            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+                if (isRetiradoCiclo) {
+                    if (!retirado) {
+                        retirado = true;
+                        alumnoCicloCursoTemp.setFechaModificacion(today.toDate());
+                        alumnoCicloCursoTemp.setNota(matriculaCurso.getNotaFinal());
+                        alumnoCicloCursoTemp.setEstado(matriculaCurso.getEstadoEnum());
+                        alumnoCicloCursoTemp.setUserModificacion(ds.getUsuario());
+                        if (curso.isTieneCreditosVariables()) {
+                            alumnoCicloCursoTemp.setCreditos(matriculaCurso.getCreditosAprobados());
+                        } else {
+                            alumnoCicloCursoTemp.setCreditos(matriculaCurso.getCreditos());
+                        }
+                        Integer aprobado = evaluateEstaAprobado(matriculaCurso, alumno);
+                        alumnoCicloCursoTemp.setEstaAprobado(aprobado);
+                        alumnoCicloCursoTemp.setVecesCursado(this.countVecesAnteriores(matriculasCursosByAlumno, cicloAcademico, curso) + 1);
+                        alumnoCicloCursoTemp.setVecesCursadoRegular(this.countVecesAnterioresReg(matriculasCursosByAlumno, cicloAcademico, curso) + 1);
+                        alumnoCicloCursoDAO.update(alumnoCicloCursoTemp);
+
+                    } else {
+                        alumnoCicloCursoTemp.setRegistroActivo(0);
+                        alumnoCicloCursoDAO.update(alumnoCicloCursoTemp);
+                    }
+                } else {
+                    if (map.get(alumnoCiclo.getId() + "-" + curso.getId()) == null) {
+
+                        alumnoCicloCursoTemp.setFechaModificacion(today.toDate());
+                        alumnoCicloCursoTemp.setNota(matriculaCurso.getNotaFinal());
+                        alumnoCicloCursoTemp.setEstado(matriculaCurso.getEstadoEnum());
+                        if (alumnoCicloCursoTemp.getRegistroActivo() == 0) {
+                            alumnoCicloCursoTemp.setRegistroActivo(1);
+                        }
+                        alumnoCicloCursoTemp.setUserModificacion(ds.getUsuario());
+                        if (curso.isTieneCreditosVariables()) {
+                            alumnoCicloCursoTemp.setCreditos(matriculaCurso.getCreditosAprobados());
+                        } else {
+                            alumnoCicloCursoTemp.setCreditos(matriculaCurso.getCreditos());
+                        }
+                        Integer aprobado = evaluateEstaAprobado(matriculaCurso, alumno);
+                        alumnoCicloCursoTemp.setEstaAprobado(aprobado);
+                        alumnoCicloCursoTemp.setVecesCursado(this.countVecesAnteriores(matriculasCursosByAlumno, cicloAcademico, curso) + 1);
+                        alumnoCicloCursoTemp.setVecesCursadoRegular(this.countVecesAnterioresReg(matriculasCursosByAlumno, cicloAcademico, curso) + 1);
+                        alumnoCicloCursoDAO.update(alumnoCicloCursoTemp);
+                    } else {
+                        alumnoCicloCursoTemp.setRegistroActivo(0);
+                        alumnoCicloCursoDAO.update(alumnoCicloCursoTemp);
+                    }
+                }
+                map.put(alumnoCiclo.getId() + "-" + curso.getId(), alumnoCicloCursoTemp);
+            }
         }
+        //  this.promediarHistorialNotas2(alumno, cicloAcademico, matriculasCursosByAlumno, usuario, today);
+
+//        } catch (Exception e) {
+//            String excepcion = this.messageException(e);
+//            String error = "####Error en el hilo alumno " + alumno.getId()
+//                    + " ciclo " + cicloAcademico.getId();
+//            logger.error(error);//, e 
+//            visorCalculoNotas.agregarError(error);
+//            //LoggerAccionEnum.RECAUDA_DEUDA_HANDLE_MESSAGE;
+//
+//            auditorService.auditTrasladoNotasToHistorial(alumno, curso, cicloAcademico, matriculaCurso, ds, e);
+//            e.printStackTrace();
+//            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+//        }
+    }
+
+    private List fillList(List lista) {
+        if (lista == null) {
+            return new ArrayList();
+        }
+        return lista;
     }
 
     public Integer countVecesAnteriores(List<MatriculaCurso> matriculasCursosAlumno, CicloAcademico cicloAcademico, Curso curso) {
@@ -731,12 +775,12 @@ public class PromedioReviewServiceImp implements PromedioReviewService {
 
     @Transactional(propagation = Propagation.SUPPORTS)
     private void promediarHistorialNotas(Alumno alumno, CicloAcademico cicloActivo, CicloAcademico cicloAcademico, DataSessionPivot ds) {
-//        this.promediarHistorialNotas(alumno, cicloActivo, cicloAcademico, ds, null, null, null);
+        this.promediarHistorialNotas(alumno, cicloActivo, cicloAcademico, ds, null, null, null);
     }
 
     @Transactional(propagation = Propagation.SUPPORTS)
-    public void analizarDesertor(Alumno alumno, CicloAcademico cicloActivo, List<CicloAcademico> ciclos, List<AlumnoCiclo> alumnosCiclosByAlumno, DataSessionPivot ds) {
-//        List<AlumnoCiclo> alumnosCiclosByAlumno = alumnoCicloDAO.allByAlumnoAsc(alumno);
+    public void analizarDesertor(Alumno alumno, CicloAcademico cicloActivo, List<CicloAcademico> ciclos, DataSessionPivot ds) {
+        List<AlumnoCiclo> alumnosCiclosByAlumno = alumnoCicloDAO.allByAlumnoAsc(alumno);
         logger.debug("Analizar desertor");
         List<String> ciclosStr = alumnosCiclosByAlumno.stream().map(x -> x.getCicloAcademico().getCodigo() + " " + x.getEstado()).collect(Collectors.toList());
         logger.debug(String.join(",", ciclosStr));
@@ -745,7 +789,7 @@ public class PromedioReviewServiceImp implements PromedioReviewService {
 
         if (!alumnosCiclosByAlumno.isEmpty()) {
             for (AlumnoCiclo alumnoCiclo : alumnosCiclosByAlumno) {
-                this.analizarDesertorByCiclo(alumno, cicloActivo, alumnoCiclo.getCicloAcademico(), alumnosCiclosByAlumno, ciclos, ds);
+                this.analizarDesertorByCiclo(alumno, cicloActivo, alumnoCiclo.getCicloAcademico(), ds);
             }
         } else if (!alumno.getSituacionAcademica().isCodigoS7()) {
             if (alumno.getCicloIngreso() != null) {
@@ -805,7 +849,7 @@ public class PromedioReviewServiceImp implements PromedioReviewService {
 
     @Transactional(propagation = Propagation.SUPPORTS)
     private void analizarDesertorByCiclo(
-            Alumno alumno, CicloAcademico cicloActivo, CicloAcademico cicloAcademico, List<AlumnoCiclo> allAlumnoCiclosBD, List<CicloAcademico> allCiclos, DataSessionPivot ds) {
+            Alumno alumno, CicloAcademico cicloActivo, CicloAcademico cicloAcademico, DataSessionPivot ds) {
         logger.debug("$$$$$$$$$$$$$$ analizar desertor, Alumno {}, Ciclo Code {} Id {}, Ciclo Activo Code {} Id {}",
                 alumno.getId(),
                 cicloAcademico.getCodigo(),
@@ -814,30 +858,15 @@ public class PromedioReviewServiceImp implements PromedioReviewService {
                 cicloActivo.getId());
 
         ModalidadEstudioEnum modalidadEstudio = ModalidadEstudioEnum.valueOf(alumno.getModalidadEstudio().getCodigo());
-//        CicloAcademico siguienteCicloReg = cicloAcademicoDAO.findSiguienteRegularActivo(cicloAcademico, modalidadEstudio);
-        if (modalidadEstudio == ModalidadEstudioEnum.ESP) {
-            modalidadEstudio = ModalidadEstudioEnum.EPG;
-        }
-        if (modalidadEstudio == ModalidadEstudioEnum.VIS) {
-            modalidadEstudio = ModalidadEstudioEnum.PRE;
-        }
-        ModalidadEstudioEnum estudioEnum = modalidadEstudio;
-        CicloAcademico siguienteCicloReg = allCiclos.stream().filter(x -> x.getCodigoInt() > cicloAcademico.getCodigoInt() && !x.isDesactivado() && x.isTipoRegular() && x.getModalidadEstudio().getCodigoEnum() == estudioEnum).min(Comparator.comparing(x -> x.getCodigoInt())).orElse(null); //cicloAcademicoDAO.findSiguienteRegularActivo(cicloAcademico, modalidadEstudioEnum);
+        CicloAcademico siguienteCicloReg = cicloAcademicoDAO.findSiguienteRegularActivo(cicloAcademico, modalidadEstudio);
 
-        //  CicloAcademico cicloActivo = cicloAcademicoDAO.findActivo(alumno.getModalidadEstudio());
-        AlumnoCiclo alumnoCiclo = new AlumnoCiclo(allAlumnoCiclosBD.stream().filter(x -> Objects.equals(x.getCicloAcademico().getId(), cicloAcademico.getId())).findAny().orElse(null));//alumnoCicloDAO.findByAlumnoCiclo(alumno, cicloAcademico);
-        AlumnoCiclo alumnoCicloAnterior = allAlumnoCiclosBD.stream().filter(x -> x.getCicloAcademico().getCodigoInt() < cicloAcademico.getCodigoInt()).max(Comparator.comparing(x -> x.getCicloAcademico().getCodigoInt())).orElse(null); // alumnoCicloDAO.findAnteriorByAlumno(alumno, cicloAcademico);
-        AlumnoCiclo alumnoCicloSiguienteActive = allAlumnoCiclosBD.stream().filter(x -> x.getCicloAcademico().getCodigoInt() > cicloAcademico.getCodigoInt() && x.isMatriculado()).max(Comparator.comparing(x -> x.getCicloAcademico().getCodigoInt())).orElse(null);//alumnoCicloDAO.findActiveAnteriorByAlumno(alumno, cicloAcademico);
+        AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findByAlumnoCiclo(alumno, cicloAcademico);
+        AlumnoCiclo alumnoCicloAnterior = alumnoCicloDAO.findAnteriorByAlumno(alumno, cicloAcademico);
+        AlumnoCiclo alumnoCicloSiguienteActive = alumnoCicloDAO.findActiveSiguienteByAlumno(alumno, cicloAcademico);
+        AlumnoCiclo alumnoCicloLastMat = alumnoCicloDAO.findLastActiveRegByAlumno(alumno);
 
-        AlumnoCiclo alumnoCicloCorrespSgtRegular = allAlumnoCiclosBD.stream().filter(x -> Objects.equals(x.getCicloAcademico().getId(), siguienteCicloReg.getId())).findAny().orElse(null);//alumnoCicloDAO.findByAlumnoCiclo(alumno, siguienteCiclo);
+        AlumnoCiclo alumnoCicloCorrespSgtRegular = alumnoCicloDAO.findByAlumnoCiclo(alumno, siguienteCicloReg);
 
-        AlumnoCiclo alumnoCicloLastMat = allAlumnoCiclosBD.stream().filter(x -> x.getCicloAcademico().isTipoRegular() && x.isMatriculado()).max(Comparator.comparing(x -> x.getCicloAcademico().getCodigoInt())).orElse(null); //alumnoCicloDAO.findInhaSiguienteByAlumno(alumno, cicloAcademico);
-
-//        AlumnoCiclo alumnoCiaclo = alumnoCicloDAO.findByAlumnoCiclo(alumno, cicloAcademico);
-//        AlumnoCiclo alumnoCicaloAnterior = alumnoCicloDAO.findAnteriorByAlumno(alumno, cicloAcademico);
-//        AlumnoCiclo alumnoCicloSiguienteActive = alumnoCicloDAO.findActiveSiguienteByAlumno(alumno, cicloAcademico);
-//        AlumnoCiclo alumnoCiclaoCorrespSgtRegular = alumnoCicloDAO.findByAlumnoCiclo(alumno, siguienteCicloReg);
-//        AlumnoCiclo alumnoCicloLastMat = alumnoCicloDAO.findLastActiveRegByAlumno(alumno);
         if (alumnoCiclo.isEstadoRetiradoCic() || alumnoCiclo.isNoMatriculado()) {
             if (alumnoCicloAnterior != null) {
                 alumnoCiclo.setSituacionInicio(alumnoCicloAnterior.getSituacionFinal());
@@ -845,7 +874,7 @@ public class PromedioReviewServiceImp implements PromedioReviewService {
             } else {
                 alumnoCiclo.setSituacionFinal(alumnoCiclo.getSituacionInicio());
             }
-            alumnoCicloDAO.updateSituacionInicioFinal(alumnoCiclo);
+            alumnoCicloDAO.update(alumnoCiclo);
         }
 
         if (alumnoCiclo.getSituacionFinal().isCodigoD() || alumnoCiclo.getSituacionFinal().isCodigoS4()
@@ -872,7 +901,7 @@ public class PromedioReviewServiceImp implements PromedioReviewService {
                     alumnoCicloCorrespSgtRegular.setEstadoEnum(EstadoMatriculaEnum.NMAT);
                     alumnoCicloDAO.save(alumnoCicloCorrespSgtRegular);
                     logger.debug("Creado alumno ciclo nmat para el ciclo {}", siguienteCicloReg.getCodigo());
-                    analizarDesertorByCiclo(alumno, cicloActivo, siguienteCicloReg, allAlumnoCiclosBD, allCiclos, ds);
+                    analizarDesertorByCiclo(alumno, cicloActivo, siguienteCicloReg, ds);
                 }
             }
         }
@@ -882,10 +911,7 @@ public class PromedioReviewServiceImp implements PromedioReviewService {
     @Transactional(propagation = Propagation.SUPPORTS)
     private void promediarHistorialNotas(
             Alumno alumno, CicloAcademico cicloActivo, CicloAcademico cicloAcademico, DataSessionPivot ds,
-            List<AlumnoCiclo> alumnoCiclos, List<AlumnoCicloCurso> alumnosCiclosCursoActual,
-            List<AlumnoCicloCurso> alumnosCiclosCursoAnterior, List<AlumnoCiclo> allAlumnoCiclosBD,
-            List<AlumnoCicloCurso> allOperativesByModalidadEstudio, SituacionAcademica situacionTrika,
-            Map<Long, List<AlumnoCicloCurso>> mapAllCicloCurso, List<CicloAcademico> allCiclos) {
+            List<AlumnoCiclo> alumnoCiclos, List<AlumnoCicloCurso> alumnosCiclosCursoActual, List<AlumnoCicloCurso> alumnosCiclosCursoAnterior) {
 
         logger.debug("$$$$$$$$$$$$$$ promediarHistorialNotas Ciclo Activo {} , Ciclo Academico {} {} {}",
                 cicloActivo.toString(),
@@ -893,25 +919,17 @@ public class PromedioReviewServiceImp implements PromedioReviewService {
 
         // SituacionAcademica situacionTrika = null;
         ModalidadEstudioEnum modalidadEstudioEnum = ModalidadEstudioEnum.valueOf(alumno.getModalidadEstudio().getCodigo());
-        if (modalidadEstudioEnum == ModalidadEstudioEnum.ESP) {
-            modalidadEstudioEnum = ModalidadEstudioEnum.EPG;
-        }
-        if (modalidadEstudioEnum == ModalidadEstudioEnum.VIS) {
-            modalidadEstudioEnum = ModalidadEstudioEnum.PRE;
-        }
-        ModalidadEstudioEnum estudioEnum = modalidadEstudioEnum;
-        CicloAcademico siguienteCiclo = allCiclos.stream().filter(x -> x.getCodigoInt() > cicloAcademico.getCodigoInt() && !x.isDesactivado() && x.getModalidadEstudio().getCodigoEnum() == estudioEnum).min(Comparator.comparing(x -> x.getCodigoInt())).orElse(null); //cicloAcademicoDAO.findSiguienteRegularActivo(cicloAcademico, modalidadEstudioEnum);
+        CicloAcademico siguienteCiclo = cicloAcademicoDAO.findSiguienteRegularActivo(cicloAcademico, modalidadEstudioEnum);
 
         //  CicloAcademico cicloActivo = cicloAcademicoDAO.findActivo(alumno.getModalidadEstudio());
-        AlumnoCiclo alumnoCiclo = new AlumnoCiclo(allAlumnoCiclosBD.stream().filter(x -> Objects.equals(x.getCicloAcademico().getId(), cicloAcademico.getId())).findAny().orElse(null));//alumnoCicloDAO.findByAlumnoCiclo(alumno, cicloAcademico);
+        AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findByAlumnoCiclo(alumno, cicloAcademico);
+        AlumnoCiclo alumnoCicloAnteriorActive = alumnoCicloDAO.findActiveAnteriorByAlumno(alumno, cicloAcademico);
 
-        AlumnoCiclo alumnoCicloAnteriorActive = allAlumnoCiclosBD.stream().filter(x -> x.getCicloAcademico().getCodigoInt() < cicloAcademico.getCodigoInt() && x.isMatriculado()).max(Comparator.comparing(x -> x.getCicloAcademico().getCodigoInt())).orElse(null);//alumnoCicloDAO.findActiveAnteriorByAlumno(alumno, cicloAcademico);
+        AlumnoCiclo alumnoCicloCorrespSgtRegular = alumnoCicloDAO.findByAlumnoCiclo(alumno, siguienteCiclo);
 
-        AlumnoCiclo alumnoCicloCorrespSgtRegular = new AlumnoCiclo(allAlumnoCiclosBD.stream().filter(x -> Objects.equals(x.getCicloAcademico().getId(), siguienteCiclo.getId())).findAny().orElse(null));//alumnoCicloDAO.findByAlumnoCiclo(alumno, siguienteCiclo);
-
-        AlumnoCiclo alumnoCicloAnterior = allAlumnoCiclosBD.stream().filter(x -> x.getCicloAcademico().getCodigoInt() < cicloAcademico.getCodigoInt()).max(Comparator.comparing(x -> x.getCicloAcademico().getCodigoInt())).orElse(null); // alumnoCicloDAO.findAnteriorByAlumno(alumno, cicloAcademico);
-        AlumnoCiclo alumnoCicloAnteriorInha = allAlumnoCiclosBD.stream().filter(x -> x.getCicloAcademico().getCodigoInt() < cicloAcademico.getCodigoInt() && x.isEstadoInhabilitado()).max(Comparator.comparing(x -> x.getCicloAcademico().getCodigoInt())).orElse(null);// alumnoCicloDAO.findInhaAnteriorByAlumno(alumno, cicloAcademico);
-        AlumnoCiclo alumnoCicloSiguienteInha = allAlumnoCiclosBD.stream().filter(x -> x.getCicloAcademico().getCodigoInt() > cicloAcademico.getCodigoInt() && x.isEstadoInhabilitado()).max(Comparator.comparing(x -> x.getCicloAcademico().getCodigoInt())).orElse(null); //alumnoCicloDAO.findInhaSiguienteByAlumno(alumno, cicloAcademico);
+        AlumnoCiclo alumnoCicloAnterior = alumnoCicloDAO.findAnteriorByAlumno(alumno, cicloAcademico);
+        AlumnoCiclo alumnoCicloAnteriorInha = alumnoCicloDAO.findInhaAnteriorByAlumno(alumno, cicloAcademico);
+        AlumnoCiclo alumnoCicloSiguienteInha = alumnoCicloDAO.findInhaSiguienteByAlumno(alumno, cicloAcademico);
         SituacionAcademica situacionAcademicaFinal = null;
 
         if (alumnoCicloAnteriorActive != null) {
@@ -930,23 +948,24 @@ public class PromedioReviewServiceImp implements PromedioReviewService {
                 alumnoCiclo.getSituacionInicio().toString());
 
         final AlumnoCiclo fAlumnoCiclo = (AlumnoCiclo) alumnoCiclo.clone();
-        int ciclosEstudiados = allAlumnoCiclosBD.stream().filter(x -> x.getCicloAcademico().getCodigoInt() <= fAlumnoCiclo.getCicloAcademico().getCodigoInt()).collect(Collectors.toList()).size();
+        Long ciclosEstudiados = alumnoCiclos == null
+                ? alumnoCicloDAO.countCiclosEstudiados(alumno, cicloAcademico)
+                : alumnoCiclos.stream().filter(x -> x.getCicloAcademico().getCodigoInt() <= fAlumnoCiclo.getCicloAcademico().getCodigoInt()).collect(Collectors.toList()).size();
 
         /*Obtenemos la informacion del ciclo actual*/
-//        alumnosCiclosCursoActual = alumnosCiclosCursoActual == null ? alumnoCicloCursoDAO.allOperativesByAlumnoCiclo(alumno, cicloAcademico) : alumnosCiclosCursoActual;
+        alumnosCiclosCursoActual = alumnosCiclosCursoActual == null ? alumnoCicloCursoDAO.allOperativesByAlumnoCiclo(alumno, cicloAcademico) : alumnosCiclosCursoActual;
         //obtenemos la informacion de los ciclos anteriores para los acumulados
-//        alumnosCiclosCursoAnterior = alumnosCiclosCursoAnterior == null ? alumnoCicloCursoDAO.allOperativesByAlumnoAnterioresCiclo(alumno, cicloAcademico) : alumnosCiclosCursoAnterior;
+        alumnosCiclosCursoAnterior = alumnosCiclosCursoAnterior == null ? alumnoCicloCursoDAO.allOperativesByAlumnoAnterioresCiclo(alumno, cicloAcademico) : alumnosCiclosCursoAnterior;
+
         this.procesarInformacionAlumnoCiclo(ds, alumnoCiclo,
                 alumnoCicloSiguienteInha,
                 alumnosCiclosCursoActual,
-                alumnosCiclosCursoAnterior,
-                allOperativesByModalidadEstudio,
-                mapAllCicloCurso);
+                alumnosCiclosCursoAnterior);
         boolean generarTrika = alumnoCiclo.isGenerarTrika();
         if (alumnoCiclo.getCicloAcademico().isAmnistiado()) {
             situacionAcademicaFinal = alumnoCiclo.getSituacionInicio();
         } else {
-            situacionAcademicaFinal = calculateSitutacionAcadFinal(alumno, alumnoCiclo, alumnoCiclo.getSituacionInicio(), ciclosEstudiados, alumnoCicloAnteriorInha);
+            situacionAcademicaFinal = calculateSitutacionAcadFinal(alumno, alumnoCiclo, alumnoCiclo.getSituacionInicio(), ciclosEstudiados.intValue(), alumnoCicloAnteriorInha);
             if (situacionAcademicaFinal != null) {
                 logger.debug("Nueva situacion academica id {}, codigo {} {}", situacionAcademicaFinal.getId(), situacionAcademicaFinal.getCodigo(), situacionAcademicaFinal.getNombre());
             } else {
@@ -960,7 +979,7 @@ public class PromedioReviewServiceImp implements PromedioReviewService {
         if (situacionAcademicaFinal == null) {
             logger.debug(">>>>>>>>>>>>>>>>>> el alumno {}", alumnoCiclo.getAlumno().getId());
         }
-//        SituacionAcademica situacionTrika = situacionAcademicaDAO.findByCodigo(SituacionAcademicaEnum.S_T.getValue());
+        SituacionAcademica situacionTrika = situacionAcademicaDAO.findByCodigo(SituacionAcademicaEnum.S_T.getValue());
         if ((generarTrika && alumnoCiclo.getCicloAcademico().getCodigoInt() >= INI_TRIKA)
                 && (!situacionAcademicaFinal.isCodigoS4() && !situacionAcademicaFinal.isCodigoS4U()))/* && situacionAcademicaFinal.isCodigoS6()*/ {
             logger.debug("Generara registro fantasma trika");
@@ -990,7 +1009,7 @@ public class PromedioReviewServiceImp implements PromedioReviewService {
                 alumnoCicloCorrespSgtRegular.setCreditosConvalidados(BigDecimal.ZERO.intValue());
                 alumnoCicloDAO.save(alumnoCicloCorrespSgtRegular);
             } else {
-                List<AlumnoCicloCurso> alusCicloCursos = fillList(mapAllCicloCurso.get(alumnoCicloCorrespSgtRegular.getId()));//alumnoCicloCursoDAO.allByAlumnoCicloNoFilters(alumnoCicloCorrespSgtRegular);
+                List<AlumnoCicloCurso> alusCicloCursos = alumnoCicloCursoDAO.allByAlumnoCicloNoFilters(alumnoCicloCorrespSgtRegular);
                 if (alusCicloCursos.isEmpty()) {
                     alumnoCiclo.setSituacionFinal(situacionTrika);
                     alumnoCicloDAO.update(alumnoCiclo);
@@ -1028,7 +1047,7 @@ public class PromedioReviewServiceImp implements PromedioReviewService {
                 alumnoCicloCorrespSgtRegular.setCreditosConvalidados(BigDecimal.ZERO.intValue());
                 alumnoCicloDAO.save(alumnoCicloCorrespSgtRegular);
             } else {
-                List<AlumnoCicloCurso> alusCicloCursos = fillList(mapAllCicloCurso.get(alumnoCicloCorrespSgtRegular.getId()));//alumnoCicloCursoDAO.allActivoByAlumnoCiclo(alumnoCicloCorrespSgtRegular);
+                List<AlumnoCicloCurso> alusCicloCursos = alumnoCicloCursoDAO.allActivoByAlumnoCiclo(alumnoCicloCorrespSgtRegular);
 //                ObjectUtil.eliminarAttrSinId(alumnoCicloCorrespSgtRegular);
                 if (alusCicloCursos.isEmpty()) {
                     alumnoCicloCorrespSgtRegular.setEstadoEnum(EstadoMatriculaEnum.INH);
@@ -1094,9 +1113,7 @@ public class PromedioReviewServiceImp implements PromedioReviewService {
             AlumnoCiclo alumnoCiclo,
             AlumnoCiclo alumnoCicloSiguienteInha,
             List<AlumnoCicloCurso> alumnosCicloCursoActual,
-            List<AlumnoCicloCurso> alumnosCicloCursoAnteriores,
-            List<AlumnoCicloCurso> allAlumnoCicloCurso,
-            Map<Long, List<AlumnoCicloCurso>> mapAllCicloCurso) {
+            List<AlumnoCicloCurso> alumnosCicloCursoAnteriores) {
 
         Alumno alumno = alumnoCiclo.getAlumno();
 
@@ -1164,7 +1181,7 @@ public class PromedioReviewServiceImp implements PromedioReviewService {
         }
         //si la nota se modificó y un alumno trikeado deja de serlo
         if (!generarTrika && (alumnoCicloSiguienteInha != null && alumnoCicloSiguienteInha.getSituacionFinal().isTrikeado())) {
-            List<AlumnoCicloCurso> alumnoCiclosCursos = mapAllCicloCurso.get(alumnoCicloSiguienteInha.getId());//allAlumnoCicloCurso.stream().filter(x -> Objects.equals(x.getAlumnoCiclo().getId(), alumnoCicloSiguienteInha.getId())).collect(Collectors.toList());//alumnoCicloCursoDAO.allStateByAlumnoCiclo(alumnoCicloSiguienteInha);
+            List<AlumnoCicloCurso> alumnoCiclosCursos = alumnoCicloCursoDAO.allStateByAlumnoCiclo(alumnoCicloSiguienteInha);
             if (alumnoCiclosCursos.isEmpty()) {
                 alumnoCicloDAO.delete(alumnoCicloSiguienteInha);
             }
@@ -1211,7 +1228,6 @@ public class PromedioReviewServiceImp implements PromedioReviewService {
             Integer aprobado = evaluateEstaAprobado(promedio, alumno);
             alumnoCiclo.setEstaAprobado(aprobado);
         }
-        alumnoCiclo.setAlumnoCicloCurso(null);
         alumnoCicloDAO.update(alumnoCiclo);
         alumnoCiclo.setGenerarTrika(generarTrika);
     }
@@ -1571,7 +1587,7 @@ public class PromedioReviewServiceImp implements PromedioReviewService {
             alumnoDAO.updateCicloActivoSituacionAcad(alumnoUpd);
         }
         try {
-            this.generarHistorialNotas(alumno, curso, matriculaCurso, cicloAcademico, ds);
+            this.generarHistorialNotas(alumno, curso, matriculaCurso, cicloAcademico, null, ds);
         } catch (Exception e) {
             e.printStackTrace();
         }

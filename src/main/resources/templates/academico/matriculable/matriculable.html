@@ -142,7 +142,7 @@
                                                 </td>
 
                                                 <td class='v-middle '>
-                                                    <div v-if="ciclo.fechaPrioridades != null ">
+                                                    <div v-if="ciclo.fechaPrioridades != null &amp;&amp; item.cicloAcademicoInfo.descripcion != ''">
                                                         <span class="block" ><span class="bold">Ciclo:</span> {{item.cicloAcademicoInfo.descripcion}}</span>
                                                         <span class="block"><span class="bold">pps:</span> {{item.promedioSemestral}}</span>
                                                         <span class="block"><span class="bold">capa:</span> {{item.creditosAprobadosAcumulados}}</span>

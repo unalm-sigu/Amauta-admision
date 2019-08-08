@@ -22,6 +22,7 @@ import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.ControlMeritoEgresado;
 import pe.edu.lamolina.model.academico.Egresado;
@@ -89,8 +90,7 @@ public class OrdenMeritoEgresadosController {
                 "facultad.codigo",
                 "carrera.nombre",
                 "carrera.codigo",
-                "totalAlumnos",
-            }));
+                "totalAlumnos",}));
         }
 
         json.setData(array);
@@ -195,6 +195,56 @@ public class OrdenMeritoEgresadosController {
             ExceptionHandler.handleException(e, json);
         }
         return json;
+    }
+
+    @ResponseBody
+    @RequestMapping("allAlumnoLikeNombres")
+    public JsonResponse allAlumnoLikeNombres(@RequestParam("parametro") String parametro, HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+
+        try {
+
+            ArrayNode jsonList = new ArrayNode(JsonNodeFactory.instance);
+            List<Alumno> listAlumno = service.allAlumnoLikeNombres(parametro);
+            logger.debug("cantidad listAlumno {}", listAlumno.size());
+            for (Alumno alumno : listAlumno) {
+                jsonList.add(JsonHelper.createJson(alumno, JsonNodeFactory.instance, new String[]{
+                    "id", "codigo", "persona.id",
+                    "persona.nombreCompleto", "persona.nombres", "persona.paterno", "persona.materno",
+                    "carrera.id", "carrera.codigo", "carrera.nombre",
+                    "carrera.facultad.id", "carrera.facultad.nombre",
+                    "cicloIngreso.id", "cicloIngreso.descripcion", "cicloIngreso.codigo"
+                }));
+            }
+            response.setData(jsonList);
+            response.setTotal(jsonList.size());
+            response.setSuccess(true);
+
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("saveEgresado")
+    public JsonResponse saveEgresado(@RequestBody Egresado egresado, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            service.saveEgresado(egresado, ds.getUsuario());
+            response.setMessage("El alumno fue registrado satisfactoriamente.");
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
     }
 
     private CicloAcademico findCicloAcademico(DataSessionPivot ds, HttpSession session) {

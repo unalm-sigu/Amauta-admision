@@ -5,6 +5,7 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.CursoCicloAcademico;
 import pe.edu.lamolina.model.academico.CursoConvalidado;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
@@ -68,5 +69,7 @@ public interface AlumnoService {
     List<CursoConvalidado> alllCursoConvalidadoInTraslado(List<TramiteTraslado> listTramiteTraslado);
 
     void verificarTramiteTraslado(Alumno alumno);
+
+    public List<Curso> allCurso(String nombre);
 
 }

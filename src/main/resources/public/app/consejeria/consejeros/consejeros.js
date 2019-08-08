@@ -302,7 +302,7 @@ new Vue({
                                     $vue.loadResumen = true;
                                     $vue.$refs.raptorConsejero.loadRemoteData();
                                     mm.modal("hide");
-                                    
+
                                 } else {
                                     $(".btn-modal").prop('disabled', false);
                                     $(".btn-procesar").html('Si, asignar aleatoriamente');

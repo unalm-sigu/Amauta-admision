@@ -37,6 +37,7 @@ import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.CursoCicloAcademico;
 import pe.edu.lamolina.model.academico.CursoConvalidado;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
@@ -51,7 +52,10 @@ import pe.edu.lamolina.model.matricula.AlumnoCursoCurricula;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.tramite.TramiteTraslado;
 import pe.edu.lamolina.pivot.config.DespliegueConfig;
+import pe.edu.lamolina.pivot.controller.academico.avancecurricular.AvanceCurricularService;
+import pe.edu.lamolina.pivot.controller.academico.infoacademico.InfoAcademicoService;
 import pe.edu.lamolina.pivot.controller.academico.visitante.AlumnoHelper;
+import pe.edu.lamolina.pivot.controller.matricula.matriculable.MatriculableService;
 import pe.edu.lamolina.pivot.controller.seguridad.verificador.VerificadorService;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -68,6 +72,10 @@ public class AlumnoController {
 
     @Autowired
     VerificadorService verificadorService;
+  
+    @Autowired
+    AvanceCurricularService avanceCurricularService;
+    
     @Autowired
     DespliegueConfig despliegueConfig;
 
@@ -479,6 +487,32 @@ public class AlumnoController {
     }
 
     @ResponseBody
+    @RequestMapping("allCurso")
+    public JsonResponse allCurso(@RequestParam("nombre") String nombre, HttpSession session) {
+
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            ArrayNode jsonList = new ArrayNode(jsonFactory);
+            List<Curso> cursos = service.allCurso(nombre);
+            for (Curso curso : cursos) {
+                ObjectNode json = JsonHelper.createJson(curso, jsonFactory, new String[]{"*"});
+
+                jsonList.add(json);
+            }
+            response.setData(jsonList);
+            response.setTotal(jsonList.size());
+            response.setSuccess(true);
+
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
     @RequestMapping("saveListCursoConvalidado")
     public JsonResponse saveListCursoConvalidado(@RequestBody TrasladoBean trasladoBean, HttpSession session) {
         JsonResponse response = new JsonResponse();
@@ -488,6 +522,7 @@ public class AlumnoController {
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             List<CursoConvalidado> listCursoConvalidado = service.saveListCursoConvalidado(trasladoBean, ds.getUsuario(), ds.getCicloAcademico());
+            avanceCurricularService.generarAvanceCurricularByAlumno(trasladoBean.getAlumno(), ds);
             response.setData(createListCursoConvalidado(listCursoConvalidado));
             response.setSuccess(Boolean.TRUE);
             response.setMessage("Los cursos fueron registrados satisfactoriamente.");
