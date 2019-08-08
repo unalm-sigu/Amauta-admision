@@ -465,7 +465,7 @@ public class TestServiceImp implements TestService {
         visorCalculoNotas.iniciar();
         visorCalculoNotas.setCantidadTotal(alumnoos.size());
         for (Alumno alumnoo : alumnoos) {
-            if (idAlumno == null || (idAlumno != null && Objects.equals(alumnoo.getId(), idAlumno))) {
+//            if (idAlumno == null || (idAlumno != null && Objects.equals(alumnoo.getId(), idAlumno))) {
 
                 List<RetiroCiclo> allRetiroCicloAlumno = fillList(mapAllRetiroByAlumno.get(alumnoo.getId()));
                 Map<Long, RetiroCiclo> mapRetiroByCicloAlumno = TypesUtil.convertListToMap("cicloAcademico.id", allRetiroCicloAlumno);
@@ -492,7 +492,7 @@ public class TestServiceImp implements TestService {
 
                 visorCalculoNotas.incrementarProcesados();
                 visorCalculoNotas.reporte();
-            }
+//            }
         }
 
     }
