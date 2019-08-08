@@ -6,6 +6,7 @@ import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.Alumno;
+import static pe.edu.lamolina.model.enums.TramiteEstadoEnum.ACEP;
 import pe.edu.lamolina.model.tramite.RetiroCurso;
 
 @Repository
@@ -31,7 +32,8 @@ public class RetiroCursoDAOH extends AbstractEasyDAO<RetiroCurso> implements Ret
     public List<RetiroCurso> allInfo() {
         Octavia sql = new Octavia()
                 .from(RetiroCurso.class, "rc")
-                .join("alumno al", "cicloAcademico ca", "curso cur");
+                .join("alumno al", "cicloAcademico ca", "curso cur")
+                .filter("rc.estado", ACEP.name());
 
         return all(sql);
     }
