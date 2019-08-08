@@ -17,6 +17,8 @@ public interface EvaluacionDAO extends EasyDAO<Evaluacion> {
 
     List<Evaluacion> allBySecciones(List<Seccion> secciones);
 
+    List<Evaluacion> allByGruposSecciones(List<GrupoSeccion> gruposSecciones);
+
     Long countEvaluacionesFaltantesByGrupo(Long idGrupoSeccion);
 
     List<Evaluacion> allBySeccion(Seccion seccion);

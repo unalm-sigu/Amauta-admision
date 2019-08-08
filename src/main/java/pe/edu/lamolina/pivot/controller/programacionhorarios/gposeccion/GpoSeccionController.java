@@ -156,6 +156,7 @@ public class GpoSeccionController {
                     "curso.codigo",
                     "curso.nombre",
                     "curso.tpc",
+                    "curso.tipoCurso",
                     "curso.precioFormato",
                     "curso.precioTpcFormato",
                     "curso.departamentoAcademico.nombre",
@@ -2775,6 +2776,26 @@ public class GpoSeccionController {
 //        service.infoReporteAulas(model, rol);
 
         return new ModelAndView(boletinAcademicoExcelView);
+    }
+
+    @ResponseBody
+    @RequestMapping("eliminarGrupos")
+    public JsonResponse eliminarGrupos(@RequestBody List<GrupoSeccion> gruposSeccion, HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+        try {
+            response.setSuccess(true);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
+            service.eliminarGrupos(gruposSeccion, ds);
+            response.setMessage("Grupos eliminados.");
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
     }
 
 }
