@@ -469,8 +469,8 @@ public class TestServiceImp implements TestService {
                 List<MatriculaSeccion> matriculaSeccions = fillList(mapMatriculaSeccByMr.get(matriculaResumen.getId()));
                 trasladarMatriculaCursoForPromediosAlumnoTest(matriculaResumen.getCicloAcademico(), retiroCiclo, retiroCursos, matriculaResumen, matriculaCursos, matriculaSeccions, ds);
             }
-            List<MatriculaCurso> allMatriculasCursosAlumno = allByAlumno.get(alumnoo.getId());
-            List<MatriculaSeccion> matriculaSeccions = mapMatriculaSeccByAlumno.get(alumnoo.getId());
+            List<MatriculaCurso> allMatriculasCursosAlumno = fillList(allByAlumno.get(alumnoo.getId()));
+            List<MatriculaSeccion> matriculaSeccions = fillList(mapMatriculaSeccByAlumno.get(alumnoo.getId()));
 
             List<AlumnoCiclo> alumnoCiclos = fillList(mapAlumnoCiclo.get(alumnoo.getId()));
             if (alumnoCiclos.isEmpty()) {
