@@ -660,7 +660,7 @@ public class PromedioReviewServiceImp implements PromedioReviewService {
             alumnoCicloDAO.updateColumns(alumnoCicloUpd, "estado");
         }
 
-        if (alumnoCicloCursoTem.isEmpty() ) {
+        if (alumnoCicloCursoTem.isEmpty()) {
             if (!Arrays.asList(RET.name(), RCI.name(), RCU.name()).contains(matriculaCurso.getEstado())) {
 
                 AlumnoCicloCurso alumnoCicloCursoNew = new AlumnoCicloCurso();
@@ -708,6 +708,9 @@ public class PromedioReviewServiceImp implements PromedioReviewService {
                         alumnoCicloCursoTemp.setFechaModificacion(today.toDate());
                         alumnoCicloCursoTemp.setNota(matriculaCurso.getNotaFinal());
                         alumnoCicloCursoTemp.setEstado(matriculaCurso.getEstadoEnum());
+                        if (alumnoCicloCursoTemp.getRegistroActivo() == 0) {
+                            alumnoCicloCursoTemp.setRegistroActivo(1);
+                        }
                         alumnoCicloCursoTemp.setUserModificacion(ds.getUsuario());
                         if (curso.isTieneCreditosVariables()) {
                             alumnoCicloCursoTemp.setCreditos(matriculaCurso.getCreditosAprobados());
