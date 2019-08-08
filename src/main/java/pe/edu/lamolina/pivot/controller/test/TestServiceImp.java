@@ -429,6 +429,10 @@ public class TestServiceImp implements TestService {
     @Override
     @Transactional
     public void trasladarMatriculaCursoForPromediosReview(DataSessionPivot ds, Long idAlumno) {
+        
+        logger.debug("COMENZAMOOOOOOOOOOOO.........");
+        logger.info("COMENZAMOOOOOOOOOOOO......... iNFO");
+        logger.trace("COMENZAMOOOOOOOOOOOO......... TRACE");
         List<CicloAcademico> ciclos = cicloAcademicoDAO.allWithInitAndOrderBy(2017, "ca.codigo asc", CicloAcademicoEstadoEnum.CER, CicloAcademicoEstadoEnum.PEND);
         //   List<GrupoSeccion> gruposSeccionesByCiclo=gruposecc
         List<RetiroCiclo> retirosCiclos = retiroCicloDAO.allInfo();
