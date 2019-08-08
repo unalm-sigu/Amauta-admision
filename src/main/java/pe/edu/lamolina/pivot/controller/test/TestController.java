@@ -1,5 +1,3 @@
-
-
 package pe.edu.lamolina.pivot.controller.test;
 
 import java.util.ArrayList;
@@ -300,12 +298,13 @@ public class TestController {
         service.trasladarMatriculaCursoForPromedios(ds);
         return "yeah";
     }
+
     @ResponseBody
-    @RequestMapping("trasladarInformcionForHistorialReview")
-    public String trasladarInformcionForHistorialReview(HttpSession session) {
+    @RequestMapping(path = {"trasladarInformcionForHistorialReview", "trasladarInformcionForHistorialReview/{alumno}"})
+    public String trasladarInformcionForHistorialReview(HttpSession session, @PathVariable(value = "alumno") Long alumnoId) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         ds.setFechaAccionAudit(new Date());
-        service.trasladarMatriculaCursoForPromediosReview(ds);
+        service.trasladarMatriculaCursoForPromediosReview(ds, alumnoId);
         return "yeah";
     }
 
@@ -327,7 +326,7 @@ public class TestController {
         service.trasladarMatriculaCursoForPromedios(ds, alumnoId);
         return "yeah";
     }
-  
+
     @ResponseBody
     @RequestMapping("trasladarInformcionForHistorialAlumno/{alumno}")
     public String trasladarInformcionForHistorialAlumno(HttpSession session, @PathVariable("alumno") Long alumnoId) {
