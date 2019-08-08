@@ -745,4 +745,14 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
         }
     }
 
+    @Override
+    public List<Seccion> allByGrupoSecciones(List<GrupoSeccion> gruposSeccion) {
+        Octavia sql = Octavia.query()
+                .from(Seccion.class, "sec")
+                .join("grupoSeccion gs", "gs.curso cur", "gs.cicloAcademico ca")
+                .in("gs.id", gruposSeccion)
+                .orderBy("sec.codigo", "sec.codigo2");
+        return all(sql);
+    }
+
 }

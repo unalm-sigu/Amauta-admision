@@ -218,19 +218,27 @@ public class TestServiceImp implements TestService {
         List<CicloAcademico> ciclosActivos = cicloAcademicoDAO.allActivosAlModalidades();
 
         for (CicloAcademico cicloAcademico : ciclos) {
-            List<AlumnoCiclo> alumnosCiclosAll = alumnoCicloDAO.allWithSituacionByCiclo(cicloAcademico);
-            Map<Long, List<AlumnoCiclo>> mapAlumnoCiclo = TypesUtil.convertListToMapList("alumno.id", alumnosCiclosAll);
+            List<AlumnoCiclo> alumnosCiclosByCiclo = alumnoCicloDAO.allWithSituacionByCiclo(cicloAcademico);
+            List<Alumno> alumnos = alumnosCiclosByCiclo.stream().map(x -> x.getAlumno()).collect(Collectors.toList());
 
-            List<Alumno> alumnos = alumnosCiclosAll.stream().map(x -> x.getAlumno()).collect(Collectors.toList());
             List<AlumnoCicloCurso> alumnosCiclosCursosAll = alumnoCicloCursoDAO.allOperativesByAlumnos(alumnos);
+            for (AlumnoCicloCurso aac : alumnosCiclosCursosAll) {
+                aac.getAlumnoCiclo().getAlumno().getId();
+                aac.getAlumnoCiclo().getCicloAcademico().getId();
+                aac.getCurso().getId();
+            }
+
             Map<Long, List<AlumnoCicloCurso>> mapAlumnoCicloCurso = TypesUtil.convertListToMapList("alumnoCiclo.alumno.id", alumnosCiclosCursosAll);
 
             List<MatriculaResumen> matriculasResumen = matriculaResumenDAO.allByCicloFull(cicloAcademico);
             logger.info("matriculas resumen encontradas {}, del ciclo {}", matriculasResumen.size(), cicloAcademico.toString());
 
+            List<AlumnoCiclo> alumnosCiclosAll = alumnoCicloDAO.allWithSituacionByAlumnos(alumnos);
+            Map<Long, List<AlumnoCiclo>> mapAlumnoCiclo = TypesUtil.convertListToMapList("alumno.id", alumnosCiclosAll);
+
             for (MatriculaResumen mResumen : matriculasResumen) {
                 Alumno alumno = mResumen.getAlumno();
-                List<AlumnoCiclo> alumnoCiclos = mapAlumnoCiclo.get(alumno.getId());
+                List<AlumnoCiclo> alumnoCiclos = TypesUtil.getListNotNull(mapAlumnoCiclo.get(alumno.getId()));
                 List<AlumnoCicloCurso> alumnosCicloCursoByAlumno = TypesUtil.getListNotNull(mapAlumnoCicloCurso.get(alumno.getId()));
 
                 CicloAcademico cicloActivoByModalidad = ciclosActivos.stream()

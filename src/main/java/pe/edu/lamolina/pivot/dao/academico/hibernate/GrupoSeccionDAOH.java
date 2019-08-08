@@ -17,7 +17,6 @@ import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
-import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.AnexoBoletin;
 import pe.edu.lamolina.model.academico.CicloAcademico;
@@ -62,6 +61,14 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
                 .leftJoin("secciones s")
                 .leftJoin("cur.modalidadEstudio")
                 .filter("gs.id", idGrupoSeccion);
+        return find(sql);
+    }
+
+    @Override
+    public GrupoSeccion findLite(GrupoSeccion grupoSeccion) {
+        Octavia sql = Octavia.query()
+                .from(GrupoSeccion.class, "gs")
+                .filter("gs.id", grupoSeccion);
         return find(sql);
     }
 
@@ -454,7 +461,7 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
 
         Octavia sql = Octavia.query()
                 .from(GrupoSeccion.class, "gs")
-                .join("curso cur", "cicloAcademico ca") 
+                .join("curso cur", "cicloAcademico ca")
                 .leftJoin("planCalificacion pc", "cur.modalidadEstudio", "cur.departamentoAcademico")
                 .filter("gs.estado", EstadoEnum.ACT)
                 .filter("ca.id", cicloAcademico);
