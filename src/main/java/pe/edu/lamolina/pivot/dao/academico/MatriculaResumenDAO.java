@@ -74,5 +74,6 @@ public interface MatriculaResumenDAO extends EasyDAO<MatriculaResumen> {
 
     List<MatriculaResumen> allSinConsejeria(Carrera carrera, CicloAcademico ciclo);
 
-    public List<MatriculaResumen> allByCiclos(List<CicloAcademico> ciclos);
+    List<MatriculaResumen> allByCiclos(List<CicloAcademico> ciclos);
+
 }

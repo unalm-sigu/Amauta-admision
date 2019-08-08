@@ -137,7 +137,12 @@ public class PromedioServiceImp implements PromedioService {
 //    @Async
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = false)
-    public void trasladarInformcionForHistorial(MatriculaResumen matriculaResumen, List<MatriculaCurso> matriculasCurso, List<MatriculaSeccion> matriculasSeccion, DataSessionPivot ds, boolean calcularSituacion) {
+    public void trasladarInformcionForHistorial(
+            MatriculaResumen matriculaResumen,
+            List<MatriculaCurso> matriculasCurso,
+            List<MatriculaSeccion> matriculasSeccion,
+            DataSessionPivot ds, boolean calcularSituacion) {
+
         visorCalculoNotas.incrementarCantidad();
         List<MatriculaCurso> matriculasCursoByAlumno = matriculasCurso.stream()
                 .filter(x -> x.getMatriculaResumen().getAlumno().getId().equals(matriculaResumen.getAlumno().getId()))
@@ -152,8 +157,9 @@ public class PromedioServiceImp implements PromedioService {
         }
         if (calcularSituacion) {
             CicloAcademico cicloActivo = cicloAcademicoDAO.findActivo(matriculaResumen.getAlumno().getModalidadEstudio());
+            List<AlumnoCiclo> alumnoCiclos = alumnoCicloDAO.allByAlumno(matriculaResumen.getAlumno());
             List<AlumnoCicloCurso> allOperativesByModalidadEstudio = alumnoCicloCursoDAO.allOperativesByAlumno(matriculaResumen.getAlumno());
-            this.promediarAllCicloSync(matriculaResumen.getAlumno(), cicloActivo, cicloAcademicoDAO.all(), allOperativesByModalidadEstudio, ds);
+            this.promediarAllCicloSync(matriculaResumen.getAlumno(), cicloActivo, cicloAcademicoDAO.all(), alumnoCiclos, allOperativesByModalidadEstudio, ds);
         }
         visorCalculoNotas.incrementarProcesados();
         visorCalculoNotas.reporte();
@@ -194,30 +200,46 @@ public class PromedioServiceImp implements PromedioService {
     @Async
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = false)
-    public void promediarAllCicloAsync(Alumno alumno, CicloAcademico cicloActivo, List<CicloAcademico> ciclos, List<AlumnoCicloCurso> allOperativesCicloCurso, DataSessionPivot ds) {
+    public void promediarAllCicloAsync(
+            Alumno alumno,
+            CicloAcademico cicloActivo,
+            List<CicloAcademico> ciclos,
+            List<AlumnoCiclo> alumnoCiclos,
+            List<AlumnoCicloCurso> allOperativesCicloCurso,
+            DataSessionPivot ds) {
+
         // this.calulcarSituacionAcademica(alumno, ds); 
         contadorComponent.iniciar(1);
         if (ds.getFechaAccionAudit() == null) {
             ds.setFechaAccionAudit(new Date());
         }
-        alumno = alumnoDAO.findAllInfo(alumno.getId());
-        List<AlumnoCicloCurso> alumnoCicloCursos = alumnoCicloCursoDAO.allOperativesByAlumno(alumno);
-        this.promediarAllCicloSync(alumno, cicloActivo, cicloAcademicoDAO.all(), alumnoCicloCursos, ds);
+        //alumno = alumnoDAO.findAllInfo(alumno.getId());
+        //List<AlumnoCicloCurso> alumnoCicloCursos = alumnoCicloCursoDAO.allOperativesByAlumno(alumno);
+        //this.promediarAllCicloSync(alumno, cicloActivo, ciclos, alumnoCicloCursos, ds);
+        this.promediarAllCicloSync(alumno, cicloActivo, ciclos, alumnoCiclos, allOperativesCicloCurso, ds);
     }
 
     @Override
     @Transactional
-    public void promediarAllCicloSync(Alumno alumno, CicloAcademico cicloActivo, List<CicloAcademico> ciclos, List<AlumnoCicloCurso> allOperativesByModalidadEstudio, DataSessionPivot ds) {
+    public void promediarAllCicloSync(
+            Alumno alumno,
+            CicloAcademico cicloActivo,
+            List<CicloAcademico> ciclos,
+            List<AlumnoCiclo> alumnoCiclos,
+            List<AlumnoCicloCurso> allOperativesByModalidadEstudio,
+            DataSessionPivot ds) {
+
         contadorComponent.incrementar();
         alumno = alumno.clone();
         logger.info("Promediar Alumno {}", alumno.getCodigo());
         if (alumno.getSituacionAcademica().isCodigoR()) {
             throw new PhobosException("No se puede calcular la situación, en situacion Renunciante.");
         }
+
         try {
 
-            this.analizeAlumnoCiclos(alumno, allOperativesByModalidadEstudio);
-            allOperativesByModalidadEstudio = alumnoCicloCursoDAO.allOperativesByAlumno(alumno);
+            this.analizeAlumnoCiclos(alumno, alumnoCiclos, allOperativesByModalidadEstudio);
+            //allOperativesByModalidadEstudio = alumnoCicloCursoDAO.allOperativesByAlumno(alumno);
 
             this.promediarAlumno(alumno, cicloActivo, allOperativesByModalidadEstudio, ds); //cambia situacion academica
             this.analizarEgresado(alumno, ds);
@@ -231,6 +253,7 @@ public class PromedioServiceImp implements PromedioService {
             alumnoDAO.updatePromedioProcesado(alumnoUpd);
 
             contadorComponent.incrementarProcesados();
+
         } catch (Exception e) {
             String excepcion = this.messageException(e);
             String error = "####Error en el hilo alumno " + alumno.getCodigo() + " ciclo activo " + alumno.getCicloActivo().getCodigo();
@@ -284,10 +307,10 @@ public class PromedioServiceImp implements PromedioService {
         }
     }
 
-    private void analizeAlumnoCiclos(Alumno alumno, List<AlumnoCicloCurso> alumnoCicloCursos) {
+    private void analizeAlumnoCiclos(Alumno alumno, List<AlumnoCiclo> alumnosCiclosByAlumno, List<AlumnoCicloCurso> alumnoCicloCursos) {
         logger.debug("analizeAlumnoCiclos");
         //Todoas los alumnos ciclos
-        List<AlumnoCiclo> alumnosCiclosByAlumno = alumnoCicloDAO.allByAlumno(alumno);
+        //List<AlumnoCiclo> alumnosCiclosByAlumno = alumnoCicloDAO.allByAlumno(alumno);
         List<String> ciclosStr = alumnosCiclosByAlumno.stream()
                 .map(x -> x.getCicloAcademico().getCodigo())
                 .collect(Collectors.toList());
@@ -428,8 +451,9 @@ public class PromedioServiceImp implements PromedioService {
         }
         alumno = alumnoDAO.findAllInfo(alumno.getId());
         CicloAcademico cicloActivo = cicloAcademicoDAO.findActivo(alumno.getModalidadEstudio().getOperativeModalidadEnum());
+        List<AlumnoCiclo> alumnoCiclos = alumnoCicloDAO.allByAlumno(alumno);
         List<AlumnoCicloCurso> alumnoCicloCursos = alumnoCicloCursoDAO.allOperativesByAlumno(alumno);
-        this.promediarAllCicloSync(alumno, cicloActivo, cicloAcademicoDAO.all(), alumnoCicloCursos, ds);
+        this.promediarAllCicloSync(alumno, cicloActivo, cicloAcademicoDAO.all(), alumnoCiclos, alumnoCicloCursos, ds);
     }
 
     @Async
@@ -453,7 +477,11 @@ public class PromedioServiceImp implements PromedioService {
     }
 
     @Transactional(propagation = Propagation.SUPPORTS)
-    private void promediarAlumno(Alumno alumno, CicloAcademico cicloActivo, List<AlumnoCicloCurso> allOperativesByModalidadEstudio, DataSessionPivot ds) {
+    private void promediarAlumno(
+            Alumno alumno, 
+            CicloAcademico cicloActivo, 
+            List<AlumnoCicloCurso> allOperativesByModalidadEstudio, 
+            DataSessionPivot ds) {
 
         List<AlumnoCiclo> alumnosCiclosByAlumno = alumnoCicloDAO.allActivesByAlumnoAsc(alumno);
         List<String> ciclos = alumnosCiclosByAlumno.stream().map(x -> x.getCicloAcademico().getCodigo()).collect(Collectors.toList());
@@ -821,8 +849,13 @@ public class PromedioServiceImp implements PromedioService {
 
     @Transactional(propagation = Propagation.SUPPORTS)
     private void promediarHistorialNotas(
-            Alumno alumno, CicloAcademico cicloActivo, CicloAcademico cicloAcademico, DataSessionPivot ds,
-            List<AlumnoCiclo> alumnoCiclos, List<AlumnoCicloCurso> alumnosCiclosCursoActual, List<AlumnoCicloCurso> alumnosCiclosCursoAnterior) {
+            Alumno alumno,
+            CicloAcademico cicloActivo,
+            CicloAcademico cicloAcademico,
+            DataSessionPivot ds,
+            List<AlumnoCiclo> alumnoCiclos,
+            List<AlumnoCicloCurso> alumnosCiclosCursoActual,
+            List<AlumnoCicloCurso> alumnosCiclosCursoAnterior) {
 
         logger.debug("$$$$$$$$$$$$$$ promediarHistorialNotas Ciclo Activo {} , Ciclo Academico {} {} {}",
                 cicloActivo.toString(),
@@ -1015,7 +1048,9 @@ public class PromedioServiceImp implements PromedioService {
                 idx++;
             }
         }
-        alumnoCicloCursoByCiclo = alumnoCicloCursoByCiclo.stream().filter(x -> x.getRegistroActivo() == 1).collect(Collectors.toList());
+        alumnoCicloCursoByCiclo = alumnoCicloCursoByCiclo.stream()
+                .filter(x -> x.getRegistroActivo() == 1)
+                .collect(Collectors.toList());
         return alumnoCicloCursoByCiclo;
     }
 

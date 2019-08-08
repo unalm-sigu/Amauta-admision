@@ -346,17 +346,6 @@ public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements Alu
     }
 
     @Override
-    public List<AlumnoCiclo> allByAlumno(Alumno alumno) {
-        Octavia sql = Octavia.query()
-                .from(AlumnoCiclo.class, "ac")
-                .join("alumno alu", "cicloAcademico ca")
-                .leftJoin("situacionInicio si", "situacionFinal sf")
-                .leftJoin("userModificacion um", "userRegistro ur")
-                .filter("alu.id", alumno);
-        return all(sql);
-    }
-
-    @Override
     public List<AlumnoCiclo> allByAlumnoAsc(Alumno alumno) {
         Octavia sql = Octavia.query()
                 .from(AlumnoCiclo.class, "ac")
@@ -449,6 +438,18 @@ public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements Alu
                 .filter("cicloAcademico", ciclo);
 
         return sql.all(getCurrentSession());
+    }
+
+    @Override
+    public List<AlumnoCiclo> allWithSituacionByCiclo(CicloAcademico ciclo) {
+        Octavia sql = Octavia.query()
+                .from(AlumnoCiclo.class, "ac")
+                .join("alumno alu", "cicloAcademico ca")
+                .leftJoin("situacionInicio si", "situacionFinal sf")
+                .leftJoin("userModificacion um", "userRegistro ur")
+                .filter("cicloAcademico", ciclo);
+
+        return all(sql);
     }
 
     @Override
@@ -785,6 +786,17 @@ public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements Alu
                 .filter("ac.estado", EstadoMatriculaEnum.MAT.name())
                 .filter("ca.tipo", REG)
                 .orderBy("ca.codigo desc");
+        return all(sql);
+    }
+
+    @Override
+    public List<AlumnoCiclo> allByAlumno(Alumno alumno) {
+        Octavia sql = Octavia.query()
+                .from(AlumnoCiclo.class, "ac")
+                .join("alumno alu", "cicloAcademico ca")
+                .leftJoin("situacionInicio si", "situacionFinal sf")
+                .leftJoin("userModificacion um", "userRegistro ur")
+                .filter("alu.id", alumno);
         return all(sql);
     }
 

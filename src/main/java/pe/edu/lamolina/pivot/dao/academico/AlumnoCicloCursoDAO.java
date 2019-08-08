@@ -86,19 +86,19 @@ public interface AlumnoCicloCursoDAO extends EasyDAO<AlumnoCicloCurso> {
 
     Long countByAlumnoCiclo(AlumnoCiclo alumnoCiclo);
 
-    public void updateCurso(AlumnoCicloCurso cursosAprobado);
+    void updateCurso(AlumnoCicloCurso cursosAprobado);
 
     List<AlumnoCicloCurso> allByAlumnoCicloNoFilters(AlumnoCiclo alumnoCiclo);
 
-    public List<AlumnoCicloCurso> allDesaproActivoByAlumno(Alumno alumno);
+    List<AlumnoCicloCurso> allDesaproActivoByAlumno(Alumno alumno);
 
-    public List<AlumnoCicloCurso> allDesaproActivoByAlumnos(List<Alumno> alumnos);
+    List<AlumnoCicloCurso> allDesaproActivoByAlumnos(List<Alumno> alumnos);
 
-    public List<AlumnoCicloCurso> allByNombre(Alumno alumno, CicloAcademico academico, String nombre);
+    List<AlumnoCicloCurso> allByNombre(Alumno alumno, CicloAcademico academico, String nombre);
 
-    public List<AlumnoCicloCurso> allOperativesByAlumnos(List<Alumno> alumnos);
+    List<AlumnoCicloCurso> allOperativesByAlumnos(List<Alumno> alumnos);
 
-    public List<AlumnoCicloCurso> allByAlumnoCicloCurso(Alumno alumno, CicloAcademico cicloAcademico, Curso curso);
+    List<AlumnoCicloCurso> allByAlumnoCicloCurso(Alumno alumno, CicloAcademico cicloAcademico, Curso curso);
 
     public List<AlumnoCicloCurso> allByAlumnosCiclos(List<AlumnoCiclo> alumnosCiclos);
 
