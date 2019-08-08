@@ -209,6 +209,7 @@ $(function () {
                         if (response.success) {
                             vue.$refs.modalAddAlumno.close();
                             vue.reloadDinatable();
+                            notify(response.message, 'success');
                         } else {
                             notify(response.message, 'error');
                         }

@@ -26,5 +26,5 @@ public interface TestService {
 
     public void trasladarMatriculaCursoForPromediosAlumno(DataSessionPivot ds, Long alumnoId);
 
-    public void trasladarMatriculaCursoForPromediosReview(DataSessionPivot ds);
+    public void trasladarMatriculaCursoForPromediosReview(DataSessionPivot ds, Long idAlumno);
 }

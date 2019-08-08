@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
@@ -123,35 +124,36 @@ public class HorarioCachimboIngresanteServiceImp implements HorarioCachimboIngre
         logger.debug("alumno {} cicloAcademico {}", alumno.getId(), cicloAcademico.getId());
         Alumno alumnoDB = alumnoDAO.find(alumno);
         Carrera carrera = alumnoDB.getCarrera();
+
         AlumnoHorario alumnoHorario = alumnoHorarioDAO.findByAlumnoCiclo(alumnoDB, cicloAcademico);
-        if (alumnoHorario == null) {
-            alumnoHorario = new AlumnoHorario();
-            alumnoHorario.setAlumno(alumno);
-            alumnoHorario.setCicloAcademico(cicloAcademico);
-            alumnoHorario.setEstado(EstadoAlumnoHorarioEnum.PEND);
-            alumnoHorarioDAO.save(alumnoHorario);
+        Assert.isNull(alumnoHorario, String.format("El alumno %s, ya se encuentra agregado.", alumnoDB.getPersona().getApellidosNombres()));
 
-            CarreraCachimbos ch = carreraCachimbosDAO.findByCarreraCiclo(carrera, cicloAcademico);
+        alumnoHorario = new AlumnoHorario();
+        alumnoHorario.setAlumno(alumno);
+        alumnoHorario.setCicloAcademico(cicloAcademico);
+        alumnoHorario.setEstado(EstadoAlumnoHorarioEnum.PEND);
+        alumnoHorarioDAO.save(alumnoHorario);
 
-            if (ch == null) {
-                ch = new CarreraCachimbos();
-                ch.setCarrera(carrera);
-                ch.setCicloAcademico(cicloAcademico);
-                ch.setConHorario(0);
-                ch.setHorarios(0);
-                ch.setIngresantes(1);
-                ch.setMatriculados(0);
-                ch.setSinHorario(1);
-                ch.setSuspendidos(0);
-                carreraCachimbosDAO.save(ch);
-            } else {
-                Integer ingresantesTotal = 1 + ch.getIngresantes();
-                ch.setIngresantes(ingresantesTotal);
-                ch.setSinHorario(ingresantesTotal);
-                carreraCachimbosDAO.update(ch);
-            }
+        CarreraCachimbos ch = carreraCachimbosDAO.findByCarreraCiclo(carrera, cicloAcademico);
 
+        if (ch == null) {
+            ch = new CarreraCachimbos();
+            ch.setCarrera(carrera);
+            ch.setCicloAcademico(cicloAcademico);
+            ch.setConHorario(0);
+            ch.setHorarios(0);
+            ch.setIngresantes(1);
+            ch.setMatriculados(0);
+            ch.setSinHorario(1);
+            ch.setSuspendidos(0);
+            carreraCachimbosDAO.save(ch);
+        } else {
+            Integer ingresantesTotal = 1 + ch.getIngresantes();
+            ch.setIngresantes(ingresantesTotal);
+            ch.setSinHorario(ingresantesTotal);
+            carreraCachimbosDAO.update(ch);
         }
+
     }
 
     @Override

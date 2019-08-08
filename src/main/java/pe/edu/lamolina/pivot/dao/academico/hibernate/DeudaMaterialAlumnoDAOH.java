@@ -29,8 +29,6 @@ public class DeudaMaterialAlumnoDAOH extends AbstractEasyDAO<DeudaMaterialAlumno
                 .in("ofi.id", oficina)
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                 .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
-                .searchComplexField("concat(coalesce(resper.paterno,''),' ',coalesce(resper.materno,''),' ',coalesce(resper.nombres,''))")
-                .searchComplexField("concat(coalesce(resper.nombres,''),' ',coalesce(resper.paterno,''),' ',coalesce(resper.materno,''))")
                 .searchFields("da.estado", "da.descripcion", "ofi.nombre", "ofi.codigo")
                 .orderBy("da.id desc");
 

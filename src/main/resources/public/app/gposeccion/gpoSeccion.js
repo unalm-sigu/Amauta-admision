@@ -57,7 +57,8 @@ new Vue({
         anexoPadreCurso: {},
         newGrupoSeccion: {curso: {}, anexoBoletin: {}},
         configConfirmAction: VUE_MODAL.structConfirm({}),
-        cicloClonacionBean: {copiarAulasOera: false, copiarAulasDptos: false, copiarAulasPosgrado: false}
+        cicloClonacionBean: {copiarAulasOera: false, copiarAulasDptos: false, copiarAulasPosgrado: false},
+        gpoSeccionesSelects: []
     },
     computed: {
         condicion1() {
@@ -782,6 +783,38 @@ new Vue({
                     .catch(function (error) {
                         notify(error.errorComunicacion, "error");
 
+                    });
+        },
+        verEliminarGruposSecciones() {
+            let $vue = this;
+            $vue.configConfirmAction = VUE_MODAL.structConfirm({
+                message: "¿Desea eliminar el/los grupos(s) sección(es)?",
+                okbtn: "Si, Eliminar",
+                okclass: "btn-warning",
+                okaction: $vue.eliminarGrupos,
+                okbtnprocessing: '<i class="fa fa-spinner fa-pulse fa-fw"></i> Ordenando...'
+            });
+            $vue.$refs.modalConfirmAction.open();
+        },
+        eliminarGrupos() {
+            console.log("eliminar grupos");
+            let $vue = this;
+            console.dir($vue.gpoSeccionesSelects);
+
+            axios.post(APP.url(rutaModulo + '/eliminarGrupos'), $vue.gpoSeccionesSelects)
+                    .then(function (response) {
+                        $vue.$refs.modalConfirmAction.confirmReaction(response.data.success);
+                        if (response.data.success) {
+                            $vue.listCicloAcademico = response.data.data;
+                            notify(response.data.message, "success");
+                            $vue.gpoSeccionesSelects = [];
+                            $vue.$refs.load.loadRemoteData();
+                        } else {
+                            notify(response.data.message, "error");
+                        }
+                    })
+                    .catch(function (error) {
+                        notify(error.errorComunicacion, "error");
                     });
         }
     }

@@ -209,4 +209,6 @@ public interface GpoSeccionService {
 
     public GrupoSeccion findByCursoAndDocenteDirigido(Curso curso, Docente docenteAsignado, CicloAcademico academico);
 
+    void eliminarGrupos(List<GrupoSeccion> gruposSeccion, DataSessionPivot ds);
+
 }

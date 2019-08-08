@@ -200,6 +200,9 @@ public class HorarioCachimboCursoController {
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
             logger.debug("curso {} ", cursos.size());
             Usuario user = ds.getUsuario();
+
+            response.setMessage("Curso agregado satisfactoriamente");
+            response.setSuccess(Boolean.TRUE);
             for (Long curso : cursos) {
                 logger.debug("curso long1 {} ", curso);
                 CursoCachimbos cursoCachimbos = new CursoCachimbos();
@@ -211,8 +214,6 @@ public class HorarioCachimboCursoController {
                 cursoCachimbos.setHorarios(0);
                 service.addCurso(cursoCachimbos);
             }
-            response.setMessage("Curso agregado satisfactoriamente");
-            response.setSuccess(Boolean.TRUE);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {

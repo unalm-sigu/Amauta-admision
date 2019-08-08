@@ -116,6 +116,16 @@ public class EvaluacionDAOH extends AbstractEasyDAO<Evaluacion> implements Evalu
     }
 
     @Override
+    public List<Evaluacion> allByGruposSecciones(List<GrupoSeccion> gruposSecciones) {
+        Octavia sql = Octavia.query()
+                .from(Evaluacion.class, "eva")
+                .join("seccionResponsable sr", "sr.grupoSeccion gSec")
+                .leftJoin("evaluacionSuperior evaSup")
+                .in("gSec.id", gruposSecciones);
+        return this.all(sql);
+    }
+
+    @Override
     public List<Evaluacion> allBySeccion(Seccion seccion) {
         Octavia sql = Octavia.query()
                 .from(Evaluacion.class, "eva")
