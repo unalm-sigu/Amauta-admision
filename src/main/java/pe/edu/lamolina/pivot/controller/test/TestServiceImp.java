@@ -443,7 +443,7 @@ public class TestServiceImp implements TestService {
 
         SituacionAcademica situacionAcademicaComodin = situacionAcademicaDAO.findByCodigo(SituacionAcademicaEnum.S_00.getValue());
 
-        List<MatriculaResumen> matriculasResumenes = matriculaResumenDAO.allByCiclos(ciclos);
+        List<MatriculaResumen> matriculasResumenes = matriculaResumenDAO.allByAlumnoCiclos(alumno, ciclos);
         List<MatriculaCurso> matriculasCurso = matriculaCursoDAO.allByMatriculaResumenFull(matriculasResumenes);
         List<MatriculaSeccion> matriculasSeccion = matriculaSeccionDAO.allByMatriculaResumenes(matriculasResumenes);
 
@@ -451,10 +451,10 @@ public class TestServiceImp implements TestService {
         Map<Long, List<MatriculaCurso>> mapMatriculaCursoByMr = TypesUtil.convertListToMapList("matriculaResumen.id", matriculasCurso);
         Map<Long, List<MatriculaSeccion>> mapMatriculaSeccByMr = TypesUtil.convertListToMapList("matriculaResumen.id", matriculasSeccion);
 
-        List<AlumnoCiclo> alumnosCiclos = alumnoCicloDAO.allByCicloAcademicos(ciclos);
-        Map<Long, List<AlumnoCiclo>> mapAlumnoCiclo = TypesUtil.convertListToMapList("cicloAcademico.id", alumnosCiclos);
+        List<AlumnoCiclo> alumnosCiclos = alumnoCicloDAO.allByAlumno(alumno);
+        Map<Long, AlumnoCiclo> mapAlumnoCiclos = TypesUtil.convertListToMap("cicloAcademico.id", alumnosCiclos);
 
-        List<AlumnoCicloCurso> alumnoCicloCurso = alumnoCicloCursoDAO.allByAlumnosCiclos(alumnosCiclos);
+        List<AlumnoCicloCurso> alumnoCicloCurso = alumnoCicloCursoDAO.allByAlumno(alumno);
         Map<Long, List<AlumnoCicloCurso>> mapAlumnoCicloCursoByAlumCi = TypesUtil.convertListToMapList("alumnoCiclo.id", alumnoCicloCurso);
 
         for (CicloAcademico cicloAcademicoEach : ciclos) {
@@ -466,36 +466,11 @@ public class TestServiceImp implements TestService {
             if (matriculaCursos == null || matriculaCursos.isEmpty()) {
                 continue;
             }
-
             List<MatriculaSeccion> matriculaSeccions = fillList(mapMatriculaSeccByMr.get(matriculaResumen.getId()));
-            visorCalculoNotas.iniciar();
-            visorCalculoNotas.setCantidadTotal(1);
-            logger.debug("##################Ciclo padre {} {} {}", cicloAcademicoEach.getId(), cicloAcademicoEach.getYear(), cicloAcademicoEach.getNumeroCiclo());
-            if (mapRetiro.get(cicloAcademicoEach.getId()) != null) {
-                matriculaResumen.setEstadoEnum(EstadoMatriculaEnum.RCI);
 
-                List<MatriculaCurso> matriculasCursoMAt = matriculaCursoDAO.allByMatriculaResumen(matriculaResumen);
-                for (MatriculaCurso matriculaCurso : matriculasCursoMAt) {
-                    MatriculaSeccion matriculaSeccion = matriculaSeccions
-                            .stream().filter(x -> x.getSeccion().getGrupoSeccion().getCurso().getId().equals(matriculaCurso.getCurso().getId())).findFirst().orElse(null);
-                    matriculaSeccion.setEstadoEnum(EstadoMatriculaEnum.RCI);
-                    matriculaSeccionDAO.update(matriculaSeccion);
-
-                    matriculaCurso.setEstadoEnum(EstadoMatriculaEnum.RCI);
-                    matriculaCursoDAO.updateColumns(matriculaCurso, "estado");
-                }
-            } else {
-
-                for (MatriculaCurso matriculaCurso : matriculaCursos) {
-                    String keys = matriculaCurso.getCurso().getId() + "-" + cicloAcademicoEach.getId();
-                    if (mapRetiroCurso.get(keys) != null) {
-                        matriculaCurso.setEstadoEnum(EstadoMatriculaEnum.RCU);
-                        matriculaCursoDAO.updateColumns(matriculaCurso, "estado");
-                    }
-                }
-            }
-//            promedioReviewService.trasladarInformcionForHistorial(matriculaResumen, matriculasCurso, matriculaSeccions, ds, mapRetiro, false);
+            this.trasladarMatriculaCursoForPromediosAlumnoTest(cicloAcademicoEach, mapRetiro.get(cicloAcademicoEach.getId()), retiroCursos, matriculaResumen, matriculaCursos, matriculaSeccions, ds);
         }
+        promedioReviewService.trasladarInformcionForHistorial(matriculasResumenes, matriculasCurso, matriculasSeccion, ds, mapRetiro, mapAlumnoCicloCursoByAlumCi, mapAlumnoCiclos, situacionAcademicaComodin, false);
     }
 
     @Override
