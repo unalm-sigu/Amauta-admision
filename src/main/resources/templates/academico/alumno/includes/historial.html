@@ -137,7 +137,9 @@
                             <i class="fa fa-times-circle text-danger fa-lg" v-if="cur.estaAprobado==0"></i>
                         </td>
 
-                        <td class="text-center" v-text="cur.vecesCursado"/>
+                        <td class="text-center" >
+                            <span v-text="cur.vecesCursado"></span> - <span v-text="cur.vecesCursadoRegular"></span>
+                        </td>
 
                     </tr>
                     <tr v-if="verCiclo(tab)">

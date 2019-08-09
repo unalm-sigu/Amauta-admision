@@ -196,7 +196,7 @@ public class MatriculableServiceImp implements MatriculableService {
         DateTime today = new DateTime();
 
         generarPregrado(ciclo, ds);
-        generarPosgrado(ciclo);
+//        generarPosgrado(ciclo);
 
         CicloAcademico cicloAcademicoUpd = new CicloAcademico();
         cicloAcademicoUpd.setId(ciclo.getId());
