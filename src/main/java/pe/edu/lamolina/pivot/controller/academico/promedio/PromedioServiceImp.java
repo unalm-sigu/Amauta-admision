@@ -283,11 +283,16 @@ public class PromedioServiceImp implements PromedioService {
             CicloAcademico ultimoCiclo = null;
             CicloAcademico ultimoCicloRegular = null;
             CicloAcademico ultimoRetiroRegular = null;
+
             AlumnoCiclo ultimoRegular = null;
+            AlumnoCiclo ultimoAlumnoCiclo = null;
+
             int ciclosNorelacionados = 0;
             Collections.sort(alumnoCiclos, new AlumnoCiclo.CompareCicloAsc());
 
             for (AlumnoCiclo alumnoCiclo : alumnoCiclos) {
+                ultimoAlumnoCiclo = alumnoCiclo;
+
                 if (alumnoCiclo.getEstadoEnum() == EstadoMatriculaEnum.MAT) {
                     ultimoCiclo = alumnoCiclo.getCicloAcademico();
                     if (alumnoCiclo.getCicloAcademico().getTipoEnum() == TipoCicloEnum.REG) {
@@ -331,6 +336,10 @@ public class PromedioServiceImp implements PromedioService {
                             "estaAprobado", "userModificacion", "fechaModificacion");
                 }
 
+            }
+
+            if (ultimoAlumnoCiclo != null && ultimoAlumnoCiclo.getSituacionFinal() != null) {
+                alumno.setSituacionAcademica(ultimoAlumnoCiclo.getSituacionFinal());
             }
 
             alumno.setUltimoRetiro(ultimoRetiroRegular);
@@ -550,7 +559,7 @@ public class PromedioServiceImp implements PromedioService {
         Egresado egresado = egresadoDAO.findPrincipalByAlumno(alumno);
         if (egresado != null && egresado.getCicloAcademico() != null) {
 
-            SituacionAcademica situacionAcademicaEM = new SituacionAcademica(SituacionAcademicaEnum.S_EM);
+            SituacionAcademica situacionAcademicaEM = new SituacionAcademica(SituacionAcademicaEnum.S_E);
 
             //AlumnoCiclo alumnoCicloEgresado = alumnoCicloDAO.findByAlumnoCiclo(alumno, alumno.getCicloActivo());
             AlumnoCiclo alumnoCicloEgresado = findAlumnoCiclo(alumnoCiclos, alumno.getCicloActivo());
@@ -1502,7 +1511,7 @@ public class PromedioServiceImp implements PromedioService {
         if (!generarTrika && (alumnoCicloSiguienteInha != null && alumnoCicloSiguienteInha.getSituacionFinal().isTrikeado())) {
             List<AlumnoCicloCurso> alumnoCiclosCursos = alumnoCicloCursoDAO.allStateByAlumnoCiclo(alumnoCicloSiguienteInha);
             if (alumnoCiclosCursos.isEmpty()) {
-                alumnoCicloDAO.delete(alumnoCicloSiguienteInha);
+                // alumnoCicloDAO.delete(alumnoCicloSiguienteInha);
             }
         }
 
