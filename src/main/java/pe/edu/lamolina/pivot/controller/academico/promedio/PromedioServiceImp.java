@@ -280,13 +280,26 @@ public class PromedioServiceImp implements PromedioService {
 
             this.analizedCastigados(alumno, alumnoCiclos, cicloActivo, mapCiclo);
 
-            //if (!alumno.getPromedioProcesado()) {
-            alumno.setPromedioProcesado(Boolean.TRUE);
-            alumnoDAO.updateColumns(alumno, "cicloActivo", "creditosAprobados", "creditosCursados", "promedioAcumulado", "situacionAcademica");
-            //}
-
+            CicloAcademico ultimoCiclo = null;
+            CicloAcademico ultimoCicloRegular = null;
+            CicloAcademico ultimoRetiroRegular = null;
+            AlumnoCiclo ultimoRegular = null;
             int ciclosNorelacionados = 0;
+            Collections.sort(alumnoCiclos, new AlumnoCiclo.CompareCicloAsc());
+
             for (AlumnoCiclo alumnoCiclo : alumnoCiclos) {
+                if (alumnoCiclo.getEstadoEnum() == EstadoMatriculaEnum.MAT) {
+                    ultimoCiclo = alumnoCiclo.getCicloAcademico();
+                    if (alumnoCiclo.getCicloAcademico().getTipoEnum() == TipoCicloEnum.REG) {
+                        ultimoRegular = alumnoCiclo;
+                        ultimoCicloRegular = alumnoCiclo.getCicloAcademico();
+                    }
+                }
+                if (alumnoCiclo.getEstadoEnum() == EstadoMatriculaEnum.RCI) {
+                    if (alumnoCiclo.getCicloAcademico().getTipoEnum() == TipoCicloEnum.REG) {
+                        ultimoRetiroRegular = alumnoCiclo.getCicloAcademico();
+                    }
+                }
                 if (alumnoCiclo.getId() == null) {
                     alumnoCicloDAO.save(alumnoCiclo);
                     continue;
@@ -319,6 +332,20 @@ public class PromedioServiceImp implements PromedioService {
                 }
 
             }
+
+            alumno.setUltimoRetiro(ultimoRetiroRegular);
+            alumno.setCicloActivo(ultimoCiclo);
+            alumno.setCicloActivoRegular(ultimoCicloRegular);
+
+            alumno.setPromedioUltimoCiclo(null);
+            if (ultimoCicloRegular != null) {
+                alumno.setPromedioUltimoCiclo(ultimoRegular.getPromedioCiclo());
+            }
+
+            alumno.setPromedioProcesado(Boolean.TRUE);
+            alumnoDAO.updateColumns(alumno,
+                    "cicloActivo", "cicloActivoRegular", "ultimoRetiro", "situacionAcademica",
+                    "creditosAprobados", "creditosCursados", "promedioAcumulado", "promedioUltimoCiclo");
 
             logger.debug("\tEl alumno.id {} tiene {} ciclos no relacionados", alumni.getId(), ciclosNorelacionados);
             contadorComponent.incrementarProcesados();
