@@ -295,7 +295,7 @@ public class PromedioReviewServiceImp implements PromedioReviewService {
 
             if (cicloActivo.equals(cicloAcademicoRei)) {
                 AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findLastNotInSituacion(alumno, SituacionAcademicaEnum.S_D);
-                if (alumnoCiclo.getSituacionFinal().isCodigoD()) { //to delete
+                if (alumnoCiclo.getSituacionFinal().isDesertor()) { //to delete
                     alumno.setSituacionAcademica(alumnoCiclo.getSituacionInicio());
                 } else {
                     alumno.setSituacionAcademica(alumnoCiclo.getSituacionFinal());
@@ -877,7 +877,7 @@ public class PromedioReviewServiceImp implements PromedioReviewService {
             alumnoCicloDAO.update(alumnoCiclo);
         }
 
-        if (alumnoCiclo.getSituacionFinal().isCodigoD() || alumnoCiclo.getSituacionFinal().isCodigoS4()
+        if (alumnoCiclo.getSituacionFinal().isDesertor() || alumnoCiclo.getSituacionFinal().isCodigoS4()
                 || alumnoCiclo.getSituacionFinal().isCodigoS4U() || alumnoCiclo.getSituacionFinal().isCodigoEM()) {
             return;
         }
@@ -1260,7 +1260,7 @@ public class PromedioReviewServiceImp implements PromedioReviewService {
 
         for (AlumnoCiclo alumnoCicloEach : alumnosCiclosAnteriores) {
             logger.debug("Ciclo a evaluar alumnocilo {}, cilo {}", alumnoCicloEach.toString(), alumnoCicloEach.getCicloAcademico().toString());
-            if (alumnoCicloEach.getSituacionFinal().isCodigoD()) {
+            if (alumnoCicloEach.getSituacionFinal().isDesertor()) {
                 contadorIntercalado = 0;
             }
             if (alumnoCicloEach.isNoMatriculado()) {

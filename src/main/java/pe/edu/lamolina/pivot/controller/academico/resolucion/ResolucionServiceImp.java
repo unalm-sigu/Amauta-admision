@@ -460,7 +460,7 @@ public class ResolucionServiceImp implements ResolucionService {
                     
                     Alumno alumno = alumnoDAO.find(tramite.getAlumno());
                     AlumnoCiclo lastAlumnoCiclo = alumnoCicloDAO.findLastActiveRegByAlumno(alumno);
-                    if (lastAlumnoCiclo.getSituacionFinal().isCodigoD()) {
+                    if (lastAlumnoCiclo.getSituacionFinal().isDesertor()) {
                         alumno.setSituacionAcademica(lastAlumnoCiclo.getSituacionInicio());
                     } else {
                         alumno.setSituacionAcademica(lastAlumnoCiclo.getSituacionFinal());
