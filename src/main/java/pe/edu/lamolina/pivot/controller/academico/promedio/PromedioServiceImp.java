@@ -1081,17 +1081,19 @@ public class PromedioServiceImp implements PromedioService {
         }
 
         Integer year = ciclo.getYear();
-        Integer nroCiclo = Integer.valueOf(ciclo.getNumeroCiclo());
-        if (nroCiclo == 2) {
+        String nroCiclo = ciclo.getNumeroCiclo();
+        if (nroCiclo.equals("2")) {
             year++;
-            nroCiclo = 1;
+            nroCiclo = "10";
+        } else if (nroCiclo.equals("1.5")) {
+            nroCiclo = "20";
         } else {
-            nroCiclo++;
+            nroCiclo = "20";
         }
 
         List<CicloAcademicoEstadoEnum> validosAnalisis = Arrays.asList(CicloAcademicoEstadoEnum.CER, CicloAcademicoEstadoEnum.PEND);
 
-        String codeSgte = year + "" + nroCiclo + "0";
+        String codeSgte = year + nroCiclo;
         //logger.debug("sgte ciclo de {} es {}", ciclo.getCodigo(), codeSgte);
         List<CicloAcademico> ciclosCode = TypesUtil.getListNotNull(mapCiclo.get(codeSgte));
         for (CicloAcademico ca : ciclosCode) {
