@@ -10,6 +10,7 @@ import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.MatriculaCurso;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
+import pe.edu.lamolina.model.tramite.Reincorporacion;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface PromedioService {
@@ -24,6 +25,7 @@ public interface PromedioService {
             List<CicloAcademico> ciclos,
             List<AlumnoCiclo> alumnoCiclos,
             List<AlumnoCicloCurso> allOperativesByModalidadEstudio,
+            List<Reincorporacion> allReincorporacionesByAlumno,
             DataSessionPivot ds);
 
     void promediarAllCicloSync(
@@ -32,6 +34,7 @@ public interface PromedioService {
             List<CicloAcademico> ciclos,
             List<AlumnoCiclo> alumnoCiclos,
             List<AlumnoCicloCurso> allOperativesByModalidadEstudio,
+            List<Reincorporacion> allReincorporacionesByAlumno,
             DataSessionPivot ds);
 
     void trasladoPromediosSource(MatriculaCurso matriculaCurso, DataSessionPivot ds);

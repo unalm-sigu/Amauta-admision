@@ -119,4 +119,6 @@ public interface SeccionDAO extends EasyDAO<Seccion> {
 
     void resetAsignacionAulaAuto(List<Seccion> secciones);
 
+    List<Seccion> allByGrupoSecciones(List<GrupoSeccion> gruposSeccion);
+
 }

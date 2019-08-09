@@ -7,6 +7,7 @@ import pe.edu.lamolina.model.academico.AlumnoEvaluacion;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.Evaluacion;
+import pe.edu.lamolina.model.academico.GrupoSeccion;
 
 public interface AlumnoEvaluacionDAO extends EasyDAO<AlumnoEvaluacion> {
 
@@ -25,5 +26,7 @@ public interface AlumnoEvaluacionDAO extends EasyDAO<AlumnoEvaluacion> {
     AlumnoEvaluacion findByFilter(Long id, Long idEvaluacion, Long idAlumno);
 
     void deleteByEvaluacion(Evaluacion evaluacion);
+
+    List<AlumnoEvaluacion> allByGrupoSeccion(List<GrupoSeccion> grupoSeccion);
 
 }

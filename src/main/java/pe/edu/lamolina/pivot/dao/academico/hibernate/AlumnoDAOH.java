@@ -965,4 +965,14 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
         return all(sql);
     }
 
+    @Override
+    public void updateColumns(Alumno alumno, String... columns) {
+        List<String> lColumns = Arrays.asList(columns);
+        Octavia octavia = Octavia.update(Alumno.class);
+        for (String column : lColumns) {
+            octavia.set(alumno, column);
+        }
+        this.update(octavia);
+    }
+
 }

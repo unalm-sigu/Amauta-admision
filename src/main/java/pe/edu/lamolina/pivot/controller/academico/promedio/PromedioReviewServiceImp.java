@@ -295,7 +295,7 @@ public class PromedioReviewServiceImp implements PromedioReviewService {
 
             if (cicloActivo.equals(cicloAcademicoRei)) {
                 AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findLastNotInSituacion(alumno, SituacionAcademicaEnum.S_D);
-                if (alumnoCiclo.getSituacionFinal().isCodigoD()) { //to delete
+                if (alumnoCiclo.getSituacionFinal().isDesertor()) { //to delete
                     alumno.setSituacionAcademica(alumnoCiclo.getSituacionInicio());
                 } else {
                     alumno.setSituacionAcademica(alumnoCiclo.getSituacionFinal());
@@ -373,11 +373,11 @@ public class PromedioReviewServiceImp implements PromedioReviewService {
     }
 
     public void evaluarPrimerCiclo(Alumno alumno, AlumnoCiclo alumnoCiclo) {
-        SituacionAcademica situacionN = new SituacionAcademica(SituacionAcademicaEnum.S_N.getId());
-        SituacionAcademica situacion8 = new SituacionAcademica(SituacionAcademicaEnum.S_8.getId());
-        SituacionAcademica situacion9 = new SituacionAcademica(SituacionAcademicaEnum.S_9.getId());
-        SituacionAcademica situacionQ = new SituacionAcademica(SituacionAcademicaEnum.S_Q.getId());
-        SituacionAcademica situacion7 = new SituacionAcademica(SituacionAcademicaEnum.S_7.getId());
+        SituacionAcademica situacionN = new SituacionAcademica(SituacionAcademicaEnum.S_N);
+        SituacionAcademica situacion8 = new SituacionAcademica(SituacionAcademicaEnum.S_8);
+        SituacionAcademica situacion9 = new SituacionAcademica(SituacionAcademicaEnum.S_9);
+        SituacionAcademica situacionQ = new SituacionAcademica(SituacionAcademicaEnum.S_Q);
+        SituacionAcademica situacion7 = new SituacionAcademica(SituacionAcademicaEnum.S_7);
 
         if (alumno.isPregrado()) {
             if (alumno.isQuintoSecundaria()) {
@@ -669,8 +669,8 @@ public class PromedioReviewServiceImp implements PromedioReviewService {
                 alumnoCicloCursoNew.setEstaAprobado(aprobado);
 
                 //  alumnoCicloCurso.setVecesCursado(alumnoCicloCursoDAO.countByCursoAlumnoAnterioresCiclo(curso, alumno, cicloAcademico).intValue() + 1);
-                alumnoCicloCursoNew.setVecesCursado(this.countVecesAnteriores(matriculasCursosByAlumno, cicloAcademico, curso) + 1);
-                alumnoCicloCursoNew.setVecesCursadoRegular(this.countVecesAnterioresReg(matriculasCursosByAlumno, cicloAcademico, curso) + 1);
+                alumnoCicloCursoNew.setVecesCursado(this.countVecesAnteriores(new ArrayList(mapAlumnoCicloCurso.values()), cicloAcademico, curso) + 1);
+                alumnoCicloCursoNew.setVecesCursadoRegular(this.countVecesAnterioresReg(new ArrayList(mapAlumnoCicloCurso.values()), cicloAcademico, curso) + 1);
                 logger.debug("################## PARA GUARDAR ALUMNO CICLO CURSO {} {} {} {} {}", cicloAcademico.getId(), cicloAcademico.getYear(), cicloAcademico.getNumeroCiclo(), curso.getNombre(), matriculaCurso.getEstado());
                 alumnoCicloCursoDAO.save(alumnoCicloCursoNew);
             }
@@ -694,8 +694,8 @@ public class PromedioReviewServiceImp implements PromedioReviewService {
                         }
                         Integer aprobado = evaluateEstaAprobado(matriculaCurso, alumno);
                         alumnoCicloCursoTemp.setEstaAprobado(aprobado);
-                        alumnoCicloCursoTemp.setVecesCursado(this.countVecesAnteriores(matriculasCursosByAlumno, cicloAcademico, curso) + 1);
-                        alumnoCicloCursoTemp.setVecesCursadoRegular(this.countVecesAnterioresReg(matriculasCursosByAlumno, cicloAcademico, curso) + 1);
+                        alumnoCicloCursoTemp.setVecesCursado(this.countVecesAnteriores(new ArrayList(mapAlumnoCicloCurso.values()), cicloAcademico, curso) + 1);
+                        alumnoCicloCursoTemp.setVecesCursadoRegular(this.countVecesAnterioresReg(new ArrayList(mapAlumnoCicloCurso.values()), cicloAcademico, curso) + 1);
                         alumnoCicloCursoDAO.update(alumnoCicloCursoTemp);
 
                     } else {
@@ -719,8 +719,8 @@ public class PromedioReviewServiceImp implements PromedioReviewService {
                         }
                         Integer aprobado = evaluateEstaAprobado(matriculaCurso, alumno);
                         alumnoCicloCursoTemp.setEstaAprobado(aprobado);
-                        alumnoCicloCursoTemp.setVecesCursado(this.countVecesAnteriores(matriculasCursosByAlumno, cicloAcademico, curso) + 1);
-                        alumnoCicloCursoTemp.setVecesCursadoRegular(this.countVecesAnterioresReg(matriculasCursosByAlumno, cicloAcademico, curso) + 1);
+                        alumnoCicloCursoTemp.setVecesCursado(this.countVecesAnteriores(new ArrayList(mapAlumnoCicloCurso.values()), cicloAcademico, curso) + 1);
+                        alumnoCicloCursoTemp.setVecesCursadoRegular(this.countVecesAnterioresReg(new ArrayList(mapAlumnoCicloCurso.values()), cicloAcademico, curso) + 1);
                         alumnoCicloCursoDAO.update(alumnoCicloCursoTemp);
                     } else {
                         alumnoCicloCursoTemp.setRegistroActivo(0);
@@ -753,22 +753,21 @@ public class PromedioReviewServiceImp implements PromedioReviewService {
         return lista;
     }
 
-    public Integer countVecesAnteriores(List<MatriculaCurso> matriculasCursosAlumno, CicloAcademico cicloAcademico, Curso curso) {
-        List<MatriculaCurso> matriculasCursosAnterioresByCurso = matriculasCursosAlumno.stream().filter(
-                x -> (x.getMatriculaResumen().getCicloAcademico().getCodigoInt() < cicloAcademico.getCodigoInt()
+    public Integer countVecesAnteriores(List<AlumnoCicloCurso> matriculasCursosAlumno, CicloAcademico cicloAcademico, Curso curso) {
+        List<AlumnoCicloCurso> matriculasCursosAnterioresByCurso = matriculasCursosAlumno.stream().filter(
+                x -> (x.getAlumnoCiclo().getCicloAcademico().getCodigoInt() < cicloAcademico.getCodigoInt()
                 && x.getCurso().equals(curso))
-                && x.getMatriculaResumen().getCicloAcademico().isTipoRegular()
-                && x.isEstadoMAT())
+                && x.getIsEstadoMatriculado())
                 .collect(Collectors.toList());
         return matriculasCursosAnterioresByCurso.size();
     }
 
-    public Integer countVecesAnterioresReg(List<MatriculaCurso> matriculasCursosAlumno, CicloAcademico cicloAcademico, Curso curso) {
-        List<MatriculaCurso> matriculasCursosAnterioresByCurso = matriculasCursosAlumno.stream().filter(
-                x -> (x.getMatriculaResumen().getCicloAcademico().getCodigoInt() < cicloAcademico.getCodigoInt()
+    public Integer countVecesAnterioresReg(List<AlumnoCicloCurso> matriculasCursosAlumno, CicloAcademico cicloAcademico, Curso curso) {
+        List<AlumnoCicloCurso> matriculasCursosAnterioresByCurso = matriculasCursosAlumno.stream().filter(
+                x -> (x.getAlumnoCiclo().getCicloAcademico().getCodigoInt() < cicloAcademico.getCodigoInt()
                 && x.getCurso().equals(curso))
-                && x.getMatriculaResumen().getCicloAcademico().isTipoRegular()
-                && x.isEstadoMAT())
+                && x.getAlumnoCiclo().getCicloAcademico().isTipoRegular()
+                && x.getIsEstadoMatriculado())
                 .collect(Collectors.toList());
         return matriculasCursosAnterioresByCurso.size();
     }
@@ -800,7 +799,7 @@ public class PromedioReviewServiceImp implements PromedioReviewService {
                 if (alumno.isQuintoSecundaria()) {
                     if (diffYears >= 1) {
                         Alumno alumnoUpd = new Alumno(alumno.getId());
-                        alumnoUpd.setSituacionAcademica(new SituacionAcademica(SituacionAcademicaEnum.S_8.getId()));
+                        alumnoUpd.setSituacionAcademica(new SituacionAcademica(SituacionAcademicaEnum.S_8));
                         alumnoDAO.updateSituacionAcad(alumnoUpd);
                     }
                     if (diffYears == 1) {
@@ -815,10 +814,10 @@ public class PromedioReviewServiceImp implements PromedioReviewService {
                 if (alumno.getSituacionAcademica().isCodigoS8() || alumno.getSituacionAcademica().isCodigoN()) {
                     SituacionAcademica situacion = null;
                     if (ciclosNmat == 1) {
-                        situacion = new SituacionAcademica(SituacionAcademicaEnum.S_9.getId());
+                        situacion = new SituacionAcademica(SituacionAcademicaEnum.S_9);
                     }
                     if (ciclosNmat > 1) {
-                        situacion = new SituacionAcademica(SituacionAcademicaEnum.S_7.getId());
+                        situacion = new SituacionAcademica(SituacionAcademicaEnum.S_7);
                     }
                     if (situacion != null) {
                         Alumno alumnoUpd = new Alumno(alumno.getId());
@@ -877,7 +876,7 @@ public class PromedioReviewServiceImp implements PromedioReviewService {
             alumnoCicloDAO.update(alumnoCiclo);
         }
 
-        if (alumnoCiclo.getSituacionFinal().isCodigoD() || alumnoCiclo.getSituacionFinal().isCodigoS4()
+        if (alumnoCiclo.getSituacionFinal().isDesertor() || alumnoCiclo.getSituacionFinal().isCodigoS4()
                 || alumnoCiclo.getSituacionFinal().isCodigoS4U() || alumnoCiclo.getSituacionFinal().isCodigoEM()) {
             return;
         }
@@ -988,9 +987,9 @@ public class PromedioReviewServiceImp implements PromedioReviewService {
             situacionFinalForTrika = situacionAcademicaFinal;
             if (situacionAcademicaFinal.isCodigoS6()) {
                 if (alumnoCiclo.isUltimoCiclo()) {
-                    situacionFinalForTrika = new SituacionAcademica(SituacionAcademicaEnum.S_3U.getId());
+                    situacionFinalForTrika = new SituacionAcademica(SituacionAcademicaEnum.S_3U);
                 } else {
-                    situacionFinalForTrika = new SituacionAcademica(SituacionAcademicaEnum.S_3.getId());
+                    situacionFinalForTrika = new SituacionAcademica(SituacionAcademicaEnum.S_3);
                 }
             }
 
@@ -1030,12 +1029,12 @@ public class PromedioReviewServiceImp implements PromedioReviewService {
             SituacionAcademica situacionFinalForSuspension = null;
             if (!alumnoCiclo.isAprobado()) {
                 if (alumnoCiclo.isUltimoCiclo()) {
-                    situacionFinalForSuspension = new SituacionAcademica(SituacionAcademicaEnum.S_3U.getId());
+                    situacionFinalForSuspension = new SituacionAcademica(SituacionAcademicaEnum.S_3U);
                 } else {
-                    situacionFinalForSuspension = new SituacionAcademica(SituacionAcademicaEnum.S_3.getId());
+                    situacionFinalForSuspension = new SituacionAcademica(SituacionAcademicaEnum.S_3);
                 }
             } else {
-                situacionFinalForSuspension = new SituacionAcademica(SituacionAcademicaEnum.S_N.getId());
+                situacionFinalForSuspension = new SituacionAcademica(SituacionAcademicaEnum.S_N);
             }
 
             if (alumnoCicloCorrespSgtRegular == null) {
@@ -1260,7 +1259,7 @@ public class PromedioReviewServiceImp implements PromedioReviewService {
 
         for (AlumnoCiclo alumnoCicloEach : alumnosCiclosAnteriores) {
             logger.debug("Ciclo a evaluar alumnocilo {}, cilo {}", alumnoCicloEach.toString(), alumnoCicloEach.getCicloAcademico().toString());
-            if (alumnoCicloEach.getSituacionFinal().isCodigoD()) {
+            if (alumnoCicloEach.getSituacionFinal().isDesertor()) {
                 contadorIntercalado = 0;
             }
             if (alumnoCicloEach.isNoMatriculado()) {
@@ -1321,7 +1320,7 @@ public class PromedioReviewServiceImp implements PromedioReviewService {
             cursosInscritosAlumnoCiclo += 1;
             credAcumuladosAlumno += alumnoCicloCursoEach.getCreditos();
             //  Integer vecesEstudiadoCurso = alumnoCicloCursoDAO.countByCursoAlumnoAnterioresCiclo(alumnoCicloCursoEach.getCurso(), alumno, cicloAcademico).intValue();
-            Integer vecesEstudiadoCurso = this.countVecesAnteriores(matriculasCursosByAlumno, cicloAcademico, alumnoCicloCursoEach.getCurso());
+            Integer vecesEstudiadoCurso = this.countVecesAnteriores(alumnosCicloCursoByAlumnoCiclo, cicloAcademico, alumnoCicloCursoEach.getCurso());
             vecesEstudiadoCurso++;
             alumnoCicloCursoEach.setVecesCursado(vecesEstudiadoCurso);
 
