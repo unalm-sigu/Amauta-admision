@@ -557,6 +557,7 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
                 "alumnoCicloCurso.creditos",
                 "alumnoCicloCurso.estaAprobado",
                 "alumnoCicloCurso.vecesCursado",
+                "alumnoCicloCurso.vecesCursadoRegular",
                 "alumnoCicloCurso.curso.codigo",
                 "alumnoCicloCurso.curso.nombre",
                 "alumnoCicloCurso.curso.tpc",
@@ -579,7 +580,7 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
         ArrayNode cursosHistoJson = new ArrayNode(JsonNodeFactory.instance);
         for (AlumnoCicloCurso cursoCiclo : cursosCiclos) {
             ObjectNode cursoJson = JsonHelper.createJson(cursoCiclo, JsonNodeFactory.instance, true, new String[]{
-                "estadoEnum", "creditos", "nota", "estaAprobado", "vecesCursado",
+                "estadoEnum", "creditos", "nota", "estaAprobado", "vecesCursado", "vecesCursadoRegular",
                 "curso.codigo",
                 "curso.nombre",
                 "curso.tpc",
