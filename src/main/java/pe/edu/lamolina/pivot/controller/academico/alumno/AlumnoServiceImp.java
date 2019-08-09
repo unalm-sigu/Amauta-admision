@@ -13,7 +13,9 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.NumberFormat;
@@ -877,6 +879,13 @@ public class AlumnoServiceImp implements AlumnoService {
 
         return cursoDAO.allCursoByName(nombre);
 
+    }
+
+    @Async
+    @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void marcarFalla(Alumno alumno) {
+        alumnoDAO.updateColumns(alumno, "conError");
     }
 
 }

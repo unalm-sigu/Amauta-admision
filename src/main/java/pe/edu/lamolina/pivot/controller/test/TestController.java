@@ -277,6 +277,15 @@ public class TestController {
         service.promediarciclocod(cicloCod, ds);
         return "yeah";
     }
+    
+    @ResponseBody
+    @RequestMapping("promediarciclocod/{ciclo}/error")
+    public String promediarciclocodError(@PathVariable("ciclo") String cicloCod, HttpSession session) {
+        logger.info("promediarciclocod {}", cicloCod);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        service.promediarciclocoderror(cicloCod, ds);
+        return "yeah";
+    }
 
     @ResponseBody
     @RequestMapping("promediaralumno/{alumno}")

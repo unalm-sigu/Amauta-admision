@@ -262,6 +262,53 @@ public class TestServiceImp implements TestService {
 
     @Override
     @Transactional
+    public void promediarciclocoderror(String cicloCod, DataSessionPivot ds) {
+        visorCalculoNotas.iniciar();
+        List<CicloAcademico> ciclosAll = cicloAcademicoDAO.all();
+        List<CicloAcademico> ciclos = cicloAcademicoDAO.allByCodigo(cicloCod);
+        List<String> ciclosStr = ciclos.stream().map(x -> x.toString()).collect(Collectors.toList());
+        logger.info("ciclos encontrados {}", String.join(",", String.join(",", ciclosStr)));
+
+        List<CicloAcademico> ciclosActivos = cicloAcademicoDAO.allActivosAlModalidades();
+
+        for (CicloAcademico cicloAcademico : ciclos) {
+            List<AlumnoCiclo> alumnosCiclosByCiclo = alumnoCicloDAO.allWithSituacionErrorByCiclo(cicloAcademico);
+            List<Alumno> alumnos = alumnosCiclosByCiclo.stream().map(x -> x.getAlumno()).collect(Collectors.toList());
+
+            List<AlumnoCicloCurso> alumnosCiclosCursosAll = alumnoCicloCursoDAO.allOperativesByAlumnos(alumnos);
+            for (AlumnoCicloCurso aac : alumnosCiclosCursosAll) {
+                aac.getAlumnoCiclo().getAlumno().getId();
+                aac.getAlumnoCiclo().getCicloAcademico().getId();
+                aac.getCurso().getId();
+            }
+            Map<Long, List<AlumnoCicloCurso>> mapAlumnoCicloCurso = TypesUtil.convertListToMapList("alumnoCiclo.alumno.id", alumnosCiclosCursosAll);
+
+            List<AlumnoCiclo> alumnosCiclosAll = alumnoCicloDAO.allWithSituacionByAlumnos(alumnos);
+            Map<Long, List<AlumnoCiclo>> mapAlumnoCiclo = TypesUtil.convertListToMapList("alumno.id", alumnosCiclosAll);
+
+            List<Reincorporacion> reincorporaciones = reincorporacionDAO.allByEstadoTramiteAndAlumnos(alumnos, new EstadoTramite(EstadoTramiteEnum.SOL_ACEP.getId()));
+            Map<Long, List<Reincorporacion>> mapReincorporacion = TypesUtil.convertListToMapList("alumno.id", reincorporaciones);
+
+            List<MatriculaResumen> matriculasResumen = matriculaResumenDAO.allByCicloFull(cicloAcademico);
+            logger.info("matriculas resumen encontradas {}, del ciclo {}", matriculasResumen.size(), cicloAcademico.toString());
+
+            for (MatriculaResumen mResumen : matriculasResumen) {
+                Alumno alumno = mResumen.getAlumno();
+                List<AlumnoCiclo> alumnoCiclos = TypesUtil.getListNotNull(mapAlumnoCiclo.get(alumno.getId()));
+                List<AlumnoCicloCurso> alumnosCicloCursoByAlumno = TypesUtil.getListNotNull(mapAlumnoCicloCurso.get(alumno.getId()));
+                List<Reincorporacion> reincorporacionesByAlumno = TypesUtil.getListNotNull(mapReincorporacion.get(alumno.getId()));
+
+                CicloAcademico cicloActivoByModalidad = ciclosActivos.stream()
+                        .filter(x -> x.getModalidadEstudio().getCodigoEnum().equals(alumno.getModalidadEstudio().getOperativeModalidadEnum()))
+                        .findFirst().orElse(null);
+                promedioService.promediarAllCicloAsync(alumno, cicloActivoByModalidad, ciclosAll, alumnoCiclos, alumnosCicloCursoByAlumno, reincorporacionesByAlumno, ds);
+            }
+
+        }
+    }
+
+    @Override
+    @Transactional
     public void promediarfull(DataSessionPivot ds, ModalidadEstudioEnum modalidadEstudioEnum) {
         List<String> allYears = alumnoDAO.allYearsCiclos();
         List<CicloAcademico> ciclos = cicloAcademicoDAO.all();
