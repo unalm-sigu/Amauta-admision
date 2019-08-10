@@ -734,13 +734,14 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
     }
 
     @Override
-    public List<Alumno> allIngresantesByCiclos(List<CicloAcademico> ciclosIngresantes) {
+    public List<Alumno> allIngresantesByCiclos(List<CicloAcademico> ciclosIngresantes, String modalidad) {
         Octavia sql = Octavia.query()
                 .from(Alumno.class, "alu")
                 .join("alu.modalidadEstudio me", "cicloIngreso ci", "alu.situacionAcademica sa")
                 .join("alu.persona per", "alu.carrera car")
                 .join("car.facultad fac")
                 .leftJoin("per.tipoDocumento td")
+                .filter("me.codigo", modalidad)
                 .in("ci.id", ciclosIngresantes);
 
         return all(sql);

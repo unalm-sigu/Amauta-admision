@@ -217,7 +217,7 @@ public class MatriculableServiceImp implements MatriculableService {
         for (MatriculaResumen matriculaResumen : matriculaResumens) {
             mapMatriculableExist.put(matriculaResumen.getAlumno().getId(), matriculaResumen.getAlumno());
         }
-
+        
         List<CicloAcademico> ciclosPreviosPregrado = cicloAcademicoDAO.allActivosAnteriores(2, cicloBD);
         List<CicloAcademico> ciclosPreviosEpg = cicloAcademicoDAO.allActivosAnteriores(2, cicloEpg);
         ciclosPreviosEpg.addAll(ciclosPreviosPregrado);
@@ -300,7 +300,7 @@ public class MatriculableServiceImp implements MatriculableService {
         List<CicloAcademico> ciclosIngresantes = Arrays.asList(cicloBD, cicloAntes);
         ModalidadEstudio modalidad = cicloBD.getModalidadEstudio();
 
-        List<Alumno> ingresantes = alumnoDAO.allIngresantesByCiclos(ciclosIngresantes);
+        List<Alumno> ingresantes = alumnoDAO.allIngresantesByCiclos(ciclosIngresantes, modalidad.getCodigo());
         Map<Long, Alumno> mapMatriculable = TypesUtil.convertListToMap("id", ingresantes);
 
         List<CicloAcademico> ciclosPrevios = cicloAcademicoDAO.allActivosAnteriores(3, cicloBD);
@@ -375,6 +375,9 @@ public class MatriculableServiceImp implements MatriculableService {
         }
 
         List<Alumno> alumnos = new ArrayList(mapMatriculable.values());
+        for (Alumno alumno : alumnos) {
+            System.out.println("Finalmente quedan " + alumno.getCodigo() + " alumnos Reg para ser matriculables" + alumno.getModalidadEstudio().getCodigo());
+        }
         List<Long> alumnosIds = alumnos.stream().map(x -> x.getId()).collect(Collectors.toList());
         System.out.println("Finalmente quedan " + alumnosIds.size() + " alumnos Reg para ser matriculables");
         if (!alumnosIds.isEmpty()) {
