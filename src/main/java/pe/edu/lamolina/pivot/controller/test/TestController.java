@@ -277,7 +277,7 @@ public class TestController {
         service.promediarciclocod(cicloCod, ds);
         return "yeah";
     }
-    
+
     @ResponseBody
     @RequestMapping("promediarciclocod/{ciclo}/error")
     public String promediarciclocodError(@PathVariable("ciclo") String cicloCod, HttpSession session) {
@@ -323,6 +323,17 @@ public class TestController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         ds.setFechaAccionAudit(new Date());
         service.trasladarMatriculaCursoForPromediosReview(ds, null);
+        return "yeah";
+    }
+
+    @ResponseBody
+    @RequestMapping("trasladarInformcionForHistorialCicloReview/{codigo}")
+    public String trasladarInformcionForHistorialCicloReview(@PathVariable("codigo") String codigo,
+            HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        ds.setFechaAccionAudit(new Date());
+
+        service.trasladarMatriculaCursoForPromediosReview(ds, codigo);
         return "yeah";
     }
 

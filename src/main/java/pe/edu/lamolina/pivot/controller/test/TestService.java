@@ -28,6 +28,6 @@ public interface TestService {
 
     void trasladarMatriculaCursoForPromediosAlumno(DataSessionPivot ds, Long alumnoId);
 
-    void trasladarMatriculaCursoForPromediosReview(DataSessionPivot ds, Long idAlumno);
+    void trasladarMatriculaCursoForPromediosReview(DataSessionPivot ds, String codCiclo);
 
 }
