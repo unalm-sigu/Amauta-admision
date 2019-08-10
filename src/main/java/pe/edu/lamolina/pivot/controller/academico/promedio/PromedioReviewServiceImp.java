@@ -141,7 +141,6 @@ public class PromedioReviewServiceImp implements PromedioReviewService {
         }
     }
 
-//    @Async
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = false)
     public void trasladarInformcionForHistorial(

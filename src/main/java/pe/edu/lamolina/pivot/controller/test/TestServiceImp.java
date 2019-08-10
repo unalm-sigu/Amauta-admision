@@ -474,6 +474,7 @@ public class TestServiceImp implements TestService {
         promedioReviewService.trasladarInformcionForHistorial(matriculasResumenes, matriculasCurso, matriculasSeccion, ds, mapRetiro, mapAlumnoCicloCursoByAlumCi, mapAlumnoCiclos, situacionAcademicaComodin, false);
     }
 
+    @Async
     @Override
     @Transactional
     public void trasladarMatriculaCursoForPromediosReview(DataSessionPivot ds, Long idAlumno) {
