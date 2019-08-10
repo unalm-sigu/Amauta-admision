@@ -1578,7 +1578,10 @@ public class PromedioServiceImp implements PromedioService {
             Integer aprobado = evaluateEstaAprobado(promedio, alumno);
             alumnoCiclo.setEstaAprobado(aprobado);
         }
-        alumnoCiclo.setGenerarTrika(generarTrika);
+        CicloAcademico ciclo = alumnoCiclo.getCicloAcademico();
+        if (ciclo.getCodigoInt() >= 201910 && alumno.isPregrado()) {
+            alumnoCiclo.setGenerarTrika(generarTrika);
+        }
     }
 
     private boolean evaluarNoMatriculadoOrRetiradoCic(Alumno alumno,
