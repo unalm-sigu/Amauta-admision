@@ -40,6 +40,7 @@ import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.NotaLetraEnum;
 import pe.edu.lamolina.model.enums.OrigenDataSituacionAcademicaEnum;
 import pe.edu.lamolina.model.enums.SituacionAcademicaEnum;
+import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_1;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_6;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_8;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_9;
@@ -696,37 +697,57 @@ public class PromedioServiceImp implements PromedioService {
         SituacionAcademica situacionAcademicaFinal = null;
         if (alumnoCiclo.getCicloAcademico().isTipoNivelacion()) {
             situacionAcademicaFinal = alumnoCiclo.getSituacionInicio();
+            logger.debug("caso 01");
 
         } else if (basicosRegulares.contains(alumnoCiclo.getSituacionInicio().getCodigoEnum()) && alumnoCiclo.isAprobado()) {
             situacionAcademicaFinal = new SituacionAcademica(SituacionAcademicaEnum.S_N);
+            logger.debug("caso 02");
 
         } else if (alumnoCiclo.getSituacionInicio().isCodigoS5() && alumnoCiclo.isAprobado()) {
             situacionAcademicaFinal = new SituacionAcademica(SituacionAcademicaEnum.S_5);
+            logger.debug("caso 03");
 
-        } else if ((ciclosEstudiados <= 2) && alumno.isPregrado()) {
+        } else if ((ciclosEstudiados < 2) && alumno.isPregrado()) {
             if (alumnoCiclo.isAprobado()) {
                 situacionAcademicaFinal = new SituacionAcademica(SituacionAcademicaEnum.S_N);
+                logger.debug("caso 04");
             } else if (TypesUtil.getInt(alumno.getCicloIngreso().getCodigoInt()) >= 201710) {
                 situacionAcademicaFinal = new SituacionAcademica(SituacionAcademicaEnum.S_N);
-            } else if (ciclosEstudiados == 1) {
+                logger.debug("caso 05");
+            } else if (ciclosEstudiados == 0) {
                 situacionAcademicaFinal = new SituacionAcademica(SituacionAcademicaEnum.S_N);
+                logger.debug("caso 06");
             } else {
                 situacionAcademicaFinal = new SituacionAcademica(SituacionAcademicaEnum.S_1);
+                logger.debug("caso 07");
             }
 
         } else if (alumnoCiclo.getSituacionInicio().isCodigoS4()) {
             if (alumnoCiclo.isAprobado()) {
                 situacionAcademicaFinal = new SituacionAcademica(SituacionAcademicaEnum.S_5);
+                logger.debug("caso 08");
 
             } else {
                 situacionAcademicaFinal = new SituacionAcademica(SituacionAcademicaEnum.S_X);
+                logger.debug("caso 09");
             }
 
         } else if (alumnoCiclo.getEstadoEnum() == EstadoMatriculaEnum.INH
                 && basicosSuspendidos.contains(alumnoCiclo.getSituacionInicio().getCodigoEnum())) {
             situacionAcademicaFinal = alumnoCiclo.getSituacionFinal();
+            logger.debug("caso 10");
+
+        } else if (alumnoCiclo.getEstadoEnum() == EstadoMatriculaEnum.INH
+                && !basicosSuspendidos.contains(alumnoCiclo.getSituacionInicio().getCodigoEnum())) {
+            situacionAcademicaFinal = alumnoCiclo.getSituacionInicio();
+            logger.debug("caso 11");
+
+        } else if (alumnoCiclo.getEstadoEnum() == EstadoMatriculaEnum.MAT
+                && alumnoCiclo.getSituacionInicio().getCodigoEnum() == S_1) {
+            situacionAcademicaFinal = new SituacionAcademica(S_6);
 
         } else {
+            logger.debug("caso 12");
             situacionAcademicaFinal = situacionAcademicaService.findSituacionFinal(alumnoCiclo, alumnoCiclo.getSituacionInicio(), -1, alumnoCiclo.getCreditosAprobadosAcumulados(), alumnoCiclo.getCicloAcademico());
 
         }
@@ -736,10 +757,12 @@ public class PromedioServiceImp implements PromedioService {
             if (alumnoCiclo.isAprobado()) {
                 if (situacionAcademicaFinal.isCodigoS6()) {
                     situacionAcademicaFinal = new SituacionAcademica(SituacionAcademicaEnum.S_3);
+                    logger.debug("caso 13");
                 }
             } else {
                 SituacionAcademica situacionSeparado = new SituacionAcademica(SituacionAcademicaEnum.S_4);
                 situacionAcademicaFinal = situacionSeparado;
+                logger.debug("caso 14");
             }
         }
 
@@ -1291,9 +1314,13 @@ public class PromedioServiceImp implements PromedioService {
         Integer ciclosEstudiados = 0;
         //alumnoCiclos.stream().filter(x -> x.getCicloAcademico().getCodigoInt() <= fAlumnoCiclo.getCicloAcademico().getCodigoInt()).collect(Collectors.toList()).size();
         for (AlumnoCiclo ac : alumnoCiclos) {
-            if (ac.getEstadoEnum() == EstadoMatriculaEnum.MAT) {
-                if (ac.getCicloAcademico().getCodigoInt() < alumnoCiclo.getCicloAcademico().getCodigoInt()) {
-                    ciclosEstudiados++;
+            CicloAcademico cic = ac.getCicloAcademico();
+            if (cic.getTipoEnum() == TipoCicloEnum.REG) {
+                if (ac.getEstadoEnum() == EstadoMatriculaEnum.MAT
+                        || ac.getEstadoEnum() == EstadoMatriculaEnum.RCI) {
+                    if (ac.getCicloAcademico().getCodigoInt() < alumnoCiclo.getCicloAcademico().getCodigoInt()) {
+                        ciclosEstudiados++;
+                    }
                 }
             }
         }
@@ -1511,7 +1538,7 @@ public class PromedioServiceImp implements PromedioService {
         if (!generarTrika && (alumnoCicloSiguienteInha != null && alumnoCicloSiguienteInha.getSituacionFinal().isTrikeado())) {
             List<AlumnoCicloCurso> alumnoCiclosCursos = alumnoCicloCursoDAO.allStateByAlumnoCiclo(alumnoCicloSiguienteInha);
             if (alumnoCiclosCursos.isEmpty()) {
-                // alumnoCicloDAO.delete(alumnoCicloSiguienteInha);
+                alumnoCicloDAO.delete(alumnoCicloSiguienteInha);
             }
         }
 
