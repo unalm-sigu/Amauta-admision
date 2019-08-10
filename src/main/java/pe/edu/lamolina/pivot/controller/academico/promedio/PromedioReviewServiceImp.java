@@ -665,8 +665,8 @@ public class PromedioReviewServiceImp implements PromedioReviewService {
             if (isRetiradoCiclo) {
                 alumnoCicloUpd.setEstadoEnum(EstadoMatriculaEnum.RCI);
             } else {
+                alumnoCicloUpd.setEstadoEnum(EstadoMatriculaEnum.MAT);
             }
-            alumnoCicloUpd.setEstadoEnum(EstadoMatriculaEnum.MAT);
             alumnoCicloDAO.updateColumns(alumnoCicloUpd, "estado");
         }
 

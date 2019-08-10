@@ -490,8 +490,8 @@ public class TestServiceImp implements TestService {
         for (CicloAcademico ciclo : ciclos) {
             List<CicloAcademico> ci = new ArrayList<>();
             ci.add(ciclo); //   List<GrupoSeccion> gruposSeccionesByCiclo=gruposecc
-                    //        Map<Long, List<RetiroCiclo>> mapRetiroByciclo = TypesUtil.convertListToMapList("cicloAcademico.id", retirosCiclos);
-                    //        Map<Long, List<RetiroCurso>> mapRetiroCursoByciclo = TypesUtil.convertListToMap("cicloAcademico.id", retirosCursos);
+            //        Map<Long, List<RetiroCiclo>> mapRetiroByciclo = TypesUtil.convertListToMapList("cicloAcademico.id", retirosCiclos);
+            //        Map<Long, List<RetiroCurso>> mapRetiroCursoByciclo = TypesUtil.convertListToMap("cicloAcademico.id", retirosCursos);
             List<MatriculaResumen> matriculasResumenes = matriculaResumenDAO.allByCiclos(ci);
             logger.debug("MAtricula Resumen...");
             List<MatriculaCurso> matriculasCurso = matriculaCursoDAO.allByCiclosFull(ci);
