@@ -315,9 +315,9 @@ public class MatriculableServiceImp implements MatriculableService {
         }
 
         List<Alumno> matriculados = alumnoDAO.allMatriculadosNoEgresadosByCiclos(ciclosPrevios);
-        System.out.println("=== vienen " + matriculados.size() + " matriculados de esos ciclos");
+//        System.out.println("=== vienen " + matriculados.size() + " matriculados de esos ciclos");
         List<Alumno> estudiantes = alumnoDAO.allEstudiaronByCiclos(ciclosPrevios);
-        System.out.println("=== vienen " + estudiantes.size() + " estudiantes de esos ciclos");
+//        System.out.println("=== vienen " + estudiantes.size() + " estudiantes de esos ciclos");
         for (Alumno matriculado : matriculados) {
             Alumno alumnoExist = mapMatriculableExist.get(matriculado.getId());
             if (alumnoExist != null) {
@@ -325,7 +325,7 @@ public class MatriculableServiceImp implements MatriculableService {
             }
             Alumno alumno = mapMatriculable.get(matriculado.getId());
             if (alumno != null) {
-                System.out.println("Ya existe el " + matriculado.getCodigo());
+//                System.out.println("Ya existe el " + matriculado.getCodigo());
                 continue;
             }
 
@@ -343,6 +343,7 @@ public class MatriculableServiceImp implements MatriculableService {
                 System.out.println("Se bota porque su modalidad es " + matriculado.getModalidadEstudio().getCodigo());
                 continue;
             }
+            System.out.println("AGREGAR " + matriculado.getCodigo() + " " + matriculado.getModalidadEstudio().getCodigo());
             mapMatriculable.put(matriculado.getId(), matriculado);
         }
         for (Alumno estudiante : estudiantes) {
@@ -360,6 +361,8 @@ public class MatriculableServiceImp implements MatriculableService {
             if (modalidad.getCodigoEnum() != estudiante.getModalidadEstudio().getCodigoEnum()) {
                 continue;
             }
+
+            System.out.println("AGREGAR " + estudiante.getCodigo() + " " + estudiante.getModalidadEstudio().getCodigo());
             mapMatriculable.put(estudiante.getId(), estudiante);
         }
 
