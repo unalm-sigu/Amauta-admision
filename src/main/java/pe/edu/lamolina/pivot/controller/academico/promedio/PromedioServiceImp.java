@@ -701,6 +701,10 @@ public class PromedioServiceImp implements PromedioService {
             situacionAcademicaFinal = alumnoCiclo.getSituacionInicio();
             logger.debug("caso 01");
 
+        } else if (alumnoCiclo.isTrikaSeparado()) {
+            situacionAcademicaFinal = new SituacionAcademica(SituacionAcademicaEnum.S_4);
+            logger.debug("caso 15");
+
         } else if (basicosRegulares.contains(alumnoCiclo.getSituacionInicio().getCodigoEnum()) && alumnoCiclo.isAprobado()) {
             situacionAcademicaFinal = new SituacionAcademica(SituacionAcademicaEnum.S_N);
             logger.debug("caso 02");
@@ -1494,6 +1498,7 @@ public class PromedioServiceImp implements PromedioService {
         BigDecimal sumNotasCreditos = BigDecimal.ZERO;
         BigDecimal sumCreditos = BigDecimal.ZERO;
         boolean generarTrika = false;
+        boolean trikaSeparado = false;
 
         alumnoCiclo.setCreditosCursadosCiclo(BigDecimal.ZERO.intValue());
         alumnoCiclo.setCursosInscritos(BigDecimal.ZERO.intValue());
@@ -1543,9 +1548,12 @@ public class PromedioServiceImp implements PromedioService {
                 sumCreditos = sumCreditos.add(creditosBig);
             }
 
-            if (alumnoCicloCursoEach.getVecesCursadoRegular() == VECES_TRIKA && !alumnoCicloCursoEach.isAprobado()) {
+            if (alumnoCicloCursoEach.getVecesCursadoRegular() >= VECES_TRIKA && !alumnoCicloCursoEach.isAprobado()) {
                 if (alumno.getModalidadEstudio().isPregrado()) {
                     generarTrika = true;
+                    if (alumnoCicloCursoEach.getVecesCursadoRegular() > VECES_TRIKA) {
+                        trikaSeparado = true;
+                    }
                 }
             }
         }
@@ -1596,6 +1604,7 @@ public class PromedioServiceImp implements PromedioService {
         CicloAcademico ciclo = alumnoCiclo.getCicloAcademico();
         if (ciclo.getCodigoInt() >= 201810 && alumno.isPregrado()) {
             alumnoCiclo.setGenerarTrika(generarTrika);
+            alumnoCiclo.setTrikaSeparado(trikaSeparado);
         }
     }
 
