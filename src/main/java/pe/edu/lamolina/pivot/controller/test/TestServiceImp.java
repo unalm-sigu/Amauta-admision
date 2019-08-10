@@ -612,18 +612,18 @@ public class TestServiceImp implements TestService {
                         .stream().filter(x -> x.getSeccion().getGrupoSeccion().getCurso().getId().equals(matriculaCurso.getCurso().getId())).findFirst().orElse(null);
                 String keys = matriculaCurso.getCurso().getId() + "-" + cicloAcademico.getId();
                 if (mapRetiroCurso.get(keys) != null) {
-                    if (RCU != matriculaSeccion.getEstadoEnum()) {
+//                    if (RCU != matriculaSeccion.getEstadoEnum()) {
 
-                        matriculaSeccion.setEstadoEnum(EstadoMatriculaEnum.RCU);
-                        matriculaSeccionDAO.update(matriculaSeccion);
-                    }
+                    matriculaSeccion.setEstadoEnum(EstadoMatriculaEnum.RCU);
+                    matriculaSeccionDAO.update(matriculaSeccion);
+//                    }
                 }
 
                 if (mapRetiroCurso.get(keys) != null) {
-                    if (RCU != matriculaCurso.getEstadoEnum()) {
-                        matriculaCurso.setEstadoEnum(EstadoMatriculaEnum.RCU);
-                        matriculaCursoDAO.updateColumns(matriculaCurso, "estado");
-                    }
+//                    if (RCU != matriculaCurso.getEstadoEnum()) {
+                    matriculaCurso.setEstadoEnum(EstadoMatriculaEnum.RCU);
+                    matriculaCursoDAO.updateColumns(matriculaCurso, "estado");
+//                    }
                 }
             }
         }
