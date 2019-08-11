@@ -176,6 +176,8 @@
                                                             <li><a class="modificar-datos" href="#">Modificar datos</a></li>
                                                             <li  v-if="!item.esBeneficiadoUltimoCiclo " ><a v-on:click="beneficiar(item)" href="#">Beneficiar Ult. Ciclo</a></li>
                                                             <li  v-if="item.esBeneficiadoUltimoCiclo " ><a v-on:click="beneficiar(item)" href="#">Quitar Ben. Ult. Ciclo</a></li>
+<!--                                                            <li  ><a v-on:click="asignarAporte(item)" href="#">Asignar Aporte Carnet</a></li>
+                                                            <li  ><a v-on:click="quitarAporte(item)" href="#">Quitar Aporte Carnet</a></li>-->
                                                             <li><a v-bind:href="urlMatricula(item)">Matricula</a></li>
                                                         </ul>
                                                     </div>
