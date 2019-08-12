@@ -44,7 +44,7 @@ new Vue({
             dataKeyboard: 'false',
             header: false,
             footer: false,
-            
+            cancelbtn: 'Cerrar'
         },
         matriculableSelected: {},
         tipoCondicional: {},
@@ -440,6 +440,15 @@ new Vue({
                     MODAL.hideWait();
                 }
             });
+        },
+        asignarAporte(item) {
+
+        },
+        quitarAporte(item) {
+
+        },
+        saveAporte() {
+            s
         }
     }
 });

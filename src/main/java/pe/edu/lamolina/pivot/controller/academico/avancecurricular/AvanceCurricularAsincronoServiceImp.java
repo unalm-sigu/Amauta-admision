@@ -1003,18 +1003,21 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
 
         for (RequisitoCursoCurricula requisito : requisitos) {
 
-            if (requisito.getSimultaneo() == 0) {
-                continue;
-            }
-
             AlumnoCursoCurricula cursoRequisito = mapCursosCurriculaAlu.get(requisito.getCursoRequisito().getId());
             if (cursoRequisito == null) {
-
                 continue;
             }
 
-            if (cursoRequisito.getEstadoEnum() == APR) {
-            } else if (Arrays.asList(HAB, MAT).contains(cursoRequisito.getEstadoEnum())) {
+            if (requisito.getSimultaneo() == 0) {
+                if (cursoRequisito.getEstadoEnum() == APR) {
+                    requisitosCumplidos = true;
+                    continue;
+                }
+                requisitosCumplidos = false;
+                break;
+            }
+
+            if (Arrays.asList(HAB, MAT).contains(cursoRequisito.getEstadoEnum())) {
                 AlumnoCursoSimultaneo alumnoCursoSimultaneo = new AlumnoCursoSimultaneo();
                 alumnoCursoSimultaneo.setAlumnoCursoCurricula(evaluado);
                 alumnoCursoSimultaneo.setCurso(requisito.getCursoRequisito().getCurso());
@@ -1023,6 +1026,10 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
                 alumnoCursoSimultaneo.setUserRegistro(ds.getUsuario());
                 simultaneos.add(alumnoCursoSimultaneo);
             } else {
+                if (cursoRequisito.getEstadoEnum() == APR) {
+                    requisitosCumplidos = true;
+                    continue;
+                }
                 requisitosCumplidos = false;
                 break;
             }

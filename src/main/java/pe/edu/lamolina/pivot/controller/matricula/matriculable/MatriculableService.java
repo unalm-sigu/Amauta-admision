@@ -65,4 +65,8 @@ public interface MatriculableService {
 
     public List<AlumnoCiclo> allAlumnosCicloNmat(CicloAcademico cicloActivo);
 
+    public void quitarAporteCarnet(MatriculaResumen matriculaResumen, DataSessionPivot ds);
+
+    public void agregarAporteCarnet(MatriculaResumen matriculaResumen, DataSessionPivot ds);
+
 }

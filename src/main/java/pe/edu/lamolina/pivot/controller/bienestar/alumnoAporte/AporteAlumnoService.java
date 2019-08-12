@@ -8,4 +8,8 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 public interface AporteAlumnoService {
 
     void generarAportes(Alumno alumno, CicloAcademico ciclo,MatriculaResumen matriculaResumen, DataSessionPivot ds);
+
+    public void generarAporteCarnet(CicloAcademico cicloAcademico, MatriculaResumen matriculaResumen, DataSessionPivot ds);
+
+    public void quitarAporteCarnet(CicloAcademico cicloAcademico, MatriculaResumen matriculaResumen, DataSessionPivot ds);
 }

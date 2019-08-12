@@ -702,7 +702,7 @@ public class PromedioServiceImp implements PromedioService {
             logger.debug("caso 01");
 
         } else if (alumnoCiclo.isTrikaSeparado()) {
-            situacionAcademicaFinal = new SituacionAcademica(SituacionAcademicaEnum.S_4);
+            situacionAcademicaFinal = new SituacionAcademica(SituacionAcademicaEnum.S_4T);
             logger.debug("caso 15");
 
         } else if (basicosRegulares.contains(alumnoCiclo.getSituacionInicio().getCodigoEnum()) && alumnoCiclo.isAprobado()) {
@@ -1377,7 +1377,8 @@ public class PromedioServiceImp implements PromedioService {
         SituacionAcademica situacionTrika = new SituacionAcademica(SituacionAcademicaEnum.S_T);
         logger.debug("generarTrika={} - sitFinal={}", generarTrika, situacionAcademicaFinal.getCodigo());
         if ((generarTrika && alumnoCiclo.getCicloAcademico().getCodigoInt() >= INI_TRIKA)
-                && !(situacionAcademicaFinal.isCodigoX() || situacionAcademicaFinal.isCodigoS4() || situacionAcademicaFinal.isCodigoS4U())) {
+                && !(situacionAcademicaFinal.isCodigoX() || situacionAcademicaFinal.isCodigoS4()
+                || situacionAcademicaFinal.isCodigoS4U() || situacionAcademicaFinal.isCodigoS4T())) {
 
             SituacionAcademica situacionFinalForTrika = null;
             situacionFinalForTrika = situacionAcademicaFinal;

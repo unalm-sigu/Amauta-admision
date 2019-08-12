@@ -12,4 +12,8 @@ public interface ResponseRestService {
     JsonResponse generarAporte(Alumno alumno, MatriculaResumen matriculaResumen, DataSessionPivot ds);
 
     void createToken(DataSessionPivot ds);
+
+    public JsonResponse generarAporteCarnet(MatriculaResumen matriculaResumen, DataSessionPivot ds);
+
+    public JsonResponse eliminarAporteCarnet(MatriculaResumen matriculaResumen, DataSessionPivot ds);
 }

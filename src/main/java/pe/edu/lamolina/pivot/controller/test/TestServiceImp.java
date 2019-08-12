@@ -474,14 +474,16 @@ public class TestServiceImp implements TestService {
         promedioReviewService.trasladarInformcionForHistorial(matriculasResumenes, matriculasCurso, matriculasSeccion, ds, mapRetiro, mapAlumnoCicloCursoByAlumCi, mapAlumnoCiclos, situacionAcademicaComodin, false);
     }
 
+    @Async
     @Override
     @Transactional
-    public void trasladarMatriculaCursoForPromediosReview(DataSessionPivot ds, Long idAlumno) {
+    public void trasladarMatriculaCursoForPromediosReview(DataSessionPivot ds, String codCiclo) {
 
         logger.debug("COMENZAMOOOOOOOOOOOO.........");
         logger.info("COMENZAMOOOOOOOOOOOO......... iNFO");
         logger.trace("COMENZAMOOOOOOOOOOOO......... TRACE");
-        List<CicloAcademico> ciclos = cicloAcademicoDAO.allWithInitAndOrderBy(2017, "ca.codigo asc", CicloAcademicoEstadoEnum.CER, CicloAcademicoEstadoEnum.PEND);
+        String codigo = codCiclo == null ? "201700" : codCiclo;
+        List<CicloAcademico> ciclos = cicloAcademicoDAO.allWithInitAndOrderBy(codigo, "ca.codigo asc", CicloAcademicoEstadoEnum.CER, CicloAcademicoEstadoEnum.PEND);
         logger.debug("Retirosssss...");
         List<RetiroCiclo> retirosCiclos = retiroCicloDAO.allInfo();
         Map<Long, List<RetiroCiclo>> mapAllRetiroByAlumno = TypesUtil.convertListToMapList("alumno.id", retirosCiclos);
@@ -567,7 +569,8 @@ public class TestServiceImp implements TestService {
         }
         return lista;
     }
-
+    
+    @Transactional
     private void trasladarMatriculaCursoForPromediosAlumnoTest(CicloAcademico cicloAcademico,
             RetiroCiclo retiroCiclo,
             List<RetiroCurso> retiroCursos,
@@ -612,15 +615,15 @@ public class TestServiceImp implements TestService {
                 if (mapRetiroCurso.get(keys) != null) {
                     if (RCU != matriculaSeccion.getEstadoEnum()) {
 
-                        matriculaSeccion.setEstadoEnum(EstadoMatriculaEnum.RCU);
-                        matriculaSeccionDAO.update(matriculaSeccion);
+                    matriculaSeccion.setEstadoEnum(EstadoMatriculaEnum.RCU);
+                    matriculaSeccionDAO.update(matriculaSeccion);
                     }
                 }
 
                 if (mapRetiroCurso.get(keys) != null) {
                     if (RCU != matriculaCurso.getEstadoEnum()) {
-                        matriculaCurso.setEstadoEnum(EstadoMatriculaEnum.RCU);
-                        matriculaCursoDAO.updateColumns(matriculaCurso, "estado");
+                    matriculaCurso.setEstadoEnum(EstadoMatriculaEnum.RCU);
+                    matriculaCursoDAO.updateColumns(matriculaCurso, "estado");
                     }
                 }
             }
