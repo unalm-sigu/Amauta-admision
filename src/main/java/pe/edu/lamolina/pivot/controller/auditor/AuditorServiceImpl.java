@@ -146,7 +146,7 @@ public class AuditorServiceImpl implements AuditorService {
 
                 //nota
                 StringBuilder strbNota = new StringBuilder();
-              
+
                 if (StringUtils.isNotBlank(alumnoEvaluacion.getValorLetra())) {
                     strbNota.append(alumnoEvaluacion.getValorLetra());
                 }
@@ -196,4 +196,7 @@ public class AuditorServiceImpl implements AuditorService {
         this.auditSaveNotas(LoggerAccionEnum.GRABAR_NOTAS_ACADEMICAS, evaluacion, planCalificacion, sistemaNotas, seccion, curso, cicloAcademico, evaluacionesBySeccionFinal, matriculasSeccionByFilter, notas, matriculaCursoMap, ds);
     }
 
+    public void saveGrupoSeccion() {
+
+    }
 }
