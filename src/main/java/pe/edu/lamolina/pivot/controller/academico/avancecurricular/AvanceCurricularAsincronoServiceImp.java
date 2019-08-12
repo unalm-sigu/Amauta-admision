@@ -567,7 +567,9 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
         Map<Long, CursoOpcionalCurricula> mapCursoOpcional = TypesUtil.convertListToMap("curso.id", cursoOpcionalCurriculas);
 
         for (AlumnoCicloCurso cursosAprobado : cursosAprobados) {
-
+            if (cursosAprobado.getCurso().getCodigo().equals("CC1020")) {
+                System.err.println("-----");
+            }
             AlumnoCursoCurricula alumnoCursoCurricula = alumnoCursoNew.stream().filter(x -> Objects.equals(x.getCurso().getId(), cursosAprobado.getCurso().getId())).findAny().orElse(null);
 
             if (alumnoCursoCurricula != null) {
@@ -910,7 +912,9 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
 
         for (Map.Entry<Long, AlumnoCursoCurricula> entry : mapCursoCurriculaAlu.entrySet()) {
             AlumnoCursoCurricula evaluado = entry.getValue();
-
+            if (evaluado.getCurso().getCodigo().equals("CC1020")) {
+                System.err.println("-----");
+            }
             if (evaluado.isValidado() || estadosAprobados.contains(evaluado.getEstadoEnum())) {
                 continue;
             }
@@ -970,7 +974,9 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
         for (Map.Entry<Long, AlumnoCursoCurricula> entry : mapCursosCurriculaAlu.entrySet()) {
 
             AlumnoCursoCurricula evaluado = entry.getValue();
-
+            if (evaluado.getCurso().getCodigo().equals("CC3027")) {
+                System.err.println("------");
+            }
             if (Arrays.asList(HAB, MAT).contains(evaluado.getEstadoEnum())) {
                 continue;
             }
@@ -1009,7 +1015,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
             }
 
             if (requisito.getSimultaneo() == 0) {
-                if (cursoRequisito.getEstadoEnum() == APR) {
+                if (cursoRequisito.getEstadoEnum() == APR || cursoRequisito.getEstadoEnum() == CONV || cursoRequisito.getEstadoEnum() == EQUIV) {
                     requisitosCumplidos = true;
                     continue;
                 }

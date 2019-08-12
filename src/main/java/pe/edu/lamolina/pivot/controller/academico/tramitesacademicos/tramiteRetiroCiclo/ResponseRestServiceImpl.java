@@ -72,7 +72,7 @@ public class ResponseRestServiceImpl extends AbstractRestClient<JsonResponse> im
             json.put("idMatricula", matriculaResumen.getId());
         }
 
-        String url = String.format("%s/aportesRest/verificacionAporte",
+        String url = String.format("%s/aportesRest/generarAllAportes",
                 parametro.getValor());
 
         return this.postToBackEnd(url, json);
