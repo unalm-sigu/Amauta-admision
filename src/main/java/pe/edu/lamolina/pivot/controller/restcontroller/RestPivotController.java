@@ -24,33 +24,34 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 @RestController
 @RequestMapping("amauta/rest")
 public class RestPivotController {
-    
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    
+
     @Autowired
     RestPivotService service;
-    
+
     @Autowired
     InfoAcademicoService infoAcademicoService;
-    
+
     @ResponseBody
     @RequestMapping(value = "cambioOrientacion", method = RequestMethod.POST)
     public JsonResponse cambioOrientacion(@RequestBody String node,
             HttpSession session) {
         JsonResponse response = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
         try {
             ObjectMapper mapper = new ObjectMapper();
             FormImport json = (FormImport) mapper.readValue(node, FormImport.class);
             service.validateToken(json);
-            
+
             Alumno alumno = new Alumno(json.getIdAlumno());
             OrientacionCarrera orientacion = json.getIdOrientacion() != null ? new OrientacionCarrera(json.getIdOrientacion()) : null;
+            DataSessionPivot ds = new DataSessionPivot();
             ds.setUsuario(new Usuario(json.getIdUsuario()));
             infoAcademicoService.cambiarOrientacion(alumno, orientacion, ds);
-            
+
             response.setSuccess(true);
-            
+
         } catch (PhobosException e) {
             response.setSuccess(false);
             ExceptionHandler.handlePhobosEx(e, response);
