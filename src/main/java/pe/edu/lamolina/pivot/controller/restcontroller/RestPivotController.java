@@ -18,7 +18,6 @@ import pe.edu.lamolina.model.academico.OrientacionCarrera;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.controller.academico.infoacademico.InfoAcademicoService;
 import pe.edu.lamolina.pivot.zelper.bean.FormImport;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @RestController

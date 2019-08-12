@@ -904,6 +904,10 @@ public class AlumnoServiceImp implements AlumnoService {
         usuarioBD.setUserDniPass(TypesUtil.toMD5(accesoEspecialBean.getContraseña()));
         usuarioDAO.update(usuarioBD);
 
+        Persona personaBD = personaDAO.find(personaForm.getId());
+        personaBD.setEmail(CorreoForm);
+        personaDAO.update(personaBD);
+
 //        ContenidoCarta contenidoCarta = contenidoCartaDAO.findByCodigo(ContenidoEmailEnum.CREATEACCESOESPECIAL.name());   PENDIENTE
 //        ContenidoCarta contenidoCarta = contenidoCartaDAO.findByCodigo(ContenidoEmailEnum.CREATEUSERALUMNOVISITANTE.name());
 //        mailerService.enviarCorreoAccesoEspecial(accesoEspecialBean.getCorreo(), usuarioBD, accesoEspecialBean.getContraseña(), "Acceso Especial", contenidoCarta);

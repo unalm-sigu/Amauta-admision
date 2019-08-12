@@ -569,7 +569,7 @@ public class AlumnoController {
         try {
             response.setSuccess(Boolean.TRUE);
             Usuario usuario = service.findUsuarioByPersona(persona);
-            response.setData(JsonHelper.createJson(usuario, JsonNodeFactory.instance, new String[]{"userDni", "persona.id", "persona.numeroDocIdentidad"}));
+            response.setData(JsonHelper.createJson(usuario, JsonNodeFactory.instance, new String[]{"id", "userDni", "persona.id", "persona.numeroDocIdentidad"}));
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
