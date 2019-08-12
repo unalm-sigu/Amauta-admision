@@ -888,4 +888,34 @@ public class AlumnoServiceImp implements AlumnoService {
         alumnoDAO.updateColumns(alumno, "conError");
     }
 
+    @Override
+    @Transactional
+    public void saveAccesoEspecial(AccesoEspecialBean accesoEspecialBean) {
+        String CorreoForm = accesoEspecialBean.getCorreo(); // correo a remitir las credenciales
+        Persona personaForm = accesoEspecialBean.getAlumno().getPersona();
+
+        Usuario usuarioBD = usuarioDAO.findByPersona(personaForm);
+
+        if (usuarioBD == null) {
+            throw new PhobosException("El alumno con " + personaForm.getApellidosNombres() + " no tiene registro de usuario");
+        }
+
+        usuarioBD.setUserDni(accesoEspecialBean.getDni());
+        usuarioBD.setUserDniPass(TypesUtil.toMD5(accesoEspecialBean.getContraseña()));
+        usuarioDAO.update(usuarioBD);
+
+//        ContenidoCarta contenidoCarta = contenidoCartaDAO.findByCodigo(ContenidoEmailEnum.CREATEACCESOESPECIAL.name());   PENDIENTE
+//        ContenidoCarta contenidoCarta = contenidoCartaDAO.findByCodigo(ContenidoEmailEnum.CREATEUSERALUMNOVISITANTE.name());
+//        mailerService.enviarCorreoAccesoEspecial(accesoEspecialBean.getCorreo(), usuarioBD, accesoEspecialBean.getContraseña(), "Acceso Especial", contenidoCarta);
+    }
+
+    @Override
+    public Usuario findUsuarioByPersona(Persona persona) {
+        Usuario usuario = usuarioDAO.findByPersona(persona);
+        if (usuario == null) {
+            throw new PhobosException("El alumno con " + persona.getApellidosNombres() + " no tiene registro de usuario");
+        }
+        return usuario;
+    }
+
 }
