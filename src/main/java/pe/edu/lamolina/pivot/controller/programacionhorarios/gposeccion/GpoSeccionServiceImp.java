@@ -54,6 +54,7 @@ import pe.edu.lamolina.model.academico.CursoCicloAcademico;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.Evaluacion;
+import pe.edu.lamolina.model.academico.EvaluacionSeccion;
 import pe.edu.lamolina.model.academico.EventoCicloAcademico;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
@@ -133,6 +134,8 @@ import pe.edu.lamolina.pivot.dao.academico.CambioAulaGrupoDAO;
 import pe.edu.lamolina.pivot.dao.academico.CuotaGpoHorasDAO;
 import pe.edu.lamolina.pivot.dao.academico.CursoCicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.EvaluacionDAO;
+import pe.edu.lamolina.pivot.dao.academico.EvaluacionExpandidaDAO;
+import pe.edu.lamolina.pivot.dao.academico.EvaluacionSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaCursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaResumenDAO;
 import pe.edu.lamolina.pivot.dao.academico.PrecioCursoEstructuraDAO;
@@ -260,6 +263,12 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
     @Autowired
     EvaluacionDAO evaluacionDAO;
+
+    @Autowired
+    EvaluacionSeccionDAO evaluacionSeccionDAO;
+
+    @Autowired
+    EvaluacionExpandidaDAO evaluacionExpandidaDAO;
 
     @Override
     public CicloAcademico findCiclo(CicloAcademico cicloAcademico) {
@@ -1002,6 +1011,13 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         List<AlumnoEvaluacion> alumnoEvaluacion = alumnoEvaluacionDAO.allBySeccion(seccionBD.getId());
         Assert.isTrue(alumnoEvaluacion.isEmpty(), "La sección tiene notas registradas");
 
+        List<Evaluacion> evaluacionesBySeccion = evaluacionDAO.allBySeccion(seccionBD);
+        if (!evaluacionesBySeccion.isEmpty()) {
+            for (Evaluacion evaluacion : evaluacionesBySeccion) {
+                evaluacionDAO.delete(evaluacion);
+            }
+        }
+
         this.deleteHorarioSeccion(seccionBD);
 
         List<MatriculaSeccion> matriculasSeccionAlState = matriculaSeccionDAO.allBySeccion(seccionBD);
@@ -1050,7 +1066,14 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         List<Seccion> allSecciones = seccionDAO.allByGpoSeccion(grupoSeccion);
 
         if (allSecciones.isEmpty()) {
+//            List<EvaluacionSeccion> evaluacionesSeccion = evaluacionSeccionDAO.allByGrupoSeccion(grupoSeccion);
+//            for (EvaluacionSeccion evaluacionSeccion : evaluacionesSeccion) {
+//                evaluacionSeccionDAO.delete(evaluacionSeccion);
+//            }
+            evaluacionExpandidaDAO.deleteByGrupoSeccion(grupoSeccion);
+            evaluacionSeccionDAO.deleteByGrupoSeccion(grupoSeccion);
             grupoSeccionDAO.deleteGrupoSeccion(grupoSeccion);
+
             GrupoSeccion grupoSeccionReturn = new GrupoSeccion();
             grupoSeccionReturn.setCurso(curso);
             return grupoSeccionReturn;
@@ -2985,34 +3008,33 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     @Override
     @Transactional(readOnly = false)
     public void eliminarGrupos(List<GrupoSeccion> gruposSeccion, DataSessionPivot ds) {
-        List<MatriculaSeccion> matriculasSeccion = matriculaSeccionDAO.allByGrupoSeccion(gruposSeccion, EstadoMatriculaEnum.MAT, EstadoMatriculaEnum.RET);
-        Map<Long, List<MatriculaSeccion>> matriculasGroupByGpoSeccion = TypesUtil.convertListToMapList("seccion.grupoSeccion.ids", matriculasSeccion);
-
-        // List<AlumnoEvaluacion> alumnosEvaluacion = alumnoEvaluacionDAO.allByGrupoSeccion(gruposSeccion);
-        //  Map<Long, List<AlumnoEvaluacion>> aEvaluacionGroupByGpoSeccion = TypesUtil.convertListToMapList("evaluacion.seccionResponsable.grupoSeccion.id", alumnosEvaluacion);
-        List<Evaluacion> evaluaciones = evaluacionDAO.allByGruposSecciones(gruposSeccion);
-        Map<Long, List<Evaluacion>> aEvaluacionesGroupByGpoSeccion = TypesUtil.convertListToMapList("seccionResponsable.grupoSeccion.id", evaluaciones);
-
         List<String> errors = new ArrayList<>();
-        for (GrupoSeccion grupoSeccion : gruposSeccion) {
-            List<MatriculaSeccion> matriculasSeccionByGrupoSec = matriculasGroupByGpoSeccion.get(grupoSeccion.getId());
-            List<Evaluacion> alumnoEvaluacionBySeccion = aEvaluacionesGroupByGpoSeccion.get(grupoSeccion.getId());
-            if (matriculasSeccionByGrupoSec != null && !matriculasSeccionByGrupoSec.isEmpty()) {
-                String message = "Grupo Seccion %s, con movimientos en sus secciones";
-                message = String.format(message, grupoSeccion.getCodigo2());
-                errors.add(message);
-            }
-            if (alumnoEvaluacionBySeccion != null && !alumnoEvaluacionBySeccion.isEmpty()) {
-                String message = "Grupo Seccion %s, con evaluaciones generadas";
-                message = String.format(message, grupoSeccion.getCodigo2());
-                errors.add(message);
-            }
+
+        List<MatriculaSeccion> matriculasSeccion = matriculaSeccionDAO.allByGrupoSeccion(gruposSeccion, EstadoMatriculaEnum.MAT, EstadoMatriculaEnum.RET);
+        List<Seccion> seccionesWithMatriculados = matriculasSeccion.stream().map(x -> x.getSeccion()).distinct().collect(Collectors.toList());
+        for (Seccion seccionMat : seccionesWithMatriculados) {
+            String message = "Seccion %s, ya tiene matriculados";
+            message = String.format(message, seccionMat.getCodigo2());
+            errors.add(message);
         }
         if (!errors.isEmpty()) {
             throw new PhobosException(String.join("\n", errors));
         }
-        for (MatriculaSeccion matriculaSeccion : matriculasSeccion) {
-            matriculaSeccionDAO.delete(matriculaSeccion);
+
+        List<AlumnoEvaluacion> alumnosEvaluacion = alumnoEvaluacionDAO.allByGrupoSeccion(gruposSeccion);
+        List<Seccion> seccionesWithAlumnoEvaluacion = alumnosEvaluacion.stream().map(x -> x.getEvaluacion().getSeccionResponsable()).collect(Collectors.toList());
+        for (Seccion seccionWithEva : seccionesWithAlumnoEvaluacion) {
+            String message = "Seccion %s, tiene notas registradas";
+            message = String.format(message, seccionWithEva.getCodigo2());
+            errors.add(message);
+        }
+        if (!errors.isEmpty()) {
+            throw new PhobosException(String.join("\n", errors));
+        }
+
+        List<Evaluacion> evaluacionesByGrupos = evaluacionDAO.allByGruposSecciones(gruposSeccion);
+        for (Evaluacion evaluacion : evaluacionesByGrupos) {
+            evaluacionDAO.delete(evaluacion);
         }
 
         List<Seccion> secciones = seccionDAO.allByGrupoSecciones(gruposSeccion);
@@ -3038,6 +3060,8 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             }
         }
         for (GrupoSeccion grupoSeccion : gruposSeccion) {
+            evaluacionExpandidaDAO.deleteByGrupoSeccion(grupoSeccion);
+            evaluacionSeccionDAO.deleteByGrupoSeccion(grupoSeccion);
             GrupoSeccion gs = grupoSeccionDAO.find(grupoSeccion.getId());
             grupoSeccionDAO.delete(gs);
         }

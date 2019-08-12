@@ -23,4 +23,6 @@ public interface EvaluacionExpandidaDAO extends EasyDAO<EvaluacionExpandida> {
 
     //List<EvaluacionExpandida> allByGpoSeccion(GrupoSeccion grupoSeccion);
     void deleteAllByCiclo(CicloAcademico ciclo);
+
+    void deleteByGrupoSeccion(GrupoSeccion gpoSeccion);
 }
