@@ -74,4 +74,8 @@ public interface AlumnoService {
 
     void marcarFalla(Alumno alumno);
 
+    void saveAccesoEspecial(AccesoEspecialBean accesoEspecialBean);
+
+    Usuario findUsuarioByPersona(Persona persona);
+
 }

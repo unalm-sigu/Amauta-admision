@@ -1,5 +1,8 @@
 package pe.edu.lamolina.pivot.zelper.mail;
 
+import java.io.UnsupportedEncodingException;
+import java.util.regex.Pattern;
+import javax.mail.internet.InternetAddress;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +12,7 @@ import org.thymeleaf.context.Context;
 import pe.edu.lamolina.model.enums.VariableContenidoEnum;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.inscripcion.ContenidoCarta;
+import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.tramite.TramiteDocumentoAcademico;
 import pe.edu.lamolina.pivot.zelper.mail.connector.MailMessage;
 import pe.edu.lamolina.pivot.zelper.mail.connector.MailerConnector;
@@ -85,7 +89,7 @@ public class MailerServiceImp implements MailerService {
 
     @Override
     public void enviarNotificacionAulaReservaAceptado(String nombre,String email, ContenidoCarta contenidoCarta) {
-        
+
         String contenido = contenidoCarta.getContenido();
         contenido = contenido.replaceAll(VariableContenidoEnum.NOMBRE_PERSONA.getValue(), nombre);
 
@@ -103,7 +107,7 @@ public class MailerServiceImp implements MailerService {
 
     @Override
     public void enviarNotificacionAulaReservaRechazado(String nombre,String email, ContenidoCarta contenidoCarta) {
-       
+
         String contenido = contenidoCarta.getContenido();
         contenido = contenido.replaceAll(VariableContenidoEnum.NOMBRE_PERSONA.getValue(), nombre);
 
@@ -117,5 +121,42 @@ public class MailerServiceImp implements MailerService {
         //mail.setDestinatarios(new String[]{email});
         mail.setDestinatarios(new String[]{"bladymircch@gmail.com"});
         mailerConnector.sendMailHelpDesk(mail);
+    }
+
+    
+    //// PENDIENTE
+    @Override
+    public void enviarCorreoAccesoEspecial(String correo, Usuario usuarioBD, String contraseña, String asunto, ContenidoCarta contenidoCarta) {
+        try {
+
+            String contenido = contenidoCarta.getContenido();
+            String estimado = usuarioBD.getPersona().esFemenino() ? "Estimada" : "Estimado";
+
+            contenido = contenido.replaceAll(Pattern.quote(VariableContenidoEnum.ESTIMADO.getValue()), estimado);
+            contenido = contenido.replaceAll(Pattern.quote(VariableContenidoEnum.NOMBRE_PERSONA.getValue()), usuarioBD.getPersona().getNombreCompleto());
+
+            Context ctx = new Context();
+            ctx.setVariable("mensaje", contenido);
+            ctx.setVariable("username", usuarioBD.getUserDni());
+            ctx.setVariable("password", contraseña);
+
+            MailMessage mail = new MailMessage();
+            mail.setContext(ctx);
+            mail.setTemplate("mail/mailOtorgarAccesoEspecial");
+
+            mail.setSubject(asunto);
+            mail.setDestinatarios(new String[]{"seichi.jonda@tecsup.edu.pe"});
+//            mail.setDestinatarios(new String[]{correo});
+
+            InternetAddress internetAddress = new InternetAddress();
+            internetAddress.setPersonal("UNALM - INTRANET");
+            internetAddress.setAddress("no-responder@carrerasqueapasionan.pe");
+            mail.setFrom(internetAddress);
+
+            mailerConnector.sendMail(mail);
+
+        } catch (UnsupportedEncodingException ex) {
+            ex.printStackTrace();
+        }
     }
 }
