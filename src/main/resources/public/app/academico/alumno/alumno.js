@@ -6,6 +6,7 @@ new Vue({
         accesoEspecialRequest: {correo: null, contraseña: null, dni: null, isNuevo: true, alumno: {}},
         usuario: {},
         bgColorClass: {pregrado: '', postgrado: '', visitante: '', especial: ''},
+        arrayPalabra: ["Saab", "Volvo", "BMW", "Moldavia", "Guinea", "Somalia", "MeijiEdo", "Sapporo", "Leopardo", "Husky", "azulruso", "Mitsubishi", "mercedes", "Marilyn", "loreto"],
         modalAsignarAccesoEspecial: {
             id: 'modalAsignarAccesoEspecial',
             header: true,
@@ -78,13 +79,10 @@ new Vue({
             $vue.openMolda('modalAsigAccesoEspecial');
         },
         generatorPass() {
-            var palabra = ""
-            for (let i = 0; i <= 10; i++) {
-                let numero = Math.floor(Math.random() * 25);
-                let letraAleatoria = String.fromCharCode(97 + numero);
-                palabra = palabra + letraAleatoria;
-            }
-            return palabra;
+            let $vue = this;
+            var aleatorio = Math.floor(Math.random() * 14);
+            var numero = Math.floor(Math.random() * 100) + 10;
+            return $vue.arrayPalabra[aleatorio] + "" + numero;
         },
         getUserByPersona(persona) {
             let $vue = this;
@@ -93,14 +91,19 @@ new Vue({
                         if (response.data.success) {
                             $vue.usuario = response.data.data;
                             if ($vue.usuario.userDni !== undefined) {
-                                $vue.accesoEspecialRequest.dni = $vue.usuario.userDni;
+//                                $vue.accesoEspecialRequest.dni = $vue.usuario.userDni;
                                 $vue.accesoEspecialRequest.isNuevo = false;
                             } else {
-                                $vue.accesoEspecialRequest.dni = $vue.usuario.persona.numeroDocIdentidad;
-                                $vue.accesoEspecialRequest.contraseña = $vue.generatorPass();
+//                                $vue.accesoEspecialRequest.dni = $vue.usuario.persona.numeroDocIdentidad;
+//                                $vue.accesoEspecialRequest.contraseña = $vue.generatorPass();
                             }
+                            $vue.accesoEspecialRequest.contraseña = $vue.generatorPass();
+                            $vue.accesoEspecialRequest.dni = $vue.usuario.persona.numeroDocIdentidad;
                             $vue.modalAsignarAccesoEspecial.title = ($vue.accesoEspecialRequest.isNuevo ? " Asignar Código Especial" : " Editar Código Especial");
                             $vue.modalAsignarAccesoEspecial.okbtn = ($vue.accesoEspecialRequest.isNuevo ? " Registrar" : " Actualizar");
+                        } else {
+                            notify(response.data.message, "warning");
+                            $vue.$refs.modalAsignarAccesoEspecial.close();
                         }
                     });
         },
