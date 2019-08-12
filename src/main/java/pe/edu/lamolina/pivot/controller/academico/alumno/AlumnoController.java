@@ -72,10 +72,10 @@ public class AlumnoController {
 
     @Autowired
     VerificadorService verificadorService;
-  
+
     @Autowired
     AvanceCurricularService avanceCurricularService;
-    
+
     @Autowired
     DespliegueConfig despliegueConfig;
 
@@ -133,6 +133,7 @@ public class AlumnoController {
                         new String[]{
                             "id", "codigo", "estado", "estadoEnum",
                             "promedioAcumulado", "creditosCursados", "creditosAprobados",
+                            "persona.id",
                             "persona.apellidosNombres",
                             "persona.rutaFoto",
                             "persona.tipoFoto",
@@ -541,6 +542,38 @@ public class AlumnoController {
             response.setSuccess(Boolean.TRUE);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("saveAccesoEspecial")
+    public JsonResponse saveAccesoEspecial(@RequestBody AccesoEspecialBean accesoEspecialBean, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            service.saveAccesoEspecial(accesoEspecialBean);
+            response.setSuccess(Boolean.TRUE);
+            response.setMessage("Se asignó el acceso especial al alumno satisfactoriamente.");
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("findUsuario")
+    public JsonResponse findUsuario(@RequestBody Persona persona, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            response.setSuccess(Boolean.TRUE);
+            Usuario usuario = service.findUsuarioByPersona(persona);
+            response.setData(JsonHelper.createJson(usuario, JsonNodeFactory.instance, new String[]{"userDni", "persona.id", "persona.numeroDocIdentidad"}));
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
         }
         return response;
     }
