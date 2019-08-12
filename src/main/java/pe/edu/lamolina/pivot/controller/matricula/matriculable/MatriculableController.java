@@ -577,8 +577,8 @@ public class MatriculableController {
     }
 
     @ResponseBody
-    @RequestMapping("quitarAporteCarnet")
-    public JsonResponse quitarAporteCarnet(@RequestBody MatriculaResumen matriculaResumen, HttpSession session) {
+    @RequestMapping("agregarAporteCarnet")
+    public JsonResponse agregarAporteCarnet(@RequestBody MatriculaResumen matriculaResumen, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         JsonResponse response = new JsonResponse();
 
@@ -598,8 +598,8 @@ public class MatriculableController {
     }
 
     @ResponseBody
-    @RequestMapping("agregarAporteCarnet")
-    public JsonResponse agregarAporteCarnet(@RequestBody MatriculaResumen matriculaResumen, HttpSession session) {
+    @RequestMapping("quitarAporteCarnet")
+    public JsonResponse quitarAporteCarnet(@RequestBody MatriculaResumen matriculaResumen, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         JsonResponse response = new JsonResponse();
 
