@@ -6,7 +6,7 @@ import static pe.edu.lamolina.model.enums.AportesEnum.A05;
 
 public class Laboratory {
 
-    public static void main(String[] args) {
+    public static void main666(String[] args) {
         ResumenAporteAlumno aportante = new ResumenAporteAlumno();
         aportante.setMontoTotal(BigDecimal.ONE);
         if (aportante.getMontoTotal().compareTo(BigDecimal.ZERO) >= 0) {
