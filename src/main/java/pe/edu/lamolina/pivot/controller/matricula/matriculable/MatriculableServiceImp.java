@@ -46,6 +46,7 @@ import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.SituacionAcademica;
 import pe.edu.lamolina.model.academico.TurnoAtencion;
+import pe.edu.lamolina.model.aporte.AporteAlumnoCiclo;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import pe.edu.lamolina.model.enums.EstadoTramiteEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
@@ -95,6 +96,7 @@ import pe.edu.lamolina.pivot.dao.academico.MatriculaResumenDAO;
 import pe.edu.lamolina.pivot.dao.academico.ModalidadEstudioDAO;
 import pe.edu.lamolina.pivot.dao.academico.SituacionAcademicaDAO;
 import pe.edu.lamolina.pivot.dao.academico.TurnoAtencionDAO;
+import pe.edu.lamolina.pivot.dao.aporte.AporteAlumnoCicloDAO;
 import pe.edu.lamolina.pivot.dao.tramite.CambioNotaDAO;
 import pe.edu.lamolina.pivot.dao.tramite.ReincorporacionDAO;
 import pe.edu.lamolina.pivot.dao.tramite.RetiroCicloDAO;
@@ -161,6 +163,9 @@ public class MatriculableServiceImp implements MatriculableService {
     AporteAlumnoService aporteAlumnoService;
 
     @Autowired
+    AporteAlumnoCicloDAO aporteAlumnoCicloDAO;
+
+    @Autowired
     AvanceCurricularService avanceCurricularService;
 
     @Autowired
@@ -176,7 +181,15 @@ public class MatriculableServiceImp implements MatriculableService {
 
     @Override
     public List<MatriculaResumen> allAlumnosByCicloRolDynatable(DynatableFilter filter, CicloAcademico cicloAcademico, String codigo, List<Long> filtros) {
-        return matriculaResumenDAO.allByCicloRolDynatable(filter, cicloAcademico, codigo, filtros);
+        List<AporteAlumnoCiclo> aporteAlumnoCiclos = aporteAlumnoCicloDAO.allAporteCarnetByCiclo(cicloAcademico);
+        Map<Long, AporteAlumnoCiclo> map = TypesUtil.convertListToMap("resumenAporteAlumno.matriculaResumen.id", aporteAlumnoCiclos);
+        List<MatriculaResumen> matriculaResumens = matriculaResumenDAO.allByCicloRolDynatable(filter, cicloAcademico, codigo, filtros);
+        for (MatriculaResumen matriculaResumen : matriculaResumens) {
+            if (map.get(matriculaResumen.getId()) != null) {
+                matriculaResumen.setAporteCarnet(Boolean.TRUE);
+            }
+        }
+        return matriculaResumens;
     }
 
     @Override
@@ -217,7 +230,7 @@ public class MatriculableServiceImp implements MatriculableService {
         for (MatriculaResumen matriculaResumen : matriculaResumens) {
             mapMatriculableExist.put(matriculaResumen.getAlumno().getId(), matriculaResumen.getAlumno());
         }
-        
+
         List<CicloAcademico> ciclosPreviosPregrado = cicloAcademicoDAO.allActivosAnteriores(2, cicloBD);
         List<CicloAcademico> ciclosPreviosEpg = cicloAcademicoDAO.allActivosAnteriores(2, cicloEpg);
         ciclosPreviosEpg.addAll(ciclosPreviosPregrado);
@@ -864,10 +877,6 @@ public class MatriculableServiceImp implements MatriculableService {
 
     }
 
-    private void updateCursoApro(Alumno alumno, DataSessionPivot ds) {
-        avanceCurricularService.generarAvanceCurricularByAlumno(alumno, ds);
-    }
-
     @Override
     @Transactional(readOnly = false)
     public void generarVerano(CicloAcademico cicloAcademico, DataSessionPivot ds) {
@@ -1030,6 +1039,16 @@ public class MatriculableServiceImp implements MatriculableService {
         List<AlumnoCiclo> alumnoCiclos = alumnoCicloDAO.allByNmatAndInh(cicloAnt);
         respositorVisor.iniciar(alumnoCiclos.size());
         return alumnoCiclos;
+    }
+
+    @Override
+    public void quitarAporteCarnet(MatriculaResumen matriculaResumen, DataSessionPivot ds) {
+        aporteAlumnoService.quitarAporteCarnet(ds.getCicloAcademico(), matriculaResumen, ds);
+    }
+
+    @Override
+    public void agregarAporteCarnet(MatriculaResumen matriculaResumen, DataSessionPivot ds) {
+        aporteAlumnoService.generarAporteCarnet(ds.getCicloAcademico(), matriculaResumen, ds);
     }
 
 }

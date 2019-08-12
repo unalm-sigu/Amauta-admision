@@ -6,13 +6,16 @@ import java.util.Date;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
+import static org.springframework.http.converter.json.Jackson2ObjectMapperBuilder.json;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
+import pe.edu.lamolina.model.aporte.Aporte;
 import pe.edu.lamolina.model.enums.AmbienteAplicacionEnum;
+import pe.edu.lamolina.model.enums.AportesEnum;
 import pe.edu.lamolina.model.enums.ParametrosSistemasEnum;
 import pe.edu.lamolina.model.enums.TokenEstadoEnum;
 import pe.edu.lamolina.model.general.Parametro;
@@ -20,6 +23,7 @@ import pe.edu.lamolina.model.seguridad.Sistema;
 import pe.edu.lamolina.model.seguridad.TokenIngresante;
 import pe.edu.lamolina.pivot.config.DespliegueConfig;
 import pe.edu.lamolina.pivot.controller.rest.AbstractRestClient;
+import pe.edu.lamolina.pivot.dao.aporte.AporteDAO;
 import pe.edu.lamolina.pivot.dao.general.ParametroDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.TokenIngresanteDAO;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -32,6 +36,9 @@ public class ResponseRestServiceImpl extends AbstractRestClient<JsonResponse> im
 
     @Autowired
     ParametroDAO parametroDAO;
+
+    @Autowired
+    AporteDAO aporteDAO;
 
     @Autowired
     TokenIngresanteDAO tokenIngresanteDAO;
@@ -66,6 +73,38 @@ public class ResponseRestServiceImpl extends AbstractRestClient<JsonResponse> im
         }
 
         String url = String.format("%s/aportesRest/verificacionAporte",
+                parametro.getValor());
+
+        return this.postToBackEnd(url, json);
+    }
+
+    @Override
+    @Transactional
+    public JsonResponse generarAporteCarnet(MatriculaResumen matriculaResumen, DataSessionPivot ds) {
+        Parametro parametro = findParametro(ParametrosSistemasEnum.SALTO_PIVOT_BIENESTAR);
+        Aporte aporte = aporteDAO.findByCode(AportesEnum.A05);
+        ObjectNode json = new ObjectNode(JsonNodeFactory.instance);
+        json.put("idUsuario", ds.getUsuario().getId());
+        json.put("idMatricula", matriculaResumen.getId());
+        json.put("idAporte", aporte.getId());
+
+        String url = String.format("%s/aportesRest/agregarAporte",
+                parametro.getValor());
+
+        return this.postToBackEnd(url, json);
+    }
+
+    @Override
+    @Transactional
+    public JsonResponse eliminarAporteCarnet(MatriculaResumen matriculaResumen, DataSessionPivot ds) {
+        Parametro parametro = findParametro(ParametrosSistemasEnum.SALTO_PIVOT_BIENESTAR);
+        Aporte aporte = aporteDAO.findByCode(AportesEnum.A05);
+        ObjectNode json = new ObjectNode(JsonNodeFactory.instance);
+        json.put("idUsuario", ds.getUsuario().getId());
+        json.put("idMatricula", matriculaResumen.getId());
+        json.put("idAporte", aporte.getId());
+
+        String url = String.format("%s/aportesRest/quitarAporte",
                 parametro.getValor());
 
         return this.postToBackEnd(url, json);

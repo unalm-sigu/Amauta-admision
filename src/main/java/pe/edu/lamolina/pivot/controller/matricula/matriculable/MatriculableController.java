@@ -48,7 +48,6 @@ import static pe.edu.lamolina.model.enums.RolEnum.TODO;
 import pe.edu.lamolina.model.enums.TipoCicloEnum;
 import pe.edu.lamolina.model.enums.TipoCondicionalEnum;
 import pe.edu.lamolina.pivot.controller.academico.alumno.AlumnoResumen;
-import pe.edu.lamolina.pivot.controller.academico.promedio.ContadorComponent;
 import pe.edu.lamolina.pivot.controller.visores.RespositorVisor;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.constant.Messages;
@@ -565,6 +564,48 @@ public class MatriculableController {
         try {
 
             service.beneficiar(matriculaResumen, ds);
+            response.setMessage("Se actualizó satisfactoriamente.");
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+
+    }
+
+    @ResponseBody
+    @RequestMapping("quitarAporteCarnet")
+    public JsonResponse quitarAporteCarnet(@RequestBody MatriculaResumen matriculaResumen, HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        JsonResponse response = new JsonResponse();
+
+        try {
+
+            service.agregarAporteCarnet(matriculaResumen, ds);
+            response.setMessage("Se actualizó satisfactoriamente.");
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+
+    }
+
+    @ResponseBody
+    @RequestMapping("agregarAporteCarnet")
+    public JsonResponse agregarAporteCarnet(@RequestBody MatriculaResumen matriculaResumen, HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        JsonResponse response = new JsonResponse();
+
+        try {
+
+            service.quitarAporteCarnet(matriculaResumen, ds);
             response.setMessage("Se actualizó satisfactoriamente.");
             response.setSuccess(true);
 
