@@ -444,11 +444,6 @@ new Vue({
         asignarAporte(item) {
             let $vue = this;
             MODAL.showWait("Espere un momento por favor");
-//            $('#formMatriculable').parsley().destroy();
-            if (!$("#formMatriculable").parsley().validate()) {
-                MODAL.hideWait();
-                return;
-            }
             $.ajax({
                 method: 'POST',
                 url: APP.url('academico/matriculable/agregarAporteCarnet'),
@@ -473,11 +468,6 @@ new Vue({
         quitarAporte(item) {
             let $vue = this;
             MODAL.showWait("Espere un momento por favor");
-//            $('#formMatriculable').parsley().destroy();
-            if (!$("#formMatriculable").parsley().validate()) {
-                MODAL.hideWait();
-                return;
-            }
             $.ajax({
                 method: 'POST',
                 url: APP.url('academico/matriculable/quitarAporteCarnet'),
