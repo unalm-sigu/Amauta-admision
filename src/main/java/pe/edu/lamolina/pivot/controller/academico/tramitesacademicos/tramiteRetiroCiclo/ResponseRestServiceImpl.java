@@ -69,7 +69,7 @@ public class ResponseRestServiceImpl extends AbstractRestClient<JsonResponse> im
         json.put("idCicloAcademico", ds.getCicloAcademico().getId());
         if (matriculaResumen != null) {
 
-            json.put("idMatriculaResumen", matriculaResumen.getId());
+            json.put("idMatricula", matriculaResumen.getId());
         }
 
         String url = String.format("%s/aportesRest/verificacionAporte",
