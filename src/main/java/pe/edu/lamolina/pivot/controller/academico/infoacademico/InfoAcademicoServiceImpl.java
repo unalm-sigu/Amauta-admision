@@ -823,7 +823,7 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
             String codigoCicloAlumno = (String) ObjectUtil.getParentTree(alumnoBD, "cicloIngreso.codigo");
 
             String codigoCicloPlan = this.getIndiceCicloAcademico(codigoCicloAlumno, codigosCiclosPlanes);
-
+            
             PlanCurricular planBD = mapPlanesByCiclo.get(codigoCicloPlan);
             alumnoCursoSimultaneoDAO.deleteAllByAlumno(alumnoBD);
             alumnoCursoCurriculaDAO.deleteAllByAlumno(alumnoBD);
@@ -850,6 +850,6 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
                 return codigoCicloPlan;
             }
         }
-        return null;
+        return codigosCiclosPlanes.get(0);
     }
 }
