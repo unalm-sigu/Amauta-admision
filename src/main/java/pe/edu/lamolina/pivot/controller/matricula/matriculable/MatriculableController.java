@@ -155,7 +155,7 @@ public class MatriculableController {
             for (MatriculaResumen matriculable : matriculables) {
                 ObjectNode node = JsonHelper.createJson(matriculable, JsonNodeFactory.instance, true,
                         new String[]{
-                            "id", "prioridad", "puntajePrioridad", "cursosMatriculados", "cursosRetirados", "motivoMatriculable", "esBeneficiadoUltimoCiclo", "esCondicional",
+                            "id", "prioridad", "puntajePrioridad", "cursosMatriculados", "cursosRetirados", "motivoMatriculable", "esBeneficiadoUltimoCiclo", "esCondicional", "aporteCarnet",
                             "prioridadAnterior", "alumno.persona.rutaFoto", "alumno.persona.tipoFoto", "alumno.persona.emailCompania", "alumno.persona.numeroDocIdentidad",
                             "creditosMatriculados", "creditosRetirados", "estado", "estadoEnum", "alumno.codigo",
                             "promedioSemestral",
@@ -577,8 +577,8 @@ public class MatriculableController {
     }
 
     @ResponseBody
-    @RequestMapping("quitarAporteCarnet")
-    public JsonResponse quitarAporteCarnet(@RequestBody MatriculaResumen matriculaResumen, HttpSession session) {
+    @RequestMapping("agregarAporteCarnet")
+    public JsonResponse agregarAporteCarnet(@RequestBody MatriculaResumen matriculaResumen, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         JsonResponse response = new JsonResponse();
 
@@ -598,8 +598,8 @@ public class MatriculableController {
     }
 
     @ResponseBody
-    @RequestMapping("agregarAporteCarnet")
-    public JsonResponse agregarAporteCarnet(@RequestBody MatriculaResumen matriculaResumen, HttpSession session) {
+    @RequestMapping("quitarAporteCarnet")
+    public JsonResponse quitarAporteCarnet(@RequestBody MatriculaResumen matriculaResumen, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         JsonResponse response = new JsonResponse();
 

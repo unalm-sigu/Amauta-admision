@@ -442,13 +442,52 @@ new Vue({
             });
         },
         asignarAporte(item) {
-
+            let $vue = this;
+            MODAL.showWait("Espere un momento por favor");
+            $.ajax({
+                method: 'POST',
+                url: APP.url('academico/matriculable/agregarAporteCarnet'),
+                contentType: "application/json",
+                data: JSON.stringify(item),
+                success: function (response) {
+                    if (response.success) {
+                        $vue.$refs.load.loadRemoteData();
+                        MODAL.hideWait();
+                        notify(response.message, "success");
+                    } else {
+                        MODAL.hideWait();
+                        notify(response.message, "error");
+                    }
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                    MODAL.hideWait();
+                }
+            });
         },
         quitarAporte(item) {
-
-        },
-        saveAporte() {
-            s
+            let $vue = this;
+            MODAL.showWait("Espere un momento por favor");
+            $.ajax({
+                method: 'POST',
+                url: APP.url('academico/matriculable/quitarAporteCarnet'),
+                contentType: "application/json",
+                data: JSON.stringify(item),
+                success: function (response) {
+                    if (response.success) {
+                        $vue.$refs.load.loadRemoteData();
+                        MODAL.hideWait();
+                        notify(response.message, "success");
+                    } else {
+                        MODAL.hideWait();
+                        notify(response.message, "error");
+                    }
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                    MODAL.hideWait();
+                }
+            });
         }
     }
 });
