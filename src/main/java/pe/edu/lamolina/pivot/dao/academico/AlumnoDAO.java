@@ -102,7 +102,7 @@ public interface AlumnoDAO extends EasyDAO<Alumno> {
 
     void updatePromedioProcesado(Alumno alumno);
 
-    List<Alumno> allIngresantesByCiclos(List<CicloAcademico> ciclosIngresantes);
+    List<Alumno> allIngresantesByCiclos(List<CicloAcademico> ciclosIngresantes, String mod);
 
     List<Alumno> allMatriculadosNoEgresadosByCiclos(List<CicloAcademico> ciclosPrevios);
 

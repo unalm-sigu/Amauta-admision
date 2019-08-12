@@ -21,6 +21,7 @@
                                 <template slot="option" slot-scope="props">
                                     <div class="option__desc">
                                         <span class="option__title block bold">{{ props.option.persona.nombreCompleto }} </span>
+                                        <span class="option__small">Código  - {{ props.option.codigo }}</span>
                                         <span class="option__small">{{ props.option.persona.tipoDocumento.simbolo }} - {{ props.option.persona.numeroDocIdentidad }}</span>
                                     </div>
                                 </template>

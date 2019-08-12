@@ -14,17 +14,20 @@ public interface TestService {
 
     void promediarciclocod(String cicloCod, DataSessionPivot ds);
 
+    void promediarciclocoderror(String cicloCod, DataSessionPivot ds);
+
     void promediarfull(DataSessionPivot ds, ModalidadEstudioEnum modalidadEstudioEnum);
 
     void promediarAll(Long cicloId, DataSessionPivot ds);
 
     void calcularAllPromediosByCiclo(DataSessionPivot ds);
 
-    public void promediarfullBySituacion(String sit, DataSessionPivot ds, ModalidadEstudioEnum modalidadEstudioEnum);
+    void promediarfullBySituacion(String sit, DataSessionPivot ds, ModalidadEstudioEnum modalidadEstudioEnum);
 
     void trasladarMatriculaCursoForPromediosCiclo(DataSessionPivot ds, String codigo, Long modalidad);
 
-    public void trasladarMatriculaCursoForPromediosAlumno(DataSessionPivot ds, Long alumnoId);
+    void trasladarMatriculaCursoForPromediosAlumno(DataSessionPivot ds, Long alumnoId);
 
-    public void trasladarMatriculaCursoForPromediosReview(DataSessionPivot ds, Long idAlumno);
+    void trasladarMatriculaCursoForPromediosReview(DataSessionPivot ds, String codCiclo);
+
 }

@@ -279,6 +279,15 @@ public class TestController {
     }
 
     @ResponseBody
+    @RequestMapping("promediarciclocod/{ciclo}/error")
+    public String promediarciclocodError(@PathVariable("ciclo") String cicloCod, HttpSession session) {
+        logger.info("promediarciclocod {}", cicloCod);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        service.promediarciclocoderror(cicloCod, ds);
+        return "yeah";
+    }
+
+    @ResponseBody
     @RequestMapping("promediaralumno/{alumno}")
     public String calcularAllPromediosByCiclo(HttpSession session, @PathVariable("alumno") Long alumnoId) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
@@ -304,7 +313,7 @@ public class TestController {
     public String trasladarInformcionForHistorialReviewAlumno(HttpSession session, @PathVariable(value = "alumno") Long alumnoId) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         ds.setFechaAccionAudit(new Date());
-        service.trasladarMatriculaCursoForPromediosReview(ds, alumnoId);
+        service.trasladarMatriculaCursoForPromediosAlumno(ds, alumnoId);
         return "yeah";
     }
 
@@ -314,6 +323,17 @@ public class TestController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         ds.setFechaAccionAudit(new Date());
         service.trasladarMatriculaCursoForPromediosReview(ds, null);
+        return "yeah";
+    }
+
+    @ResponseBody
+    @RequestMapping("trasladarInformcionForHistorialCicloReview/{codigo}")
+    public String trasladarInformcionForHistorialCicloReview(@PathVariable("codigo") String codigo,
+            HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        ds.setFechaAccionAudit(new Date());
+
+        service.trasladarMatriculaCursoForPromediosReview(ds, codigo);
         return "yeah";
     }
 

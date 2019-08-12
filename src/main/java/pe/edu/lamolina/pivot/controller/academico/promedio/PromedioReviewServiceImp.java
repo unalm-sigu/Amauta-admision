@@ -141,11 +141,14 @@ public class PromedioReviewServiceImp implements PromedioReviewService {
         }
     }
 
-//    @Async
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = false)
-    public void trasladarInformcionForHistorial(List<MatriculaResumen> matriculaResumenes, List<MatriculaCurso> allMatriculasCursosAlumno,
-            List<MatriculaSeccion> matriculasSeccion, DataSessionPivot ds, Map<Long, RetiroCiclo> mapRetiroByCicloAlumno,
+    public void trasladarInformcionForHistorial(
+            List<MatriculaResumen> matriculaResumenes,
+            List<MatriculaCurso> allMatriculasCursosAlumno,
+            List<MatriculaSeccion> matriculasSeccion,
+            DataSessionPivot ds,
+            Map<Long, RetiroCiclo> mapRetiroByCicloAlumno,
             Map<Long, List<AlumnoCicloCurso>> mapAlumnoCicloCurso,
             Map<Long, AlumnoCiclo> mapalumnoCiclo,
             SituacionAcademica situacionAcademicaComodin,
@@ -630,12 +633,14 @@ public class PromedioReviewServiceImp implements PromedioReviewService {
 //            Map<Long, List<AlumnoCicloCurso>> mapAlumnoCicloCurso = TypesUtil.convertListToMap("curso.id", matriculasCursosByAlumno);
 //        logger.debug("######################################################################## Ciclo Alumno ciclo {} {} {} ", cicloAcademico.getId(), cicloAcademico.getYear(), cicloAcademico.getNumeroCiclo());
 
+        List<AlumnoCicloCurso> alumnoCicloCurso = new ArrayList();
+
         RetiroCiclo retiroCiclo = mapRetiro.get(cicloAcademico.getId());
         Boolean isRetiradoCiclo = (retiroCiclo != null && retiroCiclo.getEstadoEnum() == TramiteEstadoEnum.ACEP);
         AlumnoCiclo alumnoCiclo = mapalumnoCiclo.get(cicloAcademico.getId());
         List<AlumnoCicloCurso> alumnoCicloCursoTem = new ArrayList<>();
         if (alumnoCiclo != null) {
-            List<AlumnoCicloCurso> alumnoCicloCurso = fillList(mapAlumnoCicloCurso.get(alumnoCiclo.getId()));
+            alumnoCicloCurso = fillList(mapAlumnoCicloCurso.get(alumnoCiclo.getId()));
             Map<Long, List<AlumnoCicloCurso>> mapAlumnoCicloCursoByCurso = TypesUtil.convertListToMapList("curso.id", alumnoCicloCurso);
             alumnoCicloCursoTem = fillList(mapAlumnoCicloCursoByCurso.get(curso.getId())); // Por si hay cursos repetidos en el ciclo
         }
@@ -654,9 +659,13 @@ public class PromedioReviewServiceImp implements PromedioReviewService {
                 mapalumnoCiclo.put(cicloAcademico.getId(), alumnoCiclo);
             }
 
-        } else if (alumnoCiclo != null && !isRetiradoCiclo) {
+        } else if (alumnoCiclo != null) {
             AlumnoCiclo alumnoCicloUpd = new AlumnoCiclo(alumnoCiclo.getId());
-            alumnoCicloUpd.setEstadoEnum(EstadoMatriculaEnum.MAT);
+            if (isRetiradoCiclo) {
+                alumnoCicloUpd.setEstadoEnum(EstadoMatriculaEnum.RCI);
+            } else {
+                alumnoCicloUpd.setEstadoEnum(EstadoMatriculaEnum.MAT);
+            }
             alumnoCicloDAO.updateColumns(alumnoCicloUpd, "estado");
         }
 
@@ -669,8 +678,8 @@ public class PromedioReviewServiceImp implements PromedioReviewService {
                 alumnoCicloCursoNew.setEstaAprobado(aprobado);
 
                 //  alumnoCicloCurso.setVecesCursado(alumnoCicloCursoDAO.countByCursoAlumnoAnterioresCiclo(curso, alumno, cicloAcademico).intValue() + 1);
-                alumnoCicloCursoNew.setVecesCursado(this.countVecesAnteriores(new ArrayList(mapAlumnoCicloCurso.values()), cicloAcademico, curso) + 1);
-                alumnoCicloCursoNew.setVecesCursadoRegular(this.countVecesAnterioresReg(new ArrayList(mapAlumnoCicloCurso.values()), cicloAcademico, curso) + 1);
+                alumnoCicloCursoNew.setVecesCursado(this.countVecesAnteriores(alumnoCicloCurso, cicloAcademico, curso) + 1);
+                alumnoCicloCursoNew.setVecesCursadoRegular(this.countVecesAnterioresReg(alumnoCicloCurso, cicloAcademico, curso) + 1);
                 logger.debug("################## PARA GUARDAR ALUMNO CICLO CURSO {} {} {} {} {}", cicloAcademico.getId(), cicloAcademico.getYear(), cicloAcademico.getNumeroCiclo(), curso.getNombre(), matriculaCurso.getEstado());
                 alumnoCicloCursoDAO.save(alumnoCicloCursoNew);
             }
@@ -694,8 +703,8 @@ public class PromedioReviewServiceImp implements PromedioReviewService {
                         }
                         Integer aprobado = evaluateEstaAprobado(matriculaCurso, alumno);
                         alumnoCicloCursoTemp.setEstaAprobado(aprobado);
-                        alumnoCicloCursoTemp.setVecesCursado(this.countVecesAnteriores(new ArrayList(mapAlumnoCicloCurso.values()), cicloAcademico, curso) + 1);
-                        alumnoCicloCursoTemp.setVecesCursadoRegular(this.countVecesAnterioresReg(new ArrayList(mapAlumnoCicloCurso.values()), cicloAcademico, curso) + 1);
+                        alumnoCicloCursoTemp.setVecesCursado(this.countVecesAnteriores(alumnoCicloCurso, cicloAcademico, curso) + 1);
+                        alumnoCicloCursoTemp.setVecesCursadoRegular(this.countVecesAnterioresReg(alumnoCicloCurso, cicloAcademico, curso) + 1);
                         alumnoCicloCursoDAO.update(alumnoCicloCursoTemp);
 
                     } else {
@@ -719,8 +728,8 @@ public class PromedioReviewServiceImp implements PromedioReviewService {
                         }
                         Integer aprobado = evaluateEstaAprobado(matriculaCurso, alumno);
                         alumnoCicloCursoTemp.setEstaAprobado(aprobado);
-                        alumnoCicloCursoTemp.setVecesCursado(this.countVecesAnteriores(new ArrayList(mapAlumnoCicloCurso.values()), cicloAcademico, curso) + 1);
-                        alumnoCicloCursoTemp.setVecesCursadoRegular(this.countVecesAnterioresReg(new ArrayList(mapAlumnoCicloCurso.values()), cicloAcademico, curso) + 1);
+                        alumnoCicloCursoTemp.setVecesCursado(this.countVecesAnteriores(alumnoCicloCurso, cicloAcademico, curso) + 1);
+                        alumnoCicloCursoTemp.setVecesCursadoRegular(this.countVecesAnterioresReg(alumnoCicloCurso, cicloAcademico, curso) + 1);
                         alumnoCicloCursoDAO.update(alumnoCicloCursoTemp);
                     } else {
                         alumnoCicloCursoTemp.setRegistroActivo(0);
@@ -753,8 +762,8 @@ public class PromedioReviewServiceImp implements PromedioReviewService {
         return lista;
     }
 
-    public Integer countVecesAnteriores(List<AlumnoCicloCurso> matriculasCursosAlumno, CicloAcademico cicloAcademico, Curso curso) {
-        List<AlumnoCicloCurso> matriculasCursosAnterioresByCurso = matriculasCursosAlumno.stream().filter(
+    public Integer countVecesAnteriores(List<AlumnoCicloCurso> alumnoCicloCursos, CicloAcademico cicloAcademico, Curso curso) {
+        List<AlumnoCicloCurso> matriculasCursosAnterioresByCurso = alumnoCicloCursos.stream().filter(
                 x -> (x.getAlumnoCiclo().getCicloAcademico().getCodigoInt() < cicloAcademico.getCodigoInt()
                 && x.getCurso().equals(curso))
                 && x.getIsEstadoMatriculado())
@@ -763,7 +772,7 @@ public class PromedioReviewServiceImp implements PromedioReviewService {
     }
 
     public Integer countVecesAnterioresReg(List<AlumnoCicloCurso> matriculasCursosAlumno, CicloAcademico cicloAcademico, Curso curso) {
-        List<AlumnoCicloCurso> matriculasCursosAnterioresByCurso = matriculasCursosAlumno.stream().filter(
+        List<AlumnoCicloCurso> matriculasCursosAnterioresByCurso = (List<AlumnoCicloCurso>) matriculasCursosAlumno.stream().filter(
                 x -> (x.getAlumnoCiclo().getCicloAcademico().getCodigoInt() < cicloAcademico.getCodigoInt()
                 && x.getCurso().equals(curso))
                 && x.getAlumnoCiclo().getCicloAcademico().isTipoRegular()

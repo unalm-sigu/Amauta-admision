@@ -13,7 +13,7 @@ public class ThymeleafConfig {
 
     @Autowired
     ThymeleafViewResolver viewResolver;
-    
+
     @Autowired
     DespliegueConfig despliegueConfig;
 
@@ -21,7 +21,8 @@ public class ThymeleafConfig {
     public void loadStaticVariables() {
         Map<String, String> adicionales = new HashMap();
         adicionales.put("TAWKTO", despliegueConfig.getTawkto().toString());
-        
+        adicionales.put("ambiente", despliegueConfig.getAmbiente());
+
         viewResolver.setStaticVariables(adicionales);
     }
 }

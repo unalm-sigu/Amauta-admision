@@ -104,4 +104,6 @@ public interface CicloAcademicoDAO extends EasyDAO<CicloAcademico> {
 
     CicloAcademico findActivoAdmisionPregrado();
 
+    List<CicloAcademico> allWithInitAndOrderBy(String codigo, String orderBy, CicloAcademicoEstadoEnum... cicloAcademicoEstadoEnum);
+
 }

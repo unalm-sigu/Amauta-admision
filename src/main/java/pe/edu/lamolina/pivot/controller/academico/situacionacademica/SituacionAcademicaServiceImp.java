@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.SituacionAcademica;
@@ -17,18 +18,18 @@ import pe.edu.lamolina.pivot.dao.academico.SituacionConfigDAO;
 @Service
 @Transactional(readOnly = true)
 public class SituacionAcademicaServiceImp implements SituacionAcademicaService {
-
+    
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
+    
     @Autowired
     SituacionAcademicaDAO situacionAcademicaDAO;
-
+    
     @Autowired
     SituacionConfigDAO situacionConfigDAO;
-
+    
     @Autowired
     AlumnoDAO alumnoDAO;
-
+    
     @Override
     public SituacionAcademica findSituacionFinal(AlumnoCiclo alumnoCiclo, SituacionAcademica situacionAcademicaIni, Integer ciclosEstudiados, Integer capa, CicloAcademico cicloAcademico) {
         /* if (situacionAcademicaIni == null) {
@@ -55,7 +56,10 @@ public class SituacionAcademicaServiceImp implements SituacionAcademicaService {
          */
         //   SituacionConfig situacionFinal = situacionConfigDAO.findForSituacionFinal(situacionConfig);
         SituacionConfig situacionFinal = situacionConfigDAO.findsSituacionConfig(situacionConfig);
+        if (situacionFinal == null) {
+            ObjectUtil.printAttr(situacionConfig);
+        }
         return situacionFinal != null ? situacionAcademicaDAO.find(situacionFinal.getSituacionFinal().getId()) : null;
     }
-
+    
 }

@@ -171,7 +171,7 @@ public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements Alu
                 .from(AlumnoCiclo.class, "ac")
                 .join("alumno alu", "cicloAcademico ca", "carrera car")
                 .left("situacionInicio si", "situacionFinal sf", "orientacionCarrera oc")
-                .filter("ca.tipo", TipoCicloEnum.REG.name())
+                .filter("ca.tipo", TipoCicloEnum.REG)
                 .filter("alu.id", alumno)
                 //      .filter("ac.estado", EstadoMatriculaEnum.MAT.name())
                 .notIn("sf.codigo", situaciones.stream().map(x -> x.getValue()).collect(Collectors.toList()))
@@ -458,6 +458,19 @@ public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements Alu
                 .join("alumno alu", "cicloAcademico ca")
                 .leftJoin("situacionInicio si", "situacionFinal sf")
                 .leftJoin("userModificacion um", "userRegistro ur")
+                .filter("cicloAcademico", ciclo);
+
+        return all(sql);
+    }
+
+    @Override
+    public List<AlumnoCiclo> allWithSituacionErrorByCiclo(CicloAcademico ciclo) {
+        Octavia sql = Octavia.query()
+                .from(AlumnoCiclo.class, "ac")
+                .join("alumno alu", "cicloAcademico ca")
+                .leftJoin("situacionInicio si", "situacionFinal sf")
+                .leftJoin("userModificacion um", "userRegistro ur")
+                .filter("alu.conError", 1)
                 .filter("cicloAcademico", ciclo);
 
         return all(sql);
@@ -804,7 +817,7 @@ public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements Alu
                 .from(AlumnoCiclo.class, "ac")
                 .join("alumno alu", "cicloAcademico ca")
                 .leftJoin("situacionInicio si", "situacionFinal sf", "userRegistro ur")
-                .leftJoin("userModificacion um")
+                //.leftJoin("userModificacion um")
                 .filter("alu.id", alumno)
                 .filter("ac.estado", EstadoMatriculaEnum.MAT.name())
                 .filter("ca.tipo", REG)
@@ -818,7 +831,7 @@ public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements Alu
                 .from(AlumnoCiclo.class, "ac")
                 .join("alumno alu", "cicloAcademico ca")
                 .leftJoin("situacionInicio si", "situacionFinal sf")
-                .leftJoin("userModificacion um", "userRegistro ur")
+                //.leftJoin("userModificacion um", "userRegistro ur")
                 .filter("alu.id", alumno);
         return all(sql);
     }
@@ -829,7 +842,7 @@ public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements Alu
                 .from(AlumnoCiclo.class, "ac")
                 .join("alumno alu", "cicloAcademico ca")
                 .leftJoin("situacionInicio si", "situacionFinal sf")
-                .leftJoin("userModificacion um", "userRegistro ur")
+                //.leftJoin("userModificacion um", "userRegistro ur")
                 .in("alu.id", alumnos);
         return all(sql);
     }

@@ -48,6 +48,7 @@ import static pe.edu.lamolina.model.enums.EstadoEnum.ACT;
 import static pe.edu.lamolina.model.enums.EstadoEnum.CRE;
 import static pe.edu.lamolina.model.enums.EstadoEnum.INA;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
+import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.PRE;
 import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.enums.TipoCreditoEnum;
 import pe.edu.lamolina.model.enums.TipoCurriculaEnum;
@@ -1543,9 +1544,12 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
         List<PlanCurricular> planes = planCurricularDAO.all();
         Map<Long, List<PlanCurricular>> mapPlanes = TypesUtil.convertListToMapList("carrera.id", planes);
         for (Carrera carrera : carrerasTodas) {
-            List<PlanCurricular> planesCarr = mapPlanes.get(carrera.getId());
-            if (planesCarr != null) {
-                carreras.add(carrera);
+            if (carrera.getModalidadEstudio().getCodigoEnum() == PRE) {
+
+                List<PlanCurricular> planesCarr = mapPlanes.get(carrera.getId());
+                if (planesCarr != null) {
+                    carreras.add(carrera);
+                }
             }
         }
         return carreras;

@@ -1,0 +1,29 @@
+<modal-vik ref="modalAsignarAccesoEspecial"
+           v-bind="modalAsignarAccesoEspecial"
+           v-bind:okaction="saveAccesoEspecial">
+    <div slot="body">
+        <form v-bind:id="modalAsignarAccesoEspecial.form" data-parsley-validate="true">
+
+            <div class="form-group">
+                <label>DNI:</label>
+                <input type="text" v-model="accesoEspecialRequest.dni" placeholder="DNI" required="true" disabled="true" class="form-control" />
+            </div>
+
+            <div class="form-group">
+                <label>Correo Electrónico</label>
+                <input type="email" v-model="accesoEspecialRequest.correo" placeholder="Ingrese un correo electrónico para remitir las credenciales a generar" required="true" class="form-control" />
+            </div>
+
+            <!--<div class="form-group" v-if="!accesoEspecialRequest.isNuevo || accesoEspecialRequest.dni == null">-->
+            <!--            <div class="form-group" v-if="!accesoEspecialRequest.isNuevo">
+                            <label>DNI</label>
+                            <input type="text" v-model="accesoEspecialRequest.dni" required="true" class="form-control" />
+                        </div>-->
+
+            <div class="form-group">
+                <label>Constraseña</label>
+                <input type="text" v-model="accesoEspecialRequest.contraseña" required="true" class="form-control" />
+            </div>
+        </form>
+    </div>
+</modal-vik>

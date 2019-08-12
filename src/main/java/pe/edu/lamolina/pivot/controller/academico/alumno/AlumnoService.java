@@ -70,6 +70,12 @@ public interface AlumnoService {
 
     void verificarTramiteTraslado(Alumno alumno);
 
-    public List<Curso> allCurso(String nombre);
+    List<Curso> allCurso(String nombre);
+
+    void marcarFalla(Alumno alumno);
+
+    void saveAccesoEspecial(AccesoEspecialBean accesoEspecialBean);
+
+    Usuario findUsuarioByPersona(Persona persona);
 
 }

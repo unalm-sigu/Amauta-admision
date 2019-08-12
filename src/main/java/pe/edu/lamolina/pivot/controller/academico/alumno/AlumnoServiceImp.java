@@ -13,7 +13,9 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.NumberFormat;
@@ -877,6 +879,47 @@ public class AlumnoServiceImp implements AlumnoService {
 
         return cursoDAO.allCursoByName(nombre);
 
+    }
+
+    @Async
+    @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void marcarFalla(Alumno alumno) {
+        alumnoDAO.updateColumns(alumno, "conError");
+    }
+
+    @Override
+    @Transactional
+    public void saveAccesoEspecial(AccesoEspecialBean accesoEspecialBean) {
+        String CorreoForm = accesoEspecialBean.getCorreo(); // correo a remitir las credenciales
+        Persona personaForm = accesoEspecialBean.getAlumno().getPersona();
+
+        Usuario usuarioBD = usuarioDAO.findByPersona(personaForm);
+
+        if (usuarioBD == null) {
+            throw new PhobosException("El alumno con " + personaForm.getApellidosNombres() + " no tiene registro de usuario");
+        }
+
+        usuarioBD.setUserDni(accesoEspecialBean.getDni());
+        usuarioBD.setUserDniPass(TypesUtil.toMD5(accesoEspecialBean.getContraseña()));
+        usuarioDAO.update(usuarioBD);
+
+        Persona personaBD = personaDAO.find(personaForm.getId());
+        personaBD.setEmail(CorreoForm);
+        personaDAO.update(personaBD);
+
+//        ContenidoCarta contenidoCarta = contenidoCartaDAO.findByCodigo(ContenidoEmailEnum.CREATEACCESOESPECIAL.name());   PENDIENTE
+//        ContenidoCarta contenidoCarta = contenidoCartaDAO.findByCodigo(ContenidoEmailEnum.CREATEUSERALUMNOVISITANTE.name());
+//        mailerService.enviarCorreoAccesoEspecial(accesoEspecialBean.getCorreo(), usuarioBD, accesoEspecialBean.getContraseña(), "Acceso Especial", contenidoCarta);
+    }
+
+    @Override
+    public Usuario findUsuarioByPersona(Persona persona) {
+        Usuario usuario = usuarioDAO.findByPersona(persona);
+        if (usuario == null) {
+            throw new PhobosException("El alumno con " + persona.getApellidosNombres() + " no tiene registro de usuario");
+        }
+        return usuario;
     }
 
 }
