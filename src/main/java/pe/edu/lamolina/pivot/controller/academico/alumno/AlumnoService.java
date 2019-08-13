@@ -15,6 +15,7 @@ import pe.edu.lamolina.model.general.Parametro;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.general.TipoDocIdentidad;
 import pe.edu.lamolina.model.matricula.AlumnoCursoCurricula;
+import pe.edu.lamolina.model.seguridad.TokenIngresante;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.tramite.TramiteTraslado;
 
@@ -77,5 +78,7 @@ public interface AlumnoService {
     void saveAccesoEspecial(AccesoEspecialBean accesoEspecialBean);
 
     Usuario findUsuarioByPersona(Persona persona);
+
+    TokenIngresante goMaipi(Long idAlumno, Usuario usuario);
 
 }

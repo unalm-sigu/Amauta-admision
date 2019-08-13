@@ -53,6 +53,10 @@ new Vue({
             let $vue = this;
             return APP.url('academico/alumno/' + item.id + '/configcursos') + $vue.getOrigenURL();
         },
+        urlGoMaipi(item) {
+            let $vue = this;
+            return APP.url('academico/alumno/' + item.id + '/goMaipi') + $vue.getOrigenURL();
+        },
         urlConvalidarTraslado(item) {
             let $vue = this;
 

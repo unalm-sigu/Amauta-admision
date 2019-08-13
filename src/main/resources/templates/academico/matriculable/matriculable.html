@@ -179,6 +179,7 @@
                                                             <li v-if="!item.aporteCarnet" ><a v-on:click="asignarAporte(item)" href="#">Asignar Aporte Carnet</a></li>
                                                             <li v-if="item.aporteCarnet"  ><a v-on:click="quitarAporte(item)" href="#">Quitar Aporte Carnet</a></li>
                                                             <li ><a v-bind:href="urlMatricula(item)">Matricula</a></li>
+                                                            <li><a v-bind:href="urlGoMaipi(item)" target="_blank">Ir a MAIPI</a></li>
                                                         </ul>
                                                     </div>
                                                 </td>
