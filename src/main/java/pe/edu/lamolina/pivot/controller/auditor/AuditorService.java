@@ -7,6 +7,7 @@ import pe.edu.lamolina.model.academico.AlumnoEvaluacion;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.Evaluacion;
+import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.MatriculaCurso;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.PlanCalificacion;
@@ -36,4 +37,6 @@ public interface AuditorService {
             DataSessionPivot ds);
 
     void auditPromediarAlumno(Alumno alumno, CicloAcademico cicloAcademico, DataSessionPivot ds, Exception exc);
+
+    void saveGrupoSeccion(GrupoSeccion gsec, DataSessionPivot ds);
 }
