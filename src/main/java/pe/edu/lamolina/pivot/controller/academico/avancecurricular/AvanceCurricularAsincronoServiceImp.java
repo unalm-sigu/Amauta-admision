@@ -605,7 +605,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
         validarCursosMatriculados(mapAlumCursoCurrByCurso, cursosMatriculados, ds, alumno, alumnoCursoNew, equivalenteElectivos, cursoOpcionalCurriculas, tipoCursoCurriculas);
         generarAvanceCurricular(alumnoCursoElcCarreraNew, alumnoCursoNew, resumenPlanCurriculars, tipoCursoCurriculas, alumnoAvanceCurriculars, alumno, mapCursosVecesLlevado);
         validarCursosELC(alumnoCursoElcCarreraNew, alumnoCursoNew, alumno);
-        validarCreditosAprobados(mapCursosCurricula, alumnoCursoOld, alumno.getCreditosCarreraAprobados(), 0)
+        
         alumnoCursoOld = alumnoCursoOld == null ? new ArrayList<>() : alumnoCursoOld;
         for (AlumnoCursoCurricula alumnoCursoCurriculaNew : alumnoCursoNew) {
 //            if (alumnoCursoCurriculaNew.getCursoCurricula() != null
