@@ -373,6 +373,26 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
     }
 
     @Override
+    public MatriculaResumen findByAntPrioridadTemp(MatriculaResumen matri, CicloAcademico cicloAcademico, Boolean esUltimoCiclo) {
+        Octavia sql = new Octavia()
+                .from(MatriculaResumen.class, "mr")
+                .join("mr.cicloAcademico aca", "alumno alum")
+                .join("alum.situacionAcademica sit", "alum.modalidadEstudio mod");
+        if (esUltimoCiclo) {
+            sql.filter("alum.creditosCarreraAprobados", ">", Constantine.CAPA_ULTIMO_CICLO);
+        } else {
+            sql.filter("alum.creditosCarreraAprobados", "<", Constantine.CAPA_ULTIMO_CICLO);
+        }
+        sql.filter("aca.id", cicloAcademico)
+                .notIn("sit.id", Arrays.asList(S_8, S_9))
+                .filter("mr.puntajePrioridad", "<=", matri.getPuntajePrioridad())
+                .orderBy("mr.puntajePrioridad desc")
+                .limit(1);
+
+        return find(sql);
+    }
+
+    @Override
     public MatriculaResumen findByDesPrioridad(MatriculaResumen matri, CicloAcademico cicloAcademico, Boolean esUltimoCiclo) {
         Octavia sql = new Octavia()
                 .from(MatriculaResumen.class, "mr")
@@ -382,6 +402,26 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
             sql.filter("alum.creditosAprobados", ">", Constantine.CAPA_ULTIMO_CICLO);
         } else {
             sql.filter("alum.creditosAprobados", "<", Constantine.CAPA_ULTIMO_CICLO);
+        }
+        sql.filter("aca.id", cicloAcademico)
+                .notIn("sit.id", Arrays.asList(S_8, S_9))
+                .filter("mr.puntajePrioridad", ">=", matri.getPuntajePrioridad())
+                .orderBy("mr.puntajePrioridad asc")
+                .limit(1);
+
+        return find(sql);
+    }
+
+    @Override
+    public MatriculaResumen findByDesPrioridadTemp(MatriculaResumen matri, CicloAcademico cicloAcademico, Boolean esUltimoCiclo) {
+        Octavia sql = new Octavia()
+                .from(MatriculaResumen.class, "mr")
+                .join("mr.cicloAcademico aca", "alumno alum")
+                .join("alum.situacionAcademica sit", "alum.modalidadEstudio mod");
+        if (esUltimoCiclo) {
+            sql.filter("alum.creditosCarreraAprobados", ">", Constantine.CAPA_ULTIMO_CICLO);
+        } else {
+            sql.filter("alum.creditosCarreraAprobados", "<", Constantine.CAPA_ULTIMO_CICLO);
         }
         sql.filter("aca.id", cicloAcademico)
                 .notIn("sit.id", Arrays.asList(S_8, S_9))
@@ -641,7 +681,7 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
 
     @Override
     public List<MatriculaResumen> allByCiclos(List<CicloAcademico> ciclos) {
-       Octavia sql = Octavia.query()
+        Octavia sql = Octavia.query()
                 .from(MatriculaResumen.class, "mr")
                 .join("alumno alu", "cicloAcademico ca", "alu.modalidadEstudio me")
                 .left("alu.cicloActivo aluca", "alu.situacionAcademica sa")
@@ -653,13 +693,26 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
 
     @Override
     public List<MatriculaResumen> allByAlumnoCiclos(Alumno alumno, List<CicloAcademico> ciclos) {
-      Octavia sql = Octavia.query()
+        Octavia sql = Octavia.query()
                 .from(MatriculaResumen.class, "mr")
                 .join("alumno alu", "cicloAcademico ca")
                 .filter("estado", "!=", INH)
                 .filter("alu.id", alumno)
                 .in("ca.id", ciclos);
 
-        return all(sql);   }
+        return all(sql);
+    }
+
+    @Override
+    public List<MatriculaResumen> allUltimosCiclosMatriculables(CicloAcademico academico) {
+        Octavia sql = Octavia.query()
+                .from(MatriculaResumen.class, "mr")
+                .join("alumno alu", "cicloAcademico ca")
+                .filter("estado", "!=", INH)
+                .filter("alu.creditosAprobados", ">=", Constantine.CAPA_ULTIMO_CICLO)
+                .filter("ca.id", academico);
+
+        return all(sql);
+    }
 
 }

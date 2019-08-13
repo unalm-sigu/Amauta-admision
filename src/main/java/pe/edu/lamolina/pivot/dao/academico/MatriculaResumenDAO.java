@@ -78,4 +78,10 @@ public interface MatriculaResumenDAO extends EasyDAO<MatriculaResumen> {
 
     public List<MatriculaResumen> allByAlumnoCiclos(Alumno alumno, List<CicloAcademico> ciclos);
 
+    public List<MatriculaResumen> allUltimosCiclosMatriculables(CicloAcademico academico);
+    
+    MatriculaResumen findByDesPrioridadTemp(MatriculaResumen matri, CicloAcademico cicloAcademico, Boolean esUltimoCiclo);
+    
+    MatriculaResumen findByAntPrioridadTemp(MatriculaResumen matri, CicloAcademico cicloAcademico, Boolean esUltimoCiclo);
+
 }

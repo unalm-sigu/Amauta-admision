@@ -123,4 +123,6 @@ public interface AlumnoCicloDAO extends EasyDAO<AlumnoCiclo> {
 
     void deleteById(AlumnoCiclo alumnoCiclo);
 
+    public List<AlumnoCiclo> allByAlumnosReg(List<Alumno> alumnos);
+
 }

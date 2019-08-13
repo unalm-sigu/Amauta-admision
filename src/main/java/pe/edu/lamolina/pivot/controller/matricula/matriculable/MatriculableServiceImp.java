@@ -1051,4 +1051,42 @@ public class MatriculableServiceImp implements MatriculableService {
         aporteAlumnoService.generarAporteCarnet(ds.getCicloAcademico(), matriculaResumen, ds);
     }
 
+    @Override
+    @Transactional
+    public void actualizarPrioridadCero(DataSessionPivot ds) {
+        List<MatriculaResumen> matriculable = matriculaResumenDAO.allUltimosCiclosMatriculables(ds.getCicloAcademico());
+        List<Alumno> alumnos = matriculable.stream().map(x -> x.getAlumno()).collect(Collectors.toList());
+        List<AlumnoCiclo> alumnoCiclos = alumnoCicloDAO.allByAlumnosReg(alumnos);
+        Map<Long, List<AlumnoCiclo>> map = TypesUtil.convertListToMapList("alumno.id", alumnoCiclos);
+        for (MatriculaResumen matriculaResumen : matriculable) {
+            List<AlumnoCiclo> alumnoCiclo = map.get(matriculaResumen.getAlumno().getId());
+            matriculaResumen = matriculableConector.procesarPrioridadAlumno(matriculaResumen, alumnoCiclo.get(0));
+
+            MatriculaResumen matriculaAnt = matriculaResumenDAO.findByAntPrioridadTemp(matriculaResumen, ds.getCicloAcademico(), (matriculaResumen.getAlumno().getCreditosCarreraAprobados() > CAPA_ULTIMO_CICLO));
+            MatriculaResumen matriculaDes = matriculaResumenDAO.findByDesPrioridadTemp(matriculaResumen, ds.getCicloAcademico(), (matriculaResumen.getAlumno().getCreditosCarreraAprobados() > CAPA_ULTIMO_CICLO));
+            if (matriculaAnt != null && matriculaDes != null) {
+
+                BigDecimal prioridad = matriculaAnt.getPrioridad().add(matriculaDes.getPrioridad()).divide(new BigDecimal(2));
+                if (matriculaResumen.getPrioridad().compareTo(prioridad) <= 0) {
+                    System.out.println("No menviene");
+                    continue;
+                }
+                matriculaResumen.setPrioridadTemp(prioridad);
+
+                TurnoAtencion turnosAtencion = turnoAtencionDAO.findByPrioridad(prioridad, ds.getCicloAcademico());
+                BigDecimal numPrioridad = turnosAtencion.getPrioridadFin().add(new BigDecimal("0.01"));
+                Integer cantAlum = turnosAtencion.getAlumnos() + 1;
+                turnosAtencion.setAlumnos(cantAlum);
+                turnosAtencion.setPrioridadFin(numPrioridad);
+//                    turnoAtencionDAO.update(turnosAtencion);
+
+                configuracionMatriculaService.updateTurnos(turnosAtencion.getId(), cantAlum.toString());
+
+                matriculaResumen.setTurnoAtencion(turnosAtencion);
+
+            }
+            matriculaResumenDAO.update(matriculaResumen);
+        }
+    }
+
 }
