@@ -10,4 +10,6 @@ public interface TokenIngresanteDAO extends EasyDAO<TokenIngresante> {
 
     public List<TokenIngresante> allActivos(Persona persona, Usuario usuario);
 
+    TokenIngresante findUltimoVigente(Persona persona);
+
 }

@@ -6,7 +6,7 @@ new Vue({
         accesoEspecialRequest: {correo: null, contraseña: null, dni: null, isNuevo: true, alumno: {}},
         usuario: {},
         bgColorClass: {pregrado: '', postgrado: '', visitante: '', especial: ''},
-        arrayPalabra: ["Saab", "Volvo", "BMW", "Moldavia", "Guinea", "Somalia", "MeijiEdo", "Sapporo", "Leopardo", "Husky", "azulruso", "Mitsubishi", "mercedes", "Marilyn", "loreto"],
+        arrayPalabra: ["saab", "volvo", "azus", "moldavia", "guinea", "somalia", "meijiEdo", "sapporo", "leopardo", "husky", "azulruso", "mitsubishi", "mercedes", "marilyn", "loreto"],
         modalAsignarAccesoEspecial: {
             id: 'modalAsignarAccesoEspecial',
             header: true,
@@ -52,6 +52,10 @@ new Vue({
         urlConfigCursos(item) {
             let $vue = this;
             return APP.url('academico/alumno/' + item.id + '/configcursos') + $vue.getOrigenURL();
+        },
+        urlGoMaipi(item) {
+            let $vue = this;
+            return APP.url('academico/alumno/' + item.id + '/goMaipi') + $vue.getOrigenURL();
         },
         urlConvalidarTraslado(item) {
             let $vue = this;

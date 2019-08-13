@@ -567,9 +567,6 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
         Map<Long, CursoOpcionalCurricula> mapCursoOpcional = TypesUtil.convertListToMap("curso.id", cursoOpcionalCurriculas);
 
         for (AlumnoCicloCurso cursosAprobado : cursosAprobados) {
-            if (cursosAprobado.getCurso().getCodigo().equals("CC1020")) {
-                System.err.println("-----");
-            }
             AlumnoCursoCurricula alumnoCursoCurricula = alumnoCursoNew.stream().filter(x -> Objects.equals(x.getCurso().getId(), cursosAprobado.getCurso().getId())).findAny().orElse(null);
 
             if (alumnoCursoCurricula != null) {
@@ -602,9 +599,9 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
         }
 
         validarCursosComodin(alumnoCursoComodinDepNew, alumnoCursoNew, resumenPlanCurriculars, tipoCursoCurriculas.stream().filter(x -> x.getCodigoEnum() == DEP).findAny().orElse(null));
+        validarEquivalencias(mapAlumCursoCurrByCursoCurri, mapEquivalentesCurricula, cursosAprobados);
         validarCursosRequisito(mapAlumCursoCurrByCursoCurri, mapRequisitosCurricula, alumno);
         validarCursosSimultaneo(mapAlumCursoCurrByCursoCurri, cursosSimultaneosAlu, mapRequisitosCurricula, ds);
-        validarEquivalencias(mapAlumCursoCurrByCursoCurri, mapEquivalentesCurricula, cursosAprobados);
         validarCursosMatriculados(mapAlumCursoCurrByCurso, cursosMatriculados, ds, alumno, alumnoCursoNew, equivalenteElectivos, cursoOpcionalCurriculas, tipoCursoCurriculas);
         generarAvanceCurricular(alumnoCursoElcCarreraNew, alumnoCursoNew, resumenPlanCurriculars, tipoCursoCurriculas, alumnoAvanceCurriculars, alumno, mapCursosVecesLlevado);
         validarCursosELC(alumnoCursoElcCarreraNew, alumnoCursoNew, alumno);
@@ -730,24 +727,18 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
 
     private void validarCreditosAprobados(
             Map<Long, CursoCurricula> mapCursosCurricula,
-            Collection<AlumnoCursoCurricula> cursosCurriculaAlumno,
+            AlumnoCursoCurricula cursoCurriAlu,
             int creditosAprobados, int creditosCurriculaAprobados) {
 
-        for (AlumnoCursoCurricula cursoCurriAlu : cursosCurriculaAlumno) {
-            if (cursoCurriAlu.isValidado()) {
-                continue;
-            }
+        Long idCursoCurri = cursoCurriAlu.getCursoCurricula().getId();
+        CursoCurricula cursoCurri = mapCursosCurricula.get(idCursoCurri);
 
-            Long idCursoCurri = cursoCurriAlu.getCursoCurricula().getId();
-            CursoCurricula cursoCurri = mapCursosCurricula.get(idCursoCurri);
+        Integer creditosAprobadosRequisito = fillInteger(cursoCurri.getCreditosRequisito(), 0);
+        Integer credidosCurriculaRequisito = fillInteger(cursoCurri.getCreditosCurriculaRequisito(), 0);
 
-            Integer creditosAprobadosRequisito = fillInteger(cursoCurri.getCreditosRequisito(), 0);
-            Integer credidosCurriculaRequisito = fillInteger(cursoCurri.getCreditosCurriculaRequisito(), 0);
-
-            if (creditosAprobadosRequisito > creditosAprobados) {
-                cursoCurriAlu.setEstadoEnum(NREQ);
-                cursoCurriAlu.setValidado(true);
-            }
+        if (creditosAprobadosRequisito > creditosAprobados) {
+            cursoCurriAlu.setEstadoEnum(NREQ);
+            cursoCurriAlu.setValidado(true);
         }
 
     }
@@ -912,9 +903,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
 
         for (Map.Entry<Long, AlumnoCursoCurricula> entry : mapCursoCurriculaAlu.entrySet()) {
             AlumnoCursoCurricula evaluado = entry.getValue();
-            if (evaluado.getCurso().getCodigo().equals("CC1020")) {
-                System.err.println("-----");
-            }
+
             if (evaluado.isValidado() || estadosAprobados.contains(evaluado.getEstadoEnum())) {
                 continue;
             }
@@ -933,7 +922,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
                 }
                 evaluado.setValidado(true);
             }
-
+//            validarCreditosAprobados(evaluado, evaluado, 0, 0);
         }
 
     }
@@ -950,7 +939,6 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
         boolean requisitosCumplidos = false;
 
         for (RequisitoCursoCurricula requisito : requisitos) {
-
             AlumnoCursoCurricula cursoRequisito = mapCursoCurriculaAlu.get(requisito.getCursoRequisito().getId());
             if (cursoRequisito == null || !estadosAprobados.contains(cursoRequisito.getEstadoEnum())) {
                 if (!evaluado.getCursoCurricula().getRequisitosOr()) {
@@ -974,10 +962,10 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
         for (Map.Entry<Long, AlumnoCursoCurricula> entry : mapCursosCurriculaAlu.entrySet()) {
 
             AlumnoCursoCurricula evaluado = entry.getValue();
-            if (evaluado.getCurso().getCodigo().equals("CC3027")) {
+            if (evaluado.getCurso().getCodigo().equals("CC2050")) {
                 System.err.println("------");
             }
-            if (Arrays.asList(HAB, MAT).contains(evaluado.getEstadoEnum())) {
+            if (evaluado.getCicloAprobado() != null) {
                 continue;
             }
 

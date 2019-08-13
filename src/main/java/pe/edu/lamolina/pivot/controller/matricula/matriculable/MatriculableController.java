@@ -617,4 +617,26 @@ public class MatriculableController {
         return response;
 
     }
+
+    @ResponseBody
+    @RequestMapping("actualizarPrioridadCero")
+    public JsonResponse actualizarPrioridadCero(HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        JsonResponse response = new JsonResponse();
+
+        try {
+
+            service.actualizarPrioridadCero(ds);
+            response.setMessage("Se actualizó satisfactoriamente.");
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+
+    }
+
 }

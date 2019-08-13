@@ -13,6 +13,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -1049,6 +1050,48 @@ public class MatriculableServiceImp implements MatriculableService {
     @Override
     public void agregarAporteCarnet(MatriculaResumen matriculaResumen, DataSessionPivot ds) {
         aporteAlumnoService.generarAporteCarnet(ds.getCicloAcademico(), matriculaResumen, ds);
+    }
+
+    @Override
+    @Transactional
+    public void actualizarPrioridadCero(DataSessionPivot ds) {
+        List<MatriculaResumen> matriculable = matriculaResumenDAO.allUltimosCiclosMatriculables(ds.getCicloAcademico());
+        List<Alumno> alumnos = matriculable.stream().map(x -> x.getAlumno()).collect(Collectors.toList());
+        List<AlumnoCiclo> alumnoCiclos = alumnoCicloDAO.allByAlumnosReg(alumnos);
+        Map<Long, List<AlumnoCiclo>> map = TypesUtil.convertListToMapList("alumno.id", alumnoCiclos);
+        for (MatriculaResumen matriculaResumen : matriculable) {
+            List<AlumnoCiclo> alumnoCiclo = map.get(matriculaResumen.getAlumno().getId());
+            matriculaResumen = matriculableConector.procesarPrioridadAlumno(matriculaResumen, alumnoCiclo.get(0));
+
+            MatriculaResumen matriculaAnt = matriculaResumenDAO.findByAntPrioridadTemp(matriculaResumen, ds.getCicloAcademico(), (matriculaResumen.getAlumno().getCreditosCarreraAprobados() > CAPA_ULTIMO_CICLO));
+            MatriculaResumen matriculaDes = matriculaResumenDAO.findByDesPrioridadTemp(matriculaResumen, ds.getCicloAcademico(), (matriculaResumen.getAlumno().getCreditosCarreraAprobados() > CAPA_ULTIMO_CICLO));
+            if (matriculaAnt != null && matriculaDes != null) {
+
+                BigDecimal prioridad = matriculaAnt.getPrioridad().add(matriculaDes.getPrioridad()).divide(new BigDecimal(2));
+                 BigDecimal bigDecimal = new BigDecimal(0.5);
+                if (matriculaResumen.getPrioridad().compareTo(prioridad) <= 0 || matriculaResumen.getPrioridad().subtract(BigDecimal.ONE).compareTo(bigDecimal) == 0) {
+                    System.out.println("No menviene");
+                    continue;
+                }
+                matriculaResumen.setPrioridad(prioridad);
+
+                TurnoAtencion turnosAtencion = turnoAtencionDAO.findByPrioridad(prioridad, ds.getCicloAcademico());
+                if (matriculaResumen.getTurnoAtencion() != null && Objects.equals(matriculaResumen.getTurnoAtencion().getId(), matriculaResumen.getId())) {
+                    continue;
+                }
+                BigDecimal numPrioridad = turnosAtencion.getPrioridadFin().add(new BigDecimal("0.01"));
+                Integer cantAlum = turnosAtencion.getAlumnos() + 1;
+                turnosAtencion.setAlumnos(cantAlum);
+                turnosAtencion.setPrioridadFin(numPrioridad);
+//                    turnoAtencionDAO.update(turnosAtencion);
+
+                configuracionMatriculaService.updateTurnos(turnosAtencion.getId(), cantAlum.toString());
+
+                matriculaResumen.setTurnoAtencion(turnosAtencion);
+
+            }
+            matriculaResumenDAO.update(matriculaResumen);
+        }
     }
 
 }

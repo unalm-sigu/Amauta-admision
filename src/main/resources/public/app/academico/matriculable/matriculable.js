@@ -488,6 +488,10 @@ new Vue({
                     MODAL.hideWait();
                 }
             });
+        },
+        urlGoMaipi(item) {
+            let $vue = this;
+            return APP.url('academico/alumno/' + item.alumno.id + '/goMaipi') + $vue.getOrigenURL();
         }
     }
 });

@@ -1,5 +1,6 @@
 package pe.edu.lamolina.pivot.dao.seguridad.hibernate;
 
+import java.util.Date;
 import java.util.List;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
@@ -28,5 +29,17 @@ public class TokenIngresanteDAOH extends AbstractEasyDAO<TokenIngresante> implem
                 .filter("too.estado", TokenEstadoEnum.ACT);
 
         return all(sql);
+    }
+
+    @Override
+    public TokenIngresante findUltimoVigente(Persona persona) {
+        Octavia sql = Octavia.query()
+                .from(TokenIngresante.class, "ti")
+                .join("persona per")
+                .isNull("ti.fechaUso")
+                .filter("fechaVencimiento", ">", new Date())
+                .filter("ti.estado", "ACT")
+                .filter("per.id", persona.getId());
+        return (TokenIngresante) sql.find(getCurrentSession());
     }
 }

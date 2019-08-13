@@ -45,10 +45,12 @@ import pe.edu.lamolina.model.enums.AmbienteAplicacionEnum;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.EPG;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.PRE;
 import pe.edu.lamolina.model.enums.ParametrosSistemasEnum;
+import pe.edu.lamolina.model.enums.RutaInicioEnum;
 import pe.edu.lamolina.model.enums.TipoOficinaEnum;
 import pe.edu.lamolina.model.general.Parametro;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.matricula.AlumnoCursoCurricula;
+import pe.edu.lamolina.model.seguridad.TokenIngresante;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.tramite.TramiteTraslado;
 import pe.edu.lamolina.pivot.config.DespliegueConfig;
@@ -576,6 +578,33 @@ public class AlumnoController {
             ExceptionHandler.handleException(e, response);
         }
         return response;
+    }
+
+    @RequestMapping("{idAlumno}/goMaipi")
+    public String goMaipi(@PathVariable("idAlumno") Long idAlumno, @RequestParam(value = "origen", required = false) String origen, Model model, HttpSession session) throws InterruptedException {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        Usuario usuario = ds.getUsuario();
+        TokenIngresante token = service.goMaipi(idAlumno, usuario);
+        Parametro paramRutaMatricula = service.findParametroByEnum(ParametrosSistemasEnum.SALTO_PIVOT_INTRA);
+        if (paramRutaMatricula != null) {
+            StringBuilder sb = new StringBuilder();
+            sb.append("redirect:");
+            sb.append(paramRutaMatricula.getValor());
+            sb.append("/mapache/");
+            sb.append(token.getValor());
+//            sb.append("?pathh=").append("/academico/perfil");
+//            sb.append("?pathh=").append(RutaInicioEnum.FICHA_ING.name());
+
+            logger.debug("********************** goMaipi {} ", sb.toString());
+
+            AmbienteAplicacionEnum ambiente = AmbienteAplicacionEnum.valueOf(despliegueConfig.getAmbiente().toUpperCase());
+            if (ambiente == AmbienteAplicacionEnum.DESA) {
+                session.invalidate();
+            }
+            return sb.toString();
+        }
+
+        return "redirect:/";
     }
 
     private ArrayNode createListAlumnoCursoCurricula(List<AlumnoCursoCurricula> listAlumnoCursoCurricula) {

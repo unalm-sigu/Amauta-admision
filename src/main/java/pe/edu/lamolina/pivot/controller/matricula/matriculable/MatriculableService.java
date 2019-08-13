@@ -69,4 +69,6 @@ public interface MatriculableService {
 
     public void agregarAporteCarnet(MatriculaResumen matriculaResumen, DataSessionPivot ds);
 
+    public void actualizarPrioridadCero(DataSessionPivot ds);
+
 }
