@@ -852,7 +852,7 @@ public class AlumnoServiceImp implements AlumnoService {
         alumnoCiclo.setUserRegistro(user);
         alumnoCiclo.setFechaRegistro(new Date());
         alumnoCiclo.setCarrera(alumno.getCarrera());
-        alumnoCiclo.setEstadoEnum(EstadoMatriculaEnum.TRAS);
+        alumnoCiclo.setEstadoEnum(EstadoMatriculaEnum.MAT);
         alumnoCiclo.setEstaAprobado(1);
         alumnoCiclo.setCursosAprobados(0);
         alumnoCiclo.setCursosInscritos(0);
