@@ -6,7 +6,7 @@ new Vue({
         accesoEspecialRequest: {correo: null, contraseña: null, dni: null, isNuevo: true, alumno: {}},
         usuario: {},
         bgColorClass: {pregrado: '', postgrado: '', visitante: '', especial: ''},
-        arrayPalabra: ["Saab", "Volvo", "BMW", "Moldavia", "Guinea", "Somalia", "MeijiEdo", "Sapporo", "Leopardo", "Husky", "azulruso", "Mitsubishi", "mercedes", "Marilyn", "loreto"],
+        arrayPalabra: ["saab", "volvo", "azus", "moldavia", "guinea", "somalia", "meijiEdo", "sapporo", "leopardo", "husky", "azulruso", "mitsubishi", "mercedes", "marilyn", "loreto"],
         modalAsignarAccesoEspecial: {
             id: 'modalAsignarAccesoEspecial',
             header: true,
