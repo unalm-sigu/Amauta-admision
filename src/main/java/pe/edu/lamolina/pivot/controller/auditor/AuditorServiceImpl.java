@@ -4,9 +4,11 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import pe.edu.lamolina.pivot.controller.interceptor.*;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -198,6 +200,9 @@ public class AuditorServiceImpl implements AuditorService {
         this.auditSaveNotas(LoggerAccionEnum.GRABAR_NOTAS_ACADEMICAS, evaluacion, planCalificacion, sistemaNotas, seccion, curso, cicloAcademico, evaluacionesBySeccionFinal, matriculasSeccionByFilter, notas, matriculaCursoMap, ds);
     }
 
+    @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
+    @Override
+    @Async
     public void saveGrupoSeccion(GrupoSeccion gsec, DataSessionPivot ds) {
         ObjectNode jGrupoSeccion = JsonHelper.createJson(gsec, JsonNodeFactory.instance, false,
                 new String[]{
@@ -210,5 +215,12 @@ public class AuditorServiceImpl implements AuditorService {
                     "anexoBoletin.nombre"
                 }
         );
+        jGrupoSeccion.put("usuarioRegistro", ds.getUsuario().getPersona().getApellidosNombres());
+        jGrupoSeccion.put("fechaRegistro", TypesUtil.getStringDate(ds.getFechaAccionAudit(), "dd/MM/yyyy H:mm:ss"));
+
+        ObjectNode objNode = new ObjectNode(JsonNodeFactory.instance);
+        objNode.put("tipo", LoggerAccionEnum.GRUPO_SECCION_CRE.name());
+        objNode.set("data", jGrupoSeccion);
+        interceptorService.saveInterceptor(objNode, ds);
     }
 }

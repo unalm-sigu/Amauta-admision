@@ -17,6 +17,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +43,7 @@ import static pe.edu.lamolina.model.enums.MotivoOmisoEnum.NMBR;
 import static pe.edu.lamolina.model.enums.MotivoOmisoEnum.NVOTO;
 import pe.edu.lamolina.model.enums.NombreTablasEnum;
 import pe.edu.lamolina.model.enums.OficinaEnum;
+import pe.edu.lamolina.model.enums.ProcesoMethodEnum;
 import pe.edu.lamolina.model.finanzas.Acreencia;
 import pe.edu.lamolina.model.finanzas.DeudaAlumno;
 import pe.edu.lamolina.model.general.Oficina;
@@ -232,6 +234,7 @@ public class OmisoEleccionServiceImp implements OmisoEleccionService {
     @Override
     @Transactional
     public void anularOmision(List<AlumnoOmisoEleccion> omisoEleccion, DataSessionPivot ds) {
+        DateTime today = ds.getFechaAccionAudit() == null ? new DateTime() : new DateTime(ds.getFechaAccionAudit());
 
         String motivoAnula = omisoEleccion.get(0).getMotivoAnulacion();
         Alumno alumno = alumnoDAO.find(omisoEleccion.get(0).getAlumno());
@@ -240,7 +243,10 @@ public class OmisoEleccionServiceImp implements OmisoEleccionService {
         List<AporteAlumnoCiclo> aporteAlumnoCiclo = aporteAlumnoCicloDAO.allByAlumnoCiclo(alumno, cicloAcademicoMod);
         ResumenAporteAlumno resumenAporteAlumno = resumenAporteAlumnoDAO.findByAlumnoCicloAcademico(alumno, cicloAcademicoMod);
 
-        AporteAlumnoCiclo alumnoCiclo = aporteAlumnoCiclo.stream().filter(x -> Arrays.asList(AportesEnum.A04, A46).contains(x.getAporteCiclo().getAporte().getCodigoEnum())).findAny().orElse(null);
+        AporteAlumnoCiclo alumnoCiclo = aporteAlumnoCiclo.stream()
+                .filter(x -> Arrays.asList(AportesEnum.A04, A46)
+                .contains(x.getAporteCiclo().getAporte().getCodigoEnum()))
+                .findAny().orElse(null);
         DeudaAlumno deudaAlumno = alumnoCiclo.getDeudaAlumno();
         BigDecimal montorest = BigDecimal.ZERO;
         for (AlumnoOmisoEleccion alumnoOmisoEleccion : omisoEleccion) {
@@ -268,10 +274,11 @@ public class OmisoEleccionServiceImp implements OmisoEleccionService {
                 acreencia.setEstadoEnum(DeudaEstadoEnum.ANU);
                 acreencia.setFechaAnulacion(new Date());
                 acreencia.setUsuarioAnulacion(ds.getUsuario());
+                acreencia.setFechaActualizacion(today.toDate());
+                acreencia.setProcesoActualizacionEnum(ProcesoMethodEnum.ANU_OMI);
                 acreenciaDAO.update(acreencia);
 
                 if (deudaAlumno.getMonto().compareTo(BigDecimal.ZERO) > 1) {
-
                     Acreencia acreenciaNew = new Acreencia();
                     acreenciaNew.setDeudaAlumno(deudaAlumno);
                     acreenciaNew.setOficina(new Oficina(OficinaEnum.OBUAE.getId()));
@@ -285,10 +292,13 @@ public class OmisoEleccionServiceImp implements OmisoEleccionService {
                     acreenciaNew.setFechaDocumento(new Date());
                     acreenciaNew.setUsuarioRegistro(ds.getUsuario());
                     acreenciaNew.setFechaVencimiento(alumnoCiclo.getFechaVencimiento());
-                    acreenciaNew.setFechaRegistro(new Date());
+                    acreenciaNew.setFechaRegistro(today.toDate());
+                    acreenciaNew.setProcesoRegistroEnum(ProcesoMethodEnum.ANU_OMI);
                     acreenciaDAO.save(acreenciaNew);
                 } else {
-                    deudaAlumno.setEstadoEnum(DeudaEstadoEnum.ANU);
+                    deudaAlumno.setProcesoActualizacionEnum(ProcesoMethodEnum.ANU_OMI);
+                    deudaAlumno.setFechaActualizacion(today.toDate());
+                    // deudaAlumno.setEstadoEnum(DeudaEstadoEnum.ANU);
                 }
                 deudaAlumnoDAO.update(deudaAlumno);
 
