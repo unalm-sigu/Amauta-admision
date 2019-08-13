@@ -567,9 +567,6 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
         Map<Long, CursoOpcionalCurricula> mapCursoOpcional = TypesUtil.convertListToMap("curso.id", cursoOpcionalCurriculas);
 
         for (AlumnoCicloCurso cursosAprobado : cursosAprobados) {
-            if (cursosAprobado.getCurso().getCodigo().equals("CC2050") || cursosAprobado.getCurso().getCodigo().equals("CC2057")) {
-                System.err.println("-----");
-            }
             AlumnoCursoCurricula alumnoCursoCurricula = alumnoCursoNew.stream().filter(x -> Objects.equals(x.getCurso().getId(), cursosAprobado.getCurso().getId())).findAny().orElse(null);
 
             if (alumnoCursoCurricula != null) {
@@ -608,7 +605,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
         validarCursosMatriculados(mapAlumCursoCurrByCurso, cursosMatriculados, ds, alumno, alumnoCursoNew, equivalenteElectivos, cursoOpcionalCurriculas, tipoCursoCurriculas);
         generarAvanceCurricular(alumnoCursoElcCarreraNew, alumnoCursoNew, resumenPlanCurriculars, tipoCursoCurriculas, alumnoAvanceCurriculars, alumno, mapCursosVecesLlevado);
         validarCursosELC(alumnoCursoElcCarreraNew, alumnoCursoNew, alumno);
-
+        validarCreditosAprobados(mapCursosCurricula, alumnoCursoOld, alumno.getCreditosCarreraAprobados(), 0)
         alumnoCursoOld = alumnoCursoOld == null ? new ArrayList<>() : alumnoCursoOld;
         for (AlumnoCursoCurricula alumnoCursoCurriculaNew : alumnoCursoNew) {
 //            if (alumnoCursoCurriculaNew.getCursoCurricula() != null
@@ -734,9 +731,9 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
             int creditosAprobados, int creditosCurriculaAprobados) {
 
         for (AlumnoCursoCurricula cursoCurriAlu : cursosCurriculaAlumno) {
-            if (cursoCurriAlu.isValidado()) {
-                continue;
-            }
+//            if (cursoCurriAlu.isValidado()) {
+//                continue;
+//            }
 
             Long idCursoCurri = cursoCurriAlu.getCursoCurricula().getId();
             CursoCurricula cursoCurri = mapCursosCurricula.get(idCursoCurri);
@@ -912,9 +909,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
 
         for (Map.Entry<Long, AlumnoCursoCurricula> entry : mapCursoCurriculaAlu.entrySet()) {
             AlumnoCursoCurricula evaluado = entry.getValue();
-            if (evaluado.getCurso().getCodigo().equals("CC2050") || evaluado.getCurso().getCodigo().equals("CC2057")) {
-                System.err.println("-----");
-            }
+
             if (evaluado.isValidado() || estadosAprobados.contains(evaluado.getEstadoEnum())) {
                 continue;
             }
