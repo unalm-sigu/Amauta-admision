@@ -732,6 +732,19 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
 
         for (AlumnoCursoCurricula cursoCurriAlu : cursosCurriculaAlumno) {
 //            if (cursoCurriAlu.isValidado()) {
+//                if (cursoCurriAlu.getEstadoEnum() == HAB || estadosAprobados.add(cursoCurriAlu.getEstadoEnum())) {
+//                    Long idCursoCurri = cursoCurriAlu.getCursoCurricula().getId();
+//                    CursoCurricula cursoCurri = mapCursosCurricula.get(idCursoCurri);
+//
+//                    Integer creditosAprobadosRequisito = fillInteger(cursoCurri.getCreditosRequisito(), 0);
+//                    Integer credidosCurriculaRequisito = fillInteger(cursoCurri.getCreditosCurriculaRequisito(), 0);
+//
+//                    if (creditosAprobadosRequisito > creditosAprobados) {
+//                        cursoCurriAlu.setEstadoEnum(NREQ);
+//                        cursoCurriAlu.setValidado(true);
+//                    }
+//                }
+//
 //                continue;
 //            }
 
@@ -744,7 +757,11 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
             if (creditosAprobadosRequisito > creditosAprobados) {
                 cursoCurriAlu.setEstadoEnum(NREQ);
                 cursoCurriAlu.setValidado(true);
+            } else {
+                cursoCurriAlu.setEstadoEnum(HAB);
+                cursoCurriAlu.setValidado(true);
             }
+
         }
 
     }
