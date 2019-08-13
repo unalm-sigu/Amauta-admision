@@ -13,6 +13,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -1067,13 +1068,17 @@ public class MatriculableServiceImp implements MatriculableService {
             if (matriculaAnt != null && matriculaDes != null) {
 
                 BigDecimal prioridad = matriculaAnt.getPrioridad().add(matriculaDes.getPrioridad()).divide(new BigDecimal(2));
-                if (matriculaResumen.getPrioridad().compareTo(prioridad) <= 0) {
+                 BigDecimal bigDecimal = new BigDecimal(0.5);
+                if (matriculaResumen.getPrioridad().compareTo(prioridad) <= 0 || matriculaResumen.getPrioridad().subtract(BigDecimal.ONE).compareTo(bigDecimal) == 0) {
                     System.out.println("No menviene");
                     continue;
                 }
-                matriculaResumen.setPrioridadTemp(prioridad);
+                matriculaResumen.setPrioridad(prioridad);
 
                 TurnoAtencion turnosAtencion = turnoAtencionDAO.findByPrioridad(prioridad, ds.getCicloAcademico());
+                if (matriculaResumen.getTurnoAtencion() != null && Objects.equals(matriculaResumen.getTurnoAtencion().getId(), matriculaResumen.getId())) {
+                    continue;
+                }
                 BigDecimal numPrioridad = turnosAtencion.getPrioridadFin().add(new BigDecimal("0.01"));
                 Integer cantAlum = turnosAtencion.getAlumnos() + 1;
                 turnosAtencion.setAlumnos(cantAlum);
