@@ -727,25 +727,22 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
 
     private void validarCreditosAprobados(
             Map<Long, CursoCurricula> mapCursosCurricula,
-            Collection<AlumnoCursoCurricula> cursosCurriculaAlumno,
+            AlumnoCursoCurricula cursoCurriAlu,
             int creditosAprobados, int creditosCurriculaAprobados) {
 
-        for (AlumnoCursoCurricula cursoCurriAlu : cursosCurriculaAlumno) {
-            if (cursoCurriAlu.isValidado()) {
-                continue;
-            }
+        if (cursoCurriAlu.isValidado()) {
+            continue;
+        }
 
-            Long idCursoCurri = cursoCurriAlu.getCursoCurricula().getId();
-            CursoCurricula cursoCurri = mapCursosCurricula.get(idCursoCurri);
+        Long idCursoCurri = cursoCurriAlu.getCursoCurricula().getId();
+        CursoCurricula cursoCurri = mapCursosCurricula.get(idCursoCurri);
 
-            Integer creditosAprobadosRequisito = fillInteger(cursoCurri.getCreditosRequisito(), 0);
-            Integer credidosCurriculaRequisito = fillInteger(cursoCurri.getCreditosCurriculaRequisito(), 0);
+        Integer creditosAprobadosRequisito = fillInteger(cursoCurri.getCreditosRequisito(), 0);
+        Integer credidosCurriculaRequisito = fillInteger(cursoCurri.getCreditosCurriculaRequisito(), 0);
 
-            if (creditosAprobadosRequisito > creditosAprobados) {
-                cursoCurriAlu.setEstadoEnum(NREQ);
-                cursoCurriAlu.setValidado(true);
-            } 
-
+        if (creditosAprobadosRequisito > creditosAprobados) {
+            cursoCurriAlu.setEstadoEnum(NREQ);
+            cursoCurriAlu.setValidado(true);
         }
 
     }
@@ -929,7 +926,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
                 }
                 evaluado.setValidado(true);
             }
-
+//            validarCreditosAprobados(evaluado, evaluado, 0, 0);
         }
 
     }
@@ -946,9 +943,6 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
         boolean requisitosCumplidos = false;
 
         for (RequisitoCursoCurricula requisito : requisitos) {
-            if (requisito.getCursoRequisito().getCurso().getCodigo().equals("EP4154")) {
-                System.err.println("--------------------------------------");
-            }
             AlumnoCursoCurricula cursoRequisito = mapCursoCurriculaAlu.get(requisito.getCursoRequisito().getId());
             if (cursoRequisito == null || !estadosAprobados.contains(cursoRequisito.getEstadoEnum())) {
                 if (!evaluado.getCursoCurricula().getRequisitosOr()) {

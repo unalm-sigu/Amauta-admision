@@ -107,6 +107,7 @@ public class AlumnoCicloCursoDAOH extends AbstractEasyDAO<AlumnoCicloCurso> impl
                 .filter("ca.tipo", "REG")
                 .filter("acc.estado", "!=", RCI)
                 .filter("acc.estado", "!=", RCU)
+                .filter("acc.estado", "!=", RET)
                 .in("al.id", alumnos)
                 .filter("registroActivo", 1)
                 .groupBy("al.id", "cu.id");
