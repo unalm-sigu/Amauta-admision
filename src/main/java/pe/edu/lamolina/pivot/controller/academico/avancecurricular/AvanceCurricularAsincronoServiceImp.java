@@ -605,7 +605,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
         validarCursosMatriculados(mapAlumCursoCurrByCurso, cursosMatriculados, ds, alumno, alumnoCursoNew, equivalenteElectivos, cursoOpcionalCurriculas, tipoCursoCurriculas);
         generarAvanceCurricular(alumnoCursoElcCarreraNew, alumnoCursoNew, resumenPlanCurriculars, tipoCursoCurriculas, alumnoAvanceCurriculars, alumno, mapCursosVecesLlevado);
         validarCursosELC(alumnoCursoElcCarreraNew, alumnoCursoNew, alumno);
-        
+
         alumnoCursoOld = alumnoCursoOld == null ? new ArrayList<>() : alumnoCursoOld;
         for (AlumnoCursoCurricula alumnoCursoCurriculaNew : alumnoCursoNew) {
 //            if (alumnoCursoCurriculaNew.getCursoCurricula() != null
@@ -729,10 +729,6 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
             Map<Long, CursoCurricula> mapCursosCurricula,
             AlumnoCursoCurricula cursoCurriAlu,
             int creditosAprobados, int creditosCurriculaAprobados) {
-
-        if (cursoCurriAlu.isValidado()) {
-            continue;
-        }
 
         Long idCursoCurri = cursoCurriAlu.getCursoCurricula().getId();
         CursoCurricula cursoCurri = mapCursosCurricula.get(idCursoCurri);
