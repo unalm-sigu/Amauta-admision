@@ -680,7 +680,8 @@ public class AlumnoServiceImp implements AlumnoService {
         logger.debug("********************** sistema {}", sistema.getId());
         AmbienteAplicacionEnum ambiente = AmbienteAplicacionEnum.valueOf(despliegueConfig.getAmbiente().toUpperCase());
         logger.debug("********************** ambiente name {}", ambiente.name());
-        Parametro paramRutaIntranet = parametroDAO.findBySistemaAmbienteParametrosSistemas(sistema, ambiente, ParametrosSistemasEnum.SALTO_PIVOT_MATRICULA);
+        logger.debug("********************** parametrosSistemasEnum name {}", parametrosSistemasEnum.name());
+        Parametro paramRutaIntranet = parametroDAO.findBySistemaAmbienteParametrosSistemas(sistema, ambiente, parametrosSistemasEnum);
         logger.debug("********************** paramRutaMatricula {} path {}", paramRutaIntranet.getId(), paramRutaIntranet.getValor());
         return paramRutaIntranet;
     }
@@ -920,6 +921,27 @@ public class AlumnoServiceImp implements AlumnoService {
             throw new PhobosException("El alumno con " + persona.getApellidosNombres() + " no tiene registro de usuario");
         }
         return usuario;
+    }
+
+    @Override
+    @Transactional
+    public TokenIngresante goMaipi(Long idAlumno, Usuario usuario) {
+        Alumno alumno = alumnoDAO.find(new Alumno(idAlumno));
+        TokenIngresante token = tokenIngresanteDAO.findUltimoVigente(alumno.getPersona());
+
+        if (token == null) {
+            token = new TokenIngresante();
+            token.setEstado(TokenEstadoEnum.ACT);
+            token.setFechaRegistro(new Date());
+            token.setFechaVencimiento(new DateTime().plusSeconds(10).toDate());
+            token.setPersona(alumno.getPersona());
+            String valor = RandomStringUtils.randomAlphanumeric(45);
+            token.setValor(valor);
+            token.setUserRegistro(usuario);
+            tokenIngresanteDAO.save(token);
+        }
+
+        return token;
     }
 
 }

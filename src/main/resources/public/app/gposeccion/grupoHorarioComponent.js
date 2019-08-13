@@ -424,9 +424,9 @@ Vue.component("grupohorario-component", {
                             (diaHoraGrupoBefore != null && !diaHoraGrupoBefore.seleccionado)) {
                         stop = true;
                     }
-                    if (stop) {
-                        return false;
-                    }
+//                    if (stop) {
+//                        return false;
+//                    }
                 }
             }
             return true;
@@ -455,7 +455,7 @@ Vue.component("grupohorario-component", {
             return true;
         },
         saveGrupoHorario() {
-            let $vue=this;
+            let $vue = this;
             if ($vue.tabGrupos.grupoHorarioSel == null) {
                 notify("Seleccione un grupo horario.", "error");
                 return;

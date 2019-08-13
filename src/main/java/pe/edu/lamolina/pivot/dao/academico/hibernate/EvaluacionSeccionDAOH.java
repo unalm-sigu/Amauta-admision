@@ -87,4 +87,13 @@ public class EvaluacionSeccionDAOH extends AbstractEasyDAO<EvaluacionSeccion> im
         query.executeUpdate();
     }
 
+    @Override
+    public void deleteByGrupoSeccion(GrupoSeccion gpoSeccion) {
+        StringBuilder strb = new StringBuilder();
+        strb.append(" delete from  EvaluacionSeccion es where es.grupoSeccion.id=:prm_id");
+        Query query = getCurrentSession().createQuery(strb.toString());
+        query.setParameter("prm_id", gpoSeccion.getId());
+        query.executeUpdate();
+    }
+
 }

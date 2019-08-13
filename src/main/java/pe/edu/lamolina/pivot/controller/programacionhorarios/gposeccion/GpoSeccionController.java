@@ -85,24 +85,24 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 @Controller
 @RequestMapping("academico/gposeccion")
 public class GpoSeccionController {
-
+    
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
+    
     @Autowired
     GpoSeccionService service;
-
+    
     @Autowired
     OficinaService oficinaService;
-
+    
     @Autowired
     SpringTemplateEngine springHtml;
-
+    
     @Autowired
     BoletinAcademicoExcelView boletinAcademicoExcelView;
-
+    
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {
-
+        
         dataBinder.registerCustomEditor(Date.class, new PropertyEditorSupport() {
             @Override
             public void setAsText(String value) {
@@ -113,7 +113,7 @@ public class GpoSeccionController {
                 }
             }
         });
-
+        
         dataBinder.registerCustomEditor(BigDecimal.class, new PropertyEditorSupport() {
             @Override
             public void setAsText(String value) {
@@ -125,13 +125,13 @@ public class GpoSeccionController {
             }
         });
     }
-
+    
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         CicloAcademico ciclo = service.findCiclo(ds.getCicloAcademico());
         Long cantidad = service.contarGpoSecc(ciclo);
-
+        
         model.addAttribute("cantidad", cantidad);
         model.addAttribute("ciclo", ciclo);
         model.addAttribute("cicloJson", createCicloJson(ciclo).toString());
@@ -139,7 +139,7 @@ public class GpoSeccionController {
 //        model.addAttribute("resumen", service.resumenByCiclo(ciclo));
         return "academico/gposeccion/gpoSeccion";
     }
-
+    
     @ResponseBody
     @RequestMapping("list")
     public DynatableResponse allByDynatable(DynatableFilter filter, HttpSession session) {
@@ -149,7 +149,7 @@ public class GpoSeccionController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             List<GrupoSeccion> gpoSecciones = service.allByDynatable(filter, ds.getCicloAcademico());
             ArrayNode arrayGpoSecc = new ArrayNode(JsonNodeFactory.instance);
-
+            
             for (GrupoSeccion gpoSeccion : gpoSecciones) {
                 ObjectNode nodeGpoSecc = JsonHelper.createJson(gpoSeccion, JsonNodeFactory.instance, true, new String[]{
                     "id", "estado", "estadoEnum", "codigo2", "cursoDirigido",
@@ -195,31 +195,31 @@ public class GpoSeccionController {
                     "secciones.docenteSeccion.docente.codigo",
                     "secciones.docenteSeccion.docente.persona.apellidosNombres"
                 });
-
+                
                 arrayGpoSecc.add(nodeGpoSecc);
             }
-
+            
             json.setData(arrayGpoSecc);
             json.setTotal(filter.getTotal());
             json.setFiltered(filter.getFiltered());
-
+            
         } catch (Exception e) {
             e.printStackTrace();
             json.setTotal(0);
         }
         return json;
     }
-
+    
     @RequestMapping("{gruposeccion}/editar")
     public String editar(
             @PathVariable("gruposeccion") Long gpoSeccId,
             @RequestParam(value = "origen", required = false) String origen,
             @RequestParam(value = "ids", required = false) String ids,
             Model model, HttpSession session) {
-
+        
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         GrupoSeccion gpoSeccion = service.findGpoSeccion(gpoSeccId, ds);
-
+        
         String fechaMin = null;
         String fechaMax = null;
         List<String> fechas = this.getFechasByGrupoSeccion(gpoSeccion);
@@ -227,7 +227,7 @@ public class GpoSeccionController {
             fechaMin = fechas.get(0);
             fechaMax = fechas.get(1);
         }
-
+        
         ObjectNode gpoSeccionJson = createGpoSeccionJson(gpoSeccion, fechaMin, fechaMax, ds);
         String ruta = getOrigen(origen);
         Persona persona = ds.getPersona();
@@ -236,7 +236,7 @@ public class GpoSeccionController {
         if (!gpos.isEmpty()) {
             gpos.add(gpoSeccion);
         }
-
+        
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
         model.addAttribute("cicloJson", createCicloJson(ds.getCicloAcademico()).toString());
         model.addAttribute("grupoSeccionJson", gpoSeccionJson.toString());
@@ -244,10 +244,10 @@ public class GpoSeccionController {
         model.addAttribute("origen", ruta);
         model.addAttribute("oficinasJson", createOficinasJson(oficinas).toString());
         model.addAttribute("oficinas", oficinas);
-
+        
         return "academico/gposeccion/gpoSeccionForm";
     }
-
+    
     @ResponseBody
     @RequestMapping("{gruposeccion}/get")
     public JsonResponse getGpoSeccion(@PathVariable("gruposeccion") Long gpoSeccId, HttpSession session) {
@@ -255,7 +255,7 @@ public class GpoSeccionController {
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             GrupoSeccion gpoSeccion = service.findGpoSeccion(gpoSeccId, ds);
-
+            
             String fechaMin = null;
             String fechaMax = null;
             EventoCicloAcademico eventoCicloAcademico = service.findEventoAcademico(gpoSeccion.getCicloAcademico(), gpoSeccion.getCurso());
@@ -266,15 +266,15 @@ public class GpoSeccionController {
                 fechaMin = TypesUtil.getStringDate(eventoCicloAcademico.getFechaInicio(), "dd/MM/yyyy");
                 fechaMax = TypesUtil.getStringDate(eventoCicloAcademico.getFechaFin(), "dd/MM/yyyy");
             }
-
+            
             ObjectNode nodeGpoSecc = createGpoSeccionJson(gpoSeccion, fechaMin, fechaMax, ds);
-
+            
             ObjectNode data = new ObjectNode(JsonNodeFactory.instance);
             data.set("grupoSeccion", nodeGpoSecc);
-
+            
             response.setData(data);
             response.setSuccess(true);
-
+            
         } catch (PhobosException e) {
             e.printStackTrace();
             ExceptionHandler.handlePhobosEx(e, response);
@@ -285,17 +285,17 @@ public class GpoSeccionController {
             return response;
         }
     }
-
+    
     @ResponseBody
     @RequestMapping("allData")
     public JsonResponse allData(Model model, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-
+            
             List<AnexoBoletin> anexosSup = service.allAnexosSuperiores();
             List<AnexoBoletin> anexos = service.allAnexoBoletionHijos();
-
+            
             ArrayNode anexosJson = new ArrayNode(JsonNodeFactory.instance);
             for (AnexoBoletin anexo : anexos) {
                 ObjectNode anxJson = JsonHelper.createJson(anexo, JsonNodeFactory.instance, true, new String[]{
@@ -319,14 +319,14 @@ public class GpoSeccionController {
                 });
                 anexosSupJson.add(anxJson);
             }
-
+            
             ObjectNode data = new ObjectNode(JsonNodeFactory.instance);
             data.set("anexos", anexosJson);
             data.set("anexosSup", anexosSupJson);
-
+            
             response.setData(data);
             response.setSuccess(true);
-
+            
         } catch (PhobosException e) {
             e.printStackTrace();
             ExceptionHandler.handlePhobosEx(e, response);
@@ -337,7 +337,7 @@ public class GpoSeccionController {
             return response;
         }
     }
-
+    
     @ResponseBody
     @RequestMapping("{gruposeccion}/activarGrupo")
     public JsonResponse activarGrupo(@PathVariable("gruposeccion") Long gruposeccionId, Model model, HttpSession session) {
@@ -355,7 +355,7 @@ public class GpoSeccionController {
             return response;
         }
     }
-
+    
     @ResponseBody
     @RequestMapping("{gruposeccion}/desactivarGrupo")
     public JsonResponse desactivarGrupo(@PathVariable("gruposeccion") Long gruposeccionId, Model model, HttpSession session) {
@@ -373,7 +373,7 @@ public class GpoSeccionController {
             return response;
         }
     }
-
+    
     @ResponseBody
     @RequestMapping("{gruposeccion}/loadGpoSeccionForm")
     public JsonResponse loadGpoSeccionForm(@PathVariable("gruposeccion") Long gruposeccionId, HttpSession session) {
@@ -402,25 +402,25 @@ public class GpoSeccionController {
         jsonResponse.setData(result);
         return jsonResponse;
     }
-
+    
     @ResponseBody
     @RequestMapping("{seccion}/loadCambiarAulaGrupo")
     public JsonResponse loadCambiarAulaGrupo(@PathVariable("seccion") Long seccionId, HttpSession session) {
         JsonResponse jsonResponse = new JsonResponse();
         JsonNodeFactory nc = JsonNodeFactory.instance;
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-
+        
         ObjectNode result = new ObjectNode(nc);
-
+        
         Seccion seccion = service.findSeccion(seccionId);
-
+        
         JsonHelper.createJson(new CambioAulaGrupo(), nc, false, new String[]{"*"});
-
+        
         jsonResponse.setSuccess(true);
         jsonResponse.setData(result);
         return jsonResponse;
     }
-
+    
     @ResponseBody
     @RequestMapping("{gruposeccion}/findSecciones")
     public JsonResponse findSecciones(@PathVariable("gruposeccion") Long gruposeccionId, HttpSession session) {
@@ -450,11 +450,11 @@ public class GpoSeccionController {
                 "restriccionesRepitencia.id",
                 "restriccionesRepitencia.tipoRepitencia.*"
             });
-
+            
             node.put("tipoSeccionEvaluacionValue", seccion.getTipoSeccionEnum().getTipoSeccionEvalEnum().getValue());
             node.put("editVacantes", Boolean.FALSE);
             node.put("editRestriccionCapa", Boolean.FALSE);
-
+            
             BigDecimal porcentajeAvance = BigDecimal.ZERO;
             for (DocenteSeccion docSeccion : seccion.getDocenteSeccion()) {
                 if (docSeccion.getPorcentajeCarga() != null) {
@@ -462,26 +462,26 @@ public class GpoSeccionController {
                 }
             }
             node.put("porcentajeAvance", porcentajeAvance);
-
+            
             array.add(node);
         }
         jsonResponse.setSuccess(true);
         jsonResponse.setData(array);
         return jsonResponse;
     }
-
+    
     @ResponseBody
     @RequestMapping("findTiposGruposHoras")
     public JsonResponse findTiposGruposHoras(HttpSession session) {
         JsonResponse jsonResponse = new JsonResponse();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-
+        
         ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
         List<TipoGrupoHoras> tiposGrupoHoras = service.allGrupoHorasActivosTipoAndCiclo(ds.getCicloAcademico(), TipoGrupoHorasEnum.REGULAR);
-
+        
         for (TipoGrupoHoras tipoGrupoHora : tiposGrupoHoras) {
             ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
-
+            
             node.put("tipoGrupoHoraId", tipoGrupoHora.getId());
             node.put("tipoGrupoHoraCodigo", tipoGrupoHora.getCodigo());
             node.put("tipoGrupoHoraDescripcion", tipoGrupoHora.getDescripcion());
@@ -491,21 +491,21 @@ public class GpoSeccionController {
         jsonResponse.setData(array);
         return jsonResponse;
     }
-
+    
     @ResponseBody
     @RequestMapping("findDocentesSecciones")
     public JsonResponse findDocentesSecciones(
             @RequestParam("seccion") Long seccionId,
             HttpSession session) {
-
+        
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         JsonResponse jsonResponse = new JsonResponse();
         ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
         Seccion seccion = service.findSeccion(seccionId);
         GrupoSeccion grupoSeccion = seccion.getGrupoSeccion();
-
+        
         List<DocenteSeccion> docentesSeccion = service.allDocentesSeccionBySeccion(new Seccion(seccionId));
-
+        
         String fechaMin = null;
         String fechaMax = null;
         Date fecha = new Date();
@@ -517,7 +517,7 @@ public class GpoSeccionController {
             fechaMin = TypesUtil.getStringDate(eventoCicloAcademico.getFechaInicio(), "dd/MM/yyyy");
             fechaMax = TypesUtil.getStringDate(eventoCicloAcademico.getFechaFin(), "dd/MM/yyyy");
         }
-
+        
         for (DocenteSeccion docSeccion : docentesSeccion) {
             ObjectNode node = JsonHelper.createJson(docSeccion, JsonNodeFactory.instance, true, new String[]{
                 "*",
@@ -529,14 +529,14 @@ public class GpoSeccionController {
             node.put("fechaInicioMin", fechaMin);
             node.put("fechaFinMax", fechaMax);
             array.add(node);
-
+            
         }
-
+        
         jsonResponse.setSuccess(true);
         jsonResponse.setData(array);
         return jsonResponse;
     }
-
+    
     public List<String> getFechasByGrupoSeccion(GrupoSeccion grupoSeccion) {
         List<String> fechas = new ArrayList<>();
         EventoCicloAcademico eventoCicloAcademico = service.findEventoAcademico(grupoSeccion.getCicloAcademico(), grupoSeccion.getCurso());
@@ -555,26 +555,26 @@ public class GpoSeccionController {
         fechas.add(fechaMax);
         return fechas;
     }
-
+    
     @RequestMapping("nuevo")
     public String nuevo(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         model.addAttribute("anexosHijos", service.allAnexoBoletionHijos());
         return "academico/gposeccion/gpoSeccionNuevo";
     }
-
+    
     @ResponseBody
     @RequestMapping("allCursos")
     public JsonResponse allCursos(
             @RequestParam("nombre") String nombre,
             HttpSession session) {
-
+        
         JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
         JsonResponse response = new JsonResponse();
-
+        
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-
+            
             List<Curso> cursos = service.allCursosForProgramacion(nombre);
             ArrayNode jsonList = new ArrayNode(jsonFactory);
             for (Curso cur : cursos) {
@@ -593,18 +593,18 @@ public class GpoSeccionController {
                 });
                 jsonList.add(json);
             }
-
+            
             response.setData(jsonList);
             response.setTotal(jsonList.size());
             response.setSuccess(true);
-
+            
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
-
+        
         return response;
     }
-
+    
     @ResponseBody
     @RequestMapping("{anexo}/cambiarAnexo")
     public JsonResponse cambiarAnexo(@PathVariable("anexo") Long anexo,
@@ -617,10 +617,10 @@ public class GpoSeccionController {
         node.put("anexoNombre", anexoBoletin.getAnexoSuperior().getNombre());
         response.setData(node);
         response.setSuccess(Boolean.TRUE);
-
+        
         return response;
     }
-
+    
     @ResponseBody
     @RequestMapping("{curso}/findCurso")
     public JsonResponse findCurso(@PathVariable("curso") Long anexo,
@@ -634,26 +634,27 @@ public class GpoSeccionController {
         node.put("cursoTpc", curso.getTpc());
         response.setData(node);
         response.setSuccess(Boolean.TRUE);
-
+        
         return response;
     }
-
+    
     @ResponseBody
     @RequestMapping("saveGpoHeader")
     public JsonResponse saveGpoHeader(@RequestBody GrupoSeccion grupoSeccion, HttpSession session) {
-
+        
         JsonResponse response = new JsonResponse();
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            ds.setFechaAccionAudit(new Date());
             ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
-
+            
             String ids = "";
             List<GrupoSeccion> gpoSecciones = service.saveGpoSeccionHeader(grupoSeccion, ds.getCicloAcademico(), ds);
             for (GrupoSeccion gpoSecc : gpoSecciones) {
                 if (ids.equals("")) {
                     node.put("primero", gpoSecc.getId());
                 }
-
+                
                 ids += ids.equals("") ? "" : ",";
                 ids += gpoSecc.getId();
             }
@@ -661,7 +662,7 @@ public class GpoSeccionController {
             response.setData(node);
             response.setSuccess(true);
             response.setMessage("Grupos de secciones creados satisfactoriamente");
-
+            
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
@@ -669,7 +670,7 @@ public class GpoSeccionController {
         }
         return response;
     }
-
+    
     @ResponseBody
     @RequestMapping("addSeccion")
     public JsonResponse addSeccion(@RequestParam("grupoSeccion") Long grupoSeccion,
@@ -678,13 +679,13 @@ public class GpoSeccionController {
         JsonResponse response = new JsonResponse();
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-
+            
             service.addSeccion(new GrupoSeccion(grupoSeccion));
-
+            
             String message = "Sección agregada.";
             response.setSuccess(true);
             response.setMessage(message);
-
+            
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
@@ -695,7 +696,7 @@ public class GpoSeccionController {
         }
         return response;
     }
-
+    
     @ResponseBody
     @RequestMapping("addDocSeccion")
     public JsonResponse addDocSeccion(@RequestParam("seccion") Long seccionId,
@@ -704,13 +705,13 @@ public class GpoSeccionController {
         JsonResponse response = new JsonResponse();
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-
+            
             service.addDocenteSeccion(new Seccion(seccionId), ds.getCicloAcademico());
-
+            
             String message = "Docente Sección agregada.";
             response.setSuccess(true);
             response.setMessage(message);
-
+            
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
@@ -720,7 +721,7 @@ public class GpoSeccionController {
         }
         return response;
     }
-
+    
     @ResponseBody
     @RequestMapping("updateFechaInicio")
     public JsonResponse updateFechaInicioDocSec(@RequestBody DocenteSeccion docenteSeccion,
@@ -735,7 +736,7 @@ public class GpoSeccionController {
             String message = "Fecha inicio actualizada.";
             response.setSuccess(true);
             response.setMessage(message);
-
+            
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
@@ -745,7 +746,7 @@ public class GpoSeccionController {
         }
         return response;
     }
-
+    
     @ResponseBody
     @RequestMapping("updateFechaFin")
     public JsonResponse updateFechaFin(@RequestBody DocenteSeccion docenteSeccion,
@@ -760,7 +761,7 @@ public class GpoSeccionController {
             String message = "Fecha final actualizada.";
             response.setSuccess(true);
             response.setMessage(message);
-
+            
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
@@ -770,7 +771,7 @@ public class GpoSeccionController {
         }
         return response;
     }
-
+    
     @ResponseBody
     @RequestMapping("deleteSeccion")
     public JsonResponse deleteSeccion(@RequestParam("seccion") Long seccionId,
@@ -783,7 +784,7 @@ public class GpoSeccionController {
             String message = "Sección eliminada.";
             response.setSuccess(true);
             response.setMessage(message);
-
+            
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
@@ -793,7 +794,7 @@ public class GpoSeccionController {
         }
         return response;
     }
-
+    
     @ResponseBody
     @RequestMapping("activarSeccion")
     public JsonResponse activarSeccion(@RequestParam("seccion") Long seccionId,
@@ -806,7 +807,7 @@ public class GpoSeccionController {
             String message = "Sección activada.";
             response.setSuccess(true);
             response.setMessage(message);
-
+            
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
@@ -816,7 +817,7 @@ public class GpoSeccionController {
         }
         return response;
     }
-
+    
     @ResponseBody
     @RequestMapping("bloquearSeccion")
     public JsonResponse bloquearSeccion(@RequestParam("seccion") Long seccionId,
@@ -830,7 +831,7 @@ public class GpoSeccionController {
             String message = "Sección bloqueada.";
             response.setSuccess(true);
             response.setMessage(message);
-
+            
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
@@ -840,7 +841,7 @@ public class GpoSeccionController {
         }
         return response;
     }
-
+    
     @ResponseBody
     @RequestMapping("anularSeccion")
     public JsonResponse anularSeccion(@RequestParam("seccion") Long seccionId,
@@ -848,9 +849,9 @@ public class GpoSeccionController {
             HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            TypesUtil.delay(3000);
+            //   TypesUtil.delay(3000);
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-
+            
             GrupoSeccion grupoSeccion = service.anularSeccion(new Seccion(seccionId), ds);
             String message = "redirect";
             response.setData(grupoSeccion.getCurso().getId());
@@ -859,7 +860,7 @@ public class GpoSeccionController {
             }
             response.setSuccess(true);
             response.setMessage(message);
-
+            
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
@@ -869,7 +870,7 @@ public class GpoSeccionController {
         }
         return response;
     }
-
+    
     @ResponseBody
     @RequestMapping("cancelarSeccion")
     public JsonResponse cancelarSeccion(@RequestBody Seccion seccion,
@@ -879,12 +880,12 @@ public class GpoSeccionController {
         try {
             TypesUtil.delay(3000);
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-
+            
             service.cancelarSeccion(seccion, ds);
             String message = "Sección cancelada.";
             response.setSuccess(true);
             response.setMessage(message);
-
+            
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
@@ -894,7 +895,7 @@ public class GpoSeccionController {
         }
         return response;
     }
-
+    
     @RequestMapping("deleteGrupoSeccion")
     public String deleteGrupoSeccion(RedirectAttributes redirectAttr, Model model, @RequestParam("curso") Long cursoId, HttpSession session) {
         Curso curso = service.findCurso(cursoId);
@@ -902,7 +903,7 @@ public class GpoSeccionController {
         Notificaciones.crearMsg(message, redirectAttr);
         return "redirect:/academico/gposeccion";
     }
-
+    
     @ResponseBody
     @RequestMapping("deleteDocSeccion")
     public JsonResponse deleteDocSeccion(@RequestParam("docSeccion") Long docSeccionId,
@@ -911,14 +912,14 @@ public class GpoSeccionController {
         JsonResponse response = new JsonResponse();
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-
+            
             service.deleteDocSeccion(new DocenteSeccion(docSeccionId), ds.getCicloAcademico());
             logger.debug("Docente Seccion {}", docSeccionId);
-
+            
             String message = "Docente eliminado.";
             response.setSuccess(true);
             response.setMessage(message);
-
+            
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
@@ -928,7 +929,7 @@ public class GpoSeccionController {
         }
         return response;
     }
-
+    
     @RequestMapping("{gruposeccion}/succesSave")
     public String succesSave(@PathVariable("gruposeccion") Long grupoSeccionId,
             RedirectAttributes redirectAttr,
@@ -936,24 +937,24 @@ public class GpoSeccionController {
         Notificaciones.crearMsg(Messages.CREATED, redirectAttr);
         return "redirect:/academico/gposeccion/" + grupoSeccionId + "/editar";
     }
-
+    
     @ResponseBody
     @RequestMapping("buscarDocentes")
     public JsonResponse buscarDocentes(
             @RequestParam("nombre") String nombre,
             @RequestParam(name = "codigoDep", required = false) String codigoDep,
             HttpSession session) {
-
+        
         JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
         JsonResponse response = new JsonResponse();
-
+        
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-
+            
             ArrayNode jsonList = new ArrayNode(jsonFactory);
-
+            
             List<Docente> docentes = service.allDocenterByNombre(nombre, codigoDep);
-
+            
             for (Docente doc : docentes) {
                 ObjectNode json = new ObjectNode(jsonFactory);
                 json.put("id", doc.getId());
@@ -965,44 +966,44 @@ public class GpoSeccionController {
                 json.put("departamento", doc.getDepartamentoAcademico().getNombre());
                 jsonList.add(json);
             }
-
+            
             response.setData(jsonList);
             response.setTotal(jsonList.size());
             response.setSuccess(true);
-
+            
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
-
+        
         return response;
     }
-
+    
     @ResponseBody
     @RequestMapping("asyncFindAulas")
     public JsonResponse asyncFindAulas(
             @RequestParam("nombre") String nombre,
             @RequestParam("seccion") Long seccionId,
             HttpSession session) {
-
+        
         JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
         JsonResponse response = new JsonResponse();
-
+        
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             CicloAcademico ciclo = ds.getCicloAcademico();
             List<Aula> aulas = service.searchAulaByName(nombre, seccionId, ciclo);
             ArrayNode jsonList = new ArrayNode(jsonFactory);
-
+            
             for (Aula aula : aulas) {
                 ObjectNode json = JsonHelper.createJson(aula, jsonFactory, true, new String[]{"*", "aulaSuperior.nombre"});
                 json.put("esEspecifica", Boolean.TRUE);
                 jsonList.add(json);
             }
-
+            
             response.setData(jsonList);
             response.setTotal(jsonList.size());
             response.setSuccess(true);
-
+            
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
@@ -1010,7 +1011,7 @@ public class GpoSeccionController {
         }
         return response;
     }
-
+    
     @ResponseBody
     @RequestMapping("cambiarDocPrincipal")
     public JsonResponse cambiarDocPrincipal(
@@ -1027,7 +1028,7 @@ public class GpoSeccionController {
         }
         return response;
     }
-
+    
     @ResponseBody
     @RequestMapping("cambiarDocenteSeccion")
     public JsonResponse cambiarDocPrincipal(
@@ -1046,7 +1047,7 @@ public class GpoSeccionController {
         }
         return response;
     }
-
+    
     @ResponseBody
     @RequestMapping("cambiarVacantesSeccion")
     public JsonResponse cambiarVacantesSeccion(
@@ -1057,11 +1058,11 @@ public class GpoSeccionController {
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             logger.debug("seccion {}, vacantes {}", seccionId, vacantes);
-
+            
             Seccion seccion = new Seccion(seccionId);
             seccion.setVacantes(vacantes);
             service.actualizarSeccionVacantes(seccion, ds);
-
+            
             response.setSuccess(Boolean.TRUE);
             response.setMessage("Vacantes actualizadas");
         } catch (PhobosException e) {
@@ -1073,7 +1074,7 @@ public class GpoSeccionController {
         }
         return response;
     }
-
+    
     @ResponseBody
     @RequestMapping("cambiarRestriccionCapa")
     public JsonResponse cambiarRestriccionCapa(
@@ -1085,11 +1086,11 @@ public class GpoSeccionController {
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             logger.debug("seccion {}, capa {}", seccionId, capa);
-
+            
             Seccion seccion = new Seccion(seccionId);
             seccion.setRestriccionCapa(capa);
             service.actualizarSeccionResctriccionCapa(seccion, ds);
-
+            
             response.setSuccess(Boolean.TRUE);
             response.setMessage("Restricción CAPA actualizada.");
         } catch (PhobosException e) {
@@ -1101,7 +1102,7 @@ public class GpoSeccionController {
         }
         return response;
     }
-
+    
     @ResponseBody
     @RequestMapping("cambiarPorcentajeAvance")
     public JsonResponse cambiarPorcentajeAvance(
@@ -1114,7 +1115,7 @@ public class GpoSeccionController {
             DocenteSeccion docenteSeccion = new DocenteSeccion(docSeccion);
             docenteSeccion.setPorcentajeCargaFraccion(porcentajeFraccion);
             service.updatePorcentajeAvance(docenteSeccion, ds.getCicloAcademico());
-
+            
             response.setSuccess(Boolean.TRUE);
             response.setMessage("Porcentaje de avance actualizado");
         } catch (PhobosException e) {
@@ -1128,22 +1129,22 @@ public class GpoSeccionController {
         }
         return response;
     }
-
+    
     @ResponseBody
     @RequestMapping("cambiarAulaDirect")
     public JsonResponse cambiarAulaDirect(
             @RequestParam("seccion") Long seccionId,
             @RequestParam("aula") String codigoAula,
             HttpSession session) {
-
+        
         JsonResponse response = new JsonResponse();
         try {
-
+            
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             Aula aula = new Aula();
             aula.setCodigo(codigoAula);
             service.saveAula(new Seccion(seccionId), aula, ds);
-
+            
             response.setSuccess(Boolean.TRUE);
             response.setMessage("Aula cambiada correctamente");
         } catch (PhobosException e) {
@@ -1155,21 +1156,21 @@ public class GpoSeccionController {
         }
         return response;
     }
-
+    
     @ResponseBody
     @RequestMapping("cambiarGrupoHorDirect")
     public JsonResponse cambiarGrupoHorDirect(
             @RequestParam("seccion") Long seccionId,
             @RequestParam("grupoHor") String codigoGrupoHor,
             HttpSession session) {
-
+        
         JsonResponse response = new JsonResponse();
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             Seccion seccion = service.findSeccion(seccionId);
             GrupoHoras grupoHoras = service.findGrupoHorasForDirectUpdate(codigoGrupoHor, ds.getCicloAcademico(), seccion);
             service.saveSeccionGrupoHorario(seccion, grupoHoras, ds.getCicloAcademico());
-
+            
             response.setSuccess(Boolean.TRUE);
             response.setMessage("Grupo horario cambiado correctamente");
         } catch (PhobosException e) {
@@ -1181,7 +1182,7 @@ public class GpoSeccionController {
         }
         return response;
     }
-
+    
     @ResponseBody
     @RequestMapping("findSeccion")
     public JsonResponse findSeccion(
@@ -1193,7 +1194,7 @@ public class GpoSeccionController {
             Seccion seccion = service.findSeccion(seccionId);
             response.setData(JsonHelper.createJson(seccion, jsonFactory, true, new String[]{"*"}));
             response.setSuccess(Boolean.TRUE);
-
+            
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
@@ -1201,7 +1202,7 @@ public class GpoSeccionController {
         }
         return response;
     }
-
+    
     @ResponseBody
     @RequestMapping("loadModalGrupo")
     public JsonResponse loadModalGrupo(
@@ -1211,16 +1212,16 @@ public class GpoSeccionController {
             HttpSession session) {
         JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
         JsonResponse response = new JsonResponse();
-
+        
         try {
             long t1 = System.currentTimeMillis();
-
+            
             Seccion seccion = service.findSeccion(seccionId);
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
-
+            
             ObjectNode node = new ObjectNode(jsonFactory);
-
+            
             node.set("seccion", JsonHelper.createJson(seccion, jsonFactory, true, new String[]{
                 "id", "codigo2", "vacantes", "horasSemanales", "horasAdicionales", "totalHorasSemanales",
                 "tieneRestriccion", "tieneRestriccionCarrera", "tieneRestriccionFacultad", "tieneRestriccionModalidad", "tieneRestriccionRepitencia",
@@ -1236,7 +1237,7 @@ public class GpoSeccionController {
                 "grupoSeccion.curso.departamentoAcademico.nombre"
             }));
             node.put("tipoGrupoHorasSeleccionado", "");
-
+            
             String[] mapperGrupoHorarioSel = new String[]{
                 "*",
                 "tipoGrupoHoras.*",
@@ -1252,9 +1253,9 @@ public class GpoSeccionController {
                     node.set("grupoHorarioSel", JsonHelper.createJson(gpoHora, jsonFactory, true, mapperGrupoHorarioSel));
                 }
             }
-
+            
             List<TipoGrupoHoras> tiposGrupoHoras = service.allGrupoHorasActivosTipoAndCiclo(cicloAcademico, TipoGrupoHorasEnum.REGULAR);
-
+            
             ArrayNode jTiposGrupoHoras = new ArrayNode(jsonFactory);
             for (TipoGrupoHoras tiposGrupoHoraEach : tiposGrupoHoras) {
                 ObjectNode tipoGrupoHorasNode = JsonHelper.createJson(tiposGrupoHoraEach, jsonFactory, true, new String[]{"*"});
@@ -1262,21 +1263,21 @@ public class GpoSeccionController {
                 jTiposGrupoHoras.add(tipoGrupoHorasNode);
             }
             node.set("tiposGruposHorasOpt", jTiposGrupoHoras);
-
+            
             response.setData(node);
             response.setSuccess(Boolean.TRUE);
-
+            
             long t2 = System.currentTimeMillis();
-
+            
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
-
+        
         return response;
     }
-
+    
     @ResponseBody
     @RequestMapping("loadModalAula")
     public JsonResponse loadModalAula(
@@ -1289,22 +1290,22 @@ public class GpoSeccionController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             Oficina oficinaOERA = service.findOficinaOera();
             List<Oficina> oficinas = oficinaContenida(ds.getOficinas(), oficinaOERA) ? service.allOficinas(ds.getCompania()) : ds.getOficinas();
-
+            
             Seccion seccion = service.findSeccion(seccionId);
             List<Aula> modulosOera = service.allPabellonesByOficina(oficinaOERA);
-
+            
             List<Aula> modulosNoOera = service.allPabellonesByOficinasNoOera(oficinas);
-
+            
             ArrayNode modulosOeraJson = new ArrayNode(jsonFactory);
             for (Aula moduloEach : modulosOera) {
                 modulosOeraJson.add(JsonHelper.createJson(moduloEach, jsonFactory));
             }
-
+            
             ArrayNode oficinasAulasSuperioresJson = new ArrayNode(jsonFactory);
             for (Aula moduloEach : modulosNoOera) {
                 oficinasAulasSuperioresJson.add(JsonHelper.createJson(moduloEach, jsonFactory));
             }
-
+            
             ObjectNode nodeResult = new ObjectNode(jsonFactory);
             nodeResult.putPOJO("seccion", JsonHelper.createJson(seccion, jsonFactory, true, new String[]{
                 "id", "codigo2", "vacantes", "horasSemanales", "horasAdicionales", "totalHorasSemanales",
@@ -1332,7 +1333,7 @@ public class GpoSeccionController {
                 ObjectNode aulaNode = JsonHelper.createJson(aula, jsonFactory, true, new String[]{
                     "id", "codigo", "nombre"
                 });
-
+                
                 if (aula.getOficinaSupervisora().getId().equals(Constantine.ID_OFICINA_OERA)) {
                     //OERA
                     Aula moduloOera = modulosOera.stream().filter(req -> req.getId().equals(aula.getAulaSuperior().getId())).findFirst().orElse(null);
@@ -1350,10 +1351,10 @@ public class GpoSeccionController {
                 }
                 nodeResult.putPOJO("aulaSel", aulaNode);
             }
-
+            
             response.setData(nodeResult);
             response.setSuccess(Boolean.TRUE);
-
+            
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
@@ -1361,7 +1362,7 @@ public class GpoSeccionController {
         }
         return response;
     }
-
+    
     @ResponseBody
     @RequestMapping("loadModalRestricciones")
     public JsonResponse loadModalRestricciones(
@@ -1373,11 +1374,11 @@ public class GpoSeccionController {
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             ObjectNode nodeResult = new ObjectNode(jsonFactory);
-
+            
             Seccion seccion = service.findSeccionWithRestriccions(seccionId);
             List<Facultad> facultades = service.allFacultadesActivas();
             List<ModalidadEstudio> modalidadesEstudio = service.allModalidadesEstudioActivas();
-
+            
             ArrayNode facultadesJson = new ArrayNode(jsonFactory);
             for (Facultad facultad : facultades) {
                 facultadesJson.add(JsonHelper.createJson(facultad, jsonFactory, true, new String[]{"id", "codigo", "nombre"}));
@@ -1396,7 +1397,7 @@ public class GpoSeccionController {
                 tipoRestJson.put("nombre", tipo.getValue());
                 tiposRestriccionesJson.add(tipoRestJson);
             }
-
+            
             ObjectNode seccionJson = JsonHelper.createJson(seccion, jsonFactory, true, new String[]{
                 "id", "codigo2", "vacantes", "horasSemanales",
                 "tieneRestriccion", "tieneRestriccionCarrera", "tieneRestriccionFacultad", "tieneRestriccionModalidad", "tieneRestriccionRepitencia",
@@ -1407,12 +1408,12 @@ public class GpoSeccionController {
                 "grupoSeccion.curso.tpc",
                 "grupoSeccion.curso.departamentoAcademico.nombre"
             });
-
+            
             nodeResult.set("seccion", seccionJson);
             nodeResult.set("facultades", facultadesJson);
             nodeResult.set("modalidades", modalidadesJson);
             nodeResult.set("tiposRestriccion", tiposRestriccionesJson);
-
+            
             ObjectNode tipoRestriccionSel = null;
             if (seccion.isTieneRestriccionCarrera()) {
                 tipoRestriccionSel = new ObjectNode(jsonFactory);
@@ -1428,10 +1429,10 @@ public class GpoSeccionController {
                 tipoRestriccionSel.put("nombre", TipoRestriccionEnum.MOD.getValue());
             }
             nodeResult.set("tipoRestriccionSel", tipoRestriccionSel);
-
+            
             response.setData(nodeResult);
             response.setSuccess(Boolean.TRUE);
-
+            
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
@@ -1439,7 +1440,7 @@ public class GpoSeccionController {
         }
         return response;
     }
-
+    
     @ResponseBody
     @RequestMapping("loadModalRepitenciaRestriccion")
     public JsonResponse loadModalRepitenciaRestriccion(
@@ -1453,27 +1454,27 @@ public class GpoSeccionController {
             Seccion seccion = service.findSeccion(seccionId);
             List<RestriccionRepitencia> restricciones = service.allRestriccionRepitenciaActivasBySeccion(seccion);
             seccion.setRestriccionesRepitencia(restricciones);
-
+            
             List<TipoRepitencia> tiposRepitencia = service.allTipoRepitencia();
-
+            
             ArrayNode repitenciasJson = null;
             if (seccion.getRestriccionesRepitencia() != null && !seccion.getRestriccionesRepitencia().isEmpty()) {
                 repitenciasJson = new ArrayNode(jsonFactory);
-
+                
                 for (RestriccionRepitencia repitencia : seccion.getRestriccionesRepitencia()) {
                     ObjectNode repitenciaJson = JsonHelper.createJson(repitencia.getTipoRepitencia(), jsonFactory, true, new String[]{
                         "id", "codigo", "nombre"
                     });
-
+                    
                     repitenciasJson.add(repitenciaJson);
                 }
             }
-
+            
             ArrayNode tiposRepitenciaJson = new ArrayNode(jsonFactory);
             for (TipoRepitencia tipoRepitencia : tiposRepitencia) {
                 tiposRepitenciaJson.add(JsonHelper.createJson(tipoRepitencia, jsonFactory, true, new String[]{"id", "codigo", "nombre"}));
             }
-
+            
             ObjectNode seccionJson = JsonHelper.createJson(seccion, jsonFactory, true, new String[]{
                 "id", "codigo2", "vacantes", "horasSemanales",
                 "tieneRestriccion", "tieneRestriccionCarrera", "tieneRestriccionFacultad", "tieneRestriccionModalidad", "tieneRestriccionRepitencia",
@@ -1484,11 +1485,11 @@ public class GpoSeccionController {
                 "grupoSeccion.curso.tpc",
                 "grupoSeccion.curso.departamentoAcademico.nombre"
             });
-
+            
             result.set("seccion", seccionJson);
             result.set("restriccionesRepitencia", repitenciasJson);
             result.set("tiposRepitenciaJson", tiposRepitenciaJson);
-
+            
             response.setData(result);
             response.setSuccess(Boolean.TRUE);
         } catch (PhobosException e) {
@@ -1498,7 +1499,7 @@ public class GpoSeccionController {
         }
         return response;
     }
-
+    
     @ResponseBody
     @RequestMapping("cambiarTipoRestriccion")
     public JsonResponse cambiarTipoRestriccion(
@@ -1511,19 +1512,19 @@ public class GpoSeccionController {
         ObjectNode nodeResult = new ObjectNode(jsonFactory);
         try {
             logger.debug("entro a cambiarTipoRestriccion");
-
+            
             TipoRestriccionEnum tipoRestriccionEnum = TipoRestriccionEnum.valueOf(tipoRestriccion);
             Seccion seccion = service.findSeccionWithRestriccions(seccionId);
-
+            
             nodeResult.put("esEspecialidad", Boolean.FALSE);
             nodeResult.put("esFacultad", Boolean.FALSE);
             nodeResult.put("esModalidad", Boolean.FALSE);
-
+            
             ArrayNode facultadesJson = null;
             ArrayNode modalidadesJson = null;
             ArrayNode carrerasJson = null;
             ArrayNode restriccionesSeleccionadas = null;
-
+            
             if (tipoRestriccionEnum.equals(TipoRestriccionEnum.ESP)) {
                 nodeResult.put("esEspecialidad", Boolean.TRUE);
                 carrerasJson = new ArrayNode(jsonFactory);
@@ -1594,7 +1595,7 @@ public class GpoSeccionController {
             }
             response.setData(nodeResult);
             response.setSuccess(Boolean.TRUE);
-
+            
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
@@ -1602,32 +1603,32 @@ public class GpoSeccionController {
         }
         return response;
     }
-
+    
     @ResponseBody
     @RequestMapping("saveRestriccion")
     public JsonResponse saveRestriccion(
             @RequestBody ObjectNode restriccionJson,
             RedirectAttributes redirectAttr,
             HttpSession session) {
-
+        
         JsonResponse response = new JsonResponse();
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-
+            
             ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
             Seccion seccion = new Seccion(TypesUtil.getLong(restriccionJson.get("seccion")));
             String tipoRestriccion = restriccionJson.get("tipoRestriccion").get("codigo").asText();
             TipoRestriccionEnum tipoRestriccionEnum = TipoRestriccionEnum.valueOf(tipoRestriccion);
             ArrayNode restriccionesJson = (ArrayNode) restriccionJson.get("restriccionesArr");
             List<Long> restriccionesList = new ArrayList<>();
-
+            
             for (JsonNode restriccionEach : restriccionesJson) {
                 restriccionesList.add(restriccionEach.get("id").asLong());
             }
-
+            
             service.saveRestriccion(seccion, ds, tipoRestriccionEnum, restriccionesList);
             String message = "Restriccion asignada correctamente.";
-
+            
             response.setSuccess(true);
             response.setMessage(message);
         } catch (PhobosException e) {
@@ -1640,7 +1641,7 @@ public class GpoSeccionController {
         }
         return response;
     }
-
+    
     @ResponseBody
     @RequestMapping("loadModalAulaHorario")
     public JsonResponse loadModalAulaHorario(
@@ -1652,7 +1653,7 @@ public class GpoSeccionController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         try {
             Aula aula = service.findAulaFull(aulaId, ds.getCicloAcademico());
-
+            
             List<Dia> dias = service.allDia();
             List<Hora> horasEncontradas = new ArrayList<>();
             for (HorarioAula horarioAula : aula.getHorariosAula()) {
@@ -1661,10 +1662,10 @@ public class GpoSeccionController {
                 }
             }
             Collections.sort(horasEncontradas, (p1, p2) -> p1.getNumero().compareTo(p2.getNumero()));
-
+            
             JsonNodeFactory factory = JsonNodeFactory.instance;
             ObjectNode data = new ObjectNode(factory);
-
+            
             ArrayNode diasJson = new ArrayNode(factory);
             for (Dia dia : dias) {
                 diasJson.add(JsonHelper.createJson(dia, factory));
@@ -1673,7 +1674,7 @@ public class GpoSeccionController {
             for (Hora horasEncontrada : horasEncontradas) {
                 horasJson.add(JsonHelper.createJson(horasEncontrada, factory));
             }
-
+            
             ObjectNode jsonHorarioAula = new ObjectNode(factory);
             if (aula.getHorariosAula() != null) {
                 for (HorarioAula horarioAulaEach : aula.getHorariosAula()) {
@@ -1691,7 +1692,7 @@ public class GpoSeccionController {
                     );
                 }
             }
-
+            
             data.putPOJO("aula", JsonHelper.createJson(aula, jsonFactory, true, new String[]{
                 "id",
                 "codigo",
@@ -1704,14 +1705,14 @@ public class GpoSeccionController {
                 "oficinaSupervisora.nombre",
                 "aulaSuperior.id",
                 "aulaSuperior.nombre"}));
-
+            
             data.set("dias", diasJson);
             data.set("horas", horasJson);
             data.set("jsonHorarioAula", jsonHorarioAula);
-
+            
             response.setData(data);
             response.setSuccess(true);
-
+            
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
@@ -1719,7 +1720,7 @@ public class GpoSeccionController {
         }
         return response;
     }
-
+    
     @ResponseBody
     @RequestMapping("horariosRegulares")
     public JsonResponse horariosRegulares(
@@ -1734,15 +1735,15 @@ public class GpoSeccionController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
             Aula aula = null;
-
+            
             JsonNodeFactory factory = JsonNodeFactory.instance;
-
+            
             List<Dia> dias = service.allDia();
             Seccion seccion = service.findSeccion(seccionId);
             TipoGrupoHoras tipoGrupo = service.findTipoGrupoHoras(tipoGrupoHorasId);
             List<GrupoHoras> gruposHoras = service.allGrupoHorasBySeccionAndTipoGrupoHoras(seccion, tipoGrupo, cicloAcademico);
             List<HorarioAula> horariosAulasByCiclo = null;
-
+            
             if (aulaId != null) {
                 aula = service.findAula(aulaId);
                 horariosAulasByCiclo = service.allHorariosAula(aula, ds.getCicloAcademico());
@@ -1759,19 +1760,19 @@ public class GpoSeccionController {
                                 .filter(x -> !x.getSeccion().equals(seccion))
                                 .collect(Collectors.toList()));
             }
-
+            
             List<DiaHoraGrupo> diaHoraGrupos = new ArrayList();
             for (GrupoHoras grupoHoraEach : gruposHoras) {
                 for (DiaHoraGrupo diaHoraGrupo : grupoHoraEach.getDiaHoraGrupo()) {
                     diaHoraGrupos.add(diaHoraGrupo);
                 }
             }
-
+            
             Map<Long, Hora> mapHoras = TypesUtil.convertListToMap("hora.id", "hora", diaHoraGrupos);
             List<Hora> horasEncontradas = new ArrayList(mapHoras.values());
-
+            
             Collections.sort(horasEncontradas, (p1, p2) -> p1.getNumero().compareTo(p2.getNumero()));
-
+            
             Map<String, HorarioSeccion> mapHorarioBySeccion = TypesUtil.convertListToMap("idDiaHora", service.allHorarioSeccion(seccion));
 
             //Dias Horas Grupos de todos los grupos, de acuerdo al tipo seleccionado y se marcan los dia hora grupo de la seccion
@@ -1793,7 +1794,7 @@ public class GpoSeccionController {
                             "horariosAula.seccion.codigo2"
                         });
                 jsonDiaHoraGrupoEach.put("seleccionado", Boolean.FALSE);
-
+                
                 if (ObjectUtil.getParentTree(seccion, "grupoHoras.id") != null) {
                     if (seccion.getGrupoHoras().equals(diaHoraGrupo.getGrupoHorario())) {
                         HorarioSeccion hSecc = mapHorarioBySeccion.get(diaHora);
@@ -1809,12 +1810,12 @@ public class GpoSeccionController {
             if (horariosAulasByCiclo != null) {
                 for (HorarioAula horarioAulaEach : horariosAulasByCiclo) {
                     if (!horarioAulaEach.getSeccion().getId().equals(seccion.getId())) {
-
+                        
                         HorarioSeccion hSeccCruce = mapHorarioBySeccion.get(horarioAulaEach.getIdDiaHora());
                         if (hSeccCruce != null) {
                             horarioAulaEach.setTieneCruce(Boolean.TRUE);
                         }
-
+                        
                         jsonHorarioAula.putPOJO(horarioAulaEach.getIdDiaHora(),
                                 JsonHelper.createJson(horarioAulaEach, factory, true,
                                         new String[]{"id",
@@ -1827,9 +1828,9 @@ public class GpoSeccionController {
                     }
                 }
             }
-
+            
             ObjectNode data = new ObjectNode(factory);
-
+            
             ArrayNode diasJson = new ArrayNode(factory);
             for (Dia dia : dias) {
                 diasJson.add(JsonHelper.createJson(dia, factory, true, new String[]{"*"}));
@@ -1842,7 +1843,7 @@ public class GpoSeccionController {
             data.set("horas", horasJson);
             data.set("jsonDiaHoraGrupo", jsonDiaHoraGrupo);
             data.set("jsonHorarioAula", jsonHorarioAula);
-
+            
             response.setData(data);
             response.setSuccess(Boolean.TRUE);
         } catch (PhobosException e) {
@@ -1852,7 +1853,7 @@ public class GpoSeccionController {
         }
         return response;
     }
-
+    
     @ResponseBody
     @RequestMapping("horariosEspeciales")
     public JsonResponse horariosEspeciales(
@@ -1863,11 +1864,11 @@ public class GpoSeccionController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         try {
             JsonNodeFactory factory = JsonNodeFactory.instance;
-
+            
             GrupoHoras grupoHoras = service.findGrupoHorasFull(new GrupoHoras(grupoHorarioId), ds.getCicloAcademico());
             Seccion seccion = service.findSeccion(seccionId);
             List<Dia> dias = service.allDia();
-
+            
             List<HorarioAula> horariosAulasByCiclo = null;
             if (aulaId == null) {
                 if (ObjectUtil.getParentTree(seccion, "aula.id") != null) {
@@ -1884,9 +1885,9 @@ public class GpoSeccionController {
                                 .filter(x -> !x.getSeccion().equals(seccion))
                                 .collect(Collectors.toList()));
             }
-
+            
             List<Hora> horasEncontradas = new ArrayList<>();
-
+            
             for (DiaHoraGrupo diaHoraGrupo : grupoHoras.getDiaHoraGrupo()) {
                 Hora horaFound = horasEncontradas.stream().filter(req -> req.getId().equals(diaHoraGrupo.getHora().getId())).findFirst().orElse(null);
                 if (horaFound == null) {
@@ -1894,15 +1895,15 @@ public class GpoSeccionController {
                 }
             }
             Collections.sort(horasEncontradas, (p1, p2) -> p1.getNumero().compareTo(p2.getNumero()));
-
+            
             Map<String, HorarioSeccion> mapHorarioBySeccion = TypesUtil.convertListToMap("idDiaHora", service.allHorarioSeccion(seccion));
-
+            
             ObjectNode jsonDiaHoraGrupo = new ObjectNode(factory);
             for (DiaHoraGrupo diaHoraGrupoEach : grupoHoras.getDiaHoraGrupo()) {
                 //   Long diaId = diaHoraGrupoEach.getDia().getId();
                 //    Long horaId = diaHoraGrupoEach.getHora().getId();
                 String diaHora = diaHoraGrupoEach.getIdDiaHora();
-
+                
                 List<HorarioAula> horarioAulaCruce = mapHorariosAulaByCiclo.get(diaHora);
                 if (horarioAulaCruce != null) {
                     diaHoraGrupoEach.setTieneCruce(Boolean.TRUE);
@@ -1915,7 +1916,7 @@ public class GpoSeccionController {
                             "grupoHorario.id", "grupoHorario.codigo",
                             "grupoHorario.tipoGrupoHoras.*"});
                 jsonDiaHoraGrupoEach.put("seleccionado", Boolean.FALSE);
-
+                
                 if (ObjectUtil.getParentTree(seccion, "grupoHoras.id") != null) {
                     if (seccion.getGrupoHoras().getId().compareTo(grupoHoras.getId()) == 0) {
                         HorarioSeccion hSecc = mapHorarioBySeccion.get(diaHora);
@@ -1935,7 +1936,7 @@ public class GpoSeccionController {
                 }
                 jsonDiaHoraGrupo.putPOJO(diaHoraGrupoEach.getIdDiaHora(), jsonDiaHoraGrupoEach);
             }
-
+            
             ObjectNode jsonHorarioAula = new ObjectNode(factory);
             if (horariosAulasByCiclo != null) {
                 for (HorarioAula horarioAulaEach : horariosAulasByCiclo) {
@@ -1946,9 +1947,9 @@ public class GpoSeccionController {
                     }
                 }
             }
-
+            
             ObjectNode data = new ObjectNode(factory);
-
+            
             ArrayNode diasJson = new ArrayNode(factory);
             for (Dia dia : dias) {
                 diasJson.add(JsonHelper.createJson(dia, factory));
@@ -1957,17 +1958,17 @@ public class GpoSeccionController {
             for (Hora horasEncontrada : horasEncontradas) {
                 horasJson.add(JsonHelper.createJson(horasEncontrada, factory, true, new String[]{"*"}));
             }
-
+            
             data.set("dias", diasJson);
             data.set("horas", horasJson);
             data.set("jsonDiaHoraGrupo", jsonDiaHoraGrupo);
             data.set("jsonHorarioAula", jsonHorarioAula);
             data.putPOJO("grupoHorasSeleccionado",
                     JsonHelper.createJson(grupoHoras, factory, true, new String[]{"*", "tipoGrupoHoras.*"}));
-
+            
             response.setData(data);
             response.setSuccess(Boolean.TRUE);
-
+            
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
@@ -1975,26 +1976,26 @@ public class GpoSeccionController {
         }
         return response;
     }
-
+    
     @ResponseBody
     @RequestMapping("horariosZeta")
     public JsonResponse horariosZeta(@RequestParam(name = "grupoHorario", required = false) Long grupoHorarioId,
             @RequestParam(name = "seccion", required = false) Long seccionId, Model model, HttpSession session) {
-
+        
         JsonResponse response = new JsonResponse();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         try {
-
+            
             JsonNodeFactory factory = JsonNodeFactory.instance;
-
+            
             GrupoHoras grupoHoras = service.findGrupoHoras(new GrupoHoras(grupoHorarioId), ds.getCicloAcademico());
             Seccion seccion = service.findSeccion(seccionId);
-
+            
             Map<String, HorarioSeccion> mapHorarioBySeccion = TypesUtil.convertListToMap("idDiaHora", service.allHorarioSeccion(seccion));
-
+            
             List<Dia> dias = service.allDia();
             List<Hora> horasEncontradas = service.allHora();
-
+            
             List<HorarioAula> horariosAulasByCiclo = null;
             if (ObjectUtil.getParentTree(seccion, "aula.id") != null) {
                 horariosAulasByCiclo = service.allHorariosAula(seccion.getAula(), ds.getCicloAcademico());
@@ -2006,17 +2007,17 @@ public class GpoSeccionController {
                                 .filter(x -> !x.getSeccion().equals(seccion))
                                 .collect(Collectors.toList()));
             }
-
+            
             ObjectNode jsonDiaHoraGrupo = new ObjectNode(factory);
-
+            
             ObjectNode jspnGrupoHoras = JsonHelper.createJson(grupoHoras, factory, true, new String[]{"*", "tipoGrupoHoras.*"});
-
+            
             for (Dia diaEach : dias) {
                 for (Hora horaEach : horasEncontradas) {
                     Long diaId = diaEach.getId();
                     Long horaId = horaEach.getId();
                     String diaHora = diaId + "_" + horaId;
-
+                    
                     ObjectNode jsonDiaHoraGrupoEach = new ObjectNode(factory);
                     jsonDiaHoraGrupoEach.putPOJO("dia", JsonHelper.createJson(diaEach, factory));
                     jsonDiaHoraGrupoEach.putPOJO("hora", JsonHelper.createJson(horaEach, factory));
@@ -2037,7 +2038,7 @@ public class GpoSeccionController {
                         }
                         jsonDiaHoraGrupoEach.set("horariosAula", jHorariosAulasCruce);
                     }
-
+                    
                     jsonDiaHoraGrupoEach.putPOJO("grupoHorario", jspnGrupoHoras);
                     if (seccion.getHorarioSeccion() != null && !seccion.getHorarioSeccion().isEmpty()) {
                         if (ObjectUtil.getParentTree(seccion, "grupoHoras.id") != null) {
@@ -2057,11 +2058,11 @@ public class GpoSeccionController {
                             }
                         }
                     }
-
+                    
                     jsonDiaHoraGrupo.putPOJO(diaId + "_" + horaId, jsonDiaHoraGrupoEach);
                 }
             }
-
+            
             ObjectNode jsonHorarioAula = new ObjectNode(factory);
             if (horariosAulasByCiclo != null) {
                 for (HorarioAula horarioAulaEach : horariosAulasByCiclo) {
@@ -2076,9 +2077,9 @@ public class GpoSeccionController {
                     }
                 }
             }
-
+            
             ObjectNode data = new ObjectNode(factory);
-
+            
             ArrayNode diasJson = new ArrayNode(factory);
             for (Dia dia : dias) {
                 diasJson.add(JsonHelper.createJson(dia, factory));
@@ -2087,13 +2088,13 @@ public class GpoSeccionController {
             for (Hora horasEncontrada : horasEncontradas) {
                 horasJson.add(JsonHelper.createJson(horasEncontrada, factory));
             }
-
+            
             data.set("dias", diasJson);
             data.set("horas", horasJson);
             data.set("jsonDiaHoraGrupo", jsonDiaHoraGrupo);
             data.set("jsonHorarioAula", jsonHorarioAula);
             data.putPOJO("grupoHorasSeleccionado", jspnGrupoHoras);
-
+            
             response.setData(data);
             response.setSuccess(Boolean.TRUE);
         } catch (PhobosException e) {
@@ -2103,18 +2104,18 @@ public class GpoSeccionController {
         }
         return response;
     }
-
+    
     @ResponseBody
     @RequestMapping("listGrupoHorariosZetas")
     public DynatableResponse listGrupoHorariosZetas(DynatableFilter filter, HttpSession session) {
         DynatableResponse json = new DynatableResponse();
-
+        
         try {
             long t1 = System.currentTimeMillis();
-
+            
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             List<GrupoHoras> gruposHoras = service.allGrupoHorasZetasDyna(filter, ds.getCicloAcademico());
-
+            
             JsonNodeFactory nf = JsonNodeFactory.instance;
             ArrayNode array = new ArrayNode(nf);
             for (GrupoHoras grupoHoraEach : gruposHoras) {
@@ -2129,35 +2130,35 @@ public class GpoSeccionController {
                 node.put("horas", grupoHoraEach.getDiaHoraGrupo().size());
                 array.add(node);
             }
-
+            
             json.setData(array);
             json.setTotal(filter.getTotal());
             json.setFiltered(filter.getFiltered());
-
+            
         } catch (Exception e) {
             e.printStackTrace();
             json.setTotal(0);
         }
-
+        
         return json;
     }
-
+    
     @ResponseBody
     @RequestMapping("listGrupoHorariosEspeciales")
     public DynatableResponse listGrupoHorariosEspeciales(DynatableFilter filter,
             @RequestParam(name = "tipoGrupoHora", required = false) String tipoGrupoHora,
             HttpSession session) {
-
+        
         DynatableResponse json = new DynatableResponse();
-
+        
         try {
             long t1 = System.currentTimeMillis();
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
-
+            
             JsonNodeFactory nf = JsonNodeFactory.instance;
             ArrayNode array = new ArrayNode(nf);
-
+            
             Seccion seccion = null;
             if ((filter.getQueries() != null && !filter.getQueries().isEmpty())
                     && filter.getQueries().get("seccion") != null) {
@@ -2167,7 +2168,7 @@ public class GpoSeccionController {
             if (seccion != null) {
                 TipoGrupoHoras tipoGrupoHoras = service.findTipoGpoByEnumCiclo(TipoGrupoHorasEnum.ESPECIAL, cicloAcademico);
                 List<GrupoHoras> gruposHoras = service.allGrupoByTipoGpoSeccionDynatable(filter, tipoGrupoHoras, cicloAcademico, seccion);
-
+                
                 for (GrupoHoras grupoHoraEach : gruposHoras) {
                     ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
                     node.put("id", grupoHoraEach.getId());
@@ -2178,36 +2179,36 @@ public class GpoSeccionController {
                     node.put("tipoSeccion", grupoHoraEach.getTipoSeccion());
                     node.put("color", grupoHoraEach.getColor());
                     node.put("horas", grupoHoraEach.getDiaHoraGrupo().size());
-
+                    
                     array.add(node);
                 }
             }
             json.setData(array);
             json.setTotal(filter.getTotal());
             json.setFiltered(filter.getFiltered());
-
+            
         } catch (Exception e) {
             e.printStackTrace();
             json.setTotal(0);
         }
-
+        
         return json;
     }
-
+    
     @ResponseBody
     @RequestMapping("{seccion}/saveSeccionGrupo")
     public JsonResponse saveSeccionGrupo(
             @PathVariable("seccion") Long seccionId,
             @RequestBody GrupoHoras grupoHoras, HttpSession session) {
-
+        
         JsonResponse response = new JsonResponse();
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-
+            
             String message = "Grupo hora asignado correctamente.";
             Seccion seccion = service.findSeccion(seccionId);
             service.saveSeccionGrupoHorario(seccion, grupoHoras, ds.getCicloAcademico());
-
+            
             response.setSuccess(true);
             response.setMessage(message);
         } catch (PhobosException e) {
@@ -2220,7 +2221,7 @@ public class GpoSeccionController {
         }
         return response;
     }
-
+    
     @ResponseBody
     @RequestMapping("{seccion}/saveTipoRepRestriccion")
     public JsonResponse saveTipoRepRestriccion(
@@ -2237,9 +2238,9 @@ public class GpoSeccionController {
                 tiposRepitencia.add((TipoRepitencia) JsonHelper.fromJson(tipoRepitencia.toString(), TipoRepitencia.class));
             }
             service.saveTipoRepitenciaRestriccion(new Seccion(seccionId), tiposRepitencia, ds);
-
+            
             String message = "Tipo repitencia asignada correctamente.";
-
+            
             response.setSuccess(true);
             response.setMessage(message);
         } catch (PhobosException e) {
@@ -2252,7 +2253,7 @@ public class GpoSeccionController {
         }
         return response;
     }
-
+    
     @ResponseBody
     @RequestMapping("saveAula")
     public JsonResponse saveAula(
@@ -2260,19 +2261,19 @@ public class GpoSeccionController {
             @RequestParam(name = "aula", required = false) Long aulaId,
             RedirectAttributes redirectAttr,
             HttpSession session) {
-
+        
         JsonResponse response = new JsonResponse();
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-
+            
             ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
-
+            
             String message = "Aula asignado correctamente.";
             if (aulaId == null) {
                 message = "Aula removida correctamente.";
             }
             service.saveAula(new Seccion(seccionId), new Aula(aulaId), ds);
-
+            
             response.setSuccess(true);
             response.setMessage(message);
         } catch (PhobosException e) {
@@ -2284,7 +2285,7 @@ public class GpoSeccionController {
         }
         return response;
     }
-
+    
     @ResponseBody
     @RequestMapping("aulas")
     public JsonResponse aulas(
@@ -2292,27 +2293,27 @@ public class GpoSeccionController {
             @RequestParam(name = "aula", required = false) Long pabellonId,
             RedirectAttributes redirectAttr,
             HttpSession session) {
-
+        
         JsonResponse response = new JsonResponse();
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-
+            
             Oficina oficinaOERA = service.findOficinaOera();
             List<Oficina> oficinas = oficinaContenida(ds.getOficinas(), oficinaOERA) ? service.allOficinas(ds.getCompania()) : ds.getOficinas();
             List<Aula> oficinasAulasSuperiores = service.allPabellonesByOficinasNoOera(oficinas);
-
+            
             JsonNodeFactory nc = JsonNodeFactory.instance;
             ObjectNode nodeData = new ObjectNode(nc);
             Seccion seccion = service.findSeccion(seccionId);
             Aula aula = seccion.getAula();
-
+            
             ArrayNode argAulas = new ArrayNode(nc);
             List<Aula> aulas = service.allAulasByPabellon(seccion, new Aula(pabellonId), ds.getCicloAcademico());
             for (Aula aulaEach : aulas) {
 //                logger.debug("aula {}, disponible {}, secciones {}", aulaEach.getId(), aulaEach.isDisponible(), aulaEach.getSeccion() == null ? 0 : aulaEach.getSeccion().size());
                 ObjectNode aulaJson = JsonHelper.createJson(aulaEach, nc, true, new String[]{"*"});
                 aulaJson.put("seleccionado", Boolean.FALSE);
-
+                
                 if (aulaEach.getOficinaSupervisora().getId().equals(Constantine.ID_OFICINA_OERA)) {
                     aulaJson.put("tabAula", "oera");
                 } else if (oficinasAulasSuperiores.contains(aulaEach.getAulaSuperior())) {
@@ -2320,7 +2321,7 @@ public class GpoSeccionController {
                 } else {
                     aulaJson.put("tabAula", "especifica");
                 }
-
+                
                 if (aula != null && aula.getId().equals(aulaEach.getId())) {
                     aulaJson.put("seleccionado", Boolean.TRUE);
                     nodeData.putPOJO("aulaSel", aulaJson);
@@ -2333,7 +2334,7 @@ public class GpoSeccionController {
             nodeData.set("aulas", argAulas);
             response.setData(nodeData);
             response.setSuccess(true);
-
+            
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
@@ -2343,7 +2344,7 @@ public class GpoSeccionController {
         }
         return response;
     }
-
+    
     @ResponseBody
     @RequestMapping("seleccionarAula")
     public JsonResponse seleccionarAula(
@@ -2351,16 +2352,16 @@ public class GpoSeccionController {
             @RequestParam(name = "aula", required = false) Long aulaId,
             RedirectAttributes redirectAttr,
             HttpSession session) {
-
+        
         JsonResponse response = new JsonResponse();
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             JsonNodeFactory nc = JsonNodeFactory.instance;
             ObjectNode nodeData = new ObjectNode(nc);
-
+            
             Seccion seccion = service.findSeccion(seccionId);
             Aula aula = service.findAula(aulaId);
-
+            
             ArrayNode arg = new ArrayNode(nc);
             if (seccion.getVacantes() != null) {
                 if (aula.getAforo().intValue() < seccion.getVacantes().intValue()) {
@@ -2380,7 +2381,7 @@ public class GpoSeccionController {
             }
             response.setTotal(arg.size());
             response.setMessage(message);
-
+            
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
@@ -2390,20 +2391,20 @@ public class GpoSeccionController {
         }
         return response;
     }
-
+    
     @ResponseBody
     @RequestMapping("generarpagodocente")
     public JsonResponse generarpagodocente(DocenteSeccion docenteSeccion,
             RedirectAttributes redirectAttr,
             HttpSession session) {
-
+        
         JsonResponse response = new JsonResponse();
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             service.generarpagodocente(docenteSeccion, ds);
             response.setMessage(Messages.UPDATED);
             response.setSuccess(true);
-
+            
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
@@ -2413,31 +2414,31 @@ public class GpoSeccionController {
         }
         return response;
     }
-
+    
     @ResponseBody
     @RequestMapping("allAnexos")
     public JsonResponse allAnexos(@RequestParam("anexoSuperior") String anexoSuperior, HttpSession session) {
         JsonResponse jsonResponse = new JsonResponse();
-
+        
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-
+        
         ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
         List<AnexoBoletin> anexos = service.allAnexosBySuperiorCiclo(anexoSuperior, ds.getCicloAcademico());
-
+        
         for (AnexoBoletin anexo : anexos) {
             ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
             node.put("id", anexo.getId());
             node.put("nombre", anexo.getNombre());
             node.put("superior", anexo.getAnexoSuperior().getNombre());
-
+            
             array.add(node);
         }
-
+        
         jsonResponse.setSuccess(true);
         jsonResponse.setData(array);
         return jsonResponse;
     }
-
+    
     @ResponseBody
     @RequestMapping("{gruposeccion}/clonar/{veces}")
     public JsonResponse clonar(@PathVariable("gruposeccion") Long gruposeccionId, @PathVariable Integer veces, Model model, HttpSession session) {
@@ -2447,7 +2448,7 @@ public class GpoSeccionController {
             List<GrupoSeccion> gps = service.clonar(new GrupoSeccion(gruposeccionId), veces, ds);
             ArrayNode arr = new ArrayNode(JsonNodeFactory.instance);
             String ids = String.join(",", gps.stream().map(x -> x.getId().toString()).collect(Collectors.toList()));
-
+            
             for (GrupoSeccion gp : gps) {
                 arr.add(gp.getId());
             }
@@ -2462,7 +2463,7 @@ public class GpoSeccionController {
             return response;
         }
     }
-
+    
     private ObjectNode createGpoSeccionJson(GrupoSeccion gpoSeccion, String fechaMin, String fechaMax, DataSessionPivot ds) {
         ObjectNode nodeGpoSecc = JsonHelper.createJson(gpoSeccion, JsonNodeFactory.instance, true, new String[]{
             "id", "estado", "estadoEnum", "codigo2", "cursoDirigido",
@@ -2484,11 +2485,11 @@ public class GpoSeccionController {
             "anexoBoletin.anexoSuperior.codigo",
             "anexoBoletin.anexoSuperior.nombre"
         });
-
+        
         nodeGpoSecc.put("tipoDictadoCheck", TipoDictadoGrupoSeccionEnum.MOD.name().equalsIgnoreCase(gpoSeccion.getTipoDictado()));
-
+        
         CursoCicloAcademico cca = service.findCursoCicloAcademico(gpoSeccion.getCurso(), ds.getCicloAcademico());
-
+        
         ArrayNode arraySecciones = new ArrayNode(JsonNodeFactory.instance);
         List<Seccion> secciones = gpoSeccion.getSecciones();
         for (Seccion seccion : secciones) {
@@ -2544,7 +2545,7 @@ public class GpoSeccionController {
                 "cambioAulaGrupos.grupoHorasInicio.codigo",
                 "cambioAulaGrupos.grupoHorasFin.id",
                 "cambioAulaGrupos.grupoHorasFin.codigo"});
-
+            
             BigDecimal porcentajeAvance = BigDecimal.ZERO;
             for (DocenteSeccion docSeccion : seccion.getDocenteSeccion()) {
                 if (docSeccion.getPorcentajeCarga() != null) {
@@ -2555,10 +2556,10 @@ public class GpoSeccionController {
             nodeSecc.put("tipoSeccionEvaluacionValue", seccion.getTipoSeccionEnum().getTipoSeccionEvalEnum().getValue());
             nodeSecc.put("editVacantes", Boolean.FALSE);
             nodeSecc.put("editRestriccionCapa", Boolean.FALSE);
-
+            
             List<DocenteSeccion> docentesSeccion = seccion.getDocenteSeccion();
             ArrayNode arrayProfeSecc = new ArrayNode(JsonNodeFactory.instance);
-
+            
             for (DocenteSeccion docSeccion : docentesSeccion) {
                 ObjectNode nodeProfe = JsonHelper.createJson(docSeccion, JsonNodeFactory.instance, true, new String[]{
                     "*",
@@ -2584,9 +2585,9 @@ public class GpoSeccionController {
                 nodeProfe.put("fechaInicioMin", fechaMin);
                 nodeProfe.put("fechaFinMax", fechaMax);
                 arrayProfeSecc.add(nodeProfe);
-
+                
             }
-
+            
             nodeSecc.set("docenteSeccion", arrayProfeSecc);
             nodeSecc.put("minimoAlumnos", cca.getMinimoAlumnos());
             arraySecciones.add(nodeSecc);
@@ -2594,7 +2595,7 @@ public class GpoSeccionController {
         nodeGpoSecc.set("secciones", arraySecciones);
         return nodeGpoSecc;
     }
-
+    
     private ObjectNode createCicloJson(CicloAcademico ciclo) {
         ObjectNode nodeJson = JsonHelper.createJson(ciclo, JsonNodeFactory.instance, true, new String[]{
             "id", "codigo", "descripcion", "descripcion2", "tipo",
@@ -2603,13 +2604,13 @@ public class GpoSeccionController {
         });
         return nodeJson;
     }
-
+    
     private ObjectNode createNavegationJson(String ruta, List<GrupoSeccion> ids, Long idGpoSeccEdit, CicloAcademico ciclo) {
         ObjectNode nodeJson = new ObjectNode(JsonNodeFactory.instance);
         Integer position = -1;
         Long next = null;
         Long prev = null;
-
+        
         DynatableFilter filter = createFilter(ruta);
         List<GrupoSeccion> gpoSecciones;
         if (ids.size() > 0) {
@@ -2617,19 +2618,19 @@ public class GpoSeccionController {
         } else {
             gpoSecciones = service.allCleanByDynatable(filter, ciclo);
         }
-
+        
         ArrayNode arrayGpoSeccJson = new ArrayNode(JsonNodeFactory.instance);
-
+        
         Integer loop = 0;
         for (GrupoSeccion gpoSecc : gpoSecciones) {
             Long idGpoSecc = gpoSecc.getId();
             ObjectNode nodeGpoSecc = new ObjectNode(JsonNodeFactory.instance);
             arrayGpoSeccJson.add(nodeGpoSecc.put("id", idGpoSecc));
-
+            
             if (position + 1 == loop && position >= 0) {
                 next = idGpoSecc;
             }
-
+            
             if (idGpoSecc.longValue() == idGpoSeccEdit) {
                 position = loop;
             }
@@ -2638,7 +2639,7 @@ public class GpoSeccionController {
             }
             loop++;
         }
-
+        
         nodeJson.set("arrayGpoSecciones", arrayGpoSeccJson);
         nodeJson.put("position", position);
         nodeJson.put("current", idGpoSeccEdit);
@@ -2647,7 +2648,7 @@ public class GpoSeccionController {
         nodeJson.put("origen", ruta);
         return nodeJson;
     }
-
+    
     private String getOrigen(String origen) {
         if (StringUtils.isEmpty(origen)) {
             return "/academico/gposeccion";
@@ -2656,28 +2657,28 @@ public class GpoSeccionController {
         String output = new String(decoded);
         return output;
     }
-
+    
     private DynatableFilter createFilter(String ruta) {
         DynatableFilter filter = new DynatableFilter();
         filter.setPage(1);
         filter.setOffset(0);
         filter.setPerPage(1000000);
-
+        
         try {
             ruta = java.net.URLDecoder.decode(ruta, "UTF-8");
         } catch (UnsupportedEncodingException ex) {
             ex.printStackTrace();
         }
-
+        
         int inicio = ruta.indexOf("?");
         if (inicio < 0) {
             return filter;
         }
-
+        
         String analizar = ruta.substring(inicio + 1);
         String[] tramos = analizar.split("&");
         Map<String, Object> queries = new HashMap();
-
+        
         for (String tramo : tramos) {
             if (tramo.startsWith("queries")) {
                 String[] partes = tramo.split("=");
@@ -2686,18 +2687,18 @@ public class GpoSeccionController {
                 queries.put(key, value);
             }
         }
-
+        
         filter.setQueries(queries);
-
+        
         return filter;
     }
-
+    
     private String getQuerieFilter(String param) {
         String resto = param.substring(0, param.length() - 1);
         resto = resto.substring(8);
         return resto;
     }
-
+    
     private boolean oficinaContenida(List<Oficina> oficinas, Oficina ofi) {
         for (Oficina oficina : oficinas) {
             if (ofi.getId() == oficina.getId().longValue()) {
@@ -2706,7 +2707,7 @@ public class GpoSeccionController {
         }
         return false;
     }
-
+    
     private boolean aulaContenida(List<Aula> aulas, Aula ambiente) {
         if (ambiente == null) {
             return false;
@@ -2718,7 +2719,7 @@ public class GpoSeccionController {
         }
         return false;
     }
-
+    
     private List<GrupoSeccion> obtenerGruposSeccion(String ids) {
         if (StringUtils.isEmpty(ids)) {
             return new ArrayList();
@@ -2732,12 +2733,12 @@ public class GpoSeccionController {
         }
         return gpos;
     }
-
+    
     private ObjectNode createResumenJson(GpoSeccionResumen resumen) {
         ObjectNode nodeJson = JsonHelper.createJson(resumen, JsonNodeFactory.instance, true, new String[]{"*"});
         return nodeJson;
     }
-
+    
     private ArrayNode createOficinasJson(List<Oficina> oficinas) {
         ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
         for (Oficina oficina : oficinas) {
@@ -2748,7 +2749,7 @@ public class GpoSeccionController {
         }
         return array;
     }
-
+    
     @ResponseBody
     @RequestMapping("recrearVacanteAlumno")
     public JsonResponse recrearVacanteAlumno(Model model, HttpSession session) {
@@ -2756,9 +2757,9 @@ public class GpoSeccionController {
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             CicloAcademico ciclo = ds.getCicloAcademico();
-
+            
             service.recrearVacanteAlumno(ciclo, ds);
-
+            
             response.setMessage("Se recreo los VacanteAlumno satisfactoriamente");
             response.setSuccess(true);
         } catch (PhobosException e) {
@@ -2769,7 +2770,7 @@ public class GpoSeccionController {
             return response;
         }
     }
-
+    
     @RequestMapping(method = RequestMethod.GET, value = "/reporteboletin")
     public ModelAndView reporteboletin(Model model, HttpSession session) {
 //        RolExamenes rol = service.find(id);
@@ -2777,11 +2778,11 @@ public class GpoSeccionController {
 
         return new ModelAndView(boletinAcademicoExcelView);
     }
-
+    
     @ResponseBody
     @RequestMapping("eliminarGrupos")
     public JsonResponse eliminarGrupos(@RequestBody List<GrupoSeccion> gruposSeccion, HttpSession session) {
-
+        
         JsonResponse response = new JsonResponse();
         try {
             response.setSuccess(true);
@@ -2789,7 +2790,7 @@ public class GpoSeccionController {
             ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
             service.eliminarGrupos(gruposSeccion, ds);
             response.setMessage("Grupos eliminados.");
-
+            
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
@@ -2797,5 +2798,5 @@ public class GpoSeccionController {
         }
         return response;
     }
-
+    
 }
