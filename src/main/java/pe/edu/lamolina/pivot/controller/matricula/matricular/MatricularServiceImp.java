@@ -91,6 +91,9 @@ public class MatricularServiceImp implements MatricularService {
     @Autowired
     SeccionDAO seccionDAO;
 
+    @Autowired
+    VacanteService vacanteService;
+
     @Override
     public TurnoAtencion findTurnoAtencion(Long turnoAtencion) {
         return turnoAtencionDAO.findById(turnoAtencion);
@@ -214,7 +217,8 @@ public class MatricularServiceImp implements MatricularService {
             Seccion seccion = new Seccion();
             seccion.setId(entry.getKey());
             seccion.setMatriculados(entry.getValue());
-            seccionDAO.updateMatriculados(seccion);
+            vacanteService.enviarSeccion(seccion);
+            //seccionDAO.updateMatriculados(seccion);
             loop++;
             logger.debug("actualizando seccion {} - {} de {}", seccion.getCodigo2(), loop, mapMatriculadosSeccion.entrySet().size());
         }
@@ -227,7 +231,9 @@ public class MatricularServiceImp implements MatricularService {
             if (matri.getCursosMatriculados() == 0) {
                 matri.setEstado(EstadoMatriculaEnum.NMAT.name());
             }
-            matriculaResumenDAO.updateCreditos(matri);
+            vacanteService.enviarMatriculaResuemn(matri);
+            //matriculaResumenDAO.updateCreditos(matri);
+
             loop++;
             logger.debug("actualizando mat-resumen MAT {} - {} de {}", matri.getId(), loop, listMatriculados.size());
         }
@@ -240,7 +246,8 @@ public class MatricularServiceImp implements MatricularService {
         for (MatriculaResumen noMatri : listNoMatriculados) {
             if (noMatri.getCursosMatriculados() == 0) {
                 noMatri.setEstado(EstadoMatriculaEnum.NMAT.name());
-                matriculaResumenDAO.updateCreditos(noMatri);
+                //matriculaResumenDAO.updateCreditos(noMatri);
+                vacanteService.enviarMatriculaResuemn(noMatri);
             }
             loop++;
             logger.debug("actualizando mat-resumen NMAT {} - {} de {}", noMatri.getId(), loop, listNoMatriculados.size());
@@ -358,7 +365,8 @@ public class MatricularServiceImp implements MatricularService {
             matriculaCursoDAO.update(mcModi);
             List<MatriculaSeccion> matSeccs = mcModi.getMatriculaSeccion();
             for (MatriculaSeccion matSecc : matSeccs) {
-                matriculaSeccionDAO.update(matSecc);
+                vacanteService.enviarMatriculaSeccion23(matSecc);
+                //matriculaSeccionDAO.update(matSecc);
             }
         }
 
@@ -369,19 +377,24 @@ public class MatricularServiceImp implements MatricularService {
             }
             List<MatriculaCurso> matriculaCursoSim = TypesUtil.getListNotNull(mapMatResumenSim.get(resumene.getId()));
             for (MatriculaCurso matriculaCurso : matriculaCursoSim) {
-                matriculaCursoDAO.update(matriculaCurso);
+                vacanteService.enviarMatriculaCurso23(matriculaCurso);
+                //matriculaCursoDAO.update(matriculaCurso);
             }
-            matriculaResumenDAO.update(resumene);
+            //matriculaResumenDAO.update(resumene);
+            vacanteService.enviarMatriculaResumen23(resumene);
         }
 
         if (!vacantesAlumnoTemp.isEmpty()) {
-            vacanteAlumnoDAO.updateEstado(vacantesAlumnoTemp);
+            //vacanteAlumnoDAO.updateEstado(vacantesAlumnoTemp);
+            vacanteService.enviarVacanteAlumno(vacantesAlumnoTemp);
         }
         if (!matriculaSeccionMatTemp.isEmpty()) {
-            matriculaSeccionDAO.updateEstado(matriculaSeccionMatTemp, MAT);
+            //matriculaSeccionDAO.updateEstado(matriculaSeccionMatTemp, MAT);
+            vacanteService.enviarMatSeccionEstado(matriculaSeccionMatTemp);
         }
         if (!matriculaSeccionNvacTemp.isEmpty()) {
-            matriculaSeccionDAO.updateEstado(matriculaSeccionNvacTemp, NVAC);
+            //matriculaSeccionDAO.updateEstado(matriculaSeccionNvacTemp, NVAC);
+            vacanteService.enviarMatSeccionEstadoNVAC(matriculaSeccionNvacTemp);
         }
 
     }
