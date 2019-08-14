@@ -983,6 +983,7 @@ public class AlumnoServiceImp implements AlumnoService {
         alumnoCursoCurricula.setNumeroCiclo(10);
         alumnoCursoCurricula.setVecesCursado(alumnoCicloCursoDAO.countByCursoAlumno(cursOpcional.getCurso(), alumno).intValue());
         alumnoCursoCurricula.setEstadoEnum(CursoCurriculaEstadoEnum.HAB);
+        alumnoCursoCurricula.setEstadoRegistro("ACT");
         alumnoCursoCurriculaDAO.save(alumnoCursoCurricula);
         
     }
