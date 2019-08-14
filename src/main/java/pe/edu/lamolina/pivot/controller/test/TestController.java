@@ -26,6 +26,7 @@ import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 import pe.edu.lamolina.pivot.controller.academico.calculonotas.CalculoNotasService;
 import pe.edu.lamolina.pivot.controller.academico.promedio.ContadorComponent;
 import pe.edu.lamolina.pivot.controller.academico.promedio.PromedioService;
+import pe.edu.lamolina.pivot.controller.deuda.DeudaService;
 import pe.edu.lamolina.pivot.controller.docente.notasacademicas.NotaAcademicaService;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloCursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloDAO;
@@ -109,6 +110,9 @@ public class TestController {
 
     @Autowired
     TestService service;
+
+    @Autowired
+    DeudaService deudaService;
 
     @ResponseBody
     @RequestMapping("crearEvaluacionByExp")
@@ -362,6 +366,16 @@ public class TestController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         ds.setFechaAccionAudit(new Date());
         service.trasladarMatriculaCursoForPromediosAlumno(ds, alumnoId);
+        return "yeah";
+    }
+
+   // http://localhost:9000/test/cleandeudass
+    @ResponseBody
+    @RequestMapping("cleandeudass")
+    public String cleanDeudas(HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        ds.setFechaAccionAudit(new Date());
+        deudaService.cleanDeudas(ds);
         return "yeah";
     }
 

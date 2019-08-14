@@ -13,5 +13,7 @@ public interface DeudaAlumnoDAO extends EasyDAO<DeudaAlumno> {
 
     DeudaAlumno allByAlumnoCicloAndCuenta(Alumno alumno, CicloAcademico ciclo, CuentaBancaria bancaria);
 
-    public List<DeudaAlumno> allByCiclo(CicloAcademico cicloAcademico);
+    List<DeudaAlumno> allByCiclo(CicloAcademico cicloAcademico);
+
+    List<DeudaAlumno> allById(List<DeudaAlumno> ids);
 }

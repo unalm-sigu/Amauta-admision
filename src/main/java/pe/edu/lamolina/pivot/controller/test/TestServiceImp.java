@@ -569,7 +569,7 @@ public class TestServiceImp implements TestService {
         }
         return lista;
     }
-    
+
     @Transactional
     private void trasladarMatriculaCursoForPromediosAlumnoTest(CicloAcademico cicloAcademico,
             RetiroCiclo retiroCiclo,
@@ -615,15 +615,15 @@ public class TestServiceImp implements TestService {
                 if (mapRetiroCurso.get(keys) != null) {
                     if (RCU != matriculaSeccion.getEstadoEnum()) {
 
-                    matriculaSeccion.setEstadoEnum(EstadoMatriculaEnum.RCU);
-                    matriculaSeccionDAO.update(matriculaSeccion);
+                        matriculaSeccion.setEstadoEnum(EstadoMatriculaEnum.RCU);
+                        matriculaSeccionDAO.update(matriculaSeccion);
                     }
                 }
 
                 if (mapRetiroCurso.get(keys) != null) {
                     if (RCU != matriculaCurso.getEstadoEnum()) {
-                    matriculaCurso.setEstadoEnum(EstadoMatriculaEnum.RCU);
-                    matriculaCursoDAO.updateColumns(matriculaCurso, "estado");
+                        matriculaCurso.setEstadoEnum(EstadoMatriculaEnum.RCU);
+                        matriculaCursoDAO.updateColumns(matriculaCurso, "estado");
                     }
                 }
             }

@@ -11,3 +11,4 @@ replay_pid[0-9].log
 dump[a-z].log/
 .idea/
 *.iml
+lamolina-pivot.log
