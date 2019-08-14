@@ -12,6 +12,7 @@ new Vue({
     },
     methods: {
         habilitar(item) {
+            let $vue = this;
             var data = {id: item.id};
             $.ajax({
                 method: 'POST',
