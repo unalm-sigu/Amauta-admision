@@ -7,7 +7,6 @@ import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.CursoCurricula;
-import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.matricula.AlumnoCursoCurricula;
 
 public interface AlumnoCursoCurriculaDAO extends EasyDAO<AlumnoCursoCurricula> {
@@ -43,4 +42,6 @@ public interface AlumnoCursoCurriculaDAO extends EasyDAO<AlumnoCursoCurricula> {
     List<AlumnoCursoCurricula> allByAlumnoAndModalidad(Alumno alumno, DynatableFilter filter);
 
     List<AlumnoCursoCurricula> all(Alumno alumno);
+
+    List<AlumnoCursoCurricula> allDynaTable(Alumno alumno, DynatableFilter filter);
 }

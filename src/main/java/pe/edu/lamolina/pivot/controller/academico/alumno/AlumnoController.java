@@ -1,5 +1,6 @@
 package pe.edu.lamolina.pivot.controller.academico.alumno;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -42,6 +43,7 @@ import pe.edu.lamolina.model.academico.CursoCicloAcademico;
 import pe.edu.lamolina.model.academico.CursoConvalidado;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.enums.AmbienteAplicacionEnum;
+import pe.edu.lamolina.model.enums.CursoCurriculaEstadoEnum;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.EPG;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.PRE;
 import pe.edu.lamolina.model.enums.ParametrosSistemasEnum;
@@ -173,6 +175,34 @@ public class AlumnoController {
         return json;
     }
 
+    @ResponseBody
+    @RequestMapping("listCursosHabiles/{alumno}")
+    public DynatableResponse listCursosHabiles(@PathVariable("alumno") Long idAlumno, DynatableFilter filter, HttpSession session, HttpServletRequest request) {
+
+        DynatableResponse json = new DynatableResponse();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+        try {
+            ArrayNode arrayNode = new ArrayNode(JsonNodeFactory.instance);
+            List<AlumnoCursoCurricula> alumnoCursoCur = service.allAlumnoCursoByalumno(new Alumno(idAlumno), filter);
+            for (AlumnoCursoCurricula alumnoCursoCurricula : alumnoCursoCur) {
+
+                arrayNode.add(JsonHelper.createJson(alumnoCursoCurricula, JsonNodeFactory.instance, new String[]{"*",
+                    "curso.*",
+                    "tipoCursoCurricula.*"}));
+            }
+
+            json.setData(arrayNode);
+            json.setTotal(filter.getTotal());
+            json.setFiltered(filter.getFiltered());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            json.setTotal(0);
+        }
+        return json;
+    }
+
     @RequestMapping("especial")
     public String alumnoEspecial(Model model, HttpSession session) {
 
@@ -285,6 +315,54 @@ public class AlumnoController {
         model.addAttribute("helper", new AlumnoHelper());
         model.addAttribute("carreras", new AlumnoHelper());
         return "academico/alumno/fisico/alumnoFisico";
+    }
+
+    @RequestMapping("habilitarCursosHabiles/{alumno}")
+    public String habilitarCursosHabiles(@PathVariable("alumno") Long idAlumno, Model model, HttpSession session) {
+        Alumno alumno = new Alumno(idAlumno);
+        model.addAttribute("alumno", JsonHelper.createJson(alumno, JsonNodeFactory.instance, new String[]{"*"}));
+        return "academico/cursoshabiles/cursoshabiles";
+    }
+
+    @ResponseBody
+    @RequestMapping("habilitar")
+    public JsonResponse habilitarCursosHabiles(@RequestBody AlumnoCursoCurricula alumnoCursoCurricula, Model model, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+
+            ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+            service.habilitarAlumnoCursoCurricula(alumnoCursoCurricula, ds.getUsuario());
+
+            response.setMessage("Registro Actualizado");
+            response.setSuccess(true);
+            response.setData(node);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("noCumpleRequisito")
+    public JsonResponse noCumpleRequisito(@RequestBody AlumnoCursoCurricula alumnoCursoCurricula, Model model, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+
+            ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+            service.deshabilitarAlumnoCursoCurricula(alumnoCursoCurricula, ds.getUsuario());
+            response.setMessage("Registro Actualizado");
+            response.setSuccess(true);
+            response.setData(node);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        }
+        return response;
     }
 
     @RequestMapping("{idAlumno}/fisicoupdate")

@@ -944,4 +944,25 @@ public class AlumnoServiceImp implements AlumnoService {
         return token;
     }
 
+    @Override
+    public List<AlumnoCursoCurricula> allAlumnoCursoByalumno(Alumno alumno, DynatableFilter filter) {
+
+        return alumnoCursoCurriculaDAO.allDynaTable(alumno, filter);
+    }
+
+    @Transactional
+    @Override
+    public void habilitarAlumnoCursoCurricula(AlumnoCursoCurricula alumnoCursoCurricula, Usuario usuario) {
+        alumnoCursoCurricula.setEstadoEnum(CursoCurriculaEstadoEnum.HAB);
+        alumnoCursoCurriculaDAO.updateEstado(alumnoCursoCurricula);
+
+    }
+
+    @Transactional
+    @Override
+    public void deshabilitarAlumnoCursoCurricula(AlumnoCursoCurricula alumnoCursoCurricula, Usuario usuario) {
+        alumnoCursoCurricula.setEstadoEnum(CursoCurriculaEstadoEnum.NREQ);
+        alumnoCursoCurriculaDAO.updateEstado(alumnoCursoCurricula);
+
+    }
 }

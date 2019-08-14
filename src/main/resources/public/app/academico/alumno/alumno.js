@@ -172,6 +172,9 @@ new Vue({
                 $vue.$refs.load.changeUrl('queries[moe.codigo]', null);
                 $vue.$refs.load.loadRemoteData();
             }
+        },
+        modalAsignarAvance(item) {
+            return APP.url('academico/alumno/habilitarCursosHabiles/' + item.id);
         }
     }
 });

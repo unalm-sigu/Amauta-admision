@@ -21,6 +21,8 @@ import pe.edu.lamolina.model.tramite.TramiteTraslado;
 
 public interface AlumnoService {
 
+    void deshabilitarAlumnoCursoCurricula(AlumnoCursoCurricula alumnoCursoCurricula, Usuario usuario);
+
     List<Alumno> allAlumnosByCicloDynatable(DynatableFilter filter, List<Carrera> carreras);
 
     List<Alumno> allAlumnosbyDynatable(DynatableFilter filter, List<Carrera> facultades);
@@ -80,5 +82,9 @@ public interface AlumnoService {
     Usuario findUsuarioByPersona(Persona persona);
 
     TokenIngresante goMaipi(Long idAlumno, Usuario usuario);
+
+    public List<AlumnoCursoCurricula> allAlumnoCursoByalumno(Alumno alumno, DynatableFilter filter);
+
+    public void habilitarAlumnoCursoCurricula(AlumnoCursoCurricula alumnoCursoCurricula, Usuario usuario);
 
 }
