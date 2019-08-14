@@ -69,4 +69,13 @@ public class DeudaAlumnoDAOH extends AbstractEasyDAO<DeudaAlumno> implements Deu
                 .filter("estado", DeudaEstadoEnum.DEU);
         return all(sql);
     }
+
+    @Override
+    public List<DeudaAlumno> allById(List<DeudaAlumno> ids) {
+        Octavia sql = Octavia.query()
+                .from(DeudaAlumno.class, "da")
+                .join("alumno alu", "cuentaBancaria")
+                .in("da.id", ids);
+        return all(sql);
+    }
 }

@@ -10,6 +10,7 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.aporte.AporteAlumnoCiclo;
 import static pe.edu.lamolina.model.enums.AportesEnum.A05;
 import pe.edu.lamolina.model.enums.EstadoAporteEnum;
+import pe.edu.lamolina.model.finanzas.DeudaAlumno;
 import pe.edu.lamolina.pivot.dao.aporte.AporteAlumnoCicloDAO;
 
 @Repository
@@ -45,6 +46,16 @@ public class AporteAlumnoCicloDAOH extends AbstractEasyDAO<AporteAlumnoCiclo> im
                 .filter("apo.codigo", A05.name().substring(1))
                 .in("aac.estado", Arrays.asList(EstadoAporteEnum.DEBE, EstadoAporteEnum.PAGO))
                 .orderBy("aac.numeroCuota", "apo.nombre");
+        return all(sql);
+    }
+
+    @Override
+    public List<AporteAlumnoCiclo> allByDeudasAlumno(List<DeudaAlumno> deudasAlumnos) {
+        Octavia sql = Octavia.query()
+                .from(AporteAlumnoCiclo.class, "aac")
+                .join("aporteCiclo ac", "ac.aporte apo", "ac.cicloAcademico ca")
+                .join("deudaAlumno da")
+                .in("da.id", deudasAlumnos);
         return all(sql);
     }
 
