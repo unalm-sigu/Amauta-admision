@@ -138,13 +138,14 @@
                                                     <div class="actions">
                                                         <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="glyphicon glyphicon-cog"></i></a>
                                                         <ul class="dropdown-menu pull-right">
+                                                            <li><a v-bind:href="urlGoMaipi(item)" target="_blank">Ir a MAIPI</a></li>
+                                                            <li role="separator" class="divider"></li>
                                                             <li><a v-bind:href="urlDataPersonal(item)">Modificar datos</a></li>
                                                             <li><a v-bind:href="urlAcademico(item)">Información académica</a></li>
                                                             <li><a v-bind:href="urlMatricula(item)">Matricula</a></li>
                                                             <li><a v-if='isPosgrado(item.modalidadEstudio)' v-bind:href="urlConfigCursos(item)">Configurar Curso</a></li>
                                                             <li><a v-on:click="urlConvalidarTraslado(item)">Convalidar Traslado Externo</a></li>
                                                             <li><a v-on:click="asignarAccesoEspecial(item)">Asignar código especial</a></li>
-                                                            <li><a v-bind:href="urlGoMaipi(item)" target="_blank">Ir a MAIPI</a></li>
                                                             <li><a v-bind:href="modalAsignarAvance(item)" target="_blank">Agregar Cursos</a></li>
                                                         </ul>
                                                     </div>
