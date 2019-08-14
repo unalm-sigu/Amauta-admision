@@ -209,37 +209,47 @@ public class MatricularServiceImp implements MatricularService {
         logger.debug("procesarData EEP en {} mseg", (t2 - t1));
 
         t1 = System.currentTimeMillis();
+        int loop = 0;
         for (Map.Entry<Long, Integer> entry : mapMatriculadosSeccion.entrySet()) {
             Seccion seccion = new Seccion();
             seccion.setId(entry.getKey());
             seccion.setMatriculados(entry.getValue());
             seccionDAO.updateMatriculados(seccion);
+            loop++;
+            logger.debug("actualizando seccion {} - {} de {}", seccion.getCodigo2(), loop, mapMatriculadosSeccion.entrySet().size());
         }
         t2 = System.currentTimeMillis();
         logger.debug("seccionDAO.updateMatriculados en {} mseg", (t2 - t1));
 
         t1 = System.currentTimeMillis();
+        loop = 0;
         for (MatriculaResumen matri : listMatriculados) {
             if (matri.getCursosMatriculados() == 0) {
                 matri.setEstado(EstadoMatriculaEnum.NMAT.name());
             }
             matriculaResumenDAO.updateCreditos(matri);
+            loop++;
+            logger.debug("actualizando mat-resumen MAT {} - {} de {}", matri.getId(), loop, listMatriculados.size());
         }
         t2 = System.currentTimeMillis();
         logger.debug("matriculaResumenDAO.updateCreditos en {} mseg", (t2 - t1));
 
         t1 = System.currentTimeMillis();
+        loop = 0;
         listNoMatriculados = listNoMatriculados.stream().distinct().collect(Collectors.toList());
         for (MatriculaResumen noMatri : listNoMatriculados) {
             if (noMatri.getCursosMatriculados() == 0) {
                 noMatri.setEstado(EstadoMatriculaEnum.NMAT.name());
                 matriculaResumenDAO.updateCreditos(noMatri);
             }
+            loop++;
+            logger.debug("actualizando mat-resumen NMAT {} - {} de {}", noMatri.getId(), loop, listNoMatriculados.size());
         }
         t2 = System.currentTimeMillis();
         logger.debug("matriculaResumenDAO.updateCreditos en {} mseg", (t2 - t1));
 
         t1 = System.currentTimeMillis();
+        loop = 0;
         TurnoAtencion lastTurnoAtencionByConfig = turnoAtencionDAO.findLastByConfiguracion(turnoAtencion.getConfiguracionTurnosAtencion());
         if (lastTurnoAtencionByConfig.getId().compareTo(turnoAtencion.getId()) == 0) {
             logger.debug("Este turno es el ultimo de su configuracion");
