@@ -1,8 +1,11 @@
+Vue.component("multiselect", window.VueMultiselect.default);
 new Vue({
     el: '#alumnosVUE',
     data: {
         alumnosURL: APP.url('academico/alumno/listCursosHabiles/'),
-        alumno: JSON.parse(alumnoJson)
+        alumno: JSON.parse(alumnoJson),
+        cursoscurriculas: JSON.parse(cursosElectivosJson),
+        cursocurricula: {}
     },
     mounted: function () {
         let $vue = this;
@@ -27,6 +30,13 @@ new Vue({
                 }
             });
         },
+        customlabel( { curso }){
+            if (curso == null) {
+                return;
+            }
+            return `${curso.nombre}`;
+
+        },
         noCumpleRequisitos(item) {
             let $vue = this;
             var data = {id: item.id};
@@ -39,6 +49,23 @@ new Vue({
                     if (response.success) {
                         $vue.$refs.load.loadRemoteData();
                         notify(response.message, "success")
+                    }
+                }
+            });
+        }, agregar() {
+            let $vue = this;
+            if ($vue.cursocurricula.id == null) {
+                return;
+            }
+            $.ajax({
+                method: 'POST',
+                url: APP.url('academico/alumno/agregarElectivo/' + $vue.alumno.id),
+                contentType: "application/json",
+                data: JSON.stringify($vue.cursocurricula),
+                success: function (response) {
+                    if (response.success) {
+                        $vue.$refs.load.loadRemoteData();
+                        notify(response.message, "success");
                     }
                 }
             });

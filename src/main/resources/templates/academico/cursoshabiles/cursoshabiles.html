@@ -11,6 +11,27 @@
                     <h2>Cursos</h2>
                 </header>
                 <section class="panel">
+                    <div class="form-group col-md-6">
+                        <label>Curso Electivo</label>
+                        <multiselect v-model='cursocurricula'
+                                     v-bind:options='cursoscurriculas'
+                                     v-bind:allow-empty="false"
+                                     placeholder="Ingresa un caracter como mínimo"
+                                     deselect-label=""
+                                     :custom-label="customlabel"
+                                     track-by="id"
+                                     :internal-search="true"
+                                     select-label="Seleccione un curso">
+                            <template slot="option" slot-scope="props">
+                                <span class="block bold" v-text="props.option.curso.nombre"></span>
+                                <small class="block" v-text=" props.option.curso.codigo"></small>
+                            </template>
+                        </multiselect>
+                        <input type="text" required="" class="hide" v-model="cursocurricula.id" data-trigger="change"/>
+                    </div>
+                    <div >
+                        <a class="btn btn-primary m-t-lg" v-on:click="agregar"> Agregar</a>
+                    </div>
                     <section class="panel-body">
                         <div class="col-md-12">
                             <raptor-table v-bind:url="alumnosURL" v-bind:preload="false" ref="load">
@@ -72,6 +93,7 @@
             <script th:inline="javascript">
                 /*<![CDATA[*/
                 var alumnoJson = /*[[${alumno.toString()}]]*/ 'json';
+                var cursosElectivosJson = /*[[${cursosElectivos.toString()}]]*/ 'json';
                 /*]]>*/
             </script>
             <div th:substituteby="_modules/vue-raptor-table"></div>

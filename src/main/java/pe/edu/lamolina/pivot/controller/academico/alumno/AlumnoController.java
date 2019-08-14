@@ -1,6 +1,5 @@
 package pe.edu.lamolina.pivot.controller.academico.alumno;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -41,13 +40,12 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.CursoCicloAcademico;
 import pe.edu.lamolina.model.academico.CursoConvalidado;
+import pe.edu.lamolina.model.academico.CursoOpcionalCurricula;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.enums.AmbienteAplicacionEnum;
-import pe.edu.lamolina.model.enums.CursoCurriculaEstadoEnum;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.EPG;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.PRE;
 import pe.edu.lamolina.model.enums.ParametrosSistemasEnum;
-import pe.edu.lamolina.model.enums.RutaInicioEnum;
 import pe.edu.lamolina.model.enums.TipoOficinaEnum;
 import pe.edu.lamolina.model.general.Parametro;
 import pe.edu.lamolina.model.general.Persona;
@@ -57,9 +55,7 @@ import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.tramite.TramiteTraslado;
 import pe.edu.lamolina.pivot.config.DespliegueConfig;
 import pe.edu.lamolina.pivot.controller.academico.avancecurricular.AvanceCurricularService;
-import pe.edu.lamolina.pivot.controller.academico.infoacademico.InfoAcademicoService;
 import pe.edu.lamolina.pivot.controller.academico.visitante.AlumnoHelper;
-import pe.edu.lamolina.pivot.controller.matricula.matriculable.MatriculableService;
 import pe.edu.lamolina.pivot.controller.seguridad.verificador.VerificadorService;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -320,6 +316,15 @@ public class AlumnoController {
     @RequestMapping("habilitarCursosHabiles/{alumno}")
     public String habilitarCursosHabiles(@PathVariable("alumno") Long idAlumno, Model model, HttpSession session) {
         Alumno alumno = new Alumno(idAlumno);
+        List<CursoOpcionalCurricula> cursos = service.allcursosOpcional(idAlumno);
+        ArrayNode arrayNode = new ArrayNode(JsonNodeFactory.instance);
+        for (CursoOpcionalCurricula curso : cursos) {
+            arrayNode.add(JsonHelper.createJson(curso, JsonNodeFactory.instance, new String[]{"*",
+                "curso.*",
+                "tipoCursoCurricula.*"}));
+        }
+
+        model.addAttribute("cursosElectivos", arrayNode);
         model.addAttribute("alumno", JsonHelper.createJson(alumno, JsonNodeFactory.instance, new String[]{"*"}));
         return "academico/cursoshabiles/cursoshabiles";
     }
@@ -334,6 +339,27 @@ public class AlumnoController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
             service.habilitarAlumnoCursoCurricula(alumnoCursoCurricula, ds.getUsuario());
+
+            response.setMessage("Registro Actualizado");
+            response.setSuccess(true);
+            response.setData(node);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("agregarElectivo/{alumno}")
+    public JsonResponse habilitarCursosHabiles(@PathVariable("alumno") Long idAlumno, @RequestBody CursoOpcionalCurricula cursoOpcional, Model model, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+
+            ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+            service.agregarAlumnoCursoCurricula(cursoOpcional, new Alumno(idAlumno));
 
             response.setMessage("Registro Actualizado");
             response.setSuccess(true);

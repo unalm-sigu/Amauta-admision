@@ -8,6 +8,7 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.CursoCicloAcademico;
 import pe.edu.lamolina.model.academico.CursoConvalidado;
+import pe.edu.lamolina.model.academico.CursoOpcionalCurricula;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.SituacionAcademica;
 import pe.edu.lamolina.model.enums.ParametrosSistemasEnum;
@@ -21,7 +22,7 @@ import pe.edu.lamolina.model.tramite.TramiteTraslado;
 
 public interface AlumnoService {
 
-    void deshabilitarAlumnoCursoCurricula(AlumnoCursoCurricula alumnoCursoCurricula, Usuario usuario);
+    void deshabilitarAlumnoCursoCurricula(AlumnoCursoCurricula alumnoCursoCu, Usuario usuario);
 
     List<Alumno> allAlumnosByCicloDynatable(DynatableFilter filter, List<Carrera> carreras);
 
@@ -86,5 +87,9 @@ public interface AlumnoService {
     public List<AlumnoCursoCurricula> allAlumnoCursoByalumno(Alumno alumno, DynatableFilter filter);
 
     public void habilitarAlumnoCursoCurricula(AlumnoCursoCurricula alumnoCursoCurricula, Usuario usuario);
+
+    public List<CursoOpcionalCurricula> allcursosOpcional(Long idAlumno);
+
+    public void agregarAlumnoCursoCurricula(CursoOpcionalCurricula cursoOpcional, Alumno alumno);
 
 }
