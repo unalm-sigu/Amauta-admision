@@ -726,12 +726,12 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
     }
 
     private void validarCreditosAprobados(
-            Map<Long, CursoCurricula> mapCursosCurricula,
+            CursoCurricula cursoCurri,
             AlumnoCursoCurricula cursoCurriAlu,
             int creditosAprobados, int creditosCurriculaAprobados) {
 
         Long idCursoCurri = cursoCurriAlu.getCursoCurricula().getId();
-        CursoCurricula cursoCurri = mapCursosCurricula.get(idCursoCurri);
+//        CursoCurricula cursoCurri = mapCursosCurricula.get(idCursoCurri);
 
         Integer creditosAprobadosRequisito = fillInteger(cursoCurri.getCreditosRequisito(), 0);
         Integer credidosCurriculaRequisito = fillInteger(cursoCurri.getCreditosCurriculaRequisito(), 0);
@@ -922,7 +922,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
                 }
                 evaluado.setValidado(true);
             }
-//            validarCreditosAprobados(evaluado, evaluado, 0, 0);
+            validarCreditosAprobados(evaluado.getCursoCurricula(), evaluado, alumno.getCreditosCarreraAprobados(), 0);
         }
 
     }

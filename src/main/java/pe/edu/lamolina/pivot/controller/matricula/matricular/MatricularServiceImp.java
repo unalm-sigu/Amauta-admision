@@ -120,9 +120,9 @@ public class MatricularServiceImp implements MatricularService {
                 new DateTime(turnoAtencion.getFechaHoraFin()).toString("dd/MM/yyyy HH:mm")
         );
         
-        if (!beetwen) {
-            throw new PhobosException("No está dentro del horario de matrícula");
-        }
+//        if (!beetwen) {
+//            throw new PhobosException("No está dentro del horario de matrícula");
+//        }
         List<MatriculaResumen> resumenes = matriculaResumenDAO.allByCicloMat(cicloAcademico);
         List<MatriculaCurso> matriculaCursosNoSim = matriculaCursoDAO.allByMatriculaResumenes(resumenes);
         List<Curso> cursosNoSim = matriculaCursosNoSim.stream().map(x -> x.getCurso()).distinct().collect(Collectors.toList());
