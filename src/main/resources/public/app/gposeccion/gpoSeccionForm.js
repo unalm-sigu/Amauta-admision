@@ -47,14 +47,14 @@ var app = new Vue({
             showaccept: true,
             modalsize: 'modal-lg'
         },
-        aulaModal: {
+        aulaModal: VUE_MODAL.structFormAjax({
             id: 'modalAula',
             header: true,
             title: 'Buscar Aula/Ambiente Disponible',
             okbtn: 'Aceptar',
             showaccept: true,
             modalsize: 'modal-lg'
-        },
+        }),
         aulaHorarioModal: {
             id: 'modalAulaHorario',
             header: true,
@@ -62,22 +62,22 @@ var app = new Vue({
             okbtn: 'Aceptar',
             modalsize: 'modal-lg'
         },
-        restriccionModal: {
+        restriccionModal: VUE_MODAL.structFormAjax({
             id: 'modalRestriccion',
             header: true,
             title: 'Restricciones Modalidad / Facultad / Especialidad',
             okbtn: 'Aceptar',
             showaccept: true,
             modalsize: 'modal-lg'
-        },
-        tipoRepitenciaModal: {
+        }),
+        tipoRepitenciaModal: VUE_MODAL.structFormAjax({
             id: 'modalTipoRepitencia',
             header: true,
             title: 'Aplicar restricción repitencia / retirados / ingresantes',
             okbtn: 'Aceptar',
             showaccept: true,
             modalsize: 'modal-lg'
-        },
+        }),
         fecha: null,
         minFechaPeriodo: null,
         maxFechaPeriodo: null,
@@ -98,14 +98,14 @@ var app = new Vue({
             showaccept: true,
             modalsize: 'modal-md'
         },
-        enviarCambioAulaGrupoModal: {
+        enviarCambioAulaGrupoModal: VUE_MODAL.structFormAjax({
             id: 'modalEnviarCambioAulaGrupo',
             header: true,
             title: 'Cambio Aula / Grupo',
             okbtn: 'Solicitar',
             showaccept: true,
             modalsize: 'modal-lg'
-        },
+        }),
         cambioaulagrupos: [],
         changeAulaGpo: {
             oficina: {},
@@ -204,8 +204,8 @@ var app = new Vue({
         this.oficinas = JSON.parse(oficinasJson);
         this.loadDataPantalla();
         this.departamento = this.grupoSeccion.curso.departamentoAcademico;
-        
-        console.log( this.grupoSeccion);
+
+        console.log(this.grupoSeccion);
     },
     mounted: function () {
         let $vue = this;
