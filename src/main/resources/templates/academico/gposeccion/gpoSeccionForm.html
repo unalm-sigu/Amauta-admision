@@ -264,10 +264,9 @@
                                                         </small>
                                                     </div>
                                                 </div>
-
+                                                <!-- v-on:keyup.enter="directEditAula(seccion,$event)" -->
                                                 <input v-if="directEditSecciones &amp;&amp; seccion.matriculados == 0"
                                                        v-on:blur="directEditAula(seccion,$event)"
-                                                       v-on:keyup.enter="directEditAula(seccion,$event)"
                                                        v-bind:value="seccion.aula!=null ? seccion.aula.codigo : ''"
                                                        class="form-control"/>
                                             </td>
@@ -298,10 +297,11 @@
                                                     </span>
 
                                                 </small>
-
+                                                <!--
+                                                       v-on:keyup.enter="directEditGrupoHor(seccion,$event)"
+                                                -->
                                                 <input v-if="directEditSecciones &amp;&amp; seccion.matriculados == 0"
                                                        v-on:blur="directEditGrupoHor(seccion,$event)"
-                                                       v-on:keyup.enter="directEditGrupoHor(seccion,$event)"
                                                        v-bind:value="seccion.grupoHoras.id!=null ? seccion.grupoHoras.codigo : ''"
                                                        v-on:input="upper($event)"
                                                        class="form-control"/>

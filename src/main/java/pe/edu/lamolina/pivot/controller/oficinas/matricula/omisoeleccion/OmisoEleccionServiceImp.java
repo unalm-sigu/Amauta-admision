@@ -278,7 +278,7 @@ public class OmisoEleccionServiceImp implements OmisoEleccionService {
                 acreencia.setProcesoActualizacionEnum(ProcesoMethodEnum.ANU_OMI);
                 acreenciaDAO.update(acreencia);
 
-                if (deudaAlumno.getMonto().compareTo(BigDecimal.ZERO) > 1) {
+                if (deudaAlumno.getMonto().compareTo(BigDecimal.ZERO) > 0) {
                     Acreencia acreenciaNew = new Acreencia();
                     acreenciaNew.setDeudaAlumno(deudaAlumno);
                     acreenciaNew.setOficina(new Oficina(OficinaEnum.OBUAE.getId()));

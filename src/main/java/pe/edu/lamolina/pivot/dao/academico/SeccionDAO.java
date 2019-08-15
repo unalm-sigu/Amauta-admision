@@ -121,4 +121,6 @@ public interface SeccionDAO extends EasyDAO<Seccion> {
 
     List<Seccion> allByGrupoSecciones(List<GrupoSeccion> gruposSeccion);
 
+    List<Seccion> allConCruce(CicloAcademico cicloAcademico);
+
 }

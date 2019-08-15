@@ -12,3 +12,4 @@ dump[a-z].log/
 .idea/
 *.iml
 lamolina-pivot.log
+lamolina-pivot.log.*

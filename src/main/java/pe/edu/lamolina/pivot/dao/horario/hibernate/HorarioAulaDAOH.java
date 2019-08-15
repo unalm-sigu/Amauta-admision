@@ -227,6 +227,19 @@ public class HorarioAulaDAOH extends AbstractEasyDAO<HorarioAula> implements Hor
     }
 
     @Override
+    public List<HorarioAula> allBySeccionesSortByDiaHora(List<Seccion> seccions, CicloAcademico cicloOrigen) {
+        Octavia sql = Octavia.query()
+                .from(HorarioAula.class, "ha")
+                .join("dia d", "hora h", "aula au", "seccion sec")
+                .join("sec.grupoSeccion gs", "gs.cicloAcademico ca")
+                .in("sec.id", seccions)
+                .filter("ca.id", cicloOrigen)
+                .orderBy("d.numeroDia", "h.numero");
+
+        return all(sql);
+    }
+
+    @Override
     public List<HorarioAula> allBySeccion(Seccion seccion) {
 
         Octavia sql = Octavia.query()
@@ -263,13 +276,16 @@ public class HorarioAulaDAOH extends AbstractEasyDAO<HorarioAula> implements Hor
 
     @Override
     public List<HorarioAula> allRangoDiaByDiasHoras(List<String> diashoras, Date fechainicio, Date fechafin) {
+        List<String> diasHorasFinal = diashoras.stream()
+                .map(x -> x.replace("_", "-"))
+                .collect(Collectors.toList());
         Octavia sql = Octavia.query()
                 .from(HorarioAula.class, "ha")
                 .join("dia d", "hora h", "aula au")
                 .leftJoin("au.aulaSuperior aus", "aus.tipoAula tip")
                 .filter("tip.codigo", TipoAulaEnum.MOD)
                 .filter("au.estado", EstadoEnum.ACT)
-                .complexFilter("concat(d.id,'-',h.id)", "in", diashoras)
+                .complexFilter("concat(d.id,'-',h.id)", "in", diasHorasFinal)
                 .beginBlock()
                 .__().between("ha.fechaInicio", fechainicio, fechafin)
                 .__().between("ha.fechaFin", fechainicio, fechafin)

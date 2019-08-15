@@ -3,6 +3,7 @@ package pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.reporte
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.beans.PropertyEditorSupport;
+import java.io.InputStream;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -26,8 +27,10 @@ import pe.edu.lamolina.model.academico.AnexoBoletin;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Facultad;
+import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.tramite.TramiteDocumentoAcademico;
 import pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.GpoSeccionResumen;
+import pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.reporte.view.ReporteCrucesExcelView;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.pivot.zelper.pdf.pdfHtml.PDFFormatoEnum;
@@ -47,6 +50,9 @@ public class GpoReporteController {
 
     @Autowired
     BoletinPDF boletinPDF;
+
+    @Autowired
+    ReporteCrucesExcelView reporteCrucesExcelView;
 
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {
@@ -196,6 +202,22 @@ public class GpoReporteController {
     private ObjectNode createResumenJson(GpoSeccionResumen resumen) {
         ObjectNode nodeJson = JsonHelper.createJson(resumen, JsonNodeFactory.instance, true, new String[]{"*"});
         return nodeJson;
+    }
+
+    @RequestMapping("reporteCrucesSecciones")
+    public ModelAndView reporteCrucesSecciones(Model model, HttpSession session) {
+
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        CicloAcademico cicloAcademico = ds.getCicloAcademico();
+
+        InputStream formato = this.getClass().getResourceAsStream("/templates/excel/formatoSeccionesConCruce.xlsx");
+
+        List<Seccion> secciones = service.allSeccionesConCruce(cicloAcademico);
+
+        model.addAttribute("formato", formato);
+        model.addAttribute("secciones", secciones);
+        model.addAttribute("ciclo", cicloAcademico);
+        return new ModelAndView(reporteCrucesExcelView);
     }
 
 }
