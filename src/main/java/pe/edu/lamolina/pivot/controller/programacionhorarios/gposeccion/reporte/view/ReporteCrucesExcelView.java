@@ -128,8 +128,8 @@ public class ReporteCrucesExcelView extends AbstractView {
 
         int irow = 7;
 
-        excelUtil.replaceVal(3, 4, "Ciclo Académico " + ciclo.getDescripcion());
-        excelUtil.replaceVal(4, 4, "Fecha " + TypesUtil.getStringDate(new Date(), "dd/MM/yyyy H:mm:ss"));
+        excelUtil.replaceVal(3, 6, "Ciclo Académico " + ciclo.getDescripcion());
+        excelUtil.replaceVal(4, 6, "Fecha " + TypesUtil.getStringDate(new Date(), "dd/MM/yyyy H:mm:ss"));
 
         excelUtil.replaceStyle(irow - 1, 0, estiloCabecera);
         excelUtil.replaceStyle(irow - 1, 1, estiloCabecera);
@@ -140,11 +140,15 @@ public class ReporteCrucesExcelView extends AbstractView {
         excelUtil.replaceStyle(irow - 1, 6, estiloCabecera);
         excelUtil.replaceStyle(irow - 1, 7, estiloCabecera);
         excelUtil.replaceStyle(irow - 1, 8, estiloCabecera);
+        excelUtil.replaceStyle(irow - 1, 9, estiloCabecera);
+        excelUtil.replaceStyle(irow - 1, 10, estiloCabecera);
 
         int column = 0;
         excelUtil.replaceVal(irow - 1, column++, "CURCOD");
         excelUtil.replaceVal(irow - 1, column++, "NOMBRE CURSO");
         excelUtil.replaceVal(irow - 1, column++, "SECCIÓN");
+        excelUtil.replaceVal(irow - 1, column++, "VACANTES");
+        excelUtil.replaceVal(irow - 1, column++, "MATRICULADOS");
         excelUtil.replaceVal(irow - 1, column++, "TIPO");
         excelUtil.replaceVal(irow - 1, column++, "DOCENTE");
         excelUtil.replaceVal(irow - 1, column++, "AULA");
@@ -168,6 +172,8 @@ public class ReporteCrucesExcelView extends AbstractView {
             excelUtil.replaceVal(irow, column++, seccionCruzada.getGrupoSeccion().getCurso().getCodigo());
             excelUtil.replaceVal(irow, column++, seccionCruzada.getGrupoSeccion().getCurso().getNombre());
             excelUtil.replaceVal(irow, column++, seccionCruzada.getCodigo2());
+            excelUtil.replaceVal(irow, column++, seccionCruzada.getVacantes());
+            excelUtil.replaceVal(irow, column++, seccionCruzada.getMatriculados());
             excelUtil.replaceVal(irow, column++, seccionCruzada.getTipoSeccion());
             String docente = (String) ObjectUtil.getParentTree(seccionCruzada.getDocentePrincipal(), "persona.apellidosNombres");
             excelUtil.replaceVal(irow, column++, docente);
