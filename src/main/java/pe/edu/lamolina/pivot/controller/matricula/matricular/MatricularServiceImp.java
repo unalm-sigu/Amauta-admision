@@ -537,54 +537,57 @@ public class MatricularServiceImp implements MatricularService {
         Long idMatCurso = -1l;
         for (MatriculaCurso matriculaCurso : matriculaCursoTemp) {
             //grupoSeccionDAO.findLock(matriculaCurso.getGrupoSeccion().getId());
-            Curso curso = matriculaCurso.getCurso();
-            MatriculaResumen mr = matriculaCurso.getMatriculaResumen();
-            Alumno alumno = mr.getAlumno();
-            MatriculaCurso requisitoSim = map.get(matriculaCurso.getId());
-            Boolean cumple = matriculaCursoMatriculados.stream().anyMatch(x
-                    -> Objects.equals(x.getCurso().getId(), requisitoSim.getCurso().getId())
-                    && Objects.equals(x.getMatriculaResumen().getId(), matriculaCurso.getMatriculaResumen().getId()));
-            for (MatriculaSeccion matriculaSeccion : matriculaCurso.getMatriculaSeccion()) {
-                Seccion seccion = matriculaSeccion.getSeccion();
-                if (seccion.getIsTipoSeccionTCUR()) {
-                    continue;
-                }
-                Integer vac = mapVacantesDisponibles.get(seccion.getId());
-                cumple = !cumple ? cumple : vac >= 1;
+            try {
 
-                matricularAll(cumple,
-                        vacanteAlumnosMap,
-                        seccion,
-                        matriculaCurso,
-                        alumnoCursoCurriculas,
-                        alumno,
-                        curso,
-                        notify,
-                        matriculaSeccionMatTemp,
-                        matriculaSeccionNvacTemp,
-                        mapMatriculadosSeccion,
-                        mr,
-                        mapVacantesDisponibles,
-                        matriculaCursoMatriculados,
-                        noMatriculadosELC,
-                        matriculaSeccion,
-                        vac,
-                        vacantesAlumnoTemp,
-                        listMatriculados,
-                        listNoMatriculados,
-                        ds);
-                if (cumple && !Objects.equals(idMatCurso, matriculaCurso.getId())) {
-                    //logger.debug("Cumple sim-oblig");
-                    mr.setCursosMatriculados(mr.getCursosMatriculados() + 1);
-                    mr.setEstadoEnum(MAT);
-                    mr.setCreditosMatriculados(curso.getCreditos() + mr.getCreditosMatriculados());
-                    listMatriculados.add(mr);
-                    idMatCurso = matriculaCurso.getId();
-                } else {
-                    //logger.debug("No cumple sim-oblig");
+                Curso curso = matriculaCurso.getCurso();
+                MatriculaResumen mr = matriculaCurso.getMatriculaResumen();
+                Alumno alumno = mr.getAlumno();
+                MatriculaCurso requisitoSim = map.get(matriculaCurso.getId());
+                Boolean cumple = matriculaCursoMatriculados.stream().anyMatch(x
+                        -> Objects.equals(x.getCurso().getId(), requisitoSim.getCurso().getId())
+                        && Objects.equals(x.getMatriculaResumen().getId(), matriculaCurso.getMatriculaResumen().getId()));
+                for (MatriculaSeccion matriculaSeccion : matriculaCurso.getMatriculaSeccion()) {
+                    Seccion seccion = matriculaSeccion.getSeccion();
+                    if (seccion.getIsTipoSeccionTCUR()) {
+                        continue;
+                    }
+                    Integer vac = mapVacantesDisponibles.get(seccion.getId());
+                    cumple = !cumple ? cumple : vac >= 1;
+
+                    matricularAll(cumple,
+                            vacanteAlumnosMap,
+                            seccion,
+                            matriculaCurso,
+                            alumnoCursoCurriculas,
+                            alumno,
+                            curso,
+                            notify,
+                            matriculaSeccionMatTemp,
+                            matriculaSeccionNvacTemp,
+                            mapMatriculadosSeccion,
+                            mr,
+                            mapVacantesDisponibles,
+                            matriculaCursoMatriculados,
+                            noMatriculadosELC,
+                            matriculaSeccion,
+                            vac,
+                            vacantesAlumnoTemp,
+                            listMatriculados,
+                            listNoMatriculados,
+                            ds);
+                    if (cumple && !Objects.equals(idMatCurso, matriculaCurso.getId())) {
+                        //logger.debug("Cumple sim-oblig");
+                        mr.setCursosMatriculados(mr.getCursosMatriculados() + 1);
+                        mr.setEstadoEnum(MAT);
+                        mr.setCreditosMatriculados(curso.getCreditos() + mr.getCreditosMatriculados());
+                        listMatriculados.add(mr);
+                        idMatCurso = matriculaCurso.getId();
+                    } else {
+                        //logger.debug("No cumple sim-oblig");
+                    }
                 }
+            } catch (Exception e) {
             }
-
         }
 
     }
@@ -633,9 +636,11 @@ public class MatricularServiceImp implements MatricularService {
             Integer matriculadosSeccion = mapMatriculadosSeccion.get(seccion.getId());
             matriculadosSeccion += 1;
             mapMatriculadosSeccion.replace(seccion.getId(), matriculadosSeccion);
+            if (matriculaSeccion != null) {
 
-            matriculaSeccion.setEstadoEnum(EstadoMatriculaEnum.MAT);
-            matriculaSeccionMatTemp.add(matriculaSeccion);
+                matriculaSeccion.setEstadoEnum(EstadoMatriculaEnum.MAT);
+                matriculaSeccionMatTemp.add(matriculaSeccion);
+            }
 
 //            vacante.setAlumno(alumno);
 //            vacante.setEstadoEnum(EstadoVacanteAlumnoEnum.OCUP);
