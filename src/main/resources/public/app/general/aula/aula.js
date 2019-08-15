@@ -335,6 +335,23 @@ new Vue({
                 }
             });
         },
+        reporteProgramacion(item) {
+            $.fileDownload("/general/aula/reporteProgramacion", {
+                httpMethod: "POST",
+                data: {
+                    strAula: JSON.stringify({id: item.id})
+                },
+                successCallback: function (responseHtml, url) {
+//                    console.log('aqui');
+                },
+                onFail: function (e) {
+                    console.log(e);
+                },
+                failCallback: function (responseHtml, url) {
+                    notify(MESSAGES.errorComunicacion, 'error')
+                }
+            });
+        },
         openModal(tipoModal) {
             let $vue = this;
 
