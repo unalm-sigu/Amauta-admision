@@ -779,7 +779,7 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
         strb.append("         group by aul.codigo,ghor.codigo ");
         strb.append("         having count(*)>1 ");
         strb.append(" ) tbl on tbl.aula_codigo=aul.codigo and tbl.grupo_horario=ghor.codigo ");
-        strb.append(" where gsec.id_ciclo=:CICLO order by ghor.codigo ");
+        strb.append(" where gsec.id_ciclo=:CICLO order by ghor.codigo, aul.codigo ");
 
         Query query = getCurrentSession().createSQLQuery(strb.toString())
                 .addEntity("sec", Seccion.class)
