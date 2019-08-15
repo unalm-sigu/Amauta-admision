@@ -129,7 +129,7 @@ public class ReporteCrucesExcelView extends AbstractView {
         int irow = 7;
 
         excelUtil.replaceVal(3, 4, "Ciclo Académico " + ciclo.getDescripcion());
-        excelUtil.replaceVal(4, 3, "Fecha " + TypesUtil.getStringDate(new Date(), "dd/MM/yyyy H:mm:ss"));
+        excelUtil.replaceVal(4, 4, "Fecha " + TypesUtil.getStringDate(new Date(), "dd/MM/yyyy H:mm:ss"));
 
         excelUtil.replaceStyle(irow - 1, 0, estiloCabecera);
         excelUtil.replaceStyle(irow - 1, 1, estiloCabecera);

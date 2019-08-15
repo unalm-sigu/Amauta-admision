@@ -775,7 +775,7 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
         strb.append("         inner join aca_grupo_seccion gsec on gsec.id=sec.id_grupo_seccion ");
         strb.append("         inner join hor_grupo_horas ghor on ghor.id=sec.id_grupo_horas ");
         strb.append("         inner join gen_tipo_aula ta on ta.id=aul.id_tipo_aula ");
-        strb.append("         where gsec.id_ciclo=:CICLO and ta.codigo='AUL' and aul.id_oficina_supervisora=50 ");
+        strb.append("         where gsec.id_ciclo=:CICLO and aul.id_oficina_supervisora=50 "); //and ta.codigo='AUL' 
         strb.append("         group by aul.codigo,ghor.codigo ");
         strb.append("         having count(*)>1 ");
         strb.append(" ) tbl on tbl.aula_codigo=aul.codigo and tbl.grupo_horario=ghor.codigo ");
