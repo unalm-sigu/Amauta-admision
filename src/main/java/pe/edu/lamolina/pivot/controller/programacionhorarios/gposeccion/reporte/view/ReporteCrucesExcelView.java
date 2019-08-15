@@ -24,9 +24,7 @@ import pe.albatross.zelpers.file.excel.ExcelHelper;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.CicloAcademico;
-import pe.edu.lamolina.model.academico.RecorridoIngresante;
 import pe.edu.lamolina.model.academico.Seccion;
-import pe.edu.lamolina.model.inscripcion.TurnoEntrevistaObuae;
 
 @Component
 public class ReporteCrucesExcelView extends AbstractView {
