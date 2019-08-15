@@ -1,6 +1,7 @@
 package pe.edu.lamolina.pivot.dao.academico.hibernate;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -30,11 +31,13 @@ import static pe.edu.lamolina.model.enums.SeccionEstadoEnum.INA;
 import pe.edu.lamolina.model.enums.TipoGrupoHorasEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 import static pe.edu.lamolina.model.enums.TipoSeccionEnum.TCUR;
+import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.horario.GrupoHoras;
 import pe.edu.lamolina.model.horario.HorarioCachimbos;
 import pe.edu.lamolina.model.horario.SeccionHorarioCachimbos;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
 import pe.edu.lamolina.model.rolexamen.SeccionExcluido;
+import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Repository
 public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO {
@@ -753,6 +756,57 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
                 .in("gs.id", gruposSeccion)
                 .orderBy("sec.codigo", "sec.codigo2");
         return all(sql);
+    }
+
+    @Override
+    public List<Seccion> allConCruce(CicloAcademico cicloAcademico) {
+        StringBuilder strb = new StringBuilder();
+        strb.append(" Select {sec.*},{aul.*},{ghor.*},{gsec.*},{cur.*} ");
+        strb.append(" from aca_seccion sec ");
+        strb.append(" inner join gen_aula aul on aul.id=sec.id_aula ");
+        strb.append(" inner join aca_grupo_seccion gsec on gsec.id=sec.id_grupo_seccion ");
+        strb.append(" inner join aca_curso cur on cur.id=gsec.id_curso ");
+        strb.append(" inner join hor_grupo_horas ghor on ghor.id=sec.id_grupo_horas ");
+        strb.append(" inner join gen_tipo_aula ta on ta.id=aul.id_tipo_aula ");
+        strb.append(" inner join ( ");
+        strb.append("         Select aul.codigo aula_codigo,ghor.codigo grupo_horario,count(sec.id) secciones_cruzadas ");
+        strb.append("         from aca_seccion sec ");
+        strb.append("         inner join gen_aula aul on aul.id=sec.id_aula ");
+        strb.append("         inner join aca_grupo_seccion gsec on gsec.id=sec.id_grupo_seccion ");
+        strb.append("         inner join hor_grupo_horas ghor on ghor.id=sec.id_grupo_horas ");
+        strb.append("         inner join gen_tipo_aula ta on ta.id=aul.id_tipo_aula ");
+        strb.append("         where gsec.id_ciclo=:CICLO and ta.codigo='AUL' and aul.id_oficina_supervisora=50 ");
+        strb.append("         group by aul.codigo,ghor.codigo ");
+        strb.append("         having count(*)>1 ");
+        strb.append(" ) tbl on tbl.aula_codigo=aul.codigo and tbl.grupo_horario=ghor.codigo ");
+        strb.append(" where gsec.id_ciclo=:CICLO ");
+
+        Query query = getCurrentSession().createSQLQuery(strb.toString())
+                .addEntity("sec", Seccion.class)
+                .addEntity("aul", Aula.class)
+                .addEntity("ghor", GrupoHoras.class)
+                .addEntity("gsec", GrupoSeccion.class)
+                .addEntity("cur", Curso.class);
+
+        query.setParameter("CICLO", cicloAcademico.getId());
+
+        List<Seccion> secciones = new ArrayList<>();
+        List<Object[]> rows = query.list();
+        for (Object[] row : rows) {
+            Seccion seccion = (Seccion) row[0];
+            Aula aula = (Aula) row[1];
+            GrupoHoras grupoHoras = (GrupoHoras) row[2];
+            GrupoSeccion grupoSeccion = (GrupoSeccion) row[3];
+            Curso curso = (Curso) row[4];
+
+            grupoSeccion.setCurso(curso);
+
+            seccion.setGrupoSeccion(grupoSeccion);
+            seccion.setAula(aula);
+            seccion.setGrupoHoras(grupoHoras);
+            secciones.add(seccion);
+        }
+        return secciones;
     }
 
 }

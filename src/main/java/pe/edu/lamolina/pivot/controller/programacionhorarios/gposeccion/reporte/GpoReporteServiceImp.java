@@ -25,6 +25,9 @@ import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
+import pe.edu.lamolina.model.horario.DiaHoraGrupo;
+import pe.edu.lamolina.model.horario.GrupoHoras;
+import pe.edu.lamolina.model.horario.HorarioAula;
 import pe.edu.lamolina.model.horario.HorarioSeccion;
 import pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.GpoSeccionResumen;
 import pe.edu.lamolina.pivot.dao.academico.AnexoBoletinDAO;
@@ -33,6 +36,8 @@ import pe.edu.lamolina.pivot.dao.academico.DocenteSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.GrupoSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.ModalidadEstudioDAO;
 import pe.edu.lamolina.pivot.dao.academico.SeccionDAO;
+import pe.edu.lamolina.pivot.dao.horario.DiaHoraGrupoDAO;
+import pe.edu.lamolina.pivot.dao.horario.HorarioAulaDAO;
 import pe.edu.lamolina.pivot.dao.horario.HorarioSeccionDAO;
 
 @Service
@@ -61,6 +66,12 @@ public class GpoReporteServiceImp implements GpoReporteService {
 
     @Autowired
     HorarioSeccionDAO horarioSeccionDAO;
+
+    @Autowired
+    HorarioAulaDAO horarioAulaDAO;
+
+    @Autowired
+    DiaHoraGrupoDAO diaHoraGrupoDAO;
 
     @Override
     public CicloAcademico findCiclo(CicloAcademico cicloAcademico) {
@@ -379,6 +390,45 @@ public class GpoReporteServiceImp implements GpoReporteService {
         Collections.sort(anexosSuper, (a1, a2) -> a1.getOrden().compareTo(a2.getOrden()));
 
         return anexosSuper;
+    }
+
+    @Override
+    public List<Seccion> allSeccionesConCruce(CicloAcademico cicloAcademico) {
+        List<Seccion> secciones = seccionDAO.allConCruce(cicloAcademico);
+        if (secciones == null || secciones.isEmpty()) {
+            return new ArrayList<>();
+        }
+        List<GrupoHoras> gruposHoras = secciones.stream().map(x -> x.getGrupoHoras()).distinct().collect(Collectors.toList());
+        List<DiaHoraGrupo> diasHorasGrupos = diaHoraGrupoDAO.allByGruposCiclo(gruposHoras, cicloAcademico);
+        for (GrupoHoras gruposHora : gruposHoras) {
+            List<DiaHoraGrupo> diasHorasGruposByGpoHoras = diasHorasGrupos.stream()
+                    .filter(x -> x.getGrupoHorario().equals(gruposHora))
+                    .collect(Collectors.toList());
+            gruposHora.setDiaHoraGrupo(diasHorasGruposByGpoHoras);
+        }
+
+        List<HorarioSeccion> horariosSeccion = horarioSeccionDAO.allBySeccionesSortByDiaHora(secciones);
+        horariosSeccion = horariosSeccion.stream().filter(x -> x.isEstadoActivo()).collect(Collectors.toList());
+
+        List<HorarioAula> horarioAulas = horarioAulaDAO.allBySeccionesSortByDiaHora(secciones, cicloAcademico);
+        horarioAulas = horarioAulas.stream().filter(x -> x.isEstadoActivo()).collect(Collectors.toList());
+
+        List<DocenteSeccion> docenteSeccions = docenteSeccionDAO.allPrincipalesBySecciones(secciones);
+
+        for (Seccion seccion : secciones) {
+            GrupoHoras grupoHorasBySeccion = gruposHoras.stream().filter(x -> x.equals(seccion.getGrupoHoras())).findFirst().orElse(null);
+            List<HorarioSeccion> horarioSeccionBySeccion = horariosSeccion.stream().filter(x -> x.getSeccion().equals(seccion)).collect(Collectors.toList());
+            List<HorarioAula> horariosAulasBySeccion = horarioAulas.stream().filter(x -> x.getSeccion().equals(seccion)).collect(Collectors.toList());
+            List<DocenteSeccion> docentesSeccionBySeccion = docenteSeccions.stream().filter(x -> x.getSeccion().equals(seccion)).collect(Collectors.toList());
+            if (!docentesSeccionBySeccion.isEmpty() && docentesSeccionBySeccion.size() == 1) {
+                seccion.setDocentePrincipal(docentesSeccionBySeccion.get(0).getDocente());
+            }
+            seccion.setGrupoHoras(grupoHorasBySeccion);
+            seccion.setHorarioSeccion(horarioSeccionBySeccion);
+            seccion.setHorariosAula(horariosAulasBySeccion);
+            seccion.setDocenteSeccion(docentesSeccionBySeccion);
+        }
+        return secciones;
     }
 
 }
