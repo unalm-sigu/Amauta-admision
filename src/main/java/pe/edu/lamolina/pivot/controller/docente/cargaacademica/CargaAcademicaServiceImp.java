@@ -17,7 +17,9 @@ import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.horario.HorarioSeccion;
 import pe.edu.lamolina.pivot.dao.academico.DocenteSeccionDAO;
+import pe.edu.lamolina.pivot.dao.academico.SeccionDAO;
 import pe.edu.lamolina.pivot.dao.horario.HorarioSeccionDAO;
+import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service
 @Transactional(readOnly = true)
@@ -29,6 +31,8 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
     DocenteSeccionDAO docenteSeccionDAO;
     @Autowired
     HorarioSeccionDAO horarioSeccionDAO;
+    @Autowired
+    SeccionDAO seccionDAO;
 
     @Override
     public List<GrupoSeccion> allGpoSecciones(Docente docente, CicloAcademico ciclo) {
@@ -61,6 +65,11 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
         }
 
         return new ArrayList(mapGpoSecc.values());
+    }
+
+    @Override
+    public Seccion findSeccion(Long idSeccion) {
+        return seccionDAO.find(new Seccion(idSeccion));
     }
 
 }

@@ -13,12 +13,15 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
@@ -27,6 +30,7 @@ import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.EPG;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.PRE;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.pivot.controller.reporte.view.ReporteAlumnosView;
 
 @Controller
 @RequestMapping("docente/cargaacademica")
@@ -36,6 +40,9 @@ public class CargaAcademicaController {
 
     @Autowired
     CargaAcademicaService service;
+
+    @Autowired
+    ReporteAlumnosView reporteActasView;
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
@@ -89,6 +96,7 @@ public class CargaAcademicaController {
                     "curso.nombre",
                     "curso.tpc",
                     "planCalificacion.id",
+                    "secciones.id",
                     "secciones.tipoSeccionEnum",
                     "secciones.codigo2",
                     "secciones.matriculados",
@@ -126,5 +134,23 @@ public class CargaAcademicaController {
             ExceptionHandler.handleException(e, response);
         }
         return response;
+    }
+
+    @RequestMapping("reporteAlumno")
+    public ModelAndView reporteDeActasExcel(Model model,
+            @RequestParam("seccion") Long idSeccion,
+            HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+        Seccion secc = service.findSeccion(idSeccion);
+        Curso cur = secc.getGrupoSeccion().getCurso();
+
+        model.addAttribute("docente", ds.getDocente());
+        model.addAttribute("seccion", secc);
+        model.addAttribute("grupoSeccion", secc.getGrupoSeccion());
+        model.addAttribute("cicloAcademico", ds.getCicloAcademico());
+        model.addAttribute("curso", cur);
+
+        return new ModelAndView(reporteActasView);
     }
 }
