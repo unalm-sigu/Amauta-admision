@@ -4,15 +4,24 @@ import java.util.List;
 
 public class HorarioDTO {
 
-    private String titulo;
+    private String codigo;
 
     private List<List<HoraDTO>> horarios;
 
-    public HorarioDTO(String titulo) {
-        this.titulo = titulo;
+    public HorarioDTO(String codigo) {
+
+        this.codigo = codigo;
     }
 
     public HorarioDTO() {
+    }
+
+    public String getCodigo() {
+        return codigo;
+    }
+
+    public void setCodigo(String codigo) {
+        this.codigo = codigo;
     }
 
     public List<List<HoraDTO>> getHorarios() {
@@ -21,14 +30,6 @@ public class HorarioDTO {
 
     public void setHorarios(List<List<HoraDTO>> horarios) {
         this.horarios = horarios;
-    }
-
-    public String getTitulo() {
-        return titulo;
-    }
-
-    public void setTitulo(String titulo) {
-        this.titulo = titulo;
     }
 
 }
