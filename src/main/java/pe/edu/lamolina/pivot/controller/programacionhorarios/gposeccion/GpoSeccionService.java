@@ -211,4 +211,6 @@ public interface GpoSeccionService {
 
     void eliminarGrupos(List<GrupoSeccion> gruposSeccion, DataSessionPivot ds);
 
+    void solucionarCruzados(CicloAcademico cicloAcademico);
+
 }

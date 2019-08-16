@@ -54,7 +54,6 @@ import pe.edu.lamolina.model.academico.CursoCicloAcademico;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.Evaluacion;
-import pe.edu.lamolina.model.academico.EvaluacionSeccion;
 import pe.edu.lamolina.model.academico.EventoCicloAcademico;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
@@ -3074,6 +3073,84 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             GrupoSeccion gs = grupoSeccionDAO.find(grupoSeccion.getId());
             grupoSeccionDAO.delete(gs);
         }
+    }
+
+    @Override
+    @Transactional
+    public void solucionarCruzados(CicloAcademico cicloAcademico) {
+        int cantidadCruces = 0;
+        List<Seccion> seccionesCruzadas = this.allSeccionesConCruce(cicloAcademico);
+        Map<String, List<Seccion>> seccionesGroupByGpoHoraAndAula = TypesUtil.convertListToMapList("horarioAndAula", seccionesCruzadas);
+
+//        Map<String, List<Seccion>> seccionesGroupByGpoHoraAndAula = TypesUtil.convertListToMapList("horariosConcat", seccionesCruzadas);
+        for (Map.Entry<String, List<Seccion>> entry : seccionesGroupByGpoHoraAndAula.entrySet()) {
+            String horarioAula = entry.getKey();
+            logger.debug("key " + horarioAula);
+            List<Seccion> secciones = entry.getValue();
+            if (secciones.size() == 1) {
+                continue;
+            }
+            cantidadCruces = cantidadCruces + secciones.size();
+            logger.debug("Seccion {}, Cruces {}", horarioAula, secciones.size());
+            int idx = 0;
+            for (Seccion seccion : secciones) {
+                if (idx == 0) {
+                    idx++;
+                    continue;
+                }
+
+                Seccion seccionUpd = new Seccion(seccion.getId());
+                seccionUpd.setAula(null);
+                seccionUpd.setAulaBorradaPorCruce(Boolean.TRUE);
+                seccionUpd.setAulaBorrada(seccion.getAula());
+
+                horarioAulaDAO.deleteBySeccionAula(seccion, seccion.getAula());
+                seccionDAO.updateColumns(seccionUpd, "aula", "aulaBorradaPorCruce", "aulaBorrada");
+                for (HorarioSeccion hSec : seccion.getHorarioSeccion()) {
+                    hSec.setAula(null);
+                    horarioSeccionDAO.update(hSec);
+                }
+            }
+        }
+        logger.debug("cantidad cruces {}", cantidadCruces);
+    }
+
+    public List<Seccion> allSeccionesConCruce(CicloAcademico cicloAcademico) {
+        List<Seccion> secciones = seccionDAO.allConCruceHorario(cicloAcademico);
+        if (secciones == null || secciones.isEmpty()) {
+            return new ArrayList<>();
+        }
+        List<GrupoHoras> gruposHoras = secciones.stream().map(x -> x.getGrupoHoras()).distinct().collect(Collectors.toList());
+        List<DiaHoraGrupo> diasHorasGrupos = diaHoraGrupoDAO.allByGruposCiclo(gruposHoras, cicloAcademico);
+        for (GrupoHoras gruposHora : gruposHoras) {
+            List<DiaHoraGrupo> diasHorasGruposByGpoHoras = diasHorasGrupos.stream()
+                    .filter(x -> x.getGrupoHorario().equals(gruposHora))
+                    .collect(Collectors.toList());
+            gruposHora.setDiaHoraGrupo(diasHorasGruposByGpoHoras);
+        }
+
+        List<HorarioSeccion> horariosSeccion = horarioSeccionDAO.allBySeccionesSortByDiaHora(secciones);
+        horariosSeccion = horariosSeccion.stream().filter(x -> x.isEstadoActivo()).collect(Collectors.toList());
+
+        List<HorarioAula> horarioAulas = horarioAulaDAO.allBySeccionesSortByDiaHora(secciones, cicloAcademico);
+        horarioAulas = horarioAulas.stream().filter(x -> x.isEstadoActivo()).collect(Collectors.toList());
+
+        List<DocenteSeccion> docenteSeccions = docenteSeccionDAO.allPrincipalesBySecciones(secciones);
+
+        for (Seccion seccion : secciones) {
+            GrupoHoras grupoHorasBySeccion = gruposHoras.stream().filter(x -> x.equals(seccion.getGrupoHoras())).findFirst().orElse(null);
+            List<HorarioSeccion> horarioSeccionBySeccion = horariosSeccion.stream().filter(x -> x.getSeccion().equals(seccion)).collect(Collectors.toList());
+            List<HorarioAula> horariosAulasBySeccion = horarioAulas.stream().filter(x -> x.getSeccion().equals(seccion)).collect(Collectors.toList());
+            List<DocenteSeccion> docentesSeccionBySeccion = docenteSeccions.stream().filter(x -> x.getSeccion().equals(seccion)).collect(Collectors.toList());
+            if (!docentesSeccionBySeccion.isEmpty() && docentesSeccionBySeccion.size() == 1) {
+                seccion.setDocentePrincipal(docentesSeccionBySeccion.get(0).getDocente());
+            }
+            seccion.setGrupoHoras(grupoHorasBySeccion);
+            seccion.setHorarioSeccion(horarioSeccionBySeccion);
+            seccion.setHorariosAula(horariosAulasBySeccion);
+            seccion.setDocenteSeccion(docentesSeccionBySeccion);
+        }
+        return secciones;
     }
 
 }

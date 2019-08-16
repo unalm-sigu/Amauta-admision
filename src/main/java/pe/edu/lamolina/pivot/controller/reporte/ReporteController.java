@@ -6,26 +6,20 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
-import pe.albatross.zelpers.miscelanea.TypesUtil;
-import pe.edu.lamolina.model.academico.AlumnoHorario;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
-import pe.edu.lamolina.model.general.Dia;
-import pe.edu.lamolina.model.general.Oficina;
-import pe.edu.lamolina.model.horario.Hora;
-import pe.edu.lamolina.model.session.DataSessionMaipi;
 import pe.edu.lamolina.pivot.controller.programacionhorarios.boletinacademico.BoletinAcademicoExcelView;
 import pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.reporte.BoletinPDF;
 import pe.edu.lamolina.pivot.controller.reporte.view.HorarioAlumnoCicloPDF;
@@ -51,6 +45,8 @@ public class ReporteController {
 
     @Autowired
     ReporteService service;
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @RequestMapping("programacionHorariosQQ")
     public void programacionHorarios(HttpServletResponse response,
@@ -119,31 +115,11 @@ public class ReporteController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
         CicloAcademico ciclo = ds.getCicloAcademico();
-        
-        List<AlumnoHorario> alumnosHorario = service.allAlumnoHorario(ciclo);
-        
-        List<Oficina> oficinas = service.allOficinaConsejero();
-        
-        Map<Long,Oficina> mapOficinas = TypesUtil.convertListToMap("instanciaOficina", oficinas);
-        
-        
-        Map<Long,List<Hora>> mapHorasConHorarios  = new LinkedHashMap();
-        
-        for (AlumnoHorario alumnoHorario : alumnosHorario) {
-
-            List<Hora> horasConHorarios = service.allHorario(alumnoHorario, ciclo);
-            mapHorasConHorarios.put(alumnoHorario.getAlumno().getId(), horasConHorarios);
-        }
-
-        List<Hora> horas = service.allHorasEscuela();
-        List<Dia> dias = service.allDiaForPrinter();
-
-        model.addAttribute("cicloAcademico", ciclo);
-        model.addAttribute("mapHorasConHorarios", mapHorasConHorarios);
-        model.addAttribute("horas", horas);
-        model.addAttribute("dias", dias);
-        model.addAttribute("alumnosHorario", alumnosHorario);
-        model.addAttribute("mapOficinas", mapOficinas);
+         
+        model.addAttribute("cicloAcademico", ciclo); 
+        model.addAttribute("alumnosHorario", service.allAlumnoHorario(ciclo));
+        model.addAttribute("horariosCachimbo", service.allHorariosCachimbo(ciclo));
+        model.addAttribute("consejeros", service.allOficinaByConsejero());
 
         return new ModelAndView(horarioAlumnoCicloPDF);
 

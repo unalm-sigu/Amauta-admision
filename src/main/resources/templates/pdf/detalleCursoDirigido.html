@@ -129,12 +129,12 @@
                             <span >Créditos Aprobados Acumulados: </span><span th:text="${alumno.creditosAprobados}"></span>
                         </td>
                         <td> 
-                            <span >Promedio Ponderado Acumulados: </span><span th:text="${alumno.creditosAprobados}"></span>
+                            <span >Promedio Ponderado Acumulados: </span><span th:text="${alumno.promedioAcumuladoFixed}"></span>
                         </td>
                     </tr>
                     <tr >
                         <td>
-                            <span >Créditos Convalidados: </span><span > 10</span>
+                            <span >Créditos Convalidados: </span><span th:text="${alumno.creditosConvalidadosTransient}"></span>
                         </td>
                         <td>
                             <span >Situación Académica: </span><span th:text="${alumno.situacionAcademica.nombre}"></span>
@@ -206,6 +206,12 @@
                                     <span th:text="${cruceHor.horario}" ></span>
                                 </div>
                             </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="width: 25%"><b> Motivo </b></td>
+                        <td>
+                            <span th:text="${cursoDirigido.motivoSolicitud}"> nombre </span>
                         </td>
                     </tr>
                 </tbody>

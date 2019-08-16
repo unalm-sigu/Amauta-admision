@@ -1,6 +1,5 @@
 package pe.edu.lamolina.pivot.controller.reporte.view;
 
-import com.google.common.base.Strings;
 import com.itextpdf.text.BaseColor;
 import com.itextpdf.text.Chunk;
 import com.itextpdf.text.Document;
@@ -14,27 +13,20 @@ import com.itextpdf.text.Rectangle;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.apache.commons.lang3.StringUtils;
-import org.codehaus.groovy.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
-import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoHorario;
 import pe.edu.lamolina.model.academico.CicloAcademico;
-import pe.edu.lamolina.model.general.Aula;
-import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.general.Oficina;
-import pe.edu.lamolina.model.horario.Hora;
+import pe.edu.lamolina.pivot.controller.reporte.dto.HoraDTO;
+import pe.edu.lamolina.pivot.controller.reporte.dto.HorarioDTO;
 import pe.edu.lamolina.pivot.zelper.pdf.AbstractOnlyPdfView;
 
 @Component
@@ -43,11 +35,19 @@ public class HorarioAlumnoCicloPDF extends AbstractOnlyPdfView {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final String title = "HORARIO DE INGRESANTES";
 
+    private final Font tituloFont = new Font(Font.FontFamily.HELVETICA, 12, Font.BOLD, BaseColor.BLACK);
+    private final Font infoFont = new Font(Font.FontFamily.HELVETICA, 9, Font.BOLD, BaseColor.BLACK);
+
+    private final Font headerTableFont = new Font(Font.FontFamily.HELVETICA, 8, Font.BOLD, BaseColor.WHITE);
+    private final Font bodyTableFont = new Font(FontFamily.HELVETICA, 7, Font.NORMAL, BaseColor.BLACK);
+    private final Font invisible = new Font(FontFamily.COURIER, 1, Font.NORMAL, BaseColor.WHITE);
+
     @Override
     protected void buildPdfMetadata(Map<String, Object> model, Document document, HttpServletRequest request) {
-        document.addAuthor("AlbatrossCloud");
+
+        document.addAuthor("La Molina");
         document.addCreationDate();
-        document.addCreator("AlbatrossCloud");
+        document.addCreator("Maipi");
         document.addTitle(this.title);
         document.addSubject("");
         document.setPageSize(PageSize.A4.rotate());
@@ -57,99 +57,92 @@ public class HorarioAlumnoCicloPDF extends AbstractOnlyPdfView {
     @Override
     protected void buildPdfDocument(Map<String, Object> model, Document document, PdfWriter writer, HttpServletRequest request, HttpServletResponse response) throws Exception {
 
-        List<Hora> horas = (List<Hora>) model.get("horas");
-        List<Dia> dias = (List<Dia>) model.get("dias");
-
-        Map<Long, Oficina> mapOficinas = (Map<Long, Oficina>) model.get("mapOficinas");
-
-        CicloAcademico cicloAcademico = (CicloAcademico) model.get("cicloAcademico");
         List<AlumnoHorario> alumnosHorario = (List<AlumnoHorario>) model.get("alumnosHorario");
-
-        Map<Long, List<Hora>> mapHorasConHorarios = (Map<Long, List<Hora>>) model.get("mapHorasConHorarios");
+        Map<Long, HorarioDTO> horarios = (Map<Long, HorarioDTO>) model.get("horariosCachimbo");
+        CicloAcademico ciclo = (CicloAcademico) model.get("cicloAcademico");
+        Map<Long, Oficina> consejeros = (Map<Long, Oficina>) model.get("consejeros");
 
         for (AlumnoHorario alumnoHorario : alumnosHorario) {
 
-            List<Hora> horasConHorarios = mapHorasConHorarios.get(alumnoHorario.getAlumno().getId());
+            Alumno alumno = alumnoHorario.getAlumno();
+            if (alumnoHorario.getHorarioCachimbos() == null) {
+                continue;
+            }
 
-            int totalColumn = 7;
-            PdfPTable table = this.createTable(totalColumn);
-            this.documentHeader(alumnoHorario.getAlumno(), dias, cicloAcademico, table, mapOficinas);
-            this.documentBody(horasConHorarios, horas, document, table, cicloAcademico, totalColumn);
+            HorarioDTO horario = horarios.get(alumnoHorario.getHorarioCachimbos().getId());
+
+            Oficina oficina = consejeros.get(alumno.getCarrera().getId());
+
+            PdfPTable table = this.createTable();
+            this.documentHeader(table, alumno, ciclo, horario, oficina);
+            this.generateTable(document, table, horario);
 
             document.newPage();
 
         }
 
-        String nombre = this.getUnTitle(cicloAcademico);
-        response.setHeader("Content-Disposition", "attachment; filename=\"" + nombre + ".pdf\"");
+        String filename = "horarios-cachimbos";
+
+        response.setHeader("Content-Disposition", "attachment; filename=\"" + filename + ".pdf\"");
         response.setHeader("Set-Cookie", "fileDownload=true; path=/");
     }
 
-    private void documentHeader(Alumno alumno, List<Dia> dias, CicloAcademico cicloAcademico, PdfPTable table, Map<Long, Oficina> mapOficinas) throws DocumentException, ParseException {
-        Font headerFont = new Font(Font.FontFamily.HELVETICA, 8, Font.BOLD, BaseColor.WHITE);
-        Phrase phr = null;
-        PdfPCell cell = null;
+    private PdfPTable createTable() throws DocumentException {
+        PdfPTable table = new PdfPTable(7);
+        table.setWidths(new int[]{2, 3, 3, 3, 3, 3, 3});
+        table.setTotalWidth(770);
+        table.setLockedWidth(true);
+        table.setSpacingAfter(0f);
+        table.setSpacingBefore(0f);
+        table.setPaddingTop(0f);
+        return table;
+    }
 
-        this.addCeldaHeader(this.title + " " + cicloAcademico.getDescripcion2().toUpperCase(), table);
+    private void documentHeader(PdfPTable table, Alumno alumno, CicloAcademico ciclo, HorarioDTO horario, Oficina oficina) {
+        String titulo = title + " " + ciclo.getDescripcion2().toUpperCase();
+        this.generateTitulo(titulo, table);
 
-        Oficina oficina = mapOficinas.get(alumno.getCarrera().getId());
+        {
+            String facultad = (String) ObjectUtil.getParentTree(alumno, "carrera.facultad.nombre");
+            String carrera = (String) ObjectUtil.getParentTree(alumno, "carrera.nombre");
+            this.addHeaderLeft("FACULTAD DE " + facultad.toUpperCase() + " - " + carrera.toUpperCase(), table);
 
-        String facultad = (String) ObjectUtil.getParentTree(alumno, "carrera.facultad.nombre");
+            this.addHeaderRight("HORARIO: " + horario.getCodigo(), table);
 
-        String consejero = "";
-        if (oficina != null) {
-            consejero = (String) ObjectUtil.getParentTree(oficina, "personaJefe.nombreCompleto");
         }
+        {
+            String infoAlumno = alumno.getCodigo() + " " + alumno.getPersona()
+                    .getNombreCompleto().toUpperCase();
+            this.addHeaderLeft(infoAlumno, table);
 
-        this.addCeldaLeftHeader("FACULTAD DE " + facultad.toUpperCase(), table);
-
-        String codigoAlumno = alumno.getCodigo();
-        String nombres = alumno.getPersona().getNombreCompleto().toUpperCase();
-        String infoAlumno = codigoAlumno + " " + nombres;
-
-        this.addCeldaLeftHeaderPersonalizado(infoAlumno, table);
-
-        this.addCeldaLeftHeaderPersonalizadoRight(consejero, table);
-
-        this.addCeldaLeftHeader(alumno.getEmailIngresante() + " -  " + alumno.getClaveEmailIngresante(), table);
-
-        // pediente column
-        phr = new Phrase("HORA", headerFont);
-        cell = new PdfPCell(phr);
-        cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
-        cell.setHorizontalAlignment(Element.ALIGN_CENTER);
-        cell.setBackgroundColor(BaseColor.BLACK);
-        table.addCell(cell);
-
-        for (Dia dia : dias) {
-            phr = new Phrase(dia.getNombre().toUpperCase(), headerFont);
-            cell = new PdfPCell(phr);
-            cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
-            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
-            cell.setBackgroundColor(BaseColor.BLACK);
-            table.addCell(cell);
+            String consejero = "";
+            if (oficina != null) {
+                if (oficina.getPersonaJefe() != null) {
+                    consejero = oficina.getPersonaJefe().getNombreCompleto();
+                }
+            }
+            this.addHeaderRight("CONSEJERO: " + consejero, table);
+        }
+        {
+            String credencial = alumno.getEmailIngresante() + " -  " + alumno.getClaveEmailIngresante();
+            this.addHeaderFull("CORREO INSTITUCIONAL: " + credencial, table);
         }
     }
 
-    private String getUnTitle(CicloAcademico cicloAcademico) {
-        String namedate = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
-        return this.title + " " + cicloAcademico.getDescripcion() + " " + namedate;
-    }
+    private void generateTitulo(String titulo, PdfPTable table) {
+        Phrase phr = new Phrase(titulo, tituloFont);
 
-    private void addCeldaHeader(String titulo, PdfPTable table) {
-        Font fontHeaderPDF = new Font(Font.FontFamily.HELVETICA, 12, Font.BOLD, BaseColor.BLACK);
-        Phrase phr = new Phrase(titulo, fontHeaderPDF);
         PdfPCell cell = new PdfPCell(phr);
         cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
         cell.setHorizontalAlignment(Element.ALIGN_CENTER);
         cell.setColspan(7);
         cell.setBorder(Rectangle.NO_BORDER);
+
         table.addCell(cell);
     }
 
-    private void addCeldaLeftHeader(String titulo, PdfPTable table) {
-        Font fontHeaderPDF = new Font(Font.FontFamily.HELVETICA, 10, Font.BOLD, BaseColor.BLACK);
-        Phrase phr = new Phrase(titulo, fontHeaderPDF);
+    private void addHeaderFull(String titulo, PdfPTable table) {
+        Phrase phr = new Phrase(titulo, infoFont);
         PdfPCell cell = new PdfPCell(phr);
         cell.setVerticalAlignment(Element.ALIGN_LEFT);
         cell.setHorizontalAlignment(Element.ALIGN_LEFT);
@@ -158,9 +151,9 @@ public class HorarioAlumnoCicloPDF extends AbstractOnlyPdfView {
         table.addCell(cell);
     }
 
-    private void addCeldaLeftHeaderPersonalizado(String titulo, PdfPTable table) {
-        Font fontHeaderPDF = new Font(Font.FontFamily.HELVETICA, 10, Font.BOLD, BaseColor.BLACK);
-        Phrase phr = new Phrase(titulo, fontHeaderPDF);
+    private void addHeaderLeft(String titulo, PdfPTable table) {
+
+        Phrase phr = new Phrase(titulo, infoFont);
         PdfPCell cell = new PdfPCell(phr);
         cell.setVerticalAlignment(Element.ALIGN_LEFT);
         cell.setHorizontalAlignment(Element.ALIGN_LEFT);
@@ -169,9 +162,9 @@ public class HorarioAlumnoCicloPDF extends AbstractOnlyPdfView {
         table.addCell(cell);
     }
 
-    private void addCeldaLeftHeaderPersonalizadoRight(String titulo, PdfPTable table) {
-        Font fontHeaderPDF = new Font(Font.FontFamily.HELVETICA, 10, Font.BOLD, BaseColor.BLACK);
-        Phrase phr = new Phrase(titulo, fontHeaderPDF);
+    private void addHeaderRight(String titulo, PdfPTable table) {
+
+        Phrase phr = new Phrase(titulo, infoFont);
         PdfPCell cell = new PdfPCell(phr);
         cell.setVerticalAlignment(Element.ALIGN_RIGHT);
         cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
@@ -180,139 +173,45 @@ public class HorarioAlumnoCicloPDF extends AbstractOnlyPdfView {
         table.addCell(cell);
     }
 
-    private PdfPTable createTable(int columnTotal) throws DocumentException {
-        PdfPTable table = new PdfPTable(columnTotal);
-        table.setWidths(new int[]{2, 3, 3, 3, 3, 3, 3});
-        table.setTotalWidth(770);
-        table.setLockedWidth(true);
-        table.setSpacingAfter(0f);
-        table.setSpacingBefore(0f);
-        table.setPaddingTop(0f);
+    private void generateTable(Document document, PdfPTable table, HorarioDTO horario) {
 
-        return table;
-    }
+        List<List<HoraDTO>> horas = horario.getHorarios();
 
-    private void documentBody(List<Hora> horas, List<Hora> horasBase, Document document, PdfPTable table, CicloAcademico cicloAcademico, int totalColumn) throws DocumentException {
-
-        int columnaHoraEspacio = 1;
-        int totalColumnaContenido = totalColumn - columnaHoraEspacio;
-
-        Map<Long, Hora> mapHoraEncontrado = TypesUtil.convertListToMap("id", horas);
-
-        Font bodyFont = new Font(FontFamily.HELVETICA, 7, Font.NORMAL, BaseColor.BLACK);
-        Font timeFont = new Font(FontFamily.HELVETICA, 10, Font.NORMAL, BaseColor.BLACK);
-        Font letterFont = new Font(FontFamily.HELVETICA, 9, Font.BOLD, BaseColor.BLACK);
-
-        for (Hora horaBase : horasBase) {
-
-            // primera celda de hora
-            PdfPCell cell = new PdfPCell(new Phrase(horaBase.getDescripcion(), timeFont));
-            cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
-            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
-            cell.setFixedHeight(42);
-            table.addCell(cell);
-
-            Hora hora = mapHoraEncontrado.get(horaBase.getId());
-
-            if (hora != null) {
-                table = this.construccionCeldas(table, hora, bodyFont, letterFont, totalColumnaContenido);
-            } else {
-                table = this.construccionCeldasVacias(table, totalColumnaContenido);
+        for (List<HoraDTO> filas : horas) {
+            for (HoraDTO celda : filas) {
+                table = this.generateCelda(table, celda);
             }
         }
-        document.add(table);
-        document.add(new Chunk("shot invisible", new Font(FontFamily.COURIER, 1, Font.NORMAL, BaseColor.WHITE)));
-    }
 
-    private PdfPTable construccionCeldasVacias(PdfPTable table, int totalColumnaContenido) {
-        Font font = new Font(FontFamily.HELVETICA, 8, Font.NORMAL, BaseColor.BLACK);
-
-        for (int i = 0; i < totalColumnaContenido; i++) {
-            PdfPCell cell = new PdfPCell(new Phrase("", font));
-            cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
-            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
-            cell.setFixedHeight(42);
-
-            table.addCell(cell);
+        try {
+            document.add(table);
+            document.add(new Chunk("shot invisible", invisible));
+        } catch (Exception ex) {
+            logger.debug("Error Shot", ex);
         }
 
-        return table;
     }
 
-    private PdfPTable construccionCeldas(PdfPTable table, Hora hora, Font bodyFont, Font letterFont, int totalColumnaContenido) throws DocumentException {
+    private PdfPTable generateCelda(PdfPTable table, HoraDTO celda) {
 
-        for (int i = 0; i < totalColumnaContenido; i++) {
+        Phrase ppp = new Phrase(celda.getContenido(), headerTableFont);
 
-            // creacion tabla compuesta 
-            PdfPTable innerTable = new PdfPTable(1);
-            innerTable.getDefaultCell().setBorder(0);
-            innerTable.setWidths(new int[]{1});
-            innerTable.setWidthPercentage(100);
-            innerTable.setSpacingBefore(0f);
-            innerTable.setSpacingAfter(0f);
-            innerTable.setPaddingTop(0f);
-
-            String cursoCodigo = hora.getDias().get(i).getHorarioSeccion().isEmpty() ? "" : hora.getDias().get(i).getHorarioSeccion().get(0).getSeccion().getGrupoSeccion().getCurso().getCodigo();
-            String curso = hora.getDias().get(i).getHorarioSeccion().isEmpty() ? "" : hora.getDias().get(i).getHorarioSeccion().get(0).getSeccion().getGrupoSeccion().getCurso().getNombre();
-
-            // primera fila
-            String firstLine = cursoCodigo + " " + (curso.length() > 17 ? curso.substring(0, 17).toUpperCase() : curso.toUpperCase());
-            this.addCeldaLeftBody(firstLine, innerTable, bodyFont);
-
-            // segunda fila //35 caracteres para la celda
-            String docente = (hora.getDias().get(i).getHorarioSeccion().isEmpty() ? null
-                    : (hora.getDias().get(i).getHorarioSeccion().get(0).getSeccion().getDocenteSeccion().get(0).getDocente().getPersona() != null
-                    ? hora.getDias().get(i).getHorarioSeccion().get(0).getSeccion().getDocenteSeccion().get(0).getDocente().getPersona().getPaterno() : ""));
-            String docenteCodigo = hora.getDias().get(i).getHorarioSeccion().isEmpty() ? null : hora.getDias().get(i).getHorarioSeccion().get(0).getSeccion().getDocenteSeccion().get(0).getDocente().getCodigo();
-
-            if (docente != null) {
-                String secondLine = "Prof. " + docente + " " + "(" + docenteCodigo + ")";
-                this.addCeldaLeftBody(secondLine, innerTable, bodyFont);
-            }
-
-            // tercera fila
-            String clave = (hora.getDias().get(i).getHorarioSeccion().isEmpty() ? null : hora.getDias().get(i).getHorarioSeccion().get(0).getSeccion().getCodigo2());
-            if (clave != null) {
-                String thirdLine = "Clave: " + clave;
-                this.addCeldaLeftBody(thirdLine, innerTable, bodyFont);
-            }
-
-            Aula aula = (hora.getDias().get(i).getHorarioSeccion().isEmpty() ? null : hora.getDias().get(i).getHorarioSeccion().get(0).getSeccion().getAula());
-            String quartLine = "";
-            if (aula != null) {
-                String abrev = (aula.getAulaSuperior().getNombre().length() > 20 ? " (" + aula.getAulaSuperior().getNombre().substring(0, 20) : " (" + aula.getAulaSuperior().getNombre() + ")");
-                quartLine = "Aula: " + (aula.getCodigo() + abrev);
-            }
-            this.addCeldaLeftBody(quartLine, innerTable, bodyFont);
-            table.addCell(innerTable);
+        if (celda.getTipoCelda() == HoraDTO.TipoCeldaDTO.BODY) {
+            ppp = new Phrase(celda.getContenido(), bodyTableFont);
         }
 
-        return table;
-    }
-
-    private void addCeldaLeftBody(String contenido, PdfPTable table, Font bodyFont) {
-        Phrase phr = new Phrase(contenido, bodyFont);
-        PdfPCell cell = new PdfPCell(phr);
+        PdfPCell cell = new PdfPCell(ppp);
         cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
-        cell.setHorizontalAlignment(Element.ALIGN_LEFT);
-        cell.setBorder(Rectangle.NO_BORDER);
-        cell.setPaddingLeft(0f);
-        cell.setPaddingRight(0f);
-        cell.setPaddingTop(0f);
-        cell.setPaddingBottom(0f);
+        cell.setHorizontalAlignment(celda.getAlineacion());
+        cell.setBackgroundColor(BaseColor.BLACK);
+
+        if (celda.getTipoCelda() == HoraDTO.TipoCeldaDTO.BODY) {
+            cell.setFixedHeight(42);
+            cell.setBackgroundColor(BaseColor.WHITE);
+        }
+
         table.addCell(cell);
+        return table;
     }
 
-//    private void addCeldaLBody(String contenido, PdfPTable table, Font bodyFont) {
-//        Phrase phr = new Phrase(contenido, bodyFont);
-//        PdfPCell cell = new PdfPCell(phr);
-//        cell.setVerticalAlignment(Element.ALIGN_LEFT);
-//        cell.setHorizontalAlignment(Element.ALIGN_LEFT);
-//        cell.setBorder(Rectangle.NO_BORDER);
-//        cell.setPaddingLeft(0f);
-//        cell.setPaddingRight(0f);
-//        cell.setPaddingTop(0f);
-//        cell.setPaddingBottom(0f);
-//        table.addCell(cell);
-//    }
 }

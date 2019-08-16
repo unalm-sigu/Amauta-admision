@@ -171,7 +171,6 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
         List<Oficina> oficinasUnalm = allEstructuraOficinas();
         List<Oficina> oficinasMain = allOficinasMain(colaboradores, oficinasUnalm);
         Oficina ofiMain = oficinasMain.isEmpty() ? null : oficinasMain.get(0);
-        
 
         DataSessionPivot ds = new DataSessionPivot();
         ds.setEmail(email);
@@ -433,7 +432,11 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
                 rolSuperior.getRolesInferiores().add(role);
                 role.setRolSuperior(rolSuperior);
             } else {
-                rolesMain.add(role);
+                if (role.getCodigoEnum() == RolEnum.ALU) {
+                } else if (role.getCodigoEnum() == RolEnum.ADM_CPA) {
+                } else {
+                    rolesMain.add(role);
+                }
             }
         }
         return rolesMain;
