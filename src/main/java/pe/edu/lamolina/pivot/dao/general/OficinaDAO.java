@@ -54,4 +54,6 @@ public interface OficinaDAO extends EasyDAO<Oficina> {
 
     public List<Oficina> allFac();
 
+    public List<Oficina> allOficinaConsejero();
+
 }

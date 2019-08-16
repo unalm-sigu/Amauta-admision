@@ -1,5 +1,6 @@
 package pe.edu.lamolina.pivot.controller.reporte.view;
 
+import com.google.common.base.Strings;
 import com.itextpdf.text.BaseColor;
 import com.itextpdf.text.Chunk;
 import com.itextpdf.text.Document;
@@ -20,6 +21,8 @@ import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.apache.commons.lang3.StringUtils;
+import org.codehaus.groovy.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -30,6 +33,7 @@ import pe.edu.lamolina.model.academico.AlumnoHorario;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Dia;
+import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.pivot.zelper.pdf.AbstractOnlyPdfView;
 
@@ -56,6 +60,8 @@ public class HorarioAlumnoCicloPDF extends AbstractOnlyPdfView {
         List<Hora> horas = (List<Hora>) model.get("horas");
         List<Dia> dias = (List<Dia>) model.get("dias");
 
+        Map<Long, Oficina> mapOficinas = (Map<Long, Oficina>) model.get("mapOficinas");
+
         CicloAcademico cicloAcademico = (CicloAcademico) model.get("cicloAcademico");
         List<AlumnoHorario> alumnosHorario = (List<AlumnoHorario>) model.get("alumnosHorario");
 
@@ -67,7 +73,7 @@ public class HorarioAlumnoCicloPDF extends AbstractOnlyPdfView {
 
             int totalColumn = 7;
             PdfPTable table = this.createTable(totalColumn);
-            this.documentHeader(alumnoHorario.getAlumno(), dias, cicloAcademico, table);
+            this.documentHeader(alumnoHorario.getAlumno(), dias, cicloAcademico, table, mapOficinas);
             this.documentBody(horasConHorarios, horas, document, table, cicloAcademico, totalColumn);
 
             document.newPage();
@@ -79,21 +85,33 @@ public class HorarioAlumnoCicloPDF extends AbstractOnlyPdfView {
         response.setHeader("Set-Cookie", "fileDownload=true; path=/");
     }
 
-    private void documentHeader(Alumno alumno, List<Dia> dias, CicloAcademico cicloAcademico, PdfPTable table) throws DocumentException, ParseException {
+    private void documentHeader(Alumno alumno, List<Dia> dias, CicloAcademico cicloAcademico, PdfPTable table, Map<Long, Oficina> mapOficinas) throws DocumentException, ParseException {
         Font headerFont = new Font(Font.FontFamily.HELVETICA, 8, Font.BOLD, BaseColor.WHITE);
         Phrase phr = null;
         PdfPCell cell = null;
 
         this.addCeldaHeader(this.title + " " + cicloAcademico.getDescripcion2().toUpperCase(), table);
 
-        String facultad = (String) ObjectUtil.getParentTree(alumno,"carrera.facultad.nombre");
-//        alumno.getCarrera().getFacultad() != null ? alumno.getCarrera().getFacultad().getNombre().toUpperCase() : "");
-        this.addCeldaLeftHeader("FACULTAD DE " + facultad, table);
+        Oficina oficina = mapOficinas.get(alumno.getCarrera().getId());
+
+        String facultad = (String) ObjectUtil.getParentTree(alumno, "carrera.facultad.nombre");
+
+        String consejero = "";
+        if (oficina != null) {
+            consejero = (String) ObjectUtil.getParentTree(oficina, "personaJefe.nombreCompleto");
+        }
+
+        this.addCeldaLeftHeader("FACULTAD DE " + facultad.toUpperCase(), table);
 
         String codigoAlumno = alumno.getCodigo();
         String nombres = alumno.getPersona().getNombreCompleto().toUpperCase();
         String infoAlumno = codigoAlumno + " " + nombres;
-        this.addCeldaLeftHeader(infoAlumno, table);
+
+        this.addCeldaLeftHeaderPersonalizado(infoAlumno, table);
+
+        this.addCeldaLeftHeaderPersonalizadoRight(consejero, table);
+
+        this.addCeldaLeftHeader(alumno.getEmailIngresante() + " -  " + alumno.getClaveEmailIngresante(), table);
 
         // pediente column
         phr = new Phrase("HORA", headerFont);
@@ -136,6 +154,28 @@ public class HorarioAlumnoCicloPDF extends AbstractOnlyPdfView {
         cell.setVerticalAlignment(Element.ALIGN_LEFT);
         cell.setHorizontalAlignment(Element.ALIGN_LEFT);
         cell.setColspan(7);
+        cell.setBorder(Rectangle.NO_BORDER);
+        table.addCell(cell);
+    }
+
+    private void addCeldaLeftHeaderPersonalizado(String titulo, PdfPTable table) {
+        Font fontHeaderPDF = new Font(Font.FontFamily.HELVETICA, 10, Font.BOLD, BaseColor.BLACK);
+        Phrase phr = new Phrase(titulo, fontHeaderPDF);
+        PdfPCell cell = new PdfPCell(phr);
+        cell.setVerticalAlignment(Element.ALIGN_LEFT);
+        cell.setHorizontalAlignment(Element.ALIGN_LEFT);
+        cell.setColspan(4);
+        cell.setBorder(Rectangle.NO_BORDER);
+        table.addCell(cell);
+    }
+
+    private void addCeldaLeftHeaderPersonalizadoRight(String titulo, PdfPTable table) {
+        Font fontHeaderPDF = new Font(Font.FontFamily.HELVETICA, 10, Font.BOLD, BaseColor.BLACK);
+        Phrase phr = new Phrase(titulo, fontHeaderPDF);
+        PdfPCell cell = new PdfPCell(phr);
+        cell.setVerticalAlignment(Element.ALIGN_RIGHT);
+        cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
+        cell.setColspan(3);
         cell.setBorder(Rectangle.NO_BORDER);
         table.addCell(cell);
     }
@@ -220,9 +260,9 @@ public class HorarioAlumnoCicloPDF extends AbstractOnlyPdfView {
             this.addCeldaLeftBody(firstLine, innerTable, bodyFont);
 
             // segunda fila //35 caracteres para la celda
-            String docente = (hora.getDias().get(i).getHorarioSeccion().isEmpty() ? null : 
-                    (hora.getDias().get(i).getHorarioSeccion().get(0).getSeccion().getDocenteSeccion().get(0).getDocente().getPersona()!=null?
-                    hora.getDias().get(i).getHorarioSeccion().get(0).getSeccion().getDocenteSeccion().get(0).getDocente().getPersona().getPaterno():""));
+            String docente = (hora.getDias().get(i).getHorarioSeccion().isEmpty() ? null
+                    : (hora.getDias().get(i).getHorarioSeccion().get(0).getSeccion().getDocenteSeccion().get(0).getDocente().getPersona() != null
+                    ? hora.getDias().get(i).getHorarioSeccion().get(0).getSeccion().getDocenteSeccion().get(0).getDocente().getPersona().getPaterno() : ""));
             String docenteCodigo = hora.getDias().get(i).getHorarioSeccion().isEmpty() ? null : hora.getDias().get(i).getHorarioSeccion().get(0).getSeccion().getDocenteSeccion().get(0).getDocente().getCodigo();
 
             if (docente != null) {
