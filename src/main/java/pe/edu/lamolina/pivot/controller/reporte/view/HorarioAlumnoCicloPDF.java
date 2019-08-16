@@ -65,10 +65,14 @@ public class HorarioAlumnoCicloPDF extends AbstractOnlyPdfView {
         for (AlumnoHorario alumnoHorario : alumnosHorario) {
 
             Alumno alumno = alumnoHorario.getAlumno();
+            if (alumnoHorario.getHorarioCachimbos() == null) {
+                continue;
+            }
+            
             HorarioDTO horario = horarios.get(alumnoHorario.getHorarioCachimbos().getId());
-            
+
             Oficina oficina = consejeros.get(alumno.getCarrera().getId());
-            
+
             PdfPTable table = this.createTable();
             this.documentHeader(table, alumno, ciclo, horario, oficina);
             this.generateTable(document, table, horario);
@@ -94,7 +98,7 @@ public class HorarioAlumnoCicloPDF extends AbstractOnlyPdfView {
         return table;
     }
 
-    private void documentHeader(PdfPTable table, Alumno alumno, CicloAcademico ciclo, HorarioDTO horario, Oficina oficina ) {
+    private void documentHeader(PdfPTable table, Alumno alumno, CicloAcademico ciclo, HorarioDTO horario, Oficina oficina) {
         String titulo = title + " " + ciclo.getYear() + " " + ciclo.getDescripcion2().toUpperCase();
         this.generateTitulo(titulo, table);
 
@@ -111,8 +115,8 @@ public class HorarioAlumnoCicloPDF extends AbstractOnlyPdfView {
             this.addHeaderLeft(infoAlumno, table);
 
             String consejero = "";
-            if(oficina !=null){
-                if(oficina.getPersonaJefe()!=null){
+            if (oficina != null) {
+                if (oficina.getPersonaJefe() != null) {
                     consejero = oficina.getPersonaJefe().getNombreCompleto();
                 }
             }
