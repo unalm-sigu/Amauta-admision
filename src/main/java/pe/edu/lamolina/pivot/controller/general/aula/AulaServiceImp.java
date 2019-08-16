@@ -285,10 +285,10 @@ public class AulaServiceImp implements AulaService {
     }
 
     @Override
-    public Aula findAulaFull(Aula aula) {
+    public Aula findAulaFull(Aula aulaFormFecha) {
 
-        aula = aulaDAO.find(aula.getId());
-        List<HorarioAula> horariosAulas = horarioAulaDAO.allByAulaFecha(aula);
+        Aula aula = aulaDAO.find(aulaFormFecha.getId());
+        List<HorarioAula> horariosAulas = horarioAulaDAO.allByAulaFecha(aulaFormFecha);
         this.completarDocentes(horariosAulas);
         aula.setHorariosAula(horariosAulas);
         return aula;

@@ -394,7 +394,7 @@ public class GpoReporteServiceImp implements GpoReporteService {
 
     @Override
     public List<Seccion> allSeccionesConCruce(CicloAcademico cicloAcademico) {
-        List<Seccion> secciones = seccionDAO.allConCruce(cicloAcademico);
+        List<Seccion> secciones = seccionDAO.allConCruceHorario(cicloAcademico);
         if (secciones == null || secciones.isEmpty()) {
             return new ArrayList<>();
         }
