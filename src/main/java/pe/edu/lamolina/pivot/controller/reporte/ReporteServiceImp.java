@@ -2,6 +2,7 @@ package pe.edu.lamolina.pivot.controller.reporte;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -17,16 +18,19 @@ import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.general.Oficina;
-import pe.edu.lamolina.model.general.PerfilCompania;
 import pe.edu.lamolina.model.horario.Hora;
+import pe.edu.lamolina.model.horario.HorarioCachimbos;
 import pe.edu.lamolina.model.horario.HorarioSeccion;
 import pe.edu.lamolina.model.horario.SeccionHorarioCachimbos;
+import pe.edu.lamolina.pivot.controller.reporte.dto.HoraDTO;
+import pe.edu.lamolina.pivot.controller.reporte.dto.HorarioDTO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoHorarioDAO;
 import pe.edu.lamolina.pivot.dao.academico.DocenteSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaSeccionDAO;
 import pe.edu.lamolina.pivot.dao.general.DiaDAO;
 import pe.edu.lamolina.pivot.dao.general.OficinaDAO;
 import pe.edu.lamolina.pivot.dao.horario.HoraDAO;
+import pe.edu.lamolina.pivot.dao.horario.HorarioCachimbosDAO;
 import pe.edu.lamolina.pivot.dao.horario.HorarioSeccionDAO;
 import pe.edu.lamolina.pivot.dao.horario.SeccionHorarioCachimbosDAO;
 import pe.edu.lamolina.pivot.dao.horario.TipoGrupoHorasDAO;
@@ -60,66 +64,71 @@ public class ReporteServiceImp implements ReporteService {
 
     @Autowired
     SeccionHorarioCachimbosDAO seccionHorarioCachimbosDAO;
-    
-    
+
+    @Autowired
+    HorarioCachimbosDAO horarioCachimbosDAO;
+
     @Autowired
     OficinaDAO oficinaDAO;
 
     @Override
-    public List<Hora> allHorario(AlumnoHorario alumno) {
+    public Map<Long, HorarioDTO> allHorariosCachimbo(CicloAcademico ciclo) {
 
-        List<HorarioSeccion> seccionesHorarios = this.allSeccionHorarioAlumnoByAlumnoCicloACademico(alumno);
+        List<HorarioCachimbos> horariosCachimbo = horarioCachimbosDAO.allByCiclo(ciclo);
 
-        Map<Long, List<HorarioSeccion>> mapHorariosSeccionHora = TypesUtil.convertListToMapList("hora.id", seccionesHorarios);
-        Map<Long, Hora> seccionHorarioHorasMap = TypesUtil.convertListToMap("hora.id", "hora", seccionesHorarios);
+        List<SeccionHorarioCachimbos> seccionesCachimboGeneral = seccionHorarioCachimbosDAO.allByHorarios(horariosCachimbo);
+        List<Hora> horas = this.allHorasEscuela();
 
-        List<Seccion> secciones = seccionesHorarios.stream().map(HorarioSeccion::getSeccion).collect(Collectors.toList());
+        List<Dia> dias = this.allDiaForPrinter();
 
-        List<DocenteSeccion> docenteSecciones = docenteSeccionDAO.allDocenteSeccionPrincipalBySeccion(secciones);
-        Map<Long, DocenteSeccion> docenteSeccionesMap = TypesUtil.convertListToMap("seccion.id", docenteSecciones);
+        Map<String, HorarioSeccion> mapHorariosSeccion = allHorarioSeccionBySecciones(seccionesCachimboGeneral);
 
-        List<Dia> dias = diaDAO.allOrderDias();
+        Map<Long, HorarioDTO> horariosDTO = new HashMap();
+        for (HorarioCachimbos horarioCachimbo : horariosCachimbo) {
 
-        List<Hora> horas = new ArrayList(seccionHorarioHorasMap.values());
-    
-        horas = horas.isEmpty() ? horaDAO.allHoras() : horas;
-        Collections.sort(horas, new Hora.CompareCodigo());
+            HorarioDTO horarioDTO = new HorarioDTO();
+            horariosDTO.put(horarioCachimbo.getId(), horarioDTO);
 
-        for (Hora hora : horas) {
-            List<HorarioSeccion> horariosSeccionesHora = mapHorariosSeccionHora.get(hora.getId());
-            horariosSeccionesHora = (horariosSeccionesHora == null) ? new ArrayList() : horariosSeccionesHora;
-            Map<Long, List<HorarioSeccion>> mapHorarioSeccionDia = TypesUtil.convertListToMapList("dia.id", horariosSeccionesHora);
-            List<Dia> diass = new ArrayList();
+            List<SeccionHorarioCachimbos> seccionesHorarioCachimbo = this.allSeccionHorarioCachimboByHorario(horarioCachimbo, seccionesCachimboGeneral);
+            List filas = new ArrayList();
 
-            for (Dia dia : dias) {
-                Dia diaClone = dia.clone();
+            for (Hora hora : horas) {
+                List<HoraDTO> columnas = new ArrayList();
+                filas.add(columnas);
 
-                List<HorarioSeccion> horariosSeccionesDia = mapHorarioSeccionDia.get(dia.getId());
-                horariosSeccionesDia = (horariosSeccionesDia == null) ? new ArrayList() : horariosSeccionesDia;
+                for (Dia dia : dias) {
+                    HoraDTO horaDTO = new HoraDTO();
+                    columnas.add(horaDTO);
 
-                diaClone.setHorarioSeccion(horariosSeccionesDia);
-                List<DocenteSeccion> listDs = new ArrayList<>();
+                    HorarioSeccion horario = null;
 
-                if (!diaClone.getHorarioSeccion().isEmpty()) {
-                    for (HorarioSeccion horarioSeccion : diaClone.getHorarioSeccion()) {
-                        DocenteSeccion dss = docenteSeccionesMap.get(horarioSeccion.getSeccion().getId());
-                        if (dss != null) {
-                            listDs.add(dss);
+                    for (SeccionHorarioCachimbos shc : seccionesHorarioCachimbo) {
+
+                        String unique = String.format("%s-%s-%s", shc.getSeccion().getId(), hora.getId(), dia.getId());
+                        horario = mapHorariosSeccion.get(unique);
+
+                        if (horario != null) {
+                            break;
                         }
                     }
-                    diaClone.getHorarioSeccion().get(0).getSeccion().setDocenteSeccion(listDs);
+
+                    String contenido = "";
+                    if (horario != null) {
+                        contenido = horario.getSeccion().getCodigo2();
+                    }
+
+                    horaDTO.setContenido(contenido);
+
                 }
-                diass.add(diaClone);
             }
-            hora.setDias(diass);
         }
-        return horas;
+
+        return horariosDTO;
 
     }
 
     @Override
     public List<Hora> allHorasEscuela() {
-
         return horaDAO.allHorasByRango(8, 18);
     }
 
@@ -128,30 +137,40 @@ public class ReporteServiceImp implements ReporteService {
         return diaDAO.allDiaForPrinter();
     }
 
-    private List<HorarioSeccion> allSeccionHorarioAlumnoByAlumnoCicloACademico(AlumnoHorario alumnoHorario ) {
-        
-        List<SeccionHorarioCachimbos> seccionHorarioCachimbos = seccionHorarioCachimbosDAO.allByHorarioCachimbos(alumnoHorario.getHorarioCachimbos());
-       
-        if (seccionHorarioCachimbos.isEmpty()) {
-            return new ArrayList();
-        }
-
-        List<Seccion> secciones = new ArrayList();
-        for (SeccionHorarioCachimbos seccionHorarioCachimbo : seccionHorarioCachimbos) {
-            secciones.add(seccionHorarioCachimbo.getSeccion());
-        }
-        
-        return horarioSeccionDAO.allBySecciones(secciones);
-    }
-
     @Override
     public List<AlumnoHorario> allAlumnoHorario(CicloAcademico ciclo) {
         return alumnoHorarioDAO.allByCicloAcademicoOrder(ciclo);
     }
 
-    @Override
-    public List<Oficina> allOficinaConsejero() {
-        return oficinaDAO.allOficinaConsejero();
+    private Map<String, HorarioSeccion> allHorarioSeccionBySecciones(List<SeccionHorarioCachimbos> seccionesCachimbo) {
+
+        List<Seccion> secciones = seccionesCachimbo.stream()
+                .map(x -> x.getSeccion()).collect(Collectors.toList());
+
+        List<HorarioSeccion> horariosSeccion = horarioSeccionDAO.allBySecciones(secciones);
+
+        Map<String, HorarioSeccion> mapHorariosSeccion = new HashMap();
+        for (HorarioSeccion hs : horariosSeccion) {
+            String unique = String.format("%s-%s-%s", hs.getSeccion().getId(), hs.getHora().getId(), hs.getDia().getId());
+            mapHorariosSeccion.put(unique, hs);
+        }
+
+        return mapHorariosSeccion;
+
+    }
+
+    private List<SeccionHorarioCachimbos> allSeccionHorarioCachimboByHorario(HorarioCachimbos horarioCachimbo, List<SeccionHorarioCachimbos> seccionesCachimboGeneral) {
+
+        return seccionesCachimboGeneral.stream()
+                .filter(x -> x.getHorarioCachimbos().getId() == horarioCachimbo.getId())
+                .collect(Collectors.toList());
+
+    }
+
+    public Map<Long, Oficina> allOficinaByConsejero() {
+
+        List<Oficina> oficinas = oficinaDAO.allOficinaConsejero();
+        return TypesUtil.convertListToMap("instanciaOficina", oficinas);
     }
 
 }

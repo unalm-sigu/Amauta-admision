@@ -6,9 +6,7 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import org.apache.commons.io.IOUtils;
@@ -20,13 +18,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
-import pe.albatross.zelpers.miscelanea.TypesUtil;
-import pe.edu.lamolina.model.academico.AlumnoHorario;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
-import pe.edu.lamolina.model.general.Dia;
-import pe.edu.lamolina.model.general.Oficina;
-import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.pivot.controller.programacionhorarios.boletinacademico.BoletinAcademicoExcelView;
 import pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.reporte.BoletinPDF;
 import pe.edu.lamolina.pivot.controller.reporte.view.HorarioAlumnoCicloPDF;
@@ -123,49 +116,8 @@ public class ReporteController {
 
         CicloAcademico ciclo = ds.getCicloAcademico();
 
-        List<AlumnoHorario> alumnosHorario = service.allAlumnoHorario(ciclo);
-
-        List<Oficina> oficinas = service.allOficinaConsejero();
-
-        Map<Long, Oficina> mapOficinas = TypesUtil.convertListToMap("instanciaOficina", oficinas);
-
-        Map<String, List<Hora>> mapHorasConHorarios = new HashMap();
-
-        for (AlumnoHorario alumnoHorario : alumnosHorario) {
-
-//            logger.debug(" alumnoHorario   {}", alumnoHorario.getId());
-            List<Hora> horasConHorarios = service.allHorario(alumnoHorario);
-            if (mapHorasConHorarios.get(alumnoHorario.getId() + "") != null) {
-                logger.debug("\nYA EXISTE");
-            }
-
-            for (Hora h : horasConHorarios) {
-                if (!h.getDias().get(0).getHorarioSeccion().isEmpty()) {
-
-                    String jj = h.getDias().get(0).getHorarioSeccion().get(0).getSeccion().getGrupoSeccion().getCurso().getCodigo();
-                    System.out.println("TEXTO = " + jj);
-                }
-//                for (Dia dia : h.getDias()) {
-//                    System.out.println("X " + dia.get);
-//                }
-//                System.out.println("TEST " + h.getdi);
-            }
-            System.out.println("+++++++++++++++++++++");
-            mapHorasConHorarios.put(alumnoHorario.getId() + "", horasConHorarios);
-
-        }
-
-//        List<Hora> horasMap = new ArrayList(mapHorasConHorarios.values());
-        List<Hora> horas = service.allHorasEscuela();
-        List<Dia> dias = service.allDiaForPrinter();
-
-        model.addAttribute("cicloAcademico", ciclo);
-        model.addAttribute("mapHorasConHorarios", mapHorasConHorarios);
-        model.addAttribute("horas", horas);
-        model.addAttribute("dias", dias);
-        model.addAttribute("alumnosHorario", alumnosHorario);
-        model.addAttribute("mapOficinas", mapOficinas);
-//        model.addAttribute("horasMap", horasMap);
+        model.addAttribute("alumnosHorario", service.allAlumnoHorario(ciclo));
+        model.addAttribute("horariosCachimbo", service.allHorariosCachimbo(ciclo));
 
         return new ModelAndView(horarioAlumnoCicloPDF);
 

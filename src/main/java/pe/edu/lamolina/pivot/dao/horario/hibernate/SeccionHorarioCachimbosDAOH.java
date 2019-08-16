@@ -113,13 +113,4 @@ public class SeccionHorarioCachimbosDAOH extends AbstractEasyDAO<SeccionHorarioC
         query.executeUpdate();
     }
 
-    @Override
-    public List<SeccionHorarioCachimbos> allByHorarioCachimbos(HorarioCachimbos horarioCachimbos) {
-        Octavia sql = Octavia.query()
-                .from(SeccionHorarioCachimbos.class, "shc")
-                .join("horarioCachimbos hc", "hc.cicloAcademico ciclo", "hc.carrera car", "seccion sec")
-                .join("sec.grupoSeccion gs", "gs.curso cur", "gs.cicloAcademico ci")
-                .filter("hc.id", horarioCachimbos);
-        return all(sql);
-    }
 }
