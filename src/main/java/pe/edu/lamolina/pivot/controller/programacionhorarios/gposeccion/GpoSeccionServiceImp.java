@@ -2094,7 +2094,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
                     cruces.add(cruce);
                 }
                 String secciones = String.join("\n", cruces);
-                throw new PhobosException("Aula ocupada para el grupo seleccionado, con : \n" + secciones);
+                throw new PhobosException("Cruce horario con : \n" + secciones);
             }
         }
 
