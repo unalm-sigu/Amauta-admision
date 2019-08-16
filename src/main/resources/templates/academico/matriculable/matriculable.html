@@ -170,6 +170,7 @@
                                                         <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="glyphicon glyphicon-cog"></i></a>
                                                         <ul class="dropdown-menu pull-right">
                                                             <li><a v-bind:href="urlGoMaipi(item)" target="_blank">Ir a MAIPI</a></li>
+                                                            <li ><a v-bind:href="urlMatricula(item)" target="_blank">Ir a Matricula</a></li>
                                                             <li role="separator" class="divider"></li>
                                                             <li><a class="ver-cursos pointer" >Ver Cursos</a></li><!--rel="{{:id}}"-->
                                                             <li v-if="item.estado == 'NMAT'"><a v-on:click="inhabilitarModal(item)" href="#">Inhabilitar</a></li>
@@ -180,7 +181,7 @@
                                                             <li  v-if="item.esBeneficiadoUltimoCiclo " ><a v-on:click="beneficiar(item)" href="#">Quitar Ben. Ult. Ciclo</a></li>
                                                             <li v-if="!item.aporteCarnet" ><a v-on:click="asignarAporte(item)" href="#">Asignar Aporte Carnet</a></li>
                                                             <li v-if="item.aporteCarnet"  ><a v-on:click="quitarAporte(item)" href="#">Quitar Aporte Carnet</a></li>
-                                                            <li ><a v-bind:href="urlMatricula(item)">Matricula</a></li>
+
                                                         </ul>
                                                     </div>
                                                 </td>

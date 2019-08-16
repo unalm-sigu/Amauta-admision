@@ -96,6 +96,23 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
     }
 
     @Override
+    public List<Seccion> findByNombreCiclo(String nombre, CicloAcademico ciclo) {
+        nombre = "%" + nombre.replaceAll(" ", "%") + "%";
+        Octavia sql = Octavia.query()
+                .from(Seccion.class, "sec")
+                .join("grupoSeccion gs", "gs.curso cur", "gs.cicloAcademico ca")
+                .beginBlock()
+                .__().filter("sec.codigo2", "like", nombre)
+                .__().filter("cur.codigo", "like", nombre)
+                .__().filter("cur.nombre", "like", nombre)
+                .endBlock()
+                .filter("ca.id", ciclo)
+                .limit(15);
+
+        return all(sql);
+    }
+
+    @Override
     public List<Seccion> allByCiclo(CicloAcademico ciclo) {
         Octavia sql = Octavia.query()
                 .from(Seccion.class, "sec")
