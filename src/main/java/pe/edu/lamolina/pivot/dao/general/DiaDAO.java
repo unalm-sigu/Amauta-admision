@@ -11,4 +11,6 @@ public interface DiaDAO extends EasyDAO<Dia> {
     Dia findByNumeroDia(Integer numero);
 
     List<Dia> allDiaForPrinter();
+
+    public List<Dia> allOrderDias();
 }

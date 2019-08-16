@@ -167,7 +167,6 @@ public class DiaHoraGrupoDAOH extends AbstractEasyDAO<DiaHoraGrupo> implements D
                 .filter("ciclo.id", cicloAcademico);
 
         return all(sql);
-
     }
 
 }

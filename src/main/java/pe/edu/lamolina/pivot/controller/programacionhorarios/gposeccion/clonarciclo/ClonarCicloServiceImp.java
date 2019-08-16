@@ -435,7 +435,7 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
                     if (gpoNew != null && ObjectUtil.getParentTree(seccNew, "aula.id") != null) {
                         List<String> diasHorasSeccion = diasHorasSecc.stream().map(x -> x.getIdDiaHora()).collect(Collectors.toList());
                         if (!seccNew.getAula().getPermiteCruceBool() && !diasHorasSeccion.isEmpty()) {
-                            List<HorarioAula> horariosAulasFound = horarioAulaDAO.allRangoDiaByDiasHoras(diasHorasSeccion, eventoDictadoClases.getFechaInicio(), eventoDictadoClases.getFechaFin());
+                            List<HorarioAula> horariosAulasFound = horarioAulaDAO.allRangoDiaAndAulaByDiasHoras(diasHorasSeccion, seccNew.getAula(), eventoDictadoClases.getFechaInicio(), eventoDictadoClases.getFechaFin());
                             if (!horariosAulasFound.isEmpty()) {
                                 seccNew.setAula(null);
                             }

@@ -123,6 +123,7 @@ public interface SeccionDAO extends EasyDAO<Seccion> {
 
     List<Seccion> allConCruce(CicloAcademico cicloAcademico);
 
+    List<Seccion> allConCruceHorario(CicloAcademico cicloAcademico);
     List<Seccion> findByNombreCiclo(String nombre, CicloAcademico ciclo);
 
 }
