@@ -150,7 +150,8 @@ public class HorarioCachimboIngresanteServiceImp implements HorarioCachimboIngre
         } else {
             Integer ingresantesTotal = 1 + ch.getIngresantes();
             ch.setIngresantes(ingresantesTotal);
-            ch.setSinHorario(ingresantesTotal);
+            Integer ingresantesSinHorarioTotal = 1 + ch.getSinHorario();
+            ch.setSinHorario(ingresantesSinHorarioTotal);
             carreraCachimbosDAO.update(ch);
         }
 

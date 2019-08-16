@@ -11,4 +11,8 @@ public interface HoraDAO extends EasyDAO<Hora> {
     List<Hora> allHoraInitOcho();
 
     List<Hora> allByInicioFin(Hora inicio, Hora fin);
+
+    List<Hora> allHorasByRango(int min, int max);
+
+    List<Hora> allHoras();
 }

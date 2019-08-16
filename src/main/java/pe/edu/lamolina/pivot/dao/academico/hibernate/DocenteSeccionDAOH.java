@@ -573,4 +573,18 @@ public class DocenteSeccionDAOH extends AbstractEasyDAO<DocenteSeccion> implemen
 
         return all(sql);
     }
+
+    @Override
+    public List<DocenteSeccion> allDocenteSeccionPrincipalBySeccion(List<Seccion> secciones) {
+
+        Octavia sql = Octavia.query()
+                .from(DocenteSeccion.class, "ds")
+                .join("seccion sec", "sec.grupoSeccion gs", "gs.curso cur", "gs.cicloAcademico ca", "docente doc")
+                .join("cur.departamentoAcademico da", "da.facultad")
+                .leftJoin("gs.planCalificacion pc", "cur.planCalificacion pc2", "cur.planCalificacionRegular pcr", "sec.seccionSuperior")
+                .leftJoin("sec.aula au", "au.aulaSuperior ausu", "sec.grupoHoras gh", "doc.persona per", "per.tipoDocumento")
+                .filter("ds.principal", 1)
+                .in("sec.id", secciones);
+        return all(sql);
+    }
 }

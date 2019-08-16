@@ -509,6 +509,32 @@ public class AulaController {
         return new ModelAndView(horarioAulaSemanalPDF);
     }
 
+    @RequestMapping("reporteProgramacion")
+    public ModelAndView reporteProgramacion(HorariosAulaPDFBean horariosAulaPdfBean, Model model, HttpSession session, HttpServletResponse response) throws Exception {
+
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+        Aula aulaForm = new ObjectMapper().readValue(horariosAulaPdfBean.getStrAula(), Aula.class);
+
+        List<Dia> dias = service.allDiaForPrinter();
+        Aula aulaBD = service.findAulaFull(aulaForm);
+        Aula aulaSuperior = aulaBD.getAulaSuperior();
+
+        List<Hora> horasConHorarios = service.returnHorasEncontradas(aulaBD, dias, ds.getCicloAcademico());
+        List<Hora> horasBase = service.allHorasHorario();
+
+        model.addAttribute("cicloAcademico", ds.getCicloAcademico());
+        model.addAttribute("aula", aulaBD);
+        model.addAttribute("aulaSuperior", aulaSuperior);
+        model.addAttribute("dias", dias);
+        model.addAttribute("horasBase", horasBase);
+        model.addAttribute("horas", horasConHorarios);
+        model.addAttribute("fechaFin", horariosAulaPdfBean.getFechaFin());
+        model.addAttribute("fechaInicio", horariosAulaPdfBean.getFechaInicio());
+
+        return new ModelAndView(horarioAulaSemanalPDF);
+    }
+
     @RequestMapping("horarios")
     public String oficinas(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
