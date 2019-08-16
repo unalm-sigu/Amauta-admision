@@ -68,7 +68,7 @@ public class HorarioAlumnoCicloPDF extends AbstractOnlyPdfView {
             if (alumnoHorario.getHorarioCachimbos() == null) {
                 continue;
             }
-            
+
             HorarioDTO horario = horarios.get(alumnoHorario.getHorarioCachimbos().getId());
 
             Oficina oficina = consejeros.get(alumno.getCarrera().getId());
@@ -99,12 +99,13 @@ public class HorarioAlumnoCicloPDF extends AbstractOnlyPdfView {
     }
 
     private void documentHeader(PdfPTable table, Alumno alumno, CicloAcademico ciclo, HorarioDTO horario, Oficina oficina) {
-        String titulo = title + " " + ciclo.getYear() + " " + ciclo.getDescripcion2().toUpperCase();
+        String titulo = title + " " + ciclo.getDescripcion2().toUpperCase();
         this.generateTitulo(titulo, table);
 
         {
             String facultad = (String) ObjectUtil.getParentTree(alumno, "carrera.facultad.nombre");
-            this.addHeaderLeft("FACULTAD DE " + facultad.toUpperCase(), table);
+            String carrera = (String) ObjectUtil.getParentTree(alumno, "carrera.nombre");
+            this.addHeaderLeft("FACULTAD DE " + facultad.toUpperCase() + " - " + carrera.toUpperCase(), table);
 
             this.addHeaderRight("HORARIO: " + horario.getCodigo(), table);
 
