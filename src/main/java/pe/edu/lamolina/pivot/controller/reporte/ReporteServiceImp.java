@@ -86,9 +86,11 @@ public class ReporteServiceImp implements ReporteService {
         Map<String, HorarioSeccion> mapHorariosSeccion = allHorarioSeccionBySecciones(seccionesCachimboGeneral);
 
         Map<Long, HorarioDTO> horariosDTO = new HashMap();
+
         for (HorarioCachimbos horarioCachimbo : horariosCachimbo) {
 
-            HorarioDTO horarioDTO = new HorarioDTO();
+            HorarioDTO horarioDTO = new HorarioDTO(horarioCachimbo.getCodigo());
+
             horariosDTO.put(horarioCachimbo.getId(), horarioDTO);
 
             List<SeccionHorarioCachimbos> seccionesHorarioCachimbo = this.allSeccionHorarioCachimboByHorario(horarioCachimbo, seccionesCachimboGeneral);
@@ -169,12 +171,10 @@ public class ReporteServiceImp implements ReporteService {
 
     }
 
-    @Override
     public List<Hora> allHorasEscuela() {
         return horaDAO.allHorasByRango(8, 18);
     }
 
-    @Override
     public List<Dia> allDiaForPrinter() {
         return diaDAO.allDiaForPrinter();
     }
@@ -243,7 +243,7 @@ public class ReporteServiceImp implements ReporteService {
         for (Dia dia : dias) {
             HoraDTO dd = new HoraDTO();
             dd.setTipoCelda(HoraDTO.TipoCeldaDTO.HEADER);
-            hora.setAlineacion(Element.ALIGN_CENTER);
+            dd.setAlineacion(Element.ALIGN_CENTER);
             dd.setVacio(false);
             dd.setContenido(dia.getNombre());
             cabecera.add(dd);

@@ -23,6 +23,8 @@ import org.springframework.stereotype.Component;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoHorario;
+import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.pivot.controller.reporte.dto.HoraDTO;
 import pe.edu.lamolina.pivot.controller.reporte.dto.HorarioDTO;
 import pe.edu.lamolina.pivot.zelper.pdf.AbstractOnlyPdfView;
@@ -33,12 +35,19 @@ public class HorarioAlumnoCicloPDF extends AbstractOnlyPdfView {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final String title = "HORARIO DE INGRESANTES";
 
+    private final Font tituloFont = new Font(Font.FontFamily.HELVETICA, 12, Font.BOLD, BaseColor.BLACK);
+    private final Font infoFont = new Font(Font.FontFamily.HELVETICA, 9, Font.BOLD, BaseColor.BLACK);
+
+    private final Font headerTableFont = new Font(Font.FontFamily.HELVETICA, 8, Font.BOLD, BaseColor.WHITE);
+    private final Font bodyTableFont = new Font(FontFamily.HELVETICA, 7, Font.NORMAL, BaseColor.BLACK);
+    private final Font invisible = new Font(FontFamily.COURIER, 1, Font.NORMAL, BaseColor.WHITE);
+
     @Override
     protected void buildPdfMetadata(Map<String, Object> model, Document document, HttpServletRequest request) {
 
-        document.addAuthor("AlbatrossCloud");
+        document.addAuthor("La Molina");
         document.addCreationDate();
-        document.addCreator("AlbatrossCloud");
+        document.addCreator("Maipi");
         document.addTitle(this.title);
         document.addSubject("");
         document.setPageSize(PageSize.A4.rotate());
@@ -50,17 +59,22 @@ public class HorarioAlumnoCicloPDF extends AbstractOnlyPdfView {
 
         List<AlumnoHorario> alumnosHorario = (List<AlumnoHorario>) model.get("alumnosHorario");
         Map<Long, HorarioDTO> horarios = (Map<Long, HorarioDTO>) model.get("horariosCachimbo");
+        CicloAcademico ciclo = (CicloAcademico) model.get("cicloAcademico");
+        Map<Long, Oficina> consejeros = (Map<Long, Oficina>) model.get("consejeros");
 
         for (AlumnoHorario alumnoHorario : alumnosHorario) {
 
             Alumno alumno = alumnoHorario.getAlumno();
+            if (alumnoHorario.getHorarioCachimbos() == null) {
+                continue;
+            }
+
             HorarioDTO horario = horarios.get(alumnoHorario.getHorarioCachimbos().getId());
 
-            int totalColumn = 7;
+            Oficina oficina = consejeros.get(alumno.getCarrera().getId());
 
-            PdfPTable table = this.createTable(totalColumn);
-
-            this.documentHeader(table, alumno, horario);
+            PdfPTable table = this.createTable();
+            this.documentHeader(table, alumno, ciclo, horario, oficina);
             this.generateTable(document, table, horario);
 
             document.newPage();
@@ -73,51 +87,62 @@ public class HorarioAlumnoCicloPDF extends AbstractOnlyPdfView {
         response.setHeader("Set-Cookie", "fileDownload=true; path=/");
     }
 
-    private PdfPTable createTable(int columnTotal) throws DocumentException {
-        PdfPTable table = new PdfPTable(columnTotal);
+    private PdfPTable createTable() throws DocumentException {
+        PdfPTable table = new PdfPTable(7);
         table.setWidths(new int[]{2, 3, 3, 3, 3, 3, 3});
         table.setTotalWidth(770);
         table.setLockedWidth(true);
         table.setSpacingAfter(0f);
         table.setSpacingBefore(0f);
         table.setPaddingTop(0f);
-
         return table;
     }
 
-    private void documentHeader(PdfPTable table, Alumno alumno, HorarioDTO horario) {
-       
+    private void documentHeader(PdfPTable table, Alumno alumno, CicloAcademico ciclo, HorarioDTO horario, Oficina oficina) {
+        String titulo = title + " " + ciclo.getDescripcion2().toUpperCase();
+        this.generateTitulo(titulo, table);
 
-        this.addCeldaHeader(horario.getTitulo(), table);
+        {
+            String facultad = (String) ObjectUtil.getParentTree(alumno, "carrera.facultad.nombre");
+            String carrera = (String) ObjectUtil.getParentTree(alumno, "carrera.nombre");
+            this.addHeaderLeft("FACULTAD DE " + facultad.toUpperCase() + " - " + carrera.toUpperCase(), table);
 
-        String facultad = (String) ObjectUtil.getParentTree(alumno, "carrera.facultad.nombre");
-        this.addCeldaLeftHeader("FACULTAD DE " + facultad.toUpperCase(), table);
+            this.addHeaderRight("HORARIO: " + horario.getCodigo(), table);
 
-        String infoAlumno = alumno.getCodigo() + " " + alumno.getPersona()
-                .getNombreCompleto().toUpperCase();
-        this.addCeldaLeftHeaderPersonalizado(infoAlumno, table);
+        }
+        {
+            String infoAlumno = alumno.getCodigo() + " " + alumno.getPersona()
+                    .getNombreCompleto().toUpperCase();
+            this.addHeaderLeft(infoAlumno, table);
 
-        String consejero = "";
-        this.addCeldaLeftHeaderPersonalizadoRight(consejero, table);
-
-        String credencial = alumno.getEmailIngresante() + " -  " + alumno.getClaveEmailIngresante();
-        this.addCeldaLeftHeader(credencial, table);
+            String consejero = "";
+            if (oficina != null) {
+                if (oficina.getPersonaJefe() != null) {
+                    consejero = oficina.getPersonaJefe().getNombreCompleto();
+                }
+            }
+            this.addHeaderRight("CONSEJERO: " + consejero, table);
+        }
+        {
+            String credencial = alumno.getEmailIngresante() + " -  " + alumno.getClaveEmailIngresante();
+            this.addHeaderFull("CORREO INSTITUCIONAL: " + credencial, table);
+        }
     }
 
-    private void addCeldaHeader(String titulo, PdfPTable table) {
-        Font fontHeaderPDF = new Font(Font.FontFamily.HELVETICA, 12, Font.BOLD, BaseColor.BLACK);
-        Phrase phr = new Phrase(titulo, fontHeaderPDF);
+    private void generateTitulo(String titulo, PdfPTable table) {
+        Phrase phr = new Phrase(titulo, tituloFont);
+
         PdfPCell cell = new PdfPCell(phr);
         cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
         cell.setHorizontalAlignment(Element.ALIGN_CENTER);
         cell.setColspan(7);
         cell.setBorder(Rectangle.NO_BORDER);
+
         table.addCell(cell);
     }
 
-    private void addCeldaLeftHeader(String titulo, PdfPTable table) {
-        Font fontHeaderPDF = new Font(Font.FontFamily.HELVETICA, 10, Font.BOLD, BaseColor.BLACK);
-        Phrase phr = new Phrase(titulo, fontHeaderPDF);
+    private void addHeaderFull(String titulo, PdfPTable table) {
+        Phrase phr = new Phrase(titulo, infoFont);
         PdfPCell cell = new PdfPCell(phr);
         cell.setVerticalAlignment(Element.ALIGN_LEFT);
         cell.setHorizontalAlignment(Element.ALIGN_LEFT);
@@ -126,9 +151,9 @@ public class HorarioAlumnoCicloPDF extends AbstractOnlyPdfView {
         table.addCell(cell);
     }
 
-    private void addCeldaLeftHeaderPersonalizado(String titulo, PdfPTable table) {
-        Font fontHeaderPDF = new Font(Font.FontFamily.HELVETICA, 10, Font.BOLD, BaseColor.BLACK);
-        Phrase phr = new Phrase(titulo, fontHeaderPDF);
+    private void addHeaderLeft(String titulo, PdfPTable table) {
+
+        Phrase phr = new Phrase(titulo, infoFont);
         PdfPCell cell = new PdfPCell(phr);
         cell.setVerticalAlignment(Element.ALIGN_LEFT);
         cell.setHorizontalAlignment(Element.ALIGN_LEFT);
@@ -137,9 +162,9 @@ public class HorarioAlumnoCicloPDF extends AbstractOnlyPdfView {
         table.addCell(cell);
     }
 
-    private void addCeldaLeftHeaderPersonalizadoRight(String titulo, PdfPTable table) {
-        Font fontHeaderPDF = new Font(Font.FontFamily.HELVETICA, 10, Font.BOLD, BaseColor.BLACK);
-        Phrase phr = new Phrase(titulo, fontHeaderPDF);
+    private void addHeaderRight(String titulo, PdfPTable table) {
+
+        Phrase phr = new Phrase(titulo, infoFont);
         PdfPCell cell = new PdfPCell(phr);
         cell.setVerticalAlignment(Element.ALIGN_RIGHT);
         cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
@@ -167,31 +192,26 @@ public class HorarioAlumnoCicloPDF extends AbstractOnlyPdfView {
 
     }
 
-    private final Font timeFont = new Font(FontFamily.HELVETICA, 10, Font.NORMAL, BaseColor.BLACK);
-    private final Font letterFont = new Font(FontFamily.HELVETICA, 9, Font.BOLD, BaseColor.BLACK);
-    
-    private final Font headerTableFont = new Font(Font.FontFamily.HELVETICA, 8, Font.BOLD, BaseColor.WHITE);
-    private final Font bodyTableFont = new Font(FontFamily.HELVETICA, 7, Font.NORMAL, BaseColor.BLACK);
-    private final Font invisible = new Font(FontFamily.COURIER, 1, Font.NORMAL, BaseColor.WHITE);
-
     private PdfPTable generateCelda(PdfPTable table, HoraDTO celda) {
 
-        Phrase ppp = new Phrase(celda.getContenido());
-        ppp.setFont(headerTableFont);
+        Phrase ppp = new Phrase(celda.getContenido(), headerTableFont);
+
+        if (celda.getTipoCelda() == HoraDTO.TipoCeldaDTO.BODY) {
+            ppp = new Phrase(celda.getContenido(), bodyTableFont);
+        }
 
         PdfPCell cell = new PdfPCell(ppp);
         cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
         cell.setHorizontalAlignment(celda.getAlineacion());
         cell.setBackgroundColor(BaseColor.BLACK);
-        
+
         if (celda.getTipoCelda() == HoraDTO.TipoCeldaDTO.BODY) {
-            ppp.setFont(bodyTableFont);
             cell.setFixedHeight(42);
             cell.setBackgroundColor(BaseColor.WHITE);
         }
 
         table.addCell(cell);
-        return table; 
+        return table;
     }
 
 }
