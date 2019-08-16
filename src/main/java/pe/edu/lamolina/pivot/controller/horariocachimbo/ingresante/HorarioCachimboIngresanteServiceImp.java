@@ -415,18 +415,23 @@ public class HorarioCachimboIngresanteServiceImp implements HorarioCachimboIngre
                 // estados de recorrido tienen que estar activo. menos el de matricula. RecorridoAlumno - ActividadIngresante
                 Alumno alumno = aluHorario.getAlumno();
 
-                List<ActividadIngresante> actividadesAlumno = TypesUtil.getListNotNull(mapActividadesIngresantes.get(alumno.getId()));
+                List<ActividadIngresante> actividadesAlumno = mapActividadesIngresantes.get(alumno.getId());
+                if (actividadesAlumno != null) {
+                    actividadesAlumno = TypesUtil.getListNotNull(mapActividadesIngresantes.get(alumno.getId()));
 
-                int cantActividadAlumnoPreMatri = cantidadActividadesPreMatriculaAlumno(actividadesAlumno, mapConfigRecorrido);
+                    int cantActividadAlumnoPreMatri = cantidadActividadesPreMatriculaAlumno(actividadesAlumno, mapConfigRecorrido);
 
-                if (cantActividadAlumnoPreMatri < actividadesPreMatricula) {
-                    //System.out.println("\tNo tiene la cantidad adecuada de actividades");
-                    continue;
+                    if (cantActividadAlumnoPreMatri < actividadesPreMatricula) {
+                        //System.out.println("\tNo tiene la cantidad adecuada de actividades");
+                        continue;
+                    }
+
+                    System.out.println("Alumno :::: " + alumno.getCodigo());
+                    System.out.println("\tingresante con " + actividadesAlumno.size() + " actividades");
+                    System.out.println("\tingresante con " + cantActividadAlumnoPreMatri + " actividades pre-matricula");
+                } else {
+                    logger.debug("ALUMNO SIN RECORRIDO {}", alumno.getId());
                 }
-
-                System.out.println("Alumno :::: " + alumno.getCodigo());
-                System.out.println("\tingresante con " + actividadesAlumno.size() + " actividades");
-                System.out.println("\tingresante con " + cantActividadAlumnoPreMatri + " actividades pre-matricula");
 
                 MatriculaResumen matResumen = matriculaResumenDAO.findByAlumnoCiclo(alumno, cicloAcademico);
                 List<MatriculaCurso> matCursos = matriculaCursoDAO.allByMatriculaResumen(matResumen);
@@ -500,13 +505,15 @@ public class HorarioCachimboIngresanteServiceImp implements HorarioCachimboIngre
                 horario.setMatriculados(horario.getMatriculados() + 1);
                 matriculaResumenDAO.update(matResumen);
 
-                ActividadIngresante actividadIngresante = new ActividadIngresante();
-                actividadIngresante.setEstadoEnum(RecorridoIngresanteEstadoEnum.ACT);
-                actividadIngresante.setFechaRegistro(new Date());
-                actividadIngresante.setRecorridoIngresante(actividadesAlumno.get(0).getRecorridoIngresante());
-                actividadIngresante.setTipoActividadIngresante(tipoActividadIngresante);
-                actividadIngresante.setUserEjecucion(ds.getUsuario());
-                actividadIngresanteDAO.save(actividadIngresante);
+                if (actividadesAlumno != null) {
+                    ActividadIngresante actividadIngresante = new ActividadIngresante();
+                    actividadIngresante.setEstadoEnum(RecorridoIngresanteEstadoEnum.ACT);
+                    actividadIngresante.setFechaRegistro(new Date());
+                    actividadIngresante.setRecorridoIngresante(actividadesAlumno.get(0).getRecorridoIngresante());
+                    actividadIngresante.setTipoActividadIngresante(tipoActividadIngresante);
+                    actividadIngresante.setUserEjecucion(ds.getUsuario());
+                    actividadIngresanteDAO.save(actividadIngresante);
+                }
 
             }
             horarioCachimbosDAO.update(horario);
