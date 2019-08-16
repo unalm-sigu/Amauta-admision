@@ -66,9 +66,9 @@ public class ReporteServiceImp implements ReporteService {
     OficinaDAO oficinaDAO;
 
     @Override
-    public List<Hora> allHorario(AlumnoHorario alumno,CicloAcademico ciclo) {
+    public List<Hora> allHorario(AlumnoHorario alumno) {
 
-        List<HorarioSeccion> seccionesHorarios = this.allSeccionHorarioAlumnoByAlumnoCicloACademico(alumno,ciclo);
+        List<HorarioSeccion> seccionesHorarios = this.allSeccionHorarioAlumnoByAlumnoCicloACademico(alumno);
 
         Map<Long, List<HorarioSeccion>> mapHorariosSeccionHora = TypesUtil.convertListToMapList("hora.id", seccionesHorarios);
         Map<Long, Hora> seccionHorarioHorasMap = TypesUtil.convertListToMap("hora.id", "hora", seccionesHorarios);
@@ -80,11 +80,8 @@ public class ReporteServiceImp implements ReporteService {
 
         List<Dia> dias = diaDAO.allOrderDias();
 
-        List<Hora> horas = new ArrayList();
-        for (Hora hora : seccionHorarioHorasMap.values()) {
-            horas.add(hora);
-        }
-
+        List<Hora> horas = new ArrayList(seccionHorarioHorasMap.values());
+    
         horas = horas.isEmpty() ? horaDAO.allHoras() : horas;
         Collections.sort(horas, new Hora.CompareCodigo());
 
@@ -131,7 +128,7 @@ public class ReporteServiceImp implements ReporteService {
         return diaDAO.allDiaForPrinter();
     }
 
-    private List<HorarioSeccion> allSeccionHorarioAlumnoByAlumnoCicloACademico(AlumnoHorario alumnoHorario,CicloAcademico ciclo) {
+    private List<HorarioSeccion> allSeccionHorarioAlumnoByAlumnoCicloACademico(AlumnoHorario alumnoHorario ) {
         
         List<SeccionHorarioCachimbos> seccionHorarioCachimbos = seccionHorarioCachimbosDAO.allByHorarioCachimbos(alumnoHorario.getHorarioCachimbos());
        

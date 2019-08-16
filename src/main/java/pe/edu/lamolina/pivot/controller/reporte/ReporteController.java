@@ -6,12 +6,14 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.LinkedHashMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -25,7 +27,6 @@ import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.horario.Hora;
-import pe.edu.lamolina.model.session.DataSessionMaipi;
 import pe.edu.lamolina.pivot.controller.programacionhorarios.boletinacademico.BoletinAcademicoExcelView;
 import pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.reporte.BoletinPDF;
 import pe.edu.lamolina.pivot.controller.reporte.view.HorarioAlumnoCicloPDF;
@@ -51,6 +52,8 @@ public class ReporteController {
 
     @Autowired
     ReporteService service;
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @RequestMapping("programacionHorariosQQ")
     public void programacionHorarios(HttpServletResponse response,
@@ -119,22 +122,40 @@ public class ReporteController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
         CicloAcademico ciclo = ds.getCicloAcademico();
-        
+
         List<AlumnoHorario> alumnosHorario = service.allAlumnoHorario(ciclo);
-        
+
         List<Oficina> oficinas = service.allOficinaConsejero();
-        
-        Map<Long,Oficina> mapOficinas = TypesUtil.convertListToMap("instanciaOficina", oficinas);
-        
-        
-        Map<Long,List<Hora>> mapHorasConHorarios  = new LinkedHashMap();
-        
+
+        Map<Long, Oficina> mapOficinas = TypesUtil.convertListToMap("instanciaOficina", oficinas);
+
+        Map<String, List<Hora>> mapHorasConHorarios = new HashMap();
+
         for (AlumnoHorario alumnoHorario : alumnosHorario) {
 
-            List<Hora> horasConHorarios = service.allHorario(alumnoHorario, ciclo);
-            mapHorasConHorarios.put(alumnoHorario.getAlumno().getId(), horasConHorarios);
+//            logger.debug(" alumnoHorario   {}", alumnoHorario.getId());
+            List<Hora> horasConHorarios = service.allHorario(alumnoHorario);
+            if (mapHorasConHorarios.get(alumnoHorario.getId() + "") != null) {
+                logger.debug("\nYA EXISTE");
+            }
+
+            for (Hora h : horasConHorarios) {
+                if (!h.getDias().get(0).getHorarioSeccion().isEmpty()) {
+
+                    String jj = h.getDias().get(0).getHorarioSeccion().get(0).getSeccion().getGrupoSeccion().getCurso().getCodigo();
+                    System.out.println("TEXTO = " + jj);
+                }
+//                for (Dia dia : h.getDias()) {
+//                    System.out.println("X " + dia.get);
+//                }
+//                System.out.println("TEST " + h.getdi);
+            }
+            System.out.println("+++++++++++++++++++++");
+            mapHorasConHorarios.put(alumnoHorario.getId() + "", horasConHorarios);
+
         }
 
+//        List<Hora> horasMap = new ArrayList(mapHorasConHorarios.values());
         List<Hora> horas = service.allHorasEscuela();
         List<Dia> dias = service.allDiaForPrinter();
 
@@ -144,6 +165,7 @@ public class ReporteController {
         model.addAttribute("dias", dias);
         model.addAttribute("alumnosHorario", alumnosHorario);
         model.addAttribute("mapOficinas", mapOficinas);
+//        model.addAttribute("horasMap", horasMap);
 
         return new ModelAndView(horarioAlumnoCicloPDF);
 
