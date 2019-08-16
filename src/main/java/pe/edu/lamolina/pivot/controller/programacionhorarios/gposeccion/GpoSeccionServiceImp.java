@@ -2032,14 +2032,16 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     public void saveAula(Seccion seccionForm, Aula aulaForm, DataSessionPivot ds) {
 
         Seccion seccion = seccionDAO.find(seccionForm);
-
+        String codigoAula = aulaForm.getCodigo();
         Aula aula = null;
         if (aulaForm.getId() != null) {
             aula = aulaDAO.find(aulaForm.getId());
         } else if (!Strings.isNullOrEmpty(aulaForm.getCodigo())) {
             aula = aulaDAO.findActiveByCode(aulaForm.getCodigo());
         }
-
+        if (StringUtils.isNotBlank(codigoAula) && aula == null) {
+            throw new PhobosException("El Aula %s, no existe", codigoAula);
+        }
         if (ObjectUtil.getParentTree(seccion, "aula.id") != null && aula == null) {
             horarioAulaDAO.deleteBySeccionAula(seccion, seccion.getAula());
         }
@@ -2085,6 +2087,8 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             List<String> diasHorasSeccion = horariosSeccion.stream().map(x -> x.getIdDiaHora()).collect(Collectors.toList());
 
             List<HorarioAula> horariosAulasFound = horarioAulaDAO.allRangoDiaByDiasHoras(diasHorasSeccion, eventoAcademico.getFechaInicio(), eventoAcademico.getFechaFin());
+            final Aula fAula = aula;
+            horariosAulasFound = horariosAulasFound.stream().filter(x -> fAula.equals(x.getAula())).collect(Collectors.toList());
             if (!horariosAulasFound.isEmpty()) {
                 throw new PhobosException("Aula ocupada para el grupo seleccionado");
             }
