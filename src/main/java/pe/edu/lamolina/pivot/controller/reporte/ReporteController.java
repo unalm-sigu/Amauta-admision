@@ -6,7 +6,9 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import org.apache.commons.io.IOUtils;
@@ -16,11 +18,15 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
+import pe.edu.lamolina.model.academico.AlumnoHorario;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
-import pe.edu.lamolina.pivot.controller.general.aula.HorariosAulaPDFBean;
+import pe.edu.lamolina.model.general.Dia;
+import pe.edu.lamolina.model.horario.Hora;
+import pe.edu.lamolina.model.session.DataSessionMaipi;
 import pe.edu.lamolina.pivot.controller.programacionhorarios.boletinacademico.BoletinAcademicoExcelView;
 import pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.reporte.BoletinPDF;
+import pe.edu.lamolina.pivot.controller.reporte.view.HorarioAlumnoCicloPDF;
 import pe.edu.lamolina.pivot.zelper.pdf.PdfService;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
@@ -37,6 +43,12 @@ public class ReporteController {
 
     @Autowired
     BoletinPDF boletinPDF;
+
+    @Autowired
+    HorarioAlumnoCicloPDF horarioAlumnoCicloPDF;
+
+    @Autowired
+    ReporteService service;
 
     @RequestMapping("programacionHorariosQQ")
     public void programacionHorarios(HttpServletResponse response,
@@ -97,6 +109,35 @@ public class ReporteController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
         return new ModelAndView(boletinAcademicoExcelView);
+    }
+
+    @RequestMapping("programacionHorarioAlumno")
+    public ModelAndView programacionHorarioAlumno(Model model, HttpSession session, HttpServletResponse response) throws Exception {
+
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+        CicloAcademico ciclo = ds.getCicloAcademico();
+        
+        List<AlumnoHorario> alumnosHorario = service.allAlumnoHorario(ciclo);
+        
+        Map<Long,List<Hora>> mapHorasConHorarios=new    LinkedHashMap();
+        
+        for (AlumnoHorario alumnoHorario : alumnosHorario) {
+            List<Hora> horasConHorarios = service.allHorario(alumnoHorario.getAlumno(), ciclo);
+            mapHorasConHorarios.put(alumnoHorario.getAlumno().getId(), horasConHorarios);
+        }
+
+        List<Hora> horas = service.allHorasEscuela();
+        List<Dia> dias = service.allDiaForPrinter();
+
+        model.addAttribute("cicloAcademico", ciclo);
+        model.addAttribute("mapHorasConHorarios", mapHorasConHorarios);
+        model.addAttribute("horas", horas);
+        model.addAttribute("dias", dias);
+        model.addAttribute("alumnosHorario", alumnosHorario);
+
+        return new ModelAndView(horarioAlumnoCicloPDF);
+
     }
 
 }

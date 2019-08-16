@@ -88,4 +88,6 @@ public interface DocenteSeccionDAO extends EasyDAO<DocenteSeccion> {
 
     public List<DocenteSeccion> allByCiclo(CicloAcademico ciclo, List<EstadoEnum> asList, List<SeccionEstadoEnum> asList0);
 
+    public List<DocenteSeccion> allDocenteSeccionPrincipalBySeccion(List<Seccion> secciones);
+
 }
