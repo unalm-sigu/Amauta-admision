@@ -65,11 +65,11 @@ public class HorarioAlumnoCicloPDF extends AbstractOnlyPdfView {
         CicloAcademico cicloAcademico = (CicloAcademico) model.get("cicloAcademico");
         List<AlumnoHorario> alumnosHorario = (List<AlumnoHorario>) model.get("alumnosHorario");
 
-        Map<Long, List<Hora>> mapHorasConHorarios = (Map<Long, List<Hora>>) model.get("mapHorasConHorarios");
+        Map<String, List<Hora>> mapHorasConHorarios = (Map<String, List<Hora>>) model.get("mapHorasConHorarios");
 
         for (AlumnoHorario alumnoHorario : alumnosHorario) {
 
-            List<Hora> horasConHorarios = mapHorasConHorarios.get(alumnoHorario.getAlumno().getId());
+            List<Hora> horasConHorarios = mapHorasConHorarios.get(alumnoHorario.getId()+"");
 
             int totalColumn = 7;
             PdfPTable table = this.createTable(totalColumn);
@@ -303,16 +303,5 @@ public class HorarioAlumnoCicloPDF extends AbstractOnlyPdfView {
         table.addCell(cell);
     }
 
-//    private void addCeldaLBody(String contenido, PdfPTable table, Font bodyFont) {
-//        Phrase phr = new Phrase(contenido, bodyFont);
-//        PdfPCell cell = new PdfPCell(phr);
-//        cell.setVerticalAlignment(Element.ALIGN_LEFT);
-//        cell.setHorizontalAlignment(Element.ALIGN_LEFT);
-//        cell.setBorder(Rectangle.NO_BORDER);
-//        cell.setPaddingLeft(0f);
-//        cell.setPaddingRight(0f);
-//        cell.setPaddingTop(0f);
-//        cell.setPaddingBottom(0f);
-//        table.addCell(cell);
-//    }
+
 }
