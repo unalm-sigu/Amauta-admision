@@ -18,10 +18,12 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
+import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.AlumnoHorario;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.model.general.Dia;
+import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.session.DataSessionMaipi;
 import pe.edu.lamolina.pivot.controller.programacionhorarios.boletinacademico.BoletinAcademicoExcelView;
@@ -120,10 +122,16 @@ public class ReporteController {
         
         List<AlumnoHorario> alumnosHorario = service.allAlumnoHorario(ciclo);
         
-        Map<Long,List<Hora>> mapHorasConHorarios=new    LinkedHashMap();
+        List<Oficina> oficinas = service.allOficinaConsejero();
+        
+        Map<Long,Oficina> mapOficinas = TypesUtil.convertListToMap("instanciaOficina", oficinas);
+        
+        
+        Map<Long,List<Hora>> mapHorasConHorarios  = new LinkedHashMap();
         
         for (AlumnoHorario alumnoHorario : alumnosHorario) {
-            List<Hora> horasConHorarios = service.allHorario(alumnoHorario.getAlumno(), ciclo);
+
+            List<Hora> horasConHorarios = service.allHorario(alumnoHorario, ciclo);
             mapHorasConHorarios.put(alumnoHorario.getAlumno().getId(), horasConHorarios);
         }
 
@@ -135,6 +143,7 @@ public class ReporteController {
         model.addAttribute("horas", horas);
         model.addAttribute("dias", dias);
         model.addAttribute("alumnosHorario", alumnosHorario);
+        model.addAttribute("mapOficinas", mapOficinas);
 
         return new ModelAndView(horarioAlumnoCicloPDF);
 
