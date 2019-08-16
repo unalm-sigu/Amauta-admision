@@ -5,16 +5,19 @@ import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoHorario;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.general.Dia;
+import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.horario.Hora;
 
 public interface ReporteService {
 
-    List<Hora> allHorario(Alumno alumno,CicloAcademico ciclo);
+    List<Hora> allHorario(AlumnoHorario alumno,CicloAcademico ciclo);
 
     List<Hora> allHorasEscuela();
 
     List<Dia> allDiaForPrinter();
 
     List<AlumnoHorario> allAlumnoHorario(CicloAcademico ciclo);
+
+     List<Oficina> allOficinaConsejero();
 
 }

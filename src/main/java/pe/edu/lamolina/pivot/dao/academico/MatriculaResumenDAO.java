@@ -84,4 +84,6 @@ public interface MatriculaResumenDAO extends EasyDAO<MatriculaResumen> {
     
     MatriculaResumen findByAntPrioridadTemp(MatriculaResumen matri, CicloAcademico cicloAcademico, Boolean esUltimoCiclo);
 
+    public MatriculaResumen findByCodigoCiclo(String codigo, CicloAcademico cicloAcademico);
+
 }

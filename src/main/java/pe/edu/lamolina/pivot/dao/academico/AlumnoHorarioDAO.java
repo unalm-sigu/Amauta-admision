@@ -31,4 +31,6 @@ public interface AlumnoHorarioDAO extends EasyDAO<AlumnoHorario> {
 
     public void allSetHorarioNullByCiclo(CicloAcademico cicloAcademico);
 
+    public List<AlumnoHorario> allByCicloAcademicoOrder(CicloAcademico ciclo);
+
 }

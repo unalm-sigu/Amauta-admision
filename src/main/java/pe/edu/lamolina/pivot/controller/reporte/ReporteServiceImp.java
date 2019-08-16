@@ -1,7 +1,6 @@
 package pe.edu.lamolina.pivot.controller.reporte;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -12,21 +11,24 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
-import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoHorario;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
-import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.general.Dia;
+import pe.edu.lamolina.model.general.Oficina;
+import pe.edu.lamolina.model.general.PerfilCompania;
 import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.horario.HorarioSeccion;
+import pe.edu.lamolina.model.horario.SeccionHorarioCachimbos;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoHorarioDAO;
 import pe.edu.lamolina.pivot.dao.academico.DocenteSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaSeccionDAO;
 import pe.edu.lamolina.pivot.dao.general.DiaDAO;
+import pe.edu.lamolina.pivot.dao.general.OficinaDAO;
 import pe.edu.lamolina.pivot.dao.horario.HoraDAO;
 import pe.edu.lamolina.pivot.dao.horario.HorarioSeccionDAO;
+import pe.edu.lamolina.pivot.dao.horario.SeccionHorarioCachimbosDAO;
 import pe.edu.lamolina.pivot.dao.horario.TipoGrupoHorasDAO;
 
 @Service
@@ -56,8 +58,15 @@ public class ReporteServiceImp implements ReporteService {
     @Autowired
     AlumnoHorarioDAO alumnoHorarioDAO;
 
+    @Autowired
+    SeccionHorarioCachimbosDAO seccionHorarioCachimbosDAO;
+    
+    
+    @Autowired
+    OficinaDAO oficinaDAO;
+
     @Override
-    public List<Hora> allHorario(Alumno alumno,CicloAcademico ciclo) {
+    public List<Hora> allHorario(AlumnoHorario alumno,CicloAcademico ciclo) {
 
         List<HorarioSeccion> seccionesHorarios = this.allSeccionHorarioAlumnoByAlumnoCicloACademico(alumno,ciclo);
 
@@ -122,17 +131,17 @@ public class ReporteServiceImp implements ReporteService {
         return diaDAO.allDiaForPrinter();
     }
 
-    private List<HorarioSeccion> allSeccionHorarioAlumnoByAlumnoCicloACademico(Alumno alumno,CicloAcademico ciclo) {
-
-        List<MatriculaSeccion> matriculaSecciones = matriculaSeccionDAO.allByAlumnoCicloEstados(alumno, ciclo, Arrays.asList("MAT"));
-        if (matriculaSecciones.isEmpty()) {
+    private List<HorarioSeccion> allSeccionHorarioAlumnoByAlumnoCicloACademico(AlumnoHorario alumnoHorario,CicloAcademico ciclo) {
+        
+        List<SeccionHorarioCachimbos> seccionHorarioCachimbos = seccionHorarioCachimbosDAO.allByHorarioCachimbos(alumnoHorario.getHorarioCachimbos());
+       
+        if (seccionHorarioCachimbos.isEmpty()) {
             return new ArrayList();
         }
 
         List<Seccion> secciones = new ArrayList();
-        for (MatriculaSeccion matriculaSeccion : matriculaSecciones) {
-            secciones.add(matriculaSeccion.getSeccion());
-
+        for (SeccionHorarioCachimbos seccionHorarioCachimbo : seccionHorarioCachimbos) {
+            secciones.add(seccionHorarioCachimbo.getSeccion());
         }
         
         return horarioSeccionDAO.allBySecciones(secciones);
@@ -140,7 +149,12 @@ public class ReporteServiceImp implements ReporteService {
 
     @Override
     public List<AlumnoHorario> allAlumnoHorario(CicloAcademico ciclo) {
-        return alumnoHorarioDAO.allByCicloAcademico(ciclo);
+        return alumnoHorarioDAO.allByCicloAcademicoOrder(ciclo);
+    }
+
+    @Override
+    public List<Oficina> allOficinaConsejero() {
+        return oficinaDAO.allOficinaConsejero();
     }
 
 }

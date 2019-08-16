@@ -2086,11 +2086,15 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             logger.debug("no permite cruce horario");
             List<String> diasHorasSeccion = horariosSeccion.stream().map(x -> x.getIdDiaHora()).collect(Collectors.toList());
 
-            List<HorarioAula> horariosAulasFound = horarioAulaDAO.allRangoDiaByDiasHoras(diasHorasSeccion, eventoAcademico.getFechaInicio(), eventoAcademico.getFechaFin());
-            final Aula fAula = aula;
-            horariosAulasFound = horariosAulasFound.stream().filter(x -> fAula.equals(x.getAula())).collect(Collectors.toList());
+            List<HorarioAula> horariosAulasFound = horarioAulaDAO.allRangoDiaAndAulaByDiasHoras(diasHorasSeccion, aula, eventoAcademico.getFechaInicio(), eventoAcademico.getFechaFin());
             if (!horariosAulasFound.isEmpty()) {
-                throw new PhobosException("Aula ocupada para el grupo seleccionado");
+                List<String> cruces = new ArrayList<>();
+                for (HorarioAula horarioAula : horariosAulasFound) {
+                    String cruce = String.format("*Sección %s, Día %s, Hora %s", horarioAula.getSeccion().getCodigo2(), horarioAula.getDia().getSimbolo(), horarioAula.getHora().getDescripcion());
+                    cruces.add(cruce);
+                }
+                String secciones = String.join("\n", cruces);
+                throw new PhobosException("Cruce horario con : \n" + secciones);
             }
         }
 
