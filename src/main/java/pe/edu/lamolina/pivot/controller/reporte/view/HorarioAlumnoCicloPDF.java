@@ -33,12 +33,6 @@ public class HorarioAlumnoCicloPDF extends AbstractOnlyPdfView {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final String title = "HORARIO DE INGRESANTES";
 
-    private final Font bodyFont = new Font(FontFamily.HELVETICA, 7, Font.NORMAL, BaseColor.BLACK);
-    private final Font timeFont = new Font(FontFamily.HELVETICA, 10, Font.NORMAL, BaseColor.BLACK);
-    private final Font letterFont = new Font(FontFamily.HELVETICA, 9, Font.BOLD, BaseColor.BLACK);
-    private final Font fontBodyTable = new Font(FontFamily.HELVETICA, 8, Font.NORMAL, BaseColor.BLACK);
-    private final Font invisible = new Font(FontFamily.COURIER, 1, Font.NORMAL, BaseColor.WHITE);
-
     @Override
     protected void buildPdfMetadata(Map<String, Object> model, Document document, HttpServletRequest request) {
 
@@ -67,7 +61,7 @@ public class HorarioAlumnoCicloPDF extends AbstractOnlyPdfView {
             PdfPTable table = this.createTable(totalColumn);
 
             this.documentHeader(table, alumno, horario);
-            this.documentBody(document, table, horario);
+            this.generateTable(document, table, horario);
 
             document.newPage();
 
@@ -92,7 +86,7 @@ public class HorarioAlumnoCicloPDF extends AbstractOnlyPdfView {
     }
 
     private void documentHeader(PdfPTable table, Alumno alumno, HorarioDTO horario) {
-        Font headerFont = new Font(Font.FontFamily.HELVETICA, 8, Font.BOLD, BaseColor.WHITE);
+       
 
         this.addCeldaHeader(horario.getTitulo(), table);
 
@@ -108,23 +102,6 @@ public class HorarioAlumnoCicloPDF extends AbstractOnlyPdfView {
 
         String credencial = alumno.getEmailIngresante() + " -  " + alumno.getClaveEmailIngresante();
         this.addCeldaLeftHeader(credencial, table);
-
-        List<List<HoraDTO>> horas = horario.getHorario();
-
-        for (List<HoraDTO> filas : horas) {
-            for (HoraDTO celda : filas) {
-                if (celda.getTipoCelda() != HoraDTO.TipoCeldaDTO.HEADER) {
-                    continue;
-                }
-                Phrase phr = new Phrase(celda.getContenido(), headerFont);
-                PdfPCell cell = new PdfPCell(phr);
-                cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
-                cell.setHorizontalAlignment(Element.ALIGN_CENTER);
-                cell.setBackgroundColor(BaseColor.BLACK);
-                table.addCell(cell);
-            }
-        }
-
     }
 
     private void addCeldaHeader(String titulo, PdfPTable table) {
@@ -171,22 +148,13 @@ public class HorarioAlumnoCicloPDF extends AbstractOnlyPdfView {
         table.addCell(cell);
     }
 
-    private void documentBody(Document document, PdfPTable table, HorarioDTO horario) {
+    private void generateTable(Document document, PdfPTable table, HorarioDTO horario) {
 
-        List<List<HoraDTO>> horas = horario.getHorario();
+        List<List<HoraDTO>> horas = horario.getHorarios();
 
         for (List<HoraDTO> filas : horas) {
             for (HoraDTO celda : filas) {
-                if (celda.getTipoCelda() != HoraDTO.TipoCeldaDTO.BODY) {
-                    continue;
-                }
-
-                if (celda.isVacio()) {
-                    table = this.construccionCeldasVacias(table);
-                } else {
-                    table = this.construccionCeldas(table, celda);
-                }
-
+                table = this.generateCelda(table, celda);
             }
         }
 
@@ -199,26 +167,31 @@ public class HorarioAlumnoCicloPDF extends AbstractOnlyPdfView {
 
     }
 
-    private PdfPTable construccionCeldasVacias(PdfPTable table) {
+    private final Font timeFont = new Font(FontFamily.HELVETICA, 10, Font.NORMAL, BaseColor.BLACK);
+    private final Font letterFont = new Font(FontFamily.HELVETICA, 9, Font.BOLD, BaseColor.BLACK);
+    
+    private final Font headerTableFont = new Font(Font.FontFamily.HELVETICA, 8, Font.BOLD, BaseColor.WHITE);
+    private final Font bodyTableFont = new Font(FontFamily.HELVETICA, 7, Font.NORMAL, BaseColor.BLACK);
+    private final Font invisible = new Font(FontFamily.COURIER, 1, Font.NORMAL, BaseColor.WHITE);
 
-        PdfPCell cell = new PdfPCell();
+    private PdfPTable generateCelda(PdfPTable table, HoraDTO celda) {
+
+        Phrase ppp = new Phrase(celda.getContenido());
+        ppp.setFont(headerTableFont);
+
+        PdfPCell cell = new PdfPCell(ppp);
         cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
-        cell.setHorizontalAlignment(Element.ALIGN_CENTER);
-        cell.setFixedHeight(42);
+        cell.setHorizontalAlignment(celda.getAlineacion());
+        cell.setBackgroundColor(BaseColor.BLACK);
+        
+        if (celda.getTipoCelda() == HoraDTO.TipoCeldaDTO.BODY) {
+            ppp.setFont(bodyTableFont);
+            cell.setFixedHeight(42);
+            cell.setBackgroundColor(BaseColor.WHITE);
+        }
+
         table.addCell(cell);
-
-        return table;
-    }
-
-    private PdfPTable construccionCeldas(PdfPTable table, HoraDTO celda) {
-
-        PdfPCell cell = new PdfPCell(new Phrase(celda.getContenido()));
-        cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
-        cell.setHorizontalAlignment(Element.ALIGN_CENTER);
-        cell.setFixedHeight(42);
-        table.addCell(cell);
-        return table;
-
+        return table; 
     }
 
 }

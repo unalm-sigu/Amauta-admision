@@ -1,7 +1,7 @@
 package pe.edu.lamolina.pivot.controller.reporte;
 
+import com.itextpdf.text.Element;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,8 +14,11 @@ import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.AlumnoHorario;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.Curso;
+import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.Seccion;
+import pe.edu.lamolina.model.enums.DocenteEstadoEnum;
 import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.horario.Hora;
@@ -78,7 +81,6 @@ public class ReporteServiceImp implements ReporteService {
 
         List<SeccionHorarioCachimbos> seccionesCachimboGeneral = seccionHorarioCachimbosDAO.allByHorarios(horariosCachimbo);
         List<Hora> horas = this.allHorasEscuela();
-
         List<Dia> dias = this.allDiaForPrinter();
 
         Map<String, HorarioSeccion> mapHorariosSeccion = allHorarioSeccionBySecciones(seccionesCachimboGeneral);
@@ -91,13 +93,28 @@ public class ReporteServiceImp implements ReporteService {
 
             List<SeccionHorarioCachimbos> seccionesHorarioCachimbo = this.allSeccionHorarioCachimboByHorario(horarioCachimbo, seccionesCachimboGeneral);
             List filas = new ArrayList();
+            horarioDTO.setHorarios(filas);
+
+            filas.add(this.generateCabecera(dias));
 
             for (Hora hora : horas) {
                 List<HoraDTO> columnas = new ArrayList();
                 filas.add(columnas);
 
+                HoraDTO hh = new HoraDTO();
+                hh.setTipoCelda(HoraDTO.TipoCeldaDTO.BODY);
+                hh.setAlineacion(Element.ALIGN_CENTER);
+                hh.setVacio(false);
+                hh.setContenido(hora.getDescripcion2());
+                columnas.add(hh);
+
                 for (Dia dia : dias) {
+
                     HoraDTO horaDTO = new HoraDTO();
+                    horaDTO.setTipoCelda(HoraDTO.TipoCeldaDTO.BODY);
+                    horaDTO.setAlineacion(Element.ALIGN_LEFT);
+                    horaDTO.setVacio(true);
+
                     columnas.add(horaDTO);
 
                     HorarioSeccion horario = null;
@@ -114,9 +131,34 @@ public class ReporteServiceImp implements ReporteService {
 
                     String contenido = "";
                     if (horario != null) {
-                        contenido = horario.getSeccion().getCodigo2();
-                    }
+                        horaDTO.setVacio(false);
 
+                        Docente docente = this.getDocentePrincipal(horario);
+
+                        Curso curso = horario.getSeccion().getGrupoSeccion().getCurso();
+
+                        String cur = curso.getCodigo() + " " + curso.getNombre();
+
+                        String doc = "Prof. Desconocido";
+                        if (docente != null) {
+                            if (docente.getPersona() != null) {
+                                doc = String.format("Prof: %s (%s)",
+                                        docente.getPersona().getPaterno(),
+                                        docente.getCodigo()
+                                );
+                            }
+                        }
+
+                        String clave = "Clave: " + horario.getSeccion().getCodigo2();
+
+                        String aula = " ";
+                        if (horario.getAula() != null) {
+                            aula = String.format("Aula: %s (%s)",
+                                    horario.getAula().getCodigo(),
+                                    horario.getAula().getAulaSuperior().getNombre());
+                        }
+                        contenido = cur + "\n" + doc + "\n" + clave + "\n" + aula;
+                    }
                     horaDTO.setContenido(contenido);
 
                 }
@@ -171,6 +213,43 @@ public class ReporteServiceImp implements ReporteService {
 
         List<Oficina> oficinas = oficinaDAO.allOficinaConsejero();
         return TypesUtil.convertListToMap("instanciaOficina", oficinas);
+    }
+
+    private Docente getDocentePrincipal(HorarioSeccion horario) {
+        Docente docente = null;
+        List<DocenteSeccion> docentes = horario.getSeccion().getDocenteSeccion();
+
+        for (DocenteSeccion d : docentes) {
+            if (d.getDocente().getEstadoEnum() == DocenteEstadoEnum.ACT
+                    && d.getPrincipal() == 1) {
+                docente = d.getDocente();
+                break;
+
+            }
+        }
+        return docente;
+    }
+
+    private Object generateCabecera(List<Dia> dias) {
+        List<HoraDTO> cabecera = new ArrayList();
+
+        HoraDTO hora = new HoraDTO();
+        hora.setTipoCelda(HoraDTO.TipoCeldaDTO.HEADER);
+        hora.setAlineacion(Element.ALIGN_CENTER);
+        hora.setVacio(false);
+        hora.setContenido("Hora");
+        cabecera.add(hora);
+
+        for (Dia dia : dias) {
+            HoraDTO dd = new HoraDTO();
+            dd.setTipoCelda(HoraDTO.TipoCeldaDTO.HEADER);
+            hora.setAlineacion(Element.ALIGN_CENTER);
+            dd.setVacio(false);
+            dd.setContenido(dia.getNombre());
+            cabecera.add(dd);
+        }
+
+        return cabecera;
     }
 
 }

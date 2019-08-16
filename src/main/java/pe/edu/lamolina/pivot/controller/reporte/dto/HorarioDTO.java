@@ -6,7 +6,7 @@ public class HorarioDTO {
 
     private String titulo;
 
-    private List<List<HoraDTO>> horario;
+    private List<List<HoraDTO>> horarios;
 
     public HorarioDTO(String titulo) {
         this.titulo = titulo;
@@ -15,12 +15,12 @@ public class HorarioDTO {
     public HorarioDTO() {
     }
 
-    public List<List<HoraDTO>> getHorario() {
-        return horario;
+    public List<List<HoraDTO>> getHorarios() {
+        return horarios;
     }
 
-    public void setHorario(List<List<HoraDTO>> horario) {
-        this.horario = horario;
+    public void setHorarios(List<List<HoraDTO>> horarios) {
+        this.horarios = horarios;
     }
 
     public String getTitulo() {
