@@ -29,7 +29,7 @@
                                         <th class="col-md-6 v-middle">Curso</th>
                                         <!--<th class="text-center v-middle"></th>-->
                                         <th class="text-center v-middle" colspan="2">Sección</th>
-                                        <!--<th class="col-md-1 text-center v-middle">Aula<br/>Grupo</th>-->
+                                        <th class="col-md-1 text-center v-middle">Aula<br/>Grupo</th>
                                         <th class="col-md-2 text-center v-middle">Horario</th>
                                         <th class="text-center v-middle"><i class="fa fa-users"></i></th>
                                         <th class="col-md-1 text-center v-middle">% Carga</th>
@@ -61,10 +61,7 @@
                                         <small class="block text-muted" v-text="tipoSeccion(seccion)"></small>
                                     </td>
 
-                                    <!--                                    <td class="v-middle text-center">
-                                                                            <span class="block" v-if="seccion.aula.codigo != '' "><i class="fa fa-home text-primary"></i> {{seccion.aula.codigo}}</span>
-                                                                            <span class="block" v-if="seccion.grupoHoras.codigo != '' "><i class="fa fa-calendar text-success"></i> {{seccion.grupoHoras.codigo}}</span>
-                                                                        </td>-->
+                                    s
 
                                     <td class="v-middle" v-html="verHorario(seccion.horarioTexto)"></td>
 
@@ -102,10 +99,10 @@
                                         <span class="block">{{seccion.codigo2}}</span>
                                         <small class="block text-muted" v-text="tipoSeccion(seccion)"></small>
                                     </td>
-                                    <!--                                    <td class="v-middle text-center">
-                                                                            <span class="block" v-if="seccion.aula.codigo != '' "><i class="fa fa-home text-primary"></i> {{seccion.aula.codigo}}</span>
-                                                                            <span class="block" v-if="seccion.grupoHoras.codigo != '' "><i class="fa fa-calendar text-success"></i> {{seccion.grupoHoras.codigo}}</span>
-                                                                        </td>-->
+                                    <td class="v-middle text-center">
+                                        <span class="block" v-if="seccion.aula.codigo != '' "><i class="fa fa-home text-primary"></i> {{seccion.aula.codigo}}</span>
+                                        <span class="block" v-if="seccion.grupoHoras.codigo != '' "><i class="fa fa-calendar text-success"></i> {{seccion.grupoHoras.codigo}}</span>
+                                    </td>
 
                                     <td class="v-middle" v-html="verHorario(seccion.horarioTexto)"></td>
 

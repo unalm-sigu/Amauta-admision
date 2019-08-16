@@ -92,15 +92,25 @@ public class ReporteAlumnosView extends AbstractPOIExcelView {
         cell.setCellStyle(cellStyle);
         Row row2 = sheet.createRow(3);
         Row row3 = sheet.createRow(4);
-        Cell cell2 = row2.createCell(0);
-        Cell cell3 = row2.createCell(1);
+        Row row4 = sheet.createRow(5);
         
+        Cell cell2 = row2.createCell(0);
+        Cell cell3 = row2.createCell(1);        
         cell2.setCellValue("Codigo Curso: ");
-        cell3.setCellValue(curso.getCodigo());
+        cell3.setCellValue(curso.getCodigo());        
+        
         Cell cell4 = row3.createCell(0);
         Cell cell5 = row3.createCell(1);
         cell4.setCellValue("Docente: ");
         cell5.setCellValue(docente.getPersona().getApellidosNombres());
+        
+        if (seccion.getAula() != null) {            
+            Cell cell6 = row4.createCell(0);
+            Cell cell7 = row4.createCell(1);
+            cell6.setCellValue("Aula: ");
+            cell7.setCellValue(seccion.getAula().getCodigo());
+        }
+        
         this.createSheet(sheet, rows, totalColumns, cellHeader, cellBody);
         
         String nombreReporte = "ReporteAlumnos ";
@@ -124,7 +134,7 @@ public class ReporteAlumnosView extends AbstractPOIExcelView {
     
     private void createSheet(Sheet sheet, List<String> rows, int columnas, CellStyle cellHeader, CellStyle cellBody) {
         boolean autosize = false;
-        int rw = 6;
+        int rw = 7;
         for (int i = 0; i < rows.size(); i++) {
             String fila = (String) rows.get(i);
             
