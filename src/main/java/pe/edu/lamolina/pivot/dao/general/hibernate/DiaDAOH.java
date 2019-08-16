@@ -45,4 +45,15 @@ public class DiaDAOH extends AbstractEasyDAO<Dia> implements DiaDAO {
 
         return all(sql);
     }
+
+    @Override
+    public List<Dia> allOrderDias() {
+
+        Octavia sql = Octavia.query()
+                .from(Dia.class, "di")
+                .notIn("di.nombre", Arrays.asList("Domingo"))
+                .orderBy("di.numeroDia");
+
+        return all(sql);
+    }
 }
