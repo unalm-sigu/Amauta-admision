@@ -302,6 +302,35 @@ public class HorarioAulaDAOH extends AbstractEasyDAO<HorarioAula> implements Hor
     }
 
     @Override
+    public List<HorarioAula> allRangoDiaAndAulaByDiasHoras(List<String> diashoras, Aula aula, Date fechainicio, Date fechafin) {
+        List<String> diasHorasFinal = diashoras.stream()
+                .map(x -> x.replace("_", "-"))
+                .collect(Collectors.toList());
+        Octavia sql = Octavia.query()
+                .from(HorarioAula.class, "ha")
+                .join("dia d", "hora h", "aula au")
+                .leftJoin("au.aulaSuperior aus", "aus.tipoAula tip")
+                .filter("tip.codigo", TipoAulaEnum.MOD)
+                .filter("au.estado", EstadoEnum.ACT)
+                .filter("au.id", aula)
+                .complexFilter("concat(d.id,'-',h.id)", "in", diasHorasFinal)
+                .beginBlock()
+                .__().between("ha.fechaInicio", fechainicio, fechafin)
+                .__().between("ha.fechaFin", fechainicio, fechafin)
+                .__().beginBlock()
+                .__().__().filter("ha.fechaInicio", "<=", fechainicio)
+                .__().__().filter("ha.fechaFin", ">=", fechafin)
+                .__().endBlock()
+                .__().beginBlock()
+                .__().__().filter("ha.fechaInicio", ">=", fechainicio)
+                .__().__().filter("ha.fechaFin", "<=", fechafin)
+                .__().endBlock()
+                .endBlock()
+                .orderBy("d.numeroDia", "h.numero");
+        return all(sql);
+    }
+
+    @Override
     public List<HorarioAula> allByRango(Date fechainicio, Date fechafin) {
         Octavia sql = Octavia.query()
                 .from(HorarioAula.class, "ha")

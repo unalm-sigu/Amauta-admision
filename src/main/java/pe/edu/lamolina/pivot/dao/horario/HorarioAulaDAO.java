@@ -101,4 +101,6 @@ public interface HorarioAulaDAO extends EasyDAO<HorarioAula> {
 
     List<HorarioAula> allBySeccionesSortByDiaHora(List<Seccion> seccions, CicloAcademico cicloOrigen);
 
+    List<HorarioAula> allRangoDiaAndAulaByDiasHoras(List<String> diashoras, Aula aula, Date fechainicio, Date fechafin);
+
 }

@@ -832,11 +832,11 @@ var app = new Vue({
             let $vue = this;
             $vue.$refs.grupoHorarioComponentRef.loadGruposHorario(seccion.id);
             $vue.grupoModal.showaccept = true;
-//            if (seccion.matriculados > 0) {
-//                $vue.grupoModal.showaccept = false;
-//            } else {
-//                $vue.grupoModal.showaccept = true;
-//            }
+            if (seccion.matriculados > 0) {
+                $vue.grupoModal.showaccept = false;
+            } else {
+                $vue.grupoModal.showaccept = true;
+            }
             this.$refs.modalGrupo.open();
         },
         saveGrupo() {
@@ -1134,6 +1134,7 @@ var app = new Vue({
                         $vue.loadGpoSeccionFlash();
                     } else {
                         target.parsley().addError('forcederror', {message: response.message, updateClass: true});
+                        notify(response.message, "error");
                     }
                 }, error: function () {
                     notify(MESSAGES.errorComunicacion, "error");
