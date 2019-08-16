@@ -148,7 +148,7 @@ public class ReporteAlumnosView extends AbstractPOIExcelView {
             boolean isHeaderTotal = false;
             boolean isHeaderSede = false;
 
-            if (rw == 6) {
+            if (rw ==7) {
                 isHeader = true;
             }
 
