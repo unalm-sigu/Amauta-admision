@@ -617,6 +617,19 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
     }
 
     @Override
+    public MatriculaResumen findByCodigoCiclo(String codigo, CicloAcademico cicloBD) {
+
+        Octavia sql = Octavia.query()
+                .from(MatriculaResumen.class, "mr")
+                .join("alumno alu", "cicloAcademico ca", "alu.modalidadEstudio me")
+                .left("alu.cicloActivo aluca", "alu.situacionAcademica sa")
+                .filter("alu.codigo", codigo)
+                .filter("ca.id", cicloBD);
+
+        return find(sql);
+    }
+
+    @Override
     public List<MatriculaResumen> allByCicloMat(CicloAcademico ciclo) {
 
         Octavia subSql = new Octavia()

@@ -1,0 +1,92 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title>Revisión prioridad</title>
+    <div th:substituteby="_layout/includes :: styles-dynatable"></div>
+</head>
+
+<body>
+    <div layout:fragment="main">
+
+        <div  id="seccionprioridad">
+
+            <header class="header b-b padder-lg">
+                <div class="pull-right m-t-md">
+                    <!-- 
+                    <a class="btn btn-info" type="button"    v-on:click.prevent="nuevo"   href="#" >Agregar Evento Académico</a>
+                    --> 
+                </div>
+                <h2 th:inline="text">Revisión Prioridad </h2>
+            </header>
+            <section class="wrapper-lg">
+                <section class="panel">
+                    <section class="panel-body">
+                        <div class="tab-content">
+                            <div role="tabpanel" class="tab-pane active" id="lista">
+                                <div class="form-group  col-md-3">
+                                    <label>Código Alumno</label>
+                                    <input class="form-control col-md-3" v-model="alumno"/>
+                                </div>
+                                <div class="form-group  col-md-3">
+                                    <label>Código Sección</label>
+                                    <!--<input class="form-control" v-model="seccion"/>-->
+                                    <div class="form-group">
+                                        <multiselect 
+                                            v-model="seccion" 
+                                            v-bind:options='secciones'
+                                            v-on:search-change="loadseccion"
+                                            label="codigo2"
+                                            track-by='id'
+                                            v-bind:show-labels="false"
+                                            v-bind:allow-empty="false"
+                                            v-bind:internal-search='false'
+                                            placeholder="Ingresa un caracter como mínimo"
+                                            required="true" 
+                                            >
+                                            <template slot="option" slot-scope="props">
+                                                <div class="option__desc">
+                                                    <span class="option__title block bold">{{ props.option.grupoSeccion.curso.nombre }} </span>
+                                                    <span class="option__small">Código  - {{ props.option.grupoSeccion.curso.codigo }}</span>
+                                                    <span class="option__small">{{ props.option.codigo2 }} </span>
+                                                </div>
+                                            </template>
+                                        </multiselect> 
+                                    </div>
+                                </div>
+                                <div class="form-group  col-md-3 m-t-md">
+                                    <a class="btn btn-primary" v-text="'Buscar'" v-on:click='buscar'></a>
+                                </div>
+                                <table class="table table-striped ">
+                                    <thead>
+                                        <tr>                    
+                                            <th>Cod Alumno</th>
+                                            <th>Prioridad</th>
+                                            <th>Vacantes</th>
+                                            <th>Estado</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr v-for="(ms,idx) in matriculaSec">
+                                            <td >
+                                                <span v-bind:class="color(idx)" v-text="ms.matriculaResumen.alumno.codigo"> </span>                                               
+                                            </td>
+                                            <td v-bind:class="color(idx)" v-text="ms.matriculaResumen.prioridad"></td>
+                                            <td v-bind:class="color(idx)" v-text="ms.seccion.vacantes"></td>
+                                            <td v-bind:class="color(idx)" v-text="ms.estado"></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </section>
+                </section>
+            </section>
+        </div>
+
+    </div>
+
+    <div layout:fragment="js">
+        <script th:src="@{/app/academico/seccionprioridad/seccionprioridad.js}" charset="utf-8"></script>
+    </div>
+
+</body>
+</html>
