@@ -29,12 +29,13 @@
                                         <th class="col-md-6 v-middle">Curso</th>
                                         <!--<th class="text-center v-middle"></th>-->
                                         <th class="text-center v-middle" colspan="2">Sección</th>
-                                        <!--<th class="col-md-1 text-center v-middle">Aula<br/>Grupo</th>-->
+                                        <th class="col-md-1 text-center v-middle">Aula<br/>Grupo</th>
                                         <th class="col-md-2 text-center v-middle">Horario</th>
                                         <th class="text-center v-middle"><i class="fa fa-users"></i></th>
                                         <th class="col-md-1 text-center v-middle">% Carga</th>
                                         <th class="text-center v-middle">Créditos<br/>Carga</th>
                                         <th class="col-md-2 text-center v-middle">Periodo Clases</th>
+                                        <th class="col-md-2 text-center v-middle">Listado</th>
                                     </tr>
                                 </thead>
                                 <tbody v-for="item in cm.cursosModalidad">
@@ -60,10 +61,10 @@
                                         <small class="block text-muted" v-text="tipoSeccion(seccion)"></small>
                                     </td>
 
-<!--                                    <td class="v-middle text-center">
+                                    <td class="v-middle text-center">
                                         <span class="block" v-if="seccion.aula.codigo != '' "><i class="fa fa-home text-primary"></i> {{seccion.aula.codigo}}</span>
                                         <span class="block" v-if="seccion.grupoHoras.codigo != '' "><i class="fa fa-calendar text-success"></i> {{seccion.grupoHoras.codigo}}</span>
-                                    </td>-->
+                                    </td>
 
                                     <td class="v-middle" v-html="verHorario(seccion.horarioTexto)"></td>
 
@@ -81,6 +82,10 @@
                                             <span v-if="profeSecc.fechaInicio != '' " class="block">Desde el {{profeSecc.fechaInicio}}</span>
                                             <span v-if="profeSecc.fechaFin != '' " class="block">Hasta el {{profeSecc.fechaFin}}</span>
                                         </td>
+                                        <td class="col-md-2 text-center v-middle">
+                                            <a class="btn btn-success" v-on:click="download(item)"><i class="fa fa-file-excel-o" aria-hidden="true"></i></a>
+
+                                        </td>
                                     </template>
                                 </template>
                                 </tr>
@@ -97,10 +102,10 @@
                                         <span class="block">{{seccion.codigo2}}</span>
                                         <small class="block text-muted" v-text="tipoSeccion(seccion)"></small>
                                     </td>
-<!--                                    <td class="v-middle text-center">
+                                    <td class="v-middle text-center">
                                         <span class="block" v-if="seccion.aula.codigo != '' "><i class="fa fa-home text-primary"></i> {{seccion.aula.codigo}}</span>
                                         <span class="block" v-if="seccion.grupoHoras.codigo != '' "><i class="fa fa-calendar text-success"></i> {{seccion.grupoHoras.codigo}}</span>
-                                    </td>-->
+                                    </td>
 
                                     <td class="v-middle" v-html="verHorario(seccion.horarioTexto)"></td>
 
@@ -118,12 +123,15 @@
                                         <span v-if="profeSecc.fechaInicio != '' " class="block">Desde el {{profeSecc.fechaInicio}}</span>
                                         <span v-if="profeSecc.fechaFin != '' " class="block">Hasta el {{profeSecc.fechaFin}}</span>
                                     </td>
+                                    <td class="col-md-2 text-center v-middle">
+                                        <a class="btn btn-success" v-on:click="download(item)"><i class="fa fa-file-excel-o" aria-hidden="true"></i> </a>
+                                    </td>
                                 </template>
                                 </tr>
                                 </tbody>
                                 <tbody>
                                     <tr>
-                                        <td colspan="7" class="text-right bold h4">Total créditos carga</td>
+                                        <td colspan="8" class="text-right bold h4">Total créditos carga</td>
                                         <td class="text-right bold text-primary h4">
                                             {{cm.creditos.toFixed(2)}}
                                         </td>
@@ -135,13 +143,7 @@
                         </section>
                     </section>
                 </section>
-
             </div>
-
-
-
-
-
         </section>
 
         <div layout:fragment="js">
