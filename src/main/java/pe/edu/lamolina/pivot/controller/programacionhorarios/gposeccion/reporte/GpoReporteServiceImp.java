@@ -27,6 +27,7 @@ import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
+import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.horario.DiaHoraGrupo;
 import pe.edu.lamolina.model.horario.GrupoHoras;
 import pe.edu.lamolina.model.horario.HorarioAula;
@@ -428,8 +429,13 @@ public class GpoReporteServiceImp implements GpoReporteService {
         List<DocenteSeccion> docenteSeccions = docenteSeccionDAO.allPrincipalesBySecciones(secciones);
 
         for (Seccion seccion : secciones) {
+            Aula aula = seccion.getAula();
             List<HorarioSeccion> horarioSeccionBySeccion = horariosSeccion.stream().filter(x -> x.getSeccion().equals(seccion)).collect(Collectors.toList());
-            List<HorarioAula> horariosAulasBySeccion = horarioAulas.stream().filter(x -> x.getSeccion().equals(seccion)).collect(Collectors.toList());
+            List<HorarioAula> horariosAulasBySeccion = new ArrayList<>();
+            if (aula != null) {
+                horariosAulasBySeccion = horarioAulas.stream()
+                        .filter(x -> x.getSeccion().equals(seccion)).collect(Collectors.toList());
+            }
             List<DocenteSeccion> docentesSeccionBySeccion = docenteSeccions.stream().filter(x -> x.getSeccion().equals(seccion)).collect(Collectors.toList());
             if (!docentesSeccionBySeccion.isEmpty() && docentesSeccionBySeccion.size() == 1) {
                 seccion.setDocentePrincipal(docentesSeccionBySeccion.get(0).getDocente());

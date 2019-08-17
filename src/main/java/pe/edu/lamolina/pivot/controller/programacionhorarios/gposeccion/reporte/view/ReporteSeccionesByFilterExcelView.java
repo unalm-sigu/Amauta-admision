@@ -4,6 +4,7 @@ import java.io.InputStream;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -137,27 +138,18 @@ public class ReporteSeccionesByFilterExcelView extends AbstractView {
         excelUtil.replaceVal(3, 1, "Ciclo Académico " + ciclo.getDescripcion());
         excelUtil.replaceVal(4, 1, "Fecha " + TypesUtil.getStringDate(new Date(), "dd/MM/yyyy H:mm:ss"));
 
-//        excelUtil.replaceStyle(irow - 1, 0, estiloCabecera);
-//        excelUtil.replaceStyle(irow - 1, 1, estiloCabecera);
-//        excelUtil.replaceStyle(irow - 1, 2, estiloCabecera);
-//        excelUtil.replaceStyle(irow - 1, 3, estiloCabecera);
-//        excelUtil.replaceStyle(irow - 1, 4, estiloCabecera);
-//        excelUtil.replaceStyle(irow - 1, 5, estiloCabecera);
-//        excelUtil.replaceStyle(irow - 1, 6, estiloCabecera);
-//        excelUtil.replaceStyle(irow - 1, 7, estiloCabecera);
-//        excelUtil.replaceStyle(irow - 1, 8, estiloCabecera);
-//        excelUtil.replaceStyle(irow - 1, 9, estiloCabecera);
-//        excelUtil.replaceStyle(irow - 1, 10, estiloCabecera);
         int column = 0;
         excelUtil.replaceVal(irow - 1, column++, "ANEXO SUPERIOR", estiloCabecera);
         excelUtil.replaceVal(irow - 1, column++, "ANEXO", estiloCabecera);
         excelUtil.replaceVal(irow - 1, column++, "CURSO", estiloCabecera);
         excelUtil.replaceVal(irow - 1, column++, "SECCIÓN", estiloCabecera);
+        excelUtil.replaceVal(irow - 1, column++, "HORARIO SECCIÓN");
         excelUtil.replaceVal(irow - 1, column++, "TIPO SECCIÓN", estiloCabecera);
         excelUtil.replaceVal(irow - 1, column++, "HORARIO", estiloCabecera);
         excelUtil.replaceVal(irow - 1, column++, "VACANTES", estiloCabecera);
         excelUtil.replaceVal(irow - 1, column++, "MATRICULADOS", estiloCabecera);
         excelUtil.replaceVal(irow - 1, column++, "AULA", estiloCabecera);
+//        excelUtil.replaceVal(irow - 1, column++, "HORARIO AULA");
         excelUtil.replaceVal(irow - 1, column++, "OFICINA", estiloCabecera);
         excelUtil.replaceVal(irow - 1, column++, "SECCION ESTADO", estiloCabecera);
         //datos
@@ -183,6 +175,12 @@ public class ReporteSeccionesByFilterExcelView extends AbstractView {
             modalidadEstudio = modalidadEstudio != null ? modalidadEstudio : new ModalidadEstudio();
             excelUtil.replaceVal(irow, column++, curso.getNombre() + " (" + modalidadEstudio.getCodigo() + ") ");
             excelUtil.replaceVal(irow, column++, seccion.getCodigo2());
+            CellStyle cs = wb.createCellStyle();
+            cs.setWrapText(true);
+            List<String> horarioSeccion = seccion.getHorarioSeccion().stream()
+                    .map(x -> x.getHoraDiaDescripcion())
+                    .collect(Collectors.toList());
+            excelUtil.replaceVal(irow, column++, String.join("\n", horarioSeccion), cs);
             excelUtil.replaceVal(irow, column++, seccion.getTipoSeccion());
             excelUtil.replaceVal(irow, column++, seccion.getGrupoHoras() != null ? seccion.getGrupoHoras().getCodigo() : "");
             excelUtil.replaceVal(irow, column++, seccion.getVacantes(), estiloNumero);
@@ -190,6 +188,14 @@ public class ReporteSeccionesByFilterExcelView extends AbstractView {
             Aula aula = seccion.getAula();
             aula = aula == null ? new Aula() : aula;
             excelUtil.replaceVal(irow, column++, aula.getCodigo());
+//            if (aula.getId() != null) {
+//                List<String> horarioAula = seccion.getHorariosAula().stream()
+//                        .map(x -> x.getHoraDiaDescripcion())
+//                        .collect(Collectors.toList());
+//                excelUtil.replaceVal(irow, column++, String.join("\n", horarioAula), cs);
+//            } else {
+//                excelUtil.replaceVal(irow, column++, "");
+//            }
             Oficina oficina = new Oficina();
             if (aula != null && aula.getOficinaSupervisora() != null) {
                 oficina = aula.getOficinaSupervisora();
