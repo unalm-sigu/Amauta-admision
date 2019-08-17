@@ -2,6 +2,7 @@ package pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.reporte
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -440,10 +441,15 @@ public class GpoReporteServiceImp implements GpoReporteService {
     }
 
     @Override
-    public List<Seccion> allSeccionesSinAula(CicloAcademico cicloAcademico) {
-        SeccionDTO seccionDTO = new SeccionDTO();
-        seccionDTO.setConAula(false);
-        seccionDTO.setConHorario(true);
+    public List<Seccion> allSeccionesSinAula(CicloAcademico cicloAcademico, SeccionDTO seccionDTO) {
+        List<Seccion> secciones = seccionDAO.allByCicloAndFilter(cicloAcademico, ModalidadEstudioEnum.PRE, seccionDTO, SeccionEstadoEnum.ACT);
+        this.fillSecciones(secciones, cicloAcademico);
+
+        return secciones;
+    }
+
+    @Override
+    public List<Seccion> allSeccionesConAula(CicloAcademico cicloAcademico, SeccionDTO seccionDTO) {
         List<Seccion> secciones = seccionDAO.allByCicloAndFilter(cicloAcademico, ModalidadEstudioEnum.PRE, seccionDTO, SeccionEstadoEnum.ACT);
         this.fillSecciones(secciones, cicloAcademico);
 

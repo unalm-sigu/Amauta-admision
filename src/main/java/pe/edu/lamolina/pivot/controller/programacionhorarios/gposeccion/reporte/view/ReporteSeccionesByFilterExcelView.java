@@ -24,8 +24,11 @@ import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
+import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.general.Aula;
+import pe.edu.lamolina.model.general.Oficina;
+import pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.reporte.seccion.SeccionDTO;
 
 @Component
 public class ReporteSeccionesByFilterExcelView extends AbstractView {
@@ -39,7 +42,7 @@ public class ReporteSeccionesByFilterExcelView extends AbstractView {
 
         InputStream formato = (InputStream) map.get("formato");
 //
-        Workbook workbook = new XSSFWorkbook();
+        Workbook workbook = new XSSFWorkbook(formato);
         if (workbook instanceof XSSFWorkbook) {
             setContentType(CONTENT_TYPE_XLSX);
         } else {
@@ -54,10 +57,12 @@ public class ReporteSeccionesByFilterExcelView extends AbstractView {
 
         List<Seccion> seccionesConCruce = (List<Seccion>) model.get("secciones");
         CicloAcademico ciclo = (CicloAcademico) model.get("ciclo");
+        SeccionDTO seccionDTO = (SeccionDTO) model.get("seccionDTO");
 
-        this.generateSheet(wb, seccionesConCruce, ciclo);
+        this.generateSheet(wb, seccionesConCruce, seccionDTO, ciclo);
         String fecha = new DateTime().toString("yyyMMdd_Hmm");
-        response.setHeader("Content-Disposition", "attachment; filename=\"" + "Secciones_sin_aula_" + fecha + ".xlsx\"");
+        String titulo = seccionDTO.getTituloReporte().replace(" ", "_");
+        response.setHeader("Content-Disposition", "attachment; filename=\"" + titulo + fecha + ".xlsx\"");
         response.setContentType(getContentType());
 
         ServletOutputStream out = response.getOutputStream();
@@ -66,11 +71,11 @@ public class ReporteSeccionesByFilterExcelView extends AbstractView {
         out.flush();
     }
 
-    private void generateSheet(Workbook wb, List<Seccion> secciones, CicloAcademico ciclo) {
-        //  Sheet sheet = wb.getSheet("Hoja1");
-        Sheet sheet = wb.createSheet("Hoja1");
+    private void generateSheet(Workbook wb, List<Seccion> secciones, SeccionDTO seccionDTO, CicloAcademico ciclo) {
+        Sheet sheet = wb.getSheet("Hoja1");
+        // Sheet sheet = wb.createSheet("Hoja1");
         sheet.setAutobreaks(true);
-        this.createBody(wb, sheet, secciones, ciclo);
+        this.createBody(wb, sheet, seccionDTO, secciones, ciclo);
     }
 
     private CellStyle getStyleCabecera(Workbook workBook) {
@@ -117,7 +122,7 @@ public class ReporteSeccionesByFilterExcelView extends AbstractView {
         return cell;
     }
 
-    private void createBody(Workbook wb, Sheet sheet, List<Seccion> seccionesConCruce, CicloAcademico ciclo) {
+    private void createBody(Workbook wb, Sheet sheet, SeccionDTO seccionDTO, List<Seccion> seccionesConCruce, CicloAcademico ciclo) {
         ExcelHelper excelUtil = new ExcelHelper(sheet, wb);
 
         CellStyle estiloCabecera = getStyleCabecera(wb);
@@ -128,9 +133,9 @@ public class ReporteSeccionesByFilterExcelView extends AbstractView {
         CellStyle estiloGeneral = getStyleGeneral(wb);
 
         int irow = 7;
-        excelUtil.replaceVal(2, 6, "Secciones sin Aula ");
-        excelUtil.replaceVal(3, 6, "Ciclo Académico " + ciclo.getDescripcion());
-        excelUtil.replaceVal(4, 6, "Fecha " + TypesUtil.getStringDate(new Date(), "dd/MM/yyyy H:mm:ss"));
+        excelUtil.replaceVal(2, 1, seccionDTO.getTituloReporte());
+        excelUtil.replaceVal(3, 1, "Ciclo Académico " + ciclo.getDescripcion());
+        excelUtil.replaceVal(4, 1, "Fecha " + TypesUtil.getStringDate(new Date(), "dd/MM/yyyy H:mm:ss"));
 
 //        excelUtil.replaceStyle(irow - 1, 0, estiloCabecera);
 //        excelUtil.replaceStyle(irow - 1, 1, estiloCabecera);
@@ -153,7 +158,8 @@ public class ReporteSeccionesByFilterExcelView extends AbstractView {
         excelUtil.replaceVal(irow - 1, column++, "VACANTES", estiloCabecera);
         excelUtil.replaceVal(irow - 1, column++, "MATRICULADOS", estiloCabecera);
         excelUtil.replaceVal(irow - 1, column++, "AULA", estiloCabecera);
-        excelUtil.replaceVal(irow - 1, column++, "ESTADO", estiloCabecera);
+        excelUtil.replaceVal(irow - 1, column++, "OFICINA", estiloCabecera);
+        excelUtil.replaceVal(irow - 1, column++, "SECCION ESTADO", estiloCabecera);
         //datos
         int num = 1;
         for (Seccion seccion : seccionesConCruce) {
@@ -173,7 +179,9 @@ public class ReporteSeccionesByFilterExcelView extends AbstractView {
             Curso curso = grupoSeccion.getCurso();
             excelUtil.replaceVal(irow, column++, grupoSeccion.getAnexoBoletin().getAnexoSuperior().getNombre());
             excelUtil.replaceVal(irow, column++, grupoSeccion.getAnexoBoletin().getNombre());
-            excelUtil.replaceVal(irow, column++, curso.getNombre());
+            ModalidadEstudio modalidadEstudio = curso.getModalidadEstudio();
+            modalidadEstudio = modalidadEstudio != null ? modalidadEstudio : new ModalidadEstudio();
+            excelUtil.replaceVal(irow, column++, curso.getNombre() + " (" + modalidadEstudio.getCodigo() + ") ");
             excelUtil.replaceVal(irow, column++, seccion.getCodigo2());
             excelUtil.replaceVal(irow, column++, seccion.getTipoSeccion());
             excelUtil.replaceVal(irow, column++, seccion.getGrupoHoras() != null ? seccion.getGrupoHoras().getCodigo() : "");
@@ -182,6 +190,11 @@ public class ReporteSeccionesByFilterExcelView extends AbstractView {
             Aula aula = seccion.getAula();
             aula = aula == null ? new Aula() : aula;
             excelUtil.replaceVal(irow, column++, aula.getCodigo());
+            Oficina oficina = new Oficina();
+            if (aula != null && aula.getOficinaSupervisora() != null) {
+                oficina = aula.getOficinaSupervisora();
+            }
+            excelUtil.replaceVal(irow, column++, oficina.getCodigo());
             excelUtil.replaceVal(irow, column++, seccion.getEstado());
             Cell cell = excelUtil.findCell(irow, irow);
 
