@@ -1,0 +1,262 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title>Aulas</title>
+    </head>
+
+    <body>
+        <div layout:fragment="main">
+            <div id="aulaVUE" v-cloak="">
+                <header class="header b-b padder-lg">
+
+
+                    <h2 th:text="${'Aulas Programadas '+ ciclo.descripcion}"></h2>
+                </header>
+
+                <section class="wrapper-lg">
+                    <section class="panel">
+                        <section class="panel-body">
+
+                            <raptor-table v-bind:url="aulasURL" ref="raptorAulas">
+                                <div slot="header"></div>
+
+                                <template scope="props" >
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr class=""> 
+                                                <th class="col-md-3">Nombre</th>
+                                                <th class="col-md-1 text-center">Aforo Capacidad</th>
+                                                <th class="col-md-3 text-center">Ubicación</th>
+                                                <th class="col-md-1">Tipo Aula</th>
+                                                <th class="col-md-1">Contenido</th>
+                                                <th class="col-md-2">Gestor</th>
+                                                <th class="col-md-1">Estado</th>
+                                                <th></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr v-for="item in props.data">
+
+                                                <td class="v-middle">
+                                                    <span v-if="item.nombre != '' " class="block text-primary h4 m-b-xs m-t-xs">{{item.nombre}}</span>
+                                                    <span v-if="item.codigo != '' " class="block bold">{{item.codigo}}</span>
+
+                                                    <span class="block">{{item.tipoAmbienteEnum.value}} 
+                                                        <i class="pointer fa fa-calendar text-success ver-aula-horario" v-on:click="verHorarioAula(item)"></i>
+                                                    </span>
+                                                </td>
+
+                                                <td class="v-middle text-center">
+                                                    <span v-if="item.aforo != '' " class="block"><b>Aforo</b> {{item.aforo}}</span>
+                                                    <span v-if="item.capacidadAula != '' " class="block"><b>Cap.</b> {{item.capacidadAula}}</span>
+                                                </td>
+
+                                                <td class="v-middle">
+                                                    <span v-if="item.aulaSuperior.nombre != '' ">{{item.aulaSuperior.nombre}}</span>
+                                                    <span v-if="item.piso != '' " class="block">Planta {{item.piso}}</span>
+                                                    <span v-if="item.pisos != '' " class="block">Plantas {{item.pisos}}</span>
+                                                    <small v-if="item.sede.id != '' " class="block bold">{{item.sede.nombre}}</small>
+                                                </td>
+
+                                                <td class="v-middle">
+                                                    <span class="block">{{item.tipoAula.nombre}}</span>
+                                                </td>
+
+                                                <td class="v-middle text-center">
+                                                    <span v-if="item.tipoAmbiente == 'EDI' ">
+                                                        <a v-if="item.aulasContenido > 0" v-on:click="verAulas(item)" class="ver-aulas-contenido pointer">
+                                                            <span class="estado-blue">{{item.aulasContenido}}</span>
+                                                        </a>
+                                                        <span v-else="" class="estado-gray">{{item.aulasContenido}}</span>
+                                                    </span>
+                                                    <span v-if="item.tipoAmbiente != 'EDI'">
+                                                        <a v-if="item.cantidadinventarios > 0" v-on:click="verInventario(item)" class="pointer">
+                                                            <i class="fa fa-tasks" aria-hidden="true"></i>
+                                                        </a>
+                                                    </span>
+                                                </td>
+
+                                                <td class="v-middle">
+                                                    <span class="block">{{item.oficinaSupervisora.nombre}}</span>
+                                                </td>
+
+                                                <td class=" v-middle">
+                                                    <span class="clear">
+                                                        <span v-if="item.estado == 'ACT' " class="label label-primary"> {{item.estadoEnum.value}} </span>
+                                                        <label v-else="" class="label label-warning" data-toggle="tooltip" v-bind:title="item.motivoAnulacion"> {{item.estadoEnum.value}} </label>
+                                                    </span>
+                                                </td> 
+
+                                                <td class="v-middle"> 
+                                                    <div class="dropdown actions">
+                                                        <a class="dropdown-toggle" data-toggle="dropdown">
+                                                            <i class="glyphicon glyphicon-cog"></i>
+                                                        </a> 
+
+                                                        <ul class="dropdown-menu pull-right">
+                                                            <li v-if="item.estado == 'ACT' "><a v-on:click="editar(item)">Editar</a></li>
+                                                            <li v-if="item.estado == 'ACT' "><a v-on:click="cambiarEstado(item, 'INA')">Desactivar</a></li>
+                                                            <li v-if="item.estado == 'INA' "><a v-on:click="cambiarEstado(item, 'ACT')">Activar</a></li>
+                                                            <li v-if="item.estado == 'ACT' "><a v-on:click="verHorarioAula(item)">Ver horario</a></li>
+                                                            <li><a v-on:click='eliminarAula(item)'>Eliminar</a></li>
+
+                                                            <template v-if="item.tipoAmbiente != 'EDI' ">
+                                                                <li class="divider"></li>
+                                                                <li><a v-on:click="verInventarioPage(item)" >Inventario</a></li>
+                                                                <li><a v-on:click="verInventarioResumen(item)" >Resumen Inventario</a></li>
+                                                                <li><a v-on:click="horarioSemanalPDF(item)" class="descarga-pdf">Reporte Semanal PDF</a></li>
+                                                                <li><a v-on:click="reporteProgramacion(item)" class="descarga-pdf">Reporte Aulas Programadas</a></li>
+                                                            </template>
+                                                        </ul>
+                                                    </div>
+                                                </td>
+                                            </tr>
+
+                                        </tbody>
+                                    </table>
+                                </template>
+                            </raptor-table>
+
+                            <!--table class="table table-striped" id="dynaTable">
+                                <thead>
+                                    <tr class=""> 
+                                        <th class="col-md-3">Nombre</th>
+                                        <th class="col-md-1 text-center">Aforo Capacidad</th>
+                                        <th class="col-md-3 text-center">Ubicación</th>
+                                        <th class="col-md-1">Tipo Aula</th>
+                                        <th class="col-md-1">Contenido</th>
+                                        <th class="col-md-2">Gestor</th>
+                                        <th class="col-md-1">Estado</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table-->
+                            <!--                        <raptor-table v-bind:url="aulasURL" ref="load">
+                                                        <template  scope="props" >
+                                                            <table class="table table-striped table-hover">
+                                                                <thead> 
+                                                                    <tr class=""> 
+                                                                        <th class="col-md-3">Nombre</th>
+                                                                        <th class="col-md-1 text-center">Aforo Capacidad</th>
+                                                                        <th class="col-md-3 text-center">Ubicación</th>
+                                                                        <th class="col-md-1">Tipo Aula</th>
+                                                                        <th class="col-md-1">Contenido</th>
+                                                                        <th class="col-md-2">Gestor</th>
+                                                                        <th class="col-md-1">Estado</th>
+                                                                        <th></th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    <tr v-for="item in props.data">
+                                                                        <td class="v-middle">
+                                                                            {{if nombre}}
+                                                                            <span class="block text-primary h4 m-b-xs m-t-xs" v-if="item.nombre != null">{{item.nombre}}</span>
+                                                                            {{/if}}
+                            
+                                                                            {{if codigo}}
+                                                                            <span class="block bold" v-if="item.codigo != null">{{item.codigo}}</span>
+                                                                            {{/if}}
+                            
+                                                                            <span class="block">{{item.tipoAmbienteEnum}}</span>
+                                                                        </td>
+                                                                        <td class="v-middle text-center">
+                                                                            {{if aforo}}
+                                                                            <span class="block" v-if="item.aforo != null"><b>Aforo</b> {{item.aforo}}</span>
+                                                                            {{/if}}
+                            
+                                                                            {{if capacidad}}
+                                                                            <span class="block" v-if="item.capacidad != null"><b>Cap.</b> {{item.capacidad}}</span>
+                                                                            {{/if}}
+                                                                        </td>
+                                                                        <td class="v-middle">
+                                                                            {{if pabellon}}
+                                                                            <span class="block" v-if="item.pabellon != null">{{item.pabellon}}</span>
+                                                                            {{/if}}
+                                                                            {{if piso}}
+                                                                            <span class="block" v-if="item.piso != null">Planta {{item.piso}}</span>
+                                                                            {{/if}}
+                                                                            {{if pisos}}
+                                                                            <span class="block" v-if="item.pisos != null">Plantas {{item.pisos}}</span>
+                                                                            {{/if}}
+                                                                            <small class="block bold">{{item.sede.nombre}}</small>
+                                                                        </td>
+                                                                        <td class="v-middle">
+                                                                            <span class="block">{{item.tipoAula.nombre}}</span>
+                                                                        </td>
+                                                                        <td class="v-middle text-center">
+                                                                            {{if tipoAmbiente=='EDI'}}
+                                                                            {{if aulasContenido>0}}
+                                                                            <div v-if="item.tipoAmbiente == 'EDI'">
+                                                                                <a v-if="item.aulasContenido > 0" class="ver-aulas-contenido pointer"><span class="estado-blue">{{item.aulasContenido}}</span></a>
+                                                                                {{else}}
+                                                                                <span v-else="item.tipoAmbiente == 'EDI'" class="estado-gray">{{item.aulasContenido}}</span>
+                                                                                {{/if}}
+                                                                            </div>
+                                                                            <div v-else="item.tipoAmbiente == 'EDI'">
+                                                                                {{else}}
+                                                                                <a class="ver-contenido-aula pointer"><i class="fa fa-tasks" aria-hidden="true"></i></a>
+                                                                                {{/if}}
+                                                                            </div>
+                                                                        </td>
+                            
+                                                                        <td class="v-middle">
+                                                                            <span class="block">{{item.gestor.nombre}}</span>
+                                                                        </td>
+                                                                        <td class=" v-middle">
+                                                                            <span class="clear">
+                            
+                                                                                <label class="label label-primary"  data-toggle="tooltip" title="{{item.motivo}}" v-if="item.estado=='ACT'"> Activo </label>
+                                                                                <label class="label label-danger"  data-toggle="tooltip" title="{{item.motivo}}" v-if="item.estado=='INA'"> Inactivo </label>
+                                                                                <label class="label label-default"  data-toggle="tooltip" title="{{item.motivo}}" v-if="item.estado=='CRE'"> {{item.estadoEnum}} </label>
+                                                                            </span>
+                                                                        </td> 
+                            
+                                                                        <td class="v-middle"> 
+                                                                            <div class="dropdown actions">
+                                                                                <a class="dropdown-toggle" data-toggle="dropdown">
+                                                                                    <i class="glyphicon glyphicon-cog"></i>
+                                                                                </a> 
+                            
+                                                                                <ul class="dropdown-menu pull-right">
+                                                                                    <li><a class="" v-on:click="editar(item)" rev="{{item.estado}}">Editar</a></li>
+                                                                                    <li v-if="item.estado == 'ACT'"><a class="pointer" v-on:click="cambiarEstado(item,'INA')" >Desactivar</a></li>
+                                                                                    <li v-if="item.estado == 'INA' || item.estado == 'CRE'"><a class="pointer" v-on:click="cambiarEstado(item,'ACT')">Activar</a></li>
+                                                                                    <li><a class=" pointer" v-on:click="eliminar(item)">Eliminar</a></li>
+                            
+                                                                                </ul>
+                                                                            </div>
+                                                                        </td>
+                                                                    </tr>
+                                                                </tbody>
+                                                            </table>
+                                                        </template>
+                                                    </raptor-table>-->
+                        </section>
+                    </section>
+                </section>
+
+                <div th:substituteby="general/aula/modalAula"/>
+            </div>
+            <div th:substituteby="general/aula/aulaHorarioComponent"/>
+
+            <div th:substituteby="templates/modal"/>
+            <!--<script id="aulaTemplate" type="text/x-jsrender" class="hide"><div th:substituteby="general/aula/aulaTemplate"/></script>-->
+        </div>
+
+        <div layout:fragment="js" th:remove="tag">
+            <script  th:inline="javascript" >
+                /*<![CDATA[*/
+                var rutaModulo = 'general/aula';
+                /*]]>*/
+            </script>
+            <div th:substituteby="_modules/vue-modal"/>
+            <div th:substituteby="_layout/includes :: javascript-filedownload"/>
+            <div th:substituteby="_modules/vue-raptor-table"></div>
+            <!--<div th:substituteby="_layout/includes :: javascript-dynatable"/>-->
+            <script th:src="@{/app/general/aula/aulaHorarioComponent.js}" charset="utf-8"></script>
+            <script th:src="@{/app/general/aula/aula.js}" charset="utf-8"></script>
+        </div>
+
+    </body>
+</html>

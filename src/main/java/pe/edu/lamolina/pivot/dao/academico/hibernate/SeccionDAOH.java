@@ -27,7 +27,6 @@ import static pe.edu.lamolina.model.enums.SeccionEstadoEnum.ANU;
 import static pe.edu.lamolina.model.enums.SeccionEstadoEnum.BLO;
 import static pe.edu.lamolina.model.enums.SeccionEstadoEnum.CAN;
 import static pe.edu.lamolina.model.enums.SeccionEstadoEnum.FUS;
-import static pe.edu.lamolina.model.enums.SeccionEstadoEnum.INA;
 import pe.edu.lamolina.model.enums.TipoGrupoHorasEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 import static pe.edu.lamolina.model.enums.TipoSeccionEnum.TCUR;
@@ -37,7 +36,7 @@ import pe.edu.lamolina.model.horario.HorarioCachimbos;
 import pe.edu.lamolina.model.horario.SeccionHorarioCachimbos;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
 import pe.edu.lamolina.model.rolexamen.SeccionExcluido;
-import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.reporte.seccion.SeccionDTO;
 
 @Repository
 public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO {
@@ -881,6 +880,33 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
             secciones.add(seccion);
         }
         return secciones;
+    }
+
+    @Override
+    public List<Seccion> allByCicloAndFilter(CicloAcademico ciclo, SeccionDTO seccionDTO, SeccionEstadoEnum... seccionEstadoEnum) {
+        Octavia sql = Octavia.query()
+                .from(Seccion.class, "sec")
+                .join("grupoSeccion gs", "gs.curso cur", "gs.cicloAcademico ca")
+                .join("gs.anexoBoletin ab", "ab.anexoSuperior abosup")
+                .leftJoin("aula aul", "grupoHoras gho", "cur.modalidadEstudio")
+                .filter("ca.id", ciclo);
+        if (seccionEstadoEnum != null) {
+            sql.in("sec.estado", Arrays.asList(seccionEstadoEnum));
+        }
+         sql.isNull("aul.id");
+         
+//        if (seccionDTO.getConAula()) {
+//            sql.isNotNull("aul.id");
+//        } else {
+//            sql.isNull("aul.id");
+//        }
+//        if (seccionDTO.getConHorario()) {
+//            sql.isNotNull("gho.id");
+//        } else {
+//            sql.isNull("gho.id");
+//        }
+        sql.orderBy("abosup.nombre asc");
+        return all(sql);
     }
 
 }

@@ -63,6 +63,16 @@ public class AulaDAOH extends AbstractEasyDAO<Aula> implements AulaDAO {
         return all(sql);
     }
 
+    public List<Aula> allProgramadasSinHorario(DynatableFilter filter) {
+        DynatableSql sql = new DynatableSql(filter)
+                .from(Aula.class, "au")
+                .leftJoin("aulaSuperior aus", "sede se", "tipoAula ta", "oficinaSupervisora os")
+                .searchFields("au.nombre", "aus.nombre", "ta.nombre", "au.codigo", "os.nombre")
+                .orderBy("au.id desc");
+
+        return all(sql);
+    }
+
     @Override
     public Integer findAforoByEdificio(Aula aula) {
         Octavia sql = Octavia.query()

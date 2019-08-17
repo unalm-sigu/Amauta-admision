@@ -31,6 +31,7 @@ import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.tramite.TramiteDocumentoAcademico;
 import pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.GpoSeccionResumen;
 import pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.reporte.view.ReporteCrucesExcelView;
+import pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.reporte.view.ReporteSeccionesByFilterExcelView;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.pivot.zelper.pdf.pdfHtml.PDFFormatoEnum;
@@ -53,6 +54,9 @@ public class GpoReporteController {
 
     @Autowired
     ReporteCrucesExcelView reporteCrucesExcelView;
+
+    @Autowired
+    ReporteSeccionesByFilterExcelView reporteSeccionesByFilterExcelView;
 
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {
@@ -218,6 +222,22 @@ public class GpoReporteController {
         model.addAttribute("secciones", secciones);
         model.addAttribute("ciclo", cicloAcademico);
         return new ModelAndView(reporteCrucesExcelView);
+    }
+
+    @RequestMapping("reporteSeccionesSinAulas")
+    public ModelAndView reporteSeccionesSinAulas(Model model, HttpSession session) {
+
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        CicloAcademico cicloAcademico = ds.getCicloAcademico();
+
+        InputStream formato = this.getClass().getResourceAsStream("/templates/excel/formatoSeccionesConCruce.xlsx");
+
+        List<Seccion> secciones = service.allSeccionesSinAula(cicloAcademico);
+
+        model.addAttribute("formato", formato);
+        model.addAttribute("secciones", secciones);
+        model.addAttribute("ciclo", cicloAcademico);
+        return new ModelAndView(reporteSeccionesByFilterExcelView);
     }
 
 }
