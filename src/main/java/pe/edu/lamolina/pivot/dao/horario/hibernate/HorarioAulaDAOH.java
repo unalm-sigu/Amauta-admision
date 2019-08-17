@@ -18,6 +18,7 @@ import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.enums.TipoAulaEnum;
 import pe.edu.lamolina.model.enums.TipoHorarioAulaEnum;
+import pe.edu.lamolina.model.enums.TipoOficinaEnum;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.horario.Hora;
@@ -185,8 +186,9 @@ public class HorarioAulaDAOH extends AbstractEasyDAO<HorarioAula> implements Hor
                 .from(HorarioAula.class, "ha")
                 .join("dia d", "hora h", "aula au", "seccion sec")
                 .join("sec.grupoSeccion gs", "gs.cicloAcademico ca", "sec.grupoHoras gh")
-                .join("gs.curso cur")
+                .join("gs.curso cur", "au.oficinaSupervisora ofi")
                 .filter("ha.tipo", tipoHorarioAulaEnum)
+                .filter("ofi.codigo", OficinaEnum.OERA)
                 .filter("ca.id", cicloAcademico);
         if (aula != null) {
             sql.filter("au.id", aula);

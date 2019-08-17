@@ -279,9 +279,10 @@ public class HorarioAulaCicloPDF extends AbstractOnlyPdfView {
             addCeldaCenterBody(seccion.getGrupoHoras().getCodigo(), innerTable, letterFont);
             addCeldaLeftBody(cursoString + " / " + seccionString, innerTable, bodyFont);
             addCeldaLeftBody(cursoNombre, innerTable, bodyFont);
-            table.addCell(innerTable);
+            //   table.addCell(innerTable);
 //            break;
         }
+        table.addCell(innerTable);
         return table;
     }
 
