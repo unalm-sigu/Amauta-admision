@@ -79,7 +79,7 @@ public class HorarioAulaCicloPDF extends AbstractOnlyPdfView {
             PdfPTable table = this.createTable();
             this.documentHeader(table, aula, ciclo, dias);
             this.generateTable(table, dias, horas, horariosAulasByAula);
-            this.documentFooter(table, ciclo);
+            this.documentFooter(table, aula, ciclo);
 
             try {
                 document.add(table);
@@ -91,7 +91,7 @@ public class HorarioAulaCicloPDF extends AbstractOnlyPdfView {
 
         }
 
-        String filename = "horarios-cachimbos";
+        String filename = "horarios-aulas";
 
         response.setHeader("Content-Disposition", "attachment; filename=\"" + filename + ".pdf\"");
         response.setHeader("Set-Cookie", "fileDownload=true; path=/");
@@ -216,10 +216,12 @@ public class HorarioAulaCicloPDF extends AbstractOnlyPdfView {
         table.addCell(cell);
     }
 
-    private void documentFooter(PdfPTable table, CicloAcademico cicloAcademico) {
+    private void documentFooter(PdfPTable table, Aula aula, CicloAcademico cicloAcademico) {
         Font fontFooterPDF = new Font(Font.FontFamily.HELVETICA, 7, Font.NORMAL, BaseColor.BLACK);
 
-        PdfPCell cellFooter = new PdfPCell(new Phrase("CICLO " + cicloAcademico.getDescripcion(), fontFooterPDF));
+        String cicloStr = "CICLO " + cicloAcademico.getDescripcion();
+        String capacidadStr = "CAPACIDAD " + aula.getCapacidadAula();
+        PdfPCell cellFooter = new PdfPCell(new Phrase(cicloStr + "      " + capacidadStr, fontFooterPDF));
         cellFooter.setVerticalAlignment(Element.ALIGN_LEFT);
         cellFooter.setHorizontalAlignment(Element.ALIGN_LEFT);
         cellFooter.setColspan(2);
@@ -232,7 +234,7 @@ public class HorarioAulaCicloPDF extends AbstractOnlyPdfView {
 
         PdfPCell cellFooter2 = new PdfPCell(new Phrase("OFICINA DE ESTUDIOS Y REGISTROS ACADÉMICOS", fontFooterPDF));
         cellFooter2.setVerticalAlignment(Element.ALIGN_LEFT);
-        cellFooter2.setHorizontalAlignment(Element.ALIGN_LEFT);
+        cellFooter2.setHorizontalAlignment(Element.ALIGN_CENTER);
         cellFooter2.setColspan(3);
         cellFooter2.setPaddingLeft(0f);
         cellFooter2.setPaddingRight(0f);

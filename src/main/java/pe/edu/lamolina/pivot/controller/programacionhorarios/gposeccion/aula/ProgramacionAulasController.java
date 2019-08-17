@@ -23,12 +23,12 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
 @RequestMapping("academico/gposeccion/secciones")
-public class SeccionController {
+public class ProgramacionAulasController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    SeccionService service;
+    ProgramacionAulaService service;
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {

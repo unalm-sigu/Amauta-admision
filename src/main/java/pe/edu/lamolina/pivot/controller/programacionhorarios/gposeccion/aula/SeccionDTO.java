@@ -2,12 +2,15 @@ package pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.aula;
 
 import java.util.List;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
+import pe.edu.lamolina.model.general.Dia;
 
 public class SeccionDTO {
 
     private String tituloReporte;
     private Boolean conHorario;
     private Boolean conAula;
+
+    List<Dia> dias;
 
     List<ModalidadEstudioEnum> modalidadesEstudioEnum;
 

@@ -4,7 +4,7 @@ import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.edu.lamolina.model.general.Aula;
 
-public interface SeccionService {
+public interface ProgramacionAulaService {
 
     List<Aula> allAulasSinHorarioDyna(DynatableFilter filter);
 
