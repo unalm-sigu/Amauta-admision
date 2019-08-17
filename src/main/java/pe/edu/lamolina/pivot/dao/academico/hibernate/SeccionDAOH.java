@@ -890,7 +890,7 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
                 .join("gs.anexoBoletin ab", "ab.anexoSuperior abosup")
                 .leftJoin("aula aul", "grupoHoras gho", "cur.modalidadEstudio modes")
                 .filter("ca.id", ciclo)
-                .filter("modes.id", modalidadEstudioEnum);
+                .filter("modes.cdodigo", modalidadEstudioEnum);
         if (seccionEstadoEnum != null) {
             sql.in("sec.estado", Arrays.asList(seccionEstadoEnum));
         }
