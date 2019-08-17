@@ -11,6 +11,7 @@ import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
+import pe.edu.lamolina.model.general.Aula;
 
 public interface DocenteSeccionDAO extends EasyDAO<DocenteSeccion> {
 
@@ -89,5 +90,7 @@ public interface DocenteSeccionDAO extends EasyDAO<DocenteSeccion> {
     public List<DocenteSeccion> allByCiclo(CicloAcademico ciclo, List<EstadoEnum> asList, List<SeccionEstadoEnum> asList0);
 
     public List<DocenteSeccion> allDocenteSeccionPrincipalBySeccion(List<Seccion> secciones);
+
+    List<DocenteSeccion> allByCiclo(CicloAcademico ciclo, Aula aula, EstadoEnum... estadoEnum);
 
 }

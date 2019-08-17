@@ -20,6 +20,7 @@ import pe.edu.lamolina.model.enums.DocenteEstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
+import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 
 @Repository
@@ -299,6 +300,21 @@ public class DocenteSeccionDAOH extends AbstractEasyDAO<DocenteSeccion> implemen
                 .leftJoin("doc.persona per", "per.tipoDocumento", "doc.departamentoAcademico dpa")
                 .in("ds.estado", estados)
                 .filter("ca.id", ciclo);
+
+        return all(sql);
+    }
+
+    @Override
+    public List<DocenteSeccion> allByCiclo(CicloAcademico ciclo, Aula aula, EstadoEnum... estadoEnum) {
+        List<EstadoEnum> estados = Arrays.asList(estadoEnum);
+        Octavia sql = Octavia.query()
+                .from(DocenteSeccion.class, "ds")
+                .join("seccion sec", "sec.grupoSeccion gs", "gs.curso cur", "gs.cicloAcademico ca", "docente doc")
+                .join("sec.aula au")
+                .leftJoin("doc.persona per", "per.tipoDocumento", "doc.departamentoAcademico dpa")
+                .in("ds.estado", estados)
+                .filter("ca.id", ciclo)
+                .filter("au.id", aula);
 
         return all(sql);
     }

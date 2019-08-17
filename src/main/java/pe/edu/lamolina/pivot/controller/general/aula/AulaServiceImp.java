@@ -25,6 +25,7 @@ import pe.edu.lamolina.model.almacen.ResumenInventario;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.TipoAmbienteEnum;
 import pe.edu.lamolina.model.enums.TipoGrupoHorasEnum;
+import pe.edu.lamolina.model.enums.TipoHorarioAulaEnum;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.general.Oficina;
@@ -457,6 +458,20 @@ public class AulaServiceImp implements AulaService {
     @Override
     public Aula findById(Aula aulaSuperiorForm) {
         return aulaDAO.find(aulaSuperiorForm.getId());
+    }
+
+    @Override
+    public List<HorarioAula> allHorariosAulaByCiclo(CicloAcademico cicloAcademico, Aula aula) {
+        List<HorarioAula> horariosAulasByCiclo = horarioAulaDAO.allByCicloAndTipoHorario(cicloAcademico, aula, TipoHorarioAulaEnum.DICT);
+        // List<Aula> aulas = horariosAulasByCiclo.stream().map(x -> x.getAula()).distinct().collect(Collectors.toList());
+        List<DocenteSeccion> docentesSeccionesByCiclo = docenteSeccionDAO.allByCiclo(cicloAcademico, aula, EstadoEnum.ACT);
+        Map<Long, List<DocenteSeccion>> docentesSeccionBySeccion = TypesUtil.convertListToMapList("seccion.id", docentesSeccionesByCiclo);
+
+        for (HorarioAula horarioAula : horariosAulasByCiclo) {
+            List<DocenteSeccion> docentesSecciones = docentesSeccionBySeccion.get(horarioAula.getSeccion().getId());
+            horarioAula.getSeccion().setDocenteSeccion(docentesSecciones);
+        }
+        return horariosAulasByCiclo;
     }
 
 }

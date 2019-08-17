@@ -8,6 +8,7 @@ import java.beans.PropertyEditorSupport;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
@@ -42,6 +43,8 @@ import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.horario.Hora;
+import pe.edu.lamolina.model.horario.HorarioAula;
+import pe.edu.lamolina.pivot.controller.reporte.view.HorarioAulaCicloPDF;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.constant.Messages;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -55,6 +58,9 @@ public class AulaController {
 
     @Autowired
     HorarioAulaSemanalPDF horarioAulaSemanalPDF;
+
+    @Autowired
+    HorarioAulaCicloPDF horarioAulaCicloPDF;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -515,24 +521,19 @@ public class AulaController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
         Aula aulaForm = new ObjectMapper().readValue(horariosAulaPdfBean.getStrAula(), Aula.class);
+        Aula aulaBD = service.findAulaById(aulaForm.getId());
 
+        List<HorarioAula> horariosAulas = service.allHorariosAulaByCiclo(ds.getCicloAcademico(), aulaForm);
         List<Dia> dias = service.allDiaForPrinter();
-        Aula aulaBD = service.findAulaFull(aulaForm);
-        Aula aulaSuperior = aulaBD.getAulaSuperior();
-
-        List<Hora> horasConHorarios = service.returnHorasEncontradas(aulaBD, dias, ds.getCicloAcademico());
-        List<Hora> horasBase = service.allHorasHorario();
+        List<Hora> horas = service.allHorasHorario();
 
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
-        model.addAttribute("aula", aulaBD);
-        model.addAttribute("aulaSuperior", aulaSuperior);
+        model.addAttribute("aulas", Arrays.asList(aulaBD));
         model.addAttribute("dias", dias);
-        model.addAttribute("horasBase", horasBase);
-        model.addAttribute("horas", horasConHorarios);
-        model.addAttribute("fechaFin", horariosAulaPdfBean.getFechaFin());
-        model.addAttribute("fechaInicio", horariosAulaPdfBean.getFechaInicio());
+        model.addAttribute("horas", horas);
+        model.addAttribute("horariosAulas", horariosAulas);
 
-        return new ModelAndView(horarioAulaSemanalPDF);
+        return new ModelAndView(horarioAulaCicloPDF);
     }
 
     @RequestMapping("horarios")
