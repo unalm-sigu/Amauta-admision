@@ -313,9 +313,10 @@ public class DocenteSeccionDAOH extends AbstractEasyDAO<DocenteSeccion> implemen
                 .join("sec.aula au")
                 .leftJoin("doc.persona per", "per.tipoDocumento", "doc.departamentoAcademico dpa")
                 .in("ds.estado", estados)
-                .filter("ca.id", ciclo)
-                .filter("au.id", aula);
-
+                .filter("ca.id", ciclo);
+        if (aula != null) {
+            sql.filter("au.id", aula);
+        }
         return all(sql);
     }
 

@@ -8,9 +8,11 @@ import java.beans.PropertyEditorSupport;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
@@ -522,13 +524,22 @@ public class AulaController {
 
         Aula aulaForm = new ObjectMapper().readValue(horariosAulaPdfBean.getStrAula(), Aula.class);
         Aula aulaBD = service.findAulaById(aulaForm.getId());
+        List<Aula> aulas = new ArrayList<>();
+        if (aulaBD != null) {
+            aulas.add(aulaBD);
+        } else {
+            aulas = service.allAulas(ds.getCicloAcademico());
+        }
 
-        List<HorarioAula> horariosAulas = service.allHorariosAulaByCiclo(ds.getCicloAcademico(), aulaForm);
+        List<HorarioAula> horariosAulas = service.allHorariosAulaByCiclo(ds.getCicloAcademico(), aulaBD);
         List<Dia> dias = service.allDiaForPrinter();
         List<Hora> horas = service.allHorasHorario();
+        List<Aula> aulasProgramadas = horariosAulas.stream()
+                .map(x -> x.getAula())
+                .distinct().collect(Collectors.toList());
 
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
-        model.addAttribute("aulas", Arrays.asList(aulaBD));
+        model.addAttribute("aulas", aulasProgramadas);
         model.addAttribute("dias", dias);
         model.addAttribute("horas", horas);
         model.addAttribute("horariosAulas", horariosAulas);

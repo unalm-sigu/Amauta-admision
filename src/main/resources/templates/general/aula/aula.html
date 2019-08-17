@@ -8,10 +8,18 @@
         <div layout:fragment="main">
             <div id="aulaVUE" v-cloak="">
                 <header class="header b-b padder-lg">
-                    <div class="pull-right m-t-md">                 
-                        <a type="button" class="btn btn-primary" th:href="@{'/general/aula/horarios'}">Pantalla Completa</a>  
-                        <a type="button" class="btn btn-success" th:href="@{'/general/aula/nuevo'}">Nuevo</a>
-                    </div> 
+
+                    <div class="btn-group pull-right">
+                        <button type="button" class="btn btn-primary dropdown-toggle pull-right" data-toggle="dropdown">
+                            Acciones &nbsp; <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a type="button" th:href="@{'/general/aula/nuevo'}">Nuevo</a></li>
+                            <li><a type="button" th:href="@{'/general/aula/horarios'}">Pantalla Completa</a></li>
+                            <li><a type="button" v-on:click.prevent="reporteProgramacion({id:0})" th:href="@{'/general/aula/horarios'}">Reporte Aulas Programadas</a></li>
+                        </ul>
+                    </div>
+
                     <h2 th:text="${'Lista de ambientes '+ ciclo.descripcion}"></h2>
                 </header>
 
@@ -107,7 +115,7 @@
                                                                 <li><a v-on:click="verInventarioPage(item)" >Inventario</a></li>
                                                                 <li><a v-on:click="verInventarioResumen(item)" >Resumen Inventario</a></li>
                                                                 <li><a v-on:click="horarioSemanalPDF(item)" class="descarga-pdf">Reporte Semanal PDF</a></li>
-                                                                <li><a v-on:click="reporteProgramacion(item)" class="descarga-pdf">Reporte Programación</a></li>
+                                                                <li><a v-on:click="reporteProgramacion(item)" class="descarga-pdf">Reporte Aulas Programadas</a></li>
                                                             </template>
                                                         </ul>
                                                     </div>
@@ -238,7 +246,7 @@
                         </section>
                     </section>
                 </section>
-                
+
                 <div th:substituteby="general/aula/modalAula"/>
             </div>
             <div th:substituteby="general/aula/aulaHorarioComponent"/>
