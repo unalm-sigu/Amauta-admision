@@ -1,4 +1,4 @@
-package pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.reporte.seccion;
+package pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.aula;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;

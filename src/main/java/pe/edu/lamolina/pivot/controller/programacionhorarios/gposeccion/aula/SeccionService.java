@@ -1,4 +1,4 @@
-package pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.reporte.seccion;
+package pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.aula;
 
 import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
