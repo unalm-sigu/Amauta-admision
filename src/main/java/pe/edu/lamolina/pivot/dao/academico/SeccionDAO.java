@@ -8,7 +8,9 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
+import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.Seccion;
+import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
 import pe.edu.lamolina.model.enums.TipoGrupoHorasEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
@@ -128,6 +130,6 @@ public interface SeccionDAO extends EasyDAO<Seccion> {
 
     List<Seccion> findByNombreCiclo(String nombre, CicloAcademico ciclo);
 
-    List<Seccion> allByCicloAndFilter(CicloAcademico ciclo, SeccionDTO seccionDTO, SeccionEstadoEnum... seccionEstadoEnum);
+    List<Seccion> allByCicloAndFilter(CicloAcademico ciclo, ModalidadEstudioEnum modalidadEstudioEnum, SeccionDTO seccionDTO, SeccionEstadoEnum... seccionEstadoEnum);
 
 }

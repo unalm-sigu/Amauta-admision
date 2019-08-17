@@ -883,7 +883,7 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
     }
 
     @Override
-    public List<Seccion> allByCicloAndFilter(CicloAcademico ciclo, SeccionDTO seccionDTO, SeccionEstadoEnum... seccionEstadoEnum) {
+    public List<Seccion> allByCicloAndFilter(CicloAcademico ciclo, ModalidadEstudioEnum modalidadEstudioEnum, SeccionDTO seccionDTO, SeccionEstadoEnum... seccionEstadoEnum) {
         Octavia sql = Octavia.query()
                 .from(Seccion.class, "sec")
                 .join("grupoSeccion gs", "gs.curso cur", "gs.cicloAcademico ca")
@@ -893,18 +893,16 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
         if (seccionEstadoEnum != null) {
             sql.in("sec.estado", Arrays.asList(seccionEstadoEnum));
         }
-         sql.isNull("aul.id");
-         
-//        if (seccionDTO.getConAula()) {
-//            sql.isNotNull("aul.id");
-//        } else {
-//            sql.isNull("aul.id");
-//        }
-//        if (seccionDTO.getConHorario()) {
-//            sql.isNotNull("gho.id");
-//        } else {
-//            sql.isNull("gho.id");
-//        }
+        if (seccionDTO.getConAula()) {
+            sql.isNotNull("aul.id");
+        } else {
+            sql.isNull("aul.id");
+        }
+        if (seccionDTO.getConHorario()) {
+            sql.isNotNull("gho.id");
+        } else {
+            sql.isNull("gho.id");
+        }
         sql.orderBy("abosup.nombre asc");
         return all(sql);
     }

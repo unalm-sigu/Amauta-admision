@@ -444,7 +444,7 @@ public class GpoReporteServiceImp implements GpoReporteService {
         SeccionDTO seccionDTO = new SeccionDTO();
         seccionDTO.setConAula(false);
         seccionDTO.setConHorario(true);
-        List<Seccion> secciones = seccionDAO.allByCicloAndFilter(cicloAcademico, seccionDTO, SeccionEstadoEnum.ACT);
+        List<Seccion> secciones = seccionDAO.allByCicloAndFilter(cicloAcademico, ModalidadEstudioEnum.PRE, seccionDTO, SeccionEstadoEnum.ACT);
         this.fillSecciones(secciones, cicloAcademico);
 
         return secciones;
