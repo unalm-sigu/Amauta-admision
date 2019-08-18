@@ -106,4 +106,6 @@ public interface HorarioAulaDAO extends EasyDAO<HorarioAula> {
 
     List<HorarioAula> allByCicloAndTipoHorario(CicloAcademico cicloAcademico, Aula aula, TipoHorarioAulaEnum tipoHorarioAulaEnum);
 
+    List<HorarioAula> allByCicloAndTipoHorario(CicloAcademico cicloAcademico, List<Aula> aulas, TipoHorarioAulaEnum tipoHorarioAulaEnum);
+
 }

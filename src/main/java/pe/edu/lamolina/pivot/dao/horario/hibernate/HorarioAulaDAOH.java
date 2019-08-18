@@ -1,5 +1,6 @@
 package pe.edu.lamolina.pivot.dao.horario.hibernate;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -182,6 +183,11 @@ public class HorarioAulaDAOH extends AbstractEasyDAO<HorarioAula> implements Hor
 
     @Override
     public List<HorarioAula> allByCicloAndTipoHorario(CicloAcademico cicloAcademico, Aula aula, TipoHorarioAulaEnum tipoHorarioAulaEnum) {
+        return this.allByCicloAndTipoHorario(cicloAcademico, aula != null ? Arrays.asList(aula) : null, tipoHorarioAulaEnum);
+    }
+
+    @Override
+    public List<HorarioAula> allByCicloAndTipoHorario(CicloAcademico cicloAcademico, List<Aula> aulas, TipoHorarioAulaEnum tipoHorarioAulaEnum) {
         Octavia sql = Octavia.query()
                 .from(HorarioAula.class, "ha")
                 .join("dia d", "hora h", "aula au", "seccion sec")
@@ -190,8 +196,8 @@ public class HorarioAulaDAOH extends AbstractEasyDAO<HorarioAula> implements Hor
                 .filter("ha.tipo", tipoHorarioAulaEnum)
                 .filter("ofi.codigo", OficinaEnum.OERA)
                 .filter("ca.id", cicloAcademico);
-        if (aula != null) {
-            sql.filter("au.id", aula);
+        if (aulas != null && !aulas.isEmpty()) {
+            sql.in("au.id", aulas);
         }
         return all(sql);
     }

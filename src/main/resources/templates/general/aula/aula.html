@@ -27,8 +27,30 @@
                     <section class="panel">
                         <section class="panel-body">
 
-                            <raptor-table v-bind:url="aulasURL" ref="raptorAulas">
-                                <div slot="header"></div>
+                            <raptor-table v-bind:url="aulasURL" v-bind:preload="false" ref="raptorAulas">
+
+                                <div slot="header">
+                                    <div class="col-md-8">
+                                        <!-- 
+                                                     v-on:search-change="searchCiclos" 
+                                                     v-bind:loading="isSearchingCiclos"
+                                        -->
+                                        <multiselect v-model='tipoAula'
+                                                     track-by='codigo'
+                                                     v-bind:internal-search='true'
+                                                     v-bind:options='tipoAulas'
+                                                     v-bind:allow-empty="true"
+                                                     placeholder="Seleccione el tipo de Aula"
+                                                     label="nombre"
+                                                     select-label="Seleccione este tipo de aula"
+                                                     deselect-label="Remover selección"
+                                                     v-on:input="changeTipoAula"
+                                                     >
+                                        </multiselect>
+                                    </div>
+                                </div>
+
+
 
                                 <template scope="props" >
                                     <table class="table table-striped">
@@ -53,6 +75,9 @@
 
                                                     <span class="block">{{item.tipoAmbienteEnum.value}} 
                                                         <i class="pointer fa fa-calendar text-success ver-aula-horario" v-on:click="verHorarioAula(item)"></i>
+                                                    </span>
+                                                    <span class="block" v-if="item.oficinaSupervisora.oficinaOera">
+                                                        <span v-text="'Secciones programdas '+item.secciones"></span>
                                                     </span>
                                                 </td>
 
@@ -259,6 +284,7 @@
             <script  th:inline="javascript" >
                 /*<![CDATA[*/
                 var rutaModulo = 'general/aula';
+                var tipoAulasJson = /*[[${tipoAulasJson}]]*/ {};
                 /*]]>*/
             </script>
             <div th:substituteby="_modules/vue-modal"/>

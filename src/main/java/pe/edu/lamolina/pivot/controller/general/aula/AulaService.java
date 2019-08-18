@@ -17,7 +17,7 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface AulaService {
 
-    List<Aula> allByDynatable(DynatableFilter filter);
+    List<Aula> allByDynatable(DynatableFilter filter, CicloAcademico cicloAcademico);
 
     List<TipoAula> allTiposAula();
 

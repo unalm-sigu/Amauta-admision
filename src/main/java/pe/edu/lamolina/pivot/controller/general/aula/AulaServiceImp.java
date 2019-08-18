@@ -94,18 +94,30 @@ public class AulaServiceImp implements AulaService {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
-    public List<Aula> allByDynatable(DynatableFilter filter) {
+    public List<Aula> allByDynatable(DynatableFilter filter, CicloAcademico cicloAcademico) {
         List<Aula> aulas = aulaDAO.allByDynatable(filter);
         List<Aula> aulasHijas = aulaDAO.allByAulasSuperiores(aulas);
         List<ResumenInventario> resumenAulas = resumenInventarioDAO.allVisiblesByAulas(aulas);
+        List<HorarioAula> horariosAulasByCiclo = horarioAulaDAO.allByCicloAndTipoHorario(cicloAcademico, aulas, TipoHorarioAulaEnum.DICT);
+
         Map<Long, List<ResumenInventario>> resumenAulasMap = TypesUtil.convertListToMapList("almacen.aula.id", resumenAulas);
         Map<Long, List<Aula>> mapAulas = TypesUtil.convertListToMapList("aulaSuperior.id", aulasHijas);
+        Map<Long, List<HorarioAula>> mapHorariosAulas = TypesUtil.convertListToMapList("aula.id", horariosAulasByCiclo);
         for (Aula aula : aulas) {
             List<Aula> hijas = mapAulas.get(aula.getId());
             hijas = hijas == null ? new ArrayList() : hijas;
             aula.setAulasContenido(hijas);
             List<ResumenInventario> inventarios = resumenAulasMap.get(aula.getId());
             aula.setInventario(inventarios);
+            List<HorarioAula> horariosAulasByAula = mapHorariosAulas.get(aula.getId());
+            aula.setSeccion(new ArrayList<>());
+            if (horariosAulasByAula != null) {
+                List<Seccion> seccionesByAula = horariosAulasByAula.stream()
+                        .filter(x -> x.getSeccion() != null)
+                        .map(x -> x.getSeccion())
+                        .distinct().collect(Collectors.toList());
+                aula.setSeccion(seccionesByAula);
+            }
         }
         return aulas;
     }

@@ -15,12 +15,14 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.enums.TipoAulaEnum;
 import pe.edu.lamolina.model.enums.TipoOficinaEnum;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Oficina;
+import pe.edu.lamolina.model.general.TipoAula;
 
 @Repository
 public class AulaDAOH extends AbstractEasyDAO<Aula> implements AulaDAO {
@@ -59,7 +61,10 @@ public class AulaDAOH extends AbstractEasyDAO<Aula> implements AulaDAO {
                 .leftJoin("aulaSuperior aus", "sede se", "tipoAula ta", "oficinaSupervisora os")
                 .searchFields("au.nombre", "aus.nombre", "ta.nombre", "au.codigo", "os.nombre")
                 .orderBy("au.id desc");
-
+        if (filter.getQueries() != null && filter.getQueries().get("tipo-aula") != null) {
+            String tipoAula = (String) filter.getQueries().get("tipo-aula");
+            sql.filter("ta.codigo", tipoAula);
+        }
         return all(sql);
     }
 

@@ -231,12 +231,15 @@
 
 //Vue.component("multiselect", window.VueMultiselect.default)
 //Vue.component('date-picker', VueBootstrapDatetimePicker.default);
+Vue.component("multiselect", window.VueMultiselect.default);
 
 new Vue({
     el: '#aulaVUE',
     data: {
         aulasURL: APP.url(rutaModulo + '/list'),
         aula: {},
+        tipoAulas: JSON.parse(tipoAulasJson),
+        tipoAula: null,
         modalCambioEstado: {
             id: 'modalCambioEstado',
             header: true,
@@ -262,6 +265,13 @@ new Vue({
     computed: {
     },
     mounted: function () {
+        let $vue = this;
+        let tipo = $vue.$refs.raptorAulas.getParameterByName('queries[tipo-aula]');
+        if (tipo != null) {
+            $vue.tipoAula = {codigo: tipo};
+            $vue.$refs.raptorAulas.querie.push({name: 'tipo-aula', value: tipo});
+        }
+        $vue.$refs.raptorAulas.loadRemoteData();
     },
     methods: {
         verHorarioAula(item) {
@@ -283,6 +293,13 @@ new Vue({
             $vue.aula = {};
             $vue.aula = Object.assign({}, item);
             $vue.openModal("aulaContenido");
+        }, changeTipoAula() {
+            let $vue = this;
+            $vue.$refs.raptorAulas.querie = [];
+            if ($vue.tipoAula != null) {
+                $vue.$refs.raptorAulas.querie.push({name: 'tipo-aula', value: $vue.tipoAula.codigo});
+            }
+            $vue.$refs.raptorAulas.loadRemoteData();
         },
         verInventario(item) {
             let $vue = this;

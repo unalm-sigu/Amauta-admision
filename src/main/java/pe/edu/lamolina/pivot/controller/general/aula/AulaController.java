@@ -37,6 +37,7 @@ import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.albatross.zelpers.notify.Notificaciones;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.almacen.ResumenInventario;
@@ -44,6 +45,7 @@ import pe.edu.lamolina.model.enums.TipoAmbienteEnum;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.general.Oficina;
+import pe.edu.lamolina.model.general.TipoAula;
 import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.horario.HorarioAula;
 import pe.edu.lamolina.pivot.controller.reporte.view.HorarioAulaCicloPDF;
@@ -98,6 +100,14 @@ public class AulaController {
         CicloAcademico ciclo = ds.getCicloAcademico();
         model.addAttribute("ciclo", ciclo);
         model.addAttribute("tiposAmbiente", TipoAmbienteEnum.values());
+        List<TipoAula> tiposAulas = service.allTiposAula();
+        ArrayNode jTipoAulas = new ArrayNode(JsonNodeFactory.instance);
+        for (TipoAula tiposAula : tiposAulas) {
+            jTipoAulas.add(JsonHelper.createJson(tiposAula, JsonNodeFactory.instance, false, new String[]{
+                "id", "codigo", "nombre"
+            }));
+        }
+        model.addAttribute("tipoAulasJson", jTipoAulas.toString());
         return "general/aula/aula";
     }
 
@@ -108,7 +118,7 @@ public class AulaController {
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
-            List<Aula> aulas = service.allByDynatable(filter);
+            List<Aula> aulas = service.allByDynatable(filter, ds.getCicloAcademico());
             JsonNodeFactory jFactory = JsonNodeFactory.instance;
 
             ArrayNode array = new ArrayNode(jFactory);
@@ -121,9 +131,9 @@ public class AulaController {
                     "sede.id", "sede.nombre",
                     "tipoAula.id", "tipoAula.nombre",
                     "tipoCarpeta.id", "tipoCarpeta.nombre",
-                    "oficinaSupervisora.id", "oficinaSupervisora.nombre"
+                    "oficinaSupervisora.id", "oficinaSupervisora.nombre", "oficinaSupervisora.oficinaOera"
                 });
-
+                node.put("secciones", aula.getSeccion().size());
 //                node.put("id", aula.getId());
 //                node.put("codigo", aula.getCodigo());
 //                node.put("nombre", aula.getNombre());
@@ -183,7 +193,7 @@ public class AulaController {
         DynatableResponse json = new DynatableResponse();
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            List<Aula> aulas = service.allByDynatable(filter);
+            List<Aula> aulas = service.allByDynatable(filter, ds.getCicloAcademico());
 
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
