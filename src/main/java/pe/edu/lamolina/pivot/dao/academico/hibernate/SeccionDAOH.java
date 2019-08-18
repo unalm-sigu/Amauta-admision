@@ -896,15 +896,19 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
         if (seccionEstadoEnum != null) {
             sql.in("sec.estado", Arrays.asList(seccionEstadoEnum));
         }
-        if (seccionDTO.getConAula()) {
-            sql.isNotNull("aul.id");
-        } else {
-            sql.isNull("aul.id");
+        if (seccionDTO.getConAula() != null) {
+            if (seccionDTO.getConAula()) {
+                sql.isNotNull("aul.id");
+            } else {
+                sql.isNull("aul.id");
+            }
         }
-        if (seccionDTO.getConHorario()) {
-            sql.isNotNull("gho.id");
-        } else {
-            sql.isNull("gho.id");
+        if (seccionDTO.getConHorario() != null) {
+            if (seccionDTO.getConHorario()) {
+                sql.isNotNull("gho.id");
+            } else {
+                sql.isNull("gho.id");
+            }
         }
         sql.orderBy("abosup.nombre asc");
         return all(sql);
