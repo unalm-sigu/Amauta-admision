@@ -143,9 +143,9 @@ public class ReporteSeccionesByFilterExcelView extends AbstractView {
         excelUtil.replaceVal(irow - 1, column++, "ANEXO", estiloCabecera);
         excelUtil.replaceVal(irow - 1, column++, "CURSO", estiloCabecera);
         excelUtil.replaceVal(irow - 1, column++, "SECCIÓN", estiloCabecera);
-        excelUtil.replaceVal(irow - 1, column++, "HORARIO SECCIÓN");
         excelUtil.replaceVal(irow - 1, column++, "TIPO SECCIÓN", estiloCabecera);
         excelUtil.replaceVal(irow - 1, column++, "HORARIO", estiloCabecera);
+        excelUtil.replaceVal(irow - 1, column++, "HORARIO SECCIÓN");
         excelUtil.replaceVal(irow - 1, column++, "VACANTES", estiloCabecera);
         excelUtil.replaceVal(irow - 1, column++, "MATRICULADOS", estiloCabecera);
         excelUtil.replaceVal(irow - 1, column++, "AULA", estiloCabecera);
@@ -175,14 +175,14 @@ public class ReporteSeccionesByFilterExcelView extends AbstractView {
             modalidadEstudio = modalidadEstudio != null ? modalidadEstudio : new ModalidadEstudio();
             excelUtil.replaceVal(irow, column++, curso.getNombre() + " (" + modalidadEstudio.getCodigo() + ") ", estiloGeneral);
             excelUtil.replaceVal(irow, column++, seccion.getCodigo2(), estiloGeneral);
+            excelUtil.replaceVal(irow, column++, seccion.getTipoSeccion(), estiloGeneral);
+            excelUtil.replaceVal(irow, column++, seccion.getGrupoHoras() != null ? seccion.getGrupoHoras().getCodigo() : "", estiloGeneral);
             CellStyle cs = wb.createCellStyle();
             cs.setWrapText(true);
             List<String> horarioSeccion = seccion.getHorarioSeccion().stream()
                     .map(x -> x.getHoraDiaDescripcion())
                     .collect(Collectors.toList());
             excelUtil.replaceVal(irow, column++, String.join("\n", horarioSeccion), cs);
-            excelUtil.replaceVal(irow, column++, seccion.getTipoSeccion(), estiloGeneral);
-            excelUtil.replaceVal(irow, column++, seccion.getGrupoHoras() != null ? seccion.getGrupoHoras().getCodigo() : "", estiloGeneral);
             excelUtil.replaceVal(irow, column++, seccion.getVacantes(), estiloNumero);
             excelUtil.replaceVal(irow, column++, seccion.getMatriculados(), estiloNumero);
             Aula aula = seccion.getAula();
@@ -201,8 +201,8 @@ public class ReporteSeccionesByFilterExcelView extends AbstractView {
             if (aula != null && aula.getOficinaSupervisora() != null) {
                 oficina = aula.getOficinaSupervisora();
             }
-            excelUtil.replaceVal(irow, column++, oficina.getCodigo(), estiloNumero);
-            excelUtil.replaceVal(irow, column++, seccion.getEstado(), estiloNumero);
+            excelUtil.replaceVal(irow, column++, oficina.getCodigo(), estiloGeneral);
+            excelUtil.replaceVal(irow, column++, seccion.getEstado(), estiloGeneral);
             irow++;
 
 //            for (int i = 0; i < column; i++) {
