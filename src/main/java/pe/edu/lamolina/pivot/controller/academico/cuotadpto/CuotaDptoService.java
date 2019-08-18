@@ -14,4 +14,6 @@ public interface CuotaDptoService {
 
     GrupoHoras findGrupo(GrupoHoras grupoHoras);
 
+    String grupos(CuotasGrupoHoras cuotasGrupoHoras, String tipoSeccion);
+
 }

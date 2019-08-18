@@ -36,6 +36,40 @@ new Vue({
             }, error => {
                 notify(MESSAGES.errorComunicacion, 'error');
             });
+        }, redirectGpo(item, tipo) {
+            console.dir(item);
+            console.log('aaaaaaaaaaaaaaaaa');
+            if (tipo == 'TEO') {
+                if (item.gruposUtilizadosTeoria == 0) {
+                    return;
+                }
+            } else {
+                if (item.gruposUtilizadosPractica == 0) {
+                    return;
+                }
+            }
+            // location.href = APP.url(rutaModulo + '/redirectgpo?cuotaGrupoHoras=' + item.id + ",tipo=" + tipo);
+            let $vue = this;
+            $.ajax({
+                method: "GET",
+                data: {cuotaGrupoHorasId: item.id, tipo: tipo},
+                url: APP.url(rutaModulo + '/redirectgpo')
+            }).then(response => {
+                if (response.success) {
+                    let lista = response.data;
+                    let listaEncode = Base64.encode(lista);
+                    let first = lista.split(",")[0];
+                    location.href = APP.url("academico/gposeccion/" + first + "/editar") + $vue.getOrigenURL() + "&ids=" + listaEncode;
+                } else {
+                    notify(response.message, 'error');
+                }
+            }, error => {
+                notify(MESSAGES.errorComunicacion, 'error');
+            });
+        }, getOrigenURL() {
+            var url = window.location.href;
+            console.log(url)
+            return "?origen=" + Base64.encode(url);
         }
     }
 
