@@ -149,7 +149,7 @@ public class ReporteSeccionesByFilterExcelView extends AbstractView {
         excelUtil.replaceVal(irow - 1, column++, "VACANTES", estiloCabecera);
         excelUtil.replaceVal(irow - 1, column++, "MATRICULADOS", estiloCabecera);
         excelUtil.replaceVal(irow - 1, column++, "AULA", estiloCabecera);
-//        excelUtil.replaceVal(irow - 1, column++, "HORARIO AULA");
+        excelUtil.replaceVal(irow - 1, column++, "CAPACIDAD", estiloCabecera);
         excelUtil.replaceVal(irow - 1, column++, "OFICINA", estiloCabecera);
         excelUtil.replaceVal(irow - 1, column++, "SECCION ESTADO", estiloCabecera);
         //datos
@@ -169,25 +169,26 @@ public class ReporteSeccionesByFilterExcelView extends AbstractView {
 
             GrupoSeccion grupoSeccion = seccion.getGrupoSeccion();
             Curso curso = grupoSeccion.getCurso();
-            excelUtil.replaceVal(irow, column++, grupoSeccion.getAnexoBoletin().getAnexoSuperior().getNombre());
-            excelUtil.replaceVal(irow, column++, grupoSeccion.getAnexoBoletin().getNombre());
+            excelUtil.replaceVal(irow, column++, grupoSeccion.getAnexoBoletin().getAnexoSuperior().getNombre(), estiloGeneral);
+            excelUtil.replaceVal(irow, column++, grupoSeccion.getAnexoBoletin().getNombre(), estiloGeneral);
             ModalidadEstudio modalidadEstudio = curso.getModalidadEstudio();
             modalidadEstudio = modalidadEstudio != null ? modalidadEstudio : new ModalidadEstudio();
-            excelUtil.replaceVal(irow, column++, curso.getNombre() + " (" + modalidadEstudio.getCodigo() + ") ");
-            excelUtil.replaceVal(irow, column++, seccion.getCodigo2());
+            excelUtil.replaceVal(irow, column++, curso.getNombre() + " (" + modalidadEstudio.getCodigo() + ") ", estiloGeneral);
+            excelUtil.replaceVal(irow, column++, seccion.getCodigo2(), estiloGeneral);
             CellStyle cs = wb.createCellStyle();
             cs.setWrapText(true);
             List<String> horarioSeccion = seccion.getHorarioSeccion().stream()
                     .map(x -> x.getHoraDiaDescripcion())
                     .collect(Collectors.toList());
             excelUtil.replaceVal(irow, column++, String.join("\n", horarioSeccion), cs);
-            excelUtil.replaceVal(irow, column++, seccion.getTipoSeccion());
-            excelUtil.replaceVal(irow, column++, seccion.getGrupoHoras() != null ? seccion.getGrupoHoras().getCodigo() : "");
+            excelUtil.replaceVal(irow, column++, seccion.getTipoSeccion(), estiloGeneral);
+            excelUtil.replaceVal(irow, column++, seccion.getGrupoHoras() != null ? seccion.getGrupoHoras().getCodigo() : "", estiloGeneral);
             excelUtil.replaceVal(irow, column++, seccion.getVacantes(), estiloNumero);
             excelUtil.replaceVal(irow, column++, seccion.getMatriculados(), estiloNumero);
             Aula aula = seccion.getAula();
             aula = aula == null ? new Aula() : aula;
-            excelUtil.replaceVal(irow, column++, aula.getCodigo());
+            excelUtil.replaceVal(irow, column++, aula.getCodigo(), estiloGeneral);
+            excelUtil.replaceVal(irow, column++, aula.getCapacidadAula(), estiloNumero);
 //            if (aula.getId() != null) {
 //                List<String> horarioAula = seccion.getHorariosAula().stream()
 //                        .map(x -> x.getHoraDiaDescripcion())
@@ -200,10 +201,8 @@ public class ReporteSeccionesByFilterExcelView extends AbstractView {
             if (aula != null && aula.getOficinaSupervisora() != null) {
                 oficina = aula.getOficinaSupervisora();
             }
-            excelUtil.replaceVal(irow, column++, oficina.getCodigo());
-            excelUtil.replaceVal(irow, column++, seccion.getEstado());
-            Cell cell = excelUtil.findCell(irow, irow);
-
+            excelUtil.replaceVal(irow, column++, oficina.getCodigo(), estiloNumero);
+            excelUtil.replaceVal(irow, column++, seccion.getEstado(), estiloNumero);
             irow++;
 
 //            for (int i = 0; i < column; i++) {
