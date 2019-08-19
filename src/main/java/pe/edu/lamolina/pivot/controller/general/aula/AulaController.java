@@ -10,6 +10,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -547,6 +548,21 @@ public class AulaController {
         List<Aula> aulasProgramadas = horariosAulas.stream()
                 .map(x -> x.getAula())
                 .distinct().collect(Collectors.toList());
+        if (aulasProgramadas.size() > 1) {
+
+            aulasProgramadas = aulasProgramadas.stream()
+                    .filter(x -> x.getOficinaSupervisora().isOficinaOera())
+                    .collect(Collectors.toList());
+            for (Aula aulasProgramada : aulasProgramadas) {
+                logger.debug("codigo {}, oficina {}", aulasProgramada.getCodigo(), aulasProgramada.getOficinaSupervisora().getCodigo());
+            }
+
+            try {
+                Collections.sort(aulasProgramadas, (x1, x2) -> TypesUtil.getInt(x1.getCodigo(), -1).compareTo(TypesUtil.getInt(x2.getCodigo(), -1)));
+            } catch (Exception e) {
+                logger.error("Error", e);
+            }
+        }
 
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
         model.addAttribute("aulas", aulasProgramadas);
