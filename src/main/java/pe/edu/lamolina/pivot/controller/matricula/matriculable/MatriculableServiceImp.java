@@ -53,6 +53,7 @@ import pe.edu.lamolina.model.enums.EstadoTramiteEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.EPG;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.ESP;
+import pe.edu.lamolina.model.enums.RolEnum;
 import pe.edu.lamolina.model.enums.SituacionAcademicaEnum;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_1;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_2;
@@ -73,6 +74,7 @@ import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_XD;
 import pe.edu.lamolina.model.enums.TipoCondicionalEnum;
 import static pe.edu.lamolina.model.enums.TipoTramiteEnum.CAM_NOTA;
 import static pe.edu.lamolina.model.enums.TramiteEstadoEnum.PEND;
+import pe.edu.lamolina.model.seguridad.Rol;
 import pe.edu.lamolina.model.tramite.CambioNota;
 import pe.edu.lamolina.model.tramite.EstadoTramite;
 import pe.edu.lamolina.model.tramite.Reincorporacion;
@@ -1068,7 +1070,7 @@ public class MatriculableServiceImp implements MatriculableService {
             if (matriculaAnt != null && matriculaDes != null) {
 
                 BigDecimal prioridad = matriculaAnt.getPrioridad().add(matriculaDes.getPrioridad()).divide(new BigDecimal(2));
-                 BigDecimal bigDecimal = new BigDecimal(0.5);
+                BigDecimal bigDecimal = new BigDecimal(0.5);
                 if (matriculaResumen.getPrioridad().compareTo(prioridad) <= 0 || matriculaResumen.getPrioridad().subtract(BigDecimal.ONE).compareTo(bigDecimal) == 0) {
                     System.out.println("No menviene");
                     continue;
@@ -1092,6 +1094,22 @@ public class MatriculableServiceImp implements MatriculableService {
             }
             matriculaResumenDAO.update(matriculaResumen);
         }
+    }
+
+    @Override
+    public boolean usuarioPuedeCalcular(DataSessionPivot ds) {
+        boolean puedeCalcular = false;
+        for (Rol rol : ds.getRoles()) {
+            if (rol.getCodigoEnum() == RolEnum.RACD) {
+                puedeCalcular = true;
+                break;
+            }
+            if (rol.getCodigoEnum() == RolEnum.IOREA) {
+                puedeCalcular = true;
+                break;
+            }
+        }
+        return puedeCalcular;
     }
 
 }

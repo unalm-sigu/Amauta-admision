@@ -164,6 +164,7 @@ public class OAuthController {
         try {
             if (ds.getRolesMain().size() == 1) {
                 Rol rolActivo = ds.getRolesMain().get(0);
+                logger.debug("rol-activo: {} {}", rolActivo.getId(), rolActivo.getNombre());
                 serviceProvider.asignarRolActivo(rolActivo, ds, session);
             }
         } catch (Exception e) {

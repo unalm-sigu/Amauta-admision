@@ -53,4 +53,6 @@ public interface InfoAcademicoService {
 
     void cambiarOrientacion(Alumno alumno, OrientacionCarrera orientacionCarrera, DataSessionPivot ds);
 
+    boolean usuarioPuedeCalcular(DataSessionPivot ds);
+
 }

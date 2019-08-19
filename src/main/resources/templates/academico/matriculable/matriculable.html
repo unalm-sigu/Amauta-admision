@@ -8,7 +8,7 @@
             <div id="matriculableVUE" v-cloak="">
 
                 <header class="header b-b padder-lg">        
-                    <div class="btn-group pull-right">
+                    <div class="btn-group pull-right" th:if="${puedeCalcular}">
                         <button type="button" class="btn btn-success btn-sm dropdown-toggle" data-toggle="dropdown">
                             <i class="fa fa-file-text-o"/> &nbsp; Acciones &nbsp; <span class="caret"></span>
                         </button>
@@ -169,18 +169,22 @@
                                                     <div class="actions">
                                                         <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="glyphicon glyphicon-cog"></i></a>
                                                         <ul class="dropdown-menu pull-right">
-                                                            <li><a v-bind:href="urlGoMaipi(item)" target="_blank">Ir a MAIPI</a></li>
-                                                            <li ><a v-bind:href="urlMatricula(item)" target="_blank">Ir a Matricula</a></li>
-                                                            <li role="separator" class="divider"></li>
-                                                            <li><a class="ver-cursos pointer" >Ver Cursos</a></li><!--rel="{{:id}}"-->
-                                                            <li v-if="item.estado == 'NMAT'"><a v-on:click="inhabilitarModal(item)" href="#">Inhabilitar</a></li>
-                                                            <li v-if="item.estado == 'INH'"><a v-on:click="inhabilitarModal(item)" href="#">Habilitar</a></li>
+                                                            <div th:if="${puedeCalcular}" th:remove="tag">
+                                                                <li><a v-bind:href="urlGoMaipi(item)" target="_blank">Ir a MAIPI</a></li>
+                                                                <li ><a v-bind:href="urlMatricula(item)" target="_blank">Ir a Matricula</a></li>
+                                                                <li role="separator" class="divider"></li>
+                                                                <li><a class="ver-cursos pointer" >Ver Cursos</a></li><!--rel="{{:id}}"-->
+                                                                <li v-if="item.estado == 'NMAT'"><a v-on:click="inhabilitarModal(item)" href="#">Inhabilitar</a></li>
+                                                                <li v-if="item.estado == 'INH'"><a v-on:click="inhabilitarModal(item)" href="#">Habilitar</a></li>
+                                                            </div>
                                                             <li><a v-bind:href="urlAcademico(item)">Información académica</a></li>
-                                                            <li><a class="modificar-datos" href="#">Modificar datos</a></li>
-                                                            <li  v-if="!item.esBeneficiadoUltimoCiclo " ><a v-on:click="beneficiar(item)" href="#">Beneficiar Ult. Ciclo</a></li>
-                                                            <li  v-if="item.esBeneficiadoUltimoCiclo " ><a v-on:click="beneficiar(item)" href="#">Quitar Ben. Ult. Ciclo</a></li>
-                                                            <li v-if="!item.aporteCarnet" ><a v-on:click="asignarAporte(item)" href="#">Asignar Aporte Carnet</a></li>
-                                                            <li v-if="item.aporteCarnet"  ><a v-on:click="quitarAporte(item)" href="#">Quitar Aporte Carnet</a></li>
+                                                            <div th:if="${puedeCalcular}" th:remove="tag">
+                                                                <li><a class="modificar-datos" href="#">Modificar datos</a></li>
+                                                                <li  v-if="!item.esBeneficiadoUltimoCiclo " ><a v-on:click="beneficiar(item)" href="#">Beneficiar Ult. Ciclo</a></li>
+                                                                <li  v-if="item.esBeneficiadoUltimoCiclo " ><a v-on:click="beneficiar(item)" href="#">Quitar Ben. Ult. Ciclo</a></li>
+                                                                <li v-if="!item.aporteCarnet" ><a v-on:click="asignarAporte(item)" href="#">Asignar Aporte Carnet</a></li>
+                                                                <li v-if="item.aporteCarnet"  ><a v-on:click="quitarAporte(item)" href="#">Quitar Aporte Carnet</a></li>
+                                                            </div>
 
                                                         </ul>
                                                     </div>

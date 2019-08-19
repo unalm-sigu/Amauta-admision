@@ -107,9 +107,13 @@ public class MatriculableController {
                 array.add(obj);
             }
         }
+
+        boolean puedeCalcular = service.usuarioPuedeCalcular(ds);
+
         model.addAttribute("resumen", JsonHelper.createJson(resumen, JsonNodeFactory.instance, new String[]{"*"}));
         model.addAttribute("ciclo", JsonHelper.createJson(cicloAcademico, JsonNodeFactory.instance, new String[]{"*"}));
         model.addAttribute("tipoCondicional", array);
+        model.addAttribute("puedeCalcular", puedeCalcular);
 
         return "academico/matriculable/matriculable";
     }

@@ -350,7 +350,7 @@ public class CarreraDAOH extends AbstractEasyDAO<Carrera> implements CarreraDAO 
                 .selectDistinct("carr")
                 .from(MatriculaResumen.class, "mr")
                 .join("mr.alumno al", "al.modalidadEstudio me", "al.carrera carr", "mr.cicloAcademico ci")
-                .leftJoin("areaPosgrado ap")
+                .leftJoin("carr.areaPosgrado ap")
                 .filter("ci.id", ciclo)
                 .in("carr.id", carreras)
                 .filter("me.codigo", ModalidadEstudioEnum.PRE)

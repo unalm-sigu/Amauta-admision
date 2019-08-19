@@ -36,6 +36,14 @@ new Vue({
         verHorario(text) {
             return text.replace(" y ", "<br/>");
         },
+        verAlumnos(item) {
+            let $vue = this;
+            location.href = APP.url('academico/docente/alumnosDocente/') + item.id + '/alumnosDocente' + $vue.getOrigenURL();
+        },
+        getOrigenURL() {
+            var url = window.location.href;
+            return "?origen=" + Base64.encode(url);
+        },
         download(item) {
             console.log(item);
             location.href = APP.url('docente/cargaacademica/reporteAlumno?seccion=') + item.secciones[0].id;

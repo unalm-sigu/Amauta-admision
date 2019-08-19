@@ -49,12 +49,14 @@ import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.PMAT;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.RCI;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.RCU;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.RET;
+import pe.edu.lamolina.model.enums.RolEnum;
 import pe.edu.lamolina.model.finanzas.CuentaBancaria;
 import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.horario.HorarioSeccion;
 import pe.edu.lamolina.model.matricula.AlumnoAvanceCurricular;
 import pe.edu.lamolina.model.matricula.AlumnoCursoCurricula;
+import pe.edu.lamolina.model.seguridad.Rol;
 import pe.edu.lamolina.pivot.controller.academico.avancecurricular.AvanceCurricularService;
 import pe.edu.lamolina.pivot.controller.academico.promedio.PromedioService;
 import pe.edu.lamolina.pivot.controller.test.VisorCalculoNotas;
@@ -460,6 +462,9 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
 
     @Override
     public void generarAvance(Alumno alumno, DataSessionPivot ds) {
+        Boolean puedeCalcular = usuarioPuedeCalcular(ds);
+        Assert.isTrue(puedeCalcular, "Usted no está autorizado para ejecutar esta acción");
+
         alumno = alumnoDAO.find(alumno);
         if (alumno.getModalidadEstudio().isPregrado()) {
             avanceCurricularService.generarAvanceCurricularByAlumno(alumno, ds);
@@ -597,6 +602,9 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
     @Override
     @Transactional
     public void calcularPromedio(Alumno alumnoForm, DataSessionPivot ds) {
+        Boolean puedeCalcular = usuarioPuedeCalcular(ds);
+        Assert.isTrue(puedeCalcular, "Usted no está autorizado para ejecutar esta acción");
+
         Alumno alumno = alumnoDAO.find(alumnoForm);
         visorCalculoNotas.setActivo(false);
         promedioService.calulcarSituacionAcademica(alumno, ds);
@@ -823,7 +831,7 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
             String codigoCicloAlumno = (String) ObjectUtil.getParentTree(alumnoBD, "cicloIngreso.codigo");
 
             String codigoCicloPlan = this.getIndiceCicloAcademico(codigoCicloAlumno, codigosCiclosPlanes);
-            
+
             PlanCurricular planBD = mapPlanesByCiclo.get(codigoCicloPlan);
             alumnoCursoSimultaneoDAO.deleteAllByAlumno(alumnoBD);
             alumnoCursoCurriculaDAO.deleteAllByAlumno(alumnoBD);
@@ -852,4 +860,21 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
         }
         return codigosCiclosPlanes.get(0);
     }
+
+    @Override
+    public boolean usuarioPuedeCalcular(DataSessionPivot ds) {
+        boolean puedeCalcular = false;
+        for (Rol rol : ds.getRoles()) {
+            if (rol.getCodigoEnum() == RolEnum.RACD) {
+                puedeCalcular = true;
+                break;
+            }
+            if (rol.getCodigoEnum() == RolEnum.IOREA) {
+                puedeCalcular = true;
+                break;
+            }
+        }
+        return puedeCalcular;
+    }
+
 }

@@ -214,7 +214,11 @@ $(function () {
         verAlumnos: function ($this, e) {
             var tr = $this.closest("tr");
             var idx = $this.attr("rel");
-            location.href = APP.url('academico/docente/alumnosDocente/') + idx + '/alumnosDocente';
+            location.href = APP.url('academico/docente/alumnosDocente/') + idx + '/alumnosDocente' + CargaAcademica.getOrigenURL();
+        },
+        getOrigenURL() {
+            var url = window.location.href;
+            return "?origen=" + Base64.encode(url);
         },
         verNuevoSC: function (e) {
             e.preventDefault();
