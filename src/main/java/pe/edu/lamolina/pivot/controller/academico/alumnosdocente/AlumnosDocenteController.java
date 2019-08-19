@@ -98,11 +98,6 @@ public class AlumnosDocenteController {
             Map<Long, Oficina> mapConsejeria = TypesUtil.convertListToMap("instanciaOficina", consejerias);
 
             for (MatriculaSeccion matSecc : matriculados) {
-//                Alumno alumno = matSecc.getMatriculaResumen().getAlumno();
-//                Persona persona = alumno.getPersona();
-//                Carrera carrera = alumno.getCarrera();
-//                Facultad facultad = carrera.getFacultad();
-
                 ObjectNode node = JsonHelper.createJson(matSecc, JsonNodeFactory.instance, new String[]{
                     "id",
                     "matriculaResumen.alumno.codigo",
@@ -146,17 +141,11 @@ public class AlumnosDocenteController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
         Seccion seccion = service.findSeccion(idSeccion);
-        // GrupoSeccion grupoSeccion = seccion.getGrupoSeccion();
-        // Curso curso = grupoSeccion.getCurso();
 
         logger.debug("El docente es {}", ds.getDocente().getId());
         logger.debug("Consultara notas por seccion");
 
-        //     model.addAttribute("docenteSeccion", docenteSeccion);
         model.addAttribute("seccion", createSeccionJson(seccion));
-        // model.addAttribute("grupoSeccion", grupoSeccion);
-        // model.addAttribute("curso", curso);
-        // model.addAttribute("matriculasSeccion", matriculasSeccionByFilter);
         return "academico/docente/alumnos/alumnosDocente";
     }
 
@@ -182,6 +171,8 @@ public class AlumnosDocenteController {
         ObjectNode node = JsonHelper.createJson(seccion, JsonNodeFactory.instance, new String[]{
             "id", "codigo2", "tipoSeccionEnum",
             "grupoHoras.codigo",
+            "aula.codigo",
+            "aula.nombre",
             "grupoSeccion.curso.tpc",
             "grupoSeccion.curso.codigo",
             "grupoSeccion.curso.nombre"
