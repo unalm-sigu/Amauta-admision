@@ -107,7 +107,10 @@ public class AlumnoController {
     public String index(Model model, HttpSession session, HttpServletRequest request) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         verificadorService.revisarPermiso(request, ds);
+        boolean puedeCalcular = service.usuarioPuedeCalcular(ds);
+
         model.addAttribute("resumen", service.findResumen());
+        model.addAttribute("puedeCalcular", puedeCalcular);
 
         return "academico/alumno/alumno";
     }

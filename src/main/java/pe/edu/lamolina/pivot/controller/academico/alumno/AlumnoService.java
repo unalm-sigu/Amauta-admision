@@ -19,6 +19,7 @@ import pe.edu.lamolina.model.matricula.AlumnoCursoCurricula;
 import pe.edu.lamolina.model.seguridad.TokenIngresante;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.tramite.TramiteTraslado;
+import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface AlumnoService {
 
@@ -84,12 +85,14 @@ public interface AlumnoService {
 
     TokenIngresante goMaipi(Long idAlumno, Usuario usuario);
 
-    public List<AlumnoCursoCurricula> allAlumnoCursoByalumno(Alumno alumno, DynatableFilter filter);
+    List<AlumnoCursoCurricula> allAlumnoCursoByalumno(Alumno alumno, DynatableFilter filter);
 
-    public void habilitarAlumnoCursoCurricula(AlumnoCursoCurricula alumnoCursoCurricula, Usuario usuario);
+    void habilitarAlumnoCursoCurricula(AlumnoCursoCurricula alumnoCursoCurricula, Usuario usuario);
 
-    public List<CursoOpcionalCurricula> allcursosOpcional(Long idAlumno);
+    List<CursoOpcionalCurricula> allcursosOpcional(Long idAlumno);
 
-    public void agregarAlumnoCursoCurricula(CursoOpcionalCurricula cursoOpcional, Alumno alumno);
+    void agregarAlumnoCursoCurricula(CursoOpcionalCurricula cursoOpcional, Alumno alumno);
+
+    boolean usuarioPuedeCalcular(DataSessionPivot ds);
 
 }
