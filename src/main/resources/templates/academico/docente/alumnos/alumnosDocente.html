@@ -9,17 +9,18 @@
                 <header class="header b-b padder-lg">
 
                     <h3 class="block">Lista de estudiantes <span th:text="${session['SESSION_USUARIO'].cicloAcademico.descripcion}">2016-II</span></h3>
-                    <h2 class="block m-t-xxs text-primary" v-text="seccion.grupoSeccion.curso.nombre">Edafología</h2>
+                    <h2 class="block m-t-xxs text-primary" v-text="seccion.curso.nombre">Edafología</h2>
 
                     <span class="block h4 m-t-xxs">
                         <strong>
-                            <span v-text="seccion.grupoSeccion.curso.codigo"> </span>
+                            <span v-text="seccion.curso.codigo"> </span>
                             <i class="fa fa-bookmark"></i> 
-                            <span v-text="seccion.grupoSeccion.curso.tpc"></span>
+                            <span v-text="seccion.curso.tpc"></span>
                         </strong> &nbsp;|&nbsp;
                         <strong>Tipo sección:</strong> <span v-text="seccion.tipoSeccionEnum.value">Teoría</span> &nbsp;|&nbsp;
                         <strong>Sección: </strong> <span v-text="seccion.codigo2">2130</span> &nbsp;| &nbsp;
-                        <strong>Grupo: </strong> <span v-text="seccion.grupoHoras.codigo">2130</span>
+                        <span v-if="seccion.grupoHoras"><strong>Grupo: </strong> <span v-text="seccion.grupoHoras.codigo">2130</span> &nbsp;| &nbsp; </span>
+                        <span v-if="seccion.aula"><strong>Aula: </strong> <span v-text="seccion.aula.codigo">LABO</span> &nbsp;| &nbsp; </span>
                     </span>
 
 
@@ -42,70 +43,70 @@
                                     <td class="v-middle text-center text-primary h3" v-text="(idx+1)">34</td>
                                     <td class="v-middle">
                                         <div class="pull-left">
-                                            <div v-if="item.matriculaResumen.alumno.persona.tipoFoto=='POSTUL' "
+                                            <div v-if="item.persona.tipoFoto=='POSTUL' "
                                                  class="img-responsive img-thumbnail img-circle div-foto-list">
-                                                <img class="img-foto-list" v-bind:src="item.matriculaResumen.alumno.persona.rutaFoto" />
+                                                <img class="img-foto-list" v-bind:src="item.persona.rutaFoto" />
                                             </div>
 
-                                            <img v-else-if="item.matriculaResumen.alumno.persona.tipoFoto=='COMUN' " 
+                                            <img v-else-if="item.persona.tipoFoto=='COMUN' " 
                                                  class="img-responsive img-thumbnail img-circle div-foto-alumno-list" 
-                                                 v-bind:src="item.matriculaResumen.alumno.persona.rutaFoto" />
+                                                 v-bind:src="item.persona.rutaFoto" />
 
                                             <img v-else="" 
                                                  class="img-foto-tempo img-responsive img-thumbnail img-circle" 
-                                                 v-bind:src="item.matriculaResumen.alumno.persona.rutaFoto" />
+                                                 v-bind:src="item.persona.rutaFoto" />
                                         </div>
                                     </td>
                                     <td class="v-middle">
                                         <div class="clear">
-                                            <span class="h4 text-primary" v-text="item.matriculaResumen.alumno.persona.apellidosNombres">juan perez</span>
+                                            <span class="h4 text-primary" v-text="item.persona.apellidosNombres">juan perez</span>
                                             <small class="block text-muted">
-                                                <span v-if="item.matriculaResumen.alumno.persona.tipoDocumento">{{item.matriculaResumen.alumno.persona.tipoDocumento.simbolo}}:</span>
-                                                <span v-text="item.matriculaResumen.alumno.persona.numeroDocIdentidad"></span>
+                                                <span v-if="item.persona.tipoDocumento">{{item.persona.tipoDocumento.simbolo}}:</span>
+                                                <span v-text="item.persona.numeroDocIdentidad"></span>
                                             </small>
-                                            <span class="block" v-if="item.matriculaResumen.alumno.persona.emailCompania">
+                                            <span class="block" v-if="item.persona.emailCompania">
                                                 <i class="fa fa-envelope-o"></i>
-                                                <span v-text="item.matriculaResumen.alumno.persona.emailCompania"></span>
+                                                <span v-text="item.persona.emailCompania"></span>
                                             </span>
-                                            <span class="block" v-text="item.matriculaResumen.alumno.codigo">20190034</span>
+                                            <span class="block" v-text="item.alumno.codigo">20190034</span>
                                         </div>
                                     </td>
                                     <td class="v-middle">
-                                        <div v-if="item.matriculaResumen.alumno.modalidadEstudio.codigo == 'VIS' ">
+                                        <div v-if="item.modalidad.codigo == 'VIS' ">
                                             Alumno Visitante
                                         </div>
-                                        <div v-if="item.matriculaResumen.alumno.modalidadEstudio.codigo == 'ESP' ">
+                                        <div v-if="item.modalidad.codigo == 'ESP' ">
                                             Alumno Especial
                                         </div>
-                                        <div v-if="item.matriculaResumen.alumno.modalidadEstudio.codigo == 'PRE' ">
-                                            <div class="block text-primary h5 m-b-xxs">Facultad de <span v-text="item.matriculaResumen.alumno.carrera.facultad.nombre">Ciencias</span></div>
-                                            <div class="block">Especialidad de <span v-text="item.matriculaResumen.alumno.carrera.nombre">Ing. Nuclear</span></div>
+                                        <div v-if="item.modalidad.codigo == 'PRE' ">
+                                            <div class="block text-primary h5 m-b-xxs">Facultad de <span v-text="item.facultad.nombre">Ciencias</span></div>
+                                            <div class="block">Especialidad de <span v-text="item.carrera.nombre">Ing. Nuclear</span></div>
                                             <small>Pregrado</small>
                                         </div>
-                                        <div v-if="item.matriculaResumen.alumno.modalidadEstudio.codigo == 'EPG' ">
+                                        <div v-if="item.modalidad.codigo == 'EPG' ">
                                             <div class="block text-primary h5 m-b-xxs">
-                                                <span v-if="item.matriculaResumen.alumno.carrera.tipo == 'MAE' ">Maestría en </span>
-                                                <span v-if="item.matriculaResumen.alumno.carrera.tipo == 'DOC' ">Doctorado en </span>
-                                                <span v-text="item.matriculaResumen.alumno.carrera.nombre">Ing. Nuclear</span>
+                                                <span v-if="item.carrera.tipo == 'MAE' ">Maestría en </span>
+                                                <span v-if="item.carrera.tipo == 'DOC' ">Doctorado en </span>
+                                                <span v-text="item.carrera.nombre">Ing. Nuclear</span>
                                             </div>
                                             <small>Posgrado</small>
                                         </div>
                                     </td>
                                     <td class="v-middle">
-                                        <div v-if="item.aconsejado" class="text-primary m-b">
-                                            <div class="block">Tutor: <span v-text="item.aconsejado.consejero.colaborador.persona.apellidosNombres"></span></div>
+                                        <div v-if="item.consejero" class="text-primary m-b">
+                                            <div class="block">Tutor: <span v-text="item.consejero.persona.apellidosNombres"></span></div>
                                             <div class="block"
-                                                 v-if="item.aconsejado.consejero.colaborador.persona.emailCompania">
+                                                 v-if="item.consejero.persona.emailCompania">
                                                 <i class="fa fa-envelope-o"></i> 
-                                                <span v-text="item.aconsejado.consejero.colaborador.persona.emailCompania">profe@gmail.com</span>
+                                                <span v-text="item.consejero.persona.emailCompania">profe@gmail.com</span>
                                             </div>
                                         </div>
                                         <div v-if="item.consejeria">
-                                            <div class="block">Coordinador: <span v-text="item.consejeria.personaJefe.apellidosNombres"></span></div>
+                                            <div class="block">Coordinador: <span v-text="item.consejeria.persona.apellidosNombres"></span></div>
                                             <div class="block"
-                                                 v-if="item.consejeria.personaJefe.emailCompania">
+                                                 v-if="item.consejeria.persona.emailCompania">
                                                 <i class="fa fa-envelope-o"></i> 
-                                                <span v-text="item.consejeria.personaJefe.emailCompania">profe@gmail.com</span>
+                                                <span v-text="item.consejeria.persona.emailCompania">profe@gmail.com</span>
                                             </div>
                                         </div>
                                     </td>

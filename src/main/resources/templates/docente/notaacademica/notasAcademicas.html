@@ -8,8 +8,9 @@
     <div layout:fragment="main">
         <header class="header b-b padder-lg">        
             <div class="pull-right panel-body" >
+                <pre>{{seccion}}</pre>
 
-                <a th:if="${esDocentePrincipal and !grupoSeccion.estadoGrupoCerrado}" class="btn btn-success cerrar-acta" href="#" >Entregar Acta</a>
+                <!--<a th:if="${esDocentePrincipal and !grupoSeccion.estadoGrupoCerrado}" class="btn btn-success cerrar-acta" href="#" >Entregar Acta</a>-->
 
                 <a class="btn btn-primary" href="#" id="cmbReporteNotas">Descargar Reporte</a>
                 <a class="btn btn-default"   th:href="@{/docente/notasacademica}"  >Regresar</a>
