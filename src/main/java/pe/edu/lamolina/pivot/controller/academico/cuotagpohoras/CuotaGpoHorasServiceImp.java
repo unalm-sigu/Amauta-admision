@@ -209,7 +209,7 @@ public class CuotaGpoHorasServiceImp implements CuotaGpoHorasService {
         DateTime today = new DateTime();
 
         List<CuotasGrupoHoras> cuotas = new ArrayList();
-        for (CuotasGrupoHoras cuota : cuotasForm) {
+        for (CuotasGrupoHoras cuota : cuotasBD) {
             if (cuota.getId() != null) {
                 cuotas.add(cuota);
             }
