@@ -2142,6 +2142,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
         seccionDAO.updateSeccionAula(seccion);
         this.actualizarBoletin();
+        this.actualizarCuotaAnexo(seccion, seccionDB.getGrupoSeccion().getCicloAcademico());
     }
 
     @Override
