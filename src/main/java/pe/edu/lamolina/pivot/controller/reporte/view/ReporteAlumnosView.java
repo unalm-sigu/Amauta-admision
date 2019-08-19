@@ -1,5 +1,6 @@
 package pe.edu.lamolina.pivot.controller.reporte.view;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -60,20 +61,22 @@ public class ReporteAlumnosView extends AbstractPOIExcelView {
         List<String> rows = new ArrayList();
         int totalColumns = 5;
 
-        String head = "Código|Paterno|Materno|Nombre|Carrera";
+        String head = "item|Código|Nombres Completos|Prioridad|Carrera";
 
         rows.add(head);
 
         StringBuilder sb;
+        int count = 1;
         for (MatriculaSeccion matriculasSeccion : matriculasSeccionByFilter) {
             sb = new StringBuilder();
             Alumno alumno = matriculasSeccion.getMatriculaResumen().getAlumno();
 
+            sb.append(count).append("|");
             sb.append(alumno.getCodigo()).append("|");
-            sb.append(alumno.getPersona().getPaterno()).append("|");
-            sb.append(alumno.getPersona().getMaterno()).append("|");
-            sb.append(alumno.getPersona().getNombres()).append("|");
+            sb.append(alumno.getPersona().getApellidosNombres()).append("|");
+            sb.append(matriculasSeccion.getMatriculaResumen().getPrioridad().setScale(2, BigDecimal.ROUND_HALF_UP)).append("|");
             sb.append(alumno.getCarrera().getNombre()).append("|");
+            count++;
 
             rows.add(sb.toString());
         }
@@ -93,6 +96,8 @@ public class ReporteAlumnosView extends AbstractPOIExcelView {
         Row row2 = sheet.createRow(3);
         Row row3 = sheet.createRow(4);
         Row row4 = sheet.createRow(5);
+        Row row5 = sheet.createRow(6);
+        Row row6 = sheet.createRow(7);
 
         Cell cell2 = row2.createCell(0);
         Cell cell3 = row2.createCell(1);
@@ -103,6 +108,16 @@ public class ReporteAlumnosView extends AbstractPOIExcelView {
         Cell cell5 = row3.createCell(1);
         cell4.setCellValue("Docente: ");
         cell5.setCellValue(docente.getPersona().getApellidosNombres());
+
+        Cell cell8 = row5.createCell(0);
+        Cell cell9 = row5.createCell(1);
+        cell8.setCellValue("Clave: ");
+        cell9.setCellValue(seccion.getCodigo2());
+
+        Cell cell10 = row6.createCell(0);
+        Cell cell11 = row6.createCell(1);
+        cell10.setCellValue("Grupo: ");
+        cell11.setCellValue(seccion.getGrupoHoras().getCodigo());
 
         if (seccion.getAula() != null) {
             Cell cell6 = row4.createCell(0);
@@ -134,7 +149,8 @@ public class ReporteAlumnosView extends AbstractPOIExcelView {
 
     private void createSheet(Sheet sheet, List<String> rows, int columnas, CellStyle cellHeader, CellStyle cellBody) {
         boolean autosize = false;
-        int rw = 7;
+        int rw = 9;
+        cellBody.setAlignment(CellStyle.ALIGN_CENTER);
         for (int i = 0; i < rows.size(); i++) {
             String fila = (String) rows.get(i);
 
@@ -148,7 +164,7 @@ public class ReporteAlumnosView extends AbstractPOIExcelView {
             boolean isHeaderTotal = false;
             boolean isHeaderSede = false;
 
-            if (rw ==7) {
+            if (rw == 9) {
                 isHeader = true;
             }
 
@@ -165,7 +181,7 @@ public class ReporteAlumnosView extends AbstractPOIExcelView {
                 }
                 j++;
             }
-            if (rw > 7) {
+            if (rw > 9) {
                 for (int ii = 0; ii < columnas; ii++) {
                     sheet.autoSizeColumn((short) ii);
                 }

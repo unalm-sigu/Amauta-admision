@@ -46,7 +46,7 @@ new Vue({
         },
         download(item) {
             console.log(item);
-            location.href = APP.url('docente/cargaacademica/reporteAlumno?seccion=') + item.secciones[0].id;
+            location.href = APP.url('docente/cargaacademica/reporteAlumno?seccion=') + item.id;
 //            axios.get('docente/cargaacademica/reepoteAlumnro')
 //                    .then(response => {
 //                        if (response.data.success) {
