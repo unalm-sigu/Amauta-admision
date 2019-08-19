@@ -30,4 +30,6 @@ public interface AlumnoConsejeroDAO extends EasyDAO<AlumnoConsejero> {
 
     Aconsejado countAconsejadosNoMatriculables(Carrera carrera, CicloAcademico ciclo);
 
+    List<AlumnoConsejero> allByAlumnosCiclo(List<Alumno> alumnos, CicloAcademico ciclo);
+
 }

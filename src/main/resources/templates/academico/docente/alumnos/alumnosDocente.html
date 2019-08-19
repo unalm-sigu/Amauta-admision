@@ -1,58 +1,135 @@
 <html layout:decorator="_layout/layout">
     <head>
         <title>Lista de estudiantes</title>
-    <div th:substituteby="_layout/includes :: styles-dynatable"></div>
-</head>
+    </head>
 
-<body>
-    <div layout:fragment="main">
-         <header class="header b-b padder-lg">
+    <body>
+        <div layout:fragment="main">
+            <div id="alumnosDocenteVUE" v-cloak="">
+                <header class="header b-b padder-lg">
 
-            <h2><span th:text='|${curso.nombre} ${session["SESSION_USUARIO"].cicloAcademico.descripcion} - Lista de estudiantes |'>2016-II</span></h2>
+                    <h3 class="block">Lista de estudiantes <span th:text="${session['SESSION_USUARIO'].cicloAcademico.descripcion}">2016-II</span></h3>
+                    <h2 class="block m-t-xxs text-primary" v-text="seccion.grupoSeccion.curso.nombre">Edafología</h2>
 
-            <span class="block"><strong>Tipo sección:</strong>
-                <span th:text="${seccion.tipoSeccionEnum.value}">Teoría</span>
-            </span>
-            <span class="block"><strong>Clave:</strong> <span th:text="${seccion.codigo2}">2130</span></span>
-            <!--span class="block"><strong>Sistema Notas:</strong> <span th:text="${sistemaNotas.nombre}">2130</span></span-->
-            <input id="seccion" type="hidden" th:value="${seccion.id}"/>
-            <!--span class="block"><strong>Estado del Acta:</strong> <span th:text="${grupoSeccion.estadoGrupoEnum.value}">2130</span></span-->
-
-            <!--style>
-                body    {overflow-x:scroll;}
-                table { 
-                    border-collapse: separate; 
-                }
-            </style-->
-
-        </header>
-
-        <section class="panel">
-            <section class="panel-body">
-                <table class="table table-striped" id="dynaTable">
-                    <thead> 
-                        <tr>
-                            <th class="text-center v-middle"></th>
-                            <th class="text-center v-middle col-md-1"></th>
-                            <th class="text-center v-middle col-md-7">Estudiante</th>
-                            <th class="text-center v-middle col-md-4">Facultad<br/>Especialidad</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
-            </section>
-
-        </section>
-
-        <div th:substituteby="templates/modal"/>
-        <script id="templateAlumnosDocente" type="text/x-jsrender" class="hide"><div th:substituteby="academico/docente/alumnos/templateAlumnosDocente"/></script>
-    </div>
-    <div layout:fragment="js">
-        <div th:substituteby="_layout/includes :: javascript-dynatable"/>
-        <script th:src="@{/app/academico/docente/alumnos/alumnosDocente.js}" charset="utf-8"></script>
-    </div>
+                    <span class="block h4 m-t-xxs">
+                        <strong>
+                            <span v-text="seccion.grupoSeccion.curso.codigo"> </span>
+                            <i class="fa fa-bookmark"></i> 
+                            <span v-text="seccion.grupoSeccion.curso.tpc"></span>
+                        </strong> &nbsp;|&nbsp;
+                        <strong>Tipo sección:</strong> <span v-text="seccion.tipoSeccionEnum.value">Teoría</span> &nbsp;|&nbsp;
+                        <strong>Sección: </strong> <span v-text="seccion.codigo2">2130</span> &nbsp;| &nbsp;
+                        <strong>Grupo: </strong> <span v-text="seccion.grupoHoras.codigo">2130</span>
+                    </span>
 
 
-</body>
+                </header>
+
+                <section class="panel">
+                    <section class="panel-body">
+                        <table class="table table-striped">
+                            <thead> 
+                                <tr>
+                                    <th class="text-center v-middle"></th>
+                                    <th class="text-center v-middle col-md-5" colspan="2">Estudiante</th>
+                                    <th class="text-center v-middle col-md-3">Facultad<br/>Especialidad</th>
+                                    <th class="text-center v-middle col-md-4">Tutoría</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="(item,idx) in matriculados">
+                                    <td class="v-middle text-center text-primary h3" v-text="(idx+1)">34</td>
+                                    <td class="v-middle">
+                                        <div class="pull-left">
+                                            <div v-if="item.matriculaResumen.alumno.persona.tipoFoto=='POSTUL' "
+                                                 class="img-responsive img-thumbnail img-circle div-foto-list">
+                                                <img class="img-foto-list" v-bind:src="item.matriculaResumen.alumno.persona.rutaFoto" />
+                                            </div>
+
+                                            <img v-else-if="item.matriculaResumen.alumno.persona.tipoFoto=='COMUN' " 
+                                                 class="img-responsive img-thumbnail img-circle div-foto-alumno-list" 
+                                                 v-bind:src="item.matriculaResumen.alumno.persona.rutaFoto" />
+
+                                            <img v-else="" 
+                                                 class="img-foto-tempo img-responsive img-thumbnail img-circle" 
+                                                 v-bind:src="item.matriculaResumen.alumno.persona.rutaFoto" />
+                                        </div>
+                                    </td>
+                                    <td class="v-middle">
+                                        <div class="clear">
+                                            <span class="h4 text-primary" v-text="item.matriculaResumen.alumno.persona.apellidosNombres">juan perez</span>
+                                            <small class="block text-muted">
+                                                <span v-if="item.matriculaResumen.alumno.persona.tipoDocumento">{{item.matriculaResumen.alumno.persona.tipoDocumento.simbolo}}:</span>
+                                                <span v-text="item.matriculaResumen.alumno.persona.numeroDocIdentidad"></span>
+                                            </small>
+                                            <span class="block" v-if="item.matriculaResumen.alumno.persona.emailCompania">
+                                                <i class="fa fa-envelope-o"></i>
+                                                <span v-text="item.matriculaResumen.alumno.persona.emailCompania"></span>
+                                            </span>
+                                            <span class="block" v-text="item.matriculaResumen.alumno.codigo">20190034</span>
+                                        </div>
+                                    </td>
+                                    <td class="v-middle">
+                                        <div v-if="item.matriculaResumen.alumno.modalidadEstudio.codigo == 'VIS' ">
+                                            Alumno Visitante
+                                        </div>
+                                        <div v-if="item.matriculaResumen.alumno.modalidadEstudio.codigo == 'ESP' ">
+                                            Alumno Especial
+                                        </div>
+                                        <div v-if="item.matriculaResumen.alumno.modalidadEstudio.codigo == 'PRE' ">
+                                            <div class="block text-primary h5 m-b-xxs">Facultad de <span v-text="item.matriculaResumen.alumno.carrera.facultad.nombre">Ciencias</span></div>
+                                            <div class="block">Especialidad de <span v-text="item.matriculaResumen.alumno.carrera.nombre">Ing. Nuclear</span></div>
+                                            <small>Pregrado</small>
+                                        </div>
+                                        <div v-if="item.matriculaResumen.alumno.modalidadEstudio.codigo == 'EPG' ">
+                                            <div class="block text-primary h5 m-b-xxs">
+                                                <span v-if="item.matriculaResumen.alumno.carrera.tipo == 'MAE' ">Maestría en </span>
+                                                <span v-if="item.matriculaResumen.alumno.carrera.tipo == 'DOC' ">Doctorado en </span>
+                                                <span v-text="item.matriculaResumen.alumno.carrera.nombre">Ing. Nuclear</span>
+                                            </div>
+                                            <small>Posgrado</small>
+                                        </div>
+                                    </td>
+                                    <td class="v-middle">
+                                        <div v-if="item.aconsejado" class="text-primary m-b">
+                                            <div class="block">Tutor: <span v-text="item.aconsejado.consejero.colaborador.persona.apellidosNombres"></span></div>
+                                            <div class="block"
+                                                 v-if="item.aconsejado.consejero.colaborador.persona.emailCompania">
+                                                <i class="fa fa-envelope-o"></i> 
+                                                <span v-text="item.aconsejado.consejero.colaborador.persona.emailCompania">profe@gmail.com</span>
+                                            </div>
+                                        </div>
+                                        <div v-if="item.consejeria">
+                                            <div class="block">Coordinador: <span v-text="item.consejeria.personaJefe.apellidosNombres"></span></div>
+                                            <div class="block"
+                                                 v-if="item.consejeria.personaJefe.emailCompania">
+                                                <i class="fa fa-envelope-o"></i> 
+                                                <span v-text="item.consejeria.personaJefe.emailCompania">profe@gmail.com</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="text-center v-middle">
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </section>
+
+                </section>
+            </div>
+
+        </div>
+        <div layout:fragment="js">
+            <script th:inline="javascript">
+                /*<![CDATA[*/
+                var seccionJson = /*[[${seccion.toString()}]]*/ 'json';
+                var rutaModulo = 'academico/docente/alumnosDocente';
+                /*]]>*/
+            </script>
+            <script th:src="@{/app/academico/docente/alumnos/alumnosDocente.js}" charset="utf-8"></script>
+        </div>
+
+
+    </body>
 </html>

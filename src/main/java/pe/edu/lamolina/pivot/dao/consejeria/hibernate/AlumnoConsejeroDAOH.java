@@ -282,4 +282,17 @@ public class AlumnoConsejeroDAOH extends AbstractEasyDAO<AlumnoConsejero> implem
         return (Aconsejado) query.uniqueResult();
     }
 
+    @Override
+    public List<AlumnoConsejero> allByAlumnosCiclo(List<Alumno> alumnos, CicloAcademico ciclo) {
+        Octavia sql = Octavia.query()
+                .from(AlumnoConsejero.class, "ac")
+                .join("cicloAcademico ca", "alumno alu", "alu.carrera car")
+                .join("consejero co", "co.colaborador cola", "cola.persona")
+                .filter("estado", EstadoEnum.ACT)
+                .filter("ca.id", ciclo)
+                .in("alu.id", alumnos);
+
+        return all(sql);
+    }
+
 }
