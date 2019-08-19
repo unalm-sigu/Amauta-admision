@@ -49,6 +49,7 @@ import pe.edu.lamolina.pivot.dao.general.TipoCarpetaDAO;
 import pe.edu.lamolina.pivot.dao.horario.DiaHoraGrupoDAO;
 import pe.edu.lamolina.pivot.dao.horario.HoraDAO;
 import pe.edu.lamolina.pivot.dao.horario.HorarioAulaDAO;
+import pe.edu.lamolina.pivot.dao.horario.hibernate.DiaHoraGrupoDAOH;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service

@@ -33,6 +33,7 @@ import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Dia;
+import pe.edu.lamolina.model.horario.DiaHoraGrupo;
 import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.horario.HorarioAula;
 import pe.edu.lamolina.pivot.zelper.pdf.AbstractOnlyPdfView;
@@ -70,6 +71,8 @@ public class HorarioAulaCicloPDF extends AbstractOnlyPdfView {
         CicloAcademico ciclo = (CicloAcademico) model.get("cicloAcademico");
         List<Dia> dias = (List<Dia>) model.get("dias");
         List<Hora> horas = (List<Hora>) model.get("horas");
+        List<DiaHoraGrupo> diasHorasGrupos = (List<DiaHoraGrupo>) model.get("diasHorasGruposByCiclo");
+        Map<String, List<DiaHoraGrupo>> mapDiasHorasGrupos = TypesUtil.convertListToMapList("idDiaHora", diasHorasGrupos);
 
         Map<Long, List<HorarioAula>> mapHorariosByAula = TypesUtil.convertListToMapList("aula.id", horariosAulas);
 
@@ -78,13 +81,14 @@ public class HorarioAulaCicloPDF extends AbstractOnlyPdfView {
 
             PdfPTable table = this.createTable();
             this.documentHeader(table, aula, ciclo, dias);
-            this.generateTable(table, dias, horas, horariosAulasByAula);
+            this.generateTable(table, dias, horas, horariosAulasByAula, mapDiasHorasGrupos);
             this.documentFooter(table, aula, ciclo);
 
             try {
                 document.add(table);
                 document.add(new Chunk("shot invisible", invisible));
             } catch (Exception ex) {
+                ex.printStackTrace();
                 logger.debug("Error Shot", ex);
             }
             document.newPage();
@@ -167,7 +171,7 @@ public class HorarioAulaCicloPDF extends AbstractOnlyPdfView {
         table.addCell(cell);
     }
 
-    private void generateTable(PdfPTable table, List<Dia> dias, List<Hora> horas, List<HorarioAula> horariosAulas) {
+    private void generateTable(PdfPTable table, List<Dia> dias, List<Hora> horas, List<HorarioAula> horariosAulas, Map<String, List<DiaHoraGrupo>> mapDiasHorasGrupos) {
 
         Font bodyFont = new Font(FontFamily.HELVETICA, 7, Font.NORMAL, BaseColor.BLACK);
         Font timeFont = new Font(FontFamily.HELVETICA, 10, Font.NORMAL, BaseColor.BLACK);
@@ -185,9 +189,11 @@ public class HorarioAulaCicloPDF extends AbstractOnlyPdfView {
             for (Dia dia : dias) {
                 String key = dia.getId() + "_" + hora.getId();
                 List<HorarioAula> horariosAulasByDiaHora = mapHorariosAulas.get(key);
+                List<DiaHoraGrupo> diasHoraGrupo = mapDiasHorasGrupos.get(key);
                 try {
-                    construccionCeldas(table, bodyFont, letterFont, horariosAulasByDiaHora);
+                    construccionCeldas(table, bodyFont, letterFont, horariosAulasByDiaHora, diasHoraGrupo);
                 } catch (Exception e) {
+                    e.printStackTrace();
                     throw new PhobosException("Error al generar");
                 }
 
@@ -259,7 +265,10 @@ public class HorarioAulaCicloPDF extends AbstractOnlyPdfView {
         table.addCell(cellFooter3);
     }
 
-    private PdfPTable construccionCeldas(PdfPTable table, Font bodyFont, Font letterFont, List<HorarioAula> horariosAulasByDiaHora) throws DocumentException {
+    private PdfPTable construccionCeldas(
+            PdfPTable table, Font bodyFont, Font letterFont,
+            List<HorarioAula> horariosAulasByDiaHora,
+            List<DiaHoraGrupo> diasHoraGrupo) throws DocumentException {
         PdfPTable innerTable = new PdfPTable(1);
         innerTable.getDefaultCell().setBorder(0);
         innerTable.setWidths(new int[]{1});
@@ -267,6 +276,11 @@ public class HorarioAulaCicloPDF extends AbstractOnlyPdfView {
         innerTable.setSpacingBefore(0f);
         innerTable.setSpacingAfter(0f);
         innerTable.setPaddingTop(0f);
+        if (diasHoraGrupo != null) {
+            for (DiaHoraGrupo diaHoraGrupo : diasHoraGrupo) {
+                addCeldaCenterBody(diaHoraGrupo.getGrupoHorario().getCodigo(), innerTable, letterFont);
+            }
+        }
         if (horariosAulasByDiaHora == null || horariosAulasByDiaHora.isEmpty()) {
             table.addCell(innerTable);
             return table;
@@ -278,7 +292,7 @@ public class HorarioAulaCicloPDF extends AbstractOnlyPdfView {
             String cursoString = curso.getCodigo() + " " + curso.getTpc();
             String seccionString = seccion.getCodigo2() + " " + seccion.getGrupoHoras().getCodigo();
             String cursoNombre = curso.getNombre();
-            addCeldaCenterBody(seccion.getGrupoHoras().getCodigo(), innerTable, letterFont);
+            // addCeldaCenterBody(seccion.getGrupoHoras().getCodigo(), innerTable, letterFont);
             addCeldaLeftBody(cursoString + " / " + seccionString, innerTable, bodyFont);
             addCeldaLeftBody(cursoNombre, innerTable, bodyFont);
             //   table.addCell(innerTable);
