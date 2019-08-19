@@ -834,8 +834,6 @@ var app = new Vue({
             $vue.grupoModal.showaccept = true;
             if (seccion.matriculados > 0) {
                 $vue.grupoModal.showaccept = false;
-            } else {
-                $vue.grupoModal.showaccept = true;
             }
             this.$refs.modalGrupo.open();
         },
