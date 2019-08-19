@@ -38,8 +38,7 @@ new Vue({
             {id: 3, name: "Avance"},
             {id: 4, name: "Matricula"},
             {id: 5, name: "Horario"},
-            {id: 6, name: "Malla"},
-            {id: 7, name: "Aportes"}];
+            {id: 6, name: "Malla"}];
 
         if ($vue.alumno.modalidadEstudio.codigo == 'VIS' || $vue.alumno.modalidadEstudio.codigo == 'ESP') {
             $vue.facu = false;

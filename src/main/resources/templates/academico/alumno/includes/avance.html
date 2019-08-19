@@ -16,7 +16,7 @@
                     </select>
                 </div>
                 <div class="col-sm-2">
-                    <a v-on:click="generarAvance" class="btn btn-primary btn-sm"> Actualizar </a> 
+                    <a th:if="${puedeCalcular}" v-on:click="generarAvance" class="btn btn-primary btn-sm"> Actualizar </a> 
                 </div>
 
             </div>
