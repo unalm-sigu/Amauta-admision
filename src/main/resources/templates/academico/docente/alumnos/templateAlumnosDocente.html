@@ -1,5 +1,21 @@
 <tr rel="{{:index}}">
     <td class="v-middle text-center text-primary">{{:nro}}</td>
+    <td class="v-middle">
+        <div class="pull-left">
+            <div v-if="item.persona.tipoFoto=='POSTUL' "
+                 class="img-responsive img-thumbnail img-circle div-foto-list">
+                <img class="img-foto-list" v-bind:src="item.persona.rutaFoto" />
+            </div>
+
+            <img v-else-if="item.persona.tipoFoto=='COMUN' " 
+                 class="img-responsive img-thumbnail img-circle div-foto-alumno-list" 
+                 v-bind:src="item.persona.rutaFoto" />
+
+            <img v-else="" 
+                 class="img-foto-tempo img-responsive img-thumbnail img-circle" 
+                 v-bind:src="item.persona.rutaFoto" />
+        </div>
+    </td>
     <td>
         <a href="#" class="thumb-sm pull-center m-r">
             <img src="{{:rutaFoto}}" alt="..." class="img-circle"/>

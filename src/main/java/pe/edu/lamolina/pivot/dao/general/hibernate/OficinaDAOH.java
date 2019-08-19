@@ -184,7 +184,7 @@ public class OficinaDAOH extends AbstractEasyDAO<Oficina> implements OficinaDAO 
                 .join("tipoOficina to")
                 .filter("to.codigo", tipoOficinaEnum)
                 .filter("o.instanciaOficina", facultad)
-                .filter("codigo","like", "F%");
+                .filter("codigo", "like", "F%");
 
         return (Oficina) sql.find(getCurrentSession());
     }
@@ -326,8 +326,8 @@ public class OficinaDAOH extends AbstractEasyDAO<Oficina> implements OficinaDAO 
 
     @Override
     public List<Oficina> allOficinaConsejero() {
-        
-               Octavia sql = Octavia.query()
+
+        Octavia sql = Octavia.query()
                 .from(Oficina.class, "ofi")
                 .join("tipoOficina")
                 .leftJoin("personaJefe pj", "jefeEncargado", "cargoJefe cj", "oficinaSuperior")
@@ -335,7 +335,5 @@ public class OficinaDAOH extends AbstractEasyDAO<Oficina> implements OficinaDAO 
 
         return all(sql);
     }
-    
-    
 
 }

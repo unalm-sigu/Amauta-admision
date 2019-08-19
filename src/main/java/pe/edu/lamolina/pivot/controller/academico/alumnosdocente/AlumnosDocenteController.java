@@ -9,6 +9,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,18 +22,15 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
-import pe.albatross.zelpers.dynatable.DynatableFilter;
-import pe.albatross.zelpers.dynatable.DynatableResponse;
+import pe.albatross.zelpers.miscelanea.JsonHelper;
+import pe.albatross.zelpers.miscelanea.JsonResponse;
+import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
-import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
-import pe.edu.lamolina.model.academico.Curso;
-import pe.edu.lamolina.model.academico.Facultad;
-import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.Seccion;
-import pe.edu.lamolina.model.general.Persona;
-import pe.edu.lamolina.pivot.controller.general.foto.FotoHelper;
+import pe.edu.lamolina.model.consejeria.AlumnoConsejero;
+import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.pivot.zelper.pdf.PdfService;
@@ -44,7 +42,7 @@ public class AlumnosDocenteController {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    AlumnosDocenteService alumnosDocenteService;
+    AlumnosDocenteService service;
 
     @Autowired
     PdfService pdfService;
@@ -80,42 +78,59 @@ public class AlumnosDocenteController {
 
     @ResponseBody
     @RequestMapping("{seccion}/list")
-    public DynatableResponse list(@PathVariable("seccion") Long idSeccion, DynatableFilter filter, HttpSession session) {
+    public JsonResponse list(@PathVariable("seccion") Long idSeccion, HttpSession session) {
 
-        DynatableResponse json = new DynatableResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        JsonResponse json = new JsonResponse();
 
         try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
             CicloAcademico ciclo = ds.getCicloAcademico();
 
-            Seccion seccion = alumnosDocenteService.findSeccion(idSeccion);
-            FotoHelper helper = new FotoHelper();
+            Seccion seccion = service.findSeccion(idSeccion);
+            //FotoHelper helper = new FotoHelper();
 
-            List<MatriculaSeccion> matriculasSeccionByFilter = alumnosDocenteService.allMatriculaSeccionBySeccion(seccion);
-            for (MatriculaSeccion matSecc : matriculasSeccionByFilter) {
+            List<MatriculaSeccion> matriculados = service.allMatriculadosBySeccion(seccion, ciclo);
+            List<AlumnoConsejero> aconsejados = service.allAconsejadosByMatriculados(matriculados, ciclo);
+            Map<Long, AlumnoConsejero> mapAconsejado = TypesUtil.convertListToMap("alumno.id", aconsejados);
+            List<Oficina> consejerias = service.allConsejerias();
+            Map<Long, Oficina> mapConsejeria = TypesUtil.convertListToMap("instanciaOficina", consejerias);
+
+            for (MatriculaSeccion matSecc : matriculados) {
+//                Alumno alumno = matSecc.getMatriculaResumen().getAlumno();
+//                Persona persona = alumno.getPersona();
+//                Carrera carrera = alumno.getCarrera();
+//                Facultad facultad = carrera.getFacultad();
+
+                ObjectNode node = JsonHelper.createJson(matSecc, JsonNodeFactory.instance, new String[]{
+                    "id",
+                    "matriculaResumen.alumno.codigo",
+                    "matriculaResumen.alumno.modalidadEstudio.codigo",
+                    "matriculaResumen.alumno.carrera.nombre",
+                    "matriculaResumen.alumno.carrera.tipo",
+                    "matriculaResumen.alumno.carrera.tipoEnum",
+                    "matriculaResumen.alumno.carrera.facultad.nombre",
+                    "matriculaResumen.alumno.persona.tipoFoto",
+                    "matriculaResumen.alumno.persona.rutaFoto",
+                    "matriculaResumen.alumno.persona.apellidosNombres",
+                    "matriculaResumen.alumno.persona.numeroDocIdentidad",
+                    "matriculaResumen.alumno.persona.emailCompania",
+                    "matriculaResumen.alumno.persona.tipoDocumento.simbolo"
+                });
+
                 Alumno alumno = matSecc.getMatriculaResumen().getAlumno();
-                Persona persona = alumno.getPersona();
-                Carrera carrera = alumno.getCarrera();
-                Facultad facultad = carrera.getFacultad();
+                AlumnoConsejero aconsejado = mapAconsejado.get(alumno.getId());
+                node.set("aconsejado", createAconsejadoJson(aconsejado));
 
-                ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
-                node.put("id", matSecc.getId());
-                node.put("nombre", persona.getApellidosNombres());
-                node.put("codigo", alumno.getCodigo());
-                node.put("rutaFoto", helper.getRutaFoto(persona.getFoto(), persona.getSexo()));
-                node.put("simbolo", persona.getTipoDocumento().getSimbolo());
-                node.put("documento", persona.getNumeroDocIdentidad());
-                node.put("carrera", carrera.getNombre());
-                node.put("facultad", facultad.getNombre());
+                Oficina consejeria = mapConsejeria.get(alumno.getCarrera().getId());
+                node.set("consejeria", createConsejeriaJson(consejeria));
 
                 array.add(node);
             }
 
             json.setData(array);
-            json.setTotal(filter.getTotal());
-            json.setFiltered(filter.getFiltered());
+            json.setSuccess(Boolean.TRUE);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -130,19 +145,48 @@ public class AlumnosDocenteController {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
-        Seccion seccion = alumnosDocenteService.findSeccion(idSeccion);
-        GrupoSeccion grupoSeccion = seccion.getGrupoSeccion();
-        Curso curso = grupoSeccion.getCurso();
+        Seccion seccion = service.findSeccion(idSeccion);
+        // GrupoSeccion grupoSeccion = seccion.getGrupoSeccion();
+        // Curso curso = grupoSeccion.getCurso();
 
         logger.debug("El docente es {}", ds.getDocente().getId());
         logger.debug("Consultara notas por seccion");
 
         //     model.addAttribute("docenteSeccion", docenteSeccion);
-        model.addAttribute("seccion", seccion);
-        model.addAttribute("grupoSeccion", grupoSeccion);
-        model.addAttribute("curso", curso);
-        //model.addAttribute("matriculasSeccion", matriculasSeccionByFilter);
+        model.addAttribute("seccion", createSeccionJson(seccion));
+        // model.addAttribute("grupoSeccion", grupoSeccion);
+        // model.addAttribute("curso", curso);
+        // model.addAttribute("matriculasSeccion", matriculasSeccionByFilter);
         return "academico/docente/alumnos/alumnosDocente";
+    }
+
+    private ObjectNode createConsejeriaJson(Oficina consejeria) {
+        ObjectNode node = JsonHelper.createJson(consejeria, JsonNodeFactory.instance, new String[]{
+            "id",
+            "personaJefe.apellidosNombres",
+            "personaJefe.emailCompania"
+        });
+        return node;
+    }
+
+    private ObjectNode createAconsejadoJson(AlumnoConsejero aconsejado) {
+        ObjectNode node = JsonHelper.createJson(aconsejado, JsonNodeFactory.instance, new String[]{
+            "id",
+            "consejero.colaborador.persona.apellidosNombres",
+            "consejero.colaborador.persona.emailCompania"
+        });
+        return node;
+    }
+
+    private ObjectNode createSeccionJson(Seccion seccion) {
+        ObjectNode node = JsonHelper.createJson(seccion, JsonNodeFactory.instance, new String[]{
+            "id", "codigo2", "tipoSeccionEnum",
+            "grupoHoras.codigo",
+            "grupoSeccion.curso.tpc",
+            "grupoSeccion.curso.codigo",
+            "grupoSeccion.curso.nombre"
+        });
+        return node;
     }
 
 }
