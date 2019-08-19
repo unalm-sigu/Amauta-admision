@@ -1,6 +1,7 @@
 package pe.edu.lamolina.pivot.controller.seguridad.verificador;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
@@ -13,7 +14,8 @@ import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Facultad;
-import pe.edu.lamolina.model.enums.OficinaEnum;
+import static pe.edu.lamolina.model.enums.OficinaEnum.BAN;
+import static pe.edu.lamolina.model.enums.OficinaEnum.OERA;
 import pe.edu.lamolina.model.enums.TipoOficinaEnum;
 import static pe.edu.lamolina.model.enums.TipoOficinaEnum.DPTO;
 import static pe.edu.lamolina.model.enums.TipoOficinaEnum.ESP;
@@ -72,16 +74,22 @@ public class VerificadorServiceImp implements VerificadorService {
         List<Oficina> oficinasMain = oficinaService.allOficinasMainByPersona(ds.getPersona());
         System.out.println("oficinas:::" + oficinasMain.size());
         for (Oficina oficina : oficinasMain) {
-            if (oficina.getCodigoEnum() == OficinaEnum.OERA) {
+            if (oficina.getCodigoEnum() == OERA) {
                 if (tipoOficinaSolicitud == DPTO) {
                     lista.addAll(departamentoAcademicoDAO.all());
-                } else if (tipoOficinaSolicitud == ESP) {
-                    lista.addAll(carreraDAO.allPrePosGrado());
+                    return lista;
                 } else if (tipoOficinaSolicitud == FAC) {
                     lista.addAll(facultadDAO.all());
+                    return lista;
                 }
 
-                return lista;
+            }
+            if (Arrays.asList(OERA, BAN).contains(oficina.getCodigoEnum())) {
+                if (tipoOficinaSolicitud == ESP) {
+                    lista.addAll(carreraDAO.allPrePosGrado());
+                    return lista;
+                }
+
             }
         }
 

@@ -457,13 +457,14 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
         ds.setModalidades(new ArrayList());
 
         if (rol.getCodigoEnum() == RolEnum.ADM_UNALM) {
-
+            logger.debug("Configurando rol adm_unalm");
             Oficina ofiMain = ds.getOficinas().isEmpty() ? null : ds.getOficinas().get(0);
             ds.setOficinaMain(ofiMain);
             settingOficinaMain(ofiMain, ds);
         }
 
         if (rol.getCodigoEnum() == RolEnum.DOC) {
+            logger.debug("Configurando rol docente");
             List<Docente> docentes = docenteDAO.allByPersona(ds.getPersona());
             for (Docente docente : docentes) {
                 if (docente.getEstadoEnum() == DocenteEstadoEnum.ACT) {
@@ -479,9 +480,10 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
         }
 
         if (rol.getCodigoEnum() == RolEnum.ALU) {
-
+            logger.debug("Configurando rol alumno que sera expulsado del amauta");
         }
 
+        logger.debug("Configurando menus para este rol");
         Sistema sistema = new Sistema(despliegueConfig.getSistema());
         List<Menu> menus = allMenusByRolMain(rol, sistema, ds);
         ds.setMenu(menus);
@@ -494,9 +496,13 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
     //@Override
     private List<Menu> allMenusByRolMain(Rol rol, Sistema sistema, DataSessionPivot ds) {
         List<Rol> roles = new ArrayList(rol.getRolesInferiores());
+        for (Rol roli : roles) {
+            logger.debug("rol-inferior {} {}", roli.getId(), roli.getNombre());
+        }
         roles.add(rol);
 
         List<Menu> menusBD = menuDAO.allByRolSistema(roles, sistema);
+        System.out.println("menusBD.size = " + menusBD.size());
         return menuService.allMenuOrdered(menusBD);
     }
 

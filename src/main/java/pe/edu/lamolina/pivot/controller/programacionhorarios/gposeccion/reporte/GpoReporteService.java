@@ -7,6 +7,7 @@ import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.GpoSeccionResumen;
+import pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.aula.SeccionDTO;
 
 public interface GpoReporteService {
 
@@ -21,5 +22,8 @@ public interface GpoReporteService {
     List<AnexoBoletin> getAnexosForBoletin(CicloAcademico ciclo);
 
     List<Seccion> allSeccionesConCruce(CicloAcademico cicloAcademico);
+
+    List<Seccion> allSeccionesByFilter(CicloAcademico cicloAcademico, SeccionDTO seccionDTO);
+
 
 }

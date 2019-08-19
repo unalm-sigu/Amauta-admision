@@ -23,8 +23,10 @@ import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.almacen.ResumenInventario;
 import pe.edu.lamolina.model.enums.EstadoEnum;
+import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.enums.TipoAmbienteEnum;
 import pe.edu.lamolina.model.enums.TipoGrupoHorasEnum;
+import pe.edu.lamolina.model.enums.TipoHorarioAulaEnum;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.general.Oficina;
@@ -92,18 +94,30 @@ public class AulaServiceImp implements AulaService {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
-    public List<Aula> allByDynatable(DynatableFilter filter) {
+    public List<Aula> allByDynatable(DynatableFilter filter, CicloAcademico cicloAcademico) {
         List<Aula> aulas = aulaDAO.allByDynatable(filter);
         List<Aula> aulasHijas = aulaDAO.allByAulasSuperiores(aulas);
         List<ResumenInventario> resumenAulas = resumenInventarioDAO.allVisiblesByAulas(aulas);
+        List<HorarioAula> horariosAulasByCiclo = horarioAulaDAO.allByCicloAndTipoHorario(cicloAcademico, aulas, TipoHorarioAulaEnum.DICT);
+
         Map<Long, List<ResumenInventario>> resumenAulasMap = TypesUtil.convertListToMapList("almacen.aula.id", resumenAulas);
         Map<Long, List<Aula>> mapAulas = TypesUtil.convertListToMapList("aulaSuperior.id", aulasHijas);
+        Map<Long, List<HorarioAula>> mapHorariosAulas = TypesUtil.convertListToMapList("aula.id", horariosAulasByCiclo);
         for (Aula aula : aulas) {
             List<Aula> hijas = mapAulas.get(aula.getId());
             hijas = hijas == null ? new ArrayList() : hijas;
             aula.setAulasContenido(hijas);
             List<ResumenInventario> inventarios = resumenAulasMap.get(aula.getId());
             aula.setInventario(inventarios);
+            List<HorarioAula> horariosAulasByAula = mapHorariosAulas.get(aula.getId());
+            aula.setSeccion(new ArrayList<>());
+            if (horariosAulasByAula != null) {
+                List<Seccion> seccionesByAula = horariosAulasByAula.stream()
+                        .filter(x -> x.getSeccion() != null)
+                        .map(x -> x.getSeccion())
+                        .distinct().collect(Collectors.toList());
+                aula.setSeccion(seccionesByAula);
+            }
         }
         return aulas;
     }
@@ -457,6 +471,24 @@ public class AulaServiceImp implements AulaService {
     @Override
     public Aula findById(Aula aulaSuperiorForm) {
         return aulaDAO.find(aulaSuperiorForm.getId());
+    }
+
+    @Override
+    public List<HorarioAula> allHorariosAulaByCiclo(CicloAcademico cicloAcademico, Aula aula) {
+        List<HorarioAula> horariosAulasByCiclo = horarioAulaDAO.allByCicloAndTipoHorario(cicloAcademico, aula, TipoHorarioAulaEnum.DICT);
+        List<DocenteSeccion> docentesSeccionesByCiclo = docenteSeccionDAO.allByCiclo(cicloAcademico, aula, EstadoEnum.ACT);
+        Map<Long, List<DocenteSeccion>> docentesSeccionBySeccion = TypesUtil.convertListToMapList("seccion.id", docentesSeccionesByCiclo);
+
+        for (HorarioAula horarioAula : horariosAulasByCiclo) {
+            List<DocenteSeccion> docentesSecciones = docentesSeccionBySeccion.get(horarioAula.getSeccion().getId());
+            horarioAula.getSeccion().setDocenteSeccion(docentesSecciones);
+        }
+        return horariosAulasByCiclo;
+    }
+
+    @Override
+    public List<Aula> allAulas(CicloAcademico cicloAcademico) {
+        return aulaDAO.allByOficinaSupervisora(OficinaEnum.OBUAE, EstadoEnum.ACT);
     }
 
 }

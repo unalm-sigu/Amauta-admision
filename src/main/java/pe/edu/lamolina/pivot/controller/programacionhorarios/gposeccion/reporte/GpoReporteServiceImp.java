@@ -2,6 +2,7 @@ package pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.reporte
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -25,11 +26,14 @@ import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
+import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
+import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.horario.DiaHoraGrupo;
 import pe.edu.lamolina.model.horario.GrupoHoras;
 import pe.edu.lamolina.model.horario.HorarioAula;
 import pe.edu.lamolina.model.horario.HorarioSeccion;
 import pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.GpoSeccionResumen;
+import pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.aula.SeccionDTO;
 import pe.edu.lamolina.pivot.dao.academico.AnexoBoletinDAO;
 import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.DocenteSeccionDAO;
@@ -407,6 +411,15 @@ public class GpoReporteServiceImp implements GpoReporteService {
             gruposHora.setDiaHoraGrupo(diasHorasGruposByGpoHoras);
         }
 
+        for (Seccion seccion : secciones) {
+            GrupoHoras grupoHorasBySeccion = gruposHoras.stream().filter(x -> x.equals(seccion.getGrupoHoras())).findFirst().orElse(null);
+            seccion.setGrupoHoras(grupoHorasBySeccion);
+        }
+        this.fillSecciones(secciones, cicloAcademico);
+        return secciones;
+    }
+
+    void fillSecciones(List<Seccion> secciones, CicloAcademico cicloAcademico) {
         List<HorarioSeccion> horariosSeccion = horarioSeccionDAO.allBySeccionesSortByDiaHora(secciones);
         horariosSeccion = horariosSeccion.stream().filter(x -> x.isEstadoActivo()).collect(Collectors.toList());
 
@@ -416,18 +429,28 @@ public class GpoReporteServiceImp implements GpoReporteService {
         List<DocenteSeccion> docenteSeccions = docenteSeccionDAO.allPrincipalesBySecciones(secciones);
 
         for (Seccion seccion : secciones) {
-            GrupoHoras grupoHorasBySeccion = gruposHoras.stream().filter(x -> x.equals(seccion.getGrupoHoras())).findFirst().orElse(null);
+            Aula aula = seccion.getAula();
             List<HorarioSeccion> horarioSeccionBySeccion = horariosSeccion.stream().filter(x -> x.getSeccion().equals(seccion)).collect(Collectors.toList());
-            List<HorarioAula> horariosAulasBySeccion = horarioAulas.stream().filter(x -> x.getSeccion().equals(seccion)).collect(Collectors.toList());
+            List<HorarioAula> horariosAulasBySeccion = new ArrayList<>();
+            if (aula != null) {
+                horariosAulasBySeccion = horarioAulas.stream()
+                        .filter(x -> x.getSeccion().equals(seccion)).collect(Collectors.toList());
+            }
             List<DocenteSeccion> docentesSeccionBySeccion = docenteSeccions.stream().filter(x -> x.getSeccion().equals(seccion)).collect(Collectors.toList());
             if (!docentesSeccionBySeccion.isEmpty() && docentesSeccionBySeccion.size() == 1) {
                 seccion.setDocentePrincipal(docentesSeccionBySeccion.get(0).getDocente());
             }
-            seccion.setGrupoHoras(grupoHorasBySeccion);
             seccion.setHorarioSeccion(horarioSeccionBySeccion);
             seccion.setHorariosAula(horariosAulasBySeccion);
             seccion.setDocenteSeccion(docentesSeccionBySeccion);
         }
+    }
+
+    @Override
+    public List<Seccion> allSeccionesByFilter(CicloAcademico cicloAcademico, SeccionDTO seccionDTO) {
+        List<Seccion> secciones = seccionDAO.allByCicloAndFilter(cicloAcademico, ModalidadEstudioEnum.PRE, seccionDTO, SeccionEstadoEnum.ACT);
+        this.fillSecciones(secciones, cicloAcademico);
+
         return secciones;
     }
 

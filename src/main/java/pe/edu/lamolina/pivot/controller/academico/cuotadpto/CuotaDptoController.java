@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
@@ -61,6 +62,7 @@ public class CuotaDptoController {
             for (CuotasGrupoHoras cuota : cuotagpohoras) {
                 ObjectNode node = JsonHelper.createJson(cuota, JsonNodeFactory.instance, true,
                         new String[]{
+                            "id",
                             "anexoBoletin.id", "anexoBoletin.nombre", "anexoBoletin.codigo", "anexoBoletin.estado",
                             "grupoHoras.codigo", "grupoHoras.letra", "grupoHoras.tipoCiclo",
                             "cicloAcademico.descripcion2",
@@ -116,6 +118,33 @@ public class CuotaDptoController {
             "id", "letra"
         });
         return json;
+    }
+
+    @ResponseBody
+    @RequestMapping("redirectgpo")
+    public JsonResponse redirectGpo(@RequestParam("cuotaGrupoHorasId") Long cuotaGrupoHorasId,
+            @RequestParam("tipo") String tipo,
+            HttpSession session,
+            RedirectAttributes redirectAttributes) {
+        logger.debug("redirectGpo" + cuotaGrupoHorasId);
+        logger.debug("redirectGpo");
+        String grupos = service.grupos(new CuotasGrupoHoras(cuotaGrupoHorasId), tipo);
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+            response.setData(grupos);
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            e.printStackTrace();
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            ExceptionHandler.handleException(e, response);
+        } finally {
+            return response;
+        }
     }
 
 }

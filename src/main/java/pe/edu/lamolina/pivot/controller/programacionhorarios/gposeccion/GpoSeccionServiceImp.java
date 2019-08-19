@@ -1880,6 +1880,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         Map<String, DiaHoraGrupo> mapHDiaGpo = TypesUtil.convertListToMap("horaDia", grupoHorario.getDiaHoraGrupo());
         if (seccion.getAula() != null && seccion.getAula().getPermiteCruce() == BigDecimal.ZERO.intValue()) {
             List<HorarioAula> horarioTotalAula = horarioAulaDAO.allByAulaCiclo(seccion.getAula(), cicloAcademico);
+            List<String> errors = new ArrayList<>();
             for (HorarioAula hdiaAula : horarioTotalAula) {
                 Seccion secc = hdiaAula.getSeccion();
                 if (secc.getId() == seccion.getId().longValue()) {
@@ -1892,7 +1893,15 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
                 }
                 Dia dia = hdiaGpo.getDia();
                 Hora hora = hdiaGpo.getHora();
-                throw new PhobosException("Hay cruce de horario el " + dia.getNombre() + " a la(s) " + hora.getDescripcion());
+                String error = String.format("Cruce Horario, Dia {}, Hora {}, Seccion {}, Aula {}",
+                        dia.getNombre(), hora.getDescripcion(),
+                        hdiaAula.getSeccion().getCodigo2(),
+                        hdiaAula.getAula().getCodigo()
+                );
+                errors.add(error);
+            }
+            if (!errors.isEmpty()) {
+                throw new PhobosException(String.join("\\n", errors));
             }
         }
 

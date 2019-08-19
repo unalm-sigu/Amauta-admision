@@ -34,8 +34,10 @@ import pe.edu.lamolina.model.academico.OrientacionCarrera;
 import pe.edu.lamolina.model.academico.PlanCurricular;
 import pe.edu.lamolina.model.academico.RequisitoCursoCurricula;
 import pe.edu.lamolina.model.aporte.BoletaIngresante;
+import pe.edu.lamolina.model.enums.RolEnum;
 import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.horario.HorarioSeccion;
+import pe.edu.lamolina.model.seguridad.Rol;
 import pe.edu.lamolina.pivot.controller.academico.plancurricular.PlanCurricularService;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -96,10 +98,12 @@ public class InfoAcademicoController {
         }
 
         ObjectNode cicloJson = createCicloJson(ciclo);
+        boolean puedeCalcular = service.usuarioPuedeCalcular(ds);
 
         model.addAttribute("alumno", alumnoJson);
         model.addAttribute("ciclo", cicloJson);
         model.addAttribute("planes", planesJson);
+        model.addAttribute("puedeCalcular", puedeCalcular);
         model.addAttribute("origen", getOrigen(origen));
 
         ArrayNode horasJson = new ArrayNode(JsonNodeFactory.instance);

@@ -832,11 +832,9 @@ var app = new Vue({
             let $vue = this;
             $vue.$refs.grupoHorarioComponentRef.loadGruposHorario(seccion.id);
             $vue.grupoModal.showaccept = true;
-            if (seccion.matriculados > 0) {
-                $vue.grupoModal.showaccept = false;
-            } else {
-                $vue.grupoModal.showaccept = true;
-            }
+//            if (seccion.matriculados > 0) {
+//                $vue.grupoModal.showaccept = false;
+//            }
             this.$refs.modalGrupo.open();
         },
         saveGrupo() {

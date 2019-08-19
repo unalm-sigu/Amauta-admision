@@ -8,8 +8,12 @@ import java.beans.PropertyEditorSupport;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
@@ -34,6 +38,7 @@ import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.albatross.zelpers.notify.Notificaciones;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.almacen.ResumenInventario;
@@ -41,7 +46,10 @@ import pe.edu.lamolina.model.enums.TipoAmbienteEnum;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.general.Oficina;
+import pe.edu.lamolina.model.general.TipoAula;
 import pe.edu.lamolina.model.horario.Hora;
+import pe.edu.lamolina.model.horario.HorarioAula;
+import pe.edu.lamolina.pivot.controller.reporte.view.HorarioAulaCicloPDF;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.constant.Messages;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -55,6 +63,9 @@ public class AulaController {
 
     @Autowired
     HorarioAulaSemanalPDF horarioAulaSemanalPDF;
+
+    @Autowired
+    HorarioAulaCicloPDF horarioAulaCicloPDF;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -90,6 +101,14 @@ public class AulaController {
         CicloAcademico ciclo = ds.getCicloAcademico();
         model.addAttribute("ciclo", ciclo);
         model.addAttribute("tiposAmbiente", TipoAmbienteEnum.values());
+        List<TipoAula> tiposAulas = service.allTiposAula();
+        ArrayNode jTipoAulas = new ArrayNode(JsonNodeFactory.instance);
+        for (TipoAula tiposAula : tiposAulas) {
+            jTipoAulas.add(JsonHelper.createJson(tiposAula, JsonNodeFactory.instance, false, new String[]{
+                "id", "codigo", "nombre"
+            }));
+        }
+        model.addAttribute("tipoAulasJson", jTipoAulas.toString());
         return "general/aula/aula";
     }
 
@@ -100,7 +119,7 @@ public class AulaController {
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
-            List<Aula> aulas = service.allByDynatable(filter);
+            List<Aula> aulas = service.allByDynatable(filter, ds.getCicloAcademico());
             JsonNodeFactory jFactory = JsonNodeFactory.instance;
 
             ArrayNode array = new ArrayNode(jFactory);
@@ -113,9 +132,9 @@ public class AulaController {
                     "sede.id", "sede.nombre",
                     "tipoAula.id", "tipoAula.nombre",
                     "tipoCarpeta.id", "tipoCarpeta.nombre",
-                    "oficinaSupervisora.id", "oficinaSupervisora.nombre"
+                    "oficinaSupervisora.id", "oficinaSupervisora.nombre", "oficinaSupervisora.oficinaOera"
                 });
-
+                node.put("secciones", aula.getSeccion().size());
 //                node.put("id", aula.getId());
 //                node.put("codigo", aula.getCodigo());
 //                node.put("nombre", aula.getNombre());
@@ -175,7 +194,7 @@ public class AulaController {
         DynatableResponse json = new DynatableResponse();
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            List<Aula> aulas = service.allByDynatable(filter);
+            List<Aula> aulas = service.allByDynatable(filter, ds.getCicloAcademico());
 
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
@@ -515,24 +534,43 @@ public class AulaController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
         Aula aulaForm = new ObjectMapper().readValue(horariosAulaPdfBean.getStrAula(), Aula.class);
+        Aula aulaBD = service.findAulaById(aulaForm.getId());
+        List<Aula> aulas = new ArrayList<>();
+        if (aulaBD != null) {
+            aulas.add(aulaBD);
+        } else {
+            aulas = service.allAulas(ds.getCicloAcademico());
+        }
 
+        List<HorarioAula> horariosAulas = service.allHorariosAulaByCiclo(ds.getCicloAcademico(), aulaBD);
         List<Dia> dias = service.allDiaForPrinter();
-        Aula aulaBD = service.findAulaFull(aulaForm);
-        Aula aulaSuperior = aulaBD.getAulaSuperior();
+        List<Hora> horas = service.allHorasHorario();
+        List<Aula> aulasProgramadas = horariosAulas.stream()
+                .map(x -> x.getAula())
+                .distinct().collect(Collectors.toList());
+        if (aulasProgramadas.size() > 1) {
 
-        List<Hora> horasConHorarios = service.returnHorasEncontradas(aulaBD, dias, ds.getCicloAcademico());
-        List<Hora> horasBase = service.allHorasHorario();
+            aulasProgramadas = aulasProgramadas.stream()
+                    .filter(x -> x.getOficinaSupervisora().isOficinaOera())
+                    .collect(Collectors.toList());
+            for (Aula aulasProgramada : aulasProgramadas) {
+                logger.debug("codigo {}, oficina {}", aulasProgramada.getCodigo(), aulasProgramada.getOficinaSupervisora().getCodigo());
+            }
+
+            try {
+                Collections.sort(aulasProgramadas, (x1, x2) -> TypesUtil.getInt(x1.getCodigo(), -1).compareTo(TypesUtil.getInt(x2.getCodigo(), -1)));
+            } catch (Exception e) {
+                logger.error("Error", e);
+            }
+        }
 
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
-        model.addAttribute("aula", aulaBD);
-        model.addAttribute("aulaSuperior", aulaSuperior);
+        model.addAttribute("aulas", aulasProgramadas);
         model.addAttribute("dias", dias);
-        model.addAttribute("horasBase", horasBase);
-        model.addAttribute("horas", horasConHorarios);
-        model.addAttribute("fechaFin", horariosAulaPdfBean.getFechaFin());
-        model.addAttribute("fechaInicio", horariosAulaPdfBean.getFechaInicio());
+        model.addAttribute("horas", horas);
+        model.addAttribute("horariosAulas", horariosAulas);
 
-        return new ModelAndView(horarioAulaSemanalPDF);
+        return new ModelAndView(horarioAulaCicloPDF);
     }
 
     @RequestMapping("horarios")

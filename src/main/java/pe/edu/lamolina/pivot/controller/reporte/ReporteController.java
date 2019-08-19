@@ -115,8 +115,8 @@ public class ReporteController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
         CicloAcademico ciclo = ds.getCicloAcademico();
-         
-        model.addAttribute("cicloAcademico", ciclo); 
+
+        model.addAttribute("cicloAcademico", ciclo);
         model.addAttribute("alumnosHorario", service.allAlumnoHorario(ciclo));
         model.addAttribute("horariosCachimbo", service.allHorariosCachimbo(ciclo));
         model.addAttribute("consejeros", service.allOficinaByConsejero());

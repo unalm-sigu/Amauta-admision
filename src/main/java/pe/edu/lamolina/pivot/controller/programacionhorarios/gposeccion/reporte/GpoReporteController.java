@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
@@ -28,9 +29,12 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.Seccion;
+import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.tramite.TramiteDocumentoAcademico;
 import pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.GpoSeccionResumen;
+import pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.aula.SeccionDTO;
 import pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.reporte.view.ReporteCrucesExcelView;
+import pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.reporte.view.ReporteSeccionesByFilterExcelView;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.pivot.zelper.pdf.pdfHtml.PDFFormatoEnum;
@@ -53,6 +57,9 @@ public class GpoReporteController {
 
     @Autowired
     ReporteCrucesExcelView reporteCrucesExcelView;
+
+    @Autowired
+    ReporteSeccionesByFilterExcelView reporteSeccionesByFilterExcelView;
 
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {
@@ -218,6 +225,94 @@ public class GpoReporteController {
         model.addAttribute("secciones", secciones);
         model.addAttribute("ciclo", cicloAcademico);
         return new ModelAndView(reporteCrucesExcelView);
+    }
+
+    @RequestMapping("reporteSeccionesSinAulas")
+    public ModelAndView reporteSeccionesSinAulas(Model model, HttpSession session) {
+
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        CicloAcademico cicloAcademico = ds.getCicloAcademico();
+
+        InputStream formato = this.getClass().getResourceAsStream("/templates/excel/formatoSeccionesSinAula.xlsx");
+
+        SeccionDTO seccionDTO = new SeccionDTO();
+        seccionDTO.setTituloReporte("Secciones Sin Aula");
+        seccionDTO.setModalidadesEstudioEnum(Arrays.asList(ModalidadEstudioEnum.PRE));
+        seccionDTO.setConAula(false);
+       // seccionDTO.setConHorario(true);
+        List<Seccion> secciones = service.allSeccionesByFilter(cicloAcademico, seccionDTO);
+
+        model.addAttribute("seccionDTO", seccionDTO);
+        model.addAttribute("formato", formato);
+        model.addAttribute("secciones", secciones);
+        model.addAttribute("ciclo", cicloAcademico);
+        return new ModelAndView(reporteSeccionesByFilterExcelView);
+    }
+
+    @RequestMapping("reporteSeccionesConAulas")
+    public ModelAndView reporteSeccionesConAulas(Model model, HttpSession session) {
+
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        CicloAcademico cicloAcademico = ds.getCicloAcademico();
+
+        InputStream formato = this.getClass().getResourceAsStream("/templates/excel/formatoSeccionesSinAula.xlsx");
+
+        SeccionDTO seccionDTO = new SeccionDTO();
+        seccionDTO.setTituloReporte("Secciones Con Aula");
+        seccionDTO.setModalidadesEstudioEnum(Arrays.asList(ModalidadEstudioEnum.EPG, ModalidadEstudioEnum.PRE));
+        seccionDTO.setConAula(true);
+     //   seccionDTO.setConHorario(true);
+        List<Seccion> secciones = service.allSeccionesByFilter(cicloAcademico, seccionDTO);
+
+        model.addAttribute("seccionDTO", seccionDTO);
+        model.addAttribute("formato", formato);
+        model.addAttribute("secciones", secciones);
+        model.addAttribute("ciclo", cicloAcademico);
+        return new ModelAndView(reporteSeccionesByFilterExcelView);
+    }
+
+    @RequestMapping("reporteSeccionesConHorario")
+    public ModelAndView reporteSeccionesConHorario(Model model, HttpSession session) {
+
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        CicloAcademico cicloAcademico = ds.getCicloAcademico();
+
+        InputStream formato = this.getClass().getResourceAsStream("/templates/excel/formatoSeccionesSinAula.xlsx");
+
+        SeccionDTO seccionDTO = new SeccionDTO();
+        seccionDTO.setTituloReporte("Secciones Con Horario");
+        seccionDTO.setModalidadesEstudioEnum(Arrays.asList(ModalidadEstudioEnum.EPG, ModalidadEstudioEnum.PRE));
+
+        seccionDTO.setConHorario(true);
+        List<Seccion> secciones = service.allSeccionesByFilter(cicloAcademico, seccionDTO);
+
+        model.addAttribute("seccionDTO", seccionDTO);
+        model.addAttribute("formato", formato);
+        model.addAttribute("secciones", secciones);
+        model.addAttribute("ciclo", cicloAcademico);
+        return new ModelAndView(reporteSeccionesByFilterExcelView);
+    }
+
+    @RequestMapping("reporteSeccionesSinHorario")
+    public ModelAndView reporteSeccionesSinHorario(Model model, HttpSession session) {
+
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        CicloAcademico cicloAcademico = ds.getCicloAcademico();
+
+        InputStream formato = this.getClass().getResourceAsStream("/templates/excel/formatoSeccionesSinAula.xlsx");
+
+        SeccionDTO seccionDTO = new SeccionDTO();
+        seccionDTO.setTituloReporte("Secciones Sin Horario");
+        seccionDTO.setModalidadesEstudioEnum(Arrays.asList(ModalidadEstudioEnum.PRE));
+
+        seccionDTO.setConHorario(false);
+        List<Seccion> secciones = service.allSeccionesByFilter(cicloAcademico, seccionDTO);
+
+        model.addAttribute("seccionDTO", seccionDTO);
+        model.addAttribute("formato", formato);
+        model.addAttribute("secciones", secciones);
+        model.addAttribute("ciclo", cicloAcademico);
+        return new ModelAndView(reporteSeccionesByFilterExcelView);
     }
 
 }

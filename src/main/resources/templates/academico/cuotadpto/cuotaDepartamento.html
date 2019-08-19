@@ -110,14 +110,14 @@
                                                     <div class="circle-recorrido bgr-default">{{item.cuotasPractica}}</div>
                                                 </td>
 
-                                                <td class="v-middle text-center"> 
+                                                <td class="v-middle text-center pointer"  v-on:click.prevent="redirectGpo(item,'TEO')"> 
                                                     <div v-if="item.utilizadasTeoria > item.cuotasTeoria"
                                                          class="circle-recorrido bgr-danger">{{item.gruposUtilizadosTeoria}}</div>
                                                     <div v-else-if="item.utilizadasTeoria == item.cuotasTeoria"
                                                          class="circle-recorrido bgr-success">{{item.gruposUtilizadosTeoria}}</div>
                                                     <div v-else="" class="circle-recorrido bgr-warning">{{item.gruposUtilizadosTeoria}}</div>
                                                 </td>
-                                                <td class="v-middle text-center"> 
+                                                <td class="v-middle text-center pointer"  v-on:click.prevent="redirectGpo(item,'PRA')"> 
                                                     <div v-if="item.utilizadasPractica > item.cuotasPractica"
                                                          class="circle-recorrido bgr-danger">{{item.gruposUtilizadosPractica}}</div>
                                                     <div v-else-if="item.utilizadasPractica == item.cuotasPractica"

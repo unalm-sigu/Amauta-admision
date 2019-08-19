@@ -57,18 +57,20 @@ public interface MatriculableService {
 
     void inhabilitarMatriculable(MatriculaResumen matriculaResumen, DataSessionPivot ds);
 
-    public void verificarAlumnosNmat(DataSessionPivot ds, List<AlumnoCiclo> alumnoCiclos);
+    void verificarAlumnosNmat(DataSessionPivot ds, List<AlumnoCiclo> alumnoCiclos);
 
-    public void beneficiar(MatriculaResumen matriculaResumen, DataSessionPivot ds);
+    void beneficiar(MatriculaResumen matriculaResumen, DataSessionPivot ds);
 
-    public List<CicloAcademico> allCiclosActivos();
+    List<CicloAcademico> allCiclosActivos();
 
-    public List<AlumnoCiclo> allAlumnosCicloNmat(CicloAcademico cicloActivo);
+    List<AlumnoCiclo> allAlumnosCicloNmat(CicloAcademico cicloActivo);
 
-    public void quitarAporteCarnet(MatriculaResumen matriculaResumen, DataSessionPivot ds);
+    void quitarAporteCarnet(MatriculaResumen matriculaResumen, DataSessionPivot ds);
 
-    public void agregarAporteCarnet(MatriculaResumen matriculaResumen, DataSessionPivot ds);
+    void agregarAporteCarnet(MatriculaResumen matriculaResumen, DataSessionPivot ds);
 
-    public void actualizarPrioridadCero(DataSessionPivot ds);
+    void actualizarPrioridadCero(DataSessionPivot ds);
+
+    boolean usuarioPuedeCalcular(DataSessionPivot ds);
 
 }

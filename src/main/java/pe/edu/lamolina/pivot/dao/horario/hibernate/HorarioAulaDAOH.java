@@ -1,5 +1,6 @@
 package pe.edu.lamolina.pivot.dao.horario.hibernate;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -18,6 +19,7 @@ import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.enums.TipoAulaEnum;
 import pe.edu.lamolina.model.enums.TipoHorarioAulaEnum;
+import pe.edu.lamolina.model.enums.TipoOficinaEnum;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.horario.Hora;
@@ -176,6 +178,27 @@ public class HorarioAulaDAOH extends AbstractEasyDAO<HorarioAula> implements Hor
                 .join("sec.grupoSeccion gs", "gs.cicloAcademico ca")
                 .filter("ca.id", cicloAcademico);
 
+        return all(sql);
+    }
+
+    @Override
+    public List<HorarioAula> allByCicloAndTipoHorario(CicloAcademico cicloAcademico, Aula aula, TipoHorarioAulaEnum tipoHorarioAulaEnum) {
+        return this.allByCicloAndTipoHorario(cicloAcademico, aula != null ? Arrays.asList(aula) : null, tipoHorarioAulaEnum);
+    }
+
+    @Override
+    public List<HorarioAula> allByCicloAndTipoHorario(CicloAcademico cicloAcademico, List<Aula> aulas, TipoHorarioAulaEnum tipoHorarioAulaEnum) {
+        Octavia sql = Octavia.query()
+                .from(HorarioAula.class, "ha")
+                .join("dia d", "hora h", "aula au", "seccion sec")
+                .join("sec.grupoSeccion gs", "gs.cicloAcademico ca", "sec.grupoHoras gh")
+                .join("gs.curso cur", "au.oficinaSupervisora ofi")
+                .filter("ha.tipo", tipoHorarioAulaEnum)
+                .filter("ofi.codigo", OficinaEnum.OERA)
+                .filter("ca.id", cicloAcademico);
+        if (aulas != null && !aulas.isEmpty()) {
+            sql.in("au.id", aulas);
+        }
         return all(sql);
     }
 

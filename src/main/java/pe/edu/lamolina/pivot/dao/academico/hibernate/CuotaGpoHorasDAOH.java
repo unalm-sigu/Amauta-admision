@@ -27,6 +27,15 @@ public class CuotaGpoHorasDAOH extends AbstractEasyDAO<CuotasGrupoHoras> impleme
         setClazz(CuotasGrupoHoras.class);
     }
 
+    public CuotasGrupoHoras find(Long id) {
+        Octavia sql = Octavia.query()
+                .from(CuotasGrupoHoras.class, "cgh")
+                .join("anexoBoletin ab", "grupoHoras gh", "cicloAcademico ca")
+                .filter("cgh.id", id);
+
+        return find(sql);
+    }
+
     @Override
     public List<CuotasGrupoHoras> allByDynatable(DynatableFilter filter, AnexoBoletin anexo, CicloAcademico ciclo) {
         DynatableSql sql = new DynatableSql(filter)

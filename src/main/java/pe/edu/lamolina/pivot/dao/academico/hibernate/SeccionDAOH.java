@@ -21,13 +21,13 @@ import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
+import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
 import static pe.edu.lamolina.model.enums.SeccionEstadoEnum.ACT;
 import static pe.edu.lamolina.model.enums.SeccionEstadoEnum.ANU;
 import static pe.edu.lamolina.model.enums.SeccionEstadoEnum.BLO;
 import static pe.edu.lamolina.model.enums.SeccionEstadoEnum.CAN;
 import static pe.edu.lamolina.model.enums.SeccionEstadoEnum.FUS;
-import static pe.edu.lamolina.model.enums.SeccionEstadoEnum.INA;
 import pe.edu.lamolina.model.enums.TipoGrupoHorasEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 import static pe.edu.lamolina.model.enums.TipoSeccionEnum.TCUR;
@@ -37,7 +37,8 @@ import pe.edu.lamolina.model.horario.HorarioCachimbos;
 import pe.edu.lamolina.model.horario.SeccionHorarioCachimbos;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
 import pe.edu.lamolina.model.rolexamen.SeccionExcluido;
-import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.pivot.controller.academico.cuotadpto.AnexoCuotaUtilizadaBean;
+import pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.aula.SeccionDTO;
 
 @Repository
 public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO {
@@ -881,6 +882,51 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
             secciones.add(seccion);
         }
         return secciones;
+    }
+
+    @Override
+    public List<Seccion> allByCicloAndFilter(CicloAcademico ciclo, ModalidadEstudioEnum modalidadEstudioEnum, SeccionDTO seccionDTO, SeccionEstadoEnum... seccionEstadoEnum) {
+        Octavia sql = Octavia.query()
+                .from(Seccion.class, "sec")
+                .join("grupoSeccion gs", "gs.curso cur", "gs.cicloAcademico ca")
+                .join("gs.anexoBoletin ab", "ab.anexoSuperior abosup", "cur.modalidadEstudio modes")
+                .leftJoin("aula aul", "grupoHoras gho", "aul.oficinaSupervisora ofiSup")
+                .filter("ca.id", ciclo)
+                .in("modes.codigo", seccionDTO.getModalidadesEstudioEnum());
+        if (seccionEstadoEnum != null) {
+            sql.in("sec.estado", Arrays.asList(seccionEstadoEnum));
+        }
+        if (seccionDTO.getConAula() != null) {
+            if (seccionDTO.getConAula()) {
+                sql.isNotNull("aul.id");
+            } else {
+                sql.isNull("aul.id");
+            }
+        }
+        if (seccionDTO.getConHorario() != null) {
+            if (seccionDTO.getConHorario()) {
+                sql.isNotNull("gho.id");
+            } else {
+                sql.isNull("gho.id");
+            }
+        }
+        sql.orderBy("abosup.nombre asc");
+        return all(sql);
+    }
+
+    @Override
+    public List<Seccion> allSeccionesActivasByGrupoHorasAndCiclo(GrupoHoras grupoHoras, CicloAcademico cicloAcademico) {
+        Octavia sql = Octavia.query()
+                .from(Seccion.class, "secc")
+                .join("grupoHoras grho", "grupoSeccion grse", "grse.anexoBoletin anbo", "grse.cicloAcademico ca")
+                .join("aula au", "au.oficinaSupervisora ofi")
+                .filter("secc.estado", SeccionEstadoEnum.ACT)
+                .filter("grse.estado", SeccionEstadoEnum.ACT)
+                .filter("ca.id", cicloAcademico)
+                .filter("grho.letra", grupoHoras.getLetra())
+                .filter("ofi.codigo", OficinaEnum.OERA)
+                .groupBy("anbo.id");
+        return all(sql);
     }
 
 }

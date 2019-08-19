@@ -8,12 +8,15 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
+import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.Seccion;
+import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
 import pe.edu.lamolina.model.enums.TipoGrupoHorasEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 import pe.edu.lamolina.model.horario.GrupoHoras;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
+import pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.aula.SeccionDTO;
 
 public interface SeccionDAO extends EasyDAO<Seccion> {
 
@@ -124,6 +127,10 @@ public interface SeccionDAO extends EasyDAO<Seccion> {
     List<Seccion> allConCruce(CicloAcademico cicloAcademico);
 
     List<Seccion> allConCruceHorario(CicloAcademico cicloAcademico);
+
     List<Seccion> findByNombreCiclo(String nombre, CicloAcademico ciclo);
 
+    List<Seccion> allByCicloAndFilter(CicloAcademico ciclo, ModalidadEstudioEnum modalidadEstudioEnum, SeccionDTO seccionDTO, SeccionEstadoEnum... seccionEstadoEnum);
+
+    List<Seccion> allSeccionesActivasByGrupoHorasAndCiclo(GrupoHoras grupoHoras, CicloAcademico cicloAcademico);
 }

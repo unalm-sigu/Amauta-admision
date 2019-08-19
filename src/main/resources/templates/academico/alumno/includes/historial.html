@@ -5,16 +5,17 @@
             <h3 class="m-t-n" style="display: inline-block" v-if="showTitle">Historial Académico</h3>
             <div class="pull-right m-t-n"  v-if="showactions" style="margin-bottom: 15px;">
 
-                <div class="dropdown" >
+                <div class="dropdown" th:if="${puedeCalcular}" >
                     <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">
                         Acciones <span class="caret"></span>
                     </button>
 
                     <ul class="dropdown-menu dropdown-menu-right">
                         <li><a class="dropdown-item" href="#" v-on:click.prevent="calcularPromedio">Calcular Promedios</a></li>
-                        <li><a class="dropdown-item" href="#" th:if="false">Descargar pdf</a></li>
+                        <li><a class="dropdown-item" href="#" th:if="false">Descargar PDF</a></li>
                     </ul>
                 </div>
+                <div th:unless="${puedeCalcular}"><button class="btn btn-primary hide" type="button">&nbsp;&nbsp;&nbsp;</button></div>
             </div>
         </div>
 

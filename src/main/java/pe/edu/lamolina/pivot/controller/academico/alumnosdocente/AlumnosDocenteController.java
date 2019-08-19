@@ -7,9 +7,12 @@ import java.beans.PropertyEditorSupport;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Base64;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import javax.servlet.http.HttpSession;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,19 +23,17 @@ import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import pe.albatross.zelpers.dynatable.DynatableFilter;
-import pe.albatross.zelpers.dynatable.DynatableResponse;
+import pe.albatross.zelpers.JaneHelper;
+import pe.albatross.zelpers.miscelanea.JsonResponse;
+import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
-import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
-import pe.edu.lamolina.model.academico.Curso;
-import pe.edu.lamolina.model.academico.Facultad;
-import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.Seccion;
-import pe.edu.lamolina.model.general.Persona;
-import pe.edu.lamolina.pivot.controller.general.foto.FotoHelper;
+import pe.edu.lamolina.model.consejeria.AlumnoConsejero;
+import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.pivot.zelper.pdf.PdfService;
@@ -44,7 +45,7 @@ public class AlumnosDocenteController {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    AlumnosDocenteService alumnosDocenteService;
+    AlumnosDocenteService service;
 
     @Autowired
     PdfService pdfService;
@@ -80,42 +81,47 @@ public class AlumnosDocenteController {
 
     @ResponseBody
     @RequestMapping("{seccion}/list")
-    public DynatableResponse list(@PathVariable("seccion") Long idSeccion, DynatableFilter filter, HttpSession session) {
+    public JsonResponse list(@PathVariable("seccion") Long idSeccion, HttpSession session) {
 
-        DynatableResponse json = new DynatableResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        JsonResponse json = new JsonResponse();
 
         try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
             CicloAcademico ciclo = ds.getCicloAcademico();
 
-            Seccion seccion = alumnosDocenteService.findSeccion(idSeccion);
-            FotoHelper helper = new FotoHelper();
+            Seccion seccion = service.findSeccion(idSeccion);
 
-            List<MatriculaSeccion> matriculasSeccionByFilter = alumnosDocenteService.allMatriculaSeccionBySeccion(seccion);
-            for (MatriculaSeccion matSecc : matriculasSeccionByFilter) {
+            List<MatriculaSeccion> matriculados = service.allMatriculadosBySeccion(seccion, ciclo);
+            List<AlumnoConsejero> aconsejados = service.allAconsejadosByMatriculados(matriculados, ciclo);
+            Map<Long, AlumnoConsejero> mapAconsejado = TypesUtil.convertListToMap("alumno.id", aconsejados);
+            List<Oficina> consejerias = service.allConsejerias();
+            Map<Long, Oficina> mapConsejeria = TypesUtil.convertListToMap("instanciaOficina", consejerias);
+
+            for (MatriculaSeccion matSecc : matriculados) {
+                ObjectNode node = JaneHelper.createJson()
+                        .from(matSecc, "id")
+                        .putJoin("alumno", "matriculaResumen.alumno", "codigo")
+                        .putJoin("modalidad", "matriculaResumen.alumno.modalidadEstudio", "codigo")
+                        .putJoin("carrera", "matriculaResumen.alumno.carrera", "nombre,tipo,tipoEnum")
+                        .putJoin("facultad", "matriculaResumen.alumno.carrera.facultad", "nombre")
+                        .putJoin("persona", "matriculaResumen.alumno.persona",
+                                "tipoFoto,rutaFoto,apellidosNombres,numeroDocIdentidad,emailCompania,tipoDocumento.simbolo")
+                        .getNode();
+
                 Alumno alumno = matSecc.getMatriculaResumen().getAlumno();
-                Persona persona = alumno.getPersona();
-                Carrera carrera = alumno.getCarrera();
-                Facultad facultad = carrera.getFacultad();
+                AlumnoConsejero aconsejado = mapAconsejado.get(alumno.getId());
+                node.set("consejero", createConsejeroJson(aconsejado));
 
-                ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
-                node.put("id", matSecc.getId());
-                node.put("nombre", persona.getApellidosNombres());
-                node.put("codigo", alumno.getCodigo());
-                node.put("rutaFoto", helper.getRutaFoto(persona.getFoto(), persona.getSexo()));
-                node.put("simbolo", persona.getTipoDocumento().getSimbolo());
-                node.put("documento", persona.getNumeroDocIdentidad());
-                node.put("carrera", carrera.getNombre());
-                node.put("facultad", facultad.getNombre());
+                Oficina consejeria = mapConsejeria.get(alumno.getCarrera().getId());
+                node.set("consejeria", createConsejeriaJson(consejeria));
 
                 array.add(node);
             }
 
             json.setData(array);
-            json.setTotal(filter.getTotal());
-            json.setFiltered(filter.getFiltered());
+            json.setSuccess(Boolean.TRUE);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -125,24 +131,59 @@ public class AlumnosDocenteController {
     }
 
     @RequestMapping("{seccion}/alumnosDocente")
-    public String alumnos(@PathVariable("seccion") Long idSeccion, Model model, HttpSession session) {
+    public String alumnos(
+            @RequestParam(value = "origen", required = false) String origen,
+            @PathVariable("seccion") Long idSeccion, Model model, HttpSession session) {
         logger.debug("la seccion es {}", idSeccion);
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
-        Seccion seccion = alumnosDocenteService.findSeccion(idSeccion);
-        GrupoSeccion grupoSeccion = seccion.getGrupoSeccion();
-        Curso curso = grupoSeccion.getCurso();
+        Seccion seccion = service.findSeccion(idSeccion);
 
         logger.debug("El docente es {}", ds.getDocente().getId());
         logger.debug("Consultara notas por seccion");
 
-        //     model.addAttribute("docenteSeccion", docenteSeccion);
-        model.addAttribute("seccion", seccion);
-        model.addAttribute("grupoSeccion", grupoSeccion);
-        model.addAttribute("curso", curso);
-        //model.addAttribute("matriculasSeccion", matriculasSeccionByFilter);
+        model.addAttribute("seccion", createSeccionJson(seccion));
+        model.addAttribute("origen", getOrigen(origen));
+
         return "academico/docente/alumnos/alumnosDocente";
+    }
+
+    private String getOrigen(String origen) {
+        if (StringUtils.isEmpty(origen)) {
+            return "/academico/alumno";
+        }
+        byte[] decoded = Base64.getMimeDecoder().decode(origen);
+        String output = new String(decoded);
+        return output;
+    }
+
+    private ObjectNode createConsejeriaJson(Oficina consejeria) {
+        ObjectNode node = JaneHelper.createJson()
+                .from(consejeria, "id")
+                .putJoin("persona", "personaJefe", "apellidosNombres,emailCompania")
+                .getNode();
+
+        return node;
+    }
+
+    private ObjectNode createConsejeroJson(AlumnoConsejero aconsejado) {
+        ObjectNode node = JaneHelper.createJson()
+                .from(aconsejado, "id")
+                .putJoin("persona", "consejero.colaborador.persona", "apellidosNombres,emailCompania")
+                .getNode();
+        return node;
+    }
+
+    private ObjectNode createSeccionJson(Seccion seccion) {
+        ObjectNode node = JaneHelper.createJson()
+                .from(seccion, "id,codigo2,tipoSeccionEnum")
+                .join("grupoHoras", "codigo")
+                .join("aula", "codigo,nombre")
+                .putJoin("curso", "grupoSeccion.curso", "tpc,codigo,nombre")
+                .getNode();
+
+        return node;
     }
 
 }

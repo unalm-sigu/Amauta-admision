@@ -18,40 +18,41 @@
         <input type="hidden" value="{{:id}}"/>
         <input type="hidden" value="{{:idSistemaCalificacion}}"/>
         {{if sistemas==""}}
-        <a href="#" class="label label-warning sistema-calificacion" rel="{{:idSistemaCalificacion}}">{{:sistemaCalificacion}}</a>
+            <a href="#" class="label label-warning sistema-calificacion" rel="{{:idSistemaCalificacion}}">{{:sistemaCalificacion}}</a>
         {{/if}}
 
         {{if sistemas!=""}}
-        {{:sistemasHtml}}  
+            {{:sistemasHtml}}  
         {{/if}}
 
         {{if estadoSistema=="PRO"}}
-        <span class="block">
-            <a href="#" class="label label-warning aceptar-sistema-calificacion">{{:sistemaCalificacion}}</a>
-        </span>
-        <span class="block text-primary" >
-            <a href="#" class="aceptar-sistema-calificacion"> Cursos : {{:cantidadCursos}} </a>	
-        </span>
+            <span class="block">
+                <a href="#" class="label label-warning aceptar-sistema-calificacion">{{:sistemaCalificacion}}</a>
+            </span>
+            <span class="block text-primary" >
+                <a href="#" class="aceptar-sistema-calificacion"> Cursos : {{:cantidadCursos}} </a>	
+            </span>
         {{/if}}
+        
         {{if estadoSistema=="SOL" || estadoSistema=="OBS"}}
-        <span class="block">
-            <a href="#" class="label label-warning sistema-calificacion">{{:sistemaCalificacion}}</a>
-        </span>
-        <span class="block text-primary" >
-            <a href="#" class="sistema-calificacion"> Cursos : {{:cantidadCursos}} </a>	
-        </span>
+            <span class="block">
+                <a href="#" class="label label-warning sistema-calificacion">{{:sistemaCalificacion}}</a>
+            </span>
+            <span class="block text-primary" >
+                <a href="#" class="sistema-calificacion"> Cursos : {{:cantidadCursos}} </a>	
+            </span>
         {{/if}} 
 
         {{if estadoSistema=="ACEP" || estadoSistema=="EXP" || estadoSistema=="EXPR"}}
-        <span class="block"><a href="#" class="sistema-calificacion">Aceptado</a></span>
-        <span class="block"><a href="#" class="notas-academicas">Ingresar notas</a></span>
+            <span class="block"><a href="#" class="sistema-calificacion">Aceptado</a></span>
+            <span class="block"><a href="#" class="notas-academicas">Ingresar notas</a></span>
         {{/if}}
         {{if estadoSistema=="RHZ"}}
-        <span class="block"><a href="#" class="aceptar-sistema-calificacion">Rechazado</a></span>
+            <span class="block"><a href="#" class="aceptar-sistema-calificacion">Rechazado</a></span>
         {{/if}}
         {{if estadoSistema=="CER"}}
-        <span class="block"><a href="#" class="sistema-calificacion">Aceptado</a></span>
-        <span class="block"><a href="#" class="ver-notas-academicas">Notas académicas</a></span>
+            <span class="block"><a href="#" class="sistema-calificacion">Aceptado</a></span>
+            <span class="block"><a href="#" class="ver-notas-academicas">Notas académicas</a></span>
         {{/if}}
         {{if estadoSistema=="EXPR"}}
         <!-- 

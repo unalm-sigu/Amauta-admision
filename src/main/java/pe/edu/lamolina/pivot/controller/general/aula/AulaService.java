@@ -11,12 +11,13 @@ import pe.edu.lamolina.model.general.TipoAula;
 import pe.edu.lamolina.model.general.TipoCarpeta;
 import pe.edu.lamolina.model.horario.DiaHoraGrupo;
 import pe.edu.lamolina.model.horario.Hora;
+import pe.edu.lamolina.model.horario.HorarioAula;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface AulaService {
 
-    List<Aula> allByDynatable(DynatableFilter filter);
+    List<Aula> allByDynatable(DynatableFilter filter, CicloAcademico cicloAcademico);
 
     List<TipoAula> allTiposAula();
 
@@ -59,5 +60,9 @@ public interface AulaService {
     Aula findById(Aula aulaSuperiorForm);
 
     Aula findAulaHorarioProgramacion(Aula aula);
+
+    List<HorarioAula> allHorariosAulaByCiclo(CicloAcademico cicloAcademico, Aula aula);
+
+    List<Aula> allAulas(CicloAcademico cicloAcademico);
 
 }

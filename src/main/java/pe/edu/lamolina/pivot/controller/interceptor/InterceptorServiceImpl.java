@@ -10,6 +10,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.interceptor.UserLogger;
 import pe.edu.lamolina.model.seguridad.Sistema;
@@ -64,7 +65,7 @@ public class InterceptorServiceImpl implements InterceptorService {
         obj.setSistemaOperativo(ds.getSistemaOperativo());
         obj.setFechaRegistro(new Date());
         obj.setData(objNode.get("data").toString());
-        obj.setCiclo(ds.getCicloAcademico().getDescripcion());
+        obj.setCiclo((String) ObjectUtil.getParentTree(ds, "cicloAcademico.descripcion"));
         obj.setRoles(Arrays.toString(ls).toString());
         obj.setUsuario(ds.getPersona().getNombreCompleto());
         obj.setSistema(objSis);
