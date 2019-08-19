@@ -121,7 +121,7 @@
                             <span >Créditos Cursados Acumulados: </span><span th:text="${alumno.creditosCursados}"></span>
                         </td>
                         <td> 
-                            <span >Promedio Ponderado Semestral: </span><span th:text="${alumno.promedioAcumuladoFixed}"></span>
+                            <span >Promedio Ponderado Semestral: </span><span th:text="${alumno.promedioUltimoCiclo}"></span>
                         </td>
                     </tr>
                     <tr >
@@ -173,12 +173,12 @@
                             <span th:text="'Créditos: ' + ${cursoDirigido.curso.creditos}"> creditos </span>
                         </td>
                     </tr>
-                    <tr>
+<!--                    <tr>
                         <td style="width: 35%"><b> Docente </b></td>
                         <td>
                             <p th:text="${cursoDirigido.docenteAsignado.persona.apellidosNombres}" style="padding-top: 2px; padding-bottom: 2px;"> nombre </p>
                         </td>
-                    </tr>
+                    </tr>-->
 
                     <tr>
                         <td style="width: 25%" ><b> Situación </b></td>
