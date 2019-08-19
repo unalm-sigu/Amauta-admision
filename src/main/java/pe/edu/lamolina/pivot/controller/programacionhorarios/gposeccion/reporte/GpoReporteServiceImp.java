@@ -447,15 +447,7 @@ public class GpoReporteServiceImp implements GpoReporteService {
     }
 
     @Override
-    public List<Seccion> allSeccionesSinAula(CicloAcademico cicloAcademico, SeccionDTO seccionDTO) {
-        List<Seccion> secciones = seccionDAO.allByCicloAndFilter(cicloAcademico, ModalidadEstudioEnum.PRE, seccionDTO, SeccionEstadoEnum.ACT);
-        this.fillSecciones(secciones, cicloAcademico);
-
-        return secciones;
-    }
-
-    @Override
-    public List<Seccion> allSeccionesConAula(CicloAcademico cicloAcademico, SeccionDTO seccionDTO) {
+    public List<Seccion> allSeccionesByFilter(CicloAcademico cicloAcademico, SeccionDTO seccionDTO) {
         List<Seccion> secciones = seccionDAO.allByCicloAndFilter(cicloAcademico, ModalidadEstudioEnum.PRE, seccionDTO, SeccionEstadoEnum.ACT);
         this.fillSecciones(secciones, cicloAcademico);
 

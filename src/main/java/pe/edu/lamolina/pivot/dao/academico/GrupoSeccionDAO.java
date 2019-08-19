@@ -12,6 +12,7 @@ import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.PlanCalificacion;
 import pe.edu.lamolina.model.enums.EstadoEnum;
+import pe.edu.lamolina.model.horario.GrupoHoras;
 import pe.edu.lamolina.pivot.controller.academico.acta.ActaResumen;
 import pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.GpoSeccionResumen;
 import pe.edu.lamolina.pivot.controller.academico.plancalificacurso.DocenteCursoPlan;
@@ -85,5 +86,7 @@ public interface GrupoSeccionDAO extends EasyDAO<GrupoSeccion> {
     void updateCodigo2(List<GrupoSeccion> gpoSecciones);
 
     public GrupoSeccion findByCursoAndDirigido(Curso curso, CicloAcademico cicloAcademico);
+
+    List<GrupoSeccion> allActivosByLetraAndCiclo(GrupoHoras grupoHoras, CicloAcademico cicloAcademico);
 
 }

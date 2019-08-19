@@ -37,6 +37,7 @@ import pe.edu.lamolina.model.enums.GrupoAnexoEnum;
 import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
+import pe.edu.lamolina.model.horario.GrupoHoras;
 import pe.edu.lamolina.pivot.controller.academico.acta.ActaResumen;
 import pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.GpoSeccionResumen;
 import pe.edu.lamolina.pivot.controller.academico.plancalificacurso.DocenteCursoPlan;
@@ -777,6 +778,23 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
                 .filter("cur.id", curso);
 
         return find(sql);
+    }
+
+    @Override
+    public List<GrupoSeccion> allActivosByLetraAndCiclo(GrupoHoras grupoHoras, CicloAcademico cicloAcademico) {
+        Octavia sql = Octavia.query()
+                .selectDistinct("grse")
+                .from(Seccion.class, "secc")
+                .join("grupoHoras grho", "grupoSeccion grse", "grse.anexoBoletin anbo", "grse.cicloAcademico ca")
+                .join("aula au", "au.oficinaSupervisora ofi")
+                .filter("secc.estado", SeccionEstadoEnum.ACT)
+                .filter("grse.estado", SeccionEstadoEnum.ACT)
+                .filter("ca.id", cicloAcademico)
+                .filter("grho.letra", grupoHoras.getLetra())
+                .filter("ofi.codigo", OficinaEnum.OERA);
+              //  .groupBy("anbo.id");
+
+        return sql.all(getCurrentSession());
     }
 
 }

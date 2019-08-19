@@ -21,6 +21,7 @@ import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
+import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
 import static pe.edu.lamolina.model.enums.SeccionEstadoEnum.ACT;
 import static pe.edu.lamolina.model.enums.SeccionEstadoEnum.ANU;
@@ -36,6 +37,7 @@ import pe.edu.lamolina.model.horario.HorarioCachimbos;
 import pe.edu.lamolina.model.horario.SeccionHorarioCachimbos;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
 import pe.edu.lamolina.model.rolexamen.SeccionExcluido;
+import pe.edu.lamolina.pivot.controller.academico.cuotadpto.AnexoCuotaUtilizadaBean;
 import pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.aula.SeccionDTO;
 
 @Repository
@@ -894,17 +896,36 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
         if (seccionEstadoEnum != null) {
             sql.in("sec.estado", Arrays.asList(seccionEstadoEnum));
         }
-        if (seccionDTO.getConAula()) {
-            sql.isNotNull("aul.id");
-        } else {
-            sql.isNull("aul.id");
+        if (seccionDTO.getConAula() != null) {
+            if (seccionDTO.getConAula()) {
+                sql.isNotNull("aul.id");
+            } else {
+                sql.isNull("aul.id");
+            }
         }
-        if (seccionDTO.getConHorario()) {
-            sql.isNotNull("gho.id");
-        } else {
-            sql.isNull("gho.id");
+        if (seccionDTO.getConHorario() != null) {
+            if (seccionDTO.getConHorario()) {
+                sql.isNotNull("gho.id");
+            } else {
+                sql.isNull("gho.id");
+            }
         }
         sql.orderBy("abosup.nombre asc");
+        return all(sql);
+    }
+
+    @Override
+    public List<Seccion> allSeccionesActivasByGrupoHorasAndCiclo(GrupoHoras grupoHoras, CicloAcademico cicloAcademico) {
+        Octavia sql = Octavia.query()
+                .from(Seccion.class, "secc")
+                .join("grupoHoras grho", "grupoSeccion grse", "grse.anexoBoletin anbo", "grse.cicloAcademico ca")
+                .join("aula au", "au.oficinaSupervisora ofi")
+                .filter("secc.estado", SeccionEstadoEnum.ACT)
+                .filter("grse.estado", SeccionEstadoEnum.ACT)
+                .filter("ca.id", cicloAcademico)
+                .filter("grho.letra", grupoHoras.getLetra())
+                .filter("ofi.codigo", OficinaEnum.OERA)
+                .groupBy("anbo.id");
         return all(sql);
     }
 

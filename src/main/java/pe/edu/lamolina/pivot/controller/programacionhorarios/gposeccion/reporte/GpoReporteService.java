@@ -23,8 +23,7 @@ public interface GpoReporteService {
 
     List<Seccion> allSeccionesConCruce(CicloAcademico cicloAcademico);
 
-    List<Seccion> allSeccionesSinAula(CicloAcademico cicloAcademico, SeccionDTO seccionDTO);
+    List<Seccion> allSeccionesByFilter(CicloAcademico cicloAcademico, SeccionDTO seccionDTO);
 
-    List<Seccion> allSeccionesConAula(CicloAcademico cicloAcademico, SeccionDTO seccionDTO);
 
 }

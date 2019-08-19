@@ -3,6 +3,8 @@ package pe.edu.lamolina.pivot.controller.academico.cuotadpto;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.util.Base64;
+import java.util.Date;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -11,17 +13,23 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.CuotasGrupoHoras;
+import pe.edu.lamolina.model.academico.EventoCicloAcademico;
+import pe.edu.lamolina.model.academico.GrupoSeccion;
+import pe.edu.lamolina.model.enums.TipoDictadoGrupoSeccionEnum;
 import pe.edu.lamolina.model.horario.GrupoHoras;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -61,6 +69,7 @@ public class CuotaDptoController {
             for (CuotasGrupoHoras cuota : cuotagpohoras) {
                 ObjectNode node = JsonHelper.createJson(cuota, JsonNodeFactory.instance, true,
                         new String[]{
+                            "id",
                             "anexoBoletin.id", "anexoBoletin.nombre", "anexoBoletin.codigo", "anexoBoletin.estado",
                             "grupoHoras.codigo", "grupoHoras.letra", "grupoHoras.tipoCiclo",
                             "cicloAcademico.descripcion2",
@@ -116,6 +125,33 @@ public class CuotaDptoController {
             "id", "letra"
         });
         return json;
+    }
+
+    @ResponseBody
+    @RequestMapping("redirectgpo")
+    public JsonResponse redirectGpo(@RequestParam("cuotaGrupoHorasId") Long cuotaGrupoHorasId,
+            @RequestParam("tipo") String tipo,
+            HttpSession session,
+            RedirectAttributes redirectAttributes) {
+        logger.debug("redirectGpo" + cuotaGrupoHorasId);
+        logger.debug("redirectGpo");
+        String grupos = service.grupos(new CuotasGrupoHoras(cuotaGrupoHorasId), tipo);
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+            response.setData(grupos);
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            e.printStackTrace();
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            ExceptionHandler.handleException(e, response);
+        } finally {
+            return response;
+        }
     }
 
 }
