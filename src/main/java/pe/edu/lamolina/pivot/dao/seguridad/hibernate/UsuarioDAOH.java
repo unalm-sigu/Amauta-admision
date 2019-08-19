@@ -8,6 +8,7 @@ import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.UserEstadoEnum;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.seguridad.Usuario;
@@ -36,6 +37,7 @@ public class UsuarioDAOH extends AbstractEasyDAO<Usuario> implements UsuarioDAO 
         Octavia sql = Octavia.query()
                 .from(Usuario.class, "u")
                 .join("persona per")
+                .filter("u.estado", EstadoEnum.ACT)
                 .filter("per.id", persona);
 
         return find(sql);
@@ -46,7 +48,7 @@ public class UsuarioDAOH extends AbstractEasyDAO<Usuario> implements UsuarioDAO 
         Octavia sql = Octavia.query()
                 .from(Usuario.class, "u")
                 .join("persona per")
-                .filter("estado",UserEstadoEnum.ACT)
+                .filter("estado", UserEstadoEnum.ACT)
                 .filter("per.id", persona);
 
         return find(sql);
