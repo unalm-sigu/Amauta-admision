@@ -302,7 +302,7 @@
                                                        v-on:keyup.enter="directEditGrupoHor(seccion,$event)"
                                                           &amp;&amp; seccion.matriculados == 0
                                                 -->
-                                                <input v-if="directEditSecciones &amp;&amp; seccion.matriculados == 0"
+                                                <input v-if="directEditSecciones"
                                                        v-on:blur="directEditGrupoHor(seccion,$event)"
                                                        v-bind:value="seccion.grupoHoras.id!=null ? seccion.grupoHoras.codigo : ''"
                                                        v-on:input="upper($event)"
