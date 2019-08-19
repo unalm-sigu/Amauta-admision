@@ -8,6 +8,10 @@
             <div id="alumnosDocenteVUE" v-cloak="">
                 <header class="header b-b padder-lg">
 
+                    <div class="pull-right m-t-md">
+                        <a th:href="${origen}" class="btn btn-default">Regresar</a>
+                    </div>
+
                     <h3 class="block">Lista de estudiantes <span th:text="${session['SESSION_USUARIO'].cicloAcademico.descripcion}">2016-II</span></h3>
                     <h2 class="block m-t-xxs text-primary" v-text="seccion.curso.nombre">Edafología</h2>
 

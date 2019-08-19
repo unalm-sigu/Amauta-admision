@@ -7,10 +7,12 @@ import java.beans.PropertyEditorSupport;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Base64;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpSession;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +23,7 @@ import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import pe.albatross.zelpers.JaneHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
@@ -128,7 +131,9 @@ public class AlumnosDocenteController {
     }
 
     @RequestMapping("{seccion}/alumnosDocente")
-    public String alumnos(@PathVariable("seccion") Long idSeccion, Model model, HttpSession session) {
+    public String alumnos(
+            @RequestParam(value = "origen", required = false) String origen,
+            @PathVariable("seccion") Long idSeccion, Model model, HttpSession session) {
         logger.debug("la seccion es {}", idSeccion);
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
@@ -139,7 +144,18 @@ public class AlumnosDocenteController {
         logger.debug("Consultara notas por seccion");
 
         model.addAttribute("seccion", createSeccionJson(seccion));
+        model.addAttribute("origen", getOrigen(origen));
+
         return "academico/docente/alumnos/alumnosDocente";
+    }
+
+    private String getOrigen(String origen) {
+        if (StringUtils.isEmpty(origen)) {
+            return "/academico/alumno";
+        }
+        byte[] decoded = Base64.getMimeDecoder().decode(origen);
+        String output = new String(decoded);
+        return output;
     }
 
     private ObjectNode createConsejeriaJson(Oficina consejeria) {

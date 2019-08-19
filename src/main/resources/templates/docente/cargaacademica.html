@@ -1,6 +1,49 @@
 <html layout:decorator="_layout/layout">
     <head>
         <title> Docente </title>
+        <style>
+            .circle-recorrido {
+                display: block;
+                border-radius: 50%;
+                width: 50px;
+                height: 50px;
+                overflow: hidden;
+                margin: 0 auto;
+                line-height: 50px;  
+                /*                text-align: center;*/
+                font-size: 16px;
+                /*                margin-left: 49px;*/
+                text-indent: 0;
+                vertical-align: middle;
+                margin-top: 2px;
+                margin-bottom: 2px;
+            }
+
+            .circle-recorrido.bgr-success {
+                background-color: #2ECC71;
+                color: #fff;
+            }
+
+            .circle-recorrido.bgr-danger {
+                background-color: #E74C3C;
+                color: #fff;
+            }
+
+            .circle-recorrido.bgr-warning {
+                background-color: #F1B41E;
+                color: #fff;
+            }
+
+            .circle-recorrido.bgr-black {
+                background-color: #3C4043;
+                color: #fff;
+            }
+
+            .circle-recorrido.bgr-default {
+                background-color: #EBEDEF;
+                color: #000;
+            }
+        </style>
     </head>
     <body>
         <section layout:fragment="main">
@@ -26,16 +69,16 @@
                             <table class="table table-striped tableqq-bordered">
                                 <thead>
                                     <tr>
-                                        <th class="col-md-6 v-middle">Curso</th>
+                                        <th class="col-md-4 v-middle">Curso</th>
                                         <!--<th class="text-center v-middle"></th>-->
-                                        <th class="text-center v-middle" colspan="2">Sección</th>
+                                        <th class="col-md-1 text-center v-middle" colspan="2">Sección</th>
                                         <th class="col-md-1 text-center v-middle">Aula<br/>Grupo</th>
                                         <th class="col-md-2 text-center v-middle">Horario</th>
                                         <th class="text-center v-middle"><i class="fa fa-users"></i></th>
                                         <th class="col-md-1 text-center v-middle">% Carga</th>
                                         <th class="text-center v-middle">Créditos<br/>Carga</th>
                                         <th class="col-md-2 text-center v-middle">Periodo Clases</th>
-                                        <th class="col-md-2 text-center v-middle">Listado</th>
+                                        <th class="col-md-1 text-center v-middle">Listado Alumnos</th>
                                     </tr>
                                 </thead>
                                 <tbody v-for="item in cm.cursosModalidad">
@@ -47,7 +90,6 @@
                                                 {{item.curso.codigo}} &nbsp;<i class="fa fa-bookmark-o"></i> {{item.curso.tpc}}
                                             </span>
                                         </td>
-
                                 <template v-for="(seccion,idx) in item.secciones"
                                           v-if="idx==0">
                                     <td class="v-middle text-center">
@@ -69,7 +111,12 @@
                                     <td class="v-middle" v-html="verHorario(seccion.horarioTexto)"></td>
 
                                     <td class="v-middle text-center">
-                                        {{seccion.matriculados}}
+                                        <span v-if="seccion.matriculados > 0" v-on:click="verAlumnos(seccion)" class="circle-recorrido bgr-warning pointer" >
+                                            {{seccion.matriculados}}
+                                        </span>
+                                        <span v-else="" class="circle-recorrido bgr-default">
+                                            {{seccion.matriculados}}
+                                        </span>
                                     </td>
                                     <template v-for="profeSecc in seccion.docenteSeccion">
                                         <td class="v-middle text-center">
@@ -82,9 +129,13 @@
                                             <span v-if="profeSecc.fechaInicio != '' " class="block">Desde el {{profeSecc.fechaInicio}}</span>
                                             <span v-if="profeSecc.fechaFin != '' " class="block">Hasta el {{profeSecc.fechaFin}}</span>
                                         </td>
-                                        <td class="col-md-2 text-center v-middle">
-                                            <a class="btn btn-success" v-on:click="download(item)"><i class="fa fa-file-excel-o" aria-hidden="true"></i></a>
-
+                                        <td class="text-center v-middle">
+                                            <div class="pointer " v-on:click="download(item)">
+                                                <span class="fa-stack fa-2x text-success">
+                                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                                    <i class="fa fa-file-excel-o fa-stack-1x fa-inverse"></i>
+                                                </span>
+                                            </div>
                                         </td>
                                     </template>
                                 </template>
@@ -110,7 +161,12 @@
                                     <td class="v-middle" v-html="verHorario(seccion.horarioTexto)"></td>
 
                                     <td class="v-middle text-center">
-                                        {{seccion.matriculados}}
+                                        <span v-if="seccion.matriculados > 0" v-on:click="verAlumnos(seccion)" class="circle-recorrido bgr-warning pointer" >
+                                            {{seccion.matriculados}}
+                                        </span>
+                                        <span v-else="" class="circle-recorrido bgr-default">
+                                            {{seccion.matriculados}}
+                                        </span>
                                     </td>
                                 <template v-for="profeSecc in seccion.docenteSeccion">
                                     <td class="v-middle text-center">
@@ -123,8 +179,13 @@
                                         <span v-if="profeSecc.fechaInicio != '' " class="block">Desde el {{profeSecc.fechaInicio}}</span>
                                         <span v-if="profeSecc.fechaFin != '' " class="block">Hasta el {{profeSecc.fechaFin}}</span>
                                     </td>
-                                    <td class="col-md-2 text-center v-middle">
-                                        <a class="btn btn-success" v-on:click="download(item)"><i class="fa fa-file-excel-o" aria-hidden="true"></i> </a>
+                                    <td class="text-center v-middle">
+                                        <div class="pointer" v-on:click="download(item)">
+                                            <span class="fa-stack fa-2x text-success">
+                                                <i class="fa fa-circle fa-stack-2x"></i>
+                                                <i class="fa fa-file-excel-o fa-stack-1x fa-inverse"></i>
+                                            </span>
+                                        </div>
                                     </td>
                                 </template>
                                 </tr>
