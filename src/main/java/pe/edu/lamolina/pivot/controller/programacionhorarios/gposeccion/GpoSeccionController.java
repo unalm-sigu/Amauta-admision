@@ -193,7 +193,8 @@ public class GpoSeccionController {
                     "secciones.docenteSeccion.principal",
                     "secciones.docenteSeccion.porcentajeCarga",
                     "secciones.docenteSeccion.docente.codigo",
-                    "secciones.docenteSeccion.docente.persona.apellidosNombres"
+                    "secciones.docenteSeccion.docente.persona.apellidosNombres",
+                    "secciones.docenteSeccion.docente.persona.emailCompania"
                 });
 
                 arrayGpoSecc.add(nodeGpoSecc);
@@ -887,10 +888,13 @@ public class GpoSeccionController {
             response.setMessage(message);
 
         } catch (PhobosException e) {
+            e.printStackTrace();
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
+            e.printStackTrace();
             ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
         } catch (Exception e) {
+            e.printStackTrace();
             ExceptionHandler.handleException(e, response);
         }
         return response;
@@ -2523,6 +2527,7 @@ public class GpoSeccionController {
                 "docenteSeccion.porcentajeCarga",
                 "docenteSeccion.docente.codigo",
                 "docenteSeccion.docente.persona.apellidosNombres",
+                "docenteSeccion.docente.persona.emailCompania",
                 "ampliacionesVacantes.*",
                 "ampliacionesVacantes.seccion.id",
                 "ampliacionesVacantes.colaborador.id",
