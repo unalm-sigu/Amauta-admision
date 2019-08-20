@@ -47,6 +47,7 @@ import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.general.TipoAula;
+import pe.edu.lamolina.model.horario.DiaHoraGrupo;
 import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.horario.HorarioAula;
 import pe.edu.lamolina.pivot.controller.reporte.view.HorarioAulaCicloPDF;
@@ -548,6 +549,9 @@ public class AulaController {
         List<Aula> aulasProgramadas = horariosAulas.stream()
                 .map(x -> x.getAula())
                 .distinct().collect(Collectors.toList());
+
+        List<DiaHoraGrupo> diasHorasGruposByCiclo = service.allDiaHoraGrupoByCicloRegular(ds.getCicloAcademico());
+
         if (aulasProgramadas.size() > 1) {
 
             aulasProgramadas = aulasProgramadas.stream()
@@ -569,7 +573,7 @@ public class AulaController {
         model.addAttribute("dias", dias);
         model.addAttribute("horas", horas);
         model.addAttribute("horariosAulas", horariosAulas);
-
+        model.addAttribute("diasHorasGruposByCiclo", diasHorasGruposByCiclo);
         return new ModelAndView(horarioAulaCicloPDF);
     }
 
