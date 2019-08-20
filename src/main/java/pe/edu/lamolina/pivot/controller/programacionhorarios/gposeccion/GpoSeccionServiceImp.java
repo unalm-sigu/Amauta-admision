@@ -1201,6 +1201,9 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         }
         horarioAulaDAO.deleteBySecciones(Arrays.asList(seccionBD));
 
+        if (seccionBD.getAula() != null) {
+            seccionBD.setAulaBorrada(new Aula(seccionBD.getAula().getId()));
+        }
         seccionBD.setMatriculados(0);
         seccionBD.setEstadoEnum(SeccionEstadoEnum.CAN);
         seccionBD.setUsuarioModificacion(ds.getUsuario());
@@ -1213,7 +1216,9 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
         if (seccionSup != null) {
             horarioAulaDAO.deleteBySecciones(Arrays.asList(seccionSup));
-
+            if (seccionSup.getAula() != null) {
+                seccionSup.setAulaBorrada(new Aula(seccionSup.getAula().getId()));
+            }
             seccionSup.setMatriculados(seccionSup.getMatriculados() - matriculadosSeccionPRA.size());
             seccionSup.setUsuarioModificacion(ds.getUsuario());
             seccionSup.setFechaModificacion(today.toDate());
