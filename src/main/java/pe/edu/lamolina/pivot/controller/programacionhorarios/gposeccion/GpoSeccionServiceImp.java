@@ -2019,6 +2019,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             this.actualizarCuotaAnexo(seccionDB, seccionDB.getGrupoSeccion().getCicloAcademico());
         }
         //actualizar grupo horas actual
+        this.validarCruceAlumnos(seccion);
         this.actualizarCuotaAnexo(seccion, seccionDB.getGrupoSeccion().getCicloAcademico());
     }
 
@@ -2163,10 +2164,51 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     }
 
     public void validarCruceAlumnos(Seccion seccion) {
-        List<MatriculaSeccion> matriculasSeccion = matriculaSeccionDAO.allMatriculadosBySeccion(Arrays.asList(seccion), EstadoMatriculaEnum.MAT, EstadoMatriculaEnum.PMAT);
-        List<MatriculaResumen> matriculasResumenes = matriculasSeccion.stream()
+        List<HorarioSeccion> horariosBySeccion = horarioSeccionDAO.allBySeccion(seccion);
+        seccion.setHorarioSeccion(horariosBySeccion);
+
+        List<MatriculaSeccion> matriculasSeccionBySeccion = matriculaSeccionDAO.allMatriculadosBySeccion(Arrays.asList(seccion), EstadoMatriculaEnum.MAT, EstadoMatriculaEnum.PMAT);
+        List<MatriculaResumen> matriculasResumenes = matriculasSeccionBySeccion.stream()
                 .map(x -> x.getMatriculaResumen()).distinct().collect(Collectors.toList());
-        List<MatriculaSeccion> matriculasSecciones = matriculaSeccionDAO.allMatriculadosByMatriculaSeccion(matriculasResumenes);
+
+        List<MatriculaSeccion> matriculasSecciones = matriculaSeccionDAO.allMatriculadosByMatriculaSeccion(matriculasResumenes, EstadoMatriculaEnum.MAT, EstadoMatriculaEnum.PMAT);
+        List<Seccion> secciones = matriculasSecciones.stream().map(x -> x.getSeccion()).collect(Collectors.toList());
+
+        List<HorarioSeccion> horariosSecciones = horarioSeccionDAO.allBySecciones(secciones);
+        Map<Long, List<HorarioSeccion>> mapHorarioSeccion = TypesUtil.convertListToMapList("seccion.id", horariosSecciones);
+
+        List<String> errors = new ArrayList<>();
+
+        matriculasSecciones.removeIf(x -> x.getSeccion().equals(seccion));
+        for (MatriculaSeccion matriculaSeccion : matriculasSecciones) {
+            List<HorarioSeccion> horariosBySeccionEach = mapHorarioSeccion.get(matriculaSeccion.getSeccion().getId());
+            if (horariosBySeccionEach == null || horariosBySeccionEach.isEmpty()) {
+                continue;
+            }
+            Map<String, List<HorarioSeccion>> mapHorarioSeccionByHor = TypesUtil.convertListToMapList("horaDia", horariosBySeccionEach);
+
+            for (HorarioSeccion horarioSeccion : seccion.getHorarioSeccion()) {
+                String horaDia = horarioSeccion.getHoraDia();
+                List<HorarioSeccion> hdiaGpo = mapHorarioSeccionByHor.get(horaDia);
+                if (hdiaGpo == null || hdiaGpo.isEmpty()) {
+                    continue;
+                }
+                for (HorarioSeccion horarioSeccion1 : hdiaGpo) {
+                    Dia dia = horarioSeccion1.getDia();
+                    Hora hora = horarioSeccion1.getHora();
+                    String error = String.format("Cruce Horario, Dia %s, Hora %s, Seccion %s, Alumno %s",
+                            dia.getNombre(), hora.getDescripcion(),
+                            matriculaSeccion.getSeccion().getCodigo2(),
+                            matriculaSeccion.getMatriculaResumen().getAlumno().getCodigo()
+                    );
+                    errors.add(error);
+                }
+
+            }
+        }
+        if (!errors.isEmpty()) {
+            throw new PhobosException(String.join("</br>", errors));
+        }
     }
 
     @Override
