@@ -193,7 +193,8 @@ public class GpoSeccionController {
                     "secciones.docenteSeccion.principal",
                     "secciones.docenteSeccion.porcentajeCarga",
                     "secciones.docenteSeccion.docente.codigo",
-                    "secciones.docenteSeccion.docente.persona.apellidosNombres"
+                    "secciones.docenteSeccion.docente.persona.apellidosNombres",
+                    "secciones.docenteSeccion.docente.persona.emailCompania"
                 });
 
                 arrayGpoSecc.add(nodeGpoSecc);
@@ -2526,6 +2527,7 @@ public class GpoSeccionController {
                 "docenteSeccion.porcentajeCarga",
                 "docenteSeccion.docente.codigo",
                 "docenteSeccion.docente.persona.apellidosNombres",
+                "docenteSeccion.docente.persona.emailCompania",
                 "ampliacionesVacantes.*",
                 "ampliacionesVacantes.seccion.id",
                 "ampliacionesVacantes.colaborador.id",

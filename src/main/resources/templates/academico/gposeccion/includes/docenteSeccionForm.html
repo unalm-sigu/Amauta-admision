@@ -27,7 +27,6 @@
         <tr v-for="(docSeccion, index) in docentesSeccion">
             <td class="v-middle">
                 <div class="col-md-12" v-if="docSeccion.docenteNN">
-
                     <multiselect  
                         v-bind:options='docentes'
                         label="apellidosNombres"
@@ -48,6 +47,7 @@
                     </multiselect>
                 </div>
                 <span v-if="docSeccion.docente.persona.id != ''">
+                    <span class="hide">{{docSeccion.docente.persona.id}}</span>
                     <span class="block bold">{{docSeccion.docente.persona.apellidosNombres}}</span>
                     <span class="block">{{docSeccion.docente.codigo}}</span>
                 </span>
