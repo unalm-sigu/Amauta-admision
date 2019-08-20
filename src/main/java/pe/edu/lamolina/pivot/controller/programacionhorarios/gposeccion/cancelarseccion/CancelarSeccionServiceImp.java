@@ -18,11 +18,9 @@ public class CancelarSeccionServiceImp implements CancelarSeccionService {
 
     @Override
     public List<MatriculaSeccion> allMatriculaSeccionBySeccion(Seccion seccion) {
-        List<MatriculaSeccion> matriculasSeccion = matriculaSeccionDAO.allBySeccion(seccion);
+        List<MatriculaSeccion> matriculasSeccion = matriculaSeccionDAO.allBySeccionLite(seccion);
         matriculasSeccion = matriculasSeccion.stream()
-                .filter(x -> x.isEstadoMAT())
-                .filter(x -> x.isEstadoPMAT())
-                .filter(x -> x.isEstadoRCA())
+                .filter(x -> x.isEstadoMAT() || x.isEstadoPMAT() || x.isEstadoRCA())
                 .collect(Collectors.toList());
         return matriculasSeccion;
     }

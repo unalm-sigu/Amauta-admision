@@ -75,4 +75,6 @@ public interface MatriculaSeccionDAO extends EasyDAO<MatriculaSeccion> {
 
     List<MatriculaSeccion> allMatriculadosByMatriculaSeccion(List<MatriculaResumen> matriculasResumen, EstadoMatriculaEnum... estados);
 
+    List<MatriculaSeccion> allBySeccionLite(Seccion seccion);
+
 }

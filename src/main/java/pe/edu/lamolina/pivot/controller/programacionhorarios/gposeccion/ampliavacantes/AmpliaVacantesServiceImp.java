@@ -42,9 +42,6 @@ public class AmpliaVacantesServiceImp implements AmpliaVacantesService {
     @Autowired
     ColaboradorDAO colaboradorDAO;
 
-    @Autowired
-    ResponseRestService responseRestService;
-
     @Override
     public List<AmpliacionVacantes> allAmpliacionVacante(Seccion seccion) {
 
@@ -92,7 +89,7 @@ public class AmpliaVacantesServiceImp implements AmpliaVacantesService {
                 Assert.isTrue(aula.getCapacidadAula().intValue() >= total, "No puede exceder la capacidad del aula de la sección teórica");
             }
         }
-
+    
         ampliacionVacante.setColaborador(colaborador);
         ampliacionVacante.setFechaRegistro(new Date());
         ampliacionVacante.setUserRegistro(ds.getUsuario());
@@ -142,7 +139,7 @@ public class AmpliaVacantesServiceImp implements AmpliaVacantesService {
     @Override
     @Transactional
     public void aceptarAmpliacionVacante(AmpliacionVacantes ampliacionForm, DataSessionPivot ds) {
-
+        //TODO AMPLIACION VACANTE
         AmpliacionVacantes ampliacionBD = ampliacionVacanteDAO.find(ampliacionForm);
 
         Seccion seccion = seccionDAO.find(ampliacionBD.getSeccion());
@@ -173,7 +170,6 @@ public class AmpliaVacantesServiceImp implements AmpliaVacantesService {
             secSuperior.setVacantes(secSuperior.getVacantes() + ampliacionBD.getIncremento());
             seccionDAO.update(secSuperior);
         }
-        //TODO
     }
 
     @Override
