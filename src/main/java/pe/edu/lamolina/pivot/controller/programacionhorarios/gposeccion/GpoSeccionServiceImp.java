@@ -1134,6 +1134,15 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         Assert.isNotNull(seccionBD, "La sección que desea cancelar no existe en el sistema");
         Assert.isTrue(seccionBD.getEstadoEnum() == SeccionEstadoEnum.ACT, "La sección que desea cancelar debe estar activa");
 
+        if (seccionBD.isTipoSeccionTCUR()) {
+            List<Seccion> seccionesBySup = seccionDAO.allBySeccionSuperior(seccionBD);
+            List<Seccion> seccionesNoCanceladas = seccionesBySup.stream()
+                    .filter(x -> !x.isEstadoCancelado())
+                    .collect(Collectors.toList());
+            Assert.isTrue(seccionesNoCanceladas.isEmpty(), "Debe cancelar las secciones de practicas.");
+            return;
+        }
+
         List<MatriculaSeccion> matriculadosSeccionPRA = matriculaSeccionDAO.allMatriculadosBySeccion(seccionBD);
         Assert.isFalse(matriculadosSeccionPRA.isEmpty(), "Solo se puede cancelar una sección con alumnos matriculados");
         Assert.isTrue(matriculadosSeccionPRA.size() == seccionBD.getMatriculados(), "La cantidad de matriculados no coincide con el dato en la sección");
@@ -1170,6 +1179,9 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             matriculaResumenDAO.update(resumen);
         }
 
+        List<MatriculaResumen> matriculasResumenPRA = matriculadosSeccionPRA.stream()
+                .map(x -> x.getMatriculaResumen())
+                .collect(Collectors.toList());
         for (MatriculaSeccion matSecc : matriculadosSeccionPRA) {
             matSecc.setEstadoEnum(EstadoMatriculaEnum.RCA);
             matSecc.setUserAnula(ds.getUsuario());
@@ -1177,7 +1189,11 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             matriculaSeccionDAO.update(matSecc);
         }
 
-        for (MatriculaSeccion matSecc : matriculadosSeccionTEO) {
+        List<MatriculaSeccion> matriculasSeccionesTEO = matriculadosSeccionTEO.stream()
+                .filter(x -> matriculasResumenPRA.contains(x.getMatriculaResumen()))
+                .collect(Collectors.toList());
+
+        for (MatriculaSeccion matSecc : matriculasSeccionesTEO) {
             matSecc.setEstadoEnum(EstadoMatriculaEnum.RCA);
             matSecc.setUserAnula(ds.getUsuario());
             matSecc.setFechaAnula(today.toDate());
@@ -1213,6 +1229,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             gpoSeccBD.setUsuarioModificacion(ds.getUsuario());
             grupoSeccionDAO.update(gpoSeccBD);
         }
+        //   throw new PhobosException("no pasaras");
     }
 
     @Override
@@ -2143,6 +2160,13 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         seccionDAO.updateSeccionAula(seccion);
         this.actualizarBoletin();
         this.actualizarCuotaAnexo(seccion, seccion.getGrupoSeccion().getCicloAcademico());
+    }
+
+    public void validarCruceAlumnos(Seccion seccion) {
+        List<MatriculaSeccion> matriculasSeccion = matriculaSeccionDAO.allMatriculadosBySeccion(Arrays.asList(seccion), EstadoMatriculaEnum.MAT, EstadoMatriculaEnum.PMAT);
+        List<MatriculaResumen> matriculasResumenes = matriculasSeccion.stream()
+                .map(x -> x.getMatriculaResumen()).distinct().collect(Collectors.toList());
+        List<MatriculaSeccion> matriculasSecciones = matriculaSeccionDAO.allMatriculadosByMatriculaSeccion(matriculasResumenes);
     }
 
     @Override

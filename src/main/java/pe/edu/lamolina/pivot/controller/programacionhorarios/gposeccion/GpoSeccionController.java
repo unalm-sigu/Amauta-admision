@@ -887,10 +887,13 @@ public class GpoSeccionController {
             response.setMessage(message);
 
         } catch (PhobosException e) {
+            e.printStackTrace();
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
+            e.printStackTrace();
             ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
         } catch (Exception e) {
+            e.printStackTrace();
             ExceptionHandler.handleException(e, response);
         }
         return response;

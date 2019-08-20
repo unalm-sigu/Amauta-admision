@@ -24,6 +24,8 @@ public interface SeccionDAO extends EasyDAO<Seccion> {
 
     List<Seccion> allByFilter(Long idGrupo);
 
+    List<Seccion> allBySeccionSuperior(Seccion seccionSuperior);
+
     Seccion findByCodeCiclo(String codigo, CicloAcademico ciclo);
 
     List<Seccion> allByCiclo(CicloAcademico ciclo);

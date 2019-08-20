@@ -176,7 +176,7 @@ var app = new Vue({
         dataModalAgregarHorasAdicionales: {
             id: 'idModalAgregarHorasAdicionales',
         },
-        configConfirmAction: VUE_MODAL.structConfirm({}),
+        configConfirmAction: VUE_MODAL.structConfirm({id: "husdIUHIUbiukkjh893434hhh"}),
         seccionWorking: {}
     },
     watch: {
@@ -752,6 +752,11 @@ var app = new Vue({
          ,*/
         cancelarSeccion(seccionWorking) {
             let $vue = this;
+            if (seccionWorking.motivoCancelacion == '') {
+                notify("Ingrese el motivo", "error");
+                $vue.$refs.modalConfirmAction.confirmReaction(true);
+                return;
+            }
             $.ajax({
                 url: APP.url(rutaModulo + '/cancelarSeccion'),
                 dataType: "json",
@@ -762,6 +767,7 @@ var app = new Vue({
                 success: function (response) {
                     $vue.$refs.modalConfirmAction.confirmReaction(response.success);
                     if (response.success) {
+                        $vue.$refs.cancelarSeccionComp.loadComponent();
                         if (response.message == 'redirect') {
                             location.href = $vue.navega.origen;
                         } else {

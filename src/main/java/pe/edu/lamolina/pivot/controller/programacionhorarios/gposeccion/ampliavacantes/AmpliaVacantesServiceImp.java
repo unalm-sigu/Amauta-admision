@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import pe.albatross.zelpers.miscelanea.Assert;
+import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.AmpliacionVacantes;
 import pe.edu.lamolina.model.academico.Seccion;
@@ -16,6 +17,7 @@ import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Colaborador;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.general.Persona;
+import pe.edu.lamolina.pivot.controller.academico.tramitesacademicos.tramiteRetiroCiclo.ResponseRestService;
 import pe.edu.lamolina.pivot.controller.general.oficina.OficinaService;
 import pe.edu.lamolina.pivot.dao.academico.SeccionDAO;
 import pe.edu.lamolina.pivot.dao.general.ColaboradorDAO;
@@ -39,6 +41,9 @@ public class AmpliaVacantesServiceImp implements AmpliaVacantesService {
 
     @Autowired
     ColaboradorDAO colaboradorDAO;
+
+    @Autowired
+    ResponseRestService responseRestService;
 
     @Override
     public List<AmpliacionVacantes> allAmpliacionVacante(Seccion seccion) {
@@ -168,7 +173,7 @@ public class AmpliaVacantesServiceImp implements AmpliaVacantesService {
             secSuperior.setVacantes(secSuperior.getVacantes() + ampliacionBD.getIncremento());
             seccionDAO.update(secSuperior);
         }
-
+        //TODO
     }
 
     @Override

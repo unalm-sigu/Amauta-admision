@@ -28,30 +28,40 @@ public class MatriculaSeccionDAOH extends AbstractEasyDAO<MatriculaSeccion> impl
 
     @Override
     public List<MatriculaSeccion> allMatriculadosBySeccion(Seccion seccion) {
-        Octavia sql = Octavia.query()
-                .from(MatriculaSeccion.class, "ms")
-                .join("matriculaResumen mr", "seccion sec", "mr.alumno alu", "sec.grupoSeccion gs")
-                .join("gs.curso cur", "alu.persona per", "alu.carrera carr", "carr.facultad fac")
-                .join("alu.modalidadEstudio")
-                .leftJoin("per.tipoDocumento tdoc")
-                .filter("ms.estado", EstadoMatriculaEnum.MAT)
-                .filter("sec.id", seccion)
-                .orderBy("per.paterno", "per.materno", "per.nombres");
-
-        return all(sql);
+        return this.allMatriculadosBySeccion(Arrays.asList(seccion), EstadoMatriculaEnum.MAT);
     }
 
     @Override
     public List<MatriculaSeccion> allMatriculadosBySecciones(List<Seccion> secciones) {
+        return this.allMatriculadosBySeccion(secciones, EstadoMatriculaEnum.MAT);
+    }
+
+    @Override
+    public List<MatriculaSeccion> allMatriculadosBySeccion(List<Seccion> secciones, EstadoMatriculaEnum... estados) {
         Octavia sql = Octavia.query()
                 .from(MatriculaSeccion.class, "ms")
                 .join("matriculaResumen mr", "seccion sec", "mr.alumno alu", "sec.grupoSeccion gs")
                 .join("gs.curso cur", "alu.persona per", "alu.carrera carr", "carr.facultad fac")
                 .join("alu.modalidadEstudio")
                 .leftJoin("per.tipoDocumento tdoc")
-                .filter("ms.estado", EstadoMatriculaEnum.MAT)
-                .in("sec.id", secciones);
+                .in("ms.estado", Arrays.asList(estados))
+                .in("sec.id", secciones)
+                .orderBy("per.paterno", "per.materno", "per.nombres");
+        return all(sql);
+    }
 
+    @Override
+    public List<MatriculaSeccion> allMatriculadosByMatriculaSeccion(List<MatriculaResumen> matriculasResumen, EstadoMatriculaEnum... estados) {
+        Octavia sql = Octavia.query()
+                .from(MatriculaSeccion.class, "ms")
+                .join("matriculaResumen mr", "seccion sec", "mr.alumno alu", "sec.grupoSeccion gs")
+                .join("gs.curso cur", "alu.persona per", "alu.carrera carr", "carr.facultad fac")
+                .join("alu.modalidadEstudio")
+                .leftJoin("per.tipoDocumento tdoc")
+                .in("ms.estado", Arrays.asList(estados))
+                .in("mr.estado", Arrays.asList(estados))
+                .in("mr.id", matriculasResumen)
+                .orderBy("per.paterno", "per.materno", "per.nombres");
         return all(sql);
     }
 
@@ -392,7 +402,7 @@ public class MatriculaSeccionDAOH extends AbstractEasyDAO<MatriculaSeccion> impl
         Octavia sql = Octavia.query()
                 .from(MatriculaSeccion.class, "ms")
                 .join("matriculaResumen mr", "mr.alumno alu", "mr.cicloAcademico ca")
-                .join("seccion s", "s.grupoSeccion gs", "gs.curso" , "gs.cicloAcademico gca")
+                .join("seccion s", "s.grupoSeccion gs", "gs.curso", "gs.cicloAcademico gca")
                 .left("s.aula")
                 .filter("s.codigo2", seccion)
                 .filter("gca.id", cicloAcademico)
@@ -408,7 +418,7 @@ public class MatriculaSeccionDAOH extends AbstractEasyDAO<MatriculaSeccion> impl
                 .join("matriculaResumen mr", "mr.alumno alu", "mr.cicloAcademico ca")
                 .join("seccion sec", "sec.grupoSeccion gs", "gs.curso")
                 .left("sec.aula", "sec.grupoHoras")
-                .filter("alu.codigo", codigo)                
+                .filter("alu.codigo", codigo)
                 .filter("sec.codigo2", seccion)
                 .limit(1);
         return find(sqlUtil);

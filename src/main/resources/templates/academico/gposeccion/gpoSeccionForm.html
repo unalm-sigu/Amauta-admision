@@ -594,7 +594,7 @@
                                         <div v-if="(seccionSeleccionada.isEstadoActivo || seccionSeleccionada.isEstadoCancelado)"
                                              class="tab-pane" v-bind:class="getClassTab('CANCELAR')" id="7Conte">
                                             <div>
-                                                <cancelar-seccion-component v-bind:seccion="seccionSeleccionada"></cancelar-seccion-component>
+                                                <cancelar-seccion-component ref="cancelarSeccionComp" v-bind:seccion="seccionSeleccionada"></cancelar-seccion-component>
                                             </div>
                                         </div>
                                     </div>

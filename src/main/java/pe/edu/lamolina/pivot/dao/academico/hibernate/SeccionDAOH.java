@@ -37,7 +37,6 @@ import pe.edu.lamolina.model.horario.HorarioCachimbos;
 import pe.edu.lamolina.model.horario.SeccionHorarioCachimbos;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
 import pe.edu.lamolina.model.rolexamen.SeccionExcluido;
-import pe.edu.lamolina.pivot.controller.academico.cuotadpto.AnexoCuotaUtilizadaBean;
 import pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.aula.SeccionDTO;
 
 @Repository
@@ -82,6 +81,15 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
                 .leftJoin("cur.planCalificacion pc", "cur.planCalificacionRegular pcr", "gs.planCalificacion pc2")
                 .filter("gs.id", idGrupo);
 
+        return all(sql);
+    }
+
+    @Override
+    public List<Seccion> allBySeccionSuperior(Seccion seccionSuperior) {
+        Octavia sql = Octavia.query()
+                .from(Seccion.class, "sec")
+                .join("grupoSeccion gs", "gs.curso cur", "seccionSuperior sup")
+                .filter("sup.id", seccionSuperior);
         return all(sql);
     }
 
