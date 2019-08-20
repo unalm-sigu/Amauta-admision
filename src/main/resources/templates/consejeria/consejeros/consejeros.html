@@ -1,6 +1,6 @@
 <html layout:decorator="_layout/layout">
     <head>
-        <title>Listado de Consejeros</title>
+        <title>Listado de Tutores</title>
         <style>
             span#departs {
                 /*                margin-left: 1px;*/
@@ -63,9 +63,9 @@
                                 Acciones &nbsp; <span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu">
-                                <li><a type="button" v-bind:disabled="btndissabled" title="Primero seleccione una carrera" v-on:click.prevent="nuevoConsejero">Añadir Consejero</a></li>
-                                <li><a type="button" v-bind:disabled="btndissabled" v-on:click.prevent="asignarAlummnos" >Asignar tutores aleatoriamente</a></li>
-                                <li><a type="button" v-on:click.prevent="desasignarAlummnos" >Retirar tutores de alumnos</a></li>
+                                <li ><a type="button" class=" btn" v-bind:disabled="btndissabled" title="Primero seleccione una carrera" v-on:click.prevent="nuevoConsejero">Añadir Tutor</a></li>
+                                <li><a type="button" class=" btn" v-bind:disabled="btndissabled" v-on:click.prevent="asignarAlummnos" >Asignar tutores aleatoriamente</a></li>
+<!--                                <li><a type="button" v-on:click.prevent="desasignarAlummnos" >Retirar tutores de alumnos</a></li>-->
                             </ul>
                         </div>
                         <h2>Listado de Tutores <span v-text='ciclo.descripcion'></span></h2>
