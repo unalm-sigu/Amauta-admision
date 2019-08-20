@@ -1199,20 +1199,25 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             matSecc.setFechaAnula(today.toDate());
             matriculaSeccionDAO.update(matSecc);
         }
+        horarioAulaDAO.deleteBySecciones(Arrays.asList(seccionBD));
 
         seccionBD.setMatriculados(0);
         seccionBD.setEstadoEnum(SeccionEstadoEnum.CAN);
         seccionBD.setUsuarioModificacion(ds.getUsuario());
         seccionBD.setFechaModificacion(today.toDate());
         seccionBD.setMotivoCancelacion(seccionForm.getMotivoCancelacion());
+        seccionBD.setAula(null);
         seccionDAO.update(seccionBD);
 
         GrupoSeccion gpoSeccBD = seccionBD.getGrupoSeccion();
 
         if (seccionSup != null) {
+            horarioAulaDAO.deleteBySecciones(Arrays.asList(seccionSup));
+
             seccionSup.setMatriculados(seccionSup.getMatriculados() - matriculadosSeccionPRA.size());
             seccionSup.setUsuarioModificacion(ds.getUsuario());
             seccionSup.setFechaModificacion(today.toDate());
+            seccionSup.setAula(null);
             if (seccionSup.getMatriculados() == 0) {
                 seccionSup.setEstadoEnum(SeccionEstadoEnum.CAN);
 
