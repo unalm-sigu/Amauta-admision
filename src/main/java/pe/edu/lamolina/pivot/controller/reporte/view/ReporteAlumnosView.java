@@ -61,7 +61,7 @@ public class ReporteAlumnosView extends AbstractPOIExcelView {
         List<String> rows = new ArrayList();
         int totalColumns = 5;
 
-        String head = "item|Código|Nombres Completos|Prioridad|Carrera";
+        String head = "item|Código|Nombres Completos|Prioridad|FAC|ESP";
 
         rows.add(head);
 
@@ -75,7 +75,8 @@ public class ReporteAlumnosView extends AbstractPOIExcelView {
             sb.append(alumno.getCodigo()).append("|");
             sb.append(alumno.getPersona().getApellidosNombres()).append("|");
             sb.append(matriculasSeccion.getMatriculaResumen().getPrioridad().setScale(2, BigDecimal.ROUND_HALF_UP)).append("|");
-            sb.append(alumno.getCarrera().getNombre()).append("|");
+            sb.append(alumno.getCarrera().getFacultad().getCodigo()).append("|");
+            sb.append(alumno.getCarrera().getCodigo()).append("|");
             count++;
 
             rows.add(sb.toString());
