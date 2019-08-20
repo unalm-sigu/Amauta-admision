@@ -231,7 +231,7 @@ new Vue({
         saveConsejero() {
             let $vue = this;
             bootbox.confirm({
-                message: '¿Seguro que desea añadir como Consejero el docente seleccionado?',
+                message: '¿Seguro que desea añadir como Tutor el docente seleccionado?',
                 buttons: {
                     confirm: {label: 'Si, Añadir', className: "btn-success"},
                     cancel: {label: 'Cancelar', className: "btn-link"}

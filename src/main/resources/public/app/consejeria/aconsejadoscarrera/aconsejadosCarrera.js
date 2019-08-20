@@ -20,8 +20,8 @@ new Vue({
         consejeroModal: {
             id: 'consejeroModal',
             header: true,
-            title: "Consejeros",
-            okbtn: 'Agregar',
+            title: "Tutores",
+            okbtn: 'Aceptar',
             showaccept: true
         },
         carreraSelect: {},
