@@ -1,6 +1,6 @@
 <html layout:decorator="_layout/layout">
     <head>
-        <title>Carga Académica</title>
+        <title>Ampliación Vacante</title>
         <style>
             .avatar-gposecc {
                 display: block;
@@ -166,7 +166,7 @@
                                                             {{seccion.tipoSeccion}}
                                                             <a v-if="seccion.docentePrincipalLogeado || seccion.docentePrincipaTcurLogeado" 
                                                                v-on:click.prevent="changeVacante(seccion)" href="#" 
-                                                               class="btn btn-primary btn-sm-plus">
+                                                               class="btn btn-primary btn-sm-plus" title="Ampliar Vacante">
                                                                 <i class="fa fa-plus" aria-hidden="true"></i>
                                                             </a>  
                                                         </span>
