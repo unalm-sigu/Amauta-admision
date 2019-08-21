@@ -35,20 +35,16 @@ public class SeccionPrioridadServiceImp implements SeccionPrioridadService {
     public List<MatriculaSeccion> allMatMatriculaSeccion(String codigo, String seccion, CicloAcademico cicloAcademico) {
 
         List<MatriculaSeccion> matriculaSeccions = matriculaSeccionDAO.allMatriculadosBySeccion(seccion, cicloAcademico);
-        MatriculaResumen matricularesumen = matriculaResumenDAO.findByCodigoCiclo(codigo, cicloAcademico);
+//        MatriculaResumen matricularesumen = matriculaResumenDAO.findByCodigoCiclo(codigo, cicloAcademico);
 //        Assert.isNotNull(matriculaSeccion, "El alumno no tuvo accion en esta sección");
         Assert.isFalse(matriculaSeccions.isEmpty(), "El código de sección no existe");
-        MatriculaSeccion ms  =new MatriculaSeccion();
-        ms.setMatriculaResumen(matricularesumen);
-        ms.setSeccion(matriculaSeccions.get(0).getSeccion());
-        matriculaSeccions.add(ms);
         return matriculaSeccions;
     }
 
     @Override
     public List<Seccion> allSeccionByNombre(String nombre, DataSessionPivot ds) {
 
-        List<Seccion> seccions = seccionDAO.findByNombreCiclo(nombre,ds.getCicloAcademico());
+        List<Seccion> seccions = seccionDAO.findByNombreCiclo(nombre, ds.getCicloAcademico());
         return seccions;
     }
 
