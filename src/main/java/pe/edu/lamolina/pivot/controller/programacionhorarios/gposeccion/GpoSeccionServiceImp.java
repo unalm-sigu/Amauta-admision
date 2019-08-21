@@ -1928,7 +1928,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
                 errors.add(error);
             }
             if (!errors.isEmpty()) {
-                throw new PhobosException(String.join("\\n", errors));
+                throw new PhobosException(String.join("</br>", errors));
             }
         }
 
@@ -2129,8 +2129,8 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
                     String cruce = String.format("*Sección %s, Día %s, Hora %s", horarioAula.getSeccion().getCodigo2(), horarioAula.getDia().getSimbolo(), horarioAula.getHora().getDescripcion());
                     cruces.add(cruce);
                 }
-                String secciones = String.join("\n", cruces);
-                throw new PhobosException("Cruce horario con : \n" + secciones);
+                String secciones = String.join("</br>", cruces);
+                throw new PhobosException("Cruce horario con : </br>" + secciones);
             }
         }
 

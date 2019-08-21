@@ -158,17 +158,19 @@
 
                                                     </div>
                                                 </td>                                   
-                                                <td class="text-center ">
+                                                <td class="text-center  v-middle">
 
                                                     <small style="min-height: 20px;" v-for="seccion in gposeccion.secciones "  class="block text-muted"> 
                                                         <!-- v-if="docenteSession.id==gposeccion.docenteResponsable.id" -->
                                                         <span v-if="seccion.tipoSeccion!='TCUR' " class="block">
+                                                            {{seccion.tipoSeccion}}
                                                             <a v-if="seccion.docentePrincipalLogeado || seccion.docentePrincipaTcurLogeado" 
                                                                v-on:click.prevent="changeVacante(seccion)" href="#" 
                                                                class="btn btn-primary btn-sm-plus">
                                                                 <i class="fa fa-plus" aria-hidden="true"></i>
                                                             </a>  
                                                         </span>
+                                                        <span v-else="" class="block">&nbsp;</span>
                                                     </small>
 
                                                 </td>
