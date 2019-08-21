@@ -330,7 +330,6 @@ public class CambioAulaGrupoServiceImp implements CambioAulaGrupoService {
                         horarioAulaDAO.delete(solicitado);
                     }
                 }
-
             }
         }
     }

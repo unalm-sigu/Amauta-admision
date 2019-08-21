@@ -1199,20 +1199,30 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             matSecc.setFechaAnula(today.toDate());
             matriculaSeccionDAO.update(matSecc);
         }
+        horarioAulaDAO.deleteBySecciones(Arrays.asList(seccionBD));
 
+        if (seccionBD.getAula() != null) {
+            seccionBD.setAulaBorrada(new Aula(seccionBD.getAula().getId()));
+        }
         seccionBD.setMatriculados(0);
         seccionBD.setEstadoEnum(SeccionEstadoEnum.CAN);
         seccionBD.setUsuarioModificacion(ds.getUsuario());
         seccionBD.setFechaModificacion(today.toDate());
         seccionBD.setMotivoCancelacion(seccionForm.getMotivoCancelacion());
+        seccionBD.setAula(null);
         seccionDAO.update(seccionBD);
 
         GrupoSeccion gpoSeccBD = seccionBD.getGrupoSeccion();
 
         if (seccionSup != null) {
+            horarioAulaDAO.deleteBySecciones(Arrays.asList(seccionSup));
+            if (seccionSup.getAula() != null) {
+                seccionSup.setAulaBorrada(new Aula(seccionSup.getAula().getId()));
+            }
             seccionSup.setMatriculados(seccionSup.getMatriculados() - matriculadosSeccionPRA.size());
             seccionSup.setUsuarioModificacion(ds.getUsuario());
             seccionSup.setFechaModificacion(today.toDate());
+            seccionSup.setAula(null);
             if (seccionSup.getMatriculados() == 0) {
                 seccionSup.setEstadoEnum(SeccionEstadoEnum.CAN);
 
@@ -1918,7 +1928,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
                 errors.add(error);
             }
             if (!errors.isEmpty()) {
-                throw new PhobosException(String.join("\\n", errors));
+                throw new PhobosException(String.join("</br>", errors));
             }
         }
 
@@ -2019,6 +2029,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             this.actualizarCuotaAnexo(seccionDB, seccionDB.getGrupoSeccion().getCicloAcademico());
         }
         //actualizar grupo horas actual
+        this.validarCruceAlumnos(seccion);
         this.actualizarCuotaAnexo(seccion, seccionDB.getGrupoSeccion().getCicloAcademico());
     }
 
@@ -2118,8 +2129,8 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
                     String cruce = String.format("*Sección %s, Día %s, Hora %s", horarioAula.getSeccion().getCodigo2(), horarioAula.getDia().getSimbolo(), horarioAula.getHora().getDescripcion());
                     cruces.add(cruce);
                 }
-                String secciones = String.join("\n", cruces);
-                throw new PhobosException("Cruce horario con : \n" + secciones);
+                String secciones = String.join("</br>", cruces);
+                throw new PhobosException("Cruce horario con : </br>" + secciones);
             }
         }
 
@@ -2163,10 +2174,51 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     }
 
     public void validarCruceAlumnos(Seccion seccion) {
-        List<MatriculaSeccion> matriculasSeccion = matriculaSeccionDAO.allMatriculadosBySeccion(Arrays.asList(seccion), EstadoMatriculaEnum.MAT, EstadoMatriculaEnum.PMAT);
-        List<MatriculaResumen> matriculasResumenes = matriculasSeccion.stream()
+        List<HorarioSeccion> horariosBySeccion = horarioSeccionDAO.allBySeccion(seccion);
+        seccion.setHorarioSeccion(horariosBySeccion);
+
+        List<MatriculaSeccion> matriculasSeccionBySeccion = matriculaSeccionDAO.allMatriculadosBySeccion(Arrays.asList(seccion), EstadoMatriculaEnum.MAT, EstadoMatriculaEnum.PMAT);
+        List<MatriculaResumen> matriculasResumenes = matriculasSeccionBySeccion.stream()
                 .map(x -> x.getMatriculaResumen()).distinct().collect(Collectors.toList());
-        List<MatriculaSeccion> matriculasSecciones = matriculaSeccionDAO.allMatriculadosByMatriculaSeccion(matriculasResumenes);
+
+        List<MatriculaSeccion> matriculasSecciones = matriculaSeccionDAO.allMatriculadosByMatriculaSeccion(matriculasResumenes, EstadoMatriculaEnum.MAT, EstadoMatriculaEnum.PMAT);
+        List<Seccion> secciones = matriculasSecciones.stream().map(x -> x.getSeccion()).collect(Collectors.toList());
+
+        List<HorarioSeccion> horariosSecciones = horarioSeccionDAO.allBySecciones(secciones);
+        Map<Long, List<HorarioSeccion>> mapHorarioSeccion = TypesUtil.convertListToMapList("seccion.id", horariosSecciones);
+
+        List<String> errors = new ArrayList<>();
+
+        matriculasSecciones.removeIf(x -> x.getSeccion().equals(seccion));
+        for (MatriculaSeccion matriculaSeccion : matriculasSecciones) {
+            List<HorarioSeccion> horariosBySeccionEach = mapHorarioSeccion.get(matriculaSeccion.getSeccion().getId());
+            if (horariosBySeccionEach == null || horariosBySeccionEach.isEmpty()) {
+                continue;
+            }
+            Map<String, List<HorarioSeccion>> mapHorarioSeccionByHor = TypesUtil.convertListToMapList("horaDia", horariosBySeccionEach);
+
+            for (HorarioSeccion horarioSeccion : seccion.getHorarioSeccion()) {
+                String horaDia = horarioSeccion.getHoraDia();
+                List<HorarioSeccion> hdiaGpo = mapHorarioSeccionByHor.get(horaDia);
+                if (hdiaGpo == null || hdiaGpo.isEmpty()) {
+                    continue;
+                }
+                for (HorarioSeccion horarioSeccion1 : hdiaGpo) {
+                    Dia dia = horarioSeccion1.getDia();
+                    Hora hora = horarioSeccion1.getHora();
+                    String error = String.format("Cruce Horario, Dia %s, Hora %s, Seccion %s, Alumno %s",
+                            dia.getNombre(), hora.getDescripcion(),
+                            matriculaSeccion.getSeccion().getCodigo2(),
+                            matriculaSeccion.getMatriculaResumen().getAlumno().getCodigo()
+                    );
+                    errors.add(error);
+                }
+
+            }
+        }
+        if (!errors.isEmpty()) {
+            throw new PhobosException(String.join("</br>", errors));
+        }
     }
 
     @Override

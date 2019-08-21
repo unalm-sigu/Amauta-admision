@@ -176,7 +176,7 @@ var app = new Vue({
         dataModalAgregarHorasAdicionales: {
             id: 'idModalAgregarHorasAdicionales',
         },
-        configConfirmAction: VUE_MODAL.structConfirm({id: "husdIUHIUbiukkjh893434hhh"}),
+        configConfirmAction: VUE_MODAL.structConfirm({}),
         seccionWorking: {}
     },
     watch: {
@@ -638,6 +638,7 @@ var app = new Vue({
             $vue.seccionWorking = Object.assign({}, seccion);
 
             $vue.configConfirmAction = VUE_MODAL.structConfirm({
+                id: "2hi3563i45h34iu",
                 message: "¿Está seguro que desea activar la sección?",
                 okbtn: "Si, activar",
                 okaction: $vue.activarSeccion

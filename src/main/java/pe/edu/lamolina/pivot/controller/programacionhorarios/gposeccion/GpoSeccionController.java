@@ -524,7 +524,8 @@ public class GpoSeccionController {
                 "*",
                 "docente.codigo",
                 "docente.persona.id",
-                "docente.persona.apellidosNombres"
+                "docente.persona.apellidosNombres",
+                "docente.persona.emailCompania"
             });
             node.put("docenteNN", docSeccion.getDocente().getCodigo().equals(Constantine.DOCENTE_INDETERMINADO));
             node.put("fechaInicioMin", fechaMin);
@@ -1692,6 +1693,7 @@ public class GpoSeccionController {
                                         "seccion.grupoSeccion.curso.nombre",
                                         "seccion.docenteSeccion.docente.codigo",
                                         "seccion.docenteSeccion.docente.persona.nomPaternoMat",
+                                        "seccion.docenteSeccion.docente.persona.emailCompania",
                                         "seccion.grupoHoras.codigo"})
                     );
                 }
@@ -2571,6 +2573,7 @@ public class GpoSeccionController {
                     "docente.codigo",
                     "docente.persona.id",
                     "docente.persona.apellidosNombres",
+                    "docente.persona.emailCompania",
                     "contratoDocente.id",
                     "contratoDocente.estadoEnum",
                     "contratoDocente.categoria.id",

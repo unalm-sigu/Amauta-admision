@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.aporte.Aporte;
 import pe.edu.lamolina.model.enums.AmbienteAplicacionEnum;
@@ -60,15 +61,14 @@ public class ResponseRestServiceImpl extends AbstractRestClient<JsonResponse> im
 
     @Override
     @Transactional
-    public JsonResponse generarAporte(Alumno alumno, MatriculaResumen matriculaResumen, DataSessionPivot ds) {
+    public JsonResponse generarAporte(Alumno alumno, CicloAcademico ciclo, MatriculaResumen matriculaResumen, DataSessionPivot ds) {
         Parametro parametro = findParametro(ParametrosSistemasEnum.SALTO_PIVOT_BIENESTAR);
 
         ObjectNode json = new ObjectNode(JsonNodeFactory.instance);
         json.put("idUsuario", ds.getUsuario().getId());
         json.put("idAlumno", alumno.getId());
-        json.put("idCicloAcademico", ds.getCicloAcademico().getId());
+        json.put("idCicloAcademico", ciclo.getId());
         if (matriculaResumen != null) {
-
             json.put("idMatricula", matriculaResumen.getId());
         }
 

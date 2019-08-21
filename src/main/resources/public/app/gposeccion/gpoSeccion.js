@@ -709,7 +709,7 @@ new Vue({
 
             let $vue = this;
 
-            VUE_MODAL.configure($vue.configConfirmAction, {
+            $vue.configConfirmAction = VUE_MODAL.structConfirm({
                 message: "¿Seguro que desea dar por finalizado el ordenamiento de códigos?",
                 okbtn: "Si, finalizar",
                 okclass: "btn-success",
