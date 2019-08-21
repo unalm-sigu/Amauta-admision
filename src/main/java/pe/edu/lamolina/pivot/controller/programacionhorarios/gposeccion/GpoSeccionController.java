@@ -193,7 +193,8 @@ public class GpoSeccionController {
                     "secciones.docenteSeccion.principal",
                     "secciones.docenteSeccion.porcentajeCarga",
                     "secciones.docenteSeccion.docente.codigo",
-                    "secciones.docenteSeccion.docente.persona.apellidosNombres"
+                    "secciones.docenteSeccion.docente.persona.apellidosNombres",
+                    "secciones.docenteSeccion.docente.persona.emailCompania"
                 });
 
                 arrayGpoSecc.add(nodeGpoSecc);
@@ -523,7 +524,8 @@ public class GpoSeccionController {
                 "*",
                 "docente.codigo",
                 "docente.persona.id",
-                "docente.persona.apellidosNombres"
+                "docente.persona.apellidosNombres",
+                "docente.persona.emailCompania"
             });
             node.put("docenteNN", docSeccion.getDocente().getCodigo().equals(Constantine.DOCENTE_INDETERMINADO));
             node.put("fechaInicioMin", fechaMin);
@@ -887,10 +889,13 @@ public class GpoSeccionController {
             response.setMessage(message);
 
         } catch (PhobosException e) {
+            e.printStackTrace();
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
+            e.printStackTrace();
             ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
         } catch (Exception e) {
+            e.printStackTrace();
             ExceptionHandler.handleException(e, response);
         }
         return response;
@@ -1688,6 +1693,7 @@ public class GpoSeccionController {
                                         "seccion.grupoSeccion.curso.nombre",
                                         "seccion.docenteSeccion.docente.codigo",
                                         "seccion.docenteSeccion.docente.persona.nomPaternoMat",
+                                        "seccion.docenteSeccion.docente.persona.emailCompania",
                                         "seccion.grupoHoras.codigo"})
                     );
                 }
@@ -2523,6 +2529,7 @@ public class GpoSeccionController {
                 "docenteSeccion.porcentajeCarga",
                 "docenteSeccion.docente.codigo",
                 "docenteSeccion.docente.persona.apellidosNombres",
+                "docenteSeccion.docente.persona.emailCompania",
                 "ampliacionesVacantes.*",
                 "ampliacionesVacantes.seccion.id",
                 "ampliacionesVacantes.colaborador.id",
@@ -2566,6 +2573,7 @@ public class GpoSeccionController {
                     "docente.codigo",
                     "docente.persona.id",
                     "docente.persona.apellidosNombres",
+                    "docente.persona.emailCompania",
                     "contratoDocente.id",
                     "contratoDocente.estadoEnum",
                     "contratoDocente.categoria.id",

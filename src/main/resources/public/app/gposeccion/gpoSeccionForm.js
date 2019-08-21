@@ -638,6 +638,7 @@ var app = new Vue({
             $vue.seccionWorking = Object.assign({}, seccion);
 
             $vue.configConfirmAction = VUE_MODAL.structConfirm({
+                id: "2hi3563i45h34iu",
                 message: "¿Está seguro que desea activar la sección?",
                 okbtn: "Si, activar",
                 okaction: $vue.activarSeccion
@@ -752,6 +753,11 @@ var app = new Vue({
          ,*/
         cancelarSeccion(seccionWorking) {
             let $vue = this;
+            if (seccionWorking.motivoCancelacion == '') {
+                notify("Ingrese el motivo", "error");
+                $vue.$refs.modalConfirmAction.confirmReaction(true);
+                return;
+            }
             $.ajax({
                 url: APP.url(rutaModulo + '/cancelarSeccion'),
                 dataType: "json",
@@ -762,6 +768,7 @@ var app = new Vue({
                 success: function (response) {
                     $vue.$refs.modalConfirmAction.confirmReaction(response.success);
                     if (response.success) {
+                        $vue.$refs.cancelarSeccionComp.loadComponent();
                         if (response.message == 'redirect') {
                             location.href = $vue.navega.origen;
                         } else {

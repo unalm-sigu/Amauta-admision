@@ -20,41 +20,51 @@ import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 
 @Repository
 public class MatriculaSeccionDAOH extends AbstractEasyDAO<MatriculaSeccion> implements MatriculaSeccionDAO {
-
+    
     public MatriculaSeccionDAOH() {
         super();
         setClazz(MatriculaSeccion.class);
     }
-
+    
     @Override
     public List<MatriculaSeccion> allMatriculadosBySeccion(Seccion seccion) {
-        Octavia sql = Octavia.query()
-                .from(MatriculaSeccion.class, "ms")
-                .join("matriculaResumen mr", "seccion sec", "mr.alumno alu", "sec.grupoSeccion gs")
-                .join("gs.curso cur", "alu.persona per", "alu.carrera carr", "carr.facultad fac")
-                .join("alu.modalidadEstudio")
-                .leftJoin("per.tipoDocumento tdoc")
-                .filter("ms.estado", EstadoMatriculaEnum.MAT)
-                .filter("sec.id", seccion)
-                .orderBy("per.paterno", "per.materno", "per.nombres");
-
-        return all(sql);
+        return this.allMatriculadosBySeccion(Arrays.asList(seccion), EstadoMatriculaEnum.MAT);
     }
-
+    
     @Override
     public List<MatriculaSeccion> allMatriculadosBySecciones(List<Seccion> secciones) {
+        return this.allMatriculadosBySeccion(secciones, EstadoMatriculaEnum.MAT);
+    }
+    
+    @Override
+    public List<MatriculaSeccion> allMatriculadosBySeccion(List<Seccion> secciones, EstadoMatriculaEnum... estados) {
         Octavia sql = Octavia.query()
                 .from(MatriculaSeccion.class, "ms")
                 .join("matriculaResumen mr", "seccion sec", "mr.alumno alu", "sec.grupoSeccion gs")
                 .join("gs.curso cur", "alu.persona per", "alu.carrera carr", "carr.facultad fac")
                 .join("alu.modalidadEstudio")
                 .leftJoin("per.tipoDocumento tdoc")
-                .filter("ms.estado", EstadoMatriculaEnum.MAT)
-                .in("sec.id", secciones);
-
+                .in("ms.estado", Arrays.asList(estados))
+                .in("sec.id", secciones)
+                .orderBy("per.paterno", "per.materno", "per.nombres");
         return all(sql);
     }
-
+    
+    @Override
+    public List<MatriculaSeccion> allMatriculadosByMatriculaSeccion(List<MatriculaResumen> matriculasResumen, EstadoMatriculaEnum... estados) {
+        Octavia sql = Octavia.query()
+                .from(MatriculaSeccion.class, "ms")
+                .join("matriculaResumen mr", "seccion sec", "mr.alumno alu", "sec.grupoSeccion gs")
+                .join("gs.curso cur", "alu.persona per", "alu.carrera carr", "carr.facultad fac")
+                .join("alu.modalidadEstudio")
+                .leftJoin("per.tipoDocumento tdoc")
+                .in("ms.estado", Arrays.asList(estados))
+                .in("mr.estado", Arrays.asList(estados))
+                .in("mr.id", matriculasResumen)
+                .orderBy("per.paterno", "per.materno", "per.nombres");
+        return all(sql);
+    }
+    
     @Override
     public List<MatriculaSeccion> allBySeccion(Seccion seccion) {
         Octavia sql = Octavia.query()
@@ -66,10 +76,25 @@ public class MatriculaSeccionDAOH extends AbstractEasyDAO<MatriculaSeccion> impl
                 .leftJoin("per.tipoDocumento tdoc", "alu.modalidadEstudio mest")
                 .filter("sec.id", seccion)
                 .orderBy("per.paterno", "per.materno", "per.nombres");
-
+        
         return all(sql);
     }
-
+    
+    @Override
+    public List<MatriculaSeccion> allBySeccionLite(Seccion seccion) {
+        Octavia sql = Octavia.query()
+                .from(MatriculaSeccion.class, "ms")
+                .join("matriculaResumen mr", "seccion sec", "mr.alumno alu", "sec.grupoSeccion gs")
+                .join("gs.curso cur", "alu.persona per", "alu.carrera carr", "carr.facultad fac")
+                .left("alu.cicloActivo ca", "alu.cicloIngreso caing")
+                .left("ms.userRegistro ureg", "ureg.persona urper", "alu.situacionAcademica sa")
+                .leftJoin("per.tipoDocumento tdoc", "alu.modalidadEstudio mest")
+                .filter("sec.id", seccion)
+                .orderBy("per.paterno", "per.materno", "per.nombres");
+        
+        return all(sql);
+    }
+    
     @Override
     public List<MatriculaSeccion> allByGrupoSeccion(List<GrupoSeccion> gruposSeccion, EstadoMatriculaEnum... estadosMatriculaSeccion) {
         Octavia sql = Octavia.query()
@@ -85,10 +110,10 @@ public class MatriculaSeccionDAOH extends AbstractEasyDAO<MatriculaSeccion> impl
             sql.in("ms.estado", lEstadosMatriculaSeccion);
         }
         sql.orderBy("per.paterno", "per.materno", "per.nombres");
-
+        
         return all(sql);
     }
-
+    
     @Override
     public MatriculaSeccion find(long id) {
         Octavia sql = Octavia.query()
@@ -96,10 +121,10 @@ public class MatriculaSeccionDAOH extends AbstractEasyDAO<MatriculaSeccion> impl
                 .join("matriculaResumen mr", "seccion sec", "mr.alumno alu", "sec.grupoSeccion gs")
                 .join("gs.curso cur", "alu.persona per", "per.tipoDocumento tdoc")
                 .filter("ms.id", id);
-
+        
         return find(sql);
     }
-
+    
     @Override
     public List<MatriculaSeccion> allMatriculadosByGpoSeccion(GrupoSeccion grupoSeccion) {
         Octavia sql = Octavia.query()
@@ -112,7 +137,7 @@ public class MatriculaSeccionDAOH extends AbstractEasyDAO<MatriculaSeccion> impl
 
         return all(sql);
     }
-
+    
     @Override
     public List<MatriculaSeccion> allMatriculadosByCiclo(CicloAcademico ciclo) {
         Octavia sql = Octavia.query()
@@ -122,10 +147,10 @@ public class MatriculaSeccionDAOH extends AbstractEasyDAO<MatriculaSeccion> impl
                 .leftJoin("gs.planCalificacion")
                 .filter("ms.estado", MAT)
                 .filter("ca.id", ciclo);
-
+        
         return all(sql);
     }
-
+    
     @Override
     public List<MatriculaSeccion> allByCiclo(CicloAcademico ciclo) {
         Octavia sql = Octavia.query()
@@ -134,10 +159,10 @@ public class MatriculaSeccionDAOH extends AbstractEasyDAO<MatriculaSeccion> impl
                 .join("gs.curso cur", "alu.persona per")
                 .leftJoin("gs.planCalificacion", "per.tipoDocumento tdoc")
                 .filter("ca.id", ciclo);
-
+        
         return all(sql);
     }
-
+    
     @Override
     public List<MatriculaSeccion> allMatriculadosByAlumnoCiclo(Alumno alumno, CicloAcademico ciclo) {
         Octavia sqlUtil = Octavia.query()
@@ -151,7 +176,7 @@ public class MatriculaSeccionDAOH extends AbstractEasyDAO<MatriculaSeccion> impl
                 .filter("alu.id", alumno);
         return all(sqlUtil);
     }
-
+    
     @Override
     public List<MatriculaSeccion> allMatriculadosByAlumnosCiclo(List<Alumno> alumnos, CicloAcademico ciclo) {
         Octavia sqlUtil = Octavia.query()
@@ -166,7 +191,7 @@ public class MatriculaSeccionDAOH extends AbstractEasyDAO<MatriculaSeccion> impl
                 .in("alu.id", alumnos);
         return all(sqlUtil);
     }
-
+    
     @Override
     public List<MatriculaSeccion> allActivesByMatriculaResumen(List<MatriculaResumen> matriculaResumen) {
         Octavia sqlUtil = Octavia.query()
@@ -180,7 +205,7 @@ public class MatriculaSeccionDAOH extends AbstractEasyDAO<MatriculaSeccion> impl
                 .in("mr.id", matriculaResumen);
         return all(sqlUtil);
     }
-
+    
     @Override
     public List<MatriculaSeccion> allByMatriculaResumenes(List<MatriculaResumen> matriculaResumen) {
         Octavia sqlUtil = Octavia.query()
@@ -192,7 +217,7 @@ public class MatriculaSeccionDAOH extends AbstractEasyDAO<MatriculaSeccion> impl
                 .in("mr.id", matriculaResumen);
         return all(sqlUtil);
     }
-
+    
     @Override
     public List<MatriculaSeccion> allByMatriculaResumen(MatriculaResumen matResumen) {
         Octavia sqlUtil = Octavia.query()
@@ -204,7 +229,7 @@ public class MatriculaSeccionDAOH extends AbstractEasyDAO<MatriculaSeccion> impl
                 .filter("mr.id", matResumen);
         return all(sqlUtil);
     }
-
+    
     @Override
     public List<MatriculaSeccion> allByAlumnoCicloEstados(Alumno alumno, CicloAcademico academico, List<String> estados) {
         Octavia sql = Octavia.query()
@@ -217,7 +242,7 @@ public class MatriculaSeccionDAOH extends AbstractEasyDAO<MatriculaSeccion> impl
                 .in("ms.estado", estados);
         return sql.all(getCurrentSession());
     }
-
+    
     @Override
     public Long countAllSeccionPrematriculado(CicloAcademico cicloAcademico) {
         Octavia sql = Octavia.query()
@@ -230,7 +255,7 @@ public class MatriculaSeccionDAOH extends AbstractEasyDAO<MatriculaSeccion> impl
                 .in("ms.estado", Arrays.asList(EstadoMatriculaEnum.PMAT.name(), EstadoMatriculaEnum.NMAT.name()));
         return (Long) sql.find(getCurrentSession());
     }
-
+    
     @Override
     public List<MatriculaSeccion> allPrematriculadoByMatriculaResumen(List<MatriculaResumen> matriculaResumens) {
         Octavia sql = Octavia.query()
@@ -241,7 +266,7 @@ public class MatriculaSeccionDAOH extends AbstractEasyDAO<MatriculaSeccion> impl
                 .filter("ms.estado", EstadoMatriculaEnum.PMAT);
         return all(sql);
     }
-
+    
     @Override
     public List<MatriculaSeccion> allMatriculadosByAlumnosSecciones(List<Alumno> alumnos, List<Seccion> secciones) {
         Octavia sql = Octavia.query()
@@ -253,7 +278,7 @@ public class MatriculaSeccionDAOH extends AbstractEasyDAO<MatriculaSeccion> impl
                 .in("alu.id", alumnos);
         return all(sql);
     }
-
+    
     @Override
     public MatriculaSeccion findByMatriculaMatSeccion(MatriculaResumen matriculaResumen, Seccion seccion) {
         Octavia sqlUtil = Octavia.query()
@@ -266,7 +291,7 @@ public class MatriculaSeccionDAOH extends AbstractEasyDAO<MatriculaSeccion> impl
                 .filter("sec.id", seccion);
         return find(sqlUtil);
     }
-
+    
     @Override
     public MatriculaSeccion findByMatriculaMatSeccion(MatriculaResumen matriculaResumen, Seccion seccion, EstadoMatriculaEnum... estado) {
         Octavia sqlUtil = Octavia.query()
@@ -279,7 +304,7 @@ public class MatriculaSeccionDAOH extends AbstractEasyDAO<MatriculaSeccion> impl
                 .filter("sec.id", seccion);
         return find(sqlUtil);
     }
-
+    
     @Override
     public MatriculaSeccion findByMatriculaMatSeccionAndNoEstado(MatriculaResumen matriculaResumen, Seccion seccion, EstadoMatriculaEnum... estado) {
         List<EstadoMatriculaEnum> estadosEnum = Arrays.asList(estado);
@@ -293,7 +318,7 @@ public class MatriculaSeccionDAOH extends AbstractEasyDAO<MatriculaSeccion> impl
                 .filter("sec.id", seccion);
         return find(sqlUtil);
     }
-
+    
     @Override
     public List<MatriculaSeccion> allByMatriculaMatSeccion(List<MatriculaResumen> matriculasResumen, Seccion seccion) {
         Octavia sqlUtil = Octavia.query()
@@ -306,7 +331,7 @@ public class MatriculaSeccionDAOH extends AbstractEasyDAO<MatriculaSeccion> impl
                 .filter("sec.id", seccion);
         return all(sqlUtil);
     }
-
+    
     @Override
     public List<MatriculaSeccion> allByMatriculaResumenes(List<MatriculaResumen> resumenes, CicloAcademico cicloAcademico) {
         Octavia sql = Octavia.query()
@@ -319,7 +344,7 @@ public class MatriculaSeccionDAOH extends AbstractEasyDAO<MatriculaSeccion> impl
                 .in("mr.id", resumenes);
         return all(sql);
     }
-
+    
     @Override
     public void updateEstado(List<MatriculaSeccion> matriculaSeccionMatTemp, EstadoMatriculaEnum eme) {
         List<Long> longs = matriculaSeccionMatTemp.stream().map(x -> x.getId()).collect(Collectors.toList());
@@ -327,13 +352,13 @@ public class MatriculaSeccionDAOH extends AbstractEasyDAO<MatriculaSeccion> impl
         sql.append("  update  ").append(MatriculaSeccion.class.getName()).append(" ms ");
         sql.append("  set estado = :estado ");
         sql.append("  where ms.id in (:ids )");
-
+        
         Query query = getCurrentSession().createQuery(sql.toString());
         query.setParameterList("ids", longs);
         query.setString("estado", eme.name());
         query.executeUpdate();
     }
-
+    
     @Override
     public void updateColumns(MatriculaSeccion matriculaSeccion, String... columns) {
         Octavia sql = Octavia.update(MatriculaSeccion.class, "se");
@@ -342,7 +367,7 @@ public class MatriculaSeccionDAOH extends AbstractEasyDAO<MatriculaSeccion> impl
         }
         this.update(sql);
     }
-
+    
     @Override
     public MatriculaSeccion findByMatResumenAndTipoSecAndEstado(MatriculaResumen matriculaResumen, TipoSeccionEnum tipoSeccionEnum, EstadoMatriculaEnum... estadoMatriculaEnum) {
         Octavia sqlUtil = Octavia.query()
@@ -355,7 +380,7 @@ public class MatriculaSeccionDAOH extends AbstractEasyDAO<MatriculaSeccion> impl
                 .filter("sec.tipoSeccion", tipoSeccionEnum);
         return find(sqlUtil);
     }
-
+    
     @Override
     public MatriculaSeccion findByMatResumenAndTipoSecAndNoEstado(MatriculaResumen matriculaResumen, TipoSeccionEnum tipoSeccionEnum, EstadoMatriculaEnum... estadoMatriculaEnum) {
         Octavia sqlUtil = Octavia.query()
@@ -364,11 +389,11 @@ public class MatriculaSeccionDAOH extends AbstractEasyDAO<MatriculaSeccion> impl
                 .join("seccion sec", "sec.grupoSeccion gs", "gs.curso")
                 .left("sec.aula", "sec.grupoHoras")
                 .filter("mr.id", matriculaResumen)
-                .notIn("ms.estado", Arrays.asList(estadoMatriculaEnum))
+                .notIn("ms.estado", Arrays.asList(estadoMatriculaEnum).stream().map(x -> x.name()).collect(Collectors.toList()))
                 .filter("sec.tipoSeccion", tipoSeccionEnum);
         return find(sqlUtil);
     }
-
+    
     @Override
     public void deleteAllByCiclo(CicloAcademico ciclo) {
         StringBuilder sql = new StringBuilder();
@@ -380,19 +405,19 @@ public class MatriculaSeccionDAOH extends AbstractEasyDAO<MatriculaSeccion> impl
                 .append("    WHERE ci.id = :CICLO ")
                 .append("      AND ms.seccion.id = sec.id ")
                 .append(" ) ");
-
+        
         Query query = getCurrentSession().createQuery(sql.toString());
         query.setLong("CICLO", ciclo.getId());
         query.executeUpdate();
-
+        
     }
-
+    
     @Override
     public List<MatriculaSeccion> allMatriculadosBySeccion(String seccion, CicloAcademico cicloAcademico) {
         Octavia sql = Octavia.query()
                 .from(MatriculaSeccion.class, "ms")
                 .join("matriculaResumen mr", "mr.alumno alu", "mr.cicloAcademico ca")
-                .join("seccion s", "s.grupoSeccion gs", "gs.curso" , "gs.cicloAcademico gca")
+                .join("seccion s", "s.grupoSeccion gs", "gs.curso", "gs.cicloAcademico gca")
                 .left("s.aula")
                 .filter("s.codigo2", seccion)
                 .filter("gca.id", cicloAcademico)
@@ -400,7 +425,7 @@ public class MatriculaSeccionDAOH extends AbstractEasyDAO<MatriculaSeccion> impl
                 .orderBy("mr.prioridad asc");
         return all(sql);
     }
-
+    
     @Override
     public MatriculaSeccion findByAlumnoSeccion(String codigo, String seccion) {
         Octavia sqlUtil = Octavia.query()
@@ -408,7 +433,7 @@ public class MatriculaSeccionDAOH extends AbstractEasyDAO<MatriculaSeccion> impl
                 .join("matriculaResumen mr", "mr.alumno alu", "mr.cicloAcademico ca")
                 .join("seccion sec", "sec.grupoSeccion gs", "gs.curso")
                 .left("sec.aula", "sec.grupoHoras")
-                .filter("alu.codigo", codigo)                
+                .filter("alu.codigo", codigo)
                 .filter("sec.codigo2", seccion)
                 .limit(1);
         return find(sqlUtil);

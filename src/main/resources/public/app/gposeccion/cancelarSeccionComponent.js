@@ -64,8 +64,8 @@ Vue.component("cancelar-seccion-component", {
                 okbtnprocessing: '<i class="fa fa-spinner fa-pulse fa-fw"></i> Cancelando...',
                 okaction: $vue.cancelarSeccion
             });
-
-            $vue.$refs.modalConfirmActionCancel.open();
+     
+            $vue.$refs.modalConfirmAction.open();
         },
         cancelarSeccion() {
             let $vue = this;

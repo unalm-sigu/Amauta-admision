@@ -1,6 +1,7 @@
 package pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.cancelarseccion;
 
 import java.util.List;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,8 +18,10 @@ public class CancelarSeccionServiceImp implements CancelarSeccionService {
 
     @Override
     public List<MatriculaSeccion> allMatriculaSeccionBySeccion(Seccion seccion) {
-        List<MatriculaSeccion> matriculasSeccion = matriculaSeccionDAO.allBySeccion(seccion);
-        matriculasSeccion.removeIf(x -> !x.isEstadoMAT() && !x.isEstadoPMAT() && !x.isEstadoRCA());
+        List<MatriculaSeccion> matriculasSeccion = matriculaSeccionDAO.allBySeccionLite(seccion);
+        matriculasSeccion = matriculasSeccion.stream()
+                .filter(x -> x.isEstadoMAT() || x.isEstadoPMAT() || x.isEstadoRCA())
+                .collect(Collectors.toList());
         return matriculasSeccion;
     }
 

@@ -15,6 +15,8 @@ public interface MatriculaSeccionDAO extends EasyDAO<MatriculaSeccion> {
 
     List<MatriculaSeccion> allMatriculadosBySeccion(Seccion seccion);
 
+    List<MatriculaSeccion> allMatriculadosBySeccion(List<Seccion> seccion, EstadoMatriculaEnum... estados);
+
     List<MatriculaSeccion> allMatriculadosBySecciones(List<Seccion> secciones);
 
     List<MatriculaSeccion> allBySeccion(Seccion seccion);
@@ -70,5 +72,9 @@ public interface MatriculaSeccionDAO extends EasyDAO<MatriculaSeccion> {
     List<MatriculaSeccion> allMatriculadosBySeccion(String seccion, CicloAcademico cicloAcademico);
 
     public MatriculaSeccion findByAlumnoSeccion(String codigo, String seccion);
+
+    List<MatriculaSeccion> allMatriculadosByMatriculaSeccion(List<MatriculaResumen> matriculasResumen, EstadoMatriculaEnum... estados);
+
+    List<MatriculaSeccion> allBySeccionLite(Seccion seccion);
 
 }

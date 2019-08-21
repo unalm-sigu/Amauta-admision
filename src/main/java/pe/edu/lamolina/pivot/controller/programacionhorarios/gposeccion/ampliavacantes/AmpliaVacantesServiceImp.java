@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import pe.albatross.zelpers.miscelanea.Assert;
+import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.AmpliacionVacantes;
 import pe.edu.lamolina.model.academico.Seccion;
@@ -16,6 +17,7 @@ import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Colaborador;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.general.Persona;
+import pe.edu.lamolina.pivot.controller.academico.tramitesacademicos.tramiteRetiroCiclo.ResponseRestService;
 import pe.edu.lamolina.pivot.controller.general.oficina.OficinaService;
 import pe.edu.lamolina.pivot.dao.academico.SeccionDAO;
 import pe.edu.lamolina.pivot.dao.general.ColaboradorDAO;
@@ -87,7 +89,7 @@ public class AmpliaVacantesServiceImp implements AmpliaVacantesService {
                 Assert.isTrue(aula.getCapacidadAula().intValue() >= total, "No puede exceder la capacidad del aula de la sección teórica");
             }
         }
-
+    
         ampliacionVacante.setColaborador(colaborador);
         ampliacionVacante.setFechaRegistro(new Date());
         ampliacionVacante.setUserRegistro(ds.getUsuario());
@@ -137,7 +139,7 @@ public class AmpliaVacantesServiceImp implements AmpliaVacantesService {
     @Override
     @Transactional
     public void aceptarAmpliacionVacante(AmpliacionVacantes ampliacionForm, DataSessionPivot ds) {
-
+        //TODO AMPLIACION VACANTE
         AmpliacionVacantes ampliacionBD = ampliacionVacanteDAO.find(ampliacionForm);
 
         Seccion seccion = seccionDAO.find(ampliacionBD.getSeccion());
@@ -168,7 +170,6 @@ public class AmpliaVacantesServiceImp implements AmpliaVacantesService {
             secSuperior.setVacantes(secSuperior.getVacantes() + ampliacionBD.getIncremento());
             seccionDAO.update(secSuperior);
         }
-
     }
 
     @Override

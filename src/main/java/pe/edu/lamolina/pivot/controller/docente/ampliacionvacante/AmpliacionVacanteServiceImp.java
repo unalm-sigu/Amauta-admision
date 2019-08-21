@@ -247,19 +247,19 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
             MatriculaResumen matriculaResumen = matriculaResumenDAO.findByAlumnoCiclo(alumno, cicloAcademico);
 
             Assert.isTrue(matriculaResumen != null,
-                    String.format("alumno %S no es matriculable", alumno.getPersona().getApellidosNombres()));
+                    String.format("alumno %s no es matriculable", alumno.getPersona().getApellidosNombres()));
             Assert.isTrue(Arrays.asList(EstadoMatriculaEnum.MAT, EstadoMatriculaEnum.NMAT).contains(matriculaResumen.getEstadoEnum()),
-                    String.format("alumno %S no es matriculable", alumno.getPersona().getApellidosNombres()));
+                    String.format("alumno %s no es matriculable", alumno.getPersona().getApellidosNombres()));
 
             MatriculaCurso matriculaCurso = matriculaCursoDAO.findByMatriculaCurso(matriculaResumen, curso);
 
             if (matriculaCurso != null) {
                 Assert.isFalse(matriculaCurso.getEstadoEnum() == EstadoMatriculaEnum.MAT,
-                        String.format("alumno %S ya se matriculo", alumno.getPersona().getApellidosNombres()));
+                        String.format("alumno %s ya se matriculo", alumno.getPersona().getApellidosNombres()));
                 Assert.isFalse(matriculaCurso.getEstadoEnum() == EstadoMatriculaEnum.SOL,
-                        String.format("alumno %S ya solicito matricularse", alumno.getPersona().getApellidosNombres()));
+                        String.format("alumno %s ya solicito matricularse anteriormente", alumno.getPersona().getApellidosNombres()));
                 Assert.isTrue(Arrays.asList(EstadoMatriculaEnum.RET, EstadoMatriculaEnum.NVAC).contains(matriculaCurso.getEstadoEnum()),
-                        String.format("alumno %S no es matriculable", alumno.getPersona().getApellidosNombres()));
+                        String.format("alumno %s no es matriculable", alumno.getPersona().getApellidosNombres()));
 
                 matriculaCurso.setEstadoEnum(EstadoMatriculaEnum.SOL);
                 //   matriculaCursoDAO.update(matriculaCurso);
@@ -284,6 +284,7 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
             Assert.isTrue(matriculaSeccionPCUR == null, String.format("alumno %S ya se matriculo", alumno.getPersona().getApellidosNombres()));
             matriculaSeccionPCUR = new MatriculaSeccion(curso, matriculaResumen, seccionPCUR, EstadoMatriculaEnum.SOL, ds.getUsuario(), ds.getFechaAccionAudit());
             matriculaSeccionPCUR.setEsAmpliacionVacante(Boolean.TRUE);
+            //si el docente principal tcur es el logeado y no es el mismo profe de la seccione pcur seleccionada
             if (isDocentePrincipalTcurLogged && !seccionPCUR.getDocentePrincipal().equals(seccionTCUR.getDocentePrincipal())) {
                 matriculaSeccionPCUR.setEnSolicitud(Boolean.TRUE);
             }
@@ -354,7 +355,7 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
             MatriculaResumen matriculaResumen = matriculaResumenDAO.findByAlumnoCiclo(alumno, cicloAcademico);
             Assert.isTrue(matriculaResumen != null, alumnoNoMatriculable);
             Assert.isTrue(
-                    !Arrays.asList(EstadoMatriculaEnum.MAT, EstadoMatriculaEnum.NMAT).contains(matriculaResumen.getEstadoEnum()),
+                    Arrays.asList(EstadoMatriculaEnum.MAT, EstadoMatriculaEnum.NMAT).contains(matriculaResumen.getEstadoEnum()),
                     alumnoNoMatriculable
             );
 
