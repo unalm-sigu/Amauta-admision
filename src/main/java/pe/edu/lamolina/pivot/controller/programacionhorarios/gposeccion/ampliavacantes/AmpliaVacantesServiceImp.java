@@ -89,7 +89,7 @@ public class AmpliaVacantesServiceImp implements AmpliaVacantesService {
                 Assert.isTrue(aula.getCapacidadAula().intValue() >= total, "No puede exceder la capacidad del aula de la sección teórica");
             }
         }
-    
+
         ampliacionVacante.setColaborador(colaborador);
         ampliacionVacante.setFechaRegistro(new Date());
         ampliacionVacante.setUserRegistro(ds.getUsuario());
