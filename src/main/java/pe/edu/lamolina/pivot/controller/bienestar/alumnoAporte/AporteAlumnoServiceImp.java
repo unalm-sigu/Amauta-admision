@@ -100,7 +100,7 @@ public class AporteAlumnoServiceImp implements AporteAlumnoService {
             return;
         }
 
-        JsonResponse jsonResponse = responseRestService.generarAporte(alumno, matriculaResumen, ds);
+        JsonResponse jsonResponse = responseRestService.generarAporte(alumno, ciclo, matriculaResumen, ds);
 
         Assert.isTrue(jsonResponse.getSuccess(), "Se produjo un error al agregar aportes. Comuniquese con mesa de ayuda.");
 
