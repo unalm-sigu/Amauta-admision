@@ -113,7 +113,8 @@ public class AporteAlumnoServiceImp implements AporteAlumnoService {
         if (generador == null) {
             return;
         }
-        if (!Arrays.asList(GeneracionAportesEstadoEnum.BOL, GeneracionAportesEstadoEnum.GEN).contains(generador.getEstadoEnum())) {
+        if (!Arrays.asList(GeneracionAportesEstadoEnum.BOL, GeneracionAportesEstadoEnum.GEN)
+                .contains(generador.getEstadoEnum())) {
             return;
         }
 

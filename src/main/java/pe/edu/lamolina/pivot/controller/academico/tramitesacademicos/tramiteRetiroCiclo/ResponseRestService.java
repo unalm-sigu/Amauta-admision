@@ -17,4 +17,6 @@ public interface ResponseRestService {
     JsonResponse generarAporteCarnet(MatriculaResumen matriculaResumen, DataSessionPivot ds);
 
     JsonResponse eliminarAporteCarnet(MatriculaResumen matriculaResumen, DataSessionPivot ds);
+
+    JsonResponse anularBoletas(MatriculaResumen matriculaResumen, DataSessionPivot ds);
 }

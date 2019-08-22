@@ -145,7 +145,7 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
                         .join("ca.modalidadEstudio moe", "car.facultad fac")
                         .leftJoin("al.cicloIngreso ci", "al.cicloActivo cia", "turnoAtencion ta", "cicloAcademicoInfo")
                         .filter("ca.codigo", ciclos.getCodigo())
-                        .searchFields("car.nombre", "fac.nombre", "al.codigo", "mr.prioridad", "mr.puntajePrioridad")
+                        .searchFields("car.nombre", "fac.nombre", "al.codigo", "mr.prioridad", "mr.puntajePrioridad", "per.numeroDocIdentidad")
                         .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                         .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
                         .in("car.id", filtros)
@@ -158,7 +158,7 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
                         .join("ca.modalidadEstudio moe", "car.facultad fac")
                         .leftJoin("al.cicloIngreso ci", "al.cicloActivo cia", "turnoAtencion ta", "cicloAcademicoInfo")
                         .filter("ca.codigo", ciclos.getCodigo())
-                        .searchFields("car.nombre", "fac.nombre", "al.codigo", "mr.prioridad", "mr.puntajePrioridad")
+                        .searchFields("car.nombre", "fac.nombre", "al.codigo", "mr.prioridad", "mr.puntajePrioridad", "per.numeroDocIdentidad")
                         .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                         .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
                         .orderBy("mr.prioridad", "per.paterno", "per.materno", "per.nombres");

@@ -118,6 +118,20 @@ public class ResponseRestServiceImpl extends AbstractRestClient<JsonResponse> im
     }
 
     @Override
+    public JsonResponse anularBoletas(MatriculaResumen matriculaResumen, DataSessionPivot ds) {
+        Parametro parametro = findParametro(ParametrosSistemasEnum.SALTO_PIVOT_BIENESTAR);
+
+        ObjectNode json = new ObjectNode(JsonNodeFactory.instance);
+        json.put("idUsuario", ds.getUsuario().getId());
+        json.put("idMatricula", matriculaResumen.getId());
+
+        String url = String.format("%s/aportesRest/anularBoletas",
+                parametro.getValor());
+
+        return this.postToBackEnd(url, json);
+    }
+
+    @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void createToken(DataSessionPivot ds) {
         String valor = RandomStringUtils.randomAlphanumeric(45);

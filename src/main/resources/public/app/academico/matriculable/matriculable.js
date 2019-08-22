@@ -96,6 +96,8 @@ new Vue({
                         $vue.$refs.load.loadRemoteData();
                         $vue.$refs.modalInhabilitarMatriculable.close();
                         notify(response.message, "success");
+                    } else {
+                        notify(response.message, "error");
                     }
                 },
                 error: function () {

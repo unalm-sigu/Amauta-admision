@@ -33,6 +33,7 @@ import org.springframework.web.multipart.MultipartFile;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.file.system.FileHelper;
 import pe.albatross.zelpers.miscelanea.Assert;
+import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
@@ -83,6 +84,7 @@ import pe.edu.lamolina.pivot.controller.academico.alumno.AlumnoResumen;
 import pe.edu.lamolina.pivot.controller.academico.avancecurricular.AvanceCurricularService;
 import pe.edu.lamolina.pivot.controller.academico.promedio.PromedioReviewService;
 import pe.edu.lamolina.pivot.controller.academico.promedio.PromedioService;
+import pe.edu.lamolina.pivot.controller.academico.tramitesacademicos.tramiteRetiroCiclo.ResponseRestService;
 import pe.edu.lamolina.pivot.controller.bienestar.alumnoAporte.AporteAlumnoService;
 import pe.edu.lamolina.pivot.controller.matricula.configuracionturno.ConfiguracionMatriculaService;
 import pe.edu.lamolina.pivot.controller.visores.RespositorVisor;
@@ -169,10 +171,13 @@ public class MatriculableServiceImp implements MatriculableService {
     AporteAlumnoCicloDAO aporteAlumnoCicloDAO;
 
     @Autowired
-    AvanceCurricularService avanceCurricularService;
+    CambioNotaDAO cambioNotaDAO;
 
     @Autowired
-    CambioNotaDAO cambioNotaDAO;
+    ResponseRestService responseRestService;
+
+    @Autowired
+    AvanceCurricularService avanceCurricularService;
 
     @Autowired
     RespositorVisor respositorVisor;
@@ -938,7 +943,22 @@ public class MatriculableServiceImp implements MatriculableService {
     @Transactional
     public void inhabilitarMatriculable(MatriculaResumen matriculaResumenForm, DataSessionPivot ds) {
         MatriculaResumen matriculaResumen = matriculaResumenDAO.find(matriculaResumenForm.getId());
-        matriculaResumen.setEstadoEnum(matriculaResumen.getEstadoEnum() == EstadoMatriculaEnum.NMAT ? EstadoMatriculaEnum.INH : EstadoMatriculaEnum.NMAT);
+        Assert.isNotNull(matriculaResumen, "El alumno no es matriculable");
+        Assert.isFalse(matriculaResumen.getEstadoEnum() == EstadoMatriculaEnum.INH,
+                "El alumno ya se encontraba deshabilitado");
+        Assert.isFalse(matriculaResumen.getEstadoEnum() == EstadoMatriculaEnum.MAT,
+                "Primero debe retirarlo de sus cursos matriculados");
+        Assert.isFalse(matriculaResumen.getEstadoEnum() == EstadoMatriculaEnum.PMAT,
+                "Primero debe retirarlo de sus cursos prematriculados");
+        Assert.isTrue(matriculaResumen.getEstadoEnum() == EstadoMatriculaEnum.NMAT,
+                "El alumno debe tener estado No Matriculado para ser inhabilitado");
+
+        JsonResponse jsonResponse = responseRestService.anularBoletas(matriculaResumen, ds);
+        if (!jsonResponse.getSuccess()) {
+            throw new PhobosException(jsonResponse.getMessage());
+        }
+
+        matriculaResumen.setEstadoEnum(EstadoMatriculaEnum.INH);
         matriculaResumen.setMotivoMatriculable(matriculaResumenForm.getMotivoMatriculable());
         matriculaResumenDAO.update(matriculaResumen);
     }
@@ -1047,12 +1067,14 @@ public class MatriculableServiceImp implements MatriculableService {
 
     @Override
     public void quitarAporteCarnet(MatriculaResumen matriculaResumen, DataSessionPivot ds) {
-        aporteAlumnoService.quitarAporteCarnet(ds.getCicloAcademico(), matriculaResumen, ds);
+        matriculaResumen = matriculaResumenDAO.find(matriculaResumen.getId());
+        aporteAlumnoService.quitarAporteCarnet(matriculaResumen.getCicloAcademico(), matriculaResumen, ds);
     }
 
     @Override
     public void agregarAporteCarnet(MatriculaResumen matriculaResumen, DataSessionPivot ds) {
-        aporteAlumnoService.generarAporteCarnet(ds.getCicloAcademico(), matriculaResumen, ds);
+        matriculaResumen = matriculaResumenDAO.find(matriculaResumen.getId());
+        aporteAlumnoService.generarAporteCarnet(matriculaResumen.getCicloAcademico(), matriculaResumen, ds);
     }
 
     @Override
