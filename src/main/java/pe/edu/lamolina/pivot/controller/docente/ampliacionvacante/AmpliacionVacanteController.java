@@ -105,6 +105,7 @@ public class AmpliacionVacanteController {
                     "secciones.tipoSeccion",
                     "secciones.ampliacionVacante",
                     "secciones.solicitudesMatricula",
+                    "secciones.solicitudesMatriculaAlt",
                     "secciones.grupoHoras.id",
                     "secciones.grupoHoras.codigo",
                     "secciones.aula.id",
