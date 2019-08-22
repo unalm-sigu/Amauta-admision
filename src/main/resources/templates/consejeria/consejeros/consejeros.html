@@ -187,7 +187,7 @@
                                                                 <i class="glyphicon glyphicon-cog"></i>
                                                             </a>
                                                             <ul class="dropdown-menu pull-right">
-                                                                <li v-if="item.estado == 'ACT'" ><a v-on:click="reporte()">Reporte Alumnos</a></li>
+<!--                                                                <li v-if="item.estado == 'ACT'" ><a v-on:click="reporte()">Reporte Alumnos</a></li>-->
                                                                 <li v-if="item.estado == 'ACT'" ><a v-on:click="cambiarEstado(item, 'INA')">Inhabilitar</a></li>
                                                                 <li v-else=""><a v-on:click="cambiarEstado(item, 'ACT')">Habilitar</a></li>
                                                             </ul>
