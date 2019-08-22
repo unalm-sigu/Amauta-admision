@@ -51,7 +51,7 @@ Vue.component("cancelar-seccion-component", {
         verCancelarSeccion() {
             let $vue = this;
             $vue.seccionWorking = Object.assign({}, $vue.seccion);
-
+/*
             let alus = $vue.seccionWorking.matriculados == 1
                     ? "el alumno matriculado será retirado"
                     : ("los " + $vue.seccionWorking.matriculados + " alumnos matriculados serán retirados");
@@ -64,8 +64,10 @@ Vue.component("cancelar-seccion-component", {
                 okbtnprocessing: '<i class="fa fa-spinner fa-pulse fa-fw"></i> Cancelando...',
                 okaction: $vue.cancelarSeccion
             });
-     
+
             $vue.$refs.modalConfirmAction.open();
+*/
+            $global.$emit('cancelarSeccion', $vue.seccionWorking);
         },
         cancelarSeccion() {
             let $vue = this;

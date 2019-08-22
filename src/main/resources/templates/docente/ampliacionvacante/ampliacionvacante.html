@@ -61,7 +61,7 @@
                                                 <th class="col-md-1 text-center">Grupo Sección</th>
                                                 <th class="col-md-1 text-center">Sección</th>
                                                 <th class="col-md-1 text-center">Grupo Horas</th>
-                                                <th class="col-md-1 text-center">Aula</th>
+                                                <th class="col-md-1 text-center">Aula (cap)</th>
                                                 <th class="col-md-1 text-center">Vac</th>
                                                 <th class="col-md-1 text-center">Mat</th>
                                                 <th class="col-md-1 text-center">Solicitudes <br/> Pendientes</th>
@@ -145,14 +145,14 @@
                                                     <div style="min-height: 20px;" 
                                                          v-for="seccion in gposeccion.secciones " 
                                                          class="block text-muted">
-                                                        <template v-if="seccion.solicitudesMatricula">
+                                                        <template v-if="seccion.solicitudesMatriculaAlt">
                                                             <span class="badge pointer" 
                                                                   v-if="!gposeccion.curso.tipoCursoTEOPRA || (gposeccion.curso.tipoCursoTEOPRA &amp;&amp; !seccion.docentePrincipalLogeado)">
-                                                                {{seccion.solicitudesMatricula}}
+                                                                {{seccion.solicitudesMatriculaAlt}}
                                                             </span>
                                                             <span class="badge pointer" v-if="gposeccion.curso.tipoCursoTEOPRA &amp;&amp; seccion.docentePrincipalLogeado"
                                                                   v-on:click="showModalSolicitudes(seccion)">
-                                                                {{seccion.solicitudesMatricula}}
+                                                                {{seccion.solicitudesMatriculaAlt}}
                                                             </span>
                                                         </template>
 
@@ -163,7 +163,6 @@
                                                     <small style="min-height: 20px;" v-for="seccion in gposeccion.secciones "  class="block text-muted"> 
                                                         <!-- v-if="docenteSession.id==gposeccion.docenteResponsable.id" -->
                                                         <span v-if="seccion.tipoSeccion!='TCUR' " class="block">
-                                                            {{seccion.tipoSeccion}}
                                                             <a v-if="seccion.docentePrincipalLogeado || seccion.docentePrincipaTcurLogeado" 
                                                                v-on:click.prevent="changeVacante(seccion)" href="#" 
                                                                class="btn btn-primary btn-sm-plus" title="Ampliar Vacante">

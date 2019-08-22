@@ -6,7 +6,6 @@ import java.util.Date;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
-import static org.springframework.http.converter.json.Jackson2ObjectMapperBuilder.json;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,6 +13,7 @@ import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
+import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.aporte.Aporte;
 import pe.edu.lamolina.model.enums.AmbienteAplicacionEnum;
 import pe.edu.lamolina.model.enums.AportesEnum;
@@ -54,6 +54,20 @@ public class ResponseRestServiceImpl extends AbstractRestClient<JsonResponse> im
         json.put("idMatricula", matriculaResumen.getId());
 
         String url = String.format("%s/matriculaSeccion/deleteMatricula",
+                parametro.getValor());
+
+        return this.postToBackEnd(url, json);
+    }
+
+    @Override
+    @Transactional
+    public JsonResponse ampliarVacante(Seccion seccion) {
+        Parametro parametro = findParametro(ParametrosSistemasEnum.SALTO_PIVOT_MATRICULA);
+
+        ObjectNode json = new ObjectNode(JsonNodeFactory.instance);
+        json.put("idSeccion", seccion.getId());
+
+        String url = String.format("%s/matriculaSeccion/agregarVacanteSeccion",
                 parametro.getValor());
 
         return this.postToBackEnd(url, json);

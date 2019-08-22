@@ -64,7 +64,8 @@ new Vue({
                 data: JSON.stringify($vue.cursocurricula),
                 success: function (response) {
                     if (response.success) {
-                        $vue.$refs.load.loadRemoteData();
+                        $vue.$refs.load.url = APP.url('academico/alumno/listCursosHabiles/' + $vue.alumno.id);
+                        $vue.$refs.load.repreload();
                         notify(response.message, "success");
                     }
                 }
