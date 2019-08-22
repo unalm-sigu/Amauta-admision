@@ -29,15 +29,31 @@ var app = new Vue({
             });
 
         },
+        colorClassAlum(item) {
+            let $vue = this;
+            if ($vue.alumno === item.codigo) {
+                return 'text-primary bold info'
+            }
+        },
         customLabel( { seccion }) {
-         
+
             return `${seccion.grupoSeccion.curso.nombre} – ${seccion.codigo2}`;
         },
-        color(index) {
+        color(estado) {
             let $vue = this;
-            if (index == $vue.matriculaSec.length - 1) {
-                return "text-primary";
+            switch (estado) {
+                case 'MAT':
+                    return "text-success";
+                    break;
+                case 'RET':
+                    return "text-danger";
+                    break;
+                case 'NVAC':
+                    return "text-danger";
+                    break;
             }
+
+
             return;
         },
         buscar() {

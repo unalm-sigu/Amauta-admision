@@ -58,6 +58,7 @@
                                 <table class="table table-striped ">
                                     <thead>
                                         <tr>                    
+                                            <th>Item</th>
                                             <th>Cod Alumno</th>
                                             <th>Prioridad</th>
                                             <th>Vacantes</th>
@@ -65,13 +66,16 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr v-for="(ms,idx) in matriculaSec">
+                                        <tr v-for="(ms,idx) in matriculaSec" v-bind:class="colorClassAlum(ms.matriculaResumen.alumno)">
                                             <td >
-                                                <span v-bind:class="color(idx)" v-text="ms.matriculaResumen.alumno.codigo"> </span>                                               
+                                                <span  v-text="idx +1"> </span>                                               
                                             </td>
-                                            <td v-bind:class="color(idx)" v-text="ms.matriculaResumen.prioridad"></td>
-                                            <td v-bind:class="color(idx)" v-text="ms.seccion.vacantes"></td>
-                                            <td v-bind:class="color(idx)" v-text="ms.estado"></td>
+                                            <td >
+                                                <span  v-text="ms.matriculaResumen.alumno.codigo"> </span>                                               
+                                            </td>
+                                            <td  v-text="ms.matriculaResumen.prioridad"></td>
+                                            <td  v-text="ms.seccion.vacantes"></td>
+                                            <td v-bind:class="color(ms.estado)" v-text="ms.estado"></td>
                                         </tr>
                                     </tbody>
                                 </table>

@@ -370,6 +370,7 @@ public class AlumnoServiceImp implements AlumnoService {
         personaBD.setEmail(personaForm.getEmail());
         personaBD.setEmailCompania(personaForm.getEmailCompania());
         personaBD.setNumeroDocIdentidad(personaForm.getNumeroDocIdentidad());
+        personaBD.setEnviarRecauda(1);
 
         this.validarEmailConPersona(personaForm.getEmail(), personaBD);
         this.validarEmailEmpresaConPersona(personaForm.getEmailCompania(), personaBD);

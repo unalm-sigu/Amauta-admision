@@ -439,8 +439,8 @@ public class MatriculaSeccionDAOH extends AbstractEasyDAO<MatriculaSeccion> impl
                 .left("s.aula")
                 .filter("s.codigo2", seccion)
                 .filter("gca.id", cicloAcademico)
-                .in("ms.estado", Arrays.asList(EstadoMatriculaEnum.MAT.name()))
-                .orderBy("mr.prioridad asc");
+                .in("ms.estado", Arrays.asList(EstadoMatriculaEnum.MAT.name(), EstadoMatriculaEnum.NVAC.name(), EstadoMatriculaEnum.RET.name()))
+                .orderBy("ms.estado asc", "mr.prioridad asc");
         return all(sql);
     }
 
