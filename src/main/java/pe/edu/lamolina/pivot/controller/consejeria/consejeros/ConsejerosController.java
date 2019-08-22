@@ -17,13 +17,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
-import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Docente;
@@ -31,6 +32,7 @@ import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.consejeria.ConsejeriaResumen;
 import pe.edu.lamolina.model.consejeria.Consejero;
 import pe.edu.lamolina.pivot.controller.academico.carrera.CarreraService;
+import pe.edu.lamolina.pivot.controller.consejeria.consejeros.view.ReporteAlumnosConsejeroExcelView;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -45,6 +47,9 @@ public class ConsejerosController {
 
     @Autowired
     CarreraService carreraService;
+
+    @Autowired
+    ReporteAlumnosConsejeroExcelView reporteAlumnosConsejeroExcelView;
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
@@ -262,6 +267,22 @@ public class ConsejerosController {
             array.add(node);
         }
         return array;
+    }
+
+    @RequestMapping("reporteAlumnos/{carrera}")
+    public ModelAndView reporteSeccionesSinHorario(@PathVariable("carrera") Long idCarrera, Model model, HttpSession session) {
+        DynatableFilter filter = new DynatableFilter();
+        filter.setPage(1);
+        filter.setOffset(0);
+        filter.setPerPage(10000000);
+
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        List<Consejero> consejeros = service.allByCarreraDynatable(new Carrera(idCarrera), filter);
+        List<Alumno> alumnosConsejero = service.allAlumnosByConsejero(consejeros);
+        model.addAttribute("consejeros", consejeros);
+        model.addAttribute("alumnosConsejero", alumnosConsejero);
+        // model.addAttribute("alumnosConsejero", ds.getCicloAcademico());
+        return new ModelAndView(reporteAlumnosConsejeroExcelView);
     }
 
 }

@@ -65,7 +65,7 @@
                             <ul class="dropdown-menu">
                                 <li ><a type="button" class=" btn" v-bind:disabled="btndissabled" title="Primero seleccione una carrera" v-on:click.prevent="nuevoConsejero">Añadir Tutor</a></li>
                                 <li><a type="button" class=" btn" v-bind:disabled="btndissabled" v-on:click.prevent="asignarAlummnos" >Asignar tutores aleatoriamente</a></li>
-<!--                                <li><a type="button" v-on:click.prevent="desasignarAlummnos" >Retirar tutores de alumnos</a></li>-->
+                                <!--                                <li><a type="button" v-on:click.prevent="desasignarAlummnos" >Retirar tutores de alumnos</a></li>-->
                             </ul>
                         </div>
                         <h2>Listado de Tutores <span v-text='ciclo.descripcion'></span></h2>
@@ -187,6 +187,7 @@
                                                                 <i class="glyphicon glyphicon-cog"></i>
                                                             </a>
                                                             <ul class="dropdown-menu pull-right">
+                                                                <li v-if="item.estado == 'ACT'" ><a v-on:click="reporte()">Reporte Alumnos</a></li>
                                                                 <li v-if="item.estado == 'ACT'" ><a v-on:click="cambiarEstado(item, 'INA')">Inhabilitar</a></li>
                                                                 <li v-else=""><a v-on:click="cambiarEstado(item, 'ACT')">Habilitar</a></li>
                                                             </ul>

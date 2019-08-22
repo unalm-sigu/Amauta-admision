@@ -347,6 +347,11 @@ public class ConsejerosServiceImp implements ConsejerosService {
     }
 
     @Override
+    public List<Alumno> allAlumnosByConsejero(List<Consejero> consejero) {
+        return consejeroDAO.allAlumnosByConsejero(consejero);
+    }
+
+    @Override
     @Transactional
     public void revisarConsejeria(Carrera carrera, CicloAcademico ciclo, boolean forzar, DataSessionPivot ds) {
         DateTime today = new DateTime();
