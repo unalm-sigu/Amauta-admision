@@ -29,6 +29,8 @@ import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
+import pe.edu.lamolina.model.academico.Docente;
+import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.general.Aula;
@@ -295,7 +297,14 @@ public class HorarioAulaCicloPDF extends AbstractOnlyPdfView {
             // addCeldaCenterBody(seccion.getGrupoHoras().getCodigo(), innerTable, letterFont);
             addCeldaLeftBody(cursoString + " / " + seccionString, innerTable, bodyFont);
             addCeldaLeftBody(cursoNombre, innerTable, bodyFont);
-            //   table.addCell(innerTable);
+            for (DocenteSeccion docenteSeccion : seccion.getDocenteSeccion()) {
+                Docente docente = docenteSeccion.getDocente();
+                String docenteStr = docente.getCodigo() + " Desconocido";
+                if (docente.getPersona() != null) {
+                    docenteStr = docente.getCodigo() + " " + docente.getPersona().getNombrePaternoMat();
+                }
+                addCeldaLeftBody(docenteStr, innerTable, bodyFont);
+            }
 //            break;
         }
         table.addCell(innerTable);

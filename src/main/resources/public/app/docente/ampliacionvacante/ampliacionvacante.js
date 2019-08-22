@@ -57,6 +57,7 @@ var app = new Vue({
                     if (response.success) {
                         $vue.$refs.raptor.repreload();
                         $vue.$refs.modalAmpliacionVacante.close();
+                        notify("Registro guardado", "info");
                     } else {
                         notify(response.message, "error");
                     }
@@ -161,6 +162,7 @@ var app = new Vue({
                         $vue.solicitudesMatriculaSec = response.data;
                         $vue.$refs.raptor.repreload();
                         $vue.$refs.refModalAceptarSolicitud.close();
+                        notify("Registro guardado", "info");
                     } else {
                         notify(response.message, "error");
                     }
