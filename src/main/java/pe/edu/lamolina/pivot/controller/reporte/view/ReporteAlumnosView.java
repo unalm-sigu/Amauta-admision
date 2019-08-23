@@ -59,9 +59,9 @@ public class ReporteAlumnosView extends AbstractPOIExcelView {
         List<MatriculaSeccion> matriculasSeccionByFilter = cargaAcademicaService.allMatriculaSeccionBySeccion(seccion);
 
         List<String> rows = new ArrayList();
-        int totalColumns = 5;
+        int totalColumns = 7;
 
-        String head = "item|Código|Nombres Completos|Prioridad|FAC|ESP";
+        String head = "item|Código|Nombres Completos|Seccion|Prioridad|FAC|ESP";
 
         rows.add(head);
 
@@ -74,6 +74,7 @@ public class ReporteAlumnosView extends AbstractPOIExcelView {
             sb.append(count).append("|");
             sb.append(alumno.getCodigo()).append("|");
             sb.append(alumno.getPersona().getApellidosNombres()).append("|");
+            sb.append(matriculasSeccion.getSeccion().getCodigo2()).append("|");
             sb.append(matriculasSeccion.getMatriculaResumen().getPrioridad().setScale(2, BigDecimal.ROUND_HALF_UP)).append("|");
             sb.append(alumno.getCarrera().getFacultad().getCodigo()).append("|");
             sb.append(alumno.getCarrera().getCodigo()).append("|");
