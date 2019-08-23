@@ -40,4 +40,6 @@ public interface ConsejerosService {
 
     ConsejeriaResumen getResumenByCarreraCiclo(Carrera carrera, CicloAcademico cicloAcademico);
 
+    List<Alumno> allAlumnosByConsejero(List<Consejero> consejero);
+
 }

@@ -377,6 +377,9 @@ new Vue({
             let carrera = $vue.carreraSelect.id;
             $vue.$refs.raptorConsejero.url = APP.url(rutaModulo + '/list/' + carrera);
             $vue.$refs.raptorConsejero.loadRemoteData();
+        }, reporte() {
+            let $vue = this;
+            location.href = APP.url('consejeria/consejeros/reporteAlumnos/' + $vue.carreraSelect.id);
         }
     }
 });

@@ -205,7 +205,7 @@ public class OrdenMeritoServiceImp implements OrdenMeritoService {
             for (Carrera carr : fac.getCarrera()) {
 
                 ControlOrdenMerito com = new ControlOrdenMerito();
-                List<AlumnoCiclo> alumnosCiclo = mapAlumnosByIdCarr.get(carr.getId());
+                List<AlumnoCiclo> alumnosCiclo = TypesUtil.getListNotNull(mapAlumnosByIdCarr.get(carr.getId()));
 
                 Integer completosNivel1 = 0;
                 Integer completosNivel2 = 0;
@@ -598,11 +598,12 @@ public class OrdenMeritoServiceImp implements OrdenMeritoService {
 
     @Override
     public List<CicloAcademico> allCicloAcademicoForSelect() {
-        List<CicloAcademico> cicloAcademicos = new ArrayList<>();
+        List<CicloAcademico> cicloAcademicos = new ArrayList();
         CicloAcademico cicloActivo = findCicloActivo();
         List<CicloAcademico> ciclosAnterioes = cicloAcademicoDAO.allAnteriores(10, cicloActivo);
         cicloAcademicos.add(cicloActivo);
         cicloAcademicos.addAll(ciclosAnterioes);
+
         return cicloAcademicos;
     }
 

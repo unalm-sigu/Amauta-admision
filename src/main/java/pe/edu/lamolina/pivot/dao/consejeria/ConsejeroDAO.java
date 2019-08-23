@@ -26,6 +26,8 @@ public interface ConsejeroDAO extends EasyDAO<Consejero> {
 
     List<Alumno> allAlumnosByConsejero(Consejero consejero);
 
+    List<Alumno> allAlumnosByConsejero(List<Consejero> consejeros);
+
     Long findByMatriculaActivo(List<Alumno> alumos, Long carrera, CicloAcademico cicloacademico);
 
     Long findByMatriculaInactivo(List<Alumno> alumos, Long carrera, CicloAcademico cicloacademico);
