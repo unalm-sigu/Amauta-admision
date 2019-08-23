@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
@@ -31,14 +32,13 @@ import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.Facultad;
-import pe.edu.lamolina.model.academico.Seccion;
+import pe.edu.lamolina.model.consejeria.AlumnoConsejero;
 import pe.edu.lamolina.model.consejeria.ConsejeriaResumen;
 import pe.edu.lamolina.model.consejeria.Consejero;
+import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.pivot.controller.academico.carrera.CarreraService;
 import pe.edu.lamolina.pivot.controller.consejeria.consejeros.view.ReporteAlumnosConsejeroExcelView;
-import pe.edu.lamolina.pivot.controller.docente.ampliacionvacante.AmpliacionVacanteForm;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
-import pe.edu.lamolina.pivot.zelper.constant.Messages;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -289,7 +289,7 @@ public class ConsejerosController {
         }
 
         List<Consejero> consejeros = service.allByCarreraDynatable(new Carrera(idCarrera), filter);
-        List<Alumno> alumnosConsejero = service.allAlumnosByConsejero(consejeros);
+        List<AlumnoConsejero> alumnosConsejero = service.allAlumnosConsejeros(consejeros, ds.getCicloAcademico(), EstadoEnum.ACT);
         model.addAttribute("consejeros", consejeros);
         model.addAttribute("alumnosConsejero", alumnosConsejero);
         // model.addAttribute("alumnosConsejero", ds.getCicloAcademico());

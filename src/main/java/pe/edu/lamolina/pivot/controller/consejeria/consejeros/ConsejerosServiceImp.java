@@ -29,6 +29,7 @@ import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.consejeria.AlumnoConsejero;
 import pe.edu.lamolina.model.consejeria.ConsejeriaResumen;
 import pe.edu.lamolina.model.consejeria.Consejero;
+import pe.edu.lamolina.model.enums.EstadoEnum;
 import static pe.edu.lamolina.model.enums.EstadoEnum.ACT;
 import static pe.edu.lamolina.model.enums.EstadoEnum.INA;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
@@ -437,8 +438,9 @@ public class ConsejerosServiceImp implements ConsejerosService {
             AlumnoConsejero alumnoConsejero = alumnoConsejeroMap.get(alumno.getId());
 
             alumno.setSituacion("0");
-            alumno.setMotivoMatriculable("No cuenta con registro en matricula para el presente ciclo académico");
+
             if (matriculaResumen == null) {
+                alumno.setMotivoMatriculable("No cuenta con registro en matricula para el presente ciclo académico");
                 continue;
             }
             if (!Arrays.asList(EstadoMatriculaEnum.MAT, EstadoMatriculaEnum.NMAT).contains(matriculaResumen.getEstadoEnum())) {
@@ -467,7 +469,16 @@ public class ConsejerosServiceImp implements ConsejerosService {
             alumnoConsejero.setFechaAsigna(ds.getFechaAccionAudit());
             alumnoConsejero.setUserAsigna(ds.getUsuario());
             alumnoConsejeroDAO.save(alumnoConsejero);
+
+            Alumno alumnoUpd = new Alumno(alumno.getId());
+            alumnoUpd.setConsejero(consejero);
+            alumnoDAO.updateColumns(alumnoUpd, "consejero");
         }
+    }
+
+    @Override
+    public List<AlumnoConsejero> allAlumnosConsejeros(List<Consejero> consejeros, CicloAcademico cicloAcademico, EstadoEnum... estados) {
+        return alumnoConsejeroDAO.allByConsejerosAndCiclo(consejeros, cicloAcademico, estados);
     }
 
 }

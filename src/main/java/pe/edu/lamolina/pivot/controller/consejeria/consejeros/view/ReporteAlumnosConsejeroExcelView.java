@@ -1,9 +1,11 @@
 package pe.edu.lamolina.pivot.controller.consejeria.consejeros.view;
 
 import java.io.InputStream;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -21,6 +23,7 @@ import org.springframework.web.servlet.view.AbstractView;
 import pe.albatross.zelpers.file.excel.ExcelHelper;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.consejeria.AlumnoConsejero;
 import pe.edu.lamolina.model.consejeria.Consejero;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -51,9 +54,9 @@ public class ReporteAlumnosConsejeroExcelView extends AbstractView {
     protected void buildExcelDocument(Map<String, Object> model, Workbook wb, HttpServletRequest request, HttpServletResponse response) throws Exception {
         DataSessionPivot ds = (DataSessionPivot) request.getSession().getAttribute(Constantine.SESSION_USUARIO);
         List<Consejero> consejeros = (List<Consejero>) model.get("consejeros");
-        List<Alumno> alumnos = (List<Alumno>) model.get("alumnosConsejero");
+        List<AlumnoConsejero> alumnosConsejero = (List<AlumnoConsejero>) model.get("alumnosConsejero");
 
-        this.generateSheet(wb, consejeros, alumnos, ds);
+        this.generateSheet(wb, consejeros, alumnosConsejero, ds);
         String fecha = new DateTime().toString("yyyMMdd_Hmm");
         response.setHeader("Content-Disposition", "attachment; filename=\"" + "Alumnos_Aconsejados" + fecha + ".xlsx\"");
         response.setContentType(getContentType());
@@ -64,7 +67,7 @@ public class ReporteAlumnosConsejeroExcelView extends AbstractView {
         out.flush();
     }
 
-    private void generateSheet(Workbook wb, List<Consejero> consejero, List<Alumno> alumnos, DataSessionPivot ds) {
+    private void generateSheet(Workbook wb, List<Consejero> consejero, List<AlumnoConsejero> alumnos, DataSessionPivot ds) {
         //Sheet sheet = wb.getSheet("Hoja1");
         Sheet sheet = wb.createSheet("Hoja1");
         //sheet.setAutobreaks(true);
@@ -115,7 +118,7 @@ public class ReporteAlumnosConsejeroExcelView extends AbstractView {
         return cell;
     }
 
-    private void createBody(Workbook wb, Sheet sheet, List<Consejero> consejeros, List<Alumno> alumnos, DataSessionPivot ds) {
+    private void createBody(Workbook wb, Sheet sheet, List<Consejero> consejeros, List<AlumnoConsejero> alumnosConsejero, DataSessionPivot ds) {
         ExcelHelper excelUtil = new ExcelHelper(sheet, wb);
 
         CellStyle estiloCabecera = getStyleCabecera(wb);
@@ -131,6 +134,8 @@ public class ReporteAlumnosConsejeroExcelView extends AbstractView {
         excelUtil.replaceVal(4, 2, "Fecha " + TypesUtil.getStringDate(new Date(), "dd/MM/yyyy H:mm:ss"));
 //ponderado, estado academico
         int column = 0;
+        excelUtil.replaceVal(irow - 1, column++, "CODIGO TUTOR", estiloCabecera);
+        sheet.setColumnWidth((column - 1), 10 * 256);
         excelUtil.replaceVal(irow - 1, column++, "CODIGO TUTOR", estiloCabecera);
         sheet.setColumnWidth((column - 1), 20 * 256);
         excelUtil.replaceVal(irow - 1, column++, "TUTOR", estiloCabecera);
@@ -150,8 +155,13 @@ public class ReporteAlumnosConsejeroExcelView extends AbstractView {
         //datos
         int num = 1;
         for (Consejero consejero : consejeros) {
-            for (Alumno alumno : consejero.getAlumno()) {
+            List<AlumnoConsejero> alumnosByConsejero = alumnosConsejero.stream().filter(x -> consejero.equals(x.getConsejero())).collect(Collectors.toList());
+            List<Alumno> alumnos = alumnosByConsejero.stream().map(x -> x.getAlumno()).collect(Collectors.toList());
+            Collections.sort(alumnos, (x1, x2) -> x1.getPersona().getApellidosNombres().compareTo(x2.getPersona().getApellidosNombres()));
+            for (Alumno alumno : alumnos) {
                 column = 0;
+                excelUtil.replaceVal(irow, column++, num, estiloNumero);
+                sheet.setColumnWidth((column - 1), 10 * 256);
                 excelUtil.replaceVal(irow, column++, consejero.getDocente().getCodigo());
                 sheet.setColumnWidth((column - 1), 20 * 256);
                 excelUtil.replaceVal(irow, column++, consejero.getColaborador().getPersona().getApellidosNombres(), estiloGeneral);
@@ -165,6 +175,7 @@ public class ReporteAlumnosConsejeroExcelView extends AbstractView {
                 excelUtil.replaceVal(irow, column++, alumno.getSituacionAcademica().getNombre(), estiloGeneral);
                 sheet.setColumnWidth((column - 1), 50 * 256);
                 irow++;
+                num++;
             }
         }
 

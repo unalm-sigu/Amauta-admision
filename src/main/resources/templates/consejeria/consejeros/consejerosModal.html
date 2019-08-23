@@ -111,9 +111,14 @@ v-bind:okaction="saveAconsejado"
                 </multiselect>
 
             </div>
+            <div v-if="alumnoSeleccionado.situacion=='1' " class="form-group  col-sm-2">  
+                <button v-on:click="agregarAlumno" class="btn btn-primary btn-sm">Agregar</button>
+            </div>
 
-            <div class="form-group  col-sm-2">  
-                <a v-on:click.prevent="agregarAlumno" class="btn btn-primary btn-sm">Agregar</a>
+            <div v-if="alumnoSeleccionado.situacion=='0' " class="col-sm-12">
+                <div class="alert alert-danger">
+                    <strong>No Aplica</strong> {{alumnoSeleccionado.motivoMatriculable}}
+                </div>
             </div>
         </div>
 

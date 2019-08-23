@@ -101,6 +101,12 @@ new Vue({
         },
         nuevoAconsejado(item) {
             let $vue = this;
+
+
+            $vue.alumnos = [];
+            $vue.alumnoSeleccionado = {};
+            $vue.alumnosSeleccionados = [];
+
             $vue.alumnoConsejero = {};
             $vue.alumnoConsejero.consejero = item;
             $vue.$refs.agregarAconsejadoModal.open();
