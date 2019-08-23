@@ -332,7 +332,7 @@ public class HorarioAulaDAOH extends AbstractEasyDAO<HorarioAula> implements Hor
         Octavia sql = Octavia.query()
                 .from(HorarioAula.class, "ha")
                 .join("dia d", "hora h", "aula au")
-                .leftJoin("au.aulaSuperior aus", "aus.tipoAula tip")
+                .leftJoin("au.aulaSuperior aus", "aus.tipoAula tip", "ha.seccion sec")
                 .filter("tip.codigo", TipoAulaEnum.MOD)
                 .filter("au.estado", EstadoEnum.ACT)
                 .filter("au.id", aula)

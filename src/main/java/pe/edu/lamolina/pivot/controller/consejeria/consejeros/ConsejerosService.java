@@ -42,4 +42,8 @@ public interface ConsejerosService {
 
     List<Alumno> allAlumnosByConsejero(List<Consejero> consejero);
 
+    List<Alumno> allAlumnoByName(String nombre, CicloAcademico cicloAcademico);
+
+    void saveAlumnosConsejero(Consejero consejero, DataSessionPivot ds);
+
 }

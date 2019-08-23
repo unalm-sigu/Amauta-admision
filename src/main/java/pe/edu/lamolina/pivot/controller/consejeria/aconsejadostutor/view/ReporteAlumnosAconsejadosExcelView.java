@@ -1,5 +1,6 @@
-package pe.edu.lamolina.pivot.controller.consejeria.consejeros.view;
+package pe.edu.lamolina.pivot.controller.consejeria.aconsejadostutor.view;
 
+import pe.edu.lamolina.pivot.controller.consejeria.consejeros.view.*;
 import java.io.InputStream;
 import java.util.Date;
 import java.util.List;
@@ -26,7 +27,7 @@ import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Component
-public class ReporteAlumnosConsejeroExcelView extends AbstractView {
+public class ReporteAlumnosAconsejadosExcelView extends AbstractView {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private static final String CONTENT_TYPE_XLSX = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
