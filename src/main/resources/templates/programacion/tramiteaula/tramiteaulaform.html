@@ -191,7 +191,7 @@
                                             v-bind:limit='15'
                                             v-bind:options='tiposSolicitante'
                                             v-bind:allow-empty="false"
-                                            placeholder=" "
+                                            placeholder=""
                                             label="nombre"
                                             select-label=" "
                                             deselect-label=" "
@@ -353,8 +353,8 @@
                                         ref="raptor">
 
                                         <div slot="header">
-
                                             <div class="form-group">
+                                                <label>Módulo </label>
                                                 <!--        v-on:search-change="searchModulos" -->
                                                 <multiselect v-model='moduloselecto'
                                                              v-bind:internal-search='true'
