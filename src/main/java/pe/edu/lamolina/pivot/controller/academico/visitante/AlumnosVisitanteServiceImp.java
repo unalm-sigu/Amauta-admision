@@ -622,19 +622,18 @@ public class AlumnosVisitanteServiceImp implements AlumnosVisitanteService {
         }
         Universidad universidadTmp = universidadDAO.findLastCodigoEntranjero();
 
-        String cod = "";
-        if (universidadTmp != null) {
-            cod = NumberFormat.codigo((Integer.parseInt(universidadTmp.getCodigo().substring(3, 8)) + 1), 5);
-        } else {
-            cod = NumberFormat.codigo(1, 5);
-        }
-
+//        String cod = "";
+//        if (universidadTmp != null) {
+//            cod = NumberFormat.codigo((Integer.parseInt(universidadTmp.getCodigo().substring(3, 8)) + 1), 5);
+//        } else {
+//            cod = NumberFormat.codigo(1, 5);
+//        }
         universidad.setEstado(EstadoEnum.ACT.name());
         universidad.setTipo("UNIV");
         universidad.setFechaRegistro(new Date());
         universidad.setUserRegistro(ds.getUsuario());
         if (!universidad.getPais().esPeru()) {
-            universidad.setCodigo("EXT" + cod);
+            //   universidad.setCodigo("EXT" + cod);
             universidad.setGestion(TipoGestionEnum.AMB.name());
         }
 
