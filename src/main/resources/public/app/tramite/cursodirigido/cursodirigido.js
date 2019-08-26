@@ -45,6 +45,18 @@ new Vue({
                     notify(MESSAGES.errorComunicacion, "error");
                 }
             });
+        },
+        urlAcademico(item) {
+            let $vue = this;
+            return APP.url('academico/alumno/' + item.tramite.alumno.id + '/infoacademico') + $vue.getOrigenURL();
+        },
+        getOrigenURL() {
+            var url = window.location.href;
+            return "?origen=" + Base64.encode(url);
+        },
+        urlReporteDirigido(item) {
+            let $vue = this;
+            return APP.url('academico/tramiteacademico/cursodirigido/' + item.tramite.id + '/reporte');
         }
     }
 });

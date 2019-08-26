@@ -104,6 +104,8 @@
                                                             <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="glyphicon glyphicon-option-vertical"></i></a>
                                                             <ul class="dropdown-menu pull-right" >
                                                                 <li v-for="accion in item.accionTramite"><a  href="#" v-on:click="actualizar(item, accion)" v-text="accion.opcion">Ver Trámite</a></li>
+                                                                <li><a v-bind:href="urlAcademico(item)">Información académica</a></li>
+                                                                <li ><a v-bind:href="urlReporteDirigido(item)">Reporte</a></li>
                                                             </ul>
                                                         </div>
                                                     </td>

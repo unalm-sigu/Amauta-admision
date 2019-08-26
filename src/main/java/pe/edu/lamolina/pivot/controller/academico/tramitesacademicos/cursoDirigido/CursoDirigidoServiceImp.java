@@ -35,15 +35,15 @@ public class CursoDirigidoServiceImp implements CursoDirigidoService {
 
     @Override
     public List<CursoDirigido> allByFacultades(DynatableFilter filters, Docente docente) {
-        if (docente == null) {
-            return new ArrayList<>();
-        }
+//        if (docente == null) {
+//            return new ArrayList<>();
+//        }
         List<CursoDirigido> cursoDirigidos = cursoDirigidoDAO.allByfacultades(filters, docente);
-        for (CursoDirigido cursoDirigido : cursoDirigidos) {
-            Tramite tramite = cursoDirigido.getTramite();
-            List<AccionTramiteAcademico> accionesTramitesAcademicos = accionTramiteAcademicoDAO.allByTipoTramiteAndEstadoTramiteInicial(tramite.getTipoTramite(), cursoDirigido.getEstado());
-            cursoDirigido.setAccionTramiteAcademicos(accionesTramitesAcademicos);
-        }
+//        for (CursoDirigido cursoDirigido : cursoDirigidos) {
+//            Tramite tramite = cursoDirigido.getTramite();
+//            List<AccionTramiteAcademico> accionesTramitesAcademicos = accionTramiteAcademicoDAO.allByTipoTramiteAndEstadoTramiteInicial(tramite.getTipoTramite(), cursoDirigido.getEstado());
+//            cursoDirigido.setAccionTramiteAcademicos(accionesTramitesAcademicos);
+//        }
 
         return cursoDirigidos;
     }

@@ -105,13 +105,13 @@ public class CursoDirigidoController {
                     "tramite.alumno.persona.tipoDocumento.*"
                 });
                 ArrayNode arrayAccion = new ArrayNode(JsonNodeFactory.instance);
-                for (AccionTramiteAcademico accionTramiteAcademico : cursoDirigido.getAccionTramiteAcademicos()) {
-                    ObjectNode objectNode = JsonHelper.createJson(accionTramiteAcademico, JsonNodeFactory.instance, new String[]{
-                        "*",
-                        "estadoTramiteInicio.*",
-                        "estadoTramiteFinal.*",});
-                    arrayAccion.add(objectNode);
-                }
+//                for (AccionTramiteAcademico accionTramiteAcademico : cursoDirigido.getAccionTramiteAcademicos()) {
+//                    ObjectNode objectNode = JsonHelper.createJson(accionTramiteAcademico, JsonNodeFactory.instance, new String[]{
+//                        "*",
+//                        "estadoTramiteInicio.*",
+//                        "estadoTramiteFinal.*",});
+//                    arrayAccion.add(objectNode);
+//                }
                 node.set("accionTramite", arrayAccion);
                 array.add(node);
             }
