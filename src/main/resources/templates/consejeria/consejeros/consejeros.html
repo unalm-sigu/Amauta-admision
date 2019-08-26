@@ -65,6 +65,7 @@
                             <ul class="dropdown-menu">
                                 <li ><a type="button" class=" btn" v-bind:disabled="btndissabled" title="Primero seleccione una carrera" v-on:click.prevent="nuevoConsejero">Añadir Tutor</a></li>
                                 <li><a type="button" class=" btn" v-bind:disabled="btndissabled" v-on:click.prevent="asignarAlummnos" >Asignar tutores aleatoriamente</a></li>
+                                <li><a v-on:click="reporte({id:0})">Reporte</a></li>
                                 <!--                                <li><a type="button" v-on:click.prevent="desasignarAlummnos" >Retirar tutores de alumnos</a></li>-->
                             </ul>
                         </div>
@@ -142,7 +143,6 @@
                                             <tbody>
                                                 <tr v-for="item in props.data">
                                                     <td class="v-middle">
-
                                                         <a class="block text-primary h4 m-t-xxs m-b-xxs">{{item.colaborador.persona.nombreCompleto}}</a> 
                                                         <!--small class="block">
                                                             <strong>{{item.colaborador.persona.tipoDocumento.simbolo}}:</strong> 
@@ -187,7 +187,8 @@
                                                                 <i class="glyphicon glyphicon-cog"></i>
                                                             </a>
                                                             <ul class="dropdown-menu pull-right">
-<!--                                                                <li v-if="item.estado == 'ACT'" ><a v-on:click="reporte()">Reporte Alumnos</a></li>-->
+                                                                <li><a type="button" v-on:click.prevent="nuevoAconsejado(item)" >Agregar Alumno</a></li>
+                                                                <li v-if="item.estado == 'ACT'" ><a v-on:click="reporte(item)">Reporte Alumnos</a></li>
                                                                 <li v-if="item.estado == 'ACT'" ><a v-on:click="cambiarEstado(item, 'INA')">Inhabilitar</a></li>
                                                                 <li v-else=""><a v-on:click="cambiarEstado(item, 'ACT')">Habilitar</a></li>
                                                             </ul>
@@ -209,6 +210,7 @@
 
         <div layout:fragment="js" th:remove="tag">
             <div th:substituteby="_modules/vue-raptor-table"></div>
+            <div th:substituteby="_layout/includes :: vue-loader"/>
             <script th:inline="javascript">
                 /*<![CDATA[*/
                 var cicloJson = /*[[${ciclo}]]*/ 'json';
@@ -216,6 +218,7 @@
                 var rutaModulo = 'consejeria/consejeros';
                 /*]]>*/
             </script>
+            <div th:substituteby="_layout/includes :: javascript-filedownload"/>
             <div th:substituteby="_modules/vue-modal"/>
             <script th:src="@{/app/consejeria/consejeros/consejeros.js}" charset="utf-8"></script>
         </div>

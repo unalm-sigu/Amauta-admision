@@ -7,8 +7,10 @@ import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.Facultad;
+import pe.edu.lamolina.model.consejeria.AlumnoConsejero;
 import pe.edu.lamolina.model.consejeria.ConsejeriaResumen;
 import pe.edu.lamolina.model.consejeria.Consejero;
+import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -41,5 +43,11 @@ public interface ConsejerosService {
     ConsejeriaResumen getResumenByCarreraCiclo(Carrera carrera, CicloAcademico cicloAcademico);
 
     List<Alumno> allAlumnosByConsejero(List<Consejero> consejero);
+
+    List<Alumno> allAlumnoByName(String nombre, CicloAcademico cicloAcademico);
+
+    void saveAlumnosConsejero(Consejero consejero, DataSessionPivot ds);
+
+    List<AlumnoConsejero> allAlumnosConsejeros(List<Consejero> consejeros, CicloAcademico cicloAcademico, EstadoEnum... estados);
 
 }

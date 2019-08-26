@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,6 +29,7 @@ import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.consejeria.AlumnoConsejero;
 import pe.edu.lamolina.model.consejeria.ConsejeriaResumen;
 import pe.edu.lamolina.model.consejeria.Consejero;
+import pe.edu.lamolina.model.enums.EstadoEnum;
 import static pe.edu.lamolina.model.enums.EstadoEnum.ACT;
 import static pe.edu.lamolina.model.enums.EstadoEnum.INA;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
@@ -35,6 +37,7 @@ import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.MAT;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.NMAT;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.PMAT;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.RCI;
+import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.enums.TipoOficinaEnum;
 import pe.edu.lamolina.model.general.Colaborador;
@@ -43,6 +46,7 @@ import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.pivot.controller.general.oficina.OficinaService;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.pivot.dao.academico.CarreraDAO;
+import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.DepartamentoAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.DocenteDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaResumenDAO;
@@ -75,6 +79,8 @@ public class ConsejerosServiceImp implements ConsejerosService {
     MatriculaResumenDAO matriculaResumenDAO;
     @Autowired
     DepartamentoAcademicoDAO departamentoAcademicoDAO;
+    @Autowired
+    CicloAcademicoDAO cicloAcademicoDAO;
 
     @Autowired
     OficinaService oficinaService;
@@ -413,6 +419,66 @@ public class ConsejerosServiceImp implements ConsejerosService {
         ConsejeriaResumen resumen = consejeriaResumenDAO.findByCarreraCiclo(carrera, cicloAcademico);
         resumen = (resumen == null) ? new ConsejeriaResumen() : resumen;
         return resumen;
+    }
+
+    @Override
+    public List<Alumno> allAlumnoByName(String nombre, CicloAcademico cicloAcademico) {
+        List<Alumno> alumnos = alumnoDAO.allByName(nombre);
+
+        List<MatriculaResumen> matriculas = matriculaResumenDAO.allByAlumnosCiclo(alumnos, cicloAcademico);
+        Map<Long, MatriculaResumen> matriculasMap = TypesUtil.convertListToMap("alumno.id", matriculas);
+        List<AlumnoConsejero> alumnoConsejeros = alumnoConsejeroDAO.allByAlumnosCiclo(alumnos, cicloAcademico);
+        Map<Long, AlumnoConsejero> alumnoConsejeroMap = TypesUtil.convertListToMap("alumno.id", alumnoConsejeros);
+        if (alumnoConsejeroMap == null) {
+            alumnoConsejeroMap = new HashMap<>();
+        }
+
+        for (Alumno alumno : alumnos) {
+            MatriculaResumen matriculaResumen = matriculasMap.get(alumno.getId());
+            AlumnoConsejero alumnoConsejero = alumnoConsejeroMap.get(alumno.getId());
+
+            alumno.setSituacion("0");
+
+            if (matriculaResumen == null) {
+                alumno.setMotivoMatriculable("No cuenta con registro en matricula para el presente ciclo académico");
+                continue;
+            }
+            if (!Arrays.asList(EstadoMatriculaEnum.MAT, EstadoMatriculaEnum.NMAT).contains(matriculaResumen.getEstadoEnum())) {
+                alumno.setMotivoMatriculable("No matriculable");
+                continue;
+            }
+            if (alumnoConsejero != null) {
+                alumno.setMotivoMatriculable(String.format("Ya tiene consejero y es; %s", alumnoConsejero.getConsejero().getColaborador().getPersona().getApellidosNombres()));
+                continue;
+            }
+            alumno.setSituacion("1");
+        }
+        return alumnos;
+    }
+
+    @Transactional
+    @Override
+    public void saveAlumnosConsejero(Consejero consejero, DataSessionPivot ds) {
+        CicloAcademico cicloAcademico = cicloAcademicoDAO.findActivo(ModalidadEstudioEnum.PRE);
+        for (Alumno alumno : consejero.getAlumno()) {
+            AlumnoConsejero alumnoConsejero = new AlumnoConsejero();
+            alumnoConsejero.setAlumno(alumno);
+            alumnoConsejero.setConsejero(consejero);
+            alumnoConsejero.setCicloAcademico(ds.getCicloAcademico());
+            alumnoConsejero.setEstadoEnum(ACT);
+            alumnoConsejero.setFechaAsigna(ds.getFechaAccionAudit());
+            alumnoConsejero.setUserAsigna(ds.getUsuario());
+            alumnoConsejeroDAO.save(alumnoConsejero);
+
+            Alumno alumnoUpd = new Alumno(alumno.getId());
+            alumnoUpd.setConsejero(consejero);
+            alumnoDAO.updateColumns(alumnoUpd, "consejero");
+        }
+    }
+
+    @Override
+    public List<AlumnoConsejero> allAlumnosConsejeros(List<Consejero> consejeros, CicloAcademico cicloAcademico, EstadoEnum... estados) {
+        return alumnoConsejeroDAO.allByConsejerosAndCiclo(consejeros, cicloAcademico, estados);
     }
 
 }

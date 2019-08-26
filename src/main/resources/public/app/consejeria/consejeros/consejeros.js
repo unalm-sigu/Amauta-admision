@@ -2,6 +2,7 @@ Vue.component("multiselect", window.VueMultiselect.default)
 
 new Vue({
     el: '#consejeriaVUE',
+    mixins: [VueLoader],
     data: {
         bgColorClass: {Habilitado: '', Inhabilitado: ''},
         consjerosURL: APP.url(rutaModulo + '/list'),
@@ -10,6 +11,13 @@ new Vue({
             header: true,
             title: "Añadir Consejeros",
             okbtn: 'Agregar',
+            showaccept: true
+        },
+        configAconsjadoNuevo: {
+            id: 'nuevoAconsejadoModal',
+            header: true,
+            title: "Añadir Aconsejado",
+            okbtn: 'ACEPTAR',
             showaccept: true
         },
         resumenCarrera: {
@@ -30,6 +38,7 @@ new Vue({
         carreraSelect: {},
         docenteSelect: {},
         departamentoDocente: {},
+        isLoadingAlumnos: false,
         docenteResquest: {
             id: '',
             estado: '',
@@ -40,6 +49,10 @@ new Vue({
         pagination: {'total-items': 0, 'items-per-page': 100, 'max-size': 3, 'boundary-link-numbers': true},
         isLoading: false,
         loadResumen: false,
+        alumnoConsejero: null,
+        alumnos: [],
+        alumnoSeleccionado: {},
+        alumnosSeleccionados: []
     },
     mounted: function () {
         let $vue = this;
@@ -85,6 +98,18 @@ new Vue({
             } else {
                 notify("Primero debe seleccionar una carrera", 'default');
             }
+        },
+        nuevoAconsejado(item) {
+            let $vue = this;
+
+
+            $vue.alumnos = [];
+            $vue.alumnoSeleccionado = {};
+            $vue.alumnosSeleccionados = [];
+
+            $vue.alumnoConsejero = {};
+            $vue.alumnoConsejero.consejero = item;
+            $vue.$refs.agregarAconsejadoModal.open();
         },
         filtroConsejeros(estado) {
             let $vue = this;
@@ -377,9 +402,93 @@ new Vue({
             let carrera = $vue.carreraSelect.id;
             $vue.$refs.raptorConsejero.url = APP.url(rutaModulo + '/list/' + carrera);
             $vue.$refs.raptorConsejero.loadRemoteData();
-        }, reporte() {
+        }, agregarAlumno() {
             let $vue = this;
-            location.href = APP.url('consejeria/consejeros/reporteAlumnos/' + $vue.carreraSelect.id);
+            console.log("agregarAlumno");
+            /*
+             $.ajax({
+             url: APP.url(rutaModulo + "/listDocente"),
+             data: {nombre: docente, idFacultad: facultad},
+             dataType: 'json',
+             type: 'post',
+             }).then(response => {
+             $vue.docentes = response.data;
+             $vue.isLoading = false;
+             });*/
+
+            $vue.alumnosSeleccionados.push(Object.assign({}, $vue.alumnoSeleccionado));
+            $vue.alumnoeleccionado = {};
+        }, reporte(item) {
+            let $vue = this;
+            let ruta = "/consejeria/consejeros/reporteAlumnos/" + $vue.carreraSelect.id;
+            console.log(ruta);
+            console.log(JSON.stringify({id: item.id}));
+            $.fileDownload(ruta, {
+                httpMethod: "POST",
+                data: {consejero: item.id}
+                ,
+                successCallback: function (responseHtml, url) {
+//                    console.log('aqui');
+                },
+                onFail: function (e) {
+                    console.log(e);
+                },
+                failCallback: function (responseHtml, url) {
+                    notify(MESSAGES.errorComunicacion, 'error')
+                }
+            });
+        }, searchAlumnos(search) {
+            let $vue = this;
+            $vue.isLoadingAlumnos = true;
+            $.ajax({
+                url: APP.url('consejeria/consejeros/searchAlumno'),
+                type: 'POST',
+                data: {nombre: search},
+                success(response) {
+                    $vue.isLoadingAlumnos = false;
+                    if (response.success) {
+                        $vue.alumnos = response.data;
+                    } else {
+                        notify(response.message, "error");
+                    }
+                },
+                error() {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+        },
+        labelAlumno(item) {
+            if (item.id == undefined) {
+                return "";
+            }
+            return item.codigo + " - " + item.persona.nombreCompleto;
+        }, aceptarNuevosAconsejados() {
+            let $vue = this;
+            $vue.alumnoConsejero.consejero.alumno = $vue.alumnosSeleccionados;
+
+            $.ajax({
+                url: APP.url('consejeria/consejeros/saveAlumnoConjero'),
+                type: 'POST',
+                dataType: 'json',
+                contentType: "application/json",
+                data: JSON.stringify($vue.alumnoConsejero.consejero),
+                success(response) {
+                    if (response.success) {
+                        //  $vue.$refs.raptor.repreload();
+                        //  $vue.$refs.modalAmpliacionVacante.close();
+                        notify(response.message, "info");
+                        $vue.$refs.agregarAconsejadoModal.close();
+                        $vue.$refs.raptorConsejero.loadRemoteData();
+                    } else {
+                        notify(response.message, "error");
+                    }
+                    $vue.hideLoader();
+                },
+                error() {
+                    $vue.hideLoader();
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
         }
     }
 });

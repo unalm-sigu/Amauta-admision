@@ -44,3 +44,114 @@
         </div>
     </div>
 </modal-vik>
+
+<!--
+v-bind:okaction="saveAconsejado"
+-->
+<modal-vik ref="agregarAconsejadoModal"
+           v-bind="configAconsjadoNuevo"
+           modalsize="modal-lg"
+           v-bind:okaction="aceptarNuevosAconsejados"
+           >
+    <div slot="body">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="form-group">
+                    <label class="bold">Consejero</label>
+                </div>
+                <div class="form-group" v-if="alumnoConsejero">
+                    <span v-text="alumnoConsejero.consejero.colaborador.persona.nombreCompleto"></span>
+                </div>
+            </div>
+        </div>
+        <div class="row" v-if="alumnoConsejero">
+            <div class="form-group col-sm-10">
+                <multiselect v-model='alumnoSeleccionado'
+                             label='nombre'
+                             placeholder="Seleccione un alumno"
+                             deselect-label=""
+                             select-label=""
+                             track-by='id'
+                             v-bind:internal-search="false"
+                             v-bind:allow-empty="false"
+                             v-bind:options='alumnos'
+                             v-bind:hide-selected="true"
+                             v-bind:loading="isLoadingAlumnos"
+                             v-bind:custom-label="labelAlumno"
+                             v-on:search-change="searchAlumnos">
+
+                    <template slot="option" slot-scope="props">
+
+                        <span class="row">
+
+                            <div class="col-sm-2">
+                                <img style="min-height:  40px;max-height: 40px;min-width: 40px;max-width: 40px;"
+                                     onerror="this.src=APP.url('phobos/images/avatar.png');"
+                                     v-bind:src="props.option.persona.rutaFotoPostulante" 
+                                     class="img-circle" />
+                            </div>
+
+                            <div class="col-sm-5">
+                                <p class="text-primary block">{{props.option.persona.nombreCompleto}}</p> 
+                                <p class="block">{{props.option.codigo}}</p>
+                                <span v-if="props.option.situacion=='0' " class="text-xs bold text-danger" v-text="props.option.motivoMatriculable">No Matriculable</span>
+                                <span v-if="props.option.situacion=='1' " class="text-xs bold text-primary" v-text="props.option.motivoMatriculable">Matriculable</span>
+                            </div>
+
+                            <div  class="col-sm-5">
+                                <p class="block">{{props.option.carrera.nombre}}</p>
+                                <p v-if="props.option.carrera.facultad.nombre==props.option.carrera.nombre"></p>
+                                <p v-else="">{{props.option.carrera.facultad.nombre}}</p>
+                            </div>
+
+                        </span>
+
+                    </template>
+
+                </multiselect>
+
+            </div>
+            <div v-if="alumnoSeleccionado.situacion=='1' " class="form-group  col-sm-2">  
+                <button v-on:click="agregarAlumno" class="btn btn-primary btn-sm">Agregar</button>
+            </div>
+
+            <div v-if="alumnoSeleccionado.situacion=='0' " class="col-sm-12">
+                <div class="alert alert-danger">
+                    <strong>No Aplica</strong> {{alumnoSeleccionado.motivoMatriculable}}
+                </div>
+            </div>
+        </div>
+
+
+        <table class="table table-condensed m-t-md">
+            <tbody>
+                <tr v-for="item in alumnosSeleccionados">
+                    <td class="v-middle">
+                        <img style="min-height:  40px;max-height: 40px;min-width: 40px;max-width: 40px;"
+                             onerror="this.src=APP.url('phobos/images/avatar.png');"
+                             v-bind:src="item.persona.rutaFotoPostulante" 
+                             class="img-circle" />
+                    </td>
+                    <td class="col-sm-8 v-middle">
+                        <p class="text-primary block">{{item.persona.nombreCompleto}}</p> 
+                        {{item.codigo}}
+                        <span v-if="item.situacion=='0' " class="text-xs bold block text-danger">No Matriculable</span>
+                        <span v-if="item.situacion=='1' " class="text-xs bold block text-primary">Matriculable</span>
+                    </td>
+                    <td  class="col-sm-4  v-middle">
+                        <p class="block">{{item.carrera.nombre}}</p>
+                        <p v-if="item.carrera.facultad.nombre==item.carrera.nombre" class="block"></p>
+                        <p v-else="" class="block">{{item.carrera.facultad.nombre}}</p>
+                    </td>
+                    <td  class="v-middle">
+                        <a v-on:click.prevent="eliminarAlumno(item)" class="text-danger"  href="#">
+                            <i class="fa fa-trash" aria-hidden="true"></i>
+                        </a>
+                    </td>
+                </tr>
+            </tbody>                            
+        </table>
+
+    </div>
+</modal-vik>
+

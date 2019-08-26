@@ -3,7 +3,10 @@ package pe.edu.lamolina.pivot.controller.consejeria.consejeros;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
@@ -29,8 +32,10 @@ import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.Facultad;
+import pe.edu.lamolina.model.consejeria.AlumnoConsejero;
 import pe.edu.lamolina.model.consejeria.ConsejeriaResumen;
 import pe.edu.lamolina.model.consejeria.Consejero;
+import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.pivot.controller.academico.carrera.CarreraService;
 import pe.edu.lamolina.pivot.controller.consejeria.consejeros.view.ReporteAlumnosConsejeroExcelView;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
@@ -270,19 +275,84 @@ public class ConsejerosController {
     }
 
     @RequestMapping("reporteAlumnos/{carrera}")
-    public ModelAndView reporteSeccionesSinHorario(@PathVariable("carrera") Long idCarrera, Model model, HttpSession session) {
+    public ModelAndView reporteAlumnos(@PathVariable("carrera") Long idCarrera, @RequestParam("consejero") Long consejero, Model model, HttpSession session) {
         DynatableFilter filter = new DynatableFilter();
         filter.setPage(1);
         filter.setOffset(0);
         filter.setPerPage(10000000);
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+        if (consejero.intValue() != 0 && filter.getQueries() == null) {
+            filter.setQueries(new HashMap());
+            filter.getQueries().put("consjeroPrm", consejero);
+        }
+
         List<Consejero> consejeros = service.allByCarreraDynatable(new Carrera(idCarrera), filter);
-        List<Alumno> alumnosConsejero = service.allAlumnosByConsejero(consejeros);
+        List<AlumnoConsejero> alumnosConsejero = service.allAlumnosConsejeros(consejeros, ds.getCicloAcademico(), EstadoEnum.ACT);
         model.addAttribute("consejeros", consejeros);
         model.addAttribute("alumnosConsejero", alumnosConsejero);
         // model.addAttribute("alumnosConsejero", ds.getCicloAcademico());
         return new ModelAndView(reporteAlumnosConsejeroExcelView);
+    }
+
+    @ResponseBody
+    @RequestMapping("searchAlumno")
+    public JsonResponse searchAlumno(@RequestParam("nombre") String nombre, HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+
+        try {
+            JsonNodeFactory jFactory = JsonNodeFactory.instance;
+
+            ArrayNode jsonList = new ArrayNode(jFactory);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+            CicloAcademico cicloAcademico = ds.getCicloAcademico();
+            List<Alumno> alumnos = service.allAlumnoByName(nombre, cicloAcademico);
+
+            for (Alumno alumno : alumnos) {
+                ObjectNode json = JsonHelper.createJson(alumno, jFactory, true,
+                        new String[]{
+                            "id",
+                            "codigo",
+                            "situacion",
+                            "motivoMatriculable",
+                            "persona.nombreCompleto",
+                            "persona.rutaFotoDocumento",
+                            "persona.rutaFotoPostulante",
+                            "carrera.nombre",
+                            "carrera.facultad.nombre",});
+                jsonList.add(json);
+            }
+
+            response.setData(jsonList);
+            response.setTotal(jsonList.size());
+            response.setSuccess(true);
+
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("saveAlumnoConjero")
+    public JsonResponse saveAlumnoConjero(@RequestBody Consejero consejero, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            ds.setFechaAccionAudit(new Date());
+            service.saveAlumnosConsejero(consejero, ds);
+            response.setMessage("Alumnos aconsejados agregados.");
+            response.setSuccess(true);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
     }
 
 }

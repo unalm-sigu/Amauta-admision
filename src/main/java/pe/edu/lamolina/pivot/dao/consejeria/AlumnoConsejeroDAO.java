@@ -8,6 +8,7 @@ import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.consejeria.AlumnoConsejero;
 import pe.edu.lamolina.model.consejeria.Consejero;
+import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.controller.consejeria.consejeros.Aconsejado;
@@ -31,5 +32,7 @@ public interface AlumnoConsejeroDAO extends EasyDAO<AlumnoConsejero> {
     Aconsejado countAconsejadosNoMatriculables(Carrera carrera, CicloAcademico ciclo);
 
     List<AlumnoConsejero> allByAlumnosCiclo(List<Alumno> alumnos, CicloAcademico ciclo);
+
+    List<AlumnoConsejero> allByConsejerosAndCiclo(List<Consejero> consejeros, CicloAcademico ciclo, EstadoEnum... estados);
 
 }
