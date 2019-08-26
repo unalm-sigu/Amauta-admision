@@ -1,5 +1,7 @@
 <html layout:decorator="_layout/layout">
     <head>
+        <link rel="stylesheet" href="../../../public/bootstrap/css/bootstrap.css" type="text/css"/>
+
         <title>Tramties Academicos</title>
     <div th:substituteby="_layout/includes :: styles-dynatable"></div>
     <style>
@@ -17,21 +19,16 @@
     <div layout:fragment="main">
         <div id="tramitesAcademicos">
             <header class="header b-b padder-lg">
-
                 <div class="pull-right m-t-md">  
                     <a class="btn btn-info" type="button"    v-on:click.prevent="agenda"   href="#" >Agenda</a>
                 </div> 
                 <h2 >Trámites Académicos</h2>
             </header>
             <section  class="wrapper-lg">
-
                 <section class="panel">
                     <section class="panel-body">
-
-
                         <raptor-table ref="tblTramitesAcademicos"
                                       v-bind:url="URL_TRAMITES" >
-
                             <template scope="props">
                                 <table class="table table-striped">
                                     <thead>
@@ -78,8 +75,8 @@
                                                     <br/>
                                                     Curso : {{item.cursodirigido.curso.nombre}} 
                                                     <br/>
-<!--                                                    Docente Asignado : {{item.cursodirigido.docenteAsignado.persona.apellidosNombres}} 
-                                                    ({{item.cursodirigido.docenteAsignado.codigo}})-->
+                                                    <!--                                                    Docente Asignado : {{item.cursodirigido.docenteAsignado.persona.apellidosNombres}} 
+                                                                                                        ({{item.cursodirigido.docenteAsignado.codigo}})-->
                                                 </small>
                                                 <small class="block text-muted" 
                                                        v-if="item.tramiteReunionConsejo">
