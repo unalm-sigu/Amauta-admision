@@ -18,7 +18,7 @@
                         </ul>
                     </div>
 
-                    <h2 th:text="${'Lista de Responsables '+ ciclo.descripcion}"></h2>
+                    <h2 th:text="${'Lista de Responsables '}"></h2>
                 </header>
 
                 <section class="wrapper-lg">
@@ -48,17 +48,40 @@
                                     <table class="table table-striped">
                                         <thead>
                                             <tr class=""> 
-                                                <th class="col-md-3">Nombre</th>
+                                                <th class="col-md-4 v-middle text-center">Nombre</th>
+                                                <template v-if="props.data.length >0" >
+                                                <th class="col-md-4 v-middle text-center" 
+                                                    v-for="trn in props.data[0].turnosAtencionAulas" v-text="trn.descripcion">Aulas
+                                                </th>
+                                                </template>
                                                 <th></th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <tr v-for="item in props.data">
-                                                <td class="v-middle">
+                                                <td class="v-middle col-md-4" >
                                                     <span v-text="item.apellidosNombres"></span>
                                                 </td>
-                                            </tr>
+                                        <template 
+                                                    v-if="props.data.length>0">
+                                                <td class="col-md-4 v-middle" 
+                                                    v-for="turno in item.turnosAtencionAulas">
+                                                    <!--                                                    <span>{{turno}}</span>-->
+                                                    <div class="col-md-4" v-for="aul in turno.aulas" v-text="aul.descripcionConcat"> </div>
+                                                </td>
+                                                </template>
+                                                <td class="v-middle"> 
+                                                    <div class="dropdown actions">
+                                                        <a class="dropdown-toggle" data-toggle="dropdown">
+                                                            <i class="glyphicon glyphicon-cog"></i>
+                                                        </a> 
 
+                                                        <ul class="dropdown-menu pull-right">
+                                                            <li><a v-on:click="editar(item)">Editar</a></li>
+                                                        </ul>
+                                                    </div>
+                                                </td>
+                                            </tr>
                                         </tbody>
                                     </table>
                                 </template>

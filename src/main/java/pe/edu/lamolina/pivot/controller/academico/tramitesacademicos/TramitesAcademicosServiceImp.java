@@ -583,9 +583,9 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
         pdfHistorial.setContext(ctx);
         pdfHistorial.setTipoPdfEnum(TipoPdfEnum.HISTORIAL_ACADEMICO);
 
-        PdfContent pdfHistorialListado = new PdfContent();
-        pdfHistorialListado.setContext(ctx);
-        pdfHistorialListado.setTipoPdfEnum(TipoPdfEnum.HISTORIAL_ACADEMICO_LISTADO);
+//        PdfContent pdfHistorialListado = new PdfContent();
+//        pdfHistorialListado.setContext(ctx);
+//        pdfHistorialListado.setTipoPdfEnum(TipoPdfEnum.HISTORIAL_ACADEMICO_LISTADO);
 
 //        PdfContent pdfPlanCurricular = new PdfContent();
 //        pdfPlanCurricular.setContext(ctx);
@@ -609,7 +609,7 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
                 pdfGenerator.generateDocument(pdfCursoDirigido),
                 //                pdfGenerator.generateDocument(pdfPlanCurricular),
                 pdfGenerator.generateDocument(pdfHistorial),
-                pdfGenerator.generateDocument(pdfHistorialListado),
+//                pdfGenerator.generateDocument(pdfHistorialListado),
                 pdfGenerator.generateDocument(pdfMatriculados),
                 pdfGenerator.generateDocument(pdfHorario)
         );

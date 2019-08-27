@@ -313,6 +313,21 @@ public class AulaDAOH extends AbstractEasyDAO<Aula> implements AulaDAO {
     }
 
     @Override
+    public List<Aula> allAulasByName(String nombre, Integer limit) {
+        nombre = "%" + nombre.replaceAll(" ", "%") + "%";
+        Octavia sql = Octavia.query()
+                .from(Aula.class, "au")
+                .filter("au.estado", EstadoEnum.ACT.name())
+                .beginBlock()
+                .__().complexFilter("concat(coalesce(au.codigo,''),' ',coalesce(au.nombre,''))", "like", nombre)
+                .__().complexFilter("concat(coalesce(au.nombre,''),' ',coalesce(au.codigo,''))", "like", nombre)
+                .endBlock()
+                .orderBy("au.codigo", "au.nombre")
+                .limit(limit);
+        return sql.all(getCurrentSession());
+    }
+
+    @Override
     public List<Aula> allByOficinaSupervisora(Oficina oficinaEstudios) {
         Octavia sql = Octavia.query()
                 .from(Aula.class, "au")
