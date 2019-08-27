@@ -62,4 +62,6 @@ public interface AulaDAO extends EasyDAO<Aula> {
 
     List<Aula> allByListOficinaSupervisora(List<Oficina> oficinas);
 
+    List<Aula> allAulasByName(String nombre, Integer limit);
+
 }
