@@ -200,16 +200,16 @@
                                 <label class="bold"> Programación:  </label>
                                 <span th:text="${situacionActual.programado}"></span>
                             </div>
-<!--                            <div  th:if="${not #lists.isEmpty(situacionActual.vacantes)}">
-                                <label class="bold"> Vacancia en secciones: </label>
-                                <div class="form-group" th:each="vac : ${situacionActual.vacantes}"  >
-                                    <span  th:text="'Código sección: ' + ${vac.seccion}" ></span>
-                                    <br/>
-                                    <span >Disponibilidad:</span>
-                                    <span th:if="${vac.disponibilidad}" >Sí</span>
-                                    <span  th:unless="${vac.disponibilidad}" >No</span>
-                                </div>
-                            </div>-->
+                            <!--                            <div  th:if="${not #lists.isEmpty(situacionActual.vacantes)}">
+                                                            <label class="bold"> Vacancia en secciones: </label>
+                                                            <div class="form-group" th:each="vac : ${situacionActual.vacantes}"  >
+                                                                <span  th:text="'Código sección: ' + ${vac.seccion}" ></span>
+                                                                <br/>
+                                                                <span >Disponibilidad:</span>
+                                                                <span th:if="${vac.disponibilidad}" >Sí</span>
+                                                                <span  th:unless="${vac.disponibilidad}" >No</span>
+                                                            </div>
+                                                        </div>-->
                             <div th:if="${not #lists.isEmpty(situacionActual.cruceHorario)}">
                                 <label class="bold"> Cruce de horarios: </label>
                                 <div class="form-group"  th:each="cruceHor : ${situacionActual.cruceHorario}"  >
@@ -233,6 +233,19 @@
                 </tbody>
             </table>
         </div>
+        <div style="text-align: center">
+<!--            <pre >Atentamente,</pre>-->
 
+            <br/>
+            <br/>
+            <br/>
+            <br/>
+
+            <pre  style="font-size: 14px;">
+            _____________________________
+                VICTOR MURILLO FEBRES
+             Jefe(e) Unidad de Registros
+            </pre>
+        </div>
     </body>
 </html>

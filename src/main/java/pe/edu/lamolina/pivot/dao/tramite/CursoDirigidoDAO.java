@@ -14,7 +14,7 @@ public interface CursoDirigidoDAO extends EasyDAO<CursoDirigido> {
 
     CursoDirigido findByTramite(Tramite tramite);
 
-    List<CursoDirigido> allByfacultades(DynatableFilter filters, Docente docente);
+    List<CursoDirigido> allByfacultades(DynatableFilter filters, CicloAcademico ciclo);
 
     public void updateEstado(CursoDirigido cursoDirigido);
 

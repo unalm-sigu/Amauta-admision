@@ -61,11 +61,12 @@ public class ResponseRestServiceImpl extends AbstractRestClient<JsonResponse> im
 
     @Override
     @Transactional
-    public JsonResponse ampliarVacante(Seccion seccion) {
+    public JsonResponse ampliarVacante(Seccion seccion, Integer variacion) {
         Parametro parametro = findParametro(ParametrosSistemasEnum.SALTO_PIVOT_MATRICULA);
 
         ObjectNode json = new ObjectNode(JsonNodeFactory.instance);
         json.put("idSeccion", seccion.getId());
+        json.put("cantidadVariacion", variacion);
 
         String url = String.format("%s/matriculaSeccion/agregarVacanteSeccion",
                 parametro.getValor());

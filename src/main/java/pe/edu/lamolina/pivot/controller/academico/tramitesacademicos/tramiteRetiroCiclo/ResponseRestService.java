@@ -19,7 +19,7 @@ public interface ResponseRestService {
 
     JsonResponse eliminarAporteCarnet(MatriculaResumen matriculaResumen, DataSessionPivot ds);
 
-    JsonResponse ampliarVacante(Seccion seccion);
+    JsonResponse ampliarVacante(Seccion seccion,Integer variacion);
 
     JsonResponse anularBoletas(MatriculaResumen matriculaResumen, DataSessionPivot ds);
 }
