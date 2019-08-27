@@ -54,6 +54,7 @@ import static pe.edu.lamolina.model.enums.RolEnum.MOD;
 import static pe.edu.lamolina.model.enums.RolEnum.TODO;
 import pe.edu.lamolina.model.enums.TipoCicloEnum;
 import pe.edu.lamolina.model.enums.TipoCondicionalEnum;
+import pe.edu.lamolina.model.finanzas.Acreencia;
 import pe.edu.lamolina.model.finanzas.DeudaAlumno;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.pivot.controller.academico.alumno.AlumnoResumen;
@@ -186,6 +187,7 @@ public class MatriculableController {
                             "alumno.situacionAcademica.codigo",
                             "alumno.situacionAcademica.nombre",
                             "alumno.situacionAcademica.descripcion",
+                            "resumenesAportes.id",
                             "resumenesAportes.montoTotal",
                             "resumenesAportes.aporteAlumnoCiclo.monto",
                             "resumenesAportes.aporteAlumnoCiclo.aporteCiclo.aporte.nombre",});
@@ -746,7 +748,7 @@ public class MatriculableController {
                     "cuentaBancaria.banco"
                 });
                 node.put("numero", numero);
-                node.put("acreencia", boleta.getAcreencia().getId());
+                node.put("acreencia", boleta.getAcreencia()!=null?boleta.getAcreencia().getId():0);
                 array.add(node);
                 numero++;
             }

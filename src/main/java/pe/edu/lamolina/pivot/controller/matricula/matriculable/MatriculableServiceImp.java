@@ -206,23 +206,33 @@ public class MatriculableServiceImp implements MatriculableService {
 
     @Override
     public List<MatriculaResumen> allAlumnosByCicloRolDynatable(DynatableFilter filter, CicloAcademico cicloAcademico, String codigo, List<Long> filtros) {
+        
         List<AporteAlumnoCiclo> aporteAlumnoCiclos = aporteAlumnoCicloDAO.allAporteCarnetByCiclo(cicloAcademico);
         Map<Long, AporteAlumnoCiclo> map = TypesUtil.convertListToMap("resumenAporteAlumno.matriculaResumen.id", aporteAlumnoCiclos);
         List<MatriculaResumen> matriculaResumens = matriculaResumenDAO.allByCicloRolDynatable(filter, cicloAcademico, codigo, filtros);
+        
         logger.debug("cicloAcademico {}", cicloAcademico.getId());
         List<AporteAlumnoCiclo> aporteAlumnoCicloss = aporteAlumnoCicloDAO.allAporteCarnetByMatriculaResumenCiclo(cicloAcademico, matriculaResumens);
+        
         logger.debug("aporteAlumnoCicloss {}", aporteAlumnoCicloss.size());
         Map<Long, List<ResumenAporteAlumno>> mapResumenAporteAlumno = TypesUtil.convertListToMapList("resumenAporteAlumno.matriculaResumen.id", "resumenAporteAlumno", aporteAlumnoCicloss);
-         logger.debug("mapResumenAporteAlumno {}", mapResumenAporteAlumno.size());
+        
+        
+        logger.debug("mapResumenAporteAlumno {}", mapResumenAporteAlumno.size());
         Map<Long, List<AporteAlumnoCiclo>> mapAporteAlumnoCiclos = TypesUtil.convertListToMapList("resumenAporteAlumno.id", aporteAlumnoCicloss);
 
         for (MatriculaResumen matriculaResumen : matriculaResumens) {
             if (map.get(matriculaResumen.getId()) != null) {
                 matriculaResumen.setAporteCarnet(Boolean.TRUE);
             }
-            logger.debug("matriculaResumen {}", matriculaResumen.getId());
+            
             logger.debug("matriculaResumen codigo {}", matriculaResumen.getAlumno().getCodigo());
             List<ResumenAporteAlumno> resumenAporteAlumnos = TypesUtil.getListNotNull(mapResumenAporteAlumno.get(matriculaResumen.getId()));
+            
+            resumenAporteAlumnos=resumenAporteAlumnos.stream()
+                    .collect(Collectors.toMap(y->y.getId(), y->y,(f,s)->s))
+                    .values().stream().collect(Collectors.toList());
+            
             logger.debug("resumenAporteAlumnos {}", resumenAporteAlumnos.size());
             for (ResumenAporteAlumno resumenAporteAlumno : resumenAporteAlumnos) {
                 logger.debug("========resumenAporteAlumno {}", resumenAporteAlumno.getId());

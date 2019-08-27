@@ -52,6 +52,7 @@ new Vue({
         porcentajeAvance: 0,
         configConfirmAction: VUE_MODAL.structConfirm({}),
         procesando: false,
+        resumenModal: {},
         confAporteAlumno: VUE_MODAL.structInfo({
             id: 'modalAporteAlumno',
             modalsize: 'modal-lg'
@@ -64,6 +65,20 @@ new Vue({
     },
     mounted: function () {
 
+    },
+    computed: {
+        modalTitulo() {
+            let $vue = this;
+            return $vue.resumenModal.nombre;
+        },
+        modalSubtitulo() {
+            let $vue = this;
+            if ($vue.resumenModal.modalidadEstudio !== "Visitante" && $vue.resumenModal.modalidadEstudio !== "Especial") {
+                return $vue.resumenModal.carrera + " - " + $vue.resumenModal.modalidadEstudio;
+            } else {
+                return $vue.resumenModal.carrera;
+            }
+        }
     },
     methods: {
         style(item) {
@@ -517,7 +532,7 @@ new Vue({
         },
         verAportes(item) {
             let $vue = this;
-            $vue.resumen = {};
+            $vue.resumenModal = {};
             $vue.$refs.modalAporteAlumno.open();
             $vue.$refs.modalAporteAlumno.showWait("Cargando aportes");
 
@@ -528,7 +543,7 @@ new Vue({
                 success: function (response) {
                     if (response.success) {
                         $vue.$refs.modalAporteAlumno.hideWait();
-                        $vue.resumen = response.data;
+                        $vue.resumenModal = response.data;
                     } else {
                         $vue.$refs.modalAporteAlumno.close();
                         notify(response.message, "error");
@@ -543,9 +558,9 @@ new Vue({
         },
         verBoletas(item) {
             let $vue = this;
-            let idMatriculaResumen = item.matriculaResumen.id;
+            let idMatriculaResumen = item.id;
 
-            $vue.resumen = {};
+            $vue.resumenModal = {};
             $vue.url = null;
             $vue.$refs.modalBoletaAlumno.open();
             $vue.$refs.modalBoletaAlumno.showWait("Buscando boletas..");
@@ -562,7 +577,7 @@ new Vue({
                             notify("No existen boletas generadas para este alumno", "warning");
                             return;
                         }
-                        $vue.resumen = response.data;
+                        $vue.resumenModal = response.data;
 
                     } else {
                         $vue.$refs.modalBoletaAlumno.close();

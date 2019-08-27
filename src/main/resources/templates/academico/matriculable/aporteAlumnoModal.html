@@ -26,7 +26,7 @@
                     </tr> 
                 </thead>
                 <tbody>
-                    <tr v-for="item in resumen.aporteAlumnoCiclo">
+                    <tr v-for="item in resumenModal.aporteAlumnoCiclo">
                         <td> 
                             <span class="block" v-text="item.aporteCiclo.aporte.nombre"> </span> 
                             <span v-if="item.estadoEnum.name=='PAGO' " class="label label-success" v-text="item.estadoEnum.value"></span>

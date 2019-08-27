@@ -9,7 +9,7 @@
     </div>
     <div slot="body">
 
-        <div v-for="boleta in resumen.boletas"
+        <div v-for="boleta in resumenModal.boletas"
              class="alert alert-warning" style=" background-color: #D0DDDE; border-color: #D6EDDE;color: #2B3E3F">
             <h2 class="text-center" th:inline="text">Boleta de pago Nº <span v-text="boleta.acreencia"></span></h2>
 
