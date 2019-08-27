@@ -64,15 +64,16 @@ public class AporteAlumnoCicloDAOH extends AbstractEasyDAO<AporteAlumnoCiclo> im
     }
 
     @Override
-    public List<AporteAlumnoCiclo> allAporteCarnetByMatriculaResumenCiclo(CicloAcademico cicloAcademico, List<MatriculaResumen> matriculaResumens) {
+    public List<AporteAlumnoCiclo> allAporteCarnetByCicloMatriculaResumen(CicloAcademico cicloAcademico, List<MatriculaResumen> matriculaResumens) {
         Octavia sql = Octavia.query()
                 .from(AporteAlumnoCiclo.class, "aac")
                 .join("aporteCiclo ac", "ac.aporte apo", "ac.cicloAcademico ca")
                 .join("ac.cuentaBancaria cta")
                 .join("resumenAporteAlumno raa", "raa.matriculaResumen mr", "mr.alumno alu")
                 .filter("ca.codigo", cicloAcademico.getCodigo())
-                .in("mr.id", matriculaResumens)
+                .filter("apo.codigo", A05.name().substring(1))
                 .in("aac.estado", Arrays.asList(EstadoAporteEnum.DEBE, EstadoAporteEnum.PAGO))
+                .in("mr.id", matriculaResumens)
                 .orderBy("aac.numeroCuota", "apo.nombre");
         return all(sql);
     }

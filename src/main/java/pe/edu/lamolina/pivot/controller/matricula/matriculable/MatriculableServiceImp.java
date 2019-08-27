@@ -206,39 +206,43 @@ public class MatriculableServiceImp implements MatriculableService {
 
     @Override
     public List<MatriculaResumen> allAlumnosByCicloRolDynatable(DynatableFilter filter, CicloAcademico cicloAcademico, String codigo, List<Long> filtros) {
-        
-        List<AporteAlumnoCiclo> aporteAlumnoCiclos = aporteAlumnoCicloDAO.allAporteCarnetByCiclo(cicloAcademico);
-        Map<Long, AporteAlumnoCiclo> map = TypesUtil.convertListToMap("resumenAporteAlumno.matriculaResumen.id", aporteAlumnoCiclos);
+
         List<MatriculaResumen> matriculaResumens = matriculaResumenDAO.allByCicloRolDynatable(filter, cicloAcademico, codigo, filtros);
-        
-        logger.debug("cicloAcademico {}", cicloAcademico.getId());
-        List<AporteAlumnoCiclo> aporteAlumnoCicloss = aporteAlumnoCicloDAO.allAporteCarnetByMatriculaResumenCiclo(cicloAcademico, matriculaResumens);
-        
-        logger.debug("aporteAlumnoCicloss {}", aporteAlumnoCicloss.size());
-        Map<Long, List<ResumenAporteAlumno>> mapResumenAporteAlumno = TypesUtil.convertListToMapList("resumenAporteAlumno.matriculaResumen.id", "resumenAporteAlumno", aporteAlumnoCicloss);
-        
-        
-        logger.debug("mapResumenAporteAlumno {}", mapResumenAporteAlumno.size());
-        Map<Long, List<AporteAlumnoCiclo>> mapAporteAlumnoCiclos = TypesUtil.convertListToMapList("resumenAporteAlumno.id", aporteAlumnoCicloss);
+
+        logger.debug("cicloAcademico {}", cicloAcademico.getCodigo());
+        List<ResumenAporteAlumno> resumenAporteAlumnos = resumenAporteAlumnoDAO.allByCicloMatriculaResumen(cicloAcademico, matriculaResumens);
+        logger.debug("aporteAlumnoCicloss {}", resumenAporteAlumnos.size());
+        Map<Long, List<ResumenAporteAlumno>> mapResumenAporteAlumno = TypesUtil.convertListToMapList("matriculaResumen.id", resumenAporteAlumnos);
+
+        List<Alumno> alumnos = matriculaResumens.stream().map(x -> x.getAlumno()).collect(Collectors.toList());
+        List<DeudaAlumno> boletas = deudaAlumnoDAO.allDeudaAlumnoByCicloAlumno(alumnos, cicloAcademico);
+        logger.debug("boletas {}", boletas.size());
+        Map<Long, List<DeudaAlumno>> mapBoletas = TypesUtil.convertListToMapList("alumno.id", boletas);
+
+        List<AporteAlumnoCiclo> aporteAlumnoCiclos = aporteAlumnoCicloDAO.allAporteCarnetByCicloMatriculaResumen(cicloAcademico,matriculaResumens);
+        Map<Long, AporteAlumnoCiclo> map = TypesUtil.convertListToMap("resumenAporteAlumno.matriculaResumen.id", aporteAlumnoCiclos);
 
         for (MatriculaResumen matriculaResumen : matriculaResumens) {
+            
+            
             if (map.get(matriculaResumen.getId()) != null) {
                 matriculaResumen.setAporteCarnet(Boolean.TRUE);
             }
             
-            logger.debug("matriculaResumen codigo {}", matriculaResumen.getAlumno().getCodigo());
-            List<ResumenAporteAlumno> resumenAporteAlumnos = TypesUtil.getListNotNull(mapResumenAporteAlumno.get(matriculaResumen.getId()));
-            
-            resumenAporteAlumnos=resumenAporteAlumnos.stream()
-                    .collect(Collectors.toMap(y->y.getId(), y->y,(f,s)->s))
-                    .values().stream().collect(Collectors.toList());
-            
-            logger.debug("resumenAporteAlumnos {}", resumenAporteAlumnos.size());
-            for (ResumenAporteAlumno resumenAporteAlumno : resumenAporteAlumnos) {
-                logger.debug("========resumenAporteAlumno {}", resumenAporteAlumno.getId());
-                resumenAporteAlumno.setAporteAlumnoCiclo(mapAporteAlumnoCiclos.get(resumenAporteAlumno.getId()));
+            if (mapBoletas.get(matriculaResumen.getAlumno().getId()) != null) {
+                matriculaResumen.setBoletaPendiente(Boolean.TRUE);
             }
-            matriculaResumen.setResumenesAportes(resumenAporteAlumnos);
+            
+            logger.debug("boletas {}", mapBoletas.get(matriculaResumen.getAlumno().getId()) != null);
+            
+            List<ResumenAporteAlumno> misResumenAporteAlumnos = TypesUtil.getListNotNull(mapResumenAporteAlumno.get(matriculaResumen.getId()));
+
+            misResumenAporteAlumnos = misResumenAporteAlumnos.stream()
+                    .collect(Collectors.toMap(y -> y.getId(), y -> y, (f, s) -> s))
+                    .values().stream().collect(Collectors.toList());
+
+            matriculaResumen.setResumenesAportes(misResumenAporteAlumnos);
+
         }
         return matriculaResumens;
     }
