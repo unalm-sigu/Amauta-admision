@@ -49,6 +49,9 @@ import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.SituacionAcademica;
 import pe.edu.lamolina.model.academico.TurnoAtencion;
 import pe.edu.lamolina.model.aporte.AporteAlumnoCiclo;
+import pe.edu.lamolina.model.aporte.ResumenAporteAlumno;
+import static pe.edu.lamolina.model.enums.DeudaEstadoEnum.DEU;
+import static pe.edu.lamolina.model.enums.DeudaEstadoEnum.PAG;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import pe.edu.lamolina.model.enums.EstadoTramiteEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
@@ -75,6 +78,8 @@ import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_XD;
 import pe.edu.lamolina.model.enums.TipoCondicionalEnum;
 import static pe.edu.lamolina.model.enums.TipoTramiteEnum.CAM_NOTA;
 import static pe.edu.lamolina.model.enums.TramiteEstadoEnum.PEND;
+import pe.edu.lamolina.model.finanzas.Acreencia;
+import pe.edu.lamolina.model.finanzas.DeudaAlumno;
 import pe.edu.lamolina.model.seguridad.Rol;
 import pe.edu.lamolina.model.tramite.CambioNota;
 import pe.edu.lamolina.model.tramite.EstadoTramite;
@@ -102,6 +107,9 @@ import pe.edu.lamolina.pivot.dao.academico.ModalidadEstudioDAO;
 import pe.edu.lamolina.pivot.dao.academico.SituacionAcademicaDAO;
 import pe.edu.lamolina.pivot.dao.academico.TurnoAtencionDAO;
 import pe.edu.lamolina.pivot.dao.aporte.AporteAlumnoCicloDAO;
+import pe.edu.lamolina.pivot.dao.aporte.ResumenAporteAlumnoDAO;
+import pe.edu.lamolina.pivot.dao.finanza.AcreenciaDAO;
+import pe.edu.lamolina.pivot.dao.finanza.DeudaAlumnoDAO;
 import pe.edu.lamolina.pivot.dao.tramite.CambioNotaDAO;
 import pe.edu.lamolina.pivot.dao.tramite.ReincorporacionDAO;
 import pe.edu.lamolina.pivot.dao.tramite.RetiroCicloDAO;
@@ -182,6 +190,15 @@ public class MatriculableServiceImp implements MatriculableService {
     @Autowired
     RespositorVisor respositorVisor;
 
+    @Autowired
+    ResumenAporteAlumnoDAO resumenAporteAlumnoDAO;
+
+    @Autowired
+    DeudaAlumnoDAO deudaAlumnoDAO;
+
+    @Autowired
+    AcreenciaDAO acreenciaDAO;
+
     @Override
     public AlumnoResumen allResumenAlumnosByCicloRol(CicloAcademico cicloAcademico, String codigo, List<Long> filtros) {
         return matriculaResumenDAO.findResumenByCicloRolDynateable(cicloAcademico, codigo, filtros);
@@ -192,10 +209,26 @@ public class MatriculableServiceImp implements MatriculableService {
         List<AporteAlumnoCiclo> aporteAlumnoCiclos = aporteAlumnoCicloDAO.allAporteCarnetByCiclo(cicloAcademico);
         Map<Long, AporteAlumnoCiclo> map = TypesUtil.convertListToMap("resumenAporteAlumno.matriculaResumen.id", aporteAlumnoCiclos);
         List<MatriculaResumen> matriculaResumens = matriculaResumenDAO.allByCicloRolDynatable(filter, cicloAcademico, codigo, filtros);
+        logger.debug("cicloAcademico {}", cicloAcademico.getId());
+        List<AporteAlumnoCiclo> aporteAlumnoCicloss = aporteAlumnoCicloDAO.allAporteCarnetByMatriculaResumenCiclo(cicloAcademico, matriculaResumens);
+        logger.debug("aporteAlumnoCicloss {}", aporteAlumnoCicloss.size());
+        Map<Long, List<ResumenAporteAlumno>> mapResumenAporteAlumno = TypesUtil.convertListToMapList("resumenAporteAlumno.matriculaResumen.id", "resumenAporteAlumno", aporteAlumnoCicloss);
+         logger.debug("mapResumenAporteAlumno {}", mapResumenAporteAlumno.size());
+        Map<Long, List<AporteAlumnoCiclo>> mapAporteAlumnoCiclos = TypesUtil.convertListToMapList("resumenAporteAlumno.id", aporteAlumnoCicloss);
+
         for (MatriculaResumen matriculaResumen : matriculaResumens) {
             if (map.get(matriculaResumen.getId()) != null) {
                 matriculaResumen.setAporteCarnet(Boolean.TRUE);
             }
+            logger.debug("matriculaResumen {}", matriculaResumen.getId());
+            logger.debug("matriculaResumen codigo {}", matriculaResumen.getAlumno().getCodigo());
+            List<ResumenAporteAlumno> resumenAporteAlumnos = TypesUtil.getListNotNull(mapResumenAporteAlumno.get(matriculaResumen.getId()));
+            logger.debug("resumenAporteAlumnos {}", resumenAporteAlumnos.size());
+            for (ResumenAporteAlumno resumenAporteAlumno : resumenAporteAlumnos) {
+                logger.debug("========resumenAporteAlumno {}", resumenAporteAlumno.getId());
+                resumenAporteAlumno.setAporteAlumnoCiclo(mapAporteAlumnoCiclos.get(resumenAporteAlumno.getId()));
+            }
+            matriculaResumen.setResumenesAportes(resumenAporteAlumnos);
         }
         return matriculaResumens;
     }
@@ -1133,6 +1166,42 @@ public class MatriculableServiceImp implements MatriculableService {
             }
         }
         return puedeCalcular;
+    }
+
+    @Override
+    public ResumenAporteAlumno findResumenAporteAlumno(ResumenAporteAlumno resumenAporteAlumno) {
+        ResumenAporteAlumno resumen = resumenAporteAlumnoDAO.find(resumenAporteAlumno);
+        List<AporteAlumnoCiclo> aportesCiclo = aporteAlumnoCicloDAO.allByResumenAporteAlumno(resumen);
+        resumen.setAporteAlumnoCiclo(aportesCiclo);
+
+        return resumen;
+    }
+
+    @Override
+    public MatriculaResumen findMatriculaResumen(MatriculaResumen matriculaResumen) {
+        return matriculaResumenDAO.findFull(matriculaResumen);
+    }
+
+    @Override
+    public List<DeudaAlumno> allByAlumnoCiclo(Alumno alumno, CicloAcademico cicloAcademico) {
+        List<DeudaAlumno> deudasVer = new ArrayList();
+        List<DeudaAlumno> deudas = deudaAlumnoDAO.allByAlumnoCiclo(alumno, cicloAcademico);
+        for (DeudaAlumno deuda : deudas) {
+            if (Arrays.asList(DEU, PAG).contains(deuda.getEstadoEnum())
+                    && deuda.getMonto().compareTo(BigDecimal.ZERO) > 0) {
+                deudasVer.add(deuda);
+            }
+        }
+
+        List<Acreencia> acreencias = acreenciaDAO.allByDeudaAlumno(deudas);
+        Map<Long, Acreencia> mapAcreencias = TypesUtil.convertListToMap("instanciaTabla", acreencias);
+
+        for (DeudaAlumno deuda : deudasVer) {
+            Acreencia acree = mapAcreencias.get(deuda.getId());
+            deuda.setAcreencia(acree);
+        }
+
+        return deudasVer;
     }
 
 }
