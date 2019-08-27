@@ -4,6 +4,7 @@ import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.easydao.EasyDAO;
 import pe.edu.lamolina.model.enums.EstadoEnum;
+import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.general.TipoDocIdentidad;
 
@@ -37,5 +38,7 @@ public interface PersonaDAO extends EasyDAO<Persona> {
     Persona findByEmailCompania(Persona persona);
 
     List<Persona> allResponsableAulas(DynatableFilter filter, EstadoEnum... estados);
+
+    List<Persona> allPersonaColaboradorByNombre(String nombre, OficinaEnum oficinaEnum);
 
 }
