@@ -9,6 +9,7 @@ import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.Docente;
+import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.tramite.AccionTramiteAcademico;
@@ -51,5 +52,11 @@ public interface TramitesAcademicosService {
     AccionTramiteAcademico findAccionTramiteAcademico(AccionTramiteAcademico accionTramiteAcademico);
 
     public List<Docente> allByNombre(String nombre);
+
+    public List<Tramite> allTramitesByFac(Facultad facultad, DataSessionPivot ds);
+
+    public String allcursoDirigidoFac(Facultad tram, DataSessionPivot ds);
+
+    public String alllistCursoDirigidoFac(Facultad facultad, DataSessionPivot ds);
 
 }
