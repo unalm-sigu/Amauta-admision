@@ -144,7 +144,8 @@ public class CursoDirigidoDAOH extends AbstractEasyDAO<CursoDirigido> implements
                 .leftJoin("per.tipoDocumento td", "al.cicloActivo cia", "al.cicloIngreso ci", "al.modalidadEstudio me", "al.situacionAcademica situ")
                 .leftJoin("per.paisNacer", "al.orientacionCarrera")
                 .filter("es.codigo", "!=", SOL_ANU.name())
-                .filter("fa.id", facultad);
+                .filter("fa.id", facultad)
+                .orderBy("per.paterno asc");
 
         return all(sql);
     }
