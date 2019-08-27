@@ -121,10 +121,11 @@ public class TramiteDAOH extends AbstractEasyDAO<Tramite> implements TramiteDAO 
                 .from(Tramite.class, "tram")
                 .join("cicloAcademico aca", "compania", "tipoTramite tt")
                 .left("userRegistro user", "user.persona", "alumno alum", "alum.planCurricular")
-                .left("alum.carrera car", "car.facultad fac", "alum.persona")
+                .left("alum.carrera car", "car.facultad fac", "alum.persona per")
                 .filter("tt.codigo", CURDIR.name())
-                .filter("tram.estado","!=", ANU.name())
-                .filter("fac.id", facultad);
+                .filter("tram.estado", "!=", ANU.name())
+                .filter("fac.id", facultad)
+                .orderBy("per.paterno asc");
 
         return all(sql);
     }
