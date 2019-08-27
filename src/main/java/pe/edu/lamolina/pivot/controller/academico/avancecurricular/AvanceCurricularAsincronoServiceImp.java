@@ -650,6 +650,9 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
         for (Map.Entry<Long, AlumnoCursoCurricula> entry : mapCursoCurriculaAlu.entrySet()) {
             AlumnoCursoCurricula cursoCurriAlu = entry.getValue();
             CursoCurricula cursoEvaluado = cursoCurriAlu.getCursoCurricula();
+            Curso curso = cursoEvaluado.getCurso();
+            System.out.println("****************************************+");
+            System.out.println("\t" + curso.getCodigo());
 
             List<CursoEquivalente> cursosEquivalentes = fillList(mapEquivalentes.get(cursoEvaluado.getId()));
             if (cursosEquivalentes.isEmpty()) {

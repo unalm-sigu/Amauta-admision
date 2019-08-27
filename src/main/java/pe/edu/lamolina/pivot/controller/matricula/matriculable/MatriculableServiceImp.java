@@ -49,6 +49,9 @@ import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.SituacionAcademica;
 import pe.edu.lamolina.model.academico.TurnoAtencion;
 import pe.edu.lamolina.model.aporte.AporteAlumnoCiclo;
+import pe.edu.lamolina.model.aporte.ResumenAporteAlumno;
+import static pe.edu.lamolina.model.enums.DeudaEstadoEnum.DEU;
+import static pe.edu.lamolina.model.enums.DeudaEstadoEnum.PAG;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import pe.edu.lamolina.model.enums.EstadoTramiteEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
@@ -75,6 +78,8 @@ import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_XD;
 import pe.edu.lamolina.model.enums.TipoCondicionalEnum;
 import static pe.edu.lamolina.model.enums.TipoTramiteEnum.CAM_NOTA;
 import static pe.edu.lamolina.model.enums.TramiteEstadoEnum.PEND;
+import pe.edu.lamolina.model.finanzas.Acreencia;
+import pe.edu.lamolina.model.finanzas.DeudaAlumno;
 import pe.edu.lamolina.model.seguridad.Rol;
 import pe.edu.lamolina.model.tramite.CambioNota;
 import pe.edu.lamolina.model.tramite.EstadoTramite;
@@ -102,6 +107,9 @@ import pe.edu.lamolina.pivot.dao.academico.ModalidadEstudioDAO;
 import pe.edu.lamolina.pivot.dao.academico.SituacionAcademicaDAO;
 import pe.edu.lamolina.pivot.dao.academico.TurnoAtencionDAO;
 import pe.edu.lamolina.pivot.dao.aporte.AporteAlumnoCicloDAO;
+import pe.edu.lamolina.pivot.dao.aporte.ResumenAporteAlumnoDAO;
+import pe.edu.lamolina.pivot.dao.finanza.AcreenciaDAO;
+import pe.edu.lamolina.pivot.dao.finanza.DeudaAlumnoDAO;
 import pe.edu.lamolina.pivot.dao.tramite.CambioNotaDAO;
 import pe.edu.lamolina.pivot.dao.tramite.ReincorporacionDAO;
 import pe.edu.lamolina.pivot.dao.tramite.RetiroCicloDAO;
@@ -182,6 +190,15 @@ public class MatriculableServiceImp implements MatriculableService {
     @Autowired
     RespositorVisor respositorVisor;
 
+    @Autowired
+    ResumenAporteAlumnoDAO resumenAporteAlumnoDAO;
+
+    @Autowired
+    DeudaAlumnoDAO deudaAlumnoDAO;
+
+    @Autowired
+    AcreenciaDAO acreenciaDAO;
+
     @Override
     public AlumnoResumen allResumenAlumnosByCicloRol(CicloAcademico cicloAcademico, String codigo, List<Long> filtros) {
         return matriculaResumenDAO.findResumenByCicloRolDynateable(cicloAcademico, codigo, filtros);
@@ -189,13 +206,43 @@ public class MatriculableServiceImp implements MatriculableService {
 
     @Override
     public List<MatriculaResumen> allAlumnosByCicloRolDynatable(DynatableFilter filter, CicloAcademico cicloAcademico, String codigo, List<Long> filtros) {
-        List<AporteAlumnoCiclo> aporteAlumnoCiclos = aporteAlumnoCicloDAO.allAporteCarnetByCiclo(cicloAcademico);
-        Map<Long, AporteAlumnoCiclo> map = TypesUtil.convertListToMap("resumenAporteAlumno.matriculaResumen.id", aporteAlumnoCiclos);
+
         List<MatriculaResumen> matriculaResumens = matriculaResumenDAO.allByCicloRolDynatable(filter, cicloAcademico, codigo, filtros);
+
+        logger.debug("cicloAcademico {}", cicloAcademico.getCodigo());
+        List<ResumenAporteAlumno> resumenAporteAlumnos = resumenAporteAlumnoDAO.allByCicloMatriculaResumen(cicloAcademico, matriculaResumens);
+        logger.debug("aporteAlumnoCicloss {}", resumenAporteAlumnos.size());
+        Map<Long, List<ResumenAporteAlumno>> mapResumenAporteAlumno = TypesUtil.convertListToMapList("matriculaResumen.id", resumenAporteAlumnos);
+
+        List<Alumno> alumnos = matriculaResumens.stream().map(x -> x.getAlumno()).collect(Collectors.toList());
+        List<DeudaAlumno> boletas = deudaAlumnoDAO.allDeudaAlumnoByCicloAlumno(alumnos, cicloAcademico);
+        logger.debug("boletas {}", boletas.size());
+        Map<Long, List<DeudaAlumno>> mapBoletas = TypesUtil.convertListToMapList("alumno.id", boletas);
+
+        List<AporteAlumnoCiclo> aporteAlumnoCiclos = aporteAlumnoCicloDAO.allAporteCarnetByCicloMatriculaResumen(cicloAcademico,matriculaResumens);
+        Map<Long, AporteAlumnoCiclo> map = TypesUtil.convertListToMap("resumenAporteAlumno.matriculaResumen.id", aporteAlumnoCiclos);
+
         for (MatriculaResumen matriculaResumen : matriculaResumens) {
+            
+            
             if (map.get(matriculaResumen.getId()) != null) {
                 matriculaResumen.setAporteCarnet(Boolean.TRUE);
             }
+            
+            if (mapBoletas.get(matriculaResumen.getAlumno().getId()) != null) {
+                matriculaResumen.setBoletaPendiente(Boolean.TRUE);
+            }
+            
+            logger.debug("boletas {}", mapBoletas.get(matriculaResumen.getAlumno().getId()) != null);
+            
+            List<ResumenAporteAlumno> misResumenAporteAlumnos = TypesUtil.getListNotNull(mapResumenAporteAlumno.get(matriculaResumen.getId()));
+
+            misResumenAporteAlumnos = misResumenAporteAlumnos.stream()
+                    .collect(Collectors.toMap(y -> y.getId(), y -> y, (f, s) -> s))
+                    .values().stream().collect(Collectors.toList());
+
+            matriculaResumen.setResumenesAportes(misResumenAporteAlumnos);
+
         }
         return matriculaResumens;
     }
@@ -1133,6 +1180,42 @@ public class MatriculableServiceImp implements MatriculableService {
             }
         }
         return puedeCalcular;
+    }
+
+    @Override
+    public ResumenAporteAlumno findResumenAporteAlumno(ResumenAporteAlumno resumenAporteAlumno) {
+        ResumenAporteAlumno resumen = resumenAporteAlumnoDAO.find(resumenAporteAlumno);
+        List<AporteAlumnoCiclo> aportesCiclo = aporteAlumnoCicloDAO.allByResumenAporteAlumno(resumen);
+        resumen.setAporteAlumnoCiclo(aportesCiclo);
+
+        return resumen;
+    }
+
+    @Override
+    public MatriculaResumen findMatriculaResumen(MatriculaResumen matriculaResumen) {
+        return matriculaResumenDAO.findFull(matriculaResumen);
+    }
+
+    @Override
+    public List<DeudaAlumno> allByAlumnoCiclo(Alumno alumno, CicloAcademico cicloAcademico) {
+        List<DeudaAlumno> deudasVer = new ArrayList();
+        List<DeudaAlumno> deudas = deudaAlumnoDAO.allByAlumnoCiclo(alumno, cicloAcademico);
+        for (DeudaAlumno deuda : deudas) {
+            if (Arrays.asList(DEU, PAG).contains(deuda.getEstadoEnum())
+                    && deuda.getMonto().compareTo(BigDecimal.ZERO) > 0) {
+                deudasVer.add(deuda);
+            }
+        }
+
+        List<Acreencia> acreencias = acreenciaDAO.allByDeudaAlumno(deudas);
+        Map<Long, Acreencia> mapAcreencias = TypesUtil.convertListToMap("instanciaTabla", acreencias);
+
+        for (DeudaAlumno deuda : deudasVer) {
+            Acreencia acree = mapAcreencias.get(deuda.getId());
+            deuda.setAcreencia(acree);
+        }
+
+        return deudasVer;
     }
 
 }

@@ -1,6 +1,7 @@
 package pe.edu.lamolina.pivot.dao.tramite.hibernate;
 
 import java.util.List;
+import java.util.Map;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
@@ -8,6 +9,8 @@ import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Docente;
+import pe.edu.lamolina.model.academico.Facultad;
+import static pe.edu.lamolina.model.enums.EstadoTramiteEnum.SOL_ANU;
 import static pe.edu.lamolina.model.enums.EstadoTramiteEnum.SOL_CUR_DIR;
 import pe.edu.lamolina.model.tramite.CursoDirigido;
 import pe.edu.lamolina.model.tramite.Resolucion;
@@ -33,17 +36,41 @@ public class CursoDirigidoDAOH extends AbstractEasyDAO<CursoDirigido> implements
     }
 
     @Override
-    public List<CursoDirigido> allByfacultades(DynatableFilter filters, Docente docente) {
+    public List<CursoDirigido> allByfacultades(DynatableFilter filters, CicloAcademico ciclo) {
         DynatableSql sql = new DynatableSql(filters)
                 .from(CursoDirigido.class, "cd")
                 .join("tramite tra", "curso ", "estado")
                 .join("tra.tipoTramite")
-                .left("tra.alumno al", "al.persona per")
+                .left("tra.alumno al", "tra.cicloAcademico ca", "al.persona per")
                 .join("al.carrera car", "car.facultad fa")
                 .leftJoin("per.tipoDocumento td", "al.cicloActivo cia", "al.cicloIngreso ci", "al.modalidadEstudio me", "al.situacionAcademica situ")
-                .leftJoin("per.paisNacer", "al.orientacionCarrera");
-
+                .leftJoin("per.paisNacer", "al.orientacionCarrera")
+                .filter("ca.id", ciclo)
+                .searchFields("al.codigo", "per.numeroDocIdentidad")
+                .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
+                .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
+                .orderBy("per.paterno");
+        sql.beginRelativeFilters();
+        this.setFacultad(filters, sql);
         return all(sql);
+    }
+
+    private void setFacultad(DynatableFilter filter, DynatableSql sql) {
+        Map<String, Object> queries = filter.getQueries();
+        if (queries == null) {
+            return;
+        }
+
+        for (String key : queries.keySet()) {
+            if (!key.equals("facultad-dirigido")) {
+                continue;
+            }
+
+            String values = (String) queries.get(key);
+            if (values != null) {
+                sql.filter("fa.id", values);
+            }
+        }
     }
 
     @Override
@@ -102,6 +129,23 @@ public class CursoDirigidoDAOH extends AbstractEasyDAO<CursoDirigido> implements
                 .left("tra.alumno al", "tra.cicloAcademico ca", "userRegistro ur")
                 .filter("es.codigo", SOL_CUR_DIR.name())
                 .filter("ca.id", cicloAcademico);
+
+        return all(sql);
+    }
+
+    @Override
+    public List<CursoDirigido> allByfacultades(Facultad facultad) {
+        Octavia sql = new Octavia()
+                .from(CursoDirigido.class, "cd")
+                .join("tramite tra", "curso ", "estado es")
+                .join("tra.tipoTramite")
+                .left("tra.alumno al", "al.persona per")
+                .join("al.carrera car", "car.facultad fa")
+                .leftJoin("per.tipoDocumento td", "al.cicloActivo cia", "al.cicloIngreso ci", "al.modalidadEstudio me", "al.situacionAcademica situ")
+                .leftJoin("per.paisNacer", "al.orientacionCarrera")
+                .filter("es.codigo", "!=", SOL_ANU.name())
+                .filter("fa.id", facultad)
+                .orderBy("per.paterno asc");
 
         return all(sql);
     }

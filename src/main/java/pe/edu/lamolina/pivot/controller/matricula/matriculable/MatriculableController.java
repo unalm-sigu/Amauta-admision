@@ -8,6 +8,7 @@ import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import javax.servlet.http.HttpSession;
@@ -41,12 +42,21 @@ import pe.edu.lamolina.model.academico.ConfiguracionTurnosAtencion;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
+import pe.edu.lamolina.model.aporte.AporteAlumnoCiclo;
+import pe.edu.lamolina.model.aporte.ResumenAporteAlumno;
+import pe.edu.lamolina.model.constantines.GlobalMessages;
+import static pe.edu.lamolina.model.enums.EstadoAporteEnum.DEBE;
+import static pe.edu.lamolina.model.enums.EstadoAporteEnum.PAGO;
+import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.RolEnum;
 import static pe.edu.lamolina.model.enums.RolEnum.FAC;
 import static pe.edu.lamolina.model.enums.RolEnum.MOD;
 import static pe.edu.lamolina.model.enums.RolEnum.TODO;
 import pe.edu.lamolina.model.enums.TipoCicloEnum;
 import pe.edu.lamolina.model.enums.TipoCondicionalEnum;
+import pe.edu.lamolina.model.finanzas.Acreencia;
+import pe.edu.lamolina.model.finanzas.DeudaAlumno;
+import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.pivot.controller.academico.alumno.AlumnoResumen;
 import pe.edu.lamolina.pivot.controller.visores.RespositorVisor;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
@@ -159,7 +169,7 @@ public class MatriculableController {
             for (MatriculaResumen matriculable : matriculables) {
                 ObjectNode node = JsonHelper.createJson(matriculable, JsonNodeFactory.instance, true,
                         new String[]{
-                            "id", "prioridad", "puntajePrioridad", "cursosMatriculados", "cursosRetirados", "motivoMatriculable", "esBeneficiadoUltimoCiclo", "esCondicional", "aporteCarnet",
+                            "id", "prioridad", "puntajePrioridad", "cursosMatriculados", "cursosRetirados", "motivoMatriculable", "esBeneficiadoUltimoCiclo", "esCondicional", "aporteCarnet", "boletaPendiente",
                             "prioridadAnterior", "alumno.persona.rutaFoto", "alumno.persona.tipoFoto", "alumno.persona.emailCompania", "alumno.persona.numeroDocIdentidad",
                             "creditosMatriculados", "creditosRetirados", "estado", "estadoEnum", "alumno.codigo",
                             "promedioSemestral",
@@ -176,7 +186,10 @@ public class MatriculableController {
                             "turnoAtencion.fechaHoraInicio",
                             "alumno.situacionAcademica.codigo",
                             "alumno.situacionAcademica.nombre",
-                            "alumno.situacionAcademica.descripcion",});
+                            "alumno.situacionAcademica.descripcion",
+                            "resumenesAportes.id",
+                            "resumenesAportes.montoTotal"
+                        });
                 if (matriculable.getPuntajePrioridad() != null) {
                     node.put("puntajePrioridad", NumberFormat.notaDecimalXDecimals(matriculable.getPuntajePrioridad(), 6));
                 }
@@ -641,6 +654,115 @@ public class MatriculableController {
         }
         return response;
 
+    }
+
+    @ResponseBody
+    @RequestMapping("getInfoAportes/{id}")
+    public JsonResponse getInfoAportes(@PathVariable("id") Long idResumen) {
+        JsonResponse json = new JsonResponse();
+
+        try {
+
+            JsonNodeFactory factory = JsonNodeFactory.instance;
+            ObjectNode info = new ObjectNode(factory);
+            ResumenAporteAlumno resumen = service.findResumenAporteAlumno(new ResumenAporteAlumno(idResumen));
+
+            if (resumen == null) {
+                throw new PhobosException(GlobalMessages.UNKNOWN);
+            }
+
+            Alumno alumno = resumen.getMatriculaResumen().getAlumno();
+            Persona persona = alumno.getPersona();
+
+            info.put("nombre", persona.getNombreCompleto());
+            info.put("codigo", alumno.getCodigo());
+            info.put("carrera", alumno.getCarrera().getNombre());
+
+            if (alumno.getModalidadEstudio().getCodigoEnum() == ModalidadEstudioEnum.EPG) {
+                info.put("modalidadEstudio", alumno.getCarrera().getTipoEnum().getValue());
+            } else {
+                info.put("modalidadEstudio", alumno.getModalidadEstudio().getNombre());
+            }
+            ArrayNode array = new ArrayNode(factory);
+
+            for (AporteAlumnoCiclo aporte : resumen.getAporteAlumnoCiclo()) {
+                if (Arrays.asList(DEBE.name(), PAGO.name()).contains(aporte.getEstado())) {
+                    ObjectNode node = JsonHelper.createJson(aporte, factory, true, new String[]{
+                        "monto", "pagado", "saldo", "numeroCuota", "estadoEnum",
+                        "aporteCiclo.aporte.nombre",
+                        "aporteCiclo.cuentaBancaria.nombre",
+                        "aporteCiclo.cuentaBancaria.numero"
+                    });
+                    array.add(node);
+                }
+            }
+
+            info.set("aporteAlumnoCiclo", array);
+
+            json.setData(info);
+            json.setSuccess(Boolean.TRUE);
+            json.setMessage("Datos cargados con éxito");
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, json);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, json);
+        } finally {
+            return json;
+        }
+    }
+
+    @ResponseBody
+    @RequestMapping("findBoleta/{idMatriculaResumen}")
+    public JsonResponse findBoleta(@PathVariable("idMatriculaResumen") Long idMatriculaResumen, HttpSession session) {
+        JsonResponse json = new JsonResponse();
+
+        try {
+
+            JsonNodeFactory factory = JsonNodeFactory.instance;
+            ObjectNode response = new ObjectNode(factory);
+
+            MatriculaResumen resumen = service.findMatriculaResumen(new MatriculaResumen(idMatriculaResumen));
+
+            Alumno alumno = resumen.getAlumno();
+
+            response.put("nombre", alumno.getPersona().getNombreCompleto());
+            response.put("carrera", alumno.getCarrera().getNombre());
+            if (alumno.getModalidadEstudio().getCodigoEnum() == ModalidadEstudioEnum.EPG) {
+                response.put("modalidadEstudio", alumno.getCarrera().getTipoEnum().getValue());
+            } else {
+                response.put("modalidadEstudio", alumno.getModalidadEstudio().getNombre());
+            }
+            ArrayNode array = new ArrayNode(factory);
+
+            List<DeudaAlumno> boletas = service.allByAlumnoCiclo(alumno, resumen.getCicloAcademico());
+            int numero = 1;
+            for (DeudaAlumno boleta : boletas) {
+                ObjectNode node = JsonHelper.createJson(boleta, factory, true, new String[]{
+                    "monto", "estadoEnum", "estado", "fechaEmision", "fechaVencimiento", "numeroCuota",
+                    "alumno.persona.numeroDocIdentidad",
+                    "cuentaBancaria.numero",
+                    "cuentaBancaria.nombre",
+                    "cuentaBancaria.empresa",
+                    "cuentaBancaria.banco"
+                });
+                node.put("numero", numero);
+                node.put("acreencia", boleta.getAcreencia()!=null?boleta.getAcreencia().getId():0);
+                array.add(node);
+                numero++;
+            }
+            response.set("boletas", array);
+
+            json.setSuccess(Boolean.TRUE);
+            json.setData(response);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, json);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, json);
+        } finally {
+            return json;
+        }
     }
 
 }

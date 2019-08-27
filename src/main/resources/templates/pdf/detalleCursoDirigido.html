@@ -65,7 +65,20 @@
             <b class="block" th:inline="text"> CURSO DIRIGIDO </b>
         </div>
         <div style="text-align: right; padding-top: 20px; padding-bottom: 20px;">
-            <span class="fecha" th:text="${fecha}">La Molina, miércoles 8 de agosto de 2018</span>
+            <table  cellspacing="0" cellpadding="0" width="100%">
+                <span class="fecha" th:text="${fecha}">La Molina, miércoles 8 de agosto de 2018</span>
+                <tr>
+                    <td width="200" style="text-center">
+                        <img height= "80px" src="logo-min.jpg" />
+                    </td>
+                    <td width="80%" style="text-align: center; padding-bottom: 20px;">
+                        <b style="font-size: 16px;"> UNIVERSIDAD NACIONAL AGRARIA LA MOLINA </b>
+                        <p style="font-family: serif; font-size: 12px;"> OFICINA DE ESTUDIOS Y REGISTROS ACADÉMICOS </p>
+                    </td>
+                    <td width="200">
+                    </td>
+                </tr>
+            </table>
         </div>
         <div >            
             <table class="tabled table-dirigido" align="center">
@@ -173,12 +186,12 @@
                             <span th:text="'Créditos: ' + ${cursoDirigido.curso.creditos}"> creditos </span>
                         </td>
                     </tr>
-<!--                    <tr>
-                        <td style="width: 35%"><b> Docente </b></td>
-                        <td>
-                            <p th:text="${cursoDirigido.docenteAsignado.persona.apellidosNombres}" style="padding-top: 2px; padding-bottom: 2px;"> nombre </p>
-                        </td>
-                    </tr>-->
+                    <!--                    <tr>
+                                            <td style="width: 35%"><b> Docente </b></td>
+                                            <td>
+                                                <p th:text="${cursoDirigido.docenteAsignado.persona.apellidosNombres}" style="padding-top: 2px; padding-bottom: 2px;"> nombre </p>
+                                            </td>
+                                        </tr>-->
 
                     <tr>
                         <td style="width: 25%" ><b> Situación </b></td>
@@ -187,16 +200,16 @@
                                 <label class="bold"> Programación:  </label>
                                 <span th:text="${situacionActual.programado}"></span>
                             </div>
-                            <div  th:if="${not #lists.isEmpty(situacionActual.vacantes)}">
-                                <label class="bold"> Vacancia en secciones: </label>
-                                <div class="form-group" th:each="vac : ${situacionActual.vacantes}"  >
-                                    <span  th:text="'Código sección: ' + ${vac.seccion}" ></span>
-                                    <br/>
-                                    <span >Disponibilidad:</span>
-                                    <span th:if="${vac.disponibilidad}" >Sí</span>
-                                    <span  th:unless="${vac.disponibilidad}" >No</span>
-                                </div>
-                            </div>
+                            <!--                            <div  th:if="${not #lists.isEmpty(situacionActual.vacantes)}">
+                                                            <label class="bold"> Vacancia en secciones: </label>
+                                                            <div class="form-group" th:each="vac : ${situacionActual.vacantes}"  >
+                                                                <span  th:text="'Código sección: ' + ${vac.seccion}" ></span>
+                                                                <br/>
+                                                                <span >Disponibilidad:</span>
+                                                                <span th:if="${vac.disponibilidad}" >Sí</span>
+                                                                <span  th:unless="${vac.disponibilidad}" >No</span>
+                                                            </div>
+                                                        </div>-->
                             <div th:if="${not #lists.isEmpty(situacionActual.cruceHorario)}">
                                 <label class="bold"> Cruce de horarios: </label>
                                 <div class="form-group"  th:each="cruceHor : ${situacionActual.cruceHorario}"  >
@@ -205,6 +218,9 @@
                                     <span >Horario</span>
                                     <span th:text="${cruceHor.horario}" ></span>
                                 </div>
+                            </div>
+                            <div th:if="${#lists.isEmpty(situacionActual.cruceHorario)}">
+                                <label class="bold"><b> Sin Cruce de horarios </b></label>                               
                             </div>
                         </td>
                     </tr>
@@ -217,6 +233,19 @@
                 </tbody>
             </table>
         </div>
+        <div style="text-align: center">
+<!--            <pre >Atentamente,</pre>-->
 
+            <br/>
+            <br/>
+            <br/>
+            <br/>
+
+            <pre  style="font-size: 14px;">
+            _____________________________
+                VICTOR MURILLO FEBRES
+             Jefe(e) Unidad de Registros
+            </pre>
+        </div>
     </body>
 </html>

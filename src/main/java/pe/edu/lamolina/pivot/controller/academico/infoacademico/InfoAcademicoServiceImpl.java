@@ -44,6 +44,7 @@ import pe.edu.lamolina.model.academico.ResumenPlanCurricular;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.aporte.AporteAlumnoCiclo;
 import pe.edu.lamolina.model.aporte.BoletaIngresante;
+import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.MAT;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.PMAT;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.RCI;
@@ -662,6 +663,31 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
             matResum.setCursosMatriculados(0);
         }
         return matResum;
+    }
+
+    @Override
+    public MatriculaResumen findResumenMatricula(Alumno alumno, CicloAcademico ciclo, List<MatriculaCurso> matriculaCursos) {
+        MatriculaResumen resumen = matriculaResumenDAO.findByAlumnoCiclo(alumno, ciclo);
+        if (resumen == null) {
+            resumen = new MatriculaResumen();
+            resumen.setEstadoEnum(EstadoMatriculaEnum.NMAT);
+        }
+        int cursosMat = 0;
+        int creditosMat = 0;
+        for (MatriculaCurso matCurso : matriculaCursos) {
+            if (matCurso.getEstadoEnum() == MAT) {
+                cursosMat++;
+                creditosMat += matCurso.getCreditos();
+            }
+        }
+
+        if (cursosMat != resumen.getCursosMatriculados() || creditosMat != resumen.getCreditosMatriculados()) {
+            resumen.setCursosMatriculados(cursosMat);
+            resumen.setCreditosMatriculados(creditosMat);
+            matriculaResumenDAO.update(resumen);
+        }
+
+        return resumen;
     }
 
     @Override
