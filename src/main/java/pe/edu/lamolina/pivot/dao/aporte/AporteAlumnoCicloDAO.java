@@ -4,7 +4,9 @@ import java.util.List;
 import pe.albatross.octavia.easydao.EasyDAO;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.aporte.AporteAlumnoCiclo;
+import pe.edu.lamolina.model.aporte.ResumenAporteAlumno;
 import pe.edu.lamolina.model.finanzas.DeudaAlumno;
 
 public interface AporteAlumnoCicloDAO extends EasyDAO<AporteAlumnoCiclo> {
@@ -14,5 +16,9 @@ public interface AporteAlumnoCicloDAO extends EasyDAO<AporteAlumnoCiclo> {
     List<AporteAlumnoCiclo> allAporteCarnetByCiclo(CicloAcademico cicloAcademico);
 
     List<AporteAlumnoCiclo> allByDeudasAlumno(List<DeudaAlumno> deudasAlumnos);
+
+    public List<AporteAlumnoCiclo> allAporteCarnetByMatriculaResumenCiclo(CicloAcademico cicloAcademico, List<MatriculaResumen> matriculaResumens);
+
+    public List<AporteAlumnoCiclo> allByResumenAporteAlumno(ResumenAporteAlumno resumen);
 
 }

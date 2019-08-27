@@ -1,0 +1,69 @@
+<modal-vik ref="modalBoletaAlumno"
+           v-bind="modalBoletaAlumno">
+
+    <div slot="header">
+        <div > 
+            <h4 class="block m-t-xxs m-b-xxs" v-text="modalTitulo"/>
+            <h5 class="block m-t-xxs m-b-xxs" v-text="modalSubtitulo"/>
+        </div>
+    </div>
+    <div slot="body">
+
+        <div v-for="boleta in resumenModal.boletas"
+             class="alert alert-warning" style=" background-color: #D0DDDE; border-color: #D6EDDE;color: #2B3E3F">
+            <h2 class="text-center" th:inline="text">Boleta de pago Nº <span v-text="boleta.acreencia"></span></h2>
+
+            <p  v-if="boleta.estado=='PAG'" class="text-center"><span class="label label-success m-2">{{boleta.estadoEnum.value}}</span></p>
+            <p  v-else="" class="text-center"><span  class="label label-danger m-2">{{boleta.estadoEnum.value}}</span></p>
+
+            <div >
+                <table class="table table-condensed">
+                    <tbody class="">                                                    
+                        <tr>
+                            <td style="width:40%">Entidad Bancaria</td>
+                            <td style="width:60%"><span v-text="boleta.cuentaBancaria.banco"></span></td>
+                        </tr>
+                        <tr>
+                            <td>Nombre Comercial</td>
+                            <td style="width:60%"><span v-text="boleta.cuentaBancaria.empresa"></span></td>
+                        </tr>
+                        <tr>
+                            <td>Número de la Cuenta</td>
+                            <td><span v-text="boleta.cuentaBancaria.numero"></span></td>
+                        </tr>
+                        <tr>
+                            <td>Concepto de Pago</td>
+                            <td><span v-text="boleta.cuentaBancaria.nombre"></span></td>
+                        </tr>
+                        <tr>
+                            <td>Código de Identificación (DNI)</td>
+                            <td><span v-text="boleta.alumno.persona.numeroDocIdentidad"></span></td>
+                        </tr>
+                        <tr>
+                            <td>Monto a Pagar</td>
+                            <td><span v-text="boleta.monto.toFixed(3)"></span> </td>
+                        </tr>
+                        
+                        <tr v-if="boleta.numeroCuota > 1">
+                            <td>Fecha a Pagar</td>
+                            <td><span v-text="boleta.fechaEmision"></span> </td>
+                        </tr>
+                        <tr v-if="boleta.numeroCuota > 1">
+                            <td>Nª Cuota</td>
+                            <td><span v-text="boleta.numeroCuota"></span> </td>
+                        </tr>
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div v-if="url != null ">
+            <a class="btn btn-primary" v-on:click="download">Descargar Boletas</a>
+        </div>
+
+    </div>
+</modal-vik>
+
+
+
+

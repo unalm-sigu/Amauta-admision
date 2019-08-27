@@ -86,4 +86,6 @@ public interface MatriculaResumenDAO extends EasyDAO<MatriculaResumen> {
 
     public MatriculaResumen findByCodigoCiclo(String codigo, CicloAcademico cicloAcademico);
 
+    public MatriculaResumen findFull(MatriculaResumen matriculaResumen);
+
 }

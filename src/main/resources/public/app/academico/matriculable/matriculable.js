@@ -51,11 +51,34 @@ new Vue({
         messageAvance: 0,
         porcentajeAvance: 0,
         configConfirmAction: VUE_MODAL.structConfirm({}),
-        procesando: false
-
+        procesando: false,
+        resumenModal: {},
+        confAporteAlumno: VUE_MODAL.structInfo({
+            id: 'modalAporteAlumno',
+            modalsize: 'modal-lg'
+        }),
+        modalBoletaAlumno: VUE_MODAL.structInfo({
+            id: 'modalBoletaAlumno',
+            title: 'Boletas del Alumno'
+        }),
+        url: null
     },
     mounted: function () {
 
+    },
+    computed: {
+        modalTitulo() {
+            let $vue = this;
+            return $vue.resumenModal.nombre;
+        },
+        modalSubtitulo() {
+            let $vue = this;
+            if ($vue.resumenModal.modalidadEstudio !== "Visitante" && $vue.resumenModal.modalidadEstudio !== "Especial") {
+                return $vue.resumenModal.carrera + " - " + $vue.resumenModal.modalidadEstudio;
+            } else {
+                return $vue.resumenModal.carrera;
+            }
+        }
     },
     methods: {
         style(item) {
@@ -445,56 +468,128 @@ new Vue({
         },
         asignarAporte(item) {
             let $vue = this;
-            MODAL.showWait("Espere un momento por favor");
+            $vue.configConfirmAction.message = '¿Seguro que desea asignarle el aporte?';
+            $vue.configConfirmAction.okaction = () => {
+                $vue.actionAsignarAporte(item);
+            };
+            $vue.$refs.modalConfirmAction.open();
+        },
+        actionAsignarAporte(item) {
+            let $vue = this;
             $.ajax({
                 method: 'POST',
                 url: APP.url('academico/matriculable/agregarAporteCarnet'),
                 contentType: "application/json",
                 data: JSON.stringify(item),
                 success: function (response) {
+                    $vue.$refs.modalConfirmAction.confirmReaction(response.success);
                     if (response.success) {
                         $vue.$refs.load.loadRemoteData();
-                        MODAL.hideWait();
                         notify(response.message, "success");
                     } else {
-                        MODAL.hideWait();
                         notify(response.message, "error");
                     }
                 },
                 error: function () {
                     notify(MESSAGES.errorComunicacion, "error");
-                    MODAL.hideWait();
+                    $vue.$refs.modalConfirmAction.confirmReaction(false);
                 }
             });
         },
         quitarAporte(item) {
             let $vue = this;
-            MODAL.showWait("Espere un momento por favor");
+            $vue.configConfirmAction.message = '¿Seguro que desea remover el aporte?';
+            $vue.configConfirmAction.okaction = () => {
+                $vue.actionQuitarAporte(item);
+            };
+            $vue.$refs.modalConfirmAction.open();
+        },
+        actionQuitarAporte(item) {
+            let $vue = this;
             $.ajax({
                 method: 'POST',
                 url: APP.url('academico/matriculable/quitarAporteCarnet'),
                 contentType: "application/json",
                 data: JSON.stringify(item),
                 success: function (response) {
+                    $vue.$refs.modalConfirmAction.confirmReaction(response.success);
                     if (response.success) {
                         $vue.$refs.load.loadRemoteData();
-                        MODAL.hideWait();
                         notify(response.message, "success");
                     } else {
-                        MODAL.hideWait();
                         notify(response.message, "error");
                     }
                 },
                 error: function () {
                     notify(MESSAGES.errorComunicacion, "error");
-                    MODAL.hideWait();
+                    $vue.$refs.modalConfirmAction.confirmReaction(false);
                 }
             });
         },
         urlGoMaipi(item) {
             let $vue = this;
             return APP.url('academico/alumno/' + item.alumno.id + '/goMaipi') + $vue.getOrigenURL();
-        }
+        },
+        verAportes(item) {
+            let $vue = this;
+            $vue.resumenModal = {};
+            $vue.$refs.modalAporteAlumno.open();
+            $vue.$refs.modalAporteAlumno.showWait("Cargando aportes");
+
+            $.ajax({
+                method: 'POST',
+                url: APP.url('academico/matriculable/getInfoAportes/' + item.id),
+                contentType: "application/json",
+                success: function (response) {
+                    if (response.success) {
+                        $vue.$refs.modalAporteAlumno.hideWait();
+                        $vue.resumenModal = response.data;
+                    } else {
+                        $vue.$refs.modalAporteAlumno.close();
+                        notify(response.message, "error");
+                    }
+
+                },
+                error() {
+                    $vue.$refs.modalAporteAlumno.close();
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+        },
+        verBoletas(item) {
+            let $vue = this;
+            let idMatriculaResumen = item.id;
+
+            $vue.resumenModal = {};
+            $vue.url = null;
+            $vue.$refs.modalBoletaAlumno.open();
+            $vue.$refs.modalBoletaAlumno.showWait("Buscando boletas..");
+
+            $.ajax({
+                method: 'POST',
+                url: APP.url('academico/matriculable/findBoleta/' + idMatriculaResumen),
+                contentType: "application/json",
+                success: function (response) {
+                    if (response.success) {
+                        $vue.$refs.modalBoletaAlumno.hideWait();
+                        if (response.data.boletas.length == 0) {
+                            $vue.$refs.modalBoletaAlumno.close();
+                            notify("No existen boletas generadas para este alumno", "warning");
+                            return;
+                        }
+                        $vue.resumenModal = response.data;
+
+                    } else {
+                        $vue.$refs.modalBoletaAlumno.close();
+                        notify(response.message, "error");
+                    }
+                },
+                error() {
+                    $vue.$refs.modalBoletaAlumno.close();
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+        },
     }
 });
 

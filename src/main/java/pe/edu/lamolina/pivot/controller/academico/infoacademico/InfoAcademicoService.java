@@ -45,6 +45,8 @@ public interface InfoAcademicoService {
 
     MatriculaResumen findResumenMatricula(Alumno alumno, CicloAcademico ciclo);
 
+    MatriculaResumen findResumenMatricula(Alumno alumno, CicloAcademico ciclo, List<MatriculaCurso> matriculaCursos);
+
     List<HorarioSeccion> allSeccionHorarioAlumnoByAlumnoCicloACademico(Alumno alumno, CicloAcademico academico);
 
     ObjectNode findHorarioBySeccionesHorarios(List<HorarioSeccion> seccionesHorarios);

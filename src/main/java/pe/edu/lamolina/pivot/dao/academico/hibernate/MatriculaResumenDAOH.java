@@ -730,4 +730,14 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
         return all(sql);
     }
 
+    @Override
+    public MatriculaResumen findFull(MatriculaResumen matriculaResumen) {
+        Octavia sql = Octavia.query()
+                .from(MatriculaResumen.class, "mr")
+                .join("alumno alu", "cicloAcademico ca", "alu.modalidadEstudio", "alu.carrera car", "car.facultad")
+                .leftJoin("turnoAtencion", "situacionInicio", "situacionFinal")
+                .filter("mr.id", matriculaResumen);
+        return find(sql);
+    }
+
 }

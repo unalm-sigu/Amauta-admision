@@ -34,10 +34,8 @@ import pe.edu.lamolina.model.academico.OrientacionCarrera;
 import pe.edu.lamolina.model.academico.PlanCurricular;
 import pe.edu.lamolina.model.academico.RequisitoCursoCurricula;
 import pe.edu.lamolina.model.aporte.BoletaIngresante;
-import pe.edu.lamolina.model.enums.RolEnum;
 import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.horario.HorarioSeccion;
-import pe.edu.lamolina.model.seguridad.Rol;
 import pe.edu.lamolina.pivot.controller.academico.plancurricular.PlanCurricularService;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -202,7 +200,7 @@ public class InfoAcademicoController {
             }
             data.set("cursos", cursosJson);
 
-            MatriculaResumen matResum = service.findResumenMatricula(alumno, ciclo);
+            MatriculaResumen matResum = service.findResumenMatricula(alumno, ciclo, matriculaCursos);
             data.set("resumen", JsonHelper.createJson(matResum, factory, true, new String[]{
                 "creditosMatriculados",
                 "cursosMatriculados"

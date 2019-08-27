@@ -10,6 +10,8 @@ import pe.edu.lamolina.model.academico.ConfiguracionTurnosAtencion;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
+import pe.edu.lamolina.model.aporte.ResumenAporteAlumno;
+import pe.edu.lamolina.model.finanzas.DeudaAlumno;
 import pe.edu.lamolina.pivot.controller.academico.alumno.AlumnoResumen;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -72,5 +74,11 @@ public interface MatriculableService {
     void actualizarPrioridadCero(DataSessionPivot ds);
 
     boolean usuarioPuedeCalcular(DataSessionPivot ds);
+
+    public ResumenAporteAlumno findResumenAporteAlumno(ResumenAporteAlumno resumenAporteAlumno);
+
+    public MatriculaResumen findMatriculaResumen(MatriculaResumen matriculaResumen);
+
+    public List<DeudaAlumno> allByAlumnoCiclo(Alumno alumno, CicloAcademico cicloAcademico);
 
 }

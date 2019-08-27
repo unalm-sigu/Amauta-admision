@@ -1,0 +1,52 @@
+<modal-vik ref="modalAporteAlumno"
+           v-bind="confAporteAlumno">
+
+    <div slot="header">
+        <div > 
+            <h4 class="block m-t-xxs m-b-xxs" v-text="modalTitulo"/>
+            <h5 class="block m-t-xxs m-b-xxs" v-text="modalSubtitulo"/>
+        </div>
+    </div>
+
+    <div slot="body">
+
+        <div>
+
+        </div>
+        <div>
+            <table class="table table-striped table-hover">
+                <thead> 
+                    <tr>
+                        <th class="col-md-4">Aporte</th>
+                        <th class="text-center">Cuota</th>
+                        <th class="col-md-1 text-right">Monto</th>
+                        <th class="col-md-1 text-right">Pagado</th>
+                        <th class="col-md-1 text-right">Saldo</th>
+                        <th class="col-md-5 ">Cuenta Bancaria</th>
+                    </tr> 
+                </thead>
+                <tbody>
+                    <tr v-for="item in resumenModal.aporteAlumnoCiclo">
+                        <td> 
+                            <span class="block" v-text="item.aporteCiclo.aporte.nombre"> </span> 
+                            <span v-if="item.estadoEnum.name=='PAGO' " class="label label-success" v-text="item.estadoEnum.value"></span>
+                            <span v-if="item.estadoEnum.name=='DEBE' " class="label label-danger" v-text="item.estadoEnum.value"></span>
+                        </td>
+                        <td class="text-center v-middle"><span class="badge badge-default" v-text="item.numeroCuota"></span></td>
+                        <td class="text-right m-r-lg v-middle"> <span v-text="item.monto.toFixed(2)" > </span> </td>
+                        <td class="text-right v-middle"> <span v-text="item.pagado.toFixed(2)" > </span> </td>
+                        <td class="text-right v-middle"> <span v-text="item.saldo.toFixed(2)" > </span> </td>
+                        <td class="">
+                            <span class="block bold" v-text="item.aporteCiclo.cuentaBancaria.nombre" >  </span> 
+                            <span class="block text-primary" v-text="item.aporteCiclo.cuentaBancaria.numero" > </span> 
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+</modal-vik>
+
+
+
