@@ -1,15 +1,17 @@
 package pe.edu.lamolina.pivot.controller.academico.tramitesacademicos.cursoDirigido;
 
-import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.edu.lamolina.model.academico.Docente;
+import static pe.edu.lamolina.model.enums.EstadoTramiteEnum.SOL_ANU;
 import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
 import pe.edu.lamolina.model.tramite.AccionTramiteAcademico;
 import pe.edu.lamolina.model.tramite.CursoDirigido;
+import pe.edu.lamolina.model.tramite.EstadoTramite;
 import pe.edu.lamolina.model.tramite.Tramite;
 import pe.edu.lamolina.pivot.dao.tramite.AccionTramiteAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.tramite.CursoDirigidoDAO;
@@ -59,6 +61,21 @@ public class CursoDirigidoServiceImp implements CursoDirigidoService {
         tramiteDAO.updateEstado(tramite);
 
         cursoDirigido.setEstado(accionTramiteAcademico.getEstadoTramiteFinal());
+        cursoDirigidoDAO.updateEstado(cursoDirigido);
+    }
+
+    @Override
+    @Transactional
+    public void anular(CursoDirigido cursoDirigido, DataSessionPivot ds) {
+
+        Tramite tramite = cursoDirigido.getTramite();
+
+        tramite.setEstadoEnum(TramiteEstadoEnum.ANU);
+        tramite.setFechaModificacion(new Date());
+        tramite.setUserModificacion(ds.getUsuario());
+        tramiteDAO.updateEstado(tramite);
+
+        cursoDirigido.setEstado(new EstadoTramite(SOL_ANU.getId()));
         cursoDirigidoDAO.updateEstado(cursoDirigido);
     }
 

@@ -8,9 +8,10 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface CursoDirigidoService {
 
-    public List<CursoDirigido> allByFacultades( DynatableFilter filters, Docente docente);
+    public List<CursoDirigido> allByFacultades(DynatableFilter filters, Docente docente);
 
     public void update(CursoDirigido cursoDirigido, DataSessionPivot ds);
 
+    void anular(CursoDirigido cursoDirigido, DataSessionPivot ds);
 
 }

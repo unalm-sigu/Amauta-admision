@@ -9,12 +9,34 @@
 
                 <header class="header b-b padder-lg">
                     <h1 v-text="'Curso Dirigido'"></h1>
+                    <div class="pull-right m-t-md">                
+                        <button type="button" v-on:click="dowloadListFac" class="btn btn-success  pull-right "> Descargar Listado Fac. </button>
+                        <button type="button" v-on:click="dowloadRepFac" class="btn btn-success  pull-right m-r-md"> Descargar Reportes x Fac. </button>
+                    </div>  
                 </header>
 
                 <section class="wrapper-lg m-b-xs">
                     <section class="panel">
                         <section class="panel-body m-t-sm">
                             <div class="col-md-12 col-md-offset-0">
+                                <div class="row">
+                                    <div class="col-md-5" >
+                                        <label>Facultad</label>
+                                        <multiselect v-model="facultad" 
+                                                     v-bind:options='listFacultad'
+                                                     label='nombre'
+                                                     track-by='id'
+                                                     placeholder="Seleccione una facultad"
+                                                     v-bind:preselect="false"
+                                                     v-bind:show-labels="false"
+                                                     v-bind:hide-selected="false"
+                                                     v-bind:disabled="isDisabled"
+                                                     v-on:input="changeFacultadSelected">
+                                            <template slot="noOptions">La lista se encuentra vacía</template>
+                                            <template slot="noResult">No se encontraron resultados</template>
+                                        </multiselect>
+                                    </div>
+                                </div>
                                 <raptor-table v-bind:url="cursoDirigidoURL" ref="load">
                                     <template  scope="props" >
 
@@ -49,6 +71,7 @@
                                                     <td class="v-middle text-left">
                                                         <span class="block bold "> <a>{{item.tramite.alumno.persona.nombreCompleto}}</a> </span> 
                                                         <span class="block bold " v-if="item.tramite.alumno.carrera.nombre!=item.tramite.alumno.carrera.facultad.nombre"> {{item.tramite.alumno.carrera.nombre}} - {{item.tramite.alumno.carrera.facultad.nombre}} </span> 
+                                                        <span class="block bold " v-else=""> {{item.tramite.alumno.carrera.facultad.nombre}} </span> 
                                                         <span class="block bold " v-if="item.tramite.alumno.persona.numeroDocIdentidad!=null"> {{item.tramite.alumno.persona.tipoDocumento.simbolo}} - {{item.tramite.alumno.persona.numeroDocIdentidad}} </span> 
                                                         <span class="block bold " > {{item.tramite.alumno.codigo}}</span> 
                                                         <span class="block bold " > {{item.tramite.alumno.situacionAcademica.descripcion}}</span> 
@@ -97,7 +120,7 @@
                                                         </div>
                                                     </td>
                                                     <td class="v-middle">
-                                                        <span class="block text-muted"> {{item.estado.nombre}}</span>
+                                                        <span class="block " v-bind:class="classColor(item.estado.codigo)"> {{item.estado.nombre}}</span>
                                                     </td>
                                                     <td class="v-middle">
                                                         <div class="actions" v-if="item.estado.codigo == 'SOL_CUR_DIR'">
@@ -105,6 +128,7 @@
                                                             <ul class="dropdown-menu pull-right" >
                                                                 <li v-for="accion in item.accionTramite"><a  href="#" v-on:click="actualizar(item, accion)" v-text="accion.opcion">Ver Trámite</a></li>
                                                                 <li><a v-bind:href="urlAcademico(item)">Información académica</a></li>
+                                                                <li><a v-on:click="anular(item)">Anular</a></li>
                                                                 <li ><a v-bind:href="urlReporteDirigido(item)">Reporte</a></li>
                                                             </ul>
                                                         </div>
@@ -123,6 +147,9 @@
 
         <div layout:fragment="js">
             <script th:inline="javascript">
+                /*<![CDATA[*/
+                var facultadesJson = /*[[${facultades}]]*/ '';
+                /*]]>*/
             </script>
             <div th:substituteby="_modules/vue-modal"/>
             <div th:substituteby="_layout/includes :: vuejs"/>

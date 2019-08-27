@@ -2126,10 +2126,16 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
                 throw new PhobosException("Esta sección ya tiene asignada esta aula.");
             }
         }
-
+        Assert.isNotNull(seccion.getVacantes(), "La sección no tiene vacantes, verifique.");
         if (seccion.getVacantes() != null) {
-            if (seccion.getVacantes().compareTo(aula.getCapacidadAula()) > 0) {
-                throw new PhobosException("La capacidad del aula no abarca las vacantes de la sección.");
+            if (seccion.getMatriculados() == null || seccion.getMatriculados().intValue() == 0) {
+                if (seccion.getVacantes().compareTo(aula.getCapacidadAula()) > 0) {
+                    throw new PhobosException("La capacidad del aula no abarca las vacantes de la sección.");
+                }
+            } else {
+                if (seccion.getMatriculados().compareTo(aula.getCapacidadAula()) > 0) {
+                    throw new PhobosException("La capacidad del aula no abarca los matriculados de la sección.");
+                }
             }
         }
 
