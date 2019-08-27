@@ -169,7 +169,7 @@ public class MatriculableController {
             for (MatriculaResumen matriculable : matriculables) {
                 ObjectNode node = JsonHelper.createJson(matriculable, JsonNodeFactory.instance, true,
                         new String[]{
-                            "id", "prioridad", "puntajePrioridad", "cursosMatriculados", "cursosRetirados", "motivoMatriculable", "esBeneficiadoUltimoCiclo", "esCondicional", "aporteCarnet",
+                            "id", "prioridad", "puntajePrioridad", "cursosMatriculados", "cursosRetirados", "motivoMatriculable", "esBeneficiadoUltimoCiclo", "esCondicional", "aporteCarnet", "boletaPendiente",
                             "prioridadAnterior", "alumno.persona.rutaFoto", "alumno.persona.tipoFoto", "alumno.persona.emailCompania", "alumno.persona.numeroDocIdentidad",
                             "creditosMatriculados", "creditosRetirados", "estado", "estadoEnum", "alumno.codigo",
                             "promedioSemestral",
@@ -188,9 +188,8 @@ public class MatriculableController {
                             "alumno.situacionAcademica.nombre",
                             "alumno.situacionAcademica.descripcion",
                             "resumenesAportes.id",
-                            "resumenesAportes.montoTotal",
-                            "resumenesAportes.aporteAlumnoCiclo.monto",
-                            "resumenesAportes.aporteAlumnoCiclo.aporteCiclo.aporte.nombre",});
+                            "resumenesAportes.montoTotal"
+                        });
                 if (matriculable.getPuntajePrioridad() != null) {
                     node.put("puntajePrioridad", NumberFormat.notaDecimalXDecimals(matriculable.getPuntajePrioridad(), 6));
                 }
