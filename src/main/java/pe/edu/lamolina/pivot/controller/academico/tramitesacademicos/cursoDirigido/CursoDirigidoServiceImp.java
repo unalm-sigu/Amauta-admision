@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Docente;
 import static pe.edu.lamolina.model.enums.EstadoTramiteEnum.SOL_ANU;
 import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
@@ -36,11 +37,11 @@ public class CursoDirigidoServiceImp implements CursoDirigidoService {
     TramiteDAO tramiteDAO;
 
     @Override
-    public List<CursoDirigido> allByFacultades(DynatableFilter filters, Docente docente) {
+    public List<CursoDirigido> allByFacultades(DynatableFilter filters, CicloAcademico ciclo) {
 //        if (docente == null) {
 //            return new ArrayList<>();
 //        }
-        List<CursoDirigido> cursoDirigidos = cursoDirigidoDAO.allByfacultades(filters, docente);
+        List<CursoDirigido> cursoDirigidos = cursoDirigidoDAO.allByfacultades(filters, ciclo);
 //        for (CursoDirigido cursoDirigido : cursoDirigidos) {
 //            Tramite tramite = cursoDirigido.getTramite();
 //            List<AccionTramiteAcademico> accionesTramitesAcademicos = accionTramiteAcademicoDAO.allByTipoTramiteAndEstadoTramiteInicial(tramite.getTipoTramite(), cursoDirigido.getEstado());
@@ -68,6 +69,7 @@ public class CursoDirigidoServiceImp implements CursoDirigidoService {
     @Transactional
     public void anular(CursoDirigido cursoDirigido, DataSessionPivot ds) {
 
+        cursoDirigido = cursoDirigidoDAO.find(cursoDirigido.getId());
         Tramite tramite = cursoDirigido.getTramite();
 
         tramite.setEstadoEnum(TramiteEstadoEnum.ANU);

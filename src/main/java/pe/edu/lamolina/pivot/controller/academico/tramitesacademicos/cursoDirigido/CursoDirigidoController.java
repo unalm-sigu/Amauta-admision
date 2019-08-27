@@ -104,7 +104,7 @@ public class CursoDirigidoController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         try {
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
-            List<CursoDirigido> cursoDirigidos = service.allByFacultades(filter, ds.getDocente());
+            List<CursoDirigido> cursoDirigidos = service.allByFacultades(filter, ds.getCicloAcademico());
 
             for (CursoDirigido cursoDirigido : cursoDirigidos) {
                 ObjectNode node = JsonHelper.createJson(cursoDirigido, JsonNodeFactory.instance, new String[]{

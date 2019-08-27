@@ -51,6 +51,8 @@ new Vue({
         },
         anular(item) {
             let $vue = this;
+            var data = {};
+            data.id = item.id;
             bootbox.confirm({
                 message: "¿Está seguro que desea anular el curso dirigido?",
                 buttons: {
@@ -65,7 +67,7 @@ new Vue({
                             method: 'POST',
                             async: false,
                             url: APP.url('academico/cursodirigido/anular'),
-                            data: JSON.stringify(item),
+                            data: JSON.stringify(data),
                             contentType: "application/json",
                             success: function (response) {
                                 if (response.success) {
@@ -78,6 +80,7 @@ new Vue({
                                 notify(MESSAGES.errorComunicacion, "error");
                             }
                         });
+                        MODAL.hideWait();
                     }
 
                 }
