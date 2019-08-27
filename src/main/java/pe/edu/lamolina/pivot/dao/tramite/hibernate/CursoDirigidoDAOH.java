@@ -19,22 +19,22 @@ import pe.edu.lamolina.pivot.dao.tramite.CursoDirigidoDAO;
 
 @Repository
 public class CursoDirigidoDAOH extends AbstractEasyDAO<CursoDirigido> implements CursoDirigidoDAO {
-    
+
     public CursoDirigidoDAOH() {
         super();
         setClazz(CursoDirigido.class);
     }
-    
+
     @Override
     public CursoDirigido findByTramite(Tramite tramite) {
         Octavia sql = Octavia.query(CursoDirigido.class, "cd")
                 .join("tramite tra", "tra.tipoTramite", "curso cur")
                 .left("docenteAsignado da", "cur.departamentoAcademico", "da.persona")
                 .filter("tra.id", tramite);
-        
+
         return find(sql);
     }
-    
+
     @Override
     public List<CursoDirigido> allByfacultades(DynatableFilter filters, CicloAcademico ciclo) {
         DynatableSql sql = new DynatableSql(filters)
@@ -45,47 +45,51 @@ public class CursoDirigidoDAOH extends AbstractEasyDAO<CursoDirigido> implements
                 .join("al.carrera car", "car.facultad fa")
                 .leftJoin("per.tipoDocumento td", "al.cicloActivo cia", "al.cicloIngreso ci", "al.modalidadEstudio me", "al.situacionAcademica situ")
                 .leftJoin("per.paisNacer", "al.orientacionCarrera")
-                .filter("ca.id", ciclo);
+                .filter("ca.id", ciclo)
+                .searchFields("al.codigo", "per.numeroDocIdentidad")
+                .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
+                .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
+                .orderBy("per.paterno");
         sql.beginRelativeFilters();
         this.setFacultad(filters, sql);
         return all(sql);
     }
-    
+
     private void setFacultad(DynatableFilter filter, DynatableSql sql) {
         Map<String, Object> queries = filter.getQueries();
         if (queries == null) {
             return;
         }
-        
+
         for (String key : queries.keySet()) {
             if (!key.equals("facultad-dirigido")) {
                 continue;
             }
-            
+
             String values = (String) queries.get(key);
             if (values != null) {
                 sql.filter("fa.id", values);
             }
         }
     }
-    
+
     @Override
     public void updateEstado(CursoDirigido cursoDirigido) {
         Octavia octavia = Octavia.update(CursoDirigido.class);
         octavia.set(cursoDirigido, "estado");
         this.update(octavia);
     }
-    
+
     @Override
     public List<CursoDirigido> allByTramites(List<Tramite> tramites) {
         Octavia sql = Octavia.query(CursoDirigido.class, "cd")
                 .left("tramite tra", "docenteAsignado doc", "estado", "facultad")
                 .left("doc.persona", "doc.departamentoAcademico")
                 .in("tra.id", tramites);
-        
+
         return all(sql);
     }
-    
+
     @Override
     public List<CursoDirigido> allByResolucion(DynatableFilter filter, Resolucion resolucion) {
         DynatableSql sql = new DynatableSql(filter)
@@ -97,10 +101,10 @@ public class CursoDirigidoDAOH extends AbstractEasyDAO<CursoDirigido> implements
                 .leftJoin("per.tipoDocumento td", "al.cicloActivo cia", "al.cicloIngreso ci", "al.modalidadEstudio me", "al.situacionAcademica situ")
                 .leftJoin("per.paisNacer", "al.orientacionCarrera")
                 .filter("res.id", resolucion);
-        
+
         return all(sql);
     }
-    
+
     @Override
     public List<CursoDirigido> allByResolucion(Resolucion resolucion) {
         Octavia sql = new Octavia()
@@ -112,10 +116,10 @@ public class CursoDirigidoDAOH extends AbstractEasyDAO<CursoDirigido> implements
                 .leftJoin("per.tipoDocumento td", "al.cicloActivo cia", "al.cicloIngreso ci", "al.modalidadEstudio me", "al.situacionAcademica situ")
                 .leftJoin("per.paisNacer", "al.orientacionCarrera")
                 .filter("res.id", resolucion);
-        
+
         return all(sql);
     }
-    
+
     @Override
     public List<CursoDirigido> allByCicloAcademicoSol(CicloAcademico cicloAcademico) {
         Octavia sql = new Octavia()
@@ -125,10 +129,10 @@ public class CursoDirigidoDAOH extends AbstractEasyDAO<CursoDirigido> implements
                 .left("tra.alumno al", "tra.cicloAcademico ca", "userRegistro ur")
                 .filter("es.codigo", SOL_CUR_DIR.name())
                 .filter("ca.id", cicloAcademico);
-        
+
         return all(sql);
     }
-    
+
     @Override
     public List<CursoDirigido> allByfacultades(Facultad facultad) {
         Octavia sql = new Octavia()
@@ -139,11 +143,10 @@ public class CursoDirigidoDAOH extends AbstractEasyDAO<CursoDirigido> implements
                 .join("al.carrera car", "car.facultad fa")
                 .leftJoin("per.tipoDocumento td", "al.cicloActivo cia", "al.cicloIngreso ci", "al.modalidadEstudio me", "al.situacionAcademica situ")
                 .leftJoin("per.paisNacer", "al.orientacionCarrera")
-                .filter("es.codigo", "!=", SOL_ANU.name()
-                )
+                .filter("es.codigo", "!=", SOL_ANU.name())
                 .filter("fa.id", facultad);
-        
+
         return all(sql);
     }
-    
+
 }
