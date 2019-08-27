@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.SortedMap;
@@ -20,6 +21,7 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.context.Context;
@@ -34,6 +36,7 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.CursoCurricula;
 import pe.edu.lamolina.model.academico.Docente;
+import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
@@ -94,102 +97,106 @@ import pe.edu.lamolina.pivot.controller.academico.reunionconsejo.ReunionConsejoS
 import pe.edu.lamolina.pivot.controller.general.oficina.OficinaService;
 import pe.edu.lamolina.pivot.controller.matricula.matriculable.MatriculableService;
 import pe.edu.lamolina.pivot.dao.academico.DocenteDAO;
+import pe.edu.lamolina.pivot.dao.academico.FacultadDAO;
 
 @Service
 @Transactional(readOnly = true)
 public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
-    
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    
+
     @Autowired
     TramiteDAO tramiteDAO;
-    
+
     @Autowired
     ReincorporacionDAO reincorporacionDAO;
-    
+
     @Autowired
     TipoTramiteDAO tipoTramiteDAO;
-    
+
+    @Autowired
+    FacultadDAO facultadDAO;
+
     @Autowired
     FlujoTramiteAcademicoDAO flujoTramiteAcademicoDAO;
-    
+
     @Autowired
     OficinaDAO oficinaDAO;
-    
+
     @Autowired
     AlumnoDAO alumnoDAO;
-    
+
     @Autowired
     ReunionConsejoDAO reunionConsejoDAO;
-    
+
     @Autowired
     TramiteReunionConsejoDAO tramiteReunionConsejoDAO;
-    
+
     @Autowired
     FlujoTramiteAcademicoService flujoTramiteAcademicoService;
-    
+
     @Autowired
     AccionTramiteAcademicoDAO accionTramiteAcademicoDAO;
-    
+
     @Autowired
     FormularioEstadoTramiteDAO formularioEstadoTramiteDAO;
-    
+
     @Autowired
     MatriculaResumenDAO matriculaResumenDAO;
-    
+
     @Autowired
     MatriculaSeccionDAO matriculaSeccionDAO;
-    
+
     @Autowired
     CursoDirigidoDAO cursoDirigidoDAO;
-    
+
     @Autowired
     AlumnoCursoCurriculaDAO alumnoCursoCurriculaDAO;
-    
+
     @Autowired
     AlumnoCicloCursoDAO alumnoCicloCursoDAO;
-    
+
     @Autowired
     PdfGenerator pdfGenerator;
-    
+
     @Autowired
     InfoAcademicoService infoAcademicoService;
-    
+
     @Autowired
     HoraDAO horaDAO;
-    
+
     @Autowired
     DiaDAO diaDAO;
-    
+
     @Autowired
     CursoDAO cursoDAO;
-    
+
     @Autowired
     CicloAcademicoDAO cicloAcademicoDAO;
-    
+
     @Autowired
     AlumnoCicloDAO alumnoCicloDAO;
-    
+
     @Autowired
     AutorizacionRegistroDAO autorizacionRegistroDAO;
-    
+
     @Autowired
     PromedioService promedioService;
-    
+
     @Autowired
     MatriculableService matriculableService;
-    
+
     @Autowired
     OficinaService oficinaService;
-    
+
     @Autowired
     DocenteDAO docenteDAO;
-    
+
     @Autowired
     ReunionConsejoService reunionConsejoService;
-    
+
     private DateTime today = new DateTime();
-    
+
     @Override
     public List<Tramite> allTramitesByFilter(DynatableFilter filter, DataSessionPivot ds) {
         List<Tramite> tramites = tramiteDAO.allByFilter(filter);
@@ -199,21 +206,21 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
         List<CursoDirigido> cursosDirigidos = cursoDirigidoDAO.allByTramites(tramites);
         List<Oficina> oficinas = new ArrayList();
         for (Tramite tramite : tramites) {
-            
+
             List<Reincorporacion> reincorporacionesTramite = reincorporacions.stream().filter(x -> Objects.equals(x.getTramite().getId(), tramite.getId())).collect(Collectors.toList());
             List<CursoDirigido> cursosDirigidosTramite = cursosDirigidos.stream().filter(x -> Objects.equals(x.getTramite().getId(), tramite.getId())).collect(Collectors.toList());
             tramite.setReincorporaciones(reincorporacionesTramite);
             tramite.setCursoDirigido(cursosDirigidosTramite);
-            
+
             TramiteReunionConsejo tramiteReunionConsejo = tramiteReunionConsejoDAO.findByTramite(tramite);
-            
+
             if (tramiteReunionConsejo != null) {
                 tramite.setTramitesReunionConsejo(new ArrayList<>());
                 tramite.getTramitesReunionConsejo().add(tramiteReunionConsejo);
             } else {
                 tramite.setTramitesReunionConsejo(null);
             }
-            
+
             if (tramite.getReincorporaciones() != null && !tramite.getReincorporaciones().isEmpty()) {
                 Reincorporacion reincorporacion = tramite.getReincorporaciones().get(0);
                 tramite.setEstadoTramite(reincorporacion.getEstadoTramite());
@@ -248,25 +255,25 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
                     req -> req.getTipoTramite().equals(tramite.getTipoTramite())
                     && req.getEstadoTramiteInicio().equals(tramite.getEstadoTramite())
             ).collect(Collectors.toList());
-            
+
             tramite.setAccionesTramitesAcademico(accionesTramitesAcademicosBy);
-            
+
             FormularioEstadoTramite formularioEstadoTramite = formulariosEstadoTramite.stream().filter(x
                     -> x.getEstadoTramite().equals(tramite.getEstadoTramite())
                     && x.getTipoTramite().equals(tramite.getTipoTramite())).findFirst().orElse(null);
-            
+
             tramite.setFormularioEstadoTramite(formularioEstadoTramite);
-            
+
         }
         return tramites;
     }
-    
+
     @Override
     public List<ReunionConsejo> allReunionConsejoByDyna(DynatableFilter filter, List<Oficina> oficina) {
         List<ReunionConsejo> reunionesConsejo = reunionConsejoDAO.allByDynatable(filter, oficina);
         return reunionesConsejo;
     }
-    
+
     @Override
     @Transactional
     public void revertTramiteAcademico(Tramite tramite, DataSessionPivot ds) {
@@ -288,7 +295,7 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
             flujoTramiteAcademicoService.saveFlujoTramite(tramite, ds.getUsuario(), today, true);
         }
     }
-    
+
     @Override
     public Tramite findTramite(Long tramiteId) {
         Tramite tramite = tramiteDAO.findById(new Tramite(tramiteId));
@@ -310,27 +317,27 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
         tramite.setTramiteReunionConsejo(tramiteReunionConsejo);
         return tramite;
     }
-    
+
     @Override
     @Transactional
     public void aceptarSolReincorporacion(Tramite tramite, AccionTramiteAcademico accionTramiteAcademico, DataSessionPivot ds) {
         today = new DateTime();
-        
+
         accionTramiteAcademico = accionTramiteAcademicoDAO.find(accionTramiteAcademico.getId());
         this.procesarTramite(tramite, accionTramiteAcademico, ds);
     }
-    
+
     @Override
     @Transactional
     public void procesarTramite(Tramite tramiteForm, AccionTramiteAcademico accionTramiteAcademico, DataSessionPivot ds) {
         today = new DateTime();
-        
+
         Tramite tramite = this.findTramite(tramiteForm.getId());
         accionTramiteAcademico = accionTramiteAcademicoDAO.find(accionTramiteAcademico.getId());
         AutorizacionRegistro autorizacionRegistro = autorizacionRegistroDAO.findByTramite(tramite);
         logger.debug("EstadoTramite Inicio {}, Estado Fin {}", ObjectUtil.getParentTree(accionTramiteAcademico, "estadoTramiteInicio.nombre"), ObjectUtil.getParentTree(accionTramiteAcademico, "estadoTramiteFinal.nombre"));
         logger.debug("Autorizacion Registro {}", autorizacionRegistro != null ? autorizacionRegistro.getId() : "No tiene");
-        
+
         Tramite tramiteUpd = new Tramite();
         tramiteUpd.setId(tramite.getId());
         tramiteUpd.setEstadoEnum(TramiteEstadoEnum.PROC);
@@ -344,7 +351,7 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
         tramiteUpd.setUserModificacion(ds.getUsuario());
         tramiteUpd.setFechaModificacion(today.toDate());
         tramiteDAO.updateEstado(tramiteUpd);
-        
+
         if (accionTramiteAcademico.getEsSolicitarMotivo()) {
             tramiteUpd.setObservacion(tramiteForm.getObservacion());
             tramiteDAO.updateObservacion(tramite);
@@ -369,9 +376,9 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
             Oficina oficinaDestino = oficinaDAO.findByTipoAndFacultad(FAC, cursoDirigido.getFacultad());
             accionTramiteAcademico.setOficinaDestino(oficinaDestino);
             accionTramiteAcademico.setOficinaOrigen(oficinaDestino);
-            
+
         }
-        
+
         if (accionTramiteAcademico.getEstadoTramiteFinal()
                 .getEsRechazarSolicitud()) {
             List<AlumnoCicloCurso> alumnoCicloCursos = alumnoCicloCursoDAO.allByAutorizacionRegistro(autorizacionRegistro);
@@ -382,16 +389,16 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
                     alumnoCicloCursoOrigenUpd.setEstado(EstadoMatriculaEnum.MAT);
                     alumnoCicloCursoOrigenUpd.setRegistroActivo(BigDecimal.ONE.intValue());
                     alumnoCicloCursoDAO.updateEstadoRegistroActivo(alumnoCicloCursoOrigenUpd);
-                    
+
                     alumnoCicloCursoDAO.delete(alumnoCicloCurso);
                 }
             }
         }
-        
+
         this.saveFlujoTramite(tramite, accionTramiteAcademico, ds.getUsuario(), today);
-        
+
     }
-    
+
     private void crearAutorizacionRegistro(Alumno alumno, Tramite tramite, DataSessionPivot ds) {
         AutorizacionRegistro autorizacionRegistro = new AutorizacionRegistro();
         autorizacionRegistro.setMotivo("");
@@ -402,13 +409,13 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
         autorizacionRegistro.setTramite(tramite);
         autorizacionRegistroDAO.save(autorizacionRegistro);
     }
-    
+
     @Transactional(readOnly = false)
     public void saveFlujoTramite(Tramite tramite, AccionTramiteAcademico accionTramiteAcademico, Usuario usuario, DateTime today) {
-        
+
         Alumno alumnoTramite = alumnoDAO.find(tramite.getAlumno());
         Map oficinas = oficinaDAO.findOficinaOrigenDestinoByEstadoTramiteAcad(accionTramiteAcademico, alumnoTramite);
-        
+
         FlujoTramiteAcademico flujoTramiteAcademico = new FlujoTramiteAcademico();
         flujoTramiteAcademico.setEstadoTramite(accionTramiteAcademico.getEstadoTramiteFinal());
         flujoTramiteAcademico.setFechaRegistro(today.toDate());
@@ -421,7 +428,7 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
             flujoTramiteAcademico.setMotivo(tramite.getObservacion());
         }
         flujoTramiteAcademicoDAO.save(flujoTramiteAcademico);
-        
+
         if (tramite.getTipoTramite().getEsTipoTramiteRei()) {
             List<Reincorporacion> reincorporaciones = reincorporacionDAO.allByTramite(tramite);
             Reincorporacion reincorporacion = reincorporaciones.get(0);
@@ -435,7 +442,7 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
             cursoDirigidoDAO.update(cd);
         }
     }
-    
+
     public void vistoBuenoUR(Tramite tramite, AccionTramiteAcademico accionTramiteAcademico, AutorizacionRegistro autorizacionRegistro, Usuario usuario, DateTime today) {
         List<AlumnoCicloCurso> alumnoCicloCursos = alumnoCicloCursoDAO.allByAutorizacionRegistro(autorizacionRegistro);
         for (AlumnoCicloCurso alumnoCicloCurso : alumnoCicloCursos) {
@@ -451,7 +458,7 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
         }
         //recalcular alumno???
     }
-    
+
     @Override
     @Transactional
     public void agendarSolicitud(Tramite tramite, ReunionConsejo reunionConsejo, DateTime today, Usuario usuario) {
@@ -461,7 +468,7 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
             throw new PhobosException("Debe seleccionar la reunión consejo.");
         }
         List<TramiteReunionConsejo> tramiteReunionesConsejo = tramiteReunionConsejoDAO.allByReunionConsejoAndTipoTramite(reunionConsejo, tramite.getTipoTramite());
-        
+
         TramiteReunionConsejo tramiteReunionConsejoActiva = null;
         for (TramiteReunionConsejo alumnoReunionConsejo : tramiteReunionesConsejo) {
             if (alumnoReunionConsejo.getEsActivo() && alumnoReunionConsejo.getTramite().equals(tramite)) {
@@ -497,116 +504,119 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
 
         flujoTramiteAcademicoService.saveFlujoTramite(tramite, usuario, today);*/
     }
-    
+
     @Override
     public String cursoDirigidoReporte(Tramite tramite, DataSessionPivot ds) {
+        List<String> pdfs = createInfoPDF(tramite, ds);
+        return pdfGenerator.concatPDFs(pdfs, "CursoDirigido", true);
+    }
+
+    private List<String> createInfoPDF(Tramite tramite, DataSessionPivot ds) {
         tramite = tramiteDAO.find(tramite.getId());
         CursoDirigido cursoDirigido = cursoDirigidoDAO.findByTramite(tramite);
-        
+
         FormDataBean data = convertStringToJSON(cursoDirigido.getSituacionActual());
-        
+
         Alumno alumno = tramite.getAlumno();
         CicloAcademico cicloAcademico = ds.getCicloAcademico();
-        
+
         MatriculaResumen matriculaResumen = matriculaResumenDAO.findByAlumnoCiclo(alumno, cicloAcademico);
         List<MatriculaSeccion> matriculados = matriculaSeccionDAO.allMatriculadosByAlumnoCiclo(alumno, cicloAcademico);
-        
+
         Map<GrupoSeccion, List<Seccion>> gpoSecciones = matriculados.stream().map(MatriculaSeccion::getSeccion).collect(Collectors.groupingBy(x -> x.getGrupoSeccion()));
-        
+
         Curso curso = cursoDirigido.getCurso();
-        PlanCurricular planCurricular = alumno.getPlanCurricular();
-        
-        Map<Integer, List<CursoCurricula>> cursosPlanCurricular = planCurricular.getCursoCurricula().stream().filter(cc -> cc.getNumeroCiclo() != null).collect(Collectors.groupingBy(cc -> cc.getNumeroCiclo()));
-        
-        Map<Integer, List<AlumnoCursoCurricula>> avanceCurricular = alumnoCursoCurriculaDAO.allCiclosAlumno(alumno)
-                .stream()
-                .collect(Collectors.groupingBy(x -> x.getNumeroCiclo()));
-        
+//        PlanCurricular planCurricular = alumno.getPlanCurricular();
+
+//        Map<Integer, List<CursoCurricula>> cursosPlanCurricular = planCurricular.getCursoCurricula().stream().filter(cc -> cc.getNumeroCiclo() != null).collect(Collectors.groupingBy(cc -> cc.getNumeroCiclo()));
+//
+//        Map<Integer, List<AlumnoCursoCurricula>> avanceCurricular = alumnoCursoCurriculaDAO.allCiclosAlumno(alumno)
+//                .stream()
+//                .collect(Collectors.groupingBy(x -> x.getNumeroCiclo()));
         Map<CicloAcademico, List<AlumnoCicloCurso>> historial = alumnoCicloCursoDAO.allByAlumno(alumno)
                 .stream()
                 .collect(Collectors.groupingBy(acc -> acc.getAlumnoCiclo().getCicloAcademico()));
-        
+
         Context ctx = new Context();
-        
+
         SortedMap<CicloAcademico, List<AlumnoCicloCurso>> historialSorted = new TreeMap<>(Comparator.comparing(CicloAcademico::getCodigo).reversed());
         historialSorted.putAll(historial);
-        
+
         Map<CicloAcademico, AlumnoCiclo> alumnoCiclo = historial.values()
                 .stream()
                 .flatMap(x -> x.stream())
                 .collect(Collectors.toMap(x -> x.getAlumnoCiclo().getCicloAcademico(), x -> x.getAlumnoCiclo(), (a, b) -> b));
-        
+
         int creditosConvalidados = 0;
         List<AlumnoCicloCurso> listAlumnoCicloCurso = alumnoCicloCursoDAO.allByAlumnoOrderByCurso(alumno);
-        
+
         for (AlumnoCicloCurso alumnoCicloCurso : listAlumnoCicloCurso) {
             if (alumnoCicloCurso.getNota().equals("TE")) {
                 creditosConvalidados = creditosConvalidados + alumnoCicloCurso.getCreditos();
             }
         }
-        
+
         alumno.setCreditosConvalidadosTransient(creditosConvalidados);
-        
+
         ctx.setVariable("alumno", alumno);
         ctx.setVariable("ciclo", cicloAcademico);
         ctx.setVariable("curso", curso);
-        ctx.setVariable("avanceCurricular", avanceCurricular);
+//        ctx.setVariable("avanceCurricular", avanceCurricular);
         ctx.setVariable("historial", historialSorted);
-        ctx.setVariable("planCurricular", planCurricular);
-        ctx.setVariable("planCurricularCursos", cursosPlanCurricular);
+//        ctx.setVariable("planCurricular", planCurricular);
+//        ctx.setVariable("planCurricularCursos", cursosPlanCurricular);
         ctx.setVariable("alumnoCiclo", alumnoCiclo);
         ctx.setVariable("matriculados", matriculados);
         ctx.setVariable("gpoSecciones", gpoSecciones);
         ctx.setVariable("cursoDirigido", cursoDirigido);
         ctx.setVariable("matriculaResumen", matriculaResumen);
-        
+
         ctx.setVariable("situacionActual", data);
         ctx.setVariable("fecha", TypesUtil.getStringDate(new DateTime().toDate(), " dd 'de' MMMM 'del' yyyy", "es"));
         ctx.setVariable("alumnoCicloCurso", listAlumnoCicloCurso);
-        
+
         PdfContent pdfMatriculados = new PdfContent();
         pdfMatriculados.setContext(ctx);
         pdfMatriculados.setTipoPdfEnum(TipoPdfEnum.CURSOS_MATRICULADOS);
-        
+
         PdfContent pdfHistorial = new PdfContent();
         pdfHistorial.setContext(ctx);
         pdfHistorial.setTipoPdfEnum(TipoPdfEnum.HISTORIAL_ACADEMICO);
-        
+
         PdfContent pdfHistorialListado = new PdfContent();
         pdfHistorialListado.setContext(ctx);
         pdfHistorialListado.setTipoPdfEnum(TipoPdfEnum.HISTORIAL_ACADEMICO_LISTADO);
-        
-        PdfContent pdfPlanCurricular = new PdfContent();
-        pdfPlanCurricular.setContext(ctx);
-        pdfPlanCurricular.setTipoPdfEnum(TipoPdfEnum.PLAN_CURRICULAR);
-        
+
+//        PdfContent pdfPlanCurricular = new PdfContent();
+//        pdfPlanCurricular.setContext(ctx);
+//        pdfPlanCurricular.setTipoPdfEnum(TipoPdfEnum.PLAN_CURRICULAR);
         PdfContent pdfHorario = new PdfContent();
         pdfHorario.setContext(ctx);
         pdfHorario.setTipoPdfEnum(TipoPdfEnum.HORARIO);
-        
+
         PdfContent pdfCursoDirigido = new PdfContent();
         pdfCursoDirigido.setContext(ctx);
         pdfCursoDirigido.setTipoPdfEnum(TipoPdfEnum.DETALLE_CURSO_DIRIGIDO);
-        
+
         List<Dia> dias = diaDAO.allDia();
         List<HorarioSeccion> hss = infoAcademicoService.allSeccionHorarioAlumnoByAlumnoCicloACademico(alumno, cicloAcademico);
         List<Hora> horas = findLimiteHoras(hss);
         ctx.setVariable("horas", horas);
         ctx.setVariable("dias", dias);
         ctx.setVariable("datosHorario", findHorario(alumno, cicloAcademico, horas, dias));
-        
+
         List<String> pdfs = Arrays.asList(
                 pdfGenerator.generateDocument(pdfCursoDirigido),
-                pdfGenerator.generateDocument(pdfPlanCurricular),
+                //                pdfGenerator.generateDocument(pdfPlanCurricular),
                 pdfGenerator.generateDocument(pdfHistorial),
                 pdfGenerator.generateDocument(pdfHistorialListado),
                 pdfGenerator.generateDocument(pdfMatriculados),
                 pdfGenerator.generateDocument(pdfHorario)
         );
-        
-        return pdfGenerator.concatPDFs(pdfs, "CursoDirigido", true);
+
+        return pdfs;
     }
-    
+
     private List<Hora> findLimiteHoras(List<HorarioSeccion> clases) {
         Hora horaMin = null;
         Hora horaMax = null;
@@ -621,22 +631,22 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
                 horaMax = hs.getHora();
             }
         }
-        
+
         return horaDAO.allByInicioFin(horaMin, horaMax);
     }
-    
+
     private Map<Dia, List<HorarioSeccion>> findHorario(Alumno alumno, CicloAcademico ciclo, List<Hora> horas, List<Dia> dias) {
         List<HorarioSeccion> hss = infoAcademicoService.allSeccionHorarioAlumnoByAlumnoCicloACademico(alumno, ciclo);
-        
+
         Map<Dia, List<HorarioSeccion>> mapDia = hss.stream().collect(Collectors.groupingBy(HorarioSeccion::getDia));
         Map<Dia, Map<Integer, HorarioSeccion>> mapHoras = new HashMap<>();
-        
+
         for (Map.Entry<Dia, List<HorarioSeccion>> entry : mapDia.entrySet()) {
             mapHoras.put(entry.getKey(), entry.getValue().stream().collect(Collectors.toMap(x -> x.getHora().getNumero(), x -> x)));
         }
-        
+
         SortedMap<Dia, List<HorarioSeccion>> mapDiaCompleto = new TreeMap<>(Comparator.comparing(Dia::getNumeroDia));
-        
+
         for (Dia dia : dias) {
             List<HorarioSeccion> clasesDelDia = new ArrayList<>();
             for (Hora hora : horas) {
@@ -648,22 +658,22 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
             }
             mapDiaCompleto.put(dia, clasesDelDia);
         }
-        
+
         return mapDiaCompleto;
-        
+
     }
-    
+
     @Override
     public List<Curso> allCursos() {
         return cursoDAO.all();
     }
-    
+
     @Override
     public List<Curso> allCursosByName(String nombre, Integer limit) {
         nombre = "%" + nombre.replaceAll(" ", "%") + "%";
         return cursoDAO.searchLikeNombre(nombre, limit);
     }
-    
+
     @Override
     public List<CicloAcademico> allCiclosAcademicosByName(String nombre, Alumno alumno) {
         alumno = alumnoDAO.find(alumno);
@@ -671,14 +681,14 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
         List<CicloAcademico> ciclosAcademicos = alumnoCiclos.stream().map(x -> x.getCicloAcademico()).collect(Collectors.toList());
         return cicloAcademicoDAO.allByLikeName(nombre, alumno.getModalidadEstudio(), ciclosAcademicos, 15);
     }
-    
+
     @Override
     public ArrayNode allAlumnoCicloJson(Alumno alumno, AlumnoCiclo ciclo) {
         List<AlumnoCicloCurso> alumnosCiclosCurso = alumnoCicloCursoDAO.allByAlumnoAndAlumnoCiclo(alumno, ciclo);
         ArrayNode promediosJson = infoAcademicoService.allPromediosJson(alumnosCiclosCurso);
         return promediosJson;
     }
-    
+
     @Override
     public AlumnoCiclo findAlumnoCiclo(AlumnoCiclo alumnoCiclo, Tramite tramite) {
         alumnoCiclo = alumnoCicloDAO.find(alumnoCiclo.getId());
@@ -689,16 +699,16 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
         }
         return alumnoCiclo;
     }
-    
+
     @Override
     public List<AlumnoCiclo> allAlumnoCicloByAlumno(Alumno alumno, Tramite tramite) {
         List<AlumnoCiclo> alumnoCiclos = alumnoCicloDAO.allByAlumno(alumno);
         logger.debug("Cantidad de alumno ciclos {}", alumnoCiclos.size());
-        
+
         AutorizacionRegistro autorizacionRegistro = autorizacionRegistroDAO.findByTramite(tramite);
-        
+
         List<AlumnoCiclo> alumnoCiclosReturn = new ArrayList<>();
-        
+
         for (AlumnoCiclo alumnoCiclo : alumnoCiclos) {
             List<AlumnoCicloCurso> alumnosCicloCursos = alumnoCicloCursoDAO.allByAlumnoCicloActivosAndAutorizacionRegistro(alumnoCiclo, autorizacionRegistro);
             if (!alumnosCicloCursos.isEmpty()) {
@@ -710,7 +720,7 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
         }
         return alumnoCiclosReturn;
     }
-    
+
     @Override
     @Transactional
     public void saveAlumnoCicloFromRevision(AlumnoCiclo alumnoCiclo, Long tramiteId, DataSessionPivot ds) {
@@ -718,7 +728,7 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
         Tramite tramite = tramiteDAO.find(tramiteId);
         AutorizacionRegistro autorizacionRegistro = autorizacionRegistroDAO.findByTramite(tramite);
         List<AlumnoCicloCurso> alumnosCicloCursosOmBD = alumnoCicloCursoDAO.allByAlumnoCicloActivosOrAutorizacionRegistro(alumnoCiclo, autorizacionRegistro);
-        
+
         if (autorizacionRegistro == null) {
             autorizacionRegistro = new AutorizacionRegistro();
             autorizacionRegistro.setMotivo("");
@@ -729,15 +739,15 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
             autorizacionRegistro.setTramite(new Tramite(tramiteId));
             autorizacionRegistroDAO.save(autorizacionRegistro);
         }
-        
+
         logger.debug("Alumno Ciclo {}", alumnoCiclo.getId());
         boolean noChanges = true;
         for (AlumnoCicloCurso alumnoCicloCursoForm : alumnoCiclo.getAlumnoCicloCurso()) {
-            
+
             if (alumnoCicloCursoForm.getIsEstadoNotaModificada()) {
                 continue;
             }
-            
+
             if (alumnoCicloCursoForm.getId().compareTo(0L) > 0) {
                 //old records
                 AlumnoCicloCurso alumnoCicloCursoDB = alumnosCicloCursosOmBD.stream().filter(x -> x.getId().compareTo(alumnoCicloCursoForm.getId()) == 0).findFirst().orElse(null);
@@ -746,7 +756,7 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
                 }
                 if (alumnoCicloCursoForm.getNota().compareTo(alumnoCicloCursoDB.getNota()) != 0
                         || alumnoCicloCursoForm.getCreditos().compareTo(alumnoCicloCursoDB.getCreditos()) != 0) {
-                    
+
                     if (alumnoCicloCursoForm.getIsEstadoMatriculado()) {
                         alumnoCicloCursoDB.setEstado(EstadoMatriculaEnum.NMOD);
                         alumnoCicloCursoDB.setRegistroActivo(BigDecimal.ZERO.intValue());
@@ -795,33 +805,33 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
                 // alumnoCursoNew.setVecesCursado(Integer.BYTES);
                 Integer aprobado = promedioService.evaluateEstaAprobado(new BigDecimal(alumnoCicloCursoForm.getNota()), alumnoCiclo.getAlumno());
                 alumnoCursoNew.setEstaAprobado(aprobado);
-                
+
                 Integer vecesEstudiadoCurso = alumnoCicloCursoDAO.countByCursoAlumnoAnterioresCiclo(alumnoCicloCursoForm.getCurso(), alumnoCiclo.getAlumno(), alumnoCiclo.getCicloAcademico()).intValue();
                 alumnoCursoNew.setVecesCursado(vecesEstudiadoCurso);
-                
+
                 alumnoCicloCursoDAO.save(alumnoCursoNew);
                 noChanges = false;
             }
         }
-        
+
         if (noChanges) {
             throw new PhobosException("Sin cambios en las notas, verifique.");
         }
     }
-    
+
     @Override
     public AccionTramiteAcademico findAccionTramiteAcademico(AccionTramiteAcademico accionTramiteAcademico) {
         AccionTramiteAcademico accionTramiteAcademicoReturn = accionTramiteAcademicoDAO.find(accionTramiteAcademico.getId());
         return accionTramiteAcademicoReturn;
     }
-    
+
     private List<Oficina> findOficina(List<Oficina> oficinas, DataSessionPivot ds) {
         List<Oficina> oficinasMain = oficinaService.allOficinasMainByPersona(ds.getPersona());
-        
+
         for (Oficina oficina : oficinasMain) {
             logger.debug("codigo oficina es {}", oficina.getCodigo());
             logger.debug("tipo oficina es {} ", oficina.getTipoOficina().getCodigo());
-            
+
             if (oficina.getCodigoEnum() == OficinaEnum.OERA) {
                 oficinas.addAll(reunionConsejoService.allOficinaFac());
                 break;
@@ -829,11 +839,11 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
             if (oficina.getTipoOficina().getCodigoEnum() == TipoOficinaEnum.FAC) {
                 oficinas.add(oficina);
             }
-            
+
         }
         return oficinas;
     }
-    
+
     private FormDataBean convertStringToJSON(String situacionActual) {
         ObjectMapper mapper = new ObjectMapper();
         FormDataBean obj = new FormDataBean();
@@ -844,9 +854,46 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
         }
         return obj;
     }
-    
+
     @Override
     public List<Docente> allByNombre(String nombre) {
         return docenteDAO.allByName(nombre);
+    }
+
+    @Override
+    public List<Tramite> allTramitesByFac(Facultad facultad, DataSessionPivot ds) {
+        List<Tramite> tramites = tramiteDAO.allByFacultad(facultad);
+        return tramites;
+    }
+
+    @Override
+    public String allcursoDirigidoFac(Facultad fac, DataSessionPivot ds) {
+        List<Tramite> tramites = allTramitesByFac(fac, ds);
+        List<String> pdfs = new ArrayList();
+        for (Tramite tramite : tramites) {
+            pdfs.addAll(createInfoPDF(tramite, ds));
+        }
+        return pdfGenerator.concatPDFs(pdfs, "CursoDirigido", true);
+    }
+
+    @Override
+    public String alllistCursoDirigidoFac(Facultad facultad, DataSessionPivot ds) {
+        facultad = facultadDAO.find(facultad.getId());
+        List<CursoDirigido> cursoDirigidos = cursoDirigidoDAO.allByfacultades(facultad);
+
+        Context ctx = new Context();
+
+        PdfContent pdfList = new PdfContent();
+        pdfList.setContext(ctx);
+        pdfList.setTipoPdfEnum(TipoPdfEnum.LIST_CURSOS_DIRIGIDOS);
+
+        ctx.setVariable("fecha", TypesUtil.getStringDate(new DateTime().toDate(), " dd 'de' MMMM 'del' yyyy", "es"));
+        ctx.setVariable("cursoDirigido", cursoDirigidos);
+        ctx.setVariable("facultad", facultad.getNombre().toUpperCase(Locale.ROOT));
+
+        List<String> pdfs = Arrays.asList(
+                pdfGenerator.generateDocument(pdfList)
+        );
+        return pdfGenerator.concatPDFs(pdfs, "ListCursoDirigido", true);
     }
 }

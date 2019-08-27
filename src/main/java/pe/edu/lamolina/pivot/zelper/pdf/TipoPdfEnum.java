@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public enum TipoPdfEnum {
-    
+
     ACTA_NOTAS("ActaNotas", "pdf/actaDeNotas", "Acta de Notas", "Acta de Notas"),
     RESULTADO_ENCUESTA("ResultadoEncuesta", "pdf/resultadoencuesta", "Resultado de Encuestas", "Resultado de Encuestas"),
     SUBVENCION_CARGA_ADICIONAL("SubvencionCargaAdicional", "pdf/subvencionCargaAdicional", "Subvención por carga Académica Adicional", "Subvención por carga Académica Adicional"),
@@ -13,6 +13,7 @@ public enum TipoPdfEnum {
     HISTORIAL_ACADEMICO_LISTADO("HistorialAcademicoListado", "pdf/historialAcademicoListado", "Historial Académico", "Historial Académico"),
     PLAN_CURRICULAR("SubvencionCargaAdicional", "pdf/planCurricular", "Plan Curricular", "Plan Curricular"),
     CURSOS_MATRICULADOS("CursosMatriculados", "pdf/cursosMatriculados", "Cursos Matriculados", "Cursos Matriculados"),
+    LIST_CURSOS_DIRIGIDOS("ListCursosDirigidos", "pdf/listDetalleCursoDirigido", "Lista Cursos Dirigidos", "Lista Cursos Dirigidos"),
     DETALLE_CURSO_DIRIGIDO("DetalleCursoDirigido", "pdf/detalleCursoDirigido", "Curso Dirigido", "Curso Dirigido"),
     HORARIO("Horario", "pdf/horario", "Horario", "Horario"),
     PROGRAMACION_HORARIOS("ProgramacionHorarios", "pdf/programacionHorarios", "Programacion de Horarios", "Programacion de Horarios");

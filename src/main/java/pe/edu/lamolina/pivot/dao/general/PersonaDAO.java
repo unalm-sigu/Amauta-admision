@@ -3,6 +3,7 @@ package pe.edu.lamolina.pivot.dao.general;
 import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.easydao.EasyDAO;
+import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.general.TipoDocIdentidad;
 
@@ -29,11 +30,12 @@ public interface PersonaDAO extends EasyDAO<Persona> {
     List<Persona> allByEmailCompaniaWithoutPersona(Persona persona);
 
 //    Persona findPersona(Long id);
-
     Persona findByDocumento(TipoDocIdentidad tipoDocumento, String numeroDocIdentidad);
 
     Persona findByDoc(Persona persona);
 
     Persona findByEmailCompania(Persona persona);
+
+    List<Persona> allResponsableAulas(DynatableFilter filter, EstadoEnum... estados);
 
 }

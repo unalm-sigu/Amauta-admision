@@ -47,8 +47,6 @@ public class CursoDirigidoFacultadController {
     public String index(Model model, HttpSession session, HttpServletRequest request) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
-        logger.debug("*************ds.getPersona() {}", ds.getPersona().getId());
-
         List<Facultad> facultades = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.FAC, request, ds);
 
         model.addAttribute("facultades", createFacultadesJson(facultades).toString());
@@ -148,7 +146,7 @@ public class CursoDirigidoFacultadController {
         JsonResponse response = new JsonResponse();
 
         try {
-            
+
             service.eliminar(cursoDirigidoFacultad);
             response.setMessage("El curso dirigido fue removido de la facultad satisfactoriamente");
             response.setSuccess(true);

@@ -1,0 +1,91 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title>Responsables Aulas</title>
+    </head>
+
+    <body>
+        <div layout:fragment="main">
+            <div id="responsableAulaVUE" v-cloak="">
+                <header class="header b-b padder-lg">
+
+                    <div class="btn-group pull-right">
+                        <button type="button" class="btn btn-primary dropdown-toggle pull-right" data-toggle="dropdown">
+                            Acciones &nbsp; <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a type="button" v-on:click.prevent="nuevoResponsable()">Nuevo</a></li>
+                            <li v-if="false"><a type="button" v-on:click.prevent="reporteProgramacion({id:0})" th:href="@{'/general/aula/horarios'}">Reporte Aulas Programadas</a></li>
+                        </ul>
+                    </div>
+
+                    <h2 th:text="${'Lista de Responsables '+ ciclo.descripcion}"></h2>
+                </header>
+
+                <section class="wrapper-lg">
+                    <section class="panel">
+                        <section class="panel-body">
+
+                            <raptor-table v-bind:url="responsablesURL"  ref="raptorResponsables">
+
+                                <!--   v-bind:preload="false"                             <div slot="header">
+                                                                    <div class="col-md-8">
+                                                                        <multiselect v-model='tipoAula'
+                                                                                     track-by='codigo'
+                                                                                     v-bind:internal-search='true'
+                                                                                     v-bind:options='tipoAulas'
+                                                                                     v-bind:allow-empty="true"
+                                                                                     placeholder="Seleccione el tipo de Aula"
+                                                                                     label="nombre"
+                                                                                     select-label="Seleccione este tipo de aula"
+                                                                                     deselect-label="Remover selección"
+                                                                                     v-on:input="changeTipoAula"
+                                                                                     >
+                                                                        </multiselect>
+                                                                    </div>
+                                                                </div>-->
+
+                                <template scope="props" >
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr class=""> 
+                                                <th class="col-md-3">Nombre</th>
+                                                <th></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr v-for="item in props.data">
+                                                <td class="v-middle">
+                                                    <span v-text="item.apellidosNombres"></span>
+                                                </td>
+                                            </tr>
+
+                                        </tbody>
+                                    </table>
+                                </template>
+                            </raptor-table>
+
+                        </section>
+                    </section>
+                </section>
+
+                <div th:substituteby="general/responsableaula/modalresponsableaula"/>
+            </div>
+
+            <!--            <div th:substituteby="templates/modal"/>-->
+        </div>
+
+        <div layout:fragment="js" th:remove="tag">
+            <script  th:inline="javascript" >
+                /*<![CDATA[*/
+                var rutaModulo = 'general/responsableaula';
+                var tipoAulasJson = /*[[${tipoAulasJson}]]*/ {};
+                /*]]>*/
+            </script>
+            <div th:substituteby="_modules/vue-modal"/>
+            <div th:substituteby="_layout/includes :: javascript-filedownload"/>
+            <div th:substituteby="_modules/vue-raptor-table"></div>
+            <script th:src="@{/app/general/responsableaula/responsableaula.js}" charset="utf-8"></script>
+        </div>
+
+    </body>
+</html>

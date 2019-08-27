@@ -25,4 +25,6 @@ public interface CursoDirigidoDAO extends EasyDAO<CursoDirigido> {
     public List<CursoDirigido> allByResolucion(Resolucion resolucion);
 
     public List<CursoDirigido> allByCicloAcademicoSol(CicloAcademico cicloAcademico);
+
+    public List<CursoDirigido> allByfacultades(Facultad facultad);
 }
