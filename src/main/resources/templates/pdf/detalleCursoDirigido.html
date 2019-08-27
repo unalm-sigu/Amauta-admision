@@ -158,7 +158,7 @@
                             <span >Créditos Aprobados de carrera: </span><span th:text="${alumno.creditosCarreraAprobados}"></span>
                         </td>
                         <td >
-                            <span >Profesor Tutor: </span><span th:text="${alumno.consejero.colaborador.persona.apellidosNombres}"></span>
+                            <span >Profesor Tutor: </span><span th:if="${alumno.consejero.colaborador} != null" th:text="${alumno.consejero.colaborador.persona.apellidosNombres}"></span>
                         </td>
                     </tr>
                 </tbody>

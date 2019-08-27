@@ -89,24 +89,24 @@
             <table class="tabled table-plan" align="center">
                 <thead>
                     <tr >
-                        <th>Matricula</th>
-                        <th>Alumno</th>
-                        <th>ESP</th>
-                        <th>Curso</th>
+                        <th style="font-size: 14px;">Matricula</th>
+                        <th style="font-size: 14px;">Alumno</th>
+                        <th style="font-size: 14px;">ESP</th>
+                        <th style="font-size: 14px;">Curso</th>
                     </tr>
                 </thead>
                 <tbody >
                     <tr th:each="curDir : ${cursoDirigido}" >
-                        <td>
+                        <td width="50">
                             <span style="font-size: 10px;" th:text="${curDir.tramite.alumno.codigo}"></span>
                         </td>
-                        <td>
+                        <td width="300">
                             <span  style="font-size: 10px;" th:text="${curDir.tramite.alumno.persona.apellidosNombres}"></span>
                         </td>
-                        <td>
+                        <td width="40">
                             <span style="font-size: 10px;" th:text="${curDir.tramite.alumno.carrera.codigo}"></span>
                         </td>
-                        <td>
+                        <td width="300">
                             <span style="font-size: 10px;" th:text="${curDir.curso.codigo}"></span> - <span th:text="${curDir.curso.nombre}"></span>
                         </td>
                     </tr>
