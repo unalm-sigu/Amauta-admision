@@ -230,6 +230,9 @@ public class ResponsableAulaController {
             List<TurnoAtencionAula> turnosAtencionAulas = service.allTurnoAtenconAula();
             turnosAtencionAulas.forEach(x -> x.setAulas(new ArrayList<>()));
 
+            Persona personaResponsableBD = service.findResponsableAula(personaResponsable, ds);
+            turnosAtencionAulas = personaResponsableBD.getTurnosAtencionAulas();
+
             ArrayNode jTurnosAtencionAulas = new ArrayNode(jFactory);
             for (TurnoAtencionAula turnosAtencionAula : turnosAtencionAulas) {
                 jTurnosAtencionAulas.add(JsonHelper.createJson(turnosAtencionAula, jFactory, false,
