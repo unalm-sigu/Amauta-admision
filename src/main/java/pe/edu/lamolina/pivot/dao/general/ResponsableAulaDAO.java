@@ -15,4 +15,6 @@ public interface ResponsableAulaDAO extends EasyDAO<ResponsableAula> {
 
     List<ResponsableAula> allByAulas(List<Aula> aulas, EstadoEnum... estados);
 
+    List<ResponsableAula> allByEstado(EstadoEnum... estados);
+
 }
