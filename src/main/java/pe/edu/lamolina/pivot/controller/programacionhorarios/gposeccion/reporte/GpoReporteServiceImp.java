@@ -23,21 +23,25 @@ import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
+import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
 import pe.edu.lamolina.model.general.Aula;
+import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.horario.DiaHoraGrupo;
 import pe.edu.lamolina.model.horario.GrupoHoras;
 import pe.edu.lamolina.model.horario.HorarioAula;
 import pe.edu.lamolina.model.horario.HorarioSeccion;
 import pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.GpoSeccionResumen;
 import pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.aula.SeccionDTO;
+import pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.reporte.dto.CantidadMatriculadosDTO;
 import pe.edu.lamolina.pivot.dao.academico.AnexoBoletinDAO;
 import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.DocenteSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.GrupoSeccionDAO;
+import pe.edu.lamolina.pivot.dao.academico.MatriculaSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.ModalidadEstudioDAO;
 import pe.edu.lamolina.pivot.dao.academico.SeccionDAO;
 import pe.edu.lamolina.pivot.dao.horario.DiaHoraGrupoDAO;
@@ -76,6 +80,9 @@ public class GpoReporteServiceImp implements GpoReporteService {
 
     @Autowired
     DiaHoraGrupoDAO diaHoraGrupoDAO;
+
+    @Autowired
+    MatriculaSeccionDAO matriculaSeccionDAO;
 
     @Override
     public CicloAcademico findCiclo(CicloAcademico cicloAcademico) {
@@ -452,6 +459,36 @@ public class GpoReporteServiceImp implements GpoReporteService {
         this.fillSecciones(secciones, cicloAcademico);
 
         return secciones;
+    }
+
+    @Override
+    public List<MatriculaSeccion> allMatriculadosBySeccion(SeccionDTO seccionDTO) {
+        List<DocenteSeccion> docentesSecciones = new ArrayList<>();
+        if (seccionDTO.getSecciones() != null && !seccionDTO.getSecciones().isEmpty()) {
+            docentesSecciones = docenteSeccionDAO.allBySecciones(seccionDTO.getSecciones());
+        } else {
+            docentesSecciones = docenteSeccionDAO.allByCiclo(seccionDTO.getCicloAcademico());
+        }
+
+        List<MatriculaSeccion> matriculados = matriculaSeccionDAO.matriculadosPorSeccion(seccionDTO);
+        for (MatriculaSeccion matriculado : matriculados) {
+            Seccion seccion = matriculado.getSeccion();
+            DocenteSeccion docenteSeccion = docentesSecciones.stream()
+                    .filter(x -> x.getSeccion().equals(seccion))
+                    .findFirst().orElse(null);
+//            if (docenteSeccion == null) {
+//                docenteSeccion = new DocenteSeccion();
+//                docenteSeccion.setDocente(new Docente());
+//                docenteSeccion.getDocente().setPersona(new Persona());
+//            }
+            seccion.setDocentePrincipal(docenteSeccion.getDocente());
+        }
+        return matriculados;
+    }
+
+    @Override
+    public List<CantidadMatriculadosDTO> allCantidadMatriculados(SeccionDTO seccionDTO) {
+        return matriculaSeccionDAO.cantidadMatriculados(seccionDTO);
     }
 
 }

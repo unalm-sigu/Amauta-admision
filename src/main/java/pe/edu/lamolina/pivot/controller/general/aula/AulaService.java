@@ -3,9 +3,11 @@ package pe.edu.lamolina.pivot.controller.general.aula;
 import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.general.Oficina;
+import pe.edu.lamolina.model.general.ResponsableAula;
 import pe.edu.lamolina.model.general.Sede;
 import pe.edu.lamolina.model.general.TipoAula;
 import pe.edu.lamolina.model.general.TipoCarpeta;
@@ -64,5 +66,7 @@ public interface AulaService {
     List<HorarioAula> allHorariosAulaByCiclo(CicloAcademico cicloAcademico, Aula aula);
 
     List<Aula> allAulas(CicloAcademico cicloAcademico);
+
+    List<ResponsableAula> allResponsablesAulas(EstadoEnum... estado);
 
 }

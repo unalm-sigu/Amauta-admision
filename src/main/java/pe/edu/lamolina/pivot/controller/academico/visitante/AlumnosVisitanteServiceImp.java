@@ -205,8 +205,9 @@ public class AlumnosVisitanteServiceImp implements AlumnosVisitanteService {
         String emailCompania = this.generateEmailCompania(codigoMatricula);
         
         persona.setEmailCompania(emailCompania);
-        
-        this.validarEmailsinPersona(persona.getEmail());
+        if (StringUtils.isNotBlank(persona.getEmail())) {
+            this.validarEmailsinPersona(persona.getEmail());
+        }
         this.validarEmailEmpresaSinPersona(persona.getEmailCompania());
         
         persona.setEstadoEnum(PersonaEstadoEnum.ACT);

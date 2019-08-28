@@ -13,10 +13,14 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
+import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.MAT;
+import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
+import pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.aula.SeccionDTO;
+import pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.reporte.dto.CantidadMatriculadosDTO;
 
 @Repository
 public class MatriculaSeccionDAOH extends AbstractEasyDAO<MatriculaSeccion> implements MatriculaSeccionDAO {
@@ -456,4 +460,41 @@ public class MatriculaSeccionDAOH extends AbstractEasyDAO<MatriculaSeccion> impl
                 .limit(1);
         return find(sqlUtil);
     }
+
+    @Override
+    public List<MatriculaSeccion> matriculadosPorSeccion(SeccionDTO seccionDTO) {
+        Octavia sqlUtil = Octavia.query()
+                .from(MatriculaSeccion.class, "ms")
+                .join("matriculaResumen mr", "mr.alumno alu", "mr.cicloAcademico ca", "alu.persona per")
+                .join("alu.modalidadEstudio mest", "alu.carrera car", "seccion sec", "sec.grupoSeccion gs", "gs.curso cur")
+                .join("cur.modalidadEstudio mestcur", "cur.departamentoAcademico depcur", "gs.anexoBoletin ab", "ab.anexoSuperior absup")
+                .left("sec.aula", "sec.grupoHoras")
+                .filter("ca.id", seccionDTO.getCicloAcademico())
+                .in("mestcur.codigo", seccionDTO.getModalidadesEstudioCurEnum())
+                .filter("ms.estado", EstadoMatriculaEnum.MAT);
+        if (seccionDTO.getSecciones() != null && !seccionDTO.getSecciones().isEmpty()) {
+            sqlUtil.in("sec.id", seccionDTO.getSecciones());
+        }
+        sqlUtil.orderBy("absup.nombre", "ab.nombre", "cur.nombre", "per.nombres");
+        return all(sqlUtil);
+    }
+
+    @Override
+    public List<CantidadMatriculadosDTO> cantidadMatriculados(SeccionDTO seccionDTO) {
+        Octavia sqlUtil = Octavia.query()
+                .select("ca.descripcion", "absup.nombre", "depcur.nombre", "cur.nombre", "sec.codigo2", " count(*) ")
+                .from(MatriculaSeccion.class, "ms")
+                .into(CantidadMatriculadosDTO.class)
+                .join("matriculaResumen mr", "mr.alumno alu", "mr.cicloAcademico ca", "alu.persona per")
+                .join("alu.modalidadEstudio mest", "alu.carrera car", "seccion sec", "sec.grupoSeccion gs", "gs.curso cur")
+                .join("cur.modalidadEstudio mestcur", "cur.departamentoAcademico depcur", "gs.anexoBoletin ab", "ab.anexoSuperior absup")
+                .left("sec.aula", "sec.grupoHoras")
+                .filter("ca.id", seccionDTO.getCicloAcademico())
+                .in("mestcur.codigo", seccionDTO.getModalidadesEstudioCurEnum())
+                .filter("ms.estado", EstadoMatriculaEnum.MAT)
+                .groupBy("ca.descripcion", "absup.nombre", "depcur.nombre", "cur.nombre", "sec.codigo2");
+        sqlUtil.orderBy("cur.nombre", "sec.codigo2");
+        return (List<CantidadMatriculadosDTO>) sqlUtil.all(getCurrentSession());
+    }
+
 }

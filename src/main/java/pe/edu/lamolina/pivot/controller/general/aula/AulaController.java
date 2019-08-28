@@ -9,7 +9,6 @@ import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -42,6 +41,7 @@ import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.albatross.zelpers.notify.Notificaciones;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.almacen.ResumenInventario;
+import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.TipoAmbienteEnum;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Dia;
@@ -574,6 +574,7 @@ public class AulaController {
         model.addAttribute("horas", horas);
         model.addAttribute("horariosAulas", horariosAulas);
         model.addAttribute("diasHorasGruposByCiclo", diasHorasGruposByCiclo);
+        model.addAttribute("responsablesAulas", service.allResponsablesAulas(EstadoEnum.ACT));
         return new ModelAndView(horarioAulaCicloPDF);
     }
 

@@ -247,7 +247,7 @@ public class ProfesorController {
         try {
 
             service.estado(docente);
-            response.setMessage("Docente actualizado satisfactoriamente");
+            response.setMessage("El estado del docente fue actualizado satisfactoriamente");
             response.setSuccess(Boolean.TRUE);
 
         } catch (PhobosException e) {

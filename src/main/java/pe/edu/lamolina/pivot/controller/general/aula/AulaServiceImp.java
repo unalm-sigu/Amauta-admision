@@ -30,6 +30,7 @@ import pe.edu.lamolina.model.enums.TipoHorarioAulaEnum;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.general.Oficina;
+import pe.edu.lamolina.model.general.ResponsableAula;
 import pe.edu.lamolina.model.general.Sede;
 import pe.edu.lamolina.model.general.TipoAula;
 import pe.edu.lamolina.model.general.TipoCarpeta;
@@ -43,6 +44,7 @@ import pe.edu.lamolina.pivot.dao.almacen.ResumenInventarioDAO;
 import pe.edu.lamolina.pivot.dao.general.AulaDAO;
 import pe.edu.lamolina.pivot.dao.general.DiaDAO;
 import pe.edu.lamolina.pivot.dao.general.OficinaDAO;
+import pe.edu.lamolina.pivot.dao.general.ResponsableAulaDAO;
 import pe.edu.lamolina.pivot.dao.general.SedeDAO;
 import pe.edu.lamolina.pivot.dao.general.TipoAulaDAO;
 import pe.edu.lamolina.pivot.dao.general.TipoCarpetaDAO;
@@ -91,6 +93,9 @@ public class AulaServiceImp implements AulaService {
 
     @Autowired
     HoraDAO horaDAO;
+
+    @Autowired
+    ResponsableAulaDAO responsableAulaDAO;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -492,6 +497,11 @@ public class AulaServiceImp implements AulaService {
     @Override
     public List<Aula> allAulas(CicloAcademico cicloAcademico) {
         return aulaDAO.allByOficinaSupervisora(OficinaEnum.OBUAE, EstadoEnum.ACT);
+    }
+
+    @Override
+    public List<ResponsableAula> allResponsablesAulas(EstadoEnum... estado) {
+        return responsableAulaDAO.allByEstado(EstadoEnum.ACT);
     }
 
 }
