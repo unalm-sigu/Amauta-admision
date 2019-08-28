@@ -224,11 +224,10 @@ public class AlumnosVisitanteController {
             if (alumnoVisitante.getId() == null) {
                 service.save(alumnoVisitante, ds);
                 response.setMessage("Alumno Visitante guardado satisfactoriamente");
-            }
-            /*else {
+            } else {
                 service.update(alumnoVisitante, ds);
                 response.setMessage("Alumno Visitante actualizado satisfactoriamente");
-            }*/
+            }
             response.setSuccess(Boolean.TRUE);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
@@ -283,7 +282,7 @@ public class AlumnosVisitanteController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
             JsonNodeFactory jFactory = JsonNodeFactory.instance;
-            service.saveUniversidad(universidad,ds);
+            service.saveUniversidad(universidad, ds);
             ObjectNode jUniversidad = JsonHelper.createJson(universidad, jFactory, true, new String[]{
                 "*",});
             response.setData(jUniversidad);
