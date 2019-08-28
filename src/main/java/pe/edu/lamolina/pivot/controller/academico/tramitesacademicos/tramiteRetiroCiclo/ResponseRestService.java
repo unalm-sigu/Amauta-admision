@@ -5,6 +5,8 @@ import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.Seccion;
+import pe.edu.lamolina.model.general.Parametro;
+import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface ResponseRestService {
@@ -19,7 +21,9 @@ public interface ResponseRestService {
 
     JsonResponse eliminarAporteCarnet(MatriculaResumen matriculaResumen, DataSessionPivot ds);
 
-    JsonResponse ampliarVacante(Seccion seccion,Integer variacion);
+    JsonResponse ampliarVacante(Seccion seccion, Integer variacion);
 
     JsonResponse anularBoletas(MatriculaResumen matriculaResumen, DataSessionPivot ds);
+
+    public JsonResponse downloadHistorial(Alumno alumno, Usuario usuario, CicloAcademico academico, Parametro paramRutaMatricula);
 }

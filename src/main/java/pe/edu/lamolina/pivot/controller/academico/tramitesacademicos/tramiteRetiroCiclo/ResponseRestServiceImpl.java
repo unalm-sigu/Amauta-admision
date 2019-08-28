@@ -22,6 +22,7 @@ import pe.edu.lamolina.model.enums.TokenEstadoEnum;
 import pe.edu.lamolina.model.general.Parametro;
 import pe.edu.lamolina.model.seguridad.Sistema;
 import pe.edu.lamolina.model.seguridad.TokenIngresante;
+import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.config.DespliegueConfig;
 import pe.edu.lamolina.pivot.controller.rest.AbstractRestClient;
 import pe.edu.lamolina.pivot.dao.aporte.AporteDAO;
@@ -159,5 +160,18 @@ public class ResponseRestServiceImpl extends AbstractRestClient<JsonResponse> im
         token.setUserRegistro(ds.getUsuario());
         tokenIngresanteDAO.save(token);
 
+    }
+
+    @Override
+    public JsonResponse downloadHistorial(Alumno alumno, Usuario usuario,CicloAcademico academico, Parametro paramRutaMatricula) {
+        ObjectNode json = new ObjectNode(JsonNodeFactory.instance);
+        json.put("idAlumno", alumno.getId());
+        json.put("idUsuario", usuario.getId());
+        json.put("idCiclo", academico.getId());
+
+        String url = String.format("%s/restMaipi/historialpdf",
+                paramRutaMatricula.getValor());
+
+        return this.postToBackEnd(url, json);
     }
 }
