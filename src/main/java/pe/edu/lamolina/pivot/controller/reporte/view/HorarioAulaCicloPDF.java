@@ -21,20 +21,25 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.albatross.zelpers.pdf.document.PdfDocumentGenerator;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.Seccion;
+import pe.edu.lamolina.model.enums.TurnoAtencionEnum;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Dia;
+import pe.edu.lamolina.model.general.Persona;
+import pe.edu.lamolina.model.general.ResponsableAula;
 import pe.edu.lamolina.model.horario.DiaHoraGrupo;
 import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.horario.HorarioAula;
@@ -62,7 +67,7 @@ public class HorarioAulaCicloPDF extends AbstractOnlyPdfView {
         document.addTitle(this.title);
         document.addSubject("");
         document.setPageSize(PageSize.A4.rotate());
-        document.setMargins(36, 36, 10, 35);
+        document.setMargins(10, 10, 10, 10);
     }
 
     @Override
@@ -75,14 +80,17 @@ public class HorarioAulaCicloPDF extends AbstractOnlyPdfView {
         List<Hora> horas = (List<Hora>) model.get("horas");
         List<DiaHoraGrupo> diasHorasGrupos = (List<DiaHoraGrupo>) model.get("diasHorasGruposByCiclo");
         Map<String, List<DiaHoraGrupo>> mapDiasHorasGrupos = TypesUtil.convertListToMapList("idDiaHora", diasHorasGrupos);
+        List<ResponsableAula> responsablesAulas = (List<ResponsableAula>) model.get("responsablesAulas");
 
         Map<Long, List<HorarioAula>> mapHorariosByAula = TypesUtil.convertListToMapList("aula.id", horariosAulas);
 
         for (Aula aula : aulas) {
             List<HorarioAula> horariosAulasByAula = (List<HorarioAula>) mapHorariosByAula.get(aula.getId());
-
+            List<ResponsableAula> responsablesByAula = responsablesAulas.stream()
+                    .filter(x -> x.getAula().equals(aula) || x.getAula().equals(aula.getAulaSuperior()))
+                    .collect(Collectors.toList());
             PdfPTable table = this.createTable();
-            this.documentHeader(table, aula, ciclo, dias);
+            this.documentHeader(table, aula, ciclo, dias, responsablesByAula);
             this.generateTable(table, dias, horas, horariosAulasByAula, mapDiasHorasGrupos);
             this.documentFooter(table, aula, ciclo);
 
@@ -106,7 +114,7 @@ public class HorarioAulaCicloPDF extends AbstractOnlyPdfView {
     private PdfPTable createTable() throws DocumentException {
         PdfPTable table = new PdfPTable(7);
         table.setWidths(new int[]{1, 3, 3, 3, 3, 3, 3});
-        table.setTotalWidth(770);
+        table.setTotalWidth(800);
         table.setLockedWidth(true);
         table.setSpacingAfter(0f);
         table.setSpacingBefore(0f);
@@ -114,12 +122,13 @@ public class HorarioAulaCicloPDF extends AbstractOnlyPdfView {
         return table;
     }
 
-    private void documentHeader(PdfPTable table, Aula aula, CicloAcademico ciclo, List<Dia> dias) {
+    private void documentHeader(PdfPTable table, Aula aula, CicloAcademico ciclo, List<Dia> dias, List<ResponsableAula> responsablesAulas) throws DocumentException {
         String titulo = "AULA " + aula.getCodigo();
         if (ObjectUtil.getParentTree(aula, "aulaSuperior.nombre") != null) {
             titulo = "MÓDULO " + ObjectUtil.getParentTree(aula, "aulaSuperior.nombre") + " " + titulo;
         }
         this.generateTitulo(titulo, table);
+        this.generateSubTitulo(responsablesAulas, table);
         Font headerFont = new Font(Font.FontFamily.HELVETICA, 8, Font.BOLD, BaseColor.WHITE);
 
         Phrase phr = null;
@@ -224,6 +233,57 @@ public class HorarioAulaCicloPDF extends AbstractOnlyPdfView {
         table.addCell(cell);
     }
 
+    public void generateSubTitulo(List<ResponsableAula> responsablesAulas, PdfPTable table) throws DocumentException {
+
+        PdfPTable innerTable = new PdfPTable(6);
+        innerTable.getDefaultCell().setBorder(Rectangle.NO_BORDER);
+        innerTable.setWidths(new int[]{1, 3, 1, 3, 1, 3});
+        innerTable.setWidthPercentage(100);
+        innerTable.setSpacingBefore(0f);
+        innerTable.setSpacingAfter(0f);
+        innerTable.setPaddingTop(0f);
+
+        PdfPCell cell = new PdfPCell(innerTable);
+        cell.setBorder(Rectangle.NO_BORDER);
+        cell.setColspan(7);
+
+        Persona responsableAulaMNA = this.getResponsable(responsablesAulas, TurnoAtencionEnum.MNA).getPersona();
+        Persona responsableAulaTAR = this.getResponsable(responsablesAulas, TurnoAtencionEnum.TAR).getPersona();
+
+        PdfDocumentGenerator uDocumentoPdf = new PdfDocumentGenerator();
+        uDocumentoPdf.addBodyCellTable("PERSONA RESPONSABLE", innerTable, 6, Element.ALIGN_LEFT, PdfDocumentGenerator.FUENTE_8_NEGRITA);
+        
+        uDocumentoPdf.addBodyCellTable("MAÑANA", innerTable, 1, Element.ALIGN_LEFT, PdfDocumentGenerator.FUENTE_8_NEGRITA);
+        uDocumentoPdf.addBodyCellTable(responsableAulaMNA.getApellidosNombres(), innerTable, 1, Element.ALIGN_LEFT);
+        uDocumentoPdf.addBodyCellTable("CELULAR", innerTable, 1, Element.ALIGN_LEFT, PdfDocumentGenerator.FUENTE_8_NEGRITA);
+        uDocumentoPdf.addBodyCellTable(responsableAulaMNA.getCelular(), innerTable, 3, Element.ALIGN_LEFT);
+        
+        uDocumentoPdf.addBodyCellTable("TARDE", innerTable, 1, Element.ALIGN_LEFT, PdfDocumentGenerator.FUENTE_8_NEGRITA);
+        uDocumentoPdf.addBodyCellTable(responsableAulaTAR.getApellidosNombres(), innerTable, 1, Element.ALIGN_LEFT);
+        uDocumentoPdf.addBodyCellTable("CELULAR", innerTable, 1, Element.ALIGN_LEFT, PdfDocumentGenerator.FUENTE_8_NEGRITA);
+        uDocumentoPdf.addBodyCellTable(responsableAulaTAR.getCelular(), innerTable, 3, Element.ALIGN_LEFT);
+        table.addCell(cell);
+    }
+
+    public ResponsableAula getResponsable(List<ResponsableAula> responsablesAulas, TurnoAtencionEnum turnoAtencionEnum) {
+        ResponsableAula responsablesAulasMOD = responsablesAulas.stream()
+                .filter(x -> x.getAula().getTipoAula().isTipoAulaMOD())
+                .filter(x -> x.getTurnoAtencionAula().getCodigo().equals(turnoAtencionEnum.name()))
+                .findFirst().orElse(null);
+        ResponsableAula responsablesAulasAUL = responsablesAulas.stream()
+                .filter(x -> x.getAula().getTipoAula().isTipoAulaAUL())
+                .filter(x -> x.getTurnoAtencionAula().getCodigo().equals(turnoAtencionEnum.name()))
+                .findFirst().orElse(null);
+        if (responsablesAulasAUL != null) {
+            return responsablesAulasAUL;
+        }
+        if (responsablesAulasMOD == null) {
+            responsablesAulasMOD = new ResponsableAula();
+            responsablesAulasMOD.setPersona(new Persona());
+        }
+        return responsablesAulasMOD;
+    }
+
     private void documentFooter(PdfPTable table, Aula aula, CicloAcademico cicloAcademico) {
         Font fontFooterPDF = new Font(Font.FontFamily.HELVETICA, 7, Font.NORMAL, BaseColor.BLACK);
 
@@ -280,7 +340,7 @@ public class HorarioAulaCicloPDF extends AbstractOnlyPdfView {
         innerTable.setPaddingTop(0f);
         if (diasHoraGrupo != null) {
             for (DiaHoraGrupo diaHoraGrupo : diasHoraGrupo) {
-                addCeldaCenterBody(diaHoraGrupo.getGrupoHorario().getCodigo(), innerTable, letterFont);
+                addCeldaCenterBody(diaHoraGrupo.getGrupoHorario().getCodigo(), innerTable, bodyFont); //letterFont
             }
         }
         if (horariosAulasByDiaHora == null || horariosAulasByDiaHora.isEmpty()) {
@@ -296,6 +356,9 @@ public class HorarioAulaCicloPDF extends AbstractOnlyPdfView {
             String cursoNombre = curso.getNombre();
             // addCeldaCenterBody(seccion.getGrupoHoras().getCodigo(), innerTable, letterFont);
             addCeldaLeftBody(cursoString + " / " + seccionString, innerTable, bodyFont);
+            if (cursoNombre.length() >= 35) {
+                cursoNombre = cursoNombre.substring(0, 35);
+            }
             addCeldaLeftBody(cursoNombre, innerTable, bodyFont);
             for (DocenteSeccion docenteSeccion : seccion.getDocenteSeccion()) {
                 Docente docente = docenteSeccion.getDocente();
@@ -325,6 +388,10 @@ public class HorarioAulaCicloPDF extends AbstractOnlyPdfView {
     }
 
     private void addCeldaCenterBody(String contenido, PdfPTable table, Font bodyFont) {
+        this.addCeldaCenterBody(contenido, table, bodyFont, 1);
+    }
+
+    private void addCeldaCenterBody(String contenido, PdfPTable table, Font bodyFont, int coldspan) {
         Phrase phr = new Phrase(contenido, bodyFont);
         PdfPCell cell = new PdfPCell(phr);
         cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
@@ -334,6 +401,7 @@ public class HorarioAulaCicloPDF extends AbstractOnlyPdfView {
         cell.setPaddingRight(0f);
         cell.setPaddingTop(0f);
         cell.setPaddingBottom(0f);
+        cell.setColspan(coldspan);
         table.addCell(cell);
     }
 

@@ -1,6 +1,8 @@
 package pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.aula;
 
 import java.util.List;
+import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.general.Dia;
 
@@ -12,7 +14,13 @@ public class SeccionDTO {
 
     List<Dia> dias;
 
-    List<ModalidadEstudioEnum> modalidadesEstudioEnum;
+    private List<Seccion> secciones;
+    //deprecated
+    private List<ModalidadEstudioEnum> modalidadesEstudioEnum;
+    private CicloAcademico cicloAcademico;
+
+    private List<ModalidadEstudioEnum> modalidadesEstudioAluEnum;
+    private List<ModalidadEstudioEnum> modalidadesEstudioCurEnum;
 
     public Boolean getConHorario() {
         return conHorario;
@@ -44,6 +52,46 @@ public class SeccionDTO {
 
     public void setModalidadesEstudioEnum(List<ModalidadEstudioEnum> modalidadesEstudioEnum) {
         this.modalidadesEstudioEnum = modalidadesEstudioEnum;
+    }
+
+    public List<Seccion> getSecciones() {
+        return secciones;
+    }
+
+    public void setSecciones(List<Seccion> secciones) {
+        this.secciones = secciones;
+    }
+
+    public List<Dia> getDias() {
+        return dias;
+    }
+
+    public void setDias(List<Dia> dias) {
+        this.dias = dias;
+    }
+
+    public CicloAcademico getCicloAcademico() {
+        return cicloAcademico;
+    }
+
+    public void setCicloAcademico(CicloAcademico cicloAcademico) {
+        this.cicloAcademico = cicloAcademico;
+    }
+
+    public List<ModalidadEstudioEnum> getModalidadesEstudioAluEnum() {
+        return modalidadesEstudioAluEnum;
+    }
+
+    public void setModalidadesEstudioAluEnum(List<ModalidadEstudioEnum> modalidadesEstudioAluEnum) {
+        this.modalidadesEstudioAluEnum = modalidadesEstudioAluEnum;
+    }
+
+    public List<ModalidadEstudioEnum> getModalidadesEstudioCurEnum() {
+        return modalidadesEstudioCurEnum;
+    }
+
+    public void setModalidadesEstudioCurEnum(List<ModalidadEstudioEnum> modalidadesEstudioCurEnum) {
+        this.modalidadesEstudioCurEnum = modalidadesEstudioCurEnum;
     }
 
 }

@@ -102,8 +102,6 @@ public class ReporteController {
 
     @RequestMapping(method = RequestMethod.GET, value = "/reporteboletinexcel")
     public ModelAndView reporteboletin(Model model, HttpSession session) {
-//        RolExamenes rol = service.find(id);
-//        service.infoReporteAulas(model, rol);
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
         return new ModelAndView(boletinAcademicoExcelView);
@@ -111,18 +109,14 @@ public class ReporteController {
 
     @RequestMapping("programacionHorarioAlumno")
     public ModelAndView programacionHorarioAlumno(Model model, HttpSession session, HttpServletResponse response) throws Exception {
-
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-
         CicloAcademico ciclo = ds.getCicloAcademico();
 
         model.addAttribute("cicloAcademico", ciclo);
         model.addAttribute("alumnosHorario", service.allAlumnoHorario(ciclo));
         model.addAttribute("horariosCachimbo", service.allHorariosCachimbo(ciclo));
         model.addAttribute("consejeros", service.allOficinaByConsejero());
-
         return new ModelAndView(horarioAlumnoCicloPDF);
-
     }
 
 }

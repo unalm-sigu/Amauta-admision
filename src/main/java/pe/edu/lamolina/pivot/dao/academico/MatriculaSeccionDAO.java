@@ -9,7 +9,10 @@ import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
+import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
+import pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.aula.SeccionDTO;
+import pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.reporte.dto.CantidadMatriculadosDTO;
 
 public interface MatriculaSeccionDAO extends EasyDAO<MatriculaSeccion> {
 
@@ -81,4 +84,7 @@ public interface MatriculaSeccionDAO extends EasyDAO<MatriculaSeccion> {
 
     List<MatriculaSeccion> allBySecciones(List<Seccion> secciones);
 
+    List<MatriculaSeccion> matriculadosPorSeccion(SeccionDTO seccionDTO);
+
+    List<CantidadMatriculadosDTO> cantidadMatriculados(SeccionDTO seccionDTO);
 }

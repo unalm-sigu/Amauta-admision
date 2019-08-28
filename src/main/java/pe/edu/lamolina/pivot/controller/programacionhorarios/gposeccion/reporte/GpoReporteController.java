@@ -28,11 +28,15 @@ import pe.edu.lamolina.model.academico.AnexoBoletin;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Facultad;
+import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.tramite.TramiteDocumentoAcademico;
 import pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.GpoSeccionResumen;
 import pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.aula.SeccionDTO;
+import pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.reporte.dto.CantidadMatriculadosDTO;
+import pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.reporte.view.ReporteAlumnosPorSeccionExcelView;
+import pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.reporte.view.ReporteCantidadAlumnosPorSeccionExcelView;
 import pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.reporte.view.ReporteCrucesExcelView;
 import pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.reporte.view.ReporteSeccionesByFilterExcelView;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
@@ -60,6 +64,12 @@ public class GpoReporteController {
 
     @Autowired
     ReporteSeccionesByFilterExcelView reporteSeccionesByFilterExcelView;
+
+    @Autowired
+    ReporteAlumnosPorSeccionExcelView reporteAlumnosPorSeccionExcelView;
+
+    @Autowired
+    ReporteCantidadAlumnosPorSeccionExcelView reporteCantidadAlumnosPorSeccionExcelView;
 
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {
@@ -239,7 +249,7 @@ public class GpoReporteController {
         seccionDTO.setTituloReporte("Secciones Sin Aula");
         seccionDTO.setModalidadesEstudioEnum(Arrays.asList(ModalidadEstudioEnum.PRE));
         seccionDTO.setConAula(false);
-       // seccionDTO.setConHorario(true);
+        // seccionDTO.setConHorario(true);
         List<Seccion> secciones = service.allSeccionesByFilter(cicloAcademico, seccionDTO);
 
         model.addAttribute("seccionDTO", seccionDTO);
@@ -261,7 +271,7 @@ public class GpoReporteController {
         seccionDTO.setTituloReporte("Secciones Con Aula");
         seccionDTO.setModalidadesEstudioEnum(Arrays.asList(ModalidadEstudioEnum.EPG, ModalidadEstudioEnum.PRE));
         seccionDTO.setConAula(true);
-     //   seccionDTO.setConHorario(true);
+        //   seccionDTO.setConHorario(true);
         List<Seccion> secciones = service.allSeccionesByFilter(cicloAcademico, seccionDTO);
 
         model.addAttribute("seccionDTO", seccionDTO);
@@ -313,6 +323,45 @@ public class GpoReporteController {
         model.addAttribute("secciones", secciones);
         model.addAttribute("ciclo", cicloAcademico);
         return new ModelAndView(reporteSeccionesByFilterExcelView);
+    }
+
+    @RequestMapping("reporteAlumnosPorClave")
+    public ModelAndView reporteAlumnosPorClave(Model model, HttpSession session) {
+
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        CicloAcademico cicloAcademico = ds.getCicloAcademico();
+
+        InputStream formato = this.getClass().getResourceAsStream("/templates/excel/formatoProgramacion.xlsx");
+        SeccionDTO seccionDTO = new SeccionDTO();
+        seccionDTO.setTituloReporte("Matriculados Por Sección");
+        seccionDTO.setCicloAcademico(cicloAcademico);
+        seccionDTO.setModalidadesEstudioCurEnum(Arrays.asList(ModalidadEstudioEnum.PRE));
+
+        List<MatriculaSeccion> matriculasSecciones = service.allMatriculadosBySeccion(seccionDTO);
+
+        model.addAttribute("matriculasSecciones", matriculasSecciones);
+        model.addAttribute("formato", formato);
+        model.addAttribute("seccionDTO", seccionDTO);
+        return new ModelAndView(reporteAlumnosPorSeccionExcelView);
+    }
+
+    @RequestMapping("reporteCantidadAlumnosPorSeccion")
+    public ModelAndView reporteCantidadAlumnosPorSeccion(Model model, HttpSession session) {
+
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        CicloAcademico cicloAcademico = ds.getCicloAcademico();
+
+        InputStream formato = this.getClass().getResourceAsStream("/templates/excel/formatoProgramacion.xlsx");
+        SeccionDTO seccionDTO = new SeccionDTO();
+        seccionDTO.setTituloReporte("Cantidad Matriculados Por Sección");
+        seccionDTO.setCicloAcademico(cicloAcademico);
+        seccionDTO.setModalidadesEstudioCurEnum(Arrays.asList(ModalidadEstudioEnum.PRE));
+        List<CantidadMatriculadosDTO> cantidadMatriculados = service.allCantidadMatriculados(seccionDTO);
+
+        model.addAttribute("formato", formato);
+        model.addAttribute("cantidadMatriculados", cantidadMatriculados);
+        model.addAttribute("seccionDTO", seccionDTO);
+        return new ModelAndView(reporteCantidadAlumnosPorSeccionExcelView);
     }
 
 }

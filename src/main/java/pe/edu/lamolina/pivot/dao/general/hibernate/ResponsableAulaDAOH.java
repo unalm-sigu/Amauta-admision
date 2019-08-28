@@ -13,16 +13,16 @@ import pe.edu.lamolina.pivot.dao.general.ResponsableAulaDAO;
 
 @Repository
 public class ResponsableAulaDAOH extends AbstractEasyDAO<ResponsableAula> implements ResponsableAulaDAO {
-    
+
     public ResponsableAulaDAOH() {
         this.setClazz(ResponsableAula.class);
     }
-    
+
     @Override
     public List<ResponsableAula> allByPersona(Persona personaResponsable, EstadoEnum... estados) {
         return this.allByPersona(Arrays.asList(personaResponsable), estados);
     }
-    
+
     @Override
     public List<ResponsableAula> allByPersona(List<Persona> personaResponsable, EstadoEnum... estados) {
         Octavia sql = Octavia.query()
@@ -33,7 +33,7 @@ public class ResponsableAulaDAOH extends AbstractEasyDAO<ResponsableAula> implem
                 .in("ra.estado", Arrays.asList(estados));
         return all(sql);
     }
-    
+
     @Override
     public List<ResponsableAula> allByAulas(List<Aula> aulas, EstadoEnum... estados) {
         Octavia sql = Octavia.query()
@@ -43,5 +43,14 @@ public class ResponsableAulaDAOH extends AbstractEasyDAO<ResponsableAula> implem
                 .in("ra.estado", Arrays.asList(estados));
         return all(sql);
     }
-    
+
+    @Override
+    public List<ResponsableAula> allByEstado(EstadoEnum... estados) {
+        Octavia sql = Octavia.query()
+                .from(ResponsableAula.class, "ra")
+                .join("persona per", "turnoAtencionAula ta", "aula au", "au.tipoAula tpa")
+                .in("ra.estado", Arrays.asList(estados));
+        return all(sql);
+    }
+
 }
