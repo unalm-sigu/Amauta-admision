@@ -110,7 +110,7 @@
                                             <thead>
                                                 <tr>
                                                     <th class="col-md-7" >Curso</th>
-                                                    <th class="col-md-1 text-center" v-if="tramiteTrasladoActivo.tipoTraslado == 'INTES'">Nota</th>
+                                                    <th class="col-md-1 text-center" v-if="tramiteTrasladoActivo.tipoTraslado == 'INTES'  || tramiteTrasladoActivo.tipoTraslado == 'ING_HIS'">Nota</th>
                                                     <th class="col-md-3 text-center">Créditos</th>
                                                     <th class="col-md-1"></th>
                                                 </tr>
@@ -144,7 +144,7 @@
                                                     </td>
                                                     <td class="v-middle text-center">
                                                         <span v-if="item.id !== null" v-text="item.nota"></span>
-                                                        <input v-if="item.id === null &amp;&amp; tramiteTrasladoActivo.tipoTraslado == 'INTES'" v-model="item.nota" class="form-control" required="true"></input>
+                                                        <input v-if="item.id === null &amp;&amp; ( tramiteTrasladoActivo.tipoTraslado == 'INTES'  || tramiteTrasladoActivo.tipoTraslado == 'ING_HIS')" v-model="item.nota" class="form-control" required="true"></input>
                                                     </td>
                                                     <td class="v-middle text-center">
                                                         <span v-text="item.curso.creditos"></span>

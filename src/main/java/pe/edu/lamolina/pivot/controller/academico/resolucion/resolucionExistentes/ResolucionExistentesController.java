@@ -52,6 +52,7 @@ import static pe.edu.lamolina.model.enums.TipoResolucionEnum.CAM_NOTA;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.CURDIR;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.RCI;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.REIC;
+import static pe.edu.lamolina.model.enums.TipoTramiteEnum.ING_HIS;
 import static pe.edu.lamolina.model.enums.TipoTramiteEnum.INTES;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.tramite.CambioNota;
@@ -122,7 +123,7 @@ public class ResolucionExistentesController {
 
         List<TipoResolucion> tipoResolucions = service.allTipoResolucion();
         for (TipoResolucion tipoResolucion : tipoResolucions) {
-            if (Arrays.asList(RCI.name(), REIC.name(), CAM_NOTA.name(), CURDIR.name(), TRAS.name(), INTES.name()).contains(tipoResolucion.getCodigo())) {
+            if (Arrays.asList(RCI.name(), REIC.name(), CAM_NOTA.name(), CURDIR.name(), TRAS.name(), INTES.name(), ING_HIS.name()).contains(tipoResolucion.getCodigo())) {
                 tipoResolucionJson.add(JsonHelper.createJson(tipoResolucion, JsonNodeFactory.instance, new String[]{"*"}));
             }
         }
@@ -205,9 +206,9 @@ public class ResolucionExistentesController {
                     matriculableService.revisarSituacionAcademica(alumno, ds);
                     matriculableService.saveMatriculable(alumno, TipoCondicionalEnum.CAMBIO_NOTA.name(), ds);
                 }
-            } else if (resolucion.getTipoResolucion().getCodigo().equals(TRAS.name()) || resolucion.getTipoResolucion().getCodigo().equals(INTES.name())) {
+            } else if (Arrays.asList(TRAS.name(), INTES.name(), ING_HIS.name()).contains(resolucion.getTipoResolucion().getCodigo())) {
                 service.saveTramiteTraslado(resolucion, ds.getUsuario(), ds.getCicloAcademico(), ds.getCompania());
-            } else {
+            } else if (resolucion.getTipoResolucion().getCodigo().equals(CURDIR.name())) {
                 service.saveCursoDirigido(resolucion, ds.getUsuario(), ds);
             }
 
@@ -294,7 +295,7 @@ public class ResolucionExistentesController {
                     objectNode.put("tipo", CURDIR.name());
                     array.add(objectNode);
                 }
-            } else if (resolucionDB.getTipoResolucion().getCodigo().equals(TRAS.name())) {
+            } else if (Arrays.asList(TRAS.name(), INTES.name(), ING_HIS.name()).contains(resolucionDB.getTipoResolucion().getCodigo())) {
                 tramiteTraslado = service.findTramiteTraslado(resolucionDB);
                 objectNode = JsonHelper.createJson(tramiteTraslado, JsonNodeFactory.instance, new String[]{
                     "*",
