@@ -97,6 +97,18 @@
                                     </div>
                                 </div>
 
+                                <div class="col-sm-3">
+                                    <label class="col-sm-12 control-label">Horario Visible</label>
+                                    <div class="col-sm-12">
+                                        <label class="switch">
+                                            <input type="checkbox"
+                                                   v-model="reservaaula.visibleHorario"
+                                                   v-on:change="changeRangoFecha()"/>
+                                            <span></span>
+                                        </label>
+                                    </div>
+                                </div>
+
                                 <div class="col-sm-12"></div>
 
                                 <aula-horario-component

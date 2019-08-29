@@ -544,6 +544,7 @@ public class AulaController {
         }
 
         List<HorarioAula> horariosAulas = service.allHorariosAulaByCiclo(ds.getCicloAcademico(), aulaBD);
+
         List<Dia> dias = service.allDiaForPrinter();
         List<Hora> horas = service.allHorasHorario();
         List<Aula> aulasProgramadas = horariosAulas.stream()
