@@ -39,10 +39,12 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
+import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.NumberFormat;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoEvaluacion;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
@@ -880,6 +882,24 @@ public class NotaAcademicaController {
         model.addAttribute("matriculaCursoMap", matriculaCursoMap);
         model.addAttribute("esDocentePrincipal", esDocentePrincipal);
 
+        ObjectNode jCurso = JsonHelper.createJson(curso, JsonNodeFactory.instance, false,
+                new String[]{
+                    "*"
+                });
+
+        ObjectNode jMapAlumno = new ObjectNode(JsonNodeFactory.instance);
+        for (MatriculaSeccion matriculaSeccion : matriculasSeccionByFilter) {
+            Alumno alumno = matriculaSeccion.getMatriculaResumen().getAlumno();
+            ObjectNode jAlumno = JsonHelper.createJson(alumno, JsonNodeFactory.instance, false,
+                    new String[]{
+                        "*",
+                        "modalidadEstudio.operativePRE",
+                        "modalidadEstudio.operativeEPG"
+                    });
+            jMapAlumno.set(alumno.getCodigo(), jAlumno);
+        }
+        model.addAttribute("jCurso", jCurso.toString());
+        model.addAttribute("jAlumnos", jMapAlumno.toString());
         return "docente/notaacademica/notasAcademicas";
     }
 

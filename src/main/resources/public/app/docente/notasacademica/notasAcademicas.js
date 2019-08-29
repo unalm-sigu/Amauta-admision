@@ -5,11 +5,11 @@ $(function () {
     var message = "";
     var NSP = "NSP";
     var NCV = "NCV";
+    var curso = JSON.parse(jCurso);
+    var alumnos = JSON.parse(jAlumnos);
 
     NotasAcademicas = {
         init: function () {
-
-
             if (sistemaNotasValidate == "") {
                 $.ajax({
                     url: APP.url('docente/notasacademica/getSistemaNotas'),
@@ -111,8 +111,8 @@ $(function () {
                 },
                 messages: {
                     //Cette valeur doit être un multiple de %s
-                    en: "Nota excede en créditos matriculados.",
-                    es: "Nota excede en créditos matriculados."
+                    en: "Nota excede en créditos maximos %s.",
+                    es: "Nota excede en créditos maximos %s."
                 }
             });
 
@@ -413,6 +413,8 @@ $(function () {
                     $(this).attr("required", true);
                 }
                 if ($(this).is("input")) {
+                    let aluCodigo = $(this).attr("alu");
+                    let alumnoEach = alumnos[aluCodigo];
                     if (!sistemaNotasValidate.esCreditoZero) {
                         $(this).attr("required", true);
                     }
@@ -431,7 +433,7 @@ $(function () {
                         //  $(this).attr("data-parsley-pattern", "^[0-9]*\.[0-9]{2}$");
 
                     } else {
-                        console.dir(sistemaNotasValidate);
+
                         if (!sistemaNotasValidate.esCreditoZero) {
                             $(this).attr("data-parsley-nota-minima", sistemaNotasValidate.valorInicial);
                             $(this).attr("data-parsley-nota-maxima", sistemaNotasValidate.valorFinal);
@@ -439,8 +441,12 @@ $(function () {
                         }
 
                         if (sistemaNotasValidate.esCreditoVariable) {
+                            if (alumnoEach.modalidadEstudio.operativePRE) {
+                                $(this).attr("data-parsley-creditos-maximo", curso.creditosVariables);
+                            } else {
+                                $(this).attr("data-parsley-creditos-maximo", $(this).attr("alt"));
+                            }
                             $(this).attr("data-parsley-nota-minima", 0);
-                            $(this).attr("data-parsley-creditos-maximo", $(this).attr("alt"));
                             $(this).attr("data-parsley-pattern", "(NCV|NSP|[0-9]{0,3}\.?[0-9]{0,2})");
                         }
 
