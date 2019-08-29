@@ -501,7 +501,7 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
             tramite.setEstadoEnum(estadotram);
             tramiteDAO.update(tramite);
 
-            if (!cursoDirigidoTram.getSeleccionado()) {
+            if (!cursoDirigidoForm.getSeleccionado()) {
                 continue;
             }
             AnexoBoletin anexoBoletin = anexoBoletinDAO.findDepartamento(cursoDirigidoTram.getCurso().getDepartamentoAcademico());
