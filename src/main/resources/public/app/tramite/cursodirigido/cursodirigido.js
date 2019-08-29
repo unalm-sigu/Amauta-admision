@@ -102,7 +102,14 @@ new Vue({
         classColor(estado) {
             switch (estado) {
                 case 'SOL_ANU':
+                case 'RHZ_SOL':
                     return  "label label-danger"
+                    break;
+                case 'SOL_CUR_DIR':
+                    return  "label label-primary"
+                    break;
+                case 'RES_FAC':
+                    return  "label label-success"
                     break;
 
                 default:

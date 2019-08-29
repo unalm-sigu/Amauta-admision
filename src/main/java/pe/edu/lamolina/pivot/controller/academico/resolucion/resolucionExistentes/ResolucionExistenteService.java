@@ -44,4 +44,6 @@ public interface ResolucionExistenteService {
 
     TramiteTraslado findTramiteTraslado(Resolucion resolucionDB);
 
+    public void saveIngresoHisto(Resolucion resolucion, Usuario usuario, DataSessionPivot ds);
+
 }
