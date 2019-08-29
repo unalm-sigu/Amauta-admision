@@ -124,7 +124,7 @@ public class CursoDirigidoDAOH extends AbstractEasyDAO<CursoDirigido> implements
     public List<CursoDirigido> allByCicloAcademicoSol(CicloAcademico cicloAcademico) {
         Octavia sql = new Octavia()
                 .from(CursoDirigido.class, "cd")
-                .join("tramite tra", "facultad fac", "curso ", "docenteAsignado da", "estado es")
+                .join("tramite tra", "facultad fac", "curso ", "estado es")
                 .join("tra.tipoTramite")
                 .left("tra.alumno al", "tra.cicloAcademico ca", "userRegistro ur")
                 .filter("es.codigo", SOL_CUR_DIR.name())

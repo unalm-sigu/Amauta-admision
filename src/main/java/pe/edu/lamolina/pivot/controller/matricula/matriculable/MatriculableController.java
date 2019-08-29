@@ -29,6 +29,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
+import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
@@ -45,19 +46,25 @@ import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.aporte.AporteAlumnoCiclo;
 import pe.edu.lamolina.model.aporte.ResumenAporteAlumno;
 import pe.edu.lamolina.model.constantines.GlobalMessages;
+import pe.edu.lamolina.model.enums.AmbienteAplicacionEnum;
 import static pe.edu.lamolina.model.enums.EstadoAporteEnum.DEBE;
 import static pe.edu.lamolina.model.enums.EstadoAporteEnum.PAGO;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
+import pe.edu.lamolina.model.enums.ParametrosSistemasEnum;
 import pe.edu.lamolina.model.enums.RolEnum;
 import static pe.edu.lamolina.model.enums.RolEnum.FAC;
 import static pe.edu.lamolina.model.enums.RolEnum.MOD;
 import static pe.edu.lamolina.model.enums.RolEnum.TODO;
 import pe.edu.lamolina.model.enums.TipoCicloEnum;
 import pe.edu.lamolina.model.enums.TipoCondicionalEnum;
-import pe.edu.lamolina.model.finanzas.Acreencia;
 import pe.edu.lamolina.model.finanzas.DeudaAlumno;
+import pe.edu.lamolina.model.general.Parametro;
 import pe.edu.lamolina.model.general.Persona;
+import pe.edu.lamolina.model.seguridad.TokenIngresante;
+import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.controller.academico.alumno.AlumnoResumen;
+import pe.edu.lamolina.pivot.controller.academico.alumno.AlumnoService;
+import pe.edu.lamolina.pivot.controller.academico.tramitesacademicos.tramiteRetiroCiclo.ResponseRestService;
 import pe.edu.lamolina.pivot.controller.visores.RespositorVisor;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.constant.Messages;
@@ -74,6 +81,12 @@ public class MatriculableController {
 
     @Autowired
     RespositorVisor repositorVisor;
+
+    @Autowired
+    AlumnoService serviceAlumno;
+
+    @Autowired
+    ResponseRestService responseRestService;
 
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {
@@ -747,7 +760,7 @@ public class MatriculableController {
                     "cuentaBancaria.banco"
                 });
                 node.put("numero", numero);
-                node.put("acreencia", boleta.getAcreencia()!=null?boleta.getAcreencia().getId():0);
+                node.put("acreencia", boleta.getAcreencia() != null ? boleta.getAcreencia().getId() : 0);
                 array.add(node);
                 numero++;
             }
@@ -763,6 +776,19 @@ public class MatriculableController {
         } finally {
             return json;
         }
+    }
+
+    @RequestMapping("{idAlumno}/histrialPdf")
+    public String goMaipi(@PathVariable("idAlumno") Long idAlumno, Model model, HttpSession session) throws InterruptedException {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        Usuario usuario = ds.getUsuario();
+        serviceAlumno.goMaipi(idAlumno, usuario);
+        Parametro paramRutaMatricula = serviceAlumno.findParametroByEnum(ParametrosSistemasEnum.SALTO_PIVOT_INTRA);
+        JsonResponse jsonResponse = responseRestService.downloadHistorial(new Alumno(idAlumno), usuario, ds.getCicloAcademico(), paramRutaMatricula);
+
+        Assert.isTrue(jsonResponse.getSuccess(), "Se produjo un error al modificar secciones matricula. Comuniquese con mesa de ayuda.");
+
+        return "redirect:/";
     }
 
 }
