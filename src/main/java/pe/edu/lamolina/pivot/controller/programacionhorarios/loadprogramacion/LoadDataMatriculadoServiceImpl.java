@@ -10,7 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
@@ -40,6 +42,7 @@ import pe.edu.lamolina.pivot.dao.seguridad.UsuarioDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.UsuarioRolDAO;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.pivot.dao.general.PersonaCargoDAO;
+import pe.edu.lamolina.pivot.zelper.misc.Acumulador;
 
 @Service
 @Transactional(readOnly = true)
@@ -153,41 +156,20 @@ public class LoadDataMatriculadoServiceImpl implements LoadDataMatriculadoServic
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void load(
+            Acumulador acumulador,
+            ControlMatriCurso control,
             MatriculaSeccion matriSecc,
             Map<String, MatriculaResumen> mapResumenes,
             Map<String, Seccion> mapSecciones,
-            CicloAcademico ciclo, DataSessionPivot ds) {
+            Map<Long, CicloAcademico> mapCiclo,
+            //CicloAcademico ciclo, 
+            DataSessionPivot ds) {
 
         if (visor.isStop()) {
             throw new PhobosException("Carga detenida intempestivamente");
         }
 
-        for (;;) {
-            if (matriSecc.getPerdirPermiso()) {
-                break;
-            }
-        }
-
-        if (matriSecc.getFechaInicioProceso() != null) {
-            for (;;) {
-                long t1 = System.currentTimeMillis();
-                long t2 = matriSecc.getFechaInicioProceso().getTime();
-                if (t1 - t2 > 5000) {
-                    break;
-                }
-            }
-        }
-        if (matriSecc.getFechaFinProceso() != null) {
-            for (;;) {
-                long t1 = System.currentTimeMillis();
-                long t2 = matriSecc.getFechaFinProceso().getTime();
-                if (t1 - t2 > 5000) {
-                    break;
-                }
-            }
-        }
-
-        int rr = getRandom();
+        int rr = acumulador.getValor();
         matriSecc.setFechaInicioProceso(new Date());
 
         Seccion seccion = mapSecciones.get(matriSecc.getCodigoSeccion());
@@ -204,7 +186,31 @@ public class LoadDataMatriculadoServiceImpl implements LoadDataMatriculadoServic
             throw new PhobosException(msg);
         }
 
+        long t1 = System.currentTimeMillis();
+        long t3 = t1;
+        long veces = 0;
         System.out.println(rr + " vamos a bloquear alumno " + alumno.getCodigo() + "(" + alumno.getId() + ") para loadDataMatriculados");
+        for (;;) {
+            boolean ok = control.bloquearAlumno(alumno);
+            if (ok) {
+                long t2 = System.currentTimeMillis();
+                System.out.println(rr + " se demoró " + (t2 - t1) + " mseg en obtener alumno " + alumno.getCodigo());
+                break;
+            } else {
+                TypesUtil.delay(100);
+                long t2 = System.currentTimeMillis();
+
+                if ((t2 - t3) > 500) {
+                    veces++;
+                    if (veces % 5 == 0) {
+                        System.out.println(rr + " ya esta demorando " + (t2 - t1) + " mseg en obtener al alumno " + alumno.getCodigo());
+                        veces = 0;
+                        t3 = System.currentTimeMillis();
+                    }
+                }
+            }
+        }
+
         visor.addAlumno(alumno, matriSecc.getCodigoSeccion(), rr);
         alumnoDAO.findLock(alumno.getId());
         visor.bloqueadoAlumno(alumno, matriSecc.getCodigoSeccion());
@@ -213,6 +219,7 @@ public class LoadDataMatriculadoServiceImpl implements LoadDataMatriculadoServic
         MatriculaResumen resumen = mapResumenes.get(alumno.getCodigo());
 
         if (resumen == null) {
+            CicloAcademico ciclo = mapCiclo.get(alumno.getModalidadEstudio().getId());
             //System.out.println("\t" + rr + " creando mat-resumen del alumno " + alumno.getCodigo() + " :::: ");
             resumen = new MatriculaResumen();
             resumen.setAlumno(alumno);
@@ -243,9 +250,11 @@ public class LoadDataMatriculadoServiceImpl implements LoadDataMatriculadoServic
         }
 
         MatriculaSeccion matriSeccBD = findMatriculaSeccion(resumen.getMatriculaSeccion(), seccion);
+        Curso curso = seccion.getGrupoSeccion().getCurso();
+        boolean esNuevaSeccion = false;
 
         if (matriSeccBD == null) {
-            System.out.println("\t" + rr + " creando mat-seccion del alumno " + alumno.getCodigo());
+            System.out.println("\t" + rr + " creando mat-seccion del alumno " + alumno.getCodigo() + " en la seccion " + seccion.getCodigo3() + " del curso " + curso.getId());
             matriSeccBD = new MatriculaSeccion();
             matriSeccBD.setEstadoEnum(EstadoMatriculaEnum.MAT);
             matriSeccBD.setFechaRegistro(new Date());
@@ -253,41 +262,53 @@ public class LoadDataMatriculadoServiceImpl implements LoadDataMatriculadoServic
             matriSeccBD.setSeccion(seccion);
             matriSeccBD.setMatriculaResumen(resumen);
             matriculaSeccionDAO.save(matriSeccBD);
-            resumen.getMatriculaSeccion().add(matriSeccBD);
+            esNuevaSeccion = true;
 
             //System.out.println("\t" + rr + " mat-seccion es " + matriSeccBD.getId());
         }
         matriSeccBD.setCargado(1);
 
-        Curso curso = seccion.getGrupoSeccion().getCurso();
-        MatriculaCurso matriCursoBD = findMatriculaCurso(resumen.getMatriculaCurso(), curso, rr);
+        //MatriculaCurso matriCursoBD = findMatriculaCurso(resumen.getMatriculaCurso(), curso, rr);
+        MatriculaCurso matriCursoBD = resumen.getMatriculaCursoByCurso(curso);
+        boolean noEsNuevo = true;
 
-        if (matriCursoBD == null) {
+        if (matriCursoBD.getId() == null) {
             //System.out.print("\t" + rr + " creando mat-curso del alumno " + alumno.getCodigo() + " :::: ");
-            matriCursoBD = new MatriculaCurso();
+            //matriCursoBD = new MatriculaCurso();
+            //matriCursoBD.setCurso(curso);
 
-            matriCursoBD.setCurso(curso);
             matriCursoBD.setEstadoEnum(EstadoMatriculaEnum.MAT);
-            matriCursoBD.setMatriculaResumen(resumen);
+            //matriCursoBD.setMatriculaResumen(resumen);
             matriCursoBD.setNotaAcumulada("0");
             matriCursoBD.setNotaAvance("0");
             matriCursoBD.setNotaFinal("0");
             matriCursoBD.setPorcentajeAvanceNota(0);
             matriCursoBD.setCreditos(matriSecc.getCreditos());
+            matriCursoBD.setFechaMatricula(new Date());
             matriculaCursoDAO.save(matriCursoBD);
-            resumen.getMatriculaCurso().add(matriCursoBD);
+            noEsNuevo = false;
+            //resumen.getMatriculaCurso().add(matriCursoBD);
 
-            //System.out.println("\t" + rr + " mat-curso es " + matriCursoBD.getId());
+            System.out.println("\t" + rr + " mat-curso es " + matriCursoBD.getId() + " en " + (System.currentTimeMillis()));
             visor.agregarLog("aluSecc", "saveAluSecc", "Alumno-Seccion " + alumno.getCodigo() + "-" + seccion.getCodigo() + " creado", true, "info");
 
         } else {
-            //System.out.print("\t" + rr + " actualizando mat-curso " + matriCursoBD.getId() + " del alumno " + alumno.getCodigo() + " :::: ");
+            matriCursoBD.setEstadoEnum(EstadoMatriculaEnum.MAT);
+            matriCursoBD.setCreditos(matriSecc.getCreditos());
+            //matriCursoBD.setMatriculaResumen(resumen);
+            //matriculaCursoDAO.update(matriCursoBD);
+            System.out.println("\t" + rr + " actualizando mat-curso " + matriCursoBD.getId() + " del alumno " + alumno.getCodigo() + " :::: en " + System.currentTimeMillis());
             visor.agregarLog("aluSecc", "saveAluSecc", "Alumno-Seccion " + alumno.getCodigo() + "-" + seccion.getCodigo() + " ya existe", true, "info");
         }
 
         matriCursoBD.setCargado(1);
-        matriCursoBD.setCreditos(matriSecc.getCreditos());
+        //matriCursoBD.setCreditos(matriSecc.getCreditos());
         matriculaCursoDAO.update(matriCursoBD);
+
+        if (esNuevaSeccion) {
+            resumen.getMatriculaSeccion().add(matriSeccBD);
+        }
+
         resumen.setCargado(1);
 
         matriSecc.setProcesado(1);
@@ -296,6 +317,9 @@ public class LoadDataMatriculadoServiceImpl implements LoadDataMatriculadoServic
 
         //System.out.println("\t" + rr + " alumno " + alumno.getCodigo() + " desbloqueado en loadDataMatriculados");
         visor.agregarLog("aluSecc", "saveAluSecc", "Registro de alumno-Seccion " + alumno.getCodigo() + "-" + seccion.getCodigo() + " finalizado", false, "info");
+        //control.marcarMatriSeccion(matriSecc);
+        //control.desbloquearAlumno(alumno);
+
     }
 
 }

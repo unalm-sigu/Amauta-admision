@@ -122,6 +122,7 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
         strb.append("  from GrupoSeccion gs ");
         strb.append("  join gs.cicloAcademico cs ");
         strb.append(" where cs.id = :prm_ciclo ");
+        strb.append("   and gs.codigo is not null ");
 
         Query query = getCurrentSession().createQuery(strb.toString());
         query.setParameter("prm_ciclo", cicloAcademico.getId());
@@ -138,6 +139,7 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
         strb.append("  join s.grupoSeccion gs ");
         strb.append("  join gs.cicloAcademico cs ");
         strb.append(" where cs.id = :prm_ciclo ");
+        strb.append("   and s.codigo2 is not null ");
 
         Query query = getCurrentSession().createQuery(strb.toString());
         query.setParameter("prm_ciclo", cicloAcademico.getId());
@@ -245,6 +247,18 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
                 .from(GrupoSeccion.class, "gs")
                 .join("curso cur", "cicloAcademico ca")
                 .leftJoin("planCalificacion pc", "secciones s", "cur.modalidadEstudio")
+                .filter("ca.id", ciclo);
+
+        return all(sql);
+    }
+
+    @Override
+    public List<GrupoSeccion> allByCicloCodigo3(CicloAcademico ciclo) {
+        Octavia sql = Octavia.query()
+                .from(GrupoSeccion.class, "gs")
+                .join("curso cur", "cicloAcademico ca", "anexoBoletin anx", "anx.anexoSuperior ans")
+                .leftJoin("planCalificacion pc", "secciones s", "cur.modalidadEstudio")
+                .filter("ans.id", 4L)
                 .filter("ca.id", ciclo);
 
         return all(sql);
@@ -722,9 +736,15 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
     @Override
     public void setCodigo2Null(CicloAcademico ciclo) {
         StringBuilder sql = new StringBuilder();
-        sql.append(" update ").append(GrupoSeccion.class.getSimpleName());
-        sql.append("    set codigo2 = null ");
-        sql.append("  where cicloAcademico.id = :CICLO ");
+        sql.append(" update ").append(GrupoSeccion.class.getSimpleName()).append(" gs ");
+        sql.append("    set gs.codigo2 = null ");
+        sql.append("  where gs.cicloAcademico.id = :CICLO ");
+        sql.append("    and exists ( ");
+        sql.append("          select 1 ");
+        sql.append("          from ").append(AnexoBoletin.class.getSimpleName()).append(" anx ");
+        sql.append("          where anx.id = gs.anexoBoletin.id ");
+        sql.append("            and anx.anexoSuperior.id = 4 ");
+        sql.append("    ) ");
 
         Query query = getCurrentSession().createQuery(sql.toString());
         query.setParameter("CICLO", ciclo.getId());
@@ -792,7 +812,7 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
                 .filter("ca.id", cicloAcademico)
                 .filter("grho.letra", grupoHoras.getLetra())
                 .filter("ofi.codigo", OficinaEnum.OERA);
-              //  .groupBy("anbo.id");
+        //  .groupBy("anbo.id");
 
         return sql.all(getCurrentSession());
     }

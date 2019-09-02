@@ -181,7 +181,7 @@ public class ProfesorServiceImp implements ProfesorService {
         docenteDAO.save(docente);
         logger.debug("docente  guardado  {}", docente.getId());
 
-        Usuario usuarioDb = usuarioDAO.findByPersona(docente.getPersona());
+        Usuario usuarioDb = usuarioDAO.findActivoByPersona(docente.getPersona());
         logger.debug("existe usuario en db {}", (usuarioDb != null));
         if (usuarioDb == null) {
             usuarioDb = new Usuario();
@@ -258,7 +258,7 @@ public class ProfesorServiceImp implements ProfesorService {
         docenteBD.setModalidadEstudio(docente.getModalidadEstudio());
         docenteDAO.update(docenteBD);
         logger.debug("***Resolviendo en Tabla Usuario***");
-        Usuario usuarioDb = usuarioDAO.findByPersona(docente.getPersona());
+        Usuario usuarioDb = usuarioDAO.findActivoByPersona(docente.getPersona());
         logger.debug("Está como usuario? {}", (usuarioDb != null));
         if (usuarioDb != null) {
             logger.debug("-> Actualizando usuario");

@@ -87,12 +87,17 @@ public interface ProgDataService {
     void revisarDocenteSecciones(Map<String, DocenteSeccion> mapDocenteSecciones, CicloAcademico ciclo, DataSessionPivot ds);
 
     void loadDataMatriculados(
+            ControlMatriCurso control,
             MatriculaSeccion matriSecc,
             Map<String, MatriculaResumen> mapResumenes,
             Map<String, Seccion> mapSecciones,
-            CicloAcademico ciclo, DataSessionPivot ds);
+            Map<Long, CicloAcademico> mapCiclo,
+            //CicloAcademico ciclo, 
+            DataSessionPivot ds);
 
-    void revisarAlumnoMatriculado(MatriculaResumen aluResumen);
+    void revisarAlumnoMatriculadoAsync(ControlMatriCurso control, MatriculaResumen aluResumen, int intentos);
+
+    void revisarAlumnoMatriculadoSync(ControlMatriCurso control, MatriculaResumen aluResumen, int intentos);
 
     void revisarSecciones(List<Seccion> secciones, CicloAcademico ciclo);
 

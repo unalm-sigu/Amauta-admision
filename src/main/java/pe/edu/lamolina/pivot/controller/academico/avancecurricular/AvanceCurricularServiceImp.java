@@ -457,7 +457,7 @@ public class AvanceCurricularServiceImp implements AvanceCurricularService {
 
     @Override
     @Transactional
-    public void generarAvanceCurricularByAlumnoPost(Alumno alumnoBD, DataSessionPivot ds) {
+    public void generarAvanceCurricularByAlumnoEPG(Alumno alumnoBD, DataSessionPivot ds) {
         alumnoBD = alumnoDAO.findAllInfo(alumnoBD.getId());
         Map<Long, CursoCurricula> mapCursoCurricula = new HashMap<>();
         Map<Long, CursoCurricula> mapCursoCurriculaByCurso = new HashMap<>();
@@ -487,7 +487,7 @@ public class AvanceCurricularServiceImp implements AvanceCurricularService {
             cursoAprobado.setVecesCursadoTransient(cursoVeces.getVecesCursado());
         }
 
-        avanceCurricularAsincronoService.procesarAlumnoSincronoPros(
+        avanceCurricularAsincronoService.procesarAlumnoSincronoEPG(
                 alumnoBD,
                 mapCursoCurricula,
                 mapCursosVecesLlevado,

@@ -1164,7 +1164,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
                     ds);
         } else {
 
-            this.procesarAlumnoSincronoPros(alumno,
+            this.procesarAlumnoSincronoEPG(alumno,
                     mapCursoCurricula, mapCursosVecesLlevado,
                     cursosMatriculados, cursosAprobados,
                     mapCursoCurriculaByCurso, opcionalCurriculas,
@@ -1185,14 +1185,21 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
 
     @Override
     @Transactional
-    public void procesarAlumnoSincronoPros(Alumno alumno,
-            Map<Long, CursoCurricula> mapCursosCurricula, Map<String, AlumnoCicloCurso> mapCursosVecesLlevado,
-            List<MatriculaCurso> cursosMatriculados, List<AlumnoCicloCurso> cursosAprobados,
-            Map<Long, CursoCurricula> mapCursoCurriculaByCurso, List<CursoOpcionalCurricula> cursoOpcionaPlan,
-            List<ResumenPlanCurricular> resumenPlanCurriculars, List<TipoCursoCurricula> tipoCursoCurriculas,
-            List<AlumnoAvanceCurricular> alumnoAvanceCurriculars, List<AlumnoCursoCurricula> alumnoCursoOld,
+    public void procesarAlumnoSincronoEPG(
+            Alumno alumno,
+            Map<Long, CursoCurricula> mapCursosCurricula,
+            Map<String, AlumnoCicloCurso> mapCursosVecesLlevado,
+            List<MatriculaCurso> cursosMatriculados,
+            List<AlumnoCicloCurso> cursosAprobados,
+            Map<Long, CursoCurricula> mapCursoCurriculaByCurso,
+            List<CursoOpcionalCurricula> cursoOpcionaPlan,
+            List<ResumenPlanCurricular> resumenPlanCurriculars,
+            List<TipoCursoCurricula> tipoCursoCurriculas,
+            List<AlumnoAvanceCurricular> alumnoAvanceCurriculars,
+            List<AlumnoCursoCurricula> alumnoCursoOld,
             List<CursoHabilEscuela> habilEscuelas,
             DataSessionPivot ds) {
+
         Map<Long, CursoHabilEscuela> mapCursoHabil = TypesUtil.convertListToMap("curso.id", fillList(habilEscuelas));
         Map<Long, CursoOpcionalCurricula> mapCursosOpcional = TypesUtil.convertListToMap("curso.id", fillList(cursoOpcionaPlan));
         Map<String, TipoCursoCurricula> mapTipoCursoCurricula = TypesUtil.convertListToMap("codigo", fillList(tipoCursoCurriculas));

@@ -151,7 +151,7 @@ public class PersonaPerfilServiceImp implements PersonaPerfilService {
     @Transactional
     private Usuario getExistorCreateUser(Persona persona) {
 
-        Usuario user = usuarioDAO.findByPersona(persona);
+        Usuario user = usuarioDAO.findActivoByPersona(persona);
 
         if (user == null) {
             user = new Usuario();
