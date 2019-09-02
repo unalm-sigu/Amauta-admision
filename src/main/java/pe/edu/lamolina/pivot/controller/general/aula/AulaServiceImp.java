@@ -184,7 +184,8 @@ public class AulaServiceImp implements AulaService {
         ObjectUtil.eliminarAttrSinId(aula, "sede");
         ObjectUtil.eliminarAttrSinId(aula, "tipoAula");
         ObjectUtil.eliminarAttrSinId(aula, "oficinaSupervisora");
-        
+        ObjectUtil.eliminarAttrSinId(aula, "tipoCarpeta");
+
         Aula aulaSup = aula.getAulaSuperior();
         if (aulaSup != null) {
             aulaSup = aulaDAO.find(aulaSup.getId());
