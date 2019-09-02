@@ -128,7 +128,7 @@ public class AulaController {
             for (Aula aula : aulas) {
                 ObjectNode node = JsonHelper.createJson(aula, jFactory, true, new String[]{
                     "id", "codigo", "nombre", "tipoAmbienteEnum", "tipoAmbiente", "piso", "pisos",
-                    "aforo", "capacidadAula", "estado", "estadoEnum", "motivoAnulacion",
+                    "aforo", "capacidadAula", "capacidadExtra", "estado", "estadoEnum", "motivoAnulacion",
                     "aulaSuperior.id", "aulaSuperior.nombre",
                     "sede.id", "sede.nombre",
                     "tipoAula.id", "tipoAula.nombre",

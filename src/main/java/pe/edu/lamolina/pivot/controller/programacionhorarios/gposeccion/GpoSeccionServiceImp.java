@@ -2128,15 +2128,28 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         }
         Assert.isNotNull(seccion.getVacantes(), "La sección no tiene vacantes, verifique.");
         if (seccion.getVacantes() != null) {
-            if (seccion.getMatriculados() == null || seccion.getMatriculados().intValue() == 0) {
-                if (seccion.getVacantes().compareTo(aula.getCapacidadAula()) > 0) {
-                    throw new PhobosException("La capacidad del aula no abarca las vacantes de la sección.");
-                }
-            } else {
-                if (seccion.getMatriculados().compareTo(aula.getCapacidadAula()) > 0) {
-                    throw new PhobosException("La capacidad del aula no abarca los matriculados de la sección.");
-                }
+            int vacantes = TypesUtil.getInt(seccion.getVacantes(), 0);
+            int matriculados = TypesUtil.getInt(seccion.getMatriculados(), 0);
+            String compareStr = "vacantes";
+            int compareInt = vacantes;
+            if (matriculados != 0) {
+                compareStr = "matriculados";
+                compareInt = matriculados;
             }
+
+            if (compareInt > aula.getCapacidadTotal()) {
+                throw new PhobosException("La capacidad del aula no abarca %s de la sección.", compareStr);
+            }
+
+//            if (seccion.getMatriculados() == null || seccion.getMatriculados().intValue() == 0) {
+//                if (seccion.getVacantes().compareTo(aula.getCapacidadAula()) > 0) {
+//                    throw new PhobosException("La capacidad del aula no abarca las vacantes de la sección.");
+//                }
+//            } else {
+//                if (seccion.getMatriculados().compareTo(aula.getCapacidadAula()) > 0) {
+//                    throw new PhobosException("La capacidad del aula no abarca los matriculados de la sección.");
+//                }
+//            }
         }
 
         CicloAcademico cicloAcademico = ds.getCicloAcademico();
