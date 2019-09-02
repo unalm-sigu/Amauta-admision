@@ -5,12 +5,13 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Persona;
+import pe.edu.lamolina.model.general.ResponsableAula;
 import pe.edu.lamolina.model.general.TurnoAtencionAula;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 interface ResponsableAulaService {
 
-    List<Persona> allResponsablesByRaptor(DynatableFilter filter, CicloAcademico cicloAcademico);
+    List<ResponsableAula> allResponsablesByRaptor(DynatableFilter filter, CicloAcademico cicloAcademico);
 
     List<Persona> allPersonasByName(String nombre);
 
@@ -18,8 +19,8 @@ interface ResponsableAulaService {
 
     List<TurnoAtencionAula> allTurnoAtenconAula();
 
-    void saveResponsableAula(Persona personaResponsable, DataSessionPivot ds);
+    void saveResponsableAula(ResponsableAula responsableAula, DataSessionPivot ds);
 
-    Persona findResponsableAula(Persona personaResponsable, DataSessionPivot ds);
+    ResponsableAula findResponsableAula(ResponsableAula responsableAula, DataSessionPivot ds);
 
 }

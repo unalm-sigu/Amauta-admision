@@ -575,7 +575,7 @@ public class AulaController {
         model.addAttribute("horas", horas);
         model.addAttribute("horariosAulas", horariosAulas);
         model.addAttribute("diasHorasGruposByCiclo", diasHorasGruposByCiclo);
-        model.addAttribute("responsablesAulas", service.allResponsablesAulas(EstadoEnum.ACT));
+        model.addAttribute("responsablesAulasAsignadas", service.allResponsablesAulasAsignadas(EstadoEnum.ACT));
         return new ModelAndView(horarioAulaCicloPDF);
     }
 

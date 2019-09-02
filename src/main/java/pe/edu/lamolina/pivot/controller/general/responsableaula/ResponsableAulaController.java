@@ -30,8 +30,10 @@ import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.enums.TipoResponsableEnum;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Persona;
+import pe.edu.lamolina.model.general.ResponsableAula;
 import pe.edu.lamolina.model.general.TurnoAtencionAula;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -76,7 +78,31 @@ public class ResponsableAulaController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         CicloAcademico ciclo = ds.getCicloAcademico();
         model.addAttribute("ciclo", ciclo);
+
+        ArrayNode jTiposResponsables = this.tiposResponsables();
+        model.addAttribute("jTiposResponsables", jTiposResponsables.toString());
         return "general/responsableaula/responsableaula";
+    }
+
+    public ArrayNode tiposResponsables() {
+        ArrayNode tiposResponsables = new ArrayNode(JsonNodeFactory.instance);
+
+        ObjectNode jTipoResp = new ObjectNode(JsonNodeFactory.instance);
+        jTipoResp.put("name", TipoResponsableEnum.RES.name());
+        jTipoResp.put("value", TipoResponsableEnum.RES.getValue());
+        tiposResponsables.add(jTipoResp);
+
+        jTipoResp = new ObjectNode(JsonNodeFactory.instance);
+        jTipoResp.put("name", TipoResponsableEnum.SOP.name());
+        jTipoResp.put("value", TipoResponsableEnum.SOP.getValue());
+        tiposResponsables.add(jTipoResp);
+
+        jTipoResp = new ObjectNode(JsonNodeFactory.instance);
+        jTipoResp.put("name", TipoResponsableEnum.SUP.name());
+        jTipoResp.put("value", TipoResponsableEnum.SUP.getValue());
+        tiposResponsables.add(jTipoResp);
+
+        return tiposResponsables;
     }
 
     @ResponseBody
@@ -86,15 +112,15 @@ public class ResponsableAulaController {
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
-            List<Persona> responsables = service.allResponsablesByRaptor(filter, ds.getCicloAcademico());
+            List<ResponsableAula> responsables = service.allResponsablesByRaptor(filter, ds.getCicloAcademico());
             JsonNodeFactory jFactory = JsonNodeFactory.instance;
 
             ArrayNode array = new ArrayNode(jFactory);
 
             //    ArrayNode turnosCabecera = new ArrayNode(jFactory);
-            for (Persona persona : responsables) {
-                ObjectNode jPersona = this.castPersonaResponsable(persona);
-                array.add(jPersona);
+            for (ResponsableAula responsableAula : responsables) {
+                ObjectNode jResponsableAula = this.castPersonaResponsable(responsableAula);
+                array.add(jResponsableAula);
             }
 
             json.setData(array);
@@ -108,20 +134,18 @@ public class ResponsableAulaController {
         return json;
     }
 
-    public ObjectNode castPersonaResponsable(Persona persona) {
+    public ObjectNode castPersonaResponsable(ResponsableAula responsableAula) {
         JsonNodeFactory jFactory = JsonNodeFactory.instance;
-        ObjectNode jPersona = JsonHelper.createJson(persona, jFactory, true, new String[]{
-            "id",
-            "nombres",
-            "materno",
-            "paterno",
-            "apellidosNombres",
-            "celular",
-            "telefono",
-            "emailCompania"
+        ObjectNode jResponsableAula = JsonHelper.createJson(responsableAula, jFactory, true, new String[]{
+            "*",
+            "tipoEnum.*",
+            "userRegistro.*",
+            "userActualizacion.*",
+            "persona.*",
+            "persona.apellidosNombres"
         });
         ArrayNode jTurnosAtencionAulas = new ArrayNode(jFactory);
-        for (TurnoAtencionAula turnosAtencionAula : persona.getTurnosAtencionAulas()) {
+        for (TurnoAtencionAula turnosAtencionAula : responsableAula.getTurnosAtencionAulas()) {
             ObjectNode turno = JsonHelper.createJson(turnosAtencionAula, jFactory, true, new String[]{
                 "id",
                 "descripcion",
@@ -136,8 +160,8 @@ public class ResponsableAulaController {
             });
             jTurnosAtencionAulas.add(turno);
         }
-        jPersona.set("turnosAtencionAulas", jTurnosAtencionAulas);
-        return jPersona;
+        jResponsableAula.set("turnosAtencionAulas", jTurnosAtencionAulas);
+        return jResponsableAula;
     }
 
     @ResponseBody
@@ -160,6 +184,9 @@ public class ResponsableAulaController {
                         new String[]{
                             "id",
                             "apellidosNombres",
+                            "nombres",
+                            "paterno",
+                            "materno",
                             "numeroDocIdentidad",
                             "telefono",
                             "celular",
@@ -216,35 +243,34 @@ public class ResponsableAulaController {
 
     @ResponseBody
     @RequestMapping("changePersonaResponsable")
-    public JsonResponse changePersonaResponsable(@RequestBody Persona personaResponsable, HttpSession session) {
+    public JsonResponse changePersonaResponsable(@RequestBody ResponsableAula responsableAulaForm, HttpSession session) {
 
         JsonResponse response = new JsonResponse();
         try {
-
             JsonNodeFactory jFactory = JsonNodeFactory.instance;
 
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
-            CicloAcademico cicloAcademico = ds.getCicloAcademico();
-
             List<TurnoAtencionAula> turnosAtencionAulas = service.allTurnoAtenconAula();
             turnosAtencionAulas.forEach(x -> x.setAulas(new ArrayList<>()));
 
-            Persona personaResponsableBD = service.findResponsableAula(personaResponsable, ds);
-            turnosAtencionAulas = personaResponsableBD.getTurnosAtencionAulas();
+            ResponsableAula responsableAula = service.findResponsableAula(responsableAulaForm, ds);
+            responsableAula.setTipo(responsableAulaForm.getTipo());
+            responsableAula.setPersona(responsableAulaForm.getPersona());
+            ObjectNode jResponsableAula = this.castPersonaResponsable(responsableAula);
+            turnosAtencionAulas = responsableAula.getTurnosAtencionAulas();
 
-            ArrayNode jTurnosAtencionAulas = new ArrayNode(jFactory);
-            for (TurnoAtencionAula turnosAtencionAula : turnosAtencionAulas) {
-                jTurnosAtencionAulas.add(JsonHelper.createJson(turnosAtencionAula, jFactory, false,
-                        new String[]{
-                            "*",
-                            "horaInicio.*",
-                            "horaFin.*",
-                            "aulas.*"
-                        }));
-            }
-
-            response.setData(jTurnosAtencionAulas);
+//            ArrayNode jTurnosAtencionAulas = new ArrayNode(jFactory);
+//            for (TurnoAtencionAula turnosAtencionAula : turnosAtencionAulas) {
+//                jTurnosAtencionAulas.add(JsonHelper.createJson(turnosAtencionAula, jFactory, false,
+//                        new String[]{
+//                            "*",
+//                            "horaInicio.*",
+//                            "horaFin.*",
+//                            "aulas.*"
+//                        }));
+//            }
+            response.setData(jResponsableAula);
             response.setSuccess(true);
 
         } catch (PhobosException e) {
@@ -258,7 +284,7 @@ public class ResponsableAulaController {
 
     @ResponseBody
     @RequestMapping("saveResponsableAula")
-    public JsonResponse saveResponsableAula(@RequestBody Persona personaResponsable, HttpSession session) {
+    public JsonResponse saveResponsableAula(@RequestBody ResponsableAula responsableAula, HttpSession session) {
 
         JsonResponse response = new JsonResponse();
         try {
@@ -266,7 +292,7 @@ public class ResponsableAulaController {
             JsonNodeFactory jFactory = JsonNodeFactory.instance;
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             ds.setFechaAccionAudit(new Date());
-            service.saveResponsableAula(personaResponsable, ds);
+            service.saveResponsableAula(responsableAula, ds);
             response.setSuccess(true);
             response.setMessage("Responsable grabado");
         } catch (PhobosException e) {
@@ -280,7 +306,7 @@ public class ResponsableAulaController {
 
     @ResponseBody
     @RequestMapping("editarResponsableAula")
-    public JsonResponse editarResponsableAula(@RequestBody Persona personaResponsable, HttpSession session) {
+    public JsonResponse editarResponsableAula(@RequestBody ResponsableAula responsableAula, HttpSession session) {
 
         JsonResponse response = new JsonResponse();
         try {
@@ -288,9 +314,9 @@ public class ResponsableAulaController {
             JsonNodeFactory jFactory = JsonNodeFactory.instance;
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             ds.setFechaAccionAudit(new Date());
-            personaResponsable = service.findResponsableAula(personaResponsable, ds);
+            responsableAula = service.findResponsableAula(responsableAula, ds);
 
-            ObjectNode jPersona = this.castPersonaResponsable(personaResponsable);
+            ObjectNode jPersona = this.castPersonaResponsable(responsableAula);
             response.setData(jPersona);
             response.setSuccess(true);
         } catch (PhobosException e) {

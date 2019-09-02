@@ -34,6 +34,7 @@ import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.general.ResponsableAula;
+import pe.edu.lamolina.model.general.ResponsableAulaAsignacion;
 import pe.edu.lamolina.model.general.Sede;
 import pe.edu.lamolina.model.general.TipoAula;
 import pe.edu.lamolina.model.general.TipoCarpeta;
@@ -47,6 +48,7 @@ import pe.edu.lamolina.pivot.dao.almacen.ResumenInventarioDAO;
 import pe.edu.lamolina.pivot.dao.general.AulaDAO;
 import pe.edu.lamolina.pivot.dao.general.DiaDAO;
 import pe.edu.lamolina.pivot.dao.general.OficinaDAO;
+import pe.edu.lamolina.pivot.dao.general.ResponsableAulaAsignacionDAO;
 import pe.edu.lamolina.pivot.dao.general.ResponsableAulaDAO;
 import pe.edu.lamolina.pivot.dao.general.SedeDAO;
 import pe.edu.lamolina.pivot.dao.general.TipoAulaDAO;
@@ -54,7 +56,6 @@ import pe.edu.lamolina.pivot.dao.general.TipoCarpetaDAO;
 import pe.edu.lamolina.pivot.dao.horario.DiaHoraGrupoDAO;
 import pe.edu.lamolina.pivot.dao.horario.HoraDAO;
 import pe.edu.lamolina.pivot.dao.horario.HorarioAulaDAO;
-import pe.edu.lamolina.pivot.dao.horario.hibernate.DiaHoraGrupoDAOH;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service
@@ -99,6 +100,9 @@ public class AulaServiceImp implements AulaService {
 
     @Autowired
     ResponsableAulaDAO responsableAulaDAO;
+
+    @Autowired
+    ResponsableAulaAsignacionDAO responsableAulaAsignacionDAO;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -520,6 +524,11 @@ public class AulaServiceImp implements AulaService {
     @Override
     public List<ResponsableAula> allResponsablesAulas(EstadoEnum... estado) {
         return responsableAulaDAO.allByEstado(EstadoEnum.ACT);
+    }
+
+    @Override
+    public List<ResponsableAulaAsignacion> allResponsablesAulasAsignadas(EstadoEnum... estado) {
+        return responsableAulaAsignacionDAO.allByEstado(EstadoEnum.ACT);
     }
 
 }

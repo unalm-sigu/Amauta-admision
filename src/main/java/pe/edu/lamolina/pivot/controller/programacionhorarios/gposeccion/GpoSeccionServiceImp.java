@@ -2152,6 +2152,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             List<String> diasHorasSeccion = horariosSeccion.stream().map(x -> x.getIdDiaHora()).collect(Collectors.toList());
 
             List<HorarioAula> horariosAulasFound = horarioAulaDAO.allRangoDiaAndAulaByDiasHoras(diasHorasSeccion, aula, eventoAcademico.getFechaInicio(), eventoAcademico.getFechaFin());
+            horariosAulasFound.removeIf(x -> seccionForm.equals(x.getSeccion()));
             if (!horariosAulasFound.isEmpty()) {
                 List<String> cruces = new ArrayList<>();
                 for (HorarioAula horarioAula : horariosAulasFound) {

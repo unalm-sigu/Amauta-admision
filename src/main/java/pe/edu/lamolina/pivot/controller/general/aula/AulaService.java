@@ -8,6 +8,7 @@ import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.general.ResponsableAula;
+import pe.edu.lamolina.model.general.ResponsableAulaAsignacion;
 import pe.edu.lamolina.model.general.Sede;
 import pe.edu.lamolina.model.general.TipoAula;
 import pe.edu.lamolina.model.general.TipoCarpeta;
@@ -68,5 +69,7 @@ public interface AulaService {
     List<Aula> allAulas(CicloAcademico cicloAcademico);
 
     List<ResponsableAula> allResponsablesAulas(EstadoEnum... estado);
+
+    List<ResponsableAulaAsignacion> allResponsablesAulasAsignadas(EstadoEnum... estado);
 
 }
