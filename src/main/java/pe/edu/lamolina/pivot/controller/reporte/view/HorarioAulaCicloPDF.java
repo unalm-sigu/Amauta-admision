@@ -233,7 +233,7 @@ public class HorarioAulaCicloPDF extends AbstractOnlyPdfView {
 
         PdfPTable innerTable = new PdfPTable(12);
         innerTable.getDefaultCell().setBorder(Rectangle.NO_BORDER);
-        innerTable.setWidths(new int[]{2, 3, 1, 2,2, 3, 1, 2,2, 3, 1, 2});
+        innerTable.setWidths(new int[]{2, 3, 1, 2, 2, 3, 1, 2, 2, 3, 1, 2});
         innerTable.setWidthPercentage(100);
         innerTable.setSpacingBefore(0f);
         innerTable.setSpacingAfter(0f);
@@ -386,7 +386,7 @@ public class HorarioAulaCicloPDF extends AbstractOnlyPdfView {
             this.agregarHorarioConSeccion(innerTable, horariosConSeccion, bodyFont);
             this.agregarHorarioConReserva(innerTable, horariosConReserva, bodyFont);
         } else {
-            //cruce
+            this.agregarCruce(innerTable, horariosConSeccion, bodyFont);
         }
         table.addCell(innerTable);
         return table;
