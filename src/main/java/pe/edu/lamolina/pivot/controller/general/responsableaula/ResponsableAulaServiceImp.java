@@ -56,6 +56,9 @@ public class ResponsableAulaServiceImp implements ResponsableAulaService {
 
         for (ResponsableAula responsableAula : responsableAulas) {
             List<ResponsableAulaAsignacion> aulas = aulasByResponsable.get(responsableAula.getId());
+            if (aulas == null) {
+                aulas = new ArrayList<>();
+            }
             List<TurnoAtencionAula> turnosClone = new ArrayList<>(turnoAtencionAulas);
             responsableAula.setTurnosAtencionAulas(new ArrayList<>());
             for (TurnoAtencionAula turno : turnosClone) {
