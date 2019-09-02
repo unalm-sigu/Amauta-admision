@@ -154,7 +154,7 @@ public class AmpliaVacantesServiceImp implements AmpliaVacantesService {
         Aula aula = seccion.getAula();
 
         if (aula != null && aula.getCapacidadAula() != null) {
-            if (ampliacionBD.getVacantesFin() > aula.getCapacidadAula()) {
+            if (ampliacionBD.getVacantesFin() > aula.getCapacidadTotal()) {
                 throw new PhobosException("Ya ha completo la capacidad del aula");
             }
         }
