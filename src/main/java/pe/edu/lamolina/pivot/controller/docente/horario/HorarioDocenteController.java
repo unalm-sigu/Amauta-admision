@@ -11,7 +11,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
-import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.pivot.controller.academico.infoacademico.InfoAcademicoService;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;

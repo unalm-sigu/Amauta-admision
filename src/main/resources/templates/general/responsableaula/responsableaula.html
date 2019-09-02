@@ -48,40 +48,47 @@
                                     <table class="table table-striped">
                                         <thead>
                                             <tr class=""> 
-                                                <th class="col-md-4 v-middle text-center">Nombre</th>
-                                                <template v-if="props.data.length >0" >
-                                                <th class="col-md-4 v-middle text-center" 
-                                                    v-for="trn in props.data[0].turnosAtencionAulas" v-text="trn.descripcion">Aulas
-                                                </th>
-                                                </template>
-                                                <th></th>
-                                            </tr>
+                                                <th class="col-md-2 v-middle text-center">Nombre</th>
+                                                <th class="col-md-2 v-middle text-center">Tipo</th>
+                                        <template v-if="props.data.length >0" >
+                                            <th class="col-md-4 v-middle text-center" 
+                                                v-for="trn in props.data[0].turnosAtencionAulas" v-text="trn.descripcion">Aulas
+                                            </th>
+                                        </template>
+                                        <th></th>
+                                        </tr>
                                         </thead>
                                         <tbody>
                                             <tr v-for="item in props.data">
-                                                <td class="v-middle col-md-4" >
-                                                    <span v-text="item.apellidosNombres"></span>
+                                                <td class="v-middle col-md-2" >
+                                                    <span v-text="item.persona.apellidosNombres"></span>
+                                                </td>
+                                                <td class="v-middle col-md-2" >
+                                                    <span v-text="item.tipoEnum.value"></span>
                                                 </td>
                                         <template 
-                                                    v-if="props.data.length>0">
-                                                <td class="col-md-4 v-middle" 
-                                                    v-for="turno in item.turnosAtencionAulas">
-                                                    <!--                                                    <span>{{turno}}</span>-->
-                                                    <div class="col-md-4" v-for="aul in turno.aulas" v-text="aul.descripcionConcat"> </div>
-                                                </td>
-                                                </template>
-                                                <td class="v-middle"> 
-                                                    <div class="dropdown actions">
-                                                        <a class="dropdown-toggle" data-toggle="dropdown">
-                                                            <i class="glyphicon glyphicon-cog"></i>
-                                                        </a> 
+                                            v-if="props.data.length>0"> 
+                                            <td class="col-md-4 v-middle" 
+                                                v-for="turno in item.turnosAtencionAulas">
+<!--                                                <span>{{turno}}</span>-->
+                                                <span class="label m-l-xs " 
+                                                      v-bind:class="{ 'label-success': au.tipoAula.tipoAulaMOD, 'label-primary': au.tipoAula.tipoAulaAUL }"
+                                                     v-for="au in turno.aulas" 
+                                                     v-text="au.descripcionConcat"> </span>
+                                            </td>
+                                        </template>
+                                        <td class="v-middle"> 
+                                            <div class="dropdown actions">
+                                                <a class="dropdown-toggle" data-toggle="dropdown">
+                                                    <i class="glyphicon glyphicon-cog"></i>
+                                                </a> 
 
-                                                        <ul class="dropdown-menu pull-right">
-                                                            <li><a v-on:click="editar(item)">Editar</a></li>
-                                                        </ul>
-                                                    </div>
-                                                </td>
-                                            </tr>
+                                                <ul class="dropdown-menu pull-right">
+                                                    <li><a v-on:click="editar(item)">Editar</a></li>
+                                                </ul>
+                                            </div>
+                                        </td>
+                                        </tr>
                                         </tbody>
                                     </table>
                                 </template>
@@ -102,6 +109,7 @@
                 /*<![CDATA[*/
                 var rutaModulo = 'general/responsableaula';
                 var tipoAulasJson = /*[[${tipoAulasJson}]]*/ {};
+                var jTiposResponsables = /*[[${jTiposResponsables}]]*/ {};
                 /*]]>*/
             </script>
             <div th:substituteby="_modules/vue-modal"/>

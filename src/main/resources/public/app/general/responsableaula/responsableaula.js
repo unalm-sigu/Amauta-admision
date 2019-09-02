@@ -18,7 +18,9 @@ new Vue({
         aulas: [],
         personaSeleccionada: {},
         turnosAtencionAula: [],
-        turnoAtencionSeleccionado: {}
+        turnoAtencionSeleccionado: {},
+        tiposResposablesAulas: JSON.parse(jTiposResponsables),
+        responsableAula: {persona: {}, turnosAtencionAulas: [], jTipo: {}}
     },
     computed: {
     },
@@ -31,7 +33,7 @@ new Vue({
             this.$refs.modalResponsableAula.open();
             this.personas = [];
             this.aulas = [];
-            this.personaSeleccionada = {};
+            this.responsableAula = {persona: {}, turnosAtencionAulas: [], jTipo: {}}
             this.turnosAtencionAula = [];
             this.turnoAtencionSeleccionado = {};
             this.searchAula('%');
@@ -56,7 +58,7 @@ new Vue({
                 data: JSON.stringify(responsable),
                 success: function (response) {
                     if (response.success) {
-                        vue.personaSeleccionada = response.data;
+                        vue.responsableAula = response.data;
                         vue.turnosAtencionAula = response.data.turnosAtencionAulas;
                         vue.$refs.modalResponsableAula.open();
                         MODAL.hideWait();
@@ -107,15 +109,25 @@ new Vue({
             });
         }, changePersonaResponsable() {
             let $vue = this;
+            //   this.responsableAula.tipo = this.responsableAula.tipo.code;
+
             $.ajax({
                 url: APP.url(rutaModulo + '/changePersonaResponsable'),
                 type: 'POST',
-                data: JSON.stringify($vue.personaSeleccionada),
+                data: JSON.stringify($vue.responsableAula),
                 dataType: "json",
                 contentType: "application/json",
                 success(response) {
                     if (response.success) {
-                        $vue.turnosAtencionAula = response.data;
+                        if (response.data.id != null && response.data.id != "") {
+                            console.log("tiene id" + response.data.id);
+                            // $vue.responsableAula.id = response.data.id;
+                            $vue.responsableAula = response.data;
+                            console.log("resp");
+                            console.dir($vue.responsableAula.persona);
+                        }
+                        $vue.turnosAtencionAula = response.data.turnosAtencionAulas;
+                        //  console.dir($vue.turnosAtencionAula);
                     } else {
                         notify(response.message, "error");
                     }
@@ -137,8 +149,9 @@ new Vue({
             return label;
         }, saveResponsableAula() {
             let vue = this;
-            let responsable = Object.assign({}, this.personaSeleccionada);
-            responsable.turnosAtencionAulas = this.turnosAtencionAula;
+//            let responsable = Object.assign({}, this.personaSeleccionada);
+//            responsable.turnosAtencionAulas = this.turnosAtencionAula;
+            this.responsableAula.turnosAtencionAulas = this.turnosAtencionAula;
 
             MODAL.showWait("Espere un momento por favor");
             $.ajax({
@@ -146,7 +159,7 @@ new Vue({
                 dataType: "json",
                 contentType: "application/json",
                 type: 'POST',
-                data: JSON.stringify(responsable),
+                data: JSON.stringify(vue.responsableAula),
                 success: function (response) {
                     if (response.success) {
                         vue.$refs.raptorResponsables.loadRemoteData();

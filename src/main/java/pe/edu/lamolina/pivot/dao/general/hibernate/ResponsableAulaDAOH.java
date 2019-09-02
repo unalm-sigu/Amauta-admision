@@ -4,8 +4,11 @@ import java.util.Arrays;
 import java.util.List;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
+import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.enums.EstadoEnum;
+import pe.edu.lamolina.model.enums.TipoResponsableEnum;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.general.ResponsableAula;
@@ -34,6 +37,7 @@ public class ResponsableAulaDAOH extends AbstractEasyDAO<ResponsableAula> implem
         return all(sql);
     }
 
+    //DEPRECATED
     @Override
     public List<ResponsableAula> allByAulas(List<Aula> aulas, EstadoEnum... estados) {
         Octavia sql = Octavia.query()
@@ -51,6 +55,26 @@ public class ResponsableAulaDAOH extends AbstractEasyDAO<ResponsableAula> implem
                 .join("persona per", "turnoAtencionAula ta", "aula au", "au.tipoAula tpa")
                 .in("ra.estado", Arrays.asList(estados));
         return all(sql);
+    }
+
+    @Override
+    public List<ResponsableAula> allByResponsableAulas(DynatableFilter filter, EstadoEnum... estados) {
+        DynatableSql sql = new DynatableSql(filter)
+                .from(ResponsableAula.class, "ra")
+                .join("persona per")
+                .in("ra.estado", Arrays.asList(estados));
+        return all(sql);
+    }
+
+    @Override
+    public ResponsableAula findByPersonaAndTipo(Persona persona, TipoResponsableEnum tipoResponsableEnum, EstadoEnum... estados) {
+        Octavia sql = Octavia.query()
+                .from(ResponsableAula.class, "ra")
+                .join("persona per")
+                .filter("per.id", persona)
+                .filter("ra.tipo", tipoResponsableEnum)
+                .in("ra.estado", Arrays.asList(estados));
+        return find(sql);
     }
 
 }

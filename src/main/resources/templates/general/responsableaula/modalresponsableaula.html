@@ -5,8 +5,34 @@
             <div class="row">
                 <div class="col-md-12" >
                     <div class="form-group">
+                        <label> Tipo Responsable </label>
+                        <!--                       <multiselect v-model='responsableAula.jTipo'
+                                                             label='value'
+                                                             placeholder=""
+                                                             deselect-label=""
+                                                             select-label=""
+                                                             track-by='name'
+                                                             v-bind:internal-search="false"
+                                                             v-bind:allow-empty="true"
+                                                             v-bind:options='tiposResposablesAulas'
+                                                             v-bind:hide-selected="true"
+                                                             v-on:search-change="changeTurnoAtencion">
+                                                </multiselect>-->
+
+                        <select class="form-control"    
+                                required="true"  
+                                v-model="responsableAula.tipo"
+                                v-bind:disabled="responsableAula.id!=null &amp;&amp; responsableAula.id!=''">
+
+                            <option v-for="tipo in tiposResposablesAulas" v-bind:value="tipo.name">
+                                {{ tipo.value }}
+                            </option>
+                        </select>
+                    </div>
+                    <div class="form-group">
                         <label> Responsable </label>
-                        <multiselect v-model='personaSeleccionada'
+                        <multiselect v-model='responsableAula.persona'
+                                     v-bind:disabled="responsableAula.tipo==null"
                                      label='apellidosNombres'
                                      placeholder=""
                                      deselect-label=""
@@ -35,6 +61,7 @@
                     </div>
                     <div class="form-group">
                         <label> Turno Atención </label>
+
                         <multiselect v-model='turnoAtencionSeleccionado'
                                      label='descripcion'
                                      placeholder=""
@@ -52,7 +79,7 @@
                         <label> Aulas </label>
                         <multiselect v-model='turnoAtencionSeleccionado.aulas'
                                      label='codigo'
-                                      v-bind:custom-label='labelAula'
+                                     v-bind:custom-label='labelAula'
                                      v-bind:multiple="true" 
                                      placeholder=""
                                      deselect-label=""

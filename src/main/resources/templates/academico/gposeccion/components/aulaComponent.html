@@ -44,6 +44,7 @@
                                                v-bind:class="getClassAula(aula)">
                                             {{aula.codigo}}
                                             <small v-if="aula.capacidadAula != '' ">({{aula.capacidadAula}})</small>
+                                            <small v-if="aula.capacidadExtra != '' ">(+{{aula.capacidadExtra}})</small>
                                         </span>
                                     </div>
                                 </div>
@@ -78,6 +79,7 @@
                                                v-bind:class="getClassAula(aula)">
                                             {{aula.codigo}}
                                             <small v-if="aula.capacidadAula != '' ">({{aula.capacidadAula}})</small>
+                                            <small v-if="aula.capacidadExtra != '' ">(Ext. {{aula.capacidadExtra}})</small>
                                         </span>
                                     </div>
                                 </div>
