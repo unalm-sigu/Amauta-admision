@@ -93,30 +93,38 @@
 
             <div class="col-xs-12">
 
-                <div class="col-xs-3 text-center">
+                <div class="col-xs-4 text-center">
                     <label>Vacante Actual </label>
                     <input type="hidden" name="vacantesInicio"  v-bind:value="ampliacionVacante.vacantesInicio" />
                     <p class="capitalize text-primary h5" v-text="ampliacionVacante.vacantesInicio"></p>
                 </div>
 
-                <div class="col-xs-3 text-center">
+                <div class="col-xs-4 text-center">
                     <label>Incremento </label>
                     <p class="capitalize text-primary h5" v-text="ampliacionVacante.incremento"></p>
                 </div>
 
-                <div class="col-xs-3 text-center">
+                <div class="col-xs-4 text-center">
                     <label>Vacante Final </label>
                     <input type="hidden" name="vacantesFin"  v-bind:value="ampliacionVacante.vacantesFin" />
                     <p class="capitalize text-primary h5"  v-text="ampliacionVacante.vacantesFin"></p>
                 </div>
 
-                <div class="col-xs-3 text-center">
+            </div>
+            <div class="col-xs-12">
+                <div class="col-xs-4 text-center">
                     <label>Aula Aforo </label>
+                    <p class="capitalize text-primary h5"  v-text="seccionSeleccionada.aula.aforo"></p>
+                </div>
+                <div class="col-xs-4 text-center">
+                    <label>Aula Capacidad </label>
                     <p class="capitalize text-primary h5"  v-text="seccionSeleccionada.aula.capacidadAula"></p>
                 </div>
-
+                <div class="col-xs-4 text-center">
+                    <label>Cap. Extra </label>
+                    <p class="capitalize text-primary h5"  v-text="seccionSeleccionada.aula.capacidadExtra"></p>
+                </div>
             </div>
-
         </form>
 
 
