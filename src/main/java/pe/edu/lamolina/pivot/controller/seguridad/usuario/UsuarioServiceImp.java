@@ -170,7 +170,7 @@ public class UsuarioServiceImp implements UsuarioService {
             usuarioDAO.save(usuarioBD);
 
         } else {
-            usuarioBD = usuarioDAO.findByPersona(personaForm);
+            usuarioBD = usuarioDAO.findActivoByPersona(personaForm);
             if (!usuarioBD.getGoogle().equals(personaForm.getEmailCompania())) {
                 usuarioBD.setGoogle(personaForm.getEmailCompania());
                 usuarioBD.setUserModifica(ds.getUsuario());
@@ -279,7 +279,7 @@ public class UsuarioServiceImp implements UsuarioService {
             return new Persona();
         }
 
-        Usuario user = usuarioDAO.findByPersona(persona);
+        Usuario user = usuarioDAO.findActivoByPersona(persona);
         if (user != null) {
             throw new PhobosException("La persona con documento de identidad " + persona.getTipoDocumento().getSimbolo() + " " + persona.getNumeroDocIdentidad() + " ya se encuentra registrado como usuario del sistema.");
         }

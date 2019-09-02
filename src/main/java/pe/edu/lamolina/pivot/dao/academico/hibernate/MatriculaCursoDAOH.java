@@ -99,7 +99,7 @@ public class MatriculaCursoDAOH extends AbstractEasyDAO<MatriculaCurso> implemen
                 .join("matriculaResumen mr", "mr.alumno alu", "mr.cicloAcademico ca", "curso cu")
                 .join("alu.persona per")
                 .leftJoin("per.tipoDocumento")
-                .filter("ca.id", ciclo);
+                .filter("ca.codigo", ciclo.getCodigo());
 
         return all(sql);
     }

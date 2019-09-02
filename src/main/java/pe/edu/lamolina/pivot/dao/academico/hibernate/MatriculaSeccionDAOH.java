@@ -168,7 +168,7 @@ public class MatriculaSeccionDAOH extends AbstractEasyDAO<MatriculaSeccion> impl
                 .join("matriculaResumen mr", "seccion sec", "mr.alumno alu", "sec.grupoSeccion gs", "gs.cicloAcademico ca")
                 .join("gs.curso cur", "alu.persona per")
                 .leftJoin("gs.planCalificacion", "per.tipoDocumento tdoc")
-                .filter("ca.id", ciclo);
+                .filter("ca.codigo", ciclo.getCodigo());
 
         return all(sql);
     }

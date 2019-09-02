@@ -1314,19 +1314,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
 
         CicloAcademico cicloInicia = null;
         cicloInicia = planesCurricular.stream().map(x -> x.getCicloInicioVigencia()).min(Comparator.comparing(CicloAcademico::getCodigo)).get();
-
-//        for (PlanCurricular plan : planesCurricular) {
-//            CicloAcademico cicloPlan = plan.getCicloInicioVigencia();
-//            if (cicloInicia == null) {
-//                cicloInicia = cicloPlan;
-//                continue;
-//            }
-//            if (cicloInicia.getCodigo().compareTo(cicloPlan.getCodigo()) == -1) {
-//                cicloInicia = cicloPlan;
-//            }
-//        }
         Map<String, List<PlanCurricular>> mapPlanesByCiclo = TypesUtil.convertListToMapList("cicloInicioVigencia.codigo", planesCurricular);
-
         Map<String, CicloAcademico> mapCiclosPlanes = TypesUtil.convertListToMap("cicloInicioVigencia.codigo", "cicloInicioVigencia", planesCurricular);
 
         List<Alumno> alumnos = alumnoDAO.allByCarreraCicloMayores(carrera, cicloInicia.getCodigo());

@@ -11,8 +11,8 @@ public interface LoadProgramacionService {
 
     void inicioProcesarArchivos(Map<String, String> rutasFiles, CicloAcademico ciclo, DataSessionPivot ds);
 
-    public void inicioProcesarArchivoAlumno( Map<String, String> rutas, CicloAcademico cicloAcademico, DataSessionPivot ds);
+    void inicioProcesarArchivoAlumno(Map<String, String> rutas, CicloAcademico cicloAcademico, DataSessionPivot ds);
 
-    public Map<String, String> loadArchivosAlumnos(MultipartFile[] file);
+    Map<String, String> loadArchivosAlumnos(MultipartFile[] file);
 
 }

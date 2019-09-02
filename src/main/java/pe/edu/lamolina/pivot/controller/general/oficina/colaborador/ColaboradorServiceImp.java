@@ -464,7 +464,7 @@ public class ColaboradorServiceImp implements ColaboradorService {
     }
 
     private void asignarRol(Persona personaJefe, RolEnum rolEnum, DataSessionPivot ds) {
-        Usuario usuarioDb = usuarioDAO.findByPersona(personaJefe);
+        Usuario usuarioDb = usuarioDAO.findActivoByPersona(personaJefe);
 
         if (usuarioDb == null) {
             throw new PhobosException("La persona asignada no está registrado como usuario.");
@@ -690,7 +690,7 @@ public class ColaboradorServiceImp implements ColaboradorService {
         //
         if (Arrays.asList(DESP, RET).contains(empleadoForm.getEstadoEnum())
                 && activos == 0 & alumnos.isEmpty() && docentes.isEmpty()) {
-            Usuario userEmpleado = usuarioDAO.findByPersona(empleadoBD.getPersona());
+            Usuario userEmpleado = usuarioDAO.findActivoByPersona(empleadoBD.getPersona());
             usuarioRolDAO.updateInactivar(empleadoForm, userEmpleado);
         }
 
@@ -824,7 +824,7 @@ public class ColaboradorServiceImp implements ColaboradorService {
 
 //    @Transactional
 //    private void addRol(Persona p, RolEnum rol, Usuario userRegistro) {
-//        Usuario usuario = usuarioDAO.findByPersona(p);
+//        Usuario usuario = usuarioDAO.findActivoByPersona(p);
 //        if (usuario == null) {
 //            logger.debug("No se puede agregar rol porque no tiene usuario");
 //            return;
@@ -921,7 +921,7 @@ public class ColaboradorServiceImp implements ColaboradorService {
             perfiles.add(perfil);
         }
 
-        Usuario user = usuarioDAO.findByPersona(personaForm);
+        Usuario user = usuarioDAO.findActivoByPersona(personaForm);
         if (user == null) {
             user = new Usuario();
             if (colaborador.getPersona().getEmailCompania() != null) {
@@ -1082,7 +1082,7 @@ public class ColaboradorServiceImp implements ColaboradorService {
 
             }
         }
-        Usuario usuarioColaborador = usuarioDAO.findByPersona(colaboradorForm.getPersona());
+        Usuario usuarioColaborador = usuarioDAO.findActivoByPersona(colaboradorForm.getPersona());
         System.out.println("usuarioColaborador " + usuarioColaborador);
         ArrayList<PerfilCompania> perfiles = new ArrayList();
         for (FuncionColaborador funcionColaborador : mapNuevo.values()) {

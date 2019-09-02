@@ -456,7 +456,7 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
         if (alumnoBD.getModalidadEstudio().isPregrado()) {
             avanceCurricularService.generarAvanceCurricularByAlumno(alumno, ds);
         } else {
-            avanceCurricularService.generarAvanceCurricularByAlumnoPost(alumno, ds);
+            avanceCurricularService.generarAvanceCurricularByAlumnoEPG(alumno, ds);
 
         }
 
@@ -471,7 +471,7 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
         if (alumno.getModalidadEstudio().isPregrado()) {
             avanceCurricularService.generarAvanceCurricularByAlumno(alumno, ds);
         } else {
-            avanceCurricularService.generarAvanceCurricularByAlumnoPost(alumno, ds);
+            avanceCurricularService.generarAvanceCurricularByAlumnoEPG(alumno, ds);
 
         }
     }
@@ -667,6 +667,7 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
     }
 
     @Override
+    @Transactional
     public MatriculaResumen findResumenMatricula(Alumno alumno, CicloAcademico ciclo, List<MatriculaCurso> matriculaCursos) {
         MatriculaResumen resumen = matriculaResumenDAO.findByAlumnoCiclo(alumno, ciclo);
         if (resumen == null) {
@@ -887,7 +888,7 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
             avanceCurricularService.generarAvanceCurricularByAlumno(alumnoBD, ds);
         } else if (alumnoBD.getModalidadEstudio().isPostgrado()) {
             Assert.isNotNull(alumnoBD.getPlanCurricular(), "La orientación no cuenta con plan curricular.");
-            avanceCurricularService.generarAvanceCurricularByAlumnoPost(alumnoBD, ds);
+            avanceCurricularService.generarAvanceCurricularByAlumnoEPG(alumnoBD, ds);
 
         }
     }

@@ -27,6 +27,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import pe.albatross.zelpers.file.system.FileHelper;
+import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
@@ -279,28 +280,27 @@ public class LoadProgramacionServiceImp implements LoadProgramacionService {
 
         long t1 = System.currentTimeMillis();
         logger.debug("savePersonas");
-        this.savePersonas(personas, mapKeyPersonas, mapDNIPersonas, ds);
+        //this.savePersonas(personas, mapKeyPersonas, mapDNIPersonas, ds);
         long t2 = System.currentTimeMillis();
         logger.debug("\tsavePersonas ejecutado en {} mseg", (t2 - t1));
 
-        for (Persona persona : personas) {
-            if (visor.isStop()) {
-                throw new PhobosException("Carga detenida intespestivamente");
-            }
-
-            if (mapIdPersonas.get(persona.getId()) == null) {
-                mapIdPersonas.put(persona.getId(), persona);
-            }
-        }
-
+//        for (Persona persona : personas) {
+//            if (visor.isStop()) {
+//                throw new PhobosException("Carga detenida intespestivamente");
+//            }
+//
+//            if (mapIdPersonas.get(persona.getId()) == null) {
+//                mapIdPersonas.put(persona.getId(), persona);
+//            }
+//        }
         List<Alumno> alumnosDB = alumnoDAO.all();
-        Map<String, Alumno> mapAlumnos = TypesUtil.convertListToMap("codigo", alumnosDB);
-        for (Alumno alumno : alumnosDB) {
-            Persona persona = mapIdPersonas.get(alumno.getPersona().getId());
-            if (persona != null) {
-                alumno.setPersona(persona);
-            }
-        }
+//        Map<String, Alumno> mapAlumnos = TypesUtil.convertListToMap("codigo", alumnosDB);
+//        for (Alumno alumno : alumnosDB) {
+//            Persona persona = mapIdPersonas.get(alumno.getPersona().getId());
+//            if (persona != null) {
+//                alumno.setPersona(persona);
+//            }
+//        }
         List<SituacionAcademica> situaciones = situacionAcademicaDAO.all();
         Map<String, SituacionAcademica> mapSituaciones = TypesUtil.convertListToMap("codigo", situaciones);
 
@@ -313,7 +313,7 @@ public class LoadProgramacionServiceImp implements LoadProgramacionService {
 
         t1 = System.currentTimeMillis();
         logger.debug("saveAlumnos");
-        this.saveAlumnos(alumnos, ciclo, mapKeyPersonas, mapDNIPersonas, mapIdPersonas, mapAlumnos, mapSituaciones, ds);
+        //this.saveAlumnos(alumnos, ciclo, mapKeyPersonas, mapDNIPersonas, mapIdPersonas, mapAlumnos, mapSituaciones, ds);
         t2 = System.currentTimeMillis();
         logger.debug("\tsaveAlumnos ejecutado en {} mseg", (t2 - t1));
 
@@ -373,7 +373,7 @@ public class LoadProgramacionServiceImp implements LoadProgramacionService {
 
         t1 = System.currentTimeMillis();
         logger.debug("revisarAlumnosMatriculados");
-        revisarAlumnosMatriculados(ciclo, mapResumenes, mapBloqueados);
+        revisarAlumnosMatriculados(mapResumenes);
         t2 = System.currentTimeMillis();
         logger.debug("\trevisarAlumnosMatriculados ejecutado en {} mseg", (t2 - t1));
 
@@ -393,7 +393,7 @@ public class LoadProgramacionServiceImp implements LoadProgramacionService {
         logger.debug("Obtener mapas para horarios");
         Map<Integer, Dia> mapDias = diaDAO.all().stream().collect(Collectors.toMap(x -> x.getNumeroDia(), x -> x));
         Map<Integer, Hora> mapHoras = horaDAO.all().stream().collect(Collectors.toMap(x -> x.getNumero(), x -> x));
-        Map<String, GrupoHoras> mapGrupos = grupoHorasDAO.all().stream().collect(Collectors.toMap(x -> x.getCodigo(), x -> x));
+        //Map<String, GrupoHoras> mapGrupos = grupoHorasDAO.all().stream().collect(Collectors.toMap(x -> x.getCodigo(), x -> x));
         Map<String, Aula> mapAulas = aulaDAO.all().stream().collect(Collectors.toMap(x -> x.getCodigo(), x -> x));
         t2 = System.currentTimeMillis();
         logger.debug("\tObtener mapas para horarios ejecutado en {} mseg", (t2 - t1));
@@ -406,7 +406,7 @@ public class LoadProgramacionServiceImp implements LoadProgramacionService {
 
         t1 = System.currentTimeMillis();
         logger.debug("horariosGrupo");
-        List<DiaHoraGrupo> horariosGrupo = progDataService.crearHorarioGrupos(rutaFileHorarioGrupos, mapDias, mapHoras, mapGrupos, ciclo);
+        //List<DiaHoraGrupo> horariosGrupo = progDataService.crearHorarioGrupos(rutaFileHorarioGrupos, mapDias, mapHoras, mapGrupos, ciclo);
         t2 = System.currentTimeMillis();
         logger.debug("\thorariosGrupo ejecutado en {} mseg", (t2 - t1));
         visor.agregarLog("fin", "fin", "Carga finalizada", false, "fin");
@@ -450,9 +450,9 @@ public class LoadProgramacionServiceImp implements LoadProgramacionService {
             loadInfoPersona(persona, mapTiposDoc, mapEstadoCivil, mapPaises, mapUbicacion);
             List<Persona> personasVinculadas = progDataService.allPersonasByPer(persona, mapKeyPersonas, mapDNIPersonas, ds);
             persona = progDataService.savePersona(persona, personasVinculadas, mapKeyPersonas, mapDNIPersonas, ds);
-            String emailCia = progDataService.extraerEmailCompania(persona, personasVinculadas, mapKeyPersonas, mapDNIPersonas, ds);
-            Persona perso = progDataService.extraerDocumentoIdentidad(persona, personasVinculadas, mapKeyPersonas, mapDNIPersonas, ds);
-            progDataService.changeDocumentoIdentidad(persona, personasVinculadas, perso.getTipoDocumento(), perso.getNumeroDocIdentidad(), emailCia, mapKeyPersonas, mapDNIPersonas, ds);
+            // String emailCia = progDataService.extraerEmailCompania(persona, personasVinculadas, mapKeyPersonas, mapDNIPersonas, ds);
+            //Persona perso = progDataService.extraerDocumentoIdentidad(persona, personasVinculadas, mapKeyPersonas, mapDNIPersonas, ds);
+            //progDataService.changeDocumentoIdentidad(persona, personasVinculadas, perso.getTipoDocumento(), perso.getNumeroDocIdentidad(), emailCia, mapKeyPersonas, mapDNIPersonas, ds);
 
             docente.setPersona(persona);
             docente = progDataService.saveDocente(docente, modalidad, mapDptos, ds);
@@ -554,104 +554,42 @@ public class LoadProgramacionServiceImp implements LoadProgramacionService {
         }
     }
 
-    private void revisarAlumnosMatriculados(CicloAcademico ciclo, Map<String, MatriculaResumen> mapResumenes, Map<String, AlumnoBlocked> mapBloqueados) {
+    private void revisarAlumnosMatriculados(Map<String, MatriculaResumen> mapResumenes) {
         List<MatriculaResumen> alumnosResumen = new ArrayList(mapResumenes.values());
-        int loop = 1;
-        for (MatriculaResumen aluResumen : alumnosResumen) {
-            Alumno alumno = aluResumen.getAlumno();
-            System.out.println(loop + ".- " + alumno.getCodigo() + " :::: ");
-            loop++;
-        }
+        ControlMatriCurso control = new ControlMatriCurso();
 
         visor.inicializar("aluRes", alumnosResumen.size());
         for (MatriculaResumen aluResumen : alumnosResumen) {
-            if (visor.isStop()) {
-                throw new PhobosException("Carga detenida intespestivamente");
-            }
-            progDataService.revisarAlumnoMatriculado(aluResumen);
+            Assert.isFalse(visor.isStop(), "Carga detenida intespestivamente");
+            progDataService.revisarAlumnoMatriculadoAsync(control, aluResumen, 1);
         }
 
         logger.debug("\trevisarAlumnosMatriculados envio {} alumnos a ser revisados", alumnosResumen.size());
-        int procesadosAntes = -1;
-        long t1 = System.currentTimeMillis();
-        long t10 = System.currentTimeMillis();
-        boolean verError = true;
-        boolean iniciarTimer = false;
+
+        int pintar = 0;
         for (;;) {
-
-            if (visor.isStop()) {
-                throw new PhobosException("Carga detenida intespestivamente");
-            }
-
-            boolean salir = true;
-            boolean ver = false;
-            boolean errorVisto = false;
-
-            int procesados = 0;
-            if (ver) {
-                logger.debug("Tenemos un total de " + alumnosResumen.size() + " elementos");
-            }
-            if (iniciarTimer) {
-                long t6 = System.currentTimeMillis();
-                if (t6 - t10 > 5000) {
-                    verError = true;
+            if (control.getAlumnosMarcadas() + control.getAlumnosMarcadosError() >= alumnosResumen.size() && pintar == 0) {
+                pintar = 1;
+                for (MatriculaResumen aluResumen : alumnosResumen) {
+                    Assert.isFalse(visor.isStop(), "Carga detenida intespestivamente");
+                    Alumno alumno = aluResumen.getAlumno();
+                    if (control.verificarAlumnoError(alumno)) {
+                        progDataService.revisarAlumnoMatriculadoSync(control, aluResumen, 2);
+                    }
                 }
             }
-            for (MatriculaResumen matriResumen : alumnosResumen) {
-                Alumno alumno = matriResumen.getAlumno();
-                if (matriResumen.getProcesado() == 0) {
-                    salir = false;
-                    if (matriResumen.getFechaInicioProceso() == null) {
-                        continue;
-                    }
-
-                    long t4 = System.currentTimeMillis();
-                    long t3 = matriResumen.getFechaInicioProceso().getTime();
-                    long dd = t4 - t3;
-                    if (dd > 5000 && verError) {
-                        logger.debug("\tResumen A sin procesar por " + dd + "mseg alumno:" + alumno.getCodigo());
-                        errorVisto = true;
-                    }
-                } else {
-                    procesados++;
-                }
-            }
-            if (ver) {
-                ver = false;
-            }
-            if (errorVisto) {
-                verError = false;
-                iniciarTimer = true;
-                t10 = System.currentTimeMillis();
-            }
-            if (salir) {
+            if (control.getAlumnosMarcadas() >= alumnosResumen.size()) {
+                logger.debug("\trevisarAlumnosMatriculados termino de revisar {} alumnos", alumnosResumen.size());
                 break;
             }
-            if (procesadosAntes != procesados) {
-                logger.debug("\trevisarAlumnosMatriculados procesados {} de {}", procesados, alumnosResumen.size());
-                t1 = System.currentTimeMillis();
-            } else {
-                long t2 = System.currentTimeMillis();
-                long dd = t2 - t1;
-                if (dd > 5000) {
-                    for (MatriculaResumen matriResumen : alumnosResumen) {
-                        Alumno alumno = matriResumen.getAlumno();
-                        if (matriResumen.getProcesado() == 0) {
-                            logger.debug("\tResumen B sin procesar por " + dd + "mseg alumno:" + alumno.getCodigo());
-                        }
-                    }
-                    t1 = System.currentTimeMillis();
-                }
-
-            }
-
-            procesadosAntes = procesados;
+            TypesUtil.delay(3000);
         }
     }
 
     private Map<String, MatriculaResumen> loadDataMatriculados(List<MatriculaSeccion> matriculasSecciones, Map<String, Seccion> mapSecciones, CicloAcademico ciclo, DataSessionPivot ds) {
 
         List<MatriculaResumen> resumenesBD = matriculaResumenDAO.allByCiclo(ciclo);
+        logger.debug("Vinieron {} matricula-resumen", resumenesBD.size());
         Map<String, MatriculaResumen> mapResumenes = TypesUtil.convertListToMap("alumno.codigo", resumenesBD);
         Map<String, MatriculaResumen> mapResumenesById = TypesUtil.convertListToMap("id", resumenesBD);
         for (MatriculaResumen mr : resumenesBD) {
@@ -660,6 +598,7 @@ public class LoadProgramacionServiceImp implements LoadProgramacionService {
         }
 
         List<MatriculaSeccion> matriSeccionesBD = matriculaSeccionDAO.allByCiclo(ciclo);
+        logger.debug("Vinieron {} matricula-seccion", matriSeccionesBD.size());
         for (MatriculaSeccion ms : matriSeccionesBD) {
             MatriculaResumen mr = mapResumenesById.get(ms.getMatriculaResumen().getId());
             mr.getMatriculaSeccion().add(ms);
@@ -667,61 +606,40 @@ public class LoadProgramacionServiceImp implements LoadProgramacionService {
         }
 
         List<MatriculaCurso> matriCursosBD = matriculaCursoDAO.allByCiclo(ciclo);
+        logger.debug("Vinieron {} matricula-curso", matriCursosBD.size());
         for (MatriculaCurso mc : matriCursosBD) {
             MatriculaResumen mr = mapResumenesById.get(mc.getMatriculaResumen().getId());
             mr.getMatriculaCurso().add(mc);
             mc.setMatriculaResumen(mr);
         }
 
+        Map<Long, CicloAcademico> mapCiclo = new LinkedHashMap();
+        List<CicloAcademico> ciclos = cicloAcademicoDAO.allByCodigo(ciclo.getCodigo());
+        for (CicloAcademico cic : ciclos) {
+            if (cic.getModalidadEstudio().getCodigoEnum() == ModalidadEstudioEnum.PRE) {
+                mapCiclo.put(1L, cic);
+                mapCiclo.put(4L, cic);
+            }
+            if (cic.getModalidadEstudio().getCodigoEnum() == ModalidadEstudioEnum.EPG) {
+                mapCiclo.put(2L, cic);
+                mapCiclo.put(3L, cic);
+            }
+        }
+
+        ControlMatriCurso control = new ControlMatriCurso();
+
         for (MatriculaSeccion matriSecc : matriculasSecciones) {
             if (visor.isStop()) {
                 throw new PhobosException("Carga detenida intespestivamente");
             }
-            progDataService.loadDataMatriculados(matriSecc, mapResumenes, mapSecciones, ciclo, ds);
+            progDataService.loadDataMatriculados(control, matriSecc, mapResumenes, mapSecciones, mapCiclo, ds);
         }
 
-        long t1 = System.currentTimeMillis();
-        int procesadosAntes = -1;
         for (;;) {
-            if (visor.isStop()) {
-                throw new PhobosException("Carga detenida intespestivamente");
-            }
-
-            long t2 = System.currentTimeMillis();
-            boolean salir = true;
-            boolean ver = false;
-            int procesados = 0;
-            if (ver) {
-                System.out.println("Tenemos un total de " + matriculasSecciones.size() + " elementos");
-            }
-            for (MatriculaSeccion matriSecc : matriculasSecciones) {
-                if (matriSecc.getProcesado() == 0) {
-                    salir = false;
-                    long t4 = System.currentTimeMillis();
-                    long t3 = matriSecc.getFechaInicioProceso() == null ? System.currentTimeMillis() : matriSecc.getFechaInicioProceso().getTime();
-                    long dd = t3 - t4;
-                    if (dd > 5000) {
-                        System.out.println("\tElemento sin procesar por " + dd + "mseg alumno:" + matriSecc.getCodigoAlumno() + " seccion:" + matriSecc.getCodigoSeccion());
-                    }
-                } else {
-                    procesados++;
-                }
-            }
-            if (ver) {
-                ver = false;
-            }
-            if (salir) {
+            if (control.getMatriSeccMarcadas() >= matriculasSecciones.size()) {
                 break;
             }
-            if (procesadosAntes != procesados) {
-                //logger.debug("\tloadDataMatriculados procesados {} de {}", procesados, matriculasSecciones.size());
-            }
-            if (t2 - t1 > 5000) {
-                ver = true;
-                t1 = System.currentTimeMillis();
-            }
-
-            procesadosAntes = procesados;
+            TypesUtil.delay(2000);
         }
         return mapResumenes;
     }
@@ -1324,6 +1242,7 @@ public class LoadProgramacionServiceImp implements LoadProgramacionService {
             Map<String, EstadoCivil> mapEstadoCivil,
             Map<String, Pais> mapPaises,
             Map<String, Ubicacion> mapUbicacion) {
+
         TipoDocIdentidad tipoDoc = mapTiposDoc.get(persona.getCodigoTipoDocumento());
         if (tipoDoc == null) {
             persona.setCodigoTipoDocumento("DNI");
