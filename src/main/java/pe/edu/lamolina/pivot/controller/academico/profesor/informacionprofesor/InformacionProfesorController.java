@@ -1,5 +1,6 @@
 package pe.edu.lamolina.pivot.controller.academico.profesor.informacionprofesor;
 
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.base.Strings;
@@ -8,6 +9,7 @@ import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,9 +26,11 @@ import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.general.Persona;
+import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -71,12 +75,26 @@ public class InformacionProfesorController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         Compania compania = ds.getCompania();
 
+        CicloAcademico cicloAcademico = ds.getCicloAcademico();
+        ObjectNode jCiclo = JsonHelper.createJson(cicloAcademico, JsonNodeFactory.instance, false,
+                new String[]{
+                    "*"
+                });
+
+        ArrayNode horasJson = new ArrayNode(JsonNodeFactory.instance);
+        List<Hora> horas = service.allHoras();
+        for (Hora hora : horas) {
+            horasJson.add(JsonHelper.createJson(hora, JsonNodeFactory.instance, true, new String[]{"*"}));
+        }
+
+        model.addAttribute("horasBD", horasJson.toString());
         model.addAttribute("docente", new Docente(idDocente));
         model.addAttribute("tiposDocIdentidad", service.allDocumentos());
         model.addAttribute("modalidades", service.allModalidadEstudio(compania));
         model.addAttribute("categorias", service.allCategorias());
         model.addAttribute("situaciones", service.allSituaciones());
         model.addAttribute("dedicaciones", service.allDedicaciones());
+        model.addAttribute("ciclo", jCiclo.toString());
         return "academico/profesor/informacion/informacion";
     }
 
@@ -154,7 +172,7 @@ public class InformacionProfesorController {
     public JsonResponse validarEmailEmpresa(@RequestParam("email") String email, @RequestParam("persona") Long idPersona) {
         JsonResponse response = new JsonResponse();
         try {
-            
+
             String msg = service.validarEmailEmpresaByPersona(email, new Persona(idPersona));
             response.setMessage(msg);
             response.setSuccess(Strings.isNullOrEmpty(msg));

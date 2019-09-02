@@ -12,7 +12,7 @@
 
                     <ul class="dropdown-menu dropdown-menu-right">
                         <li><a class="dropdown-item" href="#" v-on:click.prevent="calcularPromedio">Calcular Promedios</a></li>
-                        <li><a class="dropdown-item" href="#" th:if="false">Descargar PDF</a></li>
+                        <li><a class="dropdown-item" v-bind:href="'/academico/matriculable/'+alumno.id+'/histrialPdf'" >Descargar PDF</a></li>
                     </ul>
                 </div>
                 <div th:unless="${puedeCalcular}"><button class="btn btn-primary hide" type="button">&nbsp;&nbsp;&nbsp;</button></div>

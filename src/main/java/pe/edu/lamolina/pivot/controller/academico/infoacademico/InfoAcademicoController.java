@@ -28,6 +28,7 @@ import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.CursoCurricula;
+import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.MatriculaCurso;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.OrientacionCarrera;
@@ -297,13 +298,22 @@ public class InfoAcademicoController {
     }
 
     @ResponseBody
-    @RequestMapping("{idAlumno}/horario")
-    public JsonResponse alumnoHorario(@PathVariable("idAlumno") Long idAlumno, Model model, HttpSession session) {
+    @RequestMapping("{id}/horario")
+    public JsonResponse alumnoHorario(
+            @PathVariable("id") Long id,
+            @RequestParam(value = "tipo", required = false) String tipo,
+            Model model, HttpSession session) {
         JsonResponse response = new JsonResponse();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-        CicloAcademico academico = ds.getCicloAcademico();
+        CicloAcademico cicloAcademico = ds.getCicloAcademico();
         try {
-            List<HorarioSeccion> seccionesHorarios = service.allSeccionHorarioAlumnoByAlumnoCicloACademico(new Alumno(idAlumno), academico);
+            List<HorarioSeccion> seccionesHorarios = null;
+            if (tipo.equals("ALU")) {
+                seccionesHorarios = service.allSeccionHorarioAlumnoByAlumnoCicloACademico(new Alumno(id), cicloAcademico);
+            } else if (tipo.equals("DOC")) {
+                seccionesHorarios = service.allSeccionHorarioAlumnoByDocenteCicloACademico(new Docente(id), cicloAcademico);
+            }
+
             ObjectNode horarios = service.findHorarioBySeccionesHorarios(seccionesHorarios);
             response.setData(horarios);
         } catch (PhobosException e) {

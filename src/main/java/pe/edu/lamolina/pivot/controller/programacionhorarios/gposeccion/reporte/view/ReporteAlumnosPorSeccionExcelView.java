@@ -22,6 +22,7 @@ import pe.albatross.zelpers.file.excel.ExcelHelper;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Curso;
+import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.Seccion;
@@ -146,6 +147,8 @@ public class ReporteAlumnosPorSeccionExcelView extends AbstractView {
         sheet.setColumnWidth((column - 1), this.tamaño(25));
         excelUtil.replaceVal(irow - 1, column++, "SECCIÓN", estiloCabecera);
         sheet.setColumnWidth((column - 1), this.tamaño(15));
+        excelUtil.replaceVal(irow - 1, column++, "DOCENTE", estiloCabecera);
+        sheet.setColumnWidth((column - 1), this.tamaño(40));
         excelUtil.replaceVal(irow - 1, column++, "MATRICULA", estiloCabecera);
         sheet.setColumnWidth((column - 1), this.tamaño(15));
         excelUtil.replaceVal(irow - 1, column++, "ALUMNO", estiloCabecera);
@@ -166,6 +169,16 @@ public class ReporteAlumnosPorSeccionExcelView extends AbstractView {
             excelUtil.replaceVal(irow, column++, curso.getCodigo(), estiloGeneral);
             excelUtil.replaceVal(irow, column++, curso.getNombre(), estiloGeneral);
             excelUtil.replaceVal(irow, column++, seccion.getCodigo2(), estiloGeneral);
+            Docente docentePrincipal = seccion.getDocentePrincipal() == null ? null : seccion.getDocentePrincipal();
+            String docentePrincipalStr = "N.N.";
+            if (docentePrincipal != null) {
+                if (docentePrincipal.isCodigoNN()) {
+                    docentePrincipalStr = docentePrincipal.getCodigo();
+                } else {
+                    docentePrincipalStr = docentePrincipal.getPersona() == null ? "Sin Persona" : docentePrincipal.getPersona().getApellidosNombres();
+                }
+            }
+            excelUtil.replaceVal(irow, column++, docentePrincipalStr, estiloGeneral);
             excelUtil.replaceVal(irow, column++, alumno.getCodigo(), estiloGeneral);
             excelUtil.replaceVal(irow, column++, alumno.getPersona().getApellidosNombres(), estiloGeneral);
             excelUtil.replaceVal(irow, column++, alumno.getCarrera().getNombre(), estiloGeneral);

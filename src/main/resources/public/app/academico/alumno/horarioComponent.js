@@ -3,6 +3,12 @@ Vue.component("horario-component", {
     props: {
         alumno: {},
         ciclo: {},
+        docente: {},
+        tipo: {
+            required: false,
+            type: String,
+            default: "ALU"
+        }
     },
     data: function () {
         return {
@@ -28,9 +34,16 @@ Vue.component("horario-component", {
     methods: {
         cargaHorario() {
             let $vue = this;
+            let id = null;
+            if ($vue.tipo == 'ALU') {
+                id = $vue.alumno.id;
+            } else if ($vue.tipo == 'DOC') {
+                id = $vue.docente.id;
+            }
             $.ajax({
                 method: 'GET',
-                url: APP.url('academico/alumno/' + this.alumno.id + '/horario'),
+                url: APP.url('academico/alumno/' + id + '/horario'),
+                data: {tipo: $vue.tipo},
                 contentType: "application/json",
                 success: function (response) {
                     $vue.horarios = response.data;

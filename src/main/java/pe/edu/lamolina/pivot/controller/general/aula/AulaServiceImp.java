@@ -2,6 +2,7 @@ package pe.edu.lamolina.pivot.controller.general.aula;
 
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -20,9 +21,11 @@ import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
+import pe.edu.lamolina.model.academico.EventoCicloAcademico;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.almacen.ResumenInventario;
 import pe.edu.lamolina.model.enums.EstadoEnum;
+import pe.edu.lamolina.model.enums.EventoAcademicoEnum;
 import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.enums.TipoAmbienteEnum;
 import pe.edu.lamolina.model.enums.TipoGrupoHorasEnum;
@@ -481,17 +484,32 @@ public class AulaServiceImp implements AulaService {
 
     @Override
     public List<HorarioAula> allHorariosAulaByCiclo(CicloAcademico cicloAcademico, Aula aula) {
-        List<HorarioAula> horariosAulasByCiclo = horarioAulaDAO.allByCicloAndTipoHorario(cicloAcademico, aula, TipoHorarioAulaEnum.DICT);
+
+        //    List<HorarioAula> horariosAulasByCiclo = horarioAulaDAO.allByCicloAndTipoHorario(cicloAcademico, aula, TipoHorarioAulaEnum.DICT);
         List<DocenteSeccion> docentesSeccionesByCiclo = docenteSeccionDAO.allByCiclo(cicloAcademico, aula, EstadoEnum.ACT);
         docentesSeccionesByCiclo = docentesSeccionesByCiclo.stream().filter(x -> x.esDocentePrincipal())
                 .collect(Collectors.toList());
         Map<Long, List<DocenteSeccion>> docentesSeccionBySeccion = TypesUtil.convertListToMapList("seccion.id", docentesSeccionesByCiclo);
 
-        for (HorarioAula horarioAula : horariosAulasByCiclo) {
-            List<DocenteSeccion> docentesSecciones = docentesSeccionBySeccion.get(horarioAula.getSeccion().getId());
-            horarioAula.getSeccion().setDocenteSeccion(docentesSecciones);
+        EventoCicloAcademico eventoDictado = eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(cicloAcademico, EventoAcademicoEnum.CLASES_PRE);
+        List<HorarioAula> horariosAulasReservas = horarioAulaDAO.allByFechas(
+                eventoDictado.getFechaInicio(), eventoDictado.getFechaFin(),
+                aula != null ? Arrays.asList(aula) : null,
+                OficinaEnum.OERA, TipoHorarioAulaEnum.RESERV, TipoHorarioAulaEnum.DICT);
+        horariosAulasReservas.removeIf(x -> x.getReservaAula() != null && Boolean.FALSE.equals(x.getReservaAula().getVisibleHorario()));
+
+        for (HorarioAula horarioAula : horariosAulasReservas) {
+            Seccion seccion = horarioAula.getSeccion();
+            if (seccion == null) {
+                continue;
+            }
+            List<DocenteSeccion> docentesSecciones = docentesSeccionBySeccion.get(seccion.getId());
+            seccion.setDocenteSeccion(docentesSecciones);
         }
-        return horariosAulasByCiclo;
+
+//        horariosAulasByCiclo.addAll(horariosAulasReservas);
+//        return horariosAulasByCiclo;
+        return horariosAulasReservas;
     }
 
     @Override

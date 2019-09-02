@@ -31,6 +31,7 @@ import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.CursoCurricula;
+import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.MatriculaCurso;
@@ -703,6 +704,19 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
             secciones.add(matriculaSeccion.getSeccion());
 
         }
+        return horarioSeccionDAO.allBySecciones(secciones);
+    }
+
+    @Override
+    public List<HorarioSeccion> allSeccionHorarioAlumnoByDocenteCicloACademico(Docente docente, CicloAcademico academico) {
+        List<DocenteSeccion> docenteSecciones = docenteSeccionDAO.allByDocente(docente, academico);
+        if (docenteSecciones.isEmpty()) {
+            return new ArrayList();
+        }
+        List<Seccion> secciones = docenteSecciones.stream()
+                .filter(x -> x.getSeccion().isEstadoActivo() || x.getSeccion().isEstadoBloqueado())
+                .map(x -> x.getSeccion())
+                .distinct().collect(Collectors.toList());
         return horarioSeccionDAO.allBySecciones(secciones);
     }
 

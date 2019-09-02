@@ -46,7 +46,6 @@ import pe.edu.lamolina.model.enums.TipoAmbienteEnum;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.general.Oficina;
-import pe.edu.lamolina.model.general.ResponsableAula;
 import pe.edu.lamolina.model.general.TipoAula;
 import pe.edu.lamolina.model.horario.DiaHoraGrupo;
 import pe.edu.lamolina.model.horario.Hora;
@@ -59,21 +58,21 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 @Controller
 @RequestMapping("general/aula")
 public class AulaController {
-    
+
     @Autowired
     AulaService service;
-    
+
     @Autowired
     HorarioAulaSemanalPDF horarioAulaSemanalPDF;
-    
+
     @Autowired
     HorarioAulaCicloPDF horarioAulaCicloPDF;
-    
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    
+
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {
-        
+
         dataBinder.registerCustomEditor(Date.class, new PropertyEditorSupport() {
             @Override
             public void setAsText(String value) {
@@ -84,7 +83,7 @@ public class AulaController {
                 }
             }
         });
-        
+
         dataBinder.registerCustomEditor(BigDecimal.class, new PropertyEditorSupport() {
             @Override
             public void setAsText(String value) {
@@ -96,7 +95,7 @@ public class AulaController {
             }
         });
     }
-    
+
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
@@ -113,19 +112,19 @@ public class AulaController {
         model.addAttribute("tipoAulasJson", jTipoAulas.toString());
         return "general/aula/aula";
     }
-    
+
     @ResponseBody
     @RequestMapping("list")
     public DynatableResponse allByDynatableee(DynatableFilter filter, HttpSession session) {
         DynatableResponse json = new DynatableResponse();
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            
+
             List<Aula> aulas = service.allByDynatable(filter, ds.getCicloAcademico());
             JsonNodeFactory jFactory = JsonNodeFactory.instance;
-            
+
             ArrayNode array = new ArrayNode(jFactory);
-            
+
             for (Aula aula : aulas) {
                 ObjectNode node = JsonHelper.createJson(aula, jFactory, true, new String[]{
                     "id", "codigo", "nombre", "tipoAmbienteEnum", "tipoAmbiente", "piso", "pisos",
@@ -156,7 +155,7 @@ public class AulaController {
 //                node.put("estadoEnum", aula.getEstadoEnum().getValue());
 //                node.put("motivo", aula.getMotivoAnulacion());
                 node.put("aulasContenido", aula.getAulasContenido().size());
-                
+
                 ArrayNode arrayHijas = new ArrayNode(jFactory);
                 List<Aula> aulasHijas = aula.getAulasContenido();
                 for (Aula aulaHija : aulasHijas) {
@@ -164,7 +163,7 @@ public class AulaController {
                     arrayHijas.add(nodeHija);
                 }
                 node.set("aulasHijas", arrayHijas);
-                
+
                 ArrayNode inventariosHijas = new ArrayNode(jFactory);
                 List<ResumenInventario> inventarios = aula.getInventario();
                 logger.debug("aula {} items {}", aula.getId(), inventarios != null ? inventarios.size() : 0);
@@ -176,13 +175,13 @@ public class AulaController {
                 }
                 node.set("inventarios", inventariosHijas);
                 node.put("cantidadinventarios", inventariosHijas.size());
-                
+
                 array.add(node);
             }
             json.setData(array);
             json.setTotal(filter.getTotal());
             json.setFiltered(filter.getFiltered());
-            
+
         } catch (Exception e) {
             e.printStackTrace();
             json.setTotal(0);
@@ -197,12 +196,12 @@ public class AulaController {
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             List<Aula> aulas = service.allByDynatable(filter, ds.getCicloAcademico());
-            
+
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
-            
+
             for (Aula aula : aulas) {
                 ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
-                
+
                 node.put("id", aula.getId());
                 node.put("codigo", aula.getCodigo());
                 node.put("nombre", aula.getNombre());
@@ -229,7 +228,7 @@ public class AulaController {
                 node.put("estado", aula.getEstado());
                 node.put("estadoEnum", aula.getEstadoEnum().getValue());
                 node.put("motivo", aula.getMotivoAnulacion());
-                
+
                 ArrayNode arrayHijas = new ArrayNode(JsonNodeFactory.instance);
                 List<Aula> aulasHijas = aula.getAulasContenido();
                 for (Aula aulaHija : aulasHijas) {
@@ -244,20 +243,20 @@ public class AulaController {
             json.setData(array);
             json.setTotal(filter.getTotal());
             json.setFiltered(filter.getFiltered());
-            
+
         } catch (Exception e) {
             e.printStackTrace();
             json.setTotal(0);
         }
         return json;
     }
-    
+
     @RequestMapping("nuevo")
     public String nuevo(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         CicloAcademico ciclo = ds.getCicloAcademico();
         Aula aula = new Aula();
-        
+
         model.addAttribute("aula", aula);
         model.addAttribute("ciclo", ciclo);
         model.addAttribute("tiposAmbiente", TipoAmbienteEnum.values());
@@ -266,7 +265,7 @@ public class AulaController {
         model.addAttribute("sedes", service.allSedes());
         return "general/aula/aulaForm";
     }
-    
+
     @RequestMapping("save")
     public String save(Aula aula, RedirectAttributes redirectAttr, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
@@ -275,29 +274,29 @@ public class AulaController {
             if (aula.getId() == null) {
                 logger.debug(" tipo carpeta  {}", aula.getTipoCarpeta().getId());
                 logger.debug(" tipo AMBIENTE  {}", aula.getTipoAmbiente());
-                
+
                 service.save(aula, ds.getUsuario());
             } else {
                 service.update(aula, ds.getUsuario());
             }
             Notificaciones.crearMsg(mensaje, redirectAttr);
-            
+
         } catch (PhobosException ex) {
             ExceptionHandler.handleException(ex, redirectAttr);
-            
+
         } catch (Exception e) {
             ExceptionHandler.handleException(e, redirectAttr);
-            
+
         }
         return "redirect:/general/aula";
     }
-    
+
     @RequestMapping("editar/{id}")
     public String editar(@PathVariable("id") Long id, Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         CicloAcademico ciclo = ds.getCicloAcademico();
         Aula aula = service.findAulaById(id);
-        
+
         model.addAttribute("aula", aula);
         model.addAttribute("ciclo", ciclo);
         model.addAttribute("tiposAmbiente", TipoAmbienteEnum.values());
@@ -306,32 +305,32 @@ public class AulaController {
         model.addAttribute("sedes", service.allSedes());
         return "general/aula/aulaForm";
     }
-    
+
     @ResponseBody
     @RequestMapping("allAulasSuperiores")
     public JsonResponse allAulasSuperiores(@RequestParam("nombre") String nombre, HttpSession session) {
-        
+
         JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
         JsonResponse response = new JsonResponse();
-        
+
         try {
             List<Aula> aulasSuperiores = service.allAulasSuperioresByName(nombre);
             ArrayNode jsonList = new ArrayNode(jsonFactory);
-            
+
             for (Aula aula : aulasSuperiores) {
                 ObjectNode json = new ObjectNode(jsonFactory);
-                
+
                 json.put("id", aula.getId());
                 json.put("nombre", aula.getNombre());
-                
+
                 jsonList.add(json);
-                
+
             }
-            
+
             response.setData(jsonList);
             response.setTotal(jsonList.size());
             response.setSuccess(true);
-            
+
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
@@ -339,33 +338,33 @@ public class AulaController {
         }
         return response;
     }
-    
+
     @ResponseBody
     @RequestMapping("allGestores")
     public JsonResponse allGestores(@RequestParam("nombre") String nombre, HttpSession session) {
-        
+
         JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
         JsonResponse response = new JsonResponse();
-        
+
         try {
             List<Oficina> gestores = service.allOficinasByName(nombre);
             ArrayNode jsonList = new ArrayNode(jsonFactory);
-            
+
             for (Oficina gestor : gestores) {
                 ObjectNode json = new ObjectNode(jsonFactory);
-                
+
                 json.put("id", gestor.getId());
                 json.put("nombre", gestor.getNombre());
                 json.put("codigo", gestor.getCodigo());
-                
+
                 jsonList.add(json);
-                
+
             }
-            
+
             response.setData(jsonList);
             response.setTotal(jsonList.size());
             response.setSuccess(true);
-            
+
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
@@ -373,20 +372,20 @@ public class AulaController {
         }
         return response;
     }
-    
+
     @ResponseBody
     @RequestMapping("cambioEstado")
     public JsonResponse cambioEstado(@RequestBody Aula aula, HttpSession session) {
         JsonResponse response = new JsonResponse();
         response.setSuccess(false);
-        
+
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             service.cambioEstado(aula, ds);
-            
+
             response.setMessage("Se cambio de estado satisfactoriamente.");
             response.setSuccess(true);
-            
+
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
@@ -394,19 +393,19 @@ public class AulaController {
         }
         return response;
     }
-    
+
     @ResponseBody
     @RequestMapping("eliminar")
     public JsonResponse eliminar(Aula aula, HttpSession session) {
         JsonResponse response = new JsonResponse();
         response.setSuccess(false);
-        
+
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             service.eliminarAula(aula);
             response.setMessage("El registro fue eliminado satisfactoriamente.");
             response.setSuccess(true);
-            
+
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
@@ -416,27 +415,27 @@ public class AulaController {
         }
         return response;
     }
-    
+
     @ResponseBody
     @RequestMapping("loadModalAulaHorario")
     public JsonResponse loadModalAulaHorario(Aula aulaForm, HttpSession session) {
         JsonResponse response = new JsonResponse();
-        
+
         try {
-            
+
             JsonNodeFactory factory = JsonNodeFactory.instance;
-            
+
             Aula aula = service.findAulaFull(aulaForm);
             List<Dia> dias = service.allDia();
             List<Hora> horasEncontradas = service.returnHorasEcontradasModal(aula, dias);
-            
+
             ObjectNode data = new ObjectNode(factory);
             ArrayNode diasJson = new ArrayNode(factory);
-            
+
             for (Dia dia : dias) {
                 diasJson.add(JsonHelper.createJson(dia, factory));
             }
-            
+
             ArrayNode horasJson = new ArrayNode(factory);
             for (Hora horasEncontrada : horasEncontradas) {
                 ObjectNode jhora = JsonHelper.createJson(horasEncontrada, factory, true,
@@ -471,7 +470,7 @@ public class AulaController {
                             "dias.mainHorarioAula.reservaAula.tramite.oficina.codigo",});
                 horasJson.add(jhora);
             }
-            
+
             ObjectNode jaula = JsonHelper.createJson(aula, factory, true,
                     new String[]{
                         "id",
@@ -486,14 +485,14 @@ public class AulaController {
                         "aulaSuperior.id",
                         "aulaSuperior.nombre"
                     });
-            
+
             data.set("aula", jaula);
             data.set("dias", diasJson);
             data.set("horas", horasJson);
-            
+
             response.setData(data);
             response.setSuccess(true);
-            
+
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
@@ -501,23 +500,23 @@ public class AulaController {
         }
         return response;
     }
-    
+
     @RequestMapping("generatorpdf")
     public ModelAndView generatorpdf(HorariosAulaPDFBean horariosAulaPdfBean, Model model, HttpSession session, HttpServletResponse response) throws Exception {
-        
+
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-        
+
         Aula aulaForm = new ObjectMapper().readValue(horariosAulaPdfBean.getStrAula(), Aula.class);
         aulaForm.setFechaFin(horariosAulaPdfBean.getFechaFin());
         aulaForm.setFechaInicio(horariosAulaPdfBean.getFechaInicio());
-        
+
         List<Dia> dias = service.allDiaForPrinter();
         Aula aulaBD = service.findAulaFull(aulaForm);
         Aula aulaSuperior = aulaBD.getAulaSuperior();
-        
+
         List<Hora> horasConHorarios = service.returnHorasEncontradas(aulaBD, dias, ds.getCicloAcademico());
         List<Hora> horasBase = service.allHorasHorario();
-        
+
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
         model.addAttribute("aula", aulaBD);
         model.addAttribute("aulaSuperior", aulaSuperior);
@@ -526,15 +525,15 @@ public class AulaController {
         model.addAttribute("horas", horasConHorarios);
         model.addAttribute("fechaFin", horariosAulaPdfBean.getFechaFin());
         model.addAttribute("fechaInicio", horariosAulaPdfBean.getFechaInicio());
-        
+
         return new ModelAndView(horarioAulaSemanalPDF);
     }
-    
+
     @RequestMapping("reporteProgramacion")
     public ModelAndView reporteProgramacion(HorariosAulaPDFBean horariosAulaPdfBean, Model model, HttpSession session, HttpServletResponse response) throws Exception {
-        
+
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-        
+
         Aula aulaForm = new ObjectMapper().readValue(horariosAulaPdfBean.getStrAula(), Aula.class);
         Aula aulaBD = service.findAulaById(aulaForm.getId());
         List<Aula> aulas = new ArrayList<>();
@@ -543,59 +542,58 @@ public class AulaController {
         } else {
             aulas = service.allAulas(ds.getCicloAcademico());
         }
-        
+
         List<HorarioAula> horariosAulas = service.allHorariosAulaByCiclo(ds.getCicloAcademico(), aulaBD);
+
         List<Dia> dias = service.allDiaForPrinter();
         List<Hora> horas = service.allHorasHorario();
         List<Aula> aulasProgramadas = horariosAulas.stream()
                 .map(x -> x.getAula())
                 .distinct().collect(Collectors.toList());
-        
+
         List<DiaHoraGrupo> diasHorasGruposByCiclo = service.allDiaHoraGrupoByCicloRegular(ds.getCicloAcademico());
-        
+
         if (aulasProgramadas.size() > 1) {
-            
+
             aulasProgramadas = aulasProgramadas.stream()
                     .filter(x -> x.getOficinaSupervisora().isOficinaOera())
                     .collect(Collectors.toList());
             for (Aula aulasProgramada : aulasProgramadas) {
                 logger.debug("codigo {}, oficina {}", aulasProgramada.getCodigo(), aulasProgramada.getOficinaSupervisora().getCodigo());
             }
-            
+
             try {
                 Collections.sort(aulasProgramadas, (x1, x2) -> TypesUtil.getInt(x1.getCodigo(), -1).compareTo(TypesUtil.getInt(x2.getCodigo(), -1)));
             } catch (Exception e) {
                 logger.error("Error", e);
             }
         }
-        
+
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
         model.addAttribute("aulas", aulasProgramadas);
         model.addAttribute("dias", dias);
         model.addAttribute("horas", horas);
         model.addAttribute("horariosAulas", horariosAulas);
         model.addAttribute("diasHorasGruposByCiclo", diasHorasGruposByCiclo);
-//        List<ResponsableAula> responsablesAulas = service.allResponsablesAulas(EstadoEnum.ACT);
-//        responsablesAulas.forEach(x -> logger.debug(x.getAula().getTipoAula().getCodigo()));
         model.addAttribute("responsablesAulas", service.allResponsablesAulas(EstadoEnum.ACT));
         return new ModelAndView(horarioAulaCicloPDF);
     }
-    
+
     @RequestMapping("horarios")
     public String oficinas(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         CicloAcademico ciclo = ds.getCicloAcademico();
-        
+
         List<Aula> listAulaSuperior = service.allAulaByOficinaSuperior(ds);
         List<Aula> listAula = service.allAulaByAulaSuperior(listAulaSuperior);
-        
+
         model.addAttribute("listAulaSuperior", createListAulaJSON(listAulaSuperior).toString());
         model.addAttribute("listAula", createListAulaJSON(listAula).toString());
         model.addAttribute("ciclo", ciclo);
-        
+
         return "general/aula/horarioAulaVistaCompleta";
     }
-    
+
     private ArrayNode createListAulaJSON(List<Aula> listAula) {
         ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
         for (Aula aula : listAula) {
@@ -606,5 +604,5 @@ public class AulaController {
         }
         return array;
     }
-    
+
 }

@@ -941,6 +941,7 @@ public class AlumnoServiceImp implements AlumnoService {
             token.setFechaRegistro(new Date());
             token.setFechaVencimiento(new DateTime().plusSeconds(10).toDate());
             token.setPersona(alumno.getPersona());
+            token.setAlumno(alumno);
             String valor = RandomStringUtils.randomAlphanumeric(45);
             token.setValor(valor);
             token.setUserRegistro(usuario);

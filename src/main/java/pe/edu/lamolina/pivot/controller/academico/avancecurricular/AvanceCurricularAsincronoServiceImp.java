@@ -925,7 +925,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
                 }
                 evaluado.setValidado(true);
             }
-            validarCreditosAprobados(evaluado.getCursoCurricula(), evaluado, alumno.getCreditosCarreraAprobados(), 0);
+            validarCreditosAprobados(evaluado.getCursoCurricula(), evaluado, alumno.getCreditosAprobados(), 0);
         }
 
     }

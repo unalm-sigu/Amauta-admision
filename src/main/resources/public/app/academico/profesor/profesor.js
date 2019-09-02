@@ -42,10 +42,10 @@ $(function () {
 
             var mimodal = bootbox.confirm({
                 title: "Cambiar Estado",
-                size: 'small',
-                message: '¿Desea cambiar el estado del docente?',
+                size: 'md',
+                message: '¿Seguro que desea cambiar el estado del docente?',
                 buttons: {
-                    confirm: {label: "Cambiar Estado", className: "btn-info"},
+                    confirm: {label: "Sí, aceptar", className: "btn-info"},
                     cancel: {label: "Cancelar", className: "btn-link"}
                 },
                 callback: function (result) {
@@ -67,6 +67,7 @@ $(function () {
                 success: function (response) {
                     if (response.success) {
                         dynatable.process();
+                        notify(response.message, "success");
                         mimodal.modal('hide');
                     } else {
                         notify(response.message, "error");

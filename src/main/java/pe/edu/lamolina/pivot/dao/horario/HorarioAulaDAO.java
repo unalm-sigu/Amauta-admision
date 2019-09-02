@@ -8,6 +8,7 @@ import pe.edu.lamolina.model.academico.EventoCicloAcademico;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.bienestar.ReservaAula;
 import pe.edu.lamolina.model.enums.EstadoHorarioAulaEnum;
+import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.enums.TipoHorarioAulaEnum;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Dia;
@@ -107,5 +108,7 @@ public interface HorarioAulaDAO extends EasyDAO<HorarioAula> {
     List<HorarioAula> allByCicloAndTipoHorario(CicloAcademico cicloAcademico, Aula aula, TipoHorarioAulaEnum tipoHorarioAulaEnum);
 
     List<HorarioAula> allByCicloAndTipoHorario(CicloAcademico cicloAcademico, List<Aula> aulas, TipoHorarioAulaEnum tipoHorarioAulaEnum);
+
+    List<HorarioAula> allByFechas(Date fechainicio, Date fechafin, List<Aula> aulas, OficinaEnum oficinaEnum, TipoHorarioAulaEnum... tipoHorarioAulaEnum);
 
 }

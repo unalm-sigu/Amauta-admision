@@ -34,7 +34,7 @@ import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.ConfiguraCargaAdicionalEstadoEnum;
-import pe.edu.lamolina.model.enums.DocumentoPdfEnum;
+import pe.edu.lamolina.model.enums.DocumentoPdfEnum; 
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.pivot.dao.academico.ConfiguraCargaAdicionalDAO;
 import pe.edu.lamolina.pivot.dao.academico.DocenteCicloDAO;

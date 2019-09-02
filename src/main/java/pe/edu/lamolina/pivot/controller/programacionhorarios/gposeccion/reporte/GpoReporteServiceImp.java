@@ -29,6 +29,7 @@ import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
 import pe.edu.lamolina.model.general.Aula;
+import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.horario.DiaHoraGrupo;
 import pe.edu.lamolina.model.horario.GrupoHoras;
 import pe.edu.lamolina.model.horario.HorarioAula;
@@ -462,7 +463,27 @@ public class GpoReporteServiceImp implements GpoReporteService {
 
     @Override
     public List<MatriculaSeccion> allMatriculadosBySeccion(SeccionDTO seccionDTO) {
-        return matriculaSeccionDAO.matriculadosPorSeccion(seccionDTO);
+        List<DocenteSeccion> docentesSecciones = new ArrayList<>();
+        if (seccionDTO.getSecciones() != null && !seccionDTO.getSecciones().isEmpty()) {
+            docentesSecciones = docenteSeccionDAO.allBySecciones(seccionDTO.getSecciones());
+        } else {
+            docentesSecciones = docenteSeccionDAO.allByCiclo(seccionDTO.getCicloAcademico());
+        }
+
+        List<MatriculaSeccion> matriculados = matriculaSeccionDAO.matriculadosPorSeccion(seccionDTO);
+        for (MatriculaSeccion matriculado : matriculados) {
+            Seccion seccion = matriculado.getSeccion();
+            DocenteSeccion docenteSeccion = docentesSecciones.stream()
+                    .filter(x -> x.getSeccion().equals(seccion))
+                    .findFirst().orElse(null);
+//            if (docenteSeccion == null) {
+//                docenteSeccion = new DocenteSeccion();
+//                docenteSeccion.setDocente(new Docente());
+//                docenteSeccion.getDocente().setPersona(new Persona());
+//            }
+            seccion.setDocentePrincipal(docenteSeccion.getDocente());
+        }
+        return matriculados;
     }
 
     @Override

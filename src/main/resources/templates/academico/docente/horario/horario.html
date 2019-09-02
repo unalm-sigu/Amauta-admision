@@ -1,0 +1,40 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title>Horario Docente</title>
+    </head>
+
+    <body>
+        <div layout:fragment="main">
+            <div id="horarioDocenteVue" v-cloak="">
+<!--                <header class="header b-b padder-lg">
+
+
+                    <h3 class="block">Horario Docente <span th:text="${session['SESSION_USUARIO'].cicloAcademico.descripcion}">2016-II</span></h3>
+
+                </header>-->
+
+                <section class="panel">
+                    <section class="panel-body">
+                        <horario-component v-bind:docente="docente" tipo="DOC" v-bind:ciclo="ciclo" ref="loadHorario"></horario-component>
+                    </section>
+
+                </section>
+              
+            </div>
+  <div th:substituteby="academico/alumno/includes/horario"/>
+        </div>
+        <div layout:fragment="js">
+            <script th:inline="javascript">
+                /*<![CDATA[*/
+                var cicloJson = /*[[${jCiclo}]]*/ 'json';
+                var docenteJson = /*[[${jDocente}]]*/ 'json';
+                var horasJson = /*[[${horasBD}]]*/ 'json';
+                /*]]>*/
+            </script>
+            <script th:src="@{/app/academico/alumno/horarioComponent.js}" charset="utf-8"></script>
+            <script th:src="@{/app/docente/horario/horario.js}" charset="utf-8"></script>
+        </div>
+
+
+    </body>
+</html>

@@ -11,6 +11,7 @@ import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.general.TipoDocIdentidad;
+import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.rrhh.CategoriaDocente;
 import pe.edu.lamolina.model.rrhh.DedicacionDocente;
 import pe.edu.lamolina.model.rrhh.SituacionDocente;
@@ -19,6 +20,7 @@ import pe.edu.lamolina.pivot.dao.academico.ModalidadEstudioDAO;
 import pe.edu.lamolina.pivot.dao.general.PaisDAO;
 import pe.edu.lamolina.pivot.dao.general.PersonaDAO;
 import pe.edu.lamolina.pivot.dao.general.TipoDocIdentidadDAO;
+import pe.edu.lamolina.pivot.dao.horario.HoraDAO;
 import pe.edu.lamolina.pivot.dao.rrhh.CategoriaDocenteDAO;
 import pe.edu.lamolina.pivot.dao.rrhh.DedicacionDocenteDAO;
 import pe.edu.lamolina.pivot.dao.rrhh.SituacionDocenteDAO;
@@ -53,15 +55,18 @@ public class InformacionProfesorServiceImp implements InformacionProfesorService
 
     @Autowired
     PaisDAO paisDAO;
-    
+
     @Autowired
     SituacionDocenteDAO situacionDocenteDAO;
-    
+
     @Autowired
     CategoriaDocenteDAO categoriaDocenteDAO;
-    
+
     @Autowired
     DedicacionDocenteDAO dedicacionDocenteDAO;
+
+    @Autowired
+    HoraDAO horaDAO;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -145,6 +150,11 @@ public class InformacionProfesorServiceImp implements InformacionProfesorService
     @Override
     public List<DedicacionDocente> allDedicaciones() {
         return dedicacionDocenteDAO.all();
+    }
+
+    @Override
+    public List<Hora> allHoras() {
+        return horaDAO.all();
     }
 
 }
