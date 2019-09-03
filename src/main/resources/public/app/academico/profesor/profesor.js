@@ -12,6 +12,9 @@ $(function () {
         table: {
             bodyRowSelector: 'tbody tr'
         }
+    }).bind('dynatable:afterUpdate', function (e, dynatable) {
+        $("#opopop").prepend($("#headDynatable"));
+        $('#headDynatable').removeClass('hide');
     }).data('dynatable');
 
     function ulWriter(rowIndex, record, columns, cellWriter) {
@@ -78,11 +81,37 @@ $(function () {
                     notify(MESSAGES.errorComunicacion, "error");
                 }
             });
+        },
+        loadDepartamento: function () {
+            var dpto = $("#departamento").val();
+            dynatable.queries.add("departamento", dpto);
+            dynatable.process();
         }
     };
 
     Docente.body.delegate(".estado", "click", function (e) {
         Docente.estado(e);
+    });
+
+    Docente.body.delegate(".reporte", "click", function (e) {
+        var dpto = $("#departamento").val();
+        $.fileDownload("/academico/profesor/reporteProgramacion", {
+            httpMethod: "POST",
+            data: {departamento: dpto},
+            successCallback: function (responseHtml, url) {
+//                    console.log('aqui');
+            },
+            onFail: function (e) {
+                console.log(e);
+            },
+            failCallback: function (responseHtml, url) {
+                notify(MESSAGES.errorComunicacion, 'error')
+            }
+        });
+    });
+
+    $("#departamento").change(function () {
+        Docente.loadDepartamento();
     });
 
 });

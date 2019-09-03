@@ -9,11 +9,19 @@
 
         <header class="header b-b padder-lg">
 
-            <div class="pull-right m-t-md">                
-                <a class="btn btn-success btn-sm" type="button" th:href="@{/academico/profesor/nuevo}" >Nuevo</a>
-            </div>  
 
-            <h2>Docentes</h2>
+
+            <h2>Docentes | Ciclo <span th:text='${session["SESSION_USUARIO"].cicloAcademico.descripcion}'>2016-II</span></h2>
+
+            <div class="btn-group pull-right">
+                <button type="button" class="btn btn-primary dropdown-toggle pull-right" data-toggle="dropdown">
+                    Acciones &nbsp; <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a v-if="condicion1" type="button" th:href="@{/academico/profesor/nuevo}">Nuevo</a></li>
+<!--                    <li><a type="button" class="reporte">Reporte Aulas Programadas</a></li>-->
+                </ul>
+            </div>
 
         </header>
         <section class="wrapper-lg">
@@ -21,13 +29,25 @@
 
                 <section class="panel-body">
 
+                    <div class="hide m-t-lg col-lg-6" id="headDynatable">
+                        <div class="">
+                            <select class="form-control select2" id="departamento">
+                                <option th:each="dpto : ${departamentos}"
+                                        th:value="${dpto.id}"
+                                        th:text="${dpto.nombre}"></option>
+                            </select>
+                        </div>
+                    </div>
+
                     <table id="dynaTable" class="table table-striped">
                         <thead class="panel panel-heading">
                             <tr>
                                 <th class="col-md-3 v-middle" colspan="2"></th>                    
                                 <th class="col-md-2 v-middle">Información de contacto</th>
-                                <th class="col-md-3 text-center v-middle"><span>Departamento Académico</span></th>
-                                <th class="col-md-3 text-center v-middle"><span>Situación laboral</span></th>
+                                <th class="col-md-2 text-center v-middle"><span>Departamento Académico</span></th>
+                                <th class="col-md-2 text-center v-middle"><span>Situación laboral</span></th>
+                                <th class="col-md-1 text-center v-middle">Secciones Pre.</th>   
+                                <th class="col-md-1 text-center v-middle">Secciones Pos.</th>   
                                 <th class="col-md-1 text-center v-middle">Estado</th>                    
                                 <th></th>
                             </tr>
@@ -39,12 +59,13 @@
             </section>
         </section>
         <script id="profesorTemplate" type="text/x-jsrender" class="hide" > 
-        <div th:substituteby="academico/profesor/profesorTemplate"/>
+            <div th:substituteby="academico/profesor/profesorTemplate"/>
         </script>
 
     </div>
 
     <div layout:fragment="js">
+        <div th:substituteby="_layout/includes :: javascript-filedownload"/>
         <div th:substituteby="_layout/includes :: javascript-dynatable"></div>
         <script th:src="@{/app/academico/profesor/profesor.js}" charset="utf-8"></script>
     </div>

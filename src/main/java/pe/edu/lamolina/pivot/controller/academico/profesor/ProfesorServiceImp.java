@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +32,7 @@ import pe.edu.lamolina.model.enums.DocenteEstadoEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.PersonaEstadoEnum;
 import pe.edu.lamolina.model.enums.RolEnum;
+import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
 import pe.edu.lamolina.model.enums.UserEstadoEnum;
 import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.general.Pais;
@@ -93,8 +95,26 @@ public class ProfesorServiceImp implements ProfesorService {
     }
 
     @Override
-    public List<Docente> allByDepartamentoDynatable(DynatableFilter filter, List<DepartamentoAcademico> departament) {
-        return docenteDAO.allByFacultadesDyantable(filter, departament);
+    public List<Docente> allByDepartamentoDynatable(DynatableFilter filter, List<DepartamentoAcademico> departament, CicloAcademico cicloAcademicos) {
+        List<Docente> docentes = docenteDAO.allByFacultadesDyantable(filter, departament);
+        List<DocenteSeccion> docentesSeccion = docenteSeccionDAO.allByDocente(docentes, cicloAcademicos);
+        Map<Long, List<DocenteSeccion>> mapDocentesSeccion = TypesUtil.convertListToMapList("docente.id", docentesSeccion);
+        for (Docente docente : docentes) {
+            List<DocenteSeccion> docentesSeccionByDocente = mapDocentesSeccion.getOrDefault(docente.getId(), new ArrayList<>());
+            List<Seccion> secciones = docentesSeccionByDocente.stream()
+                    .filter(x -> Arrays.asList(SeccionEstadoEnum.ACT, SeccionEstadoEnum.BLO).contains(x.getSeccion().getEstadoEnum()))
+                    .map(x -> x.getSeccion())
+                    .collect(Collectors.toList());
+            Long seccionesPreCount = secciones.stream()
+                    .filter(x -> x.getGrupoSeccion().getCurso().isPregrado())
+                    .distinct().count();
+            Long seccionesPosCount = secciones.stream()
+                    .filter(x -> x.getGrupoSeccion().getCurso().isPostgrado())
+                    .distinct().count();
+            docente.setCantSeccionesPos(seccionesPosCount); 
+            docente.setCantSeccionesPre(seccionesPreCount);
+        }
+        return docentes;
     }
 
     @Override
@@ -589,5 +609,7 @@ public class ProfesorServiceImp implements ProfesorService {
         }
         return new ArrayList(mapGpoSecc.values());
     }
+    
+    
 
 }
