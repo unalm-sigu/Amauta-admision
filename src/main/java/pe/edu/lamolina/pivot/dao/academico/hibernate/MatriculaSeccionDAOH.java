@@ -10,14 +10,13 @@ import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
-import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.MAT;
-import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 import pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.aula.SeccionDTO;
 import pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.reporte.dto.CantidadMatriculadosDTO;
@@ -67,6 +66,43 @@ public class MatriculaSeccionDAOH extends AbstractEasyDAO<MatriculaSeccion> impl
                 .in("mr.id", matriculasResumen)
                 .orderBy("per.paterno", "per.materno", "per.nombres");
         return all(sql);
+    }
+
+    @Override
+    public List<MatriculaSeccion> allByCurso(List<Curso> cursos, CicloAcademico ciclo, String[] orderBy, EstadoMatriculaEnum... estados) {
+        //"per.paterno", "per.materno", "per.nombres"
+        Octavia sql = Octavia.query()
+                .from(MatriculaSeccion.class, "ms")
+                .join("matriculaResumen mr", "seccion sec", "mr.alumno alu", "sec.grupoSeccion gs", "gs.cicloAcademico ciclo")
+                .join("gs.curso cur", "alu.persona per", "alu.carrera carr", "carr.facultad fac")
+                .join("alu.modalidadEstudio")
+                .leftJoin("per.tipoDocumento tdoc")
+                .filter("ciclo.codigo", ciclo.getCodigo())
+                .in("ms.estado", Arrays.asList(estados))
+                .in("mr.estado", Arrays.asList(estados))
+                .in("cur.id", cursos)
+                .orderBy(orderBy);
+        return all(sql);
+    }
+
+    @Override
+    public List<CantidadMatriculadosDTO> cantidadMatriculadosPorCurso(List<Curso> cursos, CicloAcademico ciclo, EstadoMatriculaEnum... estados) {
+        Octavia sql = Octavia.query()
+                .select("cur.id", " count(*) ")
+                .from(MatriculaSeccion.class, "ms")
+                .into(CantidadMatriculadosDTO.class)
+                .join("matriculaResumen mr", "seccion sec", "mr.alumno alu", "sec.grupoSeccion gs", "gs.cicloAcademico ciclo")
+                .join("gs.curso cur", "alu.persona per", "alu.carrera carr", "carr.facultad fac")
+                .join("alu.modalidadEstudio")
+                .leftJoin("per.tipoDocumento tdoc")
+                .filter("ciclo.codigo", ciclo.getCodigo())
+                .in("ms.estado", Arrays.asList(estados))
+                .in("mr.estado", Arrays.asList(estados))
+                .groupBy("cur.id");
+        if (cursos != null) {
+            sql.in("cur.id", cursos);
+        }
+        return (List<CantidadMatriculadosDTO>) sql.all(getCurrentSession());
     }
 
     @Override

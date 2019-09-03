@@ -3,7 +3,9 @@ package pe.edu.lamolina.pivot.controller.academico.profesor.view;
 import com.itextpdf.text.Chunk;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.Element;
+import com.itextpdf.text.Font;
 import com.itextpdf.text.PageSize;
+import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.Rectangle;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
@@ -21,6 +23,7 @@ import org.springframework.stereotype.Component;
 import pe.albatross.zelpers.enums.FooterTypeEnum;
 import pe.albatross.zelpers.enums.HeaderTypeEnum;
 import pe.albatross.zelpers.pdf.document.PdfDocumentGenerator;
+import static pe.albatross.zelpers.pdf.document.PdfDocumentGenerator.FUENTE_8;
 import pe.albatross.zelpers.pdf.document.UEventoPaginaPdf;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
@@ -87,6 +90,8 @@ public class ProfesoresPDF extends AbstractOnlyPdfView {
         }
         PdfPTable tableSubs = new PdfPTable(new float[]{1});
         tableSubs.getDefaultCell().setBorder(0);
+        tableSubs.getDefaultCell().setPaddingTop(5);
+        tableSubs.getDefaultCell().setPaddingBottom(5);
         tableSubs.setWidthPercentage(100);
         uDocumentoPdf.addBodyCellTable("Facultad " + facultad.getNombre(), tableSubs, 1, Element.ALIGN_LEFT, PdfDocumentGenerator.FUENTE_10_NEGRITA);
         uDocumentoPdf.addBodyCellTable("Departamento " + departamentoAcademico.getNombreLargo(), tableSubs, 1, Element.ALIGN_LEFT, PdfDocumentGenerator.FUENTE_10_NEGRITA);
@@ -109,10 +114,17 @@ public class ProfesoresPDF extends AbstractOnlyPdfView {
         uDocumentoPdf.addTitleCellTable("FIRMA", table, 1, Element.ALIGN_CENTER);
         int ind = 0;
         Collections.sort(docentes, (x, y) -> x.getPersona().getApellidosNombres().compareTo(y.getPersona().getApellidosNombres()));
+
         for (Docente docente : docentes) {
-            uDocumentoPdf.addBodyCellTable(++ind + "", table, 1, Element.ALIGN_LEFT);
-            uDocumentoPdf.addBodyCellTable(docente.getPersona().getApellidosNombres(), table, 1, Element.ALIGN_LEFT);
-            uDocumentoPdf.addBodyCellTable("", table, 1, Element.ALIGN_LEFT);
+//            PdfPCell celda = uDocumentoPdf.addBodyCellTable(++ind + "", table, 1, Element.ALIGN_LEFT);
+//            celda.setFixedHeight(25f);
+//            celda = uDocumentoPdf.addBodyCellTable(docente.getPersona().getApellidosNombres(), table, 1, Element.ALIGN_LEFT);
+//            celda.setFixedHeight(25f);
+//            celda = uDocumentoPdf.addBodyCellTable("", table, 1, Element.ALIGN_LEFT);
+//            celda.setFixedHeight(25f);
+            this.addBodyCellTable(++ind + "", table, Element.ALIGN_LEFT);
+            this.addBodyCellTable(docente.getPersona().getApellidosNombres(), table, Element.ALIGN_LEFT);
+            this.addBodyCellTable("", table, Element.ALIGN_LEFT);
         }
         //  uDocumentoPdf.createTableDefault(table, document, 570);
         document.add(table);
@@ -128,6 +140,21 @@ public class ProfesoresPDF extends AbstractOnlyPdfView {
         String filename = "entrega-materiales";
         response.setHeader("Content-Disposition", "attachment; filename=\"" + filename + ".pdf\"");
         response.setHeader("Set-Cookie", "fileDownload=true; path=/");
+    }
+
+    public PdfPCell addBodyCellTable(String strTituloCabecera, PdfPTable table, int align) {
+        Paragraph parrafoCeldaReporte = new Paragraph(strTituloCabecera, PdfDocumentGenerator.FUENTE_8);
+        PdfPCell celdaTablaReporte = new PdfPCell(parrafoCeldaReporte);
+        celdaTablaReporte.setVerticalAlignment(Element.ALIGN_MIDDLE);
+        celdaTablaReporte.setHorizontalAlignment(Element.ALIGN_CENTER);
+        celdaTablaReporte.setFixedHeight(25f);
+        celdaTablaReporte.setBorder(table.getDefaultCell().getBorder());
+
+        celdaTablaReporte.setHorizontalAlignment(align);
+        celdaTablaReporte.setColspan(1);
+        table.addCell(celdaTablaReporte);
+
+        return celdaTablaReporte;
     }
 
     public Document documentPageVertical(Document document, PdfWriter writer, UEventoPaginaPdf eventoPaginaPdf) throws Exception {

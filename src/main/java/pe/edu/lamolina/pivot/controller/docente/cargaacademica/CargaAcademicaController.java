@@ -144,7 +144,6 @@ public class CargaAcademicaController {
 
         Seccion secc = service.findSeccion(idSeccion);
         Curso cur = secc.getGrupoSeccion().getCurso();
-
         model.addAttribute("docente", ds.getDocente());
         model.addAttribute("seccion", secc);
         model.addAttribute("grupoSeccion", secc.getGrupoSeccion());

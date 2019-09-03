@@ -28,6 +28,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
@@ -39,6 +40,7 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Docente;
+import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.NombreCurso;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
@@ -48,6 +50,7 @@ import pe.edu.lamolina.model.enums.TipoCursoEnum;
 import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.general.Idioma;
 import pe.edu.lamolina.model.general.TipoCarpeta;
+import pe.edu.lamolina.pivot.controller.academico.curso.view.AlumnoCursoExcelView;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.constant.Messages;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -60,6 +63,9 @@ public class CursoController {
 
     @Autowired
     CursoService service;
+
+    @Autowired
+    AlumnoCursoExcelView alumnoCursoExcelView;
 
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {
@@ -103,7 +109,7 @@ public class CursoController {
 
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            List<Curso> cursos = service.allByDynatable(filter, ds.getDepartamentos());
+            List<Curso> cursos = service.allByDynatable(filter, ds.getDepartamentos(), ds.getCicloAcademico());
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
             for (Curso curso : cursos) {
@@ -250,8 +256,8 @@ public class CursoController {
         ObjectNode cursoJson = JsonHelper.createJson(curso, JsonNodeFactory.instance, true, new String[]{
             "id", "codigo", "codigoAnterior1", "nombre", "tpc", "creditos", "creditosVariables", "creditosTeoria", "creditosPractica",
             "horasTeoria", "horasPractica", "horasTeoriaVerano", "horasPracticaVerano", "tipoCurso", "tipoCursoEnum", "tipoCredito", "tipoCreditoEnum",
-            "tipoCurricula", "tipoCurriculaEnum", "nivel", "noEncuestar", "noCargaAdicional", 
-            "tipoCarpetaTeoria.id", "tipoCarpetaTeoria.nombre",  "tipoCarpetaTeoria.codigo", 
+            "tipoCurricula", "tipoCurriculaEnum", "nivel", "noEncuestar", "noCargaAdicional",
+            "tipoCarpetaTeoria.id", "tipoCarpetaTeoria.nombre", "tipoCarpetaTeoria.codigo",
             "tipoCarpetaPractica.id", "tipoCarpetaPractica.nombre", "tipoCarpetaPractica.codigo",
             "departamentoAcademico.id",
             "departamentoAcademico.codigo",
@@ -281,7 +287,7 @@ public class CursoController {
 
     private ObjectNode getCursoSimpleJson(Curso curso) {
         ObjectNode cursoJson = JsonHelper.createJson(curso, JsonNodeFactory.instance, true, new String[]{
-            "id", "codigo", "codigoAnterior1", "nombre", "tpc", "tipoCurso", "tipoCursoEnum", "motivoAnulacion", "estado", "estadoEnum",
+            "id", "codigo", "codigoAnterior1", "nombre", "tpc", "tipoCurso", "tipoCursoEnum", "motivoAnulacion", "estado", "estadoEnum", "matriculados",
             "departamentoAcademico.codigo",
             "departamentoAcademico.nombre",
             "departamentoAcademico.facultad.codigo",
@@ -509,6 +515,15 @@ public class CursoController {
             ExceptionHandler.handleException(e, response);
         }
         return response;
+    }
+
+    @RequestMapping("reproteAlumnos")
+    public ModelAndView reporteAlumnos(@RequestParam("curso") Long cursoId, Model model, HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+        List<MatriculaSeccion> alumnosPorCurso = service.allMatriculasSecciones(Arrays.asList(new Curso(cursoId)), ds.getCicloAcademico());
+        model.addAttribute("alumnosPorCurso", alumnosPorCurso);
+        return new ModelAndView(alumnoCursoExcelView);
     }
 
 }

@@ -168,7 +168,7 @@
                                                   v-if="secc.tipoSeccionEnum.name != 'PCUR' ">
                                             <td class="v-middle text-center " 
                                                 v-bind:rowspan="getRowspanSecc(secc)">
-                                                <span class="block text-primary" v-text="secc.codigo2"></span>
+                                                <span class="block text-primary pointer" v-on:click="downloadAlumnosSeccion(secc)"  v-text="secc.codigo2"></span>
                                                 <small class="block" v-text="tipoSeccion(secc)"></small>
                                                 <span v-if="secc.precio != '' " class="alert" v-text="'S/.'+ secc.precioFormato"></span>
                                             </td>
@@ -250,7 +250,7 @@
                                             <tr>
                                                 <td class="v-middle text-center " 
                                                     v-bind:rowspan="getRowspanSecc(secc)">
-                                                    <span class="block text-primary" v-text="secc.codigo2"></span>
+                                                    <span class="block text-primary pointer" v-on:click="downloadAlumnosSeccion(secc)"  v-text="secc.codigo2"></span>
                                                     <small class="block" v-text="tipoSeccion(secc)"></small>
                                                     <span v-if="secc.precio != '' " class="alert" v-text="'S/.'+ secc.precioFormato"></span>
                                                 </td>

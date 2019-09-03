@@ -2,6 +2,7 @@ package pe.edu.lamolina.pivot.controller.reporte.view;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
@@ -23,6 +24,7 @@ import org.springframework.stereotype.Component;
 import pe.albatross.zelpers.file.excel.AbstractPOIExcelView;
 import pe.albatross.zelpers.file.excel.ExcelHelper;
 import pe.albatross.zelpers.file.excel.ExcelStyles;
+import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
@@ -54,14 +56,16 @@ public class ReporteAlumnosView extends AbstractPOIExcelView {
         GrupoSeccion grupoSeccion = (GrupoSeccion) model.get("grupoSeccion");
         CicloAcademico cicloAcademico = (CicloAcademico) model.get("cicloAcademico");
         Docente docente = (Docente) model.get("docente");
+        if (docente == null) {
+            docente = seccion.getDocentePrincipal();
+        }
         Curso curso = (Curso) model.get("curso");
-
         List<MatriculaSeccion> matriculasSeccionByFilter = cargaAcademicaService.allMatriculaSeccionBySeccion(seccion);
 
         List<String> rows = new ArrayList();
         int totalColumns = 7;
 
-        String head = "item|Código|Nombres Completos|Seccion|Prioridad|FAC|ESP";
+        String head = "item|Matricula|Nombres Completos|Correo|Prioridad|Especialidad|FAC|ESP";
 
         rows.add(head);
 
@@ -74,12 +78,13 @@ public class ReporteAlumnosView extends AbstractPOIExcelView {
             sb.append(count).append("|");
             sb.append(alumno.getCodigo()).append("|");
             sb.append(alumno.getPersona().getApellidosNombres()).append("|");
-            sb.append(matriculasSeccion.getSeccion().getCodigo2()).append("|");
+            sb.append(alumno.getPersona().getEmailCompania()).append("|");
             if (matriculasSeccion.getMatriculaResumen().getPrioridad() != null) {
                 sb.append(matriculasSeccion.getMatriculaResumen().getPrioridad().setScale(2, BigDecimal.ROUND_HALF_UP)).append("|");
             } else {
                 sb.append(" |");
             }
+            sb.append(alumno.getCarrera().getNombre()).append("|");
             sb.append(alumno.getCarrera().getFacultad().getCodigo()).append("|");
             sb.append(alumno.getCarrera().getCodigo()).append("|");
             count++;
@@ -91,13 +96,13 @@ public class ReporteAlumnosView extends AbstractPOIExcelView {
         CellStyle cellBody = ExcelStyles.getStyleBody(wb);
         Sheet sheet = wb.createSheet("ReporteAlumnos");
         boolean autosize = false;
-        CellRangeAddress region = CellRangeAddress.valueOf("B" + 2 + ":C" + 2);
+        CellRangeAddress region = CellRangeAddress.valueOf("B" + 2 + ":H" + 2);
         sheet.addMergedRegion(region);
         CellStyle cellStyle = getStyleBody(wb);
 
         Row row1 = sheet.createRow(1);
         Cell cell = row1.createCell(1);
-        cell.setCellValue(curso.getNombre());
+        cell.setCellValue("Lista de alumnos " + cicloAcademico.getDescripcion());
         cell.setCellStyle(cellStyle);
         Row row2 = sheet.createRow(3);
         Row row3 = sheet.createRow(4);
@@ -105,29 +110,31 @@ public class ReporteAlumnosView extends AbstractPOIExcelView {
         Row row5 = sheet.createRow(6);
         Row row6 = sheet.createRow(7);
 
-        Cell cell2 = row2.createCell(0);
-        Cell cell3 = row2.createCell(1);
-        cell2.setCellValue("Codigo Curso: ");
-        cell3.setCellValue(curso.getCodigo());
+        Cell cell2 = row2.createCell(1);
+        Cell cell3 = row2.createCell(2);
+        cell2.setCellValue("Código Curso: ");
+        cell3.setCellValue(curso.getCodigo() + " - " + curso.getNombre());
 
-        Cell cell4 = row3.createCell(0);
-        Cell cell5 = row3.createCell(1);
+        Cell cell4 = row3.createCell(1);
+        Cell cell5 = row3.createCell(2);
         cell4.setCellValue("Docente: ");
         cell5.setCellValue(docente.getPersona().getApellidosNombres());
 
-        Cell cell8 = row5.createCell(0);
-        Cell cell9 = row5.createCell(1);
+        Cell cell8 = row5.createCell(1);
+        Cell cell9 = row5.createCell(2);
         cell8.setCellValue("Clave: ");
         cell9.setCellValue(seccion.getCodigo2());
 
-        Cell cell10 = row6.createCell(0);
-        Cell cell11 = row6.createCell(1);
+        Cell cell10 = row6.createCell(1);
+        Cell cell11 = row6.createCell(2);
         cell10.setCellValue("Grupo: ");
         cell11.setCellValue(seccion.getGrupoHoras().getCodigo());
+        Cell cellFec = row6.createCell(5);
+        cellFec.setCellValue("La Molina, " + TypesUtil.getStringDateLongFormat(new Date()));
 
         if (seccion.getAula() != null) {
-            Cell cell6 = row4.createCell(0);
-            Cell cell7 = row4.createCell(1);
+            Cell cell6 = row4.createCell(1);
+            Cell cell7 = row4.createCell(2);
             cell6.setCellValue("Aula: ");
             cell7.setCellValue(seccion.getAula().getCodigo());
         }
@@ -156,7 +163,7 @@ public class ReporteAlumnosView extends AbstractPOIExcelView {
     private void createSheet(Sheet sheet, List<String> rows, int columnas, CellStyle cellHeader, CellStyle cellBody) {
         boolean autosize = false;
         int rw = 9;
-        cellBody.setAlignment(CellStyle.ALIGN_CENTER);
+        cellBody.setAlignment(CellStyle.ALIGN_LEFT);
         for (int i = 0; i < rows.size(); i++) {
             String fila = (String) rows.get(i);
 
