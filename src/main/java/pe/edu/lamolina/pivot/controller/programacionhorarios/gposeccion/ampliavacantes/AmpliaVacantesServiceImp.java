@@ -82,14 +82,14 @@ public class AmpliaVacantesServiceImp implements AmpliaVacantesService {
         Assert.isTrue(seccion.getVacantesOcupadas() <= ampliacionVacante.getVacantesFin().intValue(), "No puede disminuir las vacantes menor a la cantidad de matriculados + reservados");
         Aula aula = seccion.getAula();
         if (aula != null && aula.getCapacidadAula() != null) {
-            Assert.isTrue(aula.getCapacidadAula().intValue() >= ampliacionVacante.getVacantesFin().intValue(), "No puede exceder la capacidad del aula");
+            Assert.isTrue(aula.getCapacidadTotal().intValue() >= ampliacionVacante.getVacantesFin().intValue(), "No puede exceder la capacidad del aula");
         }
 
         if (seccionSuperior != null) {
             aula = seccionSuperior.getAula();
             if (aula != null && aula.getCapacidadAula() != null) {
                 int total = seccionSuperior.getVacantesOcupadas() + ampliacionVacante.getIncremento();
-                Assert.isTrue(aula.getCapacidadAula().intValue() >= total, "No puede exceder la capacidad del aula de la sección teórica");
+                Assert.isTrue(aula.getCapacidadTotal().intValue() >= total, "No puede exceder la capacidad del aula de la sección teórica");
             }
         }
 
@@ -154,7 +154,7 @@ public class AmpliaVacantesServiceImp implements AmpliaVacantesService {
         Aula aula = seccion.getAula();
 
         if (aula != null && aula.getCapacidadAula() != null) {
-            if (ampliacionBD.getVacantesFin() > aula.getCapacidadAula()) {
+            if (ampliacionBD.getVacantesFin() > aula.getCapacidadTotal()) {
                 throw new PhobosException("Ya ha completo la capacidad del aula");
             }
         }

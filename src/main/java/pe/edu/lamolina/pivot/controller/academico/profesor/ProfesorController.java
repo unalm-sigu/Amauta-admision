@@ -15,6 +15,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
@@ -31,6 +32,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.thymeleaf.context.Context;
 //import org.thymeleaf.fragment.DOMSelectorFragmentSpec;
@@ -51,12 +53,12 @@ import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.TipoOficinaEnum;
-import static pe.edu.lamolina.model.enums.TipoOficinaEnum.DPTO;
 import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.misc.FotoHelper;
 import pe.edu.lamolina.pivot.controller.academico.visitante.AlumnoHelper;
 import pe.edu.lamolina.pivot.controller.docente.notasacademicas.NotaAcademicaService;
+import pe.edu.lamolina.pivot.controller.general.aula.HorariosAulaPDFBean;
 import pe.edu.lamolina.pivot.controller.seguridad.verificador.VerificadorService;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -106,7 +108,11 @@ public class ProfesorController {
     }
 
     @RequestMapping(method = RequestMethod.GET)
-    public String index(Model model) {
+    public String index(Model model, HttpSession session, HttpServletRequest request) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        List<DepartamentoAcademico> departamentos = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.DPTO, request, ds);
+        model.addAttribute("cicloAcademico", ds.getCicloAcademico());
+        model.addAttribute("departamentos", departamentos);
         return "academico/profesor/profesor";
     }
 
@@ -123,7 +129,14 @@ public class ProfesorController {
 
             List<Docente> docentes;
 
-            docentes = service.allByDepartamentoDynatable(filter, departamentos);
+            if (filter.getQueries() != null && filter.getQueries().get("departamento") != null) {
+                String dep = (String) filter.getQueries().get("departamento");
+                Long departamentoId = TypesUtil.getLong(dep);
+//                departamentos = departamentos.stream()
+//                        .filter(x -> x.getId().compareTo(departamentoId) == 0).collect(Collectors.toList());
+                departamentos = Arrays.asList(new DepartamentoAcademico(departamentoId));
+            }
+            docentes = service.allByDepartamentoDynatable(filter, departamentos, ds.getCicloAcademico());
 
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
@@ -150,6 +163,8 @@ public class ProfesorController {
                 node.put("facultad", fa.getNombre());
                 node.put("departamentoAcademico", da.getNombre());
                 node.put("situacion", "Contratado");
+                node.put("cantSeccionesPos", docente.getCantSeccionesPos());
+                node.put("cantSeccionesPre", docente.getCantSeccionesPre());
 
                 array.add(node);
             }
@@ -494,6 +509,22 @@ public class ProfesorController {
             json.setTotal(0);
         }
         return json;
+    }
+
+    @RequestMapping("reporteProgramacion")
+    public ModelAndView reporteProgramacion(@RequestParam(value = "departamento", required = true) Long departamentoId,
+            Model model, HttpSession session, HttpServletResponse response) throws Exception {
+        logger.debug("Departamento " + departamentoId);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DynatableFilter filter = new DynatableFilter();
+        filter.setPage(1);
+        filter.setOffset(0);
+        filter.setPerPage(10000);
+        List<Docente> docentes = service.allByDepartamentoDynatable(filter, Arrays.asList(new DepartamentoAcademico(departamentoId)), ds.getCicloAcademico());
+        model.addAttribute("docentes", docentes);
+        model.addAttribute("cicloAcademico", ds.getCicloAcademico());
+        //horarioAulaCicloPDF
+        return new ModelAndView();
     }
 
 }

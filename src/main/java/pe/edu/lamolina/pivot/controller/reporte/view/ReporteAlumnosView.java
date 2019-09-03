@@ -75,7 +75,11 @@ public class ReporteAlumnosView extends AbstractPOIExcelView {
             sb.append(alumno.getCodigo()).append("|");
             sb.append(alumno.getPersona().getApellidosNombres()).append("|");
             sb.append(matriculasSeccion.getSeccion().getCodigo2()).append("|");
-            sb.append(matriculasSeccion.getMatriculaResumen().getPrioridad().setScale(2, BigDecimal.ROUND_HALF_UP)).append("|");
+            if (matriculasSeccion.getMatriculaResumen().getPrioridad() != null) {
+                sb.append(matriculasSeccion.getMatriculaResumen().getPrioridad().setScale(2, BigDecimal.ROUND_HALF_UP)).append("|");
+            } else {
+                sb.append(" |");
+            }
             sb.append(alumno.getCarrera().getFacultad().getCodigo()).append("|");
             sb.append(alumno.getCarrera().getCodigo()).append("|");
             count++;

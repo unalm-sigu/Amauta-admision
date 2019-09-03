@@ -18,7 +18,7 @@ public interface ProfesorService {
 
     List<Docente> allByDynatable(DynatableFilter filter, List<DepartamentoAcademico> dptos);
 
-    public List<Docente> allByDepartamentoDynatable(DynatableFilter filter, List<DepartamentoAcademico> facultades);
+    public List<Docente> allByDepartamentoDynatable(DynatableFilter filter, List<DepartamentoAcademico> facultades, CicloAcademico cicloAcademico);
 
     List<ModalidadEstudio> allModalidadEstudioByCodes(List<ModalidadEstudioEnum> codes, Compania compania);
 

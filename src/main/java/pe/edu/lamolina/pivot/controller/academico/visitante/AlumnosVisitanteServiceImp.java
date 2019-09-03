@@ -140,7 +140,7 @@ public class AlumnosVisitanteServiceImp implements AlumnosVisitanteService {
     @Transactional
     private void updateUsuarioAlumno(Persona personaDB, Usuario usuarioRegistra, CicloAcademico ciclo) {
         
-        Usuario usuario = usuarioDAO.findByPersona(personaDB);
+        Usuario usuario = usuarioDAO.findActivoByPersona(personaDB);
         
         String codigoMatricula = this.generateCodigo(ciclo);
         String emailCompania = this.generateEmailCompania(codigoMatricula);

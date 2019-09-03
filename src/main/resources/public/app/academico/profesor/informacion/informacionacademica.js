@@ -3,6 +3,7 @@ new Vue({
     data: {
         actualizar: false,
         stepactivo: 1,
+        ciclo: JSON.parse(cicloJson),
         docente: {
             id: iddocente,
             modalidadEstudio: {id: null},
@@ -160,7 +161,7 @@ new Vue({
         if (vue.docente.id !== null) {
             vue.updateDocente(vue.docente.id);
         }
-
+        this.$refs.loadHorario.cargaHorario();
     },
     updated: function () {
         let vue = this;
@@ -352,6 +353,11 @@ new Vue({
                     }
                 }
             });
+        }, cargarHorario() {
+            console.log("cargarHorario");
+            this.stepactivo = 5;
+            //    $vue.loadPages.horario = true;
+            this.$refs.loadHorario.cargaHorario();
         }
     },
 });

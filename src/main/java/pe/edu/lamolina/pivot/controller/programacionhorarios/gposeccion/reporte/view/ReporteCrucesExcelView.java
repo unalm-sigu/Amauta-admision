@@ -66,8 +66,8 @@ public class ReporteCrucesExcelView extends AbstractView {
     }
 
     private void generateSheet(Workbook wb, List<Seccion> seccionesConCruce, CicloAcademico ciclo) {
-        //  Sheet sheet = wb.getSheet("Hoja1");
-        Sheet sheet = wb.createSheet("Hoja1");
+        Sheet sheet = wb.getSheet("Hoja1");
+        //  Sheet sheet = wb.createSheet("Hoja1");
         //sheet.setAutobreaks(true);
         this.createBody(wb, sheet, seccionesConCruce, ciclo);
     }

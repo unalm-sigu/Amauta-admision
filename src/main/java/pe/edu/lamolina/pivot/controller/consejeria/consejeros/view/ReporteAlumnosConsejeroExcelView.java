@@ -134,25 +134,21 @@ public class ReporteAlumnosConsejeroExcelView extends AbstractView {
         excelUtil.replaceVal(4, 2, "Fecha " + TypesUtil.getStringDate(new Date(), "dd/MM/yyyy H:mm:ss"));
 //ponderado, estado academico
         int column = 0;
-        excelUtil.replaceVal(irow - 1, column++, "CODIGO TUTOR", estiloCabecera);
+        excelUtil.replaceVal(irow - 1, column++, "N", estiloCabecera);
         sheet.setColumnWidth((column - 1), 10 * 256);
         excelUtil.replaceVal(irow - 1, column++, "CODIGO TUTOR", estiloCabecera);
         sheet.setColumnWidth((column - 1), 20 * 256);
         excelUtil.replaceVal(irow - 1, column++, "TUTOR", estiloCabecera);
-        sheet.setColumnWidth((column - 1), 50 * 256);
+        sheet.setColumnWidth((column - 1), 35 * 256);
         excelUtil.replaceVal(irow - 1, column++, "CÓDIGO ALUMNO", estiloCabecera);
         sheet.setColumnWidth((column - 1), 20 * 256);
         excelUtil.replaceVal(irow - 1, column++, "NOMBRE ALUMNO", estiloCabecera);
-        sheet.setColumnWidth((column - 1), 50 * 256);
+        sheet.setColumnWidth((column - 1), 35 * 256);
         excelUtil.replaceVal(irow - 1, column++, "CARRERA ALUMNO", estiloCabecera);
         sheet.setColumnWidth((column - 1), 50 * 256);
         excelUtil.replaceVal(irow - 1, column++, "SITUACIÓN ACADEMICA", estiloCabecera);
-        sheet.setColumnWidth((column - 1), 50 * 256);
+        sheet.setColumnWidth((column - 1), 30 * 256);
 
-//        for (int i = 1; i < column; i++) {
-//            sheet.setColumnWidth(i, 20 * 256);
-//        }
-        //datos
         int num = 1;
         for (Consejero consejero : consejeros) {
             List<AlumnoConsejero> alumnosByConsejero = alumnosConsejero.stream().filter(x -> consejero.equals(x.getConsejero())).collect(Collectors.toList());
@@ -161,19 +157,12 @@ public class ReporteAlumnosConsejeroExcelView extends AbstractView {
             for (Alumno alumno : alumnos) {
                 column = 0;
                 excelUtil.replaceVal(irow, column++, num, estiloNumero);
-                sheet.setColumnWidth((column - 1), 10 * 256);
                 excelUtil.replaceVal(irow, column++, consejero.getDocente().getCodigo());
-                sheet.setColumnWidth((column - 1), 20 * 256);
                 excelUtil.replaceVal(irow, column++, consejero.getColaborador().getPersona().getApellidosNombres(), estiloGeneral);
-                sheet.setColumnWidth((column - 1), 50 * 256);
                 excelUtil.replaceVal(irow, column++, alumno.getCodigo(), estiloGeneral);
-                sheet.setColumnWidth((column - 1), 20 * 256);
                 excelUtil.replaceVal(irow, column++, alumno.getPersona().getApellidosNombres(), estiloGeneral);
-                sheet.setColumnWidth((column - 1), 50 * 256);
                 excelUtil.replaceVal(irow, column++, alumno.getCarrera().getNombre(), estiloGeneral);
-                sheet.setColumnWidth((column - 1), 50 * 256);
                 excelUtil.replaceVal(irow, column++, alumno.getSituacionAcademica().getNombre(), estiloGeneral);
-                sheet.setColumnWidth((column - 1), 50 * 256);
                 irow++;
                 num++;
             }

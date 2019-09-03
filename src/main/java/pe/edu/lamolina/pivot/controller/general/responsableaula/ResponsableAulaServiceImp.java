@@ -1,6 +1,7 @@
 package pe.edu.lamolina.pivot.controller.general.responsableaula;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -17,9 +18,11 @@ import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.general.ResponsableAula;
+import pe.edu.lamolina.model.general.ResponsableAulaAsignacion;
 import pe.edu.lamolina.model.general.TurnoAtencionAula;
 import pe.edu.lamolina.pivot.dao.general.AulaDAO;
 import pe.edu.lamolina.pivot.dao.general.PersonaDAO;
+import pe.edu.lamolina.pivot.dao.general.ResponsableAulaAsignacionDAO;
 import pe.edu.lamolina.pivot.dao.general.ResponsableAulaDAO;
 import pe.edu.lamolina.pivot.dao.general.TurnoAtencionAaulaDAO;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -32,6 +35,9 @@ public class ResponsableAulaServiceImp implements ResponsableAulaService {
     ResponsableAulaDAO responsableAulaDAO;
 
     @Autowired
+    ResponsableAulaAsignacionDAO responsableAulaAsignacionDAO;
+
+    @Autowired
     PersonaDAO personaDAO;
 
     @Autowired
@@ -41,27 +47,30 @@ public class ResponsableAulaServiceImp implements ResponsableAulaService {
     AulaDAO aulaDAO;
 
     @Override
-    public List<Persona> allResponsablesByRaptor(DynatableFilter filter, CicloAcademico cicloAcademico) {
-        List<Persona> personasResponsables = personaDAO.allResponsableAulas(filter, EstadoEnum.ACT);
-        List<ResponsableAula> responsableAulas = responsableAulaDAO.allByPersona(personasResponsables, EstadoEnum.ACT);
+    public List<ResponsableAula> allResponsablesByRaptor(DynatableFilter filter, CicloAcademico cicloAcademico) {
+        List<ResponsableAula> responsableAulas = responsableAulaDAO.allByResponsableAulas(filter, EstadoEnum.ACT);
+        List<ResponsableAulaAsignacion> aulasAsignadas = responsableAulaAsignacionDAO.allByResponsable(responsableAulas, EstadoEnum.ACT);
         List<TurnoAtencionAula> turnoAtencionAulas = turnoAtencionAaulaDAO.all();
 
-        Map<Long, List<ResponsableAula>> responsablesByPersona = TypesUtil.convertListToMapList("persona.id", responsableAulas);
+        Map<Long, List<ResponsableAulaAsignacion>> aulasByResponsable = TypesUtil.convertListToMapList("responsableAula.id", aulasAsignadas);
 
-        for (Persona personasResponsable : personasResponsables) {
-            List<ResponsableAula> aulas = responsablesByPersona.get(personasResponsable.getId());
+        for (ResponsableAula responsableAula : responsableAulas) {
+            List<ResponsableAulaAsignacion> aulas = aulasByResponsable.get(responsableAula.getId());
+            if (aulas == null) {
+                aulas = new ArrayList<>();
+            }
             List<TurnoAtencionAula> turnosClone = new ArrayList<>(turnoAtencionAulas);
-            personasResponsable.setTurnosAtencionAulas(new ArrayList<>());
+            responsableAula.setTurnosAtencionAulas(new ArrayList<>());
             for (TurnoAtencionAula turno : turnosClone) {
                 TurnoAtencionAula turnoClone = turno.clone();
-                List<ResponsableAula> aulaByTurno = aulas.stream().filter(x -> x.getTurnoAtencionAula().equals(turno)).collect(Collectors.toList());
+                List<ResponsableAulaAsignacion> aulaByTurno = aulas.stream().filter(x -> x.getTurnoAtencionAula().equals(turno)).collect(Collectors.toList());
                 aulaByTurno = aulaByTurno == null ? new ArrayList<>() : aulaByTurno;
                 turnoClone.setAulas(aulaByTurno.stream().map(x -> x.getAula()).collect(Collectors.toList()));
-                personasResponsable.getTurnosAtencionAulas().add(turnoClone);
+                responsableAula.getTurnosAtencionAulas().add(turnoClone);
             }
         }
 
-        return personasResponsables;
+        return responsableAulas;
     }
 
     @Override
@@ -83,58 +92,76 @@ public class ResponsableAulaServiceImp implements ResponsableAulaService {
 
     @Override
     @Transactional
-    public void saveResponsableAula(Persona personaResponsable, DataSessionPivot ds) {
-        List<Aula> aulasForm = personaResponsable.getTurnosAtencionAulas().stream()
+    public void saveResponsableAula(ResponsableAula responsableAula, DataSessionPivot ds) {
+        List<Aula> aulasForm = responsableAula.getTurnosAtencionAulas().stream()
                 .map(per -> per.getAulas())
                 .flatMap(aulas -> aulas.stream())
                 .collect(Collectors.toList());
 
-        List<ResponsableAula> responsablesByAulasBD = responsableAulaDAO.allByAulas(aulasForm, EstadoEnum.ACT);
-        List<String> errors = this.validarResponsablesAulas(personaResponsable, responsablesByAulasBD);
+        List<ResponsableAulaAsignacion> responsablesAulasAsignacionBD = responsableAulaAsignacionDAO.allByAulas(aulasForm, EstadoEnum.ACT);
+        responsablesAulasAsignacionBD.removeIf(x -> !x.getResponsableAula().getTipo().equals(responsableAula.getTipo()));
+
+        List<String> errors = this.validarResponsablesAulas(responsableAula, responsablesAulasAsignacionBD);
         Assert.isTrue(errors.isEmpty(), String.join("</br>", errors));
 
-        List<ResponsableAula> responsableAulasForm = new ArrayList<>();
-        for (TurnoAtencionAula turnosAtencionAula : personaResponsable.getTurnosAtencionAulas()) {
+        List<ResponsableAulaAsignacion> responsableAulaAssignsForm = new ArrayList<>();
+        for (TurnoAtencionAula turnosAtencionAula : responsableAula.getTurnosAtencionAulas()) {
             for (Aula aula : turnosAtencionAula.getAulas()) {
-                ResponsableAula responsableAula = new ResponsableAula();
-                responsableAula.setAula(aula);
-                responsableAula.setEstadoEnum(EstadoEnum.ACT);
-                responsableAula.setFechaActualizacion(ds.getFechaAccionAudit());
-                responsableAula.setFechaRegistro(ds.getFechaAccionAudit());
-                responsableAula.setPersona(personaResponsable);
-                responsableAula.setTurnoAtencionAula(turnosAtencionAula);
-                responsableAula.setUserActualizacion(ds.getUsuario());
-                responsableAula.setUserRegistro(ds.getUsuario());
-                responsableAulasForm.add(responsableAula);
+                ResponsableAulaAsignacion responsableAulaAsign = new ResponsableAulaAsignacion();
+                responsableAulaAsign.setResponsableAula(responsableAula);
+                responsableAulaAsign.setAula(aula);
+                responsableAulaAsign.setTurnoAtencionAula(turnosAtencionAula);
+                responsableAulaAsign.setEstadoEnum(EstadoEnum.ACT);
+                responsableAulaAsign.setFechaActualizacion(ds.getFechaAccionAudit());
+                responsableAulaAsign.setFechaRegistro(ds.getFechaAccionAudit());
+                responsableAulaAsign.setUserActualizacion(ds.getUsuario());
+                responsableAulaAsign.setUserRegistro(ds.getUsuario());
+                responsableAulaAssignsForm.add(responsableAulaAsign);
             }
         }
 
-        List<ResponsableAula> responsableByPersonaBD = responsableAulaDAO.allByPersona(personaResponsable, EstadoEnum.ACT);
-        ListsInspector inspector = TypesUtil.analizeLists(responsableByPersonaBD, responsableAulasForm, "perAulTur");
-        List<ResponsableAula> muertos = inspector.getDeadList();
-        List<ResponsableAula> nuevos = inspector.getNewList();
-
-        for (ResponsableAula responsableAula : muertos) {
-            responsableAulaDAO.delete(responsableAula);
-        }
-        for (ResponsableAula responsableAula : nuevos) {
+        if (responsableAula.getId() == null) {
+            responsableAula.setEstadoEnum(EstadoEnum.ACT);
+            responsableAula.setFechaActualizacion(ds.getFechaAccionAudit());
+            responsableAula.setFechaRegistro(ds.getFechaAccionAudit());
+            responsableAula.setUserActualizacion(ds.getUsuario());
+            responsableAula.setUserRegistro(ds.getUsuario());
             responsableAulaDAO.save(responsableAula);
+        } else {
+            responsableAula.setFechaActualizacion(ds.getFechaAccionAudit());
+            responsableAula.setUserActualizacion(ds.getUsuario());
+            responsableAulaDAO.update(responsableAula);
+        }
+
+        List<ResponsableAulaAsignacion> responsableByPersonaBD = responsableAulaAsignacionDAO.allByResponsable(Arrays.asList(responsableAula), EstadoEnum.ACT);
+        ListsInspector inspector = TypesUtil.analizeLists(responsableByPersonaBD, responsableAulaAssignsForm, "perAulTur");
+        List<ResponsableAulaAsignacion> muertos = inspector.getDeadList();
+        List<ResponsableAulaAsignacion> nuevos = inspector.getNewList();
+
+        for (ResponsableAulaAsignacion responsableAulaAsignacion : muertos) {
+            responsableAulaAsignacionDAO.delete(responsableAulaAsignacion);
+        }
+        for (ResponsableAulaAsignacion responsableAulaAsignacion : nuevos) {
+            responsableAulaAsignacionDAO.save(responsableAulaAsignacion);
         }
     }
 
-    public List<String> validarResponsablesAulas(Persona personaResponsable, List<ResponsableAula> responsablesAulasBD) {
+    public List<String> validarResponsablesAulas(ResponsableAula responsableAula, List<ResponsableAulaAsignacion> responsablesAulasBD) {
         List<String> errors = new ArrayList<>();
-        responsablesAulasBD.removeIf(x -> x.getPersona().equals(personaResponsable));
+        responsablesAulasBD.removeIf(x -> x.getResponsableAula().equals(responsableAula));
 
-        for (TurnoAtencionAula turnosAtencionAula : personaResponsable.getTurnosAtencionAulas()) {
-            List<ResponsableAula> responsablesAulasByTurnoBD = responsablesAulasBD.stream()
+        for (TurnoAtencionAula turnosAtencionAula : responsableAula.getTurnosAtencionAulas()) {
+            List<ResponsableAulaAsignacion> responsablesAulasByTurnoBD = responsablesAulasBD.stream()
                     .filter(x -> x.getTurnoAtencionAula().equals(turnosAtencionAula))
                     .collect(Collectors.toList());
             for (Aula aula : turnosAtencionAula.getAulas()) {
-                ResponsableAula responsableAula = responsablesAulasByTurnoBD.stream().filter(x -> x.getAula().equals(aula)).findFirst().orElse(null);
-                if (responsableAula != null) {
-                    String error = String.format("El responsable del aula %s en el turno %s es %s",
-                            aula.getCodigo(), turnosAtencionAula.getDescripcion(), responsableAula.getPersona().getApellidosNombres());
+                ResponsableAulaAsignacion responsableAulaAsignacion = responsablesAulasByTurnoBD.stream()
+                        .filter(x -> x.getAula().equals(aula)).findFirst().orElse(null);
+                if (responsableAulaAsignacion != null) {
+                    String error = String.format("El %s del aula %s en el turno %s es %s",
+                            responsableAulaAsignacion.getResponsableAula().getTipoEnum().getValue(),
+                            aula.getCodigo(), turnosAtencionAula.getDescripcion(), responsableAulaAsignacion.
+                            getResponsableAula().getPersona().getApellidosNombres());
                     errors.add(error);
                 }
             }
@@ -143,19 +170,23 @@ public class ResponsableAulaServiceImp implements ResponsableAulaService {
     }
 
     @Override
-    public Persona findResponsableAula(Persona personaResponsable, DataSessionPivot ds) {
-        personaResponsable = personaDAO.find(personaResponsable.getId());
+    public ResponsableAula findResponsableAula(ResponsableAula responsableAula, DataSessionPivot ds) {
+        responsableAula = responsableAulaDAO.findByPersonaAndTipo(responsableAula.getPersona(), responsableAula.getTipoEnum(), EstadoEnum.ACT);
         List<TurnoAtencionAula> turnoAtencionAulas = turnoAtencionAaulaDAO.all();
-        List<ResponsableAula> responsableAulas = responsableAulaDAO.allByPersona(personaResponsable, EstadoEnum.ACT);
-        for (TurnoAtencionAula turnoAtencionAula : turnoAtencionAulas) {
-            List<ResponsableAula> responsables = responsableAulas.stream()
-                    .filter(x -> x.getTurnoAtencionAula().equals(turnoAtencionAula))
-                    .collect(Collectors.toList());
-            responsables = responsables == null ? new ArrayList<>() : responsables;
-            turnoAtencionAula.setAulas(responsables.stream().map(x -> x.getAula()).collect(Collectors.toList()));
-        }
-        personaResponsable.setTurnosAtencionAulas(turnoAtencionAulas);
-        return personaResponsable;
-    }
+        if (responsableAula != null) {
+            List<ResponsableAulaAsignacion> responsablesAulasAsignacion = responsableAulaAsignacionDAO.allByResponsable(Arrays.asList(responsableAula), EstadoEnum.ACT);
 
+            for (TurnoAtencionAula turnoAtencionAula : turnoAtencionAulas) {
+                List<ResponsableAulaAsignacion> responsables = responsablesAulasAsignacion.stream()
+                        .filter(x -> x.getTurnoAtencionAula().equals(turnoAtencionAula))
+                        .collect(Collectors.toList());
+                responsables = responsables == null ? new ArrayList<>() : responsables;
+                turnoAtencionAula.setAulas(responsables.stream().map(x -> x.getAula()).collect(Collectors.toList()));
+            }
+        }
+        responsableAula = responsableAula == null ? new ResponsableAula() : responsableAula;
+        responsableAula.setTurnosAtencionAulas(turnoAtencionAulas);
+
+        return responsableAula;
+    }
 }

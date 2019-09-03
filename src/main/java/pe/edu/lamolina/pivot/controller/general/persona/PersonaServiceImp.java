@@ -106,7 +106,7 @@ public class PersonaServiceImp implements PersonaService {
         }
 
         if (!personaNueva) {
-            Usuario usuario = usuarioDAO.findByPersona(persona);
+            Usuario usuario = usuarioDAO.findActivoByPersona(persona);
             if (usuario == null) {
                 if (emailCompania != null) {
                     this.crearUsuario(persona, ds);

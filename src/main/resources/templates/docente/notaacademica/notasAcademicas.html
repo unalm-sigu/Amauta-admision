@@ -22,6 +22,14 @@
             <input id="txtSistemaNotas" type="hidden" th:value="${sistemaNotas.id}"/>
             <div class="row">
                 <div class="form-group">
+                    <label class="col-md-2 control-label bold"><strong>TPC Curso:</strong></label>
+                    <div class="col-md-2">
+                        <span th:text="${curso.tpc}">Teoría</span>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="form-group">
                     <label class="col-md-2 control-label bold"><strong>Tipo sección:</strong></label>
                     <div class="col-md-2">
                         <span th:text="${seccion.tipoSeccionEnum.value}">Teoría</span>
@@ -173,6 +181,7 @@
                                                     <input th:name="${evaluacion.tipoEvaluacion.codigo}+${evaluacion.numero}" 
                                                            th:unless="${notas[matSeccion.matriculaResumen.alumno.id+'-'+evaluacion.id]}"
                                                            th:rel="${matSeccion.matriculaResumen.alumno.id}"
+                                                           th:attr="alu=${matSeccion.matriculaResumen.alumno.codigo}"
                                                            th:title="${evaluacion.id}" 
                                                            th:alt="${matriculaCursoMap[matSeccion.matriculaResumen.alumno.id].creditos}"
                                                            type="text" 
@@ -274,6 +283,10 @@
         <div th:substituteby="docente/notaacademica/modalNotasAcademicas"/>
     </div>
     <div layout:fragment="js">
+        <script th:inline="javascript">
+            var jCurso = /*[[${jCurso}]]*/ {};
+            var jAlumnos = /*[[${jAlumnos}]]*/ {};
+        </script>
         <div th:substituteby="_layout/includes :: javascript-dynatable"/>
         <script th:src="@{/app/docente/notasacademica/notasAcademicas.js}" charset="utf-8"></script>
     </div>

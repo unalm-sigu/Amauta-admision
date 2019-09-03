@@ -39,6 +39,7 @@
                     <input th:name="${evaluacion.tipoEvaluacion.codigo}+${evaluacion.numero}" 
                            th:unless="${notas[matSeccion.matriculaResumen.alumno.id+'-'+evaluacion.id]}"
                            th:rel="${matSeccion.matriculaResumen.alumno.id}"
+                           th:attr="alu=${matSeccion.matriculaResumen.alumno.codigo}"
                            th:title="${evaluacion.id}" 
                            th:alt="${matriculaCursoMap[matSeccion.matriculaResumen.alumno.id].creditos}"
                            type="text" 

@@ -33,7 +33,7 @@ public class UsuarioDAOH extends AbstractEasyDAO<Usuario> implements UsuarioDAO 
     }
 
     @Override
-    public Usuario findByPersona(Persona persona) {
+    public Usuario findActivoByPersona(Persona persona) {
         Octavia sql = Octavia.query()
                 .from(Usuario.class, "u")
                 .join("persona per")

@@ -133,6 +133,19 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
     }
 
     @Override
+    public List<Seccion> allByCodigo3Ciclo(CicloAcademico ciclo) {
+        Octavia sql = Octavia.query()
+                .from(Seccion.class, "sec")
+                .join("grupoSeccion gs", "gs.curso cur", "gs.cicloAcademico ca")
+                .join("gs.anexoBoletin anx", "anx.anexoSuperior ans")
+                .leftJoin("aula", "grupoHoras", "cur.modalidadEstudio")
+                .filter("ans.id", 4)
+                .filter("ca.id", ciclo);
+
+        return all(sql);
+    }
+
+    @Override
     public List<Seccion> allByCiclo(CicloAcademico ciclo, SeccionEstadoEnum... estados) {
         Octavia sql = Octavia.query()
                 .from(Seccion.class, "sec")
@@ -498,14 +511,17 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
         sql.append(" update ").append(Seccion.class.getSimpleName()).append(" as se ");
         sql.append("    set codigo2 = null ");
         sql.append("  where exists ( ");
-        sql.append("      select 1 ");
+        sql.append("      select gs.id ");
         sql.append("        from ").append(GrupoSeccion.class.getSimpleName()).append(" as gs ");
+        sql.append("        join gs.anexoBoletin anx ");
         sql.append("       where gs.id = se.grupoSeccion.id ");
         sql.append("         and gs.cicloAcademico.id = :CICLO ");
+        sql.append("         and anx.anexoSuperior.id = :ANX_SUPER ");
         sql.append("  ) ");
 
         Query query = getCurrentSession().createQuery(sql.toString());
         query.setParameter("CICLO", ciclo.getId());
+        query.setParameter("ANX_SUPER", 4L);
 
         query.executeUpdate();
     }

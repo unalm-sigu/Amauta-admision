@@ -31,6 +31,7 @@ import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.CursoCurricula;
+import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.MatriculaCurso;
@@ -455,7 +456,7 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
         if (alumnoBD.getModalidadEstudio().isPregrado()) {
             avanceCurricularService.generarAvanceCurricularByAlumno(alumno, ds);
         } else {
-            avanceCurricularService.generarAvanceCurricularByAlumnoPost(alumno, ds);
+            avanceCurricularService.generarAvanceCurricularByAlumnoEPG(alumno, ds);
 
         }
 
@@ -470,7 +471,7 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
         if (alumno.getModalidadEstudio().isPregrado()) {
             avanceCurricularService.generarAvanceCurricularByAlumno(alumno, ds);
         } else {
-            avanceCurricularService.generarAvanceCurricularByAlumnoPost(alumno, ds);
+            avanceCurricularService.generarAvanceCurricularByAlumnoEPG(alumno, ds);
 
         }
     }
@@ -666,6 +667,7 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
     }
 
     @Override
+    @Transactional
     public MatriculaResumen findResumenMatricula(Alumno alumno, CicloAcademico ciclo, List<MatriculaCurso> matriculaCursos) {
         MatriculaResumen resumen = matriculaResumenDAO.findByAlumnoCiclo(alumno, ciclo);
         if (resumen == null) {
@@ -702,6 +704,19 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
             secciones.add(matriculaSeccion.getSeccion());
 
         }
+        return horarioSeccionDAO.allBySecciones(secciones);
+    }
+
+    @Override
+    public List<HorarioSeccion> allSeccionHorarioAlumnoByDocenteCicloACademico(Docente docente, CicloAcademico academico) {
+        List<DocenteSeccion> docenteSecciones = docenteSeccionDAO.allByDocente(docente, academico);
+        if (docenteSecciones.isEmpty()) {
+            return new ArrayList();
+        }
+        List<Seccion> secciones = docenteSecciones.stream()
+                .filter(x -> x.getSeccion().isEstadoActivo() || x.getSeccion().isEstadoBloqueado())
+                .map(x -> x.getSeccion())
+                .distinct().collect(Collectors.toList());
         return horarioSeccionDAO.allBySecciones(secciones);
     }
 
@@ -873,7 +888,7 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
             avanceCurricularService.generarAvanceCurricularByAlumno(alumnoBD, ds);
         } else if (alumnoBD.getModalidadEstudio().isPostgrado()) {
             Assert.isNotNull(alumnoBD.getPlanCurricular(), "La orientación no cuenta con plan curricular.");
-            avanceCurricularService.generarAvanceCurricularByAlumnoPost(alumnoBD, ds);
+            avanceCurricularService.generarAvanceCurricularByAlumnoEPG(alumnoBD, ds);
 
         }
     }

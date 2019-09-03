@@ -283,7 +283,7 @@ public class AlumnoServiceImp implements AlumnoService {
 
         this.updatePersona(personaDB, personaForm);
 
-        Usuario usuarioAlumno = usuarioDAO.findByPersona(personaDB);
+        Usuario usuarioAlumno = usuarioDAO.findActivoByPersona(personaDB);
 
         if (usuarioAlumno == null) {
             this.crearUsuarioAlumno(emailCompania, personaDB, usuario);
@@ -541,7 +541,7 @@ public class AlumnoServiceImp implements AlumnoService {
             throw new PhobosException("Alumno sin persona registrada.");
         }
 
-        Usuario usuario = usuarioDAO.findByPersona(personaBD);
+        Usuario usuario = usuarioDAO.findActivoByPersona(personaBD);
 
         if (usuario == null) {
             this.crearUsuarioAlumno(personaForm.getEmailCompania(), personaBD, usuarioRegistra);
@@ -901,7 +901,7 @@ public class AlumnoServiceImp implements AlumnoService {
         String CorreoForm = accesoEspecialBean.getCorreo(); // correo a remitir las credenciales
         Persona personaForm = accesoEspecialBean.getAlumno().getPersona();
 
-        Usuario usuarioBD = usuarioDAO.findByPersona(personaForm);
+        Usuario usuarioBD = usuarioDAO.findActivoByPersona(personaForm);
 
         if (usuarioBD == null) {
             throw new PhobosException("El alumno con " + personaForm.getApellidosNombres() + " no tiene registro de usuario");
@@ -922,7 +922,7 @@ public class AlumnoServiceImp implements AlumnoService {
 
     @Override
     public Usuario findUsuarioByPersona(Persona persona) {
-        Usuario usuario = usuarioDAO.findByPersona(persona);
+        Usuario usuario = usuarioDAO.findActivoByPersona(persona);
         if (usuario == null) {
             throw new PhobosException("El alumno con " + persona.getApellidosNombres() + " no tiene registro de usuario");
         }

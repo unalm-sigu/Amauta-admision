@@ -1250,7 +1250,8 @@ var app = new Vue({
             }
 
             if ($vue.seccionSeleccionada.aula.capacidadAula > 0) {
-                if ($vue.ampliacionVacante.total > $vue.seccionSeleccionada.aula.capacidadAula) {
+                let capacidadTotal = $vue.seccionSeleccionada.aula.capacidadAula + $vue.seccionSeleccionada.aula.capacidadExtra;
+                if ($vue.ampliacionVacante.total > capacidadTotal) {
                     swal({text: 'Ha sobrepasado la capacidad del aula', icon: "error", dangerMode: true, button: {text: "Aceptar"}});
                     return;
                 }

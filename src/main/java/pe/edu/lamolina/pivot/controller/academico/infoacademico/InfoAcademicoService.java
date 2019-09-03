@@ -6,6 +6,7 @@ import java.util.List;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.MatriculaCurso;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.OrientacionCarrera;
@@ -48,6 +49,8 @@ public interface InfoAcademicoService {
     MatriculaResumen findResumenMatricula(Alumno alumno, CicloAcademico ciclo, List<MatriculaCurso> matriculaCursos);
 
     List<HorarioSeccion> allSeccionHorarioAlumnoByAlumnoCicloACademico(Alumno alumno, CicloAcademico academico);
+
+    List<HorarioSeccion> allSeccionHorarioAlumnoByDocenteCicloACademico(Docente docente, CicloAcademico academico);
 
     ObjectNode findHorarioBySeccionesHorarios(List<HorarioSeccion> seccionesHorarios);
 
