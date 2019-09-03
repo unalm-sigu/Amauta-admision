@@ -28,6 +28,7 @@ import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.Seccion;
+import pe.edu.lamolina.model.enums.ContenidoCartaEnum;
 import pe.edu.lamolina.model.enums.DocenteEstadoEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.PersonaEstadoEnum;
@@ -38,12 +39,14 @@ import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.general.Pais;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.general.TipoDocIdentidad;
+import pe.edu.lamolina.model.inscripcion.ContenidoCarta;
 import pe.edu.lamolina.model.seguridad.Rol;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.seguridad.UsuarioRol;
 import pe.edu.lamolina.pivot.dao.academico.DocenteDAO;
 import pe.edu.lamolina.pivot.dao.academico.DocenteSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.ModalidadEstudioDAO;
+import pe.edu.lamolina.pivot.dao.general.ContenidoCartaDAO;
 import pe.edu.lamolina.pivot.dao.general.PaisDAO;
 import pe.edu.lamolina.pivot.dao.general.PersonaDAO;
 import pe.edu.lamolina.pivot.dao.general.TipoDocIdentidadDAO;
@@ -87,6 +90,9 @@ public class ProfesorServiceImp implements ProfesorService {
     @Autowired
     S3Service s3Service;
 
+    @Autowired
+    ContenidoCartaDAO contenidoCartaDAO;
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
@@ -111,7 +117,7 @@ public class ProfesorServiceImp implements ProfesorService {
             Long seccionesPosCount = secciones.stream()
                     .filter(x -> x.getGrupoSeccion().getCurso().isPostgrado())
                     .distinct().count();
-            docente.setCantSeccionesPos(seccionesPosCount); 
+            docente.setCantSeccionesPos(seccionesPosCount);
             docente.setCantSeccionesPre(seccionesPreCount);
         }
         return docentes;
@@ -609,7 +615,10 @@ public class ProfesorServiceImp implements ProfesorService {
         }
         return new ArrayList(mapGpoSecc.values());
     }
-    
-    
+
+    @Override
+    public ContenidoCarta findContenidoCartaByEnum(ContenidoCartaEnum enumval) {
+        return contenidoCartaDAO.findByCodigoEnum(enumval);
+    }
 
 }

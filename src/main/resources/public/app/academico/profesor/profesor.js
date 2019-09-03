@@ -95,6 +95,11 @@ $(function () {
 
     Docente.body.delegate(".reporte", "click", function (e) {
         var dpto = $("#departamento").val();
+        console.log(dpto);
+        if (dpto == null || dpto == "") {
+            notify("Seleccione el departamento");
+            return;
+        }
         $.fileDownload("/academico/profesor/reporteProgramacion", {
             httpMethod: "POST",
             data: {departamento: dpto},
