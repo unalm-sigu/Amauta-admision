@@ -1459,7 +1459,26 @@ public class PromedioServiceImp implements PromedioService {
                 }
             }
         }
+        alumno.setCicloActivo(alumnoCiclo.getCicloAcademico());
+        alumno.setCreditosAprobados(alumnoCiclo.getCreditosAprobadosAcumulados());
+        alumno.setCreditosCursados(alumnoCiclo.getCreditosAcumulados());
+        alumno.setSituacionAcademica(alumnoCiclo.getSituacionFinal());
+        alumno.setPromedioAcumulado(alumnoCiclo.getPromedioAcumulado());
 
+//        Alumno alumnoUpd = new Alumno();
+//        alumnoUpd.setId(alumno.getId());
+//        alumnoUpd.setCicloActivo(alumnoCiclo.getCicloAcademico());
+//        alumnoUpd.setCreditosAprobados(alumnoCiclo.getCreditosAprobadosAcumulados());
+//        alumnoUpd.setCreditosCursados(alumnoCiclo.getCreditosAcumulados());
+//        alumnoUpd.setSituacionAcademica(alumnoCiclo.getSituacionFinal());
+//        alumnoUpd.setPromedioAcumulado(alumnoCiclo.getPromedioAcumulado());
+//        alumnoDAO.updateSituacionCicloCapaPPA(alumnoUpd);
+//
+//        if (alumnoCiclo.getCicloAcademico().isTipoRegular()) {
+//            alumno.setCicloActivoRegular(alumnoCiclo.getCicloAcademico());
+//            alumnoUpd.setCicloActivoRegular(alumnoCiclo.getCicloAcademico());
+//            alumnoDAO.updateCicloActivoRegular(alumnoUpd);
+//        }
     }
 
     private List<AlumnoCicloCurso> analizedAlumnoCicloCursosByCiclo(List<AlumnoCicloCurso> alumnoCicloCursoByCiclo) {
