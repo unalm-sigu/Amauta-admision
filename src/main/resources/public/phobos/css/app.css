@@ -3798,3 +3798,7 @@ body.container {
 .font-roman {
     font-family: "Times New Roman" !important;
 }
+
+.motivo{
+   cursor:pointer;  
+}

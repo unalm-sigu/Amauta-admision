@@ -11,7 +11,7 @@ new Vue({
             showaccept: true,
             okbtn: 'Reasignar Extorno',
             cancelbtn: 'Cancelar'
-        },
+        },a
         modalAsignarPostulante: {
             id: 'modalAsignarPostulante',
             title: 'Asignar pago al postulante',
