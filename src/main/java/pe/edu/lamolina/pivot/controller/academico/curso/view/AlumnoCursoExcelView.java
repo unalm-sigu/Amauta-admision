@@ -186,6 +186,8 @@ public class AlumnoCursoExcelView extends AbstractView {
             Carrera carrera = alumno.getCarrera();
             Seccion seccion = matriculaSeccion.getSeccion();
             Docente docente = mapDocenteXseccion.get(seccion.getId());
+            String docStr = (String) ObjectUtil.getParentTree(docente, "persona.nombreCompleto");
+            docStr = Constantine.DOCENTE_INDETERMINADO.equalsIgnoreCase(docente.getCodigo()) ? "Docente Indeterminado" : docStr ;
             Curso curso = seccion.getGrupoSeccion().getCurso();
             column = 0;
             BigDecimal prioridad = null;
@@ -197,7 +199,7 @@ public class AlumnoCursoExcelView extends AbstractView {
             excelUtil.replaceVal(irow, column++, curso.getNombre(), estiloGeneral);
             excelUtil.replaceVal(irow, column++, seccion.getCodigo2(), estiloGeneral);
             excelUtil.replaceVal(irow, column++, (String) ObjectUtil.getParentTree(seccion, "grupoHoras.codigo"), estiloGeneral);
-            excelUtil.replaceVal(irow, column++, (String) ObjectUtil.getParentTree(docente, "persona.nombreCompleto"), estiloGeneral);
+            excelUtil.replaceVal(irow, column++, docStr , estiloGeneral);
             excelUtil.replaceVal(irow, column++, alumno.getCodigo(), estiloGeneral);
             excelUtil.replaceVal(irow, column++, alumno.getPersona().getApellidosNombres(), estiloGeneral);
             excelUtil.replaceVal(irow, column++, alumno.getPersona().getEmailCompania(), estiloGeneral);
