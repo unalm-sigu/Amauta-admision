@@ -1222,11 +1222,11 @@ public class ProgDataServiceImp implements ProgDataService {
 
                 Curso cursoBD = gpoSeccBD.getCurso();
                 if (curso.getId() != cursoBD.getId().longValue()) {
-                    visor.agregarLog("gpoSecc", "saveGpoSecc", "El curso del gpo-Seccion " + gpoSeccBD.getCodigo()
+                    visor.agregarLog("gpoSecc", "saveGpoSecc", "El curso del gpo-Seccion " + gpoSeccBD.getCodigo3()
                             + " está relacionado al curso " + curso.getCodigo() + " pero en la base de datos es " + cursoBD.getCodigo(),
                             false, "error-proceso");
                     String msg = String.format("El curso del grupo-seccion %s está relacionado al curso %s pero en la base de datos es %s",
-                            gpoSecc.getCodigo(), curso.getCodigo(), cursoBD.getCodigo());
+                            gpoSecc.getCodigo3(), curso.getCodigo(), cursoBD.getCodigo());
                     throw new PhobosException(msg);
                 }
             }
@@ -1967,13 +1967,18 @@ public class ProgDataServiceImp implements ProgDataService {
             if (visor.isStop()) {
                 throw new PhobosException("Carga detenida intespestivamente");
             }
+            AnexoBoletin anexo = secc.getGrupoSeccion().getAnexoBoletin().getAnexoSuperior();
+            if (anexo.getId() != 4L) {
+                visor.agregarLog("seccBD", "revisarSecc", "Seccion " + secc.getCodigo() + " no se modifica", true, "info");
+                continue;
+            }
 
             Seccion seccion = mapSecciones.get(secc.getId());
             logger.debug("\tanalizando anulacion de la sección {}", secc.getCodigo());
             visor.agregarLog("seccBD", "revisarSecc", "revisando seccion " + secc.getCodigo(), false, "info");
             if (seccion == null) {
                 secc.setEstadoEnum(SeccionEstadoEnum.INA);
-                secc.setCodigo2(secc.getCodigo());
+                //secc.setCodigo2(secc.getCodigo());
                 seccionDAO.update(secc);
                 visor.agregarLog("seccBD", "revisarSecc", "Seccion " + secc.getCodigo() + " queda Inactiva", true, "info");
             } else {
