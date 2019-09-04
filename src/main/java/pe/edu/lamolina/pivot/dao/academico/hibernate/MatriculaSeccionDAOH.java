@@ -77,6 +77,7 @@ public class MatriculaSeccionDAOH extends AbstractEasyDAO<MatriculaSeccion> impl
                 .join("gs.curso cur", "alu.persona per", "alu.carrera carr", "carr.facultad fac")
                 .join("alu.modalidadEstudio")
                 .leftJoin("per.tipoDocumento tdoc")
+                .leftJoin("sec.grupoHoras gh")
                 .filter("ciclo.codigo", ciclo.getCodigo())
                 .filter("sec.tipoSeccion", "!=", TipoSeccionEnum.PCUR.name())
                 .in("ms.estado", Arrays.asList(estados))

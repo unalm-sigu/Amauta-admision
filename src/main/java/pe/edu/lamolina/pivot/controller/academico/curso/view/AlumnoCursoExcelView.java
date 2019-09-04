@@ -23,10 +23,13 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.view.AbstractView;
 import pe.albatross.zelpers.file.excel.ExcelHelper;
 import pe.albatross.zelpers.file.excel.ExcelStyles;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.Curso;
+import pe.edu.lamolina.model.academico.Docente;
+import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
@@ -56,7 +59,9 @@ public class AlumnoCursoExcelView extends AbstractView {
     protected void buildExcelDocument(Map<String, Object> model, Workbook wb, HttpServletRequest request, HttpServletResponse response) throws Exception {
         DataSessionPivot ds = (DataSessionPivot) request.getSession().getAttribute(Constantine.SESSION_USUARIO);
         List<MatriculaSeccion> matriculasSecciones = (List<MatriculaSeccion>) model.get("alumnosPorCurso");
-        this.generateSheet(wb, matriculasSecciones, ds);
+        List<DocenteSeccion> docenteSecciones = (List<DocenteSeccion>) model.get("docenteSecciones");
+        Map<Long, Docente> mapDocenteXseccion = TypesUtil.convertListToMap("seccion.id", "docente", docenteSecciones);
+        this.generateSheet(wb, matriculasSecciones, ds, mapDocenteXseccion);
         String fecha = new DateTime().toString("yyyMMdd_Hmm");
         response.setHeader("Content-Disposition", "attachment; filename=\"" + "Alumnos_Curso" + fecha + ".xlsx\"");
         response.setContentType(getContentType());
@@ -67,9 +72,9 @@ public class AlumnoCursoExcelView extends AbstractView {
         out.flush();
     }
 
-    private void generateSheet(Workbook wb, List<MatriculaSeccion> matriculasSecciones, DataSessionPivot ds) {
+    private void generateSheet(Workbook wb, List<MatriculaSeccion> matriculasSecciones, DataSessionPivot ds, Map<Long, Docente> mapDocenteXseccion) {
         Sheet sheet = wb.createSheet("Hoja1");
-        this.createBody(wb, sheet, matriculasSecciones, ds);
+        this.createBody(wb, sheet, matriculasSecciones, ds, mapDocenteXseccion);
     }
 
     private CellStyle getStyleNumero(Workbook workBook) {
@@ -99,7 +104,7 @@ public class AlumnoCursoExcelView extends AbstractView {
         return cell;
     }
 
-    private void createBody(Workbook wb, Sheet sheet, List<MatriculaSeccion> matriculasSecciones, DataSessionPivot ds) {
+    private void createBody(Workbook wb, Sheet sheet, List<MatriculaSeccion> matriculasSecciones, DataSessionPivot ds, Map<Long, Docente> mapDocenteXseccion) {
         ExcelHelper excelUtil = new ExcelHelper(sheet, wb);
 
         //  CellStyle headerCell = getStyleCellHeader(wb);
@@ -108,7 +113,7 @@ public class AlumnoCursoExcelView extends AbstractView {
         CellStyle estiloGeneral = getStyleGeneral(wb);
 
         int irow = 1;
-        CellRangeAddress region = CellRangeAddress.valueOf("A" + irow + ":K" + irow);
+        CellRangeAddress region = CellRangeAddress.valueOf("A" + irow + ":M" + irow);
         sheet.addMergedRegion(region);
         Row row = sheet.createRow(region.getFirstRow());
         Cell cell = row.createCell(region.getFirstColumn());
@@ -120,7 +125,7 @@ public class AlumnoCursoExcelView extends AbstractView {
         if (!matriculasSecciones.isEmpty()) {
             cursoBase = matriculasSecciones.get(0).getSeccion().getGrupoSeccion().getCurso();
         }
-        region = CellRangeAddress.valueOf("A" + irow + ":K" + irow);
+        region = CellRangeAddress.valueOf("A" + irow + ":M" + irow);
         sheet.addMergedRegion(region);
         row = sheet.createRow(region.getFirstRow());
         cell = row.createCell(region.getFirstColumn());
@@ -128,7 +133,7 @@ public class AlumnoCursoExcelView extends AbstractView {
         cell.setCellStyle(ExcelStyles.getCellTitle2Green(wb));
         irow++;
 
-        region = CellRangeAddress.valueOf("A" + irow + ":K" + irow);
+        region = CellRangeAddress.valueOf("A" + irow + ":M" + irow);
         sheet.addMergedRegion(region);
         row = sheet.createRow(region.getFirstRow());
         cell = row.createCell(region.getFirstColumn());
@@ -138,7 +143,7 @@ public class AlumnoCursoExcelView extends AbstractView {
 
         String ciclo = "Ciclo Académico " + ds.getCicloAcademico().getDescripcion();
         String fecha = TypesUtil.getStringDate(new Date(), "dd/MM/yyyy H:mm:ss");
-        region = CellRangeAddress.valueOf("A" + irow + ":K" + irow);
+        region = CellRangeAddress.valueOf("A" + irow + ":M" + irow);
         sheet.addMergedRegion(region);
         row = sheet.createRow(region.getFirstRow());
         cell = row.createCell(region.getFirstColumn());
@@ -154,6 +159,10 @@ public class AlumnoCursoExcelView extends AbstractView {
         excelUtil.replaceVal(irow, column++, "CURSO", headerCell);
         sheet.setColumnWidth((column - 1), tamanio(20));
         excelUtil.replaceVal(irow, column++, "SECCIÓN", headerCell);
+        sheet.setColumnWidth((column - 1), tamanio(15));
+        excelUtil.replaceVal(irow, column++, "GRUPO", headerCell);
+        sheet.setColumnWidth((column - 1), tamanio(15));
+        excelUtil.replaceVal(irow, column++, "DOCENTE", headerCell);
         sheet.setColumnWidth((column - 1), tamanio(15));
         excelUtil.replaceVal(irow, column++, "MATRICULA", headerCell);
         sheet.setColumnWidth((column - 1), tamanio(15));
@@ -176,6 +185,9 @@ public class AlumnoCursoExcelView extends AbstractView {
             Alumno alumno = matriculaSeccion.getMatriculaResumen().getAlumno();
             Carrera carrera = alumno.getCarrera();
             Seccion seccion = matriculaSeccion.getSeccion();
+            Docente docente = mapDocenteXseccion.get(seccion.getId());
+            String docStr = (String) ObjectUtil.getParentTree(docente, "persona.nombreCompleto");
+            docStr = Constantine.DOCENTE_INDETERMINADO.equalsIgnoreCase(docente.getCodigo()) ? "Docente Indeterminado" : docStr ;
             Curso curso = seccion.getGrupoSeccion().getCurso();
             column = 0;
             BigDecimal prioridad = null;
@@ -186,6 +198,8 @@ public class AlumnoCursoExcelView extends AbstractView {
             excelUtil.replaceVal(irow, column++, curso.getCodigo(), estiloGeneral);
             excelUtil.replaceVal(irow, column++, curso.getNombre(), estiloGeneral);
             excelUtil.replaceVal(irow, column++, seccion.getCodigo2(), estiloGeneral);
+            excelUtil.replaceVal(irow, column++, (String) ObjectUtil.getParentTree(seccion, "grupoHoras.codigo"), estiloGeneral);
+            excelUtil.replaceVal(irow, column++, docStr , estiloGeneral);
             excelUtil.replaceVal(irow, column++, alumno.getCodigo(), estiloGeneral);
             excelUtil.replaceVal(irow, column++, alumno.getPersona().getApellidosNombres(), estiloGeneral);
             excelUtil.replaceVal(irow, column++, alumno.getPersona().getEmailCompania(), estiloGeneral);
