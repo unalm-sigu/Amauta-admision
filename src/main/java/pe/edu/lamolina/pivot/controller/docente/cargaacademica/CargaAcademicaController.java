@@ -28,9 +28,9 @@ import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.Seccion;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.EPG;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.PRE;
+import pe.edu.lamolina.pivot.controller.reporte.view.ReporteAlumnosExcel;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
-import pe.edu.lamolina.pivot.controller.reporte.view.ReporteAlumnosView;
 
 @Controller
 @RequestMapping("docente/cargaacademica")
@@ -42,7 +42,7 @@ public class CargaAcademicaController {
     CargaAcademicaService service;
 
     @Autowired
-    ReporteAlumnosView reporteActasView;
+    ReporteAlumnosExcel reporteActasView;
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {

@@ -122,7 +122,8 @@ public class ConsejerosPorCarreraExcelView extends AbstractView {
         CellStyle estiloGeneral = getStyleGeneral(wb);
 
         int irow = 1;
-        CellRangeAddress region = CellRangeAddress.valueOf("A" + irow + ":E" + irow);
+        String letterToMerge = ":H";
+        CellRangeAddress region = CellRangeAddress.valueOf("A" + irow + letterToMerge + irow);
         sheet.addMergedRegion(region);
         Row row = sheet.createRow(region.getFirstRow());
         Cell cell = row.createCell(region.getFirstColumn());
@@ -134,7 +135,7 @@ public class ConsejerosPorCarreraExcelView extends AbstractView {
         if (!consejeros.isEmpty()) {
             carrera = consejeros.get(0).getCarrera();
         }
-        region = CellRangeAddress.valueOf("A" + irow + ":E" + irow);
+        region = CellRangeAddress.valueOf("A" + irow + letterToMerge + irow);
         sheet.addMergedRegion(region);
         row = sheet.createRow(region.getFirstRow());
         cell = row.createCell(region.getFirstColumn());
@@ -142,7 +143,7 @@ public class ConsejerosPorCarreraExcelView extends AbstractView {
         cell.setCellStyle(ExcelStyles.getCellTitle2Green(wb));
         irow++;
 
-        region = CellRangeAddress.valueOf("A" + irow + ":E" + irow);
+        region = CellRangeAddress.valueOf("A" + irow + letterToMerge + irow);
         sheet.addMergedRegion(region);
         row = sheet.createRow(region.getFirstRow());
         cell = row.createCell(region.getFirstColumn());
@@ -150,7 +151,7 @@ public class ConsejerosPorCarreraExcelView extends AbstractView {
         cell.setCellStyle(ExcelStyles.getCellTitle2Green(wb));
         irow++;
 
-        region = CellRangeAddress.valueOf("A" + irow + ":E" + irow);
+        region = CellRangeAddress.valueOf("A" + irow + letterToMerge + irow);
         sheet.addMergedRegion(region);
         row = sheet.createRow(region.getFirstRow());
         cell = row.createCell(region.getFirstColumn());
@@ -158,7 +159,7 @@ public class ConsejerosPorCarreraExcelView extends AbstractView {
         cell.setCellStyle(ExcelStyles.getCellTitle3Green(wb));
         irow++;
 
-        region = CellRangeAddress.valueOf("A" + irow + ":E" + irow);
+        region = CellRangeAddress.valueOf("A" + irow + letterToMerge + irow);
         sheet.addMergedRegion(region);
         row = sheet.createRow(region.getFirstRow());
         cell = row.createCell(region.getFirstColumn());
@@ -168,7 +169,7 @@ public class ConsejerosPorCarreraExcelView extends AbstractView {
 
         String ciclo = "Ciclo Académico " + ds.getCicloAcademico().getDescripcion();
         String fecha = TypesUtil.getStringDateTimeLongFormat(new Date());
-        region = CellRangeAddress.valueOf("A" + irow + ":E" + irow);
+        region = CellRangeAddress.valueOf("A" + irow + letterToMerge + irow);
         sheet.addMergedRegion(region);
         row = sheet.createRow(region.getFirstRow());
         cell = row.createCell(region.getFirstColumn());
