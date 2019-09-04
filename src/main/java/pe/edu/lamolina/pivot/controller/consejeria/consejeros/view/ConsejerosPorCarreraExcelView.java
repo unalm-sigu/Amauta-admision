@@ -1,5 +1,6 @@
 package pe.edu.lamolina.pivot.controller.consejeria.consejeros.view;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import javax.servlet.ServletOutputStream;
@@ -9,7 +10,6 @@ import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Font;
-import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.view.AbstractView;
 import pe.albatross.zelpers.file.excel.ExcelHelper;
+import pe.albatross.zelpers.file.excel.ExcelStyles;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.consejeria.Consejero;
@@ -64,9 +65,7 @@ public class ConsejerosPorCarreraExcelView extends AbstractView {
     }
 
     private void generateSheet(Workbook wb, List<Consejero> consejero, DataSessionPivot ds) {
-        //Sheet sheet = wb.getSheet("Hoja1");
         Sheet sheet = wb.createSheet("Hoja1");
-        //sheet.setAutobreaks(true);
         this.createBody(wb, sheet, consejero, ds);
     }
 
@@ -79,10 +78,6 @@ public class ConsejerosPorCarreraExcelView extends AbstractView {
         CellStyle cell = workBook.createCellStyle();
         cell.setAlignment(CellStyle.ALIGN_CENTER);
         cell.setFont(font);
-//        cell.setBorderTop(HSSFCellStyle.BORDER_NONE);
-//        cell.setBorderBottom(HSSFCellStyle.BORDER_NONE);
-//        cell.setBorderRight(HSSFCellStyle.BORDER_NONE);
-//        cell.setBorderLeft(HSSFCellStyle.BORDER_NONE);
         cell.setBorderTop(HSSFCellStyle.BORDER_MEDIUM);
         cell.setBorderBottom(HSSFCellStyle.BORDER_MEDIUM);
         cell.setBorderRight(HSSFCellStyle.BORDER_MEDIUM);
@@ -121,9 +116,7 @@ public class ConsejerosPorCarreraExcelView extends AbstractView {
     private void createBody(Workbook wb, Sheet sheet, List<Consejero> consejeros, DataSessionPivot ds) {
         ExcelHelper excelUtil = new ExcelHelper(sheet, wb);
 
-        CellStyle estiloCabecera = getStyleCabecera(wb);
-        CellStyle estiloCabeceraNombre = getStyleCabecera(wb);
-        estiloCabeceraNombre.setAlignment(CellStyle.ALIGN_LEFT);
+        CellStyle headerCell = ExcelStyles.getStyleCellHeaderGrey(wb);
 
         CellStyle estiloNumero = getStyleNumero(wb);
         CellStyle estiloGeneral = getStyleGeneral(wb);
@@ -131,11 +124,10 @@ public class ConsejerosPorCarreraExcelView extends AbstractView {
         int irow = 1;
         CellRangeAddress region = CellRangeAddress.valueOf("A" + irow + ":E" + irow);
         sheet.addMergedRegion(region);
-        //  CellStyle cellStyle = getStyleBodyDavid(wb);
         Row row = sheet.createRow(region.getFirstRow());
         Cell cell = row.createCell(region.getFirstColumn());
         cell.setCellValue("UNIVERSIDAD NACIONAL AGRARIA LA MOLINA");
-        cell.setCellStyle(estiloCabecera);
+        cell.setCellStyle(ExcelStyles.getCellTitle1Green(wb));
         irow++;
 
         Carrera carrera = null;
@@ -146,8 +138,8 @@ public class ConsejerosPorCarreraExcelView extends AbstractView {
         sheet.addMergedRegion(region);
         row = sheet.createRow(region.getFirstRow());
         cell = row.createCell(region.getFirstColumn());
-        cell.setCellValue("ESPECIALIDAD DE " + (carrera == null ? "SIN DATOS" : carrera.getNombre()));
-        cell.setCellStyle(estiloCabecera);
+        cell.setCellValue("ESPECIALIDAD DE " + (carrera == null ? "SIN DATOS" : carrera.getNombre().toUpperCase()));
+        cell.setCellStyle(ExcelStyles.getCellTitle2Green(wb));
         irow++;
 
         region = CellRangeAddress.valueOf("A" + irow + ":E" + irow);
@@ -155,7 +147,7 @@ public class ConsejerosPorCarreraExcelView extends AbstractView {
         row = sheet.createRow(region.getFirstRow());
         cell = row.createCell(region.getFirstColumn());
         cell.setCellValue("");
-        cell.setCellStyle(estiloCabecera);
+        cell.setCellStyle(ExcelStyles.getCellTitle2Green(wb));
         irow++;
 
         region = CellRangeAddress.valueOf("A" + irow + ":E" + irow);
@@ -163,7 +155,7 @@ public class ConsejerosPorCarreraExcelView extends AbstractView {
         row = sheet.createRow(region.getFirstRow());
         cell = row.createCell(region.getFirstColumn());
         cell.setCellValue("LISTA DE DOCENTES CONSEJEROS DE LA ESPECIALIDAD");
-        cell.setCellStyle(estiloCabecera);
+        cell.setCellStyle(ExcelStyles.getCellTitle3Green(wb));
         irow++;
 
         region = CellRangeAddress.valueOf("A" + irow + ":E" + irow);
@@ -171,30 +163,30 @@ public class ConsejerosPorCarreraExcelView extends AbstractView {
         row = sheet.createRow(region.getFirstRow());
         cell = row.createCell(region.getFirstColumn());
         cell.setCellValue("");
-        cell.setCellStyle(estiloGeneral);
+        cell.setCellStyle(ExcelStyles.getCellTitle2Green(wb));
         irow++;
 
+        String ciclo = "Ciclo Académico " + ds.getCicloAcademico().getDescripcion();
+        String fecha = TypesUtil.getStringDate(new Date(), "dd/MM/yyyy H:mm:ss");
         region = CellRangeAddress.valueOf("A" + irow + ":E" + irow);
         sheet.addMergedRegion(region);
         row = sheet.createRow(region.getFirstRow());
         cell = row.createCell(region.getFirstColumn());
-        cell.setCellValue("La Molina " + TypesUtil.getStringDateTimeLongFormat(ds.getFechaAccionAudit()));
-        cell.setCellStyle(estiloGeneral);
+        cell.setCellValue(ciclo + " - " + fecha);
+        cell.setCellStyle(ExcelStyles.getStyleBody(wb));
+        cell.getCellStyle().setAlignment(CellStyle.ALIGN_RIGHT);
         irow++;
 
-//        excelUtil.mergeCell(sheet, irow, irow, 0, 4);
-//        excelUtil.replaceVal(irow, 1, "fecha", estiloCabecera);
-//        irow++;
         int column = 0;
-        excelUtil.replaceVal(irow, column++, "N", estiloCabecera);
+        excelUtil.replaceVal(irow, column++, "N", headerCell);
         sheet.setColumnWidth((column - 1), 10 * 256);
-        excelUtil.replaceVal(irow, column++, "CODIGO", estiloCabecera);
+        excelUtil.replaceVal(irow, column++, "CODIGO", headerCell);
         sheet.setColumnWidth((column - 1), 20 * 256);
-        excelUtil.replaceVal(irow, column++, "NOMBRE DEL PROFESOR CONSEJERO", estiloCabecera);
+        excelUtil.replaceVal(irow, column++, "NOMBRE DEL PROFESOR CONSEJERO", headerCell);
         sheet.setColumnWidth((column - 1), 50 * 256);
-        excelUtil.replaceVal(irow, column++, "DPTO. ACADÉMICO", estiloCabecera);
+        excelUtil.replaceVal(irow, column++, "DPTO. ACADÉMICO", headerCell);
         sheet.setColumnWidth((column - 1), 20 * 256);
-        excelUtil.replaceVal(irow, column++, "NRO. ACONSEJADOS", estiloCabecera);
+        excelUtil.replaceVal(irow, column++, "NRO. ACONSEJADOS", headerCell);
         sheet.setColumnWidth((column - 1), 35 * 256);
 
         irow++;
@@ -211,24 +203,6 @@ public class ConsejerosPorCarreraExcelView extends AbstractView {
 
         }
 
-        // sheet.setForceFormulaRecalculation(true);
-    }
-
-    private CellStyle getStyleBodyDavid(Workbook workBook) {
-        Font fontBody = workBook.createFont();
-        fontBody.setFontName("Arial");
-        fontBody.setColor(IndexedColors.BLACK.getIndex());
-        fontBody.setBold(true);
-        fontBody.setFontHeight((short) 300);
-//        short border = CellStyle.BORDER_THIN;
-
-        CellStyle cellBody = workBook.createCellStyle();
-        cellBody.setFont(fontBody);
-        cellBody.setWrapText(true);
-        cellBody.setVerticalAlignment(CellStyle.VERTICAL_CENTER);
-        cellBody.setAlignment(CellStyle.ALIGN_CENTER);
-
-        return cellBody;
     }
 
 }
