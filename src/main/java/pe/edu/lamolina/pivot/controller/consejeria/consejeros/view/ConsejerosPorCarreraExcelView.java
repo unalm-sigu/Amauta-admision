@@ -167,7 +167,7 @@ public class ConsejerosPorCarreraExcelView extends AbstractView {
         irow++;
 
         String ciclo = "Ciclo Académico " + ds.getCicloAcademico().getDescripcion();
-        String fecha = TypesUtil.getStringDate(new Date(), "dd/MM/yyyy H:mm:ss");
+        String fecha = TypesUtil.getStringDateTimeLongFormat(new Date());
         region = CellRangeAddress.valueOf("A" + irow + ":E" + irow);
         sheet.addMergedRegion(region);
         row = sheet.createRow(region.getFirstRow());
