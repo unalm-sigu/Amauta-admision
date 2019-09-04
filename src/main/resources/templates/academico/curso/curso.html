@@ -60,15 +60,15 @@
                                                     <span class="block"></span>
                                                 </td>
                                                 <td class="text-center v-middle">
+                                                    <span class="badge" v-text="item.matriculados"></span>
+                                                </td>
+                                                <td class="text-center v-middle">
                                                     <span class="clear">
                                                         <label v-if="item.estado == 'INA' " class="label" v-bind:class="estadoClass[item.estado]"  data-toggle="tooltip" 
                                                                v-bind:title="item.motivoAnulacion" v-text="item.estadoEnum.value">Desactivado</label>
                                                         <span v-else="" class="label" v-bind:class="estadoClass[item.estado]" v-text="item.estadoEnum.value">Activo</span>
                                                     </span>
                                                 </td> 
-                                                <td class="text-center v-middle">
-                                                    <span class="badge" v-text="item.matriculados"></span>
-                                                </td>
                                                 <td class="v-middle"> 
                                                     <div class="dropdown actions">
                                                         <a class="dropdown-toggle" data-toggle="dropdown">
@@ -79,7 +79,7 @@
                                                             <li><a class="btn-link pointer" v-bind:href="urlEditar(item)">Editar</a></li>
                                                             <li v-if="item.estado != 'ACT' "><a class="btn-link pointer change-estado" v-on:click="activar(item,'activar')">Activar</a></li>
                                                             <li v-if="item.estado == 'ACT' "><a class="btn-link pointer change-estado" v-on:click="activar(item,'desactivar')">Desactivar</a></li>
-                                                            <li><a v-on:click="reporteAlumnos(item)">Reporte</a></li>
+                                                            <li><a v-on:click="reporteAlumnos(item)">Alumnos Matriculados</a></li>
                                                         </ul>
                                                     </div>
                                                 </td>

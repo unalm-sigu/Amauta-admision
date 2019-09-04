@@ -65,7 +65,8 @@
                             <ul class="dropdown-menu">
                                 <li ><a type="button" class=" btn" v-bind:disabled="btndissabled" title="Primero seleccione una carrera" v-on:click.prevent="nuevoConsejero">Añadir Tutor</a></li>
                                 <li><a type="button" class=" btn" v-bind:disabled="btndissabled" v-on:click.prevent="asignarAlummnos" >Asignar tutores aleatoriamente</a></li>
-                                <li><a v-on:click="reporte({id:0})">Reporte</a></li>
+                                <li><a type="button" class=" btn" v-on:click.prevent="reporte({id:0})" >Reporte de Alumnos</a></li>
+                                <li><a type="button" class=" btn" v-on:click.prevent="consejerosPorEspecialidad()" >Consejeros Por Especialidad</a></li>
                                 <!--                                <li><a type="button" v-on:click.prevent="desasignarAlummnos" >Retirar tutores de alumnos</a></li>-->
                             </ul>
                         </div>
