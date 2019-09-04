@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
@@ -291,24 +292,28 @@ public class TramiteAulaServiceImp implements TramiteAulaService {
             tramite.setDocente(null);
             tramite.setEmpresa(null);
             tramite.setOficina(null);
+            Assert.isNotNull(tramite.getAlumno(), "Error con el alumno seleccionado.");
         }
 
         if (TipoSolicitanteEnum.DOC.name().equalsIgnoreCase(tramite.getTipoSolicitante())) {
             tramite.setAlumno(null);
             tramite.setEmpresa(null);
             tramite.setOficina(null);
+            Assert.isNotNull(tramite.getDocente(), "Error con el docente seleccionado.");
         }
 
         if (TipoSolicitanteEnum.EMP.name().equalsIgnoreCase(tramite.getTipoSolicitante())) {
             tramite.setAlumno(null);
             tramite.setDocente(null);
             tramite.setOficina(null);
+            Assert.isNotNull(tramite.getEmpresa(), "Error con la empresa seleccionada.");
         }
 
         if (TipoSolicitanteEnum.OFI.name().equalsIgnoreCase(tramite.getTipoSolicitante())) {
             tramite.setEmpresa(null);
             tramite.setAlumno(null);
             tramite.setDocente(null);
+            Assert.isNotNull(tramite.getOficina(), "Error con la oficina seleccionada.");
         }
 
         tramite.setCicloAcademico(ds.getCicloAcademico());
@@ -386,6 +391,7 @@ public class TramiteAulaServiceImp implements TramiteAulaService {
             tramite.setEmpresa(null);
             tramite.setOficina(null);
             tramite.setAlumno(tramiteForm.getAlumno());
+            Assert.isNotNull(tramite.getAlumno(), "Error con el alumno seleccionado.");
         }
 
         if (TipoSolicitanteEnum.DOC.name().equalsIgnoreCase(tramite.getTipoSolicitante())) {
@@ -393,6 +399,7 @@ public class TramiteAulaServiceImp implements TramiteAulaService {
             tramite.setEmpresa(null);
             tramite.setOficina(null);
             tramite.setDocente(tramiteForm.getDocente());
+            Assert.isNotNull(tramite.getDocente(), "Error con el docente seleccionado.");
         }
 
         if (TipoSolicitanteEnum.EMP.name().equalsIgnoreCase(tramite.getTipoSolicitante())) {
@@ -400,6 +407,7 @@ public class TramiteAulaServiceImp implements TramiteAulaService {
             tramite.setDocente(null);
             tramite.setOficina(null);
             tramite.setEmpresa(tramiteForm.getEmpresa());
+            Assert.isNotNull(tramite.getEmpresa(), "Error con la empresa seleccionada.");
         }
 
         if (TipoSolicitanteEnum.OFI.name().equalsIgnoreCase(tramite.getTipoSolicitante())) {
@@ -407,6 +415,7 @@ public class TramiteAulaServiceImp implements TramiteAulaService {
             tramite.setDocente(null);
             tramite.setEmpresa(null);
             tramite.setOficina(tramiteForm.getOficina());
+            Assert.isNotNull(tramite.getEmpresa(), "Error con la oficina seleccionada.");
         }
 
         tramite.setUserModificacion(ds.getUsuario());
