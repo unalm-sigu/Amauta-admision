@@ -13,6 +13,7 @@ import java.util.Base64;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.servlet.http.HttpSession;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -40,9 +41,11 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Docente;
+import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.NombreCurso;
+import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.TipoCarreraEnum;
 import pe.edu.lamolina.model.enums.TipoCurriculaEnum;
@@ -522,7 +525,11 @@ public class CursoController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
         List<MatriculaSeccion> alumnosPorCurso = service.allMatriculasSecciones(Arrays.asList(new Curso(cursoId)), ds.getCicloAcademico());
+        List<Seccion> secciones = alumnosPorCurso.stream().map(MatriculaSeccion::getSeccion).distinct().collect(Collectors.toList());
+        List<DocenteSeccion> docenteSecciones = service.allDocenteSeccionPrincipalesBySecciones(secciones);
+
         model.addAttribute("alumnosPorCurso", alumnosPorCurso);
+        model.addAttribute("docenteSecciones", docenteSecciones);
         return new ModelAndView(alumnoCursoExcelView);
     }
 
