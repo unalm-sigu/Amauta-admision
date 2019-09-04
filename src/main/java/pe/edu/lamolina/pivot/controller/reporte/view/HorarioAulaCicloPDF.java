@@ -63,7 +63,7 @@ public class HorarioAulaCicloPDF extends AbstractOnlyPdfView {
     private final Font invisible = new Font(FontFamily.COURIER, 1, Font.NORMAL, BaseColor.WHITE);
 
     int columnsMainTable = 8;
-    int lengCursoName = 25;
+    int lengthMaxDescription = 25;
 
     @Override
     protected void buildPdfMetadata(Map<String, Object> model, Document document, HttpServletRequest request) {
@@ -404,8 +404,8 @@ public class HorarioAulaCicloPDF extends AbstractOnlyPdfView {
             String seccionString = seccion.getCodigo2() + " " + seccion.getGrupoHoras().getCodigo();
             String cursoNombre = curso.getNombre();
             addCeldaLeftBody(cursoString + " / " + seccionString, innerTable, bodyFont);
-            if (cursoNombre.length() >= lengCursoName) {
-                cursoNombre = cursoNombre.substring(0, lengCursoName);
+            if (cursoNombre.length() >= lengthMaxDescription) {
+                cursoNombre = cursoNombre.substring(0, lengthMaxDescription);
             }
             addCeldaLeftBody(cursoNombre, innerTable, bodyFont);
             for (DocenteSeccion docenteSeccion : seccion.getDocenteSeccion()) {
@@ -428,22 +428,32 @@ public class HorarioAulaCicloPDF extends AbstractOnlyPdfView {
         for (ReservaAula reservaAula : reservaAulas) {
             Tramite tramite = reservaAula.getTramite();
             String tipoReserva = "Reserva Aula: " + reservaAula.getTipoReservaEnum().getValue();
-            String solicitante = "Solicitante: ";
+            String solicitante = "Sol. : ";
             if (tramite.isSolicitanteAlumno()) {
-                solicitante = "Alumno " + tramite.getAlumno().getCodigo();
+                solicitante += "Alumno " + tramite.getAlumno().getCodigo();
             } else if (tramite.isSolicitanteDocente()) {
-                solicitante = "Docente " + tramite.getDocente().getCodigo();
+                solicitante += "Docente " + tramite.getDocente().getCodigo();
             } else if (tramite.isSolicitanteEmpresa()) {
-                solicitante = "Empresa " + tramite.getEmpresa().getDescripcion();
+                solicitante = "Emp. " + tramite.getEmpresa().getDescripcion();
+                solicitante = this.cutedDescription(solicitante);
             } else if (tramite.isSolicitanteOficina()) {
-                solicitante = "Oficina " + tramite.getOficina().getCodigo();
+                String oficinaDescription = tramite.getOficina() == null ? "N.N." : tramite.getOficina().getCodigo();
+                solicitante += "Oficina " + oficinaDescription;
             } else if (tramite.isSolicitantePersona()) {
-                solicitante = "Persona " + tramite.getPersona().getApellidosNombres();
+                solicitante += "Persona " + tramite.getPersona().getApellidosNombres();
+                solicitante = this.cutedDescription(solicitante);
             }
             addCeldaLeftBody(tipoReserva, innerTable, bodyFont);
             addCeldaLeftBody(solicitante, innerTable, bodyFont);
         }
 
+    }
+
+    public String cutedDescription(String description) {
+        if (description.length() >= lengthMaxDescription) {
+            description = description.substring(0, lengthMaxDescription);
+        }
+        return description;
     }
 
     private void addCeldaLeftBody(String contenido, PdfPTable table, Font bodyFont) {
