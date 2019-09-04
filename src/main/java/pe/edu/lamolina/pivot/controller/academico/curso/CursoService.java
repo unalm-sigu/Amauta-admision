@@ -7,9 +7,11 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Docente;
+import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.NombreCurso;
+import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.general.Idioma;
 import pe.edu.lamolina.model.general.TipoCarpeta;
@@ -46,5 +48,7 @@ public interface CursoService {
     List<TipoCarpeta> allTiposCarpeta();
 
     List<MatriculaSeccion> allMatriculasSecciones(List<Curso> curso, CicloAcademico cicloAcademico);
+
+    List<DocenteSeccion> allDocenteSeccionPrincipalesBySecciones(List<Seccion> secciones);
 
 }
