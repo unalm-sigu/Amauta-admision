@@ -10,10 +10,13 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
+import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -21,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.view.AbstractView;
 import pe.albatross.zelpers.file.excel.ExcelHelper;
+import pe.albatross.zelpers.file.excel.ExcelStyles;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.consejeria.AlumnoConsejero;
@@ -121,32 +125,53 @@ public class ReporteAlumnosConsejeroExcelView extends AbstractView {
     private void createBody(Workbook wb, Sheet sheet, List<Consejero> consejeros, List<AlumnoConsejero> alumnosConsejero, DataSessionPivot ds) {
         ExcelHelper excelUtil = new ExcelHelper(sheet, wb);
 
-        CellStyle estiloCabecera = getStyleCabecera(wb);
-        CellStyle estiloCabeceraNombre = getStyleCabecera(wb);
-        estiloCabeceraNombre.setAlignment(CellStyle.ALIGN_LEFT);
+        CellStyle headerCell = ExcelStyles.getStyleCellHeaderGrey(wb);
         CellStyle estiloCodigo = getStyleNumero(wb);
         CellStyle estiloNumero = getStyleNumero(wb);
         CellStyle estiloGeneral = getStyleGeneral(wb);
 
-        int irow = 7;
+        int irow = 1;
+        CellRangeAddress region = CellRangeAddress.valueOf("A" + irow + ":G" + irow);
+        sheet.addMergedRegion(region);
+        Row row = sheet.createRow(region.getFirstRow());
+        Cell cell = row.createCell(region.getFirstColumn());
+        cell.setCellValue("UNIVERSIDAD NACIONAL AGRARIA LA MOLINA");
+        cell.setCellStyle(ExcelStyles.getCellTitle1Green(wb));
+        irow++;
 
-        excelUtil.replaceVal(3, 2, "Ciclo Académico " + ds.getCicloAcademico().getDescripcion());
-        excelUtil.replaceVal(4, 2, "Fecha " + TypesUtil.getStringDate(new Date(), "dd/MM/yyyy H:mm:ss"));
-//ponderado, estado academico
+        region = CellRangeAddress.valueOf("A" + irow + ":G" + irow);
+        sheet.addMergedRegion(region);
+        row = sheet.createRow(region.getFirstRow());
+        cell = row.createCell(region.getFirstColumn());
+        cell.setCellValue("ALUMNOS ACONSEJADOS");
+        cell.setCellStyle(ExcelStyles.getCellTitle3Green(wb));
+        irow++;
+
+        String ciclo = "Ciclo Académico " + ds.getCicloAcademico().getDescripcion();
+        String fecha = TypesUtil.getStringDate(new Date(), "dd/MM/yyyy H:mm:ss");
+        region = CellRangeAddress.valueOf("A" + irow + ":G" + irow);
+        sheet.addMergedRegion(region);
+        row = sheet.createRow(region.getFirstRow());
+        cell = row.createCell(region.getFirstColumn());
+        cell.setCellValue(ciclo + " - " + fecha);
+        cell.setCellStyle(ExcelStyles.getStyleBody(wb));
+        cell.getCellStyle().setAlignment(CellStyle.ALIGN_RIGHT);
+        irow++;
+
         int column = 0;
-        excelUtil.replaceVal(irow - 1, column++, "N", estiloCabecera);
+        excelUtil.replaceVal(irow - 1, column++, "N", headerCell);
         sheet.setColumnWidth((column - 1), 10 * 256);
-        excelUtil.replaceVal(irow - 1, column++, "CODIGO TUTOR", estiloCabecera);
+        excelUtil.replaceVal(irow - 1, column++, "CODIGO TUTOR", headerCell);
         sheet.setColumnWidth((column - 1), 20 * 256);
-        excelUtil.replaceVal(irow - 1, column++, "TUTOR", estiloCabecera);
+        excelUtil.replaceVal(irow - 1, column++, "TUTOR", headerCell);
         sheet.setColumnWidth((column - 1), 35 * 256);
-        excelUtil.replaceVal(irow - 1, column++, "CÓDIGO ALUMNO", estiloCabecera);
+        excelUtil.replaceVal(irow - 1, column++, "CÓDIGO ALUMNO", headerCell);
         sheet.setColumnWidth((column - 1), 20 * 256);
-        excelUtil.replaceVal(irow - 1, column++, "NOMBRE ALUMNO", estiloCabecera);
+        excelUtil.replaceVal(irow - 1, column++, "NOMBRE ALUMNO", headerCell);
         sheet.setColumnWidth((column - 1), 35 * 256);
-        excelUtil.replaceVal(irow - 1, column++, "CARRERA ALUMNO", estiloCabecera);
+        excelUtil.replaceVal(irow - 1, column++, "CARRERA ALUMNO", headerCell);
         sheet.setColumnWidth((column - 1), 50 * 256);
-        excelUtil.replaceVal(irow - 1, column++, "SITUACIÓN ACADEMICA", estiloCabecera);
+        excelUtil.replaceVal(irow - 1, column++, "SITUACIÓN ACADEMICA", headerCell);
         sheet.setColumnWidth((column - 1), 30 * 256);
 
         int num = 1;
@@ -167,8 +192,6 @@ public class ReporteAlumnosConsejeroExcelView extends AbstractView {
                 num++;
             }
         }
-
-        sheet.setForceFormulaRecalculation(true);
 
     }
 
