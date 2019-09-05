@@ -833,7 +833,7 @@ public class AlumnoServiceImp implements AlumnoService {
                 logger.debug("*********** cursoConvalidado existente");
                 cursoConvalidado.setUserModifica(usuario);
                 cursoConvalidado.setFechaModificacion(new Date());
-                cursoConvalidadoDAO.updateColumns(cursoConvalidado,"fechaModificacion", "userModifica", "nota");
+                cursoConvalidadoDAO.updateColumns(cursoConvalidado, "fechaModificacion", "userModifica", "nota");
 
             }
 
@@ -1026,7 +1026,10 @@ public class AlumnoServiceImp implements AlumnoService {
     @Override
     public List<CursoOpcionalCurricula> allcursosOpcional(Long idAlumno) {
         Alumno alumno = alumnoDAO.find(new Alumno(idAlumno));
-        return cursoOpcionalCurriculaDAO.allByPlanCurricular(alumno.getPlanCurricular());
+        if (alumno.getPlanCurricular() != null) {
+            return cursoOpcionalCurriculaDAO.allByPlanCurricular(alumno.getPlanCurricular());
+        }
+        return new ArrayList();
     }
 
     @Override
