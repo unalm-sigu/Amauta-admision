@@ -181,7 +181,7 @@ public class ResolucionExistentesController {
     @ResponseBody
     @RequestMapping("save")
     public JsonResponse save(@RequestBody Resolucion resolucion,
-            HttpSession session) {
+            HttpSession session)  {
         JsonResponse response = new JsonResponse();
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);

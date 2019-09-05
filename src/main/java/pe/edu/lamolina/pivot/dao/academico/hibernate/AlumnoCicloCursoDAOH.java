@@ -621,4 +621,14 @@ public class AlumnoCicloCursoDAOH extends AbstractEasyDAO<AlumnoCicloCurso> impl
                 .in("ac.id", alumnosCiclos);
         return all(sql);
     }
+
+    @Override
+    public void updateColumns(AlumnoCicloCurso alumnoCicloCursoFound,  String... params) {
+         Octavia octavia = Octavia.update(AlumnoCicloCurso.class);
+        for (String column : params) {
+            octavia.set(alumnoCicloCursoFound, column);
+        }
+        System.out.println("UPDATE " + octavia.toString());
+        this.update(octavia);
+    }
 }

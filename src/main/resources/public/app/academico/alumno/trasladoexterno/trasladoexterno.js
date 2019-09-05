@@ -10,14 +10,14 @@ new Vue({
         listAlumnoCursoCOptions: [],
         curso: null,
         cursos: [],
-        tramiteTrasladoActivo: {tipoTraslado: null, id: null},
+        tramiteTrasladoActivo: {},
         total: 0
     },
     created: function () {
         let $vue = this;
         $vue.updateListOptions();
         $vue.countTotal();
-        $vue.findTramiteTrasladoActivo();
+//        $vue.findTramiteTrasladoActivo();
     },
     mounted: function () {
         let $vue = this;
@@ -27,11 +27,19 @@ new Vue({
         customLabel(item) {
             return item.curso.nombre + " - " + item.curso.codigo + " Nro Ciclo " + item.numeroCiclo;
         },
-        returnEstado(estado) {
+        customLabelRes( { resolucion}) {
+            if (resolucion == null) {
+                return ""
+            }
+            return `${resolucion.numero} – ${resolucion.serie}`;
+        },
+        returnEstado(estado)
+        {
             return estado === 'ACT' ? 'Activo' : 'Inactivo';
         },
         countTotal() {
             let $vue = this;
+            $vue.total = 0;
             for (var i = 0; i < $vue.listCursoConvalidado.length; i++) {
                 $vue.updateTotalCreditos($vue.listCursoConvalidado[i], "add");
             }
@@ -100,7 +108,7 @@ new Vue({
             }
             let objectClone = Object.assign({}, $vue.curso);
             $vue.listUpdate(objectClone);
-            $vue.listCursoConvalidado.push({id: null, curso: objectClone, tramiteTraslado: {id: $vue.tramiteTrasladoActivo.id, alumno: $vue.alumno}});
+            $vue.listCursoConvalidado.push({id: null, curso: objectClone, tramiteTraslado: {alumno: $vue.alumno}});
             $vue.updateTotalCreditos($vue.curso, "add");
             $vue.curso = null;
         },
@@ -110,6 +118,19 @@ new Vue({
             $vue.listCursoConvalidado.splice(index, 1);
             $vue.updateListOptions();
 
+        },
+        valid(item) {
+            let $vue = this;
+            var ret = false;
+            if (item.tramiteTraslado.tipoTraslado == 'TRAS') {
+                ret = true;
+            }
+            if ($vue.tramiteTrasladoActivo.id != null && $vue.tramiteTrasladoActivo.tipoTraslado == 'TRAS') {
+                if (item.tramiteTraslado.tipoTraslado == null || item.tramiteTraslado.tipoTraslado == 'TRAS') {
+                    ret = true;
+                }
+            }
+            return ret;
         },
         updateTotalCreditos(item, param) {
             let $vue = this;
@@ -123,9 +144,9 @@ new Vue({
 
             if (param === "remove") {
                 if (item.curso != null) {
-                    $vue.total = $vue.total + (item.curso.creditos);
+                    $vue.total = $vue.total - (item.curso.creditos);
                 } else {
-                    $vue.total = $vue.total + (item.creditos);
+                    $vue.total = $vue.total - (item.creditos);
                 }
             }
         },
@@ -148,13 +169,26 @@ new Vue({
         save() {
             let $vue = this;
             let list = [];
-
+            let totalNuevos = 0;
+            let mapId = new Map();
+            let nombre_curso = "";
+            let repetido = false;
             for (var i = 0; i < $vue.listCursoConvalidado.length; i++) {
+                list.push($vue.listCursoConvalidado[i]);
                 if ($vue.listCursoConvalidado[i].id === null) {
-                    list.push($vue.listCursoConvalidado[i]);
+                    totalNuevos += $vue.listCursoConvalidado[i].curso.creditos;
                 }
+                if (mapId.get($vue.listCursoConvalidado[i].curso.id) != null) {
+                    nombre_curso = mapId.get($vue.listCursoConvalidado[i].curso.id);
+                    repetido = true;
+                    break;
+                }
+                mapId.set($vue.listCursoConvalidado[i].curso.id, $vue.listCursoConvalidado[i].curso.nombre);
             }
-
+            if (repetido) {
+                notify("Está repitiendo el curso " + nombre_curso, "warning");
+                return;
+            }
             if (list.length === 0) {
                 notify("Debe agregar almenos un curso para convalidar.", "warning");
                 return;
@@ -168,7 +202,7 @@ new Vue({
                 }
             }
 
-            let trasladoBean = {listCursoConvalidado: list, total: $vue.total, alumno: $vue.alumno, tramiteTraslado: Object.assign({}, $vue.tramiteTrasladoActivo)};
+            let trasladoBean = {listCursoConvalidado: list, total: totalNuevos, alumno: $vue.alumno, tramiteTraslado: Object.assign({}, $vue.tramiteTrasladoActivo)};
             let texto = (list.length > 1 ? 'los ' + list.length + ' cursos seleccionados?' : 'el curso seleccionado?');
             let txtAdvertencia = " <b>Sí acepta, ya no podrá convalidar otros cursos hasta una nueva resolución.</b>";
             bootbox.confirm({
@@ -180,6 +214,7 @@ new Vue({
                 callback: function (result) {
                     if (result) {
 
+                        MODAL.showWait("Espere un momento por favor");
                         axios.post("/" + rutaModulo + "/saveListCursoConvalidado", trasladoBean)
                                 .then(response => {
                                     if (response.data.success) {
@@ -187,10 +222,10 @@ new Vue({
                                         $vue.listCursoConvalidado = response.data.data;
                                         $vue.updateListOptions();
                                         $vue.countTotal();
-                                        $vue.findTramiteTrasladoActivo();
+//                                        $vue.findTramiteTrasladoActivo();
                                         $vue.tramiteTrasladoActivo = {tipoTraslado: null, id: null};
                                         $vue.desactivarTraslados();
-
+                                        MODAL.hideWait();
                                     } else {
                                         notify(response.data.message, "warning");
                                     }

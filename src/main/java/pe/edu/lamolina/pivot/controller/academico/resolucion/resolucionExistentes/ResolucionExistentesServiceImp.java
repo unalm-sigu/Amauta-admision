@@ -620,7 +620,7 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
             tramiteDAO.save(tramite);
 
             tramiteTraslado.setTramite(tramite);
-            tramiteTraslado.setCicloAcademico(cicloAcademico);
+//            tramiteTraslado.setCicloAcademico(cicloAcademico);
             tramiteTraslado.setResolucion(resolucion);
             tramiteTraslado.setFechaRegistro(new Date());
             if (resolucionForm.getTipoResolucion().getCodigo().equals(TipoResolucionEnum.TRAS.name())) {
