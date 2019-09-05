@@ -186,7 +186,7 @@ public class ConsejerosPorCarreraExcelView extends AbstractView {
         excelUtil.replaceVal(irow, column++, "NOMBRE DEL PROFESOR CONSEJERO", headerCell);
         sheet.setColumnWidth((column - 1), 50 * 256);
         excelUtil.replaceVal(irow, column++, "DPTO. ACADÉMICO", headerCell);
-        sheet.setColumnWidth((column - 1), 20 * 256);
+        sheet.setColumnWidth((column - 1), 25 * 256);
         excelUtil.replaceVal(irow, column++, "NRO. ACONSEJADOS", headerCell);
         sheet.setColumnWidth((column - 1), 35 * 256);
 
@@ -199,7 +199,7 @@ public class ConsejerosPorCarreraExcelView extends AbstractView {
             excelUtil.replaceVal(irow, column++, consejero.getDocente().getCodigo(), estiloGeneral);
             excelUtil.replaceVal(irow, column++, consejero.getColaborador().getPersona().getApellidosNombres(), estiloGeneral);
             excelUtil.replaceVal(irow, column++, consejero.getDocente().getDepartamentoAcademico().getNombre(), estiloGeneral);
-            excelUtil.replaceVal(irow, column++, "", estiloGeneral);
+            excelUtil.replaceVal(irow, column++, consejero.getAconsejadosMat() + consejero.getAconsejadosNmat(), estiloGeneral);
             irow++;
 
         }

@@ -63,7 +63,7 @@
                                         </td>
                                         <td class="col-lg-5">
                                             <div class="alert alert-warning text-center" v-if="tramiteTrasladoActivo.id === null" role="alert">
-                                                Actualmente no cuenta con una resolución de traslado externo activo.
+                                                Actualmente no cuenta con una resolución de convalidación activo.
                                             </div>
                                         </td>
                                     </tr>
@@ -110,16 +110,30 @@
                                             <thead>
                                                 <tr>
                                                     <th class="col-md-7" >Curso</th>
-                                                    <th class="col-md-1 text-center" v-if="tramiteTrasladoActivo.tipoTraslado == 'INTES'  || tramiteTrasladoActivo.tipoTraslado == 'ING_HIS'">Nota</th>
-                                                    <th class="col-md-3 text-center">Créditos</th>
+                                                    <th class="col-md-2" >Ciclo</th>
+                                                    <th class="col-md-1 text-center" >Nota</th>
+                                                    <th class="col-md-1 text-center">Créditos</th>
                                                     <th class="col-md-1"></th>
                                                 </tr>
                                             </thead>
-                                            <tbody v-if="tramiteTrasladoActivo.tipoTraslado == 'TRAS'">
+                                            <tbody id="formTraslado" data-parsley-validate="true">
                                                 <tr v-for="(item, index) in listCursoConvalidado">
                                                     <td  class="v-middle">
                                                         <span class="text-primary"><b>{{item.curso.nombre}}</b></span>
                                                         <p><b> Código: </b>{{item.curso.codigo}} <b> Tipo: </b>{{returnTipoCurso(item.curso.tipoCurso)}}</p>
+                                                        <span class="label label-warning" v-if="item.tramiteTraslado.tipoTraslado"><b>{{item.tramiteTraslado.tipoTraslado}}</b></span>
+                                                        <span class="label label-warning" v-else=""><b>{{tramiteTrasladoActivo.tipoTraslado}}</b></span>
+                                                    </td>
+                                                    <td  class="v-middle"  >
+                                                        <span v-if="item.tramiteTraslado.cicloAcademico" v-text="item.tramiteTraslado.cicloAcademico.descripcion2"></span>
+                                                        <span v-else="">{{tramiteTrasladoActivo.cicloAcademico.descripcion2}}</span>
+                                                    </td>
+                                                    <td  class="v-middle text-center" v-if="valid(item)"  >
+                                                        <span v-text="'TE'">TE</span>
+                                                    </td>
+                                                    <td class="v-middle text-center" v-else=''> 
+                                                        <input v-if="tramiteTrasladoActivo.id != null &amp;&amp; tramiteTrasladoActivo.tipoTraslado != 'TRAS'" v-model="item.nota" class="form-control" required="true"></input>
+                                                        <span v-else='' v-text="item.nota"></span>                                                       
                                                     </td>
                                                     <td  class="v-middle text-center">
                                                         <span v-text="item.curso.creditos"></span>
@@ -132,69 +146,103 @@
                                                 </tr>
                                                 <tr v-if="listCursoConvalidado.length !== 0">
                                                     <td  class="v-middle"></td>
-                                                    <td  class="v-middle text-center"> Total: <b>{{total}}</b></td>
-                                                    <td  class="v-middle"></td> 
-                                                </tr>
-                                            </tbody>
-                                            <tbody v-else="" id="formTraslado" data-parsley-validate="true">
-                                                <tr v-for="(item, index) in listCursoConvalidado">
-                                                    <td class="v-middle">
-                                                        <span class="text-primary"><b>{{item.curso.nombre}}</b></span>
-                                                        <p><b> Código: </b>{{item.curso.codigo}} <b> Tipo: </b>{{returnTipoCurso(item.curso.tipoCurso)}}</p>
-                                                    </td>
-                                                    <td class="v-middle text-center">
-                                                        <span v-if="item.id !== null" v-text="item.nota"></span>
-                                                        <input v-if="item.id === null &amp;&amp; ( tramiteTrasladoActivo.tipoTraslado == 'INTES'  || tramiteTrasladoActivo.tipoTraslado == 'ING_HIS')" v-model="item.nota" class="form-control" required="true"></input>
-                                                    </td>
-                                                    <td class="v-middle text-center">
-                                                        <span v-text="item.curso.creditos"></span>
-                                                    </td>
-                                                    <td class="v-middle text-center">
-                                                        <a v-if="item.id === null" v-on:click="deleteItem(index, item)" class="btn btn-danger">
-                                                            <i class="fa fa-trash-o " aria-hidden="true"></i>
-                                                        </a>
-                                                    </td>
-                                                </tr>
-                                                <tr v-if="listCursoConvalidado.length !== 0">
                                                     <td  class="v-middle"></td>
                                                     <td  class="v-middle"></td>
                                                     <td  class="v-middle text-center"> Total: <b>{{total}}</b></td>
                                                     <td  class="v-middle"></td> 
                                                 </tr>
                                             </tbody>
+                                            <!--                                            <tbody v-else="" id="formTraslado" data-parsley-validate="true">
+                                                                                            <tr v-for="(item, index) in listCursoConvalidado">
+                                                                                                <td class="v-middle">
+                                                                                                    <span class="text-primary"><b>{{item.curso.nombre}}</b></span>
+                                                                                                    <p><b> Código: </b>{{item.curso.codigo}} <b> Tipo: </b>{{returnTipoCurso(item.curso.tipoCurso)}}</p>
+                                                                                                </td>
+                                                                                                <td class="v-middle text-center">
+                                                                                                    <span v-if="item.id !== null" v-text="item.nota"></span>
+                                                                                                    <input v-if="item.id === null " v-model="item.nota" class="form-control" required="true"></input>
+                                                                                                </td>
+                                                                                                <td class="v-middle text-center">
+                                                                                                    <span v-text="item.curso.creditos"></span>
+                                                                                                </td>
+                                                                                                <td class="v-middle text-center">
+                                                                                                    <a v-if="item.id === null" v-on:click="deleteItem(index, item)" class="btn btn-danger">
+                                                                                                        <i class="fa fa-trash-o " aria-hidden="true"></i>
+                                                                                                    </a>
+                                                                                                </td>
+                                                                                            </tr>
+                                                                                            <tr v-if="listCursoConvalidado.length !== 0">
+                                                                                                <td  class="v-middle"></td>
+                                                                                                <td  class="v-middle"></td>
+                                                                                                <td  class="v-middle text-center"> Total: <b>{{total}}</b></td>
+                                                                                                <td  class="v-middle"></td> 
+                                                                                            </tr>
+                                                                                        </tbody>-->
                                         </table>
 
                                         <h5 class="m-l-md"><b>   Resolución</b></h5>
-                                        <div v-for="item in listTramiteTraslado"> 
+                                        <div class="row form-group" v-if="listTramiteTraslado.length > 0">
+                                            <div class="col-md-12">
+                                                <div class="col-md-7">
+                                                    <multiselect v-model="tramiteTrasladoActivo" 
+                                                                 v-bind:options='listTramiteTraslado'
+                                                                 track-by='id'
+                                                                 label="id"
+                                                                 :custom-label="customLabelRes"
+                                                                 placeholder="Seleccionar Resolución"
+                                                                 :internal-search="true"
+                                                                 v-bind:allow-empty="false"
+                                                                 v-bind:preselect="false"
+                                                                 >
+                                                        <template slot="option" slot-scope="props">
+                                                            <template v-slot="singleLabel" slot-scope="props">
+                                                                <span class="option__desc"><span class="option__title">{{ props.option.resolucion.tipoResolucion.nombre }}</span></span>
+                                                            </template>
+                                                            <span class="text-primary"><b>{{ props.option.resolucion.numero }} - {{ props.option.resolucion.serie }}</b> </span>
+                                                            <div class="block">
+                                                                <span ><b>Tipo Resolución: </b>  {{ props.option.resolucion.tipoResolucion.nombre}} </span>
+                                                                <span ><b>Oficina: </b>{{props.option.resolucion.oficina.nombre}}</span>
+                                                            </div>
+                                                        </template>
+                                                        <template slot="noOptions">La lista se encuentra vacía</template>
+                                                        <template slot="noResult">No se encontraron resultados</template>
+                                                    </multiselect>
+                                                </div>                                               
+                                            </div>
+                                        </div>
+                                        <div v-if='tramiteTrasladoActivo.id != null'> 
                                             <div class="row col-md-12">
                                                 <div class="col-md-3">
                                                     <div class="col-md-12">
-                                                        <span><b>Tipo Resolución: </b>{{item.resolucion.tipoResolucion.nombre}}</span>
+                                                        <span><b>Tipo Resolución: </b>{{tramiteTrasladoActivo.resolucion.tipoResolucion.nombre}}</span>
                                                     </div>
                                                     <div class="col-md-12">
-                                                        <span><b>Oficina: </b>{{item.resolucion.oficina.nombre}}</span>
+                                                        <span><b>Ciclo Academico: </b>{{tramiteTrasladoActivo.cicloAcademico.descripcion2}}</span>
+                                                    </div>
+                                                    <div class="col-md-12">
+                                                        <span><b>Oficina: </b>{{tramiteTrasladoActivo.resolucion.oficina.nombre}}</span>
                                                     </div>
                                                 </div>
                                                 <div class="col-md-3">
                                                     <div class="col-md-3"><b>Documentos: </b></div>
                                                     <div class="col-md-6">
-                                                        <span class="block text-muted">Número: {{item.resolucion.numero}}</span> 
-                                                        <span class="block text-muted">Serie: {{item.resolucion.serie}}</span>
-                                                        <span v-if="item.resolucion.rutaUrl != null" class="block text-muted">Url: <a v-bind:href="item.resolucion.rutaUrl" target="_blank">Link</a></span>
+                                                        <span class="block text-muted">Número: {{tramiteTrasladoActivo.resolucion.numero}}</span> 
+                                                        <span class="block text-muted">Serie: {{tramiteTrasladoActivo.resolucion.serie}}</span>
+                                                        <span v-if="tramiteTrasladoActivo.resolucion.rutaUrl != null" class="block text-muted">Url: <a v-bind:href="tramiteTrasladoActivo.resolucion.rutaUrl" target="_blank">Link</a></span>
                                                     </div> 
                                                 </div> 
                                                 <div class="col-md-2">
                                                     <div class="col-md-12">
-                                                        <span><b>Fecha Resolución: </b>{{item.resolucion.fecha}}</span>
-                                                        <p v-if="item.estado === 'ACT'"><b>Estado: </b> <span class="label label-success" >{{returnEstado(item.estado)}}</span></p>
-                                                        <p v-if="item.estado === 'INA'"><b>Estado: </b> <span class="label label-default" >{{returnEstado(item.estado)}}</span></p>
+                                                        <span><b>Fecha Resolución: </b>{{tramiteTrasladoActivo.resolucion.fecha}}</span>
+                                                        <p v-if="tramiteTrasladoActivo.estado === 'ACT'"><b>Estado: </b> <span class="label label-success" >{{returnEstado(tramiteTrasladoActivo.estado)}}</span></p>
+                                                        <p v-if="tramiteTrasladoActivo.estado === 'INA'"><b>Estado: </b> <span class="label label-default" >{{returnEstado(tramiteTrasladoActivo.estado)}}</span></p>
                                                     </div> 
                                                 </div> 
                                                 <div class="col-md-4">
                                                     <div class="col-md-2"><b>Registro: </b></div>
                                                     <div class="col-md-10">
-                                                        <span class="block text-muted">Usuario: {{item.resolucion.userRegistro.persona.apellidosNombres}}</span> 
-                                                        <span class="block text-muted">Fecha: {{item.resolucion.fechaRegistro}}</span>
+                                                        <span class="block text-muted">Usuario: {{tramiteTrasladoActivo.resolucion.userRegistro.persona.apellidosNombres}}</span> 
+                                                        <span class="block text-muted">Fecha: {{tramiteTrasladoActivo.resolucion.fechaRegistro}}</span>
                                                     </div> 
                                                 </div> 
                                             </div> 

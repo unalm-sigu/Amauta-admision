@@ -581,7 +581,7 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
 
         PdfContent pdfHistorial = new PdfContent();
         pdfHistorial.setContext(ctx);
-        pdfHistorial.setTipoPdfEnum(TipoPdfEnum.HISTORIAL_ACADEMICO);
+        pdfHistorial.setTipoPdfEnum(TipoPdfEnum.HISTORIAL_ACADEMICO_CURDIR);
 
 //        PdfContent pdfHistorialListado = new PdfContent();
 //        pdfHistorialListado.setContext(ctx);

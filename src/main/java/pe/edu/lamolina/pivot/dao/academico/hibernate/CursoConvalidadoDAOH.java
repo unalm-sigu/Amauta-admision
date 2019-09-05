@@ -20,11 +20,21 @@ public class CursoConvalidadoDAOH extends AbstractEasyDAO<CursoConvalidado> impl
     public List<CursoConvalidado> allInTramiteTraslado(List<TramiteTraslado> listTramiteTraslado) {
         Octavia sql = Octavia.query()
                 .from(CursoConvalidado.class, "cc")
-                .join("curso cur", "tramiteTraslado ttr")
+                .join("curso cur", "tramiteTraslado ttr", "ttr.cicloAcademico")
                 .in("ttr.id", listTramiteTraslado)
                 .orderBy("cc.id desc");
 
         return all(sql);
+    }
+
+    @Override
+    public void updateColumns(CursoConvalidado cursoConvalidado, String... params) {
+        Octavia octavia = Octavia.update(CursoConvalidado.class);
+        for (String column : params) {
+            octavia.set(cursoConvalidado, column);
+        }
+        System.out.println("UPDATE " + octavia.toString());
+        this.update(octavia);
     }
 
 }
