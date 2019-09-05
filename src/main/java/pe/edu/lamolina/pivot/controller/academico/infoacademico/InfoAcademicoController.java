@@ -35,8 +35,11 @@ import pe.edu.lamolina.model.academico.OrientacionCarrera;
 import pe.edu.lamolina.model.academico.PlanCurricular;
 import pe.edu.lamolina.model.academico.RequisitoCursoCurricula;
 import pe.edu.lamolina.model.aporte.BoletaIngresante;
+import static pe.edu.lamolina.model.enums.TipoCicloEnum.REG;
+import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
 import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.horario.HorarioSeccion;
+import pe.edu.lamolina.model.tramite.RetiroCiclo;
 import pe.edu.lamolina.pivot.controller.academico.plancurricular.PlanCurricularService;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -366,6 +369,36 @@ public class InfoAcademicoController {
     }
 
     @ResponseBody
+    @RequestMapping("retirociclo")
+    public JsonResponse retirociclo(Alumno alumno, Model model, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+
+            ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
+
+            List<RetiroCiclo> retiroFull = service.allRetiroCicloByAlumno(alumno);
+
+            Long totalRetiros = retiroFull.stream()
+                    .filter(p -> p.getCicloAcademico().getTipoEnum()==REG)
+                    .filter(p -> p.getEstadoEnum()==TramiteEstadoEnum.ACEP)
+                    .count();
+
+            node.put("totalRetiros", retiroFull.size());
+            node.put("totalCicloContable", totalRetiros);
+            node.set("retiroCiclo", this.createRetiroCicloJson(retiroFull));
+
+            response.setSuccess(true);
+            response.setData(node);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
     @RequestMapping("dataCurricula")
     public JsonResponse dataCurricula(PlanCurricular plan, Model model, HttpSession session) {
         JsonResponse response = new JsonResponse();
@@ -520,4 +553,18 @@ public class InfoAcademicoController {
         });
         return matriCursoJson;
     }
+
+    private ArrayNode createRetiroCicloJson(List<RetiroCiclo> matrisResumenesRCI) {
+        ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+        for (RetiroCiclo MatriculaResumen : matrisResumenesRCI) {
+            array.add(JsonHelper.createJson(MatriculaResumen, JsonNodeFactory.instance, true, new String[]{
+                "*",
+                "tipoEnum",
+                "alumno.*",
+                "cicloAcademico.*"
+            }));
+        }
+        return array;
+    }
+
 }

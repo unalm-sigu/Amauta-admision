@@ -87,12 +87,17 @@
                                                             <span class="bold "> tpc:  {{item.curso.tpc}}</span> 
                                                         </span>
                                                     </td>
-                                                    <td class="v-middle">
+                                                    <td class="v-middle motivo" id="accordion" >
+                                                        <details>
+                                                       <summary>
                                                         <span class="bold "> Motivo Solicitud: </span><span> {{item.motivoSolicitud}}</span>
-                                                        <div >
+                                                        
                                                             <span class="hidden" v-text="json(item)"></span>
-                                                            <div  class="form-group " >
+                                                           
                                                                 <span class="block bold"> Situación actual: </span>
+                                                       </summary>  
+                                                       
+                                                         <div  class="form-group " >
                                                                 <div  class=" col-md-12">
                                                                     <label class="bold"> Programación:  </label>
                                                                     <span v-text="item.situacionActual.programado"></span>
@@ -117,7 +122,8 @@
                                                                     </div>
                                                                 </div>
                                                             </div>
-                                                        </div>
+                                                        </details>
+                                                        
                                                     </td>
                                                     <td class="v-middle">
                                                         <span class="block " v-bind:class="classColor(item.estado.codigo)"> {{item.estado.nombre}}</span>
