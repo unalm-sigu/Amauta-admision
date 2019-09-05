@@ -295,8 +295,9 @@ public class PromedioServiceImp implements PromedioService {
 
             for (AlumnoCiclo alumnoCiclo : alumnoCiclos) {
                 ultimoAlumnoCiclo = alumnoCiclo;
-
-                if (alumnoCiclo.getEstadoEnum() == EstadoMatriculaEnum.MAT) {
+                CicloAcademico cicloAlumno = alumnoCiclo.getCicloAcademico();
+                if (alumnoCiclo.getEstadoEnum() == EstadoMatriculaEnum.MAT
+                        && !cicloActivo.getCodigo().equals(cicloAlumno.getCodigo())) {
                     ultimoCiclo = alumnoCiclo.getCicloAcademico();
                     if (alumnoCiclo.getCicloAcademico().getTipoEnum() == TipoCicloEnum.REG) {
                         ultimoRegular = alumnoCiclo;
@@ -341,8 +342,8 @@ public class PromedioServiceImp implements PromedioService {
 
             }
 
-            if (ultimoAlumnoCiclo != null && ultimoAlumnoCiclo.getSituacionFinal() != null) {
-                alumno.setSituacionAcademica(ultimoAlumnoCiclo.getSituacionFinal());
+            if (ultimoRegular != null && ultimoRegular.getSituacionFinal() != null) {
+                alumno.setSituacionAcademica(ultimoRegular.getSituacionFinal());
             }
 
             alumno.setUltimoRetiro(ultimoRetiroRegular);
