@@ -366,7 +366,7 @@ public class CarreraDAOH extends AbstractEasyDAO<Carrera> implements CarreraDAO 
                 .from(Carrera.class, "car")
                 .join("modalidadEstudio me", "facultad fa")
                 .leftJoin("areaPosgrado ap")
-                .in("me.codigo", Arrays.asList(ModalidadEstudioEnum.PRE, ModalidadEstudioEnum.EPG))
+                .in("me.codigo", Arrays.asList(PRE, EPG, VIS, ESP))
                 .orderBy("car.nombre");
 
         return all(sql);

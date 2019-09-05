@@ -159,18 +159,20 @@ var app = new Vue({
                 type: 'POST',
                 data: JSON.stringify($vue.resolucion),
                 success: function (response) {
-                    if (response.success && response.data.length == 0) {
+                    if (response.success && response.data == null) {
                         notify(response.message, 'info');
                         $vue.resolucion = {reincorporaciones: [], retiroCiclo: [], cambioNota: [], cursoDirigido: [], tramiteTraslado: []};
                         $vue.alumnos = [];
                     } else {
-                        if (response.data.length > 0) {
+                        if (response.data != null && response.data.length > 0) {
                             $vue.errores = response.data;
                             $vue.$refs.modalError.open();
-                            $vue.resolucion = {reincorporaciones: [], retiroCiclo: [], cambioNota: [], cursoDirigido: [], tramiteTraslado: []};
-                            $vue.alumnos = [];
+//                            $vue.resolucion = {reincorporaciones: [], retiroCiclo: [], cambioNota: [], cursoDirigido: [], tramiteTraslado: []};
+//                            $vue.alumnos = [];
+                            notify("Algunos alumnos no pudieron ser matriculados.", 'error');
+                        } else {
+                            notify(response.message, 'error');
                         }
-                        notify("Algunos alumnos no pudieron ser matriculados.", 'error');
                     }
                     MODAL.hideWait();
                 },

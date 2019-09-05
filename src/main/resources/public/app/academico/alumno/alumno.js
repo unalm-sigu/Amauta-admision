@@ -145,7 +145,7 @@ new Vue({
             return "?origen=" + Base64.encode(url);
         },
         isPosgrado(modalidad) {
-            return modalidad.codigo == 'EPG' ? true : false;
+            return "/EPG/VIS/ESP/".indexOf(modalidad.codigo) >= 0;
         },
         verModalidades(tipo) {
             let $vue = this;

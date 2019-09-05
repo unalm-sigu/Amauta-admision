@@ -133,22 +133,22 @@ new Vue({
         },
         updateEstadoFuncionRol: function (funcionrol, estado) {
             let vue = this;
-            swal({
-                text: "¿Está seguro que desea cambiar el estado de " + funcionrol.perfilCompania.nombre + "?",
-                icon: "warning",
-                type: "warning",
-                dangerMode: true,
-                showCancelButton: true,
-                closeOnConfirm: false,
-                buttons: {
-                    cancel: "No",
-                    confirm: "Si, estoy seguro"
-                }
-            }).then((accept) => {
-                if (accept) {
+//            swal({
+//                text: "¿Está seguro que desea cambiar el estado de " + funcionrol.perfilCompania.nombre + "?",
+//                icon: "warning",
+//                type: "warning",
+//                dangerMode: true,
+//                showCancelButton: true,
+//                closeOnConfirm: false,
+//                buttons: {
+//                    cancel: "No",
+//                    confirm: "Si, estoy seguro"
+//                }
+//            }).then((accept) => {
+//                if (accept) {
                     vue.changeEstado(funcionrol, estado);
-                }
-            });
+//                }
+//            });
         },
         changeEstado: function (funcionrol, estado) {
             let vue = this;
