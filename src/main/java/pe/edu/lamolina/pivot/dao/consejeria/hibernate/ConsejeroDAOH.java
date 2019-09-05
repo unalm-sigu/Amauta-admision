@@ -3,7 +3,11 @@ package pe.edu.lamolina.pivot.dao.consejeria.hibernate;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.hibernate.Query;
+import org.hibernate.transform.Transformers;
+import org.hibernate.type.IntegerType;
+import org.hibernate.type.LongType;
 import org.springframework.stereotype.Service;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
@@ -214,6 +218,34 @@ public class ConsejeroDAOH extends AbstractEasyDAO<Consejero> implements Conseje
                 .filter("cola.id", colaborador)
                 .filter("ca.id", carrera);
         return find(sql);
+    }
+
+    @Override
+    public List<Consejero> allCountAconsejadosMatriculadosByCiclo(List<Consejero> consejeros, CicloAcademico cicloAcademico, EstadoEnum... estadoEnums) {
+        StringBuilder strb = new StringBuilder();
+        strb.append("   Select   ");
+        strb.append("   ac.id_consejero id,   ");
+        strb.append("   sum(if(mres.id is null,1,0)) aconsejadosNmat,   ");
+        strb.append("   sum(if(mres.id is not null,1,0)) aconsejadosMat   ");
+        strb.append("   from aca_alumno_consejero ac   ");
+        strb.append("  left join aca_matricula_resumen mres on mres.id_alumno=ac.id_alumno and mres.id_ciclo_academico=ac.id_ciclo_academico and mres.estado='MAT'    ");
+        strb.append("  inner join aca_consejero con on con.id=ac.id_consejero    ");
+        strb.append("  inner join  aca_carrera carcon on carcon.id=con.id_carrera    ");
+        strb.append("  where ac.id_ciclo_academico=:CICLO and ac.estado IN (:ESTADOS) and con.id IN (:CONSEJEROS)   ");
+        strb.append("  group by ac.id_consejero,carcon.id;    ");
+
+        Query query = getCurrentSession().createSQLQuery(strb.toString())
+                .addScalar("id", LongType.INSTANCE)
+                .addScalar("aconsejadosNmat", IntegerType.INSTANCE)
+                .addScalar("aconsejadosMat", IntegerType.INSTANCE)
+                .setResultTransformer(Transformers.aliasToBean(Consejero.class));
+
+        List<EstadoEnum> lEstados = Arrays.asList(estadoEnums);
+        query.setParameter("CICLO", cicloAcademico.getId());
+        query.setParameterList("ESTADOS", lEstados.stream().map(x -> x.name()).collect(Collectors.toList()));
+        query.setParameterList("CONSEJEROS", consejeros.stream().map(x -> x.getId()).collect(Collectors.toList()));
+
+        return query.list();
     }
 
 }

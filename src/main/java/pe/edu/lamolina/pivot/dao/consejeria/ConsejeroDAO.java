@@ -7,6 +7,7 @@ import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.consejeria.Consejero;
+import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.general.Colaborador;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.pivot.controller.consejeria.consejeros.AConsejeroEstado;
@@ -35,4 +36,6 @@ public interface ConsejeroDAO extends EasyDAO<Consejero> {
     AConsejeroEstado findAconsejadosByMatricula(Long carrera, CicloAcademico cicloAcademico);
 
     Consejero findByColaboradorCarrera(Colaborador colaborador, Carrera carrera);
+
+    List<Consejero> allCountAconsejadosMatriculadosByCiclo(List<Consejero> consejeros, CicloAcademico cicloAcademico, EstadoEnum... estadoEnums);
 }
