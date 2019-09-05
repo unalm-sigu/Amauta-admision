@@ -179,12 +179,18 @@
                                             </td>
                                             <td class="v-middle text-center"
                                                 v-bind:rowspan="getRowspanSecc(secc)">
-                                                <span class="block bold">{{secc.matriculados}}/{{secc.vacantes}}
-                                                      <a href="#" class="excel-icon"><i class="fa fa-file-excel-o ml-2" v-on:click="downloadAlumnosSeccion(secc)"  aria-hidden="true"></i></a>
-                                                 </span>
-                                                
-                                               
-                                               
+                                                <span class="block bold">
+                                                    {{secc.matriculados}}/{{secc.vacantes}}
+                                                    <a class="excel-icon pointer" v-if="secc.matriculados > 0">
+                                                        <i class="fa fa-file-excel-o ml-2" v-on:click="downloadAlumnosSeccion(secc)"  aria-hidden="true"></i>
+                                                    </a>
+                                                    <span v-else=""> 
+                                                        <i class="fa fa-minus-circle text-danger"></i>
+                                                    </span>
+                                                </span>
+
+
+
                                             </td>
 
                                             <template v-for="(profeSecc,idx) in secc.docenteSeccion"
@@ -267,7 +273,12 @@
                                                 <td class="v-middle text-center"
                                                     v-bind:rowspan="getRowspanSecc(secc)">
                                                     <span class="block bold">{{secc.matriculados}}/{{secc.vacantes}}
-                                                    <a href="#" class="excel-icon"><i class="fa fa-file-excel-o ml-2" v-on:click="downloadAlumnosSeccion(secc)"  aria-hidden="true"></i></a>
+                                                        <a class="excel-icon pointer" v-if="secc.matriculados > 0">
+                                                            <i class="fa fa-file-excel-o ml-2" v-on:click="downloadAlumnosSeccion(secc)"  aria-hidden="true"></i>
+                                                        </a>
+                                                        <span v-else=""> 
+                                                            <i class="fa fa-minus-circle text-danger"></i>
+                                                        </span>
                                                     </span>
                                                 </td>
 
