@@ -17,6 +17,7 @@ import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.MAT;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.PMAT;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.RCI;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.RCU;
+import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.RET;
 import pe.edu.lamolina.model.matricula.MatriculaSimultaneo;
 
 @Repository
@@ -215,7 +216,7 @@ public class MatriculaCursoDAOH extends AbstractEasyDAO<MatriculaCurso> implemen
         Octavia sql = Octavia.query(MatriculaCurso.class, "mc")
                 .join("matriculaResumen mr", "mr.alumno alu", "mr.cicloAcademico ca", "curso cu")
                 .filter("ca.estado", CicloAcademicoEstadoEnum.ACT)
-                .in("mc.estado", Arrays.asList(PMAT.name(), MAT.name(), RCI.name(), RCU.name()))
+                .in("mc.estado", Arrays.asList(PMAT.name(), MAT.name(), RCI.name(), RCU.name(), RET.name()))
                 .in("alu.id", alumnos);
         return sql.all(getCurrentSession());
 
