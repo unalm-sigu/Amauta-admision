@@ -3798,3 +3798,14 @@ body.container {
 .font-roman {
     font-family: "Times New Roman" !important;
 }
+
+.motivo{
+   cursor:pointer;  
+}
+
+
+.excel-icon{
+    font-size: 16px;
+        margin-left: 5px;
+        color:#5cb85c;
+}

@@ -58,7 +58,9 @@
                             <div v-show="6 == tabId">
                                 <malla-component v-bind:alumno="alumno" ref="loadMalla"></malla-component>
                             </div>
-                            <div v-show="7 == tabId"></div>
+                            <div v-show="8 == tabId">
+                                <retiro-ciclo-component v-bind:alumno="alumno" ref="compRetiroCiclo"></retiro-ciclo-component>
+                            </div>
                         </section>
                     </section> 
 
@@ -72,6 +74,7 @@
             <div th:substituteby="academico/alumno/includes/horario"/>
             <div th:substituteby="academico/alumno/includes/matricula"/>
             <div th:substituteby="academico/alumno/includes/malla"/>
+            <div th:substituteby="academico/alumno/includes/retiroCiclo"/>
 
 
         </section>
@@ -93,6 +96,7 @@
             <script th:src="@{/app/academico/alumno/horarioComponent.js}" charset="utf-8"></script>
             <script th:src="@{/app/academico/alumno/matriculaComponent.js}" charset="utf-8"></script>
             <script th:src="@{/app/academico/alumno/mallaComponent.js}" charset="utf-8"></script>
+            <script th:src="@{/app/academico/alumno/retiroCicloComponent.js}" charset="utf-8"></script>
             <script th:src="@{/app/academico/alumno/infoAcademico.js}" charset="utf-8"></script>
         </div>
     </body>

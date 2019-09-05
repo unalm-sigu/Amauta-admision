@@ -12,8 +12,10 @@ import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.OrientacionCarrera;
 import pe.edu.lamolina.model.academico.PlanCurricular;
 import pe.edu.lamolina.model.aporte.BoletaIngresante;
+import pe.edu.lamolina.model.enums.TipoCicloEnum;
 import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.horario.HorarioSeccion;
+import pe.edu.lamolina.model.tramite.RetiroCiclo;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface InfoAcademicoService {
@@ -59,5 +61,7 @@ public interface InfoAcademicoService {
     void cambiarOrientacion(Alumno alumno, OrientacionCarrera orientacionCarrera, DataSessionPivot ds);
 
     boolean usuarioPuedeCalcular(DataSessionPivot ds);
+
+    List<RetiroCiclo> allRetiroCicloByAlumno(Alumno alumno);
 
 }
