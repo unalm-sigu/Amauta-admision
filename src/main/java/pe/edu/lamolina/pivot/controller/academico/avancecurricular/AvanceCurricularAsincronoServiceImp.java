@@ -540,12 +540,10 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
             cursosNew.setCurso(cursocurricula.getCurso());
             cursosNew.setCursoOpcional(null);
             cursosNew.setCursoCurricula(cursocurricula);
-
             if (tipoCursoELCEnums.contains(cursocurricula.getCurso().getCodigo())) {
                 cursosNew.setEstadoEnum(PEND);
             } else {
                 cursosNew.setEstadoEnum(NREQ);
-
             }
             cursosNew.setEstadoRegistro(EstadoEnum.ACT.name());
             cursosNew.setNumeroCiclo(cursocurricula.getNumeroCiclo());
