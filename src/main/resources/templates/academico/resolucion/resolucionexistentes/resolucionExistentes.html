@@ -131,7 +131,8 @@
                                             <th class="col-md-2 text-center" v-if="isCambioNota">Curso</th>
                                             <th class="col-md-1 text-center" v-if="isCambioNota">Nota</th>
                                             <th class="col-md-3 text-center" v-if="isCursoDirigido">Docente</th>
-                                            <th ></th>
+                                            <th v-if="isCursoDirigido ">Aprobado</th>
+                                            <th  v-if="!isCursoDirigido "></th>
                                             <th ></th>
                                         </tr>
                                     </thead>

@@ -159,7 +159,7 @@ var app = new Vue({
                 type: 'POST',
                 data: JSON.stringify($vue.resolucion),
                 success: function (response) {
-                    if (response.success && response.data.length == 0) {
+                    if (response.success && response.data == null) {
                         notify(response.message, 'info');
                         $vue.resolucion = {reincorporaciones: [], retiroCiclo: [], cambioNota: [], cursoDirigido: [], tramiteTraslado: []};
                         $vue.alumnos = [];

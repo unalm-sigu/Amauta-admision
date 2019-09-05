@@ -69,74 +69,58 @@
             <span class="fecha" th:text="${fecha}">La Molina, miércoles 8 de agosto de 2018</span>
         </div>
 
-    <th:block th:each="item, itemStat: ${historial}">
+    <th:block>
         <table class="table table-plan" style="margin-bottom: 30px">
             <thead>
                 <tr>
-                    <td colspan="24" style="background-color: black; color: white" class="text-center"><b th:inline="text"> [[${item.key.descripcion2}]]</b></td>
-                </tr>
-                <tr>
-                    <td style="width: 66.56%" colspan="16" ><b> Nombre del curso  </b></td>
-                    <td style="width: 16.64%" colspan="4" class="text-center"><b> Creditos </b></td>
-                    <td style="width: 16.64%" colspan="4" class="text-center"><b> Nota   </b></td>
+                    <td><b>Curso</b></td>
+                    <td class="text-center"><b>Nota</b></td>
+                    <td class="text-center"><b>Ciclo</b></td>
                 </tr>
             </thead>
-            <tbody style="border: solid 2px !important">
-                <tr th:each="cursado : ${item.value}"  style="border: solid 2px !important" th:if="${cursado.isAprobado()}">
-                    <td style="width: 4.16%" colspan="16" >
-                        <span th:inline="text" style=" display: block !important;"> [[${cursado.curso.codigo}]] - [[${cursado.curso.nombre}]] </span>
-                        <span th:inline="text" th:if="${cursado.tipoCursoCurricula}" th:text="'('+${cursado.tipoCursoCurricula.nombre}+')'"></span>
+            <tbody>
+                <tr th:each="cursado : ${alumnoCicloCurso}">
+                    <td>
+                        <span th:inline="text"> [[${cursado.curso.codigo}]] - [[${cursado.curso.nombre}]] </span>
+                        <br/>
+                        <span th:if="${cursado.tipoCursoCurricula}" th:text="${cursado.tipoCursoCurricula.nombre}"> ciclo </span>
                     </td>
-                    <td style="width: 4.16%" colspan="4"  class="text-center">
-                        <span th:text="${cursado.curso.creditos}"> creditos </span>
-                    </td>
-                    <td style="width: 4.16%" colspan="4"  class="text-center">
+                    <td class="text-center">
                         <span th:if="${cursado.isAprobado()}" th:text="${cursado.nota}"> nota </span>
+                        <span th:unless="${cursado.isAprobado()}" style="color: red;" th:text="${cursado.nota}"> nota </span>
+                    </td>
+                    <td class="text-center">
+                        <span th:text="${cursado.alumnoCiclo.cicloAcademico.descripcion}"> ciclo </span>
                     </td>
                 </tr>
             </tbody>
         </table>
+    </th:block>
+    <th:block  th:each="item, itemStat: ${historial}">
         <table class="table table-plan"  style=" margin-bottom: 30px" th:if="${itemStat.size} == ${itemStat.index} +1">
             <th:block >
                 <tbody >
                     <tr>
-                        <td colspan="24" style="background-color: black; color: white" class="text-center"><b th:inline="text"> Resumen Académico </b></td>
+                        <td  style="background-color: black; color: white" class="text-center"><b th:inline="text"> Resumen Académico </b></td>
                     </tr>
                     <tr>
-                        <!--                    <td class="text-center" colspan="10"><b> SEMESTRAL  </b></td>
-                                            <td class="text-center" colspan="4"><b> </b></td>-->
-                        <td class="text-center" colspan="24"><b> ACUMULADO </b></td>
+                        <td class="text-center" ><b> ACUMULADO </b></td>
                     </tr>
-                    <!--                <tr>
-                                        <td colspan="6" style="width: 4.16%">Créditos Cursados</td>
-                                        <td colspan="4" style="width: 4.16%" class="text-right"> 
-                                            <span th:text="${alumnoCiclo.get(item.key).creditosCursadosCiclo}"> creditos cursados semestral </span>
-                                        </td>
-                                        <td colspan="4" style="width: 4.16%"></td>
-                                        <td colspan="6" style="width: 4.16%">Créditos Cursados</td>
-                                        <td colspan="4" style="width: 4.16%" class="text-right"> 
-                                            <span th:text="${alumnoCiclo.get(item.key).creditosAcumulados}"> creditos cursados semestral </span>
-                                        </td>
-                                    </tr>-->
                     <tr>
-                        <td colspan="6" style="width: 4.16%">Créditos Aprobados</td>
-                        <td colspan="4" style="width: 4.16%" class="text-right"> 
-                            <span th:text="${alumnoCiclo.get(item.key).creditosAprobadosCiclo}"> creditos cursados semestral </span>
+                        <td class="text-center"> 
+                            <span >Créditos Cursados: </span>
+                            <span th:text="${alumnoCiclo.get(item.key).creditosAcumulados}"> creditos cursados semestral </span>
                         </td>
-                        <td colspan="4" style="width: 4.16%"></td>
-                        <td colspan="6" style="width: 4.16%">Créditos Aprobados</td>
-                        <td colspan="4" style="width: 4.16%" class="text-right"> 
+                    </tr>
+                    <tr>
+                        <td class="text-center"> 
+                            <span >Créditos Aprobados: </span>
                             <span th:text="${alumnoCiclo.get(item.key).creditosAprobadosAcumulados}"> creditos cursados semestral </span>
                         </td>
                     </tr>
                     <tr>
-                        <td colspan="6" style="width: 4.16%"> Promedio Ponderado </td>
-                        <td colspan="4" style="width: 4.16%" class="text-right"> 
-                            <span th:text="${alumnoCiclo.get(item.key).promedioCiclo}"> creditos cursados semestral </span>
-                        </td>
-                        <td colspan="4" style="width: 4.16%"></td>
-                        <td colspan="6" style="width: 4.16%"> Promedio Ponderado </td>
-                        <td colspan="4" style="width: 4.16%" class="text-right"> 
+                        <td class="text-center"> 
+                            <span > Promedio Ponderado: </span>
                             <span th:text="${alumnoCiclo.get(item.key).promedioAcumulado}"> creditos cursados semestral </span>
                         </td>
                     </tr>
