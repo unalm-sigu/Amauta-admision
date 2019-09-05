@@ -181,13 +181,13 @@ public class ResolucionExistentesController {
     @ResponseBody
     @RequestMapping("save")
     public JsonResponse save(@RequestBody Resolucion resolucion,
-            HttpSession session)  {
+            HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
             ArrayNode data = new ArrayNode(JsonNodeFactory.instance);
-            List<SituacionAcademicaEnum> situaciones = Arrays.asList(S_N, S_1, S_2, S_3, S_5, S_8, S_9, S_3U, S_2U, S_4U, S_6U, S_TU, S_EM);
+            List<String> msg = null;
             if (resolucion.getTipoResolucion().getCodigo().equals(REIC.name())) {
                 List<Alumno> alumnos = service.saveReincorporacion(resolucion, ds.getUsuario(), ds);
                 for (Alumno alumno : alumnos) {
@@ -209,12 +209,12 @@ public class ResolucionExistentesController {
             } else if (Arrays.asList(TRAS.name(), INTES.name(), ING_HIS.name()).contains(resolucion.getTipoResolucion().getCodigo())) {
                 service.saveTramiteTraslado(resolucion, ds.getUsuario(), ds.getCicloAcademico(), ds.getCompania());
             } else if (resolucion.getTipoResolucion().getCodigo().equals(CURDIR.name())) {
-                service.saveCursoDirigido(resolucion, ds.getUsuario(), ds);
+                msg = service.saveCursoDirigido(resolucion, ds.getUsuario(), ds);                
             }
-
+            
             response.setMessage("Se realizó el registro satisfactoriamente.");
             response.setSuccess(Boolean.TRUE);
-            response.setData(data);
+            response.setData(msg);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
