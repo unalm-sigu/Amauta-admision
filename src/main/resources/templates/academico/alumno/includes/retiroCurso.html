@@ -20,14 +20,14 @@
                 </thead>
                 <tbody>
                     <tr v-for="item in retirosCurso">
-                        <td>
+                        <td class="v-middle" >
                             <i v-if="item.esContado" class="fa fa-check-circle fa-2x text-success"></i>
                         </td>
-                        <td class="text-center">
+                        <td class="text-center v-middle">
                             <span class="text-left h4 text-primary bold" v-text="item.cicloAcademico.descripcion"></span>
                             <span class="block" v-text="getFechaSmall(item.tramite.fechaRegistro)"></span>
                         </td>
-                        <td>
+                        <td class="v-middle" >
                             <span class="block m-t-sm">
                                 <span class="text-left h4 text-primary bold" v-text="item.curso.nombre"/>
                                 <span class="block text-muted p-no-margin">
@@ -39,10 +39,10 @@
                                 </small>
                             </span>
                         </td>
-                        <td>
+                        <td class="v-middle" >
                             <span v-text="item.tramite.observacion"></span>
                         </td>
-                        <td>
+                        <td class="v-middle" >
                             <span v-bind:class="classEnumTramite(item.estado)" v-text="item.estadoEnum.value"></span>
                         </td>
                     </tr>
