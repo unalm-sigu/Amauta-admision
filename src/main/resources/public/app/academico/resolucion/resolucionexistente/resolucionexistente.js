@@ -167,8 +167,8 @@ var app = new Vue({
                         if (response.data.length > 0) {
                             $vue.errores = response.data;
                             $vue.$refs.modalError.open();
-                            $vue.resolucion = {reincorporaciones: [], retiroCiclo: [], cambioNota: [], cursoDirigido: [], tramiteTraslado: []};
-                            $vue.alumnos = [];
+//                            $vue.resolucion = {reincorporaciones: [], retiroCiclo: [], cambioNota: [], cursoDirigido: [], tramiteTraslado: []};
+//                            $vue.alumnos = [];
                         }
                         notify("Algunos alumnos no pudieron ser matriculados.", 'error');
                     }

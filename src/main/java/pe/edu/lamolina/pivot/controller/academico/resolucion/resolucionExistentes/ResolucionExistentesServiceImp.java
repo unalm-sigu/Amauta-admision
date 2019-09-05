@@ -518,7 +518,7 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
         }
         
         for (CursoDirigido cursoDirigidoForm : resolucionForm.getCursoDirigido()) {
-            String message = "";
+            
             EstadoTramite estado = cursoDirigidoForm.getSeleccionado() ? estadoTramite : estadoTramiteRech;
             TramiteEstadoEnum estadotram = cursoDirigidoForm.getSeleccionado() ? TramiteEstadoEnum.ACEP : TramiteEstadoEnum.RCHZ;
             CursoDirigido cursoDirigidoTram = map.get(cursoDirigidoForm.getAlumno().getId());
