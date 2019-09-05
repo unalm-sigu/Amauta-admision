@@ -140,6 +140,8 @@ import pe.edu.lamolina.pivot.dao.academico.MatriculaResumenDAO;
 import pe.edu.lamolina.pivot.dao.academico.PrecioCursoEstructuraDAO;
 import pe.edu.lamolina.pivot.dao.finanza.PagoHoraDocenteDAO;
 import pe.edu.lamolina.pivot.dao.rrhh.ContratoDocenteDAO;
+import static pe.edu.lamolina.pivot.zelper.constant.Constantine.GRUPO_ZPRA;
+import static pe.edu.lamolina.pivot.zelper.constant.Constantine.GRUPO_ZTEO;
 
 @Service
 @Transactional(readOnly = true)
@@ -547,6 +549,9 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         Date today = new Date();
 
         grupoSeccion.setSecciones(new ArrayList());
+        GrupoHoras grupoHorasZTEO = grupoHorasDAO.findByCode(GRUPO_ZTEO);
+        GrupoHoras grupoHorasZPRA = grupoHorasDAO.findByCode(GRUPO_ZPRA);
+
         if (curso.isTipoCursoTEO()) {
             Seccion seccionTEO = new Seccion();
             seccionTEO.setGrupoSeccion(grupoSeccion);
@@ -559,6 +564,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             seccionTEO.setTipoSeccionEnum(TipoSeccionEnum.TEO);
             seccionTEO.setSituacionDocenteEnum(SituacionDocenteEnum.COR);
             seccionTEO.setHorasSemanales(horasTeoria);
+            seccionTEO.setGrupoHoras(grupoHorasZTEO);
 
             seccionTEO.setDocenteSeccion(new ArrayList<>());
             DocenteSeccion docenteSeccion = new DocenteSeccion();
@@ -590,6 +596,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             seccionPRA.setCodigo2(codigo2 + "1");
             seccionPRA.setFechaRegistro(today);
             seccionPRA.setUserRegistro(ds.getUsuario());
+            seccionPRA.setGrupoHoras(grupoHorasZPRA);
 
             seccionPRA.setDocenteSeccion(new ArrayList<>());
             DocenteSeccion docenteSeccion = new DocenteSeccion();
@@ -621,6 +628,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             seccionTCUR.setCodigo2(codigo2 + "0");
             seccionTCUR.setFechaRegistro(today);
             seccionTCUR.setUserRegistro(ds.getUsuario());
+            seccionTCUR.setGrupoHoras(grupoHorasZTEO);
 
             seccionTCUR.setDocenteSeccion(new ArrayList<>());
             DocenteSeccion docenteSeccion = new DocenteSeccion();
@@ -653,6 +661,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             seccionPCUR.setUserRegistro(ds.getUsuario());
             seccionPCUR.setSeccionSuperior(seccionTCUR);
             seccionPCUR.setDocenteSeccion(new ArrayList<>());
+            seccionPCUR.setGrupoHoras(grupoHorasZPRA);
 
             DocenteSeccion docenteSeccion2 = new DocenteSeccion();
             docenteSeccion2.setDocente(docenteDefault);

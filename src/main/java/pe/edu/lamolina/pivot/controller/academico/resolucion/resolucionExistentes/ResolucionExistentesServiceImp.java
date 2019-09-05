@@ -348,7 +348,7 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
     @Override
     public List<CicloAcademico> ciclosAnteriores(int i) {
         CicloAcademico cicloAcademico = cicloAcademicoDAO.findActivoPregrado();
-        return cicloAcademicoDAO.allAnteriores(i, cicloAcademico);
+        return cicloAcademicoDAO.allRegularPre(i, cicloAcademico);
     }
 
     @Override
@@ -502,18 +502,28 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
         List<Alumno> alumnos = resolucionForm.getCursoDirigido().stream().map(x -> x.getAlumno()).collect(Collectors.toList());
         List<MatriculaCurso> matriculaCursos = matriculaCursoDAO.allActivoByAlumnosCicloActivo(alumnos);
         Map<Long, List<MatriculaCurso>> mapMatriculaCursos = TypesUtil.convertListToMapList("matriculaResumen.alumno.id", matriculaCursos);
+
         for (CursoDirigido cursoDirigidoForm : resolucionForm.getCursoDirigido()) {
             String message = "";
+            CursoDirigido cursoDirigidoTram = map.get(cursoDirigidoForm.getAlumno().getId());
+            Assert.isNotNull(cursoDirigidoTram, "El alumno " + cursoDirigidoForm.getAlumno().getCodigo() + " no cuenta con un tramite de curso dirigido.");
+
+            List<MatriculaCurso> matriculasCursoAlumno = mapMatriculaCursos.get(cursoDirigidoForm.getAlumno().getId());
+            if (matriculasCursoAlumno != null
+                    && matriculasCursoAlumno.stream().filter(x -> x.getEstadoEnum() == EstadoMatriculaEnum.MAT && Objects.equals(x.getCurso().getId(), cursoDirigidoTram.getCurso().getId())).findAny().orElse(null) != null) {
+                message = "El alumno " + cursoDirigidoForm.getAlumno().getCodigo() + " está matriculado en el curso " + cursoDirigidoTram.getCurso().getNombre();
+                msg.add(message);
+            }
+        }
+        if (!msg.isEmpty()) {
+            return msg;
+        }
+
+        for (CursoDirigido cursoDirigidoForm : resolucionForm.getCursoDirigido()) {
+
             EstadoTramite estado = cursoDirigidoForm.getSeleccionado() ? estadoTramite : estadoTramiteRech;
             TramiteEstadoEnum estadotram = cursoDirigidoForm.getSeleccionado() ? TramiteEstadoEnum.ACEP : TramiteEstadoEnum.RCHZ;
             CursoDirigido cursoDirigidoTram = map.get(cursoDirigidoForm.getAlumno().getId());
-            Assert.isNotNull(cursoDirigidoTram, "El alumno " + cursoDirigidoForm.getAlumno().getCodigo() + " no cuenta con un tramite de curso dirigido.");
-            List<MatriculaCurso> matriculasCursoAlumno = mapMatriculaCursos.get(cursoDirigidoForm.getAlumno().getId());
-            if (matriculasCursoAlumno.stream().filter(x -> Objects.equals(x.getCurso().getId(), cursoDirigidoTram.getCurso().getId())).findAny().orElse(null) != null) {
-                message = "El alumno " + cursoDirigidoForm.getAlumno().getCodigo() + " está matriculado en el curso " + cursoDirigidoTram.getCurso().getNombre();
-                msg.add(message);
-                continue;
-            }
 
             cursoDirigidoTram.setResolucion(resolucion);
             cursoDirigidoTram.setDocenteAsignado(cursoDirigidoForm.getDocenteAsignado());
@@ -543,14 +553,14 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
                 grupoSeccions = new ArrayList<>();
                 grupoSeccions.add(grupoSeccion);
             }
-            this.matricular(grupoSeccions.get(0), cursoDirigidoTram.getTramite().getAlumno(), cursoDirigidoTram.getCurso(), ds.getUsuario(), ds.getCicloAcademico());
+            this.matricular(grupoSeccions.get(0), cursoDirigidoTram.getTramite().getAlumno(), cursoDirigidoTram.getCurso(), ds.getUsuario(), ds.getCicloAcademico(), mapMatriculaCursos);
         }
 
         return msg;
     }
 
     @Transactional
-    private void matricular(GrupoSeccion gpoSeccion, Alumno alumno, Curso curso, Usuario usuario, CicloAcademico academico) {
+    private void matricular(GrupoSeccion gpoSeccion, Alumno alumno, Curso curso, Usuario usuario, CicloAcademico academico, Map<Long, List<MatriculaCurso>> mapMatriculaCursos) {
 
         MatriculaResumen matriculaResumen = matriculaResumenDAO.findByAlumnoCiclo(alumno, academico);
         List<Seccion> seccions = seccionDAO.allActivosByGpoSeccion(gpoSeccion);
@@ -593,23 +603,32 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
             alumnoCursoCurricula.setCreditos(curso.getCreditos());
             alumnoCursoCurriculaDAO.save(alumnoCursoCurricula);
         }
+        List<MatriculaCurso> matriculaCursos = mapMatriculaCursos.get(alumno.getId());
+        if (matriculaCursos != null && matriculaCursos.stream().filter((MatriculaCurso x) -> x.getCurso().getId() == curso.getId()).findAny().orElse(null) != null) {
+            MatriculaCurso matriculaCurso = matriculaCursos.stream().filter(x -> Objects.equals(x.getCurso().getId(), curso.getId())).findAny().orElse(null);
+            matriculaCurso.setEstadoEnum(EstadoMatriculaEnum.MAT);
+            matriculaCurso.setUserMatricula(usuario);
+            matriculaCurso.setFechaMatricula(new Date());
+            matriculaCursoDAO.updateColumns(matriculaCurso, "estado", "userMatricula", "fechaMatricula");
+        } else {
 
-        MatriculaCurso matriculaCurso = new MatriculaCurso();
-        matriculaCurso.setCurso(curso);
-        matriculaCurso.setEstadoEnum(EstadoMatriculaEnum.MAT);
-        matriculaCurso.setMatriculaResumen(matriculaResumen);
-        matriculaCurso.setNotaAcumulada("0");
-        matriculaCurso.setNotaAvance("0");
-        matriculaCurso.setNotaFinal("0");
-        matriculaCurso.setPorcentajeAvanceNota(0);
-        matriculaCurso.setCreditosAprobados(0);
-        matriculaCurso.setCreditos(curso.getCreditos());
-        matriculaCurso.setTipoCursoCurricula(alumnoCursoCurricula.getTipoCursoCurricula());
-        matriculaCurso.setInasistencias(0);
-        matriculaCurso.setInasistenciasExoneradas(0);
-        matriculaCurso.setUserMatricula(usuario);
-        matriculaCurso.setFechaMatricula(new Date());
-        matriculaCursoDAO.save(matriculaCurso);
+            MatriculaCurso matriculaCurso = new MatriculaCurso();
+            matriculaCurso.setCurso(curso);
+            matriculaCurso.setEstadoEnum(EstadoMatriculaEnum.MAT);
+            matriculaCurso.setMatriculaResumen(matriculaResumen);
+            matriculaCurso.setNotaAcumulada("0");
+            matriculaCurso.setNotaAvance("0");
+            matriculaCurso.setNotaFinal("0");
+            matriculaCurso.setPorcentajeAvanceNota(0);
+            matriculaCurso.setCreditosAprobados(0);
+            matriculaCurso.setCreditos(curso.getCreditos());
+            matriculaCurso.setTipoCursoCurricula(alumnoCursoCurricula.getTipoCursoCurricula());
+            matriculaCurso.setInasistencias(0);
+            matriculaCurso.setInasistenciasExoneradas(0);
+            matriculaCurso.setUserMatricula(usuario);
+            matriculaCurso.setFechaMatricula(new Date());
+            matriculaCursoDAO.save(matriculaCurso);
+        }
 
         matriculaResumen.setEstadoEnum(EstadoMatriculaEnum.MAT);
         matriculaResumen.setCursosMatriculados(matriculaResumen.getCursosMatriculados() + 1);
