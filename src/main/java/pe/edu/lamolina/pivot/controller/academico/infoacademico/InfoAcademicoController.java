@@ -411,8 +411,7 @@ public class InfoAcademicoController {
             ObjectNode node = new ObjectNode(factory);
 
             List<RetiroCurso> retiroCursos = service.allRetiroCursoByAlumno(alumno);
-            Long totalContable=retiroCursos.stream().filter(x->x.getEsContado()).count();
-            
+            Long totalContable = retiroCursos.stream().filter(x -> x.getEsContado()).count();
 
             ArrayNode arrayRetiroCurso = new ArrayNode(factory);
             for (RetiroCurso retiroCurso : retiroCursos) {
@@ -421,13 +420,17 @@ public class InfoAcademicoController {
                     "tramite.fechaRegistro",
                     "tramite.observacion",
                     "cicloAcademico.descripcion",
+                    "curso.codigo",
                     "curso.nombre",
+                    "curso.tpc",
+                    "curso.tipoCurso",
+                    "curso.departamentoAcademico.nombre"
                 }));
             }
 
             node.set("retirosCurso", arrayRetiroCurso);
             node.put("totalContable", totalContable);
-            
+
             response.setTotal(retiroCursos.size());
             response.setSuccess(true);
             response.setData(node);

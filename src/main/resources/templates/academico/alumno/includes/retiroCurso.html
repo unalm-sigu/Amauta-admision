@@ -12,9 +12,9 @@
                 <thead>
                     <tr>
                         <th class="col-sm-1 v-middle text-left"></th>
-                        <th class="col-sm-2 v-middle text-center">Ciclo</th>
-                        <th class="col-sm-2 v-middle text-center">Curso</th>
-                        <th class="col-sm-5 v-middle text-center">Motivo</th>
+                        <th class="col-sm-1 v-middle text-center">Ciclo</th>
+                        <th class="col-sm-3 v-middle text-center">Curso</th>
+                        <th class="col-sm-6 v-middle text-center">Motivo</th>
                         <th class="col-sm-1 v-middle text-center">Estado</th>
                     </tr>
                 </thead>
@@ -23,12 +23,21 @@
                         <td>
                             <i v-if="item.esContado" class="fa fa-check-circle fa-2x text-success"></i>
                         </td>
-                        <td>
-                            <span class="block" v-text="item.cicloAcademico.descripcion"></span>
+                        <td class="text-center">
+                            <span class="text-left h4 text-primary bold" v-text="item.cicloAcademico.descripcion"></span>
                             <span class="block" v-text="getFechaSmall(item.tramite.fechaRegistro)"></span>
                         </td>
                         <td>
-                            <span v-text='item.curso.nombre'></span>
+                            <span class="block m-t-sm">
+                                <span class="text-left h4 text-primary bold" v-text="item.curso.nombre"/>
+                                <span class="block text-muted p-no-margin">
+                                    {{item.curso.codigo}} &nbsp;
+                                    <i class="fa fa-bookmark text-primary"></i> {{item.curso.tpc}}
+                                </span>
+                                <small class="block text-muted m-b-sm">
+                                    Dpto: {{item.curso.departamentoAcademico.nombre}}
+                                </small>
+                            </span>
                         </td>
                         <td>
                             <span v-text="item.tramite.observacion"></span>
