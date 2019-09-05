@@ -331,13 +331,13 @@ public class LoadProgramacionServiceImp implements LoadProgramacionService {
 
         t1 = System.currentTimeMillis();
         logger.debug("codigo2NullGpoSeccion");
-        progDataService.codigo2NullGpoSeccion(ciclo);
+        //progDataService.codigo2NullGpoSeccion(ciclo);
         t2 = System.currentTimeMillis();
         logger.debug("\tcodigo2NullGpoSeccion ejecutado en {} mseg", (t2 - t1));
 
         t1 = System.currentTimeMillis();
         logger.debug("codigo2NullSeccion");
-        progDataService.codigo2NullSeccion(ciclo);
+        //progDataService.codigo2NullSeccion(ciclo);
         t2 = System.currentTimeMillis();
         logger.debug("\tcodigo2NullSeccion ejecutado en {} mseg", (t2 - t1));
 
@@ -999,7 +999,7 @@ public class LoadProgramacionServiceImp implements LoadProgramacionService {
                 String aula = getCellStringValue(4, row);
                 String gclave = getCellStringValue(5, row);
                 String tclave = getCellStringValue(6, row);
-                String clave2 = getCellStringValue(8, row);
+                String clave2 = null; //getCellStringValue(8, row);
                 Integer vacantes = getCellIntegerValue(10, row);
                 Integer matriculados = getCellIntegerValue(11, row);
 

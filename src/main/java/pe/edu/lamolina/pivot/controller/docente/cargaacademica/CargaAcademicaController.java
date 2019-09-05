@@ -24,6 +24,7 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
+import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.Seccion;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.EPG;
@@ -142,13 +143,15 @@ public class CargaAcademicaController {
             HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
-        Seccion secc = service.findSeccion(idSeccion);
-        Curso cur = secc.getGrupoSeccion().getCurso();
+        Seccion seccion = service.findSeccion(idSeccion);
+        Curso curso = seccion.getGrupoSeccion().getCurso();
+        List<MatriculaSeccion> matriculados = service.allMatriculadosBySecciion(seccion);
+
         model.addAttribute("docente", ds.getDocente());
-        model.addAttribute("seccion", secc);
-        model.addAttribute("grupoSeccion", secc.getGrupoSeccion());
-        model.addAttribute("cicloAcademico", ds.getCicloAcademico());
-        model.addAttribute("curso", cur);
+        model.addAttribute("seccion", seccion);
+        model.addAttribute("ciclo", ds.getCicloAcademico());
+        model.addAttribute("curso", curso);
+        model.addAttribute("matriculados", matriculados);
 
         return new ModelAndView(reporteActasView);
     }
