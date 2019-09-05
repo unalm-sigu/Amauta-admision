@@ -43,7 +43,8 @@ public class RetiroCursoDAOH extends AbstractEasyDAO<RetiroCurso> implements Ret
         
         Octavia sql = new Octavia()
                 .from(RetiroCurso.class, "rc")
-                .join("alumno al", "cicloAcademico ca", "curso cur", "tramite tra")
+                .join("alumno al", "cicloAcademico ca", "curso cur")
+                .leftJoin("tramite tra")
                 .filter("al.id", alumno);
         return all(sql);
     }
