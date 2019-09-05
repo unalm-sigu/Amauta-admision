@@ -348,7 +348,7 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
     @Override
     public List<CicloAcademico> ciclosAnteriores(int i) {
         CicloAcademico cicloAcademico = cicloAcademicoDAO.findActivoPregrado();
-        return cicloAcademicoDAO.allAnteriores(i, cicloAcademico);
+        return cicloAcademicoDAO.allRegularPre(i, cicloAcademico);
     }
 
     @Override
