@@ -1,5 +1,6 @@
 package pe.edu.lamolina.pivot.controller.consejeria.consejeros;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -95,12 +96,25 @@ public class ConsejerosServiceImp implements ConsejerosService {
     }
 
     @Override
-    public List<Consejero> allByCarreraDynatable(Carrera carrera, DynatableFilter filter) {
+    public List<Consejero> allByCarreraDynatable(Carrera carrera, CicloAcademico cicloAcademico, DynatableFilter filter) {
 
         List<Consejero> consejeros = consejeroDAO.allByCarreraDynatable(carrera, filter);
         List<Colaborador> colaboradores = consejeros.stream().map(x -> x.getColaborador()).collect(Collectors.toList());
         Map<String, Colaborador> mapColaborador = TypesUtil.convertListToMap("codigo", colaboradores);
         List<Persona> personas = consejeros.stream().map(x -> x.getColaborador().getPersona()).collect(Collectors.toList());
+
+        List<Consejero> consejerosWithMatriculados = consejeroDAO.allCountAconsejadosMatriculadosByCiclo(consejeros, cicloAcademico, EstadoEnum.ACT);
+
+        for (Consejero consejero : consejeros) {
+            Consejero consejeroFound = consejerosWithMatriculados.stream().filter(x -> x.equals(consejero)).findFirst().orElse(null);
+            if (consejeroFound != null) {
+                consejero.setAconsejadosMat(consejeroFound.getAconsejadosMat());
+                consejero.setAconsejadosNmat(consejeroFound.getAconsejadosNmat());
+            } else {
+                consejero.setAconsejadosMat(BigDecimal.ZERO.intValue());
+                consejero.setAconsejadosNmat(BigDecimal.ZERO.intValue());
+            }
+        }
 
         List<Docente> docentes = docenteDAO.allByPersonas(personas);
         for (Persona persona : personas) {
