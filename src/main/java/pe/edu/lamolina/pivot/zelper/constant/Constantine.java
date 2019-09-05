@@ -117,6 +117,8 @@ public interface Constantine {
     // planes
     Integer CREDITOS_ADIC_ELC = 4;
     String CODIGO_CURSO_DEP = "EG1006";
+    String GRUPO_ZTEO = "Z";
+    String GRUPO_ZPRA = "Z*";
 
     List<Long> GRUPOS_HORAS_UNUSED = Arrays.asList(23L, 24L);
 
