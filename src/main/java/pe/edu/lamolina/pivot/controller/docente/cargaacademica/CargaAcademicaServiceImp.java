@@ -15,6 +15,7 @@ import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.Seccion;
+import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.horario.HorarioSeccion;
 import pe.edu.lamolina.pivot.dao.academico.DocenteSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.SeccionDAO;
@@ -23,21 +24,21 @@ import pe.edu.lamolina.pivot.dao.horario.HorarioSeccionDAO;
 @Service
 @Transactional(readOnly = true)
 public class CargaAcademicaServiceImp implements CargaAcademicaService {
-
+    
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
+    
     @Autowired
     DocenteSeccionDAO docenteSeccionDAO;
     @Autowired
     HorarioSeccionDAO horarioSeccionDAO;
     @Autowired
     SeccionDAO seccionDAO;
-
+    
     @Override
     public List<GrupoSeccion> allGpoSecciones(Docente docente, CicloAcademico ciclo) {
         Map<Long, GrupoSeccion> mapGpoSecc = new LinkedHashMap();
         List<Seccion> secciones = new ArrayList();
-
+        
         List<DocenteSeccion> profeSecciones = docenteSeccionDAO.allActivosByDocenteCiclo(docente, ciclo);
         for (DocenteSeccion profeSecc : profeSecciones) {
             Seccion secc = profeSecc.getSeccion();
@@ -54,21 +55,30 @@ public class CargaAcademicaServiceImp implements CargaAcademicaService {
             secc.setGrupoSeccion(gpoSecc);
             secciones.add(secc);
         }
-
+        
         List<HorarioSeccion> horarios = horarioSeccionDAO.allBySecciones(secciones);
         Map<Long, List<HorarioSeccion>> mapHorarios = TypesUtil.convertListToMapList("seccion.id", horarios);
-
+        
         for (Seccion secc : secciones) {
             List<HorarioSeccion> horariosSeccion = TypesUtil.getListNotNull(mapHorarios.get(secc.getId()));
             secc.setHorarioSeccion(horariosSeccion);
         }
-
+        
         return new ArrayList(mapGpoSecc.values());
     }
-
+    
     @Override
     public Seccion findSeccion(Long idSeccion) {
-        return seccionDAO.find(new Seccion(idSeccion));
+        Seccion seccion = seccionDAO.find(new Seccion(idSeccion));
+        DocenteSeccion docenteSeccion = docenteSeccionDAO.findPrincipalBySeccion(seccion);
+        seccion.setDocentePrincipal(docenteSeccion.getDocente());
+        if (seccion.getDocentePrincipal() == null) {
+            Docente docente = new Docente();
+            docente.setPersona(new Persona());
+            docente.getPersona().setNombres("N.N.");
+            seccion.setDocentePrincipal(docente);
+        }
+        return seccion;
     }
-
+    
 }

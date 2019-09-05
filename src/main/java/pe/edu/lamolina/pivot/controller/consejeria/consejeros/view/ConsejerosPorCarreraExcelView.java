@@ -1,11 +1,8 @@
 package pe.edu.lamolina.pivot.controller.consejeria.consejeros.view;
 
-import java.io.InputStream;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -26,14 +23,13 @@ import org.springframework.web.servlet.view.AbstractView;
 import pe.albatross.zelpers.file.excel.ExcelHelper;
 import pe.albatross.zelpers.file.excel.ExcelStyles;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
-import pe.edu.lamolina.model.academico.Alumno;
-import pe.edu.lamolina.model.consejeria.AlumnoConsejero;
+import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.consejeria.Consejero;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Component
-public class ReporteAlumnosConsejeroExcelView extends AbstractView {
+public class ConsejerosPorCarreraExcelView extends AbstractView {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private static final String CONTENT_TYPE_XLSX = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
@@ -42,8 +38,6 @@ public class ReporteAlumnosConsejeroExcelView extends AbstractView {
     @Override
     protected void renderMergedOutputModel(Map<String, Object> map, HttpServletRequest request, HttpServletResponse response) throws Exception {
 
-        //InputStream formato = (InputStream) map.get("formato");
-// new XSSFWorkbook(formato);
         Workbook workbook = new XSSFWorkbook();
         if (workbook instanceof XSSFWorkbook) {
             setContentType(CONTENT_TYPE_XLSX);
@@ -58,11 +52,10 @@ public class ReporteAlumnosConsejeroExcelView extends AbstractView {
     protected void buildExcelDocument(Map<String, Object> model, Workbook wb, HttpServletRequest request, HttpServletResponse response) throws Exception {
         DataSessionPivot ds = (DataSessionPivot) request.getSession().getAttribute(Constantine.SESSION_USUARIO);
         List<Consejero> consejeros = (List<Consejero>) model.get("consejeros");
-        List<AlumnoConsejero> alumnosConsejero = (List<AlumnoConsejero>) model.get("alumnosConsejero");
 
-        this.generateSheet(wb, consejeros, alumnosConsejero, ds);
+        this.generateSheet(wb, consejeros, ds);
         String fecha = new DateTime().toString("yyyMMdd_Hmm");
-        response.setHeader("Content-Disposition", "attachment; filename=\"" + "Alumnos_Aconsejados" + fecha + ".xlsx\"");
+        response.setHeader("Content-Disposition", "attachment; filename=\"" + "Consejeros_por_especialidad" + fecha + ".xlsx\"");
         response.setContentType(getContentType());
 
         ServletOutputStream out = response.getOutputStream();
@@ -71,11 +64,9 @@ public class ReporteAlumnosConsejeroExcelView extends AbstractView {
         out.flush();
     }
 
-    private void generateSheet(Workbook wb, List<Consejero> consejero, List<AlumnoConsejero> alumnos, DataSessionPivot ds) {
-        //Sheet sheet = wb.getSheet("Hoja1");
+    private void generateSheet(Workbook wb, List<Consejero> consejero, DataSessionPivot ds) {
         Sheet sheet = wb.createSheet("Hoja1");
-        //sheet.setAutobreaks(true);
-        this.createBody(wb, sheet, consejero, alumnos, ds);
+        this.createBody(wb, sheet, consejero, ds);
     }
 
     private CellStyle getStyleCabecera(Workbook workBook) {
@@ -122,16 +113,17 @@ public class ReporteAlumnosConsejeroExcelView extends AbstractView {
         return cell;
     }
 
-    private void createBody(Workbook wb, Sheet sheet, List<Consejero> consejeros, List<AlumnoConsejero> alumnosConsejero, DataSessionPivot ds) {
+    private void createBody(Workbook wb, Sheet sheet, List<Consejero> consejeros, DataSessionPivot ds) {
         ExcelHelper excelUtil = new ExcelHelper(sheet, wb);
 
         CellStyle headerCell = ExcelStyles.getStyleCellHeaderGrey(wb);
-        CellStyle estiloCodigo = getStyleNumero(wb);
+
         CellStyle estiloNumero = getStyleNumero(wb);
         CellStyle estiloGeneral = getStyleGeneral(wb);
 
         int irow = 1;
-        CellRangeAddress region = CellRangeAddress.valueOf("A" + irow + ":G" + irow);
+        String letterToMerge = ":H";
+        CellRangeAddress region = CellRangeAddress.valueOf("A" + irow + letterToMerge + irow);
         sheet.addMergedRegion(region);
         Row row = sheet.createRow(region.getFirstRow());
         Cell cell = row.createCell(region.getFirstColumn());
@@ -139,17 +131,45 @@ public class ReporteAlumnosConsejeroExcelView extends AbstractView {
         cell.setCellStyle(ExcelStyles.getCellTitle1Green(wb));
         irow++;
 
-        region = CellRangeAddress.valueOf("A" + irow + ":G" + irow);
+        Carrera carrera = null;
+        if (!consejeros.isEmpty()) {
+            carrera = consejeros.get(0).getCarrera();
+        }
+        region = CellRangeAddress.valueOf("A" + irow + letterToMerge + irow);
         sheet.addMergedRegion(region);
         row = sheet.createRow(region.getFirstRow());
         cell = row.createCell(region.getFirstColumn());
-        cell.setCellValue("ALUMNOS ACONSEJADOS");
+        cell.setCellValue("ESPECIALIDAD DE " + (carrera == null ? "SIN DATOS" : carrera.getNombre().toUpperCase()));
+        cell.setCellStyle(ExcelStyles.getCellTitle2Green(wb));
+        irow++;
+
+        region = CellRangeAddress.valueOf("A" + irow + letterToMerge + irow);
+        sheet.addMergedRegion(region);
+        row = sheet.createRow(region.getFirstRow());
+        cell = row.createCell(region.getFirstColumn());
+        cell.setCellValue("");
+        cell.setCellStyle(ExcelStyles.getCellTitle2Green(wb));
+        irow++;
+
+        region = CellRangeAddress.valueOf("A" + irow + letterToMerge + irow);
+        sheet.addMergedRegion(region);
+        row = sheet.createRow(region.getFirstRow());
+        cell = row.createCell(region.getFirstColumn());
+        cell.setCellValue("LISTA DE DOCENTES CONSEJEROS DE LA ESPECIALIDAD");
         cell.setCellStyle(ExcelStyles.getCellTitle3Green(wb));
         irow++;
 
+        region = CellRangeAddress.valueOf("A" + irow + letterToMerge + irow);
+        sheet.addMergedRegion(region);
+        row = sheet.createRow(region.getFirstRow());
+        cell = row.createCell(region.getFirstColumn());
+        cell.setCellValue("");
+        cell.setCellStyle(ExcelStyles.getCellTitle2Green(wb));
+        irow++;
+
         String ciclo = "Ciclo Académico " + ds.getCicloAcademico().getDescripcion();
-        String fecha = TypesUtil.getStringDate(new Date(), "dd/MM/yyyy H:mm:ss");
-        region = CellRangeAddress.valueOf("A" + irow + ":G" + irow);
+        String fecha = TypesUtil.getStringDateTimeLongFormat(new Date());
+        region = CellRangeAddress.valueOf("A" + irow + letterToMerge + irow);
         sheet.addMergedRegion(region);
         row = sheet.createRow(region.getFirstRow());
         cell = row.createCell(region.getFirstColumn());
@@ -159,38 +179,29 @@ public class ReporteAlumnosConsejeroExcelView extends AbstractView {
         irow++;
 
         int column = 0;
-        excelUtil.replaceVal(irow - 1, column++, "N", headerCell);
+        excelUtil.replaceVal(irow, column++, "N", headerCell);
         sheet.setColumnWidth((column - 1), 10 * 256);
-        excelUtil.replaceVal(irow - 1, column++, "CODIGO TUTOR", headerCell);
+        excelUtil.replaceVal(irow, column++, "CODIGO", headerCell);
         sheet.setColumnWidth((column - 1), 20 * 256);
-        excelUtil.replaceVal(irow - 1, column++, "TUTOR", headerCell);
-        sheet.setColumnWidth((column - 1), 35 * 256);
-        excelUtil.replaceVal(irow - 1, column++, "CÓDIGO ALUMNO", headerCell);
-        sheet.setColumnWidth((column - 1), 20 * 256);
-        excelUtil.replaceVal(irow - 1, column++, "NOMBRE ALUMNO", headerCell);
-        sheet.setColumnWidth((column - 1), 35 * 256);
-        excelUtil.replaceVal(irow - 1, column++, "CARRERA ALUMNO", headerCell);
+        excelUtil.replaceVal(irow, column++, "NOMBRE DEL PROFESOR CONSEJERO", headerCell);
         sheet.setColumnWidth((column - 1), 50 * 256);
-        excelUtil.replaceVal(irow - 1, column++, "SITUACIÓN ACADEMICA", headerCell);
-        sheet.setColumnWidth((column - 1), 30 * 256);
+        excelUtil.replaceVal(irow, column++, "DPTO. ACADÉMICO", headerCell);
+        sheet.setColumnWidth((column - 1), 25 * 256);
+        excelUtil.replaceVal(irow, column++, "NRO. ACONSEJADOS", headerCell);
+        sheet.setColumnWidth((column - 1), 35 * 256);
+
+        irow++;
 
         int num = 1;
         for (Consejero consejero : consejeros) {
-            List<AlumnoConsejero> alumnosByConsejero = alumnosConsejero.stream().filter(x -> consejero.equals(x.getConsejero())).collect(Collectors.toList());
-            List<Alumno> alumnos = alumnosByConsejero.stream().map(x -> x.getAlumno()).collect(Collectors.toList());
-            Collections.sort(alumnos, (x1, x2) -> x1.getPersona().getApellidosNombres().compareTo(x2.getPersona().getApellidosNombres()));
-            for (Alumno alumno : alumnos) {
-                column = 0;
-                excelUtil.replaceVal(irow, column++, num, estiloNumero);
-                excelUtil.replaceVal(irow, column++, consejero.getDocente().getCodigo());
-                excelUtil.replaceVal(irow, column++, consejero.getColaborador().getPersona().getApellidosNombres(), estiloGeneral);
-                excelUtil.replaceVal(irow, column++, alumno.getCodigo(), estiloGeneral);
-                excelUtil.replaceVal(irow, column++, alumno.getPersona().getApellidosNombres(), estiloGeneral);
-                excelUtil.replaceVal(irow, column++, alumno.getCarrera().getNombre(), estiloGeneral);
-                excelUtil.replaceVal(irow, column++, alumno.getSituacionAcademica().getNombre(), estiloGeneral);
-                irow++;
-                num++;
-            }
+            column = 0;
+            excelUtil.replaceVal(irow, column++, num++, estiloNumero);
+            excelUtil.replaceVal(irow, column++, consejero.getDocente().getCodigo(), estiloGeneral);
+            excelUtil.replaceVal(irow, column++, consejero.getColaborador().getPersona().getApellidosNombres(), estiloGeneral);
+            excelUtil.replaceVal(irow, column++, consejero.getDocente().getDepartamentoAcademico().getNombre(), estiloGeneral);
+            excelUtil.replaceVal(irow, column++, consejero.getAconsejadosMat() + consejero.getAconsejadosNmat(), estiloGeneral);
+            irow++;
+
         }
 
     }

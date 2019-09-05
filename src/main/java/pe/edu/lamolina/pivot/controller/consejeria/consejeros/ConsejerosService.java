@@ -20,7 +20,7 @@ public interface ConsejerosService {
 
     void updateEstado(Consejero consejero, CicloAcademico ciclo, DataSessionPivot ds);
 
-    List<Consejero> allByCarreraDynatable(Carrera carrera, DynatableFilter filter);
+    List<Consejero> allByCarreraDynatable(Carrera carrera, CicloAcademico cicloAcademico, DynatableFilter filter);
 
     Consejero finByIdPersona(Persona persona);
 

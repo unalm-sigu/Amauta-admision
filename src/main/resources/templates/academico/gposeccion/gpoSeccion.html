@@ -131,7 +131,7 @@
                                                     <span class="block">Grupo</span>
                                                 </th>
                                                 <th class="col-md-1 text-center v-middle">
-                                                    <span class="block">Vacantes</span> <span class="block">Matric.</span>
+                                                    <span class="block">Matric.</span> <span class="block">Vacantes</span>
                                                 </th>
 
                                                 <th class="td-vacio"></th>
@@ -155,7 +155,7 @@
                                                     <span class="block">
                                                         {{item.curso.codigo}}&nbsp;
                                                         <i class="fa fa-bookmark text-primary"></i>
-                                                        {{item.curso.tpc}}</span>
+                                                        {{item.curso.tpc}} </span>
                                                     <span class="block" v-text="item.anexoBoletin.nombre"></span>
                                                     <span class="clear">
                                                         <span v-if="item.estado == 'ACT' " class="label label-success" v-text="item.estadoEnum.value"></span>
@@ -168,7 +168,7 @@
                                                   v-if="secc.tipoSeccionEnum.name != 'PCUR' ">
                                             <td class="v-middle text-center " 
                                                 v-bind:rowspan="getRowspanSecc(secc)">
-                                                <span class="block text-primary" v-text="secc.codigo2"></span>
+                                                <span class="block text-primary"  v-text="secc.codigo2"></span>
                                                 <small class="block" v-text="tipoSeccion(secc)"></small>
                                                 <span v-if="secc.precio != '' " class="alert" v-text="'S/.'+ secc.precioFormato"></span>
                                             </td>
@@ -179,7 +179,12 @@
                                             </td>
                                             <td class="v-middle text-center"
                                                 v-bind:rowspan="getRowspanSecc(secc)">
-                                                <span class="block bold">{{secc.vacantes}}/{{secc.matriculados}}</span>
+                                                <span class="block bold">{{secc.matriculados}}/{{secc.vacantes}}
+                                                      <a href="#" class="excel-icon"><i class="fa fa-file-excel-o ml-2" v-on:click="downloadAlumnosSeccion(secc)"  aria-hidden="true"></i></a>
+                                                 </span>
+                                                
+                                               
+                                               
                                             </td>
 
                                             <template v-for="(profeSecc,idx) in secc.docenteSeccion"
@@ -250,7 +255,7 @@
                                             <tr>
                                                 <td class="v-middle text-center " 
                                                     v-bind:rowspan="getRowspanSecc(secc)">
-                                                    <span class="block text-primary" v-text="secc.codigo2"></span>
+                                                    <span class="block text-primary "   v-text="secc.codigo2"></span>
                                                     <small class="block" v-text="tipoSeccion(secc)"></small>
                                                     <span v-if="secc.precio != '' " class="alert" v-text="'S/.'+ secc.precioFormato"></span>
                                                 </td>
@@ -261,7 +266,9 @@
                                                 </td>
                                                 <td class="v-middle text-center"
                                                     v-bind:rowspan="getRowspanSecc(secc)">
-                                                    <span class="block bold">{{secc.vacantes}}/{{secc.matriculados}}</span>
+                                                    <span class="block bold">{{secc.matriculados}}/{{secc.vacantes}}
+                                                    <a href="#" class="excel-icon"><i class="fa fa-file-excel-o ml-2" v-on:click="downloadAlumnosSeccion(secc)"  aria-hidden="true"></i></a>
+                                                    </span>
                                                 </td>
 
                                             <template v-for="(profeSecc,idx) in secc.docenteSeccion"

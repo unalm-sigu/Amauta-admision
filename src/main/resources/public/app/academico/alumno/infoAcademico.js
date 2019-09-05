@@ -13,7 +13,9 @@ new Vue({
             matricula: false,
             horario: false,
             malla: false,
-            aportes: false
+            aportes: false,
+            retirociclo: false,
+            retirocurso: false,
         },
         preRequisitos: [],
         modalPreRequisito: {
@@ -38,7 +40,9 @@ new Vue({
             {id: 3, name: "Avance"},
             {id: 4, name: "Matricula"},
             {id: 5, name: "Horario"},
-            {id: 6, name: "Malla"}];
+            {id: 6, name: "Malla"},
+            {id: 8, name: "Retiro Ciclo"}
+        ];
 
         if ($vue.alumno.modalidadEstudio.codigo == 'VIS' || $vue.alumno.modalidadEstudio.codigo == 'ESP') {
             $vue.facu = false;
@@ -77,6 +81,10 @@ new Vue({
             }
             if ($vue.tabId === 7) {
                 $vue.cargaAportes();
+            }
+            if ($vue.tabId === 8 && !$vue.loadPages.retirociclo) {
+                $vue.$refs.compRetiroCiclo.obtenerDatos();
+                $vue.loadPages.retirociclo = true;
             }
         },
         cargaAportes() {

@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
@@ -37,6 +36,7 @@ import pe.edu.lamolina.model.consejeria.ConsejeriaResumen;
 import pe.edu.lamolina.model.consejeria.Consejero;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.pivot.controller.academico.carrera.CarreraService;
+import pe.edu.lamolina.pivot.controller.consejeria.consejeros.view.ConsejerosPorCarreraExcelView;
 import pe.edu.lamolina.pivot.controller.consejeria.consejeros.view.ReporteAlumnosConsejeroExcelView;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -55,6 +55,9 @@ public class ConsejerosController {
 
     @Autowired
     ReporteAlumnosConsejeroExcelView reporteAlumnosConsejeroExcelView;
+
+    @Autowired
+    ConsejerosPorCarreraExcelView consejerosPorCarreraExcelView;
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
@@ -83,13 +86,14 @@ public class ConsejerosController {
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             service.revisarConsejeria(new Carrera(idCarrera), ds.getCicloAcademico(), false, ds);
-            List<Consejero> consejeros = service.allByCarreraDynatable(new Carrera(idCarrera), filter);
+            List<Consejero> consejeros = service.allByCarreraDynatable(new Carrera(idCarrera), ds.getCicloAcademico(), filter);
 
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
             for (Consejero consejero : consejeros) {
                 ObjectNode node = JsonHelper.createJson(consejero, JsonNodeFactory.instance, true,
                         new String[]{
                             "id", "estado", "alumnosActivos", "alumnosInactivos",
+                            "aconsejadosMat", "aconsejadosNmat",
                             "colaborador.persona.emailCompania",
                             "colaborador.persona.nombreCompleto",
                             "colaborador.persona.numeroDocIdentidad",
@@ -288,7 +292,7 @@ public class ConsejerosController {
             filter.getQueries().put("consjeroPrm", consejero);
         }
 
-        List<Consejero> consejeros = service.allByCarreraDynatable(new Carrera(idCarrera), filter);
+        List<Consejero> consejeros = service.allByCarreraDynatable(new Carrera(idCarrera), ds.getCicloAcademico(), filter);
         List<AlumnoConsejero> alumnosConsejero = service.allAlumnosConsejeros(consejeros, ds.getCicloAcademico(), EstadoEnum.ACT);
         model.addAttribute("consejeros", consejeros);
         model.addAttribute("alumnosConsejero", alumnosConsejero);
@@ -353,6 +357,20 @@ public class ConsejerosController {
             ExceptionHandler.handleException(e, response);
         }
         return response;
+    }
+
+    @RequestMapping("consejerosPorEspecialidad")
+    public ModelAndView consejerosPorEspecialidad(@RequestParam("carrera") Long idCarrera, Model model, HttpSession session) {
+        DynatableFilter filter = new DynatableFilter();
+        filter.setPage(1);
+        filter.setOffset(0);
+        filter.setPerPage(10000000);
+
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        ds.setFechaAccionAudit(new Date());
+        List<Consejero> consejeros = service.allByCarreraDynatable(new Carrera(idCarrera), ds.getCicloAcademico(), filter);
+        model.addAttribute("consejeros", consejeros);
+        return new ModelAndView(consejerosPorCarreraExcelView);
     }
 
 }

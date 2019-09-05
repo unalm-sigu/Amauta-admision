@@ -4,6 +4,7 @@ import java.util.List;
 import pe.albatross.octavia.easydao.EasyDAO;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
@@ -23,6 +24,10 @@ public interface MatriculaSeccionDAO extends EasyDAO<MatriculaSeccion> {
     List<MatriculaSeccion> allMatriculadosBySecciones(List<Seccion> secciones);
 
     List<MatriculaSeccion> allBySeccion(Seccion seccion);
+
+    List<MatriculaSeccion> allByCurso(List<Curso> cursos, CicloAcademico ciclo, String[] orderBy, EstadoMatriculaEnum... estados);
+
+    List<CantidadMatriculadosDTO> cantidadMatriculadosPorCurso(List<Curso> cursos, CicloAcademico ciclo, EstadoMatriculaEnum... estados);
 
 //    MatriculaSeccion findByAlumnoSeccion(Alumno alumno, Seccion seccion);
 //    List<MatriculaSeccion> allByMatriculaSeccion(MatriculaResumen aluResumen);

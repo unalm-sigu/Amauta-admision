@@ -86,6 +86,24 @@ new Vue({
                     notify(MESSAGES.errorComunicacion, "error");
                 }
             });
+        },
+        reporteAlumnos(item) {
+            let $vue = this;
+            let ruta = "/academico/curso/reproteAlumnos";
+            $.fileDownload(ruta, {
+                httpMethod: "POST",
+                data: {curso: item.id}
+                ,
+                successCallback: function (responseHtml, url) {
+//                    console.log('aqui');
+                },
+                onFail: function (e) {
+                    console.log(e);
+                },
+                failCallback: function (responseHtml, url) {
+                    notify(MESSAGES.errorComunicacion, 'error')
+                }
+            });
         }
     }
 })

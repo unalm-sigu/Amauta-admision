@@ -30,7 +30,7 @@ public abstract class AbstractOnlyPdfView extends AbstractView {
         PdfWriter writer = PdfWriter.getInstance(document, baos);
         prepareWriter(model, writer, request);
         buildPdfMetadata(model, document, request);
-
+        
         // Build PDF document.
         writer.setInitialLeading(16);
         document.open();

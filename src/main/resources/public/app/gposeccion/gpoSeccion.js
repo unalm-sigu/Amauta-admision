@@ -816,6 +816,10 @@ new Vue({
                     .catch(function (error) {
                         notify(error.errorComunicacion, "error");
                     });
+        },
+        downloadAlumnosSeccion(item) {
+            console.log(item);
+            location.href = APP.url('docente/cargaacademica/reporteAlumno?seccion=') + item.id;
         }
     }
 });

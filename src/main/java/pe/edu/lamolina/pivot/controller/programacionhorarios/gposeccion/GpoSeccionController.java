@@ -162,6 +162,7 @@ public class GpoSeccionController {
                     "curso.departamentoAcademico.nombre",
                     "anexoBoletin.nombre",
                     "anexoBoletin.anexoSuperior.nombre",
+                    "secciones.id",
                     "secciones.codigo2",
                     "secciones.precio",
                     "secciones.precioFormato",

@@ -14,6 +14,7 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -51,14 +52,15 @@ import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
+import pe.edu.lamolina.model.enums.ContenidoCartaEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.TipoOficinaEnum;
 import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.misc.FotoHelper;
+import pe.edu.lamolina.pivot.controller.academico.profesor.view.ProfesoresPDF;
 import pe.edu.lamolina.pivot.controller.academico.visitante.AlumnoHelper;
 import pe.edu.lamolina.pivot.controller.docente.notasacademicas.NotaAcademicaService;
-import pe.edu.lamolina.pivot.controller.general.aula.HorariosAulaPDFBean;
 import pe.edu.lamolina.pivot.controller.seguridad.verificador.VerificadorService;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -78,6 +80,9 @@ public class ProfesorController {
 
     @Autowired
     VerificadorService verificadorService;
+
+    @Autowired
+    ProfesoresPDF profesoresPDF;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -521,10 +526,14 @@ public class ProfesorController {
         filter.setOffset(0);
         filter.setPerPage(10000);
         List<Docente> docentes = service.allByDepartamentoDynatable(filter, Arrays.asList(new DepartamentoAcademico(departamentoId)), ds.getCicloAcademico());
+        docentes = docentes.stream()
+                .filter(x -> x.getCantSeccionesPre() > 0 || x.getCantSeccionesPos() > 0)
+                .collect(Collectors.toList());
+
         model.addAttribute("docentes", docentes);
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
-        //horarioAulaCicloPDF
-        return new ModelAndView();
+        model.addAttribute("contenidoCarta", service.findContenidoCartaByEnum(ContenidoCartaEnum.AMAUTA_FOOTER_INVENTARIO_DOCENTE));
+        return new ModelAndView(profesoresPDF);
     }
 
 }

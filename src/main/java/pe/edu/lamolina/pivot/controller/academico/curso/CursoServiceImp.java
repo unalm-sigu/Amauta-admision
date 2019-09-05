@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,12 +17,17 @@ import pe.albatross.zelpers.miscelanea.NumberFormat;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Carrera;
+import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Docente;
+import pe.edu.lamolina.model.academico.DocenteSeccion;
+import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.NombreCurso;
+import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.EstadoEnum;
+import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.EPG;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.PRE;
@@ -31,10 +37,13 @@ import pe.edu.lamolina.model.enums.TipoCursoEnum;
 import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.general.Idioma;
 import pe.edu.lamolina.model.general.TipoCarpeta;
+import pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.reporte.dto.CantidadMatriculadosDTO;
 import pe.edu.lamolina.pivot.dao.academico.CarreraDAO;
 import pe.edu.lamolina.pivot.dao.academico.CursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.DepartamentoAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.DocenteDAO;
+import pe.edu.lamolina.pivot.dao.academico.DocenteSeccionDAO;
+import pe.edu.lamolina.pivot.dao.academico.MatriculaSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.ModalidadEstudioDAO;
 import pe.edu.lamolina.pivot.dao.academico.NombreCursoDAO;
 import pe.edu.lamolina.pivot.dao.general.IdiomaDAO;
@@ -71,10 +80,24 @@ public class CursoServiceImp implements CursoService {
     @Autowired
     TipoCarpetaDAO tipoCarpetaDAO;
 
+    @Autowired
+    MatriculaSeccionDAO matriculaSeccionDAO;
+
+    @Autowired
+    DocenteSeccionDAO docenteSeccionDAO;
+
     @Override
-    public List<Curso> allByDynatable(DynatableFilter filter, List<DepartamentoAcademico> departamentos) {
+    public List<Curso> allByDynatable(DynatableFilter filter, List<DepartamentoAcademico> departamentos, CicloAcademico cicloAcademico) {
         logger.debug("size dps {}", departamentos.size());
-        return cursoDAO.allByDynatable(filter, departamentos);
+        List<Curso> cursos = cursoDAO.allByDynatable(filter, departamentos);
+        List<CantidadMatriculadosDTO> cantidadMatriculados = matriculaSeccionDAO.cantidadMatriculadosPorCurso(cursos, cicloAcademico, EstadoMatriculaEnum.MAT);
+        for (Curso curso : cursos) {
+            CantidadMatriculadosDTO cantidadPorCurso = cantidadMatriculados.stream()
+                    .filter(x -> x.getCursoId().equals(curso.getId()))
+                    .findFirst().orElse(null);
+            curso.setMatriculados(cantidadPorCurso == null ? 0 : cantidadPorCurso.getCantidad().intValue());
+        }
+        return cursos;
     }
 
     @Override
@@ -355,5 +378,17 @@ public class CursoServiceImp implements CursoService {
     @Override
     public List<TipoCarpeta> allTiposCarpeta() {
         return tipoCarpetaDAO.all();
+    }
+
+    @Override
+    public List<MatriculaSeccion> allMatriculasSecciones(List<Curso> curso, CicloAcademico cicloAcademico) {
+        List<MatriculaSeccion> matriculasSecciones = matriculaSeccionDAO.allByCurso(curso, cicloAcademico, new String[]{"sec.codigo2", "per.paterno", "per.materno", "per.nombres"}, EstadoMatriculaEnum.MAT);
+
+        return matriculasSecciones;
+    }
+
+    @Override
+    public List<DocenteSeccion> allDocenteSeccionPrincipalesBySecciones(List<Seccion> secciones) {
+        return docenteSeccionDAO.allPrincipalesBySecciones(secciones);
     }
 }

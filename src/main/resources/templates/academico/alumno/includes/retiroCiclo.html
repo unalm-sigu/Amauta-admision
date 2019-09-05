@@ -1,0 +1,65 @@
+<template id="retiroCicloComponent">
+    <section class="panel-body m-t-sm">
+        <div class="m-b-sm">        
+            <h3 class="m-t-n" style="display: inline-block" >Historial de retiro de ciclos</h3>
+            <div class="pull-right m-t-n">
+            </div>
+        </div>
+        <div v-if="totalRetiros == 0 ">
+            <div class="row">
+                <span class="text-muted col-md-12">
+                    No tiene historial de retiros de ciclo
+                </span>
+            </div>
+        </div>
+        <div v-else="">
+
+            <table class="table table-body-hover">
+                <thead>
+                    <tr>
+                        <th class="col-sm-1 v-middle text-left"></th>
+                        <th class="col-sm-2 v-middle text-center">Ciclo</th>
+                        <th class="col-sm-5 v-middle text-center">Motivo</th>
+                        <th class="col-sm-2 v-middle text-center">Tipo</th>
+                        <th class="col-sm-1 v-middle text-center">Estado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="item in retirosCiclo">
+                        <td>
+                            <i v-if="item.estado == 'ACEP' &AMP;&AMP; item.cicloAcademico.tipo=='REG'" class="fa fa-check-circle fa-2x text-success"></i>
+                        </td>
+                        <td>
+                            <span v-text="item.cicloAcademico.descripcion2"></span>
+                        </td>
+                        <td>
+                            <span v-text='item.motivo'></span>
+                        </td>
+                        <td>
+                            <span v-text="item.tipoEnum.value"></span>
+                        </td>
+                        <td>
+                            <span v-text="item.estadoEnum.value"></span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="card">
+                <div class="card-footer">
+                    <div class="row">
+                        <div class="col-sm-6 col-md-6">
+                            <h3 class="text-primary">Retiros de ciclos contables: <span v-text='totalCicloContable'></span></h3>
+                        </div>
+                        <div class="col-sm-6 col-md-6">
+                            <h3 class="text-primary">Total de retiros: <span v-text='totalRetiros'></span></h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+
+    </section>
+</template>

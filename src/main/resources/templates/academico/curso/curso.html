@@ -30,10 +30,11 @@
                                     <table class="table table-striped">
                                         <thead> 
                                             <tr> 
-                                                <th class="col-md-5 v-middle">Curso</th>
+                                                <th class="col-md-4 v-middle">Curso</th>
                                                 <th class="col-md-3 v-middle"> Dependencia </th>
                                                 <th class="col-md-2 v-middle text-left">Coordinador</th>
                                                 <th class="col-md-1 v-middle text-center">Planes de Calificación</th>
+                                                <th class="col-md-1 v-middle text-center">Matriculados</th>
                                                 <th class="col-md-1 v-middle text-center">Estado</th>
                                                 <th></th>
                                             </tr>
@@ -59,6 +60,9 @@
                                                     <span class="block"></span>
                                                 </td>
                                                 <td class="text-center v-middle">
+                                                    <span class="badge" v-text="item.matriculados"></span>
+                                                </td>
+                                                <td class="text-center v-middle">
                                                     <span class="clear">
                                                         <label v-if="item.estado == 'INA' " class="label" v-bind:class="estadoClass[item.estado]"  data-toggle="tooltip" 
                                                                v-bind:title="item.motivoAnulacion" v-text="item.estadoEnum.value">Desactivado</label>
@@ -75,6 +79,7 @@
                                                             <li><a class="btn-link pointer" v-bind:href="urlEditar(item)">Editar</a></li>
                                                             <li v-if="item.estado != 'ACT' "><a class="btn-link pointer change-estado" v-on:click="activar(item,'activar')">Activar</a></li>
                                                             <li v-if="item.estado == 'ACT' "><a class="btn-link pointer change-estado" v-on:click="activar(item,'desactivar')">Desactivar</a></li>
+                                                            <li><a v-on:click="reporteAlumnos(item)">Alumnos Matriculados</a></li>
                                                         </ul>
                                                     </div>
                                                 </td>
@@ -109,6 +114,7 @@
         </div>
 
         <div layout:fragment="js">
+            <div th:substituteby="_layout/includes :: javascript-filedownload"/>
             <div th:substituteby="_modules/vue-modal"/>
             <div th:substituteby="_modules/vue-raptor-table"></div>
             <script th:src="@{/app/academico/curso/curso.js}" charset="utf-8"></script>

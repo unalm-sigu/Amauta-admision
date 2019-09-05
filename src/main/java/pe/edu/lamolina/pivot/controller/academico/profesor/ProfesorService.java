@@ -8,10 +8,12 @@ import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
+import pe.edu.lamolina.model.enums.ContenidoCartaEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.general.TipoDocIdentidad;
+import pe.edu.lamolina.model.inscripcion.ContenidoCarta;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface ProfesorService {
@@ -47,5 +49,7 @@ public interface ProfesorService {
     void update(Docente docente, DataSessionPivot ds);
 
     List<GrupoSeccion> allGpoSecciones(Docente docente, CicloAcademico ciclo, DataSessionPivot ds);
+
+    ContenidoCarta findContenidoCartaByEnum(ContenidoCartaEnum enumval);
 
 }

@@ -2,6 +2,7 @@ package pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.reporte
 
 public class CantidadMatriculadosDTO {
 
+    private Long cursoId;
     private String anexoSuperior;
     private String departamentoCurso;
     private String ciclo;
@@ -10,6 +11,11 @@ public class CantidadMatriculadosDTO {
     private Long cantidad;
 
     public CantidadMatriculadosDTO() {
+    }
+
+    public CantidadMatriculadosDTO(Long cursoId, Long cantidad) {
+        this.cursoId = cursoId;
+        this.cantidad = cantidad;
     }
 
     public CantidadMatriculadosDTO(String ciclo, String anexoSuperior, String departamentoCurso, String nombreCurso, String nombreSeccion, Long cantidad) {
@@ -67,6 +73,14 @@ public class CantidadMatriculadosDTO {
 
     public void setDepartamentoCurso(String departamentoCurso) {
         this.departamentoCurso = departamentoCurso;
+    }
+
+    public Long getCursoId() {
+        return cursoId;
+    }
+
+    public void setCursoId(Long cursoId) {
+        this.cursoId = cursoId;
     }
 
 }
