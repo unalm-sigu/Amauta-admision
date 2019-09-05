@@ -589,8 +589,8 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
                 alumnoCursoCurricula.setVecesCursado(cursosAprobado.getVecesCursadoTransient());
                 alumnoCursoCurricula.setNumeroCiclo(alumnoCursoCurricula.getNumeroCiclo());
             } else if (cursosAprobado.getCurso().getDepartamentoAcademico() != null && codesDptosCultDepMed.contains(cursosAprobado.getCurso().getDepartamentoAcademico().getCodigo())) {
-
-                addCursosComodin(alumno, alumnoCursoComodinDepNew, cursosAprobado, ds);
+                TipoCursoCurricula tipoCursoCurricula = tipoCursoCurriculas.stream().filter(x -> x.getCodigoEnum() == DEP).findAny().orElse(null);
+                addCursosComodin(alumno, alumnoCursoComodinDepNew, cursosAprobado, tipoCursoCurricula, ds);
 
             } else {
                 addCursosLibresCurricula(alumno, cursosAprobado, alumnoCursoElcCarreraNew, tipoCursoCurriculas, planCurriculars, mapCursoOpcional, equivalenteElectivos, mapCursoOpcionalAll, mapCursoCurriculaAll);
@@ -850,6 +850,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
             Alumno alumno,
             List<AlumnoCursoCurricula> alumnoCursoComodinNew,
             AlumnoCicloCurso aprobado,
+            TipoCursoCurricula tipoCursoCurricula,
             DataSessionPivot ds) {
 
         if (aprobado.getCreditos() > 0) {
@@ -871,6 +872,10 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
             cursoComodin.setValidado(true);
             cursoComodin.setVecesCursado(aprobado.getVecesCursadoTransient());
             alumnoCursoComodinNew.add(cursoComodin);
+        }
+        if (!ObjectUtil.verificarIgualdad(aprobado, aprobado, Arrays.asList("tipoCursoCurricula"))) {
+            aprobado.setTipoCursoCurricula(tipoCursoCurricula);
+            alumnoCicloCursoDAO.update(aprobado);
         }
     }
 
