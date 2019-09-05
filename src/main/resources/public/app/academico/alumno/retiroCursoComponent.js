@@ -1,13 +1,13 @@
-Vue.component("retiro-ciclo-component", {
-    template: "#retiroCicloComponent",
+Vue.component("retiro-curso-component", {
+    template: "#retiroCursoComponent",
     props: {
         alumno: {}
     },
     data() {
         return {
-            retirosCiclo: [],
-            totalRetiros: 0,
-            totalCicloContable: 0
+            retirosCurso: [],
+            total: 0,
+            totalContable: 0,
         }
     },
     methods: {
@@ -40,14 +40,14 @@ Vue.component("retiro-ciclo-component", {
             let $vue = this;
             $.ajax({
                 method: 'GET',
-                url: APP.url('academico/alumno/retirociclo'),
+                url: APP.url('academico/alumno/retirocurso'),
                 data: {id: $vue.alumno.id},
                 success: function (response) {
                     if (response.success) {
 
-                        $vue.totalRetiros = response.data.totalRetiros;
-                        $vue.totalCicloContable = response.data.totalCicloContable;
-                        $vue.retirosCiclo = response.data.retiroCiclo;
+                        $vue.total = response.total;
+                        $vue.totalContable = response.data.totalContable;
+                        $vue.retirosCurso = response.data.retirosCurso;
 
                     } else {
                         notify(response.message, "error");
@@ -58,5 +58,11 @@ Vue.component("retiro-ciclo-component", {
                 }
             });
         },
+        getFechaSmall(fecha) {
+            if (fecha) {
+                return fecha.substring(0, 10);
+            }
+            return '';
+        }
     }
 });

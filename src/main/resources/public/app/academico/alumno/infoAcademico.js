@@ -41,7 +41,8 @@ new Vue({
             {id: 4, name: "Matricula"},
             {id: 5, name: "Horario"},
             {id: 6, name: "Malla"},
-            {id: 8, name: "Retiro Ciclo"}
+            {id: 8, name: "Retiro Ciclo"},
+            {id: 9, name: "Retiro Curso"}
         ];
 
         if ($vue.alumno.modalidadEstudio.codigo == 'VIS' || $vue.alumno.modalidadEstudio.codigo == 'ESP') {
@@ -85,6 +86,10 @@ new Vue({
             if ($vue.tabId === 8 && !$vue.loadPages.retirociclo) {
                 $vue.$refs.compRetiroCiclo.obtenerDatos();
                 $vue.loadPages.retirociclo = true;
+            }
+            if ($vue.tabId === 9 && !$vue.loadPages.retirocurso) {
+                $vue.$refs.compRetiroCurso.obtenerDatos();
+                $vue.loadPages.retirocurso = true;
             }
         },
         cargaAportes() {

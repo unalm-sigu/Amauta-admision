@@ -7,6 +7,7 @@ import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.tramite.Resolucion;
 import pe.edu.lamolina.model.tramite.RetiroCiclo;
+import pe.edu.lamolina.model.tramite.RetiroCurso;
 import pe.edu.lamolina.model.tramite.Tramite;
 
 public interface RetiroCicloDAO extends EasyDAO<RetiroCiclo> {

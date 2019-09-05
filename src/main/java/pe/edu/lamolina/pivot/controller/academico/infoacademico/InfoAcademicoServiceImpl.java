@@ -52,7 +52,6 @@ import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.RCI;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.RCU;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.RET;
 import pe.edu.lamolina.model.enums.RolEnum;
-import pe.edu.lamolina.model.enums.TipoCicloEnum;
 import pe.edu.lamolina.model.finanzas.CuentaBancaria;
 import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.horario.Hora;
@@ -61,6 +60,7 @@ import pe.edu.lamolina.model.matricula.AlumnoAvanceCurricular;
 import pe.edu.lamolina.model.matricula.AlumnoCursoCurricula;
 import pe.edu.lamolina.model.seguridad.Rol;
 import pe.edu.lamolina.model.tramite.RetiroCiclo;
+import pe.edu.lamolina.model.tramite.RetiroCurso;
 import pe.edu.lamolina.pivot.controller.academico.avancecurricular.AvanceCurricularService;
 import pe.edu.lamolina.pivot.controller.academico.promedio.PromedioService;
 import pe.edu.lamolina.pivot.controller.test.VisorCalculoNotas;
@@ -84,6 +84,7 @@ import pe.edu.lamolina.pivot.dao.general.DiaDAO;
 import pe.edu.lamolina.pivot.dao.horario.HoraDAO;
 import pe.edu.lamolina.pivot.dao.horario.HorarioSeccionDAO;
 import pe.edu.lamolina.pivot.dao.tramite.RetiroCicloDAO;
+import pe.edu.lamolina.pivot.dao.tramite.RetiroCursoDAO;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service
@@ -159,6 +160,9 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
 
     @Autowired
     RetiroCicloDAO retiroCicloDAO;
+
+    @Autowired
+    RetiroCursoDAO retiroCursoDAO;
 
     @Override
     public Alumno findAlumno(Long idAlumno) {
@@ -926,7 +930,12 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
 
     @Override
     public List<RetiroCiclo> allRetiroCicloByAlumno(Alumno alumno) {
-         return retiroCicloDAO.allRetiroCicloByAlumno(alumno);
+        return retiroCicloDAO.allRetiroCicloByAlumno(alumno);
+    }
+
+    @Override
+    public List<RetiroCurso> allRetiroCursoByAlumno(Alumno alumno) {
+        return retiroCursoDAO.allRetiroCursoByAlumno(alumno);
     }
 
 }

@@ -61,6 +61,9 @@
                             <div v-show="8 == tabId">
                                 <retiro-ciclo-component v-bind:alumno="alumno" ref="compRetiroCiclo"></retiro-ciclo-component>
                             </div>
+                            <div v-show="9 == tabId">
+                                <retiro-curso-component v-bind:alumno="alumno" ref="compRetiroCurso"></retiro-curso-component>
+                            </div>
                         </section>
                     </section> 
 
@@ -75,6 +78,7 @@
             <div th:substituteby="academico/alumno/includes/matricula"/>
             <div th:substituteby="academico/alumno/includes/malla"/>
             <div th:substituteby="academico/alumno/includes/retiroCiclo"/>
+            <div th:substituteby="academico/alumno/includes/retiroCurso"/>
 
 
         </section>
@@ -97,6 +101,7 @@
             <script th:src="@{/app/academico/alumno/matriculaComponent.js}" charset="utf-8"></script>
             <script th:src="@{/app/academico/alumno/mallaComponent.js}" charset="utf-8"></script>
             <script th:src="@{/app/academico/alumno/retiroCicloComponent.js}" charset="utf-8"></script>
+            <script th:src="@{/app/academico/alumno/retiroCursoComponent.js}" charset="utf-8"></script>
             <script th:src="@{/app/academico/alumno/infoAcademico.js}" charset="utf-8"></script>
         </div>
     </body>
