@@ -50,7 +50,7 @@
                                             <tr class=""> 
                                                 <th class="col-md-2 v-middle text-center">Nombre</th>
                                                 <th class="col-md-2 v-middle text-center">Tipo</th>
-                                        <template v-if="props.data.length >0" >
+                                             <template v-if="props.data.length >0" >
                                             <th class="col-md-4 v-middle text-center" 
                                                 v-for="trn in props.data[0].turnosAtencionAulas" v-text="trn.descripcion">Aulas
                                             </th>
@@ -71,7 +71,7 @@
                                             <td class="col-md-4 v-middle" 
                                                 v-for="turno in item.turnosAtencionAulas">
 <!--                                                <span>{{turno}}</span>-->
-                                                <span class="label m-l-xs " 
+                                                <span class="label m-l-xs col-md-4 m-b-sm" 
                                                       v-bind:class="{ 'label-success': au.tipoAula.tipoAulaMOD, 'label-primary': au.tipoAula.tipoAulaAUL }"
                                                      v-for="au in turno.aulas" 
                                                      v-text="au.descripcionConcat"> </span>
