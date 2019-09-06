@@ -1,5 +1,6 @@
 package pe.edu.lamolina.pivot.controller.academico.infoacademico;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -40,6 +41,7 @@ import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
 import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.horario.HorarioSeccion;
 import pe.edu.lamolina.model.tramite.RetiroCiclo;
+import pe.edu.lamolina.model.tramite.RetiroCurso;
 import pe.edu.lamolina.pivot.controller.academico.plancurricular.PlanCurricularService;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -370,7 +372,7 @@ public class InfoAcademicoController {
 
     @ResponseBody
     @RequestMapping("retirociclo")
-    public JsonResponse retirociclo(Alumno alumno, Model model, HttpSession session) {
+    public JsonResponse retirociclo(Alumno alumno) {
         JsonResponse response = new JsonResponse();
         try {
 
@@ -379,14 +381,57 @@ public class InfoAcademicoController {
             List<RetiroCiclo> retiroFull = service.allRetiroCicloByAlumno(alumno);
 
             Long totalRetiros = retiroFull.stream()
-                    .filter(p -> p.getCicloAcademico().getTipoEnum()==REG)
-                    .filter(p -> p.getEstadoEnum()==TramiteEstadoEnum.ACEP)
+                    .filter(p -> p.getCicloAcademico().getTipoEnum() == REG)
+                    .filter(p -> p.getEstadoEnum() == TramiteEstadoEnum.ACEP)
                     .count();
 
             node.put("totalRetiros", retiroFull.size());
             node.put("totalCicloContable", totalRetiros);
             node.set("retiroCiclo", this.createRetiroCicloJson(retiroFull));
 
+            response.setSuccess(true);
+            response.setData(node);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("retirocurso")
+    public JsonResponse retiroCurso(Alumno alumno) {
+        JsonResponse response = new JsonResponse();
+        try {
+
+            JsonNodeFactory factory = JsonNodeFactory.instance;
+
+            ObjectNode node = new ObjectNode(factory);
+
+            List<RetiroCurso> retiroCursos = service.allRetiroCursoByAlumno(alumno);
+            Long totalContable = retiroCursos.stream().filter(x -> x.getEsContado()).count();
+
+            ArrayNode arrayRetiroCurso = new ArrayNode(factory);
+            for (RetiroCurso retiroCurso : retiroCursos) {
+                arrayRetiroCurso.add(JsonHelper.createJson(retiroCurso, factory, true, new String[]{
+                    "*",
+                    "tramite.fechaRegistro",
+                    "tramite.observacion",
+                    "cicloAcademico.descripcion",
+                    "curso.codigo",
+                    "curso.nombre",
+                    "curso.tpc",
+                    "curso.tipoCurso",
+                    "curso.departamentoAcademico.nombre"
+                }));
+            }
+
+            node.set("retirosCurso", arrayRetiroCurso);
+            node.put("totalContable", totalContable);
+
+            response.setTotal(retiroCursos.size());
             response.setSuccess(true);
             response.setData(node);
 

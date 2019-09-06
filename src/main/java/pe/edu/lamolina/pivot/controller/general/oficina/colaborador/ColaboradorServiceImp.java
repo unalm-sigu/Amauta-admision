@@ -532,7 +532,7 @@ public class ColaboradorServiceImp implements ColaboradorService {
         for (Colaborador colaborador : colaboradores) {
             String columnas = "id,estado,estadoEnum,codigo,"
                     + "oficina.nombre,cargo.nombre,persona.tipoDocumento.simbolo,"
-                    + "persona.id,persona.nombreCompleto,persona.numeroDocIdentidad";
+                    + "persona.id,persona.nombreCompleto,persona.numeroDocIdentidad,persona.emailCompania";
 
             ObjectNode node = JsonHelper.createJson(colaborador, JsonNodeFactory.instance, true, columnas.split(","));
             node.put("funciones", getFillList(mapFunciones.get(colaborador.getId())).size());

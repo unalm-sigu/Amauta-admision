@@ -548,7 +548,8 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
                 .collect(Collectors.toMap(x -> x.getAlumnoCiclo().getCicloAcademico(), x -> x.getAlumnoCiclo(), (a, b) -> b));
 
         int creditosConvalidados = 0;
-        List<AlumnoCicloCurso> listAlumnoCicloCurso = alumnoCicloCursoDAO.allByAlumnoOrderByCurso(alumno);
+
+        List<AlumnoCicloCurso> listAlumnoCicloCurso = alumnoCicloCursoDAO.allByAlumnoOrderByTipoCurso(alumno);
 
         for (AlumnoCicloCurso alumnoCicloCurso : listAlumnoCicloCurso) {
             if (alumnoCicloCurso.getNota().equals("TE")) {
@@ -557,7 +558,7 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
         }
 
         alumno.setCreditosConvalidadosTransient(creditosConvalidados);
-
+        
         ctx.setVariable("alumno", alumno);
         ctx.setVariable("ciclo", cicloAcademico);
         ctx.setVariable("curso", curso);
@@ -581,7 +582,7 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
 
         PdfContent pdfHistorial = new PdfContent();
         pdfHistorial.setContext(ctx);
-        pdfHistorial.setTipoPdfEnum(TipoPdfEnum.HISTORIAL_ACADEMICO);
+        pdfHistorial.setTipoPdfEnum(TipoPdfEnum.HISTORIAL_ACADEMICO_CURDIR);
 
 //        PdfContent pdfHistorialListado = new PdfContent();
 //        pdfHistorialListado.setContext(ctx);

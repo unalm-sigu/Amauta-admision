@@ -373,10 +373,25 @@ public class AlumnoCicloCursoDAOH extends AbstractEasyDAO<AlumnoCicloCurso> impl
                 .from(AlumnoCicloCurso.class, "acc")
                 .join("alumnoCiclo ac", "ac.alumno al", "ac.cicloAcademico ca", "acc.curso cu")
                 .join("ac.carrera", "ac.situacionInicio")
-                .left("ac.situacionFinal", "ac.orientacionCarrera")
+                .left("ac.situacionFinal", "ac.orientacionCarrera", "tipoCursoCurricula")
                 .filter("acc.registroActivo", BigDecimal.ONE.intValue())
                 .filter("al.id", alumno)
                 .orderBy("cu.nombre");
+
+        return sql.all(getCurrentSession());
+    }
+
+    @Override
+    public List<AlumnoCicloCurso> allByAlumnoOrderByTipoCurso(Alumno alumno) {
+        Octavia sql = Octavia.query()
+                .from(AlumnoCicloCurso.class, "acc")
+                .join("alumnoCiclo ac", "ac.alumno al", "ac.cicloAcademico ca", "acc.curso cu")
+                .join("ac.carrera", "ac.situacionInicio")
+                .left("ac.situacionFinal", "ac.orientacionCarrera", "tipoCursoCurricula tc")
+                .filter("acc.registroActivo", BigDecimal.ONE.intValue())
+                .filter("al.id", alumno)
+                .filter("acc.estaAprobado", BigDecimal.ONE.intValue())
+                .orderBy("tc.orden", "ca.codigo");
 
         return sql.all(getCurrentSession());
     }
@@ -617,8 +632,18 @@ public class AlumnoCicloCursoDAOH extends AbstractEasyDAO<AlumnoCicloCurso> impl
                 .join("alumnoCiclo ac", "ac.alumno al", "ac.cicloAcademico ca", "acc.curso cur")
                 .in("acc.estado", Arrays.asList(EstadoMatriculaEnum.MAT.name(), RCI.name(), RET.name(), RCU.name()))
                 .in("ac.estado", Arrays.asList(EstadoMatriculaEnum.MAT.name(), RCI.name(), RET.name(), RCU.name()))
-//                .filter("acc.registroActivo", BigDecimal.ONE.intValue())
+                //                .filter("acc.registroActivo", BigDecimal.ONE.intValue())
                 .in("ac.id", alumnosCiclos);
         return all(sql);
+    }
+
+    @Override
+    public void updateColumns(AlumnoCicloCurso alumnoCicloCursoFound, String... params) {
+        Octavia octavia = Octavia.update(AlumnoCicloCurso.class);
+        for (String column : params) {
+            octavia.set(alumnoCicloCursoFound, column);
+        }
+        System.out.println("UPDATE " + octavia.toString());
+        this.update(octavia);
     }
 }

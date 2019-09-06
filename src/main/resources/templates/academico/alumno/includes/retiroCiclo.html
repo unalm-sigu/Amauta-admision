@@ -39,7 +39,7 @@
                             <span v-text="item.tipoEnum.value"></span>
                         </td>
                         <td>
-                            <span v-text="item.estadoEnum.value"></span>
+                            <span v-bind:class="classEnumTramite(item.estado)" v-text="item.estadoEnum.value"></span>
                         </td>
                     </tr>
                 </tbody>

@@ -21,15 +21,15 @@ public class DeudaMaterialAlumnoDAOH extends AbstractEasyDAO<DeudaMaterialAlumno
     }
 
     @Override
-    public List<DeudaMaterialAlumno> allByDynatableTipoDeuda(DynatableFilter filter, List<Oficina> oficina) {
+    public List<DeudaMaterialAlumno> allByDynatableTipoDeuda(DynatableFilter filter, List<Oficina> oficinas) {
         DynatableSql sql = new DynatableSql(filter)
                 .from(DeudaMaterialAlumno.class, "da")
                 .join("oficina ofi")
                 .leftJoin("alumno alu", "alu.persona per")
-                .in("ofi.id", oficina)
+                .in("ofi.id", oficinas)
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                 .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
-                .searchFields("da.estado", "da.descripcion", "ofi.nombre", "ofi.codigo")
+                .searchFields("da.estado", "da.descripcion", "ofi.nombre", "ofi.codigo", "alu.codigo", "per.numeroDocIdentidad")
                 .orderBy("da.id desc");
 
         return sql.all(getCurrentSession());

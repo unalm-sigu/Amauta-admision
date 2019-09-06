@@ -10,6 +10,7 @@ public enum TipoPdfEnum {
     SUBVENCION_CARGA_ADICIONAL("SubvencionCargaAdicional", "pdf/subvencionCargaAdicional", "Subvención por carga Académica Adicional", "Subvención por carga Académica Adicional"),
     AVANCE_CURRICULAR("AvanceCurricular", "pdf/avanceCurricular", "Avance Curricular", "Avance Curricular"),
     HISTORIAL_ACADEMICO("HistorialAcademico", "pdf/historialAcademico", "Historial Académico", "Historial Académico"),
+    HISTORIAL_ACADEMICO_CURDIR("HistorialAcademico", "pdf/historialAcademicoCurdir", "Historial Académico", "Historial Académico"),
     HISTORIAL_ACADEMICO_LISTADO("HistorialAcademicoListado", "pdf/historialAcademicoListado", "Historial Académico", "Historial Académico"),
     PLAN_CURRICULAR("SubvencionCargaAdicional", "pdf/planCurricular", "Plan Curricular", "Plan Curricular"),
     CURSOS_MATRICULADOS("CursosMatriculados", "pdf/cursosMatriculados", "Cursos Matriculados", "Cursos Matriculados"),

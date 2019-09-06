@@ -131,7 +131,8 @@
                                             <th class="col-md-2 text-center" v-if="isCambioNota">Curso</th>
                                             <th class="col-md-1 text-center" v-if="isCambioNota">Nota</th>
                                             <th class="col-md-3 text-center" v-if="isCursoDirigido">Docente</th>
-                                            <th ></th>
+                                            <th v-if="isCursoDirigido ">Aprobado</th>
+                                            <th  v-if="!isCursoDirigido "></th>
                                             <th ></th>
                                         </tr>
                                     </thead>
@@ -420,9 +421,22 @@
                                             <td class="v-middle text-center">
                                                 <span v-if="resolucion.tipoResolucion != null" class="block text-muted" v-text="resolucion.tipoResolucion.nombre"></span>
                                             </td> 
-                                            <td class="v-middle text-center">
-                                                <span th:text="${ciclo.descripcion}" class="block text-muted"></span>                                            
-                                            </td> 
+                                            <td class="v-middle text-left">
+                                                <div class="form-group">
+                                                    <multiselect 
+                                                        v-model="tramiteTraslado.cicloAcademico" 
+                                                        v-bind:options="ciclos"
+                                                        placeholder="Seleccione un ciclo"
+                                                        label="descripcion"
+                                                        track-by="id" 
+                                                        required="true"
+                                                        v-bind:allow-empty="true"
+                                                        deselect-label="No se puede eliminar este valor" 
+                                                        >
+                                                    </multiselect>
+                                                    <input v-model="tramiteTraslado.cicloAcademico" required="true" type="text" class="hide"/>
+                                                </div>
+                                            </td>
                                             <td class="v-middle text-center">
                                             </td> 
                                             <td class="v-middle text-center">
@@ -431,7 +445,7 @@
                                                 </a>
                                             </td>
                                         </tr>
-                                        
+
                                     </tbody>
                                 </table>
 
@@ -448,6 +462,8 @@
                         </section>
                     </form>
                 </section>
+            </div>
+            <div th:substituteby="academico/resolucion/resolucionexistentes/resolucionError">
             </div>
         </div>
     </section>

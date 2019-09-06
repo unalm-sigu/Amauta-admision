@@ -20,7 +20,16 @@ var app = new Vue({
         isRetiroCiclo: false,
         isCambioNota: false,
         isCursoDirigido: false,
-        isTraslado: false
+        isTraslado: false,
+        modalError: {
+            id: 'modalError',
+            header: true,
+            title: 'Detalle Error',
+            okbtn: "Guardar",
+            showaccept: false,
+            confirm: false
+        },
+        errores: []
     }, created: function () {
 
     }, mounted: function () {
@@ -52,7 +61,7 @@ var app = new Vue({
             }
             return "";
         },
-        loadAlumno(nombre) {    
+        loadAlumno(nombre) {
             let $vue = this;
             this.isLoading = true
             if ($vue.resolucion.oficina == null) {
@@ -142,6 +151,7 @@ var app = new Vue({
                 return;
             }
             MODAL.showWait("Espere un momento por favor");
+            $vue.errores = [];
             $.ajax({
                 url: APP.url('academico/resolucion/save'),
                 dataType: "json",
@@ -149,12 +159,20 @@ var app = new Vue({
                 type: 'POST',
                 data: JSON.stringify($vue.resolucion),
                 success: function (response) {
-                    if (response.success) {
+                    if (response.success && response.data == null) {
                         notify(response.message, 'info');
                         $vue.resolucion = {reincorporaciones: [], retiroCiclo: [], cambioNota: [], cursoDirigido: [], tramiteTraslado: []};
                         $vue.alumnos = [];
                     } else {
-                        notify(response.message, 'error');
+                        if (response.data != null && response.data.length > 0) {
+                            $vue.errores = response.data;
+                            $vue.$refs.modalError.open();
+//                            $vue.resolucion = {reincorporaciones: [], retiroCiclo: [], cambioNota: [], cursoDirigido: [], tramiteTraslado: []};
+//                            $vue.alumnos = [];
+                            notify("Algunos alumnos no pudieron ser matriculados.", 'error');
+                        } else {
+                            notify(response.message, 'error');
+                        }
                     }
                     MODAL.hideWait();
                 },

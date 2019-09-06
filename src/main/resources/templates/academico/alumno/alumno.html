@@ -140,15 +140,15 @@
                                                         <ul class="dropdown-menu pull-right">
                                                             <div th:if="${puedeCalcular}" th:remove="tag">
                                                                 <li><a v-bind:href="urlGoMaipi(item)" target="_blank">Ir a MAIPI</a></li>
-                                                                <li ><a v-bind:href="urlMatricula(item)" target="_blank">Ir a Matricula</a></li>
+                                                                <li><a v-bind:href="urlMatricula(item)" target="_blank">Ir a Matricula</a></li>
                                                                 <li role="separator" class="divider"></li>
                                                                 <li><a v-bind:href="urlDataPersonal(item)">Modificar datos</a></li>
                                                             </div>
                                                             <li><a v-bind:href="urlAcademico(item)">Información académica</a></li>
                                                             <div th:if="${puedeCalcular}" th:remove="tag">
-                                                                <li><a v-if='isPosgrado(item.modalidadEstudio)' v-bind:href="urlConfigCursos(item)">Configurar Curso</a></li>
-                                                                <li><a v-on:click="urlConvalidarTraslado(item)">Convalidar Traslado Externo</a></li>
-                                                                <li><a v-on:click="asignarAccesoEspecial(item)">Asignar código especial</a></li>
+                                                                <li><a v-if='isPosgrado(item.modalidadEstudio)' v-bind:href="urlConfigCursos(item)">Habilitar Curso</a></li>
+                                                                <li><a v-on:click="urlConvalidarTraslado(item)" href="">Convalidar Cursos</a></li>
+                                                                <li><a v-on:click="asignarAccesoEspecial(item)" href="">Asignar código especial</a></li>
                                                                 <li><a v-bind:href="modalAsignarAvance(item)" target="_blank">Agregar Cursos</a></li>
                                                             </div>
                                                         </ul>

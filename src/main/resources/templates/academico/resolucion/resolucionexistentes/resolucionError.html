@@ -1,0 +1,11 @@
+<modal-vik ref="modalError"
+           v-bind="modalError">
+    <div slot="body">
+        <h5 class="alert alert-warning">LOS SIGUIENTES ALUMNO NO PUDIERON SER MATRICULADOS</h5>
+        <div class="modal-body">
+            <div class="row m-b-md" v-for="error in errores">
+                <b>- <span v-text="error"></span></b>
+            </div>
+        </div>
+    </div>
+</modal-vik>

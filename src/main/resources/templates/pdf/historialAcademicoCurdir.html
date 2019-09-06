@@ -1,0 +1,135 @@
+<html>
+    <head>
+        <title th:inline="text"> Plan Curricular </title>
+        <style>
+            body{
+                font-size: 10px !important;	
+            }
+
+            .fecha {
+                font-size: 10px;
+                font-style: italic;
+            }
+
+            .table{
+                font-size:10px !important;
+                border: solid .25px;
+                border-collapse: collapse;
+            }
+
+            .text-center {
+                text-align: center;
+            }
+
+            .text-right{
+                text-align: right;
+            }
+
+            table td {
+                padding: 5px !important;
+            }
+
+            .info-adicional{
+                font-size: 10px;
+                font-style: italic;
+            }
+            .header {
+                display: block;
+                padding-bottom: 20px;
+            }
+            .col-sm{
+                width: 30px;
+            }
+
+            .col-xs {
+                width: 20px;
+            }
+
+            .col-xxs {
+                width: 7px;
+            }
+
+            .table-plan {
+                width: 100%;
+            }
+
+            .table-plan > tbody > tr > td, .table-plan > thead > tr > td  {
+                border-top: solid .25px;
+                border-bottom: solid .25px;
+            }
+
+        </style>
+    </head>
+    <body>
+
+        <div style="text-align: center">
+            <b class="block" th:inline="text"> HISTORIAL ACADÉMICO </b>
+        </div>
+        <div style="text-align: right; padding-top: 20px;padding-bottom: 20px;">
+            <span class="fecha" th:text="${fecha}">La Molina, miércoles 8 de agosto de 2018</span>
+        </div>
+
+    <th:block>
+        <table class="table table-plan" style="margin-bottom: 30px">
+            <thead>
+                <tr>
+                    <td><b>Curso</b></td>
+                    <td class="text-center"><b>Nota</b></td>
+                    <td class="text-center"><b>Ciclo</b></td>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="cursado : ${alumnoCicloCurso}">
+                    <td>
+                        <span th:inline="text"> [[${cursado.curso.codigo}]] - [[${cursado.curso.nombre}]] </span>
+                        <br/>
+                        <span th:if="${cursado.tipoCursoCurricula}" th:text="${cursado.tipoCursoCurricula.nombre}"> ciclo </span>
+                    </td>
+                    <td class="text-center">
+                        <span th:if="${cursado.isAprobado()}" th:text="${cursado.nota}"> nota </span>
+                        <span th:unless="${cursado.isAprobado()}" style="color: red;" th:text="${cursado.nota}"> nota </span>
+                    </td>
+                    <td class="text-center">
+                        <span th:text="${cursado.alumnoCiclo.cicloAcademico.descripcion}"> ciclo </span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </th:block>
+    <th:block  th:each="item, itemStat: ${historial}">
+        <table class="table table-plan"  style=" margin-bottom: 30px" th:if="${itemStat.size} == ${itemStat.index} +1">
+            <th:block >
+                <tbody >
+                    <tr>
+                        <td  style="background-color: black; color: white" class="text-center"><b th:inline="text"> Resumen Académico </b></td>
+                    </tr>
+                    <tr>
+                        <td class="text-center" ><b> ACUMULADO </b></td>
+                    </tr>
+                    <tr>
+                        <td class="text-center"> 
+                            <span >Créditos Cursados: </span>
+                            <span th:text="${alumnoCiclo.get(item.key).creditosAcumulados}"> creditos cursados semestral </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="text-center"> 
+                            <span >Créditos Aprobados: </span>
+                            <span th:text="${alumnoCiclo.get(item.key).creditosAprobadosAcumulados}"> creditos cursados semestral </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="text-center"> 
+                            <span > Promedio Ponderado: </span>
+                            <span th:text="${alumnoCiclo.get(item.key).promedioAcumulado}"> creditos cursados semestral </span>
+                        </td>
+                    </tr>
+                </tbody>
+            </th:block>
+        </table>
+    </th:block>
+
+
+
+</body>
+</html>

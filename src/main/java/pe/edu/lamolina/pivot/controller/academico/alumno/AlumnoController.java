@@ -55,6 +55,7 @@ import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.tramite.TramiteTraslado;
 import pe.edu.lamolina.pivot.config.DespliegueConfig;
 import pe.edu.lamolina.pivot.controller.academico.avancecurricular.AvanceCurricularService;
+import pe.edu.lamolina.pivot.controller.academico.promedio.PromedioService;
 import pe.edu.lamolina.pivot.controller.academico.visitante.AlumnoHelper;
 import pe.edu.lamolina.pivot.controller.seguridad.verificador.VerificadorService;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
@@ -75,6 +76,9 @@ public class AlumnoController {
 
     @Autowired
     AvanceCurricularService avanceCurricularService;
+   
+    @Autowired
+    PromedioService promedioService;
 
     @Autowired
     DespliegueConfig despliegueConfig;
@@ -124,10 +128,10 @@ public class AlumnoController {
 
         try {
 
-            List<Carrera> carrera = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.ESP, request, ds);
+            List<Carrera> carreras = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.ESP, request, ds);
             List<Alumno> alumnos = null;
 
-            alumnos = service.allAlumnosbyDynatable(filter, carrera);
+            alumnos = service.allAlumnosbyDynatable(filter, carreras);
 
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
@@ -633,6 +637,7 @@ public class AlumnoController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             List<CursoConvalidado> listCursoConvalidado = service.saveListCursoConvalidado(trasladoBean, ds.getUsuario(), ds.getCicloAcademico());
             avanceCurricularService.generarAvanceCurricularByAlumno(trasladoBean.getAlumno(), ds);
+            promedioService.calulcarSituacionAcademica(trasladoBean.getAlumno(), ds);
             response.setData(createListCursoConvalidado(listCursoConvalidado));
             response.setSuccess(Boolean.TRUE);
             response.setMessage("Los cursos fueron registrados satisfactoriamente.");
@@ -730,7 +735,7 @@ public class AlumnoController {
         ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
         for (CursoConvalidado item : listCursoConvalidado) {
             ObjectNode node = JsonHelper.createJson(item, JsonNodeFactory.instance, new String[]{
-                "id", "nota", "fechaRegistro", "curso.id", "curso.nombre", "curso.codigo", "curso.creditos", "curso.tipoCurso"});
+                "id", "nota", "fechaRegistro", "curso.id", "curso.nombre", "curso.codigo", "curso.creditos", "curso.tipoCurso","tramiteTraslado.*","tramiteTraslado.cicloAcademico.*"});
             array.add(node);
         }
         return array;
@@ -749,7 +754,7 @@ public class AlumnoController {
         for (TramiteTraslado item : listTramiteTraslado) {
             ObjectNode node = JsonHelper.createJson(item, JsonNodeFactory.instance, new String[]{
                 "id", "estado", "tipoTraslado", "tramite.id",
-                "tramite.alumno.persona.id", "cicloAcademico.id",
+                "tramite.alumno.persona.id", "cicloAcademico.*",
                 "resolucion.id", "resolucion.fecha", "resolucion.estado",
                 "resolucion.serie", "resolucion.numero", "resolucion.rutaUrl", "resolucion.fechaRegistro",
                 "resolucion.userRegistro.persona.apellidosNombres",

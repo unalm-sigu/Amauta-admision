@@ -11,4 +11,6 @@ public interface RetiroCursoDAO extends EasyDAO<RetiroCurso> {
 
     public List<RetiroCurso> allInfo();
 
+    public List<RetiroCurso> allRetiroCursoByAlumno(Alumno alumno);
+
 }
