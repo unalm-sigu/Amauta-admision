@@ -62,7 +62,10 @@ public class ResponsableAulaDAOH extends AbstractEasyDAO<ResponsableAula> implem
         DynatableSql sql = new DynatableSql(filter)
                 .from(ResponsableAula.class, "ra")
                 .join("persona per")
-                .in("ra.estado", Arrays.asList(estados));
+                .in("ra.estado", Arrays.asList(estados))
+                .searchFields("per.numeroDocIdentidad")
+                .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
+                .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))");
         return all(sql);
     }
 

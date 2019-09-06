@@ -307,7 +307,7 @@ public class HorarioAulaCicloPDF extends AbstractOnlyPdfView {
         PdfPCell cellFooter2 = new PdfPCell(new Phrase("OFICINA DE ESTUDIOS Y REGISTROS ACADÉMICOS", fontFooterPDF));
         cellFooter2.setVerticalAlignment(Element.ALIGN_LEFT);
         cellFooter2.setHorizontalAlignment(Element.ALIGN_CENTER);
-        cellFooter2.setColspan(3);
+        cellFooter2.setColspan(4);
         cellFooter2.setPaddingLeft(0f);
         cellFooter2.setPaddingRight(0f);
         cellFooter2.setPaddingTop(1f);
@@ -409,7 +409,7 @@ public class HorarioAulaCicloPDF extends AbstractOnlyPdfView {
                 cursoNombre = cursoNombre.substring(0, lengthMaxDescription);
             }
             addCeldaLeftBody(cursoNombre, innerTable, bodyFont);
-            logger.debug("seccion {}", seccion.getId());
+          //  logger.debug("seccion {}", seccion.getId());
             if (seccion.getDocenteSeccion() != null) {
                 for (DocenteSeccion docenteSeccion : seccion.getDocenteSeccion()) {
                     Docente docente = docenteSeccion.getDocente();
