@@ -75,7 +75,7 @@ public class ResponsableAulaServiceImp implements ResponsableAulaService {
 
     @Override
     public List<Persona> allPersonasByName(String nombre) {
-        List<Persona> personas = personaDAO.allPersonaColaboradorByNombre(nombre, OficinaEnum.OERA, OficinaEnum.PAULA);
+        List<Persona> personas = personaDAO.allPersonaColaboradorByNombre(nombre, OficinaEnum.UPH, OficinaEnum.PAULA);
         return personas;
     }
 
