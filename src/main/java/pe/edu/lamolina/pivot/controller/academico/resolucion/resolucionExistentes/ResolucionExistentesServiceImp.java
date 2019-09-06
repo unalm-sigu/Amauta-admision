@@ -606,7 +606,7 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
             alumnoCursoCurriculaDAO.save(alumnoCursoCurricula);
         }
         List<MatriculaCurso> matriculaCursos = mapMatriculaCursos.get(alumno.getId());
-        if (matriculaCursos != null && matriculaCursos.stream().filter((MatriculaCurso x) -> x.getCurso().getId() == curso.getId()).findAny().orElse(null) != null) {
+        if (matriculaCursos != null && matriculaCursos.stream().filter((MatriculaCurso x) -> Objects.equals(x.getCurso().getId(), curso.getId())).findAny().orElse(null) != null) {
             MatriculaCurso matriculaCurso = matriculaCursos.stream().filter(x -> Objects.equals(x.getCurso().getId(), curso.getId())).findAny().orElse(null);
             matriculaCurso.setEstadoEnum(EstadoMatriculaEnum.MAT);
             matriculaCurso.setUserMatricula(usuario);

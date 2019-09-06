@@ -39,6 +39,7 @@ public interface AvanceCurricularAsincronoService {
             Map<Long, List<CursoOpcionalCurricula>> mapCursoOpcionalAll,
             List<PlanCurricular> planCurriculars,
             Map<Long, List<CursoCurricula>> mapCursoCurriculaAll,
+            Map<Long, List<RequisitoCursoOpcional>> mapRequisitoCursoOpcionals,
             DataSessionPivot ds);
 
     void procesarAlumnoSincrono(
@@ -59,6 +60,7 @@ public interface AvanceCurricularAsincronoService {
             Map<Long, List<CursoOpcionalCurricula>> mapCursoOpcionalAll,
             List<PlanCurricular> planCurriculars,
             Map<Long, List<CursoCurricula>> mapCursoCurriculaAll,
+              Map<Long, List<RequisitoCursoOpcional>> mapRequisitoCursoOpcionals,
             DataSessionPivot ds);
 
     void deleteAllAlumnoCursoSimultaneoByAlumno(Alumno alumno);
