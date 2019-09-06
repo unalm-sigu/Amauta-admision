@@ -480,18 +480,6 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
     @Transactional
     public List<String> saveCursoDirigido(Resolucion resolucionForm, Usuario usuario, DataSessionPivot ds) {
         List<String> msg = new ArrayList();
-        TipoResolucion tipoResolucion = tipoResolucionDAO.finByCodigo(TipoResolucionEnum.CURDIR);
-        Resolucion resolucion = new Resolucion();
-        resolucion.setOficina(resolucionForm.getOficina());
-        resolucion.setFecha(resolucionForm.getFecha());
-        resolucion.setNumero(resolucionForm.getNumero());
-        resolucion.setSerie(resolucionForm.getSerie());
-        resolucion.setEstadoEnum(ResolucionEstadoEnum.VB_RES);
-        resolucion.setFechaRegistro(new Date());
-        resolucion.setTipoResolucion(tipoResolucion);
-        resolucion.setUserRegistro(usuario);
-        resolucion.setAplicacionDirecta(1l);
-        resolucionDAO.save(resolucion);
 
         Assert.isFalse(resolucionForm.getCursoDirigido().isEmpty(), "Debe Agregar alumnos.");
         List<CursoDirigido> cursoDirigidos = cursoDirigidoDAO.allByCicloAcademicoSol(ds.getCicloAcademico());
@@ -519,12 +507,26 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
             return msg;
         }
 
+        TipoResolucion tipoResolucion = tipoResolucionDAO.finByCodigo(TipoResolucionEnum.CURDIR);
+        Resolucion resolucion = new Resolucion();
+        resolucion.setOficina(resolucionForm.getOficina());
+        resolucion.setFecha(resolucionForm.getFecha());
+        resolucion.setNumero(resolucionForm.getNumero());
+        resolucion.setSerie(resolucionForm.getSerie());
+        resolucion.setEstadoEnum(ResolucionEstadoEnum.VB_RES);
+        resolucion.setFechaRegistro(new Date());
+        resolucion.setTipoResolucion(tipoResolucion);
+        resolucion.setUserRegistro(usuario);
+        resolucion.setAplicacionDirecta(1l);
+        resolucionDAO.save(resolucion);
+
         for (CursoDirigido cursoDirigidoForm : resolucionForm.getCursoDirigido()) {
 
             EstadoTramite estado = cursoDirigidoForm.getSeleccionado() ? estadoTramite : estadoTramiteRech;
             TramiteEstadoEnum estadotram = cursoDirigidoForm.getSeleccionado() ? TramiteEstadoEnum.ACEP : TramiteEstadoEnum.RCHZ;
             CursoDirigido cursoDirigidoTram = map.get(cursoDirigidoForm.getAlumno().getId());
 
+            cursoDirigidoTram.setMotivoRechazo(cursoDirigidoTram.getMotivoRechazo());
             cursoDirigidoTram.setResolucion(resolucion);
             cursoDirigidoTram.setDocenteAsignado(cursoDirigidoForm.getDocenteAsignado());
             cursoDirigidoTram.setEstado(estado);

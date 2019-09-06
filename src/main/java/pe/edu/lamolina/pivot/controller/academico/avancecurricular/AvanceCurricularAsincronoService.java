@@ -11,6 +11,7 @@ import pe.edu.lamolina.model.academico.CursoOpcionalCurricula;
 import pe.edu.lamolina.model.academico.MatriculaCurso;
 import pe.edu.lamolina.model.academico.PlanCurricular;
 import pe.edu.lamolina.model.academico.RequisitoCursoCurricula;
+import pe.edu.lamolina.model.academico.RequisitoCursoOpcional;
 import pe.edu.lamolina.model.academico.ResumenPlanCurricular;
 import pe.edu.lamolina.model.academico.TipoCursoCurricula;
 import pe.edu.lamolina.model.matricula.AlumnoAvanceCurricular;
@@ -88,6 +89,7 @@ public interface AvanceCurricularAsincronoService {
             List<PlanCurricular> planCurriculars,
             Map<Long, List<CursoCurricula>> mapCursoCurriculaAll,
             List<CursoHabilEscuela> habilEscuelas,
+            Map<Long, List<RequisitoCursoOpcional>> mapRequisitoCursoOpcionals,
             DataSessionPivot ds);
 
     public void procesarAlumnoSincronoEPG(

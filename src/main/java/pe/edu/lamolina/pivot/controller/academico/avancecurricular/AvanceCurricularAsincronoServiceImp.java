@@ -31,6 +31,7 @@ import pe.edu.lamolina.model.academico.CursoOpcionalCurricula;
 import pe.edu.lamolina.model.academico.MatriculaCurso;
 import pe.edu.lamolina.model.academico.PlanCurricular;
 import pe.edu.lamolina.model.academico.RequisitoCursoCurricula;
+import pe.edu.lamolina.model.academico.RequisitoCursoOpcional;
 import pe.edu.lamolina.model.academico.ResumenPlanCurricular;
 import pe.edu.lamolina.model.academico.TipoCursoCurricula;
 import pe.edu.lamolina.model.enums.AlumnoCursoSimultaneoEstadoEnum;
@@ -1138,6 +1139,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
             List<PlanCurricular> planCurriculars,
             Map<Long, List<CursoCurricula>> mapCursoCurriculaAll,
             List<CursoHabilEscuela> habilEscuelas,
+            Map<Long, List<RequisitoCursoOpcional>> mapRequisitoCursoOpcionals,
             DataSessionPivot ds) {
 //  Map<Long, List<CursoEquivalente>> mapCursosEquivalentes, List<CursoEquivalenteElectivo> equivalenteElectivos,
         Carrera carrera = alumno.getCarrera();

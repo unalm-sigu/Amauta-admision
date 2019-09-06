@@ -30,6 +30,7 @@ import pe.edu.lamolina.model.academico.MatriculaCurso;
 import pe.edu.lamolina.model.academico.OrientacionCarrera;
 import pe.edu.lamolina.model.academico.PlanCurricular;
 import pe.edu.lamolina.model.academico.RequisitoCursoCurricula;
+import pe.edu.lamolina.model.academico.RequisitoCursoOpcional;
 import pe.edu.lamolina.model.academico.ResumenPlanCurricular;
 import pe.edu.lamolina.model.academico.TipoCursoCurricula;
 import pe.edu.lamolina.model.matricula.AlumnoAvanceCurricular;
@@ -49,6 +50,7 @@ import pe.edu.lamolina.pivot.dao.academico.CursoOpcionalCurriculaDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaCursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.PlanCurricularDAO;
 import pe.edu.lamolina.pivot.dao.academico.RequisitoCursoCurriculaDAO;
+import pe.edu.lamolina.pivot.dao.academico.RequisitoCursoOpcionalDAO;
 import pe.edu.lamolina.pivot.dao.academico.ResumenPlanCurricularDAO;
 import pe.edu.lamolina.pivot.dao.academico.TipoCursoCurriculaDAO;
 import pe.edu.lamolina.pivot.dao.posgrado.CursoHabilEscuelaDAO;
@@ -113,6 +115,9 @@ public class AvanceCurricularServiceImp implements AvanceCurricularService {
 
     @Autowired
     CursoHabilEscuelaDAO cursoHabilEscuelaDAO;
+    
+    @Autowired
+    RequisitoCursoOpcionalDAO requisitoCursoOpcionalDAO;
 
     @Override
     @Transactional
@@ -169,6 +174,9 @@ public class AvanceCurricularServiceImp implements AvanceCurricularService {
         List<CursoOpcionalCurricula> cursoOpcionalAllPlanes = cursoOpcionalCurriculaDAO.allNotPlanCurricularAndCurso(planesCurricular);
         Map<Long, List<CursoOpcionalCurricula>> mapCursoOpcionalAll = TypesUtil.convertListToMapList("planCurricular.id", cursoOpcionalAllPlanes);
 
+         List<RequisitoCursoOpcional> requisitoCursoOpcionals = requisitoCursoOpcionalDAO.allRequisitosByCursosElectivos(cursoOpcionalAllPlanes);
+        Map<Long, List<RequisitoCursoOpcional>> mapRequisitoCursoOpcionals = TypesUtil.convertListToMapList("cursoOpcional.id", requisitoCursoOpcionals);
+        
         List<MatriculaCurso> cursosMatriculados = matriculaCursoDAO.allActivoByAlumnosCicloActivo(alumnos);
         Map<Long, List<MatriculaCurso>> mapCursosMatriculados = TypesUtil.convertListToMapList("matriculaResumen.alumno.id", cursosMatriculados);
 
@@ -271,6 +279,7 @@ public class AvanceCurricularServiceImp implements AvanceCurricularService {
                     planesCurriculars,
                     mapCursoCurriculaAllPlanes,
                     habilEscuelas,
+                    mapRequisitoCursoOpcionals,
                     ds);
         }
     }
