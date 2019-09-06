@@ -31,6 +31,7 @@ import pe.edu.lamolina.model.academico.CursoOpcionalCurricula;
 import pe.edu.lamolina.model.academico.MatriculaCurso;
 import pe.edu.lamolina.model.academico.PlanCurricular;
 import pe.edu.lamolina.model.academico.RequisitoCursoCurricula;
+import pe.edu.lamolina.model.academico.RequisitoCursoOpcional;
 import pe.edu.lamolina.model.academico.ResumenPlanCurricular;
 import pe.edu.lamolina.model.academico.TipoCursoCurricula;
 import pe.edu.lamolina.model.enums.AlumnoCursoSimultaneoEstadoEnum;
@@ -176,6 +177,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
             Map<Long, List<CursoOpcionalCurricula>> mapCursoOpcionalAll,
             List<PlanCurricular> planCurriculars,
             Map<Long, List<CursoCurricula>> mapCursoCurriculaAll,
+            Map<Long, List<RequisitoCursoOpcional>> mapRequisitoCursoOpcionals,
             DataSessionPivot ds) {
 
         procesarAlumnoSincrono(
@@ -196,6 +198,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
                 mapCursoOpcionalAll,
                 planCurriculars,
                 mapCursoCurriculaAll,
+                mapRequisitoCursoOpcionals,
                 ds);
 
     }
@@ -523,6 +526,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
             Map<Long, List<CursoOpcionalCurricula>> mapCursoOpcionalAll,
             List<PlanCurricular> planCurriculars,
             Map<Long, List<CursoCurricula>> mapCursoCurriculaAll,
+            Map<Long, List<RequisitoCursoOpcional>> mapRequisitoCursoOpcionals,
             DataSessionPivot ds) {
 
         List<AlumnoCursoSimultaneo> cursosSimultaneosAlu = new ArrayList();
@@ -600,7 +604,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
         validarEquivalencias(mapAlumCursoCurrByCursoCurri, mapEquivalentesCurricula, cursosAprobados);
         validarCursosRequisito(mapAlumCursoCurrByCursoCurri, mapRequisitosCurricula, alumno);
         validarCursosSimultaneo(mapAlumCursoCurrByCursoCurri, cursosSimultaneosAlu, mapRequisitosCurricula, ds);
-        validarCursosMatriculados(mapAlumCursoCurrByCurso, cursosMatriculados, ds, alumno, alumnoCursoNew, equivalenteElectivos, cursoOpcionalCurriculas, tipoCursoCurriculas);
+        validarCursosMatriculados(mapAlumCursoCurrByCurso, cursosMatriculados, ds, alumno, alumnoCursoNew, equivalenteElectivos, cursoOpcionalCurriculas, tipoCursoCurriculas, mapRequisitoCursoOpcionals);
         generarAvanceCurricular(alumnoCursoElcCarreraNew, alumnoCursoNew, resumenPlanCurriculars, tipoCursoCurriculas, alumnoAvanceCurriculars, alumno, mapCursosVecesLlevado);
         validarCursosELC(alumnoCursoElcCarreraNew, alumnoCursoNew, alumno);
 
@@ -1045,7 +1049,8 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
             List<AlumnoCursoCurricula> alumnoCursoNew,
             List<CursoEquivalenteElectivo> equivalenteElectivos,
             List<CursoOpcionalCurricula> cursoOpcionalCurriculas,
-            List<TipoCursoCurricula> tipoCursoCurriculas) {
+            List<TipoCursoCurricula> tipoCursoCurriculas,
+            Map<Long, List<RequisitoCursoOpcional>> mapRequisitoCursoOpcionals) {
         cursosMatriculados = cursosMatriculados == null ? new ArrayList<>() : cursosMatriculados;
         for (MatriculaCurso cursoMatriculado : cursosMatriculados) {
             if (cursoMatriculado.isEstadoMAT()) {
@@ -1083,6 +1088,9 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
                     cursosOpcionalesNew.setCursoOpcional(cursoOpcionalCurricula);
                     cursosOpcionalesNew.setEstadoMatriculaEnum(cursoMatriculado.getEstadoEnum());
                     cursosOpcionalesNew.setEstadoRegistro(EstadoEnum.ACT.name());
+//                    if (tipoCursoCurricula.getCodigoEnum() == ELC && mapRequisitoCursoOpcionals != null) {
+//                        validarCursosRequisitoOpcional(mapRequisitoCursoOpcionals, cursosOpcionalesNew, alumnoCursoNew);
+//                    }
                     cursosOpcionalesNew.setEstadoEnum(HAB);
                     cursosOpcionalesNew.setValidado(true);
                     cursosOpcionalesNew.setVecesCursado(0);
@@ -1138,6 +1146,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
             List<PlanCurricular> planCurriculars,
             Map<Long, List<CursoCurricula>> mapCursoCurriculaAll,
             List<CursoHabilEscuela> habilEscuelas,
+            Map<Long, List<RequisitoCursoOpcional>> mapRequisitoCursoOpcionals,
             DataSessionPivot ds) {
 //  Map<Long, List<CursoEquivalente>> mapCursosEquivalentes, List<CursoEquivalenteElectivo> equivalenteElectivos,
         Carrera carrera = alumno.getCarrera();
@@ -1164,6 +1173,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
                     mapCursoOpcionalAll,
                     planCurriculars,
                     mapCursoCurriculaAll,
+                    mapRequisitoCursoOpcionals,
                     ds);
         } else {
 
@@ -1276,7 +1286,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
             }
 
         }
-        validarCursosMatriculados(mapAlumCursoCurrByCurso, cursosMatriculados, ds, alumno, alumnoCursoNew, null, cursoOpcionaPlan, tipoCursoCurriculas);
+        validarCursosMatriculados(mapAlumCursoCurrByCurso, cursosMatriculados, ds, alumno, alumnoCursoNew, null, cursoOpcionaPlan, tipoCursoCurriculas, null);
         generarAvanceCurricularEpg(alumnoCursoElcCarreraNew, alumnoCursoNew, resumenPlanCurriculars, tipoCursoCurriculas, alumnoAvanceCurriculars, alumno, mapCursosVecesLlevado);
 
         alumnoCursoOld = alumnoCursoOld == null ? new ArrayList<>() : alumnoCursoOld;
@@ -1475,5 +1485,17 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
         alumno.setCursosCarreraAprobados(curCarrera);
         alumno.setCreditosCarreraAprobados(credCarrera);
         alumnoDAO.update(alumno);
+    }
+
+    private Boolean validarCursosRequisitoOpcional(Map<Long, List<RequisitoCursoOpcional>> mapRequisitoCursoOpcionals, AlumnoCursoCurricula cursosOpcionalesNew, List<AlumnoCursoCurricula> alumnoCursoNew) {
+        List<RequisitoCursoOpcional> requisitoCursoCurriculas = fillList(mapRequisitoCursoOpcionals.get(cursosOpcionalesNew.getCursoOpcional().getId()));
+        if (requisitoCursoCurriculas.isEmpty()) {
+            return true;
+        }
+        for (RequisitoCursoOpcional requisitoCursoCurricula : requisitoCursoCurriculas) {
+            
+        }
+
+        return false;
     }
 }

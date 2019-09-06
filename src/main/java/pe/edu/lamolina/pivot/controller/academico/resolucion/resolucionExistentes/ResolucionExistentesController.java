@@ -187,7 +187,7 @@ public class ResolucionExistentesController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
             ArrayNode data = new ArrayNode(JsonNodeFactory.instance);
-            List<String> msg = null;
+            List<String> msg = new ArrayList<>();
             if (resolucion.getTipoResolucion().getCodigo().equals(REIC.name())) {
                 List<Alumno> alumnos = service.saveReincorporacion(resolucion, ds.getUsuario(), ds);
                 for (Alumno alumno : alumnos) {

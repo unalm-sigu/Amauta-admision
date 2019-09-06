@@ -1345,6 +1345,9 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
         List<CursoOpcionalCurricula> cursoOpcionalAllPlanes = cursoOpcionalCurriculaDAO.allNotPlanCurricularAndCurso(planesCurricular);
         Map<Long, List<CursoOpcionalCurricula>> mapCursoOpcionalAll = TypesUtil.convertListToMapList("planCurricular.id", cursoOpcionalAllPlanes);
 
+        List<RequisitoCursoOpcional> requisitoCursoOpcionals = requisitoCursoOpcionalDAO.allRequisitosByCursosElectivos(cursoOpcionalAllPlanes);
+        Map<Long, List<RequisitoCursoOpcional>> mapRequisitoCursoOpcionals = TypesUtil.convertListToMapList("cursoOpcional.id", requisitoCursoOpcionals);
+
         List<MatriculaCurso> cursosMatriculados = matriculaCursoDAO.allActivoByAlumnosCicloActivo(alumnos);
         Map<Long, List<MatriculaCurso>> mapCursosMatriculados = TypesUtil.convertListToMapList("matriculaResumen.alumno.id", cursosMatriculados);
 
@@ -1450,6 +1453,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
                     planesCurriculars,
                     mapCursoCurriculaAllPlanes,
                     habilEscuelas,
+                    mapRequisitoCursoOpcionals,
                     ds);
         }
 

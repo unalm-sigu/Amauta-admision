@@ -355,10 +355,10 @@
                                                 <span v-if="resolucion.tipoResolucion != null" class="block text-muted" v-text="resolucion.tipoResolucion.nombre"></span>
                                             </td>
                                             <td class="v-middle text-left">
-                                                <input class="form-control" v-model="cursoDirigido.motivo" required="true" type="text"/>
+                                                <input class="form-control" v-if="!cursoDirigido.seleccionado" v-model="cursoDirigido.motivoRechazo" required="true" type="text"/>
                                             </td>
                                             <td class="v-middle text-left">
-                                                <div class="col-md-12">
+                                                <div class="col-md-12" v-if="cursoDirigido.seleccionado">
                                                     <div class="form-group">
                                                         <multiselect 
                                                             v-model="cursoDirigido.docenteAsignado" 
