@@ -128,10 +128,10 @@ public class AlumnoController {
 
         try {
 
-            List<Carrera> carrera = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.ESP, request, ds);
+            List<Carrera> carreras = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.ESP, request, ds);
             List<Alumno> alumnos = null;
 
-            alumnos = service.allAlumnosbyDynatable(filter, carrera);
+            alumnos = service.allAlumnosbyDynatable(filter, carreras);
 
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 

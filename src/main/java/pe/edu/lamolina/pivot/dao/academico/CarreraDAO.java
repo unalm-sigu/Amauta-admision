@@ -1,6 +1,5 @@
 package pe.edu.lamolina.pivot.dao.academico;
 
-import java.util.Collection;
 import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.easydao.EasyDAO;

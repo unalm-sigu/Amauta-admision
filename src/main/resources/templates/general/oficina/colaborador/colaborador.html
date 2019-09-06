@@ -109,6 +109,9 @@
                                                     </small> 
                                                     <small v-if="item.persona.numeroDocIdentidad != '' " class="block">
                                                         <strong>{{item.persona.tipoDocumento.simbolo}}:</strong> {{item.persona.numeroDocIdentidad}}
+                                                    </small>
+                                                    <small v-if="item.codigo != '' " class="block">
+                                                        <strong>Email:</strong> {{item.persona.emailCompania}}
                                                     </small> 
                                                 </td>
 

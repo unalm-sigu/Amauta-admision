@@ -15,6 +15,7 @@ import static pe.edu.lamolina.model.enums.TramiteEstadoEnum.ACEP;
 import static pe.edu.lamolina.model.enums.TramiteEstadoEnum.PEND;
 import pe.edu.lamolina.model.tramite.Resolucion;
 import pe.edu.lamolina.model.tramite.RetiroCiclo;
+import pe.edu.lamolina.model.tramite.RetiroCurso;
 import pe.edu.lamolina.model.tramite.Tramite;
 
 @Repository

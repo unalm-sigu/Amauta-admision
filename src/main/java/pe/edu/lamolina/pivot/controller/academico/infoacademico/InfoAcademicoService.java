@@ -16,6 +16,7 @@ import pe.edu.lamolina.model.enums.TipoCicloEnum;
 import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.horario.HorarioSeccion;
 import pe.edu.lamolina.model.tramite.RetiroCiclo;
+import pe.edu.lamolina.model.tramite.RetiroCurso;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface InfoAcademicoService {
@@ -63,5 +64,7 @@ public interface InfoAcademicoService {
     boolean usuarioPuedeCalcular(DataSessionPivot ds);
 
     List<RetiroCiclo> allRetiroCicloByAlumno(Alumno alumno);
+
+    List<RetiroCurso> allRetiroCursoByAlumno(Alumno alumno);
 
 }

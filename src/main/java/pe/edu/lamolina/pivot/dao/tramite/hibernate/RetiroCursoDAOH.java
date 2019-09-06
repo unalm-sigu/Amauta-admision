@@ -37,4 +37,15 @@ public class RetiroCursoDAOH extends AbstractEasyDAO<RetiroCurso> implements Ret
 
         return all(sql);
     }
+
+    @Override
+    public List<RetiroCurso> allRetiroCursoByAlumno(Alumno alumno) {
+        
+        Octavia sql = new Octavia()
+                .from(RetiroCurso.class, "rc")
+                .join("alumno al", "cicloAcademico ca", "curso cur","cur.departamentoAcademico dep")
+                .leftJoin("tramite tra")
+                .filter("al.id", alumno);
+        return all(sql);
+    }
 }

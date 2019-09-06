@@ -39,6 +39,6 @@ public interface PersonaDAO extends EasyDAO<Persona> {
 
     List<Persona> allResponsableAulas(DynatableFilter filter, EstadoEnum... estados);
 
-    List<Persona> allPersonaColaboradorByNombre(String nombre, OficinaEnum oficinaEnum);
+    List<Persona> allPersonaColaboradorByNombre(String nombre, OficinaEnum... oficinaEnum);
 
 }
