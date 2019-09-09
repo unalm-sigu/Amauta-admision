@@ -7,6 +7,7 @@ import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.Facultad;
+import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.consejeria.AlumnoConsejero;
 import pe.edu.lamolina.model.consejeria.ConsejeriaResumen;
 import pe.edu.lamolina.model.consejeria.Consejero;
@@ -49,5 +50,7 @@ public interface ConsejerosService {
     void saveAlumnosConsejero(Consejero consejero, DataSessionPivot ds);
 
     List<AlumnoConsejero> allAlumnosConsejeros(List<Consejero> consejeros, CicloAcademico cicloAcademico, EstadoEnum... estados);
+
+    List<MatriculaResumen> allMatriculadosByCicloAndCarrera(CicloAcademico cicloAcademico, List<Carrera> carreras);
 
 }

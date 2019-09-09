@@ -495,4 +495,9 @@ public class ConsejerosServiceImp implements ConsejerosService {
         return alumnoConsejeroDAO.allByConsejerosAndCiclo(consejeros, cicloAcademico, estados);
     }
 
+    @Override
+    public List<MatriculaResumen> allMatriculadosByCicloAndCarrera(CicloAcademico cicloAcademico, List<Carrera> carreras) {
+        return matriculaResumenDAO.allByCicloAndCarrera(cicloAcademico, carreras, EstadoMatriculaEnum.MAT);
+    }
+
 }

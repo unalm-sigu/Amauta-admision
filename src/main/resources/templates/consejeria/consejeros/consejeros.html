@@ -65,8 +65,10 @@
                             <ul class="dropdown-menu">
                                 <li ><a type="button" class=" btn" v-bind:disabled="btndissabled" title="Primero seleccione una carrera" v-on:click.prevent="nuevoConsejero">Añadir Tutor</a></li>
                                 <li><a type="button" class=" btn" v-bind:disabled="btndissabled" v-on:click.prevent="asignarAlummnos" >Asignar tutores aleatoriamente</a></li>
-                                <li><a type="button" class=" btn" v-on:click.prevent="reporte({id:0})" >Reporte de Alumnos</a></li>
+                                <li><a type="button" class=" btn" v-on:click.prevent="reporteAlumnos({id:0})" >Reporte de Tutorados</a></li>
                                 <li><a type="button" class=" btn" v-on:click.prevent="consejerosPorEspecialidad()" >Consejeros Por Especialidad</a></li>
+                                <li><a type="button" class=" btn" v-on:click.prevent="tutoradosPorCondicion('conConsejero')" >Tutorados Con Tutor</a></li>
+                                <li><a type="button" class=" btn" v-on:click.prevent="tutoradosPorCondicion('sinConsejero')" >Tutorados Sin Tutor</a></li>
                                 <!--                                <li><a type="button" v-on:click.prevent="desasignarAlummnos" >Retirar tutores de alumnos</a></li>-->
                             </ul>
                         </div>
@@ -190,7 +192,7 @@
                                                             </a>
                                                             <ul class="dropdown-menu pull-right">
                                                                 <li><a type="button" v-on:click.prevent="nuevoAconsejado(item)" >Agregar Alumno</a></li>
-                                                                <li v-if="item.estado == 'ACT'" ><a v-on:click="reporte(item)">Reporte Alumnos</a></li>
+                                                                <li v-if="item.estado == 'ACT'" ><a v-on:click="reporteAlumnos(item)">Reporte Tutorados Ciclo</a></li>
                                                                 <li v-if="item.estado == 'ACT'" ><a v-on:click="cambiarEstado(item, 'INA')">Inhabilitar</a></li>
                                                                 <li v-else=""><a v-on:click="cambiarEstado(item, 'ACT')">Habilitar</a></li>
                                                             </ul>

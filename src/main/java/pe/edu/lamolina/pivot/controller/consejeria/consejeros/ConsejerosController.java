@@ -3,9 +3,11 @@ package pe.edu.lamolina.pivot.controller.consejeria.consejeros;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
@@ -31,6 +33,7 @@ import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.Facultad;
+import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.consejeria.AlumnoConsejero;
 import pe.edu.lamolina.model.consejeria.ConsejeriaResumen;
 import pe.edu.lamolina.model.consejeria.Consejero;
@@ -39,6 +42,7 @@ import pe.edu.lamolina.pivot.controller.academico.carrera.CarreraService;
 import pe.edu.lamolina.pivot.controller.consejeria.aconsejadoscarrera.AconsejadosCarreraService;
 import pe.edu.lamolina.pivot.controller.consejeria.consejeros.view.ConsejerosPorCarreraExcelView;
 import pe.edu.lamolina.pivot.controller.consejeria.consejeros.view.ReporteAlumnosConsejeroExcelView;
+import pe.edu.lamolina.pivot.controller.consejeria.consejeros.view.TutoradosPorCondicionExcelView;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -62,6 +66,9 @@ public class ConsejerosController {
 
     @Autowired
     AconsejadosCarreraService aconsejadoCarreraService;
+
+    @Autowired
+    TutoradosPorCondicionExcelView tutoradosPorCondicionExcelView;
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
@@ -295,11 +302,15 @@ public class ConsejerosController {
             filter.setQueries(new HashMap());
             filter.getQueries().put("consjeroPrm", consejero);
         }
-
-        List<Consejero> consejeros = service.allByCarreraDynatable(new Carrera(idCarrera), ds.getCicloAcademico(), filter);
+        Carrera carrera = new Carrera(idCarrera);
+        List<Consejero> consejeros = service.allByCarreraDynatable(carrera, ds.getCicloAcademico(), filter);
         List<AlumnoConsejero> alumnosConsejero = service.allAlumnosConsejeros(consejeros, ds.getCicloAcademico(), EstadoEnum.ACT);
+
+        List<Carrera> carreras = consejeros.stream().map(x -> x.getCarrera()).collect(Collectors.toList());
+        List<MatriculaResumen> matriculados = service.allMatriculadosByCicloAndCarrera(ds.getCicloAcademico(), carreras);
         model.addAttribute("consejeros", consejeros);
         model.addAttribute("alumnosConsejero", alumnosConsejero);
+        model.addAttribute("matriculados", matriculados);
         // model.addAttribute("alumnosConsejero", ds.getCicloAcademico());
         return new ModelAndView(reporteAlumnosConsejeroExcelView);
     }
@@ -379,8 +390,9 @@ public class ConsejerosController {
 
     @RequestMapping("aconsejadosPorCondicion")
     public ModelAndView aconsejadosPorEstado(@RequestParam("carrera") Long idCarrera,
-            @RequestParam("condicion") Long condicion,
+            @RequestParam("condicion") String condicion,
             Model model, HttpSession session) {
+        //conConsejero sinConsejero inhabilitado
         DynatableFilter filter = new DynatableFilter();
         filter.setPage(1);
         filter.setOffset(0);
@@ -390,10 +402,12 @@ public class ConsejerosController {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         ds.setFechaAccionAudit(new Date());
+        //  List<MatriculaResumen> matriculados = service.allMatriculadosByCicloAndCarrera(ds.getCicloAcademico(), carreras);
         List<AlumnoConsejero> alumnosTutores = aconsejadoCarreraService.allAconsejadoByDynatable(new Carrera(idCarrera), filter, ds.getCicloAcademico());
-        // model.addAttribute("consejeros", consejeros);
-        //  return new ModelAndView(consejerosPorCarreraExcelView);
-        return null;
+
+        model.addAttribute("condicion", condicion);
+        model.addAttribute("alumnosConsejero", alumnosTutores);
+        return new ModelAndView(tutoradosPorCondicionExcelView);
     }
 
 }

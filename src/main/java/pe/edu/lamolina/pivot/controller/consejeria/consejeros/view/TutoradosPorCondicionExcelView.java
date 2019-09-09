@@ -1,11 +1,9 @@
 package pe.edu.lamolina.pivot.controller.consejeria.consejeros.view;
 
-import java.io.InputStream;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
-import java.util.stream.Collectors;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -27,14 +25,13 @@ import pe.albatross.zelpers.file.excel.ExcelHelper;
 import pe.albatross.zelpers.file.excel.ExcelStyles;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
-import pe.edu.lamolina.model.academico.MatriculaResumen;
+import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.consejeria.AlumnoConsejero;
-import pe.edu.lamolina.model.consejeria.Consejero;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Component
-public class ReporteAlumnosConsejeroExcelView extends AbstractView {
+public class TutoradosPorCondicionExcelView extends AbstractView {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private static final String CONTENT_TYPE_XLSX = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
@@ -122,19 +119,25 @@ public class ReporteAlumnosConsejeroExcelView extends AbstractView {
     }
 
     private void createBody(Workbook wb, Sheet sheet, Map<String, Object> model, DataSessionPivot ds) {
-        List<Consejero> consejeros = (List<Consejero>) model.get("consejeros");
         List<AlumnoConsejero> alumnosConsejero = (List<AlumnoConsejero>) model.get("alumnosConsejero");
-        List<MatriculaResumen> matriculados = (List<MatriculaResumen>) model.get("matriculados");
-        Map<Long, MatriculaResumen> matriculadosGroupByAlumno = TypesUtil.convertListToMap("alumno.id", matriculados);
+        String condicion = (String) model.get("condicion");
+        if (condicion.equals("conConsejero")) {
+            condicion = "Con Consejero";
+        } else if (condicion.equals("sinConsejero")) {
+            condicion = "Sin Consejero";
+        }
+        Carrera carrera = null;
+        if (!alumnosConsejero.isEmpty()) {
+            carrera = alumnosConsejero.get(0).getAlumno().getCarrera();
+        }
 
         ExcelHelper excelUtil = new ExcelHelper(sheet, wb);
 
         CellStyle headerCell = ExcelStyles.getStyleCellHeaderGrey(wb);
-        CellStyle estiloCodigo = getStyleNumero(wb);
         CellStyle estiloNumero = getStyleNumero(wb);
         CellStyle estiloGeneral = getStyleGeneral(wb);
 
-        String letterToMerge = ":H";
+        String letterToMerge = ":E";
         int irow = 1;
         CellRangeAddress region = CellRangeAddress.valueOf("A" + irow + letterToMerge + irow);
         sheet.addMergedRegion(region);
@@ -144,22 +147,19 @@ public class ReporteAlumnosConsejeroExcelView extends AbstractView {
         cell.setCellStyle(ExcelStyles.getCellTitle1Green(wb));
         irow++;
 
-        if (consejeros != null && consejeros.size() == 1) {
-            Consejero consejero = consejeros.get(0);
-            region = CellRangeAddress.valueOf("A" + irow + letterToMerge + irow);
-            sheet.addMergedRegion(region);
-            row = sheet.createRow(region.getFirstRow());
-            cell = row.createCell(region.getFirstColumn());
-            cell.setCellValue("CONSEJERO " + consejero.getColaborador().getPersona().getApellidosNombres().toUpperCase());
-            cell.setCellStyle(ExcelStyles.getCellTitle3Green(wb));
-            irow++;
-        }
+        region = CellRangeAddress.valueOf("A" + irow + letterToMerge + irow);
+        sheet.addMergedRegion(region);
+        row = sheet.createRow(region.getFirstRow());
+        cell = row.createCell(region.getFirstColumn());
+        cell.setCellValue("CARRERA " + (carrera != null ? carrera.getNombre().toUpperCase() : "SIN DATA"));
+        cell.setCellStyle(ExcelStyles.getCellTitle3Green(wb));
+        irow++;
 
         region = CellRangeAddress.valueOf("A" + irow + letterToMerge + irow);
         sheet.addMergedRegion(region);
         row = sheet.createRow(region.getFirstRow());
         cell = row.createCell(region.getFirstColumn());
-        cell.setCellValue("ALUMNOS ACONSEJADOS");
+        cell.setCellValue("TUTORADOS " + condicion.toUpperCase(Locale.ITALY));
         cell.setCellStyle(ExcelStyles.getCellTitle3Green(wb));
         irow++;
 
@@ -177,10 +177,6 @@ public class ReporteAlumnosConsejeroExcelView extends AbstractView {
         int column = 0;
         excelUtil.replaceVal(irow - 1, column++, "N", headerCell);
         sheet.setColumnWidth((column - 1), 10 * 256);
-        excelUtil.replaceVal(irow - 1, column++, "CODIGO TUTOR", headerCell);
-        sheet.setColumnWidth((column - 1), 20 * 256);
-        excelUtil.replaceVal(irow - 1, column++, "TUTOR", headerCell);
-        sheet.setColumnWidth((column - 1), 35 * 256);
         excelUtil.replaceVal(irow - 1, column++, "CÓDIGO ALUMNO", headerCell);
         sheet.setColumnWidth((column - 1), 20 * 256);
         excelUtil.replaceVal(irow - 1, column++, "NOMBRE ALUMNO", headerCell);
@@ -189,28 +185,18 @@ public class ReporteAlumnosConsejeroExcelView extends AbstractView {
         sheet.setColumnWidth((column - 1), 50 * 256);
         excelUtil.replaceVal(irow - 1, column++, "SITUACIÓN ACADEMICA", headerCell);
         sheet.setColumnWidth((column - 1), 30 * 256);
-        excelUtil.replaceVal(irow - 1, column++, "MATRICULADO", headerCell);
-        sheet.setColumnWidth((column - 1), 15 * 256);
 
         int num = 1;
-        for (Consejero consejero : consejeros) {
-            List<AlumnoConsejero> alumnosByConsejero = alumnosConsejero.stream().filter(x -> consejero.equals(x.getConsejero())).collect(Collectors.toList());
-            List<Alumno> alumnos = alumnosByConsejero.stream().map(x -> x.getAlumno()).collect(Collectors.toList());
-            Collections.sort(alumnos, (x1, x2) -> x1.getPersona().getApellidosNombres().compareTo(x2.getPersona().getApellidosNombres()));
-            for (Alumno alumno : alumnos) {
-                MatriculaResumen matriculaResumen = matriculadosGroupByAlumno.get(alumno.getId());
-                column = 0;
-                excelUtil.replaceVal(irow, column++, num, estiloNumero);
-                excelUtil.replaceVal(irow, column++, consejero.getDocente().getCodigo());
-                excelUtil.replaceVal(irow, column++, consejero.getColaborador().getPersona().getApellidosNombres(), estiloGeneral);
-                excelUtil.replaceVal(irow, column++, alumno.getCodigo(), estiloGeneral);
-                excelUtil.replaceVal(irow, column++, alumno.getPersona().getApellidosNombres(), estiloGeneral);
-                excelUtil.replaceVal(irow, column++, alumno.getCarrera().getNombre(), estiloGeneral);
-                excelUtil.replaceVal(irow, column++, alumno.getSituacionAcademica().getNombre(), estiloGeneral);
-                excelUtil.replaceVal(irow, column++, matriculaResumen == null ? "NO" : "SI", estiloGeneral);
-                irow++;
-                num++;
-            }
+        for (AlumnoConsejero alumnoConsejero : alumnosConsejero) {
+            column = 0;
+            Alumno alumno = alumnoConsejero.getAlumno();
+            excelUtil.replaceVal(irow, column++, num, estiloNumero);
+            excelUtil.replaceVal(irow, column++, alumno.getCodigo());
+            excelUtil.replaceVal(irow, column++, alumno.getPersona().getApellidosNombres());
+            excelUtil.replaceVal(irow, column++, alumno.getCarrera().getNombre(), estiloGeneral);
+            excelUtil.replaceVal(irow, column++, alumno.getSituacionAcademica().getNombre(), estiloGeneral);
+            irow++;
+            num++;
         }
 
     }
