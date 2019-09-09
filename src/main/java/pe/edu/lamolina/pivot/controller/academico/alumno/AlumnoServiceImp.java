@@ -698,20 +698,19 @@ public class AlumnoServiceImp implements AlumnoService {
     @Override
     public List<AlumnoCursoCurricula> allCursosByAlumno(Alumno alumno, DynatableFilter filter) {
         Alumno alumnoDB = alumnoDAO.find(alumno);
-        ModalidadEstudio modalidad = modalidadEstudioDAO.findByCodigo(ModalidadEstudioEnum.EPG);
+        List<ModalidadEstudioEnum> listEnum = Arrays.asList(ModalidadEstudioEnum.EPG, ModalidadEstudioEnum.VIS, ModalidadEstudioEnum.ESP);
         if (alumnoDB == null) {
             throw new PhobosException("No existe datos del alumno");
         }
-        if (alumnoDB.getModalidadEstudio() != modalidad) {
-            throw new PhobosException("Alumno no pertenece a la modalidad");
+        if (!listEnum.contains(alumnoDB.getModalidadEstudio().getCodigoEnum())) {
+            throw new PhobosException("El alumno no pertenece a la modalidad");
         }
         return alumnoCursoCurriculaDAO.allByAlumnoAndModalidad(alumno, filter);
     }
 
     @Override
     public List<CursoCicloAcademico> allCursoCiclo(String nombre, CicloAcademico cicloAcademico) {
-        nombre = forLike(nombre);
-        return cursoCicloAcademicoDAO.allByCicloAndNombre(cicloAcademico, nombre);
+        return cursoCicloAcademicoDAO.allByCicloAndNombre(cicloAcademico, forLike(nombre));
     }
 
     @Override
@@ -739,14 +738,16 @@ public class AlumnoServiceImp implements AlumnoService {
         newcursoCurricula.setTipoCursoCurricula(tipoCursoCurriculaDAO.findByCodigo(TipoCursoCurriculaEnum.EAD));
         alumnoCursoCurriculaDAO.save(newcursoCurricula);
 
-        CursoHabilEscuela cursoHabilEscuela = new CursoHabilEscuela();
-        cursoHabilEscuela.setAlumno(alumnoDB);
-        cursoHabilEscuela.setCicloAcademico(cicloAcademico);
-        cursoHabilEscuela.setCurso(cursoDB);
-        cursoHabilEscuela.setFechaRegistro(new Date());
-        cursoHabilEscuela.setUserRegistro(usuario);
-        cursoHabilEscuela.setEstadoEnum(CursoHabilEstadoEnum.HAB);
-        cursoHabilEscuelaDAO.save(cursoHabilEscuela);
+        if (alumnoDB.getModalidadEstudio().getCodigoEnum().equals(ModalidadEstudioEnum.ESP)) {
+            CursoHabilEscuela cursoHabilEscuela = new CursoHabilEscuela();
+            cursoHabilEscuela.setAlumno(alumnoDB);
+            cursoHabilEscuela.setCicloAcademico(cicloAcademico);
+            cursoHabilEscuela.setCurso(cursoDB);
+            cursoHabilEscuela.setFechaRegistro(new Date());
+            cursoHabilEscuela.setUserRegistro(usuario);
+            cursoHabilEscuela.setEstadoEnum(CursoHabilEstadoEnum.HAB);
+            cursoHabilEscuelaDAO.save(cursoHabilEscuela);
+        }
 
     }
 
