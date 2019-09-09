@@ -526,6 +526,23 @@ new Vue({
                     notify(MESSAGES.errorComunicacion, 'error')
                 }
             });
+        }, reporteTutoradosOtraEspecialidad() {
+            let $vue = this;
+            let ruta = "/consejeria/consejeros/reporteTutoradosOtraEspecialidad";
+            $.fileDownload(ruta, {
+                httpMethod: "POST",
+                data: {carrera: $vue.carreraSelect.id}
+                ,
+                successCallback: function (responseHtml, url) {
+//                    console.log('aqui');
+                },
+                onFail: function (e) {
+                    console.log(e);
+                },
+                failCallback: function (responseHtml, url) {
+                    notify(MESSAGES.errorComunicacion, 'error')
+                }
+            });
         }
     }
 });

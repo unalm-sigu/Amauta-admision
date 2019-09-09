@@ -42,6 +42,7 @@ import pe.edu.lamolina.pivot.controller.academico.carrera.CarreraService;
 import pe.edu.lamolina.pivot.controller.consejeria.aconsejadoscarrera.AconsejadosCarreraService;
 import pe.edu.lamolina.pivot.controller.consejeria.consejeros.view.ConsejerosPorCarreraExcelView;
 import pe.edu.lamolina.pivot.controller.consejeria.consejeros.view.ReporteAlumnosConsejeroExcelView;
+import pe.edu.lamolina.pivot.controller.consejeria.consejeros.view.TutoradosConsejeroOtraCarreraExcelView;
 import pe.edu.lamolina.pivot.controller.consejeria.consejeros.view.TutoradosPorCondicionExcelView;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -69,6 +70,9 @@ public class ConsejerosController {
 
     @Autowired
     TutoradosPorCondicionExcelView tutoradosPorCondicionExcelView;
+
+    @Autowired
+    TutoradosConsejeroOtraCarreraExcelView tutoradosConsejeroOtraCarreraExcelView;
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
@@ -389,7 +393,8 @@ public class ConsejerosController {
     }
 
     @RequestMapping("aconsejadosPorCondicion")
-    public ModelAndView aconsejadosPorEstado(@RequestParam("carrera") Long idCarrera,
+    public ModelAndView aconsejadosPorEstado(
+            @RequestParam("carrera") Long idCarrera,
             @RequestParam("condicion") String condicion,
             Model model, HttpSession session) {
         //conConsejero sinConsejero inhabilitado
@@ -408,6 +413,25 @@ public class ConsejerosController {
         model.addAttribute("condicion", condicion);
         model.addAttribute("alumnosConsejero", alumnosTutores);
         return new ModelAndView(tutoradosPorCondicionExcelView);
+    }
+
+    @RequestMapping("reporteTutoradosOtraEspecialidad")
+    public ModelAndView reporteTutoradosOtraEspecialidad(
+            @RequestParam("carrera") Long idCarrera,
+            Model model, HttpSession session) {
+        DynatableFilter filter = new DynatableFilter();
+        filter.setPage(1);
+        filter.setOffset(0);
+        filter.setPerPage(10000000);
+
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+        Carrera carrera = new Carrera(idCarrera);
+        List<MatriculaResumen> matriculados = service.allMatriculadosByCicloAndCarrera(ds.getCicloAcademico(), Arrays.asList(carrera));
+        List<AlumnoConsejero> allAlumnosOtraEspecialidad = service.allAlumnosOtraEspecialidad(carrera, ds.getCicloAcademico());
+        model.addAttribute("alumnosConsejero", allAlumnosOtraEspecialidad);
+        model.addAttribute("matriculados", matriculados);
+        return new ModelAndView(tutoradosConsejeroOtraCarreraExcelView);
     }
 
 }
