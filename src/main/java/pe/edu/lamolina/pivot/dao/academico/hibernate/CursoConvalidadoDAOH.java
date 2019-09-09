@@ -21,6 +21,7 @@ public class CursoConvalidadoDAOH extends AbstractEasyDAO<CursoConvalidado> impl
         Octavia sql = Octavia.query()
                 .from(CursoConvalidado.class, "cc")
                 .join("curso cur", "tramiteTraslado ttr", "ttr.cicloAcademico")
+                .join("cur.departamentoAcademico")
                 .in("ttr.id", listTramiteTraslado)
                 .orderBy("cc.id desc");
 

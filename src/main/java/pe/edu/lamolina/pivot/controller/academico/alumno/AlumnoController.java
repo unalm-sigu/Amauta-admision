@@ -76,7 +76,7 @@ public class AlumnoController {
 
     @Autowired
     AvanceCurricularService avanceCurricularService;
-   
+
     @Autowired
     PromedioService promedioService;
 
@@ -735,7 +735,7 @@ public class AlumnoController {
         ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
         for (CursoConvalidado item : listCursoConvalidado) {
             ObjectNode node = JsonHelper.createJson(item, JsonNodeFactory.instance, new String[]{
-                "id", "nota", "fechaRegistro", "curso.id", "curso.nombre", "curso.codigo", "curso.creditos", "curso.tipoCurso","tramiteTraslado.*","tramiteTraslado.cicloAcademico.*"});
+                "id", "nota", "creditos", "fechaRegistro", "curso.id", "curso.nombre", "curso.codigo", "curso.tpc", "curso.creditos", "curso.tipoCurso", "tramiteTraslado.*", "tramiteTraslado.cicloAcademico.*"});
             array.add(node);
         }
         return array;
