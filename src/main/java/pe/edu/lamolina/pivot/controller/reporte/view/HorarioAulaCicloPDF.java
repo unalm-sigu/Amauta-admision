@@ -379,8 +379,8 @@ public class HorarioAulaCicloPDF extends AbstractOnlyPdfView {
                 cruces.add(cruce);
             }
             if (reservaAula != null) {
-                String tipoReserva = "Reserva; " + reservaAula.getTipoReservaEnum().getValue();
-                String solicitante = "Solicitante; " + reservaAula.getTramite().getTipoSolicitanteEnum().getValue();
+                String tipoReserva = "Res.; " + reservaAula.getTipoReservaEnum().getValue();
+                String solicitante = "Sol.; " + reservaAula.getTramite().getTipoSolicitanteEnum().getValue();
                 cruces.add(tipoReserva + " / " + solicitante);
             }
         }
@@ -409,7 +409,7 @@ public class HorarioAulaCicloPDF extends AbstractOnlyPdfView {
                 cursoNombre = cursoNombre.substring(0, lengthMaxDescription);
             }
             addCeldaLeftBody(cursoNombre, innerTable, bodyFont);
-          //  logger.debug("seccion {}", seccion.getId());
+            //  logger.debug("seccion {}", seccion.getId());
             if (seccion.getDocenteSeccion() != null) {
                 for (DocenteSeccion docenteSeccion : seccion.getDocenteSeccion()) {
                     Docente docente = docenteSeccion.getDocente();
