@@ -36,6 +36,7 @@ import pe.edu.lamolina.model.consejeria.ConsejeriaResumen;
 import pe.edu.lamolina.model.consejeria.Consejero;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.pivot.controller.academico.carrera.CarreraService;
+import pe.edu.lamolina.pivot.controller.consejeria.aconsejadoscarrera.AconsejadosCarreraService;
 import pe.edu.lamolina.pivot.controller.consejeria.consejeros.view.ConsejerosPorCarreraExcelView;
 import pe.edu.lamolina.pivot.controller.consejeria.consejeros.view.ReporteAlumnosConsejeroExcelView;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
@@ -58,6 +59,9 @@ public class ConsejerosController {
 
     @Autowired
     ConsejerosPorCarreraExcelView consejerosPorCarreraExcelView;
+
+    @Autowired
+    AconsejadosCarreraService aconsejadoCarreraService;
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
@@ -371,6 +375,25 @@ public class ConsejerosController {
         List<Consejero> consejeros = service.allByCarreraDynatable(new Carrera(idCarrera), ds.getCicloAcademico(), filter);
         model.addAttribute("consejeros", consejeros);
         return new ModelAndView(consejerosPorCarreraExcelView);
+    }
+
+    @RequestMapping("aconsejadosPorCondicion")
+    public ModelAndView aconsejadosPorEstado(@RequestParam("carrera") Long idCarrera,
+            @RequestParam("condicion") Long condicion,
+            Model model, HttpSession session) {
+        DynatableFilter filter = new DynatableFilter();
+        filter.setPage(1);
+        filter.setOffset(0);
+        filter.setPerPage(10000000);
+        filter.setQueries(new HashMap());
+        filter.getQueries().put("estado", condicion);
+
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        ds.setFechaAccionAudit(new Date());
+        List<AlumnoConsejero> alumnosTutores = aconsejadoCarreraService.allAconsejadoByDynatable(new Carrera(idCarrera), filter, ds.getCicloAcademico());
+        // model.addAttribute("consejeros", consejeros);
+        //  return new ModelAndView(consejerosPorCarreraExcelView);
+        return null;
     }
 
 }

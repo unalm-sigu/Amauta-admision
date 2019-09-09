@@ -122,7 +122,7 @@ public class ConsejerosPorCarreraExcelView extends AbstractView {
         CellStyle estiloGeneral = getStyleGeneral(wb);
 
         int irow = 1;
-        String letterToMerge = ":H";
+        String letterToMerge = ":E";
         CellRangeAddress region = CellRangeAddress.valueOf("A" + irow + letterToMerge + irow);
         sheet.addMergedRegion(region);
         Row row = sheet.createRow(region.getFirstRow());
