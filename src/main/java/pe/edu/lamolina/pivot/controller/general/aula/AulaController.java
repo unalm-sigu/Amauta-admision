@@ -558,9 +558,6 @@ public class AulaController {
             aulasProgramadas = aulasProgramadas.stream()
                     .filter(x -> x.getOficinaSupervisora().isOficinaOera())
                     .collect(Collectors.toList());
-            for (Aula aulasProgramada : aulasProgramadas) {
-                logger.debug("codigo {}, oficina {}", aulasProgramada.getCodigo(), aulasProgramada.getOficinaSupervisora().getCodigo());
-            }
 
             try {
                 Collections.sort(aulasProgramadas, (x1, x2) -> TypesUtil.getInt(x1.getCodigo(), -1).compareTo(TypesUtil.getInt(x2.getCodigo(), -1)));

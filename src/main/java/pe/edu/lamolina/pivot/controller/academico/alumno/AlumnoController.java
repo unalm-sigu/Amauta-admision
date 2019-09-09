@@ -525,7 +525,11 @@ public class AlumnoController {
                             "tipoCursoCurriculaOrigen.*",
                             "tipoCursoCurricula.*",
                             "cursoOpcional.*",
-                            "curso.*",
+                            "curso.codigo",
+                            "curso.nombre",
+                            "curso.tpc",
+                            "curso.tipoCurso",
+                            "curso.departamentoAcademico.nombre",
                             "cicloAprobado.*",});
                 array.add(node);
             });
@@ -550,7 +554,7 @@ public class AlumnoController {
             List<CursoCicloAcademico> cursos = service.allCursoCiclo(nombre, ds.getCicloAcademico());
             for (CursoCicloAcademico curso : cursos) {
                 ObjectNode node = JsonHelper.createJson(curso.getCurso(), jsonFactory,
-                        new String[]{"id", "codigo", "nombre", "creditos", "tipoCurso", "tipoCurricula"});
+                        new String[]{"id", "codigo", "tpc", "nombre", "creditos", "tipoCurso", "tipoCurricula", "departamentoAcademico.id", "departamentoAcademico.nombre"});
                 array.add(node);
             }
             response.setData(array);

@@ -35,4 +35,6 @@ public interface AlumnoConsejeroDAO extends EasyDAO<AlumnoConsejero> {
 
     List<AlumnoConsejero> allByConsejerosAndCiclo(List<Consejero> consejeros, CicloAcademico ciclo, EstadoEnum... estados);
 
+    List<AlumnoConsejero> allAlumnosOtraEspecialidad(Carrera carreraConsejero, CicloAcademico ciclo);
+
 }

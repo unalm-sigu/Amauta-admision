@@ -142,6 +142,7 @@ public class CursoCicloAcademicoDAOH extends AbstractEasyDAO<CursoCicloAcademico
         Octavia sql = Octavia.query(CursoCicloAcademico.class, "cca")
                 .join("curso c", "cicloAcademico ca")
                 .leftJoin("tipoCursoCurricula")
+                .leftJoin("c.departamentoAcademico")
                 .beginBlock()
                 .__().filter("c.codigo", "like", nombre)
                 .__().filter("c.nombre", "like", nombre)

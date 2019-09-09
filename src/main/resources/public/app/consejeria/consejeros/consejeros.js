@@ -418,7 +418,7 @@ new Vue({
 
             $vue.alumnosSeleccionados.push(Object.assign({}, $vue.alumnoSeleccionado));
             $vue.alumnoeleccionado = {};
-        }, reporte(item) {
+        }, reporteAlumnos(item) {
             let $vue = this;
             let ruta = "/consejeria/consejeros/reporteAlumnos/" + $vue.carreraSelect.id;
             console.log(ruta);
@@ -493,6 +493,42 @@ new Vue({
             let $vue = this;
             let ruta = "/consejeria/consejeros/consejerosPorEspecialidad";
 
+            $.fileDownload(ruta, {
+                httpMethod: "POST",
+                data: {carrera: $vue.carreraSelect.id}
+                ,
+                successCallback: function (responseHtml, url) {
+//                    console.log('aqui');
+                },
+                onFail: function (e) {
+                    console.log(e);
+                },
+                failCallback: function (responseHtml, url) {
+                    notify(MESSAGES.errorComunicacion, 'error')
+                }
+            });
+        }, tutoradosPorCondicion(item) {
+            let $vue = this;
+            let ruta = "/consejeria/consejeros/aconsejadosPorCondicion";
+            console.log(ruta);
+            console.log(JSON.stringify({id: item.id}));
+            $.fileDownload(ruta, {
+                httpMethod: "POST",
+                data: {carrera: $vue.carreraSelect.id, condicion: item}
+                ,
+                successCallback: function (responseHtml, url) {
+//                    console.log('aqui');
+                },
+                onFail: function (e) {
+                    console.log(e);
+                },
+                failCallback: function (responseHtml, url) {
+                    notify(MESSAGES.errorComunicacion, 'error')
+                }
+            });
+        }, reporteTutoradosOtraEspecialidad() {
+            let $vue = this;
+            let ruta = "/consejeria/consejeros/reporteTutoradosOtraEspecialidad";
             $.fileDownload(ruta, {
                 httpMethod: "POST",
                 data: {carrera: $vue.carreraSelect.id}
