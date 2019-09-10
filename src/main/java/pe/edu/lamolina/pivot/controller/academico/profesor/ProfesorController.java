@@ -116,8 +116,18 @@ public class ProfesorController {
     public String index(Model model, HttpSession session, HttpServletRequest request) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         List<DepartamentoAcademico> departamentos = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.DPTO, request, ds);
+        List<Facultad> facultades = departamentos.stream().map(x -> x.getFacultad()).distinct().collect(Collectors.toList());
+
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
         model.addAttribute("departamentos", departamentos);
+
+        ArrayNode jFacultades = new ArrayNode(JsonNodeFactory.instance);
+        for (Facultad facultad : facultades) {
+            jFacultades.add(JsonHelper.createJson(facultad, JsonNodeFactory.instance, false, new String[]{
+                "*"
+            }));
+        }
+        model.addAttribute("jFacultades", jFacultades.toString());
         return "academico/profesor/profesor";
     }
 
@@ -517,24 +527,16 @@ public class ProfesorController {
     }
 
     @RequestMapping("reporteEntregaMateriales")
-    public ModelAndView reporteEntregaMateriales(@RequestParam(value = "departamento", required = true) Long departamentoId,
-            Model model, HttpSession session, HttpServletResponse response) throws Exception {
-        logger.debug("Departamento " + departamentoId);
+    public ModelAndView reporteEntregaMateriales(@RequestParam(value = "facultad", required = false) Long facultadId,
+            Model model, HttpSession session, HttpServletResponse response, HttpServletRequest request) throws Exception {
+        logger.debug("facultad " + facultadId);
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-        DynatableFilter filter = new DynatableFilter();
-        filter.setPage(1);
-        filter.setOffset(0);
-        filter.setPerPage(10000);
-        List<Docente> docentes = service.allByDepartamentoDynatable(filter, Arrays.asList(new DepartamentoAcademico(departamentoId)), ds.getCicloAcademico());
-        docentes = docentes.stream()
-                .filter(x -> x.getCantSeccionesPre() > 0 || x.getCantSeccionesPos() > 0)
-                .collect(Collectors.toList());
 
-        DepartamentoAcademico departamentoAcademico = service.findDepartamento(new DepartamentoAcademico(departamentoId));
-        model.addAttribute("departamentoAcademico", departamentoAcademico);
-        model.addAttribute("docentes", docentes);
+        List<DepartamentoAcademico> departamentos = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.DPTO, request, ds);
+
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
-        model.addAttribute("contenidoCarta", service.findContenidoCartaByEnum(ContenidoCartaEnum.AMAUTA_FOOTER_INVENTARIO_DOCENTE));
+        model.addAttribute("facultad", new Facultad(facultadId));
+        model.addAttribute("departamentos", departamentos);
         return new ModelAndView(profesoresPDF);
     }
 

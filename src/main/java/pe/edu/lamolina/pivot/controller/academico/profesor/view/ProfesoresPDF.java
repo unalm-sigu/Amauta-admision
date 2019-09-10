@@ -3,7 +3,6 @@ package pe.edu.lamolina.pivot.controller.academico.profesor.view;
 import com.itextpdf.text.Chunk;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.Element;
-import com.itextpdf.text.Font;
 import com.itextpdf.text.PageSize;
 import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.Rectangle;
@@ -12,31 +11,37 @@ import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
 import java.io.ByteArrayOutputStream;
-import java.io.FileOutputStream;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.enums.FooterTypeEnum;
 import pe.albatross.zelpers.enums.HeaderTypeEnum;
 import pe.albatross.zelpers.pdf.document.PdfDocumentGenerator;
-import static pe.albatross.zelpers.pdf.document.PdfDocumentGenerator.FUENTE_8;
 import pe.albatross.zelpers.pdf.document.UEventoPaginaPdf;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.Facultad;
+import pe.edu.lamolina.model.enums.ContenidoCartaEnum;
 import pe.edu.lamolina.model.inscripcion.ContenidoCarta;
+import pe.edu.lamolina.pivot.controller.academico.profesor.ProfesorService;
 import pe.edu.lamolina.pivot.zelper.pdf.AbstractOnlyPdfView;
 
 @Component
 public class ProfesoresPDF extends AbstractOnlyPdfView {
+
+    @Autowired
+    ProfesorService service;
 
     protected void renderMergedOutputModel(Map<String, Object> model, HttpServletRequest request, HttpServletResponse response) throws Exception {
         // IE workaround: write into byte array first.
@@ -52,10 +57,8 @@ public class ProfesoresPDF extends AbstractOnlyPdfView {
         writer.setInitialLeading(16);
         CicloAcademico ciclo = (CicloAcademico) model.get("cicloAcademico");
         UEventoPaginaPdf eventoPagina = new UEventoPaginaPdf(HeaderTypeEnum.HEADER2, FooterTypeEnum.FOOTER3);
-        //    eventoPagina.setFooterTypeEnum(null);
         eventoPagina.setTitulo1("ENTREGA DE MATERIALES");
         eventoPagina.setTitulo2(String.format("CICLO ACADEMICO %s", ciclo.getDescripcion()));
-//        this.generarPlantillaAgrariaPdf(document, writer, eventoPagina);
         this.documentPageVertical(document, writer, eventoPagina);
 
         document.open();
@@ -80,12 +83,57 @@ public class ProfesoresPDF extends AbstractOnlyPdfView {
     @Override
     protected void buildPdfDocument(Map<String, Object> model, Document document, PdfWriter writer, HttpServletRequest request, HttpServletResponse response) throws Exception {
         CicloAcademico ciclo = (CicloAcademico) model.get("cicloAcademico");
-        List<Docente> docentes = (List<Docente>) model.get("docentes");
-        ContenidoCarta contenidoCarta = (ContenidoCarta) model.get("contenidoCarta");
+        ContenidoCarta contenidoCarta = service.findContenidoCartaByEnum(ContenidoCartaEnum.AMAUTA_FOOTER_INVENTARIO_DOCENTE);
 
+        List<DepartamentoAcademico> departamentos = (List<DepartamentoAcademico>) model.get("departamentos");
+        Facultad facultad = (Facultad) model.get("facultad");
+        List<Facultad> facultades = departamentos.stream().map(x -> x.getFacultad()).distinct().collect(Collectors.toList());
+        if (facultad.getId() != null) {
+            facultades.removeIf(x -> !x.equals(facultad));
+        }
+
+        int idxFac = 0;
+        for (Facultad facultadEach : facultades) {
+            idxFac++;
+            boolean lastFacu = (idxFac == facultades.size());
+
+            List<DepartamentoAcademico> departamentosByFacu = departamentos.stream().filter(x -> x.getFacultad().getId().compareTo(facultadEach.getId()) == 0)
+                    .distinct().collect(Collectors.toList());
+
+            DynatableFilter filter = new DynatableFilter();
+            filter.setPage(1);
+            filter.setOffset(0);
+            filter.setPerPage(10000);
+            List<Docente> docentes = service.allByDepartamentoDynatable(filter, departamentosByFacu, ciclo);
+            Collections.sort(docentes, (x1, x2) -> x1.getPersona().getApellidosNombres().compareTo(x2.getPersona().getApellidosNombres()));
+            int idxDep = 0;
+            for (DepartamentoAcademico departamento : departamentosByFacu) {
+                idxDep++;
+                List<Docente> docentesByDepartamento = docentes.stream()
+                        .filter(x -> x.getDepartamentoAcademico().equals(departamento))
+                        .collect(Collectors.toList());
+
+                this.builByDepartamento(document, departamento, contenidoCarta, docentesByDepartamento, ciclo);
+                if (departamentosByFacu.size() != idxDep) {
+                    document.newPage();
+                }
+            }
+            if (!lastFacu) {
+                document.newPage();
+            }
+        }
+
+        String filename = "entrega-materiales";
+        response.setHeader("Content-Disposition", "attachment; filename=\"" + filename + ".pdf\"");
+        response.setHeader("Set-Cookie", "fileDownload=true; path=/");
+    }
+
+    public void builByDepartamento(Document document, DepartamentoAcademico departamentoAcademico,
+            ContenidoCarta contenidoCarta,
+            List<Docente> docentes,
+            CicloAcademico cicloAcademico) throws Exception {
         PdfDocumentGenerator uDocumentoPdf = new PdfDocumentGenerator();
 
-        DepartamentoAcademico departamentoAcademico = (DepartamentoAcademico) model.get("departamentoAcademico");
         Facultad facultad = departamentoAcademico.getFacultad();
 
         PdfPTable tableSubs = new PdfPTable(new float[]{1});
@@ -113,8 +161,6 @@ public class ProfesoresPDF extends AbstractOnlyPdfView {
         uDocumentoPdf.addTitleCellTable("APELLIDOS Y NOMBRES", table, 1, Element.ALIGN_CENTER);
         uDocumentoPdf.addTitleCellTable("FIRMA", table, 1, Element.ALIGN_CENTER);
         int ind = 0;
-        Collections.sort(docentes, (x, y) -> x.getPersona().getApellidosNombres().compareTo(y.getPersona().getApellidosNombres()));
-
         for (Docente docente : docentes) {
 //            PdfPCell celda = uDocumentoPdf.addBodyCellTable(++ind + "", table, 1, Element.ALIGN_LEFT);
 //            celda.setFixedHeight(25f);
@@ -126,14 +172,13 @@ public class ProfesoresPDF extends AbstractOnlyPdfView {
             this.addBodyCellTable(docente.getPersona().getApellidosNombres(), table, Element.ALIGN_LEFT);
             this.addBodyCellTable("", table, Element.ALIGN_LEFT);
         }
-        //  uDocumentoPdf.createTableDefault(table, document, 570);
+
         document.add(table);
 
         table = new PdfPTable(new float[]{100f});
         table.getDefaultCell().setBorder(PdfPCell.NO_BORDER);
         table.setWidthPercentage(100);
         uDocumentoPdf.addBodyCellTable(" ", table, 1, Element.ALIGN_LEFT);
-        // String contenido = StringEscapeUtils.escapeHtml4(contenidoCarta.getContenido());
         String contenido = contenidoCarta.getContenido();
 
         List listHtmlContent = new ArrayList();
@@ -154,10 +199,6 @@ public class ProfesoresPDF extends AbstractOnlyPdfView {
 
         //  uDocumentoPdf.addBodyCellTable(contenido, table, 1, Element.ALIGN_LEFT);
         document.add(table);
-
-        String filename = "entrega-materiales";
-        response.setHeader("Content-Disposition", "attachment; filename=\"" + filename + ".pdf\"");
-        response.setHeader("Set-Cookie", "fileDownload=true; path=/");
     }
 
     public PdfPCell addBodyCellTable(String strTituloCabecera, PdfPTable table, int align) {

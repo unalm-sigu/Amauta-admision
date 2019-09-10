@@ -7,7 +7,7 @@
 <body>
     <div layout:fragment="main">
 
-        <header class="header b-b padder-lg">
+        <header class="header b-b padder-lg" id="mainvue">
 
 
 
@@ -18,10 +18,33 @@
                     Acciones &nbsp; <span class="caret"></span>
                 </button>
                 <ul class="dropdown-menu">
-                    <li><a v-if="condicion1" type="button" th:href="@{/academico/profesor/nuevo}">Nuevo</a></li>
-                    <li><a type="button" class="reporte">Reporte Entrega de Materiales</a></li>
+                    <li><a type="button" th:href="@{/academico/profesor/nuevo}">Nuevo</a></li>
+                    <li><a type="button" v-on:click.prevent="openModalReporte" >Reporte Entrega de Materiales</a></li>
+                    <!-- -->
                 </ul>
             </div>
+
+            <modal-vik ref="modalReporte"
+                       v-bind="reporteModal"
+                       v-bind:okaction="downloadReporte">
+                <div slot="body">
+                    <div class="form-group m-b-xs">
+                        <label class="bold">Facultad</label>
+
+                        <multiselect v-model='facultad'
+                                     label='nombre'
+                                     placeholder="Seleccione un facultad"
+                                     deselect-label=""
+                                     select-label=""
+                                     track-by='id'
+                                     v-bind:allow-empty="true"
+                                     v-bind:options='facultades'>
+                        </multiselect>
+                        <!-- 
+                                     v-on:input="verAnexoSuperior" -->
+                    </div>
+                </div>
+            </modal-vik>
 
         </header>
         <section class="wrapper-lg">
@@ -57,16 +80,26 @@
 
                 </section>
             </section>
+
+
+
+
+
         </section>
+
         <script id="profesorTemplate" type="text/x-jsrender" class="hide" > 
             <div th:substituteby="academico/profesor/profesorTemplate"/>
         </script>
 
-    </div>
 
+    </div>
     <div layout:fragment="js">
+        <script th:inline="javascript">
+            var jFacultades = /*[[${jFacultades}]]*/ {};
+        </script>
         <div th:substituteby="_layout/includes :: javascript-filedownload"/>
         <div th:substituteby="_layout/includes :: javascript-dynatable"></div>
+        <div th:substituteby="_modules/vue-modal"/>
         <script th:src="@{/app/academico/profesor/profesor.js}" charset="utf-8"></script>
     </div>
 
