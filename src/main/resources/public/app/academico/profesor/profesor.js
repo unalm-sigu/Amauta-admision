@@ -100,7 +100,7 @@ $(function () {
             notify("Seleccione el departamento");
             return;
         }
-        $.fileDownload("/academico/profesor/reporteProgramacion", {
+        $.fileDownload("/academico/profesor/reporteEntregaMateriales", {
             httpMethod: "POST",
             data: {departamento: dpto},
             successCallback: function (responseHtml, url) {

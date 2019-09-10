@@ -43,6 +43,7 @@ import pe.edu.lamolina.model.inscripcion.ContenidoCarta;
 import pe.edu.lamolina.model.seguridad.Rol;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.seguridad.UsuarioRol;
+import pe.edu.lamolina.pivot.dao.academico.DepartamentoAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.DocenteDAO;
 import pe.edu.lamolina.pivot.dao.academico.DocenteSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.ModalidadEstudioDAO;
@@ -92,6 +93,9 @@ public class ProfesorServiceImp implements ProfesorService {
 
     @Autowired
     ContenidoCartaDAO contenidoCartaDAO;
+
+    @Autowired
+    DepartamentoAcademicoDAO departamentoAcademicoDAO;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -619,6 +623,11 @@ public class ProfesorServiceImp implements ProfesorService {
     @Override
     public ContenidoCarta findContenidoCartaByEnum(ContenidoCartaEnum enumval) {
         return contenidoCartaDAO.findByCodigoEnum(enumval);
+    }
+
+    @Override
+    public DepartamentoAcademico findDepartamento(DepartamentoAcademico departamentoAcademico) {
+        return departamentoAcademicoDAO.find(departamentoAcademico.getId());
     }
 
 }

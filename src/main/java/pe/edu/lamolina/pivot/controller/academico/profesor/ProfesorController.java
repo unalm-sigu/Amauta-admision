@@ -516,8 +516,8 @@ public class ProfesorController {
         return json;
     }
 
-    @RequestMapping("reporteProgramacion")
-    public ModelAndView reporteProgramacion(@RequestParam(value = "departamento", required = true) Long departamentoId,
+    @RequestMapping("reporteEntregaMateriales")
+    public ModelAndView reporteEntregaMateriales(@RequestParam(value = "departamento", required = true) Long departamentoId,
             Model model, HttpSession session, HttpServletResponse response) throws Exception {
         logger.debug("Departamento " + departamentoId);
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
@@ -530,6 +530,8 @@ public class ProfesorController {
                 .filter(x -> x.getCantSeccionesPre() > 0 || x.getCantSeccionesPos() > 0)
                 .collect(Collectors.toList());
 
+        DepartamentoAcademico departamentoAcademico = service.findDepartamento(new DepartamentoAcademico(departamentoId));
+        model.addAttribute("departamentoAcademico", departamentoAcademico);
         model.addAttribute("docentes", docentes);
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
         model.addAttribute("contenidoCarta", service.findContenidoCartaByEnum(ContenidoCartaEnum.AMAUTA_FOOTER_INVENTARIO_DOCENTE));

@@ -7,11 +7,14 @@ import com.itextpdf.text.Font;
 import com.itextpdf.text.PageSize;
 import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.Rectangle;
+import com.itextpdf.text.html.simpleparser.HTMLWorker;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
+import java.io.StringReader;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -48,7 +51,7 @@ public class ProfesoresPDF extends AbstractOnlyPdfView {
         // Build PDF document.
         writer.setInitialLeading(16);
         CicloAcademico ciclo = (CicloAcademico) model.get("cicloAcademico");
-        UEventoPaginaPdf eventoPagina = new UEventoPaginaPdf(HeaderTypeEnum.HEADER2, FooterTypeEnum.FOOTER1);
+        UEventoPaginaPdf eventoPagina = new UEventoPaginaPdf(HeaderTypeEnum.HEADER2, FooterTypeEnum.FOOTER3);
         //    eventoPagina.setFooterTypeEnum(null);
         eventoPagina.setTitulo1("ENTREGA DE MATERIALES");
         eventoPagina.setTitulo2(String.format("CICLO ACADEMICO %s", ciclo.getDescripcion()));
@@ -82,12 +85,9 @@ public class ProfesoresPDF extends AbstractOnlyPdfView {
 
         PdfDocumentGenerator uDocumentoPdf = new PdfDocumentGenerator();
 
-        DepartamentoAcademico departamentoAcademico = new DepartamentoAcademico();
-        Facultad facultad = new Facultad();
-        if (docentes != null && !docentes.isEmpty()) {
-            departamentoAcademico = docentes.get(0).getDepartamentoAcademico();
-            facultad = departamentoAcademico.getFacultad();
-        }
+        DepartamentoAcademico departamentoAcademico = (DepartamentoAcademico) model.get("departamentoAcademico");
+        Facultad facultad = departamentoAcademico.getFacultad();
+
         PdfPTable tableSubs = new PdfPTable(new float[]{1});
         tableSubs.getDefaultCell().setBorder(0);
         tableSubs.getDefaultCell().setPaddingTop(5);
@@ -132,9 +132,27 @@ public class ProfesoresPDF extends AbstractOnlyPdfView {
         table = new PdfPTable(new float[]{100f});
         table.getDefaultCell().setBorder(PdfPCell.NO_BORDER);
         table.setWidthPercentage(100);
-        uDocumentoPdf.addBodyCellTable("", table, 1, Element.ALIGN_LEFT);
-        String contenido = StringEscapeUtils.escapeHtml4(contenidoCarta.getContenido());
-        uDocumentoPdf.addBodyCellTable(contenido, table, 1, Element.ALIGN_LEFT);
+        uDocumentoPdf.addBodyCellTable(" ", table, 1, Element.ALIGN_LEFT);
+        // String contenido = StringEscapeUtils.escapeHtml4(contenidoCarta.getContenido());
+        String contenido = contenidoCarta.getContenido();
+
+        List listHtmlContent = new ArrayList();
+        StringReader strReader = new StringReader(contenido);
+        listHtmlContent = HTMLWorker.parseToList(strReader, null);
+
+        for (int k = 0; k < listHtmlContent.size(); ++k) {
+            Paragraph paragraph = new Paragraph();
+            paragraph.add((Element) listHtmlContent.get(k));
+
+            PdfPCell celdaTablaReporte = new PdfPCell(paragraph);
+            celdaTablaReporte.setBorder(table.getDefaultCell().getBorder());
+            celdaTablaReporte.setVerticalAlignment(Element.ALIGN_MIDDLE);
+            celdaTablaReporte.setHorizontalAlignment(Element.ALIGN_LEFT);
+            celdaTablaReporte.setColspan(1);
+            table.addCell(celdaTablaReporte);
+        }
+
+        //  uDocumentoPdf.addBodyCellTable(contenido, table, 1, Element.ALIGN_LEFT);
         document.add(table);
 
         String filename = "entrega-materiales";
