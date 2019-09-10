@@ -138,7 +138,7 @@
                                                     </td>
                                                     <td  class="v-middle text-center">
                                                         <!--<span v-text="tramiteTrasladoActivo"></span>-->
-                                                        <input type="text" class="form-control numerico" v-if="tramiteTrasladoActivo.id != null &amp;&amp; item.tramiteTraslado.tipoTraslado == 'INTES'" v-model="item.creditos" v-on:change="countTotal"/>
+                                                        <input type="text" class="form-control numerico" v-if="validIntes(item)" v-model="item.creditos" v-on:change="countTotal"/>
                                                         <span v-else="" v-text="item.creditos"></span>
                                                     </td>
                                                     <td  class="v-middle text-center">
