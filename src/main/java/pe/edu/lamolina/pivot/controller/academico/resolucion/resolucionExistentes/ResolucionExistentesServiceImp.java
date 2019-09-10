@@ -720,8 +720,8 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
     }
 
     @Override
-    public TramiteTraslado findTramiteTraslado(Resolucion resolucionDB) {
-        return tramiteTrasladoDAO.findByResolucion(resolucionDB);
+    public List<TramiteTraslado> allTramiteTraslado(Resolucion resolucionDB) {
+        return tramiteTrasladoDAO.allByResolucion(resolucionDB);
     }
 
 }

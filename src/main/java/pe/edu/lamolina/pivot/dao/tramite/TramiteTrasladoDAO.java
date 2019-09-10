@@ -8,7 +8,7 @@ import pe.edu.lamolina.model.tramite.TramiteTraslado;
 
 public interface TramiteTrasladoDAO extends EasyDAO<TramiteTraslado> {
 
-    TramiteTraslado findByResolucion(Resolucion resolucion);
+    List<TramiteTraslado> allByResolucion(Resolucion resolucion);
 
     List<TramiteTraslado> allByAlumno(Alumno alumno);
 }

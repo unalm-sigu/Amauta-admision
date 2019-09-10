@@ -51,6 +51,7 @@ import pe.edu.lamolina.model.enums.PersonaEstadoEnum;
 import pe.edu.lamolina.model.enums.RolEnum;
 import pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum;
 import pe.edu.lamolina.model.enums.TipoOficinaEnum;
+import pe.edu.lamolina.model.enums.TipoTramiteTrasladoEnum;
 import pe.edu.lamolina.model.enums.TokenEstadoEnum;
 import pe.edu.lamolina.model.enums.UserEstadoEnum;
 import pe.edu.lamolina.model.general.Colaborador;
@@ -698,20 +699,19 @@ public class AlumnoServiceImp implements AlumnoService {
     @Override
     public List<AlumnoCursoCurricula> allCursosByAlumno(Alumno alumno, DynatableFilter filter) {
         Alumno alumnoDB = alumnoDAO.find(alumno);
-        ModalidadEstudio modalidad = modalidadEstudioDAO.findByCodigo(ModalidadEstudioEnum.EPG);
+        List<ModalidadEstudioEnum> listEnum = Arrays.asList(ModalidadEstudioEnum.EPG, ModalidadEstudioEnum.VIS, ModalidadEstudioEnum.ESP);
         if (alumnoDB == null) {
             throw new PhobosException("No existe datos del alumno");
         }
-        if (alumnoDB.getModalidadEstudio() != modalidad) {
-            throw new PhobosException("Alumno no pertenece a la modalidad");
+        if (!listEnum.contains(alumnoDB.getModalidadEstudio().getCodigoEnum())) {
+            throw new PhobosException("El alumno no pertenece a la modalidad");
         }
         return alumnoCursoCurriculaDAO.allByAlumnoAndModalidad(alumno, filter);
     }
 
     @Override
     public List<CursoCicloAcademico> allCursoCiclo(String nombre, CicloAcademico cicloAcademico) {
-        nombre = forLike(nombre);
-        return cursoCicloAcademicoDAO.allByCicloAndNombre(cicloAcademico, nombre);
+        return cursoCicloAcademicoDAO.allByCicloAndNombre(cicloAcademico, forLike(nombre));
     }
 
     @Override
@@ -739,14 +739,16 @@ public class AlumnoServiceImp implements AlumnoService {
         newcursoCurricula.setTipoCursoCurricula(tipoCursoCurriculaDAO.findByCodigo(TipoCursoCurriculaEnum.EAD));
         alumnoCursoCurriculaDAO.save(newcursoCurricula);
 
-        CursoHabilEscuela cursoHabilEscuela = new CursoHabilEscuela();
-        cursoHabilEscuela.setAlumno(alumnoDB);
-        cursoHabilEscuela.setCicloAcademico(cicloAcademico);
-        cursoHabilEscuela.setCurso(cursoDB);
-        cursoHabilEscuela.setFechaRegistro(new Date());
-        cursoHabilEscuela.setUserRegistro(usuario);
-        cursoHabilEscuela.setEstadoEnum(CursoHabilEstadoEnum.HAB);
-        cursoHabilEscuelaDAO.save(cursoHabilEscuela);
+        if (alumnoDB.getModalidadEstudio().getCodigoEnum().equals(ModalidadEstudioEnum.ESP)) {
+            CursoHabilEscuela cursoHabilEscuela = new CursoHabilEscuela();
+            cursoHabilEscuela.setAlumno(alumnoDB);
+            cursoHabilEscuela.setCicloAcademico(cicloAcademico);
+            cursoHabilEscuela.setCurso(cursoDB);
+            cursoHabilEscuela.setFechaRegistro(new Date());
+            cursoHabilEscuela.setUserRegistro(usuario);
+            cursoHabilEscuela.setEstadoEnum(CursoHabilEstadoEnum.HAB);
+            cursoHabilEscuelaDAO.save(cursoHabilEscuela);
+        }
 
     }
 
@@ -789,7 +791,8 @@ public class AlumnoServiceImp implements AlumnoService {
         if (alumnoCiclo != null) {
 
             logger.debug("*********** alumnoCiclo existente: id  {}", alumnoCiclo.getId());
-            if (total != 0 && Objects.equals(trasladoBean.getTramiteTraslado().getCicloAcademico().getId(), alumnoCiclo.getCicloAcademico().getId())) {
+            if (total != 0 && Objects.equals(trasladoBean.getTramiteTraslado().getCicloAcademico().getId(), alumnoCiclo.getCicloAcademico().getId())
+                    && trasladoBean.getTramiteTraslado().getTipoTramiteTrasladoEnum() == TipoTramiteTrasladoEnum.TRAS) {
 
                 alumnoCiclo.setUserModificacion(usuario);
                 alumnoCiclo.setFechaModificacion(new Date());
@@ -810,14 +813,15 @@ public class AlumnoServiceImp implements AlumnoService {
                 logger.debug("*********** AlumnoCicloCurso inexistente");
                 this.saveAlumnoCicloCurso(usuario, cursoConvalidado, alumnoCiclo);
             } else {
-                if (!alumnoCicloCursoFound.getNota().equals(cursoConvalidado.getNota())) {
+                if (!alumnoCicloCursoFound.getNota().equals(cursoConvalidado.getNota()) || !alumnoCicloCursoFound.getCreditos().equals(cursoConvalidado.getCreditos())) {
                     logger.debug("*********** AlumnoCicloCurso existente: id  {}", alumnoCicloCursoFound.getId());
 
                     alumnoCicloCursoFound.setFechaModificacion(new Date());
                     alumnoCicloCursoFound.setUserModificacion(usuario);
                     alumnoCicloCursoFound.setNota(cursoConvalidado.getNota() == null ? "TE" : cursoConvalidado.getNota());
                     alumnoCicloCursoFound.setRegistroActivo(1);
-                    alumnoCicloCursoDAO.updateColumns(alumnoCicloCursoFound, "fechaModificacion", "userModificacion", "nota", "registroActivo");
+                    alumnoCicloCursoFound.setCreditos(cursoConvalidado.getCreditos());
+                    alumnoCicloCursoDAO.updateColumns(alumnoCicloCursoFound, "fechaModificacion", "userModificacion", "nota", "registroActivo", "creditos");
                 } else {
                     return;
                 }
@@ -833,7 +837,7 @@ public class AlumnoServiceImp implements AlumnoService {
                 logger.debug("*********** cursoConvalidado existente");
                 cursoConvalidado.setUserModifica(usuario);
                 cursoConvalidado.setFechaModificacion(new Date());
-                cursoConvalidadoDAO.updateColumns(cursoConvalidado, "fechaModificacion", "userModifica", "nota");
+                cursoConvalidadoDAO.updateColumns(cursoConvalidado, "fechaModificacion", "userModifica", "nota", "creditos");
 
             }
 
@@ -872,7 +876,7 @@ public class AlumnoServiceImp implements AlumnoService {
         alumnoCicloCurso.setFechaRegistro(new Date());
         alumnoCicloCurso.setUsuarioRegistro(user);
         alumnoCicloCurso.setCurso(cursoConvalidado.getCurso());
-        alumnoCicloCurso.setCreditos(cursoConvalidado.getCurso().getCreditos());
+        alumnoCicloCurso.setCreditos(cursoConvalidado.getCreditos());
         alumnoCicloCurso.setNota(cursoConvalidado.getNota() == null ? "TE" : cursoConvalidado.getNota());
         alumnoCicloCurso.setEstado(EstadoMatriculaEnum.MAT);
         alumnoCicloCurso.setEstaAprobado(1);

@@ -121,6 +121,7 @@
                                                     <td  class="v-middle">
                                                         <span class="text-primary"><b>{{item.curso.nombre}}</b></span>
                                                         <p><b> Código: </b>{{item.curso.codigo}} <b> Tipo: </b>{{returnTipoCurso(item.curso.tipoCurso)}}</p>
+                                                        <p><b> TPC: </b>{{item.curso.tpc}} </p>
                                                         <span class="label label-warning" v-if="item.tramiteTraslado.tipoTraslado"><b>{{item.tramiteTraslado.tipoTraslado}}</b></span>
                                                         <span class="label label-warning" v-else=""><b>{{tramiteTrasladoActivo.tipoTraslado}}</b></span>
                                                     </td>
@@ -136,7 +137,9 @@
                                                         <span v-else='' v-text="item.nota"></span>                                                       
                                                     </td>
                                                     <td  class="v-middle text-center">
-                                                        <span v-text="item.curso.creditos"></span>
+                                                        <!--<span v-text="tramiteTrasladoActivo"></span>-->
+                                                        <input type="text" class="form-control numerico" v-if="validIntes(item)" v-model="item.creditos" v-on:change="countTotal"/>
+                                                        <span v-else="" v-text="item.creditos"></span>
                                                     </td>
                                                     <td  class="v-middle text-center">
                                                         <a v-if="item.id === null" v-on:click="deleteItem(index, item)" class="btn btn-danger">

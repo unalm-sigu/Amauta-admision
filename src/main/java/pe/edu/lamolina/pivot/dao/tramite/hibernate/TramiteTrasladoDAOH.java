@@ -18,7 +18,7 @@ public class TramiteTrasladoDAOH extends AbstractEasyDAO<TramiteTraslado> implem
     }
 
     @Override
-    public TramiteTraslado findByResolucion(Resolucion resolucion) {
+    public List<TramiteTraslado> allByResolucion(Resolucion resolucion) {
         Octavia sql = new Octavia()
                 .from(TramiteTraslado.class, "tras")
                 .join("tramite tra", "tra.tipoTramite")
@@ -28,7 +28,7 @@ public class TramiteTrasladoDAOH extends AbstractEasyDAO<TramiteTraslado> implem
                 .leftJoin("per.paisNacer", "al.orientacionCarrera")
                 .filter("res.id", resolucion);
 
-        return find(sql);
+        return all(sql);
     }
 
     @Override

@@ -21,7 +21,7 @@ new Vue({
     },
     mounted: function () {
         let $vue = this;
-
+        $(".numerico").numeric({negative: false});
     },
     methods: {
         customLabel(item) {
@@ -108,7 +108,7 @@ new Vue({
             }
             let objectClone = Object.assign({}, $vue.curso);
             $vue.listUpdate(objectClone);
-            $vue.listCursoConvalidado.push({id: null, curso: objectClone, tramiteTraslado: {alumno: $vue.alumno}});
+            $vue.listCursoConvalidado.push({id: null, curso: objectClone, creditos: objectClone.creditos, tramiteTraslado: {alumno: $vue.alumno}});
             $vue.updateTotalCreditos($vue.curso, "add");
             $vue.curso = null;
         },
@@ -132,22 +132,25 @@ new Vue({
             }
             return ret;
         },
+        validIntes(item) {
+            let $vue = this;
+            var ret = false;
+            
+            if ($vue.tramiteTrasladoActivo.id != null && $vue.tramiteTrasladoActivo.tipoTraslado == 'INTES') {
+                if (item.tramiteTraslado.tipoTraslado == null || item.tramiteTraslado.tipoTraslado == 'INTES') {
+                    ret = true;
+                }
+            }
+            return ret;
+        },
         updateTotalCreditos(item, param) {
             let $vue = this;
             if (param === "add") {
-                if (item.curso != null) {
-                    $vue.total = $vue.total + (item.curso.creditos);
-                } else {
-                    $vue.total = $vue.total + (item.creditos);
-                }
+                $vue.total = $vue.total + (Number(item.creditos));
             }
 
             if (param === "remove") {
-                if (item.curso != null) {
-                    $vue.total = $vue.total - (item.curso.creditos);
-                } else {
-                    $vue.total = $vue.total - (item.creditos);
-                }
+                $vue.total = $vue.total - (Number(item.creditos));
             }
         },
         findTramiteTrasladoActivo() {
@@ -175,7 +178,7 @@ new Vue({
             let repetido = false;
             for (var i = 0; i < $vue.listCursoConvalidado.length; i++) {
                 list.push($vue.listCursoConvalidado[i]);
-                if ($vue.listCursoConvalidado[i].id === null) {
+                if ($vue.listCursoConvalidado[i].id === null && $vue.tramiteTrasladoActivo.tipoTraslado == 'TRAS') {
                     totalNuevos += $vue.listCursoConvalidado[i].curso.creditos;
                 }
                 if (mapId.get($vue.listCursoConvalidado[i].curso.id) != null) {
