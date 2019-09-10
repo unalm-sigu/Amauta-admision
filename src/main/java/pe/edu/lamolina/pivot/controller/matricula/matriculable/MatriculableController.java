@@ -200,6 +200,7 @@ public class MatriculableController {
                             "alumno.situacionAcademica.codigo",
                             "alumno.situacionAcademica.nombre",
                             "alumno.situacionAcademica.descripcion",
+                            "alumno.modalidadEstudio.codigo",
                             "resumenesAportes.id",
                             "resumenesAportes.montoTotal"
                         });

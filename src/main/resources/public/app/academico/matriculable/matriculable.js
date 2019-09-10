@@ -590,6 +590,13 @@ new Vue({
                 }
             });
         },
+        isPosgrado(modalidad) {
+            return "/EPG/VIS/ESP/".indexOf(modalidad.codigo) >= 0;
+        },
+        urlHabilitarCursos(item) {
+            let $vue = this;
+            return APP.url('academico/alumno/' + item.id + '/configcursos') + $vue.getOrigenURL();
+        },
     }
 });
 
