@@ -58,6 +58,7 @@ import pe.edu.lamolina.pivot.controller.academico.avancecurricular.AvanceCurricu
 import pe.edu.lamolina.pivot.controller.academico.promedio.PromedioService;
 import pe.edu.lamolina.pivot.controller.academico.visitante.AlumnoHelper;
 import pe.edu.lamolina.pivot.controller.seguridad.verificador.VerificadorService;
+import pe.edu.lamolina.pivot.controller.seguridad.verificador.VerificadorServiceImp;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -111,10 +112,10 @@ public class AlumnoController {
     public String index(Model model, HttpSession session, HttpServletRequest request) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         verificadorService.revisarPermiso(request, ds);
-        boolean puedeCalcular = service.usuarioPuedeCalcular(ds);
 
         model.addAttribute("resumen", service.findResumen());
-        model.addAttribute("puedeCalcular", puedeCalcular);
+        model.addAttribute("puedeMatricular", verificadorService.puedeOperarMatricula(ds));
+        model.addAttribute("puedeEditarAlumno", verificadorService.puedeEditarAlumno(ds));
 
         return "academico/alumno/alumno";
     }
@@ -128,10 +129,18 @@ public class AlumnoController {
 
         try {
 
-            List<Carrera> carreras = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.ESP, request, ds);
-            List<Alumno> alumnos = null;
-
-            alumnos = service.allAlumnosbyDynatable(filter, carreras);
+            List<Carrera> carreras = new ArrayList();
+            List<Alumno> alumnos = new ArrayList();
+            VerificadorServiceImp.CantidadItemsEnum cantidadEnum = verificadorService.verificarCantidad(TipoOficinaEnum.ESP, request, ds);
+            logger.info("Acceso alumnos {}", cantidadEnum.name());
+            if (cantidadEnum == VerificadorServiceImp.CantidadItemsEnum.PARCIAL) {
+                carreras = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.ESP, request, ds);
+                logger.info("Acceso a {} carreras", carreras.size());
+            }
+            if (cantidadEnum != VerificadorServiceImp.CantidadItemsEnum.SIN_PERMISO) {
+                alumnos = service.allAlumnosbyDynatable(filter, carreras, cantidadEnum.name());
+                logger.info("Se extrajeron {} alumnos", alumnos.size());
+            }
 
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
