@@ -13,7 +13,6 @@ import com.itextpdf.text.pdf.PdfWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.StringReader;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -24,18 +23,20 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import pe.albatross.octavia.dynatable.DynatableFilter;
-import pe.albatross.zelpers.enums.FooterTypeEnum;
-import pe.albatross.zelpers.enums.HeaderTypeEnum;
 import pe.albatross.zelpers.pdf.document.PdfDocumentGenerator;
-import pe.albatross.zelpers.pdf.document.UEventoPaginaPdf;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.enums.ContenidoCartaEnum;
+import pe.edu.lamolina.model.enums.OficinaEnum;
+import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.inscripcion.ContenidoCarta;
 import pe.edu.lamolina.pivot.controller.academico.profesor.ProfesorService;
 import pe.edu.lamolina.pivot.zelper.pdf.AbstractOnlyPdfView;
+import pe.edu.lamolina.pivot.zelper.pdf.pageevent.FooterTypeEnum;
+import pe.edu.lamolina.pivot.zelper.pdf.pageevent.HeaderTypeEnum;
+import pe.edu.lamolina.pivot.zelper.pdf.pageevent.UEventoPaginaPdf;
 
 @Component
 public class ProfesoresPDF extends AbstractOnlyPdfView {
@@ -56,9 +57,10 @@ public class ProfesoresPDF extends AbstractOnlyPdfView {
         // Build PDF document.
         writer.setInitialLeading(16);
         CicloAcademico ciclo = (CicloAcademico) model.get("cicloAcademico");
-        UEventoPaginaPdf eventoPagina = new UEventoPaginaPdf(HeaderTypeEnum.HEADER2, FooterTypeEnum.FOOTER3);
-        eventoPagina.setTitulo1("ENTREGA DE MATERIALES");
-        eventoPagina.setTitulo2(String.format("CICLO ACADEMICO %s", ciclo.getDescripcion()));
+        Oficina oficina = service.findOficina(OficinaEnum.OERA);
+        UEventoPaginaPdf eventoPagina = new UEventoPaginaPdf(HeaderTypeEnum.HEADER1, FooterTypeEnum.FOOTER3);
+        eventoPagina.setOficina(oficina);
+        eventoPagina.setTitulo1("ENTREGA DE MATERIALES " + ciclo.getDescripcion());
         this.documentPageVertical(document, writer, eventoPagina);
 
         document.open();
@@ -138,8 +140,8 @@ public class ProfesoresPDF extends AbstractOnlyPdfView {
 
         PdfPTable tableSubs = new PdfPTable(new float[]{1});
         tableSubs.getDefaultCell().setBorder(0);
-        tableSubs.getDefaultCell().setPaddingTop(5);
-        tableSubs.getDefaultCell().setPaddingBottom(5);
+//        tableSubs.getDefaultCell().setPaddingTop(5);
+//        tableSubs.getDefaultCell().setPaddingBottom(5);
         tableSubs.setWidthPercentage(100);
         uDocumentoPdf.addBodyCellTable("Facultad " + facultad.getNombre(), tableSubs, 1, Element.ALIGN_LEFT, PdfDocumentGenerator.FUENTE_10_NEGRITA);
         uDocumentoPdf.addBodyCellTable("Departamento " + departamentoAcademico.getNombreLargo(), tableSubs, 1, Element.ALIGN_LEFT, PdfDocumentGenerator.FUENTE_10_NEGRITA);
@@ -151,25 +153,23 @@ public class ProfesoresPDF extends AbstractOnlyPdfView {
             document.add(new Chunk("No hay docentes par la opción seleccionada"));
         }
 
-        float[] columnWidths = new float[]{5f, 55f, 80f};
+        float[] columnWidths = new float[]{5f, 15f, 45f, 35f};
 
         PdfPTable table = new PdfPTable(columnWidths);
         table.setHeaderRows(1);
         table.getDefaultCell().setBorder(PdfPCell.RECTANGLE);
         table.setWidthPercentage(100);
         uDocumentoPdf.addTitleCellTable("Nº", table, 1, Element.ALIGN_CENTER);
+        uDocumentoPdf.addTitleCellTable("CÓDIGO", table, 1, Element.ALIGN_CENTER);
         uDocumentoPdf.addTitleCellTable("APELLIDOS Y NOMBRES", table, 1, Element.ALIGN_CENTER);
         uDocumentoPdf.addTitleCellTable("FIRMA", table, 1, Element.ALIGN_CENTER);
         int ind = 0;
         for (Docente docente : docentes) {
-//            PdfPCell celda = uDocumentoPdf.addBodyCellTable(++ind + "", table, 1, Element.ALIGN_LEFT);
-//            celda.setFixedHeight(25f);
-//            celda = uDocumentoPdf.addBodyCellTable(docente.getPersona().getApellidosNombres(), table, 1, Element.ALIGN_LEFT);
-//            celda.setFixedHeight(25f);
-//            celda = uDocumentoPdf.addBodyCellTable("", table, 1, Element.ALIGN_LEFT);
-//            celda.setFixedHeight(25f);
-            this.addBodyCellTable(++ind + "", table, Element.ALIGN_LEFT);
-            this.addBodyCellTable(docente.getPersona().getApellidosNombres(), table, Element.ALIGN_LEFT);
+//            this.addBodyCellTable(++ind + "", table, Element.ALIGN_LEFT);
+//            this.addBodyCellTable(docente.getCodigo(), table, Element.ALIGN_LEFT);
+            uDocumentoPdf.addBodyCellTable(++ind + "", table, 1, Element.ALIGN_LEFT, PdfDocumentGenerator.FUENTE_12);
+            uDocumentoPdf.addBodyCellTable(docente.getCodigo(), table, 1, Element.ALIGN_LEFT, PdfDocumentGenerator.FUENTE_12);
+            uDocumentoPdf.addBodyCellTable(docente.getPersona().getApellidosNombres(), table, 1, Element.ALIGN_LEFT, PdfDocumentGenerator.FUENTE_12);
             this.addBodyCellTable("", table, Element.ALIGN_LEFT);
         }
 

@@ -10,7 +10,9 @@ import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.enums.ContenidoCartaEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
+import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.general.Compania;
+import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.general.TipoDocIdentidad;
 import pe.edu.lamolina.model.inscripcion.ContenidoCarta;
@@ -53,5 +55,7 @@ public interface ProfesorService {
     ContenidoCarta findContenidoCartaByEnum(ContenidoCartaEnum enumval);
 
     DepartamentoAcademico findDepartamento(DepartamentoAcademico departamentoAcademico);
+
+    Oficina findOficina(OficinaEnum oficinaEnum);
 
 }

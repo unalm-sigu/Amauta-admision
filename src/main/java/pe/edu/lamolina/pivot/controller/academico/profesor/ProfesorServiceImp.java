@@ -31,11 +31,13 @@ import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.ContenidoCartaEnum;
 import pe.edu.lamolina.model.enums.DocenteEstadoEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
+import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.enums.PersonaEstadoEnum;
 import pe.edu.lamolina.model.enums.RolEnum;
 import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
 import pe.edu.lamolina.model.enums.UserEstadoEnum;
 import pe.edu.lamolina.model.general.Compania;
+import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.general.Pais;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.general.TipoDocIdentidad;
@@ -48,6 +50,7 @@ import pe.edu.lamolina.pivot.dao.academico.DocenteDAO;
 import pe.edu.lamolina.pivot.dao.academico.DocenteSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.ModalidadEstudioDAO;
 import pe.edu.lamolina.pivot.dao.general.ContenidoCartaDAO;
+import pe.edu.lamolina.pivot.dao.general.OficinaDAO;
 import pe.edu.lamolina.pivot.dao.general.PaisDAO;
 import pe.edu.lamolina.pivot.dao.general.PersonaDAO;
 import pe.edu.lamolina.pivot.dao.general.TipoDocIdentidadDAO;
@@ -96,6 +99,9 @@ public class ProfesorServiceImp implements ProfesorService {
 
     @Autowired
     DepartamentoAcademicoDAO departamentoAcademicoDAO;
+
+    @Autowired
+    OficinaDAO oficinaDAO;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -628,6 +634,11 @@ public class ProfesorServiceImp implements ProfesorService {
     @Override
     public DepartamentoAcademico findDepartamento(DepartamentoAcademico departamentoAcademico) {
         return departamentoAcademicoDAO.find(departamentoAcademico.getId());
+    }
+
+    @Override
+    public Oficina findOficina(OficinaEnum oficinaEnum) {
+        return oficinaDAO.findByCode(oficinaEnum.name());
     }
 
 }
