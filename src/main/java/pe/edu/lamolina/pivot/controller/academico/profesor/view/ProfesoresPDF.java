@@ -60,7 +60,7 @@ public class ProfesoresPDF extends AbstractOnlyPdfView {
         Oficina oficina = service.findOficina(OficinaEnum.OERA);
         UEventoPaginaPdf eventoPagina = new UEventoPaginaPdf(HeaderTypeEnum.HEADER1, FooterTypeEnum.FOOTER3);
         eventoPagina.setOficina(oficina);
-        eventoPagina.setTitulo1("LISTA DE DOCENTES " + ciclo.getDescripcion());
+        eventoPagina.setTitulo1("ENTREGA DE MATERIALES " + ciclo.getDescripcion());
         this.documentPageVertical(document, writer, eventoPagina);
 
         document.open();
