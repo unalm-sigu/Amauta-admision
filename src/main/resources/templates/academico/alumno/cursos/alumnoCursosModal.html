@@ -9,14 +9,32 @@
                     v-model="cursoCurricula.curso" 
                     v-bind:options='cursos'
                     label='nombre'
+                    v-bind:custom-label="nombreforShow"
+                    placeholder="Ingrese y seleccione el nombre de un curso"
                     track-by='id'
-                    v-on:search-change="searchCurso">
+                    v-bind:internal-search="false"
+                    v-on:search-change="searchCurso"
+                    v-bind:allow-empty="false"
+                    v-bind:show-labels="false"
+                    v-bind:hide-selected="false">
                     <template slot="option" slot-scope="props">
                         <div class="option__desc">
                             <span class="option__title text-primary bold">{{ props.option.codigo }}</span>
                             <span class="option__small">{{ props.option.nombre }}</span>
                         </div>
                     </template>
+                    <template slot="option" slot-scope="props">
+                        <span class="option__title primary"><b>{{ props.option.nombre }}</b></span>
+                        <div class="option__desc">
+                            <span class="option__small text-default">Código: {{ props.option.codigo}}  :                          
+                                <i class="fa fa-bookmark text-primary"></i> {{props.option.tpc}}
+                            </span>
+                            <p class="option__small text-default">Dpto Académico : {{ props.option.departamentoAcademico.nombre }}</p>
+                        </div>
+                    </template>
+
+                    <template slot="noOptions">La lista se encuentra vacía</template>
+                    <template slot="noResult">No se encontraron resultados</template>
                 </multiselect>
                 <input class="hide" v-model="cursoCurricula.curso.id" required="required"/>
             </div>

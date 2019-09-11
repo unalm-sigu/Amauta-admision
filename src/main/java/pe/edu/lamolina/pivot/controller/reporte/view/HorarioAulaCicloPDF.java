@@ -183,6 +183,7 @@ public class HorarioAulaCicloPDF extends AbstractOnlyPdfView {
                     construccionCeldas(table, bodyFont, letterFont, horariosAulasByDiaHora, diasHoraGrupo);
                 } catch (Exception e) {
                     e.printStackTrace();
+                    logger.error("error", e);
                     throw new PhobosException("Error al generar");
                 }
 
@@ -306,7 +307,7 @@ public class HorarioAulaCicloPDF extends AbstractOnlyPdfView {
         PdfPCell cellFooter2 = new PdfPCell(new Phrase("OFICINA DE ESTUDIOS Y REGISTROS ACADÉMICOS", fontFooterPDF));
         cellFooter2.setVerticalAlignment(Element.ALIGN_LEFT);
         cellFooter2.setHorizontalAlignment(Element.ALIGN_CENTER);
-        cellFooter2.setColspan(3);
+        cellFooter2.setColspan(4);
         cellFooter2.setPaddingLeft(0f);
         cellFooter2.setPaddingRight(0f);
         cellFooter2.setPaddingTop(1f);
@@ -378,8 +379,8 @@ public class HorarioAulaCicloPDF extends AbstractOnlyPdfView {
                 cruces.add(cruce);
             }
             if (reservaAula != null) {
-                String tipoReserva = "Reserva; " + reservaAula.getTipoReservaEnum().getValue();
-                String solicitante = "Solicitante; " + reservaAula.getTramite().getTipoSolicitanteEnum().getValue();
+                String tipoReserva = "Res.; " + reservaAula.getTipoReservaEnum().getValue();
+                String solicitante = "Sol.; " + reservaAula.getTramite().getTipoSolicitanteEnum().getValue();
                 cruces.add(tipoReserva + " / " + solicitante);
             }
         }
@@ -408,13 +409,16 @@ public class HorarioAulaCicloPDF extends AbstractOnlyPdfView {
                 cursoNombre = cursoNombre.substring(0, lengthMaxDescription);
             }
             addCeldaLeftBody(cursoNombre, innerTable, bodyFont);
-            for (DocenteSeccion docenteSeccion : seccion.getDocenteSeccion()) {
-                Docente docente = docenteSeccion.getDocente();
-                String docenteStr = docente.getCodigo() + " Desconocido";
-                if (docente.getPersona() != null) {
-                    docenteStr = docente.getCodigo() + " " + docente.getPersona().getNombrePaternoMat();
+            //  logger.debug("seccion {}", seccion.getId());
+            if (seccion.getDocenteSeccion() != null) {
+                for (DocenteSeccion docenteSeccion : seccion.getDocenteSeccion()) {
+                    Docente docente = docenteSeccion.getDocente();
+                    String docenteStr = docente.getCodigo() + " Desconocido";
+                    if (docente.getPersona() != null) {
+                        docenteStr = docente.getCodigo() + " " + docente.getPersona().getNombrePaternoMat();
+                    }
+                    addCeldaLeftBody(docenteStr, innerTable, bodyFont);
                 }
-                addCeldaLeftBody(docenteStr, innerTable, bodyFont);
             }
         }
     }

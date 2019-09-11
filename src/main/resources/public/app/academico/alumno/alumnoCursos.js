@@ -1,8 +1,6 @@
 /* global APP, cursosCurriculas, rutaModulo, MESSAGES, axios */
 
-Vue.component('multiselect', {
-    mixins: [window.VueMultiselect.default],
-});
+Vue.component('multiselect', {mixins: [window.VueMultiselect.default]});
 new Vue({
     el: '#alumnoCursosVUE',
     data: {
@@ -17,7 +15,7 @@ new Vue({
             okbtn: 'Registrar',
             modalsize: 'modal-lg',
             processing: false
-        }),
+        })
     },
     mounted: function () {
         let $vue = this;
@@ -25,12 +23,18 @@ new Vue({
         $vue.$refs.cursosload.repreload();
     },
     methods: {
+        nombreforShow(item) {
+            if (item.id == null) {
+                return;
+            }
+            return item.nombre + " - " + item.codigo;
+        },
         searchCurso(nombre) {
             let $vue = this;
-            axios.get(APP.url(rutaModulo + '/allCursoCiclo'),
-                    {
-                        params: {nombre: nombre}
-                    }).
+            if (nombre.trim().length === 0) {
+                return;
+            }
+            axios.get(APP.url(rutaModulo + '/allCursoCiclo'), {params: {nombre: nombre}}).
                     then(response => {
                         if (response.data.success) {
                             $vue.cursos = response.data.data;
@@ -49,6 +53,7 @@ new Vue({
             let $vue = this;
             var valid = $('#cursocurriculaForm').parsley().validate();
             if (!valid) {
+                notify("Debe seleccionar un curso.", "warning")
                 return;
             }
             $vue.cursoCurricula.alumno = $vue.alumno;
@@ -60,17 +65,17 @@ new Vue({
                             $vue.$refs.cursoCurriculaModal.close();
                             $vue.urlCursos = APP.url(rutaModulo + `/allCursoCurriculaAlumno/${$vue.alumno.id}`);
                             $vue.$refs.cursosload.repreload();
-                            notifyTop(response.data.message, "success");
+                            notify(response.data.message, "success");
                         } else {
                             $vue.$refs.cursoCurriculaModal.processing = false;
-                            notifyTop(response.data.message, "warning");
+                            notify(response.data.message, "warning");
                         }
                     }).
                     catch(err => {
                         $vue.$refs.cursoCurriculaModal.processing = false;
                         notify(MESSAGES.errorComunicacion, "error");
                     });
-        },
+        }
     }
 });
 

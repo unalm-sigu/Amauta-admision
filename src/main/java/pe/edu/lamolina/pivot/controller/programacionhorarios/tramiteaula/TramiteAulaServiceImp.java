@@ -472,6 +472,10 @@ public class TramiteAulaServiceImp implements TramiteAulaService {
         reservaAulaDb.setComentario(reservaAula.getComentario());
         reservaAulaDb.setEstado(EstadoReservaAulaEnum.ACT.name());
         reservaAulaDAO.update(reservaAulaDb);
+
+        List<AulaReservada> aulasReservadas = aulaReservadaDAO.allByReservaAula(reservaAula);
+        Assert.isTrue(aulasReservadas != null && !aulasReservadas.isEmpty(), "Error. Verificar el horario de la reserva.");
+
         this.sendNotificacionAceptar(reservaAulaDb);
     }
 

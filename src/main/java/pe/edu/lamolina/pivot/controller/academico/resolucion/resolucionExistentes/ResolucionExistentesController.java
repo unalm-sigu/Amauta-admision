@@ -187,7 +187,7 @@ public class ResolucionExistentesController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
             ArrayNode data = new ArrayNode(JsonNodeFactory.instance);
-            List<String> msg = null;
+            List<String> msg = new ArrayList<>();
             if (resolucion.getTipoResolucion().getCodigo().equals(REIC.name())) {
                 List<Alumno> alumnos = service.saveReincorporacion(resolucion, ds.getUsuario(), ds);
                 for (Alumno alumno : alumnos) {
@@ -209,9 +209,9 @@ public class ResolucionExistentesController {
             } else if (Arrays.asList(TRAS.name(), INTES.name(), ING_HIS.name()).contains(resolucion.getTipoResolucion().getCodigo())) {
                 service.saveTramiteTraslado(resolucion, ds.getUsuario(), ds.getCicloAcademico(), ds.getCompania());
             } else if (resolucion.getTipoResolucion().getCodigo().equals(CURDIR.name())) {
-                msg = service.saveCursoDirigido(resolucion, ds.getUsuario(), ds);                
+                msg = service.saveCursoDirigido(resolucion, ds.getUsuario(), ds);
             }
-            
+
             response.setMessage("Se realizó el registro satisfactoriamente.");
             response.setSuccess(Boolean.TRUE);
             response.setData(msg);
@@ -296,16 +296,18 @@ public class ResolucionExistentesController {
                     array.add(objectNode);
                 }
             } else if (Arrays.asList(TRAS.name(), INTES.name(), ING_HIS.name()).contains(resolucionDB.getTipoResolucion().getCodigo())) {
-                tramiteTraslado = service.findTramiteTraslado(resolucionDB);
-                objectNode = JsonHelper.createJson(tramiteTraslado, JsonNodeFactory.instance, new String[]{
-                    "*",
-                    "tramite.cicloAcademico.id", "tramite.cicloAcademico.descripcion",
-                    "tramite.alumno.*",
-                    "tramite.alumno.persona.*",
-                    "tramite.alumno.persona.tipoDocumento.*"
-                });
-                objectNode.put("tipo", TRAS.name());
-                array.add(objectNode);
+                List<TramiteTraslado> tramiteTraslados = service.allTramiteTraslado(resolucionDB);
+                for (TramiteTraslado tramiteTras : tramiteTraslados) {
+                    objectNode = JsonHelper.createJson(tramiteTras, JsonNodeFactory.instance, new String[]{
+                        "*",
+                        "tramite.cicloAcademico.id", "tramite.cicloAcademico.descripcion",
+                        "tramite.alumno.*",
+                        "tramite.alumno.persona.*",
+                        "tramite.alumno.persona.tipoDocumento.*"
+                    });
+                    objectNode.put("tipo", TRAS.name());
+                    array.add(objectNode);
+                }
             }
             response.setSuccess(Boolean.TRUE);
             response.setData(array);

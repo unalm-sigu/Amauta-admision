@@ -480,18 +480,6 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
     @Transactional
     public List<String> saveCursoDirigido(Resolucion resolucionForm, Usuario usuario, DataSessionPivot ds) {
         List<String> msg = new ArrayList();
-        TipoResolucion tipoResolucion = tipoResolucionDAO.finByCodigo(TipoResolucionEnum.CURDIR);
-        Resolucion resolucion = new Resolucion();
-        resolucion.setOficina(resolucionForm.getOficina());
-        resolucion.setFecha(resolucionForm.getFecha());
-        resolucion.setNumero(resolucionForm.getNumero());
-        resolucion.setSerie(resolucionForm.getSerie());
-        resolucion.setEstadoEnum(ResolucionEstadoEnum.VB_RES);
-        resolucion.setFechaRegistro(new Date());
-        resolucion.setTipoResolucion(tipoResolucion);
-        resolucion.setUserRegistro(usuario);
-        resolucion.setAplicacionDirecta(1l);
-        resolucionDAO.save(resolucion);
 
         Assert.isFalse(resolucionForm.getCursoDirigido().isEmpty(), "Debe Agregar alumnos.");
         List<CursoDirigido> cursoDirigidos = cursoDirigidoDAO.allByCicloAcademicoSol(ds.getCicloAcademico());
@@ -500,7 +488,7 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
         EstadoTramite estadoTramiteRech = estadoTramiteDAO.findByCodigo(EstadoTramiteEnum.RHZ_SOL);
 
         List<Alumno> alumnos = resolucionForm.getCursoDirigido().stream().map(x -> x.getAlumno()).collect(Collectors.toList());
-        List<MatriculaCurso> matriculaCursos = matriculaCursoDAO.allActivoByAlumnosCicloActivo(alumnos);
+        List<MatriculaCurso> matriculaCursos = matriculaCursoDAO.allByAlumnosCicloActivo(alumnos);
         Map<Long, List<MatriculaCurso>> mapMatriculaCursos = TypesUtil.convertListToMapList("matriculaResumen.alumno.id", matriculaCursos);
 
         for (CursoDirigido cursoDirigidoForm : resolucionForm.getCursoDirigido()) {
@@ -519,12 +507,26 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
             return msg;
         }
 
+        TipoResolucion tipoResolucion = tipoResolucionDAO.finByCodigo(TipoResolucionEnum.CURDIR);
+        Resolucion resolucion = new Resolucion();
+        resolucion.setOficina(resolucionForm.getOficina());
+        resolucion.setFecha(resolucionForm.getFecha());
+        resolucion.setNumero(resolucionForm.getNumero());
+        resolucion.setSerie(resolucionForm.getSerie());
+        resolucion.setEstadoEnum(ResolucionEstadoEnum.VB_RES);
+        resolucion.setFechaRegistro(new Date());
+        resolucion.setTipoResolucion(tipoResolucion);
+        resolucion.setUserRegistro(usuario);
+        resolucion.setAplicacionDirecta(1l);
+        resolucionDAO.save(resolucion);
+
         for (CursoDirigido cursoDirigidoForm : resolucionForm.getCursoDirigido()) {
 
             EstadoTramite estado = cursoDirigidoForm.getSeleccionado() ? estadoTramite : estadoTramiteRech;
             TramiteEstadoEnum estadotram = cursoDirigidoForm.getSeleccionado() ? TramiteEstadoEnum.ACEP : TramiteEstadoEnum.RCHZ;
             CursoDirigido cursoDirigidoTram = map.get(cursoDirigidoForm.getAlumno().getId());
 
+            cursoDirigidoTram.setMotivoRechazo(cursoDirigidoTram.getMotivoRechazo());
             cursoDirigidoTram.setResolucion(resolucion);
             cursoDirigidoTram.setDocenteAsignado(cursoDirigidoForm.getDocenteAsignado());
             cursoDirigidoTram.setEstado(estado);
@@ -604,7 +606,7 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
             alumnoCursoCurriculaDAO.save(alumnoCursoCurricula);
         }
         List<MatriculaCurso> matriculaCursos = mapMatriculaCursos.get(alumno.getId());
-        if (matriculaCursos != null && matriculaCursos.stream().filter((MatriculaCurso x) -> x.getCurso().getId() == curso.getId()).findAny().orElse(null) != null) {
+        if (matriculaCursos != null && matriculaCursos.stream().filter((MatriculaCurso x) -> Objects.equals(x.getCurso().getId(), curso.getId())).findAny().orElse(null) != null) {
             MatriculaCurso matriculaCurso = matriculaCursos.stream().filter(x -> Objects.equals(x.getCurso().getId(), curso.getId())).findAny().orElse(null);
             matriculaCurso.setEstadoEnum(EstadoMatriculaEnum.MAT);
             matriculaCurso.setUserMatricula(usuario);
@@ -718,8 +720,8 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
     }
 
     @Override
-    public TramiteTraslado findTramiteTraslado(Resolucion resolucionDB) {
-        return tramiteTrasladoDAO.findByResolucion(resolucionDB);
+    public List<TramiteTraslado> allTramiteTraslado(Resolucion resolucionDB) {
+        return tramiteTrasladoDAO.allByResolucion(resolucionDB);
     }
 
 }

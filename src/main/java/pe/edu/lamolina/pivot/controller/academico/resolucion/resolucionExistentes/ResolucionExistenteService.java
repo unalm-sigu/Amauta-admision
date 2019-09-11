@@ -42,7 +42,7 @@ public interface ResolucionExistenteService {
 
     void saveTramiteTraslado(Resolucion resolucion, Usuario usuario, CicloAcademico cicloAcademico, Compania compania);
 
-    TramiteTraslado findTramiteTraslado(Resolucion resolucionDB);
+    List<TramiteTraslado> allTramiteTraslado(Resolucion resolucionDB);
 
     public void saveIngresoHisto(Resolucion resolucion, Usuario usuario, DataSessionPivot ds);
 
