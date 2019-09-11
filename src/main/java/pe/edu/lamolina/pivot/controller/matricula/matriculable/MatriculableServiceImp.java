@@ -219,22 +219,23 @@ public class MatriculableServiceImp implements MatriculableService {
         logger.debug("boletas {}", boletas.size());
         Map<Long, List<DeudaAlumno>> mapBoletas = TypesUtil.convertListToMapList("alumno.id", boletas);
 
-        List<AporteAlumnoCiclo> aporteAlumnoCiclos = aporteAlumnoCicloDAO.allAporteCarnetByCicloMatriculaResumen(cicloAcademico,matriculaResumens);
-        Map<Long, AporteAlumnoCiclo> map = TypesUtil.convertListToMap("resumenAporteAlumno.matriculaResumen.id", aporteAlumnoCiclos);
+        List<AporteAlumnoCiclo> aportesCarnetAlumnos = aporteAlumnoCicloDAO.allAporteCarnetByCicloMatriculaResumen(cicloAcademico, matriculaResumens);
+        Map<Long, AporteAlumnoCiclo> mapAporteCarnet = TypesUtil.convertListToMap("resumenAporteAlumno.matriculaResumen.id", aportesCarnetAlumnos);
 
         for (MatriculaResumen matriculaResumen : matriculaResumens) {
-            
-            
-            if (map.get(matriculaResumen.getId()) != null) {
+
+            matriculaResumen.setAporteCarnet(Boolean.FALSE);
+            if (mapAporteCarnet.get(matriculaResumen.getId()) != null) {
                 matriculaResumen.setAporteCarnet(Boolean.TRUE);
             }
-            
+
+            matriculaResumen.setBoletaPendiente(Boolean.FALSE);
             if (mapBoletas.get(matriculaResumen.getAlumno().getId()) != null) {
                 matriculaResumen.setBoletaPendiente(Boolean.TRUE);
             }
-            
+
             logger.debug("boletas {}", mapBoletas.get(matriculaResumen.getAlumno().getId()) != null);
-            
+
             List<ResumenAporteAlumno> misResumenAporteAlumnos = TypesUtil.getListNotNull(mapResumenAporteAlumno.get(matriculaResumen.getId()));
 
             misResumenAporteAlumnos = misResumenAporteAlumnos.stream()

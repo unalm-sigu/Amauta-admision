@@ -49,7 +49,7 @@ new Vue({
             let $vue = this;
             return APP.url('academico/alumno/' + item.id + '/gomatricula') + $vue.getOrigenURL();
         },
-        urlConfigCursos(item) {
+        urlHabilitarCursos(item) {
             let $vue = this;
             return APP.url('academico/alumno/' + item.id + '/configcursos') + $vue.getOrigenURL();
         },
