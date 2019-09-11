@@ -154,7 +154,7 @@ public class ProfesoresPDF extends AbstractOnlyPdfView {
         float[] columnWidths = new float[]{5f, 55f, 80f};
 
         PdfPTable table = new PdfPTable(columnWidths);
-        //  table.setHeaderRows(1);
+        table.setHeaderRows(1);
         table.getDefaultCell().setBorder(PdfPCell.RECTANGLE);
         table.setWidthPercentage(100);
         uDocumentoPdf.addTitleCellTable("Nº", table, 1, Element.ALIGN_CENTER);

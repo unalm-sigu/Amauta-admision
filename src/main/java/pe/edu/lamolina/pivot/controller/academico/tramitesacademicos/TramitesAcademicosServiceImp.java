@@ -42,11 +42,13 @@ import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.PlanCurricular;
 import pe.edu.lamolina.model.academico.Seccion;
+import pe.edu.lamolina.model.academico.TipoCursoCurricula;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import pe.edu.lamolina.model.enums.OficinaEnum;
 import static pe.edu.lamolina.model.enums.OficinaEnum.OERA;
 import pe.edu.lamolina.model.enums.OrigenDataSituacionAcademicaEnum;
+import pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum;
 import pe.edu.lamolina.model.enums.TipoOficinaEnum;
 import static pe.edu.lamolina.model.enums.TipoOficinaEnum.FAC;
 import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
@@ -98,6 +100,7 @@ import pe.edu.lamolina.pivot.controller.general.oficina.OficinaService;
 import pe.edu.lamolina.pivot.controller.matricula.matriculable.MatriculableService;
 import pe.edu.lamolina.pivot.dao.academico.DocenteDAO;
 import pe.edu.lamolina.pivot.dao.academico.FacultadDAO;
+import pe.edu.lamolina.pivot.dao.academico.TipoCursoCurriculaDAO;
 
 @Service
 @Transactional(readOnly = true)
@@ -191,6 +194,8 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
 
     @Autowired
     DocenteDAO docenteDAO;
+    @Autowired
+    TipoCursoCurriculaDAO tipoCursoCurriculaDAO;
 
     @Autowired
     ReunionConsejoService reunionConsejoService;
@@ -533,19 +538,24 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
 //        Map<Integer, List<AlumnoCursoCurricula>> avanceCurricular = alumnoCursoCurriculaDAO.allCiclosAlumno(alumno)
 //                .stream()
 //                .collect(Collectors.groupingBy(x -> x.getNumeroCiclo()));
-        Map<CicloAcademico, List<AlumnoCicloCurso>> historial = alumnoCicloCursoDAO.allByAlumno(alumno)
+        TipoCursoCurricula tipoCursoCurricula = tipoCursoCurriculaDAO.findByCodigo(TipoCursoCurriculaEnum.DEP);
+        List<AlumnoCicloCurso> alumnoCicloCursos = alumnoCicloCursoDAO.allByAlumno(alumno);
+        for (AlumnoCicloCurso alumnoCicloCurso : alumnoCicloCursos) {
+            if (alumnoCicloCurso.getTipoCursoCurricula() == null) {
+                alumnoCicloCurso.setTipoCursoCurricula(tipoCursoCurricula);
+            }
+        }
+        Map<TipoCursoCurricula, List<AlumnoCicloCurso>> historial = alumnoCicloCursos
                 .stream()
-                .collect(Collectors.groupingBy(acc -> acc.getAlumnoCiclo().getCicloAcademico()));
+                .filter(x->x.isAprobado())
+                .collect(Collectors.groupingBy(acc -> acc.getTipoCursoCurricula()));
 
         Context ctx = new Context();
 
-        SortedMap<CicloAcademico, List<AlumnoCicloCurso>> historialSorted = new TreeMap<>(Comparator.comparing(CicloAcademico::getCodigo).reversed());
+        SortedMap<TipoCursoCurricula, List<AlumnoCicloCurso>> historialSorted = new TreeMap<>(Comparator.comparing(TipoCursoCurricula::getOrden));
         historialSorted.putAll(historial);
 
-        Map<CicloAcademico, AlumnoCiclo> alumnoCiclo = historial.values()
-                .stream()
-                .flatMap(x -> x.stream())
-                .collect(Collectors.toMap(x -> x.getAlumnoCiclo().getCicloAcademico(), x -> x.getAlumnoCiclo(), (a, b) -> b));
+        List< AlumnoCiclo> alumnoCiclo = alumnoCicloCursos.stream().map(x->x.getAlumnoCiclo()).collect(Collectors.toList());
 
         int creditosConvalidados = 0;
 
@@ -558,7 +568,7 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
         }
 
         alumno.setCreditosConvalidadosTransient(creditosConvalidados);
-        
+
         ctx.setVariable("alumno", alumno);
         ctx.setVariable("ciclo", cicloAcademico);
         ctx.setVariable("curso", curso);
@@ -566,7 +576,7 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
         ctx.setVariable("historial", historialSorted);
 //        ctx.setVariable("planCurricular", planCurricular);
 //        ctx.setVariable("planCurricularCursos", cursosPlanCurricular);
-        ctx.setVariable("alumnoCiclo", alumnoCiclo);
+        ctx.setVariable("alumnoCiclo", alumnoCiclo.get(0));
         ctx.setVariable("matriculados", matriculados);
         ctx.setVariable("gpoSecciones", gpoSecciones);
         ctx.setVariable("cursoDirigido", cursoDirigido);
@@ -587,7 +597,6 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
 //        PdfContent pdfHistorialListado = new PdfContent();
 //        pdfHistorialListado.setContext(ctx);
 //        pdfHistorialListado.setTipoPdfEnum(TipoPdfEnum.HISTORIAL_ACADEMICO_LISTADO);
-
 //        PdfContent pdfPlanCurricular = new PdfContent();
 //        pdfPlanCurricular.setContext(ctx);
 //        pdfPlanCurricular.setTipoPdfEnum(TipoPdfEnum.PLAN_CURRICULAR);
@@ -610,7 +619,7 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
                 pdfGenerator.generateDocument(pdfCursoDirigido),
                 //                pdfGenerator.generateDocument(pdfPlanCurricular),
                 pdfGenerator.generateDocument(pdfHistorial),
-//                pdfGenerator.generateDocument(pdfHistorialListado),
+                //                pdfGenerator.generateDocument(pdfHistorialListado),
                 pdfGenerator.generateDocument(pdfMatriculados),
                 pdfGenerator.generateDocument(pdfHorario)
         );
