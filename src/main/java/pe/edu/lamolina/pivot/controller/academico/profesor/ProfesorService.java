@@ -52,4 +52,6 @@ public interface ProfesorService {
 
     ContenidoCarta findContenidoCartaByEnum(ContenidoCartaEnum enumval);
 
+    DepartamentoAcademico findDepartamento(DepartamentoAcademico departamentoAcademico);
+
 }

@@ -167,9 +167,9 @@
 
                                                     <span v-for="resu in item.resumenesAportes" class="">
                                                         <span class="block pointer"  v-on:click="verBoletas(item)" ><i class="fa fa-usd" aria-hidden="true"></i>{{resu.montoTotal}}</span>
-                                                        <span v-if="item.boletaPendiente" >
+                                                        <!--<span v-if="item.boletaPendiente" >-->
                                                             <span class="block pointer"  v-on:click="verAportes(resu)" ><i class="fa fa-tasks" aria-hidden="true"></i></span>
-                                                        </span>
+                                                        <!--</span>-->
                                                     </span>
 
                                                 </td>
@@ -179,17 +179,18 @@
                                                         <ul class="dropdown-menu pull-right">
                                                             <div th:if="${puedeCalcular}" th:remove="tag">
                                                                 <li><a v-bind:href="urlGoMaipi(item)" target="_blank">Ir a MAIPI</a></li>
-                                                                <li ><a v-bind:href="urlMatricula(item)" target="_blank">Ir a Matricula</a></li>
+                                                                <li><a v-bind:href="urlMatricula(item)" target="_blank">Ir a Matricula</a></li>
                                                                 <li role="separator" class="divider"></li>
-                                                                <li><a class="ver-cursos pointer" >Ver Cursos</a></li><!--rel="{{:id}}"-->
+                                                                <!--<li><a class="ver-cursos pointer" >Ver Cursos</a></li>rel="{{:id}}"-->
                                                                 <li v-if="item.estado == 'NMAT'"><a v-on:click="inhabilitarModal(item)" href="#">Inhabilitar</a></li>
                                                                 <li v-if="item.estado == 'INH'"><a v-on:click="inhabilitarModal(item)" href="#">Habilitar</a></li>
                                                             </div>
                                                             <li><a v-bind:href="urlAcademico(item)">Información académica</a></li>
                                                             <div th:if="${puedeCalcular}" th:remove="tag">
                                                                 <li><a class="modificar-datos" href="#">Modificar datos</a></li>
-                                                                <li  v-if="!item.esBeneficiadoUltimoCiclo " ><a v-on:click="beneficiar(item)" href="#">Beneficiar Ult. Ciclo</a></li>
-                                                                <li  v-if="item.esBeneficiadoUltimoCiclo " ><a v-on:click="beneficiar(item)" href="#">Quitar Ben. Ult. Ciclo</a></li>
+                                                                <li><a v-if='isPosgrado(item.alumno.modalidadEstudio)' v-bind:href="urlHabilitarCursos(item.alumno)">Habilitar Curso</a></li>
+                                                                <li v-if="!item.esBeneficiadoUltimoCiclo " ><a v-on:click="beneficiar(item)" href="#">Beneficiar Ult. Ciclo</a></li>
+                                                                <li v-if="item.esBeneficiadoUltimoCiclo " ><a v-on:click="beneficiar(item)" href="#">Quitar Ben. Ult. Ciclo</a></li>
                                                                 <li v-if="!item.aporteCarnet" ><a v-on:click="asignarAporte(item)" href="#">Asignar Aporte Carnet</a></li>
                                                                 <li v-if="item.aporteCarnet"  ><a v-on:click="quitarAporte(item)" href="#">Quitar Aporte Carnet</a></li>
                                                             </div>

@@ -100,7 +100,7 @@ $(function () {
             notify("Seleccione el departamento");
             return;
         }
-        $.fileDownload("/academico/profesor/reporteProgramacion", {
+        $.fileDownload("/academico/profesor/reporteEntregaMateriales", {
             httpMethod: "POST",
             data: {departamento: dpto},
             successCallback: function (responseHtml, url) {
@@ -119,4 +119,51 @@ $(function () {
         Docente.loadDepartamento();
     });
 
+});
+
+
+Vue.component("multiselect", window.VueMultiselect.default);
+new Vue({
+    el: '#mainvue',
+    data: {
+        urlfilter: APP.url("tramite/aula/list"),
+        reporteModal: VUE_MODAL.structFormAjax({
+            id: 'modalReporte',
+            header: true,
+            title: 'Reporte Entrega Materiales',
+            okbtn: 'Aceptar',
+            showaccept: true,
+            modalsize: 'modal-md'
+        }),
+        facultades: JSON.parse(jFacultades),
+        facultad: null
+    },
+    mounted: function () {
+        let $vue = this;
+    },
+    methods: {
+        openModalReporte: function () {
+            let vue = this;
+            vue.$refs.modalReporte.open();
+        }, downloadReporte() {
+            let vue = this;
+            let data = {};
+            if (vue.facultad != null) {
+                data = {facultad: vue.facultad.id};
+            }
+            $.fileDownload("/academico/profesor/reporteEntregaMateriales", {
+                httpMethod: "POST",
+                data: data,
+                successCallback: function (responseHtml, url) {
+//                    console.log('aqui');
+                },
+                onFail: function (e) {
+                    console.log(e);
+                },
+                failCallback: function (responseHtml, url) {
+                    notify(MESSAGES.errorComunicacion, 'error')
+                }
+            });
+        }
+    }
 });
