@@ -855,19 +855,19 @@ public class MatriculableServiceImp implements MatriculableService {
 
     @Override
     @Transactional
-    public void saveMatriculable(Alumno alumnoForm, String tipoCondicional, DataSessionPivot ds) {
+    public MatriculaResumen saveMatriculable(Alumno alumnoForm, String tipoCondicional, DataSessionPivot ds) {
 
         //CicloAcademico ciclo = cicloAcademicoDAO.find(ds.getCicloAcademico());
         Alumno alumno = alumnoDAO.find(alumnoForm);
         if (tipoCondicional.equals(CAM_NOTA.name())) {
             List<SituacionAcademicaEnum> situaciones = Arrays.asList(S_N, S_1, S_2, S_3, S_5, S_8, S_9, S_3U, S_2U, S_4U, S_6U, S_TU, S_EM);
             if (!situaciones.contains(alumno.getSituacionAcademica().getCodigoEnum())) {
-                return;
+                return null;
             }
         }
         CicloAcademico ciclo = cicloAcademicoDAO.findByCodigoModalidadEstudio(ds.getCicloAcademico().getCodigo(), alumno.getModalidadEstudio());
         if (ciclo.getFechaMatriculables() == null && alumno.getModalidadEstudio().isPregrado()) {
-            return;
+            return null;
         }
 
         MatriculaResumen matri = matriculaResumenDAO.findByAlumnoCiclo(alumno, ciclo);
@@ -933,15 +933,25 @@ public class MatriculableServiceImp implements MatriculableService {
                 }
             }
         }
+
         if (matri.getId() != null) {
             matriculaResumenDAO.update(matri);
-        } else {
+            aporteAlumnoService.generarAportes(alumno, ciclo, matri, ds);
+            logger.debug("enviando generar boletas del alumno {} en el ciclo {} con matri-resumen {}", alumno.getId(), ciclo.getId(), matri.getId());
+            matri.setProcesado(1);
 
+        } else {
             matriculaResumenDAO.save(matri);
         }
-        logger.debug("enviando generar boletas del alumno {} en el ciclo {} con matri-resumen {}", alumno.getId(), ciclo.getId(), matri.getId());
-        aporteAlumnoService.generarAportes(alumno, ciclo, matri, ds);
+        return matri;
+    }
 
+    @Override
+    public void generarAportes(Alumno alumnoForm, MatriculaResumen matriculable, DataSessionPivot ds) {
+        Alumno alumno = alumnoDAO.find(alumnoForm);
+        CicloAcademico ciclo = cicloAcademicoDAO.findByCodigoModalidadEstudio(ds.getCicloAcademico().getCodigo(), alumno.getModalidadEstudio());
+        aporteAlumnoService.generarAportes(alumno, ciclo, matriculable, ds);
+        logger.debug("enviando generar boletas del alumno {} en el ciclo {} con matri-resumen {}", alumno.getId(), ciclo.getId(), matriculable.getId());
     }
 
     @Override
