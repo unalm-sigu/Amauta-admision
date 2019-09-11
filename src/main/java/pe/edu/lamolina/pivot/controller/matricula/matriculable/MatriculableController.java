@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,31 +41,26 @@ import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.ConfiguracionTurnosAtencion;
-import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
-import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.aporte.AporteAlumnoCiclo;
 import pe.edu.lamolina.model.aporte.ResumenAporteAlumno;
 import pe.edu.lamolina.model.constantines.GlobalMessages;
-import pe.edu.lamolina.model.enums.AmbienteAplicacionEnum;
 import static pe.edu.lamolina.model.enums.EstadoAporteEnum.DEBE;
 import static pe.edu.lamolina.model.enums.EstadoAporteEnum.PAGO;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.ParametrosSistemasEnum;
-import pe.edu.lamolina.model.enums.RolEnum;
-import static pe.edu.lamolina.model.enums.RolEnum.FAC;
-import static pe.edu.lamolina.model.enums.RolEnum.MOD;
-import static pe.edu.lamolina.model.enums.RolEnum.TODO;
 import pe.edu.lamolina.model.enums.TipoCicloEnum;
 import pe.edu.lamolina.model.enums.TipoCondicionalEnum;
+import pe.edu.lamolina.model.enums.TipoOficinaEnum;
 import pe.edu.lamolina.model.finanzas.DeudaAlumno;
 import pe.edu.lamolina.model.general.Parametro;
 import pe.edu.lamolina.model.general.Persona;
-import pe.edu.lamolina.model.seguridad.TokenIngresante;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.controller.academico.alumno.AlumnoResumen;
 import pe.edu.lamolina.pivot.controller.academico.alumno.AlumnoService;
 import pe.edu.lamolina.pivot.controller.academico.tramitesacademicos.tramiteRetiroCiclo.ResponseRestService;
+import pe.edu.lamolina.pivot.controller.seguridad.verificador.VerificadorService;
+import pe.edu.lamolina.pivot.controller.seguridad.verificador.VerificadorServiceImp;
 import pe.edu.lamolina.pivot.controller.visores.RespositorVisor;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.constant.Messages;
@@ -87,6 +83,9 @@ public class MatriculableController {
 
     @Autowired
     ResponseRestService responseRestService;
+
+    @Autowired
+    VerificadorService verificadorService;
 
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {
@@ -131,58 +130,41 @@ public class MatriculableController {
             }
         }
 
-        boolean puedeCalcular = service.usuarioPuedeCalcular(ds);
-
         model.addAttribute("resumen", JsonHelper.createJson(resumen, JsonNodeFactory.instance, new String[]{"*"}));
         model.addAttribute("ciclo", JsonHelper.createJson(cicloAcademico, JsonNodeFactory.instance, new String[]{"*"}));
         model.addAttribute("tipoCondicional", array);
-        model.addAttribute("puedeCalcular", puedeCalcular);
+        model.addAttribute("puedeMatricular", verificadorService.puedeOperarMatricula(ds));
+        model.addAttribute("puedeEditarAlumno", verificadorService.puedeEditarAlumno(ds));
 
         return "academico/matriculable/matriculable";
     }
 
     @ResponseBody
     @RequestMapping("list")
-    public DynatableResponse list(DynatableFilter filter, HttpSession session) {
+    public DynatableResponse list(DynatableFilter filter, HttpSession session, HttpServletRequest request) {
 
         DynatableResponse json = new DynatableResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-
-        logger.debug("Rol activo {}", ds.getRolActivo().getCodigo());
-
-        List<Long> filtros = new ArrayList();
-
-        switch (RolEnum.valueOf(ds.getRolActivo().getCodigo())) {
-            case TODO:
-                break;
-            case MOD:
-                for (ModalidadEstudio modalidad : ds.getModalidades()) {
-                    filtros.add(modalidad.getId());
-                }
-                break;
-            case FAC:
-                for (Facultad fac : ds.getFacultades()) {
-                    filtros.add(fac.getId());
-                }
-                break;
-            case ESP:
-                for (Carrera carrera : ds.getCarreras()) {
-                    filtros.add(carrera.getId());
-                }
-                break;
-            default:
-                break;
-        }
 
         try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            List<Carrera> carreras = new ArrayList();
+            List<MatriculaResumen> matriculables = new ArrayList();
+
+            VerificadorServiceImp.CantidadItemsEnum cantidadEnum = verificadorService.verificarCantidad(TipoOficinaEnum.ESP, request, ds);
+            if (cantidadEnum == VerificadorServiceImp.CantidadItemsEnum.PARCIAL) {
+                carreras = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.ESP, request, ds);
+            }
+
+            if (cantidadEnum != VerificadorServiceImp.CantidadItemsEnum.SIN_PERMISO) {
+                matriculables = service.allAlumnosByCicloRolDynatable(filter, ds.getCicloAcademico(), carreras, cantidadEnum.name());
+            }
 
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
-            List<MatriculaResumen> matriculables = service.allAlumnosByCicloRolDynatable(filter, ds.getCicloAcademico(), ds.getRolActivo().getCodigo(), filtros);
             for (MatriculaResumen matriculable : matriculables) {
                 ObjectNode node = JsonHelper.createJson(matriculable, JsonNodeFactory.instance, true,
                         new String[]{
-                            "id", "prioridad", "puntajePrioridad", "cursosMatriculados", "cursosRetirados", "motivoMatriculable", "esBeneficiadoUltimoCiclo", "esCondicional", 
+                            "id", "prioridad", "puntajePrioridad", "cursosMatriculados", "cursosRetirados", "motivoMatriculable", "esBeneficiadoUltimoCiclo", "esCondicional",
                             "aporteCarnet", "boletaPendiente",
                             "prioridadAnterior", "alumno.persona.rutaFoto", "alumno.persona.tipoFoto", "alumno.persona.emailCompania", "alumno.persona.numeroDocIdentidad",
                             "creditosMatriculados", "creditosRetirados", "estado", "estadoEnum", "alumno.codigo",

@@ -40,6 +40,7 @@ import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
+import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.ConfiguracionTurnosAtencion;
 import pe.edu.lamolina.model.academico.Egresado;
@@ -205,21 +206,30 @@ public class MatriculableServiceImp implements MatriculableService {
     }
 
     @Override
-    public List<MatriculaResumen> allAlumnosByCicloRolDynatable(DynatableFilter filter, CicloAcademico cicloAcademico, String codigo, List<Long> filtros) {
-
-        List<MatriculaResumen> matriculaResumens = matriculaResumenDAO.allByCicloRolDynatable(filter, cicloAcademico, codigo, filtros);
+    public List<MatriculaResumen> allAlumnosByCicloRolDynatable(DynatableFilter filter, CicloAcademico cicloAcademico, List<Carrera> carreras, String todo) {
+        long t1 = System.currentTimeMillis();
+        List<MatriculaResumen> matriculaResumens = matriculaResumenDAO.allByCicloCarrerasDynatable(filter, cicloAcademico, carreras, todo);
+        long t2 = System.currentTimeMillis();
+        logger.debug("Consulta main ejecutada en {} mseg con {} registros", (t2 - t1), matriculaResumens.size());
 
         logger.debug("cicloAcademico {}", cicloAcademico.getCodigo());
+        t1 = System.currentTimeMillis();
         List<ResumenAporteAlumno> resumenAporteAlumnos = resumenAporteAlumnoDAO.allByCicloMatriculaResumen(cicloAcademico, matriculaResumens);
-        logger.debug("aporteAlumnoCicloss {}", resumenAporteAlumnos.size());
+        t2 = System.currentTimeMillis();
+        logger.debug("aporteAlumnoCicloss {} ejecutadad en {} mseg", resumenAporteAlumnos.size(), (t2 - t1));
         Map<Long, List<ResumenAporteAlumno>> mapResumenAporteAlumno = TypesUtil.convertListToMapList("matriculaResumen.id", resumenAporteAlumnos);
 
         List<Alumno> alumnos = matriculaResumens.stream().map(x -> x.getAlumno()).collect(Collectors.toList());
+        t1 = System.currentTimeMillis();
         List<DeudaAlumno> boletas = deudaAlumnoDAO.allDeudaAlumnoByCicloAlumno(alumnos, cicloAcademico);
-        logger.debug("boletas {}", boletas.size());
+        t2 = System.currentTimeMillis();
+        logger.debug("boletas {} ejecutada en {} mseg", boletas.size(), (t2 - t1));
         Map<Long, List<DeudaAlumno>> mapBoletas = TypesUtil.convertListToMapList("alumno.id", boletas);
 
+        t1 = System.currentTimeMillis();
         List<AporteAlumnoCiclo> aportesCarnetAlumnos = aporteAlumnoCicloDAO.allAporteCarnetByCicloMatriculaResumen(cicloAcademico, matriculaResumens);
+        t2 = System.currentTimeMillis();
+        logger.debug("aportes-alumnos {} ejecutada en {} mseg", aportesCarnetAlumnos.size(), (t2 - t1));
         Map<Long, AporteAlumnoCiclo> mapAporteCarnet = TypesUtil.convertListToMap("resumenAporteAlumno.matriculaResumen.id", aportesCarnetAlumnos);
 
         for (MatriculaResumen matriculaResumen : matriculaResumens) {
@@ -1165,22 +1175,6 @@ public class MatriculableServiceImp implements MatriculableService {
             }
             matriculaResumenDAO.update(matriculaResumen);
         }
-    }
-
-    @Override
-    public boolean usuarioPuedeCalcular(DataSessionPivot ds) {
-        boolean puedeCalcular = false;
-        for (Rol rol : ds.getRoles()) {
-            if (rol.getCodigoEnum() == RolEnum.RACD) {
-                puedeCalcular = true;
-                break;
-            }
-            if (rol.getCodigoEnum() == RolEnum.IOREA) {
-                puedeCalcular = true;
-                break;
-            }
-        }
-        return puedeCalcular;
     }
 
     @Override

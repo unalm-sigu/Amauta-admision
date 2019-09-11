@@ -193,8 +193,8 @@ public class AlumnoServiceImp implements AlumnoService {
     }
 
     @Override
-    public List<Alumno> allAlumnosbyDynatable(DynatableFilter filter, List<Carrera> carreras) {
-        return alumnoDAO.allByFacultadDynatable(filter, carreras);
+    public List<Alumno> allAlumnosbyDynatable(DynatableFilter filter, List<Carrera> carreras, String todo) {
+        return alumnoDAO.allByCarrerasDynatable(filter, carreras, todo);
     }
 
     @Override
@@ -1034,22 +1034,6 @@ public class AlumnoServiceImp implements AlumnoService {
             return cursoOpcionalCurriculaDAO.allByPlanCurricular(alumno.getPlanCurricular());
         }
         return new ArrayList();
-    }
-
-    @Override
-    public boolean usuarioPuedeCalcular(DataSessionPivot ds) {
-        boolean puedeCalcular = false;
-        for (Rol rol : ds.getRoles()) {
-            if (rol.getCodigoEnum() == RolEnum.RACD) {
-                puedeCalcular = true;
-                break;
-            }
-            if (rol.getCodigoEnum() == RolEnum.IOREA) {
-                puedeCalcular = true;
-                break;
-            }
-        }
-        return puedeCalcular;
     }
 
 }
