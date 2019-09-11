@@ -3151,16 +3151,23 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
     @Override
     public GrupoSeccion findByCursoAndDocenteDirigido(Curso curso, Docente docenteAsignado, CicloAcademico academico) {
-        GrupoSeccion grupoSeccion = grupoSeccionDAO.findByCursoAndDirigido(curso, academico);
-        if (grupoSeccion == null) {
-            return grupoSeccion;
-        }
-        List<Seccion> seccions = seccionDAO.allActivosByGpoSeccion(grupoSeccion);
-
-        List<DocenteSeccion> docenteSeccions = docenteSeccionDAO.allActivosBySecciones(seccions);
-        if (!docenteSeccions.stream().allMatch(x -> Objects.equals(x.getDocente().getId(), docenteAsignado.getId()))) {
+        List<GrupoSeccion> gruposSecciones = grupoSeccionDAO.allByCursoAndDirigido(curso, academico);
+        if (gruposSecciones.isEmpty()) {
             return null;
         }
+
+        GrupoSeccion grupoSeccion = null;
+
+        for (GrupoSeccion gpoSecc : gruposSecciones) {
+            List<Seccion> seccions = seccionDAO.allActivosByGpoSeccion(gpoSecc);
+            List<DocenteSeccion> docenteSeccions = docenteSeccionDAO.allActivosBySecciones(seccions);
+
+            if (docenteSeccions.stream().allMatch(x -> Objects.equals(x.getDocente().getId(), docenteAsignado.getId()))) {
+                grupoSeccion = gpoSecc;
+                break;
+            }
+        }
+
         return grupoSeccion;
     }
 

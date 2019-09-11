@@ -788,7 +788,7 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
     }
 
     @Override
-    public GrupoSeccion findByCursoAndDirigido(Curso curso, CicloAcademico academico) {
+    public List<GrupoSeccion> allByCursoAndDirigido(Curso curso, CicloAcademico academico) {
         Octavia sql = Octavia.query()
                 .from(GrupoSeccion.class, "gs")
                 .join("curso cur", "cicloAcademico ca", "anexoBoletin ab")
@@ -797,7 +797,7 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
                 .filter("cursoDirigido", 1)
                 .filter("cur.id", curso);
 
-        return find(sql);
+        return all(sql);
     }
 
     @Override
