@@ -53,10 +53,11 @@
                                         <thead> 
                                             <tr>
                                                 <th class="col-xs-2 text-center">Solicitud</th>
-                                                <th class="col-xs-3 text-center v-middle">Solicitante</th>
+                                                <th class="col-xs-2 text-center v-middle">Solicitante</th>
                                                 <th class="col-xs-3 text-center v-middle">Motivo</th>
                                                 <th class="col-xs-3 text-center v-middle">Comentario</th>
                                                 <th></th>
+                                                <th class="col-xs-1 text-center v-middle">Visible <br/>Reporte</th>
                                                 <th class="col-xs-1 text-center v-middle">Estado</th>
                                                 <th></th>
                                             </tr>
@@ -103,12 +104,17 @@
                                                 </td>
 
                                                 <td class="v-middle text-center">
+                                                    <!--   v-on:change="prepararCambio"-->
+                                                   
+                                                    <input type="checkbox" v-model="item.visibleHorario" disabled="true" value="1"/>
+                                                   
+                                                </td>
+                                                <td class="v-middle text-center">
                                                     <span class="label label-primary" v-if="item.estado=='ACT'"> Activo </span>
                                                     <span class="label label-success" v-if="item.estado=='RES'"> Reservado </span>
                                                     <span class="label label-default" v-if="item.estado=='PEND'"> Pendiente </span>
                                                     <span class="label label-danger" v-if="item.estado=='ANU'"> Anulado </span>
                                                 </td>
-
                                                 <td class="v-middle">
                                                     <!-- v-if="item.estado == 'PEND'  || item.estado == 'RES'"  -->
                                                     <div  class="actions">

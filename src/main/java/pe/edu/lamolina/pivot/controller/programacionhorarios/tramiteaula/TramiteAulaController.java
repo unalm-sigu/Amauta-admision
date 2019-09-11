@@ -175,6 +175,7 @@ public class TramiteAulaController {
             for (ReservaAula aula : reservaAulas) {
                 ObjectNode node = JsonHelper.createJson(aula, jFactory, true, new String[]{
                     "*",
+                    "visibleHorario",
                     "tramite.*",
                     "tramite.alumno.*",
                     "tramite.docente.*",
