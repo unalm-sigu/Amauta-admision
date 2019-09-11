@@ -132,6 +132,17 @@ new Vue({
             }
             return ret;
         },
+        validIntes(item) {
+            let $vue = this;
+            var ret = false;
+            
+            if ($vue.tramiteTrasladoActivo.id != null && $vue.tramiteTrasladoActivo.tipoTraslado == 'INTES') {
+                if (item.tramiteTraslado.tipoTraslado == null || item.tramiteTraslado.tipoTraslado == 'INTES') {
+                    ret = true;
+                }
+            }
+            return ret;
+        },
         updateTotalCreditos(item, param) {
             let $vue = this;
             if (param === "add") {
