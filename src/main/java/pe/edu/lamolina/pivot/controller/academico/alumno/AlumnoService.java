@@ -27,7 +27,7 @@ public interface AlumnoService {
 
     List<Alumno> allAlumnosByCicloDynatable(DynatableFilter filter, List<Carrera> carreras);
 
-    List<Alumno> allAlumnosbyDynatable(DynatableFilter filter, List<Carrera> facultades);
+    List<Alumno> allAlumnosbyDynatable(DynatableFilter filter, List<Carrera> facultades, String todo);
 
     AlumnoResumen findResumen();
 
@@ -92,7 +92,5 @@ public interface AlumnoService {
     List<CursoOpcionalCurricula> allcursosOpcional(Long idAlumno);
 
     void agregarAlumnoCursoCurricula(CursoOpcionalCurricula cursoOpcional, Alumno alumno);
-
-    boolean usuarioPuedeCalcular(DataSessionPivot ds);
 
 }

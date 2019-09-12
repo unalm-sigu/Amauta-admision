@@ -138,19 +138,15 @@
                                                     <div class="actions">
                                                         <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="glyphicon glyphicon-cog"></i></a>
                                                         <ul class="dropdown-menu pull-right">
-                                                            <div th:if="${puedeCalcular}" th:remove="tag">
-                                                                <li><a v-bind:href="urlGoMaipi(item)" target="_blank">Ir a MAIPI</a></li>
-                                                                <li><a v-bind:href="urlMatricula(item)" target="_blank">Ir a Matricula</a></li>
-                                                                <li role="separator" class="divider"></li>
-                                                                <li><a v-bind:href="urlDataPersonal(item)">Modificar datos</a></li>
-                                                            </div>
+                                                            <li th:if="${puedeMatricular OR puedeEditarAlumno}"><a v-bind:href="urlGoMaipi(item)" target="_blank">Ir a MAIPI</a></li>
+                                                            <li th:if="${puedeMatricular}"><a v-bind:href="urlMatricula(item)" target="_blank">Ir a Matricula</a></li>
+                                                            <li th:if="${puedeMatricular OR puedeEditarAlumno}" role="separator" class="divider"></li>
+                                                            <li th:if="${puedeMatricular OR puedeEditarAlumno}"><a v-bind:href="urlDataPersonal(item)">Modificar datos</a></li>
                                                             <li><a v-bind:href="urlAcademico(item)">Información académica</a></li>
-                                                            <div th:if="${puedeCalcular}" th:remove="tag">
-                                                                <li><a v-if='isPosgrado(item.modalidadEstudio)' v-bind:href="urlHabilitarCursos(item)">Habilitar Curso</a></li>
-                                                                <li><a v-on:click="urlConvalidarTraslado(item)" href="">Convalidar Cursos</a></li>
-                                                                <li><a v-on:click="asignarAccesoEspecial(item)" href="">Asignar código especial</a></li>
-                                                                <li><a v-bind:href="modalAsignarAvance(item)" target="_blank">Agregar Cursos</a></li>
-                                                            </div>
+                                                            <li th:if="${puedeMatricular}"><a v-if='isPosgrado(item.modalidadEstudio)' v-bind:href="urlHabilitarCursos(item)">Habilitar Curso</a></li>
+                                                            <li th:if="${puedeMatricular}"><a v-on:click="urlConvalidarTraslado(item)" href="">Convalidar Cursos</a></li>
+                                                            <li th:if="${puedeMatricular OR puedeEditarAlumno}"><a v-on:click="asignarAccesoEspecial(item)">Asignar contraseña DNI</a></li>
+                                                            <li th:if="${puedeMatricular}"><a v-bind:href="modalAsignarAvance(item)" target="_blank">Habilitar Cursos (forzado)</a></li>
                                                         </ul>
                                                     </div>
                                                 </td>

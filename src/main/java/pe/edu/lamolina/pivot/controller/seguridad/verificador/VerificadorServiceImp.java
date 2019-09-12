@@ -16,12 +16,14 @@ import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Facultad;
 import static pe.edu.lamolina.model.enums.OficinaEnum.BAN;
 import static pe.edu.lamolina.model.enums.OficinaEnum.OERA;
+import pe.edu.lamolina.model.enums.RolEnum;
 import pe.edu.lamolina.model.enums.TipoOficinaEnum;
 import static pe.edu.lamolina.model.enums.TipoOficinaEnum.DPTO;
 import static pe.edu.lamolina.model.enums.TipoOficinaEnum.ESP;
 import static pe.edu.lamolina.model.enums.TipoOficinaEnum.FAC;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.seguridad.Menu;
+import pe.edu.lamolina.model.seguridad.Rol;
 import pe.edu.lamolina.pivot.controller.general.oficina.OficinaService;
 import pe.edu.lamolina.pivot.dao.academico.CarreraDAO;
 import pe.edu.lamolina.pivot.dao.academico.DepartamentoAcademicoDAO;
@@ -60,6 +62,10 @@ public class VerificadorServiceImp implements VerificadorService {
     @Autowired
     OficinaService oficinaService;
 
+    public enum CantidadItemsEnum {
+        TODOS, PARCIAL, SIN_PERMISO
+    };
+
     @Override
     public void revisarPermiso(HttpServletRequest request, DataSessionPivot ds) {
         if (1 == 2) {
@@ -69,10 +75,36 @@ public class VerificadorServiceImp implements VerificadorService {
     }
 
     @Override
+    public CantidadItemsEnum verificarCantidad(TipoOficinaEnum tipoOficinaSolicitud, HttpServletRequest request, DataSessionPivot ds) {
+        List<Oficina> oficinasMain = oficinaService.allOficinasMainByPersona(ds.getPersona());
+        for (Oficina oficina : oficinasMain) {
+            if (oficina.getCodigoEnum() == OERA) {
+                return CantidadItemsEnum.TODOS;
+            }
+            if (Arrays.asList(OERA, BAN).contains(oficina.getCodigoEnum())) {
+                if (tipoOficinaSolicitud == ESP) {
+                    return CantidadItemsEnum.TODOS;
+                }
+            }
+        }
+
+        Menu menu = findMenu(ds.getMenu(), obtainPath(request));
+
+        if (menu == null) {
+            return CantidadItemsEnum.SIN_PERMISO;
+        }
+
+        List<Oficina> oficinas = oficinaDAO.allOficinaByUserMenu(ds.getUsuario(), menu);
+        if (oficinas.isEmpty()) {
+            return CantidadItemsEnum.SIN_PERMISO;
+        }
+        return CantidadItemsEnum.PARCIAL;
+    }
+
+    @Override
     public List<Object> allInstanciasByMenuRol(TipoOficinaEnum tipoOficinaSolicitud, HttpServletRequest request, DataSessionPivot ds) {
         List<Object> lista = new ArrayList();
         List<Oficina> oficinasMain = oficinaService.allOficinasMainByPersona(ds.getPersona());
-        System.out.println("oficinas:::" + oficinasMain.size());
         for (Oficina oficina : oficinasMain) {
             if (oficina.getCodigoEnum() == OERA) {
                 if (tipoOficinaSolicitud == DPTO) {
@@ -96,17 +128,15 @@ public class VerificadorServiceImp implements VerificadorService {
         Menu menu = findMenu(ds.getMenu(), obtainPath(request));
 
         if (menu == null) {
-            System.out.println("No tiene acceso a ningun menu");
             return new ArrayList();
         }
 
         List<Oficina> oficinas = oficinaDAO.allOficinaByUserMenu(ds.getUsuario(), menu);
-        System.out.println("cantidad Oficinas " + oficinas.size());
         if (oficinas.isEmpty()) {
             return lista;
         }
 
-        List<Carrera> carreras = carreraDAO.all();
+        List<Carrera> carreras = carreraDAO.allPrePosGrado();
         List<Facultad> facultades = facultadDAO.all();
         List<DepartamentoAcademico> departamentos = departamentoAcademicoDAO.all();
         Map<Long, Carrera> mapCarreras = TypesUtil.convertListToMap("id", carreras);
@@ -163,6 +193,38 @@ public class VerificadorServiceImp implements VerificadorService {
         }
 
         return null;
+    }
+
+    @Override
+    public boolean puedeOperarMatricula(DataSessionPivot ds) {
+        boolean puedeOperar = false;
+        for (Rol rol : ds.getRoles()) {
+            if (rol.getCodigoEnum() == RolEnum.OPER_MATRICULA_OERA) {
+                puedeOperar = true;
+                break;
+            }
+            if (rol.getCodigoEnum() == RolEnum.IOREA) {
+                puedeOperar = true;
+                break;
+            }
+        }
+        return puedeOperar;
+    }
+
+    @Override
+    public boolean puedeEditarAlumno(DataSessionPivot ds) {
+        boolean puedeEditar = false;
+        for (Rol rol : ds.getRoles()) {
+            if (rol.getCodigoEnum() == RolEnum.EDITOR_ALUMNO_OERA) {
+                puedeEditar = true;
+                break;
+            }
+            if (rol.getCodigoEnum() == RolEnum.IOREA) {
+                puedeEditar = true;
+                break;
+            }
+        }
+        return puedeEditar;
     }
 
 }

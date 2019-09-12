@@ -40,6 +40,7 @@ import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
+import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.ConfiguracionTurnosAtencion;
 import pe.edu.lamolina.model.academico.Egresado;
@@ -205,21 +206,30 @@ public class MatriculableServiceImp implements MatriculableService {
     }
 
     @Override
-    public List<MatriculaResumen> allAlumnosByCicloRolDynatable(DynatableFilter filter, CicloAcademico cicloAcademico, String codigo, List<Long> filtros) {
-
-        List<MatriculaResumen> matriculaResumens = matriculaResumenDAO.allByCicloRolDynatable(filter, cicloAcademico, codigo, filtros);
+    public List<MatriculaResumen> allAlumnosByCicloRolDynatable(DynatableFilter filter, CicloAcademico cicloAcademico, List<Carrera> carreras, String todo) {
+        long t1 = System.currentTimeMillis();
+        List<MatriculaResumen> matriculaResumens = matriculaResumenDAO.allByCicloCarrerasDynatable(filter, cicloAcademico, carreras, todo);
+        long t2 = System.currentTimeMillis();
+        logger.debug("Consulta main ejecutada en {} mseg con {} registros", (t2 - t1), matriculaResumens.size());
 
         logger.debug("cicloAcademico {}", cicloAcademico.getCodigo());
+        t1 = System.currentTimeMillis();
         List<ResumenAporteAlumno> resumenAporteAlumnos = resumenAporteAlumnoDAO.allByCicloMatriculaResumen(cicloAcademico, matriculaResumens);
-        logger.debug("aporteAlumnoCicloss {}", resumenAporteAlumnos.size());
+        t2 = System.currentTimeMillis();
+        logger.debug("aporteAlumnoCicloss {} ejecutadad en {} mseg", resumenAporteAlumnos.size(), (t2 - t1));
         Map<Long, List<ResumenAporteAlumno>> mapResumenAporteAlumno = TypesUtil.convertListToMapList("matriculaResumen.id", resumenAporteAlumnos);
 
         List<Alumno> alumnos = matriculaResumens.stream().map(x -> x.getAlumno()).collect(Collectors.toList());
+        t1 = System.currentTimeMillis();
         List<DeudaAlumno> boletas = deudaAlumnoDAO.allDeudaAlumnoByCicloAlumno(alumnos, cicloAcademico);
-        logger.debug("boletas {}", boletas.size());
+        t2 = System.currentTimeMillis();
+        logger.debug("boletas {} ejecutada en {} mseg", boletas.size(), (t2 - t1));
         Map<Long, List<DeudaAlumno>> mapBoletas = TypesUtil.convertListToMapList("alumno.id", boletas);
 
+        t1 = System.currentTimeMillis();
         List<AporteAlumnoCiclo> aportesCarnetAlumnos = aporteAlumnoCicloDAO.allAporteCarnetByCicloMatriculaResumen(cicloAcademico, matriculaResumens);
+        t2 = System.currentTimeMillis();
+        logger.debug("aportes-alumnos {} ejecutada en {} mseg", aportesCarnetAlumnos.size(), (t2 - t1));
         Map<Long, AporteAlumnoCiclo> mapAporteCarnet = TypesUtil.convertListToMap("resumenAporteAlumno.matriculaResumen.id", aportesCarnetAlumnos);
 
         for (MatriculaResumen matriculaResumen : matriculaResumens) {
@@ -845,19 +855,19 @@ public class MatriculableServiceImp implements MatriculableService {
 
     @Override
     @Transactional
-    public void saveMatriculable(Alumno alumnoForm, String tipoCondicional, DataSessionPivot ds) {
+    public MatriculaResumen saveMatriculable(Alumno alumnoForm, String tipoCondicional, DataSessionPivot ds) {
 
         //CicloAcademico ciclo = cicloAcademicoDAO.find(ds.getCicloAcademico());
         Alumno alumno = alumnoDAO.find(alumnoForm);
         if (tipoCondicional.equals(CAM_NOTA.name())) {
             List<SituacionAcademicaEnum> situaciones = Arrays.asList(S_N, S_1, S_2, S_3, S_5, S_8, S_9, S_3U, S_2U, S_4U, S_6U, S_TU, S_EM);
             if (!situaciones.contains(alumno.getSituacionAcademica().getCodigoEnum())) {
-                return;
+                return null;
             }
         }
         CicloAcademico ciclo = cicloAcademicoDAO.findByCodigoModalidadEstudio(ds.getCicloAcademico().getCodigo(), alumno.getModalidadEstudio());
         if (ciclo.getFechaMatriculables() == null && alumno.getModalidadEstudio().isPregrado()) {
-            return;
+            return null;
         }
 
         MatriculaResumen matri = matriculaResumenDAO.findByAlumnoCiclo(alumno, ciclo);
@@ -923,15 +933,25 @@ public class MatriculableServiceImp implements MatriculableService {
                 }
             }
         }
+
         if (matri.getId() != null) {
             matriculaResumenDAO.update(matri);
-        } else {
+            aporteAlumnoService.generarAportes(alumno, ciclo, matri, ds);
+            logger.debug("enviando generar boletas del alumno {} en el ciclo {} con matri-resumen {}", alumno.getId(), ciclo.getId(), matri.getId());
+            matri.setProcesado(1);
 
+        } else {
             matriculaResumenDAO.save(matri);
         }
-        logger.debug("enviando generar boletas del alumno {} en el ciclo {} con matri-resumen {}", alumno.getId(), ciclo.getId(), matri.getId());
-        aporteAlumnoService.generarAportes(alumno, ciclo, matri, ds);
+        return matri;
+    }
 
+    @Override
+    public void generarAportes(Alumno alumnoForm, MatriculaResumen matriculable, DataSessionPivot ds) {
+        Alumno alumno = alumnoDAO.find(alumnoForm);
+        CicloAcademico ciclo = cicloAcademicoDAO.findByCodigoModalidadEstudio(ds.getCicloAcademico().getCodigo(), alumno.getModalidadEstudio());
+        aporteAlumnoService.generarAportes(alumno, ciclo, matriculable, ds);
+        logger.debug("enviando generar boletas del alumno {} en el ciclo {} con matri-resumen {}", alumno.getId(), ciclo.getId(), matriculable.getId());
     }
 
     @Override
@@ -1165,22 +1185,6 @@ public class MatriculableServiceImp implements MatriculableService {
             }
             matriculaResumenDAO.update(matriculaResumen);
         }
-    }
-
-    @Override
-    public boolean usuarioPuedeCalcular(DataSessionPivot ds) {
-        boolean puedeCalcular = false;
-        for (Rol rol : ds.getRoles()) {
-            if (rol.getCodigoEnum() == RolEnum.RACD) {
-                puedeCalcular = true;
-                break;
-            }
-            if (rol.getCodigoEnum() == RolEnum.IOREA) {
-                puedeCalcular = true;
-                break;
-            }
-        }
-        return puedeCalcular;
     }
 
     @Override

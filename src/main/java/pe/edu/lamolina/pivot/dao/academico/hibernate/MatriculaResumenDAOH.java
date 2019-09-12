@@ -133,36 +133,21 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
     }
 
     @Override
-    public List<MatriculaResumen> allByCicloRolDynatable(DynatableFilter filter, CicloAcademico ciclos, String codigo, List<Long> filtros) {
+    public List<MatriculaResumen> allByCicloCarrerasDynatable(DynatableFilter filter, CicloAcademico ciclo, List<Carrera> carreras, String todo) {
 
         DynatableSql sql = new DynatableSql(filter);
-        switch (RolEnum.valueOf(codigo)) {
-            case MOD:
-            case FAC:
-            case ESP:
-                sql.from(MatriculaResumen.class, "mr")
-                        .join("alumno al", "cicloAcademico ca", "al.persona per", "per.tipoDocumento tdoc", "al.carrera car", "al.situacionAcademica sita")
-                        .join("ca.modalidadEstudio moe", "car.facultad fac")
-                        .leftJoin("al.cicloIngreso ci", "al.cicloActivo cia", "turnoAtencion ta", "cicloAcademicoInfo")
-                        .filter("ca.codigo", ciclos.getCodigo())
-                        .searchFields("car.nombre", "fac.nombre", "al.codigo", "mr.prioridad", "mr.puntajePrioridad", "per.numeroDocIdentidad")
-                        .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
-                        .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
-                        .in("car.id", filtros)
-                        .orderBy("mr.prioridad", "per.paterno", "per.materno", "per.nombres");
-                break;
-            case TODO:
-            default:
-                sql.from(MatriculaResumen.class, "mr")
-                        .join("alumno al", "cicloAcademico ca", "al.persona per", "per.tipoDocumento tdoc", "al.carrera car", "al.situacionAcademica sita")
-                        .join("ca.modalidadEstudio moe", "car.facultad fac")
-                        .leftJoin("al.cicloIngreso ci", "al.cicloActivo cia", "turnoAtencion ta", "cicloAcademicoInfo")
-                        .filter("ca.codigo", ciclos.getCodigo())
-                        .searchFields("car.nombre", "fac.nombre", "al.codigo", "mr.prioridad", "mr.puntajePrioridad", "per.numeroDocIdentidad")
-                        .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
-                        .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
-                        .orderBy("mr.prioridad", "per.paterno", "per.materno", "per.nombres");
-                break;
+        sql.from(MatriculaResumen.class, "mr")
+                .join("alumno al", "cicloAcademico ca", "al.persona per", "al.carrera car", "al.situacionAcademica sita")
+                .join("ca.modalidadEstudio moe", "car.facultad fac")
+                .leftJoin("al.cicloIngreso ci", "al.cicloActivo cia", "turnoAtencion ta", "cicloAcademicoInfo", "per.tipoDocumento tdoc")
+                .filter("ca.codigo", ciclo.getCodigo())
+                .searchFields("car.nombre", "fac.nombre", "al.codigo", "per.numeroDocIdentidad")
+                .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
+                .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
+                .orderBy("mr.id DESC");
+
+        if (!todo.equalsIgnoreCase("TODOS")) {
+            sql.in("car.id", carreras);
         }
 
         sql.beginRelativeFilters();
