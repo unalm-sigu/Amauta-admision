@@ -885,6 +885,7 @@ public class AlumnoServiceImp implements AlumnoService {
         alumnoCicloCurso.setAlumnoCiclo(alumnoCiclo);
         alumnoCicloCurso.setVecesCursado(1);
         alumnoCicloCursoDAO.save(alumnoCicloCurso);
+        cursoConvalidado.setAlumnoCicloCurso(alumnoCicloCurso);
     }
 
     @Transactional

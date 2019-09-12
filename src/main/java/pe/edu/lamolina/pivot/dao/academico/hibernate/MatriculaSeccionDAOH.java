@@ -286,7 +286,7 @@ public class MatriculaSeccionDAOH extends AbstractEasyDAO<MatriculaSeccion> impl
                 .join("matriculaResumen mr", "mr.alumno alu", "mr.cicloAcademico ca")
                 .join("seccion s", "s.grupoSeccion gs", "gs.curso")
                 .leftJoin("s.aula")
-                .filter("ca.id", academico)
+                .filter("ca.codigo", academico.getCodigo())
                 .filter("alu.id", alumno)
                 .in("ms.estado", estados);
         return sql.all(getCurrentSession());
