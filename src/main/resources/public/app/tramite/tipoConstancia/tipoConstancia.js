@@ -8,14 +8,15 @@ new Vue({
         oficinas: [],
         tiposOficina: [],
         firmasDocumento: [{orden: 1, tipoOficina: {}, oficina: {}}],
-        addTipoConstanciaModal: {
+        addTipoConstanciaModal: VUE_MODAL.structFormAjax({
             id: 'modalAddTipoConstancia',
             header: true,
             title: 'Nuevo Tipo Constancia',
             okbtn: 'Agregar Tipo Constancia',
             modalsize: 'modal-lg',
             modalscroll: 'modal-scroll-500'
-        },
+            
+        }),
     },
     computed: {
         orderedFirmasDocumento: function() {

@@ -1491,14 +1491,15 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
     private Boolean validarCursosRequisitoOpcional(Map<Long, List<RequisitoCursoOpcional>> mapRequisitoCursoOpcionals, AlumnoCursoCurricula cursosOpcionalesNew, List<AlumnoCursoCurricula> alumnoCursoNew, List<MatriculaCurso> cursosMatriculados, Alumno alumno) {
         Map<Long, AlumnoCursoCurricula> map = TypesUtil.convertListToMap("curso.id", alumnoCursoNew);
         List<RequisitoCursoOpcional> requisitoCursoCurriculas = fillList(mapRequisitoCursoOpcionals.get(cursosOpcionalesNew.getCursoOpcional().getId()));
-        if (requisitoCursoCurriculas.isEmpty()) {
-            return true;
-        }
         CursoOpcionalCurricula cursoOpcionalCurricula = cursosOpcionalesNew.getCursoOpcional();
+        if (requisitoCursoCurriculas.isEmpty()) {
+
+            return validarCreditos(alumno, cursoOpcionalCurricula);
+        }
         Boolean requisitoOr = cursoOpcionalCurricula.getRequisitosOr();
         Integer countAprobados = 0;
         for (RequisitoCursoOpcional requisitoCursoCurricula : requisitoCursoCurriculas) {
-            AlumnoCursoCurricula alumnoCursoCurricula = map.get(requisitoCursoCurricula.getId());
+            AlumnoCursoCurricula alumnoCursoCurricula = map.get(requisitoCursoCurricula.getCursoRequisito().getId());
             if (alumnoCursoCurricula != null
                     && estadosAprobados.contains(alumnoCursoCurricula.getEstadoEnum())) {
                 countAprobados++;
