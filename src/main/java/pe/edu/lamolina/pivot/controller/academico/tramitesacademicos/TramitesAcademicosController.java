@@ -421,6 +421,27 @@ public class TramitesAcademicosController {
         return "academico/tramitescademicos/proceso/procesarTramite";
     }
 
+    @RequestMapping("procesarNota")
+    public String procesarNota(Model model,
+            HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+        ArrayNode horasJson = new ArrayNode(JsonNodeFactory.instance);
+        List<Hora> horas = infoAcademicoService.allHoras();
+        for (Hora hora : horas) {
+            horasJson.add(JsonHelper.createJson(hora, JsonNodeFactory.instance, true, new String[]{"*"}));
+        }
+        List<Oficina> oficinas = new ArrayList();
+        oficinas = findOficina(oficinas, ds);
+        if (oficinas.isEmpty()) {
+            return "redirect:/academico/tramiteacademico";
+        }
+        model.addAttribute("oficinas", jsonArrayNode(oficinas));
+        model.addAttribute("horasBD", horasJson.toString());
+
+        return "academico/tramitescademicos/proceso/procesarNotas";
+    }
+
     @ResponseBody
     @RequestMapping("{tramite}/loadFormProcesar")
     public JsonResponse loadGpoSeccionForm(@PathVariable("tramite") Long tramiteId, HttpSession session) {
