@@ -147,7 +147,7 @@ public class ProfesoresPDF extends AbstractOnlyPdfView {
         uDocumentoPdf.addBodyCellTable("Departamento " + departamentoAcademico.getNombreLargo(), tableSubs, 1, Element.ALIGN_LEFT, PdfDocumentGenerator.FUENTE_10_NEGRITA);
         document.add(tableSubs);
 
-        document.add(new Chunk(""));
+        document.add(uDocumentoPdf.agregarEnter(1));
         document.add(new Chunk(""));
         if (docentes.isEmpty()) {
             document.add(new Chunk("No hay docentes par la opción seleccionada"));
@@ -171,6 +171,19 @@ public class ProfesoresPDF extends AbstractOnlyPdfView {
             uDocumentoPdf.addBodyCellTable(docente.getCodigo(), table, 1, Element.ALIGN_LEFT, PdfDocumentGenerator.FUENTE_12);
             uDocumentoPdf.addBodyCellTable(docente.getPersona().getApellidosNombres(), table, 1, Element.ALIGN_LEFT, PdfDocumentGenerator.FUENTE_12);
             this.addBodyCellTable("", table, Element.ALIGN_LEFT);
+            if (ind % 20 == 0 && docentes.size() > 20) {
+                document.add(table);
+                document.newPage();
+                
+                table = new PdfPTable(columnWidths);
+                table.setHeaderRows(1);
+                table.getDefaultCell().setBorder(PdfPCell.RECTANGLE);
+                table.setWidthPercentage(100);
+                uDocumentoPdf.addTitleCellTable("Nº", table, 1, Element.ALIGN_CENTER);
+                uDocumentoPdf.addTitleCellTable("CÓDIGO", table, 1, Element.ALIGN_CENTER);
+                uDocumentoPdf.addTitleCellTable("APELLIDOS Y NOMBRES", table, 1, Element.ALIGN_CENTER);
+                uDocumentoPdf.addTitleCellTable("FIRMA", table, 1, Element.ALIGN_CENTER);
+            }
         }
 
         document.add(table);

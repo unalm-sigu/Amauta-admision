@@ -79,20 +79,20 @@ public class UEventoPaginaPdf extends PdfPageEventHelper {
                 cell.setHorizontalAlignment(PdfPCell.ALIGN_LEFT);
                 tableHeader.addCell(cell);
 
-                Font font = new Font(Font.FontFamily.HELVETICA, 9, Font.BOLD);
+                Font font = new Font(Font.FontFamily.HELVETICA, 10, Font.BOLD);
                 cell = new PdfPCell(new Phrase("UNIVERSIDAD NACIONAL AGRARIA LA MOLINA", font));
                 cell.setHorizontalAlignment(PdfPCell.ALIGN_CENTER);
                 cell.setBorder(PdfPCell.NO_BORDER);
                 tableHeader.addCell(cell);
 
                 font = new Font(Font.FontFamily.HELVETICA, 8, Font.NORMAL);
-                cell = new PdfPCell(new Phrase(this.titulo1, font));
+                cell = new PdfPCell(new Phrase(oficina.getNombre(), font));
                 cell.setHorizontalAlignment(PdfPCell.ALIGN_CENTER);
                 cell.setBorder(PdfPCell.NO_BORDER);
                 tableHeader.addCell(cell);
 
                 font = new Font(Font.FontFamily.HELVETICA, 8, Font.NORMAL);
-                cell = new PdfPCell(new Phrase(oficina.getNombre(), font));
+                cell = new PdfPCell(new Phrase(this.titulo1.toUpperCase(), font));
                 cell.setHorizontalAlignment(PdfPCell.ALIGN_CENTER);
                 cell.setBorder(PdfPCell.NO_BORDER);
                 tableHeader.addCell(cell);
