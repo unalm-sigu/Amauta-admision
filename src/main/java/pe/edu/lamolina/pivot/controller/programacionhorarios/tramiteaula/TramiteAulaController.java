@@ -571,4 +571,26 @@ public class TramiteAulaController {
         return response;
     }
 
+    @ResponseBody
+    @RequestMapping("cambiarVisible")
+    public JsonResponse cambiarVisible(@RequestBody ReservaAula reservaAulaForm, HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+        try {
+
+            JsonNodeFactory jFactory = JsonNodeFactory.instance;
+            ObjectNode data = new ObjectNode(jFactory);
+            service.cambiarVisibilidadReserva(reservaAulaForm);
+            response.setMessage("Visibilidad cambiada correctamente.");
+            response.setData(data);
+            response.setSuccess(Boolean.TRUE);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
 }

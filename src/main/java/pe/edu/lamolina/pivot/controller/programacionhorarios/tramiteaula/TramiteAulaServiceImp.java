@@ -584,4 +584,9 @@ public class TramiteAulaServiceImp implements TramiteAulaService {
         return aulaReservadaDAO.allByReservaAula(reservaAula);
     }
 
+    @Override
+    public void cambiarVisibilidadReserva(ReservaAula reservaAulaForm) {
+       reservaAulaDAO.updateColumns(reservaAulaForm, "visibleHorario");
+    }
+
 }
