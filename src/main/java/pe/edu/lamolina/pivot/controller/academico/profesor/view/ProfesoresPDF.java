@@ -167,7 +167,7 @@ public class ProfesoresPDF extends AbstractOnlyPdfView {
         for (Docente docente : docentes) {
 //            this.addBodyCellTable(++ind + "", table, Element.ALIGN_LEFT);
 //            this.addBodyCellTable(docente.getCodigo(), table, Element.ALIGN_LEFT);
-            uDocumentoPdf.addBodyCellTable(++ind + "", table, 1, Element.ALIGN_LEFT, PdfDocumentGenerator.FUENTE_12);
+            uDocumentoPdf.addBodyCellTable(++ind + "", table, 1, Element.ALIGN_CENTER, PdfDocumentGenerator.FUENTE_12);
             uDocumentoPdf.addBodyCellTable(docente.getCodigo(), table, 1, Element.ALIGN_LEFT, PdfDocumentGenerator.FUENTE_12);
             uDocumentoPdf.addBodyCellTable(docente.getPersona().getApellidosNombres(), table, 1, Element.ALIGN_LEFT, PdfDocumentGenerator.FUENTE_12);
             this.addBodyCellTable("", table, Element.ALIGN_LEFT);

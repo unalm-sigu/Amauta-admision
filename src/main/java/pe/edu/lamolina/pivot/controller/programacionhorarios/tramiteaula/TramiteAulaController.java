@@ -148,6 +148,7 @@ public class TramiteAulaController {
             "*",
             "tramite.id",
             "tramite.tipoSolicitante",
+            "tramite.oficina.*",
             "tramite.alumno.id",
             "tramite.docente.id",
             "tramite.empresa.id",
@@ -155,6 +156,7 @@ public class TramiteAulaController {
             "tramite.alumno.persona.id",
             "tramite.alumno.persona.nombreCompleto",
             "tramite.docente.persona.nombreCompleto",
+            "tramite.tipoSolicitanteEnum.*",
             "reservados.*",});
         model.addAttribute("reservaAula", reservaAulaNode.toString());
         return "programacion/tramiteaula/tramiteaulaform";

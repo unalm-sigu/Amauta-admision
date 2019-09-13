@@ -196,7 +196,6 @@
                                 <div class="col-sm-3">
                                     <div class="form-group">
                                         <label>Solicitante </label>
-
                                         <multiselect 
                                             v-model='reservaaula.tipoSolicitante'
                                             v-bind:internal-search='false'
@@ -218,7 +217,6 @@
                                 <div v-if="reservaaula.tramite.tipoSolicitante=='ALU'" class="col-xs-6">
                                     <div class="form-group">
                                         <label>Alumno </label>
-
                                         <multiselect v-model='reservaaula.tramite.alumno'
                                                      v-bind:internal-search='false'
                                                      v-bind:limit='15'
@@ -240,7 +238,6 @@
                                 <div v-if="reservaaula.tramite.tipoSolicitante=='DOC'" class="col-xs-6">
                                     <div class="form-group">
                                         <label>Docente </label>
-
 
                                         <multiselect v-model='reservaaula.tramite.docente'
                                                      v-bind:internal-search='false'
@@ -265,7 +262,6 @@
                                         <label>Institución </label>
 
                                         <div class='input-group'>
-
                                             <multiselect v-model='reservaaula.tramite.empresa'
                                                          v-bind:internal-search='false'
                                                          v-bind:limit='15'
@@ -291,7 +287,6 @@
                                 <div v-if="reservaaula.tramite.tipoSolicitante=='OFI'" class="col-xs-6">
                                     <div class="form-group">
                                         <label>Oficina </label>
-
 
                                         <multiselect v-model='reservaaula.tramite.oficina'
                                                      v-bind:internal-search='false'

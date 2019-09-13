@@ -376,6 +376,7 @@ public class TramiteAulaServiceImp implements TramiteAulaService {
         ReservaAula reservaAula = reservaAulaDAO.find(reservaAulaForm);
         Tramite tramite = reservaAula.getTramite();
         Tramite tramiteForm = reservaAulaForm.getTramite();
+        reservaAula.setDiahora(reservaAulaForm.getDiahora());
 
         if (Strings.isNullOrEmpty(tramiteForm.getTipoSolicitante())) {
             throw new PhobosException("Especifique un solicitante");
@@ -415,7 +416,7 @@ public class TramiteAulaServiceImp implements TramiteAulaService {
             tramite.setDocente(null);
             tramite.setEmpresa(null);
             tramite.setOficina(tramiteForm.getOficina());
-            Assert.isNotNull(tramite.getEmpresa(), "Error con la oficina seleccionada.");
+            Assert.isNotNull(tramite.getOficina(), "Error con la oficina seleccionada.");
         }
 
         tramite.setUserModificacion(ds.getUsuario());
@@ -439,6 +440,7 @@ public class TramiteAulaServiceImp implements TramiteAulaService {
 
         List<DiaHora> diaHoras = reservaAula.getDiahora();
         for (Aula aula : aulas) {
+            Assert.isTrue(diaHoras != null && !diaHoras.isEmpty(), "Error, seleccione el horario de la reserva.");
             if (diaHoras != null) {
                 for (DiaHora diaHora : diaHoras) {
                     AulaReservada aulaReservada = new AulaReservada();
@@ -459,6 +461,7 @@ public class TramiteAulaServiceImp implements TramiteAulaService {
                     horarioAula.setHora(diaHora.getHora());
                     horarioAula.setReservaAula(reservaAula);
                     horarioAula.setEstadoEnum(EstadoHorarioAulaEnum.PEND);
+                    horarioAula.setTipoEnum(TipoHorarioAulaEnum.RESERV);
                     horarioAulaDAO.save(horarioAula);
                 }
             }
