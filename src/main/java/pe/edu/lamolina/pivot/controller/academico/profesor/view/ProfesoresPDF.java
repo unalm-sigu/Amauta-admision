@@ -40,10 +40,10 @@ import pe.edu.lamolina.pivot.zelper.pdf.pageevent.UEventoPaginaPdf;
 
 @Component
 public class ProfesoresPDF extends AbstractOnlyPdfView {
-    
+
     @Autowired
     ProfesorService service;
-    
+
     protected void renderMergedOutputModel(Map<String, Object> model, HttpServletRequest request, HttpServletResponse response) throws Exception {
         // IE workaround: write into byte array first.
         ByteArrayOutputStream baos = createTemporaryOutputStream();
@@ -62,16 +62,16 @@ public class ProfesoresPDF extends AbstractOnlyPdfView {
         eventoPagina.setOficina(oficina);
         eventoPagina.setTitulo1("ENTREGA DE MATERIALES " + ciclo.getDescripcion());
         this.documentPageVertical(document, writer, eventoPagina);
-        
+
         document.open();
         buildPdfDocument(model, document, writer, request, response);
         document.close();
 
         // Flush to HTTP response.
         writeToResponse(response, baos);
-        
+
     }
-    
+
     @Override
     protected void buildPdfMetadata(Map<String, Object> model, Document document, HttpServletRequest request) {
         document.addAuthor("La Molina");
@@ -81,32 +81,34 @@ public class ProfesoresPDF extends AbstractOnlyPdfView {
         document.addSubject("");
         document.setPageSize(PageSize.A4);
     }
-    
+
     @Override
     protected void buildPdfDocument(Map<String, Object> model, Document document, PdfWriter writer, HttpServletRequest request, HttpServletResponse response) throws Exception {
         CicloAcademico ciclo = (CicloAcademico) model.get("cicloAcademico");
         ContenidoCarta contenidoCarta = service.findContenidoCartaByEnum(ContenidoCartaEnum.AMAUTA_FOOTER_INVENTARIO_DOCENTE);
-        
+
         List<DepartamentoAcademico> departamentos = (List<DepartamentoAcademico>) model.get("departamentos");
         Facultad facultad = (Facultad) model.get("facultad");
         List<Facultad> facultades = departamentos.stream().map(x -> x.getFacultad()).distinct().collect(Collectors.toList());
         if (facultad.getId() != null) {
             facultades.removeIf(x -> !x.equals(facultad));
         }
-        
+
         int idxFac = 0;
         for (Facultad facultadEach : facultades) {
             idxFac++;
             boolean lastFacu = (idxFac == facultades.size());
-            
+
             List<DepartamentoAcademico> departamentosByFacu = departamentos.stream().filter(x -> x.getFacultad().getId().compareTo(facultadEach.getId()) == 0)
                     .distinct().collect(Collectors.toList());
-            
+
             DynatableFilter filter = new DynatableFilter();
             filter.setPage(1);
             filter.setOffset(0);
             filter.setPerPage(10000);
             List<Docente> docentes = service.allByDepartamentoDynatable(filter, departamentosByFacu, ciclo);
+            docentes = docentes.stream().filter(x -> x.getCantSeccionesPre().intValue() > 0)
+                    .collect(Collectors.toList());
             Collections.sort(docentes, (x1, x2) -> x1.getPersona().getApellidosNombres().compareTo(x2.getPersona().getApellidosNombres()));
             int idxDep = 0;
             for (DepartamentoAcademico departamento : departamentosByFacu) {
@@ -114,7 +116,7 @@ public class ProfesoresPDF extends AbstractOnlyPdfView {
                 List<Docente> docentesByDepartamento = docentes.stream()
                         .filter(x -> x.getDepartamentoAcademico().equals(departamento))
                         .collect(Collectors.toList());
-                
+
                 this.builByDepartamento(document, departamento, contenidoCarta, docentesByDepartamento, ciclo);
                 if (departamentosByFacu.size() != idxDep) {
                     document.newPage();
@@ -124,20 +126,20 @@ public class ProfesoresPDF extends AbstractOnlyPdfView {
                 document.newPage();
             }
         }
-        
+
         String filename = "entrega-materiales";
         response.setHeader("Content-Disposition", "attachment; filename=\"" + filename + ".pdf\"");
         response.setHeader("Set-Cookie", "fileDownload=true; path=/");
     }
-    
+
     public void builByDepartamento(Document document, DepartamentoAcademico departamentoAcademico,
             ContenidoCarta contenidoCarta,
             List<Docente> docentes,
             CicloAcademico cicloAcademico) throws Exception {
         PdfDocumentGenerator uDocumentoPdf = new PdfDocumentGenerator();
-        
+
         Facultad facultad = departamentoAcademico.getFacultad();
-        
+
         PdfPTable tableSubs = new PdfPTable(new float[]{1});
         tableSubs.getDefaultCell().setBorder(0);
 //        tableSubs.getDefaultCell().setPaddingTop(5);
@@ -146,15 +148,16 @@ public class ProfesoresPDF extends AbstractOnlyPdfView {
         uDocumentoPdf.addBodyCellTable("Facultad " + facultad.getNombre(), tableSubs, 1, Element.ALIGN_LEFT, PdfDocumentGenerator.FUENTE_10_NEGRITA);
         uDocumentoPdf.addBodyCellTable("Departamento " + departamentoAcademico.getNombreLargo(), tableSubs, 1, Element.ALIGN_LEFT, PdfDocumentGenerator.FUENTE_10_NEGRITA);
         document.add(tableSubs);
-        
+
         document.add(uDocumentoPdf.agregarEnter(1));
         document.add(new Chunk(""));
         if (docentes.isEmpty()) {
             document.add(new Chunk("No hay docentes par la opción seleccionada"));
+            return;
         }
-        
+
         float[] columnWidths = new float[]{5f, 15f, 45f, 35f};
-        
+
         PdfPTable table = new PdfPTable(columnWidths);
         table.setHeaderRows(1);
         table.getDefaultCell().setBorder(PdfPCell.RECTANGLE);
@@ -174,7 +177,7 @@ public class ProfesoresPDF extends AbstractOnlyPdfView {
             if (ind % 20 == 0 && docentes.size() > 20) {
                 document.add(table);
                 document.newPage();
-                
+
                 table = new PdfPTable(columnWidths);
                 table.setHeaderRows(1);
                 table.getDefaultCell().setBorder(PdfPCell.RECTANGLE);
@@ -185,19 +188,19 @@ public class ProfesoresPDF extends AbstractOnlyPdfView {
                 uDocumentoPdf.addTitleCellTable("FIRMA", table, 1, Element.ALIGN_CENTER);
             }
         }
-        
+
         document.add(table);
-        
+      
         table = new PdfPTable(new float[]{100f});
         table.getDefaultCell().setBorder(PdfPCell.NO_BORDER);
         table.setWidthPercentage(100);
         uDocumentoPdf.addBodyCellTable(" ", table, 1, Element.ALIGN_LEFT);
         String contenido = contenidoCarta.getContenido();
-        
+
         List listHtmlContent = new ArrayList();
         StringReader strReader = new StringReader(contenido);
         listHtmlContent = HTMLWorker.parseToList(strReader, null);
-        
+
         for (int k = 0; k < listHtmlContent.size(); ++k) {
             Paragraph paragraph = new Paragraph();
             paragraph.add((Element) listHtmlContent.get(k));
@@ -210,10 +213,10 @@ public class ProfesoresPDF extends AbstractOnlyPdfView {
             table.addCell(celdaTablaReporte);
         }
 
-        //  uDocumentoPdf.addBodyCellTable(contenido, table, 1, Element.ALIGN_LEFT);
         document.add(table);
+        
     }
-    
+
     public PdfPCell addBodyCellTable(String strTituloCabecera, PdfPTable table, int align) {
         Paragraph parrafoCeldaReporte = new Paragraph(strTituloCabecera, PdfDocumentGenerator.FUENTE_8);
         PdfPCell celdaTablaReporte = new PdfPCell(parrafoCeldaReporte);
@@ -221,18 +224,18 @@ public class ProfesoresPDF extends AbstractOnlyPdfView {
         celdaTablaReporte.setHorizontalAlignment(Element.ALIGN_CENTER);
         celdaTablaReporte.setFixedHeight(25f);
         celdaTablaReporte.setBorder(table.getDefaultCell().getBorder());
-        
+
         celdaTablaReporte.setHorizontalAlignment(align);
         celdaTablaReporte.setColspan(1);
         table.addCell(celdaTablaReporte);
-        
+
         return celdaTablaReporte;
     }
-    
+
     public Document documentPageVertical(Document document, PdfWriter writer, UEventoPaginaPdf eventoPaginaPdf) throws Exception {
         float relativeAditionalMargin = 0;
         HeaderTypeEnum headerTypeEnum = eventoPaginaPdf.getHeaderTypeEnum();
-        
+
         if (headerTypeEnum != null) {
             if (headerTypeEnum.equals(HeaderTypeEnum.HEADER2)) {
                 int cont = 0;
@@ -253,12 +256,12 @@ public class ProfesoresPDF extends AbstractOnlyPdfView {
         this.generarPlantillaAgrariaPdf(document, writer, eventoPaginaPdf);
         return document;
     }
-    
+
     public Document generarPlantillaAgrariaPdf(Document documentoPDF, PdfWriter escritor, UEventoPaginaPdf eventoPagina) throws Exception {
         Rectangle rct = new Rectangle(36, 54, 559, 788);
         escritor.setBoxSize("art", rct);
         escritor.setPageEvent(eventoPagina);
         return documentoPDF;
     }
-    
+
 }
