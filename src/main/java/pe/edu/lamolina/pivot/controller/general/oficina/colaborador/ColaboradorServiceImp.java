@@ -982,11 +982,12 @@ public class ColaboradorServiceImp implements ColaboradorService {
 
     @Override
     @Transactional
-    public void updateColaborador(Colaborador colaboradorForm, Oficina oficinaMea, DataSessionPivot ds) {
-        oficinaMea = oficinaDAO.find(colaboradorForm.getOficina().getId());
+    public void updateColaborador(Colaborador colaboradorForm, Oficina xxx, DataSessionPivot ds) {
+
         Colaborador colaboradorBD = colaboradorDAO.find(colaboradorForm.getId());
         Oficina oficinaAnterior = colaboradorBD.getOficina();
         Oficina oficinaNueva = oficinaDAO.find(colaboradorForm.getOficina().getId());
+        logger.info("oficina anterior={} nueva={}", oficinaAnterior.getId(), oficinaNueva.getId());
 
         colaboradorBD.setFechaModificacion(new Date());
         colaboradorBD.setUserModificacion(ds.getUsuario());
@@ -995,7 +996,7 @@ public class ColaboradorServiceImp implements ColaboradorService {
         colaboradorBD.setFechaInicio(colaboradorForm.getFechaInicio());
         colaboradorDAO.update(colaboradorBD);
 
-        if (colaboradorForm.getOficina().getId() != oficinaAnterior.getId()) {
+        if (colaboradorForm.getOficina().getId() != oficinaAnterior.getId().longValue()) {
 
             Oficina oficinaCentroMedico = oficinaDAO.findByCode("CENMED");
 
@@ -1091,13 +1092,13 @@ public class ColaboradorServiceImp implements ColaboradorService {
         }
         System.out.println("perfiles ::: " + perfiles.size());
         if (usuarioColaborador != null) {
+            Oficina oficinaMain = oficinaDAO.find(colaboradorForm.getOficina().getId());
             perfiles.add(colaboradorForm.getCargo());
             System.out.println("perfiles.add ::: " + perfiles.size());
-            updateUserRol(usuarioColaborador, perfiles, oficinaMea, colaboradorForm, ds);
+            updateUserRol(usuarioColaborador, perfiles, oficinaMain, colaboradorForm, ds);
         }
     }
 
-    @Transactional
     private void updateUserRol(
             Usuario usuarioColaborador,
             List<PerfilCompania> perfilesCompaniaNuevos,
