@@ -118,7 +118,7 @@ public class ProfesorServiceImp implements ProfesorService {
         for (Docente docente : docentes) {
             List<DocenteSeccion> docentesSeccionByDocente = mapDocentesSeccion.getOrDefault(docente.getId(), new ArrayList<>());
             List<Seccion> secciones = docentesSeccionByDocente.stream()
-                    .filter(x -> Arrays.asList(SeccionEstadoEnum.ACT, SeccionEstadoEnum.BLO).contains(x.getSeccion().getEstadoEnum()))
+                    .filter(x -> Arrays.asList(SeccionEstadoEnum.ACT).contains(x.getSeccion().getEstadoEnum()))
                     .map(x -> x.getSeccion())
                     .collect(Collectors.toList());
             Long seccionesPreCount = secciones.stream()

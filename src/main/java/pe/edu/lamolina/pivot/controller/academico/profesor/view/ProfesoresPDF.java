@@ -101,24 +101,36 @@ public class ProfesoresPDF extends AbstractOnlyPdfView {
             
             List<DepartamentoAcademico> departamentosByFacu = departamentos.stream().filter(x -> x.getFacultad().getId().compareTo(facultadEach.getId()) == 0)
                     .distinct().collect(Collectors.toList());
-            
             DynatableFilter filter = new DynatableFilter();
             filter.setPage(1);
             filter.setOffset(0);
             filter.setPerPage(10000);
             List<Docente> docentes = service.allByDepartamentoDynatable(filter, departamentosByFacu, ciclo);
+            docentes = docentes.stream().filter(x -> x.getCantSeccionesPre().intValue() > 0)
+                    .collect(Collectors.toList());
             Collections.sort(docentes, (x1, x2) -> x1.getPersona().getApellidosNombres().compareTo(x2.getPersona().getApellidosNombres()));
+            
+            departamentosByFacu = docentes.stream().map(x -> x.getDepartamentoAcademico())
+                    .distinct().collect(Collectors.toList());
+            Collections.sort(departamentosByFacu, (x1, x2) -> x1.getNombre().compareTo(x2.getNombre()));
+            
             int idxDep = 0;
             for (DepartamentoAcademico departamento : departamentosByFacu) {
                 idxDep++;
                 List<Docente> docentesByDepartamento = docentes.stream()
                         .filter(x -> x.getDepartamentoAcademico().equals(departamento))
                         .collect(Collectors.toList());
-                
-                this.builByDepartamento(document, departamento, contenidoCarta, docentesByDepartamento, ciclo);
-                if (departamentosByFacu.size() != idxDep) {
-                    document.newPage();
+                if (!docentesByDepartamento.isEmpty()) {
+                    this.builByDepartamento(document, departamento, contenidoCarta, docentesByDepartamento, ciclo);
+                    if (departamentosByFacu.size() != idxDep) {
+                        document.newPage();
+                    }
                 }
+            }
+            if (docentes.isEmpty()) {
+                String message = "Facultad \"%s\" sin docentes con carga académica. ";
+                message = String.format(message, facultadEach.getNombre());
+                document.add(new Chunk(message));
             }
             if (!lastFacu) {
                 document.newPage();
@@ -151,8 +163,8 @@ public class ProfesoresPDF extends AbstractOnlyPdfView {
         document.add(new Chunk(""));
         if (docentes.isEmpty()) {
             document.add(new Chunk("No hay docentes par la opción seleccionada"));
+            return;
         }
-        
         float[] columnWidths = new float[]{5f, 15f, 45f, 35f};
         
         PdfPTable table = new PdfPTable(columnWidths);
@@ -167,7 +179,7 @@ public class ProfesoresPDF extends AbstractOnlyPdfView {
         for (Docente docente : docentes) {
 //            this.addBodyCellTable(++ind + "", table, Element.ALIGN_LEFT);
 //            this.addBodyCellTable(docente.getCodigo(), table, Element.ALIGN_LEFT);
-            uDocumentoPdf.addBodyCellTable(++ind + "", table, 1, Element.ALIGN_LEFT, PdfDocumentGenerator.FUENTE_12);
+            uDocumentoPdf.addBodyCellTable(++ind + "", table, 1, Element.ALIGN_CENTER, PdfDocumentGenerator.FUENTE_12);
             uDocumentoPdf.addBodyCellTable(docente.getCodigo(), table, 1, Element.ALIGN_LEFT, PdfDocumentGenerator.FUENTE_12);
             uDocumentoPdf.addBodyCellTable(docente.getPersona().getApellidosNombres(), table, 1, Element.ALIGN_LEFT, PdfDocumentGenerator.FUENTE_12);
             this.addBodyCellTable("", table, Element.ALIGN_LEFT);
@@ -209,9 +221,9 @@ public class ProfesoresPDF extends AbstractOnlyPdfView {
             celdaTablaReporte.setColspan(1);
             table.addCell(celdaTablaReporte);
         }
-
-        //  uDocumentoPdf.addBodyCellTable(contenido, table, 1, Element.ALIGN_LEFT);
+        
         document.add(table);
+        
     }
     
     public PdfPCell addBodyCellTable(String strTituloCabecera, PdfPTable table, int align) {

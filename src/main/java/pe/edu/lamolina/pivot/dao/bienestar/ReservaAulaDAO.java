@@ -11,4 +11,6 @@ public interface ReservaAulaDAO extends EasyDAO<ReservaAula> {
 
     public ReservaAula find(ReservaAula reservaAula);
 
+    void updateColumns(ReservaAula reservaAula, String... columns);
+
 }
