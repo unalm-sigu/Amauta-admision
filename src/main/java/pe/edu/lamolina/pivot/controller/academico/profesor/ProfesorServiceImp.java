@@ -121,11 +121,17 @@ public class ProfesorServiceImp implements ProfesorService {
                     .filter(x -> Arrays.asList(SeccionEstadoEnum.ACT).contains(x.getSeccion().getEstadoEnum()))
                     .map(x -> x.getSeccion())
                     .collect(Collectors.toList());
+//            Long seccionesPreCount = secciones.stream()
+//                    .filter(x -> x.getGrupoSeccion().getCurso().isPregrado())
+//                    .distinct().count();
+//            Long seccionesPosCount = secciones.stream()
+//                    .filter(x -> x.getGrupoSeccion().getCurso().isPostgrado())
+//                    .distinct().count();
             Long seccionesPreCount = secciones.stream()
-                    .filter(x -> x.getGrupoSeccion().getCurso().isPregrado())
+                    .filter(x -> !x.getGrupoSeccion().getAnexoBoletin().getAnexoSuperior().isAnexoCursosPostgrado())
                     .distinct().count();
             Long seccionesPosCount = secciones.stream()
-                    .filter(x -> x.getGrupoSeccion().getCurso().isPostgrado())
+                    .filter(x -> x.getGrupoSeccion().getAnexoBoletin().getAnexoSuperior().isAnexoCursosPostgrado())
                     .distinct().count();
             docente.setCantSeccionesPos(seccionesPosCount);
             docente.setCantSeccionesPre(seccionesPreCount);
