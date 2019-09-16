@@ -318,10 +318,10 @@ public class LoadProgramacionServiceImp implements LoadProgramacionService {
         logger.debug("\tsaveAlumnos ejecutado en {} mseg", (t2 - t1));
 
         t1 = System.currentTimeMillis();
-        logger.debug("loadDataDocentes");
+        logger.debug("loadDataDocentes - se envian {} docentes", docentes.size());
         Map<String, Docente> mapDocentes = this.saveDocentes(docentes, mapKeyPersonas, mapDNIPersonas, ds);
         t2 = System.currentTimeMillis();
-        logger.debug("\tloadDataDocentes ejecutado en {} mseg", (t2 - t1));
+        logger.debug("\tloadDataDocentes ({} mapeados) ejecutado en {} mseg", mapDocentes.size(), (t2 - t1));
 
         t1 = System.currentTimeMillis();
         logger.debug("revisionPreviaGpoSecciones");

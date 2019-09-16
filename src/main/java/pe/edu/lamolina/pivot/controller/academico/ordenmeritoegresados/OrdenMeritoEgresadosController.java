@@ -75,27 +75,34 @@ public class OrdenMeritoEgresadosController {
     @ResponseBody
     @RequestMapping(value = "/list", method = RequestMethod.GET)
     public DynatableResponse list(DynatableFilter filter, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         DynatableResponse json = new DynatableResponse();
+        try {
 
-        List<ControlMeritoEgresado> list = service.allByDynatable(filter, findCicloAcademico(ds, session));
-        ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
-        for (ControlMeritoEgresado item : list) {
-            array.add(JsonHelper.createJson(item, JsonNodeFactory.instance, new String[]{
-                "id",
-                "escalaEnum",
-                "estadoEnum",
-                "facultad.nombre",
-                "facultad.codigo",
-                "carrera.nombre",
-                "carrera.codigo",
-                "totalAlumnos",}));
+            List<ControlMeritoEgresado> list = service.allByDynatable(filter, findCicloAcademico(ds, session));
+            ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+
+            for (ControlMeritoEgresado item : list) {
+                array.add(JsonHelper.createJson(item, JsonNodeFactory.instance, new String[]{
+                    "id",
+                    "escalaEnum",
+                    "estadoEnum",
+                    "facultad.nombre",
+                    "facultad.codigo",
+                    "carrera.nombre",
+                    "carrera.codigo",
+                    "totalAlumnos",}));
+            }
+
+            json.setData(array);
+            json.setTotal(filter.getTotal());
+            json.setFiltered(filter.getFiltered());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            json.setTotal(0);
         }
-
-        json.setData(array);
-        json.setTotal(filter.getTotal());
-        json.setFiltered(filter.getFiltered());
 
         return json;
     }
@@ -103,44 +110,51 @@ public class OrdenMeritoEgresadosController {
     @ResponseBody
     @RequestMapping(value = "{id}/control/alumnos", method = RequestMethod.GET)
     public DynatableResponse alumnos(DynatableFilter filter, HttpSession session, @PathVariable Long id) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         DynatableResponse json = new DynatableResponse();
+        try {
+            
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
-        List<Egresado> list = service.allAlumnoCicloByControl(filter, new ControlMeritoEgresado(id));
-        ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+            List<Egresado> list = service.allAlumnoCicloByControl(filter, new ControlMeritoEgresado(id));
+            ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
-        for (Egresado item : list) {
-            array.add(JsonHelper.createJson(item, JsonNodeFactory.instance, new String[]{
-                "alumno.persona.nombreCompleto",
-                "alumno.codigo",
-                "carrera.nombre",
-                "carrera.codigo",
-                "carrera.facultad.nombre",
-                "carrera.facultad.codigo",
-                //--  --//
-                "ordenMeritoCarrera",
-                "ordenMeritoCiclo",
-                "ordenMeritoFacultad",
-                //--  --//
-                "cuadroHonorCarrera",
-                "cuadroHonorCiclo",
-                "cuadroHonorFacultad",
-                //--  --//
-                "quintoSuperiorCarrera",
-                "quintoSuperiorCiclo",
-                "quintoSuperiorFacultad",
-                //--  --//
-                "tercioSuperiorCarrera",
-                "tercioSuperiorCiclo",
-                "tercioSuperiorFacultad",
-                //--  --//
-                "promedioAcumulado"
-            }));
+            for (Egresado item : list) {
+                array.add(JsonHelper.createJson(item, JsonNodeFactory.instance, new String[]{
+                    "alumno.persona.nombreCompleto",
+                    "alumno.codigo",
+                    "carrera.nombre",
+                    "carrera.codigo",
+                    "carrera.facultad.nombre",
+                    "carrera.facultad.codigo",
+                    //--  --//
+                    "ordenMeritoCarrera",
+                    "ordenMeritoCiclo",
+                    "ordenMeritoFacultad",
+                    //--  --//
+                    "cuadroHonorCarrera",
+                    "cuadroHonorCiclo",
+                    "cuadroHonorFacultad",
+                    //--  --//
+                    "quintoSuperiorCarrera",
+                    "quintoSuperiorCiclo",
+                    "quintoSuperiorFacultad",
+                    //--  --//
+                    "tercioSuperiorCarrera",
+                    "tercioSuperiorCiclo",
+                    "tercioSuperiorFacultad",
+                    //--  --//
+                    "promedioAcumulado"
+                }));
+            }
+
+            json.setData(array);
+            json.setTotal(filter.getTotal());
+            json.setFiltered(filter.getFiltered());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            json.setTotal(0);
         }
-
-        json.setData(array);
-        json.setTotal(filter.getTotal());
-        json.setFiltered(filter.getFiltered());
 
         return json;
     }
