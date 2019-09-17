@@ -201,6 +201,7 @@ public class ProfesorServiceImp implements ProfesorService {
                 this.validarEmailConPersona(personaForm.getEmail(), personaForm);
             }
             Persona persona = this.getPersonaBDbasic(personaForm);
+
             if (persona.getFechaValidacionReniec() == null) {
                 persona = this.getPersonaBDreniec(personaForm);
             }
@@ -440,6 +441,8 @@ public class ProfesorServiceImp implements ProfesorService {
 
         List<Pais> paisesBD = paisDAO.all();
         Map<Long, Pais> mapPaises = TypesUtil.convertListToMap("id", paisesBD);
+
+        ObjectUtil.eliminarAttrSinId(persona, "ubicacionNacer");
 
         personaBD.setSexo(persona.getSexo());
         personaBD.setFechaNacer(persona.getFechaNacer());
