@@ -1,16 +1,26 @@
 package pe.edu.lamolina.pivot.dao.academico.hibernate;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import org.hibernate.Query;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.ControlMeritoEgresado;
 import pe.edu.lamolina.model.academico.Egresado;
+import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.EPG;
+import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.ESP;
+import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.PRE;
+import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.VIS;
+import pe.edu.lamolina.pivot.controller.academico.egresado.EgresadoResumen;
 import pe.edu.lamolina.pivot.dao.academico.EgresadoDAO;
 
 @Repository
@@ -20,6 +30,8 @@ public class EgresadoDAOH extends AbstractEasyDAO<Egresado> implements EgresadoD
         super();
         setClazz(Egresado.class);
     }
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
     public Egresado findByAlumno(Alumno alumno) {
@@ -158,6 +170,86 @@ public class EgresadoDAOH extends AbstractEasyDAO<Egresado> implements EgresadoD
                 .in("alu.id", alumnos);
 
         return all(sql);
+    }
+
+    @Override
+    public List<Egresado> allByCarrerasDynatable(DynatableFilter filter, List<Carrera> carreras, String todo) {
+
+        DynatableSql sql = new DynatableSql(filter)
+                .from(Egresado.class, "egr")
+                .join("alumno al", "al.persona per", "al.carrera ca", "ca.modalidadEstudio moe", "ca.facultad fac")
+                .leftJoin("al.situacionAcademica sita", "per.tipoDocumento tdoc", "al.cicloIngreso ci", "al.cicloActivo cia")
+                .searchFields("ca.nombre", "al.estado", "al.codigo", "per.numeroDocIdentidad")
+                .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
+                .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
+                .orderBy("al.id desc");
+
+        if (!"TODOS".equalsIgnoreCase(todo)) {
+            sql.in("ca.id", carreras);
+        }
+
+        sql.beginRelativeFilters();
+        setCondicionModalidad(filter, sql);
+
+        return all(sql);
+    }
+
+    private void setCondicionModalidad(DynatableFilter filter, DynatableSql sql) {
+        Map<String, Object> queries = filter.getQueries();
+        if (queries == null) {
+            return;
+        }
+        for (String key : queries.keySet()) {
+            if (!key.equals("moe.codigo")) {
+                continue;
+            }
+            String codigoo = (String) queries.get(key);
+            logger.debug("filter codigo ** {}", codigoo);
+            if (codigoo.equalsIgnoreCase("pregrado")) {
+                sql.filter("moe.codigo", PRE);
+            } else if (codigoo.equalsIgnoreCase("posgrado")) {
+                sql.filter("moe.codigo", EPG);
+            } else if (codigoo.equalsIgnoreCase("visitante")) {
+                sql.filter("moe.codigo", VIS);
+            } else if (codigoo.equalsIgnoreCase("especial")) {
+                sql.filter("moe.codigo", ESP);
+            }
+        }
+    }
+
+    @Override
+    public EgresadoResumen findResumenEgresado(List<Carrera> carreras, String todo) {
+
+        StringBuilder sql = new StringBuilder();
+
+        sql.append("select new ").append(EgresadoResumen.class.getName());
+        sql.append(" (   ");
+        sql.append("   sum(case moe.codigo when :PRE then 1 else 0 end),   ");
+        sql.append("   sum(case moe.codigo when :EPG then 1 else 0 end),   ");
+        sql.append("   sum(case moe.codigo when :VIS  then 1 else 0 end),   ");
+        sql.append("   sum(case moe.codigo when :ESP  then 1 else 0 end)   ");
+        sql.append(" )   ");
+        sql.append(" from ").append(Egresado.class.getName()).append(" as egr ");
+        sql.append(" inner join egr.alumno al ");
+        sql.append(" inner join al.carrera ca ");
+        sql.append(" left join al.cicloActivo cia ");
+        sql.append(" inner join ca.modalidadEstudio moe ");
+        sql.append(" where 1=1 ");
+        
+        if (!"TODOS".equalsIgnoreCase(todo)) {
+            sql.append(" and  ca.id in: CARRERAS");
+        }
+
+        Query query = getCurrentSession().createQuery(sql.toString());
+        query.setString("PRE", PRE.name());
+        query.setString("EPG", EPG.name());
+        query.setString("VIS", VIS.name());
+        query.setString("ESP", ESP.name());
+        if (!"TODOS".equalsIgnoreCase(todo)) {
+            query.setParameterList("CARRERAS", carreras.stream().map(Carrera::getId).collect(Collectors.toList()));
+        }
+
+        return (EgresadoResumen) query.uniqueResult();
     }
 
 }
