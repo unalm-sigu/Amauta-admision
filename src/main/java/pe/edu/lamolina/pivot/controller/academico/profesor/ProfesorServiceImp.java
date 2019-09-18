@@ -121,11 +121,17 @@ public class ProfesorServiceImp implements ProfesorService {
                     .filter(x -> Arrays.asList(SeccionEstadoEnum.ACT).contains(x.getSeccion().getEstadoEnum()))
                     .map(x -> x.getSeccion())
                     .collect(Collectors.toList());
+//            Long seccionesPreCount = secciones.stream()
+//                    .filter(x -> x.getGrupoSeccion().getCurso().isPregrado())
+//                    .distinct().count();
+//            Long seccionesPosCount = secciones.stream()
+//                    .filter(x -> x.getGrupoSeccion().getCurso().isPostgrado())
+//                    .distinct().count();
             Long seccionesPreCount = secciones.stream()
-                    .filter(x -> x.getGrupoSeccion().getCurso().isPregrado())
+                    .filter(x -> !x.getGrupoSeccion().getAnexoBoletin().getAnexoSuperior().isAnexoCursosPostgrado())
                     .distinct().count();
             Long seccionesPosCount = secciones.stream()
-                    .filter(x -> x.getGrupoSeccion().getCurso().isPostgrado())
+                    .filter(x -> x.getGrupoSeccion().getAnexoBoletin().getAnexoSuperior().isAnexoCursosPostgrado())
                     .distinct().count();
             docente.setCantSeccionesPos(seccionesPosCount);
             docente.setCantSeccionesPre(seccionesPreCount);
@@ -195,6 +201,7 @@ public class ProfesorServiceImp implements ProfesorService {
                 this.validarEmailConPersona(personaForm.getEmail(), personaForm);
             }
             Persona persona = this.getPersonaBDbasic(personaForm);
+
             if (persona.getFechaValidacionReniec() == null) {
                 persona = this.getPersonaBDreniec(personaForm);
             }
@@ -434,6 +441,8 @@ public class ProfesorServiceImp implements ProfesorService {
 
         List<Pais> paisesBD = paisDAO.all();
         Map<Long, Pais> mapPaises = TypesUtil.convertListToMap("id", paisesBD);
+
+        ObjectUtil.eliminarAttrSinId(persona, "ubicacionNacer");
 
         personaBD.setSexo(persona.getSexo());
         personaBD.setFechaNacer(persona.getFechaNacer());
