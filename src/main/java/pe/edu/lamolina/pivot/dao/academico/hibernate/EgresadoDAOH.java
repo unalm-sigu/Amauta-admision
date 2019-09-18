@@ -225,9 +225,7 @@ public class EgresadoDAOH extends AbstractEasyDAO<Egresado> implements EgresadoD
         sql.append("select new ").append(EgresadoResumen.class.getName());
         sql.append(" (   ");
         sql.append("   sum(case moe.codigo when :PRE then 1 else 0 end),   ");
-        sql.append("   sum(case moe.codigo when :EPG then 1 else 0 end),   ");
-        sql.append("   sum(case moe.codigo when :VIS  then 1 else 0 end),   ");
-        sql.append("   sum(case moe.codigo when :ESP  then 1 else 0 end)   ");
+        sql.append("   sum(case moe.codigo when :EPG then 1 else 0 end)   ");
         sql.append(" )   ");
         sql.append(" from ").append(Egresado.class.getName()).append(" as egr ");
         sql.append(" inner join egr.alumno al ");
@@ -243,8 +241,7 @@ public class EgresadoDAOH extends AbstractEasyDAO<Egresado> implements EgresadoD
         Query query = getCurrentSession().createQuery(sql.toString());
         query.setString("PRE", PRE.name());
         query.setString("EPG", EPG.name());
-        query.setString("VIS", VIS.name());
-        query.setString("ESP", ESP.name());
+        
         if (!"TODOS".equalsIgnoreCase(todo)) {
             query.setParameterList("CARRERAS", carreras.stream().map(Carrera::getId).collect(Collectors.toList()));
         }

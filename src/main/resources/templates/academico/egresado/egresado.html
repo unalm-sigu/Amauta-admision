@@ -13,10 +13,10 @@
                         <section class="panel-body">
                             <div class="col-md-12">
                                 <div class="row">
-                                    <div v-for="(item,index) in resumen" class="col-md-3 text-center" v-bind:class="{'bg-light':index==seleccionado}">
-                                        <a v-on:click="verModalidades(index,item.nombre)" class="pointer" v-bind:class="bgColorClass[index]" >
-                                            <span class="h1 block bold" v-text="item.valor">23</span>
-                                            <small style="text-transform: capitalize" class="block m-b-xs" v-text="item.nombre">Pregrado</small>
+                                    <div v-for="index in [...Array(2).keys()]" class="col-md-3 text-center" v-bind:class="{'bg-light':index==seleccionado}">
+                                        <a v-on:click="verModalidades(index,resumen[index][0])" class="pointer" v-bind:class="bgColorClass[index]" >
+                                            <span class="h1 block bold" v-text="resumen[index][1]">23</span>
+                                            <small style="text-transform: capitalize" class="block m-b-xs" v-text="resumen[index][0]">Pregrado</small>
                                         </a>
                                     </div>
                                 </div>

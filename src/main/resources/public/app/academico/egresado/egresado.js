@@ -3,8 +3,8 @@ new Vue({
     data: {
         raptorurl: APP.url('academico/egresado/list'),
         seleccionado: -1,
-        bgColorClass: ['text-danger', 'text-primary', 'text-success', 'text-warning'],
-        resumen: [],
+        bgColorClass: ['text-primary', 'text-success'],
+        resumen: [...Array(2).keys()],
     },
     mounted: function () {
         let $vue = this;
@@ -43,7 +43,7 @@ new Vue({
                 url: APP.url('academico/egresado/resumen'),
                 success: function (response) {
                     if (response.success) {
-                        $vue.resumen = response.data;
+                        $vue.resumen = Object.entries(response.data);
                     } else {
                         notify(response.message, 'error');
                     }

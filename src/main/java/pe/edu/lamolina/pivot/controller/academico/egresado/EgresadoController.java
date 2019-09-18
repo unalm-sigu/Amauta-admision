@@ -141,18 +141,8 @@ public class EgresadoController {
             if (cantidadEnum != VerificadorServiceImp.CantidadItemsEnum.SIN_PERMISO) {
                 resumen = service.findResumenEgresado(carreras, cantidadEnum.name());
             }
-
-            ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
-            List<ModalidadEstudioEnum> modalidades = Arrays.asList(PRE, VIS, EPG, ESP);
-      
-            for (ModalidadEstudioEnum mod : modalidades) {
-                ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
-                node.put("nombre",mod.getValue());
-                node.put("valor",(Long) ObjectUtil.getParentTree(resumen,mod.getValue().toLowerCase()));
-                array.add(node);
-            }
-
-            response.setData(array);
+            
+            response.setData(JsonHelper.createJson(resumen, JsonNodeFactory.instance, true,new String[]{"*"}));
             response.setSuccess(true);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
