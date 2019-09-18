@@ -49,6 +49,7 @@ import pe.edu.lamolina.model.enums.SexoEnum;
 import pe.edu.lamolina.model.enums.TipoDocumentoCompaniaEnum;
 import pe.edu.lamolina.model.enums.TipoSolicitanteEnum;
 import pe.edu.lamolina.model.enums.TipoTramiteEnum;
+import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
 import static pe.edu.lamolina.model.enums.VariableGenericaEnum.CICLO_ACADEMICO;
 import pe.edu.lamolina.model.finanzas.AcreenciaTramiteDocumento;
 import pe.edu.lamolina.model.general.Colaborador;
@@ -684,8 +685,25 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
     }
 
     @Override
-    public void update(TramiteDocumentoAcademico tramiteDocumentoAcademico, DataSessionPivot ds) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public void update(TramiteDocumentoAcademico tramiteDocumentoAcademicoForm, DataSessionPivot ds) {
+        TramiteDocumentoAcademico tramiteDocumentoAcademico = tramiteDocumentoAcademicoDAO.find(tramiteDocumentoAcademicoForm);
+        tramiteDocumentoAcademicoDAO.updateColumns(tramiteDocumentoAcademicoForm, "estadoTramite");
+
+        Tramite tramite = tramiteDocumentoAcademico.getTramite();
+        tramite.setEstadoEnum(TramiteEstadoEnum.ANU);
+        tramite.setUserModificacion(ds.getUsuario());
+        tramite.setFechaModificacion(new Date());
+        tramiteDAO.updateEstado(tramite);
+
+        FlujoTramiteDocumento flujo = new FlujoTramiteDocumento();
+        flujo.setEstadoTramite(tramiteDocumentoAcademicoForm.getEstadoTramite());
+        flujo.setOficinaOrigen(ds.getOficinaMain());
+        flujo.setOficinaDestino(ds.getOficinaMain());
+        flujo.setUserRegistro(ds.getUsuario());
+        flujo.setTramiteDocumentoAcademico(tramiteDocumentoAcademico);
+        flujo.setFechaRegistro(new Date());
+        flujoTramiteDocumentoDAO.save(flujo);
+        
     }
 
     @Override
@@ -1927,6 +1945,7 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
     @Override
     public List<VariablePlantilla> allParametros(PlantillaDocumentoAcademico pid) {
         pid = plantillaDocumentoAcademicoDAO.findTipoDocumento(pid.getTipoDocumentoAcademico(), pid.getIdioma());
+        Assert.isNotNull(pid, "No existe una plantilla para el documento.");
         return variablePlantillaDAO.allByPlantillaParametro(pid);
     }
 

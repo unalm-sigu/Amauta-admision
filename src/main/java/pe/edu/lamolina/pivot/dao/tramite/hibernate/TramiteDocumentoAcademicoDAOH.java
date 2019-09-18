@@ -40,4 +40,13 @@ public class TramiteDocumentoAcademicoDAOH extends AbstractEasyDAO<TramiteDocume
                 .filter("tda.id", tramiteDocumentoAcademico);
         return find(sql);
     }
+
+    @Override
+    public void updateColumns(TramiteDocumentoAcademico tramiteDocumentoAcademico, String... columns) {
+        Octavia sql = Octavia.update(TramiteDocumentoAcademico.class, "se");
+        for (String column : columns) {
+            sql.set(tramiteDocumentoAcademico, column);
+        }
+        this.update(sql);
+    }
 }

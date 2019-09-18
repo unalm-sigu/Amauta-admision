@@ -11,4 +11,6 @@ public interface TramiteDocumentoAcademicoDAO extends EasyDAO<TramiteDocumentoAc
 
     public TramiteDocumentoAcademico find(TramiteDocumentoAcademico tramiteDocumentoAcademico);
 
+    public void updateColumns(TramiteDocumentoAcademico tramiteDocumentoAcademico, String... string);
+
 }

@@ -73,7 +73,7 @@
                                                             <i class="glyphicon glyphicon-option-vertical"></i>
                                                         </a>
                                                         <ul  class="dropdown-menu pull-right">
-                                                            <li v-if="item.tipoDocumentoAcademico.tipoConstanciaEnum.name == 'CERT'"><a>Actualizar historial academico</a></li> <!--v-bind:href="urll('tramite/solicitudconstancia/updatehistorial/'+solicitud.idalumno+'/updatehistorial')"-->
+                                                            <li v-if="item.tipoDocumentoAcademico.tipoConstanciaEnum.name == 'CERT'" v-bind:href="'tramite/solicitudconstancia/updatehistorial/'+solicitud.idAlumno+'/updatehistorial'"><a>Actualizar historial academico</a></li> <!---->
                                                             <li><a v-bind:href="'/tramite/solicitudconstancia/solicitud/'+item.id">Editar Solicitud Documento</a></li><!-- -->
                                                             <li v-for="estado in item.estados">
                                                                 <a v-if="estado.url !=null" v-bind:href="estado.url + item.id">{{estado.opcion}}</a>

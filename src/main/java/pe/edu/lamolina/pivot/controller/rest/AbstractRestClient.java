@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.type.CollectionType;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+import org.hibernate.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpRequest;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.ClientHttpRequestExecution;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
@@ -156,6 +158,30 @@ public abstract class AbstractRestClient<T> {
         rest.setInterceptors(Collections.singletonList(new ClientRequestInterceptor()));
 
         HttpEntity httpEntity = new HttpEntity(jsonEnvio);
+
+        ResponseEntity<JsonResponse> responseEntity = rest.exchange(
+                urlBack,
+                method,
+                httpEntity,
+                JsonResponse.class
+        );
+
+        JsonResponse response = responseEntity.getBody();
+
+        logger.debug("Respuesta: {} ", response.getSuccess());
+        logger.debug("\t {} ", response.getData());
+
+        return response;
+    }
+
+    protected JsonResponse exchangeBackendHeaders(String urlBack, Object envio, HttpMethod method, HttpHeaders headers) {
+
+        String jsonEnvio = this.serialize(envio);
+
+        RestTemplate rest = new RestTemplate();
+        rest.setInterceptors(Collections.singletonList(new ClientRequestInterceptor()));
+
+        HttpEntity httpEntity = new HttpEntity(jsonEnvio, headers);
 
         ResponseEntity<JsonResponse> responseEntity = rest.exchange(
                 urlBack,

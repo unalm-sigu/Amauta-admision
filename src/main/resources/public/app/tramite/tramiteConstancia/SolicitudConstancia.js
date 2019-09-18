@@ -7,18 +7,18 @@ new Vue({
         tramiteDocumento: {},
         colaborador: {},
         mensajeerror: "",
-        dataCargarFoto: {
+        dataCargarFoto: VUE_MODAL.structFormAjax({
             id: 'modalCargarFoto',
             header: true,
             title: 'Cargar Fotografía',
             okbtn: 'Aceptar'
-        },
-        dataEnviarRevision: {
+        }),
+        dataEnviarRevision: VUE_MODAL.structFormAjax({
             id: 'modalEnviarRevision',
             header: true,
             title: 'Enviar a revisión',
             okbtn: 'Aceptar'
-        }
+        })
     },
     computed: {
 
@@ -124,16 +124,33 @@ new Vue({
         },
         update(tram, accion) {
             var $vue = this;
+            $global.$emit('MODAL-WAIT-OPEN', 'Cargando');
             $vue.tramiteDocumento = tram;
             $vue.tramiteDocumento.estadoTramite = accion.estadoTramiteFinal;
-            if (accion.estadoTramiteFinal.codigo == 'PIMP') {
-
-            }
+            $.ajax({
+                method: 'POST',
+                url: APP.url('tramite/solicitudconstancia/update'),
+                contentType: "application/json",
+                data: JSON.stringify($vue.tramiteDocumento),
+                success: function (response) {
+                    if (response.success) {
+                        $vue.$refs.load.loadRemoteData();
+                    } else {
+                        notify(response.message, 'error');
+                    }
+                    $global.$emit('MODAL-WAIT-CLOSE', 'Cargando');
+                }, error: function () {
+                    $global.$emit('MODAL-WAIT-CLOSE', 'Cargando');
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
         },
         accion(estado, item) {
             console.log(estado);
             if (estado.estadoTramiteFinal.codigo == 'FVAL') {
                 this.cargarfoto(item);
+            } else {
+                this.update(item, estado);
             }
         }
     }
