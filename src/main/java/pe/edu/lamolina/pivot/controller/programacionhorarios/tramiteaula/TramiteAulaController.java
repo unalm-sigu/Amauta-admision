@@ -148,6 +148,7 @@ public class TramiteAulaController {
             "*",
             "tramite.id",
             "tramite.tipoSolicitante",
+            "tramite.oficina.*",
             "tramite.alumno.id",
             "tramite.docente.id",
             "tramite.empresa.id",
@@ -155,6 +156,7 @@ public class TramiteAulaController {
             "tramite.alumno.persona.id",
             "tramite.alumno.persona.nombreCompleto",
             "tramite.docente.persona.nombreCompleto",
+            "tramite.tipoSolicitanteEnum.*",
             "reservados.*",});
         model.addAttribute("reservaAula", reservaAulaNode.toString());
         return "programacion/tramiteaula/tramiteaulaform";
@@ -558,6 +560,28 @@ public class TramiteAulaController {
             data.set("horas", horasJson);
             data.set("reservaAula", reservaAulaNode);
 
+            response.setData(data);
+            response.setSuccess(Boolean.TRUE);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("cambiarVisible")
+    public JsonResponse cambiarVisible(@RequestBody ReservaAula reservaAulaForm, HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+        try {
+
+            JsonNodeFactory jFactory = JsonNodeFactory.instance;
+            ObjectNode data = new ObjectNode(jFactory);
+            service.cambiarVisibilidadReserva(reservaAulaForm);
+            response.setMessage("Visibilidad cambiada correctamente.");
             response.setData(data);
             response.setSuccess(Boolean.TRUE);
 

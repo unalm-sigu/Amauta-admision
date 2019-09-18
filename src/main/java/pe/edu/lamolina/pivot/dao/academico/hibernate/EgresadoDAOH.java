@@ -110,6 +110,9 @@ public class EgresadoDAOH extends AbstractEasyDAO<Egresado> implements EgresadoD
                 .join("cicloAcademico ca")
                 .join("controlMeritoCiclo control")
                 .filter("control.id", controlBD)
+                .searchFields("alu.codigo", "car.nombre", "fac.nombre")
+                .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
+                .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
                 .orderBy("ac.ordenMeritoCiclo");
 
         return all(sql);
@@ -123,6 +126,9 @@ public class EgresadoDAOH extends AbstractEasyDAO<Egresado> implements EgresadoD
                 .join("cicloAcademico ca")
                 .join("controlMeritoCarrera control")
                 .filter("control.id", controlBD)
+                .searchFields("alu.codigo", "car.nombre", "fac.nombre")
+                .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
+                .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
                 .orderBy("ac.ordenMeritoCarrera");
 
         return all(sql);
@@ -136,6 +142,9 @@ public class EgresadoDAOH extends AbstractEasyDAO<Egresado> implements EgresadoD
                 .join("cicloAcademico ca")
                 .join("controlMeritoFacultad control")
                 .filter("control.id", controlBD)
+                .searchFields("alu.codigo", "car.nombre", "fac.nombre")
+                .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
+                .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
                 .orderBy("ac.ordenMeritoFacultad");
 
         return all(sql);

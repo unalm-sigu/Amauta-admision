@@ -52,7 +52,8 @@ new Vue({
             if ($vue.reservaaulaedit.id != null) {
                 $vue.reservaaula = $vue.reservaaulaedit;
                 $vue.reservados = $vue.reservaaulaedit.reservados;
-                $vue.reloadaulalist();
+                let tipoEnum = $vue.reservaaulaedit.tramite.tipoSolicitanteEnum;
+                $vue.reservaaula.tipoSolicitante = {id: tipoEnum.id, nombre: tipoEnum.value}
             }
         }
         $vue.loadModulosByOficina();
@@ -140,12 +141,14 @@ new Vue({
             $vue.changefilteraula();
         },
         guardarTramite() {
+
             let $vue = this;
             let miform = $($vue.$refs.formtramite);
             let valid = miform.parsley().validate();
             if (!valid) {
                 return;
             }
+            console.dir($vue.jsonaulahorario);
             $vue.reservaaula.reservados = $vue.reservados;
             $vue.reservaaula.diahora = $vue.jsonaulahorario;
             $vue.isactiveguardar = true;
@@ -239,6 +242,18 @@ new Vue({
             $vue.reservados = [];
             $vue.changefilteraula();
             $vue.changeCapacidadSeleccionado();
+        },
+        reloadaulalist() {
+            let $vue = this;
+            var aulass = $vue.reservados.map(function (v, i) {
+                return v.id;
+            });
+            if ($vue.reservados.length > 0) {
+                $vue.$refs.raptor.querie.push({name: 'aulas', value: aulass.toString()});
+            } else {
+                $vue.$refs.raptor.querie.push({name: 'aulas', value: ''});
+            }
+            $vue.$refs.raptor.loadRemoteData();
         },
         changemodulo() {
             let $vue = this;

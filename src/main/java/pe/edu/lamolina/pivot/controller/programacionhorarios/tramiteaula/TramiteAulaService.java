@@ -47,4 +47,6 @@ public interface TramiteAulaService {
 
     List<Aula> allAulaModuloByOficina(Oficina oficina);
 
+    void cambiarVisibilidadReserva(ReservaAula reservaAulaForm);
+
 }

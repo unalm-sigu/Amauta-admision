@@ -1,7 +1,6 @@
 package pe.edu.lamolina.pivot.controller.interceptor;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Date;
 import javax.servlet.http.HttpSession;
@@ -11,7 +10,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
-import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.interceptor.UserLogger;
 import pe.edu.lamolina.model.seguridad.Sistema;
 import pe.edu.lamolina.model.seguridad.Rol;
