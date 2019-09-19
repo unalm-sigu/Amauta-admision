@@ -26,11 +26,11 @@ new Vue({
         porcentajeProgreso: 0,
         docentesSecciones: [],
         cursosNoEncuestar: [],
-        cfgEncuestaConfig: {
+        cfgEncuestaConfig: VUE_MODAL.structFormAjax({
             id: 'modalEncuestaConfig',
             modalsize: 'modal-lg',
             header: false
-        },
+        }),
         addCursoModal: {
             id: 'modalAddCurso',
             header: true,
