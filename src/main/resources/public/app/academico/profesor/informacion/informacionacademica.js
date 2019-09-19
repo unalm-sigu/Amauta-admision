@@ -183,6 +183,7 @@ new Vue({
             self.btnDisabled();
             if (!$("#formDocente").parsley().validate() == true) {
                 self.btnEnable();
+                notify("Falta llenar campos en el formulario, verifique.", "error");
                 return;
             }
             $.ajax({

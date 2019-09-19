@@ -41,4 +41,6 @@ public interface PersonaDAO extends EasyDAO<Persona> {
 
     List<Persona> allPersonaColaboradorByNombre(String nombre, OficinaEnum... oficinaEnum);
 
+    void updateColumns(Persona persona, String... columns);
+
 }

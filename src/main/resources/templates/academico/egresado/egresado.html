@@ -1,0 +1,129 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title>Egresados</title>
+    </head>
+    <body>
+        <div layout:fragment="main">
+            <div id="alumnosVUE" v-cloak="">
+                <header class="header b-b padder-lg">
+                    <h2>Egresados</h2>
+                </header>
+                <section class="wrapper-lg">
+                    <section class="panel m-b-md">
+                        <section class="panel-body">
+                            <div class="col-md-12">
+                                <div class="row">
+                                    <div v-for="index in [...Array(2).keys()]" class="col-md-3 text-center" v-bind:class="{'bg-light':index==seleccionado}">
+                                        <a v-on:click="verModalidades(index,resumen[index][0])" class="pointer" v-bind:class="bgColorClass[index]" >
+                                            <span class="h1 block bold" v-text="resumen[index][1]">23</span>
+                                            <small style="text-transform: capitalize" class="block m-b-xs" v-text="resumen[index][0]">Pregrado</small>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                    </section>
+                    <section class="panel">
+                        <section class="panel-body">
+                            <raptor-table v-bind:url="raptorurl" ref="raptoregresado">
+                                <div slot="header"></div>
+
+                                <template scope="props" >
+                                    <table class="table table-striped table-hover">
+                                        <thead> 
+                                            <tr>
+                                                <th class="col-md-4" colspan="2"></th>
+                                                <th class="col-md-3 text-center">Programa</th>
+                                                <th class="col-md-1 text-center v-middle">Graduación</th>
+                                                <th class="col-md-3 text-center v-middle">Situación Académica</th>
+                                                <th class="col-md-1 text-center v-middle">Estado</th>
+                                                <th></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr v-for="item in props.data">
+
+                                                <td class="v-middle">
+                                                    <div class="pull-left">
+                                                        <div v-if="item.alumno.persona.tipoFoto=='POSTUL' "
+                                                             class="img-responsive img-thumbnail img-circle div-foto-list">
+                                                            <img class="img-foto-list" v-bind:src="item.persona.rutaFoto" />
+                                                        </div>
+                                                        <img v-else-if="item.alumno.persona.tipoFoto=='COMUN' " 
+                                                             class="img-responsive img-thumbnail img-circle div-foto-alumno-list" 
+                                                             v-bind:src="item.alumno.persona.rutaFoto" />
+                                                        <img v-else="" 
+                                                             class="img-foto-tempo img-responsive img-thumbnail img-circle" 
+                                                             v-bind:src="item.alumno.persona.rutaFoto" />
+                                                    </div>
+                                                </td>
+
+                                                <td class="v-middle">
+                                                    <a href="#" class="block text-primary bold h5 m-b-xs m-t-xs" >
+                                                        {{item.alumno.persona.apellidosNombres}}
+                                                    </a>
+                                                    <span class="block">
+                                                        Matrícula: {{item.alumno.codigo}}
+                                                    </span>
+                                                    <small v-if="item.alumno.persona.numeroDocIdentidad != '' " class="block bold">
+                                                        {{item.alumno.persona.tipoDocumento.simbolo}} {{item.alumno.persona.numeroDocIdentidad}}
+                                                    </small>
+                                                </td>
+
+
+
+                                                <td class="v-middle text-center">
+                                                    <span v-if="verTipoCarrera(item)"
+                                                          class="block text-info bold">{{item.alumno.carrera.tipoEnum.value}} en</span>
+                                                    <span class="block text-success">{{item.alumno.carrera.nombre}}</span>
+
+                                                    <span v-if="verFacultad(item)" class="block">Facultad de {{item.alumno.carrera.facultad.nombre}}</span>
+                                                    <small class="block bold">{{item.alumno.modalidadEstudio.nombre}}</small>
+                                                </td>
+
+
+
+                                                <td class="v-middle text-center">
+                                                    <span v-if="item.promedioGraduacion" class="block">
+                                                        <b>Prom.:</b> {{item.promedioGraduacion}}
+                                                    </span>
+                                                    <span v-if="item.cicloAcademico.descripcion" class="block">
+                                                        <b>Ciclo:</b> {{item.cicloAcademico.descripcion}}
+                                                    </span>
+                                                </td>
+
+                                                <td class="v-middle text-center">
+                                                    <span class="block h5 text-primary m-t-xs m-b-xs">{{item.alumno.situacionAcademica.nombre}}</span>
+                                                    <span class="block"><b>Ingresó:</b> {{item.alumno.cicloIngreso.descripcion}}</span>
+                                                    <span v-if="item.alumno.cicloActivo.descripcion != '' "
+                                                          class="block"><b>Último ciclo:</b> {{item.alumno.cicloActivo.descripcion}}</span>
+                                                </td>
+
+                                                <td class="text-center v-middle">
+                                                    <span class="clear" v-if="item.alumno.estadoEnum">
+                                                        <a v-if="item.alumno.estado == 'ANU' "
+                                                           href="#" data-toggle="tooltip" data-html="true" data-placement="left" v-bind:title='item.motivo'>
+                                                            <span class="label label-danger" >{{item.alumno.estadoEnum.value}} </span>
+                                                        </a>
+                                                        <span v-else="" class="label label-success">{{item.alumno.estadoEnum.value}} </span>
+                                                    </span>
+                                                </td>
+                                                <td class="v-middle"></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </template>
+                            </raptor-table>
+                        </section>
+                    </section>
+                </section>
+            </div>
+        </div>
+        <div layout:fragment="js">
+            <div th:replace="_modules/vue-modal"></div>
+            <div th:substituteby="_modules/vue-raptor-table"></div>
+            <script th:src="@{/app/academico/egresado/egresado.js}" charset="utf-8"></script>
+        </div>
+    </body>
+
+</html>
