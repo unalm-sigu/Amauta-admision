@@ -1805,6 +1805,7 @@ public class ProgDataServiceImp implements ProgDataService {
                 profeSeccBD.setPrincipal(profeSecc.getPrincipal() == null ? 0 : profeSecc.getPrincipal());
                 profeSeccBD.setEstado(EstadoEnum.ACT.name());
                 profeSeccBD.setPorcentajeCarga(profeSecc.getPorcentajeCarga());
+                profeSeccBD.setPorcentajeCargaFraccion(profeSecc.getPorcentajeCarga() + "");
 
                 if (gpoSeccion.getFechaInicioModular() != null) {
                     profeSeccBD.setFechaInicio(gpoSeccion.getFechaInicioModular());
@@ -1823,6 +1824,7 @@ public class ProgDataServiceImp implements ProgDataService {
                 profeSeccBD.setUserAnulacion(null);
                 profeSeccBD.setFechaAnulacion(null);
                 profeSeccBD.setPorcentajeCarga(profeSecc.getPorcentajeCarga());
+                profeSeccBD.setPorcentajeCargaFraccion(profeSecc.getPorcentajeCarga() + "");
 
                 if (profeSeccBD.getFechaInicio() == null) {
                     if (gpoSeccion.getFechaInicioModular() != null) {
@@ -1854,15 +1856,17 @@ public class ProgDataServiceImp implements ProgDataService {
         List<DocenteSeccion> profeSecciones = docenteSeccionDAO.allByCiclo(ciclo);
         visor.inicializar("docSecc", profeSecciones.size());
 
-        if (1 == 1) {
-            return;
-        }
-
         for (DocenteSeccion profeSeccBD : profeSecciones) {
             Seccion secc = profeSeccBD.getSeccion();
             Docente profe = profeSeccBD.getDocente();
+
             logger.debug("\t\tprocesando revision de profe-seccion {}-{}", profe.getCodigo(), secc.getCodigo());
             visor.agregarLog("docSecc", "revisarDocSecc", "Revisando docente-Seccion " + profe.getCodigo() + "-" + secc.getCodigo(), false, "info");
+            AnexoBoletin anexoSup = secc.getGrupoSeccion().getAnexoBoletin().getAnexoSuperior();
+            if (!anexoSup.isAnexoCursosPostgrado()) {
+                visor.agregarLog("docSecc", "revisarDocSecc", "Docente-Seccion " + profe.getCodigo() + "-" + secc.getCodigo() + " no es de Posgraado", true, "info");
+                continue;
+            }
 
             DocenteSeccion profeSecc = mapDocenteSecciones.get(profe.getCodigo() + "-" + secc.getCodigo3());
             if (profeSecc != null) {
