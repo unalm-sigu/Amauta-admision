@@ -118,14 +118,20 @@ public class ProfesorServiceImp implements ProfesorService {
         for (Docente docente : docentes) {
             List<DocenteSeccion> docentesSeccionByDocente = mapDocentesSeccion.getOrDefault(docente.getId(), new ArrayList<>());
             List<Seccion> secciones = docentesSeccionByDocente.stream()
-                    .filter(x -> Arrays.asList(SeccionEstadoEnum.ACT, SeccionEstadoEnum.BLO).contains(x.getSeccion().getEstadoEnum()))
+                    .filter(x -> Arrays.asList(SeccionEstadoEnum.ACT).contains(x.getSeccion().getEstadoEnum()))
                     .map(x -> x.getSeccion())
                     .collect(Collectors.toList());
+//            Long seccionesPreCount = secciones.stream()
+//                    .filter(x -> x.getGrupoSeccion().getCurso().isPregrado())
+//                    .distinct().count();
+//            Long seccionesPosCount = secciones.stream()
+//                    .filter(x -> x.getGrupoSeccion().getCurso().isPostgrado())
+//                    .distinct().count();
             Long seccionesPreCount = secciones.stream()
-                    .filter(x -> x.getGrupoSeccion().getCurso().isPregrado())
+                    .filter(x -> !x.getGrupoSeccion().getAnexoBoletin().getAnexoSuperior().isAnexoCursosPostgrado())
                     .distinct().count();
             Long seccionesPosCount = secciones.stream()
-                    .filter(x -> x.getGrupoSeccion().getCurso().isPostgrado())
+                    .filter(x -> x.getGrupoSeccion().getAnexoBoletin().getAnexoSuperior().isAnexoCursosPostgrado())
                     .distinct().count();
             docente.setCantSeccionesPos(seccionesPosCount);
             docente.setCantSeccionesPre(seccionesPreCount);
@@ -195,6 +201,7 @@ public class ProfesorServiceImp implements ProfesorService {
                 this.validarEmailConPersona(personaForm.getEmail(), personaForm);
             }
             Persona persona = this.getPersonaBDbasic(personaForm);
+
             if (persona.getFechaValidacionReniec() == null) {
                 persona = this.getPersonaBDreniec(personaForm);
             }
@@ -281,10 +288,13 @@ public class ProfesorServiceImp implements ProfesorService {
             logger.debug("-> Dato basicos de persona actualizados");
         }
 
-        persona.setFoto(personaForm.getFoto());
-        this.uploadS3(personaForm.getFoto());
+        //me indican que solo se debe actualizar foto documento
+        Persona personaUpd = new Persona(personaForm.getId());
+        personaUpd.setRutaFotoDocumento(personaForm.getFullRutaFotoTemporalDocumento());
+       // personaUpd.setRutaFotoTemporal(personaForm.getRutaFotoTemporal()); //     
+        personaDAO.updateColumns(personaUpd, "rutaFotoDocumento");
+        this.uploadS3(personaUpd.getFoto());
 
-        personaDAO.update(persona);
         logger.debug("***Resolviendo en Tabla Docente***");
         Docente docenteBD = docenteDAO.findByDocente(docente);
         docenteBD.setPersona(persona);
@@ -434,6 +444,8 @@ public class ProfesorServiceImp implements ProfesorService {
 
         List<Pais> paisesBD = paisDAO.all();
         Map<Long, Pais> mapPaises = TypesUtil.convertListToMap("id", paisesBD);
+
+        ObjectUtil.eliminarAttrSinId(persona, "ubicacionNacer");
 
         personaBD.setSexo(persona.getSexo());
         personaBD.setFechaNacer(persona.getFechaNacer());

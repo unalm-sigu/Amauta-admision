@@ -105,9 +105,14 @@
 
                                                 <td class="v-middle text-center">
                                                     <!--   v-on:change="prepararCambio"-->
-                                                   
-                                                    <input type="checkbox" v-model="item.visibleHorario" disabled="true" value="1"/>
-                                                   
+                                                    <div class="form-group">
+                                                        <label class="switch">
+                                                            <input type="checkbox"  value="true" v-model="item.visibleHorario"
+                                                                    v-on:change="cambiarVisible(item)"
+                                                                    v-bind:disabled="item.estado=='ANU'"/>
+                                                            <span></span>
+                                                        </label>
+                                                    </div>
                                                 </td>
                                                 <td class="v-middle text-center">
                                                     <span class="label label-primary" v-if="item.estado=='ACT'"> Activo </span>

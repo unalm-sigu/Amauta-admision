@@ -86,6 +86,7 @@ public class DocenteSeccionDAOH extends AbstractEasyDAO<DocenteSeccion> implemen
                 .join("cur.departamentoAcademico da", "da.facultad")
                 .leftJoin("gs.planCalificacion pc", "cur.planCalificacion pc2", "cur.planCalificacionRegular pcr", "sec.seccionSuperior")
                 .leftJoin("sec.aula au", "sec.grupoHoras gh", "doc.persona per", "per.tipoDocumento")
+                .leftJoin("gs.anexoBoletin ab", "ab.anexoSuperior absup")
                 .in("doc.id", docentes)
                 .filter("ca.id", ciclo)
                 .filter("ds.estado", EstadoEnum.ACT);
@@ -290,6 +291,7 @@ public class DocenteSeccionDAOH extends AbstractEasyDAO<DocenteSeccion> implemen
         Octavia sql = Octavia.query()
                 .from(DocenteSeccion.class, "ds")
                 .join("seccion sec", "sec.grupoSeccion gs", "gs.curso cur", "gs.cicloAcademico ca", "docente doc")
+                .join("gs.anexoBoletin anx", "anx.anexoSuperior")
                 .leftJoin("doc.persona per", "per.tipoDocumento", "doc.departamentoAcademico dpa")
                 .filter("ca.id", ciclo);
 

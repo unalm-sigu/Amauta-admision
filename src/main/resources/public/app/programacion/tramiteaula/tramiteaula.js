@@ -146,6 +146,30 @@ new Vue({
                     notify(MESSAGES.errorComunicacion, "error");
                 }
             });
+        },
+        cambiarVisible(tramite) {
+            let $vue = this;
+            $vue.showLoader();
+            let reserva = {id: tramite.id, visibleHorario: tramite.visibleHorario}
+            $.ajax({
+                method: 'POST',
+                async: false,
+                url: APP.url('tramite/aula/cambiarVisible'),
+                data: JSON.stringify(reserva),
+                contentType: "application/json",
+                success: function (response) {
+                    $vue.hideLoader();
+                    if (response.success) {
+                        notify(response.message, "info");
+                    } else {
+                        notify(response.message, "error");
+                    }
+                },
+                error() {
+                    $vue.hideLoader();
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
         }
     }
 });

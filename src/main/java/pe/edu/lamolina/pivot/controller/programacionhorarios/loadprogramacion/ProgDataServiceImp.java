@@ -387,11 +387,11 @@ public class ProgDataServiceImp implements ProgDataService {
 
             Persona perzoma = revisarPersona(persona, personasVinculadas, mapKeyPersonas, mapDNIPersonas, ds);
             if (persona.getKey().equals(kk)) {
-                ObjectUtil.printAttr(persona);
+                //ObjectUtil.printAttr(persona);
             }
             copiarDatosPersonales(perzoma, persona);
             if (persona.getKey().equals(kk)) {
-                ObjectUtil.printAttr(persona);
+                //ObjectUtil.printAttr(persona);
             }
             personaDAO.update(perzoma);
             System.out.println("return perzoma 222 " + perzoma.getId());
@@ -1495,7 +1495,6 @@ public class ProgDataServiceImp implements ProgDataService {
 //        if (1 == 1) {
 //            throw new PhobosException("2342-2345-234-52-345-234-52");
 //        }
-
         int loop = 0;
         for (Seccion seccion : secciones) {
             GrupoSeccion gpoSecc = mapGpoSecciones.get(seccion.getCodigoGrupoSeccion());
@@ -1602,7 +1601,7 @@ public class ProgDataServiceImp implements ProgDataService {
                 restriccionCarreraDAO.delete(restriccionCarrera);
             }
             for (RestriccionCarrera restriccionCarrera : resCarrNew) {
-                ObjectUtil.printAttr(restriccionCarrera);
+                // ObjectUtil.printAttr(restriccionCarrera);
                 restriccionCarrera.setEstadoEnum(EstadoEnum.ACT);
                 restriccionCarrera.setFechaRegistro(new Date());
                 restriccionCarrera.setUsuarioRegistro(ds.getUsuario());
@@ -1806,6 +1805,7 @@ public class ProgDataServiceImp implements ProgDataService {
                 profeSeccBD.setPrincipal(profeSecc.getPrincipal() == null ? 0 : profeSecc.getPrincipal());
                 profeSeccBD.setEstado(EstadoEnum.ACT.name());
                 profeSeccBD.setPorcentajeCarga(profeSecc.getPorcentajeCarga());
+                profeSeccBD.setPorcentajeCargaFraccion(profeSecc.getPorcentajeCarga() + "");
 
                 if (gpoSeccion.getFechaInicioModular() != null) {
                     profeSeccBD.setFechaInicio(gpoSeccion.getFechaInicioModular());
@@ -1824,6 +1824,7 @@ public class ProgDataServiceImp implements ProgDataService {
                 profeSeccBD.setUserAnulacion(null);
                 profeSeccBD.setFechaAnulacion(null);
                 profeSeccBD.setPorcentajeCarga(profeSecc.getPorcentajeCarga());
+                profeSeccBD.setPorcentajeCargaFraccion(profeSecc.getPorcentajeCarga() + "");
 
                 if (profeSeccBD.getFechaInicio() == null) {
                     if (gpoSeccion.getFechaInicioModular() != null) {
@@ -1855,15 +1856,17 @@ public class ProgDataServiceImp implements ProgDataService {
         List<DocenteSeccion> profeSecciones = docenteSeccionDAO.allByCiclo(ciclo);
         visor.inicializar("docSecc", profeSecciones.size());
 
-        if (1 == 1) {
-            return;
-        }
-
         for (DocenteSeccion profeSeccBD : profeSecciones) {
             Seccion secc = profeSeccBD.getSeccion();
             Docente profe = profeSeccBD.getDocente();
+
             logger.debug("\t\tprocesando revision de profe-seccion {}-{}", profe.getCodigo(), secc.getCodigo());
             visor.agregarLog("docSecc", "revisarDocSecc", "Revisando docente-Seccion " + profe.getCodigo() + "-" + secc.getCodigo(), false, "info");
+            AnexoBoletin anexoSup = secc.getGrupoSeccion().getAnexoBoletin().getAnexoSuperior();
+            if (!anexoSup.isAnexoCursosPostgrado()) {
+                visor.agregarLog("docSecc", "revisarDocSecc", "Docente-Seccion " + profe.getCodigo() + "-" + secc.getCodigo() + " no es de Posgraado", true, "info");
+                continue;
+            }
 
             DocenteSeccion profeSecc = mapDocenteSecciones.get(profe.getCodigo() + "-" + secc.getCodigo3());
             if (profeSecc != null) {
@@ -1961,6 +1964,27 @@ public class ProgDataServiceImp implements ProgDataService {
 
             List<MatriculaCurso> matriCursos = resumen.getMatriculaCurso();
             List<MatriculaSeccion> matriSecciones = resumen.getMatriculaSeccion();
+            Map<Long, MatriculaCurso> mapCursos = TypesUtil.convertListToMap("curso.id", matriCursos);
+
+            for (MatriculaSeccion ms : matriSecciones) {
+                AnexoBoletin anexoSup = ms.getSeccion().getGrupoSeccion().getAnexoBoletin().getAnexoSuperior();
+                if (anexoSup.getId() != 4L) {
+                    Curso curso = ms.getSeccion().getGrupoSeccion().getCurso();
+                    MatriculaCurso matCurso = mapCursos.get(curso.getId());
+                    if (ms.getEstadoEnum() == EstadoMatriculaEnum.MAT) {
+                        matCurso.setCargado(1);
+                    }
+                } else if (ms.getCargado() == 1) {
+                    ms.setEstadoEnum(EstadoMatriculaEnum.MAT);
+                } else {
+                    ms.setEstadoEnum(EstadoMatriculaEnum.RET);
+                }
+                if (intentos == 2) {
+                    System.out.println("====================================================================================");
+                    ObjectUtil.printAttr(ms);
+                }
+                matriculaSeccionDAO.update(ms);
+            }
 
             for (MatriculaCurso mc : matriCursos) {
                 if (mc.getCargado() == 1) {
@@ -1971,19 +1995,6 @@ public class ProgDataServiceImp implements ProgDataService {
                     mc.setEstadoEnum(EstadoMatriculaEnum.RET);
                 }
                 matriculaCursoDAO.update(mc);
-            }
-
-            for (MatriculaSeccion ms : matriSecciones) {
-                if (ms.getCargado() == 1) {
-                    ms.setEstadoEnum(EstadoMatriculaEnum.MAT);
-                } else {
-                    ms.setEstadoEnum(EstadoMatriculaEnum.RET);
-                }
-                if (intentos == 2) {
-                    System.out.println("====================================================================================");
-                    ObjectUtil.printAttr(ms);
-                }
-                matriculaSeccionDAO.update(ms);
             }
 
             if (resumen.getCursosMatriculados() == 0 && !matriCursos.isEmpty()) {
