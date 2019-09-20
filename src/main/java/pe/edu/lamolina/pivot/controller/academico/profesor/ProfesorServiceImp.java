@@ -618,10 +618,10 @@ public class ProfesorServiceImp implements ProfesorService {
     }
 
     @Override
-    public List<GrupoSeccion> allGpoSecciones(Docente docente, CicloAcademico ciclo, DataSessionPivot ds) {
+    public List<GrupoSeccion> allGpoSecciones(Docente docente, CicloAcademico ciclo, DataSessionPivot ds) {    
         Map<Long, GrupoSeccion> mapGpoSecc = new LinkedHashMap();
 
-        List<DocenteSeccion> profeSecciones = docenteSeccionDAO.allActivosByDocenteCiclo(docente, ciclo);
+        List<DocenteSeccion> profeSecciones = docenteSeccionDAO.allActivosByDocenteCiclo(docente, ciclo);  
         for (DocenteSeccion profeSecc : profeSecciones) {
             Seccion secc = profeSecc.getSeccion();
             secc.setDocenteSeccion(new ArrayList());
