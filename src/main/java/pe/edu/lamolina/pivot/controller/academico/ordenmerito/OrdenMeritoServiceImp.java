@@ -652,4 +652,8 @@ public class OrdenMeritoServiceImp implements OrdenMeritoService {
         return null;
     }
 
+    @Override
+    public List<AlumnoCiclo> generatePdfOrdenMeritoCiclo(CicloAcademico cicloAcademico) {
+        return alumnoCicloDAO.allByCicloOrderMeritoNivel(cicloAcademico);
+    }
 }

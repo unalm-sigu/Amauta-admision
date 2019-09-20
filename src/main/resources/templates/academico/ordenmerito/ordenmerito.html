@@ -9,10 +9,14 @@
 
             <header class="header b-b padder-lg">
                 <div class="pull-right m-t-md">                
-                    <button class="btn btn-success btn-sm dropdown-toggle" type="button"  data-toggle="dropdown"> Acciones </button>
+                    <button class="btn btn-success btn-sm dropdown-toggle" v-bind:disabled="processreporte" type="button"  data-toggle="dropdown"> 
+                        <span v-if="processreporte"> <i class="fa fa-spinner fa-spin" style="font-size:14px"></i></span> &nbsp; Acciones 
+                    </button>
                     <ul class="dropdown-menu pointer">
                         <li><a v-on:click="generarDatos"> Generar Datos </a></li>
                         <li><a v-on:click="calcularMeritos"> Calcular Méritos </a></li>
+                        <li class="divider"></li>
+                        <li><a class="dropdown-item" v-on:click.prevent="generarReporteCiclo()"> Reporte General </a></li>
                     </ul>
                 </div> 
                 <p class="h2" th:inline="text"> Orden de Mérito [[${ciclo.descripcion}]] </p>

@@ -55,6 +55,8 @@ public interface Constantine {
     //html to pdf
     String PDF_CSS = "public/app/pdf/css/pdf.css";
     String PDF_IMG = "/public/app/pdf/img/";
+    String PDF_IMG2 = "/public/pdf/img/";
+
     //code idioma
     String CODE_IDIOMA_ESPANOL = "es";
     String CODE_IDIOMA_INGLES = "en";
@@ -79,6 +81,7 @@ public interface Constantine {
     String IMAGE_TRANSPARENT_MSG = "la imagen no debe de ser transparente";
 
     //ruta imagen
+    String LOGOUNALM = PDF_IMG2 + "escudoUnalmSm.jpg";
     String S3_BUKET = "lamolina-academico";
     String S3_DIR_FOTO_TMP = "fotos/temporal/";
     String S3_DIR_FOTO_DOCUMENTO = "fotos/documentos/";
