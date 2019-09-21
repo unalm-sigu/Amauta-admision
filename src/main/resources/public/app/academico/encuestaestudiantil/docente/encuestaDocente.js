@@ -16,11 +16,11 @@ new Vue({
             dataBackdrop: 'static',
             dataKeyboard: 'false'
         },
-        cfgEncuestaConfig: {
+        cfgEncuestaConfig: VUE_MODAL.structFormAjax({
             id: 'modalEncuestaConfig',
             modalsize: 'modal-lg',
             header: false
-        },
+        }),
         configuraEncuesta: {},
         periodosEncuesta: [],
         cursosNoEncuestar: [],

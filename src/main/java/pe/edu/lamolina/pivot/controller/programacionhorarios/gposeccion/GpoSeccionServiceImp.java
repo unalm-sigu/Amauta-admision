@@ -1064,7 +1064,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
                 List<Seccion> secciones = seccionDAO.allOperativesByGpoSeccion(grupoSeccion);
                 Seccion seccionTCUR = secciones.stream().filter(x -> x.isTipoSeccionTCUR()).findFirst().orElse(null);
                 List<Seccion> seccionesPCUR = secciones.stream().filter(x -> x.isTipoSeccionPCUR()).collect(Collectors.toList());
-                if (seccionesPCUR == null || seccionesPCUR.isEmpty()) {
+                if (seccionesPCUR == null || seccionesPCUR.isEmpty() && seccionTCUR != null) {
                     this.anularSeccion(seccionTCUR, ds);
                 }
             }

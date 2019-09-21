@@ -16,11 +16,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.CicloAcademico;
@@ -36,6 +38,9 @@ public class OrdenMeritoController {
 
     @Autowired
     OrdenMeritoService service;
+
+    @Autowired
+    ReportePdfOrdenMeritoCiclo reportePdfOrdenMeritoCiclo;
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
@@ -221,6 +226,24 @@ public class OrdenMeritoController {
             ExceptionHandler.handleException(e, json);
         }
         return json;
+    }
+
+    @RequestMapping("reportePdfOrdenMeritoCiclo")
+    public ModelAndView reportePdfOrdenMeritoCiclo(@RequestParam("cicloId") Long cicloId, Model model, HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        try {
+            CicloAcademico cicloAcademico = service.findCicloAcademico(new CicloAcademico(cicloId));
+            List<AlumnoCiclo> listAlumnoCiclo = service.generatePdfOrdenMeritoCiclo(cicloAcademico);
+            model.addAttribute("cicloAcademico", cicloAcademico);
+            model.addAttribute("listAlumnoCiclo", listAlumnoCiclo);
+        } catch (PhobosException e) {
+            e.printStackTrace();
+            logger.debug("*** PhobosException {}", e);
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.debug("*** Exception {}", e);
+        }
+        return new ModelAndView(reportePdfOrdenMeritoCiclo);
     }
 
     private CicloAcademico findCicloAcademico(DataSessionPivot ds, HttpSession session) {
