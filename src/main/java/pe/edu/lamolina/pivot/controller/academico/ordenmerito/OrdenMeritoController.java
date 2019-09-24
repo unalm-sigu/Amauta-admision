@@ -22,7 +22,6 @@ import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
-import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.CicloAcademico;
@@ -41,6 +40,9 @@ public class OrdenMeritoController {
 
     @Autowired
     ReportePdfOrdenMeritoCiclo reportePdfOrdenMeritoCiclo;
+    
+    @Autowired
+    ReportePdfOrdenMeritoEspecialidad reportePdfOrdenMeritoEspecialidad;
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
@@ -233,7 +235,45 @@ public class OrdenMeritoController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         try {
             CicloAcademico cicloAcademico = service.findCicloAcademico(new CicloAcademico(cicloId));
-            List<AlumnoCiclo> listAlumnoCiclo = service.generatePdfOrdenMeritoCiclo(cicloAcademico);
+            List<AlumnoCiclo> listAlumnoCiclo = service.generatePdfOrdenMerito(cicloAcademico);
+            model.addAttribute("cicloAcademico", cicloAcademico);
+            model.addAttribute("listAlumnoCiclo", listAlumnoCiclo);
+            model.addAttribute("tipoReporte", "ciclo");
+        } catch (PhobosException e) {
+            e.printStackTrace();
+            logger.debug("*** PhobosException {}", e);
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.debug("*** Exception {}", e);
+        }
+        return new ModelAndView(reportePdfOrdenMeritoCiclo);
+    }
+
+    @RequestMapping("reportePdfOrdenMeritoFacultad")
+    public ModelAndView reportePdfOrdenMeritoFacultad(@RequestParam("cicloId") Long cicloId, Model model, HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        try {
+            CicloAcademico cicloAcademico = service.findCicloAcademico(new CicloAcademico(cicloId));
+            List<AlumnoCiclo> listAlumnoCiclo = service.generatePdfOrdenMerito(cicloAcademico);
+            model.addAttribute("cicloAcademico", cicloAcademico);
+            model.addAttribute("listAlumnoCiclo", listAlumnoCiclo);
+            model.addAttribute("tipoReporte", "facultad");
+        } catch (PhobosException e) {
+            e.printStackTrace();
+            logger.debug("*** PhobosException {}", e);
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.debug("*** Exception {}", e);
+        }
+        return new ModelAndView(reportePdfOrdenMeritoCiclo);
+    }
+    
+    @RequestMapping("reportePdfOrdenMeritoEspecialidad")
+    public ModelAndView reportePdfOrdenMeritoEspecialidad(@RequestParam("cicloId") Long cicloId, Model model, HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        try {
+            CicloAcademico cicloAcademico = service.findCicloAcademico(new CicloAcademico(cicloId));
+            List<AlumnoCiclo> listAlumnoCiclo = service.generatePdfOrdenMerito(cicloAcademico);
             model.addAttribute("cicloAcademico", cicloAcademico);
             model.addAttribute("listAlumnoCiclo", listAlumnoCiclo);
         } catch (PhobosException e) {
@@ -243,7 +283,7 @@ public class OrdenMeritoController {
             e.printStackTrace();
             logger.debug("*** Exception {}", e);
         }
-        return new ModelAndView(reportePdfOrdenMeritoCiclo);
+        return new ModelAndView(reportePdfOrdenMeritoEspecialidad);
     }
 
     private CicloAcademico findCicloAcademico(DataSessionPivot ds, HttpSession session) {

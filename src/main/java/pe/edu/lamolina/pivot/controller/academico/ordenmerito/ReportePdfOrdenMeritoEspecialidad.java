@@ -31,34 +31,31 @@ import org.springframework.stereotype.Component;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCiclo;
+import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
-import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.pivot.controller.general.view.HeaderReportePdf;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.misc.Acumulador;
 import pe.edu.lamolina.pivot.zelper.pdf.AbstractOnlyPdfView;
 
 @Component
-public class ReportePdfOrdenMeritoCiclo extends AbstractOnlyPdfView {
+public class ReportePdfOrdenMeritoEspecialidad extends AbstractOnlyPdfView {
 
     private final String logoUNALM = Constantine.LOGOUNALM;
     private final Font fontGenearal = new Font(Font.FontFamily.HELVETICA, 8, Font.NORMAL, BaseColor.BLACK);
     private final String header1 = "UNIVERSIDAD NACIONAL AGRARIA LA MOLINA";
     private final String header2 = "OFICINA DE ESTUDIOS Y REGISTROS ACADÉMICOS";
-    private final String titleGeneral = "Orden de Mérito General";
-    private final String titleFacultad = "Orden de Mérito por Facultad";
+    private final String title = "Orden de Mérito por Especialidad";
     private final boolean numeroPagina = true;
 
     @Override
     protected void buildPdfMetadata(Map<String, Object> model, Document document, HttpServletRequest request) {
         CicloAcademico cicloAcademico = (CicloAcademico) model.get("cicloAcademico");
-        String tipoReporte = (String) model.get("tipoReporte");
         document.addAuthor("AlbatrossCloud");
         document.addCreationDate();
         document.addCreator("AlbatrossCloud");
         document.addTitle(this.header1 + " - " + this.header2);
-        String title = ("ciclo".equals(tipoReporte) ? this.titleGeneral : this.titleFacultad);
-        document.addSubject(title + " - " + cicloAcademico.getDescripcion());
+        document.addSubject(this.title + " - " + cicloAcademico.getDescripcion());
         document.setPageSize(PageSize.A4);
         document.setMargins(20, 5, 35, 20);
     }
@@ -67,10 +64,9 @@ public class ReportePdfOrdenMeritoCiclo extends AbstractOnlyPdfView {
     protected void buildPdfDocument(Map<String, Object> model, Document document, PdfWriter writer, HttpServletRequest request, HttpServletResponse response) throws Exception {
         List<AlumnoCiclo> listAlumnoCiclo = (List<AlumnoCiclo>) model.get("listAlumnoCiclo");
         CicloAcademico cicloAcademico = (CicloAcademico) model.get("cicloAcademico");
-        String tipoReporte = (String) model.get("tipoReporte");
         this.buildFooter(writer);
-        this.buildHeaderPaginaPrincipal(document, cicloAcademico, listAlumnoCiclo.size(), tipoReporte);
-        this.buildBody(listAlumnoCiclo, cicloAcademico, document, tipoReporte);
+        this.buildHeaderPaginaPrincipal(document, cicloAcademico, listAlumnoCiclo.size());
+        this.buildBody(listAlumnoCiclo, cicloAcademico, document);
         DateTime today = new DateTime();
         String nombre = this.header1 + today.toString("yyyyMMdd_HHmm");
         response.setHeader("Content-Disposition", "attachment; filename=\"" + nombre + ".pdf\"");
@@ -82,7 +78,7 @@ public class ReportePdfOrdenMeritoCiclo extends AbstractOnlyPdfView {
         writer.setPageEvent(event);
     }
 
-    private void buildHeaderPaginaPrincipal(Document document, CicloAcademico cicloAcademico, int cantidadAlumno, String tipoReporte) throws DocumentException, BadElementException, IOException {
+    private void buildHeaderPaginaPrincipal(Document document, CicloAcademico cicloAcademico, int cantidadAlumno) throws DocumentException, BadElementException, IOException {
         Font font = new Font(Font.FontFamily.HELVETICA, 10, Font.NORMAL, BaseColor.BLACK);
         Font fontCursivo = new Font(Font.FontFamily.HELVETICA, 9, Font.BOLDITALIC, BaseColor.BLACK);
         Font fontBold = new Font(Font.FontFamily.HELVETICA, 10, Font.BOLD, BaseColor.BLACK);
@@ -117,8 +113,7 @@ public class ReportePdfOrdenMeritoCiclo extends AbstractOnlyPdfView {
         parrafo.add(this.header2);
         parrafo.add(Chunk.NEWLINE);
         parrafo.setFont(new Font(Font.FontFamily.HELVETICA, 10, Font.NORMAL));
-        String title = (tipoReporte != null ? this.titleFacultad : this.titleGeneral);
-        parrafo.add(title.toUpperCase());
+        parrafo.add(this.title.toUpperCase());
 
         cell = new PdfPCell(parrafo);
         cell.setHorizontalAlignment(PdfPCell.ALIGN_CENTER);
@@ -143,20 +138,6 @@ public class ReportePdfOrdenMeritoCiclo extends AbstractOnlyPdfView {
         document.add(tableAlumno);
     }
 
-    private void addCeldHead(String texto, int colspan, PdfPTable tableBody, int posicion) {
-        PdfPCell cell = new PdfPCell(new Phrase(texto, new Font(Font.FontFamily.HELVETICA, 8, Font.BOLD, BaseColor.BLACK)));
-        cell.setHorizontalAlignment(posicion);
-        cell.setColspan(colspan);
-        cell.setPaddingLeft(2f);
-        cell.setPaddingRight(2f);
-        cell.setPaddingTop(0f);
-        cell.setPaddingBottom(5f);
-        cell.setBorder(Rectangle.TOP | Rectangle.BOTTOM | Rectangle.RIGHT | Rectangle.LEFT);
-        cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
-        cell.setBackgroundColor(BaseColor.GRAY);
-        tableBody.addCell(cell);
-    }
-
     private void addCeld(int lado, int posision, String texto, int colspan, PdfPTable tableBody, Font font, BaseColor base) {
         PdfPCell cell = new PdfPCell(new Phrase(texto, font));
         cell.setHorizontalAlignment(posision);
@@ -179,47 +160,49 @@ public class ReportePdfOrdenMeritoCiclo extends AbstractOnlyPdfView {
         tableBody.addCell(cell);
     }
 
-    private void buildBody(List<AlumnoCiclo> listAlumnoCiclo, CicloAcademico cicloAcademico, Document document, String tipoReporte) throws DocumentException, BadElementException, IOException {
+    private void buildBody(List<AlumnoCiclo> listAlumnoCiclo, CicloAcademico cicloAcademico, Document document) throws DocumentException, BadElementException, IOException {
         Font fontTableBody = new Font(Font.FontFamily.HELVETICA, 7, Font.NORMAL, BaseColor.BLACK);
-        Map<Integer, List<AlumnoCiclo>> mapListAlumnoCiclo = TypesUtil.convertListToMapList("nivel", listAlumnoCiclo);
-
-        int firtsRow = 0;
         Acumulador contadorColumn = contadorColumn = new Acumulador();
         PdfPTable tableBody = null;
         PdfPTable tableHeader = null;
         int index = 0;
 
-        if ("facultad".equals(tipoReporte)) {
-            Map<String, Facultad> mapFacultad = TypesUtil.convertListToMap("alumno.carrera.facultad", "alumno.carrera.facultad", listAlumnoCiclo);
-            Map<String, List<AlumnoCiclo>> mapBeanFacultad = TypesUtil.convertListToMapList("alumno.carrera.facultad.id", listAlumnoCiclo);
-            List<Facultad> listFacultad = new ArrayList(mapFacultad.values());
-            for (Facultad facultad : listFacultad) {
-                List<AlumnoCiclo> listMapperByFacultad = mapBeanFacultad.get(facultad.getId());
-                Map<Integer, List<AlumnoCiclo>> mapListAlumnoCicloforFacultad = TypesUtil.convertListToMapList("nivel", listMapperByFacultad);
-                for (index = 1; index < 6; index++) {
-                    firtsRow = 0;
-                    List<AlumnoCiclo> list = mapListAlumnoCicloforFacultad.get(index);
-                    if (list == null || list.isEmpty()) {
-                        continue;
-                    }
-                    tableBody = this.createTableBody();
-                    list = this.orderList(list);
-                    contadorColumn.incrementar(6);
-                    tableHeader = this.createTableHeaderDescripcion(facultad.getNombre(), cicloAcademico, index);
-                    contadorColumn = this.addCeldList(list, tableBody, tableHeader, fontTableBody, firtsRow, contadorColumn, document, index, cicloAcademico, tipoReporte, facultad.getNombre(), listAlumnoCiclo.size());
-                }
-            }
-        } else if ("ciclo".equals(tipoReporte)) {
+        Map<String, Carrera> mapCarrera = TypesUtil.convertListToMap("alumno.carrera", "alumno.carrera", listAlumnoCiclo);
+        Map<String, List<AlumnoCiclo>> mapBeanCarrera = TypesUtil.convertListToMapList("alumno.carrera.id", listAlumnoCiclo);
+        List<Carrera> listCarrera = new ArrayList(mapCarrera.values());
+
+        logger.debug("******* mapCarrera cantidad  " + mapCarrera.values().size());
+
+        for (Carrera carrera : listCarrera) {
+            List<AlumnoCiclo> listMapperByCarrera = mapBeanCarrera.get(carrera.getId());
+            Map<Integer, List<AlumnoCiclo>> mapListAlumnoCicloforCarrera = TypesUtil.convertListToMapList("nivel", listMapperByCarrera);
             for (index = 1; index < 6; index++) {
-                firtsRow = 0;
-                List<AlumnoCiclo> list = mapListAlumnoCiclo.get(index);
-                list = this.orderList(list);
+                logger.debug("********** index  " + index);
+                List<AlumnoCiclo> list = mapListAlumnoCicloforCarrera.get(index);
+
+                if (list == null || list.isEmpty()) {
+                    continue;
+                }
+                logger.debug("******* mapCarrera por nivel values " + list.size());
+
                 tableBody = this.createTableBody();
-                tableHeader = this.createTableHeaderDescripcion(null, cicloAcademico, index);
-                contadorColumn.incrementar(7);
-                contadorColumn = this.addCeldList(list, tableBody, tableHeader, fontTableBody, firtsRow, contadorColumn, document, index, cicloAcademico, tipoReporte, null, listAlumnoCiclo.size());
+                list = this.orderList(list);
+                contadorColumn.incrementar(5);
+                tableHeader = this.createTableHeaderDescripcion(carrera.getNombre(), cicloAcademico, index);
+                logger.debug("************** buildBody contadorColumn {} " + contadorColumn.getValor());
+                contadorColumn = this.addCeldList(list, tableBody, tableHeader, fontTableBody, contadorColumn, document, index, cicloAcademico, listAlumnoCiclo.size());
+                logger.debug("************** return contadorColumn {} " + contadorColumn.getValor());
             }
         }
+
+    }
+
+    private List<AlumnoCiclo> orderList(List<AlumnoCiclo> listMapperByCarrera) {
+        List<AlumnoCiclo> list2 = listMapperByCarrera.stream().filter(x -> x.getOrdenMeritoCicloNivel() != null).collect(Collectors.toList());
+        List<AlumnoCiclo> listSinNivel3 = listMapperByCarrera.stream().filter(x -> x.getOrdenMeritoCicloNivel() == null).collect(Collectors.toList());
+        Collections.sort(listSinNivel3, (AlumnoCiclo p1, AlumnoCiclo p2) -> p2.getPromedioAcumulado().compareTo(p1.getPromedioAcumulado()));
+        list2.addAll(listSinNivel3);
+        return list2;
     }
 
     private PdfPTable createTableBody() {
@@ -231,37 +214,41 @@ public class ReportePdfOrdenMeritoCiclo extends AbstractOnlyPdfView {
         tableBody.setPaddingTop(5f);
         tableBody.setSpacingAfter(5f);
 
-        this.addCeldHead("Matrícula", 1, tableBody, Element.ALIGN_CENTER);
+        this.addCeldHead("Matrícula", 2, tableBody, Element.ALIGN_CENTER);
         this.addCeldHead("Apellidos y Nombres", 4, tableBody, Element.ALIGN_LEFT);
-        this.addCeldHead("Especialidad", 3, tableBody, Element.ALIGN_LEFT);
-        this.addCeldHead("Orden Mérito", 1, tableBody, Element.ALIGN_CENTER);
-        this.addCeldHead("PPA", 1, tableBody, Element.ALIGN_CENTER);
+        this.addCeldHead("Orden Mérito", 2, tableBody, Element.ALIGN_CENTER);
+        this.addCeldHead("PPA", 2, tableBody, Element.ALIGN_CENTER);
         this.addCeldHead("Mérito Alcanzado", 2, tableBody, Element.ALIGN_CENTER);
         return tableBody;
     }
 
-    public String returnCicloMerito(AlumnoCiclo alumnoCiclo) {
-        if (alumnoCiclo.getCuadroHonorCicloNivel() != null) {
-            return "C.Honor";
-        } else if (alumnoCiclo.getQuintoSuperiorCicloNivel() != null) {
-            return "5to.Super.";
-
-        } else if (alumnoCiclo.getTercioSuperiorCicloNivel() != null) {
-            return "3cio.Super.";
-        }
-        return "-";
+    private void addCeldHead(String texto, int colspan, PdfPTable tableBody, int posicion) {
+        PdfPCell cell = new PdfPCell(new Phrase(texto, new Font(Font.FontFamily.HELVETICA, 8, Font.BOLD, BaseColor.BLACK)));
+        cell.setHorizontalAlignment(posicion);
+        cell.setColspan(colspan);
+        cell.setPaddingLeft(2f);
+        cell.setPaddingRight(2f);
+        cell.setPaddingTop(0f);
+        cell.setPaddingBottom(5f);
+        cell.setBorder(Rectangle.TOP | Rectangle.BOTTOM | Rectangle.RIGHT | Rectangle.LEFT);
+        cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+        cell.setBackgroundColor(BaseColor.GRAY);
+        tableBody.addCell(cell);
     }
 
-    public String returnFacultadMerito(AlumnoCiclo alumnoCiclo) {
-        if (alumnoCiclo.getCuadroHonorFacultadNivel() != null) {
-            return "C.Honor";
-        } else if (alumnoCiclo.getQuintoSuperiorFacultadNivel() != null) {
-            return "5to.Super.";
-
-        } else if (alumnoCiclo.getTercioSuperiorFacultadNivel() != null) {
-            return "3cio.Super.";
-        }
-        return "-";
+    private PdfPTable createTableHeaderDescripcion(String especialidad, CicloAcademico cicloAcademico, Integer nivel) {
+        Font font = new Font(Font.FontFamily.HELVETICA, 9, Font.BOLD, BaseColor.BLACK);
+        PdfPTable table = new PdfPTable(8);
+        table.setHorizontalAlignment(PdfPTable.ALIGN_CENTER);
+        table.setTotalWidth(510);
+        table.setWidthPercentage(100);
+        table.setLockedWidth(true);
+        table.setSpacingBefore(12f);
+        table.setSpacingAfter(1f);
+        table.setPaddingTop(10);
+        String texto = "Especialidad de " + especialidad.toUpperCase();
+        this.addCeld(0, PdfPCell.ALIGN_LEFT, cicloAcademico.getDescripcion2() + " " + texto + " - Nivel " + nivel.toString(), 8, table, font, BaseColor.WHITE);
+        return table;
     }
 
     public String returnCarreraMerito(AlumnoCiclo alumnoCiclo) {
@@ -276,88 +263,56 @@ public class ReportePdfOrdenMeritoCiclo extends AbstractOnlyPdfView {
         return "-";
     }
 
-    String returnValorDecimal(BigDecimal valor) {
-        if (valor != null) {
-            return valor.setScale(2, RoundingMode.FLOOR).toString();
-        }
-        return "-";
-    }
-
-    private Acumulador addCeldList(List<AlumnoCiclo> list, PdfPTable tableBody, PdfPTable tableHeader, Font fontTableBody, int firtsRow, Acumulador contadorColumn, Document document, int indexAsnivel, CicloAcademico cicloAcademico, String tipo, String facultad, int cantidad) throws DocumentException, BadElementException, IOException {
+    private Acumulador addCeldList(List<AlumnoCiclo> list, PdfPTable tableBody, PdfPTable tableHeader, Font fontTableBody, Acumulador contadorColumn, Document document, int firtsRow, CicloAcademico cicloAcademico, int cantidad) throws DocumentException, BadElementException, IOException {
 
         for (AlumnoCiclo alumnoCiclo : list) {
-            if (alumnoCiclo.getCarrera().getNombre().length() > 38) {
+            if (alumnoCiclo.getAlumno().getPersona().getApellidosNombres().length() > 38) {
                 contadorColumn.incrementar(2);
             } else {
                 contadorColumn.incrementar();
             }
 
-            if (firtsRow != 0) {
-                if (contadorColumn.getValor() > 47) {
+            logger.debug("************** addCeldList contadorColumn {} " + contadorColumn.getValor());
+            logger.debug("************** tableBody getNumberOfColumns {} " + tableBody.getNumberOfColumns());
+            if (contadorColumn.getValor() > 50) {
+                if (firtsRow != 0) {
                     document.add(tableHeader);
                     document.add(tableBody);
                     document.newPage();
+                    this.buildHeaderPaginaPrincipal(document, cicloAcademico, cantidad);
                     contadorColumn = new Acumulador();
                     contadorColumn.incrementar(6);
-                    this.buildHeaderPaginaPrincipal(document, cicloAcademico, cantidad, facultad);
-                    tableBody = this.createTableBody();
+                } else {
+                    document.newPage();
+                    firtsRow++;
                 }
-            } else {
-                firtsRow++;
+
+                tableBody = this.createTableBody();
             }
 
             Alumno alumno = alumnoCiclo.getAlumno();
             String matricula = alumno.getCodigo();
             String apeNombres = alumno.getPersona().getApellidosNombres();
-            String especialidad = alumnoCiclo.getCarrera().getNombre();
-            String ordenMeritoTipo = "";
-            if (tipo.equals("facultad")) {
-                ordenMeritoTipo = alumnoCiclo.getOrdenMeritoFacultadNivel() != null ? alumnoCiclo.getOrdenMeritoFacultadNivel().toString() : "-";
-            } else {
-                ordenMeritoTipo = alumnoCiclo.getOrdenMeritoCicloNivel() != null ? alumnoCiclo.getOrdenMeritoCicloNivel().toString() : "-";
-            }
+            String ordenMeritoCarreraNivel = alumnoCiclo.getOrdenMeritoCarreraNivel() != null ? alumnoCiclo.getOrdenMeritoCarreraNivel().toString() : "-";
             String ppa = this.returnValorDecimal(alumnoCiclo.getPromedioAcumulado());
-            String meritoAlcanzadoTipo = "";
-            if (tipo.equals("facultad")) {
-                meritoAlcanzadoTipo = this.returnFacultadMerito(alumnoCiclo);
-            } else {
-                meritoAlcanzadoTipo = this.returnCicloMerito(alumnoCiclo);
-            }
-            this.addCeld(Rectangle.LEFT, PdfPCell.ALIGN_CENTER, matricula, 1, tableBody, fontTableBody, BaseColor.WHITE);
+            String meritoAlcanzadoTipo = this.returnCarreraMerito(alumnoCiclo);
+            this.addCeld(Rectangle.LEFT, PdfPCell.ALIGN_CENTER, matricula, 2, tableBody, fontTableBody, BaseColor.WHITE);
             this.addCeld(-1, PdfPCell.ALIGN_LEFT, apeNombres, 4, tableBody, fontTableBody, BaseColor.WHITE);
-            this.addCeld(-1, PdfPCell.ALIGN_LEFT, especialidad, 3, tableBody, fontTableBody, BaseColor.WHITE);
-            this.addCeld(-1, PdfPCell.ALIGN_CENTER, ordenMeritoTipo, 1, tableBody, fontTableBody, BaseColor.WHITE);
-            this.addCeld(-1, PdfPCell.ALIGN_CENTER, ppa, 1, tableBody, fontTableBody, BaseColor.WHITE);
+            this.addCeld(-1, PdfPCell.ALIGN_CENTER, ordenMeritoCarreraNivel, 2, tableBody, fontTableBody, BaseColor.WHITE);
+            this.addCeld(-1, PdfPCell.ALIGN_CENTER, ppa, 2, tableBody, fontTableBody, BaseColor.WHITE);
             this.addCeld(Rectangle.RIGHT, PdfPCell.ALIGN_CENTER, meritoAlcanzadoTipo, 2, tableBody, fontTableBody, BaseColor.WHITE);
         }
 
         document.add(tableHeader);
-
         document.add(tableBody);
         return contadorColumn;
     }
 
-    private List<AlumnoCiclo> orderList(List<AlumnoCiclo> listMapperByCarrera) {
-        List<AlumnoCiclo> list2 = listMapperByCarrera.stream().filter(x -> x.getOrdenMeritoCicloNivel() != null).collect(Collectors.toList());
-        List<AlumnoCiclo> listSinNivel3 = listMapperByCarrera.stream().filter(x -> x.getOrdenMeritoCicloNivel() == null).collect(Collectors.toList());
-        Collections.sort(listSinNivel3, (AlumnoCiclo p1, AlumnoCiclo p2) -> p2.getPromedioAcumulado().compareTo(p1.getPromedioAcumulado()));
-        list2.addAll(listSinNivel3);
-        return list2;
-    }
-
-    private PdfPTable createTableHeaderDescripcion(String facultad, CicloAcademico cicloAcademico, Integer nivel) {
-        Font font = new Font(Font.FontFamily.HELVETICA, 9, Font.BOLD, BaseColor.BLACK);
-        PdfPTable table = new PdfPTable(8);
-        table.setHorizontalAlignment(PdfPTable.ALIGN_CENTER);
-        table.setTotalWidth(510);
-        table.setWidthPercentage(100);
-        table.setLockedWidth(true);
-        table.setSpacingBefore(12f);
-        table.setSpacingAfter(1f);
-        table.setPaddingTop(10);
-        String texto = (facultad != null ? "Facultad de " + facultad.toUpperCase() : "");
-        this.addCeld(0, PdfPCell.ALIGN_LEFT, cicloAcademico.getDescripcion2() + " " + texto + " - Nivel " + nivel.toString(), 8, table, font, BaseColor.WHITE);
-        return table;
+    String returnValorDecimal(BigDecimal valor) {
+        if (valor != null) {
+            return valor.setScale(2, RoundingMode.FLOOR).toString();
+        }
+        return "-";
     }
 
 }

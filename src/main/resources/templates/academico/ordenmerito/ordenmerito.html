@@ -17,6 +17,8 @@
                         <li><a v-on:click="calcularMeritos"> Calcular Méritos </a></li>
                         <li class="divider"></li>
                         <li><a class="dropdown-item" v-on:click.prevent="generarReporteCiclo()"> Reporte General </a></li>
+                        <li><a class="dropdown-item" v-on:click.prevent="generarReporteFacultad()"> Reporte Facultad </a></li>
+                        <li><a class="dropdown-item" v-on:click.prevent="generarReporteEspecialidad()"> Reporte Especialidad </a></li>
                     </ul>
                 </div> 
                 <p class="h2" th:inline="text"> Orden de Mérito [[${ciclo.descripcion}]] </p>

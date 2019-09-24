@@ -885,7 +885,7 @@ public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements Alu
     }
 
     @Override
-    public List<AlumnoCiclo> allByCicloOrderMeritoNivel(CicloAcademico cicloAcademico) {
+    public List<AlumnoCiclo> allByCicloOrderMerito(CicloAcademico cicloAcademico) {
         Octavia sql = Octavia.query()
                 .from(AlumnoCiclo.class, "ac")
                 .join("alumno alu", "alu.persona per", "carrera car")
