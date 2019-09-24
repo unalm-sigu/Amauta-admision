@@ -27,11 +27,20 @@ new Vue({
                         MODAL.hideWait();
                     })
         },
-        generarReporteCiclo() {
+        generarReporte(tipoReporte) {
             let $vue = this;
             console.log($("#cicloChange").val());
-            $vue.processreporte = true;          
-            var urll = APP.url('academico/ordenmerito/reportePdfOrdenMeritoCiclo');
+            $vue.processreporte = true;
+            var urll = "";
+
+            if (tipoReporte === 'ciclo') {
+                urll = APP.url('academico/ordenmerito/reportePdfOrdenMeritoCiclo');
+            } else if (tipoReporte === 'facultad') {
+                urll = APP.url('academico/ordenmerito/reportePdfOrdenMeritoFacultad');
+            } else if (tipoReporte === 'especialidad') {
+                urll = APP.url('academico/ordenmerito/reportePdfOrdenMeritoEspecialidad');
+            }
+
             axios({
                 url: urll,
                 method: 'POST',
