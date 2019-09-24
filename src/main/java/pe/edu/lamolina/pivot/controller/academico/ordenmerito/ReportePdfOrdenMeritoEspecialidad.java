@@ -41,8 +41,6 @@ import pe.edu.lamolina.pivot.zelper.pdf.AbstractOnlyPdfView;
 @Component
 public class ReportePdfOrdenMeritoEspecialidad extends AbstractOnlyPdfView {
 
-    private final String logoUNALM = Constantine.LOGOUNALM;
-    private final Font fontGenearal = new Font(Font.FontFamily.HELVETICA, 8, Font.NORMAL, BaseColor.BLACK);
     private final String header1 = "UNIVERSIDAD NACIONAL AGRARIA LA MOLINA";
     private final String header2 = "OFICINA DE ESTUDIOS Y REGISTROS ACADÉMICOS";
     private final String title = "Orden de Mérito por Especialidad";
@@ -65,7 +63,7 @@ public class ReportePdfOrdenMeritoEspecialidad extends AbstractOnlyPdfView {
         List<AlumnoCiclo> listAlumnoCiclo = (List<AlumnoCiclo>) model.get("listAlumnoCiclo");
         CicloAcademico cicloAcademico = (CicloAcademico) model.get("cicloAcademico");
         this.buildFooter(writer);
-        this.buildHeaderPaginaPrincipal(document, cicloAcademico, listAlumnoCiclo.size());
+        this.buildHeader(document, cicloAcademico, listAlumnoCiclo.size());
         this.buildBody(listAlumnoCiclo, cicloAcademico, document);
         DateTime today = new DateTime();
         String nombre = this.header1 + today.toString("yyyyMMdd_HHmm");
@@ -78,8 +76,7 @@ public class ReportePdfOrdenMeritoEspecialidad extends AbstractOnlyPdfView {
         writer.setPageEvent(event);
     }
 
-    private void buildHeaderPaginaPrincipal(Document document, CicloAcademico cicloAcademico, int cantidadAlumno) throws DocumentException, BadElementException, IOException {
-        Font font = new Font(Font.FontFamily.HELVETICA, 10, Font.NORMAL, BaseColor.BLACK);
+    private void buildHeader(Document document, CicloAcademico cicloAcademico, int cantidadAlumno) throws DocumentException, BadElementException, IOException {
         Font fontCursivo = new Font(Font.FontFamily.HELVETICA, 9, Font.BOLDITALIC, BaseColor.BLACK);
         Font fontBold = new Font(Font.FontFamily.HELVETICA, 10, Font.BOLD, BaseColor.BLACK);
 
@@ -92,7 +89,7 @@ public class ReportePdfOrdenMeritoEspecialidad extends AbstractOnlyPdfView {
         tablePdf.setSpacingBefore(0);
         tablePdf.setPaddingTop(0);
 
-        Image img = Image.getInstance(this.getClass().getResource(this.logoUNALM));
+        Image img = Image.getInstance(this.getClass().getResource(Constantine.LOGOUNALM));
         img.scalePercent(50F);
         cell = new PdfPCell(img);
         cell.setHorizontalAlignment(PdfPCell.ALIGN_CENTER);
@@ -165,39 +162,29 @@ public class ReportePdfOrdenMeritoEspecialidad extends AbstractOnlyPdfView {
         Acumulador contadorColumn = contadorColumn = new Acumulador();
         PdfPTable tableBody = null;
         PdfPTable tableHeader = null;
-        int index = 0;
 
         Map<String, Carrera> mapCarrera = TypesUtil.convertListToMap("alumno.carrera", "alumno.carrera", listAlumnoCiclo);
         Map<String, List<AlumnoCiclo>> mapBeanCarrera = TypesUtil.convertListToMapList("alumno.carrera.id", listAlumnoCiclo);
         List<Carrera> listCarrera = new ArrayList(mapCarrera.values());
 
-        logger.debug("******* mapCarrera cantidad  " + mapCarrera.values().size());
-
         for (Carrera carrera : listCarrera) {
             List<AlumnoCiclo> listMapperByCarrera = mapBeanCarrera.get(carrera.getId());
             Map<Integer, List<AlumnoCiclo>> mapListAlumnoCicloforCarrera = TypesUtil.convertListToMapList("nivel", listMapperByCarrera);
-            for (index = 1; index < 6; index++) {
-                logger.debug("********** index  " + index);
-                List<AlumnoCiclo> list = mapListAlumnoCicloforCarrera.get(index);
-
+            for (int nivel = 1; nivel < 6; nivel++) { // iterar nivel 1 al 5
+                List<AlumnoCiclo> list = mapListAlumnoCicloforCarrera.get(nivel);
                 if (list == null || list.isEmpty()) {
                     continue;
                 }
-                logger.debug("******* mapCarrera por nivel values " + list.size());
-
-                tableBody = this.createTableBody();
                 list = this.orderList(list);
-                contadorColumn.incrementar(5);
-                tableHeader = this.createTableHeaderDescripcion(carrera.getNombre(), cicloAcademico, index);
-                logger.debug("************** buildBody contadorColumn {} " + contadorColumn.getValor());
-                contadorColumn = this.addCeldList(list, tableBody, tableHeader, fontTableBody, contadorColumn, document, index, cicloAcademico, listAlumnoCiclo.size());
-                logger.debug("************** return contadorColumn {} " + contadorColumn.getValor());
+                tableBody = this.createTableBody();
+                tableHeader = this.createTableHeaderDescripcion(carrera.getNombre(), cicloAcademico, nivel);
+                contadorColumn.incrementar(5); // espacio del table header
+                contadorColumn = this.addCeldList(list, tableBody, tableHeader, fontTableBody, contadorColumn, document, nivel, cicloAcademico, listAlumnoCiclo.size());
             }
         }
-
     }
 
-    private List<AlumnoCiclo> orderList(List<AlumnoCiclo> listMapperByCarrera) {
+    private List<AlumnoCiclo> orderList(List<AlumnoCiclo> listMapperByCarrera) { // oderna la lista y separa con campos nulos
         List<AlumnoCiclo> list2 = listMapperByCarrera.stream().filter(x -> x.getOrdenMeritoCicloNivel() != null).collect(Collectors.toList());
         List<AlumnoCiclo> listSinNivel3 = listMapperByCarrera.stream().filter(x -> x.getOrdenMeritoCicloNivel() == null).collect(Collectors.toList());
         Collections.sort(listSinNivel3, (AlumnoCiclo p1, AlumnoCiclo p2) -> p2.getPromedioAcumulado().compareTo(p1.getPromedioAcumulado()));
@@ -263,30 +250,26 @@ public class ReportePdfOrdenMeritoEspecialidad extends AbstractOnlyPdfView {
         return "-";
     }
 
-    private Acumulador addCeldList(List<AlumnoCiclo> list, PdfPTable tableBody, PdfPTable tableHeader, Font fontTableBody, Acumulador contadorColumn, Document document, int firtsRow, CicloAcademico cicloAcademico, int cantidad) throws DocumentException, BadElementException, IOException {
-
+    private Acumulador addCeldList(List<AlumnoCiclo> list, PdfPTable tableBody, PdfPTable tableHeader, Font fontTableBody, Acumulador contadorRows, Document document, int nivel, CicloAcademico cicloAcademico, int cantidad) throws DocumentException, BadElementException, IOException {
+        boolean nuevoNivel = true;
         for (AlumnoCiclo alumnoCiclo : list) {
-            if (alumnoCiclo.getAlumno().getPersona().getApellidosNombres().length() > 38) {
-                contadorColumn.incrementar(2);
-            } else {
-                contadorColumn.incrementar();
-            }
-
-            logger.debug("************** addCeldList contadorColumn {} " + contadorColumn.getValor());
-            logger.debug("************** tableBody getNumberOfColumns {} " + tableBody.getNumberOfColumns());
-            if (contadorColumn.getValor() > 50) {
-                if (firtsRow != 0) {
+            this.addRowForData(alumnoCiclo, contadorRows);
+            if (contadorRows.getValor() > 54) {
+                if (nuevoNivel) {
+                    document.newPage();
+                    contadorRows = new Acumulador();
+                    this.buildHeader(document, cicloAcademico, cantidad);
+                    this.addRowForData(alumnoCiclo, contadorRows);
+                    contadorRows.incrementar(5); // espacio del table header
+                } else {
                     document.add(tableHeader);
                     document.add(tableBody);
                     document.newPage();
-                    this.buildHeaderPaginaPrincipal(document, cicloAcademico, cantidad);
-                    contadorColumn = new Acumulador();
-                    contadorColumn.incrementar(6);
-                } else {
-                    document.newPage();
-                    firtsRow++;
+                    contadorRows = new Acumulador();
+                    this.buildHeader(document, cicloAcademico, cantidad);
+                    this.addRowForData(alumnoCiclo, contadorRows);
+                    contadorRows.incrementar(5); // espacio del table header
                 }
-
                 tableBody = this.createTableBody();
             }
 
@@ -301,11 +284,15 @@ public class ReportePdfOrdenMeritoEspecialidad extends AbstractOnlyPdfView {
             this.addCeld(-1, PdfPCell.ALIGN_CENTER, ordenMeritoCarreraNivel, 2, tableBody, fontTableBody, BaseColor.WHITE);
             this.addCeld(-1, PdfPCell.ALIGN_CENTER, ppa, 2, tableBody, fontTableBody, BaseColor.WHITE);
             this.addCeld(Rectangle.RIGHT, PdfPCell.ALIGN_CENTER, meritoAlcanzadoTipo, 2, tableBody, fontTableBody, BaseColor.WHITE);
+
+            if (list.indexOf(alumnoCiclo) == 0) {
+                nuevoNivel = false;
+            }
         }
 
         document.add(tableHeader);
         document.add(tableBody);
-        return contadorColumn;
+        return contadorRows;
     }
 
     String returnValorDecimal(BigDecimal valor) {
@@ -313,6 +300,14 @@ public class ReportePdfOrdenMeritoEspecialidad extends AbstractOnlyPdfView {
             return valor.setScale(2, RoundingMode.FLOOR).toString();
         }
         return "-";
+    }
+
+    private void addRowForData(AlumnoCiclo alumnoCiclo, Acumulador contadorRows) {
+        if (alumnoCiclo.getAlumno().getPersona().getApellidosNombres().length() > 44) {
+            contadorRows.incrementar(2);
+        } else {
+            contadorRows.incrementar();
+        }
     }
 
 }

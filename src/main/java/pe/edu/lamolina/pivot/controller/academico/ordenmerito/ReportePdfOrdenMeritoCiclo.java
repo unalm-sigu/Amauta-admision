@@ -41,8 +41,6 @@ import pe.edu.lamolina.pivot.zelper.pdf.AbstractOnlyPdfView;
 @Component
 public class ReportePdfOrdenMeritoCiclo extends AbstractOnlyPdfView {
 
-    private final String logoUNALM = Constantine.LOGOUNALM;
-    private final Font fontGenearal = new Font(Font.FontFamily.HELVETICA, 8, Font.NORMAL, BaseColor.BLACK);
     private final String header1 = "UNIVERSIDAD NACIONAL AGRARIA LA MOLINA";
     private final String header2 = "OFICINA DE ESTUDIOS Y REGISTROS ACADÉMICOS";
     private final String titleGeneral = "Orden de Mérito General";
@@ -83,7 +81,6 @@ public class ReportePdfOrdenMeritoCiclo extends AbstractOnlyPdfView {
     }
 
     private void buildHeaderPaginaPrincipal(Document document, CicloAcademico cicloAcademico, int cantidadAlumno, String tipoReporte) throws DocumentException, BadElementException, IOException {
-        Font font = new Font(Font.FontFamily.HELVETICA, 10, Font.NORMAL, BaseColor.BLACK);
         Font fontCursivo = new Font(Font.FontFamily.HELVETICA, 9, Font.BOLDITALIC, BaseColor.BLACK);
         Font fontBold = new Font(Font.FontFamily.HELVETICA, 10, Font.BOLD, BaseColor.BLACK);
 
@@ -96,7 +93,7 @@ public class ReportePdfOrdenMeritoCiclo extends AbstractOnlyPdfView {
         tablePdf.setSpacingBefore(0);
         tablePdf.setPaddingTop(0);
 
-        Image img = Image.getInstance(this.getClass().getResource(this.logoUNALM));
+        Image img = Image.getInstance(this.getClass().getResource(Constantine.LOGOUNALM));
         img.scalePercent(50F);
         cell = new PdfPCell(img);
         cell.setHorizontalAlignment(PdfPCell.ALIGN_CENTER);
@@ -117,7 +114,7 @@ public class ReportePdfOrdenMeritoCiclo extends AbstractOnlyPdfView {
         parrafo.add(this.header2);
         parrafo.add(Chunk.NEWLINE);
         parrafo.setFont(new Font(Font.FontFamily.HELVETICA, 10, Font.NORMAL));
-        String title = (tipoReporte != null ? this.titleFacultad : this.titleGeneral);
+        String title = ("ciclo".equals(tipoReporte) ? this.titleGeneral : this.titleFacultad);
         parrafo.add(title.toUpperCase());
 
         cell = new PdfPCell(parrafo);
@@ -330,9 +327,7 @@ public class ReportePdfOrdenMeritoCiclo extends AbstractOnlyPdfView {
             this.addCeld(-1, PdfPCell.ALIGN_CENTER, ppa, 1, tableBody, fontTableBody, BaseColor.WHITE);
             this.addCeld(Rectangle.RIGHT, PdfPCell.ALIGN_CENTER, meritoAlcanzadoTipo, 2, tableBody, fontTableBody, BaseColor.WHITE);
         }
-
         document.add(tableHeader);
-
         document.add(tableBody);
         return contadorColumn;
     }
