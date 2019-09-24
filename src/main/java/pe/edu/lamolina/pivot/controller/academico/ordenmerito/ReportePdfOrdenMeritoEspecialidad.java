@@ -159,7 +159,7 @@ public class ReportePdfOrdenMeritoEspecialidad extends AbstractOnlyPdfView {
 
     private void buildBody(List<AlumnoCiclo> listAlumnoCiclo, CicloAcademico cicloAcademico, Document document) throws DocumentException, BadElementException, IOException {
         Font fontTableBody = new Font(Font.FontFamily.HELVETICA, 7, Font.NORMAL, BaseColor.BLACK);
-        Acumulador contadorColumn = contadorColumn = new Acumulador();
+        Acumulador contadorRow = contadorRow = new Acumulador();
         PdfPTable tableBody = null;
         PdfPTable tableHeader = null;
 
@@ -178,8 +178,8 @@ public class ReportePdfOrdenMeritoEspecialidad extends AbstractOnlyPdfView {
                 list = this.orderList(list);
                 tableBody = this.createTableBody();
                 tableHeader = this.createTableHeaderDescripcion(carrera.getNombre(), cicloAcademico, nivel);
-                contadorColumn.incrementar(5); // espacio del table header
-                contadorColumn = this.addCeldList(list, tableBody, tableHeader, fontTableBody, contadorColumn, document, nivel, cicloAcademico, listAlumnoCiclo.size());
+                contadorRow.incrementar(5); // espacio del table header
+                contadorRow = this.addCeldList(list, tableBody, tableHeader, fontTableBody, contadorRow, document, nivel, cicloAcademico, listAlumnoCiclo.size());
             }
         }
     }
@@ -255,21 +255,15 @@ public class ReportePdfOrdenMeritoEspecialidad extends AbstractOnlyPdfView {
         for (AlumnoCiclo alumnoCiclo : list) {
             this.addRowForData(alumnoCiclo, contadorRows);
             if (contadorRows.getValor() > 54) {
-                if (nuevoNivel) {
-                    document.newPage();
-                    contadorRows = new Acumulador();
-                    this.buildHeader(document, cicloAcademico, cantidad);
-                    this.addRowForData(alumnoCiclo, contadorRows);
-                    contadorRows.incrementar(5); // espacio del table header
-                } else {
+                if (!nuevoNivel) {
                     document.add(tableHeader);
                     document.add(tableBody);
-                    document.newPage();
-                    contadorRows = new Acumulador();
-                    this.buildHeader(document, cicloAcademico, cantidad);
-                    this.addRowForData(alumnoCiclo, contadorRows);
-                    contadorRows.incrementar(5); // espacio del table header
                 }
+                document.newPage();
+                contadorRows = new Acumulador();
+                this.buildHeader(document, cicloAcademico, cantidad);
+                this.addRowForData(alumnoCiclo, contadorRows);
+                contadorRows.incrementar(5); // espacio del table header
                 tableBody = this.createTableBody();
             }
 
