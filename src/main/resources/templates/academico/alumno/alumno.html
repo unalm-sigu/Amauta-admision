@@ -142,6 +142,7 @@
                                                             <li th:if="${puedeMatricular}"><a v-bind:href="urlMatricula(item)" target="_blank">Ir a Matricula</a></li>
                                                             <li th:if="${puedeMatricular OR puedeEditarAlumno}" role="separator" class="divider"></li>
                                                             <li th:if="${puedeMatricular OR puedeEditarAlumno}"><a v-bind:href="urlDataPersonal(item)">Modificar datos</a></li>
+                                                            <li th:if="${puedeEditarAlumno}"><a v-bind:href="urlHistorialOracle(item)">Historial Oracle</a></li>
                                                             <li><a v-bind:href="urlAcademico(item)">Información académica</a></li>
                                                             <li th:if="${puedeMatricular}"><a v-if='isPosgrado(item.modalidadEstudio)' v-bind:href="urlHabilitarCursos(item)">Habilitar Curso</a></li>
                                                             <li th:if="${puedeMatricular}"><a v-on:click="urlConvalidarTraslado(item)" href="">Convalidar Cursos</a></li>

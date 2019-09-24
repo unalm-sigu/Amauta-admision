@@ -1,0 +1,94 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title>Historial Oracle</title>
+    </head>
+
+    <body>
+        <div layout:fragment="main">
+            <div id="histoVUE" v-cloak="">
+
+                <header class="header b-b padder-lg">
+                    <div class="btn-group pull-right">
+                        <a th:href="${origen}" class="btn btn-default">Regresar</a>
+                    </div>
+                    <h2>Historial Oracle - {{alumno.codigo}} {{alumno.persona.apellidosNombres}}</h2>
+                </header>
+
+                <section class="wrapper-lg">
+                    <section class="panel">
+                        <section class="panel-body">
+                            <raptor-table 
+                                v-bind:url="histoURL" 
+                                v-bind:pagination="pagination" 
+                                v-bind:paginate="false" 
+                                v-bind:searcher="false" 
+                                ref="histoRaptor">
+                                <div slot="header"></div>
+
+                                <template scope="props" >
+                                    <table class="table table-striped table-hover">
+                                        <thead> 
+                                            <tr>
+                                                <th class="col-md-1 text-center v-middle">Ciclo</th>
+                                                <th class="col-md-1 text-center v-middle">Código Antiguo</th>
+                                                <th class="col-md-7 text-center v-middle">Curso</th>
+                                                <th class="col-md-1 text-center v-middle">MOV</th>
+                                                <th class="col-md-1 text-center v-middle">Créditos</th>
+                                                <th class="col-md-1 text-center v-middle">Nota</th>
+                                                <th></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr v-for="item in props.data">
+                                                <td class="v-middle text-center" v-text="item.histoPK.ciclo"></td>
+                                                <td class="v-middle text-center" v-text="item.histoPK.curCodigo"></td>
+                                                <td class="v-middle">
+                                                    <div class="block text-primary">{{item.curso.nombre}}</div>
+                                                    <div class="block">
+                                                        <span v-text="item.curso.codigo"></span> &nbsp;
+                                                        <span v-text="item.curso.tpc"></span> &nbsp;
+                                                        (<span v-text="item.aluciclocurso.id"></span>)
+                                                    </div>
+                                                </td>
+                                                <td class="v-middle text-center">
+                                                    <span v-text="item.histoPK.mov" class="text-primary"></span> |
+                                                    <span v-text="item.aluciclocurso.estado" class="text-success"></span> |
+                                                    <i v-if="item.movOk" class="fa fa-check-circle text-success"></i>
+                                                    <i v-else="" class="fa fa-exclamation-circle text-success"></i>
+                                                </td>
+                                                <td class="v-middle text-center" >
+                                                    <span v-text="item.curCredit" class="text-primary"></span> |
+                                                    <span v-text="item.aluciclocurso.creditos" class="text-success"></span> |
+                                                    <i v-if="item.creditosOk" class="fa fa-check-circle text-success"></i>
+                                                    <i v-else="" class="fa fa-exclamation-circle text-success"></i>
+                                                </td>
+                                                <td class="v-middle text-center">
+                                                    <span v-text="item.nota" class="text-primary"></span> |
+                                                    <span v-text="item.aluciclocurso.nota" class="text-success"></span> |
+                                                    <i v-if="item.notaOk" class="fa fa-check-circle text-success"></i>
+                                                    <i v-else="" class="fa fa-exclamation-circle text-success"></i>
+                                                </td>
+                                                <td></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </template>
+                            </raptor-table>
+
+                        </section>
+                    </section>
+                </section>
+            </div>
+        </div>
+        <div layout:fragment="js">
+            <script th:inline="javascript">
+                var alumnoJson = /*[[${alumno.toString()}]]*/ {};
+                var rutaModulo = 'migraciones/histomigra';
+            </script>
+            <div th:replace="_modules/vue-modal"></div>
+            <div th:substituteby="_modules/vue-raptor-table"></div>
+            <script th:src="@{/app/migraciones/histomigra/histomigra.js}" charset="utf-8"></script>
+        </div>
+    </body>
+
+</html>

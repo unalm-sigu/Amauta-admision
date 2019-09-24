@@ -20,6 +20,8 @@ public interface AlumnoCicloCursoDAO extends EasyDAO<AlumnoCicloCurso> {
 
     List<AlumnoCicloCurso> findHistorial(Alumno alumno);
 
+    List<AlumnoCicloCurso> allActivosByAlumno(Alumno alumno);
+
     List<AlumnoCicloCurso> allByAlumno(Alumno alumno);
 
     List<AlumnoCicloCurso> allOperativesByAlumno(Alumno alumno);
@@ -27,8 +29,6 @@ public interface AlumnoCicloCursoDAO extends EasyDAO<AlumnoCicloCurso> {
     List<AlumnoCicloCurso> allByAlumnoOrderByCurso(Alumno alumno);
 
     List<AlumnoCicloCurso> allOperativesByAlumnoCiclo(Alumno alumno, CicloAcademico cicloAcademico);
-
-    List<AlumnoCicloCurso> allActivoByAlumno(Alumno alumno);
 
     List<AlumnoCicloCurso> allAprobadoActivoByAlumno(Alumno alumno);
 
@@ -100,9 +100,9 @@ public interface AlumnoCicloCursoDAO extends EasyDAO<AlumnoCicloCurso> {
 
     List<AlumnoCicloCurso> allByAlumnoCicloCurso(Alumno alumno, CicloAcademico cicloAcademico, Curso curso);
 
-    public List<AlumnoCicloCurso> allByAlumnosCiclos(List<AlumnoCiclo> alumnosCiclos);
+    List<AlumnoCicloCurso> allByAlumnosCiclos(List<AlumnoCiclo> alumnosCiclos);
 
-    public void updateColumns(AlumnoCicloCurso alumnoCicloCursoFound, String... params);
+    void updateColumns(AlumnoCicloCurso alumnoCicloCursoFound, String... params);
 
     List<AlumnoCicloCurso> allByAlumnoOrderByTipoCurso(Alumno alumno);
 

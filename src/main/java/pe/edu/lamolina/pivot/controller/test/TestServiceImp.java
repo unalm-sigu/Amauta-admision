@@ -455,7 +455,7 @@ public class TestServiceImp implements TestService {
         List<AlumnoCiclo> alumnosCiclos = alumnoCicloDAO.allByAlumno(alumno);
         Map<Long, AlumnoCiclo> mapAlumnoCiclos = TypesUtil.convertListToMap("cicloAcademico.id", alumnosCiclos);
 
-        List<AlumnoCicloCurso> alumnoCicloCurso = alumnoCicloCursoDAO.allByAlumno(alumno);
+        List<AlumnoCicloCurso> alumnoCicloCurso = alumnoCicloCursoDAO.allActivosByAlumno(alumno);
         Map<Long, List<AlumnoCicloCurso>> mapAlumnoCicloCursoByAlumCi = TypesUtil.convertListToMapList("alumnoCiclo.id", alumnoCicloCurso);
 
         for (CicloAcademico cicloAcademicoEach : ciclos) {

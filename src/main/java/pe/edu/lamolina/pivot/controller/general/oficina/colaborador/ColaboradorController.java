@@ -32,6 +32,7 @@ import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.enums.ColaboradorEstadoEnum;
+import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.enums.SexoEnum;
 import pe.edu.lamolina.model.general.Colaborador;
 import pe.edu.lamolina.model.general.FuncionColaborador;
@@ -40,6 +41,7 @@ import pe.edu.lamolina.model.general.PerfilCompania;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.general.TipoDocIdentidad;
 import pe.edu.lamolina.model.seguridad.Usuario;
+import pe.edu.lamolina.pivot.controller.seguridad.verificador.VerificadorService;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -49,6 +51,8 @@ public class ColaboradorController {
 
     @Autowired
     ColaboradorService service;
+    @Autowired
+    VerificadorService verificadorService;
 
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {
@@ -82,9 +86,15 @@ public class ColaboradorController {
     public String updateColaborador(
             @RequestParam(value = "origen", required = false) String origen,
             @PathVariable("idOficina") Long idOficina,
-            @PathVariable("idColaborador") Long idColaborador, Model model) {
+            @PathVariable("idColaborador") Long idColaborador, Model model, HttpSession session) {
 
         JsonNodeFactory jFactory = JsonNodeFactory.instance;
+
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        boolean puedeVerOficina = verificadorService.puedeVerOficina(new Oficina(idOficina), ds);
+        if (!puedeVerOficina) {
+            return "redirect:" + getOrigen(origen);
+        }
 
         Colaborador colaborador = service.findColarador(new Colaborador(idColaborador));
         ObjectNode jsonColaborador = JsonHelper.createJson(colaborador, jFactory, true, new String[]{
@@ -107,8 +117,8 @@ public class ColaboradorController {
         List<TipoDocIdentidad> tiposDocumentos = service.allDocumentosIdentidad();
         List<Oficina> oficinas = service.allAreasByOficinaMain(new Oficina(idOficina));
 
-        List<PerfilCompania> cargos = service.allCargoByOficina(new Oficina(idOficina));
-        List<PerfilCompania> funciones = service.allFuncionByOficina(new Oficina(idOficina));
+        List<PerfilCompania> cargos = service.allCargoByOficina(new Oficina(idOficina), ds);
+        List<PerfilCompania> funciones = service.allFuncionByOficina(new Oficina(idOficina), ds);
 
         List<PerfilCompania> misfunciones = service.allFuncionByColaborador(colaborador);
 
@@ -152,6 +162,7 @@ public class ColaboradorController {
         model.addAttribute("cargos", arrayCargos);
         model.addAttribute("misfunciones", arrayMisFunciones);
         model.addAttribute("origen", getOrigen(origen));
+        model.addAttribute("puedeEditarOficinas", verificadorService.puedeEditarOficinas(ds));
 
         return "general/oficina/colaborador/colaboradorForm";
     }
@@ -190,12 +201,18 @@ public class ColaboradorController {
     @RequestMapping("{idOficina}/nuevoColaborador")
     public String nuevoColaborador(
             @PathVariable("idOficina") Long idOficina,
-            @RequestParam(value = "origen", required = false) String origen, Model model) {
+            @RequestParam(value = "origen", required = false) String origen, Model model, HttpSession session) {
+
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        boolean puedeVerOficina = verificadorService.puedeVerOficina(new Oficina(idOficina), ds);
+        if (!puedeVerOficina) {
+            return "redirect:" + getOrigen(origen);
+        }
 
         List<TipoDocIdentidad> tiposDocumentos = service.allDocumentosIdentidad();
         List<Oficina> oficinas = service.allAreasByOficinaMain(new Oficina(idOficina));
-        List<PerfilCompania> cargos = service.allCargoByOficina(new Oficina(idOficina));
-        List<PerfilCompania> funciones = service.allFuncionByOficina(new Oficina(idOficina));
+        List<PerfilCompania> cargos = service.allCargoByOficina(new Oficina(idOficina), ds);
+        List<PerfilCompania> funciones = service.allFuncionByOficina(new Oficina(idOficina), ds);
 
         ObjectNode colaboradorJson = JsonHelper.createJson(new Colaborador(), JsonNodeFactory.instance, true, new String[]{
             "*",
@@ -254,10 +271,10 @@ public class ColaboradorController {
             }
             colaborador.setFuncionColaborador(funciones);
             if (colaborador.getPersona().getId() == null) {
-                service.saveColaborador(colaborador, colaboradorBean.getOficinaMean(), ds.getUsuario(), ds.getCompania());
+                service.saveColaborador(colaborador, colaboradorBean.getOficinaMean(), ds.getCompania(), ds);
                 response.setSuccess(true);
             } else {
-                Boolean success = service.saveColaboradorExistente(colaborador, colaboradorBean.getOficinaMean(), ds.getUsuario(), ds.getCompania());
+                Boolean success = service.saveColaboradorExistente(colaborador, colaboradorBean.getOficinaMean(), ds.getCompania(), ds);
                 response.setSuccess(true);
                 response.setSuccess(success);
             }
@@ -323,6 +340,11 @@ public class ColaboradorController {
             Model model, HttpSession session) {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        boolean puedeVerOficina = verificadorService.puedeVerOficina(new Oficina(idOficina), ds);
+        if (!puedeVerOficina) {
+            return "redirect:" + getOrigen(origen);
+        }
+
         Oficina oficina = service.find(new Oficina(idOficina));
         List<PerfilCompania> perfiles = service.allCargosByOficina(oficina);
 
@@ -467,7 +489,7 @@ public class ColaboradorController {
 
     private String getOrigen(String origen) {
         if (StringUtils.isEmpty(origen)) {
-            return "/general/oficina";
+            return "/";
         }
         byte[] decoded = Base64.getMimeDecoder().decode(origen);
         String output = new String(decoded);

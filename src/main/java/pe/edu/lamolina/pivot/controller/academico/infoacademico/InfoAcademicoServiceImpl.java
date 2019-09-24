@@ -488,7 +488,7 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
 
     @Override
     public List<AlumnoCicloCurso> allHistorialAlumno(Alumno alumno) {
-        return alumnoCicloCursoDAO.allByAlumno(alumno);
+        return alumnoCicloCursoDAO.allActivosByAlumno(alumno);
     }
 
     @Override

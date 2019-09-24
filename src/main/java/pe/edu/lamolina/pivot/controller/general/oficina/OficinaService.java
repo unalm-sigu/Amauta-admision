@@ -20,7 +20,7 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface OficinaService {
 
-    List<Oficina> allByDynatable(DynatableFilter filter, Compania compania);
+    List<Oficina> allByDynatable(DynatableFilter filter, List<Oficina> oficinas, Compania compania);
 
     Oficina find(Oficina oficina);
 
@@ -28,8 +28,6 @@ public interface OficinaService {
 
     void save(Oficina oficina, DataSessionPivot ds);
 
-//    void delete(Oficina oficina);
-    //List<Colaborador> allColaborador(List<Oficina> oficinas);
     List<Oficina> allUnidadSuperior(String nombre, Compania compania);
 
     List<DepartamentoAcademico> allDepartamento(Compania compania);

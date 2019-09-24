@@ -57,6 +57,10 @@ new Vue({
             let $vue = this;
             return APP.url('academico/alumno/' + item.id + '/goMaipi') + $vue.getOrigenURL();
         },
+        urlHistorialOracle(item) {
+            let $vue = this;
+            return APP.url('migraciones/histomigra/' + item.id + '/alumno') + $vue.getOrigenURL();
+        },
         urlConvalidarTraslado(item) {
             let $vue = this;
 

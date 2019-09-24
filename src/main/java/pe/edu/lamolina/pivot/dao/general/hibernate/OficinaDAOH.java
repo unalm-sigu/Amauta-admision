@@ -69,7 +69,7 @@ public class OficinaDAOH extends AbstractEasyDAO<Oficina> implements OficinaDAO 
     }
 
     @Override
-    public List<Oficina> allByFilter(DynatableFilter filter, Compania compania) {
+    public List<Oficina> allByFilter(DynatableFilter filter, List<Oficina> oficinasAcceso, Compania compania) {
 
         DynatableSql sql = new DynatableSql(filter)
                 .from(Oficina.class, "ofi")
@@ -82,6 +82,10 @@ public class OficinaDAOH extends AbstractEasyDAO<Oficina> implements OficinaDAO 
                 .searchComplexField("concat(coalesce(pje.paterno,''),' ',coalesce(pje.materno,''),' ',coalesce(pje.nombres,''))")
                 .searchComplexField("concat(coalesce(pje.nombres,''),' ',coalesce(pje.paterno,''),' ',coalesce(pje.materno,''))")
                 .orderBy("ofi.id DESC");
+
+        if (!oficinasAcceso.isEmpty()) {
+            sql.in("ofi.id", oficinasAcceso);
+        }
 
         return all(sql);
     }

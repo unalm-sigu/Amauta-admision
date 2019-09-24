@@ -1,6 +1,6 @@
 <html layout:decorator="_layout/layout">
     <head>
-        <title>Administración de Oficinas</title>
+        <title>Administración de Colaboradores</title>
     </head>
     <body>
         <div layout:fragment="main">
@@ -9,18 +9,18 @@
                 <header class="header b-b padder-lg">
 
                     <div class="pull-right m-t-md">
+                        <a th:href="${origen}" class="btn btn-default btn-sm m-l-sm">Regresar</a>
                         <button type="button" class="btn btn-success btn-sm dropdown-toggle" data-toggle="dropdown">
-                            <i class="fa fa-file-text-o"/> &nbsp; Acciones &nbsp; <span class="caret"></span>
+                            <i class="fa fa-cog"/> &nbsp; Acciones &nbsp; <span class="caret"></span>
                         </button>
                         <ul class="dropdown-menu">
                             <li ><a href="#" v-on:click="nuevoColaborador()" >Nuevo Colaborador</a></li>
-                            <li><a href="#"  v-on:click="nuevoCargos()">Agregar Cargo</a></li>
-                            <li><a href="#"  v-on:click="nuevaFuncion()">Agregar Función</a></li>
+                            <li th:if="${puedeEditarOficinas}"><a href="#"  v-on:click="nuevoCargos()">Agregar Cargo</a></li>
+                            <li th:if="${puedeEditarOficinas}"><a href="#"  v-on:click="nuevaFuncion()">Agregar Función</a></li>
                             <li class="divider"></li>
                             <li><a href="#" v-on:click="verCargo()">Ver Cargos</a></li>
                             <li><a href="#" v-on:click="verFuncion()">Ver Funciones</a></li>
                         </ul>
-                        <a th:href="${origen}" class="btn btn-default btn-sm m-l-sm">Regresar</a>
                     </div>
 
                     <h2>Colaboradores</h2>
