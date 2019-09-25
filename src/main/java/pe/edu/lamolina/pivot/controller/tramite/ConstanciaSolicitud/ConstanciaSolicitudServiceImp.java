@@ -528,11 +528,13 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
     @Override
     public TramiteDocumentoAcademico findTramite(TramiteDocumentoAcademico tramiteDocumentoAcademicoForm) {
         TramiteDocumentoAcademico documentoAcademico = tramiteDocumentoAcademicoDAO.find(tramiteDocumentoAcademicoForm);
-        Tramite tramite = documentoAcademico.getTramite();
+        if (documentoAcademico != null) {            
+            Tramite tramite = documentoAcademico.getTramite();
 
-        tramite.setAccionesTramitesDocumentos(accionTramiteDocumentoDAO.allByTipoTramiteAndEstadoTramiteInicial(documentoAcademico.getTipoDocumentoAcademico(), documentoAcademico.getEstadoTramite()));
+            tramite.setAccionesTramitesDocumentos(accionTramiteDocumentoDAO.allByTipoTramiteAndEstadoTramiteInicial(documentoAcademico.getTipoDocumentoAcademico(), documentoAcademico.getEstadoTramite()));
 
-        tramite.setFormularioEstadoTramite(formularioEstadoTramiteDAO.findByTipoTramiteAndEstadoTramite(tramite.getTipoTramite(), documentoAcademico.getEstadoTramite()));
+            tramite.setFormularioEstadoTramite(formularioEstadoTramiteDAO.findByTipoTramiteAndEstadoTramite(tramite.getTipoTramite(), documentoAcademico.getEstadoTramite()));
+        }
         return documentoAcademico;
     }
 
