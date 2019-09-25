@@ -125,4 +125,13 @@ public interface Constantine {
     // Anexo Superior
     Long ANEXO_SUP_DEP_ACAD = 2l;
 
+    String HTML_PRE = "<!DOCTYPE html>\n"
+            + "<html>\n"
+            + "<head>\n"
+            + "	<title></title>\n"
+            + "</head>\n"
+            + "<body>";
+
+    String HTML_SUB = "</body>\n"
+            + "</html>";
 }

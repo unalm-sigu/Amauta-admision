@@ -4,6 +4,7 @@ new Vue({
     data: {
         contenido: contenidoJson,
         incrustaciones: JSON.parse(incrustacionesJson),
+        tramite: JSON.parse(tramiteJson),
         plantillaBean: {},
         tramiteIncrustaciones: [],
         ciclos: [],
@@ -47,6 +48,8 @@ new Vue({
             }
             if ($vue.plantillaBean.plantillaDocumentoAcademico.id == 45) {
                 $vue.$refs.cicloModal.open();
+            } else {
+                this.addIncrustacion();
             }
         },
         searchCiclos(nombre) {
@@ -58,11 +61,14 @@ new Vue({
                         $vue.ciclos = response.data.data;
                     });
         },
+        elegir() {
+
+        },
         addIncrustacion() {
             var $vue = this;
             console.log($vue.plantillaBean);
             $vue.plantillaBean.tramiteDocumentoAcademico = {};
-            $vue.plantillaBean.tramiteDocumentoAcademico.id = id;
+            $vue.plantillaBean.tramiteDocumentoAcademico.id = this.id;
             axios.post('/tramite/solicitudconstancia/validVariables', $vue.plantillaBean)
                     .then(response => {
                         if (response.data.success) {
@@ -70,25 +76,55 @@ new Vue({
                             myFrame.html(response.data.data.contenido);
                             $vue.allTramiteIncrustacion();
                             $vue.plantillaBean = {};
-                            $vue.$refs.cicloModal.close();
+//                            $vue.$refs.cicloModal.close();
                         } else {
                             notify(response.data.message, "error");
                             $vue.plantillaBean = {};
-                            $vue.$refs.cicloModal.close();
+//                            $vue.$refs.cicloModal.close();
                         }
                     });
         },
-        borrar(item) {
+        borrar(item, idx) {
             var $vue = this;
             axios.post('/tramite/solicitudconstancia/deleteIncrustacion', item)
                     .then(response => {
                         if (response.data.success) {
-                            $vue.tramiteIncrustaciones = response.data.data;
+                            $vue.tramiteIncrustaciones.splice(idx, 1);
                             notify(response.data.message, "success");
                         } else {
                             notify(response.data.message, "error");
                         }
                     });
+        },
+        procesarTramite(accion) {
+
+            let $vue = this;
+            $vue.accionSeleccionada = accion;
+
+            $vue.processingAjaxData = {
+                tramite: $vue.tramite.id,
+                accionTramiteDoc: $vue.accionSeleccionada.id
+            }
+
+            $.ajax({
+                method: 'POST',
+                url: APP.url('academico/tramiteacademico/procesarTramite'),
+                dataType: "json",
+                contentType: "application/json",
+                type: 'POST',
+                async: true,
+                data: JSON.stringify($vue.processingAjaxData),
+                success: function (response) {
+                    if (response.success) {
+                        notify(response.message, "info");
+                        location.href = APP.url('academico/solicitudconstancia');
+                    } else {
+                        notify(response.message, "error");
+                    }
+                }, error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
         }
     }
 });

@@ -1,4 +1,4 @@
-package pe.edu.lamolina.pivot.controller.tramite.updatehistorialacademico;
+package pe.edu.lamolina.pivot.controller.tramite.ConstanciaSolicitud;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import de.akquinet.commons.image.io.Image;
 import de.akquinet.commons.image.io.ImageMetadata;
 import java.io.File;
-import java.math.BigDecimal;
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -31,7 +30,6 @@ import pe.albatross.zelpers.file.system.FileHelper;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
-import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
@@ -52,6 +50,7 @@ import pe.edu.lamolina.model.tramite.PlantillaDocumentoAcademico;
 import pe.edu.lamolina.model.tramite.PlantillaIncrustacionDocumento;
 import pe.edu.lamolina.model.tramite.PrecioDocumento;
 import pe.edu.lamolina.model.tramite.TipoDocumentoAcademico;
+import pe.edu.lamolina.model.tramite.Tramite;
 import pe.edu.lamolina.model.tramite.TramiteDocumentoAcademico;
 import pe.edu.lamolina.model.tramite.VariablePlantilla;
 import pe.edu.lamolina.pivot.controller.tramite.plantillaConstancia.PlantillaGenerica;
@@ -86,18 +85,39 @@ public class ConstanciaSolicitudController {
             List<TramiteDocumentoAcademico> tipos = service.allTramiteDocumentoAcademico(filter);
             List<PrecioDocumento> precios = service.allPrecioDocumento();
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+            String[] mapperTramite = new String[]{
+                "*",
+                "persona.*",
+                "alumno.*",
+                "alumno.carrera.*",
+                "alumno.carrera.facultad.*",
+                "alumno.persona.*",
+                "alumno.persona.tipoDocumento.*",
+                "compania.*",
+                "cicloAcademico.*",
+                "tipoTramite.codigo",
+                "tipoTramite.nombre",
+                "tipoTramite.esTipoTramiteRei",
+                "tipoTramite.esTipoTramiteCurDir",
+                "tipoTramite.oficina.*",
+                "userRegistro.*",
+                "userRegistro.persona.*",
+                "userRespuesta.*",
+                "formularioEstadoTramite.*"
+            };
+
             for (TramiteDocumentoAcademico tramiteDoc : tipos) {
 
                 ObjectNode node = JsonHelper.createJson(tramiteDoc, JsonNodeFactory.instance, new String[]{
                     "*",
                     "idioma.*",
                     "estadoTramite.*",
-                    "tramite.*",
-                    "tramite.alumno.*",
-                    "tramite.alumno.carrera.*",
-                    "tramite.alumno.carrera.facultad.*",
-                    "tramite.alumno.persona.*",
-                    "tramite.alumno.persona.tipoDocumento.*",
+                    //                    "tramite.*",
+                    //                    "tramite.alumno.*",
+                    //                    "tramite.alumno.carrera.*",
+                    //                    "tramite.alumno.carrera.facultad.*",
+                    //                    "tramite.alumno.persona.*",
+                    //                    "tramite.alumno.persona.tipoDocumento.*",
                     "tipoDocumentoAcademico.*"});
 
                 List<AccionTramiteDocumento> acciones = service.findEstadoByEstadoInicio(tramiteDoc.getTipoDocumentoAcademico(), tramiteDoc.getEstadoTramite());
@@ -109,7 +129,9 @@ public class ConstanciaSolicitudController {
                             "estadoTramiteFinal.*"}));
                     }
                 }
+                ObjectNode tramiteJson = JsonHelper.createJson(tramiteDoc.getTramite(), JsonNodeFactory.instance, false, mapperTramite);
                 node.set("estados", arrayAcciones);
+                node.set("tramite", tramiteJson);
                 array.add(node);
             }
             json.setData(array);
@@ -457,7 +479,36 @@ public class ConstanciaSolicitudController {
 
         try {
             ArrayNode node = new ArrayNode(JsonNodeFactory.instance);
+            String[] mapperTramite = new String[]{
+                "id",
+                "*",
+                "persona.*",
+                "alumno.*",
+                "alumno.carrera.*",
+                "alumno.carrera.facultad.*",
+                "alumno.planCurricular.id",
+                "alumno.modalidadEstudio.id",
+                "alumno.modalidadEstudio.nombre",
+                "alumno.planCurricular.carrera.nombre",
+                "alumno.planCurricular.cicloInicioVigencia.descripcion",
+                "compania.*",
+                "cicloAcademico.*",
+                "tipoTramite.codigo",
+                "tipoTramite.nombre",
+                "tipoTramite.esTipoTramiteRei",
+                "userRegistro.*",
+                "userRegistro.persona.*",
+                "userRespuesta.*",
+                "accionesTramitesAcademico.*",
+                "accionesTramitesAcademico.estadoTramiteFinal.*",
+                "accionesTramitesAcademico.estadoTramiteInicio.*",
+                "accionesTramitesDocumentos.*",
+                "accionesTramitesDocumentos.estadoTramiteFinal.*",
+                "accionesTramitesDocumentos.estadoTramite.*",
+                "formularioEstadoTramite.*"
+            };
             TramiteDocumentoAcademico documentoAcademico = service.findTramite(new TramiteDocumentoAcademico(idSolicitud));
+            Tramite tramite = documentoAcademico.getTramite();
             PlantillaGenerica plantilla = service.findPlantillaHtml(documentoAcademico);
 
             List<PlantillaDocumentoAcademico> plantillas = service.allPlantillas();
@@ -470,6 +521,7 @@ public class ConstanciaSolicitudController {
             model.addAttribute("id", idSolicitud);
             model.addAttribute("contenido", plantilla.getContenido());
             model.addAttribute("incrustaciones", node);
+            model.addAttribute("tramite", JsonHelper.createJson(tramite, JsonNodeFactory.instance, mapperTramite));
         } catch (PhobosException ex) {
             ExceptionHandler.handleException(ex, redirectAttr);
             return "redirect:/tramite/tramiteConstancia/solicitudConstancia";

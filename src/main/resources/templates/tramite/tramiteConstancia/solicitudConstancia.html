@@ -73,11 +73,16 @@
                                                             <i class="glyphicon glyphicon-option-vertical"></i>
                                                         </a>
                                                         <ul  class="dropdown-menu pull-right">
-                                                            <li v-if="item.tipoDocumentoAcademico.tipoConstanciaEnum.name == 'CERT'" v-bind:href="'tramite/solicitudconstancia/updatehistorial/'+solicitud.idAlumno+'/updatehistorial'"><a>Actualizar historial academico</a></li> <!---->
+                                                            <li v-if="item.tipoDocumentoAcademico.tipoConstanciaEnum.name == 'CERT'" >
+                                                                <a v-bind:href="'/academico/procesar/'+item.tramite.id">Actualizar historial academico</a>
+                                                            </li> <!---->
                                                             <li><a v-bind:href="'/tramite/solicitudconstancia/solicitud/'+item.id">Editar Solicitud Documento</a></li><!-- -->
+                                                            <li>  <a class="btn-link pointer" 
+                                                                     v-on:click="procesarTramite(item.tramite,$event)" v-if="item.tramite.formularioEstadoTramite.id">
+                                                                    Procesaar</a></li>
                                                             <li v-for="estado in item.estados">
                                                                 <a v-if="estado.url !=null" v-bind:href="estado.url + item.id">{{estado.opcion}}</a>
-                                                                <a v-else="" v-on:click="accion(estado,item)">{{estado.opcion}}</a>
+                                                                <a v-if="item.tramite.formularioEstadoTramite.id == null &amp;&amp; estado.url == null" v-on:click="accion(estado,item)">{{estado.opcion}}</a>
                                                             </li>
                                                             <!--<li> <a v-on:click.prevent="cargarfoto(item)"  href="#">Cargar fotografía</a></li>-->
                                                             <!--                                                                <li> <a v-on:click.prevent="enviarrevision(solicitud)"  href="#">Enviar a Revisión</a></li>
@@ -95,7 +100,6 @@
                     </section>
                 </section>
                 <th:block th:replace="tramite/tramiteConstancia/solicitudConstanciaModals"/>
-
             </div>
 
         </div>

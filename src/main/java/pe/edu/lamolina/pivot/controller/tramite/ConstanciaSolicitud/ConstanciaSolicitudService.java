@@ -1,4 +1,4 @@
-package pe.edu.lamolina.pivot.controller.tramite.updatehistorialacademico;
+package pe.edu.lamolina.pivot.controller.tramite.ConstanciaSolicitud;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import java.util.List;
@@ -26,6 +26,8 @@ import pe.edu.lamolina.pivot.controller.tramite.plantillaConstancia.PlantillaGen
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface ConstanciaSolicitudService {
+
+    PlantillaGenerica findPlantillaHtmlNew(TramiteDocumentoAcademico documentoAcademico);
 
     void updateHistorialAcademico(Alumno alumnoForm, DataSessionPivot ds);
 

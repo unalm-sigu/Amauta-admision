@@ -23,12 +23,12 @@ import pe.edu.lamolina.model.tramite.Tramite;
 
 @Repository
 public class TramiteDAOH extends AbstractEasyDAO<Tramite> implements TramiteDAO {
-
+    
     public TramiteDAOH() {
         super();
         setClazz(Tramite.class);
     }
-
+    
     @Override
     public List<Tramite> allByFilter(DynatableFilter filter) {
         DynatableSql sql = new DynatableSql(filter)
@@ -47,7 +47,7 @@ public class TramiteDAOH extends AbstractEasyDAO<Tramite> implements TramiteDAO 
                 .orderBy("t.id desc");
         return this.all(sql);
     }
-
+    
     @Override
     public List<Tramite> allByTipoTramiteEstadoTramite(TipoTramiteEnum tipoTramiteEnum, EstadoTramiteEnum estadoTramiteEnum) {
         Octavia sql = Octavia.query()
@@ -60,7 +60,7 @@ public class TramiteDAOH extends AbstractEasyDAO<Tramite> implements TramiteDAO 
         sql.filter("tt.codigo", tipoTramiteEnum);
         return this.all(sql);
     }
-
+    
     @Override
     public void updateEstado(Tramite tramite) {
         Octavia octavia = Octavia.update(Tramite.class);
@@ -69,14 +69,14 @@ public class TramiteDAOH extends AbstractEasyDAO<Tramite> implements TramiteDAO 
         octavia.set(tramite, "fechaModificacion");
         this.update(octavia);
     }
-
+    
     @Override
     public void updateObservacion(Tramite tramite) {
         Octavia octavia = Octavia.update(Tramite.class);
         octavia.set(tramite, "observacion");
         this.update(octavia);
     }
-
+    
     @Override
     public Tramite find(Long id) {
         Octavia sql = Octavia.query()
@@ -88,17 +88,18 @@ public class TramiteDAOH extends AbstractEasyDAO<Tramite> implements TramiteDAO 
                 .filter("tr.id", id);
         return find(sql);
     }
-
+    
     @Override
     public Tramite findById(Tramite tramite) {
         Octavia sql = new Octavia()
                 .from(Tramite.class, "tram")
                 .join("cicloAcademico aca", "compania", "tipoTramite")
                 .left("userRegistro user", "user.persona", "alumno alum", "alum.planCurricular")
+                .join("alum.modalidadEstudio")
                 .filter("tram.id", tramite);
         return find(sql);
     }
-
+    
     @Override
     public List<Tramite> allReiAndRetByCiclo(CicloAcademico cicloAcademico, DynatableFilter filter) {
         DynatableSql sql = new DynatableSql(filter)
@@ -111,10 +112,10 @@ public class TramiteDAOH extends AbstractEasyDAO<Tramite> implements TramiteDAO 
                 .filter("aca.id", cicloAcademico)
                 .in("tt.codigo", Arrays.asList(RCI.name(), CAM_NOTA.name(), REI.name()))
                 .orderBy("tram.id desc");
-
+        
         return all(sql);
     }
-
+    
     @Override
     public List<Tramite> allByFacultad(Facultad facultad) {
         Octavia sql = new Octavia()
@@ -126,7 +127,7 @@ public class TramiteDAOH extends AbstractEasyDAO<Tramite> implements TramiteDAO 
                 .filter("tram.estado", "!=", ANU.name())
                 .filter("fac.id", facultad)
                 .orderBy("per.paterno asc");
-
+        
         return all(sql);
     }
 }

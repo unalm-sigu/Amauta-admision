@@ -127,8 +127,8 @@ public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements Alu
     public AlumnoCiclo findLastByAlumno(Alumno alumno) {
         Octavia sql = Octavia.query()
                 .from(AlumnoCiclo.class, "ac")
-                .join("alumno alu", "cicloAcademico ca", "carrera car", "orientacionCarrera oc")
-                .left("situacionInicio si", "situacionFinal sf")
+                .join("alumno alu", "cicloAcademico ca", "carrera car")
+                .left("situacionInicio si", "situacionFinal sf", "orientacionCarrera oc")
                 .filter("alu.id", alumno)
                 .orderBy("ac.fechaRegistro desc")
                 .limit(BigDecimal.ONE.intValue());

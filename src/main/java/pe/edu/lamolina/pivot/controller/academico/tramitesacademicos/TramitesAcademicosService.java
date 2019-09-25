@@ -13,6 +13,7 @@ import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.tramite.AccionTramiteAcademico;
+import pe.edu.lamolina.model.tramite.AccionTramiteDocumento;
 import pe.edu.lamolina.model.tramite.ReunionConsejo;
 import pe.edu.lamolina.model.tramite.Tramite;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -31,7 +32,7 @@ public interface TramitesAcademicosService {
 
     Tramite findTramite(Long tramiteId);
 
-    void procesarTramite(Tramite tramite, AccionTramiteAcademico accionTramiteAcademico, DataSessionPivot ds);
+    void procesarTramite(Tramite tramite, AccionTramiteAcademico accionTramiteAcademico, AccionTramiteDocumento accionTramiteDocumento, DataSessionPivot ds);
 
     String cursoDirigidoReporte(Tramite tramite, DataSessionPivot ds);
 
@@ -58,5 +59,7 @@ public interface TramitesAcademicosService {
     public String allcursoDirigidoFac(Facultad tram, DataSessionPivot ds);
 
     public String alllistCursoDirigidoFac(Facultad facultad, DataSessionPivot ds);
+
+    public AccionTramiteDocumento findAccionTramiteDocumento(AccionTramiteDocumento accionTramiteDoc);
 
 }

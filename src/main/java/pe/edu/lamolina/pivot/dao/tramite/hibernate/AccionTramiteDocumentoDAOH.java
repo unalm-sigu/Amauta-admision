@@ -7,6 +7,7 @@ import pe.albatross.octavia.Octavia;
 import pe.edu.lamolina.model.tramite.AccionTramiteDocumento;
 import pe.edu.lamolina.model.tramite.EstadoTramite;
 import pe.edu.lamolina.model.tramite.TipoDocumentoAcademico;
+import pe.edu.lamolina.model.tramite.TipoTramite;
 import pe.edu.lamolina.pivot.dao.tramite.AccionTramiteDocumentoDAO;
 
 @Repository
@@ -37,6 +38,18 @@ public class AccionTramiteDocumentoDAOH extends AbstractEasyDAO<AccionTramiteDoc
                 .filter("orden", Order);
         
         return find(sql);
+    }
+
+    @Override
+    public List<AccionTramiteDocumento> allByTipoTramiteAndEstadoTramiteInicial(TipoDocumentoAcademico tipoTramite, EstadoTramite estadoTramite) {
+       Octavia sql = new Octavia()
+                .from(AccionTramiteDocumento.class, "atd")
+                .join("tipoDocumentoAcademico tipo","estadoTramite eti", "estadoTramiteFinal etf")
+                .filter("eti.id", estadoTramite)
+                .filter("tipo.id", tipoTramite);
+        
+        return all(sql);
+        
     }
     
 }

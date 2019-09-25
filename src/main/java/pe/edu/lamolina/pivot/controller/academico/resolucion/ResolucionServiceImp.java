@@ -83,87 +83,87 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 @Service
 @Transactional(readOnly = true)
 public class ResolucionServiceImp implements ResolucionService {
-    
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    
+
     @Autowired
     ResolucionDAO resolucionDAO;
-    
+
     @Autowired
     ReincorporacionDAO reincorporacionDAO;
-    
+
     @Autowired
     AlumnoCursoCurriculaDAO alumnoCursoCurriculaDAO;
-    
+
     @Autowired
     TipoResolucionDAO tipoResolucionDAO;
-    
+
     @Autowired
     TramiteDAO tramiteDAO;
-    
+
     @Autowired
     S3Service s3service;
-    
+
     @Autowired
     EstadoTramiteDAO estadoTramiteDAO;
-    
+
     @Autowired
     ReunionConsejoDAO reunionConsejoDAO;
-    
+
     @Autowired
     MatriculaSeccionDAO matriculaSeccionDAO;
-    
+
     @Autowired
     TramiteReunionConsejoDAO alumnoReunionConsejoDAO;
-    
+
     @Autowired
     MatriculaCursoDAO matriculaCursoDAO;
-    
+
     @Autowired
     TipoTramiteDAO tipoTramiteDAO;
-    
+
     @Autowired
     FlujoTramiteAcademicoService flujoTramiteAcademicoService;
-    
+
     @Autowired
     CicloAcademicoDAO cicloAcademicoDAO;
-    
+
     @Autowired
     AlumnoDAO alumnoDAO;
-    
+
     @Autowired
     SeccionDAO seccionDAO;
-    
+
     @Autowired
     AlumnoCicloDAO alumnoCicloDAO;
-    
+
     @Autowired
     CursoDirigidoDAO cursoDirigidoDAO;
-    
+
     @Autowired
     AccionTramiteAcademicoDAO accionTramiteAcademicoDAO;
-    
+
     @Autowired
     OficinaDAO oficinaDAO;
-    
+
     @Autowired
     AnexoBoletinDAO anexoBoletinDAO;
-    
+
     @Autowired
     MatriculaResumenDAO matriculaResumenDAO;
-    
+
     @Autowired
     TramitesAcademicosService tramitesAcademicosService;
-    
+
     @Autowired
     OficinaService oficinaService;
-    
+
     @Autowired
     MatriculableService matriculableService;
-    
+
     @Autowired
     GpoSeccionService gpoSeccionService;
-    
+
     @Override
     public List<Resolucion> allResolucionesByFilter(DynatableFilter filter, DataSessionPivot dsp) {
         List<Resolucion> resoluciones = resolucionDAO.allByDyna(filter);
@@ -183,11 +183,11 @@ public class ResolucionServiceImp implements ResolucionService {
                     resolucione.setAutorizado(Boolean.TRUE);
                 }
             }
-            
+
         }
         return resoluciones;
     }
-    
+
     @Override
     public List<Reincorporacion> allReincorporacionByFilter(DynatableFilter filter, Resolucion resolucion) {
         if (filter.getQueries() == null) {
@@ -197,22 +197,22 @@ public class ResolucionServiceImp implements ResolucionService {
         List<Reincorporacion> reincorporaciones = reincorporacionDAO.allByDyna(filter);
         return reincorporaciones;
     }
-    
+
     @Override
     public List<Tramite> allTramitesByTipoEstadoTram(TipoTramiteEnum tipoTramiteEnum, EstadoTramiteEnum estadoTramiteEnum) {
         return tramiteDAO.allByTipoTramiteEstadoTramite(tipoTramiteEnum, estadoTramiteEnum);
     }
-    
+
     @Override
     public List<TipoResolucion> allTiposResolucion() {
         return tipoResolucionDAO.all();
     }
-    
+
     @Override
     @Transactional(readOnly = false)
     public void saveResolucion(Resolucion resolucion, DataSessionPivot ds, CicloAcademico cicloAcademico) {
         DateTime today = new DateTime();
-        
+
         boolean someChecked = false;
         ObjectUtil.eliminarAttrSinId(resolucion);
         resolucion.setTramitesReunionConsejo(resolucion.getTramitesReunionConsejo() == null ? new ArrayList() : resolucion.getTramitesReunionConsejo());
@@ -224,31 +224,31 @@ public class ResolucionServiceImp implements ResolucionService {
         if (!someChecked && resolucion.getTipoResolucion().getParaTramite()) {
             throw new PhobosException("Debe seleccionar algun tramite");
         }
-        
+
         resolucion.setEstadoEnum(ResolucionEstadoEnum.CRE);
         resolucion.setUserRegistro(ds.getUsuario());
         resolucion.setFechaRegistro(today.toDate());
         resolucion.setUserActualizacion(null);
         resolucion.setFechaActualizacion(null);
         resolucionDAO.save(resolucion);
-        
+
         for (TramiteReunionConsejo tramiteReunionConsejo : resolucion.getTramitesReunionConsejo()) {
             List<AccionTramiteAcademico> accionesTramitesAcademicos = new ArrayList<>();
             Tramite tramite = new Tramite();
             if (resolucion.getTipoResolucion().getEsTipoResolucionRei()) {
-                
+
                 Reincorporacion reincorporacion = reincorporacionDAO.findByTramiteEstadoTram(tramiteReunionConsejo.getTramite(), EstadoTramiteEnum.AGE_CON_FAC);
                 tramite = reincorporacion.getTramite();
                 accionesTramitesAcademicos = accionTramiteAcademicoDAO.allByTipoTramiteAndEstadoTramiteInicial(tramite.getTipoTramite(), reincorporacion.getEstadoTramite());
                 if (accionesTramitesAcademicos.isEmpty() || accionesTramitesAcademicos.size() > 1) {
                     throw new PhobosException("Error al procesar el tramite");
                 }
-                
+
                 if (!reincorporacion.getEstadoTramite()
                         .getEsAgendadoConsejoFacultad()) {
                     throw new PhobosException("Estado incorrecto");
                 }
-                
+
                 if (tramiteReunionConsejo.getSeleccionado()) {
                     reincorporacion.setAceptado(BigDecimal.ONE.intValue());
                     reincorporacion.setResolucion(resolucion);
@@ -262,22 +262,22 @@ public class ResolucionServiceImp implements ResolucionService {
                 CursoDirigido cursoDirigido = cursoDirigidoDAO.findByTramite(tramiteReunionConsejo.getTramite());
                 tramite = cursoDirigido.getTramite();
                 accionesTramitesAcademicos = accionTramiteAcademicoDAO.allByTipoTramiteAndEstadoTramiteInicial(tramite.getTipoTramite(), cursoDirigido.getEstado());
-                
+
                 cursoDirigido.setAceptado(tramiteReunionConsejo.getSeleccionado());
                 cursoDirigido.setResolucion(resolucion);
                 cursoDirigidoDAO.update(cursoDirigido);
-                
+
             }
-            
-            tramitesAcademicosService.procesarTramite(tramite, accionesTramitesAcademicos.get(0), ds);
+
+            tramitesAcademicosService.procesarTramite(tramite, accionesTramitesAcademicos.get(0), null, ds);
         }
     }
-    
+
     @Override
     @Transactional(readOnly = false)
     public void updateResolucion(Resolucion resolucion, DataSessionPivot ds) {
         DateTime today = new DateTime();
-        
+
         Resolucion resolucionUpd = new Resolucion();
         resolucionUpd.setId(resolucion.getId());
         resolucionUpd.setFecha(resolucion.getFecha());
@@ -286,18 +286,18 @@ public class ResolucionServiceImp implements ResolucionService {
         resolucionUpd.setUserActualizacion(ds.getUsuario());
         resolucionUpd.setFechaActualizacion(today.toDate());
         resolucionDAO.updateResolucion(resolucionUpd);
-        
+
         for (TramiteReunionConsejo tramiteReunionConsejo : resolucion.getTramitesReunionConsejo()) {
             if (resolucion.getTipoResolucion().getEsTipoResolucionRei()) {
-                
+
                 List<Reincorporacion> reincorporaciones = reincorporacionDAO.allByTramite(tramiteReunionConsejo.getTramite());
                 Reincorporacion reincorporacion = reincorporaciones.get(0);
-                
+
                 if (!reincorporacion.getEstadoTramite()
                         .getEsResolucionFacultad()) {
                     throw new PhobosException("Estado incorrecto");
                 }
-                
+
                 if (tramiteReunionConsejo.getSeleccionado()) {
                     reincorporacion.setAceptado(BigDecimal.ONE.intValue());
                     reincorporacion.setResolucion(resolucion);
@@ -326,7 +326,7 @@ public class ResolucionServiceImp implements ResolucionService {
             }
         }
     }
-    
+
     @Override
     @Transactional(readOnly = false)
     public void uploadResolucionFile(Resolucion resolucion, MultipartFile file, DataSessionPivot ds) {
@@ -342,17 +342,17 @@ public class ResolucionServiceImp implements ResolucionService {
         }
         resolucion = resolucionDAO.find(resolucion.getId());
         Resolucion resolucionUpd = new Resolucion(resolucion.getId());
-        
+
         resolucionUpd.setRutaUrl(Constantine.S3_LINK + Constantine.S3_RESOLUCIONES_DIR + name);
         s3service.uploadFileSync(Constantine.S3_DIR, Constantine.S3_RESOLUCIONES_DIR, Constantine.TMP_DIR, name, true);
         resolucionUpd.setUserActualizacion(ds.getUsuario());
         resolucionUpd.setFechaActualizacion(today.toDate());
         resolucionUpd.setEstadoEnum(ResolucionEstadoEnum.ACT);
         resolucionDAO.updateResolucionFile(resolucionUpd);
-        
+
         if (resolucion.getEsEstadoCre()) {
             if (resolucion.getTipoResolucion().getEsTipoResolucionRei()) {
-                
+
                 List<Reincorporacion> reincorporaciones = reincorporacionDAO.allByResolucion(resolucion);
                 for (Reincorporacion reincorporacion : reincorporaciones) {
                     Tramite tramite = tramiteDAO.find(reincorporacion.getTramite().getId());
@@ -371,12 +371,12 @@ public class ResolucionServiceImp implements ResolucionService {
             }
         }
     }
-    
+
     @Override
     public List<ReunionConsejo> allReunionesConsejoByOficina(Oficina oficina) {
         return reunionConsejoDAO.allByOficina(oficina);
     }
-    
+
     @Override
     public List<TramiteReunionConsejo> allTramiteReunionConsejoByReunion(ReunionConsejo reunionConsejo, TipoResolucion tipoResolucion) {
         tipoResolucion = tipoResolucionDAO.find(tipoResolucion.getId());
@@ -388,7 +388,7 @@ public class ResolucionServiceImp implements ResolucionService {
         } else if (tipoResolucion.getEsTipoCursoDirigido()) {
             tipoTramite = tipoTramiteDAO.findByCodigo(TipoTramiteEnum.CURDIR.name());
         }
-        
+
         List<TramiteReunionConsejo> reunionConsejos = alumnoReunionConsejoDAO.allByReunionConsejoAndTipoTramite(reunionConsejo, tipoTramite);
         List<Tramite> tramites = reunionConsejos.stream().map(x -> x.getTramite()).collect(Collectors.toList());
         Map<Long, Tramite> map = TypesUtil.convertListToMap("id", tramites);
@@ -404,33 +404,33 @@ public class ResolucionServiceImp implements ResolucionService {
         }
         return reunionConsejos;
     }
-    
+
     @Override
     public Resolucion findResolucion(Long resolucionId) {
         return resolucionDAO.findById(resolucionId);
     }
-    
+
     @Override
     public Tramite findTramite(Long tramiteId) {
         List<CursoDirigido> dirigidos = new ArrayList<>();
         Tramite tramite = tramiteDAO.findById(new Tramite(tramiteId));
         List<Reincorporacion> reincorporaciones = reincorporacionDAO.allByTramite(tramite);
         tramite.setReincorporaciones(reincorporaciones);
-        
+
         CursoDirigido cursoDirigidos = cursoDirigidoDAO.findByTramite(tramite);
         dirigidos.add(cursoDirigidos);
         tramite.setCursoDirigido(dirigidos);
         return tramite;
     }
-    
+
     @Override
     @Transactional(readOnly = false)
     public void saveConfirmarSubirDocumento(Resolucion resolucionForm, DataSessionPivot ds) {
         DateTime today = new DateTime();
         Resolucion resolucion = resolucionDAO.findById(resolucionForm.getId());
-        
+
         CicloAcademico cicloReincorporacion = resolucionForm.getCicloReincorporacion();
-        
+
         Resolucion resolucionUpd = new Resolucion();
         resolucionUpd.setId(resolucionForm.getId());
         resolucionUpd.setUserActualizacion(ds.getUsuario());
@@ -438,7 +438,7 @@ public class ResolucionServiceImp implements ResolucionService {
         resolucionUpd.setEstadoEnum(ResolucionEstadoEnum.DOC_CONF);
         //   resolucionUpd.setCicloReincorporacion(resolucion.getCicloReincorporacion());
         resolucionDAO.updateEstado(resolucionUpd);
-        
+
         if (resolucion.getTipoResolucion().getEsTipoResolucionRei()) {
             List<Reincorporacion> reincorporaciones = reincorporacionDAO.allByResolucion(resolucionForm);
             for (Reincorporacion reincorporacion : reincorporaciones) {
@@ -446,18 +446,18 @@ public class ResolucionServiceImp implements ResolucionService {
                 Tramite tramiteUpd = new Tramite(tramite.getId());
                 tramiteUpd.setUserModificacion(ds.getUsuario());
                 tramiteUpd.setFechaModificacion(today.toDate());
-                
+
                 List<AccionTramiteAcademico> accionesTramitesAcademicos = accionTramiteAcademicoDAO.allByTipoTramiteAndEstadoTramiteInicial(tramite.getTipoTramite(), reincorporacion.getEstadoTramite());
                 if (accionesTramitesAcademicos.isEmpty() || accionesTramitesAcademicos.size() > 1) {
                     throw new PhobosException("Error al procesar el tramite");
                 }
-                
+
                 if (!reincorporacion.getEstadoTramite().getEsResolucionFacultad()) {
                     throw new PhobosException("Estado tramite incorrecto");
                 }
                 if (reincorporacion.getEstaAceptado()) {
                     tramiteUpd.setEstadoEnum(TramiteEstadoEnum.ACEP);
-                    
+
                     Alumno alumno = alumnoDAO.find(tramite.getAlumno());
                     AlumnoCiclo lastAlumnoCiclo = alumnoCicloDAO.findLastActiveRegByAlumno(alumno);
                     if (lastAlumnoCiclo.getSituacionFinal().isDesertor()) {
@@ -468,15 +468,15 @@ public class ResolucionServiceImp implements ResolucionService {
                     reincorporacion.setCicloReincorporacion(cicloReincorporacion);
                     reincorporacionDAO.update(reincorporacion);
                     alumnoDAO.update(alumno);
-                    
+
                     matriculableService.revisarSituacionAcademica(tramite.getAlumno(), ds);
                     matriculableService.saveMatriculable(tramite.getAlumno(), TipoCondicionalEnum.REI.name(), ds);
                 } else {
                     tramiteUpd.setEstadoEnum(TramiteEstadoEnum.RCHR);
                 }
                 tramiteDAO.updateEstado(tramiteUpd);
-                
-                tramitesAcademicosService.procesarTramite(tramite, accionesTramitesAcademicos.get(0), ds);
+
+                tramitesAcademicosService.procesarTramite(tramite, accionesTramitesAcademicos.get(0), null, ds);
             }
         } else if (resolucion.getTipoResolucion().getEsTipoCursoDirigido()) {
             List<CursoDirigido> cursosDirigidos = cursoDirigidoDAO.allByResolucion(resolucionForm);
@@ -485,22 +485,22 @@ public class ResolucionServiceImp implements ResolucionService {
                 Tramite tramiteUpd = new Tramite(tramite.getId());
                 tramiteUpd.setUserModificacion(ds.getUsuario());
                 tramiteUpd.setFechaModificacion(today.toDate());
-                
+
                 List<AccionTramiteAcademico> accionesTramitesAcademicos = accionTramiteAcademicoDAO.allByTipoTramiteAndEstadoTramiteInicial(tramite.getTipoTramite(), cursosDirigido.getEstado());
-                
+
                 if (cursosDirigido.getAceptado()) {
                     tramiteUpd.setEstadoEnum(TramiteEstadoEnum.ACEP);
-                    
+
                 } else {
                     tramiteUpd.setEstadoEnum(TramiteEstadoEnum.RCHR);
                 }
                 tramiteDAO.updateEstado(tramiteUpd);
-                
-                tramitesAcademicosService.procesarTramite(tramite, accionesTramitesAcademicos.get(0), ds);
+
+                tramitesAcademicosService.procesarTramite(tramite, accionesTramitesAcademicos.get(0), null, ds);
             }
         }
     }
-    
+
     @Override
     @Transactional(readOnly = false)
     public void saveConfirmarResVB(Resolucion resolucion, DataSessionPivot ds, CicloAcademico cicloAcademico) {
@@ -512,7 +512,7 @@ public class ResolucionServiceImp implements ResolucionService {
         resolucionUpd.setEstadoEnum(ResolucionEstadoEnum.VB_RES);
         //   resolucionUpd.setCicloReincorporacion(resolucion.getCicloReincorporacion());
         resolucionDAO.updateEstado(resolucionUpd);
-        
+
         if (resolucion.getTipoResolucion().getEsTipoResolucionRei()) {
             List<Reincorporacion> reincorporaciones = reincorporacionDAO.allByResolucion(resolucion);
             for (Reincorporacion reincorporacion : reincorporaciones) {
@@ -520,19 +520,19 @@ public class ResolucionServiceImp implements ResolucionService {
                 Tramite tramiteUpd = new Tramite(tramite.getId());
                 tramiteUpd.setUserModificacion(ds.getUsuario());
                 tramiteUpd.setFechaModificacion(today.toDate());
-                
+
                 List<AccionTramiteAcademico> accionesTramitesAcademicos = accionTramiteAcademicoDAO.allByTipoTramiteAndEstadoTramiteInicial(tramite.getTipoTramite(), reincorporacion.getEstadoTramite());
                 if (accionesTramitesAcademicos.isEmpty() || accionesTramitesAcademicos.size() > 1) {
                     throw new PhobosException("Error al procesar el tramite");
                 }
-                
+
                 if (!reincorporacion.getEstadoTramite().getEsResolucionFacultad()) {
                     throw new PhobosException("Estado tramite incorrecto");
                 }
 
                 /*  reincorporacion.setCicloReincorporacion(cicloReincorporacion);
                 reincorporacionDAO.update(reincorporacion);*/
-                tramitesAcademicosService.procesarTramite(tramite, accionesTramitesAcademicos.get(0), ds);
+                tramitesAcademicosService.procesarTramite(tramite, accionesTramitesAcademicos.get(0), null, ds);
             }
         } else if (resolucion.getTipoResolucion().getEsTipoCursoDirigido()) {
             List<CursoDirigido> cursosDirigidos = cursoDirigidoDAO.allByResolucion(resolucion);
@@ -557,21 +557,21 @@ public class ResolucionServiceImp implements ResolucionService {
                     grupoSeccions = new ArrayList<>();
                     grupoSeccions.add(grupoSeccion);
                 }
-                
+
                 this.matricular(grupoSeccions.get(0), cursoDirigido.getTramite().getAlumno(), cursoDirigido.getCurso(), ds.getUsuario(), cicloAcademico);
-                tramitesAcademicosService.procesarTramite(cursoDirigido.getTramite(), accionesTramitesAcademicos.get(0), ds);
+                tramitesAcademicosService.procesarTramite(cursoDirigido.getTramite(), accionesTramitesAcademicos.get(0), null, ds);
             }
-            
+
         }
     }
-    
+
     @Override
     public List<CicloAcademico> allCiclosToReincorporacion() {
         List<CicloAcademico> ciclosActivos = cicloAcademicoDAO.allActivos();
         List<CicloAcademico> ciclos = cicloAcademicoDAO.allUltimosByNext(5, ciclosActivos);
         return ciclos;
     }
-    
+
     @Override
     public List<Oficina> allOFicinasByUser(DataSessionPivot ds) {
         List<Oficina> oficinasResUser = new ArrayList();
@@ -589,22 +589,22 @@ public class ResolucionServiceImp implements ResolucionService {
         }
         return oficinasResUser;
     }
-    
+
     @Override
     public List<CursoDirigido> allCursoDirigido(DynatableFilter filter, Resolucion resolucion) {
         return cursoDirigidoDAO.allByResolucion(filter, resolucion);
     }
-    
+
     @Transactional
     private void matricular(GrupoSeccion gpoSeccion, Alumno alumno, Curso curso, Usuario usuario, CicloAcademico academico) {
-        
+
         MatriculaResumen matriculaResumen = matriculaResumenDAO.findByAlumnoCiclo(alumno, academico);
         List<Seccion> seccions = seccionDAO.allActivosByGpoSeccion(gpoSeccion);
         for (Seccion seccion : seccions) {
             seccion.setVacantes(seccion.getVacantes() + 1);
             seccion.setMatriculados(seccion.getMatriculados() + 1);
             seccionDAO.update(seccion);
-            
+
             MatriculaSeccion matriculaSeccion = new MatriculaSeccion();
             matriculaSeccion.setEstadoEnum(EstadoMatriculaEnum.MAT);
             matriculaSeccion.setFechaRegistro(new Date());
@@ -614,13 +614,13 @@ public class ResolucionServiceImp implements ResolucionService {
             matriculaSeccion.setVisible(1);
             matriculaSeccion.setFechaMatricula(new Date());
             matriculaSeccion.setUserMatricula(usuario);
-            
+
             matriculaSeccionDAO.save(matriculaSeccion);
         }
         AlumnoCursoCurricula alumnoCursoCurricula = alumnoCursoCurriculaDAO.findByAlumnoCurso(alumno, curso);
         alumnoCursoCurricula.setEstadoMatriculaEnum(EstadoMatriculaEnum.MAT);
         alumnoCursoCurriculaDAO.updateEstado(alumnoCursoCurricula);
-        
+
         MatriculaCurso matriculaCurso = new MatriculaCurso();
         matriculaCurso.setCurso(curso);
         matriculaCurso.setEstadoEnum(EstadoMatriculaEnum.MAT);
@@ -637,7 +637,7 @@ public class ResolucionServiceImp implements ResolucionService {
         matriculaCurso.setUserMatricula(usuario);
         matriculaCurso.setFechaMatricula(new Date());
         matriculaCursoDAO.save(matriculaCurso);
-        
+
         matriculaResumen.setEstadoEnum(EstadoMatriculaEnum.MAT);
         matriculaResumen.setCursosMatriculados(matriculaResumen.getCursosMatriculados() + 1);
         matriculaResumen.setCreditosMatriculados(matriculaResumen.getCreditosMatriculados() + curso.getCreditos());

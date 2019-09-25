@@ -42,9 +42,9 @@ public class ConsejeroDAOH extends AbstractEasyDAO<Consejero> implements Conseje
     public List<Consejero> allByCarreraDynatable(Carrera carrera, DynatableFilter filter) {
         DynatableSql sql = new DynatableSql(filter)
                 .from(Consejero.class, "con")
-                .join("carrera car", "colaborador col", "col.persona per", "per.docente doc")
+                .join("carrera car", "colaborador col", "col.persona per")
                 .leftJoin("per.tipoDocumento")
-                .searchFields("per.numeroDocIdentidad", "doc.codigo")
+                .searchFields("per.numeroDocIdentidad")
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                 .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
                 .filter("car.id", carrera)

@@ -53,6 +53,13 @@
                                    v-on:click.prevent="procesarTramite(accion)"
                                    >
                                 </a>
+                                <a class="btn btn-success m-r-md"
+                                   v-if="tramite"
+                                   v-for="accion in tramite.accionesTramitesDocumentos"
+                                   v-text="accion.opcion"
+                                   v-on:click.prevent="procesarTramite(accion)"
+                                   >
+                                </a>
                                 <!-- 
                                 <a class="btn btn-success" id="cmbAceptar">Revisar Historial</a> -->
                             </section>
@@ -76,12 +83,9 @@
 
     <div layout:fragment="js">
         <script th:inline="javascript">
-            var tramiteJson = [[${
-                tramiteJson
-            }
-            ]];
-            var horasJson = [[${horasBD}
-            ]];
+
+            var tramiteJson = /*[[${tramite.toString()}]]*/ 'json';
+            var horasJson = /*[[${horasBD}]]*/ 'json';
         </script>
         <div th:substituteby="_modules/vue-modal"/>
         <div th:substituteby="_layout/includes :: svgjs"/>

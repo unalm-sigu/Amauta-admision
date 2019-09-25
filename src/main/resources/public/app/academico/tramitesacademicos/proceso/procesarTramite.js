@@ -1,20 +1,21 @@
-Vue.component("multiselect", window.VueMultiselect.default)
+Vue.component("multiselect", window.VueMultiselect.default);
 
 new Vue({
     el: '#procesarTramitesAcademicos',
     data: {
-        tramite: null,
+
         componentForm: null,
         compomentProps: null,
         accionSeleccionada: null,
         processingAjaxData: null,
+        tramite: JSON.parse(tramiteJson)
 //        oficina: JSON.parse(oficinasJson)
     }, created: function () {
         console.log("created");
-        this.tramite = JSON.parse(tramiteJson);
+//        this.tramite = JSON.parse(tramiteJson);
         console.dir(this.tramite);
-        this.loadFormProcesarTramite();
     }, mounted: function () {
+        this.loadFormProcesarTramite();
 
 
     }, methods: {
@@ -36,14 +37,16 @@ new Vue({
                     }
                 }
             });
-        }
-        , procesarTramite(accion) {
+        },
+        procesarTramite(accion) {
             let $vue = this;
             $vue.accionSeleccionada = accion;
 
+
             $vue.processingAjaxData = {
                 tramite: $vue.tramite.id,
-                accionTramite: $vue.accionSeleccionada.id
+                accionTramite: $vue.tramite.tipoTramite.codigo == 'CONS' ? null : $vue.accionSeleccionada.id,
+                accionTramiteDoc: $vue.tramite.tipoTramite.codigo != 'CONS' ? null : $vue.accionSeleccionada.id
             }
 
             if ($vue.accionSeleccionada.estadoTramiteFinal.esAgendadoConsejoFacultad) {
@@ -65,7 +68,8 @@ new Vue({
             } else {
                 $vue.procesarTramitePost($vue);
             }
-        }, procesarTramitePost($vue) {
+        },
+        procesarTramitePost($vue) {
 
             $.ajax({
                 method: 'POST',

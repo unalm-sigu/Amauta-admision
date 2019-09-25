@@ -31,7 +31,6 @@ new Vue({
     },
     methods: {
         classEstado(value) {
-            console.log(value)
             switch (value) {
                 case 'ACEP':
                 case 'PAG':
@@ -152,6 +151,11 @@ new Vue({
             } else {
                 this.update(item, estado);
             }
+        },
+        procesarTramite(item, event) {
+            event.preventDefault();
+
+            location.href = APP.url("academico/procesar/" + item.id);
         }
     }
 });
