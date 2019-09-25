@@ -60,17 +60,6 @@ public class AlumnoCicloCursoDAOH extends AbstractEasyDAO<AlumnoCicloCurso> impl
     }
 
     @Override
-    public List<AlumnoCicloCurso> allActivoByAlumno(Alumno alumno) {
-        Octavia sql = Octavia.query()
-                .from(AlumnoCicloCurso.class, "acc")
-                .join("alumnoCiclo ac", "ac.alumno al", "ac.cicloAcademico", "acc.curso")
-                .filter("al.id", alumno)
-                .filter("acc.registroActivo", BigDecimal.ONE.intValue());
-
-        return sql.all(getCurrentSession());
-    }
-
-    @Override
     public List<AlumnoCicloCurso> allAprobadoActivoByAlumno(Alumno alumno) {
         Octavia sql = Octavia.query()
                 .from(AlumnoCicloCurso.class, "acc")
@@ -186,7 +175,7 @@ public class AlumnoCicloCursoDAOH extends AbstractEasyDAO<AlumnoCicloCurso> impl
     }
 
     @Override
-    public List<AlumnoCicloCurso> allByAlumno(Alumno alumno) {
+    public List<AlumnoCicloCurso> allActivosByAlumno(Alumno alumno) {
         Octavia sql = Octavia.query()
                 .from(AlumnoCicloCurso.class, "acc")
                 .join("alumnoCiclo ac", "ac.alumno al", "ac.cicloAcademico ca", "acc.curso cu")
@@ -196,7 +185,20 @@ public class AlumnoCicloCursoDAOH extends AbstractEasyDAO<AlumnoCicloCurso> impl
                 .filter("acc.registroActivo", BigDecimal.ONE.intValue())
                 .orderBy("ca.codigo desc", "cu.nombre");
 
-        return sql.all(getCurrentSession());
+        return all(sql);
+    }
+
+    @Override
+    public List<AlumnoCicloCurso> allByAlumno(Alumno alumno) {
+        Octavia sql = Octavia.query()
+                .from(AlumnoCicloCurso.class, "acc")
+                .join("alumnoCiclo ac", "ac.alumno al", "ac.cicloAcademico ca", "acc.curso cu")
+                .join("ac.carrera", "ac.situacionInicio")
+                .left("ac.situacionFinal", "ac.orientacionCarrera", "tipoCursoCurricula")
+                .filter("al.id", alumno)
+                .orderBy("ca.codigo desc", "cu.nombre");
+
+        return all(sql);
     }
 
     @Override

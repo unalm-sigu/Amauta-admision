@@ -46,6 +46,7 @@ import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.seguridad.Rol;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.enums.TipoSesionEnum;
+import pe.edu.lamolina.model.enums.UserEstadoEnum;
 import pe.edu.lamolina.model.general.Colaborador;
 import pe.edu.lamolina.model.general.InstanciaEntidad;
 import pe.edu.lamolina.model.general.TipoOficina;
@@ -141,6 +142,9 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
         Usuario usuario = usuarioDAO.findByGoogleEmail(email);
         if (usuario == null) {
             throw new PhobosException("Usuario no identificado.");
+        }
+        if (usuario.getEstadoEnum() != UserEstadoEnum.ACT) {
+            usuario = usuario.getUserActivo();
         }
 
         List<Rol> roles = rolDAO.allActivoByUsuario(usuario);

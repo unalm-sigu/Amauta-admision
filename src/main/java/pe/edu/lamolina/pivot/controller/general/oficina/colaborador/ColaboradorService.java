@@ -19,8 +19,7 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface ColaboradorService {
 
-    List<Oficina> allByDynatable(DynatableFilter filter, Compania compania);
-
+    //List<Oficina> allByDynatable(DynatableFilter filter, Compania compania);
     Oficina find(Oficina oficina);
 
     void update(Oficina oficina, DataSessionPivot ds);
@@ -76,7 +75,7 @@ public interface ColaboradorService {
 
     List<PerfilCompania> allCargos(Oficina oficina);
 
-    void saveColaborador(Colaborador colaborador, Oficina oficinaMean, Usuario usuario, Compania compania);
+    void saveColaborador(Colaborador colaborador, Oficina oficinaMean, Compania compania, DataSessionPivot ds);
 
     void updateColaborador(Colaborador colaborador, Oficina oficinaMean, DataSessionPivot dataSessionPivot);
 
@@ -86,7 +85,7 @@ public interface ColaboradorService {
 
     Usuario verifiEmail(Persona persona);
 
-    Boolean saveColaboradorExistente(Colaborador colaborador, Oficina oficinaMean, Usuario usuario, Compania compania);
+    Boolean saveColaboradorExistente(Colaborador colaborador, Oficina oficinaMean, Compania compania, DataSessionPivot ds);
 
     List<PerfilCompania> allCargosByOficina(Oficina oficina);
 
@@ -96,9 +95,9 @@ public interface ColaboradorService {
 
     void addFuncion(PerfilCompania perfilCompania, DataSessionPivot dsp);
 
-    List<PerfilCompania> allCargoByOficina(Oficina oficina);
+    List<PerfilCompania> allCargoByOficina(Oficina oficina, DataSessionPivot ds);
 
-    List<PerfilCompania> allFuncionByOficina(Oficina oficina);
+    List<PerfilCompania> allFuncionByOficina(Oficina oficina, DataSessionPivot ds);
 
     List<PerfilCompania> allFuncionByColaborador(Colaborador colaborador);
 

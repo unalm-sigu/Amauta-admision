@@ -4,9 +4,11 @@ import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.easydao.EasyDAO;
 import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.ControlMeritoEgresado;
 import pe.edu.lamolina.model.academico.Egresado;
+import pe.edu.lamolina.pivot.controller.academico.egresado.EgresadoResumen;
 
 public interface EgresadoDAO extends EasyDAO<Egresado> {
 
@@ -26,6 +28,10 @@ public interface EgresadoDAO extends EasyDAO<Egresado> {
 
     List<Egresado> allByControlMeritoFacultad(DynatableFilter filter, ControlMeritoEgresado controlBD);
 
-    public List<Egresado> allByAlumnos(List<Alumno> alumnos);
+    List<Egresado> allByAlumnos(List<Alumno> alumnos);
+
+    List<Egresado> allByCarrerasDynatable(DynatableFilter filter, List<Carrera> carreras, String todo);
+
+    public EgresadoResumen findResumenEgresado(List<Carrera> carreras, String todo);
 
 }

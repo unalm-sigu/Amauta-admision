@@ -55,6 +55,7 @@ import pe.edu.lamolina.model.seguridad.FuncionRol;
 import pe.edu.lamolina.model.seguridad.Rol;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.seguridad.UsuarioRol;
+import pe.edu.lamolina.pivot.controller.seguridad.verificador.VerificadorService;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.pivot.dao.academico.CarreraDAO;
 import pe.edu.lamolina.pivot.dao.academico.DepartamentoAcademicoDAO;
@@ -141,11 +142,14 @@ public class OficinaServiceImp implements OficinaService {
     @Autowired
     AlumnoDAO alumnoDAO;
 
+    @Autowired
+    VerificadorService verificadorService;
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
-    public List<Oficina> allByDynatable(DynatableFilter filter, Compania compania) {
-        List<Oficina> oficinas = oficinaDAO.allByFilter(filter, compania);
+    public List<Oficina> allByDynatable(DynatableFilter filter, List<Oficina> oficinasAcceso, Compania compania) {
+        List<Oficina> oficinas = oficinaDAO.allByFilter(filter, oficinasAcceso, compania);
         List<Colaborador> colaboradores = colaboradorDAO.allByOficinas(oficinas);
         Map<Long, List<Colaborador>> mapColaboradores = TypesUtil.convertListToMapList("oficina.id", colaboradores);
         List<AusenciaJefe> ausencias = ausenciaJefeDAO.allNoCerradasByOficinas(oficinas);
@@ -187,6 +191,9 @@ public class OficinaServiceImp implements OficinaService {
     @Override
     @Transactional
     public void update(Oficina oficina, DataSessionPivot ds) {
+
+        Assert.isTrue(verificadorService.puedeVerOficina(oficina, ds), "No tiene permiso para modificar la información de esta oficina");
+
         ObjectUtil.eliminarAttrSinId(oficina);
 
         Oficina oficinaBD = oficinaDAO.find(oficina.getId());
@@ -1306,12 +1313,12 @@ public class OficinaServiceImp implements OficinaService {
 
     @Override
     public List<PerfilCompania> allCargoByOficina(Oficina oficina) {
-        return perfilCompaniaDAO.allCargoByOficina(oficina);
+        return perfilCompaniaDAO.allCargoByOficinaAltoPerfil(oficina);
     }
 
     @Override
     public List<PerfilCompania> allFuncionByOficina(Oficina oficina) {
-        return perfilCompaniaDAO.allFuncionByOficina(oficina);
+        return perfilCompaniaDAO.allFuncionesByOficinaAltoPerfil(oficina);
     }
 
     @Override

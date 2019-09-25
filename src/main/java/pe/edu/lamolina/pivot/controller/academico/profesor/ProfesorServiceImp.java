@@ -288,10 +288,13 @@ public class ProfesorServiceImp implements ProfesorService {
             logger.debug("-> Dato basicos de persona actualizados");
         }
 
-        persona.setFoto(personaForm.getFoto());
-        this.uploadS3(personaForm.getFoto());
+        //me indican que solo se debe actualizar foto documento
+        Persona personaUpd = new Persona(personaForm.getId());
+        personaUpd.setRutaFotoDocumento(personaForm.getFullRutaFotoTemporalDocumento());
+       // personaUpd.setRutaFotoTemporal(personaForm.getRutaFotoTemporal()); //     
+        personaDAO.updateColumns(personaUpd, "rutaFotoDocumento");
+        this.uploadS3(personaUpd.getFoto());
 
-        personaDAO.update(persona);
         logger.debug("***Resolviendo en Tabla Docente***");
         Docente docenteBD = docenteDAO.findByDocente(docente);
         docenteBD.setPersona(persona);
@@ -615,10 +618,10 @@ public class ProfesorServiceImp implements ProfesorService {
     }
 
     @Override
-    public List<GrupoSeccion> allGpoSecciones(Docente docente, CicloAcademico ciclo, DataSessionPivot ds) {
+    public List<GrupoSeccion> allGpoSecciones(Docente docente, CicloAcademico ciclo, DataSessionPivot ds) {    
         Map<Long, GrupoSeccion> mapGpoSecc = new LinkedHashMap();
 
-        List<DocenteSeccion> profeSecciones = docenteSeccionDAO.allActivosByDocenteCiclo(docente, ciclo);
+        List<DocenteSeccion> profeSecciones = docenteSeccionDAO.allActivosByDocenteCiclo(docente, ciclo);  
         for (DocenteSeccion profeSecc : profeSecciones) {
             Seccion secc = profeSecc.getSeccion();
             secc.setDocenteSeccion(new ArrayList());

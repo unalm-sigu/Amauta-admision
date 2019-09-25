@@ -7,6 +7,7 @@ import java.beans.PropertyEditorSupport;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Date;
 import java.util.List;
@@ -36,6 +37,7 @@ import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
+import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.general.AusenciaJefe;
 import pe.edu.lamolina.model.general.Colaborador;
 import pe.edu.lamolina.model.general.Compania;
@@ -43,6 +45,7 @@ import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.general.PerfilCompania;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.general.TipoOficina;
+import pe.edu.lamolina.pivot.controller.seguridad.verificador.VerificadorService;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.constant.Messages;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -53,6 +56,8 @@ public class OficinaController {
 
     @Autowired
     OficinaService service;
+    @Autowired
+    VerificadorService verificadorService;
 
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {
@@ -83,7 +88,9 @@ public class OficinaController {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @RequestMapping(method = RequestMethod.GET)
-    public String index(Model model) {
+    public String index(Model model, HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        model.addAttribute("puedeEditarOficinas", verificadorService.puedeEditarOficinas(ds));
         return "general/oficina/oficina";
     }
 
@@ -98,7 +105,31 @@ public class OficinaController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             Compania compania = ds.getCompania();
 
-            List<Oficina> oficinas = service.allByDynatable(filter, compania);
+            List<Oficina> oficinas = new ArrayList();
+            boolean esGestorOficina = verificadorService.puedeGestionarSuOficina(ds);
+            if (esGestorOficina) {
+                boolean accesoTotal = false;
+                List<Oficina> oficinasMain = verificadorService.allOficinasAcceso(ds);
+                for (Oficina oficina : oficinasMain) {
+                    if (oficina.getCodigoEnum() == OficinaEnum.UNA) {
+                        accesoTotal = true;
+                        break;
+                    }
+                }
+                List<Oficina> oficinasAcceso = new ArrayList();
+                if (accesoTotal) {
+                    oficinas = service.allByDynatable(filter, oficinasAcceso, compania);
+                } else {
+                    for (Oficina oficina : oficinasMain) {
+                        List<Oficina> oficinasSub = service.allOficinasByOficinaMain(oficina);
+                        oficinasAcceso.addAll(oficinasSub);
+                    }
+                    oficinasAcceso.addAll(oficinasMain);
+                    oficinas = service.allByDynatable(filter, oficinasAcceso, compania);
+                }
+
+            }
+
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
             for (Oficina oficina : oficinas) {
@@ -144,6 +175,10 @@ public class OficinaController {
             Model model, HttpSession session) {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        boolean puedeCrearOficina = verificadorService.puedeEditarOficinas(ds);
+        if (!puedeCrearOficina) {
+            return "redirect:" + getOrigen(origen);
+        }
 
         List<TipoOficina> tipoOficina = service.allTipoOficina();
         ArrayNode tiposOficinaJson = new ArrayNode(JsonNodeFactory.instance);
@@ -167,7 +202,13 @@ public class OficinaController {
             @PathVariable("oficina") Long idOficina,
             @RequestParam(value = "origen", required = false) String origen,
             Model model, HttpSession session) {
+
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        boolean puedeVerOficina = verificadorService.puedeVerOficina(new Oficina(idOficina), ds);
+        if (!puedeVerOficina) {
+            return "redirect:" + getOrigen(origen);
+        }
+
         Oficina oficina = service.find(new Oficina(idOficina));
         service.fillReferencia(oficina);
 
@@ -656,7 +697,7 @@ public class OficinaController {
 
     private String getOrigen(String origen) {
         if (StringUtils.isEmpty(origen)) {
-            return "/general/oficina";
+            return "/";
         }
         byte[] decoded = Base64.getMimeDecoder().decode(origen);
         String output = new String(decoded);

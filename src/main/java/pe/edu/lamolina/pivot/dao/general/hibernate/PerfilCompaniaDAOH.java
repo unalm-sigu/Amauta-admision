@@ -5,6 +5,7 @@ import pe.edu.lamolina.pivot.dao.general.PerfilCompaniaDAO;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import pe.edu.lamolina.model.enums.PerfilColaboradorEnum;
 import pe.edu.lamolina.model.enums.TipoPerfilCompaniaEnum;
 import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.general.Oficina;
@@ -144,7 +145,7 @@ public class PerfilCompaniaDAOH extends AbstractEasyDAO<PerfilCompania> implemen
     }
 
     @Override
-    public List<PerfilCompania> allCargoByOficina(Oficina oficina) {
+    public List<PerfilCompania> allCargoByOficinaAltoPerfil(Oficina oficina) {
         Octavia sql = Octavia.query()
                 .from(PerfilCompania.class, "pc")
                 .left("pc.oficinaContiene")
@@ -158,7 +159,18 @@ public class PerfilCompaniaDAOH extends AbstractEasyDAO<PerfilCompania> implemen
     }
 
     @Override
-    public List<PerfilCompania> allFuncionByOficina(Oficina oficina) {
+    public List<PerfilCompania> allCargoByOficina(Oficina oficina) {
+        Octavia sql = Octavia.query()
+                .from(PerfilCompania.class, "pc")
+                .left("pc.oficinaContiene")
+                .filter("pc.oficinaContiene", oficina)
+                .filter("pc.tipo", TipoPerfilCompaniaEnum.CARGO);
+
+        return all(sql);
+    }
+
+    @Override
+    public List<PerfilCompania> allFuncionesByOficinaAltoPerfil(Oficina oficina) {
         Octavia sql = Octavia.query()
                 .from(PerfilCompania.class, "pc")
                 .left("pc.oficinaContiene")
@@ -169,6 +181,27 @@ public class PerfilCompaniaDAOH extends AbstractEasyDAO<PerfilCompania> implemen
                 .filter("pc.tipo", TipoPerfilCompaniaEnum.FUNCION);
 
         return all(sql);
+    }
+
+    @Override
+    public List<PerfilCompania> allFuncionesByOficina(Oficina oficina) {
+        Octavia sql = Octavia.query()
+                .from(PerfilCompania.class, "pc")
+                .left("pc.oficinaContiene")
+                .filter("pc.oficinaContiene", oficina)
+                .filter("pc.tipo", TipoPerfilCompaniaEnum.FUNCION);
+
+        return all(sql);
+    }
+
+    @Override
+    public PerfilCompania findByCodigo(PerfilColaboradorEnum perfilEnum) {
+        Octavia sql = Octavia.query()
+                .from(PerfilCompania.class, "pc")
+                .left("pc.oficinaContiene")
+                .filter("codigo", perfilEnum);
+
+        return find(sql);
     }
 
 }

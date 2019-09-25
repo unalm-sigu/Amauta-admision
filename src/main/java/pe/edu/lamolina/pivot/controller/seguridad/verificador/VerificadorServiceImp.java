@@ -14,6 +14,7 @@ import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Facultad;
+import pe.edu.lamolina.model.enums.OficinaEnum;
 import static pe.edu.lamolina.model.enums.OficinaEnum.BAN;
 import static pe.edu.lamolina.model.enums.OficinaEnum.OERA;
 import pe.edu.lamolina.model.enums.RolEnum;
@@ -24,6 +25,7 @@ import static pe.edu.lamolina.model.enums.TipoOficinaEnum.FAC;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.seguridad.Menu;
 import pe.edu.lamolina.model.seguridad.Rol;
+import pe.edu.lamolina.model.seguridad.UsuarioRol;
 import pe.edu.lamolina.pivot.controller.general.oficina.OficinaService;
 import pe.edu.lamolina.pivot.dao.academico.CarreraDAO;
 import pe.edu.lamolina.pivot.dao.academico.DepartamentoAcademicoDAO;
@@ -225,6 +227,74 @@ public class VerificadorServiceImp implements VerificadorService {
             }
         }
         return puedeEditar;
+    }
+
+    @Override
+    public boolean puedeGestionarSuOficina(DataSessionPivot ds) {
+        boolean puedeEditar = false;
+        for (Rol rol : ds.getRoles()) {
+            if (rol.getCodigoEnum() == RolEnum.GESTOR_OFICINA) {
+                puedeEditar = true;
+                break;
+            }
+            if (rol.getCodigoEnum() == RolEnum.IOREA) {
+                puedeEditar = true;
+                break;
+            }
+        }
+        return puedeEditar;
+    }
+
+    @Override
+    public boolean puedeEditarOficinas(DataSessionPivot ds) {
+        boolean puede = false;
+        for (Rol rol : ds.getRoles()) {
+            if (rol.getCodigoEnum() == RolEnum.IOREA) {
+                puede = true;
+                break;
+            }
+        }
+        return puede;
+    }
+
+    @Override
+    public boolean puedeVerOficina(Oficina oficinaRevision, DataSessionPivot ds) {
+        boolean esGestorOficina = this.puedeGestionarSuOficina(ds);
+        if (!esGestorOficina) {
+            return false;
+        }
+        boolean puedeVerOficina = false;
+        List<Oficina> oficinasMain = this.allOficinasAcceso(ds);
+        for (Oficina oficina : oficinasMain) {
+            if (oficina.getCodigoEnum() == OficinaEnum.UNA) {
+                puedeVerOficina = true;
+                break;
+            }
+            if (oficina.getId() == oficinaRevision.getId().longValue()) {
+                puedeVerOficina = true;
+                break;
+            }
+        }
+
+        return puedeVerOficina;
+    }
+
+    @Override
+    public List<Oficina> allOficinasAcceso(DataSessionPivot ds) {
+        List<Oficina> oficinas = new ArrayList();
+        for (Rol rol : ds.getRoles()) {
+            if (rol.getCodigoEnum() == RolEnum.GESTOR_OFICINA) {
+                List<UsuarioRol> usuarioRol = usuarioRolDAO.allWithOfficeByUserRol(ds.getUsuario(), rol);
+                for (UsuarioRol ur : usuarioRol) {
+                    oficinas.add(ur.getOficina());
+                }
+            }
+            if (rol.getCodigoEnum() == RolEnum.IOREA) {
+                Oficina oficinaUNA = oficinaDAO.findByCode(OficinaEnum.UNA.name());
+                oficinas.add(oficinaUNA);
+            }
+        }
+        return oficinas;
     }
 
 }

@@ -54,7 +54,8 @@
 
                     <div class="hide m-t-lg col-lg-6" id="headDynatable">
                         <div class="">
-                            <select class="form-control select2" id="departamento">
+                            <select class="form-control" id="departamento">
+                                <option></option>
                                 <option th:each="dpto : ${departamentos}"
                                         th:value="${dpto.id}"
                                         th:text="${dpto.nombre}"></option>

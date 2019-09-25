@@ -813,7 +813,7 @@ public class PromedioServiceImp implements PromedioService {
             CicloAcademico cicloActivo = findCicloActivoByModalidad(alumno.getModalidadEstudio(), ciclosAll);
             AlumnoCiclo alumnoCiclo = findAlumnoCiclo(alumnoCiclos, cicloAcademico);
 
-            List<AlumnoCicloCurso> alumnoCiclosCursosAll = alumnoCicloCursoDAO.allByAlumno(alumno);
+            List<AlumnoCicloCurso> alumnoCiclosCursosAll = alumnoCicloCursoDAO.allActivosByAlumno(alumno);
             Map<Long, List<AlumnoCicloCurso>> mapAlumnoCicloCurso = TypesUtil.convertListToMapList("alumnoCiclo.id", alumnoCiclosCursosAll);
             List<AlumnoCicloCurso> alumnoCicloCursosActual = new ArrayList();
             if (alumnoCiclo != null) {

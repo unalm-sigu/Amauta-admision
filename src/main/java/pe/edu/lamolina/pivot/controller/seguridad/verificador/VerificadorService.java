@@ -3,6 +3,7 @@ package pe.edu.lamolina.pivot.controller.seguridad.verificador;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import pe.edu.lamolina.model.enums.TipoOficinaEnum;
+import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.pivot.controller.seguridad.verificador.VerificadorServiceImp.CantidadItemsEnum;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -17,5 +18,13 @@ public interface VerificadorService {
     boolean puedeOperarMatricula(DataSessionPivot ds);
 
     boolean puedeEditarAlumno(DataSessionPivot ds);
+
+    boolean puedeEditarOficinas(DataSessionPivot ds);
+
+    boolean puedeGestionarSuOficina(DataSessionPivot ds);
+
+    boolean puedeVerOficina(Oficina oficina, DataSessionPivot ds);
+
+    List<Oficina> allOficinasAcceso(DataSessionPivot ds);
 
 }

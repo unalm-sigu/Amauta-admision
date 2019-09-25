@@ -576,7 +576,7 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
 //                .stream()
 //                .collect(Collectors.groupingBy(x -> x.getNumeroCiclo()));
         TipoCursoCurricula tipoCursoCurricula = tipoCursoCurriculaDAO.findByCodigo(TipoCursoCurriculaEnum.DEP);
-        List<AlumnoCicloCurso> alumnoCicloCursos = alumnoCicloCursoDAO.allByAlumno(alumno);
+        List<AlumnoCicloCurso> alumnoCicloCursos = alumnoCicloCursoDAO.allActivosByAlumno(alumno);
         for (AlumnoCicloCurso alumnoCicloCurso : alumnoCicloCursos) {
             if (alumnoCicloCurso.getTipoCursoCurricula() == null) {
                 alumnoCicloCurso.setTipoCursoCurricula(tipoCursoCurricula);

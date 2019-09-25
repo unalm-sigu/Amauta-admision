@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -25,12 +26,14 @@ import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.Facultad;
+import pe.edu.lamolina.model.enums.CargoTrabajadorEnum;
 import pe.edu.lamolina.model.enums.ColaboradorEstadoEnum;
 import static pe.edu.lamolina.model.enums.ColaboradorEstadoEnum.DESP;
 import static pe.edu.lamolina.model.enums.ColaboradorEstadoEnum.RET;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.NivelOficinaEnum;
 import pe.edu.lamolina.model.enums.OficinaEstadoEnum;
+import pe.edu.lamolina.model.enums.PerfilColaboradorEnum;
 import pe.edu.lamolina.model.enums.PerfilEstadoEnum;
 import pe.edu.lamolina.model.enums.PersonaEstadoEnum;
 import pe.edu.lamolina.model.enums.RolEnum;
@@ -53,6 +56,7 @@ import pe.edu.lamolina.model.seguridad.FuncionRol;
 import pe.edu.lamolina.model.seguridad.Rol;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.seguridad.UsuarioRol;
+import pe.edu.lamolina.pivot.controller.seguridad.verificador.VerificadorService;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.pivot.dao.academico.CarreraDAO;
 import pe.edu.lamolina.pivot.dao.academico.DepartamentoAcademicoDAO;
@@ -139,13 +143,15 @@ public class ColaboradorServiceImp implements ColaboradorService {
     @Autowired
     AlumnoDAO alumnoDAO;
 
+    @Autowired
+    VerificadorService verificadorService;
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @Override
-    public List<Oficina> allByDynatable(DynatableFilter filter, Compania compania) {
-        return oficinaDAO.allByFilter(filter, compania);
-    }
-
+//    @Override
+//    public List<Oficina> allByDynatable(DynatableFilter filter, Compania compania) {
+//        return oficinaDAO.allByFilter(filter, compania);
+//    }
     @Override
     public Oficina find(Oficina oficina) {
         return oficinaDAO.find(oficina.getId());
@@ -746,18 +752,21 @@ public class ColaboradorServiceImp implements ColaboradorService {
 
     @Override
     @Transactional
-    public void saveColaborador(Colaborador colaborador, Oficina oficinaMean, Usuario usuario, Compania compania) {
-        oficinaMean = oficinaDAO.find(oficinaMean.getId());
+    public void saveColaborador(Colaborador colaborador, Oficina oficinaForm, Compania compania, DataSessionPivot ds) {
+        boolean puedeVerOficina = verificadorService.puedeVerOficina(oficinaForm, ds);
+        Assert.isTrue(puedeVerOficina, "No tiene permiso de crear colaboradores en esta oficina");
+
+//        Oficina oficinaBD = oficinaDAO.find(oficinaForm.getId());
 //        Usuario usuario = dataSessionPivot.getUsuario();
         Persona persona = colaborador.getPersona();
         persona.setFechaRegistro(new Date());
-        persona.setUserRegistro(usuario);
+        persona.setUserRegistro(ds.getUsuario());
         persona.setEstadoEnum(PersonaEstadoEnum.ACT);
         persona.setSexo(colaborador.getPersona().getSexo());
         personaDAO.save(persona);
 
         colaborador.setFechaRegistro(new Date());
-        colaborador.setUserRegistro(usuario);
+        colaborador.setUserRegistro(ds.getUsuario());
         colaborador.setEstado(ColaboradorEstadoEnum.ACT.name());
         colaborador.setCodigo(getCodigoColaborador() + "");
         colaborador.setPersona(persona);
@@ -766,7 +775,7 @@ public class ColaboradorServiceImp implements ColaboradorService {
         ColaboradorEstado colaboradorEstado = new ColaboradorEstado();
         colaboradorEstado.setColaborador(colaborador);
         colaboradorEstado.setEstadoEnum(ColaboradorEstadoEnum.ACT);
-        colaboradorEstado.setUserRegistro(usuario);
+        colaboradorEstado.setUserRegistro(ds.getUsuario());
         colaboradorEstado.setFechaRegistro(new Date());
         colaboradorEstadoDAO.save(colaboradorEstado);
 
@@ -778,7 +787,7 @@ public class ColaboradorServiceImp implements ColaboradorService {
         personaCargo.setOficina(colaborador.getOficina());
         personaCargo.setPerfilCompania(colaborador.getCargo());
         personaCargo.setPersona(persona);
-        personaCargo.setUserRegistro(usuario);
+        personaCargo.setUserRegistro(ds.getUsuario());
         personaPerfilDAO.save(personaCargo);
 
         Oficina oficinaColaborador = oficinaDAO.find(colaborador.getOficina().getId());
@@ -790,7 +799,7 @@ public class ColaboradorServiceImp implements ColaboradorService {
             Medico medico = new Medico();
             medico.setColaborador(colaborador);
             medico.setFechaRegistro(new Date());
-            medico.setUserRegistro(usuario);
+            medico.setUserRegistro(ds.getUsuario());
             medicoDAO.save(medico);
 //            addRol(persona, RolEnum.MED, usuario);
         }
@@ -799,7 +808,7 @@ public class ColaboradorServiceImp implements ColaboradorService {
         for (FuncionColaborador funcionColaborador : colaborador.getFuncionColaborador()) {
             PerfilCompania perfil = funcionColaborador.getFuncion();
             funcionColaborador.setFechaRegistro(new Date());
-            funcionColaborador.setUserRegistro(usuario);
+            funcionColaborador.setUserRegistro(ds.getUsuario());
             funcionColaborador.setEstado(EstadoEnum.ACT.name());
             funcionColaborador.setColaborador(colaborador);
             funcionColaborador.setFuncion(perfil);
@@ -813,44 +822,21 @@ public class ColaboradorServiceImp implements ColaboradorService {
             user.setEstadoEnum(UserEstadoEnum.ACT);
             user.setGoogle(persona.getEmailCompania());
             user.setPersona(persona);
-            user.setUserRegistro(usuario);
+            user.setUserRegistro(ds.getUsuario());
             user.setFechaRegistro(new Date());
             usuarioDAO.save(user);
             listPerfiles.add(colaborador.getCargo());
-            addUserRoll(listPerfiles, oficinaColaborador, user, colaborador, usuario);
+            addUserRoll(listPerfiles, oficinaColaborador, user, colaborador, ds.getUsuario());
         }
 
     }
 
-//    @Transactional
-//    private void addRol(Persona p, RolEnum rol, Usuario userRegistro) {
-//        Usuario usuario = usuarioDAO.findActivoByPersona(p);
-//        if (usuario == null) {
-//            logger.debug("No se puede agregar rol porque no tiene usuario");
-//            return;
-//        }
-//
-//        Rol rolBD = rolDAO.findByCode(rol);
-//        UsuarioRol ur = usuarioRolDAO.findByUsuarioAndRol(usuario, rolBD);
-//
-//        if (ur != null) {
-//            logger.debug("No se puede agregar rol porque ya lo tiene");
-//            return;
-//        }
-//
-//        ur = new UsuarioRol();
-//        ur.setRol(rolBD);
-//        ur.setUsuario(usuario);
-//        ur.setEstado(UserEstadoEnum.ACT);
-//        ur.setFechaInicio(new Date());
-//        ur.setFechaRegistro(new Date());
-//        ur.setUserRegistro(userRegistro);
-//
-//        usuarioRolDAO.save(ur);
-//    }
     @Override
     @Transactional
-    public Boolean saveColaboradorExistente(Colaborador colaborador, Oficina oficinaMean, Usuario usuario, Compania compania) throws PhobosException {
+    public Boolean saveColaboradorExistente(Colaborador colaborador, Oficina oficinaForm, Compania compania, DataSessionPivot ds) {
+        boolean puedeVerOficina = verificadorService.puedeVerOficina(oficinaForm, ds);
+        Assert.isTrue(puedeVerOficina, "No tiene permiso de crear colaboradores en esta oficina");
+
         Oficina oficinaColaborador = oficinaDAO.find(colaborador.getOficina().getId());
         Persona personaForm = colaborador.getPersona();
 
@@ -870,7 +856,7 @@ public class ColaboradorServiceImp implements ColaboradorService {
 
         } else {
             colaborador.setFechaRegistro(new Date());
-            colaborador.setUserRegistro(usuario);
+            colaborador.setUserRegistro(ds.getUsuario());
             colaborador.setEstado(ColaboradorEstadoEnum.ACT.name());
             colaborador.setCodigo(getCodigoColaborador() + "");
             colaboradorDAO.save(colaborador);
@@ -878,7 +864,7 @@ public class ColaboradorServiceImp implements ColaboradorService {
             ColaboradorEstado colaboradorEstado = new ColaboradorEstado();
             colaboradorEstado.setColaborador(colaborador);
             colaboradorEstado.setEstadoEnum(ColaboradorEstadoEnum.ACT);
-            colaboradorEstado.setUserRegistro(usuario);
+            colaboradorEstado.setUserRegistro(ds.getUsuario());
             colaboradorEstado.setFechaRegistro(new Date());
             colaboradorEstadoDAO.save(colaboradorEstado);
 
@@ -890,7 +876,7 @@ public class ColaboradorServiceImp implements ColaboradorService {
             personaCargo.setOficina(colaborador.getOficina());
             personaCargo.setPerfilCompania(colaborador.getCargo());
             personaCargo.setPersona(personaBD);
-            personaCargo.setUserRegistro(usuario);
+            personaCargo.setUserRegistro(ds.getUsuario());
             personaPerfilDAO.save(personaCargo);
 
         }
@@ -903,7 +889,7 @@ public class ColaboradorServiceImp implements ColaboradorService {
             Medico medico = new Medico();
             medico.setColaborador(colaborador);
             medico.setFechaRegistro(new Date());
-            medico.setUserRegistro(usuario);
+            medico.setUserRegistro(ds.getUsuario());
             medicoDAO.save(medico);
 //            addRol(personaBD, RolEnum.MED, usuario);
         }
@@ -912,7 +898,7 @@ public class ColaboradorServiceImp implements ColaboradorService {
         for (FuncionColaborador funcionColaborador : colaborador.getFuncionColaborador()) {
             PerfilCompania perfil = funcionColaborador.getFuncion();
             funcionColaborador.setFechaRegistro(new Date());
-            funcionColaborador.setUserRegistro(usuario);
+            funcionColaborador.setUserRegistro(ds.getUsuario());
             funcionColaborador.setEstado(EstadoEnum.ACT.name());
             funcionColaborador.setFuncion(perfil);
             funcionColaborador.setFechaInico(new Date());
@@ -925,15 +911,15 @@ public class ColaboradorServiceImp implements ColaboradorService {
         if (user == null) {
             user = new Usuario();
             if (colaborador.getPersona().getEmailCompania() != null) {
-                user = addUser(personaForm, usuario);
+                user = addUser(personaForm, ds.getUsuario());
                 perfiles.add(colaborador.getCargo());
-                addUserRoll(perfiles, oficinaColaborador, user, colaborador, usuario);
+                addUserRoll(perfiles, oficinaColaborador, user, colaborador, ds.getUsuario());
             }
         } else {
             UsuarioRol ur = usuarioRolDAO.findUsuarioAndOficina(user, oficinaColaborador);
             if (ur == null) {
                 perfiles.add(colaborador.getCargo());
-                addUserRoll(perfiles, oficinaColaborador, user, colaborador, usuario);
+                addUserRoll(perfiles, oficinaColaborador, user, colaborador, ds.getUsuario());
             }
         }
         return true;
@@ -1217,13 +1203,33 @@ public class ColaboradorServiceImp implements ColaboradorService {
     }
 
     @Override
-    public List<PerfilCompania> allCargoByOficina(Oficina oficina) {
-        return perfilCompaniaDAO.allCargoByOficina(oficina);
+    public List<PerfilCompania> allCargoByOficina(Oficina oficina, DataSessionPivot ds) {
+        List<PerfilCompania> cargos;
+        if (verificadorService.puedeEditarOficinas(ds)) {
+            cargos = perfilCompaniaDAO.allCargoByOficinaAltoPerfil(oficina);
+
+        } else {
+            cargos = perfilCompaniaDAO.allCargoByOficina(oficina);
+            PerfilCompania administrativo = perfilCompaniaDAO.findByCodigo(PerfilColaboradorEnum.ADMTVO);
+            cargos.add(administrativo);
+        }
+
+        Collections.sort(cargos, new PerfilCompania.CompareNombre());
+        return cargos;
     }
 
     @Override
-    public List<PerfilCompania> allFuncionByOficina(Oficina oficina) {
-        return perfilCompaniaDAO.allFuncionByOficina(oficina);
+    public List<PerfilCompania> allFuncionByOficina(Oficina oficina, DataSessionPivot ds) {
+        List<PerfilCompania> funciones;
+        if (verificadorService.puedeEditarOficinas(ds)) {
+            funciones = perfilCompaniaDAO.allFuncionesByOficinaAltoPerfil(oficina);
+
+        } else {
+            funciones = perfilCompaniaDAO.allFuncionesByOficina(oficina);
+        }
+
+        Collections.sort(funciones, new PerfilCompania.CompareNombre());
+        return funciones;
     }
 
     @Override

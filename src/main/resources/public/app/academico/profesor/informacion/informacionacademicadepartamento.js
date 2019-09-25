@@ -51,7 +51,7 @@ Vue.component("departamentosearch", {
                     vue.departamento.id = info.id;
                     vue.departamento.nombre = info.nombre;
                     vue.departamento.codigo = info.codigo;
-                    return '<p>' + info.nombre + '</p>   ' + '<p class="bold text-xs"> ' + info.facultadName + '</p>';
+                    return '<p>(' +info.codigo+') '+ info.nombre + '</p>   ' + '<p class="bold text-xs"> ' + info.facultadName + '</p>';
                 },
                 escapeMarkup: function (m) {
                     return m;

@@ -27,4 +27,6 @@ public interface OrdenMeritoService {
 
     List<AlumnoCiclo> allAlumnoCicloByControlNivel(DynatableFilter filter, ControlOrdenMerito controlOrdenMerito, Integer nivel);
 
+    List<AlumnoCiclo> generatePdfOrdenMerito(CicloAcademico cicloAcademico);
+
 }

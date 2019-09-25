@@ -31,7 +31,12 @@ $(function () {
     }
 
     var Docente = {
-        init: function () {},
+        init: function () {
+            $("#departamento").select2({
+                placeholder: "Todos los departamentos",
+                allowClear: true
+            });
+        },
         body: $("body"),
         form: {},
         estado: function (e) {
@@ -84,10 +89,18 @@ $(function () {
         },
         loadDepartamento: function () {
             var dpto = $("#departamento").val();
+            if (dpto == null || dpto == "") {
+                dynatable.queries.remove("departamento");
+                dynatable.process();
+                return;
+            }
             dynatable.queries.add("departamento", dpto);
             dynatable.process();
+
         }
     };
+
+    Docente.init();
 
     Docente.body.delegate(".estado", "click", function (e) {
         Docente.estado(e);
