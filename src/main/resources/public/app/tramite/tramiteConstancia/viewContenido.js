@@ -103,6 +103,7 @@ new Vue({
 
             $vue.processingAjaxData = {
                 tramite: $vue.tramite.id,
+                accionTramite: null,
                 accionTramiteDoc: $vue.accionSeleccionada.id
             }
 
@@ -117,7 +118,7 @@ new Vue({
                 success: function (response) {
                     if (response.success) {
                         notify(response.message, "info");
-                        location.href = APP.url('academico/solicitudconstancia');
+                        location.href = APP.url('tramite/solicitudconstancia');
                     } else {
                         notify(response.message, "error");
                     }
