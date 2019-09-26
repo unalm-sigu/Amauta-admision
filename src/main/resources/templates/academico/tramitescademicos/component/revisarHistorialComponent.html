@@ -136,12 +136,16 @@
                 </td>
 
                 <td class="text-center" v-text="cur.vecesCursado"/>
-                <td  class="text-center" v-text="cur.registroActivo"/>
+                <td  class="text-center" >
+                    <span v-if="cur.estaActivo"> Sí</span>
+                    <span v-if="!cur.estaActivo"> No</span>
+                </td>
                 <td>
+
                     <a href="#">
                         <i class="fa fa-times text-danger"
                            v-on:click="removerCicloCurso(cur)" 
-                           v-if="cur.id &lt;= 0"></i>
+                           v-if="cur.id >= 0"></i>
                     </a>
                 </td>
                 </tr>

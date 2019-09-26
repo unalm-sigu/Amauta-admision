@@ -13,6 +13,7 @@ import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.seguridad.Menu;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.tramite.AccionTramiteAcademico;
+import pe.edu.lamolina.model.tramite.AccionTramiteDocumento;
 
 public interface OficinaDAO extends EasyDAO<Oficina> {
 
@@ -55,5 +56,7 @@ public interface OficinaDAO extends EasyDAO<Oficina> {
     List<Oficina> allFac();
 
     List<Oficina> allOficinaConsejero();
+
+    Map findOficinaOrigenDestinoByEstadoTramiteDoc(AccionTramiteDocumento accionTramiteDoc, Alumno alumno);
 
 }

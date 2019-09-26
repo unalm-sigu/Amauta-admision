@@ -12,18 +12,18 @@ new Vue({
         persona: {},
         tramite: {},
         haveParams: false,
-        dataCargarFoto: {
+        dataCargarFoto: VUE_MODAL.structFormAjax({
             id: 'modalCargarFoto',
             header: true,
             title: 'Cargar Fotografía',
             okbtn: 'Aceptar'
-        },
-        ciclosModal: {
+        }),
+        ciclosModal: VUE_MODAL.structFormAjax({
             id: 'ciclosModal',
             header: true,
             title: 'Ciclos Alumno',
             okbtn: 'Aceptar'
-        },
+        }),
         showCostoDocumento: false,
         mensajeerror: "",
         guardando: false,
@@ -86,14 +86,18 @@ new Vue({
 
             axios.post('/tramite/solicitudconstancia/allParametros', $vue.temp)
                     .then(response => {
-                        if (response.data.data.haveParams) {
-                            if (response.data.data.lista.length > 0) {
-                                $vue.ciclos = response.data.data.lista;
-                                $vue.haveParams = response.data.data.haveParams;
-                                $vue.$refs.ciclosModal.open();
-                            } else {
-                                notify("El alumno no cumple para esta constancia")
+                        if (response.data.success) {
+                            if (response.data.data.haveParams) {
+                                if (response.data.data.lista.length > 0) {
+                                    $vue.ciclos = response.data.data.lista;
+                                    $vue.haveParams = response.data.data.haveParams;
+                                    $vue.$refs.ciclosModal.open();
+                                } else {
+                                    notify("El alumno no cumple para esta constancia")
+                                }
                             }
+                        } else {
+                            notify(response.data.message,"error");
                         }
                     });
 //            if ($vue.solicitud.tipoDocumentoAcademico.tipo == 'CONS') {

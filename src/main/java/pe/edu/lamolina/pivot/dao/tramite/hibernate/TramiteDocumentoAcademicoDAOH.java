@@ -6,6 +6,7 @@ import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import pe.edu.lamolina.model.tramite.Tramite;
 import pe.edu.lamolina.model.tramite.TramiteDocumentoAcademico;
 import pe.edu.lamolina.pivot.dao.tramite.TramiteDocumentoAcademicoDAO;
 
@@ -38,6 +39,26 @@ public class TramiteDocumentoAcademicoDAOH extends AbstractEasyDAO<TramiteDocume
                 .join("tra.persona per", "tra.alumno alum", "alum.carrera car", "alum.situacionAcademica sia", "car.facultad", "car.modalidadEstudio")
                 .join("tra.cicloAcademico ca", "tra.tipoTramite tt", "tt.oficina ofic")
                 .filter("tda.id", tramiteDocumentoAcademico);
+        return find(sql);
+    }
+
+    @Override
+    public void updateColumns(TramiteDocumentoAcademico tramiteDocumentoAcademico, String... columns) {
+        Octavia sql = Octavia.update(TramiteDocumentoAcademico.class, "se");
+        for (String column : columns) {
+            sql.set(tramiteDocumentoAcademico, column);
+        }
+        this.update(sql);
+    }
+
+    @Override
+    public TramiteDocumentoAcademico findTramite(Tramite tramite) {
+        Octavia sql = Octavia.query()
+                .from(TramiteDocumentoAcademico.class, "tda")
+                .join("tipoDocumentoAcademico td", "idioma idi", "tramite tra", "estadoTramite")
+                .join("tra.persona per", "tra.alumno alum", "alum.carrera car", "alum.situacionAcademica sia", "car.facultad", "car.modalidadEstudio")
+                .join("tra.cicloAcademico ca", "tra.tipoTramite tt", "tt.oficina ofic")
+                .filter("tra.id", tramite);
         return find(sql);
     }
 }

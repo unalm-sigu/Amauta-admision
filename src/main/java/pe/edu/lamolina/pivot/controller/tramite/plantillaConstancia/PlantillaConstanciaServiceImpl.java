@@ -34,6 +34,7 @@ import pe.edu.lamolina.pivot.dao.tramite.ConstanciaPlantillaDAO;
 import pe.edu.lamolina.pivot.dao.tramite.VariableGenericaDAO;
 import pe.edu.lamolina.pivot.dao.tramite.VariablePlantillaDAO;
 import pe.edu.lamolina.pivot.dao.tramite.PlantillaDocumentoAcademicoDAO;
+import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 
 @Service
 @Transactional(readOnly = true)
@@ -66,7 +67,7 @@ public class PlantillaConstanciaServiceImpl implements PlantillaConstanciaServic
     @Transactional
     public PlantillaDocumentoAcademico updateContenido(PlantillaDocumentoAcademico plantillaDoc, Usuario usuario) {
         PlantillaDocumentoAcademico plantilla = plantillaConstanciaDAO.find(plantillaDoc.getId());
-        plantilla.setContenido(plantillaDoc.getContenido());
+        plantilla.setContenido(Constantine.HTML_PRE + plantillaDoc.getContenido() + Constantine.HTML_SUB);
         plantillaConstanciaDAO.update(plantilla);
         Map<String, String> mapVariables = this.getConstants(plantillaDoc.getContenido());
         List<String> formVariable = new ArrayList(mapVariables.values());
@@ -111,7 +112,7 @@ public class PlantillaConstanciaServiceImpl implements PlantillaConstanciaServic
         PlantillaDocumentoAcademico plantillaDocumentoAcaDB = plantillaConstanciaDAO.findTipoDocumento(plantilla.getTipoDocumentoAcademico(), plantilla.getIdioma());
 
         Assert.isNull(plantillaDocumentoAcaDB, "Existe Plantilla en " + plantilla.getIdioma().getNombre() + " para " + plantilla.getTipoDocumentoAcademico().getNombre());
-        
+
         plantilla.setFechaRegistro(new Date());
         plantilla.setIdUserRegistro(usuario.getId());
         plantilla.setContenido("Constancia");

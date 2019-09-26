@@ -103,7 +103,10 @@
                         </td>
 
                         <td class="text-center" v-text="cur.vecesCursado"/>
-                        <td  class="text-center" v-text="cur.registroActivo"/>
+                        <td  class="text-center" >
+                            <span v-if="cur.estaActivo"> Sí</span>
+                            <span v-if="!cur.estaActivo"> No</span>
+                        </td>
                         <td>
                             <a href="#">
                                 <i class="fa fa-times text-danger"

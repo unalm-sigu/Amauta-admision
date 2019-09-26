@@ -27,6 +27,7 @@ import pe.edu.lamolina.model.seguridad.MenuRol;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.seguridad.UsuarioRol;
 import pe.edu.lamolina.model.tramite.AccionTramiteAcademico;
+import pe.edu.lamolina.model.tramite.AccionTramiteDocumento;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 
 @Repository
@@ -212,6 +213,34 @@ public class OficinaDAOH extends AbstractEasyDAO<Oficina> implements OficinaDAO 
             if (accionTramiteAcademico.getTipoOficinaDestino().isTipoFacultad()) {
                 oficinaDestino = this.findByTipoAndFacultad(
                         TipoOficinaEnum.valueOf(accionTramiteAcademico.getTipoOficinaDestino().getCodigo()),
+                        alumno.getCarrera().getFacultad());
+            }
+        }
+        Map resultado = new HashMap();
+        resultado.put("oficinaOrigen", oficinaOrigen);
+        resultado.put("oficinaDestino", oficinaDestino);
+        return resultado;
+    }
+
+    @Override
+    public Map findOficinaOrigenDestinoByEstadoTramiteDoc(AccionTramiteDocumento accionTramiteDoc, Alumno alumno) {
+        Oficina oficinaOrigen = null;
+        if (ObjectUtil.getParentTree(accionTramiteDoc, "oficinaOrigen.id") != null) {
+            oficinaOrigen = this.find(accionTramiteDoc.getOficinaOrigen().getId());
+        } else {
+            if (accionTramiteDoc.getTipoOficinaOrigen().isTipoFacultad()) {
+                oficinaOrigen = this.findByTipoAndFacultad(
+                        TipoOficinaEnum.valueOf(accionTramiteDoc.getTipoOficinaOrigen().getCodigo()),
+                        alumno.getCarrera().getFacultad());
+            }
+        }
+        Oficina oficinaDestino = null;
+        if (ObjectUtil.getParentTree(accionTramiteDoc, "oficinaDestino.id") != null) {
+            oficinaDestino = this.find(accionTramiteDoc.getOficinaDestino().getId());
+        } else {
+            if (accionTramiteDoc.getTipoOficinaDestino().isTipoFacultad()) {
+                oficinaDestino = this.findByTipoAndFacultad(
+                        TipoOficinaEnum.valueOf(accionTramiteDoc.getTipoOficinaDestino().getCodigo()),
                         alumno.getCarrera().getFacultad());
             }
         }

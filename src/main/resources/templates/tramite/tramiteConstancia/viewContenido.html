@@ -30,9 +30,17 @@
                         </section>
                         <section class="panel-body text-center v-middle">
 
-                            <button v-on:click="updateContenido" class="btn btn-primary" id="updateContenido">Guardar</button>
-                            <a class="btn btn-primary" v-bind:href="'/tramite/solicitudconstancia/downloadWord/' + id">Generar Word</a>
-                            <button type="button"  class="btn btn-warning btn-sm ">Finalizar</button>
+                            <!--<button v-on:click="updateContenido" class="btn btn-primary" id="updateContenido">Guardar</button>-->
+                            <!--                            <a class="btn btn-primary" v-bind:href="'/tramite/solicitudconstancia/downloadWord/' + id">Generar Word</a>
+                                                        <button type="button"  class="btn btn-warning btn-sm ">Finalizar</button>-->
+
+                            <a class="btn btn-success m-r-md"
+                               v-if="tramite"
+                               v-for="accion in tramite.accionesTramitesDocumentos"
+                               v-text="accion.opcion"
+                               v-on:click.prevent="procesarTramite(accion)"
+                               >
+                            </a>
                         </section>
                     </section>
                     <section  class="panel">
@@ -63,7 +71,7 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr v-for="item in tramiteIncrustaciones">
+                                        <tr v-for="(item, idx ) in tramiteIncrustaciones">
                                             <td class="v-middle">
                                                 <span v-text="item.orden"></span>
                                             </td>
@@ -74,7 +82,7 @@
                                                 <div class="actions">
                                                     <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="glyphicon glyphicon-option-vertical"></i></a>
                                                     <ul class="dropdown-menu pull-right">
-                                                        <li><a  v-on:click="borrar(item)">Eliminar</a></li>
+                                                        <li><a  v-on:click="borrar(item,idx)">Eliminar</a></li>
                                                     </ul>
                                                 </div>
                                             </td>
@@ -86,7 +94,7 @@
                     </section>
                 </section>
 
-                <div th:substituteby="tramite/tramiteConstancia/ciclosModal"></div>
+                <!--<div th:substituteby="tramite/tramiteConstancia/ciclosModal"></div>-->
             </div>
 
         </div>
@@ -96,6 +104,7 @@
                 /*<![CDATA[*/
                 var contenidoJson = /*[[${contenido.toString()}]]*/ 'json';
                 var incrustacionesJson = /*[[${incrustaciones.toString()}]]*/ 'json';
+                var tramiteJson = /*[[${tramite.toString()}]]*/ 'json';
                 var id = /*[[${id.toString()}]]*/ 'json';
                 /*]]>*/
             </script>

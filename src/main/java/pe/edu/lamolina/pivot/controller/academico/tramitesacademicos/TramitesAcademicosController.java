@@ -52,6 +52,7 @@ import pe.edu.lamolina.model.enums.TipoOficinaEnum;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.tramite.AccionTramiteAcademico;
+import pe.edu.lamolina.model.tramite.AccionTramiteDocumento;
 import pe.edu.lamolina.model.tramite.CursoDirigido;
 import pe.edu.lamolina.model.tramite.ReunionConsejo;
 import pe.edu.lamolina.model.tramite.Tramite;
@@ -106,7 +107,7 @@ public class TramitesAcademicosController {
         "alumnoCicloCurso.creditos",
         "alumnoCicloCurso.nota",
         "alumnoCicloCurso.estaAprobado",
-        "alumnoCicloCurso.registroActivo",
+//        "alumnoCicloCurso.registroActivo",
         "alumnoCicloCurso.vecesCursado",
         "alumnoCicloCurso.estadoEnum",
         "alumnoCicloCurso.curso.id",
@@ -477,6 +478,9 @@ public class TramitesAcademicosController {
                 "accionesTramitesAcademico.*",
                 "accionesTramitesAcademico.estadoTramiteFinal.*",
                 "accionesTramitesAcademico.estadoTramiteInicio.*",
+                "accionesTramitesDocumentos.*",
+                "accionesTramitesDocumentos.estadoTramiteFinal.*",
+                "accionesTramitesDocumentos.estadoTramite.*",
                 "formularioEstadoTramite.*"
             };
 
@@ -547,8 +551,13 @@ public class TramitesAcademicosController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
             Tramite tramite = new Tramite(tramiteNode.get("tramite").asLong());
-            AccionTramiteAcademico accionTramiteAcademico = new AccionTramiteAcademico(tramiteNode.get("accionTramite").asLong());
-            accionTramiteAcademico = tramitesAcademicosService.findAccionTramiteAcademico(accionTramiteAcademico);
+            AccionTramiteAcademico accionTramiteAcademico = null;
+            AccionTramiteDocumento accionTramiteDocumento = null;
+
+            accionTramiteAcademico = tramitesAcademicosService.findAccionTramiteAcademico(new AccionTramiteAcademico(tramiteNode.get("accionTramite").asLong()));
+            if (accionTramiteAcademico == null) {
+                accionTramiteDocumento = tramitesAcademicosService.findAccionTramiteDocumento(new AccionTramiteDocumento(tramiteNode.get("accionTramiteDoc").asLong()));
+            }
 
             if (tramiteNode.get("motivo") != null) {
                 tramite.setObservacion(tramiteNode.get("motivo").asText());
@@ -558,7 +567,7 @@ public class TramitesAcademicosController {
                 tramite.getTramiteReunionConsejo().setReunionConsejo(new ReunionConsejo(tramiteNode.get("reunionConsejo").asText()));
             }
 
-            tramitesAcademicosService.procesarTramite(tramite, accionTramiteAcademico, ds);
+            tramitesAcademicosService.procesarTramite(tramite, accionTramiteAcademico, accionTramiteDocumento, ds);
             response.setSuccess(true);
 
         } catch (PhobosException e) {

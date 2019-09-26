@@ -3,6 +3,7 @@ package pe.edu.lamolina.pivot.dao.tramite;
 import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.easydao.EasyDAO;
+import pe.edu.lamolina.model.tramite.Tramite;
 import pe.edu.lamolina.model.tramite.TramiteDocumentoAcademico;
 
 public interface TramiteDocumentoAcademicoDAO extends EasyDAO<TramiteDocumentoAcademico> {
@@ -10,5 +11,9 @@ public interface TramiteDocumentoAcademicoDAO extends EasyDAO<TramiteDocumentoAc
     public List<TramiteDocumentoAcademico> allTramiteDocumentoAcademico(DynatableFilter filter);
 
     public TramiteDocumentoAcademico find(TramiteDocumentoAcademico tramiteDocumentoAcademico);
+
+    public void updateColumns(TramiteDocumentoAcademico tramiteDocumentoAcademico, String... string);
+
+    public TramiteDocumentoAcademico findTramite(Tramite tramite);
 
 }

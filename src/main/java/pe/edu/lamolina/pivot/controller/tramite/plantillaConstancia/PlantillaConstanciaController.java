@@ -114,8 +114,8 @@ public class PlantillaConstanciaController {
         List<TipoDocumentoAcademico> list = tipoConstanciaService.all();
         List<Idioma> listIdioma = service.allIdioma();
 
-        model.addAttribute("tipoDocumento", list.size() == 0 ? new ArrayList<TipoDocumentoAcademico>() : new TipoDocumentoAcademico().toArrayJson(list));
-        model.addAttribute("idiomas", listIdioma.size() == 0 ? new ArrayList<Idioma>() : new Idioma().toArrayJson(listIdioma));
+        model.addAttribute("tipoDocumento", list.isEmpty() ? list : new TipoDocumentoAcademico().toArrayJson(list));
+        model.addAttribute("idiomas", listIdioma.isEmpty() ? listIdioma : new Idioma().toArrayJson(listIdioma));
         return "tramite/plantillaConstancia/plantillaConstancia";
     }
 
