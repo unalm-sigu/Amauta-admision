@@ -1,0 +1,171 @@
+<modal-vik  
+    ref="modalAddFuncion" 
+    v-bind="dataModalFuncion" 
+    v-bind:okaction="saveFuncion" >
+
+    <div slot="body">
+
+        <form v-bind:id="dataModalFuncion.form" >
+            <div class="form-group">
+                <label >Nombre Función</label>
+                <input required="true" type="text" class="form-control" v-model="funcion.nombre" />                                                
+            </div>
+
+
+            <div class="form-group">
+                <label >Nombre Documento Función</label>
+                <input required="true" type="text" class="form-control" v-model="funcion.nombreDocumento" />                                                
+            </div>                                         
+
+        </form>
+
+    </div>
+
+</modal-vik>
+
+<modal-vik  
+    ref="modalAddCargo" 
+    v-bind="dataModalCargo" 
+    v-bind:okaction="saveCargo" >
+
+    <div slot="body">
+
+        <form v-bind:id="dataModalCargo.form" >
+
+            <div class="form-group">
+                <label >Nombre Cargo</label>
+                <input required="true" type="text" class="form-control" v-model="cargo.nombre" />                                                
+            </div>
+
+
+            <div class="form-group">
+                <label >Nombre Documento Cargo</label>
+                <input required="true" type="text" class="form-control" v-model="cargo.nombreDocumento" />                                                
+            </div>                                         
+
+        </form>
+
+    </div>
+
+</modal-vik>
+
+<modal-vik  
+    ref="modalCargosOficina" 
+    v-bind="dataCargosOficina"  >
+
+    <div slot="body">
+        <table class="table table-condensed">
+            <thead>
+                <tr>
+                    <th>Código</th>
+                    <th>Nombre</th>
+                    <th>Nombre Documento</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for='cargo in cargos'>
+                    <td>{{cargo.codigo}}</td>
+                    <td>{{cargo.nombre}}</td>
+                    <td>{{cargo.nombreDocumento}}</td>
+                </tr>
+            </tbody>
+        </table>
+
+    </div>
+
+</modal-vik>
+
+<modal-vik  
+    ref="modalDespedirEmpleado" 
+    v-bind="dataModalDespedir" 
+    v-bind:okaction="despedirEmpleado" >
+
+    <div slot="body">
+
+        <form v-bind:id="dataModalDespedir.form" v-if="empleado.id">
+            <p class="h4">
+                Indicar la fecha hasta cuando laboró <strong v-text="empleado.persona.nombreCompleto"></strong>
+            </p>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <date-picker v-bind:config="configDate" v-bind:wrap="false" v-model="empleado.fechaFin" required="true"></date-picker>
+                        <div class="input-group-addon">
+                            <span class="fa fa-calendar"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <br/>
+
+        </form>
+
+    </div>
+
+</modal-vik>
+
+<modal-vik  
+    ref="modalActivarEmpleado" 
+    v-bind="dataModalActivar" 
+    v-bind:okaction="activarEmpleado" >
+
+    <div slot="body">
+
+        <form v-bind:id="dataModalActivar.form" v-if="empleado.id">
+            <p class="h4">
+                Para activar a <strong v-text="empleado.persona.nombreCompleto"></strong> debe indicar los
+                siguientes datos:
+            </p>
+
+            <div class="row">
+                <div class="col-sm-12">
+                    <label>Área</label>
+                    <div class="form-group">                                
+                        <multiselect 
+                            v-model="empleado.oficina" 
+                            v-bind:options='areasForm'
+                            label='nombre'
+                            track-by='id'
+                            required="true"
+                            placeholder=" "
+                            v-bind:hide-selected="true">
+                        </multiselect>
+
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <label>Cargo</label>
+                    <div class="form-group">                                
+                        <multiselect 
+                            v-model="empleado.cargo" 
+                            v-bind:options='cargosForm'
+                            label='nombre'
+                            track-by='id'
+                            required="true"
+                            placeholder=" "
+                            v-bind:hide-selected="true" >
+                        </multiselect>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <label>Fecha de inicio de labores</label>
+                    <div class="input-group">
+                        <date-picker v-bind:config="configDate" v-bind:wrap="false" v-model="empleado.fechaInicio" required="true"></date-picker>
+                        <div class="input-group-addon">
+                            <span class="fa fa-calendar"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <br/>
+
+        </form>
+
+    </div>
+
+</modal-vik>

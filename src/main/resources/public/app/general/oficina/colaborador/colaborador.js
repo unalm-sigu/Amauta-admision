@@ -1,23 +1,46 @@
-Vue.component("multiselect", window.VueMultiselect.default)
+Vue.component("multiselect", window.VueMultiselect.default);
+Vue.component('date-picker', VueBootstrapDatetimePicker.default);
 
 new Vue({
     el: '#colaboradorVue',
     mixins: [VueLoader],
     data: {
         colaboradoreURL: APP.url(rutaModulo + '/listColaboradores'),
-        listaCargos: JSON.parse(cargosJson),
+        cargosForm: JSON.parse(cargosJson),
+        areasForm: JSON.parse(areasJson),
         estadosEmp: JSON.parse(estadosEmpJson),
         persona: {},
         colaborador: {},
         perfilCompania: {},
-        dataModalFuncion: {
-            title: 'Nueva Función',
-        },
-        dataVerCargo: {
-            title: 'Cargos',
-            showaccept: false
-        },
-        funcion: {id: null},
+        dataModalFuncion: VUE_MODAL.structFormAjax({
+            id: "idModalFuncion",
+            form: "formFuncion",
+            title: 'Nueva Función'
+        }),
+        dataModalCargo: VUE_MODAL.structFormAjax({
+            id: "idModalCargo",
+            form: "formCargo",
+            title: 'Nuevo Cargo'
+        }),
+        dataCargosOficina: VUE_MODAL.structInfo({
+            id: "idModalCargosOficina",
+            header: true,
+            title: 'titulos cargos oficina'
+        }),
+        configConfirmAction: VUE_MODAL.structConfirm({
+            id: "modalConfirmGeneric"
+        }),
+        dataModalDespedir: VUE_MODAL.structFormAjax({
+            id: "modalDespidoEmpleado",
+            form: "formDespidoEmpleado"
+        }),
+        dataModalActivar: VUE_MODAL.structFormAjax({
+            id: "modalActivarEmpleado",
+            form: "formActivarEmpleado"
+        }),
+        funcion: {},
+        cargo: {},
+        empleado: {},
         cargos: [],
         divElegido: 0,
         resumen: {
@@ -27,19 +50,16 @@ new Vue({
             descanso: 0,
             permiso: 0,
             despedido: 0
+        },
+        configDate: {
+            format: "DD/MM/YYYY",
+            useCurrent: false
         }
     },
     computed: {
 
     },
     created() {
-//        let $vue = this;
-//        console.log($vue.listaCargos);
-//        $vue.oficinas.forEach(function (elem) {
-//            if ($vue.oficina.id == elem.id) {
-//                $vue.oficina = elem;
-//            }
-//        })
     },
     mounted: function () {
         let $vue = this;
@@ -50,187 +70,101 @@ new Vue({
 
     },
     methods: {
-
-        addCargo: function () {
-            let $vue = this;
-            var flag = false;
-            $vue.listaCargos.forEach(function (elem) {
-                if (elem.nombre == $vue.perfilCompania.nombre) {
-                    notify('El cargo ingresado ya existe', "error");
-                    flag = true;
-                }
-            })
-            if (flag) {
-                return;
-            }
-            $vue.perfilCompania.oficinaContiene = $vue.oficina;
-            $.ajax({
-                url: APP.url('general/oficina/cargo'),
-                type: 'POST',
-                contentType: "application/json",
-                data: JSON.stringify($vue.perfilCompania),
-                success: function (response) {
-                    notify(response.message, "info");
-                    $global.$emit("reloadDyntable");
-                    $("#myModal").modal('hide');
-                },
-                error: function (error) {
-                    notify(MESSAGES.errorComunicacion, "error");
-                }
-            });
-        },
-        nuevoCargos: function () {
-            $("#myModal").modal('show');
-        },
-        regresar: function () {
-            location.href = APP.url("general/oficina");
-        },
-
-        nuevoColaborador: function () {
+        nuevoColaborador() {
             let $vue = this;
 //            $vue.oficina
             location.href = APP.url(rutaModulo + "/nuevoColaborador") + $vue.getOrigenURL();
 
         },
-        oficinaSeleccionada: function () {
-            let $vue = this;
-            console.log($vue.oficina);
-            $global.$emit("oficinaId", $vue.oficina);
-        },
-        updateEstado: function (id, value, estado) {
-            let $vue = this;
-            console.log(estado);
-            if (estado == "DESP") {
-                location.href = APP.url(rutaModulo + "/updateColaborador/" + $vue.oficina.id);
-                return;
-            }
-            $vue.colaborador = {id: id, estado: value, oficina: $vue.oficina};
-            bootbox.confirm({
-                message: "¿Seguro desea cambiar de estado al colaborador?",
-                buttons: {
-                    confirm: {label: "Si, seguro", className: "btn-info"},
-                    cancel: {label: "No", className: "btn-link"}
-                },
-                callback: function (result) {
-                    if (!result) {
-                        return;
-                    }
-                    $.ajax({
-                        url: APP.url('general/oficina/updateEstado'),
-                        type: 'POST',
-                        contentType: "application/json",
-                        data: JSON.stringify($vue.colaborador),
-                        success: function (response) {
-                            notify(response.message, "info");
-                            $global.$emit("reloadDyntable");
-                        },
-                        error: function (error) {
-                            notify(MESSAGES.errorComunicacion, "error");
-                        }
-                    });
-                }
-            });
-        },
-        nuevaFuncion: function () {
+        nuevoCargo() {
             let vue = this;
             vue.funcion = {id: null};
-            vue.dataModalFuncion.title = "Nueva Función";
-            vue.$refs.modaladdfuncion.open();
+            vue.$refs.modalAddCargo.open();
         },
-        saveFuncion: function () {
+        saveCargo() {
             var vue = this;
 
-            var valid = $('#formAddFuncion').parsley().validate();
-
-            if (valid != true) {
+            var form = $('#' + vue.dataModalCargo.form);
+            if (!form.parsley().validate()) {
                 return;
             }
 
-            vue.showLoader();
-
-            $.ajax({
-                method: 'POST',
-                url: APP.url('general/oficina/savefuncion'),
-                data: $('#formAddFuncion').serialize(),
-                async: false,
-                success: function (response) {
-
-                    if (response.success) {
-
-                        notify(response.message, 'info');
-                        vue.$refs.modaladdfuncion.close();
-
-                    } else {
-                        notify(response.message, 'error');
-                    }
-
-                    vue.hideLoader();
-
-                }, error: function () {
-
-                    vue.hideLoader();
-                    notify(MESSAGES.errorComunicacion, "error");
-
-                }
+            vue.$refs.modalAddCargo.beginProcessing();
+            axios.post(APP.url(rutaModulo + '/savecargo'), vue.cargo)
+                    .then(response => {
+                        vue.$refs.modalAddCargo.confirmReaction(response.data.success);
+                        if (response.data.success) {
+                            notify(response.data.message, "info");
+                        } else {
+                            notify(response.data.message, "error");
+                        }
+                    }).catch(e => {
+                vue.$refs.modalAddCargo.confirmReaction(false);
+                notify(MESSAGES.errorComunicacion, "error");
             });
 
         },
-        verCargo: function () {
+        nuevaFuncion() {
             let vue = this;
-            vue.dataVerCargo.title = "Cargos";
-            vue.$refs.modalvercargo.open();
+            vue.funcion = {id: null};
+            vue.$refs.modalAddFuncion.open();
+        },
+        saveFuncion() {
+            var vue = this;
 
-            $.ajax({
-                method: 'POST',
-                url: APP.url('general/oficina/vercargo'),
-                data: {id: vue.oficina.id},
-                success: function (response) {
+            var form = $('#' + vue.dataModalFuncion.form);
+            if (!form.parsley().validate()) {
+                return;
+            }
 
-                    if (response.success) {
-
-                        vue.cargos = response.data;
-
-                    } else {
-                        notify(response.message, 'error');
-                    }
-
-                }, error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
-                }
+            vue.$refs.modalAddFuncion.beginProcessing();
+            axios.post(APP.url(rutaModulo + '/savefuncion'), vue.funcion)
+                    .then(response => {
+                        vue.$refs.modalAddFuncion.confirmReaction(response.data.success);
+                        if (response.data.success) {
+                            notify(response.data.message, "info");
+                        } else {
+                            notify(response.data.message, "error");
+                        }
+                    }).catch(e => {
+                vue.$refs.modalAddFuncion.confirmReaction(false);
+                notify(MESSAGES.errorComunicacion, "error");
             });
 
-
         },
-        verFuncion: function () {
+        verCargo() {
             let vue = this;
-            vue.dataVerCargo.title = "Funciones";
-            vue.$refs.modalvercargo.open();
+            vue.dataCargosOficina.title = "Cargos de la oficina";
+            vue.$refs.modalCargosOficina.open();
 
-            $.ajax({
-                method: 'POST',
-                url: APP.url('general/oficina/verfuncion'),
-                data: {id: vue.oficina.id},
-                success: function (response) {
+            axios.post(APP.url(rutaModulo + '/allCargosOficina'))
+                    .then(response => {
+                        if (response.data.success) {
+                            vue.cargos = response.data.data;
+                        } else {
+                            notify(response.data.message, "error");
+                        }
+                    }).catch(e => {
+                notify(MESSAGES.errorComunicacion, "error");
+            });
+        },
+        verFuncion() {
+            let vue = this;
+            vue.dataCargosOficina.title = "Funciones de la oficina";
+            vue.$refs.modalCargosOficina.open();
 
-                    if (response.success) {
-
-                        vue.cargos = response.data;
-
-                    } else {
-                        notify(response.message, 'error');
-                    }
-
-                }, error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
-                }
+            axios.post(APP.url(rutaModulo + '/allFuncionesOficina'))
+                    .then(response => {
+                        if (response.data.success) {
+                            vue.cargos = response.data.data;
+                        } else {
+                            notify(response.data.message, "error");
+                        }
+                    }).catch(e => {
+                notify(MESSAGES.errorComunicacion, "error");
             });
 
         },
-        getRecord: function (id) {
-            var id = parseInt(id);
-            return $dynatable.settings.dataset.records.find(item => item.id === id);
-        },
-
         getOrigenURL() {
             var url = window.location.href;
             return "?origen=" + Base64.encode(url);
@@ -259,43 +193,100 @@ new Vue({
             }
             $vue.$refs.raptorColaboran.loadRemoteData();
         },
-        changeEstado(item, estado) {
+        verChangeEstado(item, estado) {
             let $vue = this;
-            console.log(estado);
-            if (estado.name == "DESP") {
-                location.href = APP.url(rutaModulo + "/updateColaborador/" + item.id) + $vue.getOrigenURL();
+
+            $vue.empleado = Object.assign({}, item, {});
+            $vue.empleado.estado = estado.name;
+
+            var msg = "¿Seguro desea cambiar a <strong>" + item.persona.nombreCompleto
+                    + "</strong> al estado <strong class='text-danger'>"
+                    + estado.value + "</strong>?";
+            $vue.configConfirmAction = VUE_MODAL.structConfirm({
+                message: msg,
+                okbtn: "Si, cambiar",
+                okaction: $vue.changeEstado
+            });
+            $vue.$refs.modalConfirmAction.open();
+        },
+        changeEstado() {
+            let $vue = this;
+
+            if ("/RET/DESP/".indexOf($vue.empleado.estado) > 0) {
+                $vue.$refs.modalConfirmAction.confirmReaction(true);
+                $vue.$refs.modalDespedirEmpleado.open();
+
+                return;
+            }
+            if ("/ACT/".indexOf($vue.empleado.estado) > 0) {
+                $vue.$refs.modalConfirmAction.confirmReaction(true);
+                $vue.$refs.modalActivarEmpleado.open();
                 return;
             }
 
-            bootbox.confirm({
-                message: "¿Seguro desea cambiar a <strong>" + item.persona.nombreCompleto
-                        + "</strong> al estado <strong class='text-danger'>"
-                        + estado.value + "</strong>?",
-                buttons: {
-                    confirm: {label: "Si, cambiar", className: "btn-info"},
-                    cancel: {label: "No", className: "btn-link"}
-                },
-                callback: function (result) {
-                    if (result) {
-                        let empleado = Object.assign({}, item, {});
-                        empleado.estado = estado.name;
+            axios.post(APP.url(rutaModulo + '/updateEstado'), $vue.empleado)
+                    .then(response => {
+                        $vue.$refs.modalConfirmAction.confirmReaction(response.data.success);
+                        if (response.data.success) {
+                            $vue.getResumen();
+                            $vue.$refs.raptorColaboran.loadRemoteData();
+                            notify(response.data.message, "info");
 
-                        $.ajax({
-                            url: APP.url(rutaModulo + '/updateEstado'),
-                            type: 'POST',
-                            contentType: "application/json",
-                            data: JSON.stringify(empleado),
-                            success: function (response) {
-                                $vue.getResumen();
-                                $vue.$refs.raptorColaboran.loadRemoteData();
-                                notify(response.message, "info");
-                            },
-                            error: function (error) {
-                                notify(MESSAGES.errorComunicacion, "error");
-                            }
-                        });
-                    }
-                }
+                        } else {
+                            notify(response.data.message, "error");
+                        }
+                    }).catch(e => {
+                $vue.$refs.modalConfirmAction.confirmReaction(false);
+                notify(MESSAGES.errorComunicacion, "error");
+            });
+
+        },
+        despedirEmpleado() {
+            let $vue = this;
+            var form = $('#' + $vue.dataModalDespedir.form);
+            if (!form.parsley().validate()) {
+                return;
+            }
+
+            $vue.$refs.modalDespedirEmpleado.beginProcessing();
+            axios.post(APP.url(rutaModulo + '/updateEstado'), $vue.empleado)
+                    .then(response => {
+                        $vue.$refs.modalDespedirEmpleado.confirmReaction(response.data.success);
+                        if (response.data.success) {
+                            $vue.getResumen();
+                            $vue.$refs.raptorColaboran.loadRemoteData();
+                            notify(response.data.message, "info");
+
+                        } else {
+                            notify(response.data.message, "error");
+                        }
+                    }).catch(e => {
+                $vue.$refs.modalDespedirEmpleado.confirmReaction(false);
+                notify(MESSAGES.errorComunicacion, "error");
+            });
+        },
+        activarEmpleado() {
+            let $vue = this;
+            var form = $('#' + $vue.dataModalActivar.form);
+            if (!form.parsley().validate()) {
+                return;
+            }
+            
+            $vue.$refs.modalActivarEmpleado.beginProcessing();
+            axios.post(APP.url(rutaModulo + '/updateEstado'), $vue.empleado)
+                    .then(response => {
+                        $vue.$refs.modalActivarEmpleado.confirmReaction(response.data.success);
+                        if (response.data.success) {
+                            $vue.getResumen();
+                            $vue.$refs.raptorColaboran.loadRemoteData();
+                            notify(response.data.message, "info");
+
+                        } else {
+                            notify(response.data.message, "error");
+                        }
+                    }).catch(e => {
+                $vue.$refs.modalActivarEmpleado.confirmReaction(false);
+                notify(MESSAGES.errorComunicacion, "error");
             });
         },
         getResumen() {
@@ -324,23 +315,18 @@ new Vue({
         },
         showFuncionesColaborador(item) {
             let $vue = this;
-            $vue.dataVerCargo.title = "Funciones de " + item.persona.nombreCompleto;
-            $vue.$refs.modalvercargo.open();
+            $vue.dataCargosOficina.title = "Funciones de " + item.persona.nombreCompleto;
+            $vue.$refs.modalCargosOficina.open();
 
-            $.ajax({
-                method: 'POST',
-                url: APP.url(rutaModulo + '/allFuncionesColaborador'),
-                data: {id: item.id},
-                success: function (response) {
-                    if (response.success) {
-                        $vue.cargos = response.data;
-                    } else {
-                        notify(response.message, 'error');
-                    }
-
-                }, error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
-                }
+            axios.post(APP.url(rutaModulo + '/allFuncionesColaborador'), {id: item.id})
+                    .then(response => {
+                        if (response.data.success) {
+                            $vue.cargos = response.data.data;
+                        } else {
+                            notify(response.data.message, "error");
+                        }
+                    }).catch(e => {
+                notify(MESSAGES.errorComunicacion, "error");
             });
 
         },

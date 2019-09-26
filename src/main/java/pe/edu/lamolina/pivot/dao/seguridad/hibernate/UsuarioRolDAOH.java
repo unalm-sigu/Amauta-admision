@@ -130,11 +130,11 @@ public class UsuarioRolDAOH extends AbstractEasyDAO<UsuarioRol> implements Usuar
     }
 
     @Override
-    public UsuarioRol findUsuarioAndOficina(Usuario usuario1, Oficina oficina) {
+    public UsuarioRol findByUserOficina(Usuario usuario, Oficina oficina) {
         Octavia sql = Octavia.query()
                 .from(UsuarioRol.class, "ur")
                 .join("usuario u", "oficina ofi")
-                .filter("u.id", usuario1.getId())
+                .filter("u.id", usuario.getId())
                 .filter("ofi.id", oficina.getId())
                 .filter("ur.estado", ACT);
 
@@ -142,7 +142,7 @@ public class UsuarioRolDAOH extends AbstractEasyDAO<UsuarioRol> implements Usuar
     }
 
     @Override
-    public List<UsuarioRol> allUsuarioAndOficina(Usuario usuario1, Oficina oficina) {
+    public List<UsuarioRol> allByUserOficina(Usuario usuario1, Oficina oficina) {
         Octavia sql = Octavia.query()
                 .from(UsuarioRol.class, "ur")
                 .join("usuario u", "oficina ofi")
@@ -173,6 +173,17 @@ public class UsuarioRolDAOH extends AbstractEasyDAO<UsuarioRol> implements Usuar
                 .filter("us.id", usuario)
                 .in("tof.codigo", Arrays.asList(TipoOficinaEnum.ESP, TipoOficinaEnum.FAC))
                 .filter("ofi.estado", ACT)
+                .filter("ur.estado", ACT);
+
+        return all(sql);
+    }
+
+    @Override
+    public List<UsuarioRol> allActivosByUser(Usuario usuario) {
+        Octavia sql = new Octavia()
+                .from(UsuarioRol.class, "ur")
+                .join("usuario us", "rol rol")
+                .filter("us.id", usuario)
                 .filter("ur.estado", ACT);
 
         return all(sql);

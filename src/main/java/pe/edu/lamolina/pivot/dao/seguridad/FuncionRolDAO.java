@@ -8,17 +8,20 @@ import pe.edu.lamolina.model.seguridad.Rol;
 
 public interface FuncionRolDAO extends EasyDAO<FuncionRol> {
 
-    List<FuncionRol> allByPerfilCompania(List<PerfilCompania> perfilCompania);
+    List<FuncionRol> allByPerfil(PerfilCompania cargoJefe);
 
-    public List<FuncionRol> allFuncionRol(Rol rol);
+    List<FuncionRol> allByPerfiles(List<PerfilCompania> perfilCompania);
 
-    public FuncionRol findByRolPerfilCompania(FuncionRol funcionRol);
+    List<FuncionRol> allFuncionRol(Rol rol);
 
-    public FuncionRol find(FuncionRol funcionRol);
+    FuncionRol findByRolPerfilCompania(FuncionRol funcionRol);
 
-    public List<FuncionRol> allFuncionRolTipoPerfil(FuncionRol funcionRol);
+    FuncionRol find(FuncionRol funcionRol);
 
-    public List<FuncionRol> allFuncionRolByRoles(List<Rol> roles);
+    List<FuncionRol> allFuncionRolTipoPerfil(FuncionRol funcionRol);
 
-    public List<FuncionRol> allFuncionRolActivoByRoles(List<Rol> roles);
+    List<FuncionRol> allFuncionRolByRoles(List<Rol> roles);
+
+    List<FuncionRol> allFuncionRolActivoByRoles(List<Rol> roles);
+
 }

@@ -34,6 +34,16 @@ public class ColaboradorDAOH extends AbstractEasyDAO<Colaborador> implements Col
     }
 
     @Override
+    public Colaborador find(long id) {
+        Octavia sql = Octavia.query()
+                .from(Colaborador.class, "co")
+                .join("persona", "oficina", "cargo")
+                .filter("id", id);
+
+        return find(sql);
+    }
+
+    @Override
     public List<Colaborador> allByOficinas(List<Oficina> oficinas) {
         Octavia sql = Octavia.query()
                 .from(Colaborador.class, "co")

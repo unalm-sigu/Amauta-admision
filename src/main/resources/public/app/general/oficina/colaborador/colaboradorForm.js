@@ -7,7 +7,7 @@ new Vue({
         origen: $("#origen").val(),
         tipoDoc: JSON.parse(tipoDocumentoJson),
         persona: {},
-        oficina: {id: JSON.parse(oficinaId)},
+        oficina: JSON.parse(oficinaJson),
         sexo: sexoJson,
         areas: JSON.parse(areasJson),
         misfunciones: JSON.parse(misfuncionesJson),

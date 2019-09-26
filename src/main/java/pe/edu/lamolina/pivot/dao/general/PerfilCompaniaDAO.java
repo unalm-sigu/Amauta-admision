@@ -17,7 +17,7 @@ public interface PerfilCompaniaDAO extends EasyDAO<PerfilCompania> {
 
     List<PerfilCompania> allTipoFuncion();
 
-    PerfilCompania findUltimoCodigo();
+    PerfilCompania findUltimoCodigoCargo();
 
     List<PerfilCompania> allFuncion(String nombre, Compania compania);
 
@@ -26,6 +26,8 @@ public interface PerfilCompaniaDAO extends EasyDAO<PerfilCompania> {
     List<PerfilCompania> allPerfilCompaniaByTipo(PerfilCompania perfilCompania, Compania compania);
 
     PerfilCompania findFuncionByNombre(String nombre);
+
+    PerfilCompania findCargoByNombre(String nombre);
 
     PerfilCompania findUltimoCodigoFuncion();
 

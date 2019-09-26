@@ -61,7 +61,19 @@ public class PersonaCargoDAOH extends AbstractEasyDAO<PersonaCargo> implements P
     }
 
     @Override
-    public PersonaCargo findSinCerrar(Oficina oficina, Compania cia) {
+    public List<PersonaCargo> allByPersonaOficina(Persona persona, Oficina oficina) {
+        Octavia sql = Octavia.query()
+                .from(PersonaCargo.class, "pp")
+                .join("perfilCompania", "persona per", "oficina ofi")
+                .filter("ofi.id", oficina)
+                .filter("per.id", persona)
+                .filter("pp.estado", EstadoEnum.ACT);
+
+        return all(sql);
+    }
+
+    @Override
+    public PersonaCargo findSinCerrarByOficina(Oficina oficina, Compania cia) {
         Octavia sql = Octavia.query()
                 .from(PersonaCargo.class, "pp")
                 .join("perfilCompania peco", "persona per", "compania cia", "oficina ofi")

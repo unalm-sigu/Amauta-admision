@@ -27,4 +27,6 @@ public interface VerificadorService {
 
     List<Oficina> allOficinasAcceso(DataSessionPivot ds);
 
+    String getOrigen(String origen, String defecto);
+
 }

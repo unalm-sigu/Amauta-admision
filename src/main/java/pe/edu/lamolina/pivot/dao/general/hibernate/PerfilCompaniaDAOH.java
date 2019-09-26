@@ -62,12 +62,12 @@ public class PerfilCompaniaDAOH extends AbstractEasyDAO<PerfilCompania> implemen
     }
 
     @Override
-    public PerfilCompania findUltimoCodigo() {
+    public PerfilCompania findUltimoCodigoCargo() {
         Octavia sql = Octavia.query()
                 .from(PerfilCompania.class, "pc")
                 .filter("tipo", TipoPerfilCompaniaEnum.CARGO)
                 .filter("esAutomatico", 1)
-                .orderBy("id desc")
+                .orderBy("codigo desc")
                 .limit(1);
 
         return find(sql);
@@ -134,12 +134,21 @@ public class PerfilCompaniaDAOH extends AbstractEasyDAO<PerfilCompania> implemen
     }
 
     @Override
+    public PerfilCompania findCargoByNombre(String nombre) {
+        Octavia sql = Octavia.query()
+                .from(PerfilCompania.class, "pc")
+                .filter("pc.tipo", TipoPerfilCompaniaEnum.CARGO)
+                .filter("pc.nombre", nombre);
+        return find(sql);
+    }
+
+    @Override
     public PerfilCompania findUltimoCodigoFuncion() {
         Octavia sql = Octavia.query()
                 .from(PerfilCompania.class, "pc")
-                .filter("pc.tipo", TipoPerfilCompaniaEnum.FUNCION)
-                .filter("pc.esAutomatico", 1)
-                .orderBy("id desc")
+                .filter("tipo", TipoPerfilCompaniaEnum.FUNCION)
+                .filter("esAutomatico", 1)
+                .orderBy("codigo desc")
                 .limit(1);
         return find(sql);
     }

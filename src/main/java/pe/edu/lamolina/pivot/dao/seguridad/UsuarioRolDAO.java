@@ -26,13 +26,15 @@ public interface UsuarioRolDAO extends EasyDAO<UsuarioRol> {
 
     UsuarioRol find(UsuarioRol userRol);
 
-    UsuarioRol findUsuarioAndOficina(Usuario usuario1, Oficina oficina);
+    UsuarioRol findByUserOficina(Usuario usuario1, Oficina oficina);
 
-    List<UsuarioRol> allUsuarioAndOficina(Usuario usuario1, Oficina oficina);
+    List<UsuarioRol> allByUserOficina(Usuario usuario1, Oficina oficina);
 
     void updateInactivar(Colaborador colaborador, Usuario usuario);
 
     List<UsuarioRol> findByUsuario(Usuario usuario);
+
+    List<UsuarioRol> allActivosByUser(Usuario usuario);
 
     UsuarioRol findByUsuarioAndRolAndEstadoUsuRol(Usuario usuario, Rol rol, UserEstadoEnum estadoUsuarioRol);
 
