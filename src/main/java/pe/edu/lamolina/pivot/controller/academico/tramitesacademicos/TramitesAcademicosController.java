@@ -107,7 +107,7 @@ public class TramitesAcademicosController {
         "alumnoCicloCurso.creditos",
         "alumnoCicloCurso.nota",
         "alumnoCicloCurso.estaAprobado",
-        "alumnoCicloCurso.registroActivo",
+//        "alumnoCicloCurso.registroActivo",
         "alumnoCicloCurso.vecesCursado",
         "alumnoCicloCurso.estadoEnum",
         "alumnoCicloCurso.curso.id",
