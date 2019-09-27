@@ -18,6 +18,7 @@ import pe.edu.lamolina.model.academico.EvaluacionPlan;
 import pe.edu.lamolina.model.academico.EvaluacionSeccion;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.MatriculaCurso;
+import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.PlanCalificacion;
 import pe.edu.lamolina.model.academico.PlanCalificacionCurso;
@@ -168,6 +169,8 @@ public interface NotaAcademicaService {
 
     void saveEstructuraEvaluacion(EvaluacionExpandida evaluacionExpandida, LoggerAccionEnum loggerAccionEnum, HttpSession session);
 
-    public CicloAcademico findCicloConfOrAct(CicloAcademico cicloAcademico);
+    CicloAcademico findCicloConfOrAct(CicloAcademico cicloAcademico);
+
+    MatriculaCurso findByCursoResumen(MatriculaResumen matriculaResumen, Curso curso);
 
 }

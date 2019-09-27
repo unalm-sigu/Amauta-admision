@@ -173,21 +173,24 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
     CicloAcademicoDAO cicloAcademicoDAO;
 
     @Autowired
-    PromedioService promedioService;
-    @Autowired
-    InterceptorService interceptorService;
-    @Autowired
-    AuditorService auditorService;
-    @Autowired
-    CalculoNotasService calculoNotasService;
+    AlumnoCicloCursoDAO alumnoCicloCursoDAO;
 
     @Autowired
-    AlumnoCicloCursoDAO alumnoCicloCursoDAO;
+    PromedioService promedioService;
+
+    @Autowired
+    InterceptorService interceptorService;
+
+    @Autowired
+    AuditorService auditorService;
+
+    @Autowired
+    CalculoNotasService calculoNotasService;
 
     @Override
     public List<GrupoSeccion> allGrupoByDocente(Docente docente, CicloAcademico ciclo, DataSessionPivot ds) {
         List<DocenteSeccion> docentesSecciones = docenteSeccionDAO.allByDocente(docente, ciclo);
-        Map<Long, DocenteSeccion> mapDocentesSeccion = MapUtil.storeItems("seccion.id", docentesSecciones);
+        Map<Long, DocenteSeccion> mapDocentesSeccion = TypesUtil.convertListToMap("seccion.id", docentesSecciones);
 
         logger.debug("Cantidad docente seccion {}", docentesSecciones.size());
         List<Long> idsGpoSecc = new ArrayList<>();
@@ -2219,6 +2222,11 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
     @Override
     public CicloAcademico findCicloConfOrAct(CicloAcademico cicloAcademico) {
         return cicloAcademicoDAO.findSiguienteConfOrAct(cicloAcademico);
+    }
+
+    @Override
+    public MatriculaCurso findByCursoResumen(MatriculaResumen matriculaResumen, Curso curso) {
+        return matriculaCursoDAO.findByMatriculaCurso(matriculaResumen, curso);
     }
 
 }
