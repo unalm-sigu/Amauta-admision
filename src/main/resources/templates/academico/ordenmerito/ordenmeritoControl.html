@@ -16,17 +16,17 @@
                     <p class="h4" th:if="${control.escala=='FAC'}" th:inline="text"> Nivel: [[${control.escalaEnum.value}]]  de [[${control.facultad?.nombre}]]</p>
                     <p class="h4" th:if="${control.escala=='ESPE'}" th:inline="text"> Nivel: [[${control.escalaEnum.value}]]  de [[${control.carrera?.nombre}]]</p>
                 </div>
-                <div class="block m-b-sm m-t-sm row">
+                <!--div class="block m-b-sm m-t-sm row">
                     <div class="pull-right m-t-md">                
                         <button v-bind:disabled="processreporte" class="btn btn-success btn-sm dropdown-toggle" type="button"  data-toggle="dropdown"> 
-                            <span v-if="processreporte"><i class="fas fa-spinner fa-spin"></i></span>
+                            <span v-if="c"><i class="fas fa-spinner fa-spin"></i></span>
                             Generar Reporte 
                         </button>
                         <ul class="dropdown-menu pointer">
                             <li><a class="dropdown-item" v-on:click.prevent="generarReporte()"> Facultad </a></li>
                         </ul>
                     </div>
-                </div> 
+                </div--> 
             </header>
             <section class="wrapper-lg m-b-xs">
                 <section class="panel">           
