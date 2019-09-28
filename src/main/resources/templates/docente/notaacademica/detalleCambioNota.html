@@ -54,7 +54,8 @@
             </select>
         </div>
     </div>
-    <div class="form-group">
+    
+    <div class="form-group" th:if="${curso.tipoCredito == 'FIJO'}">
         <div class="col-md-6">
             <label>Nota anterior:</label>
             <input id="txtNotaAnterior"
@@ -68,6 +69,34 @@
         </div>
         <div class="col-md-6">
             <label>Nota nueva:</label>
+            <input id="txtNotaNueva" 
+                   class="form-control" 
+                   name="notaFinal"
+                   required="true"
+                   type="text" />
+        </div>
+    </div>
+    
+    <div class="form-group" th:if="${curso.tipoCredito == 'VAR'}">
+        <div class="col-md-4">
+            <label>Créditos matriculados:</label>
+            <input class="form-control"
+                   type="text" th:value="${matriculaCurso.creditos}"
+                   disabled="true"/>
+        </div>
+        <div class="col-md-4">
+            <label>Créditos previos:</label>
+            <input id="txtNotaAnterior"
+                   class="form-control"
+                   type="text"
+                   disabled="true"/>
+
+            <input name="notaInicial"
+                   class="form-control"
+                   type="hidden"/>
+        </div>
+        <div class="col-md-4">
+            <label>Créditos Actuales:</label>
             <input id="txtNotaNueva" 
                    class="form-control" 
                    name="notaFinal"

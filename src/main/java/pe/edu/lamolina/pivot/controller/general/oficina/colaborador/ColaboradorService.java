@@ -9,6 +9,7 @@ import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.general.AusenciaJefe;
 import pe.edu.lamolina.model.general.Colaborador;
 import pe.edu.lamolina.model.general.Compania;
+import pe.edu.lamolina.model.general.FuncionColaborador;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.general.PerfilCompania;
 import pe.edu.lamolina.model.general.Persona;
@@ -19,90 +20,96 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface ColaboradorService {
 
-    //List<Oficina> allByDynatable(DynatableFilter filter, Compania compania);
-    Oficina find(Oficina oficina);
+    Oficina findOficina(Oficina oficina);//
 
-    void update(Oficina oficina, DataSessionPivot ds);
+//    void update(Oficina oficina, DataSessionPivot ds);
+//
+//    void save(Oficina oficina, DataSessionPivot ds);
+//
+//    List<Colaborador> allColaborador(List<Oficina> oficinas);
+//
+//    List<Oficina> allUnidadSuperior(String nombre, Compania compania);
+//
+//    List<DepartamentoAcademico> allDepartamento(Compania compania);
+//
+//    List<Carrera> allCarrera(Compania compania);
+//
+//    List<Facultad> allFacultad(Compania compania);
+//
+//    void cambiarEstado(Oficina oficina, String accion);
+//
+//    List<Persona> allPersona(String nombre);
+//
+//    List<Colaborador> allColaboradorByOficina(Oficina oficina);
+//
+//    List<PerfilCompania> allCargo(String nombre);
+//
+//    void fillReferencia(Oficina oficina);
+//
+//    void asignarJefe(Oficina oficina, DataSessionPivot ds);
+//
+//    void retirarJefe(Oficina oficina, DataSessionPivot ds);
+//
+//    void asignarEncargado(Oficina oficina, DataSessionPivot ds);
+//
+//    void retirarEncargado(AusenciaJefe ausencia, DataSessionPivot ds);
+//
+//    List<Oficina> allOficina(Persona persona);
 
-    void save(Oficina oficina, DataSessionPivot ds);
+    ResumenColaborador getResumenColoboradores(Oficina oficina);//
 
-//    void delete(Oficina oficina);
-    List<Colaborador> allColaborador(List<Oficina> oficinas);
+    //ArrayNode getColaboradoresJson(DynatableFilter filter, Oficina oficinaMain);
 
-    List<Oficina> allUnidadSuperior(String nombre, Compania compania);
+    List<Colaborador> getColaboradores(DynatableFilter filter, Oficina oficina);//
 
-    List<DepartamentoAcademico> allDepartamento(Compania compania);
+    List<FuncionColaborador> allFuncionesByColaboradores(List<Colaborador> colaboradores);//
 
-    List<Carrera> allCarrera(Compania compania);
+    void updateEstado(Colaborador colaborador, Oficina oficina, DataSessionPivot ds);//
 
-    List<Facultad> allFacultad(Compania compania);
+    //List<TipoOficina> allTipoOficina();
 
-    void cambiarEstado(Oficina oficina, String accion);
+    //TipoOficina findTipoById(String id);
 
-    List<Persona> allPersona(String nombre);
+    Colaborador findColaborador(Colaborador colaborador);//
 
-    List<Colaborador> allColaboradorByOficina(Oficina oficina);
+    List<TipoDocIdentidad> allDocumentosIdentidad();//
 
-    List<PerfilCompania> allCargo(String nombre);
+    List<Oficina> allAreasByOficinaMain(Oficina oficina);//
 
-    void fillReferencia(Oficina oficina);
+    //List<PerfilCompania> allCargos(Oficina oficina);
 
-    void asignarJefe(Oficina oficina, DataSessionPivot ds);
+    void saveColaborador(Colaborador colaborador, Oficina oficinaMean, Compania compania, DataSessionPivot ds);//
 
-    void retirarJefe(Oficina oficina, DataSessionPivot ds);
+    void updateColaborador(Colaborador colaborador, Oficina oficinaMean, DataSessionPivot ds);//
 
-    void asignarEncargado(Oficina oficina, DataSessionPivot ds);
+    //List<PerfilCompania> allFunciones();
 
-    void retirarEncargado(AusenciaJefe ausencia, DataSessionPivot ds);
+    Persona verificarDocumento(Persona persona);//
 
-    List<Oficina> allOficina(Persona persona);
+    Usuario verificarEmail(Persona persona);//
 
-    ResumenColaborador getResumenColoboradores(Oficina oficina);
+    Boolean saveColaboradorExistente(Colaborador colaborador, Oficina oficinaMean, Compania compania, DataSessionPivot ds);//
 
-    ArrayNode getColaboradoresJson(DynatableFilter filter, Oficina oficinaMain);
+    //List<PerfilCompania> allCargosByOficina(Oficina oficina);
 
-    void updateEstado(Colaborador colaborador, DataSessionPivot dataSessionPivot);
+    List<Persona> allPersonasByNombre(String buscar);//
 
-    List<TipoOficina> allTipoOficina();
+    void addCargo(PerfilCompania perfilCompania, Oficina oficina, DataSessionPivot ds);//
 
-    TipoOficina findTipoById(String id);
+    void addFuncion(PerfilCompania perfilCompania, Oficina oficina, DataSessionPivot ds);//
 
-    Colaborador findColarador(Colaborador colaborador);
+    List<PerfilCompania> allCargoByOficinaAltoNivel(Oficina oficina, DataSessionPivot ds);//
 
-    List<TipoDocIdentidad> allDocumentosIdentidad();
+    List<PerfilCompania> allCargoByOficina(Oficina oficina, DataSessionPivot ds);//
 
-    List<Oficina> allAreasByOficinaMain(Oficina oficina);
+    List<PerfilCompania> allFuncionByOficinaAltoNivel(Oficina oficina, DataSessionPivot ds);//
 
-    List<PerfilCompania> allCargos(Oficina oficina);
+    List<PerfilCompania> allFuncionByOficina(Oficina oficina, DataSessionPivot ds);//
 
-    void saveColaborador(Colaborador colaborador, Oficina oficinaMean, Compania compania, DataSessionPivot ds);
+    List<PerfilCompania> allFuncionByColaborador(Colaborador colaborador);//
 
-    void updateColaborador(Colaborador colaborador, Oficina oficinaMean, DataSessionPivot dataSessionPivot);
+    //List<Oficina> allOficinasMainByPersona(Persona persona);
 
-    List<PerfilCompania> allFunciones();
-
-    Persona verifiDocumento(Persona persona);
-
-    Usuario verifiEmail(Persona persona);
-
-    Boolean saveColaboradorExistente(Colaborador colaborador, Oficina oficinaMean, Compania compania, DataSessionPivot ds);
-
-    List<PerfilCompania> allCargosByOficina(Oficina oficina);
-
-    void addCargo(PerfilCompania perfilCompania, DataSessionPivot ds);
-
-    List<Persona> allPersonasByNombre(String buscar);
-
-    void addFuncion(PerfilCompania perfilCompania, DataSessionPivot dsp);
-
-    List<PerfilCompania> allCargoByOficina(Oficina oficina, DataSessionPivot ds);
-
-    List<PerfilCompania> allFuncionByOficina(Oficina oficina, DataSessionPivot ds);
-
-    List<PerfilCompania> allFuncionByColaborador(Colaborador colaborador);
-
-    List<Oficina> allOficinasMainByPersona(Persona persona);
-
-    Oficina findOficinaHija(Persona persona, Oficina oficinaMain);
+    //Oficina findOficinaHija(Persona persona, Oficina oficinaMain);
 
 }

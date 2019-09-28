@@ -116,7 +116,7 @@
 
                                                             <li role="presentation" class="divider"></li>
 
-                                                            <li v-if="item.personaJefe.id"><a class="pointer" v-on:click="verAsignarEncargado(item)">Retirar Jefe</a></li>
+                                                            <li v-if="item.personaJefe.id"><a class="pointer" v-on:click="previoRetirarJefe(item)">Retirar Jefe</a></li>
                                                             <li v-if="item.personaJefe.id" v-on:click="verRevisarJefe(item)"><a class="pointer" >Actualizar Jefe</a></li>
                                                             <li v-else=""><a class="pointer" v-on:click="verAsignarJefe(item)"> Asignar Jefe</a></li>
 
@@ -145,7 +145,8 @@
 
                 </section>
 
-                <div th:substituteby="general/oficina/oficinaModals"/>
+                <th:block th:replace="general/oficina/oficinaModals"/>
+                <th:block th:replace="_modules/vue-modal-confirm"/>
             </div>
 
         </div>

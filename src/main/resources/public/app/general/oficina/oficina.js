@@ -20,14 +20,16 @@ new Vue({
             id: 'idModalAsignarEncargado',
             form: 'formAsignaEncargado'
         }),
-        configModalRetirarEncargado: {
+        configModalRetirarEncargado: VUE_MODAL.structFormAjax({
             id: 'idModalRetirarEncargado',
-            form: 'formRetirarEncargado',
-            header: true,
-            title: 'Finalizar Encargatura de la Unidad',
-            showaccept: true,
-            okbtn: 'Finalizar encargatura'
-        },
+            form: 'formRetirarEncargado'
+        }),
+        configModalRetirarJefe: VUE_MODAL.structFormAjax({
+            id: 'idModalRetirarJefe',
+            form: 'formRetirarJefe'
+        }),
+        configConfirmAction: VUE_MODAL.structConfirm({}),
+        oficinaSelect: {},
         personas: [],
         colaboradores: [],
         modalBootbox: {},
@@ -287,63 +289,20 @@ new Vue({
         },
         previoRetirarEncargado(item) {
             let $vue = this;
-            bootbox.confirm({
-                message: "¿Está seguro desea dar por finalizada la <b>Encargatura</b> de esta Unidad?",
-                buttons: {
-                    confirm: {label: 'Si, proceder con la finalización', className: "btn-danger"},
-                    cancel: {label: 'Cancelar', className: "btn-link"}
-                },
-                callback: function (result) {
-                    if (result) {
-                        $vue.verRetirarEncargado(item);
-                    }
-                }
-            });
+            $vue.oficina = Object.assign({}, item, {});
+            $vue.configConfirmAction.message = "¿Está seguro desea dar por finalizada la <b>Encargatura</b> de esta Unidad?";
+            $vue.configConfirmAction.okbtn = "Si, finalizar";
+            $vue.configConfirmAction.okclass = "btn-danger";
+            $vue.configConfirmAction.okaction = $vue.verRetirarEncargado;
+            $vue.$refs.modalConfirmAction.open();
+
         },
-        verRetirarEncargado(item) {
+        verRetirarEncargado() {
             let $vue = this;
-            $vue.ausencia = Object.assign({}, item.ausenciaJefe, {});
+            $vue.$refs.modalConfirmAction.confirmReaction(true);
+            $vue.ausencia = Object.assign({}, $vue.oficina.ausenciaJefe, {});
             $vue.configModalRetirarEncargado.okclass = "btn-danger";
             $vue.$refs.modalRetirarEncargado.open();
-
-            return;
-
-            var mimodal = bootbox.confirm({
-                title: "Finalización de Encargatura",
-                message: $.templates("#finEncargoTemplate").render(record),
-                buttons: {
-                    confirm: {label: 'Finalizar encargatura', className: "btn-danger"},
-                    cancel: {label: 'Cancelar', className: "btn-link"}
-                },
-                callback: function (result) {
-                    if (result) {
-                        var form = $("#" + record.form);
-                        form.parsley().destroy();
-                        form.parsley().validate();
-                        if (!form.parsley().validate()) {
-                            return false;
-                        }
-
-                        $.ajax({
-                            url: APP.url('general/oficina/retirarEncargado'),
-                            type: 'POST',
-                            async: false,
-                            data: form.serialize(),
-                            success: function (response) {
-                                if (response.success) {
-                                    notify(response.message, "info");
-                                    dynatable.process();
-                                } else {
-                                    notify(response.message, "error");
-                                }
-                            },
-                            error: function () {
-                                notify(MESSAGES.errorComunicacion, "error");
-                            }
-                        });
-                    }
-                }
-            });
         },
         retirarEncargado() {
             let $vue = this;
@@ -352,18 +311,58 @@ new Vue({
                 return;
             }
 
-            axios.post(APP.url(rutaModulo + '/retirarEncargado'), $vue.oficina)
+            $vue.$refs.modalRetirarEncargado.beginProcessing();
+            axios.post(APP.url(rutaModulo + '/retirarEncargado'), $vue.ausencia)
                     .then(response => {
+                        $vue.$refs.modalRetirarEncargado.confirmReaction(response.data.success);
                         if (response.data.success) {
                             $vue.$refs.raptorOficinas.loadRemoteData();
-                            $vue.$refs.modalRetirarEncargado.close();
                             notify(response.data.message, "info");
                         } else {
                             notify(response.data.message, "error");
                         }
                     })
                     .catch(function (error) {
-                        console.log(error);
+                        $vue.$refs.modalRetirarEncargado.confirmReaction(false);
+                        notify(MESSAGES.errorComunicacion, "error");
+                    });
+        },
+        previoRetirarJefe(item) {
+            let $vue = this;
+            $vue.oficina = Object.assign({}, item, {});
+            $vue.configConfirmAction.message = "¿Está seguro desea dar por finalizada la <b>Jefatura</b> de esta Unidad?";
+            $vue.configConfirmAction.okbtn = "Si, finalizar";
+            $vue.configConfirmAction.okclass = "btn-danger";
+            $vue.configConfirmAction.okaction = $vue.verRetirarJefe;
+            $vue.$refs.modalConfirmAction.open();
+        },
+        verRetirarJefe() {
+            let $vue = this;
+            $vue.$refs.modalConfirmAction.confirmReaction(true);
+            $vue.ausencia = Object.assign({}, $vue.oficina.ausenciaJefe, {});
+            $vue.configModalRetirarJefe.okclass = "btn-danger";
+            $vue.$refs.modalRetirarJefe.open();
+        },
+        retirarJefe() {
+            let $vue = this;
+            let form = $("#" + $vue.configModalRetirarJefe.form);
+            if (!form.parsley().validate()) {
+                return;
+            }
+
+            $vue.$refs.modalRetirarJefe.beginProcessing();
+            axios.post(APP.url(rutaModulo + '/retirarJefe'), $vue.oficina)
+                    .then(response => {
+                        $vue.$refs.modalRetirarJefe.confirmReaction(response.data.success);
+                        if (response.data.success) {
+                            $vue.$refs.raptorOficinas.loadRemoteData();
+                            notify(response.data.message, "info");
+                        } else {
+                            notify(response.data.message, "error");
+                        }
+                    })
+                    .catch(function (error) {
+                        $vue.$refs.modalRetirarJefe.confirmReaction(false);
                         notify(MESSAGES.errorComunicacion, "error");
                     });
         },

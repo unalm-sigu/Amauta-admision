@@ -41,6 +41,9 @@
                                 <spam class="block bold" v-text="colaborador.persona.tipoDocumento.simbolo + ': '+ colaborador.persona.numeroDocIdentidad"></spam>
                                 <spam class="block bold" v-text="'Código colaborador: '+ colaborador.codigo"></spam>
                                 <spam class="block bold" v-text="'Correo Institucional: '+ colaborador.persona.emailCompania"></spam>
+
+                                <span v-if="colaborador.estaTrabajando" class="label label-success" v-text="colaborador.estadoEnum.value"></span>
+                                <span v-else="" class="label label-danger" v-text="colaborador.estadoEnum.value"></span>
                                 </td>
                                 </tr>
                                 </tbody>
@@ -185,9 +188,6 @@
                                 </div>
 
 
-
-
-
                                 <div class="row">
 
                                     <div class="col-sm-6">
@@ -229,16 +229,17 @@
                                 <div class="m-t-xxlg text-center">
 
                                     <div id="footerOficina" class="">
-
                                         <button class="btn btn-primary" 
                                                 type="button"
                                                 v-on:click="save"     
                                                 v-if="!newCola" >Guardar</button> 
 
-                                        <button class="btn btn-primary" 
-                                                type="button"
-                                                v-on:click="update"      
-                                                v-if="newCola" >Actualizar</button>  
+                                        <template v-if="colaborador.estaTrabajando">
+                                            <button class="btn btn-primary" 
+                                                    type="button"
+                                                    v-on:click="update"      
+                                                    v-if="newCola" >Actualizar</button>  
+                                        </template>
 
                                         <a th:href="${origen}" class="btn btn-link" >Regresar</a>
 
@@ -249,7 +250,7 @@
                         </section>
                     </section>
                 </section>
-                
+
                 <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
                     <div class="modal-dialog modal-md" role="document">
                         <div class="modal-content">
@@ -279,7 +280,7 @@
     <div layout:fragment="js">
         <script th:inline="javascript">
             /*<![CDATA[*/
-            var oficinaId = /*[[${oficina}]]*/ 'json';
+            var oficinaJson = /*[[${oficina.toString()}]]*/'';
             var colaboradorJson = /*[[${colaborador.toString()}]]*/ 'json';
             var tipoDocumentoJson = /*[[${tipoDocumento.toString()}]]*/ 'json';
             var sexoJson = /*[[${sexo}]]*/ 'json';

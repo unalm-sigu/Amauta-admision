@@ -190,3 +190,43 @@
     </div>
 </modal-vik>
 
+<modal-vik ref="modalRetirarJefe"
+           v-bind="configModalRetirarJefe"
+           v-bind:okaction="retirarJefe">
+    <div slot="body">
+
+        <form v-bind:id="configModalRetirarJefe.form">
+            <p class="m-b h5">
+                Ingrese la fecha de finalización de la jefatura:
+            </p>
+
+            <div class="form-group">
+                <label>Unidad</label>
+                <span class="form-control text-primary">{{oficina.nombre}}</span>
+            </div>
+
+            <div class="form-group">
+                <label>Jefe(a)</label>
+                <span class="form-control text-primary"
+                      v-text="oficina.personaJefe.nombreCompleto" ></span>
+            </div>
+            <div class="form-group">
+                <label>Fecha inicio de jefatura</label>
+                <span class="form-control text-primary"
+                      v-text="oficina.fechaInicioJefatura" ></span>
+            </div>
+
+            <div class="form-group">   
+                <label>Fecha fin de jefatura</label>
+                <div class="input-group">
+                    <date-picker v-bind:config="configDate" v-bind:wrap="false" v-model="oficina.fechaFinJefatura"></date-picker>
+                    <div class="input-group-addon">
+                        <span class="fa fa-calendar"></span>
+                    </div>
+                </div>
+                <input type="text" required="true" v-model="oficina.fechaFinJefatura" class="hide"/>
+            </div>
+        </form>
+    </div>
+</modal-vik>
+

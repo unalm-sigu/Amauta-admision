@@ -2,6 +2,7 @@ package pe.edu.lamolina.pivot.controller.seguridad.verificador;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
@@ -295,6 +296,16 @@ public class VerificadorServiceImp implements VerificadorService {
             }
         }
         return oficinas;
+    }
+
+    @Override
+    public String getOrigen(String origen, String defecto) {
+        if (StringUtils.isEmpty(origen)) {
+            return defecto;
+        }
+        byte[] decoded = Base64.getMimeDecoder().decode(origen);
+        String output = new String(decoded);
+        return output;
     }
 
 }

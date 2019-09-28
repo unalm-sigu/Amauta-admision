@@ -69,6 +69,7 @@ import pe.edu.lamolina.model.enums.EstadoPlanCalificaEnum;
 import pe.edu.lamolina.model.enums.LoggerAccionEnum;
 import pe.edu.lamolina.model.enums.OrigenPlanCalificaEnum;
 import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
+import pe.edu.lamolina.model.enums.TipoCreditoEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEvalEnum;
 import pe.edu.lamolina.pivot.controller.matricula.matriculable.MatriculableService;
@@ -639,6 +640,7 @@ public class NotaAcademicaController {
             node.put("letras", "");
             node.put("esCreditoZero", grupoSeccion.getCurso().isCreditosZero());
             node.put("esCreditoVariable", grupoSeccion.getCurso().isTieneCreditosVariables());
+            node.put("creditosVariables", grupoSeccion.getCurso().getCreditosVariables());
 
             StringBuilder strbLetras = new StringBuilder();
             if (!sistemaNotas.isNumerico() && (sistemaNotas.getNotaLetra() != null && !sistemaNotas.getNotaLetra().isEmpty())) {
@@ -1067,14 +1069,17 @@ public class NotaAcademicaController {
         MatriculaSeccion matriculaSeccion = service.findMatriculaSeccion(matriculaSeccionId);
         GrupoSeccion grupoSeccion = service.findGrupo(matriculaSeccion.getSeccion().getGrupoSeccion().getId());
         SistemaNotas sistemaNotas = service.findSistemaNotaById(grupoSeccion.getPlanCalificacion().getSistemaNotas().getId());
+        Curso curso = grupoSeccion.getCurso();
+        MatriculaCurso matriculaCurso = service.findByCursoResumen(matriculaSeccion.getMatriculaResumen(), curso);
         logger.debug("alumno {}", matriculaSeccion.getMatriculaResumen().getAlumno().getPersona().getNombreCompleto());
         logger.debug("curso {}", matriculaSeccion.getSeccion().getGrupoSeccion().getCurso().getNombre());
 
         model.addAttribute("alumno", matriculaSeccion.getMatriculaResumen().getAlumno());
         model.addAttribute("alumnoPer", matriculaSeccion.getMatriculaResumen().getAlumno().getPersona());
-        model.addAttribute("curso", matriculaSeccion.getSeccion().getGrupoSeccion().getCurso());
+        model.addAttribute("curso", curso);
         model.addAttribute("seccion", matriculaSeccion.getSeccion());
         model.addAttribute("sistemaNotas", sistemaNotas);
+        model.addAttribute("matriculaCurso", matriculaCurso);
 
         List<Evaluacion> evaluacionesBySeccionFinal = service.allEvaluacionesByTipoSeccion(matriculaSeccion.getSeccion());
 
@@ -1083,13 +1088,11 @@ public class NotaAcademicaController {
         List<Evaluacion> evaluacionesDisponibles = new ArrayList<>();
 
         for (AlumnoEvaluacion alumnoEvaluacion : alumnosEvaluaciones) {
-
             if (!evaluacionesBySeccionFinal.contains(alumnoEvaluacion.getEvaluacion())) {
                 continue;
             }
             if (nsp) {
                 if (alumnoEvaluacion.getNota().equals(AlumnoEvaluacion.NSP)) {
-
                     evaluacionesDisponibles.add(alumnoEvaluacion.getEvaluacion());
                 }
             } else {
@@ -1391,12 +1394,11 @@ public class NotaAcademicaController {
                 AlumnoEvaluacion alumnoEvaluacion = service.findAlumnoEvaluacion(null, evaluacionId, alumnoId);
                 node.put("nota", alumnoEvaluacion.getNota());
                 node.put("notaNumerica", alumnoEvaluacion.getValorNumerico());
-
                 node.put("notaLetra", alumnoEvaluacion.getValorLetra());
+
             } else {
                 node.put("nota", "");
                 node.put("notaNumerica", "");
-
                 node.put("notaLetra", "");
             }
 

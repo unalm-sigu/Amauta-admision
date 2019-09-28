@@ -119,7 +119,7 @@ new Vue({
             $vue.updateListOptions();
 
         },
-        valid(item) {
+        esTrasladoExterno(item) {
             let $vue = this;
             var ret = false;
             if (item.tramiteTraslado.tipoTraslado == 'TRAS') {
@@ -132,7 +132,7 @@ new Vue({
             }
             return ret;
         },
-        validIntes(item) {
+        esIntercambioEstudio(item) {
             let $vue = this;
             var ret = false;
             

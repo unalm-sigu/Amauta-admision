@@ -713,7 +713,6 @@ VUE_MODAL = {
         return VUE_MODAL.structByType("ALERT", params);
     },
     structConfirm(params) {
-        console.log("3kj4n5kj3453kj4")
         return VUE_MODAL.structByType("CONFIRM", params);
     },
     structError(params) {

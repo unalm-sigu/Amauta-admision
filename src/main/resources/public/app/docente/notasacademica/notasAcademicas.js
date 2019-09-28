@@ -103,7 +103,7 @@ $(function () {
                     if (!isNaN(value)) {
                         nota = parseFloat(nota);
                         if (nota > parseFloat(requirement)) {
-                            message = "Nota excede en créditos matriculados"
+                            message = "Créditos excede a los matriculados";
                             return false;
                         }
                     }
@@ -111,8 +111,8 @@ $(function () {
                 },
                 messages: {
                     //Cette valeur doit être un multiple de %s
-                    en: "Nota excede en créditos maximos %s.",
-                    es: "Nota excede en créditos maximos %s."
+                    en: "No puede poner más de %s créditos.",
+                    es: "Créditos excede a los matriculados"
                 }
             });
 
@@ -122,8 +122,13 @@ $(function () {
         cambioNA: function ($this, e) {
             e.preventDefault();
             var tr = $this.closest("tr");
-            var idx = tr.attr("rel");
+            var code = $this.attr("alu");
+            var credmat = $this.attr("credmat");
             var nsp = $this.attr("title");
+            var alumnoCambio = alumnos[code];
+            console.log(credmat);
+            console.log(code);
+            console.log(alumnoCambio);
             //
 
 
@@ -143,11 +148,33 @@ $(function () {
                 },
                 success: function (response) {
                     MODAL.body(response);
+                    console.log(sistemaNotasValidate);
 
-                    $("#txtNotaNueva").attr("data-parsley-nota-numerica", "true");
-                    $("#txtNotaNueva").attr("data-parsley-nota-minima", sistemaNotasValidate.valorInicial);
-                    $("#txtNotaNueva").attr("data-parsley-nota-maxima", sistemaNotasValidate.valorFinal);
-                    $("#txtNotaNueva").attr("data-parsley-pattern", "(NCV|NSP|[0-9]{0,3}\.?[0-9]{0,2})");//^ $
+                    if (sistemaNotasValidate.esNumerico == "true" || sistemaNotasValidate.esNumerico == true) {
+                        $("#txtNotaNueva").attr("data-parsley-nota-numerica", "true");
+                        $("#txtNotaNueva").attr("data-parsley-nota-minima", sistemaNotasValidate.valorInicial);
+                        $("#txtNotaNueva").attr("data-parsley-nota-maxima", sistemaNotasValidate.valorFinal);
+                        $("#txtNotaNueva").attr("data-parsley-pattern", "(NCV|NSP|[0-9]{0,3}\.?[0-9]{0,2})");
+
+                    } else {
+                        if (sistemaNotasValidate.esCreditoVariable) {
+                            if (alumnoCambio.modalidadEstudio.operativePRE) {
+                                console.log("alumnoCambio.modalidadEstudio.operativePRE")
+                                $("#txtNotaNueva").attr("data-parsley-creditos-maximo", sistemaNotasValidate.creditosVariables);
+                            } else {
+                                console.log("esCreditoVariable EPG")
+                                $("#txtNotaNueva").attr("data-parsley-creditos-maximo", credmat);
+                            }
+
+                            $("#txtNotaNueva").attr("data-parsley-nota-minima", 0);
+                            $("#txtNotaNueva").attr("data-parsley-pattern", "(NCV|NSP|[0-9]{0,3}\.?[0-9]{0,2})");
+
+                        } else if (!sistemaNotasValidate.esCreditoZero) {
+                            $("#txtNotaNueva").attr("data-parsley-nota-minima", sistemaNotasValidate.valorInicial);
+                            $("#txtNotaNueva").attr("data-parsley-nota-maxima", sistemaNotasValidate.valorFinal);
+                            $("#txtNotaNueva").attr("data-parsley-pattern", "(NCV|NSP|[0-9]{0,3}\.?[0-9]{0,2})");
+                        }
+                    }
                 },
                 error: function () {
                     notify(MESSAGES.errorComunicacion, "error");
@@ -266,7 +293,8 @@ $(function () {
                     MODAL.hide();
                 }
             });
-        }, adicionarEvals: function ($this, e) {
+        },
+        adicionarEvals: function ($this, e) {
 
             if ($("#txtCodeSel").val() != "") {
                 bootbox.alert("Tiene una evaluacion pendiente, verifique.");
@@ -327,7 +355,8 @@ $(function () {
                 }
             });
 
-        }, eliminarEvals: function ($this, e) {
+        },
+        eliminarEvals: function ($this, e) {
             e.preventDefault();
             if ($("#txtCodeSel").val() != "") {
                 bootbox.alert("Tiene una evaluacion pendiente, verifique.");
@@ -421,25 +450,14 @@ $(function () {
                     var notaLetra = $(this).closest('td').find("select").val();
 
                     $(this).attr("data-parsley-whitespace", "trim");
-                    //  $(this).attr("data-parsley-sistema-nota", "true");
+
                     if (sistemaNotasValidate.esNumerico == "true" || sistemaNotasValidate.esNumerico == true) {
-                        //      $(this).attr("data-parsley-min", sistemaNotasValidate.valorInicial);
-                        //      $(this).attr("data-parsley-max", sistemaNotasValidate.valorFinal);
                         $(this).attr("data-parsley-nota-numerica", "true");
                         $(this).attr("data-parsley-nota-minima", sistemaNotasValidate.valorInicial);
                         $(this).attr("data-parsley-nota-maxima", sistemaNotasValidate.valorFinal);
                         $(this).attr("data-parsley-pattern", "(NCV|NSP|[0-9]{0,3}\.?[0-9]{0,2})");//^ $
 
-                        //  $(this).attr("data-parsley-pattern", "^[0-9]*\.[0-9]{2}$");
-
                     } else {
-
-                        if (!sistemaNotasValidate.esCreditoZero) {
-                            $(this).attr("data-parsley-nota-minima", sistemaNotasValidate.valorInicial);
-                            $(this).attr("data-parsley-nota-maxima", sistemaNotasValidate.valorFinal);
-                            $(this).attr("data-parsley-pattern", "(NCV|NSP|[0-9]{0,3}\.?[0-9]{0,2})");
-                        }
-
                         if (sistemaNotasValidate.esCreditoVariable) {
                             if (alumnoEach.modalidadEstudio.operativePRE) {
                                 $(this).attr("data-parsley-creditos-maximo", curso.creditosVariables);
@@ -448,16 +466,12 @@ $(function () {
                             }
                             $(this).attr("data-parsley-nota-minima", 0);
                             $(this).attr("data-parsley-pattern", "(NCV|NSP|[0-9]{0,3}\.?[0-9]{0,2})");
-                        }
 
-                        /* //var letters = NSP + "|" + NCV + "|";
-                         
-                         var letrasArg = sistemaNotasValidate.letras.split(",");
-                         for (var i = 0; i < letrasArg.length; i++) {
-                         letters += letrasArg[i] + "|";
-                         }
-                         */
-                        //   $(this).attr("data-parsley-pattern", "(" + letters.substring(0, letters.length - 1) + ")");
+                        } else if (!sistemaNotasValidate.esCreditoZero) {
+                            $(this).attr("data-parsley-nota-minima", sistemaNotasValidate.valorInicial);
+                            $(this).attr("data-parsley-nota-maxima", sistemaNotasValidate.valorFinal);
+                            $(this).attr("data-parsley-pattern", "(NCV|NSP|[0-9]{0,3}\.?[0-9]{0,2})");
+                        }
                     }
 
                     var alumno = $(this).attr("rel");
@@ -597,15 +611,14 @@ $(function () {
                     if (response.success) {
                         notify(response.message, "info");
                         MODAL.hide();
+                        NotasAcademicas.reloadNotas();
                     } else {
                         notify(response.message, "error");
-                        MODAL.hide();
                     }
-                    NotasAcademicas.reloadNotas();
+                    
                 },
                 error: function (error) {
                     notify(MESSAGES.errorComunicacion, "error");
-
                 }
 
             });

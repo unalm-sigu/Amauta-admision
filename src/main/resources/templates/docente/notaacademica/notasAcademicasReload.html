@@ -56,15 +56,14 @@
         </span>
     </td>
 
-    <td th:if="${sistemaNotas.letras}">
+    <td th:if="${sistemaNotas.letras}" class="text-center v-middle">
         <span th:text="${matriculaCursoMap[matSeccion.matriculaResumen.alumno.id].creditos}"
               > 
             04.18 
         </span>
     </td>
 
-    <td class="text-center v-middle" th:if="${sistemaNotas.numerico}">
-
+    <td th:if="${sistemaNotas.numerico}" class="text-center v-middle">
         <span  th:if="${matriculaCursoMap[matSeccion.matriculaResumen.alumno.id]}" >
             <span class="nota-academica" th:text="${matriculaCursoMap[matSeccion.matriculaResumen.alumno.id].notaAvance}" 
                   data-toggle="tooltip" 
@@ -73,10 +72,9 @@
                 04.18 
             </span>
         </span>
-
     </td>
-    <td class="text-center v-middle" th:if="${sistemaNotas.numerico}">
 
+    <td th:if="${sistemaNotas.numerico}" class="text-center v-middle" >
         <span  th:if="${matriculaCursoMap[matSeccion.matriculaResumen.alumno.id]}" >
             <span class="nota-academica" 
                   th:text="${matriculaCursoMap[matSeccion.matriculaResumen.alumno.id].notaAcumulada}"
@@ -86,10 +84,9 @@
                 04.18 
             </span>
         </span>
-
     </td>
-    <td class="text-center v-middle">
 
+    <td class="text-center v-middle">
         <span   th:if="${sistemaNotas.numerico}">
             <span class="nota-academica" th:text="${matriculaCursoMap[matSeccion.matriculaResumen.alumno.id].notaFinal}" 
                   th:if="${matriculaCursoMap[matSeccion.matriculaResumen.alumno.id]}"
@@ -97,9 +94,9 @@
                 04.18 
             </span>
         </span>
-
     </td>
-    <td class="text-center v-middle" th:unless="${grupoSeccion.estadoGrupoCerrado}">
+
+    <td th:unless="${grupoSeccion.estadoGrupoCerrado}" class="text-center v-middle">
         <div class="dropdown actions">
             <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="glyphicon glyphicon-cog"></i></a>
             <ul class="dropdown-menu pull-right" >

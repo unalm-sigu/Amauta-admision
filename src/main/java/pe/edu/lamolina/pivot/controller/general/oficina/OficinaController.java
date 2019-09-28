@@ -8,11 +8,9 @@ import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.Date;
 import java.util.List;
 import javax.servlet.http.HttpSession;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,7 +45,6 @@ import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.general.TipoOficina;
 import pe.edu.lamolina.pivot.controller.seguridad.verificador.VerificadorService;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
-import pe.edu.lamolina.pivot.zelper.constant.Messages;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -177,7 +174,7 @@ public class OficinaController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         boolean puedeCrearOficina = verificadorService.puedeEditarOficinas(ds);
         if (!puedeCrearOficina) {
-            return "redirect:" + getOrigen(origen);
+            return "redirect:" + verificadorService.getOrigen(origen, "/");
         }
 
         List<TipoOficina> tipoOficina = service.allTipoOficina();
@@ -193,7 +190,7 @@ public class OficinaController {
 
         model.addAttribute("tiposOficina", tiposOficinaJson.toString());
         model.addAttribute("oficina", oficinaJson.toString());
-        model.addAttribute("origen", getOrigen(origen));
+        model.addAttribute("origen", verificadorService.getOrigen(origen, "/"));
         return "general/oficina/oficinaForm";
     }
 
@@ -206,7 +203,7 @@ public class OficinaController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         boolean puedeVerOficina = verificadorService.puedeVerOficina(new Oficina(idOficina), ds);
         if (!puedeVerOficina) {
-            return "redirect:" + getOrigen(origen);
+            return "redirect:" + verificadorService.getOrigen(origen, "/");
         }
 
         Oficina oficina = service.find(new Oficina(idOficina));
@@ -223,7 +220,7 @@ public class OficinaController {
 
         model.addAttribute("tiposOficina", tiposOficinaJson.toString());
         model.addAttribute("oficina", oficinaJson.toString());
-        model.addAttribute("origen", getOrigen(origen));
+        model.addAttribute("origen", verificadorService.getOrigen(origen, "/"));
         return "general/oficina/oficinaForm";
     }
 
@@ -471,7 +468,7 @@ public class OficinaController {
     public JsonResponse asignarJefe(@RequestBody Oficina oficina, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            TypesUtil.delay(5000);
+            TypesUtil.delay(1000);
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             service.asignarJefe(oficina, ds);
             response.setMessage("Jefe asignado satisfactoriamente.");
@@ -490,7 +487,7 @@ public class OficinaController {
     public JsonResponse actualizarJefe(@RequestBody Oficina oficina, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            TypesUtil.delay(5000);
+            TypesUtil.delay(1000);
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             service.actualizarJefe(oficina, ds);
             response.setMessage("Jefe asignado satisfactoriamente.");
@@ -544,10 +541,10 @@ public class OficinaController {
 
     @ResponseBody
     @RequestMapping("retirarJefe")
-    public JsonResponse retirarJefe(Oficina oficina, HttpSession session) {
+    public JsonResponse retirarJefe(@RequestBody Oficina oficina, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            TypesUtil.delay(5000);
+            TypesUtil.delay(1000);
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
             service.retirarJefe(oficina, ds);
@@ -566,28 +563,11 @@ public class OficinaController {
     public JsonResponse retirarEncargado(@RequestBody AusenciaJefe ausencia, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            TypesUtil.delay(5000);
+            TypesUtil.delay(1000);
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
             service.retirarEncargado(ausencia, ds);
             response.setMessage("Encargado retirado satisfactoriamente.");
-            response.setSuccess(Boolean.TRUE);
-        } catch (PhobosException e) {
-            ExceptionHandler.handlePhobosEx(e, response);
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, response);
-        }
-        return response;
-    }
-
-    @ResponseBody
-    @RequestMapping("savefuncion")
-    public JsonResponse saveFuncion(PerfilCompania perfilCompania, HttpSession session) {
-        JsonResponse response = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-        try {
-            service.addFuncion(perfilCompania, ds);
-            response.setMessage(Messages.CREATED);
             response.setSuccess(Boolean.TRUE);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
@@ -693,15 +673,6 @@ public class OficinaController {
             arrayNode.add(node);
         }
         return arrayNode;
-    }
-
-    private String getOrigen(String origen) {
-        if (StringUtils.isEmpty(origen)) {
-            return "/";
-        }
-        byte[] decoded = Base64.getMimeDecoder().decode(origen);
-        String output = new String(decoded);
-        return output;
     }
 
 }

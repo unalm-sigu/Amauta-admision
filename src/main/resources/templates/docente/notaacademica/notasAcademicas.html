@@ -191,18 +191,17 @@
                                                 </div>
                                             </span>
                                         </span>
-
                                     </td>
-                                    <td th:if="${sistemaNotas.letras}">
+                                    
+                                    <td th:if="${sistemaNotas.letras}" class="text-center v-middle">
                                         <input type="hidden" th:value="${matriculaCursoMap[matSeccion.matriculaResumen.alumno.id].id}"/>
                                         <span th:text="${matriculaCursoMap[matSeccion.matriculaResumen.alumno.id].creditos}"
                                               > 
                                             04.18 
                                         </span>
                                     </td>
-                                    <td class="text-center v-middle" th:if="${sistemaNotas.numerico}">
 
-
+                                    <td th:if="${sistemaNotas.numerico}" class="text-center v-middle">
                                         <span  th:if="${matriculaCursoMap[matSeccion.matriculaResumen.alumno.id]}" >
                                             <span class="nota-academica" 
                                                   th:text="${matriculaCursoMap[matSeccion.matriculaResumen.alumno.id].notaAvance}"
@@ -211,10 +210,9 @@
                                                 04.18 
                                             </span>
                                         </span>
-
                                     </td>
-                                    <td class="text-center v-middle" th:if="${sistemaNotas.numerico}">
 
+                                    <td th:if="${sistemaNotas.numerico}" class="text-center v-middle" >
                                         <span  th:if="${matriculaCursoMap[matSeccion.matriculaResumen.alumno.id]}" >
                                             <span class="nota-academica" th:text="${matriculaCursoMap[matSeccion.matriculaResumen.alumno.id].notaAcumulada}" 
                                                   data-toggle="tooltip" 
@@ -222,17 +220,16 @@
                                                 04.18 
                                             </span>
                                         </span>
-
                                     </td>
-                                    <td class="text-center v-middle" th:if="${sistemaNotas.numerico}">
 
+                                    <td class="text-center v-middle" th:if="${sistemaNotas.numerico}">
                                         <span  th:if="${matriculaCursoMap[matSeccion.matriculaResumen.alumno.id]}" >
                                             <span class="nota-academica" th:text="${matriculaCursoMap[matSeccion.matriculaResumen.alumno.id].notaFinal}"> 
                                                 04.18 
                                             </span>
                                         </span>
-
                                     </td>
+
                                     <td class="text-center v-middle" th:unless="${grupoSeccion.estadoGrupoCerrado}">
                                         <div class="dropdown actions">
                                             <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="glyphicon glyphicon-cog"></i></a>
@@ -241,6 +238,7 @@
                                                     <a class="solicitar-cambio-nota" 
                                                        title="false"
                                                        href="#"
+                                                       th:attr="alu=${matSeccion.matriculaResumen.alumno.codigo},credmat=${matriculaCursoMap[matSeccion.matriculaResumen.alumno.id].creditos}"
                                                        th:rel="${matSeccion.id}">Reemplazar Nota</a>
                                                 </li>
                                                 <li role="presentation">

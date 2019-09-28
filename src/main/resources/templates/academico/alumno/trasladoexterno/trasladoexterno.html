@@ -110,7 +110,7 @@
                                             <thead>
                                                 <tr>
                                                     <th class="col-md-7" >Curso</th>
-                                                    <th class="col-md-2" >Ciclo</th>
+                                                    <th class="col-md-2 text-center" >Ciclo</th>
                                                     <th class="col-md-1 text-center" >Nota</th>
                                                     <th class="col-md-1 text-center">Créditos</th>
                                                     <th class="col-md-1"></th>
@@ -125,20 +125,20 @@
                                                         <span class="label label-warning" v-if="item.tramiteTraslado.tipoTraslado"><b>{{item.tramiteTraslado.tipoTraslado}}</b></span>
                                                         <span class="label label-warning" v-else=""><b>{{tramiteTrasladoActivo.tipoTraslado}}</b></span>
                                                     </td>
-                                                    <td  class="v-middle"  >
+                                                    <td  class="v-middle text-center"  >
                                                         <span v-if="item.tramiteTraslado.cicloAcademico" v-text="item.tramiteTraslado.cicloAcademico.descripcion2"></span>
                                                         <span v-else="">{{tramiteTrasladoActivo.cicloAcademico.descripcion2}}</span>
                                                     </td>
-                                                    <td  class="v-middle text-center" v-if="valid(item)"  >
-                                                        <span v-text="'TE'">TE</span>
-                                                    </td>
-                                                    <td class="v-middle text-center" v-else=''> 
-                                                        <input v-if="tramiteTrasladoActivo.id != null &amp;&amp; tramiteTrasladoActivo.tipoTraslado != 'TRAS'" v-model="item.nota" class="form-control" required="true"></input>
-                                                        <span v-else='' v-text="item.nota"></span>                                                       
+                                                    <td class="v-middle text-center"   >
+                                                        <span v-if="esTrasladoExterno(item)" v-text="'TE'">TE</span>
+                                                        <span v-else="">
+                                                            <input v-model="item.nota" class="form-control" required="true" maxlength="2" minlength="2"></input>
+                                                        </span>
                                                     </td>
                                                     <td  class="v-middle text-center">
                                                         <!--<span v-text="tramiteTrasladoActivo"></span>-->
-                                                        <input type="text" class="form-control numerico" v-if="validIntes(item)" v-model="item.creditos" v-on:change="countTotal"/>
+                                                        <input v-if="esIntercambioEstudio(item)" v-model="item.creditos" v-on:change="countTotal" type="text" class="form-control numerico" maxlength="2" minlength="2"/>
+                                                        <input v-else-if="item.curso.tipoCredito=='VAR' " v-model="item.creditos" v-on:change="countTotal" type="text" class="form-control numerico" maxlength="2" minlength="2"/>
                                                         <span v-else="" v-text="item.creditos"></span>
                                                     </td>
                                                     <td  class="v-middle text-center">
