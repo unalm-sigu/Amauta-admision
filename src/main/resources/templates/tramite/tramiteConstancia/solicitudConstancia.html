@@ -73,9 +73,9 @@
                                                             <i class="glyphicon glyphicon-option-vertical"></i>
                                                         </a>
                                                         <ul  class="dropdown-menu pull-right">
-                                                            <li v-if="item.tipoDocumentoAcademico.tipoConstanciaEnum.name == 'CERT'" >
+<!--                                                            <li v-if="item.tipoDocumentoAcademico.tipoConstanciaEnum.name == 'CERT'" >
                                                                 <a v-bind:href="'/academico/procesar/'+item.tramite.id">Actualizar historial academico</a>
-                                                            </li> <!---->
+                                                            </li> -->
                                                             <li><a v-bind:href="'/tramite/solicitudconstancia/solicitud/'+item.id">Editar Solicitud Documento</a></li><!-- -->
                                                             <li>  <a class="btn-link pointer" 
                                                                      v-on:click="procesarTramite(item.tramite,$event)" v-if="item.tramite.formularioEstadoTramite.id">

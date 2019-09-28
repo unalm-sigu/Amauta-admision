@@ -44,6 +44,7 @@ import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.notify.Notificaciones;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCiclo;
+import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.Docente;
@@ -107,7 +108,7 @@ public class TramitesAcademicosController {
         "alumnoCicloCurso.creditos",
         "alumnoCicloCurso.nota",
         "alumnoCicloCurso.estaAprobado",
-//        "alumnoCicloCurso.registroActivo",
+        "alumnoCicloCurso.registroActivo",
         "alumnoCicloCurso.vecesCursado",
         "alumnoCicloCurso.estadoEnum",
         "alumnoCicloCurso.curso.id",
@@ -117,6 +118,7 @@ public class TramitesAcademicosController {
         "alumnoCicloCurso.isEstadoNotaModificada",
         "alumnoCicloCurso.estaActivo",
         "alumnoCicloCurso.autorizacionRegistro.id",
+        "alumnoCicloCurso.autorizacionRegistro.estado",
         "alumnoCicloCurso.isHijo"
     };
 
@@ -820,6 +822,59 @@ public class TramitesAcademicosController {
             String message = "Save Seccion Grupo.";
 
             tramitesAcademicosService.saveAlumnoCicloFromRevision(alumnoCiclo, idTramite, ds);
+
+            response.setSuccess(true);
+            response.setMessage(message);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (RuntimeException e) {
+            e.printStackTrace();
+            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("revertirCambioHistorial")
+    public JsonResponse revertirCambioHistorial(
+            @RequestBody AlumnoCiclo alumnoCiclo,
+            HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            String message = "Se actualizó el historial.";
+
+            tramitesAcademicosService.revertirCambioHistorial(alumnoCiclo, ds);
+
+            response.setSuccess(true);
+            response.setMessage(message);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (RuntimeException e) {
+            e.printStackTrace();
+            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("{idTramite}/deleteCicloCurso")
+    public JsonResponse deleteCicloCurso(
+            @PathVariable("idTramite") Long idTramite,
+            @RequestBody AlumnoCicloCurso alumnoCicloCurso,
+            HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            String message = "Se actualizó el historial.";
+
+            tramitesAcademicosService.deleteCicloCurso(alumnoCicloCurso,idTramite, ds);
 
             response.setSuccess(true);
             response.setMessage(message);

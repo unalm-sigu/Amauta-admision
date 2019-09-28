@@ -1,0 +1,37 @@
+
+<modal-vik ref="tramiteModal"
+           v-bind="tramiteModal"
+           v-bind:okaction="save">
+
+    <div slot="body">
+        <form enctype="multipart/form-data" id="form">
+            <div class="form-group">
+                <label>Alumno</label>
+                <multiselect                                                   
+                    v-model='alumno'
+                    v-bind:internal-search='false'
+                    v-bind:limit='15'
+                    v-on:search-change="searchAlumnos"
+                    v-bind:options='alumnos'
+                    placeholder="Ingrese un digito"
+                    v-bind:custom-label="customLabel"
+                    v-bind:show-labels="false"
+                    v-bind:allow-empty="false"
+                    track-by="id"
+                    :loading="isLoading"
+                    :searchable="true"
+                    >
+                    <template slot="option" slot-scope="props">
+                        <div class="option__desc"><span class="option__title bold">{{ props.option.persona.apellidosNombres }}</span></div>
+                        <div class="option__small"><span class="option__title">{{ props.option.codigo }}</span></div>
+                        <div class="option__small"><span class="option__title">Carrera: {{ props.option.carrera.nombre }}</span></div>
+                    </template>
+                </multiselect>
+                <input required="" v-model="alumno" class="hidden"/>
+            </div>
+            <div class="form-group">
+                <input type="file" id="file" ref="myFiles" class="custom-file-input" required=""  v-on:change="previewFiles" />
+            </div>
+        </form>
+    </div>
+</modal-vik>

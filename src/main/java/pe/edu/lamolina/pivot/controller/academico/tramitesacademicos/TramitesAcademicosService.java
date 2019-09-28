@@ -6,6 +6,7 @@ import org.joda.time.DateTime;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCiclo;
+import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.Docente;
@@ -20,7 +21,7 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface TramitesAcademicosService {
 
-    List<Tramite> allTramitesByFilter(DynatableFilter filter , DataSessionPivot dsp);
+    List<Tramite> allTramitesByFilter(DynatableFilter filter, DataSessionPivot dsp);
 
     void aceptarSolReincorporacion(Tramite tramite, AccionTramiteAcademico accionTramiteAcademico, DataSessionPivot ds);
 
@@ -61,5 +62,9 @@ public interface TramitesAcademicosService {
     public String alllistCursoDirigidoFac(Facultad facultad, DataSessionPivot ds);
 
     public AccionTramiteDocumento findAccionTramiteDocumento(AccionTramiteDocumento accionTramiteDoc);
+
+    public void revertirCambioHistorial(AlumnoCiclo alumnoCiclo, DataSessionPivot ds);
+
+    public void deleteCicloCurso(AlumnoCicloCurso alumnoCicloCurso, Long idTramite, DataSessionPivot ds);
 
 }

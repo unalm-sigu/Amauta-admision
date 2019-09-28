@@ -8,4 +8,6 @@ public interface AutorizacionRegistroDAO extends EasyDAO<AutorizacionRegistro> {
 
     AutorizacionRegistro findByTramite(Tramite tramite);
 
+    public void updateColumns(AutorizacionRegistro autorizacionRegistro, String... params);
+
 }

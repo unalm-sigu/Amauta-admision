@@ -1,0 +1,119 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title>Correccion Historial</title>
+    <div th:substituteby="_layout/includes :: styles-dynatable"></div>
+</head>
+<body>
+    <div layout:fragment="main">
+        <div id="corrHisto">
+
+            <header class="header b-b padder-lg">
+
+                <div class="btn-group pull-right">
+                    <a type="button" class="btn btn-success btn-sm dropdown-toggle" v-on:click="nuevo">
+                        &nbsp; Nuevo &nbsp; 
+                    </a>
+                </div>
+                <h2>Correccion Historial</h2>
+
+            </header>
+            <section class="wrapper-lg m-b-xs">
+                <section class="panel">
+                    <section class="panel-body m-t-sm">
+                        <div class="col-md-12 col-md-offset-0">
+                            <raptor-table v-bind:url="corrHistoURL" ref="load">
+                                <template  scope="props" >
+
+                                    <table  class="table table-striped table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th class="col-md-4 text-left" colspan="2">Alumno</th>
+                                                <th class=" col-md-4 text-left">Responsables</th>
+                                                <th class="col-md-2 text-left">Estado</th>
+                                                <th></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr v-for="item in props.data">
+                                                <td class="v-middle">
+                                                    <div class="pull-left">
+                                                        <div v-if="item.tramite.alumno.persona.tipoFoto=='POSTUL' "
+                                                             class="img-responsive img-thumbnail img-circle div-foto-list">
+                                                            <img class="img-foto-list" v-bind:src="item.tramite.alumno.persona.rutaFoto" />
+                                                        </div>
+
+                                                        <img v-else-if="item.tramite.alumno.persona.tipoFoto=='COMUN' " 
+                                                             class="img-responsive img-thumbnail img-circle div-foto-alumno-list" 
+                                                             v-bind:src="item.tramite.alumno.persona.rutaFoto" />
+
+                                                        <img v-else="" 
+                                                             class="img-foto-tempo img-responsive img-thumbnail img-circle" 
+                                                             v-bind:src="item.tramite.alumno.persona.rutaFoto" />
+                                                    </div>
+                                                </td>
+                                                <td class="v-middle text-left">
+                                                    <span class="block bold "> <a>{{item.tramite.alumno.persona.nombreCompleto}}</a> </span> 
+                                                    <span class="block bold " v-if="item.tramite.alumno.carrera.nombre!=item.tramite.alumno.carrera.facultad.nombre"> {{item.tramite.alumno.carrera.nombre}} - {{item.tramite.alumno.carrera.facultad.nombre}} </span> 
+                                                    <span class="block bold " v-else=""> {{item.tramite.alumno.carrera.facultad.nombre}} </span> 
+                                                    <span class="block bold " v-if="item.tramite.alumno.persona.numeroDocIdentidad!=null"> {{item.tramite.alumno.persona.tipoDocumento.simbolo}} - {{item.tramite.alumno.persona.numeroDocIdentidad}} </span> 
+                                                    <span class="block bold " > {{item.tramite.alumno.codigo}}</span> 
+                                                    <!--<span class="block bold " > {{item.tramite.alumno.situacionAcademica.descripcion}}</span>--> 
+                                                </td>                                          
+                                                <td class="v-middle">
+                                                    <div class="block">
+                                                        <span class=" bold" > Usuario registro: </span> <span  v-text="item.userRegistro.persona.nombreCompleto"></span>
+                                                        <br/>
+                                                        <span class=" bold" > Fecha registro: </span> <span v-text="item.fechaRegistro"></span>
+                                                    </div>
+                                                    <div class="block" v-if="item.userModificacion.id != null">
+                                                        <span class=" bold" > Usuario Modificador: </span> <span v-text="item.userModificacion.persona.nombreCompleto"></span>
+                                                        <br/>
+                                                        <span class=" bold" > Fecha registro: </span> <span v-text="item.fechaModificacion"></span>
+                                                    </div>
+                                                </td>
+                                                <td class="v-middle">
+                                                    <span class="block " v-bind:class="classColor(item.estadoTramite.codigo)"> {{item.estadoTramite.nombre}}</span>
+                                                </td>
+
+                                                <td class="v-middle">
+                                                    <div class="dropdown actions">
+                                                        <a class="dropdown-toggle" data-toggle="dropdown">
+                                                            <i class="glyphicon glyphicon-option-vertical"></i>
+                                                        </a>
+                                                        <ul  class="dropdown-menu pull-right">
+
+                                                            <li>  <a class="btn-link pointer" 
+                                                                     v-on:click="procesarTramite(item.tramite,$event)" v-if="item.tramite.formularioEstadoTramite.id">
+                                                                    Procesaar</a></li>
+                                                            <li v-for="estado in item.tramite.accionesTramitesAcademico">
+                                                                <a v-if="item.tramite.formularioEstadoTramite.id == null " v-on:click="updateEstado(item.tramite,estado)">{{estado.opcion}}</a>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </template>
+                            </raptor-table>
+                        </div>
+                    </section>
+                </section>
+            </section>
+
+            <th:block th:replace="tramite/correccionHisto/tramiteCorrHistoModal"/>
+        </div>
+
+    </div>
+
+    <div layout:fragment="js">
+        <script th:inline="javascript">
+
+        </script>
+        <div th:substituteby="_modules/vue-modal"/>
+        <div th:substituteby="_modules/vue-raptor-table"/>
+        <script th:src="@{/app/tramite/correccionHisto/correccionHistorial.js}" charset="utf-8"></script>
+    </div>
+
+</body>
+</html>

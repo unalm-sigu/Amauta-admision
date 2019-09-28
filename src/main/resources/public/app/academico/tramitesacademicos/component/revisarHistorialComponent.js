@@ -17,7 +17,8 @@ Vue.component("rev-historial-component", {
             cicloSelect: {},
             general: true,
             typeSearch: false,
-            typeSearch3: false
+            typeSearch3: false,
+            modNotas: false
         }
     },
     computed: {
@@ -34,6 +35,10 @@ Vue.component("rev-historial-component", {
             console.dir(this.alumno);
             this.cargaHistorial();
         }
+        if (this.tramite.tipoTramite.codigo !== 'CORR_HISTO') {
+            this.modNotas = true;
+        }
+
     },
     watch: {
         alumno(newValue) {
@@ -343,6 +348,62 @@ Vue.component("rev-historial-component", {
                 return "3cio.Super.";
             }
             return "";
+        },
+        revertirCambios(item) {
+            var vue = this;
+            console.log(vue.tab);
+            $global.$emit('MODAL-WAIT-OPEN', 'Cargando');
+            $.ajax({
+                method: 'POST',
+                url: APP.url('academico/tramiteacademico/revertirCambioHistorial'),
+                contentType: "application/json",
+                data: JSON.stringify(vue.tab),
+                success: function (response) {
+                    if (response.success) {
+                        vue.cargaHistorial();
+                        notify(response.message, 'success');
+                    } else {
+                        notify(response.message, 'error');
+                    }
+                    $global.$emit('MODAL-WAIT-CLOSE', 'Cargando');
+                }, error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                    $global.$emit('MODAL-WAIT-CLOSE', 'Cargando');
+                }
+            });
+        },
+        deleteCicloCurso(item) {
+            var vue = this;
+            bootbox.confirm({
+                message: '¿Seguro que desea eliminar el curso?',
+                buttons: {
+                    confirm: {label: 'Si, Calcular', className: "btn-primary"},
+                    cancel: {label: 'Cancelar', className: "btn-link"}
+                },
+                callback: function (result) {
+                    if (result) {
+                        $global.$emit('MODAL-WAIT-OPEN', 'Cargando');
+                        $.ajax({
+                            method: 'POST',
+                            url: APP.url('academico/tramiteacademico/deleteCicloCurso'),
+                            contentType: "application/json",
+                            data: JSON.stringify(item),
+                            success: function (response) {
+                                if (response.success) {
+                                    vue.cargaHistorial();
+                                    notify(response.message, 'error');
+                                } else {
+                                    notify(response.message, 'error');
+                                }
+                                $global.$emit('MODAL-WAIT-CLOSE', 'Cargando');
+                            }, error: function () {
+                                notify(MESSAGES.errorComunicacion, "error");
+                                $global.$emit('MODAL-WAIT-CLOSE', 'Cargando');
+                            }
+                        });
+                    }
+                }
+            });
         }
     }
 });
