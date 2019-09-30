@@ -32,7 +32,6 @@ import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.enums.RolExamenesEstadoEnum;
 import pe.edu.lamolina.model.enums.SeccionRolExamenEstadoEnum;
 import pe.edu.lamolina.model.enums.SituacionRolExamenesEnum;
-import pe.edu.lamolina.model.enums.TipoGrupoRolExamenesEnum;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.horario.HorarioAula;
@@ -862,6 +861,7 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
 
         //validar cruce horario docentes !!!!!!!!!!!!!!!!!!!!!!!!!!!!
         boolean validacionCursosMasivos = this.validateCruceCursosMasivos(cursoMasivoExamen, alumnos, docentes, aulas);
+        //boolean validacionCursosMasivos = this.validateCruceCursosMasivos(cursoMasivoExamen, alumnos, docentes, aulas);
 
         grupoHorasExamen.setRevisado("NO");
         boolean validacionGruposRegulares = grupoRegularConnector.validarGrupoRegular(grupoHorasExamen, alumnos, docentes, aulas);

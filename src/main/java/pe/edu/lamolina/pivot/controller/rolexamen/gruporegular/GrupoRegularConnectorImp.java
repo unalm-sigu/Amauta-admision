@@ -548,6 +548,7 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
         for (CursoMasivoExamen cursoMasivoByRolExamen : cursosMasivosByRolExamen) {
 
             //validar conflicto docentes
+            /*
             for (Docente docente : docentes) {
                 DocenteCursoMasivo docenteCursoMasivo = cursoMasivoByRolExamen.getDocentesCursosMasivos().stream()
                         .filter(x -> x.getDocente().equals(docente))
@@ -558,7 +559,7 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
                     //  break;
                 }
             }
-
+            // **/
             //Validar Aula
             if (cursoMasivoByRolExamen.getAulasCursosMasivos() != null && !cursoMasivoByRolExamen.getAulasCursosMasivos().isEmpty()) {
                 for (Aula aula : aulas) {

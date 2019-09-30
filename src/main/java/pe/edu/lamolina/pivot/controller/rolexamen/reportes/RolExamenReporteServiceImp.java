@@ -23,6 +23,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.ui.Model;
 import org.springframework.util.Assert;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.enums.SeccionRolExamenEstadoEnum;
 import pe.edu.lamolina.model.general.Aula;
@@ -147,7 +148,11 @@ public class RolExamenReporteServiceImp implements RolExamenReporteService {
         for (CursoMasivoExamen masivo : masivos) {
             for (AulaCursoMasivo aulasCursosMasivo : masivo.getAulasCursosMasivos()) {
                 Aula aula = aulasCursosMasivo.getAula();
-                Date dia = aulasCursosMasivo.getCursoMasivoExamen().getGrupoHorasExamen().getFecha();
+                //Date dia = aulasCursosMasivo.getCursoMasivoExamen().getGrupoHorasExamen().getFecha();
+                Date dia = (Date) ObjectUtil.getParentTree(aulasCursosMasivo, "cursoMasivoExamen.grupoHorasExamen.fecha");
+                if (aula == null || dia == null) {
+                    continue;
+                }
                 Integer horaInicio = aulasCursosMasivo.getCursoMasivoExamen().getGrupoHorasExamen().getHoraInicio().getNumero();
                 Integer horaFin = aulasCursosMasivo.getCursoMasivoExamen().getGrupoHorasExamen().getHoraFin().getNumero();
                 Assert.isTrue(horaFin >= horaInicio, "Hora de inicio mayor que la hora de fin del examen");
