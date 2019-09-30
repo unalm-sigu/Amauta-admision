@@ -154,6 +154,7 @@ public class UpdateHistorialServiceImp implements UpdateHistorialService {
         correccionHistorial.setArchivo(archivo);
         correccionHistorial.setEstadoTramite(tramiteAcademico.getEstadoTramiteInicio());
         correccionHistorial.setTramite(tramite);
+        correccionHistorial.setAlumno(alumno);
         correccionHistorial.setFechaRegistro(new Date());
         correccionHistorial.setUserRegistro(ds.getUsuario());
         correccionHistorialDAO.save(correccionHistorial);
