@@ -28,6 +28,7 @@
                                         <thead>
                                             <tr>
                                                 <th class="col-md-4 text-left" colspan="2">Alumno</th>
+                                                <th class=" col-md-4 text-left">Descripción</th>
                                                 <th class=" col-md-4 text-left">Responsables</th>
                                                 <th class="col-md-2 text-left">Estado</th>
                                                 <th></th>
@@ -57,8 +58,13 @@
                                                     <span class="block bold " v-else=""> {{item.tramite.alumno.carrera.facultad.nombre}} </span> 
                                                     <span class="block bold " v-if="item.tramite.alumno.persona.numeroDocIdentidad!=null"> {{item.tramite.alumno.persona.tipoDocumento.simbolo}} - {{item.tramite.alumno.persona.numeroDocIdentidad}} </span> 
                                                     <span class="block bold " > {{item.tramite.alumno.codigo}}</span> 
-                                                    <!--<span class="block bold " > {{item.tramite.alumno.situacionAcademica.descripcion}}</span>--> 
+                                                    <span class="bold label label-primary" > {{item.tipoDocumento}}</span> 
                                                 </td>                                          
+                                                <td class="v-middle">
+                                                    <div class="block">
+                                                        <span class=" bold "  v-text="item.descripcion" > </span>
+                                                    </div>
+                                                </td>
                                                 <td class="v-middle">
                                                     <div class="block">
                                                         <span class=" bold" > Usuario registro: </span> <span  v-text="item.userRegistro.persona.nombreCompleto"></span>
@@ -108,7 +114,9 @@
 
     <div layout:fragment="js">
         <script th:inline="javascript">
-
+            /*<![CDATA[*/
+            var tipoDocumentoJson = /*[[${tipoDocumento.toString()}]]*/ 'json';
+            /*]]>*/
         </script>
         <div th:substituteby="_modules/vue-modal"/>
         <div th:substituteby="_modules/vue-raptor-table"/>
