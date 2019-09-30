@@ -17,8 +17,7 @@ Vue.component("rev-historial-component", {
             cicloSelect: {},
             general: true,
             typeSearch: false,
-            typeSearch3: false,
-            modNotas: false
+            typeSearch3: false
         }
     },
     computed: {
@@ -34,9 +33,6 @@ Vue.component("rev-historial-component", {
             console.log("mounted revisarHistorialComponent");
             console.dir(this.alumno);
             this.cargaHistorial();
-        }
-        if (this.tramite.tipoTramite.codigo !== 'CORR_HISTO') {
-            this.modNotas = true;
         }
 
     },
