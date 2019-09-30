@@ -983,7 +983,7 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
     @Transactional
     public void revertirCambioHistorial(AlumnoCiclo alumnoCiclo, DataSessionPivot ds) {
         AutorizacionRegistro autorizacionRegistro = new AutorizacionRegistro();
-        Boolean nochange = true;
+        Boolean nochange = false;
         for (AlumnoCicloCurso alumnoCicloCurso : alumnoCiclo.getAlumnoCicloCurso()) {
             if (alumnoCicloCurso.getAutorizacionRegistro() != null && alumnoCicloCurso.getAutorizacionRegistro().getEstadoEnum() == EstadoEnum.CRE) {
                 autorizacionRegistro = alumnoCicloCurso.getAutorizacionRegistro();
@@ -992,7 +992,7 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
                 alumnoCicloCurso.setFechaModificacion(new Date());
                 alumnoCicloCurso.setUserModificacion(ds.getUsuario());
                 alumnoCicloCursoDAO.updateColumns(alumnoCicloCurso, "estado", "registroActivo", "fechaModificacion", "userModificacion");
-                nochange = false;
+                nochange = true;
             }
         }
         Assert.isTrue(nochange, "No hubo modificaciones.");
