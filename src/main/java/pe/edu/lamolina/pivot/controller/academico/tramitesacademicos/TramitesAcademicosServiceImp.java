@@ -440,7 +440,7 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
         AutorizacionRegistro autorizacionRegistro = new AutorizacionRegistro();
         autorizacionRegistro.setMotivo("");
         autorizacionRegistro.setAlumno(alumno);
-        autorizacionRegistro.setEstadoEnum(EstadoEnum.CRE);
+        autorizacionRegistro.setEstado(EstadoEnum.CRE.name());
         autorizacionRegistro.setFechaRegistro(today.toDate());
         autorizacionRegistro.setUserRegistro(ds.getUsuario());
         autorizacionRegistro.setTramite(tramite);
@@ -797,7 +797,7 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
             autorizacionRegistro = new AutorizacionRegistro();
             autorizacionRegistro.setMotivo("");
             autorizacionRegistro.setAlumno(alumnoCiclo.getAlumno());
-            autorizacionRegistro.setEstadoEnum(EstadoEnum.CRE);
+            autorizacionRegistro.setEstado(EstadoEnum.CRE.name());
             autorizacionRegistro.setFechaRegistro(today.toDate());
             autorizacionRegistro.setUserRegistro(ds.getUsuario());
             autorizacionRegistro.setTramite(new Tramite(tramiteId));

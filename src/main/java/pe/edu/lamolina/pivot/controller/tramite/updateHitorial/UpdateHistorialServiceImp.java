@@ -120,6 +120,13 @@ public class UpdateHistorialServiceImp implements UpdateHistorialService {
         TipoTramite tipoTramite = tipoTramiteDAO.findByCodigo(TipoTramiteEnum.CORR_HISTO.name());
         String ruta = guardarArchivo(file);
         Archivo archivo = new Archivo();
+        archivo.setFechaRegistro(new Date());
+        archivo.setNombre(file.getName());
+        archivo.setInstancia("TRAMTRAMITECORRECCIONHISTORIAL");
+        archivo.setUsuarioRegistro(ds.getUsuario());
+        archivo.setRuta(ruta);
+        archivo.setTipo(file.getContentType());
+        archivoDAO.save(archivo);
 
         DateTime today = new DateTime();
         TipoDocumentoCompania tipoDocumentoCompania = tipoDocumentoCompaniaDAO.findByCodigo(TipoDocumentoCompaniaEnum.TRAM);
@@ -147,17 +154,11 @@ public class UpdateHistorialServiceImp implements UpdateHistorialService {
         correccionHistorial.setArchivo(archivo);
         correccionHistorial.setEstadoTramite(tramiteAcademico.getEstadoTramiteInicio());
         correccionHistorial.setTramite(tramite);
+        correccionHistorial.setAlumno(alumno);
         correccionHistorial.setFechaRegistro(new Date());
         correccionHistorial.setUserRegistro(ds.getUsuario());
         correccionHistorialDAO.save(correccionHistorial);
 
-        archivo.setFechaRegistro(new Date());
-        archivo.setNombre(file.getName());
-        archivo.setInstancia("TRAMTRAMITECORRECCIONHISTORIAL");
-        archivo.setUsuarioRegistro(ds.getUsuario());
-        archivo.setRuta(ruta);
-        archivo.setTipo(file.getContentType());
-        archivoDAO.save(archivo);
     }
 
     @Override

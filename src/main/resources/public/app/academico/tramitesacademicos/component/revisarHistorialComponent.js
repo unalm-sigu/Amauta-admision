@@ -377,7 +377,7 @@ Vue.component("rev-historial-component", {
             bootbox.confirm({
                 message: '¿Seguro que desea eliminar el curso?',
                 buttons: {
-                    confirm: {label: 'Si, Calcular', className: "btn-primary"},
+                    confirm: {label: 'Si, Eliminar', className: "btn-primary"},
                     cancel: {label: 'Cancelar', className: "btn-link"}
                 },
                 callback: function (result) {
@@ -385,7 +385,7 @@ Vue.component("rev-historial-component", {
                         $global.$emit('MODAL-WAIT-OPEN', 'Cargando');
                         $.ajax({
                             method: 'POST',
-                            url: APP.url('academico/tramiteacademico/deleteCicloCurso'),
+                            url: APP.url('academico/tramiteacademico/' + vue.tramite.id+ '/deleteCicloCurso'),
                             contentType: "application/json",
                             data: JSON.stringify(item),
                             success: function (response) {
