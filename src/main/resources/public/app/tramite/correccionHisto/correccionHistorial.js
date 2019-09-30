@@ -49,7 +49,18 @@ new Vue({
             $vue.file = this.$refs.myFiles.files[0];
         },
         classColor(item) {
+            switch (item) {
+                case 'REV_HIS':
+                    return "label label-default";
+                    break;
+                case 'RES_CON':
+                    return "label label-success";
+                    break;
+                default:
+                    return "label label-primary";
+                    break;
 
+            }
         },
         save() {
             let $vue = this;
