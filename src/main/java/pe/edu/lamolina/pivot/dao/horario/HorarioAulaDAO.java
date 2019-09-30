@@ -85,6 +85,8 @@ public interface HorarioAulaDAO extends EasyDAO<HorarioAula> {
 
     List<HorarioAula> allByCursoMasivo(CursoMasivoExamen cursoMasivoExamen);
 
+    List<HorarioAula> allFlatByCursoMasivo(CursoMasivoExamen cursoMasivoExamen);
+
     List<HorarioAula> allByRolExamenes(RolExamenes rolExamenes);
 
     void deleteByRolExamenes(RolExamenes rolExamenes);

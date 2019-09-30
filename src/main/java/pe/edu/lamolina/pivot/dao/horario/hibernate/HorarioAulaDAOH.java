@@ -637,6 +637,15 @@ public class HorarioAulaDAOH extends AbstractEasyDAO<HorarioAula> implements Hor
         return all(sql);
     }
 
+    @Override
+    public List<HorarioAula> allFlatByCursoMasivo(CursoMasivoExamen cursoMasivoExamen) {
+        Octavia sql = Octavia.query()
+                .from(HorarioAula.class, "ha")
+                .join("cursoMasivoExamen cmas")
+                .filter("cmas.id", cursoMasivoExamen);
+        return all(sql);
+    }
+
 //    public List<HorarioAula> allByLetraGrupoRegular(LetraGrupoRegular letraGrupoRegular) {
 //        Octavia sql = Octavia.query()
 //                .from(HorarioAula.class, "ha")
