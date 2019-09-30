@@ -45,7 +45,8 @@ new Vue({
             return `${codigo} - ${persona.apellidosNombres}`;
         },
         previewFiles() {
-            this.file = this.$refs.myFiles.files[0];
+            let $vue = this;
+            $vue.file = this.$refs.myFiles.files[0];
         },
         classColor(item) {
 
