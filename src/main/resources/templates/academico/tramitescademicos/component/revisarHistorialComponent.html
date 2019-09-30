@@ -149,7 +149,7 @@
                            v-on:click="removerCicloCurso(cur)" 
                            v-if="cur.id  &lt;=  0"></i>
                     </a>
-                    <a href="#" v-if='cur.estaAprobado==1'>
+                    <a href="#" v-if='cur.estaActivo'>
                         <i class="fa fa-times text-danger"
                            v-on:click="deleteCicloCurso(cur)" 
                            v-if="cur.id  >=  0"></i>
