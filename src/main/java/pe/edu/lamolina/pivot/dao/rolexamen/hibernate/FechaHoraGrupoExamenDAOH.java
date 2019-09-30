@@ -50,8 +50,8 @@ public class FechaHoraGrupoExamenDAOH extends AbstractEasyDAO<FechaHoraGrupoExam
         Octavia sql = Octavia.query()
                 .from(FechaHoraGrupoExamen.class, "fhg")
                 .join("grupoHorasExamen ghe", "semanaExamen se", "dia d", "hora h")
-                .orderBy("d.numeroDia", "h.numero")
-                .in("ghe.id", gruposHorasExamen);
+                .in("ghe.id", gruposHorasExamen)
+                .orderBy("d.numeroDia", "h.numero");
         return all(sql);
     }
 
@@ -60,8 +60,8 @@ public class FechaHoraGrupoExamenDAOH extends AbstractEasyDAO<FechaHoraGrupoExam
         Octavia sql = Octavia.query()
                 .from(FechaHoraGrupoExamen.class, "fhg")
                 .join("grupoHorasExamen ghe", "semanaExamen se", "dia d", "hora h")
-                .orderBy("d.numeroDia", "h.numero")
-                .filter("ghe.id", grupoHorasExamen);
+                .filter("ghe.id", grupoHorasExamen)
+                .orderBy("d.numeroDia", "h.numero");
         return all(sql);
     }
 

@@ -19,6 +19,16 @@ public class AporteCicloDAOH extends AbstractEasyDAO<AporteCiclo> implements Apo
     }
 
     @Override
+    public List<AporteCiclo> all() {
+        Octavia sql = Octavia.query()
+                .from(AporteCiclo.class, "ac")
+                .join("cicloAcademico ca", "aporte ap", "cuentaBancaria cb")
+                .orderBy("ap.nombre asc");
+
+        return all(sql);
+    }
+
+    @Override
     public List<AporteCiclo> allByCicloAcademico(CicloAcademico cicloAcademico) {
         Octavia sql = Octavia.query()
                 .from(AporteCiclo.class, "ac")
