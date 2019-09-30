@@ -213,7 +213,7 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
         RolExamenes rolBD = rolExamenesDAO.find(rolExamenes.getId());
         this.checkNoPublicado(rolBD);
 
-        List<CursoMasivoExamen> cursosMasivosByRolExamenes = new ArrayList<>();
+        List<CursoMasivoExamen> cursosMasivosByRolExamenes = new ArrayList();
         this.validationsCalculoExamenesGrupoRegular(rolExamenes, cursosMasivosByRolExamenes);
 //        if (true) {
 //            return;
@@ -240,7 +240,7 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
         rolExamenesLogger.setMaximoAforoAula(aulaMaxAforo.getAforo());
 
         //creamos las letras regulares
-        List<String> letras = new ArrayList<>();
+        List<String> letras = new ArrayList();
         List<GrupoHorasExamen> gruposHorasExamen = this.allGrupoHorasExamenByRol(rolExamenes);
         for (GrupoHorasExamen grupoHorasExamen : gruposHorasExamen) {
             if (!letras.contains(grupoHorasExamen.getGrupoHoras().getLetra())) {
@@ -564,7 +564,8 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
         List<FechaHoraGrupoExamen> fechasHorasGrupos = fechaHoraGrupoExamenDAO.allByGrupoHorasExamenOrderByDiaHora(gruposHorasExamen);
         for (GrupoHorasExamen grupoHorasExamen : gruposHorasExamen) {
             //   List<FechaHoraGrupoExamen> fechasHorasGrupo = fechaHoraGrupoExamenDAO.allByGrupoHorasExamenOrderByDiaHora(grupoHorasExamen);
-            List<FechaHoraGrupoExamen> fechasHorasGrupo = fechasHorasGrupos.stream().filter(x -> x.getGrupoHorasExamen().equals(grupoHorasExamen)).collect(Collectors.toList());
+            List<FechaHoraGrupoExamen> fechasHorasGrupo
+                    = fechasHorasGrupos.stream().filter(x -> x.getGrupoHorasExamen().equals(grupoHorasExamen)).collect(Collectors.toList());
             grupoHorasExamen.setFechasHorasGruposExamen(fechasHorasGrupo);
             grupoHorasExamen.setSemanaExamen(fechasHorasGrupo != null && !fechasHorasGrupo.isEmpty() ? fechasHorasGrupo.get(0).getSemanaExamen() : null);
         }
@@ -581,7 +582,11 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
         letras.forEach(letra -> {
             LetraGrupoRegular letraGrupoRegular = new LetraGrupoRegular(letra, rolExamenes, today.toDate(), usuario);
             GrupoHorasExamen grupoHorasExamen
-                    = gruposHorasExamenes.stream().filter(ghe -> ghe.getGrupoHoras().getLetra().equals(letra)).findFirst().orElse(null);
+                    = gruposHorasExamenes.stream().filter(ghe -> ghe.getGrupoHoras().getCodigo().equals(letra)).findFirst().orElse(null);
+            if (grupoHorasExamen == null) {
+                grupoHorasExamen
+                        = gruposHorasExamenes.stream().filter(ghe -> ghe.getGrupoHoras().getLetra().equals(letra)).findFirst().orElse(null);
+            }
             letraGrupoRegular.setGrupoHorasExamen(grupoHorasExamen);
             letrasGruposRegulares.add(letraGrupoRegular);
         });
