@@ -535,6 +535,19 @@ public class CicloAcademicoDAOH extends AbstractEasyDAO<CicloAcademico> implemen
         return all(sql);
     }
 
+    public List<CicloAcademico> allCicloOrdenMerito(CicloAcademico cicloActivo, CicloAcademico cicloDesde) {
+        Octavia sql = Octavia.query()
+                .from(CicloAcademico.class, "ca")
+                .join("ca.modalidadEstudio me")
+                .filter("ca.codigo", "<", cicloActivo.getCodigo())
+                .filter("ca.codigo", ">=", cicloDesde.getCodigo())
+                .filter("me.id", cicloActivo.getModalidadEstudio())
+                .filter("ca.tipo", TipoCicloEnum.REG)
+                .orderBy("ca.year DESC", "ca.numeroCiclo DESC");
+
+        return all(sql);
+    }
+
     @Override
     public List<CicloAcademico> allByCodigo(String codigo) {
         Octavia sql = Octavia.query()

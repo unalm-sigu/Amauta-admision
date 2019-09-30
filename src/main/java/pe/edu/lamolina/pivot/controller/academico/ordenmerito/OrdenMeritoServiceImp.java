@@ -600,10 +600,10 @@ public class OrdenMeritoServiceImp implements OrdenMeritoService {
     public List<CicloAcademico> allCicloAcademicoForSelect() {
         List<CicloAcademico> cicloAcademicos = new ArrayList();
         CicloAcademico cicloActivo = findCicloActivo();
-        List<CicloAcademico> ciclosAnterioes = cicloAcademicoDAO.allAnteriores(10, cicloActivo);
+        CicloAcademico cicloDesde = cicloAcademicoDAO.find(new CicloAcademico(910L)); // desde el ciclo 2002 donde se empezo los calculos de orden de merito
+        List<CicloAcademico> ciclosAnterioes = cicloAcademicoDAO.allCicloOrdenMerito(cicloActivo, cicloDesde);
         cicloAcademicos.add(cicloActivo);
         cicloAcademicos.addAll(ciclosAnterioes);
-
         return cicloAcademicos;
     }
 
