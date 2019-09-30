@@ -3,6 +3,7 @@ package pe.edu.lamolina.pivot.controller.tramite.updateHitorial;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.util.Arrays;
 import java.util.List;
 import javax.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,13 +14,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.multipart.MultipartFile;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.edu.lamolina.model.enums.TipoDocumentoCompaniaEnum;
+import static pe.edu.lamolina.model.enums.TipoDocumentoCompaniaEnum.CARTA;
 import pe.edu.lamolina.model.tramite.AccionTramiteAcademico;
 import pe.edu.lamolina.model.tramite.Tramite;
 import pe.edu.lamolina.model.tramite.TramiteCorreccionHistorial;
@@ -41,11 +43,22 @@ public class UpdateHistorialController {
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        ArrayNode arrayNode = new ArrayNode(JsonNodeFactory.instance);
+        for (TipoDocumentoCompaniaEnum value : TipoDocumentoCompaniaEnum.values()) {
+            if (Arrays.asList(CARTA.name(), TipoDocumentoCompaniaEnum.MANUAL.name()).contains(value.name())) {
+                ObjectNode obj = new ObjectNode(JsonNodeFactory.instance);
+                obj.put("name", value.name());
+                obj.put("value", value.getValue());
+                arrayNode.add(obj);
+            }
+        }
+
         ObjectNode obj = JsonHelper.createJson(ds.getCicloAcademico(), JsonNodeFactory.instance, new String[]{
             "id",
             "descripcion"
         });
         model.addAttribute("cicloacademico", obj);
+        model.addAttribute("tipoDocumento", arrayNode);
         return "tramite/correccionHisto/correccionHistorial";
     }
 
@@ -133,14 +146,13 @@ public class UpdateHistorialController {
 
     @ResponseBody
     @RequestMapping("save")
-    public JsonResponse save(@RequestParam("file") MultipartFile file,
-            @RequestParam("alumno") Long idAlumno,
+    public JsonResponse save(@RequestBody TramiteCorreccionHistorial correccionHistorial,
             Model model, HttpSession session) {
         JsonResponse json = new JsonResponse();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
         try {
-            service.save(file, idAlumno, ds);
+            service.save(correccionHistorial, ds);
 
             json.setSuccess(true);
             json.setMessage("Se guardó el trámite");
@@ -155,7 +167,7 @@ public class UpdateHistorialController {
 
     @ResponseBody
     @RequestMapping("anular")
-    public JsonResponse save(@RequestBody TramiteCorreccionHistorial correccionHistorial,
+    public JsonResponse anular(@RequestBody TramiteCorreccionHistorial correccionHistorial,
             Model model, HttpSession session) {
         JsonResponse json = new JsonResponse();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);

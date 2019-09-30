@@ -116,23 +116,23 @@ public class UpdateHistorialServiceImp implements UpdateHistorialService {
 
     @Override
     @Transactional
-    public void save(MultipartFile file, Long idAlumno, DataSessionPivot ds) {
+    public void save(TramiteCorreccionHistorial correccionHistorialForm, DataSessionPivot ds) {
         TipoTramite tipoTramite = tipoTramiteDAO.findByCodigo(TipoTramiteEnum.CORR_HISTO.name());
-        String ruta = guardarArchivo(file);
-        Archivo archivo = new Archivo();
-        archivo.setFechaRegistro(new Date());
-        archivo.setNombre(file.getName());
-        archivo.setInstancia("TRAMTRAMITECORRECCIONHISTORIAL");
-        archivo.setUsuarioRegistro(ds.getUsuario());
-        archivo.setRuta(ruta);
-        archivo.setTipo(file.getContentType());
-        archivoDAO.save(archivo);
+//        String ruta = guardarArchivo(file);
+//        Archivo archivo = new Archivo();
+//        archivo.setFechaRegistro(new Date());
+//        archivo.setNombre(file.getName());
+//        archivo.setInstancia("TRAMTRAMITECORRECCIONHISTORIAL");
+//        archivo.setUsuarioRegistro(ds.getUsuario());
+//        archivo.setRuta(ruta);
+//        archivo.setTipo(file.getContentType());
+//        archivoDAO.save(archivo);
 
         DateTime today = new DateTime();
-        TipoDocumentoCompania tipoDocumentoCompania = tipoDocumentoCompaniaDAO.findByCodigo(TipoDocumentoCompaniaEnum.TRAM);
+        TipoDocumentoCompania tipoDocumentoCompania = tipoDocumentoCompaniaDAO.findByCodigo(TipoDocumentoCompaniaEnum.valueOf(correccionHistorialForm.getTipoDocumento()));
         SerieDocumento serieDocumento = serieDocumentoService.getCorrelativo(tipoDocumentoCompania, Long.valueOf(today.getYear()), ds.getUsuario());
 
-        Alumno alumno = alumnoDAO.findAllInfo(idAlumno);
+        Alumno alumno = alumnoDAO.findAllInfo(correccionHistorialForm.getAlumno().getId());
 
         Tramite tramite = new Tramite();
         tramite.setAlumno(alumno);
@@ -151,11 +151,13 @@ public class UpdateHistorialServiceImp implements UpdateHistorialService {
         List<AccionTramiteAcademico> accionTramiteAcademico = accionTramiteAcademicoDAO.allByTipoTramite(tipoTramite);
         AccionTramiteAcademico tramiteAcademico = accionTramiteAcademico.stream().filter(x -> x.getOrdenOpcion() == 1).findAny().orElse(null);
         TramiteCorreccionHistorial correccionHistorial = new TramiteCorreccionHistorial();
-        correccionHistorial.setArchivo(archivo);
+//        correccionHistorial.setArchivo(archivo);
         correccionHistorial.setEstadoTramite(tramiteAcademico.getEstadoTramiteInicio());
         correccionHistorial.setTramite(tramite);
         correccionHistorial.setAlumno(alumno);
         correccionHistorial.setFechaRegistro(new Date());
+        correccionHistorial.setTipoDocumento(correccionHistorialForm.getTipoDocumento());
+        correccionHistorial.setDescripcion(correccionHistorialForm.getDescripcion());
         correccionHistorial.setUserRegistro(ds.getUsuario());
         correccionHistorialDAO.save(correccionHistorial);
 

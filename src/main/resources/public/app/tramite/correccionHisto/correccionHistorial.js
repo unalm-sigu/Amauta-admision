@@ -1,9 +1,11 @@
 Vue.component("multiselect", window.VueMultiselect.default);
+console.log(tipoDocumentoJson);
 new Vue({
     el: '#corrHisto',
     data: {
         alumnos: [],
         alumno: null,
+        tipoDocumento: JSON.parse(tipoDocumentoJson),
         corrHistoURL: APP.url('tramite/updateHistorial/list'),
         tramiteModal: VUE_MODAL.structFormAjax({
             id: 'tramiteModal',
@@ -12,6 +14,7 @@ new Vue({
             okbtn: 'Guardar'
         }),
         isLoading: false,
+        correccionhisto: {},
         file: {}
     },
     computed: {
@@ -68,22 +71,24 @@ new Vue({
             if (!form.parsley().validate()) {
                 return;
             }
-
-            let formData = new FormData();
-            formData.append('file', $vue.file);
-            formData.append('alumno', $vue.alumno.id);
-            AXIOS.post('/tramite/updateHistorial/save',
-                    formData,
-                    {
-                        headers: {
-                            'Content-Type': 'multipart/form-data'
-                        }
+            $vue.correccionhisto.tipoDocumento = $vue.correccionhisto.tipoDocumento.name;
+            $.ajax({
+                method: 'POST',
+                url: APP.url('tramite/updateHistorial/save'),
+                contentType: "application/json",
+                data: JSON.stringify($vue.correccionhisto),
+                success: function (response) {
+                    if (response.success) {
+                        $vue.$refs.load.repreload();
+                        notify(response.message, "success");
+                    } else {
+                        notify(response.message, 'error');
                     }
-            ).then(function (response) {
-                $vue.$refs.load.repreload();
-                console.log($vue.datos);
-            }).catch(function () {
-                console.log('FAILURE!!');
+                    $global.$emit('MODAL-WAIT-CLOSE', 'Cargando');
+                }, error: function () {
+                    $global.$emit('MODAL-WAIT-CLOSE', 'Cargando');
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
             });
             this.$refs.tramiteModal.close();
         },

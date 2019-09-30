@@ -12,7 +12,7 @@ public interface UpdateHistorialService {
 
     public List<TramiteCorreccionHistorial> allByCiclo(CicloAcademico cicloAcademico, DynatableFilter filter);
 
-    public void save(MultipartFile file, Long id, DataSessionPivot ds);
+    public void save(TramiteCorreccionHistorial correccionHistorial, DataSessionPivot ds);
 
     public void anular(TramiteCorreccionHistorial correccionHistorial, DataSessionPivot ds);
     
