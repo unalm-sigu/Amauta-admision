@@ -122,7 +122,8 @@
                                                                     Configurar Secciones Especiales
                                                                 </a>
                                                             </li>
-                                                            <template v-if="item.isEstadoPublicado || item.isEstadoModificando || item.isEstadoCerrado">
+                                                            <!--<template v-if="item.isEstadoPublicado || item.isEstadoModificando || item.isEstadoCerrado">-->
+                                                            <template>
                                                                 <li class="divider"></li>  
                                                                 <li>
                                                                     <a v-bind:href="`/rolexamen/reporte/${item.id}/examenes`">
