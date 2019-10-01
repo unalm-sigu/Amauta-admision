@@ -758,11 +758,13 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
         this.rolExamenesLogger.iniciarCursoMasivo();
 
         CursoMasivoExamen cursoMasivoExamenDB = cursoMasivoExamenDAO.find(cursoMasivoExamen.getId());
-        System.out.println("gpoExamen/db=" + cursoMasivoExamenDB.getGrupoHorasExamen().getId());
-        System.out.println("gpoExamen/form=" + cursoMasivoExamen.getGrupoHorasExamen().getId());
-        if (!cursoMasivoExamen.getGrupoHorasExamen().getId().equals(cursoMasivoExamenDB.getGrupoHorasExamen().getId())) {
-            System.out.println("deleteHorarioByCursoMasivo.id=" + cursoMasivoExamen.getId());
-            this.deleteHorarioByCursoMasivo(cursoMasivoExamen);
+        //System.out.println("gpoExamen/db=" + cursoMasivoExamenDB.getGrupoHorasExamen().getId());
+        //System.out.println("gpoExamen/form=" + cursoMasivoExamen.getGrupoHorasExamen().getId());
+        if (cursoMasivoExamenDB.getGrupoHorasExamen() != null) {
+            if (!cursoMasivoExamen.getGrupoHorasExamen().getId().equals(cursoMasivoExamenDB.getGrupoHorasExamen().getId())) {
+                System.out.println("deleteHorarioByCursoMasivo.id=" + cursoMasivoExamen.getId());
+                this.deleteHorarioByCursoMasivo(cursoMasivoExamen);
+            }
         }
 
         GrupoHorasExamen grupoHorasExamenDB = grupoHorasExamenDAO.find(cursoMasivoExamen.getGrupoHorasExamen().getId());

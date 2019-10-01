@@ -379,17 +379,32 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
             if (aula.getId().compareTo(1211L) == 0) {
                 logger.debug("");
             }
-            Aula aulaCompare = this.rolExamenesLogger.getAulas().stream().filter(x -> x.equals(aula)).findFirst().orElse(null);
+
+            Aula aulaCompare = null;
+            System.out.println("rolExamenesLogger=" + rolExamenesLogger);
+            System.out.println("rolExamenesLogger.aulas=" + rolExamenesLogger.getAulas());
+            if (rolExamenesLogger.getAulas() != null) {
+                for (Aula au : rolExamenesLogger.getAulas()) {
+                    if (au.getId().compareTo(aula.getId()) == 0) {
+                        aulaCompare = au;
+                        break;
+                    }
+                }
+            }
+            //Aula aulaCompare = this.rolExamenesLogger.getAulas().stream().filter(x -> x.equals(aula)).findFirst().orElse(null);
+
             logger.debug("aula {}", aula.getId());
-            for (FechaHoraGrupoExamen fechaHorGru : letraGrupoRegular.getGrupoHorasExamen().getFechasHorasGruposExamen()) {
-                HorarioAula horarioAula = aulaCompare.getHorariosAula()
-                        .stream()
-                        .filter(x -> x.getDia().getId().compareTo(fechaHorGru.getDia().getId()) == 0)
-                        .filter(x -> x.getHora().getId().compareTo(fechaHorGru.getHora().getId()) == 0)
-                        .findFirst().orElse(null);
-                if (horarioAula != null) {
-                    aulaConConflicto = true;
-                    rolExamenesLogger.cruceAula(aula, letraGrupoRegular, horarioAula.getSeccion());
+            if (aulaCompare != null) {
+                for (FechaHoraGrupoExamen fechaHorGru : letraGrupoRegular.getGrupoHorasExamen().getFechasHorasGruposExamen()) {
+                    HorarioAula horarioAula = aulaCompare.getHorariosAula()
+                            .stream()
+                            .filter(x -> x.getDia().getId().compareTo(fechaHorGru.getDia().getId()) == 0)
+                            .filter(x -> x.getHora().getId().compareTo(fechaHorGru.getHora().getId()) == 0)
+                            .findFirst().orElse(null);
+                    if (horarioAula != null) {
+                        aulaConConflicto = true;
+                        rolExamenesLogger.cruceAula(aula, letraGrupoRegular, horarioAula.getSeccion());
+                    }
                 }
             }
 
