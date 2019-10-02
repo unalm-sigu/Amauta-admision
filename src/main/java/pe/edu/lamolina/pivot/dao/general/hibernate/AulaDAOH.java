@@ -343,6 +343,7 @@ public class AulaDAOH extends AbstractEasyDAO<Aula> implements AulaDAO {
                 .from(Aula.class, "au")
                 .join("au.aulaSuperior aus", "au.oficinaSupervisora ofi")
                 .left("au.tipoCarpeta tc")
+                .isNotNull("capacidadAula")
                 .filter("ofi.codigo", oficinaEnum)
                 .filter("au.estado", estadoEnum.name());
 
