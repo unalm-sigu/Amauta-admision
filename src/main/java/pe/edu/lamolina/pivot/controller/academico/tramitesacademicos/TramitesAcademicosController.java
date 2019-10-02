@@ -593,7 +593,7 @@ public class TramitesAcademicosController {
                 return "redirect:/tramite/solicitudconstancia";
 
             case CORR_HISTO:
-                return "tramite/updateHistorial";
+                return "redirect:/tramite/updateHistorial";
             default:
                 return "redirect:/academico/tramiteacademico";
         }
