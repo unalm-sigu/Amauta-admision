@@ -16,13 +16,12 @@ import pe.edu.lamolina.model.rolexamen.GrupoHorasExamen;
 import pe.edu.lamolina.model.rolexamen.LetraGrupoRegular;
 import pe.edu.lamolina.model.rolexamen.SeccionGrupoEspecial;
 
-
 @Component
 public class RolExamenesLogger {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private static Boolean SHOW_LOG = Boolean.TRUE;
+    private static Boolean SHOW_LOG = Boolean.FALSE;
 
     private Long rolExamenes;
     private String letra;

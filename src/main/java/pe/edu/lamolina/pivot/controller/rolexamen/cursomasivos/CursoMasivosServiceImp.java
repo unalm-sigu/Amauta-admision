@@ -762,7 +762,6 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
         //System.out.println("gpoExamen/form=" + cursoMasivoExamen.getGrupoHorasExamen().getId());
         if (cursoMasivoExamenDB.getGrupoHorasExamen() != null) {
             if (!cursoMasivoExamen.getGrupoHorasExamen().getId().equals(cursoMasivoExamenDB.getGrupoHorasExamen().getId())) {
-                System.out.println("deleteHorarioByCursoMasivo.id=" + cursoMasivoExamen.getId());
                 this.deleteHorarioByCursoMasivo(cursoMasivoExamen);
             }
         }
@@ -961,7 +960,6 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
 
     private void deleteHorarioByCursoMasivo(CursoMasivoExamen cursoMasivoExamen) {
         List<HorarioAula> horariosCurMas = horarioAulaDAO.allFlatByCursoMasivo(cursoMasivoExamen);
-        System.out.println("Eliminando " + horariosCurMas.size() + " HorarioAula's");
         for (HorarioAula horarioAula : horariosCurMas) {
             horarioAulaDAO.delete(horarioAula);
         }
