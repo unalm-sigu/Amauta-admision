@@ -16,6 +16,7 @@ import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.tramite.AccionTramiteAcademico;
 import pe.edu.lamolina.model.tramite.AccionTramiteDocumento;
 import pe.edu.lamolina.model.tramite.ReunionConsejo;
+import pe.edu.lamolina.model.tramite.TipoTramite;
 import pe.edu.lamolina.model.tramite.Tramite;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -66,5 +67,7 @@ public interface TramitesAcademicosService {
     public void revertirCambioHistorial(AlumnoCiclo alumnoCiclo, DataSessionPivot ds);
 
     public void deleteCicloCurso(AlumnoCicloCurso alumnoCicloCurso, Long idTramite, DataSessionPivot ds);
+
+    public TipoTramite findTipoTramite(Long id);
 
 }

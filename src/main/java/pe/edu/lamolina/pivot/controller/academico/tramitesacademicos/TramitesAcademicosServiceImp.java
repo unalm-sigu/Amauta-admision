@@ -64,6 +64,7 @@ import pe.edu.lamolina.model.tramite.FlujoTramiteAcademico;
 import pe.edu.lamolina.model.tramite.FormularioEstadoTramite;
 import pe.edu.lamolina.model.tramite.Reincorporacion;
 import pe.edu.lamolina.model.tramite.ReunionConsejo;
+import pe.edu.lamolina.model.tramite.TipoTramite;
 import pe.edu.lamolina.model.tramite.Tramite;
 import pe.edu.lamolina.model.tramite.TramiteCorreccionHistorial;
 import pe.edu.lamolina.model.tramite.TramiteDocumentoAcademico;
@@ -1014,6 +1015,11 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
         alumnoCicloCurso.setUserModificacion(ds.getUsuario());
         alumnoCicloCursoDAO.updateColumns(alumnoCicloCurso, "registroActivo", "estado", "fechaModificacion", "userModificacion", "autorizacionRegistro");
 
+    }
+
+    @Override
+    public TipoTramite findTipoTramite(Long id) {
+        return tramiteDAO.find(id).getTipoTramite();
     }
 
 }
