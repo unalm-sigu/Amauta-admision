@@ -83,7 +83,7 @@ new Vue({
                     if (response.success) {
                         notify(response.message, "info");
 
-                        location.href = APP.url('academico/tramiteacademico/' + $vue.tramite.id + 'successProcess');
+                        location.href = APP.url('academico/tramiteacademico/' + $vue.tramite.id + '/successProcess');
                     } else {
                         notify(response.message, "error");
                     }
