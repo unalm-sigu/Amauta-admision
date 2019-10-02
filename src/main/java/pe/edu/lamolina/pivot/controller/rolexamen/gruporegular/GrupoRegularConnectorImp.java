@@ -164,44 +164,11 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
             seccionClone.setDocenteSeccion(docenteSecciones);
 
             boolean result = false;
-            // if (seccionClone.getAula().getOficinaSupervisora().isOficinaOera()) {
-            //  logger.info("Aula OERA {} {}", seccionClone.getAula().getId(), seccionClone.getAula().getCodigo());
             result = this.procesarSeccionesByLetra(letraGrupoRegular, cursosMasivosExamen, seccionesGrupoEspecial, seccionClone, seccionesByLetra, ds);
             if (result) {
                 this.rolExamenesLogger.addMessageLevel3("La sección %s fue asignada correctamente.", seccion.getCodigo2());
             }
-            /*
-            } else {
-                Aula aulaSeccionOriginal = seccionClone.getAula();
-//                 logger.info("seccion {}, aula {}, no es aula oera", seccion.getId(), aulaSeccionOriginal.getId());
-//                logger.info("aula superior {}", ObjectUtil.getParentTree(aulaSeccionOriginal, "aulaSuperior.id"));
-//                
-                Map<Long, List<Aula>> mapAulasAgrupadasPorModulo = this.aulasAgrupadasPorModulo(aulaSeccionOriginal);
 
-                Aula aulaResult = null;
-                for (int i = seccion.getMatriculados(); i <= rolExamenesLogger.getMaximoAforoAula(); i += AFORO_INCREMENTO) {
-                    int inicio = i;
-                    int fin = i + AFORO_INCREMENTO - 1;
-                    aulaResult = this.buscarAulaOeraBySeccion(seccion,
-                            letraGrupoRegular,
-                            mapAulasAgrupadasPorModulo,
-                            cursosMasivosExamen,
-                            seccionesGrupoEspecial,
-                            seccionesByLetra,
-                            inicio, fin,
-                            ds);
-                    if (!aulaResult.equals(seccion.getAula())) {
-                        result = true;
-                        // logger.info("Encontro el aula {}, {}, oficina {}", aulaResult.getId(), aulaResult.getCodigo(), aulaResult.getOficinaSupervisora().getCodigo());
-                        this.rolExamenesLogger.addMessageLevel2("La sección %s encontro el aula %s", seccionClone.getCodigo2(), aulaResult.getCodigo());
-                        break;
-                    }
-                }
-                if (aulaResult.equals(seccion.getAula())) {
-                    this.rolExamenesLogger.addMessageLevel2("La sección %s no encontro aula", seccionClone.getCodigo2());
-                  //  logger.info("no encontro aula oera para el aula {}, {}", aulaResult.getId(), aulaResult.getCodigo());
-                }
-            }*/
             if (!result) {
                 seccionesEspeciales.add(seccionClone);
             }
@@ -301,13 +268,6 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
             DataSessionPivot ds) {
 
         List<MatriculaSeccion> matriculadosPorSeccion = matriculaSeccionDAO.allMatriculadosBySeccion(seccion);
-        /*
-        logger.debug("Letra {}, seccion ({}), grupo horas {}, cant. alumnos {}, numero {}",
-                letraGrupoRegular.getLetra(),
-                (seccion.getId() + " - codigo : " + seccion.getCodigo2()),
-                seccion.getGrupoHoras().getCodigo(),
-                matriculadosPorSeccion.size(),
-                letraGrupoRegular.getContadorSecciones() + " de " + seccionesByLetraOnlyInformative.size());*/
 
         List<Alumno> alumnos = matriculadosPorSeccion.stream().map(x -> x.getMatriculaResumen().getAlumno()).collect(Collectors.toList());
         List<Aula> aulas = Arrays.asList(seccion.getAula());
@@ -606,10 +566,11 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
         return true;
     }
 
-    public void crearSeccionGrupoRegular(Seccion seccion,
+    private void crearSeccionGrupoRegular(Seccion seccion,
             LetraGrupoRegular letraGrupoRegular,
             List<MatriculaSeccion> matriculadosPorSeccion,
             DataSessionPivot ds) {
+
         SeccionGrupoRegular seccionGrupoRegular = this.crearObjectSeccionGrupoRegular(seccion, letraGrupoRegular, ds);
         Aula aulaSeccionLogger = this.rolExamenesLogger.getAulas()
                 .stream().filter(x -> x.equals(seccion.getAula())).findFirst().orElse(null);
