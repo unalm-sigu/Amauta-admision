@@ -56,6 +56,7 @@ import pe.edu.lamolina.model.tramite.AccionTramiteAcademico;
 import pe.edu.lamolina.model.tramite.AccionTramiteDocumento;
 import pe.edu.lamolina.model.tramite.CursoDirigido;
 import pe.edu.lamolina.model.tramite.ReunionConsejo;
+import pe.edu.lamolina.model.tramite.TipoTramite;
 import pe.edu.lamolina.model.tramite.Tramite;
 import pe.edu.lamolina.model.tramite.TramiteReunionConsejo;
 import pe.edu.lamolina.pivot.controller.academico.reunionconsejo.ReunionConsejoService;
@@ -583,10 +584,20 @@ public class TramitesAcademicosController {
         return response;
     }
 
-    @RequestMapping("/successProcess")
-    public String successProcess(RedirectAttributes redirectAttr, HttpSession session) {
+    @RequestMapping("{id}/successProcess")
+    public String successProcess(@PathVariable Long id, RedirectAttributes redirectAttr, HttpSession session) {
+        TipoTramite tipoTramite = tramitesAcademicosService.findTipoTramite(id);
         Notificaciones.crearMsg("Tramite procesado correctamente.", redirectAttr);
-        return "redirect:/academico/tramiteacademico";
+        switch (tipoTramite.getCodigoEnum()) {
+            case CERT:
+                return "redirect:/tramite/solicitudconstancia";
+
+            case CORR_HISTO:
+                return "redirect:/tramite/updateHistorial";
+            default:
+                return "redirect:/academico/tramiteacademico";
+        }
+
     }
 
     @RequestMapping("cursodirigido/{id}/reporte")
@@ -874,7 +885,7 @@ public class TramitesAcademicosController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             String message = "Se actualizó el historial.";
 
-            tramitesAcademicosService.deleteCicloCurso(alumnoCicloCurso,idTramite, ds);
+            tramitesAcademicosService.deleteCicloCurso(alumnoCicloCurso, idTramite, ds);
 
             response.setSuccess(true);
             response.setMessage(message);
