@@ -160,7 +160,7 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
 
     @Override
     public List<Alumno> allAlumnoByOficina(String nombre, Long instanciaOficina) {
-        return alumnoDAO.allAlumnoByOficina(nombre, instanciaOficina);
+        return alumnoDAO.allByName(nombre);
     }
 
     @Override
