@@ -14,7 +14,7 @@
                         Regresar
                     </a>
 
-                    <h1 v-text="solicitud.id!=null?'Edicion de Solicitud de Constancia':'Nueva Solicitud de Constancia'">Nueva Solicitud de Constancia</h1>
+                    <h1 >Solicitud de Constancia</h1>
                     <div class="tabbable-line" v-if='tramite.alumno != null'>
                         <ul class="nav nav-tabs" >
                             <li v-for="tab in tabs" v-bind:class="styleMenu(tab.id)">
@@ -34,16 +34,16 @@
                                         <div v-show="1 == tabId"  >
                                             <inicio-component v-bind:alumno="tramite.alumno" ></inicio-component>
                                         </div>
-                                        <div v-show="1 == tabId"  >
+                                        <div v-show="2 == tabId"  >
                                             <inicio-component v-bind:alumno="tramite.alumno" ></inicio-component>
                                         </div>
-                                        <div v-show="2 == tabId" >
+                                        <div v-show="3 == tabId" >
                                             <historial-component v-bind:alumno="tramite.alumno" ref="loadHistorial" v-bind:showactions="false"></historial-component>
                                         </div>                                      
-                                        <div v-show="3 == tabId" >
+                                        <div v-show="4 == tabId" >
                                             <matricula-component v-bind:alumno="tramite.alumno" ref="loadMatricula"></matricula-component>
                                         </div>
-                                        <div v-show="4 == tabId"  >
+                                        <div v-show="5 == tabId"  >
                                             <horario-component v-bind:alumno="tramite.alumno" v-bind:ciclo="ciclo" ref="loadHorario"></horario-component>
                                         </div>
                                     </section>
@@ -55,8 +55,8 @@
                         </section>
                     </section>
                 </section>
-                <th:block th:replace="tramite/tramiteConstancia/solicitudConstanciaModals"/>
-                <th:block th:replace="tramite/tramiteConstancia/ciclosModal"/>
+                <!--<th:block th:replace="tramite/tramiteConstancia/solicitudConstanciaModals"/>-->
+                <!--<th:block th:replace="tramite/tramiteConstancia/ciclosModal"/>-->
 
             </div>
             <div th:substituteby="tramite/tramiteConstancia/inicioTramite"/>
