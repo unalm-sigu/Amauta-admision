@@ -123,7 +123,7 @@ public class CicloAcademicoDAOH extends AbstractEasyDAO<CicloAcademico> implemen
 
         return all(sql);
     }
-
+    
     @Override
     public CicloAcademico findAnteriorActivo(CicloAcademico ciclo) {
         Octavia sql = Octavia.query()

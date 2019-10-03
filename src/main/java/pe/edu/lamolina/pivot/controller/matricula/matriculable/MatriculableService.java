@@ -82,4 +82,6 @@ public interface MatriculableService {
 
     List<DeudaAlumno> allByAlumnoCiclo(Alumno alumno, CicloAcademico cicloAcademico);
 
+    List<ActoPreBean> allActosPregrado(CicloAcademico cicloAcademico, String tipoReporte);
+
 }

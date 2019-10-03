@@ -13,6 +13,7 @@ import pe.edu.lamolina.model.academico.PlanCurricular;
 import pe.edu.lamolina.model.academico.SituacionAcademica;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import pe.edu.lamolina.model.enums.SituacionAcademicaEnum;
+import pe.edu.lamolina.pivot.controller.matricula.matriculable.ActoPreBean;
 
 public interface AlumnoCicloDAO extends EasyDAO<AlumnoCiclo> {
 
@@ -126,5 +127,9 @@ public interface AlumnoCicloDAO extends EasyDAO<AlumnoCiclo> {
     public List<AlumnoCiclo> allByAlumnosReg(List<Alumno> alumnos);
 
     List<AlumnoCiclo> allByCicloOrderMerito(CicloAcademico cicloAcademico);
+
+    List<ActoPreBean> allCandidadosActosPregrado(CicloAcademico cicloAcademico, CicloAcademico cicloAnterior, ModalidadEstudio modalidadEstudio);
+
+    List<ActoPreBean> allVotantesActosPregrado(CicloAcademico cicloAcademico, ModalidadEstudio modalidadEstudio);
 
 }

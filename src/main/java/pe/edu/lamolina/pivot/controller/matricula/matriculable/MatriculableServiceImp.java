@@ -58,7 +58,6 @@ import pe.edu.lamolina.model.enums.EstadoTramiteEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.EPG;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.ESP;
-import pe.edu.lamolina.model.enums.RolEnum;
 import pe.edu.lamolina.model.enums.SituacionAcademicaEnum;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_1;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_2;
@@ -81,7 +80,6 @@ import static pe.edu.lamolina.model.enums.TipoTramiteEnum.CAM_NOTA;
 import static pe.edu.lamolina.model.enums.TramiteEstadoEnum.PEND;
 import pe.edu.lamolina.model.finanzas.Acreencia;
 import pe.edu.lamolina.model.finanzas.DeudaAlumno;
-import pe.edu.lamolina.model.seguridad.Rol;
 import pe.edu.lamolina.model.tramite.CambioNota;
 import pe.edu.lamolina.model.tramite.EstadoTramite;
 import pe.edu.lamolina.model.tramite.Reincorporacion;
@@ -1221,6 +1219,20 @@ public class MatriculableServiceImp implements MatriculableService {
         }
 
         return deudasVer;
+    }
+
+    @Override
+    public List<ActoPreBean> allActosPregrado(CicloAcademico cicloAcademico, String tipoReporte) {
+        List<ActoPreBean> listActoPreBean = new ArrayList<>();
+        ModalidadEstudio modalidadEstudio = modalidadEstudioDAO.findByCodigo(ModalidadEstudioEnum.PRE);
+        if ("candidatosActPre".equals(tipoReporte)) {
+            CicloAcademico cicloAnterior = cicloAcademicoDAO.findAnteriorRegular(cicloAcademico).get(0);
+            listActoPreBean = alumnoCicloDAO.allCandidadosActosPregrado(cicloAcademico, cicloAnterior, modalidadEstudio);
+        }
+        if ("votantesActPre".equals(tipoReporte)) {
+            listActoPreBean = alumnoCicloDAO.allVotantesActosPregrado(cicloAcademico, modalidadEstudio);
+        }
+        return listActoPreBean;
     }
 
 }
