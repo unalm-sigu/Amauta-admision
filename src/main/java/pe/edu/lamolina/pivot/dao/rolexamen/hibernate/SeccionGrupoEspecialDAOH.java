@@ -50,7 +50,7 @@ public class SeccionGrupoEspecialDAOH extends AbstractEasyDAO<SeccionGrupoEspeci
         Octavia sql = Octavia.query()
                 .from(SeccionGrupoEspecial.class, "sce")
                 .join("seccion sec", "rolExamenes re")
-                .join("userRegistro ureg", "ureg.persona pureg")
+                //.join("userRegistro ureg", "ureg.persona pureg")
                 .left("aula au", "grupoHorasExamen ghe")
                 .left("au.oficinaSupervisora ofsup")
                 .filter("re.id", rolExamenes)

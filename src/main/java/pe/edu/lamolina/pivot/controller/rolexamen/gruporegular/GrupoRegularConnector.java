@@ -23,10 +23,13 @@ public interface GrupoRegularConnector {
 
     void crearLetraGrupoRegularByLetra(
             LetraGrupoRegular letraGrupoRegular,
-            List<CursoMasivoExamen> cursosMasivosExamen,
-            List<SeccionGrupoEspecial> seccionesGrupoEspecial,
+            List<CursoMasivoExamen> cursosMasivosExamenByLetra,
+            List<SeccionGrupoEspecial> seccionesGrupoEspecialByLetra,
             Map<String, List<Seccion>> grupoHorasLetraMap,
             List<Seccion> seccionesEspeciales,
+            List<LetraGrupoRegular> letrasGruposRegulares,
+            List<CursoMasivoExamen> cursosMasivosByRolExamenesAll,
+            List<SeccionGrupoEspecial> seccionesGrupoEspecialAll,
             DataSessionPivot ds);
 
     boolean procesarSeccionesByLetra(
@@ -35,6 +38,7 @@ public interface GrupoRegularConnector {
             List<SeccionGrupoEspecial> seccionesGrupoEspecial,
             Seccion seccion,
             List<Seccion> seccionesByLetra,
+            List<LetraGrupoRegular> letrasGruposRegulares,
             DataSessionPivot ds);
 
     boolean validarCursosMasivos(GrupoHorasExamen grupoHorasExamen, List<Docente> docentes, List<Aula> aulas, List<Alumno> alumnos);

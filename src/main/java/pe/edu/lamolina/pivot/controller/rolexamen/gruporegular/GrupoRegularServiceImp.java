@@ -223,7 +223,7 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
     }
 
     @Override
-    @Transactional(readOnly = false)
+    @Transactional
     public void calcularExamenesGrupoRegular(RolExamenes rolExamenes, CicloAcademico cicloAcademico, DataSessionPivot ds) {
         RolExamenes rolBD = rolExamenesDAO.find(rolExamenes.getId());
         this.checkNoPublicado(rolBD);
@@ -244,7 +244,7 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
 
         List<SeccionExcluido> seccionesExcluidasByRolExamen = seccionExcluidoDAO.allByRolExamenes(rolExamenes);
         List<CursoExcluido> cursosExcluidos = cursoExcluidoDAO.allByRolExamenes(rolExamenes, EstadoEnum.ACT);
-        List<Seccion> seccionesEspecialesRecolected = new ArrayList<>();
+        List<Seccion> seccionesEspecialesRecolected = new ArrayList();
 
         rolExamenesLogger.setAulasOera(grupoRegularConnector.allAulasOeraWithHorarioByRolExamenes(rolBD, OficinaEnum.OERA));
         rolExamenesLogger.setAulas(grupoRegularConnector.allAulasOeraWithHorarioByRolExamenes(rolBD, null));
@@ -328,7 +328,10 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
                     cursosMasivosByRolExamenesAndGrupoHoras,
                     seccionesGrupoEspecial,
                     mapSeccionesGroupByLetra,
-                    seccionesEspecialesRecolected, ds);
+                    seccionesEspecialesRecolected,
+                    letrasGruposRegulares,
+                    cursosMasivosByRolExamenes,
+                    seccionesGrupoEspecial, ds);
         }
 
         //calculamos el resto de letras
@@ -589,7 +592,8 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
                                     cursosMasivosByRolExamenesAndGrupoHoras,
                                     seccionesGrupoEspecialByRolExamenAndGrupoHorasExamen,
                                     seccion,
-                                    seccionesByLetra, ds);
+                                    seccionesByLetra,
+                                    letrasGruposRegulares, ds);
 
                     if (result) {
                         logger.debug("Grupo especial {}, encontro match con {}", letraEspeciales, letraGrupoRegular.getLetra());
@@ -626,8 +630,9 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
             List<GrupoHorasExamen> gruposHorasExamenes,
             DateTime today,
             Usuario usuario) {
+
         Collections.sort(letras, (p1, p2) -> p1.compareTo(p2));
-        List<LetraGrupoRegular> letrasGruposRegulares = new ArrayList<>();
+        List<LetraGrupoRegular> letrasGruposRegulares = new ArrayList();
         letras.forEach(letra -> {
             LetraGrupoRegular letraGrupoRegular = new LetraGrupoRegular(letra, rolExamenes, today.toDate(), usuario);
             GrupoHorasExamen grupoHorasExamen
@@ -665,7 +670,11 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
                     cursosMasivosByRolExamenesAndGrupoHoras,
                     seccionesGrupoEspecialByGrupoHoras,
                     seccionesGroupByLetra,
-                    seccionesEspecialesRecolected, ds);
+                    seccionesEspecialesRecolected,
+                    letrasGruposRegulares,
+                    cursosMasivosByRolExamenes,
+                    seccionesGrupoEspecial,
+                    ds);
         }
     }
 
