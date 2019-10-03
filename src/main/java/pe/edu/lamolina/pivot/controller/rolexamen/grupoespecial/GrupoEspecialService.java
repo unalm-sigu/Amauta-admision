@@ -20,7 +20,9 @@ public interface GrupoEspecialService {
 
     void calcularExamenesGrupoEspecial(RolExamenes rolExamenes, DataSessionPivot ds);
 
-    public List<AlumnoGrupoEspecial> allAlumnosGrupoEspecialDynaBySecGpoEsp(DynatableFilter filter, SeccionGrupoEspecial seccionGrupoEspecial);
+    void limpiarExamenGrupoEspecial(RolExamenes rolExamenes, DataSessionPivot ds);
+
+    List<AlumnoGrupoEspecial> allAlumnosGrupoEspecialDynaBySecGpoEsp(DynatableFilter filter, SeccionGrupoEspecial seccionGrupoEspecial);
 
     void excluirSeccionEspecial(SeccionGrupoEspecial seccionGrupoEspecial, DataSessionPivot ds);
 

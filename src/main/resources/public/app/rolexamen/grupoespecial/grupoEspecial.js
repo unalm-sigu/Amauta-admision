@@ -34,10 +34,12 @@ new Vue({
                 return "";
             }
             return `${eventoCicloAcademico.eventoAcademico.nombre}`;
-        }, changeRolExamen() {
+        },
+        changeRolExamen() {
             this.$refs.raptor.ajaxdata = {rolexamenes: this.rolExamen.id};
             this.$refs.raptor.loadRemoteData();
-        }, calcularGrupoEspecial() {
+        },
+        calcularGrupoEspecial() {
             let vue = this;
             MODAL.showWait("Espere un momento por favor");
             AXIOS.post(`${vue.URL}/calcularGrupoEspecial`, vue.rolExamen)
@@ -50,14 +52,30 @@ new Vue({
                         }
                         MODAL.hideWait();
                     });
-        }, loadModalAlumnos(seccionGrupoEspecial) {
+        },
+        limpiarGrupoEspecial() {
+            let vue = this;
+            MODAL.showWait("Espere un momento por favor");
+            AXIOS.post(`${vue.URL}/limpiarExamenGrupoEspecial`, vue.rolExamen)
+                    .then(response => {
+                        if (response.data.success) {
+                            // notify(response.data.message, 'info');
+                            this.$refs.raptor.loadRemoteData();
+                        } else {
+                            //   notify(response.data.message, 'error');
+                        }
+                        MODAL.hideWait();
+                    });
+        },
+        loadModalAlumnos(seccionGrupoEspecial) {
             //    this.letraSelected = letraGrupoRegular;
             this.$refs.tblAlumnosGrupoEspecial.ajaxdata = {seccionGrupoEspecial: seccionGrupoEspecial.id};
             this.$refs.tblAlumnosGrupoEspecial.loadRemoteData();
             this.$refs.alumnosModal.title = "Sección Grupo Especial " + seccionGrupoEspecial.seccion.codigo2 + " | Alumnos";
             this.$refs.alumnosModal.open();
 
-        }, excluir(obj, tipoAccion) {
+        },
+        excluir(obj, tipoAccion) {
             let vue = this;
             bootbox.confirm({
                 message: "¿Está seguro que desea excluir?",
@@ -86,7 +104,8 @@ new Vue({
                     }
                 }
             });
-        }, incluir(obj, tipoAccion) {
+        },
+        incluir(obj, tipoAccion) {
             let vue = this;
             bootbox.confirm({
                 message: "¿Está seguro que desea incluir?",
@@ -115,7 +134,8 @@ new Vue({
                     }
                 }
             });
-        }, trasladar(item) {
+        },
+        trasladar(item) {
             this.$refs.moverSeccionComp.seccion = item.seccion;
             this.$refs.moverSeccionComp.tipoorigen = "GRU_ESP";
             this.$refs.moverSeccionComp.loadComponent(this.rolExamen);
