@@ -7,6 +7,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.hibernate.LockOptions;
 import org.hibernate.Query;
+import org.hibernate.transform.Transformers;
+import org.hibernate.type.LongType;
+import org.hibernate.type.StringType;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloDAO;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
@@ -34,6 +37,7 @@ import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_D;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_XD;
 import pe.edu.lamolina.model.enums.TipoCicloEnum;
 import static pe.edu.lamolina.model.enums.TipoCicloEnum.REG;
+import pe.edu.lamolina.pivot.controller.matricula.matriculable.ActoPreBean;
 
 @Repository
 public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements AlumnoCicloDAO {
@@ -894,6 +898,101 @@ public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements Alu
                 .filter("cic.id", cicloAcademico)
                 .orderBy("ac.nivel ASC", "ac.ordenMeritoCicloNivel ASC");
         return all(sql);
+    }
+
+    @Override
+    public List<ActoPreBean> allCandidadosActosPregrado(CicloAcademico cicloAcademico, CicloAcademico cicloAnterior, ModalidadEstudio modalidadEstudio) {
+        StringBuilder sql = new StringBuilder();
+        sql.append(" select alm.codigo matricula, concat(per.paterno, ' ', per.materno, ', ',per.nombres) apellidos_nombres, carr.nombre As especialidad, fac.nombre As facultad, ");
+        sql.append(" res.creditos_matriculados, alm.creditos_aprobados, w.ciclos As ciclos_estudiados,fac.codigo codigo_facultad,almcic.nivel,");
+        sql.append(" concat(almcic.tercio_superior_facultad_nivel,'/',  case almcic.nivel when 1 then com.computados_nivel1 when 2 then com.computados_nivel2 when 3 ");
+        sql.append(" then com.computados_nivel3 when 4 then com.computados_nivel4 when 5 then com.computados_nivel5 end, ' nivel ',almcic.nivel) es_3cio_super   ");
+        sql.append(" from aca_matricula_resumen res  ");
+        sql.append(" join aca_alumno alm on alm.id = res.id_alumno ");
+        sql.append(" join aca_carrera carr on carr.id = alm.id_carrera  ");
+        sql.append(" join aca_facultad fac on fac.id = carr.id_facultad  ");
+        sql.append(" join gen_persona per on per.id = alm.id_persona   ");
+        sql.append(" join aca_modalidad_estudio modes on modes.id = alm.id_modalidad_estudio   ");
+        sql.append(" join aca_alumno_ciclo almcic on almcic.id_alumno = alm.id and alm.id_ciclo_activo_regular = almcic.id_ciclo_academico   ");
+        sql.append(" join aca_control_orden_merito com on com.id = almcic.id_control_merito_facultad   ");
+        sql.append("   join ( ");
+        sql.append("            select alm1.id, count(*) ciclos ");
+        sql.append("              from aca_alumno alm1 ");
+        sql.append("              join aca_alumno_ciclo almcc on almcc.id_alumno = alm1.id	");
+        sql.append("              join aca_ciclo_academico cic on cic.id = almcc.id_ciclo_academico ");
+        sql.append("              where almcc.estado = 'MAT' AND cic.tipo =  'REG'");
+        sql.append("              group by alm1.id ");
+        sql.append(" 	)  w on w.id = alm.id ");
+        sql.append(" 	where modes.id = :MODALIDAD  ");
+        sql.append(" 	and w.ciclos <= 11 ");
+        sql.append(" 	and res.id_ciclo_academico = :CICLO ");
+        sql.append(" 	and res.estado = 'MAT' ");
+        sql.append(" 	and res.creditos_matriculados >= 12 ");
+        sql.append(" 	and almcic.id_ciclo_academico = :CICLO_ANTERIOR ");
+        sql.append(" 	and alm.creditos_aprobados >= 36  ");
+        sql.append("    and almcic.tercio_superior_facultad_nivel is not null ");
+        sql.append("    order by fac.codigo, almcic.nivel, almcic.tercio_superior_facultad_nivel  ");
+
+        Query query = getCurrentSession().createSQLQuery(sql.toString())
+                .addScalar("matricula", StringType.INSTANCE)
+                .addScalar("apellidos_nombres", StringType.INSTANCE)
+                .addScalar("especialidad", StringType.INSTANCE)
+                .addScalar("facultad", StringType.INSTANCE)
+                .addScalar("creditos_matriculados", LongType.INSTANCE)
+                .addScalar("creditos_aprobados", LongType.INSTANCE)
+                .addScalar("ciclos_estudiados", LongType.INSTANCE)
+                .addScalar("codigo_facultad", StringType.INSTANCE)
+                .addScalar("nivel", LongType.INSTANCE)
+                .addScalar("es_3cio_super", StringType.INSTANCE)
+                .setResultTransformer(Transformers.aliasToBean(ActoPreBean.class));
+        query.setParameter("CICLO", cicloAcademico.getId());
+        query.setParameter("MODALIDAD", modalidadEstudio.getId());
+        query.setParameter("CICLO_ANTERIOR", cicloAnterior.getId());
+        return (List<ActoPreBean>) query.list();
+    }
+
+    @Override
+    public List<ActoPreBean> allVotantesActosPregrado(CicloAcademico cicloAcademico, ModalidadEstudio modalidadEstudio) {
+        StringBuilder sql = new StringBuilder();
+        sql.append(" select alm.codigo matricula, concat(per.paterno, ' ', per.materno, ', ',per.nombres) apellidos_nombres, carr.nombre As especialidad, fac.nombre As facultad, ");
+        sql.append(" res.creditos_matriculados, alm.creditos_aprobados, w.ciclos As ciclos_estudiados, fac.codigo codigo_facultad, almcic.nivel ");
+        sql.append(" from aca_matricula_resumen res  ");
+        sql.append(" join aca_alumno alm on alm.id = res.id_alumno ");
+        sql.append(" join aca_carrera carr on carr.id = alm.id_carrera  ");
+        sql.append(" join aca_facultad fac on fac.id = carr.id_facultad  ");
+        sql.append(" join gen_persona per on per.id = alm.id_persona   ");
+        sql.append(" join aca_modalidad_estudio modes on modes.id = alm.id_modalidad_estudio   ");
+        sql.append(" left join aca_alumno_ciclo almcic on almcic.id_alumno = alm.id and alm.id_ciclo_activo_regular = almcic.id_ciclo_academico and almcic.id_ciclo_academico = 478  ");
+        sql.append(" left join aca_control_orden_merito com on com.id = almcic.id_control_merito_facultad   ");
+        sql.append(" left join ( ");
+        sql.append("            select alm1.id, count(*) ciclos ");
+        sql.append("              from aca_alumno alm1 ");
+        sql.append("              join aca_alumno_ciclo almcc on almcc.id_alumno = alm1.id	");
+        sql.append("              join aca_ciclo_academico cic on cic.id = almcc.id_ciclo_academico ");
+        sql.append("              where almcc.estado = 'MAT' AND cic.tipo =  'REG'");
+        sql.append("              group by alm1.id ");
+        sql.append(" 	)  w on w.id = alm.id ");
+        sql.append(" 	where modes.id = :MODALIDAD   ");
+        sql.append(" 	and ifnull(w.ciclos, 0) <= 11 ");
+        sql.append(" 	and res.id_ciclo_academico = :CICLO ");
+        sql.append(" 	and res.estado = 'MAT'  ");
+        sql.append("    and res.creditos_matriculados >= 12 ");
+        sql.append("    order by fac.codigo, almcic.nivel,  alm.codigo ");
+
+        Query query = getCurrentSession().createSQLQuery(sql.toString())
+                .addScalar("matricula", StringType.INSTANCE)
+                .addScalar("apellidos_nombres", StringType.INSTANCE)
+                .addScalar("especialidad", StringType.INSTANCE)
+                .addScalar("facultad", StringType.INSTANCE)
+                .addScalar("creditos_matriculados", LongType.INSTANCE)
+                .addScalar("creditos_aprobados", LongType.INSTANCE)
+                .addScalar("ciclos_estudiados", LongType.INSTANCE)
+                .addScalar("codigo_facultad", StringType.INSTANCE)
+                .addScalar("nivel", LongType.INSTANCE)
+                .setResultTransformer(Transformers.aliasToBean(ActoPreBean.class));
+        query.setParameter("CICLO", cicloAcademico.getId());
+        query.setParameter("MODALIDAD", modalidadEstudio.getId());
+        return (List<ActoPreBean>) query.list();
     }
 
 }

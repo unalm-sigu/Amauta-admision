@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
@@ -86,6 +87,9 @@ public class MatriculableController {
 
     @Autowired
     VerificadorService verificadorService;
+
+    @Autowired
+    ActosPregradoView actosPregradoView;
 
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {
@@ -775,6 +779,23 @@ public class MatriculableController {
         Assert.isTrue(jsonResponse.getSuccess(), "Se produjo un error al modificar secciones matricula. Comuniquese con mesa de ayuda.");
 
         return "redirect:/";
+    }
+
+    @RequestMapping("actosPregrado")
+    public ModelAndView actosPregrado(@RequestParam("tipoReporte") String tipoReporte, Model model, HttpSession session) {
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            List<ActoPreBean> listActoPreBean = service.allActosPregrado(ds.getCicloAcademico(), tipoReporte);
+            model.addAttribute("listActoPreBean", listActoPreBean);
+            model.addAttribute("tipoReporte", tipoReporte);
+        } catch (PhobosException e) {
+            e.printStackTrace();
+            logger.debug("*** PhobosException {}", e);
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.debug("*** Exception {}", e);
+        }
+        return new ModelAndView(actosPregradoView);
     }
 
 }

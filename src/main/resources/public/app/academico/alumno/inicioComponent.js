@@ -7,7 +7,7 @@ Vue.component("inicio-component", {
         return {
             ident: true,
             flag: true,
-            alumno: JSON.parse(alumnoJson),
+            alumno: alumnoJson == null? {} :JSON.parse(alumnoJson ),
             orientacionTmp: {}
         }
     },

@@ -9,6 +9,7 @@ new Vue({
         configTurno: [],
         alumno: {},
         alumnos: [],
+        processreporte: false,
         modalTurno: {
             id: 'modalTurno',
             header: true,
@@ -597,6 +598,37 @@ new Vue({
             let $vue = this;
             return APP.url('academico/alumno/' + item.id + '/configcursos') + $vue.getOrigenURL();
         },
+        generarReporte(param) {
+            let $vue = this;
+            let urll = '';
+            $vue.processreporte = true;
+
+            if (param == "candidatosActPre" || param == "votantesActPre") {
+                urll = APP.url('academico/matriculable/actosPregrado');
+            }
+
+            axios({
+                url: urll,
+                method: 'POST',
+                responseType: 'blob',
+                params: {tipoReporte: param}
+            }).then((response) => {
+                var namee = response
+                        .headers["content-disposition"]
+                        .replace("attachment; filename=", "")
+                        .replace(/"/g, '');
+                const url = window.URL.createObjectURL(new Blob([response.data]));
+                const link = document.createElement('a');
+                link.href = url;
+                link.setAttribute('download', namee);
+                document.body.appendChild(link);
+                link.click();
+                $vue.processreporte = false;
+            }).catch(error => {
+                $vue.processreporte = false;
+                notify(MESSAGES.errorComunicacion, "error");
+            });
+        }
     }
 });
 

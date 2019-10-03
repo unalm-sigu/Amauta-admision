@@ -1,0 +1,176 @@
+<template id="inicioTramComponent">
+    <section class="panel-body">
+
+        <form  method="post" id="formSolicitudConstancia"   data-parsley-validate="true">
+
+            <div class="col-sm-12">
+                <div class="form-group">
+                    <label>Alumno</label>
+                    <multiselect                                                   
+                        v-model='tramite.alumno'
+                        v-bind:internal-search='false'
+                        v-bind:limit='15'
+                        v-on:search-change="searchAlumnos"
+                        v-bind:options='alumnos'
+                        placeholder="Ingrese un digito"
+                        v-bind:custom-label="customLabel"
+                        v-bind:show-labels="false"
+                        v-bind:allow-empty="false"
+                        track-by="id"
+                        v-on:input="clearOption"
+                        >
+                        <template slot="option" slot-scope="props">
+                            <div class="option__desc"><span class="option__title bold">{{ props.option.persona.apellidosNombres }}</span></div>
+                            <div class="option__small"><span class="option__title">{{ props.option.codigo }}</span></div>
+                            <div class="option__small"><span class="option__title">Carrera: {{ props.option.carrera.nombre }}</span></div>
+                        </template>
+                    </multiselect>
+                </div>
+            </div>
+            <div v-if='tramite.alumno != null' class="col-sm-12">
+                <div class="v-middle ">
+                    <div class="pull-left m-md">
+                        <div v-if="tramite.alumno.persona.tipoFoto=='POSTUL' "
+                             class="img-responsive img-thumbnail img-circle div-foto-list">
+                            <img class="img-foto-list" v-bind:src="tramite.alumno.persona.rutaFoto" />
+                        </div>
+
+                        <img v-else-if="tramite.alumno.persona.tipoFoto=='COMUN' " 
+                             class="img-responsive img-thumbnail img-circle div-foto-alumno-list" 
+                             v-bind:src="tramite.alumno.persona.rutaFoto" />
+
+                        <img v-else="" 
+                             class="img-foto-tempo img-responsive img-thumbnail img-circle" 
+                             v-bind:src="tramite.alumno.persona.rutaFoto" />
+                    </div>
+                </div>
+                <div  class="v-middle"  >
+                    <div class="m-md">
+                        <p  class="h5 bold text-primary" v-text="tramite.alumno.persona.apellidosNombres"></p>
+                        <span class="block"> Especialidad de {{tramite.alumno.carrera.nombre}}</span>
+                        <span v-if="tramite.alumno.carrera.codigo != tramite.alumno.carrera.facultad.codigo" class="block">Facultad de {{tramite.alumno.carrera.facultad.nombre}}</span>
+                        <small class="block bold">{{tramite.alumno.persona.tipoDocumento.simbolo}} {{tramite.alumno.persona.numeroDocIdentidad}}</small>
+                        <small  class="block bold"> Matrícula: {{tramite.alumno.codigo}}</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12">
+                <div class="form-group">
+                    <label>¿Que documento necesita?</label>
+                    <multiselect                                                   
+                        v-model='solicitud.tipoDocumentoAcademico'
+                        v-bind:internal-search='false'
+                        v-bind:limit='15'
+                        v-bind:options='tiposDocumentoAcademico'
+                        placeholder="Seleccione un tipo de documento"
+                        label="nombre"
+                        v-bind:show-labels="false"
+                        v-bind:allow-empty="false"
+                        track-by="id"
+                        v-on:select="idiomaDocumento"
+                        >
+                    </multiselect>
+
+                </div>
+            </div>
+
+            <div class="col-sm-6 col-xs-12">
+                <div class="form-group">
+                    <label>Idioma</label>
+                    <multiselect                                                   
+                        v-model='solicitud.idioma'
+                        v-bind:internal-search='false'
+                        v-bind:limit='15'
+                        v-bind:options='idiomas'
+                        placeholder="Seleccione un idioma"
+                        label="nombre"
+                        v-bind:show-labels="false"
+                        v-bind:allow-empty="false"
+                        track-by="id"
+                        v-on:select="costoDocumentoEvent"
+                        >
+                    </multiselect>
+                </div>
+            </div>
+
+            <div v-if="showCostoDocumento" class="col-xs-12">
+                <div class="form-group">
+                    <label>Importe a pagar</label>
+                    <p  class="form-control-static" >  S./  {{costoDocumento}}</p>
+                </div>
+            </div>
+
+
+            <div v-if="solicitud.tipoDocumentoAcademico!= null" class="col-xs-12 col-sm-12">
+                <div class="form-group" v-if="solicitud.tipoDocumentoAcademico.requiereFoto==1">
+                    <a v-on:click.prevent="subirFoto"  href="#">Subir foto</a>
+                </div>
+            </div>
+
+
+
+            <div v-if='tramite.alumno!=null'>
+                <div class="col-xs-12">
+                    <h4  class="m-b-md m-t-md">Información de Contacto</h4>
+                </div>
+                <div class="col-xs-12">
+                    <div class="form-group">
+                        <label>Nombre del contacto</label>
+                        <input type="text"
+                               class="form-control"
+                               name="personaContacto"
+                               v-model="solicitud.personaContacto"
+                               required="true"/>
+                    </div>
+                </div>
+
+                <div class="col-sm-6 col-xs-12">
+                    <div class="form-group">
+                        <label>Celular</label>
+                        <input type="text"
+                               class="form-control"
+                               name="celular"
+                               v-model="solicitud.celular"
+                               required="true"/>
+                    </div>
+                </div>
+
+                <div class="col-sm-6 col-xs-12">
+                    <div class="form-group">
+                        <label>Teléfono</label>
+                        <input type="text"
+                               class="form-control"
+                               name="telefono"
+                               v-model="solicitud.telefono"/>
+                    </div>
+                </div>
+
+                <div class="col-sm-6 col-xs-12">
+                    <div class="form-group">
+                        <label>Correo electrónico</label>
+                        <input type="email"
+                               class="form-control"
+                               name="email"
+                               v-model="solicitud.email"
+                               required="true"/>
+                    </div>
+                </div>
+
+
+
+                <div class="panel-footer col-xs-12 text-center">
+
+                    <button  type="button"
+                             class="btn btn-success"
+                             v-on:click.prevent="submitForm"
+                             v-bind:disabled="guardando">
+                        <i class="fa fa-spinner fa-spin" aria-hidden="true" v-if="guardando"></i>Guardar
+                    </button>
+
+                </div>
+            </div>
+
+        </form>
+
+    </section>
+</template>
