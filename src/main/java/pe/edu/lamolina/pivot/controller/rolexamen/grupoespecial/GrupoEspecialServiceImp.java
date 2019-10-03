@@ -163,7 +163,7 @@ public class GrupoEspecialServiceImp implements GrupoEspecialService {
     }
 
     @Override
-    @Transactional(readOnly = false)
+    @Transactional
     public void deleteGrupoEspecial(RolExamenes rolExamenes) {
         RolExamenes rolBD = rolExamenesDAO.find(rolExamenes.getId());
         this.checkNoPublicado(rolBD);
@@ -174,12 +174,13 @@ public class GrupoEspecialServiceImp implements GrupoEspecialService {
             seccionExcluidoDAO.deleteBySecciones(secciones);
         }
         alumnoGrupoEspecialDAO.deleteByRolExamenes(rolExamenes);
+        horarioAulaDAO.deleteSeccionesEspecialesByRolExamenes(rolExamenes);
         seccionGrupoEspecialDAO.deleteByRolExamenes(rolExamenes);
     }
 
     //Calcular secciones especiales, primer metodo
     @Override
-    @Transactional(readOnly = false)
+    @Transactional
     public void calcularExamenesGrupoEspecial(RolExamenes rolExamenes, DataSessionPivot ds) {
         rolExamenes = rolExamenesDAO.find(rolExamenes.getId());
         this.checkNoPublicado(rolExamenes);
@@ -211,12 +212,14 @@ public class GrupoEspecialServiceImp implements GrupoEspecialService {
 
         List<LetraGrupoRegular> letrasGrupoRegular = letraGrupoRegularDAO.allByRolExamenes(rolExamenes);
         grupoRegularConnector.fillActiveInfoLetrasGruposRegulares(letrasGrupoRegular);
+
         List<CursoMasivoExamen> cursosMasivos = cursoMasivoExamenDAO.allByRolExamenes(rolExamenes, EstadoCursoMasivoEnum.ACT);
         grupoRegularConnector.fillActiveInfoCursosMasivos(cursosMasivos);
+
         List<GrupoHorasExamen> gruposHorasExamenByRolExamenes = this.allGrupoHorasExamenByRolExamen(rolExamenes);
+        List<SeccionGrupoEspecial> seccionesGrupoEspecialesOut = new ArrayList();
 
         int cont = 0;
-        SECCIONES_ESPECIALES:
         for (SeccionGrupoEspecial seccionGrupoEspecial : seccionesGrupoEspeciales) {
             logger.debug("################################################################################################");
             logger.debug("Seccion Grupo Especial {}, {} de {}", seccionGrupoEspecial.getId(), ++cont, seccionesGrupoEspeciales.size());
@@ -224,7 +227,7 @@ public class GrupoEspecialServiceImp implements GrupoEspecialService {
                 logger.debug("\tYa tiene horario");
                 continue;
             }
-            
+
             List<Alumno> alumnos = seccionGrupoEspecial.getAlumnosGrupoEspecial().stream().map(x -> x.getAlumno()).collect(Collectors.toList());
             List<Aula> aulas = Arrays.asList(seccionGrupoEspecial.getAula());
             List<Docente> docentes = Arrays.asList(seccionGrupoEspecial.getDocente());
@@ -248,10 +251,61 @@ public class GrupoEspecialServiceImp implements GrupoEspecialService {
                     othersSeccionesGruposEspecialesEspeciales,
                     docentes,
                     aulas,
-                    alumnos, ds);
+                    alumnos, true, ds
+            );
             if (matching) {
                 continue;
             }
+            seccionesGrupoEspecialesOut.add(seccionGrupoEspecial);
+
+        }
+
+        logger.debug("################################################################################################");
+        logger.debug("################################################################################################");
+        logger.debug("################################################################################################");
+        logger.debug("################################################################################################");
+        TypesUtil.delay(3000);
+        logger.debug("################################################################################################");
+        logger.debug("################################################################################################");
+        logger.debug("################################################################################################");
+
+        SECCIONES_ESPECIALES:
+        for (SeccionGrupoEspecial seccionGrupoEspecial : seccionesGrupoEspecialesOut) {
+            logger.debug("################################################################################################");
+            logger.debug("Seccion Grupo Especial {}, {} de {}", seccionGrupoEspecial.getId(), ++cont, seccionesGrupoEspeciales.size());
+            if (seccionGrupoEspecial.getGrupoHorasExamen() != null) {
+                logger.debug("\tYa tiene horario");
+                continue;
+            }
+
+            List<Alumno> alumnos = seccionGrupoEspecial.getAlumnosGrupoEspecial().stream().map(x -> x.getAlumno()).collect(Collectors.toList());
+            List<Aula> aulas = Arrays.asList(seccionGrupoEspecial.getAula());
+            List<Docente> docentes = Arrays.asList(seccionGrupoEspecial.getDocente());
+
+            List<SeccionGrupoEspecial> othersSeccionesGruposEspecialesEspeciales = new ArrayList(seccionesGrupoEspeciales);
+            othersSeccionesGruposEspecialesEspeciales.removeIf(x -> x.equals(seccionGrupoEspecial));
+
+            Seccion seccion = seccionGrupoEspecial.getSeccion().clone();
+            List<HorarioSeccion> horariosSeccion = this.allHorarioSeccionWithHours(seccion, rolExamenes, horariosBySeccion);
+            seccion.setHorarioSeccion(horariosSeccion);
+            seccionGrupoEspecial.setSeccion(seccion);
+
+            //semana que le corresponde segun el horario de la seccion
+            SemanaExamen semanaExamenByHorSec = this.findSemanaExamenByHorarioSeccion(seccion.getHorarioSeccion(), semanasByRolExamen);
+            boolean matching = this.processSeccionEspecialByWeek(
+                    semanaExamenByHorSec,
+                    seccionGrupoEspecial,
+                    gruposHorasExamenByRolExamenes,
+                    letrasGrupoRegular,
+                    cursosMasivos,
+                    othersSeccionesGruposEspecialesEspeciales,
+                    docentes,
+                    aulas,
+                    alumnos, false, ds);
+            if (matching) {
+                continue;
+            }
+
             //resto de semanas
             for (SemanaExamen semanaExamen : semanasByRolExamen) {
                 if (semanaExamen.equals(semanaExamenByHorSec)) {
@@ -266,13 +320,13 @@ public class GrupoEspecialServiceImp implements GrupoEspecialService {
                         othersSeccionesGruposEspecialesEspeciales,
                         docentes,
                         aulas,
-                        alumnos, ds);
+                        alumnos, false, ds);
                 if (matching) {
                     continue SECCIONES_ESPECIALES;
                 }
             }
-
         }
+
         RolExamenes rolExamenesUpd = new RolExamenes();
         rolExamenesUpd.setId(rolExamenes.getId());
         rolExamenesUpd.setSituacionEnum(SituacionRolExamenesEnum.CFG_ESP);
@@ -289,7 +343,8 @@ public class GrupoEspecialServiceImp implements GrupoEspecialService {
             List<SeccionGrupoEspecial> otherSeccionesGrupoEspeciales,
             List<Docente> docentes,
             List<Aula> aulas,
-            List<Alumno> alumnos, DataSessionPivot ds) {
+            List<Alumno> alumnos,
+            boolean busquedaNivel1, DataSessionPivot ds) {
 
         Seccion seccion = seccionGrupoEspecial.getSeccion();
         final int AFORO_INCREMENTO = 5;
@@ -321,6 +376,10 @@ public class GrupoEspecialServiceImp implements GrupoEspecialService {
                     }
                 } else {
 
+                    if (busquedaNivel1) {
+                        continue;
+                    }
+
                     //logger.info("seccion {}, aula {}, no es aula oera", seccion.getCodigo2(), aulaSeccionOriginal.getId());
                     //logger.info("aula superior {}", ObjectUtil.getParentTree(aulaSeccionOriginal, "aulaSuperior.id"));
                     Map<Long, List<Aula>> mapAulasAgrupadasPorModulo = grupoRegularConnector.aulasAgrupadasPorModulo(aulaSeccionOriginal);
@@ -351,7 +410,7 @@ public class GrupoEspecialServiceImp implements GrupoEspecialService {
         return false;
     }
 
-    public Aula buscarAulaOeraBySeccion(
+    private Aula buscarAulaOeraBySeccion(
             Seccion seccion,
             SeccionGrupoEspecial seccionGrupoEspecial,
             GrupoHorasExamen grupoHorasExamen,
@@ -457,6 +516,7 @@ public class GrupoEspecialServiceImp implements GrupoEspecialService {
                 Aula aulaMemory = rolExamenesLogger.getAulasOera().stream().filter(x -> x.equals(aulas.get(0))).findFirst().orElse(null);
                 HorarioAula horarioAula = new HorarioAula(fechaHoraGrupoExamen, seccionGrupoEspecial.getSeccion());
                 horarioAula.setSeccionGrupoEspecial(seccionGrupoEspecialUpd);
+                horarioAula.setRolExamenes(seccionGrupoEspecial.getRolExamenes());
                 horarioAulaDAO.save(horarioAula);
 
                 aulaMemory.getHorariosAula().add(horarioAula.clone());
@@ -467,7 +527,7 @@ public class GrupoEspecialServiceImp implements GrupoEspecialService {
         return false;
     }
 
-    public List<Integer> listOrderedDays(int initDay) {
+    private List<Integer> listOrderedDays(int initDay) {
         List<Integer> dias = new ArrayList<>();
         int sumaPositiva = 0;
         int sumaNegativa = 0;
@@ -495,7 +555,7 @@ public class GrupoEspecialServiceImp implements GrupoEspecialService {
         return dias;
     }
 
-    public List<GrupoHorasExamen> allGrupoHorasExamenByRolExamen(RolExamenes rolExamenes) {
+    private List<GrupoHorasExamen> allGrupoHorasExamenByRolExamen(RolExamenes rolExamenes) {
         //ordenar los grupos horas
         List<GrupoHorasExamen> gruposHorasExamen = grupoHorasExamenDAO.allByRolExamenes(rolExamenes);
         List<FechaHoraGrupoExamen> fechasHorasExamens = fechaHoraGrupoExamenDAO.allByGrupoHorasExamenOrderByDiaHora(gruposHorasExamen);
@@ -538,7 +598,7 @@ public class GrupoEspecialServiceImp implements GrupoEspecialService {
         return horariosSeccion;
     }
 
-    public SemanaExamen findSemanaExamenByHorarioSeccion(List<HorarioSeccion> horariosSeccion, List<SemanaExamen> semanasExamen) {
+    private SemanaExamen findSemanaExamenByHorarioSeccion(List<HorarioSeccion> horariosSeccion, List<SemanaExamen> semanasExamen) {
 
         SEMANA_EXAMEN:
         for (SemanaExamen semanaExamen : semanasExamen) {
@@ -556,7 +616,7 @@ public class GrupoEspecialServiceImp implements GrupoEspecialService {
         return null;
     }
 
-    public List<HorarioSeccion> reasignarHorarioSeccion(List<HorarioSeccion> horariosSeccion, Integer numeroDia, Integer numeroHoraInicio) {
+    private List<HorarioSeccion> reasignarHorarioSeccion(List<HorarioSeccion> horariosSeccion, Integer numeroDia, Integer numeroHoraInicio) {
         List<HorarioSeccion> horariosSeccionClone = new ArrayList<>();
         HorarioSeccion previousHorarioSeccion = null;
         for (HorarioSeccion horarioSeccion : horariosSeccion) {
@@ -577,6 +637,27 @@ public class GrupoEspecialServiceImp implements GrupoEspecialService {
             horariosSeccionClone.add(horarioSeccionClone);
         }
         return horariosSeccionClone;
+    }
+
+    @Override
+    @Transactional
+    public void limpiarExamenGrupoEspecial(RolExamenes rolExamenes, DataSessionPivot ds) {
+        RolExamenes rolBD = rolExamenesDAO.find(rolExamenes.getId());
+        this.checkNoPublicado(rolBD);
+
+        List<SeccionGrupoEspecial> seccionesExcluidas = seccionGrupoEspecialDAO.allByRolExamenesAndEstados(rolExamenes, SeccionRolExamenEstadoEnum.EXC);
+        List<Seccion> secciones = seccionesExcluidas.stream().map(x -> x.getSeccion()).collect(Collectors.toList());
+        if (!secciones.isEmpty()) {
+            seccionExcluidoDAO.deleteBySecciones(secciones);
+        }
+        alumnoGrupoEspecialDAO.deleteByRolExamenes(rolExamenes);
+        horarioAulaDAO.deleteSeccionesEspecialesByRolExamenes(rolExamenes);
+
+        List<SeccionGrupoEspecial> seccionesActivas = seccionGrupoEspecialDAO.allByRolExamenesAndEstados(rolExamenes, SeccionRolExamenEstadoEnum.ACT);
+        for (SeccionGrupoEspecial seccionGE : seccionesActivas) {
+            seccionGE.setGrupoHorasExamen(null);
+            seccionGrupoEspecialDAO.update(seccionGE);
+        }
     }
 
     @Override
@@ -665,7 +746,7 @@ public class GrupoEspecialServiceImp implements GrupoEspecialService {
         alumnoGrupoEspecialDAO.updateEstado(alumnoGrupoEspecialUpd);
     }
 
-    public void validarActivarAlumno(GrupoHorasExamen grupoHorasExamen, Alumno alumno) {
+    private void validarActivarAlumno(GrupoHorasExamen grupoHorasExamen, Alumno alumno) {
         List<AlumnoCursoMasivo> alumnosCursosMasivos = alumnoCursoMasivoDAO.allByGrupoHorasExamenAndEstados(grupoHorasExamen, AlumnoRolExamenEstadoEnum.ACT);
         List<AlumnoGrupoEspecial> alumnosGrupoEspeciales = alumnoGrupoEspecialDAO.allByGrupoHorasExamenAndEstados(grupoHorasExamen, AlumnoRolExamenEstadoEnum.ACT);
         List<AlumnoGrupoRegular> alumnoGrupoRegulares = alumnoGrupoRegularDAO.allByGrupoHorasExamenAndEstados(grupoHorasExamen, AlumnoRolExamenEstadoEnum.ACT);

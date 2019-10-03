@@ -155,6 +155,27 @@ public class GrupoEspecialController {
     }
 
     @ResponseBody
+    @RequestMapping(value = "limpiarExamenGrupoEspecial", method = RequestMethod.POST)
+    public JsonResponse limpiarExamenGrupoEspecial(@RequestBody RolExamenes rolExamenes,
+            HttpSession session, HttpServletRequest request) {
+        JsonResponse response = new JsonResponse();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        ds.setFechaAccionAudit(new Date());
+        try {
+            grupoEspecialService.limpiarExamenGrupoEspecial(rolExamenes, ds);
+            response.setMessage("Grupo especial calculado corretamente.");
+            response.setSuccess(Boolean.TRUE);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        } finally {
+            rolExamenesLogger.finalizeLog();
+        }
+        return response;
+    }
+
+    @ResponseBody
     @RequestMapping(value = "listAlumnosGrupoEspecial", method = RequestMethod.GET)
     public DynatableResponse listAlumnosGrupoEspecial(DynatableFilter filter, @RequestParam("seccionGrupoEspecial") Long seccionGrupoEspecial, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
