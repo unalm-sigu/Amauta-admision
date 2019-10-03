@@ -146,7 +146,7 @@ public class ActosPregradoView extends AbstractView {
             excelUtil.replaceVal(irow - 1, 3, item.getFacultad());
             excelUtil.replaceVal(irow - 1, 4, item.getCreditos_matriculados());
             excelUtil.replaceVal(irow - 1, 5, item.getCreditos_aprobados());
-            excelUtil.replaceVal(irow - 1, 6, item.getCiclos_estudiados());
+            excelUtil.replaceVal(irow - 1, 6, this.retornVacio(item.getCiclos_estudiados()));
             excelUtil.replaceVal(irow - 1, 7, item.getCodigo_facultad());
             excelUtil.replaceVal(irow - 1, 8, this.retornVacio(item.getNivel()));
             if ("candidatosActPre".equals(tipoReporte)) {
