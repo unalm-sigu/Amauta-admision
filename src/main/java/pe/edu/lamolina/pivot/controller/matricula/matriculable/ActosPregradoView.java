@@ -46,6 +46,7 @@ public class ActosPregradoView extends AbstractView {
 
         response.setHeader("Content-Disposition", "attachment; filename=\"" + header + fecha + ".xlsx\"");
         response.setContentType(getContentType());
+        response.setStatus(200);
         ServletOutputStream out = response.getOutputStream();
         out.flush();
         workbook.write(out);
