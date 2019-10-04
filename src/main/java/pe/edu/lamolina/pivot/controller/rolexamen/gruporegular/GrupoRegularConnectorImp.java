@@ -36,6 +36,7 @@ import pe.edu.lamolina.model.enums.GrupoHorasRolExamenEstadoEnum;
 import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.enums.SeccionRolExamenEstadoEnum;
 import pe.edu.lamolina.model.enums.TipoGrupoRolExamenesEnum;
+import pe.edu.lamolina.model.enums.TipoHorarioAulaEnum;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.horario.HorarioAula;
@@ -143,18 +144,18 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void crearLetraGrupoRegularByLetra(
             LetraGrupoRegular letraGrupoRegular,
-            List<CursoMasivoExamen> cursosMasivosExamenByLetra,
-            List<SeccionGrupoEspecial> seccionesGrupoEspecialByLetra,
-            Map<String, List<Seccion>> mapSeccionesGroupByLetra,
+            List<CursoMasivoExamen> cursosMasivosByLetra,
+            List<SeccionGrupoEspecial> seccionesGpoEspecialByLetra,
+            Map<String, List<Seccion>> mapSeccionesByLetra,
             List<Seccion> seccionesEspeciales,
             List<LetraGrupoRegular> letrasGruposRegulares,
-            List<CursoMasivoExamen> cursosMasivosByRolExamenesAll,
-            List<SeccionGrupoEspecial> seccionesGrupoEspecialAll,
+            List<CursoMasivoExamen> cursosMasivosAll,
+            List<SeccionGrupoEspecial> seccionesGrupoEspecialAllqqqq,
             DataSessionPivot ds) {
 
         final int AFORO_INCREMENTO = 5;
         long ini = System.currentTimeMillis();
-        List<Seccion> seccionesByLetra = mapSeccionesGroupByLetra.get(letraGrupoRegular.getLetra());
+        List<Seccion> seccionesByLetra = mapSeccionesByLetra.get(letraGrupoRegular.getLetra());
         if (seccionesByLetra == null) {
             return;
         }
@@ -162,6 +163,7 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
         letraGrupoRegular.setContadorSecciones(BigDecimal.ZERO.intValue());
 
         for (Seccion seccion : seccionesByLetra) {
+            System.out.println("Evaluado seccion " + seccion.getId() + " letra " + letraGrupoRegular.getLetra());
             this.rolExamenesLogger.addMessageLevel3("Evaluando la sección %s", seccion.getCodigo2());
             Seccion seccionClone = seccion.clone();
             List<DocenteSeccion> docenteSecciones = docentesPrincipales.stream().filter(x -> x.getSeccion().equals(seccionClone)).collect(Collectors.toList());
@@ -172,11 +174,12 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
             boolean result = false;
             result = this.procesarSeccionesByLetra(
                     letraGrupoRegular,
-                    cursosMasivosByRolExamenesAll,
-                    seccionesGrupoEspecialAll,
+                    cursosMasivosByLetra,
+                    seccionesGpoEspecialByLetra,
                     seccionClone,
                     seccionesByLetra,
                     letrasGruposRegulares,
+                    cursosMasivosAll,
                     ds);
             if (result) {
                 this.rolExamenesLogger.addMessageLevel3("La sección %s fue asignada correctamente.", seccion.getCodigo2());
@@ -222,12 +225,13 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
             Seccion seccion,
             LetraGrupoRegular letraGrupoRegular,
             Map<Long, List<Aula>> aulasAgrupadasPorModulo,
-            List<CursoMasivoExamen> cursosMasivosExamen,
+            List<CursoMasivoExamen> cursosMasivosExamenByLetra,
             List<SeccionGrupoEspecial> seccionesGrupoEspecial,
             List<Seccion> seccionesByLetra,
             Integer inicio,
             Integer fin,
             List<LetraGrupoRegular> letrasGruposRegulares,
+            List<CursoMasivoExamen> cursosMasivosExamenByAll,
             DataSessionPivot ds) {
 
         //logger.info("Entro a buscar aula");
@@ -251,11 +255,12 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
                 this.rolExamenesLogger.addMessageLevel3("Buscará disponibilidad en el aula %s", aula.getCodigo());
                 boolean result = this.procesarSeccionesByLetra(
                         letraGrupoRegular,
-                        cursosMasivosExamen,
+                        cursosMasivosExamenByLetra,
                         seccionesGrupoEspecial,
                         seccionClone,
                         seccionesByLetra,
-                        letrasGruposRegulares, ds);
+                        letrasGruposRegulares,
+                        cursosMasivosExamenByAll, ds);
                 if (result) {
                     return aula;
                 }
@@ -282,11 +287,12 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public boolean procesarSeccionesByLetra(
             LetraGrupoRegular letraGrupoRegular,
-            List<CursoMasivoExamen> cursosMasivosExamen,
+            List<CursoMasivoExamen> cursosMasivosByLetra,
             List<SeccionGrupoEspecial> seccionesGrupoEspecial,
             Seccion seccion,
             List<Seccion> seccionesByLetraOnlyInformative,
             List<LetraGrupoRegular> letrasGruposRegulares,
+            List<CursoMasivoExamen> cursosMasivosAll,
             DataSessionPivot ds) {
 
         List<MatriculaSeccion> matriculadosPorSeccion = matriculaSeccionDAO.allMatriculadosBySeccion(seccion);
@@ -295,24 +301,61 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
         List<Aula> aulas = Arrays.asList(seccion.getAula());
         List<Docente> docentes = Arrays.asList(seccion.getDocenteSeccion().get(0).getDocente());
 
-        boolean validacionCursosMasivosCorrecta = this.validarCursosMasivos(cursosMasivosExamen, docentes, aulas, alumnos);
+        boolean validacionCursosMasivosCorrecta = this.validarCursosMasivos(cursosMasivosByLetra, docentes, aulas, alumnos);
         boolean validacionGrupoRegularCorrecta = this.validarGrupoRegular(letraGrupoRegular, alumnos, docentes, aulas);
         boolean validacionGrupoEspecialCorrecta = this.validarGrupoEspecial(seccionesGrupoEspecial, alumnos, docentes, aulas);
+        boolean validacionCruceAulas = this.validarCrucesAulas(letraGrupoRegular, aulas);
         boolean validacionTripleExamen = this.validarMaximoExamenesByAlumno(
                 letraGrupoRegular,
                 alumnos,
                 letraGrupoRegular.getGrupoHorasExamen().getFecha(),
-                cursosMasivosExamen,
+                cursosMasivosAll,
                 seccionesGrupoEspecial,
                 letrasGruposRegulares);
 
-        if (!validacionGrupoRegularCorrecta || !validacionCursosMasivosCorrecta || !validacionGrupoEspecialCorrecta || !validacionTripleExamen) {
+        if (!validacionGrupoRegularCorrecta || !validacionCursosMasivosCorrecta
+                || !validacionGrupoEspecialCorrecta || !validacionTripleExamen || !validacionCruceAulas) {
             return false;
         }
 
         letraGrupoRegular.setContadorSecciones(letraGrupoRegular.getContadorSecciones() + 1);
         this.crearSeccionGrupoRegular(seccion, letraGrupoRegular, matriculadosPorSeccion, ds);
         return true;
+    }
+
+    private boolean validarCrucesAulas(LetraGrupoRegular letraGrupoRegular, List<Aula> aulas) {
+        Date fecha = letraGrupoRegular.getGrupoHorasExamen().getFecha();
+
+        Map<Long, List<HorarioAula>> mapHorariosAula = this.rolExamenesLogger.getHorarioAulas();
+
+        boolean aulaConConflicto = true;
+        for (Aula aula : aulas) {
+            int cruces = 0;
+            TipoHorarioAulaEnum tipo = null;
+            List<HorarioAula> horariosAulas = TypesUtil.getListNotNull(mapHorariosAula.get(aula.getId()));
+            for (FechaHoraGrupoExamen fechaHorGru : letraGrupoRegular.getGrupoHorasExamen().getFechasHorasGruposExamen()) {
+
+                for (HorarioAula ha : horariosAulas) {
+                    if (ha.getDia().getId().compareTo(fechaHorGru.getDia().getId()) != 0) {
+                        continue;
+                    }
+                    if (ha.getHora().getId().compareTo(fechaHorGru.getHora().getId()) != 0) {
+                        continue;
+                    }
+                    if (fecha.compareTo(ha.getFechaInicio()) >= 0 && fecha.compareTo(ha.getFechaFin()) <= 0) {
+                        aulaConConflicto = false;
+                        tipo = ha.getTipoEnum();
+                        cruces++;
+                    }
+                }
+            }
+            if (cruces > 0) {
+                System.out.println("\tCruce con aula " + aula.getId() + " - tipo " + tipo.name());
+            }
+        }
+
+        return aulaConConflicto;
+
     }
 
     private boolean validarMaximoExamenesByAlumno(
@@ -323,7 +366,7 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
             List<SeccionGrupoEspecial> seccionesGrupoEspecial,
             List<LetraGrupoRegular> letrasGruposRegulares) {
 
-        System.out.println("analizando triple-examen de " + letraGrupoRegular.getLetra());
+        //System.out.println("analizando triple-examen de " + letraGrupoRegular.getLetra());
         List<CursoMasivoExamen> cursosMasivosFecha = new ArrayList();
         for (CursoMasivoExamen cursoMasivo : cursosMasivosExamen) {
             if (cursoMasivo.getGrupoHorasExamen() == null) {
@@ -334,7 +377,7 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
                 cursosMasivosFecha.add(cursoMasivo);
             }
         }
-        System.out.println("\tcursos masivos con misma fecha " + cursosMasivosFecha.size());
+        //System.out.println("\tcursos masivos con misma fecha " + cursosMasivosFecha.size());
 
         List<SeccionGrupoEspecial> seccionEspecialesFecha = new ArrayList();
         for (SeccionGrupoEspecial seccionGE : seccionesGrupoEspecial) {
@@ -346,7 +389,7 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
                 seccionEspecialesFecha.add(seccionGE);
             }
         }
-        System.out.println("\tgrupos especiales con misma fecha " + seccionEspecialesFecha.size());
+        //System.out.println("\tgrupos especiales con misma fecha " + seccionEspecialesFecha.size());
 
         List<SeccionGrupoRegular> seccionGpoRegFecha = new ArrayList();
         for (LetraGrupoRegular letraGR : letrasGruposRegulares) {
@@ -362,49 +405,68 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
                 seccionGpoRegFecha.addAll(seccionGR);
             }
         }
-        System.out.println("\tgrupos regulares con misma fecha " + seccionGpoRegFecha.size());
+        //System.out.println("\tgrupos regulares con misma fecha " + seccionGpoRegFecha.size());
 
+        int alumnoTriples = 0;
         for (Alumno alumno : alumnos) {
             int contador = 0;
+            String masivos = "";
             for (CursoMasivoExamen cursoMasivoExamen : cursosMasivosFecha) {
                 List<AlumnoCursoMasivo> alumnosCursoM = cursoMasivoExamen.getAlumnosCursosMasivos();
                 for (AlumnoCursoMasivo alumnoCursoMasivo : alumnosCursoM) {
                     if (alumnoCursoMasivo.getAlumno().getId() == alumno.getId().longValue()) {
+                        masivos += cursoMasivoExamen.getId() + ",";
                         contador++;
                     }
                 }
             }
             if (contador >= 2) {
-                return false;
+                //return false;
             }
 
+            String especiales = "";
             for (SeccionGrupoEspecial seccionGE : seccionEspecialesFecha) {
                 List<AlumnoGrupoEspecial> alumnosGE = seccionGE.getAlumnosGrupoEspecial();
                 for (AlumnoGrupoEspecial alumnoGE : alumnosGE) {
                     if (alumnoGE.getAlumno().getId() == alumno.getId().longValue()) {
+                        especiales += seccionGE.getSeccion().getId() + ",";
                         contador++;
                     }
                 }
             }
 
             if (contador >= 2) {
-                return false;
+                //return false;
             }
 
+            String regulares = "";
             for (SeccionGrupoRegular seccionGR : seccionGpoRegFecha) {
                 List<AlumnoGrupoRegular> alumnosGR = seccionGR.getAlumnosGruposRegulares();
                 for (AlumnoGrupoRegular alumnoGR : alumnosGR) {
                     if (alumnoGR.getAlumno().getId() == alumno.getId().longValue()) {
+                        regulares += seccionGR.getSeccion().getId() + ",";
                         contador++;
                     }
                 }
             }
             if (contador >= 2) {
-                return false;
+                //return false;
+                alumnoTriples++;
+                System.out.print("\tAlumno " + alumno.getId() + " con " + contador + " examenes ");
+                if (!masivos.equals("")) {
+                    System.out.print("masivos={" + masivos + "} ");
+                }
+                if (!especiales.equals("")) {
+                    System.out.print("especiales={" + especiales + "} ");
+                }
+                if (!regulares.equals("")) {
+                    System.out.print("regulares={" + regulares + "} ");
+                }
+                System.out.println("");
             }
         }
 
-        return true;
+        return alumnoTriples == 0;
     }
 
     @Override
@@ -440,20 +502,30 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
 
         //validar conflicto alumno
         boolean alumnoConflicto = false;
+
         //  MATRICULAS_BY_SEC:
-        for (Alumno alumno : alumnos) {
-            for (SeccionGrupoRegular seccionGrupoRegular : seccionesGruposRegularesByLetra) {
-                if (seccionGrupoRegular.getAlumnosGruposRegulares() != null) {
-                    AlumnoGrupoRegular alumnoSeccionRegularFound = seccionGrupoRegular.getAlumnosGruposRegulares()
-                            .stream().filter(x -> x.getAlumno().equals(alumno)).findFirst().orElse(null);
-                    if (alumnoSeccionRegularFound != null) {
-                        alumnoConflicto = true;
-                        rolExamenesLogger.cruceAlumno(alumno, letraGrupoRegular, seccionGrupoRegular.getSeccion());
-                        // break MATRICULAS_BY_SEC;
+        //for (Alumno alumno : alumnos) {
+        for (SeccionGrupoRegular seccionGrupoRegular : seccionesGruposRegularesByLetra) {
+            int alumnosCruce = 0;
+            if (seccionGrupoRegular.getAlumnosGruposRegulares() != null) {
+                for (AlumnoGrupoRegular alumnoGR : seccionGrupoRegular.getAlumnosGruposRegulares()) {
+                    for (Alumno alumno : alumnos) {
+                        if (alumno.equals(alumnoGR.getAlumno())) {
+                            rolExamenesLogger.cruceAlumno(alumno, letraGrupoRegular, seccionGrupoRegular.getSeccion());
+                            alumnosCruce++;
+                        }
                     }
                 }
             }
+            if (alumnosCruce > 0) {
+                alumnoConflicto = true;
+
+                System.out.println("\tCruce alumnos seccion-reg:"
+                        + seccionGrupoRegular.getSeccion().getId() + " "
+                        + letraGrupoRegular.getLetra() + " - alumnos:" + alumnosCruce);
+            }
         }
+        //}
 
         //validar conflicto docentes
         boolean docenteConflicto = false;
@@ -681,7 +753,8 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
                 List<AlumnoGrupoRegular> alumnosGrupoRegularBySeccionGpoReg = mapAlumnosGrupoRegular.get(seccionGrupoRegular.getId());
                 seccionGrupoRegular.setAlumnosGruposRegulares(alumnosGrupoRegularBySeccionGpoReg);
             }
-            letraGruposRegular.setSeccionesGruposRegulares(seccionesGrupoRegular);
+            //letraGruposRegular.setSeccionesGruposRegulares(seccionesGrupoRegular);
+            letraGruposRegular.setSeccionesGruposRegulares(seccionGrupoRegularByLetra);
         }
     }
 
@@ -702,12 +775,12 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
 
     @Override
     public boolean validarCursosMasivos(
-            List<CursoMasivoExamen> cursosMasivosByRolExamen,
+            List<CursoMasivoExamen> cursosMasivos,
             List<Docente> docentes,
             List<Aula> aulas,
             List<Alumno> alumnos) {
 
-        if (cursosMasivosByRolExamen.isEmpty()) {
+        if (cursosMasivos.isEmpty()) {
             return true;
         }
 
@@ -715,7 +788,7 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
         boolean aulaConConflicto = false;
         boolean alumnoConflicto = false;
 
-        for (CursoMasivoExamen cursoMasivoByRolExamen : cursosMasivosByRolExamen) {
+        for (CursoMasivoExamen cursoMasivoByRolExamen : cursosMasivos) {
 
             //validar conflicto docentes
             /*
@@ -736,20 +809,31 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
                     AulaCursoMasivo aulaCursoMasivo = cursoMasivoByRolExamen.getAulasCursosMasivos().stream().
                             filter(x -> x.getAula().equals(aula)).findFirst().orElse(null);
                     if (aulaCursoMasivo != null) {
+                        System.out.println("\tCruce aula curso-masivo "
+                                + cursoMasivoByRolExamen.getId() + ":"
+                                + cursoMasivoByRolExamen.getGrupoHorasExamen().getGrupoHoras().getCodigo() + " - aula:" + aula.getId());
                         aulaConConflicto = true;
                         rolExamenesLogger.cruceAula(aula, cursoMasivoByRolExamen.getCurso());
                     }
                 }
             }
 
+            int alumnosCruces = 0;
             for (Alumno alumno : alumnos) {
                 AlumnoCursoMasivo alumnoCursoMasivo = cursoMasivoByRolExamen.getAlumnosCursosMasivos().stream()
                         .filter(x -> x.getAlumno().equals(alumno))
                         .findFirst().orElse(null);
                 if (alumnoCursoMasivo != null) {
+                    alumnosCruces++;
                     alumnoConflicto = true;
                     rolExamenesLogger.cruceAlumno(alumno, cursoMasivoByRolExamen.getCurso());
                 }
+            }
+
+            if (alumnosCruces > 0) {
+                System.out.println("\tCruce alumnos curso-masivo "
+                        + cursoMasivoByRolExamen.getId() + ":"
+                        + cursoMasivoByRolExamen.getGrupoHorasExamen().getGrupoHoras().getCodigo() + " - alumnos:" + alumnosCruces);
             }
 
         }
@@ -788,9 +872,9 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
         if (grupoRegularExamen == null) {
             grupoRegularExamen = new GrupoRegularExamen();
             grupoRegularExamen.setEstadoEnum(GrupoHorasRolExamenEstadoEnum.ACT);
-            grupoRegularExamen.setFechaRegistro(ds.getFechaAccionAudit());
             grupoRegularExamen.setGrupoHoras(seccion.getGrupoHoras());
             grupoRegularExamen.setLetraGrupoRegular(letraGrupoRegular);
+            grupoRegularExamen.setFechaRegistro(ds.getFechaAccionAudit());
             grupoRegularExamen.setUserRegistro(ds.getUsuario());
             letraGrupoRegular.getGruposRegularesExamenes().add(grupoRegularExamen);
         }
@@ -804,14 +888,14 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
     @Override
     public SeccionGrupoRegular crearObjectSeccionGrupoRegular(Seccion seccion, LetraGrupoRegular letraGrupoRegular, DataSessionPivot ds) {
         SeccionGrupoRegular seccionGrupoRegular = new SeccionGrupoRegular();
-        seccionGrupoRegular.setSeccion(seccion);
-        seccionGrupoRegular.setDocente(seccion.getDocenteSeccion().get(0).getDocente());
         seccionGrupoRegular.setEstadoEnum(SeccionRolExamenEstadoEnum.ACT);
-        seccionGrupoRegular.setFechaRegistro(ds.getFechaAccionAudit());
         seccionGrupoRegular.setLetraGrupoRegular(letraGrupoRegular);
+        seccionGrupoRegular.setSeccion(seccion);
+        seccionGrupoRegular.setAula(seccion.getAula());
+        seccionGrupoRegular.setDocente(seccion.getDocenteSeccion().get(0).getDocente());
+        seccionGrupoRegular.setFechaRegistro(ds.getFechaAccionAudit());
         seccionGrupoRegular.setUserRegistro(ds.getUsuario());
         seccionGrupoRegular.setAlumnosGruposRegulares(new ArrayList<>());
-        seccionGrupoRegular.setAula(seccion.getAula());
         return seccionGrupoRegular;
     }
 

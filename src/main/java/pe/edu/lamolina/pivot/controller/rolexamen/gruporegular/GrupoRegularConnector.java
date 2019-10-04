@@ -34,11 +34,12 @@ public interface GrupoRegularConnector {
 
     boolean procesarSeccionesByLetra(
             LetraGrupoRegular letraGrupoRegular,
-            List<CursoMasivoExamen> cursosMasivosExamen,
+            List<CursoMasivoExamen> cursosMasivosExamenByLetra,
             List<SeccionGrupoEspecial> seccionesGrupoEspecial,
             Seccion seccion,
             List<Seccion> seccionesByLetra,
             List<LetraGrupoRegular> letrasGruposRegulares,
+            List<CursoMasivoExamen> cursosMasivosExamenAll,
             DataSessionPivot ds);
 
     boolean validarCursosMasivos(GrupoHorasExamen grupoHorasExamen, List<Docente> docentes, List<Aula> aulas, List<Alumno> alumnos);

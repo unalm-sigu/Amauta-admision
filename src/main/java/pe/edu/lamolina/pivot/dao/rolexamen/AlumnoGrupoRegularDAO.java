@@ -49,4 +49,6 @@ public interface AlumnoGrupoRegularDAO extends EasyDAO<AlumnoGrupoRegular> {
             Date fecha,
             Usuario user);
 
+    int saveAll(List<AlumnoGrupoRegular> alumnosSeccGpoReg);
+
 }

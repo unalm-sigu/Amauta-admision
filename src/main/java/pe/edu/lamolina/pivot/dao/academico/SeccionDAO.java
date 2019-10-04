@@ -102,7 +102,7 @@ public interface SeccionDAO extends EasyDAO<Seccion> {
 
     void updateCodigo2(List<Seccion> secciones);
 
-    List<Seccion> allForRolExamenAndTipoGrupoHora(CicloAcademico ciclo, TipoGrupoHorasEnum tipoGrupoHorasEnum);
+    List<Seccion> allForRolExamenByTipoGrupoHora(CicloAcademico ciclo, TipoGrupoHorasEnum tipoGrupoHorasEnum);
 
     List<Seccion> allByCicloAndGrupoHoras(CicloAcademico ciclo, GrupoHoras grupoHoras);
 

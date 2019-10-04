@@ -606,7 +606,7 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
     }
 
     @Override
-    public List<Seccion> allForRolExamenAndTipoGrupoHora(CicloAcademico ciclo, TipoGrupoHorasEnum tipoGrupoHorasEnum) {
+    public List<Seccion> allForRolExamenByTipoGrupoHora(CicloAcademico ciclo, TipoGrupoHorasEnum tipoGrupoHorasEnum) {
         Octavia sql = Octavia.query()
                 .selectDistinct("sec")
                 .from(MatriculaSeccion.class, "ms")

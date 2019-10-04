@@ -3,13 +3,11 @@ package pe.edu.lamolina.pivot.controller.rolexamen.grupoespecial;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +29,7 @@ import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.enums.RolExamenesEstadoEnum;
 import pe.edu.lamolina.model.enums.SeccionRolExamenEstadoEnum;
 import pe.edu.lamolina.model.enums.SituacionRolExamenesEnum;
+import pe.edu.lamolina.model.enums.TipoHorarioAulaEnum;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.horario.Hora;
@@ -208,8 +207,15 @@ public class GrupoEspecialServiceImp implements GrupoEspecialService {
         }
         grupoRegularConnector.fillActiveInfoGrupoEspecial(seccionesGrupoEspeciales);
 
+        List<Aula> aulasAll = grupoRegularConnector.allAulasOeraWithHorarioByRolExamenes(rolExamenes, null);
+        Date fechaInicio = semanasByRolExamen.stream().min(Comparator.comparing(SemanaExamen::getFechaInicio)).map(x -> x.getFechaInicio()).get();
+        Date fechaFin = semanasByRolExamen.stream().max(Comparator.comparing(SemanaExamen::getFechaFin)).map(x -> x.getFechaFin()).get();
+        List<HorarioAula> horariosAulasByRango = horarioAulaDAO.allByRangoNotByTipo(fechaInicio, fechaFin, TipoHorarioAulaEnum.EXAM, aulasAll);
+        Map<Long, List<HorarioAula>> mapHorarioAulas = TypesUtil.convertListToMapList("aula.id", horariosAulasByRango);
+        rolExamenesLogger.setHorarioAulas(mapHorarioAulas);
+
         List<HorarioSeccion> horarios = horarioSeccionDAO.allBySeccionesSortByDiaHora(seccionesGrupoEspeciales.stream().map(x -> x.getSeccion()).collect(Collectors.toList()));
-        Map horariosBySeccion = TypesUtil.convertListToMapList("seccion.id", horarios);
+        Map<Long, List<HorarioSeccion>> mapHorariosBySeccion = TypesUtil.convertListToMapList("seccion.id", horarios);
 
         List<LetraGrupoRegular> letrasGrupoRegular = letraGrupoRegularDAO.allByRolExamenes(rolExamenes);
         grupoRegularConnector.fillActiveInfoLetrasGruposRegulares(letrasGrupoRegular);
@@ -237,7 +243,7 @@ public class GrupoEspecialServiceImp implements GrupoEspecialService {
             othersSeccionesGruposEspecialesEspeciales.removeIf(x -> x.equals(seccionGrupoEspecial));
 
             Seccion seccion = seccionGrupoEspecial.getSeccion().clone();
-            List<HorarioSeccion> horariosSeccion = this.allHorarioSeccionWithHours(seccion, rolExamenes, horariosBySeccion);
+            List<HorarioSeccion> horariosSeccion = this.allHorarioSeccionWithHours(seccion, rolExamenes, mapHorariosBySeccion);
             seccion.setHorarioSeccion(horariosSeccion);
             seccionGrupoEspecial.setSeccion(seccion);
 
@@ -282,7 +288,7 @@ public class GrupoEspecialServiceImp implements GrupoEspecialService {
             othersSeccionesGruposEspecialesEspeciales.removeIf(x -> x.equals(seccionGrupoEspecial));
 
             Seccion seccion = seccionGrupoEspecial.getSeccion().clone();
-            List<HorarioSeccion> horariosSeccion = this.allHorarioSeccionWithHours(seccion, rolExamenes, horariosBySeccion);
+            List<HorarioSeccion> horariosSeccion = this.allHorarioSeccionWithHours(seccion, rolExamenes, mapHorariosBySeccion);
             seccion.setHorarioSeccion(horariosSeccion);
             seccionGrupoEspecial.setSeccion(seccion);
 
@@ -326,9 +332,9 @@ public class GrupoEspecialServiceImp implements GrupoEspecialService {
 
         logger.debug("###### FIN SEGUNDO LOOP ESPECIAL ######");
 
-        if (1 == 1) {
-            return;
-        }
+//        if (1 == 1) {
+//            return;
+//        }
 
         cont = 0;
         SECCIONES_ESPECIALES:
@@ -348,7 +354,7 @@ public class GrupoEspecialServiceImp implements GrupoEspecialService {
             othersSeccionesGruposEspecialesEspeciales.removeIf(x -> x.equals(seccionGrupoEspecial));
 
             Seccion seccion = seccionGrupoEspecial.getSeccion().clone();
-            List<HorarioSeccion> horariosSeccion = this.allHorarioSeccionWithHours(seccion, rolExamenes, horariosBySeccion);
+            List<HorarioSeccion> horariosSeccion = this.allHorarioSeccionWithHours(seccion, rolExamenes, mapHorariosBySeccion);
             seccion.setHorarioSeccion(horariosSeccion);
             seccionGrupoEspecial.setSeccion(seccion);
 
@@ -573,7 +579,11 @@ public class GrupoEspecialServiceImp implements GrupoEspecialService {
                 otherSeccionesGrupoEspeciales,
                 letrasGrupoRegular);
 
-        if (validacionCursosMasivos && validacionGrupoRegular && validacionSeccionesGpoEspecial && validarTripleExamen) {
+        boolean validarCruceAulas = this.validarCrucesAulas(grupoHorasExamen, aulasRevision);
+
+        if (validacionCursosMasivos && validacionGrupoRegular
+                && validacionSeccionesGpoEspecial && validarTripleExamen
+                && validarCruceAulas) {
             logger.debug("Se hizo el match con gpoHor {} - gpoHorExam {} - aula {}", grupoHorasExamen.getGrupoHoras().getCodigo(), grupoHorasExamen.getId(), aula.getId());
             // logger.debug("Se hizo el match con {}", grupoHorasExamen.getGrupoHoras().getCodigo());
             SeccionGrupoEspecial seccionGrupoEspecialUpd = new SeccionGrupoEspecial();
@@ -600,6 +610,41 @@ public class GrupoEspecialServiceImp implements GrupoEspecialService {
         }
         System.out.println("\tMasivos:" + validacionCursosMasivos + ", GpoReg:" + validacionGrupoRegular + ", GpoEsp:" + validacionSeccionesGpoEspecial + ", Triple:" + validarTripleExamen);
         return false;
+    }
+
+    private boolean validarCrucesAulas(GrupoHorasExamen grupoHorasExamen, List<Aula> aulas) {
+
+        Date fecha = grupoHorasExamen.getFecha();
+        Map<Long, List<HorarioAula>> mapHorariosAula = this.rolExamenesLogger.getHorarioAulas();
+
+        boolean aulaConConflicto = true;
+        for (Aula aula : aulas) {
+            int cruces = 0;
+            TipoHorarioAulaEnum tipo = null;
+            List<HorarioAula> horariosAulas = TypesUtil.getListNotNull(mapHorariosAula.get(aula.getId()));
+            for (FechaHoraGrupoExamen fechaHorGru : grupoHorasExamen.getFechasHorasGruposExamen()) {
+
+                for (HorarioAula ha : horariosAulas) {
+                    if (ha.getDia().getId().compareTo(fechaHorGru.getDia().getId()) != 0) {
+                        continue;
+                    }
+                    if (ha.getHora().getId().compareTo(fechaHorGru.getHora().getId()) != 0) {
+                        continue;
+                    }
+                    if (fecha.compareTo(ha.getFechaInicio()) >= 0 && fecha.compareTo(ha.getFechaFin()) <= 0) {
+                        aulaConConflicto = false;
+                        tipo = ha.getTipoEnum();
+                        cruces++;
+                    }
+                }
+            }
+            if (cruces > 0) {
+                System.out.println("\tCruce con aula " + aula.getId() + " - tipo " + tipo.name());
+            }
+        }
+
+        return aulaConConflicto;
+
     }
 
     private boolean validarMaximoExamenesByAlumno(
@@ -733,8 +778,8 @@ public class GrupoEspecialServiceImp implements GrupoEspecialService {
         return gruposHorasExamen;
     }
 
-    private List<HorarioSeccion> allHorarioSeccionWithHours(Seccion seccion, RolExamenes rolExamenes, Map horariosBySeccion) {
-        List<HorarioSeccion> horariosSeccion = (List<HorarioSeccion>) horariosBySeccion.get(seccion.getId());
+    private List<HorarioSeccion> allHorarioSeccionWithHours(Seccion seccion, RolExamenes rolExamenes, Map<Long, List<HorarioSeccion>> horariosBySeccion) {
+        List<HorarioSeccion> horariosSeccion = horariosBySeccion.get(seccion.getId());
 
         Map<Long, List<HorarioSeccion>> mapGroupByDia = TypesUtil.convertListToMapList("dia.id", horariosSeccion);
         HorarioSeccion firsFound = horariosSeccion.get(0).clone();
