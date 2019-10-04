@@ -1,12 +1,14 @@
 package pe.edu.lamolina.pivot.dao.horario.hibernate;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.hibernate.Query;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
+import pe.albatross.octavia.Insecto;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.CicloAcademico;
@@ -19,7 +21,6 @@ import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.enums.TipoAulaEnum;
 import pe.edu.lamolina.model.enums.TipoHorarioAulaEnum;
-import pe.edu.lamolina.model.enums.TipoOficinaEnum;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.horario.Hora;
@@ -39,6 +40,8 @@ public class HorarioAulaDAOH extends AbstractEasyDAO<HorarioAula> implements Hor
         super();
         setClazz(HorarioAula.class);
     }
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
     public List<HorarioAula> allHorarioAula() {
@@ -388,18 +391,18 @@ public class HorarioAulaDAOH extends AbstractEasyDAO<HorarioAula> implements Hor
                 .join("dia d", "hora h", "aula au")
                 .leftJoin("au.aulaSuperior aus", "aus.tipoAula tip")
                 // .filter("tip.codigo", TipoAulaEnum.MOD)
-                .filter("ha.estado", EstadoHorarioAulaEnum.ACT)
+                //.filter("ha.estado", EstadoHorarioAulaEnum.ACT)
                 .beginBlock()
                 .__().between("ha.fechaInicio", fechainicio, fechafin)
                 .__().between("ha.fechaFin", fechainicio, fechafin)
-                .beginBlock()
-                .__().filter("ha.fechaInicio", "<=", fechainicio)
-                .__().filter("ha.fechaFin", ">=", fechafin)
-                .endBlock()
-                .beginBlock()
-                .__().filter("ha.fechaInicio", ">=", fechainicio)
-                .__().filter("ha.fechaFin", "<=", fechafin)
-                .endBlock()
+                .__().beginBlock()
+                .__().__().filter("ha.fechaInicio", "<=", fechainicio)
+                .__().__().filter("ha.fechaFin", ">=", fechafin)
+                .__().endBlock()
+                .__().beginBlock()
+                .__().__().filter("ha.fechaInicio", ">=", fechainicio)
+                .__().__().filter("ha.fechaFin", "<=", fechafin)
+                .__().endBlock()
                 .endBlock();
         return all(sql);
     }
@@ -412,19 +415,42 @@ public class HorarioAulaDAOH extends AbstractEasyDAO<HorarioAula> implements Hor
                 .join("dia d", "hora h", "aula au")
                 .leftJoin("au.aulaSuperior aus", "aus.tipoAula tip")
                 // .filter("tip.codigo", TipoAulaEnum.MOD)
-                .filter("ha.estado", EstadoHorarioAulaEnum.ACT)
+                //.filter("ha.estado", EstadoHorarioAulaEnum.ACT)
                 .in("au.id", aulas)
                 .beginBlock()
                 .__().between("ha.fechaInicio", fechainicio, fechafin)
                 .__().between("ha.fechaFin", fechainicio, fechafin)
+                .__().beginBlock()
+                .__().__().filter("ha.fechaInicio", "<=", fechainicio)
+                .__().__().filter("ha.fechaFin", ">=", fechafin)
+                .__().endBlock()
+                .__().beginBlock()
+                .__().__().filter("ha.fechaInicio", ">=", fechainicio)
+                .__().__().filter("ha.fechaFin", "<=", fechafin)
+                .__().endBlock()
+                .endBlock();
+        return all(sql);
+    }
+
+    @Override
+    public List<HorarioAula> allByRangoNotByTipo(Date fechainicio, Date fechafin, TipoHorarioAulaEnum tipo, List<Aula> aulas) {
+        Octavia sql = Octavia.query()
+                .from(HorarioAula.class, "ha")
+                .join("dia d", "hora h", "aula au")
+                .leftJoin("seccion", "reservaAula", "seccionGrupoRegular", "seccionGrupoEspecial", "cursoMasivoExamen", "rolExamenes")
+                .in("au.id", aulas)
+                .filter("tipo", "<>", tipo.name())
                 .beginBlock()
-                .__().filter("ha.fechaInicio", "<=", fechainicio)
-                .__().filter("ha.fechaFin", ">=", fechafin)
-                .endBlock()
-                .beginBlock()
-                .__().filter("ha.fechaInicio", ">=", fechainicio)
-                .__().filter("ha.fechaFin", "<=", fechafin)
-                .endBlock()
+                .__().between("ha.fechaInicio", fechainicio, fechafin)
+                .__().between("ha.fechaFin", fechainicio, fechafin)
+                .__().beginBlock()
+                .__().__().filter("ha.fechaInicio", "<=", fechainicio)
+                .__().__().filter("ha.fechaFin", ">=", fechafin)
+                .__().endBlock()
+                .__().beginBlock()
+                .__().__().filter("ha.fechaInicio", ">=", fechainicio)
+                .__().__().filter("ha.fechaFin", "<=", fechafin)
+                .__().endBlock()
                 .endBlock();
         return all(sql);
     }
@@ -450,8 +476,8 @@ public class HorarioAulaDAOH extends AbstractEasyDAO<HorarioAula> implements Hor
                 .left("tra.oficina ofi", "tra.empresa emp")
                 .filter("au.id", aulaFormFecha)
                 .beginBlock()
-                .__().__().between("ha.fechaInicio", aulaFormFecha.getFechaInicio(), aulaFormFecha.getFechaFin())
-                .__().__().between("ha.fechaFin", aulaFormFecha.getFechaInicio(), aulaFormFecha.getFechaFin())
+                .__().between("ha.fechaInicio", aulaFormFecha.getFechaInicio(), aulaFormFecha.getFechaFin())
+                .__().between("ha.fechaFin", aulaFormFecha.getFechaInicio(), aulaFormFecha.getFechaFin())
                 .__().beginBlock()
                 .__().__().filter("ha.fechaInicio", "<=", aulaFormFecha.getFechaInicio())
                 .__().__().filter("ha.fechaFin", ">=", aulaFormFecha.getFechaFin())
@@ -478,11 +504,22 @@ public class HorarioAulaDAOH extends AbstractEasyDAO<HorarioAula> implements Hor
     }
 
     @Override
-    public List<HorarioAula> allByAulas(List<Aula> aulas) {
+    public List<HorarioAula> allWithSeccionByAulas(List<Aula> aulas) {
         Octavia sql = Octavia.query()
                 .from(HorarioAula.class, "ha")
                 .join("dia d", "hora h", "aula au", "seccion sec")
                 .join("sec.grupoSeccion gs", "gs.cicloAcademico ca")
+                .in("au.id", aulas);
+        return all(sql);
+    }
+
+    @Override
+    public List<HorarioAula> allByAulas(List<Aula> aulas, List<Seccion> secciones) {
+        Octavia sql = Octavia.query()
+                .from(HorarioAula.class, "ha")
+                .join("dia d", "hora h", "aula au", "seccion sec")
+                .leftJoin("sec.grupoSeccion gs", "gs.cicloAcademico ca")
+                .in("sec.id", secciones)
                 .in("au.id", aulas);
         return all(sql);
     }
@@ -577,14 +614,14 @@ public class HorarioAulaDAOH extends AbstractEasyDAO<HorarioAula> implements Hor
                 .beginBlock()
                 .__().between("ha.fechaInicio", fechaInicio, fechaFin)
                 .__().between("ha.fechaFin", fechaInicio, fechaFin)
-                .beginBlock()
-                .__().filter("ha.fechaInicio", "<=", fechaInicio)
-                .__().filter("ha.fechaFin", ">=", fechaFin)
-                .endBlock()
-                .beginBlock()
-                .__().filter("ha.fechaInicio", ">=", fechaInicio)
-                .__().filter("ha.fechaFin", "<=", fechaFin)
-                .endBlock()
+                .__().beginBlock()
+                .__().__().filter("ha.fechaInicio", "<=", fechaInicio)
+                .__().__().filter("ha.fechaFin", ">=", fechaFin)
+                .__().endBlock()
+                .__().beginBlock()
+                .__().__().filter("ha.fechaInicio", ">=", fechaInicio)
+                .__().__().filter("ha.fechaFin", "<=", fechaFin)
+                .__().endBlock()
                 .endBlock();
         return all(sql);
     }
@@ -698,6 +735,28 @@ public class HorarioAulaDAOH extends AbstractEasyDAO<HorarioAula> implements Hor
             query.setParameterList("SECCIONES", seccionesIds);
             query.executeUpdate();
         }
+    }
+
+    @Override
+    public int saveList(List<HorarioAula> horariosAulas) {
+        if (horariosAulas.isEmpty()) {
+            return 0;
+        }
+
+        long t1 = System.currentTimeMillis();
+        Insecto sql = Insecto.createInsert()
+                .into(HorarioAula.class)
+                .columns("estado", "reservado", "tipo", "fechaInicio", "fechaFin",
+                        "aula", "dia", "hora", "seccion", "reservaAula", "seccionGrupoRegular",
+                        "seccionGrupoEspecial", "cursoMasivoExamen", "rolExamenes")
+                .values(horariosAulas);
+
+        Query query = getCurrentSession().createSQLQuery(sql.toString());
+        int rows = query.executeUpdate();
+
+        long t2 = System.currentTimeMillis();
+        logger.info("{} HorarioAula's insertados en {} mseg....", rows, (t2 - t1));
+        return rows;
     }
 
 }

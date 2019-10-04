@@ -33,6 +33,8 @@ public interface SeccionGrupoRegularDAO extends EasyDAO<SeccionGrupoRegular> {
     List<SeccionGrupoRegular> allByLetraGrupoRegularAndSecciones(
             LetraGrupoRegular letrasGruposRegular, List<Seccion> secciones);
 
+    List<SeccionGrupoRegular> allBySecciones(List<Seccion> secciones);
+
     void deleteByLetraGrupoRegular(LetraGrupoRegular letraGrupoRegular);
 
     List<SeccionGrupoRegular> allByDynatableAndLetraGrupoRegular(DynatableFilter filter, LetraGrupoRegular letraGrupoRegular);
@@ -53,6 +55,9 @@ public interface SeccionGrupoRegularDAO extends EasyDAO<SeccionGrupoRegular> {
             LetraGrupoRegular letraGpoRegular,
             Date fecha,
             Usuario user);
+
     void updateAula(SeccionGrupoRegular seccionGrupoRegularUpd);
+
+    int saveList(List<SeccionGrupoRegular> seccionesGpoReg);
 
 }

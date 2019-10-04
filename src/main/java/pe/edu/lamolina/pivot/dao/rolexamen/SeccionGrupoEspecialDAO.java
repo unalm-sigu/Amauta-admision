@@ -20,6 +20,8 @@ public interface SeccionGrupoEspecialDAO extends EasyDAO<SeccionGrupoEspecial> {
 
     List<SeccionGrupoEspecial> allByRolExamenes(RolExamenes rolExamenes);
 
+    List<SeccionGrupoEspecial> allBySecciones(RolExamenes rolExamenes, List<Seccion> seccionesForEspecial);
+
     void deleteByRolExamenes(RolExamenes rolExamenes);
 
     void updateFechaExamen(SeccionGrupoEspecial SeccionGrupoEspecial);
@@ -39,5 +41,7 @@ public interface SeccionGrupoEspecialDAO extends EasyDAO<SeccionGrupoEspecial> {
     SeccionGrupoEspecial findByRolExamanesSeccion(RolExamenes rol, Seccion seccion, SeccionRolExamenEstadoEnum... estados);
 
     void updateFechaExamenAndAula(SeccionGrupoEspecial seccionGrupoEspecial);
+
+    int saveList(List<SeccionGrupoEspecial> seccionesEspeciales);
 
 }

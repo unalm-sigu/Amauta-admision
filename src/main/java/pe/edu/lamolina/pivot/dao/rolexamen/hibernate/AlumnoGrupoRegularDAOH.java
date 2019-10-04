@@ -6,7 +6,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.hibernate.Query;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
+import pe.albatross.octavia.Insecto;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
@@ -28,6 +31,8 @@ public class AlumnoGrupoRegularDAOH extends AbstractEasyDAO<AlumnoGrupoRegular> 
         super();
         setClazz(AlumnoGrupoRegular.class);
     }
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
     public AlumnoGrupoRegular find(long id) {
@@ -235,6 +240,26 @@ public class AlumnoGrupoRegularDAOH extends AbstractEasyDAO<AlumnoGrupoRegular> 
 
     private String tb(Class clazz) {
         return clazz.getSimpleName();
+    }
+
+    @Override
+    public int saveAll(List<AlumnoGrupoRegular> alumnosSeccGpoReg) {
+        if (alumnosSeccGpoReg.isEmpty()) {
+            return 0;
+        }
+
+        long t1 = System.currentTimeMillis();
+        Insecto sql = Insecto.createInsert()
+                .into(AlumnoGrupoRegular.class)
+                .columns("estado", "fechaRegistro", "fechaExclusion", "seccionGrupoRegular", "alumno", "userRegistro", "usuarioExclusion")
+                .values(alumnosSeccGpoReg);
+
+        Query query = getCurrentSession().createSQLQuery(sql.toString());
+        int rows = query.executeUpdate();
+
+        long t2 = System.currentTimeMillis();
+        logger.info("{} AlumnoGrupoRegular's insertados en {} mseg....", rows, (t2 - t1));
+        return rows;
     }
 
 }
