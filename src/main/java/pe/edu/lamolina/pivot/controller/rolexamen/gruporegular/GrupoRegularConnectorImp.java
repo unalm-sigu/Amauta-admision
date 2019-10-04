@@ -150,12 +150,13 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
             List<Seccion> seccionesEspeciales,
             List<LetraGrupoRegular> letrasGruposRegulares,
             List<CursoMasivoExamen> cursosMasivosAll,
-            List<SeccionGrupoEspecial> seccionesGrupoEspecialAllqqqq,
+            List<SeccionGrupoEspecial> seccionesGrupoEspecialAll,
             DataSessionPivot ds) {
 
         final int AFORO_INCREMENTO = 5;
         long ini = System.currentTimeMillis();
         List<Seccion> seccionesByLetra = mapSeccionesByLetra.get(letraGrupoRegular.getLetra());
+        System.out.println("seccionesByLetra=" + seccionesByLetra);
         if (seccionesByLetra == null) {
             return;
         }
@@ -491,7 +492,7 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
             List<Aula> aulas) {
 
         List<SeccionGrupoRegular> seccionesGruposRegularesByLetra = letraGrupoRegular.getSeccionesGruposRegulares();
-        //System.out.println("Revisando " + seccionesGruposRegularesByLetra.size() + " secciones regulares de " + letraGrupoRegular.getLetra());
+        System.out.println("Revisando " + seccionesGruposRegularesByLetra.size() + " secciones regulares de " + letraGrupoRegular.getLetra());
         Map<Long, Aula> mapAulas = new LinkedHashMap();
         for (SeccionGrupoRegular seccionGR : seccionesGruposRegularesByLetra) {
             Aula aula = seccionGR.getAula();
@@ -653,6 +654,20 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
             List<Docente> docentes,
             List<Aula> aulas) {
 
+        System.out.print("\tSecciones Especiales son: ");
+        for (SeccionGrupoEspecial seccionEsp : seccionesGrupoEspecial) {
+            System.out.print(seccionEsp.getId() + " ");
+        }
+        System.out.println("");
+        System.out.println("");
+        System.out.println("");
+
+        System.out.print("\tIntentando en las aulas: ");
+        for (Aula aula : aulas) {
+            System.out.print(aula.getId() + " ");
+        }
+        System.out.println("");
+
         //validar conflicto alumno
         boolean alumnoConflicto = false;
         //  MATRICULAS_BY_SEC:
@@ -682,6 +697,13 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
 
         //valida conflicto aula
         boolean aulaConConflicto = false;
+        System.out.print("\tAulas de la seccion-esp son: ");
+        for (SeccionGrupoEspecial seccionEsp : seccionesGrupoEspecial) {
+            Aula ae = seccionEsp.getAula();
+            System.out.print(ae.getId() + " ");
+        }
+        System.out.println("");
+
         for (Aula aula : aulas) {
             SeccionGrupoEspecial seccionGrupoEspecialWithAula = seccionesGrupoEspecial.stream()
                     .filter(x -> x.getAula().getId().equals(aula.getId())).findFirst().orElse(null);
@@ -691,6 +713,7 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
                 //  break;
             }
         }
+        System.out.println("\taulaConConflicto = " + aulaConConflicto);
 
         if (docenteConflicto || aulaConConflicto || alumnoConflicto) {
             return false;

@@ -278,9 +278,9 @@ public class RolExamenesLogger {
 
     void addLogDetails(RolExamenesLogger rolExamenesLogger) {
         if (SHOW_LOG) {
-            logger.debug(rolExamenesLogger.getMessage());
+            //logger.debug(rolExamenesLogger.getMessage());
         }
-        this.logDetails.add(rolExamenesLogger);
+        //this.logDetails.add(rolExamenesLogger);
     }
 
     public void finalizeLog() {

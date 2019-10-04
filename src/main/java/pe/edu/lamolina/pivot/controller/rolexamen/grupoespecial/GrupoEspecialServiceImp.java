@@ -183,15 +183,14 @@ public class GrupoEspecialServiceImp implements GrupoEspecialService {
     @Transactional
     public void calcularExamenesGrupoEspecial(RolExamenes rolExamenes, DataSessionPivot ds) {
         rolExamenes = rolExamenesDAO.find(rolExamenes.getId());
-        this.checkNoPublicado(rolExamenes);
+        //this.checkNoPublicado(rolExamenes);
 
-        Assert.isFalse(this.rolExamenesLogger.isRunning(), String.format("El proceso calculo de %s se esta ejecutando, espere que termine.",
-                rolExamenesLogger.getTipoEnum() != null ? rolExamenesLogger.getTipoEnum().getValue() : ""));
-        if (!rolExamenes.isSituacionConfigurarGrupoEspecial()) {
-            Assert.isTrue(rolExamenes.isSituacionAsignarHorarioCursosMasivos(), "Debe asignar horario de examen a los cursos masivos.");
-        }
-
-        this.rolExamenesLogger.iniciarGrupoEspecial();
+//        Assert.isFalse(this.rolExamenesLogger.isRunning(), String.format("El proceso calculo de %s se esta ejecutando, espere que termine.",
+//                rolExamenesLogger.getTipoEnum() != null ? rolExamenesLogger.getTipoEnum().getValue() : ""));
+//        if (!rolExamenes.isSituacionConfigurarGrupoEspecial()) {
+//            Assert.isTrue(rolExamenes.isSituacionAsignarHorarioCursosMasivos(), "Debe asignar horario de examen a los cursos masivos.");
+//        }
+//        this.rolExamenesLogger.iniciarGrupoEspecial();
         List<Aula> aulasOera = grupoRegularConnector.allAulasOeraWithHorarioByRolExamenes(rolExamenes, OficinaEnum.OERA);
         rolExamenesLogger.setAulasOera(new ArrayList(aulasOera));
 
@@ -335,7 +334,6 @@ public class GrupoEspecialServiceImp implements GrupoEspecialService {
 //        if (1 == 1) {
 //            return;
 //        }
-
         cont = 0;
         SECCIONES_ESPECIALES:
         for (SeccionGrupoEspecial seccionGrupoEspecial : seccionesGrupoEspeciales2Out) {
@@ -545,10 +543,15 @@ public class GrupoEspecialServiceImp implements GrupoEspecialService {
             List<Alumno> alumnos) {
 
         //logger.debug("Se intentara el match con gpoHor {} - gpoHorExam {} - aula {}", grupoHorasExamen.getGrupoHoras().getCodigo(), grupoHorasExamen.getId(), aulas.get(0).getId());
+        System.out.println("grupoHorasExamen.id=" + grupoHorasExamen.getId());
+        for (LetraGrupoRegular letra : letrasGrupoRegular) {
+            System.out.println("\tletra.grupoHorasExamen.id=" + letra.getGrupoHorasExamen().getId());
+            System.out.println("\tletra.grupoHorasExamen.id=" + letra.getGrupoHorasExamen().getId());
+        }
         LetraGrupoRegular letraGrupoRegularByGrupoExamen = letrasGrupoRegular.stream()
-                .filter(x -> x.getGrupoHorasExamen().equals(grupoHorasExamen)).findFirst().orElse(null);
+                .filter(x -> x.getGrupoHorasExamen().getId().equals(grupoHorasExamen.getId())).findFirst().orElse(null);
         List<CursoMasivoExamen> cursosMasivosByGrupoExamen = cursosMasivos.stream()
-                .filter(x -> x.getGrupoHorasExamen().equals(grupoHorasExamen)).collect(Collectors.toList());
+                .filter(x -> x.getGrupoHorasExamen().getId().equals(grupoHorasExamen.getId())).collect(Collectors.toList());
 //        List<SeccionGrupoEspecial> otherSeccionesGrupoEspecialByGrupoExamen = otherSeccionesGrupoEspeciales.stream()
 //                .filter(x -> x.getGrupoHorasExamen() != null)
 //                .filter(x -> x.getGrupoHorasExamen().equals(grupoHorasExamen))
@@ -567,7 +570,9 @@ public class GrupoEspecialServiceImp implements GrupoEspecialService {
 
         boolean validacionCursosMasivos = grupoRegularConnector.validarCursosMasivos(cursosMasivosByGrupoExamen, docentes, aulasRevision, alumnos);
         boolean validacionGrupoRegular = true;
+        System.out.println("letraGrupoRegularByGrupoExamen=" + letraGrupoRegularByGrupoExamen);
         if (letraGrupoRegularByGrupoExamen != null) {
+            System.out.println("\tentro grupoRegularConnector.validarGrupoRegular");
             validacionGrupoRegular = grupoRegularConnector.validarGrupoRegular(letraGrupoRegularByGrupoExamen, alumnos, docentes, aulasRevision);
         }
         boolean validacionSeccionesGpoEspecial = grupoRegularConnector.validarGrupoEspecial(otherSeccionesGrupoEspecialByGrupoExamen, alumnos, docentes, aulasRevision);

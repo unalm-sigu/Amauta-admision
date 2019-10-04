@@ -134,6 +134,21 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
     }
 
     @Override
+    public List<Seccion> allForExamenByCiclo(CicloAcademico ciclo) {
+        Octavia sql = Octavia.query()
+                .from(Seccion.class, "sec")
+                .join("grupoSeccion gs", "gs.curso cur", "gs.cicloAcademico ca")
+                .join("gs.anexoBoletin anx", "anx.anexoSuperior ans")
+                .join("aula", "grupoHoras", "cur.modalidadEstudio")
+                .in("ans.id", Arrays.asList(1L, 2L))
+                .filter("sec.estado", ACT)
+                .filter("sec.tipoSeccion", "<>", TipoSeccionEnum.PCUR)
+                .filter("ca.id", ciclo);
+
+        return all(sql);
+    }
+
+    @Override
     public List<Seccion> allByCodigo3Ciclo(CicloAcademico ciclo) {
         Octavia sql = Octavia.query()
                 .from(Seccion.class, "sec")
