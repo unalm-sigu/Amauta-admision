@@ -981,7 +981,7 @@ public class GrupoEspecialServiceImp implements GrupoEspecialService {
 
     @Override
     @Transactional
-    public void removerHorario(SeccionGrupoEspecial grupoSpecial) {
+    public void removerAula(SeccionGrupoEspecial grupoSpecial) {
         SeccionGrupoEspecial grupoDB = seccionGrupoEspecialDAO.find(grupoSpecial.getId());
         if (grupoDB == null) {
             throw new PhobosException("El grupo no existe");

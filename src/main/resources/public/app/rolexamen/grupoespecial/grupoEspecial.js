@@ -183,11 +183,11 @@ new Vue({
                 }
             });
         },
-        removerGrupo(item) {
+        removerAula(item) {
             console.log(item);
             let vue = this;
             bootbox.confirm({
-                message: "¿Está seguro que desea quitar el grupo?",
+                message: "¿Está seguro que desea quitar el aula?",
                 buttons: {
                     confirm: {label: 'Sí', className: "btn-warning"},
                     cancel: {label: 'Cancelar', className: "btn-link"}
@@ -195,7 +195,7 @@ new Vue({
                 callback: function (result) {
                     if (result) {
                         MODAL.showWait("Espere un momento por favor");
-                        AXIOS.post(`${vue.URL}/quitarGrupo`, item)
+                        AXIOS.post(`${vue.URL}/quitarAula`, item)
                                 .then(response => {
                                     if (response.data.success) {
                                         vue.$refs.raptor.loadRemoteData();

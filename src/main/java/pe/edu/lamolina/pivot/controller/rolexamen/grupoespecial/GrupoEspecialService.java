@@ -33,7 +33,7 @@ public interface GrupoEspecialService {
 
     void activarAlumnoEspecial(AlumnoGrupoEspecial alumnoGrupoEspecial, DataSessionPivot ds);
 
-    void removerHorario(SeccionGrupoEspecial grupoSpecial);
+    void removerAula(SeccionGrupoEspecial grupoSpecial);
 
     List<GrupoHorasExamen> allGrupoHEForSelect(SeccionGrupoEspecial grupoSpecial);
 

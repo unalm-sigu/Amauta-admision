@@ -262,17 +262,17 @@ public class GrupoEspecialController {
     }
 
     @ResponseBody
-    @RequestMapping("quitarHorario")
-    public JsonResponse quitarHorario(@RequestBody SeccionGrupoEspecial grupoSpecial,
+    @RequestMapping("quitarAula")
+    public JsonResponse quitarAula(@RequestBody SeccionGrupoEspecial grupoSpecial,
             HttpSession session, HttpServletRequest request) {
         JsonResponse response = new JsonResponse();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
         try {
 
-            grupoEspecialService.removerHorario(grupoSpecial);
+            grupoEspecialService.removerAula(grupoSpecial);
 
-            response.setMessage("Horario retirado correctamente");
+            response.setMessage("Aula retirada correctamente");
             response.setSuccess(Boolean.TRUE);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
