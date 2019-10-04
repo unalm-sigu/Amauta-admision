@@ -62,7 +62,7 @@
                                                 <th class="col-md-1 text-center">Aula</th>
                                                 <th class="col-md-1 text-center">Alumnos</th>
                                                 <th class="col-md-1 text-center">Estado</th>
-                                                <th class="text-center" v-if="accionesSeccionDisponibles"></th>
+                                                <th class="text-center"></th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -103,15 +103,21 @@
                                                 <td class="v-middle text-center">
                                         <v-estado v-bind:codigo="item.estado" v-bind:valor="item.estadoEnum.value"/> 
                                         </td>
-                                        <td class="v-middle" v-if="accionesSeccionDisponibles">
+                                        <td class="v-middle" >
                                             <div class="dropdown actions" >
                                                 <a class="dropdown-toggle" data-toggle="dropdown">
                                                     <i class="glyphicon glyphicon-option-vertical"></i>
-                                                </a> 
-                                                <ul class="dropdown-menu pull-right">
+                                                </a>
+                                                <ul v-if="accionesSeccionDisponibles" class="dropdown-menu pull-right" >
                                                     <li><a class="pointer" v-if="item.isEstadoActivo" v-on:click.prevent="excluir(item,tipoAccion.SECCION)">Excluir</a></li>
                                                     <li><a class="pointer" v-if="item.isEstadoExcluido" v-on:click.prevent="incluir(item,tipoAccion.SECCION)">Incluir</a></li>
                                                     <li><a class="pointer" v-if="item.isEstadoActivo"  v-on:click.prevent="trasladar(item)">Mover</a></li>
+                                                </ul>
+                                                <ul v-else="" class="dropdown-menu pull-right">
+                                                    <li><a class="pointer" v-on:click="removerHorario(item)">Quitar horario</a></li>
+                                                    <li><a class="pointer" v-on:click="removerGrupo(item)">Quitar Grupo</a></li>
+                                                    <li><a class="pointer" v-on:click="cambiarAula(item)">Cambiar Aula</a></li>
+                                                    <li><a class="pointer" v-on:click="asignarHorario(item)">Asignar Horario</a></li>
                                                 </ul>
                                             </div>
                                         </td>
@@ -190,6 +196,51 @@
                         <mover-seccion-examen ref="moverSeccionComp"
                                               > 
                         </mover-seccion-examen> 
+
+                    </div>
+                </modal-vik>
+                <modal-vik v-bind="cambiarAulamodal"
+                           ref="cambiarAulamodal"
+                           >
+                    <div slot="body">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="col-md-4">
+                                    <label>Aula</label>
+                                </div>
+                                <div class="col-md-8">
+                                    <input class="form-control" />
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="col-md-4">
+                                    <label>Grupo</label>
+                                </div>
+                                <div class="col-md-8">
+                                    <div class="col-md-4">  
+
+<!--                                        <multiselect 
+                                            v-model="rolExamen"
+                                            v-on:input="changeRolExamen"
+                                            track-by="id"
+                                            v-bind:options="rolesExamenes"
+                                            label="nombre"
+                                            required="true"
+                                            >
+                                        </multiselect>-->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </modal-vik>
+                <modal-vik v-bind="asignarHorarioModal"
+                           ref="asignarHorarioModal"
+                           >
+                    <div slot="body">
+
+
 
                     </div>
                 </modal-vik>

@@ -121,4 +121,6 @@ public interface HorarioAulaDAO extends EasyDAO<HorarioAula> {
 
     int saveList(List<HorarioAula> horariosAulas);
 
+    void deleteBySeccionGrupoEspecial(SeccionGrupoEspecial grupoDB);
+
 }

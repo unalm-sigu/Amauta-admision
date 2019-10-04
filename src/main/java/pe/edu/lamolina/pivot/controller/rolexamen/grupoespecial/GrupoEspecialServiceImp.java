@@ -979,4 +979,38 @@ public class GrupoEspecialServiceImp implements GrupoEspecialService {
         }
     }
 
+    @Override
+    @Transactional
+    public void removerHorario(SeccionGrupoEspecial grupoSpecial) {
+        SeccionGrupoEspecial grupoDB = seccionGrupoEspecialDAO.find(grupoSpecial.getId());
+        if (grupoDB == null) {
+            throw new PhobosException("El grupo no existe");
+        }
+        grupoDB.setAula(null);
+
+        horarioAulaDAO.deleteBySeccionGrupoEspecial(grupoDB);
+        seccionGrupoEspecialDAO.update(grupoDB);
+    }
+
+    @Override
+    @Transactional
+    public void removerGrupo(SeccionGrupoEspecial grupoSpecial) {
+        SeccionGrupoEspecial grupoDB = seccionGrupoEspecialDAO.find(grupoSpecial.getId());
+        if (grupoDB == null) {
+            throw new PhobosException("El grupo no existe");
+        }
+        grupoDB.setGrupoHorasExamen(null);
+
+        horarioAulaDAO.deleteBySeccionGrupoEspecial(grupoDB);
+        seccionGrupoEspecialDAO.update(grupoDB);
+    }
+
+    @Override
+    public List<GrupoHorasExamen> allGrupoHEForSelect(SeccionGrupoEspecial grupoSpecial) {
+//grupoSpecial.getRolExamenes();
+        List<GrupoHorasExamen> gHoras = grupoHorasExamenDAO.allForGrupoEspecial(grupoSpecial.getRolExamenes());
+        logger.debug("SIZE OF GHORAS {}", gHoras.size());
+        return gHoras;
+    }
+
 }
