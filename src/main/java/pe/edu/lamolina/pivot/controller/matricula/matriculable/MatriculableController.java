@@ -784,7 +784,7 @@ public class MatriculableController {
     @RequestMapping("actosPregrado")
     public ModelAndView actosPregrado(@RequestParam("tipoReporte") String tipoReporte, Model model, HttpSession session) {
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             List<ActoPreBean> listActoPreBean = service.allActosPregrado(ds.getCicloAcademico(), tipoReporte);
             model.addAttribute("listActoPreBean", listActoPreBean);
             model.addAttribute("tipoReporte", tipoReporte);

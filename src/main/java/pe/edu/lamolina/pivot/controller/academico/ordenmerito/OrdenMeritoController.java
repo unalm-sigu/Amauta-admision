@@ -40,7 +40,7 @@ public class OrdenMeritoController {
 
     @Autowired
     ReportePdfOrdenMeritoCiclo reportePdfOrdenMeritoCiclo;
-    
+
     @Autowired
     ReportePdfOrdenMeritoEspecialidad reportePdfOrdenMeritoEspecialidad;
 
@@ -251,7 +251,6 @@ public class OrdenMeritoController {
 
     @RequestMapping("reportePdfOrdenMeritoFacultad")
     public ModelAndView reportePdfOrdenMeritoFacultad(@RequestParam("cicloId") Long cicloId, Model model, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         try {
             CicloAcademico cicloAcademico = service.findCicloAcademico(new CicloAcademico(cicloId));
             List<AlumnoCiclo> listAlumnoCiclo = service.generatePdfOrdenMerito(cicloAcademico);
@@ -267,10 +266,9 @@ public class OrdenMeritoController {
         }
         return new ModelAndView(reportePdfOrdenMeritoCiclo);
     }
-    
+
     @RequestMapping("reportePdfOrdenMeritoEspecialidad")
     public ModelAndView reportePdfOrdenMeritoEspecialidad(@RequestParam("cicloId") Long cicloId, Model model, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         try {
             CicloAcademico cicloAcademico = service.findCicloAcademico(new CicloAcademico(cicloId));
             List<AlumnoCiclo> listAlumnoCiclo = service.generatePdfOrdenMerito(cicloAcademico);
