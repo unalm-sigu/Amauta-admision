@@ -1,19 +1,24 @@
+Vue.config.devtools = true
 Vue.component("inicio-component", {
     template: "#inicioComponent",
     props: {
-        alumno: {}
+        alumno: {},
+        showactions: {required: false, default: true}
     },
     data: function () {
         return {
             ident: true,
             flag: true,
-            alumno: alumnoJson == null? {} :JSON.parse(alumnoJson ),
+//            alumno: JSON.parse(alumnoJson),
             orientacionTmp: {}
+
         }
     },
     mounted() {
         let vue = this;
-        vue.orientacionTmp = vue.alumno.orientacionCarrera;
+        if (vue.alumno != null) {
+            vue.orientacionTmp = vue.alumno.orientacionCarrera;
+        }
     },
     methods: {
         changeOrientacion(orientacion) {
@@ -63,6 +68,6 @@ Vue.component("inicio-component", {
                     notify(MESSAGES.errorComunicacion, "error");
                 }
             });
-        },
+        }
     }
 });

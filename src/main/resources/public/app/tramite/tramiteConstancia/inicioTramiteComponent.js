@@ -1,35 +1,16 @@
 Vue.component("inicio-tram-component", {
     template: "#inicioTramComponent",
     props: {
-
-        solicitud: {}
+        tramite: {}
     },
     data: function () {
         return {
-            tramite: {},
             solicitud: JSON.parse(solicitudJson),
             tiposDocumentoAcademico: JSON.parse(tiposDocumentoAcademicoJson),
-            haveParams: false,
-            dataCargarFoto: VUE_MODAL.structFormAjax({
-                id: 'modalCargarFoto',
-                header: true,
-                title: 'Cargar Fotografía',
-                okbtn: 'Aceptar'
-            }),
-            ciclosModal: VUE_MODAL.structFormAjax({
-                id: 'ciclosModal',
-                header: true,
-                title: 'Ciclos Alumno',
-                okbtn: 'Aceptar'
-            }),
             idiomas: [],
-            ciclos: [],
-            ciclo: {},
-            showCostoDocumento: false,
-            mensajeerror: "",
-            guardando: false,
             alumnos: [],
-            persona: {},
+            showCostoDocumento: false,
+            guardando: false,
         }
     },
     mounted() {
@@ -37,9 +18,12 @@ Vue.component("inicio-tram-component", {
         if ($vue.solicitud.tramite != null) {
             $vue.tramite = $vue.solicitud.tramite;
         }
+       
     },
     methods: {
-
+        customLabel( { persona, codigo}) {
+            return `${codigo} - ${persona.apellidosNombres}`;
+        },
         searchAlumnos(nombre) {
             let $vue = this;
             if (nombre != null && nombre != "") {
@@ -55,24 +39,22 @@ Vue.component("inicio-tram-component", {
 
             }
         },
-        searchColaborador(nombre) {
+        selectAlumno(item) {
             let $vue = this;
-            if (nombre != null && nombre != "") {
-                $vue.isLoading = true;
-                $.ajax({
-                    url: APP.url("tramite/solicitudconstancia/searchcolaborador/" + nombre),
-                    type: 'post',
-                }).then(response => {
-                    $vue.tramites = response.data;
-                    $vue.isLoading = false;
-                })
-            }
+            console.log(item);
+            $vue.findAlumno(item.id);
+        },
+        clearOption(item) {
+            let $vue = this;
+            $vue.solicitud = {};
+            $vue.ciclo = {};
+            $vue.costoDocumento = "";
+            $vue.showCostoDocumento = false;
         },
         idiomaDocumento(value) {
             let $vue = this;
             $vue.solicitud.idioma = {};
             $vue.idiomas = value.idiomas;
-
         },
         costoDocumentoEvent(value) {
             let $vue = this;
@@ -88,9 +70,9 @@ Vue.component("inicio-tram-component", {
                         if (response.data.success) {
                             if (response.data.data.haveParams) {
                                 if (response.data.data.lista.length > 0) {
-                                    $vue.ciclos = response.data.data.lista;
-                                    $vue.haveParams = response.data.data.haveParams;
-                                    $vue.$refs.ciclosModal.open();
+                                    $vue.$parent.ciclos = response.data.data.lista;
+                                    $vue.$parent.haveParams = response.data.data.haveParams;
+                                    $vue.$parent.$refs.ciclosModal.open();
                                 } else {
                                     notify("El alumno no cumple para esta constancia")
                                 }
@@ -108,72 +90,6 @@ Vue.component("inicio-tram-component", {
                 }
             });
 //            }
-        },
-        customLabel( { persona, codigo}) {
-            return `${codigo} - ${persona.apellidosNombres}`;
-        },
-        createCargarFoto: function () {
-            var $vue = this;
-            $global.$emit('MODAL-WAIT-OPEN', 'Cargando');
-            $vue.solicitud.tramite = $vue.tramite;
-            $.ajax({
-                method: 'POST',
-                url: APP.url('tramite/solicitudconstancia/onlyfoto'),
-                contentType: "application/json",
-                data: JSON.stringify($vue.solicitud),
-                success: function (response) {
-                    if (response.success) {
-                        $vue.$refs.cargarFoto.close();
-                    } else {
-                        notify(response.message, 'error');
-                    }
-                    $global.$emit('MODAL-WAIT-CLOSE', 'Cargando');
-                }, error: function () {
-                    $global.$emit('MODAL-WAIT-CLOSE', 'Cargando');
-                    notify(MESSAGES.errorComunicacion, "error");
-                }
-            });
-        },
-        getImage(event) {
-            var $vue = this;
-            $vue.file = event.target.files[0];
-            let formData = new FormData();
-            formData.append('file', $vue.file);
-            AXIOS.post('/tramite/solicitudconstancia/upload',
-                    formData,
-                    {
-                        headers: {
-                            'Content-Type': 'multipart/form-data'
-                        }
-                    }
-            ).then(function (response) {
-                $vue.persona.rutaFotoTemporal = response.data.data.ruta;
-                console.log(response);
-            }).catch(function () {
-                console.log('FAILURE!!');
-            });
-        },
-        subirFoto() {
-            let $vue = this;
-            $vue.persona = $vue.tramite.alumno.persona;
-            $vue.$refs.cargarFoto.open();
-        },
-        elegir() {
-            let $vue = this;
-            if ($vue.ciclo.id != null) {
-                $vue.haveParams = false;
-                $vue.$refs.ciclosModal.close();
-            } else {
-                notify("Debe seleccionar el parametro", "error");
-                $vue.$refs.ciclosModal.open();
-            }
-        },
-        clearOption(item) {
-            let $vue = this;
-            $vue.solicitud = {};
-            $vue.ciclo = {};
-            $vue.costoDocumento = "";
-            $vue.showCostoDocumento = false;
         },
         submitForm() {
             let $vue = this;
@@ -196,6 +112,27 @@ Vue.component("inicio-tram-component", {
                         notify(response.message, 'error');
                     }
                 }, error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+        },
+        findAlumno(id) {
+            let vue = this;
+
+            $.ajax({
+                method: 'POST',
+                async: true,
+                url: APP.url('academico/alumno/' + id + '/data'),
+                contentType: "application/json",
+                success: function (response) {
+                    if (response.success) {
+                        vue.$parent.alumno = response.data;
+//                        notify(response.message, "info");
+                    } else {
+                        notify(response.message, "error");
+                    }
+                },
+                error() {
                     notify(MESSAGES.errorComunicacion, "error");
                 }
             });

@@ -528,6 +528,27 @@ public class InfoAcademicoController {
         return response;
     }
 
+    @ResponseBody
+    @RequestMapping("{idAlumno}/dataAlumnoMerito")
+    public JsonResponse dataAlumnoMerito(@PathVariable("idAlumno") Long idAlumno, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+          
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            ObjectNode node = service.allDataAlumnoMerito(new Alumno(idAlumno));
+
+            response.setData(node);
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
+    }
+
     private ObjectNode createAlumnoJson(Alumno alumno) {
         ObjectNode alumnoJson = JsonHelper.createJson(alumno, JsonNodeFactory.instance, true, new String[]{
             "*",

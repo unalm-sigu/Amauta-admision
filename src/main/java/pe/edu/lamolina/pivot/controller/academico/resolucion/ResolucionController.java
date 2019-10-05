@@ -261,8 +261,8 @@ public class ResolucionController {
             }
 
             json.setData(array);
-            json.setTotal(resoluciones.size());
-            json.setFiltered(resoluciones.size());
+            json.setTotal(filter.getTotal());
+            json.setFiltered(filter.getFiltered());
 
         } catch (Exception e) {
             e.printStackTrace();

@@ -127,4 +127,6 @@ public interface AlumnoCicloDAO extends EasyDAO<AlumnoCiclo> {
 
     List<AlumnoCiclo> allByCicloOrderMerito(CicloAcademico cicloAcademico);
 
+    List<AlumnoCiclo> allActivesOrdenMeritoByAlumnoAsc(Alumno alumno);
+
 }

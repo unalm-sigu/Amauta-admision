@@ -1,5 +1,6 @@
 package pe.edu.lamolina.pivot.controller.academico.infoacademico;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -66,6 +67,7 @@ import pe.edu.lamolina.pivot.controller.academico.promedio.PromedioService;
 import pe.edu.lamolina.pivot.controller.test.VisorCalculoNotas;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoAvanceCurricularDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloCursoDAO;
+import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCursoCurriculaDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCursoSimultaneoDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
@@ -112,6 +114,9 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
 
     @Autowired
     AvanceCurricularService avanceCurricularService;
+
+    @Autowired
+    AlumnoCicloDAO alumnoCicloDAO;
 
     @Autowired
     AlumnoCicloCursoDAO alumnoCicloCursoDAO;
@@ -938,4 +943,80 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
         return retiroCursoDAO.allRetiroCursoByAlumno(alumno);
     }
 
+    @Override
+    public ObjectNode allDataAlumnoMerito(Alumno alumno) {
+        ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
+        List<AlumnoCiclo> alumnoCiclos = alumnoCicloDAO.allActivesOrdenMeritoByAlumnoAsc(alumno);
+
+        findMerito(alumnoCiclos, node, "CICLO");
+        findMerito(alumnoCiclos, node, "FAC");
+        findMerito(alumnoCiclos, node, "CAR");
+
+        return node;
+    }
+
+    private ObjectNode findMerito(List<AlumnoCiclo> alumnoCiclos, ObjectNode node, String tipo) {
+        ArrayNode arrays = new ArrayNode(JsonNodeFactory.instance);
+
+        for (AlumnoCiclo alumnoCiclo : alumnoCiclos) {
+            ObjectNode objectNode = new ObjectNode(JsonNodeFactory.instance);
+            objectNode.put("ciclo", alumnoCiclo.getCicloAcademico().getDescripcion());
+            objectNode.put("cuadroHonor", returnCicloMerito(alumnoCiclo));
+            if (tipo.equals("CICLO")) {
+                objectNode.put("ordenMeritoNivel", alumnoCiclo.getOrdenMeritoCicloNivel());
+                objectNode.put("ordenMeritoTotal", alumnoCiclo.getOrdenMeritoCiclo());
+                objectNode.put("cantidadMeritoNivel", alumnoCiclo.getComputadosCicloNivel());
+                objectNode.put("cantidadTotalMerito", alumnoCiclo.getControlMeritoCiclo().getAlumnosComputados());
+            } else if (tipo.equals("FAC")) {
+                objectNode.put("ordenMeritoNivel", alumnoCiclo.getOrdenMeritoFacultadNivel());
+                objectNode.put("ordenMeritoTotal", alumnoCiclo.getOrdenMeritoFacultad());
+                objectNode.put("cantidadMeritoNivel", alumnoCiclo.getComputadosFacultadNivel());
+                objectNode.put("cantidadTotalMerito", alumnoCiclo.getControlMeritoFacultad().getAlumnosComputados());
+            } else if (tipo.equals("CAR")) {
+                objectNode.put("ordenMeritoNivel", alumnoCiclo.getOrdenMeritoCarreraNivel());
+                objectNode.put("ordenMeritoTotal", alumnoCiclo.getOrdenMeritoCarrera());
+                objectNode.put("cantidadMeritoNivel", alumnoCiclo.getComputadosCarreraNivel());
+                objectNode.put("cantidadTotalMerito", alumnoCiclo.getControlMeritoCarrera().getAlumnosComputados());
+            }
+            arrays.add(objectNode);
+        }
+        node.set(tipo, arrays);
+        return node;
+    }
+
+    public String returnCicloMerito(AlumnoCiclo alumnoCiclo) {
+        if (alumnoCiclo.getCuadroHonorCicloNivel() != null) {
+            return "C.Honor";
+        } else if (alumnoCiclo.getQuintoSuperiorCicloNivel() != null) {
+            return "5to.Super.";
+
+        } else if (alumnoCiclo.getTercioSuperiorCicloNivel() != null) {
+            return "3cio.Super.";
+        }
+        return "-";
+    }
+
+    public String returnFacultadMerito(AlumnoCiclo alumnoCiclo) {
+        if (alumnoCiclo.getCuadroHonorFacultadNivel() != null) {
+            return "C.Honor";
+        } else if (alumnoCiclo.getQuintoSuperiorFacultadNivel() != null) {
+            return "5to.Super.";
+
+        } else if (alumnoCiclo.getTercioSuperiorFacultadNivel() != null) {
+            return "3cio.Super.";
+        }
+        return "-";
+    }
+
+    public String returnCarreraMerito(AlumnoCiclo alumnoCiclo) {
+        if (alumnoCiclo.getCuadroHonorCarreraNivel() != null) {
+            return "C.Honor";
+        } else if (alumnoCiclo.getQuintoSuperiorCarreraNivel() != null) {
+            return "5to.Super.";
+
+        } else if (alumnoCiclo.getTercioSuperiorCarreraNivel() != null) {
+            return "3cio.Super.";
+        }
+        return "-";
+    }
 }

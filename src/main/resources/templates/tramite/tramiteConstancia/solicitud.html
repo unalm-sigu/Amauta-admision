@@ -15,7 +15,7 @@
                     </a>
 
                     <h1 >Solicitud de Constancia</h1>
-                    <div class="tabbable-line" v-if='tramite.alumno != null'>
+                    <div class="tabbable-line">
                         <ul class="nav nav-tabs" >
                             <li v-for="tab in tabs" v-bind:class="styleMenu(tab.id)">
                                 <a href="#" data-toggle="tab" v-on:click="updateTabs(tab)" v-text="tab.name"></a>
@@ -27,44 +27,31 @@
                 <section class="wrapper-lg m-b-xs">
                     <section class="panel">
                         <section class="panel-body m-t-sm">
-
-                            <div class="wrapper-md" v-if='tramite.alumno != null'>
+                            <div class="wrapper-md" >
                                 <section class="panel">
                                     <section class="panel-body">
-                                        <div v-show="1 == tabId"  >
-                                            <inicio-component v-bind:alumno="tramite.alumno" ></inicio-component>
+                                        <div v-show="1 == tabId">
+                                            <inicio-component  v-if="alumno.id" v-bind:alumno="alumno"  v-bind:showactions="false"></inicio-component>
                                         </div>
-                                        <div v-show="2 == tabId"  >
-                                            <inicio-component v-bind:alumno="tramite.alumno" ></inicio-component>
+                                        <div v-show="2 == tabId">
+                                            <inicio-tram-component v-bind:tramite="tramite" ref="loadTramite"></inicio-tram-component>
                                         </div>
-                                        <div v-show="3 == tabId" >
-                                            <historial-component v-bind:alumno="tramite.alumno" ref="loadHistorial" v-bind:showactions="false"></historial-component>
-                                        </div>                                      
-                                        <div v-show="4 == tabId" >
-                                            <matricula-component v-bind:alumno="tramite.alumno" ref="loadMatricula"></matricula-component>
-                                        </div>
-                                        <div v-show="5 == tabId"  >
-                                            <horario-component v-bind:alumno="tramite.alumno" v-bind:ciclo="ciclo" ref="loadHorario"></horario-component>
+                                        <div v-show="3 == tabId">
+                                            <alumno-merito-component v-bind:alumno="alumno"  ></alumno-merito-component>
                                         </div>
                                     </section>
                                 </section> 
                             </div>
-
-                            
-
                         </section>
                     </section>
                 </section>
-                <!--<th:block th:replace="tramite/tramiteConstancia/solicitudConstanciaModals"/>-->
-                <!--<th:block th:replace="tramite/tramiteConstancia/ciclosModal"/>-->
+                <th:block th:replace="tramite/tramiteConstancia/solicitudConstanciaModals"/>
+                <th:block th:replace="tramite/tramiteConstancia/ciclosModal"/>
 
             </div>
             <div th:substituteby="tramite/tramiteConstancia/inicioTramite"/>
             <div th:substituteby="academico/alumno/includes/inicio"/>
-            <div th:substituteby="academico/alumno/includes/historial"/>
-            <div th:substituteby="academico/alumno/includes/horario"/>
-            <div th:substituteby="academico/alumno/includes/matricula"/>
-
+            <div th:substituteby="academico/alumno/includes/alumnoMeritos"/>
         </div>
 
         <div layout:fragment="js">
@@ -72,14 +59,16 @@
                 /*<![CDATA[*/
                 var tiposDocumentoAcademicoJson = /*[[${tiposDocumentoAcademico.toString()}]]*/ 'json';
                 var solicitudJson = /*[[${solicitud.toString()}]]*/ 'json';
+                var alumnoJson = /*[[${""}]]*/ 'json';
                 /*]]>*/
             </script>
             <div th:substituteby="_modules/vue-modal"/>
             <div th:substituteby="_layout/includes :: vuejs"/>
             <script th:src="@{/app/academico/alumno/inicioComponent.js}" charset="utf-8"></script>
-            <script th:src="@{/app/academico/alumno/historialComponent.js}" charset="utf-8"></script>
-            <script th:src="@{/app/academico/alumno/horarioComponent.js}" charset="utf-8"></script>
-            <script th:src="@{/app/academico/alumno/matriculaComponent.js}" charset="utf-8"></script>
+            <script th:src="@{/app/academico/alumno/alumnoMeritos.js}" charset="utf-8"></script>
+            <!--            <script th:src="@{/app/academico/alumno/historialComponent.js}" charset="utf-8"></script>
+                        <script th:src="@{/app/academico/alumno/horarioComponent.js}" charset="utf-8"></script>
+                        <script th:src="@{/app/academico/alumno/matriculaComponent.js}" charset="utf-8"></script>-->
             <script th:src="@{/app/tramite/tramiteConstancia/inicioTramiteComponent.js}" charset="utf-8"></script>
             <!--<div th:substituteby="_layout/includes :: javascript-upload"/>-->
             <script th:src="@{/app/tramite/tramiteConstancia/solicitud.js}" charset="utf-8"></script>
