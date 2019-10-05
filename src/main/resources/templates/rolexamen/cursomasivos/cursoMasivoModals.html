@@ -616,6 +616,7 @@
                             v-bind:options="grupoHoras"
                             label="nombre"
                             v-bind:custom-label="cLabelGrupo"
+                            v-on:input="buscarAulas"
                             required="true">
                         </multiselect>
                     </div>
@@ -665,8 +666,9 @@
                     <div class="row">
                         <div v-for="aula in aulasModulo" class="col-md-1 m-t-md pointer"
                              v-if="noExiste(aula)">
-                            <div class="list-group-item item" 
-                                 style="min-height: 50px; min-width: 60px;border-width: 1px; background-color: #33ACFF;color: white;"
+                            <div class="list-group-item item aula-disponible" 
+                                 style="background-color: #33ACFF;"
+                                 v-bind:style="styleAulaDisponible(aula)"
                                  v-on:click="addAulaCM(aula)">
                                 <div>
                                     <span class="h4" v-text="aula.codigo"></span>
@@ -683,8 +685,8 @@
                 <div class="tab-pane m-t-n">
                     <div class="row">
                         <div v-for="(aula,idx) in aulas" class="col-md-1 m-t-md pointer">
-                            <div class="list-group-item item" 
-                                 style="min-height: 50px; min-width: 60px;border-width: 1px; color: white;"
+                            <div class="list-group-item item aula-disponible" 
+                                 style=""
                                  v-bind:style="styleBgColor(aula)"
                                  v-on:click="removeAulaCM(aula,idx)">
                                 <div>

@@ -15,7 +15,6 @@ import pe.edu.lamolina.model.rolexamen.DocenteCursoMasivo;
 import pe.edu.lamolina.model.rolexamen.GrupoHorasExamen;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
 import pe.edu.lamolina.model.rolexamen.SeccionCursoMasivo;
-import pe.edu.lamolina.model.rolexamen.SeccionGrupoEspecial;
 import pe.edu.lamolina.pivot.controller.rolexamen.util.RolExamenesLogger;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -31,13 +30,11 @@ public interface CursoMasivosService {
 
     List<Curso> allCursosByCiclo(String nombre, RolExamenes rolExamenes, CicloAcademico cicloAcademico);
 
-    Oficina findOficinaOera();
-
-    List<Aula> allPabellonesByOficina(Oficina oficinaOERA);
+    List<Aula> allPabellonesByOficina();
 
     void eliminarCursoMasivoExamen(CursoMasivoExamen cursoMasivoExamen, DataSessionPivot ds);
 
-    List<Aula> allAulasByOficinaModulo(Oficina oficinaOERA, Aula modulo);
+    List<Aula> allAulasOERAByModulo(Aula modulo);
 
     void saveAula(CursoMasivoExamen cursoMasivosExamen, CicloAcademico cicloAcademico, DataSessionPivot ds);
 
@@ -77,5 +74,7 @@ public interface CursoMasivosService {
 
     List<GrupoHorasExamen> allGrupoHoraExamenByRolExamenes(RolExamenes rolExamenes);
 
-    List<String> cambiarCambioAulasGrupo(CursoMasivoExamen cursoMasivosExamen, CicloAcademico cicloAcademico, DataSessionPivot ds);
+    List<String> cambiarAulasGrupoForCursoMasivo(CursoMasivoExamen cursoMasivosExamen, CicloAcademico cicloAcademico, DataSessionPivot ds);
+
+    List<Aula> allAulasVerificadasByModulo(Aula modulo);
 }

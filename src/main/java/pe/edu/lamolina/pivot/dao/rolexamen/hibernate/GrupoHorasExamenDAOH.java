@@ -33,7 +33,8 @@ public class GrupoHorasExamenDAOH extends AbstractEasyDAO<GrupoHorasExamen> impl
         Octavia sql = Octavia.query()
                 .from(GrupoHorasExamen.class, "ghe")
                 .join("rolExamenes re", "grupoHoras gh", "horaInicio", "horaFin")
-                .filter("re.id", rolExamenes);
+                .filter("re.id", rolExamenes)
+                .orderBy("gh.codigo");
         return all(sql);
     }
 

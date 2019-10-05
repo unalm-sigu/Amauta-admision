@@ -657,6 +657,15 @@ new Vue({
                         }
                     });
         },
+        loadModulosVerificados() {
+            let $vue = this;
+            AXIOS.post(`${$vue.URL}/allModulosVerificados`, $vue.cursoMasivoTempo)
+                    .then(response => {
+                        if (response.data.success) {
+                            $vue.modulos = response.data.data;
+                        }
+                    });
+        },
         cLabelGrupo(item) {
             if (item.grupoHoras) {
                 return item.grupoHoras.codigo;
@@ -664,12 +673,24 @@ new Vue({
         },
         buscarAulas() {
             let $vue = this;
-            AXIOS.post(`${$vue.URL}/allAulasModulo`, $vue.modulo)
+            if ($vue.modulo.id == undefined) {
+                return;
+            }
+
+            let moduloQuery = Object.assign({}, $vue.modulo, {});
+            moduloQuery.cursoMasivo = $vue.cursoMasivoTempo;
+
+            $vue.$refs.modalCambioAulasGpo.beginProcessing();
+            axios.post(`${$vue.URL}/allAulasVerificadasByModulo`, moduloQuery)
                     .then(response => {
+                        $vue.$refs.modalCambioAulasGpo.confirmReaction(false);
                         if (response.data.success) {
                             $vue.aulasModulo = response.data.data;
                         }
-                    });
+                    }).catch(e => {
+                $vue.$refs.modalCambioAulasGpo.confirmReaction(false);
+                notify(MESSAGES.errorComunicacion, "error");
+            });
         },
         addAulaCM(aula) {
             let $vue = this;
@@ -772,6 +793,12 @@ new Vue({
                 $vue.$refs.modalCambioAulasGpo.confirmReaction(false);
                 notify(MESSAGES.errorComunicacion, "error");
             });
+        },
+        styleAulaDisponible(aula) {
+            if (aula.tieneCruces) {
+                return "background-color: #E74C3C;";
+            }
+            return "background-color: #33ACFF;";
         }
 
     }

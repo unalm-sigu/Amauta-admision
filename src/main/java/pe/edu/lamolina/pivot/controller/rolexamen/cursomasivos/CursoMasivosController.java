@@ -283,8 +283,7 @@ public class CursoMasivosController {
         JsonResponse response = new JsonResponse();
 
         try {
-            Oficina oficinaOERA = service.findOficinaOera();
-            List<Aula> pabellones = service.allPabellonesByOficina(oficinaOERA);
+            List<Aula> pabellones = service.allPabellonesByOficina();
 
             ArrayNode arrayPabellones = new ArrayNode(jsonFactory);
             for (Aula pabellon : pabellones) {
@@ -342,8 +341,7 @@ public class CursoMasivosController {
         JsonResponse response = new JsonResponse();
 
         try {
-            Oficina oficinaOERA = service.findOficinaOera();
-            List<Aula> aulas = service.allAulasByOficinaModulo(oficinaOERA, modulo);
+            List<Aula> aulas = service.allAulasOERAByModulo(modulo);
 
             ArrayNode arrayAulas = new ArrayNode(jsonFactory);
             for (Aula aula : aulas) {
@@ -625,7 +623,65 @@ public class CursoMasivosController {
         return response;
     }
 
-    //cmbiarCambioAulasGrupo
+    @ResponseBody
+    @RequestMapping("allModulosVerificados")
+    public JsonResponse allModulosVerificados(HttpSession session) {
+
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+
+        try {
+            List<Aula> pabellones = service.allPabellonesByOficina();
+
+            ArrayNode arrayPabellones = new ArrayNode(jsonFactory);
+            for (Aula pabellon : pabellones) {
+                ObjectNode json = createPabellonesJson(pabellon);
+                arrayPabellones.add(json);
+            }
+
+            response.setData(arrayPabellones);
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("allAulasVerificadasByModulo")
+    public JsonResponse allAulasVerificadasByModulo(@RequestBody Aula modulo, HttpSession session) {
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+
+        try {
+            List<Aula> aulas = service.allAulasVerificadasByModulo(modulo);
+
+            ArrayNode arrayAulas = new ArrayNode(jsonFactory);
+            for (Aula aula : aulas) {
+                ObjectNode json = createAulasJson(aula);
+                List<String> observaciones = aula.getObservaciones();
+                ArrayNode observacionesJson = new ArrayNode(jsonFactory);
+                for (String observa : observaciones) {
+                    observacionesJson.add(observa);
+                }
+                json.set("observaciones", observacionesJson);
+                arrayAulas.add(json);
+            }
+
+            response.setData(arrayAulas);
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
     @ResponseBody
     @RequestMapping("cmbiarCambioAulasGrupo")
     public JsonResponse cmbiarCambioAulasGrupo(@RequestBody CursoMasivoExamen cursoMasivosExamen, HttpSession session) {
@@ -635,7 +691,7 @@ public class CursoMasivosController {
 
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            List<String> restricciones = service.cambiarCambioAulasGrupo(cursoMasivosExamen, ds.getCicloAcademico(), ds);
+            List<String> restricciones = service.cambiarAulasGrupoForCursoMasivo(cursoMasivosExamen, ds.getCicloAcademico(), ds);
             response.setMessage("Curso masivo modificado satisfactoriamente");
             response.setSuccess(Boolean.TRUE);
             if (!restricciones.isEmpty()) {
@@ -655,10 +711,7 @@ public class CursoMasivosController {
     }
 
     private ObjectNode createAulasJson(Aula aula) {
-        ObjectNode json = JsonHelper.createJson(aula, JsonNodeFactory.instance, true, new String[]{
-            "*",
-            "id",
-            "codigo",});
+        ObjectNode json = JsonHelper.createJson(aula, JsonNodeFactory.instance, true, new String[]{"*", "observaciones"});
         return json;
     }
 }

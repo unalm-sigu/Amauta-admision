@@ -30,6 +30,7 @@ import pe.edu.lamolina.model.enums.DocenteRolExamenEstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoCursoMasivoEnum;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.OficinaEnum;
+import static pe.edu.lamolina.model.enums.OficinaEnum.OERA;
 import pe.edu.lamolina.model.enums.RolExamenesEstadoEnum;
 import pe.edu.lamolina.model.enums.SeccionRolExamenEstadoEnum;
 import pe.edu.lamolina.model.enums.SituacionRolExamenesEnum;
@@ -342,13 +343,9 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
     }
 
     @Override
-    public Oficina findOficinaOera() {
-        return oficinaDAO.findByCode("OERA");
-    }
-
-    @Override
-    public List<Aula> allPabellonesByOficina(Oficina oficinaOERA) {
-        return aulaDAO.allPabellonesByOficina(oficinaOERA);
+    public List<Aula> allPabellonesByOficina() {
+        Oficina oera = oficinaDAO.findByCode(OERA.name());
+        return aulaDAO.allPabellonesByOficina(oera);
     }
 
     @Override
@@ -384,8 +381,9 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
     }
 
     @Override
-    public List<Aula> allAulasByOficinaModulo(Oficina oficinaOERA, Aula modulo) {
-        return aulaDAO.allByOficinaModulo(oficinaOERA, modulo);
+    public List<Aula> allAulasOERAByModulo(Aula modulo) {
+        Oficina oera = oficinaDAO.findByCode(OERA.name());
+        return aulaDAO.allByOficinaModulo(oera, modulo);
     }
 
     @Override
@@ -985,9 +983,8 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
 
     @Override
     @Transactional
-    public List<String> cambiarCambioAulasGrupo(CursoMasivoExamen cursoMasivosExamenForm, CicloAcademico cicloAcademico, DataSessionPivot ds) {
+    public List<String> cambiarAulasGrupoForCursoMasivo(CursoMasivoExamen cursoMasivosExamenForm, CicloAcademico cicloAcademico, DataSessionPivot ds) {
         CursoMasivoExamen cursoMasivoBD = cursoMasivoExamenDAO.find(cursoMasivosExamenForm.getId());
-        RolExamenes rolExamenes = cursoMasivoBD.getRolExamenes();
         GrupoHorasExamen gpoExamDestinoForm = cursoMasivosExamenForm.getGrupoHorasExamen();
 
         List<AulaCursoMasivo> aulasCMDestinoForm = cursoMasivosExamenForm.getAulasCursosMasivos();
@@ -998,15 +995,59 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
 
         List<AulaCursoMasivo> aulasCMOldBD = aulaCursoMasivoDAO.allByCursoMasivo(cursoMasivoBD);
         ListsInspector inspector = TypesUtil.analizeLists(aulasCMOldBD, aulasCMDestinoForm, "aula.id");
+
         List<AulaCursoMasivo> aulasCMNuevas = inspector.getNewList();
         List<AulaCursoMasivo> aulasCMDead = inspector.getDeadList();
         List<AulaCursoMasivo> aulasCMOld = inspector.getOldListDB();
 
+        List<Aula> aulasAll = new ArrayList();
+        for (AulaCursoMasivo aulaCM : aulasCMDestinoForm) {
+            aulasAll.add(aulaCM.getAula());
+        }
+
+        GrupoHorasExamen gpoExamOld = cursoMasivoBD.getGrupoHorasExamen();
+        GrupoHorasExamen gpoExamDestinoBD = grupoHorasExamenDAO.find(gpoExamDestinoForm.getId());
+        List<FechaHoraGrupoExamen> fechasHorasGpo = fechaHoraGrupoExamenDAO.allByGrupoHorasExamen(gpoExamDestinoBD);
+        gpoExamDestinoBD.setFechasHorasGruposExamen(fechasHorasGpo);
+
+        boolean mismasAulas = inspector.getNewList().isEmpty() && inspector.getDeadList().isEmpty();
+        boolean mismoGpo = gpoExamOld == null ? false : (gpoExamOld.getId().compareTo(gpoExamDestinoForm.getId()) == 0);
+        Assert.isFalse(mismoGpo && mismasAulas, "No ha indicado ningún cambio de aulas o grupo-horario");
+
+        List<String> restricciones = new ArrayList();
+        boolean verificado = verificarPosibleCambio(cursoMasivosExamenForm, restricciones, true);
+
+        if (verificado) {
+            saveCambioAulaGrupo(cursoMasivoBD, aulasCMNuevas, aulasCMDead, aulasAll, gpoExamDestinoBD, ds);
+        }
+        return restricciones;
+    }
+
+    private boolean verificarPosibleCambio(CursoMasivoExamen cursoMasivosExamenForm, List<String> restricciones, boolean crearError) {
+        CursoMasivoExamen cursoMasivoBD = cursoMasivoExamenDAO.find(cursoMasivosExamenForm.getId());
+        RolExamenes rolExamenes = cursoMasivoBD.getRolExamenes();
+        GrupoHorasExamen gpoExamDestinoForm = cursoMasivosExamenForm.getGrupoHorasExamen();
+
+        List<AulaCursoMasivo> aulasCMDestinoForm = cursoMasivosExamenForm.getAulasCursosMasivos();
+
+        List<AulaCursoMasivo> aulasCursoMasivoBD = aulaCursoMasivoDAO.allByCursoMasivo(cursoMasivoBD);
+        System.out.println("aulasCursoMasivoBD.size=" + aulasCursoMasivoBD.size());
+        System.out.println("aulasCMDestinoForm.size=" + aulasCMDestinoForm.size());
+
+        ListsInspector inspector = TypesUtil.analizeLists(aulasCursoMasivoBD, aulasCMDestinoForm, "aula.id");
+        List<AulaCursoMasivo> aulasCMNuevas = inspector.getNewList();
+
         GrupoHorasExamen gpoExamOld = cursoMasivoBD.getGrupoHorasExamen();
 
-        boolean mismaAula = inspector.getNewList().isEmpty();
+        boolean mismasAulas = inspector.getNewList().isEmpty() && inspector.getDeadList().isEmpty();
         boolean mismoGpo = gpoExamOld == null ? false : (gpoExamOld.getId().compareTo(gpoExamDestinoForm.getId()) == 0);
-        Assert.isFalse(mismoGpo && mismaAula, "No ha indicado ningún cambio de aulas o grupo-horario");
+        if (crearError) {
+            Assert.isFalse(mismoGpo && mismasAulas, "No ha indicado ningún cambio de aulas o grupo-horario");
+        } else {
+            if (mismoGpo && mismasAulas) {
+                return false;
+            }
+        }
 
         List<AlumnoCursoMasivo> alumnosCursoMasivo = alumnoCursoMasivoDAO.allByCursoMasivo(cursoMasivoBD, AlumnoRolExamenEstadoEnum.ACT);
         List<SeccionCursoMasivo> seccionesCM = seccionCursoMasivoDAO.allByCursoMasivo(cursoMasivoBD, SeccionRolExamenEstadoEnum.ACT);
@@ -1030,7 +1071,6 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
             aulasAll.add(aulaCM.getAula());
         }
 
-        List<String> restricciones = new ArrayList();
         boolean verificarCruceAulas;
         boolean verificarCruceAlumno = true;
         boolean verificarCruceDocente = true;
@@ -1056,10 +1096,7 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
 
         }
 
-        if (verificarCruceAulas && verificarCruceAlumno && verificarCruceDocente) {
-            saveCambioAulaGrupo(cursoMasivoBD, aulasCMNuevas, aulasCMDead, aulasAll, gpoExamDestinoBD, ds);
-        }
-        return restricciones;
+        return (verificarCruceAulas && verificarCruceAlumno && verificarCruceDocente);
     }
 
     private void saveCambioAulaGrupo(
@@ -1323,6 +1360,32 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
 
         return !existeCruce;
 
+    }
+
+    @Override
+    public List<Aula> allAulasVerificadasByModulo(Aula modulo) {
+        Oficina oera = oficinaDAO.findByCode(OERA.name());
+        List<Aula> aulas = aulaDAO.allByOficinaModulo(oera, modulo);
+        CursoMasivoExamen cursoMasivo = modulo.getCursoMasivo();
+        if (cursoMasivo == null) {
+            return aulas;
+        }
+
+        for (Aula aula : aulas) {
+            List<AulaCursoMasivo> aulasCursoMasivo = new ArrayList();
+            AulaCursoMasivo aulaCM = new AulaCursoMasivo();
+            aulaCM.setAula(aula);
+            aulaCM.setCursoMasivoExamen(cursoMasivo);
+            aulasCursoMasivo.add(aulaCM);
+            cursoMasivo.setAulasCursosMasivos(aulasCursoMasivo);
+
+            List<String> restricciones = new ArrayList();
+            boolean ok = verificarPosibleCambio(cursoMasivo, restricciones, false);
+            aula.setTieneCruces(!ok);
+            aula.setObservaciones(restricciones);
+        }
+
+        return aulas;
     }
 
 }
