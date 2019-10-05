@@ -88,16 +88,17 @@
                             </td>
                         </tr>
 
-                        <tr v-if='alumno.carrera.orientacionCarrera.length > 0'>
+                        <tr v-if='alumno.carrera.orientacionCarrera.length > 0 '>
                             <td>
                                 <strong> Orientación  </strong>
                             </td>
-                            <td>
+                            <td >
                                 <form>
                                     <multiselect 
                                         v-model="alumno.orientacionCarrera" 
                                         v-bind:options='alumno.carrera.orientacionCarrera'
                                         label='nombre'
+                                        v-bind:disabled="!showactions"
                                         track-by='id'
                                         placeholder="Seleccione una orientación"
                                         v-on:input="changeOrientacion(alumno.orientacionCarrera)">
@@ -209,7 +210,6 @@
                                 <span v-text='alumno.creditosCursados'></span>
                             </td>
                         </tr>
-
                     </tbody>
                 </table>
             </div>

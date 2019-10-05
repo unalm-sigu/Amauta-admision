@@ -67,4 +67,6 @@ public interface InfoAcademicoService {
 
     List<RetiroCurso> allRetiroCursoByAlumno(Alumno alumno);
 
+    public ObjectNode allDataAlumnoMerito(Alumno alumno);
+
 }
