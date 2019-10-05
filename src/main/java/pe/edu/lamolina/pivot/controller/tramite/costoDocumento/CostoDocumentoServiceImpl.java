@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.Assert;
+import pe.edu.lamolina.model.finanzas.CuentaBancaria;
 import pe.edu.lamolina.model.general.Idioma;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.tramite.PrecioDocumento;
@@ -41,6 +42,7 @@ public class CostoDocumentoServiceImpl implements CostoDocumentoService {
         Assert.isNull(precioDB, "Existe precio para " + precioDocumento.getTipoDocumento().getNombre());
         precioDocumento.setFechaRegistro(new Date());
         precioDocumento.setIdUserRegistro(usuario.getId());
+        precioDocumento.setCuentaBancaria(new CuentaBancaria(6));
         costoDocumentoDAO.save(precioDocumento);
     }
 
