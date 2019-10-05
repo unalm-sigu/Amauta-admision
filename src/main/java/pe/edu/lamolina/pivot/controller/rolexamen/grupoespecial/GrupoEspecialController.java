@@ -111,6 +111,8 @@ public class GrupoEspecialController {
                 "seccion.grupoSeccion.curso.nombre",
                 "seccion.grupoSeccion.curso.codigo",
                 "seccion.grupoSeccion.curso.tpc",
+                "seccion.aula.id", "seccion.aula.codigo",
+                "seccion.grupoHoras.id", "seccion.grupoHoras.codigo",
                 "aula.*",
                 "rolExamenes.*",
                 "docente.persona.apellidosNombres",
@@ -304,15 +306,44 @@ public class GrupoEspecialController {
     }
 
     @ResponseBody
-    @RequestMapping("xD")
-    public JsonResponse xD(@RequestBody SeccionGrupoEspecial grupoSpecial, HttpSession session) {
+    @RequestMapping("allGrupoHE")
+    public JsonResponse allGrupoHE(@RequestBody SeccionGrupoEspecial grupoSpecial, HttpSession session) {
         JsonResponse response = new JsonResponse();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
         try {
+            JsonNodeFactory jc = JsonNodeFactory.instance;
+            ArrayNode array = new ArrayNode(jc);
             List<GrupoHorasExamen> grupos = grupoEspecialService.allGrupoHEForSelect(grupoSpecial);
-
+            for (GrupoHorasExamen grupo : grupos) {
+                ObjectNode jGrupo = JsonHelper.createJson(grupo, JsonNodeFactory.instance, new String[]{
+                    "id", "grupoHoras.id", "grupoHoras.codigo", "rolExamenes.id"
+                });
+                array.add(jGrupo);
+            }
+            response.setData(array);
             response.setMessage("Horario retirado correctamente");
+            response.setSuccess(Boolean.TRUE);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("cambiarAulaGrupo")
+    public JsonResponse cambiarAulaGrupo(@RequestBody SeccionGrupoEspecial grupoSpecial, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+        try {
+            JsonNodeFactory jc = JsonNodeFactory.instance;
+            ArrayNode array = new ArrayNode(jc);
+            grupoEspecialService.saveCambioAulaGrupo(grupoSpecial);
+
+            response.setMessage("Grupo modificado con éxito!");
             response.setSuccess(Boolean.TRUE);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);

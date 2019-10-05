@@ -39,4 +39,6 @@ public interface GrupoEspecialService {
 
     void removerGrupo(SeccionGrupoEspecial grupoSpecial);
 
+    void saveCambioAulaGrupo(SeccionGrupoEspecial grupoSpecial);
+
 }

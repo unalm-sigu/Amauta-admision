@@ -30,7 +30,9 @@ new Vue({
             modalsize: 'modal-lg',
             showaccept: true
         },
-        grupoHoras: []
+        grupoHoras: [],
+        grupoEspTemp: {},
+        grupoEsp: {}
     },
     mounted() {
         if (jRolExamenes != null) {
@@ -207,12 +209,41 @@ new Vue({
             });
         },
         cambiarAula(item) {
+            console.log(item);
             let $vue = this;
+            $vue.loadGrupos(item);
+            $vue.grupoEsp = item;
+            $vue.grupoEspTemp = JSON.parse(JSON.stringify(item));
             $vue.$refs.cambiarAulamodal.open();
         },
         asignarHorario(item) {
             let $vue = this;
+
             $vue.$refs.asignarHorarioModal.open();
+        },
+        loadGrupos(item) {
+            let $vue = this;
+            AXIOS.post(`${$vue.URL}/allGrupoHE`, item)
+                    .then(response => {
+                        if (response.data.success) {
+                            $vue.grupoHoras = response.data.data;
+                        }
+                    });
+        },
+        cLabelGrupo(item) {
+            if (item.grupoHoras) {
+                return item.grupoHoras.codigo;
+            }
+        },
+        saveCambiarAulaGrupo() {
+            let $vue = this;
+            AXIOS.post(`${$vue.URL}/cambiarAulaGrupo`, $vue.grupoEspTemp)
+                    .then(response => {
+                        if (response.data.success) {
+                            console.log("=)");
+                        }
+                    });
+            console.log("Hola :D");
         }
     }
 });

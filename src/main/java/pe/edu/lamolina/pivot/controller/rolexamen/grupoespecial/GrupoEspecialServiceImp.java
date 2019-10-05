@@ -1007,10 +1007,13 @@ public class GrupoEspecialServiceImp implements GrupoEspecialService {
 
     @Override
     public List<GrupoHorasExamen> allGrupoHEForSelect(SeccionGrupoEspecial grupoSpecial) {
-//grupoSpecial.getRolExamenes();
         List<GrupoHorasExamen> gHoras = grupoHorasExamenDAO.allForGrupoEspecial(grupoSpecial.getRolExamenes());
-        logger.debug("SIZE OF GHORAS {}", gHoras.size());
         return gHoras;
+    }
+
+    @Override
+    public void saveCambioAulaGrupo(SeccionGrupoEspecial grupoSpecial) {
+        logger.debug("HI :D ");
     }
 
 }

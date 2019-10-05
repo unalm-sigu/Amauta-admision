@@ -201,35 +201,78 @@
                 </modal-vik>
                 <modal-vik v-bind="cambiarAulamodal"
                            ref="cambiarAulamodal"
+                           v-bind:okaction="saveCambiarAulaGrupo"
                            >
                     <div slot="body">
                         <div class="row">
                             <div class="col-md-12">
-                                <div class="col-md-4">
-                                    <label>Aula</label>
+                                <label class="col-md-3">Sección</label>
+                                <label class="col-md-9" v-if="grupoEsp.seccion" v-text="grupoEsp.seccion.codigo2">Secc</label>
+                            </div>
+                            <div class="col-md-12">
+                                <label class="col-md-3">Curso</label>
+                                <label class="col-md-9" v-if="grupoEsp.seccion">
+                                    {{grupoEsp.seccion.grupoSeccion.curso.codigo}} - {{grupoEsp.seccion.grupoSeccion.curso.nombre}}
+                                </label>
+                            </div>
+                            <div class="col-md-12">
+                                <label class="col-md-3">Grupo Dictado</label>
+                                <label class="col-md-9" v-if="grupoEsp.seccion" v-text="grupoEsp.seccion.grupoHoras.codigo"></label>
+                            </div>
+                            <div class="col-md-12">
+                                <label class="col-md-3">Aula Dictado</label>
+                                <label class="col-md-9" v-if="grupoEsp.seccion" v-text="grupoEsp.seccion.aula.codigo"></label>
+                            </div>
+                            <!--<pre v-text="grupoEsp"></pre>-->
+                            <div class="col-md-12">
+                                <hr/>
+                            </div>
+                            
+                            <div class="col-md-12">
+                                <label class="col-md-2"></label>
+                                <label class="col-md-5 text-center" style="font-weight: bold;">Cambio</label>
+                                <label class="col-md-5 text-center" style="font-weight: bold;">Actual</label>
+                            </div>
+
+                            <div class="col-md-12 form-group">
+
+                                <label class="col-md-2">Aula</label>
+                                <div class="col-md-5">
+                                    <input class="form-control" v-if="grupoEspTemp.aula" v-model="grupoEspTemp.aula.codigo" required="" />
                                 </div>
-                                <div class="col-md-8">
-                                    <input class="form-control" />
+                                <div class="col-md-5">
+                                    <span v-if="grupoEsp.aula" class="form-control" v-text="grupoEsp.aula.codigo"></span>
                                 </div>
                             </div>
                             <div class="col-md-12">
-                                <div class="col-md-4">
+                                <div class="col-md-2">
                                     <label>Grupo</label>
                                 </div>
-                                <div class="col-md-8">
-                                    <div class="col-md-4">  
-
-<!--                                        <multiselect 
-                                            v-model="rolExamen"
-                                            v-on:input="changeRolExamen"
-                                            track-by="id"
-                                            v-bind:options="rolesExamenes"
-                                            label="nombre"
-                                            required="true"
-                                            >
-                                        </multiselect>-->
-                                    </div>
+                                <div class="col-md-5">
+                                    <multiselect 
+                                        v-model="grupoEspTemp.grupoHorasExamen"
+                                        track-by="id"
+                                        v-bind:options="grupoHoras"
+                                        label="nombre"
+                                        v-bind:custom-label="cLabelGrupo"
+                                        required="true"
+                                        >
+                                    </multiselect>
                                 </div>
+                                <div class="col-md-5">
+                                    <span v-if="grupoEsp.grupoHorasExamen" class="form-control" 
+                                          v-text="grupoEsp.grupoHorasExamen.grupoHoras.codigo"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row" v-if="1==1">
+                            
+                            <div class="col-md-12">
+                                <hr/>
+                                <pre>
+                                    Posibles Errores
+                                </pre>
                             </div>
                         </div>
 
