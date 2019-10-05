@@ -41,20 +41,28 @@ import pe.edu.lamolina.model.academico.EventoCicloAcademico;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.bean.PlantillaIncrustacionGeneralBean;
 import pe.edu.lamolina.model.enums.ContenidoCartaEnum;
+import pe.edu.lamolina.model.enums.CuentaBancariaEnum;
+import pe.edu.lamolina.model.enums.DeudaEstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoAcreenciaTramiteEnum;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import pe.edu.lamolina.model.enums.EventoAcademicoEnum;
+import pe.edu.lamolina.model.enums.NombreTablasEnum;
+import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.enums.OrigenDataSituacionAcademicaEnum;
 import pe.edu.lamolina.model.enums.SexoEnum;
+import pe.edu.lamolina.model.enums.TipoConstanciaEnum;
 import pe.edu.lamolina.model.enums.TipoDocumentoCompaniaEnum;
 import pe.edu.lamolina.model.enums.TipoSolicitanteEnum;
 import pe.edu.lamolina.model.enums.TipoTramiteEnum;
 import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
 import static pe.edu.lamolina.model.enums.VariableGenericaEnum.CICLO_ACADEMICO;
+import pe.edu.lamolina.model.finanzas.Acreencia;
 import pe.edu.lamolina.model.finanzas.AcreenciaTramiteDocumento;
+import pe.edu.lamolina.model.finanzas.CuentaBancaria;
 import pe.edu.lamolina.model.general.Colaborador;
 import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.general.Idioma;
+import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.general.SerieDocumento;
 import pe.edu.lamolina.model.general.TipoDocumentoCompania;
@@ -87,6 +95,7 @@ import pe.edu.lamolina.pivot.dao.academico.CursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.EgresadoDAO;
 import pe.edu.lamolina.pivot.dao.academico.EventoCicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaResumenDAO;
+import pe.edu.lamolina.pivot.dao.finanza.AcreenciaDAO;
 import pe.edu.lamolina.pivot.dao.finanza.AcreenciaTramiteDocumentoDAO;
 import pe.edu.lamolina.pivot.dao.general.ColaboradorDAO;
 import pe.edu.lamolina.pivot.dao.general.ContenidoCartaDAO;
@@ -214,6 +223,9 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
 
     @Autowired
     EgresadoDAO egresadoDAO;
+
+    @Autowired
+    AcreenciaDAO acreenciaDAO;
 
     @Autowired
     S3Service s3Service;
@@ -528,7 +540,7 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
     @Override
     public TramiteDocumentoAcademico findTramite(TramiteDocumentoAcademico tramiteDocumentoAcademicoForm) {
         TramiteDocumentoAcademico documentoAcademico = tramiteDocumentoAcademicoDAO.find(tramiteDocumentoAcademicoForm);
-        if (documentoAcademico != null) {            
+        if (documentoAcademico != null) {
             Tramite tramite = documentoAcademico.getTramite();
 
             tramite.setAccionesTramitesDocumentos(accionTramiteDocumentoDAO.allByTipoTramiteAndEstadoTramiteInicial(documentoAcademico.getTipoDocumentoAcademico(), documentoAcademico.getEstadoTramite()));
@@ -613,8 +625,8 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
 
         AccionTramiteDocumento accion = accionTramiteDocumentoDAO.findOrderOneByTipoDocumento(tramiteDocumentoAcademico.getTipoDocumentoAcademico(), 1L);
         EstadoTramite estadoTramite = accion.getEstadoTramite();
-
-        TipoDocumentoCompania tipoDocumentoCompania = tipoDocumentoCompaniaDAO.findByCodigo(TipoDocumentoCompaniaEnum.TRAM);
+        TipoDocumentoCompaniaEnum tipoConEnum = tramiteDocumentoAcademico.getTipoDocumentoAcademico().getTipoConstanciaEnum() == TipoConstanciaEnum.CONS ? TipoDocumentoCompaniaEnum.CONS : TipoDocumentoCompaniaEnum.CERT;
+        TipoDocumentoCompania tipoDocumentoCompania = tipoDocumentoCompaniaDAO.findByCodigo(tipoConEnum);
         SerieDocumento serieDocumento = serieDocumentoService.getCorrelativo(tipoDocumentoCompania, Long.valueOf(today.getYear()), usuario);
         TipoTramite tipoTramite = tipoTramiteDAO.findByCodigo(TipoTramiteEnum.CONS.name());
 
@@ -654,23 +666,46 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
         Idioma idioma = tramiteDocumentoAcademico.getIdioma();
         PrecioDocumento precio = precioDocumentoDAO.findByTipoIdioma(tipo, idioma);
 
-        AcreenciaTramiteDocumento acreencia = new AcreenciaTramiteDocumento();
-        acreencia.setEstado(EstadoAcreenciaTramiteEnum.ACT.name());
-        acreencia.setTramiteDocumentoAcademico(tramiteDocumentoAcademico);
-        acreencia.setUserRegistro(usuario);
-        acreencia.setFechaRegistro(new Date());
+        AcreenciaTramiteDocumento acreenciaTram = new AcreenciaTramiteDocumento();
+        acreenciaTram.setEstado(EstadoAcreenciaTramiteEnum.ACT.name());
+        acreenciaTram.setTramiteDocumentoAcademico(tramiteDocumentoAcademico);
+        acreenciaTram.setUserRegistro(usuario);
+        acreenciaTram.setFechaRegistro(new Date());
         LocalDate localDate = LocalDate.now();
         LocalDate fechaVencimiento = localDate.plusDays(3);
-        acreencia.setFechaVencimiento(fechaVencimiento.toDate());
+        acreenciaTram.setFechaVencimiento(fechaVencimiento.toDate());
 
-        acreencia.setPrecio(BigDecimal.ZERO);
+        acreenciaTram.setPrecio(BigDecimal.ZERO);
         if (precio != null) {
             if (precio.getPrecio() != null) {
-                acreencia.setPrecio(new BigDecimal(precio.getPrecio()));
+                acreenciaTram.setPrecio(new BigDecimal(precio.getPrecio()));
             }
         }
 
-        acreenciaTramiteDocumentoDAO.save(acreencia);
+        acreenciaTramiteDocumentoDAO.save(acreenciaTram);
+
+        CuentaBancaria ctaBanco = precio.getCuentaBancaria();
+
+        Acreencia acreencia = new Acreencia();
+        if (ctaBanco.getCodigo().equals(CuentaBancariaEnum.MAT_UNALM.getCodigoServ())) {//credipago matricula
+            acreencia.setDescripcion("Deuda Académica");
+        } else if (ctaBanco.getCodigo().equals(CuentaBancariaEnum.MAT_FDA.getCodigoServ())) {//credipago bienestar
+            acreencia.setDescripcion("Deuda Bienestar");
+        }
+
+        acreencia.setOficina(new Oficina(OficinaEnum.OBUAE.getId()));
+        acreencia.setTablaEnum(NombreTablasEnum.FIN_DEUDA_ALUMNO);
+        //acreencia.setInstanciaTabla(deudaAlumno.getId());
+        acreencia.setEstadoEnum(DeudaEstadoEnum.DEU);
+        acreencia.setMonto(new BigDecimal(precio.getPrecio()));
+        acreencia.setAbono(BigDecimal.ZERO);
+        acreencia.setPersona(alumno.getPersona());
+        acreencia.setCuentaBancaria(ctaBanco);
+        acreencia.setFechaDocumento(new Date());
+        acreencia.setUsuarioRegistro(ds.getUsuario());
+        acreencia.setFechaVencimiento(fechaVencimiento.toDate());
+        acreencia.setFechaRegistro(new Date());
+        acreenciaDAO.save(acreencia);
 
         FlujoTramiteDocumento flujo = new FlujoTramiteDocumento();
         flujo.setEstadoTramite(estadoTramite);

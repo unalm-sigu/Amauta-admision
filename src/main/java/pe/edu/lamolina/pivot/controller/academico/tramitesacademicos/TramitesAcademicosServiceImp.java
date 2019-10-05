@@ -398,9 +398,12 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
         if (accionTramiteAcademico != null ? accionTramiteAcademico.getEstadoTramiteFinal().getEsVistoBuenoUR() : accionTramiteDocumento.getEstadoTramiteFinal().getEsVistoBuenoUR()) {
             this.vistoBuenoUR(autorizacionRegistro, ds.getUsuario());
         }
-        if ((accionTramiteAcademico != null ? accionTramiteAcademico.getEstadoTramiteInicio().getEsVistoBuenoUR() : accionTramiteDocumento.getEstadoTramite().getEsVistoBuenoUR()) && accionTramiteAcademico.getEsSatisfactorio()) {
-            this.aprobadoUR(tramite, accionTramiteAcademico, autorizacionRegistro, ds.getUsuario(), today);
-            infoAcademicoService.calcularPromedio(tramite.getAlumno(), ds);
+        if ((accionTramiteAcademico != null ? accionTramiteAcademico.getEstadoTramiteInicio().getEsVistoBuenoUR() : accionTramiteDocumento.getEstadoTramite().getEsVistoBuenoUR())) {
+            if (accionTramiteAcademico != null ? accionTramiteAcademico.getEsSatisfactorio() : accionTramiteDocumento.getEsSatisfactorio()) {
+
+                this.aprobadoUR(tramite, accionTramiteAcademico, autorizacionRegistro, ds.getUsuario(), today);
+                infoAcademicoService.calcularPromedio(tramite.getAlumno(), ds);
+            }
         }
         if (accionTramiteAcademico != null ? accionTramiteAcademico.getEstadoTramiteFinal().getEsControlCalidad() : accionTramiteDocumento.getEstadoTramiteFinal().getEsControlCalidad()) {
             //Si no hubo modificaciones en el historial del alumno, creamos la autorizacion registro

@@ -590,6 +590,7 @@ public class TramitesAcademicosController {
         Notificaciones.crearMsg("Tramite procesado correctamente.", redirectAttr);
         switch (tipoTramite.getCodigoEnum()) {
             case CERT:
+            case CONS:
                 return "redirect:/tramite/solicitudconstancia";
 
             case CORR_HISTO:
