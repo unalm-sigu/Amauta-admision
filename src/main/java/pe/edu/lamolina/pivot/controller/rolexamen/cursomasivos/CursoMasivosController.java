@@ -35,6 +35,7 @@ import pe.edu.lamolina.model.rolexamen.DocenteCursoMasivo;
 import pe.edu.lamolina.model.rolexamen.GrupoHorasExamen;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
 import pe.edu.lamolina.model.rolexamen.SeccionCursoMasivo;
+import pe.edu.lamolina.model.rolexamen.SeccionGrupoEspecial;
 import pe.edu.lamolina.pivot.controller.rolexamen.util.RolExamenesLogger;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.constant.Messages;
@@ -336,8 +337,7 @@ public class CursoMasivosController {
 
     @ResponseBody
     @RequestMapping("allAulasModulo")
-    public JsonResponse allAulasModulo(
-            @RequestBody Aula modulo, HttpSession session) {
+    public JsonResponse allAulasModulo(@RequestBody Aula modulo, HttpSession session) {
         JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
         JsonResponse response = new JsonResponse();
 
@@ -423,7 +423,7 @@ public class CursoMasivosController {
             } else if (CursoMasivosController.TipoAccion.ALUMNO.name().equals(tipoAccion)) {
                 AlumnoCursoMasivo alumnoCursoMasivo = (AlumnoCursoMasivo) mapper.readValue(objeto.toString(), AlumnoCursoMasivo.class);
                 service.activarAlumnoCursoMasivo(alumnoCursoMasivo, ds);
-            } 
+            }
             response.setMessage("Incluido corretamente.");
             response.setSuccess(Boolean.TRUE);
         } catch (PhobosException e) {
@@ -597,6 +597,61 @@ public class CursoMasivosController {
         json.setFiltered(filter.getFiltered());
 
         return json;
+    }
+
+    @ResponseBody
+    @RequestMapping("allGrupoHE")
+    public JsonResponse allGrupoHE(@RequestBody RolExamenes rolExamenes, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+        try {
+            JsonNodeFactory jc = JsonNodeFactory.instance;
+            ArrayNode array = new ArrayNode(jc);
+            List<GrupoHorasExamen> grupos = service.allGrupoHoraExamenByRolExamenes(rolExamenes);
+            for (GrupoHorasExamen grupo : grupos) {
+                ObjectNode jGrupo = JsonHelper.createJson(grupo, JsonNodeFactory.instance, new String[]{
+                    "id", "grupoHoras.id", "grupoHoras.codigo", "rolExamenes.id", "descripcion"
+                });
+                array.add(jGrupo);
+            }
+            response.setData(array);
+            response.setSuccess(Boolean.TRUE);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    //cmbiarCambioAulasGrupo
+    @ResponseBody
+    @RequestMapping("cmbiarCambioAulasGrupo")
+    public JsonResponse cmbiarCambioAulasGrupo(@RequestBody CursoMasivoExamen cursoMasivosExamen, HttpSession session) {
+
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            List<String> restricciones = service.cambiarCambioAulasGrupo(cursoMasivosExamen, ds.getCicloAcademico(), ds);
+            response.setMessage("Curso masivo modificado satisfactoriamente");
+            response.setSuccess(Boolean.TRUE);
+            if (!restricciones.isEmpty()) {
+                response.setMessage("Se presentaron inconvenientes para realizar los cambios");
+                response.setSuccess(Boolean.FALSE);
+            }
+            response.setData(restricciones);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        } finally {
+            rolExamenesLogger.finalizeLog();
+        }
+        return response;
     }
 
     private ObjectNode createAulasJson(Aula aula) {

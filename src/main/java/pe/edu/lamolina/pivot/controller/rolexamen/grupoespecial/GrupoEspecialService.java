@@ -35,7 +35,7 @@ public interface GrupoEspecialService {
 
     void removerAula(SeccionGrupoEspecial grupoSpecial);
 
-    List<GrupoHorasExamen> allGrupoHoraExamen(SeccionGrupoEspecial grupoSpecial);
+    List<GrupoHorasExamen> allGrupoHoraExamenByRolExamenes(RolExamenes rolExamenes);
 
     void removerGrupo(SeccionGrupoEspecial grupoSpecial);
 

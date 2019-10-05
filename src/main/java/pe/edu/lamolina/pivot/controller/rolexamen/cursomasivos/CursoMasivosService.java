@@ -15,6 +15,7 @@ import pe.edu.lamolina.model.rolexamen.DocenteCursoMasivo;
 import pe.edu.lamolina.model.rolexamen.GrupoHorasExamen;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
 import pe.edu.lamolina.model.rolexamen.SeccionCursoMasivo;
+import pe.edu.lamolina.model.rolexamen.SeccionGrupoEspecial;
 import pe.edu.lamolina.pivot.controller.rolexamen.util.RolExamenesLogger;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -73,4 +74,8 @@ public interface CursoMasivosService {
     void eliminarCursosMasivos(RolExamenes rolExamenes);
 
     void deleteCursosMasivos(RolExamenes rolExamenes);
+
+    List<GrupoHorasExamen> allGrupoHoraExamenByRolExamenes(RolExamenes rolExamenes);
+
+    List<String> cambiarCambioAulasGrupo(CursoMasivoExamen cursoMasivosExamen, CicloAcademico cicloAcademico, DataSessionPivot ds);
 }

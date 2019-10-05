@@ -1,6 +1,11 @@
 <html layout:decorator="_layout/layout"> 
     <head> 
-        <title> Cursos Masivos </title>  
+        <title> Cursos Masivos </title>
+        <style>
+            .form-control {
+                min-height: 40px;
+            }
+        </style>
     </head>
     <body>
         <section layout:fragment="main">
@@ -184,6 +189,7 @@
                 </section>
 
                 <div th:substituteby="rolexamen/cursomasivos/cursoMasivoModals"/>
+                <th:block th:replace="_modules/vue-modal-confirm"/>
 
             </div>
         </section>

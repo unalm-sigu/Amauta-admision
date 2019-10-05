@@ -83,9 +83,10 @@ public class SeccionCursoMasivoDAOH extends AbstractEasyDAO<SeccionCursoMasivo> 
     public List<SeccionCursoMasivo> allByCursoMasivo(CursoMasivoExamen cursoMasivo, SeccionRolExamenEstadoEnum... estados) {
         Octavia sql = Octavia.query()
                 .from(SeccionCursoMasivo.class, "scm")
-                .join("cursoMasivoExamen cme")
+                .join("cursoMasivoExamen cme", "seccion sec", "sec.grupoSeccion")
                 .join("userRegistro ureg", "ureg.persona pureg")
                 .left("usuarioExclusion uexl", "uexl.persona puexl")
+                .left("docente")
                 .in("scm.estado", estados)
                 .filter("cme.id", cursoMasivo);
         return all(sql);

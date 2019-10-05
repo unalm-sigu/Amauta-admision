@@ -224,7 +224,7 @@ new Vue({
         },
         loadGrupos(item) {
             let $vue = this;
-            AXIOS.post(`${$vue.URL}/allGrupoHE`, item)
+            AXIOS.post(`${$vue.URL}/allGrupoHE`, $vue.rolExamen)
                     .then(response => {
                         if (response.data.success) {
                             $vue.grupoHoras = response.data.data;

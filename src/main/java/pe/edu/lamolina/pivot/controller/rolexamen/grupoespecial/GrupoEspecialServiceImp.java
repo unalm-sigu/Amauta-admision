@@ -1012,8 +1012,13 @@ public class GrupoEspecialServiceImp implements GrupoEspecialService {
     }
 
     @Override
-    public List<GrupoHorasExamen> allGrupoHoraExamen(SeccionGrupoEspecial grupoSpecial) {
-        List<GrupoHorasExamen> gHoras = grupoHorasExamenDAO.allForGrupoEspecial(grupoSpecial.getRolExamenes());
+    public List<GrupoHorasExamen> allGrupoHoraExamenByRolExamenes(RolExamenes rolExamenes) {
+        List<GrupoHorasExamen> gHoras = grupoHorasExamenDAO.allByRolExamenes(rolExamenes);
+        List<FechaHoraGrupoExamen> fechasHoras = fechaHoraGrupoExamenDAO.allByGrupoHorasExamen(gHoras);
+        Map<Long, List<FechaHoraGrupoExamen>> mapFechaHora = TypesUtil.convertListToMapList("grupoHorasExamen.id", fechasHoras);
+        for (GrupoHorasExamen gHora : gHoras) {
+            gHora.setFechasHorasGruposExamen(mapFechaHora.get(gHora.getId()));
+        }
         return gHoras;
     }
 
