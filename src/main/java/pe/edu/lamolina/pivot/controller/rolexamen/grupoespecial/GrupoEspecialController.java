@@ -314,7 +314,7 @@ public class GrupoEspecialController {
         try {
             JsonNodeFactory jc = JsonNodeFactory.instance;
             ArrayNode array = new ArrayNode(jc);
-            List<GrupoHorasExamen> grupos = grupoEspecialService.allGrupoHEForSelect(grupoSpecial);
+            List<GrupoHorasExamen> grupos = grupoEspecialService.allGrupoHoraExamen(grupoSpecial);
             for (GrupoHorasExamen grupo : grupos) {
                 ObjectNode jGrupo = JsonHelper.createJson(grupo, JsonNodeFactory.instance, new String[]{
                     "id", "grupoHoras.id", "grupoHoras.codigo", "rolExamenes.id"
@@ -341,10 +341,19 @@ public class GrupoEspecialController {
         try {
             JsonNodeFactory jc = JsonNodeFactory.instance;
             ArrayNode array = new ArrayNode(jc);
-            grupoEspecialService.saveCambioAulaGrupo(grupoSpecial);
+            System.out.println("------------------");
+            System.out.println(grupoSpecial.getId());
+            System.out.println(grupoSpecial.getSeccion());
+            List<String> restricciones = grupoEspecialService.saveCambioAulaGrupo(grupoSpecial);
 
-            response.setMessage("Grupo modificado con éxito!");
+            response.setMessage("Grupo modificado satisfactoriamente");
             response.setSuccess(Boolean.TRUE);
+            if (!restricciones.isEmpty()) {
+                response.setMessage("Se presentaron inconvenientes para realizar los cambios");
+                response.setSuccess(Boolean.FALSE);
+            }
+            response.setData(restricciones);
+
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {

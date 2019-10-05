@@ -38,7 +38,9 @@ public interface SeccionCursoMasivoDAO extends EasyDAO<SeccionCursoMasivo> {
 
     List<SeccionCursoMasivo> allByDocenteAndEstados(Docente docente, SeccionRolExamenEstadoEnum... estados);
 
-    List<SeccionCursoMasivo> allByGrupoHorasExamen(List<GrupoHorasExamen> grupoHorasExamenes);
+    List<SeccionCursoMasivo> allByGrupoHorasExamenList(List<GrupoHorasExamen> grupoHorasExamenes);
+
+    List<SeccionCursoMasivo> allByGrupoHorasExamen(GrupoHorasExamen grupoHorasExamen, SeccionRolExamenEstadoEnum... estado);
 
     SeccionCursoMasivo findByRolExamenesSeccion(RolExamenes rol, Seccion seccion, SeccionRolExamenEstadoEnum... seccionRolExamenEstadoEnum);
 

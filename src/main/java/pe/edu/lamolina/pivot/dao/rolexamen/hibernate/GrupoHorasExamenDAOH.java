@@ -85,7 +85,8 @@ public class GrupoHorasExamenDAOH extends AbstractEasyDAO<GrupoHorasExamen> impl
                 .join("grupoHoras gh", "rolExamenes re")
                 .filter("re.id", rolExamenes)
                 .exists(exist)
-                .linkedBy("ghe.id", "ghe0.id");
+                .linkedBy("ghe.id", "ghe0.id")
+                .orderBy("gh.codigo");
 
         return all(sql);
     }

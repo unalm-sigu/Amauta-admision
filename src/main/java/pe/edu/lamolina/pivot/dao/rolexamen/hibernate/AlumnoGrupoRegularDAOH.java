@@ -64,7 +64,7 @@ public class AlumnoGrupoRegularDAOH extends AbstractEasyDAO<AlumnoGrupoRegular> 
     public List<AlumnoGrupoRegular> allByGrupoHorasExamenAndEstados(GrupoHorasExamen grupoHorasExamen, AlumnoRolExamenEstadoEnum estadoEnum) {
         Octavia sql = Octavia.query()
                 .from(AlumnoGrupoRegular.class, "agr")
-                .join("agr.seccionGrupoRegular sgr", "sgr.letraGruposRegulares gs", "userRegistro cur", "gs.grupoHorasExamen ghe")
+                .join("agr.seccionGrupoRegular sgr", "sgr.letraGrupoRegular lgr", "lgr.grupoHorasExamen ghe", "alumno")
                 .filter("agr.estado", estadoEnum)
                 .filter("ghe.id", grupoHorasExamen);
         return all(sql);

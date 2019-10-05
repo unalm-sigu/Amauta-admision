@@ -33,6 +33,19 @@ public class SeccionGrupoEspecialDAOH extends AbstractEasyDAO<SeccionGrupoEspeci
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
+    public SeccionGrupoEspecial find(long id) {
+        Octavia sql = Octavia.query()
+                .from(SeccionGrupoEspecial.class, "sge")
+                .join("rolExamenes re", "seccion sec")
+                .join("sec.grupoSeccion gs", "gs.curso cur")
+                .left("sec.grupoHoras ghsec", "aula au")
+                .left("docente doc", "doc.persona dper", "grupoHorasExamen ghe", "ghe.dia", "ghe.horaInicio", "ghe.horaFin", "ghe.grupoHoras")
+                .filter("sge.id", id);
+
+        return find(sql);
+    }
+
+    @Override
     public List<SeccionGrupoEspecial> allByDynatableAndRolExamenes(DynatableFilter filter, RolExamenes rolExamenes) {
         DynatableSql sql = new DynatableSql(filter)
                 .from(SeccionGrupoEspecial.class, "sge")
@@ -69,7 +82,7 @@ public class SeccionGrupoEspecialDAOH extends AbstractEasyDAO<SeccionGrupoEspeci
                 .from(SeccionGrupoEspecial.class, "sce")
                 .join("seccion sec", "rolExamenes re")
                 .join("userRegistro ureg", "ureg.persona pureg")
-                .left("aula au", "grupoHorasExamen ghe")
+                .left("aula au", "grupoHorasExamen ghe", "docente")
                 .filter("ghe.id", grupoHorasExamen)
                 .in("sce.estado", estados);
         return all(sql);

@@ -12,15 +12,14 @@ new Vue({
             SECCION: "SECCION",
             ALUMNO: "ALUMNO"
         },
-        cambiarAulamodal: {
+        cambiarAulamodal: VUE_MODAL.structFormAjax({
             id: 'cambiarAulamodal',
             header: true,
-            title: 'Cambiar Aula',
+            title: 'Cambiar Aula y/o Grupo Horario',
             cancelbtn: 'Cancelar',
             okbtn: 'Cambiar',
-            modalsize: 'modal-md',
-            showaccept: true
-        },
+            modalsize: 'modal-lg'
+        }),
         asignarHorarioModal: {
             id: 'asignarHorarioModal',
             header: true,
@@ -32,7 +31,8 @@ new Vue({
         },
         grupoHoras: [],
         grupoEspTemp: {},
-        grupoEsp: {}
+        grupoEsp: {},
+        observaciones: {cantidad: 0, message: "", rows: 4}
     },
     mounted() {
         if (jRolExamenes != null) {
@@ -174,7 +174,7 @@ new Vue({
                 callback: function (result) {
                     if (result) {
                         MODAL.showWait("Espere un momento por favor");
-                        AXIOS.post(`${vue.URL}/quitarHorario`, item)
+                        AXIOS.post(`${vue.URL}/quitarGrupo`, item)
                                 .then(response => {
                                     if (response.data.success) {
                                         vue.$refs.raptor.loadRemoteData();
@@ -214,6 +214,7 @@ new Vue({
             $vue.loadGrupos(item);
             $vue.grupoEsp = item;
             $vue.grupoEspTemp = JSON.parse(JSON.stringify(item));
+            $vue.observaciones = {cantidad: 0, message: "", rows: 4};
             $vue.$refs.cambiarAulamodal.open();
         },
         asignarHorario(item) {
@@ -237,13 +238,31 @@ new Vue({
         },
         saveCambiarAulaGrupo() {
             let $vue = this;
-            AXIOS.post(`${$vue.URL}/cambiarAulaGrupo`, $vue.grupoEspTemp)
+            $vue.$refs.cambiarAulamodal.beginProcessing();
+            $vue.observaciones = {cantidad: 0, message: "", rows: 4};
+
+            axios.post(`${$vue.URL}/cambiarAulaGrupo`, $vue.grupoEspTemp)
                     .then(response => {
+                        $vue.$refs.cambiarAulamodal.confirmReaction(response.data.success);
                         if (response.data.success) {
-                            console.log("=)");
+                            $vue.$refs.raptor.loadRemoteData();
+                            notify(response.data.message, "info");
+                        } else {
+                            notify(response.data.message, "error");
                         }
-                    });
-            console.log("Hola :D");
+                        let restricc = response.data.data;
+                        if (restricc != null) {
+                            $vue.observaciones.cantidad = restricc.length;
+                            $vue.observaciones.rows = restricc.length > 7 ? 7 : restricc.length;
+                            for (var i = 0; i < restricc.length; i++) {
+                                $vue.observaciones.message += (i + 1) + ") " + restricc[i] + "\n";
+                            }
+                        }
+
+                    }).catch(e => {
+                $vue.$refs.cambiarAulamodal.confirmReaction(false);
+                notify(MESSAGES.errorComunicacion, "error");
+            });
         }
     }
 });

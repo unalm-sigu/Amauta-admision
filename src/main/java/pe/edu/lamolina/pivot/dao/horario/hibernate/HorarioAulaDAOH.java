@@ -762,7 +762,7 @@ public class HorarioAulaDAOH extends AbstractEasyDAO<HorarioAula> implements Hor
     @Override
     public void deleteBySeccionGrupoEspecial(SeccionGrupoEspecial grupoEspecial) {
         StringBuilder strb = new StringBuilder();
-        strb.append(" delete from  HorarioAula ha where ha.seccionGrupoEspecial.id=:SGE");
+        strb.append(" delete from HorarioAula ha where ha.seccionGrupoEspecial.id = :SGE");
 
         Query query = getCurrentSession().createQuery(strb.toString());
         query.setParameter("SGE", grupoEspecial.getId());

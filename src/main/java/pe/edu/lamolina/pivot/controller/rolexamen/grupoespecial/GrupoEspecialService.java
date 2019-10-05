@@ -35,10 +35,10 @@ public interface GrupoEspecialService {
 
     void removerAula(SeccionGrupoEspecial grupoSpecial);
 
-    List<GrupoHorasExamen> allGrupoHEForSelect(SeccionGrupoEspecial grupoSpecial);
+    List<GrupoHorasExamen> allGrupoHoraExamen(SeccionGrupoEspecial grupoSpecial);
 
     void removerGrupo(SeccionGrupoEspecial grupoSpecial);
 
-    void saveCambioAulaGrupo(SeccionGrupoEspecial grupoSpecial);
+    List<String> saveCambioAulaGrupo(SeccionGrupoEspecial grupoSpecial);
 
 }

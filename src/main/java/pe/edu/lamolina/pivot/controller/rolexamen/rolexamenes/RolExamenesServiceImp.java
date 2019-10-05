@@ -308,7 +308,7 @@ public class RolExamenesServiceImp implements RolExamenesService {
             List<GrupoHorasExamen> grupoHorasExamenes,
             Map<Long, List<FechaHoraGrupoExamen>> fechaHoraGrupoExamenXgrupoExamen) {
         
-        List<SeccionCursoMasivo> seccionCursoMasivos = seccionCursoMasivoDAO.allByGrupoHorasExamen(grupoHorasExamenes);
+        List<SeccionCursoMasivo> seccionCursoMasivos = seccionCursoMasivoDAO.allByGrupoHorasExamenList(grupoHorasExamenes);
         
         List<CursoMasivoExamen> cursoMasivoExamenes = seccionCursoMasivos.stream().map(x -> x.getCursoMasivoExamen()).collect(Collectors.toList());
         
