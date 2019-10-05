@@ -984,6 +984,7 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
     }
 
     @Override
+    @Transactional
     public List<String> cambiarCambioAulasGrupo(CursoMasivoExamen cursoMasivosExamenForm, CicloAcademico cicloAcademico, DataSessionPivot ds) {
         CursoMasivoExamen cursoMasivoBD = cursoMasivoExamenDAO.find(cursoMasivosExamenForm.getId());
         RolExamenes rolExamenes = cursoMasivoBD.getRolExamenes();
@@ -1056,12 +1057,12 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
         }
 
         if (verificarCruceAulas && verificarCruceAlumno && verificarCruceDocente) {
-            cambiarAulaGrupoForCursoMM(cursoMasivoBD, aulasCMNuevas, aulasCMDead, aulasAll, gpoExamDestinoBD, ds);
+            saveCambioAulaGrupo(cursoMasivoBD, aulasCMNuevas, aulasCMDead, aulasAll, gpoExamDestinoBD, ds);
         }
         return restricciones;
     }
 
-    private void cambiarAulaGrupoForCursoMM(
+    private void saveCambioAulaGrupo(
             CursoMasivoExamen cursoMasivo,
             List<AulaCursoMasivo> aulasCMNuevas,
             List<AulaCursoMasivo> aulasCMDead,
