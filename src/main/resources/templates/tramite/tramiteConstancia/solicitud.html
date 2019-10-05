@@ -59,18 +59,13 @@
                 /*<![CDATA[*/
                 var tiposDocumentoAcademicoJson = /*[[${tiposDocumentoAcademico.toString()}]]*/ 'json';
                 var solicitudJson = /*[[${solicitud.toString()}]]*/ 'json';
-                var alumnoJson = /*[[${""}]]*/ 'json';
                 /*]]>*/
             </script>
             <div th:substituteby="_modules/vue-modal"/>
             <div th:substituteby="_layout/includes :: vuejs"/>
+            <script th:src="@{/app/tramite/tramiteConstancia/inicioTramiteComponent.js}" charset="utf-8"></script>
             <script th:src="@{/app/academico/alumno/inicioComponent.js}" charset="utf-8"></script>
             <script th:src="@{/app/academico/alumno/alumnoMeritos.js}" charset="utf-8"></script>
-            <!--            <script th:src="@{/app/academico/alumno/historialComponent.js}" charset="utf-8"></script>
-                        <script th:src="@{/app/academico/alumno/horarioComponent.js}" charset="utf-8"></script>
-                        <script th:src="@{/app/academico/alumno/matriculaComponent.js}" charset="utf-8"></script>-->
-            <script th:src="@{/app/tramite/tramiteConstancia/inicioTramiteComponent.js}" charset="utf-8"></script>
-            <!--<div th:substituteby="_layout/includes :: javascript-upload"/>-->
             <script th:src="@{/app/tramite/tramiteConstancia/solicitud.js}" charset="utf-8"></script>
         </div>
     </body>

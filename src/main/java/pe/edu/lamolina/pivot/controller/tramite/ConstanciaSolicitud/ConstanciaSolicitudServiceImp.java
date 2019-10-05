@@ -614,7 +614,7 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
         AccionTramiteDocumento accion = accionTramiteDocumentoDAO.findOrderOneByTipoDocumento(tramiteDocumentoAcademico.getTipoDocumentoAcademico(), 1L);
         EstadoTramite estadoTramite = accion.getEstadoTramite();
 
-        TipoDocumentoCompania tipoDocumentoCompania = tipoDocumentoCompaniaDAO.findByCodigo(TipoDocumentoCompaniaEnum.TRAM);
+        TipoDocumentoCompania tipoDocumentoCompania = tipoDocumentoCompaniaDAO.findByCodigo(TipoDocumentoCompaniaEnum.DOC);
         SerieDocumento serieDocumento = serieDocumentoService.getCorrelativo(tipoDocumentoCompania, Long.valueOf(today.getYear()), usuario);
         TipoTramite tipoTramite = tipoTramiteDAO.findByCodigo(TipoTramiteEnum.CONS.name());
 

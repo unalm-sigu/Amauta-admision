@@ -11,14 +11,20 @@ Vue.component("inicio-tram-component", {
             alumnos: [],
             showCostoDocumento: false,
             guardando: false,
+            ciclo: {},
+            isUpdate: false
         }
     },
     mounted() {
         let $vue = this;
-        if ($vue.solicitud.tramite != null) {
-            $vue.tramite = $vue.solicitud.tramite;
+        $vue.isUpdate = $vue.solicitud.id != null;
+    },
+    watch: {
+        // un getter computado
+        tramite: function () {
+            // `this` apunta a la instancia de vm
+            return this.findAlumno(this.tramite.alumno.id);
         }
-       
     },
     methods: {
         customLabel( { persona, codigo}) {
@@ -41,7 +47,6 @@ Vue.component("inicio-tram-component", {
         },
         selectAlumno(item) {
             let $vue = this;
-            console.log(item);
             $vue.findAlumno(item.id);
         },
         clearOption(item) {
@@ -53,7 +58,9 @@ Vue.component("inicio-tram-component", {
         },
         idiomaDocumento(value) {
             let $vue = this;
-            $vue.solicitud.idioma = {};
+//            $vue.solicitud.idioma = null;
+            $vue.costoDocumento = "";
+            $vue.showCostoDocumento = false;
             $vue.idiomas = value.idiomas;
         },
         costoDocumentoEvent(value) {
@@ -81,15 +88,15 @@ Vue.component("inicio-tram-component", {
                             notify(response.data.message, "error");
                         }
                     });
-//            if ($vue.solicitud.tipoDocumentoAcademico.tipo == 'CONS') {
-            $vue.solicitud.tipoDocumentoAcademico.precioDocumento.forEach(function (item) {
-                if (item.idioma.id == value.id) {
-                    $vue.showCostoDocumento = true;
-                    $vue.costoDocumento = item.precio;
+            if ($vue.solicitud.tipoDocumentoAcademico.tipo == 'CONS') {
+                $vue.solicitud.tipoDocumentoAcademico.precioDocumento.forEach(function (item) {
+                    if (item.idioma.id == value.id) {
+                        $vue.showCostoDocumento = true;
+                        $vue.costoDocumento = item.precio;
 
-                }
-            });
-//            }
+                    }
+                });
+            }
         },
         submitForm() {
             let $vue = this;
@@ -115,6 +122,11 @@ Vue.component("inicio-tram-component", {
                     notify(MESSAGES.errorComunicacion, "error");
                 }
             });
+        },
+        subirFoto() {
+            let $vue = this;
+            $vue.$parent.persona = $vue.tramite.alumno.persona;
+            $vue.$parent.$refs.cargarFoto.open();
         },
         findAlumno(id) {
             let vue = this;

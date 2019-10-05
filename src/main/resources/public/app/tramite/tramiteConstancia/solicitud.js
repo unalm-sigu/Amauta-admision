@@ -1,6 +1,6 @@
 Vue.component("multiselect", window.VueMultiselect.default)
 
-console.log(JSON.parse(tiposDocumentoAcademicoJson));
+console.log(JSON.parse(solicitudJson));
 new Vue({
     el: '#main',
     data: {
@@ -19,6 +19,7 @@ new Vue({
         haveParams: false,
         alumnos: [],
         persona: {},
+        solicitud: JSON.parse(solicitudJson),
         mensajeerror: "",
         ciclos: [],
         ciclo: {},
@@ -34,17 +35,14 @@ new Vue({
             {id: 3, name: "Orden Merito"},
         ],
         alumno: {},
-        ordenesMerdito:[]
-
-    },
-    computed: {
-
-    },
-    created() {
+        ordenesMerdito: []
 
     },
     mounted: function () {
-
+        let $vue = this;
+        if ($vue.solicitud.tramite != null) {
+            $vue.tramite = $vue.solicitud.tramite;            
+        }
     },
     methods: {
         updateTabs: function (tab) {
@@ -67,7 +65,6 @@ new Vue({
                 return "active";
             }
         },
-
         createCargarFoto: function () {
             var $vue = this;
             $global.$emit('MODAL-WAIT-OPEN', 'Cargando');
@@ -109,11 +106,6 @@ new Vue({
                 console.log('FAILURE!!');
             });
         },
-        subirFoto() {
-            let $vue = this;
-            $vue.persona = $vue.tramite.alumno.persona;
-            $vue.$refs.cargarFoto.open();
-        },
         elegir() {
             let $vue = this;
             if ($vue.ciclo.id != null) {
@@ -127,5 +119,3 @@ new Vue({
 
     }
 });
-Vue.config.debug = true;
-Vue.config.devtools = true
