@@ -25,6 +25,7 @@ import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.rolexamen.AlumnoGrupoEspecial;
+import pe.edu.lamolina.model.rolexamen.GrupoHorasExamen;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
 import pe.edu.lamolina.model.rolexamen.SeccionGrupoEspecial;
 import pe.edu.lamolina.pivot.controller.rolexamen.util.RolExamenesLogger;
@@ -110,6 +111,8 @@ public class GrupoEspecialController {
                 "seccion.grupoSeccion.curso.nombre",
                 "seccion.grupoSeccion.curso.codigo",
                 "seccion.grupoSeccion.curso.tpc",
+                "seccion.aula.id", "seccion.aula.codigo",
+                "seccion.grupoHoras.id", "seccion.grupoHoras.codigo",
                 "aula.*",
                 "rolExamenes.*",
                 "docente.persona.apellidosNombres",
@@ -252,6 +255,105 @@ public class GrupoEspecialController {
 
             response.setMessage("Incluido corretamente.");
             response.setSuccess(Boolean.TRUE);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("quitarAula")
+    public JsonResponse quitarAula(@RequestBody SeccionGrupoEspecial grupoSpecial,
+            HttpSession session, HttpServletRequest request) {
+        JsonResponse response = new JsonResponse();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+        try {
+
+            grupoEspecialService.removerAula(grupoSpecial);
+
+            response.setMessage("Aula retirada correctamente");
+            response.setSuccess(Boolean.TRUE);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("quitarGrupo")
+    public JsonResponse quitarGrupo(@RequestBody SeccionGrupoEspecial grupoSpecial,
+            HttpSession session, HttpServletRequest request) {
+        JsonResponse response = new JsonResponse();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+        try {
+
+            grupoEspecialService.removerGrupo(grupoSpecial);
+
+            response.setMessage("Grupo retirado correctamente");
+            response.setSuccess(Boolean.TRUE);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("allGrupoHE")
+    public JsonResponse allGrupoHE(@RequestBody SeccionGrupoEspecial grupoSpecial, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+        try {
+            JsonNodeFactory jc = JsonNodeFactory.instance;
+            ArrayNode array = new ArrayNode(jc);
+            List<GrupoHorasExamen> grupos = grupoEspecialService.allGrupoHoraExamen(grupoSpecial);
+            for (GrupoHorasExamen grupo : grupos) {
+                ObjectNode jGrupo = JsonHelper.createJson(grupo, JsonNodeFactory.instance, new String[]{
+                    "id", "grupoHoras.id", "grupoHoras.codigo", "rolExamenes.id"
+                });
+                array.add(jGrupo);
+            }
+            response.setData(array);
+            response.setMessage("Horario retirado correctamente");
+            response.setSuccess(Boolean.TRUE);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("cambiarAulaGrupo")
+    public JsonResponse cambiarAulaGrupo(@RequestBody SeccionGrupoEspecial grupoSpecial, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+        try {
+            JsonNodeFactory jc = JsonNodeFactory.instance;
+            ArrayNode array = new ArrayNode(jc);
+            System.out.println("------------------");
+            System.out.println(grupoSpecial.getId());
+            System.out.println(grupoSpecial.getSeccion());
+            List<String> restricciones = grupoEspecialService.saveCambioAulaGrupo(grupoSpecial);
+
+            response.setMessage("Grupo modificado satisfactoriamente");
+            response.setSuccess(Boolean.TRUE);
+            if (!restricciones.isEmpty()) {
+                response.setMessage("Se presentaron inconvenientes para realizar los cambios");
+                response.setSuccess(Boolean.FALSE);
+            }
+            response.setData(restricciones);
+
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {

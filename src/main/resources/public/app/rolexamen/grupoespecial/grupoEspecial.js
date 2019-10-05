@@ -12,6 +12,27 @@ new Vue({
             SECCION: "SECCION",
             ALUMNO: "ALUMNO"
         },
+        cambiarAulamodal: VUE_MODAL.structFormAjax({
+            id: 'cambiarAulamodal',
+            header: true,
+            title: 'Cambiar Aula y/o Grupo Horario',
+            cancelbtn: 'Cancelar',
+            okbtn: 'Cambiar',
+            modalsize: 'modal-lg'
+        }),
+        asignarHorarioModal: {
+            id: 'asignarHorarioModal',
+            header: true,
+            title: 'Asignar Horario',
+            cancelbtn: 'Cancelar',
+            okbtn: 'Asignar',
+            modalsize: 'modal-lg',
+            showaccept: true
+        },
+        grupoHoras: [],
+        grupoEspTemp: {},
+        grupoEsp: {},
+        observaciones: {cantidad: 0, message: "", rows: 4}
     },
     mounted() {
         if (jRolExamenes != null) {
@@ -140,6 +161,108 @@ new Vue({
             this.$refs.moverSeccionComp.tipoorigen = "GRU_ESP";
             this.$refs.moverSeccionComp.loadComponent(this.rolExamen);
             this.$refs.moverSeccionModal.open();
+        },
+        removerHorario(item) {
+            console.log(item);
+            let vue = this;
+            bootbox.confirm({
+                message: "¿Está seguro que desea quitar el horario?",
+                buttons: {
+                    confirm: {label: 'Sí', className: "btn-warning"},
+                    cancel: {label: 'Cancelar', className: "btn-link"}
+                },
+                callback: function (result) {
+                    if (result) {
+                        MODAL.showWait("Espere un momento por favor");
+                        AXIOS.post(`${vue.URL}/quitarGrupo`, item)
+                                .then(response => {
+                                    if (response.data.success) {
+                                        vue.$refs.raptor.loadRemoteData();
+                                    }
+                                    MODAL.hideWait();
+                                });
+                    }
+                }
+            });
+        },
+        removerAula(item) {
+            console.log(item);
+            let vue = this;
+            bootbox.confirm({
+                message: "¿Está seguro que desea quitar el aula?",
+                buttons: {
+                    confirm: {label: 'Sí', className: "btn-warning"},
+                    cancel: {label: 'Cancelar', className: "btn-link"}
+                },
+                callback: function (result) {
+                    if (result) {
+                        MODAL.showWait("Espere un momento por favor");
+                        AXIOS.post(`${vue.URL}/quitarAula`, item)
+                                .then(response => {
+                                    if (response.data.success) {
+                                        vue.$refs.raptor.loadRemoteData();
+                                    }
+                                    MODAL.hideWait();
+                                });
+                    }
+                }
+            });
+        },
+        cambiarAula(item) {
+            console.log(item);
+            let $vue = this;
+            $vue.loadGrupos(item);
+            $vue.grupoEsp = item;
+            $vue.grupoEspTemp = JSON.parse(JSON.stringify(item));
+            $vue.observaciones = {cantidad: 0, message: "", rows: 4};
+            $vue.$refs.cambiarAulamodal.open();
+        },
+        asignarHorario(item) {
+            let $vue = this;
+
+            $vue.$refs.asignarHorarioModal.open();
+        },
+        loadGrupos(item) {
+            let $vue = this;
+            AXIOS.post(`${$vue.URL}/allGrupoHE`, item)
+                    .then(response => {
+                        if (response.data.success) {
+                            $vue.grupoHoras = response.data.data;
+                        }
+                    });
+        },
+        cLabelGrupo(item) {
+            if (item.grupoHoras) {
+                return item.grupoHoras.codigo;
+            }
+        },
+        saveCambiarAulaGrupo() {
+            let $vue = this;
+            $vue.$refs.cambiarAulamodal.beginProcessing();
+            $vue.observaciones = {cantidad: 0, message: "", rows: 4};
+
+            axios.post(`${$vue.URL}/cambiarAulaGrupo`, $vue.grupoEspTemp)
+                    .then(response => {
+                        $vue.$refs.cambiarAulamodal.confirmReaction(response.data.success);
+                        if (response.data.success) {
+                            $vue.$refs.raptor.loadRemoteData();
+                            notify(response.data.message, "info");
+                        } else {
+                            notify(response.data.message, "error");
+                        }
+                        let restricc = response.data.data;
+                        if (restricc != null) {
+                            $vue.observaciones.cantidad = restricc.length;
+                            $vue.observaciones.rows = restricc.length > 7 ? 7 : restricc.length;
+                            for (var i = 0; i < restricc.length; i++) {
+                                $vue.observaciones.message += (i + 1) + ") " + restricc[i] + "\n";
+                            }
+                        }
+
+                    }).catch(e => {
+                $vue.$refs.cambiarAulamodal.confirmReaction(false);
+                notify(MESSAGES.errorComunicacion, "error");
+            });
         }
     }
 });

@@ -8,7 +8,6 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
-import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
@@ -29,6 +28,8 @@ public interface SeccionDAO extends EasyDAO<Seccion> {
     Seccion findByCodeCiclo(String codigo, CicloAcademico ciclo);
 
     List<Seccion> allByCiclo(CicloAcademico ciclo);
+
+    List<Seccion> allForExamenByCiclo(CicloAcademico ciclo);
 
     List<Seccion> allByCodigo3Ciclo(CicloAcademico ciclo);
 
@@ -102,7 +103,7 @@ public interface SeccionDAO extends EasyDAO<Seccion> {
 
     void updateCodigo2(List<Seccion> secciones);
 
-    List<Seccion> allForRolExamenAndTipoGrupoHora(CicloAcademico ciclo, TipoGrupoHorasEnum tipoGrupoHorasEnum);
+    List<Seccion> allForRolExamenByTipoGrupoHora(CicloAcademico ciclo, TipoGrupoHorasEnum tipoGrupoHorasEnum);
 
     List<Seccion> allByCicloAndGrupoHoras(CicloAcademico ciclo, GrupoHoras grupoHoras);
 

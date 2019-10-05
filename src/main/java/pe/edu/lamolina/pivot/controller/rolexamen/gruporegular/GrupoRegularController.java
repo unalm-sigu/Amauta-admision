@@ -31,6 +31,7 @@ import pe.edu.lamolina.model.rolexamen.GrupoRegularExamen;
 import pe.edu.lamolina.model.rolexamen.LetraGrupoRegular;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
 import pe.edu.lamolina.model.rolexamen.SeccionGrupoRegular;
+import pe.edu.lamolina.pivot.controller.rolexamen.grupoespecial.GrupoEspecialService;
 import pe.edu.lamolina.pivot.controller.rolexamen.util.RolExamenesLogger;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -43,6 +44,9 @@ public class GrupoRegularController {
 
     @Autowired
     GrupoRegularService grupoRegularService;
+
+    @Autowired
+    GrupoEspecialService grupoEspecialService;
 
     @Autowired
     RolExamenesLogger rolExamenesLogger;
@@ -371,6 +375,27 @@ public class GrupoRegularController {
             }
 
             response.setMessage("Incluido corretamente.");
+            response.setSuccess(Boolean.TRUE);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "agregarGruposNuevos", method = RequestMethod.POST)
+    public JsonResponse agregarGruposNuevos(@RequestBody RolExamenes rolExamenes, HttpSession session, HttpServletRequest request) {
+        JsonResponse response = new JsonResponse();
+
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            ds.setFechaAccionAudit(new Date());
+            grupoRegularService.agregarGruposNuevos(rolExamenes, ds);
+            grupoEspecialService.calcularExamenesGrupoEspecial(rolExamenes, ds);
+
+            response.setMessage("Proceso finalizó.");
             response.setSuccess(Boolean.TRUE);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);

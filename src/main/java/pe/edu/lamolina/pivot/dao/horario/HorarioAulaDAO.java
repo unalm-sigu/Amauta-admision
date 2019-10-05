@@ -65,7 +65,9 @@ public interface HorarioAulaDAO extends EasyDAO<HorarioAula> {
 
     List<HorarioAula> allHorarioClasesBySecciones(List<Seccion> secciones, SemanaExamen semanaExamen);
 
-    List<HorarioAula> allByAulas(List<Aula> aulas);
+    List<HorarioAula> allWithSeccionByAulas(List<Aula> aulas);
+
+    List<HorarioAula> allByAulas(List<Aula> aulas, List<Seccion> secciones);
 
     List<HorarioAula> allByAulasAndSecciones(List<Aula> aulas, List<Seccion> secciones);
 
@@ -103,6 +105,8 @@ public interface HorarioAulaDAO extends EasyDAO<HorarioAula> {
 
     List<HorarioAula> allByRango(Date fechainicio, Date fechafin, Aula... aula);
 
+    List<HorarioAula> allByRangoNotByTipo(Date fechainicio, Date fechafin, TipoHorarioAulaEnum tipo, List<Aula> aulas);
+
     void deleteBySecciones(List<Seccion> secciones);
 
     List<HorarioAula> allBySeccionesSortByDiaHora(List<Seccion> seccions, CicloAcademico cicloOrigen);
@@ -114,5 +118,9 @@ public interface HorarioAulaDAO extends EasyDAO<HorarioAula> {
     List<HorarioAula> allByCicloAndTipoHorario(CicloAcademico cicloAcademico, List<Aula> aulas, TipoHorarioAulaEnum tipoHorarioAulaEnum);
 
     List<HorarioAula> allByFechas(Date fechainicio, Date fechafin, List<Aula> aulas, OficinaEnum oficinaEnum, TipoHorarioAulaEnum... tipoHorarioAulaEnum);
+
+    int saveList(List<HorarioAula> horariosAulas);
+
+    void deleteBySeccionGrupoEspecial(SeccionGrupoEspecial grupoDB);
 
 }

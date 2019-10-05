@@ -8,7 +8,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.hibernate.Query;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
+import pe.albatross.octavia.Insecto;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
@@ -37,6 +40,8 @@ public class SeccionGrupoRegularDAOH extends AbstractEasyDAO<SeccionGrupoRegular
         setClazz(SeccionGrupoRegular.class);
     }
 
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     @Override
     public SeccionGrupoRegular find(long id) {
         Octavia sql = Octavia.query()
@@ -53,6 +58,7 @@ public class SeccionGrupoRegularDAOH extends AbstractEasyDAO<SeccionGrupoRegular
                 .from(SeccionGrupoRegular.class, "sgr")
                 .join("letraGrupoRegular lgr", "seccion sec", "lgr.grupoHorasExamen ghe", "ghe.grupoHoras gh", "ghe.horaInicio hi", "ghe.horaFin hf")
                 .join("lgr.rolExamenes rex")
+                .left("docente")
                 .filter("gh.id", grupoHorasExamen)
                 .in("sgr.estado", seccionRolExamenEstadosEnum);
         return all(sql);
@@ -102,6 +108,16 @@ public class SeccionGrupoRegularDAOH extends AbstractEasyDAO<SeccionGrupoRegular
                 .from(SeccionGrupoRegular.class, "sgr")
                 .join("letraGrupoRegular lgr", "seccion sec")
                 .filter("lgr.id", letrasGruposRegular)
+                .in("sec.id", secciones);
+        return all(sql);
+    }
+
+    @Override
+    public List<SeccionGrupoRegular> allBySecciones(List<Seccion> secciones) {
+        Octavia sql = Octavia.query()
+                .from(SeccionGrupoRegular.class, "sgr")
+                .join("letraGrupoRegular lgr", "seccion sec")
+                .filter("estado", SeccionRolExamenEstadoEnum.ACT)
                 .in("sec.id", secciones);
         return all(sql);
     }
@@ -258,6 +274,28 @@ public class SeccionGrupoRegularDAOH extends AbstractEasyDAO<SeccionGrupoRegular
 
     private String tb(Class clazz) {
         return clazz.getSimpleName();
+    }
+
+    @Override
+    public int saveList(List<SeccionGrupoRegular> seccionesGpoReg) {
+        if (seccionesGpoReg.isEmpty()) {
+            return 0;
+        }
+
+        long t1 = System.currentTimeMillis();
+        Insecto sql = Insecto.createInsert()
+                .into(SeccionGrupoRegular.class)
+                .columns("estado", "fechaRegistro", "fechaExclusion", "letraGrupoRegular",
+                        "seccion", "aula", "docente", "userRegistro", "usuarioExclusion")
+                .values(seccionesGpoReg);
+
+        Query query = getCurrentSession().createSQLQuery(sql.toString());
+        int rows = query.executeUpdate();
+
+        long t2 = System.currentTimeMillis();
+        logger.info("{} HorarioAula's insertados en {} mseg....", rows, (t2 - t1));
+        return rows;
+
     }
 
 }

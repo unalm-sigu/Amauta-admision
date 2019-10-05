@@ -2,7 +2,9 @@ package pe.edu.lamolina.pivot.controller.rolexamen.util;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -12,6 +14,7 @@ import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.general.Aula;
+import pe.edu.lamolina.model.horario.HorarioAula;
 import pe.edu.lamolina.model.rolexamen.GrupoHorasExamen;
 import pe.edu.lamolina.model.rolexamen.LetraGrupoRegular;
 import pe.edu.lamolina.model.rolexamen.SeccionGrupoEspecial;
@@ -34,6 +37,7 @@ public class RolExamenesLogger {
 
     private List<Aula> aulas;
     private List<Aula> aulasOera;
+    private Map<Long, List<HorarioAula>> horarioAulas;
 
     private List<RolExamenesLogger> logDetails;
 
@@ -41,7 +45,8 @@ public class RolExamenesLogger {
 
     public void iniciarGeneric() {
         this.running = true;
-        this.logDetails = new ArrayList<>();
+        this.logDetails = new ArrayList();
+        this.horarioAulas = new LinkedHashMap();
     }
 
     public void iniciarCursoMasivo() {
@@ -49,53 +54,60 @@ public class RolExamenesLogger {
         this.tipo = TipoRolExamenesLoggerEnum.CUR_MAS.name();
         this.message = "Calculo de " + this.getTipoEnum().getValue();
         this.running = true;
-        this.logDetails = new ArrayList<>();
-        this.aulasOera = new ArrayList<>();
+        this.logDetails = new ArrayList();
+        this.aulasOera = new ArrayList();
+        this.horarioAulas = new LinkedHashMap();
     }
 
     public void activarCursoMasivo() {
         this.tipo = TipoRolExamenesLoggerEnum.ACT_CUR_MAS.name();
         this.message = "Proceso: " + this.getTipoEnum().getValue();
         this.running = true;
-        this.logDetails = new ArrayList<>();
-        this.aulasOera = new ArrayList<>();
+        this.logDetails = new ArrayList();
+        this.aulasOera = new ArrayList();
+        this.horarioAulas = new LinkedHashMap();
     }
 
     public void activarGrupoRegular() {
         this.tipo = TipoRolExamenesLoggerEnum.ACT_GPO_REG.name();
         this.message = "Proceso: " + this.getTipoEnum().getValue();
         this.running = true;
-        this.logDetails = new ArrayList<>();
-        this.aulasOera = new ArrayList<>();
+        this.logDetails = new ArrayList();
+        this.aulasOera = new ArrayList();
+        this.horarioAulas = new LinkedHashMap();
     }
 
     public void iniciarTrasladoToCursoMasivo() {
         this.tipo = TipoRolExamenesLoggerEnum.TRAS_TO_CUR_MAS.name();
         this.message = "Proceso de " + this.getTipoEnum().getValue();
         this.running = true;
-        this.logDetails = new ArrayList<>();
+        this.logDetails = new ArrayList();
+        this.horarioAulas = new LinkedHashMap();
     }
 
     public void iniciarTrasladoToGrupoRegular() {
         this.tipo = TipoRolExamenesLoggerEnum.TRAS_TO_GPO_REG.name();
         this.message = "Proceso de " + this.getTipoEnum().getValue();
         this.running = true;
-        this.logDetails = new ArrayList<>();
+        this.logDetails = new ArrayList();
+        this.horarioAulas = new LinkedHashMap();
     }
 
     public void iniciarGrupoEspecial() {
         this.tipo = TipoRolExamenesLoggerEnum.GPO_ESP.name();
         this.message = "Calculo de " + this.getTipoEnum().getValue();
         this.running = true;
-        this.logDetails = new ArrayList<>();
+        this.logDetails = new ArrayList();
+        this.horarioAulas = new LinkedHashMap();
     }
 
     public void iniciarGrupoRegular() {
         this.tipo = TipoRolExamenesLoggerEnum.GPO_REG.name();
         this.message = "Calculo de " + this.getTipoEnum().getValue();
         this.running = true;
-        this.logDetails = new ArrayList<>();
-        this.aulasOera = new ArrayList<>();
+        this.logDetails = new ArrayList();
+        this.aulasOera = new ArrayList();
+        this.horarioAulas = new LinkedHashMap();
     }
 
     public RolExamenesLogger() {
@@ -266,9 +278,9 @@ public class RolExamenesLogger {
 
     void addLogDetails(RolExamenesLogger rolExamenesLogger) {
         if (SHOW_LOG) {
-            logger.debug(rolExamenesLogger.getMessage());
+            //logger.debug(rolExamenesLogger.getMessage());
         }
-        this.logDetails.add(rolExamenesLogger);
+        //this.logDetails.add(rolExamenesLogger);
     }
 
     public void finalizeLog() {
@@ -376,16 +388,23 @@ public class RolExamenesLogger {
         return SHOW_LOG;
     }
 
-    public static void setSHOW_LOG(Boolean SHOW_LOG) {
-        RolExamenesLogger.SHOW_LOG = SHOW_LOG;
-    }
-
+//    public static void setSHOW_LOG(Boolean SHOW_LOG) {
+//        RolExamenesLogger.SHOW_LOG = SHOW_LOG;
+//    }
     public List<Aula> getAulas() {
         return aulas;
     }
 
     public void setAulas(List<Aula> aulas) {
         this.aulas = aulas;
+    }
+
+    public Map<Long, List<HorarioAula>> getHorarioAulas() {
+        return horarioAulas;
+    }
+
+    public void setHorarioAulas(Map<Long, List<HorarioAula>> horarioAulas) {
+        this.horarioAulas = horarioAulas;
     }
 
 }

@@ -39,7 +39,8 @@ new Vue({
                 return "";
             }
             return `${eventoCicloAcademico.eventoAcademico.nombre}`;
-        }, calcularGrupoRegular() {
+        },
+        calcularGrupoRegular() {
             $('#frmCalcular').find(".multiselect__input").each(function () {
                 $(this).attr("required", true);
             });
@@ -96,9 +97,11 @@ new Vue({
             }
 
 
-        }, changeRolExamen() {
+        },
+        changeRolExamen() {
             this.listGruposRegulares(this.rolExamen);
-        }, eliminarGruposRegulares() {
+        },
+        eliminarGruposRegulares() {
             let vue = this;
             bootbox.confirm({
                 message: "¿Si continua se perdera el avance de los grupos regulares y especiales?",
@@ -120,7 +123,8 @@ new Vue({
                     }
                 }
             });
-        }, listGruposRegulares(rolExamen) {
+        },
+        listGruposRegulares(rolExamen) {
             MODAL.showWait("Espere un momento por favor");
             AXIOS.post(`${this.URL}/listGruposRegulares`, rolExamen)
                     .then(response => {
@@ -129,7 +133,8 @@ new Vue({
                         }
                         MODAL.hideWait();
                     });
-        }, loadModalSecciones(letraGrupoRegular) {
+        },
+        loadModalSecciones(letraGrupoRegular) {
             this.letraSelected = letraGrupoRegular;
             //  MODAL.showWait("Espere un momento por favor");
             //   MODAL.hideWait();
@@ -137,7 +142,8 @@ new Vue({
             this.$refs.tblSeccionesGrupoRegular.ajaxdata = {letraGrupoRegular: letraGrupoRegular.id};
             this.$refs.tblSeccionesGrupoRegular.loadRemoteData();
             this.$refs.seccionModal.open();
-        }, loadModalGrupos(letraGrupoRegular) {
+        },
+        loadModalGrupos(letraGrupoRegular) {
             this.letraSelected = letraGrupoRegular;
             this.$refs.gruposModal.title = "Letra Grupo Horario " + letraGrupoRegular.letra + " | Grupo Horarios";
             AXIOS.post(`${this.URL}/${this.tipoAccion.GRUPO}/loadLetraGrupoRegularInfo`, letraGrupoRegular)
@@ -150,13 +156,15 @@ new Vue({
                             //   notify(response.data.message, 'error');
                         }
                     });
-        }, loadModalAlumnos(letraGrupoRegular) {
+        },
+        loadModalAlumnos(letraGrupoRegular) {
             this.letraSelected = letraGrupoRegular;
             this.$refs.tblAlumnosGrupoRegular.ajaxdata = {letraGrupoRegular: letraGrupoRegular.id};
             this.$refs.tblAlumnosGrupoRegular.loadRemoteData();
             this.$refs.alumnosModal.title = "Letra Grupo Horario " + letraGrupoRegular.letra + " | Alumnos";
             this.$refs.alumnosModal.open();
-        }, excluir(obj, tipoAccion) {
+        },
+        excluir(obj, tipoAccion) {
             let vue = this;
             bootbox.confirm({
                 message: "¿Está seguro que desea excluir?",
@@ -189,7 +197,8 @@ new Vue({
                     }
                 }
             });
-        }, incluir(obj, tipoAccion) {
+        },
+        incluir(obj, tipoAccion) {
             let vue = this;
             bootbox.confirm({
                 message: "¿Está seguro que desea incluir?",
@@ -222,8 +231,22 @@ new Vue({
                     }
                 }
             });
-        }, letraRegularSecciones(item) {
+        },
+        letraRegularSecciones(item) {
             location.href = `${this.URL}/secciones/${item.id}`;
+        },
+        agregarGruposNuevos() {
+            MODAL.showWait("Espere un momento por favor");
+            AXIOS.post(`${this.URL}/agregarGruposNuevos`, this.rolExamen)
+                    .then(response => {
+                        if (response.data.success) {
+                            // notify(response.data.message, 'info');
+                            this.listGruposRegulares(this.rolExamen);
+                        } else {
+                            //   notify(response.data.message, 'error');
+                        }
+                        MODAL.hideWait();
+                    });
         }
     }
 });

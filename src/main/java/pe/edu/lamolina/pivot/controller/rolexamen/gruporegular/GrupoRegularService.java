@@ -44,4 +44,6 @@ public interface GrupoRegularService {
 
     void deleteGrupoRegular(RolExamenes rolExamenes);
 
+    void agregarGruposNuevos(RolExamenes rolExamenes, DataSessionPivot ds);
+
 }

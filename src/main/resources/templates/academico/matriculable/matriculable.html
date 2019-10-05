@@ -8,9 +8,11 @@
             <div id="matriculableVUE" v-cloak="">
 
                 <header class="header b-b padder-lg">        
-                    <div class="btn-group pull-right" th:if="${puedeMatricular}">
-                        <button type="button" class="btn btn-success btn-sm dropdown-toggle" data-toggle="dropdown">
-                            <i class="fa fa-file-text-o"/> &nbsp; Acciones &nbsp; <span class="caret"></span>
+                    <div class="btn-group pull-right" th:if="${puedeMatricular}" >
+                        <button v-bind:disabled="processreporte" type="button" class="btn btn-success btn-sm dropdown-toggle" data-toggle="dropdown">
+                            <i  v-if="!processreporte" class="fa fa-file-text-o"/>
+                            <span v-if="processreporte"> <i class="fa fa-spinner fa-spin" style="font-size:14px"></i></span>
+                            &nbsp; Acciones &nbsp; <span class="caret"></span>
                         </button>
                         <ul class="dropdown-menu">
                             <li v-if="ciclo.fechaVerificaNmat == null"><a  v-on:click="revisar" >Verificar alumnos NMAT</a></li>
@@ -24,6 +26,9 @@
                             <li v-if="ciclo.fechaPrioridades != null &amp;&amp; ciclo.fechaCierrePrioridades==null" ><a v-on:click="finalizarPrioridad">Finalizar Prioridades</a></li>
                             <li v-if="ciclo.fechaCierrePrioridades != null " ><a v-on:click="findConfiguraciones">Asignar Turnos</a></li>
                             <li><a id="subirEgresado">Subir Egresados</a></li>
+                            <li class="divider"></li>
+                            <li><a v-on:click.prevent="generarReporte('candidatosActPre')">Candidatos Actos Pregrado</a></li>
+                            <li><a v-on:click.prevent="generarReporte('votantesActPre')">Votantes Actos Pregrado</a></li>
                         </ul>
                     </div>
                     <h2>Alumnos Matriculables <span v-text="ciclo.descripcion">2016-II</span></h2>

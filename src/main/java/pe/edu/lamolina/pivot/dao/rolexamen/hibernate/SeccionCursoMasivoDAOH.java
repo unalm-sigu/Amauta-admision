@@ -189,7 +189,7 @@ public class SeccionCursoMasivoDAOH extends AbstractEasyDAO<SeccionCursoMasivo> 
     }
 
     @Override
-    public List<SeccionCursoMasivo> allByGrupoHorasExamen(List<GrupoHorasExamen> grupoHorasExamenes) {
+    public List<SeccionCursoMasivo> allByGrupoHorasExamenList(List<GrupoHorasExamen> grupoHorasExamenes) {
         Octavia sql = Octavia.query()
                 .from(SeccionCursoMasivo.class, "scm")
                 .join("cursoMasivoExamen cme", "cme.rolExamenes rexa", "userRegistro ur", "seccion se", "cme.curso cur")
@@ -199,10 +199,21 @@ public class SeccionCursoMasivoDAOH extends AbstractEasyDAO<SeccionCursoMasivo> 
     }
 
     @Override
+    public List<SeccionCursoMasivo> allByGrupoHorasExamen(GrupoHorasExamen grupoHorasExamen, SeccionRolExamenEstadoEnum... estado) {
+        Octavia sql = Octavia.query()
+                .from(SeccionCursoMasivo.class, "scm")
+                .join("cursoMasivoExamen cme", "cme.rolExamenes rexa", "seccion sec", "cme.curso cur")
+                .left("cme.grupoHorasExamen ghe", "ghe.grupoHoras gh", "ghe.horaInicio hi", "ghe.horaFin hf", "docente")
+                .filter("ghe.id", grupoHorasExamen)
+                .in("scm.estado", estado);
+        return all(sql);
+    }
+
+    @Override
     public SeccionCursoMasivo findByRolExamenesSeccion(RolExamenes rol, Seccion seccion, SeccionRolExamenEstadoEnum... estado) {
         Octavia sql = Octavia.query()
                 .from(SeccionCursoMasivo.class, "scm")
-                .join("cursoMasivoExamen cme", "cme.rolExamenes rexa", "userRegistro ur", "seccion se", "cme.curso cur")
+                .join("cursoMasivoExamen cme", "cme.rolExamenes rexa", "seccion sec", "cme.curso cur")
                 .left("cme.grupoHorasExamen ghe", "ghe.grupoHoras gh", "ghe.horaInicio hi", "ghe.horaFin hf")
                 .filter("se.id", seccion)
                 .in("scm.estado", estado)

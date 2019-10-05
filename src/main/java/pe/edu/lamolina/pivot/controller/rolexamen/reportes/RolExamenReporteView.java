@@ -113,7 +113,7 @@ public class RolExamenReporteView extends AbstractPOIExcelView {
         for (SeccionGrupoEspecial masivo : especiales) {
             ExcelHelper.replaceVal(sheet, cont, 0, (String) ObjectUtil.getParentTree(masivo, "seccion.grupoSeccion.curso.nombre"));
             ExcelHelper.replaceVal(sheet, cont, 1, (String) ObjectUtil.getParentTree(masivo, "seccion.codigo2"));
-            ExcelHelper.replaceVal(sheet, cont, 2, (String) ObjectUtil.getParentTree(masivo, "grupoHorasExamen.grupoHoras.codigo"));
+            ExcelHelper.replaceVal(sheet, cont, 2, (String) ObjectUtil.getParentTree(masivo, "seccion.grupoHoras.codigo"));
             ExcelHelper.replaceVal(sheet, cont, 3, (String) ObjectUtil.getParentTree(masivo, "aula.codigo"));
 
             CellUtil.setCellStyleProperty(sheet.getRow(cont).getCell(3), wb, CellUtil.ALIGNMENT, CellStyle.ALIGN_CENTER);

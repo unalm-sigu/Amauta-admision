@@ -7,6 +7,7 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.horario.GrupoHoras;
+import pe.edu.lamolina.model.rolexamen.FechaHoraGrupoExamen;
 import pe.edu.lamolina.model.rolexamen.GrupoHorasExamen;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
 import pe.edu.lamolina.pivot.dao.rolexamen.GrupoHorasExamenDAO;
@@ -73,5 +74,20 @@ public class GrupoHorasExamenDAOH extends AbstractEasyDAO<GrupoHorasExamen> impl
         Octavia octavia = Octavia.update(GrupoHorasExamen.class);
         octavia.set(grupoHorasExamen, "verificado");
         this.update(octavia);
+    }
+
+    @Override
+    public List<GrupoHorasExamen> allForGrupoEspecial(RolExamenes rolExamenes) {
+        Octavia exist = Octavia.query(FechaHoraGrupoExamen.class, "fhge0")
+                .join("grupoHorasExamen ghe0");
+
+        Octavia sql = Octavia.query(GrupoHorasExamen.class, "ghe")
+                .join("grupoHoras gh", "rolExamenes re")
+                .filter("re.id", rolExamenes)
+                .exists(exist)
+                .linkedBy("ghe.id", "ghe0.id")
+                .orderBy("gh.codigo");
+
+        return all(sql);
     }
 }
