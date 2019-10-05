@@ -52,10 +52,17 @@ new Vue({
         conflictos: [],
         btnVerificar: true,
         btnTexto: "Verificar horarios",
+        grupoHoras: [],
+        cursoMasivoTempo: {},
+        cursoMasivoSelect: {},
         configCambioAulasGpo: VUE_MODAL.structFormAjax({
             id: "idModalCambioAulasGpo",
             modalsize: "modal-lg"
-        })
+        }),
+        configConfirmAction: VUE_MODAL.structConfirm({
+            id: "idModalConfirm"
+        }),
+        observaciones: {cantidad: 0, message: "", rows: 4}
     },
     mounted() {
         let $vue = this;
@@ -630,11 +637,142 @@ new Vue({
         },
         cambiarAulasGpo(item) {
             let $vue = this;
+            $vue.cursoMasivoTempo = Object.assign({}, item, {});
+            $vue.cursoMasivoSelect = Object.assign({}, item, {});
+            $vue.loadGrupos();
+            $vue.loadModulos();
+            $vue.aulas = $vue.cursoMasivoTempo.aulasCursosMasivos;
+            $vue.observaciones = {cantidad: 0, message: "", rows: 4};
+            $vue.aulasModulo = [];
+            $vue.modulo = {};
+
             $vue.$refs.modalCambioAulasGpo.open();
+        },
+        loadGrupos() {
+            let $vue = this;
+            AXIOS.post(`${$vue.URL}/allGrupoHE`, $vue.rolExamenes)
+                    .then(response => {
+                        if (response.data.success) {
+                            $vue.grupoHoras = response.data.data;
+                        }
+                    });
+        },
+        cLabelGrupo(item) {
+            if (item.grupoHoras) {
+                return item.grupoHoras.codigo;
+            }
+        },
+        buscarAulas() {
+            let $vue = this;
+            AXIOS.post(`${$vue.URL}/allAulasModulo`, $vue.modulo)
+                    .then(response => {
+                        if (response.data.success) {
+                            $vue.aulasModulo = response.data.data;
+                        }
+                    });
+        },
+        addAulaCM(aula) {
+            let $vue = this;
+            $vue.aulas.push({id: '', aula: aula});
+            $vue.cursoMasivoTempo.aulas = $vue.cursoMasivoTempo.aulas + 1;
+            $vue.cursoMasivoTempo.capacidadAulas = $vue.cursoMasivoTempo.capacidadAulas + aula.capacidadAula;
+        },
+        removeAulaCM(aula, idx) {
+            let $vue = this;
+            if (aula.id == '') {
+                $vue.aulas.splice(idx, 1);
+                $vue.cursoMasivoTempo.aulas = $vue.cursoMasivoTempo.aulas - 1;
+                $vue.cursoMasivoTempo.capacidadAulas = $vue.cursoMasivoTempo.capacidadAulas - aula.aula.capacidadAula;
+
+            } else {
+                bootbox.confirm({
+                    message: '¿Está seguro que desea eliminar esta aula?',
+                    buttons: {
+                        confirm: {label: 'Si, eliminar', className: 'btn-danger'},
+                        cancel: {label: 'No', className: 'btn-link'}
+                    },
+                    callback: function (result) {
+                        if (result) {
+                            $vue.aulas.splice(idx, 1);
+                            $vue.cursoMasivoTempo.aulas = $vue.cursoMasivoTempo.aulas - 1;
+                            $vue.cursoMasivoTempo.capacidadAulas = $vue.cursoMasivoTempo.capacidadAulas - aula.aula.capacidadAula;
+                        }
+                    }
+                });
+            }
+
+        },
+        verSaveCambioAulasGpo() {
+
+            let $vue = this;
+            $vue.configConfirmAction.message = "¿Está seguro que desea asignar estas aulas?";
+            $vue.configConfirmAction.okaction = $vue.saveCambioAulasGpo;
+            $vue.$refs.modalConfirmAction.open();
+
+            if (1 == 1) {
+                return;
+            }
+
+
+            bootbox.confirm({
+                message: '¿Está seguro que desea asignar estas aulas?',
+                buttons: {
+                    confirm: {label: 'Si, guardar', className: 'btn-success'},
+                    cancel: {label: 'No', className: 'btn-link'}
+                },
+                callback: function (result) {
+                    if (result) {
+                        MODAL.showWait("Espere un momento por favor");
+                        $.ajax({
+                            method: "POST",
+                            contentType: "application/json",
+                            url: APP.url("rolexamen/cursomasivos/saveAulas"),
+                            data: JSON.stringify($vue.cursoMasivoExamen)
+                        }).then(response => {
+                            if (response.success) {
+                                $vue.$refs.addAulasModal.close();
+                                $vue.loadCursosMasivosByRoleExamen();
+                                $vue.curso = null;
+                                notify(response.message, "info")
+                            } else {
+                                notify(response.message, 'error');
+                            }
+                            MODAL.hideWait();
+                        }, error => {
+                            notify(MESSAGES.errorComunicacion, 'error');
+                        });
+                    }
+                }
+            });
+            $vue.$refs.modalCambioAulasGpo.beginProcessing();
         },
         saveCambioAulasGpo() {
             let $vue = this;
+            $vue.$refs.modalConfirmAction.close();
+
             $vue.$refs.modalCambioAulasGpo.beginProcessing();
+            axios.post(`${$vue.URL}/cmbiarCambioAulasGrupo`, $vue.cursoMasivoTempo)
+                    .then(response => {
+                        $vue.$refs.modalCambioAulasGpo.confirmReaction(response.data.success);
+                        if (response.data.success) {
+                            $vue.loadCursosMasivosByRoleExamen();
+                            notify(response.data.message, "info");
+                        } else {
+                            notify(response.data.message, "error");
+                        }
+                        let restricc = response.data.data;
+                        if (restricc != null) {
+                            $vue.observaciones.cantidad = restricc.length;
+                            $vue.observaciones.rows = restricc.length > 7 ? 7 : restricc.length;
+                            for (var i = 0; i < restricc.length; i++) {
+                                $vue.observaciones.message += (i + 1) + ") " + restricc[i] + "\n";
+                            }
+                        }
+                    }).catch(e => {
+                $vue.$refs.modalCambioAulasGpo.confirmReaction(false);
+                notify(MESSAGES.errorComunicacion, "error");
+            });
         }
+
     }
 });

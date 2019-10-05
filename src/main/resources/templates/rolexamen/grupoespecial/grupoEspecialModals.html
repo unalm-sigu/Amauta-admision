@@ -1,0 +1,166 @@
+<modal-vik ref="alumnosModal"
+           id="modalAlumnos"
+           header="true"
+           modalsize="modal-lg"
+           v-bind:showaccept="false">
+    <div slot="body">
+
+        <raptor-table v-bind:url="`${URL}/listAlumnosGrupoEspecial`" v-bind:preload="false" ref="tblAlumnosGrupoEspecial">
+            <template scope="props">
+
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th class="col-md-3 text-center">Codigo</th>
+                            <th class="col-md-5 text-center">Alumno</th>
+                            <th class="col-md-3 text-center">Estado</th>
+                            <th class="col-md-1 text-center"></th>
+                        </tr>
+                    </thead>
+                    <tbody style="height:200px;overflow-y:auto;">
+                        <tr v-for="alu in props.data">
+                            <td>
+                                <span v-text="alu.alumno.codigo"></span>
+                            </td>
+                            <td v-text="alu.alumno.persona.apellidosNombres">
+
+                            </td>
+                            <td class="text-center">
+                    <v-estado v-bind:codigo="alu.estado" v-bind:valor="alu.estadoEnum.value"/> 
+                    </td>
+                    <td>
+                        <!-- 
+                        <div class="dropdown actions pointer">
+                            <a class="dropdown-toggle" data-toggle="dropdown">
+                                <i class="glyphicon glyphicon-option-vertical"></i>
+                            </a> 
+                            <ul class="dropdown-menu pull-right">
+                                <li><a v-if="alu.isEstadoActivo" v-on:click.prevent="excluir(alu,tipoAccion.ALUMNO)">Excluir</a></li>
+                                <li><a >Mover</a></li>
+                            </ul>
+                        </div>
+                        -->
+                    </td>
+                    </tr>
+                    </tbody>
+                </table>
+
+            </template>
+        </raptor-table>
+    </div>
+</modal-vik>
+
+<modal-vik ref="moverSeccionModal"
+           id="modalMoverSeccion"
+           header="true"
+           modalsize="modal-lg"
+           title="Mover Seccion"
+           v-bind:showaccept="false">
+    <div slot="body">
+
+        <mover-seccion-examen ref="moverSeccionComp"
+                              > 
+        </mover-seccion-examen> 
+
+    </div>
+</modal-vik>
+<modal-vik v-bind="cambiarAulamodal"
+           ref="cambiarAulamodal"
+           v-bind:okaction="saveCambiarAulaGrupo"
+           >
+    <div slot="body">
+        <div class="row">
+            <div class="col-md-12">
+                <label class="col-md-3 bold">Sección</label>
+                <label class="col-md-9" v-if="grupoEsp.seccion" v-text="grupoEsp.seccion.codigo2">Secc</label>
+            </div>
+            <div class="col-md-12">
+                <label class="col-md-3 bold">Curso</label>
+                <label class="col-md-9" v-if="grupoEsp.seccion">
+                    {{grupoEsp.seccion.grupoSeccion.curso.codigo}} - {{grupoEsp.seccion.grupoSeccion.curso.nombre}}
+                </label>
+            </div>
+            <div class="col-md-12">
+                <label class="col-md-3 bold">Grupo Dictado</label>
+                <label class="col-md-3" v-if="grupoEsp.seccion" v-text="grupoEsp.seccion.grupoHoras.codigo"></label>
+                <label class="col-md-3 bold">Aula Dictado</label>
+                <label class="col-md-3" v-if="grupoEsp.seccion" v-text="grupoEsp.seccion.aula.codigo"></label>
+            </div>
+
+            <div class="col-md-12">
+                <hr/>
+            </div>
+
+            <div class="col-md-12">
+                <label class="col-md-2"></label>
+                <label class="col-md-5 text-center" style="font-weight: bold;">Cambio</label>
+                <label class="col-md-5 text-center" style="font-weight: bold;">Actual</label>
+            </div>
+
+            <div class="col-md-12 form-group">
+                <label class="col-md-2">Aula</label>
+                <div class="col-md-5">
+                    <input class="form-control" v-if="grupoEspTemp.aula" v-model="grupoEspTemp.aula.codigo" required="" />
+                </div>
+                <div class="col-md-5">
+                    <span v-if="grupoEsp.aula" class="form-control text-primary" v-text="grupoEsp.aula.codigo"></span>
+                </div>
+            </div>
+
+            <div class="col-md-12 form-group">
+                <div class="col-md-2">
+                    <label>Grupo</label>
+                </div>
+                <div class="col-md-5">
+                    <multiselect 
+                        v-model="grupoEspTemp.grupoHorasExamen"
+                        track-by="id"
+                        v-bind:options="grupoHoras"
+                        label="nombre"
+                        v-bind:custom-label="cLabelGrupo"
+                        required="true"
+                        >
+                    </multiselect>
+                </div>
+                <div class="col-md-5">
+                    <span v-if="grupoEsp.grupoHorasExamen" class="form-control text-primary" 
+                          v-text="grupoEsp.grupoHorasExamen.grupoHoras.codigo"></span>
+                </div>
+            </div>
+
+            <div class="col-md-12" v-if="grupoEsp.grupoHorasExamen">
+                <div class="col-md-2">&nbsp;&nbsp;&nbsp;</div>
+                <div class="col-md-5">
+                    <span v-if="grupoEspTemp.grupoHorasExamen" class="form-control">
+                        {{grupoEspTemp.grupoHorasExamen.descripcion}}
+                    </span>
+                </div>
+                <div class="col-md-5">
+                    <div v-if="grupoEsp.grupoHorasExamen.fecha" class="form-control text-primary">
+                        {{grupoEsp.grupoHorasExamen.fecha }}
+                        de {{grupoEsp.grupoHorasExamen.horaInicio.descripcion}}
+                        a {{grupoEsp.grupoHorasExamen.horaFin.descripcion}}
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div v-if="observaciones.cantidad > 0 ">
+            <div class="form-group m-t">
+                <label class="h4">Resultaron {{observaciones.cantidad}} observaciones</label>
+                <textarea readonly="yes" v-bind:rows="observaciones.rows" class="form-control">{{observaciones.message}}</textarea>
+            </div>
+        </div>
+
+    </div>
+</modal-vik>
+<modal-vik v-bind="asignarHorarioModal"
+           ref="asignarHorarioModal"
+           >
+    <div slot="body">
+
+
+
+    </div>
+</modal-vik>

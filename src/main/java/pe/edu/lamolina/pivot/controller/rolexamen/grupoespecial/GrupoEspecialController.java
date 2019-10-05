@@ -307,22 +307,21 @@ public class GrupoEspecialController {
 
     @ResponseBody
     @RequestMapping("allGrupoHE")
-    public JsonResponse allGrupoHE(@RequestBody SeccionGrupoEspecial grupoSpecial, HttpSession session) {
+    public JsonResponse allGrupoHE(@RequestBody RolExamenes rolExamenes, HttpSession session) {
         JsonResponse response = new JsonResponse();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
         try {
             JsonNodeFactory jc = JsonNodeFactory.instance;
             ArrayNode array = new ArrayNode(jc);
-            List<GrupoHorasExamen> grupos = grupoEspecialService.allGrupoHoraExamen(grupoSpecial);
+            List<GrupoHorasExamen> grupos = grupoEspecialService.allGrupoHoraExamenByRolExamenes(rolExamenes);
             for (GrupoHorasExamen grupo : grupos) {
                 ObjectNode jGrupo = JsonHelper.createJson(grupo, JsonNodeFactory.instance, new String[]{
-                    "id", "grupoHoras.id", "grupoHoras.codigo", "rolExamenes.id"
+                    "id", "grupoHoras.id", "grupoHoras.codigo", "rolExamenes.id", "descripcion"
                 });
                 array.add(jGrupo);
             }
             response.setData(array);
-            response.setMessage("Horario retirado correctamente");
             response.setSuccess(Boolean.TRUE);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
@@ -340,10 +339,6 @@ public class GrupoEspecialController {
 
         try {
             JsonNodeFactory jc = JsonNodeFactory.instance;
-            ArrayNode array = new ArrayNode(jc);
-            System.out.println("------------------");
-            System.out.println(grupoSpecial.getId());
-            System.out.println(grupoSpecial.getSeccion());
             List<String> restricciones = grupoEspecialService.saveCambioAulaGrupo(grupoSpecial);
 
             response.setMessage("Grupo modificado satisfactoriamente");

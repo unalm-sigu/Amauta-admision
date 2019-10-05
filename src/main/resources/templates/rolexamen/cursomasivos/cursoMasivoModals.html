@@ -581,11 +581,129 @@
 
 <modal-vik ref="modalCambioAulasGpo"
            v-bind="configCambioAulasGpo"
-           v-bind:okaction="saveCambioAulasGpo">   
-    <div slot="body">
+           v-bind:okaction="verSaveCambioAulasGpo">   
+    <div slot="body" v-if="cursoMasivoTempo.id">
         <div class="panel m-b-n">
             <div class="panel-body">
-                
+                <div class="row">
+                    <div class="col-md-2 bold h4 bold m-t-xxs m-b">Curso</div>
+                    <div class="col-md-10 h4 text-primary m-t-xxs">
+                        {{cursoMasivoTempo.curso.codigo}} -
+                        {{cursoMasivoTempo.curso.nombre}}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-2 bold form-group">Grupo actual</div>
+                    <div class="col-md-4 form-group">
+                        <span class="form-control text-primary">
+                            {{cursoMasivoSelect.grupoHorasExamen.grupoHoras.codigo}}
+                        </span>
+                    </div>
+                    <div class="col-md-6 form-group">
+                        <span class="form-control text-primary">
+                            {{cursoMasivoSelect.grupoHorasExamen.fecha }}
+                            de {{cursoMasivoSelect.grupoHorasExamen.horaInicio.descripcion}}
+                            a {{cursoMasivoSelect.grupoHorasExamen.horaFin.descripcion}}
+                        </span>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-2 bold form-group">Grupo Nuevo</div>
+                    <div class="col-md-4 form-group">
+                        <multiselect 
+                            v-model="cursoMasivoTempo.grupoHorasExamen"
+                            track-by="id"
+                            v-bind:options="grupoHoras"
+                            label="nombre"
+                            v-bind:custom-label="cLabelGrupo"
+                            required="true">
+                        </multiselect>
+                    </div>
+                    <div class="col-md-6 form-group">
+                        <span v-if="cursoMasivoTempo.grupoHorasExamen" class="form-control">
+                            {{cursoMasivoTempo.grupoHorasExamen.descripcion}}
+                        </span>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-2 bold form-group">Aulas actuales</div>
+                    <div class="col-md-6 form-group">
+                        <span class="form-control text-primary">
+                            <span v-for="item in cursoMasivoTempo.aulasCursosMasivos">
+                                {{item.aula.codigo}}
+                            </span>
+                        </span>
+                    </div>
+                    <div class="col-md-2 bold form-group">Secciones</div>
+                    <div class="col-md-2 bold form-group">
+                        <span v-text="cursoMasivoTempo.seccionesCount" class="form-control text-primary">
+                            12
+                        </span>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-2 bold form-group">Módulo</div>
+                    <div class="col-md-6 form-group">
+                        <multiselect  
+                            v-model="modulo"
+                            label='nombre'
+                            track-by="id"
+                            v-bind:options="modulos"
+                            deselect-label=""
+                            select-label="Seleccione este módulo"
+                            v-on:input="buscarAulas"
+                            placeholder="">
+                        </multiselect>
+                    </div>
+                    <div class="col-md-4"></div>
+                </div>
+
+
+                <label class="bold"
+                       v-if="modulo.id != undefined ">Aulas Disponibles</label>
+                <div class="tab-pane m-t-n m-b">
+                    <div class="row">
+                        <div v-for="aula in aulasModulo" class="col-md-1 m-t-md pointer"
+                             v-if="noExiste(aula)">
+                            <div class="list-group-item item" 
+                                 style="min-height: 50px; min-width: 60px;border-width: 1px; background-color: #33ACFF;color: white;"
+                                 v-on:click="addAulaCM(aula)">
+                                <div>
+                                    <span class="h4" v-text="aula.codigo"></span>
+                                    <small>({{aula.capacidadAula}})</small>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <label class="bold" 
+                       v-if="aulas.length > 0">Aulas Asignadas</label>
+                <div class="tab-pane m-t-n">
+                    <div class="row">
+                        <div v-for="(aula,idx) in aulas" class="col-md-1 m-t-md pointer">
+                            <div class="list-group-item item" 
+                                 style="min-height: 50px; min-width: 60px;border-width: 1px; color: white;"
+                                 v-bind:style="styleBgColor(aula)"
+                                 v-on:click="removeAulaCM(aula,idx)">
+                                <div>
+                                    <span class="h4" v-text="aula.aula.codigo"></span>
+                                    <small>({{aula.aula.capacidadAula}})</small>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div v-if="observaciones.cantidad > 0 ">
+                    <div class="form-group m-t">
+                        <label class="h4">Resultaron {{observaciones.cantidad}} observaciones</label>
+                        <textarea readonly="yes" v-bind:rows="observaciones.rows" class="form-control">{{observaciones.message}}</textarea>
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>
