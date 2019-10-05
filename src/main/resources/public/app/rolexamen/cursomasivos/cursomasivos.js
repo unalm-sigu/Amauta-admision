@@ -52,6 +52,10 @@ new Vue({
         conflictos: [],
         btnVerificar: true,
         btnTexto: "Verificar horarios",
+        configCambioAulasGpo: VUE_MODAL.structFormAjax({
+            id: "idModalCambioAulasGpo",
+            modalsize: "modal-lg"
+        })
     },
     mounted() {
         let $vue = this;
@@ -623,6 +627,14 @@ new Vue({
                 return "text-primary";
             }
             return "text-danger";
+        },
+        cambiarAulasGpo(item) {
+            let $vue = this;
+            $vue.$refs.modalCambioAulasGpo.open();
+        },
+        saveCambioAulasGpo() {
+            let $vue = this;
+            $vue.$refs.modalCambioAulasGpo.beginProcessing();
         }
     }
 });
