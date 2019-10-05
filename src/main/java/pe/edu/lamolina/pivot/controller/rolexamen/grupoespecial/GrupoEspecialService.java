@@ -4,6 +4,7 @@ import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.rolexamen.AlumnoGrupoEspecial;
+import pe.edu.lamolina.model.rolexamen.GrupoHorasExamen;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
 import pe.edu.lamolina.model.rolexamen.SeccionGrupoEspecial;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -31,5 +32,11 @@ public interface GrupoEspecialService {
     void activarSeccionEspecial(SeccionGrupoEspecial seccionGrupoEspecial, DataSessionPivot ds);
 
     void activarAlumnoEspecial(AlumnoGrupoEspecial alumnoGrupoEspecial, DataSessionPivot ds);
+
+    void removerAula(SeccionGrupoEspecial grupoSpecial);
+
+    List<GrupoHorasExamen> allGrupoHEForSelect(SeccionGrupoEspecial grupoSpecial);
+
+    void removerGrupo(SeccionGrupoEspecial grupoSpecial);
 
 }

@@ -12,6 +12,25 @@ new Vue({
             SECCION: "SECCION",
             ALUMNO: "ALUMNO"
         },
+        cambiarAulamodal: {
+            id: 'cambiarAulamodal',
+            header: true,
+            title: 'Cambiar Aula',
+            cancelbtn: 'Cancelar',
+            okbtn: 'Cambiar',
+            modalsize: 'modal-md',
+            showaccept: true
+        },
+        asignarHorarioModal: {
+            id: 'asignarHorarioModal',
+            header: true,
+            title: 'Asignar Horario',
+            cancelbtn: 'Cancelar',
+            okbtn: 'Asignar',
+            modalsize: 'modal-lg',
+            showaccept: true
+        },
+        grupoHoras: []
     },
     mounted() {
         if (jRolExamenes != null) {
@@ -140,6 +159,60 @@ new Vue({
             this.$refs.moverSeccionComp.tipoorigen = "GRU_ESP";
             this.$refs.moverSeccionComp.loadComponent(this.rolExamen);
             this.$refs.moverSeccionModal.open();
+        },
+        removerHorario(item) {
+            console.log(item);
+            let vue = this;
+            bootbox.confirm({
+                message: "¿Está seguro que desea quitar el horario?",
+                buttons: {
+                    confirm: {label: 'Sí', className: "btn-warning"},
+                    cancel: {label: 'Cancelar', className: "btn-link"}
+                },
+                callback: function (result) {
+                    if (result) {
+                        MODAL.showWait("Espere un momento por favor");
+                        AXIOS.post(`${vue.URL}/quitarHorario`, item)
+                                .then(response => {
+                                    if (response.data.success) {
+                                        vue.$refs.raptor.loadRemoteData();
+                                    }
+                                    MODAL.hideWait();
+                                });
+                    }
+                }
+            });
+        },
+        removerAula(item) {
+            console.log(item);
+            let vue = this;
+            bootbox.confirm({
+                message: "¿Está seguro que desea quitar el aula?",
+                buttons: {
+                    confirm: {label: 'Sí', className: "btn-warning"},
+                    cancel: {label: 'Cancelar', className: "btn-link"}
+                },
+                callback: function (result) {
+                    if (result) {
+                        MODAL.showWait("Espere un momento por favor");
+                        AXIOS.post(`${vue.URL}/quitarAula`, item)
+                                .then(response => {
+                                    if (response.data.success) {
+                                        vue.$refs.raptor.loadRemoteData();
+                                    }
+                                    MODAL.hideWait();
+                                });
+                    }
+                }
+            });
+        },
+        cambiarAula(item) {
+            let $vue = this;
+            $vue.$refs.cambiarAulamodal.open();
+        },
+        asignarHorario(item) {
+            let $vue = this;
+            $vue.$refs.asignarHorarioModal.open();
         }
     }
 });

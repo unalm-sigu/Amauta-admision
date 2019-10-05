@@ -20,4 +20,6 @@ public interface GrupoHorasExamenDAO extends EasyDAO<GrupoHorasExamen> {
     void updateFechaExamen(GrupoHorasExamen grupoHorasExamen);
 
     void updateVerificado(GrupoHorasExamen grupoHorasExamen);
+
+    List<GrupoHorasExamen> allForGrupoEspecial(RolExamenes rolExamenes);
 }
