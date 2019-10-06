@@ -679,6 +679,7 @@ new Vue({
 
             let moduloQuery = Object.assign({}, $vue.modulo, {});
             moduloQuery.cursoMasivo = $vue.cursoMasivoTempo;
+            $vue.observaciones = {cantidad: 0, message: "", rows: 4};
 
             $vue.$refs.modalCambioAulasGpo.beginProcessing();
             axios.post(`${$vue.URL}/allAulasVerificadasByModulo`, moduloQuery)
@@ -729,43 +730,6 @@ new Vue({
             $vue.configConfirmAction.message = "¿Está seguro que desea asignar estas aulas?";
             $vue.configConfirmAction.okaction = $vue.saveCambioAulasGpo;
             $vue.$refs.modalConfirmAction.open();
-
-            if (1 == 1) {
-                return;
-            }
-
-
-            bootbox.confirm({
-                message: '¿Está seguro que desea asignar estas aulas?',
-                buttons: {
-                    confirm: {label: 'Si, guardar', className: 'btn-success'},
-                    cancel: {label: 'No', className: 'btn-link'}
-                },
-                callback: function (result) {
-                    if (result) {
-                        MODAL.showWait("Espere un momento por favor");
-                        $.ajax({
-                            method: "POST",
-                            contentType: "application/json",
-                            url: APP.url("rolexamen/cursomasivos/saveAulas"),
-                            data: JSON.stringify($vue.cursoMasivoExamen)
-                        }).then(response => {
-                            if (response.success) {
-                                $vue.$refs.addAulasModal.close();
-                                $vue.loadCursosMasivosByRoleExamen();
-                                $vue.curso = null;
-                                notify(response.message, "info")
-                            } else {
-                                notify(response.message, 'error');
-                            }
-                            MODAL.hideWait();
-                        }, error => {
-                            notify(MESSAGES.errorComunicacion, 'error');
-                        });
-                    }
-                }
-            });
-            $vue.$refs.modalCambioAulasGpo.beginProcessing();
         },
         saveCambioAulasGpo() {
             let $vue = this;

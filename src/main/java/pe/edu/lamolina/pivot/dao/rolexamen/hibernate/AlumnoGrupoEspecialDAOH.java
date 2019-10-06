@@ -85,6 +85,16 @@ public class AlumnoGrupoEspecialDAOH extends AbstractEasyDAO<AlumnoGrupoEspecial
     }
 
     @Override
+    public List<AlumnoGrupoEspecial> allByFechaEstados(Date fecha, AlumnoRolExamenEstadoEnum... estados) {
+        Octavia sql = Octavia.query()
+                .from(AlumnoGrupoEspecial.class, "age")
+                .join("alumno alu", "seccionGrupoEspecial sge", "sge.grupoHorasExamen ghe", "alumno")
+                .filter("ghe.fecha", fecha)
+                .in("age.estado", estados);
+        return all(sql);
+    }
+
+    @Override
     public List<AlumnoGrupoEspecial> allBySeccionGrupoEspecialAndEstados(List<SeccionGrupoEspecial> seccionesGrupoEspecial, AlumnoRolExamenEstadoEnum... estados) {
         Octavia sql = Octavia.query()
                 .from(AlumnoGrupoEspecial.class, "age")
