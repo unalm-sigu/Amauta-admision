@@ -223,6 +223,18 @@ public class GrupoEspecialServiceImp implements GrupoEspecialService {
         Map<Long, List<HorarioSeccion>> mapHorariosBySeccion = TypesUtil.convertListToMapList("seccion.id", horarios);
 
         List<LetraGrupoRegular> letrasGrupoRegular = letraGrupoRegularDAO.allByRolExamenes(rolExamenes);
+        List<LetraGrupoRegular> letrasDead = new ArrayList();
+        for (LetraGrupoRegular letraGpoReg : letrasGrupoRegular) {
+            if ("I".equals(letraGpoReg.getLetra())) {
+                letrasDead.add(letraGpoReg);
+            }
+            if ("J".equals(letraGpoReg.getLetra())) {
+                letrasDead.add(letraGpoReg);
+            }
+        }
+        for (LetraGrupoRegular letraDead : letrasDead) {
+            //letrasGrupoRegular.remove(letraDead);
+        }
         grupoRegularConnector.fillActiveInfoLetrasGruposRegulares(letrasGrupoRegular);
 
         List<CursoMasivoExamen> cursosMasivos = cursoMasivoExamenDAO.allByRolExamenes(rolExamenes, EstadoCursoMasivoEnum.ACT);
@@ -548,15 +560,23 @@ public class GrupoEspecialServiceImp implements GrupoEspecialService {
             Aula aula,
             List<Alumno> alumnos) {
 
+        if (grupoHorasExamen.getGrupoHoras().getCodigo().equals("I")) {
+            return false;
+        }
+        if (grupoHorasExamen.getGrupoHoras().getCodigo().equals("J")) {
+            return false;
+        }
+
         //logger.debug("Se intentara el match con gpoHor {} - gpoHorExam {} - aula {}", grupoHorasExamen.getGrupoHoras().getCodigo(), grupoHorasExamen.getId(), aulas.get(0).getId());
-        System.out.println("grupoHorasExamen.id=" + grupoHorasExamen.getId());
+        //System.out.println("grupoHorasExamen.id=" + grupoHorasExamen.getId());
         for (LetraGrupoRegular letra : letrasGrupoRegular) {
-            System.out.println("\tletra.grupoHorasExamen.id=" + letra.getGrupoHorasExamen().getId());
-            System.out.println("\tletra.grupoHorasExamen.id=" + letra.getGrupoHorasExamen().getId());
+            //System.out.println("\tletra.grupoHorasExamen.id=" + letra.getGrupoHorasExamen().getId());
+            //System.out.println("\tletra.grupoHorasExamen.id=" + letra.getGrupoHorasExamen().getId());
         }
         LetraGrupoRegular letraGrupoRegularByGrupoExamen = letrasGrupoRegular.stream()
                 .filter(x -> x.getGrupoHorasExamen().getId().equals(grupoHorasExamen.getId())).findFirst().orElse(null);
         List<CursoMasivoExamen> cursosMasivosByGrupoExamen = cursosMasivos.stream()
+                .filter(x -> x.getGrupoHorasExamen() != null)
                 .filter(x -> x.getGrupoHorasExamen().getId().equals(grupoHorasExamen.getId())).collect(Collectors.toList());
 //        List<SeccionGrupoEspecial> otherSeccionesGrupoEspecialByGrupoExamen = otherSeccionesGrupoEspeciales.stream()
 //                .filter(x -> x.getGrupoHorasExamen() != null)
@@ -576,9 +596,9 @@ public class GrupoEspecialServiceImp implements GrupoEspecialService {
 
         boolean validacionCursosMasivos = grupoRegularConnector.validarCursosMasivos(cursosMasivosByGrupoExamen, docentes, aulasRevision, alumnos);
         boolean validacionGrupoRegular = true;
-        System.out.println("letraGrupoRegularByGrupoExamen=" + letraGrupoRegularByGrupoExamen);
+        //System.out.println("letraGrupoRegularByGrupoExamen=" + letraGrupoRegularByGrupoExamen);
         if (letraGrupoRegularByGrupoExamen != null) {
-            System.out.println("\tentro grupoRegularConnector.validarGrupoRegular");
+            //System.out.println("\tentro grupoRegularConnector.validarGrupoRegular");
             validacionGrupoRegular = grupoRegularConnector.validarGrupoRegular(letraGrupoRegularByGrupoExamen, alumnos, docentes, aulasRevision);
         }
         boolean validacionSeccionesGpoEspecial = grupoRegularConnector.validarGrupoEspecial(otherSeccionesGrupoEspecialByGrupoExamen, alumnos, docentes, aulasRevision);

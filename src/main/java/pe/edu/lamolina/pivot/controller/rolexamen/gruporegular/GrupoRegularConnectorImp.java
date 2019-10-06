@@ -532,15 +532,15 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
 
         //validar conflicto docentes
         boolean docenteConflicto = false;
-//        for (Docente docente : docentes) {
-//            SeccionGrupoRegular seccionGrupoRegularWithDocente = seccionesGruposRegularesByLetra.stream()
-//                    .filter(x -> x.getDocente().equals(docente)).findFirst().orElse(null);
-//            if (seccionGrupoRegularWithDocente != null) {
-//                docenteConflicto = true;
-//                rolExamenesLogger.cruceDocente(docente, letraGrupoRegular, seccionGrupoRegularWithDocente.getSeccion());
-//                // break;
-//            }
-//        }
+        for (Docente docente : docentes) {
+            SeccionGrupoRegular seccionGrupoRegularWithDocente = seccionesGruposRegularesByLetra.stream()
+                    .filter(x -> x.getDocente().equals(docente)).findFirst().orElse(null);
+            if (seccionGrupoRegularWithDocente != null) {
+                docenteConflicto = true;
+                rolExamenesLogger.cruceDocente(docente, letraGrupoRegular, seccionGrupoRegularWithDocente.getSeccion());
+                // break;
+            }
+        }
 
         //valida conflicto aula
         Date fecha = letraGrupoRegular.getGrupoHorasExamen().getFecha();
@@ -687,15 +687,15 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
 
         //validar conflicto docentes
         boolean docenteConflicto = false;
-//        for (Docente docente : docentes) {
-//            SeccionGrupoEspecial seccionGrupoEspecialWithDocente = seccionesGrupoEspecial.stream()
-//                    .filter(x -> x.getDocente().getId().equals(docente.getId())).findFirst().orElse(null);
-//            if (seccionGrupoEspecialWithDocente != null) {
-//                docenteConflicto = true;
-//                rolExamenesLogger.cruceDocente(docente, seccionGrupoEspecialWithDocente);
-//                // break;
-//            }
-//        }
+        for (Docente docente : docentes) {
+            SeccionGrupoEspecial seccionGrupoEspecialWithDocente = seccionesGrupoEspecial.stream()
+                    .filter(x -> x.getDocente().getId().equals(docente.getId())).findFirst().orElse(null);
+            if (seccionGrupoEspecialWithDocente != null) {
+                docenteConflicto = true;
+                rolExamenesLogger.cruceDocente(docente, seccionGrupoEspecialWithDocente);
+                // break;
+            }
+        }
 
         //valida conflicto aula
         boolean aulaConConflicto = false;
@@ -816,7 +816,6 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
         for (CursoMasivoExamen cursoMasivoByRolExamen : cursosMasivos) {
 
             //validar conflicto docentes
-            /*
             for (Docente docente : docentes) {
                 DocenteCursoMasivo docenteCursoMasivo = cursoMasivoByRolExamen.getDocentesCursosMasivos().stream()
                         .filter(x -> x.getDocente().equals(docente))
