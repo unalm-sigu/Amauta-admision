@@ -34,6 +34,7 @@ import pe.edu.lamolina.model.rolexamen.DocenteCursoMasivo;
 import pe.edu.lamolina.model.rolexamen.GrupoHorasExamen;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
 import pe.edu.lamolina.model.rolexamen.SeccionCursoMasivo;
+import pe.edu.lamolina.model.rolexamen.SeccionGrupoEspecial;
 import pe.edu.lamolina.pivot.controller.rolexamen.util.RolExamenesLogger;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.constant.Messages;
@@ -704,6 +705,27 @@ public class CursoMasivosController {
             ExceptionHandler.handleException(e, response);
         } finally {
             rolExamenesLogger.finalizeLog();
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("quitarGrupo")
+    public JsonResponse quitarGrupo(@RequestBody CursoMasivoExamen cursoMasivo,
+            HttpSession session, HttpServletRequest request) {
+        JsonResponse response = new JsonResponse();
+
+        try {
+
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            service.removerHorario(cursoMasivo, ds);
+
+            response.setMessage("Horario retirado correctamente");
+            response.setSuccess(Boolean.TRUE);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
         }
         return response;
     }

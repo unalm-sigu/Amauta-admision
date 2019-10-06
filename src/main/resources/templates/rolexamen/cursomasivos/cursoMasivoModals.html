@@ -595,12 +595,12 @@
                 <div class="row">
                     <div class="col-md-2 bold form-group">Grupo actual</div>
                     <div class="col-md-4 form-group">
-                        <span class="form-control text-primary">
+                        <span class="form-control text-primary" v-if="cursoMasivoSelect.grupoHorasExamen">
                             {{cursoMasivoSelect.grupoHorasExamen.grupoHoras.codigo}}
                         </span>
                     </div>
                     <div class="col-md-6 form-group">
-                        <span class="form-control text-primary">
+                        <span class="form-control text-primary" v-if="cursoMasivoSelect.grupoHorasExamen">
                             {{cursoMasivoSelect.grupoHorasExamen.fecha }}
                             de {{cursoMasivoSelect.grupoHorasExamen.horaInicio.descripcion}}
                             a {{cursoMasivoSelect.grupoHorasExamen.horaFin.descripcion}}

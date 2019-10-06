@@ -725,7 +725,6 @@ new Vue({
 
         },
         verSaveCambioAulasGpo() {
-
             let $vue = this;
             $vue.configConfirmAction.message = "¿Está seguro que desea asignar estas aulas?";
             $vue.configConfirmAction.okaction = $vue.saveCambioAulasGpo;
@@ -737,24 +736,23 @@ new Vue({
             $vue.observaciones = {cantidad: 0, message: "", rows: 4};
 
             $vue.$refs.modalCambioAulasGpo.beginProcessing();
-            axios.post(`${$vue.URL}/cmbiarCambioAulasGrupo`, $vue.cursoMasivoTempo)
-                    .then(response => {
-                        $vue.$refs.modalCambioAulasGpo.confirmReaction(response.data.success);
-                        if (response.data.success) {
-                            $vue.loadCursosMasivosByRoleExamen();
-                            notify(response.data.message, "info");
-                        } else {
-                            notify(response.data.message, "error");
-                        }
-                        let restricc = response.data.data;
-                        if (restricc != null) {
-                            $vue.observaciones.cantidad = restricc.length;
-                            $vue.observaciones.rows = restricc.length > 7 ? 7 : restricc.length;
-                            for (var i = 0; i < restricc.length; i++) {
-                                $vue.observaciones.message += (i + 1) + ") " + restricc[i] + "\n";
-                            }
-                        }
-                    }).catch(e => {
+            axios.post(`${$vue.URL}/cmbiarCambioAulasGrupo`, $vue.cursoMasivoTempo).then(response => {
+                $vue.$refs.modalCambioAulasGpo.confirmReaction(response.data.success);
+                if (response.data.success) {
+                    $vue.loadCursosMasivosByRoleExamen();
+                    notify(response.data.message, "info");
+                } else {
+                    notify(response.data.message, "error");
+                }
+                let restricc = response.data.data;
+                if (restricc != null) {
+                    $vue.observaciones.cantidad = restricc.length;
+                    $vue.observaciones.rows = restricc.length > 7 ? 7 : restricc.length;
+                    for (var i = 0; i < restricc.length; i++) {
+                        $vue.observaciones.message += (i + 1) + ") " + restricc[i] + "\n";
+                    }
+                }
+            }).catch(e => {
                 $vue.$refs.modalCambioAulasGpo.confirmReaction(false);
                 notify(MESSAGES.errorComunicacion, "error");
             });
@@ -764,7 +762,32 @@ new Vue({
                 return "background-color: #E74C3C;";
             }
             return "background-color: #33ACFF;";
-        }
+        },
+        verQuitarHorario(item) {
+            let $vue = this;
 
+            $vue.cursoMasivoTempo = Object.assign({}, item, {});
+            $vue.configConfirmAction.message = "¿Está seguro que desea quitar el horario del curso " + $vue.cursoMasivoTempo.curso.nombre + "?";
+            $vue.configConfirmAction.okaction = $vue.quitarHorario;
+            $vue.$refs.modalConfirmAction.open();
+        },
+        quitarHorario(){
+            let $vue = this;
+            
+            $vue.$refs.modalConfirmAction.beginProcessing();
+            axios.post(`${$vue.URL}/quitarGrupo`, $vue.cursoMasivoTempo).then(response => {
+                $vue.$refs.modalConfirmAction.confirmReaction(response.data.success);
+                if (response.data.success) {
+                    $vue.loadCursosMasivosByRoleExamen();
+                    notify(response.data.message, "info");
+                } else {
+                    notify(response.data.message, "error");
+                }
+            }).catch(e => {
+                $vue.$refs.modalConfirmAction.confirmReaction(false);
+                notify(MESSAGES.errorComunicacion, "error");
+            });
+        }
+        
     }
 });

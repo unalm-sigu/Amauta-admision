@@ -1495,4 +1495,15 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
         return aulas;
     }
 
+    @Override
+    @Transactional
+    public void removerHorario(CursoMasivoExamen cursoMasivoForm, DataSessionPivot ds) {
+        CursoMasivoExamen cursoMasivoBD = cursoMasivoExamenDAO.find(cursoMasivoForm.getId());
+        Assert.isNotNull(cursoMasivoBD, "El curso no existe");
+        cursoMasivoBD.setGrupoHorasExamen(null);
+
+        horarioAulaDAO.deleteByCursoMasivo(cursoMasivoBD);
+        cursoMasivoExamenDAO.update(cursoMasivoBD);
+    }
+
 }
