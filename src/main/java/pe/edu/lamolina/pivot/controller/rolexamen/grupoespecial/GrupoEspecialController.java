@@ -338,7 +338,6 @@ public class GrupoEspecialController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
         try {
-            JsonNodeFactory jc = JsonNodeFactory.instance;
             List<String> restricciones = grupoEspecialService.saveCambioAulaGrupo(grupoSpecial);
 
             response.setMessage("Grupo modificado satisfactoriamente");

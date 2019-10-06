@@ -1063,6 +1063,8 @@ public class GrupoEspecialServiceImp implements GrupoEspecialService {
         boolean verificarCruceAlumno = true;
         boolean verificarCruceDocente = true;
 
+        List<AlumnoCursoMasivo> alumnosCursoMasivoByFecha = alumnoCursoMasivoDAO.allByFechaEstados(gpoExamDestinoBD.getFecha(), AlumnoRolExamenEstadoEnum.ACT);
+
         if (!mismoGpo) {
             List<AlumnoCursoMasivo> alumnosCursoMasivoByGpoExam = alumnoCursoMasivoDAO.allByGrupoHorasExamenAndEstados(gpoExamDestinoBD, AlumnoRolExamenEstadoEnum.ACT);
             List<AlumnoGrupoRegular> alumnosGpoRegByGpoExam = alumnoGrupoRegularDAO.allByGrupoHorasExamenAndEstados(gpoExamDestinoBD, AlumnoRolExamenEstadoEnum.ACT);

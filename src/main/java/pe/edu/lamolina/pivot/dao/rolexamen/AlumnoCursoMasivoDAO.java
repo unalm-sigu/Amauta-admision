@@ -1,5 +1,6 @@
 package pe.edu.lamolina.pivot.dao.rolexamen;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import pe.albatross.octavia.dynatable.DynatableFilter;
@@ -40,6 +41,8 @@ public interface AlumnoCursoMasivoDAO extends EasyDAO<AlumnoCursoMasivo> {
     void updateEstado(AlumnoCursoMasivo alumnoCursoMasivo);
 
     List<AlumnoCursoMasivo> allByGrupoHorasExamenAndEstados(GrupoHorasExamen grupoHorasExamen, AlumnoRolExamenEstadoEnum... estados);
+
+    List<AlumnoCursoMasivo> allByFechaEstados(Date fecha, AlumnoRolExamenEstadoEnum... estados);
 
     void createForCursoMasivo(
             List<MatriculaSeccion> matriculadosSeccion,

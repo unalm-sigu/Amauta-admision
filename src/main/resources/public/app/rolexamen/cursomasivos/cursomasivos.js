@@ -770,6 +770,7 @@ new Vue({
         saveCambioAulasGpo() {
             let $vue = this;
             $vue.$refs.modalConfirmAction.close();
+            $vue.observaciones = {cantidad: 0, message: "", rows: 4};
 
             $vue.$refs.modalCambioAulasGpo.beginProcessing();
             axios.post(`${$vue.URL}/cmbiarCambioAulasGrupo`, $vue.cursoMasivoTempo)

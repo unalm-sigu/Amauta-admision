@@ -60,11 +60,22 @@ public class AlumnoCursoMasivoDAOH extends AbstractEasyDAO<AlumnoCursoMasivo> im
         return all(sql);
     }
 
+    @Override
     public List<AlumnoCursoMasivo> allByGrupoHorasExamenAndEstados(GrupoHorasExamen grupoHorasExamen, AlumnoRolExamenEstadoEnum... estados) {
         Octavia sql = Octavia.query()
                 .from(AlumnoCursoMasivo.class, "acm")
                 .join("cursoMasivoExamen cme", "cme.grupoHorasExamen ghe", "alumno")
                 .filter("ghe.id", grupoHorasExamen)
+                .in("acm.estado", estados);
+        return all(sql);
+    }
+
+    @Override
+    public List<AlumnoCursoMasivo> allByFechaEstados(Date fecha, AlumnoRolExamenEstadoEnum... estados) {
+        Octavia sql = Octavia.query()
+                .from(AlumnoCursoMasivo.class, "acm")
+                .join("cursoMasivoExamen cme", "cme.grupoHorasExamen ghe", "alumno")
+                .filter("ghe.fecha", fecha)
                 .in("acm.estado", estados);
         return all(sql);
     }

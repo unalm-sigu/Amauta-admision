@@ -156,7 +156,7 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
         final int AFORO_INCREMENTO = 5;
         long ini = System.currentTimeMillis();
         List<Seccion> seccionesByLetra = mapSeccionesByLetra.get(letraGrupoRegular.getLetra());
-        System.out.println("seccionesByLetra=" + seccionesByLetra);
+        //System.out.println("seccionesByLetra=" + seccionesByLetra);
         if (seccionesByLetra == null) {
             return;
         }
@@ -164,8 +164,9 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
         letraGrupoRegular.setContadorSecciones(BigDecimal.ZERO.intValue());
 
         for (Seccion seccion : seccionesByLetra) {
-            System.out.println("Evaluado seccion " + seccion.getId() + " letra " + letraGrupoRegular.getLetra());
+            System.out.print("Evaluado seccion " + seccion.getId() + " letra " + letraGrupoRegular.getLetra());
             this.rolExamenesLogger.addMessageLevel3("Evaluando la sección %s", seccion.getCodigo2());
+
             Seccion seccionClone = seccion.clone();
             List<DocenteSeccion> docenteSecciones = docentesPrincipales.stream().filter(x -> x.getSeccion().equals(seccionClone)).collect(Collectors.toList());
             Assert.isFalse(docenteSecciones.isEmpty(), String.format("La sección (%s) de código %s, no tiene docente principal", seccionClone.getId(), seccionClone.getCodigo2()));
@@ -180,13 +181,14 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
                     seccionClone,
                     seccionesByLetra,
                     letrasGruposRegulares,
-                    cursosMasivosAll,
-                    ds);
+                    cursosMasivosAll, ds);
             if (result) {
+                System.out.println(" :::: Aceptado");
                 this.rolExamenesLogger.addMessageLevel3("La sección %s fue asignada correctamente.", seccion.getCodigo2());
             }
 
             if (!result) {
+                System.out.println(" :::: RECHAZADO");
                 seccionesEspeciales.add(seccionClone);
             }
         }
@@ -351,7 +353,7 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
                 }
             }
             if (cruces > 0) {
-                System.out.println("\tCruce con aula " + aula.getId() + " - tipo " + tipo.name());
+                //System.out.println("\tCruce con aula " + aula.getId() + " - tipo " + tipo.name());
             }
         }
 
@@ -453,17 +455,17 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
             if (contador >= 2) {
                 //return false;
                 alumnoTriples++;
-                System.out.print("\tAlumno " + alumno.getId() + " con " + contador + " examenes ");
+                //System.out.print("\tAlumno " + alumno.getId() + " con " + contador + " examenes ");
                 if (!masivos.equals("")) {
-                    System.out.print("masivos={" + masivos + "} ");
+                    //System.out.print("masivos={" + masivos + "} ");
                 }
                 if (!especiales.equals("")) {
-                    System.out.print("especiales={" + especiales + "} ");
+                    //System.out.print("especiales={" + especiales + "} ");
                 }
                 if (!regulares.equals("")) {
-                    System.out.print("regulares={" + regulares + "} ");
+                    //System.out.print("regulares={" + regulares + "} ");
                 }
-                System.out.println("");
+                //System.out.println("");
             }
         }
 
@@ -492,7 +494,7 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
             List<Aula> aulas) {
 
         List<SeccionGrupoRegular> seccionesGruposRegularesByLetra = letraGrupoRegular.getSeccionesGruposRegulares();
-        System.out.println("Revisando " + seccionesGruposRegularesByLetra.size() + " secciones regulares de " + letraGrupoRegular.getLetra());
+        //System.out.println("Revisando " + seccionesGruposRegularesByLetra.size() + " secciones regulares de " + letraGrupoRegular.getLetra());
         Map<Long, Aula> mapAulas = new LinkedHashMap();
         for (SeccionGrupoRegular seccionGR : seccionesGruposRegularesByLetra) {
             Aula aula = seccionGR.getAula();
@@ -521,9 +523,9 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
             if (alumnosCruce > 0) {
                 alumnoConflicto = true;
 
-                System.out.println("\tCruce alumnos seccion-reg:"
+                /*System.out.println("\tCruce alumnos seccion-reg:"
                         + seccionGrupoRegular.getSeccion().getId() + " "
-                        + letraGrupoRegular.getLetra() + " - alumnos:" + alumnosCruce);
+                        + letraGrupoRegular.getLetra() + " - alumnos:" + alumnosCruce);*/
             }
         }
         //}
@@ -654,19 +656,19 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
             List<Docente> docentes,
             List<Aula> aulas) {
 
-        System.out.print("\tSecciones Especiales son: ");
+        //System.out.print("\tSecciones Especiales son: ");
         for (SeccionGrupoEspecial seccionEsp : seccionesGrupoEspecial) {
-            System.out.print(seccionEsp.getId() + " ");
+            //System.out.print(seccionEsp.getId() + " ");
         }
-        System.out.println("");
-        System.out.println("");
-        System.out.println("");
+        //System.out.println("");
+        //System.out.println("");
+        //System.out.println("");
 
-        System.out.print("\tIntentando en las aulas: ");
+        //System.out.print("\tIntentando en las aulas: ");
         for (Aula aula : aulas) {
-            System.out.print(aula.getId() + " ");
+            //System.out.print(aula.getId() + " ");
         }
-        System.out.println("");
+        //System.out.println("");
 
         //validar conflicto alumno
         boolean alumnoConflicto = false;
@@ -697,12 +699,12 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
 
         //valida conflicto aula
         boolean aulaConConflicto = false;
-        System.out.print("\tAulas de la seccion-esp son: ");
+        //System.out.print("\tAulas de la seccion-esp son: ");
         for (SeccionGrupoEspecial seccionEsp : seccionesGrupoEspecial) {
             Aula ae = seccionEsp.getAula();
-            System.out.print(ae.getId() + " ");
+            //System.out.print(ae.getId() + " ");
         }
-        System.out.println("");
+        //System.out.println("");
 
         for (Aula aula : aulas) {
             SeccionGrupoEspecial seccionGrupoEspecialWithAula = seccionesGrupoEspecial.stream()
@@ -713,7 +715,7 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
                 //  break;
             }
         }
-        System.out.println("\taulaConConflicto = " + aulaConConflicto);
+        //System.out.println("\taulaConConflicto = " + aulaConConflicto);
 
         if (docenteConflicto || aulaConConflicto || alumnoConflicto) {
             return false;
@@ -832,9 +834,9 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
                     AulaCursoMasivo aulaCursoMasivo = cursoMasivoByRolExamen.getAulasCursosMasivos().stream().
                             filter(x -> x.getAula().equals(aula)).findFirst().orElse(null);
                     if (aulaCursoMasivo != null) {
-                        System.out.println("\tCruce aula curso-masivo "
+                        /*System.out.println("\tCruce aula curso-masivo "
                                 + cursoMasivoByRolExamen.getId() + ":"
-                                + cursoMasivoByRolExamen.getGrupoHorasExamen().getGrupoHoras().getCodigo() + " - aula:" + aula.getId());
+                                + cursoMasivoByRolExamen.getGrupoHorasExamen().getGrupoHoras().getCodigo() + " - aula:" + aula.getId());*/
                         aulaConConflicto = true;
                         rolExamenesLogger.cruceAula(aula, cursoMasivoByRolExamen.getCurso());
                     }
@@ -854,9 +856,9 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
             }
 
             if (alumnosCruces > 0) {
-                System.out.println("\tCruce alumnos curso-masivo "
+                /*System.out.println("\tCruce alumnos curso-masivo "
                         + cursoMasivoByRolExamen.getId() + ":"
-                        + cursoMasivoByRolExamen.getGrupoHorasExamen().getGrupoHoras().getCodigo() + " - alumnos:" + alumnosCruces);
+                        + cursoMasivoByRolExamen.getGrupoHorasExamen().getGrupoHoras().getCodigo() + " - alumnos:" + alumnosCruces);*/
             }
 
         }

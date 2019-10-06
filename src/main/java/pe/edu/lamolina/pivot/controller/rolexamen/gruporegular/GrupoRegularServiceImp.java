@@ -284,7 +284,7 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
         List<LetraGrupoRegular> letrasGruposRegulares = this.convertLetraToLetraGpo(letras, rolExamenes, gruposHorasExamen, today, ds.getUsuario());
 
         // logger.info("Grupos regulares");
-        List<Seccion> secciones = this.allSeccionesRegulares(cicloAcademico, TipoGrupoHorasEnum.REGULAR);
+        List<Seccion> secciones = this.allSeccionesRegulares(cicloAcademico, TipoGrupoHorasEnum.REGULAR, rolExamenes);
         System.out.println("Secciones al inicio regular " + secciones.size() + " registros");
         this.quitarSeccionesExcluidas(secciones, seccionesExcluidasByRolExamen, cursosExcluidos);
         this.quitarSeccionesCursosMasivos(secciones, cursosMasivosByRolExamenes);
@@ -538,13 +538,13 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
             System.out.println("Analizando seccion " + seccion.getId());
             Seccion seccionVerifica = mapSeccionOk.get(seccion.getId());
             if (seccionVerifica != null) {
-                System.out.println("Ya no se analiza " + seccion.getId());
+                //System.out.println("Ya no se analiza " + seccion.getId());
                 continue;
             }
 
             List<HorarioSeccion> horariow = TypesUtil.getListNotNull(mapHorarioSecc.get(seccion.getId()));
             if (horariow.isEmpty()) {
-                System.out.println("No tiene horario la seccion " + seccion.getId());
+                //System.out.println("No tiene horario la seccion " + seccion.getId());
                 continue;
             }
 
@@ -554,28 +554,28 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
                 if (gpo == null) {
                     continue;
                 }
-                System.out.println("revisando con " + gpo.getCodigo());
+                //System.out.println("revisando con " + gpo.getCodigo());
                 List<DiaHoraGrupo> horaGpoLetra = mapHorarioGpo.get(gpo.getId());
                 ListsInspector inspector = TypesUtil.analizeLists(horaGpoLetra, horariow, "idDiaHora");
                 int comunesCaso = inspector.getOldListDB().size();
                 comunes = (comunesCaso > comunes) ? comunesCaso : comunes;
-                System.out.println("\ttiene horas comunes " + comunesCaso);
+                //System.out.println("\ttiene horas comunes " + comunesCaso);
             }
 
-            System.out.println("Tiene horas comunes finales " + comunes);
+            //System.out.println("Tiene horas comunes finales " + comunes);
             if (comunes > 0) {
                 for (LetraGrupoRegular letraReg : letrasGruposRegulares) {
 
                     GrupoHoras gpo = mapGrupos.get(letraReg.getLetra());
                     if (gpo == null) {
-                        System.out.println("\tNo existe gpo para esta letra");
+                        //System.out.println("\tNo existe gpo para esta letra");
                         continue;
                     }
                     List<DiaHoraGrupo> horaGpoLetra = mapHorarioGpo.get(gpo.getId());
                     ListsInspector inspector = TypesUtil.analizeLists(horaGpoLetra, horariow, "idDiaHora");
                     int comunesCaso = inspector.getOldListDB().size();
                     if (comunesCaso == comunes) {
-                        System.out.println("\tColocando seccion con la letra " + letraReg.getLetra());
+                        //System.out.println("\tColocando seccion con la letra " + letraReg.getLetra());
                         List<Seccion> seccionesLetra = mapSeccionFinal.get(letraReg.getLetra());
                         if (seccionesLetra == null) {
                             seccionesLetra = new ArrayList();
@@ -593,26 +593,26 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
         for (Seccion seccion : secciones) {
             Seccion seccionVerifica = mapSeccionOk.get(seccion.getId());
             if (seccionVerifica != null) {
-                System.out.println("Ya no se analiza " + seccion.getId());
+                //System.out.println("Ya no se analiza " + seccion.getId());
                 continue;
             }
             List<DiaHoraGrupo> horaGpoSecc = TypesUtil.getListNotNull(mapHorarioGpo.get(seccion.getGrupoHoras().getId()));
             if (horaGpoSecc.isEmpty()) {
-                System.out.println("No tiene horario el grupo " + seccion.getGrupoHoras().getId());
+                //System.out.println("No tiene horario el grupo " + seccion.getGrupoHoras().getId());
                 continue;
             }
             int comunes = 0;
             for (LetraGrupoRegular letraReg : letrasGruposRegulares) {
                 GrupoHoras gpo = mapGrupos.get(letraReg.getLetra());
-                System.out.println("revisando con " + gpo.getCodigo());
+                //System.out.println("revisando con " + gpo.getCodigo());
                 List<DiaHoraGrupo> horaGpoLetra = mapHorarioGpo.get(gpo.getId());
                 ListsInspector inspector = TypesUtil.analizeLists(horaGpoLetra, horaGpoSecc, "id");
                 int comunesCaso = inspector.getOldListDB().size();
                 comunes = (comunesCaso > comunes) ? comunesCaso : comunes;
-                System.out.println("\ttiene horas comunes " + comunesCaso);
+                //System.out.println("\ttiene horas comunes " + comunesCaso);
             }
 
-            System.out.println("Tiene horas comunes finales " + comunes);
+            //System.out.println("Tiene horas comunes finales " + comunes);
             if (comunes > 0) {
                 for (LetraGrupoRegular letraReg : letrasGruposRegulares) {
                     GrupoHoras gpo = mapGrupos.get(letraReg.getLetra());
@@ -711,14 +711,43 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
 
     }
 
-    private List<Seccion> allSeccionesRegulares(CicloAcademico cicloAcademico, TipoGrupoHorasEnum tipoGrupoHorasEnum) {
+    private List<Seccion> allSeccionesRegulares(CicloAcademico cicloAcademico, TipoGrupoHorasEnum tipoGrupoHorasEnum, RolExamenes rolExamenes) {
 
         List<Seccion> secciones = seccionDAO.allForRolExamenByTipoGrupoHora(cicloAcademico, tipoGrupoHorasEnum);
         List<Seccion> seccionesZetas = seccionDAO.allForRolExamenByTipoGrupoHora(cicloAcademico, TipoGrupoHorasEnum.ZETA);
         seccionesZetas.removeIf(x -> !x.getGrupoHoras().getConHorario().equals("FLXHOR"));
         secciones.addAll(seccionesZetas);
+
+        List<HorarioSeccion> horariosSecciones = horarioSeccionDAO.allBySecciones(secciones);
+        Map<Long, List<HorarioSeccion>> mapHorarioSeccion = TypesUtil.convertListToMapList("seccion.id", horariosSecciones);
+        for (Seccion seccion : secciones) {
+            seccion.setHorarioSeccion(TypesUtil.getListNotNull(mapHorarioSeccion.get(seccion.getId())));
+        }
+
+        List<GrupoHorasExamen> gHoras = grupoHorasExamenDAO.allByRolExamenes(rolExamenes);
+        List<FechaHoraGrupoExamen> fechasHoras = fechaHoraGrupoExamenDAO.allByGrupoHorasExamen(gHoras);
+        Map<Long, List<FechaHoraGrupoExamen>> mapFechaHora = TypesUtil.convertListToMapList("grupoHorasExamen.id", fechasHoras);
+        for (GrupoHorasExamen gHora : gHoras) {
+            gHora.setFechasHorasGruposExamen(mapFechaHora.get(gHora.getId()));
+        }
+
+        for (Seccion seccion : secciones) {
+            seccion.validarGrupoExamen(gHoras);
+        }
+
         //Ordernar por horas semanalaes de mayor a menor
-        Collections.sort(secciones, (p1, p2) -> p2.getHorasSemanales().compareTo(p1.getHorasSemanales()));
+        //Collections.sort(secciones, (p1, p2) -> p2.getHorasSemanales().compareTo(p1.getHorasSemanales()));
+        Collections.sort(secciones, new Seccion.CompareOrdenExamen());
+
+        int loop = 0;
+        for (Seccion seccion : secciones) {
+            System.out.print(seccion.getCodigo2() + ":" + seccion.getLetraExamen() + " / ");
+            loop++;
+            if (loop % 10 == 0) {
+                System.out.println("");
+            }
+        }
+        System.out.println("");
 
         /*  for (Seccion seccion : secciones) {
             List<HorarioSeccion> horariosSeccion = (List<HorarioSeccion>) horariosBySeccion.get(seccion.getId());
@@ -853,13 +882,13 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
 
     }
 
-    public List<String> getDiaHoraList(List<FechaHoraGrupoExamen> fechasHorasGpoExamen) {
+    private List<String> getDiaHoraList(List<FechaHoraGrupoExamen> fechasHorasGpoExamen) {
         List<String> result = fechasHorasGpoExamen
                 .stream().map(x -> x.getDia().getNumeroDia() + "-" + x.getHora().getNumero()).collect(Collectors.toList());
         return result;
     }
 
-    public void calcularGruposEspeciales(String letraEspeciales,
+    private void calcularGruposEspeciales(String letraEspeciales,
             List<CursoMasivoExamen> cursosMasivosAll,
             List<SeccionGrupoEspecial> seccionesGrupoEspecialByRolExamen,
             Map<String, List<Seccion>> mapSeccionesGroupByLetra,
@@ -963,6 +992,7 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
             List<Seccion> seccionesEspecialesRecolected, DataSessionPivot ds) {
 
         for (LetraGrupoRegular letraGrupoRegular : letrasGruposRegulares) {
+            System.out.println("Analizando letra " + letraGrupoRegular.getLetra());
             this.rolExamenesLogger.addMessageLevel2("Letra %s ", letraGrupoRegular.getLetra());
             List<CursoMasivoExamen> cursosMasivosByLetra = cursosMasivosByRolExamenes.stream()
                     .filter(x -> x.getGrupoHorasExamen() != null)
