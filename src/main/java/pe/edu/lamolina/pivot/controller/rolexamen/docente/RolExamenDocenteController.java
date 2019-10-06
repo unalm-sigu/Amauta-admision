@@ -148,7 +148,7 @@ public class RolExamenDocenteController {
         return arrayNode;
     }
 
-    public ObjectNode horarioBySemanaExamen(SemanaExamen semanaExamen, List<GrupoHorasExamen> grupoHorasExamens) {
+    private ObjectNode horarioBySemanaExamen(SemanaExamen semanaExamen, List<GrupoHorasExamen> grupoHorasExamens) {
         JsonNodeFactory jc = JsonNodeFactory.instance;
 
         ObjectNode data = new ObjectNode(jc);

@@ -56,8 +56,8 @@ public class RolExamenDocenteServiceImp implements RolExamenDocenteService {
     public List<RolExamenDocente> listExamenDocente(Docente docente, DataSessionPivot ds) {
         List<DocenteCursoMasivo> docenteCursoMasivos = docenteCursoMasivoDAO.allByDocenteAndCiclo(docente, ds.getCicloAcademico());
         List<RolExamenDocente> seccionGrupoRegulars = seccionGrupoRegularDAO.allByDocenteAndCiclo(docente, ds.getCicloAcademico());
-//        List<RolExamenDocente> seccionGrupoEspecials = seccionGrupoEspecialDAO.allByDocenteAndCiclo(docente, ds.getCicloAcademico());
-        List<RolExamenDocente> seccionGrupoEspecials = new ArrayList();
+        List<RolExamenDocente> seccionGrupoEspecials = seccionGrupoEspecialDAO.allByDocenteAndCiclo(docente, ds.getCicloAcademico());
+        //List<RolExamenDocente> seccionGrupoEspecials = new ArrayList();
 
         List<CursoMasivoExamen> cursosMasivos = docenteCursoMasivos.stream().map(DocenteCursoMasivo::getCursoMasivoExamen).collect(Collectors.toList());
 
