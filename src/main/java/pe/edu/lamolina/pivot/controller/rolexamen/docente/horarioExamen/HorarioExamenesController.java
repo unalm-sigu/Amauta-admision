@@ -95,7 +95,7 @@ public class HorarioExamenesController {
         return response;
     }
 
-    public ObjectNode horarioBySemanaExamen(SemanaExamen semanaExamen, List<GrupoHorasExamen> grupoHorasExamens, List<RolExamenDocente> examenDocentes) {
+    private ObjectNode horarioBySemanaExamen(SemanaExamen semanaExamen, List<GrupoHorasExamen> grupoHorasExamens, List<RolExamenDocente> examenDocentes) {
         JsonNodeFactory jc = JsonNodeFactory.instance;
 
         ObjectNode data = new ObjectNode(jc);
