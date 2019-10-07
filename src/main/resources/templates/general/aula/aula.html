@@ -133,7 +133,7 @@
                                                             <li v-if="item.estado == 'ACT' "><a v-on:click="editar(item)">Editar</a></li>
                                                             <li v-if="item.estado == 'ACT' "><a v-on:click="cambiarEstado(item, 'INA')">Desactivar</a></li>
                                                             <li v-if="item.estado == 'INA' "><a v-on:click="cambiarEstado(item, 'ACT')">Activar</a></li>
-                                                            <li v-if="item.estado == 'ACT' "><a v-on:click="verHorarioAula(item)">Ver horario</a></li>
+                                                            <li v-if="item.estado == 'ACT' "><a href="#" v-on:click.prevent="verHorarioAula(item)">Ver horario</a></li>
                                                             <li><a v-on:click='eliminarAula(item)'>Eliminar</a></li>
 
                                                             <template v-if="item.tipoAmbiente != 'EDI' ">

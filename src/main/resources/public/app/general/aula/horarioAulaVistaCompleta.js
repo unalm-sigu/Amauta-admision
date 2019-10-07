@@ -131,6 +131,17 @@ new Vue({
                     }
                 }
             }
+        },
+        classByTipo(tipo) {
+            if (tipo == 'DICT') {
+                return 'text-primary';
+            }
+            if (tipo == 'RESERV') {
+                return 'text-warning';
+            }
+            if (tipo == 'EXAM') {
+                return 'text-success';
+            }
         }
     }
 });
