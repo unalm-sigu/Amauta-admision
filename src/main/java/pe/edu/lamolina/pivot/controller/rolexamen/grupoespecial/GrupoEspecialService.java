@@ -41,4 +41,6 @@ public interface GrupoEspecialService {
 
     List<String> saveCambioAulaGrupo(SeccionGrupoEspecial grupoSpecial);
 
+    List<String> saveCambioAulaGrupoForzardo(SeccionGrupoEspecial grupoSpecial);
+
 }

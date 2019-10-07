@@ -69,80 +69,87 @@
            v-bind:okaction="saveCambiarAulaGrupo">
     <div slot="body">
         <div class="row">
-            <div class="col-md-12">
-                <label class="col-md-3 bold">Sección</label>
-                <label class="col-md-9" v-if="grupoEsp.seccion" v-text="grupoEsp.seccion.codigo2">Secc</label>
-            </div>
-            <div class="col-md-12">
-                <label class="col-md-3 bold">Curso</label>
-                <label class="col-md-9" v-if="grupoEsp.seccion">
-                    {{grupoEsp.seccion.grupoSeccion.curso.codigo}} - {{grupoEsp.seccion.grupoSeccion.curso.nombre}}
-                </label>
-            </div>
-            <div class="col-md-12">
-                <label class="col-md-3 bold">Grupo Dictado</label>
-                <label class="col-md-3" v-if="grupoEsp.seccion" v-text="grupoEsp.seccion.grupoHoras.codigo"></label>
-                <label class="col-md-3 bold">Aula Dictado</label>
-                <label class="col-md-3" v-if="grupoEsp.seccion" v-text="grupoEsp.seccion.aula.codigo"></label>
-            </div>
+            <label class="col-md-3 bold">Sección</label>
+            <label class="col-md-9" v-if="grupoEsp.seccion" v-text="grupoEsp.seccion.codigo2">Secc</label>
+        </div>
+        <div class="row">
+            <label class="col-md-3 bold">Curso</label>
+            <label class="col-md-9" v-if="grupoEsp.seccion">
+                {{grupoEsp.seccion.grupoSeccion.curso.codigo}} - {{grupoEsp.seccion.grupoSeccion.curso.nombre}}
+            </label>
+        </div>
+        <div class="row">
+            <label class="col-md-2 bold">Grupo Dictado</label>
+            <label class="col-md-2" v-if="grupoEsp.seccion" v-text="grupoEsp.seccion.grupoHoras.codigo"></label>
+            <label class="col-md-2 bold">Aula Dictado</label>
+            <label class="col-md-2" v-if="grupoEsp.seccion" v-text="grupoEsp.seccion.aula.codigo"></label>
+            <label class="col-md-2 bold">Matriculados</label>
+            <label class="col-md-2" v-if="grupoEsp.seccion" v-text="grupoEsp.seccion.matriculados"></label>
+        </div>
 
-            <div class="col-md-12">
-                <hr/>
-            </div>
+        <div class="col-md-12">
+            <hr/>
+        </div>
 
-            <div class="col-md-12">
-                <label class="col-md-2"></label>
-                <label class="col-md-5 text-center" style="font-weight: bold;">Cambio</label>
-                <label class="col-md-5 text-center" style="font-weight: bold;">Actual</label>
-            </div>
+        <div class="row">
+            <label class="col-md-2"></label>
+            <label class="col-md-3 text-center" style="font-weight: bold;">Cambio</label>
+            <label class="col-md-3 text-center" style="font-weight: bold;">Actual</label>
+        </div>
 
-            <div class="col-md-12 form-group">
-                <label class="col-md-2">Aula</label>
-                <div class="col-md-5">
-                    <input class="form-control" v-if="grupoEspTemp.aula" v-model="grupoEspTemp.aula.codigo" required="" />
-                </div>
-                <div class="col-md-5">
-                    <span v-if="grupoEsp.aula" class="form-control text-primary" v-text="grupoEsp.aula.codigo"></span>
-                </div>
+        <div class="row">
+            <div class="col-md-2">Aula examen</div>
+            <div class="col-md-3">
+                <input class="form-control" v-if="grupoEspTemp.aula" v-model="grupoEspTemp.aula.codigo" required="" />
             </div>
-
-            <div class="col-md-12 form-group">
-                <div class="col-md-2">
-                    <label>Grupo</label>
-                </div>
-                <div class="col-md-5">
-                    <multiselect 
-                        v-model="grupoEspTemp.grupoHorasExamen"
-                        track-by="id"
-                        v-bind:options="grupoHoras"
-                        label="nombre"
-                        v-bind:custom-label="cLabelGrupo"
-                        required="true"
-                        >
-                    </multiselect>
-                </div>
-                <div class="col-md-5">
-                    <span v-if="grupoEsp.grupoHorasExamen" class="form-control text-primary" 
-                          v-text="grupoEsp.grupoHorasExamen.grupoHoras.codigo"></span>
-                </div>
+            <div class="col-md-3">
+                <span v-if="grupoEsp.aula" class="form-control text-primary" v-text="grupoEsp.aula.codigo"></span>
             </div>
+            <!--<div class="col-md-2"><button class="btn btn-primary btn-sm form-control">Disponibles</button></div>-->
+            <!--<div class="col-md-2"><button class="btn btn-primary btn-sm form-control">Habilitar</button></div>-->
+        </div>
 
-            <div class="col-md-12" v-if="grupoEsp.grupoHorasExamen">
-                <div class="col-md-2">&nbsp;&nbsp;&nbsp;</div>
-                <div class="col-md-5">
-                    <span v-if="grupoEspTemp.grupoHorasExamen" class="form-control">
-                        {{grupoEspTemp.grupoHorasExamen.descripcion}}
-                    </span>
-                </div>
-                <div class="col-md-5">
-                    <div v-if="grupoEsp.grupoHorasExamen.fecha" class="form-control text-primary">
-                        {{grupoEsp.grupoHorasExamen.fecha }}
-                        de {{grupoEsp.grupoHorasExamen.horaInicio.descripcion}}
-                        a {{grupoEsp.grupoHorasExamen.horaFin.descripcion}}
-                    </div>
+        <div class="row m-t">
+            <div class="col-md-2">
+                <label>Grupo examen</label>
+            </div>
+            <div class="col-md-3">
+                <multiselect 
+                    v-model="grupoEspTemp.grupoHorasExamen"
+                    track-by="id"
+                    v-bind:options="grupoHoras"
+                    label="nombre"
+                    v-bind:custom-label="cLabelGrupo"
+                    required="true"
+                    >
+                </multiselect>
+            </div>
+            <div class="col-md-3">
+                <span v-if="grupoEsp.grupoHorasExamen" class="form-control text-primary" 
+                      v-text="grupoEsp.grupoHorasExamen.grupoHoras.codigo"></span>
+            </div>
+            <!--<div class="col-md-2"><button class="btn btn-primary btn-sm form-control">Disponibles</button></div>-->
+            <!--<div class="col-md-2"><button class="btn btn-primary btn-sm form-control">Todos</button></div>-->
+        </div>
+
+        <div class="row m-t" v-if="grupoEsp.grupoHorasExamen">
+            <div class="col-md-2">&nbsp;&nbsp;&nbsp;</div>
+            <div class="col-md-3">
+                <div v-if="grupoEspTemp.grupoHorasExamen" class="b-t b-b b-r b-l text-center">
+                    <span class="block">{{grupoEspTemp.grupoHorasExamen.descripcion.split('de')[0]}}</span>
+                    <span class="block">{{grupoEspTemp.grupoHorasExamen.descripcion.split('de')[1]}}</span>
                 </div>
             </div>
-
+            <div class="col-md-3">
+                <div v-if="grupoEsp.grupoHorasExamen.fecha" class="b-t b-b b-r b-l text-center text-primary">
+                    <span class="block">{{grupoEsp.grupoHorasExamen.fecha }}</span>
+                    <span class="block">{{grupoEsp.grupoHorasExamen.horaInicio.descripcion}}
+                        a {{grupoEsp.grupoHorasExamen.horaFin.descripcion}}</span>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <button v-if='observaciones.forzar' v-on:click="forzarCambio" class="btn btn-danger btn-sm" >Forzar cambio</button>
+            </div>
         </div>
 
         <div v-if="observaciones.cantidad > 0 ">

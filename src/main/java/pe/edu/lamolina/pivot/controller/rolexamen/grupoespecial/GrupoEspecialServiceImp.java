@@ -1044,6 +1044,94 @@ public class GrupoEspecialServiceImp implements GrupoEspecialService {
 
     @Override
     @Transactional
+    public List<String> saveCambioAulaGrupoForzardo(SeccionGrupoEspecial seccionGpoEspForm) {
+        SeccionGrupoEspecial seccionGpoEspBD = seccionGrupoEspecialDAO.find(seccionGpoEspForm.getId());
+        RolExamenes rolExamenes = seccionGpoEspBD.getRolExamenes();
+        Aula aulaDestinoForm = seccionGpoEspForm.getAula();
+        GrupoHorasExamen gpoExamDestinoForm = seccionGpoEspForm.getGrupoHorasExamen();
+
+        Assert.isNotNull(aulaDestinoForm, "Debe indicar a que aula va mover esta sección");
+        Assert.isNotNull(aulaDestinoForm.getCodigo(), "Debe indicar a que aula va mover esta sección");
+        Assert.isNotNull(gpoExamDestinoForm, "Debe indicar a que grupo-horario va mover esta sección");
+        Assert.isNotNull(gpoExamDestinoForm.getId(), "Debe indicar a que grupo-horario va mover esta sección");
+
+        Aula aulaDestinoBD = aulaDAO.findByCode(aulaDestinoForm.getCodigo());
+        Assert.isNotNull(aulaDestinoBD, "El aula " + aulaDestinoForm.getCodigo() + " no existe");
+        Assert.isTrue(aulaDestinoBD.getEstadoEnum() == EstadoEnum.ACT, "El aula " + aulaDestinoForm.getCodigo() + " no se encuentra activa");
+
+        Aula aulaOld = seccionGpoEspBD.getAula();
+        GrupoHorasExamen gpoExamOld = seccionGpoEspBD.getGrupoHorasExamen();
+
+        boolean mismaAula = aulaOld == null ? false : (aulaOld.getId().compareTo(aulaDestinoBD.getId()) == 0);
+        boolean mismoGpo = gpoExamOld == null ? false : (gpoExamOld.getId().compareTo(gpoExamDestinoForm.getId()) == 0);
+        Assert.isFalse(mismoGpo && mismaAula, "No ha indicado ningún cambio de aula o grupo-horario");
+
+        List<AlumnoGrupoEspecial> alumnosGpoEsp = alumnoGrupoEspecialDAO.allBySeccionGrupoEspecialAndEstados(seccionGpoEspBD, AlumnoRolExamenEstadoEnum.ACT);
+        seccionGpoEspBD.setAlumnosGrupoEspecial(alumnosGpoEsp);
+
+        GrupoHorasExamen gpoExamDestinoBD = grupoHorasExamenDAO.find(gpoExamDestinoForm.getId());
+        List<FechaHoraGrupoExamen> fechasHorasGpo = fechaHoraGrupoExamenDAO.allByGrupoHorasExamen(gpoExamDestinoBD);
+        gpoExamDestinoBD.setFechasHorasGruposExamen(fechasHorasGpo);
+
+        List<SemanaExamen> semanasByRolExamen = semanaExamenDAO.allByRolExamenes(rolExamenes);
+        Date fechaInicio = semanasByRolExamen.stream().min(Comparator.comparing(SemanaExamen::getFechaInicio)).map(x -> x.getFechaInicio()).get();
+        Date fechaFin = semanasByRolExamen.stream().max(Comparator.comparing(SemanaExamen::getFechaFin)).map(x -> x.getFechaFin()).get();
+        List<Aula> aulasDestino = fillAulas(aulaDestinoBD, fechaInicio, fechaFin);
+
+        List<Alumno> alumnos = alumnosGpoEsp.stream().map(x -> x.getAlumno()).collect(Collectors.toList());
+
+        List<AlumnoCursoMasivo> alumnosCursoMasivoByFecha = alumnoCursoMasivoDAO.allByFechaEstados(gpoExamDestinoBD.getFecha(), AlumnoRolExamenEstadoEnum.ACT);
+        List<AlumnoGrupoRegular> alumnosGpoRegByFecha = alumnoGrupoRegularDAO.allByFechaEstados(gpoExamDestinoBD.getFecha(), AlumnoRolExamenEstadoEnum.ACT);
+        List<AlumnoGrupoEspecial> alumnosGpoEspByFecha = alumnoGrupoEspecialDAO.allByFechaEstados(gpoExamDestinoBD.getFecha(), AlumnoRolExamenEstadoEnum.ACT);
+        Map<Long, List<AlumnoCursoMasivo>> mapAlumnoCursoMasivoByFecha = TypesUtil.convertListToMapList("alumno.id", alumnosCursoMasivoByFecha);
+        Map<Long, List<AlumnoGrupoRegular>> mapAlumnoGpoRegularByFecha = TypesUtil.convertListToMapList("alumno.id", alumnosGpoRegByFecha);
+        Map<Long, List<AlumnoGrupoEspecial>> mapAlumnoGpoEspecialByFecha = TypesUtil.convertListToMapList("alumno.id", alumnosGpoEspByFecha);
+
+        List<GrupoHorasExamen> gposHoraExamenAll = grupoHorasExamenDAO.allByRolExamenes(rolExamenes);
+        List<FechaHoraGrupoExamen> fechasHoras = fechaHoraGrupoExamenDAO.allByGrupoHorasExamen(gposHoraExamenAll);
+        Map<Long, List<FechaHoraGrupoExamen>> mapFechaHora = TypesUtil.convertListToMapList("grupoHorasExamen.id", fechasHoras);
+        for (GrupoHorasExamen gHora : gposHoraExamenAll) {
+            gHora.setFechasHorasGruposExamen(mapFechaHora.get(gHora.getId()));
+        }
+        Map<Long, GrupoHorasExamen> mapGrupoHoraExamen = TypesUtil.convertListToMap("id", gposHoraExamenAll);
+
+        List<String> restricciones = new ArrayList();
+        boolean verificarTripleExamem
+                = revisarTripleExamen(
+                        gpoExamDestinoBD,
+                        mapGrupoHoraExamen,
+                        alumnos,
+                        mapAlumnoCursoMasivoByFecha,
+                        mapAlumnoGpoRegularByFecha,
+                        mapAlumnoGpoEspecialByFecha,
+                        restricciones);
+
+        boolean verificarCruceAulas = revisarCrucesAula(gpoExamDestinoBD, aulasDestino, restricciones);
+        boolean verificarCruceAlumno = true;
+        boolean verificarCruceDocente = true;
+
+        if (!mismoGpo) {
+            List<AlumnoCursoMasivo> alumnosCursoMasivoByGpoExam = alumnoCursoMasivoDAO.allByGrupoHorasExamenAndEstados(gpoExamDestinoBD, AlumnoRolExamenEstadoEnum.ACT);
+            List<AlumnoGrupoRegular> alumnosGpoRegByGpoExam = alumnoGrupoRegularDAO.allByGrupoHorasExamenAndEstados(gpoExamDestinoBD, AlumnoRolExamenEstadoEnum.ACT);
+            List<AlumnoGrupoEspecial> alumnosGpoEspByGpoExam = alumnoGrupoEspecialDAO.allByGrupoHorasExamenAndEstados(gpoExamDestinoBD, AlumnoRolExamenEstadoEnum.ACT);
+
+            List<SeccionCursoMasivo> seccionesCMByGpoExam = seccionCursoMasivoDAO.allByGrupoHorasExamen(gpoExamDestinoBD, SeccionRolExamenEstadoEnum.ACT);
+            List<SeccionGrupoRegular> seccionesGRByGpoExam = seccionGrupoRegularDAO.allByGrupoHorasExamenAndEstados(gpoExamDestinoBD, SeccionRolExamenEstadoEnum.ACT);
+            List<SeccionGrupoEspecial> seccionesGEByGpoExam = seccionGrupoEspecialDAO.allByGrupoHorasExamenAndEstados(gpoExamDestinoBD, SeccionRolExamenEstadoEnum.ACT);
+
+            verificarCruceAlumno = revisarCrucesAlumnos(gpoExamDestinoBD, seccionGpoEspBD, alumnosCursoMasivoByGpoExam, alumnosGpoRegByGpoExam, alumnosGpoEspByGpoExam, restricciones);
+            verificarCruceDocente = revisarCrucesDocentes(gpoExamDestinoBD, seccionGpoEspBD, seccionesCMByGpoExam, seccionesGRByGpoExam, seccionesGEByGpoExam, restricciones);
+
+        }
+
+        //if (verificarTripleExamem && verificarCruceAulas && verificarCruceAlumno && verificarCruceDocente) {
+        cambiarAulaGrupoForSeccionEspecial(seccionGpoEspBD, aulaDestinoBD, gpoExamDestinoBD);
+        //}
+        return new ArrayList();
+    }
+
+    @Override
+    @Transactional
     public List<String> saveCambioAulaGrupo(SeccionGrupoEspecial seccionGpoEspForm) {
         SeccionGrupoEspecial seccionGpoEspBD = seccionGrupoEspecialDAO.find(seccionGpoEspForm.getId());
         RolExamenes rolExamenes = seccionGpoEspBD.getRolExamenes();

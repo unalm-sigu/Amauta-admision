@@ -32,7 +32,7 @@ new Vue({
         grupoHoras: [],
         grupoEspTemp: {},
         grupoEsp: {},
-        observaciones: {cantidad: 0, message: "", rows: 4}
+        observaciones: {cantidad: 0, message: "", rows: 4, forzar: false}
     },
     mounted() {
         if (jRolExamenes != null) {
@@ -214,7 +214,7 @@ new Vue({
             $vue.loadGrupos(item);
             $vue.grupoEsp = item;
             $vue.grupoEspTemp = JSON.parse(JSON.stringify(item));
-            $vue.observaciones = {cantidad: 0, message: "", rows: 4};
+            $vue.observaciones = {cantidad: 0, message: "", rows: 4, fozar: false};
             $vue.$refs.cambiarAulamodal.open();
         },
         asignarHorario(item) {
@@ -239,7 +239,7 @@ new Vue({
         saveCambiarAulaGrupo() {
             let $vue = this;
             $vue.$refs.cambiarAulamodal.beginProcessing();
-            $vue.observaciones = {cantidad: 0, message: "", rows: 4};
+            $vue.observaciones = {cantidad: 0, message: "", rows: 4, forzar: false};
 
             axios.post(`${$vue.URL}/cambiarAulaGrupo`, $vue.grupoEspTemp)
                     .then(response => {
@@ -253,6 +253,7 @@ new Vue({
                         let restricc = response.data.data;
                         if (restricc != null) {
                             $vue.observaciones.cantidad = restricc.length;
+                            $vue.observaciones.forzar = true;
                             $vue.observaciones.rows = restricc.length > 7 ? 7 : restricc.length;
                             for (var i = 0; i < restricc.length; i++) {
                                 $vue.observaciones.message += (i + 1) + ") " + restricc[i] + "\n";
@@ -262,6 +263,46 @@ new Vue({
                     }).catch(e => {
                 $vue.$refs.cambiarAulamodal.confirmReaction(false);
                 notify(MESSAGES.errorComunicacion, "error");
+            });
+        },
+        forzarCambio() {
+            let $vue = this;
+            bootbox.confirm({
+                message: "¿Está seguro que desea forzar el cambio?",
+                buttons: {
+                    confirm: {label: 'Sí, forzar', className: "btn-danger"},
+                    cancel: {label: 'Cancelar', className: "btn-link"}
+                },
+                callback: function (result) {
+                    if (result) {
+                        $vue.$refs.cambiarAulamodal.beginProcessing();
+                        //$vue.observaciones = {cantidad: 0, message: "", rows: 4, forzar: true};
+
+                        axios.post(`${$vue.URL}/cambiarAulaGrupoForzado`, $vue.grupoEspTemp)
+                                .then(response => {
+                                    $vue.$refs.cambiarAulamodal.confirmReaction(response.data.success);
+                                    if (response.data.success) {
+                                        $vue.$refs.raptor.loadRemoteData();
+                                        notify(response.data.message, "info");
+                                    } else {
+                                        notify(response.data.message, "error");
+                                    }
+                                    let restricc = response.data.data;
+                                    if (restricc != null) {
+                                        $vue.observaciones.cantidad = restricc.length;
+                                        $vue.observaciones.forzar = true;
+                                        $vue.observaciones.rows = restricc.length > 7 ? 7 : restricc.length;
+                                        for (var i = 0; i < restricc.length; i++) {
+                                            $vue.observaciones.message += (i + 1) + ") " + restricc[i] + "\n";
+                                        }
+                                    }
+
+                                }).catch(e => {
+                            $vue.$refs.cambiarAulamodal.confirmReaction(false);
+                            notify(MESSAGES.errorComunicacion, "error");
+                        });
+                    }
+                }
             });
         }
     }

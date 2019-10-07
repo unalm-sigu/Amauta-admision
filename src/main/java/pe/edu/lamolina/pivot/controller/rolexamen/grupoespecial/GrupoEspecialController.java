@@ -104,6 +104,7 @@ public class GrupoEspecialController {
                 "*",
                 "seccion.id",
                 "seccion.codigo2",
+                "seccion.matriculados",
                 "seccion.grupoHoras.id",
                 "seccion.grupoHoras.codigo",
                 "seccion.grupoSeccion.id",
@@ -339,6 +340,31 @@ public class GrupoEspecialController {
 
         try {
             List<String> restricciones = grupoEspecialService.saveCambioAulaGrupo(grupoSpecial);
+
+            response.setMessage("Grupo modificado satisfactoriamente");
+            response.setSuccess(Boolean.TRUE);
+            if (!restricciones.isEmpty()) {
+                response.setMessage("Se presentaron inconvenientes para realizar los cambios");
+                response.setSuccess(Boolean.FALSE);
+            }
+            response.setData(restricciones);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+    
+    @ResponseBody
+    @RequestMapping("cambiarAulaGrupoForzado")
+    public JsonResponse cambiarAulaGrupoForzado(@RequestBody SeccionGrupoEspecial grupoSpecial, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+        try {
+            List<String> restricciones = grupoEspecialService.saveCambioAulaGrupoForzardo(grupoSpecial);
 
             response.setMessage("Grupo modificado satisfactoriamente");
             response.setSuccess(Boolean.TRUE);
