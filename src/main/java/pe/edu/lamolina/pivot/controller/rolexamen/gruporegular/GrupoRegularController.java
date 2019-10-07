@@ -43,7 +43,7 @@ public class GrupoRegularController {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    GrupoRegularService grupoRegularService;
+    GrupoRegularService service;
 
     @Autowired
     GrupoEspecialService grupoEspecialService;
@@ -63,7 +63,7 @@ public class GrupoRegularController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
 
-        List<RolExamenes> rolesExamenes = grupoRegularService.allRolExamenesActives(ds.getCicloAcademico());
+        List<RolExamenes> rolesExamenes = service.allRolExamenesActives(ds.getCicloAcademico());
 
         JsonNodeFactory jc = JsonNodeFactory.instance;
 
@@ -85,7 +85,7 @@ public class GrupoRegularController {
             Model model,
             HttpSession session) {
 
-        RolExamenes rolExamenes = grupoRegularService.findRolExamenes(rolExamenId);
+        RolExamenes rolExamenes = service.findRolExamenes(rolExamenId);
         ObjectNode jRolExamenes = JsonHelper.createJson(rolExamenes, JsonNodeFactory.instance, false,
                 new String[]{
                     "*",
@@ -99,14 +99,29 @@ public class GrupoRegularController {
         return this.index(model, session);
     }
 
-    @RequestMapping("secciones/{letraGrupoRegular}")
-    public String secciones(@PathVariable("letraGrupoRegular") Long idLetraGrupoRegular, Model model, HttpSession session) {
+    @RequestMapping("secciones/{letraGrupoRegular}/letra")
+    public String seccionesLetra(@PathVariable("letraGrupoRegular") Long idLetraGrupoRegular, Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
 
-        LetraGrupoRegular letraGrupoRegular = grupoRegularService.findLetraGrupoRegular(new LetraGrupoRegular(idLetraGrupoRegular));
+        LetraGrupoRegular letraGrupoRegular = service.findLetraGrupoRegular(new LetraGrupoRegular(idLetraGrupoRegular));
         model.addAttribute("letraGrupoRegular", letraGrupoRegular);
-        model.addAttribute("jLetraGrupoRegular", JsonHelper.createJson(letraGrupoRegular, JsonNodeFactory.instance, true, new String[]{"*", "rolExamenes.*"}).toString());
+        model.addAttribute("jRolExamenes", createRolExamenesJson(letraGrupoRegular.getRolExamenes()).toString());
+        model.addAttribute("jLetraGrupoRegular", createLetraGpoRegularJson(letraGrupoRegular).toString());
+        model.addAttribute("urlSeccion", idLetraGrupoRegular + "/listSeccionesLetra");
+        return "rolexamen/gruporegular/grupoRegularSecciones";
+    }
+
+    @RequestMapping("secciones/{rolExamenes}/rol")
+    public String seccionesRol(@PathVariable("rolExamenes") Long idRolExamenes, Model model, HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        model.addAttribute("cicloAcademico", ds.getCicloAcademico());
+
+        RolExamenes rolExamenes = service.findRolExamenes(idRolExamenes);
+        model.addAttribute("letraGrupoRegular", new LetraGrupoRegular());
+        model.addAttribute("jRolExamenes", createRolExamenesJson(rolExamenes).toString());
+        model.addAttribute("jLetraGrupoRegular", createLetraGpoRegularJson(new LetraGrupoRegular()).toString());
+        model.addAttribute("urlSeccion", idRolExamenes + "/listSeccionesRol");
         return "rolexamen/gruporegular/grupoRegularSecciones";
     }
 
@@ -118,7 +133,7 @@ public class GrupoRegularController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         ds.setFechaAccionAudit(new Date());
         try {
-            grupoRegularService.calcularExamenesGrupoRegular(rolExamenes, ds.getCicloAcademico(), ds);
+            service.calcularExamenesGrupoRegular(rolExamenes, ds.getCicloAcademico(), ds);
             response.setMessage("Grupos regulares calculados corretamente.");
             response.setSuccess(Boolean.TRUE);
         } catch (PhobosException e) {
@@ -139,7 +154,7 @@ public class GrupoRegularController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         ds.setFechaAccionAudit(new Date());
         try {
-            grupoRegularService.eliminarGruposRegulares(rolExamenes);
+            service.eliminarGruposRegulares(rolExamenes);
             response.setMessage("Grupos regulares eliminados corretamente.");
             response.setSuccess(Boolean.TRUE);
         } catch (PhobosException e) {
@@ -157,7 +172,7 @@ public class GrupoRegularController {
         JsonResponse response = new JsonResponse();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         try {
-            List<LetraGrupoRegular> letrasGruposRegulares = grupoRegularService.listGruposRegulares(rolExamenes);
+            List<LetraGrupoRegular> letrasGruposRegulares = service.listGruposRegulares(rolExamenes);
 
             JsonNodeFactory jc = JsonNodeFactory.instance;
             ArrayNode jLetrasGruposRegulares = new ArrayNode(jc);
@@ -188,35 +203,29 @@ public class GrupoRegularController {
     }
 
     @ResponseBody
-    @RequestMapping(value = "listSeccionesLetraGrupoRegular", method = RequestMethod.GET)
-    public DynatableResponse listSeccionesLetraGrupoRegular(DynatableFilter filter, @RequestParam("letraGrupoRegular") Long idLetraGrupoRegular, HttpSession session) {
+    @RequestMapping("{letraGrupoRegular}/listSeccionesLetra")
+    public DynatableResponse listSeccionesLetra(@PathVariable("letraGrupoRegular") Long idLetraGrupoRegular, DynatableFilter filter, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         DynatableResponse json = new DynatableResponse();
 
-        List<SeccionGrupoRegular> list = grupoRegularService.allSeccionesGrupoRegularDynaByLetraGrupoReg(filter, new LetraGrupoRegular(idLetraGrupoRegular));
-        ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+        List<SeccionGrupoRegular> secciones = service.allSeccionesGpoRegByDynatableLetra(filter, new LetraGrupoRegular(idLetraGrupoRegular));
+        ArrayNode array = createSeccionesJson(secciones);
+        json.setData(array);
 
-        for (SeccionGrupoRegular item : list) {
-            array.add(JsonHelper.createJson(item, JsonNodeFactory.instance, new String[]{
-                "*",
-                "letraGrupoRegular.id",
-                "letraGrupoRegular.rolExamenes.id",
-                "seccion.*",
-                "seccion.grupoSeccion.id",
-                "seccion.grupoSeccion.curso.id",
-                "seccion.grupoSeccion.curso.nombre",
-                "seccion.grupoSeccion.curso.codigo",
-                "seccion.grupoSeccion.curso.tpc",
-                "docente.*",
-                "docente.persona.*",
-                "aula.*",
-                "userRegistro.*",
-                "userRegistro.persona.*",
-                "usuarioExclusion.*",
-                "usuarioExclusion.persona.*"
-            }));
-        }
+        json.setTotal(filter.getTotal());
+        json.setFiltered(filter.getFiltered());
 
+        return json;
+    }
+
+    @ResponseBody
+    @RequestMapping("{rolExamenes}/listSeccionesRol")
+    public DynatableResponse listSeccionesRol(@PathVariable("rolExamenes") Long idRolExamenes, DynatableFilter filter, HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DynatableResponse json = new DynatableResponse();
+
+        List<SeccionGrupoRegular> secciones = service.allSeccionesGpoRegByDynatableRol(filter, new RolExamenes(idRolExamenes));
+        ArrayNode array = createSeccionesJson(secciones);
         json.setData(array);
 
         json.setTotal(filter.getTotal());
@@ -231,7 +240,7 @@ public class GrupoRegularController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         DynatableResponse json = new DynatableResponse();
 
-        List<AlumnoGrupoRegular> list = grupoRegularService.allAlumnosGrupoRegularDynaByLetraGrupoReg(filter, new LetraGrupoRegular(letraGrupoRegular));
+        List<AlumnoGrupoRegular> list = service.allAlumnosGrupoRegularDynaByLetraGrupoReg(filter, new LetraGrupoRegular(letraGrupoRegular));
         ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
         for (AlumnoGrupoRegular item : list) {
@@ -260,7 +269,7 @@ public class GrupoRegularController {
         try {
             JsonNodeFactory jc = JsonNodeFactory.instance;
             if (TipoAccion.GRUPO.name().equals(tipoAccion)) {
-                List<GrupoRegularExamen> grupos = grupoRegularService.allGruposRegularExamenByLetraGrupoRegular(letraGrupoRegular);
+                List<GrupoRegularExamen> grupos = service.allGruposRegularExamenByLetraGrupoRegular(letraGrupoRegular);
                 ArrayNode jGrupos = new ArrayNode(jc);
                 grupos.forEach(x -> {
                     jGrupos.add(JsonHelper.createJson(x, jc, false,
@@ -272,7 +281,7 @@ public class GrupoRegularController {
                 response.setData(jGrupos);
             } else if (TipoAccion.SECCION.name().equals(tipoAccion)) {
                 ArrayNode jSecciones = new ArrayNode(jc);
-                List<SeccionGrupoRegular> secciones = grupoRegularService.allSeccionesGrupoRegularExamenByLetraGrupoRegular(letraGrupoRegular);
+                List<SeccionGrupoRegular> secciones = service.allSeccionesGrupoRegularExamenByLetraGrupoRegular(letraGrupoRegular);
                 secciones.forEach(x -> {
                     jSecciones.add(JsonHelper.createJson(x, jc, false,
                             new String[]{
@@ -286,7 +295,7 @@ public class GrupoRegularController {
                 response.setData(jSecciones);
             } else if (TipoAccion.ALUMNO.name().equals(tipoAccion)) {
                 ArrayNode jAlumnos = new ArrayNode(jc);
-                List<AlumnoGrupoRegular> alumnos = grupoRegularService.allAlumnosGrupoRegularByLetraGrupoRegular(letraGrupoRegular);
+                List<AlumnoGrupoRegular> alumnos = service.allAlumnosGrupoRegularByLetraGrupoRegular(letraGrupoRegular);
                 alumnos.forEach(x -> {
                     jAlumnos.add(JsonHelper.createJson(x, jc, false,
                             new String[]{
@@ -322,17 +331,17 @@ public class GrupoRegularController {
             if (TipoAccion.GRUPO.name().equals(tipoAccion)) {
                 GrupoRegularExamen grupoRegularExamen = (GrupoRegularExamen) mapper.readValue(objeto.toString(), GrupoRegularExamen.class
                 );
-                grupoRegularService.excluirGrupoRegular(grupoRegularExamen, ds);
+                service.excluirGrupoRegular(grupoRegularExamen, ds);
 
             } else if (TipoAccion.SECCION.name().equals(tipoAccion)) {
                 SeccionGrupoRegular seccionGrupoRegular = (SeccionGrupoRegular) mapper.readValue(objeto.toString(), SeccionGrupoRegular.class
                 );
-                grupoRegularService.excluirGrupoRegular(seccionGrupoRegular, ds);
+                service.excluirGrupoRegular(seccionGrupoRegular, ds);
 
             } else if (TipoAccion.ALUMNO.name().equals(tipoAccion)) {
                 AlumnoGrupoRegular alumnoRegularExamen = (AlumnoGrupoRegular) mapper.readValue(objeto.toString(), AlumnoGrupoRegular.class
                 );
-                grupoRegularService.excluirGrupoRegular(alumnoRegularExamen, ds);
+                service.excluirGrupoRegular(alumnoRegularExamen, ds);
             }
 
             response.setMessage("Excluido corretamente.");
@@ -361,17 +370,17 @@ public class GrupoRegularController {
             if (TipoAccion.GRUPO.name().equals(tipoAccion)) {
                 GrupoRegularExamen grupoRegularExamen = (GrupoRegularExamen) mapper.readValue(objeto.toString(), GrupoRegularExamen.class
                 );
-                // grupoRegularService.excluirGrupoRegular(grupoRegularExamen, ds);
+                // service.excluirGrupoRegular(grupoRegularExamen, ds);
 
             } else if (TipoAccion.SECCION.name().equals(tipoAccion)) {
                 SeccionGrupoRegular seccionGrupoRegular = (SeccionGrupoRegular) mapper.readValue(objeto.toString(), SeccionGrupoRegular.class
                 );
-                grupoRegularService.activarGrupoRegular(seccionGrupoRegular, ds);
+                service.activarGrupoRegular(seccionGrupoRegular, ds);
 
             } else if (TipoAccion.ALUMNO.name().equals(tipoAccion)) {
                 AlumnoGrupoRegular alumnoRegularExamen = (AlumnoGrupoRegular) mapper.readValue(objeto.toString(), AlumnoGrupoRegular.class
                 );
-                // grupoRegularService.excluirGrupoRegular(alumnoRegularExamen, ds);
+                // service.excluirGrupoRegular(alumnoRegularExamen, ds);
             }
 
             response.setMessage("Incluido corretamente.");
@@ -392,7 +401,7 @@ public class GrupoRegularController {
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             ds.setFechaAccionAudit(new Date());
-            grupoRegularService.agregarGruposNuevos(rolExamenes, ds);
+            service.agregarGruposNuevos(rolExamenes, ds);
             grupoEspecialService.calcularExamenesGrupoEspecial(rolExamenes, ds);
 
             response.setMessage("Proceso finalizó.");
@@ -403,6 +412,40 @@ public class GrupoRegularController {
             ExceptionHandler.handleException(e, response);
         }
         return response;
+    }
+
+    private ObjectNode createRolExamenesJson(RolExamenes rolExamenes) {
+        return JsonHelper.createJson(rolExamenes, JsonNodeFactory.instance, new String[]{"*"});
+    }
+
+    private ObjectNode createLetraGpoRegularJson(LetraGrupoRegular letraGpoRegular) {
+        return JsonHelper.createJson(letraGpoRegular, JsonNodeFactory.instance, new String[]{"*"});
+    }
+
+    private ArrayNode createSeccionesJson(List<SeccionGrupoRegular> secciones) {
+        ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+
+        for (SeccionGrupoRegular seccion : secciones) {
+            array.add(JsonHelper.createJson(seccion, JsonNodeFactory.instance, new String[]{
+                "*",
+                "letraGrupoRegular.id",
+                "letraGrupoRegular.rolExamenes.id",
+                "seccion.*",
+                "seccion.grupoSeccion.id",
+                "seccion.grupoSeccion.curso.id",
+                "seccion.grupoSeccion.curso.nombre",
+                "seccion.grupoSeccion.curso.codigo",
+                "seccion.grupoSeccion.curso.tpc",
+                "docente.*",
+                "docente.persona.*",
+                "aula.*",
+                "userRegistro.*",
+                "userRegistro.persona.*",
+                "usuarioExclusion.*",
+                "usuarioExclusion.persona.*"
+            }));
+        }
+        return array;
     }
 
 }

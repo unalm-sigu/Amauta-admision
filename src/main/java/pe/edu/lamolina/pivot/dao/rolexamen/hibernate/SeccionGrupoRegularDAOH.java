@@ -175,15 +175,33 @@ public class SeccionGrupoRegularDAOH extends AbstractEasyDAO<SeccionGrupoRegular
     }
 
     @Override
-    public List<SeccionGrupoRegular> allByDynatableAndLetraGrupoRegular(DynatableFilter filter, LetraGrupoRegular letraGrupoRegular) {
+    public List<SeccionGrupoRegular> allByDynatableLetra(DynatableFilter filter, LetraGrupoRegular letraGrupoRegular) {
         DynatableSql sql = new DynatableSql(filter)
                 .from(SeccionGrupoRegular.class, "sgr")
                 .join("letraGrupoRegular lgr", "seccion sec", "docente doc", "doc.persona dper", "sec.grupoSeccion gpo", "gpo.curso cur")
+                .join("lgr.grupoHorasExamen ghe", "ghe.rolExamenes rol")
                 .join("sgr.userRegistro ureg", "ureg.persona uregper")
-                .left("usuarioExclusion usexc", "usexc.persona usexcper")
-                .left("aula au")
+                .leftJoin("sec.grupoHoras gh", "sec.aula au")
+                .leftJoin("usuarioExclusion usexc", "usexc.persona usexcper")
                 .filter("lgr.id", letraGrupoRegular)
-                .searchFields("sec.codigo2", "cur.nombre", "cur.codigo", "au.codigo")
+                .searchFields("sec.codigo2", "cur.nombre", "cur.codigo", "au.codigo", "gh.codigo")
+                .searchComplexField("concat(coalesce(dper.paterno,''),' ',coalesce(dper.materno,''),' ',coalesce(dper.nombres,''))")
+                .searchComplexField("concat(coalesce(dper.nombres,''),' ',coalesce(dper.paterno,''),' ',coalesce(dper.materno,''))");
+
+        return all(sql);
+    }
+
+    @Override
+    public List<SeccionGrupoRegular> allByDynatableRol(DynatableFilter filter, RolExamenes rolExamenes) {
+        DynatableSql sql = new DynatableSql(filter)
+                .from(SeccionGrupoRegular.class, "sgr")
+                .join("letraGrupoRegular lgr", "seccion sec", "docente doc", "doc.persona dper", "sec.grupoSeccion gpo", "gpo.curso cur")
+                .join("lgr.grupoHorasExamen ghe", "ghe.rolExamenes rol")
+                .join("sgr.userRegistro ureg", "ureg.persona uregper")
+                .leftJoin("sec.grupoHoras gh", "sec.aula au")
+                .leftJoin("usuarioExclusion usexc", "usexc.persona usexcper")
+                .filter("rol.id", rolExamenes)
+                .searchFields("sec.codigo2", "cur.nombre", "cur.codigo", "au.codigo", "gh.codigo")
                 .searchComplexField("concat(coalesce(dper.paterno,''),' ',coalesce(dper.materno,''),' ',coalesce(dper.nombres,''))")
                 .searchComplexField("concat(coalesce(dper.nombres,''),' ',coalesce(dper.paterno,''),' ',coalesce(dper.materno,''))");
 

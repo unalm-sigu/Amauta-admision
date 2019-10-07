@@ -1,0 +1,21 @@
+<modal-vik ref="moverSeccionModal"
+           id="modalMoverSeccion"
+           header="true"
+           modalsize="modal-lg"
+           title="Mover Seccion"
+           v-bind:showaccept="false">
+    <div slot="body">
+        <mover-seccion-examen ref="moverSeccionComp"></mover-seccion-examen> 
+    </div>
+</modal-vik>
+
+<modal-vik ref="cambiarAulaModal"
+           id="modalCambiarAula"
+           header="true"
+           modalsize="modal-lg"
+           title="Cambiar Aula"
+           v-bind:showaccept="false">
+    <div slot="body">
+        <cambio-aula-examen ref="cambiarAulaExamenComp"></cambio-aula-examen>
+    </div>
+</modal-vik>

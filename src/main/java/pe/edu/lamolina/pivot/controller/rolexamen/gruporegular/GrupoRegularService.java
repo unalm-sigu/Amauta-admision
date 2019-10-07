@@ -36,7 +36,9 @@ public interface GrupoRegularService {
 
     void activarGrupoRegular(SeccionGrupoRegular seccionGrupoRegular, DataSessionPivot ds);
 
-    List<SeccionGrupoRegular> allSeccionesGrupoRegularDynaByLetraGrupoReg(DynatableFilter filter, LetraGrupoRegular letraGrupoRegular);
+    List<SeccionGrupoRegular> allSeccionesGpoRegByDynatableLetra(DynatableFilter filter, LetraGrupoRegular letraGrupoRegular);
+
+    List<SeccionGrupoRegular> allSeccionesGpoRegByDynatableRol(DynatableFilter filter, RolExamenes rolExamenes);
 
     List<AlumnoGrupoRegular> allAlumnosGrupoRegularDynaByLetraGrupoReg(DynatableFilter filter, LetraGrupoRegular letraGrupoRegular);
 

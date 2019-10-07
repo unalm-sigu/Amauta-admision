@@ -54,9 +54,9 @@ public class MoverSeccionExamenController {
             JsonNodeFactory jc = JsonNodeFactory.instance;
             ArrayNode jTiposGrupoRolExamenes = new ArrayNode(jc);
             for (TipoGrupoRolExamenesEnum tipoGrupoRolExamenes : tiposGrupoRolExamenes) {
-                if (tipoGrupoRolExamenes.equals(TipoGrupoRolExamenesEnum.GRU_ESP)) {
-                    continue;
-                }
+                //if (tipoGrupoRolExamenes.equals(TipoGrupoRolExamenesEnum.GRU_ESP)) {
+                //    continue;
+                //}
                 jTiposGrupoRolExamenes.add(JsonHelper.createJson(tipoGrupoRolExamenes, jc, false,
                         new String[]{
                             "*"
@@ -79,7 +79,7 @@ public class MoverSeccionExamenController {
             @RequestParam("seccion") Long seccionId,
             @RequestParam("tipoOrigen") String tipoOrigen,
             @RequestParam("rolExamenes") Long rolExamenesId) {
-        
+
         JsonResponse response = new JsonResponse();
         response.setSuccess(Boolean.TRUE);
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
@@ -89,6 +89,7 @@ public class MoverSeccionExamenController {
             TipoGrupoRolExamenesEnum tipoGrupoRolExamenesEnumDefault = tipoGrupoRolExamenesEnumDefault = TipoGrupoRolExamenesEnum.GRU_REG;
             JsonNodeFactory jc = JsonNodeFactory.instance;
             ObjectNode data = new ObjectNode(jc);
+
             if (TipoGrupoRolExamenesEnum.CUR_MAS.name().equals(tipoOrigen)) {
                 SeccionCursoMasivo seccionCursoMasivo = moverSeccionExamenService.findSeccionCursoMasivoBySeccionRolExamenes(seccion, rol);
                 ObjectNode jSeccionRolExamenes = JsonHelper.createJson(seccionCursoMasivo, jc, false, new String[]{
@@ -106,6 +107,7 @@ public class MoverSeccionExamenController {
                 }));
                 data.set("seccionRolExamenes", jSeccionRolExamenes);
                 tipoGrupoRolExamenesEnumDefault = null;
+
             } else if (TipoGrupoRolExamenesEnum.GRU_ESP.name().equals(tipoOrigen)) {
                 SeccionGrupoEspecial seccionGrupoEspecial = moverSeccionExamenService.findSeccionGrupoEspecialBySeccionRolExamenes(seccion, rol);
                 ObjectNode jSeccionRolExamenes = JsonHelper.createJson(seccionGrupoEspecial, jc, false, new String[]{
@@ -117,6 +119,7 @@ public class MoverSeccionExamenController {
                     "grupoHorasExamen.horaFin.*"
                 });
                 data.set("seccionRolExamenes", jSeccionRolExamenes);
+
             } else if (TipoGrupoRolExamenesEnum.GRU_REG.name().equals(tipoOrigen)) {
                 SeccionGrupoRegular seccionGrupoRegular = moverSeccionExamenService.findSeccionGrupoRegularBySeccionRolExamenes(seccion, rol);
                 ObjectNode jSeccionRolExamenes = JsonHelper.createJson(seccionGrupoRegular, jc, false, new String[]{
@@ -133,11 +136,13 @@ public class MoverSeccionExamenController {
                 }));
                 data.set("seccionRolExamenes", jSeccionRolExamenes);
             }
+
             if (tipoGrupoRolExamenesEnumDefault != null) {
                 data.set("tipoGrupoRolExamenesEnumDefault", JsonHelper.createJson(tipoGrupoRolExamenesEnumDefault, jc, false, new String[]{
                     "*"
                 }));
             }
+
             response.setData(data);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
@@ -149,13 +154,14 @@ public class MoverSeccionExamenController {
 
     @ResponseBody
     @RequestMapping(value = "cambiarTipoDestinoGrupo/{tipoDestino}", method = RequestMethod.POST)
-    public JsonResponse cambiarTipoDestinoGrupo(HttpSession session, HttpServletRequest request,
+    public JsonResponse cambiarTipoDestinoGrupo(
             @PathVariable("tipoDestino") String tipoDestino,
-            @RequestBody GrupoHorasExamen grupoHorasExamenOrigen) {
+            @RequestBody GrupoHorasExamen grupoHorasExamenOrigen, HttpSession session, HttpServletRequest request) {
+
         JsonResponse response = new JsonResponse();
         response.setSuccess(Boolean.TRUE);
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             JsonNodeFactory jc = JsonNodeFactory.instance;
 
             grupoHorasExamenOrigen = moverSeccionExamenService.findGrupoHorasExamen(grupoHorasExamenOrigen);
@@ -177,6 +183,7 @@ public class MoverSeccionExamenController {
                     jCursosMasivosExamen.add(jCursoMasivoExamen);
                 }
                 data.set("jCursosMasivosExamen", jCursosMasivosExamen);
+
             } else if (TipoGrupoRolExamenesEnum.GRU_REG.name().equals(tipoDestino)) {
                 List<LetraGrupoRegular> letrasGrupoRegular = moverSeccionExamenService.allLetrasGruposRegularesByRolExamenes(grupoHorasExamenOrigen.getRolExamenes());
                 ArrayNode jLetrasGrupoRegular = new ArrayNode(jc);
@@ -206,6 +213,7 @@ public class MoverSeccionExamenController {
     @RequestMapping(value = "cambioHorarioExamenSeccion", method = RequestMethod.POST)
     public JsonResponse cambioHorarioExamenSeccion(HttpSession session, HttpServletRequest request,
             @RequestBody CambioHorarioExamenSeccion cambioHorarioExamenSeccion) {
+
         JsonResponse response = new JsonResponse();
         response.setSuccess(Boolean.TRUE);
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);

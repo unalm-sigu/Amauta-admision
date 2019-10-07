@@ -45,7 +45,7 @@ Vue.component("v-estado", {
     },
     data: function () {
         return {
-            colorEstado: {CRE: "default", ACT: "success", EXC: "danger", ANU: "danger", INA: "danger", BLO: "warning", FUS: "warning"}
+            colorEstado: {CRE: "default", ACT: "success", EXC: "danger", ANU: "danger", INA: "danger", BLO: "warning", TRA: "warning", FUS: "warning"}
         }
     },
     methods: {

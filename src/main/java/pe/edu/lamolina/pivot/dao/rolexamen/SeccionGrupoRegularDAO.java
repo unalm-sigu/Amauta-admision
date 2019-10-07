@@ -37,7 +37,9 @@ public interface SeccionGrupoRegularDAO extends EasyDAO<SeccionGrupoRegular> {
 
     void deleteByLetraGrupoRegular(LetraGrupoRegular letraGrupoRegular);
 
-    List<SeccionGrupoRegular> allByDynatableAndLetraGrupoRegular(DynatableFilter filter, LetraGrupoRegular letraGrupoRegular);
+    List<SeccionGrupoRegular> allByDynatableLetra(DynatableFilter filter, LetraGrupoRegular letraGrupoRegular);
+
+    List<SeccionGrupoRegular> allByDynatableRol(DynatableFilter filter, RolExamenes rolExamenes);
 
     List<SeccionGrupoRegular> allByRolExamenes(
             RolExamenes rolExamenes, SeccionRolExamenEstadoEnum... seccionRolExamenEstadoEnums);

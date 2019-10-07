@@ -196,8 +196,8 @@ public class SeccionGrupoEspecialDAOH extends AbstractEasyDAO<SeccionGrupoEspeci
     public SeccionGrupoEspecial findByRolExamanesSeccion(RolExamenes rol, Seccion seccion, SeccionRolExamenEstadoEnum... estados) {
         Octavia sql = Octavia.query()
                 .from(SeccionGrupoEspecial.class, "sce")
-                .join("seccion sec", "rolExamenes re", "aula au", "grupoHorasExamen ghe", "ghe.grupoHoras hg", "ghe.horaInicio hi", "ghe.horaFin hf")
-                .join("userRegistro ureg", "ureg.persona pureg")
+                .join("seccion sec", "rolExamenes re", "userRegistro ureg", "ureg.persona pureg")
+                .leftJoin("aula au", "grupoHorasExamen ghe", "ghe.grupoHoras hg", "ghe.horaInicio hi", "ghe.horaFin hf")
                 .filter("sec.id", seccion)
                 .in("sce.estado", estados)
                 .filter("re.id", rol);

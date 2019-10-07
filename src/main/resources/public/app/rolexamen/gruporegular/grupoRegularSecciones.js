@@ -3,8 +3,9 @@ Vue.component("multiselect", window.VueMultiselect.default);
 new Vue({
     el: '#main',
     data: {
-        URL: APP.url('rolexamen/gruporegular'),
+        URL: APP.url('rolexamen/gruporegular/' + urlSeccion),
         letraGrupoRegular: JSON.parse(jLetraGrupoRegular),
+        rolExamenex: JSON.parse(jRolExamenes),
         tipoAccion: {
             LETRA: "LETRA",
             GRUPO: "GRUPO",
@@ -18,7 +19,7 @@ new Vue({
     computed: {
         accionesDisponibles() {
             try {
-                const rolExamenes = this.letraGrupoRegular.rolExamenes;
+                const rolExamenes = this.rolExamenex;
                 return (rolExamenes.isEstadoConfigurando || rolExamenes.isEstadoModificando);
             } catch (error) {
                 console.error(error);
@@ -69,7 +70,8 @@ new Vue({
                     }
                 }
             });
-        }, incluir(obj, tipoAccion) {
+        },
+        incluir(obj, tipoAccion) {
             let vue = this;
             bootbox.confirm({
                 message: "¿Está seguro que desea incluir?",
@@ -109,16 +111,18 @@ new Vue({
                     }
                 }
             });
-        }, trasladar(item) {
+        },
+        trasladar(item) {
             this.$refs.moverSeccionComp.seccion = item.seccion;
             this.$refs.moverSeccionComp.tipoorigen = "GRU_REG";
-            const rolExamenes = this.letraGrupoRegular.rolExamenes;
+            const rolExamenes = this.rolExamenex;
             this.$refs.moverSeccionComp.loadComponent(rolExamenes);
             this.$refs.moverSeccionModal.open();
-        }, cambiarAula(item) {
+        },
+        cambiarAula(item) {
             console.log("entro");
             console.dir(item);
-            const rolExamenes = this.letraGrupoRegular.rolExamenes;
+            const rolExamenes = this.rolExamenex;
             this.$refs.cambiarAulaExamenComp.seccion = item.seccion;
             this.$refs.cambiarAulaExamenComp.seccion = item.seccion;
             this.$refs.cambiarAulaExamenComp.tipoorigen = "GRU_REG";

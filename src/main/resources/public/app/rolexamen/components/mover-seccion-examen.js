@@ -108,7 +108,7 @@ Vue.component("mover-seccion-examen", {
                 tipoGrupoRolExamenOrigen: this.tipoorigen,
                 idSeccionRolExamenesOrigen: this.seccionRolExamenes.id,
                 tipoGrupoRolExamenDestino: this.tipoDestinoGrupoExamenes.code,
-                idTipoGrupoExamenDestino: this.grupoHorarioDestino.id
+                idTipoGrupoExamenDestino: this.grupoHorarioDestino ? this.grupoHorarioDestino.id : null
             };
             AXIOS.post(`${this.URL}/cambioHorarioExamenSeccion`, cambioHorarioExamenSeccion)
                     .then(response => {

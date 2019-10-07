@@ -1205,8 +1205,19 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
     }
 
     @Override
-    public List<SeccionGrupoRegular> allSeccionesGrupoRegularDynaByLetraGrupoReg(DynatableFilter filter, LetraGrupoRegular letraGrupoRegular) {
-        List<SeccionGrupoRegular> seccionesLetraGrupoRegular = seccionGrupoRegularDAO.allByDynatableAndLetraGrupoRegular(filter, letraGrupoRegular);
+    public List<SeccionGrupoRegular> allSeccionesGpoRegByDynatableLetra(DynatableFilter filter, LetraGrupoRegular letraGrupoRegular) {
+        List<SeccionGrupoRegular> seccionesLetraGrupoRegular = seccionGrupoRegularDAO.allByDynatableLetra(filter, letraGrupoRegular);
+        Map<Long, Integer> mapCountAlumnosBySeccion = alumnoGrupoRegularDAO.countBySeccionesGruposRegulares(seccionesLetraGrupoRegular, AlumnoRolExamenEstadoEnum.ACT);
+        for (SeccionGrupoRegular seccionGrupoRegular : seccionesLetraGrupoRegular) {
+            seccionGrupoRegular.setAlumnosCount(mapCountAlumnosBySeccion.get(seccionGrupoRegular.getId()) != null ? mapCountAlumnosBySeccion.get(seccionGrupoRegular.getId()) : 0);
+        }
+
+        return seccionesLetraGrupoRegular;
+    }
+
+    @Override
+    public List<SeccionGrupoRegular> allSeccionesGpoRegByDynatableRol(DynatableFilter filter, RolExamenes rolExamenes) {
+        List<SeccionGrupoRegular> seccionesLetraGrupoRegular = seccionGrupoRegularDAO.allByDynatableRol(filter, rolExamenes);
         Map<Long, Integer> mapCountAlumnosBySeccion = alumnoGrupoRegularDAO.countBySeccionesGruposRegulares(seccionesLetraGrupoRegular, AlumnoRolExamenEstadoEnum.ACT);
         for (SeccionGrupoRegular seccionGrupoRegular : seccionesLetraGrupoRegular) {
             seccionGrupoRegular.setAlumnosCount(mapCountAlumnosBySeccion.get(seccionGrupoRegular.getId()) != null ? mapCountAlumnosBySeccion.get(seccionGrupoRegular.getId()) : 0);

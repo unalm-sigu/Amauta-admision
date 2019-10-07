@@ -16,7 +16,12 @@ new Vue({
         letrasGruposRegulares: [],
         seccionesGrupoRegulares: [],
         gruposRegulares: [],
-        alumnosGruposRegulares: []
+        alumnosGruposRegulares: [],
+        grupoEspecialTempo: {seccion: {}},
+        configAddSeccionNueva: VUE_MODAL.structFormAjax({
+            id: "idModalAddSeccNueva"
+        }),
+        observaciones: {cantidad: 0, message: "", rows: 4}
     },
     computed: {
         generarDisponible() {
@@ -233,20 +238,24 @@ new Vue({
             });
         },
         letraRegularSecciones(item) {
-            location.href = `${this.URL}/secciones/${item.id}`;
+            location.href = `${this.URL}/secciones/${item.id}/letra`;
         },
-        agregarGruposNuevos() {
-            MODAL.showWait("Espere un momento por favor");
-            AXIOS.post(`${this.URL}/agregarGruposNuevos`, this.rolExamen)
-                    .then(response => {
-                        if (response.data.success) {
-                            // notify(response.data.message, 'info');
-                            this.listGruposRegulares(this.rolExamen);
-                        } else {
-                            //   notify(response.data.message, 'error');
-                        }
-                        MODAL.hideWait();
-                    });
+        addSeccionNueva() {
+//            MODAL.showWait("Espere un momento por favor");
+//            AXIOS.post(`${this.URL}/agregarGruposNuevos`, this.rolExamen).then(response => {
+//                if (response.data.success) {
+//                    this.listGruposRegulares(this.rolExamen);
+//                } else {
+//                }
+//                MODAL.hideWait();
+//            });
+        },
+        saveAddSeccionNueva() {
+
+        },
+        verAllSecciones() {
+            let $vue = this;
+            location.href = $vue.URL + "/secciones/" + $vue.rolExamen.id + "/rol";
         }
     }
 });
