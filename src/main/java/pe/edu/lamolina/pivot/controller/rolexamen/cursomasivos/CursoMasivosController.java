@@ -707,6 +707,33 @@ public class CursoMasivosController {
         }
         return response;
     }
+    @ResponseBody
+    @RequestMapping("cmbiarCambioAulasGrupoForzado")
+    public JsonResponse cmbiarCambioAulasGrupoForzado(@RequestBody CursoMasivoExamen cursoMasivosExamen, HttpSession session) {
+
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            List<String> restricciones = service.cambiarCambioAulasGrupoForzado(cursoMasivosExamen, ds.getCicloAcademico(), ds);
+            response.setMessage("Curso masivo modificado satisfactoriamente");
+            response.setSuccess(Boolean.TRUE);
+            if (!restricciones.isEmpty()) {
+                response.setMessage("Se presentaron inconvenientes para realizar los cambios");
+                response.setSuccess(Boolean.FALSE);
+            }
+            response.setData(restricciones);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        } finally {
+            rolExamenesLogger.finalizeLog();
+        }
+        return response;
+    }
 
     @ResponseBody
     @RequestMapping("quitarGrupo")

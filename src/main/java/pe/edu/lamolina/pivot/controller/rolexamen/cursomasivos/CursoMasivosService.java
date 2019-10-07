@@ -76,6 +76,8 @@ public interface CursoMasivosService {
 
     List<String> cambiarAulasGrupoForCursoMasivo(CursoMasivoExamen cursoMasivosExamen, CicloAcademico cicloAcademico, DataSessionPivot ds);
 
+    List<String> cambiarCambioAulasGrupoForzado(CursoMasivoExamen cursoMasivosExamen, CicloAcademico cicloAcademico, DataSessionPivot ds);
+
     List<Aula> allAulasVerificadasByModulo(Aula modulo);
 
     void removerHorario(CursoMasivoExamen cursoMasivo, DataSessionPivot ds);
