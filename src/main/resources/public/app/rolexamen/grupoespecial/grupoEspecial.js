@@ -32,7 +32,8 @@ new Vue({
         grupoHoras: [],
         grupoEspTemp: {},
         grupoEsp: {},
-        observaciones: {cantidad: 0, message: "", rows: 4, forzar: false}
+        observaciones: {cantidad: 0, message: "", rows: 4, forzar: false},
+        sonTodos: true
     },
     mounted() {
         if (jRolExamenes != null) {
@@ -57,7 +58,7 @@ new Vue({
             return `${eventoCicloAcademico.eventoAcademico.nombre}`;
         },
         changeRolExamen() {
-            this.$refs.raptor.ajaxdata = {rolexamenes: this.rolExamen.id};
+            this.$refs.raptor.ajaxdata = {rolexamenes: this.rolExamen.id, incompletos: 0};
             this.$refs.raptor.loadRemoteData();
         },
         calcularGrupoEspecial() {
@@ -304,6 +305,16 @@ new Vue({
                     }
                 }
             });
-        }
+        },
+        verIncompletos() {
+            this.$refs.raptor.ajaxdata = {rolexamenes: this.rolExamen.id, incompletos: 1};
+            this.$refs.raptor.loadRemoteData();
+            this.sonTodos = false;
+        },
+        verTodos() {
+            this.$refs.raptor.ajaxdata = {rolexamenes: this.rolExamen.id, incompletos: 0};
+            this.$refs.raptor.loadRemoteData();
+            this.sonTodos = true;
+        },
     }
 });

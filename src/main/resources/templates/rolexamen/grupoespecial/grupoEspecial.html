@@ -37,16 +37,27 @@
                                                 >
                                             </multiselect>
                                         </div>
-                                        <div class="col-md-4" v-if="calcularDisponible">
+                                        <div class="col-md-4" v-if="rolExamen">
                                             <a class="btn btn-success"
+                                               v-if="calcularDisponible"
                                                v-on:click.prevent="calcularGrupoEspecial">
                                                 Calcular
                                             </a>
                                             <a class="btn btn-warning"
+                                               v-if="calcularDisponible"
                                                v-on:click.prevent="limpiarGrupoEspecial">
                                                 Limpiar
                                             </a>
+                                            <a class="btn btn-warning" v-if="sonTodos"
+                                               v-on:click.prevent="verIncompletos">
+                                                Ver incompletos
+                                            </a>
+                                            <a class="btn btn-primary" v-else=""
+                                               v-on:click.prevent="verTodos">
+                                                Ver todos
+                                            </a>
                                         </div>
+
                                     </div>
                                 </form>
                             </div>
@@ -135,9 +146,9 @@
                         </section>
                     </section>
                 </section>
-                
+
                 <div th:substituteby="rolexamen/grupoespecial/grupoEspecialModals"/>
-                
+
             </div>
 
         </section>

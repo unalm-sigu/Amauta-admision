@@ -91,12 +91,17 @@ public class GrupoEspecialController {
     }
 
     @ResponseBody
-    @RequestMapping(value = "listGruposEspeciales", method = RequestMethod.GET)
-    public DynatableResponse listGruposEspeciales(DynatableFilter filter, @RequestParam("rolexamenes") Long idRolExamenes, HttpSession session) {
+    @RequestMapping("listGruposEspeciales")
+    public DynatableResponse listGruposEspeciales(
+            DynatableFilter filter,
+            @RequestParam("rolexamenes") Long idRolExamenes,
+            @RequestParam("incompletos") Long incompletos,
+            HttpSession session) {
+
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         DynatableResponse json = new DynatableResponse();
 
-        List<SeccionGrupoEspecial> list = grupoEspecialService.allSeccionesGrupoEspecialByRolExamenes(filter, new RolExamenes(idRolExamenes));
+        List<SeccionGrupoEspecial> list = grupoEspecialService.allSeccionesGrupoEspecialByRolExamenes(filter, new RolExamenes(idRolExamenes), incompletos);
         ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
         for (SeccionGrupoEspecial item : list) {
@@ -356,7 +361,7 @@ public class GrupoEspecialController {
         }
         return response;
     }
-    
+
     @ResponseBody
     @RequestMapping("cambiarAulaGrupoForzado")
     public JsonResponse cambiarAulaGrupoForzado(@RequestBody SeccionGrupoEspecial grupoSpecial, HttpSession session) {

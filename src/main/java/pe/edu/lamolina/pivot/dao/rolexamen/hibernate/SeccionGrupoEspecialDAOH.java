@@ -46,7 +46,7 @@ public class SeccionGrupoEspecialDAOH extends AbstractEasyDAO<SeccionGrupoEspeci
     }
 
     @Override
-    public List<SeccionGrupoEspecial> allByDynatableAndRolExamenes(DynatableFilter filter, RolExamenes rolExamenes) {
+    public List<SeccionGrupoEspecial> allByDynatableAndRolExamenes(DynatableFilter filter, RolExamenes rolExamenes, Long incompletos) {
         DynatableSql sql = new DynatableSql(filter)
                 .from(SeccionGrupoEspecial.class, "sge")
                 .join("rolExamenes re", "seccion sec", "userRegistro ur")
@@ -59,6 +59,13 @@ public class SeccionGrupoEspecialDAOH extends AbstractEasyDAO<SeccionGrupoEspeci
                 .searchComplexField("concat(coalesce(dper.nombres,''),' ',coalesce(dper.paterno,''),' ',coalesce(dper.materno,''))")
                 .filter("re.id", rolExamenes)
                 .orderBy("cur.nombre");
+
+        if (incompletos == 1L) {
+            sql.beginBlock();
+            sql.__().isNull("ghe.id");
+            sql.__().isNull("au.id");
+            sql.endBlock();
+        }
 
         return all(sql);
     }

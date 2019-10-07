@@ -14,7 +14,7 @@ import pe.edu.lamolina.model.rolexamen.SeccionGrupoEspecial;
 
 public interface SeccionGrupoEspecialDAO extends EasyDAO<SeccionGrupoEspecial> {
 
-    List<SeccionGrupoEspecial> allByDynatableAndRolExamenes(DynatableFilter filter, RolExamenes rolExamenes);
+    List<SeccionGrupoEspecial> allByDynatableAndRolExamenes(DynatableFilter filter, RolExamenes rolExamenes, Long incompletos);
 
     List<SeccionGrupoEspecial> allByRolExamenesAndEstados(RolExamenes rolExamenes, SeccionRolExamenEstadoEnum... estados);
 

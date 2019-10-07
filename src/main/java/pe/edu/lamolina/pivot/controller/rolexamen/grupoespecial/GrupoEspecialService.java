@@ -15,7 +15,7 @@ public interface GrupoEspecialService {
 
     RolExamenes findRolExamenes(long rolExamenId);
 
-    List<SeccionGrupoEspecial> allSeccionesGrupoEspecialByRolExamenes(DynatableFilter filter, RolExamenes rolExamenes);
+    List<SeccionGrupoEspecial> allSeccionesGrupoEspecialByRolExamenes(DynatableFilter filter, RolExamenes rolExamenes, Long incompletos);
 
     void deleteGrupoEspecial(RolExamenes rolExamenes);
 
