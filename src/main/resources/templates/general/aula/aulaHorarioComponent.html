@@ -41,12 +41,12 @@
 
                             </td>
                             <td  v-for="dia in hora.dias" class="text-center"> 
-
+                                
                                 <div v-if="dia.mainHorarioAula.id"  class="dropdown notas-cepre">
-
-                                    <a v-on:mouseover="onmousein($event)" v-on:mouseleave="onmouseout($event)" class="dropdown-toggle" href="#" data-toggle="dropdown" >
-                                        <strong v-if="dia.mainHorarioAula.seccion">{{dia.mainHorarioAula.seccion.codigo2}}</strong>  
-                                        <strong v-if="dia.mainHorarioAula.reservaAula.tramite.serie">{{dia.mainHorarioAula.reservaAula.tramite.serie}} - {{dia.mainHorarioAula.reservaAula.tramite.numero}}</strong>  
+                                    <a v-on:mouseover="onmousein($event)" v-on:mouseleave="onmouseout($event)" class="dropdown-toggle" v-bind:class="classByTipo(dia.mainHorarioAula.tipo)" href="#" data-toggle="dropdown" >
+                                        <strong v-if="dia.mainHorarioAula.cursoMasivoExamen.curso.codigo">{{dia.mainHorarioAula.cursoMasivoExamen.curso.codigo}}</strong>  
+                                        <strong v-else-if="dia.mainHorarioAula.seccion.codigo2">{{dia.mainHorarioAula.seccion.codigo2}}</strong>  
+                                        <strong v-else-if="dia.mainHorarioAula.reservaAula.estado">  {{dia.mainHorarioAula.reservaAula.tramite.numero}}/{{dia.mainHorarioAula.reservaAula.tramite.serie}}</strong>  
                                         <b class="caret"></b> 
                                     </a>
 
@@ -56,26 +56,26 @@
                                             <span class="block bg-warning">
                                                 <strong class="text-black m-t-lg m-l-xs m-b-lg " > {{dia.mainHorarioAula.tipoEnum.descripcion}}  </strong>
                                             </span>
-
+                                            
                                             <span v-if="dia.mainHorarioAula.seccion.grupoSeccion.curso.codigo" class="disabled block docente-uno">
                                                 <strong> {{dia.mainHorarioAula.seccion.grupoSeccion.curso.codigo}}</strong>
                                                 {{dia.mainHorarioAula.seccion.grupoSeccion.curso.nombre}}
                                             </span>
 
-                                            <span v-if="dia.mainHorarioAula.reservaAula.tramite.numero"  class="disabled block docente-uno">
+                                            <span v-if="dia.mainHorarioAula.reservaAula.estado"  class="disabled block docente-uno">
                                                 Reserva Ambiente
                                             </span>
  
-                                            <span v-if="dia.mainHorarioAula.reservaAula.estado" class="v-middle text-left">
+                                            <span v-if="dia.mainHorarioAula.reservaAula" class="v-middle text-left">
                                                 <span class="label label-primary" v-if="dia.mainHorarioAula.reservaAula.estado=='ACT'"> Activo </span>
                                                 <span class="label label-success" v-if="dia.mainHorarioAula.reservaAula.estado=='RES'"> Reservado </span>
                                                 <span class="label label-default" v-if="dia.mainHorarioAula.reservaAula.estado=='PEND'"> Pendiente </span>
                                                 <span class="label label-danger" v-if="dia.mainHorarioAula.reservaAula.estado=='ANU'"> Anulado </span>
                                             </span>
 
-                                            <span v-if="dia.mainHorarioAula.seccion.docenteSeccion.length" class="block" style="margin-top:5px;margin-bottom:5px;">
+                                            <span v-if="dia.mainHorarioAula.seccion" class="block" style="margin-top:5px;margin-bottom:5px;">
 
-                                                <strong  > Docentes </strong> 
+                                                <strong v-if="dia.mainHorarioAula.seccion.docenteSeccion.length" > Docentes </strong> 
 
 
                                                 <ul class="otros-docente">
@@ -117,7 +117,11 @@
                                             <span v-if="dia.mainHorarioAula.tipo=='DICT'" class="block">
                                                 <strong> Periodo  </strong> De  {{dia.mainHorarioAula.seccion.grupoSeccion.fechaInicioPeriodo}} al {{dia.mainHorarioAula.seccion.grupoSeccion.fechaFinPeriodo}}
                                             </span>
-
+                                            
+                                            <span v-if="dia.mainHorarioAula.cursoMasivoExamen" class="disabled block docente-uno">
+                                                <strong> {{dia.mainHorarioAula.cursoMasivoExamen.curso.codigo}}</strong>
+                                                {{dia.mainHorarioAula.cursoMasivoExamen.curso.nombre}}
+                                            </span>
 
                                         </div>
                                     </div>
