@@ -531,6 +531,39 @@ public class PlantillaHorarioServiceImp implements PlantillaHorarioService {
     }
 
     @Override
+    public List<SemanaExamen> allSemanasByRolExamen(RolExamenes rolExamenes) {
+        return semanaExamenDAO.allByRolExamenes(rolExamenes);
+    }
+
+    @Override
+    public List<GrupoHoras> allGrupoHoraDisponibles(RolExamenes rolExamenes) {
+        List<GrupoHorasExamen> gposHorasExame = grupoHorasExamenDAO.allByRolExamenes(rolExamenes);
+        List<GrupoHoras> gruposLetras = grupoHorasDAO.allSimples();
+        Map<Long, GrupoHoras> mapGpoHoras = TypesUtil.convertListToMap("id", gruposLetras);
+
+        for (GrupoHorasExamen gpoHorasExam : gposHorasExame) {
+            GrupoHoras gh = mapGpoHoras.get(gpoHorasExam.getGrupoHoras().getId());
+            if (gh != null) {
+                gruposLetras.remove(gh);
+            }
+        }
+        List<GrupoHoras> gruposOk = new ArrayList();
+        for (GrupoHoras gpo : gruposLetras) {
+            if (gpo.getLetra().equals("Z")) {
+                continue;
+            }
+            if (gpo.getCodigo().equals(gpo.getLetra())) {
+                gruposOk.add(gpo);
+            }
+            if (gpo.getCodigo().equals(gpo.getLetra() + "*")) {
+                gruposOk.add(gpo);
+            }
+        }
+
+        return gruposOk;
+    }
+
+    @Override
     public List<FechaHoraGrupoExamen> allFechaHoraGrupoExamenBySemanaExamen(SemanaExamen semanaExamen) {
         return fechaHoraGrupoExamenDAO.allBySemanaExamen(semanaExamen);
     }
@@ -570,6 +603,79 @@ public class PlantillaHorarioServiceImp implements PlantillaHorarioService {
         Assert.isFalse(grupoHorasExamenBD.getVerificado(), "Este grupo ya fue verificado. No puede ser elimnado.");
 
         grupoHorasExamenDAO.delete(grupoHorasExamenBD);
+    }
+
+    @Override
+    @Transactional
+    public void saveGrupoHorasExamen(GrupoHorasExamen gpoHorasExamen, DataSessionPivot ds) {
+        RolExamenes rolExamenes = gpoHorasExamen.getRolExamenes();
+        RolExamenes rolBD = rolExamenesDAO.find(rolExamenes.getId());
+        List<GrupoHorasExamen> gruposHorasExamenBD = grupoHorasExamenDAO.allByRolExamenes(rolExamenes);
+        Map<Long, GrupoHorasExamen> mapGpoHoras = TypesUtil.convertListToMap("grupoHoras.id", gruposHorasExamenBD);
+
+        GrupoHorasExamen gpoHorasExamenBD = mapGpoHoras.get(gpoHorasExamen.getGrupoHoras().getId());
+        Assert.isNull(gpoHorasExamenBD, "Este grupos ya se encuentra configurado en este rol de exámenes");
+
+        Dia dia = diaDAO.find(gpoHorasExamen.getDia().getId());
+        SemanaExamen semana = semanaExamenDAO.find(gpoHorasExamen.getSemanaExamen().getId());
+        DateTime fecha = new DateTime(semana.getFechaInicio()).withDayOfWeek(dia.getNumeroDia());
+
+        gpoHorasExamen.setFecha(fecha.toDate());
+        gpoHorasExamen.setVerificado(Boolean.TRUE);
+        gpoHorasExamen.setFechasHorasGruposExamen(new ArrayList());
+
+        List<Hora> horas = horaDAO.allHoras();
+        Map<Long, Hora> mapHoras = TypesUtil.convertListToMap("id", horas);
+        Hora horaInicio = mapHoras.get(gpoHorasExamen.getHoraInicio().getId());
+
+        int loop = 0;
+        Hora horaFin = null;
+        for (Hora hora : horas) {
+            if (hora.getCodigo().compareTo(horaInicio.getCodigo()) < 0) {
+                continue;
+            }
+
+            FechaHoraGrupoExamen fechaGpo = new FechaHoraGrupoExamen();
+            fechaGpo.setFecha(fecha.toDate());
+            fechaGpo.setHora(hora);
+            fechaGpo.setDia(dia);
+            fechaGpo.setGrupoHorasExamen(gpoHorasExamen);
+            fechaGpo.setSemanaExamen(semana);
+            gpoHorasExamen.setHoraFin(hora);
+            gpoHorasExamen.getFechasHorasGruposExamen().add(fechaGpo);
+            horaFin = hora;
+
+            loop++;
+            if (loop >= rolBD.getHorasExamen()) {
+                break;
+            }
+        }
+
+        List<FechaHoraGrupoExamen> fechaHorasRol = fechaHoraGrupoExamenDAO.allByRolExamens(rolExamenes);
+        Map<Date, List<FechaHoraGrupoExamen>> mapFechaHora = TypesUtil.convertListToMapList("fecha", fechaHorasRol);
+        List<FechaHoraGrupoExamen> fechaHorasByDia = TypesUtil.getListNotNull(mapFechaHora.get(fecha.toDate()));
+        //Assert.isFalse(fechaHorasByDia.isEmpty(), "No se obtuvo las horas del día");
+        System.out.println("fechaHorasByDia.size = " + fechaHorasByDia.size());
+
+        for (FechaHoraGrupoExamen fechaBD : fechaHorasByDia) {
+            for (FechaHoraGrupoExamen fechaHora : gpoHorasExamen.getFechasHorasGruposExamen()) {
+                if (fechaHora.getIdDiaHora().equals(fechaBD.getIdDiaHora())) {
+                    throw new PhobosException("La hora " + fechaBD.getHora().getDescripcion() + " ya está ocupada para el " + fecha.toString("dd/MM/yyyy"));
+                }
+            }
+        }
+
+        if (semana.getHoraFin().getCodigo().compareTo(horaFin.getCodigo()) < 0) {
+            semana.setHoraFin(horaFin);
+            semanaExamenDAO.update(semana);
+        }
+
+        grupoHorasExamenDAO.save(gpoHorasExamen);
+        for (FechaHoraGrupoExamen fechaHora : gpoHorasExamen.getFechasHorasGruposExamen()) {
+            fechaHoraGrupoExamenDAO.save(fechaHora);
+        }
+
+        //gpoHorasExamen.setFecha(fecha);
     }
 
 }

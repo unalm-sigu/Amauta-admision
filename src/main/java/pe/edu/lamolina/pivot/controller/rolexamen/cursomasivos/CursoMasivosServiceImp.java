@@ -1016,7 +1016,7 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
         Assert.isFalse(mismoGpo && mismasAulas, "No ha indicado ningún cambio de aulas o grupo-horario");
 
         List<String> restricciones = new ArrayList();
-        boolean verificado = verificarPosibleCambio(cursoMasivosExamenForm, restricciones, true);
+        boolean verificado = verificarPosibleCambio(cursoMasivosExamenForm, restricciones, true, false);
 
         if (verificado) {
             saveCambioAulaGrupo(cursoMasivoBD, aulasCMNuevas, aulasCMDead, aulasAll, gpoExamDestinoBD, ds);
@@ -1024,7 +1024,55 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
         return restricciones;
     }
 
-    private boolean verificarPosibleCambio(CursoMasivoExamen cursoMasivosExamenForm, List<String> restricciones, boolean crearError) {
+    @Override
+    @Transactional
+    public List<String> cambiarCambioAulasGrupoForzado(CursoMasivoExamen cursoMasivosExamenForm, CicloAcademico cicloAcademico, DataSessionPivot ds) {
+        CursoMasivoExamen cursoMasivoBD = cursoMasivoExamenDAO.find(cursoMasivosExamenForm.getId());
+        GrupoHorasExamen gpoExamDestinoForm = cursoMasivosExamenForm.getGrupoHorasExamen();
+
+        List<AulaCursoMasivo> aulasCMDestinoForm = cursoMasivosExamenForm.getAulasCursosMasivos();
+        Assert.isNotNull(aulasCMDestinoForm, "Debe indicar a que aulas va mover esta sección");
+        Assert.isNotNull(aulasCMDestinoForm.isEmpty(), "Debe indicar a que aulas va mover esta sección");
+        Assert.isNotNull(gpoExamDestinoForm, "Debe indicar a que grupo-horario va mover esta sección");
+        Assert.isNotNull(gpoExamDestinoForm.getId(), "Debe indicar a que grupo-horario va mover esta sección");
+
+        List<AulaCursoMasivo> aulasCMOldBD = aulaCursoMasivoDAO.allByCursoMasivo(cursoMasivoBD);
+        ListsInspector inspector = TypesUtil.analizeLists(aulasCMOldBD, aulasCMDestinoForm, "aula.id");
+
+        List<AulaCursoMasivo> aulasCMNuevas = inspector.getNewList();
+        List<AulaCursoMasivo> aulasCMDead = inspector.getDeadList();
+        List<AulaCursoMasivo> aulasCMOld = inspector.getOldListDB();
+
+        List<Aula> aulasAll = new ArrayList();
+        for (AulaCursoMasivo aulaCM : aulasCMDestinoForm) {
+            aulasAll.add(aulaCM.getAula());
+        }
+
+        GrupoHorasExamen gpoExamOld = cursoMasivoBD.getGrupoHorasExamen();
+        GrupoHorasExamen gpoExamDestinoBD = grupoHorasExamenDAO.find(gpoExamDestinoForm.getId());
+        List<FechaHoraGrupoExamen> fechasHorasGpo = fechaHoraGrupoExamenDAO.allByGrupoHorasExamen(gpoExamDestinoBD);
+        gpoExamDestinoBD.setFechasHorasGruposExamen(fechasHorasGpo);
+
+        boolean mismasAulas = inspector.getNewList().isEmpty() && inspector.getDeadList().isEmpty();
+        boolean mismoGpo = gpoExamOld == null ? false : (gpoExamOld.getId().compareTo(gpoExamDestinoForm.getId()) == 0);
+        Assert.isFalse(mismoGpo && mismasAulas, "No ha indicado ningún cambio de aulas o grupo-horario");
+
+        List<String> restricciones = new ArrayList();
+        boolean verificado = verificarPosibleCambio(cursoMasivosExamenForm, restricciones, true, true);
+
+        if (restricciones.isEmpty()) {
+            saveCambioAulaGrupo(cursoMasivoBD, aulasCMNuevas, aulasCMDead, aulasAll, gpoExamDestinoBD, ds);
+        }
+
+        return restricciones;
+    }
+
+    private boolean verificarPosibleCambio(
+            CursoMasivoExamen cursoMasivosExamenForm,
+            List<String> restricciones,
+            boolean crearError,
+            boolean forzado) {
+
         CursoMasivoExamen cursoMasivoBD = cursoMasivoExamenDAO.find(cursoMasivosExamenForm.getId());
         RolExamenes rolExamenes = cursoMasivoBD.getRolExamenes();
         GrupoHorasExamen gpoExamDestinoForm = cursoMasivosExamenForm.getGrupoHorasExamen();
@@ -1097,7 +1145,7 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
                         mapAlumnoCursoMasivoByFecha,
                         mapAlumnoGpoRegularByFecha,
                         mapAlumnoGpoEspecialByFecha,
-                        restricciones);
+                        forzado ? new ArrayList() : restricciones);
 
         boolean verificarCruceAulas;
         boolean verificarCruceAlumno = true;
@@ -1119,8 +1167,21 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
             List<SeccionGrupoRegular> seccionesGRByGpoExam = seccionGrupoRegularDAO.allByGrupoHorasExamenAndEstados(gpoExamDestinoBD, SeccionRolExamenEstadoEnum.ACT);
             List<SeccionGrupoEspecial> seccionesGEByGpoExam = seccionGrupoEspecialDAO.allByGrupoHorasExamenAndEstados(gpoExamDestinoBD, SeccionRolExamenEstadoEnum.ACT);
 
-            verificarCruceAlumno = revisarCrucesAlumnos(gpoExamDestinoBD, cursoMasivoBD, alumnosCursoMasivoByGpoExam, alumnosGpoRegByGpoExam, alumnosGpoEspByGpoExam, restricciones);
-            verificarCruceDocente = revisarCrucesDocentes(gpoExamDestinoBD, cursoMasivoBD, seccionesCMByGpoExam, seccionesGRByGpoExam, seccionesGEByGpoExam, restricciones);
+            verificarCruceAlumno = revisarCrucesAlumnos(
+                    gpoExamDestinoBD,
+                    cursoMasivoBD,
+                    alumnosCursoMasivoByGpoExam,
+                    alumnosGpoRegByGpoExam,
+                    alumnosGpoEspByGpoExam,
+                    forzado ? new ArrayList() : restricciones);
+
+            verificarCruceDocente = revisarCrucesDocentes(
+                    gpoExamDestinoBD,
+                    cursoMasivoBD,
+                    seccionesCMByGpoExam,
+                    seccionesGRByGpoExam,
+                    seccionesGEByGpoExam,
+                    forzado ? new ArrayList() : restricciones);
 
         }
 
@@ -1487,7 +1548,7 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
             cursoMasivo.setAulasCursosMasivos(aulasCursoMasivo);
 
             List<String> restricciones = new ArrayList();
-            boolean ok = verificarPosibleCambio(cursoMasivo, restricciones, false);
+            boolean ok = verificarPosibleCambio(cursoMasivo, restricciones, false, false);
             aula.setTieneCruces(!ok);
             aula.setObservaciones(restricciones);
         }

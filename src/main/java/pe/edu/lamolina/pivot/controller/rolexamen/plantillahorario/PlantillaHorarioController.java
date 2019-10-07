@@ -28,6 +28,7 @@ import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.general.Dia;
+import pe.edu.lamolina.model.horario.GrupoHoras;
 import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.rolexamen.FechaHoraGrupoExamen;
 import pe.edu.lamolina.model.rolexamen.GrupoHorasExamen;
@@ -393,6 +394,84 @@ public class PlantillaHorarioController {
             logger.debug("changeSemanaExamen");
             response.setMessage("Horarios confirmados correctamente.");
             response.setSuccess(Boolean.TRUE);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "allDataForGpoHorasExamen", method = RequestMethod.POST)
+    public JsonResponse allDataForGpoHorasExamen(@RequestBody RolExamenes rolExamenes,
+            HttpSession session, HttpServletRequest request) {
+        JsonResponse response = new JsonResponse();
+
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            JsonNodeFactory jc = JsonNodeFactory.instance;
+            ObjectNode data = new ObjectNode(jc);
+
+            List<GrupoHoras> gruposHoras = service.allGrupoHoraDisponibles(rolExamenes);
+            List<Dia> dias = service.allDias();
+            List<Hora> horas = service.allHoras();
+            List<SemanaExamen> semanas = service.allSemanasByRolExamen(rolExamenes);
+
+            ArrayNode semanasJson = new ArrayNode(jc);
+            for (SemanaExamen semana : semanas) {
+                semanasJson.add(JsonHelper.createJson(semana, jc, true, new String[]{"*"}));
+            }
+            ArrayNode diasJson = new ArrayNode(jc);
+            for (Dia dia : dias) {
+                diasJson.add(JsonHelper.createJson(dia, jc, true, new String[]{"*"}));
+            }
+            ArrayNode diasGpos = new ArrayNode(jc);
+            for (GrupoHoras gpo : gruposHoras) {
+                diasGpos.add(JsonHelper.createJson(gpo, jc, true, new String[]{"*"}));
+            }
+            ArrayNode horasJson = new ArrayNode(jc);
+            for (Hora hora : horas) {
+                if (hora.getCodigo().compareTo("0800") < 0) {
+                    continue;
+                }
+                horasJson.add(JsonHelper.createJson(hora, jc, true,
+                        new String[]{
+                            "*",
+                            "horaSiguiente.*"
+                        }));
+            }
+
+            data.set("dias", diasJson);
+            data.set("horas", horasJson);
+            data.set("grupos", diasGpos);
+            data.set("semanas", semanasJson);
+
+            response.setSuccess(Boolean.TRUE);
+            response.setData(data);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "saveGpoHoasExamen", method = RequestMethod.POST)
+    public JsonResponse saveGpoHoasExamen(@RequestBody GrupoHorasExamen gpoHorasExamen,
+            HttpSession session, HttpServletRequest request) {
+        JsonResponse response = new JsonResponse();
+
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+            service.saveGrupoHorasExamen(gpoHorasExamen, ds);
+
+            response.setSuccess(Boolean.TRUE);
+            response.setMessage("Se guardo el horario satisfactoriamente");
+
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
