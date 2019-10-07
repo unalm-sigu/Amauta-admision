@@ -53,4 +53,6 @@ public interface GrupoHorasDAO extends EasyDAO<GrupoHoras> {
 
     List<GrupoHoras> allByTipoCiclo(String tipoCiclo);
 
+    List<GrupoHoras> allSimples();
+
 }

@@ -44,4 +44,6 @@ public interface SeccionGrupoEspecialDAO extends EasyDAO<SeccionGrupoEspecial> {
 
     int saveList(List<SeccionGrupoEspecial> seccionesEspeciales);
 
+    List<RolExamenDocente> allBySeccionesAndRolExam(RolExamenes rolExam, List<Seccion> listSeccion);
+
 }

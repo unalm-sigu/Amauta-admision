@@ -438,7 +438,7 @@ public class AulaController {
 
             ArrayNode horasJson = new ArrayNode(factory);
             for (Hora horasEncontrada : horasEncontradas) {
-                ObjectNode jhora = JsonHelper.createJson(horasEncontrada, factory, true,
+                ObjectNode jhora = JsonHelper.createJson(horasEncontrada, factory,false,
                         new String[]{
                             "*",
                             "dias.*",
@@ -455,6 +455,8 @@ public class AulaController {
                             "dias.mainHorarioAula.seccion.docenteSeccion.docente.persona.nomPaternoMat",
                             "dias.mainHorarioAula.seccion.docenteSeccion.docente.persona.apellidosNombres",
                             "dias.mainHorarioAula.seccion.grupoHoras.codigo",
+                            "dias.mainHorarioAula.cursoMasivoExamen.curso.codigo",
+                            "dias.mainHorarioAula.cursoMasivoExamen.curso.nombre",
                             "dias.mainHorarioAula.reservaAula.estado",
                             "dias.mainHorarioAula.reservaAula.motivo",
                             "dias.mainHorarioAula.reservaAula.tramite.numero",

@@ -282,7 +282,6 @@ new Vue({
                 callback: function (result) {
                     if (result) {
                         $vue.$refs.cambiarAulamodal.beginProcessing();
-                        //$vue.observaciones = {cantidad: 0, message: "", rows: 4, forzar: true};
 
                         axios.post(`${$vue.URL}/cambiarAulaGrupoForzado`, $vue.grupoEspTemp)
                                 .then(response => {
@@ -363,7 +362,7 @@ new Vue({
                     if (result) {
                         $vue.grupoEspTemp.rolExamenes = $vue.rolExamen;
                         $vue.grupoEspTemp.seccion = $vue.seccion;
-                        
+
                         $vue.$refs.modalAddSeccionNueva.beginProcessing();
                         axios.post(`${$vue.URL}/addSeccionNueva`, $vue.grupoEspTemp).then(response => {
                             $vue.$refs.modalAddSeccionNueva.confirmReaction(response.data.success);

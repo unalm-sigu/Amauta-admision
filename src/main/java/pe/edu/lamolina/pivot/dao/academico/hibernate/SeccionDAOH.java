@@ -15,6 +15,7 @@ import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.Docente;
+import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.Seccion;
@@ -979,6 +980,20 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
                 .filter("grho.letra", grupoHoras.getLetra())
                 .filter("ofi.codigo", OficinaEnum.OERA)
                 .groupBy("anbo.id");
+        return all(sql);
+    }
+
+    @Override
+    public List<Seccion> allSeccionByCicloDocente(Docente docente, CicloAcademico cicloAcademico) {
+        Octavia sql = Octavia.query()
+                .selectDistinct("secc")
+                .from(DocenteSeccion.class, "docsec")
+                .join("seccion secc", "docente doc", "secc.grupoSeccion gposecc", "gposecc.cicloAcademico cic")
+                .filter("secc.estado", SeccionEstadoEnum.ACT)
+                .filter("docsec.estado", EstadoEnum.ACT)
+                .filter("doc.id", docente)
+                .filter("cic.id", cicloAcademico);
+
         return all(sql);
     }
 
