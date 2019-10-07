@@ -233,4 +233,19 @@ public class SeccionGrupoEspecialDAOH extends AbstractEasyDAO<SeccionGrupoEspeci
         return rows;
     }
 
+    @Override
+    public List<RolExamenDocente> allBySeccionesAndRolExam(RolExamenes rolExam, List<Seccion> listSeccion) {
+        Octavia sql = new Octavia()
+                .select("cur", "ghe", "au", "sec", "re.estado", "re.id", "re.nombre")
+                .into(RolExamenDocente.class)
+                .from(SeccionGrupoEspecial.class, "sge")
+                .join("docente doc", "seccion sec", "sec.grupoSeccion gs", "gs.curso cur", "aula au")
+                .join("rolExamenes re", "re.eventoCicloAcademico eca", "eca.cicloAcademico ca")
+                .join("grupoHorasExamen ghe", "ghe.dia di", "ghe.horaInicio hi", "ghe.horaFin hf")
+                .in("sec.id", listSeccion)
+                .filter("re.id", rolExam);
+
+        return sql.all(getCurrentSession());
+    }
+
 }

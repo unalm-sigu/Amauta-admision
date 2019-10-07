@@ -26,6 +26,7 @@ public interface SeccionDAO extends EasyDAO<Seccion> {
     List<Seccion> allBySeccionSuperior(Seccion seccionSuperior);
 
     Seccion findByCodeCiclo(String codigo, CicloAcademico ciclo);
+
     Seccion findByCode2Ciclo(String codigo, CicloAcademico ciclo);
 
     List<Seccion> allByCiclo(CicloAcademico ciclo);
@@ -139,5 +140,7 @@ public interface SeccionDAO extends EasyDAO<Seccion> {
     List<Seccion> allByCicloAndFilter(CicloAcademico ciclo, ModalidadEstudioEnum modalidadEstudioEnum, SeccionDTO seccionDTO, SeccionEstadoEnum... seccionEstadoEnum);
 
     List<Seccion> allSeccionesActivasByGrupoHorasAndCiclo(GrupoHoras grupoHoras, CicloAcademico cicloAcademico);
+
+    List<Seccion> allSeccionByCicloDocente(Docente docente, CicloAcademico cicloAcademico);
 
 }
