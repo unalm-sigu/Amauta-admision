@@ -118,7 +118,7 @@
                                                 <strong> Periodo  </strong> De  {{dia.mainHorarioAula.seccion.grupoSeccion.fechaInicioPeriodo}} al {{dia.mainHorarioAula.seccion.grupoSeccion.fechaFinPeriodo}}
                                             </span>
                                             
-                                            <span v-if="dia.mainHorarioAula.cursoMasivoExamen" class="disabled block docente-uno">
+                                            <span v-if="dia.mainHorarioAula.cursoMasivoExamen.curso.codigo" class="disabled block docente-uno">
                                                 <strong> {{dia.mainHorarioAula.cursoMasivoExamen.curso.codigo}}</strong>
                                                 {{dia.mainHorarioAula.cursoMasivoExamen.curso.nombre}}
                                             </span>
