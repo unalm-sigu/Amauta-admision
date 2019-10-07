@@ -48,16 +48,20 @@
                                     <table class="table table-striped">
                                         <thead>
                                             <tr>
-                                                <th class="col-md-3 text-center"></th>
-                                                <th class="col-md-3 text-center">Alumnos</th>
+                                                <th class="col-md-1 text-center">Letra</th>
+                                                <th class="col-md-4">Curso</th>
+                                                <th class="col-md-1 text-center">Alumnos</th>
                                                 <th class="col-md-2">Docente</th>
-                                                <th class="col-md-3 text-center">Aula</th>
+                                                <th class="col-md-3 text-center">Examen</th>
                                                 <th class="col-md-1 text-center">Estado</th>
                                                 <th class="text-center"></th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <tr v-for="sec in props.data">
+                                                <td class="text-center v-middle">
+                                                    <div class="h3 text-primary" v-text="sec.letraGrupoRegular.letra"></div>
+                                                </td>
                                                 <td>
                                                     <input type="hidden" v-bind:value="sec.seccion.id"/>
                                                     <span class="block" >
@@ -75,7 +79,12 @@
                                                     <span v-text="sec.docente.persona.apellidosNombres"></span>
                                                 </td>
                                                 <td class="text-center v-middle">
-                                                    <span v-text="sec.aula.codigo"></span>
+                                                    <span class="block text-primary bold">Aula {{sec.aula.codigo}}</span>
+                                                    <span class="block">Fecha {{sec.letraGrupoRegular.grupoHorasExamen.fecha}}</span>
+                                                    <span class="block">
+                                                        De {{sec.letraGrupoRegular.grupoHorasExamen.horaInicio.descripcion}}
+                                                        a {{sec.letraGrupoRegular.grupoHorasExamen.horaFin.descripcionFin}}
+                                                    </span>
                                                 </td>
 
                                                 <td class="text-center v-middle">
