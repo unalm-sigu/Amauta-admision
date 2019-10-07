@@ -216,7 +216,7 @@ public class SeccionCursoMasivoDAOH extends AbstractEasyDAO<SeccionCursoMasivo> 
                 .from(SeccionCursoMasivo.class, "scm")
                 .join("cursoMasivoExamen cme", "cme.rolExamenes rexa", "seccion sec", "cme.curso cur")
                 .left("cme.grupoHorasExamen ghe", "ghe.grupoHoras gh", "ghe.horaInicio hi", "ghe.horaFin hf")
-                .filter("se.id", seccion)
+                .filter("sec.id", seccion)
                 .in("scm.estado", estado)
                 .filter("rexa.id", rol);
 

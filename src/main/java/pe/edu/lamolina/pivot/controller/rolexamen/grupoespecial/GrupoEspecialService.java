@@ -3,6 +3,7 @@ package pe.edu.lamolina.pivot.controller.rolexamen.grupoespecial;
 import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.rolexamen.AlumnoGrupoEspecial;
 import pe.edu.lamolina.model.rolexamen.GrupoHorasExamen;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
@@ -42,5 +43,9 @@ public interface GrupoEspecialService {
     List<String> saveCambioAulaGrupo(SeccionGrupoEspecial grupoSpecial);
 
     List<String> saveCambioAulaGrupoForzardo(SeccionGrupoEspecial grupoSpecial);
+
+    Seccion findSeccionByRolExamenes(Seccion seccion, CicloAcademico ciclo, RolExamenes rolExamenes);
+
+    void addSeccionNueva(Seccion seccion, CicloAcademico cicloAcademico, RolExamenes rolExamenes, DataSessionPivot ds);
 
 }

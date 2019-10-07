@@ -58,7 +58,7 @@ public class SeccionGrupoEspecialDAOH extends AbstractEasyDAO<SeccionGrupoEspeci
                 .searchComplexField("concat(coalesce(dper.paterno,''),' ',coalesce(dper.materno,''),' ',coalesce(dper.nombres,''))")
                 .searchComplexField("concat(coalesce(dper.nombres,''),' ',coalesce(dper.paterno,''),' ',coalesce(dper.materno,''))")
                 .filter("re.id", rolExamenes)
-                .orderBy("cur.nombre");
+                .orderBy("sge.id DESC");
 
         if (incompletos == 1L) {
             sql.beginBlock();

@@ -49,6 +49,20 @@ public class SeccionGrupoRegularDAOH extends AbstractEasyDAO<SeccionGrupoRegular
                 .join("letraGrupoRegular lgr", "seccion sec")
                 .join("lgr.rolExamenes rex")
                 .filter("sgr.id", id);
+
+        return find(sql);
+    }
+
+    @Override
+    public SeccionGrupoRegular findBySeccionRolExamenes(Seccion seccion, RolExamenes rolExamenes) {
+        Octavia sql = Octavia.query()
+                .from(SeccionGrupoRegular.class, "sgr")
+                .join("letraGrupoRegular lgr", "seccion sec")
+                .join("lgr.rolExamenes rex")
+                .filter("estado", SeccionRolExamenEstadoEnum.ACT)
+                .filter("sec.id", seccion)
+                .filter("rex.id", rolExamenes);
+
         return find(sql);
     }
 

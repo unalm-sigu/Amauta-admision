@@ -162,3 +162,49 @@
     </div>
 </modal-vik>
 
+<modal-vik v-bind="configAddSeccionNueva"
+           ref="modalAddSeccionNueva"
+           v-bind:okaction="saveAddSeccionNueva">
+    <div slot="body">
+
+        <div class="row" v-if="seccion">
+            <div class="col-md-12">
+                <div class="col-md-3 bold">Sección</div>
+                <div class="col-md-3">
+                    <input v-model="seccion.codigo2" class="form-control"/>
+                </div>
+                <div class="col-md-3"> <button v-on:click="buscarSeccion" class="btn btn-sm btn-primary">Buscar</button> </div>
+                <div class="col-md-3"></div>
+            </div>
+            <template v-if="seccion.id">
+                <div class="col-md-12 m-t">
+                    <label class="col-md-3 bold">Curso</label>
+                    <label class="col-md-9" v-if="seccion.grupoSeccion">
+                        {{seccion.grupoSeccion.curso.codigo}} - {{seccion.grupoSeccion.curso.nombre}}
+                    </label>
+                </div>
+                <div class="col-md-12">
+                    <label class="col-md-3 bold">Grupo</label>
+                    <label class="col-md-3" v-text="seccion.grupoHoras.codigo"></label>
+                    <label class="col-md-3 bold">Aula</label>
+                    <label class="col-md-3" v-text="seccion.aula.codigo"></label>
+                </div>
+                <div class="col-md-12">
+                    <div class="col-md-3 bold">Docente</div>
+                    <div class="col-md-9">
+                        <div v-if="seccion.docentePrincipal.persona" 
+                             v-text="seccion.docentePrincipal.persona.apellidosNombres"></div>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="col-md-3 bold">Matriculados</div>
+                    <div class="col-md-3" v-text="seccion.matriculados"></div>
+                </div>
+
+
+            </template>
+        </div>
+
+    </div>
+</modal-vik>
+

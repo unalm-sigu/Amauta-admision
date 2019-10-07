@@ -24,6 +24,7 @@ import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.rolexamen.AlumnoGrupoEspecial;
 import pe.edu.lamolina.model.rolexamen.GrupoHorasExamen;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
@@ -366,9 +367,9 @@ public class GrupoEspecialController {
     @RequestMapping("cambiarAulaGrupoForzado")
     public JsonResponse cambiarAulaGrupoForzado(@RequestBody SeccionGrupoEspecial grupoSpecial, HttpSession session) {
         JsonResponse response = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
         try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             List<String> restricciones = grupoEspecialService.saveCambioAulaGrupoForzardo(grupoSpecial);
 
             response.setMessage("Grupo modificado satisfactoriamente");
@@ -378,6 +379,61 @@ public class GrupoEspecialController {
                 response.setSuccess(Boolean.FALSE);
             }
             response.setData(restricciones);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("buscarSeccion")
+    public JsonResponse buscarSeccion(@RequestBody SeccionGrupoEspecial grupoSpecial, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            Seccion seccion = grupoSpecial.getSeccion();
+            RolExamenes rolExamenes = grupoSpecial.getRolExamenes();
+            Seccion seccionBD = grupoEspecialService.findSeccionByRolExamenes(seccion, ds.getCicloAcademico(), rolExamenes);
+
+            ObjectNode node = JsonHelper.createJson(seccionBD, JsonNodeFactory.instance, new String[]{
+                "id", "codigo2", "matriculados",
+                "grupoHoras.codigo",
+                "docentePrincipal.codigo",
+                "docentePrincipal.persona.apellidosNombres",
+                "aula.codigo",
+                "grupoSeccion.curso.codigo",
+                "grupoSeccion.curso.nombre",
+                "grupoSeccion.curso.tpc"});
+
+            response.setMessage("Sección ubicada satisfactoriamente");
+            response.setSuccess(Boolean.TRUE);
+            response.setData(node);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("addSeccionNueva")
+    public JsonResponse addSeccionNueva(@RequestBody SeccionGrupoEspecial grupoSpecial, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            Seccion seccion = grupoSpecial.getSeccion();
+            RolExamenes rolExamenes = grupoSpecial.getRolExamenes();
+            grupoEspecialService.addSeccionNueva(seccion, ds.getCicloAcademico(), rolExamenes, ds);
+
+            response.setMessage("Sección añadida satisfactoriamente");
+            response.setSuccess(Boolean.TRUE);
 
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);

@@ -1,6 +1,6 @@
 <html layout:decorator="_layout/layout">
     <head>
-        <title> Cursos Especiales </title>
+        <title> Grupos Especiales - Rol Exámenes </title>
         <style>
             .form-control {
                 min-height: 40px;
@@ -13,7 +13,7 @@
             <div id="main" v-cloak="">
 
                 <header class="header b-b padder-lg">
-                    <a href="/rolexamen/rolexamenes" class="btn btn-default btn-sm pull-right">Regresar</a>
+                    <!--<a href="/rolexamen/rolexamenes" class="btn btn-default btn-sm pull-right">Regresar</a>-->
                     <h2>Grupos Especiales <span th:text="${cicloAcademico.descripcion}">2016-II</span></h2>
                 </header>
 
@@ -37,7 +37,7 @@
                                                 >
                                             </multiselect>
                                         </div>
-                                        <div class="col-md-4" v-if="rolExamen">
+                                        <div class="col-md-6" v-if="rolExamen">
                                             <a class="btn btn-success"
                                                v-if="calcularDisponible"
                                                v-on:click.prevent="calcularGrupoEspecial">
@@ -52,9 +52,13 @@
                                                v-on:click.prevent="verIncompletos">
                                                 Ver incompletos
                                             </a>
-                                            <a class="btn btn-primary" v-else=""
+                                            <a class="btn btn-success" v-else=""
                                                v-on:click.prevent="verTodos">
                                                 Ver todos
+                                            </a>
+                                            <a class="btn btn-primary"
+                                               v-on:click.prevent="verAddNuevaSeccion">
+                                                Agregar sección
                                             </a>
                                         </div>
 

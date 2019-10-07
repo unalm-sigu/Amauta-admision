@@ -32,8 +32,13 @@ new Vue({
         grupoHoras: [],
         grupoEspTemp: {},
         grupoEsp: {},
+        seccion: null,
         observaciones: {cantidad: 0, message: "", rows: 4, forzar: false},
-        sonTodos: true
+        sonTodos: true,
+        configAddSeccionNueva: VUE_MODAL.structFormAjax({
+            id: "idModalAddSeccNueva",
+            okbtn: "Añadir sección"
+        })
     },
     mounted() {
         if (jRolExamenes != null) {
@@ -315,6 +320,67 @@ new Vue({
             this.$refs.raptor.ajaxdata = {rolexamenes: this.rolExamen.id, incompletos: 0};
             this.$refs.raptor.loadRemoteData();
             this.sonTodos = true;
+        },
+        verAddNuevaSeccion() {
+            let $vue = this;
+            $vue.seccion = {codigo2: ""};
+            $vue.$refs.modalAddSeccionNueva.open();
+        },
+        buscarSeccion() {
+            let $vue = this;
+            if ($vue.seccion.codigo2 == "") {
+                notify("Debe indicar que sección desea añadir", "error");
+                return;
+            }
+            $vue.grupoEspTemp.rolExamenes = $vue.rolExamen;
+            $vue.grupoEspTemp.seccion = $vue.seccion;
+
+            $vue.$refs.modalAddSeccionNueva.beginProcessing();
+            axios.post(`${$vue.URL}/buscarSeccion`, $vue.grupoEspTemp).then(response => {
+                $vue.$refs.modalAddSeccionNueva.confirmReaction(false);
+                if (response.data.success) {
+                    console.log(response.data.data)
+                    $vue.seccion = response.data.data;
+                } else {
+                    notify(response.data.message, "error");
+                }
+
+            }).catch(e => {
+                $vue.$refs.modalAddSeccionNueva.confirmReaction(false);
+                notify(MESSAGES.errorComunicacion, "error");
+            });
+
+        },
+        saveAddSeccionNueva() {
+            let $vue = this;
+            bootbox.confirm({
+                message: "¿Está seguro que desea añadir esta sección al rol de exámenes?",
+                buttons: {
+                    confirm: {label: 'Sí, añadir', className: "btn-success"},
+                    cancel: {label: 'Cancelar', className: "btn-link"}
+                },
+                callback: function (result) {
+                    if (result) {
+                        $vue.grupoEspTemp.rolExamenes = $vue.rolExamen;
+                        $vue.grupoEspTemp.seccion = $vue.seccion;
+                        
+                        $vue.$refs.modalAddSeccionNueva.beginProcessing();
+                        axios.post(`${$vue.URL}/addSeccionNueva`, $vue.grupoEspTemp).then(response => {
+                            $vue.$refs.modalAddSeccionNueva.confirmReaction(response.data.success);
+                            if (response.data.success) {
+                                $vue.$refs.raptor.loadRemoteData();
+                                notify(response.data.message, "info");
+                            } else {
+                                notify(response.data.message, "error");
+                            }
+
+                        }).catch(e => {
+                            $vue.$refs.modalAddSeccionNueva.confirmReaction(false);
+                            notify(MESSAGES.errorComunicacion, "error");
+                        });
+                    }
+                }
+            });
         },
     }
 });

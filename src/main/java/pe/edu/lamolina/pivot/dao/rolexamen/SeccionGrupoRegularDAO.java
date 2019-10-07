@@ -18,6 +18,8 @@ import pe.edu.lamolina.model.seguridad.Usuario;
 
 public interface SeccionGrupoRegularDAO extends EasyDAO<SeccionGrupoRegular> {
 
+    SeccionGrupoRegular findBySeccionRolExamenes(Seccion seccion, RolExamenes rolExamenes);
+
     List<SeccionGrupoRegular> allByLetraGrupoRegularAndEstados(
             LetraGrupoRegular letrasGruposRegular, SeccionRolExamenEstadoEnum... estados);
 

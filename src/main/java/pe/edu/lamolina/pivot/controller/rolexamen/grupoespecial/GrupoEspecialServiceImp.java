@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,15 +23,19 @@ import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.Docente;
+import pe.edu.lamolina.model.academico.DocenteSeccion;
+import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.AlumnoRolExamenEstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoCursoMasivoEnum;
 import pe.edu.lamolina.model.enums.EstadoEnum;
+import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.MAT;
 import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.enums.RolExamenesEstadoEnum;
 import pe.edu.lamolina.model.enums.SeccionRolExamenEstadoEnum;
 import pe.edu.lamolina.model.enums.SituacionRolExamenesEnum;
 import pe.edu.lamolina.model.enums.TipoHorarioAulaEnum;
+import static pe.edu.lamolina.model.enums.TipoSeccionEnum.PCUR;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.horario.Hora;
@@ -51,6 +56,9 @@ import pe.edu.lamolina.model.rolexamen.SeccionGrupoRegular;
 import pe.edu.lamolina.model.rolexamen.SemanaExamen;
 import pe.edu.lamolina.pivot.controller.rolexamen.gruporegular.GrupoRegularConnector;
 import pe.edu.lamolina.pivot.controller.rolexamen.util.RolExamenesLogger;
+import pe.edu.lamolina.pivot.dao.academico.DocenteSeccionDAO;
+import pe.edu.lamolina.pivot.dao.academico.MatriculaSeccionDAO;
+import pe.edu.lamolina.pivot.dao.academico.SeccionDAO;
 import pe.edu.lamolina.pivot.dao.general.AulaDAO;
 import pe.edu.lamolina.pivot.dao.horario.HorarioAulaDAO;
 import pe.edu.lamolina.pivot.dao.horario.HorarioSeccionDAO;
@@ -128,6 +136,15 @@ public class GrupoEspecialServiceImp implements GrupoEspecialService {
 
     @Autowired
     AulaDAO aulaDAO;
+
+    @Autowired
+    SeccionDAO seccionDAO;
+
+    @Autowired
+    DocenteSeccionDAO docenteSeccionDAO;
+
+    @Autowired
+    MatriculaSeccionDAO matriculaSeccionDAO;
 
     private void checkNoPublicado(RolExamenes rol) {
         Assert.isTrue(rol.getEstadoEnum() != RolExamenesEstadoEnum.PUB, "El rol de exámenes ya ha sido publicado");
@@ -1527,6 +1544,72 @@ public class GrupoEspecialServiceImp implements GrupoEspecialService {
         }
 
         return !existeCruce;
+
+    }
+
+    @Override
+    public Seccion findSeccionByRolExamenes(Seccion seccionForm, CicloAcademico ciclo, RolExamenes rolExamenes) {
+        Seccion seccionBD = seccionDAO.findByCode2Ciclo(seccionForm.getCodigo2(), ciclo);
+        Assert.isNotNull(seccionBD, "No existe una sección con este código");
+        Assert.isFalse(seccionBD.getTipoSeccionEnum() == PCUR, "Las secciones de prácticas no entrán al Rol de Exámenes");
+
+        SeccionGrupoRegular seccionGpoReg = seccionGrupoRegularDAO.findBySeccionRolExamenes(seccionBD, rolExamenes);
+        Assert.isNull(seccionGpoReg, "Esta sección ya se encuentra configurada en el rol de examenes en el grupo regular");
+
+        SeccionGrupoEspecial seccionGpoEsp = seccionGrupoEspecialDAO.findByRolExamanesSeccion(rolExamenes, seccionBD, SeccionRolExamenEstadoEnum.ACT);
+        Assert.isNull(seccionGpoEsp, "Esta sección ya se encuentra configurada en el rol de examenes como grupo especial");
+
+        SeccionCursoMasivo seccionCurMasivo = seccionCursoMasivoDAO.findByRolExamenesSeccion(rolExamenes, seccionBD, SeccionRolExamenEstadoEnum.ACT);
+        Assert.isNull(seccionCurMasivo, "Esta sección ya se encuentra configurada en el rol de examenes como curso masivo");
+
+        DocenteSeccion docenteSeccion = docenteSeccionDAO.findPrincipalBySeccion(seccionBD);
+        if (docenteSeccion != null) {
+            seccionBD.setDocentePrincipal(docenteSeccion.getDocente());
+        }
+
+        return seccionBD;
+    }
+
+    @Override
+    @Transactional
+    public void addSeccionNueva(Seccion seccionForm, CicloAcademico ciclo, RolExamenes rolExamenes, DataSessionPivot ds) {
+        Seccion seccionBD = seccionDAO.findByCode2Ciclo(seccionForm.getCodigo2(), ciclo);
+        Assert.isNotNull(seccionBD, "No existe una sección con este código");
+        Assert.isFalse(seccionBD.getTipoSeccionEnum() == PCUR, "Las secciones de prácticas no entrán al Rol de Exámenes");
+
+        SeccionGrupoRegular seccionGpoReg = seccionGrupoRegularDAO.findBySeccionRolExamenes(seccionBD, rolExamenes);
+        Assert.isNull(seccionGpoReg, "Esta sección ya se encuentra configurada en el rol de examenes en el grupo regular");
+
+        SeccionGrupoEspecial seccionGpoEsp = seccionGrupoEspecialDAO.findByRolExamanesSeccion(rolExamenes, seccionBD, SeccionRolExamenEstadoEnum.ACT);
+        Assert.isNull(seccionGpoEsp, "Esta sección ya se encuentra configurada en el rol de examenes como grupo especial");
+
+        SeccionCursoMasivo seccionCurMasivo = seccionCursoMasivoDAO.findByRolExamenesSeccion(rolExamenes, seccionBD, SeccionRolExamenEstadoEnum.ACT);
+        Assert.isNull(seccionCurMasivo, "Esta sección ya se encuentra configurada en el rol de examenes como curso masivo");
+
+        DocenteSeccion docenteSeccion = docenteSeccionDAO.findPrincipalBySeccion(seccionBD);
+        if (docenteSeccion != null) {
+            seccionBD.setDocentePrincipal(docenteSeccion.getDocente());
+        }
+
+        DateTime hoy = new DateTime();
+        seccionBD.setDocenteSeccion(new ArrayList());
+        seccionBD.getDocenteSeccion().add(docenteSeccion);
+
+        SeccionGrupoEspecial sge = new SeccionGrupoEspecial(rolExamenes, seccionBD, ds.getUsuario(), hoy.toDate());
+        seccionGrupoEspecialDAO.save(sge);
+
+        List<MatriculaSeccion> matriculados = matriculaSeccionDAO.allBySeccion(seccionBD);
+        for (MatriculaSeccion matriculado : matriculados) {
+            if (matriculado.getEstadoEnum() == MAT) {
+                AlumnoGrupoEspecial age = new AlumnoGrupoEspecial();
+                age.setSeccionGrupoEspecial(sge);
+                age.setEstadoEnum(AlumnoRolExamenEstadoEnum.ACT);
+                age.setAlumno(matriculado.getMatriculaResumen().getAlumno());
+                age.setUserRegistro(ds.getUsuario());
+                age.setFechaRegistro(hoy.toDate());
+                alumnoGrupoEspecialDAO.save(age);
+            }
+        }
 
     }
 

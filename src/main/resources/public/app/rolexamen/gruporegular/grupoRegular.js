@@ -17,10 +17,6 @@ new Vue({
         seccionesGrupoRegulares: [],
         gruposRegulares: [],
         alumnosGruposRegulares: [],
-        grupoEspecialTempo: {seccion: {}},
-        configAddSeccionNueva: VUE_MODAL.structFormAjax({
-            id: "idModalAddSeccNueva"
-        }),
         observaciones: {cantidad: 0, message: "", rows: 4}
     },
     computed: {
@@ -249,9 +245,6 @@ new Vue({
 //                }
 //                MODAL.hideWait();
 //            });
-        },
-        saveAddSeccionNueva() {
-
         },
         verAllSecciones() {
             let $vue = this;
