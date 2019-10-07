@@ -16,4 +16,6 @@ public interface AccionTramiteDocumentoDAO extends EasyDAO<AccionTramiteDocument
 
     public List<AccionTramiteDocumento> allByTipoTramiteAndEstadoTramiteInicial(TipoDocumentoAcademico tipoTramite, EstadoTramite estadoTramite);
 
+    public List<AccionTramiteDocumento> allByTipo(String tipo);
+
 }
