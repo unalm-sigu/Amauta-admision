@@ -40,8 +40,10 @@ import pe.edu.lamolina.model.enums.TipoHorarioAulaEnum;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.horario.DiaHoraGrupo;
 import pe.edu.lamolina.model.horario.GrupoHoras;
+import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.horario.HorarioAula;
 import pe.edu.lamolina.model.horario.HorarioSeccion;
+import pe.edu.lamolina.model.rolexamen.AlumnoCursoMasivo;
 import pe.edu.lamolina.model.rolexamen.AlumnoGrupoEspecial;
 import pe.edu.lamolina.model.rolexamen.AlumnoGrupoRegular;
 import pe.edu.lamolina.model.rolexamen.CursoExcluido;
@@ -67,6 +69,7 @@ import pe.edu.lamolina.pivot.dao.horario.DiaHoraGrupoDAO;
 import pe.edu.lamolina.pivot.dao.horario.GrupoHorasDAO;
 import pe.edu.lamolina.pivot.dao.horario.HorarioAulaDAO;
 import pe.edu.lamolina.pivot.dao.horario.HorarioSeccionDAO;
+import pe.edu.lamolina.pivot.dao.rolexamen.AlumnoCursoMasivoDAO;
 import pe.edu.lamolina.pivot.dao.rolexamen.AlumnoGrupoEspecialDAO;
 import pe.edu.lamolina.pivot.dao.rolexamen.AlumnoGrupoRegularDAO;
 import pe.edu.lamolina.pivot.dao.rolexamen.CursoExcluidoDAO;
@@ -166,6 +169,9 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
 
     @Autowired
     DocenteSeccionDAO docenteSeccionDAO;
+
+    @Autowired
+    AlumnoCursoMasivoDAO alumnoCursoMasivoDAO;
 
     @Autowired
     HorarioAulaDAO horarioAulaDAO;
@@ -1453,6 +1459,209 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
         List<CursoExcluido> cursosExcluidos = cursoExcluidoDAO.allByRolExamenes(rolExamenesForm, EstadoEnum.ACT);
         this.quitarSeccionesExcluidas(secciones, seccionesExcluidas, cursosExcluidos);
         System.out.println("sewcciones5=" + secciones.size());
+    }
+
+    @Override
+    @Transactional
+    public List<String> cambiarAula(SeccionGrupoRegular seccionGpoRegForm, DataSessionPivot ds) {
+        SeccionGrupoRegular seccionGpoRegBD = seccionGrupoRegularDAO.find(seccionGpoRegForm.getId());
+        RolExamenes rolExamenes = seccionGpoRegBD.getLetraGrupoRegular().getRolExamenes();
+        Aula aulaDestinoForm = seccionGpoRegForm.getAula();
+
+        Assert.isNotNull(aulaDestinoForm, "Debe indicar a que aula va mover esta sección");
+        Assert.isNotNull(aulaDestinoForm.getCodigo(), "Debe indicar a que aula va mover esta sección");
+
+        Aula aulaDestinoBD = aulaDAO.findByCode(aulaDestinoForm.getCodigo());
+        Assert.isNotNull(aulaDestinoBD, "El aula " + aulaDestinoForm.getCodigo() + " no existe");
+        Assert.isTrue(aulaDestinoBD.getEstadoEnum() == EstadoEnum.ACT, "El aula " + aulaDestinoForm.getCodigo() + " no se encuentra activa");
+
+        Aula aulaOld = seccionGpoRegBD.getAula();
+
+        boolean mismaAula = aulaOld == null ? false : (aulaOld.getId().compareTo(aulaDestinoBD.getId()) == 0);
+        Assert.isFalse(mismaAula, "No ha indicado ningún cambio de aula");
+
+        List<AlumnoGrupoRegular> alumnosGpoReg = alumnoGrupoRegularDAO.allBySeccionGrupoRegularAndEstados(seccionGpoRegBD, AlumnoRolExamenEstadoEnum.ACT);
+        seccionGpoRegBD.setAlumnosGruposRegulares(alumnosGpoReg);
+
+        GrupoHorasExamen gpoHorasExamBD = seccionGpoRegBD.getLetraGrupoRegular().getGrupoHorasExamen();
+        List<FechaHoraGrupoExamen> fechasHorasGpo = fechaHoraGrupoExamenDAO.allByGrupoHorasExamen(gpoHorasExamBD);
+        gpoHorasExamBD.setFechasHorasGruposExamen(fechasHorasGpo);
+
+        List<SemanaExamen> semanasByRolExamen = semanaExamenDAO.allByRolExamenes(rolExamenes);
+        Date fechaInicio = semanasByRolExamen.stream().min(Comparator.comparing(SemanaExamen::getFechaInicio)).map(x -> x.getFechaInicio()).get();
+        Date fechaFin = semanasByRolExamen.stream().max(Comparator.comparing(SemanaExamen::getFechaFin)).map(x -> x.getFechaFin()).get();
+        List<Aula> aulasDestino = fillAulas(aulaDestinoBD, fechaInicio, fechaFin);
+
+        List<GrupoHorasExamen> gposHoraExamenAll = grupoHorasExamenDAO.allByRolExamenes(rolExamenes);
+        List<FechaHoraGrupoExamen> fechasHoras = fechaHoraGrupoExamenDAO.allByGrupoHorasExamen(gposHoraExamenAll);
+        Map<Long, List<FechaHoraGrupoExamen>> mapFechaHora = TypesUtil.convertListToMapList("grupoHorasExamen.id", fechasHoras);
+        for (GrupoHorasExamen gHora : gposHoraExamenAll) {
+            gHora.setFechasHorasGruposExamen(mapFechaHora.get(gHora.getId()));
+        }
+
+        List<String> restricciones = new ArrayList();
+
+        boolean verificarCruceAulas = revisarCrucesAula(gpoHorasExamBD, aulasDestino, restricciones);
+
+        if (verificarCruceAulas) {
+            cambiarAulaForSeccionRegular(seccionGpoRegBD, aulaDestinoBD, gpoHorasExamBD);
+        }
+        return restricciones;
+    }
+
+    private void cambiarAulaForSeccionRegular(SeccionGrupoRegular seccionGpoReg, Aula aulaDestino, GrupoHorasExamen gpoExamDestino) {
+        List<FechaHoraGrupoExamen> fechasHorasGpo = gpoExamDestino.getFechasHorasGruposExamen();
+
+        seccionGpoReg.setAula(aulaDestino);
+        seccionGrupoRegularDAO.update(seccionGpoReg);
+
+        List<HorarioAula> horarios = new ArrayList();
+        horarioAulaDAO.deleteBySeccionGrupoRegular(seccionGpoReg);
+        for (FechaHoraGrupoExamen fechaGpoExam : fechasHorasGpo) {
+            HorarioAula ha = new HorarioAula(fechaGpoExam, aulaDestino);
+            ha.setSeccionGrupoRegular(seccionGpoReg);
+            ha.setSeccion(seccionGpoReg.getSeccion());
+            ha.setRolExamenes(seccionGpoReg.getLetraGrupoRegular().getRolExamenes());
+            horarios.add(ha);
+        }
+        horarioAulaDAO.saveList(horarios);
+
+    }
+
+    private boolean revisarTripleExamen(
+            GrupoHorasExamen gpoExamDestino,
+            Map<Long, GrupoHorasExamen> mapGrupoHoraExamen,
+            List<Alumno> alumnos,
+            Map<Long, List<AlumnoCursoMasivo>> mapAlumnoCursoMasivoByFecha,
+            Map<Long, List<AlumnoGrupoRegular>> mapAlumnoSeccionRegularByFecha,
+            Map<Long, List<AlumnoGrupoEspecial>> mapAlumnoSeccionEspecialByFecha,
+            List<String> restricciones) {
+
+        Date fechaDestino = gpoExamDestino.getFecha();
+        boolean existeCruce = false;
+
+        for (Alumno alumno : alumnos) {
+            List<AlumnoCursoMasivo> aluCursosMasivos = TypesUtil.getListNotNull(mapAlumnoCursoMasivoByFecha.get(alumno.getId()));
+            List<AlumnoGrupoRegular> aluSeccionRegular = TypesUtil.getListNotNull(mapAlumnoSeccionRegularByFecha.get(alumno.getId()));
+            List<AlumnoGrupoEspecial> aluSeccionEspecial = TypesUtil.getListNotNull(mapAlumnoSeccionEspecialByFecha.get(alumno.getId()));
+
+            int total = aluCursosMasivos.size() + aluSeccionRegular.size() + aluSeccionEspecial.size();
+            if (total >= 2) {
+                existeCruce = true;
+
+                StringBuilder msg = new StringBuilder("El alumno ").append(alumno.getCodigo()).append(" ya tiene programado ");
+                msg.append(total).append(" examen(es) el ");
+                msg.append(TypesUtil.getStringDate(fechaDestino, "EEEE dd 'de' MMMM", "es")).append(". ");
+
+                for (AlumnoCursoMasivo alumnoCM : aluCursosMasivos) {
+                    Curso curso = alumnoCM.getCursoMasivoExamen().getCurso();
+                    GrupoHorasExamen gpoHoraExamenAlu = alumnoCM.getCursoMasivoExamen().getGrupoHorasExamen();
+                    GrupoHorasExamen gpoHoraExamenCM = mapGrupoHoraExamen.get(gpoHoraExamenAlu.getId());
+                    List<FechaHoraGrupoExamen> fechasHorasGpo = gpoHoraExamenCM.getFechasHorasGruposExamen();
+                    Hora horaIni = fechasHorasGpo.stream().map(x -> x.getHora()).min(Comparator.comparing(Hora::getCodigo)).get();
+                    Hora horaFin = fechasHorasGpo.stream().map(x -> x.getHora()).max(Comparator.comparing(Hora::getCodigo)).get();
+
+                    msg.append("El curso masivo ").append(curso.getCodigo());
+                    msg.append(" de ").append(horaIni.getDescripcion());
+                    msg.append(" a ").append(horaFin.getDescripcion()).append(". ");
+                }
+
+                for (AlumnoGrupoRegular alumnoGpoReg : aluSeccionRegular) {
+                    Seccion seccion = alumnoGpoReg.getSeccionGrupoRegular().getSeccion();
+                    Curso curso = seccion.getGrupoSeccion().getCurso();
+                    LetraGrupoRegular letraGR = alumnoGpoReg.getSeccionGrupoRegular().getLetraGrupoRegular();
+                    GrupoHorasExamen gpoHoraExamenAlu = letraGR.getGrupoHorasExamen();
+                    GrupoHorasExamen gpoHoraExamenCM = mapGrupoHoraExamen.get(gpoHoraExamenAlu.getId());
+                    List<FechaHoraGrupoExamen> fechasHorasGpo = gpoHoraExamenCM.getFechasHorasGruposExamen();
+                    Hora horaIni = fechasHorasGpo.stream().map(x -> x.getHora()).min(Comparator.comparing(Hora::getCodigo)).get();
+                    Hora horaFin = fechasHorasGpo.stream().map(x -> x.getHora()).max(Comparator.comparing(Hora::getCodigo)).get();
+
+                    msg.append("El grupo regular ").append(letraGR.getLetra());
+                    msg.append(" sección ").append(seccion.getCodigo2());
+                    msg.append(" curso ").append(curso.getCodigo());
+                    msg.append(" de ").append(horaIni.getDescripcion());
+                    msg.append(" a ").append(horaFin.getDescripcion()).append(". ");
+                }
+
+                for (AlumnoGrupoEspecial alumnoGE : aluSeccionEspecial) {
+                    Seccion seccion = alumnoGE.getSeccionGrupoEspecial().getSeccion();
+                    Curso curso = seccion.getGrupoSeccion().getCurso();
+                    GrupoHorasExamen gpoHoraExamenAlu = alumnoGE.getSeccionGrupoEspecial().getGrupoHorasExamen();
+                    GrupoHorasExamen gpoHoraExamenCM = mapGrupoHoraExamen.get(gpoHoraExamenAlu.getId());
+                    List<FechaHoraGrupoExamen> fechasHorasGpo = gpoHoraExamenCM.getFechasHorasGruposExamen();
+                    Hora horaIni = fechasHorasGpo.stream().map(x -> x.getHora()).min(Comparator.comparing(Hora::getCodigo)).get();
+                    Hora horaFin = fechasHorasGpo.stream().map(x -> x.getHora()).max(Comparator.comparing(Hora::getCodigo)).get();
+
+                    msg.append("El grupo especial ");
+                    msg.append(" sección ").append(seccion.getCodigo2());
+                    msg.append(" curso ").append(curso.getCodigo());
+                    msg.append(" de ").append(horaIni.getDescripcion());
+                    msg.append(" a ").append(horaFin.getDescripcion()).append(". ");
+                }
+
+                restricciones.add(msg.toString());
+            }
+
+        }
+
+        return !existeCruce;
+    }
+
+    private boolean revisarCrucesAula(GrupoHorasExamen gpoExamDestino, List<Aula> aulasDestino, List<String> restricciones) {
+        List<FechaHoraGrupoExamen> fechasHorasGpo = gpoExamDestino.getFechasHorasGruposExamen();
+        Date fechaDestino = fechasHorasGpo.get(0).getFecha();
+
+        boolean existeCruce = false;
+        for (Aula aula : aulasDestino) {
+            List<HorarioAula> horariosAulas = aula.getHorariosAula();
+            for (HorarioAula ha : horariosAulas) {
+                if (fechaDestino.compareTo(ha.getFechaInicio()) >= 0 && fechaDestino.compareTo(ha.getFechaFin()) <= 0) {
+                    for (FechaHoraGrupoExamen fechaHora : fechasHorasGpo) {
+                        if (fechaHora.getIdDiaHora().compareTo(ha.getIdDiaHora()) == 0) {
+                            TipoHorarioAulaEnum tipo = ha.getTipoEnum();
+                            Hora hora = ha.getHora();
+                            existeCruce = true;
+
+                            StringBuilder msg = new StringBuilder("El aula ").append(aula.getCodigo()).append(" se encuentra ocupada el ");
+                            msg.append(TypesUtil.getStringDate(fechaDestino, "EEEE dd 'de' MMMM", "es"));
+                            msg.append(" a las ").append(hora.getDescripcion());
+
+                            if (tipo != null) {
+                                msg.append(" con ");
+                                switch (tipo) {
+                                    case DICT:
+                                        msg.append(" un dictado de clases");
+                                        break;
+                                    case EXAM:
+                                        msg.append(" un examen pre-programado");
+                                        break;
+                                    case RESERV:
+                                        msg.append(" una reserva");
+                                        break;
+                                    default:
+                                        msg.append(" algo indefinido");
+                                        break;
+                                }
+                            }
+
+                            msg.append(". ");
+                            restricciones.add(msg.toString());
+                        }
+                    }
+                }
+            }
+        }
+
+        return !existeCruce;
+
+    }
+
+    private List<Aula> fillAulas(Aula aula, Date fechaInicio, Date fechaFin) {
+        List<HorarioAula> horariosAula = horarioAulaDAO.allByRango(fechaInicio, fechaFin, aula);
+        aula.setHorariosAula(horariosAula);
+        List<Aula> aulas = new ArrayList();
+        aulas.add(aula);
+        return aulas;
     }
 
 }
