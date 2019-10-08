@@ -670,6 +670,11 @@ public class PlantillaHorarioServiceImp implements PlantillaHorarioService {
             semanaExamenDAO.update(semana);
         }
 
+        if (semana.getHoraInicio().getCodigo().compareTo(horaInicio.getCodigo()) > 0) { // update fecha inicial
+            semana.setHoraInicio(horaInicio);
+            semanaExamenDAO.update(semana);
+        }
+
         grupoHorasExamenDAO.save(gpoHorasExamen);
         for (FechaHoraGrupoExamen fechaHora : gpoHorasExamen.getFechasHorasGruposExamen()) {
             fechaHoraGrupoExamenDAO.save(fechaHora);
