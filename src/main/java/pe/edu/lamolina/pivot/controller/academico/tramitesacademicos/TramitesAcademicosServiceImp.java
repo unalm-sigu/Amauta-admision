@@ -445,7 +445,7 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
         if (autorizacionRegistro == null) {
             autorizacionRegistro = new AutorizacionRegistro();
         }
-        autorizacionRegistro.setMotivo(tramite.getMotivoResolucion());
+        autorizacionRegistro.setMotivo("");
         autorizacionRegistro.setAlumno(alumno);
         autorizacionRegistro.setEstado(EstadoEnum.CRE.name());
         autorizacionRegistro.setFechaRegistro(today.toDate());
