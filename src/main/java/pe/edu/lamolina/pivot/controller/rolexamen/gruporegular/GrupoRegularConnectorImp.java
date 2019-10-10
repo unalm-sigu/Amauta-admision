@@ -1065,7 +1065,7 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
         CicloAcademico cicloAcademico = rolExamenes.getEventoCicloAcademico().getCicloAcademico();
         List<SemanaExamen> semanas = semanaExamenDAO.allByRolExamenes(rolExamenes);
 
-        final RolExamenes firstRolExamen = rolexamenesDAO.findByCicloAndEstadoAndEventoAcademico(cicloAcademico, null, EventoAcademicoEnum.EXAMEN_PARC);
+        final RolExamenes firstRolExamen = rolexamenesDAO.findByCicloAndEstadoAndEventoAcademico(cicloAcademico, EventoAcademicoEnum.EXAMEN_PARC);
         EventoCicloAcademico dictadoClases = eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(cicloAcademico, EventoAcademicoEnum.CLASES_PRE);
 
         List<HorarioAula> horariosAulasByCiclo = horarioAulaDAO.allForRolExamenesByCicloAcademico(rolExamenes.getEventoCicloAcademico().getCicloAcademico());

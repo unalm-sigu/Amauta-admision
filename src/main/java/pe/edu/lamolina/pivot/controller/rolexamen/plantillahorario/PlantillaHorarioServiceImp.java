@@ -138,7 +138,7 @@ public class PlantillaHorarioServiceImp implements PlantillaHorarioService {
 
         CicloAcademico cicloRol = rolExamenes.getEventoCicloAcademico().getCicloAcademico();
 
-        final RolExamenes firstRolExamen = rolExamenesDAO.findByCicloAndEstadoAndEventoAcademico(cicloRol, null, EventoAcademicoEnum.EXAMEN_PARC);
+        final RolExamenes firstRolExamen = rolExamenesDAO.findByCicloAndEstadoAndEventoAcademico(cicloRol, EventoAcademicoEnum.EXAMEN_PARC);
 
         List<SemanaExamen> semanaExamenes = semanaExamenDAO.allByRolExamenes(rolExamenes);
 
@@ -215,6 +215,7 @@ public class PlantillaHorarioServiceImp implements PlantillaHorarioService {
                 }
             }
         }
+
         RolExamenes rolExamenesUpd = new RolExamenes(rolExamenes.getId());
         rolExamenesUpd.setEstadoEnum(RolExamenesEstadoEnum.CON);
         rolExamenesUpd.setSituacionEnum(SituacionRolExamenesEnum.CONF_HOR);
@@ -373,7 +374,7 @@ public class PlantillaHorarioServiceImp implements PlantillaHorarioService {
         CicloAcademico cicloAcademico = rolExamenes.getEventoCicloAcademico().getCicloAcademico();
         List<SemanaExamen> semanas = semanaExamenDAO.allByRolExamenes(rolExamenes);
 
-        final RolExamenes rolExamParcial = rolexamenesDAO.findByCicloAndEstadoAndEventoAcademico(cicloAcademico, null, EventoAcademicoEnum.EXAMEN_PARC);
+        final RolExamenes rolExamParcial = rolexamenesDAO.findByCicloAndEstadoAndEventoAcademico(cicloAcademico, EventoAcademicoEnum.EXAMEN_PARC);
         EventoCicloAcademico dictadoClases = eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(cicloAcademico, EventoAcademicoEnum.CLASES_PRE);
 
         List<HorarioAula> horariosAulasByCiclo = horarioAulaDAO.allForRolExamenesByCicloAcademico(rolExamenes.getEventoCicloAcademico().getCicloAcademico());
