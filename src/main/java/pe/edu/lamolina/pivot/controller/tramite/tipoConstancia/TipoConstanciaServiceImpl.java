@@ -130,7 +130,7 @@ public class TipoConstanciaServiceImpl implements TipoConstanciaService {
         List<AccionTramiteDocumento> accionTramiteDocumentos = accionTramiteDocumentoDAO.allByTipo(tramiteDocumentoAcademico.getTipo());
         Long idTipoDoc = accionTramiteDocumentos.get(0).getTipoDocumentoAcademico().getId();
         for (AccionTramiteDocumento accionTramiteDocumentoDB : accionTramiteDocumentos) {
-            if (Objects.equals(idTipoDoc, accionTramiteDocumentoDB.getId())) {
+            if (Objects.equals(idTipoDoc, accionTramiteDocumentoDB.getTipoDocumentoAcademico().getId())) {
 
                 AccionTramiteDocumento accionTramiteDocumento = new AccionTramiteDocumento();
                 accionTramiteDocumento.setEsFinal(accionTramiteDocumentoDB.getEsFinal());
