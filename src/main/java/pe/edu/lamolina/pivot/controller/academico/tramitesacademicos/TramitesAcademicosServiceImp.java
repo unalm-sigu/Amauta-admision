@@ -441,8 +441,11 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
     }
 
     private AutorizacionRegistro crearAutorizacionRegistro(Alumno alumno, Tramite tramite, DataSessionPivot ds) {
-        AutorizacionRegistro autorizacionRegistro = new AutorizacionRegistro();
-        autorizacionRegistro.setMotivo("");
+        AutorizacionRegistro autorizacionRegistro = autorizacionRegistroDAO.findByTramite(tramite);
+        if (autorizacionRegistro == null) {
+            autorizacionRegistro = new AutorizacionRegistro();
+        }
+        autorizacionRegistro.setMotivo(tramite.getMotivoResolucion());
         autorizacionRegistro.setAlumno(alumno);
         autorizacionRegistro.setEstado(EstadoEnum.CRE.name());
         autorizacionRegistro.setFechaRegistro(today.toDate());
