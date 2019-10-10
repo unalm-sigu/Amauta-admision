@@ -225,7 +225,8 @@ public class PlantillaHorarioController {
         Map<Integer, Hora> mapHoras = TypesUtil.convertListToMap("numero", horas);
 
         List<Hora> horasEncontradas = horas.stream()
-                .filter(x -> x.getNumero() >= semanaExamen.getHoraInicio().getNumero() && x.getNumero() < semanaExamen.getHoraFin().getNumero())
+                .filter(x -> x.getNumero() >= semanaExamen.getHoraInicio().getNumero())
+                .filter(x -> x.getNumero() <= semanaExamen.getHoraFin().getNumero())
                 .collect(Collectors.toList());
         Collections.sort(horasEncontradas, (p1, p2) -> p1.getNumero().compareTo(p2.getNumero()));
 
@@ -253,7 +254,7 @@ public class PlantillaHorarioController {
             ObjectNode jsonFechaHoraGrupoEach = JsonHelper.createJson(fechaHoraGrupoExamen, jc, true,
                     new String[]{"id",
                         "dia.id", "dia.nombre",
-                        "hora.id", "hora.codigo", "hora.descripcion",
+                        "hora.id", "hora.codigo", "hora.descripcion", "hora.descripcionFin",
                         "grupoHorasExamen.*",
                         "grupoHorasExamen.grupoHoras.codigo", "grupoHorasExamen.grupoHoras.id",
                         "grupoHorasExamen.grupoHoras.tipoGrupoHoras.*"});

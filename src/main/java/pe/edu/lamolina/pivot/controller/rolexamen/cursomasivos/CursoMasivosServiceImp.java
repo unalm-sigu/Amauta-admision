@@ -1212,6 +1212,11 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
             aulaCursoMasivoDAO.delete(aulaCM);
         }
 
+        System.out.println("Horario Viejo:");
+        List<HorarioAula> hac = horarioAulaDAO.allByCursoMasivo(cursoMasivo);
+        for (HorarioAula ha : hac) {
+            System.out.println("\t" + ha.getId() + " ::: " + ha.getIdDiaHora() + " ::: fecha.ini=" + ha.getFechaInicio() + " ::: fecha.fin=" + ha.getFechaFin());
+        }
         horarioAulaDAO.deleteByCursoMasivo(cursoMasivo);
 
         List<HorarioAula> horarios = new ArrayList();
@@ -1225,6 +1230,11 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
         }
 
         horarioAulaDAO.saveList(horarios);
+        System.out.println("Horario Nuevo:");
+        hac = horarioAulaDAO.allByCursoMasivo(cursoMasivo);
+        for (HorarioAula ha : hac) {
+            System.out.println("\t" + ha.getId() + " ::: " + ha.getIdDiaHora() + " ::: fecha.ini=" + ha.getFechaInicio() + " ::: fecha.fin=" + ha.getFechaFin());
+        }
 
     }
 

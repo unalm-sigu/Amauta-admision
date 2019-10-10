@@ -414,6 +414,31 @@ public class GrupoRegularController {
         return response;
     }
 
+    @ResponseBody
+    @RequestMapping(value = "cambiarAula", method = RequestMethod.POST)
+    public JsonResponse cambiarAula(@RequestBody SeccionGrupoRegular seccionGpoReg, HttpSession session, HttpServletRequest request) {
+        JsonResponse response = new JsonResponse();
+
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            List<String> restricciones = service.cambiarAula(seccionGpoReg, ds);
+
+            response.setMessage("Cambioa de aula realizado satisfactoriamente");
+            response.setSuccess(Boolean.TRUE);
+            if (!restricciones.isEmpty()) {
+                response.setMessage("Se presentaron inconvenientes para realizar los cambios");
+                response.setSuccess(Boolean.FALSE);
+            }
+            response.setData(restricciones);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
     private ObjectNode createRolExamenesJson(RolExamenes rolExamenes) {
         return JsonHelper.createJson(rolExamenes, JsonNodeFactory.instance, new String[]{"*"});
     }
@@ -435,6 +460,7 @@ public class GrupoRegularController {
                 "letraGrupoRegular.grupoHorasExamen.horaFin.descripcionFin",
                 "letraGrupoRegular.rolExamenes.id",
                 "seccion.id",
+                "seccion.matriculados",
                 "seccion.codigo2",
                 "seccion.grupoSeccion.id",
                 "seccion.grupoSeccion.curso.id",
@@ -442,6 +468,7 @@ public class GrupoRegularController {
                 "seccion.grupoSeccion.curso.codigo",
                 "seccion.grupoSeccion.curso.tpc",
                 "seccion.grupoHoras.codigo",
+                "seccion.aula.codigo",
                 "docente.id",
                 "docente.codigo",
                 "docente.persona.apellidosNombres",

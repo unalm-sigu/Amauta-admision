@@ -3,7 +3,7 @@ Vue.component("multiselect", window.VueMultiselect.default);
 new Vue({
     el: '#main',
     data: {
-        URL: APP.url('rolexamen/gruporegular/' + urlSeccion),
+        URL: APP.url(rutaModulo + "/" + urlSeccion),
         letraGrupoRegular: JSON.parse(jLetraGrupoRegular),
         rolExamenex: JSON.parse(jRolExamenes),
         tipoAccion: {
@@ -12,6 +12,13 @@ new Vue({
             SECCION: "SECCION",
             ALUMNO: "ALUMNO"
         },
+        observaciones: {cantidad: 0, message: "", rows: 4, forzar: false},
+        seccionGpoRegTempo: {},
+        seccionGpoRegSelect: {},
+        configCambioAula: VUE_MODAL.structFormAjax({
+            id: "idModalCambioAula",
+            modalsize: "modal-lg"
+        })
     },
     mounted() {
         this.loadModalSecciones(this.letraGrupoRegular);
@@ -119,7 +126,7 @@ new Vue({
             this.$refs.moverSeccionComp.loadComponent(rolExamenes);
             this.$refs.moverSeccionModal.open();
         },
-        cambiarAula(item) {
+        cambiarAulaOld(item) {
             console.log("entro");
             console.dir(item);
             const rolExamenes = this.rolExamenex;
@@ -128,6 +135,41 @@ new Vue({
             this.$refs.cambiarAulaExamenComp.tipoorigen = "GRU_REG";
             this.$refs.cambiarAulaExamenComp.loadComponent(rolExamenes);
             this.$refs.cambiarAulaModal.open();
+        },
+        cambiarAula(item) {
+            let $vue = this;
+            $vue.seccionGpoRegSelect = item;
+            $vue.seccionGpoRegTempo = JSON.parse(JSON.stringify(item));
+            $vue.observaciones = {cantidad: 0, message: "", rows: 4, forzar: false};
+            $vue.$refs.modalCambioAula.open();
+        },
+        saveCambioAula() {
+            let $vue = this;
+            $vue.$refs.modalCambioAula.beginProcessing();
+            $vue.observaciones = {cantidad: 0, message: "", rows: 4, forzar: false};
+
+            axios.post(APP.url(rutaModulo + "/cambiarAula"), $vue.seccionGpoRegTempo).then(response => {
+                $vue.$refs.modalCambioAula.confirmReaction(response.data.success);
+                if (response.data.success) {
+                    $vue.$refs.tblSeccionesGrupoRegular.loadRemoteData();
+                    notify(response.data.message, "info");
+                } else {
+                    notify(response.data.message, "error");
+                }
+                let restricc = response.data.data;
+                if (restricc != null) {
+                    $vue.observaciones.cantidad = restricc.length;
+                    $vue.observaciones.forzar = true;
+                    $vue.observaciones.rows = restricc.length > 7 ? 7 : restricc.length;
+                    for (var i = 0; i < restricc.length; i++) {
+                        $vue.observaciones.message += (i + 1) + ") " + restricc[i] + "\n";
+                    }
+                }
+
+            }).catch(e => {
+                $vue.$refs.modalCambioAula.confirmReaction(false);
+                notify(MESSAGES.errorComunicacion, "error");
+            });
         }
     }
 });
