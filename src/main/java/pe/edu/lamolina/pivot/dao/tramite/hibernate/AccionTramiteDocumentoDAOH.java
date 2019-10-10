@@ -55,9 +55,9 @@ public class AccionTramiteDocumentoDAOH extends AbstractEasyDAO<AccionTramiteDoc
     public List<AccionTramiteDocumento> allByTipo(String tipo) {
         Octavia sql = new Octavia()
                 .from(AccionTramiteDocumento.class, "atd")
-                .join("tipoDocumentoAcademico tipo", "estadoTramite eti", "estadoTramiteFinal etf")
-                .filter("tipo.tipo", tipo)
-                .groupBy("tipo.tipo");
+                .join("tipoDocumentoAcademico tipoDoc", "estadoTramite eti", "estadoTramiteFinal etf")
+                .filter("tipoDoc.tipo", tipo)
+                .groupBy("tipoDoc.tipo", "atd.opcion");
 
         return all(sql);
     }

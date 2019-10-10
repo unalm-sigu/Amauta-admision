@@ -140,7 +140,7 @@ public class TipoConstanciaServiceImpl implements TipoConstanciaService {
             accionTramiteDocumento.setOrden(accionTramiteDocumentoDB.getOrden());
             accionTramiteDocumento.setRespuesta(accionTramiteDocumentoDB.getRespuesta());
             accionTramiteDocumento.setSolicitaMotivo(accionTramiteDocumentoDB.getSolicitaMotivo());
-            accionTramiteDocumento.setTipoDocumentoAcademico(accionTramiteDocumentoDB.getTipoDocumentoAcademico());
+            accionTramiteDocumento.setTipoDocumentoAcademico(tramiteDocumentoAcademico);
             accionTramiteDocumento.setTipoOficinaDestino(accionTramiteDocumentoDB.getTipoOficinaDestino());
             accionTramiteDocumento.setTipoOficinaOrigen(accionTramiteDocumentoDB.getTipoOficinaOrigen());
             accionTramiteDocumento.setUrl(accionTramiteDocumentoDB.getUrl());
