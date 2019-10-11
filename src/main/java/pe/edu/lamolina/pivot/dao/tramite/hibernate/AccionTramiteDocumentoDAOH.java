@@ -61,5 +61,15 @@ public class AccionTramiteDocumentoDAOH extends AbstractEasyDAO<AccionTramiteDoc
         
         return all(sql);
     }
+
+    @Override
+    public List<AccionTramiteDocumento> allByTipoDocumento(TipoDocumentoAcademico tipoDocumento) {
+          Octavia sql = new Octavia()
+                .from(AccionTramiteDocumento.class, "atd")
+                .join("tipoDocumentoAcademico tipoDoc", "estadoTramite eti", "estadoTramiteFinal etf")
+                .filter("tipoDoc.id", tipoDocumento);
+        
+        return all(sql);
+    }
     
 }

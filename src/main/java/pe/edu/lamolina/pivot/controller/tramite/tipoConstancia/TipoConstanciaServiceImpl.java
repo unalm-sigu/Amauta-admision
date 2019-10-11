@@ -174,7 +174,12 @@ public class TipoConstanciaServiceImpl implements TipoConstanciaService {
     @Transactional
     public void delete(TipoDocumentoAcademico tipoDocumento) {
         configuracionFirmaDocumentoDAO.deleteByTipoDocumentoAcademicos(tipoDocumento);
-        tipoConstanciaDAO.delete(tipoDocumento);
+        List<AccionTramiteDocumento> accionTramiteDocumentos = accionTramiteDocumentoDAO.allByTipoDocumento(tipoDocumento);
+        for (AccionTramiteDocumento accionTramiteDocumento : accionTramiteDocumentos) {
+            accionTramiteDocumentoDAO.delete(accionTramiteDocumento);
+        }
+        TipoDocumentoAcademico tipoDocumentoAcademicoDB = tipoConstanciaDAO.find(tipoDocumento);
+        tipoConstanciaDAO.delete(tipoDocumentoAcademicoDB);
     }
 
     @Override
