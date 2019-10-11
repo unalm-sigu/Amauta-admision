@@ -782,72 +782,64 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
         }
     }
 
-    @Override
-    public PlantillaGenerica findPlantillaHtmlNew(TramiteDocumentoAcademico documentoAcademico) {
-        PlantillaGenerica plantillaGene = new PlantillaGenerica();
-        documentoAcademico = tramiteDocumentoAcademicoDAO.find(documentoAcademico);
+    private PlantillaGenerica plantillaGenerica(TramiteDocumentoAcademico documentoAcademico) {
         PlantillaDocumentoAcademico plantilla = plantillaDocumentoAcademicoDAO.findTipoDocumento(documentoAcademico.getTipoDocumentoAcademico(), documentoAcademico.getIdioma());
-        Assert.isNotNull(plantilla, "No existe Plantilla para este documento");
         List<VariablePlantilla> variable = variablePlantillaDAO.allByPlantilla(plantilla);
+
         Alumno alumno = alumnoDAO.findAllInfo(documentoAcademico.getTramite().getAlumno().getId());
-        AlumnoCiclo alumnoCiclo = null;
-        ControlOrdenMerito orden = null;
+        AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findLastByAlumno(alumno);
+
+        Egresado egresado = egresadoDAO.findByAlumno(alumno);
         String html = plantilla.getContenido();
         for (VariablePlantilla var : variable) {
-            while (html.contains(var.getVariableGenerica().getCodigo())) {
+            switch (var.getVariableGenerica().getCodigoVaribleEnum()) {
+                case MATRICULA:
+                    html = html.replace(var.getVariableGenerica().getCodigo(), alumno.getCodigo());
+                    break;
+                case FACULTAD:
+                    html = html.replace(var.getVariableGenerica().getCodigo(), alumno.getCarrera().getFacultad().getNombre());
+                    break;
+                case ESPECIALIDAD:
+                    if (!alumno.getCarrera().getFacultad().getCodigo().equals(alumno.getCarrera().getCodigo())) {
+                        html = html.replace(var.getVariableGenerica().getCodigo(), "Esp. de " + alumno.getCarrera().getNombre());
+                    } else {
+                        html = html.replace(var.getVariableGenerica().getCodigo(), "");
+                    }
+                    break;
+                case APELLIDO_PERSONA:
+                    html = html.replace(var.getVariableGenerica().getCodigo(), alumno.getPersona().getApellidosNombres());
+                    break;
 
-                switch (var.getVariableGenerica().getCodigoVaribleEnum()) {
-                    case NOMBRE_PERSONA:
-                        html = html.replace(var.getVariableGenerica().getCodigo(), documentoAcademico.getTramite().getAlumno().getPersona().getApellidosNombres());
-                        break;
-                    case MATRICULA:
-                        html = html.replace(var.getVariableGenerica().getCodigo(), documentoAcademico.getTramite().getAlumno().getCodigo());
-                        break;
-                    case FACULTAD:
-                        html = html.replace(var.getVariableGenerica().getCodigo(), alumno.getCarrera().getFacultad().getNombre());
-                        break;
-                    case CICLO_MATRICULA:
-                        html = html.replace(var.getVariableGenerica().getCodigo(), alumno.getCicloActivo().getDescripcion2());
-                        break;
-
-                    case ESPECIALIDAD:
-                        html = html.replace(var.getVariableGenerica().getCodigo(), alumno.getCarrera().getFacultad().getNombre());
-                        break;
-                    case CICLO_ACADEMICO:
-                        TramiteDocumentoParametro parametro = tramiteDocumentoParamtroDAO.findByTipoDocAndPlantilla(documentoAcademico, plantilla, CICLO_ACADEMICO);
-                        html = html.replace(var.getVariableGenerica().getCodigo(), parametro.getValor());
-                        break;
-
-                    case ORDEN_MERITO_NUMERICO:
-
-                        alumnoCiclo = alumnoCiclo == null ? alumnoCicloDAO.findLastByAlumno(alumno) : alumnoCiclo;
-                        if (alumnoCiclo != null) {
-
-                            orden = orden == null ? controlOrdenMeritoDAO.findByFac(alumno.getCarrera().getFacultad(), alumnoCiclo.getCicloAcademico()) : orden;
-                            html = html.replace(var.getVariableGenerica().getCodigo(), alumnoCiclo.getOrdenMeritoCiclo().toString() + " de " + orden.getAlumnosComputados());
-                        }
-                        break;
-                    case NIVEL_ACADEMICO:
-                        alumnoCiclo = alumnoCiclo == null ? alumnoCicloDAO.findLastByAlumno(alumno) : alumnoCiclo;
-                        html = html.replace(var.getVariableGenerica().getCodigo(), alumnoCiclo.getNivel().toString());
-                        break;
-                    case CICLO_ROM_INICIO:
-                        alumnoCiclo = alumnoCiclo == null ? alumnoCicloDAO.findLastByAlumno(alumno) : alumnoCiclo;
-                        html = html.replace(var.getVariableGenerica().getCodigo(), alumno.getCicloIngreso().getDescripcion());
-                        break;
-                    case FECHA_CONSTANCIA:
-                        DateFormat df = new SimpleDateFormat("MM/dd/yyyy");
-                        String fechaFin = df.format(new Date());
-                        html = html.replace(var.getVariableGenerica().getCodigo(), fechaFin);
-                        break;
-                }
+                case FECHA_CONSTANCIA:
+                    html = html.replace(var.getVariableGenerica().getCodigo(), TypesUtil.getStringDate(new Date(), "dd 'de' MMMM 'del' yyyy", "es"));
+                    break;
+                case APELLIDOS:
+                    html = html.replace(var.getVariableGenerica().getCodigo(), alumno.getPersona().getApellidos());
+                    break;
+                case SENOR_A:
+                    html = html.replace(var.getVariableGenerica().getCodigo(), alumno.getPersona().getSenior());
+                    break;
+                case CICLO_PROMOCION:
+                    html = html.replace(var.getVariableGenerica().getCodigo(), egresado.getCicloAcademico().getCodigo());
+                    break;
+                case EPG_PROMEDIO_PONDERADO:
+                    html = html.replace(var.getVariableGenerica().getCodigo(), egresado.returnPromedioGraduacionTrunc(2).toString());
+                    break;
+                case CICLO_ALIANZA_ESTRATEGICA:
+                    html = html.replace(var.getVariableGenerica().getCodigo(), alumno.getCicloIngreso().getDescripcion());
+                    break;
+                    
+                    
+                    
+                case CICLO_ROM_INICIO:
+                    html = html.replace(var.getVariableGenerica().getCodigo(), alumno.getCicloIngreso().getDescripcion());
+                    break;
+                default:
+                    throw new AssertionError();
             }
         }
-        String nombreDoc = plantilla.getTipoDocumentoAcademico().getNombre().concat("-" + plantilla.getId());
-        plantillaGene.setContenido(html);
-        plantillaGene.setNombre(nombreDoc);
-        return plantillaGene;
 
+        return null;
     }
 
     @Override
