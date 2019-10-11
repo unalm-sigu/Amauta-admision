@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,11 +18,13 @@ import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.general.TipoOficina;
 import pe.edu.lamolina.model.seguridad.Usuario;
+import pe.edu.lamolina.model.tramite.AccionTramiteDocumento;
 import pe.edu.lamolina.model.tramite.ConfiguracionFirmaDocumento;
 import pe.edu.lamolina.model.tramite.TipoDocumentoAcademico;
 import pe.edu.lamolina.pivot.dao.general.ConfiguracionFirmaDocumentoDAO;
 import pe.edu.lamolina.pivot.dao.general.OficinaDAO;
 import pe.edu.lamolina.pivot.dao.general.TipoOficinaDAO;
+import pe.edu.lamolina.pivot.dao.tramite.AccionTramiteDocumentoDAO;
 import pe.edu.lamolina.pivot.dao.tramite.TipoConstanciaDAO;
 
 @Service
@@ -39,6 +42,9 @@ public class TipoConstanciaServiceImpl implements TipoConstanciaService {
 
     @Autowired
     ConfiguracionFirmaDocumentoDAO configuracionFirmaDocumentoDAO;
+
+    @Autowired
+    AccionTramiteDocumentoDAO accionTramiteDocumentoDAO;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -119,6 +125,33 @@ public class TipoConstanciaServiceImpl implements TipoConstanciaService {
             ObjectUtil.eliminarAttrSinId(configuracionFirmaDocumento, "tipoOficina");
             configuracionFirmaDocumento.setTipoDocumentoAcademico(tramiteDocumentoAcademico);
             configuracionFirmaDocumentoDAO.save(configuracionFirmaDocumento);
+        }
+
+        List<AccionTramiteDocumento> accionTramiteDocumentos = accionTramiteDocumentoDAO.allByTipo(tramiteDocumentoAcademico.getTipo());
+        Long idTipoDoc = accionTramiteDocumentos.get(0).getTipoDocumentoAcademico().getId();
+        for (AccionTramiteDocumento accionTramiteDocumentoDB : accionTramiteDocumentos) {
+            if (Objects.equals(idTipoDoc, accionTramiteDocumentoDB.getTipoDocumentoAcademico().getId())) {
+
+                AccionTramiteDocumento accionTramiteDocumento = new AccionTramiteDocumento();
+                accionTramiteDocumento.setEsFinal(accionTramiteDocumentoDB.getEsFinal());
+                accionTramiteDocumento.setEstadoTramite(accionTramiteDocumentoDB.getEstadoTramite());
+                accionTramiteDocumento.setEstadoTramiteFinal(accionTramiteDocumentoDB.getEstadoTramiteFinal());
+                accionTramiteDocumento.setIdioma(accionTramiteDocumentoDB.getIdioma());
+                accionTramiteDocumento.setMotivo(accionTramiteDocumentoDB.getMotivo());
+                accionTramiteDocumento.setOficinaDestino(accionTramiteDocumentoDB.getOficinaDestino());
+                accionTramiteDocumento.setOficinaOrigen(accionTramiteDocumentoDB.getOficinaOrigen());
+                accionTramiteDocumento.setOpcion(accionTramiteDocumentoDB.getOpcion());
+                accionTramiteDocumento.setOrden(accionTramiteDocumentoDB.getOrden());
+                accionTramiteDocumento.setRespuesta(accionTramiteDocumentoDB.getRespuesta());
+                accionTramiteDocumento.setSolicitaMotivo(accionTramiteDocumentoDB.getSolicitaMotivo());
+                accionTramiteDocumento.setTipoDocumentoAcademico(tramiteDocumentoAcademico);
+                accionTramiteDocumento.setTipoOficinaDestino(accionTramiteDocumentoDB.getTipoOficinaDestino());
+                accionTramiteDocumento.setTipoOficinaOrigen(accionTramiteDocumentoDB.getTipoOficinaOrigen());
+                accionTramiteDocumento.setUrl(accionTramiteDocumentoDB.getUrl());
+                accionTramiteDocumentoDAO.save(accionTramiteDocumento);
+            } else {
+                break;
+            }
         }
     }
 

@@ -1,6 +1,105 @@
 <modal-vik ref="modalAgregarLetra"
-           title="Aagregar Letra">
+           title="Agregar Letra">
     <div slot="body">
         adadadada
+    </div>
+</modal-vik>
+
+<modal-vik v-bind="configAddHorario"
+           ref="modalAddLetra"
+           v-bind:okaction="saveAddHorario">
+    <div slot="body">
+
+        <form v-bind:id="configAddHorario.form" data-parsley-validate="true">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="col-md-4 bold">Letra</div>
+                    <div class="col-md-8">
+                        <multiselect 
+                            v-model="grupoHorasExamen.grupoHoras"
+                            track-by="id"
+                            v-bind:options="gruposHoras"
+                            placeholder="Seleccionar"
+                            label="codigo"
+                            v-bind:allow-empty="false"
+                            v-bind:show-labels="false"
+                            v-bind:hide-selected="false"
+                            required="true">
+                            <template slot="noOptions">La lista se encuentra vacía</template>
+                            <template slot="noResult">No se encontraron resultados</template>
+                        </multiselect>
+                        <input class="hide" v-model="grupoHorasExamen.grupoHoras" required="true"></input>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row m-t">
+                <div class="col-md-12">
+                    <div class="col-md-4 bold">Semana</div>
+                    <div class="col-md-8">
+                        <multiselect 
+                            v-model="grupoHorasExamen.semanaExamen"
+                            track-by="id"
+                            v-bind:options="semanas"
+                            v-bind:allow-empty="false"
+                            v-bind:show-labels="false"
+                            v-bind:hide-selected="false"
+                            placeholder="Seleccionar"
+                            v-bind:custom-label="labelSemana"
+                            label="nombre"
+                            required="true">
+                            <template slot="noOptions">La lista se encuentra vacía</template>
+                            <template slot="noResult">No se encontraron resultados</template>
+                        </multiselect>
+                        <input class="hide" v-model="grupoHorasExamen.semanaExamen" required="true"></input>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row m-t">
+                <div class="col-md-12">
+                    <div class="col-md-4 bold">Dia</div>
+                    <div class="col-md-8">
+                        <multiselect 
+                            v-model="grupoHorasExamen.dia"
+                            track-by="id"
+                            v-bind:allow-empty="false"
+                            v-bind:show-labels="false"
+                            v-bind:hide-selected="false"
+                            placeholder="Seleccionar"
+                            v-bind:options="dias"
+                            label="nombre"
+                            required="true">
+                            <template slot="noOptions">La lista se encuentra vacía</template>
+                            <template slot="noResult">No se encontraron resultados</template>
+                        </multiselect>
+                        <input class="hide" v-model="grupoHorasExamen.dia" required="true"></input>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row m-t">
+                <div class="col-md-12">
+                    <div class="col-md-4 bold">Hora inicio</div>
+                    <div class="col-md-8">
+                        <multiselect 
+                            v-model="grupoHorasExamen.horaInicio"
+                            track-by="id"
+                            placeholder="Seleccionar"
+                            v-bind:options="horas"
+                            v-bind:allow-empty="false"
+                            v-bind:show-labels="false"
+                            v-bind:hide-selected="false"
+                            label="descripcion"
+                            required="true">
+                            <template slot="noOptions">La lista se encuentra vacía</template>
+                            <template slot="noResult">No se encontraron resultados</template>
+                        </multiselect>
+                        <input class="hide" v-model="grupoHorasExamen.horaInicio" required="true"></input>
+                    </div>
+                </div>
+            </div>
+        </form>
+
     </div>
 </modal-vik>

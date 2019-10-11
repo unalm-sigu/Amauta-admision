@@ -72,6 +72,17 @@ var AulaHorarioVue = Vue.component("aula-horario-component", {
             $vue.fechaInicio = inicio;
             $vue.fechaFin = fin;
             $vue.loadComponent();
+        },
+        classByTipo(tipo) {
+            if (tipo == 'DICT') {
+                return 'text-primary';
+            }
+            if (tipo == 'RESERV') {
+                return 'text-warning';
+            }
+            if (tipo == 'EXAM') {
+                return 'text-success';
+            }
         }
     }
 });

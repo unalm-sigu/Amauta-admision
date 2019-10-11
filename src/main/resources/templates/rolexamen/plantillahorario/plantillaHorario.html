@@ -18,7 +18,6 @@
             <div id="main" v-cloak=""> 
 
                 <header class="header b-b padder-lg">
-                    <a href="/rolexamen/rolexamenes" class="btn btn-default btn-sm pull-right">Regresar</a>
                     <h2>Plantilla Horarios <span th:text="${cicloAcademico.descripcion}">2016-II</span></h2>
                 </header>
 
@@ -84,12 +83,10 @@
 
 
 
-                                <a class="btn btn-success pull-right m-r-sm"
-                                   v-on:click.prevent="openModalAgregarLetra"
-                                   v-if="false">
+                                <button class="btn btn-success pull-right m-r-sm"
+                                        v-on:click="openNewHorario">
                                     Agregar Letra
-                                    <i class="fa fa-arrow-right"></i>
-                                </a>
+                                </button>
 
 
 
@@ -180,7 +177,7 @@
                                                                 <span 
                                                                     th:style="'border-color:#fff;'">
                                                                     {{hora.descripcion2}} - 
-                                                                    {{hora.horaSiguiente.descripcion2}}
+                                                                    {{hora.descripcion2Fin}}
                                                                 </span>
 
                                                             </td>

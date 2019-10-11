@@ -48,4 +48,6 @@ public interface GrupoRegularService {
 
     void agregarGruposNuevos(RolExamenes rolExamenes, DataSessionPivot ds);
 
+    List<String> cambiarAula(SeccionGrupoRegular seccionGpoReg, DataSessionPivot ds);
+
 }

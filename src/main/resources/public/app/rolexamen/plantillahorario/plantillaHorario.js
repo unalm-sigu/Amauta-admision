@@ -11,6 +11,17 @@ new Vue({
         semanasExamen: [],
         semanaExamenActiva: null,
         grupoActivo: null,
+        configAddHorario: VUE_MODAL.structFormAjax({
+            header: true,
+            title: "Creación de horario para examen",
+            id: "idModalAddHorario",
+            form: "formAddHorario"
+        }),
+        gruposHoras: [],
+        dias: [],
+        horas: [],
+        semanas: [],
+        grupoHorasExamen: {}
     },
     computed: {
         generarDisponible() {
@@ -46,15 +57,7 @@ new Vue({
                             this.listarHorarioSemanal();
                         }
                     });
-        }, /*changeSemanaExamen() {
-         AXIOS.post(`${this.URL}/changeSemanaExamen`, this.semanaExamen)
-         .then(response => {
-         if (response.data.success) {
-         
-         }
-         // MODAL.hideWait();
-         });
-         },*/
+        },
         calcularPlantillaHorario() {
             if (!this.generarDisponible) {
                 return;
@@ -285,7 +288,8 @@ new Vue({
                 return true;
             }
             return false;
-        }, confirmarPlantillaHorario() {
+        },
+        confirmarPlantillaHorario() {
             let vue = this;
             bootbox.confirm({
                 message: "Si continua se reservara las aulas con hroario pregrado para rol examenes. Seguro que desea continuar?",
@@ -308,8 +312,69 @@ new Vue({
                     }
                 }
             });
-        }, openModalAgregarLetra() {
+        },
+        openModalAgregarLetra() {
             this.$refs.modalAgregarLetra.open();
+        },
+        openNewHorario() {
+            let $vue = this;
+            axios.post(`${$vue.URL}/allDataForGpoHorasExamen`, $vue.rolExamen).then(response => {
+                if (response.data.success) {
+                    $vue.dias = response.data.data.dias;
+                    $vue.horas = response.data.data.horas;
+                    $vue.semanas = response.data.data.semanas;
+                    $vue.gruposHoras = response.data.data.grupos;
+                    $vue.$refs.modalAddLetra.open();
+
+                } else {
+                    notify(response.data.message, "error");
+                }
+
+            }).catch(e => {
+                notify(MESSAGES.errorComunicacion, "error");
+            });
+
+        },
+        labelSemana(item) {
+            return item.fechaInicio + " a " + item.fechaFin;
+        },
+        saveAddHorario() {
+            let $vue = this;
+
+            let form = $("#" + $vue.configAddHorario.form);
+            console.log(form)
+            if (!form.parsley().isValid()) {
+                notify("Complete el formulario", "error");
+                return;
+            }
+
+            bootbox.confirm({
+                message: "¿Está seguro que desea crear este horario?",
+                buttons: {
+                    confirm: {label: 'Sí, crear', className: "btn-success"},
+                    cancel: {label: 'Cancelar', className: "btn-link"}
+                },
+                callback: function (result) {
+                    if (result) {
+                        $vue.grupoHorasExamen.rolExamenes = $vue.rolExamen;
+                        $vue.$refs.modalAddLetra.beginProcessing();
+
+                        axios.post(`${$vue.URL}/saveGpoHoasExamen`, $vue.grupoHorasExamen).then(response => {
+                            $vue.$refs.modalAddLetra.confirmReaction(response.data.success);
+                            if (response.data.success) {
+                                $vue.changeRolExamen();
+                                notify(response.data.message, "info");
+                            } else {
+                                notify(response.data.message, "error");
+                            }
+
+                        }).catch(e => {
+                            $vue.$refs.modalAddLetra.confirmReaction(false);
+                            notify(MESSAGES.errorComunicacion, "error");
+                        });
+                    }
+                }
+            });
         }
     }
 });

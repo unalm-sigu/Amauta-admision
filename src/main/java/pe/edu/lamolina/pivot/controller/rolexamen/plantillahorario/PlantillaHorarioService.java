@@ -38,6 +38,10 @@ public interface PlantillaHorarioService {
 
     List<Hora> allHoras();
 
+    List<SemanaExamen> allSemanasByRolExamen(RolExamenes rolExamenes);
+
+    List<GrupoHoras> allGrupoHoraDisponibles(RolExamenes rolExamenes);
+
     void deleteFechaHoraGrupoExamen(FechaHoraGrupoExamen fechaHoraGrupoExamen);
 
     void deleteGrupoHoraExamen(GrupoHorasExamen grupoHoraExamen);
@@ -45,5 +49,7 @@ public interface PlantillaHorarioService {
     void deletePlantillaHorario(RolExamenes rolExamenes);
 
     void confirmarPlantillaHorario(RolExamenes rolExamenes, DataSessionPivot ds);
+
+    void saveGrupoHorasExamen(GrupoHorasExamen gpoHorasExamen, DataSessionPivot ds);
 
 }

@@ -257,4 +257,14 @@ public class GrupoHorasDAOH extends AbstractEasyDAO<GrupoHoras> implements Grupo
 
         return all(sql);
     }
+
+    @Override
+    public List<GrupoHoras> allSimples() {
+        Octavia sql = Octavia.query()
+                .from(GrupoHoras.class, "gh")
+                .orderBy("gh.letra", "gh.codigo");
+
+        return all(sql);
+    }
+
 }

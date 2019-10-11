@@ -498,6 +498,9 @@ public class HorarioAulaDAOH extends AbstractEasyDAO<HorarioAula> implements Hor
                 .left("tra.docente do", "do.persona")
                 .left("tra.alumno al", "al.persona")
                 .left("tra.oficina ofi", "tra.empresa emp")
+                .left("ha.cursoMasivoExamen cme", "cme.curso curr")
+                .left("ha.seccionGrupoEspecial sge", "sge.seccion")
+                .left("ha.seccionGrupoRegular sgr", "sgr.seccion")
                 .filter("au.id", aulaFormFecha)
                 .beginBlock()
                 .__().between("ha.fechaInicio", aulaFormFecha.getFechaInicio(), aulaFormFecha.getFechaFin())
@@ -703,9 +706,10 @@ public class HorarioAulaDAOH extends AbstractEasyDAO<HorarioAula> implements Hor
     public List<HorarioAula> allByCursoMasivo(CursoMasivoExamen cursoMasivoExamen) {
         Octavia sql = Octavia.query()
                 .from(HorarioAula.class, "ha")
-                .join("seccion sec", "hora h", "dia d", "aula au", "cursoMasivoExamen cmas")
-                .join("sec.grupoSeccion gSec", "gSec.curso cur", "au.oficinaSupervisora ofi")
-                .join("cur.modalidadEstudio mEst", "gSec.cicloAcademico ca")
+                .join("hora h", "dia d", "aula au", "cursoMasivoExamen cmas")
+                .leftJoin("seccion sec")
+                .leftJoin("sec.grupoSeccion gSec", "gSec.curso cur", "au.oficinaSupervisora ofi")
+                .leftJoin("cur.modalidadEstudio mEst", "gSec.cicloAcademico ca")
                 .filter("cmas.id", cursoMasivoExamen);
         return all(sql);
     }
@@ -742,7 +746,7 @@ public class HorarioAulaDAOH extends AbstractEasyDAO<HorarioAula> implements Hor
     @Override
     public void deleteByCursoMasivo(CursoMasivoExamen cursoMasivoExamen) {
         StringBuilder strb = new StringBuilder();
-        strb.append(" delete from  HorarioAula ha where ha.cursoMasivoExamen.id=:CURSOMASIVO ");
+        strb.append(" delete from HorarioAula ha where ha.cursoMasivoExamen.id = :CURSOMASIVO ");
         Query query = getCurrentSession().createQuery(strb.toString());
         query.setParameter("CURSOMASIVO", cursoMasivoExamen.getId());
         query.executeUpdate();

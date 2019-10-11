@@ -694,8 +694,8 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
         }
 
         acreencia.setOficina(new Oficina(OficinaEnum.OBUAE.getId()));
-        acreencia.setTablaEnum(NombreTablasEnum.FIN_DEUDA_ALUMNO);
-        //acreencia.setInstanciaTabla(deudaAlumno.getId());
+        acreencia.setTablaEnum(NombreTablasEnum.FIN_ACREENCIA_TRAMITE_DOCUMENTO);
+        acreencia.setInstanciaTabla(acreenciaTram.getId());
         acreencia.setEstadoEnum(DeudaEstadoEnum.DEU);
         acreencia.setMonto(new BigDecimal(precio.getPrecio()));
         acreencia.setAbono(BigDecimal.ZERO);
