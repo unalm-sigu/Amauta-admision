@@ -28,4 +28,8 @@ public interface MoverSeccionExamenService {
 
     SeccionGrupoRegular findSeccionGrupoRegularBySeccionRolExamenes(Seccion seccion, RolExamenes rol);
 
+    List<CursoMasivoExamen> allActiveCursosMasivosByGrupoHoras(GrupoHorasExamen grupoHorasExamenOrigen);
+
+    List<CursoMasivoExamen> allActiveCursosMasivosByGrupoEspecial(SeccionGrupoEspecial seccionGrupoEsp);
+
 }

@@ -6,6 +6,8 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,6 +15,7 @@ import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.Seccion;
@@ -21,7 +24,6 @@ import pe.edu.lamolina.model.enums.DocenteRolExamenEstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoCursoMasivoEnum;
 import pe.edu.lamolina.model.enums.RolExamenesEstadoEnum;
 import pe.edu.lamolina.model.enums.SeccionRolExamenEstadoEnum;
-import pe.edu.lamolina.model.finanzas.AlumnoPagoSeccion;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.rolexamen.AlumnoCursoMasivo;
 import pe.edu.lamolina.model.rolexamen.AlumnoGrupoEspecial;
@@ -38,6 +40,7 @@ import pe.edu.lamolina.pivot.controller.rolexamen.components.CambioHorarioExamen
 import pe.edu.lamolina.pivot.controller.rolexamen.cursomasivos.CursoMasivosService;
 import pe.edu.lamolina.pivot.controller.rolexamen.gruporegular.GrupoRegularConnector;
 import pe.edu.lamolina.pivot.controller.rolexamen.util.RolExamenesLogger;
+import pe.edu.lamolina.pivot.dao.academico.CursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.DocenteSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.SeccionDAO;
 import pe.edu.lamolina.pivot.dao.horario.HorarioAulaDAO;
@@ -56,6 +59,8 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 @Service
 @Transactional(readOnly = true)
 public class MoverSeccionExamenServiceImp implements MoverSeccionExamenService {
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     SeccionCursoMasivoDAO seccionCursoMasivoDAO;
@@ -104,6 +109,8 @@ public class MoverSeccionExamenServiceImp implements MoverSeccionExamenService {
 
     @Autowired
     HorarioAulaDAO horarioAulaDAO;
+    @Autowired
+    CursoDAO cursoDAO;
 
     @Override
     public List<CursoMasivoExamen> allActiveCursosMasivosByRolExamenes(RolExamenes rolExamenes) {
@@ -280,6 +287,10 @@ public class MoverSeccionExamenServiceImp implements MoverSeccionExamenService {
         boolean validacionCursosMasivos = grupoRegularConnector.validarCursosMasivos(letraGrupoRegularDestino.getGrupoHorasExamen(), docentesOrigen, aulas, alumnosOrigen);
         boolean validacionGruposRegulares = grupoRegularConnector.validarGrupoRegular(letraGrupoRegularDestino.getGrupoHorasExamen(), alumnosOrigen, docentesOrigen, aulas);
         boolean validacionSeccionesEspeciales = grupoRegularConnector.validarGrupoEspecial(letraGrupoRegularDestino.getGrupoHorasExamen(), docentesOrigen, aulas, alumnosOrigen);
+
+        logger.debug("validacionCursosMasivos {}", validacionCursosMasivos);
+        logger.debug("validacionGruposRegulares {}", validacionGruposRegulares);
+        logger.debug("validacionSeccionesEspeciales {}", validacionSeccionesEspeciales);
 
         if (validacionCursosMasivos && validacionGruposRegulares && validacionSeccionesEspeciales) {
             SeccionGrupoRegular seccionGrupoRegular = grupoRegularConnector.crearObjectSeccionGrupoRegular(seccion, letraGrupoRegularDestino, ds);
@@ -549,6 +560,24 @@ public class MoverSeccionExamenServiceImp implements MoverSeccionExamenService {
     @Override
     public SeccionGrupoRegular findSeccionGrupoRegularBySeccionRolExamenes(Seccion seccion, RolExamenes rol) {
         return seccionGrupoRegularDAO.findByRolExamenesSeccion(rol, seccion, SeccionRolExamenEstadoEnum.ACT);
+    }
+
+    @Override
+    public List<CursoMasivoExamen> allActiveCursosMasivosByGrupoHoras(GrupoHorasExamen grupoHorasExamenOrigen) {
+        return cursoMasivoExamenDAO.allActiveByGrupoHoras(grupoHorasExamenOrigen);
+    }
+
+    @Override
+    public List<CursoMasivoExamen> allActiveCursosMasivosByGrupoEspecial(SeccionGrupoEspecial seccionGrupoEsp) {
+        seccionGrupoEsp = seccionGrupoEspecialDAO.find(seccionGrupoEsp.getId());
+        logger.debug("seccionGrupoEsp {} ", seccionGrupoEsp);
+        logger.debug("seccionGrupoEsp {} ", seccionGrupoEsp.getId());
+        logger.debug("seccionGrupoEsp.getSeccion() {} ", seccionGrupoEsp.getSeccion());
+        logger.debug("seccionGrupoEsp.getSeccion().getGrupoSeccion() {} ", seccionGrupoEsp.getSeccion().getGrupoSeccion());
+        Curso curso = seccionGrupoEsp.getSeccion().getGrupoSeccion().getCurso();
+        logger.debug("CURSO {}", curso.getId());
+        return cursoMasivoExamenDAO.allActiveByGrupoEspecialCurso(seccionGrupoEsp, curso);
+
     }
 
 }

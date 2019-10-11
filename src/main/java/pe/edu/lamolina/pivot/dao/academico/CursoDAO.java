@@ -10,6 +10,7 @@ import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.PlanCalificacion;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
+import pe.edu.lamolina.model.rolexamen.SeccionGrupoEspecial;
 
 public interface CursoDAO extends EasyDAO<Curso> {
 

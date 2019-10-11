@@ -27,8 +27,6 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface ConstanciaSolicitudService {
 
-    PlantillaGenerica findPlantillaHtmlNew(TramiteDocumentoAcademico documentoAcademico);
-
     void updateHistorialAcademico(Alumno alumnoForm, DataSessionPivot ds);
 
     List<AlumnoCiclo> allPromediosByAlumno(Alumno alumno);

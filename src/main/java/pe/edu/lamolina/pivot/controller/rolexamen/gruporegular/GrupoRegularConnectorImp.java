@@ -716,7 +716,9 @@ public class GrupoRegularConnectorImp implements GrupoRegularConnector {
             }
         }
         //System.out.println("\taulaConConflicto = " + aulaConConflicto);
-
+        logger.debug("docenteConflicto {}", docenteConflicto);
+        logger.debug("aulaConConflicto {}", aulaConConflicto);
+        logger.debug("alumnoConflicto {}", alumnoConflicto);
         if (docenteConflicto || aulaConConflicto || alumnoConflicto) {
             return false;
         }

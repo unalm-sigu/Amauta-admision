@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -125,27 +126,32 @@ public class TipoConstanciaServiceImpl implements TipoConstanciaService {
             configuracionFirmaDocumento.setTipoDocumentoAcademico(tramiteDocumentoAcademico);
             configuracionFirmaDocumentoDAO.save(configuracionFirmaDocumento);
         }
-        
+
         List<AccionTramiteDocumento> accionTramiteDocumentos = accionTramiteDocumentoDAO.allByTipo(tramiteDocumentoAcademico.getTipo());
+        Long idTipoDoc = accionTramiteDocumentos.get(0).getTipoDocumentoAcademico().getId();
         for (AccionTramiteDocumento accionTramiteDocumentoDB : accionTramiteDocumentos) {
-            AccionTramiteDocumento accionTramiteDocumento = new AccionTramiteDocumento();
-            accionTramiteDocumento.setEsFinal(accionTramiteDocumentoDB.getEsFinal());
-            accionTramiteDocumento.setEstadoTramite(accionTramiteDocumentoDB.getEstadoTramite());
-            accionTramiteDocumento.setEstadoTramiteFinal(accionTramiteDocumentoDB.getEstadoTramiteFinal());
-            accionTramiteDocumento.setIdioma(accionTramiteDocumentoDB.getIdioma());
-            accionTramiteDocumento.setMotivo(accionTramiteDocumentoDB.getMotivo());
-            accionTramiteDocumento.setOficinaDestino(accionTramiteDocumentoDB.getOficinaDestino());
-            accionTramiteDocumento.setOficinaOrigen(accionTramiteDocumentoDB.getOficinaOrigen());
-            accionTramiteDocumento.setOpcion(accionTramiteDocumentoDB.getOpcion());
-            accionTramiteDocumento.setOrden(accionTramiteDocumentoDB.getOrden());
-            accionTramiteDocumento.setRespuesta(accionTramiteDocumentoDB.getRespuesta());
-            accionTramiteDocumento.setSolicitaMotivo(accionTramiteDocumentoDB.getSolicitaMotivo());
-            accionTramiteDocumento.setTipoDocumentoAcademico(accionTramiteDocumentoDB.getTipoDocumentoAcademico());
-            accionTramiteDocumento.setTipoOficinaDestino(accionTramiteDocumentoDB.getTipoOficinaDestino());
-            accionTramiteDocumento.setTipoOficinaOrigen(accionTramiteDocumentoDB.getTipoOficinaOrigen());
-            accionTramiteDocumento.setUrl(accionTramiteDocumentoDB.getUrl());
-            accionTramiteDocumentoDAO.save(accionTramiteDocumento);
-            
+            if (Objects.equals(idTipoDoc, accionTramiteDocumentoDB.getTipoDocumentoAcademico().getId())) {
+
+                AccionTramiteDocumento accionTramiteDocumento = new AccionTramiteDocumento();
+                accionTramiteDocumento.setEsFinal(accionTramiteDocumentoDB.getEsFinal());
+                accionTramiteDocumento.setEstadoTramite(accionTramiteDocumentoDB.getEstadoTramite());
+                accionTramiteDocumento.setEstadoTramiteFinal(accionTramiteDocumentoDB.getEstadoTramiteFinal());
+                accionTramiteDocumento.setIdioma(accionTramiteDocumentoDB.getIdioma());
+                accionTramiteDocumento.setMotivo(accionTramiteDocumentoDB.getMotivo());
+                accionTramiteDocumento.setOficinaDestino(accionTramiteDocumentoDB.getOficinaDestino());
+                accionTramiteDocumento.setOficinaOrigen(accionTramiteDocumentoDB.getOficinaOrigen());
+                accionTramiteDocumento.setOpcion(accionTramiteDocumentoDB.getOpcion());
+                accionTramiteDocumento.setOrden(accionTramiteDocumentoDB.getOrden());
+                accionTramiteDocumento.setRespuesta(accionTramiteDocumentoDB.getRespuesta());
+                accionTramiteDocumento.setSolicitaMotivo(accionTramiteDocumentoDB.getSolicitaMotivo());
+                accionTramiteDocumento.setTipoDocumentoAcademico(tramiteDocumentoAcademico);
+                accionTramiteDocumento.setTipoOficinaDestino(accionTramiteDocumentoDB.getTipoOficinaDestino());
+                accionTramiteDocumento.setTipoOficinaOrigen(accionTramiteDocumentoDB.getTipoOficinaOrigen());
+                accionTramiteDocumento.setUrl(accionTramiteDocumentoDB.getUrl());
+                accionTramiteDocumentoDAO.save(accionTramiteDocumento);
+            } else {
+                break;
+            }
         }
     }
 

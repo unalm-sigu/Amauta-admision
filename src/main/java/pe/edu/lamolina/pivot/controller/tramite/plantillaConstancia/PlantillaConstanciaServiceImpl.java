@@ -258,4 +258,21 @@ public class PlantillaConstanciaServiceImpl implements PlantillaConstanciaServic
     public void deleteVariable(Integer idVariablePlantilla) {
         variablePlantillaDAO.delete(new VariablePlantilla(Long.parseLong(idVariablePlantilla + "")));
     }
+
+    @Override
+    @Transactional
+    public void deleteVariables(PlantillaDocumentoAcademico plantillaDocumentoAcademico, Usuario usuario) {
+        List< VariablePlantilla> variablePlantillas = variablePlantillaDAO.allByPlantilla(plantillaDocumentoAcademico);
+        PlantillaDocumentoAcademico plantillaDocumentoAcademicoDB = plantillaDocumentoAcademicoDAO.find(plantillaDocumentoAcademico);
+        for (VariablePlantilla variablePlantilla : variablePlantillas) {
+            plantillaDocumentoAcademicoDB = variablePlantilla.getPlantillaDocumentoAcademico();
+            variablePlantillaDAO.delete(variablePlantilla);
+        }
+        
+        plantillaDocumentoAcademicoDAO.delete(plantillaDocumentoAcademicoDB);
+    }
+
+    @Override
+    public void deletePlantilla(PlantillaDocumentoAcademico plantillaDocumentoAcademico, Usuario usuario) {
+    }
 }
