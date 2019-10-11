@@ -1806,6 +1806,8 @@ public class GrupoEspecialServiceImp implements GrupoEspecialService {
         secCur.setAlumnosCount(alumnosGpoEsp.size());
         seccionCursoMasivoDAO.update(secCur);
 
+        horarioAulaDAO.deleteBySeccionGrupoEspecial(grupoSpecialDB);
+
         grupoSpecialDB.setEstadoEnum(SeccionRolExamenEstadoEnum.TRA);
         seccionGrupoEspecialDAO.update(grupoSpecialDB);
     }
