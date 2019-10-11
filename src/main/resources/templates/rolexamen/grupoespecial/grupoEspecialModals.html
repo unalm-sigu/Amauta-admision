@@ -64,6 +64,133 @@
 
     </div>
 </modal-vik>
+
+<modal-vik v-bind="moverSeccionModal2"
+           ref="moverSeccionModal2">
+    <div slot="body">
+        <div class="row" v-if="seccTmp">
+            <div class="col-md-12">
+                <div class="col-md-4">
+                    <h4>Sección</h4>
+                </div>
+                <div class="col-md-8">
+                    <span class="block text-info" style="font-weight: bold;" v-text="seccTmp.grupoSeccion.curso.nombre"></span>
+                    <span class="block">
+                        {{seccTmp.grupoSeccion.curso.codigo}} {{seccTmp.grupoSeccion.curso.tpc}}
+                    </span>
+                    <span class="block"> {{seccTmp.codigo2}} ({{seccTmp.grupoHoras.codigo}})</span>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <hr/>
+                    <div class="form-group">
+                        <label class="col-md-4">Destino</label>
+                        <div class="col-md-8">
+                            <multiselect   
+                                placeholder="Seleccione"
+                                v-model="grupoEnum"
+                                v-bind:options="tiposGrupoExamenes"
+                                label="value"
+                                track-by="code"
+                                v-bind:allow-empty="false" 
+                                deselect-label=""
+                                select-label=""
+                                v-on:input='selGrupoNuevo'
+                                ></multiselect>
+                        </div>
+                        <!--<pre v-text="grupoEnum"></pre>-->
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12" v-if="grupoEnum &amp;&amp; grupoEnum.code == 'GRU_REG'">
+                    <div class="form-group">
+                        <label class="col-md-4">Letras</label>
+                        <div class="col-md-8">
+                            <multiselect   
+                                placeholder="Seleccione" 
+                                v-model="seccTmp.poDestinoGrupoExamenes" 
+                                v-bind:options="tiposGrupoExamenes"
+                                label="value" 
+                                track-by="code" 
+                                v-bind:allow-empty="false" 
+                                deselect-label=""
+                                select-label="" 
+                                ></multiselect>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12" v-if="grupoEnum &amp;&amp; grupoEnum.code == 'CUR_MAS'">
+                    <div class="form-group">
+                        <label class="col-md-4">Cursos</label>
+                        <div class="col-md-8">
+                            <multiselect   
+                                placeholder="Seleccione" 
+                                v-model="grupoHorarioDestino" 
+                                v-bind:options="gruposHorariosDestino"
+                                track-by="id" 
+                                v-bind:allow-empty="false" 
+                                deselect-label=""
+                                select-label="" 
+                                >
+                                <template slot="singleLabel" slot-scope="props">
+                                    <span class="option__desc">
+                                        <span class="option__title"> 
+                                            <div>
+                                                <span class=" text-primary bold h5 m-b-xs m-t-xs"
+                                                      v-text="props.option.curso.nombre"></span>
+                                                <span >
+                                                    {{props.option.curso.codigo}}&nbsp;
+                                                    <i class="fa fa-bookmark text-primary"></i>
+                                                    {{props.option.curso.tpc}}
+                                                </span>
+                                                {{props.option.grupoHorasExamen.fecha }}
+                                                <label class="bold">(Grupo {{props.option.grupoHorasExamen.grupoHoras.codigo}}) </label>
+                                            </div>
+                                        </span>
+                                    </span>
+                                </template>
+
+                                <template slot="option" slot-scope="props">   
+                                    <div>
+                                        <span class=" text-primary bold h5 m-b-xs m-t-xs"
+                                              v-text="props.option.curso.nombre"></span>
+                                        <span >
+                                            {{props.option.curso.codigo}}&nbsp;
+                                            <i class="fa fa-bookmark text-primary"></i>
+                                            {{props.option.curso.tpc}}
+                                        </span>
+                                    </div>
+                                    <!--                                    <div v-if="seccionRolExamenes.grupoHorasExamen.fecha">
+                                                                            {{props.option.grupoHorasExamen.fecha }}
+                                                                            <label class="bold">(Grupo {{props.option.grupoHorasExamen.grupoHoras.codigo}}) </label>
+                                                                            <small class="block">Hora Inicio: {{props.option.grupoHorasExamen.horaInicio.descripcion}}</small>
+                                                                            <small class="block">Hora Fin: {{props.option.grupoHorasExamen.horaFin.descripcion}}</small>
+                                                                        </div>-->
+
+                                </template>
+                            </multiselect> 
+                            <div class="checkbox">
+                                <label><input type="checkbox" v-model="grupoTmp.crearCurMasiv"/>Crear Nuevo Curso Masivo</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <textarea v-text="resultErrorMove" v-if="resultErrorMove &amp;&amp; resultErrorMove.length" 
+                          class="form-control" readonly="" rows="5" style="resize: none;"
+                          ></textarea>
+            </div>
+            <div class="row panel-body text-center m-t-lg">
+                <a type="button" v-on:click.prevent="moverSeccion" class="btn btn-success">Mover Seccion</a>
+            </div>
+        </div>
+
+    </div>
+</modal-vik>
+
 <modal-vik v-bind="cambiarAulamodal"
            ref="cambiarAulamodal"
            v-bind:okaction="saveCambiarAulaGrupo">

@@ -38,7 +38,24 @@ new Vue({
         configAddSeccionNueva: VUE_MODAL.structFormAjax({
             id: "idModalAddSeccNueva",
             okbtn: "Añadir sección"
-        })
+        }),
+        moverSeccionModal2: {
+            id: 'moverSeccionModal2',
+            header: 'true',
+            modalsize: 'modal-md',
+            title: 'Mover Sección',
+            showaccept: false
+        },
+        seccTmp: null,
+        tiposGrupoExamenes: [],
+        grupoEnum: null,
+        grupoSelected: null,
+        grupoTmp: null,
+        gruposHorariosDestino: [],
+        grupoHorarioDestino: null,
+        seccionRolExamenes: null,
+        resultErrorMove: null,
+        crearX: null
     },
     mounted() {
         if (jRolExamenes != null) {
@@ -381,5 +398,149 @@ new Vue({
                 }
             });
         },
+        mover(item) {
+            let $vue = this;
+            console.log(item);
+            $vue.grupoHorarioDestino = null;
+            $vue.grupoEnum = null;
+            $vue.resultErrorMove = null;
+            $vue.seccTmp = JSON.parse(JSON.stringify(item.seccion));
+            $vue.grupoTmp = JSON.parse(JSON.stringify(item));
+            this.$refs.moverSeccionModal2.open();
+            this.loadTiposGrupoExamen();
+        },
+        //mover new
+        loadTiposGrupoExamen() {
+            let $vue = this;
+            $.ajax({
+                url: '/rolexamen/moverseccionexamen/listTipoGrupoRolExamenes',
+                success: function (response) {
+                    if (response.success) {
+                        console.log(response.data);
+                        $vue.tiposGrupoExamenes = response.data;
+                    }
+                }
+            });
+        },
+        selGrupoNuevo() {
+            console.log(this.seccTmp);
+            MODAL.showWait("Espere un momento por favor");
+            this.loadOpciones();
+//            this.grupoSelected = null;
+//            AXIOS.post(`/rolexamen/moverseccionexamen/getCursoLetra/${this.grupoEnum.code}`,
+//                    this.grupoTmp.grupoHorasExamen)
+//                    .then(response => {
+//                        if (response.data.success) {
+//                            console.log(response.data.data);
+//
+//
+//                            if (response.data.data.jCursosMasivosExamen != null)
+//                                this.gruposHorariosDestino = response.data.data.jCursosMasivosExamen;
+//                            if (response.data.data.jLetrasGrupoRegular != null)
+//                                this.gruposHorariosDestino = response.data.data.jLetrasGrupoRegular;
+//                        } else {
+//                            //   notify(response.data.message, 'error');
+//                        }
+//                        MODAL.hideWait();
+//                    });
+        },
+        getRolExamenes() {
+
+//              this.$refs.moverSeccionComp.seccion = item.seccion;
+//            this.$refs.moverSeccionComp.tipoorigen = "GRU_ESP";
+//            this.$refs.moverSeccionComp.loadComponent(this.rolExamen);
+//            this.$refs.moverSeccionModal.open();
+//            if (!rolExamenes) {
+//                console.error('INTENTADO CARGAR COMPONENTE SIN PASARLE ROL DE EXAMENES');
+//            }
+            console.log("1");
+            this.tipoDestinoGrupoExamenes = null;
+            this.gruposHorariosDestino = [];
+            this.grupoHorarioDestino = null;
+            let $vue = this;
+            console.log($vue.grupoEnum)
+            console.log($vue.grupoEnum.code)
+            $.ajax({
+                url: `/rolexamen/moverseccionexamen/loadComponent`,
+                data: {seccion: $vue.grupoTmp.seccion.id, tipoOrigen: $vue.grupoEnum.code, rolExamenes: $vue.rolExamen.id},
+                success: function (response) {
+                    if (response.success) {
+                        console.log("?????")
+
+                        $vue.seccionRolExamenes = response.data.seccionRolExamenes;
+                        $vue.loadOpciones();
+                        if (response.data.tipoGrupoRolExamenesEnumDefault) {
+                            //  vue.tipoDestinoGrupoExamenes = response.data.tipoGrupoRolExamenesEnumDefault;
+                        }
+                    }
+                }
+            });
+        },
+        loadOpciones() {
+            console.log("1");
+            AXIOS.post(`/rolexamen/moverseccionexamen/getCursoLetra/${this.grupoEnum.code}`,
+                    this.grupoTmp)
+//                    this.grupoTmp.grupoHorasExamen)
+                    .then(response => {
+                        if (response.data.success) {
+                            console.log(response.data.data);
+
+
+                            if (response.data.data.jCursosMasivosExamen != null)
+                                this.gruposHorariosDestino = response.data.data.jCursosMasivosExamen;
+                            if (response.data.data.jLetrasGrupoRegular != null)
+                                this.gruposHorariosDestino = response.data.data.jLetrasGrupoRegular;
+                        } else {
+                            //   notify(response.data.message, 'error');
+                        }
+                        MODAL.hideWait();
+                    });
+        },
+        moverSeccion() {
+            let $vue = this;
+            if (!$vue.grupoTmp.crearCurMasiv && !$vue.grupoHorarioDestino) {
+                notify("Debe seleccionar un Curso o marcar la creación del mismo", "warning");
+                return;
+            }
+            if (!$vue.grupoTmp.crearCurMasiv) {
+                console.log($vue.grupoHorarioDestino.grupoHorasExamen);
+                $vue.grupoTmp.grupoHorasExamen = $vue.grupoHorarioDestino.grupoHorasExamen;
+                $vue.grupoTmp.cursoMasivoExamen = $vue.grupoHorarioDestino;
+            }
+
+            AXIOS.post(`${$vue.URL}/cambiarAulaGrupo`, $vue.grupoTmp)
+                    .then(response => {
+                        if (response.data.success) {
+                            this.$refs.raptor.loadRemoteData();
+                            $vue.$refs.moverSeccionModal2.close();
+                        } else {
+                            let text = "";
+                            for (var i = 0; i < response.data.data.length; i++) {
+                                text += "- " + response.data.data[i] + "\n";
+                            }
+                            $vue.resultErrorMove = text;
+                        }
+                        MODAL.hideWait();
+                    });
+
+        },
+        onCheckCrear() {
+            if (!this.grupoTmp.crearCurMasiv) {
+                this.grupoHorarioDestino = null;
+            }
+        },
+        crearSeccion() {
+            let $vue = this;
+            AXIOS.post(`${$vue.URL}/crearCursoMasivo`, $vue.grupoTmp)
+                    .then(response => {
+                        if (response.data.success) {
+                            console.log(response.data.data);
+                        } else {
+                            console.log(response.data.data);
+                        }
+                        MODAL.hideWait();
+                    });
+        }
+        //
     }
 });

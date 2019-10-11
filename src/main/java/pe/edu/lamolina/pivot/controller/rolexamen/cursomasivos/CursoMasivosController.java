@@ -158,7 +158,7 @@ public class CursoMasivosController {
 
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            service.save(cursoMasivosExamen, ds.getCicloAcademico(), ds);
+            service.save(cursoMasivosExamen, ds.getCicloAcademico(), ds.getUsuario());
             response.setSuccess(true);
             response.setMessage("Curso guardado satisfactoriamnente");
 

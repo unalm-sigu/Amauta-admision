@@ -7,6 +7,8 @@ import java.util.Date;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -37,8 +39,10 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 @RequestMapping("rolexamen/moverseccionexamen")
 public class MoverSeccionExamenController {
 
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     @Autowired
-    MoverSeccionExamenService moverSeccionExamenService;
+    MoverSeccionExamenService service;
 
     @Autowired
     RolExamenesLogger rolExamenesLogger;
@@ -63,6 +67,7 @@ public class MoverSeccionExamenController {
                         }
                 ));
             }
+
             response.setData(jTiposGrupoRolExamenes);
             response.setSuccess(Boolean.TRUE);
         } catch (PhobosException e) {
@@ -80,6 +85,10 @@ public class MoverSeccionExamenController {
             @RequestParam("tipoOrigen") String tipoOrigen,
             @RequestParam("rolExamenes") Long rolExamenesId) {
 
+        logger.debug("SECCION {}", seccionId);
+        logger.debug("tipoOrigen {}", tipoOrigen);
+        logger.debug("rolExamenesId {}", rolExamenesId);
+
         JsonResponse response = new JsonResponse();
         response.setSuccess(Boolean.TRUE);
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
@@ -91,7 +100,9 @@ public class MoverSeccionExamenController {
             ObjectNode data = new ObjectNode(jc);
 
             if (TipoGrupoRolExamenesEnum.CUR_MAS.name().equals(tipoOrigen)) {
-                SeccionCursoMasivo seccionCursoMasivo = moverSeccionExamenService.findSeccionCursoMasivoBySeccionRolExamenes(seccion, rol);
+                SeccionCursoMasivo seccionCursoMasivo = service.findSeccionCursoMasivoBySeccionRolExamenes(seccion, rol);
+                logger.debug("seccionCursoMasivo {}", seccionCursoMasivo);
+                logger.debug("seccionCursoMasivo.getCursoMasivoExamen() {}", seccionCursoMasivo.getCursoMasivoExamen());
                 ObjectNode jSeccionRolExamenes = JsonHelper.createJson(seccionCursoMasivo, jc, false, new String[]{
                     "*",
                     "seccion.*",
@@ -99,7 +110,8 @@ public class MoverSeccionExamenController {
                     "cursoMasivoExamen.grupoHorasExamen.*",
                     "cursoMasivoExamen.curso.*"
                 });
-                jSeccionRolExamenes.set("grupoHorasExamen", JsonHelper.createJson(seccionCursoMasivo.getCursoMasivoExamen().getGrupoHorasExamen(), jc, false, new String[]{
+                jSeccionRolExamenes.set("grupoHorasExamen",
+                        JsonHelper.createJson(seccionCursoMasivo.getCursoMasivoExamen().getGrupoHorasExamen(), jc, false, new String[]{
                     "*",
                     "grupoHoras.*",
                     "horaInicio.*",
@@ -109,7 +121,7 @@ public class MoverSeccionExamenController {
                 tipoGrupoRolExamenesEnumDefault = null;
 
             } else if (TipoGrupoRolExamenesEnum.GRU_ESP.name().equals(tipoOrigen)) {
-                SeccionGrupoEspecial seccionGrupoEspecial = moverSeccionExamenService.findSeccionGrupoEspecialBySeccionRolExamenes(seccion, rol);
+                SeccionGrupoEspecial seccionGrupoEspecial = service.findSeccionGrupoEspecialBySeccionRolExamenes(seccion, rol);
                 ObjectNode jSeccionRolExamenes = JsonHelper.createJson(seccionGrupoEspecial, jc, false, new String[]{
                     "*",
                     "seccion.*",
@@ -121,7 +133,7 @@ public class MoverSeccionExamenController {
                 data.set("seccionRolExamenes", jSeccionRolExamenes);
 
             } else if (TipoGrupoRolExamenesEnum.GRU_REG.name().equals(tipoOrigen)) {
-                SeccionGrupoRegular seccionGrupoRegular = moverSeccionExamenService.findSeccionGrupoRegularBySeccionRolExamenes(seccion, rol);
+                SeccionGrupoRegular seccionGrupoRegular = service.findSeccionGrupoRegularBySeccionRolExamenes(seccion, rol);
                 ObjectNode jSeccionRolExamenes = JsonHelper.createJson(seccionGrupoRegular, jc, false, new String[]{
                     "*",
                     "seccion.*",
@@ -164,11 +176,11 @@ public class MoverSeccionExamenController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             JsonNodeFactory jc = JsonNodeFactory.instance;
 
-            grupoHorasExamenOrigen = moverSeccionExamenService.findGrupoHorasExamen(grupoHorasExamenOrigen);
+            grupoHorasExamenOrigen = service.findGrupoHorasExamen(grupoHorasExamenOrigen);
 
             ObjectNode data = new ObjectNode(jc);
             if (TipoGrupoRolExamenesEnum.CUR_MAS.name().equals(tipoDestino)) {
-                List<CursoMasivoExamen> cursosMasivosExamen = moverSeccionExamenService.allActiveCursosMasivosByRolExamenes(grupoHorasExamenOrigen.getRolExamenes());
+                List<CursoMasivoExamen> cursosMasivosExamen = service.allActiveCursosMasivosByRolExamenes(grupoHorasExamenOrigen.getRolExamenes());
                 ArrayNode jCursosMasivosExamen = new ArrayNode(jc);
 
                 for (CursoMasivoExamen cursoMasivoExamen : cursosMasivosExamen) {
@@ -185,7 +197,7 @@ public class MoverSeccionExamenController {
                 data.set("jCursosMasivosExamen", jCursosMasivosExamen);
 
             } else if (TipoGrupoRolExamenesEnum.GRU_REG.name().equals(tipoDestino)) {
-                List<LetraGrupoRegular> letrasGrupoRegular = moverSeccionExamenService.allLetrasGruposRegularesByRolExamenes(grupoHorasExamenOrigen.getRolExamenes());
+                List<LetraGrupoRegular> letrasGrupoRegular = service.allLetrasGruposRegularesByRolExamenes(grupoHorasExamenOrigen.getRolExamenes());
                 ArrayNode jLetrasGrupoRegular = new ArrayNode(jc);
                 for (LetraGrupoRegular letraGrupoRegular : letrasGrupoRegular) {
                     ObjectNode jLetraGrupoRegular = JsonHelper.createJson(letraGrupoRegular, jc, false, new String[]{
@@ -220,13 +232,72 @@ public class MoverSeccionExamenController {
         ds.setFechaAccionAudit(new Date());
         try {
             JsonNodeFactory jc = JsonNodeFactory.instance;
-            moverSeccionExamenService.cambioHorarioExamenSeccion(cambioHorarioExamenSeccion, ds);
+            service.cambioHorarioExamenSeccion(cambioHorarioExamenSeccion, ds);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         } finally {
             rolExamenesLogger.finalizeLog();
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "getCursoLetra/{tipoDestino}", method = RequestMethod.POST)
+    public JsonResponse getCursoLetra(
+            @PathVariable("tipoDestino") String tipoDestino,
+            //            @RequestBody GrupoHorasExamen grupoHorasExamenOrigen, HttpSession session, HttpServletRequest request) {
+            @RequestBody SeccionGrupoEspecial seccionGrupoEsp, HttpSession session, HttpServletRequest request) {
+
+        JsonResponse response = new JsonResponse();
+        response.setSuccess(Boolean.TRUE);
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            JsonNodeFactory jc = JsonNodeFactory.instance;
+
+//            seccionGrupoEsp = service.findGrupoHorasExamen(seccionGrupoEsp);
+            ObjectNode data = new ObjectNode(jc);
+            if (TipoGrupoRolExamenesEnum.CUR_MAS.name().equals(tipoDestino)) {
+//                List<CursoMasivoExamen> cursosMasivosExamen = moverSeccionExamenService.allActiveCursosMasivosByRolExamenes(grupoHorasExamenOrigen.getRolExamenes());
+                List<CursoMasivoExamen> cursosMasivosExamen = service.allActiveCursosMasivosByGrupoEspecial(seccionGrupoEsp);
+                logger.debug("cursosMasivosExamen {}", cursosMasivosExamen.size());
+                ArrayNode jCursosMasivosExamen = new ArrayNode(jc);
+
+                for (CursoMasivoExamen cursoMasivoExamen : cursosMasivosExamen) {
+                    ObjectNode jCursoMasivoExamen = JsonHelper.createJson(cursoMasivoExamen, jc, false, new String[]{
+                        "*",
+                        "curso.id", "curso.codigo", "curso.tpc",
+                        "grupoHorasExamen.id", "grupoHorasExamen.fecha",
+                        "grupoHorasExamen.grupoHoras.id", "grupoHorasExamen.grupoHoras.codigo",
+                        "grupoHorasExamen.horaInicio.id", "grupoHorasExamen.horaInicio.descripcion",
+                        "grupoHorasExamen.horaFin.id", "grupoHorasExamen.horaFin.descripcion"
+                    });
+                    jCursosMasivosExamen.add(jCursoMasivoExamen);
+                }
+                data.set("jCursosMasivosExamen", jCursosMasivosExamen);
+
+            } else if (TipoGrupoRolExamenesEnum.GRU_REG.name().equals(tipoDestino)) {
+                List<LetraGrupoRegular> letrasGrupoRegular = service.allLetrasGruposRegularesByRolExamenes(seccionGrupoEsp.getRolExamenes());
+                ArrayNode jLetrasGrupoRegular = new ArrayNode(jc);
+                for (LetraGrupoRegular letraGrupoRegular : letrasGrupoRegular) {
+                    ObjectNode jLetraGrupoRegular = JsonHelper.createJson(letraGrupoRegular, jc, false, new String[]{
+                        "*",
+                        "grupoHorasExamen.*",
+                        "grupoHorasExamen.grupoHoras.*",
+                        "grupoHorasExamen.horaInicio.*",
+                        "grupoHorasExamen.horaFin.*"
+                    });
+                    jLetrasGrupoRegular.add(jLetraGrupoRegular);
+                }
+                data.set("jLetrasGrupoRegular", jLetrasGrupoRegular);
+            }
+
+            response.setData(data);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
         }
         return response;
     }
