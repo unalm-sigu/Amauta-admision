@@ -18,6 +18,7 @@ import static pe.edu.lamolina.model.enums.EstadoEnum.ACT;
 import pe.edu.lamolina.model.rolexamen.CursoMasivoExamen;
 import pe.edu.lamolina.model.rolexamen.GrupoHorasExamen;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
+import pe.edu.lamolina.model.rolexamen.SeccionGrupoEspecial;
 import pe.edu.lamolina.pivot.dao.rolexamen.CursoMasivoExamenDAO;
 
 @Repository
@@ -169,4 +170,23 @@ public class CursoMasivoExamenDAOH extends AbstractEasyDAO<CursoMasivoExamen> im
         this.update(octavia);
     }
 
+    @Override
+    public List<CursoMasivoExamen> allActiveByGrupoHoras(GrupoHorasExamen grupoHorasExamenOrigen) {
+        Octavia sql = Octavia.query(CursoMasivoExamen.class, "cme")
+                .join("grupoHorasExamen ghe", "rolExamenes re", "curso")
+                .filter("ghe.id", grupoHorasExamenOrigen)
+                .filter("cme.estado", ACT);
+        return all(sql);
+    }
+
+    @Override
+    public List<CursoMasivoExamen> allActiveByGrupoEspecialCurso(SeccionGrupoEspecial seccionGrupoEsp, Curso curso) {
+        Octavia sql = Octavia.query(CursoMasivoExamen.class, "cme")
+                .join("rolExamenes re", "curso cu")
+                .left("grupoHorasExamen ghe")
+                .filter("cu.id", curso)
+                .filter("re.id", seccionGrupoEsp.getRolExamenes())
+                .filter("cme.estado", ACT);
+        return all(sql);
+    }
 }

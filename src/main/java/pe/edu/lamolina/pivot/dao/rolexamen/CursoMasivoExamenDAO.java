@@ -10,6 +10,7 @@ import pe.edu.lamolina.model.enums.EstadoCursoMasivoEnum;
 import pe.edu.lamolina.model.rolexamen.CursoMasivoExamen;
 import pe.edu.lamolina.model.rolexamen.GrupoHorasExamen;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
+import pe.edu.lamolina.model.rolexamen.SeccionGrupoEspecial;
 
 public interface CursoMasivoExamenDAO extends EasyDAO<CursoMasivoExamen> {
 
@@ -38,4 +39,8 @@ public interface CursoMasivoExamenDAO extends EasyDAO<CursoMasivoExamen> {
     CursoMasivoExamen findByCursoAndRolExamenes(Curso curso, RolExamenes rolExamenes, EstadoCursoMasivoEnum... estados);
 
     List<CursoMasivoExamen> allByRolExamenesForReporte(RolExamenes rol);
+
+    List<CursoMasivoExamen> allActiveByGrupoHoras(GrupoHorasExamen grupoHorasExamenOrigen);
+
+    List<CursoMasivoExamen> allActiveByGrupoEspecialCurso(SeccionGrupoEspecial seccionGrupoEsp, Curso curso);
 }
