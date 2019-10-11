@@ -74,7 +74,6 @@ public class EditorContenidoController {
 
     @RequestMapping(method = RequestMethod.GET)
     public String index() {
-        logger.debug("inicio");
         return "configuracion/editorContenido/contenidos";
     }
 
@@ -85,26 +84,15 @@ public class EditorContenidoController {
         try {
             List<ContenidoCarta> contenidos = service.allContenidoCartaByDynaTable(filter);
             logger.debug("SIZE DE CONTENIDOS {}", contenidos.size());
-
-            ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
-            for (ContenidoCarta contenido : contenidos) {
-                ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
-
-                node.put("id", contenido.getId());
-                node.put("nombre", contenido.getNombre());
-                node.put("contenido", contenido.getContenido());
-                node.put("codigo", contenido.getCodigo());
-                node.put("tipo", contenido.getTipo());
-                node.put("tipoEnum", contenido.getTipoEnum().getValue());
-                node.put("imgUrl", contenido.getImgUrl());
-                node.put("sistema", contenido.getSistema().getNombre());
-
+            JsonNodeFactory jFactory = JsonNodeFactory.instance;
+            ArrayNode array = new ArrayNode(jFactory);
+            for (ContenidoCarta item : contenidos) {
+                ObjectNode node = JsonHelper.createJson(item, jFactory, new String[]{"*", "sistema.*"});
                 array.add(node);
             }
             json.setData(array);
             json.setTotal(filter.getTotal());
             json.setFiltered(filter.getFiltered());
-
         } catch (Exception e) {
             e.printStackTrace();
             json.setTotal(0);
@@ -167,18 +155,11 @@ public class EditorContenidoController {
 
     @ResponseBody
     @RequestMapping("updateContenido")
-    public JsonResponse updateContenido(
-            @RequestParam("idContenido") Long idContenido,
-            @RequestParam("contenido") String contenido,
-            @RequestParam("idSistema") Long idSistema,
-            HttpSession session) {
+    public JsonResponse updateContenido(@RequestBody ContenidoCarta contenidoCarta, HttpSession session) {
         JsonResponse response = new JsonResponse();
-
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-
-            service.updateContenido(idContenido, contenido, idSistema);
-
+            service.updateContenido(contenidoCarta);
             response.setMessage("Contenido Actualizado");
             response.setSuccess(true);
 
@@ -226,15 +207,12 @@ public class EditorContenidoController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
         try {
-
             if (contenido.getId() != null) {
-                service.save(contenido);
                 response.setMessage("Taller Actualizado");
             } else {
-                service.save(contenido);
                 response.setMessage("Se Agregó un Nuevo Taller");
             }
-
+            service.save(contenido);
             response.setSuccess(true);
 
         } catch (PhobosException e) {
