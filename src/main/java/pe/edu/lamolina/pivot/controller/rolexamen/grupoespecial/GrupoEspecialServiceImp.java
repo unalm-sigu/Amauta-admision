@@ -1758,12 +1758,15 @@ public class GrupoEspecialServiceImp implements GrupoEspecialService {
 
         SeccionGrupoEspecial grupoSpecialDB = seccionGrupoEspecialDAO.find(grupoSpecial.getId());
         List<String> resultados = new ArrayList();
-        if (grupoSpecial.getCrearCurMasiv() || (grupoSpecial.getAula() != null && grupoSpecial.getGrupoHorasExamen() == null)) {
+        if (grupoSpecial.getCrearCurMasiv()
+                || (grupoSpecial.getAula() != null && grupoSpecial.getAula().getId() != null
+                && (grupoSpecial.getGrupoHorasExamen() == null || grupoSpecial.getGrupoHorasExamen().getId() == null))) {
             System.out.println("1");
             if (grupoSpecial.getCrearCurMasiv()) {
                 crearCursoMasivo(grupoSpecial, usuario, ciclo);
             }
-        } else if (grupoSpecial.getAula() == null && grupoSpecial.getGrupoHorasExamen() != null) {
+        } else if ((grupoSpecial.getAula() == null || grupoSpecial.getAula().getId() == null)
+                && grupoSpecial.getGrupoHorasExamen() != null && grupoSpecial.getGrupoHorasExamen().getId() != null) {
             System.out.println("2");
             resultados = saveCambioAulaTieneGHE(grupoSpecial);
         } else {
