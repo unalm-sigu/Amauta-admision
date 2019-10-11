@@ -364,11 +364,7 @@
         <dependency>
             <groupId>pe.edu.lamolina</groupId>
             <artifactId>model</artifactId>
-<<<<<<< HEAD
-            <version>0.20.63</version>
-=======
             <version>0.20.65</version>
->>>>>>> 819d114d7094743d39e3dcf3287a8ef857289c2d
             <exclusions>
                 <exclusion>
                     <groupId>com.github.albatrosscloud</groupId>
