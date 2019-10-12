@@ -68,10 +68,10 @@ public class EditorContenidoServiceImp implements EditorContenidoService {
 
     @Override
     @Transactional
-    public void updateContenido(Long idContenido, String contenido, Long idSistema) {
-        ContenidoCarta contenidoCarta = contenidoCartaDAO.find(idContenido);
-        contenidoCarta.setContenido(contenido);
-        contenidoCartaDAO.update(contenidoCarta);
+    public void updateContenido(ContenidoCarta contenidoCarta) {
+        ContenidoCarta contenidoCartaBD = contenidoCartaDAO.find(contenidoCarta.getId());
+        contenidoCartaBD.setContenido(contenidoCarta.getContenido());
+        contenidoCartaDAO.update(contenidoCartaBD);
     }
 
     @Override
@@ -84,7 +84,10 @@ public class EditorContenidoServiceImp implements EditorContenidoService {
     @Transactional
     public void save(ContenidoCarta contenido) {
         if (contenido.getId() == null) {
-            contenidoCartaDAO.save(contenido);
+            ContenidoCarta contenidoNew = new ContenidoCarta();
+            contenidoNew.setCodigo(contenido.getCodigo());
+            contenidoNew.setNombre(contenido.getNombre());
+            contenidoCartaDAO.save(contenidoNew);
         } else {
             ContenidoCarta contenidoCarta = contenidoCartaDAO.find(contenido.getId());
             contenidoCarta.setCodigo(contenido.getCodigo());

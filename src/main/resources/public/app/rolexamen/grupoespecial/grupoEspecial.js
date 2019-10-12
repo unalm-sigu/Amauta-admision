@@ -515,8 +515,10 @@ new Vue({
                             $vue.$refs.moverSeccionModal2.close();
                         } else {
                             let text = "";
-                            for (var i = 0; i < response.data.data.length; i++) {
-                                text += "- " + response.data.data[i] + "\n";
+                            if (response.data.data) {
+                                for (var i = 0; i < response.data.data.length; i++) {
+                                    text += "- " + response.data.data[i] + "\n";
+                                }
                             }
                             $vue.resultErrorMove = text;
                         }

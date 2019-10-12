@@ -13,7 +13,7 @@ public interface EditorContenidoService {
 
     ContenidoCarta findSoloContenidoCartaById(Long idContenido);
 
-    void updateContenido(Long idContenido, String contenido, Long idSistema);
+    void updateContenido(ContenidoCarta contenidoCarta);
 
     List<ContenidoCarta> allContenidoCartaByDynaTable(DynatableFilter filter);
 
