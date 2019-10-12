@@ -118,6 +118,11 @@ import pe.edu.lamolina.pivot.zelper.mail.MailerService;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.pivot.dao.tramite.PlantillaIncrustacionDAO;
 import pe.edu.lamolina.pivot.dao.tramite.TramiteDocumentoParametroDAO;
+import static pe.edu.lamolina.pivot.zelper.constant.Constantine.CODIGO_ALIANZA_ESTRATEGICA;
+import static pe.edu.lamolina.pivot.zelper.constant.Constantine.VARIABLE_TABLE;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 
 @Service
 @Transactional(readOnly = true)
@@ -765,7 +770,8 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
 
     @Override
     public void downloadWord(TramiteDocumentoAcademico tramiteDocumentoAcademico, HttpServletResponse response) throws PhobosException {
-        PlantillaGenerica generica = findPlantillaHtml(tramiteDocumentoAcademico);
+        tramiteDocumentoAcademico = tramiteDocumentoAcademicoDAO.find(tramiteDocumentoAcademico);
+        PlantillaGenerica generica = plantillaGenerica(tramiteDocumentoAcademico);
 
         try {
 
@@ -784,179 +790,255 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
 
     private PlantillaGenerica plantillaGenerica(TramiteDocumentoAcademico documentoAcademico) {
         PlantillaDocumentoAcademico plantilla = plantillaDocumentoAcademicoDAO.findTipoDocumento(documentoAcademico.getTipoDocumentoAcademico(), documentoAcademico.getIdioma());
-        List<VariablePlantilla> variable = variablePlantillaDAO.allByPlantilla(plantilla);
+        List<VariablePlantilla> variables = variablePlantillaDAO.allByPlantilla(plantilla);
 
         Alumno alumno = alumnoDAO.findAllInfo(documentoAcademico.getTramite().getAlumno().getId());
         AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findLastByAlumno(alumno);
+        List<AlumnoCiclo> alumnoCiclos = alumnoCicloDAO.allActivesByAlumnoAsc(alumno);
 
         Egresado egresado = egresadoDAO.findByAlumno(alumno);
-        String html = plantilla.getContenido();
-        for (VariablePlantilla var : variable) {
+        String htmlContent = plantilla.getContenido();
+
+        htmlContent = remplazarTablas(htmlContent, alumno, variables);
+
+        for (VariablePlantilla var : variables) {
             switch (var.getVariableGenerica().getCodigoVaribleEnum()) {
                 case MATRICULA:
-                    html = html.replace(var.getVariableGenerica().getCodigo(), alumno.getCodigo());
+                    htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), alumno.getCodigo());
                     break;
                 case FACULTAD:
-                    html = html.replace(var.getVariableGenerica().getCodigo(), alumno.getCarrera().getFacultad().getNombre());
+                    htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), alumno.getCarrera().getFacultad().getNombre());
                     break;
                 case ESPECIALIDAD:
                     if (!alumno.getCarrera().getFacultad().getCodigo().equals(alumno.getCarrera().getCodigo())) {
-                        html = html.replace(var.getVariableGenerica().getCodigo(), "Esp. de " + alumno.getCarrera().getNombre());
+                        htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), "Esp. de " + alumno.getCarrera().getNombre());
                     } else {
-                        html = html.replace(var.getVariableGenerica().getCodigo(), "");
+                        htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), "");
                     }
                     break;
                 case APELLIDO_PERSONA:
-                    html = html.replace(var.getVariableGenerica().getCodigo(), alumno.getPersona().getApellidosNombres());
+                    htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), alumno.getPersona().getApellidosNombres());
                     break;
 
                 case FECHA_CONSTANCIA:
-                    html = html.replace(var.getVariableGenerica().getCodigo(), TypesUtil.getStringDate(new Date(), "dd 'de' MMMM 'del' yyyy", "es"));
+                    htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), TypesUtil.getStringDate(new Date(), "dd 'de' MMMM 'del' yyyy", "es"));
                     break;
                 case APELLIDOS:
-                    html = html.replace(var.getVariableGenerica().getCodigo(), alumno.getPersona().getApellidos());
+                    htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), alumno.getPersona().getApellidos());
                     break;
                 case SENOR_A:
-                    html = html.replace(var.getVariableGenerica().getCodigo(), alumno.getPersona().getSenior());
+                    htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), alumno.getPersona().getSenior());
                     break;
                 case CICLO_PROMOCION:
-                    html = html.replace(var.getVariableGenerica().getCodigo(), egresado.getCicloAcademico().getCodigo());
+                    htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), egresado.getCicloAcademico().getCodigo());
                     break;
                 case EPG_PROMEDIO_PONDERADO:
-                    html = html.replace(var.getVariableGenerica().getCodigo(), egresado.returnPromedioGraduacionTrunc(2).toString());
+                    htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), egresado.returnPromedioGraduacionTrunc(2).toString());
                     break;
-                case CICLO_ALIANZA_ESTRATEGICA:
-                    html = html.replace(var.getVariableGenerica().getCodigo(), alumno.getCicloIngreso().getDescripcion());
+                case CODIGO_CONSTANCIA:
+                    htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), "" + 1);
                     break;
-                    
-                    
-                    
-                case CICLO_ROM_INICIO:
-                    html = html.replace(var.getVariableGenerica().getCodigo(), alumno.getCicloIngreso().getDescripcion());
+                case CICLOS_CURSADOS:
+
+                    String ciclos = alumnoCiclos.size() > 2 ? "los ciclos " : "el ciclo ";
+                    int i = 1;
+                    for (AlumnoCiclo ac : alumnoCiclos) {
+                        if (i == alumnoCiclos.size()) {
+                            ciclos = ciclos.concat("y " + ac.getCicloAcademico().getDescripcion());
+                            continue;
+                        }
+                        ciclos = ciclos.concat(", " + ac.getCicloAcademico().getDescripcion());
+                        i++;
+                    }
+                    htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), ciclos);
                     break;
-                default:
-                    throw new AssertionError();
+
+                case PROGRAMA:
+                    String programa = "";
+                    if (alumno.getCarrera().getCodigo().equals(CODIGO_ALIANZA_ESTRATEGICA)) {
+                        programa = programa.concat("por el Convenio de la " + alumno.getCarrera().getNombre());
+                    } else {
+
+                        programa = programa.concat("como " + alumno.getPersona().getGeneroAlumno() + " " + alumno.getCarrera().getNombre());
+                    }
+
+                    htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), programa);
+                    break;
             }
         }
+        String nombreDoc = plantilla.getTipoDocumentoAcademico().getNombre().concat("-" + plantilla.getId());
+        PlantillaGenerica plantillaGene = new PlantillaGenerica();
+        plantillaGene.setContenido(htmlContent);
+        plantillaGene.setNombre(nombreDoc);
+        return plantillaGene;
+    }
 
-        return null;
+    private String remplazarTablas(String htmlContent, Alumno alumno, List<VariablePlantilla> variable) {
+        List<AlumnoCicloCurso> alumnoCicloCursos = alumnoCicloCursoDAO.allOperativesByAlumno(alumno);
+        Document html = Jsoup.parse(htmlContent);
+        if (!html.getElementsByClass(VARIABLE_TABLE).isEmpty()) {
+            String tableOrigin = html.getElementsByClass(VARIABLE_TABLE).html();
+            String tableClone = html.getElementsByClass(VARIABLE_TABLE).html();
+            int idx = 1;
+            int indexHtml = 1;
+            for (AlumnoCicloCurso alumnoCicloCurso : alumnoCicloCursos) {
+                for (VariablePlantilla var : variable) {
+                    switch (var.getVariableGenerica().getCodigoVaribleEnum()) {
+                        case TABLA_CODIGO_CURSO:
+                            tableOrigin = tableOrigin.replace(var.getVariableGenerica().getCodigo(), alumnoCicloCurso.getCurso().getCodigo());
+                            break;
+                        case TABLA_CURSO:
+                            tableOrigin = tableOrigin.replace(var.getVariableGenerica().getCodigo(), alumnoCicloCurso.getCurso().getNombre());
+                            break;
+                        case TABLA_CURSO_NOTA:
+                            tableOrigin = tableOrigin.replace(var.getVariableGenerica().getCodigo(), alumnoCicloCurso.getNota());
+                            break;
+                        case TABLA_CURSO_CREDITO:
+                            tableOrigin = tableOrigin.replace(var.getVariableGenerica().getCodigo(), alumnoCicloCurso.getCreditos().toString());
+                            break;
+                    }
+                }
+
+                if (indexHtml == idx) {
+                    Element tr = html.select("tr").get(indexHtml);
+                    tr.replaceWith(new Element("tr").append(tableOrigin));
+                    indexHtml = 1;
+                } else {
+                    Element table = html.select("tbody").get(0);
+                    Element trNew = new Element("tr");
+                    trNew.append(tableOrigin);
+                    table.insertChildren(indexHtml, trNew);
+                    indexHtml++;
+                }
+                if (idx < alumnoCicloCursos.size()) {
+
+                    tableOrigin = "";
+                    tableOrigin = tableOrigin.concat(tableClone);
+                    idx++;
+
+                }
+            }
+
+            htmlContent = html.html();
+        }
+        return htmlContent;
     }
 
     @Override
     public PlantillaGenerica findPlantillaHtml(TramiteDocumentoAcademico documentoAcademico) {
         documentoAcademico = tramiteDocumentoAcademicoDAO.find(documentoAcademico);
-        PlantillaGenerica plantillaGene = new PlantillaGenerica();
-        switch (documentoAcademico.getTipoDocumentoAcademico().getCodigoDocumentoEnum()) {
-            case ALIANZAESTRATEGICAEMPRESARIAL:
-                plantillaGene = alianzaEstrategicaEspecial(documentoAcademico);
-                break;
-            case ALUMNOREGULAR:
-                plantillaGene = alumnoRegular(documentoAcademico);
-                break;
-            case ALUMNO:
-                plantillaGene = alumno(documentoAcademico);
-                break;
-            case ALUMNOESPECIAL:
-                plantillaGene = alumnoEspecial(documentoAcademico);
-                break;
-            case ALUMNOVISITANTE:
-                plantillaGene = alumnoVisitante(documentoAcademico);
-                break;
-            case BACHILLERCONFECHAEGRESO:
-                plantillaGene = bachillerConFechaEgreso(documentoAcademico);
-                break;
-            case COLEGIATURA:
-                plantillaGene = colegiatura(documentoAcademico);
-                break;
-            case COMBINANDOTERICIOYQUINTO:
-                plantillaGene = convinadoTercioQuinto(documentoAcademico);
-                break;
-            case COMPARATIVO:
-                plantillaGene = comparativo(documentoAcademico);
-                break;
-            case CUADRODEHONOR:
-                plantillaGene = cuadroHonor(documentoAcademico);
-                break;
-            case ESCUELANACIONALDEAGRICULTURAESPECIAL:
-                plantillaGene = escuelaNacionalAgriculturaEspecial(documentoAcademico);
-                break;
-            case ESPECIALCOMPARATIVOYPORCENTAJE:
-                plantillaGene = especialComparativoPorcentaje(documentoAcademico);
-                break;
-            case ESPECIALCONTINUARESTUDIOSENELEXTRANJERO:
-                plantillaGene = especialContinuarEstudiosExtranjero(documentoAcademico);
-                break;
-            case ESPECIALCONVERSIONDESISTEMACALIFICACION:
-                plantillaGene = especialConversionSistemaCalificacion(documentoAcademico);
-                break;
-            case ESPECIALDURACIONCICLO:
-                plantillaGene = especialDuracionCiclo(documentoAcademico);
-                break;
-            case ESPECIALPRIMERAMATRICULA:
-                plantillaGene = especialPrimeraMatricula(documentoAcademico);
-                break;
-            case ESPECIALPROMEDIOACUMULADODELOSCICLOS:
-                plantillaGene = especialPromedioAcumuladoCiclos(documentoAcademico);
-                break;
-            case ESPECIALPROMEDIOVIGESIMAL:
-                plantillaGene = especialPromedioVigecimal(documentoAcademico);
-                break;
-            case ESTUDIOSININTERRUMPIDOSOCONTINUOS:
-                plantillaGene = estudiosIninterumpidosContinuos(documentoAcademico);
-                break;
-            case NIVELACADEMICO:
-                plantillaGene = nivelAcademico(documentoAcademico);
-                break;
-            case NIVELACADEMICODEEXALUMNOS:
-                plantillaGene = nivelAcademicoExAlumno(documentoAcademico);
-                break;
-            case NOSEPARADO:
-                plantillaGene = noSeparado(documentoAcademico);
-                break;
-            case ORDENDEMERITOALUMNO:
-                plantillaGene = ordenMeritoAlumno(documentoAcademico);
-                break;
-            case ORDENDEMERITOALUMNOSVARIOS:
-                plantillaGene = ordenMeritoAlumnosVarios(documentoAcademico);
-                break;
-            case ORDENDEMERITOEGRESADOFACULTADESPECIALIDADPROMOCION:
-                plantillaGene = ordenMeritoEgresado(documentoAcademico);
-                break;
-            case ORDENDEMERITOEGRESADOVARIOS:
-                plantillaGene = ordenMeritoEgresadoVarios(documentoAcademico);
-                break;
-            case ORDENMERITOCONTERCIOYQUINTO:
-                plantillaGene = ordenMeritoTercioQuinto(documentoAcademico);
-                break;
-            case QUINTOSUPERIORALUMNO:
-                plantillaGene = quintoSuperiorAlumno(documentoAcademico);
-                break;
-            case QUINTOSUPERIORVARIOS:
-                plantillaGene = quintoSuperioVarios(documentoAcademico);
-                break;
-            case SISTEMACALIFICACION:
-                plantillaGene = sistemaCalificacion(documentoAcademico);
-                break;
-            case TEORIAPRACTICACREDITO:
-                plantillaGene = teoriaPracticaCredito(documentoAcademico);
-                break;
-            case TERCIODELOSCICLOS:
-                plantillaGene = tercioCiclos(documentoAcademico);
-                break;
-            case TERCIOSUPERIOR:
-                plantillaGene = tercioSuperior(documentoAcademico);
-                break;
-            case TERCIOQUINTOCOMBINADOS:
-                plantillaGene = tercioQuintoCombinados(documentoAcademico);
-                break;
-            case TITULO:
-                plantillaGene = titulo(documentoAcademico);
-                break;
-            case CURSOSDELPRIMERCICLO:
-                plantillaGene = cursosDelPrimeroCiclo(documentoAcademico);
-                break;
-
-        }
+        PlantillaGenerica plantillaGene = plantillaGenerica(documentoAcademico);
+//        switch (documentoAcademico.getTipoDocumentoAcademico().getCodigoDocumentoEnum()) {
+//            case ALIANZAESTRATEGICAEMPRESARIAL:
+//        plantillaGene = alianzaEstrategicaEspecial(documentoAcademico);
+//                break;
+//            case ALUMNOREGULAR:
+//                plantillaGene = alumnoRegular(documentoAcademico);
+//                break;
+//            case ALUMNO:
+//                plantillaGene = alumno(documentoAcademico);
+//                break;
+//            case ALUMNOESPECIAL:
+//                plantillaGene = alumnoEspecial(documentoAcademico);
+//                break;
+//            case ALUMNOVISITANTE:
+//                plantillaGene = alumnoVisitante(documentoAcademico);
+//                break;
+//            case BACHILLERCONFECHAEGRESO:
+//                plantillaGene = bachillerConFechaEgreso(documentoAcademico);
+//                break;
+//            case COLEGIATURA:
+//                plantillaGene = colegiatura(documentoAcademico);
+//                break;
+//            case COMBINANDOTERICIOYQUINTO:
+//                plantillaGene = convinadoTercioQuinto(documentoAcademico);
+//                break;
+//            case COMPARATIVO:
+//                plantillaGene = comparativo(documentoAcademico);
+//                break;
+//            case CUADRODEHONOR:
+//                plantillaGene = cuadroHonor(documentoAcademico);
+//                break;
+//            case ESCUELANACIONALDEAGRICULTURAESPECIAL:
+//                plantillaGene = escuelaNacionalAgriculturaEspecial(documentoAcademico);
+//                break;
+//            case ESPECIALCOMPARATIVOYPORCENTAJE:
+//                plantillaGene = especialComparativoPorcentaje(documentoAcademico);
+//                break;
+//            case ESPECIALCONTINUARESTUDIOSENELEXTRANJERO:
+//                plantillaGene = especialContinuarEstudiosExtranjero(documentoAcademico);
+//                break;
+//            case ESPECIALCONVERSIONDESISTEMACALIFICACION:
+//                plantillaGene = especialConversionSistemaCalificacion(documentoAcademico);
+//                break;
+//            case ESPECIALDURACIONCICLO:
+//                plantillaGene = especialDuracionCiclo(documentoAcademico);
+//                break;
+//            case ESPECIALPRIMERAMATRICULA:
+//                plantillaGene = especialPrimeraMatricula(documentoAcademico);
+//                break;
+//            case ESPECIALPROMEDIOACUMULADODELOSCICLOS:
+//                plantillaGene = especialPromedioAcumuladoCiclos(documentoAcademico);
+//                break;
+//            case ESPECIALPROMEDIOVIGESIMAL:
+//                plantillaGene = especialPromedioVigecimal(documentoAcademico);
+//                break;
+//            case ESTUDIOSININTERRUMPIDOSOCONTINUOS:
+//                plantillaGene = estudiosIninterumpidosContinuos(documentoAcademico);
+//                break;
+//            case NIVELACADEMICO:
+//                plantillaGene = nivelAcademico(documentoAcademico);
+//                break;
+//            case NIVELACADEMICODEEXALUMNOS:
+//                plantillaGene = nivelAcademicoExAlumno(documentoAcademico);
+//                break;
+//            case NOSEPARADO:
+//                plantillaGene = noSeparado(documentoAcademico);
+//                break;
+//            case ORDENDEMERITOALUMNO:
+//                plantillaGene = ordenMeritoAlumno(documentoAcademico);
+//                break;
+//            case ORDENDEMERITOALUMNOSVARIOS:
+//                plantillaGene = ordenMeritoAlumnosVarios(documentoAcademico);
+//                break;
+//            case ORDENDEMERITOEGRESADOFACULTADESPECIALIDADPROMOCION:
+//                plantillaGene = ordenMeritoEgresado(documentoAcademico);
+//                break;
+//            case ORDENDEMERITOEGRESADOVARIOS:
+//                plantillaGene = ordenMeritoEgresadoVarios(documentoAcademico);
+//                break;
+//            case ORDENMERITOCONTERCIOYQUINTO:
+//                plantillaGene = ordenMeritoTercioQuinto(documentoAcademico);
+//                break;
+//            case QUINTOSUPERIORALUMNO:
+//                plantillaGene = quintoSuperiorAlumno(documentoAcademico);
+//                break;
+//            case QUINTOSUPERIORVARIOS:
+//                plantillaGene = quintoSuperioVarios(documentoAcademico);
+//                break;
+//            case SISTEMACALIFICACION:
+//                plantillaGene = sistemaCalificacion(documentoAcademico);
+//                break;
+//            case TEORIAPRACTICACREDITO:
+//                plantillaGene = teoriaPracticaCredito(documentoAcademico);
+//                break;
+//            case TERCIODELOSCICLOS:
+//                plantillaGene = tercioCiclos(documentoAcademico);
+//                break;
+//            case TERCIOSUPERIOR:
+//                plantillaGene = tercioSuperior(documentoAcademico);
+//                break;
+//            case TERCIOQUINTOCOMBINADOS:
+//                plantillaGene = tercioQuintoCombinados(documentoAcademico);
+//                break;
+//            case TITULO:
+//                plantillaGene = titulo(documentoAcademico);
+//                break;
+//            case CURSOSDELPRIMERCICLO:
+//                plantillaGene = cursosDelPrimeroCiclo(documentoAcademico);
+//                break;
+//
+//        }
 
         List<PlantillaIncrustacionDocumento> incrustacionDocumentos = plantillaIncrustacionDAO.allIncrustacionesByTramite(documentoAcademico);
         System.out.println("CANTIDAD: ---- >" + incrustacionDocumentos.size());
