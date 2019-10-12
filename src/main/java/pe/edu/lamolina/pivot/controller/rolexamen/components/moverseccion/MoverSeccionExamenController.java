@@ -247,7 +247,6 @@ public class MoverSeccionExamenController {
     @RequestMapping(value = "getCursoLetra/{tipoDestino}", method = RequestMethod.POST)
     public JsonResponse getCursoLetra(
             @PathVariable("tipoDestino") String tipoDestino,
-            //            @RequestBody GrupoHorasExamen grupoHorasExamenOrigen, HttpSession session, HttpServletRequest request) {
             @RequestBody SeccionGrupoEspecial seccionGrupoEsp, HttpSession session, HttpServletRequest request) {
 
         JsonResponse response = new JsonResponse();
@@ -256,10 +255,8 @@ public class MoverSeccionExamenController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             JsonNodeFactory jc = JsonNodeFactory.instance;
 
-//            seccionGrupoEsp = service.findGrupoHorasExamen(seccionGrupoEsp);
             ObjectNode data = new ObjectNode(jc);
             if (TipoGrupoRolExamenesEnum.CUR_MAS.name().equals(tipoDestino)) {
-//                List<CursoMasivoExamen> cursosMasivosExamen = moverSeccionExamenService.allActiveCursosMasivosByRolExamenes(grupoHorasExamenOrigen.getRolExamenes());
                 List<CursoMasivoExamen> cursosMasivosExamen = service.allActiveCursosMasivosByGrupoEspecial(seccionGrupoEsp);
                 logger.debug("cursosMasivosExamen {}", cursosMasivosExamen.size());
                 ArrayNode jCursosMasivosExamen = new ArrayNode(jc);

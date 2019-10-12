@@ -1,49 +1,89 @@
 <html layout:decorator="_layout/layout">
     <head>
         <title>Lista de Contenidos</title>
-
     </head>
-
     <body>
         <div layout:fragment="main">
-
-            <header class="header b-b padder-lg">
-                <h2>Lista de Contenidos</h2>
-            </header>
-
-            <section class="wrapper-lg">
-                <section class="panel">
-                    <section class="panel-body">
-                        <form id="formCiclo">
-                            <table  id="dynaTable" class="table table-striped">
-                                <thead class="panel panel-heading">
-                                    <tr>
-                                        <th class="col-md-3 text-center v-middle">Nombre</th>
-                                        <th class="col-md-3 text-center v-middle">Contenido</th>
-                                        <th class="col-md-1 text-center v-middle">Código</th>
-                                        <th class='col-md-1 text-center v-middle'>Descripción</th>
-                                        <th class='col-md-2 text-center v-middle'>Sistema</th>
-                                        <th></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                </tbody>
-                            </table>
-                        </form>
-
+            <div id="editorContenidoVue" v-cloak="">
+                <header class="header b-b padder-lg">
+                    <!--                    <div class="pull-right m-t-md">  
+                                            <a class="btn btn-info" type="button" v-on:click.prevent="nuevo">Nuevo</a>
+                                        </div> -->
+                    <h2>Lista de Contenidos</h2>
+                </header>
+                <section class="wrapper-lg">
+                    <section class="panel">
+                        <section class="panel-body">
+                            <raptor-table 
+                                v-bind:url="editorContenidoURL" 
+                                v-bind:paginate="true"
+                                v-bind:preload="true" 
+                                ref="raptor"
+                                >
+                                <div slot="header">
+                                </div>
+                                <template scope="props" >
+                                    <table class="table table-striped table-hover">
+                                        <thead> 
+                                            <tr>
+                                                <th class="col-xs-3 text-center">Nombre</th>
+                                                <th class="col-xs-2 text-center v-middle">Contenido</th>
+                                                <th class="col-xs-2 text-center v-middle">Código</th>
+                                                <th class="col-xs-2 text-center v-middle">Descripción</th>
+                                                <th class="col-xs-3 text-center v-middle">Sistema</th>
+                                                <th></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr v-for="item in props.data">
+                                                <td class="v-middle">
+                                                    <a class="text-primary bold" v-bind:href="'/configuracion/editorcontenido/'+item.id+'/update'"><span v-text='item.nombre'></span></a>
+                                                </td>
+                                                <td class="text-center v-middle">
+                                                    <a v-if="item.tipo == 'CONT'" href="#" data-toggle="tooltip"  v-bind:title="returnTitle(item.contenido)" class="text-info-dk bold"><i class="fa fa-file-text-o fa-lg"></i></a>
+                                                    <a v-if="item.tipo == 'IMG'" href="#" data-toggle="popover" title="Imagen" data-html="true" v-bind:data-content="returnImg(item.imgUrl)"><i class="fa fa-file-image-o fa-lg"></i></a>
+                                                </td>
+                                                <td class="text-center v-middle">
+                                                    <span v-text='item.codigo'></span>
+                                                </td> 
+                                                <td class="text-center v-middle">
+                                                    <span v-text='item.tipoEnum.value'></span>
+                                                </td> 
+                                                <td class="text-center v-middle">
+                                                    <span v-text='item.sistema.nombre'></span>
+                                                </td>
+                                                <td class="v-middle">
+                                                    <div class="actions">
+                                                        <a class="dropdown-toggle" href="#" data-toggle="dropdown">
+                                                            <i class="glyphicon glyphicon-option-vertical"></i>
+                                                        </a>
+                                                        <ul class="dropdown-menu pull-right">
+                                                            <li><a class="editarContenido" v-bind:href="'/configuracion/editorcontenido/'+ item.id +'/update'">Editar</a></li>
+                                                        </ul>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </template>
+                            </raptor-table>
+                        </section>
                     </section>
                 </section>
-            </section>
-
-            <script id="templateContenidos" type="text/x-jsrender" class="hide"><div th:substituteby="configuracion/editorContenido/templateContenido"/></script>
-
-            <div id='contenidoModal'></div>
-
+                <div id='contenidoModal'></div>
+            </div>
+            <!--            <script id="templateContenidos" type="text/x-jsrender" class="hide"><div th:substituteby="configuracion/editorContenido/templateContenido"/></script>-->
         </div>
 
         <div layout:fragment="js">
-
-            <div th:substituteby="_layout/includes :: javascript-dynatable"/>
+            <script  th:inline="javascript" >
+                /*<![CDATA[*/
+                var rutaModulo = 'configuracion/editorcontenido';
+                /*]]>*/
+            </script>
+            <div th:replace="_modules/vue-modal"></div>
+            <div th:substituteby="_modules/vue-raptor-table"></div>
+            <div th:substituteby="_layout/includes :: vue-loader"/>
             <script th:src="@{/app/configuracion/editorcontenido/editorcontenido.js}" charset="utf-8"></script>
         </div>
     </body>
