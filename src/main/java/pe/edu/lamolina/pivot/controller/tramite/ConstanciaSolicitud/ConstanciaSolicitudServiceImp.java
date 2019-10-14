@@ -838,7 +838,8 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
                 case CODIGO_CONSTANCIA:
                     htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), "" + 1);
                     break;
-                case CICLOS_CURSADOS:
+               /*    PUTITO HAZ PUSH COMPLETO PEZ, ¿Dónde está el model?
+                    case CICLOS_CURSADOS:
 
                     String ciclos = alumnoCiclos.size() > 2 ? "los ciclos " : "el ciclo ";
                     int i = 1;
@@ -863,7 +864,7 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
                     }
 
                     htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), programa);
-                    break;
+                    break;*/
             }
         }
         String nombreDoc = plantilla.getTipoDocumentoAcademico().getNombre().concat("-" + plantilla.getId());
