@@ -19,3 +19,61 @@
         <cambio-aula-examen ref="cambiarAulaExamenComp"></cambio-aula-examen>
     </div>
 </modal-vik>
+
+
+<modal-vik v-bind="configCambioAula"
+           ref="modalCambioAula"
+           v-bind:okaction="saveCambioAula">
+    <div slot="body">
+
+        <div class="row">
+            <label class="col-md-3 bold">Sección</label>
+            <label class="col-md-9" v-if="seccionGpoRegTempo.seccion" v-text="seccionGpoRegTempo.seccion.codigo2">Secc</label>
+        </div>
+        <div class="row">
+            <label class="col-md-3 bold">Curso</label>
+            <label class="col-md-9" v-if="seccionGpoRegTempo.seccion">
+                {{seccionGpoRegTempo.seccion.grupoSeccion.curso.codigo}} - {{seccionGpoRegTempo.seccion.grupoSeccion.curso.nombre}}
+            </label>
+        </div>
+        <div class="row">
+            <label class="col-md-2 bold">Grupo Dictado</label>
+            <label class="col-md-2" v-if="seccionGpoRegTempo.seccion" v-text="seccionGpoRegTempo.seccion.grupoHoras.codigo"></label>
+            <label class="col-md-2 bold">Aula Dictado</label>
+            <label class="col-md-2" v-if="seccionGpoRegTempo.seccion" v-text="seccionGpoRegTempo.seccion.aula.codigo"></label>
+            <label class="col-md-2 bold">Matriculados</label>
+            <label class="col-md-2" v-if="seccionGpoRegTempo.seccion" v-text="seccionGpoRegTempo.seccion.matriculados"></label>
+        </div>
+
+        <div class="col-md-12">
+            <hr/>
+        </div>
+
+        <div class="row">
+            <label class="col-md-2"></label>
+            <label class="col-md-3 text-center" style="font-weight: bold;">Cambio</label>
+            <label class="col-md-3 text-center" style="font-weight: bold;">Actual</label>
+        </div>
+
+        <div class="row">
+            <div class="col-md-2">Aula examen</div>
+            <div class="col-md-3">
+                <input class="form-control" v-if="seccionGpoRegTempo.aula" v-model="seccionGpoRegTempo.aula.codigo" required="" />
+            </div>
+            <div class="col-md-3">
+                <span v-if="seccionGpoRegSelect.aula" class="form-control text-danger" v-text="seccionGpoRegSelect.aula.codigo"></span>
+            </div>
+            <!--<div class="col-md-2"><button class="btn btn-primary btn-sm form-control">Disponibles</button></div>-->
+            <!--<div class="col-md-2"><button class="btn btn-primary btn-sm form-control">Habilitar</button></div>-->
+        </div>
+
+        <div v-if="observaciones.cantidad > 0 ">
+            <div class="form-group m-t">
+                <label class="h4">Resultaron {{observaciones.cantidad}} observaciones</label>
+                <textarea readonly="yes" v-bind:rows="observaciones.rows" class="form-control">{{observaciones.message}}</textarea>
+            </div>
+        </div>
+
+    </div>
+</modal-vik>
+

@@ -161,4 +161,19 @@ public class EncuestaDocenteDAOH extends AbstractEasyDAO<EncuestaDocente> implem
         return sql.all(getCurrentSession());
     }
 
+    @Override
+    public List<EncuestaDocente> allByEncuestaEstudiantilCiclo(EncuestaEstudiantil encuestaEstudiantil, CicloAcademico cicloAcademico) {
+        Octavia sql = Octavia.query()
+                .from(EncuestaDocente.class, "ed")
+                .join("encuestaEstudiantil ee", "ee.encuesta en", "ee.cicloAcademico ciclo")
+                .join("docenteSeccion ds", "ds.docente doc", "doc.persona per")
+                .join("ds.seccion sec", "sec.grupoSeccion gs", "gs.curso cur", "gs.cicloAcademico cic")
+                .join("cur.departamentoAcademico da", "da.facultad")
+                .leftJoin("per.tipoDocumento tdoc")
+                .filter("cic.id", cicloAcademico)
+                .filter("ee.id", encuestaEstudiantil);
+        
+        return all(sql);
+    }
+
 }

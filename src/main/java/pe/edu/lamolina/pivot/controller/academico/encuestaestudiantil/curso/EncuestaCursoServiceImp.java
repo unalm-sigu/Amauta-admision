@@ -253,7 +253,7 @@ public class EncuestaCursoServiceImp implements EncuestaCursoService {
 
         List<Curso> cursosNoEncuestar = cursoDAO.allNoEncuestar();
         List<CursoSinEncuesta> cursosSinEncuesta = cursoSinEncuestaDAO.allByEncuestaEstudiantil(encuestaBD);
-        Map<Long, Curso> mapCursosNoEncuestar = TypesUtil.convertListToMap("curso.id", cursosSinEncuesta);
+        Map<Long, Curso> mapCursosNoEncuestar = TypesUtil.convertListToMap("curso.id", "curso", cursosSinEncuesta);
 
         for (Curso curso : cursosNoEncuestar) {
             Curso cur = mapCursosNoEncuestar.get(curso.getId());

@@ -88,6 +88,7 @@
                                         <tbody>
                                             <tr v-for="item in props.data">
                                                 <td class="v-middle">
+                                                    <!--<pre v-text="item"></pre>-->
                                                     <span class="text-md bold text-primary" v-text="item.seccion.grupoSeccion.curso.nombre"></span>
                                                     <span class="block">{{item.seccion.grupoSeccion.curso.codigo}} {{item.seccion.grupoSeccion.curso.tpc}} </span>
                                                     <span  class="block h4 m-t-xs m-b-xs">
@@ -129,14 +130,17 @@
                                                     <i class="glyphicon glyphicon-option-vertical"></i>
                                                 </a>
                                                 <ul v-if="accionesSeccionDisponibles" class="dropdown-menu pull-right" >
-                                                    <li><a class="pointer" v-if="item.isEstadoActivo" v-on:click.prevent="excluir(item,tipoAccion.SECCION)">Excluir</a></li>
-                                                    <li><a class="pointer" v-if="item.isEstadoExcluido" v-on:click.prevent="incluir(item,tipoAccion.SECCION)">Incluir</a></li>
+                                                    <li><a class="pointer" v-if="item.isEstadoActivo" 
+                                                           v-on:click.prevent="excluir(item,tipoAccion.SECCION)">Excluir</a></li>
+                                                    <li><a class="pointer" v-if="item.isEstadoExcluido" 
+                                                           v-on:click.prevent="incluir(item,tipoAccion.SECCION)">Incluir</a></li>
                                                 </ul>
                                                 <ul class="dropdown-menu pull-right">
                                                     <li><a class="pointer" v-on:click="removerAula(item)">Quitar Aula</a></li>
                                                     <li><a class="pointer" v-on:click="removerHorario(item)">Quitar Grupo</a></li>
                                                     <li><a class="pointer" v-on:click="cambiarAula(item)">Cambiar Aula y/o Grupo</a></li>
-                                                    <!--<li><a class="pointer" v-if="item.isEstadoActivo"  v-on:click.prevent="trasladar(item)">Mover</a></li>-->
+                                                    <li><a class="pointer" v-if="item.isEstadoActivo" 
+                                                           v-on:click.prevent="mover(item)">Mover</a></li>
                                                 </ul>
                                             </div>
                                         </td>

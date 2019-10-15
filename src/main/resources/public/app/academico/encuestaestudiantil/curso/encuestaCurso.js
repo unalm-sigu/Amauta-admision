@@ -190,13 +190,10 @@ new Vue({
         },
         saveConfiguracion() {
             var vue = this;
-
             var form = $("#formConfiguraEncuesta");
             if (!(form.parsley().validate() === true)) {
                 return;
             }
-
-
             vue.encuestaForm = {
                 periodosEncuesta: vue.periodosEncuesta,
                 configuraEncuesta: []

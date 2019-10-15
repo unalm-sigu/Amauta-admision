@@ -38,7 +38,7 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 public class GrupoEspecialController {
 
     @Autowired
-    GrupoEspecialService grupoEspecialService;
+    GrupoEspecialService service;
 
     @Autowired
     RolExamenesLogger rolExamenesLogger;
@@ -55,7 +55,7 @@ public class GrupoEspecialController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
 
-        List<RolExamenes> rolesExamenes = grupoEspecialService.allRolExamenesActives(ds.getCicloAcademico());
+        List<RolExamenes> rolesExamenes = service.allRolExamenesActives(ds.getCicloAcademico());
         JsonNodeFactory jc = JsonNodeFactory.instance;
 
         ArrayNode jRolesExamenes = new ArrayNode(jc);
@@ -77,7 +77,7 @@ public class GrupoEspecialController {
             Model model,
             HttpSession session) {
 
-        RolExamenes rolExamenes = grupoEspecialService.findRolExamenes(rolExamenId);
+        RolExamenes rolExamenes = service.findRolExamenes(rolExamenId);
         ObjectNode jRolExamenes = JsonHelper.createJson(rolExamenes, JsonNodeFactory.instance, false,
                 new String[]{
                     "*",
@@ -102,7 +102,7 @@ public class GrupoEspecialController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         DynatableResponse json = new DynatableResponse();
 
-        List<SeccionGrupoEspecial> list = grupoEspecialService.allSeccionesGrupoEspecialByRolExamenes(filter, new RolExamenes(idRolExamenes), incompletos);
+        List<SeccionGrupoEspecial> list = service.allSeccionesGrupoEspecialByRolExamenes(filter, new RolExamenes(idRolExamenes), incompletos);
         ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
         for (SeccionGrupoEspecial item : list) {
@@ -151,7 +151,7 @@ public class GrupoEspecialController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         ds.setFechaAccionAudit(new Date());
         try {
-            grupoEspecialService.calcularExamenesGrupoEspecial(rolExamenes, ds);
+            service.calcularExamenesGrupoEspecial(rolExamenes, ds);
             response.setMessage("Grupo especial calculado corretamente.");
             response.setSuccess(Boolean.TRUE);
         } catch (PhobosException e) {
@@ -172,7 +172,7 @@ public class GrupoEspecialController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         ds.setFechaAccionAudit(new Date());
         try {
-            grupoEspecialService.limpiarExamenGrupoEspecial(rolExamenes, ds);
+            service.limpiarExamenGrupoEspecial(rolExamenes, ds);
             response.setMessage("Grupo especial calculado corretamente.");
             response.setSuccess(Boolean.TRUE);
         } catch (PhobosException e) {
@@ -191,7 +191,7 @@ public class GrupoEspecialController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         DynatableResponse json = new DynatableResponse();
 
-        List<AlumnoGrupoEspecial> list = grupoEspecialService.allAlumnosGrupoEspecialDynaBySecGpoEsp(filter, new SeccionGrupoEspecial(seccionGrupoEspecial));
+        List<AlumnoGrupoEspecial> list = service.allAlumnosGrupoEspecialDynaBySecGpoEsp(filter, new SeccionGrupoEspecial(seccionGrupoEspecial));
         ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
         for (AlumnoGrupoEspecial item : list) {
@@ -224,10 +224,10 @@ public class GrupoEspecialController {
 
             if (GrupoEspecialController.TipoAccion.SECCION.name().equals(tipoAccion)) {
                 SeccionGrupoEspecial seccionGrupoEspecial = (SeccionGrupoEspecial) mapper.readValue(objeto.toString(), SeccionGrupoEspecial.class);
-                grupoEspecialService.excluirSeccionEspecial(seccionGrupoEspecial, ds);
+                service.excluirSeccionEspecial(seccionGrupoEspecial, ds);
             } else if (GrupoEspecialController.TipoAccion.ALUMNO.name().equals(tipoAccion)) {
                 AlumnoGrupoEspecial alumnoGrupoEspecial = (AlumnoGrupoEspecial) mapper.readValue(objeto.toString(), AlumnoGrupoEspecial.class);
-                grupoEspecialService.excluirAlumnoEspecial(alumnoGrupoEspecial, ds);
+                service.excluirAlumnoEspecial(alumnoGrupoEspecial, ds);
             }
 
             response.setMessage("Excluido corretamente.");
@@ -254,10 +254,10 @@ public class GrupoEspecialController {
             mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             if (GrupoEspecialController.TipoAccion.SECCION.name().equals(tipoAccion)) {
                 SeccionGrupoEspecial seccionGrupoEspecial = (SeccionGrupoEspecial) mapper.readValue(objeto.toString(), SeccionGrupoEspecial.class);
-                grupoEspecialService.activarSeccionEspecial(seccionGrupoEspecial, ds);
+                service.activarSeccionEspecial(seccionGrupoEspecial, ds);
             } else if (GrupoEspecialController.TipoAccion.ALUMNO.name().equals(tipoAccion)) {
                 AlumnoGrupoEspecial alumnoGrupoEspecial = (AlumnoGrupoEspecial) mapper.readValue(objeto.toString(), AlumnoGrupoEspecial.class);
-                grupoEspecialService.activarAlumnoEspecial(alumnoGrupoEspecial, ds);
+                service.activarAlumnoEspecial(alumnoGrupoEspecial, ds);
             }
 
             response.setMessage("Incluido corretamente.");
@@ -279,7 +279,7 @@ public class GrupoEspecialController {
 
         try {
 
-            grupoEspecialService.removerAula(grupoSpecial);
+            service.removerAula(grupoSpecial);
 
             response.setMessage("Aula retirada correctamente");
             response.setSuccess(Boolean.TRUE);
@@ -300,7 +300,7 @@ public class GrupoEspecialController {
 
         try {
 
-            grupoEspecialService.removerGrupo(grupoSpecial);
+            service.removerGrupo(grupoSpecial);
 
             response.setMessage("Grupo retirado correctamente");
             response.setSuccess(Boolean.TRUE);
@@ -321,7 +321,7 @@ public class GrupoEspecialController {
         try {
             JsonNodeFactory jc = JsonNodeFactory.instance;
             ArrayNode array = new ArrayNode(jc);
-            List<GrupoHorasExamen> grupos = grupoEspecialService.allGrupoHoraExamenByRolExamenes(rolExamenes);
+            List<GrupoHorasExamen> grupos = service.allGrupoHoraExamenByRolExamenes(rolExamenes);
             for (GrupoHorasExamen grupo : grupos) {
                 ObjectNode jGrupo = JsonHelper.createJson(grupo, JsonNodeFactory.instance, new String[]{
                     "id", "grupoHoras.id", "grupoHoras.codigo", "rolExamenes.id", "descripcion"
@@ -345,7 +345,7 @@ public class GrupoEspecialController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
         try {
-            List<String> restricciones = grupoEspecialService.saveCambioAulaGrupo(grupoSpecial);
+            List<String> restricciones = service.saveCambioAulaGrupo(grupoSpecial);
 
             response.setMessage("Grupo modificado satisfactoriamente");
             response.setSuccess(Boolean.TRUE);
@@ -370,7 +370,7 @@ public class GrupoEspecialController {
 
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            List<String> restricciones = grupoEspecialService.saveCambioAulaGrupoForzardo(grupoSpecial);
+            List<String> restricciones = service.saveCambioAulaGrupoForzardo(grupoSpecial);
 
             response.setMessage("Grupo modificado satisfactoriamente");
             response.setSuccess(Boolean.TRUE);
@@ -397,7 +397,7 @@ public class GrupoEspecialController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             Seccion seccion = grupoSpecial.getSeccion();
             RolExamenes rolExamenes = grupoSpecial.getRolExamenes();
-            Seccion seccionBD = grupoEspecialService.findSeccionByRolExamenes(seccion, ds.getCicloAcademico(), rolExamenes);
+            Seccion seccionBD = service.findSeccionByRolExamenes(seccion, ds.getCicloAcademico(), rolExamenes);
 
             ObjectNode node = JsonHelper.createJson(seccionBD, JsonNodeFactory.instance, new String[]{
                 "id", "codigo2", "matriculados",
@@ -430,7 +430,27 @@ public class GrupoEspecialController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             Seccion seccion = grupoSpecial.getSeccion();
             RolExamenes rolExamenes = grupoSpecial.getRolExamenes();
-            grupoEspecialService.addSeccionNueva(seccion, ds.getCicloAcademico(), rolExamenes, ds);
+            service.addSeccionNueva(seccion, ds.getCicloAcademico(), rolExamenes, ds);
+
+            response.setMessage("Sección añadida satisfactoriamente");
+            response.setSuccess(Boolean.TRUE);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("crearCursoMasivo")
+    public JsonResponse crearCursoMasivo(@RequestBody SeccionGrupoEspecial grupoSpecial, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            service.crearCursoMasivo(grupoSpecial, ds.getUsuario(), ds.getCicloAcademico());
 
             response.setMessage("Sección añadida satisfactoriamente");
             response.setSuccess(Boolean.TRUE);

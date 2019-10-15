@@ -47,17 +47,18 @@
 
                         <section class="panel-body">
                             <input id="idCont" type="hidden" :value="contenido.id"/>
-                            <textarea class="form-control vresize" id="contenido" name="contenido" placeholder="Escribe Aquí" v-text="contenido.contenido"></textarea>
+                            <textarea id="contenido" class="form-control vresize" name="contenido" 
+                                      placeholder="Escribe Aquí" v-model="contenido.contenido"></textarea>
                         </section>
 
                         <section class="panel-body text-center v-middle">
                             <a href="/configuracion/editorcontenido" class="btn btn-link btn-lg">Regresar</a>
-                            <a class="btn btn-primary btn-lg" id="updateContenido">Guardar</a>
+                            <a class="btn btn-primary btn-lg" v-on:click="updateContenido">Guardar</a>
                             <a class="btn btn-warning btn-lg" id="preview">Visualización</a>
                         </section>
                     </section>
 
-                    <section v-if="contenido.tipo == 'IMG' " class="panel m-b-xs">
+                    <section v-if ="contenido.tipo == 'IMG' " class="panel m-b-xs">
                         <section class="panel-body">
                             <input id="idCont" type="hidden" :value="contenido.id"/>
                             <input id="imgUrl" type="hidden" />

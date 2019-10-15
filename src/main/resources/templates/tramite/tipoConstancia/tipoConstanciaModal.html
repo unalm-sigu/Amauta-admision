@@ -47,7 +47,8 @@
             <div class='form-group' >
                 <label class="col-sm-3 control-label">Codigo:</label>
                 <div class="col-sm-6">
-                    <input v-bind:disabled="tipoConstancia.id != null" name="codigo"  required="true" v-model="tipoConstancia.codigo" type="text" class="form-control " />
+                    <input  name="codigo"  required="true" v-model="tipoConstancia.codigo" type="text" class="form-control " /> 
+                    <!--v-bind:disabled="tipoConstancia.id != null"-->
                 </div>
             </div>
 

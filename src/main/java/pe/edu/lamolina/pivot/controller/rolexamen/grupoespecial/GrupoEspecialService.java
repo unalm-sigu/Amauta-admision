@@ -8,6 +8,7 @@ import pe.edu.lamolina.model.rolexamen.AlumnoGrupoEspecial;
 import pe.edu.lamolina.model.rolexamen.GrupoHorasExamen;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
 import pe.edu.lamolina.model.rolexamen.SeccionGrupoEspecial;
+import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface GrupoEspecialService {
@@ -42,10 +43,16 @@ public interface GrupoEspecialService {
 
     List<String> saveCambioAulaGrupo(SeccionGrupoEspecial grupoSpecial);
 
+    List<String> saveCambioAulaNuevoCM(SeccionGrupoEspecial grupoSpecial, CicloAcademico ciclo, Usuario usuario);
+
     List<String> saveCambioAulaGrupoForzardo(SeccionGrupoEspecial grupoSpecial);
 
     Seccion findSeccionByRolExamenes(Seccion seccion, CicloAcademico ciclo, RolExamenes rolExamenes);
 
     void addSeccionNueva(Seccion seccion, CicloAcademico cicloAcademico, RolExamenes rolExamenes, DataSessionPivot ds);
+
+    void crearCursoMasivo(SeccionGrupoEspecial grupoSpecial, Usuario usuario, CicloAcademico ciclo);
+
+    List<String> saveCambioAulaGrupo3(SeccionGrupoEspecial grupoSpecial, CicloAcademico cicloAcademico, Usuario usuario);
 
 }

@@ -272,6 +272,25 @@ public class PlantillaConstanciaController {
     }
 
     @ResponseBody
+    @RequestMapping("delete")
+    public JsonResponse delete(@RequestBody PlantillaDocumentoAcademico plantillaDocumentoAcademico, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        try {
+            service.deleteVariables(plantillaDocumentoAcademico, ds.getUsuario());
+//            service.deletePlantilla(plantillaDocumentoAcademico, ds.getUsuario());
+            
+            response.setMessage("Se eliminó");
+            response.setSuccess(Boolean.TRUE);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
     @RequestMapping("list")
     public DynatableResponse all(DynatableFilter filter, HttpSession session) {
         DynatableResponse json = new DynatableResponse();

@@ -42,4 +42,8 @@ public interface PlantillaConstanciaService {
     public void saveVariable( VariablePlantilla variablePlantilla, Usuario usuario);
 
     public void deleteVariable(Integer idVariablePlantilla);
+
+    public void deleteVariables(PlantillaDocumentoAcademico plantillaDocumentoAcademico, Usuario usuario);
+
+    public void deletePlantilla(PlantillaDocumentoAcademico plantillaDocumentoAcademico, Usuario usuario);
 }

@@ -137,4 +137,7 @@ public interface Constantine {
 
     String HTML_SUB = "</body>\n"
             + "</html>";
+    
+    String CODIGO_ALIANZA_ESTRATEGICA = "003";
+    String VARIABLE_TABLE = "albLoop";
 }

@@ -1,13 +1,9 @@
 $(function () {
-
     Contenido = {
-
         Init: function () {
-
             if ($("#tipo").val() == 'CONT') {
                 CKEDITOR.replace('contenido', {height: 380});
             }
-
             $('#fileupload').fileupload({
                 url: APP.url('archivo/upload'),
                 maxNumberOfFiles: 1,
@@ -45,33 +41,6 @@ $(function () {
                 }
             });
         },
-        updateContenido() {
-
-            for (instance in CKEDITOR.instances) {
-                CKEDITOR.instances[instance].updateElement();
-            }
-
-            var idCont = $("#idCont").val();
-            var contenido = $("#contenido").val();
-            var sistema = $("#sistema").val();
-
-            $.ajax({
-                method: 'POST',
-                url: APP.url('configuracion/editorcontenido/updateContenido'),
-                data: {idContenido: idCont, contenido: contenido, idSistema: sistema},
-                success: function (response) {
-                    if (response.success) {
-                        notify(response.message, 'info');
-                    } else {
-                        notify(response.message, 'error');
-                    }
-                },
-                error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
-                }
-            });
-
-        },
         updateImg() {
             var img = $("#imgUrl").val();
             var idCont = $("#idCont").val();
@@ -105,9 +74,7 @@ $(function () {
         }
 
     };
-
     Contenido.Init();
-
     $("body").delegate("#updateContenido", "click", function (e) {
         Contenido.updateContenido();
     });
@@ -117,7 +84,6 @@ $(function () {
     $("body").delegate("#updateImg", "click", function (e) {
         Contenido.updateImg();
     });
-
 });
 
 Vue.component("multiselect", window.VueMultiselect.default);
@@ -130,13 +96,31 @@ new Vue({
         sistemas: JSON.parse(sistemasJson),
         contVariable: {},
         variable: {},
-        sistema: {},
+        sistema: {}
     },
     mounted: function () {
         let $vue = this;
         $vue.sistema = $vue.contenido.sistema;
     },
     methods: {
+        updateContenido() {
+            let $vue = this;
+            for (instance in CKEDITOR.instances) {
+                CKEDITOR.instances[instance].updateElement();
+            }
+            let contenido = $("#contenido").val();
+            $vue.contenido.contenido = contenido;
+            axios.post(APP.url('configuracion/editorcontenido/updateContenido'), $vue.contenido)
+                    .then(response => {
+                        if (response.data.success) {
+                            notify(response.data.message, 'info');
+                        } else {
+                            notify(response.data.message, 'error');
+                        }
+                    }).catch(e => {
+                notify(MESSAGES.errorComunicacion, "error");
+            })
+        },
         reloadVariables() {
             let $vue = this;
             $.ajax({

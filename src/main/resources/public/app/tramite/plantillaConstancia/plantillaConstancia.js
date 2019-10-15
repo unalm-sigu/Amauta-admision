@@ -41,6 +41,9 @@ Vue.component("dynatable", {
             $("body").delegate(".contenido", "click", function () {
                 $global.$emit("contenido", $(this).attr("rel"));
             });
+            $("body").delegate(".eliminar", "click", function () {
+                $global.$emit("eliminar", $(this).attr("rel"));
+            });
         },
         writter: function (rowIndex, record, columns, cellWriter) {
             let $vue = this;
@@ -75,6 +78,9 @@ new Vue({
         });
         $global.$on("contenido", function (id) {
             $vue.contenido(id);
+        });
+        $global.$on("eliminar", function (id) {
+            $vue.eliminar(id);
         });
     },
     methods: {
@@ -162,6 +168,40 @@ new Vue({
                 }
             });
             $("#myModal").modal('hide');
+        },
+        eliminar: function (id) {
+
+            let $vue = this;
+            $vue.plantilla = {id: id}
+
+            var dialog = bootbox.confirm({
+                message: "¿Está seguro que desea eliminar la plantilla?",
+                buttons: {
+                    confirm: {label: 'Si, eliminar', className: "btn-danger"},
+                    cancel: {label: 'Cancelar', className: "btn-link"}
+                },
+                callback: function (result) {
+                    if (result) {
+                       
+                        $.ajax({
+                            method: 'POST',
+                            url: APP.url('tramite/plantillaconstancia/delete'),
+                            contentType: "application/json",
+                            data: JSON.stringify($vue.plantilla),
+                            success: function (response) {
+                                if (response.success) {
+                                    $global.$emit("reloadDyntable");
+                                    notify(response.message, 'info');
+                                } else {
+                                    notify(response.message, 'error');
+                                }
+                            }
+                        });
+
+                    }
+                }
+            });
+
         }
     }
 });
