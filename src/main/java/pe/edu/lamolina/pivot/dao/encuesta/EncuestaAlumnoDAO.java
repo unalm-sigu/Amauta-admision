@@ -16,4 +16,6 @@ public interface EncuestaAlumnoDAO extends EasyDAO<EncuestaAlumno> {
 
     void deleteByEncuestasCurso(List<Long> idEncuestasCur);
 
+    List<EncuestaAlumno> allByListEncuestaDocente(List<EncuestaDocente> listEncuestaDocente);
+
 }

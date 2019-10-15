@@ -226,6 +226,7 @@ public class EncuestaCursoController {
                         "configuraEncuesta.cantidadMaximaDocentes",
                         "configuraEncuesta.encuestaTeoriaPractica",
                         "configuraEncuesta.diasEncuesta",
+                        "configuraEncuesta.simultaneo",
                         "cursosNoEncuestar.curso.codigo",
                         "cursosNoEncuestar.curso.nombre",
                         "cursosNoEncuestar.curso.tpc"

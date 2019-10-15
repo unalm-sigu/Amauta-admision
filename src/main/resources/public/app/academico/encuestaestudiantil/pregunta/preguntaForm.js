@@ -283,11 +283,11 @@ $(function() {
             $('#placePregunta').find('table>tbody').append(opcion);
             Pregunta.reindexOpcion();
         },
-        reindexOpcion: function() {
+        reindexOpcion: function () {
             var trs = $('#placePregunta').find('table>tbody>tr');
             $('#placePregunta').parsley('destroy');
             var char = 'abcdefghijklmnopqrstuvwxyz';
-            trs.each(function(i, v) {
+            trs.each(function (i, v) {
                 var numeracion = i + 1;
                 var self = $(v);
 
@@ -306,7 +306,7 @@ $(function() {
             });
             $('#placePregunta').parsley();
         },
-        addReferencia: function(e) {
+        addReferencia: function (e) {
             var self = $(e.currentTarget);
             var tdParent = self.closest('td');
             Pregunta.idReferenciaPregunta = null;
@@ -318,7 +318,7 @@ $(function() {
                     confirm: {label: "Agregar", className: "btn-primary"},
                     cancel: {label: "Cancelar", className: "btn-link"}
                 },
-                callback: function(result) {
+                callback: function (result) {
                     if (result) {
                         var html = $.templates("#templateAddRef").render({
                             id: Pregunta.idReferenciaPregunta,
@@ -333,13 +333,13 @@ $(function() {
                     }
                     return false;
                 }
-            }).on('shown.bs.modal', function() {
+            }).on('shown.bs.modal', function () {
                 mimodal.find('.modal-body').css({
                     'overflow-y': 'scroll',
                     'max-height': '600px'});
                 Pregunta.allReferencia(mimodal, 0);
                 mimodal.find('table>tbody>tr>td>input[type=radio]').removeAttr('checked');
-                mimodal.find('table>tbody>tr').click(function(e) {
+                mimodal.find('table>tbody>tr').click(function (e) {
                     var el = $(e.currentTarget);
                     el.find('input[type=radio]').prop('checked', true);
                     Pregunta.idReferenciaPregunta = el.attr('rel');
@@ -348,7 +348,7 @@ $(function() {
                 });
             });
         },
-        allReferencia: function(mimodal, idNotInclude) {
+        allReferencia: function (mimodal, idNotInclude) {
             $.ajax({
                 url: APP.url('academico/encuestaestudiantil/editor/pregunta/allReferencia'),
                 type: 'POST',
@@ -357,40 +357,40 @@ $(function() {
                     id: idNotInclude,
                     'examenVirtual.id': $('[name="examenVirtual.id"]').val(),
                 },
-                success: function(response) {
+                success: function (response) {
                     if (response.success) {
                         mimodal.find('.bootbox-body').html(response.data);
                     }
                 },
-                error: function() {
+                error: function () {
                     notify(MESSAGES.errorComunicacion, "error");
                 }
             });
         },
-        removerReferencia: function(e) {
+        removerReferencia: function (e) {
             var self = $(e.currentTarget);
             var tdParent = self.closest('td');
             var html = $.templates("#templateRemoveRef").render({});
             tdParent.html(html);
         },
-        allTiposLikert: function() {
+        allTiposLikert: function () {
             $.ajax({
                 url: APP.url('academico/encuestaestudiantil/editor/pregunta/alltipolikert'),
                 type: 'POST',
                 async: false,
-                success: function(response) {
+                success: function (response) {
                     if (response.success) {
                         Pregunta.tiposLikert = response.data;
                     } else {
                         notify(MESSAGES.errorComunicacion, "error");
                     }
                 },
-                error: function() {
+                error: function () {
                     notify(MESSAGES.errorComunicacion, "error");
                 }
             });
         },
-        showTiposByNum: function(limite) {
+        showTiposByNum: function (limite) {
 
             $("#grupoTipoLikertForm").html($("<option/>"));
             $("#grupoTipoLikertForm").select2('val', "");
@@ -420,23 +420,23 @@ $(function() {
         }
     };
 
-    Pregunta.body.delegate('#preview', 'click', function(e) {
+    Pregunta.body.delegate('#preview', 'click', function (e) {
         Pregunta.preview(e);
     });
 
-    Pregunta.body.delegate('.removerOpcion', 'click', function(e) {
+    Pregunta.body.delegate('.removerOpcion', 'click', function (e) {
         Pregunta.removerOpcion(e);
     });
 
-    Pregunta.body.delegate('.addOpcion', 'click', function(e) {
+    Pregunta.body.delegate('.addOpcion', 'click', function (e) {
         Pregunta.addOpcion(e);
     });
 
-    Pregunta.body.delegate('.addReferencia', 'click', function(e) {
+    Pregunta.body.delegate('.addReferencia', 'click', function (e) {
         Pregunta.addReferencia(e);
     });
 
-    Pregunta.body.delegate('.removerReferencia', 'click', function(e) {
+    Pregunta.body.delegate('.removerReferencia', 'click', function (e) {
         Pregunta.removerReferencia(e);
     });
 

@@ -21,9 +21,23 @@
            v-bind:cancelaction="cancelConfiguracion">
 
     <div slot="body" vclass="panel">
-
-        <div class="text-center">
-            <h4>Configuración de la encuesta</h4>
+        <div class="col-md-12 row">
+            <div class="col-md-4 text-left">
+                <span>¿Encuesta simultáneo con la de docentes?</span>
+                <div class="col-md-3">
+                    <input type="radio" id='si' v-bind:value="1" v-model="configuraEncuesta.simultaneo"/>
+                    <label for="si">Sí</label>
+                </div>
+                <div class="col-md-4">
+                    <input type="radio" id='no' v-bind:value="0" v-model="configuraEncuesta.simultaneo"/>
+                    <label for="no">No</label>
+                </div>
+            </div>
+            <div class="col-md-5 text-center">
+                <h4>Configuración de la encuesta</h4>
+            </div>
+            <div class="col-md-3 text-center">
+            </div>
         </div>
 
         <div class="row">
@@ -31,7 +45,9 @@
                 <div class="panel-body">
 
                     <form id='formConfiguraEncuesta' class="form-horizontal" data-parsley-validate="true">
-                        <div class="form-group">
+
+                        <div class="col-md-12 row m-b">
+
                             <label>Cantidad mínima de alumnos por sección</label>
                             <input type="text"
                                    class="form-control input-sm"
