@@ -52,4 +52,13 @@ public class EncuestaAlumnoDAOH extends AbstractEasyDAO<EncuestaAlumno> implemen
         query.executeUpdate();
     }
 
+    @Override
+    public List<EncuestaAlumno> allByListEncuestaDocente(List<EncuestaDocente> listEncuestaDocente) {
+        Octavia sql = Octavia.query()
+                .from(EncuestaAlumno.class, "ea")
+                .join("encuestaDocente ed", "ed.encuestaEstudiantil ee", "ed.docenteSeccion ds")
+                .in("ed.id", listEncuestaDocente);
+        return all(sql);
+    }
+
 }
