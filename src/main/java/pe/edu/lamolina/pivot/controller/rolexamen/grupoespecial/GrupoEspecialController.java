@@ -345,7 +345,7 @@ public class GrupoEspecialController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
         try {
-            List<String> restricciones = service.saveCambioAulaGrupo3(grupoSpecial, ds.getCicloAcademico(), ds.getUsuario());
+            List<String> restricciones = service.saveCambioAulaGrupo(grupoSpecial);
 
             response.setMessage("Grupo modificado satisfactoriamente");
             response.setSuccess(Boolean.TRUE);
