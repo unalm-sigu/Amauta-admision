@@ -124,7 +124,6 @@ public class OficinaController {
                     oficinasAcceso.addAll(oficinasMain);
                     oficinas = service.allByDynatable(filter, oficinasAcceso, compania);
                 }
-
             }
 
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);

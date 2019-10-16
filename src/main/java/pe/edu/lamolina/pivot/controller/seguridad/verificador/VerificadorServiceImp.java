@@ -238,6 +238,10 @@ public class VerificadorServiceImp implements VerificadorService {
                 puedeEditar = true;
                 break;
             }
+            if (rol.getCodigoEnum() == RolEnum.GESTOR_OFICINA_EPG) {
+                puedeEditar = true;
+                break;
+            }
             if (rol.getCodigoEnum() == RolEnum.IOREA) {
                 puedeEditar = true;
                 break;
@@ -284,12 +288,32 @@ public class VerificadorServiceImp implements VerificadorService {
     public List<Oficina> allOficinasAcceso(DataSessionPivot ds) {
         List<Oficina> oficinas = new ArrayList();
         for (Rol rol : ds.getRoles()) {
+            System.out.println("ROL:::" + rol.getNombre());
             if (rol.getCodigoEnum() == RolEnum.GESTOR_OFICINA) {
                 List<UsuarioRol> usuarioRol = usuarioRolDAO.allWithOfficeByUserRol(ds.getUsuario(), rol);
                 for (UsuarioRol ur : usuarioRol) {
                     oficinas.add(ur.getOficina());
                 }
             }
+
+            if (rol.getCodigoEnum() == RolEnum.GESTOR_OFICINA_EPG) {
+                List<UsuarioRol> usuarioRol = usuarioRolDAO.allWithOfficeByUserRol(ds.getUsuario(), rol);
+                for (UsuarioRol ur : usuarioRol) {
+                    oficinas.add(ur.getOficina());
+                }
+                List<Oficina> direccionesPosgrado = oficinaDAO.allDireccionPosgrado();
+                for (Oficina oficina : direccionesPosgrado) {
+                    System.out.println("dupg:" + oficina.getNombre());
+                }
+                List<Oficina> especialidadesPosgrado = oficinaDAO.allEspecialidadPosgrado();
+                for (Oficina oficina : especialidadesPosgrado) {
+                    System.out.println("esp-epg:" + oficina.getNombre());
+                }
+
+                oficinas.addAll(direccionesPosgrado);
+                oficinas.addAll(especialidadesPosgrado);
+            }
+
             if (rol.getCodigoEnum() == RolEnum.IOREA) {
                 Oficina oficinaUNA = oficinaDAO.findByCode(OficinaEnum.UNA.name());
                 oficinas.add(oficinaUNA);
