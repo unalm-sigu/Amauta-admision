@@ -411,7 +411,11 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
 //            accionTramiteAcademico.setOficinaDestino(tramiteForm.getOficina());
 //            }
             if (autorizacionRegistro == null) {
-                this.crearAutorizacionRegistro(tramite.getAlumno(), tramite, ds);
+                if (accionTramiteDocumento != null) {
+
+                    List<AccionTramiteDocumento> accionTramiteDocumentos = accionTramiteDocumentoDAO.allByTipoTramiteAndEstadoTramiteInicial(accionTramiteDocumento.getTipoDocumentoAcademico(), accionTramiteDocumento.getEstadoTramite());
+                    accionTramiteDocumento = accionTramiteDocumentos.stream().filter(x -> x.getRespuesta().equals("SALTO")).findAny().orElse(null);
+                }
             }
         }
         if (tramite.getTipoTramite().getEsTipoTramiteCurDir()) {

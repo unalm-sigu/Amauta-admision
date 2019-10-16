@@ -87,4 +87,6 @@ public interface ConstanciaSolicitudService {
 
     public List<AlumnoCiclo> allAlumnoCiclo(Alumno alumno);
 
+    public List<AlumnoCiclo> allAlumnoCiclo(TramiteDocumentoAcademico tramiteDocumentoAcademico);
+
 }

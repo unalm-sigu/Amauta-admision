@@ -71,6 +71,9 @@ public class ConstanciaSolicitudController {
     @Autowired
     PdfHtmlView pdfHtmlView;
 
+    @Autowired
+    ConstanciasPDF constanciasPDF;
+
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
         return "tramite/tramiteConstancia/solicitudConstancia";
@@ -413,6 +416,18 @@ public class ConstanciaSolicitudController {
     public void downloadWord(@PathVariable Long id, HttpSession session, HttpServletResponse respons, RedirectAttributes redirectAttr) {
 
         service.downloadWord(new TramiteDocumentoAcademico(id), respons);
+    }
+
+    @RequestMapping("downloadPdf/{id}")
+    public ModelAndView downloadPdf(@PathVariable Long id, HttpSession session, HttpServletResponse respons, Model model) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        CicloAcademico ciclo = ds.getCicloAcademico();
+        TramiteDocumentoAcademico documentoAcademico = service.findTramite(new TramiteDocumentoAcademico(id));
+        List<AlumnoCiclo> alumnoCiclo = service.allAlumnoCiclo(documentoAcademico);
+
+        model.addAttribute("documentoAcademico", documentoAcademico);
+        model.addAttribute("alumnoCiclo", alumnoCiclo);
+        return new ModelAndView(constanciasPDF);
     }
 
     @RequestMapping("solicitud/{idSolicitud}")

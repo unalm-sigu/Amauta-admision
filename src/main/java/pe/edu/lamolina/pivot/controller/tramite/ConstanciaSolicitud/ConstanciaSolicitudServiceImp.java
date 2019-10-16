@@ -118,7 +118,6 @@ import pe.edu.lamolina.pivot.zelper.mail.MailerService;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.pivot.dao.tramite.PlantillaIncrustacionDAO;
 import pe.edu.lamolina.pivot.dao.tramite.TramiteDocumentoParametroDAO;
-import static pe.edu.lamolina.pivot.zelper.constant.Constantine.CODIGO_ALIANZA_ESTRATEGICA;
 import static pe.edu.lamolina.pivot.zelper.constant.Constantine.VARIABLE_TABLE;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -838,7 +837,7 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
                 case CODIGO_CONSTANCIA:
                     htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), "" + 1);
                     break;
-               /*    PUTITO HAZ PUSH COMPLETO PEZ, ¿Dónde está el model?
+                /*    PUTITO HAZ PUSH COMPLETO PEZ, ¿Dónde está el model?
                     case CICLOS_CURSADOS:
 
                     String ciclos = alumnoCiclos.size() > 2 ? "los ciclos " : "el ciclo ";
@@ -2147,8 +2146,14 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
 
     @Override
     public List<VariablePlantilla> allParametros(PlantillaDocumentoAcademico pid) {
-        pid = plantillaDocumentoAcademicoDAO.findTipoDocumento(pid.getTipoDocumentoAcademico(), pid.getIdioma());
-        Assert.isNotNull(pid, "No existe una plantilla para el documento.");
+        
+        TipoDocumentoAcademico tipoDocumentoAcademico = tipoDocumentoAcademicoDAO.find(pid.getTipoDocumentoAcademico());
+        pid = plantillaDocumentoAcademicoDAO.findTipoDocumento(tipoDocumentoAcademico, pid.getIdioma());
+        if (tipoDocumentoAcademico.getTipoConstanciaEnum() == TipoConstanciaEnum.CONS) {
+            Assert.isNotNull(pid, "No existe una plantilla para el documento.");
+        }else{
+            return new ArrayList<VariablePlantilla>();
+        }
         return variablePlantillaDAO.allByPlantillaParametro(pid);
     }
 
@@ -2156,6 +2161,21 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
     public List<AlumnoCiclo> allAlumnoCiclo(Alumno alumno) {
 
         return alumnoCicloDAO.allActivesByAlumnoAsc(alumno);
+    }
+
+    @Override
+    public List<AlumnoCiclo> allAlumnoCiclo(TramiteDocumentoAcademico tramiteDocumentoAcademico) {
+
+        Alumno alumno = tramiteDocumentoAcademico.getTramite().getAlumno();
+        List<AlumnoCicloCurso> alumnoCicloCursos = alumnoCicloCursoDAO.allOperativesByAlumno(alumno);
+
+        Map<Long, List<AlumnoCicloCurso>> map = TypesUtil.convertListToMapList("alumnoCiclo.id", alumnoCicloCursos);
+        List<AlumnoCiclo> alumnoCiclos = alumnoCicloDAO.allActivesByAlumnoAsc(alumno);
+        for (AlumnoCiclo alumnoCiclo : alumnoCiclos) {
+            alumnoCiclo.setAlumnoCicloCurso(map.get(alumnoCiclo.getId()));
+        }
+
+        return alumnoCiclos;
     }
 
 }
