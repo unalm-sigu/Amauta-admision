@@ -32,6 +32,8 @@ public interface EgresadoDAO extends EasyDAO<Egresado> {
 
     List<Egresado> allByCarrerasDynatable(DynatableFilter filter, List<Carrera> carreras, String todo);
 
-    public EgresadoResumen findResumenEgresado(List<Carrera> carreras, String todo);
+    EgresadoResumen findResumenEgresado(List<Carrera> carreras, String todo);
+
+    List<Egresado> allForPdfByCicloAcademico(CicloAcademico cicloAcademico);
 
 }

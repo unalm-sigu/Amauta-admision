@@ -2,6 +2,7 @@ package pe.edu.lamolina.pivot.dao.seguridad;
 
 import java.util.List;
 import pe.albatross.octavia.easydao.EasyDAO;
+import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.enums.UserEstadoEnum;
 import pe.edu.lamolina.model.general.Colaborador;
 import pe.edu.lamolina.model.general.Oficina;
@@ -39,5 +40,7 @@ public interface UsuarioRolDAO extends EasyDAO<UsuarioRol> {
     UsuarioRol findByUsuarioAndRolAndEstadoUsuRol(Usuario usuario, Rol rol, UserEstadoEnum estadoUsuarioRol);
 
     List<UsuarioRol> allWithOfficeByUserRol(Usuario usuario, Rol rol);
+
+    public UsuarioRol findByOficinaRolUser(OficinaEnum oficinaEnum, Rol role, Usuario usuario);
 
 }

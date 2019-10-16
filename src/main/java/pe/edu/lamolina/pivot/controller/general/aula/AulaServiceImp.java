@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +28,13 @@ import pe.edu.lamolina.model.almacen.ResumenInventario;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.EventoAcademicoEnum;
 import pe.edu.lamolina.model.enums.OficinaEnum;
+import static pe.edu.lamolina.model.enums.OficinaEnum.DEPACT;
+import static pe.edu.lamolina.model.enums.OficinaEnum.DEPFIS;
+import static pe.edu.lamolina.model.enums.RolEnum.INF_OBUAE;
+import static pe.edu.lamolina.model.enums.RolEnum.IOREA;
+import static pe.edu.lamolina.model.enums.RolEnum.OREA;
+import static pe.edu.lamolina.model.enums.RolEnum.RESCULT;
+import static pe.edu.lamolina.model.enums.RolEnum.RESDEP;
 import pe.edu.lamolina.model.enums.TipoAmbienteEnum;
 import pe.edu.lamolina.model.enums.TipoGrupoHorasEnum;
 import pe.edu.lamolina.model.enums.TipoHorarioAulaEnum;
@@ -41,7 +49,9 @@ import pe.edu.lamolina.model.general.TipoCarpeta;
 import pe.edu.lamolina.model.horario.DiaHoraGrupo;
 import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.horario.HorarioAula;
+import pe.edu.lamolina.model.seguridad.Rol;
 import pe.edu.lamolina.model.seguridad.Usuario;
+import pe.edu.lamolina.model.seguridad.UsuarioRol;
 import pe.edu.lamolina.pivot.dao.academico.DocenteSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.EventoCicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.almacen.ResumenInventarioDAO;
@@ -56,6 +66,8 @@ import pe.edu.lamolina.pivot.dao.general.TipoCarpetaDAO;
 import pe.edu.lamolina.pivot.dao.horario.DiaHoraGrupoDAO;
 import pe.edu.lamolina.pivot.dao.horario.HoraDAO;
 import pe.edu.lamolina.pivot.dao.horario.HorarioAulaDAO;
+import pe.edu.lamolina.pivot.dao.seguridad.UsuarioRolDAO;
+import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service
@@ -102,16 +114,24 @@ public class AulaServiceImp implements AulaService {
     ResponsableAulaDAO responsableAulaDAO;
 
     @Autowired
+    UsuarioRolDAO usuarioRolDAO;
+
+    @Autowired
     ResponsableAulaAsignacionDAO responsableAulaAsignacionDAO;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
-    public List<Aula> allByDynatable(DynatableFilter filter, CicloAcademico cicloAcademico) {
-        List<Aula> aulas = aulaDAO.allByDynatable(filter);
+    public List<Aula> allByDynatable(DynatableFilter filter, DataSessionPivot ds) {
+
+        Oficina oficina = getOficina(ds);
+
+        Boolean filterObu = this.filterByRol(ds);
+
+        List<Aula> aulas = aulaDAO.allByDynatable(filter, filterObu, oficina);
         List<Aula> aulasHijas = aulaDAO.allByAulasSuperiores(aulas);
         List<ResumenInventario> resumenAulas = resumenInventarioDAO.allVisiblesByAulas(aulas);
-        List<HorarioAula> horariosAulasByCiclo = horarioAulaDAO.allByCicloAndTipoHorario(cicloAcademico, aulas, TipoHorarioAulaEnum.DICT);
+        List<HorarioAula> horariosAulasByCiclo = horarioAulaDAO.allByCicloAndTipoHorario(ds.getCicloAcademico(), aulas, TipoHorarioAulaEnum.DICT);
 
         Map<Long, List<ResumenInventario>> resumenAulasMap = TypesUtil.convertListToMapList("almacen.aula.id", resumenAulas);
         Map<Long, List<Aula>> mapAulas = TypesUtil.convertListToMapList("aulaSuperior.id", aulasHijas);
@@ -531,6 +551,47 @@ public class AulaServiceImp implements AulaService {
     @Override
     public List<ResponsableAulaAsignacion> allResponsablesAulasAsignadas(EstadoEnum... estado) {
         return responsableAulaAsignacionDAO.allByEstado(EstadoEnum.ACT);
+    }
+
+    private boolean filterByRol(DataSessionPivot ds) {
+        List<Rol> rolesActivo = ds.getRoles();
+        for (Rol rol : rolesActivo) {
+            ObjectUtil.printAttr(rol);
+            if (Arrays.asList(IOREA, OREA).contains(rol.getCodigoEnum())) {
+                return Boolean.FALSE;
+            }
+        }
+        for (Rol rol : rolesActivo) {
+            ObjectUtil.printAttr(rol);
+            if (Arrays.asList(INF_OBUAE, RESDEP, RESCULT).contains(rol.getCodigoEnum())) {
+                return Boolean.TRUE;
+            }
+        }
+        return Boolean.FALSE;
+    }
+
+    public Oficina findOficina(OficinaEnum oficinaEnum, Rol role, Usuario usuario) {
+        UsuarioRol rol = usuarioRolDAO.findByOficinaRolUser(oficinaEnum, role, usuario);
+        if (rol == null) {
+            rol = new UsuarioRol();
+        }
+        return rol.getOficina();
+    }
+
+    private Oficina getOficina(DataSessionPivot ds) {
+        logger.debug("usuario {}", ds.getUsuario().getId());
+        Oficina oficina = null;
+        for (Rol role : ds.getRoles()) {
+            switch (role.getCodigoEnum()) {
+                case RESDEP:
+                    oficina = this.findOficina(DEPFIS, role, ds.getUsuario());
+                    break;
+                case RESCULT:
+                    oficina = this.findOficina(DEPACT, role, ds.getUsuario());
+                    break;
+            }
+        }
+        return oficina;
     }
 
 }

@@ -1,6 +1,7 @@
 package pe.edu.lamolina.pivot.dao.general.hibernate;
 
 import com.google.common.base.Strings;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -17,6 +18,7 @@ import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.edu.lamolina.model.enums.EstadoEnum;
+import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.enums.TipoAulaEnum;
 import pe.edu.lamolina.model.enums.TipoOficinaEnum;
@@ -55,7 +57,7 @@ public class AulaDAOH extends AbstractEasyDAO<Aula> implements AulaDAO {
     }
 
     @Override
-    public List<Aula> allByDynatable(DynatableFilter filter) {
+    public List<Aula> allByDynatable(DynatableFilter filter, boolean filterObu, Oficina oficina) {
         DynatableSql sql = new DynatableSql(filter)
                 .from(Aula.class, "au")
                 .leftJoin("aulaSuperior aus", "sede se", "tipoAula ta", "oficinaSupervisora os")
@@ -64,6 +66,12 @@ public class AulaDAOH extends AbstractEasyDAO<Aula> implements AulaDAO {
         if (filter.getQueries() != null && filter.getQueries().get("tipo-aula") != null) {
             String tipoAula = (String) filter.getQueries().get("tipo-aula");
             sql.filter("ta.codigo", tipoAula);
+        }
+        if (filterObu) {
+            sql.beginBlock()
+                    .isNull("aulaSuperior")
+                    .filter("os.id", oficina)
+                    .endBlock();
         }
         return all(sql);
     }

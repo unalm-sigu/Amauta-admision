@@ -120,7 +120,7 @@ public class AulaController {
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
-            List<Aula> aulas = service.allByDynatable(filter, ds.getCicloAcademico());
+            List<Aula> aulas = service.allByDynatable(filter, ds);
             JsonNodeFactory jFactory = JsonNodeFactory.instance;
 
             ArrayNode array = new ArrayNode(jFactory);
@@ -195,7 +195,7 @@ public class AulaController {
         DynatableResponse json = new DynatableResponse();
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            List<Aula> aulas = service.allByDynatable(filter, ds.getCicloAcademico());
+            List<Aula> aulas = service.allByDynatable(filter, ds);
 
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
@@ -438,7 +438,7 @@ public class AulaController {
 
             ArrayNode horasJson = new ArrayNode(factory);
             for (Hora horasEncontrada : horasEncontradas) {
-                ObjectNode jhora = JsonHelper.createJson(horasEncontrada, factory,false,
+                ObjectNode jhora = JsonHelper.createJson(horasEncontrada, factory, false,
                         new String[]{
                             "*",
                             "dias.*",
