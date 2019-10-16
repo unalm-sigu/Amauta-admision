@@ -289,7 +289,7 @@ new Vue({
             for (var i = 0; i < items.length; i++) {
                 let obj = {};
                 obj.name = items[i].temaEncuesta.nombre;
-                obj.y = items[i].puntaje;
+                obj.y = items[i].puntaje/2;
                 aData.push(obj);
             }
 
@@ -319,13 +319,13 @@ new Vue({
                         borderWidth: 0,
                         dataLabels: {
                             enabled: true,
-                            format: '{point.y:.1f}%'
+                            format: '{point.y:.1f} prom.'
                         }
                     }
                 },
                 tooltip: {
                     headerFormat: '<span style="font-size:11px">{series.name}</span><br>',
-                    pointFormat: '<span style="color:{point.color}">{point.name}</span>: <b>{point.y:.2f}%</b> of total<br/>'
+                    pointFormat: '<span style="color:{point.color}">{point.name}</span>: <b>{point.y:.2f}</b> prom.<br/>'
                 },
                 "series": [
                     {
