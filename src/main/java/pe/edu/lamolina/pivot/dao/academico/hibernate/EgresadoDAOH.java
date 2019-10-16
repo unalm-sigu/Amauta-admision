@@ -233,7 +233,7 @@ public class EgresadoDAOH extends AbstractEasyDAO<Egresado> implements EgresadoD
         sql.append(" left join al.cicloActivo cia ");
         sql.append(" inner join ca.modalidadEstudio moe ");
         sql.append(" where 1=1 ");
-        
+
         if (!"TODOS".equalsIgnoreCase(todo)) {
             sql.append(" and  ca.id in: CARRERAS");
         }
@@ -241,12 +241,23 @@ public class EgresadoDAOH extends AbstractEasyDAO<Egresado> implements EgresadoD
         Query query = getCurrentSession().createQuery(sql.toString());
         query.setString("PRE", PRE.name());
         query.setString("EPG", EPG.name());
-        
+
         if (!"TODOS".equalsIgnoreCase(todo)) {
             query.setParameterList("CARRERAS", carreras.stream().map(Carrera::getId).collect(Collectors.toList()));
         }
 
         return (EgresadoResumen) query.uniqueResult();
+    }
+
+    @Override
+    public List<Egresado> allForPdfByCicloAcademico(CicloAcademico ciclo) {
+        Octavia sql = Octavia.query(Egresado.class, "e")
+                .join("cicloAcademico c")
+                .join("alumno a", "a.carrera ca", "ca.facultad")
+                .join("a.persona")
+                .filter("c.id", ciclo)
+                .orderBy("e.ordenMeritoCiclo ASC");
+        return all(sql);
     }
 
 }
