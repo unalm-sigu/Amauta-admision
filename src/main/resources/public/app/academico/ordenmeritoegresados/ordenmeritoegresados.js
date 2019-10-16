@@ -95,6 +95,42 @@ new Vue({
                     .then(response => {
                         $vue.$refs.modalAgregarAlumno.close();
                     });
+        },
+        generarReporte(tipoReporte) {
+            let $vue = this;
+            console.log($("#cicloChange").val());
+            $vue.processreporte = true;
+            var urll = "";
+
+            if (tipoReporte === 'ciclo') {
+                urll = APP.url('academico/ordenmeritoegresados/reportePdfOrdenMeritoCiclo');
+            } else if (tipoReporte === 'facultad') {
+                urll = APP.url('academico/ordenmeritoegresados/reportePdfOrdenMeritoFacultad');
+            } else if (tipoReporte === 'especialidad') {
+                urll = APP.url('academico/ordenmeritoegresados/reportePdfOrdenMeritoEspecialidad');
+            }
+
+            axios({
+                url: urll,
+                method: 'POST',
+                responseType: 'blob',
+                params: {cicloId: $("#cicloChange").val()}
+            }).then((response) => {
+                var namee = response
+                        .headers["content-disposition"]
+                        .replace("attachment; filename=", "")
+                        .replace(/"/g, '');
+                const url = window.URL.createObjectURL(new Blob([response.data]));
+                const link = document.createElement('a');
+                link.href = url;
+                link.setAttribute('download', namee);
+                document.body.appendChild(link);
+                link.click();
+                $vue.processreporte = false;
+            }).catch(error => {
+                $vue.processreporte = false;
+                notify(MESSAGES.errorComunicacion, "error");
+            });
         }
     }
 });

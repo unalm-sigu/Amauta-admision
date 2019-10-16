@@ -19,16 +19,18 @@ public interface OrdenMeritoEgresadosService {
 
     CicloAcademico findCicloAcademico(CicloAcademico cicloAcademico);
 
-    public List<CicloAcademico> allCicloAcademicoForSelect();
+    List<CicloAcademico> allCicloAcademicoForSelect();
 
     CicloAcademico findCicloActivo();
 
-    public List<Egresado> allAlumnoCicloByControl(DynatableFilter filter, ControlMeritoEgresado controlOrdenMerito);
+    List<Egresado> allAlumnoCicloByControl(DynatableFilter filter, ControlMeritoEgresado controlOrdenMerito);
 
     ControlMeritoEgresado find(Long id);
 
     List<Alumno> allAlumnoLikeNombres(String parametro);
 
     void saveEgresado(Egresado egresado, Usuario usuario);
+
+    List<Egresado> getEgresadosForPdf(CicloAcademico cicloAcademico);
 
 }

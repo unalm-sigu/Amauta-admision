@@ -1,6 +1,7 @@
 package pe.edu.lamolina.pivot.controller.academico.ordenmeritoegresados;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -172,6 +173,9 @@ public class OrdenMeritoEgresadosServiceImp implements OrdenMeritoEgresadosServi
         controlOrdenMeritoDAO.update(comCiclo);
 
         for (Egresado alumnoCiclo : alumnoCiclos) {
+            BigDecimal promedio = alumnoCiclo.getAlumno().getPromedioAcumulado();
+            promedio = promedio.setScale(2, RoundingMode.HALF_UP);
+            alumnoCiclo.setPromedioAcumulado(promedio);
             egresadoDAO.update(alumnoCiclo);
         }
     }
@@ -388,6 +392,11 @@ public class OrdenMeritoEgresadosServiceImp implements OrdenMeritoEgresadosServi
             egresado.setFacultad(almForm.getCarrera().getFacultad());
         }
         egresadoDAO.save(egresado);
+    }
+
+    @Override
+    public List<Egresado> getEgresadosForPdf(CicloAcademico cicloAcademico) {
+        return egresadoDAO.allForPdfByCicloAcademico(cicloAcademico);
     }
 
 }
