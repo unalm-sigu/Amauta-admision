@@ -751,7 +751,7 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
         tramiteDocumentoAcademicoDAO.updateColumns(tramiteDocumentoAcademicoForm, "estadoTramite");
 
         Tramite tramite = tramiteDocumentoAcademico.getTramite();
-        tramite.setEstadoEnum(TramiteEstadoEnum.ANU);
+        tramite.setEstadoEnum(TramiteEstadoEnum.PROC);
         tramite.setUserModificacion(ds.getUsuario());
         tramite.setFechaModificacion(new Date());
         tramiteDAO.updateEstado(tramite);
