@@ -448,40 +448,6 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
         tda.setTipoDocumentoAcademico(tramiteDocumentoAcademico.getTipoDocumentoAcademico());
         tramiteDocumentoAcademicoDAO.update(tda);
 
-        AcreenciaTramiteDocumento acreencia = acreenciaTramiteDocumentoDAO.findByTramiteDocumentoAcademico(tramiteDocumentoAcademico);
-        if (acreencia == null) {
-            acreencia = new AcreenciaTramiteDocumento();
-            acreencia.setEstado(EstadoAcreenciaTramiteEnum.ACT.name());
-            acreencia.setTramiteDocumentoAcademico(tramiteDocumentoAcademico);
-            acreencia.setUserRegistro(ds.getUsuario());
-            acreencia.setFechaRegistro(new Date());
-            LocalDate localDate = LocalDate.now();
-            LocalDate fechaVencimiento = localDate.plusDays(3);
-            acreencia.setFechaVencimiento(fechaVencimiento.toDate());
-            TipoDocumentoAcademico tipo = tipoDocumentoAcademicoDAO.find(tramiteDocumentoAcademico.getTipoDocumentoAcademico());
-            Idioma idioma = tramiteDocumentoAcademico.getIdioma();
-            PrecioDocumento precio = precioDocumentoDAO.findByTipoIdioma(tipo, idioma);
-            if (precio != null) {
-                if (precio.getPrecio() != null) {
-                    acreencia.setPrecio(new BigDecimal(precio.getPrecio()));
-                }
-            }
-            acreenciaTramiteDocumentoDAO.save(acreencia);
-        } else {
-            acreencia.setEstado(EstadoAcreenciaTramiteEnum.ACT.name());
-            LocalDate localDate = LocalDate.now();
-            LocalDate fechaVencimiento = localDate.plusDays(3);
-            acreencia.setFechaVencimiento(fechaVencimiento.toDate());
-            TipoDocumentoAcademico tipo = tipoDocumentoAcademicoDAO.find(tramiteDocumentoAcademico.getTipoDocumentoAcademico());
-            Idioma idioma = tramiteDocumentoAcademico.getIdioma();
-            PrecioDocumento precio = precioDocumentoDAO.findByTipoIdioma(tipo, idioma);
-            if (precio != null) {
-                if (precio.getPrecio() != null) {
-                    acreencia.setPrecio(new BigDecimal(precio.getPrecio()));
-                }
-            }
-            acreenciaTramiteDocumentoDAO.update(acreencia);
-        }
         this.enviarNotificacionSolicitudConstanciaCreacion(tda);
     }
 
@@ -672,6 +638,12 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
         Idioma idioma = tramiteDocumentoAcademico.getIdioma();
         PrecioDocumento precio = precioDocumentoDAO.findByTipoIdioma(tipo, idioma);
 
+        BigDecimal monto = new BigDecimal(precio.getPrecio());
+        if (tipo.getTipoConstanciaEnum() == TipoConstanciaEnum.CERT) {
+            Integer count = alumnoCicloDAO.countCiclosRegular(alumno);
+            monto = new BigDecimal(precio.getPrecio()).multiply(new BigDecimal(count));
+        }
+
         AcreenciaTramiteDocumento acreenciaTram = new AcreenciaTramiteDocumento();
         acreenciaTram.setEstado(EstadoAcreenciaTramiteEnum.ACT.name());
         acreenciaTram.setTramiteDocumentoAcademico(tramiteDocumentoAcademico);
@@ -680,14 +652,8 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
         LocalDate localDate = LocalDate.now();
         LocalDate fechaVencimiento = localDate.plusDays(3);
         acreenciaTram.setFechaVencimiento(fechaVencimiento.toDate());
-
         acreenciaTram.setPrecio(BigDecimal.ZERO);
-        if (precio != null) {
-            if (precio.getPrecio() != null) {
-                acreenciaTram.setPrecio(new BigDecimal(precio.getPrecio()));
-            }
-        }
-
+        acreenciaTram.setPrecio(monto);
         acreenciaTramiteDocumentoDAO.save(acreenciaTram);
 
         CuentaBancaria ctaBanco = precio.getCuentaBancaria();
@@ -703,7 +669,8 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
         acreencia.setTablaEnum(NombreTablasEnum.FIN_ACREENCIA_TRAMITE_DOCUMENTO);
         acreencia.setInstanciaTabla(acreenciaTram.getId());
         acreencia.setEstadoEnum(DeudaEstadoEnum.DEU);
-        acreencia.setMonto(new BigDecimal(precio.getPrecio()));
+
+        acreencia.setMonto(monto);
         acreencia.setAbono(BigDecimal.ZERO);
         acreencia.setPersona(alumno.getPersona());
         acreencia.setCuentaBancaria(ctaBanco);
@@ -1997,34 +1964,7 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
         Egresado egresado = egresadoDAO.findByAlumno(alumno);
 
         htmlContent = this.recorrerVariables(htmlContent, variables, alumno, egresado, alumnoCiclos);
-//        for (VariablePlantilla variable : variables) {
-//            switch (variable.getVariableGenerica().getCodigoVaribleEnum()) {
-//                case CICLO_ACADEMICO:
-//                    if (plantillaGeneralBean.getCicloEstudiado() != null) {
-//                        AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findActiveByAlumnoCiclo(academico.getTramite().getAlumno(), plantillaGeneralBean.getCicloEstudiado());
-//                        Assert.isNotNull(alumnoCiclo, "El alumno no se matriculó en el ciclo seleccionado");
-//                        html = html.replace(variable.getVariableGenerica().getCodigo(), alumnoCiclo.getCicloAcademico().getDescripcion());
-//                    }
-//                    break;
-//                case YEAR_INICIO:
-//                    eventoCicloAcademico = eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(plantillaGeneralBean.getCicloEstudiado(), EventoAcademicoEnum.CLASES_PRE);
-//                    df = new SimpleDateFormat("MM/dd/yyyy");
-//                    String fechaInicio = df.format(eventoCicloAcademico.getFechaInicio());
-//                    html = html.replace(variable.getVariableGenerica().getCodigo(), fechaInicio);
-//                    break;
-//                case YEAR_FIN:
-//                    eventoCicloAcademico = eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(plantillaGeneralBean.getCicloEstudiado(), EventoAcademicoEnum.CLASES_PRE);
-//                    df = new SimpleDateFormat("MM/dd/yyyy");
-//                    String fechaFin = df.format(eventoCicloAcademico.getFechaFin());
-//                    html = html.replace(variable.getVariableGenerica().getCodigo(), fechaFin);
-//                    break;
-//                case SEX_MATRI:
-//                    Persona persona = academico.getTramite().getPersona();
-//                    String text = persona.getSexo().equals(SexoEnum.F.name()) ? "matriculada" : "matriculado";
-//                    html = html.replace(variable.getVariableGenerica().getCodigo(), text);
-//                    break;
-//            }
-//        }
+
 
         List<PlantillaIncrustacionDocumento> incrustacionDocumentos = plantillaIncrustacionDAO.allIncrustacionesByTramite(plantillaGeneralBean.getTramiteDocumentoAcademico());
 
