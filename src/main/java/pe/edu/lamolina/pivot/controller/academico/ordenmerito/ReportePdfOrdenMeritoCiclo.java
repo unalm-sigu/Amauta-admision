@@ -64,10 +64,14 @@ public class ReportePdfOrdenMeritoCiclo extends AbstractOnlyPdfView {
     protected void buildPdfDocument(Map<String, Object> model, Document document, PdfWriter writer, HttpServletRequest request, HttpServletResponse response) throws Exception {
         List<AlumnoCiclo> listAlumnoCiclo = (List<AlumnoCiclo>) model.get("listAlumnoCiclo");
         CicloAcademico cicloAcademico = (CicloAcademico) model.get("cicloAcademico");
+        List<Facultad> facultades = (List<Facultad>) model.get("facultades");
+        List<Facultad> facultadUnica = facultades.stream().filter(fac -> fac.getCarrera().size() == 1).collect(Collectors.toList());
+        Collections.sort(facultadUnica, new Facultad.CompareCodigo());
+        List<Long> idFacs = facultadUnica.stream().map(f -> f.getId()).collect(Collectors.toList());
         String tipoReporte = (String) model.get("tipoReporte");
         this.buildFooter(writer);
         this.buildHeader(document, cicloAcademico, listAlumnoCiclo.size(), tipoReporte);
-        this.buildBody(listAlumnoCiclo, cicloAcademico, document, tipoReporte);
+        this.buildBody(listAlumnoCiclo, cicloAcademico, idFacs, document, tipoReporte);
         DateTime today = new DateTime();
         String nombre = this.header1 + today.toString("yyyyMMdd_HHmm");
         response.setHeader("Content-Disposition", "attachment; filename=\"" + nombre + ".pdf\"");
@@ -175,7 +179,8 @@ public class ReportePdfOrdenMeritoCiclo extends AbstractOnlyPdfView {
         tableBody.addCell(cell);
     }
 
-    private void buildBody(List<AlumnoCiclo> listAlumnoCiclo, CicloAcademico cicloAcademico, Document document, String tipoReporte) throws DocumentException, BadElementException, IOException {
+    private void buildBody(List<AlumnoCiclo> listAlumnoCiclo, CicloAcademico cicloAcademico, List<Long> facultades, Document document, String tipoReporte)
+            throws DocumentException, BadElementException, IOException {
         Font fontTableBody = new Font(Font.FontFamily.HELVETICA, 7, Font.NORMAL, BaseColor.BLACK);
 
         Acumulador contadorRow = new Acumulador();
@@ -184,10 +189,13 @@ public class ReportePdfOrdenMeritoCiclo extends AbstractOnlyPdfView {
 
         if ("facultad".equals(tipoReporte)) { // reporte por facultad
             Map<String, Facultad> mapFacultad = TypesUtil.convertListToMap("alumno.carrera.facultad", "alumno.carrera.facultad", listAlumnoCiclo);
-            Map<String, List<AlumnoCiclo>> mapBeanFacultad = TypesUtil.convertListToMapList("alumno.carrera.facultad.id", listAlumnoCiclo);
+            Map<Long, List<AlumnoCiclo>> mapBeanFacultad = TypesUtil.convertListToMapList("alumno.carrera.facultad.id", listAlumnoCiclo);
             int j = 0;
             for (Facultad facultad : mapFacultad.values()) {
                 j++;
+                if (!facultades.contains(facultad.getId())) {
+                    continue;
+                }
                 List<AlumnoCiclo> listMapperByFacultad = mapBeanFacultad.get(facultad.getId());
                 Map<Integer, List<AlumnoCiclo>> mapListAlumnoCicloforFacultad = TypesUtil.convertListToMapList("nivel", listMapperByFacultad);
                 for (int nivel = 1; nivel < 6; nivel++) {
@@ -319,14 +327,14 @@ public class ReportePdfOrdenMeritoCiclo extends AbstractOnlyPdfView {
             String matricula = alumno.getCodigo();
             String apeNombres = alumno.getPersona().getApellidosNombres();
             String especialidad = alumnoCiclo.getCarrera().getNombre();
-            String ordenMeritoTipo = "";
+            String ordenMeritoTipo;
             if (tipoReporte.equals("facultad")) {
                 ordenMeritoTipo = alumnoCiclo.getOrdenMeritoFacultadNivel() != null ? alumnoCiclo.getOrdenMeritoFacultadNivel().toString() : "-";
             } else {
                 ordenMeritoTipo = alumnoCiclo.getOrdenMeritoCicloNivel() != null ? alumnoCiclo.getOrdenMeritoCicloNivel().toString() : "-";
             }
             String ppa = this.returnValorDecimal(alumnoCiclo.getPromedioAcumulado());
-            String meritoAlcanzadoTipo = "";
+            String meritoAlcanzadoTipo;
             if (tipoReporte.equals("facultad")) {
                 meritoAlcanzadoTipo = this.returnFacultadMerito(alumnoCiclo);
             } else {

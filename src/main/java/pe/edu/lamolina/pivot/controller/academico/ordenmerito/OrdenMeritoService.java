@@ -5,6 +5,7 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.ControlOrdenMerito;
+import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface OrdenMeritoService {
@@ -28,5 +29,7 @@ public interface OrdenMeritoService {
     List<AlumnoCiclo> allAlumnoCicloByControlNivel(DynatableFilter filter, ControlOrdenMerito controlOrdenMerito, Integer nivel);
 
     List<AlumnoCiclo> generatePdfOrdenMerito(CicloAcademico cicloAcademico);
+
+    List<Facultad> allFacultadesForReporte();
 
 }

@@ -26,6 +26,7 @@ import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.ControlOrdenMerito;
+import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -236,8 +237,10 @@ public class OrdenMeritoController {
         try {
             CicloAcademico cicloAcademico = service.findCicloAcademico(new CicloAcademico(cicloId));
             List<AlumnoCiclo> listAlumnoCiclo = service.generatePdfOrdenMerito(cicloAcademico);
+            List<Facultad> facultades = service.allFacultadesForReporte();
             model.addAttribute("cicloAcademico", cicloAcademico);
             model.addAttribute("listAlumnoCiclo", listAlumnoCiclo);
+            model.addAttribute("facultades", facultades);
             model.addAttribute("tipoReporte", "ciclo");
         } catch (PhobosException e) {
             e.printStackTrace();
@@ -254,8 +257,10 @@ public class OrdenMeritoController {
         try {
             CicloAcademico cicloAcademico = service.findCicloAcademico(new CicloAcademico(cicloId));
             List<AlumnoCiclo> listAlumnoCiclo = service.generatePdfOrdenMerito(cicloAcademico);
+            List<Facultad> facultades = service.allFacultadesForReporte();
             model.addAttribute("cicloAcademico", cicloAcademico);
             model.addAttribute("listAlumnoCiclo", listAlumnoCiclo);
+            model.addAttribute("facultades", facultades);
             model.addAttribute("tipoReporte", "facultad");
         } catch (PhobosException e) {
             e.printStackTrace();
@@ -272,7 +277,9 @@ public class OrdenMeritoController {
         try {
             CicloAcademico cicloAcademico = service.findCicloAcademico(new CicloAcademico(cicloId));
             List<AlumnoCiclo> listAlumnoCiclo = service.generatePdfOrdenMerito(cicloAcademico);
+            List<Facultad> facultades = service.allFacultadesForReporte();
             model.addAttribute("cicloAcademico", cicloAcademico);
+            model.addAttribute("facultades", facultades);
             model.addAttribute("listAlumnoCiclo", listAlumnoCiclo);
         } catch (PhobosException e) {
             e.printStackTrace();

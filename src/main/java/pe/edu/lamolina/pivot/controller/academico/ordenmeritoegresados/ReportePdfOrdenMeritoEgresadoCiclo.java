@@ -66,11 +66,12 @@ public class ReportePdfOrdenMeritoEgresadoCiclo extends AbstractOnlyPdfView {
         List<Facultad> facultades = (List<Facultad>) model.get("facultades");
         List<Facultad> facultadUnica = facultades.stream().filter(fac -> fac.getCarrera().size() == 1).collect(Collectors.toList());
         Collections.sort(facultadUnica, new Facultad.CompareCodigo());
+        List<Long> idFacs = facultadUnica.stream().map(f -> f.getId()).collect(Collectors.toList());
         CicloAcademico cicloAcademico = (CicloAcademico) model.get("cicloAcademico");
         String tipoReporte = (String) model.get("tipoReporte");
         this.buildFooter(writer);
         this.buildHeader(document, cicloAcademico, egresados.size(), tipoReporte);
-        this.buildBody(egresados, cicloAcademico, facultadUnica, document, tipoReporte);
+        this.buildBody(egresados, cicloAcademico, idFacs, document, tipoReporte);
         DateTime today = new DateTime();
         String nombre = this.header1 + today.toString("yyyyMMdd_HHmm");
         response.setHeader("Content-Disposition", "attachment; filename=\"" + nombre + ".pdf\"");
@@ -178,7 +179,7 @@ public class ReportePdfOrdenMeritoEgresadoCiclo extends AbstractOnlyPdfView {
         tableBody.addCell(cell);
     }
 
-    private void buildBody(List<Egresado> egresados, CicloAcademico cicloAcademico, List<Facultad> facultades, Document document, String tipoReporte)
+    private void buildBody(List<Egresado> egresados, CicloAcademico cicloAcademico, List<Long> facultades, Document document, String tipoReporte)
             throws DocumentException, BadElementException, IOException {
         Font fontTableBody = new Font(Font.FontFamily.HELVETICA, 7, Font.NORMAL, BaseColor.BLACK);
 
@@ -191,7 +192,7 @@ public class ReportePdfOrdenMeritoEgresadoCiclo extends AbstractOnlyPdfView {
             int i = 0;
             for (Facultad facultad : mapFacultad.values()) {
                 i++;
-                if (!facultades.contains(facultad)) {
+                if (!facultades.contains(facultad.getId())) {
                     continue;
                 }
                 List<Egresado> list = mapBeanFacultad.get(facultad.getId());

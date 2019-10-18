@@ -66,10 +66,10 @@ public class ReportePdfOrdenMeritoEgresadoEspecialidad extends AbstractOnlyPdfVi
         List<Facultad> facultades = (List<Facultad>) model.get("facultades");
         List<Facultad> noFacultadUnica = facultades.stream().filter(fac -> fac.getCarrera().size() > 1).collect(Collectors.toList());
         Collections.sort(noFacultadUnica, new Facultad.CompareCodigo());
-
+        List<Long> idFacs = noFacultadUnica.stream().map(f -> f.getId()).collect(Collectors.toList());
         this.buildFooter(writer);
         this.buildHeader(document, cicloAcademico, egresados.size());
-        this.buildBody(egresados, cicloAcademico, noFacultadUnica, document);
+        this.buildBody(egresados, cicloAcademico, idFacs, document);
         DateTime today = new DateTime();
         String nombre = this.header1 + today.toString("yyyyMMdd_HHmm");
         response.setHeader("Content-Disposition", "attachment; filename=\"" + nombre + ".pdf\"");
@@ -162,7 +162,7 @@ public class ReportePdfOrdenMeritoEgresadoEspecialidad extends AbstractOnlyPdfVi
         tableBody.addCell(cell);
     }
 
-    private void buildBody(List<Egresado> egresados, CicloAcademico cicloAcademico, List<Facultad> facultades, Document document)
+    private void buildBody(List<Egresado> egresados, CicloAcademico cicloAcademico, List<Long> facultades, Document document)
             throws DocumentException, BadElementException, IOException {
         Font fontTableBody = new Font(Font.FontFamily.HELVETICA, 7, Font.NORMAL, BaseColor.BLACK);
         Acumulador contadorRow = new Acumulador();
@@ -175,7 +175,7 @@ public class ReportePdfOrdenMeritoEgresadoEspecialidad extends AbstractOnlyPdfVi
         int i = 0;
         for (Carrera carrera : listCarrera) {
             i++;
-            if (!facultades.contains(carrera.getFacultad())) {
+            if (!facultades.contains(carrera.getFacultad().getId())) {
                 continue;
             }
             List<Egresado> listMapperByCarrera = mapBeanCarrera.get(carrera.getId());

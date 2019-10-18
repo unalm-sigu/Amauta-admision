@@ -33,6 +33,7 @@ import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.pivot.controller.general.view.HeaderReportePdf;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.misc.Acumulador;
@@ -62,9 +63,13 @@ public class ReportePdfOrdenMeritoEspecialidad extends AbstractOnlyPdfView {
     protected void buildPdfDocument(Map<String, Object> model, Document document, PdfWriter writer, HttpServletRequest request, HttpServletResponse response) throws Exception {
         List<AlumnoCiclo> listAlumnoCiclo = (List<AlumnoCiclo>) model.get("listAlumnoCiclo");
         CicloAcademico cicloAcademico = (CicloAcademico) model.get("cicloAcademico");
+        List<Facultad> facultades = (List<Facultad>) model.get("facultades");
+        List<Facultad> noFacultadUnica = facultades.stream().filter(fac -> fac.getCarrera().size() > 1).collect(Collectors.toList());
+        Collections.sort(noFacultadUnica, new Facultad.CompareCodigo());
+        List<Long> idFacs = noFacultadUnica.stream().map(f -> f.getId()).collect(Collectors.toList());
         this.buildFooter(writer);
         this.buildHeader(document, cicloAcademico, listAlumnoCiclo.size());
-        this.buildBody(listAlumnoCiclo, cicloAcademico, document);
+        this.buildBody(listAlumnoCiclo, idFacs, cicloAcademico, document);
         DateTime today = new DateTime();
         String nombre = this.header1 + today.toString("yyyyMMdd_HHmm");
         response.setHeader("Content-Disposition", "attachment; filename=\"" + nombre + ".pdf\"");
@@ -157,18 +162,22 @@ public class ReportePdfOrdenMeritoEspecialidad extends AbstractOnlyPdfView {
         tableBody.addCell(cell);
     }
 
-    private void buildBody(List<AlumnoCiclo> listAlumnoCiclo, CicloAcademico cicloAcademico, Document document) throws DocumentException, BadElementException, IOException {
+    private void buildBody(List<AlumnoCiclo> listAlumnoCiclo, List<Long> facultades, CicloAcademico cicloAcademico, Document document)
+            throws DocumentException, BadElementException, IOException {
         Font fontTableBody = new Font(Font.FontFamily.HELVETICA, 7, Font.NORMAL, BaseColor.BLACK);
-        Acumulador contadorRow = contadorRow = new Acumulador();
+        Acumulador contadorRow = new Acumulador();
         PdfPTable tableBody = null;
         PdfPTable tableHeader = null;
 
         Map<String, Carrera> mapCarrera = TypesUtil.convertListToMap("alumno.carrera", "alumno.carrera", listAlumnoCiclo);
-        Map<String, List<AlumnoCiclo>> mapBeanCarrera = TypesUtil.convertListToMapList("alumno.carrera.id", listAlumnoCiclo);
+        Map<Long, List<AlumnoCiclo>> mapBeanCarrera = TypesUtil.convertListToMapList("alumno.carrera.id", listAlumnoCiclo);
         List<Carrera> listCarrera = new ArrayList(mapCarrera.values());
         int i = 0;
         for (Carrera carrera : listCarrera) {
             i++;
+            if (!facultades.contains(carrera.getFacultad().getId())) {
+                continue;
+            }
             List<AlumnoCiclo> listMapperByCarrera = mapBeanCarrera.get(carrera.getId());
             Map<Integer, List<AlumnoCiclo>> mapListAlumnoCicloforCarrera = TypesUtil.convertListToMapList("nivel", listMapperByCarrera);
             for (int nivel = 1; nivel < 6; nivel++) { // iterar nivel 1 al 5
