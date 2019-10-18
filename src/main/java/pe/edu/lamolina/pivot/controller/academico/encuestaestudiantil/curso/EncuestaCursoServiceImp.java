@@ -341,10 +341,8 @@ public class EncuestaCursoServiceImp implements EncuestaCursoService {
         }
         List<EncuestaCurso> encuestasCur = encuestaCursoDAO.allByEncuestaEstudiantil(encuestaDB);
 
-        List<Long> idEncuestasCur = encuestasCur.stream().map(enDoc -> enDoc.getId()).collect(Collectors.toList());
-
-        encuestaAlumnoDAO.deleteByEncuestasCurso(idEncuestasCur);
-        encuestaCursoDAO.deleteByEncuestaEstudiantil(encuesta);
+        encuestaAlumnoDAO.deleteByEncuestasCursos(encuestasCur);
+        encuestaCursoDAO.deleteByEncuestaTipoCurso(encuesta);
         configuraEncuestaDAO.deleteByEncuestaEstudiantil(encuesta);
         periodoEncuestaDAO.deleteByEncuestaEstudiantil(encuesta);
         cursoSinEncuestaDAO.deleteByEncuestaEstudiantil(encuesta);

@@ -196,8 +196,7 @@ public class OficinaController {
     @RequestMapping("{oficina}/update")
     public String update(
             @PathVariable("oficina") Long idOficina,
-            @RequestParam(value = "origen", required = false) String origen,
-            Model model, HttpSession session) {
+            @RequestParam(value = "origen", required = false) String origen, Model model, HttpSession session) {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         boolean puedeVerOficina = verificadorService.puedeVerOficina(new Oficina(idOficina), ds);

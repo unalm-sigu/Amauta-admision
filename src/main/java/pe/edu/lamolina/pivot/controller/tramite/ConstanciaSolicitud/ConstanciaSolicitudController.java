@@ -633,8 +633,9 @@ public class ConstanciaSolicitudController {
         JsonResponse response = new JsonResponse();
         ArrayNode nodePlantillaIn = new ArrayNode(JsonNodeFactory.instance);
         try {
-            service.deleteIncrustacion(pid);
-
+            TramiteDocumentoAcademico documentoAcademico = service.deleteIncrustacion(pid);
+            PlantillaGenerica generica = service.findPlantillaHtml(documentoAcademico);
+            response.setData(generica.getContenido());
             response.setMessage("Se eliminó la incrusctación satisfactoriamente");
             response.setSuccess(true);
 

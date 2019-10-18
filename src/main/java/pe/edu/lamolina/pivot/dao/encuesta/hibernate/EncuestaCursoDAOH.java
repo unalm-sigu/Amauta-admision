@@ -95,7 +95,7 @@ public class EncuestaCursoDAOH extends AbstractEasyDAO<EncuestaCurso> implements
     }
 
     @Override
-    public void deleteByEncuestaEstudiantil(EncuestaEstudiantil encuesta) {
+    public void deleteByEncuestaTipoCurso(EncuestaEstudiantil encuesta) {
         String strQuery = "delete from EncuestaCurso ec where ec.encuestaEstudiantil.id=:enc";
         Query query = getCurrentSession().createQuery(strQuery);
         query.setLong("enc", encuesta.getId());

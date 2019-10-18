@@ -42,8 +42,6 @@ import pe.edu.lamolina.model.enums.EventoAcademicoEnum;
 import static pe.edu.lamolina.model.enums.EventoAcademicoEnum.CLASES_EPG;
 import static pe.edu.lamolina.model.enums.EventoAcademicoEnum.CLASES_PRE;
 import static pe.edu.lamolina.model.enums.EventoAcademicoEnum.CLASES_VER;
-import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
-import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.enums.SituacionDocenteEnum;
 import pe.edu.lamolina.model.enums.TipoCicloEnum;
 import pe.edu.lamolina.model.enums.TipoCreditoEnum;
@@ -462,6 +460,8 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
 
                         if (ObjectUtil.getParentTree(seccNew, "aula.id") != null) {
                             for (DiaHoraGrupo diaHoraGrupoEach : diasHorasSecc) {
+                                // BLOQUEADO MOMENTANEAMENTE
+                                /*
                                 HorarioAula horarioAula = new HorarioAula();
                                 horarioAula.setAula(seccNew.getAula());
                                 horarioAula.setDia(diaHoraGrupoEach.getDia());
@@ -472,6 +472,7 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
                                 horarioAula.setFechaInicio(eventoDictadoClases.getFechaInicio());
                                 horarioAula.setFechaFin(eventoDictadoClases.getFechaFin());
                                 horarioAulaDAO.save(horarioAula);
+                                ///////////////  *******************/
                             }
                         }
 

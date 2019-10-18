@@ -24,6 +24,7 @@ import pe.edu.lamolina.model.encuestaestudiantil.EncuestaCurso;
 import pe.edu.lamolina.model.encuestaestudiantil.EncuestaDocente;
 import pe.edu.lamolina.model.encuestaestudiantil.EncuestaEstudiantil;
 import pe.edu.lamolina.model.encuestaestudiantil.PeriodoEncuesta;
+import pe.edu.lamolina.model.enums.EncuestaEstadoEnum;
 import pe.edu.lamolina.model.enums.EncuestaEstudiantilEstadoEnum;
 import pe.edu.lamolina.model.enums.TipoExamenVirtualEnum;
 import pe.edu.lamolina.pivot.dao.academico.CursoDAO;
@@ -87,8 +88,8 @@ public class GeneradorEncuestaCursoServiceImp implements GeneradorEncuestaCursoS
 
         Map<Long, GrupoSeccion> mapGposSeccion = TypesUtil.convertListToMap("seccion.grupoSeccion.id", "seccion.grupoSeccion", matriculasSecciones);
 
-        EncuestaEstudiantil encuestaEstudiantil = encuestaEstudiantilDAO.findByCicloTipo(cicloAcademico, TipoExamenVirtualEnum.ENC_CUR);
-        ConfiguraEncuesta configuraEncuesta = configuraEncuestaDAO.findByEncuesta(encuestaEstudiantil);
+        EncuestaEstudiantil encuestaTipoCurso = encuestaEstudiantilDAO.findByCicloTipo(cicloAcademico, TipoExamenVirtualEnum.ENC_CUR);
+        ConfiguraEncuesta configuraEncuesta = configuraEncuestaDAO.findByEncuesta(encuestaTipoCurso);
 
         if (configuraEncuesta.getSimultaneo() == 1) {
             EncuestaEstudiantil encuestaEstudiantilDocente = encuestaEstudiantilDAO.findByCicloTipo(cicloAcademico, TipoExamenVirtualEnum.ENC_DOC);
@@ -106,20 +107,23 @@ public class GeneradorEncuestaCursoServiceImp implements GeneradorEncuestaCursoS
                 enc.setAlumnosInicio(encuestaDocente.getAlumnosInicio());
                 enc.setAlumnosEncuestados(0L);
                 enc.setEstadoEnum(encuestaDocente.getEstadoEnum());
-                enc.setEncuestaEstudiantil(encuestaEstudiantil);
+                enc.setEncuestaEstudiantil(encuestaTipoCurso);
                 enc.setFechaEncuestaInicio(encuestaDocente.getFechaEncuestaInicio());
                 enc.setFechaEncuestaFin(encuestaDocente.getFechaEncuestaFin());
                 enc.setGrupoSeccion(encuestaDocente.getDocenteSeccion().getSeccion().getGrupoSeccion());
                 enc.setUserRegistro(ds.getUsuario());
                 enc.setFechaRegistro(new Date());
+                enc.setEncuestaDocente(encuestaDocente);
                 encuestaCursoDAO.save(enc);
+
                 saveEncuestaAlumno(enc, listAlumno, ds);
                 visorEncuestaCurso.incrementar();
             }
-        } else {
-            List<PeriodoEncuesta> periodosEncuesta = periodoEncuestaDAO.allByEncuesta(encuestaEstudiantil);
 
-            List<CursoSinEncuesta> cursosSinEncuesta = cursoSinEncuestaDAO.allByEncuestaEstudiantil(encuestaEstudiantil);
+        } else {
+            List<PeriodoEncuesta> periodosEncuesta = periodoEncuestaDAO.allByEncuesta(encuestaTipoCurso);
+
+            List<CursoSinEncuesta> cursosSinEncuesta = cursoSinEncuestaDAO.allByEncuestaEstudiantil(encuestaTipoCurso);
             Map<Long, Curso> mapCursosSinEncuesta = TypesUtil.convertListToMap("curso.id", "curso", cursosSinEncuesta);
             visorEncuestaCurso.iniciarConteo(mapGposSeccion.size());
 
@@ -130,11 +134,11 @@ public class GeneradorEncuestaCursoServiceImp implements GeneradorEncuestaCursoS
                         mapCursosSinEncuesta,
                         configuraEncuesta,
                         periodosEncuesta,
-                        encuestaEstudiantil, ds);
+                        encuestaTipoCurso, ds);
                 visorEncuestaCurso.incrementar();
             }
         }
-        encuestaEstudiantilDAO.update(encuestaEstudiantil);
+        encuestaEstudiantilDAO.update(encuestaTipoCurso);
 
     }
 

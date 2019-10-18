@@ -15,6 +15,6 @@ public interface EncuestaCursoDAO extends EasyDAO<EncuestaCurso> {
 
     EncuestaCurso findEncuestaCurso(EncuestaCurso encuestaForm);
 
-    void deleteByEncuestaEstudiantil(EncuestaEstudiantil encuesta);
+    void deleteByEncuestaTipoCurso(EncuestaEstudiantil encuesta);
 
 }

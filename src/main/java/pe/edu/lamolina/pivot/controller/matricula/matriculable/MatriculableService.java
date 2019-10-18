@@ -84,4 +84,8 @@ public interface MatriculableService {
 
     List<ActoPreBean> allActosPregrado(CicloAcademico cicloAcademico, String tipoReporte);
 
+    void agregarAporteDuplicadoCarnet(MatriculaResumen matriculaResumen, DataSessionPivot ds);
+
+    void quitarAporteDuplicadoCarnet(MatriculaResumen matriculaResumen, DataSessionPivot ds);
+
 }

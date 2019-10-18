@@ -1009,7 +1009,7 @@ public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements Alu
     }
 
     @Override
-    public Integer countCiclosRegular(Alumno alumno) {
+    public Long countCiclosRegular(Alumno alumno) {
         Octavia sql = Octavia.query()
                 .selectCount()
                 .from(AlumnoCiclo.class, "ac")
@@ -1017,7 +1017,7 @@ public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements Alu
                 .filter("alu.id", alumno)
                 .filter("ca.tipo", REG.name());
 
-        return (Integer) sql.find(getCurrentSession());
+        return (Long) sql.find(getCurrentSession());
     }
 
 }

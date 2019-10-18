@@ -231,11 +231,22 @@ public class MatriculableServiceImp implements MatriculableService {
         logger.debug("aportes-alumnos {} ejecutada en {} mseg", aportesCarnetAlumnos.size(), (t2 - t1));
         Map<Long, AporteAlumnoCiclo> mapAporteCarnet = TypesUtil.convertListToMap("resumenAporteAlumno.matriculaResumen.id", aportesCarnetAlumnos);
 
+        t1 = System.currentTimeMillis();
+        List<AporteAlumnoCiclo> aportesDuplicadoCarnetAlumnos = aporteAlumnoCicloDAO.allAporteDuplicadoCarnetByCicloMatriculaResumen(cicloAcademico, matriculaResumens);
+        t2 = System.currentTimeMillis();
+        logger.debug("aportes-alumnos {} ejecutada en {} mseg", aportesCarnetAlumnos.size(), (t2 - t1));
+        Map<Long, AporteAlumnoCiclo> mapAporteDuplicadoCarnet = TypesUtil.convertListToMap("resumenAporteAlumno.matriculaResumen.id", aportesDuplicadoCarnetAlumnos);
+
         for (MatriculaResumen matriculaResumen : matriculaResumens) {
 
             matriculaResumen.setAporteCarnet(Boolean.FALSE);
             if (mapAporteCarnet.get(matriculaResumen.getId()) != null) {
                 matriculaResumen.setAporteCarnet(Boolean.TRUE);
+            }
+
+            matriculaResumen.setAporteDuplicadoCarnet(Boolean.FALSE);
+            if (mapAporteDuplicadoCarnet.get(matriculaResumen.getId()) != null) {
+                matriculaResumen.setAporteDuplicadoCarnet(Boolean.TRUE);
             }
 
             matriculaResumen.setBoletaPendiente(Boolean.FALSE);
@@ -1066,32 +1077,28 @@ public class MatriculableServiceImp implements MatriculableService {
         List<AlumnoCiclo> alumnosCiclos = alumnoCicloDAO.allByAlumnos(alumnos);
         Map<Long, List<AlumnoCiclo>> mapAlumnoCiclo = TypesUtil.convertListToMapList("alumno.id", alumnosCiclos);
 
-        List<Egresado> egresados = egresadoDAO.allByAlumnos(alumnos);
-        Map<Long, Egresado> mapEgresados = TypesUtil.convertListToMap("alumno.id", egresados);
+//        List<Egresado> egresados = egresadoDAO.allByAlumnos(alumnos);
+//        Map<Long, Egresado> mapEgresados = TypesUtil.convertListToMap("alumno.id", egresados);
 
         List<Reincorporacion> reincorporacions = reincorporacionDAO.allByEstadoTramiteAndAlumnos(alumnos, new EstadoTramite(EstadoTramiteEnum.SOL_ACEP.getId()));
         Map<Long, List<Reincorporacion>> mapReincorporaciones = TypesUtil.convertListToMapList("alumno.id", reincorporacions);
 
-        List<SituacionAcademica> situacionAcademicas = situacionAcademicaDAO.all();
-        Map<String, SituacionAcademica> mapSituacionAcademicas = TypesUtil.convertListToMap("codigo", situacionAcademicas);
+//        List<SituacionAcademica> situacionAcademicas = situacionAcademicaDAO.all();
+//        Map<String, SituacionAcademica> mapSituacionAcademicas = TypesUtil.convertListToMap("codigo", situacionAcademicas);
 
-        for (AlumnoCiclo alumnoCiclo : alumnoCiclos) {
-//            CicloAcademico cicloActivoMod = mapCiclo.get(alumnoCiclo.getAlumno().getModalidadEstudio().getCodigo());
-//            List<AlumnoCicloCurso> allAlumnoCicloCurso = mapAlumnoCicloCurso.get(alumnoCiclo.getAlumno().getId());
-//            List<AlumnoCiclo> allAlumnoCiclos = mapAlumnoCiclo.get(alumnoCiclo.getAlumno().getId());
+        for (Alumno alumno : alumnos) {
+            CicloAcademico cicloActivoMod = mapCiclo.get(alumno.getModalidadEstudio().getCodigo());
+            List<AlumnoCicloCurso> allAlumnoCicloCurso = mapAlumnoCicloCurso.get(alumno.getId());
+            List<AlumnoCiclo> allAlumnoCiclos = mapAlumnoCiclo.get(alumno.getId());
 //            Egresado egresado = mapEgresados.get(alumnoCiclo.getAlumno().getId());
-//            List<Reincorporacion> reincorporac = mapReincorporaciones.get(alumnoCiclo.getAlumno().getId());
-//            logger.info("Alumno codigo {}", alumnoCiclo.getAlumno().getCodigo());
-//            logger.debug("Cantidad de {} total {}", respositorVisor.getContador(), respositorVisor.getCantidadTotal());
+            List<Reincorporacion> reincorporac = fillList(mapReincorporaciones.get(alumno.getId()));
+            logger.info("Alumno codigo {}", alumno.getCodigo());
+            logger.debug("Cantidad de {} total {}", respositorVisor.getContador(), respositorVisor.getCantidadTotal());
 //            Map<Long, AlumnoCiclo> mapAllAlumnoCicloByCiclo = TypesUtil.convertListToMap("cicloAcademico.id", allAlumnoCiclos);
 //            Map<Long, List<AlumnoCicloCurso>> mapAllAlumnoCicloByAlumnoCiclo = TypesUtil.convertListToMapList("alumnoCiclo.id", fillList(allAlumnoCicloCurso));
-//            Alumno alumno = mapAlumno.get(alumnoCiclo.getAlumno().getId());
-//            this.revisarSituacionAcademicaReview(alumno,
-//                    cicloActivoMod, ciclosAcademicos,
-//                    fillList(allAlumnoCicloCurso), allAlumnoCiclos,
-//                    mapSituacionAcademicas, mapAllAlumnoCicloByAlumnoCiclo, mapAllAlumnoCicloByCiclo, egresado, reincorporac, ds);
-//            this.revisarSituacionAcademicaReview(alumnoCiclo.getAlumno(), cicloActivoMod, allAlumnoCicloCurso, ciclosAcademicos, allAlumnoCiclos, ds);
-            this.revisarSituacionAcademica(alumnoCiclo.getAlumno(), ds);
+            
+            promedioService.promediarAllCicloSync(alumno, cicloActivoMod, ciclosAcademicos, allAlumnoCiclos, allAlumnoCicloCurso, reincorporac, ds);
+//            this.revisarSituacionAcademica(alumnoCiclo.getAlumno(), ds);
             respositorVisor.incrementar();
             logger.debug("Cantidad de {} total {}", respositorVisor.getContador(), respositorVisor.getCantidadTotal());
         }
@@ -1237,6 +1244,18 @@ public class MatriculableServiceImp implements MatriculableService {
             listActoPreBean = alumnoCicloDAO.allVotantesActosPregrado(cicloAcademico, modalidadEstudio);
         }
         return listActoPreBean;
+    }
+
+    @Override
+    public void agregarAporteDuplicadoCarnet(MatriculaResumen matriculaResumen, DataSessionPivot ds) {
+        matriculaResumen = matriculaResumenDAO.find(matriculaResumen.getId());
+        aporteAlumnoService.generarAporteDuplicadoCarnet(matriculaResumen.getCicloAcademico(), matriculaResumen, ds);
+    }
+
+    @Override
+    public void quitarAporteDuplicadoCarnet(MatriculaResumen matriculaResumen, DataSessionPivot ds) {
+        matriculaResumen = matriculaResumenDAO.find(matriculaResumen.getId());
+        aporteAlumnoService.quitarAporteDuplicadoCarnet(matriculaResumen.getCicloAcademico(), matriculaResumen, ds);
     }
 
 }

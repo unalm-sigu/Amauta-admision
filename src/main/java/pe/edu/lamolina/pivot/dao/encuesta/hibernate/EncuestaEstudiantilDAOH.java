@@ -20,24 +20,32 @@ public class EncuestaEstudiantilDAOH extends AbstractEasyDAO<EncuestaEstudiantil
     }
 
     @Override
+    public EncuestaEstudiantil find(long id) {
+        Octavia sql = Octavia.query()
+                .from(EncuestaEstudiantil.class, "ep")
+                .join("encuesta en", "cicloAcademico ci", "en.tipoExamen")
+                .filter("ep.id", id);
+        return find(sql);
+    }
+
+    @Override
     public EncuestaEstudiantil findByCicloEncuesta(CicloAcademico ciclo, ExamenVirtual encuesta) {
         Octavia sql = Octavia.query()
                 .from(EncuestaEstudiantil.class, "ep")
-                .join("encuesta en", "cicloAcademico ci")
+                .join("encuesta en", "cicloAcademico ci", "en.tipoExamen")
                 .filter("en.id", encuesta)
                 .filter("ci.id", ciclo);
         return find(sql);
     }
 
     @Override
-    public EncuestaEstudiantil findByCicloTipo(CicloAcademico cicloAcademico, TipoExamenVirtualEnum tipoExamenVirtualEnum) {
+    public EncuestaEstudiantil findByCicloTipo(CicloAcademico ciclo, TipoExamenVirtualEnum tipoEnum) {
         Octavia sql = Octavia.query()
                 .from(EncuestaEstudiantil.class, "ep")
-                .join("encuesta en", "cicloAcademico ci")
-                .leftJoin("en.tipoExamen tipo")
+                .join("encuesta en", "cicloAcademico ci", "en.tipoExamen tipo")
                 .filter("en.estado", EncuestaEstadoEnum.ACT)
-                .filter("tipo.codigo", tipoExamenVirtualEnum)
-                .filter("ci.id", cicloAcademico);
+                .filter("tipo.codigo", tipoEnum)
+                .filter("ci.id", ciclo);
         return find(sql);
     }
 

@@ -169,7 +169,7 @@ public class MatriculableController {
                 ObjectNode node = JsonHelper.createJson(matriculable, JsonNodeFactory.instance, true,
                         new String[]{
                             "id", "prioridad", "puntajePrioridad", "cursosMatriculados", "cursosRetirados", "motivoMatriculable", "esBeneficiadoUltimoCiclo", "esCondicional",
-                            "aporteCarnet", "boletaPendiente",
+                            "aporteCarnet", "boletaPendiente","aporteDuplicadoCarnet",
                             "prioridadAnterior", "alumno.persona.rutaFoto", "alumno.persona.tipoFoto", "alumno.persona.emailCompania", "alumno.persona.numeroDocIdentidad",
                             "creditosMatriculados", "creditosRetirados", "estado", "estadoEnum", "alumno.codigo",
                             "promedioSemestral",
@@ -599,11 +599,11 @@ public class MatriculableController {
     @ResponseBody
     @RequestMapping("agregarAporteCarnet")
     public JsonResponse agregarAporteCarnet(@RequestBody MatriculaResumen matriculaResumen, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         JsonResponse response = new JsonResponse();
 
         try {
 
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             service.agregarAporteCarnet(matriculaResumen, ds);
             response.setMessage("Se actualizó satisfactoriamente.");
             response.setSuccess(true);
@@ -620,12 +620,54 @@ public class MatriculableController {
     @ResponseBody
     @RequestMapping("quitarAporteCarnet")
     public JsonResponse quitarAporteCarnet(@RequestBody MatriculaResumen matriculaResumen, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         JsonResponse response = new JsonResponse();
 
         try {
 
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             service.quitarAporteCarnet(matriculaResumen, ds);
+            response.setMessage("Se actualizó satisfactoriamente.");
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+
+    }
+
+    @ResponseBody
+    @RequestMapping("agregarAporteDuplicadoCarnet")
+    public JsonResponse agregarAporteDuplicadoCarnet(@RequestBody MatriculaResumen matriculaResumen, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+
+        try {
+
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            service.agregarAporteDuplicadoCarnet(matriculaResumen, ds);
+            response.setMessage("Se actualizó satisfactoriamente.");
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+
+    }
+
+    @ResponseBody
+    @RequestMapping("quitarAporteDuplicadoCarnet")
+    public JsonResponse quitarAporteDuplicadoCarnet(@RequestBody MatriculaResumen matriculaResumen, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+
+        try {
+
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            service.quitarAporteDuplicadoCarnet(matriculaResumen, ds);
             response.setMessage("Se actualizó satisfactoriamente.");
             response.setSuccess(true);
 
@@ -641,10 +683,11 @@ public class MatriculableController {
     @ResponseBody
     @RequestMapping("actualizarPrioridadCero")
     public JsonResponse actualizarPrioridadCero(HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         JsonResponse response = new JsonResponse();
 
         try {
+
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
             service.actualizarPrioridadCero(ds);
             response.setMessage("Se actualizó satisfactoriamente.");
@@ -784,7 +827,7 @@ public class MatriculableController {
     @RequestMapping("actosPregrado")
     public ModelAndView actosPregrado(@RequestParam("tipoReporte") String tipoReporte, Model model, HttpSession session) {
         try {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             List<ActoPreBean> listActoPreBean = service.allActosPregrado(ds.getCicloAcademico(), tipoReporte);
             model.addAttribute("listActoPreBean", listActoPreBean);
             model.addAttribute("tipoReporte", tipoReporte);

@@ -133,6 +133,6 @@ public interface AlumnoCicloDAO extends EasyDAO<AlumnoCiclo> {
 
     List<ActoPreBean> allVotantesActosPregrado(CicloAcademico cicloAcademico, ModalidadEstudio modalidadEstudio);
 
-    public Integer countCiclosRegular(Alumno alumno);
+    public Long countCiclosRegular(Alumno alumno);
 
 }
