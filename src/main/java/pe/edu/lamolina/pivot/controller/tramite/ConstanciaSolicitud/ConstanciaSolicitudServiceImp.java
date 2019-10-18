@@ -37,7 +37,6 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.ControlOrdenMerito;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.Egresado;
-import pe.edu.lamolina.model.academico.EventoCicloAcademico;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.bean.PlantillaIncrustacionGeneralBean;
 import pe.edu.lamolina.model.enums.ContenidoCartaEnum;
@@ -45,11 +44,9 @@ import pe.edu.lamolina.model.enums.CuentaBancariaEnum;
 import pe.edu.lamolina.model.enums.DeudaEstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoAcreenciaTramiteEnum;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
-import pe.edu.lamolina.model.enums.EventoAcademicoEnum;
 import pe.edu.lamolina.model.enums.NombreTablasEnum;
 import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.enums.OrigenDataSituacionAcademicaEnum;
-import pe.edu.lamolina.model.enums.SexoEnum;
 import pe.edu.lamolina.model.enums.TipoConstanciaEnum;
 import pe.edu.lamolina.model.enums.TipoDocumentoCompaniaEnum;
 import pe.edu.lamolina.model.enums.TipoSolicitanteEnum;
@@ -122,6 +119,7 @@ import static pe.edu.lamolina.pivot.zelper.constant.Constantine.VARIABLE_TABLE;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import static pe.edu.lamolina.pivot.zelper.constant.Constantine.CODIGO_ALIANZA_ESTRATEGICA;
 import static pe.edu.lamolina.pivot.zelper.constant.Constantine.VARIABLE_INCRUSTACION;
 
@@ -758,21 +756,21 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
 
     private PlantillaGenerica plantillaGenerica(TramiteDocumentoAcademico documentoAcademico) {
         PlantillaDocumentoAcademico plantilla = plantillaDocumentoAcademicoDAO.findTipoDocumento(documentoAcademico.getTipoDocumentoAcademico(), documentoAcademico.getIdioma());
-        List<VariablePlantilla> variables = variablePlantillaDAO.allByPlantilla(plantilla);
-
-        Alumno alumno = alumnoDAO.findAllInfo(documentoAcademico.getTramite().getAlumno().getId());
-        AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findLastByAlumno(alumno);
-        List<AlumnoCiclo> alumnoCiclos = alumnoCicloDAO.allActivesByAlumnoAsc(alumno);
-
-        Egresado egresado = egresadoDAO.findByAlumno(alumno);
-        String htmlContent = plantilla.getContenido();
-
-        htmlContent = this.remplazarTablas(htmlContent, alumno, variables);
-        htmlContent = this.recorrerVariables(htmlContent, variables, alumno, egresado, alumnoCiclos);
-
+//        List<VariablePlantilla> variables = variablePlantillaDAO.allByPlantilla(plantilla);
+//
+//        Alumno alumno = alumnoDAO.findAllInfo(documentoAcademico.getTramite().getAlumno().getId());
+//        AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findLastByAlumno(alumno);
+//        List<AlumnoCiclo> alumnoCiclos = alumnoCicloDAO.allActivesByAlumnoAsc(alumno);
+//
+//        Egresado egresado = egresadoDAO.findByAlumno(alumno);
+//        String htmlContent = plantilla.getContenido();
+//
+//        htmlContent = this.remplazarTablas(htmlContent, alumno, variables);
+//        htmlContent = this.recorrerVariables(htmlContent, variables, alumno, egresado, alumnoCiclos);
+//        
         String nombreDoc = plantilla.getTipoDocumentoAcademico().getNombre().concat("-" + plantilla.getId());
         PlantillaGenerica plantillaGene = new PlantillaGenerica();
-        plantillaGene.setContenido(htmlContent);
+        plantillaGene.setContenido(plantilla.getContenido());
         plantillaGene.setNombre(nombreDoc);
         return plantillaGene;
     }
@@ -814,6 +812,9 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
                     break;
                 case CODIGO_CONSTANCIA:
                     htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), "" + 1);
+                    break;
+                case CICLO_ROM_FIN:
+                    htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), alumno.getCicloActivo().getDescripcion());
                     break;
 
                 case CICLOS_CURSADOS:
@@ -901,36 +902,57 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
     @Override
     public PlantillaGenerica findPlantillaHtml(TramiteDocumentoAcademico documentoAcademico) {
         documentoAcademico = tramiteDocumentoAcademicoDAO.find(documentoAcademico);
-        PlantillaGenerica plantillaGene = plantillaGenerica(documentoAcademico);
-        String htmlContent = plantillaGene.getContenido();
+        PlantillaDocumentoAcademico plantilla = plantillaDocumentoAcademicoDAO.findTipoDocumento(documentoAcademico.getTipoDocumentoAcademico(), documentoAcademico.getIdioma());
+
+        String htmlContent = plantilla.getContenido();
         List<PlantillaIncrustacionDocumento> incrustacionDocumentos = plantillaIncrustacionDAO.allIncrustacionesByTramite(documentoAcademico);
         System.out.println("CANTIDAD: ---- >" + incrustacionDocumentos.size());
+
+        List<VariablePlantilla> variables = variablePlantillaDAO.allByPlantilla(plantilla);
+        Alumno alumno = alumnoDAO.findAllInfo(documentoAcademico.getTramite().getAlumno().getId());
+        List<AlumnoCiclo> alumnoCiclos = alumnoCicloDAO.allActivesByAlumnoAsc(alumno);
+
+        Egresado egresado = egresadoDAO.findByAlumno(alumno);
+
+        htmlContent = this.recorrerVariables(htmlContent, variables, alumno, egresado, alumnoCiclos);
+        htmlContent = this.remplazarTablas(htmlContent, alumno, variables);
+
         Document html = Jsoup.parse(htmlContent);
         if (!incrustacionDocumentos.isEmpty()) {
+            int idx = 0;
             for (PlantillaIncrustacionDocumento incrustacionDocumento : incrustacionDocumentos) {
 
-                if (!html.getElementsByClass(VARIABLE_INCRUSTACION).isEmpty()) {
-                    String tableOrigin = html.getElementsByClass(VARIABLE_INCRUSTACION).html();
-                    String tableClone = html.getElementsByClass(VARIABLE_INCRUSTACION).html();
+                if (html.getElementById(VARIABLE_INCRUSTACION) != null) {
+                    String tableOrigin = html.getElementById(VARIABLE_INCRUSTACION).html();
+                    String tableClone = html.getElementById(VARIABLE_INCRUSTACION).html();
                     List<Element> divs = html.select("div");
                     Element elementDiv = null;
                     for (Element div : divs) {
-                        if (div.hasClass(VARIABLE_INCRUSTACION)) {
+                        if (div.hasAttr("id")) {
                             elementDiv = div;
                         }
                     }
                     Document htmlInc = Jsoup.parse(incrustacionDocumento.getContenido());
-                    tableOrigin = htmlInc.select("body").get(0).html();
-                    elementDiv.replaceWith(new Element("div").append(tableOrigin));
-                    Element trNew = new Element("div");
-                    trNew.append(tableClone);
-                    elementDiv.insertChildren(0, trNew);
-                } else {
-
-                    throw new PhobosException("No se agregó la clase " + VARIABLE_INCRUSTACION + " a la plantilla origen");
+                    tableOrigin = htmlInc.select("body").html();
+                  
+                    Element element = new Element("div");
+                    element.append(tableOrigin);
+                    elementDiv.insertChildren(idx, element);
+                    idx++;
+                    logger.debug(html.html());
+//                    Element general = html.select("body").get(0);
+//                    Element trNew = new Element("div");
+//                    trNew.attr("id", VARIABLE_INCRUSTACION);
+//                    trNew.append(tableClone);
+//                    logger.debug(html.html());
+////                    int index = general.childNodeSize();
+////                    elementDiv.insertChildren(index, trNew);
+//                    logger.debug(html.html());
+//                    elementDiv.insertChildren(index, trNew);
                 }
             }
         }
+        PlantillaGenerica plantillaGene = new PlantillaGenerica();
         plantillaGene.setContenido(html.html());
         return plantillaGene;
     }
@@ -1954,24 +1976,22 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
         Assert.isNull(pid, "Ya se agregó la incrustación " + plantillaGeneralBean.getPlantillaDocumentoAcademico().getNombre() + " para este Tramite");
 
         TramiteDocumentoAcademico academico = tramiteDocumentoAcademicoDAO.find(plantillaGeneralBean.getTramiteDocumentoAcademico());
-        List<VariablePlantilla> variables = variablePlantillaDAO.allByPlantilla(plantillaGeneralBean.getPlantillaDocumentoAcademico());
-        String htmlContent = plantillaGeneralBean.getPlantillaDocumentoAcademico().getContenido();
+//        List<VariablePlantilla> variables = variablePlantillaDAO.allByPlantilla(plantillaGeneralBean.getPlantillaDocumentoAcademico());
+//        String htmlContent = plantillaGeneralBean.getPlantillaDocumentoAcademico().getContenido();
 
-        Alumno alumno = alumnoDAO.findAllInfo(academico.getTramite().getAlumno().getId());
-        AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findLastByAlumno(alumno);
-        List<AlumnoCiclo> alumnoCiclos = alumnoCicloDAO.allActivesByAlumnoAsc(alumno);
-
-        Egresado egresado = egresadoDAO.findByAlumno(alumno);
-
-        htmlContent = this.recorrerVariables(htmlContent, variables, alumno, egresado, alumnoCiclos);
-
-
+//        Alumno alumno = alumnoDAO.findAllInfo(academico.getTramite().getAlumno().getId());
+//        List<AlumnoCiclo> alumnoCiclos = alumnoCicloDAO.allActivesByAlumnoAsc(alumno);
+//
+//        Egresado egresado = egresadoDAO.findByAlumno(alumno);
+//
+//        htmlContent = this.recorrerVariables(htmlContent, variables, alumno, egresado, alumnoCiclos);
+//        htmlContent = this.remplazarTablas(htmlContent, alumno, variables);
         List<PlantillaIncrustacionDocumento> incrustacionDocumentos = plantillaIncrustacionDAO.allIncrustacionesByTramite(plantillaGeneralBean.getTramiteDocumentoAcademico());
 
         Integer orden = incrustacionDocumentos == null ? 1 : incrustacionDocumentos.size() + 1;
 
         PlantillaIncrustacionDocumento incrustacionDocumento = new PlantillaIncrustacionDocumento();
-        incrustacionDocumento.setContenido(htmlContent);
+        incrustacionDocumento.setContenido(plantillaGeneralBean.getPlantillaDocumentoAcademico().getContenido());
         incrustacionDocumento.setPlatillaIncrustacion(plantillaGeneralBean.getPlantillaDocumentoAcademico());
         incrustacionDocumento.setFechaRegistro(new Date());
         incrustacionDocumento.setOrden(orden);
@@ -1992,7 +2012,7 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
 
     @Override
     @Transactional
-    public void deleteIncrustacion(PlantillaIncrustacionDocumento plantillaIncrustacionDocumento) {
+    public TramiteDocumentoAcademico deleteIncrustacion(PlantillaIncrustacionDocumento plantillaIncrustacionDocumento) {
         PlantillaIncrustacionDocumento incrustacionDocumentoBD = plantillaIncrustacionDAO.find(plantillaIncrustacionDocumento.getId());
         TramiteDocumentoAcademico documentoAcademico = incrustacionDocumentoBD.getTramiteDocumento();
         List<PlantillaIncrustacionDocumento> incrustacionDocumentos = plantillaIncrustacionDAO.allIncrustacionesByTramite(documentoAcademico);
@@ -2005,6 +2025,8 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
             }
         }
         plantillaIncrustacionDAO.delete(plantillaIncrustacionDocumento.getId());
+
+        return incrustacionDocumentoBD.getTramiteDocumento();
     }
 
     @Override

@@ -89,6 +89,8 @@ new Vue({
             axios.post('/tramite/solicitudconstancia/deleteIncrustacion', item)
                     .then(response => {
                         if (response.data.success) {
+                            var myFrame = $("#myframe").contents().find('body');
+                            myFrame.html(response.data.data);
                             $vue.tramiteIncrustaciones.splice(idx, 1);
                             notify(response.data.message, "success");
                         } else {
