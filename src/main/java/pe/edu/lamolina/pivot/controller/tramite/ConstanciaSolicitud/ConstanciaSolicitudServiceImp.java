@@ -586,6 +586,7 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
     }
 
     @Override
+    @Transactional
     public void save(TramiteDocumentoAcademico tramiteDocumentoAcademico, DataSessionPivot ds) {
 
         Usuario usuario = ds.getUsuario();
@@ -638,7 +639,7 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
 
         BigDecimal monto = new BigDecimal(precio.getPrecio());
         if (tipo.getTipoConstanciaEnum() == TipoConstanciaEnum.CERT) {
-            Integer count = alumnoCicloDAO.countCiclosRegular(alumno);
+            Long count = alumnoCicloDAO.countCiclosRegular(alumno);
             monto = new BigDecimal(precio.getPrecio()).multiply(new BigDecimal(count));
         }
 
@@ -918,21 +919,12 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
                     element.append(tableOrigin);
                     elementDiv.insertChildren(idx, element);
                     idx++;
-                    logger.debug(html.html());
-//                    Element general = html.select("body").get(0);
-//                    Element trNew = new Element("div");
-//                    trNew.attr("id", VARIABLE_INCRUSTACION);
-//                    trNew.append(tableClone);
-//                    logger.debug(html.html());
-////                    int index = general.childNodeSize();
-////                    elementDiv.insertChildren(index, trNew);
-//                    logger.debug(html.html());
-//                    elementDiv.insertChildren(index, trNew);
                 }
             }
         }
         PlantillaGenerica plantillaGene = new PlantillaGenerica();
         plantillaGene.setContenido(html.html());
+        plantillaGene.setNombre(documentoAcademico.getTipoDocumentoAcademico().getNombre());
         return plantillaGene;
     }
 
