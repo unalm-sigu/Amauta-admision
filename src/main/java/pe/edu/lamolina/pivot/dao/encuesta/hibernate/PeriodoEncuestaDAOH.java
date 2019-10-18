@@ -28,9 +28,9 @@ public class PeriodoEncuestaDAOH extends AbstractEasyDAO<PeriodoEncuesta> implem
 
     @Override
     public void deleteByEncuestaEstudiantil(EncuestaEstudiantil encuesta) {
-        String strQuery = "delete from PeriodoEncuesta ea where ea.encuestaEstudiantil.id=:enc";
+        String strQuery = "delete from PeriodoEncuesta ea where ea.encuestaEstudiantil.id = :ENCUESTA ";
         Query query = getCurrentSession().createQuery(strQuery);
-        query.setLong("enc", encuesta.getId());
+        query.setLong("ENCUESTA", encuesta.getId());
         query.executeUpdate();
     }
 

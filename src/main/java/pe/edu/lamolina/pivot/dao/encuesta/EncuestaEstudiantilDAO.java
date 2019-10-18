@@ -11,7 +11,7 @@ public interface EncuestaEstudiantilDAO extends EasyDAO<EncuestaEstudiantil> {
 
     EncuestaEstudiantil findByCicloEncuesta(CicloAcademico ciclo, ExamenVirtual encuesta);
 
-    EncuestaEstudiantil findByCicloTipo(CicloAcademico cicloAcademico, TipoExamenVirtualEnum tipoExamenVirtualEnum);
+    EncuestaEstudiantil findByCicloTipo(CicloAcademico cicloAcademico, TipoExamenVirtualEnum tipoEnum);
 
     List<EncuestaEstudiantil> allByEncuestas(List<ExamenVirtual> encuestas);
 

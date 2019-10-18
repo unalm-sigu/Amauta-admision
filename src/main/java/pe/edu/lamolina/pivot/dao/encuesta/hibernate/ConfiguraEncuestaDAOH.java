@@ -48,9 +48,9 @@ public class ConfiguraEncuestaDAOH extends AbstractEasyDAO<ConfiguraEncuesta> im
 
     @Override
     public void deleteByEncuestaEstudiantil(EncuestaEstudiantil encuesta) {
-        String strQuery = "delete from ConfiguraEncuesta ce where ce.encuestaEstudiantil.id=:enc";
+        String strQuery = "delete from ConfiguraEncuesta ce where ce.encuestaEstudiantil.id = :ENCUESTA ";
         Query query = getCurrentSession().createQuery(strQuery);
-        query.setLong("enc", encuesta.getId());
+        query.setLong("ENCUESTA", encuesta.getId());
         query.executeUpdate();
     }
 
