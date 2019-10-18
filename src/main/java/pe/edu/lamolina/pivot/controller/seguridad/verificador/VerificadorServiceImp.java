@@ -288,7 +288,6 @@ public class VerificadorServiceImp implements VerificadorService {
     public List<Oficina> allOficinasAcceso(DataSessionPivot ds) {
         List<Oficina> oficinas = new ArrayList();
         for (Rol rol : ds.getRoles()) {
-            System.out.println("ROL:::" + rol.getNombre());
             if (rol.getCodigoEnum() == RolEnum.GESTOR_OFICINA) {
                 List<UsuarioRol> usuarioRol = usuarioRolDAO.allWithOfficeByUserRol(ds.getUsuario(), rol);
                 for (UsuarioRol ur : usuarioRol) {
@@ -302,13 +301,7 @@ public class VerificadorServiceImp implements VerificadorService {
                     oficinas.add(ur.getOficina());
                 }
                 List<Oficina> direccionesPosgrado = oficinaDAO.allDireccionPosgrado();
-                for (Oficina oficina : direccionesPosgrado) {
-                    System.out.println("dupg:" + oficina.getNombre());
-                }
                 List<Oficina> especialidadesPosgrado = oficinaDAO.allEspecialidadPosgrado();
-                for (Oficina oficina : especialidadesPosgrado) {
-                    System.out.println("esp-epg:" + oficina.getNombre());
-                }
 
                 oficinas.addAll(direccionesPosgrado);
                 oficinas.addAll(especialidadesPosgrado);

@@ -23,6 +23,7 @@ import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.encuestaestudiantil.ConfiguraEncuesta;
 import pe.edu.lamolina.model.encuestaestudiantil.CursoSinEncuesta;
 import pe.edu.lamolina.model.encuestaestudiantil.EncuestaAlumno;
+import pe.edu.lamolina.model.encuestaestudiantil.EncuestaCurso;
 import pe.edu.lamolina.model.encuestaestudiantil.EncuestaDocente;
 import pe.edu.lamolina.model.encuestaestudiantil.EncuestaEstudiantil;
 import pe.edu.lamolina.model.encuestaestudiantil.PeriodoEncuesta;
@@ -39,6 +40,7 @@ import pe.edu.lamolina.pivot.dao.academico.DocenteSeccionDAO;
 import pe.edu.lamolina.pivot.dao.encuesta.ConfiguraEncuestaDAO;
 import pe.edu.lamolina.pivot.dao.encuesta.CursoSinEncuestaDAO;
 import pe.edu.lamolina.pivot.dao.encuesta.EncuestaAlumnoDAO;
+import pe.edu.lamolina.pivot.dao.encuesta.EncuestaCursoDAO;
 import pe.edu.lamolina.pivot.dao.encuesta.EncuestaDocenteDAO;
 import pe.edu.lamolina.pivot.dao.encuesta.EncuestaEstudiantilDAO;
 import pe.edu.lamolina.pivot.dao.encuesta.ExamenVirtualDAO;
@@ -55,6 +57,8 @@ public class EncuestaDocenteServiceImp implements EncuestaDocenteService {
 
     @Autowired
     EncuestaDocenteDAO encuestaDocenteDAO;
+    @Autowired
+    EncuestaCursoDAO encuestaCursoDAO;
     @Autowired
     EncuestaEstudiantilDAO encuestaEstudiantilDAO;
     @Autowired
@@ -280,29 +284,34 @@ public class EncuestaDocenteServiceImp implements EncuestaDocenteService {
     public void saveDetalleConfigEncuesta(EncuestaEstudiantil encuestaForm, CicloAcademico ciclo, DataSessionPivot ds) {
         TipoExamenVirtual tipoEncuesta = tipoExamenVirtualDAO.findByEnum(TipoExamenVirtualEnum.ENC_DOC);
         ExamenVirtual encuestaModelo = examenVirtualDAO.findEncuestaActivaByTipo(tipoEncuesta);
-        EncuestaEstudiantil encuestaBD = encuestaEstudiantilDAO.findByCicloEncuesta(ciclo, encuestaModelo);
-        Assert.isTrue(encuestaBD != null, "Aún no se ha activado la encuesta");
+        EncuestaEstudiantil encuestaTipoDocente = encuestaEstudiantilDAO.findByCicloEncuesta(ciclo, encuestaModelo);
+        Assert.isNotNull(encuestaTipoDocente, "Aún no se ha activado la encuesta");
 
-        boolean esSinConfig = encuestaBD.getEstadoEnum() == EncuestaEstadoEnum.CRE;
-        boolean esSinData = encuestaBD.getEstadoEnum() == EncuestaEstadoEnum.CFG && encuestaBD.getObjetivosEncuesta() == 0;
+        boolean esSinConfig = encuestaTipoDocente.getEstadoEnum() == EncuestaEstadoEnum.CRE;
+        boolean esSinData = encuestaTipoDocente.getEstadoEnum() == EncuestaEstadoEnum.CFG && encuestaTipoDocente.getObjetivosEncuesta() == 0;
         Assert.isTrue(esSinConfig || esSinData, "Ya no puede configurar esta encuesta");
 
-        updateConfigEncuesta(encuestaBD, encuestaForm.getConfiguraEncuesta().get(0), ciclo, ds);
-        updateConfigEncuesta(encuestaBD, encuestaForm.getPeriodosEncuesta(), ciclo, ds);
+        updateConfigEncuesta(encuestaTipoDocente, encuestaForm.getConfiguraEncuesta().get(0), ciclo, ds);
+        updateConfigEncuesta(encuestaTipoDocente, encuestaForm.getPeriodosEncuesta(), ciclo, ds);
 
         List<Curso> cursosNoEncuestar = cursoDAO.allNoEncuestar();
-        List<CursoSinEncuesta> cursosSinEncuesta = cursoSinEncuestaDAO.allByEncuestaEstudiantil(encuestaBD);
-        Map<Long, Curso> mapCursosNoEncuestar = TypesUtil.convertListToMap("curso.id", cursosSinEncuesta);
+        List<CursoSinEncuesta> cursosSinEncuesta = cursoSinEncuestaDAO.allByEncuestaEstudiantil(encuestaTipoDocente);
+        Map<Long, Curso> mapCursoNoEncuestar = TypesUtil.convertListToMap("id", cursosNoEncuestar);
+        Map<Long, Curso> mapCursoSinEncuesta = TypesUtil.convertListToMap("curso.id", "curso", cursosSinEncuesta);
+        List<Curso> cursosProgramados = cursoDAO.allProgramadosByCiclo(ciclo);
 
-        for (Curso curso : cursosNoEncuestar) {
-            Curso cur = mapCursosNoEncuestar.get(curso.getId());
-            if (cur == null) {
+        for (Curso curso : cursosProgramados) {
+            Curso cursoNoProgramado = mapCursoNoEncuestar.get(curso.getId());
+            Curso cursoSinEncuesta = mapCursoSinEncuesta.get(curso.getId());
+            if (cursoNoProgramado != null && cursoSinEncuesta == null) {
                 CursoSinEncuesta cus = new CursoSinEncuesta();
                 cus.setCurso(curso);
-                cus.setEncuestaEstudiantil(encuestaBD);
+                cus.setEncuestaEstudiantil(encuestaTipoDocente);
                 cus.setFechaCreacion(new Date());
                 cus.setUserCreacion(ds.getUsuario());
                 cursoSinEncuestaDAO.save(cus);
+
+                mapCursoSinEncuesta.put(curso.getId(), curso);
             }
         }
     }
@@ -325,22 +334,41 @@ public class EncuestaDocenteServiceImp implements EncuestaDocenteService {
 
     @Override
     @Transactional
-    public void delete(EncuestaEstudiantil encuesta) {
+    public void delete(EncuestaEstudiantil encuestaDoceenteForm) {
 
-        EncuestaEstudiantil encuestaDB = encuestaEstudiantilDAO.find(encuesta.getId());
-        if (encuestaDB == null) {
-            throw new PhobosException("La encuesta no existe");
+        EncuestaEstudiantil encuestaTipoDocente = encuestaEstudiantilDAO.find(encuestaDoceenteForm.getId());
+        Assert.isNotNull(encuestaTipoDocente, "La encuesta no existe");
+
+        TipoExamenVirtualEnum tipo = encuestaTipoDocente.getEncuesta().getTipoExamen().getTipoEnum();
+        Assert.isTrue(tipo == TipoExamenVirtualEnum.ENC_DOC, "Solo puede eliminarse encuesta de docentes");
+
+        List<EncuestaDocente> encuestasDocentes = encuestaDocenteDAO.allByEncuestaEstudiantil(encuestaTipoDocente);
+
+        encuestaAlumnoDAO.deleteByEncuestasDocentes(encuestasDocentes);
+        configuraEncuestaDAO.deleteByEncuestaEstudiantil(encuestaDoceenteForm);
+        periodoEncuestaDAO.deleteByEncuestaEstudiantil(encuestaDoceenteForm);
+        cursoSinEncuestaDAO.deleteByEncuestaEstudiantil(encuestaDoceenteForm);
+
+        CicloAcademico ciclo = encuestaTipoDocente.getCicloAcademico();
+        EncuestaEstudiantil encuestaTipoCurso = encuestaEstudiantilDAO.findByCicloTipo(ciclo, TipoExamenVirtualEnum.ENC_CUR);
+        System.out.println("encuestaTipoCurso=" + encuestaTipoCurso);
+
+        if (encuestaTipoCurso != null) {
+            ConfiguraEncuesta configCurso = configuraEncuestaDAO.findByEncuesta(encuestaTipoCurso);
+            System.out.println("configCurso=" + configCurso);
+            if (configCurso != null && configCurso.getSimultaneo() == 1) {
+                List<EncuestaCurso> encuestasCursos = encuestaCursoDAO.allByEncuestaEstudiantil(encuestaTipoCurso);
+                encuestaAlumnoDAO.deleteByEncuestasCursos(encuestasCursos);
+                encuestaCursoDAO.deleteByEncuestaTipoCurso(encuestaTipoCurso);
+                configuraEncuestaDAO.deleteByEncuestaEstudiantil(encuestaTipoCurso);
+                periodoEncuestaDAO.deleteByEncuestaEstudiantil(encuestaTipoCurso);
+                cursoSinEncuestaDAO.deleteByEncuestaEstudiantil(encuestaTipoCurso);
+                encuestaEstudiantilDAO.delete(encuestaTipoCurso);
+            }
         }
-        List<EncuestaDocente> encuestasDoc = encuestaDocenteDAO.allByEncuestaEstudiantil(encuestaDB);
 
-        List<Long> idEncuestasDoc = encuestasDoc.stream().map(enDoc -> enDoc.getId()).collect(Collectors.toList());
-
-        encuestaAlumnoDAO.deleteByEncuestasDocente(idEncuestasDoc);
-        encuestaDocenteDAO.deleteByEncuestaEstudiantil(encuesta);
-        configuraEncuestaDAO.deleteByEncuestaEstudiantil(encuesta);
-        periodoEncuestaDAO.deleteByEncuestaEstudiantil(encuesta);
-        cursoSinEncuestaDAO.deleteByEncuestaEstudiantil(encuesta);
-        encuestaEstudiantilDAO.delete(encuestaDB);
+        encuestaDocenteDAO.deleteByEncuestaTipoDocente(encuestaDoceenteForm);
+        encuestaEstudiantilDAO.delete(encuestaTipoDocente);
 
     }
 

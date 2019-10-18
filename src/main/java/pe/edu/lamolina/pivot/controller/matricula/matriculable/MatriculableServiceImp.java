@@ -231,11 +231,22 @@ public class MatriculableServiceImp implements MatriculableService {
         logger.debug("aportes-alumnos {} ejecutada en {} mseg", aportesCarnetAlumnos.size(), (t2 - t1));
         Map<Long, AporteAlumnoCiclo> mapAporteCarnet = TypesUtil.convertListToMap("resumenAporteAlumno.matriculaResumen.id", aportesCarnetAlumnos);
 
+        t1 = System.currentTimeMillis();
+        List<AporteAlumnoCiclo> aportesDuplicadoCarnetAlumnos = aporteAlumnoCicloDAO.allAporteDuplicadoCarnetByCicloMatriculaResumen(cicloAcademico, matriculaResumens);
+        t2 = System.currentTimeMillis();
+        logger.debug("aportes-alumnos {} ejecutada en {} mseg", aportesCarnetAlumnos.size(), (t2 - t1));
+        Map<Long, AporteAlumnoCiclo> mapAporteDuplicadoCarnet = TypesUtil.convertListToMap("resumenAporteAlumno.matriculaResumen.id", aportesDuplicadoCarnetAlumnos);
+
         for (MatriculaResumen matriculaResumen : matriculaResumens) {
 
             matriculaResumen.setAporteCarnet(Boolean.FALSE);
             if (mapAporteCarnet.get(matriculaResumen.getId()) != null) {
                 matriculaResumen.setAporteCarnet(Boolean.TRUE);
+            }
+
+            matriculaResumen.setAporteDuplicadoCarnet(Boolean.FALSE);
+            if (mapAporteDuplicadoCarnet.get(matriculaResumen.getId()) != null) {
+                matriculaResumen.setAporteDuplicadoCarnet(Boolean.TRUE);
             }
 
             matriculaResumen.setBoletaPendiente(Boolean.FALSE);
@@ -1233,6 +1244,18 @@ public class MatriculableServiceImp implements MatriculableService {
             listActoPreBean = alumnoCicloDAO.allVotantesActosPregrado(cicloAcademico, modalidadEstudio);
         }
         return listActoPreBean;
+    }
+
+    @Override
+    public void agregarAporteDuplicadoCarnet(MatriculaResumen matriculaResumen, DataSessionPivot ds) {
+        matriculaResumen = matriculaResumenDAO.find(matriculaResumen.getId());
+        aporteAlumnoService.generarAporteDuplicadoCarnet(matriculaResumen.getCicloAcademico(), matriculaResumen, ds);
+    }
+
+    @Override
+    public void quitarAporteDuplicadoCarnet(MatriculaResumen matriculaResumen, DataSessionPivot ds) {
+        matriculaResumen = matriculaResumenDAO.find(matriculaResumen.getId());
+        aporteAlumnoService.quitarAporteDuplicadoCarnet(matriculaResumen.getCicloAcademico(), matriculaResumen, ds);
     }
 
 }

@@ -1,6 +1,7 @@
 package pe.edu.lamolina.pivot.dao.encuesta.hibernate;
 
 import java.util.List;
+import java.util.stream.Collectors;
 import org.hibernate.Query;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
@@ -37,18 +38,22 @@ public class EncuestaAlumnoDAOH extends AbstractEasyDAO<EncuestaAlumno> implemen
     }
 
     @Override
-    public void deleteByEncuestasDocente(List<Long> encDcos) {
-        String strQuery = "delete from EncuestaAlumno ea where ea.encuestaDocente.id in :enc";
+    public void deleteByEncuestasDocentes(List<EncuestaDocente> encuestasDocentes) {
+        List<Long> ids = encuestasDocentes.stream().map(enDoc -> enDoc.getId()).collect(Collectors.toList());
+
+        String strQuery = "delete from EncuestaAlumno ea where ea.encuestaDocente.id in :ENCUESTAS ";
         Query query = getCurrentSession().createQuery(strQuery);
-        query.setParameterList("enc", encDcos);
+        query.setParameterList("ENCUESTAS", ids);
         query.executeUpdate();
     }
 
     @Override
-    public void deleteByEncuestasCurso(List<Long> encCursos) {
-        String strQuery = "delete from EncuestaAlumno ea where ea.encuestaCurso.id in :enc";
+    public void deleteByEncuestasCursos(List<EncuestaCurso> encuestasCursos) {
+        List<Long> ids = encuestasCursos.stream().map(enDoc -> enDoc.getId()).collect(Collectors.toList());
+
+        String strQuery = "delete from EncuestaAlumno ea where ea.encuestaCurso.id in :ENCUESTAS ";
         Query query = getCurrentSession().createQuery(strQuery);
-        query.setParameterList("enc", encCursos);
+        query.setParameterList("ENCUESTAS", ids);
         query.executeUpdate();
     }
 

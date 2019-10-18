@@ -56,7 +56,7 @@ public class EncuestaDocenteDAOH extends AbstractEasyDAO<EncuestaDocente> implem
     }
 
     @Override
-    public List<EncuestaDocente> allByDynatable(DynatableFilter filter, CicloAcademico cicloAcademico) {
+    public List<EncuestaDocente> allByDynatable(DynatableFilter filter, CicloAcademico ciclo) {
         DynatableSql sql = new DynatableSql(filter)
                 .from(EncuestaDocente.class, "ed")
                 .join("encuestaEstudiantil ee", "ee.encuesta en", "ee.cicloAcademico ciclo")
@@ -64,16 +64,16 @@ public class EncuestaDocenteDAOH extends AbstractEasyDAO<EncuestaDocente> implem
                 .join("ds.seccion sec", "sec.grupoSeccion gs", "gs.curso cur")
                 .join("cur.departamentoAcademico da", "da.facultad fa")
                 .leftJoin("per.tipoDocumento tdoc", "sec.grupoHoras gh")
-                .filter("ciclo.id", cicloAcademico)
+                .filter("ciclo.id", ciclo)
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                 .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
                 .searchFields("da.nombre", "cur.nombre", "cur.codigo", "fa.nombre", "sec.codigo2", "gh.codigo", "doc.codigo")
                 .orderBy("ed.id");
-        sql.beginRelativeFilters();
 
+        sql.beginRelativeFilters();
         setCondicionEstado(filter, sql);
 
-        return sql.all(getCurrentSession());
+        return all(sql);
 
     }
 
@@ -123,10 +123,10 @@ public class EncuestaDocenteDAOH extends AbstractEasyDAO<EncuestaDocente> implem
     }
 
     @Override
-    public void deleteByEncuestaEstudiantil(EncuestaEstudiantil encuesta) {
-        String strQuery = "delete from EncuestaDocente ed where ed.encuestaEstudiantil.id=:enc";
+    public void deleteByEncuestaTipoDocente(EncuestaEstudiantil encuesta) {
+        String strQuery = "delete from EncuestaDocente ed where ed.encuestaEstudiantil.id = :ENCUESTA ";
         Query query = getCurrentSession().createQuery(strQuery);
-        query.setLong("enc", encuesta.getId());
+        query.setLong("ENCUESTA", encuesta.getId());
         query.executeUpdate();
     }
 
@@ -172,7 +172,7 @@ public class EncuestaDocenteDAOH extends AbstractEasyDAO<EncuestaDocente> implem
                 .leftJoin("per.tipoDocumento tdoc")
                 .filter("cic.id", cicloAcademico)
                 .filter("ee.id", encuestaEstudiantil);
-        
+
         return all(sql);
     }
 

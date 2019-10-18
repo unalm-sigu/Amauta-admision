@@ -138,4 +138,38 @@ public class AporteAlumnoServiceImp implements AporteAlumnoService {
 
         Assert.isTrue(jsonResponse.getSuccess(), "Se produjo un error al agregar aportes. Comuniquese con mesa de ayuda.");
     }
+
+    @Override
+    public void quitarAporteDuplicadoCarnet(CicloAcademico cicloAcademico, MatriculaResumen matriculaResumen, DataSessionPivot ds) {
+        responseRestService.createToken(ds);
+        GeneracionAportes generador = generacionAportesDAO.findByCicloAcademico(cicloAcademico);
+        if (generador == null) {
+            return;
+        }
+        if (!Arrays.asList(GeneracionAportesEstadoEnum.BOL, GeneracionAportesEstadoEnum.GEN).contains(generador.getEstadoEnum())) {
+            return;
+        }
+
+        JsonResponse jsonResponse = responseRestService.eliminarAporteDuplicadoCarnet(matriculaResumen, ds);
+
+        Assert.isTrue(jsonResponse.getSuccess(), "Se produjo un error al agregar aportes. Comuniquese con mesa de ayuda.");
+    }
+
+    @Override
+    public void generarAporteDuplicadoCarnet(CicloAcademico cicloAcademico, MatriculaResumen matriculaResumen, DataSessionPivot ds) {
+        responseRestService.createToken(ds);
+        GeneracionAportes generador = generacionAportesDAO.findByCicloAcademico(cicloAcademico);
+        if (generador == null) {
+            return;
+        }
+        if (!Arrays.asList(GeneracionAportesEstadoEnum.BOL, GeneracionAportesEstadoEnum.GEN)
+                .contains(generador.getEstadoEnum())) {
+            return;
+        }
+
+        JsonResponse jsonResponse = responseRestService.generarAporteDuplicadoCarnet(matriculaResumen, ds);
+
+        Assert.isTrue(jsonResponse.getSuccess(), "Se produjo un error al agregar aportes. Comuniquese con mesa de ayuda.");
+    }
+
 }

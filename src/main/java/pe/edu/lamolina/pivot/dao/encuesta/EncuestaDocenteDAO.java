@@ -22,7 +22,7 @@ public interface EncuestaDocenteDAO extends EasyDAO<EncuestaDocente> {
 
     public EncuestaDocente findEncuestaDocente(EncuestaDocente encuestaForm);
 
-    void deleteByEncuestaEstudiantil(EncuestaEstudiantil encuesta);
+    void deleteByEncuestaTipoDocente(EncuestaEstudiantil encuesta);
 
     EncuestaDocente findByDocenteSeccion(DocenteSeccion get);
 

@@ -33,16 +33,16 @@ public class CursoSinEncuestaDAOH extends AbstractEasyDAO<CursoSinEncuesta> impl
         Octavia sql = Octavia.query()
                 .from(CursoSinEncuesta.class, "ep")
                 .join("encuestaEstudiantil ee", "curso cur")
-                .leftJoin("cur.planCalificacion pc", "cur.departamentoAcademico da", "da.facultad")
+                .leftJoin("cur.carrera car", "cur.departamentoAcademico da", "da.facultad")
                 .filter("ee.id", encuestaEstudiantil);
         return all(sql);
     }
 
     @Override
     public void deleteByEncuestaEstudiantil(EncuestaEstudiantil encuesta) {
-        String strQuery = "delete from CursoSinEncuesta cse where cse.encuestaEstudiantil.id=:enc";
+        String strQuery = "delete from CursoSinEncuesta cse where cse.encuestaEstudiantil.id = :ENCUESTA ";
         Query query = getCurrentSession().createQuery(strQuery);
-        query.setLong("enc", encuesta.getId());
+        query.setLong("ENCUESTA", encuesta.getId());
         query.executeUpdate();
     }
 
