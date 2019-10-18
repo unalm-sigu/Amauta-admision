@@ -737,7 +737,7 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
     @Override
     public void downloadWord(TramiteDocumentoAcademico tramiteDocumentoAcademico, HttpServletResponse response) throws PhobosException {
         tramiteDocumentoAcademico = tramiteDocumentoAcademicoDAO.find(tramiteDocumentoAcademico);
-        PlantillaGenerica generica = plantillaGenerica(tramiteDocumentoAcademico);
+        PlantillaGenerica generica = findPlantillaHtml(tramiteDocumentoAcademico);
 
         try {
 
@@ -752,27 +752,6 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
         } catch (IOException ex) {
             logger.error("(downloadTemporal)Error Descarga de Archivo: {}, fileName: {}", ex.getLocalizedMessage(), generica.getNombre());
         }
-    }
-
-    private PlantillaGenerica plantillaGenerica(TramiteDocumentoAcademico documentoAcademico) {
-        PlantillaDocumentoAcademico plantilla = plantillaDocumentoAcademicoDAO.findTipoDocumento(documentoAcademico.getTipoDocumentoAcademico(), documentoAcademico.getIdioma());
-//        List<VariablePlantilla> variables = variablePlantillaDAO.allByPlantilla(plantilla);
-//
-//        Alumno alumno = alumnoDAO.findAllInfo(documentoAcademico.getTramite().getAlumno().getId());
-//        AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findLastByAlumno(alumno);
-//        List<AlumnoCiclo> alumnoCiclos = alumnoCicloDAO.allActivesByAlumnoAsc(alumno);
-//
-//        Egresado egresado = egresadoDAO.findByAlumno(alumno);
-//        String htmlContent = plantilla.getContenido();
-//
-//        htmlContent = this.remplazarTablas(htmlContent, alumno, variables);
-//        htmlContent = this.recorrerVariables(htmlContent, variables, alumno, egresado, alumnoCiclos);
-//        
-        String nombreDoc = plantilla.getTipoDocumentoAcademico().getNombre().concat("-" + plantilla.getId());
-        PlantillaGenerica plantillaGene = new PlantillaGenerica();
-        plantillaGene.setContenido(plantilla.getContenido());
-        plantillaGene.setNombre(nombreDoc);
-        return plantillaGene;
     }
 
     private String recorrerVariables(String htmlContent, List<VariablePlantilla> variables, Alumno alumno, Egresado egresado, List<AlumnoCiclo> alumnoCiclos) {
@@ -934,7 +913,7 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
                     }
                     Document htmlInc = Jsoup.parse(incrustacionDocumento.getContenido());
                     tableOrigin = htmlInc.select("body").html();
-                  
+
                     Element element = new Element("div");
                     element.append(tableOrigin);
                     elementDiv.insertChildren(idx, element);
