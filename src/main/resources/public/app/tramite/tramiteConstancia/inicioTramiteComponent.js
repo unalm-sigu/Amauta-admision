@@ -80,9 +80,7 @@ Vue.component("inicio-tram-component", {
                                     $vue.$parent.ciclos = response.data.data.lista;
                                     $vue.$parent.haveParams = response.data.data.haveParams;
                                     $vue.$parent.$refs.ciclosModal.open();
-                                } else {
-                                    notify("El alumno no cumple para esta constancia")
-                                }
+                                } 
                             }
                         } else {
                             notify(response.data.message, "error");

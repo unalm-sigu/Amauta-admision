@@ -21,6 +21,7 @@ import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.MatriculaCurso;
 import pe.edu.lamolina.model.academico.PlanCalificacion;
+import pe.edu.lamolina.model.academico.Seccion;
 import static pe.edu.lamolina.model.enums.EstadoCursoCachimboEnum.ACT;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
@@ -28,7 +29,6 @@ import pe.edu.lamolina.model.enums.EstadoPlanCalificaEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.rolexamen.CursoMasivoExamen;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
-import pe.edu.lamolina.model.rolexamen.SeccionGrupoEspecial;
 
 @Repository
 public class CursoDAOH extends AbstractEasyDAO<Curso> implements CursoDAO {
@@ -406,6 +406,19 @@ public class CursoDAOH extends AbstractEasyDAO<Curso> implements CursoDAO {
                 .from(Curso.class, "cu")
                 .filter("cu.id", curso);
         return find(sql);
+    }
+
+    @Override
+    public List<Curso> allProgramadosByCiclo(CicloAcademico ciclo) {
+        Octavia sql = Octavia.query()
+                .selectDistinct("cur")
+                .from(Seccion.class, "sec")
+                .join("grupoSeccion gs", "gs.cicloAcademico ci", "gs.curso cur")
+                .filter("ci.id", ciclo)
+                .filter("gs.estado", ACT)
+                .filter("sec.estado", ACT);
+
+        return all(sql);
     }
 
 }

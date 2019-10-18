@@ -86,19 +86,14 @@ public class DeudaAlumnoDAOH extends AbstractEasyDAO<DeudaAlumno> implements Deu
 
     @Override
     public List<DeudaAlumno> allDeudaAlumnoByCicloAlumno(List<Alumno> alumnos, CicloAcademico cicloAcademico) {
-
-        Octavia subQuery = new Octavia()
-                .from(AporteAlumnoCiclo.class, "aac")
-                .join("deudaAlumno deu", "aporteCiclo ac", "ac.cicloAcademico ca")
-                .filter("ca.codigo", cicloAcademico.getCodigo());
-
         Octavia sql = Octavia.query()
-                .from(DeudaAlumno.class, "da")
-                .join("alumno alu", "cuentaBancaria")
-                .exists(subQuery)
-                .linkedBy("da.id", "deu.id")
-                .in("estado",Arrays.asList(DeudaEstadoEnum.DEU,DeudaEstadoEnum.PAG))
+                .selectDistinct("da")
+                .from(AporteAlumnoCiclo.class, "aac")
+                .join("deudaAlumno da", "aporteCiclo ac", "ac.cicloAcademico ca")
+                .join("da.alumno alu", "da.cuentaBancaria")
+                .in("da.estado", Arrays.asList(DeudaEstadoEnum.DEU, DeudaEstadoEnum.PAG))
                 .in("alu.id", alumnos);
+
         return all(sql);
     }
 }

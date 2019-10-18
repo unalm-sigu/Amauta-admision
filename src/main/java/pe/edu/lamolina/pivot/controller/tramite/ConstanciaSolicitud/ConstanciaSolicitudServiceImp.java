@@ -37,7 +37,6 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.ControlOrdenMerito;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.Egresado;
-import pe.edu.lamolina.model.academico.EventoCicloAcademico;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.bean.PlantillaIncrustacionGeneralBean;
 import pe.edu.lamolina.model.enums.ContenidoCartaEnum;
@@ -45,11 +44,9 @@ import pe.edu.lamolina.model.enums.CuentaBancariaEnum;
 import pe.edu.lamolina.model.enums.DeudaEstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoAcreenciaTramiteEnum;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
-import pe.edu.lamolina.model.enums.EventoAcademicoEnum;
 import pe.edu.lamolina.model.enums.NombreTablasEnum;
 import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.enums.OrigenDataSituacionAcademicaEnum;
-import pe.edu.lamolina.model.enums.SexoEnum;
 import pe.edu.lamolina.model.enums.TipoConstanciaEnum;
 import pe.edu.lamolina.model.enums.TipoDocumentoCompaniaEnum;
 import pe.edu.lamolina.model.enums.TipoSolicitanteEnum;
@@ -118,11 +115,13 @@ import pe.edu.lamolina.pivot.zelper.mail.MailerService;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.pivot.dao.tramite.PlantillaIncrustacionDAO;
 import pe.edu.lamolina.pivot.dao.tramite.TramiteDocumentoParametroDAO;
-import static pe.edu.lamolina.pivot.zelper.constant.Constantine.CODIGO_ALIANZA_ESTRATEGICA;
 import static pe.edu.lamolina.pivot.zelper.constant.Constantine.VARIABLE_TABLE;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+import static pe.edu.lamolina.pivot.zelper.constant.Constantine.CODIGO_ALIANZA_ESTRATEGICA;
+import static pe.edu.lamolina.pivot.zelper.constant.Constantine.VARIABLE_INCRUSTACION;
 
 @Service
 @Transactional(readOnly = true)
@@ -447,40 +446,6 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
         tda.setTipoDocumentoAcademico(tramiteDocumentoAcademico.getTipoDocumentoAcademico());
         tramiteDocumentoAcademicoDAO.update(tda);
 
-        AcreenciaTramiteDocumento acreencia = acreenciaTramiteDocumentoDAO.findByTramiteDocumentoAcademico(tramiteDocumentoAcademico);
-        if (acreencia == null) {
-            acreencia = new AcreenciaTramiteDocumento();
-            acreencia.setEstado(EstadoAcreenciaTramiteEnum.ACT.name());
-            acreencia.setTramiteDocumentoAcademico(tramiteDocumentoAcademico);
-            acreencia.setUserRegistro(ds.getUsuario());
-            acreencia.setFechaRegistro(new Date());
-            LocalDate localDate = LocalDate.now();
-            LocalDate fechaVencimiento = localDate.plusDays(3);
-            acreencia.setFechaVencimiento(fechaVencimiento.toDate());
-            TipoDocumentoAcademico tipo = tipoDocumentoAcademicoDAO.find(tramiteDocumentoAcademico.getTipoDocumentoAcademico());
-            Idioma idioma = tramiteDocumentoAcademico.getIdioma();
-            PrecioDocumento precio = precioDocumentoDAO.findByTipoIdioma(tipo, idioma);
-            if (precio != null) {
-                if (precio.getPrecio() != null) {
-                    acreencia.setPrecio(new BigDecimal(precio.getPrecio()));
-                }
-            }
-            acreenciaTramiteDocumentoDAO.save(acreencia);
-        } else {
-            acreencia.setEstado(EstadoAcreenciaTramiteEnum.ACT.name());
-            LocalDate localDate = LocalDate.now();
-            LocalDate fechaVencimiento = localDate.plusDays(3);
-            acreencia.setFechaVencimiento(fechaVencimiento.toDate());
-            TipoDocumentoAcademico tipo = tipoDocumentoAcademicoDAO.find(tramiteDocumentoAcademico.getTipoDocumentoAcademico());
-            Idioma idioma = tramiteDocumentoAcademico.getIdioma();
-            PrecioDocumento precio = precioDocumentoDAO.findByTipoIdioma(tipo, idioma);
-            if (precio != null) {
-                if (precio.getPrecio() != null) {
-                    acreencia.setPrecio(new BigDecimal(precio.getPrecio()));
-                }
-            }
-            acreenciaTramiteDocumentoDAO.update(acreencia);
-        }
         this.enviarNotificacionSolicitudConstanciaCreacion(tda);
     }
 
@@ -621,6 +586,7 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
     }
 
     @Override
+    @Transactional
     public void save(TramiteDocumentoAcademico tramiteDocumentoAcademico, DataSessionPivot ds) {
 
         Usuario usuario = ds.getUsuario();
@@ -671,6 +637,12 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
         Idioma idioma = tramiteDocumentoAcademico.getIdioma();
         PrecioDocumento precio = precioDocumentoDAO.findByTipoIdioma(tipo, idioma);
 
+        BigDecimal monto = new BigDecimal(precio.getPrecio());
+        if (tipo.getTipoConstanciaEnum() == TipoConstanciaEnum.CERT) {
+            Long count = alumnoCicloDAO.countCiclosRegular(alumno);
+            monto = new BigDecimal(precio.getPrecio()).multiply(new BigDecimal(count));
+        }
+
         AcreenciaTramiteDocumento acreenciaTram = new AcreenciaTramiteDocumento();
         acreenciaTram.setEstado(EstadoAcreenciaTramiteEnum.ACT.name());
         acreenciaTram.setTramiteDocumentoAcademico(tramiteDocumentoAcademico);
@@ -679,14 +651,8 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
         LocalDate localDate = LocalDate.now();
         LocalDate fechaVencimiento = localDate.plusDays(3);
         acreenciaTram.setFechaVencimiento(fechaVencimiento.toDate());
-
         acreenciaTram.setPrecio(BigDecimal.ZERO);
-        if (precio != null) {
-            if (precio.getPrecio() != null) {
-                acreenciaTram.setPrecio(new BigDecimal(precio.getPrecio()));
-            }
-        }
-
+        acreenciaTram.setPrecio(monto);
         acreenciaTramiteDocumentoDAO.save(acreenciaTram);
 
         CuentaBancaria ctaBanco = precio.getCuentaBancaria();
@@ -702,7 +668,8 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
         acreencia.setTablaEnum(NombreTablasEnum.FIN_ACREENCIA_TRAMITE_DOCUMENTO);
         acreencia.setInstanciaTabla(acreenciaTram.getId());
         acreencia.setEstadoEnum(DeudaEstadoEnum.DEU);
-        acreencia.setMonto(new BigDecimal(precio.getPrecio()));
+
+        acreencia.setMonto(monto);
         acreencia.setAbono(BigDecimal.ZERO);
         acreencia.setPersona(alumno.getPersona());
         acreencia.setCuentaBancaria(ctaBanco);
@@ -752,7 +719,7 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
         tramiteDocumentoAcademicoDAO.updateColumns(tramiteDocumentoAcademicoForm, "estadoTramite");
 
         Tramite tramite = tramiteDocumentoAcademico.getTramite();
-        tramite.setEstadoEnum(TramiteEstadoEnum.ANU);
+        tramite.setEstadoEnum(TramiteEstadoEnum.PROC);
         tramite.setUserModificacion(ds.getUsuario());
         tramite.setFechaModificacion(new Date());
         tramiteDAO.updateEstado(tramite);
@@ -771,7 +738,7 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
     @Override
     public void downloadWord(TramiteDocumentoAcademico tramiteDocumentoAcademico, HttpServletResponse response) throws PhobosException {
         tramiteDocumentoAcademico = tramiteDocumentoAcademicoDAO.find(tramiteDocumentoAcademico);
-        PlantillaGenerica generica = plantillaGenerica(tramiteDocumentoAcademico);
+        PlantillaGenerica generica = findPlantillaHtml(tramiteDocumentoAcademico);
 
         try {
 
@@ -788,19 +755,7 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
         }
     }
 
-    private PlantillaGenerica plantillaGenerica(TramiteDocumentoAcademico documentoAcademico) {
-        PlantillaDocumentoAcademico plantilla = plantillaDocumentoAcademicoDAO.findTipoDocumento(documentoAcademico.getTipoDocumentoAcademico(), documentoAcademico.getIdioma());
-        List<VariablePlantilla> variables = variablePlantillaDAO.allByPlantilla(plantilla);
-
-        Alumno alumno = alumnoDAO.findAllInfo(documentoAcademico.getTramite().getAlumno().getId());
-        AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findLastByAlumno(alumno);
-        List<AlumnoCiclo> alumnoCiclos = alumnoCicloDAO.allActivesByAlumnoAsc(alumno);
-
-        Egresado egresado = egresadoDAO.findByAlumno(alumno);
-        String htmlContent = plantilla.getContenido();
-
-        htmlContent = remplazarTablas(htmlContent, alumno, variables);
-
+    private String recorrerVariables(String htmlContent, List<VariablePlantilla> variables, Alumno alumno, Egresado egresado, List<AlumnoCiclo> alumnoCiclos) {
         for (VariablePlantilla var : variables) {
             switch (var.getVariableGenerica().getCodigoVaribleEnum()) {
                 case MATRICULA:
@@ -838,8 +793,11 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
                 case CODIGO_CONSTANCIA:
                     htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), "" + 1);
                     break;
-               /*    PUTITO HAZ PUSH COMPLETO PEZ, ¿Dónde está el model?
-                    case CICLOS_CURSADOS:
+                case CICLO_ROM_FIN:
+                    htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), alumno.getCicloActivo().getDescripcion());
+                    break;
+
+                case CICLOS_CURSADOS:
 
                     String ciclos = alumnoCiclos.size() > 2 ? "los ciclos " : "el ciclo ";
                     int i = 1;
@@ -864,14 +822,10 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
                     }
 
                     htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), programa);
-                    break;*/
+                    break;
             }
         }
-        String nombreDoc = plantilla.getTipoDocumentoAcademico().getNombre().concat("-" + plantilla.getId());
-        PlantillaGenerica plantillaGene = new PlantillaGenerica();
-        plantillaGene.setContenido(htmlContent);
-        plantillaGene.setNombre(nombreDoc);
-        return plantillaGene;
+        return htmlContent;
     }
 
     private String remplazarTablas(String htmlContent, Alumno alumno, List<VariablePlantilla> variable) {
@@ -928,127 +882,49 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
     @Override
     public PlantillaGenerica findPlantillaHtml(TramiteDocumentoAcademico documentoAcademico) {
         documentoAcademico = tramiteDocumentoAcademicoDAO.find(documentoAcademico);
-        PlantillaGenerica plantillaGene = plantillaGenerica(documentoAcademico);
-//        switch (documentoAcademico.getTipoDocumentoAcademico().getCodigoDocumentoEnum()) {
-//            case ALIANZAESTRATEGICAEMPRESARIAL:
-//        plantillaGene = alianzaEstrategicaEspecial(documentoAcademico);
-//                break;
-//            case ALUMNOREGULAR:
-//                plantillaGene = alumnoRegular(documentoAcademico);
-//                break;
-//            case ALUMNO:
-//                plantillaGene = alumno(documentoAcademico);
-//                break;
-//            case ALUMNOESPECIAL:
-//                plantillaGene = alumnoEspecial(documentoAcademico);
-//                break;
-//            case ALUMNOVISITANTE:
-//                plantillaGene = alumnoVisitante(documentoAcademico);
-//                break;
-//            case BACHILLERCONFECHAEGRESO:
-//                plantillaGene = bachillerConFechaEgreso(documentoAcademico);
-//                break;
-//            case COLEGIATURA:
-//                plantillaGene = colegiatura(documentoAcademico);
-//                break;
-//            case COMBINANDOTERICIOYQUINTO:
-//                plantillaGene = convinadoTercioQuinto(documentoAcademico);
-//                break;
-//            case COMPARATIVO:
-//                plantillaGene = comparativo(documentoAcademico);
-//                break;
-//            case CUADRODEHONOR:
-//                plantillaGene = cuadroHonor(documentoAcademico);
-//                break;
-//            case ESCUELANACIONALDEAGRICULTURAESPECIAL:
-//                plantillaGene = escuelaNacionalAgriculturaEspecial(documentoAcademico);
-//                break;
-//            case ESPECIALCOMPARATIVOYPORCENTAJE:
-//                plantillaGene = especialComparativoPorcentaje(documentoAcademico);
-//                break;
-//            case ESPECIALCONTINUARESTUDIOSENELEXTRANJERO:
-//                plantillaGene = especialContinuarEstudiosExtranjero(documentoAcademico);
-//                break;
-//            case ESPECIALCONVERSIONDESISTEMACALIFICACION:
-//                plantillaGene = especialConversionSistemaCalificacion(documentoAcademico);
-//                break;
-//            case ESPECIALDURACIONCICLO:
-//                plantillaGene = especialDuracionCiclo(documentoAcademico);
-//                break;
-//            case ESPECIALPRIMERAMATRICULA:
-//                plantillaGene = especialPrimeraMatricula(documentoAcademico);
-//                break;
-//            case ESPECIALPROMEDIOACUMULADODELOSCICLOS:
-//                plantillaGene = especialPromedioAcumuladoCiclos(documentoAcademico);
-//                break;
-//            case ESPECIALPROMEDIOVIGESIMAL:
-//                plantillaGene = especialPromedioVigecimal(documentoAcademico);
-//                break;
-//            case ESTUDIOSININTERRUMPIDOSOCONTINUOS:
-//                plantillaGene = estudiosIninterumpidosContinuos(documentoAcademico);
-//                break;
-//            case NIVELACADEMICO:
-//                plantillaGene = nivelAcademico(documentoAcademico);
-//                break;
-//            case NIVELACADEMICODEEXALUMNOS:
-//                plantillaGene = nivelAcademicoExAlumno(documentoAcademico);
-//                break;
-//            case NOSEPARADO:
-//                plantillaGene = noSeparado(documentoAcademico);
-//                break;
-//            case ORDENDEMERITOALUMNO:
-//                plantillaGene = ordenMeritoAlumno(documentoAcademico);
-//                break;
-//            case ORDENDEMERITOALUMNOSVARIOS:
-//                plantillaGene = ordenMeritoAlumnosVarios(documentoAcademico);
-//                break;
-//            case ORDENDEMERITOEGRESADOFACULTADESPECIALIDADPROMOCION:
-//                plantillaGene = ordenMeritoEgresado(documentoAcademico);
-//                break;
-//            case ORDENDEMERITOEGRESADOVARIOS:
-//                plantillaGene = ordenMeritoEgresadoVarios(documentoAcademico);
-//                break;
-//            case ORDENMERITOCONTERCIOYQUINTO:
-//                plantillaGene = ordenMeritoTercioQuinto(documentoAcademico);
-//                break;
-//            case QUINTOSUPERIORALUMNO:
-//                plantillaGene = quintoSuperiorAlumno(documentoAcademico);
-//                break;
-//            case QUINTOSUPERIORVARIOS:
-//                plantillaGene = quintoSuperioVarios(documentoAcademico);
-//                break;
-//            case SISTEMACALIFICACION:
-//                plantillaGene = sistemaCalificacion(documentoAcademico);
-//                break;
-//            case TEORIAPRACTICACREDITO:
-//                plantillaGene = teoriaPracticaCredito(documentoAcademico);
-//                break;
-//            case TERCIODELOSCICLOS:
-//                plantillaGene = tercioCiclos(documentoAcademico);
-//                break;
-//            case TERCIOSUPERIOR:
-//                plantillaGene = tercioSuperior(documentoAcademico);
-//                break;
-//            case TERCIOQUINTOCOMBINADOS:
-//                plantillaGene = tercioQuintoCombinados(documentoAcademico);
-//                break;
-//            case TITULO:
-//                plantillaGene = titulo(documentoAcademico);
-//                break;
-//            case CURSOSDELPRIMERCICLO:
-//                plantillaGene = cursosDelPrimeroCiclo(documentoAcademico);
-//                break;
-//
-//        }
+        PlantillaDocumentoAcademico plantilla = plantillaDocumentoAcademicoDAO.findTipoDocumento(documentoAcademico.getTipoDocumentoAcademico(), documentoAcademico.getIdioma());
 
+        String htmlContent = plantilla.getContenido();
         List<PlantillaIncrustacionDocumento> incrustacionDocumentos = plantillaIncrustacionDAO.allIncrustacionesByTramite(documentoAcademico);
         System.out.println("CANTIDAD: ---- >" + incrustacionDocumentos.size());
+
+        List<VariablePlantilla> variables = variablePlantillaDAO.allByPlantilla(plantilla);
+        Alumno alumno = alumnoDAO.findAllInfo(documentoAcademico.getTramite().getAlumno().getId());
+        List<AlumnoCiclo> alumnoCiclos = alumnoCicloDAO.allActivesByAlumnoAsc(alumno);
+
+        Egresado egresado = egresadoDAO.findByAlumno(alumno);
+
+        htmlContent = this.recorrerVariables(htmlContent, variables, alumno, egresado, alumnoCiclos);
+        htmlContent = this.remplazarTablas(htmlContent, alumno, variables);
+
+        Document html = Jsoup.parse(htmlContent);
         if (!incrustacionDocumentos.isEmpty()) {
+            int idx = 0;
             for (PlantillaIncrustacionDocumento incrustacionDocumento : incrustacionDocumentos) {
-                String html = plantillaGene.getContenido().concat(incrustacionDocumento.getContenido());
-                plantillaGene.setContenido(html);
+
+                if (html.getElementById(VARIABLE_INCRUSTACION) != null) {
+                    String tableOrigin = html.getElementById(VARIABLE_INCRUSTACION).html();
+                    String tableClone = html.getElementById(VARIABLE_INCRUSTACION).html();
+                    List<Element> divs = html.select("div");
+                    Element elementDiv = null;
+                    for (Element div : divs) {
+                        if (div.hasAttr("id")) {
+                            elementDiv = div;
+                        }
+                    }
+                    Document htmlInc = Jsoup.parse(incrustacionDocumento.getContenido());
+                    tableOrigin = htmlInc.select("body").html();
+
+                    Element element = new Element("div");
+                    element.append(tableOrigin);
+                    elementDiv.insertChildren(idx, element);
+                    idx++;
+                }
             }
         }
+        PlantillaGenerica plantillaGene = new PlantillaGenerica();
+        plantillaGene.setContenido(html.html());
+        plantillaGene.setNombre(documentoAcademico.getTipoDocumentoAcademico().getNombre());
         return plantillaGene;
     }
 
@@ -2071,45 +1947,22 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
         Assert.isNull(pid, "Ya se agregó la incrustación " + plantillaGeneralBean.getPlantillaDocumentoAcademico().getNombre() + " para este Tramite");
 
         TramiteDocumentoAcademico academico = tramiteDocumentoAcademicoDAO.find(plantillaGeneralBean.getTramiteDocumentoAcademico());
-        List<VariablePlantilla> variables = variablePlantillaDAO.allByPlantilla(plantillaGeneralBean.getPlantillaDocumentoAcademico());
-        String html = plantillaGeneralBean.getPlantillaDocumentoAcademico().getContenido();
-        EventoCicloAcademico eventoCicloAcademico = null;
-        DateFormat df = null;
-        for (VariablePlantilla variable : variables) {
-            switch (variable.getVariableGenerica().getCodigoVaribleEnum()) {
-                case CICLO_ACADEMICO:
-                    if (plantillaGeneralBean.getCicloEstudiado() != null) {
-                        AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findActiveByAlumnoCiclo(academico.getTramite().getAlumno(), plantillaGeneralBean.getCicloEstudiado());
-                        Assert.isNotNull(alumnoCiclo, "El alumno no se matriculó en el ciclo seleccionado");
-                        html = html.replace(variable.getVariableGenerica().getCodigo(), alumnoCiclo.getCicloAcademico().getDescripcion());
-                    }
-                    break;
-                case YEAR_INICIO:
-                    eventoCicloAcademico = eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(plantillaGeneralBean.getCicloEstudiado(), EventoAcademicoEnum.CLASES_PRE);
-                    df = new SimpleDateFormat("MM/dd/yyyy");
-                    String fechaInicio = df.format(eventoCicloAcademico.getFechaInicio());
-                    html = html.replace(variable.getVariableGenerica().getCodigo(), fechaInicio);
-                    break;
-                case YEAR_FIN:
-                    eventoCicloAcademico = eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(plantillaGeneralBean.getCicloEstudiado(), EventoAcademicoEnum.CLASES_PRE);
-                    df = new SimpleDateFormat("MM/dd/yyyy");
-                    String fechaFin = df.format(eventoCicloAcademico.getFechaFin());
-                    html = html.replace(variable.getVariableGenerica().getCodigo(), fechaFin);
-                    break;
-                case SEX_MATRI:
-                    Persona persona = academico.getTramite().getPersona();
-                    String text = persona.getSexo().equals(SexoEnum.F.name()) ? "matriculada" : "matriculado";
-                    html = html.replace(variable.getVariableGenerica().getCodigo(), text);
-                    break;
-            }
-        }
+//        List<VariablePlantilla> variables = variablePlantillaDAO.allByPlantilla(plantillaGeneralBean.getPlantillaDocumentoAcademico());
+//        String htmlContent = plantillaGeneralBean.getPlantillaDocumentoAcademico().getContenido();
 
+//        Alumno alumno = alumnoDAO.findAllInfo(academico.getTramite().getAlumno().getId());
+//        List<AlumnoCiclo> alumnoCiclos = alumnoCicloDAO.allActivesByAlumnoAsc(alumno);
+//
+//        Egresado egresado = egresadoDAO.findByAlumno(alumno);
+//
+//        htmlContent = this.recorrerVariables(htmlContent, variables, alumno, egresado, alumnoCiclos);
+//        htmlContent = this.remplazarTablas(htmlContent, alumno, variables);
         List<PlantillaIncrustacionDocumento> incrustacionDocumentos = plantillaIncrustacionDAO.allIncrustacionesByTramite(plantillaGeneralBean.getTramiteDocumentoAcademico());
 
         Integer orden = incrustacionDocumentos == null ? 1 : incrustacionDocumentos.size() + 1;
 
         PlantillaIncrustacionDocumento incrustacionDocumento = new PlantillaIncrustacionDocumento();
-        incrustacionDocumento.setContenido(html);
+        incrustacionDocumento.setContenido(plantillaGeneralBean.getPlantillaDocumentoAcademico().getContenido());
         incrustacionDocumento.setPlatillaIncrustacion(plantillaGeneralBean.getPlantillaDocumentoAcademico());
         incrustacionDocumento.setFechaRegistro(new Date());
         incrustacionDocumento.setOrden(orden);
@@ -2130,7 +1983,7 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
 
     @Override
     @Transactional
-    public void deleteIncrustacion(PlantillaIncrustacionDocumento plantillaIncrustacionDocumento) {
+    public TramiteDocumentoAcademico deleteIncrustacion(PlantillaIncrustacionDocumento plantillaIncrustacionDocumento) {
         PlantillaIncrustacionDocumento incrustacionDocumentoBD = plantillaIncrustacionDAO.find(plantillaIncrustacionDocumento.getId());
         TramiteDocumentoAcademico documentoAcademico = incrustacionDocumentoBD.getTramiteDocumento();
         List<PlantillaIncrustacionDocumento> incrustacionDocumentos = plantillaIncrustacionDAO.allIncrustacionesByTramite(documentoAcademico);
@@ -2143,12 +1996,20 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
             }
         }
         plantillaIncrustacionDAO.delete(plantillaIncrustacionDocumento.getId());
+
+        return incrustacionDocumentoBD.getTramiteDocumento();
     }
 
     @Override
     public List<VariablePlantilla> allParametros(PlantillaDocumentoAcademico pid) {
-        pid = plantillaDocumentoAcademicoDAO.findTipoDocumento(pid.getTipoDocumentoAcademico(), pid.getIdioma());
-        Assert.isNotNull(pid, "No existe una plantilla para el documento.");
+
+        TipoDocumentoAcademico tipoDocumentoAcademico = tipoDocumentoAcademicoDAO.find(pid.getTipoDocumentoAcademico());
+        pid = plantillaDocumentoAcademicoDAO.findTipoDocumento(tipoDocumentoAcademico, pid.getIdioma());
+        if (tipoDocumentoAcademico.getTipoConstanciaEnum() == TipoConstanciaEnum.CONS) {
+            Assert.isNotNull(pid, "No existe una plantilla para el documento.");
+        } else {
+            return new ArrayList<VariablePlantilla>();
+        }
         return variablePlantillaDAO.allByPlantillaParametro(pid);
     }
 
@@ -2156,6 +2017,21 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
     public List<AlumnoCiclo> allAlumnoCiclo(Alumno alumno) {
 
         return alumnoCicloDAO.allActivesByAlumnoAsc(alumno);
+    }
+
+    @Override
+    public List<AlumnoCiclo> allAlumnoCiclo(TramiteDocumentoAcademico tramiteDocumentoAcademico) {
+
+        Alumno alumno = tramiteDocumentoAcademico.getTramite().getAlumno();
+        List<AlumnoCicloCurso> alumnoCicloCursos = alumnoCicloCursoDAO.allOperativesByAlumno(alumno);
+
+        Map<Long, List<AlumnoCicloCurso>> map = TypesUtil.convertListToMapList("alumnoCiclo.id", alumnoCicloCursos);
+        List<AlumnoCiclo> alumnoCiclos = alumnoCicloDAO.allActivesByAlumnoAsc(alumno);
+        for (AlumnoCiclo alumnoCiclo : alumnoCiclos) {
+            alumnoCiclo.setAlumnoCicloCurso(map.get(alumnoCiclo.getId()));
+        }
+
+        return alumnoCiclos;
     }
 
 }

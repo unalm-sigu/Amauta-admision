@@ -305,11 +305,9 @@ public class EditorEncuestaServiceImp implements EditorEncuestaService {
     @Override
     public List<Curso> allCursoSinEncuesta(EncuestaEstudiantil encuestaForm, DataSessionPivot ds) {
         List<CursoSinEncuesta> cursoSinEncuestas = cursoSinEncuestaDAO.allByEncuestaEstudiantil(encuestaForm);
-        if (cursoSinEncuestas.isEmpty()) {
-            return new ArrayList();
-        }
-        Map<Long, Curso> cursosMap = TypesUtil.convertListToMap("curso.id", "curso", cursoSinEncuestas);
-        return cursosMap.values().stream().collect(Collectors.toList());
+        List<Curso> cursos = cursoSinEncuestas.stream().map(x -> x.getCurso()).collect(Collectors.toList());
+        Collections.sort(cursos, (c1, c2) -> c1.getNombre().compareTo(c2.getNombre()));
+        return cursos;
     }
 
     @Override

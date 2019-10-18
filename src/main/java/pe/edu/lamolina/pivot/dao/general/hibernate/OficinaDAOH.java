@@ -12,8 +12,10 @@ import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.enums.EstadoEnum;
+import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.enums.OficinaNivel;
 import pe.edu.lamolina.model.enums.TipoOficinaEnum;
@@ -350,21 +352,47 @@ public class OficinaDAOH extends AbstractEasyDAO<Oficina> implements OficinaDAO 
     @Override
     public List<Oficina> allFac() {
         Octavia sql = Octavia.query()
-                .from(Oficina.class, "o")
-                .join("tipoOficina to")
-                .filter("to.codigo", TipoOficinaEnum.FAC);
+                .from(Oficina.class, "ofi")
+                .join("tipoOficina tof")
+                .filter("tof.codigo", TipoOficinaEnum.FAC);
 
         return all(sql);
     }
 
     @Override
     public List<Oficina> allOficinaConsejero() {
-
         Octavia sql = Octavia.query()
                 .from(Oficina.class, "ofi")
                 .join("tipoOficina")
                 .leftJoin("personaJefe pj", "jefeEncargado", "cargoJefe cj", "oficinaSuperior")
                 .filter("cj.codigo", "COORDTUTOR");
+
+        return all(sql);
+    }
+
+    @Override
+    public List<Oficina> allDireccionPosgrado() {
+        Octavia sql = Octavia.query()
+                .from(Oficina.class, "ofi")
+                .join("tipoOficina tof")
+                .filter("tof.codigo", TipoOficinaEnum.DUPG);
+
+        return all(sql);
+    }
+
+    @Override
+    public List<Oficina> allEspecialidadPosgrado() {
+        Octavia subquery = Octavia.query()
+                .from(Carrera.class, "car")
+                .join("modalidadEstudio me")
+                .filter("me.codigo", ModalidadEstudioEnum.EPG);
+
+        Octavia sql = Octavia.query()
+                .from(Oficina.class, "ofi")
+                .join("tipoOficina tof")
+                .filter("tof.codigo", TipoOficinaEnum.ESP)
+                .exists(subquery)
+                .linkedBy("ofi.instanciaOficina", "car.id");
 
         return all(sql);
     }

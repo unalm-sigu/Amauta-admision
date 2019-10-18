@@ -32,8 +32,7 @@ new Vue({
     methods: {
         classEstado(value) {
             switch (value) {
-                case 'ACEP':
-                case 'PAG':
+                case 'ACEP':                
                 case 'DEV':
                 case 'ENV':
                 case 'CRE':
@@ -46,7 +45,18 @@ new Vue({
                 case 'ACT':
                 case 'FVAL':
                 case 'PIMP':
+                case 'COMP':
                     return "label label-primary";
+                    break;
+                case 'PAG':
+                    return "label label-warning";
+                case 'REV_HIS':
+                case 'CTRL_CALIDAD':
+                case 'VB_UR':
+                    return "label label-info";
+                    break;
+                case 'ENT':
+                    return "label label-success";
                     break;
 
             }

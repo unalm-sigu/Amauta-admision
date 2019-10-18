@@ -62,4 +62,6 @@ public interface CursoDAO extends EasyDAO<Curso> {
 
     Curso findCurso(Curso curso);
 
+    List<Curso> allProgramadosByCiclo(CicloAcademico ciclo);
+
 }

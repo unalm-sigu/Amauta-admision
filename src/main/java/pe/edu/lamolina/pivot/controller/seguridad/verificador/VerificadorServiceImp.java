@@ -238,6 +238,10 @@ public class VerificadorServiceImp implements VerificadorService {
                 puedeEditar = true;
                 break;
             }
+            if (rol.getCodigoEnum() == RolEnum.GESTOR_OFICINA_EPG) {
+                puedeEditar = true;
+                break;
+            }
             if (rol.getCodigoEnum() == RolEnum.IOREA) {
                 puedeEditar = true;
                 break;
@@ -290,6 +294,19 @@ public class VerificadorServiceImp implements VerificadorService {
                     oficinas.add(ur.getOficina());
                 }
             }
+
+            if (rol.getCodigoEnum() == RolEnum.GESTOR_OFICINA_EPG) {
+                List<UsuarioRol> usuarioRol = usuarioRolDAO.allWithOfficeByUserRol(ds.getUsuario(), rol);
+                for (UsuarioRol ur : usuarioRol) {
+                    oficinas.add(ur.getOficina());
+                }
+                List<Oficina> direccionesPosgrado = oficinaDAO.allDireccionPosgrado();
+                List<Oficina> especialidadesPosgrado = oficinaDAO.allEspecialidadPosgrado();
+
+                oficinas.addAll(direccionesPosgrado);
+                oficinas.addAll(especialidadesPosgrado);
+            }
+
             if (rol.getCodigoEnum() == RolEnum.IOREA) {
                 Oficina oficinaUNA = oficinaDAO.findByCode(OficinaEnum.UNA.name());
                 oficinas.add(oficinaUNA);

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.List;
+import java.util.Map;
 import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
@@ -23,9 +25,11 @@ import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.ControlMeritoEgresado;
 import pe.edu.lamolina.model.academico.Egresado;
+import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -37,6 +41,10 @@ public class OrdenMeritoEgresadosController {
 
     @Autowired
     OrdenMeritoEgresadosService service;
+    @Autowired
+    ReportePdfOrdenMeritoEgresadoCiclo reportePdfOrdenMeritoEgresadoCiclo;
+    @Autowired
+    ReportePdfOrdenMeritoEgresadoEspecialidad reportePdfOrdenMeritoEgresadoEspecialidad;
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
@@ -112,7 +120,7 @@ public class OrdenMeritoEgresadosController {
     public DynatableResponse alumnos(DynatableFilter filter, HttpSession session, @PathVariable Long id) {
         DynatableResponse json = new DynatableResponse();
         try {
-            
+
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
             List<Egresado> list = service.allAlumnoCicloByControl(filter, new ControlMeritoEgresado(id));
@@ -259,6 +267,67 @@ public class OrdenMeritoEgresadosController {
             ExceptionHandler.handleException(e, response);
         }
         return response;
+    }
+
+    @RequestMapping("reportePdfOrdenMeritoCiclo")
+    public ModelAndView reportePdfOrdenMeritoCiclo(@RequestParam("cicloId") Long cicloId, Model model, HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        try {
+            CicloAcademico cicloAcademico = service.findCicloAcademico(new CicloAcademico(cicloId));
+
+            List<Egresado> egresados = service.getEgresadosForPdf(cicloAcademico);
+            List<Facultad> facultades = service.allFacultadesForReporte();
+            model.addAttribute("cicloAcademico", cicloAcademico);
+            model.addAttribute("egresados", egresados);
+            model.addAttribute("facultades", facultades);
+            model.addAttribute("tipoReporte", "ciclo");
+        } catch (PhobosException e) {
+            e.printStackTrace();
+            logger.debug("*** PhobosException {}", e);
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.debug("*** Exception {}", e);
+        }
+        return new ModelAndView(reportePdfOrdenMeritoEgresadoCiclo);
+    }
+
+    @RequestMapping("reportePdfOrdenMeritoFacultad")
+    public ModelAndView reportePdfOrdenMeritoFacultad(@RequestParam("cicloId") Long cicloId, Model model, HttpSession session) {
+        try {
+            CicloAcademico cicloAcademico = service.findCicloAcademico(new CicloAcademico(cicloId));
+            List<Egresado> egresados = service.getEgresadosForPdf(cicloAcademico);
+            List<Facultad> facultades = service.allFacultadesForReporte();
+            model.addAttribute("cicloAcademico", cicloAcademico);
+            model.addAttribute("egresados", egresados);
+            model.addAttribute("facultades", facultades);
+            model.addAttribute("tipoReporte", "facultad");
+        } catch (PhobosException e) {
+            e.printStackTrace();
+            logger.debug("*** PhobosException {}", e);
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.debug("*** Exception {}", e);
+        }
+        return new ModelAndView(reportePdfOrdenMeritoEgresadoCiclo);
+    }
+
+    @RequestMapping("reportePdfOrdenMeritoEspecialidad")
+    public ModelAndView reportePdfOrdenMeritoEspecialidad(@RequestParam("cicloId") Long cicloId, Model model, HttpSession session) {
+        try {
+            CicloAcademico cicloAcademico = service.findCicloAcademico(new CicloAcademico(cicloId));
+            List<Facultad> facultades = service.allFacultadesForReporte();
+            List<Egresado> egresados = service.getEgresadosForPdf(cicloAcademico);
+            model.addAttribute("cicloAcademico", cicloAcademico);
+            model.addAttribute("egresados", egresados);
+            model.addAttribute("facultades", facultades);
+        } catch (PhobosException e) {
+            e.printStackTrace();
+            logger.debug("*** PhobosException {}", e);
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.debug("*** Exception {}", e);
+        }
+        return new ModelAndView(reportePdfOrdenMeritoEgresadoEspecialidad);
     }
 
     private CicloAcademico findCicloAcademico(DataSessionPivot ds, HttpSession session) {
