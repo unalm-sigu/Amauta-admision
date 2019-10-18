@@ -11,6 +11,7 @@ import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.aporte.AporteAlumnoCiclo;
 import pe.edu.lamolina.model.aporte.ResumenAporteAlumno;
 import static pe.edu.lamolina.model.enums.AportesEnum.A05;
+import static pe.edu.lamolina.model.enums.AportesEnum.A51;
 import pe.edu.lamolina.model.enums.EstadoAporteEnum;
 import static pe.edu.lamolina.model.enums.EstadoAporteEnum.DEBE;
 import static pe.edu.lamolina.model.enums.EstadoAporteEnum.PAGO;
@@ -88,6 +89,21 @@ public class AporteAlumnoCicloDAOH extends AbstractEasyDAO<AporteAlumnoCiclo> im
                 .left("deudaAlumno")
                 .filter("raa.id", resumen)
                 .in("aac.estado", Arrays.asList(DEBE, PAGO))
+                .orderBy("aac.numeroCuota", "apo.nombre");
+        return all(sql);
+    }
+
+    @Override
+    public List<AporteAlumnoCiclo> allAporteDuplicadoCarnetByCicloMatriculaResumen(CicloAcademico cicloAcademico, List<MatriculaResumen> matriculaResumens) {
+        Octavia sql = Octavia.query()
+                .from(AporteAlumnoCiclo.class, "aac")
+                .join("aporteCiclo ac", "ac.aporte apo", "ac.cicloAcademico ca")
+                .join("ac.cuentaBancaria cta")
+                .join("resumenAporteAlumno raa", "raa.matriculaResumen mr", "mr.alumno alu")
+                .filter("ca.codigo", cicloAcademico.getCodigo())
+                .filter("apo.codigo", A51.name().substring(1))
+                .in("aac.estado", Arrays.asList(EstadoAporteEnum.DEBE, EstadoAporteEnum.PAGO))
+                .in("mr.id", matriculaResumens)
                 .orderBy("aac.numeroCuota", "apo.nombre");
         return all(sql);
     }

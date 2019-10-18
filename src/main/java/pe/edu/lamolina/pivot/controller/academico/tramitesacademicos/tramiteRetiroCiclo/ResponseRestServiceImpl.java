@@ -163,7 +163,7 @@ public class ResponseRestServiceImpl extends AbstractRestClient<JsonResponse> im
     }
 
     @Override
-    public JsonResponse downloadHistorial(Alumno alumno, Usuario usuario,CicloAcademico academico, Parametro paramRutaMatricula) {
+    public JsonResponse downloadHistorial(Alumno alumno, Usuario usuario, CicloAcademico academico, Parametro paramRutaMatricula) {
         ObjectNode json = new ObjectNode(JsonNodeFactory.instance);
         json.put("idAlumno", alumno.getId());
         json.put("idUsuario", usuario.getId());
@@ -174,4 +174,35 @@ public class ResponseRestServiceImpl extends AbstractRestClient<JsonResponse> im
 
         return this.postToBackEnd(url, json);
     }
+
+    @Override
+    public JsonResponse eliminarAporteDuplicadoCarnet(MatriculaResumen matriculaResumen, DataSessionPivot ds) {
+        Parametro parametro = findParametro(ParametrosSistemasEnum.SALTO_PIVOT_BIENESTAR);
+        Aporte aporte = aporteDAO.findByCode(AportesEnum.A51);
+        ObjectNode json = new ObjectNode(JsonNodeFactory.instance);
+        json.put("idUsuario", ds.getUsuario().getId());
+        json.put("idMatricula", matriculaResumen.getId());
+        json.put("idAporte", aporte.getId());
+
+        String url = String.format("%s/aportesRest/quitarAporte",
+                parametro.getValor());
+
+        return this.postToBackEnd(url, json);
+    }
+
+    @Override
+    public JsonResponse generarAporteDuplicadoCarnet(MatriculaResumen matriculaResumen, DataSessionPivot ds) {
+        Parametro parametro = findParametro(ParametrosSistemasEnum.SALTO_PIVOT_BIENESTAR);
+        Aporte aporte = aporteDAO.findByCode(AportesEnum.A51);
+        ObjectNode json = new ObjectNode(JsonNodeFactory.instance);
+        json.put("idUsuario", ds.getUsuario().getId());
+        json.put("idMatricula", matriculaResumen.getId());
+        json.put("idAporte", aporte.getId());
+
+        String url = String.format("%s/aportesRest/agregarAporte",
+                parametro.getValor());
+
+        return this.postToBackEnd(url, json);
+    }
+
 }

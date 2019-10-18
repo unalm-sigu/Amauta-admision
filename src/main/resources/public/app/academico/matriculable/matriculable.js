@@ -527,6 +527,66 @@ new Vue({
                 }
             });
         },
+        asignarAporteDuplicado(item) {
+            let $vue = this;
+            $vue.configConfirmAction.message = '¿Seguro que desea asignarle el aporte duplicado carné?';
+            $vue.configConfirmAction.okaction = () => {
+                $vue.actionAsignarAporteDuplicado(item);
+            };
+            $vue.$refs.modalConfirmAction.open();
+        },
+        actionAsignarAporteDuplicado(item) {
+            let $vue = this;
+            $.ajax({
+                method: 'POST',
+                url: APP.url('academico/matriculable/agregarAporteDuplicadoCarnet'),
+                contentType: "application/json",
+                data: JSON.stringify(item),
+                success: function (response) {
+                    $vue.$refs.modalConfirmAction.confirmReaction(response.success);
+                    if (response.success) {
+                        $vue.$refs.load.loadRemoteData();
+                        notify(response.message, "success");
+                    } else {
+                        notify(response.message, "error");
+                    }
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                    $vue.$refs.modalConfirmAction.confirmReaction(false);
+                }
+            });
+        },
+        quitarAporteDuplicado(item) {
+            let $vue = this;
+            $vue.configConfirmAction.message = '¿Seguro que desea remover el aporte duplicado carné?';
+            $vue.configConfirmAction.okaction = () => {
+                $vue.actionQuitarAporteDuplicado(item);
+            };
+            $vue.$refs.modalConfirmAction.open();
+        },
+        actionQuitarAporteDuplicado(item) {
+            let $vue = this;
+            $.ajax({
+                method: 'POST',
+                url: APP.url('academico/matriculable/quitarAporteDuplicadoCarnet'),
+                contentType: "application/json",
+                data: JSON.stringify(item),
+                success: function (response) {
+                    $vue.$refs.modalConfirmAction.confirmReaction(response.success);
+                    if (response.success) {
+                        $vue.$refs.load.loadRemoteData();
+                        notify(response.message, "success");
+                    } else {
+                        notify(response.message, "error");
+                    }
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                    $vue.$refs.modalConfirmAction.confirmReaction(false);
+                }
+            });
+        },
         urlGoMaipi(item) {
             let $vue = this;
             return APP.url('academico/alumno/' + item.alumno.id + '/goMaipi') + $vue.getOrigenURL();
