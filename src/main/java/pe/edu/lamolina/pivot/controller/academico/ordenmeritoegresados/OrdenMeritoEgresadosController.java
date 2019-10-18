@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.List;
+import java.util.Map;
 import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,9 +25,11 @@ import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.ControlMeritoEgresado;
 import pe.edu.lamolina.model.academico.Egresado;
+import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -273,8 +276,10 @@ public class OrdenMeritoEgresadosController {
             CicloAcademico cicloAcademico = service.findCicloAcademico(new CicloAcademico(cicloId));
 
             List<Egresado> egresados = service.getEgresadosForPdf(cicloAcademico);
+            List<Facultad> facultades = service.allFacultadesForReporte();
             model.addAttribute("cicloAcademico", cicloAcademico);
             model.addAttribute("egresados", egresados);
+            model.addAttribute("facultades", facultades);
             model.addAttribute("tipoReporte", "ciclo");
         } catch (PhobosException e) {
             e.printStackTrace();
@@ -291,8 +296,10 @@ public class OrdenMeritoEgresadosController {
         try {
             CicloAcademico cicloAcademico = service.findCicloAcademico(new CicloAcademico(cicloId));
             List<Egresado> egresados = service.getEgresadosForPdf(cicloAcademico);
+            List<Facultad> facultades = service.allFacultadesForReporte();
             model.addAttribute("cicloAcademico", cicloAcademico);
             model.addAttribute("egresados", egresados);
+            model.addAttribute("facultades", facultades);
             model.addAttribute("tipoReporte", "facultad");
         } catch (PhobosException e) {
             e.printStackTrace();
@@ -308,9 +315,11 @@ public class OrdenMeritoEgresadosController {
     public ModelAndView reportePdfOrdenMeritoEspecialidad(@RequestParam("cicloId") Long cicloId, Model model, HttpSession session) {
         try {
             CicloAcademico cicloAcademico = service.findCicloAcademico(new CicloAcademico(cicloId));
+            List<Facultad> facultades = service.allFacultadesForReporte();
             List<Egresado> egresados = service.getEgresadosForPdf(cicloAcademico);
             model.addAttribute("cicloAcademico", cicloAcademico);
             model.addAttribute("egresados", egresados);
+            model.addAttribute("facultades", facultades);
         } catch (PhobosException e) {
             e.printStackTrace();
             logger.debug("*** PhobosException {}", e);

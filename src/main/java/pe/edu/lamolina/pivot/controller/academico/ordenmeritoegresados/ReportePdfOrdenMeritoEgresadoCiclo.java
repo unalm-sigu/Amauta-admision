@@ -42,8 +42,8 @@ public class ReportePdfOrdenMeritoEgresadoCiclo extends AbstractOnlyPdfView {
 
     private final String header1 = "UNIVERSIDAD NACIONAL AGRARIA LA MOLINA";
     private final String header2 = "OFICINA DE ESTUDIOS Y REGISTROS ACADÉMICOS";
-    private final String titleGeneral = "Orden de Mérito General";
-    private final String titleFacultad = "Orden de Mérito por Facultad";
+    private final String titleGeneral = "Orden de Mérito Egresados General";
+    private final String titleFacultad = "Orden de Mérito Egresados por Facultad";
     private final boolean numeroPagina = true;
 
     @Override
@@ -63,11 +63,14 @@ public class ReportePdfOrdenMeritoEgresadoCiclo extends AbstractOnlyPdfView {
     @Override
     protected void buildPdfDocument(Map<String, Object> model, Document document, PdfWriter writer, HttpServletRequest request, HttpServletResponse response) throws Exception {
         List<Egresado> egresados = (List<Egresado>) model.get("egresados");
+        List<Facultad> facultades = (List<Facultad>) model.get("facultades");
+        List<Facultad> facultadUnica = facultades.stream().filter(fac -> fac.getCarrera().size() == 1).collect(Collectors.toList());
+        Collections.sort(facultadUnica, new Facultad.CompareCodigo());
         CicloAcademico cicloAcademico = (CicloAcademico) model.get("cicloAcademico");
         String tipoReporte = (String) model.get("tipoReporte");
         this.buildFooter(writer);
         this.buildHeader(document, cicloAcademico, egresados.size(), tipoReporte);
-        this.buildBody(egresados, cicloAcademico, document, tipoReporte);
+        this.buildBody(egresados, cicloAcademico, facultadUnica, document, tipoReporte);
         DateTime today = new DateTime();
         String nombre = this.header1 + today.toString("yyyyMMdd_HHmm");
         response.setHeader("Content-Disposition", "attachment; filename=\"" + nombre + ".pdf\"");
@@ -133,7 +136,7 @@ public class ReportePdfOrdenMeritoEgresadoCiclo extends AbstractOnlyPdfView {
         tableAlumno.setLockedWidth(true);
         tablePdf.setSpacingAfter(1f);
         this.addCeld(0, PdfPCell.ALIGN_CENTER, cicloAcademico.getDescripcion2(), 4, tableAlumno, fontBold, BaseColor.WHITE);
-        this.addCeld(-2, PdfPCell.ALIGN_CENTER, cantidadAlumno + " alumnos", 4, tableAlumno, fontBold, BaseColor.WHITE);
+//        this.addCeld(-2, PdfPCell.ALIGN_CENTER, cantidadAlumno + " alumnos", 4, tableAlumno, fontBold, BaseColor.WHITE);
         String fecha = "La Molina, " + TypesUtil.getStringDate(new Date(), "EEEE dd 'de' MMMM 'del' yyyy", "es");
         this.addCeld(0, PdfPCell.ALIGN_RIGHT, fecha, 4, tableAlumno, fontCursivo, BaseColor.WHITE);
         document.add(tableAlumno);
@@ -175,7 +178,8 @@ public class ReportePdfOrdenMeritoEgresadoCiclo extends AbstractOnlyPdfView {
         tableBody.addCell(cell);
     }
 
-    private void buildBody(List<Egresado> egresados, CicloAcademico cicloAcademico, Document document, String tipoReporte) throws DocumentException, BadElementException, IOException {
+    private void buildBody(List<Egresado> egresados, CicloAcademico cicloAcademico, List<Facultad> facultades, Document document, String tipoReporte)
+            throws DocumentException, BadElementException, IOException {
         Font fontTableBody = new Font(Font.FontFamily.HELVETICA, 7, Font.NORMAL, BaseColor.BLACK);
 
         Acumulador contadorRow = new Acumulador();
@@ -184,13 +188,23 @@ public class ReportePdfOrdenMeritoEgresadoCiclo extends AbstractOnlyPdfView {
         if ("facultad".equals(tipoReporte)) { // reporte por facultad
             Map<String, Facultad> mapFacultad = TypesUtil.convertListToMap("alumno.carrera.facultad", "alumno.carrera.facultad", egresados);
             Map<Long, List<Egresado>> mapBeanFacultad = TypesUtil.convertListToMapList("alumno.carrera.facultad.id", egresados);
+            int i = 0;
             for (Facultad facultad : mapFacultad.values()) {
+                i++;
+                if (!facultades.contains(facultad)) {
+                    continue;
+                }
                 List<Egresado> list = mapBeanFacultad.get(facultad.getId());
                 tableBody = this.createTableBody();
                 list = this.orderList(list);
                 contadorRow.incrementar(6);
                 tableHeader = this.createTableHeaderDescripcion(facultad.getNombre(), cicloAcademico);
                 contadorRow = this.addCeldList(list, tableBody, tableHeader, fontTableBody, contadorRow, document, cicloAcademico, tipoReporte, facultad.getNombre(), egresados.size());
+                if (i != mapFacultad.size()) {
+                    document.newPage();
+                    this.buildHeader(document, cicloAcademico, list.size(), tipoReporte);
+                    contadorRow = new Acumulador();
+                }
             }
         } else if ("ciclo".equals(tipoReporte)) { // reporte general
             tableBody = this.createTableBody();
