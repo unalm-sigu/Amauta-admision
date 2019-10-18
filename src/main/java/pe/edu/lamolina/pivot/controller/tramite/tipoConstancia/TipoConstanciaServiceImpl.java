@@ -20,11 +20,13 @@ import pe.edu.lamolina.model.general.TipoOficina;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.tramite.AccionTramiteDocumento;
 import pe.edu.lamolina.model.tramite.ConfiguracionFirmaDocumento;
+import pe.edu.lamolina.model.tramite.PrecioDocumento;
 import pe.edu.lamolina.model.tramite.TipoDocumentoAcademico;
 import pe.edu.lamolina.pivot.dao.general.ConfiguracionFirmaDocumentoDAO;
 import pe.edu.lamolina.pivot.dao.general.OficinaDAO;
 import pe.edu.lamolina.pivot.dao.general.TipoOficinaDAO;
 import pe.edu.lamolina.pivot.dao.tramite.AccionTramiteDocumentoDAO;
+import pe.edu.lamolina.pivot.dao.tramite.PrecioDocumentoDAO;
 import pe.edu.lamolina.pivot.dao.tramite.TipoConstanciaDAO;
 
 @Service
@@ -45,6 +47,9 @@ public class TipoConstanciaServiceImpl implements TipoConstanciaService {
 
     @Autowired
     AccionTramiteDocumentoDAO accionTramiteDocumentoDAO;
+
+    @Autowired
+    PrecioDocumentoDAO precioDocumentoDAO;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -177,6 +182,10 @@ public class TipoConstanciaServiceImpl implements TipoConstanciaService {
         List<AccionTramiteDocumento> accionTramiteDocumentos = accionTramiteDocumentoDAO.allByTipoDocumento(tipoDocumento);
         for (AccionTramiteDocumento accionTramiteDocumento : accionTramiteDocumentos) {
             accionTramiteDocumentoDAO.delete(accionTramiteDocumento);
+        }
+        List<PrecioDocumento> precioDocumentos = precioDocumentoDAO.allByTipoDocumentoAcademico(tipoDocumento);
+        for (PrecioDocumento precioDocumento : precioDocumentos) {
+            precioDocumentoDAO.delete(precioDocumento);
         }
         TipoDocumentoAcademico tipoDocumentoAcademicoDB = tipoConstanciaDAO.find(tipoDocumento);
         tipoConstanciaDAO.delete(tipoDocumentoAcademicoDB);

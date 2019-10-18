@@ -185,7 +185,9 @@ public class ReportePdfOrdenMeritoCiclo extends AbstractOnlyPdfView {
         if ("facultad".equals(tipoReporte)) { // reporte por facultad
             Map<String, Facultad> mapFacultad = TypesUtil.convertListToMap("alumno.carrera.facultad", "alumno.carrera.facultad", listAlumnoCiclo);
             Map<String, List<AlumnoCiclo>> mapBeanFacultad = TypesUtil.convertListToMapList("alumno.carrera.facultad.id", listAlumnoCiclo);
+            int j = 0;
             for (Facultad facultad : mapFacultad.values()) {
+                j++;
                 List<AlumnoCiclo> listMapperByFacultad = mapBeanFacultad.get(facultad.getId());
                 Map<Integer, List<AlumnoCiclo>> mapListAlumnoCicloforFacultad = TypesUtil.convertListToMapList("nivel", listMapperByFacultad);
                 for (int nivel = 1; nivel < 6; nivel++) {
@@ -198,6 +200,16 @@ public class ReportePdfOrdenMeritoCiclo extends AbstractOnlyPdfView {
                     contadorRow.incrementar(6);
                     tableHeader = this.createTableHeaderDescripcion(facultad.getNombre(), cicloAcademico, nivel);
                     contadorRow = this.addCeldList(list, tableBody, tableHeader, fontTableBody, contadorRow, document, nivel, cicloAcademico, tipoReporte, facultad.getNombre(), listAlumnoCiclo.size());
+                    if (nivel != 5) {
+                        document.newPage();
+                        this.buildHeader(document, cicloAcademico, listAlumnoCiclo.size(), tipoReporte);
+                        contadorRow = new Acumulador();
+                    }
+                }
+                if (j != mapFacultad.size()) {
+                    document.newPage();
+                    this.buildHeader(document, cicloAcademico, listAlumnoCiclo.size(), tipoReporte);
+                    contadorRow = new Acumulador();
                 }
             }
         } else if ("ciclo".equals(tipoReporte)) { // reporte general
@@ -209,6 +221,11 @@ public class ReportePdfOrdenMeritoCiclo extends AbstractOnlyPdfView {
                 tableHeader = this.createTableHeaderDescripcion(null, cicloAcademico, nivel);
                 contadorRow.incrementar(6);
                 contadorRow = this.addCeldList(list, tableBody, tableHeader, fontTableBody, contadorRow, document, nivel, cicloAcademico, tipoReporte, null, listAlumnoCiclo.size());
+                if (nivel != 5) {
+                    document.newPage();
+                    this.buildHeader(document, cicloAcademico, listAlumnoCiclo.size(), tipoReporte);
+                    contadorRow = new Acumulador();
+                }
             }
         }
     }

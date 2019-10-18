@@ -399,4 +399,26 @@ public class OrdenMeritoEgresadosServiceImp implements OrdenMeritoEgresadosServi
         return egresadoDAO.allForPdfByCicloAcademico(cicloAcademico);
     }
 
+    @Override
+    public List<Facultad> allFacultadesForReporte() {
+        List<Carrera> carreras = carreraDAO.allActivasByModalidadEnum(ModalidadEstudioEnum.PRE);
+        Collections.sort(carreras, new Carrera.CompareCodigo());
+
+        Map<Long, Facultad> mapFacultad = TypesUtil.convertListToMap("facultad.id", "facultad", carreras);
+        List<Facultad> facultades = new ArrayList(mapFacultad.values());
+
+        Map<Long, List<Carrera>> mapCarreras = TypesUtil.convertListToMapList("facultad.id", carreras);
+        for (Map.Entry<Long, List<Carrera>> entry : mapCarreras.entrySet()) {
+            Facultad fac = mapFacultad.get(entry.getKey());
+            List<Carrera> carrerasFac = entry.getValue();
+            fac.setCarrera(carrerasFac);
+        }
+
+        List<Facultad> facultadUnica = facultades.stream().filter(fac -> fac.getCarrera().size() == 1).collect(Collectors.toList());
+        Collections.sort(facultadUnica, new Facultad.CompareCodigo());
+        List<Facultad> noFacultadUnica = facultades.stream().filter(fac -> fac.getCarrera().size() > 1).collect(Collectors.toList());
+        Collections.sort(noFacultadUnica, new Facultad.CompareCodigo());
+        return facultades;
+    }
+
 }

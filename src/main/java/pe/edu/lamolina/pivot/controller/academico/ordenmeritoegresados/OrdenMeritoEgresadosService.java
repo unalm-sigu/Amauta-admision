@@ -6,6 +6,7 @@ import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.ControlMeritoEgresado;
 import pe.edu.lamolina.model.academico.Egresado;
+import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -32,5 +33,7 @@ public interface OrdenMeritoEgresadosService {
     void saveEgresado(Egresado egresado, Usuario usuario);
 
     List<Egresado> getEgresadosForPdf(CicloAcademico cicloAcademico);
+
+    List<Facultad> allFacultadesForReporte();
 
 }

@@ -81,10 +81,12 @@ public interface ConstanciaSolicitudService {
 
     public List<PlantillaIncrustacionDocumento> allTramiteIncrustaciones(TramiteDocumentoAcademico documentoAcademico);
 
-    void deleteIncrustacion(PlantillaIncrustacionDocumento plantillaIncrustacionDocumento);
+    TramiteDocumentoAcademico deleteIncrustacion(PlantillaIncrustacionDocumento plantillaIncrustacionDocumento);
 
     public List<VariablePlantilla> allParametros(PlantillaDocumentoAcademico pid);
 
     public List<AlumnoCiclo> allAlumnoCiclo(Alumno alumno);
+
+    public List<AlumnoCiclo> allAlumnoCiclo(TramiteDocumentoAcademico tramiteDocumentoAcademico);
 
 }

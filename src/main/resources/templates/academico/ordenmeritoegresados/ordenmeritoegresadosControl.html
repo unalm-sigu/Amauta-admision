@@ -9,13 +9,8 @@
 
             <header class="header b-b padder-lg">
                 <a class="btn btn-sm btn-default pull-right" v-bind:href="URL"> Regresar </a>
-                <p class="h2 m-b-n" th:inline="text"> Orden de Mérito [[${control.cicloAcademico.descripcion}]] </p>
+                <p class="h2 m-b-n" th:inline="text"> Orden de Mérito Egresados [[${control.cicloAcademico.descripcion}]] </p>
 
-                <div class="block m-b-sm m-t-n">
-                    <p class="h4" th:if="${control.escala=='CICLO'}" th:inline="text"> Nivel: [[${control.escalaEnum.value}]] </p>
-                    <p class="h4" th:if="${control.escala=='FAC'}" th:inline="text"> Nivel: [[${control.escalaEnum.value}]]  de [[${control.facultad?.nombre}]]</p>
-                    <p class="h4" th:if="${control.escala=='ESPE'}" th:inline="text"> Nivel: [[${control.escalaEnum.value}]]  de [[${control.carrera?.nombre}]]</p>
-                </div>
             </header>
             <section class="wrapper-lg m-b-xs">
                 <section class="panel">           
