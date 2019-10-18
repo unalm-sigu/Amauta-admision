@@ -205,6 +205,7 @@ public class MatriculableServiceImp implements MatriculableService {
 
     @Override
     public List<MatriculaResumen> allAlumnosByCicloRolDynatable(DynatableFilter filter, CicloAcademico cicloAcademico, List<Carrera> carreras, String todo) {
+        long t10 = System.currentTimeMillis();
         long t1 = System.currentTimeMillis();
         List<MatriculaResumen> matriculaResumens = matriculaResumenDAO.allByCicloCarrerasDynatable(filter, cicloAcademico, carreras, todo);
         long t2 = System.currentTimeMillis();
@@ -253,6 +254,9 @@ public class MatriculableServiceImp implements MatriculableService {
             matriculaResumen.setResumenesAportes(misResumenAporteAlumnos);
 
         }
+
+        long t20 = System.currentTimeMillis();
+        logger.debug("Query de {} matriculables ejecutado en {} mseg", matriculaResumens.size(), (t20 - t10));
         return matriculaResumens;
     }
 
