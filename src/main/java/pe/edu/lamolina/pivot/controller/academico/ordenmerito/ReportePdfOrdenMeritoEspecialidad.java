@@ -166,8 +166,9 @@ public class ReportePdfOrdenMeritoEspecialidad extends AbstractOnlyPdfView {
         Map<String, Carrera> mapCarrera = TypesUtil.convertListToMap("alumno.carrera", "alumno.carrera", listAlumnoCiclo);
         Map<String, List<AlumnoCiclo>> mapBeanCarrera = TypesUtil.convertListToMapList("alumno.carrera.id", listAlumnoCiclo);
         List<Carrera> listCarrera = new ArrayList(mapCarrera.values());
-
+        int i = 0;
         for (Carrera carrera : listCarrera) {
+            i++;
             List<AlumnoCiclo> listMapperByCarrera = mapBeanCarrera.get(carrera.getId());
             Map<Integer, List<AlumnoCiclo>> mapListAlumnoCicloforCarrera = TypesUtil.convertListToMapList("nivel", listMapperByCarrera);
             for (int nivel = 1; nivel < 6; nivel++) { // iterar nivel 1 al 5
@@ -180,6 +181,16 @@ public class ReportePdfOrdenMeritoEspecialidad extends AbstractOnlyPdfView {
                 tableHeader = this.createTableHeaderDescripcion(carrera.getNombre(), cicloAcademico, nivel);
                 contadorRow.incrementar(5); // espacio del table header
                 contadorRow = this.addCeldList(list, tableBody, tableHeader, fontTableBody, contadorRow, document, nivel, cicloAcademico, listAlumnoCiclo.size());
+                if (nivel != 5) {
+                    document.newPage();
+                    this.buildHeader(document, cicloAcademico, listAlumnoCiclo.size());
+                    contadorRow = new Acumulador();
+                }
+            }
+            if (i != listCarrera.size()) {
+                document.newPage();
+                this.buildHeader(document, cicloAcademico, listAlumnoCiclo.size());
+                contadorRow = new Acumulador();
             }
         }
     }
