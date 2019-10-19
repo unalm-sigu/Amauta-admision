@@ -41,4 +41,8 @@ public interface PerfilCompaniaDAO extends EasyDAO<PerfilCompania> {
 
     PerfilCompania findByCodigo(PerfilColaboradorEnum perfilEnum);
 
+    List<PerfilCompania> allCargosByContexto(String contexto);
+
+    List<PerfilCompania> allFuncionesByContexto(String contexto);
+
 }

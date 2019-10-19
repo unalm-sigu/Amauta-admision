@@ -29,4 +29,8 @@ public interface VerificadorService {
 
     String getOrigen(String origen, String defecto);
 
+    Oficina findOficina(Oficina oficina);
+
+    boolean isGestorOficinaEPG(DataSessionPivot ds);
+
 }
