@@ -32,4 +32,6 @@ public interface OrdenMeritoService {
 
     List<Facultad> allFacultadesForReporte();
 
+    List<ControlOrdenMerito> allByCiclo(CicloAcademico cicloAcademico);
+
 }

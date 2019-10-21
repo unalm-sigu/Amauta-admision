@@ -83,7 +83,8 @@ public class ReportePdfOrdenMeritoCiclo extends AbstractOnlyPdfView {
         writer.setPageEvent(event);
     }
 
-    private void buildHeader(Document document, CicloAcademico cicloAcademico, int cantidadAlumno, String tipoReporte) throws DocumentException, BadElementException, IOException {
+    private void buildHeader(Document document, CicloAcademico cicloAcademico, int cantidadAlumno, String tipoReporte)
+            throws DocumentException, BadElementException, IOException {
         Font fontCursivo = new Font(Font.FontFamily.HELVETICA, 9, Font.BOLDITALIC, BaseColor.BLACK);
         Font fontBold = new Font(Font.FontFamily.HELVETICA, 10, Font.BOLD, BaseColor.BLACK);
 
@@ -210,7 +211,9 @@ public class ReportePdfOrdenMeritoCiclo extends AbstractOnlyPdfView {
                     contadorRow = this.addCeldList(list, tableBody, tableHeader, fontTableBody, contadorRow, document, nivel, cicloAcademico, tipoReporte, facultad.getNombre(), listAlumnoCiclo.size());
                     if (nivel != 5) {
                         document.newPage();
-                        this.buildHeader(document, cicloAcademico, listAlumnoCiclo.size(), tipoReporte);
+//                        this.buildHeader(document, cicloAcademico, listAlumnoCiclo.size(), tipoReporte);
+                        int cantidad = list.get(0).getControlMeritoFacultad().getAlumnosComputados();
+                        this.buildHeader(document, cicloAcademico, cantidad, tipoReporte);
                         contadorRow = new Acumulador();
                     }
                 }
@@ -228,7 +231,8 @@ public class ReportePdfOrdenMeritoCiclo extends AbstractOnlyPdfView {
                 tableBody = this.createTableBody();
                 tableHeader = this.createTableHeaderDescripcion(null, cicloAcademico, nivel);
                 contadorRow.incrementar(6);
-                contadorRow = this.addCeldList(list, tableBody, tableHeader, fontTableBody, contadorRow, document, nivel, cicloAcademico, tipoReporte, null, listAlumnoCiclo.size());
+                contadorRow = this.addCeldList(list, tableBody, tableHeader, fontTableBody, contadorRow, document, nivel, cicloAcademico,
+                        tipoReporte, null, listAlumnoCiclo.size());
                 if (nivel != 5) {
                     document.newPage();
                     this.buildHeader(document, cicloAcademico, listAlumnoCiclo.size(), tipoReporte);
@@ -307,7 +311,9 @@ public class ReportePdfOrdenMeritoCiclo extends AbstractOnlyPdfView {
         }
     }
 
-    private Acumulador addCeldList(List<AlumnoCiclo> list, PdfPTable tableBody, PdfPTable tableHeader, Font fontTableBody, Acumulador contadorRows, Document document, int nivel, CicloAcademico cicloAcademico, String tipoReporte, String facultad, int cantidad) throws DocumentException, BadElementException, IOException {
+    private Acumulador addCeldList(List<AlumnoCiclo> list, PdfPTable tableBody, PdfPTable tableHeader, Font fontTableBody, Acumulador contadorRows,
+            Document document, int nivel, CicloAcademico cicloAcademico, String tipoReporte, String facultad, int cantidad)
+            throws DocumentException, BadElementException, IOException {
         boolean nuevoNivel = true;
         for (AlumnoCiclo alumnoCiclo : list) {
             this.addRowForData(alumnoCiclo, contadorRows);
@@ -319,7 +325,7 @@ public class ReportePdfOrdenMeritoCiclo extends AbstractOnlyPdfView {
                 document.newPage();
                 contadorRows = new Acumulador();
                 contadorRows.incrementar(6);
-                this.buildHeader(document, cicloAcademico, cantidad, facultad);
+                this.buildHeader(document, cicloAcademico, cantidad, tipoReporte);
                 tableBody = this.createTableBody();
             }
 

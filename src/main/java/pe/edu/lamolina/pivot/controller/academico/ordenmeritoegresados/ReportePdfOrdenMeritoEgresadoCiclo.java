@@ -83,7 +83,8 @@ public class ReportePdfOrdenMeritoEgresadoCiclo extends AbstractOnlyPdfView {
         writer.setPageEvent(event);
     }
 
-    private void buildHeader(Document document, CicloAcademico cicloAcademico, int cantidadAlumno, String tipoReporte) throws DocumentException, BadElementException, IOException {
+    private void buildHeader(Document document, CicloAcademico cicloAcademico, int cantidadAlumno, String tipoReporte)
+            throws DocumentException, BadElementException, IOException {
         Font fontCursivo = new Font(Font.FontFamily.HELVETICA, 9, Font.BOLDITALIC, BaseColor.BLACK);
         Font fontBold = new Font(Font.FontFamily.HELVETICA, 10, Font.BOLD, BaseColor.BLACK);
 
@@ -295,7 +296,7 @@ public class ReportePdfOrdenMeritoEgresadoCiclo extends AbstractOnlyPdfView {
                 document.newPage();
                 contadorRows = new Acumulador();
                 contadorRows.incrementar(6);
-                this.buildHeader(document, cicloAcademico, cantidad, facultad);
+                this.buildHeader(document, cicloAcademico, cantidad, tipoReporte);
                 tableBody = this.createTableBody();
             }
 
