@@ -672,10 +672,11 @@ public class OrdenMeritoServiceImp implements OrdenMeritoService {
             fac.setCarrera(carrerasFac);
         }
 
-        List<Facultad> facultadUnica = facultades.stream().filter(fac -> fac.getCarrera().size() == 1).collect(Collectors.toList());
-        Collections.sort(facultadUnica, new Facultad.CompareCodigo());
-        List<Facultad> noFacultadUnica = facultades.stream().filter(fac -> fac.getCarrera().size() > 1).collect(Collectors.toList());
-        Collections.sort(noFacultadUnica, new Facultad.CompareCodigo());
         return facultades;
+    }
+
+    @Override
+    public List<ControlOrdenMerito> allByCiclo(CicloAcademico cicloAcademico) {
+        return controlOrdenMeritoDAO.allByCicloAcademico(cicloAcademico);
     }
 }
