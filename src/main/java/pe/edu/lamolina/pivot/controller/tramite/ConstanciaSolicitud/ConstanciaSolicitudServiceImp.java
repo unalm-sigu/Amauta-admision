@@ -784,7 +784,9 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
                     htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), alumno.getPersona().getNombreCompleto());
                     break;
                 case TITULO_PROFESIONAL:
-                    htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), egresado.getTitulo().getNombre());
+                    if (egresado.getTitulo() != null) {
+                        htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), egresado.getTitulo().getNombre());
+                    }
                     break;
 
                 case FECHA_CONSTANCIA:
@@ -850,7 +852,9 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
                     htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), programa);
                     break;
                 case FECHA_EGRESO:
-                    htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), TypesUtil.getStringDate(egresado.getFechaEgresado(), "dd/MM/yyyy") );
+                    if (egresado.getFechaEgresado() != null) {
+                        htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), TypesUtil.getStringDate(egresado.getFechaEgresado(), "dd/MM/yyyy"));
+                    }
                     break;
             }
         }
