@@ -761,7 +761,7 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
     private String recorrerVariables(String htmlContent, List<VariablePlantilla> variables, Alumno alumno, Egresado egresado, List<AlumnoCiclo> alumnoCiclos, TramiteDocumentoAcademico documentoAcademico, Usuario usuario) {
         OficinaEnum oficinaEnum = documentoAcademico.getTipoDocumentoAcademico().getTipoConstanciaEnum() == TipoConstanciaEnum.CONS ? OficinaEnum.UR : OficinaEnum.OERA;
         Oficina oficina = oficinaDAO.findByCode(oficinaEnum.name());
-        
+
         for (VariablePlantilla var : variables) {
             switch (var.getVariableGenerica().getCodigoVaribleEnum()) {
                 case MATRICULA:
@@ -779,6 +779,12 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
                     break;
                 case APELLIDO_PERSONA:
                     htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), alumno.getPersona().getApellidosNombres());
+                    break;
+                case NOMBRE_PERSONA:
+                    htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), alumno.getPersona().getNombreCompleto());
+                    break;
+                case TITULO_PROFESIONAL:
+                    htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), egresado.getTitulo().getNombre());
                     break;
 
                 case FECHA_CONSTANCIA:
@@ -842,6 +848,9 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
                     }
 
                     htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), programa);
+                    break;
+                case FECHA_EGRESO:
+                    htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), TypesUtil.getStringDate(egresado.getFechaEgresado(), "dd/MM/yyyy") );
                     break;
             }
         }
