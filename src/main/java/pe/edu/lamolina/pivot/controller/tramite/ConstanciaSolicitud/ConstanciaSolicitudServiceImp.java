@@ -119,6 +119,7 @@ import static pe.edu.lamolina.pivot.zelper.constant.Constantine.VARIABLE_TABLE;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import pe.edu.lamolina.pivot.dao.general.OficinaDAO;
 import static pe.edu.lamolina.pivot.zelper.constant.Constantine.CODIGO_ALIANZA_ESTRATEGICA;
 import static pe.edu.lamolina.pivot.zelper.constant.Constantine.VARIABLE_INCRUSTACION;
 
@@ -229,6 +230,9 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
 
     @Autowired
     AcreenciaDAO acreenciaDAO;
+
+    @Autowired
+    OficinaDAO oficinaDAO;
 
     @Autowired
     S3Service s3Service;
@@ -755,6 +759,9 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
     }
 
     private String recorrerVariables(String htmlContent, List<VariablePlantilla> variables, Alumno alumno, Egresado egresado, List<AlumnoCiclo> alumnoCiclos, TramiteDocumentoAcademico documentoAcademico, Usuario usuario) {
+        OficinaEnum oficinaEnum = documentoAcademico.getTipoDocumentoAcademico().getTipoConstanciaEnum() == TipoConstanciaEnum.CONS ? OficinaEnum.UR : OficinaEnum.OERA;
+        Oficina oficina = oficinaDAO.findByCode(oficinaEnum.name());
+        
         for (VariablePlantilla var : variables) {
             switch (var.getVariableGenerica().getCodigoVaribleEnum()) {
                 case MATRICULA:
@@ -789,6 +796,10 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
                 case EPG_PROMEDIO_PONDERADO:
                     htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), egresado.returnPromedioGraduacionTrunc(2).toString());
                     break;
+                case JEFE_OFICINA_OERA:
+                case JEFE_URA:
+                    htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), oficina.getJefeEncargado() == null ? oficina.getPersonaJefe().getNombreCompleto() : oficina.getJefeEncargado().getNombreCompleto());
+                    break;
                 case CORRELATIVO_DOC:
                     if (documentoAcademico.getCorrelativoDocumento() == null) {
                         DateTime today = new DateTime();
@@ -796,8 +807,8 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
                         TipoDocumentoCompaniaEnum tipoConEnum = documentoAcademico.getTipoDocumentoAcademico().getTipoConstanciaEnum() == TipoConstanciaEnum.CONS ? TipoDocumentoCompaniaEnum.DOC_CONS : TipoDocumentoCompaniaEnum.DOC_CERT;
                         TipoDocumentoCompania tipoDocumentoCompania = tipoDocumentoCompaniaDAO.findByCodigo(tipoConEnum);
                         SerieDocumento serieDocumento = serieDocumentoService.getCorrelativo(tipoDocumentoCompania, Long.valueOf(today.getYear()), usuario);
-                        
-                        documentoAcademico.setCorrelativoDocumento(serieDocumento.getNumeroDocumento() + "-UR/" + serieDocumento.getNumeroSerie());
+
+                        documentoAcademico.setCorrelativoDocumento(serieDocumento.getNumeroDocumento() + "-" + oficina.getCodigoDocumento() + "/" + serieDocumento.getNumeroSerie());
                         tramiteDocumentoAcademicoDAO.updateColumns(documentoAcademico, "correlativoDocumento");
                     }
                     htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), documentoAcademico.getCorrelativoDocumento());
