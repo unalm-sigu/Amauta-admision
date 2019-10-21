@@ -17,6 +17,7 @@ import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.enums.ColaboradorEstadoEnum;
 import static pe.edu.lamolina.model.enums.ColaboradorEstadoEnum.DESP;
@@ -27,6 +28,7 @@ import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.enums.PerfilColaboradorEnum;
 import pe.edu.lamolina.model.enums.PerfilEstadoEnum;
 import pe.edu.lamolina.model.enums.PersonaEstadoEnum;
+import pe.edu.lamolina.model.enums.TipoOficinaEnum;
 import pe.edu.lamolina.model.enums.TipoPerfilCompaniaEnum;
 import pe.edu.lamolina.model.enums.UserEstadoEnum;
 import pe.edu.lamolina.model.general.Colaborador;
@@ -1250,6 +1252,11 @@ public class ColaboradorServiceImp implements ColaboradorService {
             cargos = perfilCompaniaDAO.allCargoByOficina(oficina);
             PerfilCompania administrativo = perfilCompaniaDAO.findByCodigo(PerfilColaboradorEnum.ADMTVO);
             cargos.add(administrativo);
+
+            if (verificadorService.isGestorOficinaEPG(ds)) {
+                List<PerfilCompania> cargosEPG = perfilCompaniaDAO.allCargosByContexto("EPG");
+                cargos.addAll(cargosEPG);
+            }
         }
 
         Collections.sort(cargos, new PerfilCompania.CompareNombre());
@@ -1258,13 +1265,25 @@ public class ColaboradorServiceImp implements ColaboradorService {
 
     @Override
     public List<PerfilCompania> allCargoByOficina(Oficina oficina, DataSessionPivot ds) {
-        List<PerfilCompania> cargos = new ArrayList();
-        if (verificadorService.puedeVerOficina(oficina, ds)) {
-            cargos = perfilCompaniaDAO.allCargoByOficina(oficina);
-            Collections.sort(cargos, new PerfilCompania.CompareNombre());
+        List<PerfilCompania> cargosAll = new ArrayList();
+        Oficina oficinaBD = verificadorService.findOficina(oficina);
+        if (verificadorService.puedeVerOficina(oficinaBD, ds)) {
+            List<PerfilCompania> cargos = perfilCompaniaDAO.allCargoByOficina(oficinaBD);
+            cargosAll.addAll(cargos);
         }
 
-        return cargos;
+        if (verificadorService.isGestorOficinaEPG(ds)) {
+            if (oficinaBD.getTipoOficina().getCodigoEnum() == TipoOficinaEnum.ESP) {
+                Carrera carrera = carreraDAO.find(oficinaBD.getInstanciaOficina());
+                if (carrera.getModalidadEstudio().isPostgrado()) {
+                    List<PerfilCompania> cargos = perfilCompaniaDAO.allCargosByContexto("EPG");
+                    cargosAll.addAll(cargos);
+                }
+            }
+        }
+
+        Collections.sort(cargosAll, new PerfilCompania.CompareNombre());
+        return cargosAll;
     }
 
     @Override
@@ -1275,6 +1294,10 @@ public class ColaboradorServiceImp implements ColaboradorService {
 
         } else {
             funciones = perfilCompaniaDAO.allFuncionesByOficina(oficina);
+            if (verificadorService.isGestorOficinaEPG(ds)) {
+                List<PerfilCompania> funcionesEPG = perfilCompaniaDAO.allFuncionesByContexto("EPG");
+                funciones.addAll(funcionesEPG);
+            }
         }
 
         Collections.sort(funciones, new PerfilCompania.CompareNombre());
@@ -1283,13 +1306,25 @@ public class ColaboradorServiceImp implements ColaboradorService {
 
     @Override
     public List<PerfilCompania> allFuncionByOficina(Oficina oficina, DataSessionPivot ds) {
-        List<PerfilCompania> funciones = new ArrayList();
+        List<PerfilCompania> funcionesAll = new ArrayList();
+        Oficina oficinaBD = verificadorService.findOficina(oficina);
         if (verificadorService.puedeVerOficina(oficina, ds)) {
-            funciones = perfilCompaniaDAO.allFuncionesByOficina(oficina);
-            Collections.sort(funciones, new PerfilCompania.CompareNombre());
+            List<PerfilCompania> funciones = perfilCompaniaDAO.allFuncionesByOficina(oficina);
+            funcionesAll.addAll(funciones);
         }
 
-        return funciones;
+        if (verificadorService.isGestorOficinaEPG(ds)) {
+            if (oficinaBD.getTipoOficina().getCodigoEnum() == TipoOficinaEnum.ESP) {
+                Carrera carrera = carreraDAO.find(oficinaBD.getInstanciaOficina());
+                if (carrera.getModalidadEstudio().isPostgrado()) {
+                    List<PerfilCompania> funciones = perfilCompaniaDAO.allFuncionesByContexto("EPG");
+                    funcionesAll.addAll(funciones);
+                }
+            }
+        }
+
+        Collections.sort(funcionesAll, new PerfilCompania.CompareNombre());
+        return funcionesAll;
     }
 
     @Override

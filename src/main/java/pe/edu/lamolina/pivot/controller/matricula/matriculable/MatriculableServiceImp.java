@@ -1079,13 +1079,11 @@ public class MatriculableServiceImp implements MatriculableService {
 
 //        List<Egresado> egresados = egresadoDAO.allByAlumnos(alumnos);
 //        Map<Long, Egresado> mapEgresados = TypesUtil.convertListToMap("alumno.id", egresados);
-
         List<Reincorporacion> reincorporacions = reincorporacionDAO.allByEstadoTramiteAndAlumnos(alumnos, new EstadoTramite(EstadoTramiteEnum.SOL_ACEP.getId()));
         Map<Long, List<Reincorporacion>> mapReincorporaciones = TypesUtil.convertListToMapList("alumno.id", reincorporacions);
 
 //        List<SituacionAcademica> situacionAcademicas = situacionAcademicaDAO.all();
 //        Map<String, SituacionAcademica> mapSituacionAcademicas = TypesUtil.convertListToMap("codigo", situacionAcademicas);
-
         for (Alumno alumno : alumnos) {
             CicloAcademico cicloActivoMod = mapCiclo.get(alumno.getModalidadEstudio().getCodigo());
             List<AlumnoCicloCurso> allAlumnoCicloCurso = mapAlumnoCicloCurso.get(alumno.getId());
@@ -1096,7 +1094,7 @@ public class MatriculableServiceImp implements MatriculableService {
             logger.debug("Cantidad de {} total {}", respositorVisor.getContador(), respositorVisor.getCantidadTotal());
 //            Map<Long, AlumnoCiclo> mapAllAlumnoCicloByCiclo = TypesUtil.convertListToMap("cicloAcademico.id", allAlumnoCiclos);
 //            Map<Long, List<AlumnoCicloCurso>> mapAllAlumnoCicloByAlumnoCiclo = TypesUtil.convertListToMapList("alumnoCiclo.id", fillList(allAlumnoCicloCurso));
-            
+
             promedioService.promediarAllCicloSync(alumno, cicloActivoMod, ciclosAcademicos, allAlumnoCiclos, allAlumnoCicloCurso, reincorporac, ds);
 //            this.revisarSituacionAcademica(alumnoCiclo.getAlumno(), ds);
             respositorVisor.incrementar();

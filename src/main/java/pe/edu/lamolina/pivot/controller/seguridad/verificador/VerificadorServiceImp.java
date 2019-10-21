@@ -296,10 +296,6 @@ public class VerificadorServiceImp implements VerificadorService {
             }
 
             if (rol.getCodigoEnum() == RolEnum.GESTOR_OFICINA_EPG) {
-                List<UsuarioRol> usuarioRol = usuarioRolDAO.allWithOfficeByUserRol(ds.getUsuario(), rol);
-                for (UsuarioRol ur : usuarioRol) {
-                    oficinas.add(ur.getOficina());
-                }
                 List<Oficina> direccionesPosgrado = oficinaDAO.allDireccionPosgrado();
                 List<Oficina> especialidadesPosgrado = oficinaDAO.allEspecialidadPosgrado();
 
@@ -323,6 +319,21 @@ public class VerificadorServiceImp implements VerificadorService {
         byte[] decoded = Base64.getMimeDecoder().decode(origen);
         String output = new String(decoded);
         return output;
+    }
+
+    @Override
+    public Oficina findOficina(Oficina oficina) {
+        return oficinaDAO.find(oficina);
+    }
+
+    @Override
+    public boolean isGestorOficinaEPG(DataSessionPivot ds) {
+        for (Rol rol : ds.getRoles()) {
+            if (rol.getCodigoEnum() == RolEnum.GESTOR_OFICINA_EPG) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }

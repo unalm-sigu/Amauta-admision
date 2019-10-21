@@ -213,4 +213,26 @@ public class PerfilCompaniaDAOH extends AbstractEasyDAO<PerfilCompania> implemen
         return find(sql);
     }
 
+    @Override
+    public List<PerfilCompania> allCargosByContexto(String contexto) {
+        Octavia sql = Octavia.query()
+                .from(PerfilCompania.class, "pc")
+                .left("pc.oficinaContiene")
+                .filter("pc.contexto", contexto)
+                .filter("pc.tipo", TipoPerfilCompaniaEnum.CARGO);
+
+        return all(sql);
+    }
+
+    @Override
+    public List<PerfilCompania> allFuncionesByContexto(String contexto) {
+        Octavia sql = Octavia.query()
+                .from(PerfilCompania.class, "pc")
+                .left("pc.oficinaContiene")
+                .filter("pc.contexto", contexto)
+                .filter("pc.tipo", TipoPerfilCompaniaEnum.FUNCION);
+
+        return all(sql);
+    }
+
 }
