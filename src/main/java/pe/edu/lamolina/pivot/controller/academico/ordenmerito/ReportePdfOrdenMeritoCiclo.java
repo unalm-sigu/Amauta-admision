@@ -27,11 +27,14 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.joda.time.DateTime;
 import org.springframework.stereotype.Component;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.ControlOrdenMerito;
 import pe.edu.lamolina.model.academico.Facultad;
+import static pe.edu.lamolina.model.enums.ControlOrdenMeritoEscalaEnum.CICLO;
 import pe.edu.lamolina.pivot.controller.general.view.HeaderReportePdf;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.misc.Acumulador;
@@ -69,9 +72,11 @@ public class ReportePdfOrdenMeritoCiclo extends AbstractOnlyPdfView {
         Collections.sort(facultadUnica, new Facultad.CompareCodigo());
         List<Long> idFacs = facultadUnica.stream().map(f -> f.getId()).collect(Collectors.toList());
         String tipoReporte = (String) model.get("tipoReporte");
+        List<ControlOrdenMerito> control = (List<ControlOrdenMerito>) model.get("control");
+
         this.buildFooter(writer);
-        this.buildHeader(document, cicloAcademico, listAlumnoCiclo.size(), tipoReporte);
-        this.buildBody(listAlumnoCiclo, cicloAcademico, idFacs, document, tipoReporte);
+//        this.buildHeader(document, cicloAcademico, listAlumnoCiclo.size(), tipoReporte);
+        this.buildBody(listAlumnoCiclo, cicloAcademico, idFacs, control, document, tipoReporte);
         DateTime today = new DateTime();
         String nombre = this.header1 + today.toString("yyyyMMdd_HHmm");
         response.setHeader("Content-Disposition", "attachment; filename=\"" + nombre + ".pdf\"");
@@ -180,64 +185,63 @@ public class ReportePdfOrdenMeritoCiclo extends AbstractOnlyPdfView {
         tableBody.addCell(cell);
     }
 
-    private void buildBody(List<AlumnoCiclo> listAlumnoCiclo, CicloAcademico cicloAcademico, List<Long> facultades, Document document, String tipoReporte)
-            throws DocumentException, BadElementException, IOException {
+    private void buildBody(List<AlumnoCiclo> listAlumnoCiclo, CicloAcademico cicloAcademico, List<Long> facultades, List<ControlOrdenMerito> control,
+            Document document, String tipoReporte)
+            throws DocumentException, BadElementException, IOException, Exception {
         Font fontTableBody = new Font(Font.FontFamily.HELVETICA, 7, Font.NORMAL, BaseColor.BLACK);
 
-        Acumulador contadorRow = new Acumulador();
+        Acumulador contadorRow;
         PdfPTable tableBody = null;
         PdfPTable tableHeader = null;
 
-        if ("facultad".equals(tipoReporte)) { // reporte por facultad
+        if ("facultad".equals(tipoReporte)) {
+            Map<Long, ControlOrdenMerito> mapControl = TypesUtil.convertListToMap("facultad.id", control);
             Map<String, Facultad> mapFacultad = TypesUtil.convertListToMap("alumno.carrera.facultad", "alumno.carrera.facultad", listAlumnoCiclo);
             Map<Long, List<AlumnoCiclo>> mapBeanFacultad = TypesUtil.convertListToMapList("alumno.carrera.facultad.id", listAlumnoCiclo);
-            int j = 0;
+
             for (Facultad facultad : mapFacultad.values()) {
-                j++;
                 if (!facultades.contains(facultad.getId())) {
                     continue;
                 }
+                ControlOrdenMerito cc = mapControl.get(facultad.getId());
+                Map ccMap = cc.toMap();
                 List<AlumnoCiclo> listMapperByFacultad = mapBeanFacultad.get(facultad.getId());
                 Map<Integer, List<AlumnoCiclo>> mapListAlumnoCicloforFacultad = TypesUtil.convertListToMapList("nivel", listMapperByFacultad);
-                for (int nivel = 1; nivel < 6; nivel++) {
-                    List<AlumnoCiclo> list = mapListAlumnoCicloforFacultad.get(nivel);
-                    if (list == null || list.isEmpty()) {
-                        continue;
-                    }
-                    tableBody = this.createTableBody();
+                for (Map.Entry<Integer, List<AlumnoCiclo>> mapList : mapListAlumnoCicloforFacultad.entrySet()) {
+                    int cantidadAlumnos = (Integer) ccMap.get("computadosNivel" + mapList.getKey());
+                    List<AlumnoCiclo> list = mapList.getValue();
                     list = this.orderList(list);
-                    contadorRow.incrementar(6);
-                    tableHeader = this.createTableHeaderDescripcion(facultad.getNombre(), cicloAcademico, nivel);
-                    contadorRow = this.addCeldList(list, tableBody, tableHeader, fontTableBody, contadorRow, document, nivel, cicloAcademico, tipoReporte, facultad.getNombre(), listAlumnoCiclo.size());
-                    if (nivel != 5) {
-                        document.newPage();
-//                        this.buildHeader(document, cicloAcademico, listAlumnoCiclo.size(), tipoReporte);
-                        int cantidad = list.get(0).getControlMeritoFacultad().getAlumnosComputados();
-                        this.buildHeader(document, cicloAcademico, cantidad, tipoReporte);
-                        contadorRow = new Acumulador();
-                    }
-                }
-                if (j != mapFacultad.size()) {
                     document.newPage();
-                    this.buildHeader(document, cicloAcademico, listAlumnoCiclo.size(), tipoReporte);
+                    this.buildHeader(document, cicloAcademico, cantidadAlumnos, tipoReporte);
+
                     contadorRow = new Acumulador();
+                    contadorRow.incrementar(6);
+
+                    tableBody = this.createTableBody();
+                    tableHeader = this.createTableHeaderDescripcion(facultad.getNombre(), cicloAcademico, mapList.getKey());
+                    contadorRow = this.addCeldList(list, tableBody, tableHeader, fontTableBody, contadorRow, document, mapList.getKey(),
+                            cicloAcademico, tipoReporte, facultad.getNombre(), cantidadAlumnos);
                 }
             }
         } else if ("ciclo".equals(tipoReporte)) { // reporte general
             Map<Integer, List<AlumnoCiclo>> mapListAlumnoCiclo = TypesUtil.convertListToMapList("nivel", listAlumnoCiclo);
-            for (int nivel = 1; nivel < 6; nivel++) { // iterar nivel de 1 al 5
-                List<AlumnoCiclo> list = mapListAlumnoCiclo.get(nivel);
+            Map<String, ControlOrdenMerito> mapControl = TypesUtil.convertListToMap("escala", control);
+            ControlOrdenMerito cc = mapControl.get(CICLO.name());
+            Map ccMap = cc.toMap();
+            ObjectUtil.printAttr(cc);
+            for (Map.Entry<Integer, List<AlumnoCiclo>> entry : mapListAlumnoCiclo.entrySet()) {
+                int cantidadAlumnos = (Integer) ccMap.get("computadosNivel" + entry.getKey());
+                System.out.println("cantidadAlumnos " + cantidadAlumnos);
+                document.newPage();
+                this.buildHeader(document, cicloAcademico, cantidadAlumnos, tipoReporte);
+                contadorRow = new Acumulador();
+                List<AlumnoCiclo> list = entry.getValue();
                 list = this.orderList(list); // odernar lista
                 tableBody = this.createTableBody();
-                tableHeader = this.createTableHeaderDescripcion(null, cicloAcademico, nivel);
+                tableHeader = this.createTableHeaderDescripcion(null, cicloAcademico, entry.getKey());
                 contadorRow.incrementar(6);
-                contadorRow = this.addCeldList(list, tableBody, tableHeader, fontTableBody, contadorRow, document, nivel, cicloAcademico,
-                        tipoReporte, null, listAlumnoCiclo.size());
-                if (nivel != 5) {
-                    document.newPage();
-                    this.buildHeader(document, cicloAcademico, listAlumnoCiclo.size(), tipoReporte);
-                    contadorRow = new Acumulador();
-                }
+                contadorRow = this.addCeldList(list, tableBody, tableHeader, fontTableBody, contadorRow, document, entry.getKey(), cicloAcademico,
+                        tipoReporte, null, cantidadAlumnos);
             }
         }
     }

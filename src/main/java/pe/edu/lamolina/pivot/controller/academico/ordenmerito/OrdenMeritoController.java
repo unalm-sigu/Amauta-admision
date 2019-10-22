@@ -238,9 +238,11 @@ public class OrdenMeritoController {
             CicloAcademico cicloAcademico = service.findCicloAcademico(new CicloAcademico(cicloId));
             List<AlumnoCiclo> listAlumnoCiclo = service.generatePdfOrdenMerito(cicloAcademico);
             List<Facultad> facultades = service.allFacultadesForReporte();
+            List<ControlOrdenMerito> control = service.allByCiclo(cicloAcademico);
             model.addAttribute("cicloAcademico", cicloAcademico);
             model.addAttribute("listAlumnoCiclo", listAlumnoCiclo);
             model.addAttribute("facultades", facultades);
+            model.addAttribute("control", control);
             model.addAttribute("tipoReporte", "ciclo");
         } catch (PhobosException e) {
             e.printStackTrace();
@@ -258,9 +260,11 @@ public class OrdenMeritoController {
             CicloAcademico cicloAcademico = service.findCicloAcademico(new CicloAcademico(cicloId));
             List<AlumnoCiclo> listAlumnoCiclo = service.generatePdfOrdenMerito(cicloAcademico);
             List<Facultad> facultades = service.allFacultadesForReporte();
+            List<ControlOrdenMerito> control = service.allByCiclo(cicloAcademico);
             model.addAttribute("cicloAcademico", cicloAcademico);
             model.addAttribute("listAlumnoCiclo", listAlumnoCiclo);
             model.addAttribute("facultades", facultades);
+            model.addAttribute("control", control);
             model.addAttribute("tipoReporte", "facultad");
         } catch (PhobosException e) {
             e.printStackTrace();
