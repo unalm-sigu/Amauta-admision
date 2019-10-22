@@ -1,6 +1,5 @@
 package pe.edu.lamolina.pivot.dao.seguridad.hibernate;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.hibernate.Query;
@@ -118,6 +117,18 @@ public class UsuarioRolDAOH extends AbstractEasyDAO<UsuarioRol> implements Usuar
                 .filter("r.id", rol);
 
         return find(sql);
+    }
+
+    @Override
+    public List<UsuarioRol> allByUsuarioRol(Usuario usuario, Rol rol) {
+        Octavia sql = Octavia.query()
+                .from(UsuarioRol.class, "ur")
+                .join("usuario u", "rol r")
+                .filter("u.id", usuario)
+                .filter("r.id", rol)
+                .isNull("ur.fechaFin");
+
+        return all(sql);
     }
 
     @Override

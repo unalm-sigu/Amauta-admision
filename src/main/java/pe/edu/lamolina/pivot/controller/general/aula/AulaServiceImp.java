@@ -512,9 +512,11 @@ public class AulaServiceImp implements AulaService {
     public List<HorarioAula> allHorariosAulaByCiclo(CicloAcademico cicloAcademico, Aula aula) {
 
         //    List<HorarioAula> horariosAulasByCiclo = horarioAulaDAO.allByCicloAndTipoHorario(cicloAcademico, aula, TipoHorarioAulaEnum.DICT);
-        List<DocenteSeccion> docentesSeccionesByCiclo = docenteSeccionDAO.allByCiclo(cicloAcademico, aula, EstadoEnum.ACT);
-        docentesSeccionesByCiclo = docentesSeccionesByCiclo.stream().filter(x -> x.esDocentePrincipal())
+        List<DocenteSeccion> docentesSeccionesByCiclo = docenteSeccionDAO.allByCicloAula(cicloAcademico, aula, EstadoEnum.ACT);
+        docentesSeccionesByCiclo = docentesSeccionesByCiclo.stream()
+                .filter(x -> x.esDocentePrincipal())
                 .collect(Collectors.toList());
+
         Map<Long, List<DocenteSeccion>> docentesSeccionBySeccion = TypesUtil.convertListToMapList("seccion.id", docentesSeccionesByCiclo);
 
         EventoCicloAcademico eventoDictado = eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(cicloAcademico, EventoAcademicoEnum.CLASES_PRE);

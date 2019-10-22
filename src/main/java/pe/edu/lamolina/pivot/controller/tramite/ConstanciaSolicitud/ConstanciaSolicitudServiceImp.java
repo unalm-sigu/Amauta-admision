@@ -919,7 +919,7 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
 
         String htmlContent = plantilla.getContenido();
         List<PlantillaIncrustacionDocumento> incrustacionDocumentos = plantillaIncrustacionDAO.allIncrustacionesByTramite(documentoAcademico);
-        System.out.println("CANTIDAD: ---- >" + incrustacionDocumentos.size());
+        
 
         List<VariablePlantilla> variables = variablePlantillaDAO.allByPlantilla(plantilla);
         Alumno alumno = alumnoDAO.findAllInfo(documentoAcademico.getTramite().getAlumno().getId());

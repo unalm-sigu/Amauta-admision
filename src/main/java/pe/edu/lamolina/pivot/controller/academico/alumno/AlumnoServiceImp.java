@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.NumberFormat;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
@@ -549,38 +550,65 @@ public class AlumnoServiceImp implements AlumnoService {
 
         if (usuario == null) {
             this.crearUsuarioAlumno(personaForm.getEmailCompania(), personaBD, usuarioRegistra);
+
         } else {
+            boolean modificar = true;
+            Usuario user = usuarioDAO.findByGoogleEmail(personaForm.getEmailCompania());
+            if (user != null) {
+                Persona persona = user.getPersona();
+                String msg = "Este email ya pertenece a " + persona.getNombreCompleto() + " (" + persona.getId() + ")";
+                Assert.isTrue(persona.getId() == personaBD.getId().longValue(), msg);
+                if (user.getId() != usuario.getId().longValue()) {
+                    modificar = false;
+                }
+            }
+
             logger.debug("{} =? {}", personaBD.getEmailCompania(), personaForm.getEmailCompania());
             if (!personaBD.getEmailCompania().equals(personaForm.getEmailCompania())) {
                 this.validarEmailEmpresaConPersona(personaForm.getEmailCompania(), personaBD);
                 logger.debug("not eq");
-                usuario.setGoogle(personaForm.getEmailCompania());
-                usuario.setFechaModifica(new Date());
-                usuario.setUserModifica(usuarioRegistra);
-                usuarioDAO.update(usuario);
+                if (modificar) {
+                    usuario.setGoogle(personaForm.getEmailCompania());
+                    usuario.setFechaModifica(new Date());
+                    usuario.setUserModifica(usuarioRegistra);
+                    usuarioDAO.update(usuario);
+                }
+            }
 
-                Rol rol = rolDAO.findByCode(RolEnum.ALU);
-                this.validarEmailEmpresaSinPersona(personaForm.getEmailCompania());
+            this.validarEmailEmpresaSinPersona(personaForm.getEmailCompania());
+            Rol rol = rolDAO.findByCode(RolEnum.ALU);
+            List<UsuarioRol> userRoles = usuarioRolDAO.allByUsuarioRol(usuario, rol);
 
-                UsuarioRol ur = usuarioRolDAO.findByUsuarioRol(usuario, rol);
+            if (userRoles.isEmpty()) {
+                UsuarioRol userRol = new UsuarioRol();
+                userRol.setEstado(UserEstadoEnum.ACT);
+                userRol.setFechaInicio(new Date());
+                userRol.setFechaRegistro(new Date());
+                userRol.setRol(rol);
+                userRol.setUserRegistro(usuarioRegistra);
+                userRol.setUsuario(usuario);
 
-                if (ur == null) {
-                    ur = new UsuarioRol();
-                    ur.setEstado(UserEstadoEnum.ACT);
-                    ur.setFechaInicio(new Date());
-                    ur.setFechaRegistro(new Date());
-                    ur.setRol(rol);
-                    ur.setUserRegistro(usuarioRegistra);
-                    ur.setUsuario(usuario);
-                    usuarioRolDAO.save(ur);
-                } else {
-                    ur.setEstado(UserEstadoEnum.ACT);
-                    usuarioRolDAO.update(ur);
+                usuarioRolDAO.save(userRol);
+
+            } else {
+                boolean noTiene = true;
+                for (UsuarioRol userRol : userRoles) {
+                    if (userRol.getEstadoEnum() == UserEstadoEnum.ACT) {
+                        noTiene = false;
+                    }
+                }
+                if (noTiene) {
+                    for (UsuarioRol userRol : userRoles) {
+                        userRol.setEstado(UserEstadoEnum.ACT);
+                        usuarioRolDAO.update(userRol);
+                        break;
+                    }
                 }
 
             }
 
         }
+
         this.updatePersona(personaBD, personaForm);
     }
 
