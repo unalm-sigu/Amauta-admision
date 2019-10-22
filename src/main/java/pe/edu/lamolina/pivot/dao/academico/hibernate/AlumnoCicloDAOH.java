@@ -30,6 +30,7 @@ import pe.edu.lamolina.model.academico.SituacionAcademica;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.INH;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.NMAT;
+import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.SituacionAcademicaEnum;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_4;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_4U;
@@ -1018,6 +1019,19 @@ public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements Alu
                 .filter("ca.tipo", REG.name());
 
         return (Long) sql.find(getCurrentSession());
+    }
+
+    @Override
+    public List<AlumnoCiclo> allByCicloAcademicoModalidadEstudio(CicloAcademico ciclo, ModalidadEstudioEnum modalidad) {
+        Octavia sql = Octavia.query()
+                .from(AlumnoCiclo.class, "ac")
+                .join("cicloAcademico ca", "alumno alu", "alu.modalidadEstudio me")
+                .join("alu.persona per", "carrera car", "car.facultad fac")
+                .filter("estado", EstadoMatriculaEnum.MAT)
+                .filter("me.codigo", modalidad)
+                .filter("cicloAcademico", ciclo);
+
+        return sql.all(getCurrentSession());
     }
 
 }

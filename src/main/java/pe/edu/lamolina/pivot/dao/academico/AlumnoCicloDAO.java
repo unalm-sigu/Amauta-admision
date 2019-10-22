@@ -12,6 +12,7 @@ import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.PlanCurricular;
 import pe.edu.lamolina.model.academico.SituacionAcademica;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
+import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.SituacionAcademicaEnum;
 import pe.edu.lamolina.pivot.controller.matricula.matriculable.ActoPreBean;
 
@@ -124,15 +125,18 @@ public interface AlumnoCicloDAO extends EasyDAO<AlumnoCiclo> {
 
     void deleteById(AlumnoCiclo alumnoCiclo);
 
-    public List<AlumnoCiclo> allByAlumnosReg(List<Alumno> alumnos);
+    List<AlumnoCiclo> allByAlumnosReg(List<Alumno> alumnos);
 
     List<AlumnoCiclo> allByCicloOrderMerito(CicloAcademico cicloAcademico);
 
     List<AlumnoCiclo> allActivesOrdenMeritoByAlumnoAsc(Alumno alumno);
+
     List<ActoPreBean> allCandidadosActosPregrado(CicloAcademico cicloAcademico, CicloAcademico cicloAnterior, ModalidadEstudio modalidadEstudio);
 
     List<ActoPreBean> allVotantesActosPregrado(CicloAcademico cicloAcademico, ModalidadEstudio modalidadEstudio);
 
-    public Long countCiclosRegular(Alumno alumno);
+    Long countCiclosRegular(Alumno alumno);
+
+    List<AlumnoCiclo> allByCicloAcademicoModalidadEstudio(CicloAcademico ciclo, ModalidadEstudioEnum modalidadEstudioEnum);
 
 }

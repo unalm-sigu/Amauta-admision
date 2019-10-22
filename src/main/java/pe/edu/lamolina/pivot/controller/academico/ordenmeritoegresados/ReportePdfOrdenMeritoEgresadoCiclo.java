@@ -64,7 +64,8 @@ public class ReportePdfOrdenMeritoEgresadoCiclo extends AbstractOnlyPdfView {
     protected void buildPdfDocument(Map<String, Object> model, Document document, PdfWriter writer, HttpServletRequest request, HttpServletResponse response) throws Exception {
         List<Egresado> egresados = (List<Egresado>) model.get("egresados");
         List<Facultad> facultades = (List<Facultad>) model.get("facultades");
-        List<Facultad> facultadUnica = facultades.stream().filter(fac -> fac.getCarrera().size() == 1).collect(Collectors.toList());
+//        List<Facultad> facultadUnica = facultades.stream().filter(fac -> fac.getCarrera().size() == 1).collect(Collectors.toList());
+        List<Facultad> facultadUnica = facultades.stream().collect(Collectors.toList());
         Collections.sort(facultadUnica, new Facultad.CompareCodigo());
         List<Long> idFacs = facultadUnica.stream().map(f -> f.getId()).collect(Collectors.toList());
         CicloAcademico cicloAcademico = (CicloAcademico) model.get("cicloAcademico");
