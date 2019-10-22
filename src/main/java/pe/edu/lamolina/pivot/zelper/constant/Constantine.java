@@ -131,13 +131,14 @@ public interface Constantine {
     String HTML_PRE = "<!DOCTYPE html>\n"
             + "<html>\n"
             + "<head>\n"
+            + "<meta charset='UTF-8'/>\n"
             + "	<title></title>\n"
             + "</head>\n"
             + "<body>";
 
     String HTML_SUB = "</body>\n"
             + "</html>";
-    
+
     String CODIGO_ALIANZA_ESTRATEGICA = "003";
     String VARIABLE_TABLE = "albLoop";
     String VARIABLE_INCRUSTACION = "albIncrustacion";
