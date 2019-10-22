@@ -23,7 +23,8 @@ public class GrupoHorasExamenDAOH extends AbstractEasyDAO<GrupoHorasExamen> impl
     public GrupoHorasExamen find(long id) {
         Octavia sql = Octavia.query()
                 .from(GrupoHorasExamen.class, "ghe")
-                .join("rolExamenes re", "grupoHoras gh", "horaInicio", "horaFin")
+                .join("rolExamenes re", "grupoHoras gh")
+                .leftJoin("horaInicio", "horaFin")
                 .filter("ghe.id", id);
         return find(sql);
     }
@@ -42,7 +43,8 @@ public class GrupoHorasExamenDAOH extends AbstractEasyDAO<GrupoHorasExamen> impl
     public List<GrupoHorasExamen> allByRolExamenesAndDyna(RolExamenes rolExamenes, DynatableFilter filter) {
         DynatableSql sql = new DynatableSql(filter)
                 .from(GrupoHorasExamen.class, "ghe")
-                .join("rolExamenes re", "grupoHoras gh", "horaInicio", "horaFin")
+                .join("rolExamenes re", "grupoHoras gh")
+                .leftJoin("horaInicio", "horaFin")
                 .searchFields("gh.codigo", "gh.letra")
                 .filter("re.id", rolExamenes)
                 .orderBy("gh.letra");
