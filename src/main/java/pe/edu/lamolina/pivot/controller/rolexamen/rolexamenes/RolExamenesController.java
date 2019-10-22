@@ -56,10 +56,10 @@ public class RolExamenesController {
         });
         model.addAttribute("jHoras", jHoras.toString());
 
-        List<EventoCicloAcademico> eventoCicloAcademicos = service.allEventoCicloAcademicos(ds.getCicloAcademico());
+        List<EventoCicloAcademico> eventosExamenes = service.allEventoCicloAcademicos(ds.getCicloAcademico());
         ArrayNode arrayEventosCiclosAcademicos = new ArrayNode(jc);
-        for (EventoCicloAcademico eventoCicloAcademico : eventoCicloAcademicos) {
-            ObjectNode json = createEventoCicloAcademicoJson(eventoCicloAcademico);
+        for (EventoCicloAcademico evento : eventosExamenes) {
+            ObjectNode json = createEventoCicloAcademicoJson(evento);
             arrayEventosCiclosAcademicos.add(json);
         }
         model.addAttribute("jEventosCiclosAcademicos", arrayEventosCiclosAcademicos.toString());

@@ -3,7 +3,6 @@ package pe.edu.lamolina.pivot.controller.academico.evento;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.calendar.EventCalendar;
+import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
@@ -65,14 +65,14 @@ public class EventoCicloAcademicoServiceImp implements EventoCicloAcademicoServi
         ObjectUtil.eliminarAttrSinId(eventoCicloAcademico, "cicloAcademico");
         ObjectUtil.eliminarAttrSinId(eventoCicloAcademico, "eventoAcademico");
         eventoCicloAcademico.setCicloAcademico(cicloAcademico);
-        if (eventoCicloAcademico.getEventoAcademico() == null) {
-            throw new PhobosException("Tiene que especificar el evento académico.");
-        }
+        Assert.isNotNull(eventoCicloAcademico.getEventoAcademico(), "Tiene que especificar el evento académico.");
+
+        Color color = colorDAO.findLastColor();
+        eventoCicloAcademico.setColor(color);
         eventoCicloAcademico.setEstado(EventoCicloAcademicoEstadoEnum.CRE.name());
         eventoCicloAcademico.setFechaRegistro(new Date());
         eventoCicloAcademico.setUserRegistro(usuario);
-        Color color = colorDAO.findLastColor();
-        eventoCicloAcademico.setColor(color);
+
         eventoCicloAcademicoDAO.save(eventoCicloAcademico);
         color.setOrdenEvento(color.getOrdenEvento() + 1);
         colorDAO.update(color);
@@ -116,6 +116,5 @@ public class EventoCicloAcademicoServiceImp implements EventoCicloAcademicoServi
         }
         return eventoss;
     }
-    
 
 }

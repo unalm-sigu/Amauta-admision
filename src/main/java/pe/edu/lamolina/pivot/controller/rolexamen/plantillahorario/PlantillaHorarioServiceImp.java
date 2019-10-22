@@ -2,6 +2,7 @@ package pe.edu.lamolina.pivot.controller.rolexamen.plantillahorario;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -24,6 +25,7 @@ import pe.edu.lamolina.model.enums.EventoAcademicoEnum;
 import pe.edu.lamolina.model.enums.RolExamenesEstadoEnum;
 import pe.edu.lamolina.model.enums.SituacionRolExamenesEnum;
 import pe.edu.lamolina.model.enums.TipoGrupoHorasEnum;
+import pe.edu.lamolina.model.enums.TipoHorarioAulaEnum;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.horario.DiaHoraGrupo;
@@ -222,7 +224,7 @@ public class PlantillaHorarioServiceImp implements PlantillaHorarioService {
         // throw new PhobosException("no pasaras");
     }
 
-    public void agregarGrupoHorasFaltantes(RolExamenes rolExamenes) {
+    private void agregarGrupoHorasFaltantes(RolExamenes rolExamenes) {
         Set<GrupoHoras> gruposGenerados = grupoHorasExamenDAO.allByRolExamenes(rolExamenes).stream().map(GrupoHorasExamen::getGrupoHoras).collect(Collectors.toSet());
 
         List<GrupoHoras> gruposFaltantes = grupoHorasDAO.allByTipoCiclo("REGULAR")
@@ -244,7 +246,7 @@ public class PlantillaHorarioServiceImp implements PlantillaHorarioService {
         }
     }
 
-    public void calcularPlantillaHorario(SemanaExamen semanaExamen, List<Hora> horas) {
+    private void calcularPlantillaHorario(SemanaExamen semanaExamen, List<Hora> horas) {
         List<GrupoHoras> gruposHoras = this.allGrupoHorasBySemanaExamen(semanaExamen);
         //  List<GrupoHorasExamen> gruposHorasExamenes = new ArrayList<>();
         for (GrupoHoras gruposHora : gruposHoras) {
@@ -361,39 +363,67 @@ public class PlantillaHorarioServiceImp implements PlantillaHorarioService {
             for (FechaHoraGrupoExamen fechaHoraGrupoExamen : fechasHorasGruposExamen) {
                 fechaHoraGrupoExamenDAO.delete(fechaHoraGrupoExamen);
             }
-            // semanaExamenDAO.delete(semanasExamene);
         }
         for (GrupoHorasExamen gruposHora : gruposHoras) {
             grupoHorasExamenDAO.delete(gruposHora);
         }
-        this.restoreHorariosAulas(rolBD, null, null);
+        this.restoreHorariosAulas(rolBD);
     }
 
-    public void restoreHorariosAulas(RolExamenes rolExamenes, Seccion seccion, Aula aula) {
-        CicloAcademico cicloAcademico = rolExamenes.getEventoCicloAcademico().getCicloAcademico();
+    private void restoreHorariosAulas(RolExamenes rolExamenes) {
+        CicloAcademico ciclo = rolExamenes.getEventoCicloAcademico().getCicloAcademico();
         List<SemanaExamen> semanas = semanaExamenDAO.allByRolExamenes(rolExamenes);
+        Date inicioExamen = semanas.stream().min(Comparator.comparing(SemanaExamen::getFechaInicio)).map(x -> x.getFechaInicio()).get();
+        Date finalExamen = semanas.stream().max(Comparator.comparing(SemanaExamen::getFechaFin)).map(x -> x.getFechaFin()).get();
 
-        final RolExamenes rolExamParcial = rolexamenesDAO.findByCicloAndEstadoAndEventoAcademico(cicloAcademico, EventoAcademicoEnum.EXAMEN_PARC);
-        EventoCicloAcademico dictadoClases = eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(cicloAcademico, EventoAcademicoEnum.CLASES_PRE);
+        //final RolExamenes rolExamParcial = rolexamenesDAO.findByCicloAndEstadoAndEventoAcademico(cicloAcademico, EventoAcademicoEnum.EXAMEN_PARC);
+        EventoCicloAcademico dictadoClases = eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(ciclo, EventoAcademicoEnum.CLASES_PRE);
 
-        List<HorarioAula> horariosAulasByCiclo = horarioAulaDAO.allForRolExamenesByCicloAcademico(rolExamenes.getEventoCicloAcademico().getCicloAcademico());
-        if (seccion != null && aula != null) {
-            horariosAulasByCiclo.removeIf(x -> !x.getSeccion().equals(seccion));
-            horariosAulasByCiclo.removeIf(x -> !x.getAula().equals(aula));
-        }
+        List<HorarioAula> horariosAulasByCiclo = horarioAulaDAO.allForRolExamenesByCicloAcademico(ciclo);
         if (rolExamenes.getEventoCicloAcademico().getEventoAcademico().isExamenFinal()) {
             //removemos todos los horarios generados antes del examen parcial
             horariosAulasByCiclo.removeIf(x
-                    -> x.getFechaFinDateTime().toLocalDate().isBefore(rolExamParcial.getEventoCicloAcademico().getFechaFinDateTime().toLocalDate())
-                    || x.getFechaFinDateTime().toLocalDate().isEqual(rolExamParcial.getEventoCicloAcademico().getFechaFinDateTime().toLocalDate()));
+                    -> x.getFechaFinDateTime().toLocalDate().isBefore(rolExamenes.getEventoCicloAcademico().getFechaFinDateTime().toLocalDate())
+                    || x.getFechaFinDateTime().toLocalDate().isEqual(rolExamenes.getEventoCicloAcademico().getFechaFinDateTime().toLocalDate()));
         }
         for (SemanaExamen semana : semanas) {
+            Date finalTiempo1 = new DateTime(semana.getFechaInicio()).minusDays(1).toDate();
+            Date inicioTiempo2 = new DateTime(semana.getFechaFin()).plusDays(1).toDate();
+            List<HorarioAula> horariosAulaTiempo2 = horarioAulaDAO.allByFechaInicioTipoHorario(inicioTiempo2, TipoHorarioAulaEnum.DICT);
+            List<String> keysHorarios = horariosAulaTiempo2.stream().map(x -> x.getKey()).collect(Collectors.toList());
+
+            List<Date> fechas = new ArrayList();
+            fechas.add(finalTiempo1);
+            if (inicioExamen.compareTo(semana.getFechaInicio()) != 0) {
+                fechas.add(new DateTime(inicioExamen).minusDays(1).toDate());
+            }
+            List<HorarioAula> horariosAulaTiempo1 = horarioAulaDAO.allByFechasFinalesTipoHorarioKeys(fechas, TipoHorarioAulaEnum.DICT, keysHorarios);
+            Map<String, HorarioAula> mapHorarioTiempo1 = TypesUtil.convertListToMap("key", horariosAulaTiempo1);
+
+            for (HorarioAula haTiempo2 : horariosAulaTiempo1) {
+                HorarioAula haTiempo1 = mapHorarioTiempo1.get(haTiempo2.getKey());
+                if (haTiempo1 != null) {
+                    boolean esMismaSeccion = haTiempo2.getSeccion().getId().compareTo(haTiempo1.getSeccion().getId()) == 0;
+                    if (esMismaSeccion) {
+                        haTiempo1.setFechaFin(haTiempo2.getFechaFin());
+                        horarioAulaDAO.update(haTiempo1);
+                        horarioAulaDAO.delete(haTiempo2);
+                    }
+                }
+            }
+
+        }
+
+        for (SemanaExamen semana : semanas) {
+            if (1 == 1) {
+                continue;
+            }
             List<HorarioAula> horariosAulasFull = horarioAulaDAO.allByCicloAndSemanaExamenLimitByHours(rolExamenes.getEventoCicloAcademico(), semana);
             if (rolExamenes.getEventoCicloAcademico().getEventoAcademico().isExamenFinal()) {
                 //removemos todos los horarios generados antes del examen parcial
                 horariosAulasFull.removeIf(x
-                        -> x.getFechaFinDateTime().toLocalDate().isBefore(rolExamParcial.getEventoCicloAcademico().getFechaFinDateTime().toLocalDate())
-                        || x.getFechaFinDateTime().toLocalDate().isEqual(rolExamParcial.getEventoCicloAcademico().getFechaFinDateTime().toLocalDate()));
+                        -> x.getFechaFinDateTime().toLocalDate().isBefore(rolExamenes.getEventoCicloAcademico().getFechaFinDateTime().toLocalDate())
+                        || x.getFechaFinDateTime().toLocalDate().isEqual(rolExamenes.getEventoCicloAcademico().getFechaFinDateTime().toLocalDate()));
             }
             Map<Long, List<HorarioAula>> mapHorariosBySeccion = TypesUtil.convertListToMapList("seccion.id", horariosAulasFull);
             for (Map.Entry<Long, List<HorarioAula>> entry : mapHorariosBySeccion.entrySet()) {
@@ -420,18 +450,10 @@ public class PlantillaHorarioServiceImp implements PlantillaHorarioService {
                             horarioAulaDAO.delete(horarioAula);
                         }
                     }
-
                 }
             }
-            //to delete
-            /*
-            List<HorarioAula> horariosAulasByCicloOcupadas = horarioAulaDAO.allOcupadasByCicloAndSemanaExamen(cicloAcademico, semana);
-            for (HorarioAula horariosAulasByCicloOcupada : horariosAulasByCicloOcupadas) {
-                horarioAulaDAO.delete(horariosAulasByCicloOcupada);
-
-            }*/
         }
-        horarioAulaDAO.deleteByRolExamenes(rolExamenes);
+        //horarioAulaDAO.deleteByRolExamenes(rolExamenes);
     }
 
     @Override
@@ -489,35 +511,6 @@ public class PlantillaHorarioServiceImp implements PlantillaHorarioService {
             grupoHorasExamen.setSemanaExamen(fechasHorasGrupoExamen.get(0).getSemanaExamen());
         }
         return grupoHorasExamen;
-    }
-
-    /*
-    public List<GrupoHorasExamen> allGrupoHorasExamenBySemanaExamen(SemanaExamen semanaExamen, DynatableFilter filter) {
-        List<GrupoHorasExamen> gruposHorasExamenes = grupoHorasExamenDAO.allByRolExamenesAndDyna(rolExamenes, filter);
-        for (GrupoHorasExamen gruposHora : gruposHorasExamenes) {
-            List<FechaHoraGrupoExamen> fechasHorasGrupoExamen = fechaHoraGrupoExamenDAO.allByGrupoHorasExamen(gruposHora);
-            gruposHora.setFechasHorasGruposExamen(fechasHorasGrupoExamen);
-        }
-        return gruposHorasExamenes;
-    }
-     */
-    public List<SemanaExamen> allSemanasExamenByRolExamenes(RolExamenes rolExamenes) {
-        List<FechaHoraGrupoExamen> fechasHorasGrupoExamen = fechaHoraGrupoExamenDAO.allByRolExamens(rolExamenes);
-
-        List<SemanaExamen> semanasExamen = new ArrayList<>();
-        fechasHorasGrupoExamen.forEach(x -> {
-            if (!semanasExamen.contains(x.getSemanaExamen())) {
-                semanasExamen.add(x.getSemanaExamen());
-            }
-        });
-        List<GrupoHorasExamen> gruposHorasExamen = new ArrayList<>();
-        fechasHorasGrupoExamen.forEach(x -> {
-            if (!gruposHorasExamen.contains(x.getGrupoHorasExamen())) {
-                gruposHorasExamen.add(x.getGrupoHorasExamen());
-            }
-        });
-
-        return null;
     }
 
     @Override

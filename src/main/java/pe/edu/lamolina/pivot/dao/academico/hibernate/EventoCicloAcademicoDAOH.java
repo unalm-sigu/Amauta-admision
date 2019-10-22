@@ -97,7 +97,7 @@ public class EventoCicloAcademicoDAOH extends AbstractEasyDAO<EventoCicloAcademi
     }
 
     @Override
-    public List<EventoCicloAcademico> allEventoCicloAcademicos(CicloAcademico cicloAcademico) {
+    public List<EventoCicloAcademico> allEventoExamenByCiclo(CicloAcademico cicloAcademico) {
         Octavia sql = Octavia.query()
                 .from(EventoCicloAcademico.class, "eca")
                 .join("eventoAcademico ea", "cicloAcademico ca")
