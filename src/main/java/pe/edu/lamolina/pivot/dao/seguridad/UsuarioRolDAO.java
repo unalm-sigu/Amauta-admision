@@ -25,6 +25,8 @@ public interface UsuarioRolDAO extends EasyDAO<UsuarioRol> {
 
     UsuarioRol findByUsuarioRol(Usuario usuario, Rol rol);
 
+    List<UsuarioRol> allByUsuarioRol(Usuario usuario, Rol rol);
+
     UsuarioRol find(UsuarioRol userRol);
 
     UsuarioRol findByUserOficina(Usuario usuario1, Oficina oficina);
@@ -41,6 +43,6 @@ public interface UsuarioRolDAO extends EasyDAO<UsuarioRol> {
 
     List<UsuarioRol> allWithOfficeByUserRol(Usuario usuario, Rol rol);
 
-    public UsuarioRol findByOficinaRolUser(OficinaEnum oficinaEnum, Rol role, Usuario usuario);
+    UsuarioRol findByOficinaRolUser(OficinaEnum oficinaEnum, Rol role, Usuario usuario);
 
 }

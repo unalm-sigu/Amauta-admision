@@ -538,12 +538,12 @@ public class AulaController {
 
         Aula aulaForm = new ObjectMapper().readValue(horariosAulaPdfBean.getStrAula(), Aula.class);
         Aula aulaBD = service.findAulaById(aulaForm.getId());
-        List<Aula> aulas = new ArrayList<>();
-        if (aulaBD != null) {
-            aulas.add(aulaBD);
-        } else {
-            aulas = service.allAulas(ds.getCicloAcademico());
-        }
+//        List<Aula> aulas = new ArrayList();
+//        if (aulaBD != null) {
+//            aulas.add(aulaBD);
+//        } else {
+//            aulas = service.allAulas(ds.getCicloAcademico());
+//        }
 
         List<HorarioAula> horariosAulas = service.allHorariosAulaByCiclo(ds.getCicloAcademico(), aulaBD);
 
