@@ -14,6 +14,7 @@ import pe.edu.lamolina.model.general.Colaborador;
 import pe.edu.lamolina.model.general.Idioma;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.inscripcion.ContenidoCarta;
+import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.tramite.AccionTramiteDocumento;
 import pe.edu.lamolina.model.tramite.EstadoTramite;
 import pe.edu.lamolina.model.tramite.PlantillaDocumentoAcademico;
@@ -71,7 +72,7 @@ public interface ConstanciaSolicitudService {
 
     public void downloadWord(TramiteDocumentoAcademico tramiteDocumentoAcademico, HttpServletResponse ds);
 
-    public PlantillaGenerica findPlantillaHtml(TramiteDocumentoAcademico documentoAcademico);
+    public PlantillaGenerica findPlantillaHtml(TramiteDocumentoAcademico documentoAcademico, Usuario usuario);
 
     public List<PlantillaDocumentoAcademico> allPlantillas();
 

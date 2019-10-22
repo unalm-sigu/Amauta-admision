@@ -491,7 +491,7 @@ public class ConstanciaSolicitudController {
 
     @RequestMapping("view/{idSolicitud}")
     public String view(@PathVariable(value = "idSolicitud") Long idSolicitud, Model model, HttpSession session, RedirectAttributes redirectAttr) {
-
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         try {
             ArrayNode node = new ArrayNode(JsonNodeFactory.instance);
             String[] mapperTramite = new String[]{
@@ -524,7 +524,7 @@ public class ConstanciaSolicitudController {
             };
             TramiteDocumentoAcademico documentoAcademico = service.findTramite(new TramiteDocumentoAcademico(idSolicitud));
             Tramite tramite = documentoAcademico.getTramite();
-            PlantillaGenerica plantilla = service.findPlantillaHtml(documentoAcademico);
+            PlantillaGenerica plantilla = service.findPlantillaHtml(documentoAcademico, ds.getUsuario());
 
             List<PlantillaDocumentoAcademico> plantillas = service.allPlantillas();
             for (PlantillaDocumentoAcademico item : plantillas) {
@@ -555,7 +555,7 @@ public class ConstanciaSolicitudController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         try {
             service.validVariables(plantillaGeneralBean, ds);
-            PlantillaGenerica plantilla = service.findPlantillaHtml(plantillaGeneralBean.getTramiteDocumentoAcademico());
+            PlantillaGenerica plantilla = service.findPlantillaHtml(plantillaGeneralBean.getTramiteDocumentoAcademico(), ds.getUsuario());
             response.setData(JsonHelper.createJson(plantilla, JsonNodeFactory.instance, new String[]{"*"}));
             response.setSuccess(Boolean.TRUE);
             response.setMessage("Se agregó la incrusctación satisfactoriamente");
@@ -628,13 +628,12 @@ public class ConstanciaSolicitudController {
     @ResponseBody
     @RequestMapping("deleteIncrustacion")
     public JsonResponse deleteIncrustacion(@RequestBody PlantillaIncrustacionDocumento pid, HttpSession session) {
-
-        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         JsonResponse response = new JsonResponse();
-        ArrayNode nodePlantillaIn = new ArrayNode(JsonNodeFactory.instance);
+
         try {
             TramiteDocumentoAcademico documentoAcademico = service.deleteIncrustacion(pid);
-            PlantillaGenerica generica = service.findPlantillaHtml(documentoAcademico);
+            PlantillaGenerica generica = service.findPlantillaHtml(documentoAcademico, ds.getUsuario());
             response.setData(generica.getContenido());
             response.setMessage("Se eliminó la incrusctación satisfactoriamente");
             response.setSuccess(true);

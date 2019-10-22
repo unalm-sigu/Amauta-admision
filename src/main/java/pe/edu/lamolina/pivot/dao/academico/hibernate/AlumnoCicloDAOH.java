@@ -906,7 +906,7 @@ public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements Alu
         Octavia sql = Octavia.query()
                 .from(AlumnoCiclo.class, "ac")
                 .join("alumno alu", "alu.persona per", "carrera car")
-                .leftJoin("car.facultad fac")
+                .leftJoin("car.facultad fac", "controlMeritoCiclo", "controlMeritoFacultad", "controlMeritoCarrera")
                 .join("cicloAcademico cic")
                 .filter("cic.id", cicloAcademico)
                 .orderBy("ac.nivel ASC", "ac.ordenMeritoCicloNivel ASC");
