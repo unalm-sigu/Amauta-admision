@@ -1181,6 +1181,8 @@ public class ProgDataServiceImp implements ProgDataService {
                 gpoSeccBD.setEstadoGrupo(EstadoGrupoSeccionEnum.ABI.name());
                 gpoSeccBD.setEstadoEnum(SeccionEstadoEnum.ACT);
                 gpoSeccBD.setCursoDirigido(gpoSecc.getCursoDirigido());
+                gpoSeccBD.setFechaInicioModular(gpoSecc.getFechaInicioModular());
+                gpoSeccBD.setFechaFinModular(gpoSecc.getFechaFinModular());
                 gpoSeccBD.setAnexoBoletin(anexo);
                 gpoSeccBD.setTipoDictadoEnum(TipoDictadoGrupoSeccionEnum.SEM);
 
@@ -1198,6 +1200,8 @@ public class ProgDataServiceImp implements ProgDataService {
                 gpoSeccBD.setEstadoGrupo(gpoSeccBD.getEstadoGrupo() == null ? EstadoGrupoSeccionEnum.ABI.name() : gpoSeccBD.getEstadoGrupo());
                 gpoSeccBD.setEstadoEnum(SeccionEstadoEnum.ACT);
                 gpoSeccBD.setCursoDirigido(gpoSecc.getCursoDirigido());
+                gpoSeccBD.setFechaInicioModular(gpoSecc.getFechaInicioModular());
+                gpoSeccBD.setFechaFinModular(gpoSecc.getFechaFinModular());
                 gpoSeccBD.setAnexoBoletin(anexo);
                 if (gpoSeccBD.getEstadoGrupoEnum() == EstadoGrupoSeccionEnum.CER && gpoSeccBD.getUsuarioCierraActa() == null) {
                     gpoSeccBD.setEstadoGrupoEnum(EstadoGrupoSeccionEnum.ABI);
@@ -1805,7 +1809,7 @@ public class ProgDataServiceImp implements ProgDataService {
                 profeSeccBD.setPrincipal(profeSecc.getPrincipal() == null ? 0 : profeSecc.getPrincipal());
                 profeSeccBD.setEstado(EstadoEnum.ACT.name());
                 profeSeccBD.setPorcentajeCarga(profeSecc.getPorcentajeCarga());
-                profeSeccBD.setPorcentajeCargaFraccion(profeSecc.getPorcentajeCarga() + "");
+                profeSeccBD.setPorcentajeCargaFraccion(profeSecc.getPorcentajeCargaFraccion());
 
                 if (gpoSeccion.getFechaInicioModular() != null) {
                     profeSeccBD.setFechaInicio(gpoSeccion.getFechaInicioModular());
@@ -1824,7 +1828,7 @@ public class ProgDataServiceImp implements ProgDataService {
                 profeSeccBD.setUserAnulacion(null);
                 profeSeccBD.setFechaAnulacion(null);
                 profeSeccBD.setPorcentajeCarga(profeSecc.getPorcentajeCarga());
-                profeSeccBD.setPorcentajeCargaFraccion(profeSecc.getPorcentajeCarga() + "");
+                profeSeccBD.setPorcentajeCargaFraccion(profeSecc.getPorcentajeCargaFraccion());
 
                 if (profeSeccBD.getFechaInicio() == null) {
                     if (gpoSeccion.getFechaInicioModular() != null) {

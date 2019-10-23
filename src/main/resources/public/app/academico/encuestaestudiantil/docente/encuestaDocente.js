@@ -4,7 +4,7 @@ new Vue({
     el: '#main',
     data: {
         generando: false,
-        encuestaURL: APP.url('academico/encuestaestudiantil/docente/list'),
+        encuestaURL: APP.url(`${rutaModulo}/list`),
         docentesSecciones: [],
         encuesta: JSON.parse(encuestaJson),
         cfgVerProgreso: {
@@ -103,7 +103,7 @@ new Vue({
         },
         refreshEncuesta() {
             let vue = this;
-            axios.post('/academico/encuestaestudiantil/docente/encuestaDocente')
+            axios.post(`/${rutaModulo}/encuestaDocente`)
                     .then(response => {
                         if (response.data.success) {
                             vue.encuesta = response.data.data;
@@ -144,7 +144,7 @@ new Vue({
             vue.configuraEncuesta.encuestaTeoriaPractica = vue.configuraEncuesta.encuestaTeoriaPractica == true ? 1 : 0
             vue.encuestaForm.configuraEncuesta.push(vue.configuraEncuesta);
 
-            axios.post('/academico/encuestaestudiantil/docente/saveConfigEncuesta', vue.encuestaForm)
+            axios.post(`/${rutaModulo}/saveConfigEncuesta`, vue.encuestaForm)
                     .then(response => {
                         if (response.data.success) {
                             notify(response.data.message, 'info');
@@ -169,7 +169,7 @@ new Vue({
                 },
                 callback: function (result) {
                     if (result) {
-                        axios.post('/academico/encuestaestudiantil/docente/activar')
+                        axios.post(`/${rutaModulo}/activar`)
                                 .then(response => {
                                     if (response.data.success) {
                                         notify(response.data.message, 'info');
@@ -189,14 +189,14 @@ new Vue({
         generarEncuesta() {
             let vue = this;
             bootbox.confirm({
-                message: '¿Está seguro que desea activar la encuesta de docentes para este ciclo?',
+                message: '¿Está seguro que desea generar las encuestas de docentes para este ciclo?',
                 buttons: {
-                    confirm: {label: 'Si, activar encuesta'},
+                    confirm: {label: 'Si, generar encuesta'},
                     cancel: {label: 'Cancelar', className: "btn-link"}
                 },
                 callback: function (result) {
                     if (result) {
-                        axios.post('/academico/encuestaestudiantil/docente/generar')
+                        axios.post(`/${rutaModulo}/generar`)
                                 .then(response => {
                                     if (response.data.success) {
                                         vue.$refs.modalVerProgreso.open();
@@ -216,7 +216,7 @@ new Vue({
         refreshProgresoEncuesta: function () {
             let vue = this;
 
-            axios.post('/academico/encuestaestudiantil/docente/estadoGenerarEncuestas')
+            axios.post(`/${rutaModulo}/estadoGenerarEncuestas`)
                     .then(response => {
                         vue.porcentajeProgreso = response.data.data;
                         vue.mensajeProgreso = response.data.message;
@@ -257,39 +257,39 @@ new Vue({
             return (hh < 10 ? "0" : "") + hh + ":" + time[1] + " " + aamm;
         },
         findPreguntas(item) {
-            AXIOS.get(`/academico/encuestaestudiantil/docente/${item.id}/resumen/preguntas`)
+            AXIOS.get(`/${rutaModulo}/${item.id}/resumen/preguntas`)
                     .then(response => {
                         if (response.data.success) {
                             this.preguntas = response.data.data;
                             this.$refs.modalPreguntas.open();
                         }
-                    })
+                    });
         },
         findComentarios(item) {
-            AXIOS.get(`/academico/encuestaestudiantil/docente/${item.id}/resumen/comentarios`)
+            AXIOS.get(`/${rutaModulo}/${item.id}/resumen/comentarios`)
                     .then(response => {
                         if (response.data.success) {
                             this.comentarios = response.data.data;
                             this.$refs.modalComentarios.open();
                         }
-                    })
+                    });
         },
         findTemas(item) {
-            AXIOS.get(`/academico/encuestaestudiantil/docente/${item.id}/resumen/temas`)
+            AXIOS.get(`/${rutaModulo}/${item.id}/resumen/temas`)
                     .then(response => {
                         if (response.data.success) {
                             this.temas = response.data.data;
                             this.$refs.modalTemas.open();
                             this.generateChart(response.data.data);
                         }
-                    })
+                    });
         },
         generateChart(items) {
             var aData = [];
             for (var i = 0; i < items.length; i++) {
                 let obj = {};
                 obj.name = items[i].temaEncuesta.nombre;
-                obj.y = items[i].puntaje/2;
+                obj.y = items[i].puntaje / 2;
                 aData.push(obj);
             }
 
@@ -346,7 +346,7 @@ new Vue({
                 },
                 callback: function (result) {
                     if (result) {
-                        axios.post('/academico/encuestaestudiantil/docente/delete', {id: $vue.encuesta.id})
+                        axios.post(`/${rutaModulo}/delete`, {id: $vue.encuesta.id})
                                 .then(response => {
                                     if (response.data.success) {
                                         $vue.$refs.load.loadRemoteData();
@@ -374,7 +374,7 @@ new Vue({
                 },
                 callback: function (result) {
                     if (result) {
-                        axios.post('/academico/encuestaestudiantil/docente/publicar', {id: $vue.encuesta.id})
+                        axios.post(`/${rutaModulo}/publicar`, {id: $vue.encuesta.id})
                                 .then(response => {
                                     if (response.data.success) {
                                         $vue.refreshEncuesta();
@@ -396,7 +396,7 @@ new Vue({
 
             $.ajax({
                 method: 'POST',
-                url: APP.url('academico/encuestaestudiantil/editor/allcursosinencuesta'),
+                url: APP.url(`${rutaEditor}/allcursosinencuesta`),
                 data: {
                     'id': $vue.encuesta.id
                 },
@@ -426,7 +426,7 @@ new Vue({
 
             $.ajax({
                 method: 'POST',
-                url: APP.url('academico/encuestaestudiantil/editor/addcursosinencuesta'),
+                url: APP.url(`${rutaEditor}/addcursosinencuesta`),
                 data: {
                     'curso.id': $vue.curso.id,
                     'encuestaEstudiantil.id': $vue.encuesta.id
@@ -454,7 +454,7 @@ new Vue({
             if (idx > -1) {
                 $.ajax({
                     method: 'POST',
-                    url: APP.url('academico/encuestaestudiantil/editor/removecursosinencuesta'),
+                    url: APP.url(`${rutaEditor}/removecursosinencuesta`),
                     data: {
                         'curso.id': curso.id,
                         'encuestaEstudiantil.id': $vue.encuesta.id
@@ -498,7 +498,7 @@ new Vue({
         searchCurso(nombre) {
             this.isLoading = true
             $.ajax({
-                url: APP.url("academico/encuestaestudiantil/editor/searchcurso"),
+                url: APP.url(`${rutaEditor}/searchcurso`),
                 dataType: 'json',
                 type: 'post',
                 data: {nombre: nombre}

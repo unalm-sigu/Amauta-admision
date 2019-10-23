@@ -40,8 +40,11 @@ public class EncuestaAlumnoDAOH extends AbstractEasyDAO<EncuestaAlumno> implemen
     @Override
     public void deleteByEncuestasDocentes(List<EncuestaDocente> encuestasDocentes) {
         List<Long> ids = encuestasDocentes.stream().map(enDoc -> enDoc.getId()).collect(Collectors.toList());
+        if (ids.isEmpty()) {
+            return;
+        }
 
-        String strQuery = "delete from EncuestaAlumno ea where ea.encuestaDocente.id in :ENCUESTAS ";
+        String strQuery = "delete EncuestaAlumno ea where ea.encuestaDocente.id in (:ENCUESTAS) ";
         Query query = getCurrentSession().createQuery(strQuery);
         query.setParameterList("ENCUESTAS", ids);
         query.executeUpdate();
@@ -50,8 +53,11 @@ public class EncuestaAlumnoDAOH extends AbstractEasyDAO<EncuestaAlumno> implemen
     @Override
     public void deleteByEncuestasCursos(List<EncuestaCurso> encuestasCursos) {
         List<Long> ids = encuestasCursos.stream().map(enDoc -> enDoc.getId()).collect(Collectors.toList());
+        if (ids.isEmpty()) {
+            return;
+        }
 
-        String strQuery = "delete from EncuestaAlumno ea where ea.encuestaCurso.id in :ENCUESTAS ";
+        String strQuery = "delete EncuestaAlumno ea where ea.encuestaCurso.id in (:ENCUESTAS) ";
         Query query = getCurrentSession().createQuery(strQuery);
         query.setParameterList("ENCUESTAS", ids);
         query.executeUpdate();

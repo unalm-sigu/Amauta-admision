@@ -449,7 +449,7 @@ public class DocenteSeccionDAOH extends AbstractEasyDAO<DocenteSeccion> implemen
     }
 
     @Override
-    public List<DocenteSeccion> allSinNNByCicloModalidad(CicloAcademico cicloAcademico, ModalidadEstudio modalidadEstudio) {
+    public List<DocenteSeccion> allSinNNByCicloModalidad(CicloAcademico cicloAcademico) {
 
         Octavia sql = Octavia.query()
                 .from(DocenteSeccion.class, "ds")
@@ -462,7 +462,6 @@ public class DocenteSeccionDAOH extends AbstractEasyDAO<DocenteSeccion> implemen
                 .filter("ca.id", cicloAcademico)
                 .filter("doc.estado", DocenteEstadoEnum.ACT)
                 .filter("doc.codigo", "<>", Constantine.DOCENTE_INDETERMINADO)
-                .filter("me.id", modalidadEstudio)
                 .filter("ds.estado", EstadoEnum.ACT)
                 .filter("sec.estado", EstadoEnum.ACT);
 
