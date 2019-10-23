@@ -2390,7 +2390,11 @@ public class ProgDataServiceImp implements ProgDataService {
             List<HorarioAula> horarioAulaCicloBD = horarioAulaDAO.allByCiclo(cicloAcademico);
 
             Map<Long, List<HorarioSeccion>> mapHorariosSecciones = TypesUtil.convertListToMapList("seccion.id", horarioSeccCicloBD);
-            Map<Long, List<HorarioAula>> mapHorariosAulas = TypesUtil.convertListToMapList("seccion.id", horarioAulaCicloBD);
+            //Map<Long, List<HorarioAula>> mapHorariosAulas = TypesUtil.convertListToMapList("seccion.id", horarioAulaCicloBD);
+            Map<Long, List<HorarioAula>> mapHorariosAulas = new LinkedHashMap();
+            for (HorarioAula ha : horarioAulaCicloBD) {
+
+            }
 
             //List<ModalidadEstudio> modalidadesEtudio = modalidadEstudioDAO.allByCodigos(Arrays.asList(ModalidadEstudioEnum.PRE.name(), ModalidadEstudioEnum.EPG.name()));
             List<ModalidadEstudio> modalidadesDB = modalidadEstudioDAO.allPrePostgrado(new Compania(1L));
@@ -2492,15 +2496,16 @@ public class ProgDataServiceImp implements ProgDataService {
                         nuevo.setTipoEnum(TipoHorarioAulaEnum.DICT);
                         horarioAulaDAO.save(nuevo);
                     }
-
                 }
 
                 horarioAulaDAO.deleteAllInList(muertos);
 
                 List<HorarioAula> existentesBD = inspector.getOldListDB();
                 List<HorarioAula> existentesForm = inspector.getOldListForm();
-                Map<String, HorarioAula> mapHorarioAulaBD = existentesBD.stream().collect(Collectors.toMap(x -> x.getKey(), x -> x));
-                Map<String, HorarioAula> mapHorarioAulaForm = existentesForm.stream().collect(Collectors.toMap(x -> x.getKey(), x -> x));
+                //Map<String, HorarioAula> mapHorarioAulaBD = existentesBD.stream().collect(Collectors.toMap(x -> x.getKey(), x -> x));
+                Map<String, HorarioAula> mapHorarioAulaBD = TypesUtil.convertListToMap("key", existentesBD);
+                //Map<String, HorarioAula> mapHorarioAulaForm = existentesForm.stream().collect(Collectors.toMap(x -> x.getKey(), x -> x));
+                Map<String, HorarioAula> mapHorarioAulaForm = TypesUtil.convertListToMap("key", existentesForm);
 
                 for (Map.Entry<String, HorarioAula> entry2 : mapHorarioAulaBD.entrySet()) {
                     HorarioAula hsBD = entry2.getValue();
