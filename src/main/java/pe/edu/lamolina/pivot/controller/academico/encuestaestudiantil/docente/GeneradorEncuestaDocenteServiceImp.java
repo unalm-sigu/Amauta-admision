@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.academico.AnexoBoletin;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.Docente;
@@ -163,6 +164,7 @@ public class GeneradorEncuestaDocenteServiceImp implements GeneradorEncuestaDoce
 
         Seccion seccion = profeSecc.getSeccion();
         GrupoSeccion gpoSeccion = profeSecc.getSeccion().getGrupoSeccion();
+        AnexoBoletin anexoSup = gpoSeccion.getAnexoBoletin().getAnexoSuperior();
         List<DocenteSeccion> profesoresSecc = mapProfeSeccBySeccion.get(seccion.getId());
         List<Alumno> alumnos = mapAlumnos.get(seccion.getId());
         alumnos = (alumnos == null) ? new ArrayList() : alumnos;
@@ -209,14 +211,14 @@ public class GeneradorEncuestaDocenteServiceImp implements GeneradorEncuestaDoce
             impedido = "Anulada porque es Curso Dirigido. ";
         }
 
-        if (alumnos.size() < configuraEncuesta.getCantidadMinimaAlumnosPregrado() && modalidad.isPregrado()) {
+        if (alumnos.size() < configuraEncuesta.getCantidadMinimaAlumnosPregrado() && !anexoSup.isAnexoCursosPostgrado()) {
             impedido = (impedido == null ? "" : impedido);
-            impedido += "Anulada porque no tiene la cantidad mínima de alumnos. ";
+            impedido += "Anulada porque no tiene la cantidad mínima de alumnos pregrados. ";
         }
 
-        if (alumnos.size() < configuraEncuesta.getCantidadMinimaAlumnosPosgrado() && modalidad.isPostgrado()) {
+        if (alumnos.size() < configuraEncuesta.getCantidadMinimaAlumnosPosgrado() && anexoSup.isAnexoCursosPostgrado()) {
             impedido = (impedido == null ? "" : impedido);
-            impedido += "Anulada porque no tiene la cantidad mínima de alumnos. ";
+            impedido += "Anulada porque no tiene la cantidad mínima de alumnos posgrados. ";
         }
 
         Curso cursoNoEnc = mapCursosNoEncuestar.get(curso.getId());
