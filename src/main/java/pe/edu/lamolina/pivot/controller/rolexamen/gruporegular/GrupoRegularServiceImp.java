@@ -609,8 +609,13 @@ public class GrupoRegularServiceImp implements GrupoRegularService {
             }
             int comunes = 0;
             for (LetraGrupoRegular letraReg : letrasGruposRegulares) {
+                System.out.println("letra::" + letraReg.getLetra());
                 GrupoHoras gpo = mapGrupos.get(letraReg.getLetra());
-                //System.out.println("revisando con " + gpo.getCodigo());
+                if (gpo == null) {
+                    continue;
+                }
+                System.out.println("revisando con " + gpo);
+
                 List<DiaHoraGrupo> horaGpoLetra = mapHorarioGpo.get(gpo.getId());
                 ListsInspector inspector = TypesUtil.analizeLists(horaGpoLetra, horaGpoSecc, "id");
                 int comunesCaso = inspector.getOldListDB().size();

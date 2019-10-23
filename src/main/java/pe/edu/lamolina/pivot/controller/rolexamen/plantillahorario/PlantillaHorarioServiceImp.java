@@ -21,6 +21,7 @@ import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.EventoCicloAcademico;
 import pe.edu.lamolina.model.academico.Seccion;
+import pe.edu.lamolina.model.enums.EstadoHorarioAulaEnum;
 import pe.edu.lamolina.model.enums.EventoAcademicoEnum;
 import pe.edu.lamolina.model.enums.RolExamenesEstadoEnum;
 import pe.edu.lamolina.model.enums.SituacionRolExamenesEnum;
@@ -134,14 +135,85 @@ public class PlantillaHorarioServiceImp implements PlantillaHorarioService {
     public void confirmarPlantillaHorario(RolExamenes rolExamenes, DataSessionPivot ds) {
         logger.debug("confirmarPlantillaHorario");
         rolExamenes = rolExamenesDAO.find(rolExamenes.getId());
-
         Assert.isTrue(rolExamenes.isSituacionConfigurarHorario(), "Debe estar configurando los horarios del rol examen para confirmarlos.");
 
-        CicloAcademico cicloRol = rolExamenes.getEventoCicloAcademico().getCicloAcademico();
-
-        final RolExamenes firstRolExamen = rolExamenesDAO.findByCicloAndEstadoAndEventoAcademico(cicloRol, EventoAcademicoEnum.EXAMEN_PARC);
-
         List<SemanaExamen> semanaExamenes = semanaExamenDAO.allByRolExamenes(rolExamenes);
+        Date inicioExamen = semanaExamenes.stream().min(Comparator.comparing(SemanaExamen::getFechaInicio)).map(x -> x.getFechaInicio()).get();
+        Date finalExamen = semanaExamenes.stream().max(Comparator.comparing(SemanaExamen::getFechaFin)).map(x -> x.getFechaFin()).get();
+
+        boolean modificarInicio = false;
+        boolean modificarFin = false;
+        boolean partir = false;
+        List<HorarioAula> horariosFecha = horarioAulaDAO.allByRangoFechaTipoHorario(inicioExamen, finalExamen, TipoHorarioAulaEnum.DICT);
+
+        List<HorarioAula> nuevos = new ArrayList();
+        List<HorarioAula> modificados = new ArrayList();
+        for (HorarioAula ha : horariosFecha) {
+            if (ha.getAula().getPermiteCruce() != null) {
+                if (ha.getAula().getPermiteCruce() == 1) {
+                    continue;
+                }
+            }
+
+            if (ha.getFechaInicio().compareTo(inicioExamen) < 0 && ha.getFechaFin().compareTo(finalExamen) > 0) {
+                modificarFin = true;
+                partir = true;
+            } else if (ha.getFechaInicio().compareTo(inicioExamen) < 0 && ha.getFechaFin().compareTo(finalExamen) <= 0) {
+                modificarFin = true;
+            } else if (ha.getFechaInicio().compareTo(inicioExamen) >= 0 && ha.getFechaFin().compareTo(finalExamen) > 0) {
+                modificarInicio = true;
+            }
+
+            HorarioAula haOld = ha.clone();
+
+            if (partir) {
+                HorarioAula haNew = new HorarioAula(ha.getSeccion(), ha.getDia(), ha.getHora(), ha.getAula());
+                haNew.setFechaInicio(new DateTime(finalExamen).plusDays(1).toDate());
+                haNew.setFechaFin(ha.getFechaFin());
+                haNew.setTipoEnum(TipoHorarioAulaEnum.DICT);
+                haNew.setEstadoEnum(EstadoHorarioAulaEnum.ACT);
+                haNew.setRolExamenesModificador(rolExamenes);
+                haNew.setTipoModificacion("NEW");
+                nuevos.add(haNew);
+            }
+
+            if (modificarInicio || modificarFin) {
+                haOld.setFechaInicioAnterior(ha.getFechaInicio());
+                haOld.setFechaFinAnterior(ha.getFechaFin());
+                haOld.setRolExamenesModificador(rolExamenes);
+                haOld.setTipoModificacion("OLD");
+                modificados.add(haOld);
+            }
+            if (modificarInicio) {
+                haOld.setFechaInicio(new DateTime(finalExamen).plusDays(1).toDate());
+            }
+            if (modificarFin) {
+                haOld.setFechaFin(new DateTime(inicioExamen).minusDays(1).toDate());
+            }
+        }
+
+        if (!modificados.isEmpty()) {
+            horarioAulaDAO.updateList(modificados,
+                    "fechaInicio", "fechaFin",
+                    "fechaInicioAnterior", "fechaFinAnterior",
+                    "rolExamenesModificador", "tipoModificacion");
+        }
+
+        if (!nuevos.isEmpty()) {
+            horarioAulaDAO.saveList(nuevos);
+        }
+
+        RolExamenes rolExamenesUpd = new RolExamenes(rolExamenes.getId());
+        rolExamenesUpd.setEstadoEnum(RolExamenesEstadoEnum.CON);
+        rolExamenesUpd.setSituacionEnum(SituacionRolExamenesEnum.CONF_HOR);
+        rolExamenesDAO.updateEstadoAndSituacion(rolExamenesUpd);
+
+        if (1 == 1) {
+            return;
+        }
+
+        CicloAcademico cicloRol = rolExamenes.getEventoCicloAcademico().getCicloAcademico();
+        final RolExamenes firstRolExamen = rolExamenesDAO.findByCicloAndEstadoAndEventoAcademico(cicloRol, EventoAcademicoEnum.EXAMEN_PARC);
 
         List<HorarioAula> horariosAulasByCiclo = horarioAulaDAO.allForRolExamenesByCicloAcademico(cicloRol);
         if (rolExamenes.getEventoCicloAcademico().getEventoAcademico().isExamenFinal()) {
@@ -217,10 +289,10 @@ public class PlantillaHorarioServiceImp implements PlantillaHorarioService {
             }
         }
 
-        RolExamenes rolExamenesUpd = new RolExamenes(rolExamenes.getId());
-        rolExamenesUpd.setEstadoEnum(RolExamenesEstadoEnum.CON);
-        rolExamenesUpd.setSituacionEnum(SituacionRolExamenesEnum.CONF_HOR);
-        rolExamenesDAO.updateEstadoAndSituacion(rolExamenesUpd);
+//        RolExamenes rolExamenesUpd = new RolExamenes(rolExamenes.getId());
+//        rolExamenesUpd.setEstadoEnum(RolExamenesEstadoEnum.CON);
+//        rolExamenesUpd.setSituacionEnum(SituacionRolExamenesEnum.CONF_HOR);
+//        rolExamenesDAO.updateEstadoAndSituacion(rolExamenesUpd);
         // throw new PhobosException("no pasaras");
     }
 
@@ -285,6 +357,9 @@ public class PlantillaHorarioServiceImp implements PlantillaHorarioService {
             GrupoHorasExamen grupoHorasExamenFound = grupoHorasExamenDAO.findByRolExamenAndGrupoHoras(semanaExamen.getRolExamenes(), gruposHora);
             if (grupoHorasExamenFound == null) {
                 grupoHorasExamenDAO.save(grupoHorasExamen);
+                for (FechaHoraGrupoExamen fhge : grupoHorasExamen.getFechasHorasGruposExamen()) {
+                    fechaHoraGrupoExamenDAO.save(fhge);
+                }
             }
         }
     }
@@ -374,23 +449,12 @@ public class PlantillaHorarioServiceImp implements PlantillaHorarioService {
         CicloAcademico ciclo = rolExamenes.getEventoCicloAcademico().getCicloAcademico();
         List<SemanaExamen> semanas = semanaExamenDAO.allByRolExamenes(rolExamenes);
         Date inicioExamen = semanas.stream().min(Comparator.comparing(SemanaExamen::getFechaInicio)).map(x -> x.getFechaInicio()).get();
-        Date finalExamen = semanas.stream().max(Comparator.comparing(SemanaExamen::getFechaFin)).map(x -> x.getFechaFin()).get();
 
-        //final RolExamenes rolExamParcial = rolexamenesDAO.findByCicloAndEstadoAndEventoAcademico(cicloAcademico, EventoAcademicoEnum.EXAMEN_PARC);
-        EventoCicloAcademico dictadoClases = eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(ciclo, EventoAcademicoEnum.CLASES_PRE);
-
-        List<HorarioAula> horariosAulasByCiclo = horarioAulaDAO.allForRolExamenesByCicloAcademico(ciclo);
-        if (rolExamenes.getEventoCicloAcademico().getEventoAcademico().isExamenFinal()) {
-            //removemos todos los horarios generados antes del examen parcial
-            horariosAulasByCiclo.removeIf(x
-                    -> x.getFechaFinDateTime().toLocalDate().isBefore(rolExamenes.getEventoCicloAcademico().getFechaFinDateTime().toLocalDate())
-                    || x.getFechaFinDateTime().toLocalDate().isEqual(rolExamenes.getEventoCicloAcademico().getFechaFinDateTime().toLocalDate()));
-        }
         for (SemanaExamen semana : semanas) {
             Date finalTiempo1 = new DateTime(semana.getFechaInicio()).minusDays(1).toDate();
             Date inicioTiempo2 = new DateTime(semana.getFechaFin()).plusDays(1).toDate();
             List<HorarioAula> horariosAulaTiempo2 = horarioAulaDAO.allByFechaInicioTipoHorario(inicioTiempo2, TipoHorarioAulaEnum.DICT);
-            List<String> keysHorarios = horariosAulaTiempo2.stream().map(x -> x.getKey()).collect(Collectors.toList());
+            List<String> keysHorarios = TypesUtil.getListNotNull(horariosAulaTiempo2.stream().map(x -> x.getKey()).collect(Collectors.toList()));
 
             List<Date> fechas = new ArrayList();
             fechas.add(finalTiempo1);
@@ -411,13 +475,22 @@ public class PlantillaHorarioServiceImp implements PlantillaHorarioService {
                     }
                 }
             }
-
         }
 
+        if (1 == 1) {
+            return;
+        }
+
+        EventoCicloAcademico dictadoClases = eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(ciclo, EventoAcademicoEnum.CLASES_PRE);
+        List<HorarioAula> horariosAulasByCiclo = horarioAulaDAO.allForRolExamenesByCicloAcademico(ciclo);
+        if (rolExamenes.getEventoCicloAcademico().getEventoAcademico().isExamenFinal()) {
+            //removemos todos los horarios generados antes del examen parcial
+            horariosAulasByCiclo.removeIf(x
+                    -> x.getFechaFinDateTime().toLocalDate().isBefore(rolExamenes.getEventoCicloAcademico().getFechaFinDateTime().toLocalDate())
+                    || x.getFechaFinDateTime().toLocalDate().isEqual(rolExamenes.getEventoCicloAcademico().getFechaFinDateTime().toLocalDate()));
+        }
         for (SemanaExamen semana : semanas) {
-            if (1 == 1) {
-                continue;
-            }
+
             List<HorarioAula> horariosAulasFull = horarioAulaDAO.allByCicloAndSemanaExamenLimitByHours(rolExamenes.getEventoCicloAcademico(), semana);
             if (rolExamenes.getEventoCicloAcademico().getEventoAcademico().isExamenFinal()) {
                 //removemos todos los horarios generados antes del examen parcial

@@ -132,7 +132,7 @@ public class PlantillaHorarioController {
             }
 
             List<GrupoHorasExamen> gruposHorasExamenes = service.allGrupoHorasExamenByRolExamen(new RolExamenes(idRolExamenes), filter);
-            ArrayNode jGruposHorasExamenes = new ArrayNode(jc);
+            ArrayNode arrayNode = new ArrayNode(jc);
             for (GrupoHorasExamen ghe : gruposHorasExamenes) {
                 ObjectNode node = JsonHelper.createJson(ghe, jc, false,
                         new String[]{
@@ -151,10 +151,10 @@ public class PlantillaHorarioController {
                             "semanaExamen.numeroSemana",
                             "semanaExamen.id"
                         });
-                jGruposHorasExamenes.add(node);
+                arrayNode.add(node);
             }
 
-            response.setData(jGruposHorasExamenes);
+            response.setData(arrayNode);
             response.setTotal(filter.getTotal());
             response.setFiltered(filter.getFiltered());
 
@@ -182,10 +182,10 @@ public class PlantillaHorarioController {
             List<FechaHoraGrupoExamen> fechasHorasGrupoExamen = service.allFechaHoraGrupoExamenBySemanas(rolExamenes.getSemanasExamen());
             Map<Long, List<FechaHoraGrupoExamen>> mapFechasHorasGpoExamen = TypesUtil.convertListToMapList("semanaExamen.id", fechasHorasGrupoExamen);
 
-            ArrayNode jSeamanasExamen = new ArrayNode(jc);
+            ArrayNode arrayNode = new ArrayNode(jc);
             for (SemanaExamen semanaExamen : rolExamenes.getSemanasExamen()) {
-                ObjectNode jTblSeamanaExamen = this.horarioBySemanaExamen(semanaExamen, dias, horas, mapFechasHorasGpoExamen);
-                ObjectNode jSemanaExamen = JsonHelper.createJson(semanaExamen, jc, false,
+                ObjectNode nodeSemana = this.horarioBySemanaExamen(semanaExamen, dias, horas, mapFechasHorasGpoExamen);
+                ObjectNode node = JsonHelper.createJson(semanaExamen, jc, false,
                         new String[]{
                             "*",
                             "fechaInicio.*",
@@ -193,15 +193,15 @@ public class PlantillaHorarioController {
                             "horaInicio.*",
                             "horaFin.*"
                         });
-                jSemanaExamen.set("tblHorarioSeamanaExamen", jTblSeamanaExamen);
-                jSemanaExamen.put("selected", Boolean.FALSE);
+                node.set("tblHorarioSeamanaExamen", nodeSemana);
+                node.put("selected", Boolean.FALSE);
                 /*
                 if (semanaExamen.getNumeroSemana() == BigDecimal.ONE.intValue()) {
                     jSemanaExamen.put("selected", Boolean.TRUE);
                 }*/
-                jSeamanasExamen.add(jSemanaExamen);
+                arrayNode.add(node);
             }
-            response.setData(jSeamanasExamen);
+            response.setData(arrayNode);
             response.setSuccess(Boolean.TRUE);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
@@ -255,7 +255,7 @@ public class PlantillaHorarioController {
                     new String[]{"id",
                         "dia.id", "dia.nombre",
                         "hora.id", "hora.codigo", "hora.descripcion", "hora.descripcionFin",
-                        "grupoHorasExamen.*",
+                        "grupoHorasExamen.id",
                         "grupoHorasExamen.grupoHoras.codigo", "grupoHorasExamen.grupoHoras.id",
                         "grupoHorasExamen.grupoHoras.tipoGrupoHoras.*"});
             jsonFechaHoraGrupoEach.put("revisado", "");
