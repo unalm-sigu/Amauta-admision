@@ -1972,6 +1972,7 @@ public class ProgDataServiceImp implements ProgDataService {
 
             for (MatriculaSeccion ms : matriSecciones) {
                 AnexoBoletin anexoSup = ms.getSeccion().getGrupoSeccion().getAnexoBoletin().getAnexoSuperior();
+                System.out.println("alumno=" + alumno.getCodigo() + " seccion=" + ms.getSeccion().getCodigo3());
                 if (anexoSup.getId() != 4L) {
                     Curso curso = ms.getSeccion().getGrupoSeccion().getCurso();
                     MatriculaCurso matCurso = mapCursos.get(curso.getId());
@@ -1985,7 +1986,7 @@ public class ProgDataServiceImp implements ProgDataService {
                 }
                 if (intentos == 2) {
                     System.out.println("====================================================================================");
-                    ObjectUtil.printAttr(ms);
+                    //ObjectUtil.printAttr(ms);
                 }
                 matriculaSeccionDAO.update(ms);
             }
@@ -2011,7 +2012,7 @@ public class ProgDataServiceImp implements ProgDataService {
                     ms.setEstadoEnum(EstadoMatriculaEnum.RCI);
                     if (intentos == 2) {
                         System.out.println("====================================================================================");
-                        ObjectUtil.printAttr(ms);
+                        //ObjectUtil.printAttr(ms);
                     }
                     matriculaSeccionDAO.update(ms);
                 }
@@ -2390,8 +2391,8 @@ public class ProgDataServiceImp implements ProgDataService {
             List<HorarioAula> horarioAulaCicloBD = horarioAulaDAO.allByCiclo(cicloAcademico);
 
             Map<Long, List<HorarioSeccion>> mapHorariosSecciones = TypesUtil.convertListToMapList("seccion.id", horarioSeccCicloBD);
-            //Map<Long, List<HorarioAula>> mapHorariosAulas = TypesUtil.convertListToMapList("seccion.id", horarioAulaCicloBD);
-            Map<Long, List<HorarioAula>> mapHorariosAulas = new LinkedHashMap();
+            Map<Long, List<HorarioAula>> mapHorariosAulas = TypesUtil.convertListToMapList("seccion.id", horarioAulaCicloBD);
+            //Map<Long, List<HorarioAula>> mapHorariosAulas = new LinkedHashMap();
             for (HorarioAula ha : horarioAulaCicloBD) {
 
             }
@@ -2503,17 +2504,19 @@ public class ProgDataServiceImp implements ProgDataService {
                 List<HorarioAula> existentesBD = inspector.getOldListDB();
                 List<HorarioAula> existentesForm = inspector.getOldListForm();
                 //Map<String, HorarioAula> mapHorarioAulaBD = existentesBD.stream().collect(Collectors.toMap(x -> x.getKey(), x -> x));
-                Map<String, HorarioAula> mapHorarioAulaBD = TypesUtil.convertListToMap("key", existentesBD);
                 //Map<String, HorarioAula> mapHorarioAulaForm = existentesForm.stream().collect(Collectors.toMap(x -> x.getKey(), x -> x));
-                Map<String, HorarioAula> mapHorarioAulaForm = TypesUtil.convertListToMap("key", existentesForm);
 
+                //Map<String, HorarioAula> mapHorarioAulaBD = TypesUtil.convertListToMap("key", existentesBD);
+                //Map<String, HorarioAula> mapHorarioAulaForm = TypesUtil.convertListToMap("key", existentesForm);
+
+                /*
                 for (Map.Entry<String, HorarioAula> entry2 : mapHorarioAulaBD.entrySet()) {
                     HorarioAula hsBD = entry2.getValue();
                     HorarioAula hsForm = mapHorarioAulaForm.get(entry2.getKey());
                     hsBD.setSeccion(hsForm.getSeccion());
                     logger.debug("\tActualizando horario-aula {} {} {}", hsBD.getDia().getNumeroDia(), hsBD.getHora().getNumero(), hsBD.getAula().getCodigo());
                     horarioAulaDAO.update(hsBD);
-                }
+                } //*/
                 visor.agregarLog("horAula", "saveHorAula", "horarios-aula actualizados para " + seccion.getCodigo(), true, "info");
             }
 

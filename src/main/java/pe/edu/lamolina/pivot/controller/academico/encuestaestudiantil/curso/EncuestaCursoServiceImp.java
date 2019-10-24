@@ -329,7 +329,7 @@ public class EncuestaCursoServiceImp implements EncuestaCursoService {
             return null;
 
         } else {
-            return "No se puede iniciar la generación de encuestas de docentes";
+            return "No se puede iniciar la generación de encuestas de cursos";
         }
     }
 
