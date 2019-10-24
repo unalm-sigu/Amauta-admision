@@ -20,6 +20,7 @@ import static pe.edu.lamolina.model.enums.CicloAcademicoEstadoEnum.DES;
 import static pe.edu.lamolina.model.enums.CicloAcademicoEstadoEnum.PEND;
 import static pe.edu.lamolina.model.enums.CicloAcademicoEstadoEnum.CRE;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
+import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.EPG;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.PRE;
 import pe.edu.lamolina.model.enums.TipoCicloEnum;
 import static pe.edu.lamolina.model.enums.TipoCicloEnum.REG;
@@ -123,7 +124,7 @@ public class CicloAcademicoDAOH extends AbstractEasyDAO<CicloAcademico> implemen
 
         return all(sql);
     }
-    
+
     @Override
     public CicloAcademico findAnteriorActivo(CicloAcademico ciclo) {
         Octavia sql = Octavia.query()
@@ -609,9 +610,25 @@ public class CicloAcademicoDAOH extends AbstractEasyDAO<CicloAcademico> implemen
     }
 
     @Override
-    public List<CicloAcademico> allAnteriorRegistroActivo(int ciclos, CicloAcademico cicloAcademico) {
+    public List<CicloAcademico> allAnteriorRegistroActivoPre(int ciclos, CicloAcademico cicloAcademico) {
         Octavia sql = Octavia.query()
                 .from(CicloAcademico.class, "ca")
+                .join("modalidadEstudio me")
+                .filter("me.codigo", PRE.name())
+                .filter("tipo", "REG")
+                .filter("ca.codigo", "<", cicloAcademico.getCodigo())
+                .filter("estado", "!=", DES)
+                .orderBy("ca.year DESC", "ca.numeroCiclo DESC")
+                .limit(ciclos);
+        return all(sql);
+    }
+
+    @Override
+    public List<CicloAcademico> allAnteriorRegistroActivoPos(int ciclos, CicloAcademico cicloAcademico) {
+        Octavia sql = Octavia.query()
+                .from(CicloAcademico.class, "ca")
+                .join("modalidadEstudio me")
+                .filter("me.codigo", EPG.name())
                 .filter("tipo", "REG")
                 .filter("ca.codigo", "<", cicloAcademico.getCodigo())
                 .filter("estado", "!=", DES)

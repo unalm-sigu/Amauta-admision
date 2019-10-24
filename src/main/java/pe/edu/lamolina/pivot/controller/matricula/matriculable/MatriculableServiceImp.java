@@ -407,9 +407,9 @@ public class MatriculableServiceImp implements MatriculableService {
         }
 
         List<Alumno> matriculados = alumnoDAO.allMatriculadosNoEgresadosByCiclos(ciclosPrevios);
-//        System.out.println("=== vienen " + matriculados.size() + " matriculados de esos ciclos");
+        System.out.println("=== vienen " + matriculados.size() + " matriculados de esos ciclos");
         List<Alumno> estudiantes = alumnoDAO.allEstudiaronByCiclos(ciclosPrevios);
-//        System.out.println("=== vienen " + estudiantes.size() + " estudiantes de esos ciclos");
+        System.out.println("=== vienen " + estudiantes.size() + " estudiantes de esos ciclos");
         for (Alumno matriculado : matriculados) {
             Alumno alumnoExist = mapMatriculableExist.get(matriculado.getId());
             if (alumnoExist != null) {
@@ -972,12 +972,15 @@ public class MatriculableServiceImp implements MatriculableService {
     public void generarVerano(CicloAcademico cicloAcademico, DataSessionPivot ds) {
         DateTime today = new DateTime();
 
-        List<CicloAcademico> academicosAnterior = cicloAcademicoDAO.allAnteriorRegistroActivo(3, cicloAcademico);
+        List<CicloAcademico> academicosAnterior = cicloAcademicoDAO.allAnteriorRegistroActivoPre(3, cicloAcademico);
         CicloAcademico academicoAnterior = academicosAnterior.get(2);
+      
+        List<CicloAcademico> academicosAnteriorPos = cicloAcademicoDAO.allAnteriorRegistroActivoPre(3, cicloAcademico);
+        CicloAcademico academicoAnteriorPos = academicosAnteriorPos.get(2);
         List<String> situacionesPregrado
                 = Arrays.asList(S_X.getValue(), S_XD.getValue(), S_4U.getValue(), S_E.getValue());
 
-        matriculaResumenDAO.savePosGradoVerano(situacionesPregrado, academicoAnterior, cicloAcademico);
+        matriculaResumenDAO.savePosGradoVerano(situacionesPregrado, academicoAnteriorPos, cicloAcademico);
         matriculaResumenDAO.savePreGradoVerano(situacionesPregrado, academicoAnterior, cicloAcademico);
 
         CicloAcademico cicloAcademicoUpd = new CicloAcademico();

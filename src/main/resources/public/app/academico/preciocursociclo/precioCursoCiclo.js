@@ -9,6 +9,7 @@ new Vue({
         cfgCantidadAlumno: {
             id: 'idCfgCantidadAlumno',
             header: true,
+            showaccept: true,
             title: 'Cantidad mínima de alumnos por Curso'
         },
         modalPreciocursociclo: {
