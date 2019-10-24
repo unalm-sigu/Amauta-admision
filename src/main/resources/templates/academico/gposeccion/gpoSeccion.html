@@ -161,6 +161,9 @@
                                                         <span v-if="item.estado == 'ACT' " class="label label-success" v-text="item.estadoEnum.value"></span>
                                                         <span v-else="" class="label label-danger" v-text="item.estadoEnum.value"></span> &nbsp;
                                                         <span v-if="item.cursoDirigido" class="label label-primary">Curso Dirigido</span>
+                                                        <span v-if="item.tipoDictadoEnum.name=='MOD'" class="label label-warning">
+                                                            {{item.tipoDictadoEnum.value}}
+                                                        </span>
                                                     </span>
                                                 </td>
 
