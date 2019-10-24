@@ -1181,10 +1181,15 @@ public class ProgDataServiceImp implements ProgDataService {
                 gpoSeccBD.setEstadoGrupo(EstadoGrupoSeccionEnum.ABI.name());
                 gpoSeccBD.setEstadoEnum(SeccionEstadoEnum.ACT);
                 gpoSeccBD.setCursoDirigido(gpoSecc.getCursoDirigido());
+                gpoSeccBD.setAnexoBoletin(anexo);
+
                 gpoSeccBD.setFechaInicioModular(gpoSecc.getFechaInicioModular());
                 gpoSeccBD.setFechaFinModular(gpoSecc.getFechaFinModular());
-                gpoSeccBD.setAnexoBoletin(anexo);
-                gpoSeccBD.setTipoDictadoEnum(TipoDictadoGrupoSeccionEnum.SEM);
+                if (gpoSeccBD.getFechaInicioModular() == null) {
+                    gpoSeccBD.setTipoDictadoEnum(TipoDictadoGrupoSeccionEnum.SEM);
+                } else {
+                    gpoSeccBD.setTipoDictadoEnum(TipoDictadoGrupoSeccionEnum.MOD);
+                }
 
                 grupoSeccionDAO.save(gpoSeccBD);
                 mapGpoSeccionBD.put(gpoSeccBD.getCodigo3(), gpoSeccBD);
@@ -1200,9 +1205,16 @@ public class ProgDataServiceImp implements ProgDataService {
                 gpoSeccBD.setEstadoGrupo(gpoSeccBD.getEstadoGrupo() == null ? EstadoGrupoSeccionEnum.ABI.name() : gpoSeccBD.getEstadoGrupo());
                 gpoSeccBD.setEstadoEnum(SeccionEstadoEnum.ACT);
                 gpoSeccBD.setCursoDirigido(gpoSecc.getCursoDirigido());
+                gpoSeccBD.setAnexoBoletin(anexo);
+
                 gpoSeccBD.setFechaInicioModular(gpoSecc.getFechaInicioModular());
                 gpoSeccBD.setFechaFinModular(gpoSecc.getFechaFinModular());
-                gpoSeccBD.setAnexoBoletin(anexo);
+                if (gpoSeccBD.getFechaInicioModular() == null) {
+                    gpoSeccBD.setTipoDictadoEnum(TipoDictadoGrupoSeccionEnum.SEM);
+                } else {
+                    gpoSeccBD.setTipoDictadoEnum(TipoDictadoGrupoSeccionEnum.MOD);
+                }
+
                 if (gpoSeccBD.getEstadoGrupoEnum() == EstadoGrupoSeccionEnum.CER && gpoSeccBD.getUsuarioCierraActa() == null) {
                     gpoSeccBD.setEstadoGrupoEnum(EstadoGrupoSeccionEnum.ABI);
                     gpoSeccBD.setEstadoPlanEnum(EstadoPlanCalificaEnum.PEND);
@@ -1811,7 +1823,7 @@ public class ProgDataServiceImp implements ProgDataService {
                 profeSeccBD.setPorcentajeCarga(profeSecc.getPorcentajeCarga());
                 profeSeccBD.setPorcentajeCargaFraccion(profeSecc.getPorcentajeCargaFraccion());
 
-                if (gpoSeccion.getFechaInicioModular() != null) {
+                if (gpoSeccion.getTipoDictadoEnum() == TipoDictadoGrupoSeccionEnum.MOD) {
                     profeSeccBD.setFechaInicio(gpoSeccion.getFechaInicioModular());
                     profeSeccBD.setFechaFin(gpoSeccion.getFechaFinModular());
                 } else {
@@ -1830,14 +1842,12 @@ public class ProgDataServiceImp implements ProgDataService {
                 profeSeccBD.setPorcentajeCarga(profeSecc.getPorcentajeCarga());
                 profeSeccBD.setPorcentajeCargaFraccion(profeSecc.getPorcentajeCargaFraccion());
 
-                if (profeSeccBD.getFechaInicio() == null) {
-                    if (gpoSeccion.getFechaInicioModular() != null) {
-                        profeSeccBD.setFechaInicio(gpoSeccion.getFechaInicioModular());
-                        profeSeccBD.setFechaFin(gpoSeccion.getFechaFinModular());
-                    } else {
-                        profeSeccBD.setFechaInicio(eventoClases.getFechaInicio());
-                        profeSeccBD.setFechaFin(eventoClases.getFechaFin());
-                    }
+                if (gpoSeccion.getTipoDictadoEnum() == TipoDictadoGrupoSeccionEnum.MOD) {
+                    profeSeccBD.setFechaInicio(gpoSeccion.getFechaInicioModular());
+                    profeSeccBD.setFechaFin(gpoSeccion.getFechaFinModular());
+                } else {
+                    profeSeccBD.setFechaInicio(eventoClases.getFechaInicio());
+                    profeSeccBD.setFechaFin(eventoClases.getFechaFin());
                 }
 
                 docenteSeccionDAO.update(profeSeccBD);
@@ -2352,6 +2362,7 @@ public class ProgDataServiceImp implements ProgDataService {
                 }
 
                 Seccion seccion = mapSecciones.get(clave);
+                GrupoSeccion gpoSeccion = seccion.getGrupoSeccion();
                 Dia dia = mapDias.get(Integer.parseInt(diaNum));
                 Hora hora = mapHoras.get(Integer.parseInt(horaNum));
                 Aula aula = mapAulas.get(aulaCod);
@@ -2376,9 +2387,12 @@ public class ProgDataServiceImp implements ProgDataService {
                     }
 
                     HorarioAula horarioAula = new HorarioAula(seccion, dia, hora, aula);
+                    if (gpoSeccion.getTipoDictadoEnum() == TipoDictadoGrupoSeccionEnum.MOD) {
+                        horarioAula.setFechaInicio(gpoSeccion.getFechaInicioModular());
+                        horarioAula.setFechaFin(gpoSeccion.getFechaFinModular());
+                    }
                     horariosAula.add(horarioAula);
                 }
-
             }
 
             visor.inicializar("horSecc", mapSeccHorarios.size());
@@ -2392,10 +2406,7 @@ public class ProgDataServiceImp implements ProgDataService {
 
             Map<Long, List<HorarioSeccion>> mapHorariosSecciones = TypesUtil.convertListToMapList("seccion.id", horarioSeccCicloBD);
             Map<Long, List<HorarioAula>> mapHorariosAulas = TypesUtil.convertListToMapList("seccion.id", horarioAulaCicloBD);
-            //Map<Long, List<HorarioAula>> mapHorariosAulas = new LinkedHashMap();
-            for (HorarioAula ha : horarioAulaCicloBD) {
-
-            }
+            Map<Long, List<HorarioAula>> mapHorariosAulasByKey = TypesUtil.convertListToMapList("key", horarioAulaCicloBD);
 
             //List<ModalidadEstudio> modalidadesEtudio = modalidadEstudioDAO.allByCodigos(Arrays.asList(ModalidadEstudioEnum.PRE.name(), ModalidadEstudioEnum.EPG.name()));
             List<ModalidadEstudio> modalidadesDB = modalidadEstudioDAO.allPrePostgrado(new Compania(1L));
@@ -2417,6 +2428,130 @@ public class ProgDataServiceImp implements ProgDataService {
             mapModalidadAnexo.put(3L, mapModalidadCodigo.get(ModalidadEstudioEnum.PRE.name()));
             mapModalidadAnexo.put(4L, mapModalidadCodigo.get(ModalidadEstudioEnum.EPG.name()));
 
+            for (Map.Entry<String, Seccion> entry : mapSecciones.entrySet()) {
+                Seccion seccion = entry.getValue();
+                String clave = entry.getKey();
+
+                List<HorarioSeccion> horarioSecc = TypesUtil.getListNotNull(mapSeccHorarios.get(clave));
+                List<HorarioSeccion> horarioSeccBD = TypesUtil.getListNotNull(mapHorariosSecciones.get(seccion.getId()));
+                List<HorarioAula> horarioAulaBD = TypesUtil.getListNotNull(mapHorariosAulas.get(seccion.getId()));
+
+                if (horarioSecc.isEmpty()) {
+                    for (HorarioSeccion hs : horarioSeccBD) {
+                        horarioSeccionDAO.delete(hs);
+                    }
+                    for (HorarioAula ha : horarioAulaBD) {
+                        horarioAulaDAO.delete(ha);
+                    }
+                    continue;
+                }
+
+                ModalidadEstudio modalidadAnexo = mapModalidadAnexo.get(seccion.getGrupoSeccion().getAnexoBoletin().getAnexoSuperior().getId());
+                EventoCicloAcademico eventoDictadoClases = mapEvento.get(modalidadAnexo.getId());
+
+                List<HorarioAula> horarioAula = TypesUtil.getListNotNull(mapAulaHorarios.get(clave));
+                ListsInspector inspectorHorAul = TypesUtil.analizeLists(horarioAulaBD, horarioAula, "key");
+
+                List<HorarioAula> nuevosHorAul = inspectorHorAul.getNewList();
+                List<HorarioAula> muertosHorAul = inspectorHorAul.getDeadList();
+                List<HorarioAula> antiguosHorAul = inspectorHorAul.getOldListDB();
+
+                boolean tieneCruces = false;
+                for (HorarioAula nuevo : nuevosHorAul) {
+                    if (eventoDictadoClases != null) {
+                        List<HorarioAula> horarioAulaKeys = TypesUtil.getListNotNull(mapHorariosAulasByKey.get(nuevo.getKey()));
+                        for (HorarioAula haKey : horarioAulaKeys) {
+                            boolean esMismaFecha = haKey.getFechaInicio().compareTo(eventoDictadoClases.getFechaInicio()) == 0;
+                            boolean esMismaSeccion = haKey.getSeccion().getId().compareTo(seccion.getId()) == 0;
+                            if (esMismaFecha && !esMismaSeccion) {
+                                tieneCruces = true;
+                            }
+                        }
+                    }
+                }
+                if (tieneCruces) {
+                    continue;
+                }
+
+                horarioAulaDAO.deleteAllInList(muertosHorAul);
+
+                Map<Date, Date> mapPeriodoHorarioAula = new LinkedHashMap();
+                if (!antiguosHorAul.isEmpty()) {
+                    for (HorarioAula ha : antiguosHorAul) {
+                        mapPeriodoHorarioAula.put(ha.getFechaInicio(), ha.getFechaFin());
+                    }
+                }
+
+                int contador = 0;
+                for (HorarioAula nuevo : nuevosHorAul) {
+                    logger.debug("\t ( {} / {} ) Agregando horario-aula {} {} {}", contador++, nuevosHorAul.size(), nuevo.getDia().getNumeroDia(), nuevo.getHora().getNumero(), nuevo.getSeccion().getCodigo());
+                    if (eventoDictadoClases != null) {
+                        if (antiguosHorAul.isEmpty()) {
+                            nuevo.setFechaInicio(eventoDictadoClases.getFechaInicio());
+                            nuevo.setFechaFin(eventoDictadoClases.getFechaFin());
+                            nuevo.setEstadoEnum(EstadoHorarioAulaEnum.ACT);
+                            nuevo.setTipoEnum(TipoHorarioAulaEnum.DICT);
+                            horarioAulaDAO.save(nuevo);
+
+                        } else if (mapPeriodoHorarioAula.isEmpty()) {
+                            nuevo.setFechaInicio(eventoDictadoClases.getFechaInicio());
+                            nuevo.setFechaFin(eventoDictadoClases.getFechaFin());
+                            nuevo.setEstadoEnum(EstadoHorarioAulaEnum.ACT);
+                            nuevo.setTipoEnum(TipoHorarioAulaEnum.DICT);
+                            horarioAulaDAO.save(nuevo);
+
+                        } else {
+                            for (Map.Entry<Date, Date> entryFecha : mapPeriodoHorarioAula.entrySet()) {
+                                HorarioAula nuevo2 = nuevo.clone();
+                                nuevo2.setFechaInicio(entryFecha.getKey());
+                                nuevo2.setFechaFin(entryFecha.getValue());
+                                nuevo2.setEstadoEnum(EstadoHorarioAulaEnum.ACT);
+                                nuevo2.setTipoEnum(TipoHorarioAulaEnum.DICT);
+                                horarioAulaDAO.save(nuevo);
+                            }
+                        }
+                    }
+                }
+
+                ListsInspector inspectorHorSec = TypesUtil.analizeLists(horarioSeccBD, horarioSecc, "key");
+                List<HorarioSeccion> nuevosHorSec = inspectorHorSec.getNewList();
+                List<HorarioSeccion> muertosHorSec = inspectorHorSec.getDeadList();
+
+                contador = 0;
+                for (HorarioSeccion nuevo : nuevosHorSec) {
+                    logger.debug("\t ( {} / {} ) Agregando horario-seccion {} {} {}", contador++, nuevosHorSec.size(), nuevo.getDia().getNumeroDia(), nuevo.getHora().getNumero(), nuevo.getSeccion().getCodigo());
+                    if (eventoDictadoClases != null) {
+                        nuevo.setFechaInicio(eventoDictadoClases.getFechaInicio());
+                        nuevo.setFechaFin(eventoDictadoClases.getFechaFin());
+                    }
+                    nuevo.setEstadoEnum(EstadoHorarioAulaEnum.ACT);
+                    horarioSeccionDAO.save(nuevo);
+                    horarios.add(nuevo);
+                }
+
+                horarioSeccionDAO.deleteAllInList(muertosHorSec);
+
+                List<HorarioSeccion> existentesBD = inspectorHorSec.getOldListDB();
+                List<HorarioSeccion> existentesForm = inspectorHorSec.getOldListForm();
+                Map<String, HorarioSeccion> mapHorarioSeccBD = existentesBD.stream().collect(Collectors.toMap(x -> x.getKey(), x -> x));
+                Map<String, HorarioSeccion> mapHorarioSeccForm = existentesForm.stream().collect(Collectors.toMap(x -> x.getKey(), x -> x));
+
+                for (Map.Entry<String, HorarioSeccion> entry2 : mapHorarioSeccBD.entrySet()) {
+                    HorarioSeccion hsBD = entry2.getValue();
+                    HorarioSeccion hsForm = mapHorarioSeccForm.get(entry2.getKey());
+                    hsBD.setAula(hsForm.getAula());
+                    logger.debug("\tActualizando horario-seccion {} {} {}", hsBD.getDia().getNumeroDia(), hsBD.getHora().getNumero(), hsBD.getSeccion().getCodigo());
+                    horarioSeccionDAO.update(hsBD);
+                    horarios.add(hsBD);
+                }
+                visor.agregarLog("horSecc", "saveHorSecc", "horarios-seccion actualizados para " + seccion.getCodigo(), true, "info");
+
+            }
+
+            if (1 == 1) {
+                return horarios;
+            }
+
             for (Map.Entry<String, List<HorarioSeccion>> entry : mapSeccHorarios.entrySet()) {
                 String clave = entry.getKey();
                 logger.debug("clave {} de horarioSeccion", clave);
@@ -2432,14 +2567,14 @@ public class ProgDataServiceImp implements ProgDataService {
                 List<HorarioSeccion> horarioSecc = entry.getValue();
                 List<HorarioSeccion> horarioSeccBD = mapHorariosSecciones.get(seccion.getId());
                 horarioSeccBD = (horarioSeccBD == null) ? new ArrayList() : horarioSeccBD;
-                ListsInspector inspector = TypesUtil.analizeLists(horarioSeccBD, horarioSecc, "key");
 
-                List<HorarioSeccion> nuevos = inspector.getNewList();
-                List<HorarioSeccion> muertos = inspector.getDeadList();
+                ListsInspector inspectorHorSec = TypesUtil.analizeLists(horarioSeccBD, horarioSecc, "key");
+                List<HorarioSeccion> nuevosHorSec = inspectorHorSec.getNewList();
+                List<HorarioSeccion> muertosHorSec = inspectorHorSec.getDeadList();
 
                 int contador = 0;
-                for (HorarioSeccion nuevo : nuevos) {
-                    logger.debug("\t ( {} / {} ) Agregando horario-seccion {} {} {}", contador++, nuevos.size(), nuevo.getDia().getNumeroDia(), nuevo.getHora().getNumero(), nuevo.getSeccion().getCodigo());
+                for (HorarioSeccion nuevo : nuevosHorSec) {
+                    logger.debug("\t ( {} / {} ) Agregando horario-seccion {} {} {}", contador++, nuevosHorSec.size(), nuevo.getDia().getNumeroDia(), nuevo.getHora().getNumero(), nuevo.getSeccion().getCodigo());
                     if (eventoDictadoClases != null) {
                         nuevo.setFechaInicio(eventoDictadoClases.getFechaInicio());
                         nuevo.setFechaFin(eventoDictadoClases.getFechaFin());
@@ -2449,10 +2584,10 @@ public class ProgDataServiceImp implements ProgDataService {
                     horarios.add(nuevo);
                 }
 
-                horarioSeccionDAO.deleteAllInList(muertos);
+                horarioSeccionDAO.deleteAllInList(muertosHorSec);
 
-                List<HorarioSeccion> existentesBD = inspector.getOldListDB();
-                List<HorarioSeccion> existentesForm = inspector.getOldListForm();
+                List<HorarioSeccion> existentesBD = inspectorHorSec.getOldListDB();
+                List<HorarioSeccion> existentesForm = inspectorHorSec.getOldListForm();
                 Map<String, HorarioSeccion> mapHorarioSeccBD = existentesBD.stream().collect(Collectors.toMap(x -> x.getKey(), x -> x));
                 Map<String, HorarioSeccion> mapHorarioSeccForm = existentesForm.stream().collect(Collectors.toMap(x -> x.getKey(), x -> x));
 
@@ -2479,17 +2614,17 @@ public class ProgDataServiceImp implements ProgDataService {
                 ModalidadEstudio modalidadAnexo = mapModalidadAnexo.get(seccion.getGrupoSeccion().getAnexoBoletin().getAnexoSuperior().getId());
                 EventoCicloAcademico eventoDictadoClases = this.getEventoClases(cicloAcademico, modalidadAnexo);
 
-                List<HorarioAula> horarioSecc = entry.getValue();
+                List<HorarioAula> horarioAula = entry.getValue();
                 List<HorarioAula> horarioAulaBD = mapHorariosAulas.get(seccion.getId());
                 horarioAulaBD = (horarioAulaBD == null) ? new ArrayList() : horarioAulaBD;
-                ListsInspector inspector = TypesUtil.analizeLists(horarioAulaBD, horarioSecc, "key");
+                ListsInspector inspectorHorAul = TypesUtil.analizeLists(horarioAulaBD, horarioAula, "key");
 
-                List<HorarioAula> nuevos = inspector.getNewList();
-                List<HorarioAula> muertos = inspector.getDeadList();
+                List<HorarioAula> nuevosHorAul = inspectorHorAul.getNewList();
+                List<HorarioAula> muertosHorAul = inspectorHorAul.getDeadList();
 
                 int contador = 0;
-                for (HorarioAula nuevo : nuevos) {
-                    logger.debug("\t ( {} / {} ) Agregando horario-aula {} {} {}", contador++, nuevos.size(), nuevo.getDia().getNumeroDia(), nuevo.getHora().getNumero(), nuevo.getSeccion().getCodigo());
+                for (HorarioAula nuevo : nuevosHorAul) {
+                    logger.debug("\t ( {} / {} ) Agregando horario-aula {} {} {}", contador++, nuevosHorAul.size(), nuevo.getDia().getNumeroDia(), nuevo.getHora().getNumero(), nuevo.getSeccion().getCodigo());
                     if (eventoDictadoClases != null) {
                         nuevo.setFechaInicio(eventoDictadoClases.getFechaInicio());
                         nuevo.setFechaFin(eventoDictadoClases.getFechaFin());
@@ -2499,10 +2634,10 @@ public class ProgDataServiceImp implements ProgDataService {
                     }
                 }
 
-                horarioAulaDAO.deleteAllInList(muertos);
+                horarioAulaDAO.deleteAllInList(muertosHorAul);
 
-                List<HorarioAula> existentesBD = inspector.getOldListDB();
-                List<HorarioAula> existentesForm = inspector.getOldListForm();
+                List<HorarioAula> existentesBD = inspectorHorAul.getOldListDB();
+                List<HorarioAula> existentesForm = inspectorHorAul.getOldListForm();
                 //Map<String, HorarioAula> mapHorarioAulaBD = existentesBD.stream().collect(Collectors.toMap(x -> x.getKey(), x -> x));
                 //Map<String, HorarioAula> mapHorarioAulaForm = existentesForm.stream().collect(Collectors.toMap(x -> x.getKey(), x -> x));
 
