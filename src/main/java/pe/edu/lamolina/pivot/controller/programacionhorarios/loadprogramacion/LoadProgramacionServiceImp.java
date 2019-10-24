@@ -4,6 +4,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -30,6 +31,7 @@ import pe.albatross.zelpers.file.system.FileHelper;
 import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.albatross.zelpers.miscelanea.math.Fraxtion;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
@@ -57,8 +59,6 @@ import pe.edu.lamolina.model.general.Pais;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.general.TipoDocIdentidad;
 import pe.edu.lamolina.model.general.Ubicacion;
-import pe.edu.lamolina.model.horario.DiaHoraGrupo;
-import pe.edu.lamolina.model.horario.GrupoHoras;
 import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.horario.HorarioSeccion;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
@@ -825,11 +825,21 @@ public class LoadProgramacionServiceImp implements LoadProgramacionService {
                 Integer principal = Integer.valueOf(getCellStringValue(4, row));
                 String carga = getCellStringValue(9, row);
 
+                BigDecimal dvdo = getCellBigDecimalValue(10, row);
+                BigDecimal dsor = getCellBigDecimalValue(11, row);
+                Fraxtion frax = new Fraxtion("100", "1");
+                if (dvdo != null && dsor != null) {
+                    dsor = dsor.setScale(2, RoundingMode.HALF_UP);
+                    frax = new Fraxtion(dvdo, dsor);
+                }
+
                 if (StringUtils.isEmpty(ciclo)) {
                     break;
                 }
 
                 DocenteSeccion profeSecc = new DocenteSeccion(principal, codigoDocente, codigoSeccion, carga);
+                profeSecc.setPorcentajeCargaFraccion(frax.toString());
+                profeSecc.setPorcentajeCarga(frax.getValue(2));
                 docenteSecciones.add(profeSecc);
 
             }
@@ -1116,12 +1126,17 @@ public class LoadProgramacionServiceImp implements LoadProgramacionService {
                 String curso = getCellStringValue(3, row);
                 String anexo = getCellStringValue(5, row);
                 String dirigido = getCellStringValue(6, row);
+                String tipoModular = getCellStringValue(9, row);
+                Date fechaIni = getCellDateValue(10, row);
+                Date fechaFin = getCellDateValue(11, row);
 
                 if (StringUtils.isEmpty(ciclo)) {
                     break;
                 }
 
                 GrupoSeccion gpoSecc = new GrupoSeccion(gclave, curso, anexo, dirigido);
+                gpoSecc.setFechaInicioModular(fechaIni);
+                gpoSecc.setFechaFinModular(fechaFin);
                 gpoSecciones.add(gpoSecc);
             }
             logger.debug("Se han leido un total de {} grupos-secciones", loop);
@@ -1219,6 +1234,45 @@ public class LoadProgramacionServiceImp implements LoadProgramacionService {
         }
 
         return Integer.valueOf(dato);
+    }
+
+    private BigDecimal getCellBigDecimalValue(int pos, Row row) {
+        Cell cell = row.getCell(pos);
+        if (cell == null) {
+            return null;
+        }
+        if (cell.getCellType() == Cell.CELL_TYPE_NUMERIC) {
+            return new BigDecimal(cell.getNumericCellValue());
+        }
+
+        cell.setCellType(Cell.CELL_TYPE_STRING);
+        String dato = cell.getStringCellValue();
+        if (dato == null) {
+            return null;
+        }
+
+        dato = StringUtils.replaceChars(dato, '\t', ' ');
+        dato = StringUtils.replaceChars(dato, '\r', ' ');
+        dato = StringUtils.replaceChars(dato, '\n', ' ');
+        dato = StringUtils.replaceChars(dato, ',', ' ');
+        dato = StringUtils.replaceChars(dato, '|', ' ');
+        dato = StringUtils.replaceChars(dato, '´', '\'');
+        dato = dato.replaceAll("\\s{2,}", " ").trim();
+
+        if (dato.equals(".")) {
+            return BigDecimal.ZERO;
+        }
+        if (dato.equals("-")) {
+            throw new PhobosException("Valor de BigDecimal desconocido");
+        }
+        if (dato.equals(",")) {
+            return BigDecimal.ZERO;
+        }
+        if (StringUtils.isEmpty(dato)) {
+            return null;
+        }
+
+        return new BigDecimal(dato);
     }
 
     private Date getCellDateValue(int pos, Row row) {

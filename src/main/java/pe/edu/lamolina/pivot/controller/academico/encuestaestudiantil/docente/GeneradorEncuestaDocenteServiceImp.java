@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.academico.AnexoBoletin;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.Docente;
@@ -94,25 +95,25 @@ public class GeneradorEncuestaDocenteServiceImp implements GeneradorEncuestaDoce
     @Async
     @Override
     @Transactional
-    public void generarEncuesta(CicloAcademico cicloAcademico, DataSessionPivot ds) {
+    public void generarEncuesta(CicloAcademico ciclo, DataSessionPivot ds) {
         visorEncuestaDocente.setEstado("Obteniendo información de matriculados");
-        List<MatriculaSeccion> matriculasSecciones = matriculaSeccionDAO.allMatriculadosByCiclo(cicloAcademico);
+        List<MatriculaSeccion> matriculasSecciones = matriculaSeccionDAO.allMatriculadosByCiclo(ciclo);
         Map<Long, List<Alumno>> mapAlumnos = TypesUtil.convertListToMapList("seccion.id", "matriculaResumen.alumno", matriculasSecciones);
         for (Map.Entry<Long, List<Alumno>> entry : mapAlumnos.entrySet()) {
             List<Alumno> alumnos = clearAlumnosDuplicados(entry.getValue());
             mapAlumnos.put(entry.getKey(), alumnos);
         }
 
-        ModalidadEstudio modalidad = modalidadEstudioDAO.findByCodigo(ModalidadEstudioEnum.PRE);
+        //ModalidadEstudio modalidad = modalidadEstudioDAO.findByCodigo(ModalidadEstudioEnum.PRE);
         visorEncuestaDocente.setEstado("Obteniendo información de docentes-secciones");
-        List<DocenteSeccion> profesPersonasSecciones = docenteSeccionDAO.allSinNNByCicloModalidad(cicloAcademico, modalidad);
-        List<DocenteSeccion> profesActivosSecciones = docenteSeccionDAO.allActivosByCiclo(cicloAcademico);
-        List<EncuestaDocenteModalidad> encusProfesModalidadades = encuestaDocenteModalidadDAO.allByCiclo(cicloAcademico);
+        List<DocenteSeccion> profesPersonasSecciones = docenteSeccionDAO.allSinNNByCicloModalidad(ciclo);
+        List<DocenteSeccion> profesActivosSecciones = docenteSeccionDAO.allActivosByCiclo(ciclo);
+        List<EncuestaDocenteModalidad> encusProfesModalidadades = encuestaDocenteModalidadDAO.allByCiclo(ciclo);
         Map<Long, List<DocenteSeccion>> mapProfeSeccBySecc = TypesUtil.convertListToMapList("seccion.id", profesActivosSecciones);
         Map<Long, List<DocenteSeccion>> mapProfeSeccByGpoSecc = TypesUtil.convertListToMapList("seccion.grupoSeccion.id", profesActivosSecciones);
         Map<String, EncuestaDocenteModalidad> mapEncusProfesModalidadades = TypesUtil.convertListToMap("key", encusProfesModalidadades);
 
-        EncuestaEstudiantil encuestaDocente = encuestaEstudiantilDAO.findByCicloTipo(cicloAcademico, TipoExamenVirtualEnum.ENC_DOC);
+        EncuestaEstudiantil encuestaDocente = encuestaEstudiantilDAO.findByCicloTipo(ciclo, TipoExamenVirtualEnum.ENC_DOC);
         ConfiguraEncuesta configuraEncuesta = configuraEncuestaDAO.findByEncuesta(encuestaDocente);
         List<PeriodoEncuesta> periodosEncuesta = periodoEncuestaDAO.allByEncuesta(encuestaDocente);
         List<TemaExamenVirtual> temas = temaExamenVirtualDAO.allByEvaluacion(encuestaDocente.getEncuesta());
@@ -162,12 +163,14 @@ public class GeneradorEncuestaDocenteServiceImp implements GeneradorEncuestaDoce
         }
 
         Seccion seccion = profeSecc.getSeccion();
+        GrupoSeccion gpoSeccion = profeSecc.getSeccion().getGrupoSeccion();
+        AnexoBoletin anexoSup = gpoSeccion.getAnexoBoletin().getAnexoSuperior();
         List<DocenteSeccion> profesoresSecc = mapProfeSeccBySeccion.get(seccion.getId());
         List<Alumno> alumnos = mapAlumnos.get(seccion.getId());
         alumnos = (alumnos == null) ? new ArrayList() : alumnos;
 
         Docente docente = profeSecc.getDocente();
-        Curso curso = seccion.getGrupoSeccion().getCurso();
+        Curso curso = gpoSeccion.getCurso();
         ModalidadEstudio modalidad = curso.getModalidadEstudio();
         CicloAcademico ciclo = profeSecc.getSeccion().getGrupoSeccion().getCicloAcademico();
 
@@ -204,9 +207,18 @@ public class GeneradorEncuestaDocenteServiceImp implements GeneradorEncuestaDoce
             impedido = "Anulada porque excede la cantidad máxima de docentes. ";
         }
 
-        if (alumnos.size() < configuraEncuesta.getCantidadMinimaAlumnos()) {
+        if (gpoSeccion.getCursoDirigido()) {
+            impedido = "Anulada porque es Curso Dirigido. ";
+        }
+
+        if (alumnos.size() < configuraEncuesta.getCantidadMinimaAlumnosPregrado() && !anexoSup.isAnexoCursosPostgrado()) {
             impedido = (impedido == null ? "" : impedido);
-            impedido += "Anulada porque no tiene la cantidad mínima de alumnos. ";
+            impedido += "Anulada porque no tiene la cantidad mínima de alumnos pregrados. ";
+        }
+
+        if (alumnos.size() < configuraEncuesta.getCantidadMinimaAlumnosPosgrado() && anexoSup.isAnexoCursosPostgrado()) {
+            impedido = (impedido == null ? "" : impedido);
+            impedido += "Anulada porque no tiene la cantidad mínima de alumnos posgrados. ";
         }
 
         Curso cursoNoEnc = mapCursosNoEncuestar.get(curso.getId());

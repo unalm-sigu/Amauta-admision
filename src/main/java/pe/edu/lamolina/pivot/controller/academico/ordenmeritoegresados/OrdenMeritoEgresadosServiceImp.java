@@ -92,7 +92,8 @@ public class OrdenMeritoEgresadosServiceImp implements OrdenMeritoEgresadosServi
             fac.setCarrera(carrerasFac);
         }
 
-        List<Facultad> facultadUnica = facultades.stream().filter(fac -> fac.getCarrera().size() == 1).collect(Collectors.toList());
+//        List<Facultad> facultadUnica = facultades.stream().filter(fac -> fac.getCarrera().size() == 1).collect(Collectors.toList());
+        List<Facultad> facultadUnica = facultades.stream().collect(Collectors.toList());
         Collections.sort(facultadUnica, new Facultad.CompareCodigo());
         List<Facultad> noFacultadUnica = facultades.stream().filter(fac -> fac.getCarrera().size() > 1).collect(Collectors.toList());
         Collections.sort(noFacultadUnica, new Facultad.CompareCodigo());
@@ -158,7 +159,9 @@ public class OrdenMeritoEgresadosServiceImp implements OrdenMeritoEgresadosServi
                 com.setTotalAlumnos(alumnosCiclo.size());
                 com.setUserRegistro(ds.getUsuario());
                 com.setFechaRegistro(now);
-
+                if (alumnosCiclo.isEmpty()) {
+                    continue;
+                }
                 controlOrdenMeritoDAO.save(com);
 
                 for (Egresado alumnoCiclo : alumnosCiclo) {

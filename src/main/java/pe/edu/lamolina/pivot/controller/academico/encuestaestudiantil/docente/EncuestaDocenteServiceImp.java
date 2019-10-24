@@ -250,7 +250,8 @@ public class EncuestaDocenteServiceImp implements EncuestaDocenteService {
             configuraEncuestaDAO.save(configuraEncuestaForm);
         } else {
             configuraEncuestaBD.setCantidadMaximaDocentes(configuraEncuestaForm.getCantidadMaximaDocentes());
-            configuraEncuestaBD.setCantidadMinimaAlumnos(configuraEncuestaForm.getCantidadMinimaAlumnos());
+            configuraEncuestaBD.setCantidadMinimaAlumnosPregrado(configuraEncuestaForm.getCantidadMinimaAlumnosPregrado());
+            configuraEncuestaBD.setCantidadMinimaAlumnosPosgrado(configuraEncuestaForm.getCantidadMinimaAlumnosPosgrado());
             configuraEncuestaBD.setEncuestaTeoriaPractica(configuraEncuestaForm.getEncuestaTeoriaPractica() == null ? 0L : 1L);
             configuraEncuestaBD.setFechaModificacion(new Date());
             configuraEncuestaBD.setUserModificacion(ds.getUsuario());

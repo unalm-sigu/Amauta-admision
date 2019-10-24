@@ -1,5 +1,6 @@
 package pe.edu.lamolina.pivot.dao.horario.hibernate;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -179,7 +180,8 @@ public class HorarioAulaDAOH extends AbstractEasyDAO<HorarioAula> implements Hor
                 .from(HorarioAula.class, "ha")
                 .join("dia d", "hora h", "aula au", "seccion sec")
                 .join("sec.grupoSeccion gs", "gs.cicloAcademico ca")
-                .filter("ca.id", cicloAcademico);
+                .filter("ca.id", cicloAcademico)
+                .orderBy("ha.fechaInicio");
 
         return all(sql);
     }
@@ -230,6 +232,53 @@ public class HorarioAulaDAOH extends AbstractEasyDAO<HorarioAula> implements Hor
         if (aulas != null && !aulas.isEmpty()) {
             sql.in("au.id", aulas);
         }
+        return all(sql);
+    }
+
+    @Override
+    public List<HorarioAula> allByFechaInicioTipoHorario(Date fechaInicio, TipoHorarioAulaEnum tipoEnum) {
+        Octavia sql = Octavia.query()
+                .from(HorarioAula.class, "ha")
+                .join("dia", "hora", "aula", "seccion")
+                .filter("ha.tipo", tipoEnum)
+                .filter("ha.fechaInicio", fechaInicio);
+        return all(sql);
+    }
+
+    @Override
+    public List<HorarioAula> allByFechasFinalesTipoHorarioKeys(List<Date> fechasFinales, TipoHorarioAulaEnum tipoEnum, List<String> keysHorarios) {
+        if (keysHorarios.isEmpty()) {
+            return new ArrayList();
+        }
+
+        Octavia sql = Octavia.query()
+                .from(HorarioAula.class, "ha")
+                .join("dia dia", "hora hora", "aula aula", "seccion")
+                .filter("ha.tipo", tipoEnum)
+                .in("ha.fechaFin", fechasFinales)
+                .complexFilter("concat(aula.id,'-',dia.id,'-',hora.id)", "in", keysHorarios);
+        return all(sql);
+    }
+
+    @Override
+    public List<HorarioAula> allByRangoFechaTipoHorario(Date fechaInicio, Date fechaFin, TipoHorarioAulaEnum tipoEnum) {
+        Octavia sql = Octavia.query()
+                .from(HorarioAula.class, "ha")
+                .join("dia d", "hora h", "aula au", "seccion")
+                .filter("ha.tipo", tipoEnum)
+                .beginBlock()
+                .__().between("ha.fechaInicio", fechaInicio, fechaFin)
+                .__().between("ha.fechaFin", fechaInicio, fechaFin)
+                .__().beginBlock()
+                .__().__().filter("ha.fechaInicio", "<=", fechaInicio)
+                .__().__().filter("ha.fechaFin", ">=", fechaFin)
+                .__().endBlock()
+                .__().beginBlock()
+                .__().__().filter("ha.fechaInicio", ">=", fechaInicio)
+                .__().__().filter("ha.fechaFin", "<=", fechaFin)
+                .__().endBlock()
+                .endBlock();
+
         return all(sql);
     }
 
@@ -776,7 +825,8 @@ public class HorarioAulaDAOH extends AbstractEasyDAO<HorarioAula> implements Hor
                 .into(HorarioAula.class)
                 .columns("estado", "reservado", "tipo", "fechaInicio", "fechaFin",
                         "aula", "dia", "hora", "seccion", "reservaAula", "seccionGrupoRegular",
-                        "seccionGrupoEspecial", "cursoMasivoExamen", "rolExamenes")
+                        "seccionGrupoEspecial", "cursoMasivoExamen", "rolExamenes",
+                        "rolExamenesModificador", "tipoModificacion", "fechaInicioAnterior", "fechaFinAnterior")
                 .values(horariosAulas);
 
         Query query = getCurrentSession().createSQLQuery(sql.toString());
@@ -784,6 +834,25 @@ public class HorarioAulaDAOH extends AbstractEasyDAO<HorarioAula> implements Hor
 
         long t2 = System.currentTimeMillis();
         logger.info("{} HorarioAula's insertados en {} mseg....", rows, (t2 - t1));
+        return rows;
+    }
+
+    @Override
+    public int updateList(List<HorarioAula> horariosAulas, String... columnas) {
+        if (horariosAulas.isEmpty()) {
+            return 0;
+        }
+
+        long t1 = System.currentTimeMillis();
+        Insecto sql = Insecto.createUpdate(HorarioAula.class)
+                .set(columnas)
+                .with(horariosAulas);
+
+        Query query = getCurrentSession().createSQLQuery(sql.toString());
+        int rows = query.executeUpdate();
+
+        long t2 = System.currentTimeMillis();
+        logger.info("{} HorarioAula's actualizados en {} mseg....", rows, (t2 - t1));
         return rows;
     }
 

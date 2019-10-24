@@ -115,16 +115,15 @@
                         </section>
                     </section>
 
-                    <section v-if="configuraEncuesta.cantidadMinimaAlumnos != null"
+                    <section v-if="configuraEncuesta.cantidadMinimaAlumnosPregrado != null"
                              class="panel m-b-xs">
                         <section class="panel-body">
                             <div class="col-md-12 h4 bold m-t-xs">Condiciones:</div>
-                            <div class="col-md-3">{{configuraEncuesta.cantidadMinimaAlumnos}} alumnos como mínimo por sección</div>
+                            <div class="col-md-3">{{configuraEncuesta.cantidadMinimaAlumnosPregrado}} alumnos como mínimo para pregrado</div>
+                            <div class="col-md-3">{{configuraEncuesta.cantidadMinimaAlumnosPosgrado}} alumnos como mínimo para posgrado</div>
                             <div class="col-md-3">{{configuraEncuesta.cantidadMaximaDocentes}} docentes como máximo por sección</div>
                             <div class="col-md-3" v-if="configuraEncuesta.encuestaTeoriaPractica==1">Una encuesta si el docente es de teoría y práctica</div>
                             <div class="col-md-3">{{configuraEncuesta.diasEncuesta}} días de encuesta para secciónes polidocentes</div>
-
-
                         </section>
                     </section>
 
@@ -227,7 +226,7 @@
                                                 </td>
 
                                                 <td class="v-middle text-center">
-                                                    <span v-if="item.estado=='ACT' &amp;&amp; (!configuraEncuesta.cantidadMinimaAlumnos || item.alumnosEncuestados >= configuraEncuesta.cantidadMinimaAlumnos)">
+                                                    <span v-if="item.estado=='ACT' &amp;&amp; (!configuraEncuesta.cantidadMinimaAlumnosPregrado || item.alumnosEncuestados >= configuraEncuesta.cantidadMinimaAlumnosPregrado)">
                                                         <span class="pointer m-r-xs text-primary" v-on:click="findPreguntas(item)"><i class="fa fa-list-ul"></i></span>
                                                         <span class="pointer m-r-xs text-success" v-on:click="findComentarios(item)"><i class="fa fa-comments"></i></span>
                                                         <span class="pointer text-warning" v-on:click="findTemas(item)"><i class="fa fa-bar-chart"></i></span>
@@ -279,6 +278,8 @@
                 /*<![CDATA[*/
                 var encuestaJson = /*[[${encuesta.toString()}]]*/ 'json';
                 var visor = /*[[${visor.estadoEnum}]]*/ 'json';
+                var rutaModulo = 'academico/encuestaestudiantil/docente';
+                var rutaEditor = 'academico/encuestaestudiantil/editor';
                 /*]]>*/
             </script>
             <div th:substituteby="_modules/vue-modal"></div>

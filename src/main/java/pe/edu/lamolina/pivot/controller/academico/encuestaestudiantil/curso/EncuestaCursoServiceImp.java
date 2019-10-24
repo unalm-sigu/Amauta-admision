@@ -281,7 +281,8 @@ public class EncuestaCursoServiceImp implements EncuestaCursoService {
             configuraEncuestaDAO.save(configuraEncuestaForm);
         } else {
             configuraEncuestaBD.setCantidadMaximaDocentes(0L);
-            configuraEncuestaBD.setCantidadMinimaAlumnos(configuraEncuestaForm.getCantidadMinimaAlumnos());
+            configuraEncuestaBD.setCantidadMinimaAlumnosPregrado(configuraEncuestaForm.getCantidadMinimaAlumnosPregrado());
+            configuraEncuestaBD.setCantidadMinimaAlumnosPosgrado(configuraEncuestaForm.getCantidadMinimaAlumnosPosgrado());
             configuraEncuestaBD.setEncuestaTeoriaPractica(configuraEncuestaForm.getEncuestaTeoriaPractica() == null ? 0L : 1L);
             configuraEncuestaBD.setFechaModificacion(new Date());
             configuraEncuestaBD.setUserModificacion(ds.getUsuario());
@@ -328,7 +329,7 @@ public class EncuestaCursoServiceImp implements EncuestaCursoService {
             return null;
 
         } else {
-            return "No se puede iniciar la generación de encuestas de docentes";
+            return "No se puede iniciar la generación de encuestas de cursos";
         }
     }
 

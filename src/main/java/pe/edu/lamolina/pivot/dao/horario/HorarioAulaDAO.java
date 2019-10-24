@@ -121,7 +121,15 @@ public interface HorarioAulaDAO extends EasyDAO<HorarioAula> {
 
     List<HorarioAula> allByFechas(Date fechainicio, Date fechafin, List<Aula> aulas, OficinaEnum oficinaEnum, TipoHorarioAulaEnum... tipoHorarioAulaEnum);
 
+    List<HorarioAula> allByFechaInicioTipoHorario(Date fechaInicio, TipoHorarioAulaEnum tipoHorarioAulaEnum);
+
+    List<HorarioAula> allByFechasFinalesTipoHorarioKeys(List<Date> fechasFinales, TipoHorarioAulaEnum tipoEnum, List<String> keysHorarios);
+
+    List<HorarioAula> allByRangoFechaTipoHorario(Date fechaInicio, Date fechaFin, TipoHorarioAulaEnum tipoEnum);
+
     int saveList(List<HorarioAula> horariosAulas);
+
+    int updateList(List<HorarioAula> horariosAulas, String... columnas);
 
     void deleteBySeccionGrupoEspecial(SeccionGrupoEspecial grupoDB);
 

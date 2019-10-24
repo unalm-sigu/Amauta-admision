@@ -47,13 +47,21 @@
                     <form id='formConfiguraEncuesta' class="form-horizontal" data-parsley-validate="true">
 
                         <div class="col-md-12 row m-b">
-
-                            <label>Cantidad mínima de alumnos por sección</label>
+                            <label>Cantidad mínima de alumnos por sección - Pregrado</label>
                             <input type="text"
                                    class="form-control input-sm"
-                                   name="cantidadMinimaAlumnos"
-                                   v-model="configuraEncuesta.cantidadMinimaAlumnos"
-                                   v-bind:value="configuraEncuesta.cantidadMinimaAlumnos"
+                                   name="cantidadMinimaAlumnosPregrado"
+                                   v-model="configuraEncuesta.cantidadMinimaAlumnosPregrado"
+                                   v-bind:value="configuraEncuesta.cantidadMinimaAlumnosPregrado"
+                                   required="true"/>
+                        </div>
+                        <div class="col-md-12 row m-b">
+                            <label>Cantidad mínima de alumnos por sección - Posgrado</label>
+                            <input type="text"
+                                   class="form-control input-sm"
+                                   name="cantidadMinimaAlumnosPosgrado"
+                                   v-model="configuraEncuesta.cantidadMinimaAlumnosPosgrado"
+                                   v-bind:value="configuraEncuesta.cantidadMinimaAlumnosPosgrado"
                                    required="true"/>
                         </div>
                     </form>

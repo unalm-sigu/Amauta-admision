@@ -23,11 +23,11 @@ new Vue({
         let $vue = this;
     },
     methods: {
-        eventoAcademicoCustomLabel( { eventoAcademico }) {
-            if (eventoAcademico == null) {
+        eventoAcademicoCustomLabel(item) {
+            if (item.eventoAcademico == null) {
                 return "";
             }
-            return `${eventoAcademico.nombre}`;
+            return item.eventoAcademico.nombre + ": " + item.fechaInicio + " al " + item.fechaFin;
         },
         verNuevoRolExamen() {
             let $vue = this;

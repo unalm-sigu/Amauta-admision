@@ -24,7 +24,6 @@ import pe.edu.lamolina.model.encuestaestudiantil.EncuestaCurso;
 import pe.edu.lamolina.model.encuestaestudiantil.EncuestaDocente;
 import pe.edu.lamolina.model.encuestaestudiantil.EncuestaEstudiantil;
 import pe.edu.lamolina.model.encuestaestudiantil.PeriodoEncuesta;
-import pe.edu.lamolina.model.enums.EncuestaEstadoEnum;
 import pe.edu.lamolina.model.enums.EncuestaEstudiantilEstadoEnum;
 import pe.edu.lamolina.model.enums.TipoExamenVirtualEnum;
 import pe.edu.lamolina.pivot.dao.academico.CursoDAO;
@@ -114,6 +113,7 @@ public class GeneradorEncuestaCursoServiceImp implements GeneradorEncuestaCursoS
                 enc.setUserRegistro(ds.getUsuario());
                 enc.setFechaRegistro(new Date());
                 enc.setEncuestaDocente(encuestaDocente);
+                enc.setDescripcion(encuestaDocente.getDescripcion());
                 encuestaCursoDAO.save(enc);
 
                 saveEncuestaAlumno(enc, listAlumno, ds);
@@ -156,7 +156,7 @@ public class GeneradorEncuestaCursoServiceImp implements GeneradorEncuestaCursoS
 
         String impedido = null;
 
-        if (alumnos.size() < configuraEncuesta.getCantidadMinimaAlumnos()) {
+        if (alumnos.size() < configuraEncuesta.getCantidadMinimaAlumnosPregrado()) {
             impedido = (impedido == null ? "" : impedido);
             impedido += "Anulada porque no tiene la cantidad mínima de alumnos. ";
         }

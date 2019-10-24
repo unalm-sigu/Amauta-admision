@@ -573,9 +573,9 @@ public class AlumnoServiceImp implements AlumnoService {
                     usuario.setUserModifica(usuarioRegistra);
                     usuarioDAO.update(usuario);
                 }
+                this.validarEmailEmpresaSinPersona(personaForm.getEmailCompania());
             }
 
-            this.validarEmailEmpresaSinPersona(personaForm.getEmailCompania());
             Rol rol = rolDAO.findByCode(RolEnum.ALU);
             List<UsuarioRol> userRoles = usuarioRolDAO.allByUsuarioRol(usuario, rol);
 
