@@ -114,7 +114,17 @@
                         </section>
                     </section>
 
-
+                    <section v-if="configuraEncuesta.cantidadMinimaAlumnosPregrado != null"
+                             class="panel m-b-xs">
+                        <section class="panel-body">
+                            <div class="col-md-12 h4 bold m-t-xs">Condiciones:</div>
+                            <div class="col-md-3">{{configuraEncuesta.cantidadMinimaAlumnosPregrado}} alumnos como mínimo para pregrado</div>
+                            <div class="col-md-3">{{configuraEncuesta.cantidadMinimaAlumnosPosgrado}} alumnos como mínimo para posgrado</div>
+                            <div class="col-md-3">{{configuraEncuesta.cantidadMaximaDocentes}} docentes como máximo por sección</div>
+                            <div class="col-md-3" v-if="configuraEncuesta.encuestaTeoriaPractica==1">Una encuesta si el docente es de teoría y práctica</div>
+                            <div class="col-md-3">{{configuraEncuesta.diasEncuesta}} días de encuesta para secciónes polidocentes</div>
+                        </section>
+                    </section>
 
 
                     <section class="panel">
@@ -140,9 +150,17 @@
                                             <tr v-for="item in props.data">
                                                 <td class="v-middle">
                                                     <span class="block text-primary h4 bold m-t-xs m-b-xs">
+                                                        {{item.grupoSeccion.curso.codigo}}&nbsp; 
+                                                        <i class="fa fa-bookmark-o"></i> {{item.grupoSeccion.curso.tpc}}&nbsp;
                                                         {{item.grupoSeccion.curso.nombre}}
                                                         <span class="text-muted" style="font-size: 6px;">{{item.id}}</span>
                                                     </span>
+                                                    <!--                                                    <span class="block text-primary h5 bold m-t-xs m-b-xs">
+                                                                                                            <i class="fa fa-graduation-cap"></i>
+                                                                                                            {{item.grupoSeccion.curso.codigo}} &nbsp; 
+                                                                                                            <i class="fa fa-bookmark-o"></i> {{item.grupoSeccion.curso.tpc}} 
+                                                                                                        </span>-->
+
                                                     <small class="block text-muted">
                                                         Departamento Académico: 
                                                         {{item.grupoSeccion.curso.departamentoAcademico.nombre}}
@@ -151,21 +169,52 @@
                                                         Facultad: 
                                                         {{item.grupoSeccion.curso.departamentoAcademico.facultad.nombre}}
                                                     </small>
-                                                    <span class="block text-dark">
-                                                        {{item.grupoSeccion.curso.codigo}} &nbsp; 
-                                                        <i class="fa fa-bookmark-o"></i> {{item.grupoSeccion.curso.tpc}} 
-                                                    </span>
 
-                                                    <span v-for="seccion in item.grupoSeccion.secciones"
-                                                          class="text-dark h5 block m-t-xs">
-                                                        <i class="fa fa-users"></i>
-                                                        Sección: {{seccion.codigo2}} &nbsp;|&nbsp; 
-                                                        Grupo: {{seccion.grupoHoras.codigo}}
-                                                    </span>
+                                                    <template v-if="item.esSimultaneo">
+                                                        <span class="text-dark h5 block m-t-xs m-b-xs">
+                                                            <i class="fa fa-users"></i>
+                                                            Sección: {{item.encuestaDocente.docenteSeccion.seccion.codigo2}} &nbsp;|&nbsp; 
+                                                            Grupo: {{item.encuestaDocente.docenteSeccion.seccion.grupoHoras.codigo}}
+                                                        </span>
+
+                                                        <span class="text-dark h5 block m-t-xs m-b-xs bold">
+                                                            <i class="fa fa-user"></i>&nbsp;
+                                                            {{item.encuestaDocente.docenteSeccion.docente.persona.apellidosNombres}}
+                                                        </span>
+                                                        <small class="text-muted block m-t-xs m-b-xs">
+                                                            <span class="">
+                                                                <i v-if="item.encuestaDocente.docenteSeccion.seccion.tipoSeccion=='TCUR' " class="fa fa-book"></i>
+                                                                <i v-if="item.encuestaDocente.docenteSeccion.seccion.tipoSeccion=='TEO' " class="fa fa-book"></i>
+                                                                <i v-if="item.encuestaDocente.docenteSeccion.seccion.tipoSeccion=='PRA' " class="fa fa-flask"></i>
+                                                                <i v-if="item.encuestaDocente.docenteSeccion.seccion.tipoSeccion=='PCUR' " class="fa fa-flask"></i>
+                                                                Docente de la 
+                                                                <span v-if="item.encuestaDocente.docenteSeccion.seccion.tipoSeccion=='TCUR' ">teoría</span>
+                                                                <span v-if="item.encuestaDocente.docenteSeccion.seccion.tipoSeccion=='TEO' ">teoría</span>
+                                                                <span v-if="item.encuestaDocente.docenteSeccion.seccion.tipoSeccion=='PRA' ">práctica</span>
+                                                                <span v-if="item.encuestaDocente.docenteSeccion.seccion.tipoSeccion=='PCUR' ">práctica</span> &nbsp;|&nbsp; 
+                                                                Código: {{item.encuestaDocente.docenteSeccion.docente.codigo}}
+                                                            </span>
+                                                        </small>
+                                                    </template>
+
+                                                    <template v-else="">
+                                                        <span v-for="seccion in item.grupoSeccion.secciones"
+                                                              class="text-dark h5 block m-t-xs">
+                                                            <i class="fa fa-users"></i>
+                                                            Sección: {{seccion.codigo2}} &nbsp;|&nbsp; 
+                                                            Grupo: {{seccion.grupoHoras.codigo}}
+                                                        </span>
+                                                    </template>
                                                 </td>
 
                                                 <td class="v-middle text-center">
-                                                    <span v-for="seccion in item.grupoSeccion.secciones"
+                                                    <span v-if="item.esSimultaneo"
+                                                          v-on:click="verDocenteUnico(item)"
+                                                          class="badge pointer">1
+                                                    </span>
+
+                                                    <span v-else=""
+                                                          v-for="seccion in item.grupoSeccion.secciones"
                                                           v-on:click="verDocentes(seccion)"
                                                           class="badge pointer">
                                                         {{seccion.docenteSeccion.length}}
@@ -176,6 +225,11 @@
                                                     <span v-if="item.estado=='ACT'">
                                                         <span class="block m-b-xs"><strong>Desde:</strong> {{item.fechaEncuestaInicio}}</span>
                                                         <span class="block"><strong>Hasta:</strong> {{item.fechaEncuestaFin}}</span>
+
+                                                        <span v-if="item.grupoSeccion.tipoDictado == 'MOD' "
+                                                              class="label label-warning">
+                                                            {{item.grupoSeccion.tipoDictadoEnum.value}}
+                                                        </span>
                                                     </span>
                                                 </td>
 
@@ -219,7 +273,8 @@
 
 
                                                 <td class="v-middle">
-                                                    <div class="actions">
+                                                    <div class="actions"
+                                                         v-if="item.conOpciones">
                                                         <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="fa fa-cog" aria-hidden="true"></i></a>
                                                         <ul class="dropdown-menu pull-right">
 

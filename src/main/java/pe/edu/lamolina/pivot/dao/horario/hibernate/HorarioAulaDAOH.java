@@ -180,7 +180,8 @@ public class HorarioAulaDAOH extends AbstractEasyDAO<HorarioAula> implements Hor
                 .from(HorarioAula.class, "ha")
                 .join("dia d", "hora h", "aula au", "seccion sec")
                 .join("sec.grupoSeccion gs", "gs.cicloAcademico ca")
-                .filter("ca.id", cicloAcademico);
+                .filter("ca.id", cicloAcademico)
+                .orderBy("ha.fechaInicio");
 
         return all(sql);
     }

@@ -21,6 +21,7 @@ import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.encuestaestudiantil.ConfiguraEncuesta;
 import pe.edu.lamolina.model.encuestaestudiantil.EncuestaCurso;
 import pe.edu.lamolina.model.encuestaestudiantil.EncuestaEstudiantil;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
@@ -58,6 +59,8 @@ public class EncuestaCursoController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             CicloAcademico ciclo = ds.getCicloAcademico();
 
+            ConfiguraEncuesta cfg = service.findConfigEncuestaCurso(ciclo);
+            boolean noEsSimultaneo = (cfg == null) ? false : cfg.getSimultaneo() != 1;
             List<EncuestaCurso> encuestaCursos = service.allEncuestaCurso(filter, ciclo);
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
@@ -76,9 +79,19 @@ public class EncuestaCursoController {
                             "grupoSeccion.curso.codigo",
                             "grupoSeccion.curso.nombre",
                             "grupoSeccion.curso.tpc",
+                            "grupoSeccion.tipoDictado",
+                            "grupoSeccion.tipoDictadoEnum",
                             "grupoSeccion.curso.departamentoAcademico.nombre",
-                            "grupoSeccion.curso.departamentoAcademico.facultad.nombre"
+                            "grupoSeccion.curso.departamentoAcademico.facultad.nombre",
+                            "encuestaDocente.docenteSeccion.principal",
+                            "encuestaDocente.docenteSeccion.seccion.codigo2",
+                            "encuestaDocente.docenteSeccion.seccion.tipoSeccion",
+                            "encuestaDocente.docenteSeccion.seccion.grupoHoras.codigo",
+                            "encuestaDocente.docenteSeccion.docente.codigo",
+                            "encuestaDocente.docenteSeccion.docente.persona.apellidosNombres"
                         });
+                node.put("conOpciones", noEsSimultaneo);
+                node.put("esSimultaneo", !noEsSimultaneo);
 
                 array.add(node);
             }

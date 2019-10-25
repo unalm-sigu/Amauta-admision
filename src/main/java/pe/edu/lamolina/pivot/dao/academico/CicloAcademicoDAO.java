@@ -88,7 +88,9 @@ public interface CicloAcademicoDAO extends EasyDAO<CicloAcademico> {
 
     CicloAcademico findSiguienteConfOrAct(CicloAcademico cicloAcademico);
 
-    List<CicloAcademico> allAnteriorRegistroActivo(int count, CicloAcademico cicloAcademico);
+    List<CicloAcademico> allAnteriorRegistroActivoPre(int count, CicloAcademico cicloAcademico);
+
+    List<CicloAcademico> allAnteriorRegistroActivoPos(int ciclos, CicloAcademico cicloAcademico);
 
     CicloAcademico findSiguienteRegularActivo(CicloAcademico ciclo, ModalidadEstudioEnum modalidadEstudioEnum);
 

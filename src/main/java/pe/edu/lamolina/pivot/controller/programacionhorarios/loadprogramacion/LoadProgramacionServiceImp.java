@@ -4,6 +4,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -826,8 +827,9 @@ public class LoadProgramacionServiceImp implements LoadProgramacionService {
 
                 BigDecimal dvdo = getCellBigDecimalValue(10, row);
                 BigDecimal dsor = getCellBigDecimalValue(11, row);
-                Fraxtion frax = null;
+                Fraxtion frax = new Fraxtion("100", "1");
                 if (dvdo != null && dsor != null) {
+                    dsor = dsor.setScale(2, RoundingMode.HALF_UP);
                     frax = new Fraxtion(dvdo, dsor);
                 }
 
@@ -836,9 +838,8 @@ public class LoadProgramacionServiceImp implements LoadProgramacionService {
                 }
 
                 DocenteSeccion profeSecc = new DocenteSeccion(principal, codigoDocente, codigoSeccion, carga);
-                if (frax != null) {
-                    profeSecc.setPorcentajeCargaFraccion(frax.toString());
-                }
+                profeSecc.setPorcentajeCargaFraccion(frax.toString());
+                profeSecc.setPorcentajeCarga(frax.getValue(2));
                 docenteSecciones.add(profeSecc);
 
             }

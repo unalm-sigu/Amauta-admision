@@ -78,6 +78,12 @@ new Vue({
             vue.docentesSecciones = seccion.docenteSeccion;
             vue.$refs.modalVerDocentes.open();
         },
+        verDocenteUnico(item) {
+            let vue = this;
+            vue.docentesSecciones = [];
+            vue.docentesSecciones.push(item.encuestaDocente.docenteSeccion);
+            vue.$refs.modalVerDocentes.open();
+        },
         getDia(fecha) {
             if (fecha == "")
                 return "";
@@ -118,7 +124,7 @@ new Vue({
                 }
             });
         },
-        estado: function (encuestaCurso) {
+        estado(encuestaCurso) {
             let vue = this;
             swal({
                 text: "¿Está seguro que desea cambiar el estado a la encuesta del curso?",
@@ -137,7 +143,7 @@ new Vue({
                 }
             });
         },
-        changeEstado: function (encuesta) {
+        changeEstado(encuesta) {
             let vue = this;
             $.ajax({
                 method: 'POST',
@@ -225,7 +231,7 @@ new Vue({
             var vue = this;
             vue.periodosEncuesta.push({fechaInicio: "", fechaFin: ""});
         },
-        refreshProgresoEncuesta: function () {
+        refreshProgresoEncuesta() {
             let vue = this;
 
             axios.post('/academico/encuestaestudiantil/curso/estadoGenerarEncuestas')

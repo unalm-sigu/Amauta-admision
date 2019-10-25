@@ -106,7 +106,7 @@ public class ReporteAlumnosExcel extends AbstractView {
         int irow = 1;
         String firstLetter = "C";
         String letterToMerge = ":I";
-        if (anexoSup.isForPosgrado()) {
+        if (anexoSup.isAnexoCursosPostgrado()) {
             letterToMerge = ":F";
         }
 
@@ -203,7 +203,7 @@ public class ReporteAlumnosExcel extends AbstractView {
         sheet.setColumnWidth((column - 1), 50 * 256);
         excelUtil.replaceVal(irow, column++, "CORREO", headerCell);
         sheet.setColumnWidth((column - 1), 30 * 256);
-        if (!anexoSup.isForPosgrado()) {
+        if (!anexoSup.isAnexoCursosPostgrado()) {
             excelUtil.replaceVal(irow, column++, "PRIORIDAD", headerCell);
             sheet.setColumnWidth((column - 1), 20 * 256);
         }
@@ -212,7 +212,7 @@ public class ReporteAlumnosExcel extends AbstractView {
         excelUtil.replaceVal(irow, column++, "ESPECIALIDAD", headerCell);
         sheet.setColumnWidth((column - 1), 50 * 256);
 
-        if (!anexoSup.isForPosgrado()) {
+        if (!anexoSup.isAnexoCursosPostgrado()) {
             excelUtil.replaceVal(irow, column++, "FAC", headerCell);
             sheet.setColumnWidth((column - 1), 5 * 256);
             excelUtil.replaceVal(irow, column++, "ESP", headerCell);
@@ -236,7 +236,7 @@ public class ReporteAlumnosExcel extends AbstractView {
                 prioridad = matriculasSeccion.getMatriculaResumen().getPrioridad().setScale(2, BigDecimal.ROUND_HALF_UP).toString();
             }
 
-            if (!anexoSup.isForPosgrado()) {
+            if (!anexoSup.isAnexoCursosPostgrado()) {
                 excelUtil.replaceVal(irow, column++, prioridad, estiloNumero);
             }
 
@@ -258,7 +258,7 @@ public class ReporteAlumnosExcel extends AbstractView {
                 excelUtil.replaceVal(irow, column++, "Indefinida", estiloGeneral);
             }
 
-            if (!anexoSup.isForPosgrado()) {
+            if (!anexoSup.isAnexoCursosPostgrado()) {
                 excelUtil.replaceVal(irow, column++, alumno.getCarrera().getFacultad().getCodigo(), estiloGeneral);
                 excelUtil.replaceVal(irow, column++, alumno.getCarrera().getCodigo(), estiloGeneral);
             }
