@@ -19,7 +19,8 @@
                             <li v-if="encuesta.estado=='NCRE'"><a href="#" v-on:click="activarEncuesta"> Activar encuesta </a></li>
                             <li v-if="encuesta.estado=='CRE'"><a href="#" v-on:click="configurarEncuesta"> Configurar encuesta </a></li>
                             <li v-if="encuesta.estado=='CFG' &amp;&amp; encuesta.objetivosEncuesta==0"><a href="#" v-on:click="configurarEncuesta"> Configurar encuesta </a></li>
-                            <li v-if="encuesta.estado=='CFG' &amp;&amp; encuesta.objetivosEncuesta==0"><a href="#" v-on:click="sinEncuesta"> Cursos sin encuesta </a></li>
+                            <!--<li v-if="encuesta.estado=='CFG' &amp;&amp; encuesta.objetivosEncuesta==0"><a href="#" v-on:click="sinEncuesta"> Cursos sin encuesta </a></li>-->
+                            <li><a href="#" v-on:click="sinEncuesta"> Cursos sin encuesta </a></li>
                             <li v-if="encuesta.estado=='CFG' &amp;&amp; encuesta.objetivosEncuesta==0"><a href="#" v-on:click="generarEncuesta"> Generar encuestas </a></li>
                             <li v-if="encuesta.estado=='CFG' &amp;&amp; encuesta.objetivosEncuesta>0"><a href="#" v-on:click="eliminar"> Eliminar encuestas </a></li>
                             <li v-if="encuesta.estado=='CFG' &amp;&amp; encuesta.objetivosEncuesta>0"><a href="#" v-on:click="publicar"> Publicar encuestas </a></li>
@@ -130,7 +131,7 @@
                     <section class="panel">
                         <section class="panel-body">
 
-                            <raptor-table v-bind:url="encuestaURL" ref="load">
+                            <raptor-table v-bind:url="encuestaURL" ref="raptorEncu">
 
                                 <template scope="props">
                                     <table class="table table-striped table-hover">
@@ -230,10 +231,18 @@
                                                 </td>
 
                                                 <td class="v-middle text-center">
-                                                    <span v-if="item.estado=='ACT' &amp;&amp; (!configuraEncuesta.cantidadMinimaAlumnosPregrado || item.alumnosEncuestados >= configuraEncuesta.cantidadMinimaAlumnosPregrado)">
+                                                    <span v-if="verResultados(item)">
                                                         <span class="pointer m-r-xs text-primary" v-on:click="findPreguntas(item)"><i class="fa fa-list-ul"></i></span>
                                                         <span class="pointer m-r-xs text-success" v-on:click="findComentarios(item)"><i class="fa fa-comments"></i></span>
                                                         <span class="pointer text-warning" v-on:click="findTemas(item)"><i class="fa fa-bar-chart"></i></span>
+                                                    </span>
+                                                    <span v-if="item.modalidadEstudio.codigo == 'PRE' "
+                                                          class="label label-primary">
+                                                        {{item.modalidadEstudio.nombre}}
+                                                    </span>
+                                                    <span v-if="item.modalidadEstudio.codigo == 'EPG' "
+                                                          class="label label-success">
+                                                        {{item.modalidadEstudio.nombre}}
                                                     </span>
                                                 </td>
 
@@ -253,9 +262,10 @@
                                                         <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="fa fa-cog" aria-hidden="true"></i></a>
                                                         <ul class="dropdown-menu pull-right">
 
-                                                            <li v-if="item.estado=='ACT' "><a  v-on:click.prevent="estado(item)" href="#">Desactivar</a></li>
-                                                            <li v-if="item.estado=='INA' "><a  v-on:click.prevent="estado(item)" href="#">Activar</a></li>
-                                                            <li v-if="item.estado=='TEO' "><a  v-on:click.prevent="estado(item)" href="#">Activar</a></li>
+                                                            <li v-if="item.estado=='ACT' "><a  v-on:click.prevent="verchangeEstado(item)" href="#">Desactivar</a></li>
+                                                            <li v-if="item.estado=='ANU' "><a  v-on:click.prevent="verchangeEstado(item)" href="#">Activar</a></li>
+                                                            <li v-if="item.estado=='INA' "><a  v-on:click.prevent="verchangeEstado(item)" href="#">Activar</a></li>
+                                                            <li v-if="item.estado=='TEO' "><a  v-on:click.prevent="verchangeEstado(item)" href="#">Activar</a></li>
 
                                                         </ul>
                                                     </div>
@@ -270,6 +280,7 @@
                         </section>
                     </section>
                     <div th:substituteby="academico/encuestaestudiantil/docente/encuestaDocenteModal"></div>
+                    <div th:substituteby="_modules/vue-modal-confirm"></div>
                 </section>
 
             </div>
@@ -280,7 +291,6 @@
         <div layout:fragment="js">
             <script th:inline="javascript">
                 /*<![CDATA[*/
-                var encuestaJson = /*[[${encuesta.toString()}]]*/ 'json';
                 var visor = /*[[${visor.estadoEnum}]]*/ 'json';
                 var rutaModulo = 'academico/encuestaestudiantil/docente';
                 var rutaEditor = 'academico/encuestaestudiantil/editor';

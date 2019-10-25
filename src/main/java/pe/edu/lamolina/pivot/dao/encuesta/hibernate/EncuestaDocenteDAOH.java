@@ -1,5 +1,6 @@
 package pe.edu.lamolina.pivot.dao.encuesta.hibernate;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import org.hibernate.Query;
@@ -14,8 +15,11 @@ import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.encuestaestudiantil.EncuestaDocente;
 import pe.edu.lamolina.model.encuestaestudiantil.EncuestaEstudiantil;
-import pe.edu.lamolina.model.enums.EncuestaEstudiantilEstadoEnum;
-import pe.edu.lamolina.model.enums.EstadoEnum;
+import static pe.edu.lamolina.model.enums.EncuestaEstudiantilEstadoEnum.CER;
+import static pe.edu.lamolina.model.enums.EncuestaEstudiantilEstadoEnum.FECH;
+import static pe.edu.lamolina.model.enums.EncuestaEstudiantilEstadoEnum.ACT;
+import static pe.edu.lamolina.model.enums.EncuestaEstudiantilEstadoEnum.ANU;
+import static pe.edu.lamolina.model.enums.EncuestaEstudiantilEstadoEnum.TEO;
 import pe.edu.lamolina.pivot.dao.encuesta.EncuestaDocenteDAO;
 
 @Repository
@@ -36,7 +40,7 @@ public class EncuestaDocenteDAOH extends AbstractEasyDAO<EncuestaDocente> implem
                 .join("cur.departamentoAcademico da", "da.facultad")
                 .leftJoin("per.tipoDocumento tdoc")
                 .filter("me.id", modalidadEstudio)
-                .filter("ed.estado", EstadoEnum.ANU);
+                .filter("ed.estado", ANU);
         return all(sql);
     }
 
@@ -51,7 +55,7 @@ public class EncuestaDocenteDAOH extends AbstractEasyDAO<EncuestaDocente> implem
                 .leftJoin("per.tipoDocumento tdoc")
                 .filter("doc.id", docente)
                 .filter("me.id", modalidadEstudio)
-                .filter("ed.estado", EstadoEnum.ANU);
+                .filter("ed.estado", ANU);
         return all(sql);
     }
 
@@ -63,6 +67,7 @@ public class EncuestaDocenteDAOH extends AbstractEasyDAO<EncuestaDocente> implem
                 .join("docenteSeccion ds", "ds.docente doc", "doc.persona per")
                 .join("ds.seccion sec", "sec.grupoSeccion gs", "gs.curso cur")
                 .join("cur.departamentoAcademico da", "da.facultad fa")
+                .join("modalidadEstudio")
                 .leftJoin("per.tipoDocumento tdoc", "sec.grupoHoras gh")
                 .filter("ciclo.id", ciclo)
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
@@ -88,9 +93,19 @@ public class EncuestaDocenteDAOH extends AbstractEasyDAO<EncuestaDocente> implem
             }
             String values = (String) queries.get(key);
             if (values.equals("activo")) {
-                sql.filter("ed.estado", EncuestaEstudiantilEstadoEnum.ACT);
+                sql.filter("ed.estado", ACT);
             } else if (values.equals("anulado")) {
-                sql.filter("ed.estado", EncuestaEstudiantilEstadoEnum.ANU);
+                sql.filter("ed.estado", ANU);
+            } else if (values.equals("innecesario")) {
+                sql.filter("ed.estado", TEO);
+            } else if (values.equals("sinperiodo")) {
+                sql.filter("ed.estado", FECH);
+            } else if (values.equals("cerrado")) {
+                sql.filter("ed.estado", CER);
+            } else if (values.equals("encuestable")) {
+                sql.in("ed.estado", Arrays.asList(CER, ACT));
+            } else if (values.equals("encuestado")) {
+                sql.filter("ed.alumnosEncuestados", ">", 0);
             }
         }
 
@@ -169,6 +184,7 @@ public class EncuestaDocenteDAOH extends AbstractEasyDAO<EncuestaDocente> implem
                 .join("docenteSeccion ds", "ds.docente doc", "doc.persona per")
                 .join("ds.seccion sec", "sec.grupoSeccion gs", "gs.curso cur", "gs.cicloAcademico cic")
                 .join("cur.departamentoAcademico da", "da.facultad")
+                .join("gs.anexoBoletin anx", "anx.anexoSuperior")
                 .leftJoin("per.tipoDocumento tdoc")
                 .filter("cic.id", cicloAcademico)
                 .filter("ee.id", encuestaEstudiantil);

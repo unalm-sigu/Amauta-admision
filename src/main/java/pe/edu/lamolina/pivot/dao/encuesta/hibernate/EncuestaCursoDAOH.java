@@ -37,7 +37,7 @@ public class EncuestaCursoDAOH extends AbstractEasyDAO<EncuestaCurso> implements
         DynatableSql sql = new DynatableSql(filter)
                 .from(EncuestaCurso.class, "ec")
                 .join("encuestaEstudiantil ee", "ee.encuesta en", "ee.cicloAcademico ciclo")
-                .join("grupoSeccion gs", "gs.curso cur")
+                .join("grupoSeccion gs", "gs.curso cur", "modalidadEstudio")
                 .join("cur.departamentoAcademico da", "da.facultad fa")
                 .leftJoin("encuestaDocente ed", "ed.docenteSeccion ds", "ds.docente doc")
                 .leftJoin("doc.persona per", "per.tipoDocumento")

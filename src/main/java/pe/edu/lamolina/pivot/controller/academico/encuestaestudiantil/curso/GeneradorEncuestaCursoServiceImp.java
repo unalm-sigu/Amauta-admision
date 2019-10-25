@@ -12,10 +12,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.academico.AnexoBoletin;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
+import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.encuestaestudiantil.ConfiguraEncuesta;
 import pe.edu.lamolina.model.encuestaestudiantil.CursoSinEncuesta;
@@ -26,7 +28,9 @@ import pe.edu.lamolina.model.encuestaestudiantil.EncuestaEstudiantil;
 import pe.edu.lamolina.model.encuestaestudiantil.PeriodoEncuesta;
 import pe.edu.lamolina.model.enums.EncuestaEstudiantilEstadoEnum;
 import static pe.edu.lamolina.model.enums.EncuestaEstudiantilEstadoEnum.ACT;
+import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.TipoExamenVirtualEnum;
+import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.pivot.dao.academico.CursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.EventoCicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaSeccionDAO;
@@ -87,6 +91,9 @@ public class GeneradorEncuestaCursoServiceImp implements GeneradorEncuestaCursoS
         EncuestaEstudiantil encuestaTipoCurso = encuestaEstudiantilDAO.findByCicloTipo(cicloAcademico, TipoExamenVirtualEnum.ENC_CUR);
         ConfiguraEncuesta configuraEncuesta = configuraEncuestaDAO.findByEncuesta(encuestaTipoCurso);
 
+        List<ModalidadEstudio> modalidades = modalidadEstudioDAO.allPrePostgrado(new Compania(1L));
+        Map<String, ModalidadEstudio> mapModalidad = TypesUtil.convertListToMap("codigo", modalidades);
+
         if (configuraEncuesta.getSimultaneo() == 1) {
             Map<Long, List<Alumno>> mapAlumnos = TypesUtil.convertListToMapList("seccion.id", "matriculaResumen.alumno", matriculasSecciones);
             for (Map.Entry<Long, List<Alumno>> entry : mapAlumnos.entrySet()) {
@@ -99,25 +106,31 @@ public class GeneradorEncuestaCursoServiceImp implements GeneradorEncuestaCursoS
 
             visorEncuestaCurso.iniciarConteo(listEncuestaDocente.size());
             for (EncuestaDocente encuestaDocente : listEncuestaDocente) {
+                Seccion seccion = encuestaDocente.getDocenteSeccion().getSeccion();
+                AnexoBoletin anexoSup = seccion.getGrupoSeccion().getAnexoBoletin().getAnexoSuperior();
+                ModalidadEstudioEnum modaEnum = anexoSup.isAnexoCursosPostgrado() ? ModalidadEstudioEnum.EPG : ModalidadEstudioEnum.PRE;
+                ModalidadEstudio modalidad = mapModalidad.get(modaEnum.name());
 
                 EncuestaCurso enc = new EncuestaCurso();
+                enc.setEncuestaEstudiantil(encuestaTipoCurso);
+                enc.setGrupoSeccion(encuestaDocente.getDocenteSeccion().getSeccion().getGrupoSeccion());
+                enc.setModalidadEstudio(modalidad);
+                enc.setEncuestaDocente(encuestaDocente);
+
                 enc.setAlumnosFin(encuestaDocente.getAlumnosFin());
                 enc.setAlumnosInicio(encuestaDocente.getAlumnosInicio());
                 enc.setAlumnosEncuestados(0L);
                 enc.setEstadoEnum(encuestaDocente.getEstadoEnum());
-                enc.setEncuestaEstudiantil(encuestaTipoCurso);
                 enc.setFechaEncuestaInicio(encuestaDocente.getFechaEncuestaInicio());
                 enc.setFechaEncuestaFin(encuestaDocente.getFechaEncuestaFin());
-                enc.setGrupoSeccion(encuestaDocente.getDocenteSeccion().getSeccion().getGrupoSeccion());
                 enc.setUserRegistro(ds.getUsuario());
                 enc.setFechaRegistro(new Date());
-                enc.setEncuestaDocente(encuestaDocente);
                 enc.setDescripcion(encuestaDocente.getDescripcion());
                 encuestaCursoDAO.save(enc);
 
                 visorEncuestaCurso.incrementar();
                 if (encuestaDocente.getEstadoEnum() == ACT) {
-                    Seccion seccion = encuestaDocente.getDocenteSeccion().getSeccion();
+
                     List<Alumno> alumnos = TypesUtil.getListNotNull(mapAlumnos.get(seccion.getId()));
                     saveEncuestaAlumno(enc, encuestaDocente, alumnos, encuestasAlumnos, ds);
 
@@ -148,7 +161,8 @@ public class GeneradorEncuestaCursoServiceImp implements GeneradorEncuestaCursoS
                         configuraEncuesta,
                         periodosEncuesta,
                         encuestaTipoCurso,
-                        encuestasAlumnos, ds);
+                        encuestasAlumnos,
+                        mapModalidad, ds);
                 visorEncuestaCurso.incrementar();
             }
         }
@@ -166,10 +180,15 @@ public class GeneradorEncuestaCursoServiceImp implements GeneradorEncuestaCursoS
             List<PeriodoEncuesta> periodosEncuesta,
             EncuestaEstudiantil encuestaEstudiantil,
             List<EncuestaAlumno> encuestasAlumnos,
+            Map<String, ModalidadEstudio> mapModalidad,
             DataSessionPivot ds) {
 
         List<Alumno> alumnos = TypesUtil.getListNotNull(mapAlumnos.get(grupoSeccion.getId()));
         long cantidad = Long.valueOf(alumnos.size());
+
+        AnexoBoletin anexoSup = grupoSeccion.getAnexoBoletin().getAnexoSuperior();
+        ModalidadEstudioEnum modaEnum = anexoSup.isAnexoCursosPostgrado() ? ModalidadEstudioEnum.EPG : ModalidadEstudioEnum.PRE;
+        ModalidadEstudio modalidad = mapModalidad.get(modaEnum.name());
 
         String impedido = null;
 
@@ -187,12 +206,14 @@ public class GeneradorEncuestaCursoServiceImp implements GeneradorEncuestaCursoS
 
         if (impedido != null) {
             EncuestaCurso enc = new EncuestaCurso();
+            enc.setEncuestaEstudiantil(encuestaEstudiantil);
+            enc.setGrupoSeccion(grupoSeccion);
+            enc.setModalidadEstudio(modalidad);
+
             enc.setAlumnosEncuestados(0L);
             enc.setAlumnosInicio(cantidad);
             enc.setAlumnosFin(cantidad);
             enc.setDescripcion(impedido);
-            enc.setGrupoSeccion(grupoSeccion);
-            enc.setEncuestaEstudiantil(encuestaEstudiantil);
             enc.setEstadoEnum(EncuestaEstudiantilEstadoEnum.ANU);
             enc.setUserRegistro(ds.getUsuario());
             enc.setFechaRegistro(new Date());
@@ -202,14 +223,16 @@ public class GeneradorEncuestaCursoServiceImp implements GeneradorEncuestaCursoS
 
         for (PeriodoEncuesta periodoEncuesta : periodosEncuesta) {
             EncuestaCurso enc = new EncuestaCurso();
+            enc.setEncuestaEstudiantil(encuestaEstudiantil);
+            enc.setGrupoSeccion(grupoSeccion);
+            enc.setModalidadEstudio(modalidad);
+
             enc.setAlumnosFin(cantidad);
             enc.setAlumnosInicio(cantidad);
             enc.setAlumnosEncuestados(0L);
             enc.setEstadoEnum(EncuestaEstudiantilEstadoEnum.ACT);
-            enc.setEncuestaEstudiantil(encuestaEstudiantil);
             enc.setFechaEncuestaInicio(periodoEncuesta.getFechaInicio());
             enc.setFechaEncuestaFin(periodoEncuesta.getFechaFin());
-            enc.setGrupoSeccion(grupoSeccion);
             enc.setUserRegistro(ds.getUsuario());
             enc.setFechaRegistro(new Date());
             encuestaCursoDAO.save(enc);

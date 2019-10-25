@@ -480,6 +480,28 @@ new Vue({
                 $vue.$refs.load.changeUrl('queries[ec.estado]', null);
                 $vue.$refs.load.loadRemoteData();
             }
+        },
+        verResultados(item) {
+            let $vue = this;
+            if (item.estado != "ACT") {
+                return false;
+            }
+
+            if (item.modalidadEstudio.codigo == "PRE") {
+                return item.alumnosEncuestados >= $vue.configuraEncuesta.cantidadMinimaAlumnosPregrado;
+            }
+            if (item.modalidadEstudio.codigo == "EPG") {
+                return item.alumnosEncuestados >= $vue.configuraEncuesta.cantidadMinimaAlumnosPosgrado;
+            }
+            return false;
+
+        },
+        findPreguntas(item) {
+
+        },
+        findComentarios(item) {
+
         }
+
     }
 });

@@ -155,11 +155,6 @@
                                                         {{item.grupoSeccion.curso.nombre}}
                                                         <span class="text-muted" style="font-size: 6px;">{{item.id}}</span>
                                                     </span>
-                                                    <!--                                                    <span class="block text-primary h5 bold m-t-xs m-b-xs">
-                                                                                                            <i class="fa fa-graduation-cap"></i>
-                                                                                                            {{item.grupoSeccion.curso.codigo}} &nbsp; 
-                                                                                                            <i class="fa fa-bookmark-o"></i> {{item.grupoSeccion.curso.tpc}} 
-                                                                                                        </span>-->
 
                                                     <small class="block text-muted">
                                                         Departamento Académico: 
@@ -254,10 +249,18 @@
                                                 </td>
 
                                                 <td class="v-middle text-center">
-                                                    <span v-if="item.estado=='ACT'">
-                                                        <span class="pointer m-r-xs text-primary"><i class="fa fa-list-ul"></i></span>
-                                                        <span class="pointer m-r-xs text-success"><i class="fa fa-comments"></i></span>
-                                                        <span class="pointer text-warning"><i class="fa fa-bar-chart"></i></span>
+
+                                                    <span v-if="verResultados(item)">
+                                                        <span class="pointer m-r-xs text-primary" v-on:click="findPreguntas(item)"><i class="fa fa-list-ul"></i></span>
+                                                        <span class="pointer m-r-xs text-success" v-on:click="findComentarios(item)"><i class="fa fa-comments"></i></span>
+                                                    </span>
+                                                    <span v-if="item.modalidadEstudio.codigo == 'PRE' "
+                                                          class="label label-primary">
+                                                        {{item.modalidadEstudio.nombre}}
+                                                    </span>
+                                                    <span v-if="item.modalidadEstudio.codigo == 'EPG' "
+                                                          class="label label-success">
+                                                        {{item.modalidadEstudio.nombre}}
                                                     </span>
                                                 </td>
 

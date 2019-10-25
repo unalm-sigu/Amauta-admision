@@ -69,6 +69,8 @@ public class EncuestaCursoController {
                 ObjectNode node = JsonHelper.createJson(enCurso, JsonNodeFactory.instance, true,
                         new String[]{
                             "*",
+                            "modalidadEstudio.codigo",
+                            "modalidadEstudio.nombre",
                             "grupoSeccion.secciones.codigo2",
                             "grupoSeccion.secciones.docenteSeccion.principal",
                             "grupoSeccion.secciones.docenteSeccion.seccion.codigo2",
