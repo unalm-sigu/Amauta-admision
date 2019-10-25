@@ -114,10 +114,10 @@ public class EncuestaCursoServiceImp implements EncuestaCursoService {
             if (encus == null) {
                 continue;
             }
+
             for (EncuestaCurso encu : encus) {
                 GrupoSeccion gpoSeccEnc = encu.getGrupoSeccion();
-                List<DocenteSeccion> docentesSecc = mapProfesSecciones.get(gpoSecc.getId());
-                docentesSecc = (docentesSecc == null) ? new ArrayList() : docentesSecc;
+                List<DocenteSeccion> docentesSecc = TypesUtil.getListNotNull(mapProfesSecciones.get(gpoSecc.getId()));
                 gpoSeccEnc.setSecciones(new ArrayList());
                 gpoSeccEnc.getSecciones().add(seccion);
                 seccion.setDocenteSeccion(docentesSecc);
@@ -175,6 +175,12 @@ public class EncuestaCursoServiceImp implements EncuestaCursoService {
             encuesta.setPeriodosEncuesta(periodoEncuestaDAO.allByEncuesta(encuesta));
             ConfiguraEncuesta cfg = configuraEncuestaDAO.findByEncuesta(encuesta);
             if (cfg != null) {
+                if (cfg.getSimultaneo() == 1) {
+                    TipoExamenVirtual tipoEncuestaDoc = tipoExamenVirtualDAO.findByEnum(TipoExamenVirtualEnum.ENC_DOC);
+                    ExamenVirtual encuestaModeloDoc = examenVirtualDAO.findEncuestaActivaByTipo(tipoEncuestaDoc);
+                    EncuestaEstudiantil encuestaDoc = encuestaEstudiantilDAO.findByCicloEncuesta(cicloAcademico, encuestaModeloDoc);
+                    cfg = configuraEncuestaDAO.findByEncuesta(encuestaDoc);
+                }
                 encuesta.getConfiguraEncuesta().add(cfg);
             }
             encuesta.setCursosNoEncuestar(cursoSinEncuestaDAO.allByEncuestaEstudiantil(encuesta));
@@ -365,4 +371,22 @@ public class EncuestaCursoServiceImp implements EncuestaCursoService {
         encuestaEstudiantilDAO.update(encuestaDB);
 
     }
+
+    @Override
+    public ConfiguraEncuesta findConfigEncuestaCurso(CicloAcademico ciclo) {
+        TipoExamenVirtual tipoEncuesta = tipoExamenVirtualDAO.findByEnum(TipoExamenVirtualEnum.ENC_CUR);
+        if (tipoEncuesta == null) {
+            return null;
+        }
+        ExamenVirtual encuestaModelo = examenVirtualDAO.findEncuestaActivaByTipo(tipoEncuesta);
+        if (encuestaModelo == null) {
+            return null;
+        }
+        EncuestaEstudiantil encuesta = encuestaEstudiantilDAO.findByCicloEncuesta(ciclo, encuestaModelo);
+        if (encuesta == null) {
+            return null;
+        }
+        return configuraEncuestaDAO.findByEncuesta(encuesta);
+    }
+
 }

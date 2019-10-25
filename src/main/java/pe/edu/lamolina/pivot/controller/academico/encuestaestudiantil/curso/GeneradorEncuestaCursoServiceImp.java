@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +16,7 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
+import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.encuestaestudiantil.ConfiguraEncuesta;
 import pe.edu.lamolina.model.encuestaestudiantil.CursoSinEncuesta;
 import pe.edu.lamolina.model.encuestaestudiantil.EncuestaAlumno;
@@ -25,6 +25,7 @@ import pe.edu.lamolina.model.encuestaestudiantil.EncuestaDocente;
 import pe.edu.lamolina.model.encuestaestudiantil.EncuestaEstudiantil;
 import pe.edu.lamolina.model.encuestaestudiantil.PeriodoEncuesta;
 import pe.edu.lamolina.model.enums.EncuestaEstudiantilEstadoEnum;
+import static pe.edu.lamolina.model.enums.EncuestaEstudiantilEstadoEnum.ACT;
 import pe.edu.lamolina.model.enums.TipoExamenVirtualEnum;
 import pe.edu.lamolina.pivot.dao.academico.CursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.EventoCicloAcademicoDAO;
@@ -77,11 +78,7 @@ public class GeneradorEncuestaCursoServiceImp implements GeneradorEncuestaCursoS
     public void generarEncuesta(CicloAcademico cicloAcademico, DataSessionPivot ds) {
         visorEncuestaCurso.setEstado("Obteniendo información de matriculados");
         List<MatriculaSeccion> matriculasSecciones = matriculaSeccionDAO.allMatriculadosByCiclo(cicloAcademico);
-        Map<Long, List<Alumno>> mapAlumnos = TypesUtil.convertListToMapList("seccion.grupoSeccion.id", "matriculaResumen.alumno", matriculasSecciones);
-        for (Map.Entry<Long, List<Alumno>> entry : mapAlumnos.entrySet()) {
-            List<Alumno> alumnos = clearAlumnosDuplicados(entry.getValue());
-            mapAlumnos.put(entry.getKey(), alumnos);
-        }
+        List<EncuestaAlumno> encuestasAlumnos = new ArrayList();
 
         visorEncuestaCurso.setEstado("Obteniendo información de cursos-secciones");
 
@@ -91,16 +88,18 @@ public class GeneradorEncuestaCursoServiceImp implements GeneradorEncuestaCursoS
         ConfiguraEncuesta configuraEncuesta = configuraEncuestaDAO.findByEncuesta(encuestaTipoCurso);
 
         if (configuraEncuesta.getSimultaneo() == 1) {
+            Map<Long, List<Alumno>> mapAlumnos = TypesUtil.convertListToMapList("seccion.id", "matriculaResumen.alumno", matriculasSecciones);
+            for (Map.Entry<Long, List<Alumno>> entry : mapAlumnos.entrySet()) {
+                List<Alumno> alumnos = clearAlumnosDuplicados(entry.getValue());
+                mapAlumnos.put(entry.getKey(), alumnos);
+            }
+
             EncuestaEstudiantil encuestaEstudiantilDocente = encuestaEstudiantilDAO.findByCicloTipo(cicloAcademico, TipoExamenVirtualEnum.ENC_DOC);
             List<EncuestaDocente> listEncuestaDocente = encuestaDocenteDAO.allByEncuestaEstudiantilCiclo(encuestaEstudiantilDocente, cicloAcademico);
-            List<EncuestaAlumno> listEncuestaAlumno = encuestaAlumnoDAO.allByListEncuestaDocente(listEncuestaDocente);
-            Map<Long, List<EncuestaAlumno>> maplistAlm = TypesUtil.convertListToMapList("encuestaDocente.id", listEncuestaAlumno);
 
             visorEncuestaCurso.iniciarConteo(listEncuestaDocente.size());
-
             for (EncuestaDocente encuestaDocente : listEncuestaDocente) {
-                listEncuestaAlumno = TypesUtil.getListNotNull(maplistAlm.get(encuestaDocente.getId()));
-                List<Alumno> listAlumno = listEncuestaAlumno.stream().map(EncuestaAlumno::getAlumno).collect(Collectors.toList());
+
                 EncuestaCurso enc = new EncuestaCurso();
                 enc.setAlumnosFin(encuestaDocente.getAlumnosFin());
                 enc.setAlumnosInicio(encuestaDocente.getAlumnosInicio());
@@ -116,11 +115,25 @@ public class GeneradorEncuestaCursoServiceImp implements GeneradorEncuestaCursoS
                 enc.setDescripcion(encuestaDocente.getDescripcion());
                 encuestaCursoDAO.save(enc);
 
-                saveEncuestaAlumno(enc, listAlumno, ds);
                 visorEncuestaCurso.incrementar();
+                if (encuestaDocente.getEstadoEnum() == ACT) {
+                    Seccion seccion = encuestaDocente.getDocenteSeccion().getSeccion();
+                    List<Alumno> alumnos = TypesUtil.getListNotNull(mapAlumnos.get(seccion.getId()));
+                    saveEncuestaAlumno(enc, encuestaDocente, alumnos, encuestasAlumnos, ds);
+
+                    encuestaTipoCurso.setObjetivosEncuesta(encuestaTipoCurso.getObjetivosEncuesta() + 1);
+                    encuestaTipoCurso.setEncuestasProgramadas(encuestaTipoCurso.getEncuestasProgramadas() + alumnos.size());
+                }
+
             }
 
         } else {
+            Map<Long, List<Alumno>> mapAlumnos = TypesUtil.convertListToMapList("seccion.grupoSeccion.id", "matriculaResumen.alumno", matriculasSecciones);
+            for (Map.Entry<Long, List<Alumno>> entry : mapAlumnos.entrySet()) {
+                List<Alumno> alumnos = clearAlumnosDuplicados(entry.getValue());
+                mapAlumnos.put(entry.getKey(), alumnos);
+            }
+
             List<PeriodoEncuesta> periodosEncuesta = periodoEncuestaDAO.allByEncuesta(encuestaTipoCurso);
 
             List<CursoSinEncuesta> cursosSinEncuesta = cursoSinEncuestaDAO.allByEncuestaEstudiantil(encuestaTipoCurso);
@@ -134,10 +147,13 @@ public class GeneradorEncuestaCursoServiceImp implements GeneradorEncuestaCursoS
                         mapCursosSinEncuesta,
                         configuraEncuesta,
                         periodosEncuesta,
-                        encuestaTipoCurso, ds);
+                        encuestaTipoCurso,
+                        encuestasAlumnos, ds);
                 visorEncuestaCurso.incrementar();
             }
         }
+
+        saveEncuestaAlumno(null, null, new ArrayList(), encuestasAlumnos, ds);
         encuestaEstudiantilDAO.update(encuestaTipoCurso);
 
     }
@@ -149,10 +165,11 @@ public class GeneradorEncuestaCursoServiceImp implements GeneradorEncuestaCursoS
             ConfiguraEncuesta configuraEncuesta,
             List<PeriodoEncuesta> periodosEncuesta,
             EncuestaEstudiantil encuestaEstudiantil,
+            List<EncuestaAlumno> encuestasAlumnos,
             DataSessionPivot ds) {
 
-        List<Alumno> alumnos = mapAlumnos.get(grupoSeccion.getId());
-        alumnos = (alumnos == null) ? new ArrayList() : alumnos;
+        List<Alumno> alumnos = TypesUtil.getListNotNull(mapAlumnos.get(grupoSeccion.getId()));
+        long cantidad = Long.valueOf(alumnos.size());
 
         String impedido = null;
 
@@ -171,8 +188,8 @@ public class GeneradorEncuestaCursoServiceImp implements GeneradorEncuestaCursoS
         if (impedido != null) {
             EncuestaCurso enc = new EncuestaCurso();
             enc.setAlumnosEncuestados(0L);
-            enc.setAlumnosInicio(Long.valueOf(alumnos.size()));
-            enc.setAlumnosFin(Long.valueOf(alumnos.size()));
+            enc.setAlumnosInicio(cantidad);
+            enc.setAlumnosFin(cantidad);
             enc.setDescripcion(impedido);
             enc.setGrupoSeccion(grupoSeccion);
             enc.setEncuestaEstudiantil(encuestaEstudiantil);
@@ -185,8 +202,8 @@ public class GeneradorEncuestaCursoServiceImp implements GeneradorEncuestaCursoS
 
         for (PeriodoEncuesta periodoEncuesta : periodosEncuesta) {
             EncuestaCurso enc = new EncuestaCurso();
-            enc.setAlumnosFin((long) alumnos.size());
-            enc.setAlumnosInicio((long) alumnos.size());
+            enc.setAlumnosFin(cantidad);
+            enc.setAlumnosInicio(cantidad);
             enc.setAlumnosEncuestados(0L);
             enc.setEstadoEnum(EncuestaEstudiantilEstadoEnum.ACT);
             enc.setEncuestaEstudiantil(encuestaEstudiantil);
@@ -196,19 +213,25 @@ public class GeneradorEncuestaCursoServiceImp implements GeneradorEncuestaCursoS
             enc.setUserRegistro(ds.getUsuario());
             enc.setFechaRegistro(new Date());
             encuestaCursoDAO.save(enc);
-            saveEncuestaAlumno(enc, alumnos, ds);
-        }
+            saveEncuestaAlumno(enc, null, alumnos, encuestasAlumnos, ds);
 
-        encuestaEstudiantil.setObjetivosEncuesta(encuestaEstudiantil.getObjetivosEncuesta() + 1);
-        encuestaEstudiantil.setEncuestasProgramadas(encuestaEstudiantil.getEncuestasProgramadas() + alumnos.size());
+            encuestaEstudiantil.setEncuestasProgramadas(encuestaEstudiantil.getEncuestasProgramadas() + alumnos.size());
+            encuestaEstudiantil.setObjetivosEncuesta(encuestaEstudiantil.getObjetivosEncuesta() + 1);
+        }
     }
 
-    private void saveEncuestaAlumno(EncuestaCurso encuestaCurso, List<Alumno> alumnos, DataSessionPivot ds) {
+    private void saveEncuestaAlumno(
+            EncuestaCurso encuestaCurso,
+            EncuestaDocente encuestaDocente,
+            List<Alumno> alumnos,
+            List<EncuestaAlumno> encuestasAlumnos,
+            DataSessionPivot ds) {
 
         for (Alumno alumno : alumnos) {
             EncuestaAlumno encuAlumno = new EncuestaAlumno();
             encuAlumno.setAlumno(alumno);
             encuAlumno.setEncuestaCurso(encuestaCurso);
+            encuAlumno.setEncuestaDocente(encuestaDocente);
             if (encuestaCurso.getEstadoEnum() == EncuestaEstudiantilEstadoEnum.ACT) {
                 encuAlumno.setEstadoEnum(EncuestaEstudiantilEstadoEnum.PEND);
             } else {
@@ -216,7 +239,18 @@ public class GeneradorEncuestaCursoServiceImp implements GeneradorEncuestaCursoS
             }
             encuAlumno.setUserRegistro(ds.getUsuario());
             encuAlumno.setFechaRegistro(new Date());
-            encuestaAlumnoDAO.save(encuAlumno);
+            //encuestaAlumnoDAO.save(encuAlumno);
+            encuestasAlumnos.add(encuAlumno);
+        }
+
+        if (encuestasAlumnos.size() > 2000) {
+            encuestaAlumnoDAO.saveList(encuestasAlumnos);
+            encuestasAlumnos.clear();
+        }
+
+        if (encuestaCurso == null) {
+            encuestaAlumnoDAO.saveList(encuestasAlumnos);
+            encuestasAlumnos.clear();
         }
     }
 

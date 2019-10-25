@@ -79,6 +79,8 @@ public class EncuestaDocenteController {
                             "docenteSeccion.seccion.tipoSeccion",
                             "docenteSeccion.seccion.docenteSeccion.*",
                             "docenteSeccion.seccion.grupoHoras.codigo",
+                            "docenteSeccion.seccion.grupoSeccion.tipoDictado",
+                            "docenteSeccion.seccion.grupoSeccion.tipoDictadoEnum",
                             "docenteSeccion.seccion.grupoSeccion.curso.nombre",
                             "docenteSeccion.seccion.grupoSeccion.curso.codigo",
                             "docenteSeccion.seccion.grupoSeccion.curso.tpc"

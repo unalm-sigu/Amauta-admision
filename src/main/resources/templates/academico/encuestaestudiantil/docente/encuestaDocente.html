@@ -202,6 +202,10 @@
                                                     <span v-if="item.estado=='ACT'">
                                                         <span class="block m-b-xs"><strong>Desde:</strong> {{item.fechaEncuestaInicio}}</span>
                                                         <span class="block"><strong>Hasta:</strong> {{item.fechaEncuestaFin}}</span>
+                                                        <span v-if="item.docenteSeccion.seccion.grupoSeccion.tipoDictado == 'MOD' "
+                                                              class="label label-warning">
+                                                            {{item.docenteSeccion.seccion.grupoSeccion.tipoDictadoEnum.value}}
+                                                        </span>
                                                     </span>
                                                 </td>
 
