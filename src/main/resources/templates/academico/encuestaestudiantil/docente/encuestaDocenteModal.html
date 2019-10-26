@@ -222,9 +222,9 @@
     </div>
 </modal-vik>
 
-<modal-vik
-    ref="modalAddCurso"
-    v-bind="addCursoModal">
+<modal-vik ref="modalAddCurso"
+           v-bind:modalsize="`modal-lg`"
+           v-bind="addCursoModal">
 
     <div slot="body">
 
@@ -271,6 +271,40 @@
                 </tr>
             </tbody>
         </table>
+
+    </div>
+</modal-vik>
+
+<modal-vik ref="modalDesactivarEncu"
+           v-bind="cfgDesactivarEncu"
+           v-bind:okaction="changeEstado">
+
+    <div slot="body">
+        <form v-bind:id="cfgDesactivarEncu.form" v-if="encuestaDocente.docenteSeccion">
+            <div class="h4 text-dark m-t-xxs">
+                Indique el motivo por el cual desea desactivar la siguiente encuesta:
+            </div>
+            <div class="h4 text-primary m-b-xxs m-t-xxs block">
+                Docente: {{encuestaDocente.docenteSeccion.docente.persona.apellidosNombres.replace(/,/g,"")}}
+            </div>
+            <div class="h4 text-primary m-b-xxs m-t-xxs block">
+                Sección: 
+                <i v-if="encuestaDocente.docenteSeccion.seccion.tipoSeccion=='TCUR' " class="fa fa-book"></i>
+                <i v-if="encuestaDocente.docenteSeccion.seccion.tipoSeccion=='TEO' " class="fa fa-book"></i>
+                <i v-if="encuestaDocente.docenteSeccion.seccion.tipoSeccion=='PRA' " class="fa fa-flask"></i>
+                <i v-if="encuestaDocente.docenteSeccion.seccion.tipoSeccion=='PCUR' " class="fa fa-flask"></i>
+                {{encuestaDocente.docenteSeccion.seccion.codigo2}}
+            </div>
+            <div class="h4 text-primary m-b-xxs m-t-xxs block">
+                Curso: {{encuestaDocente.docenteSeccion.seccion.grupoSeccion.curso.codigo}}
+                <i class="fa fa-bookmark-o"></i> {{encuestaDocente.docenteSeccion.seccion.grupoSeccion.curso.tpc}} |
+                {{encuestaDocente.docenteSeccion.seccion.grupoSeccion.curso.nombre}}
+            </div>
+            <div class="form-group">
+                <label></label>
+                <textarea v-model="encuestaDocente.descripcion" class="form-control" required="" rows="3" minlength="10"></textarea>
+            </div>
+        </form>
 
     </div>
 </modal-vik>

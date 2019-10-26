@@ -19,7 +19,7 @@ public interface EncuestaDocenteService {
 
     String generarEncuesta(CicloAcademico cicloAcademico, DataSessionPivot ds);
 
-    void cambiarEstadoEncuesta(EncuestaDocente encuesta);
+    void cambiarEstadoEncuesta(EncuestaDocente encuesta, DataSessionPivot ds);
 
     void saveDetalleConfigEncuesta(EncuestaEstudiantil encuestaEstudiantil, CicloAcademico ciclo, DataSessionPivot ds);
 

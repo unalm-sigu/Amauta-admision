@@ -6,7 +6,22 @@ new Vue({
         generando: false,
         encuestaURL: APP.url(`${rutaModulo}/list`),
         docentesSecciones: [],
-        encuesta: JSON.parse(encuestaJson),
+        encuesta: {
+            encuestasActivas: 0,
+            encuestasAnuladas: 0,
+            encuestasInnecesarias: 0,
+            encuestasSinPeriodo: 0,
+            encuestasCerradas: 0,
+            encuestasPosgrado: 0,
+            encuestasPregrado: 0,
+            encuestasModulares: 0,
+            encuestasSemestrales: 0,
+            objetivosEncuesta: 0,
+            objetivosEncuestados: 0,
+            cursosNoEncuestar: 0,
+            estado: "NCRE",
+            estadoEnum: {value: "No creado"}
+        },
         cfgVerProgreso: {
             id: 'modalVerProgreso',
             header: false,
@@ -70,8 +85,19 @@ new Vue({
         },
         btnAgregar: false,
         seleccionado: '',
-        bgColorClass: {activo: '', anulado: '', innecesario: '', sinperiodo: '', cerrado: '',
-            encuestable: '', encuestado: ''}
+        modalidadSeleccionada: '',
+        dictadoSeleccionado: '',
+        bgColorClass: {activo: '', anulado: '', innecesario: '', sinperiodo: '', cerrado: '', encuestable: '', encuestado: ''},
+        bgColorModalidadClass: {posgrados: '', pregrados: ''},
+        bgColorDictadoClass: {modulares: '', semestrales: ''},
+        encuestaDocente: {},
+        configConfirmAction: VUE_MODAL.structConfirm({
+            id: "idModalConfirm"
+        }),
+        cfgDesactivarEncu: VUE_MODAL.structFormAjax({
+            id: "idModalDesactivarEncu",
+            form: "formDesactivarEncu"
+        })
     },
     mounted: function () {
         let $vue = this;
@@ -83,16 +109,55 @@ new Vue({
         }
         $vue.refreshEncuesta();
 
-        let tipo = $vue.$refs.load.getParameterByName('queries[ed.estado]');
-        tipo = (tipo == null) ? '' : tipo;
-        if (tipo != '') {
-            $vue.bgColorClass[tipo] = 'bg-light';
-            $vue.seleccionado = tipo;
-            $vue.$refs.load.querie.push({name: 'ed.estado', value: tipo});
+        let estadoEncu = $vue.getParameterQuery('estado');
+        if (estadoEncu !== '') {
+            $vue.bgColorClass[estadoEncu] = 'bg-light';
+            $vue.seleccionado = estadoEncu;
+            $vue.$refs.raptorEncu.querie.push({name: 'estado', value: estadoEncu});
         }
-        $vue.$refs.load.repreload();
+
+        let modalidadEncu = $vue.getParameterQuery('modalidad');
+        if (modalidadEncu !== '') {
+            $vue.bgColorModalidadClass[modalidadEncu] = 'bg-light';
+            $vue.modalidadSeleccionada = modalidadEncu;
+            $vue.$refs.raptorEncu.querie.push({name: 'modalidad', value: modalidadEncu});
+        }
+
+        let dictadoEncu = $vue.getParameterQuery('dictado');
+        if (dictadoEncu !== '') {
+            $vue.bgColorDictadoClass[dictadoEncu] = 'bg-light';
+            $vue.dictadoSeleccionado = dictadoEncu;
+            $vue.$refs.raptorEncu.querie.push({name: 'dictado', value: dictadoEncu});
+        }
+
+        $vue.$refs.raptorEncu.repreload();
+        $vue.loadResumen();
     },
     methods: {
+        getParameterQuery(param) {
+            let $vue = this;
+            let value = $vue.$refs.raptorEncu.getParameterByName('queries[' + param + ']');
+            value = (value == null) ? '' : value;
+            return value;
+        },
+        setParameterQuery(param, value) {
+            let $vue = this;
+            if (value !== '') {
+                $vue.$refs.raptorEncu.querie.push({name: param, value: value});
+            }
+        },
+        loadResumen() {
+            let $vue = this;
+
+            axios.post(`/${rutaModulo}/resumen`).then(response => {
+                if (response.data.success) {
+                    $vue.encuesta = response.data.data;
+                }
+            }).catch(function (error) {
+                notify(MESSAGES.errorComunicacion, "error");
+            });
+
+        },
         removePeriodo(i) {
             var vue = this;
             vue.periodosEncuesta.splice(i, 1);
@@ -103,22 +168,7 @@ new Vue({
         },
         refreshEncuesta() {
             let vue = this;
-            axios.post(`/${rutaModulo}/encuestaDocente`)
-                    .then(response => {
-                        if (response.data.success) {
-                            vue.encuesta = response.data.data;
-                            vue.periodosEncuesta = vue.encuesta.periodosEncuesta;
-                            vue.cursosNoEncuestar = vue.encuesta.cursosNoEncuestar;
-                            if (vue.encuesta.configuraEncuesta.length > 0) {
-                                vue.configuraEncuesta = vue.encuesta.configuraEncuesta[0];
-                            } else {
-                                vue.configuraEncuesta = {};
-                            }
-                        }
-                    })
-                    .catch(function (error) {
-                        console.log(error);
-                    });
+            vue.loadResumen();
         },
         configurarEncuesta() {
             let vue = this;
@@ -135,7 +185,6 @@ new Vue({
             if (!(form.parsley().validate() === true)) {
                 return;
             }
-
 
             vue.encuestaForm = {
                 periodosEncuesta: vue.periodosEncuesta,
@@ -213,7 +262,7 @@ new Vue({
                 }
             });
         },
-        refreshProgresoEncuesta: function () {
+        refreshProgresoEncuesta() {
             let vue = this;
 
             axios.post(`/${rutaModulo}/estadoGenerarEncuestas`)
@@ -230,7 +279,7 @@ new Vue({
                                 message: "Finalizó la generación de encuesta de docentes",
                                 buttons: {ok: {label: "Aceptar"}},
                                 callback: function () {
-                                    vue.$refs.load.loadRemoteData();
+                                    vue.$refs.raptorEncu.loadRemoteData();
                                     vue.refreshEncuesta();
                                 }
                             });
@@ -338,31 +387,29 @@ new Vue({
         },
         eliminar() {
             let $vue = this;
-            bootbox.confirm({
-                message: '¿Está seguro que desea eliminar la encuesta de docentes para este ciclo?',
-                buttons: {
-                    confirm: {label: 'Si, eliminar encuesta'},
-                    cancel: {label: 'Cancelar', className: "btn-link"}
-                },
-                callback: function (result) {
-                    if (result) {
-                        axios.post(`/${rutaModulo}/delete`, {id: $vue.encuesta.id})
-                                .then(response => {
-                                    if (response.data.success) {
-                                        $vue.$refs.load.loadRemoteData();
-                                        $vue.refreshEncuesta();
-                                        notify(response.data.message, "info");
-                                    } else {
-                                        notify(response.data.message, "error");
-                                    }
-                                })
-                                .catch(function (error) {
-                                    console.log(error);
-                                    notify(MESSAGES.errorComunicacion, "error");
-                                });
-                    }
-                }
-            });
+
+            $vue.configConfirmAction.message = '¿Está seguro que desea eliminar la encuesta de los docentes de este ciclo?';
+            $vue.configConfirmAction.okbtn = 'Si, eliminar encuesta de docentes';
+            $vue.configConfirmAction.okclass = "btn-danger";
+            $vue.configConfirmAction.okaction = function () {
+                axios.post(`/${rutaModulo}/delete`, {id: $vue.encuesta.id})
+                        .then(response => {
+                            $vue.$refs.modalConfirmAction.confirmReaction(response.data.success);
+                            if (response.data.success) {
+                                $vue.$refs.raptorEncu.loadRemoteData();
+                                $vue.refreshEncuesta();
+                                notify(response.data.message, "info");
+                            } else {
+                                notify(response.data.message, "error");
+                            }
+                        })
+                        .catch(function (error) {
+                            $vue.$refs.modalConfirmAction.confirmReaction(false);
+                            console.log(error);
+                            notify(MESSAGES.errorComunicacion, "error");
+                        });
+            };
+            $vue.$refs.modalConfirmAction.open();
         },
         publicar() {
             let $vue = this;
@@ -514,25 +561,196 @@ new Vue({
                 $vue.bgColorClass[tipo] = 'bg-light';
                 $vue.seleccionado = tipo;
 
-                $vue.$refs.load.querie.push({name: 'ed.estado', value: tipo});
-                $vue.$refs.load.loadRemoteData();
+                $vue.$refs.raptorEncu.querie.push({name: 'estado', value: tipo});
+                $vue.$refs.raptorEncu.loadRemoteData();
+                $vue.loadResumen();
 
             } else if ($vue.seleccionado !== '' && $vue.seleccionado !== tipo) {
                 $vue.bgColorClass[$vue.seleccionado] = '';
                 $vue.bgColorClass[tipo] = 'bg-light';
                 $vue.seleccionado = tipo;
 
-                $vue.$refs.load.querie.push({name: 'ed.estado', value: tipo});
-                $vue.$refs.load.loadRemoteData();
+                $vue.$refs.raptorEncu.querie.push({name: 'estado', value: tipo});
+                $vue.$refs.raptorEncu.loadRemoteData();
+                $vue.loadResumen();
 
             } else if ($vue.seleccionado !== '' && $vue.seleccionado === tipo) {
                 $vue.bgColorClass[$vue.seleccionado] = '';
                 $vue.seleccionado = '';
 
-                $vue.$refs.load.querie = [];
-                $vue.$refs.load.changeUrl('queries[ed.estado]', null);
-                $vue.$refs.load.loadRemoteData();
+                let modalidadEncu = $vue.getParameterQuery('modalidad');
+                let dictadoEncu = $vue.getParameterQuery('dictado');
+
+                $vue.$refs.raptorEncu.querie = [];
+                $vue.$refs.raptorEncu.changeUrl('queries[estado]', null);
+                $vue.setParameterQuery("modalidad", modalidadEncu);
+                $vue.setParameterQuery("dictado", dictadoEncu);
+
+                $vue.$refs.raptorEncu.loadRemoteData();
+                $vue.loadResumen();
             }
+        },
+        verModalidad(tipo) {
+            let $vue = this;
+            if ($vue.modalidadSeleccionada === '') {
+                $vue.bgColorModalidadClass[tipo] = 'bg-light';
+                $vue.modalidadSeleccionada = tipo;
+
+                $vue.$refs.raptorEncu.querie.push({name: 'modalidad', value: tipo});
+                $vue.$refs.raptorEncu.loadRemoteData();
+                $vue.loadResumen();
+
+            } else if ($vue.modalidadSeleccionada !== '' && $vue.modalidadSeleccionada !== tipo) {
+                $vue.bgColorModalidadClass[$vue.modalidadSeleccionada] = '';
+                $vue.bgColorModalidadClass[tipo] = 'bg-light';
+                $vue.modalidadSeleccionada = tipo;
+
+                $vue.$refs.raptorEncu.querie.push({name: 'modalidad', value: tipo});
+                $vue.$refs.raptorEncu.loadRemoteData();
+                $vue.loadResumen();
+
+            } else if ($vue.modalidadSeleccionada !== '' && $vue.modalidadSeleccionada === tipo) {
+                $vue.bgColorModalidadClass[$vue.modalidadSeleccionada] = '';
+                $vue.modalidadSeleccionada = '';
+
+                let estadoEncu = $vue.getParameterQuery('estado');
+                let dictadoEncu = $vue.getParameterQuery('dictado');
+
+                $vue.$refs.raptorEncu.querie = [];
+                $vue.$refs.raptorEncu.changeUrl('queries[modalidad]', null);
+                $vue.setParameterQuery("estado", estadoEncu);
+                $vue.setParameterQuery("dictado", dictadoEncu);
+
+                $vue.$refs.raptorEncu.loadRemoteData();
+                $vue.loadResumen();
+            }
+        },
+        verDictado(tipo) {
+            let $vue = this;
+            if ($vue.dictadoSeleccionado === '') {
+                $vue.bgColorDictadoClass[tipo] = 'bg-light';
+                $vue.dictadoSeleccionado = tipo;
+
+                $vue.$refs.raptorEncu.querie.push({name: 'dictado', value: tipo});
+                $vue.$refs.raptorEncu.loadRemoteData();
+                $vue.loadResumen();
+
+            } else if ($vue.dictadoSeleccionado !== '' && $vue.dictadoSeleccionado !== tipo) {
+                $vue.bgColorDictadoClass[$vue.dictadoSeleccionado] = '';
+                $vue.bgColorDictadoClass[tipo] = 'bg-light';
+                $vue.dictadoSeleccionado = tipo;
+
+                $vue.$refs.raptorEncu.querie.push({name: 'dictado', value: tipo});
+                $vue.$refs.raptorEncu.loadRemoteData();
+                $vue.loadResumen();
+
+            } else if ($vue.dictadoSeleccionado !== '' && $vue.dictadoSeleccionado === tipo) {
+                $vue.bgColorDictadoClass[$vue.dictadoSeleccionado] = '';
+                $vue.dictadoSeleccionado = '';
+
+                let estadoEncu = $vue.getParameterQuery('estado');
+                let modalidadEncu = $vue.getParameterQuery('modalidad');
+
+                $vue.$refs.raptorEncu.querie = [];
+                $vue.$refs.raptorEncu.changeUrl('queries[dictado]', null);
+                $vue.setParameterQuery("estado", estadoEncu);
+                $vue.setParameterQuery("modalidad", modalidadEncu);
+
+                $vue.$refs.raptorEncu.loadRemoteData();
+                $vue.loadResumen();
+            }
+        },
+        verResultados(item) {
+            let $vue = this;
+            if (item.estado != "ACT") {
+                return false;
+            }
+
+            if (item.modalidadEstudio.codigo == "PRE") {
+                return item.alumnosEncuestados >= $vue.configuraEncuesta.cantidadMinimaAlumnosPregrado;
+            }
+            if (item.modalidadEstudio.codigo == "EPG") {
+                return item.alumnosEncuestados >= $vue.configuraEncuesta.cantidadMinimaAlumnosPosgrado;
+            }
+            return false;
+
+        },
+        verchangeEstado(item) {
+            let $vue = this;
+            let btn = "Si, " + (item.estado == 'ACT' ? "desactivar" : "activar");
+            let okclass = (item.estado == 'ACT') ? "btn-danger" : "btn-success";
+
+            $vue.configConfirmAction.okbtn = btn;
+            $vue.configConfirmAction.okclass = okclass;
+
+            if (item.estado == "ACT") {
+                let msg = '¿Está seguro que desea <span class="text-danger" bold">desactivar</span> esta encuesta del docente <strong>';
+                msg += item.docenteSeccion.docente.persona.apellidosNombres.replace(/,/g, "") + "</strong>?";
+
+                $vue.encuestaDocente = JSON.parse(JSON.stringify(item));
+                $vue.configConfirmAction.message = msg;
+                $vue.configConfirmAction.okaction = function () {
+                    $vue.$refs.modalConfirmAction.confirmReaction(true);
+                    $vue.$refs.modalDesactivarEncu.open();
+                };
+
+            } else {
+                let msg = '<div class="h4 text-dark m-t-xxs">¿Está seguro que desea <span class="text-primary bold">activar</span> la siguiente encuesta:</div>';
+                msg += '<div class="text-primary block">Docente: ' + item.docenteSeccion.docente.persona.apellidosNombres.replace(/,/g, "") + "</div>";
+                msg += '<div class="text-primary block">Curso: ' + item.docenteSeccion.seccion.grupoSeccion.curso.codigo + " ";
+                msg += '<i class="fa fa-bookmark-o"></i> ' + item.docenteSeccion.seccion.grupoSeccion.curso.tpc + " | ";
+                msg += item.docenteSeccion.seccion.grupoSeccion.curso.nombre + "</div>";
+                msg += '<div class="text-primary block">Sección: ' + item.docenteSeccion.seccion.codigo2 + "</div>";
+                $vue.configConfirmAction.message = msg;
+
+                $vue.configConfirmAction.okaction = function () {
+                    let data = {id: item.id, estado: item.estado};
+                    axios.post(`/${rutaModulo}/changeEstado`, data).then(response => {
+                        $vue.$refs.modalConfirmAction.confirmReaction(response.data.success);
+                        if (response.data.success) {
+                            $vue.loadResumen();
+                            $vue.$refs.raptorEncu.loadRemoteData();
+                            notify(response.data.message, 'info');
+                        } else {
+                            notify(response.data.message, 'error');
+                        }
+                    }).catch(function (error) {
+                        $vue.$refs.modalConfirmAction.confirmReaction(false);
+                        notify(MESSAGES.errorComunicacion, "error");
+                    });
+                };
+            }
+            $vue.$refs.modalConfirmAction.open();
+
+        },
+        changeEstado() {
+            let $vue = this;
+            let form = $("#" + $vue.cfgDesactivarEncu.form);
+            if (!(form.parsley().validate() === true)) {
+                return;
+            }
+
+            $vue.$refs.modalDesactivarEncu.beginProcessing();
+            let data = {
+                id: $vue.encuestaDocente.id,
+                estado: $vue.encuestaDocente.estado,
+                descripcion: $vue.encuestaDocente.descripcion
+            };
+
+            axios.post(`/${rutaModulo}/changeEstado`, data).then(response => {
+                $vue.$refs.modalDesactivarEncu.confirmReaction(response.data.success);
+                if (response.data.success) {
+                    $vue.loadResumen();
+                    $vue.$refs.raptorEncu.loadRemoteData();
+                    notify(response.data.message, 'info');
+                } else {
+                    notify(response.data.message, 'error');
+                }
+            }).catch(function (error) {
+                $vue.$refs.modalDesactivarEncu.confirmReaction(false);
+                notify(MESSAGES.errorComunicacion, "error");
+            });
+
         }
     }
 });

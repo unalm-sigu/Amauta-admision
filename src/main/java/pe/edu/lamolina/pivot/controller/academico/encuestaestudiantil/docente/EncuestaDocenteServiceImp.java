@@ -1,6 +1,5 @@
 package pe.edu.lamolina.pivot.controller.academico.encuestaestudiantil.docente;
 
-import com.google.common.base.Strings;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -11,14 +10,18 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.thymeleaf.util.StringUtils;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.ListsInspector;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
+import pe.edu.lamolina.model.academico.GrupoSeccion;
+import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.encuestaestudiantil.ConfiguraEncuesta;
 import pe.edu.lamolina.model.encuestaestudiantil.CursoSinEncuesta;
@@ -32,11 +35,20 @@ import pe.edu.lamolina.model.encuestaestudiantil.RespuestaEncuestaAlumno;
 import pe.edu.lamolina.model.encuestaestudiantil.ResumenEncuestaDocente;
 import pe.edu.lamolina.model.enums.EncuestaEstadoEnum;
 import pe.edu.lamolina.model.enums.EncuestaEstudiantilEstadoEnum;
+import static pe.edu.lamolina.model.enums.EncuestaEstudiantilEstadoEnum.ACT;
+import static pe.edu.lamolina.model.enums.EncuestaEstudiantilEstadoEnum.ANU;
+import static pe.edu.lamolina.model.enums.EncuestaEstudiantilEstadoEnum.ENC;
+import static pe.edu.lamolina.model.enums.EncuestaEstudiantilEstadoEnum.FECH;
+import static pe.edu.lamolina.model.enums.EncuestaEstudiantilEstadoEnum.TEO;
+import static pe.edu.lamolina.model.enums.EncuestaEstudiantilEstadoEnum.PEND;
+import static pe.edu.lamolina.model.enums.TipoDictadoGrupoSeccionEnum.MOD;
+import static pe.edu.lamolina.model.enums.TipoDictadoGrupoSeccionEnum.SEM;
 import pe.edu.lamolina.model.enums.TipoExamenVirtualEnum;
 import pe.edu.lamolina.model.examen.ExamenVirtual;
 import pe.edu.lamolina.model.examen.TipoExamenVirtual;
 import pe.edu.lamolina.pivot.dao.academico.CursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.DocenteSeccionDAO;
+import pe.edu.lamolina.pivot.dao.academico.MatriculaSeccionDAO;
 import pe.edu.lamolina.pivot.dao.encuesta.ConfiguraEncuestaDAO;
 import pe.edu.lamolina.pivot.dao.encuesta.CursoSinEncuestaDAO;
 import pe.edu.lamolina.pivot.dao.encuesta.EncuestaAlumnoDAO;
@@ -87,6 +99,8 @@ public class EncuestaDocenteServiceImp implements EncuestaDocenteService {
     PuntajeEncuestaDocenteDAO puntajeEncuestaDocenteDAO;
     @Autowired
     CursoDAO cursoDAO;
+    @Autowired
+    MatriculaSeccionDAO matriculaSeccionDAO;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -119,6 +133,11 @@ public class EncuestaDocenteServiceImp implements EncuestaDocenteService {
             int innecesa = 0;
             int cerrados = 0;
             int sinperio = 0;
+            int posgrados = 0;
+            int pregrados = 0;
+            int modulares = 0;
+            int semestrales = 0;
+
             for (EncuestaDocente encDocente : encDocentes) {
                 switch (encDocente.getEstadoEnum()) {
                     case ACT:
@@ -137,12 +156,30 @@ public class EncuestaDocenteServiceImp implements EncuestaDocenteService {
                         sinperio++;
                         break;
                 }
+                if (encDocente.getModalidadEstudio().isPostgrado()) {
+                    posgrados++;
+                }
+                if (encDocente.getModalidadEstudio().isPregrado()) {
+                    pregrados++;
+                }
+                GrupoSeccion gpoSeccion = encDocente.getDocenteSeccion().getSeccion().getGrupoSeccion();
+                if (gpoSeccion.getTipoDictadoEnum() == MOD) {
+                    modulares++;
+                }
+                if (gpoSeccion.getTipoDictadoEnum() == SEM) {
+                    semestrales++;
+                }
             }
+
             encuesta.setEncuestasActivas(activos);
             encuesta.setEncuestasAnuladas(anulados);
             encuesta.setEncuestasCerradas(cerrados);
             encuesta.setEncuestasInnecesarias(innecesa);
             encuesta.setEncuestasSinPeriodo(sinperio);
+            encuesta.setEncuestasPosgrado(posgrados);
+            encuesta.setEncuestasPregrado(pregrados);
+            encuesta.setEncuestasModulares(modulares);
+            encuesta.setEncuestasSemestrales(semestrales);
         }
 
         return encuesta;
@@ -213,30 +250,107 @@ public class EncuestaDocenteServiceImp implements EncuestaDocenteService {
 
     @Override
     @Transactional
-    public void cambiarEstadoEncuesta(EncuestaDocente encuestaForm) {
-        EncuestaDocente encuesta = encuestaDocenteDAO.findEncuestaDocente(encuestaForm);
-        if (Strings.isNullOrEmpty(encuesta.getEstado())) {
-            encuesta.setEstadoEnum(EncuestaEstudiantilEstadoEnum.ANU);
+    public void cambiarEstadoEncuesta(EncuestaDocente encuestaForm, DataSessionPivot ds) {
+        EncuestaDocente encuestaBD = encuestaDocenteDAO.findEncuestaDocente(encuestaForm);
+        Assert.isNotNull(encuestaBD, "No existe esta encuesta en la base de datos");
+
+        switch (encuestaForm.getEstadoEnum()) {
+            case ACT:
+                Assert.isTrue(encuestaBD.getEstadoEnum() == ACT, "La encuesta del docentes ya no se encuentra activa");
+                desactivarEncuestaDocente(encuestaBD, encuestaForm, ds);
+                break;
+            case ANU:
+                Assert.isTrue(encuestaBD.getEstadoEnum() == ANU, "La encuesta del docentes ya no se encuentra inactiva");
+                activarEncuestaDocente(encuestaBD, ds);
+                break;
+            case TEO:
+                Assert.isTrue(encuestaBD.getEstadoEnum() == TEO, "La encuesta del docentes ya no se encuentra inactiva por la teoría");
+                activarEncuestaDocente(encuestaBD, ds);
+                break;
+            case FECH:
+                Assert.isTrue(encuestaBD.getEstadoEnum() == FECH, "La encuesta del docentes ya no se encuentra inactiva por fecha");
+                activarEncuestaDocente(encuestaBD, ds);
+                break;
+            default:
+                throw new PhobosException("Este cambio no procede");
         }
-        if (encuesta.getEstadoEnum() == EncuestaEstudiantilEstadoEnum.ACT
-                || encuesta.getEstadoEnum() == EncuestaEstudiantilEstadoEnum.TEO) {
-            encuesta.setEstadoEnum(EncuestaEstudiantilEstadoEnum.ANU);
-            List<EncuestaAlumno> encuestas = encuestaAlumnoDAO.allByEncuestaDocente(encuesta);
-            for (EncuestaAlumno encuestaAlumno : encuestas) {
-                encuestaAlumno.setEstadoEnum(EncuestaEstudiantilEstadoEnum.ANU);
-                encuestaAlumnoDAO.update(encuestaAlumno);
+    }
+
+    private void activarEncuestaDocente(EncuestaDocente encuestaBD, DataSessionPivot ds) {
+        Seccion seccion = encuestaBD.getDocenteSeccion().getSeccion();
+        List<MatriculaSeccion> matriculadosSeccion = matriculaSeccionDAO.allMatriculadosBySeccion(seccion);
+        Assert.isFalse(matriculadosSeccion.isEmpty(), "No existe alumnos matriculados en esta sección");
+        Map<Long, MatriculaSeccion> mapMatriculado = TypesUtil.convertListToMap("matriculaResumen.alumno.id", matriculadosSeccion);
+
+        int total = matriculadosSeccion.size();
+        int reprogramadas = 0;
+
+        List<EncuestaAlumno> encuestasAlumnos = encuestaAlumnoDAO.allByEncuestaDocente(encuestaBD);
+        Map<Long, EncuestaAlumno> mapEncuAlumno = TypesUtil.convertListToMap("alumno.id", encuestasAlumnos);
+
+        for (MatriculaSeccion matriculado : matriculadosSeccion) {
+            Alumno alumno = matriculado.getMatriculaResumen().getAlumno();
+            EncuestaAlumno encuAlumno = mapEncuAlumno.get(alumno.getId());
+            if (encuAlumno == null) {
+                encuAlumno = new EncuestaAlumno();
+                encuAlumno.setAlumno(alumno);
+                encuAlumno.setEncuestaDocente(encuestaBD);
+                encuAlumno.setEstadoEnum(EncuestaEstudiantilEstadoEnum.PEND);
+                encuAlumno.setUserRegistro(ds.getUsuario());
+                encuAlumno.setFechaRegistro(new Date());
+                encuestaAlumnoDAO.save(encuAlumno);
+                reprogramadas++;
+
+            } else {
+                if (encuAlumno.getEstadoEnum() == ANU) {
+                    encuAlumno.setEstadoEnum(ACT);
+                    encuestaAlumnoDAO.update(encuAlumno);
+                    reprogramadas++;
+                }
             }
-            return;
         }
-        encuesta.setEstadoEnum(EncuestaEstudiantilEstadoEnum.ACT);
-        List<EncuestaAlumno> encuestas = encuestaAlumnoDAO.allByEncuestaDocente(encuesta);
-        if (encuestas.size() < 1) {
-            throw new PhobosException("No existe encuestas para el docente ");
+
+        for (EncuestaAlumno encuestaAlumno : encuestasAlumnos) {
+            MatriculaSeccion matriculado = mapMatriculado.get(encuestaAlumno.getAlumno().getId());
+            if (matriculado == null && encuestaAlumno.getEstadoEnum() == ENC) {
+                total++;
+            }
         }
+
+        encuestaBD.setEstadoEnum(ACT);
+        encuestaBD.setAlumnosFin(Long.valueOf(total));
+        encuestaBD.setUserModificacion(ds.getUsuario());
+        encuestaBD.setFechaModificacion(new Date());
+        encuestaDocenteDAO.update(encuestaBD);
+
+        EncuestaEstudiantil encu = encuestaBD.getEncuestaEstudiantil();
+        encu.setObjetivosEncuesta(encu.getObjetivosEncuesta() + 1);
+        encu.setEncuestasProgramadas(encu.getEncuestasProgramadas() + reprogramadas);
+        encuestaEstudiantilDAO.update(encu);
+    }
+
+    private void desactivarEncuestaDocente(EncuestaDocente encuestaBD, EncuestaDocente encuestaForm, DataSessionPivot ds) {
+        Assert.isFalse(StringUtils.isEmpty(encuestaForm.getDescripcion()), "Debe ingresar un motivo de la desactivación");
+        encuestaBD.setEstadoEnum(ANU);
+        encuestaBD.setDescripcion(encuestaForm.getDescripcion());
+        encuestaBD.setUserModificacion(ds.getUsuario());
+        encuestaBD.setFechaModificacion(new Date());
+
+        int desprogramadas = 0;
+        List<EncuestaAlumno> encuestas = encuestaAlumnoDAO.allByEncuestaDocente(encuestaBD);
         for (EncuestaAlumno encuestaAlumno : encuestas) {
-            encuestaAlumno.setEstadoEnum(EncuestaEstudiantilEstadoEnum.ACT);
-            encuestaAlumnoDAO.update(encuestaAlumno);
+            if (encuestaAlumno.getEstadoEnum() == PEND) {
+                encuestaAlumno.setEstadoEnum(ANU);
+                encuestaAlumnoDAO.update(encuestaAlumno);
+                desprogramadas++;
+            }
         }
+        encuestaDocenteDAO.update(encuestaBD);
+
+        EncuestaEstudiantil encu = encuestaBD.getEncuestaEstudiantil();
+        encu.setObjetivosEncuesta(encu.getObjetivosEncuesta() - 1);
+        encu.setEncuestasProgramadas(encu.getEncuestasProgramadas() - desprogramadas);
+        encuestaEstudiantilDAO.update(encu);
     }
 
     private void updateConfigEncuesta(EncuestaEstudiantil encuesta, ConfiguraEncuesta configuraEncuestaForm, CicloAcademico ciclo, DataSessionPivot ds) {

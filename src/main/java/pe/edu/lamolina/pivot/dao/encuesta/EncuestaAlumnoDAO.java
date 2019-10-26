@@ -18,4 +18,6 @@ public interface EncuestaAlumnoDAO extends EasyDAO<EncuestaAlumno> {
 
     List<EncuestaAlumno> allByListEncuestaDocente(List<EncuestaDocente> listEncuestaDocente);
 
+    int saveList(List<EncuestaAlumno> encuestasAlumnos);
+
 }

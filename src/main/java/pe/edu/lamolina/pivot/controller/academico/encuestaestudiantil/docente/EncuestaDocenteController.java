@@ -44,11 +44,11 @@ public class EncuestaDocenteController {
     public String index(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         CicloAcademico cicloAcademico = ds.getCicloAcademico();
-        EncuestaEstudiantil encuesta = service.findEncuestaDocente(cicloAcademico);
+        //EncuestaEstudiantil encuesta = service.findEncuestaDocente(cicloAcademico);
 
         model.addAttribute("cicloAcademico", cicloAcademico);
         model.addAttribute("visor", visorEncuestaDocente);
-        model.addAttribute("encuesta", JsonHelper.createJson(encuesta, JsonNodeFactory.instance, true, new String[]{"*"}));
+        //model.addAttribute("encuesta", JsonHelper.createJson(encuesta, JsonNodeFactory.instance, true, new String[]{"*"}));
         return "academico/encuestaestudiantil/docente/encuestaDocente";
     }
 
@@ -69,6 +69,8 @@ public class EncuestaDocenteController {
                 ObjectNode node = JsonHelper.createJson(enDocente, JsonNodeFactory.instance, true,
                         new String[]{
                             "*",
+                            "modalidadEstudio.codigo",
+                            "modalidadEstudio.nombre",
                             "docenteSeccion.docente.codigo",
                             "docenteSeccion.docente.departamentoAcademico.nombre",
                             "docenteSeccion.docente.departamentoAcademico.facultad.nombre",
@@ -79,6 +81,8 @@ public class EncuestaDocenteController {
                             "docenteSeccion.seccion.tipoSeccion",
                             "docenteSeccion.seccion.docenteSeccion.*",
                             "docenteSeccion.seccion.grupoHoras.codigo",
+                            "docenteSeccion.seccion.grupoSeccion.tipoDictado",
+                            "docenteSeccion.seccion.grupoSeccion.tipoDictadoEnum",
                             "docenteSeccion.seccion.grupoSeccion.curso.nombre",
                             "docenteSeccion.seccion.grupoSeccion.curso.codigo",
                             "docenteSeccion.seccion.grupoSeccion.curso.tpc"
@@ -96,6 +100,30 @@ public class EncuestaDocenteController {
             json.setTotal(0);
         }
         return json;
+    }
+
+    @ResponseBody
+    @RequestMapping("resumen")
+    public JsonResponse resumen(HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            CicloAcademico cicloAcademico = ds.getCicloAcademico();
+            EncuestaEstudiantil encuesta = service.findEncuestaDocente(cicloAcademico);
+            ObjectNode node = JsonHelper.createJson(encuesta, JsonNodeFactory.instance, true, new String[]{"*"});
+            response.setData(node);
+            response.setMessage("Encuesta activada satisfactoriamente");
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+
     }
 
     @ResponseBody
@@ -188,12 +216,13 @@ public class EncuestaDocenteController {
     }
 
     @ResponseBody
-    @RequestMapping("estado")
-    public JsonResponse estado(EncuestaDocente encuesta, HttpSession session) {
+    @RequestMapping("changeEstado")
+    public JsonResponse changeEstado(@RequestBody EncuestaDocente encuesta, HttpSession session) {
 
         JsonResponse response = new JsonResponse();
         try {
-            service.cambiarEstadoEncuesta(encuesta);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            service.cambiarEstadoEncuesta(encuesta, ds);
             response.setMessage("Registro actualizado satisfactoriamente.");
             response.setSuccess(true);
 
