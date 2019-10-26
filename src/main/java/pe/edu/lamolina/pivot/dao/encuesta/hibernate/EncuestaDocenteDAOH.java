@@ -20,6 +20,8 @@ import static pe.edu.lamolina.model.enums.EncuestaEstudiantilEstadoEnum.FECH;
 import static pe.edu.lamolina.model.enums.EncuestaEstudiantilEstadoEnum.ACT;
 import static pe.edu.lamolina.model.enums.EncuestaEstudiantilEstadoEnum.ANU;
 import static pe.edu.lamolina.model.enums.EncuestaEstudiantilEstadoEnum.TEO;
+import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
+import pe.edu.lamolina.model.enums.TipoDictadoGrupoSeccionEnum;
 import pe.edu.lamolina.pivot.dao.encuesta.EncuestaDocenteDAO;
 
 @Repository
@@ -67,19 +69,18 @@ public class EncuestaDocenteDAOH extends AbstractEasyDAO<EncuestaDocente> implem
                 .join("docenteSeccion ds", "ds.docente doc", "doc.persona per")
                 .join("ds.seccion sec", "sec.grupoSeccion gs", "gs.curso cur")
                 .join("cur.departamentoAcademico da", "da.facultad fa")
-                .join("modalidadEstudio")
+                .join("modalidadEstudio me")
                 .leftJoin("per.tipoDocumento tdoc", "sec.grupoHoras gh")
                 .filter("ciclo.id", ciclo)
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                 .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
                 .searchFields("da.nombre", "cur.nombre", "cur.codigo", "fa.nombre", "sec.codigo2", "gh.codigo", "doc.codigo")
-                .orderBy("ed.id");
+                .orderBy("ed.id DESC");
 
         sql.beginRelativeFilters();
         setCondicionEstado(filter, sql);
 
         return all(sql);
-
     }
 
     private void setCondicionEstado(DynatableFilter filter, DynatableSql sql) {
@@ -88,24 +89,59 @@ public class EncuestaDocenteDAOH extends AbstractEasyDAO<EncuestaDocente> implem
             return;
         }
         for (String key : queries.keySet()) {
-            if (!key.equals("ed.estado")) {
+            if (!key.equals("estado")) {
                 continue;
             }
+
             String values = (String) queries.get(key);
             if (values.equals("activo")) {
                 sql.filter("ed.estado", ACT);
+
             } else if (values.equals("anulado")) {
                 sql.filter("ed.estado", ANU);
+
             } else if (values.equals("innecesario")) {
                 sql.filter("ed.estado", TEO);
+
             } else if (values.equals("sinperiodo")) {
                 sql.filter("ed.estado", FECH);
+
             } else if (values.equals("cerrado")) {
                 sql.filter("ed.estado", CER);
+
             } else if (values.equals("encuestable")) {
                 sql.in("ed.estado", Arrays.asList(CER, ACT));
+
             } else if (values.equals("encuestado")) {
                 sql.filter("ed.alumnosEncuestados", ">", 0);
+            }
+        }
+
+        for (String key : queries.keySet()) {
+            if (!key.equals("modalidad")) {
+                continue;
+            }
+
+            String values = (String) queries.get(key);
+            if (values.equals("posgrados")) {
+                sql.filter("me.codigo", ModalidadEstudioEnum.EPG);
+
+            } else if (values.equals("pregrados")) {
+                sql.filter("me.codigo", ModalidadEstudioEnum.PRE);
+            }
+        }
+
+        for (String key : queries.keySet()) {
+            if (!key.equals("dictado")) {
+                continue;
+            }
+
+            String values = (String) queries.get(key);
+            if (values.equals("modulares")) {
+                sql.filter("gs.tipoDictado", TipoDictadoGrupoSeccionEnum.MOD);
+                
+            } else if (values.equals("semestrales")) {
+                sql.filter("gs.tipoDictado", TipoDictadoGrupoSeccionEnum.SEM);
             }
         }
 

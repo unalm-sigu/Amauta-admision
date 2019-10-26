@@ -20,6 +20,7 @@ import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
+import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.encuestaestudiantil.ConfiguraEncuesta;
@@ -40,6 +41,8 @@ import static pe.edu.lamolina.model.enums.EncuestaEstudiantilEstadoEnum.ENC;
 import static pe.edu.lamolina.model.enums.EncuestaEstudiantilEstadoEnum.FECH;
 import static pe.edu.lamolina.model.enums.EncuestaEstudiantilEstadoEnum.TEO;
 import static pe.edu.lamolina.model.enums.EncuestaEstudiantilEstadoEnum.PEND;
+import static pe.edu.lamolina.model.enums.TipoDictadoGrupoSeccionEnum.MOD;
+import static pe.edu.lamolina.model.enums.TipoDictadoGrupoSeccionEnum.SEM;
 import pe.edu.lamolina.model.enums.TipoExamenVirtualEnum;
 import pe.edu.lamolina.model.examen.ExamenVirtual;
 import pe.edu.lamolina.model.examen.TipoExamenVirtual;
@@ -130,6 +133,11 @@ public class EncuestaDocenteServiceImp implements EncuestaDocenteService {
             int innecesa = 0;
             int cerrados = 0;
             int sinperio = 0;
+            int posgrados = 0;
+            int pregrados = 0;
+            int modulares = 0;
+            int semestrales = 0;
+
             for (EncuestaDocente encDocente : encDocentes) {
                 switch (encDocente.getEstadoEnum()) {
                     case ACT:
@@ -148,12 +156,30 @@ public class EncuestaDocenteServiceImp implements EncuestaDocenteService {
                         sinperio++;
                         break;
                 }
+                if (encDocente.getModalidadEstudio().isPostgrado()) {
+                    posgrados++;
+                }
+                if (encDocente.getModalidadEstudio().isPregrado()) {
+                    pregrados++;
+                }
+                GrupoSeccion gpoSeccion = encDocente.getDocenteSeccion().getSeccion().getGrupoSeccion();
+                if (gpoSeccion.getTipoDictadoEnum() == MOD) {
+                    modulares++;
+                }
+                if (gpoSeccion.getTipoDictadoEnum() == SEM) {
+                    semestrales++;
+                }
             }
+
             encuesta.setEncuestasActivas(activos);
             encuesta.setEncuestasAnuladas(anulados);
             encuesta.setEncuestasCerradas(cerrados);
             encuesta.setEncuestasInnecesarias(innecesa);
             encuesta.setEncuestasSinPeriodo(sinperio);
+            encuesta.setEncuestasPosgrado(posgrados);
+            encuesta.setEncuestasPregrado(pregrados);
+            encuesta.setEncuestasModulares(modulares);
+            encuesta.setEncuestasSemestrales(semestrales);
         }
 
         return encuesta;

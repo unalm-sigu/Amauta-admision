@@ -1,6 +1,57 @@
 <html layout:decorator="_layout/layout">
     <head>
         <title>Encuesta Docente</title>
+        <style>
+            .circle-recorrido {
+                display: inline-block;
+                min-width: 10px;
+                height: 20px;
+                padding: 3px 7px;
+                font-size: 12px;
+                font-weight: 700;
+                line-height: 1;
+                text-align: center;
+                white-space: nowrap;
+                vertical-align: middle;
+                border-radius: 10px;
+            }
+
+            .circle-recorrido.bgr-success {
+                background-color: #2ECC71;
+                color: #fff;
+            }
+
+            .circle-recorrido.bgr-primary {
+                background-color: #0275D8;
+                color: #fff;
+            }
+
+            .circle-recorrido.bgr-danger {
+                background-color: #E74C3C;
+                color: #fff;
+            }
+
+            .circle-recorrido.bgr-warning {
+                background-color: #F1B41E;
+                color: #fff;
+            }
+
+            .circle-recorrido.bgr-black {
+                background-color: #3C4043;
+                color: #fff;
+            }
+
+            .circle-recorrido.bgr-default {
+                background-color: #EBEDEF;
+                color: #000;
+            }
+            .ver-modalidad {
+                padding-left: 10px;
+                padding-top: 10px;
+                padding-bottom: 10px;
+                width: 100%;
+            }
+        </style>
     </head>
     <body>
 
@@ -47,30 +98,26 @@
                             <div class="col-md-6">
                                 <div class="row">
                                     <div class="col-md-3 text-center" v-bind:class="bgColorClass['activo']">
-                                        <a href="#" class="ver-interesados text-success" v-on:click="verEstados('activo')">
-                                            <div class="h1 block bold m-t-xs m-b-n"
-                                                 id="anulados">{{encuesta.encuestasActivas}}</div>
+                                        <a class="text-success pointer" v-on:click="verEstados('activo')">
+                                            <div class="h1 block bold m-t-xs m-b-n">{{encuesta.encuestasActivas}}</div>
                                             <div class="block m-b-xs m-t">Activos</div>
                                         </a>
                                     </div>
                                     <div class="col-md-3 text-center" v-bind:class="bgColorClass['anulado']">
-                                        <a class="ver-interesados text-muted pointer" v-on:click="verEstados('anulado')">
-                                            <div class="h1 block bold m-t-xs m-b-n"
-                                                 id="interesados">{{encuesta.encuestasAnuladas}}</div>
+                                        <a class="text-muted pointer" v-on:click="verEstados('anulado')">
+                                            <div class="h1 block bold m-t-xs m-b-n">{{encuesta.encuestasAnuladas}}</div>
                                             <div class="block m-b-xs m-t">Anulados</div>
                                         </a>
                                     </div>
                                     <div class="col-md-3 text-center" v-bind:class="bgColorClass['innecesario']">
-                                        <a class="ver-interesados text-warning pointer" v-on:click="verEstados('innecesario')">
-                                            <div class="h1 block bold m-t-xs m-b-n"
-                                                 id="preinscritos">{{encuesta.encuestasInnecesarias}}</div>
+                                        <a class="text-warning pointer" v-on:click="verEstados('innecesario')">
+                                            <div class="h1 block bold m-t-xs m-b-n">{{encuesta.encuestasInnecesarias}}</div>
                                             <div class="block m-b-xs m-t">Innecesarios</div>
                                         </a>
                                     </div>
                                     <div class="col-md-3 text-center" v-bind:class="bgColorClass['sinperiodo']">
-                                        <a class="ver-interesados text-danger pointer" v-on:click="verEstados('sinperiodo')">
-                                            <div class="h1 block bold m-t-xs m-b-n"
-                                                 id="prospectos">{{encuesta.encuestasSinPeriodo}}</div>
+                                        <a class="text-danger pointer" v-on:click="verEstados('sinperiodo')">
+                                            <div class="h1 block bold m-t-xs m-b-n">{{encuesta.encuestasSinPeriodo}}</div>
                                             <div class="block m-b-xs m-t">Sin periodo</div>
                                         </a>
                                     </div>
@@ -80,39 +127,67 @@
                             <div class="col-md-6">
                                 <div class="row">
                                     <div class="col-md-3 text-center" v-bind:class="bgColorClass['cerrado']">
-                                        <a class="ver-interesados text-success pointer" v-on:click="verEstados('cerrado')">
-                                            <div class="h1 block bold m-t-xs m-b-n"
-                                                 id="prospectos">{{encuesta.encuestasCerradas}}</div>
+                                        <a class="text-success pointer" v-on:click="verEstados('cerrado')">
+                                            <div class="h1 block bold m-t-xs m-b-n">{{encuesta.encuestasCerradas}}</div>
                                             <div class="block m-b-xs m-t">Cerrados</div>
                                         </a>
                                     </div>
 
                                     <div class="col-md-3 text-center" v-bind:class="bgColorClass['encuestable']">
-                                        <a class="ver-interesados text-primary pointer" v-on:click="verEstados('encuestable')">
-                                            <div class="h1 block bold m-t-xs m-b-n"
-                                                 id="prospectos">{{encuesta.objetivosEncuesta}}</div>
+                                        <a class="text-primary pointer" v-on:click="verEstados('encuestable')">
+                                            <div class="h1 block bold m-t-xs m-b-n">{{encuesta.objetivosEncuesta}}</div>
                                             <div class="block m-b-xs m-t">Encuestables</div>
                                         </a>
                                     </div>
 
                                     <div class="col-md-3 text-center" v-bind:class="bgColorClass['encuestado']">
-                                        <a class="ver-interesados text-success pointer" v-on:click="verEstados('encuestado')">
-                                            <div class="h1 block bold m-t-xs m-b-n"
-                                                 id="prospectos">{{encuesta.objetivosEncuestados}}</div>
+                                        <a class="text-success pointer" v-on:click="verEstados('encuestado')">
+                                            <div class="h1 block bold m-t-xs m-b-n">{{encuesta.objetivosEncuestados}}</div>
                                             <div class="block m-b-xs m-t">Encuestados</div>
                                         </a>
                                     </div>
 
                                     <div class="col-md-3 text-center">
-                                        <a class="ver-interesados text-warning pointer">
-                                            <div class="h1 block bold m-t-xs m-b-n"
-                                                 id="prospectos">{{cursosNoEncuestar.length}}</div>
+                                        <a class="text-warning pointer">
+                                            <div class="h1 block bold m-t-xs m-b-n">{{cursosNoEncuestar.length}}</div>
                                             <div class="block m-t">Cursos no</div>
                                             <div class="block m-b-xs">encuestar</div>
                                         </a>
                                     </div>
                                 </div>
                             </div>
+
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <div class="ver-modalidad" v-bind:class="bgColorModalidadClass['posgrados']">
+                                        <a class="h4 text-success pointer" v-on:click="verModalidad('posgrados')">
+                                            <div class="circle-recorrido bgr-success">{{encuesta.encuestasPosgrado}}</div> Posgrado
+                                        </a>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="ver-modalidad" v-bind:class="bgColorModalidadClass['pregrados']">
+                                        <a class="h4 text-primary pointer" v-on:click="verModalidad('pregrados')">
+                                            <div class="circle-recorrido bgr-primary">{{encuesta.encuestasPregrado}}</div> Pregrado
+                                        </a>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="ver-modalidad" v-bind:class="bgColorDictadoClass['semestrales']">
+                                        <a class="h4 text-dark pointer" v-on:click="verDictado('semestrales')">
+                                            <div class="circle-recorrido bgr-black">{{encuesta.encuestasSemestrales}}</div> Semestrales
+                                        </a>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="ver-modalidad" v-bind:class="bgColorDictadoClass['modulares']">
+                                        <a class="h4 text-warning pointer" v-on:click="verDictado('modulares')">
+                                            <div class="circle-recorrido bgr-warning">{{encuesta.encuestasModulares}}</div> Modulares
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+
                         </section>
                     </section>
 

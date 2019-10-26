@@ -12,6 +12,10 @@ new Vue({
             encuestasInnecesarias: 0,
             encuestasSinPeriodo: 0,
             encuestasCerradas: 0,
+            encuestasPosgrado: 0,
+            encuestasPregrado: 0,
+            encuestasModulares: 0,
+            encuestasSemestrales: 0,
             objetivosEncuesta: 0,
             objetivosEncuestados: 0,
             cursosNoEncuestar: 0,
@@ -81,8 +85,11 @@ new Vue({
         },
         btnAgregar: false,
         seleccionado: '',
-        bgColorClass: {activo: '', anulado: '', innecesario: '', sinperiodo: '', cerrado: '',
-            encuestable: '', encuestado: ''},
+        modalidadSeleccionada: '',
+        dictadoSeleccionado: '',
+        bgColorClass: {activo: '', anulado: '', innecesario: '', sinperiodo: '', cerrado: '', encuestable: '', encuestado: ''},
+        bgColorModalidadClass: {posgrados: '', pregrados: ''},
+        bgColorDictadoClass: {modulares: '', semestrales: ''},
         encuestaDocente: {},
         configConfirmAction: VUE_MODAL.structConfirm({
             id: "idModalConfirm"
@@ -102,17 +109,43 @@ new Vue({
         }
         $vue.refreshEncuesta();
 
-        let tipo = $vue.$refs.raptorEncu.getParameterByName('queries[ed.estado]');
-        tipo = (tipo == null) ? '' : tipo;
-        if (tipo != '') {
-            $vue.bgColorClass[tipo] = 'bg-light';
-            $vue.seleccionado = tipo;
-            $vue.$refs.raptorEncu.querie.push({name: 'ed.estado', value: tipo});
+        let estadoEncu = $vue.getParameterQuery('estado');
+        if (estadoEncu !== '') {
+            $vue.bgColorClass[estadoEncu] = 'bg-light';
+            $vue.seleccionado = estadoEncu;
+            $vue.$refs.raptorEncu.querie.push({name: 'estado', value: estadoEncu});
         }
+
+        let modalidadEncu = $vue.getParameterQuery('modalidad');
+        if (modalidadEncu !== '') {
+            $vue.bgColorModalidadClass[modalidadEncu] = 'bg-light';
+            $vue.modalidadSeleccionada = modalidadEncu;
+            $vue.$refs.raptorEncu.querie.push({name: 'modalidad', value: modalidadEncu});
+        }
+
+        let dictadoEncu = $vue.getParameterQuery('dictado');
+        if (dictadoEncu !== '') {
+            $vue.bgColorDictadoClass[dictadoEncu] = 'bg-light';
+            $vue.dictadoSeleccionado = dictadoEncu;
+            $vue.$refs.raptorEncu.querie.push({name: 'dictado', value: dictadoEncu});
+        }
+
         $vue.$refs.raptorEncu.repreload();
         $vue.loadResumen();
     },
     methods: {
+        getParameterQuery(param) {
+            let $vue = this;
+            let value = $vue.$refs.raptorEncu.getParameterByName('queries[' + param + ']');
+            value = (value == null) ? '' : value;
+            return value;
+        },
+        setParameterQuery(param, value) {
+            let $vue = this;
+            if (value !== '') {
+                $vue.$refs.raptorEncu.querie.push({name: param, value: value});
+            }
+        },
         loadResumen() {
             let $vue = this;
 
@@ -135,22 +168,7 @@ new Vue({
         },
         refreshEncuesta() {
             let vue = this;
-            axios.post(`/${rutaModulo}/encuestaDocente`)
-                    .then(response => {
-                        if (response.data.success) {
-                            vue.encuesta = response.data.data;
-                            vue.periodosEncuesta = vue.encuesta.periodosEncuesta;
-                            vue.cursosNoEncuestar = vue.encuesta.cursosNoEncuestar;
-                            if (vue.encuesta.configuraEncuesta.length > 0) {
-                                vue.configuraEncuesta = vue.encuesta.configuraEncuesta[0];
-                            } else {
-                                vue.configuraEncuesta = {};
-                            }
-                        }
-                    })
-                    .catch(function (error) {
-                        console.log(error);
-                    });
+            vue.loadResumen();
         },
         configurarEncuesta() {
             let vue = this;
@@ -167,7 +185,6 @@ new Vue({
             if (!(form.parsley().validate() === true)) {
                 return;
             }
-
 
             vue.encuestaForm = {
                 periodosEncuesta: vue.periodosEncuesta,
@@ -544,24 +561,103 @@ new Vue({
                 $vue.bgColorClass[tipo] = 'bg-light';
                 $vue.seleccionado = tipo;
 
-                $vue.$refs.raptorEncu.querie.push({name: 'ed.estado', value: tipo});
+                $vue.$refs.raptorEncu.querie.push({name: 'estado', value: tipo});
                 $vue.$refs.raptorEncu.loadRemoteData();
+                $vue.loadResumen();
 
             } else if ($vue.seleccionado !== '' && $vue.seleccionado !== tipo) {
                 $vue.bgColorClass[$vue.seleccionado] = '';
                 $vue.bgColorClass[tipo] = 'bg-light';
                 $vue.seleccionado = tipo;
 
-                $vue.$refs.raptorEncu.querie.push({name: 'ed.estado', value: tipo});
+                $vue.$refs.raptorEncu.querie.push({name: 'estado', value: tipo});
                 $vue.$refs.raptorEncu.loadRemoteData();
+                $vue.loadResumen();
 
             } else if ($vue.seleccionado !== '' && $vue.seleccionado === tipo) {
                 $vue.bgColorClass[$vue.seleccionado] = '';
                 $vue.seleccionado = '';
 
+                let modalidadEncu = $vue.getParameterQuery('modalidad');
+                let dictadoEncu = $vue.getParameterQuery('dictado');
+
                 $vue.$refs.raptorEncu.querie = [];
-                $vue.$refs.raptorEncu.changeUrl('queries[ed.estado]', null);
+                $vue.$refs.raptorEncu.changeUrl('queries[estado]', null);
+                $vue.setParameterQuery("modalidad", modalidadEncu);
+                $vue.setParameterQuery("dictado", dictadoEncu);
+
                 $vue.$refs.raptorEncu.loadRemoteData();
+                $vue.loadResumen();
+            }
+        },
+        verModalidad(tipo) {
+            let $vue = this;
+            if ($vue.modalidadSeleccionada === '') {
+                $vue.bgColorModalidadClass[tipo] = 'bg-light';
+                $vue.modalidadSeleccionada = tipo;
+
+                $vue.$refs.raptorEncu.querie.push({name: 'modalidad', value: tipo});
+                $vue.$refs.raptorEncu.loadRemoteData();
+                $vue.loadResumen();
+
+            } else if ($vue.modalidadSeleccionada !== '' && $vue.modalidadSeleccionada !== tipo) {
+                $vue.bgColorModalidadClass[$vue.modalidadSeleccionada] = '';
+                $vue.bgColorModalidadClass[tipo] = 'bg-light';
+                $vue.modalidadSeleccionada = tipo;
+
+                $vue.$refs.raptorEncu.querie.push({name: 'modalidad', value: tipo});
+                $vue.$refs.raptorEncu.loadRemoteData();
+                $vue.loadResumen();
+
+            } else if ($vue.modalidadSeleccionada !== '' && $vue.modalidadSeleccionada === tipo) {
+                $vue.bgColorModalidadClass[$vue.modalidadSeleccionada] = '';
+                $vue.modalidadSeleccionada = '';
+
+                let estadoEncu = $vue.getParameterQuery('estado');
+                let dictadoEncu = $vue.getParameterQuery('dictado');
+
+                $vue.$refs.raptorEncu.querie = [];
+                $vue.$refs.raptorEncu.changeUrl('queries[modalidad]', null);
+                $vue.setParameterQuery("estado", estadoEncu);
+                $vue.setParameterQuery("dictado", dictadoEncu);
+
+                $vue.$refs.raptorEncu.loadRemoteData();
+                $vue.loadResumen();
+            }
+        },
+        verDictado(tipo) {
+            let $vue = this;
+            if ($vue.dictadoSeleccionado === '') {
+                $vue.bgColorDictadoClass[tipo] = 'bg-light';
+                $vue.dictadoSeleccionado = tipo;
+
+                $vue.$refs.raptorEncu.querie.push({name: 'dictado', value: tipo});
+                $vue.$refs.raptorEncu.loadRemoteData();
+                $vue.loadResumen();
+
+            } else if ($vue.dictadoSeleccionado !== '' && $vue.dictadoSeleccionado !== tipo) {
+                $vue.bgColorDictadoClass[$vue.dictadoSeleccionado] = '';
+                $vue.bgColorDictadoClass[tipo] = 'bg-light';
+                $vue.dictadoSeleccionado = tipo;
+
+                $vue.$refs.raptorEncu.querie.push({name: 'dictado', value: tipo});
+                $vue.$refs.raptorEncu.loadRemoteData();
+                $vue.loadResumen();
+
+            } else if ($vue.dictadoSeleccionado !== '' && $vue.dictadoSeleccionado === tipo) {
+                $vue.bgColorDictadoClass[$vue.dictadoSeleccionado] = '';
+                $vue.dictadoSeleccionado = '';
+
+                let estadoEncu = $vue.getParameterQuery('estado');
+                let modalidadEncu = $vue.getParameterQuery('modalidad');
+
+                $vue.$refs.raptorEncu.querie = [];
+                $vue.$refs.raptorEncu.changeUrl('queries[dictado]', null);
+                $vue.setParameterQuery("estado", estadoEncu);
+                $vue.setParameterQuery("modalidad", modalidadEncu);
+
+                $vue.$refs.raptorEncu.loadRemoteData();
+                $vue.loadResumen();
             }
         },
         verResultados(item) {
