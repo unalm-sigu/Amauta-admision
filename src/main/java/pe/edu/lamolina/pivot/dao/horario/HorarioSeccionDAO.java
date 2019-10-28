@@ -7,6 +7,7 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.Seccion;
+import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.horario.Hora;
@@ -40,6 +41,6 @@ public interface HorarioSeccionDAO extends EasyDAO<HorarioSeccion> {
 
     List<HorarioSeccion> allByCicloOrderByDiaHora(CicloAcademico cicloAcademico);
 
-    List<HorarioSeccion> allByAulaCiclo(Aula aula, CicloAcademico cicloAcademico);
+    List<HorarioSeccion> allByAulaCiclo(Aula aula, OficinaEnum oficinaEnum, CicloAcademico cicloAcademico);
 
 }

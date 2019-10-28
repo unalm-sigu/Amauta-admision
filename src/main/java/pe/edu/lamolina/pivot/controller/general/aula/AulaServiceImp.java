@@ -514,10 +514,10 @@ public class AulaServiceImp implements AulaService {
     @Override
     public List<HorarioAula> allHorariosAulaByCiclo(CicloAcademico cicloAcademico, Aula aula) {
 
-        List<HorarioSeccion> horariosSecciones = horarioSeccionDAO.allByAulaCiclo(aula, cicloAcademico);
+        List<HorarioSeccion> horariosSecciones = horarioSeccionDAO.allByAulaCiclo(aula, OficinaEnum.OERA, cicloAcademico);
 
         //    List<HorarioAula> horariosAulasByCiclo = horarioAulaDAO.allByCicloAndTipoHorario(cicloAcademico, aula, TipoHorarioAulaEnum.DICT);
-        List<DocenteSeccion> docentesSeccionesByCiclo = docenteSeccionDAO.allByCicloAula(cicloAcademico, aula, EstadoEnum.ACT);
+        List<DocenteSeccion> docentesSeccionesByCiclo = docenteSeccionDAO.allByCicloAula(cicloAcademico, aula, OficinaEnum.OERA, EstadoEnum.ACT);
         docentesSeccionesByCiclo = docentesSeccionesByCiclo.stream()
                 .filter(x -> x.esDocentePrincipal())
                 .collect(Collectors.toList());
@@ -530,6 +530,7 @@ public class AulaServiceImp implements AulaService {
                         eventoDictado.getFechaInicio(),
                         eventoDictado.getFechaFin(),
                         aula,
+                        OficinaEnum.OERA,
                         TipoHorarioAulaEnum.RESERV);
 
         horariosAulasReservas.removeIf(x -> x.getReservaAula() != null && Boolean.FALSE.equals(x.getReservaAula().getVisibleHorario()));
@@ -539,11 +540,12 @@ public class AulaServiceImp implements AulaService {
             if (seccion == null) {
                 continue;
             }
-            List<DocenteSeccion> docentesSecciones = mapDocenteSeccionBySeccion.get(seccion.getId());
+            List<DocenteSeccion> docentesSecciones = TypesUtil.getListNotNull(mapDocenteSeccionBySeccion.get(seccion.getId()));
             seccion.setDocenteSeccion(docentesSecciones);
         }
+
         for (HorarioSeccion hs : horariosSecciones) {
-            HorarioAula ha = new HorarioAula(hs.getSeccion(), hs.getDia(), hs.getHora(), aula);
+            HorarioAula ha = new HorarioAula(hs.getSeccion(), hs.getDia(), hs.getHora(), hs.getAula());
             ha.setFechaInicio(hs.getFechaInicio());
             ha.setFechaFin(hs.getFechaFin());
             horariosAulasReservas.add(ha);

@@ -544,10 +544,23 @@ public class AulaController {
 
         List<Dia> dias = service.allDia();
         List<Hora> horas = service.allHorasHorario();
-        List<Aula> aulas = new ArrayList();
-        aulas.add(aulaBD);
-
         List<DiaHoraGrupo> diasHorasGruposByCiclo = service.allDiaHoraGrupoByCicloRegular(ds.getCicloAcademico());
+
+        List<Aula> aulas = horariosAulas.stream()
+                .map(x -> x.getAula())
+                .distinct().collect(Collectors.toList());
+
+        if (aulas.size() > 1) {
+            aulas = aulas.stream()
+                    .filter(x -> x.getOficinaSupervisora().isOficinaOera())
+                    .collect(Collectors.toList());
+
+            try {
+                Collections.sort(aulas, (x1, x2) -> TypesUtil.getInt(x1.getCodigo(), -1).compareTo(TypesUtil.getInt(x2.getCodigo(), -1)));
+            } catch (Exception e) {
+                logger.error("Error", e);
+            }
+        }
 
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
         model.addAttribute("aulas", aulas);
