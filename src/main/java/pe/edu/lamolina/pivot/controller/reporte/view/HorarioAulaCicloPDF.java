@@ -68,9 +68,9 @@ public class HorarioAulaCicloPDF extends AbstractOnlyPdfView {
     @Override
     protected void buildPdfMetadata(Map<String, Object> model, Document document, HttpServletRequest request) {
 
-        document.addAuthor("La Molina");
+        document.addAuthor("Albatross Cloud");
         document.addCreationDate();
-        document.addCreator("Amauta");
+        document.addCreator("Albatross Cloud");
         document.addTitle(this.title);
         document.addSubject("");
         document.setPageSize(PageSize.A4.rotate());

@@ -207,7 +207,7 @@ public class HorarioAulaDAOH extends AbstractEasyDAO<HorarioAula> implements Hor
         return all(sql);
     }
 
-    @Override
+    //@Override
     public List<HorarioAula> allByFechas(Date fechainicio, Date fechafin, List<Aula> aulas, OficinaEnum oficinaEnum, TipoHorarioAulaEnum... tipoHorarioAulaEnum) {
         Octavia sql = Octavia.query()
                 .from(HorarioAula.class, "ha")

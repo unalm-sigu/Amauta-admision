@@ -520,10 +520,11 @@ public class AulaServiceImp implements AulaService {
         Map<Long, List<DocenteSeccion>> docentesSeccionBySeccion = TypesUtil.convertListToMapList("seccion.id", docentesSeccionesByCiclo);
 
         EventoCicloAcademico eventoDictado = eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(cicloAcademico, EventoAcademicoEnum.CLASES_PRE);
-        List<HorarioAula> horariosAulasReservas = horarioAulaDAO.allByFechas(
-                eventoDictado.getFechaInicio(), eventoDictado.getFechaFin(),
-                aula != null ? Arrays.asList(aula) : null,
-                OficinaEnum.OERA, TipoHorarioAulaEnum.RESERV, TipoHorarioAulaEnum.DICT);
+        List<HorarioAula> horariosAulasReservas = null;
+//        horarioAulaDAO.allByFechas(
+//                eventoDictado.getFechaInicio(), eventoDictado.getFechaFin(),
+//                aula != null ? Arrays.asList(aula) : null,
+//                OficinaEnum.OERA, TipoHorarioAulaEnum.RESERV, TipoHorarioAulaEnum.DICT);
         horariosAulasReservas.removeIf(x -> x.getReservaAula() != null && Boolean.FALSE.equals(x.getReservaAula().getVisibleHorario()));
 
         for (HorarioAula horarioAula : horariosAulasReservas) {
