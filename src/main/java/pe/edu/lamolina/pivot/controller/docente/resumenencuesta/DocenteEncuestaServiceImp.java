@@ -306,7 +306,7 @@ public class DocenteEncuestaServiceImp implements DocenteEncuestaService {
                 encuesta.getConfiguraEncuesta().add(cfg);
             }
             encuesta.setCursosNoEncuestar(cursoSinEncuestaDAO.allByEncuestaEstudiantil(encuesta));
-            List<EncuestaDocente> encDocentes = encuestaDocenteDAO.allByEncuestaEstudiantil(encuesta);
+            List<EncuestaDocente> encDocentes = encuestaDocenteDAO.allByEncuestaEstudiantil(encuesta, new ArrayList());
             int activos = 0;
             int anulados = 0;
             int innecesa = 0;

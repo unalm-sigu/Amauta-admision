@@ -7,7 +7,10 @@ import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.Facultad;
+import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.EnteAcademicoEstadoEnum;
 import pe.edu.lamolina.model.general.Compania;
@@ -88,4 +91,34 @@ public class FacultadDAOH extends AbstractEasyDAO<Facultad> implements FacultadD
 
         return find(sql);
     }
+
+    @Override
+    public List<Facultad> allFromDocentesByCiclo(CicloAcademico cicloAcademico) {
+        Octavia sql = Octavia.query()
+                .selectDistinct("fac")
+                .from(DocenteSeccion.class, "ds")
+                .join("seccion sec", "sec.grupoSeccion gs", "gs.cicloAcademico cic")
+                .join("ds.docente doc", "doc.departamentoAcademico da", "da.facultad fac")
+                .filter("cic.id", cicloAcademico)
+                .filter("ds.estado", EstadoEnum.ACT)
+                .filter("sec.estado", EstadoEnum.ACT)
+                .orderBy("fac.nombre");
+
+        return all(sql);
+    }
+
+    @Override
+    public List<Facultad> allFromCursosByCiclo(CicloAcademico cicloAcademico) {
+        Octavia sql = Octavia.query()
+                .selectDistinct("fac")
+                .from(Seccion.class, "sec")
+                .join("grupoSeccion gs", "gs.cicloAcademico cic")
+                .join("gs.curso cur", "cur.departamentoAcademico da", "da.facultad fac")
+                .filter("cic.id", cicloAcademico)
+                .filter("estado", EstadoEnum.ACT)
+                .orderBy("fac.nombre");
+
+        return all(sql);
+    }
+
 }

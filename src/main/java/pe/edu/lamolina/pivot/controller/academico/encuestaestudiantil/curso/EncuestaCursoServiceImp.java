@@ -18,7 +18,9 @@ import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
+import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
+import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.encuestaestudiantil.ConfiguraEncuesta;
@@ -29,14 +31,18 @@ import pe.edu.lamolina.model.encuestaestudiantil.EncuestaEstudiantil;
 import pe.edu.lamolina.model.encuestaestudiantil.PeriodoEncuesta;
 import pe.edu.lamolina.model.enums.EncuestaEstadoEnum;
 import pe.edu.lamolina.model.enums.EncuestaEstudiantilEstadoEnum;
+import static pe.edu.lamolina.model.enums.TipoDictadoGrupoSeccionEnum.MOD;
+import static pe.edu.lamolina.model.enums.TipoDictadoGrupoSeccionEnum.SEM;
 import pe.edu.lamolina.model.enums.TipoExamenVirtualEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 import pe.edu.lamolina.model.examen.ExamenVirtual;
 import pe.edu.lamolina.model.examen.TipoExamenVirtual;
 import pe.edu.lamolina.pivot.dao.academico.CursoDAO;
+import pe.edu.lamolina.pivot.dao.academico.DepartamentoAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.DocenteDAO;
 import pe.edu.lamolina.pivot.dao.academico.DocenteSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.EventoCicloAcademicoDAO;
+import pe.edu.lamolina.pivot.dao.academico.FacultadDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.ModalidadEstudioDAO;
 import pe.edu.lamolina.pivot.dao.academico.SeccionDAO;
@@ -88,12 +94,16 @@ public class EncuestaCursoServiceImp implements EncuestaCursoService {
     GeneradorEncuestaCursoService generadorEncuestaCursoService;
     @Autowired
     CursoDAO cursoDAO;
+    @Autowired
+    FacultadDAO facultadDAO;
+    @Autowired
+    DepartamentoAcademicoDAO departamentoAcademicoDAO;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
-    public List<EncuestaCurso> allEncuestaCurso(DynatableFilter filter, CicloAcademico ciclo) {
-        List<EncuestaCurso> encuestas = encuestaCursoDAO.allByDynatable(filter, ciclo);
+    public List<EncuestaCurso> allEncuestaCurso(DynatableFilter filter, CicloAcademico ciclo, boolean noEsSimultaneo) {
+        List<EncuestaCurso> encuestas = encuestaCursoDAO.allByDynatable(filter, ciclo, noEsSimultaneo);
         Map<Long, List<EncuestaCurso>> mapEncuestas = TypesUtil.convertListToMapList("grupoSeccion.id", encuestas);
 
         List<GrupoSeccion> gpoSecciones = new ArrayList();
@@ -156,7 +166,7 @@ public class EncuestaCursoServiceImp implements EncuestaCursoService {
     }
 
     @Override
-    public EncuestaEstudiantil findEncuestaCurso(CicloAcademico cicloAcademico) {
+    public EncuestaEstudiantil findEncuestaCursoWithResumen(CicloAcademico cicloAcademico) {
         TipoExamenVirtual tipoEncuesta = tipoExamenVirtualDAO.findByEnum(TipoExamenVirtualEnum.ENC_CUR);
         ExamenVirtual encuestaModelo = examenVirtualDAO.findEncuestaActivaByTipo(tipoEncuesta);
         EncuestaEstudiantil encuesta = null;
@@ -174,24 +184,31 @@ public class EncuestaCursoServiceImp implements EncuestaCursoService {
         if (encuesta.getId() != null) {
             encuesta.setPeriodosEncuesta(periodoEncuestaDAO.allByEncuesta(encuesta));
             ConfiguraEncuesta cfg = configuraEncuestaDAO.findByEncuesta(encuesta);
+            boolean esSimultaneo = false;
             if (cfg != null) {
                 if (cfg.getSimultaneo() == 1) {
                     TipoExamenVirtual tipoEncuestaDoc = tipoExamenVirtualDAO.findByEnum(TipoExamenVirtualEnum.ENC_DOC);
                     ExamenVirtual encuestaModeloDoc = examenVirtualDAO.findEncuestaActivaByTipo(tipoEncuestaDoc);
                     EncuestaEstudiantil encuestaDoc = encuestaEstudiantilDAO.findByCicloEncuesta(cicloAcademico, encuestaModeloDoc);
                     cfg = configuraEncuestaDAO.findByEncuesta(encuestaDoc);
+                    esSimultaneo = true;
                 }
                 encuesta.getConfiguraEncuesta().add(cfg);
             }
             encuesta.setCursosNoEncuestar(cursoSinEncuestaDAO.allByEncuestaEstudiantil(encuesta));
-            List<EncuestaCurso> encCursos = encuestaCursoDAO.allByEncuestaEstudiantil(encuesta);
+            List<EncuestaCurso> encCursos = encuestaCursoDAO.allByEncuestaEstudiantil(encuesta, esSimultaneo);
             int activos = 0;
             int anulados = 0;
             int innecesa = 0;
             int cerrados = 0;
             int sinperio = 0;
-            for (EncuestaCurso enCurso : encCursos) {
-                switch (enCurso.getEstadoEnum()) {
+            int posgrados = 0;
+            int pregrados = 0;
+            int modulares = 0;
+            int semestrales = 0;
+
+            for (EncuestaCurso encCurso : encCursos) {
+                switch (encCurso.getEstadoEnum()) {
                     case ACT:
                         activos++;
                         break;
@@ -208,12 +225,36 @@ public class EncuestaCursoServiceImp implements EncuestaCursoService {
                         sinperio++;
                         break;
                 }
+                if (encCurso.getModalidadEstudio().isPostgrado()) {
+                    posgrados++;
+                }
+                if (encCurso.getModalidadEstudio().isPregrado()) {
+                    pregrados++;
+                }
+
+                GrupoSeccion gpoSeccion;
+                if (esSimultaneo) {
+                    gpoSeccion = encCurso.getEncuestaDocente().getDocenteSeccion().getSeccion().getGrupoSeccion();
+                } else {
+                    gpoSeccion = encCurso.getGrupoSeccion();
+                }
+
+                if (gpoSeccion.getTipoDictadoEnum() == MOD) {
+                    modulares++;
+                }
+                if (gpoSeccion.getTipoDictadoEnum() == SEM) {
+                    semestrales++;
+                }
             }
             encuesta.setEncuestasActivas(activos);
             encuesta.setEncuestasAnuladas(anulados);
             encuesta.setEncuestasCerradas(cerrados);
             encuesta.setEncuestasInnecesarias(innecesa);
             encuesta.setEncuestasSinPeriodo(sinperio);
+            encuesta.setEncuestasPosgrado(posgrados);
+            encuesta.setEncuestasPregrado(pregrados);
+            encuesta.setEncuestasModulares(modulares);
+            encuesta.setEncuestasSemestrales(semestrales);
         }
 
         return encuesta;
@@ -346,7 +387,13 @@ public class EncuestaCursoServiceImp implements EncuestaCursoService {
         if (encuestaDB == null) {
             throw new PhobosException("La encuesta no existe");
         }
-        List<EncuestaCurso> encuestasCur = encuestaCursoDAO.allByEncuestaEstudiantil(encuestaDB);
+        ConfiguraEncuesta cfg = configuraEncuestaDAO.findByEncuesta(encuesta);
+        boolean esSimultaneo = false;
+        if (cfg != null) {
+            esSimultaneo = (cfg.getSimultaneo() == 1);
+        }
+
+        List<EncuestaCurso> encuestasCur = encuestaCursoDAO.allByEncuestaEstudiantil(encuestaDB, esSimultaneo);
 
         encuestaAlumnoDAO.deleteByEncuestasCursos(encuestasCur);
         encuestaCursoDAO.deleteByEncuestaTipoCurso(encuesta);
@@ -387,6 +434,16 @@ public class EncuestaCursoServiceImp implements EncuestaCursoService {
             return null;
         }
         return configuraEncuestaDAO.findByEncuesta(encuesta);
+    }
+
+    @Override
+    public List<Facultad> allFacultadesFromCursos(CicloAcademico cicloAcademico) {
+        return facultadDAO.allFromCursosByCiclo(cicloAcademico);
+    }
+
+    @Override
+    public List<DepartamentoAcademico> allDepartamentosFromCursos(CicloAcademico cicloAcademico) {
+        return departamentoAcademicoDAO.allFromCursosByCiclo(cicloAcademico);
     }
 
 }

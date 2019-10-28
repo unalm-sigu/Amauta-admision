@@ -10,18 +10,23 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.encuestaestudiantil.EncuestaDocente;
 import pe.edu.lamolina.model.encuestaestudiantil.EncuestaEstudiantil;
+import pe.edu.lamolina.model.enums.EncuestaEstadoEnum;
+import pe.edu.lamolina.model.enums.EncuestaEstudiantilEstadoEnum;
 import static pe.edu.lamolina.model.enums.EncuestaEstudiantilEstadoEnum.CER;
 import static pe.edu.lamolina.model.enums.EncuestaEstudiantilEstadoEnum.FECH;
 import static pe.edu.lamolina.model.enums.EncuestaEstudiantilEstadoEnum.ACT;
 import static pe.edu.lamolina.model.enums.EncuestaEstudiantilEstadoEnum.ANU;
 import static pe.edu.lamolina.model.enums.EncuestaEstudiantilEstadoEnum.TEO;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
+import static pe.edu.lamolina.model.enums.RolEnum.DOC;
 import pe.edu.lamolina.model.enums.TipoDictadoGrupoSeccionEnum;
+import pe.edu.lamolina.model.seguridad.Rol;
 import pe.edu.lamolina.pivot.dao.encuesta.EncuestaDocenteDAO;
 
 @Repository
@@ -62,20 +67,28 @@ public class EncuestaDocenteDAOH extends AbstractEasyDAO<EncuestaDocente> implem
     }
 
     @Override
-    public List<EncuestaDocente> allByDynatable(DynatableFilter filter, CicloAcademico ciclo) {
+    public List<EncuestaDocente> allByDynatable(DynatableFilter filter, CicloAcademico ciclo, List<DepartamentoAcademico> departamentos, Docente docente) {
         DynatableSql sql = new DynatableSql(filter)
                 .from(EncuestaDocente.class, "ed")
                 .join("encuestaEstudiantil ee", "ee.encuesta en", "ee.cicloAcademico ciclo")
                 .join("docenteSeccion ds", "ds.docente doc", "doc.persona per")
                 .join("ds.seccion sec", "sec.grupoSeccion gs", "gs.curso cur")
-                .join("cur.departamentoAcademico da", "da.facultad fa")
+                .join("doc.departamentoAcademico da", "da.facultad fa")
                 .join("modalidadEstudio me")
                 .leftJoin("per.tipoDocumento tdoc", "sec.grupoHoras gh")
                 .filter("ciclo.id", ciclo)
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                 .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
-                .searchFields("da.nombre", "cur.nombre", "cur.codigo", "fa.nombre", "sec.codigo2", "gh.codigo", "doc.codigo")
+                .searchFields("cur.nombre", "cur.codigo", "sec.codigo2", "gh.codigo", "doc.codigo")
                 .orderBy("ed.id DESC");
+
+        if (docente != null) {
+            sql.filter("ee.estado", EncuestaEstadoEnum.ACT);
+            sql.filter("doc.id", docente);
+
+        } else if (!departamentos.isEmpty()) {
+            sql.in("da.id", departamentos);
+        }
 
         sql.beginRelativeFilters();
         setCondicionEstado(filter, sql);
@@ -139,16 +152,33 @@ public class EncuestaDocenteDAOH extends AbstractEasyDAO<EncuestaDocente> implem
             String values = (String) queries.get(key);
             if (values.equals("modulares")) {
                 sql.filter("gs.tipoDictado", TipoDictadoGrupoSeccionEnum.MOD);
-                
+
             } else if (values.equals("semestrales")) {
                 sql.filter("gs.tipoDictado", TipoDictadoGrupoSeccionEnum.SEM);
             }
         }
 
+        for (String key : queries.keySet()) {
+            if (!key.equals("facultad")) {
+                continue;
+            }
+
+            String values = (String) queries.get(key);
+            sql.filter("fa.id", values);
+        }
+        for (String key : queries.keySet()) {
+            if (!key.equals("departamento")) {
+                continue;
+            }
+
+            String values = (String) queries.get(key);
+            sql.filter("da.id", values);
+        }
+
     }
 
     @Override
-    public List<EncuestaDocente> allByEncuestaEstudiantil(EncuestaEstudiantil encuestaEstudiantil) {
+    public List<EncuestaDocente> allByEncuestaEstudiantil(EncuestaEstudiantil encuestaEstudiantil, List<DepartamentoAcademico> departamentos) {
         Octavia sql = Octavia.query()
                 .from(EncuestaDocente.class, "ed")
                 .join("encuestaEstudiantil ee", "ee.encuesta en", "ee.cicloAcademico ciclo")
@@ -157,6 +187,11 @@ public class EncuestaDocenteDAOH extends AbstractEasyDAO<EncuestaDocente> implem
                 .join("cur.departamentoAcademico da", "da.facultad")
                 .leftJoin("per.tipoDocumento tdoc")
                 .filter("ee.id", encuestaEstudiantil);
+
+        if (!departamentos.isEmpty()) {
+            sql.in("da.id", departamentos);
+        }
+
         return all(sql);
     }
 

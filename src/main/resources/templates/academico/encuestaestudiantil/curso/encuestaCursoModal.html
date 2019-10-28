@@ -165,3 +165,30 @@
 
     </div>
 </modal-vik>
+
+<modal-vik ref="modalVerDocentes"
+           v-bind="cfgVerDocentes">
+    <div slot="body">
+        <h4 class="m-b">Docentes relacionados a este grupo</h4>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Sección</th>
+                    <th>Principal</th>
+                    <th>Docente</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="docSecc in docentesSecciones">
+                    <td>{{docSecc.seccion.codigo2}}</td>
+                    <td v-if="docSecc.seccion.tipoSeccion != 'PCUR' ">
+                        <i class="fa fa-check" v-if="docSecc.principal==1"></i>
+                    </td>
+                    <td v-else=""></td>
+                    <td>{{docSecc.docente.persona.apellidosNombres}}</td>
+                </tr>
+            </tbody>
+        </table>
+
+    </div>
+</modal-vik>

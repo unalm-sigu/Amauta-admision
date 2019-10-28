@@ -9,9 +9,9 @@ import pe.edu.lamolina.model.encuestaestudiantil.EncuestaEstudiantil;
 
 public interface EncuestaCursoDAO extends EasyDAO<EncuestaCurso> {
 
-    List<EncuestaCurso> allByDynatable(DynatableFilter filter, CicloAcademico cicloAcademico);
+    List<EncuestaCurso> allByDynatable(DynatableFilter filter, CicloAcademico cicloAcademico, boolean noEsSimultaneo);
 
-    List<EncuestaCurso> allByEncuestaEstudiantil(EncuestaEstudiantil encuestaEstudiantil);
+    List<EncuestaCurso> allByEncuestaEstudiantil(EncuestaEstudiantil encuestaEstudiantil, boolean esSimultaneo);
 
     EncuestaCurso findEncuestaCurso(EncuestaCurso encuestaForm);
 

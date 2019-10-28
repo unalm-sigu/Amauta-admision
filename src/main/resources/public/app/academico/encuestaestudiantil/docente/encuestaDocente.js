@@ -97,7 +97,12 @@ new Vue({
         cfgDesactivarEncu: VUE_MODAL.structFormAjax({
             id: "idModalDesactivarEncu",
             form: "formDesactivarEncu"
-        })
+        }),
+        facultad: null,
+        departamento: null,
+        facultades: JSON.parse(facultadesJson),
+        departamentos: JSON.parse(departamentosJson),
+        departamentosVer: JSON.parse(departamentosJson),
     },
     mounted: function () {
         let $vue = this;
@@ -107,29 +112,43 @@ new Vue({
                 $vue.refreshProgresoEncuesta();
             }, 1000);
         }
-        $vue.refreshEncuesta();
 
         let estadoEncu = $vue.getParameterQuery('estado');
         if (estadoEncu !== '') {
             $vue.bgColorClass[estadoEncu] = 'bg-light';
             $vue.seleccionado = estadoEncu;
-            $vue.$refs.raptorEncu.querie.push({name: 'estado', value: estadoEncu});
         }
 
         let modalidadEncu = $vue.getParameterQuery('modalidad');
         if (modalidadEncu !== '') {
             $vue.bgColorModalidadClass[modalidadEncu] = 'bg-light';
             $vue.modalidadSeleccionada = modalidadEncu;
-            $vue.$refs.raptorEncu.querie.push({name: 'modalidad', value: modalidadEncu});
         }
 
         let dictadoEncu = $vue.getParameterQuery('dictado');
         if (dictadoEncu !== '') {
             $vue.bgColorDictadoClass[dictadoEncu] = 'bg-light';
             $vue.dictadoSeleccionado = dictadoEncu;
-            $vue.$refs.raptorEncu.querie.push({name: 'dictado', value: dictadoEncu});
         }
 
+        let fac = $vue.getParameterQuery('facultad');
+        if (fac !== '') {
+            for (var i = 0; i < $vue.facultades.length; i++) {
+                if (fac == $vue.facultades[i].id) {
+                    $vue.facultad = $vue.facultades[i];
+                }
+            }
+        }
+        let dep = $vue.getParameterQuery('departamento');
+        if (dep !== '') {
+            for (var i = 0; i < $vue.departamentos.length; i++) {
+                if (dep == $vue.departamentos[i].id) {
+                    $vue.departamento = $vue.departamentos[i];
+                }
+            }
+        }
+
+        $vue.loadRaptorAllParam();
         $vue.$refs.raptorEncu.repreload();
         $vue.loadResumen();
     },
@@ -145,6 +164,81 @@ new Vue({
             if (value !== '') {
                 $vue.$refs.raptorEncu.querie.push({name: param, value: value});
             }
+        },
+        clearFacultad(qwe) {
+            let $vue = this;
+            console.log(qwe)
+            $vue.facultad = null;
+            $vue.departamentosVer = JSON.parse(JSON.stringify($vue.departamentos));
+
+            $vue.loadRaptorAllParam();
+            $vue.$refs.raptorEncu.loadRemoteData(true);
+            $vue.loadResumen();
+        },
+        clearDepartamento(qwe) {
+            let $vue = this;
+            console.log(qwe)
+            $vue.departamento = null;
+
+            $vue.loadRaptorAllParam();
+            $vue.$refs.raptorEncu.loadRemoteData(true);
+            $vue.loadResumen();
+        },
+        loadEncuByFacultad(item) {
+            let $vue = this;
+            let existeDpto = $vue.departamento !== null;
+            let existeDentroFac = false;
+            $vue.departamentosVer = [];
+            for (var i = 0; i < $vue.departamentos.length; i++) {
+                if ($vue.departamentos[i].facultad.id === item.id) {
+                    $vue.departamentosVer.push($vue.departamentos[i]);
+                    if (existeDpto) {
+                        if ($vue.departamento.id === $vue.departamentos[i].id) {
+                            existeDentroFac = true;
+                        }
+                    }
+                }
+            }
+            if (existeDpto && !existeDentroFac) {
+                $vue.departamento = null;
+            }
+
+            $vue.loadRaptorAllParam();
+            $vue.$refs.raptorEncu.loadRemoteData(true);
+            $vue.loadResumen();
+
+        },
+        loadEncuByDepartamento(item) {
+            let $vue = this;
+            $vue.loadRaptorAllParam();
+            $vue.$refs.raptorEncu.loadRemoteData(true);
+            $vue.loadResumen();
+        },
+        loadRaptorAllParam() {
+            let $vue = this;
+            let estadoEncu = $vue.getParameterQuery('estado');
+            let modalidadEncu = $vue.getParameterQuery('modalidad');
+            let dictadoEncu = $vue.getParameterQuery('dictado');
+
+            $vue.$refs.raptorEncu.querie = [];
+            $vue.$refs.raptorEncu.changeUrl('queries[estado]', null);
+            $vue.$refs.raptorEncu.changeUrl('queries[modalidad]', null);
+            $vue.$refs.raptorEncu.changeUrl('queries[dictado]', null);
+            $vue.$refs.raptorEncu.changeUrl('queries[facultad]', null);
+            $vue.$refs.raptorEncu.changeUrl('queries[departamento]', null);
+
+            $vue.setParameterQuery("estado", estadoEncu);
+            $vue.setParameterQuery("modalidad", modalidadEncu);
+            $vue.setParameterQuery("dictado", dictadoEncu);
+
+            if ($vue.facultad !== null) {
+                $vue.setParameterQuery("facultad", $vue.facultad.id);
+            }
+            if ($vue.departamento !== null) {
+                $vue.setParameterQuery("departamento", $vue.departamento.id);
+            }
+
+
         },
         loadResumen() {
             let $vue = this;
@@ -562,7 +656,7 @@ new Vue({
                 $vue.seleccionado = tipo;
 
                 $vue.$refs.raptorEncu.querie.push({name: 'estado', value: tipo});
-                $vue.$refs.raptorEncu.loadRemoteData();
+                $vue.$refs.raptorEncu.loadRemoteData(true);
                 $vue.loadResumen();
 
             } else if ($vue.seleccionado !== '' && $vue.seleccionado !== tipo) {
@@ -571,22 +665,16 @@ new Vue({
                 $vue.seleccionado = tipo;
 
                 $vue.$refs.raptorEncu.querie.push({name: 'estado', value: tipo});
-                $vue.$refs.raptorEncu.loadRemoteData();
+                $vue.$refs.raptorEncu.loadRemoteData(true);
                 $vue.loadResumen();
 
             } else if ($vue.seleccionado !== '' && $vue.seleccionado === tipo) {
                 $vue.bgColorClass[$vue.seleccionado] = '';
                 $vue.seleccionado = '';
-
-                let modalidadEncu = $vue.getParameterQuery('modalidad');
-                let dictadoEncu = $vue.getParameterQuery('dictado');
-
-                $vue.$refs.raptorEncu.querie = [];
                 $vue.$refs.raptorEncu.changeUrl('queries[estado]', null);
-                $vue.setParameterQuery("modalidad", modalidadEncu);
-                $vue.setParameterQuery("dictado", dictadoEncu);
 
-                $vue.$refs.raptorEncu.loadRemoteData();
+                $vue.loadRaptorAllParam();
+                $vue.$refs.raptorEncu.loadRemoteData(true);
                 $vue.loadResumen();
             }
         },
@@ -597,7 +685,7 @@ new Vue({
                 $vue.modalidadSeleccionada = tipo;
 
                 $vue.$refs.raptorEncu.querie.push({name: 'modalidad', value: tipo});
-                $vue.$refs.raptorEncu.loadRemoteData();
+                $vue.$refs.raptorEncu.loadRemoteData(true);
                 $vue.loadResumen();
 
             } else if ($vue.modalidadSeleccionada !== '' && $vue.modalidadSeleccionada !== tipo) {
@@ -606,22 +694,16 @@ new Vue({
                 $vue.modalidadSeleccionada = tipo;
 
                 $vue.$refs.raptorEncu.querie.push({name: 'modalidad', value: tipo});
-                $vue.$refs.raptorEncu.loadRemoteData();
+                $vue.$refs.raptorEncu.loadRemoteData(true);
                 $vue.loadResumen();
 
             } else if ($vue.modalidadSeleccionada !== '' && $vue.modalidadSeleccionada === tipo) {
                 $vue.bgColorModalidadClass[$vue.modalidadSeleccionada] = '';
                 $vue.modalidadSeleccionada = '';
-
-                let estadoEncu = $vue.getParameterQuery('estado');
-                let dictadoEncu = $vue.getParameterQuery('dictado');
-
-                $vue.$refs.raptorEncu.querie = [];
                 $vue.$refs.raptorEncu.changeUrl('queries[modalidad]', null);
-                $vue.setParameterQuery("estado", estadoEncu);
-                $vue.setParameterQuery("dictado", dictadoEncu);
 
-                $vue.$refs.raptorEncu.loadRemoteData();
+                $vue.loadRaptorAllParam();
+                $vue.$refs.raptorEncu.loadRemoteData(true);
                 $vue.loadResumen();
             }
         },
@@ -632,7 +714,7 @@ new Vue({
                 $vue.dictadoSeleccionado = tipo;
 
                 $vue.$refs.raptorEncu.querie.push({name: 'dictado', value: tipo});
-                $vue.$refs.raptorEncu.loadRemoteData();
+                $vue.$refs.raptorEncu.loadRemoteData(true);
                 $vue.loadResumen();
 
             } else if ($vue.dictadoSeleccionado !== '' && $vue.dictadoSeleccionado !== tipo) {
@@ -641,22 +723,16 @@ new Vue({
                 $vue.dictadoSeleccionado = tipo;
 
                 $vue.$refs.raptorEncu.querie.push({name: 'dictado', value: tipo});
-                $vue.$refs.raptorEncu.loadRemoteData();
+                $vue.$refs.raptorEncu.loadRemoteData(true);
                 $vue.loadResumen();
 
             } else if ($vue.dictadoSeleccionado !== '' && $vue.dictadoSeleccionado === tipo) {
                 $vue.bgColorDictadoClass[$vue.dictadoSeleccionado] = '';
                 $vue.dictadoSeleccionado = '';
-
-                let estadoEncu = $vue.getParameterQuery('estado');
-                let modalidadEncu = $vue.getParameterQuery('modalidad');
-
-                $vue.$refs.raptorEncu.querie = [];
                 $vue.$refs.raptorEncu.changeUrl('queries[dictado]', null);
-                $vue.setParameterQuery("estado", estadoEncu);
-                $vue.setParameterQuery("modalidad", modalidadEncu);
 
-                $vue.$refs.raptorEncu.loadRemoteData();
+                $vue.loadRaptorAllParam();
+                $vue.$refs.raptorEncu.loadRemoteData(true);
                 $vue.loadResumen();
             }
         },

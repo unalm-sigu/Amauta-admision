@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.List;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,10 +23,13 @@ import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.DepartamentoAcademico;
+import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.encuestaestudiantil.EncuestaDocente;
 import pe.edu.lamolina.model.encuestaestudiantil.EncuestaEstudiantil;
 import pe.edu.lamolina.model.encuestaestudiantil.PuntajeEncuestaDocente;
 import pe.edu.lamolina.model.encuestaestudiantil.ResumenEncuestaDocente;
+import pe.edu.lamolina.pivot.controller.seguridad.verificador.VerificadorService;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -35,33 +39,68 @@ public class EncuestaDocenteController {
 
     @Autowired
     EncuestaDocenteService service;
+
+    @Autowired
+    VerificadorService verificadorService;
+
     @Autowired
     VisorEncuestaDocente visorEncuestaDocente;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @RequestMapping(method = RequestMethod.GET)
-    public String index(Model model, HttpSession session) {
+    public String index(Model model, HttpSession session, HttpServletRequest request) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-        CicloAcademico cicloAcademico = ds.getCicloAcademico();
-        //EncuestaEstudiantil encuesta = service.findEncuestaDocente(cicloAcademico);
+        CicloAcademico ciclo = ds.getCicloAcademico();
 
-        model.addAttribute("cicloAcademico", cicloAcademico);
+        List<Facultad> facultades = service.allFacultadesFromDocentes(ciclo, ds, request);
+        List<DepartamentoAcademico> departamentos = service.allDepartamentosFromDocentes(ciclo, facultades, ds, request);
+
+        model.addAttribute("cicloAcademico", ciclo);
         model.addAttribute("visor", visorEncuestaDocente);
-        //model.addAttribute("encuesta", JsonHelper.createJson(encuesta, JsonNodeFactory.instance, true, new String[]{"*"}));
+        model.addAttribute("facultadesJson", createFacultadesJson(facultades));
+        model.addAttribute("departamentosJson", createDptosAcademicosJson(departamentos));
+        model.addAttribute("esEditorEncuestas", verificadorService.isEditorEncuestas(ds));
+        model.addAttribute("esRevisorEncuestas", verificadorService.isRevisorEncuestas(ds));
         return "academico/encuestaestudiantil/docente/encuestaDocente";
+    }
+
+    private ArrayNode createFacultadesJson(List<Facultad> facultades) {
+        ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+        //List<Facultad> facultades = service.allFacultadesFromDocentes(cicloAcademico);
+        for (Facultad fac : facultades) {
+            ObjectNode node = JsonHelper.createJson(fac, JsonNodeFactory.instance, new String[]{"id", "nombre", "codigo"});
+            array.add(node);
+        }
+        return array;
+
+    }
+
+    private ArrayNode createDptosAcademicosJson(List<DepartamentoAcademico> departamentos) {
+        ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+        for (DepartamentoAcademico dpto : departamentos) {
+            ObjectNode node = JsonHelper.createJson(dpto, JsonNodeFactory.instance,
+                    new String[]{"id", "nombre", "codigo", "facultad.id", "facultad.nombre"}
+            );
+            node.put("nombreCodigo", dpto.getNombre() + " (" + dpto.getCodigo() + ")");
+            array.add(node);
+        }
+        return array;
+
     }
 
     @ResponseBody
     @RequestMapping("list")
-    public DynatableResponse list(DynatableFilter filter, HttpSession session) {
+    public DynatableResponse list(DynatableFilter filter, HttpSession session, HttpServletRequest request) {
         DynatableResponse json = new DynatableResponse();
         try {
 
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             CicloAcademico ciclo = ds.getCicloAcademico();
 
-            List<EncuestaDocente> encuestaDocentes = service.allEncuestaDocente(filter, ciclo);
+            List<Facultad> facultades = service.allAccesoFacultades(ds, request);
+            List<DepartamentoAcademico> departamentos = service.allAccesoDepartamentos(ds, facultades, ciclo, request);
+            List<EncuestaDocente> encuestaDocentes = service.allEncuestaDocente(filter, ciclo, departamentos, ds);
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
             for (EncuestaDocente enDocente : encuestaDocentes) {
@@ -104,14 +143,14 @@ public class EncuestaDocenteController {
 
     @ResponseBody
     @RequestMapping("resumen")
-    public JsonResponse resumen(HttpSession session) {
+    public JsonResponse resumen(HttpSession session, HttpServletRequest request) {
 
         JsonResponse response = new JsonResponse();
 
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
-            EncuestaEstudiantil encuesta = service.findEncuestaDocente(cicloAcademico);
+            EncuestaEstudiantil encuesta = service.findEncuestaDocenteWithResumen(cicloAcademico, ds, request);
             ObjectNode node = JsonHelper.createJson(encuesta, JsonNodeFactory.instance, true, new String[]{"*"});
             response.setData(node);
             response.setMessage("Encuesta activada satisfactoriamente");
@@ -236,13 +275,13 @@ public class EncuestaDocenteController {
 
     @ResponseBody
     @RequestMapping("encuestaDocente")
-    public JsonResponse encuestaDocente(HttpSession session) {
+    public JsonResponse encuestaDocente(HttpSession session, HttpServletRequest request) {
 
         JsonResponse response = new JsonResponse();
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
-            EncuestaEstudiantil encuesta = service.findEncuestaDocente(cicloAcademico);
+            EncuestaEstudiantil encuesta = service.findEncuestaDocenteWithResumen(cicloAcademico, ds, request);
 
             ObjectNode encuJson = JsonHelper.createJson(encuesta, JsonNodeFactory.instance, true,
                     new String[]{
@@ -353,7 +392,8 @@ public class EncuestaDocenteController {
     public JsonResponse delete(@RequestBody EncuestaEstudiantil encuesta, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            service.delete(encuesta);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            service.delete(encuesta, ds);
             response.setMessage("Encuesta Eliminada.");
             response.setSuccess(true);
 
@@ -370,7 +410,8 @@ public class EncuestaDocenteController {
     public JsonResponse publicar(@RequestBody EncuestaEstudiantil encuesta, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            service.publicar(encuesta);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            service.publicar(encuesta, ds);
             response.setMessage("Encuesta Publicada correctamente.");
             response.setSuccess(true);
 

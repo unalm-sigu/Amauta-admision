@@ -21,9 +21,12 @@ import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.DepartamentoAcademico;
+import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.encuestaestudiantil.ConfiguraEncuesta;
 import pe.edu.lamolina.model.encuestaestudiantil.EncuestaCurso;
 import pe.edu.lamolina.model.encuestaestudiantil.EncuestaEstudiantil;
+import pe.edu.lamolina.pivot.controller.seguridad.verificador.VerificadorService;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -33,6 +36,10 @@ public class EncuestaCursoController {
 
     @Autowired
     EncuestaCursoService service;
+
+    @Autowired
+    VerificadorService verificadorService;
+
     @Autowired
     VisorEncuestaCurso visorEncuestaCurso;
 
@@ -42,12 +49,38 @@ public class EncuestaCursoController {
     public String index(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         CicloAcademico cicloAcademico = ds.getCicloAcademico();
-        EncuestaEstudiantil encuesta = service.findEncuestaCurso(cicloAcademico);
 
         model.addAttribute("cicloAcademico", cicloAcademico);
         model.addAttribute("visor", visorEncuestaCurso);
-        model.addAttribute("encuesta", JsonHelper.createJson(encuesta, JsonNodeFactory.instance, true, new String[]{"*"}));
+        model.addAttribute("facultadesJson", createFacultadesJson(cicloAcademico));
+        model.addAttribute("departamentosJson", createDptosAcademicosJson(cicloAcademico));
+        model.addAttribute("esEditorEncuestas", verificadorService.isEditorEncuestas(ds));
         return "academico/encuestaestudiantil/curso/encuestaCurso";
+    }
+
+    private ArrayNode createFacultadesJson(CicloAcademico cicloAcademico) {
+        ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+        List<Facultad> facultades = service.allFacultadesFromCursos(cicloAcademico);
+        for (Facultad fac : facultades) {
+            ObjectNode node = JsonHelper.createJson(fac, JsonNodeFactory.instance, new String[]{"id", "nombre", "codigo"});
+            array.add(node);
+        }
+        return array;
+
+    }
+
+    private ArrayNode createDptosAcademicosJson(CicloAcademico cicloAcademico) {
+        ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+        List<DepartamentoAcademico> departamentos = service.allDepartamentosFromCursos(cicloAcademico);
+        for (DepartamentoAcademico dpto : departamentos) {
+            ObjectNode node = JsonHelper.createJson(dpto, JsonNodeFactory.instance,
+                    new String[]{"id", "nombre", "codigo", "facultad.id", "facultad.nombre"}
+            );
+            node.put("nombreCodigo", dpto.getNombre() + " (" + dpto.getCodigo() + ")");
+            array.add(node);
+        }
+        return array;
+
     }
 
     @ResponseBody
@@ -61,7 +94,7 @@ public class EncuestaCursoController {
 
             ConfiguraEncuesta cfg = service.findConfigEncuestaCurso(ciclo);
             boolean noEsSimultaneo = (cfg == null) ? false : cfg.getSimultaneo() != 1;
-            List<EncuestaCurso> encuestaCursos = service.allEncuestaCurso(filter, ciclo);
+            List<EncuestaCurso> encuestaCursos = service.allEncuestaCurso(filter, ciclo, noEsSimultaneo);
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
             for (EncuestaCurso enCurso : encuestaCursos) {
@@ -107,6 +140,30 @@ public class EncuestaCursoController {
             json.setTotal(0);
         }
         return json;
+    }
+
+    @ResponseBody
+    @RequestMapping("resumen")
+    public JsonResponse resumen(HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            CicloAcademico cicloAcademico = ds.getCicloAcademico();
+            EncuestaEstudiantil encuesta = service.findEncuestaCursoWithResumen(cicloAcademico);
+            ObjectNode node = JsonHelper.createJson(encuesta, JsonNodeFactory.instance, true, new String[]{"*"});
+            response.setData(node);
+            response.setMessage("Encuesta activada satisfactoriamente");
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+
     }
 
     @ResponseBody
@@ -228,7 +285,7 @@ public class EncuestaCursoController {
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
-            EncuestaEstudiantil encuesta = service.findEncuestaCurso(cicloAcademico);
+            EncuestaEstudiantil encuesta = service.findEncuestaCursoWithResumen(cicloAcademico);
 
             ObjectNode encuJson = JsonHelper.createJson(encuesta, JsonNodeFactory.instance, true,
                     new String[]{

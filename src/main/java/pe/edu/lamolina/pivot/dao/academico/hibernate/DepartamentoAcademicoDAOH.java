@@ -18,6 +18,7 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Docente;
+import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.Seccion;
@@ -243,6 +244,35 @@ public class DepartamentoAcademicoDAOH extends AbstractEasyDAO<DepartamentoAcade
                 .from(DepartamentoAcademico.class, "da")
                 .join("facultad fa")
                 .filter("fa.id", facultad);
+
+        return all(sql);
+    }
+
+    @Override
+    public List<DepartamentoAcademico> allFromDocentesByCiclo(CicloAcademico cicloAcademico) {
+        Octavia sql = Octavia.query()
+                .selectDistinct("da")
+                .from(DocenteSeccion.class, "ds")
+                .join("seccion sec", "sec.grupoSeccion gs", "gs.cicloAcademico cic")
+                .join("ds.docente doc", "doc.departamentoAcademico da", "da.facultad fac")
+                .filter("cic.id", cicloAcademico)
+                .filter("ds.estado", EstadoEnum.ACT)
+                .filter("sec.estado", EstadoEnum.ACT)
+                .orderBy("da.nombre");
+
+        return all(sql);
+    }
+
+    @Override
+    public List<DepartamentoAcademico> allFromCursosByCiclo(CicloAcademico cicloAcademico) {
+        Octavia sql = Octavia.query()
+                .selectDistinct("da")
+                .from(Seccion.class, "sec")
+                .join("grupoSeccion gs", "gs.cicloAcademico cic")
+                .join("gs.curso cur", "cur.departamentoAcademico da", "da.facultad fac")
+                .filter("cic.id", cicloAcademico)
+                .filter("estado", EstadoEnum.ACT)
+                .orderBy("da.nombre");
 
         return all(sql);
     }

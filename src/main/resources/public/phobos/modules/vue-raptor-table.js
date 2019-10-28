@@ -23,6 +23,7 @@ Vue.component('raptor-table', {
     },
     mounted() {
         if (this.preload) {
+            console.log("3jhbj435b3kj45b34kj")
             this.repreload();
         }
     },
@@ -91,7 +92,7 @@ Vue.component('raptor-table', {
             Vue.set($vue.page, 'currentPage', 1);
             $vue.loadRemoteData();
         },
-        loadRemoteData() {
+        loadRemoteData(withHide) {
             if (this.url === null) {
                 return;
             }
@@ -99,6 +100,11 @@ Vue.component('raptor-table', {
             let $vue = this;
             $vue.processing = true;
             $vue.footer = "";
+            let hideData = (withHide === undefined) ? false : withHide;
+            $vue.dataTmp = JSON.parse(JSON.stringify($vue.data));
+            if (hideData) {
+                $vue.data = [];
+            }
             let params = $vue.generateParams();
             axios.get($vue.url, {params})
                     .then(function (response) {
@@ -117,6 +123,9 @@ Vue.component('raptor-table', {
                         }
                     })
                     .catch(function (error) {
+                        if (hideData) {
+                            $vue.data = $vue.dataTmp;
+                        }
                         $vue.processing = false;
                         console.log(error);
                     });

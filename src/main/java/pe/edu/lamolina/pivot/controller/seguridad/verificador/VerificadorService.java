@@ -33,4 +33,12 @@ public interface VerificadorService {
 
     boolean isGestorOficinaEPG(DataSessionPivot ds);
 
+    boolean isEditorEncuestas(DataSessionPivot ds);
+
+    boolean isRevisorEncuestas(DataSessionPivot ds);
+
+    boolean puedeVerAllFacultades(DataSessionPivot ds, String contexto);
+
+    boolean puedeVerAllDepartamentos(DataSessionPivot ds, String contexto);
+
 }

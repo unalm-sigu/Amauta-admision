@@ -1,6 +1,61 @@
 <html layout:decorator="_layout/layout">
     <head>
         <title>Encuesta Curso</title>
+        <style>
+            .circle-recorrido {
+                display: inline-block;
+                min-width: 10px;
+                height: 20px;
+                padding: 3px 7px;
+                font-size: 12px;
+                font-weight: 700;
+                line-height: 1;
+                text-align: center;
+                white-space: nowrap;
+                vertical-align: middle;
+                border-radius: 10px;
+            }
+
+            .circle-recorrido.bgr-success {
+                background-color: #2ECC71;
+                color: #fff;
+            }
+
+            .circle-recorrido.bgr-primary {
+                background-color: #0275D8;
+                color: #fff;
+            }
+
+            .circle-recorrido.bgr-danger {
+                background-color: #E74C3C;
+                color: #fff;
+            }
+
+            .circle-recorrido.bgr-warning {
+                background-color: #F1B41E;
+                color: #fff;
+            }
+
+            .circle-recorrido.bgr-black {
+                background-color: #3C4043;
+                color: #fff;
+            }
+
+            .circle-recorrido.bgr-default {
+                background-color: #EBEDEF;
+                color: #000;
+            }
+
+            .ver-modalidad {
+                padding-left: 10px;
+                padding-top: 10px;
+                padding-bottom: 10px;
+                width: 100%;
+            }
+            .form-control {
+                height: 42px;
+            }
+        </style>
     </head>
     <body>
 
@@ -11,6 +66,7 @@
                 <header class="header b-b padder-lg">
 
                     <div class="btn-group pull-right"
+                         th:if="${esEditorEncuestas}"
                          v-if="encuesta.estado!='ACT'">
                         <button type="button" class="btn btn-primary dropdown-toggle pull-right" data-toggle="dropdown">
                             <i class="fa fa-random fa-lg"/> &nbsp; Acciones &nbsp; <span class="caret"></span>
@@ -45,30 +101,26 @@
                             <div class="col-md-6">
                                 <div class="row">
                                     <div class="col-md-3 text-center" v-bind:class="bgColorClass['activo']">
-                                        <a class="ver-interesados text-success pointer" v-on:click="verEstados('activo')">
-                                            <div class="h1 block bold m-t-xs m-b-n"
-                                                 id="anulados">{{encuesta.encuestasActivas}}</div>
+                                        <a class="text-success pointer" v-on:click="verEstados('activo')">
+                                            <div class="h1 block bold m-t-xs m-b-n">{{encuesta.encuestasActivas}}</div>
                                             <div class="block m-b-xs m-t">Activos</div>
                                         </a>
                                     </div>
                                     <div class="col-md-3 text-center" v-bind:class="bgColorClass['anulado']">
-                                        <a class="ver-interesados text-muted pointer" rel="interesados" v-on:click="verEstados('anulado')">
-                                            <div class="h1 block bold m-t-xs m-b-n"
-                                                 id="interesados">{{encuesta.encuestasAnuladas}}</div>
+                                        <a class="text-muted pointer" v-on:click="verEstados('anulado')">
+                                            <div class="h1 block bold m-t-xs m-b-n">{{encuesta.encuestasAnuladas}}</div>
                                             <div class="block m-b-xs m-t">Anulados</div>
                                         </a>
                                     </div>
                                     <div class="col-md-3 text-center" v-bind:class="bgColorClass['innecesario']">
-                                        <a class="ver-interesados text-warning pointer" rel="preinscritos" v-on:click="verEstados('innecesario')">
-                                            <div class="h1 block bold m-t-xs m-b-n"
-                                                 id="preinscritos">{{encuesta.encuestasInnecesarias}}</div>
+                                        <a class="text-warning pointer" v-on:click="verEstados('innecesario')">
+                                            <div class="h1 block bold m-t-xs m-b-n">{{encuesta.encuestasInnecesarias}}</div>
                                             <div class="block m-b-xs m-t">Innecesarios</div>
                                         </a>
                                     </div>
                                     <div class="col-md-3 text-center" v-bind:class="bgColorClass['sinperiodo']">
-                                        <a class="ver-interesados text-danger pointer" v-on:click="verEstados('sinperiodo')">
-                                            <div class="h1 block bold m-t-xs m-b-n"
-                                                 id="prospectos">{{encuesta.encuestasSinPeriodo}}</div>
+                                        <a class="text-danger pointer" v-on:click="verEstados('sinperiodo')">
+                                            <div class="h1 block bold m-t-xs m-b-n">{{encuesta.encuestasSinPeriodo}}</div>
                                             <div class="block m-b-xs m-t">Sin periodo</div>
                                         </a>
                                     </div>
@@ -78,35 +130,62 @@
                             <div class="col-md-6">
                                 <div class="row">
                                     <div class="col-md-3 text-center" v-bind:class="bgColorClass['cerrado']">
-                                        <a class="ver-interesados text-success" v-on:click="verEstados('cerrado')">
-                                            <div class="h1 block bold m-t-xs m-b-n"
-                                                 id="prospectos">{{encuesta.encuestasCerradas}}</div>
+                                        <a class="text-success pointer" v-on:click="verEstados('cerrado')">
+                                            <div class="h1 block bold m-t-xs m-b-n">{{encuesta.encuestasCerradas}}</div>
                                             <div class="block m-b-xs m-t">Cerrados</div>
                                         </a>
                                     </div>
 
                                     <div class="col-md-3 text-center" v-bind:class="bgColorClass['encuestable']">
-                                        <a class="ver-interesados text-primary pointer" v-on:click="verEstados('encuestable')">
-                                            <div class="h1 block bold m-t-xs m-b-n"
-                                                 id="prospectos">{{encuesta.objetivosEncuesta}}</div>
+                                        <a class="text-primary pointer" v-on:click="verEstados('encuestable')">
+                                            <div class="h1 block bold m-t-xs m-b-n">{{encuesta.objetivosEncuesta}}</div>
                                             <div class="block m-b-xs m-t">Encuestables</div>
                                         </a>
                                     </div>
 
                                     <div class="col-md-3 text-center" v-bind:class="bgColorClass['encuestado']">
-                                        <a class="ver-interesados text-success pointer" v-on:click="verEstados('encuestado')">
-                                            <div class="h1 block bold m-t-xs m-b-n"
-                                                 id="prospectos">{{encuesta.objetivosEncuestados}}</div>
+                                        <a class="text-success pointer" v-on:click="verEstados('encuestado')">
+                                            <div class="h1 block bold m-t-xs m-b-n">{{encuesta.objetivosEncuestados}}</div>
                                             <div class="block m-b-xs m-t">Encuestados</div>
                                         </a>
                                     </div>
 
                                     <div class="col-md-3 text-center">
-                                        <a href="#" class="ver-interesados text-warning">
-                                            <div class="h1 block bold m-t-xs m-b-n"
-                                                 id="prospectos">{{cursosNoEncuestar.length}}</div>
+                                        <a href="#" class="text-warning">
+                                            <div class="h1 block bold m-t-xs m-b-n">{{cursosNoEncuestar.length}}</div>
                                             <div class="block m-t">Cursos no</div>
                                             <div class="block m-b-xs">encuestar</div>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <div class="ver-modalidad" v-bind:class="bgColorModalidadClass['posgrados']">
+                                        <a class="h4 text-success pointer" v-on:click="verModalidad('posgrados')">
+                                            <div class="circle-recorrido bgr-success">{{encuesta.encuestasPosgrado}}</div> Posgrado
+                                        </a>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="ver-modalidad" v-bind:class="bgColorModalidadClass['pregrados']">
+                                        <a class="h4 text-primary pointer" v-on:click="verModalidad('pregrados')">
+                                            <div class="circle-recorrido bgr-primary">{{encuesta.encuestasPregrado}}</div> Pregrado
+                                        </a>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="ver-modalidad" v-bind:class="bgColorDictadoClass['semestrales']">
+                                        <a class="h4 text-dark pointer" v-on:click="verDictado('semestrales')">
+                                            <div class="circle-recorrido bgr-black">{{encuesta.encuestasSemestrales}}</div> Semestrales
+                                        </a>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="ver-modalidad" v-bind:class="bgColorDictadoClass['modulares']">
+                                        <a class="h4 text-warning pointer" v-on:click="verDictado('modulares')">
+                                            <div class="circle-recorrido bgr-warning">{{encuesta.encuestasModulares}}</div> Modulares
                                         </a>
                                     </div>
                                 </div>
@@ -130,7 +209,44 @@
                     <section class="panel">
                         <section class="panel-body">
 
-                            <raptor-table v-bind:url="encuestaURL" ref="load">
+                            <raptor-table v-bind:url="encuestaURL" ref="raptorEncu" v-bind:preload="false">
+
+                                <div slot="header">
+                                    <div class="col-sm-5">
+                                        <multiselect v-model='facultad'
+                                                     v-bind:options='facultades'
+                                                     label='nombre'
+                                                     placeholder="Seleccione una facultad"
+                                                     deselect-label=""
+                                                     select-label=""
+                                                     track-by='id'
+                                                     v-on:input="loadEncuByFacultad">
+                                            <template slot="clear" slot-scope="props">
+                                                <div class="multiselect__clear" v-if="facultad" 
+                                                     v-on:mousedown.prevent.stop="clearFacultad(props.search)"></div>
+                                            </template>
+                                        </multiselect>
+                                    </div>
+                                    <div class="col-sm-5">
+                                        <multiselect v-model='departamento'
+                                                     v-bind:options='departamentosVer'
+                                                     label='nombreCodigo'
+                                                     placeholder="Seleccione un departamento"
+                                                     deselect-label=""
+                                                     select-label=""
+                                                     track-by='id'
+                                                     v-on:input="loadEncuByDepartamento">
+                                            <template slot="option" slot-scope="props">
+                                                <div class="block text-primary bold" v-text="props.option.nombreCodigo"></div>
+                                                <small class="block text-muted">{{props.option.facultad.nombre}}</small>
+                                            </template>
+                                            <template slot="clear" slot-scope="props">
+                                                <div class="multiselect__clear" v-if="departamento" 
+                                                     v-on:mousedown.prevent.stop="clearDepartamento(props.search)"></div>
+                                            </template>
+                                        </multiselect>
+                                    </div>
+                                </div>
 
                                 <template scope="props">
                                     <table class="table table-striped table-hover">
@@ -277,6 +393,7 @@
 
                                                 <td class="v-middle">
                                                     <div class="actions"
+                                                         th:if="${esEditorEncuestas}"
                                                          v-if="item.conOpciones">
                                                         <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="fa fa-cog" aria-hidden="true"></i></a>
                                                         <ul class="dropdown-menu pull-right">
@@ -296,36 +413,6 @@
                             </raptor-table>
 
                         </section>
-
-                        <modal-vik
-                            ref="modalVerDocentes"
-                            v-bind="cfgVerDocentes">
-
-                            <div slot="body">
-                                <h4 class="m-b">Docentes relacionados a este grupo</h4>
-                                <table class="table table-striped">
-                                    <thead>
-                                        <tr>
-                                            <th>Sección</th>
-                                            <th>Principal</th>
-                                            <th>Docente</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr v-for="docSecc in docentesSecciones">
-                                            <td>{{docSecc.seccion.codigo2}}</td>
-                                            <td v-if="docSecc.seccion.tipoSeccion != 'PCUR' ">
-                                                <i class="fa fa-check" v-if="docSecc.principal==1"></i>
-                                            </td>
-                                            <td v-else=""></td>
-                                            <td>{{docSecc.docente.persona.apellidosNombres}}</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-
-                            </div>
-                        </modal-vik>
-
                     </section>
                 </section>
                 <div th:substituteby="academico/encuestaestudiantil/curso/encuestaCursoModal"></div>
@@ -337,8 +424,11 @@
         <div layout:fragment="js">
             <script th:inline="javascript">
                 /*<![CDATA[*/
-                var encuestaJson = /*[[${encuesta.toString()}]]*/ 'json';
                 var visor = /*[[${visor.estadoEnum}]]*/ 'json';
+                var facultadesJson = /*[[${facultadesJson.toString()}]]*/ 'json';
+                var departamentosJson = /*[[${departamentosJson.toString()}]]*/ 'json';
+                var rutaModulo = 'academico/encuestaestudiantil/curso';
+                var rutaEditor = 'academico/encuestaestudiantil/editor';
                 /*]]>*/
             </script>
             <div th:substituteby="_modules/vue-modal"></div>

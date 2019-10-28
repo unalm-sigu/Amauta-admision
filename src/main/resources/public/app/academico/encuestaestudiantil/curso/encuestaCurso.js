@@ -5,8 +5,23 @@ new Vue({
     el: '#main',
     data: {
         generando: false,
-        encuestaURL: APP.url('academico/encuestaestudiantil/curso/list'),
-        encuesta: JSON.parse(encuestaJson),
+        encuestaURL: APP.url(`${rutaModulo}/list`),
+        encuesta: {
+            encuestasActivas: 0,
+            encuestasAnuladas: 0,
+            encuestasInnecesarias: 0,
+            encuestasSinPeriodo: 0,
+            encuestasCerradas: 0,
+            encuestasPosgrado: 0,
+            encuestasPregrado: 0,
+            encuestasModulares: 0,
+            encuestasSemestrales: 0,
+            objetivosEncuesta: 0,
+            objetivosEncuestados: 0,
+            cursosNoEncuestar: 0,
+            estado: "NCRE",
+            estadoEnum: {value: "No creado"}
+        },
         cfgVerDocentes: {
             id: 'modalVerDocentes',
             header: false,
@@ -49,8 +64,16 @@ new Vue({
         btnAgregar: false,
         cursoss: [],
         seleccionado: '',
-        bgColorClass: {activo: '', anulado: '', innecesario: '', sinperiodo: '', cerrado: '',
-            encuestable: '', encuestado: ''}
+        modalidadSeleccionada: '',
+        dictadoSeleccionado: '',
+        bgColorClass: {activo: '', anulado: '', innecesario: '', sinperiodo: '', cerrado: '', encuestable: '', encuestado: ''},
+        bgColorModalidadClass: {posgrados: '', pregrados: ''},
+        bgColorDictadoClass: {modulares: '', semestrales: ''},
+        facultad: null,
+        departamento: null,
+        facultades: JSON.parse(facultadesJson),
+        departamentos: JSON.parse(departamentosJson),
+        departamentosVer: JSON.parse(departamentosJson),
     },
     mounted: function () {
         let $vue = this;
@@ -61,18 +84,146 @@ new Vue({
             }, 1000);
         }
 
-        $vue.refreshEncuesta();
+        //$vue.refreshEncuesta();
 
-        let tipo = $vue.$refs.load.getParameterByName('queries[ec.estado]');
-        tipo = (tipo == null) ? '' : tipo;
-        if (tipo != '') {
-            $vue.bgColorClass[tipo] = 'bg-light';
-            $vue.seleccionado = tipo;
-            $vue.$refs.load.querie.push({name: 'ec.estado', value: tipo});
+        let estadoEncu = $vue.getParameterQuery('estado');
+        if (estadoEncu !== '') {
+            $vue.bgColorClass[estadoEncu] = 'bg-light';
+            $vue.seleccionado = estadoEncu;
         }
-        $vue.$refs.load.repreload();
+
+        let modalidadEncu = $vue.getParameterQuery('modalidad');
+        if (modalidadEncu !== '') {
+            $vue.bgColorModalidadClass[modalidadEncu] = 'bg-light';
+            $vue.modalidadSeleccionada = modalidadEncu;
+        }
+
+        let dictadoEncu = $vue.getParameterQuery('dictado');
+        if (dictadoEncu !== '') {
+            $vue.bgColorDictadoClass[dictadoEncu] = 'bg-light';
+            $vue.dictadoSeleccionado = dictadoEncu;
+        }
+
+        let fac = $vue.getParameterQuery('facultad');
+        if (fac !== '') {
+            for (var i = 0; i < $vue.facultades.length; i++) {
+                if (fac == $vue.facultades[i].id) {
+                    $vue.facultad = $vue.facultades[i];
+                }
+            }
+        }
+        let dep = $vue.getParameterQuery('departamento');
+        if (dep !== '') {
+            for (var i = 0; i < $vue.departamentos.length; i++) {
+                if (dep == $vue.departamentos[i].id) {
+                    $vue.departamento = $vue.departamentos[i];
+                }
+            }
+        }
+        
+        $vue.$refs.raptorEncu.repreload();
+        $vue.loadResumen();
     },
     methods: {
+        getParameterQuery(param) {
+            let $vue = this;
+            let value = $vue.$refs.raptorEncu.getParameterByName('queries[' + param + ']');
+            value = (value == null) ? '' : value;
+            return value;
+        },
+        setParameterQuery(param, value) {
+            let $vue = this;
+            if (value !== '') {
+                $vue.$refs.raptorEncu.querie.push({name: param, value: value});
+            }
+        },
+        clearFacultad(qwe) {
+            let $vue = this;
+            console.log(qwe)
+            $vue.facultad = null;
+            $vue.departamentosVer = JSON.parse(JSON.stringify($vue.departamentos));
+
+            $vue.loadRaptorAllParam();
+            $vue.$refs.raptorEncu.loadRemoteData(true);
+            $vue.loadResumen();
+        },
+        clearDepartamento(qwe) {
+            let $vue = this;
+            console.log(qwe)
+            $vue.departamento = null;
+
+            $vue.loadRaptorAllParam();
+            $vue.$refs.raptorEncu.loadRemoteData(true);
+            $vue.loadResumen();
+        },
+        loadEncuByFacultad(item) {
+            let $vue = this;
+            let existeDpto = $vue.departamento !== null;
+            let existeDentroFac = false;
+            $vue.departamentosVer = [];
+            for (var i = 0; i < $vue.departamentos.length; i++) {
+                if ($vue.departamentos[i].facultad.id === item.id) {
+                    $vue.departamentosVer.push($vue.departamentos[i]);
+                    if (existeDpto) {
+                        if ($vue.departamento.id === $vue.departamentos[i].id) {
+                            existeDentroFac = true;
+                        }
+                    }
+                }
+            }
+            if (existeDpto && !existeDentroFac) {
+                $vue.departamento = null;
+            }
+
+            $vue.loadRaptorAllParam();
+            $vue.$refs.raptorEncu.loadRemoteData(true);
+            $vue.loadResumen();
+
+        },
+        loadEncuByDepartamento(item) {
+            let $vue = this;
+            $vue.loadRaptorAllParam();
+            $vue.$refs.raptorEncu.loadRemoteData(true);
+            $vue.loadResumen();
+        },
+        loadRaptorAllParam() {
+            let $vue = this;
+            let estadoEncu = $vue.getParameterQuery('estado');
+            let modalidadEncu = $vue.getParameterQuery('modalidad');
+            let dictadoEncu = $vue.getParameterQuery('dictado');
+
+            $vue.$refs.raptorEncu.querie = [];
+            $vue.$refs.raptorEncu.changeUrl('queries[estado]', null);
+            $vue.$refs.raptorEncu.changeUrl('queries[modalidad]', null);
+            $vue.$refs.raptorEncu.changeUrl('queries[dictado]', null);
+            $vue.$refs.raptorEncu.changeUrl('queries[facultad]', null);
+            $vue.$refs.raptorEncu.changeUrl('queries[departamento]', null);
+
+            $vue.setParameterQuery("estado", estadoEncu);
+            $vue.setParameterQuery("modalidad", modalidadEncu);
+            $vue.setParameterQuery("dictado", dictadoEncu);
+
+            if ($vue.facultad !== null) {
+                $vue.setParameterQuery("facultad", $vue.facultad.id);
+            }
+            if ($vue.departamento !== null) {
+                $vue.setParameterQuery("departamento", $vue.departamento.id);
+            }
+
+
+        },
+        loadResumen() {
+            let $vue = this;
+
+            axios.post(`/${rutaModulo}/resumen`).then(response => {
+                if (response.data.success) {
+                    $vue.encuesta = response.data.data;
+                }
+            }).catch(function (error) {
+                notify(MESSAGES.errorComunicacion, "error");
+            });
+
+        },
         verDocentes(seccion) {
             let vue = this;
             vue.docentesSecciones = seccion.docenteSeccion;
@@ -107,7 +258,7 @@ new Vue({
                 },
                 callback: function (result) {
                     if (result) {
-                        axios.post('/academico/encuestaestudiantil/curso/generar')
+                        axios.post(`${rutaModulo}/generar`)
                                 .then(response => {
                                     if (response.data.success) {
                                         vue.$refs.modalVerProgreso.open();
@@ -147,7 +298,7 @@ new Vue({
             let vue = this;
             $.ajax({
                 method: 'POST',
-                url: APP.url('academico/encuestaestudiantil/curso/estado'),
+                url: APP.url(`${rutaModulo}/estado`),
                 async: false,
                 data: {'id': encuesta.id},
                 success: function (response) {
@@ -173,7 +324,7 @@ new Vue({
                 },
                 callback: function (result) {
                     if (result) {
-                        axios.post('/academico/encuestaestudiantil/curso/activar')
+                        axios.post(`/${rutaModulo}/activar`)
                                 .then(response => {
                                     if (response.data.success) {
                                         notify(response.data.message, 'info');
@@ -207,7 +358,7 @@ new Vue({
             vue.configuraEncuesta.encuestaTeoriaPractica = vue.configuraEncuesta.encuestaTeoriaPractica == true ? 1 : 0;
             vue.encuestaForm.configuraEncuesta.push(vue.configuraEncuesta);
 
-            axios.post('/academico/encuestaestudiantil/curso/saveConfigEncuesta', vue.encuestaForm)
+            axios.post(`/${rutaModulo}/saveConfigEncuesta`, vue.encuestaForm)
                     .then(response => {
                         console.log(response);
                         if (response.data.success) {
@@ -234,7 +385,7 @@ new Vue({
         refreshProgresoEncuesta() {
             let vue = this;
 
-            axios.post('/academico/encuestaestudiantil/curso/estadoGenerarEncuestas')
+            axios.post(`/${rutaModulo}/estadoGenerarEncuestas`)
                     .then(response => {
                         vue.porcentajeProgreso = response.data.data;
                         vue.mensajeProgreso = response.data.message;
@@ -248,7 +399,7 @@ new Vue({
                                 message: "Finalizó la generación de encuesta de cursos",
                                 buttons: {ok: {label: "Aceptar"}},
                                 callback: function () {
-                                    vue.$refs.load.loadRemoteData();
+                                    vue.$refs.raptorEncu.loadRemoteData();
                                     vue.refreshEncuesta();
                                 }
                             });
@@ -262,22 +413,7 @@ new Vue({
         },
         refreshEncuesta() {
             let vue = this;
-            axios.post('/academico/encuestaestudiantil/curso/encuestaCurso')
-                    .then(response => {
-                        if (response.data.success) {
-                            vue.encuesta = response.data.data;
-                            vue.periodosEncuesta = vue.encuesta.periodosEncuesta;
-                            vue.cursosNoEncuestar = vue.encuesta.cursosNoEncuestar;
-                            if (vue.encuesta.configuraEncuesta.length > 0) {
-                                vue.configuraEncuesta = vue.encuesta.configuraEncuesta[0];
-                            } else {
-                                vue.configuraEncuesta = {};
-                            }
-                        }
-                    })
-                    .catch(function (error) {
-                        console.log(error);
-                    });
+            vue.loadResumen();
         },
         eliminar() {
             let $vue = this;
@@ -289,10 +425,10 @@ new Vue({
                 },
                 callback: function (result) {
                     if (result) {
-                        axios.post('/academico/encuestaestudiantil/curso/delete', {id: $vue.encuesta.id})
+                        axios.post(`/${rutaModulo}/delete`, {id: $vue.encuesta.id})
                                 .then(response => {
                                     if (response.data.success) {
-                                        $vue.$refs.load.loadRemoteData();
+                                        $vue.$refs.raptorEncu.loadRemoteData();
                                         $vue.refreshEncuesta();
                                         notify(response.data.message, "info");
                                     } else {
@@ -317,7 +453,7 @@ new Vue({
                 },
                 callback: function (result) {
                     if (result) {
-                        axios.post('/academico/encuestaestudiantil/curso/publicar', {id: $vue.encuesta.id})
+                        axios.post(`/${rutaModulo}/publicar`, {id: $vue.encuesta.id})
                                 .then(response => {
                                     if (response.data.success) {
                                         $vue.refreshEncuesta();
@@ -339,7 +475,7 @@ new Vue({
 
             $.ajax({
                 method: 'POST',
-                url: APP.url('academico/encuestaestudiantil/editor/allcursosinencuesta'),
+                url: APP.url(`${rutaEditor}/allcursosinencuesta`),
                 data: {
                     'id': $vue.encuesta.id
                 },
@@ -369,7 +505,7 @@ new Vue({
 
             $.ajax({
                 method: 'POST',
-                url: APP.url('academico/encuestaestudiantil/editor/addcursosinencuesta'),
+                url: APP.url(`${rutaEditor}/addcursosinencuesta`),
                 data: {
                     'curso.id': $vue.curso.id,
                     'encuestaEstudiantil.id': $vue.encuesta.id
@@ -397,7 +533,7 @@ new Vue({
             if (idx > -1) {
                 $.ajax({
                     method: 'POST',
-                    url: APP.url('academico/encuestaestudiantil/editor/removecursosinencuesta'),
+                    url: APP.url(`${rutaEditor}/removecursosinencuesta`),
                     data: {
                         'curso.id': curso.id,
                         'encuestaEstudiantil.id': $vue.encuesta.id
@@ -411,7 +547,8 @@ new Vue({
                         } else {
                             notify(response.message, 'error');
                         }
-                    }, error: function () {
+                    },
+                    error: function () {
                         notify(MESSAGES.errorComunicacion, "error");
                     }
                 });
@@ -441,7 +578,7 @@ new Vue({
         searchCurso(nombre) {
             this.isLoading = true
             $.ajax({
-                url: APP.url("academico/encuestaestudiantil/editor/searchcurso"),
+                url: APP.url(`${rutaEditor}/searchcurso`),
                 dataType: 'json',
                 type: 'post',
                 data: {nombre: nombre}
@@ -461,24 +598,85 @@ new Vue({
                 $vue.bgColorClass[tipo] = 'bg-light';
                 $vue.seleccionado = tipo;
 
-                $vue.$refs.load.querie.push({name: 'ec.estado', value: tipo});
-                $vue.$refs.load.loadRemoteData();
+                $vue.$refs.raptorEncu.querie.push({name: 'estado', value: tipo});
+                $vue.$refs.raptorEncu.loadRemoteData(true);
+                $vue.loadResumen();
 
             } else if ($vue.seleccionado !== '' && $vue.seleccionado !== tipo) {
                 $vue.bgColorClass[$vue.seleccionado] = '';
                 $vue.bgColorClass[tipo] = 'bg-light';
                 $vue.seleccionado = tipo;
 
-                $vue.$refs.load.querie.push({name: 'ec.estado', value: tipo});
-                $vue.$refs.load.loadRemoteData();
+                $vue.$refs.raptorEncu.querie.push({name: 'estado', value: tipo});
+                $vue.$refs.raptorEncu.loadRemoteData(true);
+                $vue.loadResumen();
 
             } else if ($vue.seleccionado !== '' && $vue.seleccionado === tipo) {
                 $vue.bgColorClass[$vue.seleccionado] = '';
                 $vue.seleccionado = '';
+                $vue.$refs.raptorEncu.changeUrl('queries[estado]', null);
 
-                $vue.$refs.load.querie = [];
-                $vue.$refs.load.changeUrl('queries[ec.estado]', null);
-                $vue.$refs.load.loadRemoteData();
+                $vue.loadRaptorAllParam();
+                $vue.$refs.raptorEncu.loadRemoteData(true);
+                $vue.loadResumen();
+            }
+        },
+        verModalidad(tipo) {
+            let $vue = this;
+            if ($vue.modalidadSeleccionada === '') {
+                $vue.bgColorModalidadClass[tipo] = 'bg-light';
+                $vue.modalidadSeleccionada = tipo;
+
+                $vue.$refs.raptorEncu.querie.push({name: 'modalidad', value: tipo});
+                $vue.$refs.raptorEncu.loadRemoteData(true);
+                $vue.loadResumen();
+
+            } else if ($vue.modalidadSeleccionada !== '' && $vue.modalidadSeleccionada !== tipo) {
+                $vue.bgColorModalidadClass[$vue.modalidadSeleccionada] = '';
+                $vue.bgColorModalidadClass[tipo] = 'bg-light';
+                $vue.modalidadSeleccionada = tipo;
+
+                $vue.$refs.raptorEncu.querie.push({name: 'modalidad', value: tipo});
+                $vue.$refs.raptorEncu.loadRemoteData(true);
+                $vue.loadResumen();
+
+            } else if ($vue.modalidadSeleccionada !== '' && $vue.modalidadSeleccionada === tipo) {
+                $vue.bgColorModalidadClass[$vue.modalidadSeleccionada] = '';
+                $vue.modalidadSeleccionada = '';
+                $vue.$refs.raptorEncu.changeUrl('queries[modalidad]', null);
+
+                $vue.loadRaptorAllParam();
+                $vue.$refs.raptorEncu.loadRemoteData(true);
+                $vue.loadResumen();
+            }
+        },
+        verDictado(tipo) {
+            let $vue = this;
+            if ($vue.dictadoSeleccionado === '') {
+                $vue.bgColorDictadoClass[tipo] = 'bg-light';
+                $vue.dictadoSeleccionado = tipo;
+
+                $vue.$refs.raptorEncu.querie.push({name: 'dictado', value: tipo});
+                $vue.$refs.raptorEncu.loadRemoteData(true);
+                $vue.loadResumen();
+
+            } else if ($vue.dictadoSeleccionado !== '' && $vue.dictadoSeleccionado !== tipo) {
+                $vue.bgColorDictadoClass[$vue.dictadoSeleccionado] = '';
+                $vue.bgColorDictadoClass[tipo] = 'bg-light';
+                $vue.dictadoSeleccionado = tipo;
+
+                $vue.$refs.raptorEncu.querie.push({name: 'dictado', value: tipo});
+                $vue.$refs.raptorEncu.loadRemoteData(true);
+                $vue.loadResumen();
+
+            } else if ($vue.dictadoSeleccionado !== '' && $vue.dictadoSeleccionado === tipo) {
+                $vue.bgColorDictadoClass[$vue.dictadoSeleccionado] = '';
+                $vue.dictadoSeleccionado = '';
+                $vue.$refs.raptorEncu.changeUrl('queries[dictado]', null);
+
+                $vue.loadRaptorAllParam();
+                $vue.$refs.raptorEncu.loadRemoteData(true);
+                $vue.loadResumen();
             }
         },
         verResultados(item) {

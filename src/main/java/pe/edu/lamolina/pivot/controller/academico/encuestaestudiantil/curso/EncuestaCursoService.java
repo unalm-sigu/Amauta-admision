@@ -3,6 +3,8 @@ package pe.edu.lamolina.pivot.controller.academico.encuestaestudiantil.curso;
 import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.DepartamentoAcademico;
+import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.encuestaestudiantil.ConfiguraEncuesta;
 import pe.edu.lamolina.model.encuestaestudiantil.EncuestaCurso;
 import pe.edu.lamolina.model.encuestaestudiantil.EncuestaEstudiantil;
@@ -10,11 +12,11 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface EncuestaCursoService {
 
-    List<EncuestaCurso> allEncuestaCurso(DynatableFilter filter, CicloAcademico ciclo);
+    List<EncuestaCurso> allEncuestaCurso(DynatableFilter filter, CicloAcademico ciclo, boolean noEsSimultaneo);
 
     void cambiarEstadoEncuesta(EncuestaCurso encuesta);
 
-    EncuestaEstudiantil findEncuestaCurso(CicloAcademico cicloAcademico);
+    EncuestaEstudiantil findEncuestaCursoWithResumen(CicloAcademico cicloAcademico);
 
     void activarEncuesta(CicloAcademico cicloAcademico, DataSessionPivot ds);
 
@@ -27,5 +29,9 @@ public interface EncuestaCursoService {
     void publicar(EncuestaEstudiantil encuesta);
 
     ConfiguraEncuesta findConfigEncuestaCurso(CicloAcademico ciclo);
+
+    List<Facultad> allFacultadesFromCursos(CicloAcademico cicloAcademico);
+
+    List<DepartamentoAcademico> allDepartamentosFromCursos(CicloAcademico cicloAcademico);
 
 }

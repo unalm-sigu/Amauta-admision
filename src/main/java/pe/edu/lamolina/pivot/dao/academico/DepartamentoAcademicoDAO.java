@@ -35,4 +35,8 @@ public interface DepartamentoAcademicoDAO extends EasyDAO<DepartamentoAcademico>
 
     List<DepartamentoAcademico> allByFacultad(Facultad facultad);
 
+    List<DepartamentoAcademico> allFromDocentesByCiclo(CicloAcademico cicloAcademico);
+
+    List<DepartamentoAcademico> allFromCursosByCiclo(CicloAcademico cicloAcademico);
+
 }

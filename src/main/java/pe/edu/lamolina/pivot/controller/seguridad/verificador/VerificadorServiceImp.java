@@ -17,6 +17,7 @@ import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.enums.OficinaEnum;
 import static pe.edu.lamolina.model.enums.OficinaEnum.BAN;
+import static pe.edu.lamolina.model.enums.OficinaEnum.EPG;
 import static pe.edu.lamolina.model.enums.OficinaEnum.OERA;
 import pe.edu.lamolina.model.enums.RolEnum;
 import pe.edu.lamolina.model.enums.TipoOficinaEnum;
@@ -119,19 +120,26 @@ public class VerificadorServiceImp implements VerificadorService {
                 }
 
             }
+            if (oficina.getCodigoEnum() == EPG) {
+                if (tipoOficinaSolicitud == ESP) {
+                    lista.addAll(carreraDAO.allPosGrado());
+                    return lista;
+                }
+            }
             if (Arrays.asList(OERA, BAN).contains(oficina.getCodigoEnum())) {
                 if (tipoOficinaSolicitud == ESP) {
                     lista.addAll(carreraDAO.allPrePosGrado());
                     return lista;
                 }
-
             }
         }
 
         Menu menu = findMenu(ds.getMenu(), obtainPath(request));
-
         if (menu == null) {
-            return new ArrayList();
+            menu = findMenu(ds.getMenu(), obtainPath(request, 4));
+            if (menu == null) {
+                return new ArrayList();
+            }
         }
 
         List<Oficina> oficinas = oficinaDAO.allOficinaByUserMenu(ds.getUsuario(), menu);
@@ -169,18 +177,24 @@ public class VerificadorServiceImp implements VerificadorService {
     }
 
     private String obtainPath(HttpServletRequest request) {
+        return obtainPath(request, 3);
+    }
+
+    private String obtainPath(HttpServletRequest request, int pos) {
         String base = request.getServletPath();
+        System.out.println("base=" + base);
 
-        int thirdIndex = StringUtils.ordinalIndexOf(base, "/", 3);
+        int posIndex = StringUtils.ordinalIndexOf(base, "/", pos);
 
-        if (thirdIndex > 0) {
-            return base.substring(0, thirdIndex);
+        if (posIndex > 0) {
+            return base.substring(0, posIndex);
         } else {
             return base;
         }
     }
 
     private Menu findMenu(List<Menu> menus, String recurso) {
+        System.out.println("recurso:::" + recurso);
         for (Menu menu : menus) {
             System.out.println("verificando " + menu.getRuta());
             if (StringUtils.isBlank(menu.getRuta())) {
@@ -192,7 +206,10 @@ public class VerificadorServiceImp implements VerificadorService {
             }
         }
         for (Menu menu : menus) {
-            return findMenu(menu.getMenus(), recurso);
+            Menu menuSup = findMenu(menu.getMenus(), recurso);
+            if (menuSup != null) {
+                return menuSup;
+            }
         }
 
         return null;
@@ -330,6 +347,62 @@ public class VerificadorServiceImp implements VerificadorService {
     public boolean isGestorOficinaEPG(DataSessionPivot ds) {
         for (Rol rol : ds.getRoles()) {
             if (rol.getCodigoEnum() == RolEnum.GESTOR_OFICINA_EPG) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public boolean isEditorEncuestas(DataSessionPivot ds) {
+        boolean esTrabajadorOERA = false;
+        List<Oficina> oficinasMain = oficinaService.allOficinasMainByPersona(ds.getPersona());
+        for (Oficina oficina : oficinasMain) {
+            if (oficina.getCodigoEnum() == OERA) {
+                esTrabajadorOERA = true;
+            }
+        }
+
+        if (esTrabajadorOERA) {
+            for (Rol rol : ds.getRoles()) {
+                if (rol.getCodigoEnum() == RolEnum.EDITOR_ENCU) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    @Override
+    public boolean isRevisorEncuestas(DataSessionPivot ds) {
+        for (Rol rol : ds.getRoles()) {
+            if (rol.getCodigoEnum() == RolEnum.EDITOR_ENCU) {
+                return true;
+            }
+            if (rol.getCodigoEnum() == RolEnum.REVISOR_ENCU) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public boolean puedeVerAllFacultades(DataSessionPivot ds, String contexto) {
+        List<Oficina> oficinasMain = oficinaService.allOficinasMainByPersona(ds.getPersona());
+        for (Oficina oficina : oficinasMain) {
+            if (oficina.getCodigoEnum() == OERA && contexto.equals("ENCUESTA_ESTUDIANTIL")) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public boolean puedeVerAllDepartamentos(DataSessionPivot ds, String contexto) {
+        List<Oficina> oficinasMain = oficinaService.allOficinasMainByPersona(ds.getPersona());
+        for (Oficina oficina : oficinasMain) {
+            if (oficina.getCodigoEnum() == OERA && contexto.equals("ENCUESTA_ESTUDIANTIL")) {
                 return true;
             }
         }

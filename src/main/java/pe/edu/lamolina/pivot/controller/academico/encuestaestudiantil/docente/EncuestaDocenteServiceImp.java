@@ -1,10 +1,13 @@
 package pe.edu.lamolina.pivot.controller.academico.encuestaestudiantil.docente;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +22,10 @@ import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
+import pe.edu.lamolina.model.academico.DepartamentoAcademico;
+import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
+import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.Seccion;
@@ -41,13 +47,18 @@ import static pe.edu.lamolina.model.enums.EncuestaEstudiantilEstadoEnum.ENC;
 import static pe.edu.lamolina.model.enums.EncuestaEstudiantilEstadoEnum.FECH;
 import static pe.edu.lamolina.model.enums.EncuestaEstudiantilEstadoEnum.TEO;
 import static pe.edu.lamolina.model.enums.EncuestaEstudiantilEstadoEnum.PEND;
+import static pe.edu.lamolina.model.enums.RolEnum.DOC;
 import static pe.edu.lamolina.model.enums.TipoDictadoGrupoSeccionEnum.MOD;
 import static pe.edu.lamolina.model.enums.TipoDictadoGrupoSeccionEnum.SEM;
 import pe.edu.lamolina.model.enums.TipoExamenVirtualEnum;
+import pe.edu.lamolina.model.enums.TipoOficinaEnum;
 import pe.edu.lamolina.model.examen.ExamenVirtual;
 import pe.edu.lamolina.model.examen.TipoExamenVirtual;
+import pe.edu.lamolina.pivot.controller.seguridad.verificador.VerificadorService;
 import pe.edu.lamolina.pivot.dao.academico.CursoDAO;
+import pe.edu.lamolina.pivot.dao.academico.DepartamentoAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.DocenteSeccionDAO;
+import pe.edu.lamolina.pivot.dao.academico.FacultadDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaSeccionDAO;
 import pe.edu.lamolina.pivot.dao.encuesta.ConfiguraEncuestaDAO;
 import pe.edu.lamolina.pivot.dao.encuesta.CursoSinEncuestaDAO;
@@ -73,6 +84,10 @@ public class EncuestaDocenteServiceImp implements EncuestaDocenteService {
     EncuestaCursoDAO encuestaCursoDAO;
     @Autowired
     EncuestaEstudiantilDAO encuestaEstudiantilDAO;
+    @Autowired
+    FacultadDAO facultadDAO;
+    @Autowired
+    DepartamentoAcademicoDAO departamentoAcademicoDAO;
     @Autowired
     DocenteSeccionDAO docenteSeccionDAO;
     @Autowired
@@ -102,10 +117,20 @@ public class EncuestaDocenteServiceImp implements EncuestaDocenteService {
     @Autowired
     MatriculaSeccionDAO matriculaSeccionDAO;
 
+    @Autowired
+    VerificadorService verificadorService;
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
     public EncuestaEstudiantil findEncuestaDocente(CicloAcademico cicloAcademico) {
+        TipoExamenVirtual tipoEncuesta = tipoExamenVirtualDAO.findByEnum(TipoExamenVirtualEnum.ENC_DOC);
+        ExamenVirtual encuestaModelo = examenVirtualDAO.findEncuestaActivaByTipo(tipoEncuesta);
+        return encuestaEstudiantilDAO.findByCicloEncuesta(cicloAcademico, encuestaModelo);
+    }
+
+    @Override
+    public EncuestaEstudiantil findEncuestaDocenteWithResumen(CicloAcademico cicloAcademico, DataSessionPivot ds, HttpServletRequest request) {
         TipoExamenVirtual tipoEncuesta = tipoExamenVirtualDAO.findByEnum(TipoExamenVirtualEnum.ENC_DOC);
         ExamenVirtual encuestaModelo = examenVirtualDAO.findEncuestaActivaByTipo(tipoEncuesta);
         EncuestaEstudiantil encuesta = null;
@@ -127,7 +152,9 @@ public class EncuestaDocenteServiceImp implements EncuestaDocenteService {
                 encuesta.getConfiguraEncuesta().add(cfg);
             }
             encuesta.setCursosNoEncuestar(cursoSinEncuestaDAO.allByEncuestaEstudiantil(encuesta));
-            List<EncuestaDocente> encDocentes = encuestaDocenteDAO.allByEncuestaEstudiantil(encuesta);
+            List<Facultad> facultades = this.allAccesoFacultades(ds, request);
+            List<DepartamentoAcademico> departamentos = this.allAccesoDepartamentos(ds, facultades, cicloAcademico, request);
+            List<EncuestaDocente> encDocentes = encuestaDocenteDAO.allByEncuestaEstudiantil(encuesta, departamentos);
             int activos = 0;
             int anulados = 0;
             int innecesa = 0;
@@ -186,8 +213,13 @@ public class EncuestaDocenteServiceImp implements EncuestaDocenteService {
     }
 
     @Override
-    public List<EncuestaDocente> allEncuestaDocente(DynatableFilter filter, CicloAcademico ciclo) {
-        List<EncuestaDocente> encuestas = encuestaDocenteDAO.allByDynatable(filter, ciclo);
+    public List<EncuestaDocente> allEncuestaDocente(DynatableFilter filter, CicloAcademico ciclo, List<DepartamentoAcademico> departamentos, DataSessionPivot ds) {
+        Docente docente = null;
+        if (ds.getRolActivo().getCodigoEnum() == DOC) {
+            docente = ds.getDocente();
+        }
+
+        List<EncuestaDocente> encuestas = encuestaDocenteDAO.allByDynatable(filter, ciclo, departamentos, docente);
         List<Seccion> secciones = new ArrayList();
         for (EncuestaDocente encuesta : encuestas) {
             Seccion seccion = encuesta.getDocenteSeccion().getSeccion();
@@ -208,6 +240,8 @@ public class EncuestaDocenteServiceImp implements EncuestaDocenteService {
     @Override
     @Transactional
     public void activarEncuesta(CicloAcademico cicloAcademico, DataSessionPivot ds) {
+        Assert.isTrue(verificadorService.isEditorEncuestas(ds), "No tiene permiso para ejecutar esta operación");
+
         TipoExamenVirtual tipoEncuesta = tipoExamenVirtualDAO.findByEnum(TipoExamenVirtualEnum.ENC_DOC);
         ExamenVirtual encuestaModelo = examenVirtualDAO.findEncuestaActivaByTipo(tipoEncuesta);
         EncuestaEstudiantil encuesta = encuestaEstudiantilDAO.findByCicloEncuesta(cicloAcademico, encuestaModelo);
@@ -228,6 +262,10 @@ public class EncuestaDocenteServiceImp implements EncuestaDocenteService {
 
     @Override
     public String generarEncuesta(CicloAcademico cicloAcademico, DataSessionPivot ds) {
+        if (!verificadorService.isEditorEncuestas(ds)) {
+            return "No tiene permiso para ejecutar esta operación";
+        }
+
         if (visorEncuestaDocente.iniciar()) {
             TipoExamenVirtual tipoEncuesta = tipoExamenVirtualDAO.findByEnum(TipoExamenVirtualEnum.ENC_DOC);
             ExamenVirtual encuestaModelo = examenVirtualDAO.findEncuestaActivaByTipo(tipoEncuesta);
@@ -251,6 +289,8 @@ public class EncuestaDocenteServiceImp implements EncuestaDocenteService {
     @Override
     @Transactional
     public void cambiarEstadoEncuesta(EncuestaDocente encuestaForm, DataSessionPivot ds) {
+        Assert.isTrue(verificadorService.isEditorEncuestas(ds), "No tiene permiso para ejecutar esta operación");
+
         EncuestaDocente encuestaBD = encuestaDocenteDAO.findEncuestaDocente(encuestaForm);
         Assert.isNotNull(encuestaBD, "No existe esta encuesta en la base de datos");
 
@@ -397,6 +437,8 @@ public class EncuestaDocenteServiceImp implements EncuestaDocenteService {
     @Override
     @Transactional
     public void saveDetalleConfigEncuesta(EncuestaEstudiantil encuestaForm, CicloAcademico ciclo, DataSessionPivot ds) {
+        Assert.isTrue(verificadorService.isEditorEncuestas(ds), "No tiene permiso para ejecutar esta operación");
+
         TipoExamenVirtual tipoEncuesta = tipoExamenVirtualDAO.findByEnum(TipoExamenVirtualEnum.ENC_DOC);
         ExamenVirtual encuestaModelo = examenVirtualDAO.findEncuestaActivaByTipo(tipoEncuesta);
         EncuestaEstudiantil encuestaTipoDocente = encuestaEstudiantilDAO.findByCicloEncuesta(ciclo, encuestaModelo);
@@ -449,15 +491,15 @@ public class EncuestaDocenteServiceImp implements EncuestaDocenteService {
 
     @Override
     @Transactional
-    public void delete(EncuestaEstudiantil encuestaDoceenteForm) {
-
+    public void delete(EncuestaEstudiantil encuestaDoceenteForm, DataSessionPivot ds) {
+        Assert.isTrue(verificadorService.isEditorEncuestas(ds), "No tiene permiso para ejecutar esta operación");
         EncuestaEstudiantil encuestaTipoDocente = encuestaEstudiantilDAO.find(encuestaDoceenteForm.getId());
         Assert.isNotNull(encuestaTipoDocente, "La encuesta no existe");
 
         TipoExamenVirtualEnum tipo = encuestaTipoDocente.getEncuesta().getTipoExamen().getTipoEnum();
         Assert.isTrue(tipo == TipoExamenVirtualEnum.ENC_DOC, "Solo puede eliminarse encuesta de docentes");
 
-        List<EncuestaDocente> encuestasDocentes = encuestaDocenteDAO.allByEncuestaEstudiantil(encuestaTipoDocente);
+        List<EncuestaDocente> encuestasDocentes = encuestaDocenteDAO.allByEncuestaEstudiantil(encuestaTipoDocente, new ArrayList());
 
         encuestaAlumnoDAO.deleteByEncuestasDocentes(encuestasDocentes);
         configuraEncuestaDAO.deleteByEncuestaEstudiantil(encuestaDoceenteForm);
@@ -471,8 +513,9 @@ public class EncuestaDocenteServiceImp implements EncuestaDocenteService {
         if (encuestaTipoCurso != null) {
             ConfiguraEncuesta configCurso = configuraEncuestaDAO.findByEncuesta(encuestaTipoCurso);
             System.out.println("configCurso=" + configCurso);
+
             if (configCurso != null && configCurso.getSimultaneo() == 1) {
-                List<EncuestaCurso> encuestasCursos = encuestaCursoDAO.allByEncuestaEstudiantil(encuestaTipoCurso);
+                List<EncuestaCurso> encuestasCursos = encuestaCursoDAO.allByEncuestaEstudiantil(encuestaTipoCurso, true);
                 encuestaAlumnoDAO.deleteByEncuestasCursos(encuestasCursos);
                 encuestaCursoDAO.deleteByEncuestaTipoCurso(encuestaTipoCurso);
                 configuraEncuestaDAO.deleteByEncuestaEstudiantil(encuestaTipoCurso);
@@ -489,7 +532,8 @@ public class EncuestaDocenteServiceImp implements EncuestaDocenteService {
 
     @Override
     @Transactional
-    public void publicar(EncuestaEstudiantil encuesta) {
+    public void publicar(EncuestaEstudiantil encuesta, DataSessionPivot ds) {
+        Assert.isTrue(verificadorService.isEditorEncuestas(ds), "No tiene permiso para ejecutar esta operación");
         EncuestaEstudiantil encuestaDB = encuestaEstudiantilDAO.find(encuesta.getId());
         if (encuestaDB == null) {
             throw new PhobosException("La encuesta no existe");
@@ -502,4 +546,172 @@ public class EncuestaDocenteServiceImp implements EncuestaDocenteService {
         encuestaEstudiantilDAO.update(encuestaDB);
 
     }
+
+    @Override
+    public List<Facultad> allFacultadesFromDocentes(CicloAcademico cicloAcademico, DataSessionPivot ds, HttpServletRequest request) {
+        List<Facultad> facultadesAll = facultadDAO.allFromDocentesByCiclo(cicloAcademico);
+        if (verificadorService.puedeVerAllFacultades(ds, "ENCUESTA_ESTUDIANTIL")) {
+            System.out.println("ff1=> facultades=" + facultadesAll.size());
+            return facultadesAll;
+        }
+
+        List<Facultad> facultades = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.FAC, request, ds);
+        if (facultades.isEmpty()) {
+            System.out.println("ff2=> facultades=" + facultades.size());
+            return facultades;
+        }
+
+        Map<Long, Facultad> mapFacultad = TypesUtil.convertListToMap("id", facultades);
+        List<Facultad> facultadesRpta = new ArrayList();
+        for (Facultad fac : facultadesAll) {
+            Facultad facultad = mapFacultad.get(fac.getId());
+            if (facultad != null) {
+                facultadesRpta.add(fac);
+            }
+        }
+        System.out.println("ff3=> facultades=" + facultadesRpta.size());
+        return facultadesRpta;
+
+    }
+
+    @Override
+    public List<DepartamentoAcademico> allDepartamentosFromDocentes(
+            CicloAcademico cicloAcademico,
+            List<Facultad> facultades,
+            DataSessionPivot ds,
+            HttpServletRequest request) {
+
+        List<DepartamentoAcademico> dptosAll = departamentoAcademicoDAO.allFromDocentesByCiclo(cicloAcademico);
+        if (verificadorService.puedeVerAllDepartamentos(ds, "ENCUESTA_ESTUDIANTIL")) {
+            System.out.println("dd1=> facultades=" + facultades.size() + " ::: dptos=" + dptosAll.size());
+            return dptosAll;
+        }
+
+        List<DepartamentoAcademico> departamentos = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.DPTO, request, ds);
+        if (departamentos.isEmpty() && facultades.isEmpty()) {
+            System.out.println("dd2=> facultades=" + facultades.size() + " ::: dptos=" + departamentos.size());
+            return departamentos;
+        }
+
+        if (!departamentos.isEmpty() && facultades.isEmpty()) {
+            Map<Long, Facultad> mapFacultad = new LinkedHashMap();
+            List<DepartamentoAcademico> departamentosRpta = new ArrayList();
+            Map<Long, DepartamentoAcademico> mapDptos = TypesUtil.convertListToMap("id", departamentos);
+            for (DepartamentoAcademico dpto : dptosAll) {
+                DepartamentoAcademico dep = mapDptos.get(dpto.getId());
+                if (dep != null) {
+                    departamentosRpta.add(dpto);
+                    mapFacultad.put(dpto.getFacultad().getId(), dpto.getFacultad());
+                }
+            }
+            facultades.addAll(new ArrayList(mapFacultad.values()));
+            Collections.sort(facultades, (f1, f2) -> f1.getNombre().compareTo(f2.getNombre()));
+            Collections.sort(departamentosRpta, (d1, d2) -> d1.getNombre().compareTo(d2.getNombre()));
+            System.out.println("dd3=> facultades=" + facultades.size() + " ::: dptos=" + departamentosRpta.size());
+            return departamentosRpta;
+        }
+
+        if (departamentos.isEmpty() && !facultades.isEmpty()) {
+            Map<Long, Facultad> mapFacultad = TypesUtil.convertListToMap("id", facultades);
+            List<DepartamentoAcademico> departamentosRpta = new ArrayList();
+            for (DepartamentoAcademico dpto : dptosAll) {
+                Facultad fac = mapFacultad.get(dpto.getFacultad().getId());
+                if (fac != null) {
+                    departamentosRpta.add(dpto);
+                }
+            }
+            Collections.sort(departamentosRpta, (d1, d2) -> d1.getNombre().compareTo(d2.getNombre()));
+            System.out.println("dd4=> facultades=" + facultades.size() + " ::: dptos=" + departamentosRpta.size());
+            return departamentosRpta;
+        }
+
+        List<DepartamentoAcademico> departamentosRpta = new ArrayList();
+        Map<Long, Facultad> mapFacultadNew = new LinkedHashMap();
+        Map<Long, DepartamentoAcademico> mapDptosVer = TypesUtil.convertListToMap("id", departamentos);
+        Map<Long, Facultad> mapFacultadVer = TypesUtil.convertListToMap("id", facultades);
+        for (DepartamentoAcademico dpto : dptosAll) {
+            DepartamentoAcademico dep = mapDptosVer.get(dpto.getId());
+            if (dep != null) {
+                departamentosRpta.add(dpto);
+                Facultad fac = mapFacultadVer.get(dep.getFacultad().getId());
+                if (fac == null) {
+                    mapFacultadNew.put(dep.getFacultad().getId(), dep.getFacultad());
+                }
+            }
+        }
+
+        for (DepartamentoAcademico dpto : dptosAll) {
+            DepartamentoAcademico dep = mapDptosVer.get(dpto.getId());
+            if (dep != null) {
+                continue;
+            }
+            Facultad fac = mapFacultadVer.get(dpto.getFacultad().getId());
+            if (fac != null) {
+                departamentosRpta.add(dpto);
+            }
+        }
+
+        facultades.addAll(new ArrayList(mapFacultadNew.values()));
+        Collections.sort(facultades, (f1, f2) -> f1.getNombre().compareTo(f2.getNombre()));
+        Collections.sort(departamentosRpta, (d1, d2) -> d1.getNombre().compareTo(d2.getNombre()));
+        System.out.println("dd5=> facultades=" + facultades.size() + " ::: dptos=" + departamentosRpta.size());
+        return departamentosRpta;
+    }
+
+    @Override
+    public List<Facultad> allAccesoFacultades(DataSessionPivot ds, HttpServletRequest request) {
+        if (verificadorService.puedeVerAllFacultades(ds, "ENCUESTA_ESTUDIANTIL")) {
+            return new ArrayList();
+        }
+
+        List<Facultad> facultades = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.FAC, request, ds);
+        if (facultades.isEmpty()) {
+            facultades.add(new Facultad(99999L));
+        }
+        return facultades;
+    }
+
+    @Override
+    public List<DepartamentoAcademico> allAccesoDepartamentos(DataSessionPivot ds, List<Facultad> facultades, CicloAcademico ciclo, HttpServletRequest request) {
+        if (facultades.isEmpty()) {
+            return new ArrayList();
+        }
+        if (verificadorService.puedeVerAllDepartamentos(ds, "ENCUESTA_ESTUDIANTIL")) {
+            return new ArrayList();
+        }
+
+        Facultad comodin = null;
+        for (Facultad fac : facultades) {
+            if (fac.getId() == 99999L) {
+                comodin = fac;
+            }
+        }
+        if (comodin != null) {
+            facultades.remove(comodin);
+        }
+
+        List<DepartamentoAcademico> departamentos = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.DPTO, request, ds);
+        if (departamentos.isEmpty() && facultades.isEmpty()) {
+            departamentos.add(new DepartamentoAcademico(99999L));
+            return departamentos;
+        }
+
+        if (!departamentos.isEmpty() && facultades.isEmpty()) {
+            return departamentos;
+        }
+
+        List<DepartamentoAcademico> dptosAll = departamentoAcademicoDAO.allFromDocentesByCiclo(ciclo);
+        Map<Long, Facultad> mapFacultad = TypesUtil.convertListToMap("id", facultades);
+        for (DepartamentoAcademico dpto : dptosAll) {
+            Facultad fac = mapFacultad.get(dpto.getFacultad().getId());
+            if (fac != null) {
+                departamentos.add(dpto);
+            }
+        }
+        if (departamentos.isEmpty()) {
+            departamentos.add(new DepartamentoAcademico(99999L));
+        }
+        return departamentos;
+    }
+
 }

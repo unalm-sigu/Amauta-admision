@@ -1,5 +1,6 @@
 package pe.edu.lamolina.pivot.dao.academico;
 
+import java.util.Collection;
 import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.easydao.EasyDAO;
@@ -61,5 +62,7 @@ public interface CarreraDAO extends EasyDAO<Carrera> {
     List<Carrera> allByMatriculablesCicloCarreras(List<Carrera> carreras, CicloAcademico ciclo);
 
     List<Carrera> allPrePosGrado();
+
+    List<Carrera> allPosGrado();
 
 }
