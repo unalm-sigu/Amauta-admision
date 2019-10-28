@@ -8,7 +8,6 @@ import java.beans.PropertyEditorSupport;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -532,18 +531,13 @@ public class AulaController {
     }
 
     @RequestMapping("reporteProgramacion")
-    public ModelAndView reporteProgramacion(HorariosAulaPDFBean horariosAulaPdfBean, Model model, HttpSession session, HttpServletResponse response) throws Exception {
+    public ModelAndView reporteProgramacion(
+            HorariosAulaPDFBean horariosAulaPdfBean, Model model, HttpSession session) throws Exception {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
         Aula aulaForm = new ObjectMapper().readValue(horariosAulaPdfBean.getStrAula(), Aula.class);
         Aula aulaBD = service.findAulaById(aulaForm.getId());
-//        List<Aula> aulas = new ArrayList();
-//        if (aulaBD != null) {
-//            aulas.add(aulaBD);
-//        } else {
-//            aulas = service.allAulas(ds.getCicloAcademico());
-//        }
 
         List<HorarioAula> horariosAulas = service.allHorariosAulaByCiclo(ds.getCicloAcademico(), aulaBD);
 
@@ -556,7 +550,6 @@ public class AulaController {
         List<DiaHoraGrupo> diasHorasGruposByCiclo = service.allDiaHoraGrupoByCicloRegular(ds.getCicloAcademico());
 
         if (aulasProgramadas.size() > 1) {
-
             aulasProgramadas = aulasProgramadas.stream()
                     .filter(x -> x.getOficinaSupervisora().isOficinaOera())
                     .collect(Collectors.toList());
