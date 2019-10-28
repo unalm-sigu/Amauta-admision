@@ -1,6 +1,6 @@
 package pe.edu.lamolina.pivot.controller.matricula.matriculable;
 
-public class ActoPreBean {
+public class AptoPreBean {
 
     private String matricula;
     private String apellidos_nombres;
@@ -13,10 +13,10 @@ public class ActoPreBean {
     private Long nivel;
     private String es_3cio_super;
 
-    public ActoPreBean() {
+    public AptoPreBean() {
     }
 
-    public ActoPreBean(String matricula, String apellidos_nombres, String especialidad, String facultad, Long creditos_matriculados, Long creditos_aprobados, Long ciclos_estudiados, String codigo_facultad, Long nivel, String es_3cio_super) {
+    public AptoPreBean(String matricula, String apellidos_nombres, String especialidad, String facultad, Long creditos_matriculados, Long creditos_aprobados, Long ciclos_estudiados, String codigo_facultad, Long nivel, String es_3cio_super) {
         this.matricula = matricula;
         this.apellidos_nombres = apellidos_nombres;
         this.especialidad = especialidad;
@@ -29,7 +29,7 @@ public class ActoPreBean {
         this.es_3cio_super = es_3cio_super;
     }
 
-    public ActoPreBean(String matricula, String apellidos_nombres, String especialidad, String facultad, Long creditos_matriculados, Long creditos_aprobados, Long ciclos_estudiados, String codigo_facultad, Long nivel) {
+    public AptoPreBean(String matricula, String apellidos_nombres, String especialidad, String facultad, Long creditos_matriculados, Long creditos_aprobados, Long ciclos_estudiados, String codigo_facultad, Long nivel) {
         this.matricula = matricula;
         this.apellidos_nombres = apellidos_nombres;
         this.especialidad = especialidad;

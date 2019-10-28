@@ -663,8 +663,8 @@ new Vue({
             let urll = '';
             $vue.processreporte = true;
 
-            if (param == "candidatosActPre" || param == "votantesActPre") {
-                urll = APP.url('academico/matriculable/actosPregrado');
+            if (param == "candidatosAptPre" || param == "votantesAptPre") {
+                urll = APP.url('academico/matriculable/aptosPregrado');
             }
 
             axios({

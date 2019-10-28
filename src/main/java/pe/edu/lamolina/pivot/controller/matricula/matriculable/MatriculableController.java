@@ -89,7 +89,7 @@ public class MatriculableController {
     VerificadorService verificadorService;
 
     @Autowired
-    ActosPregradoView actosPregradoView;
+    AptosPregradoView aptosPregradoView;
 
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {
@@ -824,12 +824,12 @@ public class MatriculableController {
         return "redirect:/";
     }
 
-    @RequestMapping("actosPregrado")
-    public ModelAndView actosPregrado(@RequestParam("tipoReporte") String tipoReporte, Model model, HttpSession session) {
+    @RequestMapping("aptosPregrado")
+    public ModelAndView aptosPregrado(@RequestParam("tipoReporte") String tipoReporte, Model model, HttpSession session) {
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            List<ActoPreBean> listActoPreBean = service.allActosPregrado(ds.getCicloAcademico(), tipoReporte);
-            model.addAttribute("listActoPreBean", listActoPreBean);
+            List<AptoPreBean> listAptoPreBean = service.allAptosPregrado(ds.getCicloAcademico(), tipoReporte);
+            model.addAttribute("listAptoPreBean", listAptoPreBean);
             model.addAttribute("tipoReporte", tipoReporte);
         } catch (PhobosException e) {
             e.printStackTrace();
@@ -838,7 +838,7 @@ public class MatriculableController {
             e.printStackTrace();
             logger.debug("*** Exception {}", e);
         }
-        return new ModelAndView(actosPregradoView);
+        return new ModelAndView(aptosPregradoView);
     }
 
 }
