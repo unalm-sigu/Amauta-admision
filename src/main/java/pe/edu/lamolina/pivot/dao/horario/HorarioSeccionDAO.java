@@ -5,12 +5,11 @@ import java.util.Map;
 import pe.albatross.octavia.easydao.EasyDAO;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
-import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.Seccion;
+import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.horario.Hora;
-import pe.edu.lamolina.model.horario.HorarioAula;
 import pe.edu.lamolina.model.horario.HorarioSeccion;
 
 public interface HorarioSeccionDAO extends EasyDAO<HorarioSeccion> {
@@ -40,5 +39,7 @@ public interface HorarioSeccionDAO extends EasyDAO<HorarioSeccion> {
     List<HorarioSeccion> allByGrupoSeccion(GrupoSeccion grupoSeccion);
 
     List<HorarioSeccion> allByCicloOrderByDiaHora(CicloAcademico cicloAcademico);
+
+    List<HorarioSeccion> allByAulaCiclo(Aula aula, CicloAcademico cicloAcademico);
 
 }

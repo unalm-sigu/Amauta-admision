@@ -13,6 +13,7 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.Seccion;
+import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.horario.HorarioSeccion;
@@ -187,6 +188,17 @@ public class HorarioSeccionDAOH extends AbstractEasyDAO<HorarioSeccion> implemen
                 .join("gs.curso cur", "gs.cicloAcademico ca")
                 .leftJoin("aula au", "cur.modalidadEstudio me")
                 .filter("gs.id", grupoSeccion);
+        return all(sql);
+    }
+
+    @Override
+    public List<HorarioSeccion> allByAulaCiclo(Aula aula, CicloAcademico cicloAcademico) {
+        Octavia sql = Octavia.query()
+                .from(HorarioSeccion.class, "hs")
+                .join("dia di", "hora ho", "seccion sec", "sec.grupoSeccion gs", "gs.cicloAcademico ca")
+                .join("aula au")
+                .filter("ca.id", cicloAcademico)
+                .filter("au.id", aula);
         return all(sql);
     }
 

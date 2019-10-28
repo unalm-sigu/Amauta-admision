@@ -8,6 +8,7 @@ import java.beans.PropertyEditorSupport;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -543,26 +544,13 @@ public class AulaController {
 
         List<Dia> dias = service.allDia();
         List<Hora> horas = service.allHorasHorario();
-        List<Aula> aulasProgramadas = horariosAulas.stream()
-                .map(x -> x.getAula())
-                .distinct().collect(Collectors.toList());
+        List<Aula> aulas = new ArrayList();
+        aulas.add(aulaBD);
 
         List<DiaHoraGrupo> diasHorasGruposByCiclo = service.allDiaHoraGrupoByCicloRegular(ds.getCicloAcademico());
 
-        if (aulasProgramadas.size() > 1) {
-            aulasProgramadas = aulasProgramadas.stream()
-                    .filter(x -> x.getOficinaSupervisora().isOficinaOera())
-                    .collect(Collectors.toList());
-
-            try {
-                Collections.sort(aulasProgramadas, (x1, x2) -> TypesUtil.getInt(x1.getCodigo(), -1).compareTo(TypesUtil.getInt(x2.getCodigo(), -1)));
-            } catch (Exception e) {
-                logger.error("Error", e);
-            }
-        }
-
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
-        model.addAttribute("aulas", aulasProgramadas);
+        model.addAttribute("aulas", aulas);
         model.addAttribute("dias", dias);
         model.addAttribute("horas", horas);
         model.addAttribute("horariosAulas", horariosAulas);
