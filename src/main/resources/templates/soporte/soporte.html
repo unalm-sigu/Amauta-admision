@@ -1,0 +1,101 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title> Soporte </title> 
+
+    </head>
+    <body>
+        <div layout:fragment="main" id="soporteVue" v-cloak="">
+
+            <header class="header">
+                <div class="row">
+                    <div class="col-md-11">
+                        <h2> Soporte </h2>
+                    </div>
+                </div>
+            </header>
+            <section  class="wrapper-lg">
+                <section class="panel">
+                    <section class="panel-body">
+                        <raptor-table ref="listSoporte"
+                                      v-bind:url="URL_SOPORTE" >
+                            <template scope="props">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th class="col-md-7" colspan="2"></th>                                            
+                                            <th class="col-md-3">Título</th>
+                                            <th class="col-md-1">Estado</th>
+                                            <th class="col-md-1"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr v-for="item in props.data"> 
+                                            <td class="v-middle">
+                                                <div class="pull-left">
+                                                    <div v-if="item.alumno.persona.tipoFoto=='POSTUL' "
+                                                         class="img-responsive img-thumbnail img-circle div-foto-list">
+                                                        <img class="img-foto-list" v-bind:src="item.alumno.persona.rutaFoto" />
+                                                    </div>
+
+                                                    <img v-else-if="item.alumno.persona.tipoFoto=='COMUN' " 
+                                                         class="img-responsive img-thumbnail img-circle div-foto-alumno-list" 
+                                                         v-bind:src="item.alumno.persona.rutaFoto" />
+
+                                                    <img v-else="" 
+                                                         class="img-foto-tempo img-responsive img-thumbnail img-circle" 
+                                                         v-bind:src="item.alumno.persona.rutaFoto" />
+                                                </div>
+                                            </td>
+                                            <td class="v-middle">
+                                                <a  class="block text-primary bold h5 m-b-xs m-t-xs" >
+                                                    {{item.alumno.persona.apellidosNombres}}
+                                                </a>
+                                                <span class="block">
+                                                    Matrícula: {{item.alumno.codigo}}
+                                                </span>
+                                                <small v-if="item.alumno.persona.numeroDocIdentidad != '' " class="block bold">
+                                                    {{item.alumno.persona.tipoDocumento.simbolo}} {{item.alumno.persona.numeroDocIdentidad}}
+                                                </small>
+                                            </td>
+                                            <td class="v-middle ">
+                                                <span class="block">   {{ item.titulo}}</span>
+                                                <span></span>
+                                            </td>
+                                            <td class="v-middle">
+                                                <span class="block text-primary">  {{ item.estadoEnum.value}}</span>
+                                            </td>
+                                            <td>
+                                                <div class="dropdown actions" v-if="item.estado='PEN'">
+                                                    <a class="dropdown-toggle" data-toggle="dropdown">
+                                                        <i class="glyphicon glyphicon-cog"></i>
+                                                    </a> 
+                                                    <ul class="dropdown-menu pull-right" > 
+                                                        <li >
+                                                            <a class="btn-link pointer" 
+                                                               v-on:click="modal(item)" > Responder
+                                                            </a>
+                                                        </li>
+                                                    </ul>
+
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </template>
+                        </raptor-table>
+
+                    </section>
+                </section>
+            </section>
+            <div th:replace="soporte/soporteModal"></div>
+        </div>
+
+        <div layout:fragment="js">
+
+            <div th:substituteby="_modules/vue-modal"/>
+            <div th:substituteby="_modules/vue-raptor-table"/>
+            <script th:src="@{/app/soporte/soporte.js}" charset="utf-8"></script>
+        </div>
+    </body>
+</html>
