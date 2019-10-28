@@ -1234,17 +1234,17 @@ public class MatriculableServiceImp implements MatriculableService {
     }
 
     @Override
-    public List<ActoPreBean> allActosPregrado(CicloAcademico cicloAcademico, String tipoReporte) {
-        List<ActoPreBean> listActoPreBean = new ArrayList<>();
+    public List<AptoPreBean> allAptosPregrado(CicloAcademico cicloAcademico, String tipoReporte) {
+        List<AptoPreBean> listAptoPreBean = new ArrayList<>();
         ModalidadEstudio modalidadEstudio = modalidadEstudioDAO.findByCodigo(ModalidadEstudioEnum.PRE);
-        if ("candidatosActPre".equals(tipoReporte)) {
+        if ("candidatosAptPre".equals(tipoReporte)) {
             CicloAcademico cicloAnterior = cicloAcademicoDAO.findAnteriorRegular(cicloAcademico).get(0);
-            listActoPreBean = alumnoCicloDAO.allCandidadosActosPregrado(cicloAcademico, cicloAnterior, modalidadEstudio);
+            listAptoPreBean = alumnoCicloDAO.allCandidadosAptosPregrado(cicloAcademico, cicloAnterior, modalidadEstudio);
         }
-        if ("votantesActPre".equals(tipoReporte)) {
-            listActoPreBean = alumnoCicloDAO.allVotantesActosPregrado(cicloAcademico, modalidadEstudio);
+        if ("votantesAptPre".equals(tipoReporte)) {
+            listAptoPreBean = alumnoCicloDAO.allVotantesAptosPregrado(cicloAcademico, modalidadEstudio);
         }
-        return listActoPreBean;
+        return listAptoPreBean;
     }
 
     @Override

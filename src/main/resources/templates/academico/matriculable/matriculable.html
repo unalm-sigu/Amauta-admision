@@ -27,8 +27,8 @@
                             <li v-if="ciclo.fechaCierrePrioridades != null " ><a v-on:click="findConfiguraciones">Asignar Turnos</a></li>
                             <li><a id="subirEgresado">Subir Egresados</a></li>
                             <li class="divider"></li>
-                            <li><a v-on:click.prevent="generarReporte('candidatosActPre')">Candidatos Actos Pregrado</a></li>
-                            <li><a v-on:click.prevent="generarReporte('votantesActPre')">Votantes Actos Pregrado</a></li>
+                            <li><a v-on:click.prevent="generarReporte('candidatosAptPre')">Candidatos Aptos Pregrado</a></li>
+                            <li><a v-on:click.prevent="generarReporte('votantesAptPre')">Votantes Aptos Pregrado</a></li>
                         </ul>
                     </div>
                     <h2>Alumnos Matriculables <span v-text="ciclo.descripcion">2016-II</span></h2>

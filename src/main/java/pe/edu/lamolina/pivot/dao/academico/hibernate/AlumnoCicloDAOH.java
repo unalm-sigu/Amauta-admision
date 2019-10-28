@@ -38,7 +38,7 @@ import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_D;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_XD;
 import pe.edu.lamolina.model.enums.TipoCicloEnum;
 import static pe.edu.lamolina.model.enums.TipoCicloEnum.REG;
-import pe.edu.lamolina.pivot.controller.matricula.matriculable.ActoPreBean;
+import pe.edu.lamolina.pivot.controller.matricula.matriculable.AptoPreBean;
 
 @Repository
 public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements AlumnoCicloDAO {
@@ -915,7 +915,7 @@ public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements Alu
     }
 
     @Override
-    public List<ActoPreBean> allCandidadosActosPregrado(CicloAcademico cicloAcademico, CicloAcademico cicloAnterior, ModalidadEstudio modalidadEstudio) {
+    public List<AptoPreBean> allCandidadosAptosPregrado(CicloAcademico cicloAcademico, CicloAcademico cicloAnterior, ModalidadEstudio modalidadEstudio) {
         StringBuilder sql = new StringBuilder();
         sql.append(" select alm.codigo matricula, concat(per.paterno, ' ', per.materno, ', ',per.nombres) apellidos_nombres, carr.nombre As especialidad, fac.nombre As facultad, ");
         sql.append(" res.creditos_matriculados, alm.creditos_aprobados, w.ciclos As ciclos_estudiados,fac.codigo codigo_facultad,almcic.nivel,");
@@ -958,15 +958,15 @@ public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements Alu
                 .addScalar("codigo_facultad", StringType.INSTANCE)
                 .addScalar("nivel", LongType.INSTANCE)
                 .addScalar("es_3cio_super", StringType.INSTANCE)
-                .setResultTransformer(Transformers.aliasToBean(ActoPreBean.class));
+                .setResultTransformer(Transformers.aliasToBean(AptoPreBean.class));
         query.setParameter("CICLO", cicloAcademico.getId());
         query.setParameter("MODALIDAD", modalidadEstudio.getId());
         query.setParameter("CICLO_ANTERIOR", cicloAnterior.getId());
-        return (List<ActoPreBean>) query.list();
+        return (List<AptoPreBean>) query.list();
     }
 
     @Override
-    public List<ActoPreBean> allVotantesActosPregrado(CicloAcademico cicloAcademico, ModalidadEstudio modalidadEstudio) {
+    public List<AptoPreBean> allVotantesAptosPregrado(CicloAcademico cicloAcademico, ModalidadEstudio modalidadEstudio) {
         StringBuilder sql = new StringBuilder();
         sql.append(" select alm.codigo matricula, concat(per.paterno, ' ', per.materno, ', ',per.nombres) apellidos_nombres, carr.nombre As especialidad, fac.nombre As facultad, ");
         sql.append(" res.creditos_matriculados, alm.creditos_aprobados, w.ciclos As ciclos_estudiados, fac.codigo codigo_facultad, almcic.nivel ");
@@ -1003,10 +1003,10 @@ public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements Alu
                 .addScalar("ciclos_estudiados", LongType.INSTANCE)
                 .addScalar("codigo_facultad", StringType.INSTANCE)
                 .addScalar("nivel", LongType.INSTANCE)
-                .setResultTransformer(Transformers.aliasToBean(ActoPreBean.class));
+                .setResultTransformer(Transformers.aliasToBean(AptoPreBean.class));
         query.setParameter("CICLO", cicloAcademico.getId());
         query.setParameter("MODALIDAD", modalidadEstudio.getId());
-        return (List<ActoPreBean>) query.list();
+        return (List<AptoPreBean>) query.list();
     }
 
     @Override
