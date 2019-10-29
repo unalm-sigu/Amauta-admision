@@ -532,44 +532,38 @@ public class AulaController {
     }
 
     @RequestMapping("reporteProgramacion")
-    public ModelAndView reporteProgramacion(HorariosAulaPDFBean horariosAulaPdfBean, Model model, HttpSession session, HttpServletResponse response) throws Exception {
+    public ModelAndView reporteProgramacion(
+            HorariosAulaPDFBean horariosAulaPdfBean, Model model, HttpSession session) throws Exception {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
         Aula aulaForm = new ObjectMapper().readValue(horariosAulaPdfBean.getStrAula(), Aula.class);
         Aula aulaBD = service.findAulaById(aulaForm.getId());
-//        List<Aula> aulas = new ArrayList();
-//        if (aulaBD != null) {
-//            aulas.add(aulaBD);
-//        } else {
-//            aulas = service.allAulas(ds.getCicloAcademico());
-//        }
 
         List<HorarioAula> horariosAulas = service.allHorariosAulaByCiclo(ds.getCicloAcademico(), aulaBD);
 
         List<Dia> dias = service.allDia();
         List<Hora> horas = service.allHorasHorario();
-        List<Aula> aulasProgramadas = horariosAulas.stream()
+        List<DiaHoraGrupo> diasHorasGruposByCiclo = service.allDiaHoraGrupoByCicloRegular(ds.getCicloAcademico());
+
+        List<Aula> aulas = horariosAulas.stream()
                 .map(x -> x.getAula())
                 .distinct().collect(Collectors.toList());
 
-        List<DiaHoraGrupo> diasHorasGruposByCiclo = service.allDiaHoraGrupoByCicloRegular(ds.getCicloAcademico());
-
-        if (aulasProgramadas.size() > 1) {
-
-            aulasProgramadas = aulasProgramadas.stream()
+        if (aulas.size() > 1) {
+            aulas = aulas.stream()
                     .filter(x -> x.getOficinaSupervisora().isOficinaOera())
                     .collect(Collectors.toList());
 
             try {
-                Collections.sort(aulasProgramadas, (x1, x2) -> TypesUtil.getInt(x1.getCodigo(), -1).compareTo(TypesUtil.getInt(x2.getCodigo(), -1)));
+                Collections.sort(aulas, (x1, x2) -> TypesUtil.getInt(x1.getCodigo(), -1).compareTo(TypesUtil.getInt(x2.getCodigo(), -1)));
             } catch (Exception e) {
                 logger.error("Error", e);
             }
         }
 
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
-        model.addAttribute("aulas", aulasProgramadas);
+        model.addAttribute("aulas", aulas);
         model.addAttribute("dias", dias);
         model.addAttribute("horas", horas);
         model.addAttribute("horariosAulas", horariosAulas);

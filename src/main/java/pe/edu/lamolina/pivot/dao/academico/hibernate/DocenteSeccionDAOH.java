@@ -18,6 +18,7 @@ import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.DocenteEstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoEnum;
+import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 import pe.edu.lamolina.model.general.Aula;
@@ -312,16 +313,22 @@ public class DocenteSeccionDAOH extends AbstractEasyDAO<DocenteSeccion> implemen
     }
 
     @Override
-    public List<DocenteSeccion> allByCicloAula(CicloAcademico ciclo, Aula aula, EstadoEnum... estadoEnum) {
+    public List<DocenteSeccion> allByCicloAula(CicloAcademico ciclo, Aula aula, OficinaEnum oficinaEnum, EstadoEnum... estadoEnum) {
         List<EstadoEnum> estados = Arrays.asList(estadoEnum);
         Octavia sql = Octavia.query()
                 .from(DocenteSeccion.class, "ds")
                 .join("seccion sec", "sec.grupoSeccion gs", "gs.curso cur", "gs.cicloAcademico ca", "docente doc")
                 .join("sec.aula au")
                 .leftJoin("doc.persona per", "per.tipoDocumento", "doc.departamentoAcademico dpa")
+                .leftJoin("au.oficinaSupervisora osup")
                 .in("ds.estado", estados)
-                .filter("au.id", aula)
                 .filter("ca.id", ciclo);
+
+        if (aula == null) {
+            sql.filter("osup.codigo", oficinaEnum);
+        } else {
+            sql.filter("au.id", aula);
+        }
 
         return all(sql);
     }

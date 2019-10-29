@@ -258,7 +258,7 @@ new Vue({
                 },
                 callback: function (result) {
                     if (result) {
-                        axios.post(`${rutaModulo}/generar`)
+                        axios.post(`/${rutaModulo}/generar`)
                                 .then(response => {
                                     if (response.data.success) {
                                         vue.$refs.modalVerProgreso.open();

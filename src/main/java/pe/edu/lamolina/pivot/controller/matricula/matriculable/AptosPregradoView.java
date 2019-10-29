@@ -18,7 +18,7 @@ import org.springframework.web.servlet.view.AbstractView;
 import pe.albatross.zelpers.file.excel.ExcelHelper;
 
 @Component
-public class ActosPregradoView extends AbstractView {
+public class AptosPregradoView extends AbstractView {
 
     private static final String CONTENT_TYPE_XLSX = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
 
@@ -30,21 +30,21 @@ public class ActosPregradoView extends AbstractView {
     }
 
     private void buildExcelDocument(Map<String, Object> model, Workbook workbook, HttpServletRequest request, HttpServletResponse response) throws IOException {
-        List<ActoPreBean> listActoPreBean = (List<ActoPreBean>) model.get("listActoPreBean");
+        List<AptoPreBean> listAptoPreBean = (List<AptoPreBean>) model.get("listAptoPreBean");
         String tipoReporte = (String) model.get("tipoReporte");
-        this.generateCelda(workbook, listActoPreBean, tipoReporte);
+        this.generateCelda(workbook, listAptoPreBean, tipoReporte);
         String fecha = new DateTime().toString("yyyMMdd_Hmm");
 
         String header = "";
-        if ("candidatosActPre".equals(tipoReporte)) {
-            header = "Candidatos_Actos_Pregrado_";
+        if ("candidatosAptPre".equals(tipoReporte)) {
+            header = "Candidatos_Aptos_Pregrado_";
         }
 
-        if ("votantesActPre".equals(tipoReporte)) {
-            header = "Votantes_Actos_Pregrado_";
+        if ("votantesAptPre".equals(tipoReporte)) {
+            header = "Votantes_Aptos_Pregrado_";
         }
 
-        response.setHeader("Content-Disposition", "attachment; filename=\"" + header + fecha + ".xlsx\"");
+        response.setHeader("Content-Disposition", "attachment; filename=\"" + header + fecha + ".xls\"");
         response.setContentType(getContentType());
         response.setStatus(200);
         ServletOutputStream out = response.getOutputStream();
@@ -53,12 +53,12 @@ public class ActosPregradoView extends AbstractView {
         out.flush();
     }
 
-    private void generateCelda(Workbook workbook, List<ActoPreBean> listActoPreBean, String tipoReporte) {
+    private void generateCelda(Workbook workbook, List<AptoPreBean> listAptoPreBean, String tipoReporte) {
         Sheet sheet = workbook.createSheet("Hoja1");
         ExcelHelper excelUtil = new ExcelHelper(sheet, workbook);
         int irow = 2; // fila de inicio para la data
         this.createHeader(excelUtil, workbook, tipoReporte);
-        this.createBody(excelUtil, irow, listActoPreBean, workbook, tipoReporte);
+        this.createBody(excelUtil, irow, listAptoPreBean, workbook, tipoReporte);
     }
 
     private void createHeader(ExcelHelper excelUtil, Workbook workbook, String tipoReporte) {
@@ -90,7 +90,7 @@ public class ActosPregradoView extends AbstractView {
         excelUtil.replaceVal(0, 7, "Código de Facultad");
         excelUtil.replaceVal(0, 8, "Nivel");
 
-        if ("candidatosActPre".equals(tipoReporte)) {
+        if ("candidatosAptPre".equals(tipoReporte)) {
             this.setWidthColumn(excelUtil.getSheet(), 9, 8000);
             excelUtil.replaceStyle(0, 9, estiloCabecera);
             excelUtil.replaceVal(0, 9, "Tercio Superior");
@@ -128,10 +128,10 @@ public class ActosPregradoView extends AbstractView {
         sheet.setColumnWidth(numberColumn, width);
     }
 
-    private void createBody(ExcelHelper excelUtil, int irow, List<ActoPreBean> listActoPreBean, Workbook workbook, String tipoReporte) {
+    private void createBody(ExcelHelper excelUtil, int irow, List<AptoPreBean> listAptoPreBean, Workbook workbook, String tipoReporte) {
         CellStyle estiloGeneral = getStyleGeneral(workbook, CellStyle.ALIGN_CENTER);
         CellStyle estiloLeft = getStyleGeneral(workbook, CellStyle.ALIGN_LEFT);
-        for (ActoPreBean item : listActoPreBean) {
+        for (AptoPreBean item : listAptoPreBean) {
             excelUtil.replaceStyle(irow - 1, 0, estiloGeneral);
             excelUtil.replaceStyle(irow - 1, 1, estiloLeft);
             excelUtil.replaceStyle(irow - 1, 2, estiloLeft);
@@ -150,7 +150,7 @@ public class ActosPregradoView extends AbstractView {
             excelUtil.replaceVal(irow - 1, 6, this.retornVacio(item.getCiclos_estudiados()));
             excelUtil.replaceVal(irow - 1, 7, item.getCodigo_facultad());
             excelUtil.replaceVal(irow - 1, 8, this.retornVacio(item.getNivel()));
-            if ("candidatosActPre".equals(tipoReporte)) {
+            if ("candidatosAptPre".equals(tipoReporte)) {
                 excelUtil.replaceStyle(irow - 1, 9, estiloGeneral);
                 excelUtil.replaceVal(irow - 1, 9, item.getEs_3cio_super());
             }

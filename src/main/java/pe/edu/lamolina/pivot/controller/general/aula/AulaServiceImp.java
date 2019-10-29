@@ -8,7 +8,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,6 +48,7 @@ import pe.edu.lamolina.model.general.TipoCarpeta;
 import pe.edu.lamolina.model.horario.DiaHoraGrupo;
 import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.horario.HorarioAula;
+import pe.edu.lamolina.model.horario.HorarioSeccion;
 import pe.edu.lamolina.model.seguridad.Rol;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.seguridad.UsuarioRol;
@@ -66,8 +66,8 @@ import pe.edu.lamolina.pivot.dao.general.TipoCarpetaDAO;
 import pe.edu.lamolina.pivot.dao.horario.DiaHoraGrupoDAO;
 import pe.edu.lamolina.pivot.dao.horario.HoraDAO;
 import pe.edu.lamolina.pivot.dao.horario.HorarioAulaDAO;
+import pe.edu.lamolina.pivot.dao.horario.HorarioSeccionDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.UsuarioRolDAO;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service
@@ -88,6 +88,9 @@ public class AulaServiceImp implements AulaService {
 
     @Autowired
     HorarioAulaDAO horarioAulaDAO;
+
+    @Autowired
+    HorarioSeccionDAO horarioSeccionDAO;
 
     @Autowired
     DiaDAO diaDAO;
@@ -511,28 +514,41 @@ public class AulaServiceImp implements AulaService {
     @Override
     public List<HorarioAula> allHorariosAulaByCiclo(CicloAcademico cicloAcademico, Aula aula) {
 
+        List<HorarioSeccion> horariosSecciones = horarioSeccionDAO.allByAulaCiclo(aula, OficinaEnum.OERA, cicloAcademico);
+
         //    List<HorarioAula> horariosAulasByCiclo = horarioAulaDAO.allByCicloAndTipoHorario(cicloAcademico, aula, TipoHorarioAulaEnum.DICT);
-        List<DocenteSeccion> docentesSeccionesByCiclo = docenteSeccionDAO.allByCicloAula(cicloAcademico, aula, EstadoEnum.ACT);
+        List<DocenteSeccion> docentesSeccionesByCiclo = docenteSeccionDAO.allByCicloAula(cicloAcademico, aula, OficinaEnum.OERA, EstadoEnum.ACT);
         docentesSeccionesByCiclo = docentesSeccionesByCiclo.stream()
                 .filter(x -> x.esDocentePrincipal())
                 .collect(Collectors.toList());
 
-        Map<Long, List<DocenteSeccion>> docentesSeccionBySeccion = TypesUtil.convertListToMapList("seccion.id", docentesSeccionesByCiclo);
+        Map<Long, List<DocenteSeccion>> mapDocenteSeccionBySeccion = TypesUtil.convertListToMapList("seccion.id", docentesSeccionesByCiclo);
 
         EventoCicloAcademico eventoDictado = eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(cicloAcademico, EventoAcademicoEnum.CLASES_PRE);
-        List<HorarioAula> horariosAulasReservas = horarioAulaDAO.allByFechas(
-                eventoDictado.getFechaInicio(), eventoDictado.getFechaFin(),
-                aula != null ? Arrays.asList(aula) : null,
-                OficinaEnum.OERA, TipoHorarioAulaEnum.RESERV, TipoHorarioAulaEnum.DICT);
+        List<HorarioAula> horariosAulasReservas
+                = horarioAulaDAO.allByFechas(
+                        eventoDictado.getFechaInicio(),
+                        eventoDictado.getFechaFin(),
+                        aula,
+                        OficinaEnum.OERA,
+                        TipoHorarioAulaEnum.RESERV);
+
         horariosAulasReservas.removeIf(x -> x.getReservaAula() != null && Boolean.FALSE.equals(x.getReservaAula().getVisibleHorario()));
 
-        for (HorarioAula horarioAula : horariosAulasReservas) {
-            Seccion seccion = horarioAula.getSeccion();
+        for (HorarioSeccion horarioSecc : horariosSecciones) {
+            Seccion seccion = horarioSecc.getSeccion();
             if (seccion == null) {
                 continue;
             }
-            List<DocenteSeccion> docentesSecciones = docentesSeccionBySeccion.get(seccion.getId());
+            List<DocenteSeccion> docentesSecciones = TypesUtil.getListNotNull(mapDocenteSeccionBySeccion.get(seccion.getId()));
             seccion.setDocenteSeccion(docentesSecciones);
+        }
+
+        for (HorarioSeccion hs : horariosSecciones) {
+            HorarioAula ha = new HorarioAula(hs.getSeccion(), hs.getDia(), hs.getHora(), hs.getAula());
+            ha.setFechaInicio(hs.getFechaInicio());
+            ha.setFechaFin(hs.getFechaFin());
+            horariosAulasReservas.add(ha);
         }
 
 //        horariosAulasByCiclo.addAll(horariosAulasReservas);
