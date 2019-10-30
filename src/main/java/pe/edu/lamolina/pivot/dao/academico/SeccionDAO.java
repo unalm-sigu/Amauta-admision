@@ -111,6 +111,8 @@ public interface SeccionDAO extends EasyDAO<Seccion> {
 
     List<Seccion> allByCicloAndCurso(CicloAcademico ciclo, Curso curso);
 
+    List<Seccion> allByCicloAndCursos(CicloAcademico cicloAcademico, List<Curso> cursos);
+
     Seccion findByGpoSeccionTipoSeccion(GrupoSeccion gpoSecc, TipoSeccionEnum tipoSeccion);
 
     List<Seccion> allForAsignacionAulaByCiclo(CicloAcademico ciclo, SeccionEstadoEnum... estados);

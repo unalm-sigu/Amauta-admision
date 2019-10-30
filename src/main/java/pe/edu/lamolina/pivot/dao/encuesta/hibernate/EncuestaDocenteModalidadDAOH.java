@@ -31,6 +31,17 @@ public class EncuestaDocenteModalidadDAOH extends AbstractEasyDAO<EncuestaDocent
     }
 
     @Override
+    public List<EncuestaDocenteModalidad> allByDocenteCiclo(Docente docente, CicloAcademico ciclo) {
+        Octavia sql = Octavia.query()
+                .from(EncuestaDocenteModalidad.class, "edm")
+                .join("docente doc", "modalidadEstudio me", "cicloAcademico ca", "doc.persona per", "doc.departamentoAcademico da", "da.facultad f")
+                .filter("doc.id", docente)
+                .filter("ca.id", ciclo);
+
+        return all(sql);
+    }
+
+    @Override
     public List<EncuestaDocenteModalidad> allConEncuestadosByCiclo(CicloAcademico cicloAcademico) {
         Octavia sql = Octavia.query()
                 .from(EncuestaDocenteModalidad.class, "edm")

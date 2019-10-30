@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.ListsInspector;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.CicloAcademico;
@@ -140,7 +140,7 @@ public class EncuestaCursoServiceImp implements EncuestaCursoService {
     @Override
     @Transactional
     public void cambiarEstadoEncuesta(EncuestaCurso encuestaForm) {
-        EncuestaCurso encuesta = encuestaCursoDAO.findEncuestaCurso(encuestaForm);
+        EncuestaCurso encuesta = encuestaCursoDAO.findByEncuestaCurso(encuestaForm);
         if (Strings.isNullOrEmpty(encuesta.getEstado())) {
             encuesta.setEstadoEnum(EncuestaEstudiantilEstadoEnum.ANU);
         }
@@ -267,7 +267,7 @@ public class EncuestaCursoServiceImp implements EncuestaCursoService {
         TipoExamenVirtual tipoEncuesta = tipoExamenVirtualDAO.findByEnum(TipoExamenVirtualEnum.ENC_CUR);
         ExamenVirtual encuestaModelo = examenVirtualDAO.findEncuestaActivaByTipo(tipoEncuesta);
         EncuestaEstudiantil encuesta = encuestaEstudiantilDAO.findByCicloEncuesta(cicloAcademico, encuestaModelo);
-        Assert.isTrue(encuesta == null, "Ya se activó la encuesta en este ciclo");
+        Assert.isNull(encuesta, "Ya se activó la encuesta en este ciclo");
 
         encuesta = new EncuestaEstudiantil();
         encuesta.setCicloAcademico(cicloAcademico);
@@ -295,8 +295,16 @@ public class EncuestaCursoServiceImp implements EncuestaCursoService {
         boolean esSinData = encuestaBD.getEstadoEnum() == EncuestaEstadoEnum.CFG && encuestaBD.getObjetivosEncuesta() == 0;
         Assert.isTrue(esSinConfig || esSinData, "Ya no puede configurar esta encuesta");
 
-        updateConfigEncuesta(encuestaBD, encuestaForm.getConfiguraEncuesta().get(0), ciclo, ds);
-        updateConfigEncuesta(encuestaBD, encuestaForm.getPeriodosEncuesta(), ciclo, ds);
+        boolean esSimultaneo = encuestaForm.getConfiguraEncuesta().get(0).getSimultaneo() == 1;
+        ConfiguraEncuesta configDocente = null;
+        if (esSimultaneo) {
+            EncuestaEstudiantil encuestaDocente = encuestaEstudiantilDAO.findByCicloTipo(ciclo, TipoExamenVirtualEnum.ENC_DOC);
+            configDocente = configuraEncuestaDAO.findByEncuesta(encuestaDocente);
+            Assert.isNotNull(configDocente, "Primero debe configurar la encuesta de docentes");
+        }
+
+        updateConfigEncuesta(encuestaBD, encuestaForm.getConfiguraEncuesta().get(0), configDocente, ds);
+        updateConfigEncuesta(encuestaBD, encuestaForm.getPeriodosEncuesta(), configDocente, ciclo, ds);
 
         List<Curso> cursosNoEncuestar = cursoDAO.allNoEncuestar();
         List<CursoSinEncuesta> cursosSinEncuesta = cursoSinEncuestaDAO.allByEncuestaEstudiantil(encuestaBD);
@@ -315,34 +323,59 @@ public class EncuestaCursoServiceImp implements EncuestaCursoService {
         }
     }
 
-    private void updateConfigEncuesta(EncuestaEstudiantil encuesta, ConfiguraEncuesta configuraEncuestaForm, CicloAcademico ciclo, DataSessionPivot ds) {
+    private void updateConfigEncuesta(EncuestaEstudiantil encuestaCurso, ConfiguraEncuesta configCursoForm, ConfiguraEncuesta configDocente, DataSessionPivot ds) {
+        boolean esSimultaneo = configDocente != null;
 
-        ConfiguraEncuesta configuraEncuestaBD = configuraEncuestaDAO.findByEncuesta(encuesta);
-        if (configuraEncuestaBD == null) {
-            configuraEncuestaForm.setEncuestaEstudiantil(encuesta);
-            configuraEncuestaForm.setCantidadMaximaDocentes(0L);
-            configuraEncuestaForm.setDiasEncuesta(0L);
-            configuraEncuestaForm.setFechaRegistro(new Date());
-            configuraEncuestaForm.setUserRegistro(ds.getUsuario());
-            configuraEncuestaForm.setEncuestaTeoriaPractica(configuraEncuestaForm.getEncuestaTeoriaPractica() == null ? 0L : 1L);
-            configuraEncuestaDAO.save(configuraEncuestaForm);
+        ConfiguraEncuesta configCursoBD = configuraEncuestaDAO.findByEncuesta(encuestaCurso);
+        if (configCursoBD == null) {
+            configCursoForm.setEncuestaEstudiantil(encuestaCurso);
+            configCursoForm.setFechaRegistro(new Date());
+            configCursoForm.setUserRegistro(ds.getUsuario());
+
+            if (esSimultaneo) {
+                configCursoForm.setCantidadMaximaDocentes(configDocente.getCantidadMaximaDocentes());
+                configCursoForm.setDiasEncuesta(configDocente.getDiasEncuesta());
+                configCursoForm.setEncuestaTeoriaPractica(configDocente.getEncuestaTeoriaPractica());
+
+            } else {
+                configCursoForm.setCantidadMaximaDocentes(0L);
+                configCursoForm.setDiasEncuesta(0L);
+                configCursoForm.setEncuestaTeoriaPractica(configCursoForm.getEncuestaTeoriaPractica() == null ? 0L : 1L);
+            }
+            configuraEncuestaDAO.save(configCursoForm);
+
         } else {
-            configuraEncuestaBD.setCantidadMaximaDocentes(0L);
-            configuraEncuestaBD.setCantidadMinimaAlumnosPregrado(configuraEncuestaForm.getCantidadMinimaAlumnosPregrado());
-            configuraEncuestaBD.setCantidadMinimaAlumnosPosgrado(configuraEncuestaForm.getCantidadMinimaAlumnosPosgrado());
-            configuraEncuestaBD.setEncuestaTeoriaPractica(configuraEncuestaForm.getEncuestaTeoriaPractica() == null ? 0L : 1L);
-            configuraEncuestaBD.setFechaModificacion(new Date());
-            configuraEncuestaBD.setUserModificacion(ds.getUsuario());
-            configuraEncuestaDAO.update(configuraEncuestaBD);
+            configCursoBD.setFechaModificacion(new Date());
+            configCursoBD.setUserModificacion(ds.getUsuario());
+
+            if (esSimultaneo) {
+                configCursoBD.setCantidadMaximaDocentes(0L);
+                configCursoBD.setCantidadMinimaAlumnosPregrado(configDocente.getCantidadMinimaAlumnosPregrado());
+                configCursoBD.setCantidadMinimaAlumnosPosgrado(configDocente.getCantidadMinimaAlumnosPosgrado());
+                configCursoBD.setEncuestaTeoriaPractica(configDocente.getEncuestaTeoriaPractica());
+
+            } else {
+                configCursoBD.setCantidadMaximaDocentes(0L);
+                configCursoBD.setCantidadMinimaAlumnosPregrado(configCursoForm.getCantidadMinimaAlumnosPregrado());
+                configCursoBD.setCantidadMinimaAlumnosPosgrado(configCursoForm.getCantidadMinimaAlumnosPosgrado());
+                configCursoBD.setEncuestaTeoriaPractica(configCursoForm.getEncuestaTeoriaPractica() == null ? 0L : 1L);
+            }
+            configuraEncuestaDAO.update(configCursoBD);
         }
 
-        encuesta.setEstadoEnum(EncuestaEstadoEnum.CFG);
-        encuestaEstudiantilDAO.update(encuesta);
+        encuestaCurso.setEstadoEnum(EncuestaEstadoEnum.CFG);
+        encuestaEstudiantilDAO.update(encuestaCurso);
     }
 
-    private void updateConfigEncuesta(EncuestaEstudiantil encuesta, List<PeriodoEncuesta> periodosEncuestaForm, CicloAcademico ciclo, DataSessionPivot ds) {
+    private void updateConfigEncuesta(EncuestaEstudiantil encuesta, List<PeriodoEncuesta> periodosEncuestaForm, ConfiguraEncuesta configDocente, CicloAcademico ciclo, DataSessionPivot ds) {
+        boolean esSimultaneo = configDocente != null;
+        List<PeriodoEncuesta> periodosEncuestaRevisar = periodosEncuestaForm;
+        if (esSimultaneo) {
+            periodosEncuestaRevisar = periodoEncuestaDAO.allByEncuesta(configDocente.getEncuestaEstudiantil());
+        }
+
         List<PeriodoEncuesta> periodosEncuestaBD = periodoEncuestaDAO.allByEncuesta(encuesta);
-        ListsInspector inspector = TypesUtil.analizeLists(periodosEncuestaBD, periodosEncuestaForm, "key");
+        ListsInspector inspector = TypesUtil.analizeLists(periodosEncuestaBD, periodosEncuestaRevisar, "key");
 
         List<PeriodoEncuesta> periodosDelete = inspector.getDeadList();
         for (PeriodoEncuesta periodo : periodosDelete) {

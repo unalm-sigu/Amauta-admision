@@ -120,7 +120,7 @@ new Vue({
                 }
             }
         }
-        
+
         $vue.$refs.raptorEncu.repreload();
         $vue.loadResumen();
     },
@@ -218,6 +218,10 @@ new Vue({
             axios.post(`/${rutaModulo}/resumen`).then(response => {
                 if (response.data.success) {
                     $vue.encuesta = response.data.data;
+                    $vue.configuraEncuesta = {};
+                    if ($vue.encuesta.configuraEncuesta.length > 0) {
+                        $vue.configuraEncuesta = $vue.encuesta.configuraEncuesta[0];
+                    }
                 }
             }).catch(function (error) {
                 notify(MESSAGES.errorComunicacion, "error");

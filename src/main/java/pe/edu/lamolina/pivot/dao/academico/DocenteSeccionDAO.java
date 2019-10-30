@@ -9,6 +9,7 @@ import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.Seccion;
+import pe.edu.lamolina.model.encuestaestudiantil.EncuestaEstudiantil;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
@@ -95,5 +96,7 @@ public interface DocenteSeccionDAO extends EasyDAO<DocenteSeccion> {
     List<DocenteSeccion> allDocenteSeccionPrincipalBySeccion(List<Seccion> secciones);
 
     List<DocenteSeccion> allByCicloAula(CicloAcademico ciclo, Aula aula, OficinaEnum oficinaEnum, EstadoEnum... estadoEnum);
+
+    List<DocenteSeccion> allNoProcesadosEncuestaByCiclo(CicloAcademico ciclo, EncuestaEstudiantil encuesta);
 
 }

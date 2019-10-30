@@ -516,7 +516,6 @@ public class AulaServiceImp implements AulaService {
 
         List<HorarioSeccion> horariosSecciones = horarioSeccionDAO.allByAulaCiclo(aula, OficinaEnum.OERA, cicloAcademico);
 
-        //    List<HorarioAula> horariosAulasByCiclo = horarioAulaDAO.allByCicloAndTipoHorario(cicloAcademico, aula, TipoHorarioAulaEnum.DICT);
         List<DocenteSeccion> docentesSeccionesByCiclo = docenteSeccionDAO.allByCicloAula(cicloAcademico, aula, OficinaEnum.OERA, EstadoEnum.ACT);
         docentesSeccionesByCiclo = docentesSeccionesByCiclo.stream()
                 .filter(x -> x.esDocentePrincipal())
@@ -551,8 +550,6 @@ public class AulaServiceImp implements AulaService {
             horariosAulasReservas.add(ha);
         }
 
-//        horariosAulasByCiclo.addAll(horariosAulasReservas);
-//        return horariosAulasByCiclo;
         return horariosAulasReservas;
     }
 

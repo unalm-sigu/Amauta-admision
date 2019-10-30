@@ -76,9 +76,10 @@
                             <li v-if="encuesta.estado=='CRE'"><a href="#" v-on:click="configurarEncuesta"> Configurar encuesta </a></li>
                             <li v-if="encuesta.estado=='CFG' &amp;&amp; encuesta.objetivosEncuesta==0"><a href="#" v-on:click="configurarEncuesta"> Configurar encuesta </a></li>
                             <!--<li v-if="encuesta.estado=='CFG' &amp;&amp; encuesta.objetivosEncuesta==0"><a href="#" v-on:click="sinEncuesta"> Cursos sin encuesta </a></li>-->
-                            <li><a href="#" v-on:click="sinEncuesta"> Cursos sin encuesta </a></li>
+                            <li><a v-if="encuesta.estado != 'CRE' " v-on:click="sinEncuesta"> Cursos sin encuesta </a></li>
                             <li v-if="encuesta.estado=='CFG' &amp;&amp; encuesta.objetivosEncuesta==0"><a href="#" v-on:click="generarEncuesta"> Generar encuestas </a></li>
                             <li v-if="encuesta.estado=='CFG' &amp;&amp; encuesta.objetivosEncuesta>0"><a href="#" v-on:click="eliminar"> Eliminar encuestas </a></li>
+                            <li v-if="encuesta.objetivosEncuesta>0"><a class="pointer" v-on:click="noProcesados"> Docentes no procesados </a></li>
                             <li v-if="encuesta.estado=='CFG' &amp;&amp; encuesta.objetivosEncuesta>0"><a href="#" v-on:click="publicar"> Publicar encuestas </a></li>
                         </ul>
                     </div>
@@ -319,13 +320,20 @@
 
                                                 <td class="v-middle text-center">
                                                     <span v-if="item.estado=='ACT'">
-                                                        <span class="block m-b-xs"><strong>Desde:</strong> {{item.fechaEncuestaInicio}}</span>
-                                                        <span class="block"><strong>Hasta:</strong> {{item.fechaEncuestaFin}}</span>
-                                                        <span v-if="item.docenteSeccion.seccion.grupoSeccion.tipoDictado == 'MOD' "
-                                                              class="label label-warning">
-                                                            {{item.docenteSeccion.seccion.grupoSeccion.tipoDictadoEnum.value}}
-                                                        </span>
+                                                        <span class="block m-b-xxs"><strong>Desde:</strong> {{item.fechaEncuestaInicio}}</span>
+                                                        <span class="block m-b"><strong>Hasta:</strong> {{item.fechaEncuestaFin}}</span>
+
                                                     </span>
+                                                    <div v-if="item.docenteSeccion.seccion.grupoSeccion.tipoDictado == 'MOD' ">
+                                                        <div class="block">
+                                                            <span class="label label-warning">{{item.docenteSeccion.seccion.grupoSeccion.tipoDictadoEnum.value}}</span>
+                                                        </div>
+                                                        <span class="text-danger">
+                                                            Dictado de clases desde el 
+                                                            {{item.docenteSeccion.seccion.grupoSeccion.fechaInicioModular}} al
+                                                            {{item.docenteSeccion.seccion.grupoSeccion.fechaFinModular}}
+                                                        </span>
+                                                    </div>
                                                 </td>
 
                                                 <td class="v-middle text-center">

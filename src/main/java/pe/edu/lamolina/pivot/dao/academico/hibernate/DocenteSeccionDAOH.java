@@ -1,6 +1,7 @@
 package pe.edu.lamolina.pivot.dao.academico.hibernate;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.hibernate.Query;
@@ -10,18 +11,24 @@ import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import pe.edu.lamolina.model.academico.AnexoBoletin;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.Seccion;
+import pe.edu.lamolina.model.encuestaestudiantil.EncuestaEstudiantil;
 import pe.edu.lamolina.model.enums.DocenteEstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoEnum;
+import static pe.edu.lamolina.model.enums.EstadoEnum.ACT;
 import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 import pe.edu.lamolina.model.general.Aula;
+import pe.edu.lamolina.model.general.Persona;
+import pe.edu.lamolina.model.general.TipoDocIdentidad;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 
 @Repository
@@ -30,6 +37,18 @@ public class DocenteSeccionDAOH extends AbstractEasyDAO<DocenteSeccion> implemen
     public DocenteSeccionDAOH() {
         super();
         setClazz(DocenteSeccion.class);
+    }
+
+    @Override
+    public DocenteSeccion find(long id) {
+        Octavia sql = Octavia.query()
+                .from(DocenteSeccion.class, "ds")
+                .join("seccion sec", "sec.grupoSeccion gs", "gs.curso cur", "docente doc")
+                .join("cur.departamentoAcademico da", "da.facultad")
+                .leftJoin("gs.planCalificacion pc", "sec.seccionSuperior")
+                .filter("ds.id", id);
+
+        return find(sql);
     }
 
     @Override
@@ -47,18 +66,6 @@ public class DocenteSeccionDAOH extends AbstractEasyDAO<DocenteSeccion> implemen
                 .filter("ds.estado", EstadoEnum.ACT);
 
         return all(sql);
-    }
-
-    @Override
-    public DocenteSeccion find(long id) {
-        Octavia sql = Octavia.query()
-                .from(DocenteSeccion.class, "ds")
-                .join("seccion sec", "sec.grupoSeccion gs", "gs.curso cur", "docente doc")
-                .join("cur.departamentoAcademico da", "da.facultad")
-                .leftJoin("gs.planCalificacion pc", "sec.seccionSuperior")
-                .filter("ds.id", id);
-
-        return find(sql);
     }
 
     @Override
@@ -468,7 +475,6 @@ public class DocenteSeccionDAOH extends AbstractEasyDAO<DocenteSeccion> implemen
                 .leftJoin("gs.planCalificacion pc", "cur.planCalificacion pc2", "cur.planCalificacionRegular pcr", "sec.seccionSuperior")
                 .leftJoin("sec.aula au", "sec.grupoHoras gh", "doc.persona per", "per.tipoDocumento")
                 .filter("ca.id", cicloAcademico)
-                .filter("doc.estado", DocenteEstadoEnum.ACT)
                 .filter("doc.codigo", "<>", Constantine.DOCENTE_INDETERMINADO)
                 .filter("ds.estado", EstadoEnum.ACT)
                 .filter("sec.estado", EstadoEnum.ACT);
@@ -617,4 +623,63 @@ public class DocenteSeccionDAOH extends AbstractEasyDAO<DocenteSeccion> implemen
                 .in("sec.id", secciones);
         return all(sql);
     }
+
+    @Override
+    public List<DocenteSeccion> allNoProcesadosEncuestaByCiclo(CicloAcademico ciclo, EncuestaEstudiantil encuesta) {
+        StringBuilder sql = new StringBuilder();
+        sql.append(" select {ds.*},{sec.*},{gs.*},{cur.*},{doc.*},{per.*},{td.*},{anx.*} ");
+        sql.append("   from aca_docente_seccion as ds ");
+        sql.append("   join aca_seccion sec on sec.id = ds.id_seccion ");
+        sql.append("   join aca_grupo_seccion gs on gs.id = sec.id_grupo_seccion ");
+        sql.append("   join aca_anexo_boletin anx on anx.id = gs.id_anexo_boletin ");
+        sql.append("   join aca_curso cur on cur.id = gs.id_curso ");
+        sql.append("   join aca_docente doc on doc.id = ds.id_docente ");
+        sql.append("   join gen_persona per on per.id = doc.id_persona ");
+        sql.append("   left join gen_tipo_doc_identidad td on td.id = per.id_tipo_documento ");
+        sql.append("   left join exam_encuesta_docente ed on ed.id_docente_seccion = ds.id ");
+        sql.append("  where gs.id_ciclo = :CICLO  ");
+        sql.append("    and sec.estado = :ESTADO ");
+        sql.append("    and ds.estado = :ESTADO ");
+        sql.append("    and doc.codigo <> :DOCENTE_NN ");
+        sql.append("    and ed.id is null ");
+
+        Query query = getCurrentSession().createSQLQuery(sql.toString())
+                .addEntity("ds", DocenteSeccion.class)
+                .addEntity("sec", Seccion.class)
+                .addEntity("gs", GrupoSeccion.class)
+                .addEntity("cur", Curso.class)
+                .addEntity("doc", Docente.class)
+                .addEntity("per", Persona.class)
+                .addEntity("td", TipoDocIdentidad.class)
+                .addEntity("anx", AnexoBoletin.class);
+
+        query.setParameter("DOCENTE_NN", Constantine.DOCENTE_INDETERMINADO);
+        query.setParameter("ESTADO", ACT.name());
+        query.setParameter("CICLO", ciclo.getId());
+
+        List<DocenteSeccion> listado = new ArrayList();
+        List<Object[]> rows = query.list();
+        for (Object[] row : rows) {
+            DocenteSeccion ds = (DocenteSeccion) row[0];
+            Seccion sec = (Seccion) row[1];
+            GrupoSeccion gs = (GrupoSeccion) row[2];
+            Curso cur = (Curso) row[3];
+            Docente doc = (Docente) row[4];
+            Persona per = (Persona) row[5];
+            TipoDocIdentidad td = (TipoDocIdentidad) row[6];
+            AnexoBoletin anx = (AnexoBoletin) row[7];
+
+            ds.setSeccion(sec);
+            sec.setGrupoSeccion(gs);
+            ds.setDocente(doc);
+            gs.setCurso(cur);
+            doc.setPersona(per);
+            per.setTipoDocumento(td);
+            gs.setAnexoBoletin(anx);
+
+            listado.add(ds);
+        }
+        return listado;
+    }
+
 }

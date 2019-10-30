@@ -75,14 +75,11 @@ new Vue({
         temas: [],
         cursos: [],
         cursosNoEnc: [],
-        curso: {},
-        addCursoModal: {
+        curso: null,
+        addCursoModal: VUE_MODAL.structInfo({
             id: 'modalAddCurso',
-            header: true,
-            title: 'Cursos sin encuesta',
-            showaccept: false,
-            cancelbtn: 'Cerrar'
-        },
+            waiting: true
+        }),
         btnAgregar: false,
         seleccionado: '',
         modalidadSeleccionada: '',
@@ -103,6 +100,21 @@ new Vue({
         facultades: JSON.parse(facultadesJson),
         departamentos: JSON.parse(departamentosJson),
         departamentosVer: JSON.parse(departamentosJson),
+        processingCursos: false,
+        cursosLista: [],
+        pageCursos: {currentPage: 1},
+        paginationCursos: {'total-items': 0, 'items-per-page': 10, 'max-size': 3, 'boundary-link-numbers': true},
+        idCursoNew: -100,
+        cursoDelete: null,
+        cfgNoProcesados: VUE_MODAL.structInfo({
+            id: 'modalNoProcesados',
+            waiting: true
+        }),
+        processingNoProcesados: false,
+        docentesSeccionesNoEncu: [],
+        docentesSeccionesNoEncuLista: [],
+        pageNoProcesados: {currentPage: 1},
+        paginationNoProcesados: {'total-items': 0, 'items-per-page': 10, 'max-size': 3, 'boundary-link-numbers': true},
     },
     mounted: function () {
         let $vue = this;
@@ -153,6 +165,56 @@ new Vue({
         $vue.loadResumen();
     },
     methods: {
+        changePageCursos(idCursoNew) {
+            let $vue = this;
+            let page = $vue.pageCursos.currentPage;
+            let pageSize = $vue.paginationCursos['items-per-page'];
+
+            if (idCursoNew !== undefined) {
+                console.log("idCursoNew !== undefined")
+                var loop = 0;
+                var existe = false;
+                for (var i = 0; i < $vue.cursosNoEnc.length; i++) {
+                    if (!existe) {
+                        loop++;
+                    }
+                    if (idCursoNew === $vue.cursosNoEnc[i].id) {
+                        existe = true;
+                    }
+                }
+                console.log("existe=" + existe + " loop=" + loop)
+                if (existe) {
+                    var npage = (loop - loop % pageSize) / pageSize;
+                    npage += (loop % pageSize === 0) ? 0 : 1;
+                    $vue.pageCursos.currentPage = npage;
+                    page = npage;
+                    $vue.idCursoNew = idCursoNew;
+                    setTimeout(function () {
+                        $vue.idCursoNew = -100;
+                    }, 3000);
+                }
+                console.log("page=" + page)
+            } else {
+                console.log("idCursoNew == undefined")
+            }
+
+            let ini = pageSize * (page - 1);
+            let fin = pageSize * page - 1;
+
+            if (ini >= $vue.cursosNoEnc.length) {
+                $vue.pageCursos.currentPage = 1;
+                page = $vue.pageCursos.currentPage;
+                ini = pageSize * (page - 1);
+                fin = pageSize * page - 1;
+            }
+
+            $vue.cursosLista = [];
+            for (var i = 0; i < $vue.cursosNoEnc.length; i++) {
+                if (i >= ini && i <= fin) {
+                    $vue.cursosLista.push($vue.cursosNoEnc[i]);
+                }
+            }
+        },
         getParameterQuery(param) {
             let $vue = this;
             let value = $vue.$refs.raptorEncu.getParameterByName('queries[' + param + ']');
@@ -246,6 +308,10 @@ new Vue({
             axios.post(`/${rutaModulo}/resumen`).then(response => {
                 if (response.data.success) {
                     $vue.encuesta = response.data.data;
+                    $vue.configuraEncuesta = {};
+                    if ($vue.encuesta.configuraEncuesta.length > 0) {
+                        $vue.configuraEncuesta = $vue.encuesta.configuraEncuesta[0];
+                    }
                 }
             }).catch(function (error) {
                 notify(MESSAGES.errorComunicacion, "error");
@@ -287,20 +353,18 @@ new Vue({
             vue.configuraEncuesta.encuestaTeoriaPractica = vue.configuraEncuesta.encuestaTeoriaPractica == true ? 1 : 0
             vue.encuestaForm.configuraEncuesta.push(vue.configuraEncuesta);
 
-            axios.post(`/${rutaModulo}/saveConfigEncuesta`, vue.encuestaForm)
-                    .then(response => {
-                        if (response.data.success) {
-                            notify(response.data.message, 'info');
-                            vue.$refs.modalEncuestaConfig.close();
-                            vue.refreshEncuesta();
-                        } else {
-                            notify(response.data.message, "error");
-                        }
-                    })
-                    .catch(function (error) {
-                        console.log(error);
-                        notify(MESSAGES.errorComunicacion, "error");
-                    });
+            axios.post(`/${rutaModulo}/saveConfigEncuesta`, vue.encuestaForm).then(response => {
+                if (response.data.success) {
+                    notify(response.data.message, 'info');
+                    vue.$refs.modalEncuestaConfig.close();
+                    vue.refreshEncuesta();
+                } else {
+                    notify(response.data.message, "error");
+                }
+            }).catch(function (error) {
+                console.log(error);
+                notify(MESSAGES.errorComunicacion, "error");
+            });
         },
         activarEncuesta() {
             let vue = this;
@@ -515,126 +579,144 @@ new Vue({
                 },
                 callback: function (result) {
                     if (result) {
-                        axios.post(`/${rutaModulo}/publicar`, {id: $vue.encuesta.id})
-                                .then(response => {
-                                    if (response.data.success) {
-                                        $vue.refreshEncuesta();
-                                        notify(response.data.message, "info");
-                                    } else {
-                                        notify(response.data.message, "error");
-                                    }
-                                })
-                                .catch(function (error) {
-                                    console.log(error);
-                                    notify(MESSAGES.errorComunicacion, "error");
-                                });
+                        axios.post(`/${rutaModulo}/publicar`, {id: $vue.encuesta.id}).then(response => {
+                            if (response.data.success) {
+                                $vue.refreshEncuesta();
+                                notify(response.data.message, "info");
+                            } else {
+                                notify(response.data.message, "error");
+                            }
+
+                        }).catch(function (error) {
+                            console.log(error);
+                            notify(MESSAGES.errorComunicacion, "error");
+                        });
                     }
                 }
             });
         },
         sinEncuesta() {
             var $vue = this;
-
-            $.ajax({
-                method: 'POST',
-                url: APP.url(`${rutaEditor}/allcursosinencuesta`),
-                data: {
-                    'id': $vue.encuesta.id
-                },
-                async: false,
-                success: function (response) {
-                    if (response.success) {
-                        console.log(response.data);
-                        $vue.cursosNoEnc = response.data;
-                    } else {
-                        notify(response.message, 'error');
-                    }
-                }, error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
-                }
+            $vue.addCursoModal = VUE_MODAL.structInfo({
+                id: 'modalAddCurso',
+                waiting: true
             });
 
-            $vue.curso = {};
+            $vue.curso = null;
+            $vue.processingCursos = true;
+            $vue.pageCursos.currentPage = 1;
             $vue.$refs.modalAddCurso.open();
+
+            axios.post(`/${rutaEditor}/allcursosinencuesta`, {'id': $vue.encuesta.id}).then(response => {
+                if (response.data.success) {
+                    $vue.cursosNoEnc = response.data.data;
+                    $vue.paginationCursos['total-items'] = $vue.cursosNoEnc.length;
+                    $vue.changePageCursos();
+                    $vue.processingCursos = false;
+                    $vue.addCursoModal.waiting = false;
+
+                } else {
+                    notify(response.data.message, 'error');
+                }
+            }).catch(function (error) {
+                notify(MESSAGES.errorComunicacion, "error");
+            });
+
         },
         agregarCurso() {
             var $vue = this;
-            $vue.btnAgregar = true;
-            if ($vue.curso.id == null) {
+            if ($vue.curso == null) {
                 notify("No hay curso seleccionado  para agregar", "error");
                 return;
             }
 
-            $.ajax({
-                method: 'POST',
-                url: APP.url(`${rutaEditor}/addcursosinencuesta`),
-                data: {
-                    'curso.id': $vue.curso.id,
-                    'encuestaEstudiantil.id': $vue.encuesta.id
-                },
-                async: false,
-                success: function (response) {
-                    if (response.success) {
-                        $vue.cursosNoEnc.push($vue.curso);
-                        $vue.refreshEncuesta();
-                    } else {
-                        notify(response.message, 'error');
-                    }
-                    $vue.btnAgregar = false;
-                }, error: function () {
-                    $vue.btnAgregar = false;
-                    notify(MESSAGES.errorComunicacion, "error");
+            let idCursoNew = $vue.curso.id;
+            $vue.$refs.modalAddCurso.beginProcessing();
+            axios.post(`/${rutaEditor}/addcursosinencuesta`, {
+                curso: {id: $vue.curso.id},
+                encuestaEstudiantil: {id: $vue.encuesta.id}
+            }).then(response => {
+                $vue.$refs.modalAddCurso.confirmReaction(false);
+                if (response.data.success) {
+
+                    notify(response.data.message, 'info');
+                    $vue.processingCursos = true;
+                    setTimeout(function () {
+                        axios.post(`/${rutaEditor}/allcursosinencuesta`, {'id': $vue.encuesta.id}).then(response => {
+                            if (response.data.success) {
+                                $vue.cursosNoEnc = response.data.data;
+                                $vue.paginationCursos['total-items'] = $vue.cursosNoEnc.length;
+                                $vue.changePageCursos(idCursoNew);
+                                $vue.processingCursos = false;
+                                $vue.refreshEncuesta();
+
+                            } else {
+                                notify(response.data.message, 'error');
+                            }
+                        }).catch(function (error) {
+                            $vue.processingCursos = false;
+                            notify(MESSAGES.errorComunicacion, "error");
+                        });
+                    }, 1000);
+
+                } else {
+                    notify(response.data.message, 'error');
                 }
+
+            }).catch(function (error) {
+                $vue.$refs.modalAddCurso.confirmReaction(false);
+                notify(MESSAGES.errorComunicacion, "error");
             });
 
-            $vue.curso = {};
+            $vue.curso = null;
         },
         deleteCursoSinEncuesta(curso) {
-            var $vue = this;
-            let idx = $vue.cursosNoEnc.map(item => item.id).indexOf(curso.id);
-            if (idx > -1) {
-                $.ajax({
-                    method: 'POST',
-                    url: APP.url(`${rutaEditor}/removecursosinencuesta`),
-                    data: {
-                        'curso.id': curso.id,
-                        'encuestaEstudiantil.id': $vue.encuesta.id
-                    },
-                    async: false,
-                    success: function (response) {
-                        if (response.success) {
-                            notify(response.message, 'info');
-                            $vue.cursosNoEnc.splice(idx, 1);
-                            $vue.refreshEncuesta();
-                        } else {
-                            notify(response.message, 'error');
-                        }
-                    }, error: function () {
-                        notify(MESSAGES.errorComunicacion, "error");
-                    }
-                });
-            }
+            console.log("34535-34-53-4534534-534534")
+            let $vue = this;
+
+            axios.post(`/${rutaEditor}/removecursosinencuesta`, {
+                curso: {id: $vue.cursoDelete.id},
+                encuestaEstudiantil: {id: $vue.encuesta.id}
+            }).then(response => {
+                $vue.$refs.modalConfirmAction.confirmReaction(response.data.success);
+                if (response.data.success) {
+                    notify(response.data.message, 'info');
+                    $vue.processingCursos = true;
+                    setTimeout(function () {
+                        axios.post(`/${rutaEditor}/allcursosinencuesta`, {'id': $vue.encuesta.id}).then(response => {
+                            if (response.data.success) {
+                                $vue.cursosNoEnc = response.data.data;
+                                $vue.paginationCursos['total-items'] = $vue.cursosNoEnc.length;
+                                $vue.changePageCursos();
+                                $vue.processingCursos = false;
+                                $vue.refreshEncuesta();
+
+                            } else {
+                                notify(response.data.message, 'error');
+                            }
+                        }).catch(function (error) {
+                            $vue.processingCursos = false;
+                            notify(MESSAGES.errorComunicacion, "error");
+                        });
+                    }, 1000);
+                } else {
+                    notify(response.message, 'error');
+                }
+
+            }).catch(function (error) {
+                $vue.$refs.modalConfirmAction.confirmReaction(false);
+                notify(MESSAGES.errorComunicacion, "error");
+            });
         },
         removeCurso(curso) {
-            var vue = this;
+            let $vue = this;
+            $vue.cursoDelete = curso;
 
-            swal({
-                text: "¿Está seguro que desea eliminar el curso?",
-                icon: "warning",
-                type: "warning",
-                dangerMode: true,
-                showCancelButton: true,
-                closeOnConfirm: false,
-                buttons: {
-                    cancel: "No",
-                    confirm: "Si, estoy seguro"
-                }
-            }).then((willDelete) => {
-                if (willDelete) {
-                    vue.deleteCursoSinEncuesta(curso);
-                }
-            });
-
+            $vue.configConfirmAction.okbtn = "Si, eliminar";
+            $vue.configConfirmAction.okclass = "btn-danger";
+            $vue.configConfirmAction.message = "¿Está seguro que desea eliminar el curso?";
+            $vue.configConfirmAction.okaction = $vue.deleteCursoSinEncuesta;
+            $vue.$refs.modalConfirmAction.open();
         },
         searchCurso(nombre) {
             this.isLoading = true
@@ -647,7 +729,7 @@ new Vue({
                 console.log(response.data);
                 this.cursos = response.data
                 this.isLoading = false
-            })
+            });
         },
         verEstados(tipo) {
             let $vue = this;
@@ -827,6 +909,87 @@ new Vue({
                 notify(MESSAGES.errorComunicacion, "error");
             });
 
+        },
+        noProcesados() {
+            let $vue = this;
+            $vue.cfgNoProcesados.waiting = true;
+            $vue.$refs.modalNoProcesados.open();
+
+            axios.post(`/${rutaModulo}/allNoProcesados`, {'id': $vue.encuesta.id}).then(response => {
+                $vue.cfgNoProcesados.waiting = false;
+                if (response.data.success) {
+                    $vue.docentesSeccionesNoEncu = response.data.data;
+                    $vue.paginationNoProcesados['total-items'] = $vue.docentesSeccionesNoEncu.length;
+                    $vue.changePageNoProcesados();
+
+                } else {
+                    notify(response.data.message, 'error');
+                }
+            }).catch(function (error) {
+                $vue.cfgNoProcesados.waiting = false;
+                notify(MESSAGES.errorComunicacion, "error");
+            });
+        },
+        changePageNoProcesados() {
+            let $vue = this;
+            let page = $vue.pageNoProcesados.currentPage;
+            let pageSize = $vue.paginationNoProcesados['items-per-page'];
+
+            let ini = pageSize * (page - 1);
+            let fin = pageSize * page - 1;
+
+            if (ini >= $vue.docentesSeccionesNoEncu.length) {
+                $vue.pageNoProcesados.currentPage = 1;
+                page = $vue.pageNoProcesados.currentPage;
+                ini = pageSize * (page - 1);
+                fin = pageSize * page - 1;
+            }
+
+            $vue.docentesSeccionesNoEncuLista = [];
+            for (var i = 0; i < $vue.docentesSeccionesNoEncu.length; i++) {
+                if (i >= ini && i <= fin) {
+                    $vue.docentesSeccionesNoEncuLista.push($vue.docentesSeccionesNoEncu[i]);
+                }
+            }
+        },
+        addNoProcesado(item) {
+            let $vue = this;
+
+            $vue.configConfirmAction.okbtn = "Si, agregar";
+            $vue.configConfirmAction.okclass = "btn-success";
+            $vue.configConfirmAction.message = '¿Está seguro que desea agregar este docente-sección a la encuesta?';
+            $vue.configConfirmAction.okaction = function () {
+                axios.post(`/${rutaModulo}/addNoProcesado`, item).then(response => {
+                    $vue.$refs.modalConfirmAction.confirmReaction(response.data.success);
+                    if (response.data.success) {
+
+                        $vue.cfgNoProcesados.waiting = true;
+                        axios.post(`/${rutaModulo}/allNoProcesados`, {'id': $vue.encuesta.id}).then(response => {
+                            $vue.cfgNoProcesados.waiting = false;
+                            if (response.data.success) {
+                                $vue.docentesSeccionesNoEncu = response.data.data;
+                                $vue.paginationNoProcesados['total-items'] = $vue.docentesSeccionesNoEncu.length;
+                                $vue.changePageNoProcesados();
+
+                            } else {
+                                notify(response.data.message, 'error');
+                            }
+                        }).catch(function (error) {
+                            $vue.cfgNoProcesados.waiting = false;
+                            notify(MESSAGES.errorComunicacion, "error");
+                        });
+
+                    } else {
+                        notify(response.data.message, 'error');
+                    }
+                }).catch(function (error) {
+                    $vue.$refs.modalConfirmAction.confirmReaction(false);
+                    notify(MESSAGES.errorComunicacion, "error");
+                });
+            }
+
+            $vue.$refs.modalConfirmAction.open();
         }
+
     }
 });
