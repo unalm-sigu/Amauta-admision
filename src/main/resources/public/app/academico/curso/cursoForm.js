@@ -63,7 +63,8 @@ var app = new Vue({
         $vue.setTipoCredito();
     },
     mounted: function () {
-
+        let $vue = this;
+        $vue.carreraCurso = $vue.curso.carrera;
     },
     methods: {
         desbloquearIdioma(index) {
@@ -427,7 +428,7 @@ var app = new Vue({
                                     notify(response.message, "error");
                                 }
                             },
-                            error(response) {   
+                            error(response) {
                                 notify(MESSAGES.errorComunicacion, "error");
                             }
                         });

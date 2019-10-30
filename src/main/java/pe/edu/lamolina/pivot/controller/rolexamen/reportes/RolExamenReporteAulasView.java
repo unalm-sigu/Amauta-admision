@@ -192,7 +192,7 @@ public class RolExamenReporteAulasView extends AbstractPOIExcelView {
                                 ExcelHelper.replaceVal(sheet, rowNum, col, "R");
                                 CellUtil.setCellStyleProperty(sheet.getRow(rowNum).getCell(col), wb, CellUtil.ALIGNMENT, CellStyle.ALIGN_CENTER);
                             } else {
-                                ExcelHelper.replaceVal(sheet, rowNum, col, "");
+                                ExcelHelper.replaceVal(sheet, rowNum, col, "?");
                             }
                         } else {
                             ExcelHelper.replaceVal(sheet, rowNum, col, "");
