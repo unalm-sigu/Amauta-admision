@@ -856,7 +856,7 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
                         programa = programa.concat("por el Convenio de la " + alumno.getCarrera().getNombre());
                     } else {
 
-                        programa = programa.concat("como " + alumno.getPersona().getGeneroAlumno() + " " + alumno.getCarrera().getNombre());
+                        programa = programa.concat("como " + alumno.getPersona().getGeneroAlumno("alter") + " " + alumno.getCarrera().getNombre());
                     }
 
                     htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), programa);
