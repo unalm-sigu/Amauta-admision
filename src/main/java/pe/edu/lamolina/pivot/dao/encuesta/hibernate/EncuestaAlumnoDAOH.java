@@ -37,7 +37,7 @@ public class EncuestaAlumnoDAOH extends AbstractEasyDAO<EncuestaAlumno> implemen
     public List<EncuestaAlumno> allByEncuestaCurso(EncuestaCurso encuesta) {
         Octavia sql = Octavia.query()
                 .from(EncuestaAlumno.class, "ea")
-                .join("encuestaCurso ec", "ed.encuestaEstudiantil ee", "ed.docenteSeccion ds")
+                .join("encuestaCurso ec", "ec.encuestaEstudiantil ee")
                 .filter("ec.id", encuesta);
         return all(sql);
     }

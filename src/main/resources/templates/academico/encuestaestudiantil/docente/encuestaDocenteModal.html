@@ -228,50 +228,98 @@
 
     <div slot="body">
 
-        <div class="col-sm-10">
-            <label class="control-label">Curso</label>
-            <div class="form-group">
-                <multiselect v-model='curso'
-                             v-bind:internal-search='false'
-                             v-bind:limit='15'
-                             v-on:search-change="searchCurso"
-                             v-bind:options='cursos'
-                             placeholder="Ingresa un caracter como mínimo"
-                             label='curso'>
-                </multiselect>
+        <div class="row m-t-md m-b-md m-r-md m-l-md" style="position: relative;">
+            <template v-if="encuesta.objetivosEncuesta == 0 ">
+                <h4 class="text-primary m-t-xxs">Agregar cursos que no se encuestarán</h4>
+                <div class="row">
+                    <div class="col-sm-10">
+                        <multiselect v-model='curso'
+                                     v-bind:internal-search='false'
+                                     v-bind:limit='15'
+                                     v-on:search-change="searchCurso"
+                                     v-bind:options='cursos'
+                                     placeholder="Escriba el nombre del curso"
+                                     label='codigoNombre'
+                                     track-by='id'>
+                            <template slot="option" slot-scope="props">
+                                <div class="block text-primary h5 m-t-xxs" v-text="props.option.nombre"></div>
+                                <small class="block text-muted">
+                                    {{props.option.codigo}}
+                                    <i class="fa fa-bookmark-o"></i> {{props.option.tpc}} | 
+                                    <span class="text-danger">{{props.option.secciones}} secciones</span>
+                                </small>
+                            </template>
+                        </multiselect>
+                    </div>
+
+                    <div class="col-sm-2">
+                        <button style="width:100%;"
+                                class="btn btn-primary btn-sm"
+                                v-bind:disabled="btnAgregar"
+                                v-on:click="agregarCurso()">Agregar</button>
+                    </div>
+                </div>
+            </template>
+            <h4 v-else="" class="text-primary m-t-xxs">Lista de cursos que no se encuestarán</h4>
+
+            <div v-if="processingCursos" 
+                 class="raptor-table-process-main">
+                <span class="raptor-table-process-box">
+                    <span class="raptor-table-process-text">
+                        <i class="fa fa-spinner fa-spin fa-lg fa-fw"></i>  Cargando datos...
+                    </span>
+                </span>
             </div>
+
+            <table class="table table-condensed m-t">
+                <thead>
+                    <tr>
+                        <th class="col-sm-1 text-center">Código</th>
+                        <th class="col-sm-2 text-center">T-P-C</th>
+                        <th class="col-sm-8">Nombre</th>
+                        <th class="col-sm-1 text-center">Secciones</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="item in cursosLista" v-bind:class="item.id==idCursoNew? 'text-primary bold':'' ">
+                        <td class="v-middle text-center">{{item.codigo}}</td>
+                        <td class="v-middle text-center">{{item.tpc}}</td>
+                        <td class="v-middle">{{item.nombre}}</td>
+                        <td class="v-middle text-center">
+                            <div class="circle-recorrido bgr-primary">{{item.secciones}}</div>
+                        </td>
+                        <td class="v-middle">
+                            <template v-if="encuesta.objetivosEncuesta == 0 ">
+
+                                <a v-on:click="removeCurso(item)" class="text-danger pointer">
+                                    <span class="fa-stack fa-lg">
+                                        <i class="fa fa-circle fa-stack-2x"></i>
+                                        <i class="fa fa-times fa-stack-1x fa-inverse"></i>
+                                    </span>
+                                </a>
+                            </template>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="row">
+                <div class="col-md-4">
+                    <small class="text-muted">{{cursosNoEnc.length}} registros</small>
+                </div>
+
+                <div class="col-md-8 text-right">
+                    <uib-pagination v-model="pageCursos" 
+                                    v-bind="paginationCursos"
+                                    v-on:change="changePageCursos"
+                                    class="pagination"
+                                    previous-text="Anterior"
+                                    next-text="Siguiente"/>
+                </div>
+            </div>
+
         </div>
-
-        <div class="col-sm-2 m-t-md">
-            <button
-                class="btn btn-success btn-sm pull-right"
-                v-bind:disabled="btnAgregar"
-                v-on:click.prevent="agregarCurso()">Agregar</button>
-        </div>
-
-        <table class="table table-condensed">
-            <thead>
-                <tr>
-                    <th class="col-sm-2">Código</th>
-                    <th class="col-sm-2">T-P-C</th>
-                    <th class="col-sm-8">Nombre</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr v-for="item in cursosNoEnc">
-                    <td class="v-middle">{{item.codigo}}</td>
-                    <td class="v-middle">{{item.tpc}}</td>
-                    <td class="v-middle">{{item.curso}}</td>
-                    <td class="v-middle">
-                        <a v-on:click.prevent="removeCurso(item)"  class="btn btn-link text-danger pointer">
-                            <i class="fa fa-times" aria-hidden="true"></i>
-                        </a>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-
     </div>
 </modal-vik>
 
@@ -306,5 +354,95 @@
             </div>
         </form>
 
+    </div>
+</modal-vik>
+
+<modal-vik ref="modalNoProcesados"
+           v-bind:modalsize="`modal-lg`"
+           v-bind="cfgNoProcesados">
+
+    <div slot="body">
+        <div class="row m-t-md m-b-md m-r-md m-l-md" style="position: relative;">
+            <h4 class="text-primary m-t-xxs">Docentes-Secciones que no fueron procesados para la encuesta</h4>
+
+            <div v-if="processingNoProcesados" 
+                 class="raptor-table-process-main">
+                <span class="raptor-table-process-box">
+                    <span class="raptor-table-process-text">
+                        <i class="fa fa-spinner fa-spin fa-lg fa-fw"></i>  Cargando datos...
+                    </span>
+                </span>
+            </div>
+
+            <table class="table table-condensed m-t">
+                <thead>
+                    <tr>
+                        <th class="col-sm-1 text-center v-middle">Sección</th>
+                        <th class="text-center v-middle">Doc. princ.</th>
+                        <th class="col-sm-3 v-middle">Docente</th>
+                        <th class="col-sm-2 text-center v-middle">Carga</th>
+                        <th class="col-sm-6 v-middle">Curso</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="item in docentesSeccionesNoEncuLista">
+                        <td class="text-center v-middle">
+                            <div class="block text-dark">{{item.seccion.codigo2}}</div>
+                            <span v-if="item.seccion.grupoSeccion.tipoDictado == 'MOD' "
+                                  class="label label-warning">{{item.seccion.grupoSeccion.tipoDictadoEnum.value}}</span>
+                        </td>
+
+                        <td class="text-center v-middle">
+                            <i v-if="item.principal==1" class="fa fa-check-square-o fa-lg text-success" ></i>
+                            <i v-else="" class="fa fa-minus-circle fa-lg" ></i>
+                        </td>
+                        <td class="v-middle">
+                            <div class="block text-primary" v-text="item.docente.persona.apellidosNombres"></div>
+                            <small class="text-muted">Código: {{item.docente.codigo}}</small>
+                        </td>
+                        <td class="text-center v-middle">
+                            <div class="block bold">{{item.porcentajeCarga}}%</div>
+                            <div class="block">
+                                Del <span v-text="item.fechaInicio"></span>
+                                al <span v-text="item.fechaFin"></span>
+                            </div>
+                        </td>
+
+                        <td>
+                            <div class="text-primary block" v-text="item.seccion.grupoSeccion.curso.nombre"></div>
+                            <div class="block">
+                                <span v-text="item.seccion.grupoSeccion.curso.codigo"></span>
+                                <i class="fa fa-bookmark-o"></i>
+                                <span v-text="item.seccion.grupoSeccion.curso.tpc"></span>
+                            </div>
+                            <small class="block">
+                                Anexo: <span v-text="item.seccion.grupoSeccion.anexoBoletin.nombre"></span>
+                            </small>
+                        </td>
+                        <td class="v-middle text-center">
+                            <span class="pointer" v-on:click='addNoProcesado(item)'>
+                                <i class="fa fa-plus-square fa-lg text-primary"></i>
+                            </span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="row">
+                <div class="col-md-4">
+                    <small class="text-muted">{{docentesSeccionesNoEncu.length}} registros</small>
+                </div>
+
+                <div class="col-md-8 text-right">
+                    <uib-pagination v-model="pageNoProcesados" 
+                                    v-bind="paginationNoProcesados"
+                                    v-on:change="changePageNoProcesados"
+                                    class="pagination"
+                                    previous-text="Anterior"
+                                    next-text="Siguiente"/>
+                </div>
+            </div>
+        </div>
     </div>
 </modal-vik>

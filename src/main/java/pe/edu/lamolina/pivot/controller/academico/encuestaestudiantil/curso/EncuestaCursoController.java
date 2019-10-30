@@ -114,6 +114,8 @@ public class EncuestaCursoController {
                             "grupoSeccion.curso.codigo",
                             "grupoSeccion.curso.nombre",
                             "grupoSeccion.curso.tpc",
+                            "grupoSeccion.fechaInicioModular",
+                            "grupoSeccion.fechaFinModular",
                             "grupoSeccion.tipoDictado",
                             "grupoSeccion.tipoDictadoEnum",
                             "grupoSeccion.curso.departamentoAcademico.nombre",
@@ -152,7 +154,12 @@ public class EncuestaCursoController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
             EncuestaEstudiantil encuesta = service.findEncuestaCursoWithResumen(cicloAcademico);
-            ObjectNode node = JsonHelper.createJson(encuesta, JsonNodeFactory.instance, true, new String[]{"*"});
+            ObjectNode node = JsonHelper.createJson(encuesta, JsonNodeFactory.instance, true, new String[]{
+                "*",
+                "configuraEncuesta.*",
+                "periodosEncuesta.*"
+            });
+
             response.setData(node);
             response.setMessage("Encuesta activada satisfactoriamente");
             response.setSuccess(true);

@@ -15,16 +15,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.NumberFormat;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.pivot.dao.encuesta.OpcionPreguntaDAO;
 import pe.edu.lamolina.pivot.dao.encuesta.ExamenVirtualDAO;
 import pe.edu.lamolina.pivot.dao.encuesta.PreguntaExamenDAO;
 import pe.edu.lamolina.pivot.dao.encuesta.TipoExamenVirtualDAO;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
+import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.encuestaestudiantil.ConfiguraEncuesta;
 import pe.edu.lamolina.model.encuestaestudiantil.CursoSinEncuesta;
 import pe.edu.lamolina.model.encuestaestudiantil.EncuestaEstudiantil;
@@ -38,6 +41,7 @@ import pe.edu.lamolina.model.examen.TipoExamenVirtual;
 import pe.edu.lamolina.model.inscripcion.CicloPostula;
 import pe.edu.lamolina.pivot.dao.academico.CursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.ModalidadEstudioDAO;
+import pe.edu.lamolina.pivot.dao.academico.SeccionDAO;
 import pe.edu.lamolina.pivot.dao.encuesta.CicloPostulaDAO;
 import pe.edu.lamolina.pivot.dao.encuesta.ConfiguraEncuestaDAO;
 import pe.edu.lamolina.pivot.dao.encuesta.CursoSinEncuestaDAO;
@@ -68,6 +72,8 @@ public class EditorEncuestaServiceImp implements EditorEncuestaService {
     CursoSinEncuestaDAO cursoSinEncuestaDAO;
     @Autowired
     ConfiguraEncuestaDAO configuraEncuestaDAO;
+    @Autowired
+    SeccionDAO seccionDAO;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -276,22 +282,18 @@ public class EditorEncuestaServiceImp implements EditorEncuestaService {
     }
 
     @Override
-    public List<Curso> allCursoByName(String nombre) {
-        return cursoDAO.allCursoByName(nombre);
+    public List<Curso> allCursoByNameCiclo(String nombre, CicloAcademico ciclo) {
+        return cursoDAO.allCursoByNameCiclo(nombre, ciclo);
     }
 
     @Override
     @Transactional
     public void addCursoSinEncuesta(CursoSinEncuesta cursoSinEncuestaForm, DataSessionPivot ds) {
-
         Curso curso = cursoSinEncuestaForm.getCurso();
         EncuestaEstudiantil encuestaEstudiantil = encuestaEstudiantilDAO.find(cursoSinEncuestaForm.getEncuestaEstudiantil().getId());
 
         CursoSinEncuesta cursoSinEncuesta = cursoSinEncuestaDAO.findByEncuestaEstudiantilCurso(encuestaEstudiantil, curso);
-
-        if (cursoSinEncuesta != null) {
-            throw new PhobosException("Curso ya registrado");
-        }
+        Assert.isNull(cursoSinEncuesta, "Curso ya registrado");
 
         cursoSinEncuesta = new CursoSinEncuesta();
         cursoSinEncuesta.setCurso(curso);
@@ -299,7 +301,11 @@ public class EditorEncuestaServiceImp implements EditorEncuestaService {
         cursoSinEncuesta.setFechaCreacion(new Date());
         cursoSinEncuesta.setUserCreacion(ds.getUsuario());
         cursoSinEncuestaDAO.save(cursoSinEncuesta);
+    }
 
+    @Override
+    public List<Seccion> allSeccionesByCicloCursos(CicloAcademico cicloAcademico, List<Curso> cursos) {
+        return seccionDAO.allByCicloAndCursos(cicloAcademico, cursos);
     }
 
     @Override
@@ -326,6 +332,11 @@ public class EditorEncuestaServiceImp implements EditorEncuestaService {
         JsonNodeFactory fc = JsonNodeFactory.instance;
         ObjectNode node = JsonHelper.createJson(configuraEncuesta, fc);
         return node;
+    }
+
+    @Override
+    public EncuestaEstudiantil getEncuestaEstudiantil(EncuestaEstudiantil encuesta) {
+        return encuestaEstudiantilDAO.find(encuesta.getId());
     }
 
 }

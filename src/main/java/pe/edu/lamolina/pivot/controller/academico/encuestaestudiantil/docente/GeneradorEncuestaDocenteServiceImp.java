@@ -12,6 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.thymeleaf.util.StringUtils;
+import pe.albatross.zelpers.miscelanea.Assert;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AnexoBoletin;
@@ -26,12 +29,17 @@ import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.encuestaestudiantil.ConfiguraEncuesta;
 import pe.edu.lamolina.model.encuestaestudiantil.CursoSinEncuesta;
 import pe.edu.lamolina.model.encuestaestudiantil.EncuestaAlumno;
+import pe.edu.lamolina.model.encuestaestudiantil.EncuestaCurso;
 import pe.edu.lamolina.model.encuestaestudiantil.EncuestaDocente;
 import pe.edu.lamolina.model.encuestaestudiantil.EncuestaDocenteModalidad;
 import pe.edu.lamolina.model.encuestaestudiantil.EncuestaEstudiantil;
 import pe.edu.lamolina.model.encuestaestudiantil.PeriodoEncuesta;
 import pe.edu.lamolina.model.encuestaestudiantil.PuntajeEncuestaDocenteModalidad;
 import pe.edu.lamolina.model.enums.EncuestaEstudiantilEstadoEnum;
+import static pe.edu.lamolina.model.enums.EncuestaEstudiantilEstadoEnum.ACT;
+import static pe.edu.lamolina.model.enums.EncuestaEstudiantilEstadoEnum.ANU;
+import static pe.edu.lamolina.model.enums.EncuestaEstudiantilEstadoEnum.ENC;
+import static pe.edu.lamolina.model.enums.EncuestaEstudiantilEstadoEnum.PEND;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import static pe.edu.lamolina.model.enums.TipoDictadoGrupoSeccionEnum.MOD;
 import pe.edu.lamolina.model.enums.TipoExamenVirtualEnum;
@@ -47,12 +55,14 @@ import pe.edu.lamolina.pivot.dao.academico.ModalidadEstudioDAO;
 import pe.edu.lamolina.pivot.dao.encuesta.ConfiguraEncuestaDAO;
 import pe.edu.lamolina.pivot.dao.encuesta.CursoSinEncuestaDAO;
 import pe.edu.lamolina.pivot.dao.encuesta.EncuestaAlumnoDAO;
+import pe.edu.lamolina.pivot.dao.encuesta.EncuestaCursoDAO;
 import pe.edu.lamolina.pivot.dao.encuesta.EncuestaDocenteDAO;
 import pe.edu.lamolina.pivot.dao.encuesta.EncuestaDocenteModalidadDAO;
 import pe.edu.lamolina.pivot.dao.encuesta.EncuestaEstudiantilDAO;
 import pe.edu.lamolina.pivot.dao.encuesta.PeriodoEncuestaDAO;
 import pe.edu.lamolina.pivot.dao.encuesta.PuntajeEncuestaDocenteModalidadDAO;
 import pe.edu.lamolina.pivot.dao.encuesta.TemaExamenVirtualDAO;
+import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service
@@ -87,6 +97,8 @@ public class GeneradorEncuestaDocenteServiceImp implements GeneradorEncuestaDoce
     TemaExamenVirtualDAO temaExamenVirtualDAO;
     @Autowired
     CursoDAO cursoDAO;
+    @Autowired
+    EncuestaCursoDAO encuestaCursoDAO;
 
     @Autowired
     VisorEncuestaDocente visorEncuestaDocente;
@@ -173,7 +185,7 @@ public class GeneradorEncuestaDocenteServiceImp implements GeneradorEncuestaDoce
         }
 
         Seccion seccion = profeSecc.getSeccion();
-        GrupoSeccion gpoSeccion = profeSecc.getSeccion().getGrupoSeccion();
+        GrupoSeccion gpoSeccion = seccion.getGrupoSeccion();
         AnexoBoletin anexoSup = gpoSeccion.getAnexoBoletin().getAnexoSuperior();
         List<DocenteSeccion> profesoresSecc = mapProfeSeccBySeccion.get(seccion.getId());
         List<Alumno> alumnos = TypesUtil.getListNotNull(mapAlumnos.get(seccion.getId()));
@@ -185,8 +197,6 @@ public class GeneradorEncuestaDocenteServiceImp implements GeneradorEncuestaDoce
         CicloAcademico ciclo = profeSecc.getSeccion().getGrupoSeccion().getCicloAcademico();
 
         EncuestaDocenteModalidad encuProfeModalidad = mapEncusProfesModalidadades.get(docente.getId() + "-" + modalidad.getId());
-        //logger.debug("encprofmoda {}", encuProfeModalidad);
-        //logger.debug("KEY {}", docente.getId() + "-" + modalidad.getId());
         if (encuProfeModalidad == null) {
             encuProfeModalidad = new EncuestaDocenteModalidad();
             encuProfeModalidad.setCicloAcademico(ciclo);
@@ -246,7 +256,6 @@ public class GeneradorEncuestaDocenteServiceImp implements GeneradorEncuestaDoce
             enc.setDescripcion(impedido);
             enc.setDocenteSeccion(profeSecc);
             enc.setEncuestaEstudiantil(encuestaEstudiantil);
-            enc.setModalidadEstudio(curso.getModalidadEstudio());
             enc.setEsTeoriaPractica(0);
             enc.setEstadoEnum(EncuestaEstudiantilEstadoEnum.ANU);
             enc.setUserRegistro(ds.getUsuario());
@@ -266,12 +275,18 @@ public class GeneradorEncuestaDocenteServiceImp implements GeneradorEncuestaDoce
                 enc.setDocenteSeccion(profeSecc);
                 enc.setEncuestaEstudiantil(encuestaEstudiantil);
                 enc.setEsTeoriaPractica(configuraEncuesta.getEncuestaTeoriaPractica().intValue());
-                enc.setModalidadEstudio(curso.getModalidadEstudio());
                 enc.setEstadoEnum(EncuestaEstudiantilEstadoEnum.ACT);
-                enc.setFechaEncuestaInicio(periodo.getFechaInicio());
-                enc.setFechaEncuestaFin(periodo.getFechaFin());
                 enc.setUserRegistro(ds.getUsuario());
                 enc.setFechaRegistro(new Date());
+
+                if (gpoSeccion.getTipoDictadoEnum() == MOD) {
+                    enc.setFechaEncuestaInicio(getFechaInicioEncuesta(profeSecc, configuraEncuesta));
+                    enc.setFechaEncuestaFin(profeSecc.getFechaFin());
+                } else {
+                    enc.setFechaEncuestaInicio(periodo.getFechaInicio());
+                    enc.setFechaEncuestaFin(periodo.getFechaFin());
+                }
+
                 encuestaDocenteDAO.save(enc);
 
                 saveEncuestaAlumno(encuProfe, alumnos, encuestasAlumnos, ds);
@@ -297,7 +312,6 @@ public class GeneradorEncuestaDocenteServiceImp implements GeneradorEncuestaDoce
                     enc.setAlumnosFin(Long.valueOf(alumnos.size()));
                     enc.setDocenteSeccion(profeSecc);
                     enc.setEncuestaEstudiantil(encuestaEstudiantil);
-                    enc.setModalidadEstudio(curso.getModalidadEstudio());
                     enc.setEsTeoriaPractica(0);
                     enc.setEstadoEnum(EncuestaEstudiantilEstadoEnum.TEO);
                     enc.setDescripcion("Se encuesta en la teoría");
@@ -320,14 +334,12 @@ public class GeneradorEncuestaDocenteServiceImp implements GeneradorEncuestaDoce
                 enc.setDocenteSeccion(profeSecc);
                 enc.setEncuestaEstudiantil(encuestaEstudiantil);
                 enc.setEsTeoriaPractica(configuraEncuesta.getEncuestaTeoriaPractica().intValue());
-                enc.setModalidadEstudio(curso.getModalidadEstudio());
                 enc.setEstadoEnum(EncuestaEstudiantilEstadoEnum.ACT);
                 enc.setUserRegistro(ds.getUsuario());
                 enc.setFechaRegistro(new Date());
 
                 if (gpoSeccion.getTipoDictadoEnum() == MOD) {
-                    Date inicioEncuesta = new DateTime(profeSecc.getFechaFin()).minusDays(configuraEncuesta.getDiasEncuesta().intValue()).toDate();
-                    enc.setFechaEncuestaInicio(inicioEncuesta);
+                    enc.setFechaEncuestaInicio(getFechaInicioEncuesta(profeSecc, configuraEncuesta));
                     enc.setFechaEncuestaFin(profeSecc.getFechaFin());
                 } else {
                     enc.setFechaEncuestaInicio(periodo.getFechaInicio());
@@ -355,7 +367,6 @@ public class GeneradorEncuestaDocenteServiceImp implements GeneradorEncuestaDoce
             enc.setDescripcion(impedido);
             enc.setDocenteSeccion(profeSecc);
             enc.setEncuestaEstudiantil(encuestaEstudiantil);
-            enc.setModalidadEstudio(curso.getModalidadEstudio());
             enc.setEsTeoriaPractica(0);
             enc.setEstadoEnum(EncuestaEstudiantilEstadoEnum.FECH);
             enc.setDescripcion("No se encuesta porque el docente no tiene configurado su periodo de clases");
@@ -365,7 +376,6 @@ public class GeneradorEncuestaDocenteServiceImp implements GeneradorEncuestaDoce
             return;
         }
 
-        Date inicioEncuesta = new DateTime(profeSecc.getFechaFin()).minusDays(configuraEncuesta.getDiasEncuesta().intValue()).toDate();
         EncuestaDocente enc = new EncuestaDocente();
         enc.setModalidadEstudio(modalidad);
         enc.setAlumnosEncuestados(0L);
@@ -375,13 +385,11 @@ public class GeneradorEncuestaDocenteServiceImp implements GeneradorEncuestaDoce
         enc.setDocenteSeccion(profeSecc);
         enc.setEncuestaEstudiantil(encuestaEstudiantil);
         enc.setEsTeoriaPractica(configuraEncuesta.getEncuestaTeoriaPractica().intValue());
-        enc.setModalidadEstudio(curso.getModalidadEstudio());
         enc.setEstadoEnum(EncuestaEstudiantilEstadoEnum.ACT);
+        enc.setFechaEncuestaInicio(getFechaInicioEncuesta(profeSecc, configuraEncuesta));
+        enc.setFechaEncuestaFin(profeSecc.getFechaFin());
         enc.setUserRegistro(ds.getUsuario());
         enc.setFechaRegistro(new Date());
-        enc.setFechaEncuestaInicio(inicioEncuesta);
-        enc.setFechaEncuestaFin(profeSecc.getFechaFin());
-
         encuestaDocenteDAO.save(enc);
 
         saveEncuestaAlumno(enc, alumnos, encuestasAlumnos, ds);
@@ -390,6 +398,15 @@ public class GeneradorEncuestaDocenteServiceImp implements GeneradorEncuestaDoce
 
         encuProfeModalidad.setEstadoEnum(EncuestaEstudiantilEstadoEnum.ACT);
         encuestaDocenteModalidadDAO.update(encuProfeModalidad);
+    }
+
+    private Date getFechaInicioEncuesta(DocenteSeccion profeSecc, ConfiguraEncuesta configuraEncuesta) {
+        Date inicioEncuesta = new DateTime(profeSecc.getFechaFin()).minusDays(configuraEncuesta.getDiasEncuesta().intValue()).toDate();
+        if (inicioEncuesta.compareTo(profeSecc.getFechaInicio()) > 0) {
+            return inicioEncuesta;
+        }
+        return profeSecc.getFechaInicio();
+
     }
 
     private void saveEncuestaAlumno(
@@ -436,6 +453,312 @@ public class GeneradorEncuestaDocenteServiceImp implements GeneradorEncuestaDoce
     private List<Alumno> clearAlumnosDuplicados(List<Alumno> alumnosDobles) {
         Map<Long, Alumno> mapAlumnos = TypesUtil.convertListToMap("id", alumnosDobles);
         return new ArrayList(mapAlumnos.values());
+    }
+
+    @Override
+    @Transactional
+    public void generarEncuestaDocente(DocenteSeccion docenteSeccionForm, CicloAcademico ciclo, DataSessionPivot ds) {
+        DocenteSeccion docenteSeccionBD = docenteSeccionDAO.find(docenteSeccionForm.getId());
+        List<MatriculaSeccion> matriculasSecciones = matriculaSeccionDAO.allMatriculadosBySeccion(docenteSeccionBD.getSeccion());
+        Map<Long, List<Alumno>> mapAlumnos = TypesUtil.convertListToMapList("seccion.id", "matriculaResumen.alumno", matriculasSecciones);
+        for (Map.Entry<Long, List<Alumno>> entry : mapAlumnos.entrySet()) {
+            List<Alumno> alumnos = clearAlumnosDuplicados(entry.getValue());
+            mapAlumnos.put(entry.getKey(), alumnos);
+        }
+
+        Docente docente = docenteSeccionBD.getDocente();
+        boolean esNN = docente.getCodigo().equals(Constantine.DOCENTE_INDETERMINADO);
+        Assert.isFalse(esNN, "No se genera encuestas para docentes N.N.");
+
+        List<EncuestaAlumno> encuestasAlumnos = new ArrayList();
+
+        List<DocenteSeccion> profesPersonasSecciones = new ArrayList();
+        profesPersonasSecciones.add(docenteSeccionBD);
+
+        List<DocenteSeccion> profesActivosSecciones = docenteSeccionDAO.allActivosByCiclo(ciclo);
+        List<EncuestaDocenteModalidad> encusProfesModalidadades = encuestaDocenteModalidadDAO.allByDocenteCiclo(docente, ciclo);
+        Map<Long, List<DocenteSeccion>> mapProfeSeccBySecc = TypesUtil.convertListToMapList("seccion.id", profesActivosSecciones);
+        Map<Long, List<DocenteSeccion>> mapProfeSeccByGpoSecc = TypesUtil.convertListToMapList("seccion.grupoSeccion.id", profesActivosSecciones);
+        Map<String, EncuestaDocenteModalidad> mapEncusProfesModalidadades = TypesUtil.convertListToMap("key", encusProfesModalidadades);
+
+        EncuestaEstudiantil encuestaDocente = encuestaEstudiantilDAO.findByCicloTipo(ciclo, TipoExamenVirtualEnum.ENC_DOC);
+        ConfiguraEncuesta configuraEncuesta = configuraEncuestaDAO.findByEncuesta(encuestaDocente);
+        List<PeriodoEncuesta> periodosEncuesta = periodoEncuestaDAO.allByEncuesta(encuestaDocente);
+        List<TemaExamenVirtual> temas = temaExamenVirtualDAO.allByEvaluacion(encuestaDocente.getEncuesta());
+        encuestaDocente.getEncuesta().setTema(temas);
+
+        List<EncuestaDocente> encuestasDocentes = encuestaDocenteDAO.allByEncuestaEstudiantil(encuestaDocente, new ArrayList());
+        Map<Long, EncuestaDocente> mapEncuestaByProfeSecc = TypesUtil.convertListToMap("docenteSeccion.id", encuestasDocentes);
+
+        List<CursoSinEncuesta> cursosSinEncuesta = cursoSinEncuestaDAO.allByEncuestaEstudiantil(encuestaDocente);
+        Map<Long, Curso> mapCursosSinEncuesta = TypesUtil.convertListToMap("curso.id", "curso", cursosSinEncuesta);
+
+        List<ModalidadEstudio> modalidades = modalidadEstudioDAO.allPrePostgrado(new Compania(1L));
+        Map<String, ModalidadEstudio> mapModalidad = TypesUtil.convertListToMap("codigo", modalidades);
+
+        visorEncuestaDocente.iniciarConteo(profesPersonasSecciones.size());
+        for (DocenteSeccion profeSecc : profesPersonasSecciones) {
+            saveEncuestaDocente(
+                    profeSecc,
+                    mapAlumnos,
+                    mapProfeSeccBySecc,
+                    mapProfeSeccByGpoSecc,
+                    mapEncuestaByProfeSecc,
+                    mapCursosSinEncuesta,
+                    mapEncusProfesModalidadades,
+                    configuraEncuesta,
+                    periodosEncuesta,
+                    encuestaDocente,
+                    encuestasAlumnos,
+                    mapModalidad, ds);
+            visorEncuestaDocente.incrementar();
+        }
+
+        encuestaEstudiantilDAO.update(encuestaDocente);
+        saveEncuestaAlumno(null, new ArrayList(), encuestasAlumnos, ds);
+
+        EncuestaDocente encuestaDocenteDB = encuestaDocenteDAO.findByDocenteSeccion(docenteSeccionBD);
+        crearEncuestaCurso(encuestaDocenteDB, ciclo, ds);
+    }
+
+    private void crearEncuestaCurso(EncuestaDocente encuestaDocenteBD, CicloAcademico ciclo, DataSessionPivot ds) {
+        Seccion seccion = encuestaDocenteBD.getDocenteSeccion().getSeccion();
+        GrupoSeccion grupoSeccion = seccion.getGrupoSeccion();
+
+        List<MatriculaSeccion> matriculadosSeccion = matriculaSeccionDAO.allMatriculadosBySeccion(seccion);
+        Assert.isFalse(matriculadosSeccion.isEmpty(), "No existe alumnos matriculados en esta sección");
+        Map<Long, MatriculaSeccion> mapMatriculado = TypesUtil.convertListToMap("matriculaResumen.alumno.id", matriculadosSeccion);
+
+        EncuestaEstudiantil encuCurso = encuestaEstudiantilDAO.findByCicloTipo(ciclo, TipoExamenVirtualEnum.ENC_CUR);
+        if (encuCurso == null) {
+            System.out.println("111");
+            return;
+        }
+        if (encuCurso.getObjetivosEncuesta() == 0) {
+            System.out.println("222");
+            return;
+        }
+
+        ConfiguraEncuesta cfgEncuestaCurso = configuraEncuestaDAO.findByEncuesta(encuCurso);
+        if (cfgEncuestaCurso == null) {
+            System.out.println("333");
+            return;
+        }
+        if (cfgEncuestaCurso.getSimultaneo() == null) {
+            System.out.println("4444");
+            return;
+        }
+        if (cfgEncuestaCurso.getSimultaneo() != 1) {
+            System.out.println("5555");
+            return;
+        }
+
+        int total = matriculadosSeccion.size();
+        int reprogramadas = 0;
+
+        EncuestaCurso encuestaCurso = encuestaCursoDAO.findByEncuestaDocente(encuestaDocenteBD);
+
+        boolean yaExiste = true;
+        if (encuestaCurso == null) {
+            System.out.println("6666");
+            encuestaCurso = new EncuestaCurso();
+            encuestaCurso.setEncuestaEstudiantil(encuCurso);
+            encuestaCurso.setGrupoSeccion(grupoSeccion);
+            encuestaCurso.setModalidadEstudio(encuestaDocenteBD.getModalidadEstudio());
+            encuestaCurso.setEncuestaDocente(encuestaDocenteBD);
+
+            encuestaCurso.setAlumnosFin(matriculadosSeccion.size());
+            encuestaCurso.setAlumnosInicio(matriculadosSeccion.size());
+            encuestaCurso.setAlumnosEncuestados(0L);
+            encuestaCurso.setEstadoEnum(EncuestaEstudiantilEstadoEnum.ACT);
+            encuestaCurso.setFechaEncuestaInicio(encuestaDocenteBD.getFechaInicio());
+            encuestaCurso.setFechaEncuestaFin(encuestaDocenteBD.getFechaFin());
+            encuestaCurso.setUserRegistro(ds.getUsuario());
+            encuestaCurso.setFechaRegistro(new Date());
+            encuestaCursoDAO.save(encuestaCurso);
+            yaExiste = false;
+        }
+
+        List<EncuestaAlumno> encuestasAlumnos = encuestaAlumnoDAO.allByEncuestaCurso(encuestaCurso);
+        Map<Long, EncuestaAlumno> mapEncuAlumno = TypesUtil.convertListToMap("alumno.id", encuestasAlumnos);
+        System.out.println("777");
+
+        boolean yaEstaActiva = false;
+        if (yaExiste) {
+            yaEstaActiva = encuestaCurso.getEstadoEnum() == ACT;
+        }
+
+        for (MatriculaSeccion matriculado : matriculadosSeccion) {
+            Alumno alumno = matriculado.getMatriculaResumen().getAlumno();
+            EncuestaAlumno encuAlumno = mapEncuAlumno.get(alumno.getId());
+            if (encuAlumno == null) {
+                encuAlumno = new EncuestaAlumno();
+                encuAlumno.setAlumno(alumno);
+                encuAlumno.setEncuestaDocente(encuestaDocenteBD);
+                encuAlumno.setEncuestaCurso(encuestaCurso);
+                encuAlumno.setEstadoEnum(EncuestaEstudiantilEstadoEnum.PEND);
+                encuAlumno.setUserRegistro(ds.getUsuario());
+                encuAlumno.setFechaRegistro(new Date());
+                encuestaAlumnoDAO.save(encuAlumno);
+                reprogramadas++;
+
+            } else {
+                if (encuAlumno.getEstadoEnum() == ANU) {
+                    encuAlumno.setEstadoEnum(ACT);
+                    encuestaAlumnoDAO.update(encuAlumno);
+                    reprogramadas++;
+                }
+            }
+        }
+
+        System.out.println("8888 " + matriculadosSeccion.size());
+
+        for (EncuestaAlumno encuestaAlumno : encuestasAlumnos) {
+            MatriculaSeccion matriculado = mapMatriculado.get(encuestaAlumno.getAlumno().getId());
+            if (matriculado == null && encuestaAlumno.getEstadoEnum() == ENC) {
+                total++;
+            }
+        }
+
+        if (yaExiste) {
+            encuestaCurso.setFechaEncuestaInicio(encuestaDocenteBD.getFechaEncuestaInicio());
+            encuestaCurso.setFechaEncuestaFin(encuestaDocenteBD.getFechaEncuestaFin());
+        }
+
+        if (yaExiste && !yaEstaActiva) {
+            encuestaCurso.setEstadoEnum(ACT);
+            encuestaCurso.setAlumnosFin(total);
+            encuestaCurso.setUserModificacion(ds.getUsuario());
+            encuestaCurso.setFechaModificacion(new Date());
+        }
+
+        encuestaCursoDAO.update(encuestaCurso);
+        if (!yaEstaActiva) {
+            encuCurso.setObjetivosEncuesta(encuCurso.getObjetivosEncuesta() + 1);
+            encuCurso.setEncuestasProgramadas(encuCurso.getEncuestasProgramadas() + reprogramadas);
+            encuestaEstudiantilDAO.update(encuCurso);
+        }
+    }
+
+    @Override
+    @Transactional
+    public void activarEncuestaDocente(EncuestaDocente encuestaForm, CicloAcademico ciclo, DataSessionPivot ds) {
+        EncuestaDocente encuestaDocenteBD = encuestaDocenteDAO.findEncuestaDocente(encuestaForm);
+        Assert.isNotNull(encuestaDocenteBD, "No existe esta encuesta en la base de datos");
+
+        Seccion seccion = encuestaDocenteBD.getDocenteSeccion().getSeccion();
+        List<MatriculaSeccion> matriculadosSeccion = matriculaSeccionDAO.allMatriculadosBySeccion(seccion);
+        Assert.isFalse(matriculadosSeccion.isEmpty(), "No existe alumnos matriculados en esta sección");
+        Map<Long, MatriculaSeccion> mapMatriculado = TypesUtil.convertListToMap("matriculaResumen.alumno.id", matriculadosSeccion);
+
+        int total = matriculadosSeccion.size();
+        int reprogramadas = 0;
+
+        List<EncuestaAlumno> encuestasAlumnos = encuestaAlumnoDAO.allByEncuestaDocente(encuestaDocenteBD);
+        Map<Long, EncuestaAlumno> mapEncuAlumno = TypesUtil.convertListToMap("alumno.id", encuestasAlumnos);
+
+        for (MatriculaSeccion matriculado : matriculadosSeccion) {
+            Alumno alumno = matriculado.getMatriculaResumen().getAlumno();
+            EncuestaAlumno encuAlumno = mapEncuAlumno.get(alumno.getId());
+            if (encuAlumno == null) {
+                encuAlumno = new EncuestaAlumno();
+                encuAlumno.setAlumno(alumno);
+                encuAlumno.setEncuestaDocente(encuestaDocenteBD);
+                encuAlumno.setEstadoEnum(EncuestaEstudiantilEstadoEnum.PEND);
+                encuAlumno.setUserRegistro(ds.getUsuario());
+                encuAlumno.setFechaRegistro(new Date());
+                encuestaAlumnoDAO.save(encuAlumno);
+                reprogramadas++;
+
+            } else {
+                if (encuAlumno.getEstadoEnum() == ANU) {
+                    encuAlumno.setEstadoEnum(PEND);
+                    encuestaAlumnoDAO.update(encuAlumno);
+                    reprogramadas++;
+                }
+            }
+        }
+
+        for (EncuestaAlumno encuestaAlumno : encuestasAlumnos) {
+            MatriculaSeccion matriculado = mapMatriculado.get(encuestaAlumno.getAlumno().getId());
+            if (matriculado == null && encuestaAlumno.getEstadoEnum() == ENC) {
+                total++;
+            }
+        }
+
+        encuestaDocenteBD.setEstadoEnum(ACT);
+        encuestaDocenteBD.setAlumnosFin(Long.valueOf(total));
+        encuestaDocenteBD.setUserModificacion(ds.getUsuario());
+        encuestaDocenteBD.setFechaModificacion(new Date());
+        encuestaDocenteDAO.update(encuestaDocenteBD);
+
+        EncuestaEstudiantil encu = encuestaDocenteBD.getEncuestaEstudiantil();
+        encu.setObjetivosEncuesta(encu.getObjetivosEncuesta() + 1);
+        encu.setEncuestasProgramadas(encu.getEncuestasProgramadas() + reprogramadas);
+        encuestaEstudiantilDAO.update(encu);
+
+        this.crearEncuestaCurso(encuestaDocenteBD, ciclo, ds);
+
+    }
+
+    @Override
+    @Transactional
+    public void desactivarEncuestaDocente(EncuestaDocente encuestaDocenteForm, CicloAcademico ciclo, DataSessionPivot ds) {
+        EncuestaDocente encuestaDocenteBD = encuestaDocenteDAO.findEncuestaDocente(encuestaDocenteForm);
+        Assert.isNotNull(encuestaDocenteBD, "No existe esta encuesta en la base de datos");
+
+        Assert.isFalse(StringUtils.isEmpty(encuestaDocenteForm.getDescripcion()), "Debe ingresar un motivo de la desactivación");
+        encuestaDocenteBD.setEstadoEnum(ANU);
+        encuestaDocenteBD.setDescripcion(encuestaDocenteForm.getDescripcion());
+        encuestaDocenteBD.setUserModificacion(ds.getUsuario());
+        encuestaDocenteBD.setFechaModificacion(new Date());
+
+        int desprogramadas = 0;
+        List<EncuestaAlumno> encuestas = encuestaAlumnoDAO.allByEncuestaDocente(encuestaDocenteBD);
+        for (EncuestaAlumno encuestaAlumno : encuestas) {
+            if (encuestaAlumno.getEstadoEnum() == PEND) {
+                encuestaAlumno.setEstadoEnum(ANU);
+                encuestaAlumnoDAO.update(encuestaAlumno);
+                desprogramadas++;
+            }
+        }
+        encuestaDocenteDAO.update(encuestaDocenteBD);
+
+        EncuestaEstudiantil encu = encuestaDocenteBD.getEncuestaEstudiantil();
+        encu.setObjetivosEncuesta(encu.getObjetivosEncuesta() - 1);
+        encu.setEncuestasProgramadas(encu.getEncuestasProgramadas() - desprogramadas);
+        encuestaEstudiantilDAO.update(encu);
+
+        EncuestaCurso encuestaCurso = encuestaCursoDAO.findByEncuestaDocente(encuestaDocenteBD);
+        if (encuestaCurso == null) {
+            return;
+        }
+
+        if (encuestaCurso.getEstadoEnum() != ACT) {
+            return;
+        }
+
+        encuestaCurso.setEstadoEnum(ANU);
+        encuestaCurso.setDescripcion(encuestaDocenteForm.getDescripcion());
+        encuestaCurso.setUserModificacion(ds.getUsuario());
+        encuestaCurso.setFechaModificacion(new Date());
+        encuestaCursoDAO.update(encuestaCurso);
+
+        desprogramadas = 0;
+        encuestas = encuestaAlumnoDAO.allByEncuestaCurso(encuestaCurso);
+        for (EncuestaAlumno encuestaAlumno : encuestas) {
+            if (encuestaAlumno.getEstadoEnum() == PEND) {
+                encuestaAlumno.setEstadoEnum(ANU);
+                encuestaAlumnoDAO.update(encuestaAlumno);
+                desprogramadas++;
+            }
+        }
+
+        EncuestaEstudiantil encuCurso = encuestaEstudiantilDAO.findByCicloTipo(ciclo, TipoExamenVirtualEnum.ENC_CUR);
+        encuCurso.setObjetivosEncuesta(encuCurso.getObjetivosEncuesta() - 1);
+        encuCurso.setEncuestasProgramadas(encuCurso.getEncuestasProgramadas() - desprogramadas);
+        encuestaEstudiantilDAO.update(encuCurso);
+
     }
 
 }

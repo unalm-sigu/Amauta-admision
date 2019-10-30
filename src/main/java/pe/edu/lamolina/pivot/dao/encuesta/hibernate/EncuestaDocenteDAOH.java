@@ -220,7 +220,11 @@ public class EncuestaDocenteDAOH extends AbstractEasyDAO<EncuestaDocente> implem
     public EncuestaDocente findByDocenteSeccion(DocenteSeccion docSec) {
 
         Octavia sql = Octavia.query(EncuestaDocente.class, "ed")
-                .join("docenteSeccion ds")
+                .join("encuestaEstudiantil ee", "ee.encuesta en", "ee.cicloAcademico ciclo")
+                .join("docenteSeccion ds", "ds.docente doc", "doc.persona per")
+                .join("ds.seccion sec", "sec.grupoSeccion gs", "gs.curso cur")
+                .join("doc.departamentoAcademico da", "da.facultad fa")
+                .leftJoin("per.tipoDocumento tdoc", "sec.grupoHoras gh")
                 .filter("ds.id", docSec);
         return find(sql);
     }

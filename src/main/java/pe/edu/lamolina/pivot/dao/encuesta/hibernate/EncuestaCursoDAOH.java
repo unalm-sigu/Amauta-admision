@@ -12,6 +12,7 @@ import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.encuestaestudiantil.EncuestaCurso;
+import pe.edu.lamolina.model.encuestaestudiantil.EncuestaDocente;
 import pe.edu.lamolina.model.encuestaestudiantil.EncuestaEstudiantil;
 import static pe.edu.lamolina.model.enums.EncuestaEstudiantilEstadoEnum.ACT;
 import static pe.edu.lamolina.model.enums.EncuestaEstudiantilEstadoEnum.ANU;
@@ -182,13 +183,23 @@ public class EncuestaCursoDAOH extends AbstractEasyDAO<EncuestaCurso> implements
     }
 
     @Override
-    public EncuestaCurso findEncuestaCurso(EncuestaCurso encuestaForm) {
+    public EncuestaCurso findByEncuestaCurso(EncuestaCurso encuestaForm) {
         Octavia sql = Octavia.query()
                 .from(EncuestaCurso.class, "ec")
                 .join("encuestaEstudiantil ee", "ee.encuesta en", "ee.cicloAcademico ciclo")
                 .join("grupoSeccion gs", "gs.curso cur")
                 .join("cur.departamentoAcademico da", "da.facultad")
                 .filter("ec.id", encuestaForm);
+        return find(sql);
+    }
+
+    @Override
+    public EncuestaCurso findByEncuestaDocente(EncuestaDocente encuestaDocente) {
+        Octavia sql = Octavia.query()
+                .from(EncuestaCurso.class, "ec")
+                .join("encuestaEstudiantil ee", "ee.encuesta en", "ee.cicloAcademico ciclo")
+                .join("encuestaDocente ed")
+                .filter("ed.id", encuestaDocente);
         return find(sql);
     }
 

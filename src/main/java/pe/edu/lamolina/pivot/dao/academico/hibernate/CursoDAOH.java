@@ -256,9 +256,29 @@ public class CursoDAOH extends AbstractEasyDAO<Curso> implements CursoDAO {
         nombre = "%" + nombre.replaceAll(" ", "%") + "%";
         Octavia sql = Octavia.query()
                 .from(Curso.class, "cur")
-                .join("departamentoAcademico dep")
+                .join("departamentoAcademico dep", "dep.facultad")
                 .leftJoin("carrera car", "car.facultad fa", "planCalificacion  pc", "planCalificacionRegular pcr", "coordinador cor")
                 .filter("cur.estado", ACT)
+                .beginBlock()
+                .__().filter("cur.nombre", "like", nombre)
+                .__().filter("cur.codigo", "like", nombre)
+                .__().filter("cur.codigoAnterior1", "like", nombre)
+                .endBlock()
+                .limit(15);
+        return all(sql);
+    }
+
+    @Override
+    public List<Curso> allCursoByNameCiclo(String nombre, CicloAcademico ciclo) {
+        nombre = "%" + nombre.replaceAll(" ", "%") + "%";
+        Octavia sql = Octavia.query()
+                .selectDistinct("cur")
+                .from(Seccion.class, "sec")
+                .join("grupoSeccion gs", "gs.curso cur", "gs.cicloAcademico ci")
+                .join("cur.departamentoAcademico dep", "dep.facultad")
+                .leftJoin("cur.carrera car")
+                .filter("ci.id", ciclo)
+                .filter("estado", ACT)
                 .beginBlock()
                 .__().filter("cur.nombre", "like", nombre)
                 .__().filter("cur.codigo", "like", nombre)

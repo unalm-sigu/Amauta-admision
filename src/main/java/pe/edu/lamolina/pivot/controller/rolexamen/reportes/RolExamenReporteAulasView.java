@@ -1,6 +1,7 @@
 package pe.edu.lamolina.pivot.controller.rolexamen.reportes;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
@@ -21,7 +22,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 import java.util.StringTokenizer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.openxml4j.util.ZipSecureFile;
@@ -31,6 +31,9 @@ import pe.albatross.zelpers.file.excel.ExcelHelper;
 import pe.albatross.zelpers.miscelanea.NumberFormat;
 import pe.edu.lamolina.model.enums.EventoAcademicoEnum;
 import pe.edu.lamolina.model.general.Aula;
+import pe.edu.lamolina.model.rolexamen.CursoMasivoExamen;
+import pe.edu.lamolina.model.rolexamen.SeccionGrupoEspecial;
+import pe.edu.lamolina.model.rolexamen.SeccionGrupoRegular;
 
 @Component
 public class RolExamenReporteAulasView extends AbstractPOIExcelView {
@@ -63,7 +66,7 @@ public class RolExamenReporteAulasView extends AbstractPOIExcelView {
         Map<Aula, List<Aula>> aulasPorModulo = (Map<Aula, List<Aula>>) model.get("aulasPorModulo");
         List<Date> dias = (List<Date>) model.get("dias");
         Map<Date, List<Integer>> horasPorDia = (Map<Date, List<Integer>>) model.get("horasPorDia");
-        Map<Aula, Map<Date, Set<Integer>>> mapOcupacion = (Map<Aula, Map<Date, Set<Integer>>>) model.get("mapOcupacion");
+        Map<Aula, Map<Date, Map<Integer, List>>> mapOcupacion = (Map<Aula, Map<Date, Map<Integer, List>>>) model.get("mapOcupacion");
 
         Sheet sheet = workbook.createSheet("REPORTE");
         this.createSheet(workbook, sheet, rol, modulos, aulasPorModulo, dias, horasPorDia, mapOcupacion);
@@ -88,11 +91,20 @@ public class RolExamenReporteAulasView extends AbstractPOIExcelView {
         }
     }
 
-    private void createSheet(Workbook wb, Sheet sheet, RolExamenes rol, List<Aula> modulos, Map<Aula, List<Aula>> aulasPorModulo, List<Date> dias, Map<Date, List<Integer>> horasPorDia, Map<Aula, Map<Date, Set<Integer>>> mapOcupacion) {
+    private void createSheet(
+            Workbook wb,
+            Sheet sheet,
+            RolExamenes rol,
+            List<Aula> modulos,
+            Map<Aula, List<Aula>> aulasPorModulo,
+            List<Date> fechas,
+            Map<Date, List<Integer>> horasPorDia,
+            Map<Aula, Map<Date, Map<Integer, List>>> mapOcupacion) {
+
         SimpleDateFormat sdf = new SimpleDateFormat("EEEE dd", new Locale("es", "ES"));
         SimpleDateFormat sdf2 = new SimpleDateFormat("EEEE dd 'de' MMMM 'del' yyyy", new Locale("es", "ES"));
 
-        String titulo = "";
+        String titulo;
         if (rol.getEventoCicloAcademico().getEventoAcademico().getTipo().equals(EventoAcademicoEnum.EXAMEN_PARC.name())) {
             titulo = "ROL DE EXAMENES PARCIALES";
         } else {
@@ -106,8 +118,8 @@ public class RolExamenReporteAulasView extends AbstractPOIExcelView {
         headerFont.setBold(true);
         headerFont.setItalic(true);
 
-        String fechaInicio = sdf.format(dias.get(0));
-        String fechaFin = sdf2.format(dias.get(dias.size() - 1));
+        String fechaInicio = sdf.format(fechas.get(0));
+        String fechaFin = sdf2.format(fechas.get(fechas.size() - 1));
 
         titulo = String.format("%s %s", titulo, rol.getEventoCicloAcademico().getCicloAcademico().getDescripcion());
         String subtitulo = String.format("Del %s al %s", fechaInicio, fechaFin);
@@ -119,19 +131,19 @@ public class RolExamenReporteAulasView extends AbstractPOIExcelView {
 
         Row row = sheet.createRow(ROW_DIAS);
 
-        for (Date dia : dias) {
-            Integer cantidadHoras = horasPorDia.get(dia).size();
+        for (Date fecha : fechas) {
+            Integer cantidadHoras = horasPorDia.get(fecha).size();
             CellRangeAddress mergedRegion = new CellRangeAddress(ROW_DIAS, ROW_DIAS, currentColumn, currentColumn + cantidadHoras - 1);
             sheet.addMergedRegion(mergedRegion);
             Cell cell = row.createCell(currentColumn);
-            cell.setCellValue(StringUtils.capitalize(sdf.format(dia)));
+            cell.setCellValue(StringUtils.capitalize(sdf.format(fecha)));
             CellStyle style = (ExcelStyles.getStyleHeader(wb));
             style.setAlignment(CellStyle.ALIGN_LEFT);
             cell.setCellStyle(style);
             currentColumn = currentColumn + cantidadHoras;
         }
 
-        Integer cols = this.buildHeader(dias, horasPorDia, ROW_HORAS, headerFont, sheet, wb);
+        Integer cols = this.buildHeader(fechas, horasPorDia, ROW_HORAS, headerFont, sheet, wb);
 
         Integer rowNum = ROW_HORAS + 1;
 
@@ -161,12 +173,27 @@ public class RolExamenReporteAulasView extends AbstractPOIExcelView {
 
                 Integer col = 3;
                 Integer numeroDia = 0;
-                for (Date dia : dias) {
-                    List<Integer> horas = horasPorDia.get(dia);
-                    for (Integer hora : horas) {
-                        if (mapOcupacion.containsKey(aula) && mapOcupacion.get(aula).containsKey(dia) && mapOcupacion.get(aula).get(dia).contains(hora)) {
-                            ExcelHelper.replaceVal(sheet, rowNum, col, FLAG_ACTIVO);
+                for (Date fecha : fechas) {
+                    List<Integer> horas = horasPorDia.get(fecha);
+                    for (Integer nroHora : horas) {
+                        List ocupantes = getOcupantes(aula, fecha, nroHora, mapOcupacion);
+                        if (ocupantes.size() > 1) {
+                            ExcelHelper.replaceVal(sheet, rowNum, col, ocupantes.size());
                             CellUtil.setCellStyleProperty(sheet.getRow(rowNum).getCell(col), wb, CellUtil.ALIGNMENT, CellStyle.ALIGN_CENTER);
+                        } else if (ocupantes.size() == 1) {
+                            Object obj = ocupantes.get(0);
+                            if (obj instanceof CursoMasivoExamen) {
+                                ExcelHelper.replaceVal(sheet, rowNum, col, "M");
+                                CellUtil.setCellStyleProperty(sheet.getRow(rowNum).getCell(col), wb, CellUtil.ALIGNMENT, CellStyle.ALIGN_CENTER);
+                            } else if (obj instanceof SeccionGrupoEspecial) {
+                                ExcelHelper.replaceVal(sheet, rowNum, col, "E");
+                                CellUtil.setCellStyleProperty(sheet.getRow(rowNum).getCell(col), wb, CellUtil.ALIGNMENT, CellStyle.ALIGN_CENTER);
+                            } else if (obj instanceof SeccionGrupoRegular) {
+                                ExcelHelper.replaceVal(sheet, rowNum, col, "R");
+                                CellUtil.setCellStyleProperty(sheet.getRow(rowNum).getCell(col), wb, CellUtil.ALIGNMENT, CellStyle.ALIGN_CENTER);
+                            } else {
+                                ExcelHelper.replaceVal(sheet, rowNum, col, "");
+                            }
                         } else {
                             ExcelHelper.replaceVal(sheet, rowNum, col, "");
                         }
@@ -193,6 +220,19 @@ public class RolExamenReporteAulasView extends AbstractPOIExcelView {
             sheet.setColumnWidth(i, 1024);
         }
 
+    }
+
+    private List getOcupantes(Aula aula, Date fecha, Integer nroHora, Map<Aula, Map<Date, Map<Integer, List>>> mapOcupacion) {
+        if (!mapOcupacion.containsKey(aula)) {
+            return new ArrayList();
+        }
+        if (!mapOcupacion.get(aula).containsKey(fecha)) {
+            return new ArrayList();
+        }
+        if (!mapOcupacion.get(aula).get(fecha).containsKey(nroHora)) {
+            return new ArrayList();
+        }
+        return mapOcupacion.get(aula).get(fecha).get(nroHora);
     }
 
     private void setBorder(Integer row, Integer col, Sheet sheet, Workbook wb) {

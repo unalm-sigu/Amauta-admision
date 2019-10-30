@@ -288,7 +288,7 @@ public class EncuestaDocenteServiceImp implements EncuestaDocenteService {
 
     @Override
     @Transactional
-    public void cambiarEstadoEncuesta(EncuestaDocente encuestaForm, DataSessionPivot ds) {
+    public void cambiarEstadoEncuesta(EncuestaDocente encuestaForm, CicloAcademico ciclo, DataSessionPivot ds) {
         Assert.isTrue(verificadorService.isEditorEncuestas(ds), "No tiene permiso para ejecutar esta operación");
 
         EncuestaDocente encuestaBD = encuestaDocenteDAO.findEncuestaDocente(encuestaForm);
@@ -297,100 +297,23 @@ public class EncuestaDocenteServiceImp implements EncuestaDocenteService {
         switch (encuestaForm.getEstadoEnum()) {
             case ACT:
                 Assert.isTrue(encuestaBD.getEstadoEnum() == ACT, "La encuesta del docentes ya no se encuentra activa");
-                desactivarEncuestaDocente(encuestaBD, encuestaForm, ds);
+                generadorEncuestaDocenteService.desactivarEncuestaDocente(encuestaForm, ciclo, ds);
                 break;
             case ANU:
                 Assert.isTrue(encuestaBD.getEstadoEnum() == ANU, "La encuesta del docentes ya no se encuentra inactiva");
-                activarEncuestaDocente(encuestaBD, ds);
+                generadorEncuestaDocenteService.activarEncuestaDocente(encuestaForm, ciclo, ds);
                 break;
             case TEO:
                 Assert.isTrue(encuestaBD.getEstadoEnum() == TEO, "La encuesta del docentes ya no se encuentra inactiva por la teoría");
-                activarEncuestaDocente(encuestaBD, ds);
+                generadorEncuestaDocenteService.activarEncuestaDocente(encuestaForm, ciclo, ds);
                 break;
             case FECH:
                 Assert.isTrue(encuestaBD.getEstadoEnum() == FECH, "La encuesta del docentes ya no se encuentra inactiva por fecha");
-                activarEncuestaDocente(encuestaBD, ds);
+                generadorEncuestaDocenteService.activarEncuestaDocente(encuestaForm, ciclo, ds);
                 break;
             default:
                 throw new PhobosException("Este cambio no procede");
         }
-    }
-
-    private void activarEncuestaDocente(EncuestaDocente encuestaBD, DataSessionPivot ds) {
-        Seccion seccion = encuestaBD.getDocenteSeccion().getSeccion();
-        List<MatriculaSeccion> matriculadosSeccion = matriculaSeccionDAO.allMatriculadosBySeccion(seccion);
-        Assert.isFalse(matriculadosSeccion.isEmpty(), "No existe alumnos matriculados en esta sección");
-        Map<Long, MatriculaSeccion> mapMatriculado = TypesUtil.convertListToMap("matriculaResumen.alumno.id", matriculadosSeccion);
-
-        int total = matriculadosSeccion.size();
-        int reprogramadas = 0;
-
-        List<EncuestaAlumno> encuestasAlumnos = encuestaAlumnoDAO.allByEncuestaDocente(encuestaBD);
-        Map<Long, EncuestaAlumno> mapEncuAlumno = TypesUtil.convertListToMap("alumno.id", encuestasAlumnos);
-
-        for (MatriculaSeccion matriculado : matriculadosSeccion) {
-            Alumno alumno = matriculado.getMatriculaResumen().getAlumno();
-            EncuestaAlumno encuAlumno = mapEncuAlumno.get(alumno.getId());
-            if (encuAlumno == null) {
-                encuAlumno = new EncuestaAlumno();
-                encuAlumno.setAlumno(alumno);
-                encuAlumno.setEncuestaDocente(encuestaBD);
-                encuAlumno.setEstadoEnum(EncuestaEstudiantilEstadoEnum.PEND);
-                encuAlumno.setUserRegistro(ds.getUsuario());
-                encuAlumno.setFechaRegistro(new Date());
-                encuestaAlumnoDAO.save(encuAlumno);
-                reprogramadas++;
-
-            } else {
-                if (encuAlumno.getEstadoEnum() == ANU) {
-                    encuAlumno.setEstadoEnum(ACT);
-                    encuestaAlumnoDAO.update(encuAlumno);
-                    reprogramadas++;
-                }
-            }
-        }
-
-        for (EncuestaAlumno encuestaAlumno : encuestasAlumnos) {
-            MatriculaSeccion matriculado = mapMatriculado.get(encuestaAlumno.getAlumno().getId());
-            if (matriculado == null && encuestaAlumno.getEstadoEnum() == ENC) {
-                total++;
-            }
-        }
-
-        encuestaBD.setEstadoEnum(ACT);
-        encuestaBD.setAlumnosFin(Long.valueOf(total));
-        encuestaBD.setUserModificacion(ds.getUsuario());
-        encuestaBD.setFechaModificacion(new Date());
-        encuestaDocenteDAO.update(encuestaBD);
-
-        EncuestaEstudiantil encu = encuestaBD.getEncuestaEstudiantil();
-        encu.setObjetivosEncuesta(encu.getObjetivosEncuesta() + 1);
-        encu.setEncuestasProgramadas(encu.getEncuestasProgramadas() + reprogramadas);
-        encuestaEstudiantilDAO.update(encu);
-    }
-
-    private void desactivarEncuestaDocente(EncuestaDocente encuestaBD, EncuestaDocente encuestaForm, DataSessionPivot ds) {
-        Assert.isFalse(StringUtils.isEmpty(encuestaForm.getDescripcion()), "Debe ingresar un motivo de la desactivación");
-        encuestaBD.setEstadoEnum(ANU);
-        encuestaBD.setDescripcion(encuestaForm.getDescripcion());
-        encuestaBD.setUserModificacion(ds.getUsuario());
-        encuestaBD.setFechaModificacion(new Date());
-
-        int desprogramadas = 0;
-        List<EncuestaAlumno> encuestas = encuestaAlumnoDAO.allByEncuestaDocente(encuestaBD);
-        for (EncuestaAlumno encuestaAlumno : encuestas) {
-            if (encuestaAlumno.getEstadoEnum() == PEND) {
-                encuestaAlumno.setEstadoEnum(ANU);
-                encuestaAlumnoDAO.update(encuestaAlumno);
-                desprogramadas++;
-            }
-        }
-        encuestaDocenteDAO.update(encuestaBD);
-
-        EncuestaEstudiantil encu = encuestaBD.getEncuestaEstudiantil();
-        encu.setObjetivosEncuesta(encu.getObjetivosEncuesta() - 1);
-        encu.setEncuestasProgramadas(encu.getEncuestasProgramadas() - desprogramadas);
-        encuestaEstudiantilDAO.update(encu);
     }
 
     private void updateConfigEncuesta(EncuestaEstudiantil encuesta, ConfiguraEncuesta configuraEncuestaForm, CicloAcademico ciclo, DataSessionPivot ds) {
@@ -508,11 +431,9 @@ public class EncuestaDocenteServiceImp implements EncuestaDocenteService {
 
         CicloAcademico ciclo = encuestaTipoDocente.getCicloAcademico();
         EncuestaEstudiantil encuestaTipoCurso = encuestaEstudiantilDAO.findByCicloTipo(ciclo, TipoExamenVirtualEnum.ENC_CUR);
-        System.out.println("encuestaTipoCurso=" + encuestaTipoCurso);
 
         if (encuestaTipoCurso != null) {
             ConfiguraEncuesta configCurso = configuraEncuestaDAO.findByEncuesta(encuestaTipoCurso);
-            System.out.println("configCurso=" + configCurso);
 
             if (configCurso != null && configCurso.getSimultaneo() == 1) {
                 List<EncuestaCurso> encuestasCursos = encuestaCursoDAO.allByEncuestaEstudiantil(encuestaTipoCurso, true);
@@ -532,18 +453,28 @@ public class EncuestaDocenteServiceImp implements EncuestaDocenteService {
 
     @Override
     @Transactional
-    public void publicar(EncuestaEstudiantil encuesta, DataSessionPivot ds) {
+    public void publicar(EncuestaEstudiantil encuestaDocenteForm, DataSessionPivot ds) {
         Assert.isTrue(verificadorService.isEditorEncuestas(ds), "No tiene permiso para ejecutar esta operación");
-        EncuestaEstudiantil encuestaDB = encuestaEstudiantilDAO.find(encuesta.getId());
-        if (encuestaDB == null) {
-            throw new PhobosException("La encuesta no existe");
-        }
+        EncuestaEstudiantil encuestaDocenteDB = encuestaEstudiantilDAO.find(encuestaDocenteForm.getId());
 
-        if (encuestaDB.getEstadoEnum() != EncuestaEstadoEnum.CFG) {
-            throw new PhobosException("La encuesta no se encuentra configurada");
+        Assert.isNotNull(encuestaDocenteDB, "La encuesta no existe");
+        Assert.isTrue(encuestaDocenteDB.getEstadoEnum() == EncuestaEstadoEnum.CFG, "La encuesta no se encuentra en estado Configurando");
+
+        encuestaDocenteDB.setEstadoEnum(EncuestaEstadoEnum.ACT);
+        encuestaEstudiantilDAO.update(encuestaDocenteDB);
+
+        EncuestaEstudiantil encuestaCurso = encuestaEstudiantilDAO.findByCicloTipo(encuestaDocenteDB.getCicloAcademico(), TipoExamenVirtualEnum.ENC_CUR);
+        Assert.isNotNull(encuestaCurso, "No puede publicar si no ha creado la encuesta de cursos");
+        ConfiguraEncuesta configCurso = configuraEncuestaDAO.findByEncuesta(encuestaCurso);
+        Assert.isNotNull(configCurso, "No puede publicar si no ha configurado la encuesta de cursos");
+
+        if (configCurso.getSimultaneo() == 1) {
+            Assert.isTrue(encuestaCurso.getEstadoEnum() == EncuestaEstadoEnum.CFG, "La encuesta de los cursos no se encuentra en estado Configurando");
+            Assert.isTrue(encuestaCurso.getObjetivosEncuesta() > 0, "Debe generar las encuestas de cursos");
+
+            encuestaCurso.setEstadoEnum(EncuestaEstadoEnum.ACT);
+            encuestaEstudiantilDAO.update(encuestaCurso);
         }
-        encuestaDB.setEstadoEnum(EncuestaEstadoEnum.ACT);
-        encuestaEstudiantilDAO.update(encuestaDB);
 
     }
 
@@ -551,13 +482,11 @@ public class EncuestaDocenteServiceImp implements EncuestaDocenteService {
     public List<Facultad> allFacultadesFromDocentes(CicloAcademico cicloAcademico, DataSessionPivot ds, HttpServletRequest request) {
         List<Facultad> facultadesAll = facultadDAO.allFromDocentesByCiclo(cicloAcademico);
         if (verificadorService.puedeVerAllFacultades(ds, "ENCUESTA_ESTUDIANTIL")) {
-            System.out.println("ff1=> facultades=" + facultadesAll.size());
             return facultadesAll;
         }
 
         List<Facultad> facultades = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.FAC, request, ds);
         if (facultades.isEmpty()) {
-            System.out.println("ff2=> facultades=" + facultades.size());
             return facultades;
         }
 
@@ -569,7 +498,6 @@ public class EncuestaDocenteServiceImp implements EncuestaDocenteService {
                 facultadesRpta.add(fac);
             }
         }
-        System.out.println("ff3=> facultades=" + facultadesRpta.size());
         return facultadesRpta;
 
     }
@@ -583,13 +511,11 @@ public class EncuestaDocenteServiceImp implements EncuestaDocenteService {
 
         List<DepartamentoAcademico> dptosAll = departamentoAcademicoDAO.allFromDocentesByCiclo(cicloAcademico);
         if (verificadorService.puedeVerAllDepartamentos(ds, "ENCUESTA_ESTUDIANTIL")) {
-            System.out.println("dd1=> facultades=" + facultades.size() + " ::: dptos=" + dptosAll.size());
             return dptosAll;
         }
 
         List<DepartamentoAcademico> departamentos = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.DPTO, request, ds);
         if (departamentos.isEmpty() && facultades.isEmpty()) {
-            System.out.println("dd2=> facultades=" + facultades.size() + " ::: dptos=" + departamentos.size());
             return departamentos;
         }
 
@@ -607,7 +533,6 @@ public class EncuestaDocenteServiceImp implements EncuestaDocenteService {
             facultades.addAll(new ArrayList(mapFacultad.values()));
             Collections.sort(facultades, (f1, f2) -> f1.getNombre().compareTo(f2.getNombre()));
             Collections.sort(departamentosRpta, (d1, d2) -> d1.getNombre().compareTo(d2.getNombre()));
-            System.out.println("dd3=> facultades=" + facultades.size() + " ::: dptos=" + departamentosRpta.size());
             return departamentosRpta;
         }
 
@@ -621,7 +546,6 @@ public class EncuestaDocenteServiceImp implements EncuestaDocenteService {
                 }
             }
             Collections.sort(departamentosRpta, (d1, d2) -> d1.getNombre().compareTo(d2.getNombre()));
-            System.out.println("dd4=> facultades=" + facultades.size() + " ::: dptos=" + departamentosRpta.size());
             return departamentosRpta;
         }
 
@@ -654,7 +578,6 @@ public class EncuestaDocenteServiceImp implements EncuestaDocenteService {
         facultades.addAll(new ArrayList(mapFacultadNew.values()));
         Collections.sort(facultades, (f1, f2) -> f1.getNombre().compareTo(f2.getNombre()));
         Collections.sort(departamentosRpta, (d1, d2) -> d1.getNombre().compareTo(d2.getNombre()));
-        System.out.println("dd5=> facultades=" + facultades.size() + " ::: dptos=" + departamentosRpta.size());
         return departamentosRpta;
     }
 
@@ -712,6 +635,21 @@ public class EncuestaDocenteServiceImp implements EncuestaDocenteService {
             departamentos.add(new DepartamentoAcademico(99999L));
         }
         return departamentos;
+    }
+
+    @Override
+    public List<DocenteSeccion> allDocenteSeccionNoProcesados(CicloAcademico ciclo, EncuestaEstudiantil encuesta) {
+        return docenteSeccionDAO.allNoProcesadosEncuestaByCiclo(ciclo, encuesta);
+    }
+
+    @Override
+    @Transactional
+    public void addDocenteSeccionToEncuesta(DocenteSeccion docenteSeccion, CicloAcademico ciclo, DataSessionPivot ds) {
+        EncuestaDocente encuProfeSecc = encuestaDocenteDAO.findByDocenteSeccion(docenteSeccion);
+        Assert.isNull(encuProfeSecc, "Este docente-sección ya se encuentra procesado en la encuesta");
+
+        generadorEncuestaDocenteService.generarEncuestaDocente(docenteSeccion, ciclo, ds);
+
     }
 
 }

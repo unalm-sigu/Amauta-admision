@@ -5,6 +5,7 @@ import javax.servlet.http.HttpServletRequest;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
+import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.encuestaestudiantil.EncuestaDocente;
 import pe.edu.lamolina.model.encuestaestudiantil.EncuestaEstudiantil;
@@ -24,7 +25,7 @@ public interface EncuestaDocenteService {
 
     String generarEncuesta(CicloAcademico cicloAcademico, DataSessionPivot ds);
 
-    void cambiarEstadoEncuesta(EncuestaDocente encuesta, DataSessionPivot ds);
+    void cambiarEstadoEncuesta(EncuestaDocente encuesta, CicloAcademico ciclo, DataSessionPivot ds);
 
     void saveDetalleConfigEncuesta(EncuestaEstudiantil encuestaEstudiantil, CicloAcademico ciclo, DataSessionPivot ds);
 
@@ -45,5 +46,9 @@ public interface EncuestaDocenteService {
     List<Facultad> allAccesoFacultades(DataSessionPivot ds, HttpServletRequest request);
 
     List<DepartamentoAcademico> allAccesoDepartamentos(DataSessionPivot ds, List<Facultad> facultades, CicloAcademico cicloAcademico, HttpServletRequest request);
+
+    List<DocenteSeccion> allDocenteSeccionNoProcesados(CicloAcademico ciclo, EncuestaEstudiantil encuesta);
+
+    void addDocenteSeccionToEncuesta(DocenteSeccion docenteSeccion, CicloAcademico cicloAcademico, DataSessionPivot ds);
 
 }

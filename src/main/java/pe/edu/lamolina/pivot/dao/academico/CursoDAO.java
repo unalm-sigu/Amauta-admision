@@ -10,7 +10,6 @@ import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.PlanCalificacion;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
-import pe.edu.lamolina.model.rolexamen.SeccionGrupoEspecial;
 
 public interface CursoDAO extends EasyDAO<Curso> {
 
@@ -41,6 +40,8 @@ public interface CursoDAO extends EasyDAO<Curso> {
     List<Curso> allForProgramacion(String nombre);
 
     List<Curso> allCursoByName(String nombre);
+
+    List<Curso> allCursoByNameCiclo(String nombre, CicloAcademico ciclo);
 
     List<Curso> allCursoCachimbosByCicloAcademico(CicloAcademico cicloAcademico, Carrera carrera);
 

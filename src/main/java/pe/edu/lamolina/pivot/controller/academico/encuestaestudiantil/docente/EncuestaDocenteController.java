@@ -24,6 +24,7 @@ import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
+import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.encuestaestudiantil.EncuestaDocente;
 import pe.edu.lamolina.model.encuestaestudiantil.EncuestaEstudiantil;
@@ -120,6 +121,8 @@ public class EncuestaDocenteController {
                             "docenteSeccion.seccion.tipoSeccion",
                             "docenteSeccion.seccion.docenteSeccion.*",
                             "docenteSeccion.seccion.grupoHoras.codigo",
+                            "docenteSeccion.seccion.grupoSeccion.fechaInicioModular",
+                            "docenteSeccion.seccion.grupoSeccion.fechaFinModular",
                             "docenteSeccion.seccion.grupoSeccion.tipoDictado",
                             "docenteSeccion.seccion.grupoSeccion.tipoDictadoEnum",
                             "docenteSeccion.seccion.grupoSeccion.curso.nombre",
@@ -151,7 +154,11 @@ public class EncuestaDocenteController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
             EncuestaEstudiantil encuesta = service.findEncuestaDocenteWithResumen(cicloAcademico, ds, request);
-            ObjectNode node = JsonHelper.createJson(encuesta, JsonNodeFactory.instance, true, new String[]{"*"});
+            ObjectNode node = JsonHelper.createJson(encuesta, JsonNodeFactory.instance, true, new String[]{
+                "*",
+                "configuraEncuesta.*",
+                "periodosEncuesta.*"
+            });
             response.setData(node);
             response.setMessage("Encuesta activada satisfactoriamente");
             response.setSuccess(true);
@@ -261,7 +268,7 @@ public class EncuestaDocenteController {
         JsonResponse response = new JsonResponse();
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            service.cambiarEstadoEncuesta(encuesta, ds);
+            service.cambiarEstadoEncuesta(encuesta, ds.getCicloAcademico(), ds);
             response.setMessage("Registro actualizado satisfactoriamente.");
             response.setSuccess(true);
 
@@ -420,6 +427,68 @@ public class EncuestaDocenteController {
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("allNoProcesados")
+    public JsonResponse allNoProcesados(@RequestBody EncuestaEstudiantil encuesta, HttpSession session) {
+        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
+        JsonResponse response = new JsonResponse();
+
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            List<DocenteSeccion> docentesSecciones = service.allDocenteSeccionNoProcesados(ds.getCicloAcademico(), encuesta);
+
+            ArrayNode array = new ArrayNode(jsonFactory);
+            for (DocenteSeccion profeSecc : docentesSecciones) {
+                ObjectNode node = JsonHelper.createJson(profeSecc, jsonFactory, new String[]{
+                    "id", "principal", "porcentajeCarga", "fechaInicio", "fechaFin",
+                    "docente.codigo",
+                    "docente.persona.apellidosNombres",
+                    "seccion.tipoSeccionEnum",
+                    "seccion.codigo2",
+                    "seccion.vacantes",
+                    "seccion.matriculados",
+                    "seccion.grupoSeccion.tipoDictado",
+                    "seccion.grupoSeccion.tipoDictadoEnum",
+                    "seccion.grupoSeccion.anexoBoletin.nombre",
+                    "seccion.grupoSeccion.curso.codigo",
+                    "seccion.grupoSeccion.curso.tpc",
+                    "seccion.grupoSeccion.curso.nombre"
+                });
+                array.add(node);
+            }
+            response.setData(array);
+            response.setTotal(array.size());
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("addNoProcesado")
+    public JsonResponse addNoProcesado(@RequestBody DocenteSeccion docenteSeccion, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            service.addDocenteSeccionToEncuesta(docenteSeccion, ds.getCicloAcademico(), ds);
+            response.setMessage("Se agregó satisfactoriamente a la encuesta");
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
         return response;
     }
 

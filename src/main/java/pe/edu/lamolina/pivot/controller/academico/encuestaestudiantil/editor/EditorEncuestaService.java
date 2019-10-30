@@ -3,7 +3,9 @@ package pe.edu.lamolina.pivot.controller.academico.encuestaestudiantil.editor;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
+import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.encuestaestudiantil.ConfiguraEncuesta;
 import pe.edu.lamolina.model.encuestaestudiantil.CursoSinEncuesta;
 import pe.edu.lamolina.model.encuestaestudiantil.EncuestaEstudiantil;
@@ -35,14 +37,18 @@ public interface EditorEncuestaService {
 
     List<TipoExamenVirtual> allTipoEncuesta();
 
-    List<Curso> allCursoByName(String nombre);
+    List<Curso> allCursoByNameCiclo(String nombre, CicloAcademico ciclo);
 
     void addCursoSinEncuesta(CursoSinEncuesta cursoSinEncuesta, DataSessionPivot ds);
 
     List<Curso> allCursoSinEncuesta(EncuestaEstudiantil encuesta, DataSessionPivot ds);
 
+    List<Seccion> allSeccionesByCicloCursos(CicloAcademico cicloAcademico, List<Curso> cursos);
+
     void removeCursoSinEncuesta(CursoSinEncuesta cursoSinEncuesta, DataSessionPivot ds);
 
     ObjectNode toJson(ConfiguraEncuesta configuraEncuesta);
+
+    EncuestaEstudiantil getEncuestaEstudiantil(EncuestaEstudiantil encuesta);
 
 }

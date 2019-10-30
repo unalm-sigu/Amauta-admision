@@ -277,7 +277,7 @@
                                                             v-model="semana.horaFin"
                                                             placeholder=""
                                                             v-bind:options="horas"
-                                                            label="descripcion"
+                                                            label="descripcionFin"
                                                             track-by="id" 
                                                             required="true"
                                                             v-bind:allow-empty="false"
@@ -287,9 +287,8 @@
                                                         </multiselect>
                                                     </div>
                                                     <div v-else="">
-                                                        <span v-text="semana.horaFin.descripcion"></span>
+                                                        <span v-text="semana.horaFin.descripcionFin"></span>
                                                     </div>
-
 
                                                     <input v-model="semana.horaFin.id" 
                                                            required=""
