@@ -142,7 +142,7 @@ public class RolExamenReporteServiceImp implements RolExamenReporteService {
             entry.getValue().sort(Comparator.comparing(Aula::getCodigo));
         }
 
-        Map<Aula, Map<Date, Set<Integer>>> mapOcupacion = new HashMap<>();
+        Map<Aula, Map<Date, Map<Integer, List>>> mapOcupacion = new HashMap<>();
 
         List<CursoMasivoExamen> masivos = this.allCursoMasivoExamenByRolExamenes(rol);
         for (CursoMasivoExamen masivo : masivos) {
@@ -157,7 +157,7 @@ public class RolExamenReporteServiceImp implements RolExamenReporteService {
                 Integer horaFin = aulasCursosMasivo.getCursoMasivoExamen().getGrupoHorasExamen().getHoraFin().getNumero();
                 Assert.isTrue(horaFin >= horaInicio, "Hora de inicio mayor que la hora de fin del examen");
                 for (int hora = horaInicio; hora <= horaFin; hora++) {
-                    this.agregarOcupacion(mapOcupacion, aula, dia, hora);
+                    this.agregarOcupacion(mapOcupacion, aula, dia, hora, masivo);
                 }
             }
         }
@@ -173,23 +173,23 @@ public class RolExamenReporteServiceImp implements RolExamenReporteService {
             Integer horaFin = especiale.getGrupoHorasExamen().getHoraFin().getNumero();
             Assert.isTrue(horaFin >= horaInicio, "Hora de inicio mayor que la hora de fin del examen");
             for (int hora = horaInicio; hora <= horaFin; hora++) {
-                this.agregarOcupacion(mapOcupacion, aula, dia, hora);
+                this.agregarOcupacion(mapOcupacion, aula, dia, hora, especiale);
             }
         }
 
-        List<LetraGrupoRegular> regulares = this.allLetrasGrupoRegularByRolExamenes(rol);
-        for (LetraGrupoRegular regular : regulares) {
-            for (SeccionGrupoRegular seccionesGruposRegulare : regular.getSeccionesGruposRegulares()) {
-                if (seccionesGruposRegulare.getEstadoEnum() != SeccionRolExamenEstadoEnum.ACT) {
+        List<LetraGrupoRegular> letrasRegulares = this.allLetrasGrupoRegularByRolExamenes(rol);
+        for (LetraGrupoRegular letra : letrasRegulares) {
+            for (SeccionGrupoRegular seccionRegular : letra.getSeccionesGruposRegulares()) {
+                if (seccionRegular.getEstadoEnum() != SeccionRolExamenEstadoEnum.ACT) {
                     continue;
                 }
-                Aula aula = seccionesGruposRegulare.getAula();
-                Date dia = regular.getGrupoHorasExamen().getFecha();
-                Integer horaInicio = regular.getGrupoHorasExamen().getHoraInicio().getNumero();
-                Integer horaFin = regular.getGrupoHorasExamen().getHoraFin().getNumero();
+                Aula aula = seccionRegular.getAula();
+                Date dia = letra.getGrupoHorasExamen().getFecha();
+                Integer horaInicio = letra.getGrupoHorasExamen().getHoraInicio().getNumero();
+                Integer horaFin = letra.getGrupoHorasExamen().getHoraFin().getNumero();
                 Assert.isTrue(horaFin >= horaInicio, "Hora de inicio mayor que la hora de fin del examen");
-                for (int hora = horaInicio; hora <= horaFin; hora++) {
-                    this.agregarOcupacion(mapOcupacion, aula, dia, hora);
+                for (int nroHora = horaInicio; nroHora <= horaFin; nroHora++) {
+                    this.agregarOcupacion(mapOcupacion, aula, dia, nroHora, seccionRegular);
                 }
             }
         }
@@ -202,17 +202,22 @@ public class RolExamenReporteServiceImp implements RolExamenReporteService {
         model.addAttribute("mapOcupacion", mapOcupacion);
     }
 
-    private void agregarOcupacion(Map<Aula, Map<Date, Set<Integer>>> mapOcupacion, Aula aula, Date dia, Integer hora) {
+    private void agregarOcupacion(Map<Aula, Map<Date, Map<Integer, List>>> mapOcupacion, Aula aula, Date fecha, Integer numeroHora, Object obj) {
         if (!mapOcupacion.containsKey(aula)) {
-            mapOcupacion.put(aula, new HashMap<>());
+            mapOcupacion.put(aula, new HashMap());
         }
 
-        if (!mapOcupacion.get(aula).containsKey(dia)) {
-            mapOcupacion.get(aula).put(dia, new HashSet<>());
+        if (!mapOcupacion.get(aula).containsKey(fecha)) {
+            mapOcupacion.get(aula).put(fecha, new HashMap());
         }
 
-        if (!mapOcupacion.get(aula).get(dia).contains(hora)) {
-            mapOcupacion.get(aula).get(dia).add(hora);
+        if (!mapOcupacion.get(aula).get(fecha).containsKey(numeroHora)) {
+            List objetos = new ArrayList();
+            objetos.add(obj);
+            mapOcupacion.get(aula).get(fecha).put(numeroHora, objetos);
+        } else {
+            List objetos = mapOcupacion.get(aula).get(fecha).get(numeroHora);
+            objetos.add(obj);
         }
     }
 
