@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.util.StringUtils;
 import pe.albatross.zelpers.miscelanea.Assert;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AnexoBoletin;
@@ -515,6 +516,128 @@ public class GeneradorEncuestaDocenteServiceImp implements GeneradorEncuestaDoce
 
         encuestaEstudiantilDAO.update(encuestaDocente);
         saveEncuestaAlumno(null, new ArrayList(), encuestasAlumnos, ds);
+
+        EncuestaDocente encuestaDocenteDB = encuestaDocenteDAO.findByDocenteSeccion(docenteSeccionBD);
+        crearEncuestaCurso(encuestaDocenteDB, ciclo, ds);
+    }
+
+    private void crearEncuestaCurso(EncuestaDocente encuestaDocenteBD, CicloAcademico ciclo, DataSessionPivot ds) {
+        Seccion seccion = encuestaDocenteBD.getDocenteSeccion().getSeccion();
+        GrupoSeccion grupoSeccion = seccion.getGrupoSeccion();
+
+        List<MatriculaSeccion> matriculadosSeccion = matriculaSeccionDAO.allMatriculadosBySeccion(seccion);
+        Assert.isFalse(matriculadosSeccion.isEmpty(), "No existe alumnos matriculados en esta sección");
+        Map<Long, MatriculaSeccion> mapMatriculado = TypesUtil.convertListToMap("matriculaResumen.alumno.id", matriculadosSeccion);
+
+        EncuestaEstudiantil encuCurso = encuestaEstudiantilDAO.findByCicloTipo(ciclo, TipoExamenVirtualEnum.ENC_CUR);
+        if (encuCurso == null) {
+            System.out.println("111");
+            return;
+        }
+        if (encuCurso.getObjetivosEncuesta() == 0) {
+            System.out.println("222");
+            return;
+        }
+
+        ConfiguraEncuesta cfgEncuestaCurso = configuraEncuestaDAO.findByEncuesta(encuCurso);
+        if (cfgEncuestaCurso == null) {
+            System.out.println("333");
+            return;
+        }
+        if (cfgEncuestaCurso.getSimultaneo() == null) {
+            System.out.println("4444");
+            return;
+        }
+        if (cfgEncuestaCurso.getSimultaneo() != 1) {
+            System.out.println("5555");
+            return;
+        }
+
+        int total = matriculadosSeccion.size();
+        int reprogramadas = 0;
+
+        EncuestaCurso encuestaCurso = encuestaCursoDAO.findByEncuestaDocente(encuestaDocenteBD);
+
+        boolean yaExiste = true;
+        if (encuestaCurso == null) {
+            System.out.println("6666");
+            encuestaCurso = new EncuestaCurso();
+            encuestaCurso.setEncuestaEstudiantil(encuCurso);
+            encuestaCurso.setGrupoSeccion(grupoSeccion);
+            encuestaCurso.setModalidadEstudio(encuestaDocenteBD.getModalidadEstudio());
+            encuestaCurso.setEncuestaDocente(encuestaDocenteBD);
+
+            encuestaCurso.setAlumnosFin(matriculadosSeccion.size());
+            encuestaCurso.setAlumnosInicio(matriculadosSeccion.size());
+            encuestaCurso.setAlumnosEncuestados(0L);
+            encuestaCurso.setEstadoEnum(EncuestaEstudiantilEstadoEnum.ACT);
+            encuestaCurso.setFechaEncuestaInicio(encuestaDocenteBD.getFechaInicio());
+            encuestaCurso.setFechaEncuestaFin(encuestaDocenteBD.getFechaFin());
+            encuestaCurso.setUserRegistro(ds.getUsuario());
+            encuestaCurso.setFechaRegistro(new Date());
+            encuestaCursoDAO.save(encuestaCurso);
+            yaExiste = false;
+        }
+
+        List<EncuestaAlumno> encuestasAlumnos = encuestaAlumnoDAO.allByEncuestaCurso(encuestaCurso);
+        Map<Long, EncuestaAlumno> mapEncuAlumno = TypesUtil.convertListToMap("alumno.id", encuestasAlumnos);
+        System.out.println("777");
+
+        boolean yaEstaActiva = false;
+        if (yaExiste) {
+            yaEstaActiva = encuestaCurso.getEstadoEnum() == ACT;
+        }
+
+        for (MatriculaSeccion matriculado : matriculadosSeccion) {
+            Alumno alumno = matriculado.getMatriculaResumen().getAlumno();
+            EncuestaAlumno encuAlumno = mapEncuAlumno.get(alumno.getId());
+            if (encuAlumno == null) {
+                encuAlumno = new EncuestaAlumno();
+                encuAlumno.setAlumno(alumno);
+                encuAlumno.setEncuestaDocente(encuestaDocenteBD);
+                encuAlumno.setEncuestaCurso(encuestaCurso);
+                encuAlumno.setEstadoEnum(EncuestaEstudiantilEstadoEnum.PEND);
+                encuAlumno.setUserRegistro(ds.getUsuario());
+                encuAlumno.setFechaRegistro(new Date());
+                encuestaAlumnoDAO.save(encuAlumno);
+                reprogramadas++;
+
+            } else {
+                if (encuAlumno.getEstadoEnum() == ANU) {
+                    encuAlumno.setEstadoEnum(ACT);
+                    encuestaAlumnoDAO.update(encuAlumno);
+                    reprogramadas++;
+                }
+            }
+        }
+
+        System.out.println("8888 " + matriculadosSeccion.size());
+
+        for (EncuestaAlumno encuestaAlumno : encuestasAlumnos) {
+            MatriculaSeccion matriculado = mapMatriculado.get(encuestaAlumno.getAlumno().getId());
+            if (matriculado == null && encuestaAlumno.getEstadoEnum() == ENC) {
+                total++;
+            }
+        }
+
+        if (yaExiste) {
+            encuestaCurso.setFechaEncuestaInicio(encuestaDocenteBD.getFechaEncuestaInicio());
+            encuestaCurso.setFechaEncuestaFin(encuestaDocenteBD.getFechaEncuestaFin());
+        }
+
+        if (yaExiste && !yaEstaActiva) {
+            encuestaCurso.setEstadoEnum(ACT);
+            encuestaCurso.setAlumnosFin(total);
+            encuestaCurso.setUserModificacion(ds.getUsuario());
+            encuestaCurso.setFechaModificacion(new Date());
+        }
+
+        encuestaCursoDAO.update(encuestaCurso);
+        if (!yaEstaActiva) {
+            encuCurso.setObjetivosEncuesta(encuCurso.getObjetivosEncuesta() + 1);
+            encuCurso.setEncuestasProgramadas(encuCurso.getEncuestasProgramadas() + reprogramadas);
+            encuestaEstudiantilDAO.update(encuCurso);
+        }
     }
 
     @Override
@@ -524,7 +647,6 @@ public class GeneradorEncuestaDocenteServiceImp implements GeneradorEncuestaDoce
         Assert.isNotNull(encuestaDocenteBD, "No existe esta encuesta en la base de datos");
 
         Seccion seccion = encuestaDocenteBD.getDocenteSeccion().getSeccion();
-        GrupoSeccion grupoSeccion = seccion.getGrupoSeccion();
         List<MatriculaSeccion> matriculadosSeccion = matriculaSeccionDAO.allMatriculadosBySeccion(seccion);
         Assert.isFalse(matriculadosSeccion.isEmpty(), "No existe alumnos matriculados en esta sección");
         Map<Long, MatriculaSeccion> mapMatriculado = TypesUtil.convertListToMap("matriculaResumen.alumno.id", matriculadosSeccion);
@@ -550,7 +672,7 @@ public class GeneradorEncuestaDocenteServiceImp implements GeneradorEncuestaDoce
 
             } else {
                 if (encuAlumno.getEstadoEnum() == ANU) {
-                    encuAlumno.setEstadoEnum(ACT);
+                    encuAlumno.setEstadoEnum(PEND);
                     encuestaAlumnoDAO.update(encuAlumno);
                     reprogramadas++;
                 }
@@ -575,99 +697,8 @@ public class GeneradorEncuestaDocenteServiceImp implements GeneradorEncuestaDoce
         encu.setEncuestasProgramadas(encu.getEncuestasProgramadas() + reprogramadas);
         encuestaEstudiantilDAO.update(encu);
 
-        EncuestaEstudiantil encuCurso = encuestaEstudiantilDAO.findByCicloTipo(ciclo, TipoExamenVirtualEnum.ENC_CUR);
-        if (encuCurso == null) {
-            return;
-        }
-        if (encuCurso.getObjetivosEncuesta() == 0) {
-            return;
-        }
+        this.crearEncuestaCurso(encuestaDocenteBD, ciclo, ds);
 
-        ConfiguraEncuesta cfgEncuestaCurso = configuraEncuestaDAO.findByEncuesta(encuCurso);
-        if (cfgEncuestaCurso == null) {
-            return;
-        }
-        if (cfgEncuestaCurso.getSimultaneo() == null) {
-            return;
-        }
-        if (cfgEncuestaCurso.getSimultaneo() != 1) {
-            return;
-        }
-
-        boolean yaExiste = true;
-        EncuestaCurso encuestaCurso = encuestaCursoDAO.findByEncuestaDocente(encuestaDocenteBD);
-        if (encuestaCurso == null) {
-            encuestaCurso = new EncuestaCurso();
-            encuestaCurso.setEncuestaEstudiantil(encuCurso);
-            encuestaCurso.setGrupoSeccion(grupoSeccion);
-            encuestaCurso.setModalidadEstudio(encuestaDocenteBD.getModalidadEstudio());
-
-            encuestaCurso.setAlumnosFin(encuestasAlumnos.size());
-            encuestaCurso.setAlumnosInicio(encuestasAlumnos.size());
-            encuestaCurso.setAlumnosEncuestados(0L);
-            encuestaCurso.setEstadoEnum(EncuestaEstudiantilEstadoEnum.ACT);
-            encuestaCurso.setFechaEncuestaInicio(encuestaDocenteBD.getFechaInicio());
-            encuestaCurso.setFechaEncuestaFin(encuestaDocenteBD.getFechaFin());
-            encuestaCurso.setUserRegistro(ds.getUsuario());
-            encuestaCurso.setFechaRegistro(new Date());
-            encuestaCursoDAO.save(encuestaCurso);
-            yaExiste = false;
-        }
-
-        boolean yaEstaActiva = false;
-        if (yaExiste) {
-            yaEstaActiva = encuestaCurso.getEstadoEnum() == ACT;
-        }
-
-        total = matriculadosSeccion.size();
-        reprogramadas = 0;
-
-        encuestasAlumnos = encuestaAlumnoDAO.allByEncuestaCurso(encuestaCurso);
-        mapEncuAlumno = TypesUtil.convertListToMap("alumno.id", encuestasAlumnos);
-
-        for (MatriculaSeccion matriculado : matriculadosSeccion) {
-            Alumno alumno = matriculado.getMatriculaResumen().getAlumno();
-            EncuestaAlumno encuAlumno = mapEncuAlumno.get(alumno.getId());
-            if (encuAlumno == null) {
-                encuAlumno = new EncuestaAlumno();
-                encuAlumno.setAlumno(alumno);
-                encuAlumno.setEncuestaDocente(encuestaDocenteBD);
-                encuAlumno.setEncuestaCurso(encuestaCurso);
-                encuAlumno.setEstadoEnum(EncuestaEstudiantilEstadoEnum.PEND);
-                encuAlumno.setUserRegistro(ds.getUsuario());
-                encuAlumno.setFechaRegistro(new Date());
-                encuestaAlumnoDAO.save(encuAlumno);
-                reprogramadas++;
-
-            } else {
-                if (encuAlumno.getEstadoEnum() == ANU) {
-                    encuAlumno.setEstadoEnum(ACT);
-                    encuestaAlumnoDAO.update(encuAlumno);
-                    reprogramadas++;
-                }
-            }
-        }
-
-        for (EncuestaAlumno encuestaAlumno : encuestasAlumnos) {
-            MatriculaSeccion matriculado = mapMatriculado.get(encuestaAlumno.getAlumno().getId());
-            if (matriculado == null && encuestaAlumno.getEstadoEnum() == ENC) {
-                total++;
-            }
-        }
-
-        if (yaExiste && !yaEstaActiva) {
-            encuestaCurso.setEstadoEnum(ACT);
-            encuestaCurso.setAlumnosFin(total);
-            encuestaCurso.setUserModificacion(ds.getUsuario());
-            encuestaCurso.setFechaModificacion(new Date());
-            encuestaDocenteDAO.update(encuestaDocenteBD);
-        }
-
-        if (!yaEstaActiva) {
-            encuCurso.setObjetivosEncuesta(encu.getObjetivosEncuesta() + 1);
-            encuCurso.setEncuestasProgramadas(encu.getEncuestasProgramadas() + reprogramadas);
-            encuestaEstudiantilDAO.update(encuCurso);
-        }
     }
 
     @Override

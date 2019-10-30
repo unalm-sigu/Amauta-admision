@@ -453,18 +453,28 @@ public class EncuestaDocenteServiceImp implements EncuestaDocenteService {
 
     @Override
     @Transactional
-    public void publicar(EncuestaEstudiantil encuesta, DataSessionPivot ds) {
+    public void publicar(EncuestaEstudiantil encuestaDocenteForm, DataSessionPivot ds) {
         Assert.isTrue(verificadorService.isEditorEncuestas(ds), "No tiene permiso para ejecutar esta operación");
-        EncuestaEstudiantil encuestaDB = encuestaEstudiantilDAO.find(encuesta.getId());
-        if (encuestaDB == null) {
-            throw new PhobosException("La encuesta no existe");
-        }
+        EncuestaEstudiantil encuestaDocenteDB = encuestaEstudiantilDAO.find(encuestaDocenteForm.getId());
 
-        if (encuestaDB.getEstadoEnum() != EncuestaEstadoEnum.CFG) {
-            throw new PhobosException("La encuesta no se encuentra configurada");
+        Assert.isNotNull(encuestaDocenteDB, "La encuesta no existe");
+        Assert.isTrue(encuestaDocenteDB.getEstadoEnum() == EncuestaEstadoEnum.CFG, "La encuesta no se encuentra en estado Configurando");
+
+        encuestaDocenteDB.setEstadoEnum(EncuestaEstadoEnum.ACT);
+        encuestaEstudiantilDAO.update(encuestaDocenteDB);
+
+        EncuestaEstudiantil encuestaCurso = encuestaEstudiantilDAO.findByCicloTipo(encuestaDocenteDB.getCicloAcademico(), TipoExamenVirtualEnum.ENC_CUR);
+        Assert.isNotNull(encuestaCurso, "No puede publicar si no ha creado la encuesta de cursos");
+        ConfiguraEncuesta configCurso = configuraEncuestaDAO.findByEncuesta(encuestaCurso);
+        Assert.isNotNull(configCurso, "No puede publicar si no ha configurado la encuesta de cursos");
+
+        if (configCurso.getSimultaneo() == 1) {
+            Assert.isTrue(encuestaCurso.getEstadoEnum() == EncuestaEstadoEnum.CFG, "La encuesta de los cursos no se encuentra en estado Configurando");
+            Assert.isTrue(encuestaCurso.getObjetivosEncuesta() > 0, "Debe generar las encuestas de cursos");
+
+            encuestaCurso.setEstadoEnum(EncuestaEstadoEnum.ACT);
+            encuestaEstudiantilDAO.update(encuestaCurso);
         }
-        encuestaDB.setEstadoEnum(EncuestaEstadoEnum.ACT);
-        encuestaEstudiantilDAO.update(encuestaDB);
 
     }
 

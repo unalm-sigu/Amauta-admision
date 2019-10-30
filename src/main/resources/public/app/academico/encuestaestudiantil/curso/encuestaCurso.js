@@ -74,6 +74,9 @@ new Vue({
         facultades: JSON.parse(facultadesJson),
         departamentos: JSON.parse(departamentosJson),
         departamentosVer: JSON.parse(departamentosJson),
+        configConfirmAction: VUE_MODAL.structConfirm({
+            id: "idModalConfirm"
+        }),
     },
     mounted: function () {
         let $vue = this;
@@ -421,31 +424,29 @@ new Vue({
         },
         eliminar() {
             let $vue = this;
-            bootbox.confirm({
-                message: '¿Está seguro que desea eliminar la encuesta de cursos para este ciclo?',
-                buttons: {
-                    confirm: {label: 'Si, eliminar encuesta'},
-                    cancel: {label: 'Cancelar', className: "btn-link"}
-                },
-                callback: function (result) {
-                    if (result) {
-                        axios.post(`/${rutaModulo}/delete`, {id: $vue.encuesta.id})
-                                .then(response => {
-                                    if (response.data.success) {
-                                        $vue.$refs.raptorEncu.loadRemoteData();
-                                        $vue.refreshEncuesta();
-                                        notify(response.data.message, "info");
-                                    } else {
-                                        notify(response.data.message, "error");
-                                    }
-                                })
-                                .catch(function (error) {
-                                    console.log(error);
-                                    notify(MESSAGES.errorComunicacion, "error");
-                                });
-                    }
-                }
-            });
+
+            $vue.configConfirmAction.message = '¿Está seguro que desea eliminar las encuesta de los cursos de este ciclo?';
+            $vue.configConfirmAction.okbtn = 'Si, eliminar encuesta de cursos';
+            $vue.configConfirmAction.okclass = "btn-danger";
+            $vue.configConfirmAction.okaction = function () {
+                axios.post(`/${rutaModulo}/delete`, {id: $vue.encuesta.id})
+                        .then(response => {
+                            $vue.$refs.modalConfirmAction.confirmReaction(response.data.success);
+                            if (response.data.success) {
+                                $vue.$refs.raptorEncu.loadRemoteData();
+                                $vue.refreshEncuesta();
+                                notify(response.data.message, "info");
+                            } else {
+                                notify(response.data.message, "error");
+                            }
+                        })
+                        .catch(function (error) {
+                            $vue.$refs.modalConfirmAction.confirmReaction(false);
+                            console.log(error);
+                            notify(MESSAGES.errorComunicacion, "error");
+                        });
+            };
+            $vue.$refs.modalConfirmAction.open();
         },
         publicar() {
             let $vue = this;

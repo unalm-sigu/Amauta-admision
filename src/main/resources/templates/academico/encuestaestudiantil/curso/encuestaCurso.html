@@ -78,7 +78,7 @@
                             <li v-if="encuesta.estado=='CFG' &amp;&amp; encuesta.objetivosEncuesta==0"><a class="pointer" v-on:click="sinEncuesta"> Cursos sin encuesta </a></li>
                             <li v-if="encuesta.estado=='CFG' &amp;&amp; encuesta.objetivosEncuesta==0"><a class="pointer" v-on:click="generarEncuesta"> Generar encuestas </a></li>
                             <li v-if="encuesta.estado=='CFG' &amp;&amp; encuesta.objetivosEncuesta>0"><a class="pointer" v-on:click="eliminar"> Eliminar encuestas </a></li>
-                            <li v-if="encuesta.estado=='CFG' &amp;&amp; encuesta.objetivosEncuesta>0"><a class="pointer" v-on:click="publicar"> Publicar encuestas </a></li>
+                            <!--<li v-if="encuesta.estado=='CFG' &amp;&amp; encuesta.objetivosEncuesta>0"><a class="pointer" v-on:click="publicar"> Publicar encuestas </a></li>-->
                         </ul>
                     </div>
 
@@ -421,6 +421,7 @@
                     </section>
                 </section>
                 <div th:substituteby="academico/encuestaestudiantil/curso/encuestaCursoModal"></div>
+                <div th:substituteby="_modules/vue-modal-confirm"></div>
             </div>
 
 
