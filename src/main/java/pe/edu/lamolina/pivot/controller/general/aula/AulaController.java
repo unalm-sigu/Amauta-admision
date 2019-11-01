@@ -8,7 +8,6 @@ import java.beans.PropertyEditorSupport;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -419,10 +418,9 @@ public class AulaController {
     @ResponseBody
     @RequestMapping("loadModalAulaHorario")
     public JsonResponse loadModalAulaHorario(Aula aulaForm, HttpSession session) {
+
         JsonResponse response = new JsonResponse();
-
         try {
-
             JsonNodeFactory factory = JsonNodeFactory.instance;
 
             Aula aula = service.findAulaFull(aulaForm);

@@ -11,7 +11,9 @@ new Vue({
         horas: [],
         dias: [],
         fechaInicio: null,
-        fechaFin: null
+        fechaFin: null,
+        dateIni: null,
+        dateFin: null
     },
     created: function () {
         let $vue = this;
@@ -20,13 +22,14 @@ new Vue({
         $vue.aula = $vue.listAulaOptions[0];
 
         var now = moment();
+        var now2 = moment();
         var day = now.day();
         var first = parseInt(day) - 1;
-        var init = now.add(-first, 'days').format('DD/MM/YYYY');
-        var end = now.add(6, 'days').format('DD/MM/YYYY');
+        $vue.dateIni = now.add(-first, 'days');
+        $vue.dateFin = now2.add(6 - first, 'days');
 
-        $vue.fechaInicio = init;
-        $vue.fechaFin = end;
+        $vue.fechaInicio = $vue.dateIni.format('DD/MM/YYYY');
+        $vue.fechaFin = $vue.dateFin.format('DD/MM/YYYY');
 
         $vue.loadComponent();
     },
@@ -142,6 +145,17 @@ new Vue({
             if (tipo == 'EXAM') {
                 return 'text-success';
             }
+        },
+        changeFecha(direccion) {
+            let $vue = this;
+            let days = (direccion === "back") ? -7 : 7;
+            $vue.dateIni = $vue.dateIni.add(days, 'days');
+            $vue.dateFin = $vue.dateFin.add(days, 'days');
+
+            $vue.fechaInicio = $vue.dateIni.format('DD/MM/YYYY');
+            $vue.fechaFin = $vue.dateFin.format('DD/MM/YYYY');
+
+            $vue.loadComponent();
         }
     }
 });
