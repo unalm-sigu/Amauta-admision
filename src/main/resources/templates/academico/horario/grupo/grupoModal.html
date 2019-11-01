@@ -103,7 +103,8 @@
                         <tr v-for="(n,index) in 11">
                             <td v-for="(m,index) in 20" 
                                 v-bind:style="findBgColor(n,m)"
-                                v-on:click="setColor(n,m)"> &nbsp; </td>
+                                v-on:click="setColor(n,m)"
+                                class="pointer"> &nbsp; </td>
                         </tr>
                     </tbody>
                 </table>
@@ -150,6 +151,36 @@
             </div>
 
         </form>
+    </div>
+</modal-vik>
+
+<modal-vik ref="modalActivarGrupo"
+           v-bind="cfgActivarGrupo" 
+           v-bind:modalsize="`modal-lg`" 
+           v-bind:okaction="activarGpos" > 
+    <div slot="body">
+        <h4 class="m-t-xxs text-primary">Activar grupo-horas ocultos</h4>
+
+        <section class="panel-body">
+            <div class="row">
+                <div class="col-sm-2 col-gpo-hide" 
+                     v-for="item in ocultos">
+                    <div class="list-group">
+                        <div class="list-group-item item pointer" 
+                             style="min-height: 80px;border-width: 1px;"
+                             v-bind:style="styleBorderGpoHide(item)">
+
+                            <div class="m-t-sm pointer" v-on:click="selectGpoHide(item)">
+                                <h4 class="list-group-item-heading" >{{item.codigo}}</h4>
+                                <h5 class="list-group-item-heading" >{{item.tipoSeccion}}/{{item.letra}}</h5>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
     </div>
 </modal-vik>
 

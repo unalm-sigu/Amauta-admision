@@ -2682,7 +2682,6 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public List<DiaHoraGrupo> searchDiasHorasByHorasSemanales(List<DiaHoraGrupo> diasHorasGrupo, Integer horasSemanales, List<Dia> dias) {
         if (horasSemanales == 0) {
             throw new PhobosException("Esta sección no puede asignarse un grupo con horas semanales");
@@ -2694,20 +2693,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
         Collections.sort(diasHorasGrupo, (p1, p2) -> p1.getHora().getNumero().compareTo(p2.getHora().getNumero()));
 
-        List<DiaHoraGrupo> diasHorasTempo;
-        Map<Long, Object> mapDias = new LinkedHashMap();
-        for (Dia dia : dias) {
-            diasHorasTempo = new ArrayList();
-
-            for (DiaHoraGrupo diaHora : diasHorasGrupo) {
-                if (diaHora.getDia().getId() == dia.getId().longValue()) {
-                    diasHorasTempo.add(diaHora);
-                }
-            }
-            if (!diasHorasTempo.isEmpty()) {
-                mapDias.put(dia.getId(), diasHorasTempo);
-            }
-        }
+        Map<Long, Object> mapDias = TypesUtil.convertListToMapList("dia.id", diasHorasGrupo);
 
         List<DiaHoraGrupo> diasHorasSeccion = new ArrayList();
         List<Map<Long, Object>> busquedas = Commutator.create(mapDias);
@@ -3102,11 +3088,11 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             vacAluSecc = (vacAluSecc == null) ? new ArrayList() : vacAluSecc;
             Map<Integer, VacanteAlumno> mapVacAluSecc = TypesUtil.convertListToMap("numero", vacAluSecc);
             for (int i = 1; i < secc.getVacantes() + 1; i++) {
-                VacanteAlumno va = mapVacAluSecc.get(i);
-                if (va != null) {
+                VacanteAlumno va  = mapVacAluSecc.get(i);
+                if (va  != null) {
                     continue;
                 }
-                va = new VacanteAlumno();
+                va  = new VacanteAlumno();
                 va.setNumero(i);
                 va.setSeccion(secc);
                 va.setEstadoEnum(EstadoVacanteAlumnoEnum.DISP);

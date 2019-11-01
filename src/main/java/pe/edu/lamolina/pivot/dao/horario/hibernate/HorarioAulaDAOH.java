@@ -26,6 +26,7 @@ import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.horario.HorarioAula;
+import pe.edu.lamolina.model.horario.HorarioSeccion;
 import pe.edu.lamolina.model.rolexamen.CursoMasivoExamen;
 import pe.edu.lamolina.model.rolexamen.LetraGrupoRegular;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
@@ -866,6 +867,24 @@ public class HorarioAulaDAOH extends AbstractEasyDAO<HorarioAula> implements Hor
 
         Query query = getCurrentSession().createQuery(strb.toString());
         query.setParameter("SGE", grupoEspecial.getId());
+        query.executeUpdate();
+    }
+
+    @Override
+    public void deleteAllByCiclo(CicloAcademico ciclo) {
+        StringBuilder sql = new StringBuilder("")
+                .append(" DELETE ").append(HorarioAula.class.getSimpleName()).append(" hs ")
+                .append(" WHERE EXISTS ")
+                .append(" ( ")
+                .append("   SELECT 1 FROM ").append(Seccion.class.getName()).append(" sec ")
+                .append("     JOIN sec.grupoSeccion gs ")
+                .append("     JOIN gs.cicloAcademico ci ")
+                .append("    WHERE ci.id = :CICLO ")
+                .append("      AND hs.seccion.id = sec.id ")
+                .append(" ) ");
+
+        Query query = getCurrentSession().createQuery(sql.toString());
+        query.setLong("CICLO", ciclo.getId());
         query.executeUpdate();
     }
 

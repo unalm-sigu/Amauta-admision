@@ -17,16 +17,13 @@ import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.encuestaestudiantil.EncuestaDocente;
 import pe.edu.lamolina.model.encuestaestudiantil.EncuestaEstudiantil;
 import pe.edu.lamolina.model.enums.EncuestaEstadoEnum;
-import pe.edu.lamolina.model.enums.EncuestaEstudiantilEstadoEnum;
 import static pe.edu.lamolina.model.enums.EncuestaEstudiantilEstadoEnum.CER;
 import static pe.edu.lamolina.model.enums.EncuestaEstudiantilEstadoEnum.FECH;
 import static pe.edu.lamolina.model.enums.EncuestaEstudiantilEstadoEnum.ACT;
 import static pe.edu.lamolina.model.enums.EncuestaEstudiantilEstadoEnum.ANU;
 import static pe.edu.lamolina.model.enums.EncuestaEstudiantilEstadoEnum.TEO;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
-import static pe.edu.lamolina.model.enums.RolEnum.DOC;
 import pe.edu.lamolina.model.enums.TipoDictadoGrupoSeccionEnum;
-import pe.edu.lamolina.model.seguridad.Rol;
 import pe.edu.lamolina.pivot.dao.encuesta.EncuestaDocenteDAO;
 
 @Repository

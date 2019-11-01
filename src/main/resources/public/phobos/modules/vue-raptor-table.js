@@ -23,7 +23,6 @@ Vue.component('raptor-table', {
     },
     mounted() {
         if (this.preload) {
-            console.log("3jhbj435b3kj45b34kj")
             this.repreload();
         }
     },

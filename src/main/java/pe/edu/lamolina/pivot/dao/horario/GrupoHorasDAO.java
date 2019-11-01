@@ -20,7 +20,7 @@ public interface GrupoHorasDAO extends EasyDAO<GrupoHoras> {
 
     GrupoHoras findGrupoHorasByCode(String codigo);
 
-    List<GrupoHoras> allGrupoHoras(DynatableFilter filter, Long idTipoGrupo);
+    List<GrupoHoras> allGrupoHoras(DynatableFilter filter, CicloAcademico ciclo);
 
     List<GrupoHoras> allGrupoHoras(List<Long> gruposHoras);
 

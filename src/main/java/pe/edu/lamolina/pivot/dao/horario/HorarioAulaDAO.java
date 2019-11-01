@@ -133,4 +133,6 @@ public interface HorarioAulaDAO extends EasyDAO<HorarioAula> {
 
     void deleteBySeccionGrupoEspecial(SeccionGrupoEspecial grupoDB);
 
+    void deleteAllByCiclo(CicloAcademico ciclo);
+
 }

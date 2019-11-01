@@ -1,8 +1,8 @@
 package pe.edu.lamolina.pivot.controller.programacionhorarios.horario.grupo;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,19 +12,14 @@ import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.PhobosException;
-import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.CicloAcademico;
-import pe.edu.lamolina.model.academico.GrupoSeccion;
-import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.EstadoEnum;
-import pe.edu.lamolina.model.enums.TipoCicloEnum;
 import pe.edu.lamolina.model.enums.TipoGrupoHorasEnum;
 import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.horario.DiaHoraGrupo;
 import pe.edu.lamolina.model.horario.GrupoHoras;
+import pe.edu.lamolina.model.horario.GrupoHorasExcluido;
 import pe.edu.lamolina.model.horario.Hora;
-import pe.edu.lamolina.model.horario.HorarioAula;
-import pe.edu.lamolina.model.horario.HorarioSeccion;
 import pe.edu.lamolina.model.horario.TipoGrupoHoras;
 import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.GrupoSeccionDAO;
@@ -32,10 +27,12 @@ import pe.edu.lamolina.pivot.dao.academico.SeccionDAO;
 import pe.edu.lamolina.pivot.dao.general.DiaDAO;
 import pe.edu.lamolina.pivot.dao.horario.DiaHoraGrupoDAO;
 import pe.edu.lamolina.pivot.dao.horario.GrupoHorasDAO;
+import pe.edu.lamolina.pivot.dao.horario.GrupoHorasExcluidoDAO;
 import pe.edu.lamolina.pivot.dao.horario.HoraDAO;
 import pe.edu.lamolina.pivot.dao.horario.HorarioAulaDAO;
 import pe.edu.lamolina.pivot.dao.horario.HorarioSeccionDAO;
 import pe.edu.lamolina.pivot.dao.horario.TipoGrupoHorasDAO;
+import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service
 @Transactional(readOnly = true)
@@ -45,6 +42,9 @@ public class GrupoHorasServiceImp implements GrupoHorasService {
 
     @Autowired
     GrupoHorasDAO grupoHorasDAO;
+
+    @Autowired
+    GrupoHorasExcluidoDAO grupoHorasExcluidoDAO;
 
     @Autowired
     DiaDAO diaDAO;
@@ -85,8 +85,15 @@ public class GrupoHorasServiceImp implements GrupoHorasService {
 
     @Override
     @Transactional
-    public void delete(GrupoHoras grupoHoras) {
-        grupoHorasDAO.delete(grupoHoras);
+    public void delete(GrupoHoras grupoHoras, CicloAcademico ciclo, DataSessionPivot ds) {
+        GrupoHoras gpoBD = grupoHorasDAO.find(grupoHoras);
+        Assert.isNotNull(gpoBD, "Este grupo no existe en la base de datos");
+        try {
+            grupoHorasDAO.delete(gpoBD);
+        } catch (Exception e) {
+            throw new PhobosException("Este grupo se encuentra relacionado a otros elementos de la base de datos. No puede ser eliminado.");
+        }
+
     }
 
     @Override
@@ -112,13 +119,34 @@ public class GrupoHorasServiceImp implements GrupoHorasService {
     }
 
     @Override
+    @Transactional
+    public void ocultar(GrupoHoras grupoHoras, CicloAcademico ciclo, DataSessionPivot ds) {
+        GrupoHoras gpoBD = grupoHorasDAO.find(grupoHoras);
+        Assert.isNotNull(gpoBD, "Este grupo no existe en la base de datos");
+
+        List<DiaHoraGrupo> diasHorasGpo = diaHoraGrupoDAO.allByGrupoCiclo(gpoBD, ciclo);
+        Assert.isTrue(diasHorasGpo.isEmpty(), "No puede ocultar un grupo si tiene horario");
+
+        GrupoHorasExcluido gpoExcluido = grupoHorasExcluidoDAO.findByGpoCiclo(gpoBD, ciclo);
+        Assert.isNull(gpoExcluido, "Este grupo ya fue ocultado en el ciclo");
+
+        gpoExcluido = new GrupoHorasExcluido();
+        gpoExcluido.setGrupoHoras(gpoBD);
+        gpoExcluido.setCicloAcademico(ciclo);
+        gpoExcluido.setUserExcluye(ds.getUsuario());
+        gpoExcluido.setFechaExcluye(new Date());
+        grupoHorasExcluidoDAO.save(gpoExcluido);
+
+    }
+
+    @Override
     public GrupoHoras findGrupoHorasByCode(String codigo) {
         return grupoHorasDAO.findGrupoHorasByCode(codigo);
     }
 
     @Override
-    public List<GrupoHoras> allGrupoHoras(DynatableFilter filter, Long idTipoGrupo) {
-        return grupoHorasDAO.allGrupoHoras(filter, idTipoGrupo);
+    public List<GrupoHoras> allGrupoHoras(DynatableFilter filter, CicloAcademico ciclo) {
+        return grupoHorasDAO.allGrupoHoras(filter, ciclo);
     }
 
     @Override
@@ -172,9 +200,11 @@ public class GrupoHorasServiceImp implements GrupoHorasService {
 
     @Override
     @Transactional
-    public void desasignarHora(DiaHoraGrupo diaHoraGrupo) {
-        logger.debug("DELETE DIAHOARGRUPO {}", diaHoraGrupo.getId());
-        diaHoraGrupoDAO.delete(diaHoraGrupo);
+    public void desasignarHora(DiaHoraGrupo diaHoraGrupoForm, CicloAcademico ciclo) {
+        logger.debug("DELETE DIAHOARGRUPO {}", diaHoraGrupoForm.getId());
+        DiaHoraGrupo diaHoraGrupoBD = diaHoraGrupoDAO.findByCicloGrupoDiaHora(ciclo, diaHoraGrupoForm.getGrupoHorario(), diaHoraGrupoForm.getDia(), diaHoraGrupoForm.getHora());
+        Assert.isNotNull(diaHoraGrupoBD, "No existe este dia-hora asignado a este grupo");
+        diaHoraGrupoDAO.delete(diaHoraGrupoBD);
     }
 
     @Override
@@ -237,4 +267,32 @@ public class GrupoHorasServiceImp implements GrupoHorasService {
             diaHoraGrupoDAO.save(horaGrupo);
         }
     }
+
+    @Override
+    public GrupoHorasExcluido findGrupoHorasOculto(GrupoHoras grupoCode, CicloAcademico cicloAcademico) {
+        if (grupoCode == null) {
+            return null;
+        }
+        return grupoHorasExcluidoDAO.findByGpoCiclo(grupoCode, cicloAcademico);
+    }
+
+    @Override
+    public List<GrupoHoras> allOcultosByCiclo(TipoGrupoHoras tipoGpo, CicloAcademico cicloAcademico) {
+        List<GrupoHorasExcluido> gposExcluidos = grupoHorasExcluidoDAO.allByTipoGpoCiclo(tipoGpo, cicloAcademico);
+        List<GrupoHoras> gpos = new ArrayList();
+        for (GrupoHorasExcluido gpoHide : gposExcluidos) {
+            gpos.add(gpoHide.getGrupoHoras());
+        }
+        return gpos;
+    }
+
+    @Override
+    @Transactional
+    public void activarGrupos(List<GrupoHoras> gpos, CicloAcademico cicloAcademico) {
+        List<GrupoHorasExcluido> gposExcluidos = grupoHorasExcluidoDAO.allByGpoHorasCiclo(gpos, cicloAcademico);
+        for (GrupoHorasExcluido ghe : gposExcluidos) {
+            grupoHorasExcluidoDAO.delete(ghe);
+        }
+    }
+
 }

@@ -16,12 +16,14 @@ import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
+import static pe.edu.lamolina.model.enums.EncuestaEstudiantilEstadoEnum.ACT;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import pe.edu.lamolina.model.enums.TipoCicloEnum;
 import pe.edu.lamolina.model.enums.TipoGrupoHorasEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 import pe.edu.lamolina.model.horario.DiaHoraGrupo;
 import pe.edu.lamolina.model.horario.GrupoHoras;
+import pe.edu.lamolina.model.horario.GrupoHorasExcluido;
 import pe.edu.lamolina.model.horario.TipoGrupoHoras;
 import pe.edu.lamolina.model.rolexamen.SemanaExamen;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
@@ -67,16 +69,55 @@ public class GrupoHorasDAOH extends AbstractEasyDAO<GrupoHoras> implements Grupo
     }
 
     @Override
-    public List<GrupoHoras> allGrupoHoras(DynatableFilter filter, Long idTipoGrupo) {
+    public List<GrupoHoras> allGrupoHoras(DynatableFilter filter, CicloAcademico ciclo) {
+        Octavia subquery = Octavia.query()
+                .from(GrupoHorasExcluido.class, "ghe")
+                .join("grupoHoras gpo", "cicloAcademico cic")
+                .filter("cic.id", ciclo);
 
         DynatableSql sql = new DynatableSql(filter)
                 .from(GrupoHoras.class, "gh")
                 .leftJoin("tipoGrupoHoras tgh")
-                .searchFields("codigo", "letra")
-                .filter("tgh.id", idTipoGrupo)
-                .orderBy("gh.id desc");
+                .notExists(subquery)
+                .linkedBy("gh.id", "gpo.id")
+                .searchFields("codigo", "letra");
+
+        this.setCondicionQueries(filter, sql);
 
         return all(sql);
+    }
+
+    private void setCondicionQueries(DynatableFilter filter, DynatableSql sql) {
+        Map<String, Object> queries = filter.getQueries();
+        if (queries == null) {
+            sql.orderBy("gh.id desc");
+            return;
+        }
+
+        boolean conOrden = false;
+        for (String key : queries.keySet()) {
+            if (!key.equals("order-letra")) {
+                continue;
+            }
+
+            String values = (String) queries.get(key);
+            if (values.equals("alfa")) {
+                conOrden = true;
+                sql.orderBy("gh.letra", "gh.codigo");
+            }
+        }
+        if (!conOrden) {
+            sql.orderBy("gh.id desc");
+        }
+
+        for (String key : queries.keySet()) {
+            if (!key.equals("tipo-grupo")) {
+                continue;
+            }
+
+            String values = (String) queries.get(key);
+            sql.filter("tgh.id", values);
+        }
     }
 
     @Override

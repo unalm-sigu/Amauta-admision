@@ -250,7 +250,7 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
 
         EventoCicloAcademico eventoDictadoVeranoPregrado = this.getEventoDictadoClases(cicloDestino);
         EventoCicloAcademico eventoDictadoPosgrado = eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(cicloDestino, CLASES_EPG);
-        EventoCicloAcademico eventoDictadoClases = null;
+        EventoCicloAcademico eventoDictadoClases;
 
         List<CursoCurricula> cursosCurricula = cursoCurriculaDAO.allByTipoCursoCurriculaEnum(TipoCursoCurriculaEnum.GEN);
         Map<Long, CursoCurricula> curCurriculaMap = TypesUtil.convertListToMap("curso.id", cursosCurricula);
@@ -347,7 +347,7 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
                 seccNew.setGrupoSeccion(gpoSeccNew);
                 seccNew.setEstado(seccOrigen.getEstado());
                 seccNew.setTipoSeccion(seccOrigen.getTipoSeccion());
-                seccNew.setSituacionDocenteEnum(SituacionDocenteEnum.ERR);
+                seccNew.setSituacionDocenteEnum(SituacionDocenteEnum.COR);
                 seccNew.setHorasSemanales(seccOrigen.getHorasSemanales());
                 seccNew.setVacantes(seccOrigen.getVacantes());
                 seccNew.setGrupoHoras(seccOrigen.getGrupoHoras());
@@ -356,17 +356,26 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
                 seccNew.setUserRegistro(ds.getUsuario());
                 seccNew.setSeccionSuperior(seccionSup);
 
-                if (seccOrigen.getTipoSeccionEnum() == TipoSeccionEnum.TEO || seccOrigen.getTipoSeccionEnum() == TipoSeccionEnum.TCUR) {
-                    seccNew.setCodigo(codigo + "0");
-                    seccNew.setCodigo2(codigo + "0");
-                    seccionSup = seccNew;
-                } else if (seccOrigen.getTipoSeccionEnum() == TipoSeccionEnum.PRA) {
-                    seccNew.setCodigo(codigo + "1");
-                    seccNew.setCodigo2(codigo + "1");
-                } else if (seccOrigen.getTipoSeccionEnum() == TipoSeccionEnum.PCUR) {
-                    seccNew.setCodigo(codigo + loopPCUR);
-                    seccNew.setCodigo2(codigo + loopPCUR);
-                    loopPCUR++;
+                if (null != seccOrigen.getTipoSeccionEnum()) {
+                    switch (seccOrigen.getTipoSeccionEnum()) {
+                        case TEO:
+                        case TCUR:
+                            seccNew.setCodigo(codigo + "0");
+                            seccNew.setCodigo2(codigo + "0");
+                            seccionSup = seccNew;
+                            break;
+                        case PRA:
+                            seccNew.setCodigo(codigo + "1");
+                            seccNew.setCodigo2(codigo + "1");
+                            break;
+                        case PCUR:
+                            seccNew.setCodigo(codigo + loopPCUR);
+                            seccNew.setCodigo2(codigo + loopPCUR);
+                            loopPCUR++;
+                            break;
+                        default:
+                            break;
+                    }
                 }
 
                 boolean tieneAula = false;
@@ -380,6 +389,7 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
                             tieneAula = true;
                             seccNew.setAula(seccOrigen.getAula());
                             logger.debug(" ************* clonacion de aulas oera {} {}", seccNew.getCodigo2(), seccOrigen.getCodigo2());
+
                             // option copiar aulas depts
                         } else if ((!oficina.isOficinaOera() && (modalidad.isPregrado() || modalidad.isPostgrado())) && cicloClonacionBean.getCopiarAulasDptos()) {
                             tieneAula = true;
@@ -404,8 +414,7 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
 
                 try {
                     if (gpoNew != null) {
-                        List<DiaHoraGrupo> diasHorasGpo = mapGrupoHorario.get(gpoNew.getId());
-                        diasHorasGpo = (diasHorasGpo == null) ? new ArrayList() : diasHorasGpo;
+                        List<DiaHoraGrupo> diasHorasGpo = TypesUtil.getListNotNull(mapGrupoHorario.get(gpoNew.getId()));
                         diasHorasSecc = gpoSeccionService.searchDiasHorasByHorasSemanales(diasHorasGpo, seccNew.getHorasSemanales(), dias);
                     }
                 } catch (Exception e) {
@@ -413,6 +422,7 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
                     seccNew.setGrupoHoras(null);
                 }
 
+                boolean existeAula = ObjectUtil.getParentTree(seccNew, "aula.id") != null;
                 if (gpoNew != null) {
                     boolean hayCruce = false;
                     Map<String, HorarioSeccion> mapHorarioTCUR = TypesUtil.convertListToMap("horaDia", horarioTCUR);
@@ -430,7 +440,7 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
                         seccNew.setGrupoHoras(null);
                         System.out.println("Cruzado");
                     }
-                    if (gpoNew != null && ObjectUtil.getParentTree(seccNew, "aula.id") != null) {
+                    if (gpoNew != null && existeAula) {
                         List<String> diasHorasSeccion = diasHorasSecc.stream().map(x -> x.getIdDiaHora()).collect(Collectors.toList());
                         if (!seccNew.getAula().getPermiteCruceBool() && !diasHorasSeccion.isEmpty()) {
                             List<HorarioAula> horariosAulasFound = horarioAulaDAO.allRangoDiaAndAulaByDiasHoras(diasHorasSeccion, seccNew.getAula(), eventoDictadoClases.getFechaInicio(), eventoDictadoClases.getFechaFin());
@@ -444,6 +454,7 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
                 seccionDAO.save(seccNew);
 
                 if (gpoNew != null) {
+                    existeAula = ObjectUtil.getParentTree(seccNew, "aula.id") != null;
 
                     for (DiaHoraGrupo diaHoraSecc : diasHorasSecc) {
                         HorarioSeccion horarioSecc = new HorarioSeccion();
@@ -458,22 +469,17 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
                         }
                         horarioSeccionDAO.save(horarioSecc);
 
-                        if (ObjectUtil.getParentTree(seccNew, "aula.id") != null) {
-                            for (DiaHoraGrupo diaHoraGrupoEach : diasHorasSecc) {
-                                // BLOQUEADO MOMENTANEAMENTE
-                                /*
-                                HorarioAula horarioAula = new HorarioAula();
-                                horarioAula.setAula(seccNew.getAula());
-                                horarioAula.setDia(diaHoraGrupoEach.getDia());
-                                horarioAula.setHora(diaHoraGrupoEach.getHora());
-                                horarioAula.setSeccion(seccNew);
-                                horarioAula.setEstadoEnum(EstadoHorarioAulaEnum.ACT);
-                                horarioAula.setTipoEnum(TipoHorarioAulaEnum.DICT);
-                                horarioAula.setFechaInicio(eventoDictadoClases.getFechaInicio());
-                                horarioAula.setFechaFin(eventoDictadoClases.getFechaFin());
-                                horarioAulaDAO.save(horarioAula);
-                                ///////////////  *******************/
-                            }
+                        if (existeAula && !aula.getPermiteCruceBool()) {
+                            HorarioAula horarioAula = new HorarioAula();
+                            horarioAula.setAula(seccNew.getAula());
+                            horarioAula.setDia(diaHoraSecc.getDia());
+                            horarioAula.setHora(diaHoraSecc.getHora());
+                            horarioAula.setSeccion(seccNew);
+                            horarioAula.setEstadoEnum(EstadoHorarioAulaEnum.ACT);
+                            horarioAula.setTipoEnum(TipoHorarioAulaEnum.DICT);
+                            horarioAula.setFechaInicio(eventoDictadoClases.getFechaInicio());
+                            horarioAula.setFechaFin(eventoDictadoClases.getFechaFin());
+                            horarioAulaDAO.save(horarioAula);
                         }
 
                         if (seccNew.getIsTipoSeccionTCUR()) { // is es TCUR
@@ -677,6 +683,7 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
         restriccionCarreraDAO.deleteAllByCiclo(ciclo);
         docenteSeccionDAO.deleteAllByCiclo(ciclo);
         horarioSeccionDAO.deleteAllByCiclo(ciclo);
+        horarioAulaDAO.deleteAllByCiclo(ciclo);
         vacanteAlumnoDAO.deleteAllByCiclo(ciclo);
         matriculaSeccionDAO.deleteAllByCiclo(ciclo); // No deberia
         evaluacionDAO.deleteAllByCiclo(ciclo); // No deberia

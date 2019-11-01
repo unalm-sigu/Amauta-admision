@@ -6,22 +6,26 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.horario.DiaHoraGrupo;
 import pe.edu.lamolina.model.horario.GrupoHoras;
+import pe.edu.lamolina.model.horario.GrupoHorasExcluido;
 import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.horario.TipoGrupoHoras;
+import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface GrupoHorasService {
 
-    List<GrupoHoras> allGrupoHoras(DynatableFilter filter, Long idTipoGrupo);
+    List<GrupoHoras> allGrupoHoras(DynatableFilter filter, CicloAcademico ciclo);
 
     GrupoHoras findGrupoHoras(GrupoHoras grupoHoras);
 
     GrupoHoras findGrupoHoras(Long grupoHoras);
 
-    void delete(GrupoHoras grupoHoras);
+    void delete(GrupoHoras grupoHoras, CicloAcademico ciclo, DataSessionPivot ds);
 
     void save(GrupoHoras grupoHoras);
 
     void update(GrupoHoras grupoHoras);
+
+    void ocultar(GrupoHoras grupoHoras, CicloAcademico ciclo, DataSessionPivot ds);
 
     GrupoHoras findGrupoHorasByCode(String codigo);
 
@@ -33,7 +37,7 @@ public interface GrupoHorasService {
 
     List<DiaHoraGrupo> allDiaHoraGrupoByGrupo(GrupoHoras grupoHoras, CicloAcademico cicloAcademico);
 
-    void desasignarHora(DiaHoraGrupo diaHoraGrupo);
+    void desasignarHora(DiaHoraGrupo diaHoraGrupo, CicloAcademico ciclo);
 
     List<DiaHoraGrupo> allDiaHoraGrupo(List<GrupoHoras> grupos, CicloAcademico cicloAcademico);
 
@@ -45,6 +49,12 @@ public interface GrupoHorasService {
 
     TipoGrupoHoras findTipoGpoRegular();
 
-    public void clonar(CicloAcademico cicloOrigen, CicloAcademico cicloDestino);
+    void clonar(CicloAcademico cicloOrigen, CicloAcademico cicloDestino);
+
+    GrupoHorasExcluido findGrupoHorasOculto(GrupoHoras grupoCode, CicloAcademico cicloAcademico);
+
+    List<GrupoHoras> allOcultosByCiclo(TipoGrupoHoras tipoGpo, CicloAcademico cicloAcademico);
+
+    void activarGrupos(List<GrupoHoras> gpos, CicloAcademico cicloAcademico);
 
 }

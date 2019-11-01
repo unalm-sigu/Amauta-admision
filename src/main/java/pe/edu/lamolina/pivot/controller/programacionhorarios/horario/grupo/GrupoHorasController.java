@@ -10,6 +10,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,6 +41,7 @@ import pe.edu.lamolina.model.enums.TipoSeccionGrupoEnum;
 import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.horario.DiaHoraGrupo;
 import pe.edu.lamolina.model.horario.GrupoHoras;
+import pe.edu.lamolina.model.horario.GrupoHorasExcluido;
 import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.horario.TipoGrupoHoras;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
@@ -104,7 +106,7 @@ public class GrupoHorasController {
 
     @ResponseBody
     @RequestMapping("list")
-    public DynatableResponse list(DynatableFilter filter, Long idTipoGrupo, HttpSession session) {
+    public DynatableResponse list(DynatableFilter filter, HttpSession session) {
 
         DynatableResponse json = new DynatableResponse();
         try {
@@ -112,7 +114,7 @@ public class GrupoHorasController {
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
 
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
-            List<GrupoHoras> grupos = service.allGrupoHoras(filter, idTipoGrupo);
+            List<GrupoHoras> grupos = service.allGrupoHoras(filter, cicloAcademico);
             List<DiaHoraGrupo> horas = service.allDiaHoraGrupo(grupos, cicloAcademico);
             Map<Long, List<DiaHoraGrupo>> mapGrupohoras = TypesUtil.convertListToMapList("grupoHorario.id", horas);
             for (GrupoHoras grupo : grupos) {
@@ -147,9 +149,19 @@ public class GrupoHorasController {
     public JsonResponse save(@RequestBody GrupoHoras grupoHoras, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            CicloAcademico cicloAcademico = ds.getCicloAcademico();
+
             GrupoHoras grupoCode = service.findGrupoHorasByCode(grupoHoras.getCodigo());
+            GrupoHorasExcluido grupoHide = service.findGrupoHorasOculto(grupoCode, cicloAcademico);
             ObjectNode data = new ObjectNode(JsonNodeFactory.instance);
-            if (grupoHoras.getId() != null) {
+            response.setSuccess(Boolean.TRUE);
+
+            if (grupoHide != null) {
+                response.setMessage("Este Grupo-Horas se encuentra oculto para este ciclo. No puede ser modificado.");
+                response.setSuccess(Boolean.FALSE);
+
+            } else if (grupoHoras.getId() != null) {
                 if (grupoCode != null) {
                     if (grupoCode.getId() == grupoHoras.getId().longValue()) {
                         service.update(grupoHoras);
@@ -176,7 +188,7 @@ public class GrupoHorasController {
                 }
             }
             response.setData(data);
-            response.setSuccess(Boolean.TRUE);
+
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
@@ -232,12 +244,38 @@ public class GrupoHorasController {
 
     @ResponseBody
     @RequestMapping("delete")
-    public JsonResponse delete(GrupoHoras grupoHoras) {
+    public JsonResponse delete(@RequestBody GrupoHoras grupoHoras, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            service.delete(grupoHoras);
-            response.setMessage("Grupo Horas eliminada satisfactoriamente");
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            CicloAcademico ciclo = ds.getCicloAcademico();
+            service.delete(grupoHoras, ciclo, ds);
+
+            response.setMessage("Grupo-horarios eliminado satisfactoriamente");
             response.setSuccess(Boolean.TRUE);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (RuntimeException e) {
+            ExceptionHandler.handleSpecial(e, response, "Este grupo está relacionado a otros elementos del sistema. No puede ser eliminado.");
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("ocultar")
+    public JsonResponse ocultar(@RequestBody GrupoHoras grupoHoras, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            CicloAcademico ciclo = ds.getCicloAcademico();
+            service.ocultar(grupoHoras, ciclo, ds);
+
+            response.setMessage("Grupo-horario ocultado satisfactoriamente");
+            response.setSuccess(Boolean.TRUE);
+
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
@@ -250,8 +288,8 @@ public class GrupoHorasController {
     @RequestMapping("horario")
     public JsonResponse horario(GrupoHoras grupoHoras, Model model, HttpSession session) {
         JsonResponse response = new JsonResponse();
+        long t1 = System.currentTimeMillis();
         try {
-
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
 
@@ -272,6 +310,9 @@ public class GrupoHorasController {
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
+        long t2 = System.currentTimeMillis();
+        System.out.println("horario entregado en " + (t2 - t1) + " mseg");
+
         return response;
     }
 
@@ -304,7 +345,7 @@ public class GrupoHorasController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
             diaHoraGrupo.setCicloAcademico(cicloAcademico);
-            service.desasignarHora(diaHoraGrupo);
+            service.desasignarHora(diaHoraGrupo, cicloAcademico);
             response.setSuccess(Boolean.TRUE);
             response.setMessage("Se retiró el horario satisfactoriamente");
         } catch (PhobosException e) {
@@ -325,6 +366,50 @@ public class GrupoHorasController {
             service.clonar(cicloOrigen, ds.getCicloAcademico());
             response.setSuccess(Boolean.TRUE);
             response.setMessage("Se clonó el horario satisfactoriamente");
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("listOcultos")
+    public JsonResponse listOcultos(@RequestBody TipoGrupoHoras tipoGpo, Model model, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            CicloAcademico cicloAcademico = ds.getCicloAcademico();
+
+            List<GrupoHoras> gpos = service.allOcultosByCiclo(tipoGpo, cicloAcademico);
+            ArrayNode array = createGposHorasJson(gpos);
+
+            response.setData(array);
+            response.setSuccess(Boolean.TRUE);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("activarOcultos")
+    public JsonResponse activarOcultos(@RequestBody List<GrupoHoras> gpos, Model model, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            CicloAcademico cicloAcademico = ds.getCicloAcademico();
+            service.activarGrupos(gpos, cicloAcademico);
+
+            response.setSuccess(Boolean.TRUE);
+            response.setMessage("Grupos-Horas activados satisfactoriamente");
+
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
@@ -371,15 +456,36 @@ public class GrupoHorasController {
         return array;
     }
 
-    private ArrayNode createDiaHoraGpoJson(List<DiaHoraGrupo> diasHorasGpos) {
+    private ArrayNode createGposHorasJson(List<GrupoHoras> gposHoras) {
         ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
-        for (DiaHoraGrupo hdiaGpo : diasHorasGpos) {
-            ObjectNode node = JsonHelper.createJson(hdiaGpo, JsonNodeFactory.instance, true, new String[]{
-                "*", "grupoHorario.codigo", "hora.id", "hora.codigo", "dia.id"
-            });
+        for (GrupoHoras gpoHoras : gposHoras) {
+            ObjectNode node = JsonHelper.createJson(gpoHoras, JsonNodeFactory.instance, true,
+                    new String[]{"*", "tipoGrupoHoras.*"}
+            );
             array.add(node);
         }
         return array;
+    }
+
+    private ObjectNode createDiaHoraGpoJson(List<DiaHoraGrupo> diasHorasGpos) {
+        //ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+        Map<String, List<DiaHoraGrupo>> mapDiaHora = TypesUtil.convertListToMapList("key", diasHorasGpos);
+        ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
+        for (Map.Entry<String, List<DiaHoraGrupo>> entry : mapDiaHora.entrySet()) {
+            List<GrupoHoras> gpos = entry.getValue().stream().map(x -> x.getGrupoHorario()).collect(Collectors.toList());
+            node.set(entry.getKey(), createGposHorasJson(gpos));
+            //array.add(node);
+        }
+//        for (DiaHoraGrupo hdiaGpo : diasHorasGpos) {
+//            ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
+//            ObjectNode nodeGpo = JsonHelper.createJson(hdiaGpo.getGrupoHorario(), JsonNodeFactory.instance, new String[]{"*"});
+//            node.set(hdiaGpo.getKey(), nodeGpo);
+////            ObjectNode node = JsonHelper.createJson(hdiaGpo, JsonNodeFactory.instance, true, new String[]{
+////                "*", "grupoHorario.codigo", "hora.id", "hora.codigo", "dia.id"
+////            });
+//            array.add(node);
+//        }
+        return node;
     }
 
 }

@@ -115,6 +115,7 @@ new Vue({
         let anx = $vue.$refs.load.getParameterByName('queries[anexo]');
         anx = (anx == null) ? '' : anx;
         if (anx == '') {
+            console.log(" anx == '' ")
             $vue.$refs.load.repreload();
         }
 
@@ -456,6 +457,7 @@ new Vue({
             if ($vue.seleccionado !== '') {
                 $vue.$refs.load.querie.push({name: 'anexo-superior', value: $vue.seleccionado});
             }
+            console.log("wewe-wewewe-wewerwer-werwe")
             $vue.settingUrlAnexoInferior();
             $vue.settingUrlOrderCodigo();
             $vue.$refs.load.loadRemoteData();

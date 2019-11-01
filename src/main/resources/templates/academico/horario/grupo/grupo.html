@@ -21,7 +21,27 @@
 
             td.table-letra:first-child, th.table-letra:first-child {
                 border-left: none;
-            }    
+            }
+            .col-gpo-hide {
+                width: 12.5% !important;
+            }
+            .gpo-regular-ok {
+                border-color: #DFE7EE; 
+                background-color: #FFFFFF;
+                color: #3C7DE7 ;
+            }
+            .gpo-regular-cruce {
+                border-color: #DFE7EE; 
+                background-color: #FFFFFF;
+                color: #E74C3C;
+                font-weight: bold;
+            }
+            .dia-hora-busy {
+                border-color: #600D63;
+                background-color: #F5DE86;
+                color: #000000;
+                font-weight: bold;
+            }
         </style>
         <!--<div th:substituteby="_layout/includes :: styles-bootstrap-colorpicker"></div>-->
     </head>
@@ -37,13 +57,14 @@
                             <i class="fa fa-file-text-o"/> &nbsp; Acciones &nbsp; <span class="caret"></span>
                         </button>
                         <ul class="dropdown-menu">
-                            <li><a v-on:click.prevent="clonarCiclo">Clonar</a></li>
-                            <li><a id="nuevo" href="#" >Nuevo</a></li>
+                            <li><a v-on:click="clonarCiclo" class="pointer">Clonar</a></li>
+                            <li><a v-on:click="nuevo" class="pointer">Nuevo</a></li>
+                            <li><a v-on:click="verActivarGpos" class="pointer">Activar ocultos</a></li>
                         </ul>
                     </div>
 
-                    <div class="pull-right m-t-md">                 
-                        <a class="btn btn-link" th:href="@{/academico/horario}" >Regresar</a>
+                    <div class="pull-right m-t-sm m-r">
+                        <a class="btn btn-default btn-sm" th:href="@{/academico/horario}" >Regresar</a>
                         <!--<a class="btn btn-primary" id="nuevo" href="#" >Nuevo</a>-->
                     </div> 
 
@@ -58,35 +79,52 @@
                         <input type="hidden" name="idTipoGrupo" th:value="${tipoGrupoHoras.id}" />
 
                         <raptor-table v-bind:url="grupoURL" v-bind:preload="false" v-bind:pagination="paginationGpo" ref="raptorGrupo">
+                            <div slot="header">
+                                <div class="col-md-1">
+
+                                    <div class="form-group" title="Ordenar alfabéticamente" data-toggle="tooltip" data-placement="top">
+                                        <label class="switch">
+                                            <input type="checkbox" v-model="orderByLetra" value="1" autocomplete="off" /> 
+                                            <span></span> 
+                                            <i></i>
+                                        </label>
+                                    </div>
+
+                                </div>
+                                <div class="col-md-2">
+                                    <div class="text-primary h4 m-t-xxs m-b-xxs">Ordenar por letra</div>
+                                </div>
+                            </div>
                             <template scope="props" >
                                 <div class="col-sm-1 col-xs-1" 
                                      v-for="item in props.data">
                                     <div class="list-group">
 
-                                        <div href="#" 
-                                             class="list-group-item item" 
+                                        <div class="list-group-item item pointer" 
                                              style="min-height: 100px;border-width: 1px;"
                                              v-bind:style="styleBorder(item)">
 
                                             <div class="dropdown actions pull-right">
 
-                                                <a class="dropdown-toggle text-muted" href="#" data-toggle="dropdown">
-                                                    <i class="fa fa-cog" aria-hidden="true"></i>
+                                                <a class="dropdown-toggle text-muted pointer" data-toggle="dropdown">
+                                                    <i class="fa fa-cog"></i>
                                                 </a>
 
-                                                <ul class="dropdown-menu pull-right" aria-labelledby="dropdownMenu1" role="menu">
+                                                <ul class="dropdown-menu pull-right" aria-labelledby="dropdownMenu" role="menu">
                                                     <li role="presentation">
-                                                        <a class="btn-link editar" v-on:click="verEditarGrupo(item)" >Editar</a>
+                                                        <a class="pointer" v-on:click="verEditarGrupo(item)" >Editar</a>
                                                     </li>
-                                                    <li role="presentation" class="divider"></li>
                                                     <li role="presentation">
-                                                        <a class="btn-link eliminar" href="#">Eliminar</a>
+                                                        <a class="pointer" v-on:click="ocultar(item)" >Ocultar</a>
+                                                    </li>
+                                                    <li role="presentation">
+                                                        <a class="pointer" v-on:click="eliminar(item)" >Eliminar</a>
                                                     </li>
                                                 </ul>
 
                                             </div>
 
-                                            <div class="m-t-sm pointer verhorario" v-on:click="verHorario(item)">
+                                            <div class="m-t-sm pointer" v-on:click="verHorario(item)">
                                                 <h4 class="list-group-item-heading" >{{item.codigo}}</h4>
                                                 <h5 class="list-group-item-heading" >{{item.tipoSeccion}}/{{item.letra}}</h5>
 
@@ -130,9 +168,10 @@
                                                 </span>
 
                                             </td>
-                                            <td v-for="dia in dias" style="width: 12.5%" v-on:click="conterObjHdia(dia,hora) == null ? asignarHora(dia,hora) : desasignarHora(dia,hora)">
+                                            <td v-for="dia in dias" style="width: 12.5%" 
+                                                v-on:click="conterObjHdia(dia,hora) == null ? asignarHora(dia,hora) : desasignarHora(dia,hora)">
                                                 <span v-bind:value="hora.id + '-' + dia.id" class="form-control pointer text-center"
-                                                      v-bind:style="styleHdia(dia,hora)"
+                                                      v-bind:class="styleHdia(dia,hora)"
                                                       v-text="conteHdia(dia,hora)">
                                                     <!--span class="text-item-horario"
                                                        v-bind:style="styleConteHdia(dia,hora)"
@@ -149,6 +188,7 @@
                 </section>
 
                 <div th:substituteby="academico/horario/grupo/grupoModal"></div>
+                <div th:substituteby="_modules/vue-modal-confirm"></div>
 
                 <!--            <modal-vik ref="modalCloneCiclo"
                                        v-bind="dataCloneCiclo" 
