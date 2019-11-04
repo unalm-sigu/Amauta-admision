@@ -9,6 +9,51 @@
             .bg-row {
                 background-color: #f9fafc;
             }
+            .circle-recorrido {
+                display: inline-block;
+                min-width: 10px;
+                height: 20px;
+                padding: 3px 7px;
+                font-size: 12px;
+                font-weight: 700;
+                line-height: 1;
+                text-align: center;
+                white-space: nowrap;
+                vertical-align: middle;
+                border-radius: 10px;
+            }
+
+            .circle-recorrido.bgr-success {
+                background-color: #2ECC71;
+                color: #fff;
+            }
+
+            .circle-recorrido.bgr-primary {
+                background-color: #0275D8;
+                color: #fff;
+            }
+
+            .circle-recorrido.bgr-danger {
+                background-color: #E74C3C;
+                color: #fff;
+            }
+
+            .circle-recorrido.bgr-warning {
+                background-color: #F1B41E;
+                color: #fff;
+            }
+
+            .circle-recorrido.bgr-black {
+                background-color: #3C4043;
+                color: #fff;
+            }
+
+            .ver-modalidad {
+                padding-left: 10px;
+                padding-top: 10px;
+                padding-bottom: 10px;
+                width: 100%;
+            }
         </style>
     </head>
 
@@ -76,6 +121,37 @@
                                         </a>
                                     </div>
                                 </div>
+
+                                <div class="row m-t">
+                                    <div class="col-md-3">
+                                        <div class="ver-modalidad" v-bind:class="bgColorEstadoClass['activos']">
+                                            <a class="h4 text-success pointer" v-on:click="verEstado('activos')">
+                                                <div class="circle-recorrido bgr-success">{{resumen.activos}}</div> Activos
+                                            </a>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="ver-modalidad" v-bind:class="bgColorEstadoClass['inactivos']">
+                                            <a class="h4 text-danger pointer" v-on:click="verEstado('inactivos')">
+                                                <div class="circle-recorrido bgr-danger">{{resumen.inactivos}}</div> Inactivos
+                                            </a>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="ver-modalidad" v-bind:class="bgColorDictadoClass['semestrales']">
+                                            <a class="h4 text-dark pointer" v-on:click="verDictado('semestrales')">
+                                                <div class="circle-recorrido bgr-black">{{resumen.semestrales}}</div> Semestrales
+                                            </a>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="ver-modalidad" v-bind:class="bgColorDictadoClass['modulares']">
+                                            <a class="h4 text-warning pointer" v-on:click="verDictado('modulares')">
+                                                <div class="circle-recorrido bgr-warning">{{resumen.modulares}}</div> Modulares
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </section>
                     </section>
@@ -83,30 +159,38 @@
                     <section class="panel">
                         <section class="panel-body">
 
-                            <raptor-table v-bind:url="gpoSeccionesURL" v-bind:preload="false" ref="load">
+                            <raptor-table v-bind:url="gpoSeccionesURL" v-bind:preload="false" ref="raptorGpoSecc">
                                 <div slot="header">
 
                                     <div class="col-md-6">
                                         <multiselect v-model='anexoSelect'
                                                      v-bind:options='anexosVisibles'
-                                                     label='nombre'
+                                                     label='nombreCantidad'
                                                      placeholder="Seleccione un anexo"
                                                      deselect-label="Retire anexo"
                                                      select-label="Seleccione este anexo"
                                                      track-by='id'
                                                      v-on:input="loadRegistros">
                                             <template slot="option" slot-scope="props">
-                                                <div class="block text-primary bold" v-text="props.option.nombre"></div>
+                                                <div class="block">
+                                                    <span  v-if="props.option.cantidadGpoSecc > 0 "
+                                                           v-text="props.option.cantidadGpoSecc"
+                                                           class="circle-recorrido bgr-success" ></span>
+                                                    <span  v-else=""
+                                                           v-text="props.option.cantidadGpoSecc"
+                                                           class="circle-recorrido bgr-danger" ></span>
+                                                    <span class="text-primary bold" v-text="props.option.nombre"></span>
+                                                </div>
                                                 <small class="block">{{props.option.anexoSuperior.nombre}}</small>
                                             </template>
                                             <template slot="clear" slot-scope="props">
-                                                <div class="multiselect__clear" v-if="existeAnexoSelect()" 
-                                                     v-on:mousedown.prevent.stop="clearAll(props.search)"></div>
+                                                <div class="multiselect__clear" v-if="anexoSelect" 
+                                                     v-on:mousedown="clearAnexo(props.search)"></div>
                                             </template>
                                         </multiselect>
                                     </div>
 
-                                    <div class="col-md-2">
+                                    <!--div class="col-md-2">
 
                                         <div class="form-group" title="Ordenar por código" data-toggle="tooltip" data-placement="top">
                                             <label class="switch">
@@ -116,7 +200,7 @@
                                             </label>
                                         </div>
 
-                                    </div>
+                                    </div-->
                                 </div>
 
                                 <template scope="props" >
@@ -124,8 +208,22 @@
                                         <thead> 
                                             <tr>
                                                 <th class="text-center v-middle"></th>
-                                                <th class="col-md-4"></th>
-                                                <th class="col-md-1 text-center v-middle">Sección</th>
+                                                <th class="col-md-4">
+                                                    <span class="">
+                                                        <i class="fa fa-lg pointer" 
+                                                           v-bind:class="styleOrdenCurso"
+                                                           v-on:click="changeOrdenCurso"></i>
+                                                    </span>
+                                                    Curso 
+                                                </th>
+                                                <th class="col-md-1 v-middle">
+                                                    <span class="">
+                                                        <i class="fa fa-lg pointer" 
+                                                           v-bind:class="styleOrdenSeccion"
+                                                           v-on:click="changeOrdenSeccion"></i>
+                                                    </span>
+                                                    Sección 
+                                                </th>
                                                 <th class="col-md-1 text-center v-middle">
                                                     <span class="block">Aula</span>
                                                     <span class="block">Grupo</span>

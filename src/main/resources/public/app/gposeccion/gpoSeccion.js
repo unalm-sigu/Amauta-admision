@@ -15,11 +15,15 @@ new Vue({
     data: {
         gpoSeccionesURL: APP.url(rutaModulo + '/list'),
         seleccionado: '',
+        estadoSeleccionada: '',
+        dictadoSeleccionado: '',
         bgColorClass: {ingresantes: '', departamentos: '', postgrados: '', actividades: ''},
+        bgColorEstadoClass: {activos: '', inactivos: ''},
+        bgColorDictadoClass: {modulares: '', semestrales: ''},
         anexosSup: {ingresantes: 1, departamentos: 2, postgrados: 4, actividades: 3},
         anexos: [],
         anexosVisibles: [],
-        anexoSelect: {},
+        anexoSelect: null,
         restriccionModal: {
             id: 'modalRestriccion',
             header: true,
@@ -46,9 +50,13 @@ new Vue({
             ingresantes: 0,
             departamentos: 0,
             postGrados: 0,
-            actividades: 0
+            actividades: 0,
+            activos: 0,
+            inactivos: 0,
+            semestrales: 0,
+            modulares: 0
         },
-        orderbycodigo: false,
+        // orderbycodigo: false,
         cursos: [],
         isLoadingCursos: false,
         anexosPadres: [],
@@ -58,7 +66,13 @@ new Vue({
         newGrupoSeccion: {curso: {}, anexoBoletin: {}},
         configConfirmAction: VUE_MODAL.structConfirm({}),
         cicloClonacionBean: {copiarAulasOera: false, copiarAulasDptos: false, copiarAulasPosgrado: false},
-        gpoSeccionesSelects: []
+        gpoSeccionesSelects: [],
+        direccionSeccion: 0,
+        direccionCurso: 0,
+        styleOrdenSeccion: "",
+        styleOrdenCurso: "",
+        ordenRegistros: "",
+
     },
     computed: {
         condicion1() {
@@ -79,50 +93,72 @@ new Vue({
         },
 
     },
-    watch: {
-        orderbycodigo() {
-            let $vue = this;
-            $vue.loadRegistros(null);
-        }
-    },
     mounted: function () {
         let $vue = this;
-
-        let tipo = $vue.$refs.load.getParameterByName('queries[anexo-superior]');
-        tipo = (tipo == null) ? '' : tipo;
-        if (tipo != '') {
-            $vue.bgColorClass[tipo] = 'bg-light';
-            $vue.seleccionado = tipo;
-            $vue.$refs.load.querie.push({name: 'anexo-superior', value: tipo});
-        }
-
-        let orderBy = $vue.$refs.load.getParameterByName('queries[order-codigo]');
-        orderBy = (orderBy == null) ? '' : orderBy;
-        if (orderBy != '') {
-            $vue.orderbycodigo = true;
-            $vue.$refs.load.querie.push({name: 'order-codigo', value: orderBy});
-        }
-
-        let letra = $vue.$refs.load.getParameterByName('queries[letra]');
-        letra = (letra == null) ? '' : letra;
-        if (letra != '') {
-            //$vue.orderbycodigo = true;
-            $vue.$refs.load.querie.push({name: 'letra', value: letra});
-        }
-
         $vue.loadDataInicial();
 
-        let anx = $vue.$refs.load.getParameterByName('queries[anexo]');
-        anx = (anx == null) ? '' : anx;
-        if (anx == '') {
-            console.log(" anx == '' ")
-            $vue.$refs.load.repreload();
-        }
-
-        $vue.updateDataCiclo();
+//        let letra = $vue.$refs.raptorGpoSecc.getParameterByName('queries[letra]');
+//        letra = (letra == null) ? '' : letra;
+//        if (letra != '') {
+//            $vue.$refs.raptorGpoSecc.querie.push({name: 'letra', value: letra});
+//        }
 
     },
     methods: {
+        getParameterQuery(param) {
+            let $vue = this;
+            let value = $vue.$refs.raptorGpoSecc.getParameterByName('queries[' + param + ']');
+            value = (value === null) ? '' : value;
+            return value;
+        },
+        setParameterQuery(param, value) {
+            let $vue = this;
+            if (value !== '') {
+                $vue.$refs.raptorGpoSecc.querie.push({name: param, value: value});
+            }
+        },
+        configInicio() {
+            let $vue = this;
+            let anxSup = $vue.getParameterQuery('anexo-superior');
+            if (anxSup !== '') {
+                $vue.bgColorClass[anxSup] = 'bg-light';
+                $vue.seleccionado = anxSup;
+            }
+
+            $vue.loadAnexosVisibles();
+            let anx = $vue.getParameterQuery('anexo');
+            if (anx !== '') {
+                for (var i = 0; i < $vue.anexosVisibles.length; i++) {
+                    let anxVis = $vue.anexosVisibles[i];
+                    if (anxVis.id == anx) {
+                        $vue.anexoSelect = anxVis;
+                    }
+                }
+            }
+
+            let orden = $vue.getParameterQuery('orden-registros');
+            if (orden !== '') {
+                $vue.ordenRegistros = orden;
+                $vue.direccionSeccion = $vue.getOrdenador(orden, "seccion");
+                $vue.direccionCurso = $vue.getOrdenador(orden, "curso");
+            }
+
+            let estado = $vue.getParameterQuery('estado');
+            if (estado !== '') {
+                $vue.bgColorEstadoClass[estado] = 'bg-light';
+                $vue.estadoSeleccionada = estado;
+            }
+
+            let dictado = $vue.getParameterQuery('dictado');
+            if (dictado !== '') {
+                $vue.bgColorDictadoClass[dictado] = 'bg-light';
+                $vue.dictadoSeleccionado = dictado;
+            }
+
+            $vue.setStyleOrdenSeccion();
+            $vue.setStyleOrdenCurso();
+            $vue.loadRegistros();
+        },
         nuevoGpoSecc() {
             let $vue = this;
             $vue.newGrupoSeccion = {curso: {}, anexoBoletin: {}};
@@ -293,45 +329,48 @@ new Vue({
             }
             return false;
         },
-        existeAnexoSelect() {
+//        existeAnexoSelect() {
+//            let $vue = this;
+//            if ($vue.anexoSelect == null) {
+//                return false;
+//            }
+//            if ($vue.anexoSelect.id === undefined) {
+//                return false;
+//            }
+//            return true;
+//        },
+        clearAnexo() {
             let $vue = this;
-            if ($vue.anexoSelect == null) {
-                return false;
-            }
-            if ($vue.anexoSelect.id === undefined) {
-                return false;
-            }
-            return true;
-        },
-        clearAll() {
-            let $vue = this;
-            $vue.anexoSelect = {};
-            $vue.loadRegistros(null);
+            $vue.anexoSelect = null;
+            $vue.loadRegistros();
         },
         verificarAnexoSelect() {
             let $vue = this;
-            if ($vue.seleccionado == '') {
+            if ($vue.seleccionado === '') {
                 return;
             }
-            if ($vue.anexoSelect.id === undefined) {
+            if ($vue.anexoSelect === null) {
                 return;
             }
             let sup = $vue.anexosSup[$vue.seleccionado];
             if (sup !== $vue.anexoSelect.anexoSuperior.id) {
-                $vue.anexoSelect = {};
+                $vue.anexoSelect = null;
             }
 
         },
         loadAnexosVisibles() {
+            console.log("33333")
             let $vue = this;
             $vue.anexosVisibles = [];
             for (var i = 0; i < $vue.anexos.length; i++) {
                 let anx = $vue.anexos[i];
-                if ($vue.seleccionado == '') {
+                if ($vue.seleccionado === '') {
+                    console.log("1111")
                     $vue.anexosVisibles.push(anx);
                 } else {
+                    console.log("2222")
                     let sup = $vue.anexosSup[$vue.seleccionado];
-                    if (sup == anx.anexoSuperior.id) {
+                    if (sup === anx.anexoSuperior.id) {
                         $vue.anexosVisibles.push(anx);
                     }
                 }
@@ -347,23 +386,25 @@ new Vue({
                     if (response.success) {
                         $vue.anexos = response.data.anexos;
                         $vue.anexosPadres = response.data.anexosSup;
-                        $vue.loadAnexosVisibles();
+                        console.log("$vue.anexos=" + $vue.anexos.length)
+                        $vue.configInicio();
+                        //$vue.loadAnexosVisibles();
 
-                        let anx = $vue.$refs.load.getParameterByName('queries[anexo]');
-                        anx = (anx == null) ? '' : anx;
-                        if (anx == '') {
-                            return;
-                        }
-                        for (var i = 0; i < $vue.anexosVisibles.length; i++) {
-                            let anexo = $vue.anexosVisibles[i];
-                            let idAnx = parseInt(anx);
-                            if (idAnx == anexo.id) {
-                                $vue.anexoSelect = anexo;
-                                $vue.$refs.load.querie.push({name: 'anexo', value: $vue.anexoSelect.id});
-                            }
-                        }
-
-                        $vue.$refs.load.repreload();
+//                        let anx = $vue.$refs.raptorGpoSecc.getParameterByName('queries[anexo]');
+//                        anx = (anx == null) ? '' : anx;
+//                        if (anx == '') {
+//                            return;
+//                        }
+//                        for (var i = 0; i < $vue.anexosVisibles.length; i++) {
+//                            let anexo = $vue.anexosVisibles[i];
+//                            let idAnx = parseInt(anx);
+//                            if (idAnx == anexo.id) {
+//                                $vue.anexoSelect = anexo;
+//                                $vue.$refs.raptorGpoSecc.querie.push({name: 'anexo', value: $vue.anexoSelect.id});
+//                            }
+//                        }
+//
+//                        $vue.$refs.raptorGpoSecc.repreload();
                     }
                 }
             });
@@ -403,64 +444,85 @@ new Vue({
         },
         verAnexo(tipo) {
             let $vue = this;
-            $vue.$refs.load.querie = [];
+            $vue.$refs.raptorGpoSecc.querie = [];
 
             if ($vue.seleccionado === '') {
                 $vue.bgColorClass[tipo] = 'bg-light';
                 $vue.seleccionado = tipo;
-                $vue.$refs.load.querie.push({name: 'anexo-superior', value: tipo});
+                //$vue.$refs.raptorGpoSecc.querie.push({name: 'anexo-superior', value: tipo});
 
             } else if ($vue.seleccionado !== '' && $vue.seleccionado !== tipo) {
                 $vue.bgColorClass[$vue.seleccionado] = '';
                 $vue.bgColorClass[tipo] = 'bg-light';
                 $vue.seleccionado = tipo;
-                $vue.$refs.load.querie.push({name: 'anexo-superior', value: tipo});
+                //$vue.$refs.raptorGpoSecc.querie.push({name: 'anexo-superior', value: tipo});
 
             } else if ($vue.seleccionado !== '' && $vue.seleccionado === tipo) {
                 $vue.bgColorClass[$vue.seleccionado] = '';
                 $vue.seleccionado = '';
-                $vue.$refs.load.changeUrl('queries[anexo-superior]', null);
+                //$vue.$refs.raptorGpoSecc.changeUrl('queries[anexo-superior]', null);
             }
 
             $vue.loadAnexosVisibles();
             $vue.verificarAnexoSelect();
-            $vue.settingUrlAnexoInferior();
-            $vue.settingUrlOrderCodigo();
-            $vue.$refs.load.loadRemoteData();
+            $vue.loadRegistros();
+
+            //$vue.settingUrlAnexoInferior();
+            //$vue.settingUrlOrderCodigo();
+            //$vue.$refs.raptorGpoSecc.loadRemoteData();
 
         },
-        settingUrlOrderCodigo() {
+//        settingUrlOrderCodigo() {
+//            let $vue = this;
+//
+//            if (!$vue.orderbycodigo) {
+//                $vue.$refs.raptorGpoSecc.changeUrl('queries[order-codigo]', null);
+//                return;
+//            }
+//            $vue.$refs.raptorGpoSecc.querie.push({name: 'order-codigo', value: "asc"});
+//        },
+//        settingUrlAnexoInferior() {
+//            let $vue = this;
+//
+//            if ($vue.anexoSelect == null) {
+//                $vue.$refs.raptorGpoSecc.changeUrl('queries[anexo]', null);
+//                return;
+//            }
+//            if ($vue.anexoSelect.id === undefined) {
+//                $vue.$refs.raptorGpoSecc.changeUrl('queries[anexo]', null);
+//                return;
+//            }
+//            $vue.$refs.raptorGpoSecc.querie.push({name: 'anexo', value: $vue.anexoSelect.id});
+//        },
+        loadRegistros() {
             let $vue = this;
+            $vue.$refs.raptorGpoSecc.querie = [];
+            $vue.$refs.raptorGpoSecc.changeUrl('queries[anexo-superior]', null);
+            $vue.$refs.raptorGpoSecc.changeUrl('queries[anexo]', null);
+            $vue.$refs.raptorGpoSecc.changeUrl('queries[orden-registros]', null);
+            $vue.$refs.raptorGpoSecc.changeUrl('queries[estado]', null);
+            $vue.$refs.raptorGpoSecc.changeUrl('queries[dictado]', null);
 
-            if (!$vue.orderbycodigo) {
-                $vue.$refs.load.changeUrl('queries[order-codigo]', null);
-                return;
-            }
-            $vue.$refs.load.querie.push({name: 'order-codigo', value: "asc"});
-        },
-        settingUrlAnexoInferior() {
-            let $vue = this;
-
-            if ($vue.anexoSelect == null) {
-                $vue.$refs.load.changeUrl('queries[anexo]', null);
-                return;
-            }
-            if ($vue.anexoSelect.id === undefined) {
-                $vue.$refs.load.changeUrl('queries[anexo]', null);
-                return;
-            }
-            $vue.$refs.load.querie.push({name: 'anexo', value: $vue.anexoSelect.id});
-        },
-        loadRegistros(item) {
-            let $vue = this;
-            $vue.$refs.load.querie = [];
             if ($vue.seleccionado !== '') {
-                $vue.$refs.load.querie.push({name: 'anexo-superior', value: $vue.seleccionado});
+                $vue.setParameterQuery('anexo-superior', $vue.seleccionado);
             }
-            console.log("wewe-wewewe-wewerwer-werwe")
-            $vue.settingUrlAnexoInferior();
-            $vue.settingUrlOrderCodigo();
-            $vue.$refs.load.loadRemoteData();
+            if ($vue.anexoSelect !== null) {
+                $vue.setParameterQuery('anexo', $vue.anexoSelect.id);
+            }
+            if ($vue.ordenRegistros !== "") {
+                $vue.setParameterQuery('orden-registros', $vue.ordenRegistros);
+            }
+            if ($vue.estadoSeleccionada !== "") {
+                $vue.setParameterQuery('estado', $vue.estadoSeleccionada);
+            }
+            if ($vue.dictadoSeleccionado !== "") {
+                $vue.setParameterQuery('dictado', $vue.dictadoSeleccionado);
+            }
+            //console.log("wewe-wewewe-wewerwer-werwe")
+            //$vue.settingUrlAnexoInferior();
+            //$vue.settingUrlOrderCodigo();
+            $vue.$refs.raptorGpoSecc.loadRemoteData(true);
+            $vue.updateDataCiclo();
 
         },
         clonarCiclo() {
@@ -485,7 +547,7 @@ new Vue({
                     $vue.$refs.modalCloneCiclo.confirmReaction(response.success);
                     if (response.success) {
                         $vue.updateDataCiclo();
-                        $vue.$refs.load.loadRemoteData();
+                        $vue.$refs.raptorGpoSecc.loadRemoteData();
                         notifyBootbox(response.message, "success");
 
                     } else {
@@ -537,7 +599,7 @@ new Vue({
                 success: function (response) {
                     $vue.$refs.modalConfirmAction.confirmReaction(response.success);
                     if (response.success) {
-                        $vue.$refs.load.loadRemoteData();
+                        $vue.$refs.raptorGpoSecc.loadRemoteData();
                         $vue.updateDataCiclo();
                         notifyBootbox(response.message, "success");
                     } else {
@@ -570,7 +632,7 @@ new Vue({
                 success: function (response) {
                     $vue.$refs.modalConfirmAction.confirmReaction(response.success);
                     if (response.success) {
-                        $vue.$refs.load.loadRemoteData();
+                        $vue.$refs.raptorGpoSecc.loadRemoteData();
                         $vue.updateDataCiclo();
                         notifyBootbox(response.message, "success");
 
@@ -810,7 +872,7 @@ new Vue({
                             $vue.listCicloAcademico = response.data.data;
                             notify(response.data.message, "success");
                             $vue.gpoSeccionesSelects = [];
-                            $vue.$refs.load.loadRemoteData();
+                            $vue.$refs.raptorGpoSecc.loadRemoteData();
                         } else {
                             notify(response.data.message, "error");
                         }
@@ -822,6 +884,146 @@ new Vue({
         downloadAlumnosSeccion(item) {
             console.log(item);
             location.href = APP.url('docente/cargaacademica/reporteAlumno?seccion=') + item.id;
+        },
+        changeOrdenSeccion() {
+            let $vue = this;
+            if ($vue.direccionSeccion === 0) {
+                $vue.direccionSeccion = 1;
+            } else if ($vue.direccionSeccion === 1) {
+                $vue.direccionSeccion = -1;
+            } else if ($vue.direccionSeccion === -1) {
+                $vue.direccionSeccion = 0;
+            }
+            console.log("$vue.ordenRegistros=" + $vue.ordenRegistros)
+            $vue.ordenRegistros = $vue.removeOrdenador($vue.ordenRegistros, "seccion");
+            let previo = $vue.ordenRegistros;
+            if ($vue.direccionSeccion === 1) {
+                $vue.ordenRegistros = "seccion.asc";
+                $vue.ordenRegistros += (previo === "") ? "" : ("," + previo);
+            } else if ($vue.direccionSeccion === -1) {
+                $vue.ordenRegistros = "seccion.desc";
+                $vue.ordenRegistros += (previo === "") ? "" : ("," + previo);
+            }
+            console.log("$vue.ordenRegistros=" + $vue.ordenRegistros)
+            $vue.setStyleOrdenSeccion();
+            $vue.loadRegistros();
+        },
+        setStyleOrdenSeccion() {
+            let $vue = this;
+            console.log("serwert-wertwert-wertwertwe")
+
+            if ($vue.direccionSeccion === 1) {
+                $vue.styleOrdenSeccion = "fa-chevron-circle-up text-primary";
+            } else if ($vue.direccionSeccion === -1) {
+                $vue.styleOrdenSeccion = "fa-chevron-circle-down text-primary";
+            } else if ($vue.direccionSeccion === 0) {
+                $vue.styleOrdenSeccion = "fa-stop-circle-o";
+            }
+        },
+        changeOrdenCurso() {
+            let $vue = this;
+            if ($vue.direccionCurso === 0) {
+                $vue.direccionCurso = 1;
+            } else if ($vue.direccionCurso === 1) {
+                $vue.direccionCurso = -1;
+            } else if ($vue.direccionCurso === -1) {
+                $vue.direccionCurso = 0;
+            }
+            console.log("$vue.ordenRegistros=" + $vue.ordenRegistros)
+            $vue.ordenRegistros = $vue.removeOrdenador($vue.ordenRegistros, "curso");
+            let previo = $vue.ordenRegistros;
+            if ($vue.direccionCurso === 1) {
+                $vue.ordenRegistros = "curso.asc";
+                $vue.ordenRegistros += (previo === "") ? "" : ("," + previo);
+            } else if ($vue.direccionCurso === -1) {
+                $vue.ordenRegistros = "curso.desc";
+                $vue.ordenRegistros += (previo === "") ? "" : ("," + previo);
+            }
+            console.log("$vue.ordenRegistros=" + $vue.ordenRegistros)
+            $vue.setStyleOrdenCurso();
+            $vue.loadRegistros();
+        },
+        setStyleOrdenCurso() {
+            let $vue = this;
+            if ($vue.direccionCurso === 1) {
+                $vue.styleOrdenCurso = "fa-chevron-circle-up text-primary";
+            } else if ($vue.direccionCurso === -1) {
+                $vue.styleOrdenCurso = "fa-chevron-circle-down text-primary";
+            } else if ($vue.direccionCurso === 0) {
+                $vue.styleOrdenCurso = "fa-stop-circle-o";
+            }
+        },
+        removeOrdenador(string, parte) {
+            let ords = string.split(",");
+            let idx = -100;
+            for (var i = 0; i < ords.length; i++) {
+                let existe = (ords[i].indexOf(parte) === 0);
+                if (existe) {
+                    idx = i;
+                }
+            }
+            if (idx > -100) {
+                ords.splice(idx, 1);
+            }
+            return ords.join(",");
+        },
+        getOrdenador(string, parte) {
+            let ords = string.split(",");
+            let ordenador = "";
+            for (var i = 0; i < ords.length; i++) {
+                let existe = (ords[i].indexOf(parte) === 0);
+                if (existe) {
+                    ordenador = ords[i];
+                }
+            }
+            if (ordenador === "") {
+                return 0;
+            }
+
+            let dir = ordenador.split(".")[1];
+            if (dir === "asc")
+                return 1;
+            if (dir === "desc")
+                return -1;
+            return 0;
+        },
+        verEstado(tipo) {
+            let $vue = this;
+            if ($vue.estadoSeleccionada === '') {
+                $vue.bgColorEstadoClass[tipo] = 'bg-light';
+                $vue.estadoSeleccionada = tipo;
+                $vue.loadRegistros();
+
+            } else if ($vue.estadoSeleccionada !== '' && $vue.estadoSeleccionada !== tipo) {
+                $vue.bgColorEstadoClass[$vue.estadoSeleccionada] = '';
+                $vue.bgColorEstadoClass[tipo] = 'bg-light';
+                $vue.estadoSeleccionada = tipo;
+                $vue.loadRegistros();
+
+            } else if ($vue.estadoSeleccionada !== '' && $vue.estadoSeleccionada === tipo) {
+                $vue.bgColorEstadoClass[$vue.estadoSeleccionada] = '';
+                $vue.estadoSeleccionada = '';
+                $vue.loadRegistros();
+            }
+        },
+        verDictado(tipo) {
+            let $vue = this;
+            if ($vue.dictadoSeleccionado === '') {
+                $vue.bgColorDictadoClass[tipo] = 'bg-light';
+                $vue.dictadoSeleccionado = tipo;
+                $vue.loadRegistros();
+
+            } else if ($vue.dictadoSeleccionado !== '' && $vue.dictadoSeleccionado !== tipo) {
+                $vue.bgColorDictadoClass[$vue.dictadoSeleccionado] = '';
+                $vue.bgColorDictadoClass[tipo] = 'bg-light';
+                $vue.dictadoSeleccionado = tipo;
+                $vue.loadRegistros();
+
+            } else if ($vue.dictadoSeleccionado !== '' && $vue.dictadoSeleccionado === tipo) {
+                $vue.bgColorDictadoClass[$vue.dictadoSeleccionado] = '';
+                $vue.dictadoSeleccionado = '';
+                $vue.loadRegistros();
+            }
         }
     }
 });

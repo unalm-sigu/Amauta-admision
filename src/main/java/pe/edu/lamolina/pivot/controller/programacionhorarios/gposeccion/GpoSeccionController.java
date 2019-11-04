@@ -296,12 +296,12 @@ public class GpoSeccionController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
             List<AnexoBoletin> anexosSup = service.allAnexosSuperiores();
-            List<AnexoBoletin> anexos = service.allAnexoBoletionHijos();
+            List<AnexoBoletin> anexos = service.allAnexoBoletionHijos(ds.getCicloAcademico());
 
             ArrayNode anexosJson = new ArrayNode(JsonNodeFactory.instance);
             for (AnexoBoletin anexo : anexos) {
                 ObjectNode anxJson = JsonHelper.createJson(anexo, JsonNodeFactory.instance, true, new String[]{
-                    "id", "codigo", "nombre",
+                    "id", "codigo", "nombre", "cantidadGpoSecc",
                     "departamentoAcademico.nombre",
                     "carrera.codigo",
                     "carrera.nombre",
@@ -309,6 +309,8 @@ public class GpoSeccionController {
                     "anexoSuperior.codigo",
                     "anexoSuperior.nombre"
                 });
+
+                anxJson.put("nombreCantidad", "[" + anexo.getCantidadGpoSecc() + "] " + anexo.getNombre());
                 anexosJson.add(anxJson);
             }
             ArrayNode anexosSupJson = new ArrayNode(JsonNodeFactory.instance);
@@ -2212,7 +2214,8 @@ public class GpoSeccionController {
     @RequestMapping("{seccion}/saveSeccionGrupo")
     public JsonResponse saveSeccionGrupo(
             @PathVariable("seccion") Long seccionId,
-            @RequestBody GrupoHoras grupoHoras, HttpSession session) {
+            @RequestBody GrupoHoras grupoHoras,
+            HttpSession session) {
 
         JsonResponse response = new JsonResponse();
         try {

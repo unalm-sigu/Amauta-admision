@@ -534,11 +534,14 @@ Vue.component("grupohorario-component", {
 
             if (errorCantHoras) {
                 notify("Asignar la cantidad de horas requeridas para la sección.", "error");
-                return
+                return;
             }
+
             $vue.tabGrupos.grupoHorarioSel.diaHoraGrupo = diasHorasGrupo;
-
-
+            let gpoHoras = {
+                id: $vue.tabGrupos.grupoHorarioSel.id,
+                diaHoraGrupo: diasHorasGrupo
+            };
             bootbox.confirm({
                 message: "¿Está seguro que desea grabar?",
                 buttons: {
@@ -549,28 +552,43 @@ Vue.component("grupohorario-component", {
 
                     if (result) {
                         MODAL.showWait("Espere un momento por favor");
-                        $.ajax({
-                            url: APP.url('academico/gposeccion/' + $vue.seccionModal.id + '/saveSeccionGrupo'),
-                            dataType: "json",
-                            contentType: "application/json",
-                            type: 'POST',
-                            async: true,
-                            data: JSON.stringify($vue.tabGrupos.grupoHorarioSel),
-                            success: function (response) {
-                                if (response.success) {
-                                    MODAL.hideWait();
-                                    $global.$emit("afterSaveGrupo", response);
-                                } else {
-                                    MODAL.hideWait();
-                                    notify(response.message, "error");
-                                }
-                            },
-                            error: function (response) {
+                        axios.post("/academico/gposeccion/" + $vue.seccionModal.id + '/saveSeccionGrupo',
+                                gpoHoras).then(function (response) {
+                            if (response.data.success) {
                                 MODAL.hideWait();
-                                $global.$emit("afterSaveGrupo", response);
-                                notify(MESSAGES.errorComunicacion, "error");
+                                $global.$emit("afterSaveGrupo", response.data);
+                            } else {
+                                MODAL.hideWait();
+                                notify(response.data.message, "error");
                             }
+                        }).catch(function (error) {
+                            MODAL.hideWait();
+                            //$global.$emit("afterSaveGrupo", error);
+                            notify(error.errorComunicacion, "error");
                         });
+
+//                        $.ajax({
+//                            url: APP.url('academico/gposeccion/' + $vue.seccionModal.id + '/saveSeccionGrupo'),
+//                            dataType: "json",
+//                            contentType: "application/json",
+//                            type: 'POST',
+//                            async: true,
+//                            data: JSON.stringify($vue.tabGrupos.grupoHorarioSel),
+//                            success: function (response) {
+//                                if (response.success) {
+//                                    MODAL.hideWait();
+//                                    $global.$emit("afterSaveGrupo", response);
+//                                } else {
+//                                    MODAL.hideWait();
+//                                    notify(response.message, "error");
+//                                }
+//                            },
+//                            error: function (response) {
+//                                MODAL.hideWait();
+//                                $global.$emit("afterSaveGrupo", response);
+//                                notify(MESSAGES.errorComunicacion, "error");
+//                            }
+//                        });
 
 
                     }

@@ -36,6 +36,7 @@ import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import pe.edu.lamolina.model.enums.GrupoAnexoEnum;
 import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
+import pe.edu.lamolina.model.enums.TipoDictadoGrupoSeccionEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 import pe.edu.lamolina.model.horario.GrupoHoras;
 import pe.edu.lamolina.pivot.controller.academico.acta.ActaResumen;
@@ -246,7 +247,6 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
         Octavia sql = Octavia.query()
                 .from(GrupoSeccion.class, "gs")
                 .join("curso cur", "cicloAcademico ca")
-                .leftJoin("planCalificacion pc", "secciones s", "cur.modalidadEstudio")
                 .filter("ca.id", ciclo);
 
         return all(sql);
@@ -321,10 +321,9 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
                 .searchSubqueryComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                 .searchSubqueryComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))");
 
-        Octavia subQueryLetra = null;
         boolean existeLetra = existeLetra(filter);
         if (existeLetra) {
-            subQueryLetra = Octavia.query()
+            Octavia subQueryLetra = Octavia.query()
                     .from(Seccion.class, "sec")
                     .join("sec.grupoSeccion gpoSec", "sec.aula au", "au.oficinaSupervisora ofi")
                     .join("sec.grupoHoras gpo")
@@ -338,6 +337,8 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
 
         sql.beginRelativeFilters();
         this.setGrupoAnexo(filter, sql);
+        this.setEstadoGpoSecc(filter, sql);
+        this.setTipoDictado(filter, sql);
         this.setOrder(filter, sql);
 
         return sql.all(getCurrentSession());
@@ -374,6 +375,47 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
         }
     }
 
+    private void setTipoDictado(DynatableFilter filter, DynatableSql sql) {
+        Map<String, Object> queries = filter.getQueries();
+        if (queries == null) {
+            return;
+        }
+
+        for (String key : queries.keySet()) {
+            if (!key.equals("dictado")) {
+                continue;
+            }
+            String value = (String) queries.get(key);
+            if (value.equals("semestrales")) {
+                sql.filter("gs.tipoDictado", TipoDictadoGrupoSeccionEnum.SEM);
+
+            } else if (value.equals("modulares")) {
+                sql.filter("gs.tipoDictado", TipoDictadoGrupoSeccionEnum.MOD);
+            }
+        }
+
+    }
+
+    private void setEstadoGpoSecc(DynatableFilter filter, DynatableSql sql) {
+        Map<String, Object> queries = filter.getQueries();
+        if (queries == null) {
+            return;
+        }
+
+        for (String key : queries.keySet()) {
+            if (!key.equals("estado")) {
+                continue;
+            }
+            String value = (String) queries.get(key);
+            if (value.equals("activos")) {
+                sql.filter("gs.estado", EstadoEnum.ACT);
+            } else if (value.equals("inactivos")) {
+                sql.filter("gs.estado", "<>", EstadoEnum.ACT);
+            }
+        }
+
+    }
+
     private void setGrupoAnexo(DynatableFilter filter, DynatableSql sql) {
         Map<String, Object> queries = filter.getQueries();
         if (queries == null) {
@@ -406,19 +448,24 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
             sql.orderBy("gs.id desc");
             return;
         }
+
         for (String key : queries.keySet()) {
-            if (key.equals("order-codigo")) {
-                sql.orderBy("gs.codigo2");
-                return;
+            if (!key.equals("orden-registros")) {
+                continue;
             }
-            if (key.equals("order-id")) {
-                sql.orderBy("gs.id asc");
-                return;
+            String[] values = ((String) queries.get(key)).split(",");
+            for (String val : values) {
+                String[] partes = val.split("\\.");
+                if (Arrays.asList("asc", "desc").contains(partes[1])) {
+                    if (partes[0].equals("seccion")) {
+                        sql.orderBy("gs.codigo2 " + partes[1]);
+                    }
+                    if (partes[0].equals("curso")) {
+                        sql.orderBy("cu.nombre " + partes[1]);
+                    }
+                }
             }
         }
-        sql.orderBy("gs.id desc");
-        return;
-
     }
 
     @Override
@@ -429,7 +476,11 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
         sql.append("   sum(case abs.id when :INGRE then 1 else 0 end),   ");
         sql.append("   sum(case abs.id when :DPTO  then 1 else 0 end),   ");
         sql.append("   sum(case abs.id when :POST  then 1 else 0 end),   ");
-        sql.append("   sum(case abs.id when :ACTI  then 1 else 0 end)   ");
+        sql.append("   sum(case abs.id when :ACTI  then 1 else 0 end),   ");
+        sql.append("   sum(case gs.estado when :ACT then 1 else 0 end),   ");
+        sql.append("   sum(case gs.estado when :ACT then 0 else 1 end),   ");
+        sql.append("   sum(case gs.tipoDictado when :SEM then 1 else 0 end),   ");
+        sql.append("   sum(case gs.tipoDictado when :MOD then 1 else 0 end)   ");
         sql.append(" )   ");
         sql.append("  from ").append(GrupoSeccion.class.getName()).append(" as gs ");
         sql.append(" inner join gs.cicloAcademico ca ");
@@ -442,6 +493,9 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
         query.setParameter("DPTO", GrupoAnexoEnum.DPTO.getValue());
         query.setParameter("ACTI", GrupoAnexoEnum.ACTIVIDADES.getValue());
         query.setParameter("POST", GrupoAnexoEnum.POSTGRADO.getValue());
+        query.setParameter("ACT", EstadoEnum.ACT.name());
+        query.setParameter("SEM", TipoDictadoGrupoSeccionEnum.SEM.name());
+        query.setParameter("MOD", TipoDictadoGrupoSeccionEnum.MOD.name());
         query.setParameter("CICLO", ciclo.getId());
 
         return (GpoSeccionResumen) query.uniqueResult();

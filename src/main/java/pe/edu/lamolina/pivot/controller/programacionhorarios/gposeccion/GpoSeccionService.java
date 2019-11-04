@@ -50,6 +50,8 @@ public interface GpoSeccionService {
 
     List<Curso> allCursosForProgramacion(String nomString);
 
+    List<AnexoBoletin> allAnexoBoletionHijos(CicloAcademico ciclo);
+
     List<AnexoBoletin> allAnexoBoletionHijos();
 
     AnexoBoletin findAnexoBoletin(Long idAnexoBoletin);
