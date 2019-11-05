@@ -2,6 +2,7 @@
 
 <form id="frmPlanCurricular">
     <input name="id" id="txtPlanCurricular" type="hidden" th:value="${planCurricular.id}"/>
+    <input id="txtOrigen" type="hidden" th:value="${origenBase}"/>
 
     <div class="form-group">
         <label for="cboCarrera">Especialidad</label>
@@ -16,43 +17,65 @@
                 [[${item.modalidadEstudio.codigo=='EPG'? 'en':''}]] 
                 [[${item.nombre}]]  - ([[${item.codigo}]])</option>
         </select>
-        <span class="form-control" 
+        <span class="form-control text-primary" 
               th:if="${planCurricular.id != null &amp;&amp; planCurricular.carrera.modalidadEstudio.codigo == 'PRE'}"
               th:inline="text">[[${planCurricular.carrera.nombre}]] ([[${planCurricular.carrera.codigo}]])</span>
-        <span class="form-control" 
+        <span class="form-control text-primary" 
               th:if="${planCurricular.id != null &amp;&amp; planCurricular.carrera.modalidadEstudio.codigo == 'EPG'}"
               th:inline="text">[[${planCurricular.carrera.tipoEnum.value}]] en [[${planCurricular.carrera.nombre}]] ([[${planCurricular.carrera.codigo}]])</span>
         <input name="carrera.id" type="hidden" th:value="${planCurricular.carrera.id}"/>
     </div>
 
     <div th:if="${planCurricular.id}">
-        <div th:unless="${orientaciones.isEmpty()}">
-            <div class="form-group" >
-                <label>Orientación</label>
-                <select class="form-control" name="orientacionCarrera.id" id="cboOrientacion">
-                    <option></option>
-                    <option th:each="item : ${orientaciones}"
-                            th:value="${item.id}"
-                            th:text="${item.nombre}"
-                            th:selected="${planCurricular.orientacionCarrera}? ${item.id == planCurricular.orientacionCarrera.id}">Agro Investigacion</option>
-                </select>
+        <div th:if="${editor}" th:remove="tag">
+            <div th:unless="${orientaciones.isEmpty()}">
+                <div class="form-group" >
+                    <label>Orientación</label>
+                    <select th:if="${planCurricular.estado=='CRE'}" class="form-control" name="orientacionCarrera.id" id="cboOrientacion">
+                        <option></option>
+                        <option th:each="item : ${orientaciones}"
+                                th:value="${item.id}"
+                                th:text="${item.nombre}"
+                                th:selected="${planCurricular.orientacionCarrera}? ${item.id == planCurricular.orientacionCarrera.id}">Agro Investigacion</option>
+                    </select>
+                    <span th:unless="${planCurricular.estado=='CRE'}" class="form-control text-primary"
+                          th:text="${planCurricular.orientacionCarrera.nombre}"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Facultad</label>
+                <span class="form-control text-primary" 
+                      th:text="${planCurricular.carrera.facultad.nombre}">Agronomia</span>
+            </div>
+
+            <div class="form-group">
+                <label>Modalidad de Estudio</label>
+                <span class="form-control text-primary" 
+                      th:text="${planCurricular.carrera.modalidadEstudio.nombre}">Agronomia</span>
             </div>
         </div>
-        <div class="form-group">
-            <label>Facultad</label>
-            <span class="form-control" 
-                  th:text="${planCurricular.carrera.facultad.nombre}">Agronomia</span>
-        </div>
-
-        <div class="form-group">
-            <label>Modalidad de Estudio</label>
-            <span class="form-control" 
-                  th:text="${planCurricular.carrera.modalidadEstudio.nombre}">Agronomia</span>
+        <div th:unless="${editor}" th:remove="tag">
+            <div class="row">
+                <div class="form-group col-md-12" id="div-orientacion-pre">
+                    <label >Orientación</label>
+                    <span class="form-control text-primary" 
+                          th:text="${planCurricular.orientacionCarrera.nombre}"></span>
+                </div>
+                <div class="form-group col-md-6">
+                    <label>Facultad</label>
+                    <span class="form-control text-primary" 
+                          th:text="${planCurricular.carrera.facultad.nombre}"></span>
+                </div>
+                <div class="form-group col-md-6">
+                    <label>Modalidad Estudio</label>
+                    <span class="form-control text-primary" 
+                          th:text="${planCurricular.carrera.modalidadEstudio.nombre}"></span>
+                </div>
+            </div>
         </div>
     </div>
 
     <div th:unless="${planCurricular.id}">
-
         <div class="hide" id="pregrado">
             <div class="row">
                 <div class="form-group col-md-12" id="div-orientacion-pre">
@@ -91,9 +114,7 @@
         <div class="col-md-4">
             <div class="form-group">
                 <label >Fecha Aprobación</label>
-
-
-                <div id='dateFechaVig' class="input-group date">
+                <div id='dateFechaVig' class="input-group date" th:if="${editor}">
                     <input type="text" name="fechaAprobado"
                            id="inpDateFechaVig"
                            th:value="${planCurricular.fechaAprobado}? ${#dates.format(planCurricular.fechaAprobado,'dd/MM/yyyy')}" 
@@ -103,49 +124,53 @@
                     <span class="input-group-addon pointer"><i class="fa fa-calendar"></i></span>
                 </div>
 
-                <span id="errorfecha"></span>
+                <span id="errorfecha" th:if="${editor}"></span>
+
+                <div class="form-control text-primary" th:text="${planCurricular.fechaAprobado}" th:unless="${editor}"></div>
 
             </div>
         </div>
         <div class="col-md-4" >
             <div class="form-group">
                 <label >Inicio Ciclo Vigencia</label>
-                <select class="form-control select2" 
-                        name="cicloInicioVigencia.id"
-                        th:unless="${planCurricular.id}"
-                        required="">
-                    <option></option>
-                    <option  th:each="item : ${ciclos}" 
-                             th:value="${item.id}"
-                             th:text="|${item.descripcion} - ${item.modalidadEstudio.nombre}|"></option>
-                </select>
+                <select th:unless="${planCurricular.id}" required=""
+                        class="form-control" id="cbo-ciclos" name="cicloInicioVigencia.id"></select>
 
                 <span th:if="${planCurricular.id}">
-                    <select class="form-control select2" 
-                            name="cicloInicioVigencia.id"
-                            th:if="${planCurricular.estado=='CRE'}"
-                            required="">
-                        <option></option>
-                        <option  th:each="item : ${ciclos}" 
-                                 th:value="${item.id}"
-                                 th:text="|${item.descripcion} - ${item.modalidadEstudio.nombre}|"
-                                 th:selected="${item.id==planCurricular.cicloInicioVigencia.id}"></option>
-                    </select>
+                    <div th:if="${editor}">
+                        <select class="form-control select2" 
+                                name="cicloInicioVigencia.id"
+                                th:if="${planCurricular.estado=='CRE'}"
+                                required="">
+                            <option></option>
+                            <option  th:each="item : ${ciclos}" 
+                                     th:value="${item.id}"
+                                     th:text="|${item.descripcion} - ${item.modalidadEstudio.nombre}|"
+                                     th:selected="${item.id==planCurricular.cicloInicioVigencia.id}"></option>
+                        </select>
 
-                    <span class="form-control" 
-                          th:if="${planCurricular.estado != 'CRE'}"
-                          th:text="|${planCurricular.cicloInicioVigencia.descripcion} - ${planCurricular.cicloInicioVigencia.modalidadEstudio.nombre}|"></span>
-                    <input th:if="${planCurricular.estado != 'CRE'}"
-                           name="cicloInicioVigencia.id" type="hidden" th:value="${planCurricular.cicloInicioVigencia.id}"/>
+                        <span class="form-control text-primary" 
+                              th:if="${planCurricular.estado != 'CRE'}"
+                              th:text="|${planCurricular.cicloInicioVigencia.descripcion} - ${planCurricular.cicloInicioVigencia.modalidadEstudio.nombre}|"></span>
+                        <input th:if="${planCurricular.estado != 'CRE'}"
+                               name="cicloInicioVigencia.id" type="hidden" th:value="${planCurricular.cicloInicioVigencia.id}"/>
+                    </div>
+                    <div th:unless="${editor}">
+                        <div class="form-control text-primary" th:text="${planCurricular.cicloInicioVigencia.descripcion}"></div>
+                    </div>
                 </span>
             </div>
         </div>
 
         <div class="col-md-4">
-            <div class="form-group">
+            <div class="form-group" th:if="${editor}">
                 <label >Cantidad de Ciclos</label>
-                <input th:unless="${planCurricular.id}" name="ciclos" type="text" value="10" required="yes" class="form-control"/>
-                <span th:if="${planCurricular.id}" th:text="${planCurricular.ciclos}" class="form-control"></span>
+                <input th:unless="${planCurricular.id}" name="ciclos" id="cantidad-ciclos" type="text" value="10" required="yes" class="form-control"/>
+                <span th:if="${planCurricular.id}" th:text="${planCurricular.ciclos}" class="form-control text-primary"></span>
+            </div>
+            <div class="form-group" th:unless="${editor}">
+                <label >Cantidad de Ciclos</label>
+                <div class="form-control text-primary" th:text="${planCurricular.ciclos}"></div>
             </div>
         </div>
     </div>
@@ -154,9 +179,9 @@
         <div class="col-md-4">
             <div class="form-group">
                 <label>Alumnos Vinculados</label>
-                <div class="input-group">
+                <div class="input-group" th:if="${editor}">
                     <input type="text" readonly="yes" th:value="${cantAlumnos}" class="form-control"/>
-                    <div class="input-group-btn">
+                    <div class="input-group-btn" >
                         <a href="#" class="btn btn-primary btn-xs" data-toggle="dropdown">Acciones <span class="caret"></span></a>
                         <ul class="dropdown-menu dropdown-menu-right">
                             <li><a href="#" id="procesarAlumnos">Procesar Alumnos</a></li>
@@ -164,11 +189,12 @@
                         </ul>
                     </div>
                 </div>
+                <div class="form-control text-primary" th:unless="${editor}" th:text="${cantAlumnos}"></div>
             </div>
         </div>
     </div>
 </form>
 
-<section class="text-right">
+<section class="text-right" th:if="${editor}">
     <a href="#" th:if="${planCurricular.id}" id="cmbUpdate" class="btn btn-primary">Actualizar</a>
 </section>

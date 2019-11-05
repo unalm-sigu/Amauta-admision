@@ -250,8 +250,22 @@ public class CicloAcademicoDAOH extends AbstractEasyDAO<CicloAcademico> implemen
                 .from(CicloAcademico.class, "ca")
                 .join("ca.modalidadEstudio me")
                 .in("ca.estado", Arrays.asList(ACT, CER, PEND, CFG))
-                .filter("ca.tipo", "REG")
-                //                .filter("me.codigo", ModalidadEstudioEnum.PRE)
+                .filter("ca.tipo", TipoCicloEnum.REG)
+                .in("me.codigo", Arrays.asList(PRE, EPG))
+                .orderBy("ca.year desc", "ca.numeroCiclo desc")
+                .limit(cantidadCiclos);
+
+        return all(sql);
+    }
+
+    @Override
+    public List<CicloAcademico> allUltimosByModalidad(ModalidadEstudio modalidad, Integer cantidadCiclos) {
+        Octavia sql = Octavia.query()
+                .from(CicloAcademico.class, "ca")
+                .join("ca.modalidadEstudio me")
+                .in("ca.estado", Arrays.asList(ACT, CER, PEND, CFG))
+                .filter("ca.tipo", TipoCicloEnum.REG)
+                .filter("me.id", modalidad)
                 .orderBy("ca.year desc", "ca.numeroCiclo desc")
                 .limit(cantidadCiclos);
 

@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -76,6 +77,7 @@ import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.seguridad.UsuarioRol;
 import pe.edu.lamolina.pivot.controller.academico.avancecurricular.AvanceCurricularAsincronoService;
 import pe.edu.lamolina.pivot.controller.academico.avancecurricular.AvanceCurricularService;
+import pe.edu.lamolina.pivot.controller.seguridad.verificador.VerificadorService;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoAvanceCurricularDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloCursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloDAO;
@@ -148,9 +150,6 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
     RequisitoCursoOpcionalDAO requisitoCursoOpcionalDAO;
 
     @Autowired
-    AvanceCurricularService avanceCurricularService;
-
-    @Autowired
     AlumnoCicloDAO alumnoCicloDAO;
 
     @Autowired
@@ -173,23 +172,42 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
 
     @Autowired
     MatriculaCursoDAO matriculaCursoDAO;
+
     @Autowired
     AlumnoCicloCursoDAO alumnoCicloCursoDAO;
+
     @Autowired
     AlumnoCursoCurriculaDAO alumnoCursoCurriculaDAO;
 
     @Autowired
+    AvanceCurricularService avanceCurricularService;
+
+    @Autowired
     AvanceCurricularAsincronoService avanceCurricularAsincronoService;
+
     @Autowired
     VisorAsignaCurricula visorAsignaCurricula;
+
+    @Autowired
+    VerificadorService verificadorService;
 
     private enum NivelEnum {
         OBLIGATORIO, OPCIONAL, ADICIONAL
     };
 
     @Override
+    public Carrera findCarrera(Carrera carrera) {
+        return carreraDAO.find(carrera.getId());
+    }
+
+    @Override
     public List<Carrera> allCarreras(List<Carrera> carreras) {
         return carreraDAO.allRegularesByCarreras(carreras);
+    }
+
+    @Override
+    public List<Carrera> allCarreras(DataSessionPivot ds, HttpServletRequest request) {
+        return verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.ESP, request, ds);
     }
 
     @Override
@@ -253,6 +271,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
         }
     }
 
+    @Override
     public void saveGrupoEquivalenteElectivo(GrupoCursoEquivalenteElectivo grupo, DataSessionPivot ds) {
         if (grupo.getCursoEquivalenteElectivo() == null) {
 
@@ -724,6 +743,11 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
     }
 
     @Override
+    public List<CicloAcademico> allUltimosCiclosByModalidad(ModalidadEstudio modalidad, Integer cantidadCiclos) {
+        return cicloAcademicoDAO.allUltimosByModalidad(modalidad, cantidadCiclos);
+    }
+
+    @Override
     public List<PlanCurricular> allByDynatable(DynatableFilter filter, List<Carrera> carreras) {
         List<PlanCurricular> planesCurriculares = planCurricularDAO.allByDynatable(filter, carreras);
         Map<Long, Integer> cursosCurriculaCounts = cursoCurriculaDAO.countByPlanesCurricular(planesCurriculares);
@@ -1085,6 +1109,15 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
         PlanCurricular planBD = planCurricularDAO.find(plan.getId());
         Assert.isTrue(planBD.getEstadoEnum() == EstadoEnum.ACT, "Solo puede desactivarse un plan con estado Activo");
         planBD.setEstadoEnum(EstadoEnum.INA);
+        planCurricularDAO.update(planBD);
+    }
+
+    @Override
+    @Transactional
+    public void activarPlanCurricular(PlanCurricular plan) {
+        PlanCurricular planBD = planCurricularDAO.find(plan.getId());
+        Assert.isTrue(Arrays.asList(INA, CRE).contains(planBD.getEstadoEnum()), "Solo puede activarse un plan con estado Inactivo");
+        planBD.setEstadoEnum(EstadoEnum.ACT);
         planCurricularDAO.update(planBD);
     }
 

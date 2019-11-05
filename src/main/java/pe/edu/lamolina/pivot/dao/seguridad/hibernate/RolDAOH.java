@@ -12,7 +12,6 @@ import pe.edu.lamolina.model.enums.RolEnum;
 import pe.edu.lamolina.model.seguridad.Menu;
 import pe.edu.lamolina.model.seguridad.MenuRol;
 import pe.edu.lamolina.model.seguridad.Rol;
-import pe.edu.lamolina.model.seguridad.RolSistema;
 import pe.edu.lamolina.model.seguridad.Sistema;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.seguridad.UsuarioRol;
@@ -23,6 +22,15 @@ public class RolDAOH extends AbstractEasyDAO<Rol> implements RolDAO {
     public RolDAOH() {
         super();
         setClazz(Rol.class);
+    }
+
+    @Override
+    public List<Rol> all() {
+        Octavia sql = Octavia.query()
+                .from(Rol.class, "rol")
+                .orderBy("rol.nombre");
+
+        return all(sql);
     }
 
     @Override
@@ -99,8 +107,8 @@ public class RolDAOH extends AbstractEasyDAO<Rol> implements RolDAO {
                 .from(Rol.class, "rol")
                 .leftJoin("rolSuperior sup")
                 .searchFields("codigo", "nombre", "sup.nombre")
-//                .exists(subOctavia)
-//                .linkedBy("rol.id", "r.id")
+                //                .exists(subOctavia)
+                //                .linkedBy("rol.id", "r.id")
                 .orderBy("rol.id DESC");
 
         return all(sql);

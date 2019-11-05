@@ -908,31 +908,45 @@ $(function () {
             $("#cbo-orientacion-pre").html("");
             $("#div-orientacion-epg").hide();
 
+            $("#cbo-ciclos").select2("destroy");
+            $("#cbo-ciclos").removeAttr("name");
+            $("#cbo-ciclos").removeAttr("required");
+            $("#cbo-ciclos").html("");
+            
+            $("#cantidad-ciclos").val(0);
+
             if (!isNaN(carr)) {
                 if (carr > 0) {
 
                     $.ajax({
                         url: APP.url('academico/planCurricular/' + carr + '/orientacionCarrera'),
                         type: 'POST',
-                        async: false,
                         success: function (response) {
                             console.log(response)
-                            if (response != "") {
+                            console.log(response.success)
+                            if (response.success) {
 
                                 if (NuevaCurricula.codeModalidad == 'EPG') {
                                     $("#div-orientacion-epg").show();
-                                    $("#cbo-orientacion-epg").html(response);
+                                    $("#cbo-orientacion-epg").html(response.data.orientaciones);
                                     $("#cbo-orientacion-epg").attr("required", "yes");
                                     $("#cbo-orientacion-epg").attr("name", "orientacionCarrera.id");
                                     $("#cbo-orientacion-epg").select2();
                                 }
                                 if (NuevaCurricula.codeModalidad == 'PRE') {
                                     $("#div-orientacion-pre").show();
-                                    $("#cbo-orientacion-pre").html(response);
+                                    $("#cbo-orientacion-pre").html(response.data.orientaciones);
                                     $("#cbo-orientacion-pre").attr("required", "yes");
                                     $("#cbo-orientacion-pre").attr("name", "orientacionCarrera.id");
                                     $("#cbo-orientacion-pre").select2();
                                 }
+
+                                $("#cbo-ciclos").html(response.data.ciclos);
+                                $("#cbo-ciclos").attr("name", "cicloInicioVigencia.id");
+                                $("#cbo-ciclos").attr("required", "true");
+                                $("#cbo-ciclos").select2();
+
+                                $("#cantidad-ciclos").val(response.data.cantidad);
 
                             }
                         },
@@ -1099,6 +1113,7 @@ $(function () {
         },
         savePlanCurricular: function () {
             var form = $("[id='frmPlanCurricular']");
+            var origen = $("#txtOrigen").val();
             // form.submit();
 
             form.parsley().destroy();
@@ -1125,7 +1140,9 @@ $(function () {
                                     MODAL.hide();
                                     notify(response.message, "info");
                                     if (response.data.operation == "s") {
-                                        location.href = APP.url('academico/planCurricular/' + response.data.planCurricular + '/succesSave');
+                                        var url = APP.url('academico/planCurricular/' + response.data.planCurricular + '/succesSave');
+                                        url += "?origen=" + origen;
+                                        location.href = url;
                                     }
                                 } else {
                                     MODAL.hideWait();
@@ -1139,8 +1156,6 @@ $(function () {
                                 notify(MESSAGES.errorComunicacion, "error");
                             }
                         });
-
-
                     }
                 }
             });
@@ -1654,9 +1669,9 @@ $(function () {
             nom = nom.substring(0, ini + 1) + idx + nom.substring(fin, nom.length);
             return nom;
         },
-        cancelarNuevo: function ($this, e) {
-            location.href = APP.url('academico/planCurricular');
-        },
+//        cancelarNuevo: function ($this, e) {
+//            location.href = APP.url('academico/planCurricular');
+//        },
         verMalla() {
             var id = $("#txtPlanCurricular").val();
             $.ajax({
@@ -2257,11 +2272,11 @@ $(function () {
     $("body").delegate(".delete-cur-elec", "click", function (e) {
         NuevaCurricula.deleteCursoElec($(this), e);
     });
-
-    $("body").delegate(".cancelar", "click", function (e) {
-        NuevaCurricula.cancelarNuevo($(this), e);
-    });
-
+//
+//    $("body").delegate(".cancelar", "click", function (e) {
+//        NuevaCurricula.cancelarNuevo($(this), e);
+//    });
+//
     $("body").delegate(".btn-delete-curso-equivalente", "click", function (e) {
         NuevaCurricula.deleteNuevoCursoEquivalente($(this), e);
     });

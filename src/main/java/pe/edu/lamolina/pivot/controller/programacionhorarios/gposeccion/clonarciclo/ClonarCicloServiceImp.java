@@ -442,7 +442,7 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
                     }
                     if (gpoNew != null && existeAula) {
                         List<String> diasHorasSeccion = diasHorasSecc.stream().map(x -> x.getIdDiaHora()).collect(Collectors.toList());
-                        if (!seccNew.getAula().getPermiteCruceBool() && !diasHorasSeccion.isEmpty()) {
+                        if (!seccNew.getAula().getPermiteCruceBoolean() && !diasHorasSeccion.isEmpty()) {
                             List<HorarioAula> horariosAulasFound = horarioAulaDAO.allRangoDiaAndAulaByDiasHoras(diasHorasSeccion, seccNew.getAula(), eventoDictadoClases.getFechaInicio(), eventoDictadoClases.getFechaFin());
                             if (!horariosAulasFound.isEmpty()) {
                                 seccNew.setAula(null);
@@ -469,7 +469,7 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
                         }
                         horarioSeccionDAO.save(horarioSecc);
 
-                        if (existeAula && !aula.getPermiteCruceBool()) {
+                        if (existeAula && !aula.getPermiteCruceBoolean()) {
                             HorarioAula horarioAula = new HorarioAula();
                             horarioAula.setAula(seccNew.getAula());
                             horarioAula.setDia(diaHoraSecc.getDia());

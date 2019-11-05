@@ -25,6 +25,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -48,6 +49,7 @@ import pe.edu.lamolina.model.academico.CursoCurricula;
 import pe.edu.lamolina.model.academico.CursoEquivalente;
 import pe.edu.lamolina.model.academico.CursoEquivalenteElectivo;
 import pe.edu.lamolina.model.academico.CursoOpcionalCurricula;
+import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.OrientacionCarrera;
 import pe.edu.lamolina.model.academico.PlanCurricular;
 import pe.edu.lamolina.model.academico.RequisitoCursoCurricula;
@@ -61,6 +63,7 @@ import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.GEN;
 import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.OBL;
 import pe.edu.lamolina.model.enums.TipoOficinaEnum;
 import pe.edu.lamolina.pivot.controller.seguridad.verificador.VerificadorService;
+import pe.edu.lamolina.pivot.controller.seguridad.verificador.VerificadorServiceImp;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.constant.Messages;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -112,6 +115,10 @@ public class PlanCurricularController {
         List<Carrera> carreras = service.filtrarByPlanes(verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.ESP, request, ds));
         ArrayNode carrerasJson = this.createCarrerasJson(carreras);
         model.addAttribute("carrerasJson", carrerasJson.toString());
+        model.addAttribute("editor", verificadorService.isEditorCurriculas(ds));
+        model.addAttribute("editorAll", verificadorService.isEditorCurriculasAll(ds));
+        model.addAttribute("editorEpg", verificadorService.isEditorCurriculasEpg(ds));
+        model.addAttribute("revisor", verificadorService.isRevisorCurriculas(ds));
         return "academico/plancurricular/planCurricular";
     }
 
@@ -122,9 +129,22 @@ public class PlanCurricularController {
 
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            List<Carrera> carreras = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.ESP, request, ds);
-            List<PlanCurricular> curriculas = service.allByDynatable(filter, carreras);
+            List<Carrera> carreras = new ArrayList();
+            List<PlanCurricular> curriculas = new ArrayList();
+            VerificadorServiceImp.CantidadItemsEnum cantidadEnum = verificadorService.verificarCantidad(TipoOficinaEnum.ESP, request, ds);
+            boolean tienePermiso = verificadorService.isRevisorCurriculas(ds);
+            logger.info("Acceso alumnos {}", cantidadEnum.name());
+            if (tienePermiso && cantidadEnum == VerificadorServiceImp.CantidadItemsEnum.PARCIAL) {
+                carreras = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.ESP, request, ds);
+                logger.info("Acceso a {} carreras", carreras.size());
+            }
+            if (tienePermiso && cantidadEnum != VerificadorServiceImp.CantidadItemsEnum.SIN_PERMISO) {
+                curriculas = service.allByDynatable(filter, carreras);
+                logger.info("Se extrajeron {} curriculas", curriculas.size());
+            }
 
+            //List<Carrera> carreras = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.ESP, request, ds);
+            //List<PlanCurricular> curriculas = service.allByDynatable(filter, carreras);
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
             for (PlanCurricular curricula : curriculas) {
                 ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
@@ -490,18 +510,24 @@ public class PlanCurricularController {
     }
 
     @RequestMapping("nuevo")
-    public String nuevo(Model model, HttpSession session) {
+    public String nuevo(@RequestParam("origen") String origen, Model model, HttpSession session, HttpServletRequest request) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
         PlanCurricular planCurricular = new PlanCurricular();
         planCurricular.init();
 
         List<CicloAcademico> ciclos = service.allUltimosCiclos(40);
-        List<Carrera> carreras = service.allCarreras(ds.getCarreras());
+//        List<Carrera> carreras = service.allCarreras(ds.getCarreras());
+        List<Carrera> carreras = service.allCarreras(ds, request);
 
         model.addAttribute("ciclos", ciclos);
         model.addAttribute("planCurricular", planCurricular);
         model.addAttribute("carreras", carreras);
+        model.addAttribute("editor", verificadorService.isEditorCurriculas(ds));
+        model.addAttribute("editorAll", verificadorService.isEditorCurriculasAll(ds));
+        model.addAttribute("editorEpg", verificadorService.isEditorCurriculasEpg(ds));
+        model.addAttribute("origen", verificadorService.getOrigen(origen, "/academico/planCurricular"));
+        model.addAttribute("origenBase", origen);
 
         return "academico/plancurricular/planCurricularForm";
     }
@@ -634,22 +660,43 @@ public class PlanCurricularController {
 
     @ResponseBody
     @RequestMapping("{carrera}/orientacionCarrera")
-    public String orientacionCarrera(@PathVariable("carrera") Long carrera, HttpSession session) {
-        List<OrientacionCarrera> orientaciones = service.allOrientacionByCarreraEstado(new Carrera(carrera), EstadoEnum.ACT);
+    public JsonResponse orientacionCarrera(@PathVariable("carrera") Long idCarrera, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
+            Carrera carrera = service.findCarrera(new Carrera(idCarrera));
+            ModalidadEstudio modalidad = carrera.getModalidadEstudio();
+            List<OrientacionCarrera> orientaciones = service.allOrientacionByCarreraEstado(carrera, EstadoEnum.ACT);
+            List<CicloAcademico> ciclos = service.allUltimosCiclosByModalidad(modalidad, 20);
 
-        String template = "<option value=\"%s\">%s</option>";
-        StringBuilder options = new StringBuilder();
+            String templateOrienta = "<option value=\"%s\">%s</option>";
+            String templateCiclos = "<option value=\"%s\">%s</option>";
+            StringBuilder optionsOrienta = new StringBuilder();
+            StringBuilder optionsCiclos = new StringBuilder();
 
-        if (orientaciones.isEmpty()) {
-            return "";
+            optionsOrienta.append(String.format(templateOrienta, "", ""));
+            for (OrientacionCarrera orientacion : orientaciones) {
+                optionsOrienta.append(String.format(templateOrienta, orientacion.getId().toString(), orientacion.getNombre()));
+            }
+            for (CicloAcademico ciclo : ciclos) {
+                optionsCiclos.append(String.format(templateCiclos, ciclo.getId().toString(), ciclo.getDescripcion() + " - " + ciclo.getModalidadEstudio().getNombre()));
+            }
+
+            node.put("orientaciones", optionsOrienta.toString());
+            node.put("ciclos", optionsCiclos.toString());
+            node.put("cantidad", carrera.getCantidadCiclos());
+
+            response.setData(node);
+            response.setSuccess(Boolean.TRUE);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (RuntimeException e) {
+            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
         }
-
-        options.append(String.format(template, "", ""));
-        for (OrientacionCarrera orientacion : orientaciones) {
-            options.append(String.format(template, orientacion.getId().toString(), orientacion.getNombre()));
-        }
-
-        return options.toString();
+        return response;
     }
 
     @ResponseBody
@@ -764,7 +811,8 @@ public class PlanCurricularController {
 
     @ResponseBody
     @RequestMapping("savePlanCurricular")
-    public JsonResponse savePlanCurricular(PlanCurricular planCurricular, HttpSession session) {
+    public JsonResponse savePlanCurricular(
+            PlanCurricular planCurricular, HttpSession session) {
 
         JsonResponse response = new JsonResponse();
         try {
@@ -1044,18 +1092,23 @@ public class PlanCurricularController {
     }
 
     @RequestMapping("{planCurricular}/succesSave")
-    public String succesSave(@PathVariable("planCurricular") Long planCurricularId, RedirectAttributes redirectAttr, HttpSession session) {
+    public String succesSave(
+            @RequestParam("origen") String origen,
+            @PathVariable("planCurricular") Long planCurricularId, RedirectAttributes redirectAttr, HttpSession session) {
         Notificaciones.crearMsg(Messages.CREATED, redirectAttr);
-        return "redirect:/academico/planCurricular/" + planCurricularId + "/editarPlanCurricular";
+        return "redirect:/academico/planCurricular/" + planCurricularId + "/editarPlanCurricular?origen=" + origen;
     }
 
     @RequestMapping("{planCurricular}/editarPlanCurricular")
-    public String editarPlanCurricular(@PathVariable("planCurricular") Long planCurricularId, Model model, HttpSession session) {
+    public String editarPlanCurricular(
+            @PathVariable("planCurricular") Long planCurricularId,
+            @RequestParam("origen") String origen, Model model, HttpSession session) {
+
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
         PlanCurricular planCurricular = service.findPlanCurricularById(new PlanCurricular(planCurricularId));
         Carrera carrera = planCurricular.getCarrera();
-        List<CicloAcademico> ciclos = service.allUltimosCiclos(40);
+        List<CicloAcademico> ciclos = service.allUltimosCiclosByModalidad(carrera.getModalidadEstudio(), 20);
         List<OrientacionCarrera> orientaciones = service.allOrientacionByCarreraEstado(carrera, EstadoEnum.ACT);
         //List<TipoCursoCurricula> tiposCursoCurriculas = service.allTiposCursoCurriculasElectivosByPlan();
         List<TipoCursoCurricula> tiposCursoCurriculasObli = service.allTiposCursoCurriculasObligatorios();
@@ -1067,6 +1120,13 @@ public class PlanCurricularController {
         // model.addAttribute("tiposCursoCurriculas", tiposCursoCurriculas);
         model.addAttribute("tiposCursoCurriculasObli", tiposCursoCurriculasObli);
         model.addAttribute("cantAlumnos", cantAlumnos);
+
+        model.addAttribute("editor", verificadorService.isEditorCurriculas(ds));
+        model.addAttribute("editorAll", verificadorService.isEditorCurriculasAll(ds));
+        model.addAttribute("editorEpg", verificadorService.isEditorCurriculasEpg(ds));
+        model.addAttribute("revisor", verificadorService.isRevisorCurriculas(ds));
+        model.addAttribute("origen", verificadorService.getOrigen(origen, "/academico/planCurricular"));
+
         return "academico/plancurricular/planCurricularForm";
     }
 
@@ -1372,7 +1432,7 @@ public class PlanCurricularController {
 
     @ResponseBody
     @RequestMapping("eliminarPlan")
-    public JsonResponse eliminarPlan(PlanCurricular plan, Model model, HttpSession session) {
+    public JsonResponse eliminarPlan(@RequestBody PlanCurricular plan, Model model, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
@@ -1394,7 +1454,7 @@ public class PlanCurricularController {
 
     @ResponseBody
     @RequestMapping("desactivarPlan")
-    public JsonResponse desactivarPlan(PlanCurricular plan, Model model, HttpSession session) {
+    public JsonResponse desactivarPlan(@RequestBody PlanCurricular plan, Model model, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
@@ -1415,8 +1475,30 @@ public class PlanCurricularController {
     }
 
     @ResponseBody
+    @RequestMapping("activarPlan")
+    public JsonResponse activarPlan(@RequestBody PlanCurricular plan, Model model, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            service.activarPlanCurricular(plan);
+
+            response.setMessage("Plan curricular eliminado satisfactoriamente");
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (RuntimeException e) {
+            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
+    }
+
+    @ResponseBody
     @RequestMapping("clonarPlan")
-    public JsonResponse clonarPlan(PlanCurricular plan, Model model, HttpSession session) {
+    public JsonResponse clonarPlan(@RequestBody PlanCurricular plan, Model model, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
@@ -1693,6 +1775,7 @@ public class PlanCurricularController {
         }
         return response;
     }
+
     @ResponseBody
     @RequestMapping("allUpdateResumenPost")
     public JsonResponse allUpdateResumenPost(HttpSession session) {

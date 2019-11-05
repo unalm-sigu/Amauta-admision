@@ -1,6 +1,7 @@
 package pe.edu.lamolina.pivot.controller.academico.plancurricular;
 
 import java.util.List;
+import javax.servlet.http.HttpServletRequest;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
@@ -8,6 +9,7 @@ import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.CursoAdicionalCurricula;
 import pe.edu.lamolina.model.academico.CursoCurricula;
 import pe.edu.lamolina.model.academico.CursoOpcionalCurricula;
+import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.OrientacionCarrera;
 import pe.edu.lamolina.model.academico.PlanCurricular;
 import pe.edu.lamolina.model.academico.RequisitoCursoOpcional;
@@ -21,13 +23,17 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface PlanCurricularService {
 
+    Carrera findCarrera(Carrera carrera);
+
     List<Carrera> allCarreras(List<Carrera> carreras);
+
+    List<Carrera> allCarreras(DataSessionPivot ds, HttpServletRequest request);
 
     List<OrientacionCarrera> allOrientacionByCarreraEstado(Carrera carrera, EstadoEnum estadoEnum);
 
-    public void deleteCursoEquivalenteElectivoByGrupoCursoCurricula(Integer grupo, CursoOpcionalCurricula cursoOpcionalCurricula);
+    void deleteCursoEquivalenteElectivoByGrupoCursoCurricula(Integer grupo, CursoOpcionalCurricula cursoOpcionalCurricula);
 
-    public CursoOpcionalCurricula findCursoOpcionalCurricula(Long cursoOpcionalCurriculaId);
+    CursoOpcionalCurricula findCursoOpcionalCurricula(Long cursoOpcionalCurriculaId);
 
     void saveGrupoEquivalenteElectivo(GrupoCursoEquivalenteElectivo grupoCursoEquivalente, DataSessionPivot ds);
 
@@ -46,6 +52,8 @@ public interface PlanCurricularService {
     PlanCurricular findPlanCurricularById(PlanCurricular planCurricular);
 
     List<CicloAcademico> allUltimosCiclos(Integer cantidadCiclos);
+
+    List<CicloAcademico> allUltimosCiclosByModalidad(ModalidadEstudio modalidad, Integer cantidadCiclos);
 
     List<PlanCurricular> allByDynatable(DynatableFilter filter, List<Carrera> carreras);
 
@@ -103,6 +111,8 @@ public interface PlanCurricularService {
 
     void desactivarPlanCurricular(PlanCurricular plan);
 
+    void activarPlanCurricular(PlanCurricular plan);
+
     void saveGrupoEquivalente(GrupoCursoEquivalente grupo, DataSessionPivot ds);
 
     PlanCurricular clonarPlanCurricular(PlanCurricular plan, CicloAcademico ciclo, DataSessionPivot ds);
@@ -129,10 +139,10 @@ public interface PlanCurricularService {
 
     void verificarAsignacion(Carrera carrera);
 
-    public void updateResumen(Integer minCreditos, Integer totalCreditos, ResumenPlanCurricular resumenPlanCurricular);
+    void updateResumen(Integer minCreditos, Integer totalCreditos, ResumenPlanCurricular resumenPlanCurricular);
 
-    public void allUpdateResumen();
+    void allUpdateResumen();
 
-    public void allUpdateResumenPost();
+    void allUpdateResumenPost();
 
 }
