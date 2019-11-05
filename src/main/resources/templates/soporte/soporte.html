@@ -24,6 +24,7 @@
                                         <tr>
                                             <th class="col-md-7" colspan="2"></th>                                            
                                             <th class="col-md-3">Título</th>
+                                            <th class="col-md-1">Fecha Registro</th>
                                             <th class="col-md-1">Estado</th>
                                             <th class="col-md-1"></th>
                                         </tr>
@@ -59,7 +60,10 @@
                                             </td>
                                             <td class="v-middle ">
                                                 <span class="block">   {{ item.titulo}}</span>
-                                                <span></span>
+                                                <span class="block"> {{ item.comentario}}</span>
+                                            </td>
+                                            <td class="v-middle">
+                                                <span class="block">  {{ item.fechaRegistro}}</span>
                                             </td>
                                             <td class="v-middle">
                                                 <span class="block text-primary">  {{ item.estadoEnum.value}}</span>
