@@ -563,33 +563,8 @@ Vue.component("grupohorario-component", {
                             }
                         }).catch(function (error) {
                             MODAL.hideWait();
-                            //$global.$emit("afterSaveGrupo", error);
                             notify(error.errorComunicacion, "error");
                         });
-
-//                        $.ajax({
-//                            url: APP.url('academico/gposeccion/' + $vue.seccionModal.id + '/saveSeccionGrupo'),
-//                            dataType: "json",
-//                            contentType: "application/json",
-//                            type: 'POST',
-//                            async: true,
-//                            data: JSON.stringify($vue.tabGrupos.grupoHorarioSel),
-//                            success: function (response) {
-//                                if (response.success) {
-//                                    MODAL.hideWait();
-//                                    $global.$emit("afterSaveGrupo", response);
-//                                } else {
-//                                    MODAL.hideWait();
-//                                    notify(response.message, "error");
-//                                }
-//                            },
-//                            error: function (response) {
-//                                MODAL.hideWait();
-//                                $global.$emit("afterSaveGrupo", response);
-//                                notify(MESSAGES.errorComunicacion, "error");
-//                            }
-//                        });
-
 
                     }
                 }

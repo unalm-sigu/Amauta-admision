@@ -8,12 +8,10 @@ import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.Date;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -230,8 +228,7 @@ public class AlumnoController {
         model.addAttribute("carreras", new AlumnoHelper());
 
         ObjectNode alumnoJson = JsonHelper.createJson(alumno, JsonNodeFactory.instance, false,
-                new String[]{"*",
-                    "persona.*"});
+                new String[]{"*", "persona.*"});
         model.addAttribute("alumnoJson", alumnoJson.toString());
 
         return "academico/alumno/especial/alumnoEspecial";
@@ -428,18 +425,9 @@ public class AlumnoController {
         model.addAttribute("modalidades", modalidades);
         model.addAttribute("alumno", alumno);
         model.addAttribute("helper", new AlumnoHelper());
-        model.addAttribute("origen", getOrigen(origen));
+        model.addAttribute("origen", verificadorService.getOrigen(origen, "/academico/alumno"));
 
         return "academico/alumno/fisico/alumnoFisico";
-    }
-
-    private String getOrigen(String origen) {
-        if (StringUtils.isEmpty(origen)) {
-            return "/academico/alumno";
-        }
-        byte[] decoded = Base64.getMimeDecoder().decode(origen);
-        String output = new String(decoded);
-        return output;
     }
 
     @ResponseBody
@@ -494,7 +482,8 @@ public class AlumnoController {
             sb.append(usuario.getId());
             sb.append("/");
             sb.append(ds.getCicloAcademico().getCodigo());
-            sb.append("?origen=" + origen);
+            sb.append("?origen=");
+            sb.append(origen);
             logger.debug("********************** goIntranet {} ", sb.toString());
 
             AmbienteAplicacionEnum ambiente = AmbienteAplicacionEnum.valueOf(despliegueConfig.getAmbiente().toUpperCase());
@@ -512,7 +501,7 @@ public class AlumnoController {
             @RequestParam(value = "origen", required = false) String origen,
             Model model, HttpSession session) {
         Alumno alumno = service.findAlumnoFisico(idAlumno);
-        model.addAttribute("origen", getOrigen(origen));
+        model.addAttribute("origen", verificadorService.getOrigen(origen, "/academico/alumno"));
         model.addAttribute("idAlumno", alumno.getId());
         model.addAttribute("alumnoJson", JsonHelper.createJson(alumno, JsonNodeFactory.instance, new String[]{"*", "persona.*"}));
         model.addAttribute("rutaModulo", rutaModulo);
@@ -604,7 +593,7 @@ public class AlumnoController {
 
             Alumno alumno = service.findAlumnoFisico(idAlumno);
             List<TramiteTraslado> listTramiteTraslado = service.allTramiteTrasladoByAlumno(alumno);
-            model.addAttribute("origen", getOrigen(origen));
+            model.addAttribute("origen", verificadorService.getOrigen(origen, "/academico/alumno"));
             model.addAttribute("listAlumnoCursoCurriculaJson", createListAlumnoCursoCurricula(service.allAlumnoCursoCurso(alumno)));
             model.addAttribute("listCursoConvalidadoJson", createListCursoConvalidado(service.alllCursoConvalidadoInTraslado(listTramiteTraslado)));
             model.addAttribute("cicloJson", JsonHelper.createJson(ds.getCicloAcademico(), JsonNodeFactory.instance, new String[]{"id", "descripcion"}));

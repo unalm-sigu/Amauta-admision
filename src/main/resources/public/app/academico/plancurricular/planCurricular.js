@@ -29,7 +29,7 @@ $(function () {
         },
         verNuevoPlan: function (e) {
             e.preventDefault();
-            location.href = APP.url("academico/planCurricular/nuevo");
+            location.href = APP.url(rutaModulo + "/nuevo");
         },
         editarPlan: function ($this, e) {
             e.preventDefault();

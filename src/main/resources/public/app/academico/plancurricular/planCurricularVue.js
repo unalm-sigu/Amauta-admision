@@ -2,6 +2,7 @@ Vue.component("multiselect", window.VueMultiselect.default);
 new Vue({
     el: '#main',
     data: {
+        curriculasURL: APP.url(rutaModulo + "/list"),
         carrera: {},
         carreras: JSON.parse(carrerasJson),
         modalAsignacionMasiva: {
@@ -9,14 +10,29 @@ new Vue({
             title: 'Asignación Masiva',
             okbtn: 'Asignar planes',
             okclass: 'btn-success btn-asignar',
-            showaccept:true
+            showaccept: true
         },
         procesando: false,
         revisando: false,
         showProgress: false,
         msgProgress: '',
         styleProgress: '',
-        porcentProgress: 0
+        porcentProgress: 0,
+        colorEstado: {
+            CRE: "default",
+            ACT: "success",
+            INA: "danger",
+            CER: "danger",
+            APR: "primary",
+            ACEP: "primary",
+            OBS: "warning",
+            SOL: "info",
+            RHZ: "danger",
+            REE: "info"
+        },
+        configConfirmAction: VUE_MODAL.structConfirm({
+            id: "idModalConfirm"
+        }),
     },
     mounted: function () {
         let $vue = this;
@@ -124,10 +140,10 @@ new Vue({
         },
         avanceFalso() {
             let $vue = this;
-            if($vue.procesando){
+            if ($vue.procesando) {
                 return;
             }
-            
+
             $vue.porcentProgress++;
             if ($vue.porcentProgress > 100) {
                 $vue.porcentProgress = 20;
@@ -156,7 +172,7 @@ new Vue({
                         $vue.porcentProgress = response.total;
                         $vue.msgProgress = response.message;
                         $vue.styleProgress = 'width: ' + $vue.porcentProgress + '%';
-                        
+
                         console.log(response.total)
 
                         setTimeout(function () {
@@ -178,7 +194,111 @@ new Vue({
                     bootbox.alert(MESSAGES.errorComunicacion);
                 }
             });
-        }
+        },
+        labelEstado(item) {
+            let $vue = this;
+            return "label-" + $vue.colorEstado[item.estado];
+        },
+        nuevoPlan() {
+            let $vue = this;
+            location.href = APP.url(rutaModulo + '/nuevo') + $vue.getOrigenURL();
+        },
+        urlEditarPlan(item) {
+            let $vue = this;
+            return APP.url(rutaModulo + '/' + item.id + '/editarPlanCurricular') + $vue.getOrigenURL();
+        },
+        verPlan(item) {
+            let $vue = this;
+            location.href = APP.url(rutaModulo + '/' + item.id + '/editarPlanCurricular') + $vue.getOrigenURL();
+        },
+        desactivarPlan(item) {
+            let $vue = this;
+            $vue.configConfirmAction.message = "¿Está seguro que desea desactivar este plan?";
+            $vue.configConfirmAction.okbtn = "Si, desactivar";
+            $vue.configConfirmAction.okclass = "btn-warning";
+            $vue.configConfirmAction.okaction = function () {
+                axios.post("/" + rutaModulo + "/desactivarPlan", {id: item.id}).then(response => {
+                    $vue.$refs.modalConfirmAction.confirmReaction(response.data.success);
+                    if (response.data.success) {
+                        notify(response.data.message, "info");
+                        $vue.$refs.raptorCurriculas.loadRemoteData();
+                    } else {
+                        notify(response.data.message, "error");
+                    }
+                }).catch(e => {
+                    $vue.$refs.modalConfirmAction.confirmReaction(false);
+                    notify(MESSAGES.errorComunicacion, "error");
+                });
+            }
+            $vue.$refs.modalConfirmAction.open();
+        },
+        activarPlan(item) {
+            let $vue = this;
+            $vue.configConfirmAction.message = "¿Está seguro que desea activar este plan?";
+            $vue.configConfirmAction.okbtn = "Si, activar";
+            $vue.configConfirmAction.okclass = "btn-primary";
+            $vue.configConfirmAction.okaction = function () {
+                axios.post("/" + rutaModulo + "/activarPlan", {id: item.id}).then(response => {
+                    $vue.$refs.modalConfirmAction.confirmReaction(response.data.success);
+                    if (response.data.success) {
+                        notify(response.data.message, "info");
+                        $vue.$refs.raptorCurriculas.loadRemoteData();
+                    } else {
+                        notify(response.data.message, "error");
+                    }
+                }).catch(e => {
+                    $vue.$refs.modalConfirmAction.confirmReaction(false);
+                    notify(MESSAGES.errorComunicacion, "error");
+                });
+            }
+            $vue.$refs.modalConfirmAction.open();
+        },
+        clonarPlan(item) {
+            let $vue = this;
+            $vue.configConfirmAction.message = "¿Está seguro que desea clonar este plan?";
+            $vue.configConfirmAction.okbtn = "Si, clonar";
+            $vue.configConfirmAction.okclass = "btn-primary";
+            $vue.configConfirmAction.okaction = function () {
+                axios.post("/" + rutaModulo + "/clonarPlan", {id: item.id}).then(response => {
+                    $vue.$refs.modalConfirmAction.confirmReaction(response.data.success);
+                    if (response.data.success) {
+                        notify(response.data.message, "info");
+                        $vue.$refs.raptorCurriculas.loadRemoteData();
+                    } else {
+                        notify(response.data.message, "error");
+                    }
+                }).catch(e => {
+                    $vue.$refs.modalConfirmAction.confirmReaction(false);
+                    notify(MESSAGES.errorComunicacion, "error");
+                });
+            }
+            $vue.$refs.modalConfirmAction.open();
+        },
+        eliminarPlan(item) {
+            let $vue = this;
+            $vue.configConfirmAction.message = "¿Está seguro que desea eliminar este plan?";
+            $vue.configConfirmAction.okbtn = "Si, eliminar";
+            $vue.configConfirmAction.okclass = "btn-danger";
+            $vue.configConfirmAction.okaction = function () {
+                axios.post("/" + rutaModulo + "/eliminarPlan", {id: item.id}).then(response => {
+                    $vue.$refs.modalConfirmAction.confirmReaction(response.data.success);
+                    if (response.data.success) {
+                        notify(response.data.message, "info");
+                        $vue.$refs.raptorCurriculas.loadRemoteData();
+                    } else {
+                        notify(response.data.message, "error");
+                    }
+                }).catch(e => {
+                    $vue.$refs.modalConfirmAction.confirmReaction(false);
+                    notify(MESSAGES.errorComunicacion, "error");
+                });
+            }
+            $vue.$refs.modalConfirmAction.open();
+        },
+        getOrigenURL() {
+            var url = window.location.href;
+            return "?origen=" + Base64.encode(url);
+        },
     }
 });
 

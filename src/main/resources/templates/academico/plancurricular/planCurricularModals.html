@@ -1,0 +1,45 @@
+<modal-vik ref="modalAsignacionMasiva"
+           v-bind="modalAsignacionMasiva"
+           v-bind:cancelaction="closeAsignacion"
+           v-bind:okaction="saveAsignacionMasiva">
+
+    <div slot="body">
+        <section class="panel-body">
+            <h4 class="m-t-n">Asignación masiva de planes curriculares a estudiantes</h4>
+            <form id="formAsignacionMasiva">
+
+                <div class="form-group">
+
+                    <label> Indique la Especialidad </label>
+                    <multiselect v-model="carrera" 
+                                 v-bind:options='carreras'
+                                 label='nombre'
+                                 track-by='id'
+                                 placeholder=" "
+                                 v-on:input='revisarCarrera'>
+                        <template slot="option" slot-scope="props">
+                            <span class="block bold" v-text="props.option.nombre"></span>
+                            <small v-if="props.option.modalidadEstudio.codigo=='EPG' " class="block" v-text="props.option.tipoEnum.value"></small>
+                            <small v-else="" class="block" >Facultad de {{props.option.facultad.nombre}}</small>
+                        </template>
+                    </multiselect>
+
+                </div>
+
+                <div class="alert alert-warning" v-if='showProgress'>
+                    {{msgProgress}}
+                </div>
+                <div class="progress" v-if='showProgress'>
+                    <div class="progress-bar progress-bar-success progress-bar-striped active" role="progressbar" aria-valuemin="0" 
+                         aria-valuemax="100" v-bind:style="styleProgress">
+                        {{porcentProgress}}% avance
+                    </div>
+                </div>
+
+
+            </form>
+        </section>
+
+    </div>
+
+</modal-vik>

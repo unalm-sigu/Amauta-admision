@@ -388,6 +388,25 @@ public class VerificadorServiceImp implements VerificadorService {
     }
 
     @Override
+    public boolean isRevisorCurriculas(DataSessionPivot ds) {
+        for (Rol rol : ds.getRoles()) {
+            if (rol.getCodigoEnum() == RolEnum.EDITOR_CURRICULA) {
+                return true;
+            }
+            if (rol.getCodigoEnum() == RolEnum.EDITOR_CURRICULA_EPG) {
+                return true;
+            }
+            if (rol.getCodigoEnum() == RolEnum.REVISOR_CURRICULA_EPG) {
+                return true;
+            }
+            if (rol.getCodigoEnum() == RolEnum.REVISOR_CURRICULA_PRE) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
     public boolean puedeVerAllFacultades(DataSessionPivot ds, String contexto) {
         List<Oficina> oficinasMain = oficinaService.allOficinasMainByPersona(ds.getPersona());
         for (Oficina oficina : oficinasMain) {
@@ -406,6 +425,56 @@ public class VerificadorServiceImp implements VerificadorService {
                 return true;
             }
         }
+        return false;
+    }
+
+    @Override
+    public boolean isEditorCurriculas(DataSessionPivot ds) {
+        boolean esEditorAll = isEditorCurriculasAll(ds);
+        if (esEditorAll) {
+            return true;
+        }
+
+        return isEditorCurriculasEpg(ds);
+    }
+
+    @Override
+    public boolean isEditorCurriculasAll(DataSessionPivot ds) {
+        boolean esTrabajadorOERA = false;
+        List<Oficina> oficinasMain = oficinaService.allOficinasMainByPersona(ds.getPersona());
+        for (Oficina oficina : oficinasMain) {
+            if (oficina.getCodigoEnum() == OERA) {
+                esTrabajadorOERA = true;
+            }
+        }
+
+        if (esTrabajadorOERA) {
+            for (Rol rol : ds.getRoles()) {
+                if (rol.getCodigoEnum() == RolEnum.EDITOR_CURRICULA) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public boolean isEditorCurriculasEpg(DataSessionPivot ds) {
+        boolean esTrabajadorEPG = false;
+        List<Oficina> oficinasMain = oficinaService.allOficinasMainByPersona(ds.getPersona());
+        for (Oficina oficina : oficinasMain) {
+            if (oficina.getCodigoEnum() == EPG) {
+                esTrabajadorEPG = true;
+            }
+        }
+        if (esTrabajadorEPG) {
+            for (Rol rol : ds.getRoles()) {
+                if (rol.getCodigoEnum() == RolEnum.EDITOR_CURRICULA_EPG) {
+                    return true;
+                }
+            }
+        }
+
         return false;
     }
 

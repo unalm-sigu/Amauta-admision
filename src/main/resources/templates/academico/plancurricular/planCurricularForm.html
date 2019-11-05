@@ -27,11 +27,10 @@
 
 <body>
     <div layout:fragment="main">
-
         <header class="header b-b b-light padder-lg">
 
             <div class="pull-right m-t-lg">
-                <a  href="#" class="btn btn-default btn-sm cancelar">Regresar</a>
+                <a th:href="${origen}" class="btn btn-default btn-sm">Regresar</a>
             </div>
 
             <div th:if="${planCurricular.id}" >
@@ -59,7 +58,7 @@
             <div id="exTab2" class="tabbable-line">	
                 <ul class="nav nav-tabs">
                     <li class="active">
-                        <a  href="#1" data-toggle="tab">Inicio</a>
+                        <a href="#1" data-toggle="tab">Inicio</a>
                     </li>
                     <li th:if="${planCurricular.id}">
                         <a href="#2" data-toggle="tab">Cursos</a>
@@ -108,16 +107,13 @@
 
                 <section class="panel-footer text-center"
                          th:unless="${planCurricular.id}">
-                    <a  href="#" id="cmbSavePlanCurricular" class="btn btn-primary btn-sm">Crear Plan de Estudios</a>
+                    <a th:if="${editor}"  href="#" id="cmbSavePlanCurricular" class="btn btn-primary btn-sm">Crear Plan de Estudios</a>
                 </section>
-
-
             </section>
-
-
         </div>
 
-        <div th:substituteby="templates/modal"/>
+        <div th:substituteby="templates/modal"></div>
+
         <div id="divBuscarCurso" type="text/x-jsrender" class="hide" >
             <span class="block bold h5 m-b-xs m-t-xs">{{:curso}}</span>
             <small class="block">
@@ -144,6 +140,7 @@
         <div th:substituteby="_layout/includes :: javascript-dynatable"/>
         <div th:substituteby="_layout/includes :: svgjs"/>
         <script th:src="@{/app/academico/plancurricular/planCurricularForm.js}" charset="utf-8"></script>
+        <!--<script th:src="@{/app/academico/plancurricular/planCurricularFormVue.js}" charset="utf-8"></script>-->
     </div>
 </body>
 </html>

@@ -37,9 +37,12 @@ public class PlanCurricularDAOH extends AbstractEasyDAO<PlanCurricular> implemen
                 .from(PlanCurricular.class, "pc")
                 .join("carrera car", "car.facultad fac", "car.modalidadEstudio me")
                 .left("orientacionCarrera ocar", "cicloInicioVigencia cic")
-                .in("car.id", carreras)
                 .searchFields("car.nombre")
                 .orderBy("pc.id desc");
+
+        if (!carreras.isEmpty()) {
+            sql.in("car.id", carreras);
+        }
 
         return all(sql);
     }
@@ -114,7 +117,7 @@ public class PlanCurricularDAOH extends AbstractEasyDAO<PlanCurricular> implemen
 
     @Override
     public List<PlanCurricular> findById(PlanCurricular planCurricular) {
-       Octavia sql = Octavia.query()
+        Octavia sql = Octavia.query()
                 .from(PlanCurricular.class, "pc")
                 .join("carrera car", "car.facultad fac", "car.modalidadEstudio me")
                 .left("orientacionCarrera ocar", "cicloInicioVigencia cic")
