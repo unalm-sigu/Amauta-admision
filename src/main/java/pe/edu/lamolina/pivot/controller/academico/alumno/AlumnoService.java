@@ -93,4 +93,6 @@ public interface AlumnoService {
 
     void agregarAlumnoCursoCurricula(CursoOpcionalCurricula cursoOpcional, Alumno alumno);
 
+    Alumno saveFotoCarnet(Alumno alumnoForm, DataSessionPivot ds);
+
 }

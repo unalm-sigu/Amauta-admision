@@ -544,10 +544,10 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
     }
 
     public void uploadS3(String fileName) {
-        logger.debug("upload to s3    {}  {}   {}  {} {}", Constantine.S3_BUKET, Constantine.S3_DIR_FOTO_TMP, Constantine.TMP_DIR, fileName, true);
+        logger.debug("upload to s3    {}  {}   {}  {} {}", Constantine.S3_BUCKET, Constantine.S3_DIR_FOTO_TMP, Constantine.TMP_DIR, fileName, true);
         File f = new File(Constantine.TMP_DIR + fileName);
         if (f.exists() && !f.isDirectory()) {
-            s3Service.uploadFile(Constantine.S3_BUKET, Constantine.S3_DIR_FOTO_TMP, Constantine.TMP_DIR, fileName, true);
+            s3Service.uploadFile(Constantine.S3_BUCKET, Constantine.S3_DIR_FOTO_TMP, Constantine.TMP_DIR, fileName, true);
         }
     }
 

@@ -16,6 +16,67 @@
                 <section class="panel">
                     <section class="panel-body">
 
+                        <div class="panel-body">
+                            <div class="col-xs-12">
+                                <h4 class="m-b-md m-t-md">Foto del carné universitario</h4>
+                            </div>
+
+                            <template v-if="guardandoFoto">
+                                <div class="m-t m-b text-center">
+                                    <i class="fa fa-spinner fa-spin fa-2x"></i>&nbsp;
+                                    <span class="h3 bold"  id="bodyModalWait">Espere un momento por favor..</span>
+                                </div>
+                            </template>
+                            <template v-else="">
+
+                                <div class="row">
+                                    <div class="col-sm-6">
+                                        <div class="form-group m-b-xxs">
+
+                                            <label class="" v-if="fotoCargada">Foto nueva</label>
+                                            <div class="" ff-style="width:220px; height: 220px;">
+                                                <img class="" ref="imagen" v-bind:src="alumno.persona.foto" />
+                                            </div>
+                                            <file-upload
+                                                extensions="jpg,jpeg,png"
+                                                accept="image/png,image/jpeg"
+                                                class="text-center"
+                                                post-action="/academico/alumno/upload"
+                                                v-model="files"
+                                                chunk-enabled="true"
+                                                v-on:input-filter="inputFilter"
+                                                v-on:input-file="inputFile"
+                                                ref="upload">
+                                                <span class="btn btn-primary m-b-md m-t-md"
+                                                      v-if="!$refs.upload || !$refs.upload.active"
+                                                      v-on:click="$refs.upload.active = true">
+                                                    <i class="fa fa-search-plus"></i> &nbsp;Elegir foto nueva
+                                                </span>
+
+                                            </file-upload>
+                                        </div>
+
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <div class="form-group" v-if="fotoCargada">
+                                            <label class="">Foto actual</label>
+                                            <div class="" ff-style="width:220px; height: 220px;">
+                                                <img class="" th:src="${alumno.persona.foto}" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-6">
+                                        <button class="btn btn-warning m-b-md m-t-xxs"
+                                                v-if="fotoCargada"
+                                                v-on:click="confirmarFoto()">
+                                            <i class="fa fa-cloud-upload"></i> &nbsp;Guardar foto nueva
+                                        </button>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
 
                         <form  method="post" id="formAlumno" data-parsley-validate="true">
 
@@ -423,16 +484,17 @@
                     <strong>Departamento:</strong> {{:departamento}}</span>
             </div>
 
+        </section>
+
+        <div layout:fragment="js">
             <script  th:inline="javascript" >
                 /*<![CDATA[*/
                 var showLugarNacimiento = /*[[${alumno.persona.ubicacionNacer != null}]]*/'';
                 var codigoPaisDomicilio = /*[[${alumno.persona.paisDomicilio!=null?alumno.persona.paisDomicilio.codigo:''}]]*/ '';
+                var alumnoJson = /*[[${alumnoJson.toString()}]]*/ '';
                 /*]]>*/
             </script>
-
-        </section>
-
-        <div layout:fragment="js">
+            <div th:replace="_layout/includes :: javascript-vue-upload"/>
             <script th:src="@{/app/academico/alumno/alumnoFisico.js}" charset="utf-8"></script>
         </div>
 

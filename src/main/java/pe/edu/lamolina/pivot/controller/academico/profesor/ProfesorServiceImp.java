@@ -610,10 +610,10 @@ public class ProfesorServiceImp implements ProfesorService {
     }
 
     private void uploadS3(String fileName) {
-        logger.debug("upload to s3 args   {}  {}   {}  {} {}", Constantine.S3_BUKET, "public-unalm/profile/", Constantine.TMP_DIR, fileName, true);
+        logger.debug("upload to s3 args   {}  {}   {}  {} {}", Constantine.S3_BUCKET, "public-unalm/profile/", Constantine.TMP_DIR, fileName, true);
         File f = new File(Constantine.TMP_DIR + fileName);
         if (f.exists() && !f.isDirectory()) {
-            s3Service.uploadFile(Constantine.S3_BUKET, Constantine.S3_FOLDER, Constantine.TMP_DIR, fileName, true);
+            s3Service.uploadFile(Constantine.S3_BUCKET, Constantine.S3_FOLDER, Constantine.TMP_DIR, fileName, true);
         }
     }
 

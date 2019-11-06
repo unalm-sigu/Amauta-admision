@@ -1,6 +1,7 @@
 package pe.edu.lamolina.pivot.controller.academico.alumno;
 
 import com.google.common.base.Strings;
+import java.io.File;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -72,6 +73,7 @@ import pe.edu.lamolina.model.seguridad.UsuarioRol;
 import pe.edu.lamolina.model.tramite.TramiteTraslado;
 import pe.edu.lamolina.pivot.config.DespliegueConfig;
 import pe.edu.lamolina.pivot.controller.academico.avancecurricular.AvanceCurricularService;
+import pe.edu.lamolina.pivot.controller.comun.s3.UploadFileS3;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloCursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCursoCurriculaDAO;
@@ -187,6 +189,9 @@ public class AlumnoServiceImp implements AlumnoService {
     AlumnoCicloDAO alumnoCicloDAO;
     @Autowired
     CursoOpcionalCurriculaDAO cursoOpcionalCurriculaDAO;
+
+    @Autowired
+    UploadFileS3 uploadFileS3;
 
     @Override
     public List<Alumno> allAlumnosByCicloDynatable(DynatableFilter filter, List<Carrera> carreras) {
@@ -1063,6 +1068,22 @@ public class AlumnoServiceImp implements AlumnoService {
             return cursoOpcionalCurriculaDAO.allByPlanCurricular(alumno.getPlanCurricular());
         }
         return new ArrayList();
+    }
+
+    @Override
+    @Transactional
+    public Alumno saveFotoCarnet(Alumno alumnoForm, DataSessionPivot ds) {
+        Alumno alumnoBD = alumnoDAO.find(alumnoForm);
+        String nombreArchivo = alumnoForm.getPersona().getFoto();
+        File file = new File(Constantine.TMP_DIR + nombreArchivo);
+        logger.debug("el archivo {} existe {} ", (Constantine.TMP_DIR + nombreArchivo), (file.exists()));
+        Assert.isTrue(file.exists(), "No existe el archivo en el servidor");
+        uploadFileS3.uploadSync(Constantine.S3_DIR_FOTO_CARNET, Constantine.TMP_DIR, nombreArchivo, true);
+        String path = uploadFileS3.getPathFile(Constantine.S3_DIR_FOTO_CARNET, nombreArchivo);
+        alumnoBD.getPersona().setFoto(path);
+        personaDAO.update(alumnoBD.getPersona());
+
+        return alumnoBD;
     }
 
 }
