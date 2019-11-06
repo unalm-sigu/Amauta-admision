@@ -975,7 +975,7 @@ public class MatriculableServiceImp implements MatriculableService {
         List<CicloAcademico> academicosAnterior = cicloAcademicoDAO.allAnteriorRegistroActivoPre(3, cicloAcademico);
         CicloAcademico academicoAnterior = academicosAnterior.get(2);
       
-        List<CicloAcademico> academicosAnteriorPos = cicloAcademicoDAO.allAnteriorRegistroActivoPre(3, cicloAcademico);
+        List<CicloAcademico> academicosAnteriorPos = cicloAcademicoDAO.allAnteriorRegistroActivoPos(3, cicloAcademico);
         CicloAcademico academicoAnteriorPos = academicosAnteriorPos.get(2);
         List<String> situacionesPregrado
                 = Arrays.asList(S_X.getValue(), S_XD.getValue(), S_4U.getValue(), S_E.getValue());
