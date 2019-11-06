@@ -15,6 +15,9 @@ new Vue({
     },
     mounted: function () {
         let vue = this;
+        if (vue.alumno.persona.foto == null) {
+            vue.alumno.persona.foto = "";
+        }
 
         $(".date").datepicker();
         $(".numerico").numeric({negative: false});
@@ -241,11 +244,6 @@ new Vue({
             alumno.persona = $vue.persona;
 
             $vue.guardandoFoto = true;
-//            setTimeout(function(){
-//                //$vue.guardandoFoto = false;
-//            },3000);
-
-            //return;
             axios.post("/academico/alumno/saveFotoCarnet", alumno).then(response => {
                 $vue.guardandoFoto = false;
                 if (response.data.success) {
@@ -259,6 +257,13 @@ new Vue({
                 $vue.guardandoFoto = false;
                 notify(MESSAGES.errorComunicacion, "error");
             });
+        },
+        deshacerFoto() {
+            let $vue = this;
+            $vue.guardandoFoto = false;
+            $vue.fotoCargada = false;
+            $vue.$refs.imagen.src = $vue.alumno.persona.foto;
         }
+
     }
 });

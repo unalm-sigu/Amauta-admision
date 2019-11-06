@@ -68,10 +68,15 @@
                                 </div>
                                 <div class="row">
                                     <div class="col-sm-6">
-                                        <button class="btn btn-warning m-b-md m-t-xxs"
+                                        <button class="btn btn-success m-b-md m-t-xxs"
                                                 v-if="fotoCargada"
                                                 v-on:click="confirmarFoto()">
                                             <i class="fa fa-cloud-upload"></i> &nbsp;Guardar foto nueva
+                                        </button>
+                                        <button class="btn btn-warning m-b-md m-t-xxs"
+                                                v-if="fotoCargada"
+                                                v-on:click="deshacerFoto()">
+                                            <i class="fa fa-times-circle"></i> &nbsp;Deshacer cambio foto
                                         </button>
                                     </div>
                                 </div>
