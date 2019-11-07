@@ -25,18 +25,7 @@ public interface Constantine {
 
     Long ID_OFICINA_OERA = 50L;
 
-    String S3_PUBLIC_DIR = "publico/";
-
-    String S3_TMP = "tmp/";
-
-    String S3_LINK = "http://lamolina-academico.s3.amazonaws.com/";
-
-    //String S3_DIR = "albatross-pruebas/lamolina-pivot";
-    String S3_DIR = "lamolina-academico";
-
     String PIVOT_DIR = "lamolina-pivot/";
-
-    String S3_RESOLUCIONES_DIR = "resoluciones/";
 
     String COD_CARRERA_ALUMNO_VISITANTE = "001";
 
@@ -46,7 +35,7 @@ public interface Constantine {
 
     String APP_ERROR_MESSAGE = "Error Desconocido: por favor reporte el problema.";
 
-    String S3_DIR_CONVENIO = "convenio/";
+    
     //restriccion encuesta docente
     String REQ_MAX_DOCENTE = "No cumple requisito de máximo docentes";
     String REQ_MIN_ALUMNO = "No cumple requisito de mínimo alumnos";
@@ -82,15 +71,29 @@ public interface Constantine {
 
     //ruta imagen
     String LOGOUNALM = PDF_IMG2 + "escudoUnalmSm.jpg";
-    String S3_BUKET = "lamolina-academico";
+
+    String S3_BUCKET = "lamolina-academico";
     String S3_DIR_FOTO_TMP = "fotos/temporal/";
     String S3_DIR_FOTO_DOCUMENTO = "fotos/documentos/";
     String S3_DIR_FOTO_CARNET = "fotos/carnet/";
 
     String S3_RUTA = "http://lamolina-academico.s3.amazonaws.com/";
     String S3_FOLDER = "public-unalm/profile/";
-
     String S3_DIR_SILABUS = "silabus/";
+
+    String S3_LINK = "http://lamolina-academico.s3.amazonaws.com/";
+    String S3_TMP = "tmp/";
+    String S3_PUBLIC_DIR = "publico/";
+    //String S3_DIR = "albatross-pruebas/lamolina-pivot";
+    String S3_DIR = "lamolina-academico";
+    String S3_RESOLUCIONES_DIR = "resoluciones/";
+    //folder of ticket helpdesk 
+    String S3_DIR_ARCHIVO_ATENCION = "archivo/atencion/";
+    //folder of inventario 
+    String S3_DIR_INVENTARIO = "inventario/";
+    //folder of convenio 
+    String S3_DIR_CONVENIO = "convenio/";
+    String S3_TRASH = "trash/";
 
     // 
     Long ID_TIPO_SUBVENCION_INVESTIGACION = 5l;
@@ -100,13 +103,11 @@ public interface Constantine {
     String CICLO_ORDEN_MERITO = "CICLO_ORDEN_MERITO";
     String CICLO_ANEXO_BOLETIN = "CICLO_ANEXO_BOLETIN";
 
-    //folder of ticket helpdesk 
-    String S3_DIR_ARCHIVO_ATENCION = "archivo/atencion/";
+    
 
     final static Integer CANTIDAD_HORAS_POR_EXAMEN = 2;
 
-    //folder of inventario 
-    String S3_DIR_INVENTARIO = "inventario/";
+    
 
     Long ID_PERU = 178l;
 

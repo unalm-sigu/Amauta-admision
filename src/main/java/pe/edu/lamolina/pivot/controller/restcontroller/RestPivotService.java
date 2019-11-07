@@ -4,6 +4,6 @@ import pe.edu.lamolina.pivot.zelper.bean.FormImport;
 
 public interface RestPivotService {
 
-    public Boolean validateToken(FormImport json);
+    Boolean validateToken(FormImport json);
 
 }

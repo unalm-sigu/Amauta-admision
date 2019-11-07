@@ -1,6 +1,7 @@
 package pe.edu.lamolina.pivot.controller.academico.alumno;
 
 import com.google.common.base.Strings;
+import java.io.File;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -47,6 +48,7 @@ import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.enums.OrigenDataSituacionAcademicaEnum;
+import pe.edu.lamolina.model.enums.OrigenTokenEnum;
 import pe.edu.lamolina.model.enums.ParametrosSistemasEnum;
 import pe.edu.lamolina.model.enums.PersonaEstadoEnum;
 import pe.edu.lamolina.model.enums.RolEnum;
@@ -72,6 +74,7 @@ import pe.edu.lamolina.model.seguridad.UsuarioRol;
 import pe.edu.lamolina.model.tramite.TramiteTraslado;
 import pe.edu.lamolina.pivot.config.DespliegueConfig;
 import pe.edu.lamolina.pivot.controller.academico.avancecurricular.AvanceCurricularService;
+import pe.edu.lamolina.pivot.controller.comun.s3.UploadFileS3;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloCursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCursoCurriculaDAO;
@@ -187,6 +190,9 @@ public class AlumnoServiceImp implements AlumnoService {
     AlumnoCicloDAO alumnoCicloDAO;
     @Autowired
     CursoOpcionalCurriculaDAO cursoOpcionalCurriculaDAO;
+
+    @Autowired
+    UploadFileS3 uploadFileS3;
 
     @Override
     public List<Alumno> allAlumnosByCicloDynatable(DynatableFilter filter, List<Carrera> carreras) {
@@ -670,6 +676,7 @@ public class AlumnoServiceImp implements AlumnoService {
         String valor = RandomStringUtils.randomAlphanumeric(45);
         TokenIngresante token = new TokenIngresante();
         token.setEstado(TokenEstadoEnum.ACT);
+        token.setOrigenEnum(OrigenTokenEnum.AMAUTA);
         token.setFechaRegistro(new Date());
         token.setFechaVencimiento(new DateTime().plusSeconds(10).toDate());
         token.setPersona(alumno.getPersona());
@@ -714,12 +721,12 @@ public class AlumnoServiceImp implements AlumnoService {
 
     @Override
     public Parametro findParametroByEnum(ParametrosSistemasEnum parametrosSistemasEnum) {
-        Sistema sistema = sistemaDAO.find(despliegueConfig.getSistema());
-        logger.debug("********************** sistema {}", sistema.getId());
         AmbienteAplicacionEnum ambiente = AmbienteAplicacionEnum.valueOf(despliegueConfig.getAmbiente().toUpperCase());
         logger.debug("********************** ambiente name {}", ambiente.name());
         logger.debug("********************** parametrosSistemasEnum name {}", parametrosSistemasEnum.name());
-        Parametro paramRutaIntranet = parametroDAO.findBySistemaAmbienteParametrosSistemas(sistema, ambiente, parametrosSistemasEnum);
+        logger.debug("********************** parametrosSistemasEnum contex {}", parametrosSistemasEnum.getContexto());
+        logger.debug("********************** parametrosSistemasEnum param {}", parametrosSistemasEnum.getParametro());
+        Parametro paramRutaIntranet = parametroDAO.findByAmbienteParametroSistema(ambiente, parametrosSistemasEnum);
         logger.debug("********************** paramRutaMatricula {} path {}", paramRutaIntranet.getId(), paramRutaIntranet.getValor());
         return paramRutaIntranet;
     }
@@ -1002,6 +1009,7 @@ public class AlumnoServiceImp implements AlumnoService {
 
         if (token == null) {
             token = new TokenIngresante();
+            token.setOrigenEnum(OrigenTokenEnum.AMAUTA);
             token.setEstado(TokenEstadoEnum.ACT);
             token.setFechaRegistro(new Date());
             token.setFechaVencimiento(new DateTime().plusSeconds(10).toDate());
@@ -1063,6 +1071,22 @@ public class AlumnoServiceImp implements AlumnoService {
             return cursoOpcionalCurriculaDAO.allByPlanCurricular(alumno.getPlanCurricular());
         }
         return new ArrayList();
+    }
+
+    @Override
+    @Transactional
+    public Alumno saveFotoCarnet(Alumno alumnoForm, DataSessionPivot ds) {
+        Alumno alumnoBD = alumnoDAO.find(alumnoForm);
+        String nombreArchivo = alumnoForm.getPersona().getFoto();
+        File file = new File(Constantine.TMP_DIR + nombreArchivo);
+        logger.debug("el archivo {} existe {} ", (Constantine.TMP_DIR + nombreArchivo), (file.exists()));
+        Assert.isTrue(file.exists(), "No existe el archivo en el servidor");
+        uploadFileS3.uploadSync(Constantine.S3_DIR_FOTO_CARNET, Constantine.TMP_DIR, nombreArchivo, true);
+        String path = uploadFileS3.getPathFile(Constantine.S3_DIR_FOTO_CARNET, nombreArchivo);
+        alumnoBD.getPersona().setFoto(path);
+        personaDAO.update(alumnoBD.getPersona());
+
+        return alumnoBD;
     }
 
 }

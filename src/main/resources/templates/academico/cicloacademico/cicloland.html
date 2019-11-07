@@ -9,6 +9,10 @@
     <body class="login-bg">
 
         <div class="login-header">
+            <button th:if="${ambiente != 'prod'}" class="btn btn-warning btn-sm pull-right" disabled="" 
+                    style="font-weight: bold; cursor: default; margin-top: -8px; opacity: 100;">
+                SERVIDOR DE PRUEBAS
+            </button>
             <span class="text-uppercase"> Universidad Nacional Agraria la Molina </span>
         </div>
 

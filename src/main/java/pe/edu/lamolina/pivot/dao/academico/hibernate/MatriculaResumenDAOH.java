@@ -458,7 +458,7 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
         strb.append("inner join alum.modalidadEstudio me ");
         strb.append("inner join alum.situacionAcademica sit ");
         strb.append("inner join mat.cicloAcademico cic ");
-        strb.append("where sit.codigo not in ( :codigos ) and me.codigo = 'EPG'");
+        strb.append("where sit.codigo not in ( :codigos ) and me.codigo = 'EPG' ");
         strb.append("and cic.id = car.id ");
         strb.append("and car.codigo >= :ciclo ");
         strb.append("and not exists (select e.id from Egresado e where e.alumno = alum)");

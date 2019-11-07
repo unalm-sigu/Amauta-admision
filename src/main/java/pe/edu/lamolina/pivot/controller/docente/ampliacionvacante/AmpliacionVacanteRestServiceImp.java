@@ -126,9 +126,9 @@ public class AmpliacionVacanteRestServiceImp extends AbstractRestClient<JsonResp
     }
 
     public Parametro findParametro() {
-        return parametroDAO.findBySistemaAmbienteParametrosSistemas(new Sistema(despliegueConfig.getSistema()),
+        return parametroDAO.findByAmbienteParametroSistema(
                 AmbienteAplicacionEnum.valueOf(despliegueConfig.getAmbiente().toUpperCase()),
-                ParametrosSistemasEnum.SALTO_PIVOT_MATRICULA);
+                ParametrosSistemasEnum.REST_MATRICULA);
     }
 
 }

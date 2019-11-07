@@ -30,6 +30,13 @@
                 </ul>
             </div>
 
+            <div class="current-user" th:if="${ambiente != 'prod'}">
+                <button class="btn btn-warning" disabled="" 
+                        style="font-weight: bold; color: black !important; cursor: default; opacity: 100;">
+                    SERVIDOR DE PRUEBAS
+                </button>
+            </div>
+
             <div class="section-container">
 
                 <div class="menu-section">

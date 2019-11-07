@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.edu.lamolina.model.enums.OrigenTokenEnum;
 import pe.edu.lamolina.model.enums.TokenEstadoEnum;
 import pe.edu.lamolina.model.seguridad.TokenIngresante;
 import pe.edu.lamolina.model.seguridad.Usuario;
@@ -41,7 +42,7 @@ public class RestPivotServiceImp implements RestPivotService {
         System.out.println("LLEGARON " + tokenx.size() + " TOKENS");
         for (TokenIngresante token : tokenx) {
             System.out.println("token ::: " + token.getFechaVencimiento().toString());
-            if (token.getFechaVencimiento().after(hoy)) {
+            if (token.getFechaVencimiento().after(hoy) && token.getOrigenEnum() == OrigenTokenEnum.INTRANET) {
                 System.out.println("SI VA");
                 tkx.add(token);
             }

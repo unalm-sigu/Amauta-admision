@@ -17,6 +17,7 @@ import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.aporte.Aporte;
 import pe.edu.lamolina.model.enums.AmbienteAplicacionEnum;
 import pe.edu.lamolina.model.enums.AportesEnum;
+import pe.edu.lamolina.model.enums.OrigenTokenEnum;
 import pe.edu.lamolina.model.enums.ParametrosSistemasEnum;
 import pe.edu.lamolina.model.enums.TokenEstadoEnum;
 import pe.edu.lamolina.model.general.Parametro;
@@ -48,7 +49,7 @@ public class ResponseRestServiceImpl extends AbstractRestClient<JsonResponse> im
     @Override
     @Transactional
     public JsonResponse updateRest(MatriculaResumen matriculaResumen, DataSessionPivot ds) {
-        Parametro parametro = findParametro(ParametrosSistemasEnum.SALTO_PIVOT_MATRICULA);
+        Parametro parametro = findParametro(ParametrosSistemasEnum.REST_MATRICULA);
 
         ObjectNode json = new ObjectNode(JsonNodeFactory.instance);
         json.put("idUsuario", ds.getUsuario().getId());
@@ -63,7 +64,7 @@ public class ResponseRestServiceImpl extends AbstractRestClient<JsonResponse> im
     @Override
     @Transactional
     public JsonResponse ampliarVacante(Seccion seccion, Integer variacion) {
-        Parametro parametro = findParametro(ParametrosSistemasEnum.SALTO_PIVOT_MATRICULA);
+        Parametro parametro = findParametro(ParametrosSistemasEnum.REST_MATRICULA);
 
         ObjectNode json = new ObjectNode(JsonNodeFactory.instance);
         json.put("idSeccion", seccion.getId());
@@ -78,7 +79,7 @@ public class ResponseRestServiceImpl extends AbstractRestClient<JsonResponse> im
     @Override
     @Transactional
     public JsonResponse generarAporte(Alumno alumno, CicloAcademico ciclo, MatriculaResumen matriculaResumen, DataSessionPivot ds) {
-        Parametro parametro = findParametro(ParametrosSistemasEnum.SALTO_PIVOT_BIENESTAR);
+        Parametro parametro = findParametro(ParametrosSistemasEnum.REST_BIENESTAR);
 
         ObjectNode json = new ObjectNode(JsonNodeFactory.instance);
         json.put("idUsuario", ds.getUsuario().getId());
@@ -97,7 +98,7 @@ public class ResponseRestServiceImpl extends AbstractRestClient<JsonResponse> im
     @Override
     @Transactional
     public JsonResponse generarAporteCarnet(MatriculaResumen matriculaResumen, DataSessionPivot ds) {
-        Parametro parametro = findParametro(ParametrosSistemasEnum.SALTO_PIVOT_BIENESTAR);
+        Parametro parametro = findParametro(ParametrosSistemasEnum.REST_BIENESTAR);
         Aporte aporte = aporteDAO.findByCode(AportesEnum.A05);
         ObjectNode json = new ObjectNode(JsonNodeFactory.instance);
         json.put("idUsuario", ds.getUsuario().getId());
@@ -113,7 +114,7 @@ public class ResponseRestServiceImpl extends AbstractRestClient<JsonResponse> im
     @Override
     @Transactional
     public JsonResponse eliminarAporteCarnet(MatriculaResumen matriculaResumen, DataSessionPivot ds) {
-        Parametro parametro = findParametro(ParametrosSistemasEnum.SALTO_PIVOT_BIENESTAR);
+        Parametro parametro = findParametro(ParametrosSistemasEnum.REST_BIENESTAR);
         Aporte aporte = aporteDAO.findByCode(AportesEnum.A05);
         ObjectNode json = new ObjectNode(JsonNodeFactory.instance);
         json.put("idUsuario", ds.getUsuario().getId());
@@ -128,14 +129,14 @@ public class ResponseRestServiceImpl extends AbstractRestClient<JsonResponse> im
 
     private Parametro findParametro(ParametrosSistemasEnum parametrosSistemasEnum) {
 
-        return parametroDAO.findBySistemaAmbienteParametrosSistemas(new Sistema(despliegueConfig.getSistema()),
+        return parametroDAO.findByAmbienteParametroSistema(
                 AmbienteAplicacionEnum.valueOf(despliegueConfig.getAmbiente().toUpperCase()),
                 parametrosSistemasEnum);
     }
 
     @Override
     public JsonResponse anularBoletas(MatriculaResumen matriculaResumen, DataSessionPivot ds) {
-        Parametro parametro = findParametro(ParametrosSistemasEnum.SALTO_PIVOT_BIENESTAR);
+        Parametro parametro = findParametro(ParametrosSistemasEnum.REST_BIENESTAR);
 
         ObjectNode json = new ObjectNode(JsonNodeFactory.instance);
         json.put("idUsuario", ds.getUsuario().getId());
@@ -152,6 +153,7 @@ public class ResponseRestServiceImpl extends AbstractRestClient<JsonResponse> im
     public void createToken(DataSessionPivot ds) {
         String valor = RandomStringUtils.randomAlphanumeric(45);
         TokenIngresante token = new TokenIngresante();
+        token.setOrigenEnum(OrigenTokenEnum.AMAUTA);
         token.setEstado(TokenEstadoEnum.ACT);
         token.setFechaRegistro(new Date());
         token.setFechaVencimiento(new DateTime().plusSeconds(15).toDate());
@@ -177,7 +179,7 @@ public class ResponseRestServiceImpl extends AbstractRestClient<JsonResponse> im
 
     @Override
     public JsonResponse eliminarAporteDuplicadoCarnet(MatriculaResumen matriculaResumen, DataSessionPivot ds) {
-        Parametro parametro = findParametro(ParametrosSistemasEnum.SALTO_PIVOT_BIENESTAR);
+        Parametro parametro = findParametro(ParametrosSistemasEnum.REST_BIENESTAR);
         Aporte aporte = aporteDAO.findByCode(AportesEnum.A51);
         ObjectNode json = new ObjectNode(JsonNodeFactory.instance);
         json.put("idUsuario", ds.getUsuario().getId());
@@ -192,7 +194,7 @@ public class ResponseRestServiceImpl extends AbstractRestClient<JsonResponse> im
 
     @Override
     public JsonResponse generarAporteDuplicadoCarnet(MatriculaResumen matriculaResumen, DataSessionPivot ds) {
-        Parametro parametro = findParametro(ParametrosSistemasEnum.SALTO_PIVOT_BIENESTAR);
+        Parametro parametro = findParametro(ParametrosSistemasEnum.REST_BIENESTAR);
         Aporte aporte = aporteDAO.findByCode(AportesEnum.A51);
         ObjectNode json = new ObjectNode(JsonNodeFactory.instance);
         json.put("idUsuario", ds.getUsuario().getId());

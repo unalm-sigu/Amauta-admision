@@ -169,7 +169,7 @@ public class MatriculableController {
                 ObjectNode node = JsonHelper.createJson(matriculable, JsonNodeFactory.instance, true,
                         new String[]{
                             "id", "prioridad", "puntajePrioridad", "cursosMatriculados", "cursosRetirados", "motivoMatriculable", "esBeneficiadoUltimoCiclo", "esCondicional",
-                            "aporteCarnet", "boletaPendiente","aporteDuplicadoCarnet",
+                            "aporteCarnet", "boletaPendiente", "aporteDuplicadoCarnet",
                             "prioridadAnterior", "alumno.persona.rutaFoto", "alumno.persona.tipoFoto", "alumno.persona.emailCompania", "alumno.persona.numeroDocIdentidad",
                             "creditosMatriculados", "creditosRetirados", "estado", "estadoEnum", "alumno.codigo",
                             "promedioSemestral",
@@ -816,7 +816,7 @@ public class MatriculableController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         Usuario usuario = ds.getUsuario();
         serviceAlumno.goMaipi(idAlumno, usuario);
-        Parametro paramRutaMatricula = serviceAlumno.findParametroByEnum(ParametrosSistemasEnum.SALTO_PIVOT_INTRA);
+        Parametro paramRutaMatricula = serviceAlumno.findParametroByEnum(ParametrosSistemasEnum.REST_INTRANET);
         JsonResponse jsonResponse = responseRestService.downloadHistorial(new Alumno(idAlumno), usuario, ds.getCicloAcademico(), paramRutaMatricula);
 
         Assert.isTrue(jsonResponse.getSuccess(), "Se produjo un error al modificar secciones matricula. Comuniquese con mesa de ayuda.");
