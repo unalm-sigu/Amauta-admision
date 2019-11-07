@@ -6,7 +6,6 @@ import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.enums.AmbienteAplicacionEnum;
 import pe.edu.lamolina.model.enums.ParametrosSistemasEnum;
 import pe.edu.lamolina.model.general.Parametro;
-import pe.edu.lamolina.model.seguridad.Sistema;
 import pe.edu.lamolina.pivot.dao.general.ParametroDAO;
 
 @Repository
@@ -18,10 +17,10 @@ public class ParametroDAOH extends AbstractEasyDAO<Parametro> implements Paramet
     }
 
     @Override
-    public Parametro findBySistemaAmbienteParametrosSistemas(Sistema sistema, AmbienteAplicacionEnum ambiente, ParametrosSistemasEnum parametrosSistemas) {
+    public Parametro findByAmbienteParametroSistema(AmbienteAplicacionEnum ambiente, ParametrosSistemasEnum parametrosSistemas) {
         Octavia sql = Octavia.query()
                 .from(Parametro.class, "p")
-                .filter("sistema", sistema)
+                //.filter("sistema", sistema)
                 .filter("ambiente", ambiente)
                 .filter("contexto", parametrosSistemas.getContexto())
                 .filter("parametro", parametrosSistemas.getParametro());

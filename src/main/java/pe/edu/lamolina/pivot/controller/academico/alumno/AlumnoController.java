@@ -535,7 +535,7 @@ public class AlumnoController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         Usuario usuario = ds.getUsuario();
         String codigo = service.goMatricula(idAlumno, usuario);
-        Parametro paramRutaMatricula = service.findParametroByEnum(ParametrosSistemasEnum.SALTO_PIVOT_MATRICULA);
+        Parametro paramRutaMatricula = service.findParametroByEnum(ParametrosSistemasEnum.SALTO_HACIA_MATRICULA);
         if (paramRutaMatricula != null) {
             StringBuilder sb = new StringBuilder();
             sb.append("redirect:");
@@ -763,11 +763,14 @@ public class AlumnoController {
     }
 
     @RequestMapping("{idAlumno}/goMaipi")
-    public String goMaipi(@PathVariable("idAlumno") Long idAlumno, @RequestParam(value = "origen", required = false) String origen, Model model, HttpSession session) throws InterruptedException {
+    public String goMaipi(
+            @PathVariable("idAlumno") Long idAlumno,
+            @RequestParam(value = "origen", required = false) String origen, Model model, HttpSession session) throws InterruptedException {
+
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         Usuario usuario = ds.getUsuario();
         TokenIngresante token = service.goMaipi(idAlumno, usuario);
-        Parametro paramRutaMatricula = service.findParametroByEnum(ParametrosSistemasEnum.SALTO_PIVOT_INTRA);
+        Parametro paramRutaMatricula = service.findParametroByEnum(ParametrosSistemasEnum.SALTO_HACIA_INTRANET);
         if (paramRutaMatricula != null) {
             StringBuilder sb = new StringBuilder();
             sb.append("redirect:");

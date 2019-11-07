@@ -32,6 +32,7 @@ import pe.edu.lamolina.model.enums.CursoCurriculaEstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import pe.edu.lamolina.model.enums.EstadoTramiteEnum;
 import pe.edu.lamolina.model.enums.OrigenDataSituacionAcademicaEnum;
+import pe.edu.lamolina.model.enums.OrigenTokenEnum;
 import pe.edu.lamolina.model.enums.ResolucionEstadoEnum;
 import pe.edu.lamolina.model.enums.SituacionAcademicaEnum;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_1;
@@ -384,6 +385,7 @@ public class TramiteCondicionalServiceImp implements TramiteCondicionalService {
     public void createToken(DataSessionPivot ds) {
         String valor = RandomStringUtils.randomAlphanumeric(45);
         TokenIngresante token = new TokenIngresante();
+        token.setOrigenEnum(OrigenTokenEnum.AMAUTA);
         token.setEstado(TokenEstadoEnum.ACT);
         token.setFechaRegistro(new Date());
         token.setFechaVencimiento(new DateTime().plusSeconds(15).toDate());
