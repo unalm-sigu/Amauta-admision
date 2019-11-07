@@ -232,7 +232,7 @@ public class PlantillaConstanciaServiceImpl implements PlantillaConstanciaServic
 
     @Override
     public List<VariableGenerica> allVariableGeneral() {
-        return variableGenericaDAO.all();
+        return variableGenericaDAO.allByPregrado();
     }
 
     @Override

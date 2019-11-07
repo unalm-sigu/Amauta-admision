@@ -8,4 +8,6 @@ public interface VariableGenericaDAO extends EasyDAO<VariableGenerica> {
 
     public List<VariableGenerica> allByCodigo(List<String> listVariable);
 
+    public List<VariableGenerica> allByPregrado();
+
 }
