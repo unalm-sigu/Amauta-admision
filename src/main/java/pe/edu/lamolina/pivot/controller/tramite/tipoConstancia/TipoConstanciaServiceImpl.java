@@ -15,6 +15,7 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.general.TipoOficina;
 import pe.edu.lamolina.model.seguridad.Usuario;
@@ -113,6 +114,8 @@ public class TipoConstanciaServiceImpl implements TipoConstanciaService {
     @Override
     @Transactional
     public void save(TipoDocumentoAcademico tramiteDocumentoAcademico, Usuario usuario) {
+        
+        Oficina oficina = oficinaDAO.findByCode(OficinaEnum.OERA.name());
         if (tramiteDocumentoAcademico.getCostoCiclo() == null) {
             tramiteDocumentoAcademico.setCostoCiclo(0L);
         }
@@ -122,6 +125,7 @@ public class TipoConstanciaServiceImpl implements TipoConstanciaService {
         if (tramiteDocumentoAcademico.getRequiereFoto() == null) {
             tramiteDocumentoAcademico.setRequiereFoto(1);
         }
+        tramiteDocumentoAcademico.setOficinaEmisora(oficina);
         tramiteDocumentoAcademico.setConfigurado(0l);
         tipoConstanciaDAO.save(tramiteDocumentoAcademico);
         List<ConfiguracionFirmaDocumento> configuracion = tramiteDocumentoAcademico.getConfiguracionFirmaDocumento();

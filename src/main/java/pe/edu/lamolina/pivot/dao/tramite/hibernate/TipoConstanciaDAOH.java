@@ -6,6 +6,7 @@ import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import pe.edu.lamolina.model.enums.OficinaEnum;
 import static pe.edu.lamolina.model.enums.OficinaEnum.EPG;
 import pe.edu.lamolina.model.tramite.ConfiguracionFirmaDocumento;
 import pe.edu.lamolina.model.tramite.PrecioDocumento;
@@ -23,16 +24,12 @@ public class TipoConstanciaDAOH extends AbstractEasyDAO<TipoDocumentoAcademico> 
 
     @Override
     public List<TipoDocumentoAcademico> allDynatable(DynatableFilter filter) {
-        Octavia sqlSub = new Octavia()
-                .from(ConfiguracionFirmaDocumento.class, "cfd")
-                .join("tipoDocumentoAcademico subtda", "oficina ofi")
-                .filter("ofi.codigo", EPG.name());
 
         DynatableSql sql = new DynatableSql(filter)
                 .from(TipoDocumentoAcademico.class, "tda")
-                .notExists(sqlSub)
-                .linkedBy("tda.id", "subtda.id")
+                .join("oficinaEmisora ofe")
                 .searchFields("tda.nombre")
+                .filter("ofe.codigo", OficinaEnum.OERA)
                 .orderBy("nombre");
         return all(sql);
     }
@@ -64,24 +61,16 @@ public class TipoConstanciaDAOH extends AbstractEasyDAO<TipoDocumentoAcademico> 
 
     @Override
     public List<TipoDocumentoAcademico> allTipoDocumento() {
-        Octavia sqlSub = new Octavia()
-                .from(ConfiguracionFirmaDocumento.class, "cfd")
-                .join("tipoDocumentoAcademico subtda", "oficina ofi")
-                .filter("ofi.codigo", EPG.name());
 
         Octavia sql = Octavia.query()
                 .from(TipoDocumentoAcademico.class, "tipo")
-                .notExists(sqlSub)
-                .linkedBy("tipo.id", "subtda.id");
+                .join("oficinaEmisora ofe")
+                .filter("ofe.codigo", OficinaEnum.OERA);
         return all(sql);
     }
 
     @Override
     public List<TipoDocumentoAcademico> allWhyPrecios() {
-        Octavia sqlSub = new Octavia()
-                .from(ConfiguracionFirmaDocumento.class, "cfd")
-                .join("tipoDocumentoAcademico subtda", "oficina ofi")
-                .filter("ofi.codigo", EPG.name());
 
         Octavia subQuery = Octavia.query()
                 .select("td.id")
@@ -90,9 +79,9 @@ public class TipoConstanciaDAOH extends AbstractEasyDAO<TipoDocumentoAcademico> 
 
         Octavia sql = Octavia.query()
                 .from(TipoDocumentoAcademico.class, "tipo")
+                .join("oficinaEmisora ofe")
                 .in("tipo.id", subQuery)
-                .notExists(sqlSub)
-                .linkedBy("tipo.id", "subtda.id");
+                .filter("ofe.codigo", OficinaEnum.OERA);
         return all(sql);
     }
 
