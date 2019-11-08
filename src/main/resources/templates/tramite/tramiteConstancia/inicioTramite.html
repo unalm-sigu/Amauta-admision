@@ -29,33 +29,7 @@
                     </multiselect>
                 </div>
             </div>
-            <!--            <div v-if='tramite.alumno != null' class="col-sm-12">
-                            <div class="v-middle ">
-                                <div class="pull-left m-md">
-                                    <div v-if="tramite.alumno.persona.tipoFoto=='POSTUL' "
-                                         class="img-responsive img-thumbnail img-circle div-foto-list">
-                                        <img class="img-foto-list" v-bind:src="tramite.alumno.persona.rutaFoto" />
-                                    </div>
-            
-                                    <img v-else-if="tramite.alumno.persona.tipoFoto=='COMUN' " 
-                                         class="img-responsive img-thumbnail img-circle div-foto-alumno-list" 
-                                         v-bind:src="tramite.alumno.persona.rutaFoto" />
-            
-                                    <img v-else="" 
-                                         class="img-foto-tempo img-responsive img-thumbnail img-circle" 
-                                         v-bind:src="tramite.alumno.persona.rutaFoto" />
-                                </div>
-                            </div>
-                            <div  class="v-middle"  >
-                                <div class="m-md">
-                                    <p  class="h5 bold text-primary" v-text="tramite.alumno.persona.apellidosNombres"></p>
-                                    <span class="block"> Especialidad de {{tramite.alumno.carrera.nombre}}</span>
-                                    <span v-if="tramite.alumno.carrera.codigo != tramite.alumno.carrera.facultad.codigo" class="block">Facultad de {{tramite.alumno.carrera.facultad.nombre}}</span>
-                                    <small class="block bold">{{tramite.alumno.persona.tipoDocumento.simbolo}} {{tramite.alumno.persona.numeroDocIdentidad}}</small>
-                                    <small  class="block bold"> Matrícula: {{tramite.alumno.codigo}}</small>
-                                </div>
-                            </div>
-                        </div>-->
+
             <div class="col-md-6">
                 <div class="form-group">
                     <label>¿Que documento necesita?</label>
@@ -103,15 +77,6 @@
                     <p  class="form-control-static" >  S./  {{costoDocumento}}</p>
                 </div>
             </div>
-
-
-            <div v-if="solicitud.tipoDocumentoAcademico!= null" class="col-xs-12 col-sm-12">
-                <div class="form-group" v-if="solicitud.tipoDocumentoAcademico.requiereFoto==1">
-                    <a v-on:click.prevent="subirFoto"  href="#">Subir foto</a>
-                </div>
-            </div>
-
-
 
             <div v-if='tramite.alumno!=null'>
                 <div class="col-xs-12">

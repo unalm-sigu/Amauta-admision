@@ -30,7 +30,7 @@ public class TipoConstanciaDAOH extends AbstractEasyDAO<TipoDocumentoAcademico> 
                 .join("oficinaEmisora ofe")
                 .searchFields("tda.nombre")
                 .filter("ofe.codigo", OficinaEnum.OERA)
-                .orderBy("nombre");
+                .orderBy("tda.nombre");
         return all(sql);
     }
 
