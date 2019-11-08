@@ -6,6 +6,7 @@ import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.enums.TipoPlantillaDocumentoEnum;
 import pe.edu.lamolina.model.general.Idioma;
 import pe.edu.lamolina.model.tramite.PlantillaDocumentoAcademico;
@@ -25,7 +26,9 @@ public class PlantillaDocumentoAcademicoDAOH extends AbstractEasyDAO<PlantillaDo
         DynatableSql sql = new DynatableSql(filter)
                 .from(PlantillaDocumentoAcademico.class, "pda")
                 .join("tipoDocumentoAcademico tda", "idioma")
+                .join("tda.oficinaEmisora ofe")
                 .searchFields("tda.nombre")
+                .filter("ofe.codigo", OficinaEnum.OERA)
                 .orderBy("tda.nombre");
         return all(sql);
     }

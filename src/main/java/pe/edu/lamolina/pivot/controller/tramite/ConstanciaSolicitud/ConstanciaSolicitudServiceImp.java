@@ -929,7 +929,6 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
 
         String htmlContent = plantilla.getContenido();
         List<PlantillaIncrustacionDocumento> incrustacionDocumentos = plantillaIncrustacionDAO.allIncrustacionesByTramite(documentoAcademico);
-        
 
         List<VariablePlantilla> variables = variablePlantillaDAO.allByPlantilla(plantilla);
         Alumno alumno = alumnoDAO.findAllInfo(documentoAcademico.getTramite().getAlumno().getId());
