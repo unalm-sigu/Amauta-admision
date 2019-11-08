@@ -14,8 +14,12 @@ import java.awt.Paint;
 import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
@@ -43,15 +47,21 @@ import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.context.Context;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.albatross.zelpers.miscelanea.math.Fraxtion;
 import pe.edu.lamolina.model.academico.CicloAcademico;
-import pe.edu.lamolina.model.academico.GrupoSeccion;
+import pe.edu.lamolina.model.academico.Curso;
+import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
+import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.encuestaestudiantil.EncuestaDocente;
 import pe.edu.lamolina.model.encuestaestudiantil.EncuestaDocenteModalidad;
 import pe.edu.lamolina.model.encuestaestudiantil.PuntajeEncuestaDocente;
 import pe.edu.lamolina.model.encuestaestudiantil.PuntajeEncuestaDocenteModalidad;
-import pe.edu.lamolina.model.enums.DocumentoPdfEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
+import static pe.edu.lamolina.model.enums.TipoSeccionEnum.PCUR;
+import static pe.edu.lamolina.model.enums.TipoSeccionEnum.PRA;
+import static pe.edu.lamolina.model.enums.TipoSeccionEnum.TCUR;
+import static pe.edu.lamolina.model.enums.TipoSeccionEnum.TEO;
 import pe.edu.lamolina.model.examen.TemaExamenVirtual;
 import pe.edu.lamolina.pivot.dao.academico.ModalidadEstudioDAO;
 import pe.edu.lamolina.pivot.dao.encuesta.EncuestaDocenteDAO;
@@ -112,7 +122,14 @@ public class EncuestaDocenteModalidadServiceImp implements EncuestaDocenteModali
             List<PuntajeEncuestaDocenteModalidad> puntajes,
             List<EncuestaDocente> anuladas) {
 
-        Map<GrupoSeccion, List<PuntajeEncuestaDocente>> mapCursos = peds.stream().collect(Collectors.groupingBy(x -> x.getEncuestaDocente().getDocenteSeccion().getSeccion().getGrupoSeccion()));
+//        Map<GrupoSeccion, List<PuntajeEncuestaDocente>> mapCursos = peds.stream().collect(Collectors.groupingBy(x -> x.getEncuestaDocente().getDocenteSeccion().getSeccion().getGrupoSeccion()));
+        //Collections.sort(peds, new PuntajeEncuestaDocente.CompareOrdenEncuesta());
+        Collections.sort(puntajes, new PuntajeEncuestaDocenteModalidad.CompareOrdenEncuesta());
+        System.out.println("peds.size=" + peds.size());
+
+        Map<Seccion, List<PuntajeEncuestaDocente>> mapCursos = TypesUtil.convertListToMapList("encuestaDocente.docenteSeccion.seccion", peds);
+        System.out.println("mapCursos.size=" + mapCursos.size());
+        //Map<Seccion, EncuestaDocente> mapDocenteSeccion = TypesUtil.convertListToMapList("encuestaDocente.docenteSeccion.seccion", "encuestaDocente", peds);
 
         List<TemaExamenVirtual> temas = peds
                 .stream()
@@ -121,12 +138,19 @@ public class EncuestaDocenteModalidadServiceImp implements EncuestaDocenteModali
                 .sorted(Comparator.comparing(TemaExamenVirtual::getNombre))
                 .collect(Collectors.toList());
 
-        Map<GrupoSeccion, Long> mapEncuestados = new HashMap<>();
-        Map<GrupoSeccion, Long> mapMatriculados = new HashMap<>();
+        Map<Seccion, Long> mapEncuestados = new HashMap();
+        Map<Seccion, Long> mapMatriculados = new HashMap();
+        Map<Seccion, BigDecimal> mapPorcentaje = new HashMap();
+        Map<Seccion, BigDecimal> mapHorasTeo = new HashMap();
+        Map<Seccion, BigDecimal> mapHorasPra = new HashMap();
+        Map<Seccion, EncuestaDocente> mapDocenteSeccion = new HashMap();
 
-        Set<EncuestaDocente> encuestas = new HashSet<>();
+        Set<EncuestaDocente> encuestas = new HashSet();
+        BigDecimal CIEN = new BigDecimal("100");
 
-        for (Map.Entry<GrupoSeccion, List<PuntajeEncuestaDocente>> entry : mapCursos.entrySet()) {
+//        for (Map.Entry<GrupoSeccion, List<PuntajeEncuestaDocente>> entry : mapCursos.entrySet()) {
+        for (Map.Entry<Seccion, List<PuntajeEncuestaDocente>> entry : mapCursos.entrySet()) {
+            Collections.sort(entry.getValue(), new PuntajeEncuestaDocente.CompareOrdenEncuesta());
             for (PuntajeEncuestaDocente ped : entry.getValue()) {
 
                 EncuestaDocente encuesta = ped.getEncuestaDocente();
@@ -135,15 +159,39 @@ public class EncuestaDocenteModalidadServiceImp implements EncuestaDocenteModali
                 } else {
                     encuestas.add(encuesta);
                 }
-                GrupoSeccion key = entry.getKey();
-                if (!mapEncuestados.containsKey(key)) {
-                    mapEncuestados.put(key, 0L);
-                    mapMatriculados.put(key, 0L);
+
+                Seccion key = entry.getKey();
+                Curso curso = key.getGrupoSeccion().getCurso();
+                DocenteSeccion docenteSeccion = encuesta.getDocenteSeccion();
+                BigDecimal horasTeo = new Fraxtion("0/1").getValue(2);
+                BigDecimal horasPra = new Fraxtion("0/1").getValue(2);
+
+                if (Arrays.asList(TEO, TCUR).contains(key.getTipoSeccionEnum())) {
+                    Fraxtion frax = new Fraxtion(docenteSeccion.getPorcentajeCargaFraccion());
+                    frax = frax.multiply(new BigDecimal(curso.getHorasTeoria())).divide(CIEN);
+                    horasTeo = frax.getValue(2);
                 }
-                mapEncuestados.replace(key, mapEncuestados.get(key) + encuesta.getAlumnosEncuestados());
-                mapMatriculados.replace(key, mapEncuestados.get(key) + encuesta.getAlumnosInicio());
+                if (Arrays.asList(PRA, PCUR).contains(key.getTipoSeccionEnum())) {
+                    Fraxtion frax = new Fraxtion(docenteSeccion.getPorcentajeCargaFraccion());
+                    frax = frax.multiply(new BigDecimal(curso.getHorasPractica())).divide(CIEN);
+                    horasPra = frax.getValue(2);
+                }
+
+                if (!mapEncuestados.containsKey(key)) {
+                    mapEncuestados.put(key, encuesta.getAlumnosEncuestados());
+                    mapMatriculados.put(key, encuesta.getAlumnosInicio());
+                    mapDocenteSeccion.put(key, encuesta);
+                    mapHorasTeo.put(key, horasTeo);
+                    mapHorasPra.put(key, horasPra);
+
+                    BigDecimal encuestados = new BigDecimal(encuesta.getAlumnosEncuestados());
+                    BigDecimal matriculados = new BigDecimal(encuesta.getAlumnosInicio());
+                    BigDecimal porc = encuestados.multiply(CIEN).divide(matriculados, 2, RoundingMode.HALF_UP);
+                    mapPorcentaje.put(key, porc);
+                }
             }
         }
+        System.out.println("mapDocenteSeccion.size=" + mapDocenteSeccion.size());
 
         SimpleDateFormat formateador = new SimpleDateFormat("EEEE d 'de' MMMM 'de' yyyy", Locale.forLanguageTag("es-ES"));
 
@@ -155,6 +203,10 @@ public class EncuestaDocenteModalidadServiceImp implements EncuestaDocenteModali
         ctx.setVariable("mapCursos", mapCursos);
         ctx.setVariable("mapEncuestados", mapEncuestados);
         ctx.setVariable("mapMatriculados", mapMatriculados);
+        ctx.setVariable("mapDocenteSeccion", mapDocenteSeccion);
+        ctx.setVariable("mapPorcentaje", mapPorcentaje);
+        ctx.setVariable("mapHorasTeo", mapHorasTeo);
+        ctx.setVariable("mapHorasPra", mapHorasPra);
         ctx.setVariable("puntajes", puntajes);
         ctx.setVariable("anuladas", anuladas);
         ctx.setVariable("temas", temas);
@@ -247,15 +299,16 @@ public class EncuestaDocenteModalidadServiceImp implements EncuestaDocenteModali
         Font fontNormal = new Font("Arial", Font.PLAIN, 12);
         try {
             DefaultCategoryDataset data = new DefaultCategoryDataset();
+            BigDecimal DOS = new BigDecimal("2");
 
             for (PuntajeEncuestaDocenteModalidad puntaje : puntajes) {
-                data.setValue(puntaje.getPuntaje(), "CATEGORÍA", puntaje.getTemaEncuesta().getNombre());
+                data.setValue(puntaje.getPuntaje().divide(DOS, 6, RoundingMode.HALF_UP), "CATEGORÍA", puntaje.getTemaEncuesta().getNombre());
             }
 
             JFreeChart chart = ChartFactory.createBarChart3D(
-                    "ENCUESTA ESTUDIANTIL\n(ESCALA 1 - 5)",
-                    "CATEGORÍA",
-                    "PUNTAJE",
+                    "ENCUESTA ESTUDIANTIL\n(Escala 1 - 5)",
+                    "Categoría",
+                    "Puntaje",
                     data,
                     PlotOrientation.VERTICAL,
                     false, true, false);

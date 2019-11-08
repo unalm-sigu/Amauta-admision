@@ -121,7 +121,7 @@
         </table>
 
         <div style="text-align: center">
-            <b class="block" th:inline="text">RESULTADOS DE LAS ENCUESTAS ESTUDIANTILES [[${cicloAcademico.descripcion}]]</b><br/>
+            <b class="block" th:inline="text">RESULTADOS DE LA ENCUESTA ESTUDIANTIL [[${cicloAcademico.descripcion}]]</b><br/>
             <b class="block" th:inline="text">Cursos de [[${modalidad.nombre}]]</b>
         </div>
 
@@ -132,15 +132,18 @@
             <tbody>
                 <tr>
                     <td style="width: 50px; border-right: .5px solid">
-                        <b> FACULTAD - DEPARTAMENTO </b>  
+                        <b> Facultad - Departamento Académico </b>  
                     </td>
                     <td>
-                        <span th:inline="text"> [[${docente?.departamentoAcademico?.facultad?.nombre}]] -  [[${docente?.departamentoAcademico?.nombre}]] </span>  
+                        <span th:inline="text"> 
+                            [[${docente?.departamentoAcademico?.facultad?.nombre}]] -  
+                            [[${docente?.departamentoAcademico?.nombre}]] 
+                        </span>  
                     </td>
                 </tr>
                 <tr>
                     <td style="width: 50px; border-right:  .5px solid">
-                        <b> PROFESOR </b>  
+                        <b> Docente </b>  
                     </td>
                     <td>
                         <span th:inline="text">[[${docente?.persona?.apellidosNombres}]] </span>  
@@ -154,22 +157,16 @@
             <thead>
                 <tr>
                     <td class="gray-bg text-center col-sm"> 
-                        SECCIÓN
+                        Sección
                     </td>
                     <td class="gray-bg text-center col-sm">
-                        CÓDIGO
+                        Código
                     </td>
                     <td class="gray-bg text-center">
-                        NOMBRE DEL CURSO
+                        Nombre del Curso
                     </td>
-                    <td class="gray-bg text-center col-xxs">
-                        T
-                    </td>
-                    <td class="gray-bg text-center col-xxs">
-                        P
-                    </td>
-                    <td class="gray-bg text-center col-xxs">
-                        C
+                    <td class="gray-bg text-center col-sm">
+                        T-P-C
                     </td>
                     <td class="gray-bg text-center col-sm">
                         Horas <br/> Teoría
@@ -187,44 +184,38 @@
                         %
                     </td>
                     <td class="gray-bg text-center col-sm">
-                        MODO
+                        Modo
                     </td>
                 </tr>
             </thead>
             <tbody>
                 <tr th:each="item : ${mapCursos}">
                     <td class="text-center">
-                        <span th:text="${item.key.codigo}"> seccion </span>
+                        <span th:text="${item.key.codigo2}"> seccion </span>
                     </td>
                     <td class="text-center">
-                        <span th:text="${item.key.curso.codigo}"> codigo </span>
+                        <span th:text="${item.key.grupoSeccion.curso.codigo}"> codigo </span>
+                    </td>
+                    <td class="">
+                        <span th:text="${item.key.grupoSeccion.curso.nombre}"> nombre del curso </span>
                     </td>
                     <td class="text-center">
-                        <span th:text="${item.key.curso.nombre}"> nombre del curso </span>
+                        <span th:text="${item.key.grupoSeccion.curso.tpc}"> tpc </span>
                     </td>
                     <td class="text-center">
-                        <span th:text="${item.key.curso.horasTeoria}"> horas teoria </span>
+                        <span th:text="${mapHorasTeo.get(item.key)}"> h-teo </span>
                     </td>
                     <td class="text-center">
-                        <span th:text="${item.key.curso.horasPractica}"> horas practica </span>
+                        <span th:text="${mapHorasPra.get(item.key)}"> h-pra </span>
                     </td>
                     <td class="text-center">
-                        <span th:text="${item.key.curso.creditos}"> creditos </span>
+                        <span th:text="${mapMatriculados.get(item.key)}"> matris </span>
                     </td>
                     <td class="text-center">
-                        <span> 0.20 </span>
+                        <span th:text="${mapEncuestados.get(item.key)}"> encus </span>
                     </td>
                     <td class="text-center">
-                        <span> 0.20 </span>
-                    </td>
-                    <td class="text-center">
-                        <span th:text="${mapMatriculados.get(item.key)}"> 1 </span>
-                    </td>
-                    <td class="text-center">
-                        <span th:text="${mapEncuestados.get(item.key)}"> 1 </span>
-                    </td>
-                    <td class="text-center">
-                        <span th:text="${mapEncuestados.get(item.key)/mapMatriculados.get(item.key)}"> 1 </span>
+                        <span th:text="${mapPorcentaje.get(item.key)}"> porcent </span>
                     </td>
                     <td class="text-center">
                         <span> WEB </span>
@@ -245,7 +236,7 @@
                             <tbody>
                                 <tr>
                                     <td th:colspan="${2 + 2 * temas.size() }"  class="gray-bg text-center">
-                                        <b>PUNTAJE ALCANZADO POR CATEGORÍA - ESCALA DEL 1 AL 10</b>
+                                        <b>Puntaje alcanzado por categoría - Escala 1 al 10</b>
                                     </td>
                                 </tr>
                                 <tr>
@@ -255,8 +246,8 @@
                                     <td th:each="tema : ${temas}" colspan="2" class="gray-bg text-center" style="width: 76px">
                                         <span th:text="${tema.nombre}"> nombre del tema </span>
                                     </td>
-                                    <td rowspan="2" class="text-center" style="width: 60px">
-                                        Indicador del desempeño por clave
+                                    <td rowspan="2" class="gray-bg text-center" style="width: 60px">
+                                        Indicador del desempeño por sección
                                     </td>
                                 </tr>
                                 <tr>
@@ -268,11 +259,10 @@
                                     Dsv.St.
                                 </td>
                             </th:block>
-
                 </tr>
                 <tr th:each="item : ${mapCursos}">
                     <td class="text-center">
-                        <span th:text="${item.key.codigo}"> seccion </span>  
+                        <span th:text="${item.key.codigo2}"> seccion </span>  
                     </td>
             <th:block th:each="tema : ${item.value}">
                 <td class="text-center">
@@ -283,14 +273,27 @@
                 </td>
             </th:block>
             <td class="text-center">
-                10.00
+                <span th:text="${#numbers.formatDecimal(mapDocenteSeccion.get(item.key).puntajeBase10, 1, 'DEFAULT', 2, 'DEFAULT')}"> 1 </span>
             </td>
         </tr>
-    </tbody>
+        <tr>
+            <td></td>
+        <th:block th:each="item : ${puntajes}">
+            <td class="text-center">
+                <span th:text="${#numbers.formatDecimal(item.puntaje, 1, 'DEFAULT', 2, 'DEFAULT')}"> puntaje </span>
+            </td>
+            <td class="text-center">
+                <span th:text="${#numbers.formatDecimal(item.desviacionStandar, 1, 'DEFAULT', 2, 'DEFAULT')}"> sd </span>
+            </td>
+        </th:block>
+        <td></td>
+    </tr>
+</tbody>
 </table>
 </td>
-<td style="width: 20px">
-</td>
+
+<td style="width: 20px"></td>
+
 <td style="text-align: right">
     <table class="table table-desempeno" style="float: right; width: 130px">
         <thead>
@@ -314,6 +317,7 @@
                     1 - 5
                 </td>
             </tr>
+
             <tr>
                 <td class="text-center">
                     <b th:text="${#numbers.formatDecimal(edm.puntajeBase10, 1, 'DEFAULT', 2, 'DEFAULT')}"> base10 </b>
@@ -335,12 +339,12 @@
     <thead>
         <tr>
             <td colspan="4" class="gray-bg text-center" >
-                Claves no encuestadas
+                Secciones no encuestadas
             </td>
         </tr>
         <tr>
             <td>
-                Seción
+                Sección
             </td>
             <td>
                 Código
@@ -356,7 +360,7 @@
     <tbody>
         <tr th:each="anulada : ${anuladas}">
             <td>
-                <span th:text="${anulada.docenteSeccion.seccion.grupoSeccion.codigo}"> seccion </span>
+                <span th:text="${anulada.docenteSeccion.seccion.codigo2}"> seccion </span>
             </td>
             <td>
                 <span th:text="${anulada.docenteSeccion.seccion.grupoSeccion.curso.codigo}"> codigo del curso </span>
@@ -370,8 +374,7 @@
         </tr>
     </tbody>
 </table>
-<div>
 
-</div>
+<div></div>
 </body>
 </html>
