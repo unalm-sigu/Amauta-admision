@@ -567,8 +567,8 @@ public class GeneradorEncuestaDocenteServiceImp implements GeneradorEncuestaDoce
             encuestaCurso.setModalidadEstudio(encuestaDocenteBD.getModalidadEstudio());
             encuestaCurso.setEncuestaDocente(encuestaDocenteBD);
 
-            encuestaCurso.setAlumnosFin(matriculadosSeccion.size());
-            encuestaCurso.setAlumnosInicio(matriculadosSeccion.size());
+            encuestaCurso.setAlumnosFinInteger(matriculadosSeccion.size());
+            encuestaCurso.setAlumnosInicioInteger(matriculadosSeccion.size());
             encuestaCurso.setAlumnosEncuestados(0L);
             encuestaCurso.setEstadoEnum(EncuestaEstudiantilEstadoEnum.ACT);
             encuestaCurso.setFechaEncuestaInicio(encuestaDocenteBD.getFechaInicio());
@@ -627,7 +627,7 @@ public class GeneradorEncuestaDocenteServiceImp implements GeneradorEncuestaDoce
 
         if (yaExiste && !yaEstaActiva) {
             encuestaCurso.setEstadoEnum(ACT);
-            encuestaCurso.setAlumnosFin(total);
+            encuestaCurso.setAlumnosFinInteger(total);
             encuestaCurso.setUserModificacion(ds.getUsuario());
             encuestaCurso.setFechaModificacion(new Date());
         }
