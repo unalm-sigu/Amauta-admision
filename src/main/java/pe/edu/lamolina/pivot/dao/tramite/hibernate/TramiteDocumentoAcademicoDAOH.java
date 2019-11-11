@@ -6,8 +6,7 @@ import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
-import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.EPG;
-import pe.edu.lamolina.model.tramite.ConfiguracionFirmaDocumento;
+import static pe.edu.lamolina.model.enums.OficinaEnum.OERA;
 import pe.edu.lamolina.model.tramite.Tramite;
 import pe.edu.lamolina.model.tramite.TramiteDocumentoAcademico;
 import pe.edu.lamolina.pivot.dao.tramite.TramiteDocumentoAcademicoDAO;
@@ -22,20 +21,17 @@ public class TramiteDocumentoAcademicoDAOH extends AbstractEasyDAO<TramiteDocume
 
     @Override
     public List<TramiteDocumentoAcademico> allTramiteDocumentoAcademico(DynatableFilter filter) {
-        Octavia sqlSub = new Octavia()
-                .from(ConfiguracionFirmaDocumento.class, "cfd")
-                .join("tipoDocumentoAcademico subtda", "oficina ofi")
-                .filter("ofi.codigo", EPG.name());
+  
 
         DynatableSql sql = new DynatableSql(filter)
                 .from(TramiteDocumentoAcademico.class, "pda")
                 .join("tipoDocumentoAcademico tda", "idioma idi", "tramite tra", "tra.alumno alu", "alu.persona per", "estadoTramite")
+                .join("tda.oficinaEmisora ofiemi")
                 .leftJoin("per.tipoDocumento td")
                 .searchFields("td.simbolo", "per.numeroDocIdentidad", "per.telefono", "per.celular", "per.emailCompania")
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                 .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
-                .notExists(sqlSub)
-                .linkedBy("tda.id", "subtda.id")
+                .filter("ofiemi.codigo", OERA)
                 .orderBy("pda.id desc");
         return sql.all(getCurrentSession());
     }

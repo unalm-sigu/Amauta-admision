@@ -4,6 +4,7 @@ import java.util.List;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import static pe.edu.lamolina.model.enums.OficinaEnum.EPG;
 import pe.edu.lamolina.model.tramite.VariableGenerica;
 import pe.edu.lamolina.pivot.dao.tramite.VariableGenericaDAO;
 
@@ -27,7 +28,8 @@ public class VariableGenericaDAOH extends AbstractEasyDAO<VariableGenerica> impl
     public List<VariableGenerica> allByPregrado() {
         Octavia sql = Octavia.query()
                 .from(VariableGenerica.class, "vg")
-                .filter("vg.isPregrado", 1);
+                .join("oficina ofi")
+                .filter("ofi.codigo", EPG);
         return all(sql);
     }
 

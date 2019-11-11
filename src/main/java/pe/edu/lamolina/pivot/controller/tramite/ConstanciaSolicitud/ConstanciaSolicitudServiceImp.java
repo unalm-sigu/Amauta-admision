@@ -445,9 +445,7 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
         tda.setEmail(tramiteDocumentoAcademico.getEmail());
         tda.setTelefono(tramiteDocumentoAcademico.getTelefono());
         tda.setCelular(tramiteDocumentoAcademico.getCelular());
-        tda.setIdioma(tramiteDocumentoAcademico.getIdioma());
-        tda.setTipoDocumentoAcademico(tramiteDocumentoAcademico.getTipoDocumentoAcademico());
-        tramiteDocumentoAcademicoDAO.update(tda);
+        tramiteDocumentoAcademicoDAO.updateColumns(tda, "personaContacto", "email", "telefono", "celular");
 
         this.enviarNotificacionSolicitudConstanciaCreacion(tda);
     }
@@ -652,7 +650,7 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
         acreenciaTram.setUserRegistro(usuario);
         acreenciaTram.setFechaRegistro(new Date());
         LocalDate localDate = LocalDate.now();
-        LocalDate fechaVencimiento = localDate.plusDays(3);
+        LocalDate fechaVencimiento = localDate.plusDays(7);
         acreenciaTram.setFechaVencimiento(fechaVencimiento.toDate());
         acreenciaTram.setPrecio(BigDecimal.ZERO);
         acreenciaTram.setPrecio(monto);
