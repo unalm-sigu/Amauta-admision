@@ -850,7 +850,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
 
         for (TipoCursoCurricula tipo : tipos) {
             if (modalidad.getCodigoEnum() == ModalidadEstudioEnum.EPG) {
-                if (Arrays.asList(OBL, ECP, ECC, EAD).contains(tipo.getCodigoEnum())) {
+                if (Arrays.asList(OBL,ELC,ELE, ECP, ECC, EAD).contains(tipo.getCodigoEnum())) {
                     tiposEnvio.add(tipo);
                 }
             } else if (tipo.getCodigoEnum() == CULT) {
@@ -881,7 +881,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
 
         for (TipoCursoCurricula tipo : tiposTodos) {
             if (modalidad.getCodigoEnum() == ModalidadEstudioEnum.EPG) {
-                if (Arrays.asList(ECP, ECC, EAD).contains(tipo.getCodigoEnum())) {
+                if (Arrays.asList(ECP,ELC, ECC, EAD).contains(tipo.getCodigoEnum())) {
                     tiposEnvio.add(tipo);
                 }
             } else if (tipo.getCodigoEnum() == ELC) {
