@@ -63,6 +63,7 @@ public class EncuestaDocenteController {
         model.addAttribute("departamentosJson", createDptosAcademicosJson(departamentos));
         model.addAttribute("esEditorEncuestas", verificadorService.isEditorEncuestas(ds));
         model.addAttribute("esRevisorEncuestas", verificadorService.isRevisorEncuestas(ds));
+
         return "academico/encuestaestudiantil/docente/encuestaDocente";
     }
 

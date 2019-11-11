@@ -137,7 +137,7 @@ Vue.component("grupohorario-component", {
         },
         getClassGpoHorario(gpoHorario) {
             if (gpoHorario.seleccionado) {
-                //this.seccionModal.aula.permiteCruceBool && 
+                //this.seccionModal.aula.permiteCruceBoolean && 
                 if (gpoHorario.tieneCruce) {
                     return "btn-danger";
                 }
@@ -263,7 +263,7 @@ Vue.component("grupohorario-component", {
                                 && diaHoraGrupo.dia.id == diaHoraGrupoEach.dia.id) {
                             //&& diaHoraAulaEach == undefined
                             if (this.seccionModal.aula != null) {
-                                if (!this.seccionModal.aula.permiteCruceBool) {
+                                if (!this.seccionModal.aula.permiteCruceBoolean) {
                                     if (diaHoraGrupo.tieneCruce) {
                                         continue;
                                     }
@@ -283,7 +283,7 @@ Vue.component("grupohorario-component", {
                                 && diaHoraGrupo.dia.id == diaHoraGrupoEach.dia.id) {
                             //&& diaHoraAulaEach == undefined
                             if (this.seccionModal.aula != null) {
-                                if (!this.seccionModal.aula.permiteCruceBool) {
+                                if (!this.seccionModal.aula.permiteCruceBoolean) {
                                     if (diaHoraGrupo.tieneCruce) {
                                         continue;
                                     }

@@ -1240,7 +1240,7 @@ public class GpoSeccionController {
                 "aula.nombre",
                 "aula.capacidadAula",
                 "aula.capacidadExtra",
-                "aula.permiteCruceBool",
+                "aula.permiteCruceBoolean",
                 "aula.aforo",
                 "grupoHoras.codigo",
                 "grupoSeccion.curso.codigo",
