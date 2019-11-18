@@ -1675,8 +1675,7 @@ public class PlanCurricularController {
 
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             service.verificarAsignacion(carrera);
-            service.desvincularMasivaCursoCurricula(carrera, ds);
-//            service.asignacionMasivaCursoCurricula(carrera, ds);
+//            service.desvincularMasivaCursoCurricula(carrera, ds);
 
             response.setSuccess(true);
             response.setMessage("Asignación masiva en proceso");

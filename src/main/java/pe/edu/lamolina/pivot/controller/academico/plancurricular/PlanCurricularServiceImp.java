@@ -1365,7 +1365,6 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
         Map<Long, CursoCurricula> mapCursoCurriculaByCurso = new HashMap<>();
         Map<Long, List<RequisitoCursoCurricula>> mapRequisitoCursoCurriculaAll = new LinkedHashMap();
         Map<Long, List<CursoEquivalente>> mapCursosEquivalentesAll = new LinkedHashMap();
-        int count = 0;
 
         this.obtenerDataVarios(planesCurricular, mapCursoCurriculaAll, mapRequisitoCursoCurriculaAll, mapCursosEquivalentesAll, mapCursoCurriculaByCurso);
 
@@ -1403,6 +1402,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
         List<AlumnoCursoCurricula> alumnoCursoCurriculas = alumnoCursoCurriculaDAO.allByAlumnosApr(alumnos);
         Map<Long, List<AlumnoCursoCurricula>> mapAlumnoCursoCurricula = TypesUtil.convertListToMapList("alumno.id", alumnoCursoCurriculas);
 
+        int count = 0;
         for (AlumnoCicloCurso cursoAprobado : cursosAprobados) {
             cursoAprobado.setVecesCursadoTransient(0);
             AlumnoCicloCurso cursoVeces = mapTodosCursosVecesLlevado.get(cursoAprobado.getAlumnoCursoKey());
