@@ -22,10 +22,10 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
 @RequestMapping("tramite/documentoconsejero")
-public class TramiteDocumentoConsejeroController {
+public class TramiteDocumentoCoordinadorController {
 
     @Autowired
-    TramiteDocumentoConsejeroService service;
+    TramiteDocumentoCoordinadorService service;
 
     @Autowired
     ConstanciaSolicitudService serviceSolicitud;
