@@ -19,10 +19,9 @@
                                 <a class="btn-sm nuevo-plan-curricular" 
                                    v-on:click="nuevoPlan()">Nuevo Plan de Estudios</a>
                             </li>
-<!--                            <li >
-                                <span></span>
+                            <li th:if="${ambiente} != 'prod'">
                                 <a class="btn-sm" href="#" v-on:click.prevent="asignacionMasiva()" >Asignación Masiva</a>
-                            </li>-->
+                            </li>
                         </ul>
                     </div>
 
