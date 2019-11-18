@@ -1,7 +1,7 @@
 new Vue({
     el: '#solicitudVue',
     data: {
-        solicitudURL: APP.url('tramite/documentoconsejero/list'),
+        solicitudURL: APP.url('tramite/documentocoordinador/list'),
         persona: {},
         solicitud: {},
         tramiteDocumento: {},

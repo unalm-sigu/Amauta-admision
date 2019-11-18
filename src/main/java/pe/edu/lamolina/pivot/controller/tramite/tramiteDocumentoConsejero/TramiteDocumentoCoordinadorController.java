@@ -21,7 +21,7 @@ import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
-@RequestMapping("tramite/documentoconsejero")
+@RequestMapping("tramite/documentocoordinador")
 public class TramiteDocumentoCoordinadorController {
 
     @Autowired
