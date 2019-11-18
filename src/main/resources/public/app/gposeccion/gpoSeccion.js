@@ -56,7 +56,6 @@ new Vue({
             semestrales: 0,
             modulares: 0
         },
-        // orderbycodigo: false,
         cursos: [],
         isLoadingCursos: false,
         anexosPadres: [],
@@ -90,19 +89,11 @@ new Vue({
         condicion4() {
             let $vue = this;
             return $vue.ciclo.fechaCierreOrden == '' && $vue.ciclo.fechaClonacion != '';
-        },
-
+        }
     },
     mounted: function () {
         let $vue = this;
         $vue.loadDataInicial();
-
-//        let letra = $vue.$refs.raptorGpoSecc.getParameterByName('queries[letra]');
-//        letra = (letra == null) ? '' : letra;
-//        if (letra != '') {
-//            $vue.$refs.raptorGpoSecc.querie.push({name: 'letra', value: letra});
-//        }
-
     },
     methods: {
         getParameterQuery(param) {
@@ -252,7 +243,6 @@ new Vue({
             $vue.anexosHijos = [];
             $vue.newGrupoSeccion.anexoBoletin = {};
 
-            //*
             for (var i = 0; i < $vue.anexos.length; i++) {
                 let anx = $vue.anexos[i];
                 if (item.id == anx.anexoSuperior.id) {
@@ -265,7 +255,6 @@ new Vue({
                     }
                 }
             }
-            //*/
         },
         labelCurso(item) {
             if (item.id == undefined) {
@@ -329,16 +318,6 @@ new Vue({
             }
             return false;
         },
-//        existeAnexoSelect() {
-//            let $vue = this;
-//            if ($vue.anexoSelect == null) {
-//                return false;
-//            }
-//            if ($vue.anexoSelect.id === undefined) {
-//                return false;
-//            }
-//            return true;
-//        },
         clearAnexo() {
             let $vue = this;
             $vue.anexoSelect = null;
@@ -388,23 +367,6 @@ new Vue({
                         $vue.anexosPadres = response.data.anexosSup;
                         console.log("$vue.anexos=" + $vue.anexos.length)
                         $vue.configInicio();
-                        //$vue.loadAnexosVisibles();
-
-//                        let anx = $vue.$refs.raptorGpoSecc.getParameterByName('queries[anexo]');
-//                        anx = (anx == null) ? '' : anx;
-//                        if (anx == '') {
-//                            return;
-//                        }
-//                        for (var i = 0; i < $vue.anexosVisibles.length; i++) {
-//                            let anexo = $vue.anexosVisibles[i];
-//                            let idAnx = parseInt(anx);
-//                            if (idAnx == anexo.id) {
-//                                $vue.anexoSelect = anexo;
-//                                $vue.$refs.raptorGpoSecc.querie.push({name: 'anexo', value: $vue.anexoSelect.id});
-//                            }
-//                        }
-//
-//                        $vue.$refs.raptorGpoSecc.repreload();
                     }
                 }
             });
@@ -449,51 +411,21 @@ new Vue({
             if ($vue.seleccionado === '') {
                 $vue.bgColorClass[tipo] = 'bg-light';
                 $vue.seleccionado = tipo;
-                //$vue.$refs.raptorGpoSecc.querie.push({name: 'anexo-superior', value: tipo});
 
             } else if ($vue.seleccionado !== '' && $vue.seleccionado !== tipo) {
                 $vue.bgColorClass[$vue.seleccionado] = '';
                 $vue.bgColorClass[tipo] = 'bg-light';
                 $vue.seleccionado = tipo;
-                //$vue.$refs.raptorGpoSecc.querie.push({name: 'anexo-superior', value: tipo});
 
             } else if ($vue.seleccionado !== '' && $vue.seleccionado === tipo) {
                 $vue.bgColorClass[$vue.seleccionado] = '';
                 $vue.seleccionado = '';
-                //$vue.$refs.raptorGpoSecc.changeUrl('queries[anexo-superior]', null);
             }
 
             $vue.loadAnexosVisibles();
             $vue.verificarAnexoSelect();
             $vue.loadRegistros();
-
-            //$vue.settingUrlAnexoInferior();
-            //$vue.settingUrlOrderCodigo();
-            //$vue.$refs.raptorGpoSecc.loadRemoteData();
-
         },
-//        settingUrlOrderCodigo() {
-//            let $vue = this;
-//
-//            if (!$vue.orderbycodigo) {
-//                $vue.$refs.raptorGpoSecc.changeUrl('queries[order-codigo]', null);
-//                return;
-//            }
-//            $vue.$refs.raptorGpoSecc.querie.push({name: 'order-codigo', value: "asc"});
-//        },
-//        settingUrlAnexoInferior() {
-//            let $vue = this;
-//
-//            if ($vue.anexoSelect == null) {
-//                $vue.$refs.raptorGpoSecc.changeUrl('queries[anexo]', null);
-//                return;
-//            }
-//            if ($vue.anexoSelect.id === undefined) {
-//                $vue.$refs.raptorGpoSecc.changeUrl('queries[anexo]', null);
-//                return;
-//            }
-//            $vue.$refs.raptorGpoSecc.querie.push({name: 'anexo', value: $vue.anexoSelect.id});
-//        },
         loadRegistros() {
             let $vue = this;
             $vue.$refs.raptorGpoSecc.querie = [];
@@ -518,12 +450,8 @@ new Vue({
             if ($vue.dictadoSeleccionado !== "") {
                 $vue.setParameterQuery('dictado', $vue.dictadoSeleccionado);
             }
-            //console.log("wewe-wewewe-wewerwer-werwe")
-            //$vue.settingUrlAnexoInferior();
-            //$vue.settingUrlOrderCodigo();
             $vue.$refs.raptorGpoSecc.loadRemoteData(true);
             $vue.updateDataCiclo();
-
         },
         clonarCiclo() {
             let $vue = this;
@@ -540,7 +468,6 @@ new Vue({
             $.ajax({
                 method: 'POST',
                 url: APP.url(rutaModulo + '/clonarciclo'),
-//                async: false,
                 data: JSON.stringify($vue.cicloClonacionBean),
                 contentType: "application/json",
                 success: function (response) {
@@ -677,35 +604,6 @@ new Vue({
             });
 
             $vue.$refs.modalConfirmAction.open();
-
-//            bootbox.confirm({
-//                message: '<h4>¿Seguro que desea que se visualice este ciclo en el boletín?</h4>',
-//                buttons: {
-//                    cancel: {label: "Cancelar", className: "btn-link"},
-//                    confirm: {label: "Si, Visualizar el Boletín", className: "btn-primary"}
-//                },
-//                callback(result) {
-//                    if (result) {
-//                        $.ajax({
-//                            method: 'POST',
-//                            async: false,
-//                            url: APP.url('academico/gposeccion/verBoletin'),
-//                            success: function (response) {
-//                                if (response.success) {
-//                                    $vue.updateDataCiclo();
-//                                    notify(response.message, 'info');
-//                                } else {
-//                                    notify(response.message, 'error');
-//                                }
-//                            },
-//                            error: function () {
-//                                notify(MESSAGES.errorComunicacion, 'error');
-//                            }
-//                        });
-//                    }
-//                }
-//            });
-
         },
         finalizarClonacion() {
 
@@ -738,36 +636,6 @@ new Vue({
                 },
             });
             $vue.$refs.modalConfirmAction.open();
-
-//            bootbox.confirm({
-//                title: "Finalizar clonación",
-//                message: '<h4 class="text-danger m-t-xs">¿Seguro que desea dar por finalizada la clonación?</h4> <p>Recuerde que después de esta acción ya no podrá limpiar los datos de este ciclo.</p>',
-//                buttons: {
-//                    cancel: {label: "Cancelar", className: "btn-link"},
-//                    confirm: {label: "Si, finalizar", className: "btn-warning"}
-//                },
-//                callback(result) {
-//                    if (result) {
-//                        $.ajax({
-//                            method: 'POST',
-//                            async: false,
-//                            url: APP.url('academico/gposeccion/cerrarClonacion'),
-//                            success: function (response) {
-//                                if (response.success) {
-//                                    $vue.updateDataCiclo();
-//                                    notify(response.message, 'info');
-//                                } else {
-//                                    notify(response.message, 'error');
-//                                }
-//                            },
-//                            error: function () {
-//                                notify(MESSAGES.errorComunicacion, 'error');
-//                            }
-//                        });
-//                    }
-//                }
-//            });
-
         },
         cerrarOrden() {
 
@@ -800,36 +668,6 @@ new Vue({
                 },
             });
             $vue.$refs.modalConfirmAction.open();
-
-//            bootbox.confirm({
-////                title: "Finalizar ordenamiento de códigos",
-//                message: '<h4 class="m-t-xs">¿Seguro que desea dar por finalizado el ordenamiento de códigos?</h4>',
-//                buttons: {
-//                    cancel: {label: "Cancelar", className: "btn-link"},
-//                    confirm: {label: "Si, finalizar", className: "btn-warning"}
-//                },
-//                callback(result) {
-//                    if (result) {
-//                        $.ajax({
-//                            method: 'POST',
-//                            async: false,
-//                            url: APP.url('academico/gposeccion/cerrarorden'),
-//                            success: function (response) {
-//                                if (response.success) {
-//                                    $vue.updateDataCiclo();
-//                                    notify(response.message, 'info');
-//                                } else {
-//                                    notify(response.message, 'error');
-//                                }
-//                            },
-//                            error: function () {
-//                                notify(MESSAGES.errorComunicacion, 'error');
-//                            }
-//                        });
-//                    }
-//                }
-//            });
-
         },
         searchCicloAcademico(param) {
             let $vue = this;
