@@ -62,6 +62,7 @@ import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.ELC;
 import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.GEN;
 import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.OBL;
 import pe.edu.lamolina.model.enums.TipoOficinaEnum;
+import pe.edu.lamolina.pivot.config.DespliegueConfig;
 import pe.edu.lamolina.pivot.controller.seguridad.verificador.VerificadorService;
 import pe.edu.lamolina.pivot.controller.seguridad.verificador.VerificadorServiceImp;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
@@ -82,6 +83,9 @@ public class PlanCurricularController {
 
     @Autowired
     VisorAsignaCurricula visorAsignaCurricula;
+
+    @Autowired
+    DespliegueConfig despliegueConfig;
 
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {
@@ -114,6 +118,7 @@ public class PlanCurricularController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         List<Carrera> carreras = service.filtrarByPlanes(verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.ESP, request, ds));
         ArrayNode carrerasJson = this.createCarrerasJson(carreras);
+        model.addAttribute("ambiente",despliegueConfig.getAmbiente());
         model.addAttribute("carrerasJson", carrerasJson.toString());
         model.addAttribute("editor", verificadorService.isEditorCurriculas(ds));
         model.addAttribute("editorAll", verificadorService.isEditorCurriculasAll(ds));
@@ -1675,8 +1680,7 @@ public class PlanCurricularController {
 
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             service.verificarAsignacion(carrera);
-            service.desvincularMasivaCursoCurricula(carrera, ds);
-//            service.asignacionMasivaCursoCurricula(carrera, ds);
+//            service.desvincularMasivaCursoCurricula(carrera, ds);
 
             response.setSuccess(true);
             response.setMessage("Asignación masiva en proceso");

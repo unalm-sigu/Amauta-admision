@@ -850,7 +850,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
 
         for (TipoCursoCurricula tipo : tipos) {
             if (modalidad.getCodigoEnum() == ModalidadEstudioEnum.EPG) {
-                if (Arrays.asList(OBL,ELC,ELE, ECP, ECC, EAD).contains(tipo.getCodigoEnum())) {
+                if (Arrays.asList(OBL, ELC, ELE, ECP, ECC, EAD).contains(tipo.getCodigoEnum())) {
                     tiposEnvio.add(tipo);
                 }
             } else if (tipo.getCodigoEnum() == CULT) {
@@ -881,7 +881,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
 
         for (TipoCursoCurricula tipo : tiposTodos) {
             if (modalidad.getCodigoEnum() == ModalidadEstudioEnum.EPG) {
-                if (Arrays.asList(ECP,ELC, ECC, EAD).contains(tipo.getCodigoEnum())) {
+                if (Arrays.asList(ECP, ELC, ECC, EAD).contains(tipo.getCodigoEnum())) {
                     tiposEnvio.add(tipo);
                 }
             } else if (tipo.getCodigoEnum() == ELC) {
@@ -1365,7 +1365,6 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
         Map<Long, CursoCurricula> mapCursoCurriculaByCurso = new HashMap<>();
         Map<Long, List<RequisitoCursoCurricula>> mapRequisitoCursoCurriculaAll = new LinkedHashMap();
         Map<Long, List<CursoEquivalente>> mapCursosEquivalentesAll = new LinkedHashMap();
-        int count = 0;
 
         this.obtenerDataVarios(planesCurricular, mapCursoCurriculaAll, mapRequisitoCursoCurriculaAll, mapCursosEquivalentesAll, mapCursoCurriculaByCurso);
 
@@ -1403,6 +1402,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
         List<AlumnoCursoCurricula> alumnoCursoCurriculas = alumnoCursoCurriculaDAO.allByAlumnosApr(alumnos);
         Map<Long, List<AlumnoCursoCurricula>> mapAlumnoCursoCurricula = TypesUtil.convertListToMapList("alumno.id", alumnoCursoCurriculas);
 
+        int count = 0;
         for (AlumnoCicloCurso cursoAprobado : cursosAprobados) {
             cursoAprobado.setVecesCursadoTransient(0);
             AlumnoCicloCurso cursoVeces = mapTodosCursosVecesLlevado.get(cursoAprobado.getAlumnoCursoKey());
@@ -1417,6 +1417,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
 
         List<ResumenPlanCurricular> alumnosResumenPlanCurriculars = resumenPlanCurricularDAO.all();
 
+        visorAsignaCurricula.putTope(carrera, alumnos.size() * 2);
         for (Alumno alumno : alumnos) {
 
             List<CursoHabilEscuela> habilEscuelas = mapCursoHabilEscuela.get(alumno.getId());
@@ -1427,24 +1428,24 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
             String codigoCicloAlumno = (String) ObjectUtil.getParentTree(alumno, "cicloIngreso.codigo");
 
             count++;
-            if (Strings.isNullOrEmpty(codigoCicloAlumno)) {
-                visorAsignaCurricula.incrementar(carrera);
-                continue;
-            }
+//            if (Strings.isNullOrEmpty(codigoCicloAlumno)) {
+//                visorAsignaCurricula.incrementar(carrera);
+//                continue;
+//            }
 
             String codigoCicloPlan = this.getIndiceCicloAcademico(codigoCicloAlumno, codigosCiclosPlanes);
-            if (codigoCicloPlan == null) {
-                visorAsignaCurricula.incrementar(carrera);
-
-                continue;
-            }
+//            if (codigoCicloPlan == null) {
+//                visorAsignaCurricula.incrementar(carrera);
+//
+//                continue;
+//            }
 
             List<PlanCurricular> planesBD = mapPlanesByCiclo.get(codigoCicloPlan);
-            if (planesBD.isEmpty()) {
-                visorAsignaCurricula.incrementar(carrera);
-
-                continue;
-            }
+//            if (planesBD.isEmpty()) {
+//                visorAsignaCurricula.incrementar(carrera);
+//
+//                continue;
+//            }
             PlanCurricular planCurricularBD = null;
             if (orientacionCarrera != null) {
                 planCurricularBD = planesBD.stream().filter(x -> Objects.equals(x.getOrientacionCarrera().getId(), orientacionCarrera.getId())).findAny().orElse(null);
@@ -1466,7 +1467,8 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
             List<AlumnoCursoCurricula> alumnoCursoCurricula = mapAlumnoCursoCurricula.get(alumno.getId());
             List<CursoOpcionalCurricula> opcionalCurriculas = mapCursoOpcional.get(planBD.getId());
             List<CursoEquivalenteElectivo> equivalenteElectivos = mapEquivalenteElectivo.get(planBD.getId());
-
+            visorAsignaCurricula.incrementar(carrera);
+            logger.debug("ALUMNO -------------------------------> {}", alumno.getCodigo());
             avanceCurricularAsincronoService.crearAvanceCurricular(alumno,
                     planBD,
                     mapCursoCurriculaPlan,

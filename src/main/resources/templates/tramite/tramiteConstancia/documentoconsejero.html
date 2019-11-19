@@ -73,8 +73,8 @@
                                                 </td>
 
                                                 <td class="v-middle ">
-                                                    <div class="dropdown actions" v-if="item.estadoTramite.codigo!='ANU' ">
-                                                        <a class="dropdown-toggle" data-toggle="dropdown">
+                                                    <div class="dropdown actions" >
+                                                        <a class="dropdown-toggle" data-toggle="dropdown" v-if="item.estadoTramite.codigo=='PAG' ">
                                                             <i class="glyphicon glyphicon-option-vertical"></i>
                                                         </a>
                                                         <ul  class="dropdown-menu pull-right">

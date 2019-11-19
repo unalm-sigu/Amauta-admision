@@ -615,12 +615,19 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
 //                alumnoCursoCurriculaNew.setEstadoEnum(NREQ);
 //            }
             AlumnoCursoCurricula cursoCurricula = alumnoCursoOld.stream().filter(x -> Objects.equals(x.getCurso().getId(), alumnoCursoCurriculaNew.getCurso().getId()) && !x.isValidado()).findAny().orElse(null);
-            if (cursoCurricula != null) {
+
+            ObjectUtil.printAttr(cursoCurricula);
+            logger.debug("---------------------------------------------> ******************************** -------------------------");
+            ObjectUtil.printAttr(alumnoCursoCurriculaNew);
+
+            Boolean iguales = ObjectUtil.equalsAttrs(alumnoCursoCurriculaNew, cursoCurricula, this.obtenerAttributos());
+            logger.debug("IGUALES -------------> {}", iguales);
+            
+            if (cursoCurricula != null && !iguales) {
                 cursoCurricula.setValidado(true);
                 alumnoCursoCurriculaNew.setId(cursoCurricula.getId());
                 alumnoCursoCurriculaDAO.update(alumnoCursoCurriculaNew);
-            } else {
-
+            } else if (cursoCurricula == null) {
                 alumnoCursoCurriculaDAO.save(alumnoCursoCurriculaNew);
             }
         }
@@ -639,6 +646,30 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
             }
             alumnoCicloCursoDAO.updateCurso(cursosAprobado);
         }
+
+    }
+
+    private List<String> obtenerAttributos() {
+        List<String> arrayList = Arrays.asList("nota",
+                "creditos",
+                "creditosCumplidos",
+                "vecesCursado",
+                "estado",
+                "estadoMatricula",
+                "estadoRegistro",
+                "numeroCiclo",
+                "esSimultaneo",
+                "alumno",
+                "cursoCurricula",
+                "tipoCursoCurriculaOrigen",
+                "tipoCursoCurricula",
+                "cursoOpcional",
+                "curso",
+                "cicloAprobado",
+                "cicloEstudiaFuturo",
+                "alumnoPlanEstudios");
+
+        return arrayList;
 
     }
 
@@ -1151,7 +1182,10 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
             DataSessionPivot ds) {
 //  Map<Long, List<CursoEquivalente>> mapCursosEquivalentes, List<CursoEquivalenteElectivo> equivalenteElectivos,
         Carrera carrera = alumno.getCarrera();
-        this.settingPlanCurricular(alumno, planBD);
+        if (alumno.getPlanCurricular() == null) {
+            logger.debug("LE CAMBIAREMOS PLAN CURRICULAR");
+            this.settingPlanCurricular(alumno, planBD);
+        }
 
         this.deleteAllAlumnoCursoSimultaneoByAlumno(alumno);
         if (alumno.getModalidadEstudio().isPregrado()) {

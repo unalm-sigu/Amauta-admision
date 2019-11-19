@@ -4,6 +4,7 @@ import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.easydao.EasyDAO;
 import pe.edu.lamolina.model.general.Colaborador;
+import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.tramite.Tramite;
 import pe.edu.lamolina.model.tramite.TramiteDocumentoAcademico;
 
@@ -17,6 +18,5 @@ public interface TramiteDocumentoAcademicoDAO extends EasyDAO<TramiteDocumentoAc
 
     public TramiteDocumentoAcademico findTramite(Tramite tramite);
 
-    public List<TramiteDocumentoAcademico> allTramiteDocumentoAcademico(DynatableFilter filter, List<Colaborador> colaboradors);
-
+    public List<TramiteDocumentoAcademico> allTramiteDocumentoAcademico(DynatableFilter filter, Persona persona);
 }

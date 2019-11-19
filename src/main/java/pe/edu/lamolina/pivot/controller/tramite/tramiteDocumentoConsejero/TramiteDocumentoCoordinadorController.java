@@ -21,11 +21,11 @@ import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
-@RequestMapping("tramite/documentoconsejero")
-public class TramiteDocumentoConsejeroController {
+@RequestMapping("tramite/documentocoordinador")
+public class TramiteDocumentoCoordinadorController {
 
     @Autowired
-    TramiteDocumentoConsejeroService service;
+    TramiteDocumentoCoordinadorService service;
 
     @Autowired
     ConstanciaSolicitudService serviceSolicitud;
