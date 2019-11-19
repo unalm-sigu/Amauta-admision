@@ -6,8 +6,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.hibernate.Query;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pe.edu.lamolina.pivot.dao.academico.SeccionDAO;
 import org.springframework.stereotype.Repository;
+import pe.albatross.octavia.Insecto;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
@@ -42,6 +45,8 @@ import pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.aula.Sec
 
 @Repository
 public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO {
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public SeccionDAOH() {
         super();
@@ -1008,6 +1013,25 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
                 .filter("cic.id", cicloAcademico);
 
         return all(sql);
+    }
+
+    @Override
+    public int updateList(List<Seccion> secciones, String... columnas) {
+        if (secciones.isEmpty()) {
+            return 0;
+        }
+
+        long t1 = System.currentTimeMillis();
+        Insecto sql = Insecto.createUpdate(Seccion.class)
+                .set(columnas)
+                .with(secciones);
+
+        Query query = getCurrentSession().createSQLQuery(sql.toString());
+        int rows = query.executeUpdate();
+
+        long t2 = System.currentTimeMillis();
+        logger.info("{} Seccion's actualizados en {} mseg....", rows, (t2 - t1));
+        return rows;
     }
 
 }

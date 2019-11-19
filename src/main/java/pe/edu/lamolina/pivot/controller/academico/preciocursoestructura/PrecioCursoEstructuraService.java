@@ -6,9 +6,9 @@ import pe.edu.lamolina.model.academico.PrecioCursoEstructura;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface PrecioCursoEstructuraService {
-    
+
     List<PrecioCursoEstructura> allByCicloAcademico(CicloAcademico ciclo);
-    
-    void saveAll(List<PrecioCursoEstructura> listForm, DataSessionPivot ds);
-    
+
+    void saveAll(List<PrecioCursoEstructura> listaPrecios, CicloAcademico ciclo, DataSessionPivot ds);
+
 }

@@ -4,7 +4,10 @@ import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 import org.hibernate.Query;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
+import pe.albatross.octavia.Insecto;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
@@ -18,6 +21,8 @@ import pe.edu.lamolina.pivot.dao.academico.CursoCicloAcademicoDAO;
 
 @Repository
 public class CursoCicloAcademicoDAOH extends AbstractEasyDAO<CursoCicloAcademico> implements CursoCicloAcademicoDAO {
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public CursoCicloAcademicoDAOH() {
         super();
@@ -151,6 +156,25 @@ public class CursoCicloAcademicoDAOH extends AbstractEasyDAO<CursoCicloAcademico
                 .filter("ca.id", cicloAcademico)
                 .limit(20);
         return all(sql);
+    }
+
+    @Override
+    public int updateList(List<CursoCicloAcademico> cursosCiclos, String... columnas) {
+        if (cursosCiclos.isEmpty()) {
+            return 0;
+        }
+
+        long t1 = System.currentTimeMillis();
+        Insecto sql = Insecto.createUpdate(CursoCicloAcademico.class)
+                .set(columnas)
+                .with(cursosCiclos);
+
+        Query query = getCurrentSession().createSQLQuery(sql.toString());
+        int rows = query.executeUpdate();
+
+        long t2 = System.currentTimeMillis();
+        logger.info("{} CursoCicloAcademico's actualizados en {} mseg....", rows, (t2 - t1));
+        return rows;
     }
 
 }

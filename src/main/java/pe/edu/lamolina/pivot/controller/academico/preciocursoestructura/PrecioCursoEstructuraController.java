@@ -74,7 +74,7 @@ public class PrecioCursoEstructuraController {
         JsonResponse response = new JsonResponse();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         try {
-            service.saveAll(listForm, ds);
+            service.saveAll(listForm, ds.getCicloAcademico(), ds);
             response.setMessage("Precios actualizados");
             response.setSuccess(true);
         } catch (PhobosException pex) {
