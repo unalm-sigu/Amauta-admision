@@ -604,7 +604,6 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
         validarCursosComodin(alumnoCursoComodinDepNew, alumnoCursoNew, resumenPlanCurriculars, tipoCursoCurriculas.stream().filter(x -> x.getCodigoEnum() == DEP).findAny().orElse(null));
         validarEquivalencias(mapAlumCursoCurrByCursoCurri, mapEquivalentesCurricula, cursosAprobados);
         validarCursosRequisito(mapAlumCursoCurrByCursoCurri, mapRequisitosCurricula, alumno);
-        validarCursosSimultaneo(mapAlumCursoCurrByCursoCurri, cursosSimultaneosAlu, mapRequisitosCurricula, ds);
         validarCursosMatriculados(mapAlumCursoCurrByCurso, cursosMatriculados, ds, alumno, alumnoCursoNew, equivalenteElectivos, cursoOpcionalCurriculas, tipoCursoCurriculas, mapRequisitoCursoOpcionals);
         generarAvanceCurricular(alumnoCursoElcCarreraNew, alumnoCursoNew, resumenPlanCurriculars, tipoCursoCurriculas, alumnoAvanceCurriculars, alumno, mapCursosVecesLlevado);
         validarCursosELC(alumnoCursoElcCarreraNew, alumnoCursoNew, alumno);
@@ -638,6 +637,9 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
                 alumnoCursoCurriculaDAO.update(alumnoCursoCurricula);
             }
         }
+
+        validarCursosSimultaneo(mapAlumCursoCurrByCursoCurri, cursosSimultaneosAlu, mapRequisitosCurricula, ds);
+
         for (AlumnoCursoSimultaneo alumnoCursoSimultaneo : cursosSimultaneosAlu) {
             alumnoCursoSimultaneoDAO.save(alumnoCursoSimultaneo);
         }
@@ -1127,7 +1129,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
             Map<String, AlumnoCicloCurso> mapCursosVecesLlevado,
             List<MatriculaCurso> cursosMatriculados,
             List<AlumnoCicloCurso> cursosAprobados,
-            List<AlumnoCursoCurricula> alumnoCursoCurricula,
+            List<AlumnoCursoCurricula> alumnoCursoCurriculaOld,
             List<CursoOpcionalCurricula> opcionalCurriculas,
             Map<Long, CursoCurricula> mapCursoCurriculaByCurso,
             List<TipoCursoCurricula> tipoCursoCurriculas,
@@ -1158,7 +1160,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
                     mapCursosVecesLlevado,
                     cursosMatriculados,
                     cursosAprobados,
-                    alumnoCursoCurricula,
+                    alumnoCursoCurriculaOld,
                     opcionalCurriculas,
                     mapCursoCurriculaByCurso,
                     tipoCursoCurriculas,
@@ -1177,7 +1179,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
                     cursosMatriculados, cursosAprobados,
                     mapCursoCurriculaByCurso, opcionalCurriculas,
                     resumenPlanCurriculars, tipoCursoCurriculas,
-                    alumnoAvanceCurriculars, alumnoCursoCurricula,
+                    alumnoAvanceCurriculars, alumnoCursoCurriculaOld,
                     habilEscuelas,
                     ds);
         }

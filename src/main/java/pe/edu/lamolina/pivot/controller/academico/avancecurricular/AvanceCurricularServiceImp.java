@@ -383,7 +383,7 @@ public class AvanceCurricularServiceImp implements AvanceCurricularService {
         Alumno alumnoBD = alumnoDAO.findAllInfo(alumno.getId());
         Map<Long, CursoCurricula> mapCursoCurricula = new HashMap<>();
         Map<Long, CursoCurricula> mapCursoCurriculaByCurso = new HashMap<>();
-        Map<Long, AlumnoCursoCurricula> mapAlumnoCurso = new HashMap<>();
+        
         Map<Long, List<RequisitoCursoCurricula>> mapRequisitoCursoCurricula = new HashMap<>();
         Map<Long, List<CursoEquivalente>> mapCursosEquivalentes = new HashMap<>();
 
@@ -428,7 +428,7 @@ public class AvanceCurricularServiceImp implements AvanceCurricularService {
         }
 
         alumnoCursoSimultaneoDAO.deleteAllByAlumno(alumnoBD);
-        List<AlumnoCursoCurricula> alumnoCursoCurriculas = alumnoCursoCurriculaDAO.allByAlumnoApro(alumnoBD);
+        List<AlumnoCursoCurricula> alumnoCursoOld = alumnoCursoCurriculaDAO.allByAlumno(alumnoBD);
         List<CursoOpcionalCurricula> cursoOpcionalCurriculas = mapCursoOpcionalAll.get(alumnoBD.getPlanCurricular().getId());
 
         avanceCurricularAsincronoService.procesarAlumnoSincrono(
@@ -439,7 +439,7 @@ public class AvanceCurricularServiceImp implements AvanceCurricularService {
                 mapCursosVecesLlevado,
                 cursosMatriculados,
                 cursosAprobados,
-                alumnoCursoCurriculas,
+                alumnoCursoOld,
                 cursoOpcionalCurriculas,
                 mapCursoCurriculaByCurso,
                 tipoCursoCurriculas,
@@ -474,7 +474,7 @@ public class AvanceCurricularServiceImp implements AvanceCurricularService {
         alumnoBD = alumnoDAO.findAllInfo(alumnoBD.getId());
         Map<Long, CursoCurricula> mapCursoCurricula = new HashMap<>();
         Map<Long, CursoCurricula> mapCursoCurriculaByCurso = new HashMap<>();
-        List<AlumnoCursoCurricula> alumnoCursoOld = alumnoCursoCurriculaDAO.allByAlumnoApro(alumnoBD);
+        List<AlumnoCursoCurricula> alumnoCursoOld = alumnoCursoCurriculaDAO.allByAlumno(alumnoBD);
         List<CursoCurricula> cursoCurriculas = cursoCurriculaDAO.allByPlanCurricular(alumnoBD.getPlanCurricular());
         List<CursoOpcionalCurricula> cursoOpcionaPlan = cursoOpcionalCurriculaDAO.allByPlanCurricular(alumnoBD.getPlanCurricular());
         List<TipoCursoCurricula> tipoCursoCurriculas = tipoCursoCurriculaDAO.all();
