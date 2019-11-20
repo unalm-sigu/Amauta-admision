@@ -118,7 +118,7 @@ public class PlanCurricularController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         List<Carrera> carreras = service.filtrarByPlanes(verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.ESP, request, ds));
         ArrayNode carrerasJson = this.createCarrerasJson(carreras);
-        model.addAttribute("ambiente",despliegueConfig.getAmbiente());
+        model.addAttribute("ambiente", despliegueConfig.getAmbiente());
         model.addAttribute("carrerasJson", carrerasJson.toString());
         model.addAttribute("editor", verificadorService.isEditorCurriculas(ds));
         model.addAttribute("editorAll", verificadorService.isEditorCurriculasAll(ds));
@@ -1726,6 +1726,84 @@ public class PlanCurricularController {
             response.setMessage(visorAsignaCurricula.reporte(carrera));
             response.setTotal(visorAsignaCurricula.porcentajeAvance(carrera));
             response.setSuccess(existe);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("asignacionmasivaall")
+    public JsonResponse asignacionmasivaAll(HttpSession session, HttpServletRequest request) {
+
+        JsonResponse response = new JsonResponse();
+
+        try {
+
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            List<Carrera> carreras = service.allCarreras(ds, request);
+
+            for (Carrera carrera : carreras) {
+                service.verificarAsignacion(carrera);
+            }
+//            service.desvincularMasivaCursoCurricula(carrera, ds);
+
+            response.setSuccess(true);
+            response.setMessage("Asignación masiva en proceso");
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("existeAsignacionMasivaAll")
+    public JsonResponse existeAsignacionMasivaAll(HttpSession session, HttpServletRequest request) {
+
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+            List<Carrera> carreras = service.allCarreras(ds, request);
+            for (Carrera carrera : carreras) {
+                response.setSuccess(visorAsignaCurricula.existeCarrera(carrera));
+            }
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("avanceAsignacionMasivaAll")
+    public JsonResponse avanceAsignacionMasivaAll(HttpSession session, HttpServletRequest request) {
+
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+            List<Carrera> carreras = service.allCarreras(ds, request);
+
+            for (Carrera carrera : carreras) {
+                if (visorAsignaCurricula.procesoMitadCarrera(carrera)) {
+                    service.asignacionMasivaCursoCurricula(carrera, ds);
+                }
+                boolean existe = visorAsignaCurricula.existeCarrera(carrera);
+                response.setMessage(visorAsignaCurricula.reporte(carrera));
+                response.setTotal(visorAsignaCurricula.porcentajeAvance(carrera));
+                response.setSuccess(existe);
+            }
 
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);

@@ -20,8 +20,11 @@
                                    v-on:click="nuevoPlan()">Nuevo Plan de Estudios</a>
                             </li>
                             <li th:if="${ambiente} != 'prod'">
-                                <a class="btn-sm" href="#" v-on:click.prevent="asignacionMasiva()" >Asignación Masiva</a>
+                                <a class="btn-sm" href="#" v-on:click.prevent="asignacionMasiva()" >Asignación Masiva X Carrera</a>
                             </li>
+<!--                            <li th:if="${ambiente} != 'prod'">
+                                <a class="btn-sm" href="#" v-on:click.prevent="asignacionMasivaAll()" >Asignación Masiva Total</a>
+                            </li>-->
                         </ul>
                     </div>
 
