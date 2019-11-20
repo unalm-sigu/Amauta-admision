@@ -678,7 +678,7 @@ public class AlumnoServiceImp implements AlumnoService {
         token.setEstado(TokenEstadoEnum.ACT);
         token.setOrigenEnum(OrigenTokenEnum.AMAUTA);
         token.setFechaRegistro(new Date());
-        token.setFechaVencimiento(new DateTime().plusMinutes(2).toDate());
+        token.setFechaVencimiento(new DateTime().plusMinutes(1).toDate());
         token.setPersona(alumno.getPersona());
         token.setValor(valor);
         token.setUserRegistro(usuario);
