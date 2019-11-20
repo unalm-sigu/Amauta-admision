@@ -145,4 +145,6 @@ public interface SeccionDAO extends EasyDAO<Seccion> {
 
     List<Seccion> allSeccionByCicloDocente(Docente docente, CicloAcademico cicloAcademico);
 
+    int updateList(List<Seccion> seccionesUps, String... columnas);
+
 }

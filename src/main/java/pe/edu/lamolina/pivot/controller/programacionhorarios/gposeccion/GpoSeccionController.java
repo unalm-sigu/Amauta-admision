@@ -168,6 +168,8 @@ public class GpoSeccionController {
                     "secciones.precioFormato",
                     "secciones.abonoVeranoFormato",
                     "secciones.precioBaseFormato",
+                    "secciones.descuentoPrecioFormato",
+                    "secciones.saldoPrecioBaseFormato",
                     "secciones.precioPersonalizado",
                     "secciones.tipoSeccionEnum",
                     "secciones.vacantes",

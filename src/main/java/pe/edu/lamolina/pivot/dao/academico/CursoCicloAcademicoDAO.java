@@ -33,4 +33,6 @@ public interface CursoCicloAcademicoDAO extends EasyDAO<CursoCicloAcademico> {
 
     List<CursoCicloAcademico> allByCicloAndNombre(CicloAcademico cicloAcademico, String nombre);
 
+    int updateList(List<CursoCicloAcademico> cursosCiclos, String... columnas);
+
 }
