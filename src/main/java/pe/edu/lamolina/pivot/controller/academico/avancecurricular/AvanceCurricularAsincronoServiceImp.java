@@ -263,7 +263,6 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
                 if (Arrays.asList(ELE, ELC, CULT, PROD, TECIND).contains(tipo)) {
                     Integer tmp = 0;
                     Boolean seExcedio = prevCreditos >= rpc.getCreditos();
-                    logger.debug("-------------------Se pasó {} ----------------------", seExcedio);
 
                     Boolean res = true;
                     if (Arrays.asList(ELE, ELC).contains(tipo) && resumenPlanCurricularELE.getCreditos() > 0 && !exceso.get(tipo)) {
