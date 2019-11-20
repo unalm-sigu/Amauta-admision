@@ -224,7 +224,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
 
         Map<TipoCursoCurriculaEnum, Integer> creditos = new HashMap();
         Map<TipoCursoCurriculaEnum, Integer> cursos = new HashMap();
-        Map<TipoCursoCurriculaEnum, Boolean> excepción = new HashMap();
+        Map<TipoCursoCurriculaEnum, Boolean> exceso = new HashMap();
 
         ResumenPlanCurricular resumenPlanCurricularELC = resumenPlanCurriculars.stream().filter(x -> x.getTipoCursoCurricula().getCodigoEnum() == ELC).findAny().orElse(null);
         ResumenPlanCurricular resumenPlanCurricularELE = resumenPlanCurriculars.stream().filter(x -> x.getTipoCursoCurricula().getCodigoEnum() == ELE).findAny().orElse(null);
@@ -232,7 +232,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
         for (TipoCursoCurricula tipo : tipos.values()) {
             creditos.put(tipo.getCodigoEnum(), 0);
             cursos.put(tipo.getCodigoEnum(), 0);
-            excepción.put(tipo.getCodigoEnum(), Boolean.FALSE);
+            exceso.put(tipo.getCodigoEnum(), Boolean.FALSE);
         }
         alumnoCursoNew.addAll(alumnoCursoElcCarreraNew);
         Collections.sort(alumnoCursoNew, new AlumnoCursoCurricula.CompareCodigo());
@@ -262,17 +262,18 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
 
                 if (Arrays.asList(ELE, ELC, CULT, PROD, TECIND).contains(tipo)) {
                     Integer tmp = 0;
-                    Boolean res = prevCreditos >= rpc.getCreditos();
-                    if (Arrays.asList(ELE, ELC).contains(tipo) && resumenPlanCurricularELE.getCreditos() > 0) {
+                    Boolean seExcedio = prevCreditos >= rpc.getCreditos();
+                    logger.debug("-------------------Se pasó {} ----------------------", seExcedio);
+
+                    Boolean res = true;
+                    if (Arrays.asList(ELE, ELC).contains(tipo) && resumenPlanCurricularELE.getCreditos() > 0 && !exceso.get(tipo)) {
                         tmp = creditos.get(tipo == ELC ? ELE : ELC);
                         sum = tmp + prevCreditos;
                         resumenPlanCurricularELC = resumenPlanCurricularELC == null ? new ResumenPlanCurricular() : resumenPlanCurricularELC;
-                        res = sum >= resumenPlanCurricularELC.getCreditos();
+                        res = sum > resumenPlanCurricularELC.getCreditos();
                     }
-
-                    if (res) {
-                        res = excepción.get(tipo);
-                        excepción.replace(tipo, Boolean.TRUE);
+                    if (seExcedio) {
+                        exceso.replace(tipo, Boolean.TRUE);
                     }
                     if (res || rpc.getCreditos() == 0) {
                         tipo = EEP;
@@ -616,13 +617,13 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
 //            }
             AlumnoCursoCurricula cursoCurricula = alumnoCursoOld.stream().filter(x -> Objects.equals(x.getCurso().getId(), alumnoCursoCurriculaNew.getCurso().getId()) && !x.isValidado()).findAny().orElse(null);
 
-            ObjectUtil.printAttr(cursoCurricula);
-            logger.debug("---------------------------------------------> ******************************** -------------------------");
-            ObjectUtil.printAttr(alumnoCursoCurriculaNew);
-
             Boolean iguales = ObjectUtil.equalsAttrs(alumnoCursoCurriculaNew, cursoCurricula, this.obtenerAttributos());
-            logger.debug("IGUALES -------------> {}", iguales);
-            
+
+            if (cursoCurricula != null && iguales) {
+                cursoCurricula.setValidado(true);
+                continue;
+            }
+
             if (cursoCurricula != null && !iguales) {
                 cursoCurricula.setValidado(true);
                 alumnoCursoCurriculaNew.setId(cursoCurricula.getId());
@@ -644,7 +645,9 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
             if (cursosAprobado.getTipoCursoCurricula() != null && cursosAprobado.getTipoCursoCurricula().getCodigoEnum() == EEP) {
                 cursosAprobado.setTipoCursoCurricula(null);
             }
+
             alumnoCicloCursoDAO.updateCurso(cursosAprobado);
+
         }
 
     }
@@ -715,50 +718,6 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
                 }
             }
         }
-    }
-
-    private void sincronizarCursosAgregados(
-            Map<Long, CursoCurricula> mapCursosCurricula,
-            Map<Long, AlumnoCursoCurricula> mapCursosCurriculaAluByCurso,
-            Map<Long, AlumnoCursoCurricula> mapCursosCurriculaAlu,
-            Alumno alumno) {
-
-        for (Map.Entry<Long, CursoCurricula> entry : mapCursosCurricula.entrySet()) {
-            Long key = entry.getKey();
-            CursoCurricula cursoCurri = entry.getValue();
-            Curso curso = cursoCurri.getCurso();
-
-            String codeDptoCurso = (String) ObjectUtil.getParentTree(curso, "departamentoAcademico.codigo");
-            boolean esCursoDeporte = false;
-            if (codesDptosCultDepMed.contains(codeDptoCurso)) {
-                esCursoDeporte = true;
-                continue;
-            }
-
-            if (!mapCursosCurriculaAlu.containsKey(key) && !esCursoDeporte) {
-                AlumnoCursoCurricula newCursoAlumno = new AlumnoCursoCurricula();
-                newCursoAlumno.setAlumno(alumno);
-                newCursoAlumno.setCicloAprobado(null);
-                newCursoAlumno.setCreditos(cursoCurri.getCreditos());
-                newCursoAlumno.setCurso(curso);
-                newCursoAlumno.setNumeroCiclo(cursoCurri.getNumeroCiclo());
-                newCursoAlumno.setCursoCurricula(cursoCurri);
-                newCursoAlumno.setEstadoEnum(NREQ);
-                newCursoAlumno.setNota(null);
-                newCursoAlumno.setValidado(false);
-                newCursoAlumno.setVecesCursado(0);
-                newCursoAlumno.setTipoCursoCurricula(cursoCurri.getTipoCursoCurricula());
-                mapCursosCurriculaAluByCurso.put(newCursoAlumno.getCurso().getId(), newCursoAlumno);
-                mapCursosCurriculaAlu.put(newCursoAlumno.getCursoCurricula().getId(), newCursoAlumno);
-
-            } else {
-                AlumnoCursoCurricula oldCursoAlumno = mapCursosCurriculaAlu.get(key);
-                oldCursoAlumno.setCurso(curso);
-                oldCursoAlumno.setNumeroCiclo(cursoCurri.getNumeroCiclo());
-                oldCursoAlumno.setTipoCursoCurricula(cursoCurri.getTipoCursoCurricula());
-            }
-        }
-
     }
 
     private void validarCreditosAprobados(
@@ -874,6 +833,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
         }
         cursosOpcionalesNew.setValidado(true);
         cursosOpcionalesNew.setVecesCursado(alumnoCicloCurso.getVecesCursadoTransient());
+        cursosOpcionalesNew.setEstadoRegistro(EstadoEnum.ACT.name());
         alumnoCursoElecCarreraNew.add(cursosOpcionalesNew);
 
         alumnoCicloCurso.setTipoCursoCurricula(tipoCursoCurricula);
