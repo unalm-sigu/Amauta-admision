@@ -73,7 +73,7 @@ public class AcreenciaDAOH extends AbstractEasyDAO<Acreencia> implements Acreenc
         Octavia sql = new Octavia()
                 .from(Acreencia.class, "acr")
                 .join("persona per", "oficina ofi", "cuentaBancaria")
-                .filter("estado", DeudaEstadoEnum.DEU)
+                .in("estado", Arrays.asList(DeudaEstadoEnum.DEU, DeudaEstadoEnum.PAG))
                 .in("instanciaTabla", id);
         return all(sql);
     }

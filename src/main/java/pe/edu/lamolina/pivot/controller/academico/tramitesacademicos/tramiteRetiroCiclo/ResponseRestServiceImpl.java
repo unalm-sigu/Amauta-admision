@@ -112,6 +112,22 @@ public class ResponseRestServiceImpl extends AbstractRestClient<JsonResponse> im
 
     @Override
     @Transactional
+    public JsonResponse generarAporteSegundaCarrera(MatriculaResumen matriculaResumen, DataSessionPivot ds) {
+        Parametro parametro = findParametro(ParametrosSistemasEnum.REST_BIENESTAR);
+        Aporte aporte = aporteDAO.findByCode(AportesEnum.A42);
+        ObjectNode json = new ObjectNode(JsonNodeFactory.instance);
+        json.put("idUsuario", ds.getUsuario().getId());
+        json.put("idMatricula", matriculaResumen.getId());
+        json.put("idAporte", aporte.getId());
+
+        String url = String.format("%s/aportesRest/agregarAporte",
+                parametro.getValor());
+
+        return this.postToBackEnd(url, json);
+    }
+
+    @Override
+    @Transactional
     public JsonResponse eliminarAporteCarnet(MatriculaResumen matriculaResumen, DataSessionPivot ds) {
         Parametro parametro = findParametro(ParametrosSistemasEnum.REST_BIENESTAR);
         Aporte aporte = aporteDAO.findByCode(AportesEnum.A05);

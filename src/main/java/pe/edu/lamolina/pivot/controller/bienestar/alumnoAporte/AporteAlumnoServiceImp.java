@@ -124,6 +124,23 @@ public class AporteAlumnoServiceImp implements AporteAlumnoService {
     }
 
     @Override
+    public void generarAporteSegundaCarrera(CicloAcademico cicloAcademico, MatriculaResumen matriculaResumen, DataSessionPivot ds) {
+        responseRestService.createToken(ds);
+        GeneracionAportes generador = generacionAportesDAO.findByCicloAcademico(cicloAcademico);
+        if (generador == null) {
+            return;
+        }
+        if (!Arrays.asList(GeneracionAportesEstadoEnum.BOL, GeneracionAportesEstadoEnum.GEN)
+                .contains(generador.getEstadoEnum())) {
+            return;
+        }
+
+        JsonResponse jsonResponse = responseRestService.generarAporteSegundaCarrera(matriculaResumen, ds);
+
+        Assert.isTrue(jsonResponse.getSuccess(), "Se produjo un error al agregar aportes. Comuniquese con mesa de ayuda.");
+    }
+
+    @Override
     public void quitarAporteCarnet(CicloAcademico cicloAcademico, MatriculaResumen matriculaResumen, DataSessionPivot ds) {
         responseRestService.createToken(ds);
         GeneracionAportes generador = generacionAportesDAO.findByCicloAcademico(cicloAcademico);

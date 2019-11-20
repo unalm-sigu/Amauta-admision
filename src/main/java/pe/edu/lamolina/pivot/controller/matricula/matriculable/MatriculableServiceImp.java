@@ -974,7 +974,7 @@ public class MatriculableServiceImp implements MatriculableService {
 
         List<CicloAcademico> academicosAnterior = cicloAcademicoDAO.allAnteriorRegistroActivoPre(3, cicloAcademico);
         CicloAcademico academicoAnterior = academicosAnterior.get(2);
-      
+
         List<CicloAcademico> academicosAnteriorPos = cicloAcademicoDAO.allAnteriorRegistroActivoPos(3, cicloAcademico);
         CicloAcademico academicoAnteriorPos = academicosAnteriorPos.get(2);
         List<String> situacionesPregrado
@@ -1153,6 +1153,12 @@ public class MatriculableServiceImp implements MatriculableService {
     public void agregarAporteCarnet(MatriculaResumen matriculaResumen, DataSessionPivot ds) {
         matriculaResumen = matriculaResumenDAO.find(matriculaResumen.getId());
         aporteAlumnoService.generarAporteCarnet(matriculaResumen.getCicloAcademico(), matriculaResumen, ds);
+    }
+
+    @Override
+    public void agregarAporteSegundaCarrera(MatriculaResumen matriculaResumen, DataSessionPivot ds) {
+        matriculaResumen = matriculaResumenDAO.find(matriculaResumen.getId());
+        aporteAlumnoService.generarAporteSegundaCarrera(matriculaResumen.getCicloAcademico(), matriculaResumen, ds);
     }
 
     @Override

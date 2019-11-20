@@ -197,6 +197,7 @@
                                                             <li th:if="${puedeMatricular OR puedeEditarAlumno}" v-if="item.aporteCarnet"  ><a v-on:click="quitarAporte(item)" href="#">Quitar Aporte Carnet</a></li>
                                                             <li th:if="${puedeMatricular OR puedeEditarAlumno}" v-if="!item.aporteDuplicadoCarnet" ><a v-on:click="asignarAporteDuplicado(item)" href="#">Asignar Aporte Duplicado Carnet</a></li>
                                                             <li th:if="${puedeMatricular OR puedeEditarAlumno}" v-if="item.aporteDuplicadoCarnet"  ><a v-on:click="quitarAporteDuplicado(item)" href="#">Quitar Aporte Duplicado Carnet</a></li>
+                                                            <li th:if="${puedeMatricular OR puedeEditarAlumno}" ><a v-on:click="asignarSegundaCarrera(item)" href="#">Asignar Aporte Segunda Carrera</a></li>
 
                                                         </ul>
                                                     </div>
