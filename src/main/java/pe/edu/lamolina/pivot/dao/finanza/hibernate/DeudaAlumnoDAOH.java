@@ -9,10 +9,6 @@ import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.aporte.AporteAlumnoCiclo;
 import pe.edu.lamolina.model.enums.DeudaEstadoEnum;
-import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
-import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.RCI;
-import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.RCU;
-import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.RET;
 import pe.edu.lamolina.model.finanzas.CuentaBancaria;
 import pe.edu.lamolina.model.finanzas.DeudaAlumno;
 import pe.edu.lamolina.pivot.dao.finanza.DeudaAlumnoDAO;
@@ -37,7 +33,8 @@ public class DeudaAlumnoDAOH extends AbstractEasyDAO<DeudaAlumno> implements Deu
                 .join("alumno alu", "cuentaBancaria")
                 .exists(subQuery)
                 .linkedBy("da.id", "deu.id")
-                .filter("alu.id", alumno.getId());
+                .filter("alu.id", alumno.getId())
+                .orderBy("da.id desc");
         return all(sql);
     }
 

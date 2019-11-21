@@ -166,12 +166,13 @@
 
                                         <ul class="dropdown-menu pull-right" >
                                             <template>
+                                                <li><a class=" pointer btn-link bold" v-if="allowAsignarAula" v-on:click="verAsignarAulas(item)">Asignar Aulas</a></li>     
+                                                <li><a class=" pointer btn-link bold"  v-if="modificarAulaHorarioDisponible" v-on:click="verAsignarHorario(item)">Asignar Horario</a></li>
                                                 <li><a class="pointer bold" v-on:click="cambiarAulasGpo(item)">Asignar/cambiar Aulas y/o Grupo</a></li>
                                                 <li><a class="pointer bold" v-on:click="verQuitarHorario(item)">Quitar grupo horario</a></li>
                                             </template>
 
-                                            <!--<li><a class=" pointer btn-link bold" v-if="allowAsignarAula" v-on:click="verAsignarAulas(item)">Asignar Aulas</a></li>-->     
-                                            <!--<li><a class=" pointer btn-link bold"  v-if="modificarAulaHorarioDisponible" v-on:click="verAsignarHorario(item)">Asignar Horario</a></li>-->  
+
 
                                             <template v-if="verAulaHorarioDisponible">
                                                 <li><a class=" pointer btn-link bold" v-on:click="verAulasAsignadas(item)">Aulas</a></li>     
@@ -183,7 +184,7 @@
                                                 <li v-if="item.isEstadoExcluido"><a class=" pointer bold" v-on:click="incluir(item,tipoAccion.CURSO)"  >Incluir</a></li>
                                                 <li><a class=" pointer bold" v-on:click="eliminar(item)">Eliminar</a></li>
                                             </template>
-                                            
+
 
                                         </ul>
                                     </div>

@@ -469,7 +469,7 @@ new Vue({
         },
         asignarAporte(item) {
             let $vue = this;
-            $vue.configConfirmAction.message = '¿Seguro que desea asignarle el aporte?';
+            $vue.configConfirmAction.message = '¿Seguro que desea asignarle el aporte <strong class="text-danger">Carné</strong>?';
             $vue.configConfirmAction.okaction = () => {
                 $vue.actionAsignarAporte(item);
             };
@@ -529,7 +529,7 @@ new Vue({
         },
         asignarAporteDuplicado(item) {
             let $vue = this;
-            $vue.configConfirmAction.message = '¿Seguro que desea asignarle el aporte duplicado carné?';
+            $vue.configConfirmAction.message = '¿Seguro que desea asignarle el aporte <strong class="text-danger">Duplicado Carné</strong>?';
             $vue.configConfirmAction.okaction = () => {
                 $vue.actionAsignarAporteDuplicado(item);
             };
@@ -570,6 +570,36 @@ new Vue({
             $.ajax({
                 method: 'POST',
                 url: APP.url('academico/matriculable/quitarAporteDuplicadoCarnet'),
+                contentType: "application/json",
+                data: JSON.stringify(item),
+                success: function (response) {
+                    $vue.$refs.modalConfirmAction.confirmReaction(response.success);
+                    if (response.success) {
+                        $vue.$refs.load.loadRemoteData();
+                        notify(response.message, "success");
+                    } else {
+                        notify(response.message, "error");
+                    }
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                    $vue.$refs.modalConfirmAction.confirmReaction(false);
+                }
+            });
+        },
+        asignarSegundaCarrera(item) {
+            let $vue = this;
+            $vue.configConfirmAction.message = '¿Seguro que desea asignarle el aporte <strong class="text-danger">Segunda Carrera</strong>?';
+            $vue.configConfirmAction.okaction = () => {
+                $vue.actionSegundaCarrera(item);
+            };
+            $vue.$refs.modalConfirmAction.open();
+        },
+        actionSegundaCarrera(item) {
+            let $vue = this;
+            $.ajax({
+                method: 'POST',
+                url: APP.url('academico/matriculable/agregarAporteSegundaCarrera'),
                 contentType: "application/json",
                 data: JSON.stringify(item),
                 success: function (response) {
