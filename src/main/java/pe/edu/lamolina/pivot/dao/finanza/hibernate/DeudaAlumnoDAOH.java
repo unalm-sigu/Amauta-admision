@@ -9,6 +9,7 @@ import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.aporte.AporteAlumnoCiclo;
 import pe.edu.lamolina.model.enums.DeudaEstadoEnum;
+import pe.edu.lamolina.model.finanzas.AlumnoPagoVerano;
 import pe.edu.lamolina.model.finanzas.CuentaBancaria;
 import pe.edu.lamolina.model.finanzas.DeudaAlumno;
 import pe.edu.lamolina.pivot.dao.finanza.DeudaAlumnoDAO;
@@ -92,5 +93,26 @@ public class DeudaAlumnoDAOH extends AbstractEasyDAO<DeudaAlumno> implements Deu
                 .in("alu.id", alumnos);
 
         return all(sql);
+    }
+
+    @Override
+    public DeudaAlumno allByAlumnoPagoVerano(AlumnoPagoVerano alumnoPagoVeranoForm) {
+        Octavia sql = Octavia.query()
+                .from(DeudaAlumno.class, "da")
+                .join("alumnoPagoVerano apv", "alumno alu", "cuentaBancaria cb")
+                .filter("apv.id", alumnoPagoVeranoForm.getId())
+                .filter("estado", DeudaEstadoEnum.DEU);
+
+        return find(sql);
+    }
+
+    @Override
+    public void updateColumns(DeudaAlumno deudaAlumno, String... params) {
+        Octavia octavia = Octavia.update(DeudaAlumno.class);
+        for (String column : params) {
+            octavia.set(deudaAlumno, column);
+        }
+
+        this.update(octavia);
     }
 }

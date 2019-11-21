@@ -154,6 +154,22 @@ var app = new Vue({
             showaccept: true,
             modalsize: 'modal-md'
         },
+        modalDescuento: {
+            id: 'modalDescuento',
+            header: true,
+            title: 'Descuento Seccion Verano',
+            okbtn: 'Aceptar',
+            showaccept: true,
+            modalsize: 'modal-md'
+        },
+        modalAlumnos: {
+            id: 'modalAlumnos',
+            header: true,
+            title: 'Alumno elegido',
+            okbtn: 'Aceptar',
+            showaccept: true,
+            modalsize: 'modal-md'
+        },
         activarFusion: false,
         fusion: {
             todos: false,
@@ -178,7 +194,9 @@ var app = new Vue({
             id: 'idModalAgregarHorasAdicionales',
         },
         configConfirmAction: VUE_MODAL.structConfirm({}),
-        seccionWorking: {}
+        seccionWorking: {},
+        descuentoSeccion: {},
+        alumnoPagoVerano: {}
     },
     watch: {
         seccionSeleccionada: function (val) {
@@ -210,6 +228,10 @@ var app = new Vue({
     },
     mounted: function () {
         let $vue = this;
+
+        $('[data-toggle="popover"]').popover()
+
+
         $global.$on("afterSaveAula", function (response) {
             $vue.afterSaveAula(response, $vue);
         });
@@ -247,6 +269,8 @@ var app = new Vue({
             $vue.$refs.modalConfirmAction.open();
             ///  $vue.cancelarSeccion(seccion);
         });
+
+
     },
     computed: {
         precioBaseFormatoCalculado: function () {
@@ -256,9 +280,78 @@ var app = new Vue({
         }
     },
     methods: {
-
-        custom() {
-
+        customAlumno( { codigo, persona }) {
+            if (persona == null) {
+                return "";
+            }
+            return `${codigo} — [${persona.nombreCompleto}]`
+        },
+        addAlumnoElegido() {
+            let $vue = this;
+            if ($('#formAlumnoElegido').parsley().validate() !== true) {
+                return;
+            }
+            $vue.alumnoPagoVerano.deuda = $vue.seccionSeleccionada.saldoPrecioBase;
+            $.ajax({
+                method: 'POST',
+                url: APP.url("academico/gposeccion/saveAlumnoelegido"),
+                contentType: "application/json",
+                data: JSON.stringify($vue.alumnoPagoVerano),
+                success(response) {
+                    if (response.success) {
+                        $vue.loadGpoSeccionFlash();
+                        notify(response.message, "success");
+                    } else {
+                        notify(response.message, "error");
+                    }
+                },
+                error() {
+                    notify(MESSAGES.errorComunicacion, "error");
+                    $vue.liberarBtn(dir);
+                }
+            });
+            $vue.$refs.modalDescuento.close();
+        },
+        modalAlumnoElgido() {
+            let $vue = this;
+            $vue.$refs.modalAlumnos.open();
+        },
+        addDescuento(item) {
+            let $vue = this;
+            $vue.descuentoSeccion = {};
+            $vue.descuentoSeccion.seccion = {id: item.id};
+            $vue.descuentoSeccion.monto = item.descuentoPrecio;
+            console.log(item);
+            $vue.$refs.modalDescuento.open();
+        },
+        saveDescuento() {
+            let $vue = this;
+            if ($('#formDescuento').parsley().validate() !== true) {
+                return;
+            }
+            if ($vue.descuentoSeccion.monto <= 0) {
+                notify("El monto debe ser mayor a 0 ", "error");
+                return;
+            }
+            $.ajax({
+                method: 'POST',
+                url: APP.url("academico/gposeccion/saveDescuento"),
+                contentType: "application/json",
+                data: JSON.stringify($vue.descuentoSeccion),
+                success(response) {
+                    if (response.success) {
+                        $vue.loadGpoSeccionFlash();
+                        notify(response.message, "success");
+                    } else {
+                        notify(response.message, "error");
+                    }
+                },
+                error() {
+                    notify(MESSAGES.errorComunicacion, "error");
+                    $vue.liberarBtn(dir);
+                }
+            });
+            $vue.$refs.modalDescuento.close();
         },
         buscarDocente(name) {
             let $vue = this;

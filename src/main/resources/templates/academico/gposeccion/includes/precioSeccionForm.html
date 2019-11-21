@@ -102,16 +102,18 @@
                         <span class="block m-t-sm m-b-sm"> Descuento: </span>
                     </td>
                     <td class="text-primary pointer">
-                        <span class="fa-stack fa-lg">
+                        <span class="fa-stack fa-lg pointer " v-if="seccionSeleccionada.descuentoPrecio >0" 
+                              data-toggle="popover"  v-bind:title="seccionSeleccionada.descuentoSeccionVerano[0].motivo" >
                             <i class="fa fa-square-o fa-stack-2x"></i>
                             <i class="fa fa-info fa-stack-1x"></i>
                         </span>
+
                     </td>
                     <td class="v-middle text-right">
                         <span >S/. {{seccionSeleccionada.descuentoPrecioFormato}} </span>
                     </td>
                     <td class="text-warning pointer">
-                        <span class="fa-stack fa-lg">
+                        <span class="fa-stack fa-lg pointer " v-on:click="addDescuento(seccionSeleccionada)">
                             <i class="fa fa-square-o fa-stack-2x"></i>
                             <i class="fa fa-wrench fa-stack-1x"></i>
                         </span>
@@ -142,7 +144,7 @@
                         <span >S/. {{seccionSeleccionada.saldoPrecioBaseFormato}} </span>
                     </td>
                     <td class="text-primary pointer">
-                        <span class="fa-stack fa-lg">
+                        <span class="fa-stack fa-lg" v-on:click="modalAlumnoElgido">
                             <i class="fa fa-square-o fa-stack-2x"></i>
                             <i class="fa fa-hand-o-left fa-stack-1x"></i>
                         </span>

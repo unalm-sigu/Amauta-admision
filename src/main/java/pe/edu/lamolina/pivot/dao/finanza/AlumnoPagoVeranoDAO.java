@@ -9,4 +9,6 @@ public interface AlumnoPagoVeranoDAO extends EasyDAO<AlumnoPagoVerano> {
 
     public AlumnoPagoVerano findAlumnoByCiclo(Alumno alumno, CicloAcademico cicloAcademico);
 
+    public void updateColumns(AlumnoPagoVerano pagoVeranoDb, String... deuda);
+
 }

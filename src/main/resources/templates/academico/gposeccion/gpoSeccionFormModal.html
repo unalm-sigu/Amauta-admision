@@ -336,3 +336,54 @@
     </div>
 </modal-vik>
 
+
+<modal-vik ref="modalDescuento"
+           v-bind="modalDescuento"
+           v-bind:okaction="saveDescuento">
+    <div slot="body">
+        <form class="panel-body" id="formDescuento"  data-parsley-validate="true">            
+            <div class="form-group">
+                <label> Autorizado por </label>
+                <input class="form-control" v-model="descuentoSeccion.autorizador" required=""/>
+            </div>
+            <div class="form-group">
+                <label> Monto </label>
+                <input class="form-control" v-model="descuentoSeccion.monto" required=""/>
+            </div>
+            <div class="form-group">
+                <label> Motivo </label>
+                <textarea class="form-control" v-model="descuentoSeccion.motivo" rows="4" required=""/>
+            </div>
+        </form>
+    </div>
+</modal-vik>
+<modal-vik ref="modalAlumnos"
+           v-bind="modalAlumnos"
+           v-bind:okaction="addAlumnoElegido">
+    <div slot="body">
+        <form class="panel-body" id="formAlumnoElegido"  data-parsley-validate="true">            
+
+            <div class="col-md-12">
+                <div class="form-group">
+                    <label>Alumno</label>
+                    <multiselect  v-model="alumnoPagoVerano.alumno"
+                                  v-bind:options="seccionSeleccionada.alumnosMatriculados"
+                                  v-bind:internal-search="true"
+                                  v-bind:limit="15"
+                                  placeholder="Seleccione un alumno"
+                                  track-by="id"
+                                  :allow-empty="false"
+                                  label="customAlumno">
+                        <template slot="option" slot-scope="props">
+                            <span class="block">Aula: {{props.option.codigo}}</span>
+                            <span class="block" >{{props.option.persona.nombreCompleto}}</span>
+                        </template>
+                    </multiselect>
+                    <input class="hidden" v-model="alumnoPagoVerano.alumno"  required=""/>
+                </div>
+            </div>
+
+
+        </form>
+    </div>
+</modal-vik>
