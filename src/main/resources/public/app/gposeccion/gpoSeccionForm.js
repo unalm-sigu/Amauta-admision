@@ -291,6 +291,7 @@ var app = new Vue({
             if ($('#formAlumnoElegido').parsley().validate() !== true) {
                 return;
             }
+            $vue.alumnoPagoVerano.seccion = {id: $vue.seccionSeleccionada.id};
             $vue.alumnoPagoVerano.deuda = $vue.seccionSeleccionada.saldoPrecioBase;
             $.ajax({
                 method: 'POST',
