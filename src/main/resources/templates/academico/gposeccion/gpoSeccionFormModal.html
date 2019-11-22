@@ -373,7 +373,7 @@
                                   placeholder="Seleccione un alumno"
                                   track-by="id"
                                   :allow-empty="false"
-                                  label="customAlumno">
+                                  :custom-label="customAlumno">
                         <template slot="option" slot-scope="props">
                             <span class="block">Aula: {{props.option.codigo}}</span>
                             <span class="block" >{{props.option.persona.nombreCompleto}}</span>

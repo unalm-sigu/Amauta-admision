@@ -3378,7 +3378,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         Usuario usuario = ds.getUsuario();
         CicloAcademico cicloAcademico = ds.getCicloAcademico();
         Alumno alumno = alumnoDAO.find(alumnoPagoVeranoForm.getAlumno());
-
+       
         Seccion seccion = seccionDAO.find(alumnoPagoVeranoForm.getSeccion());
         seccion.setAlumnoPagador(alumno);
         seccionDAO.updateColumns(seccion, "alumnoPagador");
@@ -3395,7 +3395,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
         Date fechaVencimiento = eventoAcademico.getFechaFin();
 
-        CuentaBancaria ctaBanco = alumnoPagoVeranoForm.getCuentaBancaria();
+        CuentaBancaria ctaBanco = pagoVeranoDb.getCuentaBancaria();
 
         if (pagoVeranoDb == null) {
             pagoVeranoDb = new AlumnoPagoVerano();

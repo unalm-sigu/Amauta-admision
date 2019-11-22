@@ -2867,7 +2867,7 @@ public class GpoSeccionController {
 
             service.saveDescuento(descuentoSeccionVerano, ds);
 
-            response.setMessage("Se recreo los VacanteAlumno satisfactoriamente");
+            response.setMessage("Se agregó el descuento satisfactoriamente");
             response.setSuccess(true);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
@@ -2887,7 +2887,7 @@ public class GpoSeccionController {
 
             service.saveAlumnoelegido(alumnoPagoVerano, ds);
 
-            response.setMessage("Se recreo los VacanteAlumno satisfactoriamente");
+            response.setMessage("Se creó la boleta para el alumno satisfactoriamente");
             response.setSuccess(true);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
