@@ -3368,7 +3368,8 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
         Seccion seccion = seccionDAO.find(descuentoSeccionVeranoForm.getSeccion());
         seccion.setDescuentoPrecio(descuentoSeccionVeranoForm.getMonto());
-        seccionDAO.updateColumns(seccion, "descuentoPrecio");
+        seccion.setDevolucion(0);
+        seccionDAO.updateColumns(seccion, "descuentoPrecio", "devolucion");
 
     }
 
@@ -3381,7 +3382,8 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
         Seccion seccion = seccionDAO.find(alumnoPagoVeranoForm.getSeccion());
         seccion.setAlumnoPagador(alumno);
-        seccionDAO.updateColumns(seccion, "alumnoPagador");
+        seccion.setDevolucion(0);
+        seccionDAO.updateColumns(seccion, "alumnoPagador", "devolucion");
 
         Acreencia acreencia = new Acreencia();
         AlumnoPagoVerano pagoVeranoDb = alumnoPagoVeranoDAO.findAlumnoByCiclo(alumnoPagoVeranoForm.getAlumno(), cicloAcademico);
