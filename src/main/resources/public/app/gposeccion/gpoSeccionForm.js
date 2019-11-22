@@ -311,7 +311,7 @@ var app = new Vue({
                     $vue.liberarBtn(dir);
                 }
             });
-            $vue.$refs.modalDescuento.close();
+            $vue.$refs.modalAlumnos.close();
         },
         modalAlumnoElgido() {
             let $vue = this;

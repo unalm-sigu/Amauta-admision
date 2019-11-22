@@ -20,7 +20,7 @@ public class AlumnoPagoVeranoDAOH extends AbstractEasyDAO<AlumnoPagoVerano> impl
     public AlumnoPagoVerano findAlumnoByCiclo(Alumno alumno, CicloAcademico cicloAcademico) {
         Octavia sql = new Octavia()
                 .from(AlumnoPagoVerano.class, "apv")
-                .join("cicloAcademico ca", "alumno al")
+                .join("cicloAcademico ca", "alumno al", "cuentaBancaria")
                 .filter("al.id", alumno)
                 .filter("ca.id", cicloAcademico);
 
