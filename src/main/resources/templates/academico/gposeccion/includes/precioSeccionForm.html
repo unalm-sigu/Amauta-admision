@@ -135,7 +135,8 @@
                         <span class="block m-t-sm m-b-sm"> Saldo mínimo: </span>
                     </td>
                     <td class="text-danger pointer">
-                        <span class="fa-stack fa-lg" v-if="seccionSeleccionada.alumnoPagador.id != ''">
+                        <span class="fa-stack fa-lg" v-if="seccionSeleccionada.alumnoPagador.id != ''" 
+                               data-toggle="popover"  v-bind:title="seccionSeleccionada.alumnoPagador.persona.nombreCompleto">
                             <i class="fa fa-square-o fa-stack-2x"></i>
                             <i class="fa fa-user fa-stack-1x"></i>
                         </span>

@@ -3449,7 +3449,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         deudaAlumnoNew.setFechaEmision(new Date());
         deudaAlumnoNew.setFechaVencimiento(fechaVencimiento);
         deudaAlumnoNew.setUserRegistro(usuario);
-        deudaAlumnoNew.setMonto(pagoVeranoDb.getDeuda());
+        deudaAlumnoNew.setMonto(pagoVeranoDb.getDeudaSeccion());
         deudaAlumnoNew.setNumeroCuota(1);
         deudaAlumnoNew.setAbono(BigDecimal.ZERO);
         deudaAlumnoNew.setSeccion(seccion);
