@@ -144,7 +144,7 @@
                         <span >S/. {{seccionSeleccionada.saldoPrecioBaseFormato}} </span>
                     </td>
                     <td class="text-primary pointer">
-                        <span class="fa-stack fa-lg" v-on:click="modalAlumnoElgido">
+                        <span class="fa-stack fa-lg" v-on:click="modalAlumnoElgido" v-if="seccionSeleccionada.alumnoPagador.id == ''">
                             <i class="fa fa-square-o fa-stack-2x"></i>
                             <i class="fa fa-hand-o-left fa-stack-1x"></i>
                         </span>
