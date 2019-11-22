@@ -73,7 +73,6 @@ import pe.edu.lamolina.model.academico.TipoRepitencia;
 import pe.edu.lamolina.model.encuestaestudiantil.ConfiguraEncuesta;
 import pe.edu.lamolina.model.encuestaestudiantil.EncuestaDocente;
 import pe.edu.lamolina.model.encuestaestudiantil.PeriodoEncuesta;
-import pe.edu.lamolina.model.enums.CuentaBancariaEnum;
 import pe.edu.lamolina.model.enums.DeudaEstadoEnum;
 import pe.edu.lamolina.model.enums.EncuestaEstudiantilEstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoEnum;
@@ -157,6 +156,8 @@ import pe.edu.lamolina.pivot.dao.finanza.AlumnoPagoVeranoDAO;
 import pe.edu.lamolina.pivot.dao.finanza.DeudaAlumnoDAO;
 import pe.edu.lamolina.pivot.dao.finanza.PagoHoraDocenteDAO;
 import pe.edu.lamolina.pivot.dao.rrhh.ContratoDocenteDAO;
+import pe.edu.lamolina.pivot.controller.envioRest.EnviosRestService;
+
 import static pe.edu.lamolina.pivot.zelper.constant.Constantine.GRUPO_ZPRA;
 import static pe.edu.lamolina.pivot.zelper.constant.Constantine.GRUPO_ZTEO;
 
@@ -302,6 +303,9 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
     @Autowired
     AlumnoDAO alumnoDAO;
+
+    @Autowired
+    EnviosRestService enviosRestService;
 
     @Override
     public CicloAcademico findCiclo(CicloAcademico cicloAcademico) {
@@ -3371,6 +3375,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         seccion.setDevolucion(0);
         seccionDAO.updateColumns(seccion, "descuentoPrecio", "devolucion");
 
+        enviosRestService.modificarDescuento(seccion, ds);
     }
 
     @Override
@@ -3419,7 +3424,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             createAcreecia(acreencia, deudaAlumno, alumno, fechaVencimiento, usuario);
             deudaAlumnoDAO.updateColumns(deudaAlumno, "monto");
         }
-
+        enviosRestService.modificarDescuento(seccion, ds);
     }
 
     private void createAcreecia(Acreencia acreencia, DeudaAlumno deudaAlumnoNew, Alumno alumno, Date fechaVencimiento, Usuario usuario) {
