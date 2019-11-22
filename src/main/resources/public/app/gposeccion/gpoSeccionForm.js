@@ -334,6 +334,10 @@ var app = new Vue({
                 notify("El monto debe ser mayor a 0 ", "error");
                 return;
             }
+            if ($vue.descuentoSeccion.monto > $vue.seccionSeleccionada.saldoPrecioBase) {
+                notify("El monto de descuento no puede ser mayor al saldo", "error");
+                return;
+            }
             $.ajax({
                 method: 'POST',
                 url: APP.url("academico/gposeccion/saveDescuento"),
