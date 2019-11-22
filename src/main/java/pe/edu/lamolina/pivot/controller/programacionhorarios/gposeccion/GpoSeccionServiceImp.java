@@ -3378,11 +3378,10 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         Usuario usuario = ds.getUsuario();
         CicloAcademico cicloAcademico = ds.getCicloAcademico();
         Alumno alumno = alumnoDAO.find(alumnoPagoVeranoForm.getAlumno());
-       
+
         Seccion seccion = seccionDAO.find(alumnoPagoVeranoForm.getSeccion());
         seccion.setAlumnoPagador(alumno);
         seccionDAO.updateColumns(seccion, "alumnoPagador");
-        
 
         Acreencia acreencia = new Acreencia();
         AlumnoPagoVerano pagoVeranoDb = alumnoPagoVeranoDAO.findAlumnoByCiclo(alumnoPagoVeranoForm.getAlumno(), cicloAcademico);
@@ -3397,46 +3396,26 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
         CuentaBancaria ctaBanco = pagoVeranoDb.getCuentaBancaria();
 
-        if (pagoVeranoDb == null) {
-            pagoVeranoDb = new AlumnoPagoVerano();
-            pagoVeranoDb.setDeuda(alumnoPagoVeranoForm.getDeuda());
-            pagoVeranoDb.setAbono(BigDecimal.ZERO);
-            pagoVeranoDb.setConsumo(BigDecimal.ZERO);
-            pagoVeranoDb.setSaldo(BigDecimal.ZERO);
-            pagoVeranoDb.setMontoDevuelto(BigDecimal.ZERO);
-            pagoVeranoDb.setFechaRegistro(new Date());
-            pagoVeranoDb.setUserRegistro(usuario);
-            pagoVeranoDb.setCicloAcademico(cicloAcademico);
-            pagoVeranoDb.setAlumno(alumnoPagoVeranoForm.getAlumno());
-            alumnoPagoVeranoDAO.save(pagoVeranoDb);
+        pagoVeranoDb.setDeudaSeccion(alumnoPagoVeranoForm.getDeuda());
+        alumnoPagoVeranoDAO.updateColumns(pagoVeranoDb, "deuda");
 
-            DeudaAlumno deudaAlumnoNew = new DeudaAlumno();
-            createDeudaAlumno(deudaAlumnoNew, pagoVeranoDb, ctaBanco, fechaVencimiento, usuario);
-            createAcreecia(acreencia, deudaAlumnoNew, alumno, fechaVencimiento, usuario);
-
+        DeudaAlumno deudaAlumno = deudaAlumnoDAO.allByAlumnoPagoVerano(pagoVeranoDb);
+        if (deudaAlumno == null) {
+            deudaAlumno = new DeudaAlumno();
+            createDeudaAlumno(deudaAlumno, pagoVeranoDb, ctaBanco, fechaVencimiento, usuario, seccion);
+            createAcreecia(acreencia, deudaAlumno, alumno, fechaVencimiento, usuario);
         } else {
-            pagoVeranoDb.setDeuda(alumnoPagoVeranoForm.getDeuda());
-            alumnoPagoVeranoDAO.updateColumns(pagoVeranoDb, "deuda");
+            Acreencia acreenciaExist = acreenciaDAO.findPersonaAndInstancia(alumno.getPersona(), deudaAlumno.getId());
 
-            DeudaAlumno deudaAlumno = deudaAlumnoDAO.allByAlumnoPagoVerano(pagoVeranoDb);
-            if (deudaAlumno == null) {
-                deudaAlumno = new DeudaAlumno();
-                createDeudaAlumno(deudaAlumno, pagoVeranoDb, ctaBanco, fechaVencimiento, usuario);
-                createAcreecia(acreencia, deudaAlumno, alumno, fechaVencimiento, usuario);
-            } else {
-                Acreencia acreenciaExist = acreenciaDAO.findPersonaAndInstancia(alumno.getPersona(), deudaAlumno.getId());
-
-                if (acreenciaExist != null) {
-                    acreenciaExist.setEstadoEnum(DeudaEstadoEnum.ANU);
-                    acreenciaExist.setFechaAnulacion(new Date());
-                    acreenciaExist.setUsuarioAnulacion(usuario);
-                    acreenciaDAO.update(acreenciaExist);
-                }
-                deudaAlumno.setMonto(alumnoPagoVeranoForm.getDeuda());
-                createAcreecia(acreencia, deudaAlumno, alumno, fechaVencimiento, usuario);
-                deudaAlumnoDAO.updateColumns(deudaAlumno, "monto");
+            if (acreenciaExist != null) {
+                acreenciaExist.setEstadoEnum(DeudaEstadoEnum.ANU);
+                acreenciaExist.setFechaAnulacion(new Date());
+                acreenciaExist.setUsuarioAnulacion(usuario);
+                acreenciaDAO.update(acreenciaExist);
             }
-
+            deudaAlumno.setMonto(alumnoPagoVeranoForm.getDeuda());
+            createAcreecia(acreencia, deudaAlumno, alumno, fechaVencimiento, usuario);
+            deudaAlumnoDAO.updateColumns(deudaAlumno, "monto");
         }
 
     }
@@ -3458,7 +3437,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         acreenciaDAO.save(acreencia);
     }
 
-    private void createDeudaAlumno(DeudaAlumno deudaAlumnoNew, AlumnoPagoVerano pagoVeranoDb, CuentaBancaria ctaBanco, Date fechaVencimiento, Usuario usuario) {
+    private void createDeudaAlumno(DeudaAlumno deudaAlumnoNew, AlumnoPagoVerano pagoVeranoDb, CuentaBancaria ctaBanco, Date fechaVencimiento, Usuario usuario, Seccion seccion) {
 
         deudaAlumnoNew.setAlumno(pagoVeranoDb.getAlumno());
         deudaAlumnoNew.setAlumnoPagoVerano(pagoVeranoDb);
@@ -3473,6 +3452,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         deudaAlumnoNew.setMonto(pagoVeranoDb.getDeuda());
         deudaAlumnoNew.setNumeroCuota(1);
         deudaAlumnoNew.setAbono(BigDecimal.ZERO);
+        deudaAlumnoNew.setSeccion(seccion);
         deudaAlumnoDAO.save(deudaAlumnoNew);
     }
 
