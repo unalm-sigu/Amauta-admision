@@ -1459,7 +1459,6 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
 
 //            List<AlumnoCicloCurso> alumnoCursosVecesLlevado = fillList(mapAlumnoCursosVecesLlevado.get(alumno.getId()));
 //            Map<String, AlumnoCicloCurso> mapCursosVecesLlevado = TypesUtil.convertListToMap("alumnoCursoKey", alumnoCursosVecesLlevado);
-
             List<MatriculaCurso> cursosMatriculadosAlumno = fillList(mapCursosMatriculados.get(alumno.getId()));
             List<AlumnoCicloCurso> cursosAprobadosAlumno = fillList(mapCursosAprobados.get(alumno.getId()));
             List<CursoCurricula> cursosCurriculaPLan = fillList(mapCursoCurriculaAll.get(planBD.getId()));
@@ -1588,6 +1587,11 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
         if (!visorAsignaCurricula.addCarrera(carr, VisorAsignaCurricula.AccionEnum.DESVINCULA)) {
             throw new PhobosException("Ya existe un proceso de asignación masiva de planes para esta carrera");
         }
+    }
+
+    @Override
+    public Carrera getCarreraActiva() {
+        return visorAsignaCurricula.getCarreraActiva();
     }
 
     @Override
