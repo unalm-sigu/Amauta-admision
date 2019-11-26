@@ -3361,10 +3361,20 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     @Transactional
     public void saveDescuento(DescuentoSeccionVerano descuentoSeccionVeranoForm, DataSessionPivot ds) {
         DescuentoSeccionVerano descuentoSeccionVeranoDB = descuentoSeccionVeranoDAO.findSeccion(descuentoSeccionVeranoForm.getSeccion());
+
         if (descuentoSeccionVeranoDB != null) {
             descuentoSeccionVeranoDB.setEstadoEnum(EstadoEnum.ANU);
             descuentoSeccionVeranoDAO.update(descuentoSeccionVeranoDB);
         }
+        if (descuentoSeccionVeranoForm.getMonto().equals(BigDecimal.ZERO)) {
+            Seccion seccion = seccionDAO.find(descuentoSeccionVeranoForm.getSeccion());
+            seccion.setDescuentoPrecio(null);
+            seccion.setDevolucion(1);
+            seccionDAO.updateColumns(seccion, "descuentoPrecio", "devolucion");
+
+            return;
+        }
+
         descuentoSeccionVeranoForm.setEstadoEnum(EstadoEnum.ACT);
         descuentoSeccionVeranoForm.setUserRegistro(ds.getUsuario());
         descuentoSeccionVeranoForm.setFechaRegistro(new Date());
