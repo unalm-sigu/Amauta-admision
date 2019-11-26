@@ -176,7 +176,6 @@ public class ResponseRestServiceImpl extends AbstractRestClient<JsonResponse> im
         token.setValor(valor);
         token.setUserRegistro(ds.getUsuario());
         tokenIngresanteDAO.save(token);
-
     }
 
     @Override
@@ -217,6 +216,19 @@ public class ResponseRestServiceImpl extends AbstractRestClient<JsonResponse> im
         json.put("idAporte", aporte.getId());
 
         String url = String.format("%s/aportesRest/agregarAporte",
+                parametro.getValor());
+
+        return this.postToBackEnd(url, json);
+    }
+
+    @Override
+    public JsonResponse modificarDescuento(Seccion seccion, DataSessionPivot ds) {
+        Parametro parametro = findParametro(ParametrosSistemasEnum.REST_MATRICULA);
+        ObjectNode json = new ObjectNode(JsonNodeFactory.instance);
+        json.put("idSeccion", seccion.getId());
+        json.put("idUsuario", ds.getUsuario().getId());
+
+        String url = String.format("%s/matriculaSeccion/updateSeccion",
                 parametro.getValor());
 
         return this.postToBackEnd(url, json);

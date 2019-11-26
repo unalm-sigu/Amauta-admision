@@ -44,17 +44,20 @@ import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.albatross.zelpers.notify.Notificaciones;
+import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AnexoBoletin;
 import pe.edu.lamolina.model.academico.CambioAulaGrupo;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.CursoCicloAcademico;
+import pe.edu.lamolina.model.academico.DescuentoSeccionVerano;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.EventoCicloAcademico;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
+import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.RestriccionCarrera;
 import pe.edu.lamolina.model.academico.RestriccionFacultad;
@@ -65,6 +68,7 @@ import pe.edu.lamolina.model.academico.TipoRepitencia;
 import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
 import pe.edu.lamolina.model.enums.TipoDictadoGrupoSeccionEnum;
 import pe.edu.lamolina.model.enums.TipoGrupoHorasEnum;
+import pe.edu.lamolina.model.finanzas.AlumnoPagoVerano;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.general.Oficina;
@@ -2565,7 +2569,11 @@ public class GpoSeccionController {
                 "cambioAulaGrupos.grupoHorasInicio.id",
                 "cambioAulaGrupos.grupoHorasInicio.codigo",
                 "cambioAulaGrupos.grupoHorasFin.id",
-                "cambioAulaGrupos.grupoHorasFin.codigo"});
+                "cambioAulaGrupos.grupoHorasFin.codigo",
+                "alumnoPagador.*",
+                "alumnoPagador.persona.*",
+            
+            });
 
             BigDecimal porcentajeAvance = BigDecimal.ZERO;
             for (DocenteSeccion docSeccion : seccion.getDocenteSeccion()) {
@@ -2610,6 +2618,28 @@ public class GpoSeccionController {
 
             }
 
+            List<DescuentoSeccionVerano> descuentoSeccion = seccion.getDescuentoSeccionVeranos();
+            ArrayNode arrayDescuentoSecc = new ArrayNode(JsonNodeFactory.instance);
+
+            for (DescuentoSeccionVerano descSeccion : descuentoSeccion) {
+                ObjectNode descuentoSec = JsonHelper.createJson(descSeccion, JsonNodeFactory.instance, true, new String[]{
+                    "*"});
+                arrayDescuentoSecc.add(descuentoSec);
+
+            }
+
+            List<MatriculaSeccion> matriculaSeccion = seccion.getMatriculaSeccion();
+            ArrayNode arrayAlumno = new ArrayNode(JsonNodeFactory.instance);
+
+            for (MatriculaSeccion matSeccion : matriculaSeccion) {
+                ObjectNode alumnoJson = JsonHelper.createJson(matSeccion.getMatriculaResumen().getAlumno(), JsonNodeFactory.instance, true, new String[]{
+                    "*",
+                    "persona.*",});
+                arrayAlumno.add(alumnoJson);
+
+            }
+            nodeSecc.set("alumnosMatriculados", arrayAlumno);
+            nodeSecc.set("descuentoSeccionVerano", arrayDescuentoSecc);
             nodeSecc.set("docenteSeccion", arrayProfeSecc);
             nodeSecc.put("minimoAlumnos", cca.getMinimoAlumnos());
             arraySecciones.add(nodeSecc);
@@ -2826,6 +2856,46 @@ public class GpoSeccionController {
     public void solucionarCruzados(HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         service.solucionarCruzados(ds.getCicloAcademico());
+    }
+
+    @ResponseBody
+    @RequestMapping("saveDescuento")
+    public JsonResponse saveDescuento(@RequestBody DescuentoSeccionVerano descuentoSeccionVerano, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+            service.saveDescuento(descuentoSeccionVerano, ds);
+
+            response.setMessage("Se agregó el descuento satisfactoriamente");
+            response.setSuccess(true);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        } finally {
+            return response;
+        }
+    }
+
+    @ResponseBody
+    @RequestMapping("saveAlumnoelegido")
+    public JsonResponse saveAlumnoelegido(@RequestBody AlumnoPagoVerano alumnoPagoVerano, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+            service.saveAlumnoelegido(alumnoPagoVerano, ds);
+
+            response.setMessage("Se creó la boleta para el alumno satisfactoriamente");
+            response.setSuccess(true);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        } finally {
+            return response;
+        }
     }
 
 }

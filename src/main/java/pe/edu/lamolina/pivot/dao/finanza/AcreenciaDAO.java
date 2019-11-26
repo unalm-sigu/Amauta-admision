@@ -29,4 +29,6 @@ public interface AcreenciaDAO extends EasyDAO<Acreencia> {
 
     public void updateColumns(Acreencia acreenciaUpd, String... estadoEnum);
 
+    public Acreencia findPersonaAndInstancia(Persona persona, Long id);
+
 }

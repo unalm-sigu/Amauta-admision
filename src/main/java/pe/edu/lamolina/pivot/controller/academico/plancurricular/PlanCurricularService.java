@@ -145,4 +145,6 @@ public interface PlanCurricularService {
 
     void allUpdateResumenPost();
 
+    public Carrera getCarreraActiva();
+
 }

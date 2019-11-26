@@ -115,4 +115,15 @@ public class AcreenciaDAOH extends AbstractEasyDAO<Acreencia> implements Acreenc
         this.update(sql);
     }
 
+    @Override
+    public Acreencia findPersonaAndInstancia(Persona persona, Long idInstancia) {
+        Octavia sql = new Octavia()
+                .from(Acreencia.class, "acr")
+                .join("persona per")
+                .filter("per.id", persona)
+                .filter("estado", DeudaEstadoEnum.DEU)
+                .filter("instanciaTabla", idInstancia);
+        return find(sql);
+    }
+
 }
