@@ -358,6 +358,46 @@ var app = new Vue({
             });
             $vue.$refs.modalDescuento.close();
         },
+        eliminarDecuento() {
+            let $vue = this;
+
+            var descuento = $vue.seccionSeleccionada.descuentoSeccionVerano[0];
+            let mm = bootbox.confirm({
+                message: "¿Está seguro que desea eliminar el descuento de la sección?",
+                buttons: {
+                    confirm: {label: 'Si', className: "btn-danger btn-modal btn-procesar"},
+                    cancel: {label: 'Cancelar', className: "btn-link btn-modal"}
+                },
+                callback: function (result) {
+                    if (result) {
+                        $(".btn-procesar").html('<i class="fa fa-spinner fa-pulse"></i> Procesando...');
+                        $(".btn-modal").prop('disabled', true);
+
+                        $.ajax({
+                            method: 'POST',
+                            url: APP.url("academico/gposeccion/deleteDescuento"),
+                            contentType: "application/json",
+                            data: JSON.stringify(descuento),
+                            success(response) {
+                                if (response.success) {
+                                    $vue.loadGpoSeccionFlash(mm);
+                                    notify(response.message, "success");
+                                } else {
+                                    notify(response.message, "error");
+                                }
+                            },
+                            error() {
+                                notify(MESSAGES.errorComunicacion, "error");
+                                $vue.liberarBtn(dir);
+                            }
+                        });
+
+                        return false;
+                    }
+                }
+            });
+
+        },
         buscarDocente(name) {
             let $vue = this;
             if ($vue.habilDep) {

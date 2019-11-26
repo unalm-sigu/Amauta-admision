@@ -3366,14 +3366,6 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             descuentoSeccionVeranoDB.setEstadoEnum(EstadoEnum.ANU);
             descuentoSeccionVeranoDAO.update(descuentoSeccionVeranoDB);
         }
-        if (descuentoSeccionVeranoForm.getMonto().equals(BigDecimal.ZERO)) {
-            Seccion seccion = seccionDAO.find(descuentoSeccionVeranoForm.getSeccion());
-            seccion.setDescuentoPrecio(null);
-            seccion.setDevolucion(1);
-            seccionDAO.updateColumns(seccion, "descuentoPrecio", "devolucion");
-
-            return;
-        }
 
         descuentoSeccionVeranoForm.setEstadoEnum(EstadoEnum.ACT);
         descuentoSeccionVeranoForm.setUserRegistro(ds.getUsuario());
@@ -3471,6 +3463,22 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         deudaAlumnoNew.setAbono(BigDecimal.ZERO);
         deudaAlumnoNew.setSeccion(seccion);
         deudaAlumnoDAO.save(deudaAlumnoNew);
+    }
+
+    @Override
+    public void deleteDescuento(DescuentoSeccionVerano descuentoSeccionVerano, DataSessionPivot ds) {
+        DescuentoSeccionVerano descuentoSeccionVeranoDB = descuentoSeccionVeranoDAO.find(descuentoSeccionVerano.getId());
+
+        if (descuentoSeccionVeranoDB != null) {
+            descuentoSeccionVeranoDB.setEstadoEnum(EstadoEnum.ANU);
+            descuentoSeccionVeranoDAO.update(descuentoSeccionVeranoDB);
+        }
+        
+        Seccion seccion = seccionDAO.find(descuentoSeccionVeranoDB.getSeccion());
+        seccion.setDescuentoPrecio(BigDecimal.ZERO);
+        seccion.setDevolucion(1);
+        seccionDAO.updateColumns(seccion, "descuentoPrecio", "devolucion");
+
     }
 
 }
