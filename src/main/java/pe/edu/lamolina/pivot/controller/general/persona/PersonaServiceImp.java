@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.enums.UserEstadoEnum;
@@ -69,7 +70,7 @@ public class PersonaServiceImp implements PersonaService {
 
     @Override
     public List<TipoDocIdentidad> allDocumentos() {
-        return tipoDocIdentidadDAO.all();
+        return tipoDocIdentidadDAO.allForPersonaNatural();
     }
 
     @Override
@@ -84,6 +85,12 @@ public class PersonaServiceImp implements PersonaService {
         personaForm.setEmail(email);
         personaForm.setEmailCompania(emailCompania);
 
+        Assert.isNotNull(personaForm.getNumeroDocIdentidad(), "Tiene que indicar el número de documento");
+        Assert.isNotNull(personaForm.getTipoDocumento(), "Tiene que indicar el tipo de documento");
+        Assert.isNotNull(personaForm.getTipoDocumento().getId(), "Tiene que indicar el tipo de documento");
+        TipoDocIdentidad tipoDoc = personaForm.getTipoDocumento();
+        String numeroDoc = personaForm.getNumeroDocIdentidad();
+
         this.validarDNI(personaForm);
         if (personaForm.getId() == null) {
             this.validarEmailsinPersona(personaForm.getEmail());
@@ -96,6 +103,8 @@ public class PersonaServiceImp implements PersonaService {
             Persona personaBD = this.getPersonaBD(personaForm, ds);
 
             personaForm = personaBD;
+            personaForm.setTipoDocumento(tipoDoc);
+            personaForm.setNumeroDocIdentidad(numeroDoc);
         }
 
         if (persona.getId() == null) {
