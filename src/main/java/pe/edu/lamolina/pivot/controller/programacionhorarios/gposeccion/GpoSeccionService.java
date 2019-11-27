@@ -222,4 +222,6 @@ public interface GpoSeccionService {
 
     public void saveAlumnoelegido(AlumnoPagoVerano alumnoPagoVerano, DataSessionPivot ds);
 
+    public void deleteDescuento(DescuentoSeccionVerano descuentoSeccionVerano, DataSessionPivot ds);
+
 }

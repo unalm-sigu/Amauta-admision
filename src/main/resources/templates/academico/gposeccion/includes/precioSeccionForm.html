@@ -99,7 +99,7 @@
 
                 <tr>
                     <td class="v-middle text-center">
-                        <span class="block m-t-sm m-b-sm"> Descuento: </span>
+                        <span class="block m-t-sm m-b-sm"> Descuento: <span v-if="seccionSeleccionada.descuentoPrecio >0" class="text-danger" v-on:click="eliminarDecuento"><i class="fa fa-times-circle"></i></span></span>
                     </td>
                     <td class="text-primary pointer">
                         <span class="fa-stack fa-lg pointer " v-if="seccionSeleccionada.descuentoPrecio >0" 

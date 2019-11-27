@@ -2877,6 +2877,25 @@ public class GpoSeccionController {
             return response;
         }
     }
+    @ResponseBody
+    @RequestMapping("deleteDescuento")
+    public JsonResponse deleteDescuento(@RequestBody DescuentoSeccionVerano descuentoSeccionVerano, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+            service.deleteDescuento(descuentoSeccionVerano, ds);
+
+            response.setMessage("Se eliminó el descuento satisfactoriamente");
+            response.setSuccess(true);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        } finally {
+            return response;
+        }
+    }
 
     @ResponseBody
     @RequestMapping("saveAlumnoelegido")

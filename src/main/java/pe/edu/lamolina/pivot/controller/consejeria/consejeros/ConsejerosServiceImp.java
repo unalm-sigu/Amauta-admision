@@ -91,6 +91,11 @@ public class ConsejerosServiceImp implements ConsejerosService {
     private final List<EstadoMatriculaEnum> estadosMatriculables = Arrays.asList(MAT, NMAT, PMAT, RCI);
 
     @Override
+    public List<Carrera> allCarrerasPregrado() {
+        return carreraDAO.allActivasByModalidadEnum(ModalidadEstudioEnum.PRE);
+    }
+
+    @Override
     public Carrera findbByNombre(Long idcarrera) {
         return carreraDAO.find(idcarrera);
     }
