@@ -219,7 +219,7 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
 
 //        int alus = 0;
         List<DocenteSeccion> docentesPrincipales = docenteSeccionDAO.allPrincipalesBySecciones(secciones);
-        List<DocenteCursoMasivo> docentesCursoMasivo = new ArrayList<>();
+        List<DocenteCursoMasivo> docentesCursoMasivo = new ArrayList();
 
         for (Seccion seccion : secciones) {
             List<DocenteSeccion> docenteSecciones = docentesPrincipales.stream().filter(x -> x.getSeccion().equals(seccion)).collect(Collectors.toList());
