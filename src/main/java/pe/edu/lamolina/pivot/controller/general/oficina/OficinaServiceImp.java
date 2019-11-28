@@ -425,6 +425,7 @@ public class OficinaServiceImp implements OficinaService {
         Long idJefe = (Long) ObjectUtil.getParentTree(oficinaBD, "personaJefe.id");
         Assert.isNotNull(idJefe, "Esta Unidad no tiene jefe asignado");
         Assert.isTrue(idJefe.longValue() == oficinaForm.getPersonaJefe().getId(), "No coinciden el Jefe de la Unidad y los datos enviados");
+        Persona jefe = oficinaBD.getPersonaJefe();
 
         Date hoy = new LocalDate().toDate();
         Assert.isFalse(oficinaForm.getFechaFinJefatura().after(hoy), "No puede poner como fecha final un día futuro");
@@ -441,7 +442,7 @@ public class OficinaServiceImp implements OficinaService {
         if (personaCargo == null) {
             personaCargo = new PersonaCargo();
             personaCargo.setCompania(ds.getCompania());
-            personaCargo.setPersona(oficinaBD.getPersonaJefe());
+            personaCargo.setPersona(jefe);
             personaCargo.setPerfilCompania(oficinaBD.getCargoJefe());
             personaCargo.setOficina(oficinaBD);
             personaCargo.setEstadoEnum(PerfilEstadoEnum.CER);
@@ -475,7 +476,7 @@ public class OficinaServiceImp implements OficinaService {
             return;
         }
 
-        Usuario userJefe = usuarioDAO.findActivoByPersona(oficinaBD.getPersonaJefe());
+        Usuario userJefe = usuarioDAO.findActivoByPersona(jefe);
         if (userJefe == null) {
             return;
         }
