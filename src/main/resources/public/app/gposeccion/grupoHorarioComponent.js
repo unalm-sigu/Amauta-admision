@@ -123,6 +123,16 @@ Vue.component("grupohorario-component", {
                 success: function (response) {
                     if (response.success) {
                         $vue.tabGrupos['regulares'].tblHorarios = response.data;
+                        for (var i = 0; i < $vue.tabGrupos['regulares'].tblHorarios.horas; i++) {
+                            let hora = $vue.tabGrupos['regulares'].tblHorarios.horas[i];
+                            console.log(hora.id)
+                            for (var j = 0; j < $vue.tabGrupos['regulares'].tblHorarios.dias; j++) {
+                                let dia = $vue.tabGrupos['regulares'].tblHorarios.dias[j];
+                                console.log(dia.id);
+                                console.log($vue.tabGrupos['regulares'].tblHorarios.jsonDiaHoraGrupo[dia.id + '_' + hora.id].grupoHorario.codigo)
+                            }
+                        }
+
                     } else {
                         notify(response.message, "error");
                         $vue.tabGrupos['regulares'].tblHorarios = null;
