@@ -1296,10 +1296,20 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
     @Override
     @Transactional
-    public void deleteDocSeccion(DocenteSeccion docenteSeccion, CicloAcademico cicloAcademico) {
+    public void deleteDocSeccion(DocenteSeccion docenteSeccion, CicloAcademico cicloAcademico, DataSessionPivot ds) {
         docenteSeccion = docenteSeccionDAO.find(docenteSeccion.getId());
         Seccion seccion = docenteSeccion.getSeccion().clone();
-        docenteSeccionDAO.delete(docenteSeccion);
+
+        List<EncuestaDocente> encuestasProfeSecc = encuestaDocenteDAO.allByDocenteSeccion(docenteSeccion);
+        if (encuestasProfeSecc.isEmpty()) {
+            docenteSeccionDAO.delete(docenteSeccion);
+
+        } else {
+            docenteSeccion.setEstadoEnum(SeccionEstadoEnum.INA);
+            docenteSeccion.setUserAnulacion(ds.getUsuario());
+            docenteSeccion.setFechaAnulacion(new Date());
+            docenteSeccionDAO.update(docenteSeccion);
+        }
 
         List<DocenteSeccion> docentesSec = docenteSeccionDAO.allBySeccion(seccion);
 

@@ -928,7 +928,7 @@ public class GpoSeccionController {
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
-            service.deleteDocSeccion(new DocenteSeccion(docSeccionId), ds.getCicloAcademico());
+            service.deleteDocSeccion(new DocenteSeccion(docSeccionId), ds.getCicloAcademico(), ds);
             logger.debug("Docente Seccion {}", docSeccionId);
 
             String message = "Docente eliminado.";
@@ -2570,9 +2570,7 @@ public class GpoSeccionController {
                 "cambioAulaGrupos.grupoHorasFin.id",
                 "cambioAulaGrupos.grupoHorasFin.codigo",
                 "alumnoPagador.*",
-                "alumnoPagador.persona.*",
-            
-            });
+                "alumnoPagador.persona.*",});
 
             BigDecimal porcentajeAvance = BigDecimal.ZERO;
             for (DocenteSeccion docSeccion : seccion.getDocenteSeccion()) {
@@ -2876,6 +2874,7 @@ public class GpoSeccionController {
             return response;
         }
     }
+
     @ResponseBody
     @RequestMapping("deleteDescuento")
     public JsonResponse deleteDescuento(@RequestBody DescuentoSeccionVerano descuentoSeccionVerano, HttpSession session) {
