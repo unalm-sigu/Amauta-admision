@@ -36,7 +36,7 @@ public class SoporteDAOH extends AbstractEasyDAO<Soporte> implements SoporteDAO 
                 .searchFields("ca.nombre", "al.estado", "al.codigo", "per.numeroDocIdentidad")
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                 .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
-                .orderBy("al.id desc");
+                .orderBy("so.id desc");
 
         return all(sql);
     }

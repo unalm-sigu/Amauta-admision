@@ -68,7 +68,7 @@
 
 
     <div class="col-md-6">
-        
+
         <div style="margin-top: 50px"></div>
 
         <table class="table table-striped">
@@ -78,18 +78,45 @@
                     <td class="v-middle text-center col-md-9">
                         <span class="block m-t-sm m-b-sm"> Mínimo alumnos: </span>
                     </td>
+                    <td></td>
                     <td class="v-middle text-right col-md-3">
                         <div class="block">{{seccionSeleccionada.minimoAlumnos}}</div>
                     </td>
+                    <td></td>
                 </tr>
 
                 <tr>
                     <td class="v-middle text-center">
                         <span class="block m-t-sm m-b-sm"> Monto Base: </span>
                     </td>
+                    <td></td>
                     <td class="v-middle text-right">
                         <span v-if="editaPrecio" >S/. {{precioBaseFormatoCalculado}} </span>
                         <span v-else="" >S/. {{seccionSeleccionada.precioBaseFormato}} </span>
+                    </td>
+                    <td></td>
+                </tr>
+
+                <tr>
+                    <td class="v-middle text-center">
+                        <span class="block m-t-sm m-b-sm"> Descuento: <span v-if="seccionSeleccionada.descuentoPrecio >0" class="text-danger" v-on:click="eliminarDecuento"><i class="fa fa-times-circle"></i></span></span>
+                    </td>
+                    <td class="text-primary pointer">
+                        <span class="fa-stack fa-lg pointer " v-if="seccionSeleccionada.descuentoPrecio >0" 
+                              data-toggle="popover"  v-bind:title="seccionSeleccionada.descuentoSeccionVerano[0].motivo" >
+                            <i class="fa fa-square-o fa-stack-2x"></i>
+                            <i class="fa fa-info fa-stack-1x"></i>
+                        </span>
+
+                    </td>
+                    <td class="v-middle text-right">
+                        <span >S/. {{seccionSeleccionada.descuentoPrecioFormato}} </span>
+                    </td>
+                    <td class="text-warning pointer">
+                        <span class="fa-stack fa-lg pointer " v-on:click="addDescuento(seccionSeleccionada)">
+                            <i class="fa fa-square-o fa-stack-2x"></i>
+                            <i class="fa fa-wrench fa-stack-1x"></i>
+                        </span>
                     </td>
                 </tr>
 
@@ -97,8 +124,31 @@
                     <td class="v-middle text-center">
                         <span class="block m-t-sm m-b-sm"> Monto Abono: </span>
                     </td>
+                    <td></td>
                     <td class="v-middle text-right">
                         <span >S/. {{seccionSeleccionada.abonoVeranoFormato}} </span>
+                    </td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="v-middle text-center">
+                        <span class="block m-t-sm m-b-sm"> Saldo mínimo: </span>
+                    </td>
+                    <td class="text-danger pointer">
+                        <span class="fa-stack fa-lg" v-if="seccionSeleccionada.alumnoPagador.id != ''" 
+                               data-toggle="popover"  v-bind:title="seccionSeleccionada.alumnoPagador.persona.nombreCompleto">
+                            <i class="fa fa-square-o fa-stack-2x"></i>
+                            <i class="fa fa-user fa-stack-1x"></i>
+                        </span>
+                    </td>
+                    <td class="v-middle text-right">
+                        <span >S/. {{seccionSeleccionada.saldoPrecioBaseFormato}} </span>
+                    </td>
+                    <td class="text-primary pointer">
+                        <span class="fa-stack fa-lg" v-on:click="modalAlumnoElgido" v-if="seccionSeleccionada.alumnoPagador.id == ''">
+                            <i class="fa fa-square-o fa-stack-2x"></i>
+                            <i class="fa fa-hand-o-left fa-stack-1x"></i>
+                        </span>
                     </td>
                 </tr>
 

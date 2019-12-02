@@ -17,11 +17,11 @@ public interface EncuestaDocenteDAO extends EasyDAO<EncuestaDocente> {
 
     List<EncuestaDocente> allByEncuestaEstudiantil(EncuestaEstudiantil encuestaEstudiantil, List<DepartamentoAcademico> departamentos);
 
-    public List<EncuestaDocente> allAnuladaByModalidadEstudioDocenteCicloAcademico(ModalidadEstudio modalidadEstudio, Docente docente, CicloAcademico cicloAcademico);
+    List<EncuestaDocente> allAnuladaByModalidadEstudioDocenteCicloAcademico(ModalidadEstudio modalidadEstudio, Docente docente, CicloAcademico cicloAcademico);
 
-    public List<EncuestaDocente> allAnuladaByModalidadEstudioCicloAcademico(ModalidadEstudio modalidadEstudio, CicloAcademico cicloAcademico);
+    List<EncuestaDocente> allAnuladaByModalidadEstudioCicloAcademico(ModalidadEstudio modalidadEstudio, CicloAcademico cicloAcademico);
 
-    public EncuestaDocente findEncuestaDocente(EncuestaDocente encuestaForm);
+    EncuestaDocente findEncuestaDocente(EncuestaDocente encuestaForm);
 
     void deleteByEncuestaTipoDocente(EncuestaEstudiantil encuesta);
 
@@ -30,5 +30,7 @@ public interface EncuestaDocenteDAO extends EasyDAO<EncuestaDocente> {
     List<EncuestaDocente> allByDynatableDocente(DynatableFilter filter, CicloAcademico ciclo, Docente docente);
 
     List<EncuestaDocente> allByEncuestaEstudiantilCiclo(EncuestaEstudiantil encuestaEstudiantilDocente, CicloAcademico cicloAcademico);
+
+    List<EncuestaDocente> allByDocenteSeccion(DocenteSeccion docenteSeccion);
 
 }

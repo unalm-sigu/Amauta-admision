@@ -52,6 +52,7 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.CuotasGrupoHoras;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.CursoCicloAcademico;
+import pe.edu.lamolina.model.academico.DescuentoSeccionVerano;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.Evaluacion;
@@ -72,6 +73,7 @@ import pe.edu.lamolina.model.academico.TipoRepitencia;
 import pe.edu.lamolina.model.encuestaestudiantil.ConfiguraEncuesta;
 import pe.edu.lamolina.model.encuestaestudiantil.EncuestaDocente;
 import pe.edu.lamolina.model.encuestaestudiantil.PeriodoEncuesta;
+import pe.edu.lamolina.model.enums.DeudaEstadoEnum;
 import pe.edu.lamolina.model.enums.EncuestaEstudiantilEstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoGrupoSeccionEnum;
@@ -85,16 +87,22 @@ import static pe.edu.lamolina.model.enums.EventoAcademicoEnum.CLASES_PRE;
 import static pe.edu.lamolina.model.enums.EventoAcademicoEnum.CLASES_VER;
 import pe.edu.lamolina.model.enums.GrupoAnexoEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
+import pe.edu.lamolina.model.enums.NombreTablasEnum;
 import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
 import pe.edu.lamolina.model.enums.SituacionDocenteEnum;
 import pe.edu.lamolina.model.enums.TipoCicloEnum;
 import pe.edu.lamolina.model.enums.TipoCreditoEnum;
+import pe.edu.lamolina.model.enums.TipoDeudaEnum;
 import pe.edu.lamolina.model.enums.TipoDictadoGrupoSeccionEnum;
 import static pe.edu.lamolina.model.enums.TipoDictadoGrupoSeccionEnum.MOD;
 import pe.edu.lamolina.model.enums.TipoGrupoHorasEnum;
 import pe.edu.lamolina.model.enums.TipoHorarioAulaEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
+import pe.edu.lamolina.model.finanzas.Acreencia;
+import pe.edu.lamolina.model.finanzas.AlumnoPagoVerano;
+import pe.edu.lamolina.model.finanzas.CuentaBancaria;
+import pe.edu.lamolina.model.finanzas.DeudaAlumno;
 import pe.edu.lamolina.model.finanzas.PagoHoraDocente;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Compania;
@@ -107,7 +115,9 @@ import pe.edu.lamolina.model.horario.HorarioAula;
 import pe.edu.lamolina.model.horario.HorarioSeccion;
 import pe.edu.lamolina.model.horario.TipoGrupoHoras;
 import pe.edu.lamolina.model.rrhh.ContratoDocente;
+import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.vacantes.VacanteAlumno;
+import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoEvaluacionDAO;
 import pe.edu.lamolina.pivot.dao.academico.CarreraDAO;
 import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
@@ -134,14 +144,20 @@ import pe.edu.lamolina.pivot.dao.academico.AmpliacionVacantesDAO;
 import pe.edu.lamolina.pivot.dao.academico.CambioAulaGrupoDAO;
 import pe.edu.lamolina.pivot.dao.academico.CuotaGpoHorasDAO;
 import pe.edu.lamolina.pivot.dao.academico.CursoCicloAcademicoDAO;
+import pe.edu.lamolina.pivot.dao.academico.DescuentoSeccionVeranoDAO;
 import pe.edu.lamolina.pivot.dao.academico.EvaluacionDAO;
 import pe.edu.lamolina.pivot.dao.academico.EvaluacionExpandidaDAO;
 import pe.edu.lamolina.pivot.dao.academico.EvaluacionSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaCursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaResumenDAO;
 import pe.edu.lamolina.pivot.dao.academico.PrecioCursoEstructuraDAO;
+import pe.edu.lamolina.pivot.dao.finanza.AcreenciaDAO;
+import pe.edu.lamolina.pivot.dao.finanza.AlumnoPagoVeranoDAO;
+import pe.edu.lamolina.pivot.dao.finanza.DeudaAlumnoDAO;
 import pe.edu.lamolina.pivot.dao.finanza.PagoHoraDocenteDAO;
 import pe.edu.lamolina.pivot.dao.rrhh.ContratoDocenteDAO;
+import pe.edu.lamolina.pivot.controller.envioRest.EnviosRestService;
+
 import static pe.edu.lamolina.pivot.zelper.constant.Constantine.GRUPO_ZPRA;
 import static pe.edu.lamolina.pivot.zelper.constant.Constantine.GRUPO_ZTEO;
 
@@ -273,6 +289,24 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     @Autowired
     EvaluacionExpandidaDAO evaluacionExpandidaDAO;
 
+    @Autowired
+    DescuentoSeccionVeranoDAO descuentoSeccionVeranoDAO;
+
+    @Autowired
+    DeudaAlumnoDAO deudaAlumnoDAO;
+
+    @Autowired
+    AlumnoPagoVeranoDAO alumnoPagoVeranoDAO;
+
+    @Autowired
+    AcreenciaDAO acreenciaDAO;
+
+    @Autowired
+    AlumnoDAO alumnoDAO;
+
+    @Autowired
+    EnviosRestService enviosRestService;
+
     @Override
     public CicloAcademico findCiclo(CicloAcademico cicloAcademico) {
         return cicloAcademicoDAO.find(cicloAcademico);
@@ -351,6 +385,8 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         List<RestriccionRepitencia> restriccionesRep = restriccionRepitenciaDAO.allActivasBySecciones(secciones);
         List<AmpliacionVacantes> ampliaciones = ampliacionVacanteDAO.allBySecciones(secciones);
         List<CambioAulaGrupo> cambiosAulaGpo = cambioAulaGrupoDAO.allBySecciones(secciones);
+        List<DescuentoSeccionVerano> descuentosSeccionsVerano = descuentoSeccionVeranoDAO.findSecciones(secciones);
+        List<MatriculaSeccion> matriculaSecciones = matriculaSeccionDAO.allBySeccionesMat(secciones);
 
         Map<Long, List<RestriccionModalidad>> mapRestriccionMod = TypesUtil.convertListToMapList("seccion.id", restriccionesMod);
         Map<Long, List<RestriccionFacultad>> mapRestriccionFac = TypesUtil.convertListToMapList("seccion.id", restriccionesFac);
@@ -358,6 +394,8 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         Map<Long, List<RestriccionRepitencia>> mapRestriccionRep = TypesUtil.convertListToMapList("seccion.id", restriccionesRep);
         Map<Long, List<AmpliacionVacantes>> mapAmpliaciones = TypesUtil.convertListToMapList("seccion.id", ampliaciones);
         Map<Long, List<CambioAulaGrupo>> mapCambioAulaGpo = TypesUtil.convertListToMapList("seccion.id", cambiosAulaGpo);
+        Map<Long, List<DescuentoSeccionVerano>> mapDescuentoVerano = TypesUtil.convertListToMapList("seccion.id", descuentosSeccionsVerano);
+        Map<Long, List<MatriculaSeccion>> mapAlumnosMatriculados = TypesUtil.convertListToMapList("seccion.id", matriculaSecciones);
 
         for (Seccion seccion : secciones) {
             seccion.setDocenteSeccion(getList(mapDocSeccion.get(seccion.getId())));
@@ -367,6 +405,8 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             seccion.setRestriccionesRepitencia(getList(mapRestriccionRep.get(seccion.getId())));
             seccion.setAmpliacionesVacantes(getList(mapAmpliaciones.get(seccion.getId())));
             seccion.setCambioAulaGrupos(getList(mapCambioAulaGpo.get(seccion.getId())));
+            seccion.setDescuentoSeccionVeranos(getList(mapDescuentoVerano.get(seccion.getId())));
+            seccion.setMatriculaSeccion(getList(mapAlumnosMatriculados.get(seccion.getId())));
         }
 
         return gpoSecc;
@@ -491,12 +531,13 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         if (gpoSeccForm.getCursoDirigido() == null) {
             gpoSeccForm.setCursoDirigido(Boolean.FALSE);
         }
-        List<String> codigosByCiclo = grupoSeccionDAO.allCodigoByCiclo(ciclo);
-        List<String> codigos2ByCiclo = grupoSeccionDAO.allCodigo2ByCiclo(ciclo);
+        CicloAcademico cicloBD = cicloAcademicoDAO.find(ciclo);
+        List<String> codigosByCiclo = grupoSeccionDAO.allCodigoByCiclo(cicloBD);
+        List<String> codigos2ByCiclo = grupoSeccionDAO.allCodigo2ByCiclo(cicloBD);
         Curso curso = cursoDAO.find(gpoSeccForm.getCurso().getId());
 
-        Integer horasTeoria = curso.getHorasTeoria() == null ? 0 : curso.getHorasTeoria();
-        Integer horasPractica = curso.getHorasPractica() == null ? 0 : curso.getHorasPractica();
+        Integer horasTeoria = getHorasCurso(curso, cicloBD, TipoSeccionEnum.TEO);
+        Integer horasPractica = getHorasCurso(curso, cicloBD, TipoSeccionEnum.PRA);
 
         List<GrupoSeccion> gpoSecciones = new ArrayList();
         Integer cantidad = gpoSeccForm.getCantidad();
@@ -505,7 +546,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             String codigo2 = CodeGenerator.getNextCode(codigos2ByCiclo, 0);
             GrupoSeccion gpoSeccNew = new GrupoSeccion();
             gpoSeccNew.setAnexoBoletin(gpoSeccForm.getAnexoBoletin());
-            gpoSeccNew.setCicloAcademico(ciclo);
+            gpoSeccNew.setCicloAcademico(cicloBD);
             gpoSeccNew.setCodigo(codigo);
             gpoSeccNew.setCodigo2(codigo2);
             gpoSeccNew.setCurso(curso);
@@ -517,7 +558,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             if (gpoSeccForm.getCursoDirigido()) {
                 gpoSeccNew.setDocenteResponsable(gpoSeccForm.getDocenteResponsable());
             }
-            gpoSeccNew = saveGpoSeccion(gpoSeccNew, ciclo, codigo, codigo2, curso, ds);
+            gpoSeccNew = saveGpoSeccion(gpoSeccNew, cicloBD, codigo, codigo2, curso, ds);
             codigosByCiclo.add(codigo);
             codigos2ByCiclo.add(codigo2);
             gpoSecciones.add(gpoSeccNew);
@@ -655,6 +696,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
                 seccionPCUR.setEstadoEnum(SeccionEstadoEnum.ACT);
                 seccionPCUR.setSituacionDocenteEnum(SituacionDocenteEnum.COR);
             }
+
             seccionPCUR.setTipoSeccionEnum(TipoSeccionEnum.PCUR);
             seccionPCUR.setHorasSemanales(horasPractica);
             seccionPCUR.setCodigo(codigo + "1");
@@ -688,7 +730,6 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     @Transactional
     public void addSeccion(GrupoSeccion grupoSeccion) {
         grupoSeccion = grupoSeccionDAO.find(grupoSeccion.getId());
-        Curso curso = grupoSeccion.getCurso();
         Docente docenteDefault = docenteDAO.findByCode(Constantine.DOCENTE_INDETERMINADO);
         List<Seccion> secciones = seccionDAO.allByGposSeccion(grupoSeccion);
         DateTime today = new DateTime();
@@ -705,7 +746,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         seccionPCUR.setEstadoEnum(SeccionEstadoEnum.CRE);
         seccionPCUR.setTipoSeccionEnum(TipoSeccionEnum.PCUR);
         seccionPCUR.setSituacionDocenteEnum(SituacionDocenteEnum.ERR);
-        seccionPCUR.setHorasSemanales(curso.getHorasPractica());
+        seccionPCUR.setHorasSemanales(grupoSeccion.getHorasPractica());
 
         seccionPCUR.setDocenteSeccion(new ArrayList());
         DocenteSeccion docenteSeccion2 = new DocenteSeccion();
@@ -1255,10 +1296,20 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
     @Override
     @Transactional
-    public void deleteDocSeccion(DocenteSeccion docenteSeccion, CicloAcademico cicloAcademico) {
+    public void deleteDocSeccion(DocenteSeccion docenteSeccion, CicloAcademico cicloAcademico, DataSessionPivot ds) {
         docenteSeccion = docenteSeccionDAO.find(docenteSeccion.getId());
         Seccion seccion = docenteSeccion.getSeccion().clone();
-        docenteSeccionDAO.delete(docenteSeccion);
+
+        List<EncuestaDocente> encuestasProfeSecc = encuestaDocenteDAO.allByDocenteSeccion(docenteSeccion);
+        if (encuestasProfeSecc.isEmpty()) {
+            docenteSeccionDAO.delete(docenteSeccion);
+
+        } else {
+            docenteSeccion.setEstadoEnum(SeccionEstadoEnum.INA);
+            docenteSeccion.setUserAnulacion(ds.getUsuario());
+            docenteSeccion.setFechaAnulacion(new Date());
+            docenteSeccionDAO.update(docenteSeccion);
+        }
 
         List<DocenteSeccion> docentesSec = docenteSeccionDAO.allBySeccion(seccion);
 
@@ -1814,8 +1865,8 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             }
 //            System.out.println("Buscando en grupo " + grupo.getCodigo());
 
-            Map<Long, Object> mapDias = TypesUtil.convertListToMapList("dia.id", grupo.getDiaHoraGrupo());
             loop++;
+            Map<Long, Object> mapDias = TypesUtil.convertListToMapList("dia.id", grupo.getDiaHoraGrupo());
             if (existeCoincidencia(mapDias, seccion.getTotalHorasSemanales())) {
                 grupoHorasFiltrado.add(grupo);
             }
@@ -3315,6 +3366,130 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             seccion.setDocenteSeccion(docentesSeccionBySeccion);
         }
         return secciones;
+    }
+
+    @Override
+    @Transactional
+    public void saveDescuento(DescuentoSeccionVerano descuentoSeccionVeranoForm, DataSessionPivot ds) {
+        DescuentoSeccionVerano descuentoSeccionVeranoDB = descuentoSeccionVeranoDAO.findSeccion(descuentoSeccionVeranoForm.getSeccion());
+
+        if (descuentoSeccionVeranoDB != null) {
+            descuentoSeccionVeranoDB.setEstadoEnum(EstadoEnum.ANU);
+            descuentoSeccionVeranoDAO.update(descuentoSeccionVeranoDB);
+        }
+
+        descuentoSeccionVeranoForm.setEstadoEnum(EstadoEnum.ACT);
+        descuentoSeccionVeranoForm.setUserRegistro(ds.getUsuario());
+        descuentoSeccionVeranoForm.setFechaRegistro(new Date());
+        descuentoSeccionVeranoDAO.save(descuentoSeccionVeranoForm);
+
+        Seccion seccion = seccionDAO.find(descuentoSeccionVeranoForm.getSeccion());
+        seccion.setDescuentoPrecio(descuentoSeccionVeranoForm.getMonto());
+        seccion.setDevolucion(0);
+        seccionDAO.updateColumns(seccion, "descuentoPrecio", "devolucion");
+
+        enviosRestService.modificarDescuento(seccion, ds);
+    }
+
+    @Override
+    @Transactional
+    public void saveAlumnoelegido(AlumnoPagoVerano alumnoPagoVeranoForm, DataSessionPivot ds) {
+        Usuario usuario = ds.getUsuario();
+        CicloAcademico cicloAcademico = ds.getCicloAcademico();
+        Alumno alumno = alumnoDAO.find(alumnoPagoVeranoForm.getAlumno());
+
+        Seccion seccion = seccionDAO.find(alumnoPagoVeranoForm.getSeccion());
+        seccion.setAlumnoPagador(alumno);
+        seccion.setDevolucion(0);
+        seccionDAO.updateColumns(seccion, "alumnoPagador", "devolucion");
+
+        Acreencia acreencia = new Acreencia();
+        AlumnoPagoVerano pagoVeranoDb = alumnoPagoVeranoDAO.findAlumnoByCiclo(alumnoPagoVeranoForm.getAlumno(), cicloAcademico);
+
+        if (pagoVeranoDb != null && alumnoPagoVeranoForm.getDeuda().equals(pagoVeranoDb.getDeuda())) {
+            return;
+        }
+
+        EventoCicloAcademico eventoAcademico = eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(cicloAcademico, EventoAcademicoEnum.MAT_VER);
+
+        Date fechaVencimiento = eventoAcademico.getFechaFin();
+
+        CuentaBancaria ctaBanco = pagoVeranoDb.getCuentaBancaria();
+
+        pagoVeranoDb.setDeudaSeccion(alumnoPagoVeranoForm.getDeuda());
+        alumnoPagoVeranoDAO.updateColumns(pagoVeranoDb, "deuda");
+
+        DeudaAlumno deudaAlumno = deudaAlumnoDAO.allByAlumnoPagoVerano(pagoVeranoDb);
+        if (deudaAlumno == null) {
+            deudaAlumno = new DeudaAlumno();
+            createDeudaAlumno(deudaAlumno, pagoVeranoDb, ctaBanco, fechaVencimiento, usuario, seccion);
+            createAcreecia(acreencia, deudaAlumno, alumno, fechaVencimiento, usuario);
+        } else {
+            Acreencia acreenciaExist = acreenciaDAO.findPersonaAndInstancia(alumno.getPersona(), deudaAlumno.getId());
+
+            if (acreenciaExist != null) {
+                acreenciaExist.setEstadoEnum(DeudaEstadoEnum.ANU);
+                acreenciaExist.setFechaAnulacion(new Date());
+                acreenciaExist.setUsuarioAnulacion(usuario);
+                acreenciaDAO.update(acreenciaExist);
+            }
+            deudaAlumno.setMonto(alumnoPagoVeranoForm.getDeuda());
+            createAcreecia(acreencia, deudaAlumno, alumno, fechaVencimiento, usuario);
+            deudaAlumnoDAO.updateColumns(deudaAlumno, "monto");
+        }
+        enviosRestService.modificarDescuento(seccion, ds);
+    }
+
+    private void createAcreecia(Acreencia acreencia, DeudaAlumno deudaAlumnoNew, Alumno alumno, Date fechaVencimiento, Usuario usuario) {
+        acreencia.setOficina(new Oficina(OficinaEnum.OBUAE.getId()));
+        acreencia.setTablaEnum(NombreTablasEnum.FIN_DEUDA_ALUMNO);
+        acreencia.setInstanciaTabla(deudaAlumnoNew.getId());
+        acreencia.setEstadoEnum(DeudaEstadoEnum.DEU);
+        acreencia.setDescripcion("Matricula Verano");
+        acreencia.setMonto(deudaAlumnoNew.getMonto());
+        acreencia.setAbono(BigDecimal.ZERO);
+        acreencia.setPersona(alumno.getPersona());
+        acreencia.setCuentaBancaria(deudaAlumnoNew.getCuentaBancaria());
+        acreencia.setFechaDocumento(new Date());
+        acreencia.setUsuarioRegistro(usuario);
+        acreencia.setFechaVencimiento(fechaVencimiento);
+        acreencia.setFechaRegistro(new Date());
+        acreenciaDAO.save(acreencia);
+    }
+
+    private void createDeudaAlumno(DeudaAlumno deudaAlumnoNew, AlumnoPagoVerano pagoVeranoDb, CuentaBancaria ctaBanco, Date fechaVencimiento, Usuario usuario, Seccion seccion) {
+
+        deudaAlumnoNew.setAlumno(pagoVeranoDb.getAlumno());
+        deudaAlumnoNew.setAlumnoPagoVerano(pagoVeranoDb);
+        deudaAlumnoNew.setConcepto("Deuda Verano");
+        deudaAlumnoNew.setTipoDeudaEnum(TipoDeudaEnum.VERANO);
+        deudaAlumnoNew.setCuentaBancaria(ctaBanco);
+        deudaAlumnoNew.setEstadoEnum(DeudaEstadoEnum.DEU);
+        deudaAlumnoNew.setFechaRegistro(new Date());
+        deudaAlumnoNew.setFechaEmision(new Date());
+        deudaAlumnoNew.setFechaVencimiento(fechaVencimiento);
+        deudaAlumnoNew.setUserRegistro(usuario);
+        deudaAlumnoNew.setMonto(pagoVeranoDb.getDeudaSeccion());
+        deudaAlumnoNew.setNumeroCuota(1);
+        deudaAlumnoNew.setAbono(BigDecimal.ZERO);
+        deudaAlumnoNew.setSeccion(seccion);
+        deudaAlumnoDAO.save(deudaAlumnoNew);
+    }
+
+    @Override
+    public void deleteDescuento(DescuentoSeccionVerano descuentoSeccionVerano, DataSessionPivot ds) {
+        DescuentoSeccionVerano descuentoSeccionVeranoDB = descuentoSeccionVeranoDAO.find(descuentoSeccionVerano.getId());
+
+        if (descuentoSeccionVeranoDB != null) {
+            descuentoSeccionVeranoDB.setEstadoEnum(EstadoEnum.ANU);
+            descuentoSeccionVeranoDAO.update(descuentoSeccionVeranoDB);
+        }
+
+        Seccion seccion = seccionDAO.find(descuentoSeccionVeranoDB.getSeccion());
+        seccion.setDescuentoPrecio(BigDecimal.ZERO);
+        seccion.setDevolucion(1);
+        seccionDAO.updateColumns(seccion, "descuentoPrecio", "devolucion");
+
     }
 
 }

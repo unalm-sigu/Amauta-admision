@@ -1,14 +1,14 @@
 <modal-vik ref="modalAsignacionMasiva"
            v-bind="modalAsignacionMasiva"
            v-bind:cancelaction="closeAsignacion"
-           v-bind:okaction="saveAsignacionMasiva">
+           v-bind:okaction="!isFull ? saveAsignacionMasiva : saveAsignacionMasivaAll">
 
     <div slot="body">
         <section class="panel-body">
             <h4 class="m-t-n">Asignación masiva de planes curriculares a estudiantes</h4>
             <form id="formAsignacionMasiva">
 
-                <div class="form-group">
+                <div class="form-group" v-if="!isFull">
 
                     <label> Indique la Especialidad </label>
                     <multiselect v-model="carrera" 

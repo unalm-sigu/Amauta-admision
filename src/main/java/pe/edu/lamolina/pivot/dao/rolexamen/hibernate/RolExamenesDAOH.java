@@ -1,6 +1,8 @@
 package pe.edu.lamolina.pivot.dao.rolexamen.hibernate;
 
+import java.util.Date;
 import java.util.List;
+import org.joda.time.LocalDate;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
@@ -85,12 +87,14 @@ public class RolExamenesDAOH extends AbstractEasyDAO<RolExamenes> implements Rol
 
     @Override
     public RolExamenes findByEstadoCiclo(RolExamenesEstadoEnum rolExamenesEstadoEnum, CicloAcademico cicloAcademico) {
+        Date tomorrow = new LocalDate().plusDays(1).toDate();
         Octavia sql = Octavia.query()
                 .from(RolExamenes.class, "rexa")
                 .join("eventoCicloAcademico eca")
                 .join("eca.eventoAcademico ea", "eca.cicloAcademico ca")
                 .filter("ca.id", cicloAcademico)
-                .filter("rexa.estado", rolExamenesEstadoEnum);
+                .filter("rexa.estado", rolExamenesEstadoEnum)
+                .filter("eca.fechaFin", ">=", tomorrow);
 
         return find(sql);
     }

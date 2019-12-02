@@ -6,6 +6,7 @@ import pe.edu.lamolina.pivot.dao.horario.HoraDAO;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import static pe.edu.lamolina.model.enums.TipoHoraEnum.H60;
 import pe.edu.lamolina.model.horario.Hora;
 
 @Repository
@@ -20,6 +21,8 @@ public class HoraDAOH extends AbstractEasyDAO<Hora> implements HoraDAO {
     public List<Hora> all() {
         Octavia sql = Octavia.query()
                 .from(Hora.class, "ho")
+                .join("tipoHora th")
+                .filter("th.codigo", H60)
                 .orderBy("ho.numero");
 
         return all(sql);
@@ -30,6 +33,8 @@ public class HoraDAOH extends AbstractEasyDAO<Hora> implements HoraDAO {
         Octavia sql = Octavia.query()
                 .from(Hora.class, "ho")
                 .filter("numero", numero)
+                .join("tipoHora th")
+                .filter("th.codigo", H60)
                 .orderBy("ho.numero");
 
         return find(sql);
@@ -39,6 +44,8 @@ public class HoraDAOH extends AbstractEasyDAO<Hora> implements HoraDAO {
     public List<Hora> allHoraInitOcho() {
         Octavia sql = Octavia.query()
                 .from(Hora.class, "ho")
+                .join("tipoHora th")
+                .filter("th.codigo", H60)
                 .notIn("ho.numero", Arrays.asList(6, 7))
                 .orderBy("ho.numero");
 
@@ -49,6 +56,8 @@ public class HoraDAOH extends AbstractEasyDAO<Hora> implements HoraDAO {
     public List<Hora> allByInicioFin(Hora inicio, Hora fin) {
         Octavia sql = Octavia.query()
                 .from(Hora.class, "ho")
+                .join("tipoHora th")
+                .filter("th.codigo", H60)
                 .filter("ho.numero", ">=", inicio.getNumero())
                 .filter("ho.numero", "<=", fin.getNumero())
                 .orderBy("ho.numero");
@@ -60,6 +69,8 @@ public class HoraDAOH extends AbstractEasyDAO<Hora> implements HoraDAO {
     public List<Hora> allHorasByRango(int min, int max) {
         Octavia sql = Octavia.query()
                 .from(Hora.class, "ho")
+                .join("tipoHora th")
+                .filter("th.codigo", H60)
                 .between("numero", min, max)
                 .orderBy("ho.numero");
 
@@ -70,6 +81,8 @@ public class HoraDAOH extends AbstractEasyDAO<Hora> implements HoraDAO {
     public List<Hora> allHoras() {
         Octavia sql = Octavia.query()
                 .from(Hora.class, "ho")
+                .join("tipoHora th")
+                .filter("th.codigo", H60)
                 .orderBy("ho.numero");
         return all(sql);
     }

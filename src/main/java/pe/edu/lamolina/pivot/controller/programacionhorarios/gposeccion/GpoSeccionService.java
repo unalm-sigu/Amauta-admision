@@ -3,11 +3,13 @@ package pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion;
 import java.util.Date;
 import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AnexoBoletin;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.CursoCicloAcademico;
+import pe.edu.lamolina.model.academico.DescuentoSeccionVerano;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.EventoCicloAcademico;
@@ -19,6 +21,7 @@ import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.academico.TipoRepitencia;
 import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
 import pe.edu.lamolina.model.enums.TipoGrupoHorasEnum;
+import pe.edu.lamolina.model.finanzas.AlumnoPagoVerano;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.general.Dia;
@@ -82,7 +85,7 @@ public interface GpoSeccionService {
 
     List<DocenteSeccion> allDocentesSeccionBySeccion(Seccion seccion);
 
-    void deleteDocSeccion(DocenteSeccion docenteSeccion, CicloAcademico academico);
+    void deleteDocSeccion(DocenteSeccion docenteSeccion, CicloAcademico academico, DataSessionPivot ds);
 
     List<Docente> allDocenterByNombre(String nombre, String codigoDep);
 
@@ -214,5 +217,11 @@ public interface GpoSeccionService {
     void eliminarGrupos(List<GrupoSeccion> gruposSeccion, DataSessionPivot ds);
 
     void solucionarCruzados(CicloAcademico cicloAcademico);
+
+    public void saveDescuento(DescuentoSeccionVerano descuentoSeccionVerano, DataSessionPivot ds);
+
+    public void saveAlumnoelegido(AlumnoPagoVerano alumnoPagoVerano, DataSessionPivot ds);
+
+    public void deleteDescuento(DescuentoSeccionVerano descuentoSeccionVerano, DataSessionPivot ds);
 
 }

@@ -160,4 +160,16 @@ public class VisorAsignaCurricula {
         return "";
     }
 
+    public Carrera getCarreraActiva() {
+
+        Carrera carrera = null;
+        for (Map.Entry<Long, EstadoEnum> entry : mapEstados.entrySet()) {
+            EstadoEnum estado = entry.getValue();
+            if (estado == EstadoEnum.INICIADO || estado == EstadoEnum.OCUPADO) {
+                carrera = mapCarreras.get(entry.getKey());
+            }
+        }
+
+        return carrera;
+    }
 }

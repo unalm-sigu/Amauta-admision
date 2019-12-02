@@ -17,6 +17,8 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface ConsejerosService {
 
+    List<Carrera> allCarrerasPregrado();
+
     void saveConsejeroByDocente(Docente docente, CicloAcademico ciclo, DataSessionPivot ds);
 
     void updateEstado(Consejero consejero, CicloAcademico ciclo, DataSessionPivot ds);

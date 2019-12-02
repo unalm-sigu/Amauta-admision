@@ -133,6 +133,28 @@ public class ConsejerosController {
     }
 
     @ResponseBody
+    @RequestMapping("revisionTotal")
+    public JsonResponse revisionTotal(HttpSession session, HttpServletRequest request) {
+
+        JsonResponse json = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            List<Carrera> carreras = service.allCarrerasPregrado();
+            for (Carrera carrera : carreras) {
+                service.revisarConsejeria(carrera, ds.getCicloAcademico(), true, ds);
+            }
+            json.setMessage("Búsqueda Exitosa");
+            json.setSuccess(Boolean.TRUE);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, json);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, json);
+        }
+        return json;
+    }
+
+    @ResponseBody
     @RequestMapping("listDocente")
     public JsonResponse listDocente(
             @RequestParam String nombre,

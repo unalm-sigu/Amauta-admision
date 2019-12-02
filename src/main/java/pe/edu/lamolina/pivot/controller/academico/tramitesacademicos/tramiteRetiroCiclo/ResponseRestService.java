@@ -19,6 +19,8 @@ public interface ResponseRestService {
 
     JsonResponse generarAporteCarnet(MatriculaResumen matriculaResumen, DataSessionPivot ds);
 
+    JsonResponse generarAporteSegundaCarrera(MatriculaResumen matriculaResumen, DataSessionPivot ds);
+
     JsonResponse eliminarAporteCarnet(MatriculaResumen matriculaResumen, DataSessionPivot ds);
 
     JsonResponse ampliarVacante(Seccion seccion, Integer variacion);
@@ -30,4 +32,6 @@ public interface ResponseRestService {
     JsonResponse eliminarAporteDuplicadoCarnet(MatriculaResumen matriculaResumen, DataSessionPivot ds);
 
     JsonResponse generarAporteDuplicadoCarnet(MatriculaResumen matriculaResumen, DataSessionPivot ds);
+
+    public JsonResponse modificarDescuento(Seccion seccion, DataSessionPivot ds);
 }

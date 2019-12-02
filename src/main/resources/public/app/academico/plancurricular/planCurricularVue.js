@@ -33,14 +33,17 @@ new Vue({
         configConfirmAction: VUE_MODAL.structConfirm({
             id: "idModalConfirm"
         }),
+        isFull: false
     },
     mounted: function () {
         let $vue = this;
     },
     methods: {
+      
         asignacionMasiva() {
             let $vue = this;
             $vue.carrera = {};
+            $vue.isFull = false;
             $vue.$refs.modalAsignacionMasiva.open();
         },
         saveAsignacionMasiva() {

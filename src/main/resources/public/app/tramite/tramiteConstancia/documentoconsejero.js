@@ -1,7 +1,7 @@
 new Vue({
     el: '#solicitudVue',
     data: {
-        solicitudURL: APP.url('tramite/documentoconsejero/list'),
+        solicitudURL: APP.url('tramite/documentocoordinador/list'),
         persona: {},
         solicitud: {},
         tramiteDocumento: {},
@@ -33,7 +33,7 @@ new Vue({
                 case 'FVAL':
                 case 'PIMP':
                 case 'COMP':
-                case 'VAL_URA':
+                case 'DOC_APR_CON':
                     return "label label-primary";
                     break;
                 case 'PAG':

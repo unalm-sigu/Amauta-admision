@@ -73,7 +73,7 @@ public class AcreenciaDAOH extends AbstractEasyDAO<Acreencia> implements Acreenc
         Octavia sql = new Octavia()
                 .from(Acreencia.class, "acr")
                 .join("persona per", "oficina ofi", "cuentaBancaria")
-                .filter("estado", DeudaEstadoEnum.DEU)
+                .in("estado", Arrays.asList(DeudaEstadoEnum.DEU, DeudaEstadoEnum.PAG))
                 .in("instanciaTabla", id);
         return all(sql);
     }
@@ -113,6 +113,17 @@ public class AcreenciaDAOH extends AbstractEasyDAO<Acreencia> implements Acreenc
             sql.set(acreecia, column);
         }
         this.update(sql);
+    }
+
+    @Override
+    public Acreencia findPersonaAndInstancia(Persona persona, Long idInstancia) {
+        Octavia sql = new Octavia()
+                .from(Acreencia.class, "acr")
+                .join("persona per")
+                .filter("per.id", persona)
+                .filter("estado", DeudaEstadoEnum.DEU)
+                .filter("instanciaTabla", idInstancia);
+        return find(sql);
     }
 
 }

@@ -21,7 +21,6 @@ import pe.edu.lamolina.model.enums.OrigenTokenEnum;
 import pe.edu.lamolina.model.enums.ParametrosSistemasEnum;
 import pe.edu.lamolina.model.enums.TokenEstadoEnum;
 import pe.edu.lamolina.model.general.Parametro;
-import pe.edu.lamolina.model.seguridad.Sistema;
 import pe.edu.lamolina.model.seguridad.TokenIngresante;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.config.DespliegueConfig;
@@ -113,6 +112,22 @@ public class ResponseRestServiceImpl extends AbstractRestClient<JsonResponse> im
 
     @Override
     @Transactional
+    public JsonResponse generarAporteSegundaCarrera(MatriculaResumen matriculaResumen, DataSessionPivot ds) {
+        Parametro parametro = findParametro(ParametrosSistemasEnum.REST_BIENESTAR);
+        Aporte aporte = aporteDAO.findByCode(AportesEnum.A42);
+        ObjectNode json = new ObjectNode(JsonNodeFactory.instance);
+        json.put("idUsuario", ds.getUsuario().getId());
+        json.put("idMatricula", matriculaResumen.getId());
+        json.put("idAporte", aporte.getId());
+
+        String url = String.format("%s/aportesRest/agregarAporte",
+                parametro.getValor());
+
+        return this.postToBackEnd(url, json);
+    }
+
+    @Override
+    @Transactional
     public JsonResponse eliminarAporteCarnet(MatriculaResumen matriculaResumen, DataSessionPivot ds) {
         Parametro parametro = findParametro(ParametrosSistemasEnum.REST_BIENESTAR);
         Aporte aporte = aporteDAO.findByCode(AportesEnum.A05);
@@ -161,7 +176,6 @@ public class ResponseRestServiceImpl extends AbstractRestClient<JsonResponse> im
         token.setValor(valor);
         token.setUserRegistro(ds.getUsuario());
         tokenIngresanteDAO.save(token);
-
     }
 
     @Override
@@ -202,6 +216,19 @@ public class ResponseRestServiceImpl extends AbstractRestClient<JsonResponse> im
         json.put("idAporte", aporte.getId());
 
         String url = String.format("%s/aportesRest/agregarAporte",
+                parametro.getValor());
+
+        return this.postToBackEnd(url, json);
+    }
+
+    @Override
+    public JsonResponse modificarDescuento(Seccion seccion, DataSessionPivot ds) {
+        Parametro parametro = findParametro(ParametrosSistemasEnum.REST_MATRICULA);
+        ObjectNode json = new ObjectNode(JsonNodeFactory.instance);
+        json.put("idSeccion", seccion.getId());
+        json.put("idUsuario", ds.getUsuario().getId());
+
+        String url = String.format("%s/matriculaSeccion/updateSeccion",
                 parametro.getValor());
 
         return this.postToBackEnd(url, json);

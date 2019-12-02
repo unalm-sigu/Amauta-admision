@@ -6,9 +6,10 @@ import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
-import pe.edu.lamolina.model.consejeria.AlumnoConsejero;
 import static pe.edu.lamolina.model.enums.OficinaEnum.OERA;
-import pe.edu.lamolina.model.general.Colaborador;
+import static pe.edu.lamolina.model.enums.TipoOficinaEnum.ESP;
+import pe.edu.lamolina.model.general.Oficina;
+import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.tramite.Tramite;
 import pe.edu.lamolina.model.tramite.TramiteDocumentoAcademico;
 import pe.edu.lamolina.pivot.dao.tramite.TramiteDocumentoAcademicoDAO;
@@ -69,23 +70,24 @@ public class TramiteDocumentoAcademicoDAOH extends AbstractEasyDAO<TramiteDocume
     }
 
     @Override
-    public List<TramiteDocumentoAcademico> allTramiteDocumentoAcademico(DynatableFilter filter, List<Colaborador> colaboradors) {
+    public List<TramiteDocumentoAcademico> allTramiteDocumentoAcademico(DynatableFilter filter, Persona persona) {
 
         Octavia sqlfil = new Octavia()
-                .from(AlumnoConsejero.class, "ac")
-                .join("consejero con", "alumno al", "con.colaborador col")
-                .in("col.id", colaboradors);
+                .from(Oficina.class, "ofi")
+                .join("tipoOficina tofi", "personaJefe perJe")
+                .filter("tofi.codigo", ESP)
+                .filter("perJe.id", persona);
 
         DynatableSql sql = new DynatableSql(filter)
                 .from(TramiteDocumentoAcademico.class, "pda")
                 .join("tipoDocumentoAcademico tda", "idioma idi", "tramite tra", "tra.alumno alu", "alu.persona per", "estadoTramite")
-                .join("tda.oficinaEmisora ofiemi")
+                .join("alu.carrera carr", "tda.oficinaEmisora ofiemi")
                 .leftJoin("per.tipoDocumento td")
                 .searchFields("td.simbolo", "per.numeroDocIdentidad", "per.telefono", "per.celular", "per.emailCompania")
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                 .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
                 .exists(sqlfil)
-                .linkedBy("alu.id", "al.id")
+                .linkedBy("carr.id", "ofi.instanciaOficina")
                 .orderBy("pda.id desc");
         return sql.all(getCurrentSession());
     }
