@@ -531,12 +531,13 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         if (gpoSeccForm.getCursoDirigido() == null) {
             gpoSeccForm.setCursoDirigido(Boolean.FALSE);
         }
-        List<String> codigosByCiclo = grupoSeccionDAO.allCodigoByCiclo(ciclo);
-        List<String> codigos2ByCiclo = grupoSeccionDAO.allCodigo2ByCiclo(ciclo);
+        CicloAcademico cicloBD = cicloAcademicoDAO.find(ciclo);
+        List<String> codigosByCiclo = grupoSeccionDAO.allCodigoByCiclo(cicloBD);
+        List<String> codigos2ByCiclo = grupoSeccionDAO.allCodigo2ByCiclo(cicloBD);
         Curso curso = cursoDAO.find(gpoSeccForm.getCurso().getId());
 
-        Integer horasTeoria = curso.getHorasTeoria() == null ? 0 : curso.getHorasTeoria();
-        Integer horasPractica = curso.getHorasPractica() == null ? 0 : curso.getHorasPractica();
+        Integer horasTeoria = getHorasCurso(curso, cicloBD, TipoSeccionEnum.TEO);
+        Integer horasPractica = getHorasCurso(curso, cicloBD, TipoSeccionEnum.PRA);
 
         List<GrupoSeccion> gpoSecciones = new ArrayList();
         Integer cantidad = gpoSeccForm.getCantidad();
@@ -545,7 +546,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             String codigo2 = CodeGenerator.getNextCode(codigos2ByCiclo, 0);
             GrupoSeccion gpoSeccNew = new GrupoSeccion();
             gpoSeccNew.setAnexoBoletin(gpoSeccForm.getAnexoBoletin());
-            gpoSeccNew.setCicloAcademico(ciclo);
+            gpoSeccNew.setCicloAcademico(cicloBD);
             gpoSeccNew.setCodigo(codigo);
             gpoSeccNew.setCodigo2(codigo2);
             gpoSeccNew.setCurso(curso);
@@ -557,7 +558,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             if (gpoSeccForm.getCursoDirigido()) {
                 gpoSeccNew.setDocenteResponsable(gpoSeccForm.getDocenteResponsable());
             }
-            gpoSeccNew = saveGpoSeccion(gpoSeccNew, ciclo, codigo, codigo2, curso, ds);
+            gpoSeccNew = saveGpoSeccion(gpoSeccNew, cicloBD, codigo, codigo2, curso, ds);
             codigosByCiclo.add(codigo);
             codigos2ByCiclo.add(codigo2);
             gpoSecciones.add(gpoSeccNew);
@@ -695,6 +696,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
                 seccionPCUR.setEstadoEnum(SeccionEstadoEnum.ACT);
                 seccionPCUR.setSituacionDocenteEnum(SituacionDocenteEnum.COR);
             }
+
             seccionPCUR.setTipoSeccionEnum(TipoSeccionEnum.PCUR);
             seccionPCUR.setHorasSemanales(horasPractica);
             seccionPCUR.setCodigo(codigo + "1");
@@ -728,7 +730,6 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     @Transactional
     public void addSeccion(GrupoSeccion grupoSeccion) {
         grupoSeccion = grupoSeccionDAO.find(grupoSeccion.getId());
-        Curso curso = grupoSeccion.getCurso();
         Docente docenteDefault = docenteDAO.findByCode(Constantine.DOCENTE_INDETERMINADO);
         List<Seccion> secciones = seccionDAO.allByGposSeccion(grupoSeccion);
         DateTime today = new DateTime();
@@ -745,7 +746,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         seccionPCUR.setEstadoEnum(SeccionEstadoEnum.CRE);
         seccionPCUR.setTipoSeccionEnum(TipoSeccionEnum.PCUR);
         seccionPCUR.setSituacionDocenteEnum(SituacionDocenteEnum.ERR);
-        seccionPCUR.setHorasSemanales(curso.getHorasPractica());
+        seccionPCUR.setHorasSemanales(grupoSeccion.getHorasPractica());
 
         seccionPCUR.setDocenteSeccion(new ArrayList());
         DocenteSeccion docenteSeccion2 = new DocenteSeccion();
@@ -1295,10 +1296,20 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
     @Override
     @Transactional
-    public void deleteDocSeccion(DocenteSeccion docenteSeccion, CicloAcademico cicloAcademico) {
+    public void deleteDocSeccion(DocenteSeccion docenteSeccion, CicloAcademico cicloAcademico, DataSessionPivot ds) {
         docenteSeccion = docenteSeccionDAO.find(docenteSeccion.getId());
         Seccion seccion = docenteSeccion.getSeccion().clone();
-        docenteSeccionDAO.delete(docenteSeccion);
+
+        List<EncuestaDocente> encuestasProfeSecc = encuestaDocenteDAO.allByDocenteSeccion(docenteSeccion);
+        if (encuestasProfeSecc.isEmpty()) {
+            docenteSeccionDAO.delete(docenteSeccion);
+
+        } else {
+            docenteSeccion.setEstadoEnum(SeccionEstadoEnum.INA);
+            docenteSeccion.setUserAnulacion(ds.getUsuario());
+            docenteSeccion.setFechaAnulacion(new Date());
+            docenteSeccionDAO.update(docenteSeccion);
+        }
 
         List<DocenteSeccion> docentesSec = docenteSeccionDAO.allBySeccion(seccion);
 
@@ -1854,8 +1865,8 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             }
 //            System.out.println("Buscando en grupo " + grupo.getCodigo());
 
-            Map<Long, Object> mapDias = TypesUtil.convertListToMapList("dia.id", grupo.getDiaHoraGrupo());
             loop++;
+            Map<Long, Object> mapDias = TypesUtil.convertListToMapList("dia.id", grupo.getDiaHoraGrupo());
             if (existeCoincidencia(mapDias, seccion.getTotalHorasSemanales())) {
                 grupoHorasFiltrado.add(grupo);
             }
@@ -3148,11 +3159,11 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             vacAluSecc = (vacAluSecc == null) ? new ArrayList() : vacAluSecc;
             Map<Integer, VacanteAlumno> mapVacAluSecc = TypesUtil.convertListToMap("numero", vacAluSecc);
             for (int i = 1; i < secc.getVacantes() + 1; i++) {
-                VacanteAlumno va = mapVacAluSecc.get(i);
-                if (va != null) {
+                VacanteAlumno va  = mapVacAluSecc.get(i);
+                if (va  != null) {
                     continue;
                 }
-                va = new VacanteAlumno();
+                va  = new VacanteAlumno();
                 va.setNumero(i);
                 va.setSeccion(secc);
                 va.setEstadoEnum(EstadoVacanteAlumnoEnum.DISP);
@@ -3473,7 +3484,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             descuentoSeccionVeranoDB.setEstadoEnum(EstadoEnum.ANU);
             descuentoSeccionVeranoDAO.update(descuentoSeccionVeranoDB);
         }
-        
+
         Seccion seccion = seccionDAO.find(descuentoSeccionVeranoDB.getSeccion());
         seccion.setDescuentoPrecio(BigDecimal.ZERO);
         seccion.setDevolucion(1);

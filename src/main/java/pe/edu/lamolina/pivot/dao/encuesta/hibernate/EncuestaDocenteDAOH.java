@@ -264,4 +264,16 @@ public class EncuestaDocenteDAOH extends AbstractEasyDAO<EncuestaDocente> implem
         return all(sql);
     }
 
+    @Override
+    public List<EncuestaDocente> allByDocenteSeccion(DocenteSeccion docenteSeccion) {
+        Octavia sql = Octavia.query()
+                .from(EncuestaDocente.class, "ed")
+                .join("encuestaEstudiantil ee", "ee.encuesta en", "ee.cicloAcademico ciclo")
+                .join("docenteSeccion ds", "ds.docente doc", "doc.persona per")
+                .join("ds.seccion sec", "sec.grupoSeccion gs", "gs.curso cur")
+                .filter("ds.id", docenteSeccion);
+
+        return all(sql);
+    }
+
 }

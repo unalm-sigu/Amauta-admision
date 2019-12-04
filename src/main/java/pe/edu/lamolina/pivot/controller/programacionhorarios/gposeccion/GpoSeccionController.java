@@ -44,7 +44,6 @@ import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.albatross.zelpers.notify.Notificaciones;
-import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AnexoBoletin;
 import pe.edu.lamolina.model.academico.CambioAulaGrupo;
 import pe.edu.lamolina.model.academico.Carrera;
@@ -929,7 +928,7 @@ public class GpoSeccionController {
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
-            service.deleteDocSeccion(new DocenteSeccion(docSeccionId), ds.getCicloAcademico());
+            service.deleteDocSeccion(new DocenteSeccion(docSeccionId), ds.getCicloAcademico(), ds);
             logger.debug("Docente Seccion {}", docSeccionId);
 
             String message = "Docente eliminado.";
@@ -2571,9 +2570,7 @@ public class GpoSeccionController {
                 "cambioAulaGrupos.grupoHorasFin.id",
                 "cambioAulaGrupos.grupoHorasFin.codigo",
                 "alumnoPagador.*",
-                "alumnoPagador.persona.*",
-            
-            });
+                "alumnoPagador.persona.*",});
 
             BigDecimal porcentajeAvance = BigDecimal.ZERO;
             for (DocenteSeccion docSeccion : seccion.getDocenteSeccion()) {
@@ -2877,6 +2874,7 @@ public class GpoSeccionController {
             return response;
         }
     }
+
     @ResponseBody
     @RequestMapping("deleteDescuento")
     public JsonResponse deleteDescuento(@RequestBody DescuentoSeccionVerano descuentoSeccionVerano, HttpSession session) {

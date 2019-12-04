@@ -85,7 +85,7 @@ public interface GpoSeccionService {
 
     List<DocenteSeccion> allDocentesSeccionBySeccion(Seccion seccion);
 
-    void deleteDocSeccion(DocenteSeccion docenteSeccion, CicloAcademico academico);
+    void deleteDocSeccion(DocenteSeccion docenteSeccion, CicloAcademico academico, DataSessionPivot ds);
 
     List<Docente> allDocenterByNombre(String nombre, String codigoDep);
 

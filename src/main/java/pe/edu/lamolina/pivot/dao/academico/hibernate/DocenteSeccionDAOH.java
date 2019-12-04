@@ -363,7 +363,8 @@ public class DocenteSeccionDAOH extends AbstractEasyDAO<DocenteSeccion> implemen
                 .from(DocenteSeccion.class, "ds")
                 .join("docente doc", "seccion s")
                 .leftJoin("doc.persona per")
-                .in("s.id", secciones);
+                .in("s.id", secciones)
+                .orderBy("ds.estado");
         return sql.all(getCurrentSession());
     }
 

@@ -128,6 +128,7 @@ public class RolExamenDocenteController {
                 "grupoHorasExamen.horaFin.*",
                 "grupoHorasExamen.dia.*",
                 "grupoHorasExamen.grupoHoras.*",
+                "seccion.grupoHoras.codigo",
                 "seccion.*",
                 "aula.*"
             });

@@ -31,10 +31,10 @@
                                                 {{exam.curso.codigo}}&nbsp;
                                                 <i class="fa fa-bookmark text-primary"></i>
                                                 {{exam.curso.tpc}}</span>
-                                            <span v-text="'Grupo ' +  exam.grupoHorasExamen.grupoHoras.codigo"></span>
+                                            <!--<span v-text="'Grupo ' +  exam.grupoHorasExamen.grupoHoras.codigo"></span>-->
                                         </td>
                                         <td class="col-md-2 v-middle text-center">
-                                            <a class="block text-primary  h5 m-b-xs m-t-xs" v-text="'Grupo ' +  exam.grupoHorasExamen.grupoHoras.codigo" v-on:click="model(exam.grupoHorasExamen.id)"></a>
+                                            <a class="block text-primary  h5 m-b-xs m-t-xs" v-text="'Grupo ' +  exam.seccion.grupoHoras.codigo" v-on:click="model(exam.grupoHorasExamen.id)"></a>
                                             <span class="block"> <span v-text="exam.grupoHorasExamen.dia.nombre"></span> - <span v-text="exam.grupoHorasExamen.fecha" ></span> </span>
                                             <span v-text="exam.grupoHorasExamen.horaInicio.descripcion"></span> - <span v-text="exam.grupoHorasExamen.horaFin.descripcionFin"></span>
                                         </td>
