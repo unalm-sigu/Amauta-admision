@@ -120,8 +120,8 @@ public class AvanceCurricularServiceImp implements AvanceCurricularService {
 
     @Autowired
     RequisitoCursoOpcionalDAO requisitoCursoOpcionalDAO;
-
-    @Autowired
+    
+       @Autowired
     VisorAsignaCurricula visorAsignaCurricula;
 
     @Override
@@ -129,7 +129,7 @@ public class AvanceCurricularServiceImp implements AvanceCurricularService {
     public void generarAvanceCurricularByPlanCurricular(PlanCurricular planCurricular, DataSessionPivot ds) {
         Carrera carrera = new Carrera();
         List<PlanCurricular> planesCurricular = planCurricularDAO.findById(planCurricular);
-
+        
         for (PlanCurricular planCurricular1 : planesCurricular) {
             carrera = planCurricular1.getCarrera();
         }
