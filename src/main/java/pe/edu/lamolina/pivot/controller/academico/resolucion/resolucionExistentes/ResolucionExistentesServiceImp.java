@@ -310,7 +310,7 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
             tramiteDAO.save(tramite);
 
             retiroCiclo = retiroCicloForm;
-            retiroCiclo.setEstado(TramiteEstadoEnum.ACEP);
+            retiroCiclo.setEstadoEnum(TramiteEstadoEnum.ACEP);
             retiroCiclo.setTipoEnum(TipoRetiroCicloEnum.EXCEP);
             retiroCiclo.setCicloRegistro(ds.getCicloAcademico());
             retiroCiclo.setUsuario(ds.getUsuario());

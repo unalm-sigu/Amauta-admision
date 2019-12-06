@@ -380,7 +380,7 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
             }
 
             visorCalculoNotas.setActivo(false);
-            promedioService.calulcarSituacionAcademica(alumno, ds);
+            promedioService.calcularSituacionAcademica(alumno, ds);
 
         }
     }

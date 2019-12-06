@@ -499,7 +499,7 @@ public class MatriculableServiceImp implements MatriculableService {
             matriculable.setCursosRetirados(0);
             matriculable.setEstadoEnum(EstadoMatriculaEnum.NMAT);
             matriculable.setSituacionInicio(alumnoCondicional.getSituacionAcademica());
-            matriculable.setEsUltimoCiclo(alumnoCondicional.getCreditosAprobados() >= 172);
+            matriculable.setEsUltimoCiclo(alumnoCondicional.getCreditosAprobadosConvalidados() >= 172);
             matriculable.setCreditosTrikaSeparados(0);
             matriculable.setEsCondicional(Boolean.TRUE);
             matriculable.setFechaCondicional(new Date());
@@ -510,20 +510,24 @@ public class MatriculableServiceImp implements MatriculableService {
     @Override
     @Transactional
     public void revisarSituacionAcademica(Alumno alumno, DataSessionPivot ds) {
-        promedioService.calulcarSituacionAcademica(alumno, ds);
+        promedioService.calcularSituacionAcademica(alumno, ds);
     }
 
     @Override
     public void revisarSituacionesAcademicas(CicloAcademico ciclo, DataSessionPivot ds) {
         CicloAcademico cicloBD = cicloAcademicoDAO.find(ciclo.getId());
         List<MatriculaResumen> matriculables = matriculaResumenDAO.allByCiclo(cicloBD);
+        List<Alumno> alumnos = matriculables.stream().map(x -> x.getAlumno()).collect(Collectors.toList());
+        List<Egresado> egresados = egresadoDAO.allByAlumnos(alumnos);
+        Map<Long, Egresado> mapEgresado = TypesUtil.convertListToMap("alumno.id", egresados);
         int loop = 0;
         if (!visorCalculaSituacion.iniciar(matriculables.size())) {
             throw new PhobosException("Ya se solicitó un procesamiento de situaciones académicas");
         }
 
         for (MatriculaResumen matriculable : matriculables) {
-            promedioService.calulcarSituacionAcademicaNewSession(matriculable.getAlumno(), ds);
+            Egresado egresado = mapEgresado.get(matriculable.getAlumno().getId());
+            promedioService.calulcarSituacionAcademicaNewSession(matriculable.getAlumno(), egresado, ds);
             loop++;
             System.out.println("Se envio al matriculable " + loop + " de " + matriculables.size() + "");
             System.out.println("Se envio al matriculable " + loop + " de " + matriculables.size() + "");
@@ -604,7 +608,7 @@ public class MatriculableServiceImp implements MatriculableService {
         Collections.sort(matriculablesConPuntaje, new MatriculaResumen.ComparePrioridadCapa());
 
         List<MatriculaResumen> matriculablesUltimoCiclo = matriculablesConPuntaje.stream()
-                .filter(x -> x.getAlumno().getCreditosAprobados() >= CAPA_ULTIMO_CICLO)
+                .filter(x -> x.getAlumno().getCreditosAprobadosConvalidados() >= CAPA_ULTIMO_CICLO)
                 .collect(Collectors.toList());
 
         int indice = 0;
@@ -926,8 +930,9 @@ public class MatriculableServiceImp implements MatriculableService {
 
             matri = matriculableConector.procesarPrioridadAlumno(matri, alumnoCiclo);
 
-            MatriculaResumen matriculaAnt = matriculaResumenDAO.findByAntPrioridad(matri, ciclo, (alumno.getCreditosAprobados() > CAPA_ULTIMO_CICLO));
-            MatriculaResumen matriculaDes = matriculaResumenDAO.findByDesPrioridad(matri, ciclo, (alumno.getCreditosAprobados() > CAPA_ULTIMO_CICLO));
+            boolean esUltimoCiclo = alumno.getCreditosAprobadosConvalidados() > CAPA_ULTIMO_CICLO;
+            MatriculaResumen matriculaAnt = matriculaResumenDAO.findByAntPrioridad(matri, ciclo, esUltimoCiclo);
+            MatriculaResumen matriculaDes = matriculaResumenDAO.findByDesPrioridad(matri, ciclo, esUltimoCiclo);
             if (matriculaAnt != null && matriculaDes != null) {
 
                 BigDecimal prioridad = matriculaAnt.getPrioridad().add(matriculaDes.getPrioridad()).divide(new BigDecimal(2));
@@ -1008,8 +1013,9 @@ public class MatriculableServiceImp implements MatriculableService {
         MatriculaResumen matriculaResumen = matriculaResumenDAO.findByAlumnoCiclo(alumno, cicloActivo);
         matriculableConector.procesarPrioridadAlumno(matriculaResumen, alumnoCiclo);
 
-        MatriculaResumen matriculaAnt = matriculaResumenDAO.findByAntPrioridad(matriculaResumen, cicloActivo, alumno.getCreditosAprobados() > CAPA_ULTIMO_CICLO ? true : false);
-        MatriculaResumen matriculaDes = matriculaResumenDAO.findByDesPrioridad(matriculaResumen, cicloActivo, alumno.getCreditosAprobados() > CAPA_ULTIMO_CICLO ? true : false);
+        boolean esUltimoCiclo = alumno.getCreditosAprobadosConvalidados() > CAPA_ULTIMO_CICLO;
+        MatriculaResumen matriculaAnt = matriculaResumenDAO.findByAntPrioridad(matriculaResumen, cicloActivo, esUltimoCiclo);
+        MatriculaResumen matriculaDes = matriculaResumenDAO.findByDesPrioridad(matriculaResumen, cicloActivo, esUltimoCiclo);
 
         BigDecimal prioridad = matriculaAnt.getPrioridad().add(matriculaDes.getPrioridad()).divide(new BigDecimal(2));
         matriculaResumen.setPrioridad(prioridad);
@@ -1075,14 +1081,16 @@ public class MatriculableServiceImp implements MatriculableService {
         Map<String, CicloAcademico> mapCiclo = TypesUtil.convertListToMap("modalidadEstudio.codigo", ciclosActivo);
         Map<Long, Alumno> mapAlumno = TypesUtil.convertListToMap("id", alumnos);
 
-        List<AlumnoCicloCurso> alumnoCicloCursos = alumnoCicloCursoDAO.allOperativesByAlumnos(alumnos);
-        Map<Long, List<AlumnoCicloCurso>> mapAlumnoCicloCurso = TypesUtil.convertListToMapList("alumnoCiclo.alumno.id", alumnoCicloCursos);
+        List<AlumnoCicloCurso> alumnosCiclosCursosActivos = alumnoCicloCursoDAO.allOperativesByAlumnos(alumnos);
+        List<AlumnoCicloCurso> alumnosCiclosCursosAll = alumnoCicloCursoDAO.allByAlumnos(alumnos);
+        Map<Long, List<AlumnoCicloCurso>> mapAlumnoCicloCursoActivos = TypesUtil.convertListToMapList("alumnoCiclo.alumno.id", alumnosCiclosCursosActivos);
+        Map<Long, List<AlumnoCicloCurso>> mapAlumnoCicloCursoAll = TypesUtil.convertListToMapList("alumnoCiclo.alumno.id", alumnosCiclosCursosAll);
 
         List<AlumnoCiclo> alumnosCiclos = alumnoCicloDAO.allByAlumnos(alumnos);
         Map<Long, List<AlumnoCiclo>> mapAlumnoCiclo = TypesUtil.convertListToMapList("alumno.id", alumnosCiclos);
 
-//        List<Egresado> egresados = egresadoDAO.allByAlumnos(alumnos);
-//        Map<Long, Egresado> mapEgresados = TypesUtil.convertListToMap("alumno.id", egresados);
+        List<Egresado> egresados = egresadoDAO.allByAlumnos(alumnos);
+        Map<Long, Egresado> mapEgresados = TypesUtil.convertListToMap("alumno.id", egresados);
         List<Reincorporacion> reincorporacions = reincorporacionDAO.allByEstadoTramiteAndAlumnos(alumnos, new EstadoTramite(EstadoTramiteEnum.SOL_ACEP.getId()));
         Map<Long, List<Reincorporacion>> mapReincorporaciones = TypesUtil.convertListToMapList("alumno.id", reincorporacions);
 
@@ -1090,16 +1098,25 @@ public class MatriculableServiceImp implements MatriculableService {
 //        Map<String, SituacionAcademica> mapSituacionAcademicas = TypesUtil.convertListToMap("codigo", situacionAcademicas);
         for (Alumno alumno : alumnos) {
             CicloAcademico cicloActivoMod = mapCiclo.get(alumno.getModalidadEstudio().getCodigo());
-            List<AlumnoCicloCurso> allAlumnoCicloCurso = mapAlumnoCicloCurso.get(alumno.getId());
-            List<AlumnoCiclo> allAlumnoCiclos = mapAlumnoCiclo.get(alumno.getId());
-//            Egresado egresado = mapEgresados.get(alumnoCiclo.getAlumno().getId());
-            List<Reincorporacion> reincorporac = fillList(mapReincorporaciones.get(alumno.getId()));
+            List<AlumnoCiclo> allAlumnoCiclos = TypesUtil.getListNotNull(mapAlumnoCiclo.get(alumno.getId()));
+            List<AlumnoCicloCurso> alumnoCicloCursosActivos = TypesUtil.getListNotNull(mapAlumnoCicloCursoActivos.get(alumno.getId()));
+            List<AlumnoCicloCurso> alumnoCicloCursosAll = TypesUtil.getListNotNull(mapAlumnoCicloCursoAll.get(alumno.getId()));
+            Egresado egresado = mapEgresados.get(alumno.getId());
+            List<Reincorporacion> reincorporados = TypesUtil.getListNotNull(mapReincorporaciones.get(alumno.getId()));
             logger.info("Alumno codigo {}", alumno.getCodigo());
             logger.debug("Cantidad de {} total {}", respositorVisor.getContador(), respositorVisor.getCantidadTotal());
 //            Map<Long, AlumnoCiclo> mapAllAlumnoCicloByCiclo = TypesUtil.convertListToMap("cicloAcademico.id", allAlumnoCiclos);
 //            Map<Long, List<AlumnoCicloCurso>> mapAllAlumnoCicloByAlumnoCiclo = TypesUtil.convertListToMapList("alumnoCiclo.id", fillList(allAlumnoCicloCurso));
 
-            promedioService.promediarAllCicloSync(alumno, cicloActivoMod, ciclosAcademicos, allAlumnoCiclos, allAlumnoCicloCurso, reincorporac, ds);
+            promedioService.promediarAllCicloSync(
+                    alumno,
+                    cicloActivoMod,
+                    egresado,
+                    ciclosAcademicos,
+                    allAlumnoCiclos,
+                    alumnoCicloCursosActivos,
+                    alumnoCicloCursosAll,
+                    reincorporados, ds, false);
 //            this.revisarSituacionAcademica(alumnoCiclo.getAlumno(), ds);
             respositorVisor.incrementar();
             logger.debug("Cantidad de {} total {}", respositorVisor.getContador(), respositorVisor.getCantidadTotal());
@@ -1107,13 +1124,6 @@ public class MatriculableServiceImp implements MatriculableService {
         academico.setFechaVerificaNmat(new Date());
         cicloAcademicoDAO.update(academico);
 
-    }
-
-    private List fillList(List list) {
-        if (list == null) {
-            return new ArrayList();
-        }
-        return list;
     }
 
     @Override

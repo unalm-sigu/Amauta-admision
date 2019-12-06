@@ -581,12 +581,17 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         Integer horasTeoria = grupoSeccion.getHorasTeoria();
         Integer horasPractica = grupoSeccion.getHorasPractica();
         EventoCicloAcademico eventoDictadoClases = getEventoDictadoClases(ciclo, curso);
-        Docente docenteDefault = null;
+
+        Docente docenteDefault;
         if (!grupoSeccion.getCursoDirigido()) {
             docenteDefault = docenteDAO.findByCode(Constantine.DOCENTE_INDETERMINADO);
         } else {
             docenteDefault = grupoSeccion.getDocenteResponsable();
         }
+        if (docenteDefault == null) {
+            docenteDefault = docenteDAO.findByCode(Constantine.DOCENTE_INDETERMINADO);
+        }
+
         final BigDecimal PORCENTAJE_CARGA = new BigDecimal(100);
         final String PORCENTAJE_CARGA_FRACCION = "100";
         Date today = new Date();
@@ -723,6 +728,13 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         }
 
         grupoSeccionDAO.save(grupoSeccion);
+        for (Seccion seccion : grupoSeccion.getSecciones()) {
+            seccionDAO.save(seccion);
+            for (DocenteSeccion docSecc : seccion.getDocenteSeccion()) {
+                docenteSeccionDAO.save(docSecc);
+            }
+        }
+
         return grupoSeccion;
     }
 
@@ -761,6 +773,9 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         seccionPCUR.getDocenteSeccion().add(docenteSeccion2);
 
         seccionDAO.save(seccionPCUR);
+        for (DocenteSeccion docSecc : seccionPCUR.getDocenteSeccion()) {
+            docenteSeccionDAO.save(docSecc);
+        }
         this.actualizarBoletin();
     }
 
@@ -2980,6 +2995,12 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
                 gpoSeccClon.getSecciones().add(seccionPCUR);
             }
             grupoSeccionDAO.save(gpoSeccClon);
+            for (Seccion seccion : gpoSeccClon.getSecciones()) {
+                seccionDAO.save(seccion);
+                for (DocenteSeccion docSecc : seccion.getDocenteSeccion()) {
+                    docenteSeccionDAO.save(docSecc);
+                }
+            }
 
             gpoSeccClones.add(gpoSeccClon);
 

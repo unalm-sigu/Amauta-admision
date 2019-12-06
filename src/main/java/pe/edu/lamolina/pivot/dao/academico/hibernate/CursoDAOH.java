@@ -1,5 +1,6 @@
 package pe.edu.lamolina.pivot.dao.academico.hibernate;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
@@ -20,6 +21,7 @@ import pe.edu.lamolina.model.academico.CursoCachimbos;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.MatriculaCurso;
+import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.PlanCalificacion;
 import pe.edu.lamolina.model.academico.Seccion;
 import static pe.edu.lamolina.model.enums.EstadoCursoCachimboEnum.ACT;
@@ -166,21 +168,44 @@ public class CursoDAOH extends AbstractEasyDAO<Curso> implements CursoDAO {
     }
 
     @Override
-    public List<Curso> allByDynatable(DynatableFilter filter, List<DepartamentoAcademico> departamentos) {
+    public List<Curso> allByDynatable(DynatableFilter filter, List<ModalidadEstudio> modalidades, List<Carrera> carreras, List<DepartamentoAcademico> departamentos) {
+        if (modalidades == null && carreras.isEmpty() && departamentos.isEmpty()) {
+            filter.setFiltered(0);
+            filter.setTotal(0);
+            return new ArrayList();
+        }
+
         DynatableSql sql = new DynatableSql(filter)
                 .from(Curso.class, "cu")
                 .join("departamentoAcademico da", "da.facultad fa")
                 .leftJoin("planCalificacion pc", "carrera ca", "coordinador co", "co.persona per")
                 .leftJoin("modalidadEstudio me")
-                .in("da.id", departamentos)
-                .beginBlock()
-                .__().in("me.codigo", Arrays.asList(ModalidadEstudioEnum.EPG, ModalidadEstudioEnum.PRE))
-                .__().isNull("me.id")
-                .endBlock()
                 .searchFields("cu.nombre", "cu.codigo", "cu.codigoAnterior1", "fa.nombre", "da.nombre", "cu.estado", "ca.nombre")
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                 .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
                 .orderBy("cu.id desc");
+
+        if (modalidades == null || modalidades.isEmpty()) {
+            sql.__().beginBlock()
+                    .__().in("me.codigo", Arrays.asList(ModalidadEstudioEnum.EPG, ModalidadEstudioEnum.PRE))
+                    .__().isNull("me.id")
+                    .endBlock();
+        } else {
+            sql.__().beginBlock()
+                    .__().in("me.id", modalidades)
+                    .__().isNull("me.id")
+                    .endBlock();
+        }
+
+        if (!departamentos.isEmpty()) {
+            sql.in("da.id", departamentos);
+        }
+        if (!carreras.isEmpty()) {
+            sql.__().beginBlock()
+                    .__().in("ca.id", carreras)
+                    .__().isNull("ca.id")
+                    .endBlock();
+        }
 
         return all(sql);
     }

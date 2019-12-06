@@ -125,6 +125,7 @@ public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements Alu
                 .in("ac.estado", estadosEnums)
                 .filter("alu.id", alumno)
                 .filter("ca.id", cicloAcademico);
+
         return find(sql);
     }
 
@@ -136,7 +137,8 @@ public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements Alu
                 .left("situacionInicio si", "situacionFinal sf", "orientacionCarrera oc")
                 .filter("alu.id", alumno)
                 .orderBy("ac.fechaRegistro desc")
-                .limit(BigDecimal.ONE.intValue());
+                .limit(1);
+
         return find(sql);
     }
 
@@ -150,22 +152,26 @@ public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements Alu
                 .filter("alu.id", alumno)
                 .filter("ac.estado", EstadoMatriculaEnum.MAT.name())
                 .orderBy("ca.codigo desc")
-                .limit(BigDecimal.ONE.intValue());
+                .limit(1);
+
         return find(sql);
     }
 
     @Override
-    public AlumnoCiclo findLastByAlumnoAndSituacion(Alumno alumno, SituacionAcademicaEnum... situacionesAcademicas) {
-        List<SituacionAcademicaEnum> situaciones = Arrays.asList(situacionesAcademicas);
+    public AlumnoCiclo findLastByAlumnoAndSituacion(Alumno alumno, SituacionAcademicaEnum... arraySituacionesEnum) {
+        List<SituacionAcademicaEnum> situacionesEnum = Arrays.asList(arraySituacionesEnum);
+        List<String> situaciones = situacionesEnum.stream().map(x -> x.getValue()).collect(Collectors.toList());
+
         Octavia sql = Octavia.query()
                 .from(AlumnoCiclo.class, "ac")
                 .join("alumno alu", "cicloAcademico ca", "carrera car")
                 .left("situacionInicio si", "situacionFinal sf", "orientacionCarrera oc")
                 .filter("alu.id", alumno)
                 //      .filter("ac.estado", EstadoMatriculaEnum.MAT.name())
-                .in("sf.codigo", situaciones.stream().map(x -> x.getValue()).collect(Collectors.toList()))
+                .in("sf.codigo", situaciones)
                 .orderBy("ca.codigo desc")
-                .limit(BigDecimal.ONE.intValue());
+                .limit(1);
+
         return find(sql);
     }
 
@@ -181,7 +187,8 @@ public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements Alu
                 //      .filter("ac.estado", EstadoMatriculaEnum.MAT.name())
                 .notIn("sf.codigo", situaciones.stream().map(x -> x.getValue()).collect(Collectors.toList()))
                 .orderBy("ca.codigo desc")
-                .limit(BigDecimal.ONE.intValue());
+                .limit(1);
+
         return find(sql);
     }
 
@@ -197,6 +204,7 @@ public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements Alu
                 .filter("ac.estado", EstadoMatriculaEnum.MAT.name())
                 .orderBy("ca.year DESC", "ca.numeroCiclo DESC")
                 .limit(1);
+
         return find(sql);
     }
 
@@ -212,6 +220,7 @@ public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements Alu
                 //    .filter("ac.estado", EstadoMatriculaEnum.MAT.name())
                 .orderBy("ca.year DESC", "ca.numeroCiclo DESC")
                 .limit(1);
+
         return find(sql);
     }
 
@@ -226,6 +235,7 @@ public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements Alu
                 .filter("ca.codigo", "<=", cicloAcademico.getCodigo())
                 .orderBy("ca.year DESC", "ca.numeroCiclo DESC")
                 .limit(limit);
+
         return all(sql);
     }
 
@@ -241,6 +251,7 @@ public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements Alu
                 .filter("ac.estado", EstadoMatriculaEnum.MAT.name())
                 .orderBy("ca.year asc", "ca.numeroCiclo asc")
                 .limit(1);
+
         return find(sql);
     }
 
@@ -256,6 +267,7 @@ public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements Alu
                 .filter("ac.estado", EstadoMatriculaEnum.INH.name())
                 .orderBy("ca.year asc", "ca.numeroCiclo asc")
                 .limit(1);
+
         return find(sql);
     }
 
@@ -271,6 +283,7 @@ public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements Alu
                 .filter("ac.estado", EstadoMatriculaEnum.INH.name())
                 .orderBy("ca.year DESC", "ca.numeroCiclo DESC")
                 .limit(1);
+
         return find(sql);
     }
 
@@ -284,6 +297,7 @@ public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements Alu
                 .filter("alu.id", alumno)
                 .filter("ac.estado", EstadoMatriculaEnum.MAT.name())
                 .orderBy("ca.codigo asc");
+
         return all(sql);
     }
 
@@ -297,6 +311,7 @@ public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements Alu
                 .filter("alu.id", alumno)
                 .filter("ac.estado", EstadoMatriculaEnum.MAT.name())
                 .orderBy("ca.codigo asc");
+
         return all(sql);
     }
 
@@ -310,6 +325,7 @@ public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements Alu
                 .filter("alu.id", alumno)
                 .in("ac.estado", estadoMatriculaEnum)
                 .orderBy("ca.codigo asc");
+
         return all(sql);
     }
 
@@ -319,6 +335,7 @@ public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements Alu
             Carrera carrera,
             List<SituacionAcademica> situaciones,
             EstadoMatriculaEnum estadoMatriculaEnum) {
+
         Octavia sql0 = Octavia.query()
                 .from(Alumno.class, "alu0")
                 .join("modalidadEstudio me0", "situacionAcademica sa0", "cicloActivo ca0")
@@ -337,6 +354,7 @@ public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements Alu
                 .exists(sql0)
                 .linkedBy("alu.id", "alu0.id")
                 .orderBy("ca.codigo asc");
+
         return all(sql);
     }
 
@@ -360,6 +378,7 @@ public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements Alu
                 .exists(sql0)
                 .linkedBy("alu.id", "alu0.id")
                 .orderBy("ca.codigo asc");
+
         return all(sql);
     }
 
@@ -372,6 +391,7 @@ public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements Alu
                 .leftJoin("userModificacion um", "userRegistro ur")
                 .filter("alu.id", alumno)
                 .orderBy("ca.codigo asc");
+
         return all(sql);
     }
 
@@ -385,6 +405,7 @@ public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements Alu
                 .filter("ca.codigo", "<=", cicloAcademico.getCodigo())
                 .filter("ca.tipo", TipoCicloEnum.REG)
                 .filter("ac.estado", EstadoMatriculaEnum.MAT.name());
+
         return (Long) sql.find(getCurrentSession());
     }
 
@@ -395,6 +416,7 @@ public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements Alu
         octavia.set(alumnoCiclo, "situacionFinal");
         octavia.set(alumnoCiclo, "fechaModificacion");
         octavia.set(alumnoCiclo, "userModificacion");
+
         this.update(octavia);
     }
 
@@ -406,6 +428,7 @@ public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements Alu
         octavia.set(alumnoCiclo, "estado");
         octavia.set(alumnoCiclo, "fechaModificacion");
         octavia.set(alumnoCiclo, "userModificacion");
+
         this.update(octavia);
     }
 
@@ -415,6 +438,7 @@ public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements Alu
         octavia.set(alumnoCiclo, "situacionFinal");
         octavia.set(alumnoCiclo, "fechaModificacion");
         octavia.set(alumnoCiclo, "userModificacion");
+
         this.update(octavia);
     }
 
@@ -422,6 +446,7 @@ public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements Alu
     public void updateSituacionFinalOnly(AlumnoCiclo alumnoCiclo) {
         Octavia octavia = Octavia.update(AlumnoCiclo.class);
         octavia.set(alumnoCiclo, "situacionFinal");
+
         this.update(octavia);
     }
 

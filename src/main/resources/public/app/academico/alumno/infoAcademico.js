@@ -53,6 +53,10 @@ new Vue({
         }
     },
     mounted: function () {
+        let $vue = this;
+        $global.$on("update-alumno", function (data) {
+            $vue.updateAlumno(data);
+        });
     },
     methods: {
         updateTabs: function (tab) {
@@ -158,6 +162,10 @@ new Vue({
                 return;
             }
             $vue.$refs.modalPreRequisito.open();
+        },
+        updateAlumno(data) {
+            let $vue = this;
+            $vue.alumno = data;
         }
     }
 });

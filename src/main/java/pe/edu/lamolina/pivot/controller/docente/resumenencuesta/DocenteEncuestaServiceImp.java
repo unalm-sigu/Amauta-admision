@@ -271,12 +271,12 @@ public class DocenteEncuestaServiceImp implements DocenteEncuestaService {
             Seccion seccion = encuesta.getDocenteSeccion().getSeccion();
             secciones.add(seccion);
         }
+
         List<DocenteSeccion> profesSecciones = docenteSeccionDAO.allPersonasActivasBySecciones(secciones);
         Map<Long, List<DocenteSeccion>> mapProfesBySeccion = TypesUtil.convertListToMapList("seccion.id", profesSecciones);
         for (EncuestaDocente encuesta : encuestas) {
             Seccion seccion = encuesta.getDocenteSeccion().getSeccion();
-            List<DocenteSeccion> profesSecc = mapProfesBySeccion.get(seccion.getId());
-            profesSecc = (profesSecc == null) ? new ArrayList() : profesSecc;
+            List<DocenteSeccion> profesSecc = TypesUtil.getListNotNull(mapProfesBySeccion.get(seccion.getId()));
             seccion.setDocenteSeccion(profesSecc);
         }
 

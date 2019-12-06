@@ -68,6 +68,17 @@ Vue.component("inicio-component", {
                     notify(MESSAGES.errorComunicacion, "error");
                 }
             });
-        }
+        },
+        verNota(notax) {
+            notax += "";
+            let idx = notax.indexOf(".");
+            let nota = notax;
+            if (idx < 0) {
+                nota += ".0000";
+            } else {
+                nota += "0000";
+            }
+            return nota.toString().match(/^-?\d+(?:\.\d{0,2})?/)[0];
+        },
     }
 });

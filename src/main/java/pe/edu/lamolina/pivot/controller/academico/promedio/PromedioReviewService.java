@@ -8,10 +8,12 @@ import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
+import pe.edu.lamolina.model.academico.Egresado;
 import pe.edu.lamolina.model.academico.MatriculaCurso;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.SituacionAcademica;
+import pe.edu.lamolina.model.tramite.Reincorporacion;
 import pe.edu.lamolina.model.tramite.RetiroCiclo;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -30,7 +32,8 @@ public interface PromedioReviewService {
 
     void trasladoPromediosSource(MatriculaCurso matriculaCurso, DataSessionPivot ds);
 
-    void generarHistorialNotas(Alumno alumno,
+    void generarHistorialNotas(
+            Alumno alumno,
             Curso curso,
             MatriculaCurso matriculaCurso,
             CicloAcademico cicloAcademico,
@@ -46,5 +49,16 @@ public interface PromedioReviewService {
     Integer evaluateEstaAprobado(MatriculaCurso matriculaCurso, Alumno alumno);
 
     void saveCerrarActaAsync(List<Alumno> alumnos, DataSessionPivot ds);
+
+    void promediarAllCicloAsync(
+            Alumno alumno,
+            CicloAcademico cicloActivo,
+            Egresado egresado,
+            List<CicloAcademico> ciclos,
+            List<AlumnoCiclo> alumnoCiclos,
+            List<AlumnoCicloCurso> allOperativesByModalidadEstudio,
+            List<AlumnoCicloCurso> allAlumnoCicloCurso,
+            List<Reincorporacion> allReincorporacionesByAlumno,
+            DataSessionPivot ds);
 
 }

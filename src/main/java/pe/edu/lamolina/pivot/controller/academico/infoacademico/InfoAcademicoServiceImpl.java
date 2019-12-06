@@ -1,6 +1,5 @@
 package pe.edu.lamolina.pivot.controller.academico.infoacademico;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -34,6 +33,7 @@ import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.CursoCurricula;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
+import pe.edu.lamolina.model.academico.Egresado;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.MatriculaCurso;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
@@ -74,6 +74,7 @@ import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.CursoCurriculaDAO;
 import pe.edu.lamolina.pivot.dao.academico.DocenteSeccionDAO;
+import pe.edu.lamolina.pivot.dao.academico.EgresadoDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaCursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaResumenDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaSeccionDAO;
@@ -108,6 +109,9 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
 
     @Autowired
     AlumnoDAO alumnoDAO;
+
+    @Autowired
+    EgresadoDAO egresadoDAO;
 
     @Autowired
     HoraDAO horaDAO;
@@ -624,7 +628,7 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
 
         Alumno alumno = alumnoDAO.find(alumnoForm);
         visorCalculoNotas.setActivo(false);
-        promedioService.calulcarSituacionAcademica(alumno, ds);
+        promedioService.calcularSituacionAcademica(alumno, ds);
     }
 
     @Override

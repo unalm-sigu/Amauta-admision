@@ -81,7 +81,7 @@ public class ModalidadEstudioDAOH extends AbstractEasyDAO<ModalidadEstudio> impl
         Octavia sql = Octavia.query()
                 .from(ModalidadEstudio.class, "me")
                 .join("compania cia")
-                .filter("cia.id", cia.getId())
+                .filter("cia.id", cia)
                 .filter("me.estado", EstadoEnum.ACT)
                 .in("me.codigo", Arrays.asList(PRE, EPG));
 

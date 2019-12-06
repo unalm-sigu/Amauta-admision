@@ -2,6 +2,7 @@ package pe.edu.lamolina.pivot.controller.seguridad.verificador;
 
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
+import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.enums.TipoOficinaEnum;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.pivot.controller.seguridad.verificador.VerificadorServiceImp.CantidadItemsEnum;
@@ -48,5 +49,7 @@ public interface VerificadorService {
     boolean isEditorCurriculasAll(DataSessionPivot ds);
 
     boolean isEditorCurriculasEpg(DataSessionPivot ds);
+
+    List<ModalidadEstudio> modalidadesPermitidasForCursos(DataSessionPivot ds, List<ModalidadEstudio> modalidades);
 
 }
