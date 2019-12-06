@@ -65,7 +65,7 @@ public class RolExamenDocenteController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         try {
 
-            List<RolExamenDocente> examenDocentes = service.listExamenDocente(ds.getDocente(), ds);
+            List<RolExamenDocente> examenDocentes = service.listExamenDocente(ds.getDocente(), ds.getCicloAcademico());
 
             response.setData(jsonExamenDocente(examenDocentes));
             response.setSuccess(Boolean.TRUE);

@@ -32,6 +32,7 @@ import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Docente;
@@ -215,6 +216,7 @@ public class ActaController {
                     node.put("estadoGrupoValue", grupo.getEstadoGrupoEnum().getValue());
                 }
 
+                node.put("fechaCierreActa", TypesUtil.getStringDate(grupo.getFechaCierreActa(), "dd/MM/yyyy"));
                 node.put("estadoGrupoCerrado", grupo.isEstadoGrupoCerrado());
                 node.put("estadoPlanAceptado", grupo.isEstadoAceptado());
 
@@ -222,13 +224,13 @@ public class ActaController {
                 String secciones = "";
                 String grupoHoras = "";
                 List<DocenteSeccion> docentesSeccion = null;
-                List<Docente> docentesPrincipal = new ArrayList<>();
+                List<Docente> docentesPrincipal = new ArrayList();
 
                 for (Seccion sec : grupo.getSecciones()) {
 
                     if (sec.isTipoSeccionPRA() || sec.isTipoSeccionTCUR() || sec.isTipoSeccionTEO()) {
                         idSeccion = sec.getId();
-                        secciones += sec.getId() + "|" + sec.getCodigo() + ",";
+                        secciones += sec.getId() + "|" + sec.getCodigo2() + ",";
                         if (ObjectUtil.getParentTree(sec, "grupoHoras") != null) {
                             grupoHoras += sec.getGrupoHoras().getId() + "|" + sec.getGrupoHoras().getCodigo() + ",";
                         }
@@ -258,16 +260,12 @@ public class ActaController {
                 node.put("grupoHoras", grupoHoras);
 
                 node.put("docenteNombre", "");
+                node.put("emailDocente", "");
                 //    node.put("idDocente", "");
                 if (!docentesPrincipal.isEmpty()) {
-                    String docentes = "";
-                    for (Docente doc : docentesPrincipal) {
-                        docentes += doc.getPersona().getApellidosNombres() + " - ";
-                    }
-                    if (!StringUtils.isEmpty(docentes)) {
-                        docentes = docentes.substring(0, docentes.length() - 3);
-                    }
-                    node.put("docenteNombre", docentes);
+                    Docente doc = docentesPrincipal.get(0);
+                    node.put("docenteNombre", doc.getPersona().getApellidosNombres());
+                    node.put("emailDocente", doc.getPersona().getEmailCompania());
                     //    node.put("idDocente", docentePrincipal.getId());
                 }
                 array.add(node);

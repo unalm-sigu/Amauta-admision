@@ -64,7 +64,7 @@ public class HorarioExamenesController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         JsonNodeFactory jc = JsonNodeFactory.instance;
         try {
-            List<RolExamenDocente> examenDocentes = service.listExamenDocente(ds.getDocente(), ds);
+            List<RolExamenDocente> examenDocentes = service.listExamenDocente(ds.getDocente(), ds.getCicloAcademico());
             List<GrupoHorasExamen> grupoHorasExamen = examenDocentes.stream().distinct().map(RolExamenDocente::getGrupoHorasExamen).collect(Collectors.toList());
             RolExamenes rolExamenes = plantillaHorarioService.findRolExamenes(new RolExamenes(examenDocentes.get(0).getIdRolExamen()));
             ArrayNode jSeamanasExamen = new ArrayNode(jc);
