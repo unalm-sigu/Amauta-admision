@@ -23,7 +23,7 @@ public interface PromedioService {
             // List<AlumnoCicloCurso> allAlumnoCicloCurso,
             DataSessionPivot ds, boolean calcularSituacion);
 
-    void promedio(MatriculaCurso matriculaCurso, DataSessionPivot ds, boolean calcularSituacionAcadFinal);
+    void promedio(MatriculaCurso matriculaCurso, DataSessionPivot ds, boolean calcularSituacionAcadFinal, boolean showError);
 
     void promediarAllCicloAsync(
             Alumno alumno,
@@ -45,9 +45,9 @@ public interface PromedioService {
             List<AlumnoCicloCurso> allOperativesByModalidadEstudio,
             List<AlumnoCicloCurso> allAlumnoCicloCurso,
             List<Reincorporacion> allReincorporacionesByAlumno,
-            DataSessionPivot ds,boolean throwError);
+            DataSessionPivot ds, boolean throwError, boolean showError);
 
-    void trasladoPromediosSource(MatriculaCurso matriculaCurso, DataSessionPivot ds);
+    void trasladoPromediosSource(MatriculaCurso matriculaCurso, DataSessionPivot ds, boolean showError);
 
     void generarHistorialNotas(
             Alumno alumno,
@@ -55,7 +55,7 @@ public interface PromedioService {
             Curso curso,
             MatriculaCurso matriculaCurso,
             CicloAcademico cicloAcademico,
-            DataSessionPivot ds);
+            DataSessionPivot ds, boolean showError);
 
     void calcularSituacionAcademica(Alumno alumno, DataSessionPivot ds);
 

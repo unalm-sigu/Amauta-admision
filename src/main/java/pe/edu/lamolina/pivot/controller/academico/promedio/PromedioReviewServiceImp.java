@@ -428,19 +428,19 @@ public class PromedioReviewServiceImp implements PromedioReviewService {
         Egresado egresado = egresadoDAO.findPrincipalByAlumno(alumno);
         if (egresado != null && egresado.getCicloAcademico() != null) {
 
-            SituacionAcademica situacionAcademicaEM = situacionAcademicaDAO.findByCodigo(SituacionAcademicaEnum.S_EM.getValue());
+            SituacionAcademica situacionEgresado = new SituacionAcademica(SituacionAcademicaEnum.S_E);
 
             AlumnoCiclo alumnoCicloEgresado = alumnoCicloDAO.findByAlumnoCiclo(alumno, alumno.getCicloActivo());
-            alumnoCicloEgresado.setSituacionFinal(situacionAcademicaEM);
+            alumnoCicloEgresado.setSituacionFinal(situacionEgresado);
             alumnoCicloDAO.update(alumnoCicloEgresado);
 
             AlumnoCiclo alumnoCicloActiveAntrior = alumnoCicloDAO.findActiveAnteriorByAlumno(alumno, egresado.getCicloAcademico());
             if (alumnoCicloActiveAntrior != null) {
-                alumnoCicloActiveAntrior.setSituacionFinal(situacionAcademicaEM);
+                alumnoCicloActiveAntrior.setSituacionFinal(situacionEgresado);
                 alumnoCicloDAO.update(alumnoCicloActiveAntrior);
             }
             Alumno alumnoUpd = new Alumno(alumno.getId());
-            alumnoUpd.setSituacionAcademica(situacionAcademicaEM);
+            alumnoUpd.setSituacionAcademica(situacionEgresado);
             alumnoDAO.updateSituacionAcad(alumnoUpd);
         }
     }
@@ -1670,7 +1670,7 @@ public class PromedioReviewServiceImp implements PromedioReviewService {
                 alumnoCiclos,
                 allOperativesCicloCurso,
                 allAlumnoCicloCurso,
-                allReincorporacionesByAlumno, ds, false);
+                allReincorporacionesByAlumno, ds, false, false);
         if (rpta == 0) {
             alumno.setConError(Boolean.TRUE);
             alumnoService.marcarFalla(alumno);

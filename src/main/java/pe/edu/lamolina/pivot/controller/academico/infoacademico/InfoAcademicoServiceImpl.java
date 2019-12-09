@@ -692,6 +692,8 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
         if (resumen == null) {
             resumen = new MatriculaResumen();
             resumen.setEstadoEnum(EstadoMatriculaEnum.NMAT);
+            resumen.setCursosMatriculados(0);
+            resumen.setCreditosMatriculados(0);
         }
         int cursosMat = 0;
         int creditosMat = 0;

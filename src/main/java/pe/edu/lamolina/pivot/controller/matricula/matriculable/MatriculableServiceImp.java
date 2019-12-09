@@ -1116,7 +1116,7 @@ public class MatriculableServiceImp implements MatriculableService {
                     allAlumnoCiclos,
                     alumnoCicloCursosActivos,
                     alumnoCicloCursosAll,
-                    reincorporados, ds, false);
+                    reincorporados, ds, true, true);
 //            this.revisarSituacionAcademica(alumnoCiclo.getAlumno(), ds);
             respositorVisor.incrementar();
             logger.debug("Cantidad de {} total {}", respositorVisor.getContador(), respositorVisor.getCantidadTotal());

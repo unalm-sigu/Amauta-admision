@@ -455,7 +455,7 @@ public class TestServiceImp implements TestService {
             matriculaCurso.getMatriculaResumen().getAlumno();
             matriculaCurso.getMatriculaResumen().getCicloAcademico();
             matriculaCurso.getCurso();
-            promedioService.trasladoPromediosSource(matriculaCurso, ds);
+            promedioService.trasladoPromediosSource(matriculaCurso, ds, false);
 
             //  }
         }
