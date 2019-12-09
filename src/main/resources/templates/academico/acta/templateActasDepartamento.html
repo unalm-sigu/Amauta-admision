@@ -1,21 +1,20 @@
 <tr rel="{{:index}}">
     <td class="text-left v-middle"> 
-        <span class="block">{{:nombreCurso}}</span>
-        <span class="block"><b>{{:codigo}}</b> &nbsp;&nbsp; <i class="fa fa-bookmark-o"></i> {{:estructura}}</span>
+        <span class="block text-primary h4 m-t-xxs">{{:nombreCurso}}</span>
+        <span class="block"><b>{{:codigo}}</b> &nbsp; <i class="fa fa-bookmark-o"></i> {{:estructura}}</span>
         <input type="hidden" value="{{:idGrupo}}"/>
     </td>
 
-    <td class="text-center"> 
-
-
+    <td class="text-center v-middle"> 
         {{:secciones}}
     </td>
 
-    <td>
-        <span class="block">{{:docenteNombre}}</span>
+    <td class="v-middle">
+        <span class="block bold">{{:docenteNombre}}</span>
+        <small class="block text-primary">{{:emailDocente}}</small>
     </td>
     <td class="text-center v-middle">
-        <span class="block">{{:version}}</span>
+        <span class="block h3 text-success">{{:version}}</span>
     </td>
 
     <td class="text-center v-middle">
@@ -23,11 +22,14 @@
     </td>
     <td class="text-center v-middle">
         <span class=" label label-{{:colorEstadoGrupo}}">{{:estadoGrupoValue}}</span>
+        {{if fechaCierreActa}}
+        <span>{{:fechaCierreActa}}</span>
+        {{/if}}
     </td>
     <td class="text-center v-middle">
         <span class=" label label-{{:colorEstado}}">{{:estadoValue}}</span>
     </td>
-    <td>
+    <td class="v-middle">
 
         <div class="dropdown actions">
             <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="glyphicon glyphicon-cog"></i></a>

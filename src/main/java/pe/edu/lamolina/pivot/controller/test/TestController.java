@@ -298,7 +298,7 @@ public class TestController {
         //  List<CicloAcademico> allCiclosActivos = cicloAcademicoDAO.allActivesByModalidad(alumno.getModalidadEstudio(), new String[]{"ca.year asc", "ca.numeroCiclo asc"});
         visorCalculoNotas.setActivo(false);
         ds.setFechaAccionAudit(new Date());
-        promedioService.calulcarSituacionAcademica(new Alumno(alumnoId), ds);
+        promedioService.calcularSituacionAcademica(new Alumno(alumnoId), ds);
         return "yeah";
     }
 

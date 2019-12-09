@@ -257,12 +257,15 @@ Vue.component("historial-component", {
             }
             return false;
         },
-        verNota(nota) {
-            let nn = nota.toFixed(2);
-            if (nn.length == 4) {
-                nn = "0" + nn;
+        verNota(notax) {
+            notax += "";
+            let idx = notax.indexOf(".");
+            let nota = notax;
+            if (idx < 0) {
+                nota += ".0000";
+            } else {
+                nota += "0000";
             }
-            //return nn;
             return nota.toString().match(/^-?\d+(?:\.\d{0,2})?/)[0];
         },
         classCiclo(item) {
@@ -372,7 +375,7 @@ Vue.component("historial-component", {
             }
         },
         calcularPromedio: function () {
-            var vue = this;
+            let vue = this;
             if (vue.alumno.id == null) {
                 return;
             }
@@ -393,17 +396,37 @@ Vue.component("historial-component", {
                             success: function (response) {
                                 if (response.success) {
                                     vue.cargaHistorial();
+                                    vue.reloadAlumno();
                                     notify(response.message, 'info');
                                 } else {
                                     notify(response.message, 'error');
                                 }
                                 $global.$emit('MODAL-WAIT-CLOSE', 'Cargando');
-                            }, error: function () {
+                            },
+                            error: function () {
                                 notify(MESSAGES.errorComunicacion, "error");
                                 $global.$emit('MODAL-WAIT-CLOSE', 'Cargando');
                             }
                         });
                     }
+                }
+            });
+        },
+        reloadAlumno() {
+            let vue = this;
+            $.ajax({
+                method: 'POST',
+                url: APP.url('academico/alumno/' + vue.alumno.id + '/data'),
+                success: function (response) {
+                    if (response.success) {
+                        vue.alumno = response.data;
+                        $global.$emit('update-alumno', vue.alumno);
+                    } else {
+                        notify(response.message, 'error');
+                    }
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
                 }
             });
         }

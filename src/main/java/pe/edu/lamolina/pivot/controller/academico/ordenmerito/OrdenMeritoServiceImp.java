@@ -688,13 +688,14 @@ public class OrdenMeritoServiceImp implements OrdenMeritoService {
     }
 
     private void checkAndUpdate(AlumnoCiclo alumnoCiclo) {
-        if (alumnoCiclo.getCreditosAprobadosAcumulados() <= 40) {
+        int creditos = alumnoCiclo.getCreditosAprobadosConvalidadosAcumulados();
+        if (creditos <= 40) {
             alumnoCiclo.setNivel(1);
-        } else if (alumnoCiclo.getCreditosAprobadosAcumulados() <= 80) {
+        } else if (creditos <= 80) {
             alumnoCiclo.setNivel(2);
-        } else if (alumnoCiclo.getCreditosAprobadosAcumulados() <= 120) {
+        } else if (creditos <= 120) {
             alumnoCiclo.setNivel(3);
-        } else if (alumnoCiclo.getCreditosAprobadosAcumulados() <= 160) {
+        } else if (creditos <= 160) {
             alumnoCiclo.setNivel(4);
         } else {
             alumnoCiclo.setNivel(5);

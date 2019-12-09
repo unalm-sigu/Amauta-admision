@@ -163,7 +163,7 @@
                                 <strong> Promedio ponderado currícula  </strong>
                             </td>
                             <td class="col-md-6">
-                                <span v-text='alumno.promedioCarreraAcumulado'></span>
+                                <span v-text='verNota(alumno.promedioCarreraAcumulado)'></span>
                             </td>
                         </tr>
 
@@ -189,7 +189,7 @@
                                 <strong> Promedio ponderado acumulado  </strong>
                             </td>
                             <td>
-                                <span v-text='alumno.promedioAcumulado'></span>
+                                <span v-text='verNota(alumno.promedioAcumulado)'></span>
                             </td>
                         </tr>
 
@@ -199,6 +199,14 @@
                             </td>
                             <td>
                                 <span v-text='alumno.creditosAprobados'></span>
+                            </td>
+                        </tr>
+                        <tr v-if='alumno.creditosConvalidados > 0'>
+                            <td>
+                                <strong> Créditos convalidades  </strong>
+                            </td>
+                            <td>
+                                <span v-text='alumno.creditosConvalidados'></span>
                             </td>
                         </tr>
 

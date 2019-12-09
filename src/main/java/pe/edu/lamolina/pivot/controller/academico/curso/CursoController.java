@@ -14,6 +14,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -107,12 +108,12 @@ public class CursoController {
 
     @ResponseBody
     @RequestMapping("list")
-    public DynatableResponse allByDynatable(DynatableFilter filter, HttpSession session) {
+    public DynatableResponse allByDynatable(DynatableFilter filter, HttpServletRequest request, HttpSession session) {
         DynatableResponse json = new DynatableResponse();
 
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            List<Curso> cursos = service.allByDynatable(filter, ds.getDepartamentos(), ds.getCicloAcademico());
+            List<Curso> cursos = service.allByDynatable(filter, ds.getCicloAcademico(), ds, request);
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
             for (Curso curso : cursos) {

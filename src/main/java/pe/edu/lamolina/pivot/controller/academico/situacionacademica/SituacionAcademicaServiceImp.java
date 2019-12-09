@@ -18,20 +18,25 @@ import pe.edu.lamolina.pivot.dao.academico.SituacionConfigDAO;
 @Service
 @Transactional(readOnly = true)
 public class SituacionAcademicaServiceImp implements SituacionAcademicaService {
-    
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    
+
     @Autowired
     SituacionAcademicaDAO situacionAcademicaDAO;
-    
+
     @Autowired
     SituacionConfigDAO situacionConfigDAO;
-    
+
     @Autowired
     AlumnoDAO alumnoDAO;
-    
+
     @Override
-    public SituacionAcademica findSituacionFinal(AlumnoCiclo alumnoCiclo, SituacionAcademica situacionAcademicaIni, Integer ciclosEstudiados, Integer capa, CicloAcademico cicloAcademico) {
+    public SituacionAcademica findSituacionFinal(
+            AlumnoCiclo alumnoCiclo,
+            SituacionAcademica situacionAcademicaIni,
+            Integer ciclosEstudiados,
+            Integer capa,
+            CicloAcademico cicloAcademico) {
         /* if (situacionAcademicaIni == null) {
             alumno = alumnoDAO.find(alumno);
             if (alumno.getModalidadEstudio().isPregrado()) {
@@ -40,26 +45,26 @@ public class SituacionAcademicaServiceImp implements SituacionAcademicaService {
                 situacionAcademicaIni = situacionAcademicaDAO.findByCodigo(SituacionAcademicaEnum.S_N.getValue());
             }
         }*/
-        SituacionConfig situacionConfig = new SituacionConfig();
-        situacionConfig.setSituacionInicial(situacionAcademicaIni);
-        situacionConfig.setAprobado(alumnoCiclo.getEstaAprobado());
-        situacionConfig.setCiclosEstudiados(ciclosEstudiados);
-        situacionConfig.setAutorizado(BigDecimal.ZERO.intValue());
-        situacionConfig.setCapa(capa);
-        situacionConfig.setSiguienteCiclo(BigDecimal.ONE.intValue());
-        situacionConfig.setTramite(-1);
-        situacionConfig.setCicloRegular(cicloAcademico.isTipoRegular() ? BigDecimal.ONE.intValue() : BigDecimal.ZERO.intValue());
+        SituacionConfig config = new SituacionConfig();
+        config.setSituacionInicial(situacionAcademicaIni);
+        config.setAprobado(alumnoCiclo.getEstaAprobado());
+        config.setCiclosEstudiados(ciclosEstudiados);
+        config.setAutorizado(BigDecimal.ZERO.intValue());
+        config.setCapa(capa);
+        config.setSiguienteCiclo(BigDecimal.ONE.intValue());
+        config.setTramite(-1);
+        config.setCicloRegular(cicloAcademico.isTipoRegular() ? BigDecimal.ONE.intValue() : BigDecimal.ZERO.intValue());
         /*
         logger.debug("Situacion Inicial {}, Esta Aprobado {}, Ciclos Estudiados {}, Capa {}, Ciclo Regular {}",
                 situacionAcademicaIni.getId(), alumnoCiclo.getEstaAprobado(),
                 ciclosEstudiados, situacionConfig.getCapa(), situacionConfig.getCicloRegular());
          */
         //   SituacionConfig situacionFinal = situacionConfigDAO.findForSituacionFinal(situacionConfig);
-        SituacionConfig situacionFinal = situacionConfigDAO.findsSituacionConfig(situacionConfig);
+        SituacionConfig situacionFinal = situacionConfigDAO.findsSituacionConfig(config);
         if (situacionFinal == null) {
-            ObjectUtil.printAttr(situacionConfig);
+            ObjectUtil.printAttr(config);
         }
         return situacionFinal != null ? situacionAcademicaDAO.find(situacionFinal.getSituacionFinal().getId()) : null;
     }
-    
+
 }

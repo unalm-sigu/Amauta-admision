@@ -5,12 +5,14 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.thymeleaf.util.DartUtils;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.NumberFormat;
@@ -34,10 +36,12 @@ import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.PRE;
 import pe.edu.lamolina.model.enums.TipoCreditoEnum;
 import pe.edu.lamolina.model.enums.TipoCurriculaEnum;
 import pe.edu.lamolina.model.enums.TipoCursoEnum;
+import pe.edu.lamolina.model.enums.TipoOficinaEnum;
 import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.general.Idioma;
 import pe.edu.lamolina.model.general.TipoCarpeta;
 import pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.reporte.dto.CantidadMatriculadosDTO;
+import pe.edu.lamolina.pivot.controller.seguridad.verificador.VerificadorService;
 import pe.edu.lamolina.pivot.dao.academico.CarreraDAO;
 import pe.edu.lamolina.pivot.dao.academico.CursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.DepartamentoAcademicoDAO;
@@ -86,10 +90,17 @@ public class CursoServiceImp implements CursoService {
     @Autowired
     DocenteSeccionDAO docenteSeccionDAO;
 
+    @Autowired
+    VerificadorService verificadorService;
+
     @Override
-    public List<Curso> allByDynatable(DynatableFilter filter, List<DepartamentoAcademico> departamentos, CicloAcademico cicloAcademico) {
-        logger.debug("size dps {}", departamentos.size());
-        List<Curso> cursos = cursoDAO.allByDynatable(filter, departamentos);
+    public List<Curso> allByDynatable(DynatableFilter filter, CicloAcademico cicloAcademico, DataSessionPivot ds, HttpServletRequest request) {
+        List<ModalidadEstudio> modalidades = modalidadEstudioDAO.allPrePostgrado(new Compania(1));
+        List<ModalidadEstudio> modalidadesCurso = verificadorService.modalidadesPermitidasForCursos(ds, modalidades);
+        List<DepartamentoAcademico> departamentos = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.DPTO, request, ds);
+        List<Carrera> carreras = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.ESP, request, ds);
+
+        List<Curso> cursos = cursoDAO.allByDynatable(filter, modalidadesCurso, carreras, departamentos);
         List<CantidadMatriculadosDTO> cantidadMatriculados = matriculaSeccionDAO.cantidadMatriculadosPorCurso(cursos, cicloAcademico, EstadoMatriculaEnum.MAT);
         for (Curso curso : cursos) {
             CantidadMatriculadosDTO cantidadPorCurso = cantidadMatriculados.stream()

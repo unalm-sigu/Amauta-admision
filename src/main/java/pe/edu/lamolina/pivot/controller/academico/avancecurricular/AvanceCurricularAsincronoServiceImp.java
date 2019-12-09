@@ -910,7 +910,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
             List<RequisitoCursoCurricula> requisitos = mapRequisitos.get(evaluado.getCursoCurricula().getId());
             if (requisitos == null || requisitos.isEmpty() || cumpleRequisitos(requisitos, mapCursoCurriculaAlu, evaluado, alumno)) {
                 if (!tipoCursoELCEnums.contains(evaluado.getCurso().getCodigo())
-                        && evaluado.getCursoCurricula().getCreditosRequisito() <= alumno.getCreditosAprobados()) {
+                        && evaluado.getCursoCurricula().getCreditosRequisito() <= alumno.getCreditosAprobadosConvalidados()) {
                     evaluado.setEstadoEnum(HAB);
                 }
             } else {
@@ -921,7 +921,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
                 }
                 evaluado.setValidado(true);
             }
-            validarCreditosAprobados(evaluado.getCursoCurricula(), evaluado, alumno.getCreditosAprobados(), 0);
+            validarCreditosAprobados(evaluado.getCursoCurricula(), evaluado, alumno.getCreditosAprobadosConvalidados(), 0);
         }
 
     }
@@ -1503,7 +1503,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
     }
 
     private boolean validarCreditos(Alumno alumno, CursoOpcionalCurricula cursoOpcionalCurricula) {
-        return cursoOpcionalCurricula.getCreditosRequisito() <= alumno.getCreditosAprobados();
+        return cursoOpcionalCurricula.getCreditosRequisito() <= alumno.getCreditosAprobadosConvalidados();
     }
 
     private boolean validadSimultaneo(RequisitoCursoOpcional requisitoCursoCurricula, List<MatriculaCurso> cursosMatriculados) {

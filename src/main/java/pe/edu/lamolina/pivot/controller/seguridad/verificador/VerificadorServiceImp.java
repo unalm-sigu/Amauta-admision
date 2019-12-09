@@ -15,6 +15,8 @@ import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Facultad;
+import pe.edu.lamolina.model.academico.ModalidadEstudio;
+import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.OficinaEnum;
 import static pe.edu.lamolina.model.enums.OficinaEnum.BAN;
 import static pe.edu.lamolina.model.enums.OficinaEnum.EPG;
@@ -106,28 +108,28 @@ public class VerificadorServiceImp implements VerificadorService {
     }
 
     @Override
-    public List<Object> allInstanciasByMenuRol(TipoOficinaEnum tipoOficinaSolicitud, HttpServletRequest request, DataSessionPivot ds) {
+    public List<Object> allInstanciasByMenuRol(TipoOficinaEnum tipoSolicitud, HttpServletRequest request, DataSessionPivot ds) {
         List<Object> lista = new ArrayList();
         List<Oficina> oficinasMain = oficinaService.allOficinasMainByPersona(ds.getPersona());
         for (Oficina oficina : oficinasMain) {
             if (oficina.getCodigoEnum() == OERA) {
-                if (tipoOficinaSolicitud == DPTO) {
+                if (tipoSolicitud == DPTO) {
                     lista.addAll(departamentoAcademicoDAO.all());
                     return lista;
-                } else if (tipoOficinaSolicitud == FAC) {
+                } else if (tipoSolicitud == FAC) {
                     lista.addAll(facultadDAO.all());
                     return lista;
                 }
 
             }
             if (oficina.getCodigoEnum() == EPG) {
-                if (tipoOficinaSolicitud == ESP) {
+                if (tipoSolicitud == ESP) {
                     lista.addAll(carreraDAO.allPosGrado());
                     return lista;
                 }
             }
             if (Arrays.asList(OERA, BAN).contains(oficina.getCodigoEnum())) {
-                if (tipoOficinaSolicitud == ESP) {
+                if (tipoSolicitud == ESP) {
                     lista.addAll(carreraDAO.allPrePosGrado());
                     return lista;
                 }
@@ -151,26 +153,34 @@ public class VerificadorServiceImp implements VerificadorService {
         List<Facultad> facultades = facultadDAO.all();
         List<DepartamentoAcademico> departamentos = departamentoAcademicoDAO.all();
         Map<Long, Carrera> mapCarreras = TypesUtil.convertListToMap("id", carreras);
+        Map<Long, List<Carrera>> mapCarrerasByFacultad = TypesUtil.convertListToMapList("facultad.id", carreras);
         Map<Long, Facultad> mapFacultad = TypesUtil.convertListToMap("id", facultades);
         Map<Long, DepartamentoAcademico> mapDepartamento = TypesUtil.convertListToMap("id", departamentos);
+        Map<Long, List<DepartamentoAcademico>> mapDepartamentoByFacultad = TypesUtil.convertListToMapList("facultad.id", departamentos);
 
         for (Oficina oficina : oficinas) {
-            if (tipoOficinaSolicitud == ESP && oficina.getTipoOficina().getCodigoEnum() == ESP) {
+            if (tipoSolicitud == ESP && oficina.getTipoOficina().getCodigoEnum().getClazz() == Carrera.class) {
                 lista.add(mapCarreras.get(oficina.getInstanciaOficina()));
 
-            } else if (tipoOficinaSolicitud == FAC && oficina.getTipoOficina().getCodigoEnum() == ESP) {
-                // IMPLEMENTAR LOGICA
-                //lista.addAll(facultadDAO.all());
+            } else if (tipoSolicitud == ESP && oficina.getTipoOficina().getCodigoEnum().getClazz() == Facultad.class) {
+                Facultad facultad = mapFacultad.get(oficina.getInstanciaOficina());
+                lista.addAll(TypesUtil.getListNotNull(mapCarrerasByFacultad.get(facultad.getId())));
 
-            } else if (tipoOficinaSolicitud == FAC && oficina.getTipoOficina().getCodigoEnum() == FAC) {
+            } else if (tipoSolicitud == FAC && oficina.getTipoOficina().getCodigoEnum().getClazz() == Carrera.class) {
+                // IMPLEMENTAR LOGICA
+
+            } else if (tipoSolicitud == FAC && oficina.getTipoOficina().getCodigoEnum().getClazz() == Facultad.class) {
                 lista.add(mapFacultad.get(oficina.getInstanciaOficina()));
 
-            } else if (tipoOficinaSolicitud == DPTO && oficina.getTipoOficina().getCodigoEnum() == DPTO) {
+            } else if (tipoSolicitud == DPTO && oficina.getTipoOficina().getCodigoEnum().getClazz() == Facultad.class) {
+                Facultad facultad = mapFacultad.get(oficina.getInstanciaOficina());
+                lista.addAll(TypesUtil.getListNotNull(mapDepartamentoByFacultad.get(facultad.getId())));
+
+            } else if (tipoSolicitud == DPTO && oficina.getTipoOficina().getCodigoEnum().getClazz() == DepartamentoAcademico.class) {
                 lista.add(mapDepartamento.get(oficina.getInstanciaOficina()));
 
-            } else if (tipoOficinaSolicitud == FAC && oficina.getTipoOficina().getCodigoEnum() == DPTO) {
+            } else if (tipoSolicitud == FAC && oficina.getTipoOficina().getCodigoEnum() == DPTO) {
                 // IMPLEMENTAR LOGICA
-                //lista.addAll(facultadDAO.all());
             }
         }
         return lista;
@@ -476,6 +486,42 @@ public class VerificadorServiceImp implements VerificadorService {
         }
 
         return false;
+    }
+
+    @Override
+    public List<ModalidadEstudio> modalidadesPermitidasForCursos(DataSessionPivot ds, List<ModalidadEstudio> modalidades) {
+        boolean esTrabajadorOERA = false;
+        List<Oficina> oficinasMain = oficinaService.allOficinasMainByPersona(ds.getPersona());
+        for (Oficina oficina : oficinasMain) {
+            if (oficina.getCodigoEnum() == OERA) {
+                esTrabajadorOERA = true;
+            }
+        }
+
+        if (esTrabajadorOERA) {
+            for (Rol rol : ds.getRoles()) {
+                if (rol.getCodigoEnum() == RolEnum.EDITOR_CURSOS) {
+                    return modalidades;
+                }
+            }
+        }
+
+        boolean esTrabajadorEPG = false;
+        for (Oficina oficina : oficinasMain) {
+            if (oficina.getCodigoEnum() == EPG) {
+                esTrabajadorEPG = true;
+            }
+        }
+        if (esTrabajadorEPG) {
+            for (Rol rol : ds.getRoles()) {
+                if (rol.getCodigoEnum() == RolEnum.REVISOR_CURSOS_EPG) {
+                    List<ModalidadEstudio> modas = new ArrayList();
+                    modas.add(modalidades.stream().filter(x -> x.getCodigoEnum() == ModalidadEstudioEnum.EPG).findAny().orElse(null));
+                    return modas;
+                }
+            }
+        }
+        return null;
     }
 
 }

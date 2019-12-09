@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.bean.RolExamenDocente;
@@ -65,21 +66,24 @@ public class RolExamenDocenteServiceImp implements RolExamenDocenteService {
     RolExamenesDAO rolExamenesDAO;
 
     @Override
-    public List<RolExamenDocente> listExamenDocente(Docente docente, DataSessionPivot ds) {
-        List<DocenteCursoMasivo> docenteCursoMasivos = docenteCursoMasivoDAO.allByDocenteAndCiclo(docente, ds.getCicloAcademico());
+    public List<RolExamenDocente> listExamenDocente(Docente docente, CicloAcademico ciclo) {
 
-        List<Seccion> listSeccion = seccionDAO.allSeccionByCicloDocente(docente, ds.getCicloAcademico());
-        RolExamenes rolExam = rolExamenesDAO.findByEstadoCiclo(RolExamenesEstadoEnum.PUB, ds.getCicloAcademico());
+        RolExamenes rolExam = rolExamenesDAO.findByEstadoCiclo(RolExamenesEstadoEnum.PUB, ciclo);
+        if (rolExam == null) {
+            return new ArrayList();
+        }
+        List<Seccion> listSeccion = seccionDAO.allSeccionByCicloDocente(docente, ciclo);
         List<RolExamenDocente> seccionGrupoRegulars = seccionGrupoRegularDAO.allBySeccionesAndRolExam(rolExam, listSeccion);
-//        RolExamenes rolExam = rolExamenesDAO.findByCicloAndEstadoAndEventoAcademico(ds.getCicloAcademico(), RolExamenesEstadoEnum.PUB, EventoAcademicoEnum.EXAMEN_PARC);
         List<RolExamenDocente> seccionGrupoEspecials = seccionGrupoEspecialDAO.allBySeccionesAndRolExam(rolExam, listSeccion);
+
+//        RolExamenes rolExam = rolExamenesDAO.findByCicloAndEstadoAndEventoAcademico(ds.getCicloAcademico(), RolExamenesEstadoEnum.PUB, EventoAcademicoEnum.EXAMEN_PARC);
 //        List<RolExamenDocente> seccionGrupoRegulars = seccionGrupoRegularDAO.allByDocenteAndCiclo(docente, ds.getCicloAcademico());
 //        List<RolExamenDocente> seccionGrupoEspecials = seccionGrupoEspecialDAO.allByDocenteAndCiclo(docente, ds.getCicloAcademico());
+        List<DocenteCursoMasivo> docenteCursoMasivos = docenteCursoMasivoDAO.allByDocenteAndCiclo(docente, ciclo);
         List<CursoMasivoExamen> cursosMasivos = docenteCursoMasivos.stream().map(DocenteCursoMasivo::getCursoMasivoExamen).collect(Collectors.toList());
-
         List<SeccionCursoMasivo> seccionCursoMasivos = seccionCursoMasivoDAO.allByCursosMasivos(cursosMasivos);
-
         List<AulaCursoMasivo> aulaCursoMasivos = aulaCursoMasivoDAO.allByCursosMasivos(cursosMasivos);
+
         List<RolExamenDocente> examenDocentes = new ArrayList();
         for (DocenteCursoMasivo docenteCursoMasivo : docenteCursoMasivos) {
             CursoMasivoExamen cursoMasivoExamen = docenteCursoMasivo.getCursoMasivoExamen();

@@ -104,7 +104,7 @@ public class BolsaInvestigacionServiceImp implements BolsaInvestigacionService {
 
         AlumnoBolsaInvestigacion abiBD = alumnoBolsaInvestigacionDAO.findByBolsaInvestigacionAlumno(bi, alumnoBolsa.getAlumno());
         Assert.isNull(abiBD, "Ya se ha registrado una investigación de este alumno");
-        
+
         Assert.isTrue(checkearAlumno(alumnoBolsa.getAlumno(), cicloAcademico).isEmpty(), "Alumno no válido");
         TipoDocumentoCompania tdc = tipoDocumentoCompaniaDAO.findByCodigo(TipoDocumentoCompaniaEnum.TRAM);
         SerieDocumento serie = serieDocumentoService.getCorrelativo(tdc, Long.parseLong(ds.getCicloAcademico().getCodigo()), ds.getUsuario());
@@ -184,7 +184,7 @@ public class BolsaInvestigacionServiceImp implements BolsaInvestigacionService {
                 String valor = "El alumno cuenta con un promedio acumulado menor a 11.";
                 mensajes.add(valor);
             }
-            int val2 = alumnoCiclo.getCreditosAprobadosAcumulados();
+            int val2 = alumnoCiclo.getCreditosAprobadosConvalidadosAcumulados();
             if (val2 < 15) {
                 String valor = "El alumno cuenta créditos aprobados acumulados menor a 15.";
                 mensajes.add(valor);

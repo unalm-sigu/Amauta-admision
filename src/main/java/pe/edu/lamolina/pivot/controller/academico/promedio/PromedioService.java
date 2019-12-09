@@ -7,6 +7,7 @@ import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
+import pe.edu.lamolina.model.academico.Egresado;
 import pe.edu.lamolina.model.academico.MatriculaCurso;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
@@ -15,39 +16,50 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface PromedioService {
 
-    void trasladarInformcionForHistorial(MatriculaResumen matriculaResumen, List<MatriculaCurso> matriculasCurso, List<MatriculaSeccion> matriculasSeccion, DataSessionPivot ds, boolean calcularSituacion);
+    void trasladarInformcionForHistorial(
+            MatriculaResumen matriculaResumen,
+            List<MatriculaCurso> matriculasCurso,
+            List<MatriculaSeccion> matriculasSeccion,
+            // List<AlumnoCicloCurso> allAlumnoCicloCurso,
+            DataSessionPivot ds, boolean calcularSituacion);
 
-    void promedio(MatriculaCurso matriculaCurso, DataSessionPivot ds, boolean calcularSituacionAcadFinal);
+    void promedio(MatriculaCurso matriculaCurso, DataSessionPivot ds, boolean calcularSituacionAcadFinal, boolean showError);
 
     void promediarAllCicloAsync(
             Alumno alumno,
             CicloAcademico cicloActivo,
+            Egresado egresado,
             List<CicloAcademico> ciclos,
             List<AlumnoCiclo> alumnoCiclos,
             List<AlumnoCicloCurso> allOperativesByModalidadEstudio,
+            List<AlumnoCicloCurso> allAlumnoCicloCurso,
             List<Reincorporacion> allReincorporacionesByAlumno,
             DataSessionPivot ds);
 
-    void promediarAllCicloSync(
+    int promediarAllCicloSync(
             Alumno alumno,
             CicloAcademico cicloActivo,
+            Egresado egresado,
             List<CicloAcademico> ciclos,
             List<AlumnoCiclo> alumnoCiclos,
             List<AlumnoCicloCurso> allOperativesByModalidadEstudio,
+            List<AlumnoCicloCurso> allAlumnoCicloCurso,
             List<Reincorporacion> allReincorporacionesByAlumno,
-            DataSessionPivot ds);
+            DataSessionPivot ds, boolean throwError, boolean showError);
 
-    void trasladoPromediosSource(MatriculaCurso matriculaCurso, DataSessionPivot ds);
+    void trasladoPromediosSource(MatriculaCurso matriculaCurso, DataSessionPivot ds, boolean showError);
 
-    void generarHistorialNotas(Alumno alumno,
+    void generarHistorialNotas(
+            Alumno alumno,
+            Egresado egresado,
             Curso curso,
             MatriculaCurso matriculaCurso,
             CicloAcademico cicloAcademico,
-            DataSessionPivot ds);
+            DataSessionPivot ds, boolean showError);
 
-    void calulcarSituacionAcademica(Alumno alumno, DataSessionPivot ds);
+    void calcularSituacionAcademica(Alumno alumno, DataSessionPivot ds);
 
-    void calulcarSituacionAcademicaNewSession(Alumno alumno, DataSessionPivot ds);
+    void calulcarSituacionAcademicaNewSession(Alumno alumno, Egresado egresado, DataSessionPivot ds);
 
     Integer evaluateEstaAprobado(BigDecimal nota, Alumno alumno);
 

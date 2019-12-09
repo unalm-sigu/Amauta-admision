@@ -1,6 +1,7 @@
 package pe.edu.lamolina.pivot.controller.academico.curso;
 
 import java.util.List;
+import javax.servlet.http.HttpServletRequest;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
@@ -19,7 +20,7 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface CursoService {
 
-    List<Curso> allByDynatable(DynatableFilter filter, List<DepartamentoAcademico> departamentos, CicloAcademico cicloAcademico);
+    List<Curso> allByDynatable(DynatableFilter filter, CicloAcademico cicloAcademico, DataSessionPivot ds, HttpServletRequest request);
 
     Curso save(Curso curso, DataSessionPivot ds);
 

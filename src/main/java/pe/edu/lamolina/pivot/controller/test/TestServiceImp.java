@@ -16,6 +16,7 @@ import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.Egresado;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.MatriculaCurso;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
@@ -43,6 +44,7 @@ import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloCursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
+import pe.edu.lamolina.pivot.dao.academico.EgresadoDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaCursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaResumenDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaSeccionDAO;
@@ -89,6 +91,9 @@ public class TestServiceImp implements TestService {
 
     @Autowired
     MatriculaResumenDAO matriculaResumenDAO;
+
+    @Autowired
+    EgresadoDAO egresadoDAO;
 
     @Autowired
     MatriculaCursoDAO matriculaCursoDAO;
@@ -229,13 +234,15 @@ public class TestServiceImp implements TestService {
             List<AlumnoCiclo> alumnosCiclosByCiclo = alumnoCicloDAO.allWithSituacionByCiclo(cicloAcademico);
             List<Alumno> alumnos = alumnosCiclosByCiclo.stream().map(x -> x.getAlumno()).collect(Collectors.toList());
 
-            List<AlumnoCicloCurso> alumnosCiclosCursosAll = alumnoCicloCursoDAO.allOperativesByAlumnos(alumnos);
-            for (AlumnoCicloCurso aac : alumnosCiclosCursosAll) {
+            List<AlumnoCicloCurso> alumnosCiclosCursosActivos = alumnoCicloCursoDAO.allOperativesByAlumnos(alumnos);
+            List<AlumnoCicloCurso> alumnosCiclosCursosAll = alumnoCicloCursoDAO.allByAlumnos(alumnos);
+            for (AlumnoCicloCurso aac : alumnosCiclosCursosActivos) {
                 aac.getAlumnoCiclo().getAlumno().getId();
                 aac.getAlumnoCiclo().getCicloAcademico().getId();
                 aac.getCurso().getId();
             }
-            Map<Long, List<AlumnoCicloCurso>> mapAlumnoCicloCurso = TypesUtil.convertListToMapList("alumnoCiclo.alumno.id", alumnosCiclosCursosAll);
+            Map<Long, List<AlumnoCicloCurso>> mapAlumnoCicloCursosActivos = TypesUtil.convertListToMapList("alumnoCiclo.alumno.id", alumnosCiclosCursosActivos);
+            Map<Long, List<AlumnoCicloCurso>> mapAlumnoCicloCursosAll = TypesUtil.convertListToMapList("alumnoCiclo.alumno.id", alumnosCiclosCursosAll);
 
             List<AlumnoCiclo> alumnosCiclosAll = alumnoCicloDAO.allWithSituacionByAlumnos(alumnos);
             Map<Long, List<AlumnoCiclo>> mapAlumnoCiclo = TypesUtil.convertListToMapList("alumno.id", alumnosCiclosAll);
@@ -246,16 +253,30 @@ public class TestServiceImp implements TestService {
             List<MatriculaResumen> matriculasResumen = matriculaResumenDAO.allByCicloFull(cicloAcademico);
             logger.info("matriculas resumen encontradas {}, del ciclo {}", matriculasResumen.size(), cicloAcademico.toString());
 
+            List<Egresado> egresados = egresadoDAO.allByAlumnos(alumnos);
+            Map<Long, Egresado> mapEgresado = TypesUtil.convertListToMap("alumno.id", egresados);
+
             for (MatriculaResumen mResumen : matriculasResumen) {
                 Alumno alumno = mResumen.getAlumno();
+                Egresado egresado = mapEgresado.get(alumno.getId());
                 List<AlumnoCiclo> alumnoCiclos = TypesUtil.getListNotNull(mapAlumnoCiclo.get(alumno.getId()));
-                List<AlumnoCicloCurso> alumnosCicloCursoByAlumno = TypesUtil.getListNotNull(mapAlumnoCicloCurso.get(alumno.getId()));
+                List<AlumnoCicloCurso> alumnoCicloCursoActivoByAlu = TypesUtil.getListNotNull(mapAlumnoCicloCursosActivos.get(alumno.getId()));
+                List<AlumnoCicloCurso> alumnoCicloCursoAllByAlu = TypesUtil.getListNotNull(mapAlumnoCicloCursosAll.get(alumno.getId()));
                 List<Reincorporacion> reincorporacionesByAlumno = TypesUtil.getListNotNull(mapReincorporacion.get(alumno.getId()));
 
                 CicloAcademico cicloActivoByModalidad = ciclosActivos.stream()
                         .filter(x -> x.getModalidadEstudio().getCodigoEnum().equals(alumno.getModalidadEstudio().getOperativeModalidadEnum()))
                         .findFirst().orElse(null);
-                promedioService.promediarAllCicloAsync(alumno, cicloActivoByModalidad, ciclosAll, alumnoCiclos, alumnosCicloCursoByAlumno, reincorporacionesByAlumno, ds);
+
+                promedioService.promediarAllCicloAsync(
+                        alumno,
+                        cicloActivoByModalidad,
+                        egresado,
+                        ciclosAll,
+                        alumnoCiclos,
+                        alumnoCicloCursoActivoByAlu,
+                        alumnoCicloCursoAllByAlu,
+                        reincorporacionesByAlumno, ds);
             }
 
         }
@@ -276,13 +297,15 @@ public class TestServiceImp implements TestService {
             List<AlumnoCiclo> alumnosCiclosByCiclo = alumnoCicloDAO.allWithSituacionErrorByCiclo(cicloAcademico);
             List<Alumno> alumnos = alumnosCiclosByCiclo.stream().map(x -> x.getAlumno()).collect(Collectors.toList());
 
-            List<AlumnoCicloCurso> alumnosCiclosCursosAll = alumnoCicloCursoDAO.allOperativesByAlumnos(alumnos);
-            for (AlumnoCicloCurso aac : alumnosCiclosCursosAll) {
+            List<AlumnoCicloCurso> alumnosCiclosCursosActivos = alumnoCicloCursoDAO.allOperativesByAlumnos(alumnos);
+            List<AlumnoCicloCurso> alumnosCiclosCursosAll = alumnoCicloCursoDAO.allByAlumnos(alumnos);
+            for (AlumnoCicloCurso aac : alumnosCiclosCursosActivos) {
                 aac.getAlumnoCiclo().getAlumno().getId();
                 aac.getAlumnoCiclo().getCicloAcademico().getId();
                 aac.getCurso().getId();
             }
-            Map<Long, List<AlumnoCicloCurso>> mapAlumnoCicloCurso = TypesUtil.convertListToMapList("alumnoCiclo.alumno.id", alumnosCiclosCursosAll);
+            Map<Long, List<AlumnoCicloCurso>> mapAlumnosCiclosCursosActivos = TypesUtil.convertListToMapList("alumnoCiclo.alumno.id", alumnosCiclosCursosActivos);
+            Map<Long, List<AlumnoCicloCurso>> mapAlumnosCiclosCursosAll = TypesUtil.convertListToMapList("alumnoCiclo.alumno.id", alumnosCiclosCursosAll);
 
             List<AlumnoCiclo> alumnosCiclosAll = alumnoCicloDAO.allWithSituacionByAlumnos(alumnos);
             Map<Long, List<AlumnoCiclo>> mapAlumnoCiclo = TypesUtil.convertListToMapList("alumno.id", alumnosCiclosAll);
@@ -293,16 +316,29 @@ public class TestServiceImp implements TestService {
             List<MatriculaResumen> matriculasResumen = matriculaResumenDAO.allByCicloFull(cicloAcademico);
             logger.info("matriculas resumen encontradas {}, del ciclo {}", matriculasResumen.size(), cicloAcademico.toString());
 
+            List<Egresado> egresados = egresadoDAO.allByAlumnos(alumnos);
+            Map<Long, Egresado> mapEgresado = TypesUtil.convertListToMap("alumno.id", egresados);
+
             for (MatriculaResumen mResumen : matriculasResumen) {
                 Alumno alumno = mResumen.getAlumno();
+                Egresado egresado = mapEgresado.get(alumno.getId());
                 List<AlumnoCiclo> alumnoCiclos = TypesUtil.getListNotNull(mapAlumnoCiclo.get(alumno.getId()));
-                List<AlumnoCicloCurso> alumnosCicloCursoByAlumno = TypesUtil.getListNotNull(mapAlumnoCicloCurso.get(alumno.getId()));
+                List<AlumnoCicloCurso> alumnoCicloCursoActivosByAlu = TypesUtil.getListNotNull(mapAlumnosCiclosCursosActivos.get(alumno.getId()));
+                List<AlumnoCicloCurso> alumnoCicloCursoAllByAlu = TypesUtil.getListNotNull(mapAlumnosCiclosCursosAll.get(alumno.getId()));
                 List<Reincorporacion> reincorporacionesByAlumno = TypesUtil.getListNotNull(mapReincorporacion.get(alumno.getId()));
 
                 CicloAcademico cicloActivoByModalidad = ciclosActivos.stream()
                         .filter(x -> x.getModalidadEstudio().getCodigoEnum().equals(alumno.getModalidadEstudio().getOperativeModalidadEnum()))
                         .findFirst().orElse(null);
-                promedioService.promediarAllCicloAsync(alumno, cicloActivoByModalidad, ciclosAll, alumnoCiclos, alumnosCicloCursoByAlumno, reincorporacionesByAlumno, ds);
+                promedioService.promediarAllCicloAsync(
+                        alumno,
+                        cicloActivoByModalidad,
+                        egresado,
+                        ciclosAll,
+                        alumnoCiclos,
+                        alumnoCicloCursoActivosByAlu,
+                        alumnoCicloCursoAllByAlu,
+                        reincorporacionesByAlumno, ds);
             }
 
         }
@@ -314,31 +350,44 @@ public class TestServiceImp implements TestService {
         List<String> allYears = alumnoDAO.allYearsCiclos();
         List<CicloAcademico> ciclos = cicloAcademicoDAO.all();
 
-        //List<Alumno> alumnos = matriculasResumen.stream().map(x -> x.getAlumno()).collect(Collectors.toList());
         CicloAcademico cicloActivo = cicloAcademicoDAO.findActivo(ModalidadEstudioEnum.PRE);
-        List<Alumno> alumnosAcumulados = new ArrayList<>();
         for (String year : allYears) {
             List<Alumno> alumnos = alumnoDAO.allPendingPromedioByCicloYearAndModalidadEst(year, ModalidadEstudioEnum.PRE);
-            alumnosAcumulados.addAll(alumnos);
-            logger.info("Año {}, Alumnos {}, Acumulados {}", year, alumnos.size(), alumnosAcumulados.size());
-        }
+            List<Egresado> egresados = egresadoDAO.allByAlumnos(alumnos);
+            logger.info("Año {}, Alumnos {}, Acumulados {}", year, alumnos.size(), alumnos.size());
 
-        List<AlumnoCiclo> alumnosCiclosAll = alumnoCicloDAO.allByAlumnos(alumnosAcumulados);
-        Map<Long, List<AlumnoCiclo>> mapAlumnoCiclo = TypesUtil.convertListToMapList("alumno.id", alumnosCiclosAll);
+            List<AlumnoCiclo> alumnosCiclosAll = alumnoCicloDAO.allByAlumnos(alumnos);
+            Map<Long, List<AlumnoCiclo>> mapAlumnoCiclo = TypesUtil.convertListToMapList("alumno.id", alumnosCiclosAll);
 
-        List<AlumnoCicloCurso> alumnosCiclosCursosAll = alumnoCicloCursoDAO.allOperativesByAlumnos(alumnosAcumulados);
-        Map<Long, List<AlumnoCicloCurso>> mapAlumnoCicloCurso = TypesUtil.convertListToMapList("alumnoCiclo.alumno.id", alumnosCiclosCursosAll);
+            List<AlumnoCicloCurso> alumnosCiclosCursosActivos = alumnoCicloCursoDAO.allOperativesByAlumnos(alumnos);
+            List<AlumnoCicloCurso> alumnosCiclosCursosAll = alumnoCicloCursoDAO.allByAlumnos(alumnos);
+            Map<Long, List<AlumnoCicloCurso>> mapAlumnoCicloCursoActivo = TypesUtil.convertListToMapList("alumnoCiclo.alumno.id", alumnosCiclosCursosActivos);
+            Map<Long, List<AlumnoCicloCurso>> mapAlumnoCicloCursoAll = TypesUtil.convertListToMapList("alumnoCiclo.alumno.id", alumnosCiclosCursosAll);
 
-        List<Reincorporacion> reincorporaciones = reincorporacionDAO.allByEstadoTramiteAndAlumnos(alumnosAcumulados, new EstadoTramite(EstadoTramiteEnum.SOL_ACEP.getId()));
-        Map<Long, List<Reincorporacion>> mapReincorporacion = TypesUtil.convertListToMapList("alumno.id", reincorporaciones);
+            List<Reincorporacion> reincorporaciones = reincorporacionDAO.allByEstadoTramiteAndAlumnos(alumnos, new EstadoTramite(EstadoTramiteEnum.SOL_ACEP.getId()));
+            Map<Long, List<Reincorporacion>> mapReincorporacion = TypesUtil.convertListToMapList("alumno.id", reincorporaciones);
 
-        contadorComponent.iniciar(alumnosAcumulados.size());
-        for (Alumno alumno : alumnosAcumulados) {
-            List<AlumnoCiclo> alumnoCiclos = TypesUtil.getListNotNull(mapAlumnoCiclo.get(alumno.getId()));
-            List<AlumnoCicloCurso> alumnosCicloCursoByAlumno = TypesUtil.getListNotNull(mapAlumnoCicloCurso.get(alumno.getId()));
-            List<Reincorporacion> reincorporacionesByAlumno = TypesUtil.getListNotNull(mapReincorporacion.get(alumno.getId()));
+            Map<Long, Egresado> mapEgresado = TypesUtil.convertListToMap("alumno.id", egresados);
 
-            promedioService.promediarAllCicloAsync(alumno, cicloActivo, ciclos, alumnoCiclos, alumnosCicloCursoByAlumno, reincorporacionesByAlumno, ds);
+            //contadorComponent.iniciar(alumnos.size());
+            for (Alumno alumno : alumnos) {
+                Egresado egresado = mapEgresado.get(alumno.getId());
+                List<AlumnoCiclo> alumnoCiclos = TypesUtil.getListNotNull(mapAlumnoCiclo.get(alumno.getId()));
+                List<AlumnoCicloCurso> alumnoCiclosCursosActivosByAlu = TypesUtil.getListNotNull(mapAlumnoCicloCursoActivo.get(alumno.getId()));
+                List<AlumnoCicloCurso> alumnoCiclosCursosAllByAlu = TypesUtil.getListNotNull(mapAlumnoCicloCursoAll.get(alumno.getId()));
+                List<Reincorporacion> reincorporacionesByAlumno = TypesUtil.getListNotNull(mapReincorporacion.get(alumno.getId()));
+
+                //promedioService.promediarAllCicloAsync(alumno, cicloActivo, egresado, ciclos, alumnoCiclos, alumnosCicloCursoByAlumno, reincorporacionesByAlumno, ds);
+                promedioReviewService.promediarAllCicloAsync(
+                        alumno,
+                        cicloActivo,
+                        egresado,
+                        ciclos,
+                        alumnoCiclos,
+                        alumnoCiclosCursosActivosByAlu,
+                        alumnoCiclosCursosAllByAlu,
+                        reincorporacionesByAlumno, ds);
+            }
         }
     }
 
@@ -358,8 +407,10 @@ public class TestServiceImp implements TestService {
         List<AlumnoCiclo> alumnosCiclosAll = alumnoCicloDAO.allByAlumnos(alumnos);
         Map<Long, List<AlumnoCiclo>> mapAlumnoCiclo = TypesUtil.convertListToMapList("alumno.id", alumnosCiclosAll);
 
-        List<AlumnoCicloCurso> alumnosCiclosCursosAll = alumnoCicloCursoDAO.allOperativesByAlumnos(alumnos);
-        Map<Long, List<AlumnoCicloCurso>> mapAlumnoCicloCurso = TypesUtil.convertListToMapList("alumnoCiclo.alumno.id", alumnosCiclosCursosAll);
+        List<AlumnoCicloCurso> alumnosCiclosCursosActivos = alumnoCicloCursoDAO.allOperativesByAlumnos(alumnos);
+        List<AlumnoCicloCurso> alumnosCiclosCursosAll = alumnoCicloCursoDAO.allByAlumnos(alumnos);
+        Map<Long, List<AlumnoCicloCurso>> mapAlumnoCicloCursoActivo = TypesUtil.convertListToMapList("alumnoCiclo.alumno.id", alumnosCiclosCursosActivos);
+        Map<Long, List<AlumnoCicloCurso>> mapAlumnoCicloCursoAll = TypesUtil.convertListToMapList("alumnoCiclo.alumno.id", alumnosCiclosCursosAll);
 
         List<Reincorporacion> reincorporaciones = reincorporacionDAO.allByEstadoTramiteAndAlumnos(alumnos, new EstadoTramite(EstadoTramiteEnum.SOL_ACEP.getId()));
         Map<Long, List<Reincorporacion>> mapReincorporacion = TypesUtil.convertListToMapList("alumno.id", reincorporaciones);
@@ -367,14 +418,27 @@ public class TestServiceImp implements TestService {
         List<Alumno> alumnosAllInfo = alumnoDAO.allInfoByAlumnos(alumnos);
         Map<Long, Alumno> mapAlumno = TypesUtil.convertListToMap("id", alumnosAllInfo);
 
-        for (MatriculaResumen mResumen : matriculasResumen) {
-            Alumno alumnoInfo = mapAlumno.get(mResumen.getAlumno().getId());
-            List<AlumnoCiclo> alumnoCiclos = TypesUtil.getListNotNull(mapAlumnoCiclo.get(alumnoInfo.getId()));
-//            List<AlumnoCicloCurso> alumnosCicloCursoByAlumno = alumnoCicloCursoDAO.allOperativesByAlumno(alumno);
-            List<AlumnoCicloCurso> alumnosCicloCursoByAlumno = TypesUtil.getListNotNull(mapAlumnoCicloCurso.get(alumnoInfo.getId()));
-            List<Reincorporacion> reincorporacionesByAlumno = TypesUtil.getListNotNull(mapReincorporacion.get(alumnoInfo.getId()));
+        List<Egresado> egresados = egresadoDAO.allByAlumnos(alumnos);
+        Map<Long, Egresado> mapEgresado = TypesUtil.convertListToMap("alumno.id", egresados);
 
-            promedioService.promediarAllCicloAsync(alumnoInfo, cicloAcademico, ciclos, alumnoCiclos, alumnosCicloCursoByAlumno, reincorporacionesByAlumno, ds);
+        for (MatriculaResumen mResumen : matriculasResumen) {
+            Alumno alumno = mapAlumno.get(mResumen.getAlumno().getId());
+            Egresado egresado = mapEgresado.get(alumno.getId());
+            List<AlumnoCiclo> alumnoCiclos = TypesUtil.getListNotNull(mapAlumnoCiclo.get(alumno.getId()));
+//            List<AlumnoCicloCurso> alumnosCicloCursoByAlumno = alumnoCicloCursoDAO.allOperativesByAlumno(alumno);
+            List<AlumnoCicloCurso> alumnoCiclosCursosActivosByAlu = TypesUtil.getListNotNull(mapAlumnoCicloCursoActivo.get(alumno.getId()));
+            List<AlumnoCicloCurso> alumnoCiclosCursosAllByAlu = TypesUtil.getListNotNull(mapAlumnoCicloCursoAll.get(alumno.getId()));
+            List<Reincorporacion> reincorporacionesByAlumno = TypesUtil.getListNotNull(mapReincorporacion.get(alumno.getId()));
+
+            promedioService.promediarAllCicloAsync(
+                    alumno,
+                    cicloAcademico,
+                    egresado,
+                    ciclos,
+                    alumnoCiclos,
+                    alumnoCiclosCursosActivosByAlu,
+                    alumnoCiclosCursosAllByAlu,
+                    reincorporacionesByAlumno, ds);
         }
     }
 
@@ -391,7 +455,7 @@ public class TestServiceImp implements TestService {
             matriculaCurso.getMatriculaResumen().getAlumno();
             matriculaCurso.getMatriculaResumen().getCicloAcademico();
             matriculaCurso.getCurso();
-            promedioService.trasladoPromediosSource(matriculaCurso, ds);
+            promedioService.trasladoPromediosSource(matriculaCurso, ds, false);
 
             //  }
         }
@@ -403,32 +467,50 @@ public class TestServiceImp implements TestService {
         List<CicloAcademico> ciclosAll = cicloAcademicoDAO.all();
 
         CicloAcademico cicloActivo = cicloAcademicoDAO.findActivo(modalidadEstudioEnum);
-        List<Alumno> alumnosAcumulados = new ArrayList<>();
+        List<Alumno> alumnosAcumulados = new ArrayList();
+        List<Egresado> egresadosAcumulados = new ArrayList();
         for (String year : allYears) {
             List<Alumno> alumnos = alumnoDAO.allPendingPromedioByCicloYearAndModalidadEst(year, modalidadEstudioEnum);
             alumnosAcumulados.addAll(alumnos);
             logger.info("Año {}, Alumnos {}, Acumulados {}", year, alumnos.size(), alumnosAcumulados.size());
+            List<Egresado> egresados = egresadoDAO.allByAlumnos(alumnos);
+            egresadosAcumulados.addAll(egresados);
         }
 
         List<AlumnoCiclo> alumnosCiclosAll = alumnoCicloDAO.allByAlumnos(alumnosAcumulados);
         Map<Long, List<AlumnoCiclo>> mapAlumnoCiclo = TypesUtil.convertListToMapList("alumno.id", alumnosCiclosAll);
 
-        List<AlumnoCicloCurso> alumnosCiclosCursosAll = alumnoCicloCursoDAO.allOperativesByAlumnos(alumnosAcumulados);
-        Map<Long, List<AlumnoCicloCurso>> mapAlumnoCicloCurso = TypesUtil.convertListToMapList("alumnoCiclo.alumno.id", alumnosCiclosCursosAll);
+        List<AlumnoCicloCurso> alumnosCiclosCursosActivos = alumnoCicloCursoDAO.allOperativesByAlumnos(alumnosAcumulados);
+        List<AlumnoCicloCurso> alumnosCiclosCursosAll = alumnoCicloCursoDAO.allByAlumnos(alumnosAcumulados);
+        Map<Long, List<AlumnoCicloCurso>> mapAlumnoCicloCursoActivo = TypesUtil.convertListToMapList("alumnoCiclo.alumno.id", alumnosCiclosCursosActivos);
+        Map<Long, List<AlumnoCicloCurso>> mapAlumnoCicloCursoAll = TypesUtil.convertListToMapList("alumnoCiclo.alumno.id", alumnosCiclosCursosAll);
 
         List<Reincorporacion> reincorporaciones = reincorporacionDAO.allByEstadoTramiteAndAlumnos(alumnosAcumulados, new EstadoTramite(EstadoTramiteEnum.SOL_ACEP.getId()));
         Map<Long, List<Reincorporacion>> mapReincorporacion = TypesUtil.convertListToMapList("alumno.id", reincorporaciones);
+
+        Map<Long, Egresado> mapEgresado = TypesUtil.convertListToMap("alumno.id", egresadosAcumulados);
 
         contadorComponent.iniciar(alumnosAcumulados.size());
         for (Alumno alumno : alumnosAcumulados) {
             if (alumno.getSituacionAcademica().getCodigoEnum() != SituacionAcademicaEnum.get(sit)) {
                 continue;
             }
+
+            Egresado egresado = mapEgresado.get(alumno.getId());
             List<AlumnoCiclo> alumnoCiclos = TypesUtil.getListNotNull(mapAlumnoCiclo.get(alumno.getId()));
-            List<AlumnoCicloCurso> alumnosCicloCursoByAlumno = TypesUtil.getListNotNull(mapAlumnoCicloCurso.get(alumno.getId()));
+            List<AlumnoCicloCurso> alumnoCiclosCursosActivosByAlu = TypesUtil.getListNotNull(mapAlumnoCicloCursoActivo.get(alumno.getId()));
+            List<AlumnoCicloCurso> alumnoCiclosCursosAllByAlu = TypesUtil.getListNotNull(mapAlumnoCicloCursoAll.get(alumno.getId()));
             List<Reincorporacion> reincorporacionesByAlumno = TypesUtil.getListNotNull(mapReincorporacion.get(alumno.getId()));
 
-            promedioService.promediarAllCicloAsync(alumno, cicloActivo, ciclosAll, alumnoCiclos, alumnosCicloCursoByAlumno, reincorporacionesByAlumno, ds);
+            promedioService.promediarAllCicloAsync(
+                    alumno,
+                    cicloActivo,
+                    egresado,
+                    ciclosAll,
+                    alumnoCiclos,
+                    alumnoCiclosCursosActivosByAlu,
+                    alumnoCiclosCursosAllByAlu,
+                    reincorporacionesByAlumno, ds);
         }
     }
 

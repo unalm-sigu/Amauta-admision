@@ -85,22 +85,14 @@ public class InfoAcademicoController {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         CicloAcademico ciclo = ds.getCicloAcademico();
-        JsonNodeFactory factory = JsonNodeFactory.instance;
 
         Alumno alumno = service.findWithallInfo(new Alumno(idAlumno));
-        ObjectNode alumnoJson = createAlumnoJson(alumno);
-
-        ArrayNode planesJson = new ArrayNode(JsonNodeFactory.instance);
-
         List<PlanCurricular> planes = service.allPlanCurricularByAlumno(alumno);
-        for (PlanCurricular plan : planes) {
-            ObjectNode planJson = JsonHelper.createJson(plan, factory, true, new String[]{
-                "*", "cicloInicioVigencia.descripcion", "carrera.nombre", "orientacionCarrera.nombre"
-            });
-            planesJson.add(planJson);
-        }
 
+        ObjectNode alumnoJson = createAlumnoJson(alumno);
+        ArrayNode planesJson = createPlanesJson(planes);
         ObjectNode cicloJson = createCicloJson(ciclo);
+
         boolean puedeCalcular = service.usuarioPuedeCalcular(ds);
 
         model.addAttribute("alumno", alumnoJson);
@@ -134,16 +126,10 @@ public class InfoAcademicoController {
         JsonResponse response = new JsonResponse();
 
         try {
-            ArrayNode planesJson = new ArrayNode(JsonNodeFactory.instance);
 
             Alumno alumno = service.findAlumno(idAlumno);
             List<PlanCurricular> planes = service.allPlanCurricularByAlumno(alumno);
-            for (PlanCurricular plan : planes) {
-                ObjectNode planJson = JsonHelper.createJson(plan, JsonNodeFactory.instance, true, new String[]{
-                    "*", "cicloInicioVigencia.descripcion", "carrera.nombre", "orientacionCarrera.nombre"
-                });
-                planesJson.add(planJson);
-            }
+            ArrayNode planesJson = createPlanesJson(planes);
             response.setData(planesJson);
             response.setSuccess(Boolean.TRUE);
 
@@ -533,7 +519,7 @@ public class InfoAcademicoController {
     public JsonResponse dataAlumnoMerito(@PathVariable("idAlumno") Long idAlumno, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-          
+
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             ObjectNode node = service.allDataAlumnoMerito(new Alumno(idAlumno));
 
@@ -551,7 +537,12 @@ public class InfoAcademicoController {
 
     private ObjectNode createAlumnoJson(Alumno alumno) {
         ObjectNode alumnoJson = JsonHelper.createJson(alumno, JsonNodeFactory.instance, true, new String[]{
-            "*",
+            "id", "codigo",
+            "promedioCarreraAcumulado", "promedioAcumulado",
+            "creditosCarreraAprobados", "creditosCarreraCursados",
+            "creditosAprobados", "creditosCursados",
+            "creditosConvalidados",
+            // --- //
             "carrera.codigo",
             "carrera.nombre",
             "carrera.tipoEnum",
@@ -628,6 +619,17 @@ public class InfoAcademicoController {
                 "alumno.*",
                 "cicloAcademico.*"
             }));
+        }
+        return array;
+    }
+
+    private ArrayNode createPlanesJson(List<PlanCurricular> planes) {
+        ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+        for (PlanCurricular plan : planes) {
+            ObjectNode planJson = JsonHelper.createJson(plan, JsonNodeFactory.instance, true, new String[]{
+                "*", "cicloInicioVigencia.descripcion", "carrera.nombre", "orientacionCarrera.nombre"
+            });
+            array.add(planJson);
         }
         return array;
     }

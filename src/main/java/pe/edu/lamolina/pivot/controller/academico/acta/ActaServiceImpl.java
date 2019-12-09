@@ -137,7 +137,7 @@ public class ActaServiceImpl implements ActaService {
         controlDeActas.setUsuarioRegistro(usuario);
         controlDeActas.setVersion(grupoSeccion.getVersion());
 
-        controlDeActas.setControlDeActasDets(new ArrayList<>());
+        controlDeActas.setControlDeActasDets(new ArrayList());
 
         List<AlumnoEvaluacion> evaluacionesBySeccion = alumnoEvaluacionDAO.allByFilter(null, grupoSeccion.getId(), null, null);
         logger.debug("Cantidad de evaluaciones del grupo {}", evaluacionesBySeccion.size());
