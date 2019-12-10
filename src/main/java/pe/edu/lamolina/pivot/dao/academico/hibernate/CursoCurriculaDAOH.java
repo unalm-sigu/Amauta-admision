@@ -126,6 +126,17 @@ public class CursoCurriculaDAOH extends AbstractEasyDAO<CursoCurricula> implemen
     }
 
     @Override
+    public List<CursoCurricula> allByCursoTipoCurriculaEnum(Curso curso, TipoCursoCurriculaEnum tipoCursoCurriculaEnum) {
+        Octavia sql = Octavia.query()
+                .from(CursoCurricula.class, "cc")
+                .join("tipoCursoCurricula tcc", "planCurricular pc", "curso cu")
+                .left("cu.departamentoAcademico")
+                .filter("cu.id", curso)
+                .filter("tcc.codigo", tipoCursoCurriculaEnum);
+        return all(sql);
+    }
+
+    @Override
     public List<CursoCurricula> allByPlanes(List<PlanCurricular> planes) {
         Octavia sql = Octavia.query()
                 .from(CursoCurricula.class, "cc")

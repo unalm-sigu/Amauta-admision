@@ -52,6 +52,7 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.CuotasGrupoHoras;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.CursoCicloAcademico;
+import pe.edu.lamolina.model.academico.CursoCurricula;
 import pe.edu.lamolina.model.academico.DescuentoSeccionVerano;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
@@ -69,6 +70,7 @@ import pe.edu.lamolina.model.academico.RestriccionFacultad;
 import pe.edu.lamolina.model.academico.RestriccionModalidad;
 import pe.edu.lamolina.model.academico.RestriccionRepitencia;
 import pe.edu.lamolina.model.academico.Seccion;
+import pe.edu.lamolina.model.academico.TipoCursoCurricula;
 import pe.edu.lamolina.model.academico.TipoRepitencia;
 import pe.edu.lamolina.model.encuestaestudiantil.ConfiguraEncuesta;
 import pe.edu.lamolina.model.encuestaestudiantil.EncuestaDocente;
@@ -93,6 +95,7 @@ import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
 import pe.edu.lamolina.model.enums.SituacionDocenteEnum;
 import pe.edu.lamolina.model.enums.TipoCicloEnum;
 import pe.edu.lamolina.model.enums.TipoCreditoEnum;
+import pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum;
 import pe.edu.lamolina.model.enums.TipoDeudaEnum;
 import pe.edu.lamolina.model.enums.TipoDictadoGrupoSeccionEnum;
 import static pe.edu.lamolina.model.enums.TipoDictadoGrupoSeccionEnum.MOD;
@@ -157,6 +160,8 @@ import pe.edu.lamolina.pivot.dao.finanza.DeudaAlumnoDAO;
 import pe.edu.lamolina.pivot.dao.finanza.PagoHoraDocenteDAO;
 import pe.edu.lamolina.pivot.dao.rrhh.ContratoDocenteDAO;
 import pe.edu.lamolina.pivot.controller.envioRest.EnviosRestService;
+import pe.edu.lamolina.pivot.dao.academico.CursoCurriculaDAO;
+import pe.edu.lamolina.pivot.dao.academico.TipoCursoCurriculaDAO;
 
 import static pe.edu.lamolina.pivot.zelper.constant.Constantine.GRUPO_ZPRA;
 import static pe.edu.lamolina.pivot.zelper.constant.Constantine.GRUPO_ZTEO;
@@ -303,6 +308,12 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
     @Autowired
     AlumnoDAO alumnoDAO;
+
+    @Autowired
+    CursoCurriculaDAO cursoCurriculaDAO;
+
+    @Autowired
+    TipoCursoCurriculaDAO tipoCursoCurriculaDAO;
 
     @Autowired
     EnviosRestService enviosRestService;
@@ -3099,6 +3110,10 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             Curso cursoBD = cursoDAO.find(cursoForm.getId());
             CicloAcademico cicloBD = cicloAcademicoDAO.find(cicloForm);
 
+            List<CursoCurricula> cursosCurricula = cursoCurriculaDAO.allByCursoTipoCurriculaEnum(cursoBD, TipoCursoCurriculaEnum.GEN);
+            TipoCursoCurricula tipoCursoGeneral = tipoCursoCurriculaDAO.findByCodigo(TipoCursoCurriculaEnum.GEN);
+            TipoCursoCurricula tipoCursoObligatorio = tipoCursoCurriculaDAO.findByCodigo(TipoCursoCurriculaEnum.OBL);
+
             cca = new CursoCicloAcademico();
             cca.setCurso(cursoBD);
             cca.setCicloAcademico(cicloForm);
@@ -3107,6 +3122,12 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             cca.setPrecioAdicional(BigDecimal.ZERO);
             cca.setPrecioPersonalizado(false);
             cca.setEstado("ACT");
+
+            cca.setTipoCursoCurricula(tipoCursoObligatorio);
+            if (cursosCurricula.isEmpty()) {
+                cca.setTipoCursoCurricula(tipoCursoGeneral);
+            }
+
             /*
             cca.setTipoCarpetaPractica(cursoBD.getTipoCarpetaPractica());
             cca.setTipoCarpetaTeoria(cursoBD.getTipoCarpetaTeoris());

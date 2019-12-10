@@ -26,6 +26,8 @@ public interface CursoCurriculaDAO extends EasyDAO<CursoCurricula> {
 
     List<CursoCurricula> allByTipoCursoCurriculaEnum(TipoCursoCurriculaEnum tipoCursoCurriculaEnum);
 
+    List<CursoCurricula> allByCursoTipoCurriculaEnum(Curso cursoBD, TipoCursoCurriculaEnum tipoCursoCurriculaEnum);
+
     List<CursoCurricula> allByPlanes(List<PlanCurricular> planes);
 
     List<CursoCurricula> allByCursoPlan(Curso curso, PlanCurricular planCurricular);
