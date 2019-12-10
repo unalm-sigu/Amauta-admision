@@ -118,8 +118,8 @@
                                                           class="block"><b>Último ciclo:</b> {{item.cicloActivo.descripcion}}</span>
                                                 </td>
 
-                                                <td class="v-middle">
-                                                    <span v-if="item.ppa != '' " class="block"><b>ppa:</b> {{item.promedioAcumulado}}</span>
+                                                <td class="v-middle text-center">
+                                                    <span v-if="item.ppa != '' " class="block"><b>ppa:</b> {{verNota(item.promedioAcumulado)}}</span>
                                                     <span v-if="item.cca != '' " class="block"><b>cca:</b> {{item.creditosCursados}}</span>
                                                     <span v-if="item.capa != '' " class="block"><b>capa:</b> {{item.creditosAprobados}}</span>
                                                 </td>
