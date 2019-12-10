@@ -254,8 +254,8 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
 
         List<CursoCurricula> cursosCurricula = cursoCurriculaDAO.allByTipoCursoCurriculaEnum(TipoCursoCurriculaEnum.GEN);
         Map<Long, CursoCurricula> curCurriculaMap = TypesUtil.convertListToMap("curso.id", cursosCurricula);
-        TipoCursoCurricula tipocursogeneral = tipoCursoCurriculaDAO.findByCodigo(TipoCursoCurriculaEnum.GEN);
-        TipoCursoCurricula tipocursoobligatorio = tipoCursoCurriculaDAO.findByCodigo(TipoCursoCurriculaEnum.OBL);
+        TipoCursoCurricula tipoCursoGeneral = tipoCursoCurriculaDAO.findByCodigo(TipoCursoCurriculaEnum.GEN);
+        TipoCursoCurricula tipoCursoObligatorio = tipoCursoCurriculaDAO.findByCodigo(TipoCursoCurriculaEnum.OBL);
 
         for (GrupoSeccion gpoSeccOrigen : gsOrigenes) {
             Curso curso = gpoSeccOrigen.getCurso();
@@ -291,9 +291,9 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
                 cursoCiclo.setCurso(curso);
                 cursoCiclo.setMinimoAlumnos(BigDecimal.ZERO);
 
-                cursoCiclo.setTipoCursoCurricula(tipocursoobligatorio);
+                cursoCiclo.setTipoCursoCurricula(tipoCursoObligatorio);
                 if (curCurriculaMap.get(curso.getId()) != null) {
-                    cursoCiclo.setTipoCursoCurricula(tipocursogeneral);
+                    cursoCiclo.setTipoCursoCurricula(tipoCursoGeneral);
                 }
                 cursoCicloAcademicoDAO.save(cursoCiclo);
             }
