@@ -138,8 +138,9 @@ public class AuditorServiceImpl implements AuditorService {
         //    Map<String, AlumnoEvaluacion> notas = this.allAlumnoEvaluacionBySeccion(seccion.getId());
         //     Map matriculaCursoMap = this.getMapMatriculasCursoByCicloCurso(cicloAcademico, curso);
         for (Map.Entry<String, AlumnoEvaluacion> entry : notas.entrySet()) {
-            System.out.println("Key : " + entry.getKey() + " Value : " + entry.getValue().getId());
+            //System.out.println("Key : " + entry.getKey() + " Value : " + entry.getValue().getId());
         }
+        //System.out.println(">>>evaluacion.id=" + evaluacion.getId());
 
         ArrayNode arrayNotasNode = new ArrayNode(JsonNodeFactory.instance);
         for (MatriculaSeccion matriculaSeccion : matriculasSeccionByFilter) {
@@ -147,16 +148,18 @@ public class AuditorServiceImpl implements AuditorService {
             notasNode.put("alumno", matriculaSeccion.getMatriculaResumen().getAlumno().getPersona().getApellidosNombres());
             notasNode.put("alumnoCodigo", matriculaSeccion.getMatriculaResumen().getAlumno().getCodigo());
 
-            System.out.println("matricula=" + matriculaSeccion.getMatriculaResumen().getAlumno().getCodigo());
-
+            //System.out.println("matricula=" + matriculaSeccion.getMatriculaResumen().getAlumno().getCodigo());
             for (Evaluacion evaluacionEach : evaluacionesBySeccionFinal) {
-                System.out.println("evaludacion.id=" + evaluacionEach.getId());
+                //System.out.println("evaludacion.id=" + evaluacionEach.getId());
                 StringBuilder evaluacionText = new StringBuilder();
                 evaluacionText.append(evaluacion.getTipoEvaluacion().getCodigo()).append(evaluacionEach.getNumero());
 
                 StringBuilder key = new StringBuilder();
                 key.append(matriculaSeccion.getMatriculaResumen().getAlumno().getId()).append("-").append(evaluacionEach.getId());
                 AlumnoEvaluacion alumnoEvaluacion = notas.get(key.toString());
+                if (alumnoEvaluacion == null) {
+                    continue;
+                }
 
                 //nota
                 StringBuilder strbNota = new StringBuilder();
