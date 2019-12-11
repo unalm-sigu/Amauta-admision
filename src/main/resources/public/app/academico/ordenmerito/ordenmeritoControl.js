@@ -4,10 +4,10 @@ new Vue({
     el: '#ordenmeritocontrolVUE',
     data: {
         niveles: [
-            {label: 'General', val: 0}, 
-            {label: 'Nivel 1', val: 1}, 
-            {label: 'Nivel 2', val: 2}, 
-            {label: 'Nivel 3', val: 3}, 
+            {label: 'General', val: 0},
+            {label: 'Nivel 1', val: 1},
+            {label: 'Nivel 2', val: 2},
+            {label: 'Nivel 3', val: 3},
             {label: 'Nivel 4', val: 4},
             {label: 'Nivel 5', val: 5}
         ],
@@ -31,5 +31,8 @@ new Vue({
 
     },
     methods: {
+        verNota(notax) {
+            return APP.verNota(notax);
+        }
     }
 });

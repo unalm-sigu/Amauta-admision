@@ -179,6 +179,9 @@ new Vue({
         },
         modalAsignarAvance(item) {
             return APP.url('academico/alumno/habilitarCursosHabiles/' + item.id);
+        },
+        verNota(notax) {
+            return APP.verNota(notax);
         }
     }
 });
