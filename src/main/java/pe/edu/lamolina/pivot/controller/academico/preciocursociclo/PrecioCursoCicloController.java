@@ -20,6 +20,7 @@ import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.CursoCicloAcademico;
 import pe.edu.lamolina.model.general.TipoCarpeta;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
@@ -40,11 +41,12 @@ public class PrecioCursoCicloController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
         List<TipoCarpeta> tipoCarpeta = service.allTipoCarpeta();
+        CicloAcademico ciclo = service.findCiclo(ds.getCicloAcademico());
 
-        model.addAttribute("ciclo", ds.getCicloAcademico());
+        model.addAttribute("ciclo", ciclo);
         model.addAttribute("tipoCarpetas", createTipoCarpetaJson(tipoCarpeta).toString());
 
-        ObjectNode jCiclo = JsonHelper.createJson(ds.getCicloAcademico(), JsonNodeFactory.instance, true, new String[]{
+        ObjectNode jCiclo = JsonHelper.createJson(ciclo, JsonNodeFactory.instance, true, new String[]{
             "*",
             "tipoRegular",
             "tipoNivelacion"
@@ -63,7 +65,6 @@ public class PrecioCursoCicloController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
             List<CursoCicloAcademico> cursosCiclo = service.allCursoCiclo(filter, ds.getCicloAcademico());
-            System.out.println(cursosCiclo);
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
             for (CursoCicloAcademico cursoCiclo : cursosCiclo) {

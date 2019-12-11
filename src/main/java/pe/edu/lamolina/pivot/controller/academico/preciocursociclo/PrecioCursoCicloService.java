@@ -8,7 +8,7 @@ import pe.edu.lamolina.model.general.TipoCarpeta;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface PrecioCursoCicloService {
-     
+
     List<CursoCicloAcademico> allCursoCiclo(DynatableFilter filter, CicloAcademico cicloAcademico);
 
     void save(List<CursoCicloAcademico> precioCursoCiclos, CicloAcademico cicloAcademico, DataSessionPivot ds);
@@ -18,4 +18,6 @@ public interface PrecioCursoCicloService {
     List<TipoCarpeta> allTipoCarpeta();
 
     void update(CursoCicloAcademico cursoCicloAcademico, DataSessionPivot ds);
+
+    CicloAcademico findCiclo(CicloAcademico cicloAcademico);
 }
