@@ -15,7 +15,6 @@ import pe.albatross.zelpers.miscelanea.FrenchMethod;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
-import pe.edu.lamolina.model.enums.AlumnoCuotaEstadoEnum;
 import pe.edu.lamolina.model.enums.DeudaEstadoEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.posgrado.AlumnoConceptoMatricula;

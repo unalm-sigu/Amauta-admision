@@ -12,6 +12,7 @@ new Vue({
             id: 'idInstitucionModal',
             header: true,
             title: 'Agregar Institución',
+            showaccept :true,
             okbtn: 'Agregar Institución'
         },
         rangofecha: true,
