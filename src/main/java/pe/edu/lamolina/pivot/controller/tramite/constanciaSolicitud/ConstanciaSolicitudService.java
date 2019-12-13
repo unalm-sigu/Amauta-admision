@@ -1,4 +1,4 @@
-package pe.edu.lamolina.pivot.controller.tramite.ConstanciaSolicitud;
+package pe.edu.lamolina.pivot.controller.tramite.constanciaSolicitud;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import java.util.List;

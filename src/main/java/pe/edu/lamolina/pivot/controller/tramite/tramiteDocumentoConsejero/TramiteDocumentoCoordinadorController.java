@@ -16,7 +16,7 @@ import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.edu.lamolina.model.tramite.AccionTramiteDocumento;
 import pe.edu.lamolina.model.tramite.TramiteDocumentoAcademico;
-import pe.edu.lamolina.pivot.controller.tramite.ConstanciaSolicitud.ConstanciaSolicitudService;
+import pe.edu.lamolina.pivot.controller.tramite.constanciaSolicitud.ConstanciaSolicitudService;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
