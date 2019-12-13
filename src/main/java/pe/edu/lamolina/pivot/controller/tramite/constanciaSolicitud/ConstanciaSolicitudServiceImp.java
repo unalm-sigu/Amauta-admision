@@ -803,9 +803,9 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
                 case CICLO_PROMOCION:
                     htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), egresado.getCicloAcademico().getCodigo());
                     break;
-                case EPG_PROMEDIO_PONDERADO:
-                    htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), egresado.returnPromedioGraduacionTrunc(2).toString());
-                    break;
+//                case EPG_PROMEDIO_PONDERADO:
+//                    htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), egresado.returnPromedioGraduacionTrunc(2).toString());
+//                    break;
                 case JEFE_OFICINA_OERA:
                 case JEFE_URA:
                     htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), oficina.getJefeEncargado() == null ? oficina.getPersonaJefe().getNombreCompleto() : oficina.getJefeEncargado().getNombreCompleto());

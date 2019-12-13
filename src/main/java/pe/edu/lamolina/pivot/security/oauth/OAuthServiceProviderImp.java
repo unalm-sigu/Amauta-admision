@@ -477,10 +477,6 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
                     break;
                 }
             }
-//            if (!docentes.isEmpty()) {
-//                ds.setDocente(docentes.get(0));
-//                ds.setDepartamentoAcademico(docentes.get(0).getDepartamentoAcademico());
-//            }
         }
 
         if (rol.getCodigoEnum() == RolEnum.ALU) {

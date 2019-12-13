@@ -6,6 +6,7 @@ import pe.edu.lamolina.pivot.dao.general.TipoDocIdentidadDAO;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import pe.edu.lamolina.model.general.Pais;
 import pe.edu.lamolina.model.general.TipoDocIdentidad;
 
 @Repository
@@ -28,7 +29,17 @@ public class TipoDocIdentidadDAOH extends AbstractEasyDAO<TipoDocIdentidad> impl
     public TipoDocIdentidad findBySimbolo(String simbolo) {
         Octavia sql = Octavia.query()
                 .from(TipoDocIdentidad.class, "td")
-                .filter("td.simbolo",simbolo);
+                .filter("td.simbolo", simbolo);
+        return find(sql);
+    }
+
+    @Override
+    public TipoDocIdentidad findBySimboloAndPais(String simbolo, Pais pais) {
+        Octavia sql = Octavia.query()
+                .from(TipoDocIdentidad.class, "td")
+                .join("pais p")
+                .filter("td.simbolo", simbolo)
+                .filter("p.id", pais.getId());
         return find(sql);
     }
 }

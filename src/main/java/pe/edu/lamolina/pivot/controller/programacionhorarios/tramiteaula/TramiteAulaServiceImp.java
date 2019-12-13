@@ -1,5 +1,6 @@
 package pe.edu.lamolina.pivot.controller.programacionhorarios.tramiteaula;
 
+import com.fasterxml.jackson.dataformat.yaml.snakeyaml.scanner.Constant;
 import com.google.common.base.Strings;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -37,6 +38,7 @@ import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.general.Empresa;
 import pe.edu.lamolina.model.general.Oficina;
+import pe.edu.lamolina.model.general.Pais;
 import pe.edu.lamolina.model.general.SerieDocumento;
 import pe.edu.lamolina.model.general.TipoDocIdentidad;
 import pe.edu.lamolina.model.general.TipoDocumentoCompania;
@@ -56,11 +58,13 @@ import pe.edu.lamolina.pivot.dao.general.ContenidoCartaDAO;
 import pe.edu.lamolina.pivot.dao.general.DiaDAO;
 import pe.edu.lamolina.pivot.dao.general.EmpresaDAO;
 import pe.edu.lamolina.pivot.dao.general.OficinaDAO;
+import pe.edu.lamolina.pivot.dao.general.PaisDAO;
 import pe.edu.lamolina.pivot.dao.general.TipoDocIdentidadDAO;
 import pe.edu.lamolina.pivot.dao.horario.HoraDAO;
 import pe.edu.lamolina.pivot.dao.horario.HorarioAulaDAO;
 import pe.edu.lamolina.pivot.dao.tramite.TipoDocumentoCompaniaDAO;
 import pe.edu.lamolina.pivot.dao.tramite.TramiteDAO;
+import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.mail.MailerService;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -120,6 +124,9 @@ public class TramiteAulaServiceImp implements TramiteAulaService {
 
     @Autowired
     OficinaDAO oficinaDAO;
+    
+    @Autowired
+    PaisDAO paisDAO;
 
     @Override
     public List<ReservaAula> allDynatableFilter(DynatableFilter filter) {
@@ -252,8 +259,7 @@ public class TramiteAulaServiceImp implements TramiteAulaService {
     @Override
     @Transactional
     public Empresa saveInstitucion(Empresa institucion) {
-
-        TipoDocIdentidad doc = tipoDocIdentidadDAO.findBySimbolo(TipoDocIdentidadEnum.RUC.name());
+        TipoDocIdentidad doc = tipoDocIdentidadDAO.findBySimboloAndPais(TipoDocIdentidadEnum.RUC.name(),new Pais(Constantine.ID_PERU));
         institucion.setTipoDocIdentidad(doc);
         empresaDAO.save(institucion);
         return institucion;

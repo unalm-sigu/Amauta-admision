@@ -706,4 +706,13 @@ public class CicloAcademicoDAOH extends AbstractEasyDAO<CicloAcademico> implemen
         return all(sql);
     }
 
+    @Override
+    public void updateColumns(CicloAcademico ciclo, String... columns) {
+        Octavia sql = Octavia.update(CicloAcademico.class, "cic");
+        for (String column : columns) {
+            sql.set(ciclo, column);
+        }
+        this.update(sql);
+    }
+
 }

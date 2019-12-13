@@ -112,4 +112,6 @@ public interface CicloAcademicoDAO extends EasyDAO<CicloAcademico> {
 
     List<CicloAcademico> allCicloOrdenMerito(CicloAcademico cicloActivo, CicloAcademico cicloDesde);
 
+    void updateColumns(CicloAcademico ciclo, String... columns);
+
 }

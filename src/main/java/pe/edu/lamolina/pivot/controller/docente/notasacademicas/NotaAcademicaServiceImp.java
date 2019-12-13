@@ -1769,19 +1769,21 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
 
     @Override
     public Map<Long, MatriculaCurso> getMapMatriculasCursoByCicloCurso(CicloAcademico ciclo, Curso curso) {
-        List<MatriculaCurso> lstMatriculaCurso = matriculaCursoDAO.findByCursoCiclo(curso, ciclo);
-        Map<Long, MatriculaCurso> resultMap = new HashMap<>();
-        for (MatriculaCurso matriculaCurso : lstMatriculaCurso) {
-            resultMap.put(matriculaCurso.getMatriculaResumen().getAlumno().getId(), matriculaCurso);
-        }
-        return resultMap;
+        List<MatriculaCurso> lstMatriculaCurso = matriculaCursoDAO.allMatriculadosByCursoCiclo(curso, ciclo);
+        return TypesUtil.convertListToMap("matriculaResumen.alumno.id", lstMatriculaCurso);
+
+//        Map<Long, MatriculaCurso> resultMap = new HashMap<>();
+//        for (MatriculaCurso matriculaCurso : lstMatriculaCurso) {
+//            resultMap.put(matriculaCurso.getMatriculaResumen().getAlumno().getId(), matriculaCurso);
+//        }
+//        return resultMap;
     }
 
     @Override
     public List<Evaluacion> allEvaluacionesByTipoSeccion(Seccion seccion) {
 
         List<Evaluacion> evaluacionesBySeccion = evaluacionDAO.allBySeccion(seccion);
-        List<Evaluacion> evaluacionesBySeccionFinal = new ArrayList<>();
+        List<Evaluacion> evaluacionesBySeccionFinal = new ArrayList();
         for (Evaluacion eva : evaluacionesBySeccion) {
             if (!eva.isDesagregado() && !eva.getEvaluacionExpandida().isEstadoAnulado()) { // && eva.getEvaluacionSuperior() == null
                 eva.setNombreCorto(eva.getTipoEvaluacion().getCodigo() + eva.getNumero());
@@ -2216,7 +2218,7 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
 
     @Override
     public List<MatriculaCurso> allMatriculaCursoCiclo(Curso curso, CicloAcademico cicloAcademico) {
-        return matriculaCursoDAO.findByCursoCiclo(curso, cicloAcademico);
+        return matriculaCursoDAO.allMatriculadosByCursoCiclo(curso, cicloAcademico);
     }
 
     @Override

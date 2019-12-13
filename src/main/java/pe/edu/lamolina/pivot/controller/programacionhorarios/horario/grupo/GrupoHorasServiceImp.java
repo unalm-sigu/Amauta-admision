@@ -101,6 +101,7 @@ public class GrupoHorasServiceImp implements GrupoHorasService {
     public void save(GrupoHoras grupoHoras) {
         grupoHoras.setLetra(grupoHoras.getLetra().toUpperCase());
         grupoHoras.setCodigo(grupoHoras.getCodigo().toUpperCase());
+        grupoHoras.setTipoCiclo("REGULAR");
         grupoHorasDAO.save(grupoHoras);
     }
 

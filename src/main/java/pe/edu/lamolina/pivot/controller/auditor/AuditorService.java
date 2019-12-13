@@ -20,7 +20,13 @@ public interface AuditorService {
 
     void auditTrasladoNotasToHistorial(Alumno alumno, Curso curso, CicloAcademico ciclo, MatriculaCurso matriculaCurso, DataSessionPivot ds, Exception exc);
 
-    void auditSaveNotas(LoggerAccionEnum loggerAccionEnum, Evaluacion evaluacion, PlanCalificacion planCalificacion, SistemaNotas sistemaNotas, Seccion seccion, Curso curso,
+    void auditSaveNotas(
+            LoggerAccionEnum loggerAccionEnum,
+            Evaluacion evaluacion,
+            PlanCalificacion planCalificacion,
+            SistemaNotas sistemaNotas,
+            Seccion seccion,
+            Curso curso,
             CicloAcademico cicloAcademico,
             List<Evaluacion> evaluacionesBySeccionFinal,
             List<MatriculaSeccion> matriculasSeccionByFilter,
@@ -28,7 +34,12 @@ public interface AuditorService {
             Map matriculaCursoMap,
             DataSessionPivot ds);
 
-    void auditSaveNotas(Evaluacion evaluacion, PlanCalificacion planCalificacion, SistemaNotas sistemaNotas, Seccion seccion, Curso curso,
+    void auditSaveNotas(
+            Evaluacion evaluacion,
+            PlanCalificacion planCalificacion,
+            SistemaNotas sistemaNotas,
+            Seccion seccion,
+            Curso curso,
             CicloAcademico cicloAcademico,
             List<Evaluacion> evaluacionesBySeccionFinal,
             List<MatriculaSeccion> matriculasSeccionByFilter,

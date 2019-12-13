@@ -128,7 +128,7 @@ public class OrdenMeritoController {
 
         for (AlumnoCiclo aluCiclo : alumnosCiclo) {
             array.add(JsonHelper.createJson(aluCiclo, JsonNodeFactory.instance, new String[]{
-                "creditosAcumulados", "creditosConvalidados", "nivel",
+                "creditosAcumulados", "creditosConvalidados", "nivel", "creditosConvalidadosAcumulados", "creditosAprobadosAcumulados",
                 "alumno.persona.apellidosNombres",
                 "alumno.codigo",
                 "carrera.nombre",

@@ -24,6 +24,7 @@ import pe.edu.lamolina.model.academico.TipoCursoCurricula;
 import pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 import pe.edu.lamolina.model.general.TipoCarpeta;
+import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.CursoCicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.GrupoSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.PrecioCursoEstructuraDAO;
@@ -55,6 +56,9 @@ public class PrecioCursoCicloServiceImp implements PrecioCursoCicloService {
 
     @Autowired
     TipoCarpetaDAO tipoCarpetaDAO;
+
+    @Autowired
+    CicloAcademicoDAO cicloAcademicoDAO;
 
     @Override
     public List<CursoCicloAcademico> allCursoCiclo(DynatableFilter filter, CicloAcademico ciclo) {
@@ -181,8 +185,12 @@ public class PrecioCursoCicloServiceImp implements PrecioCursoCicloService {
             }
         }
 
+        ciclo.setAlumnosMinimoTipoGeneral(cantidadAlus.getGeneral().intValue());
+        ciclo.setAlumnosMinimoTipoObligatorio(cantidadAlus.getCarrera().intValue());
+
         cursoCicloAcademicoDAO.updateList(cursosCicloUpd, "minimoAlumnos");
         seccionDAO.updateList(seccionesUps, "precioBase", "abonoVerano", "descuentoPrecio");
+        cicloAcademicoDAO.updateColumns(ciclo, "alumnosMinimoTipoGeneral", "alumnosMinimoTipoObligatorio");
     }
 
     @Override
@@ -203,4 +211,10 @@ public class PrecioCursoCicloServiceImp implements PrecioCursoCicloService {
         cursoCicloAcademicoUpd.setTipoCarpetaPractica(cursoCicloAcademicoForm.getTipoCarpetaPractica().getId() == null ? null : cursoCicloAcademicoForm.getTipoCarpetaPractica());
         cursoCicloAcademicoDAO.updateColumns(cursoCicloAcademicoUpd, "tipoCarpetaTeoria", "tipoCarpetaPractica");
     }
+
+    @Override
+    public CicloAcademico findCiclo(CicloAcademico cicloAcademico) {
+        return cicloAcademicoDAO.find(cicloAcademico);
+    }
+
 }

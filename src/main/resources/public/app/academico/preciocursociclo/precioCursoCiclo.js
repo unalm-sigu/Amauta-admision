@@ -10,7 +10,7 @@ new Vue({
             id: 'idCfgCantidadAlumno',
             header: true,
             showaccept: true,
-            title: 'Cantidad mínima de alumnos por Curso'
+            title: 'Cantidad mínima de alumnos por tipo de curso'
         },
         modalPreciocursociclo: {
             id: 'modalPreciocursociclo',
@@ -22,7 +22,7 @@ new Vue({
             showaccept: true,
             modalsize: 'modal-lg',
         },
-        cantidadalumno: {general: null, carrera: null},
+        cantidadalumno: {general: 0, carrera: 0},
         cursoCicloAcademico: '',
         tipoCarpetas: [],
         ciclo: JSON.parse(cicloJson)
@@ -31,6 +31,11 @@ new Vue({
         let $vue = this;
         $(".numerico").numeric({negative: false});
         $vue.tipoCarpetas = JSON.parse(tipoCarpetasJson);
+        $vue.cantidadalumno.general = $vue.ciclo.alumnosMinimoTipoGeneral;
+        $vue.cantidadalumno.carrera = $vue.ciclo.alumnosMinimoTipoObligatorio;
+
+        console.log($vue.ciclo)
+        console.log($vue.cantidadalumno)
 
     },
     updated() {
@@ -83,7 +88,6 @@ new Vue({
         configurarCantidadAlumno() {
             let $vue = this;
             $vue.$refs.cfgCantidadAlumnoModal.open();
-            $vue.cantidadalumno = {general: null, carrera: null}
         },
         saveCantidadAlumno() {
             let $vue = this;

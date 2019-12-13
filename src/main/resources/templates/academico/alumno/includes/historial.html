@@ -356,7 +356,7 @@
                         </td>
 
                         <td class="v-middle text-center b-l" v-if="verCiclo(tab)">
-                            <span v-if="tab.ordenMeritoCiclo != '' " class="block" v-text="getOrdenMeritoNivel('CICLO',tab)"></span>
+                            <span v-if="tab.ordenMeritoCicloNivel != '' " class="block">{{tab.ordenMeritoCicloNivel}} de {{getComputados("CICLO", tab)}}</span>
                             <small v-if="tieneMeritoNivel('CICLO',tab)" class="block" v-text="getMeritoNivel('CICLO',tab)"></small>
                         </td>
 

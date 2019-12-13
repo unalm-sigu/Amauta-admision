@@ -82,11 +82,11 @@
                                                        class="block bold"> {{item.carrera.facultad.nombre}}</small>
                                             </td>
                                             <td class="v-middle text-center">
-                                                <span> {{ item.promedioAcumulado.toFixed(2) }} </span>
+                                                <span> {{ verNota(item.promedioAcumulado) }} </span>
                                             </td>
 
-                                            <td class="v-middle text-center b-l"><span v-if="item.creditosAcumulados>0" v-text="item.creditosAcumulados">100</span></td>
-                                            <td class="v-middle text-center b-l"><span v-if="item.creditosConvalidados>0" v-text="item.creditosConvalidados">100</span></td>
+                                            <td class="v-middle text-center b-l"><span v-if="item.creditosAprobadosAcumulados>0" v-text="item.creditosAprobadosAcumulados">100</span></td>
+                                            <td class="v-middle text-center b-l"><span v-if="item.creditosConvalidadosAcumulados>0" v-text="item.creditosConvalidadosAcumulados">100</span></td>
                                             <td class="v-middle text-center b-l b-r">{{item.nivel}}</td>
 
                                             <td class="v-middle text-center">
