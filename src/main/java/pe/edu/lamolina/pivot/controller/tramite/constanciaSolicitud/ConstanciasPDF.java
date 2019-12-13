@@ -1,4 +1,4 @@
-package pe.edu.lamolina.pivot.controller.tramite.ConstanciaSolicitud;
+package pe.edu.lamolina.pivot.controller.tramite.constanciaSolicitud;
 
 import pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.reporte.*;
 import com.itextpdf.text.BaseColor;
