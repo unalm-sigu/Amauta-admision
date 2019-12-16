@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.List;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import org.apache.commons.io.IOUtils;
@@ -30,6 +31,8 @@ import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.DepartamentoAcademico;
+import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.encuestaestudiantil.EncuestaDocenteModalidad;
 import pe.edu.lamolina.model.encuestaestudiantil.PuntajeEncuestaDocenteModalidad;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
@@ -54,19 +57,21 @@ public class EncuestaDocenteModalidadController {
 
     @ResponseBody
     @RequestMapping("list")
-    public DynatableResponse list(DynatableFilter filter, HttpSession session) {
+    public DynatableResponse list(DynatableFilter filter, HttpSession session, HttpServletRequest request) {
         DynatableResponse json = new DynatableResponse();
         try {
 
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             CicloAcademico ciclo = ds.getCicloAcademico();
 
-            List<EncuestaDocenteModalidad> list = service.allByDynatableCicloAcademico(filter, ciclo);
+            List<Facultad> facultades = service.allAccesoFacultades(ds, request);
+            List<DepartamentoAcademico> departamentos = service.allAccesoDepartamentos(ds, facultades, ciclo, request);
+            List<EncuestaDocenteModalidad> encuestas = service.allByDynatableCicloAcademico(filter, ciclo, departamentos, ds);
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
-            for (EncuestaDocenteModalidad item : list) {
+            for (EncuestaDocenteModalidad encu : encuestas) {
 
-                ObjectNode node = JsonHelper.createJson(item, JsonNodeFactory.instance, true,
+                ObjectNode node = JsonHelper.createJson(encu, JsonNodeFactory.instance, true,
                         new String[]{
                             "*",
                             "docente.codigo",
