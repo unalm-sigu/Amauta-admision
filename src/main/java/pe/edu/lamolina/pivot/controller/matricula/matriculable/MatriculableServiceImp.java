@@ -883,7 +883,7 @@ public class MatriculableServiceImp implements MatriculableService {
                 return null;
             }
         }
-        CicloAcademico ciclo = cicloAcademicoDAO.findByCodigoModalidadEstudio(ds.getCicloAcademico().getCodigo(), alumno.getModalidadEstudio());
+        CicloAcademico ciclo = cicloAcademicoDAO.findByCodigoCicloModalidadEnum(ds.getCicloAcademico().getCodigo(), alumno.getModalidadEstudio().getOperativeModalidadEnum());
         if (ciclo.getFechaMatriculables() == null && alumno.getModalidadEstudio().isPregrado()) {
             return null;
         }
