@@ -29,7 +29,6 @@ import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.EPG;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.ESP;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.PRE;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.VIS;
-import pe.edu.lamolina.model.enums.RolEnum;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_8;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_9;
 import pe.edu.lamolina.model.general.Persona;
@@ -642,11 +641,9 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
     }
 
     @Override
-    public void updateColumns(MatriculaResumen matriculaResumenUpd, String... columns) {
+    public void updateColumns(MatriculaResumen matriculaResumen, String... columns) {
         Octavia sql = Octavia.update(MatriculaResumen.class);
-        for (String column : columns) {
-            sql.set(matriculaResumenUpd, column);
-        }
+        sql.set(matriculaResumen, columns);
         this.update(sql);
     }
 

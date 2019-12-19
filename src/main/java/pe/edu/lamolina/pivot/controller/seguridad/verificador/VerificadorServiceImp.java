@@ -242,6 +242,39 @@ public class VerificadorServiceImp implements VerificadorService {
     }
 
     @Override
+    public boolean puedeMatricularPosgrado(DataSessionPivot ds) {
+        List<Carrera> maestrias = carreraDAO.allByModalidadEnum(ModalidadEstudioEnum.EPG);
+        Map<Long, Carrera> mapMaestrias = TypesUtil.convertListToMap("id", maestrias);
+        boolean puedeApoyar = false;
+
+        boolean esTrabajadorMaestria = false;
+        List<Oficina> oficinasMain = oficinaService.allOficinasMainByPersona(ds.getPersona());
+
+        for (Oficina oficina : oficinasMain) {
+            if (oficina.getTipoOficina().getCodigoEnum() == TipoOficinaEnum.ESP) {
+                Carrera maestria = mapMaestrias.get(oficina.getInstanciaOficina());
+                if (maestria != null) {
+                    esTrabajadorMaestria = true;
+                }
+            }
+        }
+
+        if (esTrabajadorMaestria) {
+            for (Rol rol : ds.getRoles()) {
+                if (rol.getCodigoEnum() == RolEnum.COORD_ESP_EPG) {
+                    puedeApoyar = true;
+                    break;
+                }
+                if (rol.getCodigoEnum() == RolEnum.OPER_MATRICULA_ESP_EPG) {
+                    puedeApoyar = true;
+                    break;
+                }
+            }
+        }
+        return puedeApoyar;
+    }
+
+    @Override
     public boolean puedeEditarAlumno(DataSessionPivot ds) {
         boolean puedeEditar = false;
         for (Rol rol : ds.getRoles()) {

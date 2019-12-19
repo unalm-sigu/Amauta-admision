@@ -695,6 +695,7 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
             resumen.setCursosMatriculados(0);
             resumen.setCreditosMatriculados(0);
         }
+
         int cursosMat = 0;
         int creditosMat = 0;
         for (MatriculaCurso matCurso : matriculaCursos) {
@@ -705,9 +706,12 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
         }
 
         if (cursosMat != resumen.getCursosMatriculados() || creditosMat != resumen.getCreditosMatriculados()) {
-            resumen.setCursosMatriculados(cursosMat);
-            resumen.setCreditosMatriculados(creditosMat);
-            matriculaResumenDAO.update(resumen);
+            MatriculaResumen resumenUpd = new MatriculaResumen(resumen.getId());
+            resumenUpd.setCursosMatriculados(cursosMat);
+            resumenUpd.setCreditosMatriculados(creditosMat);
+            matriculaResumenDAO.updateColumns(resumenUpd, "cursosMatriculados", "creditosMatriculados");
+
+            return resumenUpd;
         }
 
         return resumen;

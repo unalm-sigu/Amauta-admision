@@ -151,7 +151,7 @@ public class MatriculaCursoDAOH extends AbstractEasyDAO<MatriculaCurso> implemen
                 .join("matriculaResumen mr", "mr.alumno alu", "mr.cicloAcademico ca")
                 .join("curso cu", "cu.departamentoAcademico")
                 .filter("mc.estado", EstadoMatriculaEnum.MAT)
-                .filter("ca.id", ciclo)
+                .filter("ca.codigo", ciclo.getCodigo())
                 .filter("alu.id", alumno);
 
         return all(sql);

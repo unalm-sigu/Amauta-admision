@@ -35,6 +35,7 @@ import static pe.edu.lamolina.model.enums.CursoCurriculaEstadoEnum.NREQ;
 import static pe.edu.lamolina.model.enums.CursoCurriculaEstadoEnum.PEND;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
+import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.MAT;
 import pe.edu.lamolina.model.enums.EstadoTramiteEnum;
 import pe.edu.lamolina.model.enums.OrigenDataSituacionAcademicaEnum;
 import pe.edu.lamolina.model.enums.ResolucionEstadoEnum;
@@ -562,9 +563,9 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
     }
 
     @Transactional
-    private void matricular(GrupoSeccion gpoSeccion, Alumno alumno, Curso curso, Usuario usuario, CicloAcademico academico, Map<Long, List<MatriculaCurso>> mapMatriculaCursos) {
+    private void matricular(GrupoSeccion gpoSeccion, Alumno alumno, Curso curso, Usuario usuario, CicloAcademico ciclo, Map<Long, List<MatriculaCurso>> mapMatriculaCursos) {
 
-        MatriculaResumen matriculaResumen = matriculaResumenDAO.findByAlumnoCiclo(alumno, academico);
+        MatriculaResumen matriculaResumen = matriculaResumenDAO.findByAlumnoCiclo(alumno, ciclo);
         List<Seccion> seccions = seccionDAO.allActivosByGpoSeccion(gpoSeccion);
         for (Seccion seccion : seccions) {
             seccion.setVacantes(seccion.getVacantes() + 1);

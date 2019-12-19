@@ -18,6 +18,8 @@ public interface VerificadorService {
 
     boolean puedeOperarMatricula(DataSessionPivot ds);
 
+    boolean puedeMatricularPosgrado(DataSessionPivot ds);
+
     boolean puedeEditarAlumno(DataSessionPivot ds);
 
     boolean puedeEditarOficinas(DataSessionPivot ds);
