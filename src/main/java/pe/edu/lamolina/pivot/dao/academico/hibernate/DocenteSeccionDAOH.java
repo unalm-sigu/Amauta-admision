@@ -97,6 +97,7 @@ public class DocenteSeccionDAOH extends AbstractEasyDAO<DocenteSeccion> implemen
                 .leftJoin("gs.anexoBoletin ab", "ab.anexoSuperior absup")
                 .in("doc.id", docentes)
                 .filter("ca.id", ciclo)
+                .filter("sec.estado", EstadoEnum.ACT)
                 .filter("ds.estado", EstadoEnum.ACT);
 
         return all(sql);

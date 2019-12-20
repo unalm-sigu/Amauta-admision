@@ -203,7 +203,8 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
         List<GrupoSeccion> gruposSeccion = grupoSeccionDAO.allByFilter(idsGpoSecc, ciclo, null, EstadoEnum.ACT);
         logger.debug("Lista grupo seccion tamaño {}", gruposSeccion.size());
         List<DocenteSeccion> responsables = docenteSeccionDAO.allResponsablesByGpoSecciones(gruposSeccion, ciclo);
-        Map<Long, DocenteSeccion> mapResponsables = MapUtil.storeItems("seccion.grupoSeccion.id", responsables);
+        Map<Long, DocenteSeccion> mapResponsables = TypesUtil.convertListToMap("seccion.grupoSeccion.id", responsables);
+        //MapUtil.storeItems("seccion.grupoSeccion.id", responsables);
         for (GrupoSeccion grupoSeccion : gruposSeccion) {
             grupoSeccion.setSecciones(new ArrayList());
             DocenteSeccion responsable = mapResponsables.get(grupoSeccion.getId());
