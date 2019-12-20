@@ -287,6 +287,10 @@ public class VerificadorServiceImp implements VerificadorService {
                 puedeEditar = true;
                 break;
             }
+            if (rol.getCodigoEnum() == RolEnum.EDITOR_ALUMNO_EPG) {
+                puedeEditar = true;
+                break;
+            }
             if (rol.getCodigoEnum() == RolEnum.IOREA) {
                 puedeEditar = true;
                 break;
