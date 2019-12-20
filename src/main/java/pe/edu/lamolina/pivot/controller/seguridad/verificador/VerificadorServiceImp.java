@@ -247,9 +247,14 @@ public class VerificadorServiceImp implements VerificadorService {
         Map<Long, Carrera> mapMaestrias = TypesUtil.convertListToMap("id", maestrias);
         boolean puedeApoyar = false;
 
-        boolean esTrabajadorMaestria = false;
         List<Oficina> oficinasMain = oficinaService.allOficinasMainByPersona(ds.getPersona());
+        for (Oficina oficina : oficinasMain) {
+            if (oficina.getCodigoEnum() == EPG) {
+                return true;
+            }
+        }
 
+        boolean esTrabajadorMaestria = false;
         for (Oficina oficina : oficinasMain) {
             if (oficina.getTipoOficina().getCodigoEnum() == TipoOficinaEnum.ESP) {
                 Carrera maestria = mapMaestrias.get(oficina.getInstanciaOficina());
