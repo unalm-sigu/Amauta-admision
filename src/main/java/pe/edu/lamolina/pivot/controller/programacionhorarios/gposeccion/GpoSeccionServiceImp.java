@@ -318,8 +318,8 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     @Autowired
     EnviosRestService enviosRestService;
 
-    final BigDecimal PORCENTAJE_CARGA = new BigDecimal(100);
     final String PORCENTAJE_CARGA_FRACCION = "100";
+    final BigDecimal PORCENTAJE_CARGA = new BigDecimal(100);
 
     @Override
     public CicloAcademico findCiclo(CicloAcademico cicloAcademico) {
@@ -2742,8 +2742,15 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
     @Override
     public List<DiaHoraGrupo> searchDiasHorasByHorasSemanales(List<DiaHoraGrupo> diasHorasGrupo, Integer horasSemanales, List<Dia> dias) {
+        return this.searchDiasHorasByHorasSemanales(diasHorasGrupo, horasSemanales, dias, true);
+    }
+
+    @Override
+    public List<DiaHoraGrupo> searchDiasHorasByHorasSemanales(List<DiaHoraGrupo> diasHorasGrupo, Integer horasSemanales, List<Dia> dias, boolean throwError) {
         if (horasSemanales == 0) {
-            throw new PhobosException("Esta sección no puede asignarse un grupo con horas semanales");
+            if (throwError) {
+                throw new PhobosException("Esta sección no puede asignarse un grupo con horas semanales");
+            }
         }
 
         if (diasHorasGrupo.isEmpty()) {
@@ -2751,7 +2758,6 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         }
 
         Collections.sort(diasHorasGrupo, (p1, p2) -> p1.getHora().getNumero().compareTo(p2.getHora().getNumero()));
-
         Map<Long, Object> mapDias = TypesUtil.convertListToMapList("dia.id", diasHorasGrupo);
 
         List<DiaHoraGrupo> diasHorasSeccion = new ArrayList();
@@ -2770,7 +2776,9 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         }
 
         if (diasHorasSeccion.isEmpty()) {
-            throw new PhobosException("Grupo Horario no es compatible con las horas semanales de la sección");
+            if (throwError) {
+                throw new PhobosException("Grupo Horario no es compatible con las horas semanales de la sección");
+            }
         }
         return diasHorasSeccion;
     }

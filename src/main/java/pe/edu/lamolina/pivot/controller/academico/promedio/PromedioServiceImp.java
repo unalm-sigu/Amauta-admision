@@ -1510,8 +1510,7 @@ public class PromedioServiceImp implements PromedioService {
 
             String excepcion = this.messageException(e);
 
-            logger.error("####Error en el hilo alumno " + alumno.getCodigo()
-                    + " ciclo " + cicloAcademico.getId());//, e 
+            logger.error("####Error en el hilo alumno " + alumno.getCodigo() + " ciclo " + cicloAcademico.getId());//, e 
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
         }
     }

@@ -3,7 +3,6 @@ package pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion;
 import java.util.Date;
 import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
-import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AnexoBoletin;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
@@ -201,6 +200,8 @@ public interface GpoSeccionService {
     void actualizarBoletin();
 
     List<DiaHoraGrupo> searchDiasHorasByHorasSemanales(List<DiaHoraGrupo> diasHoras, Integer horasSemanales, List<Dia> dias);
+
+    List<DiaHoraGrupo> searchDiasHorasByHorasSemanales(List<DiaHoraGrupo> diasHoras, Integer horasSemanales, List<Dia> dias, boolean throwError);
 
     CursoCicloAcademico findCursoCicloAcademico(Curso curso, CicloAcademico cicloAcademico);
 

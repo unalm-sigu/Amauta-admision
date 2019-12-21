@@ -11,6 +11,7 @@ import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.PlanCalificacion;
+import pe.edu.lamolina.model.encuestaestudiantil.EncuestaAlumno;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.horario.GrupoHoras;
 import pe.edu.lamolina.pivot.controller.academico.acta.ActaResumen;
@@ -90,5 +91,7 @@ public interface GrupoSeccionDAO extends EasyDAO<GrupoSeccion> {
     List<GrupoSeccion> allByCursoAndDirigido(Curso curso, CicloAcademico cicloAcademico);
 
     List<GrupoSeccion> allActivosByLetraAndCiclo(GrupoHoras grupoHoras, CicloAcademico cicloAcademico);
+
+    int saveList(List<GrupoSeccion> gposSecciones);
 
 }

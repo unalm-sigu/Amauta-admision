@@ -147,4 +147,6 @@ public interface SeccionDAO extends EasyDAO<Seccion> {
 
     int updateList(List<Seccion> seccionesUps, String... columnas);
 
+    int saveList(List<Seccion> secciones);
+
 }

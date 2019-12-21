@@ -9,12 +9,13 @@ public interface ClonarCicloService {
     void clonarCiclo(CicloClonacionBean cicloClonacionBean, DataSessionPivot ds);
 
     //Long contarGpoSecc(CicloAcademico ciclo);
-
     GpoSeccionResumen resumenByCiclo(CicloAcademico ciclo);
 
     void reordenar(CicloAcademico ciclo, DataSessionPivot ds);
 
     void limpiarCodigo2(CicloAcademico ciclo, DataSessionPivot ds);
+
+    void limpiarCicloAsyn(CicloAcademico ciclo);
 
     void limpiarCiclo(CicloAcademico ciclo);
 

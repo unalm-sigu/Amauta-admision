@@ -121,6 +121,8 @@ public interface HorarioAulaDAO extends EasyDAO<HorarioAula> {
 
     List<HorarioAula> allByFechas(Date fechainicio, Date fechafin, Aula aula, OficinaEnum oficinaEnum, TipoHorarioAulaEnum... tipoHorarioAulaEnum);
 
+    List<HorarioAula> allByFechas(Date fechainicio, Date fechafin);
+
     List<HorarioAula> allByFechaInicioTipoHorario(Date fechaInicio, TipoHorarioAulaEnum tipoHorarioAulaEnum);
 
     List<HorarioAula> allByFechasFinalesTipoHorarioKeys(List<Date> fechasFinales, TipoHorarioAulaEnum tipoEnum, List<String> keysHorarios);

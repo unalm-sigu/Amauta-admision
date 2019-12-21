@@ -4,8 +4,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.hibernate.Query;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pe.edu.lamolina.pivot.dao.horario.HorarioSeccionDAO;
 import org.springframework.stereotype.Repository;
+import pe.albatross.octavia.Insecto;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
@@ -21,6 +24,8 @@ import pe.edu.lamolina.model.horario.HorarioSeccion;
 
 @Repository
 public class HorarioSeccionDAOH extends AbstractEasyDAO<HorarioSeccion> implements HorarioSeccionDAO {
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public HorarioSeccionDAOH() {
         super();
@@ -208,6 +213,28 @@ public class HorarioSeccionDAOH extends AbstractEasyDAO<HorarioSeccion> implemen
         }
 
         return all(sql);
+    }
+
+    @Override
+    public int saveList(List<HorarioSeccion> horarios) {
+        if (horarios.isEmpty()) {
+            return 0;
+        }
+
+        long t1 = System.currentTimeMillis();
+        Insecto sql = Insecto.createInsert()
+                .into(HorarioSeccion.class)
+                .columns("estado", "reservado",
+                        "fechaInicio", "fechaFin",
+                        "seccion", "dia", "hora", "aula")
+                .values(horarios);
+
+        Query query = getCurrentSession().createSQLQuery(sql.toString());
+        int rows = query.executeUpdate();
+
+        long t2 = System.currentTimeMillis();
+        logger.info("{} HorarioSeccion's insertados en {} mseg....", rows, (t2 - t1));
+        return rows;
     }
 
 }

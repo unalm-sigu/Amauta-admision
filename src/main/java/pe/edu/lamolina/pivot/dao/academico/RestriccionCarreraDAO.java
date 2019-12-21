@@ -18,4 +18,6 @@ public interface RestriccionCarreraDAO extends EasyDAO<RestriccionCarrera> {
 
     void deleteAllByCiclo(CicloAcademico ciclo);
 
+    int saveList(List<RestriccionCarrera> restricciones);
+
 }

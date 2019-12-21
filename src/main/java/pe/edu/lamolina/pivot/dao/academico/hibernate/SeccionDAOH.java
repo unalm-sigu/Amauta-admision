@@ -1034,4 +1034,31 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
         return rows;
     }
 
+    @Override
+    public int saveList(List<Seccion> secciones) {
+        if (secciones.isEmpty()) {
+            return 0;
+        }
+
+        long t1 = System.currentTimeMillis();
+        Insecto sql = Insecto.createInsert()
+                .into(Seccion.class)
+                .columns("codigo", "codigo2", "codigo3", "tipoSeccion", "esPrincipal", "devolucion", "horasSemanales", "horasAdicionales",
+                        "vacantes", "matriculados", "prematriculados", "retirados", "reservados", "ampliacionVacante", "solicitudesAceptadas",
+                        "restriccionCapa", "precioPersonalizado", "precio", "precioBase", "descuentoPrecio", "abonoVerano",
+                        "estado", "motivoCancelacion", "situacionDocente",
+                        "aulaAsignadaAuto", "aulaBorradaPorCruce",
+                        "fechaModificacion", "fechaPrecio", "fechaRegistro", "fechaAsignacionAuto",
+                        "seccionSuperior", "aula", "grupoHoras", "grupoSeccion", "tipoCarpeta", "aulaBorrada", "alumnoPagador",
+                        "usuarioModificacion", "userRegistro", "userPrecio")
+                .values(secciones);
+
+        Query query = getCurrentSession().createSQLQuery(sql.toString());
+        int rows = query.executeUpdate();
+
+        long t2 = System.currentTimeMillis();
+        logger.info("{} Seccion's insertados en {} mseg....", rows, (t2 - t1));
+        return rows;
+    }
+
 }
