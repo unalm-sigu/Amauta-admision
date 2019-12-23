@@ -346,13 +346,13 @@ public class TestServiceImp implements TestService {
 
     @Override
     @Transactional
-    public void promediarfull(DataSessionPivot ds, ModalidadEstudioEnum modalidadEstudioEnum) {
+    public void promediarfull(DataSessionPivot ds, ModalidadEstudioEnum modalidadEnum) {
         List<String> allYears = alumnoDAO.allYearsCiclos();
         List<CicloAcademico> ciclos = cicloAcademicoDAO.all();
 
-        CicloAcademico cicloActivo = cicloAcademicoDAO.findActivo(ModalidadEstudioEnum.PRE);
+        CicloAcademico cicloActivo = cicloAcademicoDAO.findActivo(modalidadEnum);
         for (String year : allYears) {
-            List<Alumno> alumnos = alumnoDAO.allPendingPromedioByCicloYearAndModalidadEst(year, ModalidadEstudioEnum.PRE);
+            List<Alumno> alumnos = alumnoDAO.allPendingPromedioByCicloYearAndModalidadEst(year, modalidadEnum);
             List<Egresado> egresados = egresadoDAO.allByAlumnos(alumnos);
             logger.info("Año {}, Alumnos {}, Acumulados {}", year, alumnos.size(), alumnos.size());
 

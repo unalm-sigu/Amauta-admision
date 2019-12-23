@@ -845,7 +845,7 @@ public class PromedioServiceImp implements PromedioService {
                     alumno,
                     egresado,
                     mapCiclo,
-                    cicloActivo,
+                    //cicloActivo,
                     ciclo, ds,
                     alumnosCiclosByAlumno,
                     mapAlumnoCicloCurso,
@@ -1502,7 +1502,7 @@ public class PromedioServiceImp implements PromedioService {
                     .collect(Collectors.toList());
 
             Map<String, List<CicloAcademico>> mapCiclo = TypesUtil.convertListToMapList("codigo", ciclosAll);
-            this.promediarHistorialNotas(alumno, egresado, mapCiclo, cicloActivo, cicloAcademico, ds, alumnoCiclos,
+            this.promediarHistorialNotas(alumno, egresado, mapCiclo, cicloAcademico, ds, alumnoCiclos,
                     mapAlumnoCicloCurso, alumnoCicloCursosActual, alumnoCicloCursoAnteriores, showError);
             //this.promediarHistorialNotas(alumno, ciclosAll, cicloActivo, cicloAcademico, ds);
 
@@ -1914,7 +1914,7 @@ public class PromedioServiceImp implements PromedioService {
             Alumno alumno,
             Egresado egresado,
             Map<String, List<CicloAcademico>> mapCiclo,
-            CicloAcademico cicloActivo,
+            //CicloAcademico cicloActivo,
             CicloAcademico cicloAcademico,
             DataSessionPivot ds,
             List<AlumnoCiclo> alumnoCiclos,
@@ -1926,6 +1926,7 @@ public class PromedioServiceImp implements PromedioService {
         CicloAcademico siguienteCiclo = findCicloSiguienteRegularActivo(cicloAcademico, modalidadEstudioEnum, mapCiclo);
 
         AlumnoCiclo alumnoCiclo = findAlumnoCiclo(alumnoCiclos, cicloAcademico);
+        this.printSystem("ciclo.estado.00=" + ObjectUtil.getParentTree(alumnoCiclo, "estado"), showError);
         //AlumnoCiclo alumnoCicloAnteriorActive = findAlumnoCicloActiveAnterior(alumnoCiclos, cicloAcademico);
 
         AlumnoCiclo alumnoCicloCorrespSgtRegular = findAlumnoCiclo(alumnoCiclos, siguienteCiclo);
