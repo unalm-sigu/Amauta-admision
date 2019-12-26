@@ -150,6 +150,7 @@ public class InfoAcademicoController {
 
         try {
             List<AlumnoCicloCurso> cursosHisto = service.allHistorialAlumno(new Alumno(idAlumno));
+            System.out.println("cursosHisto.size=" + cursosHisto.size());
             ArrayNode promediosJson = service.allPromediosJson(cursosHisto);
             ArrayNode cursosJson = service.allCursosJson(cursosHisto);
 

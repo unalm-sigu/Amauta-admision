@@ -39,6 +39,7 @@ import pe.edu.lamolina.model.tramite.RetiroCurso;
 import pe.edu.lamolina.pivot.controller.academico.calculonotas.CalculoNotasService;
 import pe.edu.lamolina.pivot.controller.academico.promedio.ContadorComponent;
 import pe.edu.lamolina.pivot.controller.academico.promedio.PromedioReviewService;
+import pe.edu.lamolina.pivot.controller.academico.promedio.PromedioSegundoService;
 import pe.edu.lamolina.pivot.controller.academico.promedio.PromedioService;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloCursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloDAO;
@@ -63,15 +64,6 @@ public class TestServiceImp implements TestService {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    PromedioService promedioService;
-
-    @Autowired
-    PromedioReviewService promedioReviewService;
-
-    @Autowired
-    ContadorComponent contadorComponent;
-
-    @Autowired
     SerieDocumentoDAO serieDocumentoDAO;
 
     @Autowired
@@ -79,12 +71,6 @@ public class TestServiceImp implements TestService {
 
     @Autowired
     MatriculaSeccionDAO matriculaSeccionDAO;
-
-    @Autowired
-    VisorCalculoNotas visorCalculoNotas;
-
-    @Autowired
-    CalculoNotasService calculoNotasService;
 
     @Autowired
     CicloAcademicoDAO cicloAcademicoDAO;
@@ -118,6 +104,19 @@ public class TestServiceImp implements TestService {
 
     @Autowired
     ReincorporacionDAO reincorporacionDAO;
+
+    @Autowired
+    VisorCalculoNotas visorCalculoNotas;
+    @Autowired
+    CalculoNotasService calculoNotasService;
+    @Autowired
+    PromedioService promedioService;
+    @Autowired
+    PromedioReviewService promedioReviewService;
+    @Autowired
+    PromedioSegundoService promedioSegundoService;
+    @Autowired
+    ContadorComponent contadorComponent;
 
     @Override
     @Transactional
@@ -344,51 +343,38 @@ public class TestServiceImp implements TestService {
         }
     }
 
+    @Async
     @Override
     @Transactional
     public void promediarfull(DataSessionPivot ds, ModalidadEstudioEnum modalidadEnum) {
         List<String> allYears = alumnoDAO.allYearsCiclos();
         List<CicloAcademico> ciclos = cicloAcademicoDAO.all();
 
+        contadorComponent.iniciarTotal();
         CicloAcademico cicloActivo = cicloAcademicoDAO.findActivo(modalidadEnum);
         for (String year : allYears) {
             List<Alumno> alumnos = alumnoDAO.allPendingPromedioByCicloYearAndModalidadEst(year, modalidadEnum);
-            List<Egresado> egresados = egresadoDAO.allByAlumnos(alumnos);
-            logger.info("Año {}, Alumnos {}, Acumulados {}", year, alumnos.size(), alumnos.size());
-
-            List<AlumnoCiclo> alumnosCiclosAll = alumnoCicloDAO.allByAlumnos(alumnos);
-            Map<Long, List<AlumnoCiclo>> mapAlumnoCiclo = TypesUtil.convertListToMapList("alumno.id", alumnosCiclosAll);
-
-            List<AlumnoCicloCurso> alumnosCiclosCursosActivos = alumnoCicloCursoDAO.allOperativesByAlumnos(alumnos);
-            List<AlumnoCicloCurso> alumnosCiclosCursosAll = alumnoCicloCursoDAO.allByAlumnos(alumnos);
-            Map<Long, List<AlumnoCicloCurso>> mapAlumnoCicloCursoActivo = TypesUtil.convertListToMapList("alumnoCiclo.alumno.id", alumnosCiclosCursosActivos);
-            Map<Long, List<AlumnoCicloCurso>> mapAlumnoCicloCursoAll = TypesUtil.convertListToMapList("alumnoCiclo.alumno.id", alumnosCiclosCursosAll);
-
-            List<Reincorporacion> reincorporaciones = reincorporacionDAO.allByEstadoTramiteAndAlumnos(alumnos, new EstadoTramite(EstadoTramiteEnum.SOL_ACEP.getId()));
-            Map<Long, List<Reincorporacion>> mapReincorporacion = TypesUtil.convertListToMapList("alumno.id", reincorporaciones);
-
-            Map<Long, Egresado> mapEgresado = TypesUtil.convertListToMap("alumno.id", egresados);
-
-            //contadorComponent.iniciar(alumnos.size());
-            for (Alumno alumno : alumnos) {
-                Egresado egresado = mapEgresado.get(alumno.getId());
-                List<AlumnoCiclo> alumnoCiclos = TypesUtil.getListNotNull(mapAlumnoCiclo.get(alumno.getId()));
-                List<AlumnoCicloCurso> alumnoCiclosCursosActivosByAlu = TypesUtil.getListNotNull(mapAlumnoCicloCursoActivo.get(alumno.getId()));
-                List<AlumnoCicloCurso> alumnoCiclosCursosAllByAlu = TypesUtil.getListNotNull(mapAlumnoCicloCursoAll.get(alumno.getId()));
-                List<Reincorporacion> reincorporacionesByAlumno = TypesUtil.getListNotNull(mapReincorporacion.get(alumno.getId()));
-
-                //promedioService.promediarAllCicloAsync(alumno, cicloActivo, egresado, ciclos, alumnoCiclos, alumnosCicloCursoByAlumno, reincorporacionesByAlumno, ds);
-                promedioReviewService.promediarAllCicloAsync(
-                        alumno,
-                        cicloActivo,
-                        egresado,
-                        ciclos,
-                        alumnoCiclos,
-                        alumnoCiclosCursosActivosByAlu,
-                        alumnoCiclosCursosAllByAlu,
-                        reincorporacionesByAlumno, ds);
+            contadorComponent.iniciar(alumnos.size());
+            logger.info("Año {}, Alumnos {}, Acumulados {}", year, alumnos.size(), contadorComponent.getCantidadAcumulada());
+            
+            promedioSegundoService.procesarYear(alumnos, cicloActivo, ciclos, ds);
+            
+            long t1 = System.currentTimeMillis();
+            for (;;) {
+                if (contadorComponent.finalizoProcesados()) {
+                    break;
+                }
+                long t2 = System.currentTimeMillis();
+                if (t2 - t1 > 5000) {
+                    System.out.print(year + ": Ya se procesaron ");
+                    System.out.print(contadorComponent.getProcesados() + " de " + contadorComponent.getMetaProcesados());
+                    System.out.print(" - Acumulados " + contadorComponent.getCantidadAcumulada() + " alumnos ");
+                    System.out.println("");
+                    t1 = System.currentTimeMillis();
+                }
             }
         }
+        System.out.println("FIN-CALCULO-PROMEDIOS-" + modalidadEnum.name());
     }
 
     @Override

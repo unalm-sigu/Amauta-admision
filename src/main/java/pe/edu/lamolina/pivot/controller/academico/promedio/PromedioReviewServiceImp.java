@@ -234,7 +234,7 @@ public class PromedioReviewServiceImp implements PromedioReviewService {
     @Override
     @Transactional
     public void promediarAllCicloSync(Alumno alumno, CicloAcademico cicloActivo, List<CicloAcademico> ciclos, List<AlumnoCicloCurso> allOperativesByModalidadEstudio, DataSessionPivot ds) {
-        contadorComponent.incrementar();
+        //contadorComponent.incrementar();
         alumno = alumno.clone();
         logger.info("Promediar Alumno {}", alumno.getCodigo());
         if (alumno.getSituacionAcademica().isIngresanteRenunciante()) {
@@ -256,7 +256,7 @@ public class PromedioReviewServiceImp implements PromedioReviewService {
             alumnoUpd.setPromedioProcesado(Boolean.TRUE);
             alumnoDAO.updatePromedioProcesado(alumnoUpd);
 
-            contadorComponent.incrementarProcesados();
+            //contadorComponent.incrementarProcesados();
         } catch (Exception e) {
             String excepcion = this.messageException(e);
             String error = "####Error en el hilo alumno " + alumno.getCodigo() + " ciclo activo " + alumno.getCicloActivo().getCodigo();
@@ -266,7 +266,7 @@ public class PromedioReviewServiceImp implements PromedioReviewService {
             //   TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
             throw new PhobosException(error);
         } finally {
-            contadorComponent.reporte();
+            //contadorComponent.reporte();
         }
 
     }
@@ -1648,7 +1648,6 @@ public class PromedioReviewServiceImp implements PromedioReviewService {
             List<Reincorporacion> allReincorporacionesByAlumno,
             DataSessionPivot ds) {
 
-        //contadorComponent.iniciar(1);
         if (ds.getFechaAccionAudit() == null) {
             ds.setFechaAccionAudit(new Date());
         }
@@ -1656,24 +1655,30 @@ public class PromedioReviewServiceImp implements PromedioReviewService {
         alumno.setConError(Boolean.FALSE);
         alumnoService.marcarFalla(alumno);
 
-        logger.info("Promediar Alumno {}", alumno.getCodigo());
         if (alumno.getSituacionAcademica().isIngresanteRenunciante()) {
+            contadorComponent.incrementarProcesados();
             return;
         }
 
-        int rpta = promedioService.promediarAllCicloSync(
-                alumno,
-                cicloActivo,
-                egresado,
-                ciclos,
-                alumnoCiclos,
-                allOperativesCicloCurso,
-                allAlumnoCicloCurso,
-                allReincorporacionesByAlumno, ds, false, false);
+        int rpta;
+        try {
+            rpta = promedioService.promediarAllCicloSync(
+                    alumno,
+                    cicloActivo,
+                    egresado,
+                    ciclos,
+                    alumnoCiclos,
+                    allOperativesCicloCurso,
+                    allAlumnoCicloCurso,
+                    allReincorporacionesByAlumno, ds, false, false);
+        } catch (Exception e) {
+            rpta = 0;
+        }
         if (rpta == 0) {
             alumno.setConError(Boolean.TRUE);
             alumnoService.marcarFalla(alumno);
         }
+        contadorComponent.incrementarProcesados();
     }
 
 }
