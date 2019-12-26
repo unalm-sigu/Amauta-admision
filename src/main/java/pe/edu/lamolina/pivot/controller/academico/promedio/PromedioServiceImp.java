@@ -885,7 +885,6 @@ public class PromedioServiceImp implements PromedioService {
                 } else {
                     //if (egresado != null && egresado.getCicloAcademico() != null) {
                     CicloAcademico cicloAlumno = alumnoCiclo.getCicloAcademico();
-                    System.out.println("ciclo=" + cicloAlumno.getCodigo());
                     if (cicloAlumno.getTipoEnum() == NIV) {
                         alumnoCiclo.setRegistroValido(true);
                     }

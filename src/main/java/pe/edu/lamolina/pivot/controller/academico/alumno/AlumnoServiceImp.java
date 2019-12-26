@@ -577,7 +577,7 @@ public class AlumnoServiceImp implements AlumnoService {
                 usuario.setUserModifica(usuarioRegistra);
                 usuarioDAO.update(usuario);
 
-            } else if (personaBD.getEmailCompania() != null || !personaBD.getEmailCompania().equals(personaForm.getEmailCompania())) {
+            } else if (!personaBD.getEmailCompania().equals(personaForm.getEmailCompania())) {
                 this.validarEmailEmpresaConPersona(personaForm.getEmailCompania(), personaBD);
                 logger.debug("not eq");
                 if (modificar) {
