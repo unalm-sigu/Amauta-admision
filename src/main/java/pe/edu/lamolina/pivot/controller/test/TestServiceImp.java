@@ -146,73 +146,80 @@ public class TestServiceImp implements TestService {
         }
     }
 
-    @Override
-    @Transactional
-    public void trasladarMatriculaCursoForPromedios(DataSessionPivot ds, Long alumnoId) {
-        Alumno alumno = alumnoDAO.find(new Alumno(alumnoId));
-        List<CicloAcademico> ciclos = cicloAcademicoDAO.allWithInitAndOrderBy(2017, "ca.codigo asc", CicloAcademicoEstadoEnum.ACT, CicloAcademicoEstadoEnum.CER, CicloAcademicoEstadoEnum.PEND);
-        ciclos.removeIf(x -> !x.getModalidadEstudio().equals(alumno.getModalidadEstudio()));
-        for (CicloAcademico cicloAcademicoEach : ciclos) {
-            MatriculaResumen matriculaResumen = matriculaResumenDAO.findByAlumnoCiclo(new Alumno(alumnoId), cicloAcademicoEach);
-            if (matriculaResumen == null) {
-                continue;
-            }
-            List<MatriculaCurso> matriculasCurso = matriculaCursoDAO.allByMatriculaResumenFull(matriculaResumen);
-            if (matriculasCurso == null || matriculasCurso.isEmpty()) {
-                continue;
-            }
+//    @Override
+//    @Transactional
+//    public void trasladarMatriculaCursoForPromedios(DataSessionPivot ds, Long alumnoId) {
+//        Alumno alumno = alumnoDAO.find(new Alumno(alumnoId));
+//        List<CicloAcademico> ciclos = cicloAcademicoDAO.allWithInitAndOrderBy(2017, "ca.codigo asc", CicloAcademicoEstadoEnum.ACT, CicloAcademicoEstadoEnum.CER, CicloAcademicoEstadoEnum.PEND);
+//        ciclos.removeIf(x -> !x.getModalidadEstudio().equals(alumno.getModalidadEstudio()));
+//        for (CicloAcademico cicloAcademicoEach : ciclos) {
+//            MatriculaResumen matriculaResumen = matriculaResumenDAO.findByAlumnoCiclo(new Alumno(alumnoId), cicloAcademicoEach);
+//            if (matriculaResumen == null) {
+//                continue;
+//            }
+//            List<MatriculaCurso> matriculasCurso = matriculaCursoDAO.allByMatriculaResumenFull(matriculaResumen);
+//            if (matriculasCurso.isEmpty()) {
+//                continue;
+//            }
+//
+//            List<MatriculaSeccion> matriculaSeccions = matriculaSeccionDAO.allActivesByMatriculaResumen(Arrays.asList(matriculaResumen));
+//            visorCalculoNotas.iniciar();
+//            visorCalculoNotas.setCantidadTotal(1);
+//            logger.debug("##################Ciclo padre {} {} {}", cicloAcademicoEach.getId(), cicloAcademicoEach.getYear(), cicloAcademicoEach.getNumeroCiclo());
+//            //promedioService.actasNotasHaciaHistorial(matriculaResumen, matriculasCurso, matriculaSeccions, ds, false);
+//        }
+//    }
 
-            List<MatriculaSeccion> matriculaSeccions = matriculaSeccionDAO.allActivesByMatriculaResumen(Arrays.asList(matriculaResumen));
-            visorCalculoNotas.iniciar();
-            visorCalculoNotas.setCantidadTotal(1);
-            logger.debug("##################Ciclo padre {} {} {}", cicloAcademicoEach.getId(), cicloAcademicoEach.getYear(), cicloAcademicoEach.getNumeroCiclo());
-            promedioService.trasladarInformcionForHistorial(matriculaResumen, matriculasCurso, matriculaSeccions, ds, false);
-        }
-    }
+//    @Override
+//    @Transactional
+//    public void trasladarMatriculaCursoForPromedios(DataSessionPivot ds) {
+//        List<CicloAcademico> ciclos = cicloAcademicoDAO.allWithInitAndOrderBy(2019, "ca.codigo asc", CicloAcademicoEstadoEnum.CER, CicloAcademicoEstadoEnum.PEND);
+//        //   List<GrupoSeccion> gruposSeccionesByCiclo=gruposecc
+//        for (CicloAcademico cicloAcademico : ciclos) {
+//            List<MatriculaResumen> resumenesAll = matriculaResumenDAO.allActivosByCiclo(cicloAcademico);
+//            List<MatriculaCurso> cursosMatriculadosAll = matriculaCursoDAO.allActivosByCiclo(cicloAcademico);
+//            List<Alumno> alumnos = resumenesAll.stream().map(x -> x.getAlumno()).collect(Collectors.toList());
+//            List<AlumnoCicloCurso> cursosLlevadosAll = alumnoCicloCursoDAO.allByAlumnos(alumnos);
+//
+//            Map<Long, List<MatriculaCurso>> mapCursoMatriculado = TypesUtil.convertListToMapList("matriculaResumen.alumno.id", cursosMatriculadosAll);
+//            Map<Long, List<AlumnoCicloCurso>> mapCursoLlevado = TypesUtil.convertListToMapList("alumnoCiclo.alumno.id", cursosLlevadosAll);
+//
+//            visorCalculoNotas.iniciar();
+//            visorCalculoNotas.setCantidadTotal(resumenesAll.size());
+//            for (MatriculaResumen matriculaResumen : resumenesAll) {
+//                Alumno alumno = matriculaResumen.getAlumno();
+//                List<MatriculaCurso> cursosMatriculados = TypesUtil.getListNotNull(mapCursoMatriculado.get(alumno.getId()));
+//                List<AlumnoCicloCurso> cursosLlevados = TypesUtil.getListNotNull(mapCursoLlevado.get(alumno.getId()));
+//
+//                //List<MatriculaSeccion> matriculasSeccion = TypesUtil.getListNotNull(mapMatriculaSeccion.get(matriculaResumen.getId()));
+//                promedioService.actasNotasHaciaHistorial(matriculaResumen, cursosMatriculados, cursosLlevados, ds, false);
+//            }
+//        }
+//    }
 
-    @Override
-    @Transactional
-    public void trasladarMatriculaCursoForPromedios(DataSessionPivot ds) {
-        List<CicloAcademico> ciclos = cicloAcademicoDAO.allWithInitAndOrderBy(2019, "ca.codigo asc", CicloAcademicoEstadoEnum.CER, CicloAcademicoEstadoEnum.PEND);
-        //   List<GrupoSeccion> gruposSeccionesByCiclo=gruposecc
-        for (CicloAcademico cicloAcademico : ciclos) {
-            List<MatriculaResumen> matriculasResumen = matriculaResumenDAO.allByCiclo(cicloAcademico);
-            List<MatriculaCurso> matriculasCurso = matriculaCursoDAO.allByCicloFull(cicloAcademico);
-            if (matriculasResumen.isEmpty()) {
-                continue;
-            }
-            List<MatriculaSeccion> matriculasSeccion = matriculaSeccionDAO.allActivesByMatriculaResumen(matriculasResumen);
-            if (matriculasSeccion.isEmpty()) {
-                continue;
-            }
-
-            visorCalculoNotas.iniciar();
-            visorCalculoNotas.setCantidadTotal(matriculasResumen.size());
-            for (MatriculaResumen matriculaResumen : matriculasResumen) {
-                promedioService.trasladarInformcionForHistorial(matriculaResumen, matriculasCurso, matriculasSeccion, ds, false);
-            }
-        }
-    }
-
+    @Async
     @Override
     @Transactional
     public void trasladarMatriculaCursoForPromediosCiclo(DataSessionPivot ds, String codigo, Long modalidad) {
         CicloAcademico cicloAcademico = cicloAcademicoDAO.findByCodigoModalidadEstudio(codigo, new ModalidadEstudio(modalidad));
         //   List<GrupoSeccion> gruposSeccionesByCiclo=gruposecc
-        List<MatriculaResumen> matriculasResumen = matriculaResumenDAO.allByCiclo(cicloAcademico);
-        List<MatriculaCurso> matriculasCurso = matriculaCursoDAO.allByCicloFull(cicloAcademico);
-        if (matriculasResumen.isEmpty()) {
-            return;
-        }
-        List<MatriculaSeccion> matriculasSeccion = matriculaSeccionDAO.allActivesByMatriculaResumen(matriculasResumen);
-        if (matriculasSeccion.isEmpty()) {
-            return;
-        }
+        List<MatriculaResumen> resumenesAll = matriculaResumenDAO.allActivosByCiclo(cicloAcademico);
+        List<MatriculaCurso> cursosMatriculadosAll = matriculaCursoDAO.allActivosByCiclo(cicloAcademico);
+        List<Alumno> alumnos = resumenesAll.stream().map(x -> x.getAlumno()).collect(Collectors.toList());
+        List<AlumnoCicloCurso> cursosLlevadosAll = alumnoCicloCursoDAO.allByAlumnos(alumnos);
+
+        Map<Long, List<MatriculaCurso>> mapCursoMatriculado = TypesUtil.convertListToMapList("matriculaResumen.alumno.id", cursosMatriculadosAll);
+        Map<Long, List<AlumnoCicloCurso>> mapCursoLlevado = TypesUtil.convertListToMapList("alumnoCiclo.alumno.id", cursosLlevadosAll);
 
         visorCalculoNotas.iniciar();
-        visorCalculoNotas.setCantidadTotal(matriculasResumen.size());
-        for (MatriculaResumen matriculaResumen : matriculasResumen) {
-            promedioService.trasladarInformcionForHistorial(matriculaResumen, matriculasCurso, matriculasSeccion, ds, false);
+        visorCalculoNotas.setCantidadTotal(resumenesAll.size());
+        for (MatriculaResumen matriculaResumen : resumenesAll) {
+            Alumno alumno = matriculaResumen.getAlumno();
+            List<MatriculaCurso> cursosMatriculados = TypesUtil.getListNotNull(mapCursoMatriculado.get(alumno.getId()));
+            List<AlumnoCicloCurso> cursosLlevados = TypesUtil.getListNotNull(mapCursoLlevado.get(alumno.getId()));
+
+            //List<MatriculaSeccion> matriculasSeccion = TypesUtil.getListNotNull(mapMatriculaSeccion.get(matriculaResumen.getId()));
+            promedioService.actasNotasHaciaHistorial(matriculaResumen, cursosMatriculados, cursosLlevados, ds, false);
         }
 
     }
@@ -356,9 +363,9 @@ public class TestServiceImp implements TestService {
             List<Alumno> alumnos = alumnoDAO.allPendingPromedioByCicloYearAndModalidadEst(year, modalidadEnum);
             contadorComponent.iniciar(alumnos.size());
             logger.info("Año {}, Alumnos {}, Acumulados {}", year, alumnos.size(), contadorComponent.getCantidadAcumulada());
-            
+
             promedioSegundoService.procesarYear(alumnos, cicloActivo, ciclos, ds);
-            
+
             long t1 = System.currentTimeMillis();
             for (;;) {
                 if (contadorComponent.finalizoProcesados()) {
@@ -428,24 +435,24 @@ public class TestServiceImp implements TestService {
         }
     }
 
-    @Override
-    @Transactional
-    public void calcularAllPromediosByCiclo(DataSessionPivot ds) {
-        CicloAcademico ciclo = ds.getCicloAcademico();
-
-        List<MatriculaCurso> matriculasCurso = matriculaCursoDAO.allByCiclo(ciclo);
-        logger.debug("Catidad de registros a procesar {}", matriculasCurso.size());
-        for (MatriculaCurso matriculaCurso : matriculasCurso) {
-            //   if (matriculaCurso.getMatriculaResumen().getAlumno().getId().compareTo(54234L) == 0) {
-
-            matriculaCurso.getMatriculaResumen().getAlumno();
-            matriculaCurso.getMatriculaResumen().getCicloAcademico();
-            matriculaCurso.getCurso();
-            promedioService.trasladoPromediosSource(matriculaCurso, ds, false);
-
-            //  }
-        }
-    }
+//    @Override
+//    @Transactional
+//    public void calcularAllPromediosByCiclo(DataSessionPivot ds) {
+//        CicloAcademico ciclo = ds.getCicloAcademico();
+//
+//        List<MatriculaCurso> matriculasCurso = matriculaCursoDAO.allByCiclo(ciclo);
+//        logger.debug("Catidad de registros a procesar {}", matriculasCurso.size());
+//        for (MatriculaCurso matriculaCurso : matriculasCurso) {
+//            //   if (matriculaCurso.getMatriculaResumen().getAlumno().getId().compareTo(54234L) == 0) {
+//
+//            matriculaCurso.getMatriculaResumen().getAlumno();
+//            matriculaCurso.getMatriculaResumen().getCicloAcademico();
+//            matriculaCurso.getCurso();
+//            promedioService.trasladoPromediosSource(matriculaCurso, ds, false);
+//
+//            //  }
+//        }
+//    }
 
     @Override
     public void promediarfullBySituacion(String sit, DataSessionPivot ds, ModalidadEstudioEnum modalidadEstudioEnum) {
@@ -696,7 +703,7 @@ public class TestServiceImp implements TestService {
                 }
             }
         }
-//        promedioReviewService.trasladarInformcionForHistorial(matriculaResumen, matriculasCursoMat, matriculaSeccions, ds, mapRetiroCicloByciclo, mapAlumnoCicloCurso, mapAlumnoCicloByAlum, situacionAcademicaComodin, false);
+//        promedioReviewService.actasNotasHaciaHistorial(matriculaResumen, matriculasCursoMat, matriculaSeccions, ds, mapRetiroCicloByciclo, mapAlumnoCicloCurso, mapAlumnoCicloByAlum, situacionAcademicaComodin, false);
 //        }
     }
 

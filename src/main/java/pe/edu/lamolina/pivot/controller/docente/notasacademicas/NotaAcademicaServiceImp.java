@@ -30,6 +30,7 @@ import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
 import pe.edu.lamolina.model.academico.AlumnoEvaluacion;
 import pe.edu.lamolina.model.academico.AlumnoEvaluacionElim;
 import pe.edu.lamolina.model.academico.CicloAcademico;
@@ -59,8 +60,8 @@ import pe.edu.lamolina.model.enums.EstadoGrupoSeccionEnum;
 import pe.edu.lamolina.model.enums.EstadoPlanCalificaEnum;
 import pe.edu.lamolina.model.enums.LoggerAccionEnum;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.EPG;
+import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.ESP;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.PRE;
-import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.VIS;
 import pe.edu.lamolina.model.enums.MotivoAnulacionEnum;
 import pe.edu.lamolina.model.enums.TipoCicloEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
@@ -70,7 +71,6 @@ import pe.edu.lamolina.pivot.controller.academico.calculonotas.CalculoNotasServi
 import pe.edu.lamolina.pivot.controller.academico.promedio.PromedioService;
 import pe.edu.lamolina.pivot.controller.auditor.AuditorService;
 import pe.edu.lamolina.pivot.controller.interceptor.InterceptorService;
-import pe.edu.lamolina.pivot.controller.test.VisorCalculoNotas;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloCursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoEvaluacionDAO;
 import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
@@ -154,9 +154,8 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
     @Autowired
     ResumenAlumnoEvaluacionDAO resumenAlumnoEvaluacionDAO;
 
-    @Autowired
-    VisorCalculoNotas visorCalculoNotas;
-
+//    @Autowired
+//    VisorCalculoNotas visorCalculoNotas;
     @Autowired
     PlanCalificacionCursoDAO planCalificacionCursoDAO;
 
@@ -382,7 +381,6 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
     public List<MatriculaSeccion> eliminarNotas(Evaluacion evaluacion, DataSessionPivot ds) {
 
         evaluacion = evaluacionDAO.find(evaluacion.getId());
-
         if (evaluacion.getSeccionResponsable().getGrupoSeccion().isEstadoGrupoCerrado()) {
             throw new PhobosException("No se puede eliminar la evaluación, el acta se encuentra cerrada.");
         }
@@ -407,7 +405,12 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
         evaluacionEliminada.setFechaRegistro(today.toDate());
 
         evaluacionEliminada.setAlumnoEvaluacionElims(new ArrayList<>());
-        List<CicloAcademico> cicloAcademicos = cicloAcademicoDAO.allActivosAlModalidades();
+
+        Curso curso = evaluacion.getSeccionResponsable().getGrupoSeccion().getCurso();
+        CicloAcademico cicloCurso = evaluacion.getSeccionResponsable().getGrupoSeccion().getCicloAcademico();
+        List<CicloAcademico> cicloAcademicos = cicloAcademicoDAO.allByCodigo(cicloCurso.getCodigo());
+        CicloAcademico cicloPregrado = cicloAcademicos.stream().filter(x -> x.getModalidadEstudio().getCodigoEnum() == PRE).findAny().orElse(null);
+        CicloAcademico cicloPosgrado = cicloAcademicos.stream().filter(x -> x.getModalidadEstudio().getCodigoEnum() == EPG).findAny().orElse(null);
 
         List<MatriculaSeccion> marticulasSeccion = new ArrayList();
         for (AlumnoEvaluacion alumnoEvaluacion : alumnoEvaluaciones) {
@@ -423,16 +426,13 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
             matSecc.setSeccion(evaluacion.getSeccionResponsable());
 
             marticulasSeccion.add(matSecc);
-            CicloAcademico academico = null;
-            if (Arrays.asList(PRE, VIS).contains(alumno.getModalidadEstudio().getCodigoEnum())) {
-                academico = cicloAcademicos.stream().filter(x -> x.getModalidadEstudio().getCodigoEnum() == PRE).findAny().orElse(null);
-            } else {
-                academico = cicloAcademicos.stream().filter(x -> x.getModalidadEstudio().getCodigoEnum() == EPG).findAny().orElse(null);
+            CicloAcademico ciclo = cicloPregrado;
+            if (Arrays.asList(EPG, ESP).contains(alumno.getModalidadEstudio().getCodigoEnum())) {
+                ciclo = cicloPosgrado;
             }
 
-            MatriculaCurso matriculaCurso = matriculaCursoDAO.findByAlumnoCursoCiclo(alumno,
-                    evaluacion.getSeccionResponsable().getGrupoSeccion().getCurso(),
-                    academico);
+            System.out.println("find alumno=" + alumno.getCodigo() + " ciclo=" + ciclo.getId() + " curso=" + curso.getId());
+            MatriculaCurso matriculaCurso = matriculaCursoDAO.findByAlumnoCursoCiclo(alumno, curso, ciclo);
             matriculaCurso.setCreditosAprobados(null);
             matriculaCursoDAO.update(matriculaCurso);
         }
@@ -987,16 +987,16 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
     }
 
     @Override
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void saveEstructuraEvaluacion(EvaluacionExpandida evaluacionExpandida, LoggerAccionEnum loggerAccionEnum, HttpSession session) {
         evaluacionExpandida = evaluacionExpandidaDAO.find(evaluacionExpandida.getId());
         EvaluacionSeccion evaluacionSeccion = evaluacionSeccionDAO.find(evaluacionExpandida.getEvaluacionSeccion().getId());
         this.saveEstructuraEvaluacion(evaluacionSeccion.getGrupoSeccion(), loggerAccionEnum, session);
     }
 
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
-    @Override
     @Async
+    @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void saveEstructuraEvaluacion(GrupoSeccion grupoSeccion, LoggerAccionEnum loggerAccionEnum, HttpSession session) {
         grupoSeccion = grupoSeccionDAO.find(grupoSeccion.getId());
         EvaluacionSeccion evaluacionSeccionByGpoSecc = evaluacionSeccionDAO.findByPlanCalGrupoSec(null, grupoSeccion.getId(), null);
@@ -2054,14 +2054,25 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
         grupoSeccion.setEstadoGrupoEnum(EstadoGrupoSeccionEnum.CER);
         grupoSeccionDAO.update(grupoSeccion);
 
-        List<Alumno> alumnos = new ArrayList();
         List<MatriculaSeccion> matriculasSeccion = matriculaSeccionDAO.allMatriculadosByGpoSeccion(grupoSeccion);
+
+        Curso curso = grupoSeccion.getCurso();
         List<MatriculaResumen> matriculasResumen = matriculasSeccion.stream().map(x -> x.getMatriculaResumen()).collect(Collectors.toList());
-        List<MatriculaCurso> matriculasCurso = matriculaCursoDAO.allByMatriculaResumenCurso(matriculasResumen, grupoSeccion.getCurso());//falta enviar el curso
-        for (MatriculaCurso matriculaCurso : matriculasCurso) {
-            Alumno alumno = matriculaCurso.getMatriculaResumen().getAlumno();
-            this.trasladarMatriculaCursoForHistorial(alumno, grupoSeccion, ds);
-            alumnos.add(alumno);
+        List<MatriculaCurso> matriculasCursoAll = matriculaCursoDAO.allActivosByMatriculaResumenCurso(matriculasResumen, curso);
+
+        List<Alumno> alumnos = matriculasCursoAll.stream().map(x -> x.getMatriculaResumen().getAlumno()).collect(Collectors.toList());
+        List<AlumnoCicloCurso> cursosLlevadosAll = alumnoCicloCursoDAO.allCursadosByAlumnosCurso(alumnos, curso);
+        Map<Long, List<AlumnoCicloCurso>> mapCursoLlevado = TypesUtil.convertListToMapList("alumnoCiclo.alumno.id", cursosLlevadosAll);
+
+        for (MatriculaCurso matriculaCurso : matriculasCursoAll) {
+            MatriculaResumen resumen = matriculaCurso.getMatriculaResumen();
+            List<AlumnoCicloCurso> cursosLlevados = TypesUtil.getListNotNull(mapCursoLlevado.get(resumen.getAlumno().getId()));
+            List<MatriculaCurso> cursosMatriculados = new ArrayList();
+            cursosMatriculados.add(matriculaCurso);
+            //Alumno alumno = resumen.getAlumno();
+            //this.trasladarMatriculaCursoForHistorial(alumno, grupoSeccion, resumen, matriculaCurso, alumnosCurso);
+            //alumnos.add(alumno);
+            promedioService.actasNotasHaciaHistorial(resumen, cursosMatriculados, cursosLlevados, ds, false);
         }
         promedioService.saveCerrarActaAsync(alumnos, ds);
 
@@ -2069,25 +2080,29 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
         return alumnos;
     }
 
-    @Transactional
-    public void trasladarMatriculaCursoForHistorial(Alumno alumno, GrupoSeccion grupoSeccion, DataSessionPivot ds) {
-        MatriculaResumen matriculaResumen = matriculaResumenDAO.findByAlumnoCiclo(alumno, grupoSeccion.getCicloAcademico());
-        if (matriculaResumen == null) {
-            return;
-        }
-        List<MatriculaCurso> matriculasCurso = matriculaCursoDAO.allByMatriculaResumenFull(matriculaResumen);
-        if (matriculasCurso == null || matriculasCurso.isEmpty()) {
-            return;
-        }
-        List<MatriculaSeccion> matriculaSeccions = matriculaSeccionDAO.allActivesByMatriculaResumen(Arrays.asList(matriculaResumen));
-        visorCalculoNotas.iniciar();
-        visorCalculoNotas.setCantidadTotal(1);
-        logger.debug("##################Ciclo padre {} ", grupoSeccion.getCicloAcademico());
-        promedioService.trasladarInformcionForHistorial(matriculaResumen, matriculasCurso, matriculaSeccions, ds, false);
-    }
-
+    //@Transactional
+//    private void trasladarMatriculaCursoForHistorial(
+//            Alumno alumno,
+//            GrupoSeccion grupoSeccion,
+//            MatriculaResumen matriculaResumen,
+//            MatriculaCurso matriculaCurso,
+//            List<AlumnoCicloCurso> cursosLlevados) {
+//        //MatriculaResumen matriculaResumen = matriculaResumenDAO.findByAlumnoCiclo(alumno, grupoSeccion.getCicloAcademico());
+//        if (matriculaResumen == null) {
+//            return;
+//        }
+//        if (matriculaCurso == null) {
+//            return;
+//        }
+//        //List<MatriculaSeccion> matriculaSeccions = matriculaSeccionDAO.allActivesByMatriculaResumen(Arrays.asList(matriculaResumen));
+//        visorCalculoNotas.iniciar();
+//        visorCalculoNotas.setCantidadTotal(1);
+//        logger.debug("##################Ciclo padre {} ", grupoSeccion.getCicloAcademico());
+//        
+//        promedioService.actasNotasHaciaHistorial(matriculaResumen, matriculasCurso, matriculaSeccions, ds, false);
+//    }
     @Override
-    @Transactional(readOnly = false)
+    @Transactional
     public void desvincularPlanCalificacion(GrupoSeccion grupo) {
         GrupoSeccion grupoSeccion = grupoSeccionDAO.find(grupo.getId());
 

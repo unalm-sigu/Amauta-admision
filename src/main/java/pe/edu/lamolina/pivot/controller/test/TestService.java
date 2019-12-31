@@ -8,9 +8,9 @@ public interface TestService {
 
     void calcularAllResumenEvaluacion(Long seccionId, CicloAcademico ciclo, DataSessionPivot ds);
 
-    void trasladarMatriculaCursoForPromedios(DataSessionPivot ds, Long alumnoId);
+    //void trasladarMatriculaCursoForPromedios(DataSessionPivot ds, Long alumnoId);
 
-    void trasladarMatriculaCursoForPromedios(DataSessionPivot ds);
+//    void trasladarMatriculaCursoForPromedios(DataSessionPivot ds);
 
     void promediarciclocod(String cicloCod, DataSessionPivot ds);
 
@@ -20,7 +20,7 @@ public interface TestService {
 
     void promediarAll(Long cicloId, DataSessionPivot ds);
 
-    void calcularAllPromediosByCiclo(DataSessionPivot ds);
+    //void calcularAllPromediosByCiclo(DataSessionPivot ds);
 
     void promediarfullBySituacion(String sit, DataSessionPivot ds, ModalidadEstudioEnum modalidadEstudioEnum);
 

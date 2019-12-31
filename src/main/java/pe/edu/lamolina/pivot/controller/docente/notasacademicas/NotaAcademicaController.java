@@ -69,7 +69,6 @@ import pe.edu.lamolina.model.enums.EstadoPlanCalificaEnum;
 import pe.edu.lamolina.model.enums.LoggerAccionEnum;
 import pe.edu.lamolina.model.enums.OrigenPlanCalificaEnum;
 import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
-import pe.edu.lamolina.model.enums.TipoCreditoEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEvalEnum;
 import pe.edu.lamolina.pivot.controller.matricula.matriculable.MatriculableService;

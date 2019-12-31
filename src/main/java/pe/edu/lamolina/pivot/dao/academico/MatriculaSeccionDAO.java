@@ -28,8 +28,6 @@ public interface MatriculaSeccionDAO extends EasyDAO<MatriculaSeccion> {
 
     List<CantidadMatriculadosDTO> cantidadMatriculadosPorCurso(List<Curso> cursos, CicloAcademico ciclo, EstadoMatriculaEnum... estados);
 
-//    MatriculaSeccion findByAlumnoSeccion(Alumno alumno, Seccion seccion);
-//    List<MatriculaSeccion> allByMatriculaSeccion(MatriculaResumen aluResumen);
     List<MatriculaSeccion> allMatriculadosByGpoSeccion(GrupoSeccion grupoSeccion);
 
     List<MatriculaSeccion> allMatriculadosByCiclo(CicloAcademico ciclo);

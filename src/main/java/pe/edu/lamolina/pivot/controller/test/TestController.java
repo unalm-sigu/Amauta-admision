@@ -218,13 +218,13 @@ public class TestController {
         return "yeah";
     }
 
-    @ResponseBody
-    @RequestMapping("calcularAllPromediosByCiclo")
-    public String calcularAllPromediosByCiclo(HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-        service.calcularAllPromediosByCiclo(ds);
-        return "yeah";
-    }
+//    @ResponseBody
+//    @RequestMapping("calcularAllPromediosByCiclo")
+//    public String calcularAllPromediosByCiclo(HttpSession session) {
+//        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+//        service.calcularAllPromediosByCiclo(ds);
+//        return "yeah";
+//    }
 
     @ResponseBody
     @RequestMapping("promediarciclo/{ciclo}")
@@ -303,14 +303,14 @@ public class TestController {
     }
 
     //Trasladar informacion de matricula curso a alumnociclocurso
-    @ResponseBody
-    @RequestMapping("trasladarInformcionForHistorial")
-    public String trasladarMatriculaCursoForPromedios(HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-        ds.setFechaAccionAudit(new Date());
-        service.trasladarMatriculaCursoForPromedios(ds);
-        return "yeah";
-    }
+//    @ResponseBody
+//    @RequestMapping("actasNotasHaciaHistorial")
+//    public String trasladarMatriculaCursoForPromedios(HttpSession session) {
+//        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+//        ds.setFechaAccionAudit(new Date());
+//        service.trasladarMatriculaCursoForPromedios(ds);
+//        return "yeah";
+//    }
 
     @ResponseBody
     @RequestMapping("trasladarInformcionForHistorialReview/{alumno}")
@@ -351,14 +351,14 @@ public class TestController {
         return "yeah";
     }
 
-    @ResponseBody
-    @RequestMapping("trasladarInformcionForHistorial/{alumno}")
-    public String trasladarMatriculaCursoForPromedios(HttpSession session, @PathVariable("alumno") Long alumnoId) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-        ds.setFechaAccionAudit(new Date());
-        service.trasladarMatriculaCursoForPromedios(ds, alumnoId);
-        return "yeah";
-    }
+//    @ResponseBody
+//    @RequestMapping("actasNotasHaciaHistorial/{alumno}")
+//    public String trasladarMatriculaCursoForPromedios(HttpSession session, @PathVariable("alumno") Long alumnoId) {
+//        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+//        ds.setFechaAccionAudit(new Date());
+//        service.trasladarMatriculaCursoForPromedios(ds, alumnoId);
+//        return "yeah";
+//    }
 
     @ResponseBody
     @RequestMapping("trasladarInformcionForHistorialAlumno/{alumno}")
