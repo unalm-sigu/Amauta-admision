@@ -236,7 +236,10 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
         Collections.sort(aluCursosCurriculaNew, new AlumnoCursoCurricula.CompareCodigo());
         Collections.sort(aluCursosCurriculaNew, new AlumnoCursoCurricula.CompareCreditos());
 
+        //System.out.println("Buscando cursos EEP de " + alumno.getCodigo());
         for (AlumnoCursoCurricula aluCursoCurricula : aluCursosCurriculaNew) {
+            Curso curso = aluCursoCurricula.getCurso();
+            //System.out.println("\tCurso.1:" + curso.getCodigo() + " tipo" + aluCursoCurricula.getTipoCursoCurricula().getCodigo());
 
             if (aluCursoCurricula.getVecesCursado() == 0) {
                 AlumnoCicloCurso cat = mapCursosVecesLlevado.get(aluCursoCurricula.getAlumno().getId() + "-" + aluCursoCurricula.getCurso().getId());
@@ -283,6 +286,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
                 mapCreditosByTipo.replace(tipo, prevCreditos);
                 mapCursosByTipo.replace(tipo, prevCursos);
             }
+            //System.out.println("\tCurso.2:" + curso.getCodigo() + " tipo" + aluCursoCurricula.getTipoCursoCurricula().getCodigo());
         }
 
         Integer cred = 0;
@@ -571,9 +575,12 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
         Map<Long, CursoOpcionalCurricula> mapCursoOpcional = TypesUtil.convertListToMap("curso.id", cursoOpcionalCurriculas);
 
         for (AlumnoCicloCurso cursoAprobado : cursosAprobados) {
+            //System.out.println("alumno: " + alumno.getCodigo() + " :::: cursoAprobado:" + cursoAprobado.getCurso().getCodigo() + " - aprobado:" + cursoAprobado.isAprobado());
+
             AlumnoCursoCurricula alumnoCursoCurricula = mapAlumCursoCurrByCurso.get(cursoAprobado.getCurso().getId());
 
             if (alumnoCursoCurricula != null) {
+                //System.out.println("\tCurso-obligatorio");
                 cursoAprobado.setTipoCursoCurricula(alumnoCursoCurricula.getTipoCursoCurricula());
 
                 if (cursoAprobado.isAprobado()) {
@@ -594,6 +601,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
 
             } else if (cursoAprobado.getCurso().getDepartamentoAcademico() != null
                     && codesDptosCultDepMed.contains(cursoAprobado.getCurso().getDepartamentoAcademico().getCodigo())) {
+                //System.out.println("\tCurso-deportivo-cultural");
                 TipoCursoCurricula tipoCursoCurricula = mapTipoCursoCurricula.get(DEP);
                 addCursosComodin(alumno, alumnoCursosComodinesDepNew, cursoAprobado, tipoCursoCurricula, ds);
 
@@ -765,10 +773,12 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
         if (cursoOpcionalCurricula != null) {
             TipoCursoCurricula tipoCursoCurricula = cursoOpcionalCurricula.getTipoCursoCurricula();
             addAlumnoCursoCurricula(alumno, cursoAprobado, cursoOpcionalCurricula, null, aluCursosElectivosNew, tipoCursoCurricula);
+            //System.out.println("\tCurso electivo mismo-plan " + tipoCursoCurricula.getCodigo());
 
         } else {
             CursoEquivalenteElectivo cursoEquivalenteElectivo = mapEquivalenteElectivo.get(cursoAprobado.getCurso().getId());
             if (cursoEquivalenteElectivo == null) {
+                boolean ubicado = false;
                 for (PlanCurricular planCurricular : planCurriculars) {
                     if (Objects.equals(planCurricular.getId(), alumno.getPlanCurricular().getId())) {
                         continue;
@@ -779,6 +789,8 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
                     if (cursoCurricula != null) {
                         TipoCursoCurricula tipoCursoCurricula = mapTipoCursoCurricula.get(ELE);
                         addAlumnoCursoCurricula(alumno, cursoAprobado, null, cursoCurricula, aluCursosElectivosNew, tipoCursoCurricula);
+                        //System.out.println("\tCurso obligatorio otro-plan " + tipoCursoCurricula.getCodigo());
+                        ubicado = true;
                         break;
 
                     } else {
@@ -788,9 +800,15 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
                         if (curricula != null) {
                             TipoCursoCurricula tipoCursoCurricula = mapTipoCursoCurricula.get(ELE);
                             addAlumnoCursoCurricula(alumno, cursoAprobado, curricula, null, aluCursosElectivosNew, tipoCursoCurricula);
+                            //System.out.println("\tCurso electivo otro-plan " + tipoCursoCurricula.getCodigo());
+                            ubicado = true;
                             break;
                         }
                     }
+                }
+
+                if (!ubicado) {
+                    //System.out.println("\tCurso libre no ubicado en otros planes curriculares ");
                 }
 
             } else {
@@ -798,6 +816,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
                 cursoAprobado.setEsEquivalente(Boolean.TRUE);
                 TipoCursoCurricula tipoCursoCurricula = cursoEquivalenteElectivo.getCursoOpcionalCurricula().getTipoCursoCurricula();
                 addAlumnoCursoCurricula(alumno, cursoAprobado, cursoEquivalenteElectivo.getCursoOpcionalCurricula(), null, aluCursosElectivosNew, tipoCursoCurricula);
+                //System.out.println("\tCurso equivalente " + tipoCursoCurricula.getCodigo());
 
             }
         }

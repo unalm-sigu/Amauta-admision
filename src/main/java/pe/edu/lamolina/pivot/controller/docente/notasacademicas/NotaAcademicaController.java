@@ -1474,6 +1474,7 @@ public class NotaAcademicaController {
 
         String token = service.saveCerrarActa(new GrupoSeccion(gpoSeccionId), ds);
         service.calcularPromedios(new GrupoSeccion(gpoSeccionId), ds, token);
+        service.revisarCurriculaAlumnos(new GrupoSeccion(gpoSeccionId), ds, token);
 
         String message = "Acta cerrada correctamente";
 

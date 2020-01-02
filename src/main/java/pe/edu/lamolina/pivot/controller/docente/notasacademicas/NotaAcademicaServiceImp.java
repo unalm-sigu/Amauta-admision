@@ -207,6 +207,9 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
     @Autowired
     AvanceCurricularService avanceCurricularService;
 
+    private final static String TOKEN_HISTORIAL = "-token-historial";
+    private final static String TOKEN_PROMEDIOS = "-token-promedios";
+
     @Override
     public List<GrupoSeccion> allGrupoByDocente(Docente docente, CicloAcademico ciclo, DataSessionPivot ds) {
         List<DocenteSeccion> docentesSecciones = docenteSeccionDAO.allByDocente(docente, ciclo);
@@ -2086,13 +2089,16 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
         Map<Long, List<AlumnoCicloCurso>> mapCursoLlevado = TypesUtil.convertListToMapList("alumnoCiclo.alumno.id", cursosLlevadosAll);
 
         String token = RandomStringUtils.randomAlphanumeric(43);
-        visorCalculoNotas.createToken(token, alumnos);
+        String tokenHisto = token + TOKEN_HISTORIAL;
+        String tokenProm = token + TOKEN_PROMEDIOS;
+        visorCalculoNotas.createToken(tokenHisto, alumnos);
+        visorCalculoNotas.createToken(tokenProm, alumnos);
 
         for (MatriculaCurso matriculaCurso : matriculasCursoAll) {
             MatriculaResumen resumen = matriculaCurso.getMatriculaResumen();
             List<AlumnoCicloCurso> cursosLlevados = TypesUtil.getListNotNull(mapCursoLlevado.get(resumen.getAlumno().getId()));
             List<MatriculaCurso> cursosMatriculados = new ArrayList(Arrays.asList(matriculaCurso));
-            promedioService.actasNotasHaciaHistorial(resumen, cursosMatriculados, cursosLlevados, ds, token);
+            promedioService.actasNotasHaciaHistorial(resumen, cursosMatriculados, cursosLlevados, ds, tokenHisto);
         }
 
         return token;
@@ -2100,21 +2106,22 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
 
     @Async
     @Override
-    public void calcularPromedios(GrupoSeccion grupoSeccion, DataSessionPivot ds, String token) {
+    public void calcularPromedios(GrupoSeccion grupoSeccion, DataSessionPivot ds, String token22) {
+        String tokenHisto = token22 + TOKEN_HISTORIAL;
+        String tokenProm = token22 + TOKEN_PROMEDIOS;
+
         for (;;) {
-            if (visorCalculoNotas.estaCompletoToken(token)) {
+            if (visorCalculoNotas.estaCompletoToken(tokenHisto)) {
                 break;
             }
         }
+
         logger.info("Finalizó envío de notas al historial del grupo-seccion {}", grupoSeccion.getId());
-        List<Alumno> alumnos = visorCalculoNotas.allAlumnosByToken(token);
-        visorCalculoNotas.destroyToken(token);
+        List<Alumno> alumnos = visorCalculoNotas.allAlumnosByToken(tokenHisto);
+        visorCalculoNotas.destroyToken(tokenHisto);
 
         TypesUtil.delay(2000);
         logger.info("Iniciando el calculo de promedios y situaciones academicas de {} alumnos del grupo-seccion {}", alumnos.size(), grupoSeccion.getId());
-
-        String token2 = RandomStringUtils.randomAlphanumeric(31);
-        visorCalculoNotas.createToken(token2, alumnos);
 
         List<CicloAcademico> ciclos = cicloAcademicoDAO.all();
         List<CicloAcademico> ciclosActivos = cicloAcademicoDAO.allActivosAlModalidades();
@@ -2156,18 +2163,23 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
                     alumnoCiclosCursosAllByAlu,
                     reincorporacionesByAlumno,
                     ds,
-                    token2, false, false);
+                    tokenProm, false, false);
         }
+    }
 
+    @Async
+    @Override
+    public void revisarCurriculaAlumnos(GrupoSeccion grupoSeccion, DataSessionPivot ds, String token22) {
+        String tokenProm = token22 + TOKEN_PROMEDIOS;
         for (;;) {
-            if (visorCalculoNotas.estaCompletoToken(token2)) {
+            if (visorCalculoNotas.estaCompletoToken(tokenProm)) {
                 break;
             }
         }
         logger.info("Finalizó calculo de promedios y situaciones academicas del grupo-seccion {}", grupoSeccion.getId());
 
-        alumnos = visorCalculoNotas.allAlumnosByToken(token2);
-        visorCalculoNotas.destroyToken(token2);
+        List<Alumno> alumnos = visorCalculoNotas.allAlumnosByToken(tokenProm);
+        visorCalculoNotas.destroyToken(tokenProm);
 
         TypesUtil.delay(2000);
         logger.info("Iniciar revision de avance curricular de {} alumnos del grupo-seccion {}", alumnos.size(), grupoSeccion.getId());
