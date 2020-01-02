@@ -632,6 +632,10 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
         alumnoCursoOld = TypesUtil.getListNotNull(alumnoCursoOld);
         Map<Long, AlumnoCursoCurricula> mapAluCursoCurriculaOld = TypesUtil.convertListToMap("curso.id", alumnoCursoOld);
 
+        System.out.println("cursosSimultaneosAlu.size.1=" + cursosSimultaneosAlu.size());
+        validarCursosSimultaneo(mapAlumCursoCurrByCursoCurri, cursosSimultaneosAlu, mapRequisitosCurricula, ds);
+        System.out.println("cursosSimultaneosAlu.size.2=" + cursosSimultaneosAlu.size());
+
         this.saveAlumnoCursoCurricula(alumnoCursosCurriculaNew, mapAluCursoCurriculaOld);
 
         for (AlumnoCursoCurricula alumnoCursoCurricula : alumnoCursoOld) {
@@ -640,8 +644,6 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
                 alumnoCursoCurriculaDAO.updateColumns(alumnoCursoCurricula, "estadoRegistro");
             }
         }
-
-        validarCursosSimultaneo(mapAlumCursoCurrByCursoCurri, cursosSimultaneosAlu, mapRequisitosCurricula, ds);
 
         for (AlumnoCursoSimultaneo alumnoCursoSimultaneo : cursosSimultaneosAlu) {
             alumnoCursoSimultaneoDAO.save(alumnoCursoSimultaneo);
@@ -1041,7 +1043,10 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
                 alumnoCursoSimultaneo.setEstadoEnum(AlumnoCursoSimultaneoEstadoEnum.NMAT);
                 alumnoCursoSimultaneo.setFechaRegistro(new Date());
                 alumnoCursoSimultaneo.setUserRegistro(ds.getUsuario());
+                System.out.println("\tevaluado=" + evaluado);
+                ObjectUtil.printAttr(alumnoCursoSimultaneo);
                 simultaneos.add(alumnoCursoSimultaneo);
+
             } else {
                 if (cursoRequisito.getEstadoEnum() == APR) {
                     requisitosCumplidos = true;
