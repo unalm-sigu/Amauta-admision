@@ -680,9 +680,15 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
 
     @Override
     public List<String> allYearsCiclos() {
-        StringBuilder strb = new StringBuilder();
-        strb.append("select distinct SUBSTRING(a.codigo,1,4) from Alumno a order by SUBSTRING(a.codigo,1,4) desc");
-        Query query = getCurrentSession().createQuery(strb.toString());
+        StringBuilder sql = new StringBuilder();
+        sql.append("select distinct SUBSTRING(a.codigo,1,4) ");
+        sql.append("  from Alumno a ");
+        sql.append("  join a.modalidadEstudio me ");
+        sql.append(" where me.codigo in ('PRE','EPG','VIS','ESP') ");
+        sql.append("   and a.codigo not like 'P%' ");
+        sql.append("   and a.codigo not like 'Q%' ");
+        sql.append(" order by SUBSTRING(a.codigo,1,4) desc ");
+        Query query = getCurrentSession().createQuery(sql.toString());
         return query.list();
     }
 
