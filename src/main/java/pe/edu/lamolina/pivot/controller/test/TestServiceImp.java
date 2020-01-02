@@ -36,6 +36,7 @@ import pe.edu.lamolina.model.tramite.EstadoTramite;
 import pe.edu.lamolina.model.tramite.Reincorporacion;
 import pe.edu.lamolina.model.tramite.RetiroCiclo;
 import pe.edu.lamolina.model.tramite.RetiroCurso;
+import pe.edu.lamolina.pivot.controller.academico.avancecurricular.AvanceCurricularService;
 import pe.edu.lamolina.pivot.controller.academico.calculonotas.CalculoNotasService;
 import pe.edu.lamolina.pivot.controller.academico.promedio.ContadorComponent;
 import pe.edu.lamolina.pivot.controller.academico.promedio.PromedioReviewService;
@@ -117,6 +118,8 @@ public class TestServiceImp implements TestService {
     PromedioSegundoService promedioSegundoService;
     @Autowired
     ContadorComponent contadorComponent;
+    @Autowired
+    AvanceCurricularService avanceCurricularService;
 
     @Override
     @Transactional
@@ -692,6 +695,16 @@ public class TestServiceImp implements TestService {
         }
 //        promedioReviewService.actasNotasHaciaHistorial(matriculaResumen, matriculasCursoMat, matriculaSeccions, ds, mapRetiroCicloByciclo, mapAlumnoCicloCurso, mapAlumnoCicloByAlum, situacionAcademicaComodin, false);
 //        }
+    }
+
+    @Async
+    @Override
+    public void revisarCurriculas(String codigoCiclo, DataSessionPivot ds) {
+        CicloAcademico ciclo = cicloAcademicoDAO.findByCodigoCicloModalidadEnum(codigoCiclo, ModalidadEstudioEnum.PRE);
+        List<MatriculaResumen> matriculables = matriculaResumenDAO.allByCiclo(ciclo);
+        List<Alumno> alumnos = matriculables.stream().map(x -> x.getAlumno()).filter(x -> x.isPregrado()).collect(Collectors.toList());
+
+        avanceCurricularService.generarAvanceCurricularByAlumnosPregrados(alumnos, ds);
     }
 
 }

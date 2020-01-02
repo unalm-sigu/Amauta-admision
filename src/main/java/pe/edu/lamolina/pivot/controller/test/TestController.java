@@ -253,6 +253,14 @@ public class TestController {
         return "yeah";
     }
 
+    @RequestMapping("revisarCurriculas/{codigo}")
+    public String revisarCurriculas(@PathVariable("codigo") String codigoCiclo, HttpSession session) {
+        logger.info("promediarepgfull");
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        service.revisarCurriculas(codigoCiclo, ds);
+        return "yeah";
+    }
+
     @ResponseBody
     @RequestMapping("promediarfullbysituacion/{sit}")
     public String promediarfullBySituacion(@PathVariable("sit") String sit, HttpSession session) {
