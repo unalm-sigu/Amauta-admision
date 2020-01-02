@@ -33,7 +33,6 @@ import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.CursoCurricula;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
-import pe.edu.lamolina.model.academico.Egresado;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.MatriculaCurso;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
@@ -64,7 +63,6 @@ import pe.edu.lamolina.model.tramite.RetiroCiclo;
 import pe.edu.lamolina.model.tramite.RetiroCurso;
 import pe.edu.lamolina.pivot.controller.academico.avancecurricular.AvanceCurricularService;
 import pe.edu.lamolina.pivot.controller.academico.promedio.PromedioService;
-import pe.edu.lamolina.pivot.controller.test.VisorCalculoNotas;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoAvanceCurricularDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloCursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloDAO;
@@ -134,8 +132,8 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
     @Autowired
     PromedioService promedioService;
 
-    @Autowired
-    VisorCalculoNotas visorCalculoNotas;
+//    @Autowired
+//    VisorCalculoNotas visorCalculoNotas;
 
     @Autowired
     CicloAcademicoDAO cicloAcademicoDAO;
@@ -627,7 +625,7 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
         Assert.isTrue(puedeCalcular, "Usted no está autorizado para ejecutar esta acción");
 
         Alumno alumno = alumnoDAO.find(alumnoForm);
-        visorCalculoNotas.setActivo(false);
+//        visorCalculoNotas.setActivo(false);
         promedioService.calcularSituacionAcademica(alumno, ds);
     }
 

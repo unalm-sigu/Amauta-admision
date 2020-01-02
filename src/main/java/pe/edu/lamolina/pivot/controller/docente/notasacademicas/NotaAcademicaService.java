@@ -147,7 +147,9 @@ public interface NotaAcademicaService {
 
     List<Curso> allActiveCursosByPlan(PlanCalificacion planCalificacion);
 
-    List<Alumno> saveCerrarActa(GrupoSeccion grupoSeccion, DataSessionPivot ds);
+    String saveCerrarActa(GrupoSeccion grupoSeccion, DataSessionPivot ds);
+
+    void calcularPromedios(GrupoSeccion grupoSeccion, DataSessionPivot ds, String token);
 
     void desvincularPlanCalificacion(GrupoSeccion grupo);
 

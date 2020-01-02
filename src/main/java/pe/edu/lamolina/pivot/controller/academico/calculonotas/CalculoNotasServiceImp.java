@@ -3,7 +3,6 @@ package pe.edu.lamolina.pivot.controller.academico.calculonotas;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -34,13 +33,9 @@ import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.AlumnoEvaluacionEstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
-import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.EPG;
-import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.PRE;
-import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.VIS;
 import pe.edu.lamolina.model.enums.MotivoAnulacionEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 import pe.edu.lamolina.model.seguridad.Usuario;
-import pe.edu.lamolina.pivot.controller.test.VisorCalculoNotas;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoEvaluacionDAO;
 import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
@@ -75,9 +70,8 @@ public class CalculoNotasServiceImp implements CalculoNotasService {
     @Autowired
     ResumenAlumnoEvaluacionDAO resumenAlumnoEvaluacionDAO;
 
-    @Autowired
-    VisorCalculoNotas visorCalculoNotas;
-
+//    @Autowired
+//    VisorCalculoNotas visorCalculoNotas;
     @Autowired
     EvaluacionExpandidaDAO evaluacionExpandidaDAO;
 
@@ -110,13 +104,12 @@ public class CalculoNotasServiceImp implements CalculoNotasService {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void recalcularAllResumenEvalAlumno(Alumno alumno, GrupoSeccion grupoSeccion, int envio, DataSessionPivot ds) {
 
-        visorCalculoNotas.incrementarCantidad();
-        Curso curso = grupoSeccion.getCurso();
+//        visorCalculoNotas.incrementarCantidad();
+//        Curso curso = grupoSeccion.getCurso();
         calcularNotasAlumno(alumno, grupoSeccion, ds.getUsuario());
 
-        visorCalculoNotas.incrementarProcesados();
-        visorCalculoNotas.reporte();
-
+//        visorCalculoNotas.incrementarProcesados();
+//        visorCalculoNotas.reporte();
     }
 
     @Override
@@ -664,7 +657,7 @@ public class CalculoNotasServiceImp implements CalculoNotasService {
     }
 
     @Override
-    @Transactional(readOnly = false)
+    @Transactional
     public void calcularNotas(EvaluacionExpandida evaluacionExpandida, CicloAcademico cicloAcademico, Usuario usuario) {
         evaluacionExpandida = evaluacionExpandidaDAO.find(evaluacionExpandida.getId());
         List<MatriculaSeccion> matriculasSeccion = matriculaSeccionDAO.allMatriculadosByGpoSeccion(evaluacionExpandida.getEvaluacionSeccion().getGrupoSeccion());

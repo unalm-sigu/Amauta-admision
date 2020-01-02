@@ -81,7 +81,6 @@ import pe.edu.lamolina.model.tramite.VariablePlantilla;
 import pe.edu.lamolina.pivot.controller.academico.promedio.PromedioService;
 import pe.edu.lamolina.pivot.controller.academico.situacionacademica.SituacionAcademicaService;
 import pe.edu.lamolina.pivot.controller.seriedocumento.SerieDocumentoService;
-import pe.edu.lamolina.pivot.controller.test.VisorCalculoNotas;
 import pe.edu.lamolina.pivot.controller.tramite.plantillaConstancia.PlantillaGenerica;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloCursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloDAO;
@@ -180,8 +179,8 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
     @Autowired
     TipoDocumentoCompaniaDAO tipoDocumentoCompaniaDAO;
 
-    @Autowired
-    VisorCalculoNotas visorCalculoNotas;
+//    @Autowired
+//    VisorCalculoNotas visorCalculoNotas;
 
     @Autowired
     MailerService mailerService;
@@ -379,7 +378,7 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
 
             }
 
-            visorCalculoNotas.setActivo(false);
+//            visorCalculoNotas.setActivo(false);
             promedioService.calcularSituacionAcademica(alumno, ds);
 
         }

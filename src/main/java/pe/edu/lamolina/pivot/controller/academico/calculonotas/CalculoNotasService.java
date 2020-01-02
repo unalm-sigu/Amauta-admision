@@ -3,7 +3,6 @@ package pe.edu.lamolina.pivot.controller.academico.calculonotas;
 import java.util.List;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
-import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.EvaluacionExpandida;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;

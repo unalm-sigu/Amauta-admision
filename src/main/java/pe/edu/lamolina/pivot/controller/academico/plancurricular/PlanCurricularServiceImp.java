@@ -1,6 +1,5 @@
 package pe.edu.lamolina.pivot.controller.academico.plancurricular;
 
-import com.google.common.base.Strings;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -1416,6 +1415,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
         List<AlumnoAvanceCurricular> alumnosAvanceCurriculars = alumnoAvanceCurricularDAO.allByAlumnos(alumnos);
 
         List<ResumenPlanCurricular> alumnosResumenPlanCurriculars = resumenPlanCurricularDAO.all();
+        Map<Long, List<ResumenPlanCurricular>> mapResumenPlanCurriculaAll = TypesUtil.convertListToMapList("planCurricular.id", alumnosResumenPlanCurriculars);
 
         visorAsignaCurricula.putTope(carrera, alumnos.size() * 2);
         for (Alumno alumno : alumnos) {
@@ -1428,24 +1428,8 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
             String codigoCicloAlumno = (String) ObjectUtil.getParentTree(alumno, "cicloIngreso.codigo");
 
             count++;
-//            if (Strings.isNullOrEmpty(codigoCicloAlumno)) {
-//                visorAsignaCurricula.incrementar(carrera);
-//                continue;
-//            }
-
             String codigoCicloPlan = this.getIndiceCicloAcademico(codigoCicloAlumno, codigosCiclosPlanes);
-//            if (codigoCicloPlan == null) {
-//                visorAsignaCurricula.incrementar(carrera);
-//
-//                continue;
-//            }
-
             List<PlanCurricular> planesBD = mapPlanesByCiclo.get(codigoCicloPlan);
-//            if (planesBD.isEmpty()) {
-//                visorAsignaCurricula.incrementar(carrera);
-//
-//                continue;
-//            }
             PlanCurricular planCurricularBD = null;
             if (orientacionCarrera != null) {
                 planCurricularBD = planesBD.stream().filter(x -> Objects.equals(x.getOrientacionCarrera().getId(), orientacionCarrera.getId())).findAny().orElse(null);
@@ -1455,10 +1439,9 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
 
             PlanCurricular planBD = planCurricularBD;
 
-            List<ResumenPlanCurricular> resumenPlanCurriculars = alumnosResumenPlanCurriculars.stream().filter(x -> Objects.equals(x.getPlanCurricular().getId(), planBD.getId())).collect(Collectors.toList());
+            List<ResumenPlanCurricular> resumenPlanCurriculars = mapResumenPlanCurriculaAll.get(planBD.getId());
+            Map<TipoCursoCurriculaEnum, ResumenPlanCurricular> mapResumenPlanCurricular = TypesUtil.convertListToMap("tipoCursoCurricula.codigoEnum", resumenPlanCurriculars);
 
-//            List<AlumnoCicloCurso> alumnoCursosVecesLlevado = fillList(mapAlumnoCursosVecesLlevado.get(alumno.getId()));
-//            Map<String, AlumnoCicloCurso> mapCursosVecesLlevado = TypesUtil.convertListToMap("alumnoCursoKey", alumnoCursosVecesLlevado);
             List<MatriculaCurso> cursosMatriculadosAlumno = fillList(mapCursosMatriculados.get(alumno.getId()));
             List<AlumnoCicloCurso> cursosAprobadosAlumno = fillList(mapCursosAprobados.get(alumno.getId()));
             List<CursoCurricula> cursosCurriculaPLan = fillList(mapCursoCurriculaAll.get(planBD.getId()));
@@ -1466,9 +1449,11 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
             List<AlumnoCursoCurricula> alumnoCursoCurriculaOld = mapAlumnoCursoCurricula.get(alumno.getId());
             List<CursoOpcionalCurricula> opcionalCurriculas = mapCursoOpcional.get(planBD.getId());
             List<CursoEquivalenteElectivo> equivalenteElectivos = mapEquivalenteElectivo.get(planBD.getId());
+
             visorAsignaCurricula.incrementar(carrera);
             logger.debug("ALUMNO -------------------------------> {}", alumno.getCodigo());
-            avanceCurricularAsincronoService.crearAvanceCurricular(alumno,
+            avanceCurricularAsincronoService.crearAvanceCurricular(
+                    alumno,
                     planBD,
                     mapCursoCurriculaPlan,
                     mapRequisitoCursoCurriculaAll,
@@ -1478,9 +1463,8 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
                     cursosAprobadosAlumno,
                     alumnoCursoCurriculaOld,
                     opcionalCurriculas,
-                    mapCursoCurriculaByCurso,
                     tipoCursoCurriculas,
-                    resumenPlanCurriculars,
+                    mapResumenPlanCurricular,
                     avanceCurriculars,
                     equivalenteElectivos,
                     mapCursoOpcionalAll,

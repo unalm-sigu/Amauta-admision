@@ -322,7 +322,7 @@ public class NotaAcademicaController {
                                 evaluacionNieta.getId(),
                                 evaluacionNieta.getTipoEvaluacion().getNombre() + " " + evaluacionNieta.getNumero(),
                                 evaluacionNieta.getPeso());
-                        evaluacionNieta.setEvaluacionesExpandidas(new ArrayList<>()); //las nietas no tienen hijos
+                        evaluacionNieta.setEvaluacionesExpandidas(new ArrayList()); //las nietas no tienen hijos
                         ObjectNode nodeNieta = castEvaluacionExpandida(evaluacionNieta);
                         nodeNieta.put("editarPorcentaje", false);
                         nodeNieta.put("esNieto", true);
@@ -1471,7 +1471,10 @@ public class NotaAcademicaController {
         JsonResponse response = new JsonResponse();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         ds.setFechaAccionAudit(new Date());
-        service.saveCerrarActa(new GrupoSeccion(gpoSeccionId), ds);
+
+        String token = service.saveCerrarActa(new GrupoSeccion(gpoSeccionId), ds);
+        service.calcularPromedios(new GrupoSeccion(gpoSeccionId), ds, token);
+
         String message = "Acta cerrada correctamente";
 
         response.setMessage(message);

@@ -14,6 +14,8 @@ public interface AlumnoAvanceCurricularDAO extends EasyDAO<AlumnoAvanceCurricula
 
     void deleteAllByAlumno(Alumno alumnoBD);
 
-    public List<AlumnoAvanceCurricular> allByAlumnos(List<Alumno> alumnos);
+    List<AlumnoAvanceCurricular> allByAlumnos(List<Alumno> alumnos);
+
+    void updateColumns(AlumnoAvanceCurricular avance, String... columns);
 
 }

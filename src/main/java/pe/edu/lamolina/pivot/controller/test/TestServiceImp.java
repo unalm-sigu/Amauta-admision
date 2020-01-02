@@ -1,10 +1,10 @@
 package pe.edu.lamolina.pivot.controller.test;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -122,7 +122,6 @@ public class TestServiceImp implements TestService {
     @Transactional
     public void calcularAllResumenEvaluacion(Long seccionId, CicloAcademico ciclo, DataSessionPivot ds) {
         int loop = 1;
-        visorCalculoNotas.iniciar();
 
         Seccion seccionPV = seccionDAO.find(seccionId);
 
@@ -169,7 +168,6 @@ public class TestServiceImp implements TestService {
 //            //promedioService.actasNotasHaciaHistorial(matriculaResumen, matriculasCurso, matriculaSeccions, ds, false);
 //        }
 //    }
-
 //    @Override
 //    @Transactional
 //    public void trasladarMatriculaCursoForPromedios(DataSessionPivot ds) {
@@ -196,7 +194,6 @@ public class TestServiceImp implements TestService {
 //            }
 //        }
 //    }
-
     @Async
     @Override
     @Transactional
@@ -211,15 +208,16 @@ public class TestServiceImp implements TestService {
         Map<Long, List<MatriculaCurso>> mapCursoMatriculado = TypesUtil.convertListToMapList("matriculaResumen.alumno.id", cursosMatriculadosAll);
         Map<Long, List<AlumnoCicloCurso>> mapCursoLlevado = TypesUtil.convertListToMapList("alumnoCiclo.alumno.id", cursosLlevadosAll);
 
-        visorCalculoNotas.iniciar();
-        visorCalculoNotas.setCantidadTotal(resumenesAll.size());
+        String token = RandomStringUtils.randomAlphanumeric(43);
+        visorCalculoNotas.createToken(token, alumnos);
+
         for (MatriculaResumen matriculaResumen : resumenesAll) {
             Alumno alumno = matriculaResumen.getAlumno();
             List<MatriculaCurso> cursosMatriculados = TypesUtil.getListNotNull(mapCursoMatriculado.get(alumno.getId()));
             List<AlumnoCicloCurso> cursosLlevados = TypesUtil.getListNotNull(mapCursoLlevado.get(alumno.getId()));
 
             //List<MatriculaSeccion> matriculasSeccion = TypesUtil.getListNotNull(mapMatriculaSeccion.get(matriculaResumen.getId()));
-            promedioService.actasNotasHaciaHistorial(matriculaResumen, cursosMatriculados, cursosLlevados, ds, false);
+            promedioService.actasNotasHaciaHistorial(matriculaResumen, cursosMatriculados, cursosLlevados, ds, token);
         }
 
     }
@@ -228,7 +226,6 @@ public class TestServiceImp implements TestService {
     @Override
     @Transactional
     public void promediarciclocod(String cicloCod, DataSessionPivot ds) {
-        visorCalculoNotas.iniciar();
         List<CicloAcademico> ciclosAll = cicloAcademicoDAO.all();
         List<CicloAcademico> ciclos = cicloAcademicoDAO.allByCodigo(cicloCod);
         List<String> ciclosStr = ciclos.stream().map(x -> x.toString()).collect(Collectors.toList());
@@ -282,7 +279,7 @@ public class TestServiceImp implements TestService {
                         alumnoCiclos,
                         alumnoCicloCursoActivoByAlu,
                         alumnoCicloCursoAllByAlu,
-                        reincorporacionesByAlumno, ds);
+                        reincorporacionesByAlumno, ds, null, false, false);
             }
 
         }
@@ -291,7 +288,6 @@ public class TestServiceImp implements TestService {
     @Override
     @Transactional
     public void promediarciclocoderror(String cicloCod, DataSessionPivot ds) {
-        visorCalculoNotas.iniciar();
         List<CicloAcademico> ciclosAll = cicloAcademicoDAO.all();
         List<CicloAcademico> ciclos = cicloAcademicoDAO.allByCodigo(cicloCod);
         List<String> ciclosStr = ciclos.stream().map(x -> x.toString()).collect(Collectors.toList());
@@ -344,7 +340,7 @@ public class TestServiceImp implements TestService {
                         alumnoCiclos,
                         alumnoCicloCursoActivosByAlu,
                         alumnoCicloCursoAllByAlu,
-                        reincorporacionesByAlumno, ds);
+                        reincorporacionesByAlumno, ds, null, false, false);
             }
 
         }
@@ -393,9 +389,6 @@ public class TestServiceImp implements TestService {
         List<MatriculaResumen> matriculasResumen = matriculaResumenDAO.allByCicloFull(cicloAcademico);
         logger.info("matriculas resumen encontradas {}", matriculasResumen.size());
 
-        visorCalculoNotas.iniciar();
-        visorCalculoNotas.setCantidadTotal(matriculasResumen.size());
-
         List<Alumno> alumnos = matriculasResumen.stream().map(x -> x.getAlumno()).collect(Collectors.toList());
         List<AlumnoCiclo> alumnosCiclosAll = alumnoCicloDAO.allByAlumnos(alumnos);
         Map<Long, List<AlumnoCiclo>> mapAlumnoCiclo = TypesUtil.convertListToMapList("alumno.id", alumnosCiclosAll);
@@ -431,7 +424,7 @@ public class TestServiceImp implements TestService {
                     alumnoCiclos,
                     alumnoCiclosCursosActivosByAlu,
                     alumnoCiclosCursosAllByAlu,
-                    reincorporacionesByAlumno, ds);
+                    reincorporacionesByAlumno, ds, null, false, false);
         }
     }
 
@@ -453,7 +446,6 @@ public class TestServiceImp implements TestService {
 //            //  }
 //        }
 //    }
-
     @Override
     public void promediarfullBySituacion(String sit, DataSessionPivot ds, ModalidadEstudioEnum modalidadEstudioEnum) {
         List<String> allYears = alumnoDAO.allYearsCiclos();
@@ -503,7 +495,7 @@ public class TestServiceImp implements TestService {
                     alumnoCiclos,
                     alumnoCiclosCursosActivosByAlu,
                     alumnoCiclosCursosAllByAlu,
-                    reincorporacionesByAlumno, ds);
+                    reincorporacionesByAlumno, ds, null, false, false);
         }
     }
 
@@ -598,8 +590,6 @@ public class TestServiceImp implements TestService {
 
             List<Alumno> alumnoos = matriculasResumenes.stream().map(x -> x.getAlumno()).distinct().collect(Collectors.toList());
 
-            visorCalculoNotas.iniciar();
-            visorCalculoNotas.setCantidadTotal(alumnoos.size());
             int i = 1;
             for (Alumno alumnoo : alumnoos) {
                 logger.debug("Alumno {} {}", alumnoo.getCodigo(), alumnoo.getId());
@@ -626,9 +616,6 @@ public class TestServiceImp implements TestService {
                 Map<Long, AlumnoCiclo> mapAlumnoCicloByCiclo = TypesUtil.convertListToMap("cicloAcademico.id", alumnoCiclos);
 
                 promedioReviewService.trasladarInformcionForHistorial(matriculaResumens, allMatriculasCursosAlumno, matriculaSeccions, ds, mapRetiroByCicloAlumno, mapAlumnoCicloCursoByAlumCi, mapAlumnoCicloByCiclo, situacionAcademicaComodin, false);
-
-                visorCalculoNotas.incrementarProcesados();
-                visorCalculoNotas.reporte();
 
                 logger.debug("avance {} de {}", i, alumnoos.size());
                 i++;

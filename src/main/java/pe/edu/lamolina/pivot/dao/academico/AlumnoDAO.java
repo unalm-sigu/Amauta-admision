@@ -35,6 +35,8 @@ public interface AlumnoDAO extends EasyDAO<Alumno> {
 
     Alumno findAllInfo(Long id);
 
+    List<Alumno> allWithAllInfo(List<Alumno> alumnos);
+
     List<Alumno> allInfoByAlumnos(List<Alumno> alumnos);
 
     Alumno findSituacionAcademica(Alumno alumno);

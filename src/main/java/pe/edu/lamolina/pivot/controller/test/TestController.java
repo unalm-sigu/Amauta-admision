@@ -75,9 +75,8 @@ public class TestController {
     @Autowired
     CalculoNotasService calculoNotasService;
 
-    @Autowired
-    VisorCalculoNotas visorCalculoNotas;
-
+//    @Autowired
+//    VisorCalculoNotas visorCalculoNotas;
     @Autowired
     MatriculaCursoDAO matriculaCursoDAO;
 
@@ -185,7 +184,7 @@ public class TestController {
     @RequestMapping("calcularAllResumenEvaluacion")
     public String calcularAllResumenEvaluacion(HttpSession session) {
         int loop = 1;
-        visorCalculoNotas.iniciar();
+//        visorCalculoNotas.iniciar();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         List<CicloAcademico> ciclosActivos = cicloAcademicoDAO.allActivos();
 
@@ -225,7 +224,6 @@ public class TestController {
 //        service.calcularAllPromediosByCiclo(ds);
 //        return "yeah";
 //    }
-
     @ResponseBody
     @RequestMapping("promediarciclo/{ciclo}")
     public String promediarAll(@PathVariable("ciclo") Long cicloId, HttpSession session) {
@@ -296,7 +294,7 @@ public class TestController {
     public String calcularAllPromediosByCiclo(HttpSession session, @PathVariable("alumno") Long alumnoId) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         //  List<CicloAcademico> allCiclosActivos = cicloAcademicoDAO.allActivesByModalidad(alumno.getModalidadEstudio(), new String[]{"ca.year asc", "ca.numeroCiclo asc"});
-        visorCalculoNotas.setActivo(false);
+        //  visorCalculoNotas.setActivo(false);
         ds.setFechaAccionAudit(new Date());
         promedioService.calcularSituacionAcademica(new Alumno(alumnoId), ds);
         return "yeah";
@@ -311,7 +309,6 @@ public class TestController {
 //        service.trasladarMatriculaCursoForPromedios(ds);
 //        return "yeah";
 //    }
-
     @ResponseBody
     @RequestMapping("trasladarInformcionForHistorialReview/{alumno}")
     public String trasladarInformcionForHistorialReviewAlumno(HttpSession session, @PathVariable(value = "alumno") Long alumnoId) {
@@ -359,7 +356,6 @@ public class TestController {
 //        service.trasladarMatriculaCursoForPromedios(ds, alumnoId);
 //        return "yeah";
 //    }
-
     @ResponseBody
     @RequestMapping("trasladarInformcionForHistorialAlumno/{alumno}")
     public String trasladarInformcionForHistorialAlumno(HttpSession session, @PathVariable("alumno") Long alumnoId) {
@@ -369,7 +365,7 @@ public class TestController {
         return "yeah";
     }
 
-   // http://localhost:9000/test/cleandeudass
+    // http://localhost:9000/test/cleandeudass
     @ResponseBody
     @RequestMapping("cleandeudass")
     public String cleanDeudas(HttpSession session) {
