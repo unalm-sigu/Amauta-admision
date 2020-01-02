@@ -501,6 +501,9 @@ public class AvanceCurricularServiceImp implements AvanceCurricularService {
         Map<Long, List<ResumenPlanCurricular>> mapResumenesPlanes = TypesUtil.convertListToMapList("planCurricular.id", alumnosResumenPlanCurriculars);
 
         for (Alumno alumno : alumnos) {
+            if (alumno.getPlanCurricular() == null) {
+                continue;
+            }
             PlanCurricular planBD = mapPlanes.get(alumno.getPlanCurricular().getId());
 
             List<MatriculaCurso> cursosMatriculadosAlumno = TypesUtil.getListNotNull(mapCursosMatriculados.get(alumno.getId()));

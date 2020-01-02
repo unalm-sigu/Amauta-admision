@@ -253,9 +253,10 @@ public class TestController {
         return "yeah";
     }
 
+    @ResponseBody
     @RequestMapping("revisarCurriculas/{codigo}")
     public String revisarCurriculas(@PathVariable("codigo") String codigoCiclo, HttpSession session) {
-        logger.info("promediarepgfull");
+        logger.info("revisarCurriculas-{}", codigoCiclo);
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         service.revisarCurriculas(codigoCiclo, ds);
         return "yeah";
