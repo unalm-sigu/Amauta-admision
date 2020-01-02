@@ -891,7 +891,7 @@ public class PromedioServiceImp implements PromedioService {
                     } else if (alumnoCicloAnterior != null) {
                         situacionAcademicaFinal = alumnoCicloAnterior.getSituacionInicio();
                         this.printLogger("Caso 16.3", showLog);
-                        
+
                     } else {
                         this.printLogger("Caso 16.4", showLog);
                     }
@@ -913,6 +913,10 @@ public class PromedioServiceImp implements PromedioService {
                 if (alumnoCiclo.isTrikaSeparado()) {
                     situacionAcademicaFinal = new SituacionAcademica(SituacionAcademicaEnum.S_4T);
                     this.printLogger("Caso 18", showLog);
+
+                } else if (!alumnoCiclo.isAprobado() && alumnoCiclo.getSituacionInicio().isSeparado()) {
+                    situacionAcademicaFinal = new SituacionAcademica(S_X);
+                    this.printLogger("Caso 18.4", showLog);
 
                 } else if (alumnoCiclo.isGenerarTrika() && ciclo.getCodigoInt() >= CICLO_INICIA_SUSPENCION_TRIKA) {
                     situacionAcademicaFinal = new SituacionAcademica(SituacionAcademicaEnum.S_T);
