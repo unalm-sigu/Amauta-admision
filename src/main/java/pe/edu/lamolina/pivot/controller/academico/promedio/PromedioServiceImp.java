@@ -896,11 +896,11 @@ public class PromedioServiceImp implements PromedioService {
                     alumnoCiclo.setSituacionAlterna(getSituacionByTipoAprobado(alumno, alumnoCiclo, showLog));
                     this.printLogger("Caso 18.5", showLog);
 
-                } else if (cicloIngreso != null && ciclosEstudiados <= 2 && cicloIngreso.getCodigoInt() < 201710) {
+                } else if (cicloIngreso != null && ciclosEstudiados <= 1 && cicloIngreso.getCodigoInt() < 201710) {
                     situacionAcademicaFinal = new SituacionAcademica(SituacionAcademicaEnum.S_N);
                     this.printLogger("Caso 19", showLog);
 
-                } else if (cicloIngreso != null && ciclosEstudiados <= 3 && cicloIngreso.getCodigoInt() >= 201710) {
+                } else if (cicloIngreso != null && ciclosEstudiados <= 2 && cicloIngreso.getCodigoInt() >= 201710) {
                     situacionAcademicaFinal = new SituacionAcademica(SituacionAcademicaEnum.S_N);
                     this.printLogger("Caso 20", showLog);
 
