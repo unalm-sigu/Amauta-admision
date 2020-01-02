@@ -255,8 +255,7 @@ public class MatriculableServiceImp implements MatriculableService {
                 matriculaResumen.setBoletaPendiente(Boolean.TRUE);
             }
 
-            logger.debug("boletas {}", mapBoletas.get(matriculaResumen.getAlumno().getId()) != null);
-
+            //logger.debug("boletas {}", mapBoletas.get(matriculaResumen.getAlumno().getId()) != null);
             List<ResumenAporteAlumno> misResumenAporteAlumnos = TypesUtil.getListNotNull(mapResumenAporteAlumno.get(matriculaResumen.getId()));
 
             misResumenAporteAlumnos = misResumenAporteAlumnos.stream()
