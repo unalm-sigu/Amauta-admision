@@ -326,6 +326,7 @@ public class AlumnoController {
         model.addAttribute("alumno", alumno);
         model.addAttribute("helper", new AlumnoHelper());
         model.addAttribute("carreras", new AlumnoHelper());
+
         return "academico/alumno/fisico/alumnoFisico";
     }
 

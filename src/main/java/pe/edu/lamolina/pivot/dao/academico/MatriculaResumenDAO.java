@@ -18,6 +18,8 @@ public interface MatriculaResumenDAO extends EasyDAO<MatriculaResumen> {
 
     List<MatriculaResumen> allByCiclo(CicloAcademico ciclo);
 
+    List<MatriculaResumen> allActivosByCiclo(CicloAcademico ciclo);
+
     MatriculaResumen findByFilter(CicloAcademico ciclo, Alumno alumno, EstadoMatriculaEnum estadoMatriculaCursoEnum);
 
     List<MatriculaResumen> allByCicloCarrerasDynatable(DynatableFilter filter, CicloAcademico cicloAcademico, List<Carrera> carreras, String todo);

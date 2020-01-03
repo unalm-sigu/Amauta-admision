@@ -11,52 +11,66 @@ public class ContadorComponent {
 
     private long inicioTime;
 
-    private Integer contador;
+//    private Integer contador;
     private Integer procesados;
-    private Integer cantidadTotal;
+    private int metaProcesados;
+    private int cantidadAcumulada;
 
     public ContadorComponent() {
 
     }
 
-    public void iniciar(Integer cantidadTotal) {
-        this.contador = 1;
-        this.cantidadTotal = cantidadTotal;
+    public synchronized void iniciarTotal() {
+//        this.contador = 1;
+        this.cantidadAcumulada = 0;
+    }
+
+    public synchronized void iniciar(Integer metaProcesados) {
+//        this.contador = 1;
+        this.procesados = 0;
+        this.metaProcesados = metaProcesados;
         this.inicioTime = System.currentTimeMillis();
     }
 
-    public synchronized void incrementar() {
-        if (this.contador != null) {
-            this.contador = this.contador + 1;
-        }
-    }
-
+//    public synchronized void incrementar() {
+//        if (this.contador != null) {
+//            this.contador = this.contador + 1;
+//        }
+//    }
     public synchronized void incrementarProcesados() {
-        if (this.procesados != null) {
-            this.procesados = this.procesados + 1;
-        }
+        this.procesados = this.procesados + 1;
+        this.cantidadAcumulada = this.cantidadAcumulada + 1;
     }
 
-    public void reporte() {
-        if (this.contador != null) {
-            logger.info("Registro {} de {}", contador, cantidadTotal);
-        }
+//    public void reporte() {
+//        if (this.contador != null) {
+//            logger.info("Registro {} de {}", contador, cantidadTotal);
+//        }
+//    }
+    public Integer getProcesados() {
+        return procesados;
     }
 
-    public Integer getContador() {
-        return contador;
+    public Integer getMetaProcesados() {
+        return metaProcesados;
     }
 
-    public void setContador(Integer contador) {
-        this.contador = contador;
+    public Integer getCantidadAcumulada() {
+        return cantidadAcumulada;
     }
 
-    public Integer getCantidadTotal() {
-        return cantidadTotal;
-    }
-
-    public void setCantidadTotal(Integer cantidadTotal) {
-        this.cantidadTotal = cantidadTotal;
+//    public void setContador(Integer contador) {
+//        this.contador = contador;
+//    }
+//    public Integer getCantidadTotal() {
+//        return cantidadProceso;
+//    }
+//
+//    public void setCantidadTotal(Integer cantidadTotal) {
+//        this.cantidadProceso = cantidadTotal;
+//    }
+    public boolean finalizoProcesados() {
+        return this.procesados >= this.metaProcesados;
     }
 
 }

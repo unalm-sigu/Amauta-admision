@@ -255,8 +255,7 @@ public class MatriculableServiceImp implements MatriculableService {
                 matriculaResumen.setBoletaPendiente(Boolean.TRUE);
             }
 
-            logger.debug("boletas {}", mapBoletas.get(matriculaResumen.getAlumno().getId()) != null);
-
+            //logger.debug("boletas {}", mapBoletas.get(matriculaResumen.getAlumno().getId()) != null);
             List<ResumenAporteAlumno> misResumenAporteAlumnos = TypesUtil.getListNotNull(mapResumenAporteAlumno.get(matriculaResumen.getId()));
 
             misResumenAporteAlumnos = misResumenAporteAlumnos.stream()
@@ -883,7 +882,7 @@ public class MatriculableServiceImp implements MatriculableService {
                 return null;
             }
         }
-        CicloAcademico ciclo = cicloAcademicoDAO.findByCodigoModalidadEstudio(ds.getCicloAcademico().getCodigo(), alumno.getModalidadEstudio());
+        CicloAcademico ciclo = cicloAcademicoDAO.findByCodigoCicloModalidadEnum(ds.getCicloAcademico().getCodigo(), alumno.getModalidadEstudio().getOperativeModalidadEnum());
         if (ciclo.getFechaMatriculables() == null && alumno.getModalidadEstudio().isPregrado()) {
             return null;
         }

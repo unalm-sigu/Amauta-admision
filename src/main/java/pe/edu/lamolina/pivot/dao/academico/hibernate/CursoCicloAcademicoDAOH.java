@@ -178,4 +178,27 @@ public class CursoCicloAcademicoDAOH extends AbstractEasyDAO<CursoCicloAcademico
         return rows;
     }
 
+    @Override
+    public int saveList(List<CursoCicloAcademico> cursosCiclo) {
+        if (cursosCiclo.isEmpty()) {
+            return 0;
+        }
+
+        long t1 = System.currentTimeMillis();
+        Insecto sql = Insecto.createInsert()
+                .into(CursoCicloAcademico.class)
+                .columns("estado", "horasSemanalesTeoria", "horasSemanalesPractica", "horasCiclo", "creditos",
+                        "precio", "precioAdicional", "precioPersonalizado", "minimoAlumnos", "fechaPrecio",
+                        "curso", "cicloAcademico", "tipoCursoCurricula", "tipoCarpetaTeoria", "tipoCarpetaPractica",
+                        "userPrecio")
+                .values(cursosCiclo);
+
+        Query query = getCurrentSession().createSQLQuery(sql.toString());
+        int rows = query.executeUpdate();
+
+        long t2 = System.currentTimeMillis();
+        logger.info("{} CursoCicloAcademico's insertados en {} mseg....", rows, (t2 - t1));
+        return rows;
+    }
+
 }

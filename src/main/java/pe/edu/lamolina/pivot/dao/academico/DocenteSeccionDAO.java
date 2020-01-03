@@ -99,4 +99,6 @@ public interface DocenteSeccionDAO extends EasyDAO<DocenteSeccion> {
 
     List<DocenteSeccion> allNoProcesadosEncuestaByCiclo(CicloAcademico ciclo, EncuestaEstudiantil encuesta);
 
+    int saveList(List<DocenteSeccion> docentesSecciones);
+
 }

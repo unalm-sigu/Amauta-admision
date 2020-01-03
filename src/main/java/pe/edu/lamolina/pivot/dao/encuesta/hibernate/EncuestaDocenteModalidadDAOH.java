@@ -7,8 +7,10 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.encuestaestudiantil.EncuestaDocenteModalidad;
+import pe.edu.lamolina.model.enums.EncuestaEstadoEnum;
 import pe.edu.lamolina.pivot.dao.encuesta.EncuestaDocenteModalidadDAO;
 
 @Repository
@@ -54,7 +56,12 @@ public class EncuestaDocenteModalidadDAOH extends AbstractEasyDAO<EncuestaDocent
     }
 
     @Override
-    public List<EncuestaDocenteModalidad> allByDynatableCicloAcademico(DynatableFilter filter, CicloAcademico ciclo) {
+    public List<EncuestaDocenteModalidad> allByDynatableCicloAcademico(
+            DynatableFilter filter,
+            CicloAcademico ciclo,
+            List<DepartamentoAcademico> departamentos,
+            Docente docente) {
+
         DynatableSql sql = new DynatableSql(filter)
                 .from(EncuestaDocenteModalidad.class, "edm")
                 .join("docente d", "modalidadEstudio me", "cicloAcademico ca", "d.persona per", "per.tipoDocumento tdoc")
@@ -65,6 +72,13 @@ public class EncuestaDocenteModalidadDAOH extends AbstractEasyDAO<EncuestaDocent
                 .filter("ca.id", ciclo)
                 //.filter("me.codigo", ModalidadEstudioEnum.PRE)
                 .orderBy("edm.id desc");
+
+        if (docente != null) {
+            sql.filter("d.id", docente);
+
+        } else if (!departamentos.isEmpty()) {
+            sql.in("da.id", departamentos);
+        }
 
         return all(sql);
     }

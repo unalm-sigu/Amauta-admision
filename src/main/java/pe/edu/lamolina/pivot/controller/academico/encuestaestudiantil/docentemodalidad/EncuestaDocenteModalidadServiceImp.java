@@ -29,6 +29,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import javax.servlet.http.HttpServletRequest;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
@@ -50,7 +51,10 @@ import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.albatross.zelpers.miscelanea.math.Fraxtion;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
+import pe.edu.lamolina.model.academico.DepartamentoAcademico;
+import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
+import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.encuestaestudiantil.EncuestaDocente;
@@ -58,11 +62,15 @@ import pe.edu.lamolina.model.encuestaestudiantil.EncuestaDocenteModalidad;
 import pe.edu.lamolina.model.encuestaestudiantil.PuntajeEncuestaDocente;
 import pe.edu.lamolina.model.encuestaestudiantil.PuntajeEncuestaDocenteModalidad;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
+import static pe.edu.lamolina.model.enums.RolEnum.DOC;
+import pe.edu.lamolina.model.enums.TipoOficinaEnum;
 import static pe.edu.lamolina.model.enums.TipoSeccionEnum.PCUR;
 import static pe.edu.lamolina.model.enums.TipoSeccionEnum.PRA;
 import static pe.edu.lamolina.model.enums.TipoSeccionEnum.TCUR;
 import static pe.edu.lamolina.model.enums.TipoSeccionEnum.TEO;
 import pe.edu.lamolina.model.examen.TemaExamenVirtual;
+import pe.edu.lamolina.pivot.controller.seguridad.verificador.VerificadorService;
+import pe.edu.lamolina.pivot.dao.academico.DepartamentoAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.ModalidadEstudioDAO;
 import pe.edu.lamolina.pivot.dao.encuesta.EncuestaDocenteDAO;
 import pe.edu.lamolina.pivot.dao.encuesta.EncuestaDocenteModalidadDAO;
@@ -70,6 +78,7 @@ import pe.edu.lamolina.pivot.dao.encuesta.PuntajeEncuestaDocenteDAO;
 import pe.edu.lamolina.pivot.dao.encuesta.PuntajeEncuestaDocenteModalidadDAO;
 import pe.edu.lamolina.pivot.zelper.CustomRenderer;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.pivot.zelper.pdf.PdfContent;
 import pe.edu.lamolina.pivot.zelper.pdf.PdfGenerator;
 import pe.edu.lamolina.pivot.zelper.pdf.TipoPdfEnum;
@@ -94,13 +103,23 @@ public class EncuestaDocenteModalidadServiceImp implements EncuestaDocenteModali
     ModalidadEstudioDAO modalidadEstudioDAO;
 
     @Autowired
+    DepartamentoAcademicoDAO departamentoAcademicoDAO;
+
+    @Autowired
     PdfGenerator pdfGenerator;
+
+    @Autowired
+    VerificadorService verificadorService;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
-    public List<EncuestaDocenteModalidad> allByDynatableCicloAcademico(DynatableFilter filter, CicloAcademico ciclo) {
-        return encuestaDocenteModalidadDAO.allByDynatableCicloAcademico(filter, ciclo);
+    public List<EncuestaDocenteModalidad> allByDynatableCicloAcademico(DynatableFilter filter, CicloAcademico ciclo, List<DepartamentoAcademico> departamentos, DataSessionPivot ds) {
+        Docente docente = null;
+        if (ds.getRolActivo().getCodigoEnum() == DOC) {
+            docente = ds.getDocente();
+        }
+        return encuestaDocenteModalidadDAO.allByDynatableCicloAcademico(filter, ciclo, departamentos, docente);
     }
 
     @Override
@@ -352,6 +371,62 @@ public class EncuestaDocenteModalidadServiceImp implements EncuestaDocenteModali
     @Override
     public List<PuntajeEncuestaDocenteModalidad> resumenTemas(EncuestaDocenteModalidad encuestaDocenteModalidad) {
         return puntajeEncuestaDocenteModalidadDAO.allByEncuestaDocenteModalidad(encuestaDocenteModalidad);
+    }
+
+    @Override
+    public List<Facultad> allAccesoFacultades(DataSessionPivot ds, HttpServletRequest request) {
+        if (verificadorService.puedeVerAllFacultades(ds, "ENCUESTA_ESTUDIANTIL")) {
+            return new ArrayList();
+        }
+
+        List<Facultad> facultades = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.FAC, request, ds);
+        if (facultades.isEmpty()) {
+            facultades.add(new Facultad(99999L));
+        }
+        return facultades;
+    }
+
+    @Override
+    public List<DepartamentoAcademico> allAccesoDepartamentos(DataSessionPivot ds, List<Facultad> facultades, CicloAcademico ciclo, HttpServletRequest request) {
+        if (facultades.isEmpty()) {
+            return new ArrayList();
+        }
+        if (verificadorService.puedeVerAllDepartamentos(ds, "ENCUESTA_ESTUDIANTIL")) {
+            return new ArrayList();
+        }
+
+        Facultad comodin = null;
+        for (Facultad fac : facultades) {
+            if (fac.getId() == 99999L) {
+                comodin = fac;
+            }
+        }
+        if (comodin != null) {
+            facultades.remove(comodin);
+        }
+
+        List<DepartamentoAcademico> departamentos = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.DPTO, request, ds);
+        if (departamentos.isEmpty() && facultades.isEmpty()) {
+            departamentos.add(new DepartamentoAcademico(99999L));
+            return departamentos;
+        }
+
+        if (!departamentos.isEmpty() && facultades.isEmpty()) {
+            return departamentos;
+        }
+
+        List<DepartamentoAcademico> dptosAll = departamentoAcademicoDAO.allFromDocentesByCiclo(ciclo);
+        Map<Long, Facultad> mapFacultad = TypesUtil.convertListToMap("id", facultades);
+        for (DepartamentoAcademico dpto : dptosAll) {
+            Facultad fac = mapFacultad.get(dpto.getFacultad().getId());
+            if (fac != null) {
+                departamentos.add(dpto);
+            }
+        }
+        if (departamentos.isEmpty()) {
+            departamentos.add(new DepartamentoAcademico(99999L));
+        }
+        return departamentos;
     }
 
 }

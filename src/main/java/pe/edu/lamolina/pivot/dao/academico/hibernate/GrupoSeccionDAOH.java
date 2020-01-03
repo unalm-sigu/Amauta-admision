@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import pe.albatross.octavia.Insecto;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
@@ -870,6 +871,31 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
         //  .groupBy("anbo.id");
 
         return sql.all(getCurrentSession());
+    }
+
+    @Override
+    public int saveList(List<GrupoSeccion> gposSecciones) {
+        if (gposSecciones.isEmpty()) {
+            return 0;
+        }
+
+        long t1 = System.currentTimeMillis();
+        Insecto sql = Insecto.createInsert()
+                .into(GrupoSeccion.class)
+                .columns("estado", "estadoGrupo", "estadoPlan", "codigo", "codigo2", "codigo3", "orden", "version", "horasTeoria", "horasPractica",
+                        "cursoDirigido", "tipoDictado",
+                        "fechaCierreActa", "usuarioCierraActa",
+                        "fechaInicioModular", "fechaFinModular",
+                        "fechaModificacion", "usuarioModificacion",
+                        "cicloAcademico", "anexoBoletin", "curso", "planCalificacion")
+                .values(gposSecciones);
+
+        Query query = getCurrentSession().createSQLQuery(sql.toString());
+        int rows = query.executeUpdate();
+
+        long t2 = System.currentTimeMillis();
+        logger.info("{} GrupoSeccion's insertados en {} mseg....", rows, (t2 - t1));
+        return rows;
     }
 
 }

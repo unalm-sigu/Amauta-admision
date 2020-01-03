@@ -239,6 +239,30 @@ public class HorarioAulaDAOH extends AbstractEasyDAO<HorarioAula> implements Hor
     }
 
     @Override
+    public List<HorarioAula> allByFechas(Date fechainicio, Date fechafin) {
+        Octavia sql = Octavia.query()
+                .from(HorarioAula.class, "ha")
+                .join("dia d", "hora h", "aula au")
+                .left("au.oficinaSupervisora ofi")
+                .left("seccion sec", "sec.grupoSeccion gs", "gs.cicloAcademico ca", "sec.grupoHoras gh", "gs.curso cur")
+                .left("reservaAula ra", "ra.tramite tra", "tra.persona per", "tra.empresa", "tra.docente", "tra.alumno")
+                .beginBlock()
+                .__().between("ha.fechaInicio", fechainicio, fechafin)
+                .__().between("ha.fechaFin", fechainicio, fechafin)
+                .__().beginBlock()
+                .__().__().filter("ha.fechaInicio", "<=", fechainicio)
+                .__().__().filter("ha.fechaFin", ">=", fechafin)
+                .__().endBlock()
+                .__().beginBlock()
+                .__().__().filter("ha.fechaInicio", ">=", fechainicio)
+                .__().__().filter("ha.fechaFin", "<=", fechafin)
+                .__().endBlock()
+                .endBlock();
+
+        return all(sql);
+    }
+
+    @Override
     public List<HorarioAula> allByFechaInicioTipoHorario(Date fechaInicio, TipoHorarioAulaEnum tipoEnum) {
         Octavia sql = Octavia.query()
                 .from(HorarioAula.class, "ha")

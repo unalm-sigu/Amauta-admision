@@ -570,7 +570,14 @@ public class AlumnoServiceImp implements AlumnoService {
             }
 
             logger.debug("{} =? {}", personaBD.getEmailCompania(), personaForm.getEmailCompania());
-            if (!personaBD.getEmailCompania().equals(personaForm.getEmailCompania())) {
+            if (personaBD.getEmailCompania() == null) {
+                this.validarEmailEmpresaSinPersona(personaForm.getEmailCompania());
+                usuario.setGoogle(personaForm.getEmailCompania());
+                usuario.setFechaModifica(new Date());
+                usuario.setUserModifica(usuarioRegistra);
+                usuarioDAO.update(usuario);
+
+            } else if (!personaBD.getEmailCompania().equals(personaForm.getEmailCompania())) {
                 this.validarEmailEmpresaConPersona(personaForm.getEmailCompania(), personaBD);
                 logger.debug("not eq");
                 if (modificar) {

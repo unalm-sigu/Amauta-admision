@@ -24,6 +24,9 @@ new Vue({
                             this.$refs.modalTemas.open();
                         }
                     })
+        },
+        verReporte(item) {
+            location.href = `${this.url}/${item.id}/reporte`;
         }
     }
 });

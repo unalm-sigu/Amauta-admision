@@ -139,6 +139,7 @@ public class MatriculableController {
         model.addAttribute("tipoCondicional", array);
         model.addAttribute("puedeMatricular", verificadorService.puedeOperarMatricula(ds));
         model.addAttribute("puedeEditarAlumno", verificadorService.puedeEditarAlumno(ds));
+        model.addAttribute("puedeMatricularPosgrado", verificadorService.puedeMatricularPosgrado(ds));
 
         return "academico/matriculable/matriculable";
     }
@@ -170,7 +171,10 @@ public class MatriculableController {
                         new String[]{
                             "id", "prioridad", "puntajePrioridad", "cursosMatriculados", "cursosRetirados", "motivoMatriculable", "esBeneficiadoUltimoCiclo", "esCondicional",
                             "aporteCarnet", "boletaPendiente", "aporteDuplicadoCarnet",
-                            "prioridadAnterior", "alumno.persona.rutaFoto", "alumno.persona.tipoFoto", "alumno.persona.emailCompania", "alumno.persona.numeroDocIdentidad",
+                            "prioridadAnterior",
+                            "alumno.persona.rutaFoto", "alumno.persona.tipoFoto", "alumno.persona.emailCompania", "alumno.persona.numeroDocIdentidad",
+                            "alumno.persona.tipoDocumento.simbolo",
+                            "alumno.modalidadEstudio.nombre",
                             "creditosMatriculados", "creditosRetirados", "estado", "estadoEnum", "alumno.codigo",
                             "promedioSemestral",
                             "creditosAcumulados",
@@ -179,8 +183,9 @@ public class MatriculableController {
                             "creditosAprobadosAcumulados",
                             "cicloAcademicoInfo.*",
                             "alumno.id", "alumno.persona.apellidosNombres", "alumno.carrera.id", "alumno.carrera.codigo",
-                            "alumno.carrera.nombre", "alumno.carrera.facultad.id", "alumno.carrera.facultad.nombre",
-                            "alumno.carrera.facultad.codigo", "situacionInicio.id", "situacionFinal.id", "situacionFinal.nombre",
+                            "alumno.carrera.nombre", "alumno.carrera.tipo", "alumno.carrera.tipoEnum",
+                            "alumno.carrera.facultad.id", "alumno.carrera.facultad.nombre", "alumno.carrera.facultad.codigo",
+                            "situacionInicio.id", "situacionFinal.id", "situacionFinal.nombre",
                             "situacionInicio.nombre",
                             "turnoAtencion.fecha",
                             "turnoAtencion.fechaHoraInicio",
@@ -679,7 +684,7 @@ public class MatriculableController {
         return response;
 
     }
-    
+
     @ResponseBody
     @RequestMapping("agregarAporteSegundaCarrera")
     public JsonResponse agregarAporteSegundaCarrera(@RequestBody MatriculaResumen matriculaResumen, HttpSession session) {
@@ -700,7 +705,6 @@ public class MatriculableController {
         return response;
 
     }
-
 
     @ResponseBody
     @RequestMapping("actualizarPrioridadCero")

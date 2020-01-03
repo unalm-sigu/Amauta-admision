@@ -5,8 +5,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.hibernate.Query;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pe.edu.lamolina.pivot.dao.academico.DocenteSeccionDAO;
 import org.springframework.stereotype.Repository;
+import pe.albatross.octavia.Insecto;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
@@ -33,6 +36,8 @@ import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 
 @Repository
 public class DocenteSeccionDAOH extends AbstractEasyDAO<DocenteSeccion> implements DocenteSeccionDAO {
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public DocenteSeccionDAOH() {
         super();
@@ -97,6 +102,7 @@ public class DocenteSeccionDAOH extends AbstractEasyDAO<DocenteSeccion> implemen
                 .leftJoin("gs.anexoBoletin ab", "ab.anexoSuperior absup")
                 .in("doc.id", docentes)
                 .filter("ca.id", ciclo)
+                .filter("sec.estado", EstadoEnum.ACT)
                 .filter("ds.estado", EstadoEnum.ACT);
 
         return all(sql);
@@ -681,6 +687,28 @@ public class DocenteSeccionDAOH extends AbstractEasyDAO<DocenteSeccion> implemen
             listado.add(ds);
         }
         return listado;
+    }
+
+    @Override
+    public int saveList(List<DocenteSeccion> secciones) {
+        if (secciones.isEmpty()) {
+            return 0;
+        }
+
+        long t1 = System.currentTimeMillis();
+        Insecto sql = Insecto.createInsert()
+                .into(DocenteSeccion.class)
+                .columns("principal", "estado", "porcentajeCargaFraccion", "porcentajeCarga", "pagoVerano",
+                        "fechaInicio", "fechaFin", "fechaAnulacion",
+                        "seccion", "docente", "userAnulacion")
+                .values(secciones);
+
+        Query query = getCurrentSession().createSQLQuery(sql.toString());
+        int rows = query.executeUpdate();
+
+        long t2 = System.currentTimeMillis();
+        logger.info("{} DocenteSeccion's insertados en {} mseg....", rows, (t2 - t1));
+        return rows;
     }
 
 }

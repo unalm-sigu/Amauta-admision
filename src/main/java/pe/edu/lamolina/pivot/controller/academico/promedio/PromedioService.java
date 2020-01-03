@@ -10,20 +10,16 @@ import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.Egresado;
 import pe.edu.lamolina.model.academico.MatriculaCurso;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
-import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.tramite.Reincorporacion;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface PromedioService {
 
-    void trasladarInformcionForHistorial(
+    void actasNotasHaciaHistorial(
             MatriculaResumen matriculaResumen,
             List<MatriculaCurso> matriculasCurso,
-            List<MatriculaSeccion> matriculasSeccion,
-            // List<AlumnoCicloCurso> allAlumnoCicloCurso,
-            DataSessionPivot ds, boolean calcularSituacion);
-
-    void promedio(MatriculaCurso matriculaCurso, DataSessionPivot ds, boolean calcularSituacionAcadFinal, boolean showError);
+            List<AlumnoCicloCurso> allAlumnoCicloCurso,
+            DataSessionPivot ds, String token);
 
     void promediarAllCicloAsync(
             Alumno alumno,
@@ -34,7 +30,9 @@ public interface PromedioService {
             List<AlumnoCicloCurso> allOperativesByModalidadEstudio,
             List<AlumnoCicloCurso> allAlumnoCicloCurso,
             List<Reincorporacion> allReincorporacionesByAlumno,
-            DataSessionPivot ds);
+            DataSessionPivot ds,
+            String token,
+            boolean throwError, boolean showError);
 
     int promediarAllCicloSync(
             Alumno alumno,
@@ -47,21 +45,13 @@ public interface PromedioService {
             List<Reincorporacion> allReincorporacionesByAlumno,
             DataSessionPivot ds, boolean throwError, boolean showError);
 
-    void trasladoPromediosSource(MatriculaCurso matriculaCurso, DataSessionPivot ds, boolean showError);
-
-    void generarHistorialNotas(
-            Alumno alumno,
-            Egresado egresado,
-            Curso curso,
-            MatriculaCurso matriculaCurso,
-            CicloAcademico cicloAcademico,
-            DataSessionPivot ds, boolean showError);
-
     void calcularSituacionAcademica(Alumno alumno, DataSessionPivot ds);
 
     void calulcarSituacionAcademicaNewSession(Alumno alumno, Egresado egresado, DataSessionPivot ds);
 
     Integer evaluateEstaAprobado(BigDecimal nota, Alumno alumno);
+
+    Integer evaluateEstaAprobado(BigDecimal nota, Alumno alumno, Curso curso);
 
     Integer evaluateEstaAprobado(MatriculaCurso matriculaCurso, Alumno alumno);
 

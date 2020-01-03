@@ -34,6 +34,7 @@ import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
+import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.MAT;
 import pe.edu.lamolina.model.enums.EstadoTramiteEnum;
 import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.enums.ResolucionEstadoEnum;
@@ -596,9 +597,9 @@ public class ResolucionServiceImp implements ResolucionService {
     }
 
     @Transactional
-    private void matricular(GrupoSeccion gpoSeccion, Alumno alumno, Curso curso, Usuario usuario, CicloAcademico academico) {
+    private void matricular(GrupoSeccion gpoSeccion, Alumno alumno, Curso curso, Usuario usuario, CicloAcademico ciclo) {
 
-        MatriculaResumen matriculaResumen = matriculaResumenDAO.findByAlumnoCiclo(alumno, academico);
+        MatriculaResumen matriculaResumen = matriculaResumenDAO.findByAlumnoCiclo(alumno, ciclo);
         List<Seccion> seccions = seccionDAO.allActivosByGpoSeccion(gpoSeccion);
         for (Seccion seccion : seccions) {
             seccion.setVacantes(seccion.getVacantes() + 1);
@@ -617,9 +618,20 @@ public class ResolucionServiceImp implements ResolucionService {
 
             matriculaSeccionDAO.save(matriculaSeccion);
         }
+
         AlumnoCursoCurricula alumnoCursoCurricula = alumnoCursoCurriculaDAO.findByAlumnoCurso(alumno, curso);
         alumnoCursoCurricula.setEstadoMatriculaEnum(EstadoMatriculaEnum.MAT);
         alumnoCursoCurriculaDAO.updateEstado(alumnoCursoCurricula);
+
+        int cursosMat = 0;
+        int creditosMat = 0;
+        List<MatriculaCurso> cursosMatriculados = matriculaCursoDAO.allMatriculadosByAlumnoCiclo(alumno, ciclo);
+        for (MatriculaCurso matCurso : cursosMatriculados) {
+            if (matCurso.getEstadoEnum() == MAT) {
+                cursosMat++;
+                creditosMat += matCurso.getCreditos();
+            }
+        }
 
         MatriculaCurso matriculaCurso = new MatriculaCurso();
         matriculaCurso.setCurso(curso);
@@ -638,9 +650,11 @@ public class ResolucionServiceImp implements ResolucionService {
         matriculaCurso.setFechaMatricula(new Date());
         matriculaCursoDAO.save(matriculaCurso);
 
-        matriculaResumen.setEstadoEnum(EstadoMatriculaEnum.MAT);
-        matriculaResumen.setCursosMatriculados(matriculaResumen.getCursosMatriculados() + 1);
-        matriculaResumen.setCreditosMatriculados(matriculaResumen.getCreditosMatriculados() + curso.getCreditos());
-        matriculaResumenDAO.update(matriculaResumen);
+        MatriculaResumen matriculaResumenUpd = new MatriculaResumen(matriculaResumen.getId());
+        matriculaResumenUpd.setEstadoEnum(EstadoMatriculaEnum.MAT);
+        matriculaResumenUpd.setCursosMatriculados(cursosMat + 1);
+        matriculaResumenUpd.setCreditosMatriculados(creditosMat + curso.getCreditos());
+        matriculaResumenDAO.updateColumns(matriculaResumenUpd, "estado", "cursosMatriculados", "creditosMatriculados");
+
     }
 }

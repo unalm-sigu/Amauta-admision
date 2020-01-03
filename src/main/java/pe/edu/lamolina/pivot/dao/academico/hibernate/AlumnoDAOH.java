@@ -83,7 +83,20 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
                 .left("orientacionCarrera", "per.tipoDocumento")
                 .filter("alu.id", id);
 
-        return (Alumno) sql.find(getCurrentSession());
+        return find(sql);
+    }
+
+    @Override
+    public List<Alumno> allWithAllInfo(List<Alumno> alumnos) {
+        Octavia sql = Octavia.query()
+                .from(Alumno.class, "alu")
+                .join("modalidadEstudio me", "carrera ca", "ca.facultad", "persona per")
+                .left("planCurricular pc", "situacionAcademica sa", "pc.cicloInicioVigencia", "pc.carrera")
+                .left("cicloIngreso", "cicloActivo", "postulantePregrado pp", "pp.modalidadIngreso mi")
+                .left("orientacionCarrera", "per.tipoDocumento")
+                .in("alu.id", alumnos);
+
+        return all(sql);
     }
 
     @Override
@@ -667,9 +680,15 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
 
     @Override
     public List<String> allYearsCiclos() {
-        StringBuilder strb = new StringBuilder();
-        strb.append("select distinct SUBSTRING(a.codigo,1,4) from Alumno a order by SUBSTRING(a.codigo,1,4) asc");
-        Query query = getCurrentSession().createQuery(strb.toString());
+        StringBuilder sql = new StringBuilder();
+        sql.append("select distinct SUBSTRING(a.codigo,1,4) ");
+        sql.append("  from Alumno a ");
+        sql.append("  join a.modalidadEstudio me ");
+        sql.append(" where me.codigo in ('PRE','EPG','VIS','ESP') ");
+        sql.append("   and a.codigo not like 'P%' ");
+        sql.append("   and a.codigo not like 'Q%' ");
+        sql.append(" order by SUBSTRING(a.codigo,1,4) desc ");
+        Query query = getCurrentSession().createQuery(sql.toString());
         return query.list();
     }
 
@@ -972,11 +991,8 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
 
     @Override
     public void updateColumns(Alumno alumno, String... columns) {
-        List<String> lColumns = Arrays.asList(columns);
         Octavia octavia = Octavia.update(Alumno.class);
-        for (String column : lColumns) {
-            octavia.set(alumno, column);
-        }
+        octavia.set(alumno, columns);
         this.update(octavia);
     }
 

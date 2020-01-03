@@ -106,19 +106,31 @@
                                                     <div class="v-middle clear">
                                                         <a href="#"><span class="block text-primary bold detallePostulante" v-text="item.alumno.persona.apellidosNombres"></span></a>
                                                         <span class="block" >
-                                                            Matrícula: {{item.alumno.codigo}} 
+                                                            <span class="bold">Matrícula:</span> {{item.alumno.codigo}}
+                                                            <template v-if="item.alumno.persona.numeroDocIdentidad != '' ">
+                                                                &nbsp;|&nbsp; 
+                                                                <smal v-if="item.alumno.persona.tipoDocumento.simbolo != '' " class="bold">
+                                                                    {{item.alumno.persona.tipoDocumento.simbolo}}: 
+                                                                </smal> 
+                                                                {{item.alumno.persona.numeroDocIdentidad}}
+                                                            </template>
                                                         </span>
-                                                        <span class="block" v-if="item.alumno.carrera.codigo != item.alumno.carrera.facultad.codigo">
+                                                        <span class="block text-primary" v-if="item.alumno.carrera.codigo != item.alumno.carrera.facultad.codigo">
                                                             {{item.alumno.carrera.nombre}}
                                                         </span>
-                                                        <span class="block">
-                                                            {{item.alumno.carrera.facultad.nombre}}
+                                                        <span class="block bold" v-if="item.alumno.carrera.tipo == 'MAE' || item.alumno.carrera.tipo == 'DOC'">
+                                                            {{item.alumno.carrera.tipoEnum.value}}
+                                                        </span>
+                                                        <template v-if="alumno.pregrado">
+                                                            <span class="block" v-if="item.alumno.carrera.nombre != item.alumno.carrera.facultad.nombre ">
+                                                                {{item.alumno.carrera.facultad.nombre}}
+                                                            </span>
+                                                        </template>
+                                                        <span class="block bold text-primary">
+                                                            {{item.alumno.modalidadEstudio.nombre}}
                                                         </span>
                                                         <small class="block">
                                                             {{item.alumno.persona.emailCompania}}
-                                                        </small>
-                                                        <small class="block">
-                                                            <smal>DNI: </smal>{{item.alumno.persona.numeroDocIdentidad}}
                                                         </small>
                                                         <small class="block" v-if="item.esBeneficiadoUltimoCiclo">
                                                             <smal class="label label-success">Beneficiado Ult. Ciclo </smal>
@@ -127,8 +139,7 @@
                                                         <a v-if="item.motivoMatriculable != '' " class="text-danger " data-toggle="tooltip" v-bind:title="item.motivoMatriculable" href="#">
                                                             <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
                                                         </a>
-                                                        <a v-if="item.esCondicional " class="text-danger"> Es Condicional
-                                                        </a>
+                                                        <a v-if="item.esCondicional " class="text-danger"> Es Condicional </a>
                                                     </div>
                                                 </td>
 
@@ -183,14 +194,14 @@
                                                         <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="glyphicon glyphicon-cog"></i></a>
                                                         <ul class="dropdown-menu pull-right">
                                                             <li th:if="${puedeMatricular OR puedeEditarAlumno}"><a v-bind:href="urlGoMaipi(item)" target="_blank">Ir a MAIPI</a></li>
-                                                            <li th:if="${puedeMatricular}"><a v-bind:href="urlMatricula(item)" target="_blank">Ir a Matricula</a></li>
+                                                            <li th:if="${puedeMatricular OR puedeMatricularPosgrado}"><a v-bind:href="urlMatricula(item)" target="_blank">Ir a Matricula</a></li>
                                                             <li th:if="${puedeMatricular OR puedeEditarAlumno}" role="separator" class="divider"></li>
                                                             <!--<li><a class="ver-cursos pointer" >Ver Cursos</a></li>rel="{{:id}}"-->
                                                             <li th:if="${puedeMatricular}" v-if="item.estado == 'NMAT'"><a v-on:click="inhabilitarModal(item)" href="#">Inhabilitar</a></li>
                                                             <li th:if="${puedeMatricular}" v-if="item.estado == 'INH'"><a v-on:click="inhabilitarModal(item)" href="#">Habilitar</a></li>
                                                             <li><a v-bind:href="urlAcademico(item)">Información académica</a></li>
                                                             <li th:if="${puedeMatricular OR puedeEditarAlumno}"><a class="modificar-datos" href="#">Modificar datos</a></li>
-                                                            <li th:if="${puedeMatricular}"><a v-if='isPosgrado(item.alumno.modalidadEstudio)' v-bind:href="urlHabilitarCursos(item.alumno)">Habilitar Curso</a></li>
+                                                            <li th:if="${puedeMatricular OR puedeMatricularPosgrado}"><a v-if='isPosgrado(item.alumno.modalidadEstudio)' v-bind:href="urlHabilitarCursos(item.alumno)">Habilitar Curso</a></li>
                                                             <li th:if="${puedeMatricular}" v-if="!item.esBeneficiadoUltimoCiclo " ><a v-on:click="beneficiar(item)" href="#">Beneficiar Ult. Ciclo</a></li>
                                                             <li th:if="${puedeMatricular}" v-if="item.esBeneficiadoUltimoCiclo " ><a v-on:click="beneficiar(item)" href="#">Quitar Ben. Ult. Ciclo</a></li>
                                                             <li th:if="${puedeMatricular OR puedeEditarAlumno}" v-if="!item.aporteCarnet" ><a v-on:click="asignarAporte(item)" href="#">Asignar Aporte Carnet</a></li>

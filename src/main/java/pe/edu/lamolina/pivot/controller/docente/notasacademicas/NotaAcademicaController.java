@@ -69,7 +69,6 @@ import pe.edu.lamolina.model.enums.EstadoPlanCalificaEnum;
 import pe.edu.lamolina.model.enums.LoggerAccionEnum;
 import pe.edu.lamolina.model.enums.OrigenPlanCalificaEnum;
 import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
-import pe.edu.lamolina.model.enums.TipoCreditoEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEvalEnum;
 import pe.edu.lamolina.pivot.controller.matricula.matriculable.MatriculableService;
@@ -323,7 +322,7 @@ public class NotaAcademicaController {
                                 evaluacionNieta.getId(),
                                 evaluacionNieta.getTipoEvaluacion().getNombre() + " " + evaluacionNieta.getNumero(),
                                 evaluacionNieta.getPeso());
-                        evaluacionNieta.setEvaluacionesExpandidas(new ArrayList<>()); //las nietas no tienen hijos
+                        evaluacionNieta.setEvaluacionesExpandidas(new ArrayList()); //las nietas no tienen hijos
                         ObjectNode nodeNieta = castEvaluacionExpandida(evaluacionNieta);
                         nodeNieta.put("editarPorcentaje", false);
                         nodeNieta.put("esNieto", true);
@@ -1472,7 +1471,11 @@ public class NotaAcademicaController {
         JsonResponse response = new JsonResponse();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         ds.setFechaAccionAudit(new Date());
-        service.saveCerrarActa(new GrupoSeccion(gpoSeccionId), ds);
+
+        String token = service.saveCerrarActa(new GrupoSeccion(gpoSeccionId), ds);
+        service.calcularPromedios(new GrupoSeccion(gpoSeccionId), ds, token);
+        service.revisarCurriculaAlumnos(new GrupoSeccion(gpoSeccionId), ds, token);
+
         String message = "Acta cerrada correctamente";
 
         response.setMessage(message);

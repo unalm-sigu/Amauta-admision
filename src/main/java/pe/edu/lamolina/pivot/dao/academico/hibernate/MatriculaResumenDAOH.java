@@ -67,6 +67,18 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
     }
 
     @Override
+    public List<MatriculaResumen> allActivosByCiclo(CicloAcademico ciclo) {
+        Octavia sql = Octavia.query()
+                .from(MatriculaResumen.class, "mr")
+                .join("alumno alu", "cicloAcademico ca", "alu.modalidadEstudio me")
+                .left("alu.cicloActivo aluca", "alu.situacionAcademica sa")
+                .filter("estado", MAT)
+                .filter("ca.codigo", ciclo.getCodigo());
+
+        return all(sql);
+    }
+
+    @Override
     public List<MatriculaResumen> allByCicloFull(CicloAcademico ciclo) {
         Octavia sql = Octavia.query()
                 .from(MatriculaResumen.class, "mr")
@@ -641,11 +653,9 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
     }
 
     @Override
-    public void updateColumns(MatriculaResumen matriculaResumenUpd, String... columns) {
+    public void updateColumns(MatriculaResumen matriculaResumen, String... columns) {
         Octavia sql = Octavia.update(MatriculaResumen.class);
-        for (String column : columns) {
-            sql.set(matriculaResumenUpd, column);
-        }
+        sql.set(matriculaResumen, columns);
         this.update(sql);
     }
 

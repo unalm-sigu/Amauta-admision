@@ -14,6 +14,7 @@ import pe.edu.lamolina.model.academico.RequisitoCursoCurricula;
 import pe.edu.lamolina.model.academico.RequisitoCursoOpcional;
 import pe.edu.lamolina.model.academico.ResumenPlanCurricular;
 import pe.edu.lamolina.model.academico.TipoCursoCurricula;
+import pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum;
 import pe.edu.lamolina.model.matricula.AlumnoAvanceCurricular;
 import pe.edu.lamolina.model.matricula.AlumnoCursoCurricula;
 import pe.edu.lamolina.model.posgrado.CursoHabilEscuela;
@@ -31,9 +32,8 @@ public interface AvanceCurricularAsincronoService {
             List<AlumnoCicloCurso> cursosAprobadosAlumno,
             List<AlumnoCursoCurricula> alumnoCursoCurricula,
             List<CursoOpcionalCurricula> cursoOpcionalCurriculas,
-            Map<Long, CursoCurricula> mapCursoCurriculaByCurso,
             List<TipoCursoCurricula> tipoCursoCurriculas,
-            List<ResumenPlanCurricular> resumenPlanCurriculars,
+            Map<TipoCursoCurriculaEnum, ResumenPlanCurricular> mapResumenPlanCurricular,
             List<AlumnoAvanceCurricular> alumnoAvanceCurriculars,
             List<CursoEquivalenteElectivo> equivalenteElectivos,
             Map<Long, List<CursoOpcionalCurricula>> mapCursoOpcionalAll,
@@ -52,15 +52,14 @@ public interface AvanceCurricularAsincronoService {
             List<AlumnoCicloCurso> cursosAprobadosAlumno,
             List<AlumnoCursoCurricula> alumnoCursoCurricula,
             List<CursoOpcionalCurricula> cursoOpcional,
-            Map<Long, CursoCurricula> mapCursosCurriculaByCurso,
             List<TipoCursoCurricula> tipoCursoCurriculas,
-            List<ResumenPlanCurricular> resumenPlanCurriculars,
+            Map<TipoCursoCurriculaEnum, ResumenPlanCurricular> mapResumenPlanCurricular,
             List<AlumnoAvanceCurricular> alumnoAvanceCurriculars,
             List<CursoEquivalenteElectivo> equivalenteElectivos,
             Map<Long, List<CursoOpcionalCurricula>> mapCursoOpcionalAll,
             List<PlanCurricular> planCurriculars,
             Map<Long, List<CursoCurricula>> mapCursoCurriculaAll,
-              Map<Long, List<RequisitoCursoOpcional>> mapRequisitoCursoOpcionals,
+            Map<Long, List<RequisitoCursoOpcional>> mapRequisitoCursoOpcionals,
             DataSessionPivot ds);
 
     void deleteAllAlumnoCursoSimultaneoByAlumno(Alumno alumno);
@@ -82,9 +81,8 @@ public interface AvanceCurricularAsincronoService {
             List<AlumnoCicloCurso> cursosAprobadosAlumno,
             List<AlumnoCursoCurricula> alumnoCursoCurricula,
             List<CursoOpcionalCurricula> cursoOpcionalCurriculas,
-            Map<Long, CursoCurricula> mapCursoCurriculaByCurso,
             List<TipoCursoCurricula> tipoCursoCurriculas,
-            List<ResumenPlanCurricular> resumenPlanCurriculars,
+            Map<TipoCursoCurriculaEnum, ResumenPlanCurricular> mapResumenPlanCurricular,
             List<AlumnoAvanceCurricular> alumnoAvanceCurriculars,
             List<CursoEquivalenteElectivo> equivalenteElectivos,
             Map<Long, List<CursoOpcionalCurricula>> mapCursoOpcionalAll,
@@ -94,15 +92,14 @@ public interface AvanceCurricularAsincronoService {
             Map<Long, List<RequisitoCursoOpcional>> mapRequisitoCursoOpcionals,
             DataSessionPivot ds);
 
-    public void procesarAlumnoSincronoEPG(
-            Alumno alumnoBD, 
+    void procesarAlumnoSincronoEPG(
+            Alumno alumnoBD,
             Map<Long, CursoCurricula> mapCursoCurricula,
-            Map<String, AlumnoCicloCurso> mapCursosVecesLlevado, 
+            Map<String, AlumnoCicloCurso> mapCursosVecesLlevado,
             List<MatriculaCurso> cursosMatriculados,
-            List<AlumnoCicloCurso> cursosAprobados, 
-            Map<Long, CursoCurricula> mapCursoCurriculaByCurso,
+            List<AlumnoCicloCurso> cursosAprobados,
             List<CursoOpcionalCurricula> cursoOpcionaPlan,
-            List<ResumenPlanCurricular> resumenPlanCurriculars,
+            Map<TipoCursoCurriculaEnum, ResumenPlanCurricular> mapResumenPlanCurricular,
             List<TipoCursoCurricula> tipoCursoCurriculas,
             List<AlumnoAvanceCurricular> avanceCurriculars,
             List<AlumnoCursoCurricula> alumnoCursoOld,

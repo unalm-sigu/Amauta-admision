@@ -1,75 +1,58 @@
 package pe.edu.lamolina.pivot.controller.test;
 
-import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+import pe.edu.lamolina.model.academico.Alumno;
 
 @Component
 public class VisorCalculoNotas {
-    
-    private Integer cantidad;
-    private Integer procesados;
-    private Integer cantidadTotal;
-    private long inicio;
-    private Boolean activo;
-    private List<String> errores;
-    
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    
+
+    private final Map<String, List<Alumno>> mapTokenAlumnos;
+    private final Map<String, Integer> mapContador;
+
     public VisorCalculoNotas() {
-        activo = false;
+        mapTokenAlumnos = new LinkedHashMap();
+        mapContador = new LinkedHashMap();
     }
-    
-    public void iniciar() {
-        cantidad = 0;
-        procesados = 0;
-        cantidadTotal = 0;
-        inicio = System.currentTimeMillis();
-        errores = new ArrayList<>();
-    }
-    
-    public synchronized void incrementarCantidad() {
-        cantidad++;
-    }
-    
-    public synchronized void incrementarProcesados() {
-        procesados++;
-    }
-    
-    public synchronized void agregarError(String error) {
-        errores.add(error);
-    }
-    
-    public void reporte() {
-        long fin = System.currentTimeMillis();
-        logger.info("Procesados {} de {}, Cant. Total {}, Tiempo {}",
-                procesados, cantidad, cantidadTotal, TimeUnit.MILLISECONDS.toSeconds(fin - inicio));
-        
-        if (procesados >= cantidad) {
-            
-            logger.info("Finalizó procesos de recalculo de notas en {} mseg", (fin - inicio));
-            if (!errores.isEmpty()) {
-                logger.info("Cantidad de Errores {}", errores.size());
-                for (String errore : errores) {
-                    logger.info(errore);
-                }
-            }
+
+    public synchronized void createToken(String token, List<Alumno> alumnos) {
+        List<Alumno> alumnosToken = mapTokenAlumnos.get(token);
+        if (alumnosToken == null) {
+            mapTokenAlumnos.put(token, alumnos);
+            mapContador.put(token, 0);
         }
     }
-    
-    public Boolean getActivo() {
-        return activo;
+
+    public synchronized void incrementarToken(String token) {
+        if (token == null) {
+            return;
+        }
+        Integer cant = mapContador.get(token);
+        mapContador.put(token, cant + 1);
     }
-    
-    public void setActivo(Boolean activo) {
-        this.activo = activo;
+
+    public synchronized void destroyToken(String token) {
+        List<Alumno> alumnos = mapTokenAlumnos.get(token);
+        if (alumnos != null) {
+            mapTokenAlumnos.remove(token);
+            mapContador.remove(token);
+        }
     }
-    
-    public void setCantidadTotal(Integer cantidadTotal) {
-        this.cantidadTotal = cantidadTotal;
+
+    public boolean estaCompletoToken(String token) {
+        List<Alumno> alumnos = mapTokenAlumnos.get(token);
+        Integer cant = mapContador.get(token);
+        return cant >= alumnos.size();
     }
-    
+
+    public List<Alumno> allAlumnosByToken(String token) {
+        return mapTokenAlumnos.get(token);
+    }
+
 }

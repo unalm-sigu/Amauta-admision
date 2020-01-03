@@ -18,4 +18,6 @@ public interface RestriccionRepitenciaDAO extends EasyDAO<RestriccionRepitencia>
 
     void deleteAllByCiclo(CicloAcademico ciclo);
 
+    int saveList(List<RestriccionRepitencia> restricciones);
+
 }

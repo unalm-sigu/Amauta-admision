@@ -17,6 +17,8 @@ import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.SituacionAcademica;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
+import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.MAT;
+import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.NMAT;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.RCI;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.RCU;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.RET;
@@ -66,8 +68,10 @@ public class AlumnoCicloCursoDAOH extends AbstractEasyDAO<AlumnoCicloCurso> impl
                 .join("alumnoCiclo ac", "ac.alumno al", "ac.cicloAcademico", "acc.curso cu")
                 .left("cu.departamentoAcademico")
                 .filter("al.id", alumno)
-                .filter("estaAprobado", 1)
-                .filter("acc.registroActivo", BigDecimal.ONE.intValue());
+                .in("ac.estado", Arrays.asList(MAT, NMAT))
+                .filter("acc.estado", MAT)
+                .filter("acc.estaAprobado", 1)
+                .filter("acc.registroActivo", 1);
 
         return all(sql);
     }
@@ -79,8 +83,10 @@ public class AlumnoCicloCursoDAOH extends AbstractEasyDAO<AlumnoCicloCurso> impl
                 .join("alumnoCiclo ac", "ac.alumno al", "ac.cicloAcademico", "acc.curso cu")
                 .left("cu.departamentoAcademico")
                 .in("al.id", alumnos)
-                .filter("estaAprobado", 1)
-                .filter("registroActivo", 1);
+                .in("ac.estado", Arrays.asList(MAT, NMAT))
+                .filter("acc.estado", MAT)
+                .filter("acc.estaAprobado", 1)
+                .filter("acc.registroActivo", 1);
 
         return all(sql);
     }
@@ -547,9 +553,7 @@ public class AlumnoCicloCursoDAOH extends AbstractEasyDAO<AlumnoCicloCurso> impl
     @Override
     public void updateCurso(AlumnoCicloCurso cursosAprobado) {
         Octavia octavia = Octavia.update(AlumnoCicloCurso.class);
-        octavia.set(cursosAprobado, "tipoCursoCurricula");
-        octavia.set(cursosAprobado, "esEquivalente");
-        octavia.set(cursosAprobado, "cursoEquivalente");
+        octavia.set(cursosAprobado, "tipoCursoCurricula", "esEquivalente", "cursoEquivalente");
         this.update(octavia);
     }
 
@@ -619,7 +623,7 @@ public class AlumnoCicloCursoDAOH extends AbstractEasyDAO<AlumnoCicloCurso> impl
     public List<AlumnoCicloCurso> allByAlumnos(List<Alumno> alumnos) {
         Octavia sql = Octavia.query()
                 .from(AlumnoCicloCurso.class, "acc")
-                .join("alumnoCiclo ac", "ac.alumno al", "curso cu")
+                .join("alumnoCiclo ac", "ac.alumno al", "curso cu", "ac.cicloAcademico")
                 .in("al.id", alumnos);
 
         return sql.all(getCurrentSession());
@@ -658,4 +662,18 @@ public class AlumnoCicloCursoDAOH extends AbstractEasyDAO<AlumnoCicloCurso> impl
         System.out.println("UPDATE " + octavia.toString());
         this.update(octavia);
     }
+
+    @Override
+    public List<AlumnoCicloCurso> allCursadosByAlumnosCurso(List<Alumno> alumnos, Curso curso) {
+        Octavia sql = Octavia.query()
+                .from(AlumnoCicloCurso.class, "acc")
+                .join("alumnoCiclo ac", "ac.alumno al", "ac.cicloAcademico ca", "acc.curso cur")
+                .in("al.id", alumnos)
+                .filter("cur.id", curso)
+                .filter("acc.estado", EstadoMatriculaEnum.MAT)
+                .filter("ac.estado", EstadoMatriculaEnum.MAT)
+                .filter("acc.registroActivo", BigDecimal.ONE.intValue());
+        return all(sql);
+    }
+
 }

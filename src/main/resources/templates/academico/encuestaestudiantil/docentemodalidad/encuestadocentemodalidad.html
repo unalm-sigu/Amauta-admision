@@ -68,11 +68,11 @@
                                                 </td>
                                                 <td class="v-middle text-center">
                                                     <span>
-                                                        <span class="pointer m-r-xs text-primary"><i class="fa fa-list-ul"></i></span>
-                                                        <span class="pointer m-r-xs text-success"><i class="fa fa-comments"></i></span>
-                                                        <span class="pointer text-warning" v-on:click="findTemas(item)"><i class="fa fa-bar-chart"></i></span>
+                                                        <span class="pointer m-r-xs text-primary" v-on:click="findTemas(item)"><i class="fa fa-list-ul"></i></span>
+                                                        <!--<span class="pointer m-r-xs text-success"><i class="fa fa-comments"></i></span>-->
+                                                        <span class="pointer text-warning" v-on:click="verReporte(item)" ><i class="fa fa-bar-chart"></i></span>
                                                     </span>
-                                                    <a class="block" v-bind:href="`${url}/${item.id}/reporte`"> Reporte </a>
+                                                    <!--<a class="block" v-bind:href="`${url}/${item.id}/reporte`"> Reporte </a>-->
                                                     <span class="block m-t-xs" v-if="item.codigo"> {{ item.codigo }}</span>
                                                 </td>
                                                 <td class="v-middle text-center">
