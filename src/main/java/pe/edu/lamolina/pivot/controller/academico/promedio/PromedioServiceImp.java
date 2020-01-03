@@ -417,6 +417,7 @@ public class PromedioServiceImp implements PromedioService {
         if (ds.getFechaAccionAudit() == null) {
             ds.setFechaAccionAudit(new Date());
         }
+
         alumno = alumnoDAO.findAllInfo(alumno.getId());
         Egresado egresado = egresadoDAO.findPrincipalByAlumno(alumno);
         CicloAcademico cicloActivo = cicloAcademicoDAO.findActivo(alumno.getModalidadEstudio().getOperativeModalidadEnum());
