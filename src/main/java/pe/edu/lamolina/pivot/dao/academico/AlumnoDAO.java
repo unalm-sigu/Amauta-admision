@@ -131,6 +131,8 @@ public interface AlumnoDAO extends EasyDAO<Alumno> {
 
     List<Alumno> allInfoByAlumno(List<Alumno> alumnos);
 
+    List<Alumno> allByModalidadSituacionesNoAptas(ModalidadEstudioEnum modalidadEstudioEnum, List<String> situacionesNoAptas);
+
     void updateColumns(Alumno alumno, String... columns);
 
 }

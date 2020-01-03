@@ -5,8 +5,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import org.hibernate.Query;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaResumenDAO;
 import org.springframework.stereotype.Repository;
+import pe.albatross.octavia.Insecto;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
@@ -37,6 +40,8 @@ import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 
 @Repository
 public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> implements MatriculaResumenDAO {
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public MatriculaResumenDAOH() {
         super();
@@ -742,6 +747,29 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
                 .in("car.id", carreras)
                 .in("mr.estado", Arrays.asList(estadoMatriculaEnum));
         return all(sql);
+    }
+
+    @Override
+    public int saveList(List<MatriculaResumen> matriculables) {
+        if (matriculables.isEmpty()) {
+            return 0;
+        }
+
+        long t1 = System.currentTimeMillis();
+        Insecto sql = Insecto.createInsert()
+                .into(MatriculaResumen.class)
+                .columns("estado", "cursosMatriculados", "cursosRetirados", "creditosMatriculados", "creditosRetirados",
+                        "creditosTrikaPagados", "creditosTrikaSeparados", "creditosPagados", "creditosConsumidos",
+                        "alumno", "cicloAcademico", "situacionInicio",
+                        "fechaRegistro", "userRegistro")
+                .values(matriculables);
+
+        Query query = getCurrentSession().createSQLQuery(sql.toString());
+        int rows = query.executeUpdate();
+
+        long t2 = System.currentTimeMillis();
+        logger.info("{} MatriculaResumen's insertados en {} mseg....", rows, (t2 - t1));
+        return rows;
     }
 
 }
