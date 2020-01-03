@@ -183,7 +183,7 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
     @Transactional
     public List<Alumno> saveReincorporacion(Resolucion resolucionForm, Usuario usuario, DataSessionPivot ds) {
 
-        List<Alumno> alumnos = new ArrayList<>();
+        List<Alumno> alumnos = new ArrayList();
 
         TipoResolucion tipoResolucion = tipoResolucionDAO.finByCodigo(TipoResolucionEnum.REIC);
         Resolucion resolucion = new Resolucion();
