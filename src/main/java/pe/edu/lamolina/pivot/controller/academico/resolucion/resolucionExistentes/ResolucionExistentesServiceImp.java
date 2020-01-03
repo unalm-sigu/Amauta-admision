@@ -31,16 +31,15 @@ import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.academico.TipoCursoCurricula;
 import pe.edu.lamolina.model.enums.CursoCurriculaEstadoEnum;
-import static pe.edu.lamolina.model.enums.CursoCurriculaEstadoEnum.NREQ;
-import static pe.edu.lamolina.model.enums.CursoCurriculaEstadoEnum.PEND;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
-import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.MAT;
 import pe.edu.lamolina.model.enums.EstadoTramiteEnum;
+import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.enums.OrigenDataSituacionAcademicaEnum;
 import pe.edu.lamolina.model.enums.ResolucionEstadoEnum;
 import pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum;
 import pe.edu.lamolina.model.enums.TipoDocumentoCompaniaEnum;
+import pe.edu.lamolina.model.enums.TipoOficinaEnum;
 import pe.edu.lamolina.model.enums.TipoResolucionEnum;
 import pe.edu.lamolina.model.enums.TipoRetiroCicloEnum;
 import pe.edu.lamolina.model.enums.TipoTramiteEnum;
@@ -48,6 +47,7 @@ import static pe.edu.lamolina.model.enums.TipoTramiteEnum.INTES;
 import pe.edu.lamolina.model.enums.TipoTramiteTrasladoEnum;
 import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
 import pe.edu.lamolina.model.general.Compania;
+import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.general.SerieDocumento;
 import pe.edu.lamolina.model.general.TipoDocumentoCompania;
 import pe.edu.lamolina.model.matricula.AlumnoCursoCurricula;
@@ -78,6 +78,7 @@ import pe.edu.lamolina.pivot.dao.academico.MatriculaResumenDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.SeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.TipoCursoCurriculaDAO;
+import pe.edu.lamolina.pivot.dao.general.OficinaDAO;
 import pe.edu.lamolina.pivot.dao.tramite.AccionTramiteAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.tramite.CambioNotaDAO;
 import pe.edu.lamolina.pivot.dao.tramite.CursoDirigidoDAO;
@@ -158,10 +159,24 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
     TipoCursoCurriculaDAO tipoCursoCurriculaDAO;
     @Autowired
     CursoOpcionalCurriculaDAO cursoOpcionalCurriculaDAO;
+    @Autowired
+    OficinaDAO oficinaDAO;
 
     @Override
     public List<Alumno> allAlumnoByOficina(String nombre, Long instanciaOficina) {
-        return alumnoDAO.allByName(nombre);
+        Oficina oficina = oficinaDAO.find(instanciaOficina);
+        if (oficina.getTipoOficina().getCodigoEnum() == TipoOficinaEnum.FAC) {
+            return alumnoDAO.allByNameFacultad(nombre, new Facultad(oficina.getInstanciaOficina()));
+        }
+
+        if (oficina.getCodigoEnum() == OficinaEnum.EPG) {
+            return alumnoDAO.allByNamePosgrado(nombre);
+        }
+        if (oficina.getCodigoEnum() == OficinaEnum.UNA) {
+            return alumnoDAO.allByName(nombre);
+        }
+
+        return new ArrayList();
     }
 
     @Override

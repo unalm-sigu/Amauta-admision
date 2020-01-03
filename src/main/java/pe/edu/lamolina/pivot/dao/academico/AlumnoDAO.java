@@ -61,6 +61,10 @@ public interface AlumnoDAO extends EasyDAO<Alumno> {
 
     List<Alumno> allByName(String nombre);
 
+    List<Alumno> allByNameFacultad(String nombre, Facultad facultad);
+
+    List<Alumno> allByNamePosgrado(String nombre);
+
     List<Alumno> allIngresantePregradoByCiclo(ModalidadEstudio modalidad, CicloAcademico cicloAcademico, List<Alumno> alumnoExclude);
 
     List<Alumno> allByNameModalidadEstudioCiclo(String nombre, ModalidadEstudio modalidad, CicloAcademico cicloAcademico);
