@@ -990,7 +990,7 @@ public class MatriculableServiceImp implements MatriculableService {
         List<String> situacionesNoAptas
                 = Arrays.asList(
                         S_D.getValue(), S_4.getValue(), S_X.getValue(), S_XD.getValue(), S_4U.getValue(), S_E.getValue(),
-                        S_7.getValue(), S_4T.getValue(), S_Q.getValue(), S_R.getValue());
+                        S_7.getValue(), S_4T.getValue(), S_Q.getValue(), S_R.getValue(), S_8.getValue());
 
 //        matriculaResumenDAO.savePosGradoVerano(situacionesNoAptas, academicoAnteriorPos, cicloAcademico);
 //        matriculaResumenDAO.savePreGradoVerano(situacionesNoAptas, academicoAnterior, cicloAcademico);
