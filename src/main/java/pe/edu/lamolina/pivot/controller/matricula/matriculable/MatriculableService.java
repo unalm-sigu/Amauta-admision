@@ -60,6 +60,8 @@ public interface MatriculableService {
 
     void recalcularPrioridad(GrupoSeccion gpoSecc, CicloAcademico ciclo);
 
+    void recalcularPrioridad(GrupoSeccion gpoSecc);
+
     void inhabilitarMatriculable(MatriculaResumen matriculaResumen, DataSessionPivot ds);
 
     void verificarAlumnosNmat(DataSessionPivot ds, List<AlumnoCiclo> alumnoCiclos);
@@ -73,7 +75,7 @@ public interface MatriculableService {
     void quitarAporteCarnet(MatriculaResumen matriculaResumen, DataSessionPivot ds);
 
     void agregarAporteCarnet(MatriculaResumen matriculaResumen, DataSessionPivot ds);
-    
+
     void agregarAporteSegundaCarrera(MatriculaResumen matriculaResumen, DataSessionPivot ds);
 
     void actualizarPrioridadCero(DataSessionPivot ds);
@@ -89,7 +91,5 @@ public interface MatriculableService {
     void agregarAporteDuplicadoCarnet(MatriculaResumen matriculaResumen, DataSessionPivot ds);
 
     void quitarAporteDuplicadoCarnet(MatriculaResumen matriculaResumen, DataSessionPivot ds);
-
-    
 
 }

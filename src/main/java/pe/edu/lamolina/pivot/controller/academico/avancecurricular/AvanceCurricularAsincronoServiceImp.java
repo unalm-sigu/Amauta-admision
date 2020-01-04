@@ -61,6 +61,7 @@ import pe.edu.lamolina.model.matricula.AlumnoCursoCurricula;
 import pe.edu.lamolina.model.matricula.AlumnoCursoSimultaneo;
 import pe.edu.lamolina.model.posgrado.CursoHabilEscuela;
 import pe.edu.lamolina.pivot.controller.academico.plancurricular.VisorAsignaCurricula;
+import pe.edu.lamolina.pivot.controller.test.VisorCalculoNotas;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoAvanceCurricularDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloCursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloDAO;
@@ -137,6 +138,8 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
 
     @Autowired
     VisorAsignaCurricula visorAsignaCurricula;
+    @Autowired
+    VisorCalculoNotas visorCalculoNotas;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -177,28 +180,36 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
             List<PlanCurricular> planCurriculars,
             Map<Long, List<CursoCurricula>> mapCursoCurriculaAll,
             Map<Long, List<RequisitoCursoOpcional>> mapRequisitoCursoOpcionals,
-            DataSessionPivot ds) {
+            DataSessionPivot ds,
+            String token) {
 
-        procesarAlumnoSincrono(
-                alumno,
-                cursosCurricula,
-                mapRequisitos,
-                mapEquivalentes,
-                mapCursosVecesLlevado,
-                matriculaCursos,
-                cursosAprobados,
-                alumnoCursoCurricula,
-                cursoOpcional,
-                tipoCursoCurriculas,
-                mapResumenPlanCurricular,
-                alumnoAvanceCurriculars,
-                equivalenteElectivos,
-                mapCursoOpcionalAll,
-                planCurriculars,
-                mapCursoCurriculaAll,
-                mapRequisitoCursoOpcionals,
-                ds, false);
-        logger.info("Finalizo revision avance curricular del alumno {}", alumno.getCodigo());
+        try {
+            procesarAlumnoSincrono(
+                    alumno,
+                    cursosCurricula,
+                    mapRequisitos,
+                    mapEquivalentes,
+                    mapCursosVecesLlevado,
+                    matriculaCursos,
+                    cursosAprobados,
+                    alumnoCursoCurricula,
+                    cursoOpcional,
+                    tipoCursoCurriculas,
+                    mapResumenPlanCurricular,
+                    alumnoAvanceCurriculars,
+                    equivalenteElectivos,
+                    mapCursoOpcionalAll,
+                    planCurriculars,
+                    mapCursoCurriculaAll,
+                    mapRequisitoCursoOpcionals,
+                    ds, false);
+            logger.info("Finalizo revision avance curricular del alumno {}", alumno.getCodigo());
+            visorCalculoNotas.incrementarToken(token);
+            
+        } catch (Exception e) {
+            logger.error("Error en revision avance curricular del alumno {}", alumno.getCodigo());
+            visorCalculoNotas.incrementarToken(token);
+        }
 
     }
 
@@ -1211,7 +1222,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
                     planCurriculars,
                     mapCursoCurriculaAll,
                     mapRequisitoCursoOpcionals,
-                    ds);
+                    ds, null);
         } else {
 
             this.procesarAlumnoSincronoEPG(

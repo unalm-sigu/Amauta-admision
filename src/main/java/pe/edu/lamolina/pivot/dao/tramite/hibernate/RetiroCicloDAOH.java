@@ -76,7 +76,7 @@ public class RetiroCicloDAOH extends AbstractEasyDAO<RetiroCiclo> implements Ret
     }
 
     @Override
-    public List<RetiroCiclo> allAlumnosByCiclo(List<Long> alumnos, CicloAcademico ciclo) {
+    public List<RetiroCiclo> allAlumnosByCiclo(List<Alumno> alumnos, CicloAcademico ciclo) {
         Octavia sql = new Octavia()
                 .from(RetiroCiclo.class, "rc")
                 .join("alumno al", "cicloAcademico ca", "cicloRegistro cr")
@@ -146,8 +146,8 @@ public class RetiroCicloDAOH extends AbstractEasyDAO<RetiroCiclo> implements Ret
     public List<RetiroCiclo> allRetiroCicloByAlumno(Alumno alumno) {
         Octavia sql = new Octavia()
                 .from(RetiroCiclo.class, "rc")
-                .join("alumno al","cicloAcademico ca")
-                .left("cicloRegistro cr","tramite tram")
+                .join("alumno al", "cicloAcademico ca")
+                .left("cicloRegistro cr", "tramite tram")
                 .filter("al.id", alumno);
         return all(sql);
     }

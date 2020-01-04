@@ -153,6 +153,8 @@ public interface NotaAcademicaService {
 
     void revisarCurriculaAlumnos(GrupoSeccion grupoSeccion, DataSessionPivot ds, String token);
 
+    void revisarMatriculables(GrupoSeccion grupoSeccion, DataSessionPivot ds, String token);
+
     void desvincularPlanCalificacion(GrupoSeccion grupo);
 
     List<PlanCalificacionCurso> allActivosPlanCalificacionCurso(Curso curso, TipoCicloEnum tipoCicloEnum);

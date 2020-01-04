@@ -278,8 +278,8 @@ public class TramiteCondicionalServiceImp implements TramiteCondicionalService {
                 alumnoCiclo = alumnoCicloDAO.findActivosRegularesByCiclo(alumnoCicloPenultimo.getCicloAcademico(), alumno);
                 matriculaResumen = matriculableConector.procesarPrioridadAlumno(matriculaResumen, alumnoCiclo);
 
-                MatriculaResumen matriculaAnt = matriculaResumenDAO.findByAntPrioridad(matriculaResumen, ds.getCicloAcademico(), alumno.getCreditosAprobadosConvalidados() > CAPA_ULTIMO_CICLO ? true : false);
-                MatriculaResumen matriculaDes = matriculaResumenDAO.findByDesPrioridad(matriculaResumen, ds.getCicloAcademico(), alumno.getCreditosAprobadosConvalidados() > CAPA_ULTIMO_CICLO ? true : false);
+                MatriculaResumen matriculaAnt = matriculaResumenDAO.findByPuntajeMenor(matriculaResumen, ds.getCicloAcademico(), alumno.getCreditosAprobadosConvalidados() > CAPA_ULTIMO_CICLO ? true : false);
+                MatriculaResumen matriculaDes = matriculaResumenDAO.findByPuntajeMayor(matriculaResumen, ds.getCicloAcademico(), alumno.getCreditosAprobadosConvalidados() > CAPA_ULTIMO_CICLO ? true : false);
                 if (matriculaAnt != null && matriculaDes != null) {
 
                     BigDecimal prioridad = matriculaAnt.getPrioridad().add(matriculaDes.getPrioridad()).divide(new BigDecimal(2));
@@ -465,8 +465,8 @@ public class TramiteCondicionalServiceImp implements TramiteCondicionalService {
                 matriculaResumen = matriculableConector.procesarPrioridadAlumno(matriculaResumen, alumnoCiclo);
 
                 boolean esUltimoCiclo = alumno.getCreditosAprobadosConvalidados() > CAPA_ULTIMO_CICLO;
-                MatriculaResumen matriculaAnt = matriculaResumenDAO.findByAntPrioridad(matriculaResumen, ds.getCicloAcademico(), esUltimoCiclo);
-                MatriculaResumen matriculaDes = matriculaResumenDAO.findByDesPrioridad(matriculaResumen, ds.getCicloAcademico(), esUltimoCiclo);
+                MatriculaResumen matriculaAnt = matriculaResumenDAO.findByPuntajeMenor(matriculaResumen, ds.getCicloAcademico(), esUltimoCiclo);
+                MatriculaResumen matriculaDes = matriculaResumenDAO.findByPuntajeMayor(matriculaResumen, ds.getCicloAcademico(), esUltimoCiclo);
                 if (matriculaAnt != null && matriculaDes != null) {
 
                     BigDecimal prioridad = matriculaAnt.getPrioridad().add(matriculaDes.getPrioridad()).divide(new BigDecimal(2));
@@ -601,8 +601,8 @@ public class TramiteCondicionalServiceImp implements TramiteCondicionalService {
                 AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findActivosRegularesByCicloResumen(alumno.getCicloActivoRegular(), alumno);
                 matriculaResumen = matriculableConector.procesarPrioridadAlumno(matriculaResumen, alumnoCiclo);
 
-                MatriculaResumen matriculaAnt = matriculaResumenDAO.findByAntPrioridad(matriculaResumen, ds.getCicloAcademico(), alumno.getCreditosAprobadosConvalidados() > CAPA_ULTIMO_CICLO ? true : false);
-                MatriculaResumen matriculaDes = matriculaResumenDAO.findByDesPrioridad(matriculaResumen, ds.getCicloAcademico(), alumno.getCreditosAprobadosConvalidados() > CAPA_ULTIMO_CICLO ? true : false);
+                MatriculaResumen matriculaAnt = matriculaResumenDAO.findByPuntajeMenor(matriculaResumen, ds.getCicloAcademico(), alumno.getCreditosAprobadosConvalidados() > CAPA_ULTIMO_CICLO ? true : false);
+                MatriculaResumen matriculaDes = matriculaResumenDAO.findByPuntajeMayor(matriculaResumen, ds.getCicloAcademico(), alumno.getCreditosAprobadosConvalidados() > CAPA_ULTIMO_CICLO ? true : false);
                 if (matriculaAnt != null && matriculaDes != null) {
 
                     BigDecimal prioridad = matriculaAnt.getPrioridad().add(matriculaDes.getPrioridad()).divide(new BigDecimal(2));

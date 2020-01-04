@@ -268,8 +268,6 @@ public class MatriculableController {
         JsonResponse response = new JsonResponse();
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-
-            //service.revisarSituacionesAcademicas(ds.getCicloAcademico(), ds);
             service.generarPrioridad(ds.getCicloAcademico());
             response.setMessage("Prioridad generadas correctamente");
             response.setSuccess(true);
@@ -576,8 +574,8 @@ public class MatriculableController {
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
-        return response;
 
+        return response;
     }
 
     @ResponseBody

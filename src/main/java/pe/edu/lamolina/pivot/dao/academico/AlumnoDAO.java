@@ -93,7 +93,7 @@ public interface AlumnoDAO extends EasyDAO<Alumno> {
 
     List<Alumno> allByCarreraCicloMayores(Carrera carrera, String codigoCiclo);
 
-    List<Alumno> allByGpoSeccion(GrupoSeccion gpoSecc);
+    List<Alumno> allMatriculadosByGpoSeccion(GrupoSeccion gpoSecc);
 
     void updatePlanCurricular(Alumno alumno);
 

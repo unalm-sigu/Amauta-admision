@@ -37,6 +37,7 @@ import pe.edu.lamolina.model.matricula.AlumnoAvanceCurricular;
 import pe.edu.lamolina.model.matricula.AlumnoCursoCurricula;
 import pe.edu.lamolina.model.posgrado.CursoHabilEscuela;
 import pe.edu.lamolina.pivot.controller.academico.plancurricular.VisorAsignaCurricula;
+import pe.edu.lamolina.pivot.controller.test.VisorCalculoNotas;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoAvanceCurricularDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloCursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloDAO;
@@ -122,6 +123,8 @@ public class AvanceCurricularServiceImp implements AvanceCurricularService {
 
     @Autowired
     VisorAsignaCurricula visorAsignaCurricula;
+    @Autowired
+    VisorCalculoNotas visorCalculoNotas;
 
     @Override
     @Transactional
@@ -438,8 +441,13 @@ public class AvanceCurricularServiceImp implements AvanceCurricularService {
     }
 
     @Override
-    public void generarAvanceCurricularByAlumnosPregrados(List<Alumno> alumnosForm, DataSessionPivot ds) {
+    public void generarAvanceCurricularByAlumnosPregrados(List<Alumno> alumnosForm, DataSessionPivot ds, String token) {
         List<Alumno> alumnosBD = alumnoDAO.allWithAllInfo(alumnosForm);
+        for (Alumno alumno : alumnosBD) {
+            if (!alumno.isPregrado()) {
+                visorCalculoNotas.incrementarToken(token);
+            }
+        }
         List<Alumno> alumnos = alumnosBD.stream().filter(x -> x.isPregrado()).collect(Collectors.toList());
 
         List<PlanCurricular> planCurriculars = planCurricularDAO.all();
@@ -502,6 +510,7 @@ public class AvanceCurricularServiceImp implements AvanceCurricularService {
 
         for (Alumno alumno : alumnos) {
             if (alumno.getPlanCurricular() == null) {
+                visorCalculoNotas.incrementarToken(token);
                 continue;
             }
             PlanCurricular planBD = mapPlanes.get(alumno.getPlanCurricular().getId());
@@ -538,7 +547,7 @@ public class AvanceCurricularServiceImp implements AvanceCurricularService {
                     planCurriculars,
                     mapCursoCurriculaAllPlanes,
                     mapRequisitoCursoOpcionals,
-                    ds);
+                    ds, token);
         }
     }
 

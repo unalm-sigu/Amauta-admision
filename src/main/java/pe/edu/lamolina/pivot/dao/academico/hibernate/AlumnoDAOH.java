@@ -35,6 +35,7 @@ import pe.edu.lamolina.model.enums.PersonaEstadoEnum;
 import pe.edu.lamolina.model.enums.RolEnum;
 import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
 import pe.edu.lamolina.model.enums.SituacionAcademicaEnum;
+import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.tramite.RetiroCiclo;
 import pe.edu.lamolina.pivot.controller.academico.alumno.AlumnoResumen;
@@ -578,15 +579,19 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
     }
 
     @Override
-    public List<Alumno> allByGpoSeccion(GrupoSeccion gpoSecc) {
+    public List<Alumno> allMatriculadosByGpoSeccion(GrupoSeccion gpoSecc) {
         Octavia sql = Octavia.query()
                 .selectDistinct("alu")
                 .from(MatriculaSeccion.class, "ms")
                 .join("seccion s", "s.grupoSeccion gs", "matriculaResumen mr")
                 .join("mr.alumno alu", "alu.persona", "alu.modalidadEstudio", "alu.situacionAcademica")
                 .left("alu.cicloActivoRegular")
-                .filter("gs.id", gpoSecc);
-        return sql.all(getCurrentSession());
+                .filter("gs.id", gpoSecc)
+                .filter("s.tipoSeccion", "<>", TipoSeccionEnum.PCUR)
+                .filter("mr.estado", MAT)
+                .filter("ms.estado", MAT);
+
+        return all(sql);
     }
 
     @Override

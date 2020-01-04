@@ -80,6 +80,7 @@ import pe.edu.lamolina.pivot.controller.academico.calculonotas.CalculoNotasServi
 import pe.edu.lamolina.pivot.controller.academico.promedio.PromedioService;
 import pe.edu.lamolina.pivot.controller.auditor.AuditorService;
 import pe.edu.lamolina.pivot.controller.interceptor.InterceptorService;
+import pe.edu.lamolina.pivot.controller.matricula.matriculable.MatriculableService;
 import pe.edu.lamolina.pivot.controller.test.VisorCalculoNotas;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloCursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloDAO;
@@ -206,9 +207,12 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
     VisorCalculoNotas visorCalculoNotas;
     @Autowired
     AvanceCurricularService avanceCurricularService;
+    @Autowired
+    MatriculableService matriculableService;
 
     private final static String TOKEN_HISTORIAL = "-token-historial";
     private final static String TOKEN_PROMEDIOS = "-token-promedios";
+    private final static String TOKEN_CURRICULA = "-token-curriculas";
 
     @Override
     public List<GrupoSeccion> allGrupoByDocente(Docente docente, CicloAcademico ciclo, DataSessionPivot ds) {
@@ -2091,8 +2095,10 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
         String token = RandomStringUtils.randomAlphanumeric(43);
         String tokenHisto = token + TOKEN_HISTORIAL;
         String tokenProm = token + TOKEN_PROMEDIOS;
+        String tokenCurri = token + TOKEN_CURRICULA;
         visorCalculoNotas.createToken(tokenHisto, alumnos);
         visorCalculoNotas.createToken(tokenProm, alumnos);
+        visorCalculoNotas.createToken(tokenCurri, alumnos);
 
         for (MatriculaCurso matriculaCurso : matriculasCursoAll) {
             MatriculaResumen resumen = matriculaCurso.getMatriculaResumen();
@@ -2183,7 +2189,27 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
 
         TypesUtil.delay(2000);
         logger.info("Iniciar revision de avance curricular de {} alumnos del grupo-seccion {}", alumnos.size(), grupoSeccion.getId());
-        avanceCurricularService.generarAvanceCurricularByAlumnosPregrados(alumnos, ds);
+        String tokenCurri = token22 + TOKEN_CURRICULA;
+        avanceCurricularService.generarAvanceCurricularByAlumnosPregrados(alumnos, ds, tokenCurri);
+    }
+
+    @Async
+    @Override
+    public void revisarMatriculables(GrupoSeccion grupoSeccion, DataSessionPivot ds, String token22) {
+        String tokenCurri = token22 + TOKEN_CURRICULA;
+        for (;;) {
+            if (visorCalculoNotas.estaCompletoToken(tokenCurri)) {
+                break;
+            }
+        }
+        logger.info("Finalizó calculo de promedios y situaciones academicas del grupo-seccion {}", grupoSeccion.getId());
+
+        List<Alumno> alumnos = visorCalculoNotas.allAlumnosByToken(tokenCurri);
+        visorCalculoNotas.destroyToken(tokenCurri);
+
+        TypesUtil.delay(2000);
+        logger.info("Iniciar revision de matriculables de {} alumnos del grupo-seccion {}", alumnos.size(), grupoSeccion.getId());
+        matriculableService.recalcularPrioridad(grupoSeccion);
     }
 
     @Override

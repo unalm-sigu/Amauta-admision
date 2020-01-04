@@ -61,6 +61,8 @@ public class MatriculableConmectorImp implements MatriculableConnector {
         BigDecimal ccs = new BigDecimal(alumnoCiclo.getCreditosCursadosCiclo());
         BigDecimal pps = alumnoCiclo.getPromedioCiclo();
 
+        // puntaje = pps * (capa*caps/[cca*ccs])
+        //
         if (alumnoCiclo.getCreditosAcumulados().compareTo(BigDecimal.ZERO.intValue()) == 0) {
             matriculaResumen.setPuntajePrioridad(BigDecimal.ZERO);
             matriculaResumen.setCreditosAprobadosAcumulados(0);
@@ -75,8 +77,8 @@ public class MatriculableConmectorImp implements MatriculableConnector {
         capa = capa.equals(BigDecimal.ZERO) ? new BigDecimal(0.004) : capa;
         pps = pps.equals(BigDecimal.ZERO) ? new BigDecimal(0.004) : pps;
 
-        BigDecimal factor1 = capa.multiply(caps).multiply(pps);// capa.divide(cca, 12, RoundingMode.HALF_UP);
-        BigDecimal factor2 = ccs.multiply(cca);//caps.divide(ccs, 12, RoundingMode.HALF_UP);
+        BigDecimal factor1 = capa.multiply(caps).multiply(pps);
+        BigDecimal factor2 = ccs.multiply(cca);
         factor2 = factor2.equals(BigDecimal.ZERO) ? BigDecimal.ONE : factor2;
 
         BigDecimal puntajePrioridad = factor1.divide(factor2, 12, RoundingMode.HALF_UP);
@@ -86,7 +88,9 @@ public class MatriculableConmectorImp implements MatriculableConnector {
         matriculaResumen.setCreditosAprobadosCiclo(alumnoCiclo.getCreditosAprobadosCiclo());
         matriculaResumen.setCreditosCursadosCiclo(alumnoCiclo.getCreditosCursadosCiclo());
         matriculaResumen.setPromedioSemestral(pps);
-        if (matriculaResumen.getCreditosAprobadosAcumulados() >= CAPA_ULTIMO_CICLO) {
+
+        Alumno alumno = alumnoCiclo.getAlumno();
+        if (alumno.getCreditosAprobadosConvalidados() >= CAPA_ULTIMO_CICLO) {
             matriculaResumen.setEsUltimoCiclo(Boolean.TRUE);
         }
         matriculaResumen.setCicloAcademicoInfo(alumnoCiclo.getCicloAcademico());

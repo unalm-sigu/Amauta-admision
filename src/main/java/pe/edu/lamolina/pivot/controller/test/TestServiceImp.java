@@ -704,7 +704,7 @@ public class TestServiceImp implements TestService {
         List<MatriculaResumen> matriculables = matriculaResumenDAO.allByCiclo(ciclo);
         List<Alumno> alumnos = matriculables.stream().map(x -> x.getAlumno()).filter(x -> x.isPregrado()).collect(Collectors.toList());
 
-        avanceCurricularService.generarAvanceCurricularByAlumnosPregrados(alumnos, ds);
+        avanceCurricularService.generarAvanceCurricularByAlumnosPregrados(alumnos, ds, null);
     }
 
 }

@@ -35,7 +35,6 @@ public interface Constantine {
 
     String APP_ERROR_MESSAGE = "Error Desconocido: por favor reporte el problema.";
 
-    
     //restriccion encuesta docente
     String REQ_MAX_DOCENTE = "No cumple requisito de máximo docentes";
     String REQ_MIN_ALUMNO = "No cumple requisito de mínimo alumnos";
@@ -96,18 +95,14 @@ public interface Constantine {
     String S3_TRASH = "trash/";
 
     // 
-    Long ID_TIPO_SUBVENCION_INVESTIGACION = 5l;
-    Long ID_TIPO_TRAMITE_SUBVENCION = 1l;
-    Long CAPA_ULTIMO_CICLO = 172l;
+    Long ID_TIPO_SUBVENCION_INVESTIGACION = 5L;
+    Long ID_TIPO_TRAMITE_SUBVENCION = 1L;
+    Long CAPA_ULTIMO_CICLO = 172L;
 
     String CICLO_ORDEN_MERITO = "CICLO_ORDEN_MERITO";
     String CICLO_ANEXO_BOLETIN = "CICLO_ANEXO_BOLETIN";
 
-    
-
     final static Integer CANTIDAD_HORAS_POR_EXAMEN = 2;
-
-    
 
     Long ID_PERU = 178l;
 
