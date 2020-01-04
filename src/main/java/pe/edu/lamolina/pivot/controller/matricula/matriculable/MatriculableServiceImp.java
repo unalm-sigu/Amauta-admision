@@ -65,14 +65,19 @@ import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_2U;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_3;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_3U;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_4;
+import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_4T;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_4U;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_5;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_6U;
+import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_7;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_8;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_9;
+import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_D;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_E;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_EM;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_N;
+import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_Q;
+import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_R;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_TU;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_X;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_XD;
@@ -977,16 +982,26 @@ public class MatriculableServiceImp implements MatriculableService {
     public void generarVerano(CicloAcademico cicloAcademico, DataSessionPivot ds) {
         DateTime today = new DateTime();
 
-        List<CicloAcademico> academicosAnterior = cicloAcademicoDAO.allAnteriorRegistroActivoPre(3, cicloAcademico);
-        CicloAcademico academicoAnterior = academicosAnterior.get(2);
+        List<String> situacionesNoAptas
+                = Arrays.asList(
+                        S_D.getValue(), S_4.getValue(), S_X.getValue(), S_XD.getValue(), S_4U.getValue(), S_E.getValue(),
+                        S_7.getValue(), S_4T.getValue(), S_Q.getValue(), S_R.getValue(), S_8.getValue());
 
-        List<CicloAcademico> academicosAnteriorPos = cicloAcademicoDAO.allAnteriorRegistroActivoPos(3, cicloAcademico);
-        CicloAcademico academicoAnteriorPos = academicosAnteriorPos.get(2);
-        List<String> situacionesPregrado
-                = Arrays.asList(S_4.getValue(), S_X.getValue(), S_XD.getValue(), S_4U.getValue(), S_E.getValue());
+        List<Alumno> alumnosPregrado = alumnoDAO.allByModalidadSituacionesNoAptas(ModalidadEstudioEnum.PRE, situacionesNoAptas);
 
-        matriculaResumenDAO.savePosGradoVerano(situacionesPregrado, academicoAnteriorPos, cicloAcademico);
-        matriculaResumenDAO.savePreGradoVerano(situacionesPregrado, academicoAnterior, cicloAcademico);
+        List<MatriculaResumen> matriculables = new ArrayList();
+        for (Alumno alumno : alumnosPregrado) {
+            MatriculaResumen resumen = new MatriculaResumen();
+            resumen.setAlumno(alumno);
+            resumen.setCicloAcademico(cicloAcademico);
+            resumen.setSituacionInicio(alumno.getSituacionAcademica());
+            resumen.settingValoresDefecto();
+            resumen.setCreditosPagados(0);
+            resumen.setCreditosConsumidos(0);
+            matriculables.add(resumen);
+        }
+
+        matriculaResumenDAO.saveList(matriculables);
 
         CicloAcademico cicloAcademicoUpd = new CicloAcademico();
         cicloAcademicoUpd.setId(cicloAcademico.getId());

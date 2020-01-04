@@ -365,9 +365,49 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
         nombre = "%" + nombre.replaceAll(" ", "%") + "%";
         Octavia sql = Octavia.query()
                 .from(Alumno.class, "alu")
-                .join("persona per", "carrera car", "car.facultad fa")
+                .join("persona per", "carrera car", "car.facultad fa", "modalidadEstudio me")
                 .leftJoin("per.tipoDocumento td")
                 .filter("per.estado", PersonaEstadoEnum.ACT)
+                .in("me.codigo", Arrays.asList(EPG, PRE, VIS, ESP))
+                .beginBlock()
+                .__().complexFilter("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))", "like", nombre)
+                .__().complexFilter("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))", "like", nombre)
+                .__().filter("per.numeroDocIdentidad", "like", nombre)
+                .__().filter("alu.codigo", "like", nombre)
+                .endBlock()
+                .limit(15);
+        return sql.all(getCurrentSession());
+    }
+
+    @Override
+    public List<Alumno> allByNameFacultad(String nombre, Facultad facultad) {
+        nombre = "%" + nombre.replaceAll(" ", "%") + "%";
+        Octavia sql = Octavia.query()
+                .from(Alumno.class, "alu")
+                .join("persona per", "carrera car", "car.facultad fa", "modalidadEstudio me")
+                .leftJoin("per.tipoDocumento td")
+                .filter("per.estado", PersonaEstadoEnum.ACT)
+                .filter("fa.id", facultad)
+                .filter("me.codigo", PRE)
+                .beginBlock()
+                .__().complexFilter("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))", "like", nombre)
+                .__().complexFilter("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))", "like", nombre)
+                .__().filter("per.numeroDocIdentidad", "like", nombre)
+                .__().filter("alu.codigo", "like", nombre)
+                .endBlock()
+                .limit(15);
+        return sql.all(getCurrentSession());
+    }
+
+    @Override
+    public List<Alumno> allByNamePosgrado(String nombre) {
+        nombre = "%" + nombre.replaceAll(" ", "%") + "%";
+        Octavia sql = Octavia.query()
+                .from(Alumno.class, "alu")
+                .join("persona per", "carrera car", "car.facultad fa", "modalidadEstudio me")
+                .leftJoin("per.tipoDocumento td")
+                .filter("per.estado", PersonaEstadoEnum.ACT)
+                .filter("me.codigo", EPG)
                 .beginBlock()
                 .__().complexFilter("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))", "like", nombre)
                 .__().complexFilter("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))", "like", nombre)
@@ -985,6 +1025,17 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
                 .left("cicloIngreso", "cicloActivo", "postulantePregrado pp", "pp.modalidadIngreso mi")
                 .left("orientacionCarrera", "per.tipoDocumento")
                 .in("alu.id", alumnos);
+
+        return all(sql);
+    }
+
+    @Override
+    public List<Alumno> allByModalidadSituacionesNoAptas(ModalidadEstudioEnum modalidadEnum, List<String> situacionesNoAptas) {
+        Octavia sql = Octavia.query()
+                .from(Alumno.class, "alu")
+                .join("modalidadEstudio me", "carrera ca", "ca.facultad", "persona per", "situacionAcademica sa")
+                .notIn("sa.codigo", situacionesNoAptas)
+                .filter("me.codigo", modalidadEnum.name());
 
         return all(sql);
     }

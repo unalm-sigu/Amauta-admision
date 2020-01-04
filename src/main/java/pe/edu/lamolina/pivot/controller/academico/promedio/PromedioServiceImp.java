@@ -234,7 +234,7 @@ public class PromedioServiceImp implements PromedioService {
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public int promediarAllCicloSync(
-            Alumno alumni,
+            Alumno alumnix,
             CicloAcademico cicloActivo,
             Egresado egresado,
             List<CicloAcademico> ciclosAll,
@@ -246,7 +246,7 @@ public class PromedioServiceImp implements PromedioService {
             boolean throwError, boolean showError) {
 
         long t1 = System.currentTimeMillis();
-        Alumno alumno = alumni.clone();
+        Alumno alumno = alumnix.clone();
         CicloAcademico cicloIngreso = alumno.getCicloIngreso();
 
         try {
@@ -405,7 +405,7 @@ public class PromedioServiceImp implements PromedioService {
         }
         long t2 = System.currentTimeMillis();
         if (showError) {
-            logger.debug("Calculo de promedios de {} demoro {} mseg", alumni.getCodigo(), (t2 - t1));
+            logger.debug("Calculo de promedios de {} demoro {} mseg", alumno.getCodigo(), (t2 - t1));
         }
         return 1;
 
@@ -417,6 +417,7 @@ public class PromedioServiceImp implements PromedioService {
         if (ds.getFechaAccionAudit() == null) {
             ds.setFechaAccionAudit(new Date());
         }
+
         alumno = alumnoDAO.findAllInfo(alumno.getId());
         Egresado egresado = egresadoDAO.findPrincipalByAlumno(alumno);
         CicloAcademico cicloActivo = cicloAcademicoDAO.findActivo(alumno.getModalidadEstudio().getOperativeModalidadEnum());
@@ -575,6 +576,8 @@ public class PromedioServiceImp implements PromedioService {
                 cicloAnalizar = null;
             }
         }
+        alumno.setCiclosAlternosSinEstudiar(ciclosAlternosSinEstudiar);
+        alumno.setCiclosConsecutivosSinEstudiar(ciclosConsecutivosSinEstudiar);
     }
 
     private AlumnoCiclo getAlumnoCicloSgte(

@@ -434,7 +434,7 @@ public class AvanceCurricularServiceImp implements AvanceCurricularService {
                 planCurriculars,
                 mapCursoCurriculaAll,
                 mapRequisitoCursoOpcionals,
-                ds);
+                ds, true);
     }
 
     @Override
