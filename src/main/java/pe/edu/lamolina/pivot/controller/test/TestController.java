@@ -264,10 +264,10 @@ public class TestController {
 
     @ResponseBody
     @RequestMapping("revisarCurriculasCarrera/{codigo}")
-    public String revisarCurriculasCarrera(@PathVariable("codigo") String codigoCiclo, HttpSession session) {
-        logger.info("revisarCurriculas-carrera-{}", codigoCiclo);
+    public String revisarCurriculasCarrera(@PathVariable("codigo") String codigoCarrera, HttpSession session) {
+        logger.info("revisarCurriculas-carrera-{}", codigoCarrera);
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-        service.revisarCurriculasCarrera(codigoCiclo, ds);
+        service.revisarCurriculasCarrera(codigoCarrera, ds);
         return "yeah";
     }
 

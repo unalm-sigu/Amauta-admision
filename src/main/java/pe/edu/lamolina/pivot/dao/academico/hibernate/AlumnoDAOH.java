@@ -1049,9 +1049,9 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
     public List<Alumno> allByPlanCarrera(String codigoCarrera) {
         Octavia sql = Octavia.query()
                 .from(Alumno.class, "alu")
-                .join("modalidadEstudio me", "carrera ca", "ca.facultad", "persona per", "situacionAcademica sa")
-                .join("planCurricular pc", "pc.carrera ca")
-                .filter("ca.codigo", codigoCarrera);
+                .join("modalidadEstudio", "carrera ca", "ca.facultad", "persona", "situacionAcademica")
+                .join("planCurricular pc", "pc.carrera cap")
+                .filter("cap.codigo", codigoCarrera);
 
         return all(sql);
     }
