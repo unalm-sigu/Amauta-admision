@@ -258,7 +258,7 @@ public class TestController {
     public String revisarCurriculas(@PathVariable("codigo") String codigoCiclo, HttpSession session) {
         logger.info("revisarCurriculas-{}", codigoCiclo);
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-        service.revisarCurriculas(codigoCiclo, ds);
+        service.revisarCurriculasCiclo(codigoCiclo, ds);
         return "yeah";
     }
 

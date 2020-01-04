@@ -699,11 +699,18 @@ public class TestServiceImp implements TestService {
 
     @Async
     @Override
-    public void revisarCurriculas(String codigoCiclo, DataSessionPivot ds) {
+    public void revisarCurriculasCiclo(String codigoCiclo, DataSessionPivot ds) {
         CicloAcademico ciclo = cicloAcademicoDAO.findByCodigoCicloModalidadEnum(codigoCiclo, ModalidadEstudioEnum.PRE);
         List<MatriculaResumen> matriculables = matriculaResumenDAO.allByCiclo(ciclo);
         List<Alumno> alumnos = matriculables.stream().map(x -> x.getAlumno()).filter(x -> x.isPregrado()).collect(Collectors.toList());
 
+        avanceCurricularService.generarAvanceCurricularByAlumnosPregrados(alumnos, ds, null);
+    }
+
+    @Async
+    @Override
+    public void revisarCurriculasCarrera(String codigoCarrera, DataSessionPivot ds) {
+        List<Alumno> alumnos = alumnoDAO.allByPlanCarrera(codigoCarrera);
         avanceCurricularService.generarAvanceCurricularByAlumnosPregrados(alumnos, ds, null);
     }
 
