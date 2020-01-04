@@ -982,20 +982,12 @@ public class MatriculableServiceImp implements MatriculableService {
     public void generarVerano(CicloAcademico cicloAcademico, DataSessionPivot ds) {
         DateTime today = new DateTime();
 
-//        List<CicloAcademico> academicosAnterior = cicloAcademicoDAO.allAnteriorRegistroActivoPre(3, cicloAcademico);
-//        CicloAcademico academicoAnterior = academicosAnterior.get(2);
-//
-//        List<CicloAcademico> academicosAnteriorPos = cicloAcademicoDAO.allAnteriorRegistroActivoPos(3, cicloAcademico);
-//        CicloAcademico academicoAnteriorPos = academicosAnteriorPos.get(2);
         List<String> situacionesNoAptas
                 = Arrays.asList(
                         S_D.getValue(), S_4.getValue(), S_X.getValue(), S_XD.getValue(), S_4U.getValue(), S_E.getValue(),
                         S_7.getValue(), S_4T.getValue(), S_Q.getValue(), S_R.getValue(), S_8.getValue());
 
-//        matriculaResumenDAO.savePosGradoVerano(situacionesNoAptas, academicoAnteriorPos, cicloAcademico);
-//        matriculaResumenDAO.savePreGradoVerano(situacionesNoAptas, academicoAnterior, cicloAcademico);
         List<Alumno> alumnosPregrado = alumnoDAO.allByModalidadSituacionesNoAptas(ModalidadEstudioEnum.PRE, situacionesNoAptas);
-        //List<Alumno> alumnosPosgrado = alumnoDAO.allByModalidadSituacionesNoAptas(ModalidadEstudioEnum.PRE, situacionesNoAptas);
 
         List<MatriculaResumen> matriculables = new ArrayList();
         for (Alumno alumno : alumnosPregrado) {
