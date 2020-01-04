@@ -42,7 +42,7 @@ public class RestPivotServiceImp implements RestPivotService {
         System.out.println("LLEGARON " + tokenx.size() + " TOKENS");
         for (TokenIngresante token : tokenx) {
             System.out.println("token ::: " + token.getFechaVencimiento().toString());
-            if (token.getFechaVencimiento().after(hoy) && token.getOrigenEnum() == OrigenTokenEnum.INTRANET) {
+            if (token.getFechaVencimiento().after(hoy)) {
                 System.out.println("SI VA");
                 tkx.add(token);
             }

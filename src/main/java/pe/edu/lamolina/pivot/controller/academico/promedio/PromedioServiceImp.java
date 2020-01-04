@@ -413,7 +413,7 @@ public class PromedioServiceImp implements PromedioService {
 
     @Override
     @Transactional(readOnly = false)
-    public void calcularSituacionAcademica(Alumno alumno, DataSessionPivot ds) {
+    public void calcularSituacionAcademica(Alumno alumno, DataSessionPivot ds) { // USO COMO REST
         if (ds.getFechaAccionAudit() == null) {
             ds.setFechaAccionAudit(new Date());
         }
@@ -1431,7 +1431,7 @@ public class PromedioServiceImp implements PromedioService {
                     if (alumnoCiclo.getEstadoEnum() == NMAT && alumnoCiclo.getSituacionFinal().isDesertor()) {
                         return alumnoCiclo;
                     }
-                    if (alumnoCiclo.getEstadoEnum() == NMAT && Arrays.asList(S_8, S_9).contains(alumnoCiclo.getSituacionInicio().getCodigoEnum())) {
+                    if (alumnoCiclo.getEstadoEnum() == NMAT && alumnoCiclo.getSituacionInicio() != null && Arrays.asList(S_8, S_9).contains(alumnoCiclo.getSituacionInicio().getCodigoEnum())) {
                         return alumnoCiclo;
                     }
                     if (alumnoCiclo.getEstadoEnum() == NMAT && alumno.isPostgrado()) {
