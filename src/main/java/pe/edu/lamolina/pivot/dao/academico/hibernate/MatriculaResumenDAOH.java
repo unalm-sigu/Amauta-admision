@@ -5,8 +5,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import org.hibernate.Query;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaResumenDAO;
 import org.springframework.stereotype.Repository;
+import pe.albatross.octavia.Insecto;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
@@ -19,6 +22,7 @@ import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.TurnoAtencion;
 import pe.edu.lamolina.model.consejeria.AlumnoConsejero;
+import static pe.edu.lamolina.model.constantines.GlobalConstantine.CAPA_ULTIMO_CICLO;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.INH;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.MAT;
@@ -33,10 +37,11 @@ import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_8;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_9;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.pivot.controller.academico.alumno.AlumnoResumen;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 
 @Repository
 public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> implements MatriculaResumenDAO {
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public MatriculaResumenDAOH() {
         super();
@@ -55,7 +60,7 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
     }
 
     @Override
-    public List<MatriculaResumen> allByCiclo(CicloAcademico ciclo) {
+    public List<MatriculaResumen> allHabilesByCiclo(CicloAcademico ciclo) {
         Octavia sql = Octavia.query()
                 .from(MatriculaResumen.class, "mr")
                 .join("alumno alu", "cicloAcademico ca", "alu.modalidadEstudio me")
@@ -67,7 +72,7 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
     }
 
     @Override
-    public List<MatriculaResumen> allActivosByCiclo(CicloAcademico ciclo) {
+    public List<MatriculaResumen> allMatriculadosByCiclo(CicloAcademico ciclo) {
         Octavia sql = Octavia.query()
                 .from(MatriculaResumen.class, "mr")
                 .join("alumno alu", "cicloAcademico ca", "alu.modalidadEstudio me")
@@ -225,7 +230,7 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
 
         Query query = getCurrentSession().createQuery(strb.toString());
         query.setParameter("prm_turno", turnoAtencion.getId());
-        query.setParameter("prm_prioridad_ini", BigDecimal.valueOf(turnoAtencion.getPrioridadInicio()));
+        query.setParameter("prm_prioridad_ini", turnoAtencion.getPrioridadInicio());
         query.setParameter("prm_prioridad_fin", turnoAtencion.getPrioridadFin());
         query.setParameter("prm_ciclo", cicloAcademico.getId());
         query.executeUpdate();
@@ -255,8 +260,19 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
         Octavia sql = Octavia.query(MatriculaResumen.class, "mr")
                 .join("alumno alu", "cicloAcademico ca")
                 .in("alu.id", alumnos)
-                .filter("ca.id", ciclo);
-        return sql.all(getCurrentSession());
+                .filter("ca.codigo", ciclo.getCodigo());
+
+        return all(sql);
+    }
+
+    @Override
+    public List<MatriculaResumen> allByCiclo(CicloAcademico ciclo) {
+        Octavia sql = Octavia.query(MatriculaResumen.class, "mr")
+                .join("alumno alu", "cicloAcademico ca")
+                .leftJoin("situacionInicio", "alu.situacionAcademica")
+                .filter("ca.codigo", ciclo.getCodigo());
+
+        return all(sql);
     }
 
     @Override
@@ -334,7 +350,7 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
         strb.append("'0', ");
         strb.append("'0', ");
         strb.append("'NMAT', ");
-        strb.append("CASE WHEN alum.creditosAprobados  >= ").append(Constantine.CAPA_ULTIMO_CICLO);
+        strb.append("CASE WHEN alum.creditosAprobados  >= ").append(CAPA_ULTIMO_CICLO);
         strb.append(" THEN ").append(true).append(" ELSE ").append(false).append(" END, ");
         strb.append("0 ");
         strb.append("from Alumno as alum ");
@@ -350,21 +366,51 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
     }
 
     @Override
-    public MatriculaResumen findByAntPrioridad(MatriculaResumen matri, CicloAcademico cicloAcademico, Boolean esUltimoCiclo) {
+    public MatriculaResumen findByPuntajeMenor(MatriculaResumen matri, CicloAcademico cicloAcademico, Boolean esUltimoCiclo) {
         Octavia sql = new Octavia()
                 .from(MatriculaResumen.class, "mr")
                 .join("mr.cicloAcademico aca", "alumno alum")
-                .join("alum.situacionAcademica sit", "alum.modalidadEstudio mod");
-        if (esUltimoCiclo) {
-            sql.filter("alum.creditosAprobados", ">", Constantine.CAPA_ULTIMO_CICLO);
-        } else {
-            sql.filter("alum.creditosAprobados", "<", Constantine.CAPA_ULTIMO_CICLO);
-        }
-        sql.filter("aca.id", cicloAcademico)
-                .notIn("sit.id", Arrays.asList(S_8, S_9))
+                .join("alum.situacionAcademica sit", "alum.modalidadEstudio mod")
+                .filter("aca.id", cicloAcademico)
+                .isNotNull("mr.prioridad")
                 .filter("mr.puntajePrioridad", "<=", matri.getPuntajePrioridad())
                 .orderBy("mr.puntajePrioridad desc")
                 .limit(1);
+
+        if (esUltimoCiclo) {
+            sql.complexFilter("(alum.creditosAprobados + alum.creditosConvalidados)", ">=", CAPA_ULTIMO_CICLO);
+        } else {
+            sql.complexFilter("(alum.creditosAprobados + alum.creditosConvalidados)", "<", CAPA_ULTIMO_CICLO);
+        }
+
+        if (cicloAcademico.isTipoRegular()) {
+            sql.notIn("sit.codigo", Arrays.asList(S_8.getValue(), S_9.getValue()));
+        }
+
+        return find(sql);
+    }
+
+    @Override
+    public MatriculaResumen findByPuntajeMayor(MatriculaResumen matri, CicloAcademico cicloAcademico, Boolean esUltimoCiclo) {
+        Octavia sql = new Octavia()
+                .from(MatriculaResumen.class, "mr")
+                .join("mr.cicloAcademico aca", "alumno alum")
+                .join("alum.situacionAcademica sit", "alum.modalidadEstudio mod")
+                .filter("aca.id", cicloAcademico)
+                .isNotNull("mr.prioridad")
+                .filter("mr.puntajePrioridad", ">=", matri.getPuntajePrioridad())
+                .orderBy("mr.puntajePrioridad asc")
+                .limit(1);
+
+        if (esUltimoCiclo) {
+            sql.complexFilter("(alum.creditosAprobados + alum.creditosConvalidados)", ">=", CAPA_ULTIMO_CICLO);
+        } else {
+            sql.complexFilter("(alum.creditosAprobados + alum.creditosConvalidados)", "<", CAPA_ULTIMO_CICLO);
+        }
+
+        if (cicloAcademico.isTipoRegular()) {
+            sql.notIn("sit.codigo", Arrays.asList(S_8.getValue(), S_9.getValue()));
+        }
 
         return find(sql);
     }
@@ -376,9 +422,9 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
                 .join("mr.cicloAcademico aca", "alumno alum")
                 .join("alum.situacionAcademica sit", "alum.modalidadEstudio mod");
         if (esUltimoCiclo) {
-            sql.filter("alum.creditosCarreraAprobados", ">", Constantine.CAPA_ULTIMO_CICLO);
+            sql.filter("alum.creditosCarreraAprobados", ">", CAPA_ULTIMO_CICLO);
         } else {
-            sql.filter("alum.creditosCarreraAprobados", "<", Constantine.CAPA_ULTIMO_CICLO);
+            sql.filter("alum.creditosCarreraAprobados", "<", CAPA_ULTIMO_CICLO);
         }
         sql.filter("aca.id", cicloAcademico)
                 .notIn("sit.id", Arrays.asList(S_8, S_9))
@@ -390,21 +436,47 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
     }
 
     @Override
-    public MatriculaResumen findByDesPrioridad(MatriculaResumen matri, CicloAcademico cicloAcademico, Boolean esUltimoCiclo) {
+    public MatriculaResumen findMaxPrioridad(CicloAcademico cicloAcademico, boolean esUltimoCiclo) {
         Octavia sql = new Octavia()
                 .from(MatriculaResumen.class, "mr")
-                .join("mr.cicloAcademico aca", "alumno alum")
-                .join("alum.situacionAcademica sit", "alum.modalidadEstudio mod");
-        if (esUltimoCiclo) {
-            sql.filter("alum.creditosAprobados", ">", Constantine.CAPA_ULTIMO_CICLO);
-        } else {
-            sql.filter("alum.creditosAprobados", "<", Constantine.CAPA_ULTIMO_CICLO);
-        }
-        sql.filter("aca.id", cicloAcademico)
-                .notIn("sit.id", Arrays.asList(S_8, S_9))
-                .filter("mr.puntajePrioridad", ">=", matri.getPuntajePrioridad())
-                .orderBy("mr.puntajePrioridad asc")
+                .join("mr.cicloAcademico aca", "alumno alum", "alum.situacionAcademica sit")
+                .filter("aca.id", cicloAcademico)
+                .isNotNull("mr.puntajePrioridad")
+                .orderBy("mr.puntajePrioridad desc")
                 .limit(1);
+
+        if (esUltimoCiclo) {
+            sql.complexFilter("(alum.creditosAprobados + alum.creditosConvalidados)", ">=", CAPA_ULTIMO_CICLO);
+        } else {
+            sql.complexFilter("(alum.creditosAprobados + alum.creditosConvalidados)", "<", CAPA_ULTIMO_CICLO);
+        }
+
+        if (cicloAcademico.isTipoRegular()) {
+            sql.notIn("sit.codigo", Arrays.asList(S_8.getValue(), S_9.getValue()));
+        }
+
+        return find(sql);
+    }
+
+    @Override
+    public MatriculaResumen findMinPrioridad(CicloAcademico cicloAcademico, boolean esUltimoCiclo) {
+        Octavia sql = new Octavia()
+                .from(MatriculaResumen.class, "mr")
+                .join("mr.cicloAcademico aca", "alumno alum", "alum.situacionAcademica sit")
+                .filter("aca.id", cicloAcademico)
+                .isNotNull("mr.puntajePrioridad")
+                .orderBy("mr.puntajePrioridad")
+                .limit(1);
+
+        if (esUltimoCiclo) {
+            sql.complexFilter("(alum.creditosAprobados + alum.creditosConvalidados)", ">=", CAPA_ULTIMO_CICLO);
+        } else {
+            sql.complexFilter("(alum.creditosAprobados + alum.creditosConvalidados)", "<", CAPA_ULTIMO_CICLO);
+        }
+
+        if (cicloAcademico.isTipoRegular()) {
+            sql.notIn("sit.codigo", Arrays.asList(S_8.getValue(), S_9.getValue()));
+        }
 
         return find(sql);
     }
@@ -416,9 +488,9 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
                 .join("mr.cicloAcademico aca", "alumno alum")
                 .join("alum.situacionAcademica sit", "alum.modalidadEstudio mod");
         if (esUltimoCiclo) {
-            sql.filter("alum.creditosCarreraAprobados", ">", Constantine.CAPA_ULTIMO_CICLO);
+            sql.filter("alum.creditosCarreraAprobados", ">", CAPA_ULTIMO_CICLO);
         } else {
-            sql.filter("alum.creditosCarreraAprobados", "<", Constantine.CAPA_ULTIMO_CICLO);
+            sql.filter("alum.creditosCarreraAprobados", "<", CAPA_ULTIMO_CICLO);
         }
         sql.filter("aca.id", cicloAcademico)
                 .notIn("sit.id", Arrays.asList(S_8, S_9))
@@ -600,14 +672,13 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
     }
 
     @Override
-    public List<MatriculaResumen> allByCicloMATAndNMAT(CicloAcademico cicloBD) {
-
+    public List<MatriculaResumen> allMatriculablesByCiclo(CicloAcademico ciclo) {
         Octavia sql = Octavia.query()
                 .from(MatriculaResumen.class, "mr")
-                .join("alumno alu", "cicloAcademico ca", "alu.modalidadEstudio me")
-                .left("alu.cicloActivo aluca", "alu.situacionAcademica sa")
-                .filter("ca.id", cicloBD)
-                .in("estado", Arrays.asList(MAT, NMAT));
+                .join("alumno alu", "cicloAcademico ca", "alu.modalidadEstudio me", "alu.situacionAcademica sa")
+                .left("alu.cicloActivo", "alu.cicloActivoRegular")
+                .filter("ca.id", ciclo)
+                .in("mr.estado", Arrays.asList(MAT, NMAT));
 
         return all(sql);
     }
@@ -718,7 +789,7 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
                 .join("alumno alu", "cicloAcademico ca")
                 .left("turnoAtencion")
                 .filter("estado", "!=", INH)
-                .filter("alu.creditosCarreraAprobados", ">=", Constantine.CAPA_ULTIMO_CICLO)
+                .filter("alu.creditosCarreraAprobados", ">=", CAPA_ULTIMO_CICLO)
                 .filter("ca.id", academico);
 
         return all(sql);
@@ -742,6 +813,29 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
                 .in("car.id", carreras)
                 .in("mr.estado", Arrays.asList(estadoMatriculaEnum));
         return all(sql);
+    }
+
+    @Override
+    public int saveList(List<MatriculaResumen> matriculables) {
+        if (matriculables.isEmpty()) {
+            return 0;
+        }
+
+        long t1 = System.currentTimeMillis();
+        Insecto sql = Insecto.createInsert()
+                .into(MatriculaResumen.class)
+                .columns("estado", "cursosMatriculados", "cursosRetirados", "creditosMatriculados", "creditosRetirados",
+                        "creditosTrikaPagados", "creditosTrikaSeparados", "creditosPagados", "creditosConsumidos",
+                        "alumno", "cicloAcademico", "situacionInicio",
+                        "fechaRegistro", "userRegistro")
+                .values(matriculables);
+
+        Query query = getCurrentSession().createSQLQuery(sql.toString());
+        int rows = query.executeUpdate();
+
+        long t2 = System.currentTimeMillis();
+        logger.info("{} MatriculaResumen's insertados en {} mseg....", rows, (t2 - t1));
+        return rows;
     }
 
 }

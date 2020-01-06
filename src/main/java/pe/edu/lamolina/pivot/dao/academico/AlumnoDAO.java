@@ -61,6 +61,10 @@ public interface AlumnoDAO extends EasyDAO<Alumno> {
 
     List<Alumno> allByName(String nombre);
 
+    List<Alumno> allByNameFacultad(String nombre, Facultad facultad);
+
+    List<Alumno> allByNamePosgrado(String nombre);
+
     List<Alumno> allIngresantePregradoByCiclo(ModalidadEstudio modalidad, CicloAcademico cicloAcademico, List<Alumno> alumnoExclude);
 
     List<Alumno> allByNameModalidadEstudioCiclo(String nombre, ModalidadEstudio modalidad, CicloAcademico cicloAcademico);
@@ -89,7 +93,7 @@ public interface AlumnoDAO extends EasyDAO<Alumno> {
 
     List<Alumno> allByCarreraCicloMayores(Carrera carrera, String codigoCiclo);
 
-    List<Alumno> allByGpoSeccion(GrupoSeccion gpoSecc);
+    List<Alumno> allMatriculadosByGpoSeccion(GrupoSeccion gpoSecc);
 
     void updatePlanCurricular(Alumno alumno);
 
@@ -126,6 +130,10 @@ public interface AlumnoDAO extends EasyDAO<Alumno> {
     List<Alumno> allPendingPromedioByCicloYearAndModalidadEst(String year, ModalidadEstudioEnum modalidadEstudioEnum);
 
     List<Alumno> allInfoByAlumno(List<Alumno> alumnos);
+
+    List<Alumno> allByModalidadSituacionesNoAptas(ModalidadEstudioEnum modalidadEstudioEnum, List<String> situacionesNoAptas);
+
+    List<Alumno> allByPlanCarrera(String codigoCarrera);
 
     void updateColumns(Alumno alumno, String... columns);
 

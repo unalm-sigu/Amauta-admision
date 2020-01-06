@@ -27,6 +27,8 @@ public interface TestService {
 
     void trasladarMatriculaCursoForPromediosReview(DataSessionPivot ds, String codCiclo);
 
-    void revisarCurriculas(String codigoCiclo, DataSessionPivot ds);
+    void revisarCurriculasCiclo(String codigoCiclo, DataSessionPivot ds);
+
+    void revisarCurriculasCarrera(String codigoCarrera, DataSessionPivot ds);
 
 }

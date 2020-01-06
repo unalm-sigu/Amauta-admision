@@ -757,7 +757,7 @@ public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements Alu
     }
 
     @Override
-    public AlumnoCiclo findActivosRegularesByCicloResumen(CicloAcademico ciclo, Alumno alumno) {
+    public AlumnoCiclo findActivoRegularByCicloAlumno(CicloAcademico ciclo, Alumno alumno) {
         StringBuilder sql = new StringBuilder();
         sql.append(" select {ac.*},{a.*},{sa.*} ");
         sql.append("   from aca_alumno_ciclo as ac ");

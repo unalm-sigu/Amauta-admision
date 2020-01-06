@@ -6,6 +6,7 @@ import pe.albatross.octavia.easydao.EasyDAO;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.ConfiguracionTurnosAtencion;
 import pe.edu.lamolina.model.academico.TurnoAtencion;
+import pe.edu.lamolina.model.enums.EventoAcademicoEnum;
 
 public interface TurnoAtencionDAO extends EasyDAO<TurnoAtencion> {
 
@@ -17,5 +18,7 @@ public interface TurnoAtencionDAO extends EasyDAO<TurnoAtencion> {
 
     TurnoAtencion findLastByConfiguracion(ConfiguracionTurnosAtencion config);
 
-    TurnoAtencion findByPrioridad(BigDecimal prioridad, CicloAcademico ciclo);
+    TurnoAtencion findByPrioridad(BigDecimal prioridad, CicloAcademico ciclo, EventoAcademicoEnum eventoEnum);
+
+    List<TurnoAtencion> allByCicloEventoEnum(CicloAcademico ciclo, EventoAcademicoEnum eventoEnum);
 }

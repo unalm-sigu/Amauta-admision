@@ -258,7 +258,16 @@ public class TestController {
     public String revisarCurriculas(@PathVariable("codigo") String codigoCiclo, HttpSession session) {
         logger.info("revisarCurriculas-{}", codigoCiclo);
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-        service.revisarCurriculas(codigoCiclo, ds);
+        service.revisarCurriculasCiclo(codigoCiclo, ds);
+        return "yeah";
+    }
+
+    @ResponseBody
+    @RequestMapping("revisarCurriculasCarrera/{codigo}")
+    public String revisarCurriculasCarrera(@PathVariable("codigo") String codigoCarrera, HttpSession session) {
+        logger.info("revisarCurriculas-carrera-{}", codigoCarrera);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        service.revisarCurriculasCarrera(codigoCarrera, ds);
         return "yeah";
     }
 

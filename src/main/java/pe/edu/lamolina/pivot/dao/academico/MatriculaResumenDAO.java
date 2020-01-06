@@ -16,9 +16,9 @@ public interface MatriculaResumenDAO extends EasyDAO<MatriculaResumen> {
 
     MatriculaResumen findByAlumnoCiclo(Alumno alumno, CicloAcademico ciclo);
 
-    List<MatriculaResumen> allByCiclo(CicloAcademico ciclo);
+    List<MatriculaResumen> allHabilesByCiclo(CicloAcademico ciclo);
 
-    List<MatriculaResumen> allActivosByCiclo(CicloAcademico ciclo);
+    List<MatriculaResumen> allMatriculadosByCiclo(CicloAcademico ciclo);
 
     MatriculaResumen findByFilter(CicloAcademico ciclo, Alumno alumno, EstadoMatriculaEnum estadoMatriculaCursoEnum);
 
@@ -40,6 +40,8 @@ public interface MatriculaResumenDAO extends EasyDAO<MatriculaResumen> {
 
     List<MatriculaResumen> allByAlumnosCiclo(List<Alumno> alumnos, CicloAcademico ciclo);
 
+    List<MatriculaResumen> allByCiclo(CicloAcademico ciclo);
+
     List<MatriculaResumen> findNotasIncompletas(List<Alumno> alumnos, CicloAcademico cicloAcademico);
 
     void updateList(List<Long> matriculables);
@@ -48,9 +50,13 @@ public interface MatriculaResumenDAO extends EasyDAO<MatriculaResumen> {
 
     void saveMatriculables(List<Long> alumnos, CicloAcademico cicloAcademico);
 
-    MatriculaResumen findByAntPrioridad(MatriculaResumen matri, CicloAcademico cicloAcademico, Boolean esUltimoCiclo);
+    MatriculaResumen findByPuntajeMenor(MatriculaResumen matri, CicloAcademico cicloAcademico, Boolean esUltimoCiclo);
 
-    MatriculaResumen findByDesPrioridad(MatriculaResumen matri, CicloAcademico cicloAcademico, Boolean esUltimoCiclo);
+    MatriculaResumen findByPuntajeMayor(MatriculaResumen matri, CicloAcademico cicloAcademico, Boolean esUltimoCiclo);
+
+    MatriculaResumen findMaxPrioridad(CicloAcademico cicloActivo, boolean esUltimoCiclo);
+
+    MatriculaResumen findMinPrioridad(CicloAcademico cicloActivo, boolean esUltimoCiclo);
 
     void savePosGradoVerano(List<String> situacionesPregrado, CicloAcademico cicloAcademicoAnterior, CicloAcademico cicloAcademico);
 
@@ -64,7 +70,7 @@ public interface MatriculaResumenDAO extends EasyDAO<MatriculaResumen> {
 
     Long countRetiroCicloByConsejero(Persona persona, CicloAcademico cicloAcademico);
 
-    List<MatriculaResumen> allByCicloMATAndNMAT(CicloAcademico cicloBD);
+    List<MatriculaResumen> allMatriculablesByCiclo(CicloAcademico cicloBD);
 
     List<MatriculaResumen> allByCicloMat(CicloAcademico ciclo);
 
@@ -78,18 +84,20 @@ public interface MatriculaResumenDAO extends EasyDAO<MatriculaResumen> {
 
     List<MatriculaResumen> allByCiclos(List<CicloAcademico> ciclos);
 
-    public List<MatriculaResumen> allByAlumnoCiclos(Alumno alumno, List<CicloAcademico> ciclos);
+    List<MatriculaResumen> allByAlumnoCiclos(Alumno alumno, List<CicloAcademico> ciclos);
 
-    public List<MatriculaResumen> allUltimosCiclosMatriculables(CicloAcademico academico);
+    List<MatriculaResumen> allUltimosCiclosMatriculables(CicloAcademico academico);
 
     MatriculaResumen findByDesPrioridadTemp(MatriculaResumen matri, CicloAcademico cicloAcademico, Boolean esUltimoCiclo);
 
     MatriculaResumen findByAntPrioridadTemp(MatriculaResumen matri, CicloAcademico cicloAcademico, Boolean esUltimoCiclo);
 
-    public MatriculaResumen findByCodigoCiclo(String codigo, CicloAcademico cicloAcademico);
+    MatriculaResumen findByCodigoCiclo(String codigo, CicloAcademico cicloAcademico);
 
-    public MatriculaResumen findFull(MatriculaResumen matriculaResumen);
+    MatriculaResumen findFull(MatriculaResumen matriculaResumen);
 
     List<MatriculaResumen> allByCicloAndCarrera(CicloAcademico cicloAcademico, List<Carrera> carreras, EstadoMatriculaEnum... estadoMatriculaEnum);
+
+    int saveList(List<MatriculaResumen> matriculables);
 
 }

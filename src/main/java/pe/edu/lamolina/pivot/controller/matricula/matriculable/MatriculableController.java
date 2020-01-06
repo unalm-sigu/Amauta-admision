@@ -268,8 +268,6 @@ public class MatriculableController {
         JsonResponse response = new JsonResponse();
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-
-            //service.revisarSituacionesAcademicas(ds.getCicloAcademico(), ds);
             service.generarPrioridad(ds.getCicloAcademico());
             response.setMessage("Prioridad generadas correctamente");
             response.setSuccess(true);
@@ -576,8 +574,8 @@ public class MatriculableController {
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
-        return response;
 
+        return response;
     }
 
     @ResponseBody
@@ -857,14 +855,36 @@ public class MatriculableController {
             List<AptoPreBean> listAptoPreBean = service.allAptosPregrado(ds.getCicloAcademico(), tipoReporte);
             model.addAttribute("listAptoPreBean", listAptoPreBean);
             model.addAttribute("tipoReporte", tipoReporte);
+
         } catch (PhobosException e) {
             e.printStackTrace();
             logger.debug("*** PhobosException {}", e);
+
         } catch (Exception e) {
             e.printStackTrace();
             logger.debug("*** Exception {}", e);
         }
         return new ModelAndView(aptosPregradoView);
+    }
+
+    @ResponseBody
+    @RequestMapping("revisarPrioridad")
+    public JsonResponse revisarPrioridad(HttpSession session) {
+        JsonResponse json = new JsonResponse();
+
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            CicloAcademico ciclo = ds.getCicloAcademico();
+            service.revisarPrioridad(ciclo, ds);
+            json.setSuccess(Boolean.TRUE);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, json);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, json);
+        } finally {
+            return json;
+        }
     }
 
 }

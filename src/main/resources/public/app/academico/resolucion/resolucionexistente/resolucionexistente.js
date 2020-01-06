@@ -74,7 +74,7 @@ var app = new Vue({
                     url: APP.url("academico/resolucion/findAlumno"),
                     dataType: 'json',
                     type: 'post',
-                    data: {nombre: nombre, instanciaOficina: $vue.resolucion.oficina.instanciaOficina}
+                    data: {nombre: nombre, instanciaOficina: $vue.resolucion.oficina.id}
                 }).then(response => {
                     if (response.success) {
                         $vue.alumnos = response.data;

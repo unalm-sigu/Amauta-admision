@@ -177,8 +177,8 @@ public class TestServiceImp implements TestService {
 //        List<CicloAcademico> ciclos = cicloAcademicoDAO.allWithInitAndOrderBy(2019, "ca.codigo asc", CicloAcademicoEstadoEnum.CER, CicloAcademicoEstadoEnum.PEND);
 //        //   List<GrupoSeccion> gruposSeccionesByCiclo=gruposecc
 //        for (CicloAcademico cicloAcademico : ciclos) {
-//            List<MatriculaResumen> resumenesAll = matriculaResumenDAO.allActivosByCiclo(cicloAcademico);
-//            List<MatriculaCurso> cursosMatriculadosAll = matriculaCursoDAO.allActivosByCiclo(cicloAcademico);
+//            List<MatriculaResumen> resumenesAll = matriculaResumenDAO.allMatriculadosByCiclo(cicloAcademico);
+//            List<MatriculaCurso> cursosMatriculadosAll = matriculaCursoDAO.allMatriculadosByCiclo(cicloAcademico);
 //            List<Alumno> alumnos = resumenesAll.stream().map(x -> x.getAlumno()).collect(Collectors.toList());
 //            List<AlumnoCicloCurso> cursosLlevadosAll = alumnoCicloCursoDAO.allByAlumnos(alumnos);
 //
@@ -203,7 +203,7 @@ public class TestServiceImp implements TestService {
     public void trasladarMatriculaCursoForPromediosCiclo(DataSessionPivot ds, String codigo, Long modalidad) {
         CicloAcademico cicloAcademico = cicloAcademicoDAO.findByCodigoModalidadEstudio(codigo, new ModalidadEstudio(modalidad));
         //   List<GrupoSeccion> gruposSeccionesByCiclo=gruposecc
-        List<MatriculaResumen> resumenesAll = matriculaResumenDAO.allActivosByCiclo(cicloAcademico);
+        List<MatriculaResumen> resumenesAll = matriculaResumenDAO.allMatriculadosByCiclo(cicloAcademico);
         List<MatriculaCurso> cursosMatriculadosAll = matriculaCursoDAO.allActivosByCiclo(cicloAcademico);
         List<Alumno> alumnos = resumenesAll.stream().map(x -> x.getAlumno()).collect(Collectors.toList());
         List<AlumnoCicloCurso> cursosLlevadosAll = alumnoCicloCursoDAO.allByAlumnos(alumnos);
@@ -436,7 +436,7 @@ public class TestServiceImp implements TestService {
 //    public void calcularAllPromediosByCiclo(DataSessionPivot ds) {
 //        CicloAcademico ciclo = ds.getCicloAcademico();
 //
-//        List<MatriculaCurso> matriculasCurso = matriculaCursoDAO.allByCiclo(ciclo);
+//        List<MatriculaCurso> matriculasCurso = matriculaCursoDAO.allHabilesByCiclo(ciclo);
 //        logger.debug("Catidad de registros a procesar {}", matriculasCurso.size());
 //        for (MatriculaCurso matriculaCurso : matriculasCurso) {
 //            //   if (matriculaCurso.getMatriculaResumen().getAlumno().getId().compareTo(54234L) == 0) {
@@ -699,12 +699,19 @@ public class TestServiceImp implements TestService {
 
     @Async
     @Override
-    public void revisarCurriculas(String codigoCiclo, DataSessionPivot ds) {
+    public void revisarCurriculasCiclo(String codigoCiclo, DataSessionPivot ds) {
         CicloAcademico ciclo = cicloAcademicoDAO.findByCodigoCicloModalidadEnum(codigoCiclo, ModalidadEstudioEnum.PRE);
-        List<MatriculaResumen> matriculables = matriculaResumenDAO.allByCiclo(ciclo);
+        List<MatriculaResumen> matriculables = matriculaResumenDAO.allHabilesByCiclo(ciclo);
         List<Alumno> alumnos = matriculables.stream().map(x -> x.getAlumno()).filter(x -> x.isPregrado()).collect(Collectors.toList());
 
-        avanceCurricularService.generarAvanceCurricularByAlumnosPregrados(alumnos, ds);
+        avanceCurricularService.generarAvanceCurricularByAlumnosPregrados(alumnos, ds, null);
+    }
+
+    @Async
+    @Override
+    public void revisarCurriculasCarrera(String codigoCarrera, DataSessionPivot ds) {
+        List<Alumno> alumnos = alumnoDAO.allByPlanCarrera(codigoCarrera);
+        avanceCurricularService.generarAvanceCurricularByAlumnosPregrados(alumnos, ds, null);
     }
 
 }

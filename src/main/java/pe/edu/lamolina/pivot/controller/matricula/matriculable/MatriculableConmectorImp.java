@@ -16,6 +16,7 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Egresado;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
+import static pe.edu.lamolina.model.constantines.GlobalConstantine.CAPA_ULTIMO_CICLO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.pivot.dao.academico.CarreraDAO;
@@ -23,7 +24,6 @@ import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.EgresadoDAO;
 import pe.edu.lamolina.pivot.dao.academico.FacultadDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaResumenDAO;
-import static pe.edu.lamolina.pivot.zelper.constant.Constantine.CAPA_ULTIMO_CICLO;
 
 @Service
 @Transactional(readOnly = true)
@@ -53,7 +53,6 @@ public class MatriculableConmectorImp implements MatriculableConnector {
     EgresadoDAO egresadoDAO;
 
     @Override
-    @Transactional
     public MatriculaResumen procesarPrioridadAlumno(MatriculaResumen matriculaResumen, AlumnoCiclo alumnoCiclo) {
         BigDecimal capa = new BigDecimal(alumnoCiclo.getCreditosAprobadosAcumulados());
         BigDecimal cca = new BigDecimal(alumnoCiclo.getCreditosAcumulados());
@@ -61,6 +60,8 @@ public class MatriculableConmectorImp implements MatriculableConnector {
         BigDecimal ccs = new BigDecimal(alumnoCiclo.getCreditosCursadosCiclo());
         BigDecimal pps = alumnoCiclo.getPromedioCiclo();
 
+        // puntaje = pps * (capa*caps/[cca*ccs])
+        //
         if (alumnoCiclo.getCreditosAcumulados().compareTo(BigDecimal.ZERO.intValue()) == 0) {
             matriculaResumen.setPuntajePrioridad(BigDecimal.ZERO);
             matriculaResumen.setCreditosAprobadosAcumulados(0);
@@ -75,18 +76,20 @@ public class MatriculableConmectorImp implements MatriculableConnector {
         capa = capa.equals(BigDecimal.ZERO) ? new BigDecimal(0.004) : capa;
         pps = pps.equals(BigDecimal.ZERO) ? new BigDecimal(0.004) : pps;
 
-        BigDecimal factor1 = capa.multiply(caps).multiply(pps);// capa.divide(cca, 12, RoundingMode.HALF_UP);
-        BigDecimal factor2 = ccs.multiply(cca);//caps.divide(ccs, 12, RoundingMode.HALF_UP);
+        BigDecimal factor1 = capa.multiply(caps).multiply(pps);
+        BigDecimal factor2 = ccs.multiply(cca);
         factor2 = factor2.equals(BigDecimal.ZERO) ? BigDecimal.ONE : factor2;
 
-        BigDecimal puntajePrioridad = factor1.divide(factor2, 12, RoundingMode.HALF_UP);
+        BigDecimal puntajePrioridad = factor1.divide(factor2, 6, RoundingMode.FLOOR);
 
         matriculaResumen.setCreditosAprobadosAcumulados(alumnoCiclo.getCreditosAprobadosAcumulados());
         matriculaResumen.setCreditosAcumulados(alumnoCiclo.getCreditosAcumulados());
         matriculaResumen.setCreditosAprobadosCiclo(alumnoCiclo.getCreditosAprobadosCiclo());
         matriculaResumen.setCreditosCursadosCiclo(alumnoCiclo.getCreditosCursadosCiclo());
         matriculaResumen.setPromedioSemestral(pps);
-        if (matriculaResumen.getCreditosAprobadosAcumulados() >= CAPA_ULTIMO_CICLO) {
+
+        Alumno alumno = alumnoCiclo.getAlumno();
+        if (alumno.getCreditosAprobadosConvalidados() >= CAPA_ULTIMO_CICLO) {
             matriculaResumen.setEsUltimoCiclo(Boolean.TRUE);
         }
         matriculaResumen.setCicloAcademicoInfo(alumnoCiclo.getCicloAcademico());

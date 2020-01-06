@@ -11,26 +11,26 @@ import pe.edu.lamolina.model.tramite.Tramite;
 
 public interface RetiroCicloDAO extends EasyDAO<RetiroCiclo> {
 
-    public List<RetiroCiclo> allByCiclo(CicloAcademico cicloAcademico, DynatableFilter filter);
+    List<RetiroCiclo> allByCiclo(CicloAcademico cicloAcademico, DynatableFilter filter);
 
-    public RetiroCiclo findByAlumnoCicloRegistro(Alumno alumno, CicloAcademico ciclo);
+    RetiroCiclo findByAlumnoCicloRegistro(Alumno alumno, CicloAcademico ciclo);
 
-    public List<RetiroCiclo> allByCiclo(CicloAcademico ciclo);
+    List<RetiroCiclo> allByCiclo(CicloAcademico ciclo);
 
-    public List<RetiroCiclo> allAlumnosByCiclo(List<Long> alumnos, CicloAcademico ciclo);
+    List<RetiroCiclo> allAlumnosByCiclo(List<Alumno> alumnos, CicloAcademico ciclo);
 
-    public RetiroCiclo findByAlumnoCicloRetiro(Alumno alumno, CicloAcademico ciclo);
+    RetiroCiclo findByAlumnoCicloRetiro(Alumno alumno, CicloAcademico ciclo);
 
-    public List<RetiroCiclo> allByRetiroCiclo(Alumno alumno);
+    List<RetiroCiclo> allByRetiroCiclo(Alumno alumno);
 
-    public List<RetiroCiclo> allByResolucion(Resolucion resolucion);
+    List<RetiroCiclo> allByResolucion(Resolucion resolucion);
 
-    public List<RetiroCiclo> allByTramites(List<Tramite> tramites);
+    List<RetiroCiclo> allByTramites(List<Tramite> tramites);
 
-    public RetiroCiclo findByTramite(Tramite tramite);
+    RetiroCiclo findByTramite(Tramite tramite);
 
-    public List<RetiroCiclo> allInfo();
+    List<RetiroCiclo> allInfo();
 
-    public List<RetiroCiclo> allRetiroCicloByAlumno(Alumno alumno);
+    List<RetiroCiclo> allRetiroCicloByAlumno(Alumno alumno);
 
 }

@@ -163,7 +163,7 @@ public class MatricularServiceImp implements MatricularService {
         notify.setTotalCurso(cursosNoSim.size());
         notify.setTotalSeccion(seccions.size());
 
-        Collections.sort(resumenes, new MatriculaResumen.ComparePrioridad());
+        Collections.sort(resumenes, new MatriculaResumen.ComparePrioridadAsc());
         List<MatriculaResumen> listNoMatriculados = new ArrayList<>();
         List<MatriculaResumen> listMatriculados = new ArrayList<>();
         List<Alumno> alumnos = resumenes.stream().map(x -> x.getAlumno()).collect(Collectors.toList());
