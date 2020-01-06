@@ -28,6 +28,7 @@ import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.TurnoAtencion;
+import static pe.edu.lamolina.model.constantines.GlobalConstantine.CAPA_ULTIMO_CICLO;
 import pe.edu.lamolina.model.enums.CursoCurriculaEstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import pe.edu.lamolina.model.enums.EstadoTramiteEnum;
@@ -96,7 +97,6 @@ import pe.edu.lamolina.pivot.dao.tramite.TipoTramiteDAO;
 import pe.edu.lamolina.pivot.dao.tramite.TramiteDAO;
 import pe.edu.lamolina.pivot.dao.vacante.VacanteAlumnoDAO;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
-import static pe.edu.lamolina.pivot.zelper.constant.Constantine.CAPA_ULTIMO_CICLO;
 
 @Service
 @Transactional(readOnly = true)
@@ -461,7 +461,7 @@ public class TramiteCondicionalServiceImp implements TramiteCondicionalService {
                 matriculaResumen.setEsCondicional(true);
                 matriculaResumen.setFechaCondicional(new Date());
 
-                AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findActivosRegularesByCicloResumen(alumno.getCicloActivoRegular(), alumno);
+                AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findActivoRegularByCicloAlumno(alumno.getCicloActivoRegular(), alumno);
                 matriculaResumen = matriculableConector.procesarPrioridadAlumno(matriculaResumen, alumnoCiclo);
 
                 boolean esUltimoCiclo = alumno.getCreditosAprobadosConvalidados() > CAPA_ULTIMO_CICLO;
@@ -598,7 +598,7 @@ public class TramiteCondicionalServiceImp implements TramiteCondicionalService {
                 matriculaResumen.setEsCondicional(true);
                 matriculaResumen.setFechaCondicional(new Date());
 
-                AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findActivosRegularesByCicloResumen(alumno.getCicloActivoRegular(), alumno);
+                AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findActivoRegularByCicloAlumno(alumno.getCicloActivoRegular(), alumno);
                 matriculaResumen = matriculableConector.procesarPrioridadAlumno(matriculaResumen, alumnoCiclo);
 
                 MatriculaResumen matriculaAnt = matriculaResumenDAO.findByPuntajeMenor(matriculaResumen, ds.getCicloAcademico(), alumno.getCreditosAprobadosConvalidados() > CAPA_ULTIMO_CICLO ? true : false);

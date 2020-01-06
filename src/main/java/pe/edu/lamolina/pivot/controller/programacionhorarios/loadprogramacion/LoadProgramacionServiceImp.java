@@ -588,7 +588,7 @@ public class LoadProgramacionServiceImp implements LoadProgramacionService {
 
     private Map<String, MatriculaResumen> loadDataMatriculados(List<MatriculaSeccion> matriculasSecciones, Map<String, Seccion> mapSecciones, CicloAcademico ciclo, DataSessionPivot ds) {
 
-        List<MatriculaResumen> resumenesBD = matriculaResumenDAO.allByCiclo(ciclo);
+        List<MatriculaResumen> resumenesBD = matriculaResumenDAO.allHabilesByCiclo(ciclo);
         logger.debug("Vinieron {} matricula-resumen", resumenesBD.size());
         Map<String, MatriculaResumen> mapResumenes = TypesUtil.convertListToMap("alumno.codigo", resumenesBD);
         Map<String, MatriculaResumen> mapResumenesById = TypesUtil.convertListToMap("id", resumenesBD);

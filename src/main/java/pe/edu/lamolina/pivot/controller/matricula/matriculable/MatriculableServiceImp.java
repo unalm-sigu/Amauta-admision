@@ -52,10 +52,12 @@ import pe.edu.lamolina.model.academico.SituacionAcademica;
 import pe.edu.lamolina.model.academico.TurnoAtencion;
 import pe.edu.lamolina.model.aporte.AporteAlumnoCiclo;
 import pe.edu.lamolina.model.aporte.ResumenAporteAlumno;
+import static pe.edu.lamolina.model.constantines.GlobalConstantine.CAPA_ULTIMO_CICLO;
 import static pe.edu.lamolina.model.enums.DeudaEstadoEnum.DEU;
 import static pe.edu.lamolina.model.enums.DeudaEstadoEnum.PAG;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.INH;
+import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.MAT;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.NMAT;
 import pe.edu.lamolina.model.enums.EstadoTramiteEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
@@ -122,7 +124,6 @@ import pe.edu.lamolina.pivot.dao.tramite.CambioNotaDAO;
 import pe.edu.lamolina.pivot.dao.tramite.ReincorporacionDAO;
 import pe.edu.lamolina.pivot.dao.tramite.RetiroCicloDAO;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
-import static pe.edu.lamolina.pivot.zelper.constant.Constantine.CAPA_ULTIMO_CICLO;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service
@@ -313,7 +314,7 @@ public class MatriculableServiceImp implements MatriculableService {
 
         Map<Long, Alumno> mapMatriculable = new LinkedHashMap();
         Map<Long, Alumno> mapMatriculableExist = new LinkedHashMap();
-        List<MatriculaResumen> matriculaResumens = matriculaResumenDAO.allByCiclo(ciclo);
+        List<MatriculaResumen> matriculaResumens = matriculaResumenDAO.allHabilesByCiclo(ciclo);
         for (MatriculaResumen matriculaResumen : matriculaResumens) {
             mapMatriculableExist.put(matriculaResumen.getAlumno().getId(), matriculaResumen.getAlumno());
         }
@@ -408,7 +409,7 @@ public class MatriculableServiceImp implements MatriculableService {
         Map<Long, Alumno> mapMatriculableCondicional = new LinkedHashMap();
 
         Map<Long, Alumno> mapMatriculableExist = new LinkedHashMap();
-        List<MatriculaResumen> matriculaResumens = matriculaResumenDAO.allByCiclo(ciclo);
+        List<MatriculaResumen> matriculaResumens = matriculaResumenDAO.allHabilesByCiclo(ciclo);
         for (MatriculaResumen matriculaResumen : matriculaResumens) {
             mapMatriculable.remove(matriculaResumen.getAlumno().getId());
             mapMatriculableExist.put(matriculaResumen.getAlumno().getId(), matriculaResumen.getAlumno());
@@ -523,7 +524,7 @@ public class MatriculableServiceImp implements MatriculableService {
     @Override
     public void revisarSituacionesAcademicas(CicloAcademico ciclo, DataSessionPivot ds) {
         CicloAcademico cicloBD = cicloAcademicoDAO.find(ciclo.getId());
-        List<MatriculaResumen> matriculables = matriculaResumenDAO.allByCiclo(cicloBD);
+        List<MatriculaResumen> matriculables = matriculaResumenDAO.allHabilesByCiclo(cicloBD);
         List<Alumno> alumnos = matriculables.stream().map(x -> x.getAlumno()).collect(Collectors.toList());
         List<Egresado> egresados = egresadoDAO.allByAlumnos(alumnos);
         Map<Long, Egresado> mapEgresado = TypesUtil.convertListToMap("alumno.id", egresados);
@@ -536,14 +537,6 @@ public class MatriculableServiceImp implements MatriculableService {
             Egresado egresado = mapEgresado.get(matriculable.getAlumno().getId());
             promedioService.calulcarSituacionAcademicaNewSession(matriculable.getAlumno(), egresado, ds);
             loop++;
-            System.out.println("Se envio al matriculable " + loop + " de " + matriculables.size() + "");
-            System.out.println("Se envio al matriculable " + loop + " de " + matriculables.size() + "");
-            System.out.println("Se envio al matriculable " + loop + " de " + matriculables.size() + "");
-            System.out.println("Se envio al matriculable " + loop + " de " + matriculables.size() + "");
-            System.out.println("Se envio al matriculable " + loop + " de " + matriculables.size() + "");
-            System.out.println("Se envio al matriculable " + loop + " de " + matriculables.size() + "");
-            System.out.println("Se envio al matriculable " + loop + " de " + matriculables.size() + "");
-            System.out.println("Se envio al matriculable " + loop + " de " + matriculables.size() + "");
         }
     }
 
@@ -609,7 +602,7 @@ public class MatriculableServiceImp implements MatriculableService {
         List<MatriculaResumen> matriculablesConPuntaje = matriculables.stream()
                 .filter(x -> (x.getPuntajePrioridad() != null && x.getPrioridad() == null))
                 .collect(Collectors.toList());
-        Collections.sort(matriculablesConPuntaje, new MatriculaResumen.ComparePrioridadCapa());
+        Collections.sort(matriculablesConPuntaje, new MatriculaResumen.ComparePuntajeCapa());
 
         List<MatriculaResumen> matriculablesUltimoCiclo = matriculablesConPuntaje.stream()
                 .filter(x -> x.getAlumno().getCreditosAprobadosConvalidados() >= CAPA_ULTIMO_CICLO)
@@ -836,7 +829,7 @@ public class MatriculableServiceImp implements MatriculableService {
         cicloAcademicoDAO.updateFechaPrioridades(cicloBD);
 
         List<Long> ids = new ArrayList<>();
-        List<MatriculaResumen> matriculables = matriculaResumenDAO.allByCiclo(cicloBD);
+        List<MatriculaResumen> matriculables = matriculaResumenDAO.allHabilesByCiclo(cicloBD);
         for (MatriculaResumen matriculable : matriculables) {
             ids.add(matriculable.getId());
         }
@@ -929,7 +922,7 @@ public class MatriculableServiceImp implements MatriculableService {
                 alumnoCiclo = alumnoCicloDAO.findActivosRegularesByCiclo(alumnoCicloPenultimo.getCicloAcademico(), alumno);
 
             } else {
-                alumnoCiclo = alumnoCicloDAO.findActivosRegularesByCicloResumen(alumno.getCicloActivoRegular(), alumnoForm);
+                alumnoCiclo = alumnoCicloDAO.findActivoRegularByCicloAlumno(alumno.getCicloActivoRegular(), alumnoForm);
             }
 
             matri = matriculableConector.procesarPrioridadAlumno(matri, alumnoCiclo);
@@ -1009,30 +1002,56 @@ public class MatriculableServiceImp implements MatriculableService {
         cicloAcademicoDAO.updateFechaMatriculables(cicloAcademicoUpd);
     }
 
-    private void asignarPrioridad(Alumno alumno, CicloAcademico cicloActivo) {
+    private void asignarPrioridad(
+            Alumno alumno,
+            CicloAcademico cicloActivo,
+            List<MatriculaResumen> matriculables,
+            Map<Long, MatriculaResumen> mapMatriculable) {
+
         if (!alumno.isPregrado()) {
+            System.out.println("Alumno " + alumno.getCodigo() + " no es de pregrado");
+            return;
+        }
+
+        MatriculaResumen matriculable = mapMatriculable.get(alumno.getId());
+        if (matriculable == null) {
+            System.out.println("Alumno " + alumno.getCodigo() + " no es de matriculable");
+            return;
+        }
+
+        if (!Arrays.asList(NMAT, MAT).contains(matriculable.getEstadoEnum())) {
+            matriculable.setPrioridad(null);
+            matriculable.setTurnoAtencion(null);
+            matriculaResumenDAO.update(matriculable);
+            System.out.println("Alumno " + alumno.getCodigo() + " es un matriculable deshabilitado");
             return;
         }
 
         List<String> situacionesNoAptas = Arrays.asList(
-                S_D.getValue(), S_4.getValue(), S_X.getValue(), S_XD.getValue(), S_4U.getValue(), S_8.getValue(),
+                S_D.getValue(), S_4.getValue(), S_X.getValue(), S_XD.getValue(), S_8.getValue(),
                 S_7.getValue(), S_4T.getValue(), S_Q.getValue(), S_R.getValue(), S_E.getValue());
 
         if (cicloActivo.isTipoRegular()) {
             situacionesNoAptas = Arrays.asList(
-                    S_D.getValue(), S_4.getValue(), S_X.getValue(), S_XD.getValue(), S_4U.getValue(),
+                    S_D.getValue(), S_4.getValue(), S_X.getValue(), S_XD.getValue(),
                     S_7.getValue(), S_4T.getValue(), S_Q.getValue(), S_R.getValue(), S_E.getValue());
         }
 
         SituacionAcademica situacion = alumno.getSituacionAcademica();
         if (situacionesNoAptas.contains(situacion.getCodigo())) {
+            matriculable.setPrioridad(null);
+            matriculable.setTurnoAtencion(null);
+            matriculable.setEstadoEnum(INH);
+            matriculaResumenDAO.update(matriculable);
+            System.out.println("Alumno " + alumno.getCodigo() + " tiene una situacion-academica no apta");
             return;
         }
 
         AlumnoCiclo alumnoCiclo = null;
         if (alumno.getCicloActivoRegular() != null) {
-            alumnoCiclo = alumnoCicloDAO.findActivosRegularesByCicloResumen(alumno.getCicloActivoRegular(), alumno);
+            alumnoCiclo = alumnoCicloDAO.findActivoRegularByCicloAlumno(alumno.getCicloActivoRegular(), alumno);
         }
+
         if (alumnoCiclo == null) {
             alumnoCiclo = new AlumnoCiclo();
             alumnoCiclo.setCreditosAcumulados(0);
@@ -1043,44 +1062,248 @@ public class MatriculableServiceImp implements MatriculableService {
             alumnoCiclo.setPromedioCiclo(BigDecimal.ZERO);
         }
 
-        MatriculaResumen matriculaResumen = matriculaResumenDAO.findByAlumnoCiclo(alumno, cicloActivo);
-        matriculableConector.procesarPrioridadAlumno(matriculaResumen, alumnoCiclo);
-        if (matriculaResumen.getPuntajePrioridad() == null) {
-            matriculaResumen.setPuntajePrioridad(BigDecimal.ZERO);
+        matriculableConector.procesarPrioridadAlumno(matriculable, alumnoCiclo);
+        if (matriculable.getPuntajePrioridad() == null) {
+            matriculable.setPuntajePrioridad(BigDecimal.ZERO);
         }
-        System.out.println("alumno.codigo=" + alumno.getCodigo());
-        System.out.println("matriculaResumen.puntaje=" + matriculaResumen.getPuntajePrioridad());
 
-        boolean esUltimoCiclo = alumno.getCreditosAprobadosConvalidados() > CAPA_ULTIMO_CICLO;
-        MatriculaResumen mrPuntajeMenor = matriculaResumenDAO.findByPuntajeMenor(matriculaResumen, cicloActivo, esUltimoCiclo);
-        MatriculaResumen mrPuntajeMayor = matriculaResumenDAO.findByPuntajeMayor(matriculaResumen, cicloActivo, esUltimoCiclo);
+        boolean esUltimoCiclo = alumno.isPerteneceUltimoCiclo();
+        System.out.print("alumno.codigo=" + alumno.getCodigo());
+        System.out.print(" matriculaResumen.puntaje=" + matriculable.getPuntajePrioridad());
+        System.out.println(" esUltimoCiclo=" + esUltimoCiclo);
 
-        if (mrPuntajeMayor == null) {
-            mrPuntajeMayor = new MatriculaResumen();
-            mrPuntajeMayor.setPrioridad(BigDecimal.ZERO);
+        MatriculaResumen puntajeMenor = this.findMatriculableWithPuntajeMenor(matriculable, matriculables, esUltimoCiclo, cicloActivo);
+        MatriculaResumen puntajeMayor = this.findMatriculableWithPuntajeMayor(matriculable, matriculables, esUltimoCiclo, cicloActivo);
+        BigDecimal prioridad = null;
+
+        if (puntajeMayor == null) {
+            puntajeMayor = new MatriculaResumen();
+
+            if (esUltimoCiclo) {
+                puntajeMayor.setPrioridad(BigDecimal.ZERO);
+            } else {
+                MatriculaResumen prioridadMin = this.findMatriculableWithPrioridadMin(matriculables, esUltimoCiclo, cicloActivo);
+                puntajeMayor.setPrioridad(prioridadMin.getPrioridad());
+            }
         }
-        System.out.println("mrPuntajeMayor=" + mrPuntajeMayor);
-        System.out.println("mrPuntajeMayor.prioridad=" + mrPuntajeMayor.getPrioridad());
 
-        if (mrPuntajeMenor == null) {
-            MatriculaResumen matriculaMax = matriculaResumenDAO.findMaxPrioridad(cicloActivo);
-            mrPuntajeMenor = new MatriculaResumen();
-            mrPuntajeMenor.setPrioridad(matriculaMax.getPrioridad().add(BigDecimal.ONE));
+        if (puntajeMenor == null) {
+            puntajeMenor = new MatriculaResumen();
+
+            if (esUltimoCiclo) {
+                MatriculaResumen prioridadMin = this.findMatriculableWithPrioridadMin(matriculables, esUltimoCiclo, cicloActivo);
+                puntajeMenor.setPrioridad(prioridadMin.getPrioridad());
+            } else {
+                MatriculaResumen prioridadMax = this.findMatriculableWithPrioridadMax(matriculables, esUltimoCiclo, cicloActivo);
+                prioridad = prioridadMax.getPrioridad().add(BigDecimal.ONE);
+                puntajeMenor.setPrioridad(prioridad.add(BigDecimal.ONE));
+
+            }
+
         }
-        System.out.println("mrPuntajeMenor=" + mrPuntajeMenor);
-        System.out.println("mrPuntajeMenor.prioridad=" + mrPuntajeMenor.getPrioridad());
 
-        BigDecimal prioridad = mrPuntajeMenor.getPrioridad().add(mrPuntajeMayor.getPrioridad()).divide(new BigDecimal(2));
-        matriculaResumen.setPrioridad(prioridad);
+        if (prioridad == null) {
+            prioridad = puntajeMenor.getPrioridad().add(puntajeMayor.getPrioridad()).divide(new BigDecimal(2));
+        }
+
+        matriculable.setPrioridad(prioridad);
         if (cicloActivo.getFechaTurnosAsignados() != null) {
             TurnoAtencion turnosAtencion = turnoAtencionDAO.findByPrioridad(prioridad, cicloActivo);
             BigDecimal numPrioridad = turnosAtencion.getPrioridadFin().add(new BigDecimal("0.01"));
             turnosAtencion.setPrioridadFin(numPrioridad);
             turnoAtencionDAO.update(turnosAtencion);
 
-            matriculaResumen.setTurnoAtencion(turnosAtencion);
+            matriculable.setTurnoAtencion(turnosAtencion);
         }
-        matriculaResumenDAO.update(matriculaResumen);
+
+        System.out.print("mrPuntajeMayor.prioridad=" + puntajeMayor.getPrioridad());
+        System.out.print(" mrPuntajeMenor.prioridad=" + puntajeMenor.getPrioridad());
+        System.out.println(" matriculable.prioridad=" + matriculable.getPrioridad());
+        matriculaResumenDAO.update(matriculable);
+    }
+
+    private MatriculaResumen findMatriculableWithPrioridadMin(
+            List<MatriculaResumen> matriculables,
+            boolean esUltimoCiclo,
+            CicloAcademico cicloAcademico) {
+
+        Collections.sort(matriculables, new MatriculaResumen.ComparePrioridadAsc());
+        for (MatriculaResumen matriculable : matriculables) {
+            Alumno alumno = matriculable.getAlumno();
+            if (alumno.isPerteneceUltimoCiclo() && !esUltimoCiclo) {
+                continue;
+            }
+            if (!alumno.isPerteneceUltimoCiclo() && esUltimoCiclo) {
+                continue;
+            }
+            if (matriculable.getPrioridad() == null) {
+                continue;
+            }
+            if (cicloAcademico.isTipoRegular()) {
+                if (Arrays.asList(S_8.getValue(), S_9.getValue()).contains(alumno.getSituacionAcademica().getCodigo())) {
+                    continue;
+                }
+            }
+            return matriculable;
+        }
+        return null;
+    }
+
+    private MatriculaResumen findMatriculableWithPrioridadMax(
+            List<MatriculaResumen> matriculables,
+            boolean esUltimoCiclo,
+            CicloAcademico cicloAcademico) {
+
+        Collections.sort(matriculables, new MatriculaResumen.ComparePrioridadDesc());
+        for (MatriculaResumen matriculable : matriculables) {
+            Alumno alumno = matriculable.getAlumno();
+            if (alumno.isPerteneceUltimoCiclo() && !esUltimoCiclo) {
+                continue;
+            }
+            if (!alumno.isPerteneceUltimoCiclo() && esUltimoCiclo) {
+                continue;
+            }
+            if (matriculable.getPrioridad() == null) {
+                continue;
+            }
+            if (cicloAcademico.isTipoRegular()) {
+                if (Arrays.asList(S_8.getValue(), S_9.getValue()).contains(alumno.getSituacionAcademica().getCodigo())) {
+                    continue;
+                }
+            }
+            return matriculable;
+        }
+        return null;
+    }
+
+    private MatriculaResumen findMatriculableWithPuntajeMenor(
+            MatriculaResumen matriculableMain,
+            List<MatriculaResumen> matriculables,
+            boolean esUltimoCiclo,
+            CicloAcademico cicloAcademico) {
+
+        if (matriculableMain.getPuntajePrioridad() == null) {
+            return null;
+        }
+        Collections.sort(matriculables, new MatriculaResumen.ComparePuntajeDescPrioridadAsc());
+        Alumno alumnoMain = matriculableMain.getAlumno();
+
+        List<MatriculaResumen> matblesiguales = new ArrayList();
+        for (MatriculaResumen matriculable : matriculables) {
+            if (matriculableMain.getId() == matriculable.getId().longValue()) {
+                continue;
+            }
+
+            Alumno alumno = matriculable.getAlumno();
+            if (alumno.isPerteneceUltimoCiclo() && !esUltimoCiclo) {
+                continue;
+            }
+            if (!alumno.isPerteneceUltimoCiclo() && esUltimoCiclo) {
+                continue;
+            }
+            if (cicloAcademico.isTipoRegular()) {
+                if (Arrays.asList(S_8.getValue(), S_9.getValue()).contains(alumno.getSituacionAcademica().getCodigo())) {
+                    continue;
+                }
+            }
+            if (matriculable.getPuntajePrioridad() == null) {
+                continue;
+            }
+            if (matriculable.getPrioridad() != null && matriculableMain.getPuntajePrioridad() != null) {
+                if (matriculable.getPuntajePrioridad().compareTo(matriculableMain.getPuntajePrioridad()) == 0) {
+                    matblesiguales.add(matriculable);
+                    continue;
+                }
+                if (!matblesiguales.isEmpty()) {
+                    break;
+                }
+                if (matriculable.getPuntajePrioridad().compareTo(matriculableMain.getPuntajePrioridad()) < 0) {
+                    return matriculable;
+                }
+            }
+        }
+        if (matblesiguales.isEmpty()) {
+            return null;
+        }
+        if (matblesiguales.size() == 1) {
+            return matblesiguales.get(0);
+        }
+
+        Collections.sort(matblesiguales, new MatriculaResumen.CompareCapaAsc());
+        for (MatriculaResumen matriculable : matblesiguales) {
+            Alumno alumno = matriculable.getAlumno();
+            if (alumnoMain.getCreditosAprobadosConvalidados().compareTo(alumno.getCreditosAprobadosConvalidados()) <= 0) {
+                return matriculable;
+            }
+        }
+
+        return matblesiguales.get(matblesiguales.size() - 1);
+
+    }
+
+    private MatriculaResumen findMatriculableWithPuntajeMayor(
+            MatriculaResumen matriculableMain,
+            List<MatriculaResumen> matriculables,
+            boolean esUltimoCiclo,
+            CicloAcademico cicloAcademico) {
+
+        if (matriculableMain.getPuntajePrioridad() == null) {
+            return null;
+        }
+        Collections.sort(matriculables, new MatriculaResumen.ComparePuntajeAscPrioridadDesc());
+        Alumno alumnoMain = matriculableMain.getAlumno();
+
+        List<MatriculaResumen> matblesiguales = new ArrayList();
+        for (MatriculaResumen matriculable : matriculables) {
+            if (matriculableMain.getId() == matriculable.getId().longValue()) {
+                continue;
+            }
+
+            Alumno alumno = matriculable.getAlumno();
+            if (alumno.isPerteneceUltimoCiclo() && !esUltimoCiclo) {
+                continue;
+            }
+            if (!alumno.isPerteneceUltimoCiclo() && esUltimoCiclo) {
+                continue;
+            }
+            if (cicloAcademico.isTipoRegular()) {
+                if (Arrays.asList(S_8.getValue(), S_9.getValue()).contains(alumno.getSituacionAcademica().getCodigo())) {
+                    continue;
+                }
+            }
+            if (matriculable.getPuntajePrioridad() == null) {
+                continue;
+            }
+            if (matriculable.getPrioridad() != null && matriculableMain.getPuntajePrioridad() != null) {
+                if (matriculable.getPuntajePrioridad().compareTo(matriculableMain.getPuntajePrioridad()) == 0) {
+                    matblesiguales.add(matriculable);
+                    continue;
+                }
+                if (!matblesiguales.isEmpty()) {
+                    break;
+                }
+                if (matriculable.getPuntajePrioridad().compareTo(matriculableMain.getPuntajePrioridad()) > 0) {
+                    return matriculable;
+                }
+            }
+        }
+        if (matblesiguales.isEmpty()) {
+            return null;
+        }
+        if (matblesiguales.size() == 1) {
+            return matblesiguales.get(0);
+        }
+
+        Collections.sort(matblesiguales, new MatriculaResumen.CompareCapaDesc());
+        for (MatriculaResumen matriculable : matblesiguales) {
+            Alumno alumno = matriculable.getAlumno();
+            if (alumnoMain.getCreditosAprobadosConvalidados().compareTo(alumno.getCreditosAprobadosConvalidados()) >= 0) {
+                return matriculable;
+            }
+        }
+
+        return matblesiguales.get(matblesiguales.size() - 1);
+
     }
 
     @Override
@@ -1114,9 +1337,12 @@ public class MatriculableServiceImp implements MatriculableService {
         List<Alumno> alumnos = alumnoDAO.allMatriculadosByGpoSeccion(gpoSecc);
         CicloAcademico cicloSgte = cicloAcademicoDAO.findSiguienteConfOrAct(ciclo);
 
+        List<MatriculaResumen> matriculables = matriculaResumenDAO.allByCiclo(cicloSgte);
+        Map<Long, MatriculaResumen> mapMatriculable = TypesUtil.convertListToMap("alumno.id", matriculables);
+
         if (cicloSgte.getFechaPrioridades() != null) {
             for (Alumno alumno : alumnos) {
-                asignarPrioridad(alumno, cicloSgte);
+                asignarPrioridad(alumno, cicloSgte, matriculables, mapMatriculable);
             }
         }
     }
@@ -1138,39 +1364,51 @@ public class MatriculableServiceImp implements MatriculableService {
                     S_7.getValue(), S_4T.getValue(), S_Q.getValue(), S_R.getValue(), S_E.getValue());
         }
 
-        if (cicloActivo.getFechaMatriculables() != null) {
-            List<MatriculaResumen> matriculables = matriculaResumenDAO.allByAlumnosCiclo(alumnos, cicloActivo);
-            Map<Long, MatriculaResumen> mapMatriculable = TypesUtil.convertListToMap("alumno.id", matriculables);
+        List<MatriculaResumen> matriculables = matriculaResumenDAO.allByCiclo(cicloActivo);
+        Map<Long, MatriculaResumen> mapMatriculable = TypesUtil.convertListToMap("alumno.id", matriculables);
 
+        if (cicloActivo.getFechaMatriculables() != null) {
             for (Alumno alumno : alumnos) {
-                MatriculaResumen matrble = mapMatriculable.get(alumno.getId());
+                MatriculaResumen matriculable = mapMatriculable.get(alumno.getId());
                 if (situacionesNoAptas.contains(alumno.getSituacionAcademica().getCodigo())) {
-                    if (matrble != null && matrble.getEstadoEnum() == NMAT) {
-                        matrble.setEstadoEnum(INH);
-                        matriculaResumenDAO.update(matrble);
+                    if (matriculable != null && Arrays.asList(NMAT, MAT).contains(matriculable.getEstadoEnum())) {
+                        matriculable.setEstadoEnum(INH);
+                        matriculaResumenDAO.update(matriculable);
                     }
                 } else {
-                    if (matrble != null && matrble.getEstadoEnum() != NMAT) {
-                        matrble.setEstadoEnum(NMAT);
-                        matriculaResumenDAO.update(matrble);
+                    if (matriculable != null && !Arrays.asList(NMAT, MAT).contains(matriculable.getEstadoEnum())) {
+                        matriculable.setEstadoEnum(NMAT);
+                        matriculaResumenDAO.update(matriculable);
 
-                    } else if (matrble == null && alumno.isPregrado()) {
-                        matrble = new MatriculaResumen();
-                        matrble.setAlumno(alumno);
-                        matrble.setCicloAcademico(cicloActivo);
-                        matrble.setSituacionInicio(alumno.getSituacionAcademica());
-                        matrble.settingValoresDefecto();
-                        matrble.setCreditosPagados(0);
-                        matrble.setCreditosConsumidos(0);
-                        matriculaResumenDAO.save(matrble);
+                    } else if (matriculable == null && alumno.isPregrado()) {
+                        matriculable = new MatriculaResumen();
+                        matriculable.setAlumno(alumno);
+                        matriculable.setCicloAcademico(cicloActivo);
+                        matriculable.setSituacionInicio(alumno.getSituacionAcademica());
+                        matriculable.settingValoresDefecto();
+                        matriculable.setCreditosPagados(0);
+                        matriculable.setCreditosConsumidos(0);
+                        matriculaResumenDAO.save(matriculable);
+
+                        matriculables.add(matriculable);
+                        mapMatriculable.put(alumno.getId(), matriculable);
                     }
                 }
             }
         }
 
         if (cicloActivo.getFechaPrioridades() != null) {
+            System.out.println("Puntajes ::::::");
             for (Alumno alumno : alumnos) {
-                asignarPrioridad(alumno, cicloActivo);
+                MatriculaResumen matriculable = mapMatriculable.get(alumno.getId());
+                if (matriculable == null) {
+                    continue;
+                }
+                System.out.println("alumno=" + alumno.getCodigo() + " - matriculable.puntaje=" + ObjectUtil.getParentTree(matriculable, "puntajePrioridad"));
+            }
+            System.out.println("FIN :::: Puntajes ::::::");
+            for (Alumno alumno : alumnos) {
+                asignarPrioridad(alumno, cicloActivo, matriculables, mapMatriculable);
             }
         }
     }
@@ -1293,7 +1531,6 @@ public class MatriculableServiceImp implements MatriculableService {
                 BigDecimal prioridad = matriculaAnt.getPrioridad().add(matriculaDes.getPrioridad()).divide(new BigDecimal(2));
                 BigDecimal bigDecimal = new BigDecimal(0.5);
                 if (matriculaResumen.getPrioridad().compareTo(prioridad) <= 0 || matriculaResumen.getPrioridad().subtract(BigDecimal.ONE).compareTo(bigDecimal) == 0) {
-                    System.out.println("No menviene");
                     continue;
                 }
                 matriculaResumen.setPrioridad(prioridad);

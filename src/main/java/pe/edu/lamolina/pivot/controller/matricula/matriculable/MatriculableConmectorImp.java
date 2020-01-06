@@ -16,6 +16,7 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Egresado;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
+import static pe.edu.lamolina.model.constantines.GlobalConstantine.CAPA_ULTIMO_CICLO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.pivot.dao.academico.CarreraDAO;
@@ -23,7 +24,6 @@ import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.EgresadoDAO;
 import pe.edu.lamolina.pivot.dao.academico.FacultadDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaResumenDAO;
-import static pe.edu.lamolina.pivot.zelper.constant.Constantine.CAPA_ULTIMO_CICLO;
 
 @Service
 @Transactional(readOnly = true)
@@ -81,7 +81,7 @@ public class MatriculableConmectorImp implements MatriculableConnector {
         BigDecimal factor2 = ccs.multiply(cca);
         factor2 = factor2.equals(BigDecimal.ZERO) ? BigDecimal.ONE : factor2;
 
-        BigDecimal puntajePrioridad = factor1.divide(factor2, 12, RoundingMode.HALF_UP);
+        BigDecimal puntajePrioridad = factor1.divide(factor2, 6, RoundingMode.HALF_DOWN);
 
         matriculaResumen.setCreditosAprobadosAcumulados(alumnoCiclo.getCreditosAprobadosAcumulados());
         matriculaResumen.setCreditosAcumulados(alumnoCiclo.getCreditosAcumulados());
