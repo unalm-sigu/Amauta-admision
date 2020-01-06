@@ -1270,7 +1270,8 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
     @Override
     @Transactional
     public void generarAvanceCurricular(PlanCurricular plan, DataSessionPivot ds) {
-        avanceCurricularService.generarAvanceCurricularByPlanCurricular(plan, ds);
+        List<Alumno> alumnos = alumnoDAO.allByPlanCurricular(plan);
+        avanceCurricularService.generarAvanceCurricularByAlumnosPregrados(alumnos, ds, null);
     }
 
     @Override
