@@ -62,6 +62,8 @@ public interface MatriculableService {
 
     void recalcularPrioridad(GrupoSeccion gpoSecc);
 
+    void revisarPrioridad(CicloAcademico ciclo, DataSessionPivot ds);
+
     void inhabilitarMatriculable(MatriculaResumen matriculaResumen, DataSessionPivot ds);
 
     void verificarAlumnosNmat(DataSessionPivot ds, List<AlumnoCiclo> alumnoCiclos);

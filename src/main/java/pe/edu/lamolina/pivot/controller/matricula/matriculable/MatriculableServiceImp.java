@@ -60,6 +60,9 @@ import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.INH;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.MAT;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.NMAT;
 import pe.edu.lamolina.model.enums.EstadoTramiteEnum;
+import pe.edu.lamolina.model.enums.EventoAcademicoEnum;
+import static pe.edu.lamolina.model.enums.EventoAcademicoEnum.MAT_REG;
+import static pe.edu.lamolina.model.enums.EventoAcademicoEnum.MAT_VER;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.EPG;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.ESP;
@@ -111,6 +114,7 @@ import pe.edu.lamolina.pivot.dao.academico.CarreraDAO;
 import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.ConfiguracionTurnosAtencionDAO;
 import pe.edu.lamolina.pivot.dao.academico.EgresadoDAO;
+import pe.edu.lamolina.pivot.dao.academico.EventoCicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.FacultadDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaResumenDAO;
 import pe.edu.lamolina.pivot.dao.academico.ModalidadEstudioDAO;
@@ -207,6 +211,9 @@ public class MatriculableServiceImp implements MatriculableService {
 
     @Autowired
     AcreenciaDAO acreenciaDAO;
+
+    @Autowired
+    EventoCicloAcademicoDAO eventoCicloAcademicoDAO;
 
     @Override
     public AlumnoResumen allResumenAlumnosByCicloRol(CicloAcademico cicloAcademico, String codigo, List<Long> filtros) {
@@ -932,10 +939,14 @@ public class MatriculableServiceImp implements MatriculableService {
             MatriculaResumen matriculaDes = matriculaResumenDAO.findByPuntajeMayor(matri, ciclo, esUltimoCiclo);
             if (matriculaAnt != null && matriculaDes != null) {
 
-                BigDecimal prioridad = matriculaAnt.getPrioridad().add(matriculaDes.getPrioridad()).divide(new BigDecimal(2));
+                BigDecimal prioridad = matriculaAnt.getPrioridad().add(matriculaDes.getPrioridad()).divide(new BigDecimal(2), 4, RoundingMode.FLOOR);
                 matri.setPrioridad(prioridad);
                 if (ciclo.getFechaTurnosAsignados() != null) {
-                    TurnoAtencion turnosAtencion = turnoAtencionDAO.findByPrioridad(prioridad, ciclo);
+                    EventoAcademicoEnum eventoEnum = MAT_REG;
+                    if (ciclo.isTipoRegular()) {
+                        eventoEnum = MAT_VER;
+                    }
+                    TurnoAtencion turnosAtencion = turnoAtencionDAO.findByPrioridad(prioridad, ciclo, eventoEnum);
                     BigDecimal numPrioridad = turnosAtencion.getPrioridadFin().add(new BigDecimal("0.01"));
                     Integer cantAlum = turnosAtencion.getAlumnos() + 1;
                     turnosAtencion.setAlumnos(cantAlum);
@@ -1006,7 +1017,9 @@ public class MatriculableServiceImp implements MatriculableService {
             Alumno alumno,
             CicloAcademico cicloActivo,
             List<MatriculaResumen> matriculables,
-            Map<Long, MatriculaResumen> mapMatriculable) {
+            Map<Long, MatriculaResumen> mapMatriculable,
+            List<TurnoAtencion> turnosAtenciones,
+            Map<Long, AlumnoCiclo> mapAlumnoCiclo) {
 
         if (!alumno.isPregrado()) {
             System.out.println("Alumno " + alumno.getCodigo() + " no es de pregrado");
@@ -1022,7 +1035,6 @@ public class MatriculableServiceImp implements MatriculableService {
         if (!Arrays.asList(NMAT, MAT).contains(matriculable.getEstadoEnum())) {
             matriculable.setPrioridad(null);
             matriculable.setTurnoAtencion(null);
-            matriculaResumenDAO.update(matriculable);
             System.out.println("Alumno " + alumno.getCodigo() + " es un matriculable deshabilitado");
             return;
         }
@@ -1047,11 +1059,7 @@ public class MatriculableServiceImp implements MatriculableService {
             return;
         }
 
-        AlumnoCiclo alumnoCiclo = null;
-        if (alumno.getCicloActivoRegular() != null) {
-            alumnoCiclo = alumnoCicloDAO.findActivoRegularByCicloAlumno(alumno.getCicloActivoRegular(), alumno);
-        }
-
+        AlumnoCiclo alumnoCiclo = mapAlumnoCiclo.get(alumno.getId());
         if (alumnoCiclo == null) {
             alumnoCiclo = new AlumnoCiclo();
             alumnoCiclo.setCreditosAcumulados(0);
@@ -1069,11 +1077,11 @@ public class MatriculableServiceImp implements MatriculableService {
 
         boolean esUltimoCiclo = alumno.isPerteneceUltimoCiclo();
         System.out.print("alumno.codigo=" + alumno.getCodigo());
-        System.out.print(" matriculaResumen.puntaje=" + matriculable.getPuntajePrioridad());
-        System.out.println(" esUltimoCiclo=" + esUltimoCiclo);
+        System.out.print("\tmatriculaResumen.puntaje=" + matriculable.getPuntajePrioridad());
+        System.out.println("\tesUltimoCiclo=" + esUltimoCiclo);
 
         MatriculaResumen puntajeMenor = this.findMatriculableWithPuntajeMenor(matriculable, matriculables, esUltimoCiclo, cicloActivo);
-        MatriculaResumen puntajeMayor = this.findMatriculableWithPuntajeMayor(matriculable, matriculables, esUltimoCiclo, cicloActivo);
+        MatriculaResumen puntajeMayor = this.findMatriculableWithPuntajeMayor(matriculable, matriculables, esUltimoCiclo);
         BigDecimal prioridad = null;
 
         if (puntajeMayor == null) {
@@ -1103,23 +1111,43 @@ public class MatriculableServiceImp implements MatriculableService {
         }
 
         if (prioridad == null) {
-            prioridad = puntajeMenor.getPrioridad().add(puntajeMayor.getPrioridad()).divide(new BigDecimal(2));
+            prioridad = puntajeMenor.getPrioridad().add(puntajeMayor.getPrioridad()).divide(new BigDecimal(2), 4, RoundingMode.FLOOR);
         }
 
         matriculable.setPrioridad(prioridad);
-        if (cicloActivo.getFechaTurnosAsignados() != null) {
-            TurnoAtencion turnosAtencion = turnoAtencionDAO.findByPrioridad(prioridad, cicloActivo);
-            BigDecimal numPrioridad = turnosAtencion.getPrioridadFin().add(new BigDecimal("0.01"));
-            turnosAtencion.setPrioridadFin(numPrioridad);
-            turnoAtencionDAO.update(turnosAtencion);
+        System.out.println("prioridad=" + prioridad);
 
-            matriculable.setTurnoAtencion(turnosAtencion);
+        if (cicloActivo.getFechaTurnosAsignados() != null) {
+            TurnoAtencion turnoAtencion = findTurnoByPrioridad(prioridad, turnosAtenciones);
+            if (turnoAtencion == null) {
+                if (prioridad.subtract(BigDecimal.ONE).compareTo(BigDecimal.ZERO) < 0) {
+                    BigDecimal prioridadNew = prioridad.add(BigDecimal.ONE);
+                    turnoAtencion = findTurnoByPrioridad(prioridadNew, turnosAtenciones);
+                    turnoAtencion.setPrioridadInicio(prioridad);
+
+                } else {
+                    BigDecimal prioridadNew = prioridad.subtract(BigDecimal.ONE);
+                    turnoAtencion = findTurnoByPrioridad(prioridadNew, turnosAtenciones);
+                    turnoAtencion.setPrioridadFin(prioridad);
+                }
+            }
+
+            matriculable.setTurnoAtencion(turnoAtencion);
         }
 
-        System.out.print("mrPuntajeMayor.prioridad=" + puntajeMayor.getPrioridad());
-        System.out.print(" mrPuntajeMenor.prioridad=" + puntajeMenor.getPrioridad());
-        System.out.println(" matriculable.prioridad=" + matriculable.getPrioridad());
-        matriculaResumenDAO.update(matriculable);
+        System.out.print("PuntajeMayor.prioridad=" + puntajeMayor.getPrioridad());
+        System.out.print("\tPuntajeMenor.prioridad=" + puntajeMenor.getPrioridad());
+        System.out.println("\tMatriculable.prioridad=" + matriculable.getPrioridad());
+    }
+
+    private TurnoAtencion findTurnoByPrioridad(BigDecimal prioridad, List<TurnoAtencion> turnos) {
+        for (TurnoAtencion turno : turnos) {
+            if (turno.getPrioridadInicio().compareTo(prioridad) <= 0
+                    && turno.getPrioridadFin().compareTo(prioridad) >= 0) {
+                return turno;
+            }
+        }
+        return null;
     }
 
     private MatriculaResumen findMatriculableWithPrioridadMin(
@@ -1130,6 +1158,9 @@ public class MatriculableServiceImp implements MatriculableService {
         Collections.sort(matriculables, new MatriculaResumen.ComparePrioridadAsc());
         for (MatriculaResumen matriculable : matriculables) {
             Alumno alumno = matriculable.getAlumno();
+            if (!alumno.isPregrado()) {
+                continue;
+            }
             if (alumno.isPerteneceUltimoCiclo() && !esUltimoCiclo) {
                 continue;
             }
@@ -1157,6 +1188,9 @@ public class MatriculableServiceImp implements MatriculableService {
         Collections.sort(matriculables, new MatriculaResumen.ComparePrioridadDesc());
         for (MatriculaResumen matriculable : matriculables) {
             Alumno alumno = matriculable.getAlumno();
+            if (!alumno.isPregrado()) {
+                continue;
+            }
             if (alumno.isPerteneceUltimoCiclo() && !esUltimoCiclo) {
                 continue;
             }
@@ -1195,6 +1229,9 @@ public class MatriculableServiceImp implements MatriculableService {
             }
 
             Alumno alumno = matriculable.getAlumno();
+            if (!alumno.isPregrado()) {
+                continue;
+            }
             if (alumno.isPerteneceUltimoCiclo() && !esUltimoCiclo) {
                 continue;
             }
@@ -1244,8 +1281,7 @@ public class MatriculableServiceImp implements MatriculableService {
     private MatriculaResumen findMatriculableWithPuntajeMayor(
             MatriculaResumen matriculableMain,
             List<MatriculaResumen> matriculables,
-            boolean esUltimoCiclo,
-            CicloAcademico cicloAcademico) {
+            boolean esUltimoCiclo) {
 
         if (matriculableMain.getPuntajePrioridad() == null) {
             return null;
@@ -1260,17 +1296,20 @@ public class MatriculableServiceImp implements MatriculableService {
             }
 
             Alumno alumno = matriculable.getAlumno();
+            if (!alumno.isPregrado()) {
+                continue;
+            }
             if (alumno.isPerteneceUltimoCiclo() && !esUltimoCiclo) {
                 continue;
             }
             if (!alumno.isPerteneceUltimoCiclo() && esUltimoCiclo) {
                 continue;
             }
-            if (cicloAcademico.isTipoRegular()) {
-                if (Arrays.asList(S_8.getValue(), S_9.getValue()).contains(alumno.getSituacionAcademica().getCodigo())) {
-                    continue;
-                }
+            //if (cicloAcademico.isTipoRegular()) {
+            if (Arrays.asList(S_8.getValue(), S_9.getValue()).contains(alumno.getSituacionAcademica().getCodigo())) {
+                continue;
             }
+            //}
             if (matriculable.getPuntajePrioridad() == null) {
                 continue;
             }
@@ -1340,11 +1379,24 @@ public class MatriculableServiceImp implements MatriculableService {
         List<MatriculaResumen> matriculables = matriculaResumenDAO.allByCiclo(cicloSgte);
         Map<Long, MatriculaResumen> mapMatriculable = TypesUtil.convertListToMap("alumno.id", matriculables);
 
+        List<AlumnoCiclo> alumnosCiclos = alumnoCicloDAO.allActivosRegularesByCicloResumen(cicloSgte);
+        Map<Long, AlumnoCiclo> mapAlumnoCiclo = TypesUtil.convertListToMap("alumno.id", alumnosCiclos);
+
         if (cicloSgte.getFechaPrioridades() != null) {
+            EventoAcademicoEnum eventoEnum = cicloSgte.isTipoRegular() ? MAT_REG : MAT_VER;
+            List<TurnoAtencion> turnos = turnoAtencionDAO.allByCicloEventoEnum(cicloSgte, eventoEnum);
+
             for (Alumno alumno : alumnos) {
-                asignarPrioridad(alumno, cicloSgte, matriculables, mapMatriculable);
+                asignarPrioridad(alumno, cicloSgte, matriculables, mapMatriculable, turnos, mapAlumnoCiclo);
+            }
+            for (MatriculaResumen matriculable : matriculables) {
+                matriculaResumenDAO.update(matriculable);
+            }
+            for (TurnoAtencion turno : turnos) {
+                turnoAtencionDAO.update(turno);
             }
         }
+
     }
 
     @Async
@@ -1398,19 +1450,52 @@ public class MatriculableServiceImp implements MatriculableService {
         }
 
         if (cicloActivo.getFechaPrioridades() != null) {
-            System.out.println("Puntajes ::::::");
+            EventoAcademicoEnum eventoEnum = cicloActivo.isTipoRegular() ? MAT_REG : MAT_VER;
+            List<TurnoAtencion> turnos = turnoAtencionDAO.allByCicloEventoEnum(cicloActivo, eventoEnum);
+
+            List<AlumnoCiclo> alumnosCiclos = alumnoCicloDAO.allActivosRegularesByCicloResumen(cicloActivo);
+            Map<Long, AlumnoCiclo> mapAlumnoCiclo = TypesUtil.convertListToMap("alumno.id", alumnosCiclos);
+
             for (Alumno alumno : alumnos) {
-                MatriculaResumen matriculable = mapMatriculable.get(alumno.getId());
-                if (matriculable == null) {
-                    continue;
-                }
-                System.out.println("alumno=" + alumno.getCodigo() + " - matriculable.puntaje=" + ObjectUtil.getParentTree(matriculable, "puntajePrioridad"));
+                asignarPrioridad(alumno, cicloActivo, matriculables, mapMatriculable, turnos, mapAlumnoCiclo);
             }
-            System.out.println("FIN :::: Puntajes ::::::");
-            for (Alumno alumno : alumnos) {
-                asignarPrioridad(alumno, cicloActivo, matriculables, mapMatriculable);
+            for (MatriculaResumen matriculable : matriculables) {
+                matriculaResumenDAO.update(matriculable);
+            }
+            for (TurnoAtencion turno : turnos) {
+                turnoAtencionDAO.update(turno);
             }
         }
+    }
+
+    @Async
+    @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void revisarPrioridad(CicloAcademico cicloForm, DataSessionPivot ds) {
+        CicloAcademico cicloActivo = cicloAcademicoDAO.find(cicloForm.getId());
+        List<MatriculaResumen> matriculables = matriculaResumenDAO.allByCiclo(cicloActivo);
+        Map<Long, MatriculaResumen> mapMatriculable = TypesUtil.convertListToMap("alumno.id", matriculables);
+        Collections.sort(matriculables, new MatriculaResumen.ComparePrioridadAsc());
+        List<Alumno> alumnos = matriculables.stream().map(x -> x.getAlumno()).collect(Collectors.toList());
+
+        List<AlumnoCiclo> alumnosCiclos = alumnoCicloDAO.allActivosRegularesByCicloResumen(cicloActivo);
+        Map<Long, AlumnoCiclo> mapAlumnoCiclo = TypesUtil.convertListToMap("alumno.id", alumnosCiclos);
+
+        if (cicloActivo.getFechaPrioridades() != null) {
+            EventoAcademicoEnum eventoEnum = cicloActivo.isTipoRegular() ? MAT_REG : MAT_VER;
+            List<TurnoAtencion> turnos = turnoAtencionDAO.allByCicloEventoEnum(cicloActivo, eventoEnum);
+
+            for (Alumno alumno : alumnos) {
+                asignarPrioridad(alumno, cicloActivo, matriculables, mapMatriculable, turnos, mapAlumnoCiclo);
+            }
+            for (MatriculaResumen matriculable : matriculables) {
+                matriculaResumenDAO.update(matriculable);
+            }
+            for (TurnoAtencion turno : turnos) {
+                turnoAtencionDAO.update(turno);
+            }
+        }
+
     }
 
     @Async
@@ -1516,7 +1601,8 @@ public class MatriculableServiceImp implements MatriculableService {
     @Override
     @Transactional
     public void actualizarPrioridadCero(DataSessionPivot ds) {
-        List<MatriculaResumen> matriculable = matriculaResumenDAO.allUltimosCiclosMatriculables(ds.getCicloAcademico());
+        CicloAcademico ciclo = ds.getCicloAcademico();
+        List<MatriculaResumen> matriculable = matriculaResumenDAO.allUltimosCiclosMatriculables(ciclo);
         List<Alumno> alumnos = matriculable.stream().map(x -> x.getAlumno()).collect(Collectors.toList());
         List<AlumnoCiclo> alumnoCiclos = alumnoCicloDAO.allByAlumnosReg(alumnos);
         Map<Long, List<AlumnoCiclo>> map = TypesUtil.convertListToMapList("alumno.id", alumnoCiclos);
@@ -1524,18 +1610,19 @@ public class MatriculableServiceImp implements MatriculableService {
             List<AlumnoCiclo> alumnoCiclo = map.get(matriculaResumen.getAlumno().getId());
             matriculaResumen = matriculableConector.procesarPrioridadAlumno(matriculaResumen, alumnoCiclo.get(0));
 
-            MatriculaResumen matriculaAnt = matriculaResumenDAO.findByAntPrioridadTemp(matriculaResumen, ds.getCicloAcademico(), (matriculaResumen.getAlumno().getCreditosCarreraAprobados() > CAPA_ULTIMO_CICLO));
-            MatriculaResumen matriculaDes = matriculaResumenDAO.findByDesPrioridadTemp(matriculaResumen, ds.getCicloAcademico(), (matriculaResumen.getAlumno().getCreditosCarreraAprobados() > CAPA_ULTIMO_CICLO));
+            MatriculaResumen matriculaAnt = matriculaResumenDAO.findByAntPrioridadTemp(matriculaResumen, ciclo, (matriculaResumen.getAlumno().getCreditosCarreraAprobados() > CAPA_ULTIMO_CICLO));
+            MatriculaResumen matriculaDes = matriculaResumenDAO.findByDesPrioridadTemp(matriculaResumen, ciclo, (matriculaResumen.getAlumno().getCreditosCarreraAprobados() > CAPA_ULTIMO_CICLO));
             if (matriculaAnt != null && matriculaDes != null) {
 
-                BigDecimal prioridad = matriculaAnt.getPrioridad().add(matriculaDes.getPrioridad()).divide(new BigDecimal(2));
+                BigDecimal prioridad = matriculaAnt.getPrioridad().add(matriculaDes.getPrioridad()).divide(new BigDecimal(2), 4, RoundingMode.FLOOR);
                 BigDecimal bigDecimal = new BigDecimal(0.5);
                 if (matriculaResumen.getPrioridad().compareTo(prioridad) <= 0 || matriculaResumen.getPrioridad().subtract(BigDecimal.ONE).compareTo(bigDecimal) == 0) {
                     continue;
                 }
                 matriculaResumen.setPrioridad(prioridad);
 
-                TurnoAtencion turnosAtencion = turnoAtencionDAO.findByPrioridad(prioridad, ds.getCicloAcademico());
+                EventoAcademicoEnum eventoEnum = ciclo.isTipoRegular() ? MAT_REG : MAT_VER;
+                TurnoAtencion turnosAtencion = turnoAtencionDAO.findByPrioridad(prioridad, ciclo, eventoEnum);
                 if (matriculaResumen.getTurnoAtencion() != null && Objects.equals(matriculaResumen.getTurnoAtencion().getId(), matriculaResumen.getId())) {
                     continue;
                 }

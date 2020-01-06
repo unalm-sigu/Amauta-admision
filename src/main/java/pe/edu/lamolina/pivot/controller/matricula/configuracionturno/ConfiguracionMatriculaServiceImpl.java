@@ -73,7 +73,7 @@ public class ConfiguracionMatriculaServiceImpl implements ConfiguracionMatricula
                 turno.setTurno(nroTurno);
                 turno.setConfiguracionTurnosAtencion(config);
 
-                turno.setPrioridadInicio(prioridad);
+                turno.setPrioridadInicio(new BigDecimal(prioridad));
                 prioridad += config.getAlumnos() - 1;
                 turno.setPrioridadFin(new BigDecimal(prioridad));
 
@@ -105,14 +105,14 @@ public class ConfiguracionMatriculaServiceImpl implements ConfiguracionMatricula
     public ConfiguracionTurnosAtencion updateTurnos(Long id, String value) {
         TurnoAtencion objTurno = turnoAtencionDAO.findById(id);
         objTurno.setAlumnos(Integer.parseInt(value));
-        objTurno.setPrioridadFin(new BigDecimal(objTurno.getPrioridadInicio() + Integer.parseInt(value) - 1));
+        objTurno.setPrioridadFin(new BigDecimal(objTurno.getPrioridadInicio().intValue() + Integer.parseInt(value) - 1));
         turnoAtencionDAO.update(objTurno);
 
         List<TurnoAtencion> lstTurno = turnoAtencionDAO.allByIdTurno(objTurno.getConfiguracionTurnosAtencion(), objTurno.getId());
-        Integer inicial = objTurno.getPrioridadInicio() + Integer.parseInt(value);
+        Integer inicial = objTurno.getPrioridadInicio().intValue() + Integer.parseInt(value);
         for (TurnoAtencion turnoAtencion : lstTurno) {
             Integer fin = (inicial + turnoAtencion.getAlumnos());
-            turnoAtencion.setPrioridadInicio(inicial);
+            turnoAtencion.setPrioridadInicio(new BigDecimal(inicial));
             turnoAtencion.setPrioridadFin(new BigDecimal(fin - 1));
             turnoAtencionDAO.update(turnoAtencion);
             inicial = fin;

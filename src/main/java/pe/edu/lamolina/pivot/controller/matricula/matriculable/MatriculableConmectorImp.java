@@ -53,7 +53,6 @@ public class MatriculableConmectorImp implements MatriculableConnector {
     EgresadoDAO egresadoDAO;
 
     @Override
-    @Transactional
     public MatriculaResumen procesarPrioridadAlumno(MatriculaResumen matriculaResumen, AlumnoCiclo alumnoCiclo) {
         BigDecimal capa = new BigDecimal(alumnoCiclo.getCreditosAprobadosAcumulados());
         BigDecimal cca = new BigDecimal(alumnoCiclo.getCreditosAcumulados());
@@ -81,7 +80,7 @@ public class MatriculableConmectorImp implements MatriculableConnector {
         BigDecimal factor2 = ccs.multiply(cca);
         factor2 = factor2.equals(BigDecimal.ZERO) ? BigDecimal.ONE : factor2;
 
-        BigDecimal puntajePrioridad = factor1.divide(factor2, 6, RoundingMode.HALF_DOWN);
+        BigDecimal puntajePrioridad = factor1.divide(factor2, 6, RoundingMode.FLOOR);
 
         matriculaResumen.setCreditosAprobadosAcumulados(alumnoCiclo.getCreditosAprobadosAcumulados());
         matriculaResumen.setCreditosAcumulados(alumnoCiclo.getCreditosAcumulados());

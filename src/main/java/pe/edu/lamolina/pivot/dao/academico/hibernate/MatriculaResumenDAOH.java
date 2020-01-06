@@ -230,7 +230,7 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
 
         Query query = getCurrentSession().createQuery(strb.toString());
         query.setParameter("prm_turno", turnoAtencion.getId());
-        query.setParameter("prm_prioridad_ini", BigDecimal.valueOf(turnoAtencion.getPrioridadInicio()));
+        query.setParameter("prm_prioridad_ini", turnoAtencion.getPrioridadInicio());
         query.setParameter("prm_prioridad_fin", turnoAtencion.getPrioridadFin());
         query.setParameter("prm_ciclo", cicloAcademico.getId());
         query.executeUpdate();
