@@ -116,4 +116,6 @@ public interface CicloAcademicoDAO extends EasyDAO<CicloAcademico> {
 
     void updateColumns(CicloAcademico ciclo, String... columns);
 
+    public List<CicloAcademico> allAnterioresRegistroActivoPre(int i, CicloAcademico cicloAcademico);
+
 }
