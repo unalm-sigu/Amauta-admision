@@ -944,9 +944,10 @@ public class MatriculableServiceImp implements MatriculableService {
                 matri.setPrioridad(prioridad);
                 if (ciclo.getFechaTurnosAsignados() != null) {
                     EventoAcademicoEnum eventoEnum = MAT_REG;
-                    if (ciclo.isTipoRegular()) {
+                    if (!ciclo.isTipoRegular()) {
                         eventoEnum = MAT_VER;
                     }
+                    System.out.print("PRIORIDAAADD ----- "+prioridad);
                     TurnoAtencion turnosAtencion = turnoAtencionDAO.findByPrioridad(prioridad, ciclo, eventoEnum);
                     BigDecimal numPrioridad = turnosAtencion.getPrioridadFin().add(new BigDecimal("0.01"));
                     Integer cantAlum = turnosAtencion.getAlumnos() + 1;
