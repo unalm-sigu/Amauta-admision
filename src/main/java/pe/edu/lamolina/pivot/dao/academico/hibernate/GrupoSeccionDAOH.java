@@ -668,10 +668,8 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
         query.setParameter("TIPO_SEC_DIF", TipoSeccionEnum.PCUR.name());
         query.setParameterList("GRUPOS", gruposIds);
 
-        String listString = gruposIds.stream().map(Object::toString)
-                .collect(Collectors.joining(", "));
-
-        logger.debug("Grupos Ids {}", listString);
+        //String listString = gruposIds.stream().map(Object::toString).collect(Collectors.joining(", "));
+        // logger.debug("Grupos Ids {}", listString);
 
         List<Object[]> result = query.list();
 
