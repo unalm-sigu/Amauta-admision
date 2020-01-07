@@ -1645,17 +1645,22 @@ public class PromedioServiceImp implements PromedioService {
         alumnoCiclo.setPuntajeAcumulado(BigDecimal.ZERO.intValue());
 
         for (AlumnoCicloCurso cursoAluCicloEach : alumnosCicloCursoActual) {
+            Curso curso = cursoAluCicloEach.getCurso();
             if (!cursoAluCicloEach.getNota().equals("TE")) {
-                alumnoCiclo.setCreditosCursadosCiclo(alumnoCiclo.getCreditosCursadosCiclo() + cursoAluCicloEach.getCreditos());
-                alumnoCiclo.setCursosInscritos(alumnoCiclo.getCursosInscritos() + 1);
-                alumnoCiclo.setCreditosAcumulados(alumnoCiclo.getCreditosAcumulados() + cursoAluCicloEach.getCreditos());
+                if (esCursoPonderable(curso, alumno)) {
+                    alumnoCiclo.setCreditosCursadosCiclo(alumnoCiclo.getCreditosCursadosCiclo() + cursoAluCicloEach.getCreditos());
+                    alumnoCiclo.setCursosInscritos(alumnoCiclo.getCursosInscritos() + 1);
+                    alumnoCiclo.setCreditosAcumulados(alumnoCiclo.getCreditosAcumulados() + cursoAluCicloEach.getCreditos());
+                }
             }
             if (cursoAluCicloEach.getIsEstadoMatriculado()) {
                 alumnoCiclo.setEstadoEnum(EstadoMatriculaEnum.MAT);
             }
             if (cursoAluCicloEach.getNota().equals("TE")) {
-                alumnoCiclo.setCreditosConvalidados(alumnoCiclo.getCreditosConvalidados() + cursoAluCicloEach.getCreditos());
-                alumnoCiclo.setCreditosConvalidadosAcumulados(alumnoCiclo.getCreditosConvalidadosAcumulados() + cursoAluCicloEach.getCreditos());
+                if (esCursoPonderable(curso, alumno)) {
+                    alumnoCiclo.setCreditosConvalidados(alumnoCiclo.getCreditosConvalidados() + cursoAluCicloEach.getCreditos());
+                    alumnoCiclo.setCreditosConvalidadosAcumulados(alumnoCiclo.getCreditosConvalidadosAcumulados() + cursoAluCicloEach.getCreditos());
+                }
             }
 
             List<AlumnoCicloCurso> vecesLlevado = alumnosCicloCursoAnteriores.stream().filter(
@@ -1680,9 +1685,11 @@ public class PromedioServiceImp implements PromedioService {
             }
 
             if (cursoAluCicloEach.isAprobado() && !cursoAluCicloEach.getNota().equals("TE")) {
-                alumnoCiclo.setCreditosAprobadosCiclo(alumnoCiclo.getCreditosAprobadosCiclo() + cursoAluCicloEach.getCreditos());
-                alumnoCiclo.setCursosAprobados(alumnoCiclo.getCursosAprobados() + 1);
-                alumnoCiclo.setCreditosAprobadosAcumulados(alumnoCiclo.getCreditosAprobadosAcumulados() + cursoAluCicloEach.getCreditos());
+                if (esCursoPonderable(curso, alumno)) {
+                    alumnoCiclo.setCreditosAprobadosCiclo(alumnoCiclo.getCreditosAprobadosCiclo() + cursoAluCicloEach.getCreditos());
+                    alumnoCiclo.setCursosAprobados(alumnoCiclo.getCursosAprobados() + 1);
+                    alumnoCiclo.setCreditosAprobadosAcumulados(alumnoCiclo.getCreditosAprobadosAcumulados() + cursoAluCicloEach.getCreditos());
+                }
             }
 
             if (cursoAluCicloEach.isAprobado()) {
@@ -1691,12 +1698,13 @@ public class PromedioServiceImp implements PromedioService {
 
             BigDecimal notaBig = TypesUtil.getBigDecimal(cursoAluCicloEach.getNota());
             BigDecimal creditosBig = TypesUtil.getBigDecimal(cursoAluCicloEach.getCreditos());
-            if (notaBig != null) {
+            if (notaBig != null && esCursoPonderable(curso, alumno)) {
                 sumNotasCreditos = sumNotasCreditos.add(notaBig.multiply(creditosBig));
                 sumCreditos = sumCreditos.add(creditosBig);
 
                 Integer nota = TypesUtil.getInt(cursoAluCicloEach.getNota());
                 Integer creditos = TypesUtil.getInt(cursoAluCicloEach.getCreditos());
+
                 alumnoCiclo.setPuntajeCiclo(alumnoCiclo.getPuntajeCiclo() + nota * creditos);
                 alumnoCiclo.setPuntajeAcumulado(alumnoCiclo.getPuntajeAcumulado() + nota * creditos);
             }
@@ -1722,16 +1730,19 @@ public class PromedioServiceImp implements PromedioService {
         BigDecimal sumCreditosTotal = sumCreditos;
 
         for (AlumnoCicloCurso alumnoCicloCursoEach : alumnosCicloCursoAnteriores) {
-            if (!alumnoCicloCursoEach.getNota().equals("TE")) {
+            Curso curso = alumnoCicloCursoEach.getCurso();
+            if (esCursoPonderable(curso, alumno) && !alumnoCicloCursoEach.getNota().equals("TE")) {
                 alumnoCiclo.setCreditosAcumulados(alumnoCiclo.getCreditosAcumulados() + alumnoCicloCursoEach.getCreditos());
             }
-            if (alumnoCicloCursoEach.getNota().equals("TE")) {
+
+            if (esCursoPonderable(curso, alumno) && alumnoCicloCursoEach.getNota().equals("TE")) {
                 alumnoCiclo.setCreditosConvalidadosAcumulados(alumnoCiclo.getCreditosConvalidadosAcumulados() + alumnoCicloCursoEach.getCreditos());
             }
 
-            if (alumnoCicloCursoEach.isAprobado() && !alumnoCicloCursoEach.getNota().equals("TE")) {
+            if (esCursoPonderable(curso, alumno) && alumnoCicloCursoEach.isAprobado() && !alumnoCicloCursoEach.getNota().equals("TE")) {
                 alumnoCiclo.setCreditosAprobadosAcumulados(alumnoCiclo.getCreditosAprobadosAcumulados() + alumnoCicloCursoEach.getCreditos());
             }
+
             if (alumnoCicloCursoEach.isAprobado()) {
                 alumnoCiclo.setCreditosAprobadosAcumuladosCurricula(alumnoCiclo.getCreditosAprobadosAcumuladosCurricula() + alumnoCicloCursoEach.getCreditos());
             }
@@ -1741,7 +1752,7 @@ public class PromedioServiceImp implements PromedioService {
 
             BigDecimal notaBig = TypesUtil.getBigDecimal(alumnoCicloCursoEach.getNota());
             BigDecimal creditosBig = TypesUtil.getBigDecimal(alumnoCicloCursoEach.getCreditos());
-            if (notaBig != null) {
+            if (notaBig != null && esCursoPonderable(curso, alumno)) {
                 sumNotasCreditosTotal = sumNotasCreditosTotal.add(notaBig.multiply(creditosBig));
                 sumCreditosTotal = sumCreditosTotal.add(creditosBig);
                 Integer nota = TypesUtil.getInt(alumnoCicloCursoEach.getNota());
@@ -1776,6 +1787,13 @@ public class PromedioServiceImp implements PromedioService {
         }
     }
 
+    private boolean esCursoPonderable(Curso curso, Alumno alumno) {
+        if (alumno.isPostgrado()) {
+            return curso.isPostgrado();
+        }
+        return true;
+    }
+
     @Override
     public Integer evaluateEstaAprobado(MatriculaCurso matriculaCurso, Alumno alumno) {
         Integer aprobado = BigDecimal.ZERO.intValue();
@@ -1792,7 +1810,7 @@ public class PromedioServiceImp implements PromedioService {
     public Integer evaluateEstaAprobado(BigDecimal nota, Alumno alumno) {
         Integer aprobado = BigDecimal.ZERO.intValue();
         if (alumno.isPostgrado() || alumno.isEspecial()) {
-            if (nota.compareTo(new BigDecimal(13)) >= 0) {
+            if (nota.compareTo(new BigDecimal(14)) >= 0) {
                 aprobado = BigDecimal.ONE.intValue();
             }
         } else if (nota.compareTo(new BigDecimal(11)) >= 0) {
@@ -1805,8 +1823,8 @@ public class PromedioServiceImp implements PromedioService {
     public Integer evaluateEstaAprobado(BigDecimal nota, Alumno alumno, Curso curso) {
         Integer aprobado = BigDecimal.ZERO.intValue();
         if (alumno.isPostgrado() || alumno.isEspecial()) {
-            if (curso.isPostgrado()) {
-                if (nota.compareTo(new BigDecimal(13)) >= 0) {
+            if (curso.getNivel() > 5) {
+                if (nota.compareTo(new BigDecimal(14)) >= 0) {
                     aprobado = BigDecimal.ONE.intValue();
                 }
             } else {
