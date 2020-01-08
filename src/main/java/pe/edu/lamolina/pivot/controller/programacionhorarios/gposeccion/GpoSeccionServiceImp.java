@@ -936,10 +936,12 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             EncuestaDocente encuesta = encuestaDocenteDAO.findByDocenteSeccion(lstDocSec.get(0));
             if (encuesta != null) {
                 List<PeriodoEncuesta> periodosEncuesta = periodoEncuestaDAO.allByEncuesta(encuesta.getEncuestaEstudiantil());
-                encuesta.setEstadoEnum(EncuestaEstudiantilEstadoEnum.ACT);
-                encuesta.setFechaEncuestaInicio(periodosEncuesta.get(0).getFechaInicio());
-                encuesta.setFechaEncuestaFin(periodosEncuesta.get(0).getFechaFin());
-                encuestaDocenteDAO.update(encuesta);
+                if (!periodosEncuesta.isEmpty()) {
+                    encuesta.setEstadoEnum(EncuestaEstudiantilEstadoEnum.ACT);
+                    encuesta.setFechaEncuestaInicio(periodosEncuesta.get(0).getFechaInicio());
+                    encuesta.setFechaEncuestaFin(periodosEncuesta.get(0).getFechaFin());
+                    encuestaDocenteDAO.update(encuesta);
+                }
             }
         } else {
             for (DocenteSeccion docenteSeccion : lstDocSec) {
@@ -3108,11 +3110,11 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             vacAluSecc = (vacAluSecc == null) ? new ArrayList() : vacAluSecc;
             Map<Integer, VacanteAlumno> mapVacAluSecc = TypesUtil.convertListToMap("numero", vacAluSecc);
             for (int i = 1; i < secc.getVacantes() + 1; i++) {
-                VacanteAlumno va  = mapVacAluSecc.get(i);
-                if (va  != null) {
+                VacanteAlumno va = mapVacAluSecc.get(i);
+                if (va != null) {
                     continue;
                 }
-                va  = new VacanteAlumno();
+                va = new VacanteAlumno();
                 va.setNumero(i);
                 va.setSeccion(secc);
                 va.setEstadoEnum(EstadoVacanteAlumnoEnum.DISP);
