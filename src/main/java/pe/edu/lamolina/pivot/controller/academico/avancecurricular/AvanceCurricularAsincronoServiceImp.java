@@ -205,7 +205,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
                     ds, false);
             logger.info("Finalizo revision avance curricular del alumno {}", alumno.getCodigo());
             visorCalculoNotas.incrementarToken(token);
-            
+
         } catch (Exception e) {
             logger.error("Error en revision avance curricular del alumno {}", alumno.getCodigo());
             visorCalculoNotas.incrementarToken(token);
@@ -249,7 +249,8 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
 
         for (AlumnoCursoCurricula aluCursoCurricula : aluCursosCurriculaNew) {
             if (aluCursoCurricula.getVecesCursado() == 0) {
-                AlumnoCicloCurso cat = mapCursosVecesLlevado.get(aluCursoCurricula.getAlumno().getId() + "-" + aluCursoCurricula.getCurso().getId());
+                String key = aluCursoCurricula.getAlumno().getId() + "-" + aluCursoCurricula.getCurso().getId();
+                AlumnoCicloCurso cat = mapCursosVecesLlevado.get(key);
                 if (cat != null) {
                     aluCursoCurricula.setVecesCursado(cat.getVecesCursadoTransient());
                 }
@@ -603,7 +604,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
                 }
                 alumnoCursoCurricula.setCreditos(cursoAprobado.getCreditos());
                 alumnoCursoCurricula.setEstadoRegistro(EstadoEnum.ACT.name());
-                alumnoCursoCurricula.setVecesCursado(cursoAprobado.getVecesCursado());
+                alumnoCursoCurricula.setVecesCursado(cursoAprobado.getVecesCursadoTransient());
 
             } else if (cursoAprobado.getCurso().getDepartamentoAcademico() != null
                     && codesDptosCultDepMed.contains(cursoAprobado.getCurso().getDepartamentoAcademico().getCodigo())) {

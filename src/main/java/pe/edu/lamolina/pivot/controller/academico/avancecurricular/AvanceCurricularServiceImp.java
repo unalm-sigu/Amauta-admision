@@ -391,6 +391,7 @@ public class AvanceCurricularServiceImp implements AvanceCurricularService {
         for (AlumnoCicloCurso alumnoCicloCurso : cursosDesapr) {
             if (mapCursosAprobados.get(alumnoCicloCurso.getCurso().getId()) == null) {
                 cursosAprobados.add(alumnoCicloCurso);
+                mapCursosAprobados.put(alumnoCicloCurso.getCurso().getId(), alumnoCicloCurso);
             }
         }
         List<CursoEquivalenteElectivo> cursoEquivalenteElectivos = cursoEquivalenteElectivoDAO.allCursoPlanCurricula(Arrays.asList(alumnoBD.getPlanCurricular()));

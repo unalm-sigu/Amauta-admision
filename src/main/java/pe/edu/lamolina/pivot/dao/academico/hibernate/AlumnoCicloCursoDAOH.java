@@ -99,12 +99,12 @@ public class AlumnoCicloCursoDAOH extends AbstractEasyDAO<AlumnoCicloCurso> impl
                 .from(AlumnoCicloCurso.class, "acc")
                 .join("alumnoCiclo ac", "ac.alumno al", "ac.cicloAcademico ca", "acc.curso cu")
                 .left("cu.departamentoAcademico")
-                .filter("ca.tipo", "REG")
+                .filter("ca.tipo", TipoCicloEnum.REG)
                 .filter("acc.estado", "!=", RCI)
                 .filter("acc.estado", "!=", RCU)
                 .filter("acc.estado", "!=", RET)
                 .in("al.id", alumnos)
-                .filter("registroActivo", 1)
+                .filter("acc.registroActivo", 1)
                 .groupBy("al.id", "cu.id");
 
         return all(sql);
@@ -564,8 +564,9 @@ public class AlumnoCicloCursoDAOH extends AbstractEasyDAO<AlumnoCicloCurso> impl
                 .join("alumnoCiclo ac", "ac.alumno al", "ac.cicloAcademico", "acc.curso cu")
                 .left("cu.departamentoAcademico")
                 .filter("al.id", alumno)
+                .filter("ac.estado", MAT)
                 .filter("estaAprobado", 0)
-                .filter("acc.registroActivo", BigDecimal.ONE.intValue());
+                .filter("acc.registroActivo", 1);
 
         return all(sql);
     }
@@ -577,8 +578,9 @@ public class AlumnoCicloCursoDAOH extends AbstractEasyDAO<AlumnoCicloCurso> impl
                 .join("alumnoCiclo ac", "ac.alumno al", "ac.cicloAcademico", "acc.curso cu")
                 .left("cu.departamentoAcademico")
                 .in("al.id", alumno)
+                .filter("ac.estado", MAT)
                 .filter("estaAprobado", 0)
-                .filter("acc.registroActivo", BigDecimal.ONE.intValue());
+                .filter("acc.registroActivo", 1);
 
         return all(sql);
     }
