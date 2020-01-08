@@ -1814,7 +1814,7 @@ public class PromedioServiceImp implements PromedioService {
     }
 
     private boolean esCursoPonderable(Curso curso, Alumno alumno) {
-        if (alumno.isPostgrado()) {
+        if (alumno.isPostgrado() || alumno.isEspecial()) {
             return curso.getNivel() > 5;
         }
         return true;
