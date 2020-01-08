@@ -598,6 +598,10 @@ public class AulaServiceImp implements AulaService {
         Oficina oficina = null;
         for (Rol role : ds.getRoles()) {
             System.out.println("codigo=" + role.getCodigo());
+            if (role.getCodigoEnum() == null) {
+                continue;
+            }
+
             switch (role.getCodigoEnum()) {
                 case RESDEP:
                     oficina = this.findOficina(DEPFIS, role, ds.getUsuario());
