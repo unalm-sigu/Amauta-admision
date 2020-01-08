@@ -89,6 +89,7 @@ import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_R;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_TU;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_X;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_XD;
+import pe.edu.lamolina.model.enums.TipoCicloEnum;
 import pe.edu.lamolina.model.enums.TipoCondicionalEnum;
 import static pe.edu.lamolina.model.enums.TipoTramiteEnum.CAM_NOTA;
 import static pe.edu.lamolina.model.enums.TramiteEstadoEnum.PEND;
@@ -943,9 +944,10 @@ public class MatriculableServiceImp implements MatriculableService {
                 matri.setPrioridad(prioridad);
                 if (ciclo.getFechaTurnosAsignados() != null) {
                     EventoAcademicoEnum eventoEnum = MAT_REG;
-                    if (ciclo.isTipoRegular()) {
+                    if (!ciclo.isTipoRegular()) {
                         eventoEnum = MAT_VER;
                     }
+                    System.out.print("PRIORIDAAADD ----- "+prioridad);
                     TurnoAtencion turnosAtencion = turnoAtencionDAO.findByPrioridad(prioridad, ciclo, eventoEnum);
                     BigDecimal numPrioridad = turnosAtencion.getPrioridadFin().add(new BigDecimal("0.01"));
                     Integer cantAlum = turnosAtencion.getAlumnos() + 1;
@@ -963,8 +965,10 @@ public class MatriculableServiceImp implements MatriculableService {
 
         if (matri.getId() != null) {
             matriculaResumenDAO.update(matri);
-            aporteAlumnoService.generarAportes(alumno, ciclo, matri, ds);
-            logger.debug("enviando generar boletas del alumno {} en el ciclo {} con matri-resumen {}", alumno.getId(), ciclo.getId(), matri.getId());
+            if (ds.getCicloAcademico().getTipoEnum() == TipoCicloEnum.REG) {                
+                aporteAlumnoService.generarAportes(alumno, ciclo, matri, ds);
+                logger.debug("enviando generar boletas del alumno {} en el ciclo {} con matri-resumen {}", alumno.getId(), ciclo.getId(), matri.getId());
+            }
             matri.setProcesado(1);
 
         } else {
@@ -1359,9 +1363,11 @@ public class MatriculableServiceImp implements MatriculableService {
         Assert.isTrue(matriculaResumen.getEstadoEnum() == EstadoMatriculaEnum.NMAT,
                 "El alumno debe tener estado No Matriculado para ser inhabilitado");
 
-        JsonResponse jsonResponse = responseRestService.anularBoletas(matriculaResumen, ds);
-        if (!jsonResponse.getSuccess()) {
-            throw new PhobosException(jsonResponse.getMessage());
+        if (ds.getCicloAcademico().getTipoEnum() == TipoCicloEnum.REG) {            
+            JsonResponse jsonResponse = responseRestService.anularBoletas(matriculaResumen, ds);
+            if (!jsonResponse.getSuccess()) {
+                throw new PhobosException(jsonResponse.getMessage());
+            }
         }
 
         matriculaResumen.setEstadoEnum(EstadoMatriculaEnum.INH);
