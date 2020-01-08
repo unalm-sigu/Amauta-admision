@@ -104,7 +104,6 @@ public class PromedioReviewServiceImp implements PromedioReviewService {
 
 //    @Autowired
 //    VisorCalculoNotas visorCalculoNotas;
-
     @Autowired
     EgresadoDAO egresadoDAO;
 

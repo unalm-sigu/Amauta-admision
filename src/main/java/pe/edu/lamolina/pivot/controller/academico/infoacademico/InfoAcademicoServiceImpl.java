@@ -134,7 +134,6 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
 
 //    @Autowired
 //    VisorCalculoNotas visorCalculoNotas;
-
     @Autowired
     CicloAcademicoDAO cicloAcademicoDAO;
 
@@ -619,13 +618,11 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
     }
 
     @Override
-    @Transactional
     public void calcularPromedio(Alumno alumnoForm, DataSessionPivot ds) {
         Boolean puedeCalcular = usuarioPuedeCalcular(ds);
         Assert.isTrue(puedeCalcular, "Usted no está autorizado para ejecutar esta acción");
 
         Alumno alumno = alumnoDAO.find(alumnoForm);
-//        visorCalculoNotas.setActivo(false);
         promedioService.calcularSituacionAcademica(alumno, ds);
     }
 

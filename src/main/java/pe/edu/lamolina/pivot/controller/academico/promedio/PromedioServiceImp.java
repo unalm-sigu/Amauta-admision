@@ -248,6 +248,7 @@ public class PromedioServiceImp implements PromedioService {
         long t1 = System.currentTimeMillis();
         Alumno alumno = alumnix.clone();
         CicloAcademico cicloIngreso = alumno.getCicloIngreso();
+        List<AlumnoCicloCurso> alumnoCiclosCursosUpd = new ArrayList();
 
         try {
             List<AlumnoCiclo> alumnoCiclosPrevio = new ArrayList();
@@ -260,7 +261,7 @@ public class PromedioServiceImp implements PromedioService {
             Map<String, List<CicloAcademico>> mapCiclo = TypesUtil.convertListToMapList("codigo", ciclosAll);
             Map<Long, List<AlumnoCicloCurso>> mapAlumnoCicloCurso = TypesUtil.convertListToMapList("alumnoCiclo.id", alumnoCicloCursosAll);
 
-            this.promediarAlumno(alumno, egresado, mapCiclo, cicloActivo, alumnoCiclos, alumnoCicloCursosActivos, ds, showError); //cambia situacion academica
+            this.promediarAlumno(alumno, egresado, mapCiclo, cicloActivo, alumnoCiclos, alumnoCicloCursosActivos, alumnoCiclosCursosUpd, ds, showError); //cambia situacion academica
 
             CicloAcademico ultimoCicloRegular = null;
             CicloAcademico ultimoRetiroRegular = null;
@@ -389,6 +390,8 @@ public class PromedioServiceImp implements PromedioService {
                     "promedioAcumulado", "promedioUltimoCiclo", "puntaje", "promedioProcesado",
                     "ciclosRegularesEstudiados", "ciclosAlternosSinEstudiar", "ciclosConsecutivosSinEstudiar");
 
+            alumnoCicloCursoDAO.updateList(alumnoCiclosCursosUpd, "vecesCursado", "vecesCursadoRegular");
+
         } catch (Exception e) {
             e.printStackTrace();
             if (throwError) {
@@ -412,7 +415,6 @@ public class PromedioServiceImp implements PromedioService {
     }
 
     @Override
-    @Transactional(readOnly = false)
     public void calcularSituacionAcademica(Alumno alumno, DataSessionPivot ds) { // USO COMO REST
         if (ds.getFechaAccionAudit() == null) {
             ds.setFechaAccionAudit(new Date());
@@ -466,6 +468,7 @@ public class PromedioServiceImp implements PromedioService {
             CicloAcademico cicloActivo,
             List<AlumnoCiclo> alumnosCiclosByAlumno,
             List<AlumnoCicloCurso> allOperativesByModalidadEstudio,
+            List<AlumnoCicloCurso> alumnoCiclosCursosUpd,
             DataSessionPivot ds, boolean showError) {
 
         Map<Long, List<AlumnoCicloCurso>> mapAlumnoCicloCurso = TypesUtil.convertListToMapList("alumnoCiclo.id", allOperativesByModalidadEstudio);
@@ -550,7 +553,9 @@ public class PromedioServiceImp implements PromedioService {
                     alumnosCiclosByAlumno,
                     mapAlumnoCicloCurso,
                     alumnoCicloCursoByCiclo,
-                    alumnoCicloCursoAnteriores, showError);
+                    alumnoCicloCursoAnteriores,
+                    alumnoCiclosCursosUpd,
+                    showError);
 
             cicloNumerico = ciclo.getCodigoInt();
             cicloAnalizar = ciclo;
@@ -1482,7 +1487,8 @@ public class PromedioServiceImp implements PromedioService {
             List<AlumnoCiclo> alumnoCiclos,
             Map<Long, List<AlumnoCicloCurso>> mapAlumnoCicloCurso,
             List<AlumnoCicloCurso> alumnosCiclosCursoActual,
-            List<AlumnoCicloCurso> alumnosCiclosCursoAnterior, boolean showError) {
+            List<AlumnoCicloCurso> alumnosCiclosCursoAnterior,
+            List<AlumnoCicloCurso> alumnoCiclosCursosUpd, boolean showError) {
 
         ModalidadEstudioEnum modalidadEstudioEnum = ModalidadEstudioEnum.valueOf(alumno.getModalidadEstudio().getCodigo());
         CicloAcademico siguienteCiclo = findCicloSiguienteRegularActivo(cicloAcademico, modalidadEstudioEnum, mapCiclo);
@@ -1588,7 +1594,8 @@ public class PromedioServiceImp implements PromedioService {
                 cicloAcademico,
                 alumnoCiclo,
                 alumnosCiclosCursoActual,
-                alumnosCiclosCursoAnterior, showError);
+                alumnosCiclosCursoAnterior,
+                alumnoCiclosCursosUpd, showError);
 
         boolean generarTrika = alumnoCiclo.isGenerarTrika();
         boolean separadoTrika = alumnoCiclo.isTrikaSeparado();
@@ -1625,7 +1632,8 @@ public class PromedioServiceImp implements PromedioService {
             CicloAcademico cicloAcademico,
             AlumnoCiclo alumnoCiclo,
             List<AlumnoCicloCurso> alumnosCicloCursoActual,
-            List<AlumnoCicloCurso> alumnosCicloCursoAnteriores, boolean showError) {
+            List<AlumnoCicloCurso> alumnosCicloCursoAnteriores,
+            List<AlumnoCicloCurso> alumnoCiclosCursosUpd, boolean showError) {
 
         BigDecimal sumNotasCreditos = BigDecimal.ZERO;
         BigDecimal sumCreditos = BigDecimal.ZERO;
@@ -1663,26 +1671,7 @@ public class PromedioServiceImp implements PromedioService {
                 }
             }
 
-            List<AlumnoCicloCurso> vecesLlevado = alumnosCicloCursoAnteriores.stream().filter(
-                    x -> x.getCurso().equals(cursoAluCicloEach.getCurso())
-                    && x.getEstaActivo()
-                    && x.getIsEstadoMatriculado()).collect(Collectors.toList());
-
-            Integer vecesEstudiadoCurso = vecesLlevado.size();
-            vecesEstudiadoCurso++;
-            cursoAluCicloEach.setVecesCursado(vecesEstudiadoCurso);
-
-            List<AlumnoCicloCurso> vecesLlevadoRegular = alumnosCicloCursoAnteriores.stream().filter(
-                    x -> x.getCurso().equals(cursoAluCicloEach.getCurso())
-                    && x.getEstaActivo()
-                    && x.getIsEstadoMatriculado()
-                    && x.getAlumnoCiclo().getCicloAcademico().isTipoRegular()
-            ).collect(Collectors.toList());
-
-            cursoAluCicloEach.setVecesCursadoRegular(vecesLlevadoRegular.size());
-            if (alumnoCiclo.getCicloAcademico().isTipoRegular()) {
-                cursoAluCicloEach.setVecesCursadoRegular(cursoAluCicloEach.getVecesCursadoRegular() + 1);
-            }
+            this.contarVecesCursado(alumnoCiclo, cursoAluCicloEach, alumnosCicloCursoAnteriores, alumnoCiclosCursosUpd);
 
             if (cursoAluCicloEach.isAprobado() && !cursoAluCicloEach.getNota().equals("TE")) {
                 if (esCursoPonderable(curso, alumno)) {
@@ -1720,6 +1709,7 @@ public class PromedioServiceImp implements PromedioService {
                 }
             }
             this.printSystem("\tcurso {id=" + cursoAluCicloEach.getId()
+                    + ", curso=" + cursoAluCicloEach.getCurso().getCodigo()
                     + ", aprobo=" + cursoAluCicloEach.isAprobado()
                     + ", veces=" + cursoAluCicloEach.getVecesCursadoRegular()
                     + ", generarTrika=" + generarTrika
@@ -1785,6 +1775,39 @@ public class PromedioServiceImp implements PromedioService {
             alumnoCiclo.setGenerarTrika(generarTrika);
             alumnoCiclo.setTrikaSeparado(trikaSeparado);
         }
+    }
+
+    private void contarVecesCursado(
+            AlumnoCiclo alumnoCiclo,
+            AlumnoCicloCurso cursoAluCicloEach,
+            List<AlumnoCicloCurso> alumnosCicloCursoAnteriores,
+            List<AlumnoCicloCurso> alumnoCiclosCursosUpd) {
+
+        List<AlumnoCicloCurso> vecesLlevado = alumnosCicloCursoAnteriores.stream().filter(
+                x -> x.getCurso().equals(cursoAluCicloEach.getCurso())
+                && x.getEstaActivo()
+                && x.getIsEstadoMatriculado()).collect(Collectors.toList());
+
+        List<AlumnoCicloCurso> vecesLlevadoRegular = alumnosCicloCursoAnteriores.stream().filter(
+                x -> x.getCurso().equals(cursoAluCicloEach.getCurso())
+                && x.getAlumnoCiclo().getCicloAcademico().isTipoRegular()
+                && x.getEstaActivo()
+                && x.getIsEstadoMatriculado()).collect(Collectors.toList());
+
+        Integer vecesEstudiadoCurso = vecesLlevado.size() + 1;
+        Integer vecesEstudiadoCursoReg = vecesLlevadoRegular.size();
+        if (alumnoCiclo.getCicloAcademico().isTipoRegular()) {
+            vecesEstudiadoCursoReg++;
+        }
+
+        AlumnoCicloCurso cursoAluCicloUpd = new AlumnoCicloCurso(cursoAluCicloEach.getId());
+        cursoAluCicloUpd.setVecesCursado(vecesEstudiadoCurso);
+        cursoAluCicloUpd.setVecesCursadoRegular(vecesEstudiadoCursoReg);
+        if (!ObjectUtil.verificarIgualdad(cursoAluCicloEach, cursoAluCicloUpd, Arrays.asList("vecesCursado", "vecesCursadoRegular"))) {
+            alumnoCiclosCursosUpd.add(cursoAluCicloUpd);
+        }
+        cursoAluCicloEach.setVecesCursado(vecesEstudiadoCurso);
+        cursoAluCicloEach.setVecesCursadoRegular(vecesEstudiadoCursoReg);
     }
 
     private boolean esCursoPonderable(Curso curso, Alumno alumno) {

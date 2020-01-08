@@ -1,6 +1,7 @@
 package pe.edu.lamolina.pivot.controller.test;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -354,6 +355,7 @@ public class TestServiceImp implements TestService {
     @Transactional
     public void promediarfull(DataSessionPivot ds, ModalidadEstudioEnum modalidadEnum) {
         List<String> allYears = alumnoDAO.allYearsCiclos();
+        //List<String> allYears = Arrays.asList("2017");
         List<CicloAcademico> ciclos = cicloAcademicoDAO.all();
 
         contadorComponent.iniciarTotal();

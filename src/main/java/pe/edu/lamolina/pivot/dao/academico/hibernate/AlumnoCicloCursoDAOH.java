@@ -4,8 +4,11 @@ import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 import org.hibernate.Query;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloCursoDAO;
 import org.springframework.stereotype.Repository;
+import pe.albatross.octavia.Insecto;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.Alumno;
@@ -28,6 +31,8 @@ import pe.edu.lamolina.model.tramite.AutorizacionRegistro;
 
 @Repository
 public class AlumnoCicloCursoDAOH extends AbstractEasyDAO<AlumnoCicloCurso> implements AlumnoCicloCursoDAO {
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public AlumnoCicloCursoDAOH() {
         super();
@@ -656,16 +661,6 @@ public class AlumnoCicloCursoDAOH extends AbstractEasyDAO<AlumnoCicloCurso> impl
     }
 
     @Override
-    public void updateColumns(AlumnoCicloCurso alumnoCicloCursoFound, String... params) {
-        Octavia octavia = Octavia.update(AlumnoCicloCurso.class);
-        for (String column : params) {
-            octavia.set(alumnoCicloCursoFound, column);
-        }
-        System.out.println("UPDATE " + octavia.toString());
-        this.update(octavia);
-    }
-
-    @Override
     public List<AlumnoCicloCurso> allCursadosByAlumnosCurso(List<Alumno> alumnos, Curso curso) {
         Octavia sql = Octavia.query()
                 .from(AlumnoCicloCurso.class, "acc")
@@ -676,6 +671,35 @@ public class AlumnoCicloCursoDAOH extends AbstractEasyDAO<AlumnoCicloCurso> impl
                 .filter("ac.estado", EstadoMatriculaEnum.MAT)
                 .filter("acc.registroActivo", BigDecimal.ONE.intValue());
         return all(sql);
+    }
+
+    @Override
+    public int updateList(List<AlumnoCicloCurso> alumnosCiclosCursos, String... columnas) {
+        if (alumnosCiclosCursos.isEmpty()) {
+            return 0;
+        }
+
+        long t1 = System.currentTimeMillis();
+        Insecto sql = Insecto.createUpdate(AlumnoCicloCurso.class)
+                .set(columnas)
+                .with(alumnosCiclosCursos);
+
+        Query query = getCurrentSession().createSQLQuery(sql.toString());
+        int rows = query.executeUpdate();
+
+        long t2 = System.currentTimeMillis();
+        logger.info("{} AlumnoCicloCurso's actualizados en {} mseg....", rows, (t2 - t1));
+        return rows;
+    }
+
+    @Override
+    public void updateColumns(AlumnoCicloCurso alumnoCicloCursoFound, String... params) {
+        Octavia octavia = Octavia.update(AlumnoCicloCurso.class);
+        for (String column : params) {
+            octavia.set(alumnoCicloCursoFound, column);
+        }
+        System.out.println("UPDATE " + octavia.toString());
+        this.update(octavia);
     }
 
 }
