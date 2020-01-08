@@ -263,6 +263,7 @@ public class PromedioServiceImp implements PromedioService {
 
             this.promediarAlumno(alumno, egresado, mapCiclo, cicloActivo, alumnoCiclos, alumnoCicloCursosActivos, alumnoCiclosCursosUpd, ds, showError); //cambia situacion academica
 
+            CicloAcademico ultimoCicloEstudiado = null;
             CicloAcademico ultimoCicloRegular = null;
             CicloAcademico ultimoRetiroRegular = null;
 
@@ -278,6 +279,7 @@ public class PromedioServiceImp implements PromedioService {
 
                 CicloAcademico cicloAlumno = alumnoCiclo.getCicloAcademico();
                 if (alumnoCiclo.getEstadoEnum() == MAT) {
+                    ultimoCicloEstudiado = cicloAlumno;
                     if (cicloAlumno.getTipoEnum() == REG) {
                         ultimoCicloRegular = cicloAlumno;
                         ultimoCicloMatriculadoRegular = alumnoCiclo;
@@ -377,6 +379,7 @@ public class PromedioServiceImp implements PromedioService {
 
             alumno.setUltimoRetiro(ultimoRetiroRegular);
             alumno.setCicloActivoRegular(ultimoCicloRegular);
+            alumno.setCicloActivo(ultimoCicloEstudiado);
 
             alumno.setPromedioUltimoCiclo(null);
             if (ultimoCicloMatriculadoRegular != null) {
