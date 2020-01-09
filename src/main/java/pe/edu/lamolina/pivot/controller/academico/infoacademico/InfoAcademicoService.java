@@ -67,6 +67,8 @@ public interface InfoAcademicoService {
 
     List<RetiroCurso> allRetiroCursoByAlumno(Alumno alumno);
 
-    public ObjectNode allDataAlumnoMerito(Alumno alumno);
+    ObjectNode allDataAlumnoMerito(Alumno alumno);
+
+    Alumno aplicarRetiroCiclo(RetiroCiclo retiro, DataSessionPivot ds);
 
 }

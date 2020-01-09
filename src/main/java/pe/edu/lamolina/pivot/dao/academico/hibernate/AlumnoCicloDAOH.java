@@ -1059,4 +1059,15 @@ public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements Alu
         return sql.all(getCurrentSession());
     }
 
+    @Override
+    public List<AlumnoCiclo> allRetiroCiclosByAlumno(Alumno alumno) {
+        Octavia sql = Octavia.query()
+                .from(AlumnoCiclo.class, "ac")
+                .join("alumno alu", "cicloAcademico ca")
+                .leftJoin("situacionInicio si", "situacionFinal sf")
+                .filter("alu.id", alumno)
+                .filter("ac.estado", EstadoMatriculaEnum.RCI);
+        return all(sql);
+    }
+
 }

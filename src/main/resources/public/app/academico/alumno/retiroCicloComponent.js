@@ -58,5 +58,30 @@ Vue.component("retiro-ciclo-component", {
                 }
             });
         },
+        aplicarRetiro(item) {
+            let $vue = this;
+            MODAL.showWait("Espere un momento por favor");
+            $.ajax({
+                method: 'GET',
+                url: APP.url('academico/alumno/aplicarRetiroCiclo'),
+                data: {id: item.id},
+                success: function (response) {
+                    if (response.success) {
+                        $vue.totalRetiros = response.data.totalRetiros;
+                        $vue.totalCicloContable = response.data.totalCicloContable;
+                        $vue.retirosCiclo = response.data.retiroCiclo;
+
+                    } else {
+                        notify(response.message, "error");
+                    }
+                    MODAL.hideWait();
+                },
+                error() {
+                    MODAL.hideWait();
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+
+        }
     }
 });

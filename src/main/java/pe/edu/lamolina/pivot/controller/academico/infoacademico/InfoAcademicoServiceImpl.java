@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -940,7 +941,15 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
 
     @Override
     public List<RetiroCiclo> allRetiroCicloByAlumno(Alumno alumno) {
-        return retiroCicloDAO.allRetiroCicloByAlumno(alumno);
+        List<RetiroCiclo> retiros = retiroCicloDAO.allRetiroCicloByAlumno(alumno);
+        List<AlumnoCiclo> retirosHisto = alumnoCicloDAO.allRetiroCiclosByAlumno(alumno);
+
+        Map<String, AlumnoCiclo> mapRetiroHisto = TypesUtil.convertListToMap("cicloAcademico.codigo", retirosHisto);
+        for (RetiroCiclo retiro : retiros) {
+            CicloAcademico ciclo = retiro.getCicloAcademico();
+            retiro.setAplicado(mapRetiroHisto.get(ciclo.getCodigo()) != null);
+        }
+        return retiros;
     }
 
     @Override
@@ -958,6 +967,44 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
         findMerito(alumnoCiclos, node, "CAR");
 
         return node;
+    }
+
+    @Override
+    @Transactional
+    public Alumno aplicarRetiroCiclo(RetiroCiclo retiroForm, DataSessionPivot ds) {
+        RetiroCiclo retiroBD = retiroCicloDAO.find(retiroForm.getId());
+        Assert.isNotNull(retiroBD, "No se ha ubicado el retiro de ciclo");
+
+        Alumno alumno = retiroBD.getAlumno();
+        CicloAcademico ciclo = retiroBD.getCicloAcademico();
+
+        AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findByAlumnoCiclo(alumno, ciclo);
+        if (alumnoCiclo == null) {
+            alumnoCiclo = new AlumnoCiclo(alumno, ciclo);
+            alumnoCiclo.setEstadoEnum(RCI);
+            alumnoCiclo.setUserRegistro(ds.getUsuario());
+            alumnoCiclo.setFechaRegistro(new Date());
+            alumnoCicloDAO.save(alumnoCiclo);
+
+        } else {
+            if (alumnoCiclo.getEstadoEnum() != RCI) {
+                if (alumnoCiclo.getEstadoEnum() == MAT) {
+                    List<AlumnoCicloCurso> alumnoCicloCursos = alumnoCicloCursoDAO.allByAlumnoCiclo(alumnoCiclo);
+                    for (AlumnoCicloCurso aluCicloCurso : alumnoCicloCursos) {
+                        aluCicloCurso.setEstado(RCI);
+                        aluCicloCurso.setUserModificacion(ds.getUsuario());
+                        aluCicloCurso.setFechaModificacion(new Date());
+                        alumnoCicloCursoDAO.update(aluCicloCurso);
+                    }
+                }
+                alumnoCiclo.setEstadoEnum(RCI);
+                alumnoCiclo.setUserModificacion(ds.getUsuario());
+                alumnoCiclo.setFechaModificacion(new Date());
+                alumnoCicloDAO.update(alumnoCiclo);
+            }
+        }
+
+        return alumno;
     }
 
     private ObjectNode findMerito(List<AlumnoCiclo> alumnoCiclos, ObjectNode node, String tipo) {
@@ -989,7 +1036,7 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
         return node;
     }
 
-    public String returnCicloMerito(AlumnoCiclo alumnoCiclo) {
+    private String returnCicloMerito(AlumnoCiclo alumnoCiclo) {
         if (alumnoCiclo.getCuadroHonorCicloNivel() != null) {
             return "C.Honor";
         } else if (alumnoCiclo.getQuintoSuperiorCicloNivel() != null) {
@@ -1001,7 +1048,7 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
         return "-";
     }
 
-    public String returnFacultadMerito(AlumnoCiclo alumnoCiclo) {
+    private String returnFacultadMerito(AlumnoCiclo alumnoCiclo) {
         if (alumnoCiclo.getCuadroHonorFacultadNivel() != null) {
             return "C.Honor";
         } else if (alumnoCiclo.getQuintoSuperiorFacultadNivel() != null) {
@@ -1013,7 +1060,7 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
         return "-";
     }
 
-    public String returnCarreraMerito(AlumnoCiclo alumnoCiclo) {
+    private String returnCarreraMerito(AlumnoCiclo alumnoCiclo) {
         if (alumnoCiclo.getCuadroHonorCarreraNivel() != null) {
             return "C.Honor";
         } else if (alumnoCiclo.getQuintoSuperiorCarreraNivel() != null) {

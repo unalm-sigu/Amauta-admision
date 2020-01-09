@@ -430,6 +430,39 @@ public class InfoAcademicoController {
     }
 
     @ResponseBody
+    @RequestMapping("aplicarRetiroCiclo")
+    public JsonResponse aplicarRetiroCiclo(RetiroCiclo retiro, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            Alumno alumno = service.aplicarRetiroCiclo(retiro, ds);
+
+            List<RetiroCiclo> retiroFull = service.allRetiroCicloByAlumno(alumno);
+            JsonNodeFactory factory = JsonNodeFactory.instance;
+            ObjectNode node = new ObjectNode(factory);
+
+            Long totalRetiros = retiroFull.stream()
+                    .filter(p -> p.getCicloAcademico().getTipoEnum() == REG)
+                    .filter(p -> p.getEstadoEnum() == TramiteEstadoEnum.ACEP)
+                    .count();
+
+            node.put("totalRetiros", retiroFull.size());
+            node.put("totalCicloContable", totalRetiros);
+            node.set("retiroCiclo", this.createRetiroCicloJson(retiroFull));
+
+            response.setSuccess(true);
+            response.setData(node);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
     @RequestMapping("dataCurricula")
     public JsonResponse dataCurricula(PlanCurricular plan, Model model, HttpSession session) {
         JsonResponse response = new JsonResponse();
