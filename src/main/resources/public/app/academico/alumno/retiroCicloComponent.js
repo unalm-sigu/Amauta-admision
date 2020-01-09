@@ -60,27 +60,44 @@ Vue.component("retiro-ciclo-component", {
         },
         aplicarRetiro(item) {
             let $vue = this;
-            MODAL.showWait("Espere un momento por favor");
-            $.ajax({
-                method: 'GET',
-                url: APP.url('academico/alumno/aplicarRetiroCiclo'),
-                data: {id: item.id},
-                success: function (response) {
-                    if (response.success) {
-                        $vue.totalRetiros = response.data.totalRetiros;
-                        $vue.totalCicloContable = response.data.totalCicloContable;
-                        $vue.retirosCiclo = response.data.retiroCiclo;
-
-                    } else {
-                        notify(response.message, "error");
-                    }
-                    MODAL.hideWait();
+            bootbox.confirm({
+                message: '¿Está seguro que desea aplicar este Retiro de Ciclo en el historial del alumno?',
+                buttons: {
+                    confirm: {label: 'Sí, aplicar', className: "btn-warning"},
+                    cancel: {label: 'Cancelar', className: "btn-link"}
                 },
-                error() {
-                    MODAL.hideWait();
-                    notify(MESSAGES.errorComunicacion, "error");
+                callback: function (result) {
+                    if (result) {
+
+                        MODAL.showWait("Espere un momento por favor");
+                        $.ajax({
+                            method: 'GET',
+                            url: APP.url('academico/alumno/aplicarRetiroCiclo'),
+                            data: {id: item.id},
+                            success: function (response) {
+                                if (response.success) {
+                                    $vue.totalRetiros = response.data.totalRetiros;
+                                    $vue.totalCicloContable = response.data.totalCicloContable;
+                                    $vue.retirosCiclo = response.data.retiroCiclo;
+
+                                    $global.$emit('reset-loading-data-alumno');
+
+                                } else {
+                                    notify(response.message, "error");
+                                }
+                                MODAL.hideWait();
+                            },
+                            error() {
+                                MODAL.hideWait();
+                                notify(MESSAGES.errorComunicacion, "error");
+                            }
+                        });
+
+                    }
                 }
             });
+
+
 
         }
     }

@@ -15,7 +15,6 @@ import static pe.edu.lamolina.model.enums.TramiteEstadoEnum.ACEP;
 import static pe.edu.lamolina.model.enums.TramiteEstadoEnum.PEND;
 import pe.edu.lamolina.model.tramite.Resolucion;
 import pe.edu.lamolina.model.tramite.RetiroCiclo;
-import pe.edu.lamolina.model.tramite.RetiroCurso;
 import pe.edu.lamolina.model.tramite.Tramite;
 
 @Repository
@@ -24,6 +23,17 @@ public class RetiroCicloDAOH extends AbstractEasyDAO<RetiroCiclo> implements Ret
     public RetiroCicloDAOH() {
         super();
         setClazz(RetiroCiclo.class);
+    }
+
+    @Override
+    public RetiroCiclo find(long id) {
+        Octavia sql = new Octavia()
+                .from(RetiroCiclo.class, "rc")
+                .join("alumno al", "cicloAcademico ca")
+                .left("cicloRegistro cr")
+                .filter("rc.id", id);
+
+        return find(sql);
     }
 
     @Override
