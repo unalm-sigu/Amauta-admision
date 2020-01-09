@@ -57,8 +57,22 @@ new Vue({
         $global.$on("update-alumno", function (data) {
             $vue.updateAlumno(data);
         });
+        $global.$on("reset-loading-data-alumno", function () {
+            $vue.resetLoadingData();
+        });
     },
     methods: {
+        resetLoadingData() {
+            let $vue = this;
+            $vue.loadPages.historial = false;
+            $vue.loadPages.avance = false;
+            $vue.loadPages.matricula = false;
+            $vue.loadPages.horario = false;
+            $vue.loadPages.malla = false;
+            $vue.loadPages.retirociclo = false;
+            $vue.loadPages.retirocurso = false;
+            $vue.reloadAlumno();
+        },
         updateTabs: function (tab) {
 
             let $vue = this;

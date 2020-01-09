@@ -44,6 +44,7 @@ import pe.edu.lamolina.model.academico.PlanCurricular;
 import pe.edu.lamolina.model.academico.RequisitoCursoCurricula;
 import pe.edu.lamolina.model.academico.ResumenPlanCurricular;
 import pe.edu.lamolina.model.academico.Seccion;
+import pe.edu.lamolina.model.academico.SituacionAcademica;
 import pe.edu.lamolina.model.aporte.AporteAlumnoCiclo;
 import pe.edu.lamolina.model.aporte.BoletaIngresante;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
@@ -53,6 +54,7 @@ import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.RCI;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.RCU;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.RET;
 import pe.edu.lamolina.model.enums.RolEnum;
+import pe.edu.lamolina.model.enums.SituacionAcademicaEnum;
 import pe.edu.lamolina.model.finanzas.CuentaBancaria;
 import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.horario.Hora;
@@ -975,15 +977,15 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
         RetiroCiclo retiroBD = retiroCicloDAO.find(retiroForm.getId());
         Assert.isNotNull(retiroBD, "No se ha ubicado el retiro de ciclo");
 
-        Alumno alumno = retiroBD.getAlumno();
+        Alumno alumno = alumnoDAO.find(retiroBD.getAlumno());
         CicloAcademico ciclo = retiroBD.getCicloAcademico();
 
         AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findByAlumnoCiclo(alumno, ciclo);
         if (alumnoCiclo == null) {
-            alumnoCiclo = new AlumnoCiclo(alumno, ciclo);
+            alumnoCiclo = new AlumnoCiclo();
+            alumnoCiclo.defaultValuesToCreate(alumno, ciclo, ds.getUsuario());
+            alumnoCiclo.setSituacionInicio(new SituacionAcademica(SituacionAcademicaEnum.S_SS));
             alumnoCiclo.setEstadoEnum(RCI);
-            alumnoCiclo.setUserRegistro(ds.getUsuario());
-            alumnoCiclo.setFechaRegistro(new Date());
             alumnoCicloDAO.save(alumnoCiclo);
 
         } else {

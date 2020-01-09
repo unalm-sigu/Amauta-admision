@@ -437,6 +437,10 @@ public class InfoAcademicoController {
 
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             Alumno alumno = service.aplicarRetiroCiclo(retiro, ds);
+            TypesUtil.delay(2000);
+            service.calcularPromedio(alumno, ds);
+            TypesUtil.delay(2000);
+            service.generarAvance(alumno, ds);
 
             List<RetiroCiclo> retiroFull = service.allRetiroCicloByAlumno(alumno);
             JsonNodeFactory factory = JsonNodeFactory.instance;

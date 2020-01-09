@@ -942,15 +942,10 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
 
         for (Map.Entry<Long, AlumnoCursoCurricula> entry : mapAluCursoCurriculaByIdCursoCurricula.entrySet()) {
             AlumnoCursoCurricula evaluado = entry.getValue();
-            Curso curso = evaluado.getCurso();
-            System.out.println("\tCurso=" + curso.getCodigo());
-
             if (evaluado.isValidado()) {
-                System.out.println("\t\tYa esta validado");
                 continue;
             }
             if (estadosAprobados.contains(evaluado.getEstadoEnum())) {
-                System.out.println("\t\tYa esta aprobado");
                 continue;
             }
 
@@ -969,7 +964,6 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
                 evaluado.setValidado(true);
             }
             validarCreditosAprobados(evaluado.getCursoCurricula(), evaluado, alumno.getCreditosAprobadosConvalidados());
-            System.out.println("\t\tQueda como " + evaluado.getEstado());
         }
 
     }
@@ -1040,18 +1034,14 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
             DataSessionPivot ds, boolean showLogger) {
 
         boolean requisitosCumplidos = true;
-        System.out.println("requisitos-curso:" + evaluado.getCurso().getCodigo());
-
         for (RequisitoCursoCurricula requisito : requisitos) {
 
             AlumnoCursoCurricula cursoRequisito = mapCursosCurriculaAlu.get(requisito.getCursoRequisito().getId());
             if (cursoRequisito == null) {
-                System.out.println("\tSin requisitos");
                 continue;
             }
 
             if (requisito.getSimultaneo() == 0) {
-                System.out.println("\tRequisito no-simultaneo estado=" + cursoRequisito.getEstado());
                 if (Arrays.asList(APR, CONV, EQUIV).contains(cursoRequisito.getEstadoEnum())) {
                     requisitosCumplidos = true;
                     continue;
@@ -1060,7 +1050,6 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
                 break;
             }
 
-            System.out.println("\tRequisito simultaneo estado=" + cursoRequisito.getEstado());
             if (Arrays.asList(HAB, MAT).contains(cursoRequisito.getEstadoEnum())) {
                 AlumnoCursoSimultaneo alumnoCursoSimultaneo = new AlumnoCursoSimultaneo();
                 alumnoCursoSimultaneo.setAlumnoCursoCurricula(evaluado);
@@ -1069,7 +1058,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
                 alumnoCursoSimultaneo.setFechaRegistro(new Date());
                 alumnoCursoSimultaneo.setUserRegistro(ds.getUsuario());
                 if (showLogger) {
-                    System.out.println("\tevaluado.curso=" + evaluado.getCurso().getCodigo() + " evaluado.id=" + evaluado.getId());
+                    logger.info("\tevaluado.curso={}  evaluado.id={}", evaluado.getCurso().getCodigo(), evaluado.getId());
                 }
                 //ObjectUtil.printAttr(alumnoCursoSimultaneo);
                 simultaneos.add(alumnoCursoSimultaneo);
@@ -1590,7 +1579,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
 
     private void printLogger(String log, boolean showLogger) {
         if (showLogger) {
-            System.out.println(log);
+            logger.info(log);
         }
     }
 }
