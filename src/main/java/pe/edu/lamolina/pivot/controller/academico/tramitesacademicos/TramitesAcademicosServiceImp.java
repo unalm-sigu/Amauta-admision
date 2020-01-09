@@ -828,6 +828,7 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
         }
 
         logger.debug("Alumno Ciclo {}", alumnoCiclo.getId());
+        Alumno alumno = alumnoDAO.find(alumnoCiclo.getAlumno());
         boolean noChanges = true;
         for (AlumnoCicloCurso alumnoCicloCursoForm : alumnoCiclo.getAlumnoCicloCurso()) {
 
@@ -863,6 +864,7 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
                     AlumnoCicloCurso alumnoCursoNew = (AlumnoCicloCurso) alumnoCicloCursoDB.clone();
                     alumnoCursoNew.setId(null);
                     alumnoCursoNew.setNota(alumnoCicloCursoForm.getNota());
+                    alumnoCursoNew.setEstaAprobado(promedioService.evaluateEstaAprobado(alumnoCursoNew, alumno));
                     alumnoCursoNew.setCreditos(alumnoCicloCursoForm.getCreditos());
                     if (tramite.getTipoTramite().getEsTipoTramiteRei()) {
                         alumnoCursoNew.setOrigenData(OrigenDataSituacionAcademicaEnum.TA_REI);

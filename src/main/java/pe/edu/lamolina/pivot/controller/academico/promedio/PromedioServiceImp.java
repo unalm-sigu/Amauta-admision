@@ -1833,6 +1833,18 @@ public class PromedioServiceImp implements PromedioService {
     }
 
     @Override
+    public Integer evaluateEstaAprobado(AlumnoCicloCurso alumnoCicloCurso, Alumno alumno) {
+        Integer aprobado = BigDecimal.ZERO.intValue();
+        if (alumnoCicloCurso.getNota().equals(NotaLetraEnum.APROBADO.getValor1())) {
+            aprobado = BigDecimal.ONE.intValue();
+        } else if (TypesUtil.getBigDecimal(alumnoCicloCurso.getNota()) != null) {
+            BigDecimal notaBig = TypesUtil.getBigDecimal(alumnoCicloCurso.getNota());
+            aprobado = evaluateEstaAprobado(notaBig, alumno, alumnoCicloCurso.getCurso());
+        }
+        return aprobado;
+    }
+
+    @Override
     public Integer evaluateEstaAprobado(BigDecimal nota, Alumno alumno) {
         Integer aprobado = BigDecimal.ZERO.intValue();
         if (alumno.isPostgrado() || alumno.isEspecial()) {
