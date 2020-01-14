@@ -597,7 +597,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
         Integer horasTeoria = grupoSeccion.getHorasTeoria();
         Integer horasPractica = grupoSeccion.getHorasPractica();
-        EventoCicloAcademico eventoDictadoClases = getEventoDictadoClases(ciclo, curso);
+        EventoCicloAcademico eventoDictadoClases = getEventoDictadoClases(ciclo, grupoSeccion.getAnexoBoletin().getAnexoSuperior());
 
         Docente docenteDefault;
         if (!grupoSeccion.getCursoDirigido()) {
@@ -780,8 +780,8 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     @Transactional
     public void addDocenteSeccion(Seccion seccion, CicloAcademico cicloAcademico) {
         seccion = seccionDAO.find(seccion.getId());
-        Curso curso = seccion.getGrupoSeccion().getCurso();
-        EventoCicloAcademico eventoDictadoClases = getEventoDictadoClases(cicloAcademico, curso);
+        //Curso curso = seccion.getGrupoSeccion().getCurso();
+        EventoCicloAcademico eventoDictadoClases = getEventoDictadoClases(cicloAcademico, seccion.getGrupoSeccion().getAnexoBoletin().getAnexoSuperior());
 
         Docente docenteDefault = docenteDAO.findByCode(Constantine.DOCENTE_INDETERMINADO);
         List<DocenteSeccion> docenteSeccions = docenteSeccionDAO.allActivosBySeccion(seccion);
@@ -854,7 +854,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         evaluateSeccion(profeSeccDB.getSeccion());
         this.actualizarBoletin();
 
-        EventoCicloAcademico eventoClases = getEventoDictadoClases(cicloAcademico, profeSeccDB.getSeccion().getGrupoSeccion().getCurso());
+        EventoCicloAcademico eventoClases = getEventoDictadoClases(cicloAcademico, profeSeccDB.getSeccion().getGrupoSeccion().getAnexoBoletin().getAnexoSuperior());
         this.analizedDocenteSeccion(profeSeccDB.getSeccion(), profesSecc, eventoClases);
     }
 
@@ -901,7 +901,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         evaluateSeccion(profeSeccDB.getSeccion());
 
         this.actualizarBoletin();
-        EventoCicloAcademico eventoClases = getEventoDictadoClases(cicloAcademico, profeSeccDB.getSeccion().getGrupoSeccion().getCurso());
+        EventoCicloAcademico eventoClases = getEventoDictadoClases(cicloAcademico, profeSeccDB.getSeccion().getGrupoSeccion().getAnexoBoletin().getAnexoSuperior());
         this.analizedDocenteSeccion(profeSeccDB.getSeccion(), profesSecc, eventoClases);
     }
 
@@ -1307,7 +1307,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
         List<DocenteSeccion> docentesSec = docenteSeccionDAO.allBySeccion(seccion);
 
-        EventoCicloAcademico eventoCslases = getEventoDictadoClases(cicloAcademico, docenteSeccion.getSeccion().getGrupoSeccion().getCurso());
+        EventoCicloAcademico eventoCslases = getEventoDictadoClases(cicloAcademico, docenteSeccion.getSeccion().getGrupoSeccion().getAnexoBoletin().getAnexoSuperior());
         this.analizedDocenteSeccion(docenteSeccion.getSeccion(), docentesSec, eventoCslases);
     }
 
@@ -1488,7 +1488,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
         List<DocenteSeccion> docentesSeccion = docenteSeccionDAO.allBySeccion(docenteSeccion.getSeccion());
 
-        EventoCicloAcademico eventoClases = getEventoDictadoClases(cicloAcademico, docenteSeccion.getSeccion().getGrupoSeccion().getCurso());
+        EventoCicloAcademico eventoClases = getEventoDictadoClases(cicloAcademico, docenteSeccion.getSeccion().getGrupoSeccion().getAnexoBoletin().getAnexoSuperior());
         this.analizedDocenteSeccion(docenteSeccion.getSeccion(), docentesSeccion, eventoClases);
     }
 
@@ -1702,7 +1702,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         evaluateSeccion(profeSeccBDMain.getSeccion());
         this.actualizarBoletin();
 
-        EventoCicloAcademico eventoClases = getEventoDictadoClases(cicloAcademico, profeSeccBDMain.getSeccion().getGrupoSeccion().getCurso());
+        EventoCicloAcademico eventoClases = getEventoDictadoClases(cicloAcademico, profeSeccBDMain.getSeccion().getGrupoSeccion().getAnexoBoletin().getAnexoSuperior());
         this.analizedDocenteSeccion(profeSeccBDMain.getSeccion(), profesSecc, eventoClases);
     }
 
@@ -1712,7 +1712,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         List<Seccion> secciones = seccionDAO.allOperativesByGpoSeccion(grupoSeccion);
         List<DocenteSeccion> docentesSeccion = docenteSeccionDAO.allActivosBySecciones(secciones);
         Map<Long, List<DocenteSeccion>> mapProfeSecc = TypesUtil.convertListToMapList("seccion.id", docentesSeccion);
-        EventoCicloAcademico eventoClases = getEventoDictadoClases(cicloAcademico, secciones.get(0).getGrupoSeccion().getCurso());
+        EventoCicloAcademico eventoClases = getEventoDictadoClases(cicloAcademico, secciones.get(0).getGrupoSeccion().getAnexoBoletin().getAnexoSuperior());
         for (Seccion seccion : secciones) {
             docentesSeccion = createList(mapProfeSecc.get(seccion.getId()));
             this.analizedDocenteSeccion(seccion, docentesSeccion, eventoClases);
@@ -2716,8 +2716,8 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     }
 
     @Override
-    public EventoCicloAcademico findEventoAcademico(CicloAcademico cicloAcademico, Curso curso) {
-        return this.getEventoDictadoClases(cicloAcademico, curso);
+    public EventoCicloAcademico findEventoAcademico(CicloAcademico cicloAcademico, AnexoBoletin anexoSup) {
+        return this.getEventoDictadoClases(cicloAcademico, anexoSup);
     }
 
     @Override
@@ -2829,7 +2829,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         CicloAcademico ciclo = gpoSeccBD.getCicloAcademico();
         CursoCicloAcademico cursoCiclo = this.findCursoCicloAcademico(curso, ciclo);
 
-        EventoCicloAcademico eventoDictadoClases = getEventoDictadoClases(ciclo, curso);
+        EventoCicloAcademico eventoDictadoClases = getEventoDictadoClases(ciclo, gpoSeccBD.getAnexoBoletin().getAnexoSuperior());
         List<String> codigosByCiclo = grupoSeccionDAO.allCodigoByCiclo(ciclo);
         List<String> codigos2ByCiclo = grupoSeccionDAO.allCodigo2ByCiclo(ciclo);
 
@@ -2954,17 +2954,16 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         throw new PhobosException("Error en la estructura del curso " + curso.getCodigo() + " " + curso.getNombre());
     }
 
-    private EventoCicloAcademico getEventoDictadoClases(CicloAcademico ciclo, Curso curso) {
-        EventoAcademicoEnum eventoClasesEnum = ciclo.getTipoEnum() == TipoCicloEnum.NIV ? CLASES_VER : CLASES_PRE;
-        EventoCicloAcademico eventoDictadoVeranoPregrado = eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(ciclo, eventoClasesEnum);
-        EventoCicloAcademico eventoDictadoPosgrado = eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(ciclo, CLASES_EPG);
-
-        EventoCicloAcademico eventoDictadoClases = eventoDictadoVeranoPregrado;
-        if (ciclo.getTipoEnum() == TipoCicloEnum.REG && curso.getModalidadEstudio().isPostgrado()) {
-            eventoDictadoClases = eventoDictadoPosgrado;
+    private EventoCicloAcademico getEventoDictadoClases(CicloAcademico ciclo, AnexoBoletin anexoSup) {
+        System.out.println("anexoSup.codigo=" + anexoSup.getCodigo());
+        if (anexoSup.isAnexoCursosPostgrado()) {
+            System.out.println("return evento-epg");
+            return eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(ciclo, CLASES_EPG);
         }
-
-        return eventoDictadoClases;
+        EventoAcademicoEnum eventoClasesEnum = ciclo.isTipoRegular() ? CLASES_PRE : CLASES_VER;
+        System.out.println("ciclo={id:" + ciclo.getId() + ", codigo:" + ciclo.getCodigo() + ", tipo:" + ciclo.getTipo() + "}");
+        System.out.println("return evento-" + eventoClasesEnum.name());
+        return eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(ciclo, eventoClasesEnum);
     }
 
     @Override
@@ -3110,11 +3109,11 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             vacAluSecc = (vacAluSecc == null) ? new ArrayList() : vacAluSecc;
             Map<Integer, VacanteAlumno> mapVacAluSecc = TypesUtil.convertListToMap("numero", vacAluSecc);
             for (int i = 1; i < secc.getVacantes() + 1; i++) {
-                VacanteAlumno va = mapVacAluSecc.get(i);
-                if (va != null) {
+                VacanteAlumno va  = mapVacAluSecc.get(i);
+                if (va  != null) {
                     continue;
                 }
-                va = new VacanteAlumno();
+                va  = new VacanteAlumno();
                 va.setNumero(i);
                 va.setSeccion(secc);
                 va.setEstadoEnum(EstadoVacanteAlumnoEnum.DISP);

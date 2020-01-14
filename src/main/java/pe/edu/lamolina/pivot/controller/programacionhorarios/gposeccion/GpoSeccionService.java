@@ -209,7 +209,7 @@ public interface GpoSeccionService {
 
     void recrearVacanteAlumno(CicloAcademico ciclo, DataSessionPivot ds);
 
-    EventoCicloAcademico findEventoAcademico(CicloAcademico cicloAcademico, Curso curso);
+    EventoCicloAcademico findEventoAcademico(CicloAcademico cicloAcademico, AnexoBoletin anexoSup);
 
     List<RestriccionRepitencia> allRestriccionRepitenciaActivasBySeccion(Seccion seccion);
 

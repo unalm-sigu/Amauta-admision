@@ -265,7 +265,8 @@ public class GpoSeccionController {
 
             String fechaMin = null;
             String fechaMax = null;
-            EventoCicloAcademico eventoCicloAcademico = service.findEventoAcademico(gpoSeccion.getCicloAcademico(), gpoSeccion.getCurso());
+            EventoCicloAcademico eventoCicloAcademico = service.findEventoAcademico(gpoSeccion.getCicloAcademico(), gpoSeccion.getAnexoBoletin().getAnexoSuperior());
+            System.out.println("eventoCicloAcademico=" + eventoCicloAcademico);
             if (gpoSeccion.getTipoDictadoEnum() == TipoDictadoGrupoSeccionEnum.MOD) {
                 fechaMin = TypesUtil.getStringDate(gpoSeccion.getFechaInicioModular(), "dd/MM/yyyy");
                 fechaMax = TypesUtil.getStringDate(gpoSeccion.getFechaFinModular(), "dd/MM/yyyy");
@@ -520,7 +521,7 @@ public class GpoSeccionController {
         String fechaMin = null;
         String fechaMax = null;
         Date fecha = new Date();
-        EventoCicloAcademico eventoCicloAcademico = service.findEventoAcademico(grupoSeccion.getCicloAcademico(), grupoSeccion.getCurso());
+        EventoCicloAcademico eventoCicloAcademico = service.findEventoAcademico(grupoSeccion.getCicloAcademico(), grupoSeccion.getAnexoBoletin().getAnexoSuperior());
         if (grupoSeccion.getTipoDictadoEnum() == TipoDictadoGrupoSeccionEnum.MOD) {
             fechaMin = TypesUtil.getStringDate(grupoSeccion.getFechaInicioModular(), "dd/MM/yyyy");
             fechaMax = TypesUtil.getStringDate(grupoSeccion.getFechaFinModular(), "dd/MM/yyyy");
@@ -551,7 +552,7 @@ public class GpoSeccionController {
 
     public List<String> getFechasByGrupoSeccion(GrupoSeccion grupoSeccion) {
         List<String> fechas = new ArrayList<>();
-        EventoCicloAcademico eventoCicloAcademico = service.findEventoAcademico(grupoSeccion.getCicloAcademico(), grupoSeccion.getCurso());
+        EventoCicloAcademico eventoCicloAcademico = service.findEventoAcademico(grupoSeccion.getCicloAcademico(), grupoSeccion.getAnexoBoletin().getAnexoSuperior());
         String fechaMin = null;
         String fechaMax = null;
         if (eventoCicloAcademico != null) {
