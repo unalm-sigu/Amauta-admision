@@ -88,7 +88,6 @@ public class FusionSeccionServiceImp implements FusionSeccionService {
 
 //            GrupoSeccion gpoSecc = origen.getGrupoSeccion();
 //            grupoSeccionDAO.findLock(gpoSecc.getId());
-
             if (origenSup.getId().longValue() == destinoSup.getId()) {
                 mismoGpoSecc = true;
 
@@ -134,7 +133,6 @@ public class FusionSeccionServiceImp implements FusionSeccionService {
 //        if (origen.getSeccionSuperior() != null) {
 //            seccionesOrigen.add(origen.getSeccionSuperior());
 //        }
-
 //        List<MatriculaSeccion> matriculadosSeccionOrigen = matriculaSeccionDAO.allMatriculadosByAlumnosSecciones(alumnos, seccionesOrigen);
 //        Map<Long, List<MatriculaSeccion>> mapMatriSeccion = TypesUtil.convertListToMapList("matriculaResumen.alumno.id", matriculadosSeccionOrigen);
         Curso curso = origen.getGrupoSeccion().getCurso();
@@ -164,13 +162,13 @@ public class FusionSeccionServiceImp implements FusionSeccionService {
         Seccion origenUpd = new Seccion(origen.getId());
         origenUpd.setUsuarioModificacion(ds.getUsuario());
         origenUpd.setFechaModificacion(new Date());
-        
+
         if (matriculados - trasladados == 0) {
             origenUpd.setEstadoEnum(SeccionEstadoEnum.FUS);
-            seccionDAO.updateColumns(origenUpd, "estado", "userModificacion", "fechaModificacion");
+            seccionDAO.updateColumns(origenUpd, "estado", "usuarioModificacion", "fechaModificacion");
 
         } else {
-            seccionDAO.updateColumns(origenUpd, "userModificacion", "fechaModificacion");
+            seccionDAO.updateColumns(origenUpd, "usuarioModificacion", "fechaModificacion");
         }
 
 //        seccionDAO.updateMatriculados(destino, destino.getMatriculados() + alumnos.size());
