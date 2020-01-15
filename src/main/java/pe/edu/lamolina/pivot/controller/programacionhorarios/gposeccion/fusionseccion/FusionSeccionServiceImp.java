@@ -11,20 +11,23 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import pe.albatross.zelpers.miscelanea.Assert;
+import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
+import pe.edu.lamolina.model.academico.MatriculaCurso;
+import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.Seccion;
-import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 import pe.edu.lamolina.model.horario.HorarioSeccion;
-import pe.edu.lamolina.model.vacantes.VacanteAlumno;
+import pe.edu.lamolina.pivot.controller.academico.tramitesacademicos.tramiteRetiroCiclo.ResponseRestService;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.pivot.dao.academico.GrupoSeccionDAO;
+import pe.edu.lamolina.pivot.dao.academico.MatriculaCursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaResumenDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.SeccionDAO;
@@ -42,6 +45,8 @@ public class FusionSeccionServiceImp implements FusionSeccionService {
 
     @Autowired
     MatriculaSeccionDAO matriculaSeccionDAO;
+    @Autowired
+    MatriculaCursoDAO matriculaCursoDAO;
 
     @Autowired
     AlumnoDAO alumnoDAO;
@@ -54,6 +59,9 @@ public class FusionSeccionServiceImp implements FusionSeccionService {
 
     @Autowired
     GrupoSeccionDAO grupoSeccionDAO;
+
+    @Autowired
+    ResponseRestService responseRestService;
 
     @Override
     public List<Alumno> allAlumnoBySeccion(Seccion seccion) {
@@ -78,8 +86,8 @@ public class FusionSeccionServiceImp implements FusionSeccionService {
             origenSup = origen.getSeccionSuperior();
             destinoSup = destino.getSeccionSuperior();
 
-            GrupoSeccion gpoSecc = origen.getGrupoSeccion();
-            grupoSeccionDAO.findLock(gpoSecc.getId());
+//            GrupoSeccion gpoSecc = origen.getGrupoSeccion();
+//            grupoSeccionDAO.findLock(gpoSecc.getId());
 
             if (origenSup.getId().longValue() == destinoSup.getId()) {
                 mismoGpoSecc = true;
@@ -100,6 +108,7 @@ public class FusionSeccionServiceImp implements FusionSeccionService {
 
         Long[] idAlumnos = trasladoForm.getAlumnosid();
         List<Alumno> alumnos = alumnoDAO.allByIds(idAlumnos);
+        List<MatriculaResumen> matriculadosResumen = matriculaResumenDAO.allByAlumnosCiclo(alumnos, ciclo);
         List<MatriculaSeccion> matriculadosSecciones = matriculaSeccionDAO.allMatriculadosByAlumnosCiclo(alumnos, ciclo);
         Map<Long, Seccion> mapSeccion = TypesUtil.convertListToMap("seccion.id", "seccion", matriculadosSecciones);
         Map<Long, List<Seccion>> mapSeccionByAlu = TypesUtil.convertListToMapList("matriculaResumen.alumno.id", "seccion", matriculadosSecciones);
@@ -120,69 +129,60 @@ public class FusionSeccionServiceImp implements FusionSeccionService {
             Assert.isFalse(hayCruce, "El alumno con matrícula " + alumno.getCodigo() + " tiene cruce de horario");
         }
 
-        List<Seccion> seccionesOrigen = new ArrayList();
-        seccionesOrigen.add(origen);
-        if (origen.getSeccionSuperior() != null) {
-            seccionesOrigen.add(origen.getSeccionSuperior());
-        }
+//        List<Seccion> seccionesOrigen = new ArrayList();
+//        seccionesOrigen.add(origen);
+//        if (origen.getSeccionSuperior() != null) {
+//            seccionesOrigen.add(origen.getSeccionSuperior());
+//        }
 
-        List<MatriculaSeccion> matriculadosSeccionOrigen = matriculaSeccionDAO.allMatriculadosByAlumnosSecciones(alumnos, seccionesOrigen);
-        System.out.println("matriculadosSeccionOrigen ::: " + matriculadosSeccionOrigen.size());
-        for (MatriculaSeccion matSecc : matriculadosSeccionOrigen) {
-            System.out.println(matSecc.getMatriculaResumen().getAlumno().getCodigo() + " " + matSecc.getSeccion().getCodigo2());
-        }
-        Map<Long, List<MatriculaSeccion>> mapMatriSeccion = TypesUtil.convertListToMapList("matriculaResumen.alumno.id", matriculadosSeccionOrigen);
+//        List<MatriculaSeccion> matriculadosSeccionOrigen = matriculaSeccionDAO.allMatriculadosByAlumnosSecciones(alumnos, seccionesOrigen);
+//        Map<Long, List<MatriculaSeccion>> mapMatriSeccion = TypesUtil.convertListToMapList("matriculaResumen.alumno.id", matriculadosSeccionOrigen);
+        Curso curso = origen.getGrupoSeccion().getCurso();
+        List<MatriculaCurso> matriculadosCursoOrigen = matriculaCursoDAO.allActivosByMatriculaResumenCurso(matriculadosResumen, curso);
+        Map<Long, MatriculaCurso> mapMatriculaCurso = TypesUtil.convertListToMap("matriculaResumen.alumno.id", matriculadosCursoOrigen);
+        System.out.println("matriculadosSeccionOrigen ::: " + matriculadosCursoOrigen.size());
 
+        int trasladados = 0;
+        int matriculados = origen.getMatriculados();
         for (Alumno alumno : alumnos) {
-            List<MatriculaSeccion> matriSeccionAlu = mapMatriSeccion.get(alumno.getId());
-            if (esTeoPrac && !mismoGpoSecc) {
-                MatriculaSeccion matSecc = getMatriSeccion(matriSeccionAlu, TipoSeccionEnum.TCUR);
-                matSecc.setEstadoEnum(EstadoMatriculaEnum.TRAS);
-                matriculaSeccionDAO.update(matSecc);
+            //List<MatriculaSeccion> matriSeccionAlu = mapMatriSeccion.get(alumno.getId());
+            MatriculaCurso matCurso = mapMatriculaCurso.get(alumno.getId());
+            responseRestService.createToken(ds);
+            JsonResponse response = responseRestService.retirarMatriculaCurso(matCurso, ds);
+            Assert.isTrue(response.getSuccess(), response.getMessage());
 
-                MatriculaSeccion newMatriculaSeccion = new MatriculaSeccion();
-                newMatriculaSeccion.setVisible(null);
-                newMatriculaSeccion.setMatriculaResumen(matSecc.getMatriculaResumen());
-                newMatriculaSeccion.setFechaRegistro(new Date());
-                newMatriculaSeccion.setUserRegistro(ds.getUsuario());
-                newMatriculaSeccion.setSeccion(destinoSup);
-                newMatriculaSeccion.setEstadoEnum(EstadoMatriculaEnum.MAT);
-                matriculaSeccionDAO.save(newMatriculaSeccion);
-            }
+            responseRestService.createToken(ds);
+            response = responseRestService.matricularSeccion(alumno, destino, ds);
+            Assert.isTrue(response.getSuccess(), response.getMessage());
 
-            MatriculaSeccion matSecc = matriSeccionAlu.get(0);
-            if (esTeoPrac) {
-                matSecc = getMatriSeccion(matriSeccionAlu, TipoSeccionEnum.PCUR);
-            }
-            matSecc.setEstadoEnum(EstadoMatriculaEnum.TRAS);
-            matriculaSeccionDAO.update(matSecc);
-
-            MatriculaSeccion newMatriculaSeccion = new MatriculaSeccion();
-            newMatriculaSeccion.setVisible(null);
-            newMatriculaSeccion.setMatriculaResumen(matSecc.getMatriculaResumen());
-            newMatriculaSeccion.setFechaRegistro(new Date());
-            newMatriculaSeccion.setUserRegistro(ds.getUsuario());
-            newMatriculaSeccion.setSeccion(destino);
-            newMatriculaSeccion.setEstadoEnum(EstadoMatriculaEnum.MAT);
-            matriculaSeccionDAO.save(newMatriculaSeccion);
+            trasladados++;
 
             // FALTA VACANTE-ALUMNO COMO REGISTRO ANULADO
             // FALTA VACANTE-ALUMNO COMO NUEVO REGISTRO
         }
 
-        if (origen.getMatriculados() - alumnos.size() == 0) {
-            origen.setEstadoEnum(SeccionEstadoEnum.FUS);
-        }
-        seccionDAO.updateMatriculados(destino, destino.getMatriculados() + alumnos.size());
-        seccionDAO.updateMatriculados(origen, origen.getMatriculados() - alumnos.size());
+        Seccion origenUpd = new Seccion(origen.getId());
+        origenUpd.setUsuarioModificacion(ds.getUsuario());
+        origenUpd.setFechaModificacion(new Date());
+        
+        if (matriculados - trasladados == 0) {
+            origenUpd.setEstadoEnum(SeccionEstadoEnum.FUS);
+            seccionDAO.updateColumns(origenUpd, "estado", "userModificacion", "fechaModificacion");
 
-        if (esTeoPrac && !mismoGpoSecc) {
-            if (origenSup.getMatriculados() - alumnos.size() == 0) {
-                origenSup.setEstadoEnum(SeccionEstadoEnum.FUS);
-            }
-            seccionDAO.updateMatriculados(destinoSup, destinoSup.getMatriculados() + alumnos.size());
-            seccionDAO.updateMatriculados(origenSup, origenSup.getMatriculados() - alumnos.size());
+        } else {
+            seccionDAO.updateColumns(origenUpd, "userModificacion", "fechaModificacion");
         }
+
+//        seccionDAO.updateMatriculados(destino, destino.getMatriculados() + alumnos.size());
+//        seccionDAO.updateMatriculados(origen, origen.getMatriculados() - alumnos.size());
+//
+//        if (esTeoPrac && !mismoGpoSecc) {
+//            if (origenSup.getMatriculados() - alumnos.size() == 0) {
+//                origenSup.setEstadoEnum(SeccionEstadoEnum.FUS);
+//            }
+//            seccionDAO.updateMatriculados(destinoSup, destinoSup.getMatriculados() + alumnos.size());
+//            seccionDAO.updateMatriculados(origenSup, origenSup.getMatriculados() - alumnos.size());
+//        }
     }
 
     private MatriculaSeccion getMatriSeccion(List<MatriculaSeccion> matriSecciones, TipoSeccionEnum tipoSeccion) {

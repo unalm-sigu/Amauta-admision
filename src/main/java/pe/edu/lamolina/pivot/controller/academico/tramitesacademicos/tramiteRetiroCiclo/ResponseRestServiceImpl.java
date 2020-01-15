@@ -53,8 +53,20 @@ public class ResponseRestServiceImpl extends AbstractRestClient<JsonResponse> im
         json.put("idUsuario", ds.getUsuario().getId());
         json.put("idMatricula", matriculaCurso.getId());
 
-        String url = String.format("%s/matriculaSeccion/deleteMatriculaCurso",
-                parametro.getValor());
+        String url = String.format("%s/matriculaSeccion/deleteMatriculaCurso", parametro.getValor());
+
+        return this.postToBackEnd(url, json);
+    }
+
+    @Override
+    public JsonResponse matricularSeccion(Alumno alumno, Seccion seccion, DataSessionPivot ds) {
+        Parametro parametro = findParametro(ParametrosSistemasEnum.REST_MATRICULA);
+        ObjectNode json = new ObjectNode(JsonNodeFactory.instance);
+        json.put("idUsuario", ds.getUsuario().getId());
+        json.put("idMatricula", alumno.getId());
+        json.put("idSeccion", seccion.getId());
+
+        String url = String.format("%s/matriculaSeccion/matricularSeccion", parametro.getValor());
 
         return this.postToBackEnd(url, json);
     }
@@ -76,15 +88,19 @@ public class ResponseRestServiceImpl extends AbstractRestClient<JsonResponse> im
 
     @Override
     @Transactional
-    public JsonResponse ampliarVacante(Seccion seccion, Integer variacion) {
+    public JsonResponse ampliarVacante(Seccion seccion, Integer variacion, DataSessionPivot ds) {
         Parametro parametro = findParametro(ParametrosSistemasEnum.REST_MATRICULA);
 
         ObjectNode json = new ObjectNode(JsonNodeFactory.instance);
+        json.put("idUsuario", ds.getUsuario().getId());
         json.put("idSeccion", seccion.getId());
-        json.put("cantidadVariacion", variacion);
+        json.put("cantidadVariacion", Math.abs(variacion));
+        String metodo = "agregarVacanteSeccion";
+        if (variacion < 0) {
+            metodo = "restarVacanteSeccion";
+        }
 
-        String url = String.format("%s/matriculaSeccion/agregarVacanteSeccion",
-                parametro.getValor());
+        String url = String.format("%s/matriculaSeccion/%s", parametro.getValor(), metodo);
 
         return this.postToBackEnd(url, json);
     }
@@ -185,7 +201,7 @@ public class ResponseRestServiceImpl extends AbstractRestClient<JsonResponse> im
         token.setOrigenEnum(OrigenTokenEnum.AMAUTA);
         token.setEstado(TokenEstadoEnum.ACT);
         token.setFechaRegistro(new Date());
-        token.setFechaVencimiento(new DateTime().plusSeconds(15).toDate());
+        token.setFechaVencimiento(new DateTime().plusMinutes(15).toDate());
         token.setPersona(ds.getPersona());
         token.setValor(valor);
         token.setUserRegistro(ds.getUsuario());

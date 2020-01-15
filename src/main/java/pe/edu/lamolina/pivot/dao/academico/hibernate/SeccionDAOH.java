@@ -819,9 +819,7 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
     @Override
     public void updateColumns(Seccion seccion, String... columns) {
         Octavia sql = Octavia.update(Seccion.class, "se");
-        for (String column : columns) {
-            sql.set(seccion, column);
-        }
+        sql.set(seccion, columns);
         this.update(sql);
     }
 

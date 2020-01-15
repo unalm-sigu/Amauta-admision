@@ -894,4 +894,11 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
         return rows;
     }
 
+    @Override
+    public void updateColumns(GrupoSeccion grupoSeccion, String... columns) {
+        Octavia sql = Octavia.update(GrupoSeccion.class, "gs");
+        sql.set(grupoSeccion, columns);
+        this.update(sql);
+    }
+
 }

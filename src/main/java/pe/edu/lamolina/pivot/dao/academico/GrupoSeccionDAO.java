@@ -94,4 +94,6 @@ public interface GrupoSeccionDAO extends EasyDAO<GrupoSeccion> {
 
     int saveList(List<GrupoSeccion> gposSecciones);
 
+    void updateColumns(GrupoSeccion grupoSeccion, String... columns);
+
 }

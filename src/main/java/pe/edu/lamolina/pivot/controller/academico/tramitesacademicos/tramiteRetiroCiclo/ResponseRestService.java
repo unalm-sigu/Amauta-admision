@@ -14,6 +14,8 @@ public interface ResponseRestService {
 
     JsonResponse retirarMatriculaCurso(MatriculaCurso matriculaCurso, DataSessionPivot ds);
 
+    JsonResponse matricularSeccion(Alumno alumno, Seccion seccion, DataSessionPivot ds);
+
     JsonResponse retirarMatriculaCiclo(MatriculaResumen matriculaResumen, DataSessionPivot ds);
 
     JsonResponse generarAporte(Alumno alumno, CicloAcademico ciclo, MatriculaResumen matriculaResumen, DataSessionPivot ds);
@@ -26,7 +28,7 @@ public interface ResponseRestService {
 
     JsonResponse eliminarAporteCarnet(MatriculaResumen matriculaResumen, DataSessionPivot ds);
 
-    JsonResponse ampliarVacante(Seccion seccion, Integer variacion);
+    JsonResponse ampliarVacante(Seccion seccion, Integer variacion, DataSessionPivot ds);
 
     JsonResponse anularBoletas(MatriculaResumen matriculaResumen, DataSessionPivot ds);
 

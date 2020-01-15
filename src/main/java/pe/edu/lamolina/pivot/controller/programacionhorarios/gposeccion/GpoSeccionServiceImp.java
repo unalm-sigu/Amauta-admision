@@ -1075,6 +1075,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         // validar matricula seccion, sin importar estado
         List<AlumnoEvaluacion> alumnoEvaluacion = alumnoEvaluacionDAO.allBySeccion(seccionBD.getId());
         Assert.isTrue(alumnoEvaluacion.isEmpty(), "La sección tiene notas registradas");
+        Assert.isFalse(seccionBD.isTipoSeccionTCUR(), "Este tipo de sección no puede ser anulada");
 
         List<Evaluacion> evaluacionesBySeccion = evaluacionDAO.allBySeccion(seccionBD);
         if (!evaluacionesBySeccion.isEmpty()) {
@@ -1085,89 +1086,134 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
         this.deleteHorarioSeccion(seccionBD);
 
-        List<MatriculaSeccion> matriculasSeccionAlState = matriculaSeccionDAO.allBySeccion(seccionBD);
-        List<MatriculaResumen> resumenes = matriculasSeccionAlState.stream().map(x -> x.getMatriculaResumen()).collect(Collectors.toList());
-        List<MatriculaCurso> matriculasCurso = matriculaCursoDAO.allActivosByMatriculaResumenCurso(resumenes, curso);
-        if (!seccionBD.isTipoSeccionTCUR()) {
-            for (MatriculaCurso matCurso : matriculasCurso) {
-                if (matCurso.isEstadoMAT() || matCurso.isEstadoPMAT()) {
-                    responseRestService.createToken(ds);
-                    JsonResponse response = responseRestService.retirarMatriculaCurso(matCurso, ds);
-                    Assert.isTrue(response.getSuccess(), response.getMessage());
-                }
+        List<MatriculaSeccion> matriculasSeccionAll = matriculaSeccionDAO.allBySeccion(seccionBD);
+        List<MatriculaSeccion> matriculados = new ArrayList();
+        for (MatriculaSeccion matSeccion : matriculasSeccionAll) {
+            if (matSeccion.isEstadoMAT() || matSeccion.isEstadoPMAT()) {
+                matriculados.add(matSeccion);
             }
         }
 
-        if (matriculasSeccionAlState.isEmpty()) {
-            this.deleteDependenciasSeccion(seccionBD);
+        List<MatriculaResumen> resumenes = matriculasSeccionAll.stream().map(x -> x.getMatriculaResumen()).collect(Collectors.toList());
+        List<MatriculaCurso> matriculasCurso = matriculaCursoDAO.allActivosByMatriculaResumenCurso(resumenes, curso);
 
+        for (MatriculaCurso matCurso : matriculasCurso) {
+            if (matCurso.isEstadoMAT() || matCurso.isEstadoPMAT()) {
+                responseRestService.createToken(ds);
+                JsonResponse response = responseRestService.retirarMatriculaCurso(matCurso, ds);
+                Assert.isTrue(response.getSuccess(), response.getMessage());
+            }
+        }
+
+        SeccionEstadoEnum estadoFinal = matriculados.isEmpty() ? SeccionEstadoEnum.ANU : SeccionEstadoEnum.CAN;
+        if (matriculasSeccionAll.isEmpty()) {
+            this.deleteDependenciasSeccion(seccionBD);
             seccionDAO.delete(seccionBD);
 
+            List<Seccion> seccionesAll = seccionDAO.allByGpoSeccion(grupoSeccion);
+            if (seccionesAll.size() <= 1) {
+                for (Seccion seccion : seccionesAll) {
+                    this.deleteDependenciasSeccion(seccion);
+                    seccionDAO.delete(seccion);
+                }
+                evaluacionExpandidaDAO.deleteByGrupoSeccion(grupoSeccion);
+                evaluacionSeccionDAO.deleteByGrupoSeccion(grupoSeccion);
+                grupoSeccionDAO.deleteGrupoSeccion(grupoSeccion);
+
+                this.actualizarBoletin();
+
+                GrupoSeccion grupoSeccionReturn = new GrupoSeccion();
+                grupoSeccionReturn.setCurso(curso);
+                return grupoSeccionReturn;
+            }
+
             List<Seccion> seccionesActivas = seccionDAO.allOperativesByGpoSeccion(grupoSeccion);
+            if (seccionesActivas.size() <= 1) {
+                for (Seccion seccion : seccionesActivas) {
+                    Seccion seccionUpd = new Seccion(seccion.getId());
+                    seccionUpd.setUsuarioModificacion(ds.getUsuario());
+                    seccionUpd.setFechaModificacion(today.toDate());
+                    seccionUpd.setEstadoEnum(estadoFinal);
+                    seccionDAO.updateColumns(seccionUpd, "usuarioModificacion", "fechaModificacion", "estado");
+                }
+
+                GrupoSeccion grupoSeccionUpd = new GrupoSeccion(grupoSeccion.getId());
+                grupoSeccionUpd.setEstadoEnum(SeccionEstadoEnum.ANU);
+                grupoSeccionUpd.setUsuarioModificacion(ds.getUsuario());
+                grupoSeccionUpd.setFechaModificacion(today.toDate());
+                grupoSeccionDAO.updateColumns(grupoSeccionUpd, "estado", "usuarioModificacion", "fechaModificacion");
+
+                evaluacionExpandidaDAO.deleteByGrupoSeccion(grupoSeccion);
+                evaluacionSeccionDAO.deleteByGrupoSeccion(grupoSeccion);
+
+                this.actualizarBoletin();
+                return grupoSeccion;
+            }
+
             Collections.sort(seccionesActivas, (Seccion va1, Seccion va2) -> va1.getCodigo2().compareTo(va2.getCodigo2()));
             int i = 0;
             for (Seccion seccionEach : seccionesActivas) {
                 String cod2 = grupoSeccion.getCodigo2() + i;
                 if (!seccionEach.getCodigo2().equals(cod2)) {
-//                    seccionEach.setCodigo2(cod2);
-//                    seccionEach.setUsuarioModificacion(ds.getUsuario());
-//                    seccionEach.setFechaModificacion(today.toDate());
-//                    seccionDAO.updateEstadoFechaModUsuarioMod(seccionEach);
                     Seccion seccionUpd = new Seccion(seccionEach.getId());
                     seccionUpd.setCodigo2(cod2);
                     seccionUpd.setUsuarioModificacion(ds.getUsuario());
                     seccionUpd.setFechaModificacion(today.toDate());
-                    seccionUpd.setEstadoEnum(SeccionEstadoEnum.ANU);
-                    seccionDAO.updateColumns(seccionUpd, "usuarioModificacion", "fechaModificacion", "estado", "codigo2");
+                    seccionDAO.updateColumns(seccionUpd, "usuarioModificacion", "fechaModificacion", "codigo2");
                 }
                 i++;
             }
 
-        } else {
+            this.actualizarBoletin();
+            return grupoSeccion;
+
+        }
+
+        {
             Seccion seccionUpd = new Seccion(seccionBD.getId());
             seccionUpd.setUsuarioModificacion(ds.getUsuario());
             seccionUpd.setFechaModificacion(today.toDate());
-            seccionUpd.setEstadoEnum(SeccionEstadoEnum.ANU);
+            seccionUpd.setEstadoEnum(estadoFinal);
             seccionDAO.updateColumns(seccionUpd, "usuarioModificacion", "fechaModificacion", "estado");
-            //seccionDAO.updateEstadoFechaModUsuarioMod(seccionUpd);
         }
 
-        //this.actualizarVacantesTCUR(seccionBD.getGrupoSeccion(), ds, today);
         this.actualizarBoletin();
 
+        int operativas = 0;
         if (grupoSeccion.getCurso().isTipoCursoTEOPRA()) {
-            if (seccionBD.isTipoSeccionPCUR()) {
-                List<Seccion> secciones = seccionDAO.allOperativesByGpoSeccion(grupoSeccion);
-                Seccion seccionTCUR = secciones.stream().filter(x -> x.isTipoSeccionTCUR()).findFirst().orElse(null);
-                List<Seccion> seccionesPCUR = secciones.stream()
-                        .filter(x -> x.isTipoSeccionPCUR())
-                        .filter(x -> x.getId().compareTo(seccionBD.getId()) != 0)
-                        .collect(Collectors.toList());
-                if (seccionesPCUR == null || seccionesPCUR.isEmpty() && seccionTCUR != null) {
-                    this.anularSeccion(seccionTCUR, ds);
-                }
+            List<Seccion> secciones = seccionDAO.allOperativesByGpoSeccion(grupoSeccion);
+            Seccion seccionTCUR = secciones.stream().filter(x -> x.isTipoSeccionTCUR()).findFirst().orElse(null);
+            List<Seccion> seccionesPCUR = secciones.stream()
+                    .filter(x -> x.isTipoSeccionPCUR())
+                    .filter(x -> x.getId().compareTo(seccionBD.getId()) != 0)
+                    .collect(Collectors.toList());
+
+            operativas = seccionesPCUR.size();
+
+            if (seccionesPCUR.isEmpty() && seccionTCUR != null) {
+                Seccion seccionUpd = new Seccion(seccionTCUR.getId());
+                seccionUpd.setUsuarioModificacion(ds.getUsuario());
+                seccionUpd.setFechaModificacion(today.toDate());
+                seccionUpd.setEstadoEnum(estadoFinal);
+                seccionDAO.updateColumns(seccionUpd, "usuarioModificacion", "fechaModificacion", "estado");
             }
+
         }
 
-        List<Seccion> seccionesOperativas = seccionDAO.allOperativesByGpoSeccion(grupoSeccion);
-        List<Seccion> allSecciones = seccionDAO.allByGpoSeccion(grupoSeccion);
-
-        if (allSecciones.isEmpty()) {
-            evaluacionExpandidaDAO.deleteByGrupoSeccion(grupoSeccion);
-            evaluacionSeccionDAO.deleteByGrupoSeccion(grupoSeccion);
-            grupoSeccionDAO.deleteGrupoSeccion(grupoSeccion);
-
-            GrupoSeccion grupoSeccionReturn = new GrupoSeccion();
-            grupoSeccionReturn.setCurso(curso);
-            return grupoSeccionReturn;
-
-        } else if (seccionesOperativas.isEmpty()) {
+        if (operativas == 0) {
             GrupoSeccion grupoSeccionUpd = new GrupoSeccion(grupoSeccion.getId());
             grupoSeccionUpd.setEstadoEnum(SeccionEstadoEnum.ANU);
             grupoSeccionUpd.setUsuarioModificacion(ds.getUsuario());
             grupoSeccionUpd.setFechaModificacion(today.toDate());
-            grupoSeccionDAO.updateEstadoFechaModUsuarioMod(grupoSeccion);
+            grupoSeccionDAO.updateColumns(grupoSeccionUpd, "estado", "usuarioModificacion", "fechaModificacion");
         }
+
+        for (MatriculaSeccion matriculado : matriculados) {
+            MatriculaSeccion matSeccUpd = new MatriculaSeccion(matriculado.getId());
+            matSeccUpd.setEstadoEnum(EstadoMatriculaEnum.RCA);
+            matriculaSeccionDAO.updateColumns(matSeccUpd, "estado");
+        }
+
         return grupoSeccion;
     }
 
@@ -1231,99 +1277,64 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         Assert.isFalse(matriculadosSeccionPRA.isEmpty(), "Solo se puede cancelar una sección con alumnos matriculados");
         Assert.isTrue(matriculadosSeccionPRA.size() == seccionBD.getMatriculados(), "La cantidad de matriculados no coincide con el dato en la sección");
 
-        List<MatriculaSeccion> matriculadosSeccionTEO = new ArrayList();
-        Seccion seccionSup = seccionBD.getSeccionSuperior();
-        if (seccionSup != null) {
-            matriculadosSeccionTEO = matriculaSeccionDAO.allMatriculadosBySeccion(seccionSup);
-        }
-
-        Curso curso = seccionBD.getGrupoSeccion().getCurso();
+        GrupoSeccion grupoSeccion = seccionBD.getGrupoSeccion();
+        Curso curso = grupoSeccion.getCurso();
         List<MatriculaResumen> resumenes = matriculadosSeccionPRA.stream().map(x -> x.getMatriculaResumen()).collect(Collectors.toList());
-        List<MatriculaCurso> matriculadosCurso = matriculaCursoDAO.allByMatriculaResumenCurso(resumenes, curso);
+        List<MatriculaCurso> matriculasCurso = matriculaCursoDAO.allActivosByMatriculaResumenCurso(resumenes, curso);
 
-        for (MatriculaCurso matCurso : matriculadosCurso) {
-            Alumno alumno = matCurso.getMatriculaResumen().getAlumno();
-            Assert.isTrue(matCurso.getEstadoEnum() == EstadoMatriculaEnum.MAT, "El alumno con matrícula " + alumno.getCodigo() + " tiene data erronea en matricula-curso");
+        for (MatriculaCurso matCurso : matriculasCurso) {
+            if (matCurso.isEstadoMAT() || matCurso.isEstadoPMAT()) {
+                responseRestService.createToken(ds);
+                JsonResponse response = responseRestService.retirarMatriculaCurso(matCurso, ds);
+                Assert.isTrue(response.getSuccess(), response.getMessage());
+            }
         }
 
-        for (MatriculaCurso matCurso : matriculadosCurso) {
-            matCurso.setEstadoEnum(EstadoMatriculaEnum.NMAT);
-            matCurso.setUserAnula(ds.getUsuario());
-            matCurso.setFechaAnula(today.toDate());
+        {
+            Seccion seccionUpd = new Seccion(seccionBD.getId());
+            seccionUpd.setUsuarioModificacion(ds.getUsuario());
+            seccionUpd.setFechaModificacion(today.toDate());
+            seccionUpd.setEstadoEnum(SeccionEstadoEnum.CAN);
+            seccionDAO.updateColumns(seccionUpd, "usuarioModificacion", "fechaModificacion", "estado");
+        }
 
-            MatriculaResumen resumen = matCurso.getMatriculaResumen();
-            resumen.setCreditosMatriculados(resumen.getCreditosMatriculados() - matCurso.getCreditos());
-            resumen.setCursosMatriculados(resumen.getCursosMatriculados() - 1);
+        this.actualizarBoletin();
 
-            if (resumen.getCursosMatriculados() == 0) {
-                resumen.setEstadoEnum(EstadoMatriculaEnum.NMAT);
+        int operativas = 0;
+        if (grupoSeccion.getCurso().isTipoCursoTEOPRA()) {
+            List<Seccion> secciones = seccionDAO.allOperativesByGpoSeccion(grupoSeccion);
+            Seccion seccionTCUR = secciones.stream().filter(x -> x.isTipoSeccionTCUR()).findFirst().orElse(null);
+            List<Seccion> seccionesPCUR = secciones.stream()
+                    .filter(x -> x.isTipoSeccionPCUR())
+                    .filter(x -> x.getId().compareTo(seccionBD.getId()) != 0)
+                    .collect(Collectors.toList());
+
+            operativas = seccionesPCUR.size();
+
+            if (seccionesPCUR.isEmpty() && seccionTCUR != null) {
+                Seccion seccionUpd = new Seccion(seccionTCUR.getId());
+                seccionUpd.setUsuarioModificacion(ds.getUsuario());
+                seccionUpd.setFechaModificacion(today.toDate());
+                seccionUpd.setEstadoEnum(SeccionEstadoEnum.CAN);
+                seccionDAO.updateColumns(seccionUpd, "usuarioModificacion", "fechaModificacion", "estado");
             }
 
-            matriculaCursoDAO.update(matCurso);
-            matriculaResumenDAO.update(resumen);
         }
 
-        List<MatriculaResumen> matriculasResumenPRA = matriculadosSeccionPRA.stream()
-                .map(x -> x.getMatriculaResumen())
-                .collect(Collectors.toList());
-        for (MatriculaSeccion matSecc : matriculadosSeccionPRA) {
-            matSecc.setEstadoEnum(EstadoMatriculaEnum.RCA);
-            matSecc.setUserAnula(ds.getUsuario());
-            matSecc.setFechaAnula(today.toDate());
-            matriculaSeccionDAO.update(matSecc);
+        if (operativas == 0) {
+            GrupoSeccion grupoSeccionUpd = new GrupoSeccion(grupoSeccion.getId());
+            grupoSeccionUpd.setEstadoEnum(SeccionEstadoEnum.ANU);
+            grupoSeccionUpd.setUsuarioModificacion(ds.getUsuario());
+            grupoSeccionUpd.setFechaModificacion(today.toDate());
+            grupoSeccionDAO.updateColumns(grupoSeccionUpd, "estado", "usuarioModificacion", "fechaModificacion");
         }
 
-        List<MatriculaSeccion> matriculasSeccionesTEO = matriculadosSeccionTEO.stream()
-                .filter(x -> matriculasResumenPRA.contains(x.getMatriculaResumen()))
-                .collect(Collectors.toList());
-
-        for (MatriculaSeccion matSecc : matriculasSeccionesTEO) {
-            matSecc.setEstadoEnum(EstadoMatriculaEnum.RCA);
-            matSecc.setUserAnula(ds.getUsuario());
-            matSecc.setFechaAnula(today.toDate());
-            matriculaSeccionDAO.update(matSecc);
+        for (MatriculaSeccion matriculado : matriculadosSeccionPRA) {
+            MatriculaSeccion matSeccUpd = new MatriculaSeccion(matriculado.getId());
+            matSeccUpd.setEstadoEnum(EstadoMatriculaEnum.RCA);
+            matriculaSeccionDAO.updateColumns(matSeccUpd, "estado");
         }
-        horarioAulaDAO.deleteBySecciones(Arrays.asList(seccionBD));
 
-        if (seccionBD.getAula() != null) {
-            seccionBD.setAulaBorrada(new Aula(seccionBD.getAula().getId()));
-        }
-        seccionBD.setMatriculados(0);
-        seccionBD.setEstadoEnum(SeccionEstadoEnum.CAN);
-        seccionBD.setUsuarioModificacion(ds.getUsuario());
-        seccionBD.setFechaModificacion(today.toDate());
-        seccionBD.setMotivoCancelacion(seccionForm.getMotivoCancelacion());
-        seccionBD.setAula(null);
-        seccionDAO.update(seccionBD);
-
-        GrupoSeccion gpoSeccBD = seccionBD.getGrupoSeccion();
-
-        if (seccionSup != null) {
-            horarioAulaDAO.deleteBySecciones(Arrays.asList(seccionSup));
-            if (seccionSup.getAula() != null) {
-                seccionSup.setAulaBorrada(new Aula(seccionSup.getAula().getId()));
-            }
-            seccionSup.setMatriculados(seccionSup.getMatriculados() - matriculadosSeccionPRA.size());
-            seccionSup.setUsuarioModificacion(ds.getUsuario());
-            seccionSup.setFechaModificacion(today.toDate());
-            seccionSup.setAula(null);
-            if (seccionSup.getMatriculados() == 0) {
-                seccionSup.setEstadoEnum(SeccionEstadoEnum.CAN);
-
-                gpoSeccBD.setEstadoEnum(SeccionEstadoEnum.CAN);
-                gpoSeccBD.setFechaModificacion(today.toDate());
-                gpoSeccBD.setUsuarioModificacion(ds.getUsuario());
-                grupoSeccionDAO.update(gpoSeccBD);
-            }
-            seccionDAO.update(seccionSup);
-
-        } else {
-            gpoSeccBD.setEstadoEnum(SeccionEstadoEnum.CAN);
-            gpoSeccBD.setFechaModificacion(today.toDate());
-            gpoSeccBD.setUsuarioModificacion(ds.getUsuario());
-            grupoSeccionDAO.update(gpoSeccBD);
-        }
-        //   throw new PhobosException("no pasaras");
     }
 
     @Override
@@ -1539,11 +1550,11 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     @Override
     @Transactional
     public void actualizarSeccionVacantes(Seccion seccionForm, DataSessionPivot ds) {
-        DateTime today = new DateTime();
+        //DateTime today = new DateTime();
         Seccion seccioDB = seccionDAO.find(seccionForm.getId());
-        GrupoSeccion grupoSeccion = grupoSeccionDAO.findLock(seccioDB.getGrupoSeccion().getId());
+        //GrupoSeccion grupoSeccion = grupoSeccionDAO.findLock(seccioDB.getGrupoSeccion().getId());
 
-        logger.debug("grupoSeccion:::  {}", grupoSeccion.getId());
+        //logger.debug("grupoSeccion:::  {}", grupoSeccion.getId());
         //validar seccion seleccionada
         if (ObjectUtil.getParentTree(seccioDB, "aula.id") != null) {
             if (seccioDB.getAula().getCapacidadAula().compareTo(seccionForm.getVacantes()) < 0) {
@@ -1554,6 +1565,11 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         if (matriculasSeccionSelect.size() > seccionForm.getVacantes()) {
             throw new PhobosException(String.format("Error. Las matriculas para la sección %s superan la cantidad de vacantes asignadas.", seccionForm.getCodigo2()));
         }
+
+        responseRestService.createToken(ds);
+        JsonResponse response = responseRestService.ampliarVacante(seccioDB, seccionForm.getVacantes() - seccioDB.getVacantes(), ds);
+        Assert.isTrue(response.getSuccess(), response.getMessage());
+
         //seccioDB.setVacantes(seccionForm.getVacantes());
         // FALTA REVISAR ESTE METODO Q SE ESTA DESACTIVANDO YA QUE TODO LO DE VACANTES
         // DEBE SER GESTIONADO POR EL SISTEMA MATRICULA
@@ -1569,7 +1585,6 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         //seccionDAO.updateSeccionVacantes(seccionTCUR);
         //seccionDAO.updateSeccionVacantes(seccioDB);
         //seccionDAO.update(seccioDB);
-
         //validar seccion seleccioanda
 //        List<VacanteAlumno> vacantesAlumnoBySeccion = vacanteAlumnoDAO.allActivosBySeccion(seccionForm);
 //        Collections.sort(vacantesAlumnoBySeccion, (VacanteAlumno va1, VacanteAlumno va2) -> va1.getNumero().compareTo(va2.getNumero()));

@@ -148,15 +148,12 @@ public class AmpliaVacantesServiceImp implements AmpliaVacantesService {
         Seccion seccion = seccionDAO.find(ampliacionBD.getSeccion());
 
         if (seccion.getMatriculados() > ampliacionBD.getVacantesFin()) {
-            throw new PhobosException("Todas las vacantes ya fueron acupadas");
+            throw new PhobosException("Todas las vacantes ya fueron ocupadas");
         }
 
         Aula aula = seccion.getAula();
-
         if (aula != null && aula.getCapacidadAula() != null) {
-            if (ampliacionBD.getVacantesFin() > aula.getCapacidadTotal()) {
-                throw new PhobosException("Ya ha completo la capacidad del aula");
-            }
+            Assert.isTrue(ampliacionBD.getVacantesFin() <= aula.getCapacidadTotal(), "Ya ha completo la capacidad del aula");
         }
 
         ampliacionBD.setEstadoEnum(AmpliacionVacanteEstadoEnum.ACEPTADO);
@@ -164,22 +161,12 @@ public class AmpliaVacantesServiceImp implements AmpliaVacantesService {
         ampliacionBD.setFechaModificacion(new Date());
         ampliacionBD.setFechaRespuesta(new Date());
         ampliacionVacanteDAO.update(ampliacionBD);
-
-        seccion.setVacantes(ampliacionBD.getVacantesFin());
-        seccionDAO.update(seccion);
-        rest(seccion, ampliacionBD.getIncremento());
-        Seccion secSuperior = seccion.getSeccionSuperior();
-        if (secSuperior != null) {
-            secSuperior.setVacantes(secSuperior.getVacantes() + ampliacionBD.getIncremento());
-            rest(secSuperior, ampliacionBD.getIncremento());
-            seccionDAO.update(secSuperior);
-        }
+        rest(seccion, ampliacionBD.getIncremento(), ds);
     }
 
-    private void rest(Seccion seccion, Integer variacion) {
-        JsonResponse jsonResponse = responseRestService.ampliarVacante(seccion, variacion);
-
-        Assert.isTrue(jsonResponse.getSuccess(), "Se produjo un error al modificar secciones matricula. Comuniquese con mesa de ayuda.");
+    private void rest(Seccion seccion, Integer variacion, DataSessionPivot ds) {
+        JsonResponse jsonResponse = responseRestService.ampliarVacante(seccion, variacion, ds);
+        Assert.isTrue(jsonResponse.getSuccess(), jsonResponse.getMessage());
     }
 
     @Override
