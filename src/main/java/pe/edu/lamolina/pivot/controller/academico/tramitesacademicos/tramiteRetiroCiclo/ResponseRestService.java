@@ -3,6 +3,7 @@ package pe.edu.lamolina.pivot.controller.academico.tramitesacademicos.tramiteRet
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.MatriculaCurso;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.general.Parametro;
@@ -11,7 +12,9 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface ResponseRestService {
 
-    JsonResponse updateRest(MatriculaResumen matriculaResumen, DataSessionPivot ds);
+    JsonResponse retirarMatriculaCurso(MatriculaCurso matriculaCurso, DataSessionPivot ds);
+
+    JsonResponse retirarMatriculaCiclo(MatriculaResumen matriculaResumen, DataSessionPivot ds);
 
     JsonResponse generarAporte(Alumno alumno, CicloAcademico ciclo, MatriculaResumen matriculaResumen, DataSessionPivot ds);
 

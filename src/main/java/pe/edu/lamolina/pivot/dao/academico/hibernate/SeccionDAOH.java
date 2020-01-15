@@ -381,7 +381,7 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
         this.update(octavia);
     }
 
-    @Override
+    //@Override
     public void updateSeccionVacantes(Seccion seccion) {
 
         StringBuilder strb = new StringBuilder();

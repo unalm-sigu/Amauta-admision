@@ -39,6 +39,7 @@ import org.springframework.transaction.annotation.Propagation;
 import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.CodeGenerator;
 import pe.albatross.zelpers.miscelanea.Commutator;
+import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.ListsInspector;
 import pe.albatross.zelpers.miscelanea.NumberFormat;
 import pe.albatross.zelpers.miscelanea.math.Fraxtion;
@@ -120,6 +121,7 @@ import pe.edu.lamolina.model.horario.TipoGrupoHoras;
 import pe.edu.lamolina.model.rrhh.ContratoDocente;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.vacantes.VacanteAlumno;
+import pe.edu.lamolina.pivot.controller.academico.tramitesacademicos.tramiteRetiroCiclo.ResponseRestService;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoEvaluacionDAO;
 import pe.edu.lamolina.pivot.dao.academico.CarreraDAO;
@@ -317,6 +319,9 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
     @Autowired
     EnviosRestService enviosRestService;
+
+    @Autowired
+    ResponseRestService responseRestService;
 
     final String PORCENTAJE_CARGA_FRACCION = "100";
     final BigDecimal PORCENTAJE_CARGA = new BigDecimal(100);
@@ -987,7 +992,18 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
                     throw new PhobosException("Las vacantes de la sección superan, el aforo del aula de teoria");
                 }
             }
-            seccionDAO.updateSeccionVacantes(seccionTCUR);
+            // FALTA REVISAR ESTE METODO Q SE ESTA DESACTIVANDO YA QUE TODO LO DE VACANTES
+            // DEBE SER GESTIONADO POR EL SISTEMA MATRICULA
+            //
+            //seccionDAO.updateSeccionVacantes(seccionTCUR);
+            //seccionDAO.updateSeccionVacantes(seccionTCUR);
+            //seccionDAO.updateSeccionVacantes(seccionTCUR);
+            //seccionDAO.updateSeccionVacantes(seccionTCUR);
+            //seccionDAO.updateSeccionVacantes(seccionTCUR);
+            //seccionDAO.updateSeccionVacantes(seccionTCUR);
+            //seccionDAO.updateSeccionVacantes(seccionTCUR);
+            //seccionDAO.updateSeccionVacantes(seccionTCUR);
+            //seccionDAO.updateSeccionVacantes(seccionTCUR);
         }
 
         //docenteSeccionDAO.deleteDocenteSeccionBySeccion(seccion);
@@ -1007,26 +1023,30 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         }
 
         DateTime today = new DateTime();
-        seccionBD.setUsuarioModificacion(ds.getUsuario());
-        seccionBD.setFechaModificacion(today.toDate());
-        seccionBD.setEstadoEnum(SeccionEstadoEnum.ACT);
-        seccionDAO.updateEstadoFechaModUsuarioMod(seccionBD);
-        logger.debug("seccionDAO.updateEstadoFechaModUsuarioMod(seccionBD);");
+        {
+            Seccion seccionUpd = new Seccion(seccionBD.getId());
+            seccionUpd.setUsuarioModificacion(ds.getUsuario());
+            seccionUpd.setFechaModificacion(today.toDate());
+            seccionUpd.setEstadoEnum(SeccionEstadoEnum.ACT);
+            seccionDAO.updateColumns(seccionUpd, "usuarioModificacion", "fechaModificacion", "estado");
+            logger.debug("seccionDAO.updateEstadoFechaModUsuarioMod(seccionBD);");
+        }
 
         GrupoSeccion gpoSecc = seccionBD.getGrupoSeccion();
         Curso curso = seccionBD.getGrupoSeccion().getCurso();
         if (curso.isTipoCursoTEOPRA()) {
             Seccion seccionTCUR = seccionDAO.findByGpoSeccionTipoSeccion(gpoSecc, TipoSeccionEnum.TCUR);
             if (seccionTCUR.getEstadoEnum() != SeccionEstadoEnum.ACT) {
-                seccionTCUR.setUsuarioModificacion(ds.getUsuario());
-                seccionTCUR.setFechaModificacion(today.toDate());
-                seccionTCUR.setEstadoEnum(SeccionEstadoEnum.ACT);
-                seccionDAO.updateEstadoFechaModUsuarioMod(seccionTCUR);
+                Seccion seccionUpd = new Seccion(seccionTCUR.getId());
+                seccionUpd.setUsuarioModificacion(ds.getUsuario());
+                seccionUpd.setFechaModificacion(today.toDate());
+                seccionUpd.setEstadoEnum(SeccionEstadoEnum.ACT);
+                seccionDAO.updateColumns(seccionUpd, "usuarioModificacion", "fechaModificacion", "estado");
                 logger.debug("seccionDAO.updateEstadoFechaModUsuarioMod(seccionTCUR);");
             }
         }
 
-        this.actualizarVacantesTCUR(gpoSecc, ds, today);
+        //this.actualizarVacantesTCUR(gpoSecc, ds, today);
         this.actualizarBoletin();
     }
 
@@ -1066,6 +1086,17 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         this.deleteHorarioSeccion(seccionBD);
 
         List<MatriculaSeccion> matriculasSeccionAlState = matriculaSeccionDAO.allBySeccion(seccionBD);
+        List<MatriculaResumen> resumenes = matriculasSeccionAlState.stream().map(x -> x.getMatriculaResumen()).collect(Collectors.toList());
+        List<MatriculaCurso> matriculasCurso = matriculaCursoDAO.allActivosByMatriculaResumenCurso(resumenes, curso);
+        if (!seccionBD.isTipoSeccionTCUR()) {
+            for (MatriculaCurso matCurso : matriculasCurso) {
+                if (matCurso.isEstadoMAT() || matCurso.isEstadoPMAT()) {
+                    responseRestService.createToken(ds);
+                    JsonResponse response = responseRestService.retirarMatriculaCurso(matCurso, ds);
+                    Assert.isTrue(response.getSuccess(), response.getMessage());
+                }
+            }
+        }
 
         if (matriculasSeccionAlState.isEmpty()) {
             this.deleteDependenciasSeccion(seccionBD);
@@ -1078,29 +1109,40 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             for (Seccion seccionEach : seccionesActivas) {
                 String cod2 = grupoSeccion.getCodigo2() + i;
                 if (!seccionEach.getCodigo2().equals(cod2)) {
-                    seccionEach.setCodigo2(cod2);
-                    seccionEach.setUsuarioModificacion(ds.getUsuario());
-                    seccionEach.setFechaModificacion(today.toDate());
-                    seccionDAO.updateEstadoFechaModUsuarioMod(seccionEach);
+//                    seccionEach.setCodigo2(cod2);
+//                    seccionEach.setUsuarioModificacion(ds.getUsuario());
+//                    seccionEach.setFechaModificacion(today.toDate());
+//                    seccionDAO.updateEstadoFechaModUsuarioMod(seccionEach);
+                    Seccion seccionUpd = new Seccion(seccionEach.getId());
+                    seccionUpd.setCodigo2(cod2);
+                    seccionUpd.setUsuarioModificacion(ds.getUsuario());
+                    seccionUpd.setFechaModificacion(today.toDate());
+                    seccionUpd.setEstadoEnum(SeccionEstadoEnum.ANU);
+                    seccionDAO.updateColumns(seccionUpd, "usuarioModificacion", "fechaModificacion", "estado", "codigo2");
                 }
                 i++;
             }
 
         } else {
-            seccionBD.setUsuarioModificacion(ds.getUsuario());
-            seccionBD.setFechaModificacion(today.toDate());
-            seccionBD.setEstadoEnum(SeccionEstadoEnum.ANU);
-            seccionDAO.updateEstadoFechaModUsuarioMod(seccionBD);
+            Seccion seccionUpd = new Seccion(seccionBD.getId());
+            seccionUpd.setUsuarioModificacion(ds.getUsuario());
+            seccionUpd.setFechaModificacion(today.toDate());
+            seccionUpd.setEstadoEnum(SeccionEstadoEnum.ANU);
+            seccionDAO.updateColumns(seccionUpd, "usuarioModificacion", "fechaModificacion", "estado");
+            //seccionDAO.updateEstadoFechaModUsuarioMod(seccionUpd);
         }
 
-        this.actualizarVacantesTCUR(seccionBD.getGrupoSeccion(), ds, today);
+        //this.actualizarVacantesTCUR(seccionBD.getGrupoSeccion(), ds, today);
         this.actualizarBoletin();
 
         if (grupoSeccion.getCurso().isTipoCursoTEOPRA()) {
             if (seccionBD.isTipoSeccionPCUR()) {
                 List<Seccion> secciones = seccionDAO.allOperativesByGpoSeccion(grupoSeccion);
                 Seccion seccionTCUR = secciones.stream().filter(x -> x.isTipoSeccionTCUR()).findFirst().orElse(null);
-                List<Seccion> seccionesPCUR = secciones.stream().filter(x -> x.isTipoSeccionPCUR()).collect(Collectors.toList());
+                List<Seccion> seccionesPCUR = secciones.stream()
+                        .filter(x -> x.isTipoSeccionPCUR())
+                        .filter(x -> x.getId().compareTo(seccionBD.getId()) != 0)
+                        .collect(Collectors.toList());
                 if (seccionesPCUR == null || seccionesPCUR.isEmpty() && seccionTCUR != null) {
                     this.anularSeccion(seccionTCUR, ds);
                 }
@@ -1111,10 +1153,6 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         List<Seccion> allSecciones = seccionDAO.allByGpoSeccion(grupoSeccion);
 
         if (allSecciones.isEmpty()) {
-//            List<EvaluacionSeccion> evaluacionesSeccion = evaluacionSeccionDAO.allByGrupoSeccion(grupoSeccion);
-//            for (EvaluacionSeccion evaluacionSeccion : evaluacionesSeccion) {
-//                evaluacionSeccionDAO.delete(evaluacionSeccion);
-//            }
             evaluacionExpandidaDAO.deleteByGrupoSeccion(grupoSeccion);
             evaluacionSeccionDAO.deleteByGrupoSeccion(grupoSeccion);
             grupoSeccionDAO.deleteGrupoSeccion(grupoSeccion);
@@ -1516,67 +1554,82 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         if (matriculasSeccionSelect.size() > seccionForm.getVacantes()) {
             throw new PhobosException(String.format("Error. Las matriculas para la sección %s superan la cantidad de vacantes asignadas.", seccionForm.getCodigo2()));
         }
-        seccioDB.setVacantes(seccionForm.getVacantes());
-        seccionDAO.updateSeccionVacantes(seccioDB);
+        //seccioDB.setVacantes(seccionForm.getVacantes());
+        // FALTA REVISAR ESTE METODO Q SE ESTA DESACTIVANDO YA QUE TODO LO DE VACANTES
+        // DEBE SER GESTIONADO POR EL SISTEMA MATRICULA
+        //
+        //seccionDAO.updateSeccionVacantes(seccionTCUR);
+        //seccionDAO.updateSeccionVacantes(seccionTCUR);
+        //seccionDAO.updateSeccionVacantes(seccionTCUR);
+        //seccionDAO.updateSeccionVacantes(seccionTCUR);
+        //seccionDAO.updateSeccionVacantes(seccionTCUR);
+        //seccionDAO.updateSeccionVacantes(seccionTCUR);
+        //seccionDAO.updateSeccionVacantes(seccionTCUR);
+        //seccionDAO.updateSeccionVacantes(seccionTCUR);
+        //seccionDAO.updateSeccionVacantes(seccionTCUR);
+        //seccionDAO.updateSeccionVacantes(seccioDB);
         //seccionDAO.update(seccioDB);
 
         //validar seccion seleccioanda
-        List<VacanteAlumno> vacantesAlumnoBySeccion = vacanteAlumnoDAO.allActivosBySeccion(seccionForm);
-        Collections.sort(vacantesAlumnoBySeccion, (VacanteAlumno va1, VacanteAlumno va2) -> va1.getNumero().compareTo(va2.getNumero()));
-        if (vacantesAlumnoBySeccion.isEmpty()) {
-            for (int i = 1; i <= seccionForm.getVacantes(); i++) {
-                VacanteAlumno vacanteAlumno = new VacanteAlumno();
-                vacanteAlumno.setAlumno(null);
-                vacanteAlumno.setEstadoEnum(EstadoVacanteAlumnoEnum.DISP);
-                vacanteAlumno.setFechaRegistro(today.toDate());
-                vacanteAlumno.setNumero(i);
-                vacanteAlumno.setSeccion(seccioDB);
-                vacanteAlumno.setActivo(1);
-                vacanteAlumno.setUserRegistro(ds.getUsuario());
-                vacanteAlumnoDAO.save(vacanteAlumno);
-            }
-        } else //si se asignaron mas vacantes de las que habia
-        {
-            if (seccionForm.getVacantes() > vacantesAlumnoBySeccion.size()) {
-                int diff = seccionForm.getVacantes() - vacantesAlumnoBySeccion.size();
-                for (int i = 1; i <= diff; i++) {
-                    VacanteAlumno vacanteAlumnoEach = new VacanteAlumno();
-                    vacanteAlumnoEach.setAlumno(null);
-                    vacanteAlumnoEach.setEstadoEnum(EstadoVacanteAlumnoEnum.DISP);
-                    vacanteAlumnoEach.setFechaRegistro(today.toDate());
-                    vacanteAlumnoEach.setNumero(i + vacantesAlumnoBySeccion.size());
-                    vacanteAlumnoEach.setSeccion(seccionForm);
-                    vacanteAlumnoEach.setUserRegistro(ds.getUsuario());
-                    vacanteAlumnoEach.setActivo(1);
-                    vacanteAlumnoDAO.save(vacanteAlumnoEach);
-                }
-            } else {
-                //si se asignaron menos vacantes de las que habia
-                int diff = vacantesAlumnoBySeccion.size() - seccionForm.getVacantes();
-                int cantInac = 0;
-                if (diff != BigDecimal.ZERO.intValue()) {
-                    for (int i = vacantesAlumnoBySeccion.size() - 1; i >= 0; i--) {
-                        VacanteAlumno vacanteAlumnoEach = vacantesAlumnoBySeccion.get(i);
-                        if (vacanteAlumnoEach.isEstadoDisponible()) {
-                            vacanteAlumnoEach.setUserModificacion(ds.getUsuario());
-                            vacanteAlumnoEach.setFechaModificacion(today.toDate());
-                            vacanteAlumnoEach.setEstadoEnum(EstadoVacanteAlumnoEnum.INA);
-                            vacanteAlumnoDAO.updateEstadoFechaModUsuarioMod(vacanteAlumnoEach);
-                            cantInac++;
-                        }
-                        if (cantInac == diff) {
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-        this.actualizarVacantesTCUR(grupoSeccion, ds, today);
+//        List<VacanteAlumno> vacantesAlumnoBySeccion = vacanteAlumnoDAO.allActivosBySeccion(seccionForm);
+//        Collections.sort(vacantesAlumnoBySeccion, (VacanteAlumno va1, VacanteAlumno va2) -> va1.getNumero().compareTo(va2.getNumero()));
+//        if (vacantesAlumnoBySeccion.isEmpty()) {
+//            for (int i = 1; i <= seccionForm.getVacantes(); i++) {
+//                VacanteAlumno vacanteAlumno = new VacanteAlumno();
+//                vacanteAlumno.setAlumno(null);
+//                vacanteAlumno.setEstadoEnum(EstadoVacanteAlumnoEnum.DISP);
+//                vacanteAlumno.setFechaRegistro(today.toDate());
+//                vacanteAlumno.setNumero(i);
+//                vacanteAlumno.setSeccion(seccioDB);
+//                vacanteAlumno.setActivo(1);
+//                vacanteAlumno.setUserRegistro(ds.getUsuario());
+//                vacanteAlumnoDAO.save(vacanteAlumno);
+//            }
+//        } else //si se asignaron mas vacantes de las que habia
+//        {
+//            if (seccionForm.getVacantes() > vacantesAlumnoBySeccion.size()) {
+//                int diff = seccionForm.getVacantes() - vacantesAlumnoBySeccion.size();
+//                for (int i = 1; i <= diff; i++) {
+//                    VacanteAlumno vacanteAlumnoEach = new VacanteAlumno();
+//                    vacanteAlumnoEach.setAlumno(null);
+//                    vacanteAlumnoEach.setEstadoEnum(EstadoVacanteAlumnoEnum.DISP);
+//                    vacanteAlumnoEach.setFechaRegistro(today.toDate());
+//                    vacanteAlumnoEach.setNumero(i + vacantesAlumnoBySeccion.size());
+//                    vacanteAlumnoEach.setSeccion(seccionForm);
+//                    vacanteAlumnoEach.setUserRegistro(ds.getUsuario());
+//                    vacanteAlumnoEach.setActivo(1);
+//                    vacanteAlumnoDAO.save(vacanteAlumnoEach);
+//                }
+//            } else {
+//                //si se asignaron menos vacantes de las que habia
+//                int diff = vacantesAlumnoBySeccion.size() - seccionForm.getVacantes();
+//                int cantInac = 0;
+//                if (diff != BigDecimal.ZERO.intValue()) {
+//                    for (int i = vacantesAlumnoBySeccion.size() - 1; i >= 0; i--) {
+//                        VacanteAlumno vacanteAlumnoEach = vacantesAlumnoBySeccion.get(i);
+//                        if (vacanteAlumnoEach.isEstadoDisponible()) {
+//                            vacanteAlumnoEach.setUserModificacion(ds.getUsuario());
+//                            vacanteAlumnoEach.setFechaModificacion(today.toDate());
+//                            vacanteAlumnoEach.setEstadoEnum(EstadoVacanteAlumnoEnum.INA);
+//                            vacanteAlumnoDAO.updateEstadoFechaModUsuarioMod(vacanteAlumnoEach);
+//                            cantInac++;
+//                        }
+//                        if (cantInac == diff) {
+//                            break;
+//                        }
+//                    }
+//                }
+//            }
+//        }
+        //this.actualizarVacantesTCUR(grupoSeccion, ds, today);
         this.actualizarBoletin();
     }
 
     @Transactional(propagation = Propagation.MANDATORY)
     private void actualizarVacantesTCUR(GrupoSeccion grupoSeccion, DataSessionPivot ds, DateTime today) {
+        if (1 == 1) {
+            return;
+        }
         if (!grupoSeccion.getCurso().isTipoCursoTEOPRA()) {
             return;
         }
@@ -1614,58 +1667,19 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         if (matriculasSeccionTCUR.size() > seccionTCUR.getVacantes()) {
             throw new PhobosException("Error. Las matriculas para la sección teoria superan la cantidad de vacantes asignadas.");
         }
-        seccionDAO.updateSeccionVacantes(seccionTCUR);
-
-        Collections.sort(vacantesAlumnoBySeccion, (VacanteAlumno va1, VacanteAlumno va2) -> va1.getNumero().compareTo(va2.getNumero()));
-
-        if (vacantesAlumnoBySeccion.isEmpty()) {
-            for (int i = 1; i <= seccionTCUR.getVacantes(); i++) {
-                VacanteAlumno vacanteAlumno = new VacanteAlumno();
-                vacanteAlumno.setAlumno(null);
-                vacanteAlumno.setEstadoEnum(EstadoVacanteAlumnoEnum.DISP);
-                vacanteAlumno.setFechaRegistro(today.toDate());
-                vacanteAlumno.setNumero(i);
-                vacanteAlumno.setActivo(1);
-                vacanteAlumno.setSeccion(seccionTCUR);
-                vacanteAlumno.setUserRegistro(ds.getUsuario());
-                vacanteAlumnoDAO.save(vacanteAlumno);
-            }
-        } else //si se asignaron mas vacantes de las que habia
-        {
-            if (seccionTCUR.getVacantes() > vacantesAlumnoBySeccion.size()) {
-                int diff = seccionTCUR.getVacantes() - vacantesAlumnoBySeccion.size();
-                for (int i = 1; i <= diff; i++) {
-                    VacanteAlumno vacanteAlumnoEach = new VacanteAlumno();
-                    vacanteAlumnoEach.setAlumno(null);
-                    vacanteAlumnoEach.setEstadoEnum(EstadoVacanteAlumnoEnum.DISP);
-                    vacanteAlumnoEach.setFechaRegistro(today.toDate());
-                    vacanteAlumnoEach.setNumero(i + vacantesAlumnoBySeccion.size());
-                    vacanteAlumnoEach.setSeccion(seccionTCUR);
-                    vacanteAlumnoEach.setUserRegistro(ds.getUsuario());
-                    vacanteAlumnoEach.setActivo(1);
-                    vacanteAlumnoDAO.save(vacanteAlumnoEach);
-                }
-            } else {
-                //si se asignaron menos vacantes de las que habia
-                int diff = vacantesAlumnoBySeccion.size() - seccionTCUR.getVacantes();
-                int cantInac = 0;
-                if (diff != BigDecimal.ZERO.intValue()) {
-                    for (int i = vacantesAlumnoBySeccion.size() - 1; i >= 0; i--) {
-                        VacanteAlumno vacanteAlumnoEach = vacantesAlumnoBySeccion.get(i);
-                        if (vacanteAlumnoEach.isEstadoDisponible()) {
-                            vacanteAlumnoEach.setUserModificacion(ds.getUsuario());
-                            vacanteAlumnoEach.setFechaModificacion(today.toDate());
-                            vacanteAlumnoEach.setEstadoEnum(EstadoVacanteAlumnoEnum.INA);
-                            vacanteAlumnoDAO.updateEstadoFechaModUsuarioMod(vacanteAlumnoEach);
-                            cantInac++;
-                        }
-                        if (cantInac == diff) {
-                            break;
-                        }
-                    }
-                }
-            }
-        }
+        // FALTA REVISAR ESTE METODO Q SE ESTA DESACTIVANDO YA QUE TODO LO DE VACANTES
+        // DEBE SER GESTIONADO POR EL SISTEMA MATRICULA
+        //
+        //seccionDAO.updateSeccionVacantes(seccionTCUR);
+        //seccionDAO.updateSeccionVacantes(seccionTCUR);
+        //seccionDAO.updateSeccionVacantes(seccionTCUR);
+        //seccionDAO.updateSeccionVacantes(seccionTCUR);
+        //seccionDAO.updateSeccionVacantes(seccionTCUR);
+        //seccionDAO.updateSeccionVacantes(seccionTCUR);
+        //seccionDAO.updateSeccionVacantes(seccionTCUR);
+        //seccionDAO.updateSeccionVacantes(seccionTCUR);
+        //seccionDAO.updateSeccionVacantes(seccionTCUR);
+        //seccionDAO.updateSeccionVacantes(seccionTCUR);
 
     }
 

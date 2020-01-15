@@ -344,7 +344,7 @@ public class TramiteCondicionalServiceImp implements TramiteCondicionalService {
             matriculaResumen = matriculaResumenDAO.findByAlumnoCiclo(alumno, cicloAcademico);
             if (matriculaResumen != null && !situaciones.contains(matriculaResumen.getAlumno().getSituacionAcademica().getCodigoEnum())) {
 
-                JsonResponse jsonResponse = responseRestService.updateRest(matriculaResumen, ds);
+                JsonResponse jsonResponse = responseRestService.retirarMatriculaCiclo(matriculaResumen, ds);
 
                 Assert.isTrue(jsonResponse.getSuccess(), "Se produjo un error al eliminar la matrícula. Comuniquese con mesa de ayuda.");
 
@@ -526,7 +526,7 @@ public class TramiteCondicionalServiceImp implements TramiteCondicionalService {
             matriculaResumen = matriculaResumenDAO.findByAlumnoCiclo(alumno, cicloAcademico);
             if (matriculaResumen != null) {
 
-                JsonResponse jsonResponse = responseRestService.updateRest(matriculaResumen, ds);
+                JsonResponse jsonResponse = responseRestService.retirarMatriculaCiclo(matriculaResumen, ds);
 
                 Assert.isTrue(jsonResponse.getSuccess(), "Se produjo un error al eliminar la matrícula. Comuniquese con mesa de ayuda.");
 
@@ -661,7 +661,7 @@ public class TramiteCondicionalServiceImp implements TramiteCondicionalService {
             matriculaResumen = matriculaResumenDAO.findByAlumnoCiclo(alumno, cicloAcademico);
             if (matriculaResumen != null && !situaciones.contains(matriculaResumen.getAlumno().getSituacionAcademica().getCodigoEnum())) {
 
-                JsonResponse jsonResponse = responseRestService.updateRest(matriculaResumen, ds);
+                JsonResponse jsonResponse = responseRestService.retirarMatriculaCiclo(matriculaResumen, ds);
 
                 Assert.isTrue(jsonResponse.getSuccess(), "Se produjo un error al eliminar la matrícula. Comuniquese con mesa de ayuda.");
 
@@ -735,7 +735,7 @@ public class TramiteCondicionalServiceImp implements TramiteCondicionalService {
             MatriculaResumen matriculaResumen = matriculaResumenDAO.findByAlumnoCiclo(alumno, cicloAcademico);
             if (matriculaResumen != null) {
 
-                JsonResponse jsonResponse = responseRestService.updateRest(matriculaResumen, ds);
+                JsonResponse jsonResponse = responseRestService.retirarMatriculaCiclo(matriculaResumen, ds);
 
                 Assert.isTrue(jsonResponse.getSuccess(), "Se produjo un error al eliminar la matrícula. Comuniquese con mesa de ayuda.");
 

@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.MatriculaCurso;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.aporte.Aporte;
@@ -46,8 +47,21 @@ public class ResponseRestServiceImpl extends AbstractRestClient<JsonResponse> im
     TokenIngresanteDAO tokenIngresanteDAO;
 
     @Override
+    public JsonResponse retirarMatriculaCurso(MatriculaCurso matriculaCurso, DataSessionPivot ds) {
+        Parametro parametro = findParametro(ParametrosSistemasEnum.REST_MATRICULA);
+        ObjectNode json = new ObjectNode(JsonNodeFactory.instance);
+        json.put("idUsuario", ds.getUsuario().getId());
+        json.put("idMatricula", matriculaCurso.getId());
+
+        String url = String.format("%s/matriculaSeccion/deleteMatriculaCurso",
+                parametro.getValor());
+
+        return this.postToBackEnd(url, json);
+    }
+
+    @Override
     @Transactional
-    public JsonResponse updateRest(MatriculaResumen matriculaResumen, DataSessionPivot ds) {
+    public JsonResponse retirarMatriculaCiclo(MatriculaResumen matriculaResumen, DataSessionPivot ds) {
         Parametro parametro = findParametro(ParametrosSistemasEnum.REST_MATRICULA);
 
         ObjectNode json = new ObjectNode(JsonNodeFactory.instance);

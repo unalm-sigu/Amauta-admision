@@ -669,7 +669,6 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
 
         //String listString = gruposIds.stream().map(Object::toString).collect(Collectors.joining(", "));
         // logger.debug("Grupos Ids {}", listString);
-
         List<Object[]> result = query.list();
 
         Map<Long, Long> resultados = new HashMap<>();
