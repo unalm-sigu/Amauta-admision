@@ -722,8 +722,11 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
     @Override
     @Transactional
-    public void addSeccion(GrupoSeccion grupoSeccion) {
+    public void addSeccion(GrupoSeccion grupoSeccion, DataSessionPivot ds) {
         grupoSeccion = grupoSeccionDAO.find(grupoSeccion.getId());
+        Curso curso = grupoSeccion.getCurso();
+        CicloAcademico ciclo = grupoSeccion.getCicloAcademico();
+        CursoCicloAcademico cursoCiclo = cursoCicloAcademicoDAO.findByCursoCiclo(curso, ciclo);
         Docente docenteDefault = docenteDAO.findByCode(Constantine.DOCENTE_INDETERMINADO);
         List<Seccion> secciones = seccionDAO.allByGposSeccion(grupoSeccion);
         DateTime today = new DateTime();
@@ -733,16 +736,12 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
         Seccion seccionTCUR = secciones.stream().filter(x -> x.getIsTipoSeccionTCUR()).findAny().orElse(null);
         Seccion seccionPCUR = new Seccion();
-        seccionPCUR.setGrupoSeccion(grupoSeccion);
         seccionPCUR.setSeccionSuperior(seccionTCUR);
         seccionPCUR.setCodigo(getNextCode1(secciones));
         seccionPCUR.setCodigo2(getNextCode2(secciones));
-        seccionPCUR.setEstadoEnum(SeccionEstadoEnum.CRE);
-        seccionPCUR.setTipoSeccionEnum(TipoSeccionEnum.PCUR);
-        seccionPCUR.setSituacionDocenteEnum(SituacionDocenteEnum.ERR);
-        seccionPCUR.setHorasSemanales(grupoSeccion.getHorasPractica());
 
-        seccionPCUR.setDocenteSeccion(new ArrayList());
+        this.createSeccion(seccionPCUR, TipoSeccionEnum.PCUR, grupoSeccion, null, grupoSeccion.getHorasPractica(), cursoCiclo, ds);
+
         DocenteSeccion docenteSeccion2 = new DocenteSeccion();
         docenteSeccion2.setDocente(docenteDefault);
         docenteSeccion2.setCodigoSeccion(seccionPCUR.getCodigo());

@@ -693,7 +693,7 @@ public class GpoSeccionController {
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
-            service.addSeccion(new GrupoSeccion(grupoSeccion));
+            service.addSeccion(new GrupoSeccion(grupoSeccion), ds);
 
             String message = "Sección agregada.";
             response.setSuccess(true);

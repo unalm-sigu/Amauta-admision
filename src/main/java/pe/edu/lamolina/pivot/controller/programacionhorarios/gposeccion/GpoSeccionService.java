@@ -68,7 +68,7 @@ public interface GpoSeccionService {
 
     List<Seccion> allSeccionesByGrupo(GrupoSeccion grupoSeccion, List<DocenteSeccion> docentesSeccion);
 
-    void addSeccion(GrupoSeccion grupoSeccion);
+    void addSeccion(GrupoSeccion grupoSeccion, DataSessionPivot ds);
 
     void addDocenteSeccion(Seccion seccion, CicloAcademico cicloAcademico);
 
