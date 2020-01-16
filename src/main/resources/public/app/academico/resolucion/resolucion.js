@@ -47,12 +47,15 @@ var app = new Vue({
         alumnosCursoDirigido: [],
         alumnoTramiteTraslado: {},
         tipo: ""
-    }, created: function () {
+    }, 
+    created: function () {
 
-    }, mounted: function () {
+    }, 
+    mounted: function () {
         let $vue = this;
 
-    }, methods: {
+    }, 
+    methods: {
         cambiarEstadoReincorporacion: function (tramite, estadoDestino, event) {
             event.preventDefault();
             let $vue = this;
@@ -100,14 +103,17 @@ var app = new Vue({
                 }
             });
 
-        }, editarResolucion: function (resolucion, e) {
+        }, 
+        editarResolucion: function (resolucion, e) {
             e.preventDefault();
             location.href = APP.url("academico/resolucion/" + resolucion.id + "/editar");
-        }, loadModalSubirDoc: function (resolucion, e) {
+        }, 
+        loadModalSubirDoc: function (resolucion, e) {
             e.preventDefault();
             this.resolucion = resolucion;
             this.$refs.modalResolucion.open();
-        }, saveResolucion(event) {
+        }, 
+        saveResolucion(event) {
             if (event) {
                 event.preventDefault();
             }
@@ -213,12 +219,15 @@ var app = new Vue({
                     newFile.url = URL.createObjectURL(newFile.file)
                 }
             }
-        }, changeFile(value) {
+        }, 
+        changeFile(value) {
             console.log("changeFile");
             console.dir(this.files);
-        }, getEstadoClass: function (estadoCode) {
+        }, 
+        getEstadoClass: function (estadoCode) {
             return "label-" + this.colorEstado[estadoCode];
-        }, loadModalConfirmar(resolucion, event) {
+        }, 
+        loadModalConfirmar(resolucion, event) {
             event.preventDefault();
             let $vue = this;
             $.ajax({
@@ -240,7 +249,8 @@ var app = new Vue({
                     notify(MESSAGES.errorComunicacion, "error");
                 }
             });
-        }, saveConfirmarSubirDocumento(event) {
+        }, 
+        saveConfirmarSubirDocumento(event) {
             let $vue = this;
             if (event) {
                 event.preventDefault();
@@ -276,7 +286,8 @@ var app = new Vue({
                     notify(MESSAGES.errorComunicacion, "error");
                 }
             });
-        }, customLabelCiclosRei( { descripcion, tipo}) {
+        }, 
+        customLabelCiclosRei( { descripcion, tipo}) {
             if (descripcion != '' && tipo != '') {
                 return `${descripcion} - ${tipo}`;
         }

@@ -169,35 +169,39 @@ public class ResolucionExistentesController {
 
     @ResponseBody
     @RequestMapping("save")
-    public JsonResponse save(@RequestBody Resolucion resolucion,
-            HttpSession session) {
+    public JsonResponse save(@RequestBody Resolucion resolucion, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
             ArrayNode data = new ArrayNode(JsonNodeFactory.instance);
-            List<String> msg = new ArrayList<>();
-            if (resolucion.getTipoResolucion().getCodigo().equals(REIC.name())) {
+            List<String> msg = new ArrayList();
+
+            if (resolucion.isTipoReincorporacion()) {
                 List<Alumno> alumnos = service.saveReincorporacion(resolucion, ds.getUsuario(), ds);
                 for (Alumno alumno : alumnos) {
                     matriculableService.revisarSituacionAcademica(alumno, ds);
                     matriculableService.saveMatriculable(alumno, TipoCondicionalEnum.REI.name(), ds);
                 }
-            } else if (resolucion.getTipoResolucion().getCodigo().equals(RCI.name())) {
+
+            } else if (resolucion.isTipoRetiroCiclo() || resolucion.isTipoAnulacionCiclo()) {
                 List<Alumno> alumnos = service.saveRetiroCiclo(resolucion, ds.getUsuario(), ds);
                 for (Alumno alumno : alumnos) {
                     matriculableService.revisarSituacionAcademica(alumno, ds);
                     matriculableService.saveMatriculable(alumno, TipoCondicionalEnum.RETIRO_CICLO.name(), ds);
                 }
-            } else if (resolucion.getTipoResolucion().getCodigo().equals(CAM_NOTA.name())) {
+
+            } else if (resolucion.isTipoCambioNota()) {
                 List<Alumno> alumnos = service.saveCambioNota(resolucion, ds.getUsuario(), ds);
                 for (Alumno alumno : alumnos) {
                     matriculableService.revisarSituacionAcademica(alumno, ds);
                     matriculableService.saveMatriculable(alumno, TipoCondicionalEnum.CAMBIO_NOTA.name(), ds);
                 }
+
             } else if (Arrays.asList(TRAS.name(), INTES.name(), ING_HIS.name()).contains(resolucion.getTipoResolucion().getCodigo())) {
                 service.saveTramiteTraslado(resolucion, ds.getUsuario(), ds.getCicloAcademico(), ds.getCompania());
-            } else if (resolucion.getTipoResolucion().getCodigo().equals(CURDIR.name())) {
+
+            } else if (resolucion.isTipoCursoDirigido()) {
                 msg = service.saveCursoDirigido(resolucion, ds.getUsuario(), ds);
             }
 

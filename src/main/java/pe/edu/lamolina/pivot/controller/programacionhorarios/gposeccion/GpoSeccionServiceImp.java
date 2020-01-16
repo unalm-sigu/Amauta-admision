@@ -1093,7 +1093,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             }
         }
 
-        List<MatriculaResumen> resumenes = matriculasSeccionAll.stream().map(x -> x.getMatriculaResumen()).collect(Collectors.toList());
+        List<MatriculaResumen> resumenes = matriculados.stream().map(x -> x.getMatriculaResumen()).collect(Collectors.toList());
         List<MatriculaCurso> matriculasCurso = matriculaCursoDAO.allActivosByMatriculaResumenCurso(resumenes, curso);
 
         for (MatriculaCurso matCurso : matriculasCurso) {

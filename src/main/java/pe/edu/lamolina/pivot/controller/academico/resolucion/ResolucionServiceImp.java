@@ -236,7 +236,7 @@ public class ResolucionServiceImp implements ResolucionService {
         for (TramiteReunionConsejo tramiteReunionConsejo : resolucion.getTramitesReunionConsejo()) {
             List<AccionTramiteAcademico> accionesTramitesAcademicos = new ArrayList<>();
             Tramite tramite = new Tramite();
-            if (resolucion.getTipoResolucion().getEsTipoResolucionRei()) {
+            if (resolucion.getTipoResolucion().isReincorporacion()) {
 
                 Reincorporacion reincorporacion = reincorporacionDAO.findByTramiteEstadoTram(tramiteReunionConsejo.getTramite(), EstadoTramiteEnum.AGE_CON_FAC);
                 tramite = reincorporacion.getTramite();
@@ -259,7 +259,7 @@ public class ResolucionServiceImp implements ResolucionService {
                     reincorporacion.setResolucion(resolucion);
                     reincorporacionDAO.update(reincorporacion);
                 }
-            } else if (resolucion.getTipoResolucion().getEsTipoCursoDirigido()) {
+            } else if (resolucion.getTipoResolucion().isCursoDirigido()) {
                 CursoDirigido cursoDirigido = cursoDirigidoDAO.findByTramite(tramiteReunionConsejo.getTramite());
                 tramite = cursoDirigido.getTramite();
                 accionesTramitesAcademicos = accionTramiteAcademicoDAO.allByTipoTramiteAndEstadoTramiteInicial(tramite.getTipoTramite(), cursoDirigido.getEstado());
@@ -289,7 +289,7 @@ public class ResolucionServiceImp implements ResolucionService {
         resolucionDAO.updateResolucion(resolucionUpd);
 
         for (TramiteReunionConsejo tramiteReunionConsejo : resolucion.getTramitesReunionConsejo()) {
-            if (resolucion.getTipoResolucion().getEsTipoResolucionRei()) {
+            if (resolucion.getTipoResolucion().isReincorporacion()) {
 
                 List<Reincorporacion> reincorporaciones = reincorporacionDAO.allByTramite(tramiteReunionConsejo.getTramite());
                 Reincorporacion reincorporacion = reincorporaciones.get(0);
@@ -319,7 +319,7 @@ public class ResolucionServiceImp implements ResolucionService {
                 reincorporacionUpd.setResolucion(resolucion);
                 reincorporacionDAO.updateAceptado(reincorporacionUpd);*/
                 }
-            } else if (resolucion.getTipoResolucion().getEsTipoCursoDirigido()) {
+            } else if (resolucion.getTipoResolucion().isCursoDirigido()) {
                 CursoDirigido cursoDirigido = cursoDirigidoDAO.findByTramite(tramiteReunionConsejo.getTramite());
                 cursoDirigido.setAceptado(tramiteReunionConsejo.getSeleccionado());
                 cursoDirigido.setResolucion(resolucion);
@@ -352,7 +352,7 @@ public class ResolucionServiceImp implements ResolucionService {
         resolucionDAO.updateResolucionFile(resolucionUpd);
 
         if (resolucion.getEsEstadoCre()) {
-            if (resolucion.getTipoResolucion().getEsTipoResolucionRei()) {
+            if (resolucion.getTipoResolucion().isReincorporacion()) {
 
                 List<Reincorporacion> reincorporaciones = reincorporacionDAO.allByResolucion(resolucion);
                 for (Reincorporacion reincorporacion : reincorporaciones) {
@@ -363,7 +363,7 @@ public class ResolucionServiceImp implements ResolucionService {
                     }
                     flujoTramiteAcademicoService.saveFlujoTramite(tramite, ds.getUsuario(), today);
                 }
-            } else if (resolucion.getTipoResolucion().getEsTipoCursoDirigido()) {
+            } else if (resolucion.getTipoResolucion().isCursoDirigido()) {
                 List<CursoDirigido> cursoDirigidos = cursoDirigidoDAO.allByResolucion(resolucion);
                 for (CursoDirigido cursoDir : cursoDirigidos) {
                     Tramite tramite = tramiteDAO.find(cursoDir.getTramite().getId());
@@ -382,11 +382,11 @@ public class ResolucionServiceImp implements ResolucionService {
     public List<TramiteReunionConsejo> allTramiteReunionConsejoByReunion(ReunionConsejo reunionConsejo, TipoResolucion tipoResolucion) {
         tipoResolucion = tipoResolucionDAO.find(tipoResolucion.getId());
         TipoTramite tipoTramite = null;
-        if (tipoResolucion.getEsTipoResolucionRei()) {
+        if (tipoResolucion.isReincorporacion()) {
             tipoTramite = tipoTramiteDAO.findByCodigo(TipoTramiteEnum.REI.name());
-        } else if (tipoResolucion.getEsTipoResolucionRci()) {
+        } else if (tipoResolucion.isRetiroCiclo()) {
             tipoTramite = tipoTramiteDAO.findByCodigo(TipoTramiteEnum.RCI.name());
-        } else if (tipoResolucion.getEsTipoCursoDirigido()) {
+        } else if (tipoResolucion.isCursoDirigido()) {
             tipoTramite = tipoTramiteDAO.findByCodigo(TipoTramiteEnum.CURDIR.name());
         }
 
@@ -440,7 +440,7 @@ public class ResolucionServiceImp implements ResolucionService {
         //   resolucionUpd.setCicloReincorporacion(resolucion.getCicloReincorporacion());
         resolucionDAO.updateEstado(resolucionUpd);
 
-        if (resolucion.getTipoResolucion().getEsTipoResolucionRei()) {
+        if (resolucion.getTipoResolucion().isReincorporacion()) {
             List<Reincorporacion> reincorporaciones = reincorporacionDAO.allByResolucion(resolucionForm);
             for (Reincorporacion reincorporacion : reincorporaciones) {
                 Tramite tramite = tramiteDAO.find(reincorporacion.getTramite().getId());
@@ -479,7 +479,7 @@ public class ResolucionServiceImp implements ResolucionService {
 
                 tramitesAcademicosService.procesarTramite(tramite, accionesTramitesAcademicos.get(0), null, ds);
             }
-        } else if (resolucion.getTipoResolucion().getEsTipoCursoDirigido()) {
+        } else if (resolucion.getTipoResolucion().isCursoDirigido()) {
             List<CursoDirigido> cursosDirigidos = cursoDirigidoDAO.allByResolucion(resolucionForm);
             for (CursoDirigido cursosDirigido : cursosDirigidos) {
                 Tramite tramite = tramiteDAO.find(cursosDirigido.getTramite().getId());
@@ -514,7 +514,7 @@ public class ResolucionServiceImp implements ResolucionService {
         //   resolucionUpd.setCicloReincorporacion(resolucion.getCicloReincorporacion());
         resolucionDAO.updateEstado(resolucionUpd);
 
-        if (resolucion.getTipoResolucion().getEsTipoResolucionRei()) {
+        if (resolucion.getTipoResolucion().isReincorporacion()) {
             List<Reincorporacion> reincorporaciones = reincorporacionDAO.allByResolucion(resolucion);
             for (Reincorporacion reincorporacion : reincorporaciones) {
                 Tramite tramite = tramiteDAO.find(reincorporacion.getTramite().getId());
@@ -535,7 +535,7 @@ public class ResolucionServiceImp implements ResolucionService {
                 reincorporacionDAO.update(reincorporacion);*/
                 tramitesAcademicosService.procesarTramite(tramite, accionesTramitesAcademicos.get(0), null, ds);
             }
-        } else if (resolucion.getTipoResolucion().getEsTipoCursoDirigido()) {
+        } else if (resolucion.getTipoResolucion().isCursoDirigido()) {
             List<CursoDirigido> cursosDirigidos = cursoDirigidoDAO.allByResolucion(resolucion);
             for (CursoDirigido cursoDirigido : cursosDirigidos) {
                 if (!cursoDirigido.getAceptado()) {

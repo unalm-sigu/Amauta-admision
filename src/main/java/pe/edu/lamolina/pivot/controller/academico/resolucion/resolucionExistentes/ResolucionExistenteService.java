@@ -16,34 +16,34 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface ResolucionExistenteService {
 
-    public List<Alumno> allAlumnoByOficina(String nombre, Long instanciaOficina);
+    List<Alumno> allAlumnoByOficina(String nombre, Long instanciaOficina);
 
-    public List<Alumno> saveReincorporacion(Resolucion resolucion, Usuario usuario, DataSessionPivot ds);
+    List<Alumno> saveReincorporacion(Resolucion resolucion, Usuario usuario, DataSessionPivot ds);
 
-    public Resolucion findByResolucion(Long resolucion, DataSessionPivot ds);
+    Resolucion findByResolucion(Long resolucion, DataSessionPivot ds);
 
-    public List<TipoResolucion> allTipoResolucion();
+    List<TipoResolucion> allTipoResolucion();
 
-    public List<Alumno> saveRetiroCiclo(Resolucion resolucion, Usuario usuario, DataSessionPivot ds);
+    List<Alumno> saveRetiroCiclo(Resolucion resolucion, Usuario usuario, DataSessionPivot ds);
 
-    public List<CicloAcademico> ciclosAnteriores(int i);
+    List<CicloAcademico> ciclosAnteriores(int i);
 
-    public List<Reincorporacion> allReincorporacionByResolucion(Resolucion resolucionDB);
+    List<Reincorporacion> allReincorporacionByResolucion(Resolucion resolucionDB);
 
-    public List<RetiroCiclo> allRetiroCicloByResolucion(Resolucion resolucionDB);
+    List<RetiroCiclo> allRetiroCicloByResolucion(Resolucion resolucionDB);
 
-    public List<Alumno> saveCambioNota(Resolucion resolucion, Usuario usuario, DataSessionPivot ds);
+    List<Alumno> saveCambioNota(Resolucion resolucion, Usuario usuario, DataSessionPivot ds);
 
-    public List<CambioNota> allCambioNota(Resolucion resolucionDB);
+    List<CambioNota> allCambioNota(Resolucion resolucionDB);
 
-    public List<CursoDirigido> allCursodirigido(Resolucion resolucionDB);
+    List<CursoDirigido> allCursodirigido(Resolucion resolucionDB);
 
-    public List<String> saveCursoDirigido(Resolucion resolucion, Usuario usuario, DataSessionPivot ds);
+    List<String> saveCursoDirigido(Resolucion resolucion, Usuario usuario, DataSessionPivot ds);
 
     void saveTramiteTraslado(Resolucion resolucion, Usuario usuario, CicloAcademico cicloAcademico, Compania compania);
 
     List<TramiteTraslado> allTramiteTraslado(Resolucion resolucionDB);
 
-    public void saveIngresoHisto(Resolucion resolucion, Usuario usuario, DataSessionPivot ds);
+    void saveIngresoHisto(Resolucion resolucion, Usuario usuario, DataSessionPivot ds);
 
 }

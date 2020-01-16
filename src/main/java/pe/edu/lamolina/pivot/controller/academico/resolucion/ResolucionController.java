@@ -287,7 +287,7 @@ public class ResolucionController {
                 return json;
             }
             Resolucion resolucion = service.findResolucion(resolucionId);
-            if (resolucion.getTipoResolucion().getEsTipoResolucionRei()) {
+            if (resolucion.getTipoResolucion().isReincorporacion()) {
 
                 List<Reincorporacion> reincorporaciones = service.allReincorporacionByFilter(filter, new Resolucion(resolucionId));
                 logger.debug("cantidad de reincorporaciones " + reincorporaciones.size());
@@ -308,7 +308,7 @@ public class ResolucionController {
                             });
                     array.add(reincorporacionJson);
                 }
-            } else if (resolucion.getTipoResolucion().getEsTipoCursoDirigido()) {
+            } else if (resolucion.getTipoResolucion().isCursoDirigido()) {
                 List<CursoDirigido> list = service.allCursoDirigido(filter, resolucion);
                 for (CursoDirigido cursoDirigido : list) {
                     ObjectNode cursoDiri = JsonHelper.createJson(cursoDirigido, JsonNodeFactory.instance,

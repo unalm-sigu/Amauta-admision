@@ -271,7 +271,7 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
     public List<Alumno> saveRetiroCiclo(Resolucion resolucionForm, Usuario usuario, DataSessionPivot ds) {
         List<Alumno> alumnos = new ArrayList<>();
 
-        TipoResolucion tipoResolucion = tipoResolucionDAO.finByCodigo(TipoResolucionEnum.RCI);
+        TipoResolucion tipoResolucion = tipoResolucionDAO.finByCodigo(resolucionForm.getTipoResolucion().getTipoEnum());
         Resolucion resolucion = new Resolucion();
         resolucion.setOficina(resolucionForm.getOficina());
         resolucion.setFecha(resolucionForm.getFecha());
@@ -308,7 +308,13 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
             DateTime today = new DateTime();
             TipoDocumentoCompania tipoDocumentoCompania = tipoDocumentoCompaniaDAO.findByCodigo(TipoDocumentoCompaniaEnum.TRAM);
             SerieDocumento serieDocumento = serieDocumentoService.getCorrelativo(tipoDocumentoCompania, Long.valueOf(today.getYear()), ds.getUsuario());
-            TipoTramite tipoTramite = tipoTramiteDAO.findByCodigo(TipoTramiteEnum.RCI.name());
+
+            TipoTramite tipoTramite = null;
+            if (resolucion.isTipoRetiroCiclo()) {
+                tipoTramite = tipoTramiteDAO.findByCodigo(TipoTramiteEnum.RCI.name());
+            } else if (resolucion.isTipoAnulacionCiclo()) {
+                tipoTramite = tipoTramiteDAO.findByCodigo(TipoTramiteEnum.ANCI.name());
+            }
 
             Tramite tramite = new Tramite();
             tramite.setActivo(true);
@@ -326,8 +332,13 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
             tramiteDAO.save(tramite);
 
             retiroCiclo = retiroCicloForm;
+            if (alumnoDB.isPregrado()) {
+                retiroCiclo.setTipoEnum(TipoRetiroCicloEnum.EXCEP);
+            } else if (alumnoDB.isPostgrado()) {
+                retiroCiclo.setTipoEnum(TipoRetiroCicloEnum.RESEPG);
+            }
+
             retiroCiclo.setEstadoEnum(TramiteEstadoEnum.ACEP);
-            retiroCiclo.setTipoEnum(TipoRetiroCicloEnum.EXCEP);
             retiroCiclo.setCicloRegistro(ds.getCicloAcademico());
             retiroCiclo.setUsuario(ds.getUsuario());
             retiroCiclo.setEsCondicional(false);
@@ -335,29 +346,39 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
             retiroCiclo.setResolucion(resolucion);
             retiroCicloDAO.save(retiroCiclo);
 
-            List<AlumnoCursoCurricula> alumnoCursoCurriculas = alumnoCursoCurriculaDAO.allByAlumnoCicloRegularAct(alumnoDB, retiroCiclo.getCicloAcademico());
+            CicloAcademico cicloRetiro = cicloAcademicoDAO.find(retiroCiclo.getCicloAcademico());
+
+            List<AlumnoCursoCurricula> alumnoCursoCurriculas = alumnoCursoCurriculaDAO.allByAlumnoCicloRegularAct(alumnoDB, cicloRetiro);
             for (AlumnoCursoCurricula alumnoCursoCurricula : alumnoCursoCurriculas) {
                 alumnoCursoCurricula.setEstadoEnum(CursoCurriculaEstadoEnum.NREQ);
                 alumnoCursoCurriculaDAO.update(alumnoCursoCurricula);
             }
-            AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findByAlumnoCiclo(alumno, retiroCiclo.getCicloAcademico());
-            alumnoCiclo.setEstadoEnum(EstadoMatriculaEnum.RCI);
+            AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findByAlumnoCiclo(alumno, cicloRetiro);
+            if (resolucion.isTipoRetiroCiclo()) {
+                alumnoCiclo.setEstadoEnum(EstadoMatriculaEnum.RCI);
+            } else if (resolucion.isTipoAnulacionCiclo()) {
+                alumnoCiclo.setEstadoEnum(EstadoMatriculaEnum.ANCI);
+            }
             alumnoCicloDAO.update(alumnoCiclo);
 
             List<AlumnoCicloCurso> alumnoCicloCursos = alumnoCicloCursoDAO.allActivoByAlumnoCiclo(alumnoCiclo);
             for (AlumnoCicloCurso alumnoCicloCurso : alumnoCicloCursos) {
                 Integer count = alumnoCicloCurso.getVecesCursado() - 1;
                 alumnoCicloCurso.setVecesCursado(count);
-                alumnoCicloCurso.setEstado(EstadoMatriculaEnum.RCI);
+                if (resolucion.isTipoRetiroCiclo()) {
+                    alumnoCicloCurso.setEstado(EstadoMatriculaEnum.RCI);
+                } else if (resolucion.isTipoAnulacionCiclo()) {
+                    alumnoCicloCurso.setEstado(EstadoMatriculaEnum.ANCI);
+                }
                 alumnoCicloCursoDAO.update(alumnoCicloCurso);
             }
             alumnos.add(alumnoDB);
         }
+
         for (Alumno alumno : alumnos) {
-
             avanceCurricularService.generarAvanceCurricularByAlumno(alumno, ds);
-
         }
+
         return alumnos;
     }
 
