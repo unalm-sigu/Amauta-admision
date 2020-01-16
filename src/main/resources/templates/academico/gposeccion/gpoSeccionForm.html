@@ -476,17 +476,12 @@
                                                                 Activar
                                                             </a>
                                                             <a href="#"
-                                                               v-if="seccion.isEstadoActivo || seccion.isEstadoCreado "
+                                                               v-if="seccion.isEstadoOperativo || seccion.isEstadoCreado "
                                                                v-on:click="verAnularSeccion(seccion)">
                                                                 Anular
                                                             </a>
-                                                            <!--                                                            <a href="#"
-                                                                                                                           v-if="seccion.isEstadoActivo &amp;&amp; seccion.matriculados > 0"
-                                                                                                                           v-on:click="verCancelarSeccion(seccion)">
-                                                                                                                            Cancelar
-                                                                                                                        </a>-->
                                                             <a href="#"
-                                                               v-if="seccion.isEstadoActivo "
+                                                               v-if="seccion.isEstadoOperativo "
                                                                v-on:click="verBloquearSeccion(seccion)">
                                                                 Bloquear
                                                             </a>
@@ -563,7 +558,7 @@
                                                     v-bind:class="getClassTab('CARPETA')" v-on:click="verTab('CARPETA')">
                                                     <a href="#6Conte" data-toggle="tab">Tipo Carpeta</a>
                                                 </li>
-                                                <li v-if="(seccionSeleccionada.isEstadoActivo || seccionSeleccionada.isEstadoCancelado)"
+                                                <li v-if="(seccionSeleccionada.isEstadoOperativo || seccionSeleccionada.isEstadoCancelado)"
                                                     v-bind:class="getClassTab('CANCELAR')" v-on:click="verTab('CANCELAR')">
                                                     <a href="#7Conte" data-toggle="tab">Cancelar Seccion</a>
                                                 </li>
@@ -591,7 +586,7 @@
                                         <div class="tab-pane" v-bind:class="getClassTab('CARPETA')" id="6Conte">
                                             <div th:substituteby="academico/gposeccion/includes/tipocarpetaform"/>
                                         </div>
-                                        <div v-if="(seccionSeleccionada.isEstadoActivo || seccionSeleccionada.isEstadoCancelado)"
+                                        <div v-if="(seccionSeleccionada.isEstadoOperativo || seccionSeleccionada.isEstadoCancelado)"
                                              class="tab-pane" v-bind:class="getClassTab('CANCELAR')" id="7Conte">
                                             <div>
                                                 <cancelar-seccion-component ref="cancelarSeccionComp" v-bind:seccion="seccionSeleccionada"></cancelar-seccion-component>
@@ -606,7 +601,7 @@
             </div>
 
             <div th:substituteby="academico/gposeccion/gpoSeccionFormModal"></div>
-            
+
             <div th:substituteby="_modules/vue-modal-confirm"></div>
 
         </div>

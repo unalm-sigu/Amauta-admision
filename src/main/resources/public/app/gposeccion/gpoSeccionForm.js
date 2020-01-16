@@ -2255,7 +2255,7 @@ var app = new Vue({
             let rows = $('#tblSecciones').find('> tbody > tr');
             let row = rows[index];
             if (row != null) {
-                if (seccion.isEstadoActivo) {
+                if (seccion.isEstadoOperativo) {
                     $(row).find('a[class!="lnk-seccion"]').css('pointer-events', 'auto');
                 } else {
                     $(row).find('a[class!="lnk-seccion"]').css('pointer-events', 'none');
