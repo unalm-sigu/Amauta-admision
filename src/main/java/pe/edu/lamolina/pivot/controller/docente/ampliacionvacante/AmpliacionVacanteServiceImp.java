@@ -388,6 +388,7 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
             if (matriculaCurso == null) {
                 matriculaCurso = new MatriculaCurso(curso, matriculaResumen, EstadoMatriculaEnum.MAT);
                 matriculaCursoDAO.save(matriculaCurso);
+
             } else {
                 Assert.isFalse(matriculaCurso.getEstadoEnum() == EstadoMatriculaEnum.MAT, alumnoYaMatriculado);
                 Assert.isTrue(Arrays.asList(EstadoMatriculaEnum.RET, EstadoMatriculaEnum.NVAC, EstadoMatriculaEnum.RHZ).contains(

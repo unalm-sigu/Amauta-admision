@@ -3395,7 +3395,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         CuentaBancaria ctaBanco = pagoVeranoDb.getCuentaBancaria();
 
         pagoVeranoDb.setDeudaSeccion(alumnoPagoVeranoForm.getDeuda());
-        alumnoPagoVeranoDAO.updateColumns(pagoVeranoDb, "deuda");
+        alumnoPagoVeranoDAO.updateColumns(pagoVeranoDb, "deudaSeccion");
 
         DeudaAlumno deudaAlumno = deudaAlumnoDAO.allByAlumnoPagoVerano(pagoVeranoDb);
         if (deudaAlumno == null) {

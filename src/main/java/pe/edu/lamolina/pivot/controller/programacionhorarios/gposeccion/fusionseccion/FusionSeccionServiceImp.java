@@ -86,8 +86,6 @@ public class FusionSeccionServiceImp implements FusionSeccionService {
             origenSup = origen.getSeccionSuperior();
             destinoSup = destino.getSeccionSuperior();
 
-//            GrupoSeccion gpoSecc = origen.getGrupoSeccion();
-//            grupoSeccionDAO.findLock(gpoSecc.getId());
             if (origenSup.getId().longValue() == destinoSup.getId()) {
                 mismoGpoSecc = true;
 
@@ -128,13 +126,6 @@ public class FusionSeccionServiceImp implements FusionSeccionService {
             Assert.isFalse(hayCruce, "El alumno con matrícula " + alumno.getCodigo() + " tiene cruce de horario");
         }
 
-//        List<Seccion> seccionesOrigen = new ArrayList();
-//        seccionesOrigen.add(origen);
-//        if (origen.getSeccionSuperior() != null) {
-//            seccionesOrigen.add(origen.getSeccionSuperior());
-//        }
-//        List<MatriculaSeccion> matriculadosSeccionOrigen = matriculaSeccionDAO.allMatriculadosByAlumnosSecciones(alumnos, seccionesOrigen);
-//        Map<Long, List<MatriculaSeccion>> mapMatriSeccion = TypesUtil.convertListToMapList("matriculaResumen.alumno.id", matriculadosSeccionOrigen);
         Curso curso = origen.getGrupoSeccion().getCurso();
         List<MatriculaCurso> matriculadosCursoOrigen = matriculaCursoDAO.allActivosByMatriculaResumenCurso(matriculadosResumen, curso);
         Map<Long, MatriculaCurso> mapMatriculaCurso = TypesUtil.convertListToMap("matriculaResumen.alumno.id", matriculadosCursoOrigen);
@@ -143,7 +134,6 @@ public class FusionSeccionServiceImp implements FusionSeccionService {
         int trasladados = 0;
         int matriculados = origen.getMatriculados();
         for (Alumno alumno : alumnos) {
-            //List<MatriculaSeccion> matriSeccionAlu = mapMatriSeccion.get(alumno.getId());
             MatriculaCurso matCurso = mapMatriculaCurso.get(alumno.getId());
             responseRestService.createToken(ds);
             JsonResponse response = responseRestService.retirarMatriculaCurso(matCurso, ds);
@@ -170,27 +160,6 @@ public class FusionSeccionServiceImp implements FusionSeccionService {
         } else {
             seccionDAO.updateColumns(origenUpd, "usuarioModificacion", "fechaModificacion");
         }
-
-//        seccionDAO.updateMatriculados(destino, destino.getMatriculados() + alumnos.size());
-//        seccionDAO.updateMatriculados(origen, origen.getMatriculados() - alumnos.size());
-//
-//        if (esTeoPrac && !mismoGpoSecc) {
-//            if (origenSup.getMatriculados() - alumnos.size() == 0) {
-//                origenSup.setEstadoEnum(SeccionEstadoEnum.FUS);
-//            }
-//            seccionDAO.updateMatriculados(destinoSup, destinoSup.getMatriculados() + alumnos.size());
-//            seccionDAO.updateMatriculados(origenSup, origenSup.getMatriculados() - alumnos.size());
-//        }
-    }
-
-    private MatriculaSeccion getMatriSeccion(List<MatriculaSeccion> matriSecciones, TipoSeccionEnum tipoSeccion) {
-        for (MatriculaSeccion matSeccion : matriSecciones) {
-            Seccion seccion = matSeccion.getSeccion();
-            if (seccion.getTipoSeccionEnum() == tipoSeccion) {
-                return matSeccion;
-            }
-        }
-        return null;
     }
 
     @Override

@@ -28,12 +28,9 @@ public class AlumnoPagoVeranoDAOH extends AbstractEasyDAO<AlumnoPagoVerano> impl
     }
 
     @Override
-    public void updateColumns(AlumnoPagoVerano alumnoPagoVerano, String... params) {
+    public void updateColumns(AlumnoPagoVerano alumnoPagoVerano, String... columns) {
         Octavia octavia = Octavia.update(AlumnoPagoVerano.class);
-        for (String column : params) {
-            octavia.set(alumnoPagoVerano, column);
-        }
-
+        octavia.set(alumnoPagoVerano, columns);
         this.update(octavia);
     }
 }

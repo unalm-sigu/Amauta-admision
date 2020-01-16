@@ -939,8 +939,8 @@ public class AbonoAlumnoServiceImp implements AbonoAlumnoService {
 
     private void incrementarAbono(ItemCargaAbono item, CicloAcademico ciclo, Usuario usuario) {
 
-        AlumnoPagoVerano alumnoPVDB = alumnoPagoVeranoDAO.findAlumnoByCiclo(item.getAlumno(), ciclo);
-        if (alumnoPVDB == null) {
+        AlumnoPagoVerano alumnoPagoVeranoDB = alumnoPagoVeranoDAO.findAlumnoByCiclo(item.getAlumno(), ciclo);
+        if (alumnoPagoVeranoDB == null) {
             AlumnoPagoVerano alPagVer = new AlumnoPagoVerano();
             alPagVer.setAbono(item.getImporte());
             alPagVer.setSaldo(item.getImporte());
@@ -951,22 +951,28 @@ public class AbonoAlumnoServiceImp implements AbonoAlumnoService {
             alPagVer.setDeuda(BigDecimal.ZERO);
             alPagVer.setUserRegistro(usuario);
             alumnoPagoVeranoDAO.save(alPagVer);
+
         } else {
-            if (alumnoPVDB.getDeuda().compareTo(BigDecimal.ZERO) == 0) {
-                alumnoPVDB.setSaldo(alumnoPVDB.getSaldo().add(item.getImporte()));
+            AlumnoPagoVerano alumnoPagoVeranoUpd = new AlumnoPagoVerano(alumnoPagoVeranoDB.getId());
+            alumnoPagoVeranoUpd.setAbono(alumnoPagoVeranoDB.getAbono().add(item.getImporte()));
+            if (alumnoPagoVeranoDB.getDeuda().compareTo(BigDecimal.ZERO) == 0) {
+                alumnoPagoVeranoUpd.setSaldo(alumnoPagoVeranoDB.getSaldo().add(item.getImporte()));
+                alumnoPagoVeranoDAO.updateColumns(alumnoPagoVeranoUpd, "saldo", "abono");
+
             } else {
-                BigDecimal diferencia = alumnoPVDB.getDeuda().subtract(item.getImporte());
+                BigDecimal diferencia = alumnoPagoVeranoDB.getDeuda().subtract(item.getImporte());
                 if (diferencia.compareTo(BigDecimal.ZERO) > 0) {
-                    alumnoPVDB.setFechaSaldoNegativo(null);
-                    alumnoPVDB.setSaldo(alumnoPVDB.getSaldo().add(diferencia));
+                    alumnoPagoVeranoUpd.setFechaSaldoNegativo(null);
+                    alumnoPagoVeranoUpd.setSaldo(alumnoPagoVeranoDB.getSaldo().add(diferencia));
+                    alumnoPagoVeranoDAO.updateColumns(alumnoPagoVeranoUpd, "saldo", "abono", "fechaSaldoNegativo");
+
                 } else {
-//                    alumnoPVDB.setSaldo(BigDecimal.ZERO);
-                    alumnoPVDB.setDeuda(diferencia.abs());
-                    alumnoPVDB.setFechaSaldoNegativo(new Date());
+                    alumnoPagoVeranoUpd.setDeuda(diferencia.abs());
+                    alumnoPagoVeranoUpd.setFechaSaldoNegativo(new Date());
+                    alumnoPagoVeranoDAO.updateColumns(alumnoPagoVeranoUpd, "deuda", "abono", "fechaSaldoNegativo");
                 }
             }
-            alumnoPVDB.setAbono(alumnoPVDB.getAbono().add(item.getImporte()));
-            alumnoPagoVeranoDAO.update(alumnoPVDB);
+
         }
 
     }
@@ -974,16 +980,16 @@ public class AbonoAlumnoServiceImp implements AbonoAlumnoService {
     private void decrementarAbono(ItemCargaAbono item, CicloAcademico ciclo) {
         logger.debug("DECREMENTAR ABONO {}", item.getId());
         logger.debug("DECREMENTAR ABONO {}", item.getAlumno().getId());
-        AlumnoPagoVerano alPagVer = alumnoPagoVeranoDAO.findAlumnoByCiclo(item.getAlumno(), ciclo);
-        alPagVer.setAbono(alPagVer.getAbono().subtract(item.getImporte()));
-        BigDecimal diferencia = alPagVer.getSaldo().subtract(item.getImporte());
+        AlumnoPagoVerano alumnoPagoVeranoBD = alumnoPagoVeranoDAO.findAlumnoByCiclo(item.getAlumno(), ciclo);
+        alumnoPagoVeranoBD.setAbono(alumnoPagoVeranoBD.getAbono().subtract(item.getImporte()));
+        BigDecimal diferencia = alumnoPagoVeranoBD.getSaldo().subtract(item.getImporte());
         if (diferencia.compareTo(BigDecimal.ZERO) > 0) {
-            alPagVer.setSaldo(diferencia);
+            alumnoPagoVeranoBD.setSaldo(diferencia);
         } else {
-            alPagVer.setSaldo(BigDecimal.ZERO);
-            alPagVer.setDeuda(diferencia.abs());
-            alPagVer.setFechaSaldoNegativo(new Date());
+            alumnoPagoVeranoBD.setSaldo(BigDecimal.ZERO);
+            alumnoPagoVeranoBD.setDeuda(diferencia.abs());
+            alumnoPagoVeranoBD.setFechaSaldoNegativo(new Date());
         }
-        alumnoPagoVeranoDAO.update(alPagVer);
+        alumnoPagoVeranoDAO.update(alumnoPagoVeranoBD);
     }
 }

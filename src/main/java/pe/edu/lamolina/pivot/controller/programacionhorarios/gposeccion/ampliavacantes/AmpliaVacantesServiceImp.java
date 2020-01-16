@@ -165,6 +165,7 @@ public class AmpliaVacantesServiceImp implements AmpliaVacantesService {
     }
 
     private void rest(Seccion seccion, Integer variacion, DataSessionPivot ds) {
+        responseRestService.createToken(ds);
         JsonResponse jsonResponse = responseRestService.ampliarVacante(seccion, variacion, ds);
         Assert.isTrue(jsonResponse.getSuccess(), jsonResponse.getMessage());
     }

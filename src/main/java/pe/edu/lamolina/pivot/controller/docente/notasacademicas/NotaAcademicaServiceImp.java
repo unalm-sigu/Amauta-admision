@@ -1306,7 +1306,7 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
             }
         }
         grupoSeccion.getCurso().getTipoCurso();
-        secciones.removeIf(x -> !x.isEstadoActivo());
+        secciones.removeIf(x -> !x.isEstadoOperativo());
         boolean evaluacionesGeneradas = false;
         for (Seccion seccionEach : secciones) {
             logger.debug("aceptarExpansion ############################################");

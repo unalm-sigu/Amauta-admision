@@ -180,7 +180,7 @@ public class GpoSeccionController {
                     "secciones.restriccionCapa",
                     "secciones.horasSemanales",
                     "secciones.estadoEnum",
-                    "secciones.estadoActivo",
+                    "secciones.estadoOperativo",
                     "secciones.estadoCancelado",
                     "secciones.grupoHoras.codigo",
                     "secciones.aula.codigo",

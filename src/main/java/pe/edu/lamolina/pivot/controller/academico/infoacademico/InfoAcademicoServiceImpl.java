@@ -737,7 +737,7 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
             return new ArrayList();
         }
         List<Seccion> secciones = docenteSecciones.stream()
-                .filter(x -> x.getSeccion().isEstadoActivo() || x.getSeccion().isEstadoBloqueado())
+                .filter(x -> x.getSeccion().isEstadoOperativo() || x.getSeccion().isEstadoBloqueado())
                 .map(x -> x.getSeccion())
                 .distinct().collect(Collectors.toList());
         return horarioSeccionDAO.allBySecciones(secciones);
