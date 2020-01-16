@@ -34,6 +34,7 @@ import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.enums.TipoCondicionalEnum;
 import static pe.edu.lamolina.model.enums.TipoCondicionalEnum.TRAS;
+import static pe.edu.lamolina.model.enums.TipoResolucionEnum.ANCI;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.CAM_NOTA;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.CURDIR;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.RCI;
@@ -109,7 +110,7 @@ public class ResolucionExistentesController {
 
         List<TipoResolucion> tipoResolucions = service.allTipoResolucion();
         for (TipoResolucion tipoResolucion : tipoResolucions) {
-            if (Arrays.asList(RCI.name(), REIC.name(), CAM_NOTA.name(), CURDIR.name(), TRAS.name(), INTES.name(), ING_HIS.name()).contains(tipoResolucion.getCodigo())) {
+            if (Arrays.asList(RCI.name(), ANCI.name(), REIC.name(), CAM_NOTA.name(), CURDIR.name(), TRAS.name(), INTES.name(), ING_HIS.name()).contains(tipoResolucion.getCodigo())) {
                 tipoResolucionJson.add(JsonHelper.createJson(tipoResolucion, JsonNodeFactory.instance, new String[]{"*"}));
             }
         }
