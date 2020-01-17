@@ -566,4 +566,42 @@ public class VerificadorServiceImp implements VerificadorService {
         return null;
     }
 
+    @Override
+    public List<Oficina> allOficinasAccesoByRolEnum(DataSessionPivot ds, RolEnum rolEnum) {
+        Rol rolUser = null;
+        List<Rol> roles = ds.getRoles();
+        for (Rol role : roles) {
+            if (role.getCodigoEnum() == rolEnum) {
+                rolUser = role;
+                break;
+            }
+        }
+
+        List<Oficina> oficinas = new ArrayList();
+        if (rolUser == null) {
+            return oficinas;
+        }
+
+        List<Oficina> oficinasUser = ds.getOficinas();
+        Map<Long, Oficina> mapOficina = TypesUtil.convertListToMap("id", oficinasUser);
+        List<UsuarioRol> userRoles = usuarioRolDAO.allWithOfficeByUserRol(ds.getUsuario(), rolUser);
+        List<Carrera> carreras = carreraDAO.all();
+        Map<Long, Carrera> mapCarrera = TypesUtil.convertListToMap("id", carreras);
+
+        for (UsuarioRol userRole : userRoles) {
+            Oficina ofi = mapOficina.get(userRole.getOficina().getId());
+            if (ofi != null) {
+                ofi = userRole.getOficina();
+                if (ofi.getTipoOficina().getCodigoEnum() == TipoOficinaEnum.ESP) {
+                    Carrera carrera = mapCarrera.get(ofi.getInstanciaOficina());
+                    if (carrera.getModalidadEstudio().isPostgrado()) {
+                        oficinas.add(userRole.getOficina());
+                    }
+                }
+            }
+        }
+
+        return oficinas;
+    }
+
 }

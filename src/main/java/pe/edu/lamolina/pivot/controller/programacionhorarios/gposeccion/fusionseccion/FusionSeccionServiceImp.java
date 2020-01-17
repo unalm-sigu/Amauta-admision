@@ -21,6 +21,7 @@ import pe.edu.lamolina.model.academico.MatriculaCurso;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.Seccion;
+import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 import pe.edu.lamolina.model.horario.HorarioSeccion;
@@ -136,7 +137,7 @@ public class FusionSeccionServiceImp implements FusionSeccionService {
         for (Alumno alumno : alumnos) {
             MatriculaCurso matCurso = mapMatriculaCurso.get(alumno.getId());
             responseRestService.createToken(ds);
-            JsonResponse response = responseRestService.retirarMatriculaCurso(matCurso, ds);
+            JsonResponse response = responseRestService.retirarMatriculaCurso(matCurso, ds, EstadoMatriculaEnum.TRAS);
             Assert.isTrue(response.getSuccess(), response.getMessage());
 
             responseRestService.createToken(ds);

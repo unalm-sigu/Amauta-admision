@@ -6,13 +6,14 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.MatriculaCurso;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.Seccion;
+import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import pe.edu.lamolina.model.general.Parametro;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface ResponseRestService {
 
-    JsonResponse retirarMatriculaCurso(MatriculaCurso matriculaCurso, DataSessionPivot ds);
+    JsonResponse retirarMatriculaCurso(MatriculaCurso matriculaCurso, DataSessionPivot ds, EstadoMatriculaEnum estadoEnum);
 
     JsonResponse matricularSeccion(Alumno alumno, Seccion seccion, DataSessionPivot ds);
 

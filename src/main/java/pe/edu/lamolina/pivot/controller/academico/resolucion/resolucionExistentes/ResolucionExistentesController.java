@@ -115,7 +115,7 @@ public class ResolucionExistentesController {
             }
         }
 
-        List<CicloAcademico> cicloAcademicos = service.ciclosAnteriores(5);
+        List<CicloAcademico> cicloAcademicos = service.ciclosAnteriores(15);
         List<Oficina> oficinas = resolucionService.allOFicinasByUser(ds);
         for (Oficina oficina : oficinas) {
             ObjectNode oficinaJson = JsonHelper.createJson(oficina, JsonNodeFactory.instance, new String[]{"*"});

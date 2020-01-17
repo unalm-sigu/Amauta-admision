@@ -45,6 +45,8 @@ var app = new Vue({
             $vue.isTraslado = false;
             if (item.codigo == "RCI") {
                 $vue.isRetiroCiclo = true;
+            } else if (item.codigo == "ANCI") {
+                $vue.isRetiroCiclo = true;
             } else if (item.codigo == "REIC") {
                 $vue.isReincorporacion = true;
             } else if (item.codigo == "CAM_NOTA") {

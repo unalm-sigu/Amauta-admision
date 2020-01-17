@@ -34,6 +34,7 @@ import pe.edu.lamolina.model.enums.CursoCurriculaEstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import pe.edu.lamolina.model.enums.EstadoTramiteEnum;
+import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.enums.OrigenDataSituacionAcademicaEnum;
 import pe.edu.lamolina.model.enums.ResolucionEstadoEnum;
@@ -292,7 +293,11 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
             Alumno alumnoDB = alumnoDAO.find(alumno);
 
             RetiroCiclo retiroCiclo = retiroCicloDAO.findByAlumnoCicloRegistro(alumno, retiroCicloForm.getCicloAcademico());
-            Assert.isNull(retiroCiclo, "El alumno " + alumnoDB.getPersona().getApellidosNombres() + " cuenta con un trámite retiro ciclo.");
+            Assert.isNull(retiroCiclo, "El alumno " + alumnoDB.getPersona().getApellidosNombres() + " ya cuenta con un trámite retiro ciclo.");
+
+            ModalidadEstudioEnum modalidadEnum = alumnoDB.getModalidadEstudio().getOperativeModalidadEnum();
+            CicloAcademico cicloRetiro = cicloAcademicoDAO.findByCodigoCicloModalidadEnum(retiroCicloForm.getCicloAcademico().getCodigo(), modalidadEnum);
+            retiroCicloForm.setCicloAcademico(cicloRetiro);
 
             List<AlumnoCiclo> alumnoCiclos = alumnoCicloDAO.allByAlumnoDescRegular(alumno);
             List<CicloAcademico> ciclo = alumnoCiclos.stream().map(x -> x.getCicloAcademico()).collect(Collectors.toList());
@@ -346,8 +351,6 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
             retiroCiclo.setResolucion(resolucion);
             retiroCicloDAO.save(retiroCiclo);
 
-            CicloAcademico cicloRetiro = cicloAcademicoDAO.find(retiroCiclo.getCicloAcademico());
-
             List<AlumnoCursoCurricula> alumnoCursoCurriculas = alumnoCursoCurriculaDAO.allByAlumnoCicloRegularAct(alumnoDB, cicloRetiro);
             for (AlumnoCursoCurricula alumnoCursoCurricula : alumnoCursoCurriculas) {
                 alumnoCursoCurricula.setEstadoEnum(CursoCurriculaEstadoEnum.NREQ);
@@ -376,7 +379,9 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
         }
 
         for (Alumno alumno : alumnos) {
-            avanceCurricularService.generarAvanceCurricularByAlumno(alumno, ds);
+            if (alumno.isPregrado()) {
+                avanceCurricularService.generarAvanceCurricularByAlumno(alumno, ds);
+            }
         }
 
         return alumnos;

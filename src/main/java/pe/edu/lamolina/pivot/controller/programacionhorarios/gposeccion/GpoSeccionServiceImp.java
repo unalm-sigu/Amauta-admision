@@ -1096,15 +1096,16 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         List<MatriculaResumen> resumenes = matriculados.stream().map(x -> x.getMatriculaResumen()).collect(Collectors.toList());
         List<MatriculaCurso> matriculasCurso = matriculaCursoDAO.allActivosByMatriculaResumenCurso(resumenes, curso);
 
+        SeccionEstadoEnum estadoFinal = matriculados.isEmpty() ? SeccionEstadoEnum.ANU : SeccionEstadoEnum.CAN;
+        EstadoMatriculaEnum estadoRet = matriculados.isEmpty() ? EstadoMatriculaEnum.RAN : EstadoMatriculaEnum.RCA;
         for (MatriculaCurso matCurso : matriculasCurso) {
             if (matCurso.isEstadoMAT() || matCurso.isEstadoPMAT()) {
                 responseRestService.createToken(ds);
-                JsonResponse response = responseRestService.retirarMatriculaCurso(matCurso, ds);
+                JsonResponse response = responseRestService.retirarMatriculaCurso(matCurso, ds, estadoRet);
                 Assert.isTrue(response.getSuccess(), response.getMessage());
             }
         }
 
-        SeccionEstadoEnum estadoFinal = matriculados.isEmpty() ? SeccionEstadoEnum.ANU : SeccionEstadoEnum.CAN;
         if (matriculasSeccionAll.isEmpty()) {
             this.deleteDependenciasSeccion(seccionBD);
             seccionDAO.delete(seccionBD);
@@ -1284,17 +1285,25 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         for (MatriculaCurso matCurso : matriculasCurso) {
             if (matCurso.isEstadoMAT() || matCurso.isEstadoPMAT()) {
                 responseRestService.createToken(ds);
-                JsonResponse response = responseRestService.retirarMatriculaCurso(matCurso, ds);
+                JsonResponse response = responseRestService.retirarMatriculaCurso(matCurso, ds, EstadoMatriculaEnum.RCA);
                 Assert.isTrue(response.getSuccess(), response.getMessage());
             }
         }
+
+        horarioAulaDAO.deleteBySecciones(Arrays.asList(seccionBD));
 
         {
             Seccion seccionUpd = new Seccion(seccionBD.getId());
             seccionUpd.setUsuarioModificacion(ds.getUsuario());
             seccionUpd.setFechaModificacion(today.toDate());
             seccionUpd.setEstadoEnum(SeccionEstadoEnum.CAN);
-            seccionDAO.updateColumns(seccionUpd, "usuarioModificacion", "fechaModificacion", "estado");
+            seccionUpd.setMotivoCancelacion(seccionForm.getMotivoCancelacion());
+            if (seccionBD.getAula() != null) {
+                seccionUpd.setAulaBorrada(new Aula(seccionBD.getAula().getId()));
+            }
+
+            seccionDAO.updateColumns(seccionUpd,
+                    "usuarioModificacion", "fechaModificacion", "estado", "aulaBorrada", "motivoCancelacion");
         }
 
         this.actualizarBoletin();
@@ -1311,11 +1320,16 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             operativas = seccionesPCUR.size();
 
             if (seccionesPCUR.isEmpty() && seccionTCUR != null) {
+                horarioAulaDAO.deleteBySecciones(Arrays.asList(seccionTCUR));
+
                 Seccion seccionUpd = new Seccion(seccionTCUR.getId());
                 seccionUpd.setUsuarioModificacion(ds.getUsuario());
                 seccionUpd.setFechaModificacion(today.toDate());
                 seccionUpd.setEstadoEnum(SeccionEstadoEnum.CAN);
-                seccionDAO.updateColumns(seccionUpd, "usuarioModificacion", "fechaModificacion", "estado");
+                if (seccionTCUR.getAula() != null) {
+                    seccionUpd.setAulaBorrada(new Aula(seccionTCUR.getAula().getId()));
+                }
+                seccionDAO.updateColumns(seccionUpd, "usuarioModificacion", "fechaModificacion", "estado", "aulaBorrada");
             }
 
         }

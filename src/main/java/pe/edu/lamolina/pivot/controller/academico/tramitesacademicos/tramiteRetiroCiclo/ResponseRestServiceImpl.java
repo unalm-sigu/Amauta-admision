@@ -18,6 +18,7 @@ import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.aporte.Aporte;
 import pe.edu.lamolina.model.enums.AmbienteAplicacionEnum;
 import pe.edu.lamolina.model.enums.AportesEnum;
+import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import pe.edu.lamolina.model.enums.OrigenTokenEnum;
 import pe.edu.lamolina.model.enums.ParametrosSistemasEnum;
 import pe.edu.lamolina.model.enums.TokenEstadoEnum;
@@ -47,11 +48,13 @@ public class ResponseRestServiceImpl extends AbstractRestClient<JsonResponse> im
     TokenIngresanteDAO tokenIngresanteDAO;
 
     @Override
-    public JsonResponse retirarMatriculaCurso(MatriculaCurso matriculaCurso, DataSessionPivot ds) {
+    public JsonResponse retirarMatriculaCurso(MatriculaCurso matriculaCurso, DataSessionPivot ds, EstadoMatriculaEnum estadoEnum) {
+        estadoEnum = (estadoEnum == null) ? EstadoMatriculaEnum.RET : estadoEnum;
         Parametro parametro = findParametro(ParametrosSistemasEnum.REST_MATRICULA);
         ObjectNode json = new ObjectNode(JsonNodeFactory.instance);
         json.put("idUsuario", ds.getUsuario().getId());
         json.put("idMatricula", matriculaCurso.getId());
+        json.put("estado", estadoEnum.name());
 
         String url = String.format("%s/matriculaSeccion/deleteMatriculaCurso", parametro.getValor());
 

@@ -250,7 +250,7 @@ Vue.component("historial-component", {
             return "";
         },
         verCiclo(item) {
-            let noVer = {NMAT: "NMAT", RCI: "RCI", INH: "INH"};
+            let noVer = {NMAT: "NMAT", RCI: "RCI", ANCI: "ANCI", INH: "INH"};
             let estado = noVer[item.estadoEnum.name];
             if (estado === undefined) {
                 return true;
