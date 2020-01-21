@@ -254,17 +254,4 @@ public class ResponseRestServiceImpl extends AbstractRestClient<JsonResponse> im
         return this.postToBackEnd(url, json);
     }
 
-    @Override
-    public JsonResponse modificarDescuento(Seccion seccion, DataSessionPivot ds) {
-        Parametro parametro = findParametro(ParametrosSistemasEnum.REST_MATRICULA);
-        ObjectNode json = new ObjectNode(JsonNodeFactory.instance);
-        json.put("idSeccion", seccion.getId());
-        json.put("idUsuario", ds.getUsuario().getId());
-
-        String url = String.format("%s/matriculaSeccion/updateSeccion",
-                parametro.getValor());
-
-        return this.postToBackEnd(url, json);
-    }
-
 }

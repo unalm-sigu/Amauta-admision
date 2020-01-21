@@ -33,11 +33,9 @@ public interface ResponseRestService {
 
     JsonResponse anularBoletas(MatriculaResumen matriculaResumen, DataSessionPivot ds);
 
-    public JsonResponse downloadHistorial(Alumno alumno, Usuario usuario, CicloAcademico academico, Parametro paramRutaMatricula);
+    JsonResponse downloadHistorial(Alumno alumno, Usuario usuario, CicloAcademico academico, Parametro paramRutaMatricula);
 
     JsonResponse eliminarAporteDuplicadoCarnet(MatriculaResumen matriculaResumen, DataSessionPivot ds);
 
     JsonResponse generarAporteDuplicadoCarnet(MatriculaResumen matriculaResumen, DataSessionPivot ds);
-
-    public JsonResponse modificarDescuento(Seccion seccion, DataSessionPivot ds);
 }

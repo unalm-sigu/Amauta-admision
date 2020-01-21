@@ -161,7 +161,6 @@ import pe.edu.lamolina.pivot.dao.finanza.AlumnoPagoVeranoDAO;
 import pe.edu.lamolina.pivot.dao.finanza.DeudaAlumnoDAO;
 import pe.edu.lamolina.pivot.dao.finanza.PagoHoraDocenteDAO;
 import pe.edu.lamolina.pivot.dao.rrhh.ContratoDocenteDAO;
-import pe.edu.lamolina.pivot.controller.envioRest.EnviosRestService;
 import pe.edu.lamolina.pivot.dao.academico.CursoCurriculaDAO;
 import pe.edu.lamolina.pivot.dao.academico.TipoCursoCurriculaDAO;
 
@@ -316,9 +315,6 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
     @Autowired
     TipoCursoCurriculaDAO tipoCursoCurriculaDAO;
-
-    @Autowired
-    EnviosRestService enviosRestService;
 
     @Autowired
     ResponseRestService responseRestService;
@@ -3375,12 +3371,12 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         descuentoSeccionVeranoForm.setFechaRegistro(new Date());
         descuentoSeccionVeranoDAO.save(descuentoSeccionVeranoForm);
 
-        Seccion seccion = seccionDAO.find(descuentoSeccionVeranoForm.getSeccion());
-        seccion.setDescuentoPrecio(descuentoSeccionVeranoForm.getMonto());
-        seccion.setDevolucion(0);
-        seccionDAO.updateColumns(seccion, "descuentoPrecio", "devolucion");
+        Seccion seccionBD = seccionDAO.find(descuentoSeccionVeranoForm.getSeccion());
+        Seccion seccionUpd = new Seccion(seccionBD.getId());
+        seccionUpd.setDescuentoPrecio(descuentoSeccionVeranoForm.getMonto());
+        seccionUpd.setDevolucion(0);
+        seccionDAO.updateColumns(seccionUpd, "descuentoPrecio", "devolucion");
 
-        enviosRestService.modificarDescuento(seccion, ds);
     }
 
     @Override
@@ -3390,7 +3386,8 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         CicloAcademico cicloAcademico = ds.getCicloAcademico();
         Alumno alumno = alumnoDAO.find(alumnoPagoVeranoForm.getAlumno());
 
-        Seccion seccion = seccionDAO.find(alumnoPagoVeranoForm.getSeccion());
+        Seccion seccionBD = seccionDAO.find(alumnoPagoVeranoForm.getSeccion());
+        Seccion seccion = new Seccion(seccionBD.getId());
         seccion.setAlumnoPagador(alumno);
         seccion.setDevolucion(0);
         seccionDAO.updateColumns(seccion, "alumnoPagador", "devolucion");
@@ -3416,6 +3413,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             deudaAlumno = new DeudaAlumno();
             createDeudaAlumno(deudaAlumno, pagoVeranoDb, ctaBanco, fechaVencimiento, usuario, seccion);
             createAcreecia(acreencia, deudaAlumno, alumno, fechaVencimiento, usuario);
+
         } else {
             Acreencia acreenciaExist = acreenciaDAO.findPersonaAndInstancia(alumno.getPersona(), deudaAlumno.getId());
 
@@ -3429,7 +3427,6 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             createAcreecia(acreencia, deudaAlumno, alumno, fechaVencimiento, usuario);
             deudaAlumnoDAO.updateColumns(deudaAlumno, "monto");
         }
-        enviosRestService.modificarDescuento(seccion, ds);
     }
 
     private void createAcreecia(Acreencia acreencia, DeudaAlumno deudaAlumnoNew, Alumno alumno, Date fechaVencimiento, Usuario usuario) {
