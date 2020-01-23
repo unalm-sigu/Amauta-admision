@@ -259,7 +259,10 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
 
         List<HorarioAula> horarariosPregrado = horarioAulaDAO.allByFechas(eventoDictadoVeranoPregrado.getFechaInicio(), eventoDictadoVeranoPregrado.getFechaFin());
         Map<String, List<HorarioAula>> mapHorarioAulaPre = TypesUtil.convertListToMapList("key", horarariosPregrado);
-        List<HorarioAula> horarariosPosgrado = horarioAulaDAO.allByFechas(eventoDictadoPosgrado.getFechaInicio(), eventoDictadoPosgrado.getFechaFin());
+        List<HorarioAula> horarariosPosgrado = new ArrayList();
+        if (eventoDictadoPosgrado != null) {
+            horarariosPosgrado = horarioAulaDAO.allByFechas(eventoDictadoPosgrado.getFechaInicio(), eventoDictadoPosgrado.getFechaFin());
+        }
         Map<String, List<HorarioAula>> mapHorarioAulaPos = TypesUtil.convertListToMapList("key", horarariosPosgrado);
 
         List<CursoCicloAcademico> cursosCicloGen = new ArrayList();

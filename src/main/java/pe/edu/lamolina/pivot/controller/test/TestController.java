@@ -75,8 +75,6 @@ public class TestController {
     @Autowired
     CalculoNotasService calculoNotasService;
 
-//    @Autowired
-//    VisorCalculoNotas visorCalculoNotas;
     @Autowired
     MatriculaCursoDAO matriculaCursoDAO;
 
@@ -217,13 +215,6 @@ public class TestController {
         return "yeah";
     }
 
-//    @ResponseBody
-//    @RequestMapping("calcularAllPromediosByCiclo")
-//    public String calcularAllPromediosByCiclo(HttpSession session) {
-//        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-//        service.calcularAllPromediosByCiclo(ds);
-//        return "yeah";
-//    }
     @ResponseBody
     @RequestMapping("promediarciclo/{ciclo}")
     public String promediarAll(@PathVariable("ciclo") Long cicloId, HttpSession session) {
@@ -318,15 +309,6 @@ public class TestController {
         return "yeah";
     }
 
-    //Trasladar informacion de matricula curso a alumnociclocurso
-//    @ResponseBody
-//    @RequestMapping("actasNotasHaciaHistorial")
-//    public String trasladarMatriculaCursoForPromedios(HttpSession session) {
-//        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-//        ds.setFechaAccionAudit(new Date());
-//        service.trasladarMatriculaCursoForPromedios(ds);
-//        return "yeah";
-//    }
     @ResponseBody
     @RequestMapping("trasladarInformcionForHistorialReview/{alumno}")
     public String trasladarInformcionForHistorialReviewAlumno(HttpSession session, @PathVariable(value = "alumno") Long alumnoId) {
@@ -366,14 +348,6 @@ public class TestController {
         return "yeah";
     }
 
-//    @ResponseBody
-//    @RequestMapping("actasNotasHaciaHistorial/{alumno}")
-//    public String trasladarMatriculaCursoForPromedios(HttpSession session, @PathVariable("alumno") Long alumnoId) {
-//        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-//        ds.setFechaAccionAudit(new Date());
-//        service.trasladarMatriculaCursoForPromedios(ds, alumnoId);
-//        return "yeah";
-//    }
     @ResponseBody
     @RequestMapping("trasladarInformcionForHistorialAlumno/{alumno}")
     public String trasladarInformcionForHistorialAlumno(HttpSession session, @PathVariable("alumno") Long alumnoId) {
