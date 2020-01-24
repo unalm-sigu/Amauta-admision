@@ -2217,9 +2217,9 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         }
 
         if (aula == null) {
-            //don't touch  
-            seccion.setAula(aula);
-            seccionDAO.update(seccion);
+            Seccion seccionUpd = new Seccion(seccion.getId());
+            seccionUpd.setAula(aula);
+            seccionDAO.updateColumns(seccionUpd, "aula");
 
             List<HorarioSeccion> horariosSeccion = horarioSeccionDAO.allBySeccion(seccion);
             for (HorarioSeccion horarioSeccion : horariosSeccion) {
@@ -2251,16 +2251,6 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             if (compareInt > aula.getCapacidadTotal()) {
                 throw new PhobosException("La capacidad del aula no abarca %s de la sección.", compareStr);
             }
-
-//            if (seccion.getMatriculados() == null || seccion.getMatriculados().intValue() == 0) {
-//                if (seccion.getVacantes().compareTo(aula.getCapacidadAula()) > 0) {
-//                    throw new PhobosException("La capacidad del aula no abarca las vacantes de la sección.");
-//                }
-//            } else {
-//                if (seccion.getMatriculados().compareTo(aula.getCapacidadAula()) > 0) {
-//                    throw new PhobosException("La capacidad del aula no abarca los matriculados de la sección.");
-//                }
-//            }
         }
 
         CicloAcademico cicloAcademico = ds.getCicloAcademico();
@@ -2271,20 +2261,30 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         ModalidadEstudio modalidadCurso = seccion.getGrupoSeccion().getCurso().getModalidadEstudio();
         EventoCicloAcademico eventoAcademico = this.getEventoDictadoClasesByCicloAcademico(seccion.getGrupoSeccion(), cicloAcademico, modalidadCurso);
 
+        Date fechaInicioClases = new DateTime(eventoAcademico.getFechaInicio()).withDayOfWeek(1).toDate();
+        Date hoy = new LocalDate().toDate();
+        Date lunes = new DateTime(hoy).withDayOfWeek(1).toDate();
+        if (lunes.after(fechaInicioClases)) {
+            fechaInicioClases = lunes;
+        }
+
         if (aula.getPermiteCruce() == 0 && !horariosSeccion.isEmpty()) {
             logger.debug("no permite cruce horario");
             List<String> diasHorasSeccion = horariosSeccion.stream().map(x -> x.getIdDiaHora()).collect(Collectors.toList());
 
-            List<HorarioAula> horariosAulasFound = horarioAulaDAO.allRangoDiaAndAulaByDiasHoras(diasHorasSeccion, aula, eventoAcademico.getFechaInicio(), eventoAcademico.getFechaFin());
+            List<HorarioAula> horariosAulasFound = horarioAulaDAO.allRangoDiaAndAulaByDiasHoras(
+                    diasHorasSeccion,
+                    aula,
+                    fechaInicioClases,
+                    eventoAcademico.getFechaFin());
+
             horariosAulasFound.removeIf(x -> seccionForm.equals(x.getSeccion()));
             if (!horariosAulasFound.isEmpty()) {
                 List<String> cruces = new ArrayList<>();
                 for (HorarioAula horarioAula : horariosAulasFound) {
-                    String msg = "";
+                    String msg = String.format("Tipo %s", horarioAula.getTipoEnum().name());
                     if (horarioAula.getSeccion() != null) {
                         msg = String.format("Sección %s", horarioAula.getSeccion().getCodigo2());
-                    } else {
-                        msg = String.format("Tipo %s", horarioAula.getTipoEnum().name());
                     }
                     String cruce = String.format("*%s Día %s, Hora %s",
                             msg,
@@ -2298,41 +2298,40 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             }
         }
 
-        seccion.setAula(aula);
         if (aulaAntes != null) {
             horarioAulaDAO.deleteBySeccionAula(seccion, aulaAntes);
         }
 
-        HorarioAula horarioAula = null;
+        if (aula.getPermiteCruce() == 0) {
+            LOOP_HORARIO_SECCION:
+            for (HorarioSeccion horarioSeccionEach : horariosSeccion) {
+                horarioSeccionEach.setAula(aula);
+                horarioSeccionDAO.update(horarioSeccionEach);
 
-        LOOP_HORARIO_SECCION:
-        for (HorarioSeccion horarioSeccionEach : horariosSeccion) {
-            horarioSeccionEach.setAula(aula);
-            horarioSeccionDAO.update(horarioSeccionEach);
-
-            for (HorarioAula horarioAulaEach : horariosAulas) {
-                if (horarioSeccionEach.getHoraDia().equals(horarioAulaEach.getHoraDia())) {
-                    continue LOOP_HORARIO_SECCION;
+                for (HorarioAula horarioAulaEach : horariosAulas) {
+                    if (horarioSeccionEach.getHoraDia().equals(horarioAulaEach.getHoraDia())) {
+                        continue LOOP_HORARIO_SECCION;
+                    }
                 }
+
+                HorarioAula horarioAula = new HorarioAula();
+                horarioAula.setAula(aula);
+                horarioAula.setDia(horarioSeccionEach.getDia());
+                horarioAula.setHora(horarioSeccionEach.getHora());
+                horarioAula.setSeccion(seccion);
+                horarioAula.setEstadoEnum(EstadoHorarioAulaEnum.ACT);
+                horarioAula.setTipoEnum(TipoHorarioAulaEnum.DICT);
+
+                horarioAula.setFechaInicio(fechaInicioClases);
+                horarioAula.setFechaFin(eventoAcademico.getFechaFin());
+
+                horarioAulaDAO.save(horarioAula);
             }
-
-            horarioAula = new HorarioAula();
-            horarioAula.setAula(aula);
-            horarioAula.setDia(horarioSeccionEach.getDia());
-            horarioAula.setHora(horarioSeccionEach.getHora());
-            horarioAula.setSeccion(seccion);
-            horarioAula.setEstadoEnum(EstadoHorarioAulaEnum.ACT);
-            horarioAula.setTipoEnum(TipoHorarioAulaEnum.DICT);
-
-            // if (eventoAcademico != null) {
-            horarioAula.setFechaInicio(eventoAcademico.getFechaInicio());
-            horarioAula.setFechaFin(eventoAcademico.getFechaFin());
-            // }
-
-            horarioAulaDAO.save(horarioAula);
         }
 
-        seccionDAO.updateSeccionAula(seccion);
+        Seccion seccionUpd = new Seccion(seccion.getId());
+        seccionUpd.setAula(aula);
+        seccionDAO.updateColumns(seccionUpd, "aula");
         this.actualizarBoletin();
         this.actualizarCuotaAnexo(seccion, seccion.getGrupoSeccion().getCicloAcademico());
     }
