@@ -2280,7 +2280,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
             horariosAulasFound.removeIf(x -> seccionForm.equals(x.getSeccion()));
             if (!horariosAulasFound.isEmpty()) {
-                List<String> cruces = new ArrayList<>();
+                List<String> cruces = new ArrayList();
                 for (HorarioAula horarioAula : horariosAulasFound) {
                     String msg = String.format("Tipo %s", horarioAula.getTipoEnum().name());
                     if (horarioAula.getSeccion() != null) {

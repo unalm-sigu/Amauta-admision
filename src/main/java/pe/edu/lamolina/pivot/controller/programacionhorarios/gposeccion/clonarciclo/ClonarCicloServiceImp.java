@@ -638,9 +638,7 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
                     //restriccionRepitenciaDAO.save(restriccRepiteNew);
                     seccNew.getRestriccionesRepitencia().add(restriccRepiteNew);
                 }
-
             }
-
         }
 
         long t03 = System.currentTimeMillis();
@@ -664,12 +662,19 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
         }
 
         seccionDAO.saveList(seccionesGen);
+        List<Seccion> seccionesPCUR = new ArrayList();
         List<Seccion> seccionesBD = seccionDAO.allActivosByGposSeccion(gposSeccionesGen);
         Map<String, Seccion> mapSeccionBD = TypesUtil.convertListToMap("codigo", seccionesBD);
         for (Seccion seccion : seccionesGen) {
             Seccion seccBD = mapSeccionBD.get(seccion.getCodigo());
+            if (seccion.getSeccionSuperior() != null) {
+                Seccion seccSuperBD = mapSeccionBD.get(seccion.getSeccionSuperior().getCodigo());
+                seccion.setSeccionSuperior(seccSuperBD);
+                seccionesPCUR.add(seccion);
+            }
             seccion.setId(seccBD.getId());
         }
+        seccionDAO.updateList(seccionesPCUR, "seccionSuperior");
 
         List<HorarioSeccion> horariosSecc = new ArrayList();
         List<HorarioAula> horariosAulaSecc = new ArrayList();

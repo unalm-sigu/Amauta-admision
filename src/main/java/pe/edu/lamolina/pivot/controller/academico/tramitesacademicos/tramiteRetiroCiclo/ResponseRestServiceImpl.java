@@ -83,8 +83,7 @@ public class ResponseRestServiceImpl extends AbstractRestClient<JsonResponse> im
         json.put("idUsuario", ds.getUsuario().getId());
         json.put("idMatricula", matriculaResumen.getId());
 
-        String url = String.format("%s/matriculaSeccion/deleteMatricula",
-                parametro.getValor());
+        String url = String.format("%s/matriculaSeccion/deleteMatricula", parametro.getValor());
 
         return this.postToBackEnd(url, json);
     }
