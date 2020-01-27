@@ -863,7 +863,6 @@ public class GpoSeccionController {
             HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            //   TypesUtil.delay(3000);
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
             GrupoSeccion grupoSeccion = service.anularSeccion(new Seccion(seccionId), ds);

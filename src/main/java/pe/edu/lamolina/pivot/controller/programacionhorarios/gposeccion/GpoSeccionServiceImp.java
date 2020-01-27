@@ -1102,6 +1102,10 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             }
         }
 
+        responseRestService.createToken(ds);
+        JsonResponse response = responseRestService.ampliarVacante(seccionBD, -seccionBD.getVacantes(), ds);
+        Assert.isTrue(response.getSuccess(), response.getMessage());
+
         if (matriculasSeccionAll.isEmpty()) {
             this.deleteDependenciasSeccion(seccionBD);
             seccionDAO.delete(seccionBD);
@@ -1285,6 +1289,10 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
                 Assert.isTrue(response.getSuccess(), response.getMessage());
             }
         }
+
+        responseRestService.createToken(ds);
+        JsonResponse response = responseRestService.ampliarVacante(seccionBD, -seccionBD.getVacantes(), ds);
+        Assert.isTrue(response.getSuccess(), response.getMessage());
 
         horarioAulaDAO.deleteBySecciones(Arrays.asList(seccionBD));
 
@@ -1559,12 +1567,8 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     @Override
     @Transactional
     public void actualizarSeccionVacantes(Seccion seccionForm, DataSessionPivot ds) {
-        //DateTime today = new DateTime();
         Seccion seccioDB = seccionDAO.find(seccionForm.getId());
-        //GrupoSeccion grupoSeccion = grupoSeccionDAO.findLock(seccioDB.getGrupoSeccion().getId());
 
-        //logger.debug("grupoSeccion:::  {}", grupoSeccion.getId());
-        //validar seccion seleccionada
         if (ObjectUtil.getParentTree(seccioDB, "aula.id") != null) {
             if (seccioDB.getAula().getCapacidadAula().compareTo(seccionForm.getVacantes()) < 0) {
                 throw new PhobosException(String.format("Las vacantes de la sección %s superan, el aforo su aula", seccionForm.getCodigo2()));
@@ -1579,73 +1583,6 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         JsonResponse response = responseRestService.ampliarVacante(seccioDB, seccionForm.getVacantes() - seccioDB.getVacantes(), ds);
         Assert.isTrue(response.getSuccess(), response.getMessage());
 
-        //seccioDB.setVacantes(seccionForm.getVacantes());
-        // FALTA REVISAR ESTE METODO Q SE ESTA DESACTIVANDO YA QUE TODO LO DE VACANTES
-        // DEBE SER GESTIONADO POR EL SISTEMA MATRICULA
-        //
-        //seccionDAO.updateSeccionVacantes(seccionTCUR);
-        //seccionDAO.updateSeccionVacantes(seccionTCUR);
-        //seccionDAO.updateSeccionVacantes(seccionTCUR);
-        //seccionDAO.updateSeccionVacantes(seccionTCUR);
-        //seccionDAO.updateSeccionVacantes(seccionTCUR);
-        //seccionDAO.updateSeccionVacantes(seccionTCUR);
-        //seccionDAO.updateSeccionVacantes(seccionTCUR);
-        //seccionDAO.updateSeccionVacantes(seccionTCUR);
-        //seccionDAO.updateSeccionVacantes(seccionTCUR);
-        //seccionDAO.updateSeccionVacantes(seccioDB);
-        //seccionDAO.update(seccioDB);
-        //validar seccion seleccioanda
-//        List<VacanteAlumno> vacantesAlumnoBySeccion = vacanteAlumnoDAO.allActivosBySeccion(seccionForm);
-//        Collections.sort(vacantesAlumnoBySeccion, (VacanteAlumno va1, VacanteAlumno va2) -> va1.getNumero().compareTo(va2.getNumero()));
-//        if (vacantesAlumnoBySeccion.isEmpty()) {
-//            for (int i = 1; i <= seccionForm.getVacantes(); i++) {
-//                VacanteAlumno vacanteAlumno = new VacanteAlumno();
-//                vacanteAlumno.setAlumno(null);
-//                vacanteAlumno.setEstadoEnum(EstadoVacanteAlumnoEnum.DISP);
-//                vacanteAlumno.setFechaRegistro(today.toDate());
-//                vacanteAlumno.setNumero(i);
-//                vacanteAlumno.setSeccion(seccioDB);
-//                vacanteAlumno.setActivo(1);
-//                vacanteAlumno.setUserRegistro(ds.getUsuario());
-//                vacanteAlumnoDAO.save(vacanteAlumno);
-//            }
-//        } else //si se asignaron mas vacantes de las que habia
-//        {
-//            if (seccionForm.getVacantes() > vacantesAlumnoBySeccion.size()) {
-//                int diff = seccionForm.getVacantes() - vacantesAlumnoBySeccion.size();
-//                for (int i = 1; i <= diff; i++) {
-//                    VacanteAlumno vacanteAlumnoEach = new VacanteAlumno();
-//                    vacanteAlumnoEach.setAlumno(null);
-//                    vacanteAlumnoEach.setEstadoEnum(EstadoVacanteAlumnoEnum.DISP);
-//                    vacanteAlumnoEach.setFechaRegistro(today.toDate());
-//                    vacanteAlumnoEach.setNumero(i + vacantesAlumnoBySeccion.size());
-//                    vacanteAlumnoEach.setSeccion(seccionForm);
-//                    vacanteAlumnoEach.setUserRegistro(ds.getUsuario());
-//                    vacanteAlumnoEach.setActivo(1);
-//                    vacanteAlumnoDAO.save(vacanteAlumnoEach);
-//                }
-//            } else {
-//                //si se asignaron menos vacantes de las que habia
-//                int diff = vacantesAlumnoBySeccion.size() - seccionForm.getVacantes();
-//                int cantInac = 0;
-//                if (diff != BigDecimal.ZERO.intValue()) {
-//                    for (int i = vacantesAlumnoBySeccion.size() - 1; i >= 0; i--) {
-//                        VacanteAlumno vacanteAlumnoEach = vacantesAlumnoBySeccion.get(i);
-//                        if (vacanteAlumnoEach.isEstadoDisponible()) {
-//                            vacanteAlumnoEach.setUserModificacion(ds.getUsuario());
-//                            vacanteAlumnoEach.setFechaModificacion(today.toDate());
-//                            vacanteAlumnoEach.setEstadoEnum(EstadoVacanteAlumnoEnum.INA);
-//                            vacanteAlumnoDAO.updateEstadoFechaModUsuarioMod(vacanteAlumnoEach);
-//                            cantInac++;
-//                        }
-//                        if (cantInac == diff) {
-//                            break;
-//                        }
-//                    }
-//                }
-//            }
-//        }
-        //this.actualizarVacantesTCUR(grupoSeccion, ds, today);
         this.actualizarBoletin();
     }
 
