@@ -30,20 +30,20 @@ public class CursoCicloAcademicoDAOH extends AbstractEasyDAO<CursoCicloAcademico
     }
 
     @Override
-    public List<CursoCicloAcademico> allByCiclo(CicloAcademico cicloDestino) {
+    public List<CursoCicloAcademico> allByCiclo(CicloAcademico ciclo) {
         Octavia sql = Octavia.query(CursoCicloAcademico.class, "cca")
                 .join("curso c", "cicloAcademico ca")
                 .left("tipoCursoCurricula")
-                .filter("ca.id", cicloDestino);
+                .filter("ca.id", ciclo);
         return all(sql);
     }
 
     @Override
-    public List<CursoCicloAcademico> allByCiclo(CicloAcademico cicloDestino, CicloAcademicoEstadoEnum... estadoEnum) {
+    public List<CursoCicloAcademico> allByCiclo(CicloAcademico ciclo, CicloAcademicoEstadoEnum... estadoEnum) {
         List<CicloAcademicoEstadoEnum> estadosEnum = Arrays.asList(estadoEnum);
         Octavia sql = Octavia.query(CursoCicloAcademico.class, "cca")
                 .join("curso c", "cicloAcademico ca")
-                .filter("ca.id", cicloDestino)
+                .filter("ca.id", ciclo)
                 .in("cca.estado", estadosEnum);
         return all(sql);
     }

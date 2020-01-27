@@ -3092,47 +3092,6 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
     @Override
     @Transactional
-    public void generarpagodocente(DocenteSeccion docenteSeccion, DataSessionPivot ds) {
-        logger.debug(" **** update docenteSeccion {} ", docenteSeccion.getId());
-        DocenteSeccion docenteSeccionDb = docenteSeccionDAO.find(docenteSeccion.getId());
-        Seccion seccion = docenteSeccionDb.getSeccion();
-        Integer matriculados = seccion.getMatriculados();
-        CicloAcademico cicloAcademico = ds.getCicloAcademico();
-        logger.debug(" ****  seccion {} ", seccion.getId());
-        logger.debug(" ****  matriculados {} ", matriculados);
-        logger.debug(" ****  cicloAcademico {} ", cicloAcademico.getId());//semanasClases
-        logger.debug(" ****  cicloAcademico getSemanasClases {} ", cicloAcademico.getSemanasClases());
-        PagoHoraDocente pagoHoraDocente = pagoHoraDocenteDAO.findByCicloMatriculados(cicloAcademico, matriculados);
-        logger.debug(" ****  pagoHoraDocente not null {} ", pagoHoraDocente != null);
-        if (pagoHoraDocente != null) {
-            Integer horasSemanales = seccion.getHorasSemanales();
-            BigDecimal porcentaje = docenteSeccionDb.getPorcentajeCarga();
-            if (porcentaje == null) {
-                porcentaje = new BigDecimal("100");
-            }
-            Long semanasClases = cicloAcademico.getSemanasClases();
-            logger.debug(" ****  porcentaje carga {} ", porcentaje);
-            BigDecimal factor = new BigDecimal("0.01");
-            BigDecimal pago = pagoHoraDocente.getMontoHora();
-            BigDecimal horasSemanalesDecimal = BigDecimal.ZERO;
-            if (horasSemanales != null) {
-                horasSemanalesDecimal = new BigDecimal(horasSemanales);
-            }
-            BigDecimal semanasClasesDecimal = new BigDecimal(semanasClases);
-            BigDecimal matriculadosDecimal = new BigDecimal(matriculados);
-
-            BigDecimal montoPagar = factor.multiply(pago)
-                    .multiply(horasSemanalesDecimal)
-                    .multiply(matriculadosDecimal)
-                    .multiply(semanasClasesDecimal);
-            logger.debug("docenteSeccion {} monto generador a pagar es {}", docenteSeccion.getId(), montoPagar);
-            docenteSeccionDb.setPagoVerano(montoPagar);
-            docenteSeccionDAO.update(docenteSeccionDb);
-        }
-    }
-
-    @Override
-    @Transactional
     public void recrearVacanteAlumno(CicloAcademico ciclo, DataSessionPivot ds) {
         List<Seccion> secciones = seccionDAO.allByCiclo(ciclo);
         List<VacanteAlumno> vacAlumnos = vacanteAlumnoDAO.allActivoBySecciones(secciones);

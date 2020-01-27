@@ -205,8 +205,6 @@ public interface GpoSeccionService {
 
     CursoCicloAcademico findCursoCicloAcademico(Curso curso, CicloAcademico cicloAcademico);
 
-    void generarpagodocente(DocenteSeccion docenteSeccion, DataSessionPivot ds);
-
     void recrearVacanteAlumno(CicloAcademico ciclo, DataSessionPivot ds);
 
     EventoCicloAcademico findEventoAcademico(CicloAcademico cicloAcademico, AnexoBoletin anexoSup);

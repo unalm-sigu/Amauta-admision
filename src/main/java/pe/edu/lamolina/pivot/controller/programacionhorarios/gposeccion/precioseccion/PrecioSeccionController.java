@@ -20,12 +20,16 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.edu.lamolina.model.academico.CursoCicloAcademico;
+import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.Seccion;
+import pe.edu.lamolina.model.finanzas.PagoHoraDocente;
 import pe.edu.lamolina.model.general.TipoCarpeta;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.constant.Messages;
@@ -197,6 +201,51 @@ public class PrecioSeccionController {
 
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("generarPagoDocente")
+    public JsonResponse generarPagoDocente(DocenteSeccion docenteSeccionForm, HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            List<PagoHoraDocente> pagosDocenteByHora = service.allPagosDocenteByCiclo(ds.getCicloAcademico());
+            DocenteSeccion docenteSeccionBD = service.findDocenteSeccion(docenteSeccionForm);
+            CursoCicloAcademico cursoCiclo = service.findCursoCiclo(docenteSeccionBD.getSeccion().getGrupoSeccion().getCurso(), ds.getCicloAcademico());
+            String msg = service.generarPagoDocente(docenteSeccionBD, cursoCiclo, pagosDocenteByHora, ds.getCicloAcademico(), ds);
+            response.setMessage(msg);
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (RuntimeException e) {
+            ExceptionHandler.handleSpecial(e, response, Messages.ERROR_GENERAL);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("generarPagoDocenteCiclo")
+    public JsonResponse generarPagoDocenteCiclo(HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            service.generarPagoDocenteCiclo(ds.getCicloAcademico(), ds);
+            response.setMessage("Se generó el pago de los docentes satisfactoriamente.");
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (RuntimeException e) {
+            ExceptionHandler.handleSpecial(e, response, Messages.ERROR_GENERAL);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }

@@ -11,7 +11,7 @@ import pe.edu.lamolina.model.enums.CicloAcademicoEstadoEnum;
 
 public interface CursoCicloAcademicoDAO extends EasyDAO<CursoCicloAcademico> {
 
-    List<CursoCicloAcademico> allByCiclo(CicloAcademico cicloDestino);
+    List<CursoCicloAcademico> allByCiclo(CicloAcademico ciclo);
 
     void updatePrecioByTpc(CicloAcademico cicloAcademico, String tpc, BigDecimal precio);
 

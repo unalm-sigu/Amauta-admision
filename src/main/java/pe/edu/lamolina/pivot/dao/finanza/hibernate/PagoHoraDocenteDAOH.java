@@ -1,5 +1,6 @@
 package pe.edu.lamolina.pivot.dao.finanza.hibernate;
 
+import java.util.List;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
@@ -21,8 +22,18 @@ public class PagoHoraDocenteDAOH extends AbstractEasyDAO<PagoHoraDocente> implem
                 .from(PagoHoraDocente.class, "phd")
                 .join("cicloAcademico ci")
                 .filter("ci.id", cicloAcademico)
-                .filter("phd.alumnosInicio","<=", matriculados)
-                .filter("phd.alumnosFin",">=", matriculados);
+                .filter("phd.alumnosInicio", "<=", matriculados)
+                .filter("phd.alumnosFin", ">=", matriculados);
         return find(sql);
     }
+
+    @Override
+    public List<PagoHoraDocente> allByCiclo(CicloAcademico cicloAcademico) {
+        Octavia sql = new Octavia()
+                .from(PagoHoraDocente.class, "phd")
+                .join("cicloAcademico ci")
+                .filter("ci.id", cicloAcademico);
+        return all(sql);
+    }
+
 }

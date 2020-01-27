@@ -16,8 +16,9 @@
             <th class="col-md-3">Docente</th>
             <th class="text-center">Principal</th>
             <th class="col-md-2 text-center">%Carga</th>
-            <th class="col-md-4 text-center">Periodo clases</th>
+            <th class="col-md-3 text-center">Periodo clases</th>
             <th class="col-md-3 text-center">Situación Laboral</th>
+            <th class="col-md-1 text-center">Pago</th>
             <th class="text-center">Estado</th>
             <th class=""></th>
             <th class=""></th>
@@ -84,6 +85,45 @@
                     <table width="100%">
                         <tbody>
                             <tr>
+                                <td width="15%">Desde</td>
+                                <td width="75%">
+                                    <span>
+                                        <v-date-picker v-model="docSeccion.fechaInicio"
+                                                       v-bind:id="'fechaInicio'+index"
+                                                       v-bind:startdate="docSeccion.fechaInicioMin"
+                                                       v-bind:enddate="docSeccion.fechaFinMax" 
+                                                       v-on:changedate="cambiarFechaIniPeriodo(docSeccion,$event)"
+                                                       required="true"></v-date-picker>
+                                    </span>
+
+                                    <div v-if="docSeccion.estado != 'ACT'" class="col-md-6">
+                                        <input type="text" readonly="" class="form-control" 
+                                               v-model="docSeccion.fechaInicio"/>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td width="15%">Hasta</td>
+                                <td width="75%">
+                                    <span>
+                                        <v-date-picker v-model="docSeccion.fechaFin"
+                                                       v-bind:id="'fechaFin'+index"
+                                                       v-bind:startdate="docSeccion.fechaInicioMin"
+                                                       v-bind:enddate="docSeccion.fechaFinMax" 
+                                                       v-on:changedate="cambiarFechaFinPeriodo(docSeccion,$event)"
+                                                       required="true"></v-date-picker>
+                                    </span>
+                                    <div v-if="docSeccion.estado != 'ACT'" class="col-md-6">
+                                        <input type="text" readonly="" class="form-control" 
+                                               v-model="docSeccion.fechaFin"/>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <!--table width="100%">
+                        <tbody>
+                            <tr>
                                 <td width="50%" style="padding: 0; padding-right: 2px;">
                                     <span>
                                         <v-date-picker v-model="docSeccion.fechaInicio"
@@ -115,7 +155,7 @@
                                 </td>
                             </tr>
                         </tbody>
-                    </table>
+                    </table-->
                 </span>
                 <span v-else="">
                     <span v-if="docSeccion.fechaInicio != '' ">
@@ -147,6 +187,10 @@
                         <span v-text="docSeccion.contratoDocente.situacion.nombre">Nombre Situacion</span>
                     </small>
                 </div>
+            </td>
+            
+            <td class="v-middle text-right">
+                <span v-if="docSeccion.pagoVerano"> S/. {{docSeccion.pagoVerano}}</span>
             </td>
 
             <td class="text-center v-middle">

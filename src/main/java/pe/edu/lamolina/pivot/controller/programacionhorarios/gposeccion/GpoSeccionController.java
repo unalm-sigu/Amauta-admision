@@ -40,6 +40,7 @@ import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
+import pe.albatross.zelpers.miscelanea.NumberFormat;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
@@ -2414,29 +2415,6 @@ public class GpoSeccionController {
     }
 
     @ResponseBody
-    @RequestMapping("generarpagodocente")
-    public JsonResponse generarpagodocente(DocenteSeccion docenteSeccion,
-            RedirectAttributes redirectAttr,
-            HttpSession session) {
-
-        JsonResponse response = new JsonResponse();
-        try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            service.generarpagodocente(docenteSeccion, ds);
-            response.setMessage(Messages.UPDATED);
-            response.setSuccess(true);
-
-        } catch (PhobosException e) {
-            ExceptionHandler.handlePhobosEx(e, response);
-        } catch (RuntimeException e) {
-            ExceptionHandler.handleSpecial(e, response, Messages.ERROR_GENERAL);
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, response);
-        }
-        return response;
-    }
-
-    @ResponseBody
     @RequestMapping("allAnexos")
     public JsonResponse allAnexos(@RequestParam("anexoSuperior") String anexoSuperior, HttpSession session) {
         JsonResponse jsonResponse = new JsonResponse();
@@ -2611,6 +2589,9 @@ public class GpoSeccionController {
                 nodeProfe.put("docenteNN", docSeccion.getDocente().getCodigo().equals(Constantine.DOCENTE_INDETERMINADO));
                 nodeProfe.put("fechaInicioMin", fechaMin);
                 nodeProfe.put("fechaFinMax", fechaMax);
+                if (docSeccion.getPagoVerano() != null) {
+                    nodeProfe.put("pagoVerano", NumberFormat.precio(docSeccion.getPagoVerano()));
+                }
                 arrayProfeSecc.add(nodeProfe);
 
             }

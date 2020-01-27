@@ -1,6 +1,7 @@
 package pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.precioseccion;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashMap;
@@ -16,11 +17,12 @@ import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.albatross.zelpers.miscelanea.math.Fraxtion;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.CursoCicloAcademico;
+import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
-import pe.edu.lamolina.model.academico.EventoAcademico;
 import pe.edu.lamolina.model.academico.EventoCicloAcademico;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
@@ -31,6 +33,9 @@ import pe.edu.lamolina.model.enums.SituacionDocenteEnum;
 import pe.edu.lamolina.model.enums.TipoCicloEnum;
 import pe.edu.lamolina.model.enums.TipoDictadoGrupoSeccionEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
+import static pe.edu.lamolina.model.enums.TipoSeccionEnum.PCUR;
+import static pe.edu.lamolina.model.enums.TipoSeccionEnum.TCUR;
+import pe.edu.lamolina.model.finanzas.PagoHoraDocente;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.TipoCarpeta;
 import pe.edu.lamolina.model.horario.HorarioAula;
@@ -41,6 +46,7 @@ import pe.edu.lamolina.pivot.dao.academico.EventoAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.EventoCicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.GrupoSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.SeccionDAO;
+import pe.edu.lamolina.pivot.dao.finanza.PagoHoraDocenteDAO;
 import pe.edu.lamolina.pivot.dao.general.TipoCarpetaDAO;
 import pe.edu.lamolina.pivot.dao.horario.HorarioAulaDAO;
 import pe.edu.lamolina.pivot.dao.horario.HorarioSeccionDAO;
@@ -79,13 +85,35 @@ public class PrecioSeccionServiceImp implements PrecioSeccionService {
     @Autowired
     EventoCicloAcademicoDAO eventoCicloAcademicoDAO;
 
+    @Autowired
+    PagoHoraDocenteDAO pagoHoraDocenteDAO;
+
+    @Override
+    public DocenteSeccion findDocenteSeccion(DocenteSeccion docenteSeccionForm) {
+        DocenteSeccion docenteSeccion = docenteSeccionDAO.find(docenteSeccionForm.getId());
+        Seccion seccion = docenteSeccion.getSeccion();
+        seccion.setSeccion(new ArrayList());
+        if (seccion.getTipoSeccionEnum() == TCUR) {
+            List<Seccion> seccionesByGpoSecc = seccionDAO.allActivosByGpoSeccion(seccion.getGrupoSeccion());
+            for (Seccion secc : seccionesByGpoSecc) {
+                if (secc.getTipoSeccionEnum() == PCUR) {
+                    seccion.getSeccion().add(secc);
+                }
+            }
+        }
+        return docenteSeccion;
+    }
+
+    @Override
+    public CursoCicloAcademico findCursoCiclo(Curso curso, CicloAcademico ciclo) {
+        return cursoCicloAcademicoDAO.findByCursoCiclo(curso, ciclo);
+    }
+
     @Override
     public void savePrecioSeccion(Seccion seccionForm, DataSessionPivot ds) {
 
         Seccion seccionBD = seccionDAO.find(seccionForm);
-
         Curso curso = seccionBD.getGrupoSeccion().getCurso();
-
         CicloAcademico ciclo = seccionBD.getGrupoSeccion().getCicloAcademico();
 
         Assert.isTrue(ciclo.getTipoEnum() == TipoCicloEnum.NIV, "Sólo se aplica en ciclos de nivelación");
@@ -363,4 +391,132 @@ public class PrecioSeccionServiceImp implements PrecioSeccionService {
             }
         }
     }
+
+    @Override
+    @Transactional
+    public String generarPagoDocente(
+            DocenteSeccion docenteSeccionBD,
+            CursoCicloAcademico cursoCiclo,
+            List<PagoHoraDocente> pagosDocenteByHora,
+            CicloAcademico ciclo, DataSessionPivot ds) {
+
+        logger.debug(" **** update docenteSeccion {} ", docenteSeccionBD.getId());
+        //DocenteSeccion docenteSeccionBD = docenteSeccionDAO.find(docenteSeccionForm.getId());
+        Docente docente = docenteSeccionBD.getDocente();
+        Seccion seccion = docenteSeccionBD.getSeccion();
+
+        CicloAcademico cicloAcademico = seccion.getGrupoSeccion().getCicloAcademico();
+        Assert.isTrue(ciclo.getId().longValue() == cicloAcademico.getId(), "El cálculo que desea realizar no corresponde al ciclo que está trabajando.");
+
+        Long semanasClases = cicloAcademico.getSemanasClases();
+        Assert.isNotNull(semanasClases, "No está configurado la cantidad de semanas del dictado de clases del ciclo.");
+
+        Integer horasSemanales = seccion.getHorasSemanales();
+        Assert.isNotNull(horasSemanales, "No está configurado la cantidad de horas semanas del dictado de clases de la sección " + seccion.getCodigo2() + ".");
+
+        BigDecimal porcentajeCarga = docenteSeccionBD.getPorcentajeCarga();
+        Assert.isNotNull(porcentajeCarga, "No ha configurado el porcentaje de carga del docente " + docente.getCodigo() + " en la sección " + seccion.getCodigo2() + ".");
+
+        String porcentajeCargaFraccion = docenteSeccionBD.getPorcentajeCargaFraccion();
+        Assert.isNotNull(porcentajeCargaFraccion, "Error en la configuración del porcentaje de carga del docente " + docente.getCodigo() + " en la sección " + seccion.getCodigo2() + ".");
+
+        Integer matriculados = 0;
+        if (seccion.getTipoSeccionEnum() == TCUR) {
+            List<Seccion> seccionesPCUR = seccion.getSeccion();
+            for (Seccion secc : seccionesPCUR) {
+                Integer matriculadosSecc = secc.getMatriculados();
+                if (secc.getAbonoVerano().compareTo(secc.getPrecioBase()) < 0) {
+                    docenteSeccionBD.setPagoVerano(null);
+                    docenteSeccionDAO.update(docenteSeccionBD);
+                    return "Los matriculados no lograron abonar el precio base de la sección " + secc.getCodigo2() + ".";
+                }
+                matriculadosSecc = (matriculadosSecc < cursoCiclo.getMinimoAlumnos().intValue()) ? cursoCiclo.getMinimoAlumnos().intValue() : matriculadosSecc;
+                matriculados += matriculadosSecc;
+            }
+
+        } else {
+            matriculados = seccion.getMatriculados();
+            if (seccion.getAbonoVerano().compareTo(seccion.getPrecioBase()) < 0) {
+                docenteSeccionBD.setPagoVerano(null);
+                docenteSeccionDAO.update(docenteSeccionBD);
+                return "Los matriculados no lograron abonar el precio base de la sección.";
+            }
+            matriculados = (matriculados < cursoCiclo.getMinimoAlumnos().intValue()) ? cursoCiclo.getMinimoAlumnos().intValue() : matriculados;
+        }
+
+        PagoHoraDocente pagoHoraDocente = findPagoDocenteByMatriculados(matriculados, pagosDocenteByHora);
+        Assert.isNotNull(pagoHoraDocente, "No se encuentra configurado el pago de horas por docente para este ciclo.");
+
+        Fraxtion porcentajeFraxtion = new Fraxtion(porcentajeCargaFraccion);
+        BigDecimal precioHora = pagoHoraDocente.getMontoHora();
+        BigDecimal horasSemanalesDecimal = new BigDecimal(horasSemanales);
+        BigDecimal semanasClasesDecimal = new BigDecimal(semanasClases);
+
+        BigDecimal montoPagarSeccion = precioHora
+                .multiply(horasSemanalesDecimal)
+                .multiply(semanasClasesDecimal);
+        logger.info("precio-seccion => {}={}*{}*{}", montoPagarSeccion, precioHora, horasSemanales, semanasClasesDecimal);
+
+        BigDecimal factor = new BigDecimal("0.01");
+        BigDecimal montoPagarDocente = porcentajeFraxtion.multiply(montoPagarSeccion).multiply(factor).getValue(2, RoundingMode.HALF_DOWN);
+
+        logger.debug("docenteSeccion {} monto generador a pagar es {}", docenteSeccionBD.getId(), montoPagarSeccion);
+        docenteSeccionBD.setPagoVerano(montoPagarDocente);
+        docenteSeccionDAO.update(docenteSeccionBD);
+        return "Importe calculado satisfactoriamente";
+    }
+
+    private PagoHoraDocente findPagoDocenteByMatriculados(Integer matriculados, List<PagoHoraDocente> pagosDocenteByHora) {
+        long mats = Long.valueOf(matriculados);
+        logger.debug("buscando pago-hora-docente para {} matriculados", mats);
+        for (PagoHoraDocente pagoHora : pagosDocenteByHora) {
+            logger.debug("Buscando rango {} al {}", pagoHora.getAlumnosInicio(), pagoHora.getAlumnosFin());
+            if (pagoHora.getAlumnosInicio() <= mats && mats <= pagoHora.getAlumnosFin()) {
+                logger.debug("retornando {}", pagoHora.getMontoHora());
+                return pagoHora;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public List<PagoHoraDocente> allPagosDocenteByCiclo(CicloAcademico cicloAcademico) {
+        return pagoHoraDocenteDAO.allByCiclo(cicloAcademico);
+    }
+
+    @Override
+    @Transactional
+    public void generarPagoDocenteCiclo(CicloAcademico cicloAcademico, DataSessionPivot ds) {
+        List<PagoHoraDocente> pagosDocenteByHora = pagoHoraDocenteDAO.allByCiclo(cicloAcademico);
+        List<DocenteSeccion> docentesSecciones = docenteSeccionDAO.allActivosByCiclo(cicloAcademico);
+        List<Seccion> secciones = docentesSecciones.stream().map(x -> x.getSeccion()).distinct().collect(Collectors.toList());
+        Map<Long, Seccion> mapSeccion = TypesUtil.convertListToMap("id", secciones);
+        Map<Long, List<Seccion>> mapSeccionByGpoSecc = TypesUtil.convertListToMapList("grupoSeccion.id", secciones);
+        for (Seccion seccion : secciones) {
+            seccion.setSeccion(new ArrayList());
+            if (seccion.getTipoSeccionEnum() == TCUR) {
+                List<Seccion> seccionGpo = TypesUtil.getListNotNull(mapSeccionByGpoSecc.get(seccion.getGrupoSeccion().getId()));
+                for (Seccion secc : seccionGpo) {
+                    if (secc.getTipoSeccionEnum() == PCUR) {
+                        seccion.getSeccion().add(secc);
+                    }
+                }
+            }
+        }
+
+        for (DocenteSeccion docSeccion : docentesSecciones) {
+            Seccion seccion = mapSeccion.get(docSeccion.getSeccion().getId());
+            docSeccion.setSeccion(seccion);
+        }
+
+        List<CursoCicloAcademico> cursosCiclo = cursoCicloAcademicoDAO.allByCiclo(cicloAcademico);
+        Map<Long, CursoCicloAcademico> mapCursoCiclo = TypesUtil.convertListToMap("curso.id", cursosCiclo);
+
+        for (DocenteSeccion docSeccion : docentesSecciones) {
+            Curso curso = docSeccion.getSeccion().getGrupoSeccion().getCurso();
+            this.generarPagoDocente(docSeccion, mapCursoCiclo.get(curso.getId()), pagosDocenteByHora, cicloAcademico, ds);
+        }
+
+    }
+
 }

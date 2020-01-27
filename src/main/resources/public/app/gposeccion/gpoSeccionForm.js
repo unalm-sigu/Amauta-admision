@@ -2092,7 +2092,7 @@ var app = new Vue({
 
                         $.ajax({
                             method: 'POST',
-                            url: APP.url('academico/gposeccion/generarpagodocente'),
+                            url: APP.url('academico/gposeccion/generarPagoDocente'),
                             data: {id: docSeccion.id},
                             success: function (response) {
                                 if (response.success) {
