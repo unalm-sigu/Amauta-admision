@@ -39,7 +39,8 @@ $(function () {
         },
         writers: {
             _rowWriter: ulWriterRes
-        }, features: {
+        },
+        features: {
             paginate: false,
             recordCount: false,
             sorting: false,
@@ -92,7 +93,11 @@ $(function () {
     function ulWriterRes(rowIndex, record, columns, cellWriter) {
         var colorEstado = {CRE: "default", ACT: "success", INA: "danger", CER: "danger", APR: "primary", ACEP: "primary", OBS: "warning", SOL: "info", RHZ: "danger", REE: "info"};
         record.colorEstado = colorEstado[record.estado];
+        record.paraContarCredTotal = '/OBL/GEN/ELC/DEP/'.indexOf(record.tipoCursoCodigo) > 0 ? 'SI' : 'NO';
+        record.paraContarCredMin = '/OBL/GEN/ELC/DEP/ELE/CULT/PROD/TECIND/'.indexOf(record.tipoCursoCodigo) > 0 ? 'SI' : 'NO';
         record.index = rowIndex;
+        console.log(record.tipoCursoCodigo)
+        console.log('/OBL/GEN/ELC/'.indexOf(record.tipoCursoCodigo))
         var html = $.templates("#templateCursoCurriculaRes").render(record);
         return html;
     }
@@ -912,7 +917,7 @@ $(function () {
             $("#cbo-ciclos").removeAttr("name");
             $("#cbo-ciclos").removeAttr("required");
             $("#cbo-ciclos").html("");
-            
+
             $("#cantidad-ciclos").val(0);
 
             if (!isNaN(carr)) {

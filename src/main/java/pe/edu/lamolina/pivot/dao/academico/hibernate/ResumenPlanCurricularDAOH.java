@@ -37,7 +37,7 @@ public class ResumenPlanCurricularDAOH extends AbstractEasyDAO<ResumenPlanCurric
                 .join("planCurricular pc", "tipoCursoCurricula tcc")
                 .searchFields("tcc.nombrecurtcc.nombre")
                 .filter("pc.id", filter.getQueries().get("planc"))
-                .orderBy("tcc.nombre desc");
+                .orderBy("tcc.orden");
 
         return all(sql);
     }
@@ -47,7 +47,8 @@ public class ResumenPlanCurricularDAOH extends AbstractEasyDAO<ResumenPlanCurric
         Octavia sql = Octavia.query()
                 .from(ResumenPlanCurricular.class, "rpc")
                 .join("planCurricular pc", "tipoCursoCurricula tcc")
-                .filter("pc.id", plan);
+                .filter("pc.id", plan)
+                .orderBy("tcc.orden");
 
         return all(sql);
     }

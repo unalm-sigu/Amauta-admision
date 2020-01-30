@@ -312,7 +312,7 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
         List<ResumenPlanCurricular> resumenPlan = resumenPlanCurricularDAO.allByPlan(alumno.getPlanCurricular());
         for (ResumenPlanCurricular resumen : resumenPlan) {
             ObjectNode resumenJson = JsonHelper.createJson(resumen, JsonNodeFactory.instance, true, new String[]{
-                "id", "creditos", "cursos",
+                "id", "creditos", "cursos", "minimoCreditos",
                 "tipoCursoCurricula.nombre",
                 "tipoCursoCurricula.codigo"
             });

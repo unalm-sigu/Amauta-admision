@@ -7,10 +7,10 @@ import pe.edu.lamolina.model.tramite.RetiroCurso;
 
 public interface RetiroCursoDAO extends EasyDAO<RetiroCurso> {
 
-    public List<RetiroCurso> allByAlumno(Alumno alumno);
+    List<RetiroCurso> allByAlumno(Alumno alumno);
 
-    public List<RetiroCurso> allInfo();
+    List<RetiroCurso> allInfo();
 
-    public List<RetiroCurso> allRetiroCursoByAlumno(Alumno alumno);
+    List<RetiroCurso> allRetiroCursoByAlumno(Alumno alumno);
 
 }

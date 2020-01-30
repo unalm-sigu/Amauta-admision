@@ -12,13 +12,28 @@
 
         {{if tipoCursoCodigo == 'EEP' }}
         <a class="block bold" rel="{{:id}}" value="1">{{:creditos}}</a>
+        {{else paraContarCredTotal == 'SI' }}
+        <span class="block bold bg-primary text-white">{{:creditos}}</span>
         {{else}}
         <span class="block">{{:creditos}}</span>
         {{/if}}
     </td>
     <td  class="v-middle text-center {{:tipoCursoCodigo}} "> 
         {{if tipoCursoCodigo == 'ELC' }}
-        <a class="block bold" rel="{{:id}}" value="2">{{:minimoCreditos}}</a>
+        <span class="block">{{:creditos}}</span>
+        {{else tipoCursoCodigo == 'ELE' }}
+        <span class="block bold bg-light">{{:creditos}}</span>
+        {{else paraContarCredMin == 'SI' }}
+        <span class="block bold bg-light">{{:creditos}}</span>
+        {{else}}
+        <span class="block">{{:creditos}}</span>
+        {{/if}}
+    </td>
+    <td  class="v-middle text-center {{:tipoCursoCodigo}} "> 
+        {{if tipoCursoCodigo == 'ELC' }}
+        <a class="block bold bg-light text-primary" rel="{{:id}}" value="2">{{:minimoCreditos}}</a>
+        {{else paraContarCredMin == 'SI' }}
+        <span class="block bold bg-light">{{:minimoCreditos}}</span>
         {{else}}
         <span class="block">{{:minimoCreditos}}</span>
         {{/if}}

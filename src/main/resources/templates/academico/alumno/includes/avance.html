@@ -99,29 +99,40 @@
         </div>
 
         <div v-if="!showCursos">
-            <div v-if="resumenPlan.length > 0  " class="col-lg-6 col-md-6 col-sm-8 col-xs-12">
+            <div v-if="resumenPlan.length > 0  " class="col-lg-8">
                 <table class="table table-striped">
                     <thead>
                         <tr>
-                            <th class="v-middle text-center col-md-4">Cursos</th>
+                            <th class="v-middle text-center col-md-4">Tipo de Cursos</th>
                             <th class="v-middle text-center col-md-2">Créditos plan</th>
-                            <th class="v-middle text-center col-md-2">Cursos plan</th>
-                            <th class="v-middle text-center col-md-4">Créditos Aprobados</th>
+                            <th class="v-middle text-center col-md-2">Máximo Créditos</th>
+                            <th class="v-middle text-center col-md-2">Mínimo Créditos</th>
+                            <th class="v-middle text-center col-md-2">Créditos Aprobados</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr v-for="res in resumenPlan">
                             <td v-text="res.tipoCursoCurricula.nombre"></td>
-                            <td class="text-center" v-text="res.creditos"></td>
-                            <td class="text-center" v-text="res.cursos"></td>
+                            <td v-if="verCreditos(res)" class="text-center v-middle" 
+                                v-bind:rowspan="getRowspan(res)"
+                                v-bind:class="getClassELC(res)">
+                                <span v-if="res.tipoCursoCurricula.codigo != 'EEP' " v-text="res.creditos"></span>
+                            </td>
+                            <td class="text-center" v-text="getCreditosMax(res)"></td>
+                            <td class="text-center" >
+                                <span v-if="verCreditosMin(res)" 
+                                      v-text="res.minimoCreditos"></span>
+                            </td>
                             <td class="text-center">
-                                {{creditosAlumno(res)}} de {{res.creditos}}
+                                <span v-if="tipoConRango(res)">{{creditosAlumno(res)}} de {{res.creditos}}</span>
+                                <span v-else="">{{creditosAlumno(res)}}</span>
                             </td>
                         </tr>
                         <tr class="bold">
                             <td class="text-right">Total</td>
                             <td class="text-center" v-text="totalPlan('CREDITOS')"></td>
-                            <td class="text-center" v-text="totalPlan('CURSOS')"></td>
+                            <td class="text-center"></td>
+                            <td class="text-center"></td>
                             <td class="text-center">
                                 {{totalAlumno('CREDITOS')}} de {{totalPlan('CREDITOS')}}
                             </td>

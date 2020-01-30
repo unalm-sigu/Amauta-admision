@@ -1588,15 +1588,38 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
         } else if (minCreditos != null) {
             resumenForm.setMinimoCreditos(minCreditos);
         }
-        resumenPlanCurricularDAO.update(resumenForm);
+
         if (resumenForm.getTipoCursoCurricula().getCodigoEnum() == ELC) {
-            Integer total = resumenForm.getCreditos() - resumenForm.getMinimoCreditos();
-            TipoCursoCurricula tipoCursoCurricula = tipoCursoCurriculaDAO.findByCodigo(ELE);
-            ResumenPlanCurricular planCurricular = resumenPlanCurricularDAO.findByTipoCursoCurrPlan(tipoCursoCurricula, resumenForm.getPlanCurricular());
-            planCurricular.setMinimoCreditos(total);
-            planCurricular.setCreditos(total);
-            resumenPlanCurricularDAO.update(planCurricular);
+            int restoCreditosELC = resumenForm.getCreditos() - resumenForm.getMinimoCreditos();
+            TipoCursoCurricula tipoCurriculaELE = tipoCursoCurriculaDAO.findByCodigo(ELE);
+            TipoCursoCurricula tipoCurriculaCULT = tipoCursoCurriculaDAO.findByCodigo(CULT);
+            TipoCursoCurricula tipoCurriculaPROD = tipoCursoCurriculaDAO.findByCodigo(PROD);
+            TipoCursoCurricula tipoCurriculaTEC = tipoCursoCurriculaDAO.findByCodigo(TECIND);
+
+            ResumenPlanCurricular resumenELE = resumenPlanCurricularDAO.findByTipoCursoCurrPlan(tipoCurriculaELE, resumenForm.getPlanCurricular());
+            ResumenPlanCurricular resumenCULT = resumenPlanCurricularDAO.findByTipoCursoCurrPlan(tipoCurriculaCULT, resumenForm.getPlanCurricular());
+            ResumenPlanCurricular resumenPROD = resumenPlanCurricularDAO.findByTipoCursoCurrPlan(tipoCurriculaPROD, resumenForm.getPlanCurricular());
+            ResumenPlanCurricular resumenTEC = resumenPlanCurricularDAO.findByTipoCursoCurrPlan(tipoCurriculaTEC, resumenForm.getPlanCurricular());
+
+            if (resumenCULT != null) {
+                Assert.isTrue(resumenCULT.getCreditos() <= restoCreditosELC, "Los créditos para cursos de cultivos debe ser menor o igual a " + restoCreditosELC);
+                restoCreditosELC = restoCreditosELC - resumenCULT.getMinimoCreditos();
+            }
+            if (resumenPROD != null) {
+                Assert.isTrue(resumenPROD.getCreditos() <= restoCreditosELC, "Los créditos para cursos de producción debe ser menor o igual a " + restoCreditosELC);
+                restoCreditosELC = restoCreditosELC - resumenPROD.getMinimoCreditos();
+            }
+            if (resumenTEC != null) {
+                Assert.isTrue(resumenTEC.getCreditos() <= restoCreditosELC, "Los créditos para cursos de tecnología/industrialización debe ser menor o igual a " + restoCreditosELC);
+                restoCreditosELC = restoCreditosELC - resumenTEC.getMinimoCreditos();
+            }
+
+            resumenELE.setMinimoCreditos(0);
+            resumenELE.setCreditos(restoCreditosELC);
+            resumenPlanCurricularDAO.update(resumenELE);
         }
+
+        resumenPlanCurricularDAO.update(resumenForm);
     }
 
     @Override

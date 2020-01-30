@@ -22,8 +22,9 @@ public class AlumnoAvanceCurricularDAOH extends AbstractEasyDAO<AlumnoAvanceCurr
     public List<AlumnoAvanceCurricular> allByAlumno(Alumno alumno) {
         Octavia sql = Octavia.query()
                 .from(AlumnoAvanceCurricular.class, "ac")
-                .join("alumno al", "tipoCursoCurricula")
-                .filter("al.id", alumno);
+                .join("alumno al", "tipoCursoCurricula tcc")
+                .filter("al.id", alumno)
+                .orderBy("tcc.orden");
 
         return sql.all(getCurrentSession());
     }

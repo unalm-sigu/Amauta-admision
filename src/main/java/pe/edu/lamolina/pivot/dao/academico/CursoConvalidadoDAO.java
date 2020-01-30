@@ -9,6 +9,6 @@ public interface CursoConvalidadoDAO extends EasyDAO<CursoConvalidado> {
 
     List<CursoConvalidado> allInTramiteTraslado(List<TramiteTraslado> listTramiteTraslado);
 
-    public void updateColumns(CursoConvalidado cursoConvalidado, String... params);
+    void updateColumns(CursoConvalidado cursoConvalidado, String... params);
 
 }

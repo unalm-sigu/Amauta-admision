@@ -50,7 +50,7 @@ Vue.component("avance-component", {
 
             for (var i = 0; i < $vue.resumenAlumno.length; i++) {
                 let res = $vue.resumenAlumno[i];
-                if (res.tipoCursoCurricula.codigo == 'EEP' || res.tipoCursoCurricula.codigo == 'DEP') {
+                if (res.tipoCursoCurricula.codigo == 'EEP') {
                     continue;
                 }
                 cred += res.creditos;
@@ -65,7 +65,7 @@ Vue.component("avance-component", {
 
             for (var i = 0; i < $vue.resumenPlan.length; i++) {
                 let res = $vue.resumenPlan[i];
-                if (res.tipoCursoCurricula.codigo == 'EEP' || res.tipoCursoCurricula.codigo == 'DEP') {
+                if ("/ELE/CULT/PROD/TECIND/EEP/".indexOf(res.tipoCursoCurricula.codigo) > 0) {
                     continue;
                 }
                 cred += res.creditos;
@@ -93,6 +93,50 @@ Vue.component("avance-component", {
                 }
             }
             return 0;
+        },
+        tipoConRango(item) {
+            return "/OBL/GEN/DEP/".indexOf(item.tipoCursoCurricula.codigo) > 0;
+        },
+        verCreditos(item) {
+            return "/ELE/CULT/PROD/TECIND/".indexOf(item.tipoCursoCurricula.codigo) < 0;
+        },
+        verCreditosMin(item) {
+            return "/ELC/ELE/CULT/PROD/TECIND/EEP/".indexOf(item.tipoCursoCurricula.codigo) > 0;
+        },
+        getCreditosMax(item) {
+            let $vue = this;
+            if ("/ELC/ELE/CULT/PROD/TECIND/EEP/".indexOf(item.tipoCursoCurricula.codigo) < 0) {
+                return "";
+            }
+            if ("/ELE/CULT/PROD/TECIND/EEP/".indexOf(item.tipoCursoCurricula.codigo) > 0) {
+                return item.creditos;
+            }
+            let credEspeciales = 0;
+            for (var i = 0; i < $vue.resumenPlan.length; i++) {
+                if ("/CULT/PROD/TECIND/".indexOf($vue.resumenPlan[i].tipoCursoCurricula.codigo) > 0) {
+                    credEspeciales += $vue.resumenPlan[i].creditos;
+                }
+            }
+            return item.creditos - credEspeciales;
+        },
+        getRowspan(item) {
+            let $vue = this;
+            if ("ELC" !== item.tipoCursoCurricula.codigo) {
+                return 1;
+            }
+            let rows = 0;
+            for (var i = 0; i < $vue.resumenPlan.length; i++) {
+                if ("/ELC/ELE/CULT/PROD/TECIND/".indexOf($vue.resumenPlan[i].tipoCursoCurricula.codigo) > 0) {
+                    rows++;
+                }
+            }
+            return rows;
+        },
+        getClassELC(item) {
+            if ("ELC" !== item.tipoCursoCurricula.codigo) {
+                return "";
+            }
+            return "b-r b-l";
         },
         verResumen() {
             let $vue = this;
@@ -135,7 +179,7 @@ Vue.component("avance-component", {
             }
         },
         styleCountRequisitos(prerequisitos) {
-            
+
             if (prerequisitos == 0) {
                 return "estado-red";
             } else {

@@ -58,9 +58,14 @@ import pe.edu.lamolina.model.academico.ResumenPlanCurricular;
 import pe.edu.lamolina.model.academico.TipoCursoCurricula;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.TipoCurriculaEnum;
+import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.CULT;
+import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.DEP;
 import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.ELC;
+import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.ELE;
 import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.GEN;
 import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.OBL;
+import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.PROD;
+import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.TECIND;
 import pe.edu.lamolina.model.enums.TipoOficinaEnum;
 import pe.edu.lamolina.pivot.config.DespliegueConfig;
 import pe.edu.lamolina.pivot.controller.seguridad.verificador.VerificadorService;
@@ -347,10 +352,13 @@ public class PlanCurricularController {
                 node.put("cursos", resumen.getCursos());
 
                 array.add(node);
-                if (Arrays.asList(GEN, OBL, ELC).contains(resumen.getTipoCursoCurricula().getCodigoEnum())) {
+                if (Arrays.asList(GEN, OBL, ELC, DEP).contains(resumen.getTipoCursoCurricula().getCodigoEnum())) {
 
                     totalCreditos += resumen.getCreditos();
                     totalCursos += resumen.getCursos();
+                    totalMinimo += resumen.getMinimoCreditos();
+                }
+                if (Arrays.asList(PROD, CULT, TECIND, ELE).contains(resumen.getTipoCursoCurricula().getCodigoEnum())) {
                     totalMinimo += resumen.getMinimoCreditos();
                 }
             }
