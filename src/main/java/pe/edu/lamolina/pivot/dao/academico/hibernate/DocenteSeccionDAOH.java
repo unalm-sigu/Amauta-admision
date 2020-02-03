@@ -603,15 +603,16 @@ public class DocenteSeccionDAOH extends AbstractEasyDAO<DocenteSeccion> implemen
     }
 
     @Override
-    public List<DocenteSeccion> allByCiclo(CicloAcademico ciclo, List<EstadoEnum> docSecEstado, List<SeccionEstadoEnum> secEstado) {
+    public List<DocenteSeccion> allByCiclo(CicloAcademico ciclo, List<EstadoEnum> estadosDocentesEnum, List<SeccionEstadoEnum> estadosSeccionesEnum, List<AnexoBoletin> anexos) {
         Octavia sql = Octavia.query()
                 .from(DocenteSeccion.class, "ds")
                 .join("seccion sec", "sec.grupoSeccion gs", "gs.curso cur", "gs.cicloAcademico ca", "docente doc")
                 .join("gs.anexoBoletin ab", "ab.anexoSuperior abs", "cur.departamentoAcademico da")
                 .leftJoin("sec.aula au", "sec.grupoHoras gh", "doc.persona per", "sec.seccionSuperior", "da.facultad")
-                .in("ds.estado", docSecEstado)
-                .in("sec.estado", secEstado)
+                .in("ds.estado", estadosDocentesEnum)
+                .in("sec.estado", estadosSeccionesEnum)
                 .filter("ca.id", ciclo)
+                .in("ab.id", anexos)
                 .orderBy("sec.codigo2");
 
         return all(sql);

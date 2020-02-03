@@ -1,5 +1,8 @@
 Vue.component("button-download", {
-    template: ' <button v-bind:disabled="isactivedownloadbtn" v-on:click="btnactiondownload"><i v-if="isactivedownloadbtn" class="fa fa-spinner fa-spin" aria-hidden="true"></i><slot></slot></button>',
+    template:
+            '<button v-bind:disabled="isactivedownloadbtn" v-on:click="btnactiondownload">' +
+            '<span v-if="isactivedownloadbtn"><i class="fa fa-spinner fa-spin fa-3x fa-fw"></i> Generando reporte...</span>' +
+            '<slot v-else=""></slot></button>',
     props: {
         isactivedownloadbtn: {type: Boolean, default: false},
         btnactiondownload: {type: Function, default: () => {

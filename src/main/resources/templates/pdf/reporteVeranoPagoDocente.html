@@ -47,7 +47,7 @@
             <div  th:each="doc:${depa.docente}" style="margin-top: 125px">
                 <table style="margin-top: 25px"  width="100%">
                     <tr>
-                        <td width="10%">
+                        <td width="10%" style="text-align: center;">
                             <p th:text="${doc.codigo}"></p>
                         </td>
                         <td width="90%">
@@ -58,42 +58,42 @@
                         <td colspan="2" width="100%">
                             <table style="margin-top: 10px"  width="100%">
                                 <tr>
-                                    <td width="10%">
+                                    <td width="10%" style="text-align: center;">
                                         <p  style="font-weight: bold;">Clave</p> 
                                     </td>
                                     <td width="50%">
                                         <p  style="font-weight: bold;">Nombre del Curso</p> 
                                     </td>
-                                    <td width="10%">
+                                    <td width="10%" style="text-align: center;">
                                         <p  style="font-weight: bold;">Matriculados</p> 
                                     </td>
-                                    <td width="10%">
+                                    <td width="10%" style="text-align: center;">
                                         <p  style="font-weight: bold;">Carga</p> 
                                     </td>
-                                    <td width="10%">
+                                    <td width="10%" style="text-align: center;">
                                         <p  style="font-weight: bold;">Horas</p> 
                                     </td>
-                                    <td width="10%">
+                                    <td width="10%" style="text-align: center;">
                                         <p  style="font-weight: bold;">Monto</p> 
                                     </td>
                                 </tr>
                                 <tr  th:each="docsec:${doc.docenteSeccion}">
-                                    <td width="10%">
-                                        <p th:text="${docsec.seccion.codigo}"></p>
+                                    <td width="10%" style="text-align: center;">
+                                        <p th:text="${docsec.seccion.codigo2}"></p>
                                     </td>
                                     <td width="50%">
                                         <p th:text="${docsec.seccion.grupoSeccion.curso.nombre}"></p>
                                     </td>
-                                    <td width="10%">
+                                    <td width="10%" style="text-align: center;">
                                         <p th:text="${docsec.seccion.matriculados}"></p>
                                     </td>
-                                    <td width="10%">
+                                    <td width="10%" style="text-align: center;">
                                         <p th:text="${docsec.porcentajeCarga+' %'}"></p>
                                     </td>
-                                    <td width="10%">
+                                    <td width="10%" style="text-align: center;">
                                         <p th:text="${docsec.seccion.horasSemanales}"></p>
                                     </td>
-                                    <td width="10%">
+                                    <td width="10%" style="text-align: right;">
                                         <p th:text="${'S/.'+docsec.pagoVeranoFormato}"></p>
                                     </td>
                                 </tr>
@@ -109,7 +109,7 @@
                                     </td>
                                     <td width="10%">
                                     </td>
-                                    <td width="10%">
+                                    <td width="10%" style="text-align: right;">
                                         <p  style="font-weight: bold;" th:text="${'S/.'+doc.montoTotalVeranoFormato}"></p>
                                     </td>
                                 </tr>

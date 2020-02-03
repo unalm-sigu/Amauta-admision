@@ -34,6 +34,7 @@ import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.horario.GrupoHoras;
+import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Component
 public class BoletinAcademicoExcelView extends AbstractPOIExcelView {
@@ -52,9 +53,10 @@ public class BoletinAcademicoExcelView extends AbstractPOIExcelView {
 
     @Override
     protected void buildExcelDocument(Map<String, Object> map, Workbook workBook, HttpServletRequest request, HttpServletResponse response) throws Exception {
-        String fechaRep = " - " + new DateTime().toString("dd/MM/yyyy H:mm");
+        String fechaRep = " - " + new DateTime().toString("yyyyMMdd_HHmm");
         CicloAcademico ciclo = (CicloAcademico) map.get("cicloAcademico");
-        List<AnexoBoletin> anexosBoletin = service.allAnexosByCiclo(ciclo);
+        DataSessionPivot ds = (DataSessionPivot) map.get("dataSession");
+        List<AnexoBoletin> anexosBoletin = service.allAnexosByCiclo(ciclo, ds);
         for (AnexoBoletin anexoBoletin : anexosBoletin) {
             Sheet sheet = workBook.createSheet(anexoBoletin.getNombre());
             this.createSheet(workBook, ciclo, anexoBoletin, sheet);

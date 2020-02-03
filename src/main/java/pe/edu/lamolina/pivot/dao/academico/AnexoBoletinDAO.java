@@ -36,7 +36,7 @@ public interface AnexoBoletinDAO extends EasyDAO<AnexoBoletin> {
 
     List<AnexoBoletin> allHijosWithCursos(CicloAcademico ciclo);
 
-    List<AnexoBoletin> allTodosByCiclo(CicloAcademico ciclo);
+    List<AnexoBoletin> allTodosByCiclo(CicloAcademico ciclo, List<AnexoBoletin> anexosSuperiores, List<AnexoBoletin> anexosInferiores);
 
     AnexoBoletin findDepartamento(DepartamentoAcademico departamentoAcademico);
 

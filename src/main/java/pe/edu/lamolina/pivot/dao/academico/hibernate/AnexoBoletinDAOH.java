@@ -166,7 +166,8 @@ public class AnexoBoletinDAOH extends AbstractEasyDAO<AnexoBoletin> implements A
     public List<AnexoBoletin> all() {
         Octavia sql = Octavia.query()
                 .from(AnexoBoletin.class, "ab")
-                .leftJoin("anexoSuperior abs")
+                .leftJoin("anexoSuperior abs", "departamentoAcademico dpto", "carrera car")
+                .leftJoin("car.facultad", "car.modalidadEstudio", "dpto.facultad")
                 .orderBy("ab.nombre");
 
         return all(sql);
@@ -236,7 +237,7 @@ public class AnexoBoletinDAOH extends AbstractEasyDAO<AnexoBoletin> implements A
     }
 
     @Override
-    public List<AnexoBoletin> allTodosByCiclo(CicloAcademico ciclo) {
+    public List<AnexoBoletin> allTodosByCiclo(CicloAcademico ciclo, List<AnexoBoletin> anexosSuperiores, List<AnexoBoletin> anexosInferiores) {
         Octavia sql = Octavia.query()
                 .selectDistinct("ab")
                 .from(DocenteSeccion.class, "dsec")
@@ -246,6 +247,14 @@ public class AnexoBoletinDAOH extends AbstractEasyDAO<AnexoBoletin> implements A
                 .filter("sec.estado", SeccionEstadoEnum.ACT.name())
                 .filter("dsec.estado", EstadoEnum.ACT.name())
                 .filter("cu.codigo", "<>", "CI0000");
+
+        if (anexosSuperiores != null) {
+            sql.in("abs.id", anexosSuperiores);
+        }
+        if (anexosInferiores != null && !anexosInferiores.isEmpty()) {
+            sql.in("ab.id", anexosInferiores);
+        }
+
         return all(sql);
     }
 

@@ -2,6 +2,7 @@ package pe.edu.lamolina.pivot.controller.seguridad.verificador;
 
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
+import pe.edu.lamolina.model.academico.AnexoBoletin;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.enums.RolEnum;
 import pe.edu.lamolina.model.enums.TipoOficinaEnum;
@@ -56,5 +57,9 @@ public interface VerificadorService {
     List<ModalidadEstudio> modalidadesPermitidasForCursos(DataSessionPivot ds, List<ModalidadEstudio> modalidades);
 
     List<Oficina> allOficinasAccesoByRolEnum(DataSessionPivot ds, RolEnum rolEnum);
+
+    List<AnexoBoletin> anexosSuperioresByOficina(DataSessionPivot ds);
+
+    List<AnexoBoletin> anexosInferioresByOficina(DataSessionPivot ds, List<AnexoBoletin> anexos);
 
 }

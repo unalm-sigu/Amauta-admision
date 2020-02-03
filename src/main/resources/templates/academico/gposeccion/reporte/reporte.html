@@ -1,6 +1,11 @@
 <html layout:decorator="_layout/layout">
     <head>
         <title>Grupo Sección Reporte</title>
+        <style>
+            .btn {
+                height: 60px;
+            }
+        </style>
     </head>
 
     <body>
@@ -8,54 +13,30 @@
             <div id="main" v-cloak="">
 
                 <header class="header b-b padder-lg m-b-xs">
-                    <h2 v-text="'Reporte ' + ciclo.descripcion">Grupo Sección</h2>
+                    <h2 v-text="'Reportes ' + ciclo.descripcion">Reportes xyz</h2>
                 </header>
 
                 <section class="wrapper-md">
                     <section class="panel">
                         <section class="panel-body">
 
-                            <div class="col-sm-12 m-t-sm">
-                                <button-download class="btn btn-primary"  urldownload="academico/gposeccion/reporte/reporteVeranoPagoPorDocente" >
-                                    Reporte verano pago por docente
+                            <div v-for="rep in reportes" class="col-sm-4 m-t-sm">
+                                <button-download v-bind:urldownload="rep.ruta" class="btn btn-primary form-control">
+                                    <span v-if="rep.tipo == 'XLSX'" class="fa-stack fa-lg text-success">
+                                        <i class="fa fa-circle fa-stack-2x"></i>
+                                        <i class="fa fa-file-excel-o fa-stack-1x fa-inverse"></i>
+                                    </span>
+                                    <span v-if="rep.tipo == 'XLS'" class="fa-stack fa-lg text-success">
+                                        <i class="fa fa-circle fa-stack-2x"></i>
+                                        <i class="fa fa-file-excel-o fa-stack-1x fa-inverse"></i>
+                                    </span>
+                                    <span v-if="rep.tipo == 'PDF'" class="fa-stack fa-lg ">
+                                        <i class="fa fa-circle fa-stack-2x"></i>
+                                        <i class="fa fa-file-pdf-o fa-stack-1x fa-inverse text-danger"></i>
+                                    </span> &nbsp;
+                                    <span v-text="rep.nombre">Reporte xyz</span>
                                 </button-download>
-                            </div>    
-
-                            <div class="col-sm-12 m-t-sm">
-                                <button-download class="btn btn-primary" urldownload="academico/gposeccion/reporte/reporteVeranoDocenteDepartamento" >
-                                    Reporte verano docente por departamento
-                                </button-download>
-                            </div>    
-
-                            <div class="col-sm-12 m-t-sm">
-                                <button-download class="btn btn-primary"  urldownload="academico/gposeccion/reporte/reporteVeranoPagoCurso" >
-                                    Reporte verano pago curso
-                                </button-download>
-                            </div>    
-
-                            <div class="col-sm-12 m-t-sm">
-                                <button-download class="btn btn-primary"  urldownload="academico/gposeccion/reporte/reporteVeranoPagoPorDocenteFacultad" >
-                                    Reporte verano pago por docente facultad
-                                </button-download>
-                            </div>    
-
-                            <div class="col-sm-12 m-t-sm">
-                                <button-download class="btn btn-primary"  urldownload="academico/gposeccion/reporte/reporteCrucesSecciones" >
-                                    Reporte Cruce Secciones
-                                </button-download>
-                            </div>    
-
-                            <div class="col-sm-12 m-t-sm">
-                                <button-download class="btn btn-primary"  urldownload="academico/gposeccion/reporte/reporteCantidadAlumnosPorSeccion" >
-                                    Cantidad Alumnos Por Sección Pre Grado
-                                </button-download>
-                            </div>    
-
-                            <div class="col-sm-12 m-t-sm">
-                                <button-download class="btn btn-primary"  urldownload="academico/gposeccion/reporte/reporteAlumnosPorClave" >
-                                    Alumnos Por Sección
-                                </button-download>
-                            </div>    
+                            </div>
 
                         </section>
                     </section>
@@ -70,6 +51,7 @@
                 /*<![CDATA[*/
                 var cicloJson = /*[[${cicloJson}]]*/ '';
                 var resumenJson = /*[[${resumenJson}]]*/ '';
+                var reportesJson = /*[[${reportesJson}]]*/ '';
                 /*]]>*/
             </script>
             <div th:substituteby="_layout/includes :: sweetalert"/>

@@ -7,10 +7,11 @@ import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.Seccion;
-import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
+import pe.edu.lamolina.model.general.ReporteOficina;
 import pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.GpoSeccionResumen;
 import pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.aula.SeccionDTO;
 import pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.reporte.dto.CantidadMatriculadosDTO;
+import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface GpoReporteService {
 
@@ -22,7 +23,7 @@ public interface GpoReporteService {
 
     List<Facultad> allDepartamentoAcademicoXfacultad(CicloAcademico cicloAcademico);
 
-    List<AnexoBoletin> getAnexosForBoletin(CicloAcademico ciclo);
+    List<AnexoBoletin> getAnexosForBoletin(CicloAcademico ciclo, DataSessionPivot ds);
 
     List<Seccion> allSeccionesConCruce(CicloAcademico cicloAcademico);
 
@@ -31,4 +32,6 @@ public interface GpoReporteService {
     List<MatriculaSeccion> allMatriculadosBySeccion(SeccionDTO seccionDTO);
 
     List<CantidadMatriculadosDTO> allCantidadMatriculados(SeccionDTO seccionDTO);
+
+    List<ReporteOficina> allReportesProgramacion(CicloAcademico ciclo, DataSessionPivot ds);
 }

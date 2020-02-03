@@ -12,14 +12,17 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.model.academico.AnexoBoletin;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
+import pe.edu.lamolina.model.enums.CodigoAnexoBoletinEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.OficinaEnum;
 import static pe.edu.lamolina.model.enums.OficinaEnum.BAN;
 import static pe.edu.lamolina.model.enums.OficinaEnum.EPG;
+import static pe.edu.lamolina.model.enums.OficinaEnum.OBUAE;
 import static pe.edu.lamolina.model.enums.OficinaEnum.OERA;
 import pe.edu.lamolina.model.enums.RolEnum;
 import pe.edu.lamolina.model.enums.TipoOficinaEnum;
@@ -602,6 +605,154 @@ public class VerificadorServiceImp implements VerificadorService {
         }
 
         return oficinas;
+    }
+
+    @Override
+    public List<AnexoBoletin> anexosSuperioresByOficina(DataSessionPivot ds) {
+        List<Oficina> oficinasMain = oficinaService.allOficinasMainByPersona(ds.getPersona());
+        for (Oficina oficina : oficinasMain) {
+            if (oficina.getCodigoEnum() == OERA) {
+                return null;
+            }
+        }
+
+        List<AnexoBoletin> anexos = new ArrayList();
+        boolean tieneG04 = false;
+        for (Oficina oficina : oficinasMain) {
+            if (oficina.getCodigoEnum() == EPG) {
+                anexos.add(new AnexoBoletin(CodigoAnexoBoletinEnum.G04));
+                tieneG04 = true;
+                break;
+            }
+        }
+
+        for (Oficina oficina : oficinasMain) {
+            if (oficina.getCodigoEnum() == OBUAE) {
+                anexos.add(new AnexoBoletin(CodigoAnexoBoletinEnum.G03));
+                break;
+            }
+        }
+
+        for (Oficina oficina : oficinasMain) {
+            if (oficina.getTipoOficina().getCodigoEnum() == TipoOficinaEnum.DPTO) {
+                anexos.add(new AnexoBoletin(CodigoAnexoBoletinEnum.G02));
+                break;
+            }
+        }
+        for (Oficina oficina : oficinasMain) {
+            if (oficina.getTipoOficina().getCodigoEnum() == TipoOficinaEnum.FAC) {
+                anexos.add(new AnexoBoletin(CodigoAnexoBoletinEnum.G02));
+                break;
+            }
+        }
+
+        for (Oficina oficina : oficinasMain) {
+            if (oficina.getTipoOficina().getCodigoEnum() == TipoOficinaEnum.DUPG) {
+                anexos.add(new AnexoBoletin(CodigoAnexoBoletinEnum.G04));
+                tieneG04 = true;
+                break;
+            }
+        }
+
+        if (!tieneG04) {
+            List<Carrera> carreras = carreraDAO.allActivas();
+            Map<Long, Carrera> mapCarrera = TypesUtil.convertListToMap("id", carreras);
+            for (Oficina oficina : oficinasMain) {
+                if (oficina.getTipoOficina().getCodigoEnum() == TipoOficinaEnum.ESP) {
+                    Carrera carrera = mapCarrera.get(oficina.getInstanciaOficina());
+                    ModalidadEstudio modalidad = carrera.getModalidadEstudio();
+                    if (modalidad.isPostgrado()) {
+                        anexos.add(new AnexoBoletin(CodigoAnexoBoletinEnum.G04));
+                        break;
+                    }
+                }
+            }
+        }
+
+        return anexos;
+    }
+
+    @Override
+    public List<AnexoBoletin> anexosInferioresByOficina(DataSessionPivot ds, List<AnexoBoletin> anexosAll) {
+
+        List<Oficina> oficinasMain = oficinaService.allOficinasMainByPersona(ds.getPersona());
+        for (Oficina oficina : oficinasMain) {
+            if (oficina.getCodigoEnum() == OERA) {
+                return null;
+            }
+        }
+
+        Map<Long, AnexoBoletin> mapAnexoByDpto = TypesUtil.convertListToMap("departamentoAcademico.id", anexosAll);
+        Map<Long, AnexoBoletin> mapAnexoByCarrera = TypesUtil.convertListToMap("carrera.id", anexosAll);
+        Map<Long, List<AnexoBoletin>> mapAnexoByFacultad = TypesUtil.convertListToMapList("carrera.facultad.id", anexosAll);
+
+        List<AnexoBoletin> anexos = new ArrayList();
+        for (Oficina oficina : oficinasMain) {
+            if (oficina.getTipoOficina().getCodigoEnum() == TipoOficinaEnum.DPTO) {
+                AnexoBoletin anexoDpto = mapAnexoByDpto.get(oficina.getInstanciaOficina());
+                if (anexoDpto != null) {
+                    anexos.add(anexoDpto);
+                }
+            }
+        }
+
+        for (Oficina oficina : oficinasMain) {
+            if (oficina.getTipoOficina().getCodigoEnum() == TipoOficinaEnum.FAC) {
+                List<AnexoBoletin> anexosFac = TypesUtil.getListNotNull(mapAnexoByFacultad.get(oficina.getInstanciaOficina()));
+                for (AnexoBoletin anexoBoletin : anexosFac) {
+                    ModalidadEstudio modalidad = anexoBoletin.getCarrera().getModalidadEstudio();
+                    if (modalidad.isPregrado()) {
+                        anexos.add(anexoBoletin);
+                    }
+                }
+            }
+        }
+
+        for (Oficina oficina : oficinasMain) {
+            if (oficina.getTipoOficina().getCodigoEnum() == TipoOficinaEnum.DUPG) {
+                List<AnexoBoletin> anexosFac = TypesUtil.getListNotNull(mapAnexoByFacultad.get(oficina.getInstanciaOficina()));
+                for (AnexoBoletin anexoBoletin : anexosFac) {
+                    ModalidadEstudio modalidad = anexoBoletin.getCarrera().getModalidadEstudio();
+                    if (modalidad.isPostgrado()) {
+                        anexos.add(anexoBoletin);
+                    }
+                }
+            }
+        }
+
+        for (Oficina oficina : oficinasMain) {
+            if (oficina.getTipoOficina().getCodigoEnum() == TipoOficinaEnum.ESP) {
+                AnexoBoletin anexoCarrera = mapAnexoByCarrera.get(oficina.getInstanciaOficina());
+                if (anexoCarrera != null) {
+                    anexos.add(anexoCarrera);
+                }
+            }
+        }
+
+        for (Oficina oficina : oficinasMain) {
+            if (oficina.getCodigoEnum() == EPG) {
+                for (AnexoBoletin anexoBoletin : anexosAll) {
+                    if (anexoBoletin.getCarrera() != null) {
+                        ModalidadEstudio modalidad = anexoBoletin.getCarrera().getModalidadEstudio();
+                        if (modalidad.isPostgrado()) {
+                            anexos.add(anexoBoletin);
+                        }
+                    }
+                }
+            }
+            if (oficina.getCodigoEnum() == OBUAE) {
+                for (AnexoBoletin anexoBoletin : anexosAll) {
+                    if (anexoBoletin.getDepartamentoAcademico() != null) {
+                        Facultad fac = anexoBoletin.getDepartamentoAcademico().getFacultad();
+                        if (fac.getCodigo().equals("110")) {
+                            anexos.add(anexoBoletin);
+                        }
+                    }
+                }
+            }
+        }
+
+        return anexos;
     }
 
 }

@@ -140,7 +140,6 @@ public class GpoSeccionController {
         model.addAttribute("ciclo", ciclo);
         model.addAttribute("cicloJson", createCicloJson(ciclo).toString());
         model.addAttribute("resumenJson", createResumenJson(service.resumenByCiclo(ciclo)));
-//        model.addAttribute("resumen", service.resumenByCiclo(ciclo));
         return "academico/gposeccion/gpoSeccion";
     }
 

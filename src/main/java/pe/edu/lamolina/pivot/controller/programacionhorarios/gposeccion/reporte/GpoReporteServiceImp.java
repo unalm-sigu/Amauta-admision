@@ -26,10 +26,14 @@ import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.Seccion;
+import pe.edu.lamolina.model.enums.AmbitoReporteEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
+import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
 import pe.edu.lamolina.model.general.Aula;
+import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.general.Persona;
+import pe.edu.lamolina.model.general.ReporteOficina;
 import pe.edu.lamolina.model.horario.DiaHoraGrupo;
 import pe.edu.lamolina.model.horario.GrupoHoras;
 import pe.edu.lamolina.model.horario.HorarioAula;
@@ -37,6 +41,7 @@ import pe.edu.lamolina.model.horario.HorarioSeccion;
 import pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.GpoSeccionResumen;
 import pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.aula.SeccionDTO;
 import pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.reporte.dto.CantidadMatriculadosDTO;
+import pe.edu.lamolina.pivot.controller.seguridad.verificador.VerificadorService;
 import pe.edu.lamolina.pivot.dao.academico.AnexoBoletinDAO;
 import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.DocenteSeccionDAO;
@@ -44,9 +49,11 @@ import pe.edu.lamolina.pivot.dao.academico.GrupoSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.ModalidadEstudioDAO;
 import pe.edu.lamolina.pivot.dao.academico.SeccionDAO;
+import pe.edu.lamolina.pivot.dao.general.ReporteOficinaDAO;
 import pe.edu.lamolina.pivot.dao.horario.DiaHoraGrupoDAO;
 import pe.edu.lamolina.pivot.dao.horario.HorarioAulaDAO;
 import pe.edu.lamolina.pivot.dao.horario.HorarioSeccionDAO;
+import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service
 @Transactional(readOnly = true)
@@ -83,6 +90,12 @@ public class GpoReporteServiceImp implements GpoReporteService {
 
     @Autowired
     MatriculaSeccionDAO matriculaSeccionDAO;
+
+    @Autowired
+    ReporteOficinaDAO reporteOficinaDAO;
+
+    @Autowired
+    VerificadorService verificadorService;
 
     @Override
     public CicloAcademico findCiclo(CicloAcademico cicloAcademico) {
@@ -320,10 +333,13 @@ public class GpoReporteServiceImp implements GpoReporteService {
     }
 
     @Override
-    public List<AnexoBoletin> getAnexosForBoletin(CicloAcademico ciclo) {
+    public List<AnexoBoletin> getAnexosForBoletin(CicloAcademico ciclo, DataSessionPivot ds) {
 
-        List<AnexoBoletin> anexosAlt = anexoBoletinDAO.all();
-        List<AnexoBoletin> anexos = anexoBoletinDAO.allTodosByCiclo(ciclo);
+        List<AnexoBoletin> anexosAll = anexoBoletinDAO.all();
+        List<AnexoBoletin> anexosSuperiores = verificadorService.anexosSuperioresByOficina(ds);
+        List<AnexoBoletin> anexosInferiores = verificadorService.anexosInferioresByOficina(ds, anexosAll);
+
+        List<AnexoBoletin> anexos = anexoBoletinDAO.allTodosByCiclo(ciclo, anexosSuperiores, anexosInferiores);
         Collections.sort(anexos, (a1, a2) -> a1.getOrden().compareTo(a2.getOrden()));
 
         for (AnexoBoletin anexo : anexos) {
@@ -489,6 +505,29 @@ public class GpoReporteServiceImp implements GpoReporteService {
     @Override
     public List<CantidadMatriculadosDTO> allCantidadMatriculados(SeccionDTO seccionDTO) {
         return matriculaSeccionDAO.cantidadMatriculados(seccionDTO);
+    }
+
+    @Override
+    public List<ReporteOficina> allReportesProgramacion(CicloAcademico ciclo, DataSessionPivot ds) {
+        List<ReporteOficina> reportes = new ArrayList();
+        Oficina oficina = new Oficina(OficinaEnum.OERA);
+
+        List<ReporteOficina> reportesAll = reporteOficinaDAO.allByOficinaAmbito(oficina, AmbitoReporteEnum.PROGRAMACION_OERA);
+        for (ReporteOficina reporte : reportesAll) {
+            if (reporte.getTipoCiclo() != null) {
+                if (ciclo.getTipoEnum() == reporte.getTipoCicloEnum()) {
+                    reportes.add(reporte);
+                    continue;
+                }
+                continue;
+            }
+            if (reporte.getTipoModalidad() != null) {
+                //verificadorService.modalidadesPermitidasForCursos(ds, modalidades);
+            }
+            reportes.add(reporte);
+        }
+
+        return reportes;
     }
 
 }

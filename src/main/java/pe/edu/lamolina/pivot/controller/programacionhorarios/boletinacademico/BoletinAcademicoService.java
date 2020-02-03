@@ -16,7 +16,7 @@ public interface BoletinAcademicoService {
 
     List<AnexoBoletin> allAnexoBoletionHijos(CicloAcademico ciclo);
 
-    List<AnexoBoletin> allAnexosByCiclo(CicloAcademico ciclo);
+    List<AnexoBoletin> allAnexosByCiclo(CicloAcademico ciclo, DataSessionPivot ds);
 
     CicloAcademico findCicloAcademicoActivo();
 

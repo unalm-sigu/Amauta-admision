@@ -3,6 +3,7 @@ package pe.edu.lamolina.pivot.dao.academico;
 import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.easydao.EasyDAO;
+import pe.edu.lamolina.model.academico.AnexoBoletin;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
@@ -91,7 +92,7 @@ public interface DocenteSeccionDAO extends EasyDAO<DocenteSeccion> {
 
     DocenteSeccion findPrincipalBySeccion(Seccion seccion);
 
-    List<DocenteSeccion> allByCiclo(CicloAcademico ciclo, List<EstadoEnum> asList, List<SeccionEstadoEnum> asList0);
+    List<DocenteSeccion> allByCiclo(CicloAcademico ciclo, List<EstadoEnum> estadosDocentesEnum, List<SeccionEstadoEnum> estadosSeccionesEnum, List<AnexoBoletin> anexos);
 
     List<DocenteSeccion> allDocenteSeccionPrincipalBySeccion(List<Seccion> secciones);
 

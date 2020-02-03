@@ -1,5 +1,6 @@
 package pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.reporte;
 
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.beans.PropertyEditorSupport;
@@ -31,7 +32,9 @@ import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
+import pe.edu.lamolina.model.general.ReporteOficina;
 import pe.edu.lamolina.model.tramite.TramiteDocumentoAcademico;
+import pe.edu.lamolina.pivot.controller.programacionhorarios.boletinacademico.BoletinAcademicoExcelView;
 import pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.GpoSeccionResumen;
 import pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.aula.SeccionDTO;
 import pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.reporte.dto.CantidadMatriculadosDTO;
@@ -39,6 +42,7 @@ import pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.reporte.
 import pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.reporte.view.ReporteCantidadAlumnosPorSeccionExcelView;
 import pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.reporte.view.ReporteCrucesExcelView;
 import pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.reporte.view.ReporteSeccionesByFilterExcelView;
+import pe.edu.lamolina.pivot.controller.reporte.view.HorarioAlumnoCicloPDF;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.pivot.zelper.pdf.pdfHtml.PDFFormatoEnum;
@@ -71,6 +75,9 @@ public class GpoReporteController {
     @Autowired
     ReporteCantidadAlumnosPorSeccionExcelView reporteCantidadAlumnosPorSeccionExcelView;
 
+    @Autowired
+    BoletinAcademicoExcelView boletinAcademicoExcelView;
+
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {
 
@@ -101,9 +108,22 @@ public class GpoReporteController {
     public String index(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         CicloAcademico ciclo = service.findCiclo(ds.getCicloAcademico());
+
+        List<ReporteOficina> reportes = service.allReportesProgramacion(ciclo, ds);
+
         model.addAttribute("cicloJson", createCicloJson(ciclo).toString());
+        model.addAttribute("reportesJson", createReportesJson(reportes).toString());
         model.addAttribute("resumenJson", createResumenJson(service.resumenByCiclo(ciclo)));
         return "academico/gposeccion/reporte/reporte";
+    }
+
+    private ArrayNode createReportesJson(List<ReporteOficina> reportes) {
+        ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+        for (ReporteOficina reporte : reportes) {
+            ObjectNode nodeJson = JsonHelper.createJson(reporte, JsonNodeFactory.instance, new String[]{"*"});
+            array.add(nodeJson);
+        }
+        return array;
     }
 
     private ObjectNode createCicloJson(CicloAcademico ciclo) {
@@ -208,12 +228,20 @@ public class GpoReporteController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         CicloAcademico ciclo = ds.getCicloAcademico();
 
-        List<AnexoBoletin> anexosSuper = service.getAnexosForBoletin(ciclo);
+        List<AnexoBoletin> anexosSuper = service.getAnexosForBoletin(ciclo, ds);
 
         model.addAttribute("ciclo", ciclo);
         model.addAttribute("anexosSuper", anexosSuper);
 
         return new ModelAndView(boletinPDF);
+    }
+
+    @RequestMapping("reporteBoletinExcel")
+    public ModelAndView reporteBoletinExcel(Model model, HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        model.addAttribute("cicloAcademico", ds.getCicloAcademico());
+        model.addAttribute("dataSession", ds);
+        return new ModelAndView(boletinAcademicoExcelView);
     }
 
     private ObjectNode createResumenJson(GpoSeccionResumen resumen) {

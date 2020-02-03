@@ -3,6 +3,7 @@ new Vue({
     mixins: [VueLoader],
     data: {
         ciclo: JSON.parse(cicloJson),
+        reportes: JSON.parse(reportesJson),
     },
     mounted: function () {
         let $vue = this;

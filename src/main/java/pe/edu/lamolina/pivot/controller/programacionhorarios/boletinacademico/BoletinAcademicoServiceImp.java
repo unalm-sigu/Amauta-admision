@@ -27,6 +27,7 @@ import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
 import pe.edu.lamolina.model.horario.HorarioSeccion;
 import pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.GpoSeccionResumen;
+import pe.edu.lamolina.pivot.controller.seguridad.verificador.VerificadorService;
 import pe.edu.lamolina.pivot.dao.academico.AnexoBoletinDAO;
 import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.DocenteSeccionDAO;
@@ -71,17 +72,17 @@ public class BoletinAcademicoServiceImp implements BoletinAcademicoService {
 
     @Autowired
     CicloAcademicoDAO cicloAcademicoDAO;
-    /*
-    @Autowired
-    BoletinAcademicoThreads boletinAcademicoThreads;
-     */
+
     @Autowired
     HorarioSeccionDAO horarioSeccionDAO;
+
+    @Autowired
+    VerificadorService verificadorService;
 
     @Override
     public void reporteAnexoBoletin(DataSessionPivot ds) {
         CicloAcademico ciclo = this.findCicloAcademicoActivo();
-        List<AnexoBoletin> anexosBoletin = this.allAnexosByCiclo(ciclo);
+        List<AnexoBoletin> anexosBoletin = this.allAnexosByCiclo(ciclo, ds);
         for (AnexoBoletin anexoBoletin : anexosBoletin) {
             logger.debug("Anexo Boletin Padre {} id {}", anexoBoletin.getNombre(), anexoBoletin.getId());
             for (AnexoBoletin anexosBoletinHijo : anexoBoletin.getAnexosBoletinHijos()) {
@@ -114,9 +115,19 @@ public class BoletinAcademicoServiceImp implements BoletinAcademicoService {
     }
 
     @Override
-    public List<AnexoBoletin> allAnexosByCiclo(CicloAcademico ciclo) {
+    public List<AnexoBoletin> allAnexosByCiclo(CicloAcademico ciclo, DataSessionPivot ds) {
         long t1 = System.currentTimeMillis();
-        List<DocenteSeccion> docentesSecciones = docenteSeccionDAO.allByCiclo(ciclo, Arrays.asList(EstadoEnum.ACT), Arrays.asList(SeccionEstadoEnum.ACT, SeccionEstadoEnum.BLO));
+
+        List<AnexoBoletin> anexosAll = anexoBoletinDAO.all();
+        List<AnexoBoletin> anexosSuperiores = verificadorService.anexosSuperioresByOficina(ds);
+        List<AnexoBoletin> anexosInferiores = verificadorService.anexosInferioresByOficina(ds, anexosAll);
+        List<AnexoBoletin> anexos = anexoBoletinDAO.allTodosByCiclo(ciclo, anexosSuperiores, anexosInferiores);
+
+        List<DocenteSeccion> docentesSecciones = docenteSeccionDAO.allByCiclo(
+                ciclo,
+                Arrays.asList(EstadoEnum.ACT),
+                Arrays.asList(SeccionEstadoEnum.ACT, SeccionEstadoEnum.BLO),
+                anexos);
 
         Map<Long, Seccion> mapSeccionAll = TypesUtil.convertListToMap("seccion.id", "seccion", docentesSecciones);
         List<Seccion> seccionAll = clearDuplicadoSecc(new ArrayList(mapSeccionAll.values()));
