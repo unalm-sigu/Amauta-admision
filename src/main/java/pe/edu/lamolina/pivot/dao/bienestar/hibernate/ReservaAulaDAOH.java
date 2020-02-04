@@ -6,7 +6,6 @@ import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
-import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.bienestar.ReservaAula;
 import pe.edu.lamolina.pivot.dao.bienestar.ReservaAulaDAO;
 
@@ -26,6 +25,7 @@ public class ReservaAulaDAOH extends AbstractEasyDAO<ReservaAula> implements Res
                 .join("tramite tra", "tra.tipoTramite", "tra.cicloAcademico ca")
                 .leftJoin("tra.compania cia", "tra.empresa em", "tra.docente doc")
                 .leftJoin("tra.alumno al", "al.persona per", "doc.persona perr")
+                .searchFields("motivo")
                 .orderBy("ra.id desc");
 
         return all(sql);
