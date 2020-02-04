@@ -36,7 +36,9 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface GpoSeccionService {
 
-    CicloAcademico findCiclo(CicloAcademico cicloAcademico);
+    CicloAcademico findCicloPregrado(CicloAcademico cicloAcademico);
+
+    CicloAcademico findCicloPosgrado(CicloAcademico cicloAcademico);
 
     Oficina findOficinaOera();
 

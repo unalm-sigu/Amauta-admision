@@ -24,6 +24,7 @@ import pe.edu.lamolina.model.academico.RestriccionModalidad;
 import pe.edu.lamolina.model.academico.RestriccionRepitencia;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.EstadoEnum;
+import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
 import pe.edu.lamolina.model.horario.HorarioSeccion;
 import pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.GpoSeccionResumen;
@@ -236,7 +237,7 @@ public class BoletinAcademicoServiceImp implements BoletinAcademicoService {
 
     @Override
     public CicloAcademico findCicloAcademicoActivo() {
-        CicloAcademico ciclo = cicloAcademicoDAO.findVerBoletin();
+        CicloAcademico ciclo = cicloAcademicoDAO.findVerBoletin(ModalidadEstudioEnum.PRE);
         if (ciclo == null) {
             ciclo = cicloAcademicoDAO.findActivoPregrado();
         }

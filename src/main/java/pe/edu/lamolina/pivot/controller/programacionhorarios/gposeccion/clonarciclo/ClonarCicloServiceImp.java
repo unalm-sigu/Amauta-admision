@@ -43,6 +43,7 @@ import pe.edu.lamolina.model.enums.EventoAcademicoEnum;
 import static pe.edu.lamolina.model.enums.EventoAcademicoEnum.CLASES_EPG;
 import static pe.edu.lamolina.model.enums.EventoAcademicoEnum.CLASES_PRE;
 import static pe.edu.lamolina.model.enums.EventoAcademicoEnum.CLASES_VER;
+import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.SituacionDocenteEnum;
 import pe.edu.lamolina.model.enums.TipoCicloEnum;
 import pe.edu.lamolina.model.enums.TipoCreditoEnum;
@@ -840,8 +841,13 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
     }
 
     @Override
-    public CicloAcademico findCiclo(CicloAcademico ciclo) {
-        return cicloAcademicoDAO.find(ciclo);
+    public CicloAcademico findCicloPregrado(CicloAcademico ciclo) {
+        return cicloAcademicoDAO.find(ciclo, ModalidadEstudioEnum.PRE);
+    }
+
+    @Override
+    public CicloAcademico findCicloPosgrado(CicloAcademico ciclo) {
+        return cicloAcademicoDAO.find(ciclo, ModalidadEstudioEnum.EPG);
     }
 
     @Override
@@ -863,18 +869,21 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
 
     @Override
     @Transactional
-    public void verBoletin(CicloAcademico cicloProgForm) {
-        CicloAcademico cicloProgDB = cicloAcademicoDAO.find(cicloProgForm);
-        CicloAcademico cicloBoletin = cicloAcademicoDAO.findVerBoletin();
+    public void verBoletin(CicloAcademico cicloProgForm, ModalidadEstudioEnum modalidadEnum) {
+        CicloAcademico cicloProgDB = cicloAcademicoDAO.find(cicloProgForm, modalidadEnum).clone();
+        CicloAcademico cicloBoletin = cicloAcademicoDAO.findVerBoletin(modalidadEnum);
 
         if (cicloBoletin != null) {
             if (cicloBoletin.getId() != cicloProgDB.getId().longValue()) {
+                cicloBoletin = cicloBoletin.clone();
                 cicloBoletin.setVerBoletin(Boolean.FALSE);
+                cicloAcademicoDAO.updateColumns(cicloBoletin, "verBoletin");
             }
         }
+
         cicloProgDB.setVerBoletin(Boolean.TRUE);
         cicloProgDB.setActualizarBoletin(Boolean.TRUE);
-        cicloAcademicoDAO.update(cicloProgDB);
+        cicloAcademicoDAO.updateColumns(cicloProgDB, "verBoletin", "actualizarBoletin");
     }
 
     private EventoCicloAcademico getEventoDictadoClases(CicloAcademico cicloAcademico) {

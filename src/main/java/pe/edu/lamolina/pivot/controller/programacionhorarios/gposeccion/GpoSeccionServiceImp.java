@@ -323,8 +323,13 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     final BigDecimal PORCENTAJE_CARGA = new BigDecimal(100);
 
     @Override
-    public CicloAcademico findCiclo(CicloAcademico cicloAcademico) {
-        return cicloAcademicoDAO.find(cicloAcademico);
+    public CicloAcademico findCicloPregrado(CicloAcademico cicloAcademico) {
+        return cicloAcademicoDAO.find(cicloAcademico, ModalidadEstudioEnum.PRE);
+    }
+
+    @Override
+    public CicloAcademico findCicloPosgrado(CicloAcademico cicloAcademico) {
+        return cicloAcademicoDAO.find(cicloAcademico, ModalidadEstudioEnum.EPG);
     }
 
     @Override

@@ -15,6 +15,7 @@ import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.GpoSeccionResumen;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -78,15 +79,39 @@ public class ClonarCicloController {
     }
 
     @ResponseBody
-    @RequestMapping("verBoletin")
-    public JsonResponse verBoletin(HttpSession session) {
+    @RequestMapping("verBoletinPregrado")
+    public JsonResponse verBoletinPregrado(HttpSession session) {
 
         JsonResponse response = new JsonResponse();
         try {
 
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             CicloAcademico ciclo = ds.getCicloAcademico();
-            service.verBoletin(ciclo);
+            service.verBoletin(ciclo, ModalidadEstudioEnum.PRE);
+
+            response.setMessage("Ver boletin se ejecutó satisfactoria");
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
+
+    }
+
+    @ResponseBody
+    @RequestMapping("verBoletinPosgrado")
+    public JsonResponse verBoletinPosgrado(HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+        try {
+
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            CicloAcademico ciclo = ds.getCicloAcademico();
+            service.verBoletin(ciclo, ModalidadEstudioEnum.EPG);
 
             response.setMessage("Ver boletin se ejecutó satisfactoria");
             response.setSuccess(true);
@@ -181,11 +206,13 @@ public class ClonarCicloController {
         try {
 
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            CicloAcademico ciclo = service.findCiclo(ds.getCicloAcademico());
+            CicloAcademico cicloPregrado = service.findCicloPregrado(ds.getCicloAcademico());
+            CicloAcademico cicloPosgrado = service.findCicloPosgrado(ds.getCicloAcademico());
 
             ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
-            node.set("ciclo", createCicloJson(ciclo));
-            node.set("resumen", createResumenJson(service.resumenByCiclo(ciclo)));
+            node.set("ciclo", createCicloJson(cicloPregrado));
+            node.set("cicloPosgrado", createCicloJson(cicloPosgrado));
+            node.set("resumen", createResumenJson(service.resumenByCiclo(cicloPregrado)));
 
             response.setData(node);
             response.setSuccess(true);

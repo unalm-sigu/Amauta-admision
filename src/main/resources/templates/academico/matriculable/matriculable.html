@@ -15,12 +15,11 @@
                             &nbsp; Acciones &nbsp; <span class="caret"></span>
                         </button>
                         <ul class="dropdown-menu">
-                            <li v-if="ciclo.fechaVerificaNmat == null"><a  v-on:click="revisar" >Verificar alumnos NMAT</a></li>
+                            <li v-if="ciclo.fechaVerificaNmat == null"><a v-on:click="revisar" >Verificar alumnos NMAT</a></li>
                             <li v-if="ciclo.fechaVerificaNmat != null &amp;&amp; ciclo.fechaMatriculables == null" ><a  v-on:click="generarMatriculables" >Generar</a></li>
                             <li v-if="ciclo.fechaMatriculables != null &amp;&amp; ciclo.fechaCierreMatriculable == null"><a  v-on:click="limpiarMatriculables" >Limpiar matriculable</a></li>
                             <li v-if="ciclo.fechaMatriculables != null &amp;&amp; ciclo.fechaCierreMatriculable == null"><a  v-on:click="finalizarMatriculable" >Finalizar matriculable</a></li>
                             <li ><a  v-on:click="modal">Agregar Matriculable</a></li>
-                            <!--<li><a  id="agregarMatriculable">Modal Matriculable</a></li>-->
                             <li v-if="ciclo.fechaPrioridades == null &amp;&amp; ciclo.fechaCierrePrioridades==null &amp;&amp; ciclo.fechaCierreMatriculable != null" ><a v-on:click="generarPrioridad">Procesar Prioridad</a></li>
                             <li v-if="ciclo.fechaPrioridades != null &amp;&amp; ciclo.fechaCierrePrioridades==null" ><a v-on:click="eliminarPrioridad">Limpiar Prioridades</a></li>
                             <li v-if="ciclo.fechaPrioridades != null &amp;&amp; ciclo.fechaCierrePrioridades==null" ><a v-on:click="finalizarPrioridad">Finalizar Prioridades</a></li>
@@ -222,18 +221,10 @@
                     </section>
                 </section>
 
-                <!--        <div th:substituteby="templates/modal"/>
-                        <script id="matriculableTemplate" type="text/x-jsrender" class="hide"><div th:substituteby="academico/matriculable/matriculableTemplate"/></script>
-                        <div id="matriculableModal"></div>
-                        <div id="cursosModal"></div>-->
-                <div th:substituteby="academico/matriculable/modalAsignarTurno">
-                </div>
-                <div th:substituteby="academico/matriculable/matriculableModal">
-                </div>
-                <div th:substituteby="academico/matriculable/inhabilitarMatriculable">
-                </div>
-                <div th:substituteby="academico/matriculable/procesoNmatModal">
-                </div>
+                <div th:substituteby="academico/matriculable/modalAsignarTurno"></div>
+                <div th:substituteby="academico/matriculable/matriculableModal"></div>
+                <div th:substituteby="academico/matriculable/inhabilitarMatriculable"></div>
+                <div th:substituteby="academico/matriculable/procesoNmatModal"></div>
                 <div th:substituteby="_modules/vue-modal-confirm"></div>
                 <div th:substituteby="academico/matriculable/aporteAlumnoModal"></div>
                 <div th:substituteby="academico/matriculable/boletaAlumnoModal"></div>

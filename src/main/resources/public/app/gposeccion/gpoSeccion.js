@@ -45,6 +45,7 @@ new Vue({
         seccionSelect: {},
         tipoRestriccion: '',
         ciclo: {descripcion: ""},
+        cicloPosgrado: {descripcion: ""},
         cicloClonacion: {descripcion: ""},
         resumen: {
             ingresantes: 0,
@@ -497,6 +498,7 @@ new Vue({
                     if (response.success) {
                         $vue.resumen = response.data.resumen;
                         $vue.ciclo = response.data.ciclo;
+                        $vue.cicloPosgrado = response.data.cicloPosgrado;
                     } else {
                         notify(response.message, 'error');
                     }
@@ -573,10 +575,10 @@ new Vue({
                 }
             });
         },
-        verBoletin() {
+        verBoletinPregrado() {
             let $vue = this;
             $vue.configConfirmAction = VUE_MODAL.structConfirm({
-                message: "¿Seguro que desea que se visualice este ciclo en el boletín?",
+                message: "¿Seguro que desea que se visualice este ciclo en el boletín de pregrado?",
                 okbtn: "Si, visibilizar boletín",
                 okclass: "btn-success",
                 okbtnprocessing: '<i class="fa fa-spinner fa-pulse fa-fw"></i> Visibilizando...',
@@ -585,7 +587,39 @@ new Vue({
                     $.ajax({
                         method: 'POST',
                         async: false,
-                        url: APP.url(rutaModulo + '/verBoletin'),
+                        url: APP.url(rutaModulo + '/verBoletinPregrado'),
+                        success: function (response) {
+                            $vue.$refs.modalConfirmAction.confirmReaction(response.success);
+                            if (response.success) {
+                                $vue.updateDataCiclo();
+                                notify(response.message, 'info');
+                            } else {
+                                notify(response.message, 'error');
+                            }
+                        },
+                        error: function () {
+                            $vue.$refs.modalConfirmAction.confirmReaction(false);
+                            notify(MESSAGES.errorComunicacion, 'error');
+                        }
+                    });
+                }
+            });
+
+            $vue.$refs.modalConfirmAction.open();
+        },
+        verBoletinPosgrado() {
+            let $vue = this;
+            $vue.configConfirmAction = VUE_MODAL.structConfirm({
+                message: "¿Seguro que desea que se visualice este ciclo en el boletín de posgrado?",
+                okbtn: "Si, visibilizar boletín",
+                okclass: "btn-success",
+                okbtnprocessing: '<i class="fa fa-spinner fa-pulse fa-fw"></i> Visibilizando...',
+                okaction: function () {
+
+                    $.ajax({
+                        method: 'POST',
+                        async: false,
+                        url: APP.url(rutaModulo + '/verBoletinPosgrado'),
                         success: function (response) {
                             $vue.$refs.modalConfirmAction.confirmReaction(response.success);
                             if (response.success) {

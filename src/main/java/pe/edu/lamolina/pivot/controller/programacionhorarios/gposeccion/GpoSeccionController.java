@@ -133,13 +133,13 @@ public class GpoSeccionController {
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-        CicloAcademico ciclo = service.findCiclo(ds.getCicloAcademico());
-        Long cantidad = service.contarGpoSecc(ciclo);
+        CicloAcademico cicloPregrado = service.findCicloPregrado(ds.getCicloAcademico());
+        Long cantidad = service.contarGpoSecc(cicloPregrado);
 
         model.addAttribute("cantidad", cantidad);
-        model.addAttribute("ciclo", ciclo);
-        model.addAttribute("cicloJson", createCicloJson(ciclo).toString());
-        model.addAttribute("resumenJson", createResumenJson(service.resumenByCiclo(ciclo)));
+        model.addAttribute("ciclo", cicloPregrado);
+        model.addAttribute("cicloJson", createCicloJson(cicloPregrado).toString());
+        model.addAttribute("resumenJson", createResumenJson(service.resumenByCiclo(cicloPregrado)));
         return "academico/gposeccion/gpoSeccion";
     }
 

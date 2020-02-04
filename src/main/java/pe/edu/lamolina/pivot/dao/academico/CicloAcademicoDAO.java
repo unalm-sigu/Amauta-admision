@@ -60,6 +60,8 @@ public interface CicloAcademicoDAO extends EasyDAO<CicloAcademico> {
 
     CicloAcademico find(CicloAcademico cicloAcademico);
 
+    CicloAcademico find(CicloAcademico cicloAcademico, ModalidadEstudioEnum modalidadEnum);
+
     List<CicloAcademico> all();
 
     List<CicloAcademico> allActivesByModalidad(ModalidadEstudio modalidad, String[] orderBy);
@@ -86,7 +88,7 @@ public interface CicloAcademicoDAO extends EasyDAO<CicloAcademico> {
 
     List<CicloAcademico> allByLikeName(String nombre, ModalidadEstudio modalidad, List<CicloAcademico> notInt, Integer limit);
 
-    CicloAcademico findVerBoletin();
+    CicloAcademico findVerBoletin(ModalidadEstudioEnum modalidadEnum);
 
     List<CicloAcademico> allWithInitAndOrderBy(int yearIni, String orderBy, CicloAcademicoEstadoEnum... cicloAcademicoEstadoEnum);
 

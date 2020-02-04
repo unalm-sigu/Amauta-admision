@@ -391,6 +391,7 @@ new Vue({
                         $vue.verificarAlumnosNmat();
                         $vue.$refs.modalProcesos.open();
                         MODAL.hideWait();
+
                     } else {
                         let msg = "¿Está seguro que desea verificar los no matriculados?";
                         let btn = "Si, verificar";
@@ -417,6 +418,7 @@ new Vue({
                 $vue.$refs.modalConfirmAction.close();
                 $vue.$refs.modalProcesos.open();
             }
+
             $.ajax({
                 method: 'POST',
                 url: APP.url('academico/matriculable/verificarAlumnosNmat'),

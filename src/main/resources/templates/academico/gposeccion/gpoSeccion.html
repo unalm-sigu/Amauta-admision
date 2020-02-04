@@ -69,7 +69,8 @@
                         </button>
                         <ul class="dropdown-menu">
                             <li><a v-if="condicion1" type="button" v-on:click.prevent="nuevoGpoSecc">Nuevo Grupo</a></li>
-                            <li><a v-if="condicion1" type="button" v-on:click.prevent="verBoletin" >Ver Boletin </a></li>
+                            <li><a v-if="condicion1" type="button" v-on:click.prevent="verBoletinPregrado" >Ver Boletin Pregrado</a></li>
+                            <li v-if="ciclo.tipo == 'REG' "><a v-if="condicion1" type="button" v-on:click.prevent="verBoletinPosgrado" >Ver Boletin Posgrado</a></li>
                             <li><a v-if="condicion2" type="button" v-on:click.prevent="clonarCiclo" >Clonar Ciclo</a></li>
 
                             <li><a v-if="condicion3" type="button" v-on:click.prevent="verLimpiarCiclo" >Limpiar Ciclo</a></li>                          
@@ -77,19 +78,15 @@
                             <li><a v-if="condicion4" type="button" v-on:click.prevent="verOrdenarCiclo" >Ordenar Código</a></li>
                             <li><a v-if="condicion4" type="button" v-on:click.prevent="cerrarOrden" >Cerrar Orden</a></li>
 
-                            <!--li><a type="button" th:href="@{'/academico/gposeccion/reporte/boletinPDF'}">Reporte Pdf</a></li>
-                            <li><a type="button" th:href="@{'/reporte/reporteboletinexcel'}">Reporte Excel</a></li-->
                             <li><a type="button" v-on:click.prevent="verEliminarGruposSecciones">Eliminar Grupos</a></li>
-                            
-                            <!--li><a type="button" th:href="@{'/academico/gposeccion/reporte/reporteCrucesSecciones'}">Secciones con cruce</a></li>
-                            <li><a type="button" th:href="@{'/academico/gposeccion/reporte/reporteSeccionesSinAulas'}">Secciones sin aula</a></li>
-                            <li><a type="button" th:href="@{'/academico/gposeccion/reporte/reporteSeccionesConAulas'}">Secciones con aula</a></li>
-                            <li><a type="button" th:href="@{'/academico/gposeccion/reporte/reporteSeccionesSinHorario'}">Secciones sin horario</a></li>
-                            <li><a type="button" th:href="@{'/academico/gposeccion/reporte/reporteSeccionesConHorario'}">Secciones con horario</a></li-->
                         </ul>
                     </div>
 
                     <h2 v-text="'Programación de horarios ' + ciclo.descripcion">Grupo Sección</h2>
+                    <div class="block m-b-sm" v-if="ciclo.verBoletin || cicloPosgrado.verBoletin">
+                        <div class="label label-primary" v-if="ciclo.verBoletin">Boletín pregrado visible</div>
+                        <div class="label label-warning" v-if="cicloPosgrado.verBoletin">Boletín posgrado visible</div>
+                    </div>
                 </header>
 
                 <section class="wrapper-md">
