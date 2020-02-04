@@ -31,9 +31,11 @@ import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.enums.TipoCondicionalEnum;
 import static pe.edu.lamolina.model.enums.TipoCondicionalEnum.TRAS;
+import static pe.edu.lamolina.model.enums.TipoCondicionalEnum.TRAS_INT;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.ANCI;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.CAM_NOTA;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.CURDIR;
@@ -106,17 +108,19 @@ public class ResolucionExistentesController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         ArrayNode oficinasJson = new ArrayNode(JsonNodeFactory.instance);
         ArrayNode ciclosJson = new ArrayNode(JsonNodeFactory.instance);
+        ArrayNode carrerasJson = new ArrayNode(JsonNodeFactory.instance);
         ArrayNode tipoResolucionJson = new ArrayNode(JsonNodeFactory.instance);
 
         List<TipoResolucion> tipoResolucions = service.allTipoResolucion();
         for (TipoResolucion tipoResolucion : tipoResolucions) {
-            if (Arrays.asList(RCI.name(), ANCI.name(), REIC.name(), CAM_NOTA.name(), CURDIR.name(), TRAS.name(), INTES.name(), ING_HIS.name()).contains(tipoResolucion.getCodigo())) {
+            if (Arrays.asList(TRAS_INT.name(), RCI.name(), ANCI.name(), REIC.name(), CAM_NOTA.name(), CURDIR.name(), TRAS.name(), INTES.name(), ING_HIS.name()).contains(tipoResolucion.getCodigo())) {
                 tipoResolucionJson.add(JsonHelper.createJson(tipoResolucion, JsonNodeFactory.instance, new String[]{"*"}));
             }
         }
 
         List<CicloAcademico> cicloAcademicos = service.ciclosAnteriores(15);
         List<Oficina> oficinas = resolucionService.allOFicinasByUser(ds);
+        List<Carrera> carreras = service.allCarrera();
         for (Oficina oficina : oficinas) {
             ObjectNode oficinaJson = JsonHelper.createJson(oficina, JsonNodeFactory.instance, new String[]{"*"});
             oficinasJson.add(oficinaJson);
@@ -125,8 +129,12 @@ public class ResolucionExistentesController {
             ObjectNode cicloJson = JsonHelper.createJson(cicloAcademico, JsonNodeFactory.instance, new String[]{"*"});
             ciclosJson.add(cicloJson);
         }
-
+        for (Carrera carrera : carreras) {
+            ObjectNode carreraJson = JsonHelper.createJson(carrera, JsonNodeFactory.instance, new String[]{"*"});
+            carrerasJson.add(carreraJson);
+        }
         model.addAttribute("ciclo", ds.getCicloAcademico());
+        model.addAttribute("carreras", carrerasJson);
         model.addAttribute("oficinas", oficinasJson);
         model.addAttribute("tiposResolucion", tipoResolucionJson);
         model.addAttribute("ciclos", ciclosJson);
@@ -137,7 +145,7 @@ public class ResolucionExistentesController {
     @RequestMapping("findAlumno")
     public JsonResponse findAlumno(
             @RequestParam("nombre") String nombre,
-            @RequestParam("instanciaOficina") Long instanciaOficina,
+            @RequestParam(name = "instanciaOficina", required = false) Long instanciaOficina,
             HttpSession session) {
 
         JsonResponse response = new JsonResponse();
@@ -198,9 +206,12 @@ public class ResolucionExistentesController {
                     matriculableService.saveMatriculable(alumno, TipoCondicionalEnum.CAMBIO_NOTA.name(), ds);
                 }
 
-            } else if (Arrays.asList(TRAS.name(), INTES.name(), ING_HIS.name()).contains(resolucion.getTipoResolucion().getCodigo())) {
+            } else if (Arrays.asList(TRAS_INT.name(), TRAS.name(), INTES.name(), ING_HIS.name()).contains(resolucion.getTipoResolucion().getCodigo())) {
                 service.saveTramiteTraslado(resolucion, ds.getUsuario(), ds.getCicloAcademico(), ds.getCompania());
+                if (TRAS_INT.name().equals(resolucion.getTipoResolucion().getCodigo())) {
 
+                    service.generarNuevoPlan(resolucion, ds);
+                }
             } else if (resolucion.isTipoCursoDirigido()) {
                 msg = service.saveCursoDirigido(resolucion, ds.getUsuario(), ds);
             }

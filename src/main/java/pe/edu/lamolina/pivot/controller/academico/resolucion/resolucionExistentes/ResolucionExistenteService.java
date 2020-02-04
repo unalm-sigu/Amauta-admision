@@ -2,6 +2,7 @@ package pe.edu.lamolina.pivot.controller.academico.resolucion.resolucionExistent
 
 import java.util.List;
 import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.seguridad.Usuario;
@@ -45,5 +46,9 @@ public interface ResolucionExistenteService {
     List<TramiteTraslado> allTramiteTraslado(Resolucion resolucionDB);
 
     void saveIngresoHisto(Resolucion resolucion, Usuario usuario, DataSessionPivot ds);
+
+    public List<Carrera> allCarrera();
+
+    public void generarNuevoPlan(Resolucion resolucion, DataSessionPivot ds);
 
 }

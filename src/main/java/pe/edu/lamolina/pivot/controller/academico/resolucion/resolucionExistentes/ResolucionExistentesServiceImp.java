@@ -2,6 +2,7 @@ package pe.edu.lamolina.pivot.controller.academico.resolucion.resolucionExistent
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -14,12 +15,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.zelpers.miscelanea.Assert;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
 import pe.edu.lamolina.model.academico.AnexoBoletin;
+import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.CursoOpcionalCurricula;
@@ -28,6 +31,8 @@ import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.MatriculaCurso;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
+import pe.edu.lamolina.model.academico.OrientacionCarrera;
+import pe.edu.lamolina.model.academico.PlanCurricular;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.academico.TipoCursoCurricula;
 import pe.edu.lamolina.model.enums.CursoCurriculaEstadoEnum;
@@ -72,11 +77,13 @@ import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCursoCurriculaDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.pivot.dao.academico.AnexoBoletinDAO;
+import pe.edu.lamolina.pivot.dao.academico.CarreraDAO;
 import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.CursoOpcionalCurriculaDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaCursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaResumenDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaSeccionDAO;
+import pe.edu.lamolina.pivot.dao.academico.PlanCurricularDAO;
 import pe.edu.lamolina.pivot.dao.academico.SeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.TipoCursoCurriculaDAO;
 import pe.edu.lamolina.pivot.dao.general.OficinaDAO;
@@ -102,6 +109,9 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
 
     @Autowired
     AlumnoDAO alumnoDAO;
+
+    @Autowired
+    PlanCurricularDAO planCurricularDAO;
 
     @Autowired
     TipoResolucionDAO tipoResolucionDAO;
@@ -162,18 +172,20 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
     CursoOpcionalCurriculaDAO cursoOpcionalCurriculaDAO;
     @Autowired
     OficinaDAO oficinaDAO;
+    @Autowired
+    CarreraDAO carreraDAO;
 
     @Override
     public List<Alumno> allAlumnoByOficina(String nombre, Long instanciaOficina) {
-        Oficina oficina = oficinaDAO.find(instanciaOficina);
-        if (oficina.getTipoOficina().getCodigoEnum() == TipoOficinaEnum.FAC) {
+        Oficina oficina = instanciaOficina == null ? null : oficinaDAO.find(instanciaOficina);
+        if (oficina != null && oficina.getTipoOficina().getCodigoEnum() == TipoOficinaEnum.FAC) {
             return alumnoDAO.allByNameFacultad(nombre, new Facultad(oficina.getInstanciaOficina()));
         }
 
-        if (oficina.getCodigoEnum() == OficinaEnum.EPG) {
+        if (oficina != null && oficina.getCodigoEnum() == OficinaEnum.EPG) {
             return alumnoDAO.allByNamePosgrado(nombre);
         }
-        if (oficina.getCodigoEnum() == OficinaEnum.UNA) {
+        if (oficina == null || oficina.getCodigoEnum() == OficinaEnum.UNA) {
             return alumnoDAO.allByName(nombre);
         }
 
@@ -727,7 +739,6 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
             tramiteDAO.save(tramite);
 
             tramiteTraslado.setTramite(tramite);
-//            tramiteTraslado.setCicloAcademico(cicloAcademico);
             tramiteTraslado.setResolucion(resolucion);
             tramiteTraslado.setFechaRegistro(new Date());
             if (resolucionForm.getTipoResolucion().getCodigo().equals(TipoResolucionEnum.TRAS.name())) {
@@ -736,11 +747,39 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
                 tramiteTraslado.setTipoTramiteTrasladoEnum(TipoTramiteTrasladoEnum.INTES);
             } else if (resolucionForm.getTipoResolucion().getCodigo().equals(TipoResolucionEnum.ING_HIS.name())) {
                 tramiteTraslado.setTipoTramiteTrasladoEnum(TipoTramiteTrasladoEnum.ING_HIS);
+            } else if (resolucionForm.getTipoResolucion().getCodigo().equals(TipoResolucionEnum.TRAS_INT.name())) {
+                tramiteTraslado.setTipoTramiteTrasladoEnum(TipoTramiteTrasladoEnum.TRAS_INT);
+
+                alumno.setCarrera(tramiteTraslado.getCarrera());
+
+                OrientacionCarrera orientacionCarrera = alumno.getOrientacionCarrera();
+                List<PlanCurricular> planCurriculars = planCurricularDAO.allActivoByCarrera(tramiteTraslado.getCarrera());
+                Map<String, List<PlanCurricular>> mapPlanesByCiclo = TypesUtil.convertListToMapList("cicloInicioVigencia.codigo", planCurriculars);
+                Map<String, CicloAcademico> mapCiclosPlanes = TypesUtil.convertListToMap("cicloInicioVigencia.codigo", "cicloInicioVigencia", planCurriculars);
+                String codigoCicloAlumno = (String) ObjectUtil.getParentTree(alumno, "cicloIngreso.codigo");
+
+                List<String> codigosCiclosPlanes = new ArrayList<String>(mapCiclosPlanes.keySet());
+
+                Collections.sort(codigosCiclosPlanes);
+                Collections.reverse(codigosCiclosPlanes);
+
+                String codigoCicloPlan = this.getIndiceCicloAcademico(codigoCicloAlumno, codigosCiclosPlanes);
+                List<PlanCurricular> planesBD = mapPlanesByCiclo.get(codigoCicloPlan);
+                PlanCurricular planCurricularBD;
+                if (orientacionCarrera != null) {
+                    planCurricularBD = planesBD.stream().filter(x -> Objects.equals(x.getOrientacionCarrera().getId(), orientacionCarrera.getId())).findAny().orElse(null);
+                } else {
+                    planCurricularBD = planesBD.get(0);
+                }
+                alumno.setPlanCurricular(planCurricularBD);
+                alumnoDAO.updateColumns(alumno, "carrera", "planCurricular");
+
             }
             tramiteTraslado.setUserRegistro(usuario);
             tramiteTraslado.setEstado(EstadoEnum.ACT.name());
             tramiteTrasladoDAO.save(tramiteTraslado);
         }
+
     }
 
     @Override
@@ -766,4 +805,29 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
         return tramiteTrasladoDAO.allByResolucion(resolucionDB);
     }
 
+    @Override
+    public List<Carrera> allCarrera() {
+
+        return carreraDAO.allActivasByModalidadEnum(ModalidadEstudioEnum.PRE);
+    }
+
+    @Override
+    public void generarNuevoPlan(Resolucion resolucionForm, DataSessionPivot ds) {
+        List<Alumno> alumnos = new ArrayList();
+        for (TramiteTraslado tramiteTraslado : resolucionForm.getTramiteTraslado()) {
+            Alumno alumno = alumnoDAO.find(tramiteTraslado.getAlumno());
+
+            alumnos.add(alumno);
+        }
+        avanceCurricularService.generarAvanceCurricularByAlumnosPregrados(alumnos, ds, null);
+    }
+
+    private String getIndiceCicloAcademico(String codigoCicloAlumno, List<String> codigosCiclosPlanes) {
+        for (String codigoCicloPlan : codigosCiclosPlanes) {
+            if (codigoCicloAlumno.compareTo(codigoCicloPlan) >= 0) {
+                return codigoCicloPlan;
+            }
+        }
+        return null;
+    }
 }

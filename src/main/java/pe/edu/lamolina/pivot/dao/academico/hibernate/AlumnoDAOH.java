@@ -387,9 +387,11 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
                 .from(Alumno.class, "alu")
                 .join("persona per", "carrera car", "car.facultad fa", "modalidadEstudio me")
                 .leftJoin("per.tipoDocumento td")
-                .filter("per.estado", PersonaEstadoEnum.ACT)
-                .filter("fa.id", facultad)
-                .filter("me.codigo", PRE)
+                .filter("per.estado", PersonaEstadoEnum.ACT);
+        if (facultad != null) {
+            sql.filter("fa.id", facultad);
+        }
+        sql.filter("me.codigo", PRE)
                 .beginBlock()
                 .__().complexFilter("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))", "like", nombre)
                 .__().complexFilter("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))", "like", nombre)

@@ -9,6 +9,7 @@ var app = new Vue({
         oficinas: JSON.parse(oficinasJson),
         ciclos: JSON.parse(ciclosJson),
         tiposResolucion: JSON.parse(tiposResolucionJson),
+        carreras: JSON.parse(carrerasJson),
         configDate: {
             format: 'DD/MM/YYYY',
             useCurrent: false
@@ -21,6 +22,7 @@ var app = new Vue({
         isCambioNota: false,
         isCursoDirigido: false,
         isTraslado: false,
+        isTrasladoInt: false,
         modalError: {
             id: 'modalError',
             header: true,
@@ -53,6 +55,8 @@ var app = new Vue({
                 $vue.isCambioNota = true;
             } else if (item.codigo == "TRAS" || item.codigo == "INTES" || item.codigo == "ING_HIS") {
                 $vue.isTraslado = true;
+            } else if (item.codigo == "TRAS_INT") {
+                $vue.isTrasladoInt = true;
             } else {
                 $vue.isCursoDirigido = true;
             }
@@ -72,18 +76,34 @@ var app = new Vue({
             }
             if (nombre != '' || nombre != null || nombre != undefined) {
 
-                $.ajax({
-                    url: APP.url("academico/resolucion/findAlumno"),
-                    dataType: 'json',
-                    type: 'post',
-                    data: {nombre: nombre, instanciaOficina: $vue.resolucion.oficina.id}
-                }).then(response => {
-                    if (response.success) {
-                        $vue.alumnos = response.data;
-                    }
+                if ($vue.isTrasladoInt) {
+                    $.ajax({
+                        url: APP.url("academico/resolucion/findAlumno"),
+                        dataType: 'json',
+                        type: 'post',
+                        data: {nombre: nombre}
+                    }).then(response => {
+                        if (response.success) {
+                            $vue.alumnos = response.data;
+                        }
 
-                    this.isLoading = false;
-                })
+                        this.isLoading = false;
+                    })
+                } else {
+
+                    $.ajax({
+                        url: APP.url("academico/resolucion/findAlumno"),
+                        dataType: 'json',
+                        type: 'post',
+                        data: {nombre: nombre, instanciaOficina: $vue.resolucion.oficina.id}
+                    }).then(response => {
+                        if (response.success) {
+                            $vue.alumnos = response.data;
+                        }
+
+                        this.isLoading = false;
+                    })
+                }
 
             }
         },
@@ -117,7 +137,7 @@ var app = new Vue({
             } else if ($vue.isCursoDirigido) {
                 var cursoDirigido = {};
                 $vue.resolucion.cursoDirigido.push(cursoDirigido);
-            } else if ($vue.isTraslado) {
+            } else if ($vue.isTraslado || $vue.isTrasladoInt) {
                 var traslado = {};
                 $vue.resolucion.tramiteTraslado.push(traslado);
             }
@@ -132,7 +152,7 @@ var app = new Vue({
                 $vue.resolucion.cambioNota.splice(index, 1);
             } else if ($vue.isCursoDirigido) {
                 $vue.resolucion.cursoDirigido.splice(index, 1);
-            } else if ($vue.isTraslado) {
+            } else if ($vue.isTraslado || $vue.isTrasladoInt) {
                 $vue.resolucion.tramiteTraslado.splice(index, 1);
             }
         },

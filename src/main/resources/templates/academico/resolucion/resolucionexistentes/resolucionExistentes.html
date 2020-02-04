@@ -120,12 +120,13 @@
                                             <th class="col-md-3 text-center">Persona</th>
                                             <th class="col-md-3 text-center" v-if="!isCambioNota">Tipo Tramite</th>
                                             <th class="col-md-2 text-center" v-if="isCambioNota">Tipo Tramite</th>
-                                            <th class="col-md-3 text-center" v-if="!isCambioNota &amp;&amp; !isTraslado">Motivo</th>
+                                            <th class="col-md-3 text-center" v-if="!isCambioNota &amp;&amp; !isTraslado &amp;&amp; !isTrasladoInt">Motivo</th>
                                             <th class="col-md-2 text-center" v-if="isCambioNota">Motivo</th>
-                                            <th class="col-md-3 text-center" v-if="!isCambioNota &amp;&amp; !isCursoDirigido">Ciclo
+                                            <th class="col-md-3 text-center" v-if="!isCambioNota &amp;&amp; !isCursoDirigido &amp;&amp; !isTrasladoInt">Ciclo
                                                 <span v-if='isRetiroCiclo'> a retirar</span>
                                                 <span v-if='isReincorporacion'> a reincorporar</span>
                                             </th>
+                                            <th class="col-md-3 text-center" v-if="isTrasladoInt">Carrera</th>
                                             <th class="col-md-2 text-center" v-if="isCambioNota">Ciclo                                               
                                             </th>
                                             <th class="col-md-2 text-center" v-if="isCambioNota">Curso</th>
@@ -393,7 +394,7 @@
                                                 </a>
                                             </td>
                                         </tr>
-                                        <tr v-for="(tramiteTraslado , index) in resolucion.tramiteTraslado" v-if="isTraslado"> 
+                                        <tr v-for="(tramiteTraslado , index) in resolucion.tramiteTraslado" v-if="isTraslado || isTrasladoInt"> 
                                             <td class="v-middle text-center">
                                                 <div class="form-group">
                                                     <div class="col-md-12">
@@ -421,7 +422,7 @@
                                             <td class="v-middle text-center">
                                                 <span v-if="resolucion.tipoResolucion != null" class="block text-muted" v-text="resolucion.tipoResolucion.nombre"></span>
                                             </td> 
-                                            <td class="v-middle text-left">
+                                            <td class="v-middle text-left" v-if="!isTrasladoInt">
                                                 <div class="form-group">
                                                     <multiselect 
                                                         v-model="tramiteTraslado.cicloAcademico" 
@@ -435,6 +436,22 @@
                                                         >
                                                     </multiselect>
                                                     <input v-model="tramiteTraslado.cicloAcademico" required="true" type="text" class="hide"/>
+                                                </div>
+                                            </td>
+                                            <td class="v-middle text-left" v-if="isTrasladoInt">
+                                                <div class="form-group">
+                                                    <multiselect 
+                                                        v-model="tramiteTraslado.carrera" 
+                                                        v-bind:options="carreras"
+                                                        placeholder="Seleccione una carrera"
+                                                        label="nombre"
+                                                        track-by="id" 
+                                                        required="true"
+                                                        v-bind:allow-empty="true"
+                                                        deselect-label="No se puede eliminar este valor" 
+                                                        >
+                                                    </multiselect>
+                                                    <input v-model="tramiteTraslado.carrera" required="true" type="text" class="hide"/>
                                                 </div>
                                             </td>
                                             <td class="v-middle text-center">
@@ -472,6 +489,7 @@
         <script th:inline="javascript">
             var oficinasJson = /*[[${oficinas.toString()}]]*/ 'json';
             var ciclosJson = /*[[${ciclos.toString()}]]*/ 'json';
+            var carrerasJson = /*[[${carreras.toString()}]]*/ 'json';
             var tiposResolucionJson = /*[[${tiposResolucion.toString()}]]*/ 'json';
         </script>
         <div th:substituteby="_layout/includes :: javascript-vue-upload"></div>
