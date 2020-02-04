@@ -749,7 +749,7 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
                 tramiteTraslado.setTipoTramiteTrasladoEnum(TipoTramiteTrasladoEnum.ING_HIS);
             } else if (resolucionForm.getTipoResolucion().getCodigo().equals(TipoResolucionEnum.TRAS_INT.name())) {
                 tramiteTraslado.setTipoTramiteTrasladoEnum(TipoTramiteTrasladoEnum.TRAS_INT);
-
+                tramiteTraslado.setCarreraOrigen(alumno.getCarrera());
                 alumno.setCarrera(tramiteTraslado.getCarrera());
 
                 OrientacionCarrera orientacionCarrera = alumno.getOrientacionCarrera();
@@ -765,9 +765,18 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
 
                 String codigoCicloPlan = this.getIndiceCicloAcademico(codigoCicloAlumno, codigosCiclosPlanes);
                 List<PlanCurricular> planesBD = mapPlanesByCiclo.get(codigoCicloPlan);
-                PlanCurricular planCurricularBD;
+                PlanCurricular planCurricularBD = null;
                 if (orientacionCarrera != null) {
-                    planCurricularBD = planesBD.stream().filter(x -> Objects.equals(x.getOrientacionCarrera().getId(), orientacionCarrera.getId())).findAny().orElse(null);
+                    for (PlanCurricular planCurricular : planesBD) {
+                        if (planCurricular.getOrientacionCarrera() == null) {
+                            planCurricularBD = planCurricular;
+                            alumno.setOrientacionCarrera(null);
+                            break;
+                        }
+                        if (planCurricular.getOrientacionCarrera().getId() == orientacionCarrera.getId()) {
+                            planCurricularBD = planCurricular;
+                        }
+                    }
                 } else {
                     planCurricularBD = planesBD.get(0);
                 }
