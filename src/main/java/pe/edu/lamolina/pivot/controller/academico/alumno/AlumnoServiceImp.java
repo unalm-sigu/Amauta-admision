@@ -777,6 +777,7 @@ public class AlumnoServiceImp implements AlumnoService {
         newcursoCurricula.setVecesCursado(BigDecimal.ZERO.intValue());
         newcursoCurricula.setNumeroCiclo(1);
         newcursoCurricula.setEstadoEnum(CursoCurriculaEstadoEnum.HAB);
+        newcursoCurricula.setEstadoRegistroEnum(EstadoEnum.ACT);
         newcursoCurricula.setCreditos(alumnoCursoCurricula.getCurso().getCreditos());
         newcursoCurricula.setTipoCursoCurricula(tipoCursoCurriculaDAO.findByCodigo(TipoCursoCurriculaEnum.EAD));
         alumnoCursoCurriculaDAO.save(newcursoCurricula);
