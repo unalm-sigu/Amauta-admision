@@ -899,8 +899,8 @@ public class MatriculableServiceImp implements MatriculableService {
         SituacionAcademica sit = alumno.getSituacionAcademica();
 
         ModalidadEstudio modalidad = alumno.getModalidadEstudio();
-        List<SituacionAcademicaEnum> sitEnum = Arrays.asList(S_8, S_9);
-        List<ModalidadEstudioEnum> modEnum = Arrays.asList(EPG, ESP);
+        List<SituacionAcademicaEnum> situacionIngresantesEnum = Arrays.asList(S_8, S_9);
+        List<ModalidadEstudioEnum> modalidadesEnum = Arrays.asList(EPG, ESP);
 
         matri.setAlumno(alumno);
         matri.setCicloAcademico(ciclo);
@@ -922,7 +922,7 @@ public class MatriculableServiceImp implements MatriculableService {
         matri.setMotivoMatriculable(alumnoForm.getMotivoMatriculable());
         matri.setEsCondicional(alumnoForm.getEsMatriculaCondicional());
 
-        if (!sitEnum.contains(sit.getCodigoEnum()) && !modEnum.contains(modalidad.getCodigoEnum()) && ciclo.getFechaPrioridades() != null) {
+        if (!situacionIngresantesEnum.contains(sit.getCodigoEnum()) && !modalidadesEnum.contains(modalidad.getCodigoEnum()) && ciclo.getFechaPrioridades() != null) {
             AlumnoCiclo alumnoCiclo = null;
             if (tipoCondicional.equals(TipoCondicionalEnum.RETIRO_CICLO.name())) {
                 List<AlumnoCiclo> alumnoCiclos = alumnoCicloDAO.allByAlumnoDescRegular(alumno);
@@ -947,7 +947,7 @@ public class MatriculableServiceImp implements MatriculableService {
                     if (!ciclo.isTipoRegular()) {
                         eventoEnum = MAT_VER;
                     }
-                    System.out.print("PRIORIDAAADD ----- "+prioridad);
+                    System.out.print("PRIORIDAAADD ----- " + prioridad);
                     TurnoAtencion turnosAtencion = turnoAtencionDAO.findByPrioridad(prioridad, ciclo, eventoEnum);
                     BigDecimal numPrioridad = turnosAtencion.getPrioridadFin().add(new BigDecimal("0.01"));
                     Integer cantAlum = turnosAtencion.getAlumnos() + 1;
@@ -965,7 +965,7 @@ public class MatriculableServiceImp implements MatriculableService {
 
         if (matri.getId() != null) {
             matriculaResumenDAO.update(matri);
-            if (ds.getCicloAcademico().getTipoEnum() == TipoCicloEnum.REG) {                
+            if (ds.getCicloAcademico().getTipoEnum() == TipoCicloEnum.REG) {
                 aporteAlumnoService.generarAportes(alumno, ciclo, matri, ds);
                 logger.debug("enviando generar boletas del alumno {} en el ciclo {} con matri-resumen {}", alumno.getId(), ciclo.getId(), matri.getId());
             }
@@ -1363,7 +1363,7 @@ public class MatriculableServiceImp implements MatriculableService {
         Assert.isTrue(matriculaResumen.getEstadoEnum() == EstadoMatriculaEnum.NMAT,
                 "El alumno debe tener estado No Matriculado para ser inhabilitado");
 
-        if (ds.getCicloAcademico().getTipoEnum() == TipoCicloEnum.REG) {            
+        if (ds.getCicloAcademico().getTipoEnum() == TipoCicloEnum.REG) {
             JsonResponse jsonResponse = responseRestService.anularBoletas(matriculaResumen, ds);
             if (!jsonResponse.getSuccess()) {
                 throw new PhobosException(jsonResponse.getMessage());
