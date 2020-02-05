@@ -108,6 +108,26 @@
                                             <input v-model="resolucion.tipoResolucion" required="true" type="text" class="hide"/>
                                         </div>
                                     </div> 
+                                    <div class="col-lg-6">
+                                        <label>Ciclo 
+                                            <span v-if='isRetiroCiclo'> a retirar</span>
+                                            <span v-if='isReincorporacion'> a reincorporar</span>
+                                        </label>
+                                        <div class="form-group">
+                                            <multiselect 
+                                                v-model="resolucion.cicloAplica" 
+                                                v-bind:options="ciclos"
+                                                placeholder="Seleccione un ciclo"
+                                                label="descripcion"
+                                                track-by="id" 
+                                                required="true"
+                                                v-bind:allow-empty="true"
+                                                deselect-label="No se puede eliminar este valor" 
+                                                >
+                                            </multiselect>
+                                            <input v-model="resolucion.cicloAplica" required="true" type="text" class="hide"/>
+                                        </div>
+                                    </div>
                                 </div>
                             </section>
                         </section>
@@ -122,13 +142,13 @@
                                             <th class="col-md-2 text-center" v-if="isCambioNota">Tipo Tramite</th>
                                             <th class="col-md-3 text-center" v-if="!isCambioNota &amp;&amp; !isTraslado &amp;&amp; !isTrasladoInt">Motivo</th>
                                             <th class="col-md-2 text-center" v-if="isCambioNota">Motivo</th>
-                                            <th class="col-md-3 text-center" v-if="!isCambioNota &amp;&amp; !isCursoDirigido &amp;&amp; !isTrasladoInt">Ciclo
-                                                <span v-if='isRetiroCiclo'> a retirar</span>
-                                                <span v-if='isReincorporacion'> a reincorporar</span>
-                                            </th>
+                                            <!--                                            <th class="col-md-3 text-center" v-if="!isCambioNota &amp;&amp; !isCursoDirigido &amp;&amp; !isTrasladoInt">Ciclo
+                                                                                            <span v-if='isRetiroCiclo'> a retirar</span>
+                                                                                            <span v-if='isReincorporacion'> a reincorporar</span>
+                                                                                        </th>-->
                                             <th class="col-md-3 text-center" v-if="isTrasladoInt">Carrera</th>
-                                            <th class="col-md-2 text-center" v-if="isCambioNota">Ciclo                                               
-                                            </th>
+                                            <!--                                            <th class="col-md-2 text-center" v-if="isCambioNota">Ciclo                                               
+                                                                                        </th>-->
                                             <th class="col-md-2 text-center" v-if="isCambioNota">Curso</th>
                                             <th class="col-md-1 text-center" v-if="isCambioNota">Nota</th>
                                             <th class="col-md-3 text-center" v-if="isCursoDirigido">Docente</th>
@@ -173,22 +193,22 @@
                                                     <input class="form-control" v-model="reincorporacion.motivoDesercion" required="true" type="text"/>
                                                 </div>
                                             </td>
-                                            <td class="v-middle text-left">
-                                                <div class="form-group">
-                                                    <multiselect 
-                                                        v-model="reincorporacion.cicloReincorporacion" 
-                                                        v-bind:options="ciclos"
-                                                        placeholder="Seleccione un ciclo"
-                                                        label="descripcion"
-                                                        track-by="id" 
-                                                        required="true"
-                                                        v-bind:allow-empty="true"
-                                                        deselect-label="No se puede eliminar este valor" 
-                                                        >
-                                                    </multiselect>
-                                                    <input v-model="reincorporacion.cicloReincorporacion" required="true" type="text" class="hide"/>
-                                                </div>
-                                            </td>
+                                            <!--                                            <td class="v-middle text-left">
+                                                                                            <div class="form-group">
+                                                                                                <multiselect 
+                                                                                                    v-model="reincorporacion.cicloReincorporacion" 
+                                                                                                    v-bind:options="ciclos"
+                                                                                                    placeholder="Seleccione un ciclo"
+                                                                                                    label="descripcion"
+                                                                                                    track-by="id" 
+                                                                                                    required="true"
+                                                                                                    v-bind:allow-empty="true"
+                                                                                                    deselect-label="No se puede eliminar este valor" 
+                                                                                                    >
+                                                                                                </multiselect>
+                                                                                                <input v-model="reincorporacion.cicloReincorporacion" required="true" type="text" class="hide"/>
+                                                                                            </div>
+                                                                                        </td>-->
                                             <td>
                                                 <a v-on:click="deleteItem(index)" class="btn btn-danger">
                                                     <i class="fa fa-trash-o " aria-hidden="true"></i>
@@ -226,22 +246,22 @@
                                             <td class="v-middle text-left">
                                                 <input class="form-control" v-model="retiroCiclo.motivo" required="true" type="text"/>
                                             </td>
-                                            <td class="v-middle text-left">
-                                                <div class="form-group">
-                                                    <multiselect 
-                                                        v-model="retiroCiclo.cicloAcademico" 
-                                                        v-bind:options="ciclos"
-                                                        placeholder="Seleccione un ciclo"
-                                                        label="descripcion"
-                                                        track-by="id" 
-                                                        required="true"
-                                                        v-bind:allow-empty="true"
-                                                        deselect-label="No se puede eliminar este valor" 
-                                                        >
-                                                    </multiselect>
-                                                    <input v-model="retiroCiclo.cicloAcademico" required="true" type="text" class="hide"/>
-                                                </div>
-                                            </td>
+                                            <!--                                            <td class="v-middle text-left">
+                                                                                            <div class="form-group">
+                                                                                                <multiselect 
+                                                                                                    v-model="retiroCiclo.cicloAcademico" 
+                                                                                                    v-bind:options="ciclos"
+                                                                                                    placeholder="Seleccione un ciclo"
+                                                                                                    label="descripcion"
+                                                                                                    track-by="id" 
+                                                                                                    required="true"
+                                                                                                    v-bind:allow-empty="true"
+                                                                                                    deselect-label="No se puede eliminar este valor" 
+                                                                                                    >
+                                                                                                </multiselect>
+                                                                                                <input v-model="retiroCiclo.cicloAcademico" required="true" type="text" class="hide"/>
+                                                                                            </div>
+                                                                                        </td>-->
                                             <td>
                                                 <a v-on:click="deleteItem(index)" class="btn btn-danger">
                                                     <i class="fa fa-trash-o " aria-hidden="true"></i>
@@ -279,26 +299,26 @@
                                             <td class="v-middle text-left">
                                                 <input class="form-control" v-model="cambioNota.motivo" required="true" type="text"/>
                                             </td>
-                                            <td class="v-middle text-left">
-                                                <div class="col-md-12">
-                                                    <div class="form-group">
-                                                        <multiselect 
-                                                            v-model="cambioNota.cicloAcademico" 
-                                                            v-bind:options="ciclos"
-                                                            placeholder="Seleccione"
-                                                            label="descripcion"
-                                                            track-by="id" 
-                                                            required="true"
-                                                            v-bind:allow-empty="true"
-                                                            :show-labels="false"
-                                                            v-on:select="cicloCambioNota($event,cambioNota)"
-                                                            deselect-label="No se puede eliminar este valor" 
-                                                            >
-                                                        </multiselect>
-                                                        <input v-model="cambioNota.cicloAcademico" required="true" type="text" class="hide"/>
-                                                    </div>
-                                                </div>
-                                            </td>
+                                            <!--                                            <td class="v-middle text-left">
+                                                                                            <div class="col-md-12">
+                                                                                                <div class="form-group">
+                                                                                                    <multiselect 
+                                                                                                        v-model="cambioNota.cicloAcademico" 
+                                                                                                        v-bind:options="ciclos"
+                                                                                                        placeholder="Seleccione"
+                                                                                                        label="descripcion"
+                                                                                                        track-by="id" 
+                                                                                                        required="true"
+                                                                                                        v-bind:allow-empty="true"
+                                                                                                        :show-labels="false"
+                                                                                                        v-on:select="cicloCambioNota($event,cambioNota)"
+                                                                                                        deselect-label="No se puede eliminar este valor" 
+                                                                                                        >
+                                                                                                    </multiselect>
+                                                                                                    <input v-model="cambioNota.cicloAcademico" required="true" type="text" class="hide"/>
+                                                                                                </div>
+                                                                                            </div>
+                                                                                        </td>-->
                                             <td  class="v-middle text-left">
                                                 <div class="col-md-12">
                                                     <div class="form-group">
@@ -422,22 +442,22 @@
                                             <td class="v-middle text-center">
                                                 <span v-if="resolucion.tipoResolucion != null" class="block text-muted" v-text="resolucion.tipoResolucion.nombre"></span>
                                             </td> 
-                                            <td class="v-middle text-left" v-if="!isTrasladoInt">
-                                                <div class="form-group">
-                                                    <multiselect 
-                                                        v-model="tramiteTraslado.cicloAcademico" 
-                                                        v-bind:options="ciclos"
-                                                        placeholder="Seleccione un ciclo"
-                                                        label="descripcion"
-                                                        track-by="id" 
-                                                        required="true"
-                                                        v-bind:allow-empty="true"
-                                                        deselect-label="No se puede eliminar este valor" 
-                                                        >
-                                                    </multiselect>
-                                                    <input v-model="tramiteTraslado.cicloAcademico" required="true" type="text" class="hide"/>
-                                                </div>
-                                            </td>
+                                            <!--                                            <td class="v-middle text-left" v-if="!isTrasladoInt">
+                                                                                            <div class="form-group">
+                                                                                                <multiselect 
+                                                                                                    v-model="tramiteTraslado.cicloAcademico" 
+                                                                                                    v-bind:options="ciclos"
+                                                                                                    placeholder="Seleccione un ciclo"
+                                                                                                    label="descripcion"
+                                                                                                    track-by="id" 
+                                                                                                    required="true"
+                                                                                                    v-bind:allow-empty="true"
+                                                                                                    deselect-label="No se puede eliminar este valor" 
+                                                                                                    >
+                                                                                                </multiselect>
+                                                                                                <input v-model="tramiteTraslado.cicloAcademico" required="true" type="text" class="hide"/>
+                                                                                            </div>
+                                                                                        </td>-->
                                             <td class="v-middle text-left" v-if="isTrasladoInt">
                                                 <div class="form-group">
                                                     <multiselect 
@@ -451,11 +471,18 @@
                                                         deselect-label="No se puede eliminar este valor" 
                                                         >
                                                     </multiselect>
-                                                    <input v-model="tramiteTraslado.carrera" required="true" type="text" class="hide"/>
+                                                    <!--<input v-model="tramiteTraslado.carrera" required="true" type="text" class="hide"/>-->
                                                 </div>
                                             </td>
-                                            <td class="v-middle text-center">
-                                            </td> 
+                                            <td>
+                                                <label class="switch" >
+                                                    <input type="checkbox" 
+                                                           v-bind:value="tramiteTraslado.seleccionado" 
+                                                           v-model="tramiteTraslado.seleccionado"
+                                                           checked="1"/>
+                                                    <span class="slider round"></span>
+                                                </label>
+                                            </td>
                                             <td class="v-middle text-center">
                                                 <a v-on:click="deleteItem(index)" class="btn btn-danger">
                                                     <i class="fa fa-trash-o " aria-hidden="true"></i>

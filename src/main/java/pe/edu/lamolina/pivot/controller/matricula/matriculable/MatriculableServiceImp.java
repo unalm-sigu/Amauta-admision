@@ -327,8 +327,8 @@ public class MatriculableServiceImp implements MatriculableService {
             mapMatriculableExist.put(matriculaResumen.getAlumno().getId(), matriculaResumen.getAlumno());
         }
 
-        List<CicloAcademico> ciclosPreviosPregrado = cicloAcademicoDAO.allActivosAnteriores(2, cicloBD);
-        List<CicloAcademico> ciclosPreviosEpg = cicloAcademicoDAO.allActivosAnteriores(2, cicloEpg);
+        List<CicloAcademico> ciclosPreviosPregrado = cicloAcademicoDAO.allActivosRegularAnteriores(2, cicloBD);
+        List<CicloAcademico> ciclosPreviosEpg = cicloAcademicoDAO.allActivosRegularAnteriores(2, cicloEpg);
         ciclosPreviosEpg.addAll(ciclosPreviosPregrado);
 
         List<Alumno> matriculados = alumnoDAO.allMatriculadosNoEgresadosByCiclos(ciclosPreviosEpg);
@@ -412,7 +412,7 @@ public class MatriculableServiceImp implements MatriculableService {
         List<Alumno> ingresantes = alumnoDAO.allIngresantesByCiclos(ciclosIngresantes, modalidad.getCodigo());
         Map<Long, Alumno> mapMatriculable = TypesUtil.convertListToMap("id", ingresantes);
 
-        List<CicloAcademico> ciclosPrevios = cicloAcademicoDAO.allActivosAnteriores(3, cicloBD);
+        List<CicloAcademico> ciclosPrevios = cicloAcademicoDAO.allActivosRegularAnteriores(3, cicloBD);
 
         Map<Long, Alumno> mapMatriculableCondicional = new LinkedHashMap();
 

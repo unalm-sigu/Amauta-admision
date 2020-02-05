@@ -898,19 +898,11 @@ public class AlumnoServiceImp implements AlumnoService {
             }
         }
 
-        this.updateTramiteTraslado(tramiteTraslado);
     }
 
     @Override
     public List<CursoConvalidado> alllCursoConvalidadoInTraslado(List<TramiteTraslado> listTramiteTraslado) {
         return cursoConvalidadoDAO.allInTramiteTraslado(listTramiteTraslado);
-    }
-
-    @Transactional
-    public void updateTramiteTraslado(TramiteTraslado tramiteTraslado) {
-        TramiteTraslado tramiteTrasladoBD = tramiteTrasladoDAO.find(tramiteTraslado.getId());
-        tramiteTrasladoBD.setEstado(EstadoEnum.INA.name());
-        tramiteTrasladoDAO.update(tramiteTrasladoBD);
     }
 
     @Transactional
@@ -934,6 +926,7 @@ public class AlumnoServiceImp implements AlumnoService {
     @Transactional
     private AlumnoCiclo saveAlumnoCiclo(Alumno alumno, Usuario user, CicloAcademico cicloTram, Integer total) {
         AlumnoCiclo alumnoCiclo = new AlumnoCiclo();
+        alumnoCiclo.defaultValuesToCreate(alumno, cicloTram, user);
         alumnoCiclo.setAlumno(alumno);
         alumnoCiclo.setCicloAcademico(cicloTram);
         alumnoCiclo.setUserRegistro(user);

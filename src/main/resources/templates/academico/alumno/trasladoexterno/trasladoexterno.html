@@ -137,8 +137,8 @@
                                                     </td>
                                                     <td  class="v-middle text-center">
                                                         <!--<span v-text="tramiteTrasladoActivo"></span>-->
-                                                        <input v-if="esIntercambioEstudio(item)" v-model="item.creditos" v-on:change="countTotal" type="text" class="form-control numerico" maxlength="2" minlength="2"/>
-                                                        <input v-else-if="item.curso.tipoCredito=='VAR' " v-model="item.creditos" v-on:change="countTotal" type="text" class="form-control numerico" maxlength="2" minlength="2"/>
+                                                        <input v-if="esIntercambioEstudio(item)" v-model="item.creditos" v-on:change="countTotal" type="text" class="form-control numerico" maxlength="2" minlength="1"/>
+                                                        <input v-else-if="item.curso.tipoCredito=='VAR' " v-model="item.creditos" v-on:change="countTotal" type="text" class="form-control numerico" maxlength="2" minlength="1"/>
                                                         <span v-else="" v-text="item.creditos"></span>
                                                     </td>
                                                     <td  class="v-middle text-center">
@@ -237,8 +237,8 @@
                                                 <div class="col-md-2">
                                                     <div class="col-md-12">
                                                         <span><b>Fecha Resolución: </b>{{tramiteTrasladoActivo.resolucion.fecha}}</span>
-                                                        <p v-if="tramiteTrasladoActivo.estado === 'ACT'"><b>Estado: </b> <span class="label label-success" >{{returnEstado(tramiteTrasladoActivo.estado)}}</span></p>
-                                                        <p v-if="tramiteTrasladoActivo.estado === 'INA'"><b>Estado: </b> <span class="label label-default" >{{returnEstado(tramiteTrasladoActivo.estado)}}</span></p>
+                                                        <p v-if="tramiteTrasladoActivo.estado === 'ACEP'"><b>Estado: </b> <span class="label label-success" >{{returnEstado(tramiteTrasladoActivo.estado)}}</span></p>
+                                                        <p v-if="tramiteTrasladoActivo.estado === 'RCHZ'"><b>Estado: </b> <span class="label label-danger" >{{returnEstado(tramiteTrasladoActivo.estado)}}</span></p>
                                                     </div> 
                                                 </div> 
                                                 <div class="col-md-4">

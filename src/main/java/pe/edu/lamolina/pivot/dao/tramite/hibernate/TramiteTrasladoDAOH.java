@@ -5,6 +5,7 @@ import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.Alumno;
+import static pe.edu.lamolina.model.enums.TramiteEstadoEnum.ACEP;
 import pe.edu.lamolina.model.tramite.Resolucion;
 import pe.edu.lamolina.model.tramite.TramiteTraslado;
 import pe.edu.lamolina.pivot.dao.tramite.TramiteTrasladoDAO;
@@ -38,6 +39,7 @@ public class TramiteTrasladoDAOH extends AbstractEasyDAO<TramiteTraslado> implem
                 .join("tramite tra", "resolucion res", "cicloAcademico cic")
                 .leftJoin("tra.alumno al", "res.tipoResolucion", "res.oficina", "userRegistro ur", "ur.persona per")
                 .filter("al.id", alumno)
+                .filter("estado", ACEP)
                 .orderBy("tras.id desc");
 
         return all(sql);

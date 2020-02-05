@@ -35,7 +35,7 @@ new Vue({
         },
         returnEstado(estado)
         {
-            return estado === 'ACT' ? 'Activo' : 'Inactivo';
+            return estado === 'ACEP' ? 'Aceptado' : 'Rechazado';
         },
         countTotal() {
             let $vue = this;
@@ -156,7 +156,7 @@ new Vue({
         findTramiteTrasladoActivo() {
             let $vue = this;
             for (var i = 0; i < $vue.listTramiteTraslado.length; i++) {
-                if ($vue.listTramiteTraslado[i].estado === 'ACT') {
+                if ($vue.listTramiteTraslado[i].estado === 'ACEP') {
                     $vue.tramiteTrasladoActivo = $vue.listTramiteTraslado[i];
                 }
             }
@@ -164,8 +164,8 @@ new Vue({
         desactivarTraslados() {
             let $vue = this;
             for (var i = 0; i < $vue.listTramiteTraslado.length; i++) {
-                if ($vue.listTramiteTraslado[i].estado === 'ACT') {
-                    $vue.listTramiteTraslado[i].estado = 'INA';
+                if ($vue.listTramiteTraslado[i].estado === 'ACEP') {
+                    $vue.listTramiteTraslado[i].estado = 'RCHZ';
                 }
             }
         },

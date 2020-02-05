@@ -102,7 +102,7 @@ public interface CicloAcademicoDAO extends EasyDAO<CicloAcademico> {
 
     List<CicloAcademico> allVisibles(ModalidadEstudioEnum modalidadEstudioEnum);
 
-    List<CicloAcademico> allActivosAnteriores(int i, CicloAcademico ciclo);
+    List<CicloAcademico> allActivosRegularAnteriores(int i, CicloAcademico ciclo);
 
     CicloAcademico findSiguienteNivelacionActivo(CicloAcademico cicloActivo, ModalidadEstudioEnum modalidadEstudioEnum);
 
@@ -120,4 +120,5 @@ public interface CicloAcademicoDAO extends EasyDAO<CicloAcademico> {
 
     public List<CicloAcademico> allAnterioresRegistroActivoPre(int i, CicloAcademico cicloAcademico);
 
+    List<CicloAcademico> allMenorIgual(int ciclos, CicloAcademico ciclo);
 }
