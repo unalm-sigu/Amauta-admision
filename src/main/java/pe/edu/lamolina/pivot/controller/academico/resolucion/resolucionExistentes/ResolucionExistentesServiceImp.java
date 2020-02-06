@@ -761,16 +761,16 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
             } else if (resolucionForm.getTipoResolucion().getCodigo().equals(TipoResolucionEnum.ING_HIS.name())) {
                 tramiteTraslado.setTipoTramiteTrasladoEnum(TipoTramiteTrasladoEnum.ING_HIS);
             } else if (resolucionForm.getTipoResolucion().getCodigo().equals(TipoResolucionEnum.TRAS_INT.name())) {
-                
+
                 tramiteTraslado.setTipoTramiteTrasladoEnum(TipoTramiteTrasladoEnum.TRAS_INT);
-                
+
                 if (tramiteTraslado.getSeleccionado()) {
 
                     tramiteTraslado.setCarreraOrigen(alumno.getCarrera());
                     alumno.setCarrera(tramiteTraslado.getCarrera());
 
                     OrientacionCarrera orientacionCarrera = alumno.getOrientacionCarrera();
-                    List<PlanCurricular> planCurriculars = planCurricularDAO.allActivoByCarrera(tramiteTraslado.getCarrera());
+                    List<PlanCurricular> planCurriculars = planCurricularDAO.allActivoByCarreraOrientacion(tramiteTraslado.getCarrera());
                     Map<String, List<PlanCurricular>> mapPlanesByCiclo = TypesUtil.convertListToMapList("cicloInicioVigencia.codigo", planCurriculars);
                     Map<String, CicloAcademico> mapCiclosPlanes = TypesUtil.convertListToMap("cicloInicioVigencia.codigo", "cicloInicioVigencia", planCurriculars);
                     String codigoCicloAlumno = (String) ObjectUtil.getParentTree(alumno, "cicloIngreso.codigo");
@@ -783,20 +783,22 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
                     String codigoCicloPlan = this.getIndiceCicloAcademico(codigoCicloAlumno, codigosCiclosPlanes);
                     List<PlanCurricular> planesBD = mapPlanesByCiclo.get(codigoCicloPlan);
                     PlanCurricular planCurricularBD = null;
-                    if (orientacionCarrera != null) {
-                        for (PlanCurricular planCurricular : planesBD) {
-                            if (planCurricular.getOrientacionCarrera() == null) {
-                                planCurricularBD = planCurricular;
-                                alumno.setOrientacionCarrera(null);
-                                break;
-                            }
-                            if (planCurricular.getOrientacionCarrera().getId() == orientacionCarrera.getId()) {
+                    for (PlanCurricular planCurricular : planesBD) {
+                        if (planCurricular.getOrientacionCarrera() == null) {
+                            planCurricularBD = planCurricular;
+                            alumno.setOrientacionCarrera(null);
+                            break;
+                        } else {
+                            if (orientacionCarrera != null && planCurricular.getOrientacionCarrera().getId() == orientacionCarrera.getId()) {
+                                alumno.setOrientacionCarrera(planCurricular.getOrientacionCarrera());
                                 planCurricularBD = planCurricular;
                             }
                         }
-                    } else {
-                        planCurricularBD = planesBD.get(0);
                     }
+//                    if (orientacionCarrera != null) {
+//                    } else {
+//                        planCurricularBD = planesBD.get(0);
+//                    }
                     alumno.setPlanCurricular(planCurricularBD);
                     alumnoDAO.updateColumns(alumno, "carrera", "planCurricular");
                 }
@@ -842,7 +844,7 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
         List<Alumno> alumnos = new ArrayList();
         for (TramiteTraslado tramiteTraslado : resolucionForm.getTramiteTraslado()) {
             if (tramiteTraslado.getSeleccionado()) {
-                
+
                 Alumno alumno = alumnoDAO.find(tramiteTraslado.getAlumno());
 
                 alumnos.add(alumno);
