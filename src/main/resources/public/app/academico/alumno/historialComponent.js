@@ -64,10 +64,7 @@ Vue.component("historial-component", {
                         var token = response.data.token;
                         var url = response.data.url;
 
-//                        location.href(url + "/" + $vue.alumno.id + "?");
-//                        location.href = APP.url(url + "publico/historialPdf/" + $vue.alumno.id + "?notas="+allAprobado+"&tipo="+tipo+"&token="+token);
-                        location.href = APP.url("/" + url + "/publico/historialPdf/" + $vue.alumno.id + "?notas=" + allAprobado + "&tipo=" + tipo + "&token=" + token);
-//                        console.log(url + "/publico/historialPdf/" + $vue.alumno.id);
+                        location.href = url + "/publico/historialPdf/" + $vue.alumno.id + "?notas=" + allAprobado + "&tipo=" + tipo + "&token=" + token;
 
                     }
                 }
