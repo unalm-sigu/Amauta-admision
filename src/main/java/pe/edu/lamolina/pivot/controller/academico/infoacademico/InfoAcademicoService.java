@@ -71,4 +71,8 @@ public interface InfoAcademicoService {
 
     Alumno aplicarRetiroCiclo(RetiroCiclo retiro, DataSessionPivot ds);
 
+    public String getToken();
+
+    public String getUrl();
+
 }

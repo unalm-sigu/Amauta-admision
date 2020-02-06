@@ -37,7 +37,44 @@ Vue.component("historial-component", {
         }
     },
     methods: {
+        generarReporteHistorial() {
+            let $vue = this;
 
+            let allAprobado = false;
+
+            if ($vue.typeSearch) {
+                allAprobado = true;
+            }
+            var tipo = "";
+            if ($vue.typeSearch2) { // listado general de cursos
+                tipo = 'LIST';
+            } else if ($vue.typeSearch4) {
+                tipo = 'PROM';
+            } else {
+                tipo = 'CICLO';
+            }
+
+
+            $.ajax({
+                method: 'POST',
+                url: APP.url('academico/alumno/getToken'),
+                contentType: "application/json",
+                success: function (response) {
+                    if (response.success) {
+                        var token = response.data.token;
+                        var url = response.data.url;
+
+//                        location.href(url + "/" + $vue.alumno.id + "?");
+//                        location.href = APP.url(url + "publico/historialPdf/" + $vue.alumno.id + "?notas="+allAprobado+"&tipo="+tipo+"&token="+token);
+                        location.href = APP.url("/" + url + "/publico/historialPdf/" + $vue.alumno.id + "?notas=" + allAprobado + "&tipo=" + tipo + "&token=" + token);
+//                        console.log(url + "/publico/historialPdf/" + $vue.alumno.id);
+
+                    }
+                }
+            });
+
+
+        },
         colspanResumen(item) {
             if (item.carrera.codigo == item.carrera.facultad.codigo) {
                 return 2;
