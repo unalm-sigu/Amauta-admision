@@ -986,6 +986,7 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
             aulaCursoMasivoDAO.deleteByCursoMasivo(cursosMasivo);
             seccionCursoMasivoDAO.deleteByCursoMasivo(cursosMasivo);
         }
+        horarioAulaDAO.deleteByRolExamenes(rolExamenes);
         cursoMasivoExamenDAO.deleteByRolExamenes(rolExamenes);
     }
 

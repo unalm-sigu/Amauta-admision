@@ -1410,6 +1410,10 @@ public class MatriculableServiceImp implements MatriculableService {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void recalcularPrioridad(GrupoSeccion grupoSeccion) {
         List<Alumno> alumnos = alumnoDAO.allMatriculadosByGpoSeccion(grupoSeccion);
+        recalcularPrioridad(alumnos);
+    }
+
+    private void recalcularPrioridad(List<Alumno> alumnos) {
         CicloAcademico cicloActivo = cicloAcademicoDAO.findActivo(ModalidadEstudioEnum.PRE);
 
         List<String> situacionesNoAptas = Arrays.asList(
@@ -1501,7 +1505,6 @@ public class MatriculableServiceImp implements MatriculableService {
                 turnoAtencionDAO.update(turno);
             }
         }
-
     }
 
     @Async
