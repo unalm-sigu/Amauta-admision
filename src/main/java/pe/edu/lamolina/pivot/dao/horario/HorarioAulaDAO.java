@@ -101,6 +101,8 @@ public interface HorarioAulaDAO extends EasyDAO<HorarioAula> {
 
     void deleteSeccionesEspecialesByRolExamenes(RolExamenes rolExamenes);
 
+    void deleteCursosMasivosyRolExamenes(RolExamenes rolExamenes);
+
     List<HorarioAula> allByRango(Date fechainicio, Date fechafin);
 
     List<HorarioAula> allByRango(Date fechainicio, Date fechafin, Aula... aula);

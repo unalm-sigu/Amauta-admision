@@ -681,6 +681,18 @@ public class HorarioAulaDAOH extends AbstractEasyDAO<HorarioAula> implements Hor
     }
 
     @Override
+    public void deleteCursosMasivosyRolExamenes(RolExamenes rolExamenes) {
+        StringBuilder strb = new StringBuilder();
+        strb.append(" delete from HorarioAula ha ");
+        strb.append("  where ha.cursoMasivoExamen is not null ");
+        strb.append("    and ha.rolExamenes.id = :ROLEX ");
+
+        Query query = getCurrentSession().createQuery(strb.toString());
+        query.setParameter("ROLEX", rolExamenes.getId());
+        query.executeUpdate();
+    }
+
+    @Override
     public List<HorarioAula> allBySeccionGrupoEspecial(SeccionGrupoEspecial seccionGrupoEspecial) {
         Octavia sql = Octavia.query()
                 .from(HorarioAula.class, "ha")

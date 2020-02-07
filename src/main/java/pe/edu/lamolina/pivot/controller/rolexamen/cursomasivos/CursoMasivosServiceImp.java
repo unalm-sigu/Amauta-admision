@@ -979,6 +979,7 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
         if (!seccionesExcluidas.isEmpty()) {
             seccionExcluidoDAO.deleteBySecciones(seccionesExcluidas);
         }
+
         List<CursoMasivoExamen> cursosMasivos = cursoMasivoExamenDAO.allByRolExamenes(rolExamenes);
         for (CursoMasivoExamen cursosMasivo : cursosMasivos) {
             docenteCursoMasivoDAO.deleteByCursoMasivo(cursosMasivo);
@@ -986,7 +987,8 @@ public class CursoMasivosServiceImp implements CursoMasivosService {
             aulaCursoMasivoDAO.deleteByCursoMasivo(cursosMasivo);
             seccionCursoMasivoDAO.deleteByCursoMasivo(cursosMasivo);
         }
-        horarioAulaDAO.deleteByRolExamenes(rolExamenes);
+
+        horarioAulaDAO.deleteCursosMasivosyRolExamenes(rolExamenes);
         cursoMasivoExamenDAO.deleteByRolExamenes(rolExamenes);
     }
 
