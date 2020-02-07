@@ -3,6 +3,7 @@ package pe.edu.lamolina.pivot.controller.academico.infoacademico;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.math.BigDecimal;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
@@ -566,6 +567,30 @@ public class InfoAcademicoController {
 
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("getToken")
+    public JsonResponse getToken(Model model, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            String token = service.getToken();
+            String url = service.getUrl();
+
+            ObjectNode objectNode = new ObjectNode(JsonNodeFactory.instance);
+            objectNode.put("token", token);
+            objectNode.put("url", url);
+            response.setData(objectNode);
+            response.setSuccess(Boolean.TRUE);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }

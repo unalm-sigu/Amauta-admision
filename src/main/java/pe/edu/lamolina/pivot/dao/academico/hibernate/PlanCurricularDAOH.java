@@ -80,6 +80,16 @@ public class PlanCurricularDAOH extends AbstractEasyDAO<PlanCurricular> implemen
 
         return all(sql);
     }
+    @Override
+    public List<PlanCurricular> allActivoByCarreraOrientacion(Carrera carrera) {
+        Octavia sql = Octavia.query()
+                .from(PlanCurricular.class, "pc")
+                .join("carrera car", "car.facultad fac", "car.modalidadEstudio me")
+                .left("orientacionCarrera ocar", "cicloInicioVigencia cic")
+                .filter("carrera", carrera);
+
+        return all(sql);
+    }
 
     @Override
     public List<PlanCurricular> allActivoByOrientacion(Carrera carrera, OrientacionCarrera orientacion) {
