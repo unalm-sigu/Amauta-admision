@@ -622,7 +622,7 @@ public class MatriculableServiceImp implements MatriculableService {
 
         TypesUtil.delay(2000);
 
-        this.metodoRecalculoPrioridad(alumnos);
+        this.recalcularPrioridad(alumnos);
     }
 
     @Override

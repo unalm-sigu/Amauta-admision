@@ -62,4 +62,6 @@ public interface VerificadorService {
 
     List<AnexoBoletin> anexosInferioresByOficina(DataSessionPivot ds, List<AnexoBoletin> anexos);
 
+    public Boolean isOperadorActaNotas(DataSessionPivot ds);
+
 }

@@ -71,6 +71,38 @@ public class VerificadorServiceImp implements VerificadorService {
     @Autowired
     OficinaService oficinaService;
 
+    @Override
+    public Boolean isOperadorActaNotas(DataSessionPivot ds) {
+        boolean esTrabajadorEPG = false;
+        boolean esTrabajadorOERA = false;
+        List<Oficina> oficinasMain = oficinaService.allOficinasMainByPersona(ds.getPersona());
+        for (Oficina oficina : oficinasMain) {
+            if (oficina.getCodigoEnum() == EPG) {
+                esTrabajadorEPG = true;
+            } else if (oficina.getCodigoEnum() == OERA) {
+                esTrabajadorOERA = true;
+            }
+        }
+        if (esTrabajadorEPG) {
+            for (Rol rol : ds.getRoles()) {
+                if (rol.getCodigoEnum() == RolEnum.REVISOR_ACTANOTAS_EPG) {
+                    return false;
+                }
+            }
+        }
+        if (esTrabajadorOERA) {
+            for (Rol rol : ds.getRoles()) {
+                if (rol.getCodigoEnum() == RolEnum.OPER_ACTANOTAS_OERA) {
+                    return true;
+                } else if (rol.getCodigoEnum() == RolEnum.REVISOR_ACTANOTAS_OERA) {
+                    return false;
+                }
+            }
+        }
+
+        return false;
+    }
+
     public enum CantidadItemsEnum {
         TODOS, PARCIAL, SIN_PERMISO
     };
