@@ -4,6 +4,7 @@ import java.util.List;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.bean.AlumnoCicloCursoBean;
 import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.tramite.CambioNota;
@@ -19,13 +20,13 @@ public interface ResolucionExistenteService {
 
     List<Alumno> allAlumnoByOficina(String nombre, Long instanciaOficina);
 
-    List<Alumno> saveReincorporacion(Resolucion resolucion, Usuario usuario, DataSessionPivot ds);
+    String saveReincorporacion(Resolucion resolucion, Usuario usuario, DataSessionPivot ds);
 
     Resolucion findByResolucion(Long resolucion, DataSessionPivot ds);
 
     List<TipoResolucion> allTipoResolucion();
 
-    List<Alumno> saveRetiroCiclo(Resolucion resolucion, Usuario usuario, DataSessionPivot ds);
+    String saveRetiroCiclo(Resolucion resolucion, Usuario usuario, DataSessionPivot ds);
 
     List<CicloAcademico> ciclosAnteriores(int i);
 
@@ -33,7 +34,7 @@ public interface ResolucionExistenteService {
 
     List<RetiroCiclo> allRetiroCicloByResolucion(Resolucion resolucionDB);
 
-    List<Alumno> saveCambioNota(Resolucion resolucion, Usuario usuario, DataSessionPivot ds);
+    String saveCambioNota(Resolucion resolucion, Usuario usuario, DataSessionPivot ds);
 
     List<CambioNota> allCambioNota(Resolucion resolucionDB);
 
@@ -50,5 +51,9 @@ public interface ResolucionExistenteService {
     public List<Carrera> allCarrera();
 
     public void generarNuevoPlan(Resolucion resolucion, DataSessionPivot ds);
+
+    String saveNotaMasBaja(Resolucion resolucionForm, Usuario usuario, CicloAcademico cicloAcademico, Compania compania);
+
+    public List<AlumnoCicloCursoBean> allCiclosRepetido(Long idAlumno, DataSessionPivot ds);
 
 }

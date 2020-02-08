@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import javax.crypto.Mac;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,6 +59,7 @@ import pe.edu.lamolina.pivot.controller.academico.tramitesacademicos.flujo.Flujo
 import pe.edu.lamolina.pivot.controller.general.oficina.OficinaService;
 import pe.edu.lamolina.pivot.controller.matricula.matriculable.MatriculableService;
 import pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.GpoSeccionService;
+import pe.edu.lamolina.pivot.controller.test.VisorCalculoNotas;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCursoCurriculaDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
@@ -164,6 +166,12 @@ public class ResolucionServiceImp implements ResolucionService {
 
     @Autowired
     GpoSeccionService gpoSeccionService;
+
+    @Autowired
+    VisorCalculoNotas visorCalculoNotas;
+
+    private final static String TOKEN_PROMEDIOS = "-token-promedios";
+    private final static String TOKEN_CURRICULA = "-token-curriculas";
 
     @Override
     public List<Resolucion> allResolucionesByFilter(DynatableFilter filter, DataSessionPivot dsp) {
@@ -470,8 +478,19 @@ public class ResolucionServiceImp implements ResolucionService {
                     reincorporacionDAO.update(reincorporacion);
                     alumnoDAO.update(alumno);
 
-                    matriculableService.revisarSituacionAcademica(tramite.getAlumno(), ds);
-                    matriculableService.saveMatriculable(tramite.getAlumno(), TipoCondicionalEnum.REI.name(), ds);
+                    String token = RandomStringUtils.randomAlphanumeric(43);
+                    String tokenProm = token + TOKEN_PROMEDIOS;
+                    String tokenCurri = token + TOKEN_CURRICULA;
+                    List<Alumno> alumnos = new ArrayList<>();
+                    alumnos.add(alumno);
+
+                    visorCalculoNotas.createToken(tokenProm, alumnos);
+                    visorCalculoNotas.createToken(tokenCurri, alumnos);
+
+                    matriculableService.calcularPromedios(token, ds);
+                    matriculableService.revisarCurriculaAlumnos(ds, token);
+                    matriculableService.revisarMatriculables(ds, token);
+
                 } else {
                     tramiteUpd.setEstadoEnum(TramiteEstadoEnum.RCHR);
                 }

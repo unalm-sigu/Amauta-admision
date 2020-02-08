@@ -33,7 +33,7 @@ import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
-import pe.edu.lamolina.model.enums.TipoCondicionalEnum;
+import pe.edu.lamolina.model.bean.AlumnoCicloCursoBean;
 import static pe.edu.lamolina.model.enums.TipoCondicionalEnum.TRAS;
 import static pe.edu.lamolina.model.enums.TipoCondicionalEnum.TRAS_INT;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.ANCI;
@@ -43,6 +43,7 @@ import static pe.edu.lamolina.model.enums.TipoResolucionEnum.RCI;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.REIC;
 import static pe.edu.lamolina.model.enums.TipoTramiteEnum.ING_HIS;
 import static pe.edu.lamolina.model.enums.TipoTramiteEnum.INTES;
+import static pe.edu.lamolina.model.enums.TipoTramiteEnum.NOTA_BAJA;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.tramite.CambioNota;
 import pe.edu.lamolina.model.tramite.CursoDirigido;
@@ -113,7 +114,7 @@ public class ResolucionExistentesController {
 
         List<TipoResolucion> tipoResolucions = service.allTipoResolucion();
         for (TipoResolucion tipoResolucion : tipoResolucions) {
-            if (Arrays.asList(TRAS_INT.name(), RCI.name(), ANCI.name(), REIC.name(), CAM_NOTA.name(), CURDIR.name(), TRAS.name(), INTES.name(), ING_HIS.name()).contains(tipoResolucion.getCodigo())) {
+            if (Arrays.asList(TRAS_INT.name(), RCI.name(), ANCI.name(), REIC.name(), CAM_NOTA.name(), CURDIR.name(), TRAS.name(), INTES.name(), ING_HIS.name(), NOTA_BAJA.name()).contains(tipoResolucion.getCodigo())) {
                 tipoResolucionJson.add(JsonHelper.createJson(tipoResolucion, JsonNodeFactory.instance, new String[]{"*"}));
             }
         }
@@ -186,25 +187,23 @@ public class ResolucionExistentesController {
             List<String> msg = new ArrayList();
 
             if (resolucion.isTipoReincorporacion()) {
-                List<Alumno> alumnos = service.saveReincorporacion(resolucion, ds.getUsuario(), ds);
-                for (Alumno alumno : alumnos) {
-                    matriculableService.revisarSituacionAcademica(alumno, ds);
-                    matriculableService.saveMatriculable(alumno, TipoCondicionalEnum.REI.name(), ds);
-                }
+                String token = service.saveReincorporacion(resolucion, ds.getUsuario(), ds);
+
+                matriculableService.calcularPromedios(token, ds);
+                matriculableService.revisarCurriculaAlumnos(ds, token);
+                matriculableService.revisarMatriculables(ds, token);
 
             } else if (resolucion.isTipoRetiroCiclo() || resolucion.isTipoAnulacionCiclo()) {
-                List<Alumno> alumnos = service.saveRetiroCiclo(resolucion, ds.getUsuario(), ds);
-                for (Alumno alumno : alumnos) {
-                    matriculableService.revisarSituacionAcademica(alumno, ds);
-                    matriculableService.saveMatriculable(alumno, TipoCondicionalEnum.RETIRO_CICLO.name(), ds);
-                }
+                String token = service.saveRetiroCiclo(resolucion, ds.getUsuario(), ds);
+                matriculableService.calcularPromedios(token, ds);
+                matriculableService.revisarCurriculaAlumnos(ds, token);
+                matriculableService.revisarMatriculables(ds, token);
 
             } else if (resolucion.isTipoCambioNota()) {
-                List<Alumno> alumnos = service.saveCambioNota(resolucion, ds.getUsuario(), ds);
-                for (Alumno alumno : alumnos) {
-                    matriculableService.revisarSituacionAcademica(alumno, ds);
-                    matriculableService.saveMatriculable(alumno, TipoCondicionalEnum.CAMBIO_NOTA.name(), ds);
-                }
+                String token = service.saveCambioNota(resolucion, ds.getUsuario(), ds);
+                matriculableService.calcularPromedios(token, ds);
+                matriculableService.revisarCurriculaAlumnos(ds, token);
+                matriculableService.revisarMatriculables(ds, token);
 
             } else if (Arrays.asList(TRAS_INT.name(), TRAS.name(), INTES.name(), ING_HIS.name()).contains(resolucion.getTipoResolucion().getCodigo())) {
                 service.saveTramiteTraslado(resolucion, ds.getUsuario(), ds.getCicloAcademico(), ds.getCompania());
@@ -214,6 +213,11 @@ public class ResolucionExistentesController {
                 }
             } else if (resolucion.isTipoCursoDirigido()) {
                 msg = service.saveCursoDirigido(resolucion, ds.getUsuario(), ds);
+            } else if (resolucion.isTipoNotaBaja()) {
+                 String token = service.saveNotaMasBaja(resolucion, ds.getUsuario(), ds.getCicloAcademico(), ds.getCompania());
+                matriculableService.calcularPromedios(token, ds);
+                matriculableService.revisarCurriculaAlumnos(ds, token);
+                matriculableService.revisarMatriculables(ds, token);
             }
 
             response.setMessage("Se realizó el registro satisfactoriamente.");
@@ -239,11 +243,11 @@ public class ResolucionExistentesController {
 
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
             Resolucion resolucionDB = service.findByResolucion(resolucion, ds);
-            List<Reincorporacion> reincorporacions = new ArrayList<>();
-            List<RetiroCiclo> retiroCiclos = new ArrayList<>();
-            List<CambioNota> cambioNotas = new ArrayList<>();
-            List<CursoDirigido> cursoDirigidos = new ArrayList<>();
-            TramiteTraslado tramiteTraslado = new TramiteTraslado();
+            List<Reincorporacion> reincorporacions = new ArrayList();
+            List<RetiroCiclo> retiroCiclos = new ArrayList();
+            List<CambioNota> cambioNotas = new ArrayList();
+            List<CursoDirigido> cursoDirigidos = new ArrayList();
+
             ObjectNode objectNode = new ObjectNode(JsonNodeFactory.instance);
             if (resolucionDB.getTipoResolucion().getCodigo().equals(REIC.name())) {
                 reincorporacions = service.allReincorporacionByResolucion(resolucionDB);
@@ -299,7 +303,7 @@ public class ResolucionExistentesController {
                     objectNode.put("tipo", CURDIR.name());
                     array.add(objectNode);
                 }
-            } else if (Arrays.asList(TRAS.name(), INTES.name(), ING_HIS.name()).contains(resolucionDB.getTipoResolucion().getCodigo())) {
+            } else if (Arrays.asList(TRAS.name(), INTES.name(), ING_HIS.name(), TRAS_INT.name()).contains(resolucionDB.getTipoResolucion().getCodigo())) {
                 List<TramiteTraslado> tramiteTraslados = service.allTramiteTraslado(resolucionDB);
                 for (TramiteTraslado tramiteTras : tramiteTraslados) {
                     objectNode = JsonHelper.createJson(tramiteTras, JsonNodeFactory.instance, new String[]{
@@ -312,6 +316,40 @@ public class ResolucionExistentesController {
                     objectNode.put("tipo", TRAS.name());
                     array.add(objectNode);
                 }
+            }
+            response.setSuccess(Boolean.TRUE);
+            response.setData(array);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (RuntimeException e) {
+            ExceptionHandler.handleSpecial(e, response, e.getLocalizedMessage());
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("allCiclosRepetido/{idAlumno}")
+    public JsonResponse allCiclosRepetido(@PathVariable(value = "idAlumno") Long idAlumno,
+            HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+            ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+            List<AlumnoCicloCursoBean> alumnoCicloCursoBeans = service.allCiclosRepetido(idAlumno, ds);
+
+            for (AlumnoCicloCursoBean alumnoCicloCursoBean : alumnoCicloCursoBeans) {
+                array.add(JsonHelper.createJson(alumnoCicloCursoBean, JsonNodeFactory.instance, new String[]{
+                    "alumno.id",
+                    "curso.id",
+                    "curso.nombre",
+                    "curso.codigo",
+                    "cicloAcademico.id",
+                    "cicloAcademico.descripcion",
+                    "nota",
+                    "key",}));
             }
             response.setSuccess(Boolean.TRUE);
             response.setData(array);

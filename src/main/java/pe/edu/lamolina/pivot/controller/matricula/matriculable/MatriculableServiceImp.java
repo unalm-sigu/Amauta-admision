@@ -66,6 +66,7 @@ import static pe.edu.lamolina.model.enums.EventoAcademicoEnum.MAT_VER;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.EPG;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.ESP;
+import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.PRE;
 import pe.edu.lamolina.model.enums.SituacionAcademicaEnum;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_1;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_2;
@@ -106,6 +107,7 @@ import pe.edu.lamolina.pivot.controller.academico.promedio.PromedioService;
 import pe.edu.lamolina.pivot.controller.academico.tramitesacademicos.tramiteRetiroCiclo.ResponseRestService;
 import pe.edu.lamolina.pivot.controller.bienestar.alumnoAporte.AporteAlumnoService;
 import pe.edu.lamolina.pivot.controller.matricula.configuracionturno.ConfiguracionMatriculaService;
+import pe.edu.lamolina.pivot.controller.test.VisorCalculoNotas;
 import pe.edu.lamolina.pivot.controller.visores.RespositorVisor;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloCursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloDAO;
@@ -215,6 +217,12 @@ public class MatriculableServiceImp implements MatriculableService {
 
     @Autowired
     EventoCicloAcademicoDAO eventoCicloAcademicoDAO;
+
+    @Autowired
+    VisorCalculoNotas visorCalculoNotas;
+
+    private final static String TOKEN_PROMEDIOS = "-token-promedios";
+    private final static String TOKEN_CURRICULA = "-token-curriculas";
 
     @Override
     public AlumnoResumen allResumenAlumnosByCicloRol(CicloAcademico cicloAcademico, String codigo, List<Long> filtros) {
@@ -523,10 +531,98 @@ public class MatriculableServiceImp implements MatriculableService {
         }
     }
 
+    @Async
     @Override
     @Transactional
-    public void revisarSituacionAcademica(Alumno alumno, DataSessionPivot ds) {
-        promedioService.calcularSituacionAcademica(alumno, ds);
+    public void calcularPromedios(String token22, DataSessionPivot ds) {
+//        promedioService.calcularSituacionAcademica(alumno, ds);
+
+        String tokenProm = token22 + TOKEN_PROMEDIOS;
+
+        List<Alumno> alumnos = visorCalculoNotas.allAlumnosByToken(tokenProm);
+
+        TypesUtil.delay(2000);
+
+        List<CicloAcademico> ciclos = cicloAcademicoDAO.all();
+        List<CicloAcademico> ciclosActivos = cicloAcademicoDAO.allActivosAlModalidades();
+        CicloAcademico cicloPregrado = ciclosActivos.stream().filter(x -> x.getModalidadEstudio().getCodigoEnum() == PRE).findAny().orElse(null);
+        CicloAcademico cicloPosgrado = ciclosActivos.stream().filter(x -> x.getModalidadEstudio().getCodigoEnum() == EPG).findAny().orElse(null);
+
+        List<Egresado> egresados = egresadoDAO.allByAlumnos(alumnos);
+        List<AlumnoCiclo> alumnosCiclosAll = alumnoCicloDAO.allByAlumnos(alumnos);
+        List<AlumnoCicloCurso> alumnosCiclosCursosActivos = alumnoCicloCursoDAO.allOperativesByAlumnos(alumnos);
+        List<AlumnoCicloCurso> alumnosCiclosCursosAll = alumnoCicloCursoDAO.allByAlumnos(alumnos);
+        List<Reincorporacion> reincorporaciones = reincorporacionDAO.allByEstadoTramiteAndAlumnos(alumnos, new EstadoTramite(EstadoTramiteEnum.SOL_ACEP.getId()));
+
+        Map<Long, List<AlumnoCiclo>> mapAlumnoCiclo = TypesUtil.convertListToMapList("alumno.id", alumnosCiclosAll);
+        Map<Long, List<AlumnoCicloCurso>> mapAlumnoCicloCursoActivo = TypesUtil.convertListToMapList("alumnoCiclo.alumno.id", alumnosCiclosCursosActivos);
+        Map<Long, List<AlumnoCicloCurso>> mapAlumnoCicloCursoAll = TypesUtil.convertListToMapList("alumnoCiclo.alumno.id", alumnosCiclosCursosAll);
+        Map<Long, List<Reincorporacion>> mapReincorporacion = TypesUtil.convertListToMapList("alumno.id", reincorporaciones);
+        Map<Long, Egresado> mapEgresado = TypesUtil.convertListToMap("alumno.id", egresados);
+
+        for (Alumno alumno : alumnos) {
+            Egresado egresado = mapEgresado.get(alumno.getId());
+            List<AlumnoCiclo> alumnoCiclos = TypesUtil.getListNotNull(mapAlumnoCiclo.get(alumno.getId()));
+            List<AlumnoCicloCurso> alumnoCiclosCursosActivosByAlu = TypesUtil.getListNotNull(mapAlumnoCicloCursoActivo.get(alumno.getId()));
+            List<AlumnoCicloCurso> alumnoCiclosCursosAllByAlu = TypesUtil.getListNotNull(mapAlumnoCicloCursoAll.get(alumno.getId()));
+            List<Reincorporacion> reincorporacionesByAlumno = TypesUtil.getListNotNull(mapReincorporacion.get(alumno.getId()));
+
+            ModalidadEstudioEnum modalidadEnum = alumno.getModalidadEstudio().getOperativeModalidadEnum();
+            CicloAcademico cicloActivo = cicloPregrado;
+            if (modalidadEnum == EPG) {
+                cicloActivo = cicloPosgrado;
+            }
+
+            promedioService.promediarAllCicloAsync(
+                    alumno,
+                    cicloActivo,
+                    egresado,
+                    ciclos,
+                    alumnoCiclos,
+                    alumnoCiclosCursosActivosByAlu,
+                    alumnoCiclosCursosAllByAlu,
+                    reincorporacionesByAlumno,
+                    ds,
+                    tokenProm, false, false);
+
+        }
+    }
+
+    @Async
+    @Override
+    public void revisarCurriculaAlumnos(DataSessionPivot ds, String token22) {
+        String tokenProm = token22 + TOKEN_PROMEDIOS;
+        for (;;) {
+            if (visorCalculoNotas.estaCompletoToken(tokenProm)) {
+                break;
+            }
+        }
+
+        List<Alumno> alumnos = visorCalculoNotas.allAlumnosByToken(tokenProm);
+        visorCalculoNotas.destroyToken(tokenProm);
+
+        TypesUtil.delay(2000);
+
+        String tokenCurri = token22 + TOKEN_CURRICULA;
+        avanceCurricularService.generarAvanceCurricularByAlumnosPregrados(alumnos, ds, tokenCurri);
+    }
+
+    @Async
+    @Override
+    public void revisarMatriculables(DataSessionPivot ds, String token22) {
+        String tokenCurri = token22 + TOKEN_CURRICULA;
+        for (;;) {
+            if (visorCalculoNotas.estaCompletoToken(tokenCurri)) {
+                break;
+            }
+        }
+
+        List<Alumno> alumnos = visorCalculoNotas.allAlumnosByToken(tokenCurri);
+        visorCalculoNotas.destroyToken(tokenCurri);
+
+        TypesUtil.delay(2000);
+
+        this.metodoRecalculoPrioridad(alumnos);
     }
 
     @Override
@@ -1410,6 +1506,10 @@ public class MatriculableServiceImp implements MatriculableService {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void recalcularPrioridad(GrupoSeccion grupoSeccion) {
         List<Alumno> alumnos = alumnoDAO.allMatriculadosByGpoSeccion(grupoSeccion);
+        this.metodoRecalculoPrioridad(alumnos);
+    }
+
+    private void metodoRecalculoPrioridad(List<Alumno> alumnos) {
         CicloAcademico cicloActivo = cicloAcademicoDAO.findActivo(ModalidadEstudioEnum.PRE);
 
         List<String> situacionesNoAptas = Arrays.asList(

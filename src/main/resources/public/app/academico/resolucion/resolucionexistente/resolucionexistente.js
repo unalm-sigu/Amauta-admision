@@ -5,7 +5,7 @@ Vue.component('file-upload', VueUploadComponent);
 var app = new Vue({
     el: '#resolucionReinForm',
     data: {
-        resolucion: {reincorporaciones: [], retiroCiclo: [], cambioNota: [], cursoDirigido: [], tramiteTraslado: []},
+        resolucion: {reincorporaciones: [], retiroCiclo: [], cambioNota: [], cursoDirigido: [], tramiteTraslado: [], cambioNotaMasBajas: []},
         oficinas: JSON.parse(oficinasJson),
         ciclos: JSON.parse(ciclosJson),
         tiposResolucion: JSON.parse(tiposResolucionJson),
@@ -17,12 +17,14 @@ var app = new Vue({
         alumnos: [],
         cursos: [],
         docentes: [],
+        alumnoCicloCursoBeans: [],
         isReincorporacion: false,
         isRetiroCiclo: false,
         isCambioNota: false,
         isCursoDirigido: false,
         isTraslado: false,
         isTrasladoInt: false,
+        isNotaBaja: false,
         modalError: {
             id: 'modalError',
             header: true,
@@ -45,6 +47,8 @@ var app = new Vue({
             $vue.isCambioNota = false;
             $vue.isCursoDirigido = false;
             $vue.isTraslado = false;
+            $vue.isTrasladoInt = false;
+            $vue.isNotaBaja = false;
             if (item.codigo == "RCI") {
                 $vue.isRetiroCiclo = true;
             } else if (item.codigo == "ANCI") {
@@ -57,6 +61,8 @@ var app = new Vue({
                 $vue.isTraslado = true;
             } else if (item.codigo == "TRAS_INT") {
                 $vue.isTrasladoInt = true;
+            } else if (item.codigo == "NOTA_BAJA") {
+                $vue.isNotaBaja = true;
             } else {
                 $vue.isCursoDirigido = true;
             }
@@ -123,6 +129,21 @@ var app = new Vue({
             })
 
         },
+        allAlumnoCiclo(item, tramiteNotabaja) {
+            let $vue = this;
+            $.ajax({
+                url: APP.url("academico/resolucion/allCiclosRepetido/" + item.id),
+                dataType: 'json',
+                type: 'post',
+            }).then(response => {
+                if (response.success) {
+                    tramiteNotabaja.alumnoCicloCursoBeans = response.data;
+                }
+
+                this.isLoading = false;
+            })
+
+        },
         addResolucion() {
             let $vue = this;
             if ($vue.isReincorporacion) {
@@ -140,6 +161,9 @@ var app = new Vue({
             } else if ($vue.isTraslado || $vue.isTrasladoInt) {
                 var traslado = {};
                 $vue.resolucion.tramiteTraslado.push(traslado);
+            } else if ($vue.isNotaBaja) {
+                var notaBaja = {alumnoCicloCursoBeans: []};
+                $vue.resolucion.cambioNotaMasBajas.push(notaBaja);
             }
         },
         deleteItem(index) {
@@ -153,6 +177,8 @@ var app = new Vue({
             } else if ($vue.isCursoDirigido) {
                 $vue.resolucion.cursoDirigido.splice(index, 1);
             } else if ($vue.isTraslado || $vue.isTrasladoInt) {
+                $vue.resolucion.tramiteTraslado.splice(index, 1);
+            } else if ($vue.isNotaBaja) {
                 $vue.resolucion.tramiteTraslado.splice(index, 1);
             }
         },
@@ -183,7 +209,7 @@ var app = new Vue({
                 success: function (response) {
                     if (response.success && response.data.length == 0) {
                         notify(response.message, 'info');
-                        $vue.resolucion = {reincorporaciones: [], retiroCiclo: [], cambioNota: [], cursoDirigido: [], tramiteTraslado: []};
+                        $vue.resolucion = {reincorporaciones: [], retiroCiclo: [], cambioNota: [], cursoDirigido: [], tramiteTraslado: [], cambioNotaMasBajas: []};
                         $vue.alumnos = [];
                     } else {
                         if (response.data != null && response.data.length > 0) {

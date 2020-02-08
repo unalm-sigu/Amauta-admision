@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,6 +36,7 @@ import pe.edu.lamolina.model.academico.OrientacionCarrera;
 import pe.edu.lamolina.model.academico.PlanCurricular;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.academico.TipoCursoCurricula;
+import pe.edu.lamolina.model.bean.AlumnoCicloCursoBean;
 import pe.edu.lamolina.model.enums.CursoCurriculaEstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
@@ -47,6 +49,9 @@ import pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum;
 import pe.edu.lamolina.model.enums.TipoDocumentoCompaniaEnum;
 import pe.edu.lamolina.model.enums.TipoOficinaEnum;
 import pe.edu.lamolina.model.enums.TipoResolucionEnum;
+import static pe.edu.lamolina.model.enums.TipoResolucionEnum.ING_HIS;
+import static pe.edu.lamolina.model.enums.TipoResolucionEnum.TRAS;
+import static pe.edu.lamolina.model.enums.TipoResolucionEnum.TRAS_INT;
 import pe.edu.lamolina.model.enums.TipoRetiroCicloEnum;
 import pe.edu.lamolina.model.enums.TipoTramiteEnum;
 import static pe.edu.lamolina.model.enums.TipoTramiteEnum.INTES;
@@ -61,6 +66,7 @@ import pe.edu.lamolina.model.general.TipoDocumentoCompania;
 import pe.edu.lamolina.model.matricula.AlumnoCursoCurricula;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.tramite.CambioNota;
+import pe.edu.lamolina.model.tramite.CambioNotaMasBaja;
 import pe.edu.lamolina.model.tramite.CursoDirigido;
 import pe.edu.lamolina.model.tramite.EstadoTramite;
 import pe.edu.lamolina.model.tramite.Reincorporacion;
@@ -74,6 +80,7 @@ import pe.edu.lamolina.pivot.controller.academico.avancecurricular.AvanceCurricu
 import pe.edu.lamolina.pivot.controller.matricula.matriculable.MatriculableService;
 import pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.GpoSeccionService;
 import pe.edu.lamolina.pivot.controller.seriedocumento.SerieDocumentoService;
+import pe.edu.lamolina.pivot.controller.test.VisorCalculoNotas;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloCursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCursoCurriculaDAO;
@@ -89,6 +96,7 @@ import pe.edu.lamolina.pivot.dao.academico.PlanCurricularDAO;
 import pe.edu.lamolina.pivot.dao.academico.SeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.TipoCursoCurriculaDAO;
 import pe.edu.lamolina.pivot.dao.general.OficinaDAO;
+import pe.edu.lamolina.pivot.dao.posgrado.CambioNotaMasBajaDAO;
 import pe.edu.lamolina.pivot.dao.tramite.AccionTramiteAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.tramite.CambioNotaDAO;
 import pe.edu.lamolina.pivot.dao.tramite.CursoDirigidoDAO;
@@ -176,6 +184,13 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
     OficinaDAO oficinaDAO;
     @Autowired
     CarreraDAO carreraDAO;
+    @Autowired
+    CambioNotaMasBajaDAO cambioNotaMasBajaDAO;
+    @Autowired
+    VisorCalculoNotas visorCalculoNotas;
+
+    private final static String TOKEN_PROMEDIOS = "-token-promedios";
+    private final static String TOKEN_CURRICULA = "-token-curriculas";
 
     @Override
     public List<Alumno> allAlumnoByOficina(String nombre, Long instanciaOficina) {
@@ -196,7 +211,7 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
 
     @Override
     @Transactional
-    public List<Alumno> saveReincorporacion(Resolucion resolucionForm, Usuario usuario, DataSessionPivot ds) {
+    public String saveReincorporacion(Resolucion resolucionForm, Usuario usuario, DataSessionPivot ds) {
 
         List<Alumno> alumnos = new ArrayList();
 
@@ -265,9 +280,17 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
             reincorporacione.setEsCondicional(Boolean.FALSE);
             reincorporacione.setTramite(tramite);
             reincorporacionDAO.save(reincorporacione);
-            alumnos.add(reincorporacione.getAlumno());
+            alumnos.add(alumno);
         }
-        return alumnos;
+
+        String token = RandomStringUtils.randomAlphanumeric(43);
+        String tokenProm = token + TOKEN_PROMEDIOS;
+        String tokenCurri = token + TOKEN_CURRICULA;
+
+        visorCalculoNotas.createToken(tokenProm, alumnos);
+        visorCalculoNotas.createToken(tokenCurri, alumnos);
+
+        return token;
     }
 
     @Override
@@ -285,7 +308,7 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
 
     @Override
     @Transactional
-    public List<Alumno> saveRetiroCiclo(Resolucion resolucionForm, Usuario usuario, DataSessionPivot ds) {
+    public String saveRetiroCiclo(Resolucion resolucionForm, Usuario usuario, DataSessionPivot ds) {
         List<Alumno> alumnos = new ArrayList<>();
 
         TipoResolucion tipoResolucion = tipoResolucionDAO.finByCodigo(resolucionForm.getTipoResolucion().getTipoEnum());
@@ -396,14 +419,14 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
             }
             alumnos.add(alumnoDB);
         }
+        String token = RandomStringUtils.randomAlphanumeric(43);
+        String tokenProm = token + TOKEN_PROMEDIOS;
+        String tokenCurri = token + TOKEN_CURRICULA;
 
-        for (Alumno alumno : alumnos) {
-            if (alumno.isPregrado()) {
-                avanceCurricularService.generarAvanceCurricularByAlumno(alumno, ds);
-            }
-        }
+        visorCalculoNotas.createToken(tokenProm, alumnos);
+        visorCalculoNotas.createToken(tokenCurri, alumnos);
 
-        return alumnos;
+        return token;
     }
 
     @Override
@@ -424,7 +447,7 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
 
     @Override
     @Transactional
-    public List<Alumno> saveCambioNota(Resolucion resolucionForm, Usuario usuario, DataSessionPivot ds) {
+    public String saveCambioNota(Resolucion resolucionForm, Usuario usuario, DataSessionPivot ds) {
         List<Alumno> alumnos = new ArrayList<>();
 
         TipoResolucion tipoResolucion = tipoResolucionDAO.finByCodigo(TipoResolucionEnum.CAM_NOTA);
@@ -510,10 +533,14 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
 
             alumnos.add(alumno);
         }
-        for (Alumno alumno : alumnos) {
-            avanceCurricularService.generarAvanceCurricularByAlumno(alumno, ds);
-        }
-        return alumnos;
+        String token = RandomStringUtils.randomAlphanumeric(43);
+        String tokenProm = token + TOKEN_PROMEDIOS;
+        String tokenCurri = token + TOKEN_CURRICULA;
+
+        visorCalculoNotas.createToken(tokenProm, alumnos);
+        visorCalculoNotas.createToken(tokenCurri, alumnos);
+
+        return token;
     }
 
     @Override
@@ -732,8 +759,12 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
             TipoTramite tipoTramite = null;
             if (resolucionForm.getTipoResolucion().getCodigo().equals(INTES.name())) {
                 tipoTramite = tipoTramiteDAO.findByCodigo(TipoTramiteEnum.INTES.name());
-            } else {
+            } else if (resolucionForm.getTipoResolucion().getCodigo().equals(TRAS.name())) {
                 tipoTramite = tipoTramiteDAO.findByCodigo(TipoTramiteEnum.TRAS.name());
+            } else if (resolucionForm.getTipoResolucion().getCodigo().equals(ING_HIS.name())) {
+                tipoTramite = tipoTramiteDAO.findByCodigo(TipoTramiteEnum.ING_HIS.name());
+            } else if (resolucionForm.getTipoResolucion().getCodigo().equals(TRAS_INT.name())) {
+                tipoTramite = tipoTramiteDAO.findByCodigo(TipoTramiteEnum.TRAS_INT.name());
             }
             Alumno alumno = alumnoDAO.find(tramiteTraslado.getAlumno());
 
@@ -860,5 +891,99 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
             }
         }
         return null;
+    }
+
+    @Override
+    public String saveNotaMasBaja(Resolucion resolucionForm, Usuario usuario, CicloAcademico cicloAcademico, Compania compania) {
+        Resolucion resolucion = new Resolucion();
+        resolucion.setOficina(resolucionForm.getOficina());
+        resolucion.setFecha(resolucionForm.getFecha());
+        resolucion.setNumero(resolucionForm.getNumero());
+        resolucion.setSerie(resolucionForm.getSerie());
+        resolucion.setEstadoEnum(ResolucionEstadoEnum.VB_RES);
+        resolucion.setFechaRegistro(new Date());
+        resolucion.setUserRegistro(usuario);
+        resolucion.setTipoResolucion(resolucionForm.getTipoResolucion());
+        resolucion.setAplicacionDirecta(1l);
+        resolucion.setCicloAplica(resolucionForm.getCicloAplica());
+        resolucionDAO.save(resolucion);
+
+        EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigo(EstadoTramiteEnum.SOL_ACEP);
+        List<Alumno> alumnos = new ArrayList<>();
+        for (CambioNotaMasBaja cambioNotaMasBaja : resolucionForm.getCambioNotaMasBajas()) {
+            Alumno alumno = alumnoDAO.find(cambioNotaMasBaja.getAlumno());
+
+            Tramite tramite = new Tramite();
+            DateTime today = new DateTime();
+            TipoDocumentoCompania tipoDocumentoCompania = tipoDocumentoCompaniaDAO.findByCodigo(TipoDocumentoCompaniaEnum.TRAM);
+            SerieDocumento serieDocumento = serieDocumentoService.getCorrelativo(tipoDocumentoCompania, Long.valueOf(today.getYear()), usuario);
+            TipoTramite tipoTramite = tipoTramiteDAO.findByCodigo(TipoTramiteEnum.NOTA_BAJA.name());
+
+            tramite.setActivo(true);
+            tramite.setCompania(compania);
+            tramite.setAlumno(alumno);
+            tramite.setCicloAcademico(cicloAcademico);
+            tramite.setEstadoEnum(TramiteEstadoEnum.ACEP);
+            tramite.setEstadoTramite(estadoTramite);
+            tramite.setFechaRegistro(new Date());
+            tramite.setPersona(alumno.getPersona());
+            tramite.setTipoTramite(tipoTramite);
+            tramite.setNumero(Long.valueOf(serieDocumento.getNumeroDocumento()));
+            tramite.setSerie(Long.valueOf(serieDocumento.getNumeroSerie()));
+            tramite.setUserRegistro(usuario);
+            tramiteDAO.save(tramite);
+
+            cambioNotaMasBaja.setCicloAcademico(cambioNotaMasBaja.getAlumnoCicloCursoBean().getCicloAcademico());
+            cambioNotaMasBaja.setCurso(cambioNotaMasBaja.getAlumnoCicloCursoBean().getCurso());
+            cambioNotaMasBaja.setAlumno(cambioNotaMasBaja.getAlumno());
+            cambioNotaMasBaja.setEstadoTramite(estadoTramite);
+            cambioNotaMasBaja.setNotaAnulada(cambioNotaMasBaja.getAlumnoCicloCursoBean().getNota());
+            cambioNotaMasBaja.setResolucion(resolucion);
+            cambioNotaMasBaja.setTramite(tramite);
+            cambioNotaMasBajaDAO.save(cambioNotaMasBaja);
+
+            AlumnoCicloCurso alumnoCicloCurso = alumnoCicloCursoDAO.findByAlumnoCicloCurso(alumno, cambioNotaMasBaja.getCicloAcademico(), cambioNotaMasBaja.getCurso());
+            alumnoCicloCurso.setEstado(EstadoMatriculaEnum.ANMB);
+            alumnoCicloCurso.setUserModificacion(usuario);
+            alumnoCicloCurso.setFechaModificacion(new Date());
+            alumnoCicloCursoDAO.updateColumns(alumnoCicloCurso, "estado", "userModificacion", "fechaModificacion");
+            
+            alumnos.add(alumno);
+        }
+
+        String token = RandomStringUtils.randomAlphanumeric(43);
+        String tokenProm = token + TOKEN_PROMEDIOS;
+        String tokenCurri = token + TOKEN_CURRICULA;
+
+        visorCalculoNotas.createToken(tokenProm, alumnos);
+        visorCalculoNotas.createToken(tokenCurri, alumnos);
+        
+        return token;
+
+    }
+
+    @Override
+    public List<AlumnoCicloCursoBean> allCiclosRepetido(Long idAlumno, DataSessionPivot ds) {
+        List<AlumnoCicloCurso> alumnoCicloCursos = alumnoCicloCursoDAO.allActivosByAlumno(new Alumno(idAlumno));
+
+        Map<Long, List<AlumnoCicloCurso>> map = TypesUtil.convertListToMapList("curso.id", alumnoCicloCursos);
+
+        List<AlumnoCicloCurso> cicloCursos = new ArrayList();
+        for (Long cursoId : map.keySet()) {
+            if (map.get(cursoId).size() > 1) {
+                cicloCursos.addAll(map.get(cursoId));
+            }
+        }
+        List<AlumnoCicloCursoBean> alumnoCicloCursoBeans = new ArrayList<>();
+        for (AlumnoCicloCurso cicloCurso : cicloCursos) {
+            AlumnoCicloCursoBean alumnoCicloCursoBean = new AlumnoCicloCursoBean();
+            alumnoCicloCursoBean.setAlumno(cicloCurso.getAlumnoCiclo().getAlumno());
+            alumnoCicloCursoBean.setCicloAcademico(cicloCurso.getAlumnoCiclo().getCicloAcademico());
+            alumnoCicloCursoBean.setCurso(cicloCurso.getCurso());
+            alumnoCicloCursoBean.setNota(cicloCurso.getNota());
+            alumnoCicloCursoBean.setKey(cicloCurso.getAlumnoCicloCursoKey());
+            alumnoCicloCursoBeans.add(alumnoCicloCursoBean);
+        }
+        return alumnoCicloCursoBeans;
     }
 }
