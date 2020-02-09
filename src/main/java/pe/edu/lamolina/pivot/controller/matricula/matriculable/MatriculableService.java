@@ -28,7 +28,11 @@ public interface MatriculableService {
 
     AlumnoResumen allResumenAlumnosByCicloRol(CicloAcademico cicloAcademico, String codigo, List<Long> filtros);
 
-    void revisarSituacionAcademica(Alumno alumno, DataSessionPivot ds);
+    void calcularPromedios(String token, DataSessionPivot ds);
+
+    void revisarCurriculaAlumnos(DataSessionPivot ds, String token22);
+
+    void revisarMatriculables(DataSessionPivot ds, String token22);
 
     void revisarSituacionesAcademicas(CicloAcademico cicloAcademico, DataSessionPivot ds);
 

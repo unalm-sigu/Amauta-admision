@@ -214,8 +214,8 @@ public class TramiteCondicionalController {
             } else if (tramite.getTipoTramite().getCodigo().equals(TipoTramiteEnum.CAM_NOTA.name())) {
                 service.updateCambioNota(tramite, ds);
             }
-            matriculableService.revisarSituacionAcademica(tramite.getAlumno(), ds);
-            aporteAlumnoService.generarAportes(tramite.getAlumno(), ds.getCicloAcademico(), null, ds);
+//            matriculableService.revisarSituacionAcademica(tramite.getAlumno(), ds);
+//            aporteAlumnoService.generarAportes(tramite.getAlumno(), ds.getCicloAcademico(), null, ds);
             response.setData(JsonHelper.createJson(matriculaResumen, jsonFactory, new String[]{"id"}));
             response.setMessage("Se actualizó satisfactoriamente.");
             response.setSuccess(Boolean.TRUE);

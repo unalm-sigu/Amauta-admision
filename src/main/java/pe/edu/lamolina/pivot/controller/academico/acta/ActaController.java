@@ -42,6 +42,7 @@ import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
 import pe.edu.lamolina.pivot.controller.academico.acta.reporte.RecordDeActasExcelView;
+import pe.edu.lamolina.pivot.controller.seguridad.verificador.VerificadorService;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.constant.Messages;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -52,6 +53,9 @@ public class ActaController {
 
     @Autowired
     ActaService service;
+
+    @Autowired
+    VerificadorService verificadorService;
 
     @Autowired
     RecordDeActasExcelView recordDeActasExcelView;
@@ -160,11 +164,12 @@ public class ActaController {
         List<GrupoSeccion> allGruposSeccion = service.allGrupoSeccionByFilter(ds.getCicloAcademico(), new DepartamentoAcademico(idDepartamento), EstadoEnum.ACT);
         ActaResumen resumen = service.findResumenByDepartamento(ds.getCicloAcademico(), depAcademico);
 
+        Boolean esOperadorEditor = verificadorService.isOperadorActaNotas(ds);
         model.addAttribute("resumen", resumen);
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
         model.addAttribute("departamentoAcademico", depAcademico);
         model.addAttribute("gruposSecciones", allGruposSeccion);
-
+        model.addAttribute("esOperadorEditor", esOperadorEditor);
         return "academico/acta/actaDepartamento";
 
     }

@@ -108,7 +108,7 @@
                                             <input v-model="resolucion.tipoResolucion" required="true" type="text" class="hide"/>
                                         </div>
                                     </div> 
-                                    <div class="col-lg-6">
+                                    <div class="col-lg-6" v-if=" !isNotaBaja">
                                         <label>Ciclo 
                                             <span v-if='isRetiroCiclo'> a retirar</span>
                                             <span v-if='isReincorporacion'> a reincorporar</span>
@@ -140,8 +140,8 @@
                                             <th class="col-md-3 text-center">Persona</th>
                                             <th class="col-md-3 text-center" v-if="!isCambioNota">Tipo Tramite</th>
                                             <th class="col-md-2 text-center" v-if="isCambioNota">Tipo Tramite</th>
-                                            <th class="col-md-3 text-center" v-if="!isCambioNota &amp;&amp; !isTraslado &amp;&amp; !isTrasladoInt">Motivo</th>
-                                            <th class="col-md-2 text-center" v-if="isCambioNota">Motivo</th>
+                                            <th class="col-md-3 text-center" v-if="!isCambioNota &amp;&amp; !isTraslado &amp;&amp; !isTrasladoInt &amp;&amp; !isNotaBaja">Motivo</th>
+                                            <th class="col-md-2 text-center" v-if="isCambioNota ">Motivo</th>
                                             <!--                                            <th class="col-md-3 text-center" v-if="!isCambioNota &amp;&amp; !isCursoDirigido &amp;&amp; !isTrasladoInt">Ciclo
                                                                                             <span v-if='isRetiroCiclo'> a retirar</span>
                                                                                             <span v-if='isReincorporacion'> a reincorporar</span>
@@ -152,8 +152,8 @@
                                             <th class="col-md-2 text-center" v-if="isCambioNota">Curso</th>
                                             <th class="col-md-1 text-center" v-if="isCambioNota">Nota</th>
                                             <th class="col-md-3 text-center" v-if="isCursoDirigido">Docente</th>
-                                            <th v-if="isCursoDirigido ">Aprobado</th>
-                                            <th  v-if="!isCursoDirigido "></th>
+                                            <th v-if="!isReincorporacion &amp;&amp; !isRetiroCiclo &amp;&amp; !isCambioNota &amp;&amp; !isNotaBaja">Aprobado</th>
+                                            <!--<th  v-if="!isCursoDirigido "></th>-->
                                             <th ></th>
                                         </tr>
                                     </thead>
@@ -487,6 +487,57 @@
                                                 <a v-on:click="deleteItem(index)" class="btn btn-danger">
                                                     <i class="fa fa-trash-o " aria-hidden="true"></i>
                                                 </a>
+                                            </td>
+                                        </tr>
+                                        <tr v-if="isNotaBaja " v-for="(tramiteNotabaja , index) in resolucion.cambioNotaMasBajas">
+                                            <td>
+                                                <div class="form-group">
+                                                    <div class="col-md-12">
+                                                        <multiselect v-model="tramiteNotabaja.alumno" 
+                                                                     v-bind:options='alumnos'
+                                                                     v-on:search-change="loadAlumno"
+                                                                     v-bind:custom-label='customLabel'
+                                                                     track-by='id'
+                                                                     v-bind:show-labels="false"
+                                                                     v-bind:allow-empty="false"
+                                                                     deselect-label="No se puede eliminar este valor"
+                                                                     v-bind:internal-search='false'
+                                                                     v-on:select="allAlumnoCiclo($event,tramiteNotabaja)"
+                                                                     placeholder="Ingresa un caracter como mínimo" >
+                                                            <template slot="option" slot-scope="props">
+                                                                <div class="option__desc">
+                                                                    <span class="option__title block bold">{{ props.option.persona.nombreCompleto }} </span>
+                                                                    <span class="option__small">{{ props.option.persona.tipoDocumento.simbolo }} - {{ props.option.persona.numeroDocIdentidad }}</span>
+                                                                </div>
+                                                            </template>
+
+                                                        </multiselect>
+                                                        <input v-model="tramiteNotabaja.alumno" required="true" type="text" class="hide"/>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="form-group">
+                                                    <div class="col-md-12">
+                                                        <multiselect v-model="tramiteNotabaja.alumnoCicloCursoBean" 
+                                                                     v-bind:options='tramiteNotabaja.alumnoCicloCursoBeans'                                                                  
+                                                                     track-by='key'
+                                                                     v-bind:show-labels="false"
+                                                                     v-bind:allow-empty="false"
+                                                                     deselect-label="No se puede eliminar este valor"
+                                                                     v-bind:internal-search='true'
+                                                                     placeholder="Ingresa un caracter como mínimo" >
+                                                            <template slot="option" slot-scope="props">
+                                                                <div class="option__desc">
+                                                                    <span class="option__title block bold">{{ props.option.cicloAcademico.descripcion }} -{{ props.option.curso.nombre }} - ( {{ props.option.nota }} ) </span>
+                                                                </div>
+                                                            </template>
+                                                            <template slot="singleLabel" slot-scope="{ option }"><strong>{{ option.cicloAcademico.descripcion }} - {{ option.curso.nombre }} - ( {{ option.nota }} ) </strong></template>
+
+                                                        </multiselect>
+                                                        <input v-model="tramiteNotabaja.alumnoCicloCursoBean" required="true" type="text" class="hide"/>
+                                                    </div>
+                                                </div>
                                             </td>
                                         </tr>
 
