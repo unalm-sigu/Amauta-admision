@@ -59,7 +59,6 @@ import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.INH;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.MAT;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.NMAT;
-import pe.edu.lamolina.model.enums.EstadoTramiteEnum;
 import pe.edu.lamolina.model.enums.EventoAcademicoEnum;
 import static pe.edu.lamolina.model.enums.EventoAcademicoEnum.MAT_REG;
 import static pe.edu.lamolina.model.enums.EventoAcademicoEnum.MAT_VER;
@@ -97,7 +96,6 @@ import static pe.edu.lamolina.model.enums.TramiteEstadoEnum.PEND;
 import pe.edu.lamolina.model.finanzas.Acreencia;
 import pe.edu.lamolina.model.finanzas.DeudaAlumno;
 import pe.edu.lamolina.model.tramite.CambioNota;
-import pe.edu.lamolina.model.tramite.EstadoTramite;
 import pe.edu.lamolina.model.tramite.Reincorporacion;
 import pe.edu.lamolina.model.tramite.RetiroCiclo;
 import pe.edu.lamolina.pivot.controller.academico.alumno.AlumnoResumen;
@@ -552,7 +550,7 @@ public class MatriculableServiceImp implements MatriculableService {
         List<AlumnoCiclo> alumnosCiclosAll = alumnoCicloDAO.allByAlumnos(alumnos);
         List<AlumnoCicloCurso> alumnosCiclosCursosActivos = alumnoCicloCursoDAO.allOperativesByAlumnos(alumnos);
         List<AlumnoCicloCurso> alumnosCiclosCursosAll = alumnoCicloCursoDAO.allByAlumnos(alumnos);
-        List<Reincorporacion> reincorporaciones = this.allReincorporacionesByCicloActivo(alumnos, ciclosActivos);
+        List<Reincorporacion> reincorporaciones = promedioService.allReincorporacionesByCicloActivo(alumnos, ciclosActivos);
 
         Map<Long, List<AlumnoCiclo>> mapAlumnoCiclo = TypesUtil.convertListToMapList("alumno.id", alumnosCiclosAll);
         Map<Long, List<AlumnoCicloCurso>> mapAlumnoCicloCursoActivo = TypesUtil.convertListToMapList("alumnoCiclo.alumno.id", alumnosCiclosCursosActivos);
@@ -1627,7 +1625,7 @@ public class MatriculableServiceImp implements MatriculableService {
 
         List<Egresado> egresados = egresadoDAO.allByAlumnos(alumnos);
         Map<Long, Egresado> mapEgresados = TypesUtil.convertListToMap("alumno.id", egresados);
-        List<Reincorporacion> reincorporacions = this.allReincorporacionesByCicloActivo(alumnos, ciclosActivo);
+        List<Reincorporacion> reincorporacions = promedioService.allReincorporacionesByCicloActivo(alumnos, ciclosActivo);
         Map<Long, List<Reincorporacion>> mapReincorporaciones = TypesUtil.convertListToMapList("alumno.id", reincorporacions);
 
         for (Alumno alumno : alumnos) {
@@ -1656,31 +1654,6 @@ public class MatriculableServiceImp implements MatriculableService {
         academico.setFechaVerificaNmat(new Date());
         cicloAcademicoDAO.update(academico);
 
-    }
-
-    private List<Reincorporacion> allReincorporacionesByCicloActivo(List<Alumno> alumnos, List<CicloAcademico> ciclosActivos) {
-        CicloAcademico cicloActivoPregrado = ciclosActivos.stream()
-                .filter(x -> x.getModalidadEstudio().getCodigoEnum().equals(ModalidadEstudioEnum.PRE))
-                .findFirst().orElse(null);
-
-        CicloAcademico cicloActivoPosgrado = ciclosActivos.stream()
-                .filter(x -> x.getModalidadEstudio().getCodigoEnum().equals(ModalidadEstudioEnum.EPG))
-                .findFirst().orElse(null);
-
-        List<Alumno> alumnosPregrados = alumnos.stream().filter(x -> x.isPregrado()).collect(Collectors.toList());
-        List<Alumno> alumnosPosgrados = alumnos.stream().filter(x -> x.isPostgrado()).collect(Collectors.toList());
-
-        List<Reincorporacion> reincorporacionesPregradoAntes = reincorporacionDAO.allAceptadosByAlumnosSinCiclo(alumnosPregrados, cicloActivoPregrado);
-        List<Reincorporacion> reincorporacionesPregradoActivo = reincorporacionDAO.allAceptadasPendientesByAlumnosCiclo(alumnosPregrados, cicloActivoPregrado);
-
-        List<Reincorporacion> reincorporacionesPosgradoAntes = reincorporacionDAO.allAceptadosByAlumnosSinCiclo(alumnosPosgrados, cicloActivoPosgrado);
-        List<Reincorporacion> reincorporacionesPosgradoActivo = reincorporacionDAO.allAceptadasPendientesByAlumnosCiclo(alumnosPosgrados, cicloActivoPosgrado);
-
-        reincorporacionesPregradoAntes.addAll(reincorporacionesPregradoActivo);
-        reincorporacionesPregradoAntes.addAll(reincorporacionesPosgradoAntes);
-        reincorporacionesPregradoAntes.addAll(reincorporacionesPosgradoActivo);
-
-        return reincorporacionesPregradoAntes;
     }
 
     @Override

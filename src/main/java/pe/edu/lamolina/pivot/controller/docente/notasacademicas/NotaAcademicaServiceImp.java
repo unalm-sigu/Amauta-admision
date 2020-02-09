@@ -7,7 +7,6 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -62,7 +61,6 @@ import pe.edu.lamolina.model.enums.AlumnoEvaluacionEstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoGrupoSeccionEnum;
 import pe.edu.lamolina.model.enums.EstadoPlanCalificaEnum;
-import pe.edu.lamolina.model.enums.EstadoTramiteEnum;
 import pe.edu.lamolina.model.enums.LoggerAccionEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.EPG;
@@ -73,7 +71,6 @@ import pe.edu.lamolina.model.enums.TipoCicloEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEvalEnum;
 import pe.edu.lamolina.model.seguridad.Usuario;
-import pe.edu.lamolina.model.tramite.EstadoTramite;
 import pe.edu.lamolina.model.tramite.Reincorporacion;
 import pe.edu.lamolina.pivot.controller.academico.avancecurricular.AvanceCurricularService;
 import pe.edu.lamolina.pivot.controller.academico.calculonotas.CalculoNotasService;
@@ -2138,7 +2135,7 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
         List<AlumnoCiclo> alumnosCiclosAll = alumnoCicloDAO.allByAlumnos(alumnos);
         List<AlumnoCicloCurso> alumnosCiclosCursosActivos = alumnoCicloCursoDAO.allOperativesByAlumnos(alumnos);
         List<AlumnoCicloCurso> alumnosCiclosCursosAll = alumnoCicloCursoDAO.allByAlumnos(alumnos);
-        List<Reincorporacion> reincorporaciones = this.allReincorporacionesByCicloActivo(alumnos, ciclosActivos);
+        List<Reincorporacion> reincorporaciones = promedioService.allReincorporacionesByCicloActivo(alumnos, ciclosActivos);
 
         Map<Long, List<AlumnoCiclo>> mapAlumnoCiclo = TypesUtil.convertListToMapList("alumno.id", alumnosCiclosAll);
         Map<Long, List<AlumnoCicloCurso>> mapAlumnoCicloCursoActivo = TypesUtil.convertListToMapList("alumnoCiclo.alumno.id", alumnosCiclosCursosActivos);
@@ -2171,31 +2168,6 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
                     ds,
                     tokenProm, false, false);
         }
-    }
-    
-    private List<Reincorporacion> allReincorporacionesByCicloActivo(List<Alumno> alumnos, List<CicloAcademico> ciclosActivos) {
-        CicloAcademico cicloActivoPregrado = ciclosActivos.stream()
-                .filter(x -> x.getModalidadEstudio().getCodigoEnum().equals(ModalidadEstudioEnum.PRE))
-                .findFirst().orElse(null);
-
-        CicloAcademico cicloActivoPosgrado = ciclosActivos.stream()
-                .filter(x -> x.getModalidadEstudio().getCodigoEnum().equals(ModalidadEstudioEnum.EPG))
-                .findFirst().orElse(null);
-
-        List<Alumno> alumnosPregrados = alumnos.stream().filter(x -> x.isPregrado()).collect(Collectors.toList());
-        List<Alumno> alumnosPosgrados = alumnos.stream().filter(x -> x.isPostgrado()).collect(Collectors.toList());
-
-        List<Reincorporacion> reincorporacionesPregradoAntes = reincorporacionDAO.allAceptadosByAlumnosSinCiclo(alumnosPregrados, cicloActivoPregrado);
-        List<Reincorporacion> reincorporacionesPregradoActivo = reincorporacionDAO.allAceptadasPendientesByAlumnosCiclo(alumnosPregrados, cicloActivoPregrado);
-
-        List<Reincorporacion> reincorporacionesPosgradoAntes = reincorporacionDAO.allAceptadosByAlumnosSinCiclo(alumnosPosgrados, cicloActivoPosgrado);
-        List<Reincorporacion> reincorporacionesPosgradoActivo = reincorporacionDAO.allAceptadasPendientesByAlumnosCiclo(alumnosPosgrados, cicloActivoPosgrado);
-
-        reincorporacionesPregradoAntes.addAll(reincorporacionesPregradoActivo);
-        reincorporacionesPregradoAntes.addAll(reincorporacionesPosgradoAntes);
-        reincorporacionesPregradoAntes.addAll(reincorporacionesPosgradoActivo);
-
-        return reincorporacionesPregradoAntes;
     }
 
     @Async

@@ -59,4 +59,6 @@ public interface PromedioService {
 
     void saveCerrarActaAsync(List<Alumno> alumnos, DataSessionPivot ds);
 
+    List<Reincorporacion> allReincorporacionesByCicloActivo(List<Alumno> alumnos, List<CicloAcademico> ciclosActivos);
+
 }
