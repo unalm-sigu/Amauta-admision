@@ -498,10 +498,10 @@ public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements Alu
     public List<AlumnoCiclo> allWithSituacionByCiclo(CicloAcademico ciclo) {
         Octavia sql = Octavia.query()
                 .from(AlumnoCiclo.class, "ac")
-                .join("alumno alu", "cicloAcademico ca")
+                .join("alumno alu", "cicloAcademico ca", "alu.modalidadEstudio")
                 .leftJoin("situacionInicio si", "situacionFinal sf")
                 .leftJoin("userModificacion um", "userRegistro ur")
-                .filter("cicloAcademico", ciclo);
+                .filter("ca.id", ciclo);
 
         return all(sql);
     }

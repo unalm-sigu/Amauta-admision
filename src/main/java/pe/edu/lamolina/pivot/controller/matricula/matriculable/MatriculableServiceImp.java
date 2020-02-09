@@ -1518,7 +1518,7 @@ public class MatriculableServiceImp implements MatriculableService {
 
         CicloAcademico academico = ds.getCicloAcademico();
         List<CicloAcademico> ciclosAcademicos = cicloAcademicoDAO.all();
-        List<CicloAcademico> ciclosActivo = cicloAcademicoDAO.allActivos();
+        List<CicloAcademico> ciclosActivo = cicloAcademicoDAO.allActivosAlModalidades();
         Map<String, CicloAcademico> mapCiclo = TypesUtil.convertListToMap("modalidadEstudio.codigo", ciclosActivo);
 
         List<AlumnoCicloCurso> alumnosCiclosCursosActivos = alumnoCicloCursoDAO.allOperativesByAlumnos(alumnos);
@@ -1531,7 +1531,7 @@ public class MatriculableServiceImp implements MatriculableService {
 
         List<Egresado> egresados = egresadoDAO.allByAlumnos(alumnos);
         Map<Long, Egresado> mapEgresados = TypesUtil.convertListToMap("alumno.id", egresados);
-        List<Reincorporacion> reincorporacions = reincorporacionDAO.allByEstadoTramiteAndAlumnos(alumnos, new EstadoTramite(EstadoTramiteEnum.SOL_ACEP.getId()));
+        List<Reincorporacion> reincorporacions = this.allReincorporacionesByCicloActivo(alumnos, ciclosActivo);
         Map<Long, List<Reincorporacion>> mapReincorporaciones = TypesUtil.convertListToMapList("alumno.id", reincorporacions);
 
         for (Alumno alumno : alumnos) {
@@ -1560,6 +1560,31 @@ public class MatriculableServiceImp implements MatriculableService {
         academico.setFechaVerificaNmat(new Date());
         cicloAcademicoDAO.update(academico);
 
+    }
+
+    private List<Reincorporacion> allReincorporacionesByCicloActivo(List<Alumno> alumnos, List<CicloAcademico> ciclosActivos) {
+        CicloAcademico cicloActivoPregrado = ciclosActivos.stream()
+                .filter(x -> x.getModalidadEstudio().getCodigoEnum().equals(ModalidadEstudioEnum.PRE))
+                .findFirst().orElse(null);
+
+        CicloAcademico cicloActivoPosgrado = ciclosActivos.stream()
+                .filter(x -> x.getModalidadEstudio().getCodigoEnum().equals(ModalidadEstudioEnum.EPG))
+                .findFirst().orElse(null);
+
+        List<Alumno> alumnosPregrados = alumnos.stream().filter(x -> x.isPregrado()).collect(Collectors.toList());
+        List<Alumno> alumnosPosgrados = alumnos.stream().filter(x -> x.isPostgrado()).collect(Collectors.toList());
+
+        List<Reincorporacion> reincorporacionesPregradoAntes = reincorporacionDAO.allAceptadosByAlumnosSinCiclo(alumnosPregrados, cicloActivoPregrado);
+        List<Reincorporacion> reincorporacionesPregradoActivo = reincorporacionDAO.allAceptadasPendientesByAlumnosCiclo(alumnosPregrados, cicloActivoPregrado);
+
+        List<Reincorporacion> reincorporacionesPosgradoAntes = reincorporacionDAO.allAceptadosByAlumnosSinCiclo(alumnosPosgrados, cicloActivoPosgrado);
+        List<Reincorporacion> reincorporacionesPosgradoActivo = reincorporacionDAO.allAceptadasPendientesByAlumnosCiclo(alumnosPosgrados, cicloActivoPosgrado);
+
+        reincorporacionesPregradoAntes.addAll(reincorporacionesPregradoActivo);
+        reincorporacionesPregradoAntes.addAll(reincorporacionesPosgradoAntes);
+        reincorporacionesPregradoAntes.addAll(reincorporacionesPosgradoActivo);
+
+        return reincorporacionesPregradoAntes;
     }
 
     @Override

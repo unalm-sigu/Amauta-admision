@@ -56,12 +56,14 @@ public class PromedioSegundoServiceImp implements PromedioSegundoService {
         List<AlumnoCiclo> alumnosCiclosAll = alumnoCicloDAO.allByAlumnos(alumnos);
         List<AlumnoCicloCurso> alumnosCiclosCursosActivos = alumnoCicloCursoDAO.allOperativesByAlumnos(alumnos);
         List<AlumnoCicloCurso> alumnosCiclosCursosAll = alumnoCicloCursoDAO.allByAlumnos(alumnos);
-        List<Reincorporacion> reincorporaciones = reincorporacionDAO.allByEstadoTramiteAndAlumnos(alumnos, new EstadoTramite(EstadoTramiteEnum.SOL_ACEP.getId()));
+        List<Reincorporacion> reincorporacionesAntes = reincorporacionDAO.allAceptadosByAlumnosSinCiclo(alumnos, cicloActivo);
+        List<Reincorporacion> reincorporacionesActuales = reincorporacionDAO.allAceptadasPendientesByAlumnosCiclo(alumnos, cicloActivo);
 
         Map<Long, List<AlumnoCiclo>> mapAlumnoCiclo = TypesUtil.convertListToMapList("alumno.id", alumnosCiclosAll);
         Map<Long, List<AlumnoCicloCurso>> mapAlumnoCicloCursoActivo = TypesUtil.convertListToMapList("alumnoCiclo.alumno.id", alumnosCiclosCursosActivos);
         Map<Long, List<AlumnoCicloCurso>> mapAlumnoCicloCursoAll = TypesUtil.convertListToMapList("alumnoCiclo.alumno.id", alumnosCiclosCursosAll);
-        Map<Long, List<Reincorporacion>> mapReincorporacion = TypesUtil.convertListToMapList("alumno.id", reincorporaciones);
+        Map<Long, List<Reincorporacion>> mapReincorporacionAntes = TypesUtil.convertListToMapList("alumno.id", reincorporacionesAntes);
+        Map<Long, List<Reincorporacion>> mapReincorporacionActual = TypesUtil.convertListToMapList("alumno.id", reincorporacionesActuales);
         Map<Long, Egresado> mapEgresado = TypesUtil.convertListToMap("alumno.id", egresados);
 
         for (Alumno alumno : alumnos) {
@@ -69,7 +71,9 @@ public class PromedioSegundoServiceImp implements PromedioSegundoService {
             List<AlumnoCiclo> alumnoCiclos = TypesUtil.getListNotNull(mapAlumnoCiclo.get(alumno.getId()));
             List<AlumnoCicloCurso> alumnoCiclosCursosActivosByAlu = TypesUtil.getListNotNull(mapAlumnoCicloCursoActivo.get(alumno.getId()));
             List<AlumnoCicloCurso> alumnoCiclosCursosAllByAlu = TypesUtil.getListNotNull(mapAlumnoCicloCursoAll.get(alumno.getId()));
-            List<Reincorporacion> reincorporacionesByAlumno = TypesUtil.getListNotNull(mapReincorporacion.get(alumno.getId()));
+            List<Reincorporacion> reincorporacionesByAlumno = TypesUtil.getListNotNull(mapReincorporacionAntes.get(alumno.getId()));
+            List<Reincorporacion> reincorporacionesActualesByAlumno = TypesUtil.getListNotNull(mapReincorporacionActual.get(alumno.getId()));
+            reincorporacionesByAlumno.addAll(reincorporacionesActualesByAlumno);
 
             promedioReviewService.promediarAllCicloAsync(
                     alumno,

@@ -1,5 +1,6 @@
 package pe.edu.lamolina.pivot.dao.tramite.hibernate;
 
+import java.util.Arrays;
 import java.util.List;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
@@ -66,23 +67,49 @@ public class ReincorporacionDAOH extends AbstractEasyDAO<Reincorporacion> implem
     }
 
     @Override
-    public List<Reincorporacion> allByEstadoTramiteAndAlumnoRei(Alumno alumno, EstadoTramite estadoTramite) {
+    public List<Reincorporacion> allAceptadasByAlumnoSinCiclo(Alumno alumno, CicloAcademico ciclo) {
         Octavia sql = Octavia.query()
                 .from(Reincorporacion.class, "rei")
                 .join("alumno alu", "estadoTramite et", "cicloReincorporacion cr")
                 .left("tramite tra", "facultad fac", "resolucion res")
-                .filter("et.id", estadoTramite)
+                .filter("et.codigo", EstadoTramiteEnum.SOL_ACEP)
+                .filter("cr.codigo", "<", ciclo.getCodigo())
                 .filter("alu.id", alumno);
         return all(sql);
     }
 
     @Override
-    public List<Reincorporacion> allByEstadoTramiteAndAlumnos(List<Alumno> alumnos, EstadoTramite estadoTramite) {
+    public List<Reincorporacion> allAceptadasPendientesByAlumnoCiclo(Alumno alumno, CicloAcademico ciclo) {
         Octavia sql = Octavia.query()
                 .from(Reincorporacion.class, "rei")
                 .join("alumno alu", "estadoTramite et", "cicloReincorporacion cr")
                 .left("tramite tra", "facultad fac", "resolucion res")
-                .filter("et.id", estadoTramite)
+                .in("et.codigo", Arrays.asList(EstadoTramiteEnum.SOL_ACEP, EstadoTramiteEnum.SOL_REI))
+                .filter("cr.id", ciclo)
+                .filter("alu.id", alumno);
+        return all(sql);
+    }
+
+    @Override
+    public List<Reincorporacion> allAceptadosByAlumnosSinCiclo(List<Alumno> alumnos, CicloAcademico ciclo) {
+        Octavia sql = Octavia.query()
+                .from(Reincorporacion.class, "rei")
+                .join("alumno alu", "estadoTramite et", "cicloReincorporacion cr")
+                .left("tramite tra", "facultad fac", "resolucion res")
+                .filter("et.codigo", EstadoTramiteEnum.SOL_ACEP)
+                .filter("cr.codigo", "<", ciclo.getCodigo())
+                .in("alu.id", alumnos);
+        return all(sql);
+    }
+
+    @Override
+    public List<Reincorporacion> allAceptadasPendientesByAlumnosCiclo(List<Alumno> alumnos, CicloAcademico ciclo) {
+        Octavia sql = Octavia.query()
+                .from(Reincorporacion.class, "rei")
+                .join("alumno alu", "estadoTramite et", "cicloReincorporacion cr")
+                .left("tramite tra", "facultad fac", "resolucion res")
+                .in("et.codigo", Arrays.asList(EstadoTramiteEnum.SOL_ACEP, EstadoTramiteEnum.SOL_REI))
+                .filter("cr.id", ciclo)
                 .in("alu.id", alumnos);
         return all(sql);
     }

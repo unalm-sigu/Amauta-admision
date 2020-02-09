@@ -262,7 +262,15 @@ public class PromedioServiceImp implements PromedioService {
             Map<String, List<CicloAcademico>> mapCiclo = TypesUtil.convertListToMapList("codigo", ciclosAll);
             Map<Long, List<AlumnoCicloCurso>> mapAlumnoCicloCurso = TypesUtil.convertListToMapList("alumnoCiclo.id", alumnoCicloCursosAll);
 
-            this.promediarAlumno(alumno, egresado, mapCiclo, cicloActivo, alumnoCiclos, alumnoCicloCursosActivos, alumnoCiclosCursosUpd, ds, showError); //cambia situacion academica
+            this.promediarAlumno(
+                    alumno,
+                    egresado,
+                    mapCiclo,
+                    cicloActivo,
+                    alumnoCiclos,
+                    alumnoCicloCursosActivos,
+                    alumnoCiclosCursosUpd,
+                    allReincorporacionesByAlumno, ds, showError); //cambia situacion academica
 
             CicloAcademico ultimoCicloEstudiado = null;
             CicloAcademico ultimoCicloRegular = null;
@@ -430,8 +438,9 @@ public class PromedioServiceImp implements PromedioService {
         List<AlumnoCiclo> alumnoCiclos = alumnoCicloDAO.allByAlumno(alumno);
         List<AlumnoCicloCurso> alumnoCicloCursos = alumnoCicloCursoDAO.allOperativesByAlumno(alumno);
         List<AlumnoCicloCurso> alumnoCicloCursosAll = alumnoCicloCursoDAO.allByAlumno(alumno);
-        List<Reincorporacion> reincorporacionesByAlumno = reincorporacionDAO.allByEstadoTramiteAndAlumnoRei(
-                alumno, new EstadoTramite(EstadoTramiteEnum.SOL_ACEP.getId()));
+        List<Reincorporacion> reincorporacionesAceptadasByAlumno = reincorporacionDAO.allAceptadasByAlumnoSinCiclo(alumno, cicloActivo);
+        List<Reincorporacion> reincorporacionesByAlumnoCiclo = reincorporacionDAO.allAceptadasPendientesByAlumnoCiclo(alumno, cicloActivo);
+        reincorporacionesAceptadasByAlumno.addAll(reincorporacionesByAlumnoCiclo);
 
         this.promediarAllCicloSync(
                 alumno,
@@ -441,7 +450,7 @@ public class PromedioServiceImp implements PromedioService {
                 alumnoCiclos,
                 alumnoCicloCursos,
                 alumnoCicloCursosAll,
-                reincorporacionesByAlumno, ds, true, true);
+                reincorporacionesAceptadasByAlumno, ds, true, true);
     }
 
     @Async
@@ -473,6 +482,7 @@ public class PromedioServiceImp implements PromedioService {
             List<AlumnoCiclo> alumnosCiclosByAlumno,
             List<AlumnoCicloCurso> allOperativesByModalidadEstudio,
             List<AlumnoCicloCurso> alumnoCiclosCursosUpd,
+            List<Reincorporacion> allReincorporaciones,
             DataSessionPivot ds, boolean showError) {
 
         Map<Long, List<AlumnoCicloCurso>> mapAlumnoCicloCurso = TypesUtil.convertListToMapList("alumnoCiclo.id", allOperativesByModalidadEstudio);
@@ -495,6 +505,7 @@ public class PromedioServiceImp implements PromedioService {
         int ciclosConsecutivosSinEstudiar = 0;
         int ciclosAlternosSinEstudiar = 0;
         ModalidadEstudioEnum modalidadEnum = alumno.getModalidadEstudio().getCodigoEnum();
+        Collections.sort(allReincorporaciones, new Reincorporacion.CompareCiclo());
 
         for (;;) {
             Collections.sort(alumnosCiclosByAlumno, new AlumnoCiclo.CompareCicloAsc());
@@ -517,7 +528,8 @@ public class PromedioServiceImp implements PromedioService {
                         egresado,
                         alumnosCiclosByAlumno,
                         cicloSgte,
-                        cicloNumerico, ds);
+                        cicloNumerico,
+                        allReincorporaciones, ds);
             }
 
             if (alumnoCicloEach == null) {
@@ -595,11 +607,14 @@ public class PromedioServiceImp implements PromedioService {
             List<AlumnoCiclo> alumnosCiclosByAlumno,
             CicloAcademico cicloAnalizar,
             Integer cicloNumerico,
+            List<Reincorporacion> allReincorporaciones,
             DataSessionPivot ds) {
 
         AlumnoCiclo alumnoCiclo = findSiguienteAlumnoCiclo(alumnosCiclosByAlumno, cicloNumerico);
         if (cicloAnalizar == null) {
-            if (alumnoCiclo != null) {
+            Reincorporacion reincorporacion = findReincorporacion(allReincorporaciones, cicloNumerico);
+            boolean esCicloReincorporaPosterior = verificarCicloReincorporaPosterior(reincorporacion, alumnoCiclo);
+            if (alumnoCiclo != null && esCicloReincorporaPosterior) {
                 if (validarConCicloEgreso(alumnoCiclo, egresado)) {
                     alumnoCiclo.setRegistroValido(true);
 
@@ -609,8 +624,23 @@ public class PromedioServiceImp implements PromedioService {
                         alumnoCiclo.setRegistroValido(true);
                     }
                 }
+
+            } else if (reincorporacion != null && !esCicloReincorporaPosterior) {
+                alumnoCiclo = new AlumnoCiclo();
+                alumnoCiclo.defaultValuesToCreate(alumno, reincorporacion.getCicloReincorporacion(), ds.getUsuario());
+                alumnoCiclo.setCreditosConvalidados(BigDecimal.ZERO.intValue());
+                alumnoCiclo.setCreditosConvalidadosAcumulados(BigDecimal.ZERO.intValue());
+                alumnoCiclo.setEstadoEnum(EstadoMatriculaEnum.NMAT);
+                alumnoCiclo.setRegistroValido(true);
+                if (!validarConCicloEgreso(alumnoCiclo, egresado)) {
+                    return null;
+                }
+                alumnosCiclosByAlumno.add(alumnoCiclo);
+                return alumnoCiclo;
+
+            } else {
+                return alumnoCiclo;
             }
-            return alumnoCiclo;
         }
 
         if (alumnoCiclo != null) {
@@ -738,6 +768,33 @@ public class PromedioServiceImp implements PromedioService {
             CicloAcademico ciclo = ac.getCicloAcademico();
             if (ciclo.getCodigoInt() > cicloNumerico) {
                 return ac;
+            }
+        }
+        return null;
+    }
+
+    private boolean verificarCicloReincorporaPosterior(Reincorporacion reincorporacion, AlumnoCiclo alumnoCiclo) {
+        if (reincorporacion == null) {
+            return false;
+        }
+        if (alumnoCiclo == null) {
+            return false;
+        }
+        CicloAcademico cicloRei = reincorporacion.getCicloReincorporacion();
+        CicloAcademico cicloAlu = alumnoCiclo.getCicloAcademico();
+
+        return cicloRei.getCodigoInt() > cicloAlu.getCodigoInt();
+
+    }
+
+    private Reincorporacion findReincorporacion(List<Reincorporacion> reincorporaciones, Integer cicloNumerico) {
+        if (reincorporaciones.isEmpty()) {
+            return null;
+        }
+        for (Reincorporacion rei : reincorporaciones) {
+            CicloAcademico cicloRei = rei.getCicloReincorporacion();
+            if (cicloRei.getCodigoInt() > cicloNumerico) {
+                return rei;
             }
         }
         return null;

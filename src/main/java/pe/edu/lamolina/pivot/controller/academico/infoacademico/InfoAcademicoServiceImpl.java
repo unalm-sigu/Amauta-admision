@@ -1070,29 +1070,29 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
         return "-";
     }
 
-    private String returnFacultadMerito(AlumnoCiclo alumnoCiclo) {
-        if (alumnoCiclo.getCuadroHonorFacultadNivel() != null) {
-            return "C.Honor";
-        } else if (alumnoCiclo.getQuintoSuperiorFacultadNivel() != null) {
-            return "5to.Super.";
-
-        } else if (alumnoCiclo.getTercioSuperiorFacultadNivel() != null) {
-            return "3cio.Super.";
-        }
-        return "-";
-    }
-
-    private String returnCarreraMerito(AlumnoCiclo alumnoCiclo) {
-        if (alumnoCiclo.getCuadroHonorCarreraNivel() != null) {
-            return "C.Honor";
-        } else if (alumnoCiclo.getQuintoSuperiorCarreraNivel() != null) {
-            return "5to.Super.";
-
-        } else if (alumnoCiclo.getTercioSuperiorCarreraNivel() != null) {
-            return "3cio.Super.";
-        }
-        return "-";
-    }
+//    private String returnFacultadMerito(AlumnoCiclo alumnoCiclo) {
+//        if (alumnoCiclo.getCuadroHonorFacultadNivel() != null) {
+//            return "C.Honor";
+//        } else if (alumnoCiclo.getQuintoSuperiorFacultadNivel() != null) {
+//            return "5to.Super.";
+//
+//        } else if (alumnoCiclo.getTercioSuperiorFacultadNivel() != null) {
+//            return "3cio.Super.";
+//        }
+//        return "-";
+//    }
+//
+//    private String returnCarreraMerito(AlumnoCiclo alumnoCiclo) {
+//        if (alumnoCiclo.getCuadroHonorCarreraNivel() != null) {
+//            return "C.Honor";
+//        } else if (alumnoCiclo.getQuintoSuperiorCarreraNivel() != null) {
+//            return "5to.Super.";
+//
+//        } else if (alumnoCiclo.getTercioSuperiorCarreraNivel() != null) {
+//            return "3cio.Super.";
+//        }
+//        return "-";
+//    }
 
     @Override
     @Transactional
