@@ -40,4 +40,6 @@ public interface ActaService {
 
     Map mapCantidadAlumnoByGrupoNF(List<GrupoSeccion> gpoSecciones);
 
+    public List<DepartamentoAcademico> allDepartamentosAcademicos();
+
 }
