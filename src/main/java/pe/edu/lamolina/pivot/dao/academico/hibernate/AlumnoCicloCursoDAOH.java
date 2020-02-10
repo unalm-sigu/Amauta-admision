@@ -623,7 +623,7 @@ public class AlumnoCicloCursoDAOH extends AbstractEasyDAO<AlumnoCicloCurso> impl
                 .filter("acc.registroActivo", BigDecimal.ONE.intValue())
                 .orderBy("ca.codigo desc", "cu.nombre");
 
-        return sql.all(getCurrentSession());
+        return all(sql);
     }
 
     @Override
@@ -633,7 +633,7 @@ public class AlumnoCicloCursoDAOH extends AbstractEasyDAO<AlumnoCicloCurso> impl
                 .join("alumnoCiclo ac", "ac.alumno al", "curso cu", "ac.cicloAcademico")
                 .in("al.id", alumnos);
 
-        return sql.all(getCurrentSession());
+        return all(sql);
     }
 
     @Override

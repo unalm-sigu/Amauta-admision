@@ -70,6 +70,7 @@ import pe.edu.lamolina.pivot.controller.auditor.AuditorService;
 import pe.edu.lamolina.pivot.controller.interceptor.InterceptorService;
 import pe.edu.lamolina.pivot.controller.matricula.matriculable.VisorCalculaSituacion;
 import pe.edu.lamolina.pivot.controller.test.VisorCalculoNotas;
+import pe.edu.lamolina.pivot.controller.visores.RespositorVisor;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloCursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
@@ -138,6 +139,8 @@ public class PromedioServiceImp implements PromedioService {
     VisorCalculaSituacion visorCalculaSituacion;
     @Autowired
     SituacionAcademicaService situacionAcademicaService;
+    @Autowired
+    RespositorVisor respositorVisor;
 
     private final Integer VECES_TRIKA = 3;
 
@@ -417,6 +420,7 @@ public class PromedioServiceImp implements PromedioService {
             }
 
         } finally {
+            respositorVisor.incrementar();
         }
         long t2 = System.currentTimeMillis();
         if (showError) {
@@ -1955,7 +1959,7 @@ public class PromedioServiceImp implements PromedioService {
         }
         System.out.println(msg);
     }
-    
+
     @Override
     public List<Reincorporacion> allReincorporacionesByCicloActivo(List<Alumno> alumnos, List<CicloAcademico> ciclosActivos) {
         CicloAcademico cicloActivoPregrado = ciclosActivos.stream()
