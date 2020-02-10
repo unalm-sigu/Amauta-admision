@@ -1,6 +1,7 @@
 package pe.edu.lamolina.pivot.controller.academico.tramitesacademicos.tramiteRetiroCiclo;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -77,6 +78,7 @@ import pe.edu.lamolina.pivot.controller.matricula.configuracionturno.Configuraci
 import pe.edu.lamolina.pivot.controller.matricula.matriculable.MatriculableConnector;
 import pe.edu.lamolina.pivot.controller.matricula.matriculable.MatriculableService;
 import pe.edu.lamolina.pivot.controller.seriedocumento.SerieDocumentoService;
+import pe.edu.lamolina.pivot.controller.test.VisorCalculoNotas;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloCursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCursoCurriculaDAO;
@@ -193,6 +195,12 @@ public class TramiteCondicionalServiceImp implements TramiteCondicionalService {
 
     @Autowired
     MatriculableService matriculableService;
+
+    private final static String TOKEN_PROMEDIOS = "-token-promedios";
+    private final static String TOKEN_CURRICULA = "-token-curriculas";
+
+    @Autowired
+    VisorCalculoNotas visorCalculoNotas;
 
     @Override
     public List<CicloAcademico> allCiclos(CicloAcademico academico) {
@@ -320,7 +328,7 @@ public class TramiteCondicionalServiceImp implements TramiteCondicionalService {
 
     @Override
     @Transactional
-    public void updateRetiroCiclo(Tramite tramiteForm, DataSessionPivot ds) {
+    public String updateRetiroCiclo(Tramite tramiteForm, DataSessionPivot ds) {
 
         RetiroCiclo retiroCiclobd = retiroCicloDAO.findByTramite(tramiteForm);
         retiroCiclobd.setEstadoEnum(TramiteEstadoEnum.valueOf(tramiteForm.getEstado()));
@@ -336,7 +344,7 @@ public class TramiteCondicionalServiceImp implements TramiteCondicionalService {
         tramite.setEstadoEnum(TramiteEstadoEnum.valueOf(tramiteForm.getEstado()));
         tramiteDAO.update(tramite);
 
-        Alumno alumno = retiroCiclobd.getAlumno();
+        Alumno alumno = alumnoDAO.find(retiroCiclobd.getAlumno());
         MatriculaResumen matriculaResumen = new MatriculaResumen();
         if (retiroCiclobd.getEstadoEnum() == TramiteEstadoEnum.RCHZ) {
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
@@ -376,6 +384,16 @@ public class TramiteCondicionalServiceImp implements TramiteCondicionalService {
 
             avanceCurricularService.generarAvanceCurricularByAlumno(alumno, ds);
         }
+
+        String token = RandomStringUtils.randomAlphanumeric(43);
+        String tokenProm = token + TOKEN_PROMEDIOS;
+        String tokenCurri = token + TOKEN_CURRICULA;
+        List<Alumno> alumnos = new ArrayList<>();
+        alumnos.add(alumno);
+        visorCalculoNotas.createToken(tokenProm, alumnos);
+        visorCalculoNotas.createToken(tokenCurri, alumnos);
+
+        return token;
     }
 
     @Override
@@ -503,7 +521,7 @@ public class TramiteCondicionalServiceImp implements TramiteCondicionalService {
 
     @Override
     @Transactional
-    public void updateReincorporacion(Tramite tramiteForm, DataSessionPivot ds) {
+    public String updateReincorporacion(Tramite tramiteForm, DataSessionPivot ds) {
         EstadoTramite estadoTramite = null;
         if (tramiteForm.getEstadoEnum() == TramiteEstadoEnum.ACEP) {
             estadoTramite = estadoTramiteDAO.findByCodigo(EstadoTramiteEnum.SOL_ACEP);
@@ -518,7 +536,7 @@ public class TramiteCondicionalServiceImp implements TramiteCondicionalService {
         Reincorporacion reincorporacion = reincorporacionDAO.findByTramiteEstadoTram(tramiteForm, EstadoTramiteEnum.SOL_REI);
         reincorporacion.setEstadoTramite(estadoTramite);
 
-        Alumno alumno = reincorporacion.getAlumno();
+        Alumno alumno = alumnoDAO.find(reincorporacion.getAlumno());
         MatriculaResumen matriculaResumen = new MatriculaResumen();
         if (tramiteForm.getEstadoEnum() != TramiteEstadoEnum.ACEP) {
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
@@ -540,6 +558,16 @@ public class TramiteCondicionalServiceImp implements TramiteCondicionalService {
             reincorporacionDAO.update(reincorporacion);
 
         }
+
+        String token = RandomStringUtils.randomAlphanumeric(43);
+        String tokenProm = token + TOKEN_PROMEDIOS;
+        String tokenCurri = token + TOKEN_CURRICULA;
+        List<Alumno> alumnos = new ArrayList<>();
+        alumnos.add(alumno);
+        visorCalculoNotas.createToken(tokenProm, alumnos);
+        visorCalculoNotas.createToken(tokenCurri, alumnos);
+
+        return token;
     }
 
     private Resolucion createResolucion(Resolucion resolucionForm, TipoResolucionEnum tipoResolucionEnum, DataSessionPivot dsp) {
@@ -641,7 +669,7 @@ public class TramiteCondicionalServiceImp implements TramiteCondicionalService {
 
     @Override
     @Transactional
-    public void updateCambioNota(Tramite tramiteForm, DataSessionPivot ds) {
+    public String updateCambioNota(Tramite tramiteForm, DataSessionPivot ds) {
 
         CicloAcademico cicloAcademico = ds.getCicloAcademico();
         CambioNota cambioNota = cambioNotaDAO.findByTramite(tramiteForm);
@@ -710,7 +738,15 @@ public class TramiteCondicionalServiceImp implements TramiteCondicionalService {
             avanceCurricularService.generarAvanceCurricularByAlumno(alumno, ds);
 
         }
+        String token = RandomStringUtils.randomAlphanumeric(43);
+        String tokenProm = token + TOKEN_PROMEDIOS;
+        String tokenCurri = token + TOKEN_CURRICULA;
+        List<Alumno> alumnos = new ArrayList<>();
+        alumnos.add(alumno);
+        visorCalculoNotas.createToken(tokenProm, alumnos);
+        visorCalculoNotas.createToken(tokenCurri, alumnos);
 
+        return token;
     }
 
     private Integer evaluateEstaAprobado(BigDecimal nota, Alumno alumno) {
