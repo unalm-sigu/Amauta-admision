@@ -236,7 +236,7 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
             Assert.isFalse(count > 1, "Está repitiendo alumno");
         }
         List<Reincorporacion> reincorporacions = reincorporacionDAO.allByCicloReincorporacion(ds.getCicloAcademico());
-        Map<Long, Alumno> map = TypesUtil.convertListToMap("alumno", reincorporacions);
+        Map<Long, Alumno> map = TypesUtil.convertListToMap("alumno.id", reincorporacions);
 
         EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigo(EstadoTramiteEnum.SOL_ACEP);
         for (Reincorporacion reincorporacione : resolucionForm.getReincorporaciones()) {
