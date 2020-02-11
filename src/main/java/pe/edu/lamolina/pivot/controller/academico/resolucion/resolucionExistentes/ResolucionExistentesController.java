@@ -119,7 +119,7 @@ public class ResolucionExistentesController {
             }
         }
 
-        List<CicloAcademico> cicloAcademicos = service.ciclosAnteriores(15);
+        List<CicloAcademico> cicloAcademicos = service.ciclosAnteriores(40);
         List<Oficina> oficinas = resolucionService.allOFicinasByUser(ds);
         List<Carrera> carreras = service.allCarrera();
         for (Oficina oficina : oficinas) {
