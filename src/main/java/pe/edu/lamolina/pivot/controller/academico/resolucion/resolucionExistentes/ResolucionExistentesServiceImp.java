@@ -236,15 +236,15 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
             Assert.isFalse(count > 1, "Está repitiendo alumno");
         }
         List<Reincorporacion> reincorporacions = reincorporacionDAO.allByCicloReincorporacion(ds.getCicloAcademico());
-        Map<Long, Alumno> map = TypesUtil.convertListToMap("alumno.id", reincorporacions);
+        Map<Long, Reincorporacion> map = TypesUtil.convertListToMap("alumno.id", reincorporacions);
 
         EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigo(EstadoTramiteEnum.SOL_ACEP);
         for (Reincorporacion reincorporacione : resolucionForm.getReincorporaciones()) {
             reincorporacione.setCicloReincorporacion(resolucionForm.getCicloAplica());
 
-            Alumno alumno = map.get(reincorporacione.getAlumno().getId());
-            if (alumno != null) {
-                throw new PhobosException("El alumno" + alumno.getCodigo() + " ya cuenta con una resolución para el ciclo activo");
+            Reincorporacion reincorporacion = map.get(reincorporacione.getAlumno().getId());
+            if (reincorporacion != null) {
+                throw new PhobosException("El alumno" + reincorporacione.getAlumno().getCodigo() + " ya cuenta con una resolución para el ciclo activo");
             }
             if (!Objects.equals(reincorporacione.getCicloReincorporacion().getId(), ds.getCicloAcademico().getId())) {
                 throw new PhobosException("El alumno debe reincorporarce en el ciclo actual.");
@@ -253,7 +253,7 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
             TipoDocumentoCompania tipoDocumentoCompania = tipoDocumentoCompaniaDAO.findByCodigo(TipoDocumentoCompaniaEnum.TRAM);
             SerieDocumento serieDocumento = serieDocumentoService.getCorrelativo(tipoDocumentoCompania, Long.valueOf(today.getYear()), ds.getUsuario());
             TipoTramite tipoTramite = tipoTramiteDAO.findByCodigo(TipoTramiteEnum.REI.name());
-            alumno = alumnoDAO.find(reincorporacione.getAlumno());
+            Alumno alumno = alumnoDAO.find(reincorporacione.getAlumno());
 
             Tramite tramite = new Tramite();
             tramite.setActivo(true);
@@ -947,7 +947,7 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
             alumnoCicloCurso.setUserModificacion(usuario);
             alumnoCicloCurso.setFechaModificacion(new Date());
             alumnoCicloCursoDAO.updateColumns(alumnoCicloCurso, "estado", "userModificacion", "fechaModificacion");
-            
+
             alumnos.add(alumno);
         }
 
@@ -957,7 +957,7 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
 
         visorCalculoNotas.createToken(tokenProm, alumnos);
         visorCalculoNotas.createToken(tokenCurri, alumnos);
-        
+
         return token;
 
     }
