@@ -1516,11 +1516,17 @@ public class MatriculableServiceImp implements MatriculableService {
                 S_D.getValue(), S_4.getValue(), S_X.getValue(), S_XD.getValue(), S_4U.getValue(), S_8.getValue(),
                 S_7.getValue(), S_4T.getValue(), S_Q.getValue(), S_R.getValue(), S_E.getValue());
 
+        List<String> situacionesExepcionAptas = Arrays.asList(
+                S_X.getValue(), S_4.getValue(), S_4U.getValue());
+
         if (cicloActivo.isTipoRegular()) {
             situacionesNoAptas = Arrays.asList(
                     S_D.getValue(), S_4.getValue(), S_X.getValue(), S_XD.getValue(), S_4U.getValue(),
                     S_7.getValue(), S_4T.getValue(), S_Q.getValue(), S_R.getValue(), S_E.getValue());
         }
+
+        List<Reincorporacion> reincorporacions = reincorporacionDAO.allAceptadasPendientesByAlumnosCiclo(alumnos, cicloActivo);
+        Map<Long, Reincorporacion> mapReincorporacion = TypesUtil.convertListToMap("alumno.id", reincorporacions);
 
         List<MatriculaResumen> matriculables = matriculaResumenDAO.allByCiclo(cicloActivo);
         Map<Long, MatriculaResumen> mapMatriculable = TypesUtil.convertListToMap("alumno.id", matriculables);
@@ -1528,29 +1534,19 @@ public class MatriculableServiceImp implements MatriculableService {
         if (cicloActivo.getFechaMatriculables() != null) {
             for (Alumno alumno : alumnos) {
                 MatriculaResumen matriculable = mapMatriculable.get(alumno.getId());
+                if (situacionesExepcionAptas.contains(alumno.getSituacionAcademica().getCodigo())) {
+                    if (mapReincorporacion.get(alumno.getId()) != null) {
+                        this.addMatriculable(matriculable, alumno, cicloActivo, matriculables, mapMatriculable);
+                        continue;
+                    }
+                }
                 if (situacionesNoAptas.contains(alumno.getSituacionAcademica().getCodigo())) {
                     if (matriculable != null && Arrays.asList(NMAT, MAT).contains(matriculable.getEstadoEnum())) {
                         matriculable.setEstadoEnum(INH);
                         matriculaResumenDAO.update(matriculable);
                     }
                 } else {
-                    if (matriculable != null && !Arrays.asList(NMAT, MAT).contains(matriculable.getEstadoEnum())) {
-                        matriculable.setEstadoEnum(NMAT);
-                        matriculaResumenDAO.update(matriculable);
-
-                    } else if (matriculable == null && alumno.isPregrado()) {
-                        matriculable = new MatriculaResumen();
-                        matriculable.setAlumno(alumno);
-                        matriculable.setCicloAcademico(cicloActivo);
-                        matriculable.setSituacionInicio(alumno.getSituacionAcademica());
-                        matriculable.settingValoresDefecto();
-                        matriculable.setCreditosPagados(0);
-                        matriculable.setCreditosConsumidos(0);
-                        matriculaResumenDAO.save(matriculable);
-
-                        matriculables.add(matriculable);
-                        mapMatriculable.put(alumno.getId(), matriculable);
-                    }
+                    this.addMatriculable(matriculable, alumno, cicloActivo, matriculables, mapMatriculable);
                 }
             }
         }
@@ -1571,6 +1567,26 @@ public class MatriculableServiceImp implements MatriculableService {
             for (TurnoAtencion turno : turnos) {
                 turnoAtencionDAO.update(turno);
             }
+        }
+    }
+
+    private void addMatriculable(MatriculaResumen matriculable, Alumno alumno, CicloAcademico cicloActivo, List<MatriculaResumen> matriculables, Map<Long, MatriculaResumen> mapMatriculable) {
+        if (matriculable != null && !Arrays.asList(NMAT, MAT).contains(matriculable.getEstadoEnum())) {
+            matriculable.setEstadoEnum(NMAT);
+            matriculaResumenDAO.update(matriculable);
+
+        } else if (matriculable == null && alumno.isPregrado()) {
+            matriculable = new MatriculaResumen();
+            matriculable.setAlumno(alumno);
+            matriculable.setCicloAcademico(cicloActivo);
+            matriculable.setSituacionInicio(alumno.getSituacionAcademica());
+            matriculable.settingValoresDefecto();
+            matriculable.setCreditosPagados(0);
+            matriculable.setCreditosConsumidos(0);
+            matriculaResumenDAO.save(matriculable);
+
+            matriculables.add(matriculable);
+            mapMatriculable.put(alumno.getId(), matriculable);
         }
     }
 
