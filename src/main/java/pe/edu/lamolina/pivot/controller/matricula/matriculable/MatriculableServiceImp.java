@@ -615,19 +615,21 @@ public class MatriculableServiceImp implements MatriculableService {
     public void revisarMatriculables(DataSessionPivot ds, String token22) {
         String tokenCurri = token22 + TOKEN_CURRICULA;
         for (;;) {
+            logger.info("Esperando que termine curricula ....");
             if (visorCalculoNotas.estaCompletoToken(tokenCurri)) {
                 break;
             }
         }
+        logger.info("Terminó curricula ....");
+        TypesUtil.delay(2000);
 
         List<Alumno> alumnos = visorCalculoNotas.allAlumnosByToken(tokenCurri);
         alumnos = alumnoDAO.allByAlumnos(alumnos);
         visorCalculoNotas.destroyToken(tokenCurri);
 
-        TypesUtil.delay(2000);
-
         String tokenMat = token22 + TOKEN_MATRICULABLE;
         this.recalcularPrioridad(alumnos, ds.getUsuario(), tokenMat);
+        logger.info("Se terminó el ingreso a matriculables ... ");
     }
 
     @Override
@@ -1097,6 +1099,7 @@ public class MatriculableServiceImp implements MatriculableService {
         }
         visorCalculoNotas.destroyToken(tokenMatricula);
 
+        TypesUtil.delay(2000);
         List<Alumno> alumnos = visorCalculoNotas.allAlumnosByToken(tokenMatricula);
         List<MatriculaResumen> matriculaResumens = matriculaResumenDAO.allByAlumnosCiclo(alumnos, ds.getCicloAcademico());
         Map<Long, MatriculaResumen> mapMatriculables = TypesUtil.convertListToMap("alumno.id", matriculaResumens);

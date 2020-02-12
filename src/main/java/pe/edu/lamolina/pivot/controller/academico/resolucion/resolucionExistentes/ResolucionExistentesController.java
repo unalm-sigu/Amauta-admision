@@ -192,18 +192,21 @@ public class ResolucionExistentesController {
                 matriculableService.calcularPromedios(token, ds);
                 matriculableService.revisarCurriculaAlumnos(ds, token);
                 matriculableService.revisarMatriculables(ds, token);
+                matriculableService.generarAportes(ds, token);
 
             } else if (resolucion.isTipoRetiroCiclo() || resolucion.isTipoAnulacionCiclo()) {
                 String token = service.saveRetiroCiclo(resolucion, ds.getUsuario(), ds);
                 matriculableService.calcularPromedios(token, ds);
                 matriculableService.revisarCurriculaAlumnos(ds, token);
                 matriculableService.revisarMatriculables(ds, token);
+                matriculableService.generarAportes(ds, token);
 
             } else if (resolucion.isTipoCambioNota()) {
                 String token = service.saveCambioNota(resolucion, ds.getUsuario(), ds);
                 matriculableService.calcularPromedios(token, ds);
                 matriculableService.revisarCurriculaAlumnos(ds, token);
                 matriculableService.revisarMatriculables(ds, token);
+                matriculableService.generarAportes(ds, token);
 
             } else if (Arrays.asList(TRAS_INT.name(), TRAS.name(), INTES.name(), ING_HIS.name()).contains(resolucion.getTipoResolucion().getCodigo())) {
                 service.saveTramiteTraslado(resolucion, ds.getUsuario(), ds.getCicloAcademico(), ds.getCompania());
@@ -214,10 +217,11 @@ public class ResolucionExistentesController {
             } else if (resolucion.isTipoCursoDirigido()) {
                 msg = service.saveCursoDirigido(resolucion, ds.getUsuario(), ds);
             } else if (resolucion.isTipoNotaBaja()) {
-                 String token = service.saveNotaMasBaja(resolucion, ds.getUsuario(), ds.getCicloAcademico(), ds.getCompania());
+                String token = service.saveNotaMasBaja(resolucion, ds.getUsuario(), ds.getCicloAcademico(), ds.getCompania());
                 matriculableService.calcularPromedios(token, ds);
                 matriculableService.revisarCurriculaAlumnos(ds, token);
                 matriculableService.revisarMatriculables(ds, token);
+                matriculableService.generarAportes(ds, token);
             }
 
             response.setMessage("Se realizó el registro satisfactoriamente.");
