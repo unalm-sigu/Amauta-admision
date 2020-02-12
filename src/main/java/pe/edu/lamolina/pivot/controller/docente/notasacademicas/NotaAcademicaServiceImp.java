@@ -2206,7 +2206,7 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
 
         TypesUtil.delay(2000);
         logger.info("Iniciar revision de matriculables de {} alumnos del grupo-seccion {}", alumnos.size(), grupoSeccion.getId());
-        matriculableService.recalcularPrioridad(grupoSeccion);
+        matriculableService.recalcularPrioridad(grupoSeccion, ds.getUsuario());
     }
 
     @Override

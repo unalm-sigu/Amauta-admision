@@ -96,6 +96,7 @@ import static pe.edu.lamolina.model.enums.TipoTramiteEnum.CAM_NOTA;
 import static pe.edu.lamolina.model.enums.TramiteEstadoEnum.PEND;
 import pe.edu.lamolina.model.finanzas.Acreencia;
 import pe.edu.lamolina.model.finanzas.DeudaAlumno;
+import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.tramite.CambioNota;
 import pe.edu.lamolina.model.tramite.Reincorporacion;
 import pe.edu.lamolina.model.tramite.RetiroCiclo;
@@ -608,6 +609,7 @@ public class MatriculableServiceImp implements MatriculableService {
 
     @Async
     @Override
+    @Transactional
     public void revisarMatriculables(DataSessionPivot ds, String token22) {
         String tokenCurri = token22 + TOKEN_CURRICULA;
         for (;;) {
@@ -622,7 +624,7 @@ public class MatriculableServiceImp implements MatriculableService {
 
         TypesUtil.delay(2000);
 
-        this.recalcularPrioridad(alumnos);
+        this.recalcularPrioridad(alumnos, ds.getUsuario());
     }
 
     @Override
@@ -1504,12 +1506,12 @@ public class MatriculableServiceImp implements MatriculableService {
     @Async
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void recalcularPrioridad(GrupoSeccion grupoSeccion) {
+    public void recalcularPrioridad(GrupoSeccion grupoSeccion, Usuario usuario) {
         List<Alumno> alumnos = alumnoDAO.allMatriculadosByGpoSeccion(grupoSeccion);
-        recalcularPrioridad(alumnos);
+        recalcularPrioridad(alumnos, usuario);
     }
 
-    private void recalcularPrioridad(List<Alumno> alumnos) {
+    private void recalcularPrioridad(List<Alumno> alumnos, Usuario usuario) {
         CicloAcademico cicloActivo = cicloAcademicoDAO.findActivo(ModalidadEstudioEnum.PRE);
 
         List<String> situacionesNoAptas = Arrays.asList(
@@ -1536,7 +1538,7 @@ public class MatriculableServiceImp implements MatriculableService {
                 MatriculaResumen matriculable = mapMatriculable.get(alumno.getId());
                 if (situacionesExepcionAptas.contains(alumno.getSituacionAcademica().getCodigo())) {
                     if (mapReincorporacion.get(alumno.getId()) != null) {
-                        this.addMatriculable(matriculable, alumno, cicloActivo, matriculables, mapMatriculable);
+                        this.addMatriculable(matriculable, alumno, cicloActivo, matriculables, mapMatriculable, usuario);
                         continue;
                     }
                 }
@@ -1546,7 +1548,7 @@ public class MatriculableServiceImp implements MatriculableService {
                         matriculaResumenDAO.update(matriculable);
                     }
                 } else {
-                    this.addMatriculable(matriculable, alumno, cicloActivo, matriculables, mapMatriculable);
+                    this.addMatriculable(matriculable, alumno, cicloActivo, matriculables, mapMatriculable, usuario);
                 }
             }
         }
@@ -1570,7 +1572,7 @@ public class MatriculableServiceImp implements MatriculableService {
         }
     }
 
-    private void addMatriculable(MatriculaResumen matriculable, Alumno alumno, CicloAcademico cicloActivo, List<MatriculaResumen> matriculables, Map<Long, MatriculaResumen> mapMatriculable) {
+    private void addMatriculable(MatriculaResumen matriculable, Alumno alumno, CicloAcademico cicloActivo, List<MatriculaResumen> matriculables, Map<Long, MatriculaResumen> mapMatriculable, Usuario usuario) {
         if (matriculable != null && !Arrays.asList(NMAT, MAT).contains(matriculable.getEstadoEnum())) {
             matriculable.setEstadoEnum(NMAT);
             matriculaResumenDAO.update(matriculable);
@@ -1583,6 +1585,8 @@ public class MatriculableServiceImp implements MatriculableService {
             matriculable.settingValoresDefecto();
             matriculable.setCreditosPagados(0);
             matriculable.setCreditosConsumidos(0);
+            matriculable.setFechaRegistro(new Date());
+            matriculable.setUserRegistro(usuario);
             matriculaResumenDAO.save(matriculable);
 
             matriculables.add(matriculable);

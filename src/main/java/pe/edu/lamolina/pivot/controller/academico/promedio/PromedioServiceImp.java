@@ -285,7 +285,7 @@ public class PromedioServiceImp implements PromedioService {
             Collections.sort(alumnoCiclos, new AlumnoCiclo.CompareCicloAsc());
 
             for (AlumnoCiclo alumnoCiclo : alumnoCiclos) {
-                if (alumnoCiclo.isRegistroValido()) {
+                if (alumnoCiclo.isRegistroValido() || alumnoCiclo.isRegistroXReincorporacion()) {
                     ultimoAlumnoCiclo = alumnoCiclo;
                 }
 
@@ -313,7 +313,9 @@ public class PromedioServiceImp implements PromedioService {
                         alumnoCicloDAO.save(alumnoCiclo);
                         continue;
                     } else {
-                        throw new PhobosException("Alumno-Ciclo del " + cicloAlumno.getDescripcion() + " no fue validado para ser guardado");
+                        if (!alumnoCiclo.isRegistroXReincorporacion()) {
+                            throw new PhobosException("Alumno-Ciclo del " + cicloAlumno.getDescripcion() + " no fue validado para ser guardado");
+                        }
                     }
                 }
 
@@ -385,7 +387,7 @@ public class PromedioServiceImp implements PromedioService {
                 }
             }
 
-            if (ultimoAlumnoCiclo != null && ultimoAlumnoCiclo.isRegistroValido()) {
+            if (ultimoAlumnoCiclo != null && (ultimoAlumnoCiclo.isRegistroValido() || ultimoAlumnoCiclo.isRegistroXReincorporacion())) {
                 alumno.setSituacionAcademica(ultimoAlumnoCiclo.getSituacionFinal());
             }
 
@@ -533,7 +535,7 @@ public class PromedioServiceImp implements PromedioService {
                         alumnosCiclosByAlumno,
                         cicloSgte,
                         cicloNumerico,
-                        allReincorporaciones, ds);
+                        allReincorporaciones, cicloActivo, ds);
             }
 
             if (alumnoCicloEach == null) {
@@ -612,6 +614,7 @@ public class PromedioServiceImp implements PromedioService {
             CicloAcademico cicloAnalizar,
             Integer cicloNumerico,
             List<Reincorporacion> allReincorporaciones,
+            CicloAcademico cicloActivo,
             DataSessionPivot ds) {
 
         AlumnoCiclo alumnoCiclo = findSiguienteAlumnoCiclo(alumnosCiclosByAlumno, cicloNumerico);
@@ -630,12 +633,17 @@ public class PromedioServiceImp implements PromedioService {
                 }
 
             } else if (reincorporacion != null && !esCicloReincorporaPosterior) {
+
                 alumnoCiclo = new AlumnoCiclo();
                 alumnoCiclo.defaultValuesToCreate(alumno, reincorporacion.getCicloReincorporacion(), ds.getUsuario());
                 alumnoCiclo.setCreditosConvalidados(BigDecimal.ZERO.intValue());
                 alumnoCiclo.setCreditosConvalidadosAcumulados(BigDecimal.ZERO.intValue());
                 alumnoCiclo.setEstadoEnum(EstadoMatriculaEnum.NMAT);
-                alumnoCiclo.setRegistroValido(true);
+                if (reincorporacion.getCicloReincorporacion().getCodigoInt() < cicloActivo.getCodigoInt()) {
+                    alumnoCiclo.setRegistroValido(true);
+                } else {
+                    alumnoCiclo.setRegistroXReincorporacion(true);
+                }
                 if (!validarConCicloEgreso(alumnoCiclo, egresado)) {
                     return null;
                 }

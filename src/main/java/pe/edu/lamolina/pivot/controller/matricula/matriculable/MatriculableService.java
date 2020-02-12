@@ -13,6 +13,7 @@ import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.aporte.ResumenAporteAlumno;
 import pe.edu.lamolina.model.finanzas.DeudaAlumno;
+import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.controller.academico.alumno.AlumnoResumen;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -64,7 +65,7 @@ public interface MatriculableService {
 
     void recalcularPrioridad(GrupoSeccion gpoSecc, CicloAcademico ciclo);
 
-    void recalcularPrioridad(GrupoSeccion gpoSecc);
+    void recalcularPrioridad(GrupoSeccion gpoSecc, Usuario usuario);
 
     void revisarPrioridad(CicloAcademico ciclo, DataSessionPivot ds);
 
