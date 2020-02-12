@@ -382,7 +382,7 @@ public class TramiteCondicionalServiceImp implements TramiteCondicionalService {
                 alumnoCicloCursoDAO.update(alumnoCicloCurso);
             }
 
-            avanceCurricularService.generarAvanceCurricularByAlumno(alumno, ds);
+//            avanceCurricularService.generarAvanceCurricularByAlumno(alumno, ds);
         }
 
         String token = RandomStringUtils.randomAlphanumeric(43);
