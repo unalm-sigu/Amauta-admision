@@ -191,6 +191,7 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
 
     private final static String TOKEN_PROMEDIOS = "-token-promedios";
     private final static String TOKEN_CURRICULA = "-token-curriculas";
+    private final static String TOKEN_MATRICULABLE = "-token-matriculable";
 
     @Override
     public List<Alumno> allAlumnoByOficina(String nombre, Long instanciaOficina) {
@@ -286,9 +287,11 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
         String token = RandomStringUtils.randomAlphanumeric(43);
         String tokenProm = token + TOKEN_PROMEDIOS;
         String tokenCurri = token + TOKEN_CURRICULA;
+        String tokenMatri = token + TOKEN_MATRICULABLE;
 
         visorCalculoNotas.createToken(tokenProm, alumnos);
         visorCalculoNotas.createToken(tokenCurri, alumnos);
+        visorCalculoNotas.createToken(tokenMatri, alumnos);
 
         return token;
     }

@@ -57,9 +57,9 @@ public interface MatriculableService {
 
     List<Alumno> allAlumnoByNombre(String nombre, DataSessionPivot ds);
 
-    MatriculaResumen saveMatriculable(Alumno alumno, String tipoCondicional, DataSessionPivot ds);
+    String saveMatriculable(Alumno alumno, DataSessionPivot ds);
 
-    void generarAportes(Alumno alumno, MatriculaResumen matriculable, DataSessionPivot ds);
+    void generarAportes(DataSessionPivot ds, String token22);
 
     void generarVerano(CicloAcademico cicloAcademico, DataSessionPivot ds);
 

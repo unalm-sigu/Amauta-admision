@@ -444,11 +444,11 @@ public class AvanceCurricularServiceImp implements AvanceCurricularService {
     @Override
     public void generarAvanceCurricularByAlumnosPregrados(List<Alumno> alumnosForm, DataSessionPivot ds, String token) {
         List<Alumno> alumnosBD = alumnoDAO.allWithAllInfo(alumnosForm);
-        for (Alumno alumno : alumnosBD) {
-            if (!alumno.isPregrado()) {
-                visorCalculoNotas.incrementarToken(token);
-            }
-        }
+//        for (Alumno alumno : alumnosBD) {
+//            if (!alumno.isPregrado()) {
+//                visorCalculoNotas.incrementarToken(token);
+//            }
+//        }
         List<Alumno> alumnos = alumnosBD.stream().filter(x -> x.isPregrado()).collect(Collectors.toList());
 
         List<PlanCurricular> planCurriculars = planCurricularDAO.all();

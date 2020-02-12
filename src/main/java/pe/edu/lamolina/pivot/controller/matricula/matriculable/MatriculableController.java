@@ -499,10 +499,11 @@ public class MatriculableController {
         JsonResponse response = new JsonResponse();
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            MatriculaResumen matriculable = service.saveMatriculable(alumno, tipoCondicional, ds);
-            if (matriculable != null && matriculable.getProcesado() == 0) {
-                service.generarAportes(alumno, matriculable, ds);
-            }
+
+            String token = service.saveMatriculable(alumno, ds);
+
+//            service.revisarCurriculaAlumnos(ds, tipoCondicional);
+            service.generarAportes(ds, token);
 
             response.setMessage("Se agregó al alumno satisfactoriamente.");
             response.setSuccess(true);

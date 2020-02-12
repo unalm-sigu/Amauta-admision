@@ -72,6 +72,8 @@ public class TramiteCondicionalController {
     @Autowired
     AporteAlumnoService aporteAlumnoService;
 
+    ;
+
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {
 
@@ -172,7 +174,6 @@ public class TramiteCondicionalController {
 
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            CicloAcademico cicloAcademico = ds.getCicloAcademico();
 
             if (tramite.getTipoTramite().getCodigo().equals(RCI.name())) {
                 service.saveRetiroCiclo(tramite, ds);
@@ -182,6 +183,8 @@ public class TramiteCondicionalController {
                 service.saveCambioNota(tramite, ds);
             }
 
+            String token = matriculableService.saveMatriculable(tramite.getAlumno(), ds);
+            matriculableService.generarAportes(ds, token);
             response.setMessage("Se guardó satisfactoriamente.");
             response.setSuccess(Boolean.TRUE);
 
@@ -220,7 +223,7 @@ public class TramiteCondicionalController {
             matriculableService.calcularPromedios(token, ds);
             matriculableService.revisarCurriculaAlumnos(ds, token);
             matriculableService.revisarMatriculables(ds, token);
-            
+
             response.setData(JsonHelper.createJson(matriculaResumen, jsonFactory, new String[]{"id"}));
             response.setMessage("Se actualizó satisfactoriamente.");
             response.setSuccess(Boolean.TRUE);

@@ -277,48 +277,48 @@ public class TramiteCondicionalServiceImp implements TramiteCondicionalService {
         retiro.setEsCondicional(Boolean.TRUE);
         retiroCicloDAO.save(retiro);
 
-        MatriculaResumen matriculaResumen = matriculaResumenDAO.findByFilter(ciclo, alumno, EstadoMatriculaEnum.NMAT);
-        if (matriculaResumen != null) {
-
-            if (ciclo.getFechaPrioridades() != null) {
-                matriculaResumen.setMotivoMatriculable(tremite.getMotivoResolucion());
-                matriculaResumen.setEsCondicional(true);
-                matriculaResumen.setFechaCondicional(new Date());
-
-                AlumnoCiclo alumnoCicloPenultimo = alumnoCiclos.get(1);
-                alumnoCiclo = alumnoCicloDAO.findActivosRegularesByCiclo(alumnoCicloPenultimo.getCicloAcademico(), alumno);
-                matriculaResumen = matriculableConector.procesarPrioridadAlumno(matriculaResumen, alumnoCiclo);
-
-                MatriculaResumen matriculaAnt = matriculaResumenDAO.findByPuntajeMenor(matriculaResumen, ciclo, alumno.getCreditosAprobadosConvalidados() > CAPA_ULTIMO_CICLO ? true : false);
-                MatriculaResumen matriculaDes = matriculaResumenDAO.findByPuntajeMayor(matriculaResumen, ciclo, alumno.getCreditosAprobadosConvalidados() > CAPA_ULTIMO_CICLO ? true : false);
-                if (matriculaAnt != null && matriculaDes != null) {
-
-                    BigDecimal prioridad = matriculaAnt.getPrioridad().add(matriculaDes.getPrioridad()).divide(new BigDecimal(2));
-                    matriculaResumen.setPrioridad(prioridad);
-                    if (ciclo.getFechaTurnosAsignados() != null) {
-                        EventoAcademicoEnum eventoEnum = ciclo.isTipoRegular() ? MAT_REG : MAT_VER;
-                        TurnoAtencion turnoAlumno = turnoAtencionDAO.findById(matriculaResumen.getTurnoAtencion().getId());
-                        TurnoAtencion turnosAtencion = turnoAtencionDAO.findByPrioridad(prioridad, ciclo, eventoEnum);
-                        if (turnoAlumno.getId() != turnosAtencion.getId().longValue()) {
-                            BigDecimal numPrioridad = turnosAtencion.getPrioridadFin().add(new BigDecimal("0.01"));
-                            Integer cantAlum = turnosAtencion.getAlumnos() + 1;
-                            turnosAtencion.setAlumnos(cantAlum);
-                            turnosAtencion.setPrioridadFin(numPrioridad);
-                            turnoAtencionDAO.update(turnosAtencion);
-                        }
-
-                        matriculaResumen.setTurnoAtencion(turnosAtencion);
-
-                    }
-                    matriculaResumenDAO.update(matriculaResumen);
-                }
-            }
-
-        } else {
-
-            matriculableService.saveMatriculable(alumno, TipoCondicionalEnum.RETIRO_CICLO.name(), dx);
-        }
-
+//        por ver 
+        //        MatriculaResumen matriculaResumen = matriculaResumenDAO.findByFilter(ciclo, alumno, EstadoMatriculaEnum.NMAT);
+        //        if (matriculaResumen != null) {
+        //
+        //            if (ciclo.getFechaPrioridades() != null) {
+        //                matriculaResumen.setMotivoMatriculable(tremite.getMotivoResolucion());
+        //                matriculaResumen.setEsCondicional(true);
+        //                matriculaResumen.setFechaCondicional(new Date());
+        //
+        //                AlumnoCiclo alumnoCicloPenultimo = alumnoCiclos.get(1);
+        //                alumnoCiclo = alumnoCicloDAO.findActivosRegularesByCiclo(alumnoCicloPenultimo.getCicloAcademico(), alumno);
+        //                matriculaResumen = matriculableConector.procesarPrioridadAlumno(matriculaResumen, alumnoCiclo);
+        //
+        //                MatriculaResumen matriculaAnt = matriculaResumenDAO.findByPuntajeMenor(matriculaResumen, ciclo, alumno.getCreditosAprobadosConvalidados() > CAPA_ULTIMO_CICLO ? true : false);
+        //                MatriculaResumen matriculaDes = matriculaResumenDAO.findByPuntajeMayor(matriculaResumen, ciclo, alumno.getCreditosAprobadosConvalidados() > CAPA_ULTIMO_CICLO ? true : false);
+        //                if (matriculaAnt != null && matriculaDes != null) {
+        //
+        //                    BigDecimal prioridad = matriculaAnt.getPrioridad().add(matriculaDes.getPrioridad()).divide(new BigDecimal(2));
+        //                    matriculaResumen.setPrioridad(prioridad);
+        //                    if (ciclo.getFechaTurnosAsignados() != null) {
+        //                        EventoAcademicoEnum eventoEnum = ciclo.isTipoRegular() ? MAT_REG : MAT_VER;
+        //                        TurnoAtencion turnoAlumno = turnoAtencionDAO.findById(matriculaResumen.getTurnoAtencion().getId());
+        //                        TurnoAtencion turnosAtencion = turnoAtencionDAO.findByPrioridad(prioridad, ciclo, eventoEnum);
+        //                        if (turnoAlumno.getId() != turnosAtencion.getId().longValue()) {
+        //                            BigDecimal numPrioridad = turnosAtencion.getPrioridadFin().add(new BigDecimal("0.01"));
+        //                            Integer cantAlum = turnosAtencion.getAlumnos() + 1;
+        //                            turnosAtencion.setAlumnos(cantAlum);
+        //                            turnosAtencion.setPrioridadFin(numPrioridad);
+        //                            turnoAtencionDAO.update(turnosAtencion);
+        //                        }
+        //
+        //                        matriculaResumen.setTurnoAtencion(turnosAtencion);
+        //
+        //                    }
+        //                    matriculaResumenDAO.update(matriculaResumen);
+        //                }
+        //            }
+        //
+        //        } else {
+        //
+        //            matriculableService.saveMatriculable(alumno, TipoCondicionalEnum.RETIRO_CICLO.name(), dx);
+        //        }
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -476,47 +476,48 @@ public class TramiteCondicionalServiceImp implements TramiteCondicionalService {
         reincorporacione.setEsCondicional(Boolean.TRUE);
         reincorporacionDAO.save(reincorporacione);
 
-        MatriculaResumen matriculaResumen = matriculaResumenDAO.findByFilter(ciclo, alumno, EstadoMatriculaEnum.NMAT);
-        if (matriculaResumen != null) {
-
-            if (ciclo.getFechaPrioridades() != null) {
-                matriculaResumen.setMotivoMatriculable(tramite.getMotivoResolucion());
-                matriculaResumen.setEsCondicional(true);
-                matriculaResumen.setFechaCondicional(new Date());
-
-                AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findActivoRegularByCicloAlumno(alumno.getCicloActivoRegular(), alumno);
-                matriculaResumen = matriculableConector.procesarPrioridadAlumno(matriculaResumen, alumnoCiclo);
-
-                boolean esUltimoCiclo = alumno.getCreditosAprobadosConvalidados() > CAPA_ULTIMO_CICLO;
-                MatriculaResumen matriculaAnt = matriculaResumenDAO.findByPuntajeMenor(matriculaResumen, ciclo, esUltimoCiclo);
-                MatriculaResumen matriculaDes = matriculaResumenDAO.findByPuntajeMayor(matriculaResumen, ciclo, esUltimoCiclo);
-                if (matriculaAnt != null && matriculaDes != null) {
-
-                    BigDecimal prioridad = matriculaAnt.getPrioridad().add(matriculaDes.getPrioridad()).divide(new BigDecimal(2));
-                    matriculaResumen.setPrioridad(prioridad);
-                    if (ciclo.getFechaTurnosAsignados() != null) {
-                        EventoAcademicoEnum eventoEnum = ciclo.isTipoRegular() ? MAT_REG : MAT_VER;
-                        TurnoAtencion turnoAlumno = turnoAtencionDAO.findById(matriculaResumen.getTurnoAtencion().getId());
-                        TurnoAtencion turnosAtencion = turnoAtencionDAO.findByPrioridad(prioridad, ciclo, eventoEnum);
-                        if (turnoAlumno.getId() != turnosAtencion.getId()) {
-                            BigDecimal numPrioridad = turnosAtencion.getPrioridadFin().add(new BigDecimal("0.01"));
-                            Integer cantAlum = turnosAtencion.getAlumnos() + 1;
-                            turnosAtencion.setAlumnos(cantAlum);
-                            turnosAtencion.setPrioridadFin(numPrioridad);
-                            turnoAtencionDAO.update(turnosAtencion);
-                        }
-
-                        matriculaResumen.setTurnoAtencion(turnosAtencion);
-
-                    }
-                    matriculaResumenDAO.update(matriculaResumen);
-                }
-            }
-
-        } else {
-            matriculableService.saveMatriculable(alumno, TipoCondicionalEnum.REI.name(), dx);
-
-        }
+//        por ver 
+//        MatriculaResumen matriculaResumen = matriculaResumenDAO.findByFilter(ciclo, alumno, EstadoMatriculaEnum.NMAT);
+        //        if (matriculaResumen != null) {
+        //
+        //            if (ciclo.getFechaPrioridades() != null) {
+        //                matriculaResumen.setMotivoMatriculable(tramite.getMotivoResolucion());
+        //                matriculaResumen.setEsCondicional(true);
+        //                matriculaResumen.setFechaCondicional(new Date());
+        //
+        //                AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findActivoRegularByCicloAlumno(alumno.getCicloActivoRegular(), alumno);
+        //                matriculaResumen = matriculableConector.procesarPrioridadAlumno(matriculaResumen, alumnoCiclo);
+        //
+        //                boolean esUltimoCiclo = alumno.getCreditosAprobadosConvalidados() > CAPA_ULTIMO_CICLO;
+        //                MatriculaResumen matriculaAnt = matriculaResumenDAO.findByPuntajeMenor(matriculaResumen, ciclo, esUltimoCiclo);
+        //                MatriculaResumen matriculaDes = matriculaResumenDAO.findByPuntajeMayor(matriculaResumen, ciclo, esUltimoCiclo);
+        //                if (matriculaAnt != null && matriculaDes != null) {
+        //
+        //                    BigDecimal prioridad = matriculaAnt.getPrioridad().add(matriculaDes.getPrioridad()).divide(new BigDecimal(2));
+        //                    matriculaResumen.setPrioridad(prioridad);
+        //                    if (ciclo.getFechaTurnosAsignados() != null) {
+        //                        EventoAcademicoEnum eventoEnum = ciclo.isTipoRegular() ? MAT_REG : MAT_VER;
+        //                        TurnoAtencion turnoAlumno = turnoAtencionDAO.findById(matriculaResumen.getTurnoAtencion().getId());
+        //                        TurnoAtencion turnosAtencion = turnoAtencionDAO.findByPrioridad(prioridad, ciclo, eventoEnum);
+        //                        if (turnoAlumno.getId() != turnosAtencion.getId()) {
+        //                            BigDecimal numPrioridad = turnosAtencion.getPrioridadFin().add(new BigDecimal("0.01"));
+        //                            Integer cantAlum = turnosAtencion.getAlumnos() + 1;
+        //                            turnosAtencion.setAlumnos(cantAlum);
+        //                            turnosAtencion.setPrioridadFin(numPrioridad);
+        //                            turnoAtencionDAO.update(turnosAtencion);
+        //                        }
+        //
+        //                        matriculaResumen.setTurnoAtencion(turnosAtencion);
+        //
+        //                    }
+        //                    matriculaResumenDAO.update(matriculaResumen);
+        //                }
+        //            }
+        //
+        //        } else {
+        //            matriculableService.saveMatriculable(alumno, TipoCondicionalEnum.REI.name(), dx);
+        //
+        //        }
     }
 
     @Override
