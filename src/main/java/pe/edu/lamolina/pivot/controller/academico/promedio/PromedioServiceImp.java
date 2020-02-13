@@ -265,6 +265,10 @@ public class PromedioServiceImp implements PromedioService {
             Map<String, List<CicloAcademico>> mapCiclo = TypesUtil.convertListToMapList("codigo", ciclosAll);
             Map<Long, List<AlumnoCicloCurso>> mapAlumnoCicloCurso = TypesUtil.convertListToMapList("alumnoCiclo.id", alumnoCicloCursosAll);
 
+            for (Reincorporacion reincorporacion : allReincorporacionesByAlumno) {
+
+                logger.debug("Id de reincorporaciones {} ", reincorporacion.getId());
+            }
             this.promediarAlumno(
                     alumno,
                     egresado,
@@ -388,6 +392,8 @@ public class PromedioServiceImp implements PromedioService {
             }
 
             if (ultimoAlumnoCiclo != null && (ultimoAlumnoCiclo.isRegistroValido() || ultimoAlumnoCiclo.isRegistroXReincorporacion())) {
+                logger.debug("Id de ultimoAlumnoCiclo {} ", ultimoAlumnoCiclo.getId());
+                logger.debug("situacion de ultimoAlumnoCiclo {} ", ultimoAlumnoCiclo.getSituacionFinal().getCodigo());
                 alumno.setSituacionAcademica(ultimoAlumnoCiclo.getSituacionFinal());
             }
 
@@ -545,12 +551,17 @@ public class PromedioServiceImp implements PromedioService {
             CicloAcademico ciclo = alumnoCicloEach.getCicloAcademico();
             this.printSystem("Revisando2 ciclo=" + ciclo.getCodigo()
                     + ", sit-ini=" + ObjectUtil.getParentTree(alumnoCicloEach, "situacionInicio.codigo")
-                    + ", reg-val=" + alumnoCicloEach.isRegistroValido(), showError);
+                    + ", reg-val=" + alumnoCicloEach.isRegistroValido()
+                    + ", reg-val-reinco=" + alumnoCicloEach.isRegistroXReincorporacion(),
+                    showError);
 
             if (Arrays.asList(PRE, EPG).contains(modalidadEnum) && ciclo.getTipoEnum() == REG) {
                 if (alumnoCicloEach.getEstadoEnum() == NMAT) {
                     ciclosConsecutivosSinEstudiar++;
                     ciclosAlternosSinEstudiar++;
+                }
+                if (alumnoCicloEach.isRegistroXReincorporacion()) {
+                    ciclosConsecutivosSinEstudiar = 0;
                 }
             }
             if (Arrays.asList(RCI, ANCI, MAT).contains(alumnoCicloEach.getEstadoEnum())) {
@@ -633,7 +644,7 @@ public class PromedioServiceImp implements PromedioService {
                 }
 
             } else if (reincorporacion != null && !esCicloReincorporaPosterior) {
-
+                logger.info("Tiene Reincorporacion .... ");
                 alumnoCiclo = new AlumnoCiclo();
                 alumnoCiclo.defaultValuesToCreate(alumno, reincorporacion.getCicloReincorporacion(), ds.getUsuario());
                 alumnoCiclo.setCreditosConvalidados(BigDecimal.ZERO.intValue());
@@ -642,6 +653,7 @@ public class PromedioServiceImp implements PromedioService {
                 if (reincorporacion.getCicloReincorporacion().getCodigoInt() < cicloActivo.getCodigoInt()) {
                     alumnoCiclo.setRegistroValido(true);
                 } else {
+                    logger.info("Tiene registro x Reincorporacion .... ");
                     alumnoCiclo.setRegistroXReincorporacion(true);
                 }
                 if (!validarConCicloEgreso(alumnoCiclo, egresado)) {
@@ -1567,6 +1579,7 @@ public class PromedioServiceImp implements PromedioService {
         CicloAcademico siguienteCiclo = findCicloSiguienteRegularActivo(cicloAcademico, modalidadEstudioEnum, mapCiclo);
 
         AlumnoCiclo alumnoCiclo = findAlumnoCiclo(alumnoCiclos, cicloAcademico);
+        logger.debug("Ciclo Academico {}", cicloAcademico.getCodigo());
         this.printSystem("ciclo.estado.00=" + ObjectUtil.getParentTree(alumnoCiclo, "estado"), showError);
 
         AlumnoCiclo alumnoCicloAnterior = findAlumnoCicloAnterior(alumno, alumnoCiclos, cicloAcademico);
