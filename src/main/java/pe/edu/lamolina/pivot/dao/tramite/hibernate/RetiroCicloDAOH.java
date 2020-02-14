@@ -13,6 +13,7 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
 import static pe.edu.lamolina.model.enums.TramiteEstadoEnum.ACEP;
 import static pe.edu.lamolina.model.enums.TramiteEstadoEnum.PEND;
+import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.tramite.Resolucion;
 import pe.edu.lamolina.model.tramite.RetiroCiclo;
 import pe.edu.lamolina.model.tramite.Tramite;
@@ -73,7 +74,7 @@ public class RetiroCicloDAOH extends AbstractEasyDAO<RetiroCiclo> implements Ret
     }
 
     @Override
-    public List<RetiroCiclo> allByCiclo(CicloAcademico ciclo) {
+    public List<RetiroCiclo> allByCicloCondicional(CicloAcademico ciclo) {
         Octavia sql = new Octavia()
                 .from(RetiroCiclo.class, "rc")
                 .join("alumno al", "cicloAcademico ca", "cicloRegistro cr")
@@ -86,12 +87,24 @@ public class RetiroCicloDAOH extends AbstractEasyDAO<RetiroCiclo> implements Ret
     }
 
     @Override
-    public List<RetiroCiclo> allAlumnosByCiclo(List<Alumno> alumnos, CicloAcademico ciclo) {
+    public List<RetiroCiclo> allAlumnosByCicloCondicional(List<Alumno> alumnos, CicloAcademico ciclo) {
         Octavia sql = new Octavia()
                 .from(RetiroCiclo.class, "rc")
                 .join("alumno al", "cicloAcademico ca", "cicloRegistro cr")
                 .in("al.id", alumnos)
                 .filter("esCondicional", 1)
+                .filter("cr.id", ciclo);
+
+        return all(sql);
+    }
+
+    @Override
+    public List<RetiroCiclo> allAlumnosByCiclo(List<Alumno> alumnos, CicloAcademico ciclo) {
+        Octavia sql = new Octavia()
+                .from(RetiroCiclo.class, "rc")
+                .join("alumno al", "cicloAcademico ca", "cicloRegistro cr", "tramite")
+                .in("al.id", alumnos)
+                .filter("esCondicional", 0)
                 .filter("cr.id", ciclo);
 
         return all(sql);
@@ -160,6 +173,15 @@ public class RetiroCicloDAOH extends AbstractEasyDAO<RetiroCiclo> implements Ret
                 .left("cicloRegistro cr", "tramite tram")
                 .filter("al.id", alumno);
         return all(sql);
+    }
+
+    @Override
+    public void updateColumns(RetiroCiclo retiro, String... columns) {
+        Octavia sql = Octavia.update(RetiroCiclo.class, "ret");
+        for (String column : columns) {
+            sql.set(retiro, column);
+        }
+        this.update(sql);
     }
 
 }

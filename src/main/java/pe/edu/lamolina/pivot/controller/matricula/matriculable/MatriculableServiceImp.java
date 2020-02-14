@@ -409,7 +409,7 @@ public class MatriculableServiceImp implements MatriculableService {
         CicloAcademico cicloBD = cicloAcademicoDAO.find(ciclo);
         CicloAcademico cicloAntes = cicloAcademicoDAO.findAnteriorActivo(cicloBD);
         
-        List<RetiroCiclo> retiroCiclos = retiroCicloDAO.allByCiclo(ciclo);
+        List<RetiroCiclo> retiroCiclos = retiroCicloDAO.allByCicloCondicional(ciclo);
         List<Reincorporacion> reincorporacion = reincorporacionDAO.allByCicloReincorporacion(ciclo);
         List<CambioNota> cambioNota = cambioNotaDAO.allByCicloRegistro(ciclo);
         List<Alumno> alumosConTramite = retiroCiclos.stream().map(x -> x.getAlumno()).collect(Collectors.toList());
@@ -672,7 +672,7 @@ public class MatriculableServiceImp implements MatriculableService {
         
         int cachimbos = 8000;
         int escuela = 10000;
-        List<RetiroCiclo> retiroCiclos = retiroCicloDAO.allAlumnosByCiclo(alumnos, cicloForm);
+        List<RetiroCiclo> retiroCiclos = retiroCicloDAO.allAlumnosByCicloCondicional(alumnos, cicloForm);
         Map<Long, RetiroCiclo> mapAlumnoTramiteRetiro = TypesUtil.convertListToMap("alumno.id", retiroCiclos);
         
         for (MatriculaResumen matriculable : matriculables) {
