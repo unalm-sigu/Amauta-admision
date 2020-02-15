@@ -549,7 +549,7 @@ Vue.component("grupo-regular-aula-component", {
 
 
             if (errorCantHoras) {
-                notify("Asignar la cantidad de horas requeridas para la sección.", "error");
+                notify("5.Asignar la cantidad de horas requeridas para la sección.", "error");
                 return
             }
 

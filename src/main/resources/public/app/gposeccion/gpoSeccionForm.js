@@ -1838,15 +1838,15 @@ var app = new Vue({
                 return;
             }
             if (!$vue.changeAulaGpo.grupoHorasFin.diaHoraGrupo) {
-                notify("Asignar la cantidad de horas requeridas para la sección.", "error");
+                notify("1.Asignar la cantidad de horas requeridas para la sección.1.", "error");
                 return;
             }
             if (!$vue.changeAulaGpo.grupoHorasFin.diaHoraGrupo.length) {
-                notify("Asignar la cantidad de horas requeridas para la sección.", "error");
+                notify("2.Asignar la cantidad de horas requeridas para la sección.2.", "error");
                 return;
             }
             if ($vue.changeAulaGpo.grupoHorasFin.diaHoraGrupo.length < 1) {
-                notify("Asignar la cantidad de horas requeridas para la sección.", "error");
+                notify("3.Asignar la cantidad de horas requeridas para la sección.3.", "error");
                 return;
             }
 

@@ -61,4 +61,6 @@ public interface PromedioService {
 
     List<Reincorporacion> allReincorporacionesByCicloActivo(List<Alumno> alumnos, List<CicloAcademico> ciclosActivos);
 
+    void verificarAlumnosNmat(CicloAcademico ciclo);
+
 }

@@ -1928,9 +1928,11 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     @Transactional
     public void saveSeccionGrupoHorario(Seccion seccion, GrupoHoras gpoHoras, CicloAcademico cicloAcademico) {
         Seccion seccionDB = seccionDAO.find(seccion);
-        //seccionDB = seccionDB.clone();
-        if (gpoHoras != null && !gpoHoras.isPermiteCeroHoras()) {
-            Assert.isFalse(gpoHoras.getDiaHoraGrupo().isEmpty(), "Debe seleccionar las horas");
+        if (gpoHoras != null) {
+            GrupoHoras gpoHorasBD = grupoHorasDAO.find(gpoHoras);
+            if (!gpoHorasBD.isPermiteCeroHoras()) {
+                Assert.isFalse(gpoHoras.getDiaHoraGrupo().isEmpty(), "Debe seleccionar las horas");
+            }
         }
 
         ModalidadEstudio modalidadCurso = seccion.getGrupoSeccion().getCurso().getModalidadEstudio();

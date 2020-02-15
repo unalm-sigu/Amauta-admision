@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -101,6 +102,7 @@ import pe.edu.lamolina.model.tramite.RetiroCiclo;
 import pe.edu.lamolina.pivot.controller.academico.alumno.AlumnoResumen;
 import pe.edu.lamolina.pivot.controller.academico.avancecurricular.AvanceCurricularService;
 import pe.edu.lamolina.pivot.controller.academico.promedio.PromedioReviewService;
+import pe.edu.lamolina.pivot.controller.academico.promedio.PromedioSegundoService;
 import pe.edu.lamolina.pivot.controller.academico.promedio.PromedioService;
 import pe.edu.lamolina.pivot.controller.academico.tramitesacademicos.tramiteRetiroCiclo.ResponseRestService;
 import pe.edu.lamolina.pivot.controller.bienestar.alumnoAporte.AporteAlumnoService;
@@ -159,11 +161,24 @@ public class MatriculableServiceImp implements MatriculableService {
     EgresadoDAO egresadoDAO;
     @Autowired
     ReincorporacionDAO reincorporacionDAO;
-
     @Autowired
     AlumnoCicloCursoDAO alumnoCicloCursoDAO;
     @Autowired
     ConfiguracionTurnosAtencionDAO configuracionTurnosAtencionDAO;
+    @Autowired
+    AlumnoCursoCurriculaDAO alumnoCursoCurriculaDAO;
+    @Autowired
+    RetiroCicloDAO retiroCicloDAO;
+    @Autowired
+    AporteAlumnoCicloDAO aporteAlumnoCicloDAO;
+    @Autowired
+    ResumenAporteAlumnoDAO resumenAporteAlumnoDAO;
+    @Autowired
+    DeudaAlumnoDAO deudaAlumnoDAO;
+    @Autowired
+    AcreenciaDAO acreenciaDAO;
+    @Autowired
+    EventoCicloAcademicoDAO eventoCicloAcademicoDAO;
 
     @Autowired
     VisorCalculaSituacion visorCalculaSituacion;
@@ -181,16 +196,7 @@ public class MatriculableServiceImp implements MatriculableService {
     PromedioReviewService promedioReviewService;
 
     @Autowired
-    AlumnoCursoCurriculaDAO alumnoCursoCurriculaDAO;
-
-    @Autowired
-    RetiroCicloDAO retiroCicloDAO;
-
-    @Autowired
     AporteAlumnoService aporteAlumnoService;
-
-    @Autowired
-    AporteAlumnoCicloDAO aporteAlumnoCicloDAO;
 
     @Autowired
     CambioNotaDAO cambioNotaDAO;
@@ -203,18 +209,6 @@ public class MatriculableServiceImp implements MatriculableService {
 
     @Autowired
     RespositorVisor respositorVisor;
-
-    @Autowired
-    ResumenAporteAlumnoDAO resumenAporteAlumnoDAO;
-
-    @Autowired
-    DeudaAlumnoDAO deudaAlumnoDAO;
-
-    @Autowired
-    AcreenciaDAO acreenciaDAO;
-
-    @Autowired
-    EventoCicloAcademicoDAO eventoCicloAcademicoDAO;
 
     @Autowired
     VisorCalculoNotas visorCalculoNotas;
@@ -1603,14 +1597,16 @@ public class MatriculableServiceImp implements MatriculableService {
 
     @Async
     @Override
-    @Transactional
     public void verificarAlumnosNmat(DataSessionPivot ds, List<AlumnoCiclo> alumnoCiclos) {
 
         List<Alumno> alumnos = alumnoCiclos.stream().map(x -> x.getAlumno()).collect(Collectors.toList());
         alumnos = alumnoDAO.allInfoByAlumno(alumnos);
         logger.debug("Cantidad de alumnos {}", alumnoCiclos.size());
 
-        CicloAcademico academico = ds.getCicloAcademico();
+        String token = RandomStringUtils.randomAlphanumeric(34);
+        visorCalculoNotas.createToken(token, alumnos);
+
+        CicloAcademico ciclo = ds.getCicloAcademico();
         List<CicloAcademico> ciclosAcademicos = cicloAcademicoDAO.all();
         List<CicloAcademico> ciclosActivo = cicloAcademicoDAO.allActivosAlModalidades();
         Map<String, CicloAcademico> mapCiclo = TypesUtil.convertListToMap("modalidadEstudio.codigo", ciclosActivo);
@@ -1636,9 +1632,9 @@ public class MatriculableServiceImp implements MatriculableService {
             Egresado egresado = mapEgresados.get(alumno.getId());
             List<Reincorporacion> reincorporados = TypesUtil.getListNotNull(mapReincorporaciones.get(alumno.getId()));
             logger.info("Alumno codigo {}", alumno.getCodigo());
-            logger.debug("Cantidad de {} total {}", respositorVisor.getContador(), respositorVisor.getCantidadTotal());
+            logger.info("Cantidad de {} total {}", respositorVisor.getContador(), respositorVisor.getCantidadTotal());
 
-            promedioService.promediarAllCicloSync(
+            promedioService.promediarAllCicloAsync(
                     alumno,
                     cicloActivoMod,
                     egresado,
@@ -1646,13 +1642,26 @@ public class MatriculableServiceImp implements MatriculableService {
                     allAlumnoCiclos,
                     alumnoCicloCursosActivos,
                     alumnoCicloCursosAll,
-                    reincorporados, ds, true, true);
+                    reincorporados, ds, token, true, false);
 
-            respositorVisor.incrementar();
-            logger.debug("Cantidad de {} total {}", respositorVisor.getContador(), respositorVisor.getCantidadTotal());
         }
-        academico.setFechaVerificaNmat(new Date());
-        cicloAcademicoDAO.update(academico);
+
+        for (;;) {
+            for (;;) {
+                if (respositorVisor.getContador() < visorCalculoNotas.getCantidadByToken(token)) {
+                    System.out.println("Ya van " + visorCalculoNotas.getCantidadByToken(token) + " alumnos procesados");
+                    respositorVisor.incrementar();
+                    logger.info("Cantidad de {} total {}", respositorVisor.getContador(), respositorVisor.getCantidadTotal());
+                } else {
+                    break;
+                }
+            }
+            if (visorCalculoNotas.estaCompletoToken(token)) {
+                break;
+            }
+        }
+
+        promedioService.verificarAlumnosNmat(ciclo);
 
     }
 

@@ -37,6 +37,13 @@ public class VisorCalculoNotas {
         mapContador.put(token, cant + 1);
     }
 
+    public int getCantidadByToken(String token) {
+        if (token == null) {
+            return 0;
+        }
+        return mapContador.get(token);
+    }
+
     public synchronized void destroyToken(String token) {
         List<Alumno> alumnos = mapTokenAlumnos.get(token);
         if (alumnos != null) {

@@ -14,8 +14,6 @@ import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Egresado;
-import pe.edu.lamolina.model.enums.EstadoTramiteEnum;
-import pe.edu.lamolina.model.tramite.EstadoTramite;
 import pe.edu.lamolina.model.tramite.Reincorporacion;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloCursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloDAO;

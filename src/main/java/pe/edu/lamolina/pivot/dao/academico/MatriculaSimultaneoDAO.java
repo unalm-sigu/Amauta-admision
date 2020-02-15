@@ -8,10 +8,10 @@ import pe.edu.lamolina.model.matricula.MatriculaSimultaneo;
 
 public interface MatriculaSimultaneoDAO extends EasyDAO<MatriculaSimultaneo> {
 
-    public List<MatriculaSimultaneo> allByMatriculaCurso(List<MatriculaCurso> matriculaCursos);
+    List<MatriculaSimultaneo> allByMatriculaCurso(List<MatriculaCurso> matriculaCursos);
 
     List<MatriculaSimultaneo> allByMatriculaCurso(MatriculaCurso matriculaCurso);
 
-    public List<MatriculaSimultaneo> allByMatriculaResumen(List<MatriculaResumen> resumenes);
+    List<MatriculaSimultaneo> allByMatriculaResumen(List<MatriculaResumen> resumenes);
 
 }

@@ -544,7 +544,6 @@ public class MatriculableController {
         try {
             if (repositorVisor.isLibre()) {
                 List<AlumnoCiclo> alumnoCiclos = service.allAlumnosCicloNmat(ds.getCicloAcademico());
-
                 service.verificarAlumnosNmat(ds, alumnoCiclos);
             }
             response.setData(repositorVisor.porcentajeAvance());

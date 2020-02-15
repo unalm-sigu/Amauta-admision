@@ -90,8 +90,10 @@ public class CambioAulaGrupoController {
             response.setSuccess(true);
 
         } catch (PhobosException e) {
+            e.printStackTrace();
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
+            e.printStackTrace();
             ExceptionHandler.handleException(e, response);
         }
 

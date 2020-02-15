@@ -1133,10 +1133,8 @@ public class GpoSeccionController {
             response.setSuccess(Boolean.TRUE);
             response.setMessage("Porcentaje de avance actualizado");
         } catch (PhobosException e) {
-            e.printStackTrace();
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
-            e.printStackTrace();
             ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);

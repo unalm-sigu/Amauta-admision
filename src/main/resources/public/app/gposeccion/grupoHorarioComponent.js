@@ -532,18 +532,21 @@ Vue.component("grupohorario-component", {
             let errorCantHoras = false;
             console.log($vue.seccionModal.totalHorasSemanales)
             console.log(diasHorasGrupo.length)
-            if ($vue.seccionModal.totalHorasSemanales != diasHorasGrupo.length) {
+            //if (diasHorasGrupo.length !== 0) {
+            if ($vue.seccionModal.totalHorasSemanales !== diasHorasGrupo.length) {
                 errorCantHoras = true;
             }
-            if ($vue.tabGrupos.grupoHorarioSel.permiteCeroHoras) {
-                if (diasHorasGrupo.length == 0) {
+            //}
+            console.log($vue.tabGrupos.grupoHorarioSel.isPermiteCeroHoras)
+            if ($vue.tabGrupos.grupoHorarioSel.isPermiteCeroHoras) {
+                if (diasHorasGrupo.length === 0) {
                     errorCantHoras = false;
                 }
             }
 
 
             if (errorCantHoras) {
-                notify("Asignar la cantidad de horas requeridas para la sección.", "error");
+                notify("4.Asignar la cantidad de horas requeridas para la sección.", "error");
                 return;
             }
 

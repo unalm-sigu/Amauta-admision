@@ -218,18 +218,23 @@ public class PromedioServiceImp implements PromedioService {
             ds.setFechaAccionAudit(new Date());
         }
 
-        this.promediarAllCicloSync(
-                alumno,
-                cicloActivo,
-                egresado,
-                ciclos,
-                alumnoCiclos,
-                allOperativesCicloCurso,
-                allAlumnoCicloCurso,
-                allReincorporacionesByAlumno, ds,
-                throwError, showError);
+        try {
+            this.promediarAllCicloSync(
+                    alumno,
+                    cicloActivo,
+                    egresado,
+                    ciclos,
+                    alumnoCiclos,
+                    allOperativesCicloCurso,
+                    allAlumnoCicloCurso,
+                    allReincorporacionesByAlumno, ds,
+                    throwError, showError);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         visorCalculoNotas.incrementarToken(token);
+        System.out.println("**************************** CANT-TOKEN = " + visorCalculoNotas.getCantidadByToken(token));
     }
 
     @Override
@@ -1955,7 +1960,7 @@ public class PromedioServiceImp implements PromedioService {
         }
         System.out.println(msg);
     }
-    
+
     @Override
     public List<Reincorporacion> allReincorporacionesByCicloActivo(List<Alumno> alumnos, List<CicloAcademico> ciclosActivos) {
         CicloAcademico cicloActivoPregrado = ciclosActivos.stream()
@@ -1980,6 +1985,13 @@ public class PromedioServiceImp implements PromedioService {
         reincorporacionesPregradoAntes.addAll(reincorporacionesPosgradoActivo);
 
         return reincorporacionesPregradoAntes;
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void verificarAlumnosNmat(CicloAcademico ciclo) {
+        ciclo.setFechaVerificaNmat(new Date());
+        cicloAcademicoDAO.update(ciclo);
     }
 
 }

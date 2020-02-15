@@ -106,6 +106,8 @@ public class CambioAulaGrupoServiceImp implements CambioAulaGrupoService {
             throw new PhobosException("No puede asignarle el mismo grupo sección. ");
         }
 
+        System.out.println("horas::" + cambioAulaGrupo.getGrupoHorasFin().getDiaHoraGrupo().size());
+
         if (cambioAulaGrupo.getGrupoHorasFin().getDiaHoraGrupo() != null) {
             logger.debug("grupoHoraFin.getDiaHoraGrupo size {}", cambioAulaGrupo.getGrupoHorasFin().getDiaHoraGrupo().size());
             if (cambioAulaGrupo.getGrupoHorasFin().getDiaHoraGrupo().size() != seccionBD.getHorasSemanales().intValue()) {
