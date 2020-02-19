@@ -1656,7 +1656,7 @@ public class MatriculableServiceImp implements MatriculableService {
 
     @Async
     @Override
-    public void verificarAlumnosNmat(DataSessionPivot ds, List<AlumnoCiclo> alumnoCiclos) {
+    public void verificarAlumnosNmat(DataSessionPivot ds, List<AlumnoCiclo> alumnoCiclosForm) {
 
         List<Alumno> alumnos = alumnoCiclosForm.stream().map(x -> x.getAlumno()).collect(Collectors.toList());
         alumnos = alumnoDAO.allInfoByAlumno(alumnos);
@@ -1667,8 +1667,8 @@ public class MatriculableServiceImp implements MatriculableService {
 
         CicloAcademico ciclo = ds.getCicloAcademico();
         List<CicloAcademico> ciclosAcademicos = cicloAcademicoDAO.all();
-        List<CicloAcademico> ciclosActivo = cicloAcademicoDAO.allActivosAlModalidades();
-        Map<String, CicloAcademico> mapCiclo = TypesUtil.convertListToMap("modalidadEstudio.codigo", ciclosActivo);
+        List<CicloAcademico> ciclosActivos = cicloAcademicoDAO.allActivosAlModalidades();
+        Map<String, CicloAcademico> mapCiclo = TypesUtil.convertListToMap("modalidadEstudio.codigo", ciclosActivos);
 
         List<Egresado> egresados = egresadoDAO.allByAlumnos(alumnos);
         List<AlumnoCiclo> alumnosCiclosAll = alumnoCicloDAO.allByAlumnos(alumnos);
@@ -1677,13 +1677,13 @@ public class MatriculableServiceImp implements MatriculableService {
         List<Reincorporacion> reincorporaciones = promedioService.allReincorporacionesByCicloActivo(alumnos, ciclosActivos);
 
         Map<Long, List<AlumnoCiclo>> mapAlumnoCiclo = TypesUtil.convertListToMapList("alumno.id", alumnosCiclosAll);
-        Map<Long, List<AlumnoCicloCurso>> mapAlumnoCicloCursoActivo = TypesUtil.convertListToMapList("alumnoCiclo.alumno.id", alumnosCiclosCursosActivos);
+        Map<Long, List<AlumnoCicloCurso>> mapAlumnoCicloCursoActivos = TypesUtil.convertListToMapList("alumnoCiclo.alumno.id", alumnosCiclosCursosActivos);
         Map<Long, List<AlumnoCicloCurso>> mapAlumnoCicloCursoAll = TypesUtil.convertListToMapList("alumnoCiclo.alumno.id", alumnosCiclosCursosAll);
-        Map<Long, List<Reincorporacion>> mapReincorporacion = TypesUtil.convertListToMapList("alumno.id", reincorporaciones);
-        Map<Long, Egresado> mapEgresado = TypesUtil.convertListToMap("alumno.id", egresados);
+        Map<Long, List<Reincorporacion>> mapReincorporaciones = TypesUtil.convertListToMapList("alumno.id", reincorporaciones);
+        Map<Long, Egresado> mapEgresados = TypesUtil.convertListToMap("alumno.id", egresados);
 
         for (Alumno alumno : alumnos) {
-            CicloAcademico cicloActivoMod = mapCiclo.get(alumno.getModalidadEstudio().getCodigo());
+            CicloAcademico cicloActivo = mapCiclo.get(alumno.getModalidadEstudio().getCodigo());
             List<AlumnoCiclo> allAlumnoCiclos = TypesUtil.getListNotNull(mapAlumnoCiclo.get(alumno.getId()));
             List<AlumnoCicloCurso> alumnoCicloCursosActivos = TypesUtil.getListNotNull(mapAlumnoCicloCursoActivos.get(alumno.getId()));
             List<AlumnoCicloCurso> alumnoCicloCursosAll = TypesUtil.getListNotNull(mapAlumnoCicloCursoAll.get(alumno.getId()));

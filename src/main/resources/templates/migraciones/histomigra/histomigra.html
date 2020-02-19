@@ -1,6 +1,17 @@
 <html layout:decorator="_layout/layout">
     <head>
         <title>Historial Oracle</title>
+        <style>
+            b-b-histo {
+                border-bottom: 1px solid #90A7B4 !important;
+            }
+            .b-t-histo {
+                border-top: 1px solid #90A7B4 !important;
+            }
+            .bg-info-histo {
+                background-color: #F3F6F6 !important;
+            }
+        </style>
     </head>
 
     <body>
@@ -31,17 +42,24 @@
                                             <tr>
                                                 <th class="col-md-1 text-center v-middle">Ciclo</th>
                                                 <th class="col-md-1 text-center v-middle">Código Antiguo</th>
-                                                <th class="col-md-7 text-center v-middle">Curso</th>
+                                                <th class="col-md-6 text-center v-middle">Curso</th>
                                                 <th class="col-md-1 text-center v-middle">MOV</th>
                                                 <th class="col-md-1 text-center v-middle">Créditos</th>
                                                 <th class="col-md-1 text-center v-middle">Nota</th>
+                                                <th class="col-md-1 text-center v-middle">Tipo Mov Oracle</th>
                                                 <th></th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <tr v-for="item in props.data">
-                                                <td class="v-middle text-center" v-text="item.histoPK.ciclo"></td>
-                                                <td class="v-middle text-center" v-text="item.histoPK.curCodigo"></td>
+                                                <td class="v-middle text-center bg-info-histo b-t-histo b-b-histo" 
+                                                    v-if="item.rowspan > 0"
+                                                    v-bind:rowspan="item.rowspan">
+                                                    <span v-text="item.ciclo" class="block text-primary"></span>
+                                                    <span v-if="item.estadoCiclo == 'MAT' " v-text="item.estadoCiclo" class="block text-success"></span>
+                                                    <span v-else="" v-text="item.estadoCiclo" class="block text-danger"></span>
+                                                </td>
+                                                <td class="v-middle text-center" v-text="item.curCodigo"></td>
                                                 <td class="v-middle">
                                                     <div class="block text-primary">{{item.curso.nombre}}</div>
                                                     <div class="block">
@@ -51,23 +69,24 @@
                                                     </div>
                                                 </td>
                                                 <td class="v-middle text-center">
-                                                    <span v-text="item.histoPK.mov" class="text-primary"></span> |
+                                                    <span v-text="item.mov" class="text-primary"></span> |
                                                     <span v-text="item.aluciclocurso.estado" class="text-success"></span> |
                                                     <i v-if="item.movOk" class="fa fa-check-circle text-success"></i>
-                                                    <i v-else="" class="fa fa-exclamation-circle text-success"></i>
+                                                    <i v-else="" class="fa fa-exclamation-circle text-danger"></i>
                                                 </td>
                                                 <td class="v-middle text-center" >
                                                     <span v-text="item.curCredit" class="text-primary"></span> |
                                                     <span v-text="item.aluciclocurso.creditos" class="text-success"></span> |
                                                     <i v-if="item.creditosOk" class="fa fa-check-circle text-success"></i>
-                                                    <i v-else="" class="fa fa-exclamation-circle text-success"></i>
+                                                    <i v-else="" class="fa fa-exclamation-circle text-danger"></i>
                                                 </td>
                                                 <td class="v-middle text-center">
                                                     <span v-text="item.nota" class="text-primary"></span> |
                                                     <span v-text="item.aluciclocurso.nota" class="text-success"></span> |
                                                     <i v-if="item.notaOk" class="fa fa-check-circle text-success"></i>
-                                                    <i v-else="" class="fa fa-exclamation-circle text-success"></i>
+                                                    <i v-else="" class="fa fa-exclamation-circle text-danger"></i>
                                                 </td>
+                                                <td class="v-middle text-center text-primary bold" v-text="item.tMov"></td>
                                                 <td></td>
                                             </tr>
                                         </tbody>
