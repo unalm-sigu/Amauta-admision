@@ -15,9 +15,9 @@ public interface RetiroCicloDAO extends EasyDAO<RetiroCiclo> {
 
     RetiroCiclo findByAlumnoCicloRegistro(Alumno alumno, CicloAcademico ciclo);
 
-    List<RetiroCiclo> allByCiclo(CicloAcademico ciclo);
+    List<RetiroCiclo> allByCicloCondicional(CicloAcademico ciclo);
 
-    List<RetiroCiclo> allAlumnosByCiclo(List<Alumno> alumnos, CicloAcademico ciclo);
+    List<RetiroCiclo> allAlumnosByCicloCondicional(List<Alumno> alumnos, CicloAcademico ciclo);
 
     RetiroCiclo findByAlumnoCicloRetiro(Alumno alumno, CicloAcademico ciclo);
 
@@ -32,5 +32,9 @@ public interface RetiroCicloDAO extends EasyDAO<RetiroCiclo> {
     List<RetiroCiclo> allInfo();
 
     List<RetiroCiclo> allRetiroCicloByAlumno(Alumno alumno);
+
+    List<RetiroCiclo> allAlumnosByCiclo(List<Alumno> alumnos, CicloAcademico ciclo);
+
+    public void updateColumns(RetiroCiclo retiro, String... columns);
 
 }

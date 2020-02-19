@@ -70,8 +70,11 @@ import pe.edu.lamolina.model.enums.MotivoAnulacionEnum;
 import pe.edu.lamolina.model.enums.TipoCicloEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEvalEnum;
+import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.tramite.Reincorporacion;
+import pe.edu.lamolina.model.tramite.RetiroCiclo;
+import pe.edu.lamolina.model.tramite.Tramite;
 import pe.edu.lamolina.pivot.controller.academico.avancecurricular.AvanceCurricularService;
 import pe.edu.lamolina.pivot.controller.academico.calculonotas.CalculoNotasService;
 import pe.edu.lamolina.pivot.controller.academico.promedio.PromedioService;
@@ -106,6 +109,8 @@ import pe.edu.lamolina.pivot.dao.academico.PlanCalificacionCursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.ReclamoNotaDAO;
 import pe.edu.lamolina.pivot.dao.academico.ResumenAlumnoEvaluacionDAO;
 import pe.edu.lamolina.pivot.dao.tramite.ReincorporacionDAO;
+import pe.edu.lamolina.pivot.dao.tramite.RetiroCicloDAO;
+import pe.edu.lamolina.pivot.dao.tramite.TramiteDAO;
 import pe.edu.lamolina.pivot.zelper.misc.MapUtil;
 
 @Service
@@ -191,6 +196,12 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
 
     @Autowired
     AlumnoCicloCursoDAO alumnoCicloCursoDAO;
+
+    @Autowired
+    RetiroCicloDAO retiroCicloDAO;
+
+    @Autowired
+    TramiteDAO tramiteDAO;
 
     @Autowired
     PromedioService promedioService;
@@ -2089,6 +2100,8 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
         List<AlumnoCicloCurso> cursosLlevadosAll = alumnoCicloCursoDAO.allCursadosByAlumnosCurso(alumnos, curso);
         Map<Long, List<AlumnoCicloCurso>> mapCursoLlevado = TypesUtil.convertListToMapList("alumnoCiclo.alumno.id", cursosLlevadosAll);
 
+        this.verificarTramiteRetiroCicloEPG(alumnos, matriculasResumen, ds.getUsuario(), ds.getCicloAcademico());
+
         String token = RandomStringUtils.randomAlphanumeric(43);
         String tokenHisto = token + TOKEN_HISTORIAL;
         String tokenProm = token + TOKEN_PROMEDIOS;
@@ -2206,7 +2219,7 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
 
         TypesUtil.delay(2000);
         logger.info("Iniciar revision de matriculables de {} alumnos del grupo-seccion {}", alumnos.size(), grupoSeccion.getId());
-        matriculableService.recalcularPrioridad(grupoSeccion);
+        matriculableService.recalcularPrioridad(grupoSeccion, ds.getUsuario());
     }
 
     @Override
@@ -2353,6 +2366,35 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
     @Override
     public MatriculaCurso findByCursoResumen(MatriculaResumen matriculaResumen, Curso curso) {
         return matriculaCursoDAO.findByMatriculaCurso(matriculaResumen, curso);
+    }
+
+    private void verificarTramiteRetiroCicloEPG(List<Alumno> alumnos, List<MatriculaResumen> matriculasResumens, Usuario usuario, CicloAcademico cicloAcademico) {
+
+        List<RetiroCiclo> retiroCiclo = retiroCicloDAO.allAlumnosByCicloCondicional(alumnos, cicloAcademico);
+        Map<Long, RetiroCiclo> map = TypesUtil.convertListToMap("alumno.id", retiroCiclo);
+        List<MatriculaSeccion> matriculaSeccions = matriculaSeccionDAO.allByMatriculaResumenes(matriculasResumens);
+        Map<Long, List<GrupoSeccion>> mapGrupoSeccion = TypesUtil.convertListToMap("matriculaResumen.alumno.id", "seccion.grupoSeccion", matriculaSeccions);
+
+        for (Alumno alumno : alumnos) {
+            if (alumno.getModalidadEstudio().isPostgrado()) {
+                RetiroCiclo retiro = map.get(alumno.getId());
+                if (retiro != null) {
+                    List<GrupoSeccion> grupoSeccions = mapGrupoSeccion.get(alumno.getId());
+                    Boolean allCerrados = grupoSeccions.stream().allMatch(x -> x.isEstadoGrupoCerrado());
+                    if (allCerrados) {
+                        retiro.setEstadoEnum(TramiteEstadoEnum.VER_COL);
+                        retiroCicloDAO.updateColumns(retiro, "estado");
+
+                        Tramite tramite = retiro.getTramite();
+                        tramite.setEstadoEnum(TramiteEstadoEnum.VER_COL);
+                        tramite.setFechaModificacion(new Date());
+                        tramite.setUserModificacion(usuario);
+                        tramiteDAO.updateEstado(tramite);
+                    }
+                }
+            }
+        }
+
     }
 
 }

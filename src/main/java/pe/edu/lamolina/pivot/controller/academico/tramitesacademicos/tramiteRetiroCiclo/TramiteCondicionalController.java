@@ -72,6 +72,8 @@ public class TramiteCondicionalController {
     @Autowired
     AporteAlumnoService aporteAlumnoService;
 
+    ;
+
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {
 
@@ -172,7 +174,6 @@ public class TramiteCondicionalController {
 
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            CicloAcademico cicloAcademico = ds.getCicloAcademico();
 
             if (tramite.getTipoTramite().getCodigo().equals(RCI.name())) {
                 service.saveRetiroCiclo(tramite, ds);
@@ -182,6 +183,8 @@ public class TramiteCondicionalController {
                 service.saveCambioNota(tramite, ds);
             }
 
+            String token = matriculableService.saveMatriculable(tramite.getAlumno(), ds);
+            matriculableService.generarAportes(ds, token);
             response.setMessage("Se guardó satisfactoriamente.");
             response.setSuccess(Boolean.TRUE);
 
@@ -207,15 +210,20 @@ public class TramiteCondicionalController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             service.createToken(ds);
             MatriculaResumen matriculaResumen = new MatriculaResumen();
+            String token = "";
+
             if (tramite.getTipoTramite().getCodigo().equals(TipoTramiteEnum.RCI.name())) {
-                service.updateRetiroCiclo(tramite, ds);
+                token = service.updateRetiroCiclo(tramite, ds);
             } else if (tramite.getTipoTramite().getCodigo().equals(TipoTramiteEnum.REI.name())) {
-                service.updateReincorporacion(tramite, ds);
+                token = service.updateReincorporacion(tramite, ds);
             } else if (tramite.getTipoTramite().getCodigo().equals(TipoTramiteEnum.CAM_NOTA.name())) {
-                service.updateCambioNota(tramite, ds);
+                token = service.updateCambioNota(tramite, ds);
             }
-//            matriculableService.revisarSituacionAcademica(tramite.getAlumno(), ds);
-//            aporteAlumnoService.generarAportes(tramite.getAlumno(), ds.getCicloAcademico(), null, ds);
+
+            matriculableService.calcularPromedios(token, ds);
+            matriculableService.revisarCurriculaAlumnos(ds, token);
+            matriculableService.revisarMatriculables(ds, token);
+
             response.setData(JsonHelper.createJson(matriculaResumen, jsonFactory, new String[]{"id"}));
             response.setMessage("Se actualizó satisfactoriamente.");
             response.setSuccess(Boolean.TRUE);

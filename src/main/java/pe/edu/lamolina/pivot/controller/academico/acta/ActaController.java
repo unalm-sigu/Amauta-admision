@@ -40,6 +40,7 @@ import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.EstadoEnum;
+import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
 import pe.edu.lamolina.pivot.controller.academico.acta.reporte.RecordDeActasExcelView;
 import pe.edu.lamolina.pivot.controller.seguridad.verificador.VerificadorService;
@@ -105,8 +106,13 @@ public class ActaController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             CicloAcademico ciclo = ds.getCicloAcademico();
 
-            List<DepartamentoAcademico> departamentosAcaActivos = service.allActiveDepartamentosAcademicos(filter, ds.getDepartamentos(), ciclo);
+            logger.debug("Departamentos count {}", ds.getOficinaMain().getCodigo());
+            List<DepartamentoAcademico> departamentoAcademicos = ds.getDepartamentos();
+            if (ds.getOficinaMain().getCodigoEnum() == OficinaEnum.EPG) {
+                departamentoAcademicos = service.allDepartamentosAcademicos();
+            }
 
+            List<DepartamentoAcademico> departamentosAcaActivos = service.allActiveDepartamentosAcademicos(filter, departamentoAcademicos, ciclo);
             List<Long> departamentos = new ArrayList<>();
             for (DepartamentoAcademico departamento : departamentosAcaActivos) {
                 departamentos.add(departamento.getId());

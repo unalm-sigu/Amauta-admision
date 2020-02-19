@@ -13,6 +13,7 @@ import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.aporte.ResumenAporteAlumno;
 import pe.edu.lamolina.model.finanzas.DeudaAlumno;
+import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.controller.academico.alumno.AlumnoResumen;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -56,15 +57,15 @@ public interface MatriculableService {
 
     List<Alumno> allAlumnoByNombre(String nombre, DataSessionPivot ds);
 
-    MatriculaResumen saveMatriculable(Alumno alumno, String tipoCondicional, DataSessionPivot ds);
+    String saveMatriculable(Alumno alumno, DataSessionPivot ds);
 
-    void generarAportes(Alumno alumno, MatriculaResumen matriculable, DataSessionPivot ds);
+    void generarAportes(DataSessionPivot ds, String token22);
 
     void generarVerano(CicloAcademico cicloAcademico, DataSessionPivot ds);
 
     void recalcularPrioridad(GrupoSeccion gpoSecc, CicloAcademico ciclo);
 
-    void recalcularPrioridad(GrupoSeccion gpoSecc);
+    void recalcularPrioridad(GrupoSeccion gpoSecc, Usuario usuario);
 
     void revisarPrioridad(CicloAcademico ciclo, DataSessionPivot ds);
 

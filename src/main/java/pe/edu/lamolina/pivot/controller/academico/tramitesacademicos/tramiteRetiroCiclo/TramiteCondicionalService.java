@@ -21,7 +21,7 @@ public interface TramiteCondicionalService {
 
     public void saveRetiroCiclo(Tramite tramite, DataSessionPivot ds);
 
-    public void updateRetiroCiclo(Tramite tramite, DataSessionPivot ds);
+    public String updateRetiroCiclo(Tramite tramite, DataSessionPivot ds);
 
     public List<Alumno> allAlumnoByNombre(String nombre, DataSessionPivot ds);
 
@@ -31,11 +31,11 @@ public interface TramiteCondicionalService {
 
     public void saveReincorporacion(Tramite tramite, DataSessionPivot ds);
 
-    public void updateReincorporacion(Tramite tramite, DataSessionPivot ds);
+    public String updateReincorporacion(Tramite tramite, DataSessionPivot ds);
 
     public void saveCambioNota(Tramite tramite, DataSessionPivot ds);
 
-    public void updateCambioNota(Tramite tramite, DataSessionPivot ds);
+    public String updateCambioNota(Tramite tramite, DataSessionPivot ds);
 
     public List<Curso> allCursosByName(String nombre, Alumno alumno, CicloAcademico academico, DataSessionPivot ds);
 
