@@ -45,7 +45,7 @@ public class BolsaTrabajoServiceImpl implements BolsaTrabajoService {
     @Override
     public List<TramiteSubvencion> allTramiteSubvByColabo(Persona persona, CicloAcademico cicloAcademico) {
         List<Colaborador> colaborador = colaboradorDAO.allActivosByPersona(persona);
-        return subvencionDAO.allSubvencionByColaboradorCicloAcademico(colaborador, cicloAcademico);
+        return subvencionDAO.allSubvencionByColaboradorCiclo(colaborador, cicloAcademico);
     }
 
     @Override
