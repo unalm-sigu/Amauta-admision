@@ -360,7 +360,7 @@ public class TestController {
     public String trasladarInformcionPromedioForHistorialCiclo(@PathVariable("codigo") String codigo, @PathVariable("mod") Long modalidad, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         ds.setFechaAccionAudit(new Date());
-        String TOKEN_HISTORIAL = "-token-historial";
+        
         String token = service.trasladarInformcionPromedioForHistorialCiclo(ds, codigo, modalidad);
        
         matriculableService.calcularPromedios(token, ds);
