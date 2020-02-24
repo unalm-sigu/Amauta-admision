@@ -271,7 +271,7 @@ public class TestServiceImp implements TestService {
 
             //List<MatriculaSeccion> matriculasSeccion = TypesUtil.getListNotNull(mapMatriculaSeccion.get(matriculaResumen.getId()));
             promedioService.actasNotasHaciaHistorial(matriculaResumen, cursosMatriculados, cursosLlevados, ds, tokenHisto);
-            alums.add(alumno);
+
         }
 
         return token;

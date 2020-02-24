@@ -362,13 +362,7 @@ public class TestController {
         ds.setFechaAccionAudit(new Date());
         String TOKEN_HISTORIAL = "-token-historial";
         String token = service.trasladarInformcionPromedioForHistorialCiclo(ds, codigo, modalidad);
-        String tokenHisto = token + TOKEN_HISTORIAL;
-        for (;;) {
-            if (visorCalculoNotas.estaCompletoToken(tokenHisto)) {
-                break;
-            }
-        }
-        logger.info("Terminó Historial ....");
+       
         matriculableService.calcularPromedios(token, ds);
         matriculableService.revisarCurriculaAlumnos(ds, token);
         return "yeah";

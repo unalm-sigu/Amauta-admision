@@ -215,7 +215,7 @@ public class MatriculableServiceImp implements MatriculableService {
     @Autowired
     VisorCalculoNotas visorCalculoNotas;
 
-    private final static String TOKEN_HISTO = "-token-historial";
+    private final static String TOKEN_HISTORIAL = "-token-historial";
     private final static String TOKEN_PROMEDIOS = "-token-promedios";
     private final static String TOKEN_CURRICULA = "-token-curriculas";
     private final static String TOKEN_MATRICULABLE = "-token-matriculable";
@@ -533,13 +533,13 @@ public class MatriculableServiceImp implements MatriculableService {
     public void calcularPromedios(String token22, DataSessionPivot ds) {
 //        promedioService.calcularSituacionAcademica(alumno, ds);
 
-        String tokenHisto = token22 + TOKEN_HISTO;
+        String tokenHisto = token22 + TOKEN_HISTORIAL;
         for (;;) {
             if (visorCalculoNotas.estaCompletoToken(tokenHisto)) {
+                logger.info("Terminó Historial ....");
                 break;
             }
         }
-        logger.info("Terminó Historial ....");
 
         String tokenProm = token22 + TOKEN_PROMEDIOS;
 
