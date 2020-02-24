@@ -96,4 +96,6 @@ public interface GrupoSeccionDAO extends EasyDAO<GrupoSeccion> {
 
     void updateColumns(GrupoSeccion grupoSeccion, String... columns);
 
+    public List<GrupoSeccion> allActivoByCicloGrupoCerrado(CicloAcademico cicloAcademico);
+
 }
