@@ -549,7 +549,7 @@ public class PromedioServiceImp implements PromedioService {
                         allReincorporaciones, cicloActivo, ds);
             }
 
-            if (alumnoCicloEach == null) {
+            if (alumnoCicloEach == null || alumnoCicloEach.getId() == null) {
                 break;
             }
 
