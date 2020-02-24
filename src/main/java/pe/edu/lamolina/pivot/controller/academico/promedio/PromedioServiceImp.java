@@ -637,6 +637,8 @@ public class PromedioServiceImp implements PromedioService {
         if (cicloAnalizar == null) {
             Reincorporacion reincorporacion = findReincorporacion(allReincorporaciones, cicloNumerico);
             boolean esCicloReincorporaPosterior = verificarCicloReincorporaPosterior(reincorporacion, alumnoCiclo);
+            logger.info("esCicloReincorporaPosterior .... {}", esCicloReincorporaPosterior);
+            logger.info("isRegistroValido() .... {}", alumnoCiclo.isRegistroValido());
             if (alumnoCiclo != null && esCicloReincorporaPosterior) {
                 if (validarConCicloEgreso(alumnoCiclo, egresado)) {
                     alumnoCiclo.setRegistroValido(true);
@@ -662,12 +664,15 @@ public class PromedioServiceImp implements PromedioService {
                     alumnoCiclo.setRegistroXReincorporacion(true);
                 }
                 if (!validarConCicloEgreso(alumnoCiclo, egresado)) {
+                    logger.info("isRegistroValido() .... {}", alumnoCiclo.isRegistroValido());
                     return null;
                 }
                 alumnosCiclosByAlumno.add(alumnoCiclo);
+                logger.info("isRegistroValido() .... {}", alumnoCiclo.isRegistroValido());
                 return alumnoCiclo;
 
             } else {
+                logger.info("isRegistroValido() .... {}", alumnoCiclo.isRegistroValido());
                 return alumnoCiclo;
             }
         }
