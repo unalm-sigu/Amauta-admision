@@ -31,4 +31,6 @@ public interface TestService {
 
     void revisarCurriculasCarrera(String codigoCarrera, DataSessionPivot ds);
 
+    String trasladarInformcionPromedioForHistorialCiclo(DataSessionPivot ds, String codigo, Long modalidad);
+
 }

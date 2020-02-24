@@ -119,6 +119,10 @@ public class TestServiceImp implements TestService {
     @Autowired
     AvanceCurricularService avanceCurricularService;
 
+    private final static String TOKEN_HISTORIAL = "-token-historial";
+    private final static String TOKEN_PROMEDIOS = "-token-promedios";
+    private final static String TOKEN_CURRICULA = "-token-curriculas";
+
     @Override
     @Transactional
     public void calcularAllResumenEvaluacion(Long seccionId, CicloAcademico ciclo, DataSessionPivot ds) {
@@ -221,6 +225,56 @@ public class TestServiceImp implements TestService {
             promedioService.actasNotasHaciaHistorial(matriculaResumen, cursosMatriculados, cursosLlevados, ds, token);
         }
 
+    }
+
+    @Override
+    public String trasladarInformcionPromedioForHistorialCiclo(DataSessionPivot ds, String codigo, Long modalidad) {
+        CicloAcademico cicloAcademico = cicloAcademicoDAO.findByCodigoModalidadEstudio(codigo, new ModalidadEstudio(modalidad));
+        //   List<GrupoSeccion> gruposSeccionesByCiclo=gruposecc
+        List<MatriculaResumen> resumenesAll = matriculaResumenDAO.allMatriculadosByCiclo(cicloAcademico);
+        List<MatriculaCurso> cursosMatriculadosAll = matriculaCursoDAO.allActivosByCiclo(cicloAcademico);
+        List<Alumno> alumnos = resumenesAll.stream().map(x -> x.getAlumno()).collect(Collectors.toList());
+        List<AlumnoCicloCurso> cursosLlevadosAll = alumnoCicloCursoDAO.allByAlumnos(alumnos);
+
+        List<AlumnoCiclo> alumnoCiclos = alumnoCicloDAO.allByCicloAcademicoModalidadEstudio(cicloAcademico, cicloAcademico.getModalidadEstudio().getCodigoEnum());
+
+        Map<Long, List<AlumnoCiclo>> mapAlumnoCiclos = TypesUtil.convertListToMapList("alumno.id", alumnoCiclos);
+        Map<Long, List<MatriculaCurso>> mapCursoMatriculado = TypesUtil.convertListToMapList("matriculaResumen.alumno.id", cursosMatriculadosAll);
+        Map<Long, List<AlumnoCicloCurso>> mapCursoLlevado = TypesUtil.convertListToMapList("alumnoCiclo.alumno.id", cursosLlevadosAll);
+
+        String token = RandomStringUtils.randomAlphanumeric(43);
+        List<Alumno> alums = new ArrayList<>();
+
+        for (MatriculaResumen matriculaResumen : resumenesAll) {
+            Alumno alumno = matriculaResumen.getAlumno();
+
+            if (!TypesUtil.getListNotNull(mapAlumnoCiclos.get(alumno.getId())).isEmpty()) {
+                continue;
+            }
+            alums.add(alumno);
+        }
+
+        String tokenHisto = token + TOKEN_HISTORIAL;
+        String tokenProm = token + TOKEN_PROMEDIOS;
+        String tokenCurri = token + TOKEN_CURRICULA;
+        visorCalculoNotas.createToken(tokenHisto, alums);
+        visorCalculoNotas.createToken(tokenProm, alums);
+        visorCalculoNotas.createToken(tokenCurri, alums);
+
+        for (MatriculaResumen matriculaResumen : resumenesAll) {
+            Alumno alumno = matriculaResumen.getAlumno();
+            if (!TypesUtil.getListNotNull(mapAlumnoCiclos.get(alumno.getId())).isEmpty()) {
+                continue;
+            }
+            List<MatriculaCurso> cursosMatriculados = TypesUtil.getListNotNull(mapCursoMatriculado.get(alumno.getId()));
+            List<AlumnoCicloCurso> cursosLlevados = TypesUtil.getListNotNull(mapCursoLlevado.get(alumno.getId()));
+
+            //List<MatriculaSeccion> matriculasSeccion = TypesUtil.getListNotNull(mapMatriculaSeccion.get(matriculaResumen.getId()));
+            promedioService.actasNotasHaciaHistorial(matriculaResumen, cursosMatriculados, cursosLlevados, ds, tokenHisto);
+            alums.add(alumno);
+        }
+
+        return token;
     }
 
     @Async

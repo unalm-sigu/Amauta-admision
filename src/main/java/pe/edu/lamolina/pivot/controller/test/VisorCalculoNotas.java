@@ -6,6 +6,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
 
 @Component
@@ -53,7 +54,10 @@ public class VisorCalculoNotas {
     }
 
     public boolean estaCompletoToken(String token) {
-        List<Alumno> alumnos = mapTokenAlumnos.get(token);
+        List<Alumno> alumnos = TypesUtil.getListNotNull(mapTokenAlumnos.get(token));
+        if (alumnos.isEmpty()) {
+            return true;
+        }
         Integer cant = mapContador.get(token);
         return cant >= alumnos.size();
     }
