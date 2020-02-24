@@ -248,9 +248,9 @@ public class TestServiceImp implements TestService {
         for (MatriculaResumen matriculaResumen : resumenesAll) {
             Alumno alumno = matriculaResumen.getAlumno();
 
-            if (!TypesUtil.getListNotNull(mapAlumnoCiclos.get(alumno.getId())).isEmpty()) {
-                continue;
-            }
+//            if (!TypesUtil.getListNotNull(mapAlumnoCiclos.get(alumno.getId())).isEmpty()) {
+//                continue;
+//            }
             alums.add(alumno);
         }
 
@@ -263,9 +263,9 @@ public class TestServiceImp implements TestService {
 
         for (MatriculaResumen matriculaResumen : resumenesAll) {
             Alumno alumno = matriculaResumen.getAlumno();
-            if (!TypesUtil.getListNotNull(mapAlumnoCiclos.get(alumno.getId())).isEmpty()) {
-                continue;
-            }
+//            if (!TypesUtil.getListNotNull(mapAlumnoCiclos.get(alumno.getId())).isEmpty()) {
+//                continue;
+//            }
             List<MatriculaCurso> cursosMatriculados = TypesUtil.getListNotNull(mapCursoMatriculado.get(alumno.getId()));
             List<AlumnoCicloCurso> cursosLlevados = TypesUtil.getListNotNull(mapCursoLlevado.get(alumno.getId()));
 

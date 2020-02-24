@@ -319,6 +319,8 @@ public class PromedioServiceImp implements PromedioService {
                         ObjectUtil.getParentTree(alumnoCiclo, "orientacionCarrera.id");
                         ObjectUtil.getParentTree(alumnoCiclo, "situacionInicio.id");
                         ObjectUtil.getParentTree(alumnoCiclo, "situacionFinal.id");
+                        
+                        ObjectUtil.printAttr(alumnoCiclo);
                         alumnoCicloDAO.save(alumnoCiclo);
                         continue;
                     } else {
@@ -379,7 +381,7 @@ public class PromedioServiceImp implements PromedioService {
                 }
                 if (!alumnoCiclo.isRegistroValido()) {
                     CicloAcademico ciclo = alumnoCiclo.getCicloAcademico();
-                    this.printSystem("ciclo=" + ciclo.getDescripcion() + " / registro.valido=" + alumnoCiclo.isRegistroValido(), showError);
+                    this.printSystem("ciclo=" + ciclo.getDescripcion() + " / registro.valido=" + alumnoCiclo.isRegistroValido(), true);
 
                     if (alumnoCiclo.isCicloRetirado() && ciclo.getCodigoInt() == cicloActivo.getCodigoInt()) {
                     } else if (alumnoCiclo.getEstadoEnum() == MAT && ciclo.getCodigoInt() == cicloActivo.getCodigoInt()) {
@@ -638,7 +640,10 @@ public class PromedioServiceImp implements PromedioService {
             Reincorporacion reincorporacion = findReincorporacion(allReincorporaciones, cicloNumerico);
             boolean esCicloReincorporaPosterior = verificarCicloReincorporaPosterior(reincorporacion, alumnoCiclo);
             logger.info("esCicloReincorporaPosterior .... {}", esCicloReincorporaPosterior);
-            logger.info("isRegistroValido() .... {}", alumnoCiclo.isRegistroValido());
+            if (alumnoCiclo != null) {
+
+                logger.info("isRegistroValido() .... {}", alumnoCiclo.isRegistroValido());
+            }
             if (alumnoCiclo != null && esCicloReincorporaPosterior) {
                 if (validarConCicloEgreso(alumnoCiclo, egresado)) {
                     alumnoCiclo.setRegistroValido(true);
@@ -672,7 +677,10 @@ public class PromedioServiceImp implements PromedioService {
                 return alumnoCiclo;
 
             } else {
-                logger.info("isRegistroValido() .... {}", alumnoCiclo.isRegistroValido());
+                if (alumnoCiclo != null) {
+
+                    logger.info("isRegistroValido() .... {}", alumnoCiclo.isRegistroValido());
+                }
                 return alumnoCiclo;
             }
         }
@@ -698,6 +706,7 @@ public class PromedioServiceImp implements PromedioService {
         alumnoCiclo.setCreditosConvalidadosAcumulados(BigDecimal.ZERO.intValue());
         alumnoCiclo.setEstadoEnum(EstadoMatriculaEnum.NMAT);
         alumnoCiclo.setRegistroValido(true);
+        logger.info("isRegistroValido() .... {}", alumnoCiclo.isRegistroValido());
         if (!validarConCicloEgreso(alumnoCiclo, egresado)) {
             return null;
         }
