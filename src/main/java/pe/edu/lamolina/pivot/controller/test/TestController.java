@@ -28,6 +28,7 @@ import pe.edu.lamolina.pivot.controller.academico.promedio.ContadorComponent;
 import pe.edu.lamolina.pivot.controller.academico.promedio.PromedioService;
 import pe.edu.lamolina.pivot.controller.deuda.DeudaService;
 import pe.edu.lamolina.pivot.controller.docente.notasacademicas.NotaAcademicaService;
+import pe.edu.lamolina.pivot.controller.matricula.matriculable.MatriculableService;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloCursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
@@ -76,6 +77,9 @@ public class TestController {
     CalculoNotasService calculoNotasService;
 
     @Autowired
+    MatriculableService matriculableService;
+
+    @Autowired
     MatriculaCursoDAO matriculaCursoDAO;
 
     @Autowired
@@ -110,6 +114,9 @@ public class TestController {
 
     @Autowired
     DeudaService deudaService;
+
+    @Autowired
+    VisorCalculoNotas visorCalculoNotas;
 
     @ResponseBody
     @RequestMapping("crearEvaluacionByExp")
@@ -345,6 +352,19 @@ public class TestController {
         ds.setFechaAccionAudit(new Date());
 
         service.trasladarMatriculaCursoForPromediosCiclo(ds, codigo, modalidad);
+        return "yeah";
+    }
+
+    @ResponseBody
+    @RequestMapping("trasladarInformcionPromedioForHistorialCiclo/{codigo}/{mod}")
+    public String trasladarInformcionPromedioForHistorialCiclo(@PathVariable("codigo") String codigo, @PathVariable("mod") Long modalidad, HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        ds.setFechaAccionAudit(new Date());
+        
+        String token = service.trasladarInformcionPromedioForHistorialCiclo(ds, codigo, modalidad);
+       
+        matriculableService.calcularPromedios(token, ds);
+        matriculableService.revisarCurriculaAlumnos(ds, token);
         return "yeah";
     }
 

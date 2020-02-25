@@ -319,6 +319,8 @@ public class PromedioServiceImp implements PromedioService {
                         ObjectUtil.getParentTree(alumnoCiclo, "orientacionCarrera.id");
                         ObjectUtil.getParentTree(alumnoCiclo, "situacionInicio.id");
                         ObjectUtil.getParentTree(alumnoCiclo, "situacionFinal.id");
+                        
+                        ObjectUtil.printAttr(alumnoCiclo);
                         alumnoCicloDAO.save(alumnoCiclo);
                         continue;
                     } else {
@@ -540,7 +542,7 @@ public class PromedioServiceImp implements PromedioService {
                         allReincorporaciones, cicloActivo, ds);
             }
 
-            if (alumnoCicloEach == null) {
+            if (alumnoCicloEach == null || alumnoCicloEach.getId() == null) {
                 break;
             }
 
@@ -665,12 +667,18 @@ public class PromedioServiceImp implements PromedioService {
                     alumnoCiclo.setRegistroXReincorporacion(true);
                 }
                 if (!validarConCicloEgreso(alumnoCiclo, egresado)) {
+                    logger.info("isRegistroValido() .... {}", alumnoCiclo.isRegistroValido());
                     return null;
                 }
                 alumnosCiclosByAlumno.add(alumnoCiclo);
+                logger.info("isRegistroValido() .... {}", alumnoCiclo.isRegistroValido());
                 return alumnoCiclo;
 
             } else {
+                if (alumnoCiclo != null) {
+
+                    logger.info("isRegistroValido() .... {}", alumnoCiclo.isRegistroValido());
+                }
                 return alumnoCiclo;
             }
         }
@@ -696,6 +704,7 @@ public class PromedioServiceImp implements PromedioService {
         alumnoCiclo.setCreditosConvalidadosAcumulados(BigDecimal.ZERO.intValue());
         alumnoCiclo.setEstadoEnum(EstadoMatriculaEnum.NMAT);
         alumnoCiclo.setRegistroValido(true);
+        logger.info("isRegistroValido() .... {}", alumnoCiclo.isRegistroValido());
         if (!validarConCicloEgreso(alumnoCiclo, egresado)) {
             return null;
         }
