@@ -94,6 +94,7 @@ public class BolsaTrabajoController {
                     "tramite.tipoTramite.id",
                     "tramite.tipoTramite.nombre",
                     "tramite.alumno",
+                    "tramite.estado",
                     "tramite.alumno.id",
                     "tramite.alumno.codigo",
                     "tramite.alumno.persona.id",
