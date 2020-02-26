@@ -319,7 +319,7 @@ public class PromedioServiceImp implements PromedioService {
                         ObjectUtil.getParentTree(alumnoCiclo, "orientacionCarrera.id");
                         ObjectUtil.getParentTree(alumnoCiclo, "situacionInicio.id");
                         ObjectUtil.getParentTree(alumnoCiclo, "situacionFinal.id");
-                        
+
                         ObjectUtil.printAttr(alumnoCiclo);
                         alumnoCicloDAO.save(alumnoCiclo);
                         continue;

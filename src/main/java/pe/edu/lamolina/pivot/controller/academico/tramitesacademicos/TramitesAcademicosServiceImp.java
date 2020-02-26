@@ -898,7 +898,7 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
                 alumnoCursoNew.setRegistroActivo(BigDecimal.ZERO.intValue());
                 alumnoCursoNew.setUsuarioRegistro(ds.getUsuario());
                 // alumnoCursoNew.setVecesCursado(Integer.BYTES);
-                Integer aprobado = promedioService.evaluateEstaAprobado(new BigDecimal(alumnoCicloCursoForm.getNota()), alumnoCiclo.getAlumno(), alumnoCicloCursoForm.getCurso());
+                Integer aprobado = promedioService.evaluateEstaAprobado(alumnoCicloCursoForm, alumnoCiclo.getAlumno());
                 alumnoCursoNew.setEstaAprobado(aprobado);
 
                 Integer vecesEstudiadoCurso = alumnoCicloCursoDAO.countByCursoAlumnoAnterioresCiclo(alumnoCicloCursoForm.getCurso(), alumnoCiclo.getAlumno(), alumnoCiclo.getCicloAcademico()).intValue();
