@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import javax.servlet.http.HttpSession;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,7 @@ import pe.edu.lamolina.model.academico.Evaluacion;
 import pe.edu.lamolina.model.academico.EvaluacionExpandida;
 import pe.edu.lamolina.model.academico.EvaluacionSeccion;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
+import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.PlanCalificacion;
 import pe.edu.lamolina.model.academico.Seccion;
@@ -360,9 +362,15 @@ public class TestController {
     public String trasladarInformcionPromedioForHistorialCiclo(@PathVariable("codigo") String codigo, @PathVariable("mod") Long modalidad, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         ds.setFechaAccionAudit(new Date());
-        
-        String token = service.trasladarInformcionPromedioForHistorialCiclo(ds, codigo, modalidad);
-       
+
+        String token = RandomStringUtils.randomAlphanumeric(43);
+        List<MatriculaResumen> resumenesAll = new ArrayList();
+        List<Alumno> alumnos = new ArrayList();
+        CicloAcademico ciclo = service.findCiclo(codigo, modalidad);
+        service.loadDataSendDataHistorial(alumnos, resumenesAll, token, ciclo);
+
+        service.trasladarInformcionPromedioForHistorialCiclo(ds, alumnos, resumenesAll, token, ciclo);
+
         matriculableService.calcularPromedios(token, ds);
         matriculableService.revisarCurriculaAlumnos(ds, token);
         return "yeah";
