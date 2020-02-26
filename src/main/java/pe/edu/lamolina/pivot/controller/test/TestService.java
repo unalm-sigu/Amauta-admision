@@ -1,6 +1,9 @@
 package pe.edu.lamolina.pivot.controller.test;
 
+import java.util.List;
+import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -31,6 +34,10 @@ public interface TestService {
 
     void revisarCurriculasCarrera(String codigoCarrera, DataSessionPivot ds);
 
-    String trasladarInformcionPromedioForHistorialCiclo(DataSessionPivot ds, String codigo, Long modalidad);
+    void loadDataSendDataHistorial(List<Alumno> alumnos, List<MatriculaResumen> resumenesAll, String token, CicloAcademico ciclo);
+
+    void trasladarInformcionPromedioForHistorialCiclo(DataSessionPivot ds, List<Alumno> alumnos, List<MatriculaResumen> resumenesAll, String token, CicloAcademico cicloAcademico);
+
+    CicloAcademico findCiclo(String codigo, Long modalidad);
 
 }

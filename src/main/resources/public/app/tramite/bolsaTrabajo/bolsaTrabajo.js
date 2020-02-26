@@ -38,9 +38,9 @@ new Vue({
                     $vue.value = val;
                 }
             });
+
             $vue.tramiteSubvencion = item;
             $vue.persona = item.tramite.alumno.persona;
-
             $vue.$refs.verTramiteModal.open();
 
         },

@@ -23,7 +23,6 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.hibernate.Session;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,8 +65,6 @@ import static pe.edu.lamolina.model.enums.EventoAcademicoEnum.MAT_REG;
 import static pe.edu.lamolina.model.enums.EventoAcademicoEnum.MAT_VER;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.EPG;
-import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.ESP;
-import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.PRE;
 import pe.edu.lamolina.model.enums.SituacionAcademicaEnum;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_1;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_2;
@@ -92,8 +89,6 @@ import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_TU;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_X;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_XD;
 import pe.edu.lamolina.model.enums.TipoCicloEnum;
-import pe.edu.lamolina.model.enums.TipoCondicionalEnum;
-import static pe.edu.lamolina.model.enums.TipoTramiteEnum.CAM_NOTA;
 import static pe.edu.lamolina.model.enums.TramiteEstadoEnum.PEND;
 import pe.edu.lamolina.model.finanzas.Acreencia;
 import pe.edu.lamolina.model.finanzas.DeudaAlumno;
@@ -103,13 +98,19 @@ import pe.edu.lamolina.model.tramite.Reincorporacion;
 import pe.edu.lamolina.model.tramite.RetiroCiclo;
 import pe.edu.lamolina.pivot.controller.academico.alumno.AlumnoResumen;
 import pe.edu.lamolina.pivot.controller.academico.avancecurricular.AvanceCurricularService;
+import pe.edu.lamolina.pivot.controller.academico.promedio.ListBeanPromedios;
+import pe.edu.lamolina.pivot.controller.academico.promedio.PromedioLoadDataService;
 import pe.edu.lamolina.pivot.controller.academico.promedio.PromedioReviewService;
-import pe.edu.lamolina.pivot.controller.academico.promedio.PromedioSegundoService;
 import pe.edu.lamolina.pivot.controller.academico.promedio.PromedioService;
+import pe.edu.lamolina.pivot.controller.academico.promedio.ReincorporadosService;
 import pe.edu.lamolina.pivot.controller.academico.tramitesacademicos.tramiteRetiroCiclo.ResponseRestService;
 import pe.edu.lamolina.pivot.controller.bienestar.alumnoAporte.AporteAlumnoService;
 import pe.edu.lamolina.pivot.controller.matricula.configuracionturno.ConfiguracionMatriculaService;
 import pe.edu.lamolina.pivot.controller.test.VisorCalculoNotas;
+import static pe.edu.lamolina.pivot.controller.test.VisorCalculoNotas.TOKEN_CURRICULA;
+import static pe.edu.lamolina.pivot.controller.test.VisorCalculoNotas.TOKEN_HISTORIAL;
+import static pe.edu.lamolina.pivot.controller.test.VisorCalculoNotas.TOKEN_MATRICULABLE;
+import static pe.edu.lamolina.pivot.controller.test.VisorCalculoNotas.TOKEN_PROMEDIOS;
 import pe.edu.lamolina.pivot.controller.visores.RespositorVisor;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloCursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloDAO;
@@ -193,6 +194,8 @@ public class MatriculableServiceImp implements MatriculableService {
 
     @Autowired
     PromedioService promedioService;
+    @Autowired
+    PromedioLoadDataService promedioLoadDataService;
 
     @Autowired
     PromedioReviewService promedioReviewService;
@@ -208,17 +211,14 @@ public class MatriculableServiceImp implements MatriculableService {
 
     @Autowired
     AvanceCurricularService avanceCurricularService;
+    @Autowired
+    ReincorporadosService reincorporadosService;
 
     @Autowired
     RespositorVisor respositorVisor;
 
     @Autowired
     VisorCalculoNotas visorCalculoNotas;
-
-    private final static String TOKEN_HISTORIAL = "-token-historial";
-    private final static String TOKEN_PROMEDIOS = "-token-promedios";
-    private final static String TOKEN_CURRICULA = "-token-curriculas";
-    private final static String TOKEN_MATRICULABLE = "-token-matriculable";
 
     @Override
     public AlumnoResumen allResumenAlumnosByCicloRol(CicloAcademico cicloAcademico, String codigo, List<Long> filtros) {
@@ -541,22 +541,25 @@ public class MatriculableServiceImp implements MatriculableService {
             }
         }
 
+        visorCalculoNotas.destroyToken(tokenHisto);
         String tokenProm = token22 + TOKEN_PROMEDIOS;
 
         List<Alumno> alumnos = visorCalculoNotas.allAlumnosByToken(tokenProm);
 
         TypesUtil.delay(2000);
 
-        List<CicloAcademico> ciclos = cicloAcademicoDAO.all();
-        List<CicloAcademico> ciclosActivos = cicloAcademicoDAO.allActivosAlModalidades();
-        CicloAcademico cicloPregrado = ciclosActivos.stream().filter(x -> x.getModalidadEstudio().getCodigoEnum() == PRE).findAny().orElse(null);
-        CicloAcademico cicloPosgrado = ciclosActivos.stream().filter(x -> x.getModalidadEstudio().getCodigoEnum() == EPG).findAny().orElse(null);
+        ListBeanPromedios bean = promedioLoadDataService.loadDataAlumno(alumnos);
 
-        List<Egresado> egresados = egresadoDAO.allByAlumnos(alumnos);
-        List<AlumnoCiclo> alumnosCiclosAll = alumnoCicloDAO.allByAlumnos(alumnos);
-        List<AlumnoCicloCurso> alumnosCiclosCursosActivos = alumnoCicloCursoDAO.allOperativesByAlumnos(alumnos);
-        List<AlumnoCicloCurso> alumnosCiclosCursosAll = alumnoCicloCursoDAO.allByAlumnos(alumnos);
-        List<Reincorporacion> reincorporaciones = promedioService.allReincorporacionesByCicloActivo(alumnos, ciclosActivos);
+        List<CicloAcademico> ciclos = bean.getCiclos();
+        List<CicloAcademico> ciclosActivos = bean.getCiclosActivos();
+        CicloAcademico cicloPregrado = bean.getCicloPregrado();
+        CicloAcademico cicloPosgrado = bean.getCicloPosgrado();
+
+        List<Egresado> egresados = bean.getEgresados();
+        List<AlumnoCiclo> alumnosCiclosAll = bean.getAlumnosCiclosAll();
+        List<AlumnoCicloCurso> alumnosCiclosCursosActivos = bean.getAlumnosCiclosCursosActivos();
+        List<AlumnoCicloCurso> alumnosCiclosCursosAll = bean.getAlumnosCiclosCursosAll();
+        List<Reincorporacion> reincorporaciones = bean.getReincorporaciones();
 
         Map<Long, List<AlumnoCiclo>> mapAlumnoCiclo = TypesUtil.convertListToMapList("alumno.id", alumnosCiclosAll);
         Map<Long, List<AlumnoCicloCurso>> mapAlumnoCicloCursoActivo = TypesUtil.convertListToMapList("alumnoCiclo.alumno.id", alumnosCiclosCursosActivos);
@@ -577,6 +580,7 @@ public class MatriculableServiceImp implements MatriculableService {
                 cicloActivo = cicloPosgrado;
             }
 
+            boolean showError = false;
             promedioService.promediarAllCicloAsync(
                     alumno,
                     cicloActivo,
@@ -587,7 +591,7 @@ public class MatriculableServiceImp implements MatriculableService {
                     alumnoCiclosCursosAllByAlu,
                     reincorporacionesByAlumno,
                     ds,
-                    tokenProm, false, false);
+                    tokenProm, false, showError);
 
         }
     }
@@ -597,19 +601,17 @@ public class MatriculableServiceImp implements MatriculableService {
     public void revisarCurriculaAlumnos(DataSessionPivot ds, String token22) {
         String tokenProm = token22 + TOKEN_PROMEDIOS;
         for (;;) {
-
             if (visorCalculoNotas.estaCompletoToken(tokenProm)) {
                 break;
             }
         }
         logger.info("Terminó promedios ....");
 
-        List<Alumno> alumnos = visorCalculoNotas.allAlumnosByToken(tokenProm);
         visorCalculoNotas.destroyToken(tokenProm);
-
         TypesUtil.delay(2000);
 
         String tokenCurri = token22 + TOKEN_CURRICULA;
+        List<Alumno> alumnos = visorCalculoNotas.allAlumnosByToken(tokenCurri);
         avanceCurricularService.generarAvanceCurricularByAlumnosPregrados(alumnos, ds, tokenCurri);
     }
 
@@ -1668,22 +1670,25 @@ public class MatriculableServiceImp implements MatriculableService {
     public void verificarAlumnosNmat(DataSessionPivot ds, List<AlumnoCiclo> alumnoCiclosForm) {
 
         List<Alumno> alumnos = alumnoCiclosForm.stream().map(x -> x.getAlumno()).collect(Collectors.toList());
-        alumnos = alumnoDAO.allInfoByAlumno(alumnos);
+        alumnos = alumnoDAO.allInfoByAlumnos(alumnos);
         TypesUtil.delay(2000);
 
         String token = RandomStringUtils.randomAlphanumeric(34);
         visorCalculoNotas.createToken(token, alumnos);
 
+        ListBeanPromedios bean = promedioLoadDataService.loadDataAlumno(alumnos);
+
         CicloAcademico ciclo = ds.getCicloAcademico();
-        List<CicloAcademico> ciclosAcademicos = cicloAcademicoDAO.all();
-        List<CicloAcademico> ciclosActivos = cicloAcademicoDAO.allActivosAlModalidades();
+
+        List<CicloAcademico> ciclosAcademicos = bean.getCiclos();
+        List<CicloAcademico> ciclosActivos = bean.getCiclosActivos();
         Map<String, CicloAcademico> mapCiclo = TypesUtil.convertListToMap("modalidadEstudio.codigo", ciclosActivos);
 
-        List<Egresado> egresados = egresadoDAO.allByAlumnos(alumnos);
-        List<AlumnoCiclo> alumnosCiclosAll = alumnoCicloDAO.allByAlumnos(alumnos);
-        List<AlumnoCicloCurso> alumnosCiclosCursosActivos = alumnoCicloCursoDAO.allOperativesByAlumnos(alumnos);
-        List<AlumnoCicloCurso> alumnosCiclosCursosAll = alumnoCicloCursoDAO.allByAlumnos(alumnos);
-        List<Reincorporacion> reincorporaciones = promedioService.allReincorporacionesByCicloActivo(alumnos, ciclosActivos);
+        List<Egresado> egresados = bean.getEgresados();
+        List<AlumnoCiclo> alumnosCiclosAll = bean.getAlumnosCiclosAll();
+        List<AlumnoCicloCurso> alumnosCiclosCursosActivos = bean.getAlumnosCiclosCursosActivos();
+        List<AlumnoCicloCurso> alumnosCiclosCursosAll = bean.getAlumnosCiclosCursosAll();
+        List<Reincorporacion> reincorporaciones = bean.getReincorporaciones();
 
         Map<Long, List<AlumnoCiclo>> mapAlumnoCiclo = TypesUtil.convertListToMapList("alumno.id", alumnosCiclosAll);
         Map<Long, List<AlumnoCicloCurso>> mapAlumnoCicloCursoActivos = TypesUtil.convertListToMapList("alumnoCiclo.alumno.id", alumnosCiclosCursosActivos);

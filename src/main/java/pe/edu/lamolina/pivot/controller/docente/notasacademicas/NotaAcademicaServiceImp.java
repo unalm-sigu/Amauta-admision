@@ -78,6 +78,7 @@ import pe.edu.lamolina.model.tramite.Tramite;
 import pe.edu.lamolina.pivot.controller.academico.avancecurricular.AvanceCurricularService;
 import pe.edu.lamolina.pivot.controller.academico.calculonotas.CalculoNotasService;
 import pe.edu.lamolina.pivot.controller.academico.promedio.PromedioService;
+import pe.edu.lamolina.pivot.controller.academico.promedio.ReincorporadosService;
 import pe.edu.lamolina.pivot.controller.auditor.AuditorService;
 import pe.edu.lamolina.pivot.controller.interceptor.InterceptorService;
 import pe.edu.lamolina.pivot.controller.matricula.matriculable.MatriculableService;
@@ -217,6 +218,8 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
     AvanceCurricularService avanceCurricularService;
     @Autowired
     MatriculableService matriculableService;
+    @Autowired
+    ReincorporadosService reincorporadosService;
 
     private final static String TOKEN_HISTORIAL = "-token-historial";
     private final static String TOKEN_PROMEDIOS = "-token-promedios";
@@ -2148,7 +2151,7 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
         List<AlumnoCiclo> alumnosCiclosAll = alumnoCicloDAO.allByAlumnos(alumnos);
         List<AlumnoCicloCurso> alumnosCiclosCursosActivos = alumnoCicloCursoDAO.allOperativesByAlumnos(alumnos);
         List<AlumnoCicloCurso> alumnosCiclosCursosAll = alumnoCicloCursoDAO.allByAlumnos(alumnos);
-        List<Reincorporacion> reincorporaciones = promedioService.allReincorporacionesByCicloActivo(alumnos, ciclosActivos);
+        List<Reincorporacion> reincorporaciones = reincorporadosService.allReincorporacionesByCicloActivo(alumnos, ciclosActivos);
 
         Map<Long, List<AlumnoCiclo>> mapAlumnoCiclo = TypesUtil.convertListToMapList("alumno.id", alumnosCiclosAll);
         Map<Long, List<AlumnoCicloCurso>> mapAlumnoCicloCursoActivo = TypesUtil.convertListToMapList("alumnoCiclo.alumno.id", alumnosCiclosCursosActivos);

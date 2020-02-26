@@ -7,7 +7,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
 import pe.edu.lamolina.model.general.Colaborador;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.seguridad.Usuario;
@@ -51,12 +53,12 @@ public class BolsaTrabajoServiceImpl implements BolsaTrabajoService {
     @Override
     @Transactional
     public void updateTramiteSubvencion(TramiteSubvencion tramiteSubvencion, Usuario usuario) {
-        Tramite tramite = tramiteSubvencion.getTramite();
-        Tramite t = tramiteDAO.findById(tramiteSubvencion.getTramite());
+        Tramite tramiteForm = tramiteSubvencion.getTramite();
+        Tramite tramiteBD = tramiteDAO.findById(tramiteSubvencion.getTramite());
         TramiteSubvencion subvencion = subvencionDAO.findId(tramiteSubvencion);
+        Assert.isTrue(tramiteBD.getEstadoEnum() == TramiteEstadoEnum.SOL, "Este trámite ya fue aceptado por el supervisor(a)");
 
-        AccionTramiteBienestar accion = accionTramiteBienestarDAO.findByTipoSubvencion(subvencion.getTipoSubvencion(), t.getEstado(), tramiteSubvencion.getRespuesta());
-
+        AccionTramiteBienestar accion = accionTramiteBienestarDAO.findByTipoSubvencion(subvencion.getTipoSubvencion(), tramiteBD.getEstado(), tramiteSubvencion.getRespuesta());
         if (tramiteSubvencion.getVoboSupervisor() == 1) {
             subvencion.setFechaVobo(new Date());
         }
@@ -67,15 +69,15 @@ public class BolsaTrabajoServiceImpl implements BolsaTrabajoService {
 
         subvencionDAO.update(subvencion);
 
-        t.setEstado(accion.getEstadoFinal());
-        t.setFechaModificacion(new Date());
-        t.setUserModificacion(usuario);
-        t.setObservacion(tramiteSubvencion.getComentario());
-        tramiteDAO.update(t);
+        tramiteBD.setEstado(accion.getEstadoFinal());
+        tramiteBD.setFechaModificacion(new Date());
+        tramiteBD.setUserModificacion(usuario);
+        tramiteBD.setObservacion(tramiteSubvencion.getComentario());
+        tramiteDAO.update(tramiteBD);
 
         FlujoTramiteBienestar flujoTramite = new FlujoTramiteBienestar();
         flujoTramite.setEstado(accion.getEstadoFinal());
-        flujoTramite.setTramite(tramite);
+        flujoTramite.setTramite(tramiteForm);
         flujoTramite.setComentario(tramiteSubvencion.getComentario());
         flujoTramite.setFechaRegistro(new Date());
         flujoTramite.setUserRegistro(usuario);

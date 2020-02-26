@@ -5,49 +5,61 @@
     <div slot="body">
         <div class="step1">
 
-            <div class="row ">                 
-                <div class="col-md-12" v-if="tramiteSubvencion != null">
+            <div class="row ">               
+                <!--<pre>{{tramiteSubvencion}}</pre>-->
+                <div class="col-md-12" v-if="tramiteSubvencion.tramite">
                     <div class="form-group row">
-                        <div class="col-md-10">
+                        <div class="col-md-12">
                             <label class="block">Alumno</label>
-                            <span class="text-info bold" v-text="persona.nombreCompleto"> </span>
+                            <span class="text-primary h4 block m-t-xxs m-b-xs" v-text="persona.nombreCompleto"> </span>
+                            <span class="h5 block m-t-xs" v-text="tramiteSubvencion.tramite.alumno.codigo"> </span>
                         </div>
                     </div>
                     <div class="form-group row">
-                        <div class="col-md-10" >
-                            <label class="block">Horas a laborar {{tramiteSubvencion.horas}}</label>
-                            <multiselect v-model="value" 
-                                         v-bind:options='horasTrabajo'
-                                         label="horas"
-                                         track-by='horas'
-                                         placeholder="Seleccione una hora"
-                                         >
+                        <div class="col-md-12" >
+                            <label class="block">Horas a laborar</label>
+                            <multiselect 
+                                v-if="tramiteSubvencion.tramite.estado == 'SOL' "
+                                v-model="value" 
+                                v-bind:options='horasTrabajo'
+                                label="horas"
+                                track-by='horas'
+                                placeholder="Seleccione una hora">
                             </multiselect>
+                            <span v-else="" v-text="tramiteSubvencion.horas" class="form-control text-primary"></span>
                         </div>
                     </div>
                     <div class="form-group row">
-                        <div class="col-md-10 ">
-                            <label class="block">Lugar de labores</label>
-                            <input  v-model="tramiteSubvencion.lugar" class="form-control" rows="4"></input>
+                        <div class="col-md-12 ">
+                            <label class="block">Motivo</label>
+                            <div v-text="tramiteSubvencion.motivo" class="item-form-control text-primary"></div>
                         </div>    
                     </div>
                     <div class="form-group row">
-                        <div class="col-md-10 ">
+                        <div class="col-md-12 ">
+                            <label class="block">Lugar de labores</label>
+                            <input v-if="tramiteSubvencion.tramite.estado == 'SOL' " v-model="tramiteSubvencion.lugar" class="form-control" rows="4"></input>
+                            <div v-else="" v-text="tramiteSubvencion.lugar" class="item-form-control text-primary"></div>
+                        </div>    
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-md-12 ">
                             <label class="block">Labor a realizar</label>
-                            <textarea  v-model="tramiteSubvencion.laborRealizar" class="form-control" rows="2"></textarea>
+                            <textarea v-if="tramiteSubvencion.tramite.estado == 'SOL' " v-model="tramiteSubvencion.laborRealizar" class="form-control" rows="2"></textarea>
+                            <div v-else="" v-text="tramiteSubvencion.laborRealizar" class="item-form-control text-primary"></div>
                         </div>
                     </div>
                     <div class="form-group row">
-                        <div class="col-md-10 ">
+                        <div class="col-md-12 ">
                             <label class="block" >Aceptar</label>
-                            <label class="switch">
+                            <label class="switch" v-if="tramiteSubvencion.tramite.estado == 'SOL' ">
                                 <input type="checkbox" v-model="rechazado" />
                                 <span></span>
                             </label>
                         </div>
                     </div>
-                    <div class="form-group row" v-if="!rechazado">
-                        <div class="col-md-10 ">
+                    <div class="form-group row" v-if="!rechazado &amp;&amp; tramiteSubvencion.tramite.estado == 'SOL'">
+                        <div class="col-md-12 ">
                             <label class="block">Motivo de rechazo</label>
                             <textarea  v-model="tramiteSubvencion.comentario" class="form-control" rows="2"></textarea>
                         </div>
