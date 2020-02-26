@@ -8,4 +8,6 @@ import pe.edu.lamolina.model.tramite.Reincorporacion;
 public interface ReincorporadosService {
 
     List<Reincorporacion> allReincorporacionesByCicloActivo(List<Alumno> alumnos, List<CicloAcademico> ciclosActivos);
+
+    List<Reincorporacion> allReincorporacionesByAlumno(Alumno alumno, CicloAcademico cicloActivo);
 }

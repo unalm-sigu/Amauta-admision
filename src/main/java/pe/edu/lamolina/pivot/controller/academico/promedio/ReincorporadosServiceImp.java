@@ -48,4 +48,13 @@ public class ReincorporadosServiceImp implements ReincorporadosService {
         return reincorporacionesPregradoAntes;
     }
 
+    @Override
+    public List<Reincorporacion> allReincorporacionesByAlumno(Alumno alumno, CicloAcademico cicloActivo) {
+        List<Reincorporacion> reincorporacionesAceptadasByAlumno = reincorporacionDAO.allAceptadasByAlumnoSinCiclo(alumno, cicloActivo);
+        List<Reincorporacion> reincorporacionesByAlumnoCiclo = reincorporacionDAO.allAceptadasPendientesByAlumnoCiclo(alumno, cicloActivo);
+        reincorporacionesAceptadasByAlumno.addAll(reincorporacionesByAlumnoCiclo);
+
+        return reincorporacionesAceptadasByAlumno;
+    }
+
 }

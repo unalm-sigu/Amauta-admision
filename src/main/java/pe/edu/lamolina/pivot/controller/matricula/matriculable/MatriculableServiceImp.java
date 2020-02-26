@@ -581,9 +581,6 @@ public class MatriculableServiceImp implements MatriculableService {
             }
 
             boolean showError = false;
-            if(alumno.getCodigo().equals("20150001")){
-                showError = true;
-            }
             promedioService.promediarAllCicloAsync(
                     alumno,
                     cicloActivo,

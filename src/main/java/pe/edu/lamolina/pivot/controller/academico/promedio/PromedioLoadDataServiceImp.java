@@ -22,7 +22,6 @@ import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.EgresadoDAO;
-import pe.edu.lamolina.pivot.dao.tramite.ReincorporacionDAO;
 
 @Service
 @Transactional(readOnly = true, propagation = Propagation.REQUIRES_NEW)
@@ -40,8 +39,6 @@ public class PromedioLoadDataServiceImp implements PromedioLoadDataService {
     CicloAcademicoDAO cicloAcademicoDAO;
     @Autowired
     EgresadoDAO egresadoDAO;
-    @Autowired
-    ReincorporacionDAO reincorporacionDAO;
 
     @Autowired
     ReincorporadosService reincorporadosService;
@@ -55,9 +52,7 @@ public class PromedioLoadDataServiceImp implements PromedioLoadDataService {
         List<AlumnoCiclo> alumnoCiclos = alumnoCicloDAO.allByAlumno(alumno);
         List<AlumnoCicloCurso> alumnoCicloCursos = alumnoCicloCursoDAO.allOperativesByAlumno(alumno);
         List<AlumnoCicloCurso> alumnoCicloCursosAll = alumnoCicloCursoDAO.allByAlumno(alumno);
-        List<Reincorporacion> reincorporacionesAceptadasByAlumno = reincorporacionDAO.allAceptadasByAlumnoSinCiclo(alumno, cicloActivo);
-        List<Reincorporacion> reincorporacionesByAlumnoCiclo = reincorporacionDAO.allAceptadasPendientesByAlumnoCiclo(alumno, cicloActivo);
-        reincorporacionesAceptadasByAlumno.addAll(reincorporacionesByAlumnoCiclo);
+        List<Reincorporacion> reincorporacionesAceptadasByAlumno = reincorporadosService.allReincorporacionesByAlumno(alumno, cicloActivo);
 
         BeanPromedios bean = new BeanPromedios();
         bean.setAlumno(alumno);
@@ -73,13 +68,6 @@ public class PromedioLoadDataServiceImp implements PromedioLoadDataService {
 
     @Override
     public ListBeanPromedios loadDataAlumno(List<Alumno> alumnos) {
-
-        System.out.println("alumnos.size.1 = " + alumnos.size());
-        //List<Alumno> alumnox = alumnoDAO.allInfoByAlumnos(alumnos);
-        //alumnos.clear();
-        System.out.println("alumnos.size.2 = " + alumnos.size());
-        //alumnos.addAll(alumnox);
-        System.out.println("alumnos.size.3 = " + alumnos.size());
 
         List<CicloAcademico> ciclos = cicloAcademicoDAO.all();
         List<CicloAcademico> ciclosActivos = ciclos.stream().filter(x -> x.getEstadoEnum() == CicloAcademicoEstadoEnum.ACT).collect(Collectors.toList());
