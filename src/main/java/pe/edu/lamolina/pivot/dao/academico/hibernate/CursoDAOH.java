@@ -249,6 +249,15 @@ public class CursoDAOH extends AbstractEasyDAO<Curso> implements CursoDAO {
     }
 
     @Override
+    public Curso findByCodigoAntiguo(String codigoAntiguo) {
+        Octavia sql = Octavia.query()
+                .from(Curso.class, "cur")
+                .filter("cur.codigoAnterior1", codigoAntiguo);
+
+        return find(sql);
+    }
+
+    @Override
     public Curso findLastByCodigoFacultad(String codigo) {
         Octavia sql = Octavia.query()
                 .from(Curso.class, "cu")

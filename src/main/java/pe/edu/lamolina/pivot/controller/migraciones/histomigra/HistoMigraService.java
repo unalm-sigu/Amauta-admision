@@ -6,6 +6,7 @@ import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.croacia.HistoGradMy;
 import pe.edu.lamolina.model.croacia.HistoMy;
+import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface HistoMigraService {
 
@@ -20,5 +21,9 @@ public interface HistoMigraService {
     List<Curso> allCursosByHistoGrad(List<HistoGradMy> historiasGrad);
 
     List<AlumnoCicloCurso> allAlumnoCursoByAlumno(Alumno alumno);
+
+    void migrarCurso(HistoGradMy histo, DataSessionPivot ds);
+
+    Alumno findAlumnoByCodigo(String matricula);
 
 }

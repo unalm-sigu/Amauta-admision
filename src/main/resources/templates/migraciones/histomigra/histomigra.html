@@ -87,7 +87,14 @@
                                                     <i v-else="" class="fa fa-exclamation-circle text-danger"></i>
                                                 </td>
                                                 <td class="v-middle text-center text-primary bold" v-text="item.tMov"></td>
-                                                <td></td>
+                                                <td>
+                                                    <button v-if="item.algoFalta &amp;&amp; !item.migrando" v-on:click="migrarItem(item)"
+                                                            class="btn btn-sm btn-warning">Migrar</button>
+                                                    <button v-if="item.algoFalta &amp;&amp; item.migrando"
+                                                            class="btn btn-sm btn-danger">
+                                                        <i class="fa fa-spinner fa-spin"></i> Migrando
+                                                    </button>
+                                                </td>
                                             </tr>
                                         </tbody>
                                     </table>
