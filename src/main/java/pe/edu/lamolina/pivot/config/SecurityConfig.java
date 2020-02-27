@@ -30,6 +30,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/consejeria/**").fullyAuthenticated()
                 .antMatchers("/docente/**").fullyAuthenticated()
                 .antMatchers("/general/**").fullyAuthenticated()
+                .antMatchers("/migraciones/**").fullyAuthenticated()
                 .antMatchers("/rolexamen/**").fullyAuthenticated()
                 .antMatchers("/seguridad/**").fullyAuthenticated()
                 .antMatchers("/test/**").fullyAuthenticated()

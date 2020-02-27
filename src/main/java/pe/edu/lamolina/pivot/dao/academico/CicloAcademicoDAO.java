@@ -72,7 +72,9 @@ public interface CicloAcademicoDAO extends EasyDAO<CicloAcademico> {
 
     CicloAcademico findByCodigoModalidadEstudio(String codigoCiclo, ModalidadEstudio modalidad);
 
-    CicloAcademico findByCodigoCicloModalidadEnum(String codigoCiclo, ModalidadEstudioEnum modalidad);
+    CicloAcademico findByCodigoCicloModalidadEnum(String codigoCiclo, ModalidadEstudioEnum modalidadEnum);
+
+    CicloAcademico findByCodigoAnteriorModalidadEnum(String codigoCiclo, ModalidadEstudioEnum modalidadEnum);
 
     List<CicloAcademico> allUltimosByNext(Integer cantidadCiclos, List<CicloAcademico> actives);
 
@@ -118,7 +120,8 @@ public interface CicloAcademicoDAO extends EasyDAO<CicloAcademico> {
 
     void updateColumns(CicloAcademico ciclo, String... columns);
 
-    public List<CicloAcademico> allAnterioresRegistroActivoPre(int i, CicloAcademico cicloAcademico);
+    List<CicloAcademico> allAnterioresRegistroActivoPre(int i, CicloAcademico cicloAcademico);
 
     List<CicloAcademico> allMenorIgual(int ciclos, CicloAcademico ciclo);
+
 }

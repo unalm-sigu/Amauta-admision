@@ -27,6 +27,42 @@ new Vue({
                     notify(MESSAGES.errorComunicacion, "error");
                 }
             });
+        },
+        migrarItem(item) {
+            let $vue = this;
+            if (!item.algoFalta) {
+                notify("Este registro ya fue migrado", "error");
+                return;
+            }
+            if (!item.algoFalta) {
+                notify("Este registro ya fue migrado", "error");
+                return;
+            }
+            if (item.migrando) {
+                notify("Este registro ya esta siendo migrado", "error");
+                return;
+            }
+            item.migrando = true;
+
+            axios.post(`/${rutaModulo}/migrarCurso`, item)
+                    .then(response => {
+                        if (response.data.success) {
+                            let histo = response.data.data;
+                            item.estadoCiclo = histo.estadoCiclo;
+                            item.aluciclocurso = histo.aluciclocurso;
+                            item.creditosOk = histo.creditosOk;
+                            item.notaOk = histo.notaOk;
+                            item.movOk = histo.movOk;
+                            item.algoFalta = histo.algoFalta;
+                            item.migrando = histo.migrando;
+
+                        } else {
+                            notify(response.data.message, "warning");
+                        }
+                    }).catch(e => {
+                notify(MESSAGES.errorComunicacion, "error");
+            });
+
         }
     }
 });

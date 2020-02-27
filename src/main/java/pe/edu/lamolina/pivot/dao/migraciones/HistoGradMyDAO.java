@@ -8,4 +8,6 @@ public interface HistoGradMyDAO extends EasyDAO<HistoGradMy> {
 
     List<HistoGradMy> allByMatricula(String matricula);
 
+    HistoGradMy findByHisto(HistoGradMy histo);
+
 }

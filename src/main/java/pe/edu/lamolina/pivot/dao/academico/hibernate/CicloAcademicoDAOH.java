@@ -505,12 +505,22 @@ public class CicloAcademicoDAOH extends AbstractEasyDAO<CicloAcademico> implemen
     }
 
     @Override
-    public CicloAcademico findByCodigoCicloModalidadEnum(String codigoCiclo, ModalidadEstudioEnum modalidad) {
+    public CicloAcademico findByCodigoCicloModalidadEnum(String codigoCiclo, ModalidadEstudioEnum modalidadEnum) {
         Octavia sql = Octavia.query()
                 .from(CicloAcademico.class, "ca")
                 .join("modalidadEstudio me")
                 .filter("codigo", codigoCiclo)
-                .filter("me.codigo", modalidad.name());
+                .filter("me.codigo", modalidadEnum.name());
+        return find(sql);
+    }
+
+    @Override
+    public CicloAcademico findByCodigoAnteriorModalidadEnum(String codigoCiclo, ModalidadEstudioEnum modalidadEnum) {
+        Octavia sql = Octavia.query()
+                .from(CicloAcademico.class, "ca")
+                .join("modalidadEstudio me")
+                .filter("codigoAnterior", codigoCiclo)
+                .filter("me.codigo", modalidadEnum.name());
         return find(sql);
     }
 

@@ -25,4 +25,16 @@ public class HistoGradMyDAOH extends AbstractEasyDAO<HistoGradMy> implements His
         return all(sql);
     }
 
+    @Override
+    public HistoGradMy findByHisto(HistoGradMy histo) {
+        Octavia sql = Octavia.query()
+                .from(HistoGradMy.class, "h")
+                .filter("ciclo", histo.getCiclo())
+                .filter("matricula", histo.getMatricula())
+                .filter("curCodigo", histo.getCurCodigo())
+                .filter("mov", histo.getMov());
+
+        return find(sql);
+    }
+
 }
