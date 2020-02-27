@@ -40,6 +40,7 @@ import pe.edu.lamolina.model.enums.EstadoTramiteEnum;
 import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.enums.ResolucionEstadoEnum;
 import pe.edu.lamolina.model.enums.TipoCondicionalEnum;
+import pe.edu.lamolina.model.enums.TipoResolucionEnum;
 import pe.edu.lamolina.model.enums.TipoTramiteEnum;
 import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
 import pe.edu.lamolina.model.general.Oficina;
@@ -235,6 +236,12 @@ public class ResolucionServiceImp implements ResolucionService {
         }
 
         resolucion.setEstadoEnum(ResolucionEstadoEnum.CRE);
+        TipoResolucion tipoRes = resolucion.getTipoResolucion();
+        TipoResolucion tipoResBD = tipoResolucionDAO.find(tipoRes.getId());
+        if (tipoResBD.getCodigo().equals("CREA-PROFE")) {
+            resolucion.setEstadoEnum(ResolucionEstadoEnum.ACT);
+        }
+
         resolucion.setUserRegistro(ds.getUsuario());
         resolucion.setFechaRegistro(today.toDate());
         resolucion.setUserActualizacion(null);
