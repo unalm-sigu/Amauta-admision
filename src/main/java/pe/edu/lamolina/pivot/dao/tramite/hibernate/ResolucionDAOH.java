@@ -30,6 +30,9 @@ public class ResolucionDAOH extends AbstractEasyDAO<Resolucion> implements Resol
 
     @Override
     public List<Resolucion> allByDyna(DynatableFilter filter) {
+        
+        
+        
         DynatableSql sql = new DynatableSql(filter)
                 .from(Resolucion.class, "res")
                 .join("tipoResolucion", "oficina")
