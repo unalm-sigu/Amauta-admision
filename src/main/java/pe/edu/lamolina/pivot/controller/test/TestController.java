@@ -367,8 +367,8 @@ public class TestController {
         List<MatriculaResumen> resumenesAll = new ArrayList();
         List<Alumno> alumnos = new ArrayList();
         CicloAcademico ciclo = service.findCiclo(codigo, modalidad);
-        service.loadDataSendDataHistorial(alumnos, resumenesAll, token, ciclo);
 
+        service.loadDataSendDataHistorial(alumnos, resumenesAll, token, ciclo);
         service.trasladarInformcionPromedioForHistorialCiclo(ds, alumnos, resumenesAll, token, ciclo);
 
         matriculableService.calcularPromedios(token, ds);
