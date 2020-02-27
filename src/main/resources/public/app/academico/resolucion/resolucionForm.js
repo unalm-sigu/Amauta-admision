@@ -11,13 +11,16 @@ var app = new Vue({
         oficinas: null,
         reunionesConsejo: [],
         files: []
-    }, created: function () {
+    }, 
+    created: function () {
         this.resolucion = JSON.parse(resolucionJson);
         this.loadResolucionForm();
-    }, mounted: function () {
+    }, 
+    mounted: function () {
         let $vue = this;
 
-    }, methods: {
+    }, 
+    methods: {
         loadResolucionForm: function () {
             let $vue = this;
             let dataVar = {};
@@ -45,7 +48,8 @@ var app = new Vue({
                     notify(MESSAGES.errorComunicacion, "error");
                 }
             });
-        }, activacionTramite(tramite) {
+        }, 
+        activacionTramite(tramite) {
             if (!tramite.activo) {
                 tramite.seleccionado = false;
             }
@@ -130,7 +134,8 @@ var app = new Vue({
                 }
             });
 
-        }, cambiarOficina() {
+        }, 
+        cambiarOficina() {
             let $vue = this;
             $vue.reunionesConsejo = [];
             $.ajax({
@@ -150,7 +155,8 @@ var app = new Vue({
                     notify(MESSAGES.errorComunicacion, "error");
                 }
             });
-        }, loadTramitesConsejo() {
+        }, 
+        loadTramitesConsejo() {
             let $vue = this;
             if ((this.resolucion.reunionConsejo != null && this.resolucion.reunionConsejo.id != "")
                     && (this.resolucion.tipoResolucion != null && this.resolucion.tipoResolucion.id != "")) {
@@ -164,9 +170,11 @@ var app = new Vue({
                 this.$refs.tblTramitesReunion.ajaxdata = params;
             }
             this.$refs.tblTramitesReunion.loadRemoteData();
-        }, customLabel( { fecha }) {
+        }, 
+        customLabel( { fecha }) {
             return `${fecha}`;
-        }, getEstadoClass: function (estadoCode) {
+        }, 
+        getEstadoClass: function (estadoCode) {
             return "label-" + this.colorEstado[estadoCode];
         }
     }
