@@ -81,6 +81,9 @@ import pe.edu.lamolina.pivot.controller.matricula.matriculable.MatriculableServi
 import pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.GpoSeccionService;
 import pe.edu.lamolina.pivot.controller.seriedocumento.SerieDocumentoService;
 import pe.edu.lamolina.pivot.controller.test.VisorCalculoNotas;
+import static pe.edu.lamolina.pivot.controller.test.VisorCalculoNotas.TOKEN_CURRICULA;
+import static pe.edu.lamolina.pivot.controller.test.VisorCalculoNotas.TOKEN_MATRICULABLE;
+import static pe.edu.lamolina.pivot.controller.test.VisorCalculoNotas.TOKEN_PROMEDIOS;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloCursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCursoCurriculaDAO;
@@ -188,10 +191,6 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
     CambioNotaMasBajaDAO cambioNotaMasBajaDAO;
     @Autowired
     VisorCalculoNotas visorCalculoNotas;
-
-    private final static String TOKEN_PROMEDIOS = "-token-promedios";
-    private final static String TOKEN_CURRICULA = "-token-curriculas";
-    private final static String TOKEN_MATRICULABLE = "-token-matriculable";
 
     @Override
     public List<Alumno> allAlumnoByOficina(String nombre, Long instanciaOficina) {

@@ -317,7 +317,9 @@ public class PromedioServiceImp implements PromedioService {
                 }
 
                 if (alumnoCiclo.getId() == null) {
-                    if (alumnoCiclo.isRegistroValido()) {
+                    if (cicloAlumno.getCodigoInt() >= cicloActivo.getCodigoInt()) {
+                        continue;
+                    } else if (alumnoCiclo.isRegistroValido()) {
                         ObjectUtil.getParentTree(alumnoCiclo, "alumno.id");
                         ObjectUtil.getParentTree(alumnoCiclo, "cicloAcademico.id");
                         ObjectUtil.getParentTree(alumnoCiclo, "carrera.id");
@@ -546,6 +548,10 @@ public class PromedioServiceImp implements PromedioService {
         Collections.sort(allReincorporaciones, new Reincorporacion.CompareCiclo());
 
         for (;;) {
+            if (cicloNumerico >= cicloActivo.getCodigoInt()) {
+                break;
+            }
+
             Collections.sort(alumnosCiclosByAlumno, new AlumnoCiclo.CompareCicloAsc());
             AlumnoCiclo alumnoCicloEach;
             if (iniciando) {
@@ -572,6 +578,10 @@ public class PromedioServiceImp implements PromedioService {
             }
 
             if (alumnoCicloEach == null || !alumnoCicloEach.isRegistroValido()) {
+                this.printSystem("Se interrumpe alumnoCicloEach=" + (alumnoCicloEach != null), showError);
+                if (alumnoCicloEach != null) {
+                    this.printSystem("Se interrumpe alumnoCicloEach.isRegistroValido=" + alumnoCicloEach.isRegistroValido(), showError);
+                }
                 break;
             }
 
@@ -589,6 +599,7 @@ public class PromedioServiceImp implements PromedioService {
                 }
                 if (alumnoCicloEach.isRegistroXReinCicloActi()) {
                     ciclosConsecutivosSinEstudiar = 0;
+                    ciclosAlternosSinEstudiar = 0;
                 }
             }
             if (Arrays.asList(RCI, ANCI, MAT).contains(alumnoCicloEach.getEstadoEnum())) {
@@ -736,10 +747,9 @@ public class PromedioServiceImp implements PromedioService {
                 alumnoCiclo.setCreditosConvalidados(BigDecimal.ZERO.intValue());
                 alumnoCiclo.setCreditosConvalidadosAcumulados(BigDecimal.ZERO.intValue());
                 alumnoCiclo.setEstadoEnum(EstadoMatriculaEnum.NMAT);
+                alumnoCiclo.setRegistroValido(true);
 
-                if (reincorporacion.getCicloReincorporacion().getCodigoInt() < cicloActivo.getCodigoInt()) {
-                    alumnoCiclo.setRegistroValido(true);
-                } else {
+                if (reincorporacion.getCicloReincorporacion().getCodigoInt() >= cicloActivo.getCodigoInt()) {
                     logger.info("Tiene registro x Reincorporacion en el ciclo Activo.... ");
                     alumnoCiclo.setRegistroXReinCicloActi(true);
                 }
@@ -911,6 +921,8 @@ public class PromedioServiceImp implements PromedioService {
         if (reincorporaciones.isEmpty()) {
             return null;
         }
+        System.out.println("**** cicloNumerico = " + cicloNumerico);
+
         for (Reincorporacion rei : reincorporaciones) {
             CicloAcademico cicloRei = rei.getCicloReincorporacion();
             if (cicloRei.getCodigoInt() > cicloNumerico) {

@@ -83,6 +83,9 @@ import pe.edu.lamolina.pivot.controller.auditor.AuditorService;
 import pe.edu.lamolina.pivot.controller.interceptor.InterceptorService;
 import pe.edu.lamolina.pivot.controller.matricula.matriculable.MatriculableService;
 import pe.edu.lamolina.pivot.controller.test.VisorCalculoNotas;
+import static pe.edu.lamolina.pivot.controller.test.VisorCalculoNotas.TOKEN_CURRICULA;
+import static pe.edu.lamolina.pivot.controller.test.VisorCalculoNotas.TOKEN_HISTORIAL;
+import static pe.edu.lamolina.pivot.controller.test.VisorCalculoNotas.TOKEN_PROMEDIOS;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloCursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoEvaluacionDAO;
@@ -220,10 +223,6 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
     MatriculableService matriculableService;
     @Autowired
     ReincorporadosService reincorporadosService;
-
-    private final static String TOKEN_HISTORIAL = "-token-historial";
-    private final static String TOKEN_PROMEDIOS = "-token-promedios";
-    private final static String TOKEN_CURRICULA = "-token-curriculas";
 
     @Override
     public List<GrupoSeccion> allGrupoByDocente(Docente docente, CicloAcademico ciclo, DataSessionPivot ds) {

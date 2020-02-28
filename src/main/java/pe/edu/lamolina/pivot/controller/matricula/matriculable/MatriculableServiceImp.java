@@ -472,7 +472,7 @@ public class MatriculableServiceImp implements MatriculableService {
             resumen.settingValoresDefecto();
             resumen.setCreditosPagados(0);
             resumen.setCreditosConsumidos(0);
-            
+
             mapMatriculableExist.put(alumno.getId(), alumno);
             matriculables.add(resumen);
 //            mapMatriculable.put(matriculado.getId(), matriculado);
@@ -543,8 +543,6 @@ public class MatriculableServiceImp implements MatriculableService {
     @Override
     @Transactional
     public void calcularPromedios(String token22, DataSessionPivot ds) {
-//        promedioService.calcularSituacionAcademica(alumno, ds);
-
         String tokenHisto = token22 + TOKEN_HISTORIAL;
         for (;;) {
             if (visorCalculoNotas.estaCompletoToken(tokenHisto)) {
@@ -592,7 +590,7 @@ public class MatriculableServiceImp implements MatriculableService {
                 cicloActivo = cicloPosgrado;
             }
 
-            boolean showError = false;
+            boolean showError = true;
             promedioService.promediarAllCicloAsync(
                     alumno,
                     cicloActivo,

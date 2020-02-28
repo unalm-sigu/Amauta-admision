@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import javax.crypto.Mac;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -39,8 +38,6 @@ import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.MAT;
 import pe.edu.lamolina.model.enums.EstadoTramiteEnum;
 import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.enums.ResolucionEstadoEnum;
-import pe.edu.lamolina.model.enums.TipoCondicionalEnum;
-import pe.edu.lamolina.model.enums.TipoResolucionEnum;
 import pe.edu.lamolina.model.enums.TipoTramiteEnum;
 import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
 import pe.edu.lamolina.model.general.Oficina;
@@ -61,6 +58,8 @@ import pe.edu.lamolina.pivot.controller.general.oficina.OficinaService;
 import pe.edu.lamolina.pivot.controller.matricula.matriculable.MatriculableService;
 import pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.GpoSeccionService;
 import pe.edu.lamolina.pivot.controller.test.VisorCalculoNotas;
+import static pe.edu.lamolina.pivot.controller.test.VisorCalculoNotas.TOKEN_CURRICULA;
+import static pe.edu.lamolina.pivot.controller.test.VisorCalculoNotas.TOKEN_PROMEDIOS;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCursoCurriculaDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
@@ -170,9 +169,6 @@ public class ResolucionServiceImp implements ResolucionService {
 
     @Autowired
     VisorCalculoNotas visorCalculoNotas;
-
-    private final static String TOKEN_PROMEDIOS = "-token-promedios";
-    private final static String TOKEN_CURRICULA = "-token-curriculas";
 
     @Override
     public List<Resolucion> allResolucionesByFilter(DynatableFilter filter, DataSessionPivot dsp) {

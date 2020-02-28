@@ -28,14 +28,9 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
-import pe.edu.lamolina.model.academico.TurnoAtencion;
-import static pe.edu.lamolina.model.constantines.GlobalConstantine.CAPA_ULTIMO_CICLO;
 import pe.edu.lamolina.model.enums.CursoCurriculaEstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import pe.edu.lamolina.model.enums.EstadoTramiteEnum;
-import pe.edu.lamolina.model.enums.EventoAcademicoEnum;
-import static pe.edu.lamolina.model.enums.EventoAcademicoEnum.MAT_REG;
-import static pe.edu.lamolina.model.enums.EventoAcademicoEnum.MAT_VER;
 import pe.edu.lamolina.model.enums.OrigenDataSituacionAcademicaEnum;
 import pe.edu.lamolina.model.enums.OrigenTokenEnum;
 import pe.edu.lamolina.model.enums.ResolucionEstadoEnum;
@@ -53,7 +48,6 @@ import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_9;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_EM;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_N;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_TU;
-import pe.edu.lamolina.model.enums.TipoCondicionalEnum;
 import pe.edu.lamolina.model.enums.TipoDocumentoCompaniaEnum;
 import pe.edu.lamolina.model.enums.TipoResolucionEnum;
 import pe.edu.lamolina.model.enums.TipoTramiteEnum;
@@ -79,6 +73,8 @@ import pe.edu.lamolina.pivot.controller.matricula.matriculable.MatriculableConne
 import pe.edu.lamolina.pivot.controller.matricula.matriculable.MatriculableService;
 import pe.edu.lamolina.pivot.controller.seriedocumento.SerieDocumentoService;
 import pe.edu.lamolina.pivot.controller.test.VisorCalculoNotas;
+import static pe.edu.lamolina.pivot.controller.test.VisorCalculoNotas.TOKEN_CURRICULA;
+import static pe.edu.lamolina.pivot.controller.test.VisorCalculoNotas.TOKEN_PROMEDIOS;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloCursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCursoCurriculaDAO;
@@ -195,9 +191,6 @@ public class TramiteCondicionalServiceImp implements TramiteCondicionalService {
 
     @Autowired
     MatriculableService matriculableService;
-
-    private final static String TOKEN_PROMEDIOS = "-token-promedios";
-    private final static String TOKEN_CURRICULA = "-token-curriculas";
 
     @Autowired
     VisorCalculoNotas visorCalculoNotas;
@@ -476,48 +469,6 @@ public class TramiteCondicionalServiceImp implements TramiteCondicionalService {
         reincorporacione.setEsCondicional(Boolean.TRUE);
         reincorporacionDAO.save(reincorporacione);
 
-//        por ver 
-//        MatriculaResumen matriculaResumen = matriculaResumenDAO.findByFilter(ciclo, alumno, EstadoMatriculaEnum.NMAT);
-        //        if (matriculaResumen != null) {
-        //
-        //            if (ciclo.getFechaPrioridades() != null) {
-        //                matriculaResumen.setMotivoMatriculable(tramite.getMotivoResolucion());
-        //                matriculaResumen.setEsCondicional(true);
-        //                matriculaResumen.setFechaCondicional(new Date());
-        //
-        //                AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findActivoRegularByCicloAlumno(alumno.getCicloActivoRegular(), alumno);
-        //                matriculaResumen = matriculableConector.procesarPrioridadAlumno(matriculaResumen, alumnoCiclo);
-        //
-        //                boolean esUltimoCiclo = alumno.getCreditosAprobadosConvalidados() > CAPA_ULTIMO_CICLO;
-        //                MatriculaResumen matriculaAnt = matriculaResumenDAO.findByPuntajeMenor(matriculaResumen, ciclo, esUltimoCiclo);
-        //                MatriculaResumen matriculaDes = matriculaResumenDAO.findByPuntajeMayor(matriculaResumen, ciclo, esUltimoCiclo);
-        //                if (matriculaAnt != null && matriculaDes != null) {
-        //
-        //                    BigDecimal prioridad = matriculaAnt.getPrioridad().add(matriculaDes.getPrioridad()).divide(new BigDecimal(2));
-        //                    matriculaResumen.setPrioridad(prioridad);
-        //                    if (ciclo.getFechaTurnosAsignados() != null) {
-        //                        EventoAcademicoEnum eventoEnum = ciclo.isTipoRegular() ? MAT_REG : MAT_VER;
-        //                        TurnoAtencion turnoAlumno = turnoAtencionDAO.findById(matriculaResumen.getTurnoAtencion().getId());
-        //                        TurnoAtencion turnosAtencion = turnoAtencionDAO.findByPrioridad(prioridad, ciclo, eventoEnum);
-        //                        if (turnoAlumno.getId() != turnosAtencion.getId()) {
-        //                            BigDecimal numPrioridad = turnosAtencion.getPrioridadFin().add(new BigDecimal("0.01"));
-        //                            Integer cantAlum = turnosAtencion.getAlumnos() + 1;
-        //                            turnosAtencion.setAlumnos(cantAlum);
-        //                            turnosAtencion.setPrioridadFin(numPrioridad);
-        //                            turnoAtencionDAO.update(turnosAtencion);
-        //                        }
-        //
-        //                        matriculaResumen.setTurnoAtencion(turnosAtencion);
-        //
-        //                    }
-        //                    matriculaResumenDAO.update(matriculaResumen);
-        //                }
-        //            }
-        //
-        //        } else {
-        //            matriculableService.saveMatriculable(alumno, TipoCondicionalEnum.REI.name(), dx);
-        //
-        //        }
     }
 
     @Override

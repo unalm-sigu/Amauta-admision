@@ -41,6 +41,7 @@ import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.tramite.TipoTramite;
 import pe.edu.lamolina.model.tramite.Tramite;
 import pe.edu.lamolina.pivot.controller.academico.avancecurricular.AvanceCurricularService;
+import pe.edu.lamolina.pivot.controller.academico.promedio.PromedioService;
 import pe.edu.lamolina.pivot.controller.academico.resolucion.ResolucionService;
 import pe.edu.lamolina.pivot.controller.academico.resolucion.resolucionExistentes.ResolucionExistenteService;
 import pe.edu.lamolina.pivot.controller.bienestar.alumnoAporte.AporteAlumnoService;
@@ -72,7 +73,8 @@ public class TramiteCondicionalController {
     @Autowired
     AporteAlumnoService aporteAlumnoService;
 
-    ;
+    @Autowired
+    PromedioService promedioService;
 
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {
@@ -183,6 +185,7 @@ public class TramiteCondicionalController {
                 service.saveCambioNota(tramite, ds);
             }
 
+            promedioService.calcularSituacionAcademica(tramite.getAlumno(), ds);
             String token = matriculableService.saveMatriculable(tramite.getAlumno(), ds);
             matriculableService.generarAportes(ds, token);
             response.setMessage("Se guardó satisfactoriamente.");
