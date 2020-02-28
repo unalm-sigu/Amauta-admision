@@ -500,42 +500,7 @@ public class MatriculableServiceImp implements MatriculableService {
             mapMatriculableExist.put(alumnoCondicional.getId(), alumnoCondicional);
             matriculables.add(resumen);
         }
-
-//        for (Alumno estudiante : estudiantes) {
-//            Alumno alumnoExist = mapMatriculableExist.get(estudiante.getId());
-//            if (alumnoExist != null) {
-//                continue;
-//            }
-//            Alumno alumno = mapMatriculable.get(estudiante.getId());
-//            if (alumno != null) {
-//                continue;
-//            }
-//            if (!situaciones.contains(estudiante.getSituacionAcademica().getCodigoEnum())) {
-//                continue;
-//            }
-//            if (modalidad.getCodigoEnum() != estudiante.getModalidadEstudio().getCodigoEnum()) {
-//                continue;
-//            }
-//
-//            System.out.println("AGREGAR " + estudiante.getCodigo() + " " + estudiante.getModalidadEstudio().getCodigo());
-//            mapMatriculable.put(estudiante.getId(), estudiante);
-//        }
-//        for (Alumno alumnoTramite : alumosConTramite) {
-//            Alumno alumno = mapMatriculableCondicional.get(alumnoTramite.getId());
-//            if (alumno != null) {
-//                continue;
-//            }
-//            mapMatriculableCondicional.put(alumnoTramite.getId(), alumnoTramite);
-//        }
-//        List<Alumno> alumnos = new ArrayList(mapMatriculable.values());
-//        for (Alumno alumno : alumnos) {
-//            System.out.println("Finalmente quedan " + alumno.getCodigo() + " alumnos Reg para ser matriculables" + alumno.getModalidadEstudio().getCodigo());
-//        }
-//        List<Long> alumnosIds = alumnos.stream().map(x -> x.getId()).collect(Collectors.toList());
-//        System.out.println("Finalmente quedan " + alumnosIds.size() + " alumnos Reg para ser matriculables");
-//        if (!alumnosIds.isEmpty()) {
         matriculaResumenDAO.saveList(matriculables);
-//        }
 
     }
 
