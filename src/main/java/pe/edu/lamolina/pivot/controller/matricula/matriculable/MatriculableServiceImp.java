@@ -398,6 +398,14 @@ public class MatriculableServiceImp implements MatriculableService {
     }
 
     private void generarPregrado(CicloAcademico ciclo, DataSessionPivot ds) {
+
+        List<String> situacionesNoAptas
+                = Arrays.asList(
+                        S_D.getValue(), S_4.getValue(), S_X.getValue(), S_XD.getValue(), S_4U.getValue(), S_E.getValue(),
+                        S_7.getValue(), S_4T.getValue(), S_Q.getValue(), S_R.getValue());
+
+        List<Alumno> alumnosPregrado = alumnoDAO.allByModalidadSituacionesNoAptas(ModalidadEstudioEnum.PRE, situacionesNoAptas);
+
         List<SituacionAcademicaEnum> situaciones = Arrays.asList(S_N, S_1, S_2, S_3, S_5, S_8, S_9, S_3U, S_2U, S_4U, S_6U, S_TU, S_EM);
 
         CicloAcademico cicloBD = cicloAcademicoDAO.find(ciclo);
@@ -407,124 +415,128 @@ public class MatriculableServiceImp implements MatriculableService {
         List<Reincorporacion> reincorporacion = reincorporacionDAO.allByCicloReincorporacion(ciclo);
         List<CambioNota> cambioNota = cambioNotaDAO.allByCicloRegistro(ciclo);
         List<Alumno> alumosConTramite = retiroCiclos.stream().map(x -> x.getAlumno()).collect(Collectors.toList());
-        alumosConTramite.addAll(reincorporacion.stream().filter(x -> x.getEsCondicional() && Arrays.asList(PEND.name()).contains(x.getTramite().getEstado())).map(x -> x.getAlumno()).collect(Collectors.toList()));
+        alumosConTramite.addAll(reincorporacion.stream().map(x -> x.getAlumno()).collect(Collectors.toList()));
         alumosConTramite.addAll(cambioNota.stream().filter(x -> x.getEsCondicional()).map(x -> x.getAlumno()).collect(Collectors.toList()));
 
-        List<CicloAcademico> ciclosIngresantes = Arrays.asList(cicloBD, cicloAntes);
+//        List<CicloAcademico> ciclosIngresantes = Arrays.asList(cicloBD, cicloAntes);
         ModalidadEstudio modalidad = cicloBD.getModalidadEstudio();
+        List<MatriculaResumen> matriculables = new ArrayList<>();
 
-        List<Alumno> ingresantes = alumnoDAO.allIngresantesByCiclos(ciclosIngresantes, modalidad.getCodigo());
-        Map<Long, Alumno> mapMatriculable = TypesUtil.convertListToMap("id", ingresantes);
-
-        List<CicloAcademico> ciclosPrevios = cicloAcademicoDAO.allActivosRegularAnteriores(3, cicloBD);
-
+//        List<Alumno> ingresantes = alumnoDAO.allIngresantesByCiclos(ciclosIngresantes, modalidad.getCodigo());
+        Map<Long, Reincorporacion> mapReincorporacion = TypesUtil.convertListToMap("alumno.id", reincorporacion);
+//        List<CicloAcademico> ciclosPrevios = cicloAcademicoDAO.allActivosRegularAnteriores(3, cicloBD);
         Map<Long, Alumno> mapMatriculableCondicional = new LinkedHashMap();
 
         Map<Long, Alumno> mapMatriculableExist = new LinkedHashMap();
-        List<MatriculaResumen> matriculaResumens = matriculaResumenDAO.allHabilesByCiclo(ciclo);
+        List<MatriculaResumen> matriculaResumens = matriculaResumenDAO.allHabilesByCiclo(cicloBD);
         for (MatriculaResumen matriculaResumen : matriculaResumens) {
-            mapMatriculable.remove(matriculaResumen.getAlumno().getId());
+//            mapMatriculable.remove(matriculaResumen.getAlumno().getId());
             mapMatriculableExist.put(matriculaResumen.getAlumno().getId(), matriculaResumen.getAlumno());
         }
 
-        List<Alumno> matriculados = alumnoDAO.allMatriculadosNoEgresadosByCiclos(ciclosPrevios);
-        System.out.println("=== vienen " + matriculados.size() + " matriculados de esos ciclos");
-        List<Alumno> estudiantes = alumnoDAO.allEstudiaronByCiclos(ciclosPrevios);
-        System.out.println("=== vienen " + estudiantes.size() + " estudiantes de esos ciclos");
-        for (Alumno matriculado : matriculados) {
-            Alumno alumnoExist = mapMatriculableExist.get(matriculado.getId());
+//        List<Alumno> matriculados = alumnoDAO.allMatriculadosNoEgresadosByCiclos(ciclosPrevios);
+//        System.out.println("=== vienen " + matriculados.size() + " matriculados de esos ciclos");
+//        List<Alumno> estudiantes = alumnoDAO.allEstudiaronByCiclos(ciclosPrevios);
+//        System.out.println("=== vienen " + estudiantes.size() + " estudiantes de esos ciclos");
+        for (Alumno alumno : alumnosPregrado) {
+            Alumno alumnoExist = mapMatriculableExist.get(alumno.getId());
             if (alumnoExist != null) {
                 continue;
             }
-            Alumno alumno = mapMatriculable.get(matriculado.getId());
-            if (alumno != null) {
-//                System.out.println("Ya existe el " + matriculado.getCodigo());
-                continue;
-            }
+//            Alumno alumno = mapMatriculable.get(matriculado.getId());
+//            if (alumno != null) {
+////                System.out.println("Ya existe el " + matriculado.getCodigo());
+//                continue;
+//            }
 
-            if (!situaciones.contains(matriculado.getSituacionAcademica().getCodigoEnum())) {
-//                if (matriculado.getSituacionAcademica().getCodigoEnum() == S_T && matriculado.getCreditosAprobados() > 180) {
-//                System.out.println("Es Trika pero no se bota porque tiene  " + matriculado.getCreditosAprobados() + " creditos aprobados");
-//                } else {
-                System.out.println("Se bota porque su situacion es  " + matriculado.getSituacionAcademica().getCodigo());
-//
-//                    continue;
-//                }
+//            if (!situaciones.contains(alumno.getSituacionAcademica().getCodigoEnum())) {
+////                if (matriculado.getSituacionAcademica().getCodigoEnum() == S_T && matriculado.getCreditosAprobados() > 180) {
+////                System.out.println("Es Trika pero no se bota porque tiene  " + matriculado.getCreditosAprobados() + " creditos aprobados");
+////                } else {
+//                System.out.println("Se bota porque su situacion es  " + alumno.getSituacionAcademica().getCodigo());
+////
+////                    continue;
+////                }
+//                continue;
+//            }
+            if (modalidad.getCodigoEnum() != alumno.getModalidadEstudio().getCodigoEnum()) {
+                System.out.println("Se bota porque su modalidad es " + alumno.getModalidadEstudio().getCodigo());
                 continue;
             }
-            if (modalidad.getCodigoEnum() != matriculado.getModalidadEstudio().getCodigoEnum()) {
-                System.out.println("Se bota porque su modalidad es " + matriculado.getModalidadEstudio().getCodigo());
-                continue;
-            }
-            System.out.println("AGREGAR " + matriculado.getCodigo() + " " + matriculado.getModalidadEstudio().getCodigo());
-            mapMatriculable.put(matriculado.getId(), matriculado);
-        }
-        for (Alumno estudiante : estudiantes) {
-            Alumno alumnoExist = mapMatriculableExist.get(estudiante.getId());
-            if (alumnoExist != null) {
-                continue;
-            }
-            Alumno alumno = mapMatriculable.get(estudiante.getId());
-            if (alumno != null) {
-                continue;
-            }
-            if (!situaciones.contains(estudiante.getSituacionAcademica().getCodigoEnum())) {
-                continue;
-            }
-            if (modalidad.getCodigoEnum() != estudiante.getModalidadEstudio().getCodigoEnum()) {
-                continue;
-            }
+            System.out.println("AGREGAR " + alumno.getCodigo() + " " + alumno.getModalidadEstudio().getCodigo());
 
-            System.out.println("AGREGAR " + estudiante.getCodigo() + " " + estudiante.getModalidadEstudio().getCodigo());
-            mapMatriculable.put(estudiante.getId(), estudiante);
+            MatriculaResumen resumen = new MatriculaResumen();
+            resumen.setAlumno(alumno);
+            resumen.setCicloAcademico(cicloBD);
+            resumen.setSituacionInicio(alumno.getSituacionAcademica());
+            resumen.settingValoresDefecto();
+            resumen.setCreditosPagados(0);
+            resumen.setCreditosConsumidos(0);
+            
+            mapMatriculableExist.put(alumno.getId(), alumno);
+            matriculables.add(resumen);
+//            mapMatriculable.put(matriculado.getId(), matriculado);
         }
 
-        for (Alumno alumnoTramite : alumosConTramite) {
-            Alumno alumno = mapMatriculableCondicional.get(alumnoTramite.getId());
-            if (alumno != null) {
-                continue;
-            }
-            mapMatriculableCondicional.put(alumnoTramite.getId(), alumnoTramite);
-        }
-
-        List<Alumno> alumnos = new ArrayList(mapMatriculable.values());
-        for (Alumno alumno : alumnos) {
-            System.out.println("Finalmente quedan " + alumno.getCodigo() + " alumnos Reg para ser matriculables" + alumno.getModalidadEstudio().getCodigo());
-        }
-        List<Long> alumnosIds = alumnos.stream().map(x -> x.getId()).collect(Collectors.toList());
-        System.out.println("Finalmente quedan " + alumnosIds.size() + " alumnos Reg para ser matriculables");
-        if (!alumnosIds.isEmpty()) {
-            matriculaResumenDAO.saveMatriculables(alumnosIds, ciclo);
-        }
-
-        List<Alumno> alumnosCondicional = new ArrayList(mapMatriculableCondicional.values());
-        for (Alumno alumnoCondicional : alumnosCondicional) {
+        for (Alumno alumnoCondicional : alumosConTramite) {
             Alumno alumnoExist = mapMatriculableExist.get(alumnoCondicional.getId());
             if (alumnoExist != null) {
                 continue;
             }
-            Alumno alumno = mapMatriculable.get(alumnoCondicional.getId());
-            if (alumno != null) {
-                continue;
+            Boolean escondicional = true;
+            Reincorporacion reincorpor = mapReincorporacion.get(alumnoCondicional.getId());
+            if (reincorpor != null) {
+                escondicional = reincorpor.getEsCondicional();
             }
 
-            logger.debug("Codigo Alumno {}", alumnoCondicional.getCodigo());
-            MatriculaResumen matriculable = new MatriculaResumen();
-            matriculable.setAlumno(alumnoCondicional);
-            matriculable.setCicloAcademico(cicloBD);
-            matriculable.setCreditosMatriculados(0);
-            matriculable.setCreditosRetirados(0);
-            matriculable.setCreditosTrikaPagados(0);
-            matriculable.setCursosMatriculados(0);
-            matriculable.setCursosRetirados(0);
-            matriculable.setEstadoEnum(EstadoMatriculaEnum.NMAT);
-            matriculable.setSituacionInicio(alumnoCondicional.getSituacionAcademica());
-            matriculable.setEsUltimoCiclo(alumnoCondicional.getCreditosAprobadosConvalidados() >= 172);
-            matriculable.setCreditosTrikaSeparados(0);
-            matriculable.setEsCondicional(Boolean.TRUE);
-            matriculable.setFechaCondicional(new Date());
-            matriculaResumenDAO.save(matriculable);
+            MatriculaResumen resumen = new MatriculaResumen();
+            resumen.setAlumno(alumnoCondicional);
+            resumen.setCicloAcademico(cicloBD);
+            resumen.setSituacionInicio(alumnoCondicional.getSituacionAcademica());
+            resumen.settingValoresDefecto();
+            resumen.setCreditosPagados(0);
+            resumen.setCreditosConsumidos(0);
+            resumen.setEsCondicional(escondicional);
+            mapMatriculableExist.put(alumnoCondicional.getId(), alumnoCondicional);
+            matriculables.add(resumen);
         }
+
+//        for (Alumno estudiante : estudiantes) {
+//            Alumno alumnoExist = mapMatriculableExist.get(estudiante.getId());
+//            if (alumnoExist != null) {
+//                continue;
+//            }
+//            Alumno alumno = mapMatriculable.get(estudiante.getId());
+//            if (alumno != null) {
+//                continue;
+//            }
+//            if (!situaciones.contains(estudiante.getSituacionAcademica().getCodigoEnum())) {
+//                continue;
+//            }
+//            if (modalidad.getCodigoEnum() != estudiante.getModalidadEstudio().getCodigoEnum()) {
+//                continue;
+//            }
+//
+//            System.out.println("AGREGAR " + estudiante.getCodigo() + " " + estudiante.getModalidadEstudio().getCodigo());
+//            mapMatriculable.put(estudiante.getId(), estudiante);
+//        }
+//        for (Alumno alumnoTramite : alumosConTramite) {
+//            Alumno alumno = mapMatriculableCondicional.get(alumnoTramite.getId());
+//            if (alumno != null) {
+//                continue;
+//            }
+//            mapMatriculableCondicional.put(alumnoTramite.getId(), alumnoTramite);
+//        }
+//        List<Alumno> alumnos = new ArrayList(mapMatriculable.values());
+//        for (Alumno alumno : alumnos) {
+//            System.out.println("Finalmente quedan " + alumno.getCodigo() + " alumnos Reg para ser matriculables" + alumno.getModalidadEstudio().getCodigo());
+//        }
+//        List<Long> alumnosIds = alumnos.stream().map(x -> x.getId()).collect(Collectors.toList());
+//        System.out.println("Finalmente quedan " + alumnosIds.size() + " alumnos Reg para ser matriculables");
+//        if (!alumnosIds.isEmpty()) {
+        matriculaResumenDAO.saveList(matriculables);
+//        }
+
     }
 
     @Async
