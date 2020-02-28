@@ -68,28 +68,24 @@ import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.EPG;
 import pe.edu.lamolina.model.enums.SituacionAcademicaEnum;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_1;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_2;
-import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_2U;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_3;
-import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_3U;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_4;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_4T;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_4U;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_5;
-import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_6U;
+import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_6;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_7;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_8;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_9;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_D;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_E;
-import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_EM;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_N;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_Q;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_R;
-import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_TU;
+import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_T;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_X;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_XD;
 import pe.edu.lamolina.model.enums.TipoCicloEnum;
-import static pe.edu.lamolina.model.enums.TramiteEstadoEnum.PEND;
 import pe.edu.lamolina.model.finanzas.Acreencia;
 import pe.edu.lamolina.model.finanzas.DeudaAlumno;
 import pe.edu.lamolina.model.seguridad.Usuario;
@@ -276,7 +272,6 @@ public class MatriculableServiceImp implements MatriculableService {
                 matriculaResumen.setBoletaPendiente(Boolean.TRUE);
             }
 
-            //logger.debug("boletas {}", mapBoletas.get(matriculaResumen.getAlumno().getId()) != null);
             List<ResumenAporteAlumno> misResumenAporteAlumnos = TypesUtil.getListNotNull(mapResumenAporteAlumno.get(matriculaResumen.getId()));
 
             misResumenAporteAlumnos = misResumenAporteAlumnos.stream()
@@ -379,21 +374,6 @@ public class MatriculableServiceImp implements MatriculableService {
         if (!alumnosIds.isEmpty()) {
             matriculaResumenDAO.saveMatriculables(alumnosIds, cicloEpg);
         }
-//        for (Alumno alumno : alumnos) {
-//            MatriculaResumen matriculable = new MatriculaResumen();
-//            matriculable.setAlumno(alumno);
-//            matriculable.setCicloAcademico(cicloBD);
-//            matriculable.setCreditosMatriculados(0);
-//            matriculable.setCreditosRetirados(0);
-//            matriculable.setCreditosTrikaPagados(0);
-//            matriculable.setCreditosTrikaSeparados(0);
-//            matriculable.setCursosMatriculados(0);
-//            matriculable.setCursosRetirados(0);
-//            matriculable.setEstadoEnum(EstadoMatriculaEnum.NMAT);
-//            matriculable.setSituacionInicio(alumno.getSituacionAcademica());
-//            matriculable.setEsUltimoCiclo(false);
-//            matriculaResumenDAO.save(matriculable);
-//        }
 
     }
 
@@ -402,14 +382,11 @@ public class MatriculableServiceImp implements MatriculableService {
         List<String> situacionesNoAptas
                 = Arrays.asList(
                         S_D.getValue(), S_4.getValue(), S_X.getValue(), S_XD.getValue(), S_4U.getValue(), S_E.getValue(),
-                        S_7.getValue(), S_4T.getValue(), S_Q.getValue(), S_R.getValue());
+                        S_7.getValue(), S_4T.getValue(), S_Q.getValue(), S_R.getValue(),
+                        S_6.getValue(), S_T.getValue());
 
         List<Alumno> alumnosPregrado = alumnoDAO.allByModalidadSituacionesNoAptas(ModalidadEstudioEnum.PRE, situacionesNoAptas);
-
-        List<SituacionAcademicaEnum> situaciones = Arrays.asList(S_N, S_1, S_2, S_3, S_5, S_8, S_9, S_3U, S_2U, S_4U, S_6U, S_TU, S_EM);
-
         CicloAcademico cicloBD = cicloAcademicoDAO.find(ciclo);
-        CicloAcademico cicloAntes = cicloAcademicoDAO.findAnteriorActivo(cicloBD);
 
         List<RetiroCiclo> retiroCiclos = retiroCicloDAO.allByCicloCondicional(ciclo);
         List<Reincorporacion> reincorporacion = reincorporacionDAO.allByCicloReincorporacion(ciclo);
@@ -418,47 +395,23 @@ public class MatriculableServiceImp implements MatriculableService {
         alumosConTramite.addAll(reincorporacion.stream().map(x -> x.getAlumno()).collect(Collectors.toList()));
         alumosConTramite.addAll(cambioNota.stream().filter(x -> x.getEsCondicional()).map(x -> x.getAlumno()).collect(Collectors.toList()));
 
-//        List<CicloAcademico> ciclosIngresantes = Arrays.asList(cicloBD, cicloAntes);
         ModalidadEstudio modalidad = cicloBD.getModalidadEstudio();
-        List<MatriculaResumen> matriculables = new ArrayList<>();
+        List<MatriculaResumen> matriculables = new ArrayList();
 
-//        List<Alumno> ingresantes = alumnoDAO.allIngresantesByCiclos(ciclosIngresantes, modalidad.getCodigo());
         Map<Long, Reincorporacion> mapReincorporacion = TypesUtil.convertListToMap("alumno.id", reincorporacion);
-//        List<CicloAcademico> ciclosPrevios = cicloAcademicoDAO.allActivosRegularAnteriores(3, cicloBD);
-        Map<Long, Alumno> mapMatriculableCondicional = new LinkedHashMap();
 
         Map<Long, Alumno> mapMatriculableExist = new LinkedHashMap();
         List<MatriculaResumen> matriculaResumens = matriculaResumenDAO.allHabilesByCiclo(cicloBD);
         for (MatriculaResumen matriculaResumen : matriculaResumens) {
-//            mapMatriculable.remove(matriculaResumen.getAlumno().getId());
             mapMatriculableExist.put(matriculaResumen.getAlumno().getId(), matriculaResumen.getAlumno());
         }
 
-//        List<Alumno> matriculados = alumnoDAO.allMatriculadosNoEgresadosByCiclos(ciclosPrevios);
-//        System.out.println("=== vienen " + matriculados.size() + " matriculados de esos ciclos");
-//        List<Alumno> estudiantes = alumnoDAO.allEstudiaronByCiclos(ciclosPrevios);
-//        System.out.println("=== vienen " + estudiantes.size() + " estudiantes de esos ciclos");
         for (Alumno alumno : alumnosPregrado) {
             Alumno alumnoExist = mapMatriculableExist.get(alumno.getId());
             if (alumnoExist != null) {
                 continue;
             }
-//            Alumno alumno = mapMatriculable.get(matriculado.getId());
-//            if (alumno != null) {
-////                System.out.println("Ya existe el " + matriculado.getCodigo());
-//                continue;
-//            }
 
-//            if (!situaciones.contains(alumno.getSituacionAcademica().getCodigoEnum())) {
-////                if (matriculado.getSituacionAcademica().getCodigoEnum() == S_T && matriculado.getCreditosAprobados() > 180) {
-////                System.out.println("Es Trika pero no se bota porque tiene  " + matriculado.getCreditosAprobados() + " creditos aprobados");
-////                } else {
-//                System.out.println("Se bota porque su situacion es  " + alumno.getSituacionAcademica().getCodigo());
-////
-////                    continue;
-////                }
-//                continue;
-//            }
             if (modalidad.getCodigoEnum() != alumno.getModalidadEstudio().getCodigoEnum()) {
                 System.out.println("Se bota porque su modalidad es " + alumno.getModalidadEstudio().getCodigo());
                 continue;
@@ -475,7 +428,6 @@ public class MatriculableServiceImp implements MatriculableService {
 
             mapMatriculableExist.put(alumno.getId(), alumno);
             matriculables.add(resumen);
-//            mapMatriculable.put(matriculado.getId(), matriculado);
         }
 
         for (Alumno alumnoCondicional : alumosConTramite) {

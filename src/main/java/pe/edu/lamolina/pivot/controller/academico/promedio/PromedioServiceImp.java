@@ -677,6 +677,10 @@ public class PromedioServiceImp implements PromedioService {
         AlumnoCiclo alumnoCiclo = findSiguienteAlumnoCiclo(alumnosCiclosByAlumno, cicloNumerico);
         if (alumnoCiclo == null) {
             this.printSystem("Ya no tiene mas ciclos estudiados", showError);
+            if (alumno.isEspecial() || alumno.isVisitante()) {
+                return null;
+            }
+
         } else {
             this.printSystem("Se obtuvo el ciclo estudiado=" + alumnoCiclo.getCicloAcademico().getDescripcion(), showError);
         }
