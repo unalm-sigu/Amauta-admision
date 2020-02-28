@@ -298,8 +298,9 @@ public class PromedioServiceImp implements PromedioService {
                 if (alumnoCiclo.isRegistroValido()) {
                     ultimoAlumnoCiclo = alumnoCiclo;
                 } else if (alumnoCiclo.isRegistroXReinCicloActi()) {
-                    ultimoAlumnoCicloSinDesertor = alumnoCiclos.stream().filter(x -> x.getSituacionInicio().getCodigoEnum() != S_D && x.getSituacionFinal().getCodigoEnum() == S_D).findAny().orElse(null);
-                    break;
+                    //ultimoAlumnoCicloSinDesertor = alumnoCiclos.stream().filter(x -> x.getSituacionInicio().getCodigoEnum() != S_D && x.getSituacionFinal().getCodigoEnum() == S_D).findAny().orElse(null);
+                    ultimoAlumnoCicloSinDesertor = ultimoAlumnoCiclo;
+                    //break;
                 }
 
                 CicloAcademico cicloAlumno = alumnoCiclo.getCicloAcademico();
@@ -400,6 +401,25 @@ public class PromedioServiceImp implements PromedioService {
                         }
                     }
                 }
+            }
+
+            this.printSystem("ultimoAlumnoCiclo=" + (ultimoAlumnoCiclo != null), showError);
+            this.printSystem("ultimoAlumnoCicloSinDesertor=" + (ultimoAlumnoCicloSinDesertor != null), showError);
+
+            if (ultimoAlumnoCiclo != null) {
+                CicloAcademico ciclo = ultimoAlumnoCiclo.getCicloAcademico();
+                this.printSystem("ultimo.ciclo=" + ciclo.getDescripcion()
+                        + " / estado=" + ultimoAlumnoCiclo.getEstado()
+                        + " / registro.valido=" + ultimoAlumnoCiclo.isRegistroValido()
+                        + " / situacion=" + ultimoAlumnoCiclo.getSituacionFinal().getCodigo(), showError);
+            }
+
+            if (ultimoAlumnoCicloSinDesertor != null) {
+                CicloAcademico ciclo = ultimoAlumnoCicloSinDesertor.getCicloAcademico();
+                this.printSystem("ultimo.ciclo.desertor=" + ciclo.getDescripcion()
+                        + " / estado=" + ultimoAlumnoCicloSinDesertor.getEstado()
+                        + " / registro.valido=" + ultimoAlumnoCicloSinDesertor.isRegistroValido()
+                        + " / situacion=" + ultimoAlumnoCicloSinDesertor.getSituacionFinal().getCodigo(), showError);
             }
 
             if (ultimoAlumnoCiclo != null && ultimoAlumnoCiclo.isRegistroValido()) {
@@ -551,7 +571,7 @@ public class PromedioServiceImp implements PromedioService {
                         cicloActivo, showError, ds);
             }
 
-            if (alumnoCicloEach == null || alumnoCicloEach.getId() == null) {
+            if (alumnoCicloEach == null || !alumnoCicloEach.isRegistroValido()) {
                 break;
             }
 
@@ -678,6 +698,11 @@ public class PromedioServiceImp implements PromedioService {
                         alumnoCiclo.setRegistroValido(true);
                         return alumnoCiclo;
                     }
+                    if (alumnoCiclo.getEstadoEnum() == RCI || alumnoCiclo.getEstadoEnum() == ANCI) {
+                        alumnoCiclo.setRegistroValido(true);
+                        return alumnoCiclo;
+                    }
+
                     this.printSystem("Error en alumno " + alumno.getCodigo()
                             + ": ciclo.egreso=" + egresado.getCicloAcademico().getCodigoAnterior()
                             + " ultimo-ciclo-mat=" + cicloAlumno.getCodigoAnterior(), showError);
