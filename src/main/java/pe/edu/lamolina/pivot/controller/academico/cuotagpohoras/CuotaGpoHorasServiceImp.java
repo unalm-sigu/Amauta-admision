@@ -205,7 +205,7 @@ public class CuotaGpoHorasServiceImp implements CuotaGpoHorasService {
     public void updateUtilizados(CicloAcademico cicloAcademico, List<CuotasGrupoHoras> cuotasForm, DataSessionPivot ds) {
         List<CuotasGrupoHoras> cuotasBD = cuotaGpoHorasDAO.allByCiclo(cicloAcademico);
         List<LetraCuotaUtilizadaBean> letrasUtilizados = cuotaGpoHorasDAO.allLetrasUtilizadasByCiclo(cicloAcademico);
-        Map<Long, LetraCuotaUtilizadaBean> mapLetrasUtilizadas = TypesUtil.convertListToMap("anexoLetra", letrasUtilizados);
+        Map<String, LetraCuotaUtilizadaBean> mapLetrasUtilizadas = TypesUtil.convertListToMap("anexoLetra", letrasUtilizados);
         DateTime today = new DateTime();
 
         List<CuotasGrupoHoras> cuotas = new ArrayList();

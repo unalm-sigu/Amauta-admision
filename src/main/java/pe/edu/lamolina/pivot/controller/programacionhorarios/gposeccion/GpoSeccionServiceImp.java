@@ -355,11 +355,25 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             }
         }
 
+        // Cuotas para grupos con aulas OERA
         secciones.stream()
                 .filter(z -> z.getAula() != null)
                 .filter(z -> z.getGrupoHoras() != null)
                 .filter(z -> z.getAula().getOficinaSupervisora() != null)
                 .filter(z -> z.getAula().getOficinaSupervisora().getCodigoEnum() == OficinaEnum.OERA)
+                .forEach(x -> {
+                    CuotasGrupoHoras cuotasGrupoHoras = allCountCuotasGrupoHorases.stream()
+                            .filter(y -> y.getGrupoHoras().getCodigo().equals(x.getGrupoHoras().getLetra()))
+                            .findFirst().orElse(null);
+                    if (cuotasGrupoHoras != null) {
+                        x.getGrupoHoras().setCuotasGrupoHoras(cuotasGrupoHoras);
+                    }
+                });
+        
+        // Cuotas para grupos sin aula
+        secciones.stream()
+                .filter(z -> z.getAula() == null)
+                .filter(z -> z.getGrupoHoras() != null)
                 .forEach(x -> {
                     CuotasGrupoHoras cuotasGrupoHoras = allCountCuotasGrupoHorases.stream()
                             .filter(y -> y.getGrupoHoras().getCodigo().equals(x.getGrupoHoras().getLetra()))

@@ -101,12 +101,15 @@ public class CuotaGpoHorasDAOH extends AbstractEasyDAO<CuotasGrupoHoras> impleme
                 .into(LetraCuotaUtilizadaBean.class)
                 .from(Seccion.class, "secc")
                 .join("grupoHoras grho", "grupoSeccion grse", "grse.anexoBoletin anbo", "grse.cicloAcademico ca")
-                .join("secc.aula au", "au.oficinaSupervisora ofi")
+                .leftJoin("secc.aula au", "au.oficinaSupervisora ofi")
                 .filter("secc.estado", SeccionEstadoEnum.ACT)
                 .filter("grse.estado", SeccionEstadoEnum.ACT)
                 .filter("ca.id", cicloAcademico)
                 .filter("anbo.id", anexoBoletine)
-                .filter("ofi.codigo", OficinaEnum.OERA)
+                .beginBlock()
+                .__().filter("ofi.codigo", OficinaEnum.OERA)
+                .__().isNull("au.id")
+                .endBlock()
                 .groupBy("grho.letra");
 
         return (List<LetraCuotaUtilizadaBean>) sql.all(getCurrentSession());
@@ -119,11 +122,14 @@ public class CuotaGpoHorasDAOH extends AbstractEasyDAO<CuotasGrupoHoras> impleme
                 .into(LetraCuotaUtilizadaBean.class)
                 .from(Seccion.class, "secc")
                 .join("grupoHoras grho", "grupoSeccion grse", "grse.anexoBoletin anbo", "grse.cicloAcademico ca")
-                .join("secc.aula au", "au.oficinaSupervisora ofi")
+                .leftJoin("secc.aula au", "au.oficinaSupervisora ofi")
                 .filter("secc.estado", SeccionEstadoEnum.ACT)
                 .filter("grse.estado", SeccionEstadoEnum.ACT)
                 .filter("ca.id", cicloAcademico)
-                .filter("ofi.codigo", OficinaEnum.OERA)
+                .beginBlock()
+                .__().filter("ofi.codigo", OficinaEnum.OERA)
+                .__().isNull("au.id")
+                .endBlock()
                 .groupBy("anbo.id", "grho.letra");
 
         return (List<LetraCuotaUtilizadaBean>) sql.all(getCurrentSession());
@@ -136,12 +142,15 @@ public class CuotaGpoHorasDAOH extends AbstractEasyDAO<CuotasGrupoHoras> impleme
                 .into(LetraCuotaUtilizadaBean.class)
                 .from(HorarioSeccion.class, "hsecc")
                 .join("seccion secc", "secc.grupoHoras grho", "secc.grupoSeccion grse", "grse.anexoBoletin anbo", "grse.cicloAcademico ca")
-                .join("secc.aula au", "au.oficinaSupervisora ofi")
+                .leftJoin("secc.aula au", "au.oficinaSupervisora ofi")
                 .filter("secc.estado", SeccionEstadoEnum.ACT)
                 .filter("grse.estado", SeccionEstadoEnum.ACT)
                 .filter("ca.id", cicloAcademico)
                 .filter("anbo.id", anexoBoletin)
-                .filter("ofi.codigo", OficinaEnum.OERA)
+                .beginBlock()
+                .__().filter("ofi.codigo", OficinaEnum.OERA)
+                .__().isNull("au.id")
+                .endBlock()
                 .groupBy("grho.letra");
 
         return (List<LetraCuotaUtilizadaBean>) sql.all(getCurrentSession());
@@ -156,12 +165,15 @@ public class CuotaGpoHorasDAOH extends AbstractEasyDAO<CuotasGrupoHoras> impleme
                 .into(LetraCuotaUtilizadaBean.class)
                 .from(Seccion.class, "secc")
                 .join("grupoHoras grho", "grupoSeccion grse", "grse.anexoBoletin anbo", "grse.cicloAcademico ca")
-                .join("secc.aula au", "au.oficinaSupervisora ofi")
+                .leftJoin("secc.aula au", "au.oficinaSupervisora ofi")
                 .filter("secc.estado", SeccionEstadoEnum.ACT)
                 .filter("grse.estado", SeccionEstadoEnum.ACT)
                 .filter("ca.id", cicloAcademico)
                 .filter("anbo.id", anexoBoletin)
-                .filter("ofi.codigo", OficinaEnum.OERA)
+                .beginBlock()
+                .__().filter("ofi.codigo", OficinaEnum.OERA)
+                .__().isNull("au.id")
+                .endBlock()
                 .groupBy("grho.letra", "grho.codigo");
 
         return (List<LetraCuotaUtilizadaBean>) sql.all(getCurrentSession());
@@ -176,12 +188,15 @@ public class CuotaGpoHorasDAOH extends AbstractEasyDAO<CuotasGrupoHoras> impleme
                 .into(AnexoCuotaUtilizadaBean.class)
                 .from(Seccion.class, "secc")
                 .join("grupoHoras grho", "grupoSeccion grse", "grse.anexoBoletin anbo", "grse.cicloAcademico ca")
-                .join("aula au", "au.oficinaSupervisora ofi")
+                .leftJoin("aula au", "au.oficinaSupervisora ofi")
                 .filter("secc.estado", SeccionEstadoEnum.ACT)
                 .filter("grse.estado", SeccionEstadoEnum.ACT)
                 .filter("ca.id", cicloAcademico)
                 .filter("grho.letra", grupoHoras.getLetra())
-                .filter("ofi.codigo", OficinaEnum.OERA)
+                .beginBlock()
+                .__().filter("ofi.codigo", OficinaEnum.OERA)
+                .__().isNull("au.id")
+                .endBlock()
                 .groupBy("anbo.id");
 
         return (List<AnexoCuotaUtilizadaBean>) sql.all(getCurrentSession());
@@ -203,14 +218,17 @@ public class CuotaGpoHorasDAOH extends AbstractEasyDAO<CuotasGrupoHoras> impleme
                 .from(Seccion.class, "sec")
                 .join("grupoSeccion gSec", "gSec.cicloAcademico ca", "grupoHoras gHor")
                 .join("gSec.anexoBoletin bol")
-                .join("sec.aula au", "au.oficinaSupervisora ofi")
+                .leftJoin("sec.aula au", "au.oficinaSupervisora ofi")
                 .filter("sec.estado", SeccionEstadoEnum.ACT)
                 .filter("gSec.estado", SeccionEstadoEnum.ACT)
                 .filter("gHor.letra", letra)
                 .filter("gHor.tipoSeccion", tipoSeccion)
                 .filter("bol.id", anexoBoletin)
                 .filter("ca.id", cicloAcademico)
-                .filter("ofi.codigo", OficinaEnum.OERA)
+                .beginBlock()
+                .__().filter("ofi.codigo", OficinaEnum.OERA)
+                .__().isNull("au.id")
+                .endBlock()
                 .groupBy("gHor.letra");
         Integer result = TypesUtil.getInt(sql.find(getCurrentSession()));
         return result == null ? 0 : result;
@@ -225,12 +243,15 @@ public class CuotaGpoHorasDAOH extends AbstractEasyDAO<CuotasGrupoHoras> impleme
                 .into(AnexoCuotaUtilizadaBean.class)
                 .from(Seccion.class, "secc")
                 .join("grupoHoras grho", "grupoSeccion grse", "grse.anexoBoletin anbo", "grse.cicloAcademico ca")
-                .join("aula au", "au.oficinaSupervisora ofi")
+                .leftJoin("aula au", "au.oficinaSupervisora ofi")
                 .filter("secc.estado", SeccionEstadoEnum.ACT)
                 .filter("grse.estado", SeccionEstadoEnum.ACT)
                 .filter("ca.id", cicloAcademico)
                 .filter("grho.letra", grupoHoras.getLetra())
-                .filter("ofi.codigo", OficinaEnum.OERA)
+                .beginBlock()
+                .__().filter("ofi.codigo", OficinaEnum.OERA)
+                .__().isNull("au.id")
+                .endBlock()
                 .groupBy("anbo.id", "grho.codigo");
 
         return (List<AnexoCuotaUtilizadaBean>) sql.all(getCurrentSession());
