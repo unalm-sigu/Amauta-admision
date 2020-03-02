@@ -308,11 +308,18 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
 
     @Override
     public void deleteMatriculable(CicloAcademico cicloAcademico) {
-        StringBuilder strb = new StringBuilder("delete mr  from aca_matricula_resumen mr inner join aca_ciclo_academico ca on mr.id_ciclo_academico = ca.id");
-        strb.append(" where ca.codigo = :ciclo ");
+        StringBuilder strb = new StringBuilder("");
+        strb.append("delete mr from aca_matricula_resumen mr ");
+        strb.append("          join aca_ciclo_academico ca on mr.id_ciclo_academico = ca.id");
+        strb.append("    where ca.codigo = :CICLO ");
+        strb.append("      and ca.codigo in (:PRE,:VIS) ");
 
-        Query query = getCurrentSession().createSQLQuery(strb.toString())
-                .setString("ciclo", cicloAcademico.getCodigo());
+        Query query = getCurrentSession()
+                .createSQLQuery(strb.toString())
+                .setParameter("ciclo", cicloAcademico.getCodigo())
+                .setParameter("PRE", PRE.name())
+                .setParameter("VIS", VIS.name());
+
         query.executeUpdate();
     }
 
