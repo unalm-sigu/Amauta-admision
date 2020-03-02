@@ -1,20 +1,29 @@
 package pe.edu.lamolina.pivot.zelper;
 
-import java.util.Calendar;
-import org.joda.time.DateTime;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 public class Laboratory {
 
     public static void main666(String[] args) {
 
-        DateTime dateTime = new DateTime();
+        BigDecimal capa = new BigDecimal(121);
+        BigDecimal cca = new BigDecimal(209);
+        BigDecimal caps = new BigDecimal(0);
+        BigDecimal ccs = new BigDecimal(9);
+        BigDecimal pps = new BigDecimal(0);
 
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(dateTime.toDate()); // Configuramos la fecha que se recibe
-        calendar.set(Calendar.DAY_OF_YEAR, calendar.getGreatestMinimum(Calendar.DAY_OF_MONTH));
-        calendar.getTime(); // Devuelve el objeto Date con los nuevos días añadidos
+        caps = caps.equals(BigDecimal.ZERO) ? new BigDecimal(0.004) : caps;
+        capa = capa.equals(BigDecimal.ZERO) ? new BigDecimal(0.004) : capa;
+        pps = pps.equals(BigDecimal.ZERO) ? new BigDecimal(0.004) : pps;
 
-        System.out.println("" + dateTime.getMonthOfYear());
+        BigDecimal factor1 = capa.multiply(caps).multiply(pps);
+        BigDecimal factor2 = ccs.multiply(cca);
+        factor2 = factor2.equals(BigDecimal.ZERO) ? BigDecimal.ONE : factor2;
+
+        BigDecimal puntajePrioridad = factor1.divide(factor2, 6, RoundingMode.FLOOR);
+
+        System.out.println(puntajePrioridad);
 
     }
 
