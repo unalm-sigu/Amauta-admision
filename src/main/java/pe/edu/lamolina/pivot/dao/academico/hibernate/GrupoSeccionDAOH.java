@@ -324,16 +324,30 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
 
         boolean existeLetra = existeLetra(filter);
         if (existeLetra) {
-            Octavia subQueryLetra = Octavia.query()
+            Octavia subQueryLetra1 = Octavia.query()
                     .from(Seccion.class, "sec")
-                    .join("sec.grupoSeccion gpoSec", "sec.aula au", "au.oficinaSupervisora ofi")
+                    .join("sec.grupoSeccion gpoSec")
+                    .join("sec.aula au", "au.oficinaSupervisora ofi")
                     .join("sec.grupoHoras gpo")
                     .filter("ofi.codigo", OficinaEnum.OERA);
 
-            this.setLetra(filter, subQueryLetra);
+            Octavia subQueryLetra2 = Octavia.query()
+                    .from(Seccion.class, "sec")
+                    .join("sec.grupoSeccion gpoSec")
+                    .left("sec.aula au")
+                    .join("sec.grupoHoras gpo")
+                    .isNull("au.id");
 
-            sql.exists(subQueryLetra);
-            sql.linkedBy("gs.id", "gpoSec.id");
+            this.setLetra(filter, subQueryLetra1);
+            this.setLetra(filter, subQueryLetra2);
+
+            sql.beginBlock();
+            sql.__().exists(subQueryLetra1);
+            sql.__().linkedBy("gs.id", "gpoSec.id");
+            sql.__().exists(subQueryLetra2);
+            sql.__().linkedBy("gs.id", "gpoSec.id");
+            sql.endBlock();
+
         }
 
         sql.beginRelativeFilters();
