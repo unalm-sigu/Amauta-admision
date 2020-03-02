@@ -197,7 +197,7 @@ public class MatriculableController {
                             "resumenesAportes.montoTotal"
                         });
                 if (matriculable.getPuntajePrioridad() != null) {
-                    node.put("puntajePrioridad", NumberFormat.notaDecimalXDecimals(matriculable.getPuntajePrioridad(), 6));
+                    node.put("puntajePrioridad", NumberFormat.notaDecimalXDecimals(matriculable.getPuntajePrioridad(), 8));
                 }
 
                 array.add(node);

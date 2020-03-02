@@ -86,13 +86,13 @@ public class MatriculableConmectorImp implements MatriculableConnector {
         BigDecimal factor2 = ccs.multiply(cca);
         factor2 = factor2.equals(BigDecimal.ZERO) ? BigDecimal.ONE : factor2;
 
-        BigDecimal puntajePrioridad = factor1.divide(factor2, 6, RoundingMode.FLOOR);
+        BigDecimal puntajePrioridad = factor1.divide(factor2, 8, RoundingMode.FLOOR);
 
         matriculaResumen.setCreditosAprobadosAcumulados(alumnoCiclo.getCreditosAprobadosAcumulados());
         matriculaResumen.setCreditosAcumulados(alumnoCiclo.getCreditosAcumulados());
         matriculaResumen.setCreditosAprobadosCiclo(alumnoCiclo.getCreditosAprobadosCiclo());
         matriculaResumen.setCreditosCursadosCiclo(alumnoCiclo.getCreditosCursadosCiclo());
-        matriculaResumen.setPromedioSemestral(pps);
+        matriculaResumen.setPromedioSemestral(alumnoCiclo.getPromedioCiclo());
 
         if (alumno.getCreditosAprobadosConvalidados() >= CAPA_ULTIMO_CICLO) {
             matriculaResumen.setEsUltimoCiclo(Boolean.TRUE);
