@@ -251,11 +251,10 @@ public class OmisoEleccionServiceImp implements OmisoEleccionService {
         List<AporteAlumnoCiclo> aporteAlumnoCiclo = aporteAlumnoCicloDAO.allByAlumnoCiclo(alumno, cicloAcademicoMod);
         ResumenAporteAlumno resumenAporteAlumno = resumenAporteAlumnoDAO.findByAlumnoCicloAcademico(alumno, cicloAcademicoMod);
 
-        AporteAlumnoCiclo alumnoCiclo = aporteAlumnoCiclo.stream()
+        AporteAlumnoCiclo aporte = aporteAlumnoCiclo.stream()
                 .filter(x -> Arrays.asList(AportesEnum.A04, A46)
                 .contains(x.getAporteCiclo().getAporte().getCodigoEnum()))
                 .findAny().orElse(null);
-        DeudaAlumno deudaAlumno = alumnoCiclo.getDeudaAlumno();
         BigDecimal montorest = BigDecimal.ZERO;
         for (AlumnoOmisoEleccion alumnoOmisoEleccion : omisoEleccion) {
             if (alumnoOmisoEleccion.getSeleccionado()) {
@@ -269,11 +268,13 @@ public class OmisoEleccionServiceImp implements OmisoEleccionService {
 
             }
         }
-        if (alumnoCiclo != null) {
 
-            Assert.isTrue(alumnoCiclo.getEstadoEnum() == DEBE, "El alumno ya pagó la deuda no se puede anular.");
+        if (aporte != null) {
+            DeudaAlumno deudaAlumno = aporte.getDeudaAlumno();
 
-            alumnoCiclo.setMonto(alumnoCiclo.getMonto().subtract(montorest));
+            Assert.isTrue(aporte.getEstadoEnum() == DEBE, "El alumno ya pagó la deuda no se puede anular.");
+
+            aporte.setMonto(aporte.getMonto().subtract(montorest));
 
             if (deudaAlumno != null) {
                 deudaAlumno.setMonto(deudaAlumno.getMonto().subtract(montorest));
@@ -299,7 +300,7 @@ public class OmisoEleccionServiceImp implements OmisoEleccionService {
                     acreenciaNew.setCuentaBancaria(deudaAlumno.getCuentaBancaria());
                     acreenciaNew.setFechaDocumento(new Date());
                     acreenciaNew.setUsuarioRegistro(ds.getUsuario());
-                    acreenciaNew.setFechaVencimiento(alumnoCiclo.getFechaVencimiento());
+                    acreenciaNew.setFechaVencimiento(aporte.getFechaVencimiento());
                     acreenciaNew.setFechaRegistro(today.toDate());
                     acreenciaNew.setProcesoRegistroEnum(ProcesoMethodEnum.ANU_OMI);
                     acreenciaDAO.save(acreenciaNew);
@@ -311,10 +312,10 @@ public class OmisoEleccionServiceImp implements OmisoEleccionService {
                 deudaAlumnoDAO.update(deudaAlumno);
 
             }
-            if (alumnoCiclo.getMonto().compareTo(BigDecimal.ZERO) == 0) {
-                alumnoCiclo.setEstadoEnum(EstadoAporteEnum.ANU);
+            if (aporte.getMonto().compareTo(BigDecimal.ZERO) == 0) {
+                aporte.setEstadoEnum(EstadoAporteEnum.ANU);
             }
-            aporteAlumnoCicloDAO.update(alumnoCiclo);
+            aporteAlumnoCicloDAO.update(aporte);
 
             resumenAporteAlumno.setMontoInicial(resumenAporteAlumno.getMontoInicial().subtract(montorest));
             resumenAporteAlumno.setMontoPendiente(resumenAporteAlumno.getMontoPendiente().subtract(montorest));
