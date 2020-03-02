@@ -167,6 +167,8 @@ public class OmisoEleccionController {
             List<String> observados = service.cargarDeudas(file, codigoCiclo, ds);
             if (observados.isEmpty()) {
                 json.setData(null);
+                json.setSuccess(true);
+                json.setMessage("Deudas por elecciones guardadas");
             } else {
                 logger.debug("Hay observaciones");
                 JsonNodeFactory factory = JsonNodeFactory.instance;
@@ -175,9 +177,9 @@ public class OmisoEleccionController {
                     observaciones.add(observado);
                 }
                 json.setData(observaciones);
+                json.setSuccess(false);
+                json.setMessage("Hay observaciones");
             }
-            json.setSuccess(true);
-            json.setMessage("Deudas por elecciones guardadas");
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, json);
         } catch (Exception e) {
