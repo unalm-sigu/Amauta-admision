@@ -1819,7 +1819,7 @@ public class PlanCurricularController {
         JsonResponse response = new JsonResponse();
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            service.caducar(idCursoCurricula);
+            service.caducar(idCursoCurricula, ds);
             response.setSuccess(true);
             response.setMessage("Se modifico exitosamente");
 

@@ -42,4 +42,6 @@ public interface CursoCurriculaDAO extends EasyDAO<CursoCurricula> {
 
     public List<CursoCurricula> allByPlanCurricularCAD(PlanCurricular planCurricular);
 
+    public List<CursoCurricula> allByCurso(Curso cursoBD);
+
 }

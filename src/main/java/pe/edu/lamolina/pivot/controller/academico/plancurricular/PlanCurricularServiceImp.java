@@ -192,10 +192,12 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
     VerificadorService verificadorService;
 
     @Override
-    public void caducar(Long idCursoCurricula) {
+    public void caducar(Long idCursoCurricula, DataSessionPivot ds) {
 
         CursoCurricula cursoCurricula = cursoCurriculaDAO.find(idCursoCurricula);
         cursoCurricula.setEstado(CurriculaEstadoEnum.CAD.name());
+        cursoCurricula.setFechaCaduca(new Date());
+        cursoCurricula.setUserCaduca(ds.getUsuario());
         cursoCurriculaDAO.updateColumns(cursoCurricula, "estado");
 
     }
@@ -223,10 +225,9 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
     public List<Curso> allCursoByNombre(Curso curso) {
 
 //        List<Curso> cursos = cursoDAO.allByNombreTipoCurricula(curso.getNombre(), Arrays.asList(TipoCurriculaEnum.REG.name()), 10);
-        
         List<CursoCurricula> cursoCurriculas = cursoCurriculaDAO.allByCurso(curso.getNombre());
-        
-        return  cursoCurriculas.stream().map(x->x.getCurso()).collect(Collectors.toList());
+
+        return cursoCurriculas.stream().map(x -> x.getCurso()).collect(Collectors.toList());
     }
 
     @Override
@@ -275,11 +276,11 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
 
         CursoCurricula cursoCurricula = cursoCurriculaDAO.find(grupo.getCursoCurricula().getId());
         List<CursoCurricula> cursoCurriculas = cursoCurriculaDAO.allByPlanCurricularCAD(cursoCurricula.getPlanCurricular());
-        Map<Long,CursoCurricula> map = TypesUtil.convertListToMap("curso.id", cursoCurriculas);
-        
+        Map<Long, CursoCurricula> map = TypesUtil.convertListToMap("curso.id", cursoCurriculas);
+
         Integer maxNumeroGrupo = cursoEquivalenteDAO.findMaxGrupoByCursoCurricula(grupo.getCursoCurricula()) + 1;
         for (CursoEquivalente curso : grupo.getCursoEquivalente()) {
-            
+
             CursoCurricula curriculaCaduca = map.get(curso.getCursoEquivalente().getId());
             curso.setCursoEquivalente(cursoDAO.find(curso.getCursoEquivalente().getId()));
             curso.setCursoCurricula(grupo.getCursoCurricula());

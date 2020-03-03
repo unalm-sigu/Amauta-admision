@@ -391,12 +391,14 @@ public class CursoController {
 
     @ResponseBody
     @RequestMapping("cambiarEstadoCurso")
-    public JsonResponse cambiarEstadoCarrera(Curso curso) {
+    public JsonResponse cambiarEstadoCarrera(Curso curso, HttpSession session) {
         JsonResponse response = new JsonResponse();
         response.setSuccess(false);
 
         try {
-            service.cambiarEstadoCurso(curso);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+
+            service.cambiarEstadoCurso(curso, ds);
 
             response.setMessage("Se cambio de estado satisfactoriamente.");
             response.setSuccess(true);
