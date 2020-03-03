@@ -1434,7 +1434,7 @@ public class MatriculableServiceImp implements MatriculableService {
         Assert.isTrue(matriculaResumen.getEstadoEnum() == EstadoMatriculaEnum.NMAT,
                 "El alumno debe tener estado No Matriculado para ser inhabilitado");
 
-        if (ds.getCicloAcademico().getTipoEnum() == TipoCicloEnum.REG && academico.getFechaTurnosAsignados() == null) {
+        if (ds.getCicloAcademico().getTipoEnum() == TipoCicloEnum.REG && academico.getFechaTurnosAsignados() != null) {
             JsonResponse jsonResponse = responseRestService.anularBoletas(matriculaResumen, ds);
             if (!jsonResponse.getSuccess()) {
                 throw new PhobosException(jsonResponse.getMessage());
