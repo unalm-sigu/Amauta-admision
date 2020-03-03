@@ -38,26 +38,26 @@
                             <!--<pre>{{ciclo}}</pre>-->
                             <div class="col-md-12">
                                 <div class="row">
-                                    <div class="col-md-3 text-center">
-                                        <a class="ver-modalidades text-danger pointer" rel="pregrado">
+                                    <div class="col-md-3 text-center" v-bind:class="bgColorClass['pregrado']">
+                                        <a  v-on:click="verModalidades('pregrado')" class="ver-modalidades text-danger pointer" rel="pregrado">
                                             <span class="h1 block bold" v-text="resumen.pregrado">23</span>
                                             <small class="block m-b-xs">Pregrado</small>
                                         </a>
                                     </div>
-                                    <div class="col-md-3 text-center">
-                                        <a class="ver-modalidades text-black pointer" rel="postgrado">
+                                    <div class="col-md-3 text-center" v-bind:class="bgColorClass['postgrado']" >
+                                        <a v-on:click="verModalidades('postgrado')" class="ver-modalidades text-black pointer" rel="postgrado">
                                             <span class="h1 block bold" v-text="resumen.postgrado">23</span>
                                             <small class="block m-b-xs">Posgrado</small>
                                         </a>
                                     </div>
-                                    <div class="col-md-3 text-center">
-                                        <a class="ver-modalidades text-success pointer" rel="visitante">
+                                    <div class="col-md-3 text-center" v-bind:class="bgColorClass['visitante']">
+                                        <a v-on:click="verModalidades('visitante')" class="ver-modalidades text-success pointer" rel="visitante">
                                             <span class="h1 block bold" v-text="resumen.visitante">23</span>
                                             <small class="block m-b-xs">Visitantes</small>
                                         </a>
                                     </div>
-                                    <div class="col-md-3 text-center">
-                                        <a class="ver-modalidades text-warning pointer" rel="especiales">
+                                    <div class="col-md-3 text-center" v-bind:class="bgColorClass['especial']">
+                                        <a v-on:click="verModalidades('especial')" class="ver-modalidades text-warning pointer" rel="especiales">
                                             <span class="h1 block bold" v-text="resumen.especiales">23</span>
                                             <small class="block m-b-xs">Especiales</small>
                                         </a>
