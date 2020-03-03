@@ -15,17 +15,18 @@ import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.CursoCurricula;
 import pe.edu.lamolina.model.academico.PlanCurricular;
 import pe.edu.lamolina.model.academico.TipoCursoCurricula;
+import static pe.edu.lamolina.model.enums.CurriculaEstadoEnum.ACT;
 import static pe.edu.lamolina.model.enums.CurriculaEstadoEnum.CAD;
 import pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum;
 
 @Repository
 public class CursoCurriculaDAOH extends AbstractEasyDAO<CursoCurricula> implements CursoCurriculaDAO {
-    
+
     public CursoCurriculaDAOH() {
         super();
         setClazz(CursoCurricula.class);
     }
-    
+
     @Override
     public CursoCurricula find(long id) {
         Octavia sql = Octavia.query()
@@ -35,7 +36,7 @@ public class CursoCurriculaDAOH extends AbstractEasyDAO<CursoCurricula> implemen
                 .filter("cc.id", id);
         return (CursoCurricula) sql.find(getCurrentSession());
     }
-    
+
     @Override
     public List<CursoCurricula> allByFilter(TipoCursoCurricula tipoCursoCurricula) {
         Octavia sql = Octavia.query()
@@ -44,7 +45,7 @@ public class CursoCurriculaDAOH extends AbstractEasyDAO<CursoCurricula> implemen
                 .filter("ca.id", tipoCursoCurricula.getId());
         return sql.all(getCurrentSession());
     }
-    
+
     @Override
     public Map<Long, Integer> countByPlanesCurricular(List<PlanCurricular> curriculas) {
         Octavia sql = Octavia.query()
@@ -53,7 +54,7 @@ public class CursoCurriculaDAOH extends AbstractEasyDAO<CursoCurricula> implemen
                 .join("planCurricular pc")
                 .in("pc.id", curriculas)
                 .groupBy("pc.id");
-        
+
         List<Object[]> resultado = sql.all(getCurrentSession());
         Map<Long, Integer> result = new HashMap();
         for (Object[] objects : resultado) {
@@ -61,7 +62,7 @@ public class CursoCurriculaDAOH extends AbstractEasyDAO<CursoCurricula> implemen
         }
         return result;
     }
-    
+
     @Override
     public List<CursoCurricula> allByPlanCurricular(PlanCurricular plan) {
         Octavia sql = Octavia.query()
@@ -72,7 +73,7 @@ public class CursoCurriculaDAOH extends AbstractEasyDAO<CursoCurricula> implemen
                 .orderBy("cc.numeroCiclo", "cc.numeroCurso");
         return all(sql);
     }
-    
+
     @Override
     public List<CursoCurricula> allByDynatable(DynatableFilter filter) {
         DynatableSql sql = new DynatableSql(filter)
@@ -86,7 +87,7 @@ public class CursoCurriculaDAOH extends AbstractEasyDAO<CursoCurricula> implemen
         sql.orderBy("tcc.orden", "cur.nombre");
         return sql.all(getCurrentSession());
     }
-    
+
     @Override
     public List<CursoCurricula> allByPlanCurricularNroCiclo(PlanCurricular plan, Integer nro) {
         Octavia sql = Octavia.query()
@@ -95,10 +96,10 @@ public class CursoCurriculaDAOH extends AbstractEasyDAO<CursoCurricula> implemen
                 .left("cu.departamentoAcademico")
                 .filter("pc.id", plan)
                 .filter("cc.numeroCiclo", nro);
-        
+
         return sql.all(getCurrentSession());
     }
-    
+
     @Override
     public List<CursoCurricula> allByNombrePlanNroCiclo(CursoCurricula cursoCurricula, Integer limit) {
         Octavia sql = Octavia.query()
@@ -116,7 +117,7 @@ public class CursoCurriculaDAOH extends AbstractEasyDAO<CursoCurricula> implemen
                 .limit(limit);
         return sql.all(getCurrentSession());
     }
-    
+
     @Override
     public List<CursoCurricula> allByTipoCursoCurriculaEnum(TipoCursoCurriculaEnum tipoCursoCurriculaEnum) {
         Octavia sql = Octavia.query()
@@ -126,7 +127,7 @@ public class CursoCurriculaDAOH extends AbstractEasyDAO<CursoCurricula> implemen
                 .filter("tcc.codigo", tipoCursoCurriculaEnum);
         return all(sql);
     }
-    
+
     @Override
     public List<CursoCurricula> allByCursoTipoCurriculaEnum(Curso curso, TipoCursoCurriculaEnum tipoCursoCurriculaEnum) {
         Octavia sql = Octavia.query()
@@ -134,10 +135,11 @@ public class CursoCurriculaDAOH extends AbstractEasyDAO<CursoCurricula> implemen
                 .join("tipoCursoCurricula tcc", "planCurricular pc", "curso cu")
                 .left("cu.departamentoAcademico")
                 .filter("cu.id", curso)
+                .filter("estado", ACT)
                 .filter("tcc.codigo", tipoCursoCurriculaEnum);
         return all(sql);
     }
-    
+
     @Override
     public List<CursoCurricula> allByPlanes(List<PlanCurricular> planes) {
         Octavia sql = Octavia.query()
@@ -146,10 +148,11 @@ public class CursoCurriculaDAOH extends AbstractEasyDAO<CursoCurricula> implemen
                 .left("cu.departamentoAcademico")
                 .in("pc.id", planes)
                 .filter("cc.numeroCiclo", ">", 0)
+                .filter("estado", ACT)
                 .orderBy("cc.numeroCiclo", "cc.numeroCurso");
         return all(sql);
     }
-    
+
     @Override
     public List<CursoCurricula> allByCursoPlan(Curso curso, PlanCurricular plan) {
         Octavia sql = Octavia.query()
@@ -160,7 +163,7 @@ public class CursoCurriculaDAOH extends AbstractEasyDAO<CursoCurricula> implemen
                 .filter("cu.id", curso);
         return all(sql);
     }
-    
+
     @Override
     public CursoCurricula findByTipoCC(TipoCursoCurricula tipo) {
         Octavia sql = Octavia.query()
@@ -169,7 +172,7 @@ public class CursoCurriculaDAOH extends AbstractEasyDAO<CursoCurricula> implemen
                 .filter("tcc.id", tipo);
         return find(sql);
     }
-    
+
     @Override
     public CursoCurricula findByCursoAndTipo(TipoCursoCurricula tipo, Curso curso) {
         Octavia sql = Octavia.query()
@@ -179,7 +182,7 @@ public class CursoCurriculaDAOH extends AbstractEasyDAO<CursoCurricula> implemen
                 .filter("tcc.id", tipo);
         return find(sql);
     }
-    
+
     @Override
     public void updateColumns(CursoCurricula cursoCurricula, String... columns) {
         Octavia sql = Octavia.update(CursoCurricula.class, "per");
@@ -188,7 +191,7 @@ public class CursoCurriculaDAOH extends AbstractEasyDAO<CursoCurricula> implemen
         }
         this.update(sql);
     }
-    
+
     @Override
     public List<CursoCurricula> allByCurso(String nombre) {
         Octavia sql = Octavia.query()
@@ -204,7 +207,7 @@ public class CursoCurriculaDAOH extends AbstractEasyDAO<CursoCurricula> implemen
         };
         return all(sql);
     }
-    
+
     @Override
     public List<CursoCurricula> allByPlanCurricularCAD(PlanCurricular planCurricular) {
         Octavia sql = Octavia.query()
@@ -216,5 +219,5 @@ public class CursoCurriculaDAOH extends AbstractEasyDAO<CursoCurricula> implemen
                 .orderBy("cc.numeroCiclo", "cc.numeroCurso");
         return all(sql);
     }
-    
+
 }
