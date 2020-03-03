@@ -147,4 +147,6 @@ public interface PlanCurricularService {
 
     public Carrera getCarreraActiva();
 
+    public void caducar(Long idCursoCurricula);
+
 }

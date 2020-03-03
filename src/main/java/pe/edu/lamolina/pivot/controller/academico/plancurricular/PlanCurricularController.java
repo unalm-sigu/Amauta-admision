@@ -229,6 +229,8 @@ public class PlanCurricularController {
                 node.put("cursosRequisito", cursoCurricula.getCursosCurricula().size());
                 node.put("esRequisitoDe", esRequisitoDe);
                 node.put("requisitosOr", cursoCurricula.getRequisitosOr());
+                node.put("estado", cursoCurricula.getEstado());
+                node.put("strEstado", cursoCurricula.getEstadoEnum().getValue());
 
                 ArrayNode arrayPreRequisitos = new ArrayNode(JsonNodeFactory.instance);
                 List<RequisitoCursoCurricula> cursosRequisitos = cursoCurricula.getCursosCurricula();
@@ -1568,6 +1570,7 @@ public class PlanCurricularController {
                         nodeCurso.put("creditos", cursoCurr.getCreditos());
                         nodeCurso.put("numeroCurso", cursoCurr.getNumeroCurso());
                         nodeCurso.put("creditosRequisito", cursoCurr.getCreditosRequisito());
+                        nodeCurso.put("estado", cursoCurr.getEstado());
 
                         ArrayNode arrayRequisitos = new ArrayNode(JsonNodeFactory.instance);
                         List<RequisitoCursoCurricula> requisitos = cursoCurr.getRequisitosCursoCurricula();
@@ -1798,6 +1801,27 @@ public class PlanCurricularController {
             service.allUpdateResumenPost();
             response.setSuccess(true);
             response.setMessage("Se modifico el resumen exitosamente");
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (RuntimeException e) {
+            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("caducar")
+    public JsonResponse caducar(@RequestParam("idCursoCurricula") Long idCursoCurricula, HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            service.caducar(idCursoCurricula);
+            response.setSuccess(true);
+            response.setMessage("Se modifico exitosamente");
 
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);

@@ -316,7 +316,7 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
 
         Query query = getCurrentSession()
                 .createSQLQuery(strb.toString())
-                .setParameter("ciclo", cicloAcademico.getCodigo())
+                .setParameter("CICLO", cicloAcademico.getCodigo())
                 .setParameter("PRE", PRE.name())
                 .setParameter("VIS", VIS.name());
 

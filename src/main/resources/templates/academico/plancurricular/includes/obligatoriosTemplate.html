@@ -5,73 +5,83 @@
     <td  class="v-middle text-center"> 
         <span class="block">{{:codigo}}</span>
         {{if codigo2}}
-            <small class="block bold text-primary">{{:codigo2}}</small>
+        <small class="block bold text-primary">{{:codigo2}}</small>
         {{/if}}
     </td>
     {{if curso == 'TOTAL'}}
-        <td  class="v-middle text-right"> 
-            <b>{{:curso}}</b>
-        </td>
+    <td  class="v-middle text-right"> 
+        <b>{{:curso}}</b>
+    </td>
     {{else}}
-        <td  class="v-middle"> 
-            <span class="block">{{:curso}}</span>
-            {{if tpc != null}}
-                <small class="block bold text-primary"> <i class="fa fa-bookmark-o"></i> &nbsp;{{:tpc}} &nbsp;&nbsp; {{:tipoDictadoCurso}}</small>
-            {{/if}}
-        </td>
+    <td  class="v-middle"> 
+        <span class="block">{{:curso}}</span>
+        {{if tpc != null}}
+        <small class="block bold text-primary"> <i class="fa fa-bookmark-o"></i> &nbsp;{{:tpc}} &nbsp;&nbsp; {{:tipoDictadoCurso}}</small>
+        {{/if}}
+        {{if estado != 'ACT'}}
+        <small class="block bold text-danger">  {{:strEstado}}</small>
+        {{/if}}
+    </td>
     {{/if}}
-    
+
     <td  class="v-middle text-center"> 
-    {{if curso == 'TOTAL'}}
+        {{if curso == 'TOTAL'}}
         <span class="estado-gray">{{:creditos}}</span>
-    {{else creditos==0}}
+        {{else creditos==0}}
         <span class="estado-red">{{:creditos}}</span>
-    {{else}}
+        {{else}}
         <span class="estado-green">{{:creditos}}</span>
-    {{/if}}
+        {{/if}}
     </td>
     <td class="v-middle text-center">
         {{if numEquivalentes > 0}}
-            <a class="pointer ver-equivalentes"><span class="estado-blue">{{:numEquivalentes}}</span></a>
+        <a class="pointer ver-equivalentes"><span class="estado-blue">{{:numEquivalentes}}</span></a>
         {{/if}}
     </td>
     <td class="v-middle text-center">
         {{if creditosRequisito > 0}}
-            <span class="estado-gray">{{:creditosRequisito}}</span>
+        <span class="estado-gray">{{:creditosRequisito}}</span>
         {{/if}}
     </td>
     <td class="v-middle text-center">
         {{if cursosRequisito > 0}}
-            <a class="pointer ver-pre-requisitos"><span class="estado-blue">{{:cursosRequisito}}</span></a>
+        <a class="pointer ver-pre-requisitos"><span class="estado-blue">{{:cursosRequisito}}</span></a>
         {{/if}}
     </td>
     <td class="v-middle text-center">
         {{if esRequisitoDe > 0}}
-            <a class="pointer ver-post-requisitos"><span class="estado-blue">{{:esRequisitoDe}}</span></a>
+        <a class="pointer ver-post-requisitos"><span class="estado-blue">{{:esRequisitoDe}}</span></a>
         {{/if}}
     </td>
     <td  class="v-middle"> 
         {{if curso != 'TOTAL'}}
-            <div class="dropdown actions" th:if="${editor}">
-                <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="glyphicon glyphicon-cog"></i></a>
-                <ul class="dropdown-menu pull-right" >
-                    <li role="presentation">
-                        <a class="editar-cur-obl" href="#">Editar</a>
-                    </li>
-                    <li role="presentation">
-                        <a class="editar-cur-equi-obl" href="#">Cursos Equivalentes</a>
-                    </li>
-                    <li role="presentation">
-                        <a class="delete-cur-obl" href="#">Eliminar</a>
-                    </li>
-                    <li role="presentation">
-                        <a class="trasladar-to-ciclo" href="#">Trasladar a otro ciclo</a>
-                    </li>
-                    <li role="presentation">
-                        <a class="trasladar-to-electivos" href="#">Trasladar a Electivos</a>
-                    </li>
-                </ul>
-            </div>
+        <div class="dropdown actions" th:if="${editor}">
+            <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="glyphicon glyphicon-cog"></i></a>
+            <ul class="dropdown-menu pull-right" >
+                <li role="presentation">
+                    <a class="editar-cur-obl" href="#">Editar</a>
+                </li>
+                <li role="presentation">
+                    {{if estado != 'CAD'}}
+                    <a class="editar-cur-equi-obl" href="#">Cursos Equivalentes</a>
+                    {{/if}}
+                </li>
+                <li role="presentation">
+                    <a class="delete-cur-obl" href="#">Eliminar</a>
+                </li>
+                <li role="presentation">
+                    <a class="trasladar-to-ciclo" href="#">Trasladar a otro ciclo</a>
+                </li>
+                <li role="presentation">
+                    <a class="trasladar-to-electivos" href="#">Trasladar a Electivos</a>
+                </li>
+                <li role="presentation" >
+                    {{if estado == 'ACT'}}
+                    <a class="caducar" id="{{:id}}" href="#">Caducar</a>
+                    {{/if}}
+                </li>
+            </ul>
+        </div>
         {{/if}}
     </td>
 </tr>

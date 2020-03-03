@@ -42,6 +42,7 @@ import pe.edu.lamolina.model.academico.RequisitoCursoCurricula;
 import pe.edu.lamolina.model.academico.RequisitoCursoOpcional;
 import pe.edu.lamolina.model.academico.ResumenPlanCurricular;
 import pe.edu.lamolina.model.academico.TipoCursoCurricula;
+import pe.edu.lamolina.model.enums.CurriculaEstadoEnum;
 import pe.edu.lamolina.model.posgrado.CursoHabilEscuela;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import static pe.edu.lamolina.model.enums.EstadoEnum.ACT;
@@ -190,6 +191,15 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
     @Autowired
     VerificadorService verificadorService;
 
+    @Override
+    public void caducar(Long idCursoCurricula) {
+
+        CursoCurricula cursoCurricula = cursoCurriculaDAO.find(idCursoCurricula);
+        cursoCurricula.setEstado(CurriculaEstadoEnum.CAD.name());
+        cursoCurriculaDAO.updateColumns(cursoCurricula, "estado");
+
+    }
+
     private enum NivelEnum {
         OBLIGATORIO, OPCIONAL, ADICIONAL
     };
@@ -211,7 +221,12 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
 
     @Override
     public List<Curso> allCursoByNombre(Curso curso) {
-        return cursoDAO.allByNombreTipoCurricula(curso.getNombre(), Arrays.asList(TipoCurriculaEnum.REG.name()), 10);
+
+//        List<Curso> cursos = cursoDAO.allByNombreTipoCurricula(curso.getNombre(), Arrays.asList(TipoCurriculaEnum.REG.name()), 10);
+        
+        List<CursoCurricula> cursoCurriculas = cursoCurriculaDAO.allByCurso(curso.getNombre());
+        
+        return  cursoCurriculas.stream().map(x->x.getCurso()).collect(Collectors.toList());
     }
 
     @Override
@@ -258,14 +273,21 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
             return;
         }
 
+        CursoCurricula cursoCurricula = cursoCurriculaDAO.find(grupo.getCursoCurricula().getId());
+        List<CursoCurricula> cursoCurriculas = cursoCurriculaDAO.allByPlanCurricularCAD(cursoCurricula.getPlanCurricular());
+        Map<Long,CursoCurricula> map = TypesUtil.convertListToMap("curso.id", cursoCurriculas);
+        
         Integer maxNumeroGrupo = cursoEquivalenteDAO.findMaxGrupoByCursoCurricula(grupo.getCursoCurricula()) + 1;
         for (CursoEquivalente curso : grupo.getCursoEquivalente()) {
+            
+            CursoCurricula curriculaCaduca = map.get(curso.getCursoEquivalente().getId());
             curso.setCursoEquivalente(cursoDAO.find(curso.getCursoEquivalente().getId()));
             curso.setCursoCurricula(grupo.getCursoCurricula());
             curso.setGrupo(maxNumeroGrupo);
             curso.setEstado(EstadoEnum.ACT.name());
             curso.setFechaRegistro(new Date());
             curso.setUserRegistro(ds.getUsuario());
+            curso.setCursoCaduco(curriculaCaduca);
             cursoEquivalenteDAO.save(curso);
         }
     }
