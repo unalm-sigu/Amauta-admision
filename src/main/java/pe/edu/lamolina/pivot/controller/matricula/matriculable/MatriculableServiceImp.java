@@ -904,7 +904,7 @@ public class MatriculableServiceImp implements MatriculableService {
         CicloAcademico cicloBD = cicloAcademicoDAO.find(cicloAcademico.getId());
         cicloBD.setFechaMatriculables(null);
         cicloAcademicoDAO.updateFechaMatriculables(cicloBD);
-        matriculaResumenDAO.deleteMatriculable(cicloAcademico);
+        matriculaResumenDAO.deleteMatriculable(cicloBD);
     }
 
     @Override
