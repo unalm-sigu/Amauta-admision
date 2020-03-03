@@ -1824,4 +1824,25 @@ public class MatriculableServiceImp implements MatriculableService {
         aporteAlumnoService.quitarAporteDuplicadoCarnet(matriculaResumen.getCicloAcademico(), matriculaResumen, ds);
     }
 
+    @Override
+    public void habilitarMatriculable(MatriculaResumen matriculaResumenForm, DataSessionPivot ds) {
+        CicloAcademico academico = cicloAcademicoDAO.find(ds.getCicloAcademico());
+
+        MatriculaResumen matriculaResumen = matriculaResumenDAO.find(matriculaResumenForm.getId());
+        Assert.isNotNull(matriculaResumen, "El alumno no es matriculable");
+        Assert.isFalse(matriculaResumen.getEstadoEnum() == EstadoMatriculaEnum.NMAT,
+                "El alumno ya se encontra habilitado");
+
+        if (ds.getCicloAcademico().getTipoEnum() == TipoCicloEnum.REG && academico.getFechaTurnosAsignados() != null) {
+            JsonResponse jsonResponse = responseRestService.generarAporte(matriculaResumen.getAlumno(), academico, matriculaResumen, ds);
+            if (!jsonResponse.getSuccess()) {
+                throw new PhobosException(jsonResponse.getMessage());
+            }
+        }
+
+        matriculaResumen.setEstadoEnum(EstadoMatriculaEnum.NMAT);
+        matriculaResumen.setMotivoMatriculable(matriculaResumenForm.getMotivoMatriculable());
+        matriculaResumenDAO.update(matriculaResumen);
+    }
+
 }
