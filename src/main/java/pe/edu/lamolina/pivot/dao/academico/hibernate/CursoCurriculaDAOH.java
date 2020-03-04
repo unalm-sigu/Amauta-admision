@@ -75,6 +75,18 @@ public class CursoCurriculaDAOH extends AbstractEasyDAO<CursoCurricula> implemen
     }
 
     @Override
+    public List<CursoCurricula> allByPlanCurricularACT(PlanCurricular plan) {
+        Octavia sql = Octavia.query()
+                .from(CursoCurricula.class, "cc")
+                .join("tipoCursoCurricula tcc", "planCurricular pc", "curso cu")
+                .left("cu.departamentoAcademico")
+                .filter("pc.id", plan)
+                .filter("estado", ACT)
+                .orderBy("cc.numeroCiclo", "cc.numeroCurso");
+        return all(sql);
+    }
+
+    @Override
     public List<CursoCurricula> allByDynatable(DynatableFilter filter) {
         DynatableSql sql = new DynatableSql(filter)
                 .from(CursoCurricula.class, "cc")
@@ -135,7 +147,7 @@ public class CursoCurriculaDAOH extends AbstractEasyDAO<CursoCurricula> implemen
                 .join("tipoCursoCurricula tcc", "planCurricular pc", "curso cu")
                 .left("cu.departamentoAcademico")
                 .filter("cu.id", curso)
-                .filter("estado", ACT)
+                //                .filter("estado", ACT)
                 .filter("tcc.codigo", tipoCursoCurriculaEnum);
         return all(sql);
     }
@@ -148,7 +160,7 @@ public class CursoCurriculaDAOH extends AbstractEasyDAO<CursoCurricula> implemen
                 .left("cu.departamentoAcademico")
                 .in("pc.id", planes)
                 .filter("cc.numeroCiclo", ">", 0)
-                .filter("estado", ACT)
+                //                .filter("estado", ACT)
                 .orderBy("cc.numeroCiclo", "cc.numeroCurso");
         return all(sql);
     }

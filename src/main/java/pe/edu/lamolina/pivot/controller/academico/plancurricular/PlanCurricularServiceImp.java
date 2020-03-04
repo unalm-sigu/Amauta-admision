@@ -224,10 +224,13 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
     @Override
     public List<Curso> allCursoByNombre(Curso curso) {
 
-//        List<Curso> cursos = cursoDAO.allByNombreTipoCurricula(curso.getNombre(), Arrays.asList(TipoCurriculaEnum.REG.name()), 10);
-        List<CursoCurricula> cursoCurriculas = cursoCurriculaDAO.allByCurso(curso.getNombre());
-
-        return cursoCurriculas.stream().map(x -> x.getCurso()).collect(Collectors.toList());
+        List<Curso> cursos = cursoDAO.allByNombreTipoCurricula(curso.getNombre(), Arrays.asList(TipoCurriculaEnum.REG.name()), 10);
+//        List<CursoCurricula> cursoCurriculas = cursoCurriculaDAO.allByCurso(curso.getNombre());
+//        for (CursoCurricula cursoCurricula : cursoCurriculas) {
+//            Curso cur = cursoCurricula.getCurso();
+//            cur.setPl
+//        }
+        return cursos;
     }
 
     @Override
@@ -390,6 +393,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
         cursoCurricula.setUserRegistro(ds.getUsuario());
         cursoCurricula.setFechaRegistro(new Date());
         cursoCurricula.setRequisitosOr(cursoCurricula.getRequisitosOr() == null ? false : cursoCurricula.getRequisitosOr());
+        cursoCurricula.setEstado(CurriculaEstadoEnum.ACT.name());
         cursoCurriculaDAO.save(cursoCurricula);
         for (RequisitoCursoCurricula requisito : requisitos) {
             requisitoCursoCurriculaDAO.save(requisito);
@@ -1158,7 +1162,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
         planNew.setCicloInicioVigencia(ciclo);
         planCurricularDAO.save(planNew);
 
-        List<CursoCurricula> cursosPlan = cursoCurriculaDAO.allByPlanCurricular(planBD);
+        List<CursoCurricula> cursosPlan = cursoCurriculaDAO.allByPlanCurricularACT(planBD);
         List<CursoAdicionalCurricula> adicionales = cursoAdicionalCurriculaDAO.allByPlanCurricular(planBD);
         List<CursoOpcionalCurricula> opcionales = cursoOpcionalCurriculaDAO.allByPlanCurricular(planBD);
         List<ResumenPlanCurricular> resumenes = resumenPlanCurricularDAO.allByPlan(planBD);
