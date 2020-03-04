@@ -1688,7 +1688,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
         List<TipoCursoCurricula> tipoCursoCurriculas = tipoCursoCurriculaDAO.all();
         for (PlanCurricular planCurricular : planCurriculars) {
             List<ResumenPlanCurricular> resumen = resumenPlanCurriculars.stream().filter(x -> Objects.equals(x.getPlanCurricular().getId(), planCurricular.getId())).collect(Collectors.toList());
-            List<CursoCurricula> cursoCurriculas = cursoCurriculaDAO.allByPlanCurricular(planCurricular);
+            List<CursoCurricula> cursoCurriculas = cursoCurriculaDAO.allByPlanCurricularACT(planCurricular);
             Map<Long, ResumenPlanCurricular> mapResumen = TypesUtil.convertListToMap("tipoCursoCurricula.id", resumen);
             Map<TipoCursoCurriculaEnum, Integer> mapTipoCurso = cursoCurriculas.stream().collect(Collectors.groupingBy(CursoCurricula::getTipoCursoCurriculaEnum, Collectors.summingInt(x -> x.getCreditos())));
             Map<Long, List<CursoCurricula>> mapTipoCursoCoun = TypesUtil.convertListToMapList("tipoCursoCurricula.id", cursoCurriculas);
