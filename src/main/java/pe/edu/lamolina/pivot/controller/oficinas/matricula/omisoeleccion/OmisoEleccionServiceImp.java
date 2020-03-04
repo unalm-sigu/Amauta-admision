@@ -68,73 +68,73 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 @Service
 @Transactional(readOnly = true)
 public class OmisoEleccionServiceImp implements OmisoEleccionService {
-    
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    
+
     @Autowired
     AlumnoOmisoEleccionDAO alumnoOmisoEleccionDAO;
-    
+
     @Autowired
     CicloAcademicoDAO cicloAcademicoDAO;
-    
+
     @Autowired
     AporteAlumnoCicloDAO aporteAlumnoCicloDAO;
-    
+
     @Autowired
     DeudaAlumnoDAO deudaAlumnoDAO;
-    
+
     @Autowired
     ResumenAporteAlumnoDAO resumenAporteAlumnoDAO;
-    
+
     @Autowired
     AlumnoDAO alumnoDAO;
-    
+
     @Autowired
     AcreenciaDAO acreenciaDAO;
-    
+
     @Autowired
     AporteDAO aporteDAO;
-    
+
     @Autowired
     MatriculaResumenDAO matriculaResumenDAO;
-    
+
     @Autowired
     ResponseRestService responseRestService;
-    
+
     @Override
     @Transactional
     public List<String> cargarDeudas(MultipartFile file, String codigo, DataSessionPivot ds) {
         List<CicloAcademico> cicloAcademicos = cicloAcademicoDAO.allByCodigo(codigo);
-        
+
         List<String> observados = new ArrayList<>();
         List<AlumnoOmisoEleccion> alumnoOmisiones = new ArrayList<>();
 //        String ruta = guardarArchivo(file);
 
         procesarArchivo(file, cicloAcademicos, observados, alumnoOmisiones, ds);
-        
+
         for (AlumnoOmisoEleccion deuda : alumnoOmisiones) {
             alumnoOmisoEleccionDAO.save(deuda);
         }
         return observados;
     }
-    
+
     private String guardarArchivo(MultipartFile file) {
         try {
             String fileName = TypesUtil.getUnixTime() + "." + TypesUtil.getClean(file.getOriginalFilename());
             FileHelper.createDirectory(Constantine.TMP_DIR);
             String absoluteName = Constantine.TMP_DIR + fileName;
-            
+
             FileHelper.saveToDisk(file, absoluteName);
             return absoluteName;
         } catch (IOException ex) {
             throw new PhobosException("Archivo no puede ser ubicado en el servidor");
         }
     }
-    
+
     private void procesarArchivo(MultipartFile file, List<CicloAcademico> cicloAcademicos, List<String> observados, List<AlumnoOmisoEleccion> deudas, DataSessionPivot ds) {
         List<AlumnoOmisoEleccion> alumnoOmisoEleccions = alumnoOmisoEleccionDAO.allByCiclo(cicloAcademicos);
         Map<String, AlumnoOmisoEleccion> mapAlumno = TypesUtil.convertListToMap("key", alumnoOmisoEleccions);
-        
+
         Map<Long, CicloAcademico> mapCiclos = TypesUtil.convertListToMap("modalidadEstudio.id", cicloAcademicos);
         Map<Long, String> mapObservados = new HashMap<>();
         Set<String> registrados = new HashSet<>();
@@ -146,14 +146,14 @@ public class OmisoEleccionServiceImp implements OmisoEleccionService {
             XSSFWorkbook workbook = new XSSFWorkbook(file.getInputStream());
             Iterator<Row> rowIterator = workbook.getSheetAt(0).iterator();
             int fila;
-            
+
             while (rowIterator.hasNext()) {
                 Row row = rowIterator.next();
                 fila = row.getRowNum() + 1;
                 if (row.getRowNum() < 1) {
                     continue;
                 }
-                
+
                 String nroMatricula = getCellValue(0, row);
                 String nombre = getCellValue(1, row);
                 String motivo = getCellValue(2, row);
@@ -166,28 +166,28 @@ public class OmisoEleccionServiceImp implements OmisoEleccionService {
                     mapObservados.put(Long.parseLong("" + fila), "Valor incorrecto en la fila " + fila + ". Los motivos son NVOTO (No votó ) o NMBR (Omisión miembro de mesa).");
                     continue;
                 }
-                
+
                 Alumno alumnoBD = alumnoDAO.findByCodigo(nroMatricula);
-                
+
                 if (alumnoBD == null) {
                     mapObservados.put(Long.parseLong("" + fila), "La matricula  " + nroMatricula + " no existe. ( Fila " + fila + ")");
                     continue;
                 }
                 CicloAcademico cicloAcademico = mapCiclos.get(alumnoBD.getModalidadEstudio().getId());
                 String key = alumnoBD.getId() + "-" + cicloAcademico.getId() + "-" + motivo;
-                
+
                 if (mapAlumno.get(key) != null) {
                     mapObservados.put(Long.parseLong("" + fila), "El alumno con código " + nroMatricula + " ya tiene registrada una deuda de este tipo " + motivo + " para el ciclo" + cicloAcademico.getCodigo() + " . (Fila " + fila + ")");
                     continue;
                 }
-                
+
                 if (registrados.contains(key)) {
                     if (!mapObservados.containsKey(alumnoBD.getId())) {
                         mapObservados.put(Long.parseLong("" + fila), "El alumno con código " + nroMatricula + " ya tiene registrada una deuda de este tipo " + motivo + " para el ciclo" + cicloAcademico.getCodigo() + ". (Fila " + fila + ")");
                     }
                     continue;
                 }
-                
+
                 AlumnoOmisoEleccion omision = new AlumnoOmisoEleccion();
                 omision.setCicloAcademico(cicloAcademico);
                 omision.setAlumno(alumnoBD);
@@ -199,16 +199,16 @@ public class OmisoEleccionServiceImp implements OmisoEleccionService {
                 registrados.add(alumnoBD.getId() + "-" + cicloAcademico.getId() + "-" + motivo);
                 deudas.add(omision);
             }
-            
+
             observados.addAll(new ArrayList<>(mapObservados.values()));
-            
+
         } catch (FileNotFoundException ex) {
             throw new PhobosException("Archivo no puede ser ubicado en el servidor");
         } catch (IOException ex) {
             throw new PhobosException("El archivo no puede ser leido");
         }
     }
-    
+
     private String getCellValue(int pos, Row row) {
         Cell cell = row.getCell(pos);
         if (cell == null) {
@@ -226,25 +226,28 @@ public class OmisoEleccionServiceImp implements OmisoEleccionService {
         }
         return dato;
     }
-    
+
     @Override
     public List<Alumno> allDeudaAlumno(DynatableFilter filter) {
-        
+
         List<AlumnoOmisoEleccion> alumnoOmisoEleccions = alumnoOmisoEleccionDAO.allOrder(filter);
         Map<Long, List<AlumnoOmisoEleccion>> map = TypesUtil.convertListToMapList("alumno.id", alumnoOmisoEleccions);
         List<Alumno> alumnos = alumnoOmisoEleccions.stream().map(x -> x.getAlumno()).distinct().collect(Collectors.toList());
-        
+
         for (Alumno alumno : alumnos) {
             List<AlumnoOmisoEleccion> alumnoOmisoEle = map.get(alumno.getId());
             alumno.setAlumnoOmisoEleccions(alumnoOmisoEle);
         }
         return alumnos;
     }
-    
+
     @Override
     @Transactional
     public void saveOmision(AlumnoOmisoEleccion omisoEleccion, DataSessionPivot ds) {
         CicloAcademico cicloAcademicoMod = cicloAcademicoDAO.findByCodigoModalidadEstudio(omisoEleccion.getCicloAcademico().getCodigo(), omisoEleccion.getAlumno().getModalidadEstudio());
+        MatriculaResumen matriculaResumen = matriculaResumenDAO.findByAlumnoCiclo(omisoEleccion.getAlumno(), cicloAcademicoMod);
+        List<AlumnoOmisoEleccion> omisoElecciones = alumnoOmisoEleccionDAO.findByAlumno(matriculaResumen.getAlumno());
+        
         Assert.isNotNull(cicloAcademicoMod, "Solo se puede agregar a alumnos de pregrado o posgrado.");
         omisoEleccion.setCicloAcademico(cicloAcademicoMod);
         AlumnoOmisoEleccion alumnoOmisoEleccionDB = alumnoOmisoEleccionDAO.findByAlumnoCicloMotivo(omisoEleccion);
@@ -253,28 +256,35 @@ public class OmisoEleccionServiceImp implements OmisoEleccionService {
         omisoEleccion.setFechaRegistro(new Date());
         omisoEleccion.setUserRegistro(ds.getUsuario());
         alumnoOmisoEleccionDAO.save(omisoEleccion);
+
+
+        BigDecimal montoActual = omisoEleccion.getMulta();
+        for (AlumnoOmisoEleccion omisoEleccione : omisoElecciones) {
+            montoActual = montoActual.add(omisoEleccione.getMulta());
+        }
+
+        Aporte aporte = aporteDAO.findByCode(A04);
+        responseRestService.createToken(ds);
+        JsonResponse jsonResponse = responseRestService.modificarAporte(matriculaResumen, ds, aporte, montoActual);
+
+        Assert.isTrue(jsonResponse.getSuccess(), "Se produjo un error al eliminar la matrícula. Comuniquese con mesa de ayuda.");
+
     }
-    
+
     @Override
     @Transactional
     public void anularOmision(List<AlumnoOmisoEleccion> omisoEleccion, DataSessionPivot ds) {
         DateTime today = ds.getFechaAccionAudit() == null ? new DateTime() : new DateTime(ds.getFechaAccionAudit());
-        
+
         String motivoAnula = omisoEleccion.get(0).getMotivoAnulacion();
         Alumno alumno = alumnoDAO.find(omisoEleccion.get(0).getAlumno());
         CicloAcademico cicloAcademicoMod = cicloAcademicoDAO.findByCodigoModalidadEstudio(ds.getCicloAcademico().getCodigo(), alumno.getModalidadEstudio());
-        
+
         MatriculaResumen matriculaResumen = matriculaResumenDAO.findByAlumnoCiclo(alumno, cicloAcademicoMod);
-        
+
         if (matriculaResumen != null) {
-            
-            Aporte aporte = aporteDAO.findByCode(A04);
-            responseRestService.createToken(ds);
-            JsonResponse jsonResponse = responseRestService.eliminarAporte(matriculaResumen, ds, aporte);
 
-            Assert.isTrue(jsonResponse.getSuccess(), "Se produjo un error al eliminar la matrícula. Comuniquese con mesa de ayuda.");
-
-            BigDecimal montorest = BigDecimal.ZERO;
+            BigDecimal montoActual = BigDecimal.ZERO;
             for (AlumnoOmisoEleccion alumnoOmisoEleccion : omisoEleccion) {
                 if (alumnoOmisoEleccion.getSeleccionado()) {
                     alumnoOmisoEleccion.setEstadoEnum(DeudaEstadoEnum.ANU);
@@ -282,23 +292,30 @@ public class OmisoEleccionServiceImp implements OmisoEleccionService {
                     alumnoOmisoEleccion.setFechaAnulacion(new Date());
                     alumnoOmisoEleccion.setUserAnulacion(ds.getUsuario());
                     alumnoOmisoEleccionDAO.updateAnulacion(alumnoOmisoEleccion);
-
-                    montorest = montorest.add(alumnoOmisoEleccion.getMulta());
-
+                    continue;
+                } else if (alumnoOmisoEleccion.getEstadoEnum() == DeudaEstadoEnum.DEU) {
+                    montoActual = montoActual.add(alumnoOmisoEleccion.getMulta());
                 }
             }
+
+            Aporte aporte = aporteDAO.findByCode(A04);
+            responseRestService.createToken(ds);
+            JsonResponse jsonResponse = responseRestService.modificarAporte(matriculaResumen, ds, aporte, montoActual);
+
+            Assert.isTrue(jsonResponse.getSuccess(), "Se produjo un error al eliminar la matrícula. Comuniquese con mesa de ayuda.");
+
         }
-        
+
     }
-    
+
     @Override
     public List<CicloAcademico> allCicloAcademico(CicloAcademico cicloAcademico) {
         return cicloAcademicoDAO.allRegularPre(4, cicloAcademico);
     }
-    
+
     @Override
     public List<Alumno> allAlumnoByNombre(String nombre, DataSessionPivot ds) {
-        
+
         return alumnoDAO.allByName(nombre);
     }
 }
