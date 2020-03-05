@@ -778,8 +778,6 @@ public class AlumnoController {
             sb.append(paramRutaMatricula.getValor());
             sb.append("/mapache/");
             sb.append(token.getValor());
-//            sb.append("?user=").append(ds.getUsuario().getGoogle());
-//            sb.append("?pathh=").append(RutaInicioEnum.FICHA_ING.name());
 
             logger.debug("********************** goMaipi {} ", sb.toString());
 
