@@ -62,7 +62,9 @@ new Vue({
             id: 'modalBoletaAlumno',
             title: 'Boletas del Alumno'
         }),
-        url: null
+        url: null,
+        seleccionado: '',
+        bgColorClass: {pregrado: '', postgrado: '', visitante: '', especial: ''},
     },
     mounted: function () {
 
@@ -720,6 +722,32 @@ new Vue({
                 $vue.processreporte = false;
                 notify(MESSAGES.errorComunicacion, "error");
             });
+        },
+        verModalidades(tipo) {
+            let $vue = this;
+            if ($vue.seleccionado === '') {
+                $vue.bgColorClass[tipo] = 'bg-light';
+                $vue.seleccionado = tipo;
+
+                $vue.$refs.load.querie.push({name: 'moe.codigo', value: tipo});
+                $vue.$refs.load.loadRemoteData();
+
+            } else if ($vue.seleccionado !== '' && $vue.seleccionado !== tipo) {
+                $vue.bgColorClass[$vue.seleccionado] = '';
+                $vue.bgColorClass[tipo] = 'bg-light';
+                $vue.seleccionado = tipo;
+
+                $vue.$refs.load.querie.push({name: 'moe.codigo', value: tipo});
+                $vue.$refs.load.loadRemoteData();
+
+            } else if ($vue.seleccionado !== '' && $vue.seleccionado === tipo) {
+                $vue.bgColorClass[$vue.seleccionado] = '';
+                $vue.seleccionado = '';
+
+                $vue.$refs.load.querie = [];
+                $vue.$refs.load.changeUrl('queries[moe.codigo]', null);
+                $vue.$refs.load.loadRemoteData();
+            }
         }
     }
 });

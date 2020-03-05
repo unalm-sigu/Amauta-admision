@@ -311,14 +311,14 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
         StringBuilder strb = new StringBuilder("");
         strb.append("delete mr from aca_matricula_resumen mr ");
         strb.append("          join aca_ciclo_academico ca on mr.id_ciclo_academico = ca.id");
+        strb.append("          join aca_modalidad_estudio me on me.id = ca.id_modalidad_estudio");
         strb.append("    where ca.codigo = :CICLO ");
-        strb.append("      and ca.codigo in (:PRE,:VIS) ");
+        strb.append("      and me.codigo in (:MOD) ");
 
         Query query = getCurrentSession()
                 .createSQLQuery(strb.toString())
-                .setParameter("ciclo", cicloAcademico.getCodigo())
-                .setParameter("PRE", PRE.name())
-                .setParameter("VIS", VIS.name());
+                .setParameter("CICLO", cicloAcademico.getCodigo())
+                .setParameterList("MOD", Arrays.asList(PRE.name(), VIS.name()));
 
         query.executeUpdate();
     }

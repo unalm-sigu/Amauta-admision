@@ -2,6 +2,7 @@ package pe.edu.lamolina.pivot.controller.academico.tramitesacademicos.tramiteRet
 
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.math.BigDecimal;
 import java.util.Date;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.joda.time.DateTime;
@@ -128,6 +129,23 @@ public class ResponseRestServiceImpl extends AbstractRestClient<JsonResponse> im
 
     @Override
     @Transactional
+    public JsonResponse agregarAporte(Aporte aporte, MatriculaResumen matriculaResumen, DataSessionPivot ds) {
+        Parametro parametro = findParametro(ParametrosSistemasEnum.REST_BIENESTAR);
+
+        ObjectNode json = new ObjectNode(JsonNodeFactory.instance);
+        json.put("idUsuario", ds.getUsuario().getId());
+        json.put("idMatricula", matriculaResumen.getId());
+        json.put("idAporte", aporte.getId());
+       
+
+        String url = String.format("%s/aportesRest/agregarAporte",
+                parametro.getValor());
+
+        return this.postToBackEnd(url, json);
+    }
+
+    @Override
+    @Transactional
     public JsonResponse generarAporteCarnet(MatriculaResumen matriculaResumen, DataSessionPivot ds) {
         Parametro parametro = findParametro(ParametrosSistemasEnum.REST_BIENESTAR);
         Aporte aporte = aporteDAO.findByCode(AportesEnum.A05);
@@ -169,6 +187,39 @@ public class ResponseRestServiceImpl extends AbstractRestClient<JsonResponse> im
         json.put("idAporte", aporte.getId());
 
         String url = String.format("%s/aportesRest/quitarAporte",
+                parametro.getValor());
+
+        return this.postToBackEnd(url, json);
+    }
+
+    @Override
+    @Transactional
+    public JsonResponse eliminarAporte(MatriculaResumen matriculaResumen, DataSessionPivot ds, Aporte aporte) {
+        Parametro parametro = findParametro(ParametrosSistemasEnum.REST_BIENESTAR);
+
+        ObjectNode json = new ObjectNode(JsonNodeFactory.instance);
+        json.put("idUsuario", ds.getUsuario().getId());
+        json.put("idMatricula", matriculaResumen.getId());
+        json.put("idAporte", aporte.getId());
+
+        String url = String.format("%s/aportesRest/quitarAporte",
+                parametro.getValor());
+
+        return this.postToBackEnd(url, json);
+    }
+
+    @Override
+    @Transactional
+    public JsonResponse modificarAporte(MatriculaResumen matriculaResumen, DataSessionPivot ds, Aporte aporte, BigDecimal monto) {
+        Parametro parametro = findParametro(ParametrosSistemasEnum.REST_BIENESTAR);
+
+        ObjectNode json = new ObjectNode(JsonNodeFactory.instance);
+        json.put("idUsuario", ds.getUsuario().getId());
+        json.put("idMatricula", matriculaResumen.getId());
+        json.put("idAporte", aporte.getId());
+        json.put("monto", monto);
+
+        String url = String.format("%s/aportesRest/modificarAporte",
                 parametro.getValor());
 
         return this.postToBackEnd(url, json);
@@ -253,4 +304,5 @@ public class ResponseRestServiceImpl extends AbstractRestClient<JsonResponse> im
         return this.postToBackEnd(url, json);
     }
 
+  
 }

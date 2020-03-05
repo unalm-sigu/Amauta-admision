@@ -99,4 +99,6 @@ public interface MatriculableService {
 
     void quitarAporteDuplicadoCarnet(MatriculaResumen matriculaResumen, DataSessionPivot ds);
 
+    public void habilitarMatriculable(MatriculaResumen matriculaResumen, DataSessionPivot ds);
+
 }

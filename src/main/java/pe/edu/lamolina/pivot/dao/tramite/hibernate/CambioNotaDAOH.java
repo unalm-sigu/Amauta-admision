@@ -60,7 +60,7 @@ public class CambioNotaDAOH extends AbstractEasyDAO<CambioNota> implements Cambi
         Octavia sql = new Octavia()
                 .from(CambioNota.class, "cn")
                 .join("tramite tr", "curso", "alumno al", "cicloRegistro cr", "cicloAcademico")
-                .join("al.persona per ")
+                .join("al.persona per ", "al.modalidadEstudio")
                 .left("per.tipoDocumento", "resolucion re")
                 .in("cn.estado", Arrays.asList(PEND.name()))
                 .filter("cr.id", ciclo);

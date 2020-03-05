@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -12,7 +11,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.thymeleaf.util.DartUtils;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.NumberFormat;
@@ -21,6 +19,7 @@ import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
+import pe.edu.lamolina.model.academico.CursoCurricula;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
@@ -28,6 +27,7 @@ import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.NombreCurso;
 import pe.edu.lamolina.model.academico.Seccion;
+import static pe.edu.lamolina.model.enums.CurriculaEstadoEnum.CAD;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
@@ -43,6 +43,7 @@ import pe.edu.lamolina.model.general.TipoCarpeta;
 import pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.reporte.dto.CantidadMatriculadosDTO;
 import pe.edu.lamolina.pivot.controller.seguridad.verificador.VerificadorService;
 import pe.edu.lamolina.pivot.dao.academico.CarreraDAO;
+import pe.edu.lamolina.pivot.dao.academico.CursoCurriculaDAO;
 import pe.edu.lamolina.pivot.dao.academico.CursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.DepartamentoAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.DocenteDAO;
@@ -89,6 +90,9 @@ public class CursoServiceImp implements CursoService {
 
     @Autowired
     DocenteSeccionDAO docenteSeccionDAO;
+
+    @Autowired
+    CursoCurriculaDAO cursoCurriculaDAO;
 
     @Autowired
     VerificadorService verificadorService;
@@ -299,7 +303,7 @@ public class CursoServiceImp implements CursoService {
 
     @Override
     @Transactional
-    public void cambiarEstadoCurso(Curso curso) {
+    public void cambiarEstadoCurso(Curso curso, DataSessionPivot ds) {
         Curso cursoBD = cursoDAO.find(curso.getId());
         if (cursoBD.getEstadoEnum() == EstadoEnum.ACT) {
             cursoBD.setEstadoEnum(EstadoEnum.INA);
@@ -310,6 +314,15 @@ public class CursoServiceImp implements CursoService {
             cursoBD.setEstadoEnum(EstadoEnum.ACT);
         }
         cursoDAO.update(cursoBD);
+
+        List<CursoCurricula> curriculas = cursoCurriculaDAO.allByCurso(cursoBD);
+        for (CursoCurricula curricula : curriculas) {
+            curricula.setEstado(CAD.name());
+            curricula.setFechaCaduca(new Date());
+            curricula.setUserCaduca(ds.getUsuario());
+            cursoCurriculaDAO.updateColumns(curricula, "estado", "userCaduca", "fechaCaduca");
+        }
+
     }
 
     @Override

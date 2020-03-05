@@ -30,11 +30,17 @@ new Vue({
                             'Content-Type': 'multipart/form-data'
                         }
                     }
-            ).then(function (response) {
-                $vue.datos = response.data.data;
+            ).then(response => {
+
+                if (response.data.success) {
+//                    notify(response.data.message, "success");
+                } else {
+                    $vue.datos = response.data.data;
+//                    notify(response.data.message, "error");
+                }
                 console.log($vue.datos);
-            }).catch(function () {
-                console.log('FAILURE!!');
+            }).catch(err => {
+                notify(MESSAGES.errorComunicacion, "error");
             });
         },
         getImage(event) {

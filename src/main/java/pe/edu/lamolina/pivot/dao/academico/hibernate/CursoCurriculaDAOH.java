@@ -3,6 +3,7 @@ package pe.edu.lamolina.pivot.dao.academico.hibernate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.lang3.StringUtils;
 import pe.edu.lamolina.pivot.dao.academico.CursoCurriculaDAO;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
@@ -14,6 +15,8 @@ import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.CursoCurricula;
 import pe.edu.lamolina.model.academico.PlanCurricular;
 import pe.edu.lamolina.model.academico.TipoCursoCurricula;
+import static pe.edu.lamolina.model.enums.CurriculaEstadoEnum.ACT;
+import static pe.edu.lamolina.model.enums.CurriculaEstadoEnum.CAD;
 import pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum;
 
 @Repository
@@ -67,6 +70,18 @@ public class CursoCurriculaDAOH extends AbstractEasyDAO<CursoCurricula> implemen
                 .join("tipoCursoCurricula tcc", "planCurricular pc", "curso cu")
                 .left("cu.departamentoAcademico")
                 .filter("pc.id", plan)
+                .orderBy("cc.numeroCiclo", "cc.numeroCurso");
+        return all(sql);
+    }
+
+    @Override
+    public List<CursoCurricula> allByPlanCurricularACT(PlanCurricular plan) {
+        Octavia sql = Octavia.query()
+                .from(CursoCurricula.class, "cc")
+                .join("tipoCursoCurricula tcc", "planCurricular pc", "curso cu")
+                .left("cu.departamentoAcademico")
+                .filter("pc.id", plan)
+                .filter("estado", ACT)
                 .orderBy("cc.numeroCiclo", "cc.numeroCurso");
         return all(sql);
     }
@@ -132,6 +147,7 @@ public class CursoCurriculaDAOH extends AbstractEasyDAO<CursoCurricula> implemen
                 .join("tipoCursoCurricula tcc", "planCurricular pc", "curso cu")
                 .left("cu.departamentoAcademico")
                 .filter("cu.id", curso)
+                //                .filter("estado", ACT)
                 .filter("tcc.codigo", tipoCursoCurriculaEnum);
         return all(sql);
     }
@@ -144,6 +160,7 @@ public class CursoCurriculaDAOH extends AbstractEasyDAO<CursoCurricula> implemen
                 .left("cu.departamentoAcademico")
                 .in("pc.id", planes)
                 .filter("cc.numeroCiclo", ">", 0)
+                //                .filter("estado", ACT)
                 .orderBy("cc.numeroCiclo", "cc.numeroCurso");
         return all(sql);
     }
@@ -176,6 +193,54 @@ public class CursoCurriculaDAOH extends AbstractEasyDAO<CursoCurricula> implemen
                 .filter("cr.id", curso)
                 .filter("tcc.id", tipo);
         return find(sql);
+    }
+
+    @Override
+    public void updateColumns(CursoCurricula cursoCurricula, String... columns) {
+        Octavia sql = Octavia.update(CursoCurricula.class, "per");
+        for (String column : columns) {
+            sql.set(cursoCurricula, column);
+        }
+        this.update(sql);
+    }
+
+    @Override
+    public List<CursoCurricula> allByCurso(String nombre) {
+        Octavia sql = Octavia.query()
+                .from(CursoCurricula.class, "cc")
+                .join("tipoCursoCurricula tcc", "planCurricular pc", "curso cur")
+                .left("cur.departamentoAcademico")
+                .filter("cc.estado", CAD);
+        if (StringUtils.isNotBlank(nombre)) {
+            sql.beginBlock()
+                    .__().like("cur.nombre", nombre)
+                    .__().like("cur.codigo", nombre)
+                    .endBlock();
+        };
+        return all(sql);
+    }
+
+    @Override
+    public List<CursoCurricula> allByPlanCurricularCAD(PlanCurricular planCurricular) {
+        Octavia sql = Octavia.query()
+                .from(CursoCurricula.class, "cc")
+                .join("tipoCursoCurricula tcc", "planCurricular pc", "curso cu")
+                .left("cu.departamentoAcademico")
+                .filter("pc.id", planCurricular)
+                .filter("cc.estado", CAD)
+                .orderBy("cc.numeroCiclo", "cc.numeroCurso");
+        return all(sql);
+    }
+
+    @Override
+    public List<CursoCurricula> allByCurso(Curso curso) {
+        Octavia sql = Octavia.query()
+                .from(CursoCurricula.class, "cc")
+                .join("tipoCursoCurricula tcc", "planCurricular pc", "curso cu")
+                .left("cu.departamentoAcademico")
+                .filter("cu.id", curso)
+                .filter("estado", ACT);
+        return all(sql);
     }
 
 }

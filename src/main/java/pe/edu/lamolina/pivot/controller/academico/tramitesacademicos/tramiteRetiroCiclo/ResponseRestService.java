@@ -1,11 +1,13 @@
 package pe.edu.lamolina.pivot.controller.academico.tramitesacademicos.tramiteRetiroCiclo;
 
+import java.math.BigDecimal;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.MatriculaCurso;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.Seccion;
+import pe.edu.lamolina.model.aporte.Aporte;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import pe.edu.lamolina.model.general.Parametro;
 import pe.edu.lamolina.model.seguridad.Usuario;
@@ -38,4 +40,10 @@ public interface ResponseRestService {
     JsonResponse eliminarAporteDuplicadoCarnet(MatriculaResumen matriculaResumen, DataSessionPivot ds);
 
     JsonResponse generarAporteDuplicadoCarnet(MatriculaResumen matriculaResumen, DataSessionPivot ds);
+
+    JsonResponse eliminarAporte(MatriculaResumen matriculaResumen, DataSessionPivot ds, Aporte aporte);
+    
+    JsonResponse modificarAporte(MatriculaResumen matriculaResumen, DataSessionPivot ds, Aporte aporte, BigDecimal monto);
+
+    public JsonResponse agregarAporte(Aporte aporte, MatriculaResumen matriculaResumen, DataSessionPivot ds);
 }

@@ -407,6 +407,9 @@ public class MatriculableServiceImp implements MatriculableService {
         }
 
         for (Alumno alumno : alumnosPregrado) {
+            if (alumno.getModalidadEstudio().isPostgrado()) {
+                continue;
+            }
             Alumno alumnoExist = mapMatriculableExist.get(alumno.getId());
             if (alumnoExist != null) {
                 continue;
@@ -431,6 +434,10 @@ public class MatriculableServiceImp implements MatriculableService {
         }
 
         for (Alumno alumnoCondicional : alumosConTramite) {
+            if (alumnoCondicional.getModalidadEstudio().isPostgrado()) {
+                continue;
+            }
+
             Alumno alumnoExist = mapMatriculableExist.get(alumnoCondicional.getId());
             if (alumnoExist != null) {
                 continue;
@@ -904,7 +911,7 @@ public class MatriculableServiceImp implements MatriculableService {
         CicloAcademico cicloBD = cicloAcademicoDAO.find(cicloAcademico.getId());
         cicloBD.setFechaMatriculables(null);
         cicloAcademicoDAO.updateFechaMatriculables(cicloBD);
-        matriculaResumenDAO.deleteMatriculable(cicloAcademico);
+        matriculaResumenDAO.deleteMatriculable(cicloBD);
     }
 
     @Override
@@ -1413,6 +1420,9 @@ public class MatriculableServiceImp implements MatriculableService {
     @Override
     @Transactional
     public void inhabilitarMatriculable(MatriculaResumen matriculaResumenForm, DataSessionPivot ds) {
+
+        CicloAcademico academico = cicloAcademicoDAO.find(ds.getCicloAcademico());
+
         MatriculaResumen matriculaResumen = matriculaResumenDAO.find(matriculaResumenForm.getId());
         Assert.isNotNull(matriculaResumen, "El alumno no es matriculable");
         Assert.isFalse(matriculaResumen.getEstadoEnum() == EstadoMatriculaEnum.INH,
@@ -1424,7 +1434,7 @@ public class MatriculableServiceImp implements MatriculableService {
         Assert.isTrue(matriculaResumen.getEstadoEnum() == EstadoMatriculaEnum.NMAT,
                 "El alumno debe tener estado No Matriculado para ser inhabilitado");
 
-        if (ds.getCicloAcademico().getTipoEnum() == TipoCicloEnum.REG) {
+        if (ds.getCicloAcademico().getTipoEnum() == TipoCicloEnum.REG && academico.getFechaTurnosAsignados() != null) {
             JsonResponse jsonResponse = responseRestService.anularBoletas(matriculaResumen, ds);
             if (!jsonResponse.getSuccess()) {
                 throw new PhobosException(jsonResponse.getMessage());
@@ -1812,6 +1822,27 @@ public class MatriculableServiceImp implements MatriculableService {
     public void quitarAporteDuplicadoCarnet(MatriculaResumen matriculaResumen, DataSessionPivot ds) {
         matriculaResumen = matriculaResumenDAO.find(matriculaResumen.getId());
         aporteAlumnoService.quitarAporteDuplicadoCarnet(matriculaResumen.getCicloAcademico(), matriculaResumen, ds);
+    }
+
+    @Override
+    public void habilitarMatriculable(MatriculaResumen matriculaResumenForm, DataSessionPivot ds) {
+        CicloAcademico academico = cicloAcademicoDAO.find(ds.getCicloAcademico());
+
+        MatriculaResumen matriculaResumen = matriculaResumenDAO.find(matriculaResumenForm.getId());
+        Assert.isNotNull(matriculaResumen, "El alumno no es matriculable");
+        Assert.isFalse(matriculaResumen.getEstadoEnum() == EstadoMatriculaEnum.NMAT,
+                "El alumno ya se encontra habilitado");
+
+        if (ds.getCicloAcademico().getTipoEnum() == TipoCicloEnum.REG && academico.getFechaTurnosAsignados() != null) {
+            JsonResponse jsonResponse = responseRestService.generarAporte(matriculaResumen.getAlumno(), academico, matriculaResumen, ds);
+            if (!jsonResponse.getSuccess()) {
+                throw new PhobosException(jsonResponse.getMessage());
+            }
+        }
+
+        matriculaResumen.setEstadoEnum(EstadoMatriculaEnum.NMAT);
+        matriculaResumen.setMotivoMatriculable(matriculaResumenForm.getMotivoMatriculable());
+        matriculaResumenDAO.update(matriculaResumen);
     }
 
 }
