@@ -43,7 +43,7 @@ public interface ResponseRestService {
 
     JsonResponse eliminarAporte(MatriculaResumen matriculaResumen, DataSessionPivot ds, Aporte aporte);
     
-    JsonResponse modificarAporte(MatriculaResumen matriculaResumen, DataSessionPivot ds, Aporte aporte, BigDecimal monto);
+    JsonResponse modificarAporte(MatriculaResumen matriculaResumen, DataSessionPivot ds, Aporte aporte);
 
     public JsonResponse agregarAporte(Aporte aporte, MatriculaResumen matriculaResumen, DataSessionPivot ds);
 }

@@ -3,6 +3,7 @@ package pe.edu.lamolina.pivot.controller.bienestar.alumnoAporte;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
+import pe.edu.lamolina.model.aporte.Aporte;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface AporteAlumnoService {
@@ -18,4 +19,6 @@ public interface AporteAlumnoService {
     void quitarAporteDuplicadoCarnet(CicloAcademico cicloAcademico, MatriculaResumen matriculaResumen, DataSessionPivot ds);
 
     void generarAporteDuplicadoCarnet(CicloAcademico cicloAcademico, MatriculaResumen matriculaResumen, DataSessionPivot ds);
+
+    void modificarAporte(CicloAcademico cicloAcademico, MatriculaResumen matriculaResumen, Aporte aporte, DataSessionPivot ds);
 }
