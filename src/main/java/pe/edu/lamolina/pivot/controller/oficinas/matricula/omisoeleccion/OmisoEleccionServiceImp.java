@@ -258,16 +258,20 @@ public class OmisoEleccionServiceImp implements OmisoEleccionService {
         alumnoOmisoEleccionDAO.save(omisoEleccion);
 
 
-        BigDecimal montoActual = omisoEleccion.getMulta();
-        for (AlumnoOmisoEleccion omisoEleccione : omisoElecciones) {
-            montoActual = montoActual.add(omisoEleccione.getMulta());
+        if (matriculaResumen != null) {
+            
+            BigDecimal montoActual = omisoEleccion.getMulta();
+            for (AlumnoOmisoEleccion omisoEleccione : omisoElecciones) {
+                montoActual = montoActual.add(omisoEleccione.getMulta());
+            }
+
+            Aporte aporte = aporteDAO.findByCode(A04);
+            responseRestService.createToken(ds);
+            JsonResponse jsonResponse = responseRestService.modificarAporte(matriculaResumen, ds, aporte, montoActual);
+
+            Assert.isTrue(jsonResponse.getSuccess(), "Se produjo un error al eliminar la matrícula. Comuniquese con mesa de ayuda.");
         }
-
-        Aporte aporte = aporteDAO.findByCode(A04);
-        responseRestService.createToken(ds);
-        JsonResponse jsonResponse = responseRestService.modificarAporte(matriculaResumen, ds, aporte, montoActual);
-
-        Assert.isTrue(jsonResponse.getSuccess(), "Se produjo un error al eliminar la matrícula. Comuniquese con mesa de ayuda.");
+        
 
     }
 
