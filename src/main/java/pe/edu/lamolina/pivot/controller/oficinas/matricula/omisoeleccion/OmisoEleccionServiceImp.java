@@ -246,6 +246,7 @@ public class OmisoEleccionServiceImp implements OmisoEleccionService {
     public void saveOmision(AlumnoOmisoEleccion omisoEleccion, DataSessionPivot ds) {
         CicloAcademico cicloAcademicoMod = cicloAcademicoDAO.findByCodigoModalidadEstudio(omisoEleccion.getCicloAcademico().getCodigo(), omisoEleccion.getAlumno().getModalidadEstudio());
         MatriculaResumen matriculaResumen = matriculaResumenDAO.findByAlumnoCiclo(omisoEleccion.getAlumno(), cicloAcademicoMod);
+        List<AlumnoOmisoEleccion> omisoElecciones = alumnoOmisoEleccionDAO.findByAlumno(matriculaResumen.getAlumno());
 
         Assert.isNotNull(cicloAcademicoMod, "Solo se puede agregar a alumnos de pregrado o posgrado.");
         omisoEleccion.setCicloAcademico(cicloAcademicoMod);
@@ -257,7 +258,6 @@ public class OmisoEleccionServiceImp implements OmisoEleccionService {
         alumnoOmisoEleccionDAO.save(omisoEleccion);
 
         if (matriculaResumen != null) {
-            List<AlumnoOmisoEleccion> omisoElecciones = alumnoOmisoEleccionDAO.findByAlumno(matriculaResumen.getAlumno());
 
             BigDecimal montoActual = omisoEleccion.getMulta();
             for (AlumnoOmisoEleccion omisoEleccione : omisoElecciones) {
