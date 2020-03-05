@@ -246,8 +246,7 @@ public class OmisoEleccionServiceImp implements OmisoEleccionService {
     public void saveOmision(AlumnoOmisoEleccion omisoEleccion, DataSessionPivot ds) {
         CicloAcademico cicloAcademicoMod = cicloAcademicoDAO.findByCodigoModalidadEstudio(omisoEleccion.getCicloAcademico().getCodigo(), omisoEleccion.getAlumno().getModalidadEstudio());
         MatriculaResumen matriculaResumen = matriculaResumenDAO.findByAlumnoCiclo(omisoEleccion.getAlumno(), cicloAcademicoMod);
-        List<AlumnoOmisoEleccion> omisoElecciones = alumnoOmisoEleccionDAO.findByAlumno(matriculaResumen.getAlumno());
-        
+
         Assert.isNotNull(cicloAcademicoMod, "Solo se puede agregar a alumnos de pregrado o posgrado.");
         omisoEleccion.setCicloAcademico(cicloAcademicoMod);
         AlumnoOmisoEleccion alumnoOmisoEleccionDB = alumnoOmisoEleccionDAO.findByAlumnoCicloMotivo(omisoEleccion);
@@ -257,9 +256,9 @@ public class OmisoEleccionServiceImp implements OmisoEleccionService {
         omisoEleccion.setUserRegistro(ds.getUsuario());
         alumnoOmisoEleccionDAO.save(omisoEleccion);
 
-
         if (matriculaResumen != null) {
-            
+            List<AlumnoOmisoEleccion> omisoElecciones = alumnoOmisoEleccionDAO.findByAlumno(matriculaResumen.getAlumno());
+
             BigDecimal montoActual = omisoEleccion.getMulta();
             for (AlumnoOmisoEleccion omisoEleccione : omisoElecciones) {
                 montoActual = montoActual.add(omisoEleccione.getMulta());
@@ -271,7 +270,6 @@ public class OmisoEleccionServiceImp implements OmisoEleccionService {
 
             Assert.isTrue(jsonResponse.getSuccess(), "Se produjo un error al eliminar la matrícula. Comuniquese con mesa de ayuda.");
         }
-        
 
     }
 
