@@ -17,7 +17,6 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -67,7 +66,6 @@ import pe.edu.lamolina.model.inscripcion.ContenidoCarta;
 import pe.edu.lamolina.model.matricula.AlumnoCursoCurricula;
 import pe.edu.lamolina.model.posgrado.CursoHabilEscuela;
 import pe.edu.lamolina.model.seguridad.Rol;
-import pe.edu.lamolina.model.seguridad.Sistema;
 import pe.edu.lamolina.model.seguridad.TokenIngresante;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.seguridad.UsuarioRol;
@@ -1010,7 +1008,7 @@ public class AlumnoServiceImp implements AlumnoService {
 
         if (token == null) {
             token = new TokenIngresante();
-            token.setOrigenEnum(OrigenTokenEnum.AMAUTA);
+            token.setOrigenEnum(OrigenTokenEnum.BIENESTAR);
             token.setEstado(TokenEstadoEnum.ACT);
             token.setFechaRegistro(new Date());
             token.setFechaVencimiento(new DateTime().plusSeconds(10).toDate());
