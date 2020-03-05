@@ -500,10 +500,8 @@ public class MatriculableController {
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
-            String token = service.saveMatriculable(alumno, ds);
-
-//            service.revisarCurriculaAlumnos(ds, tipoCondicional);
-            service.generarAportes(ds, token);
+            String token = service.saveMatriculable(alumno, ds.getCicloAcademico(), ds);
+            service.generarAportes(alumno, ds.getCicloAcademico(), ds);
 
             response.setMessage("Se agregó al alumno satisfactoriamente.");
             response.setSuccess(true);
@@ -535,6 +533,7 @@ public class MatriculableController {
         return response;
 
     }
+
     @ResponseBody
     @RequestMapping("habilitar")
     public JsonResponse habilitar(@RequestBody MatriculaResumen matriculaResumen, HttpSession session) {
