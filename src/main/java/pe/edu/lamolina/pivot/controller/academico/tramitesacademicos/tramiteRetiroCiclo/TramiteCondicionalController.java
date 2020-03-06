@@ -186,7 +186,7 @@ public class TramiteCondicionalController {
             }
 
             promedioService.calcularSituacionAcademica(tramite.getAlumno(), ds);
-            String token = matriculableService.saveMatriculable(tramite.getAlumno(), ds);
+            String token = matriculableService.saveMatriculable(tramite.getAlumno(), ds.getCicloAcademico(), ds);
             matriculableService.generarAportes(ds, token);
             response.setMessage("Se guardó satisfactoriamente.");
             response.setSuccess(Boolean.TRUE);
