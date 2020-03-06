@@ -53,6 +53,7 @@ import pe.edu.lamolina.model.finanzas.DeudaAlumno;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.controller.academico.tramitesacademicos.tramiteRetiroCiclo.ResponseRestService;
+import pe.edu.lamolina.pivot.controller.bienestar.alumnoAporte.AporteAlumnoService;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoOmisoEleccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
@@ -99,7 +100,7 @@ public class OmisoEleccionServiceImp implements OmisoEleccionService {
     MatriculaResumenDAO matriculaResumenDAO;
 
     @Autowired
-    ResponseRestService responseRestService;
+    AporteAlumnoService aporteAlumnoService;
 
     @Override
     @Transactional
@@ -245,9 +246,7 @@ public class OmisoEleccionServiceImp implements OmisoEleccionService {
     @Transactional
     public void saveOmision(AlumnoOmisoEleccion omisoEleccion, DataSessionPivot ds) {
         CicloAcademico cicloAcademicoMod = cicloAcademicoDAO.findByCodigoModalidadEstudio(omisoEleccion.getCicloAcademico().getCodigo(), omisoEleccion.getAlumno().getModalidadEstudio());
-        MatriculaResumen matriculaResumen = matriculaResumenDAO.findByAlumnoCiclo(omisoEleccion.getAlumno(), cicloAcademicoMod);
-        List<AlumnoOmisoEleccion> omisoElecciones = alumnoOmisoEleccionDAO.findByAlumno(matriculaResumen.getAlumno());
-        
+
         Assert.isNotNull(cicloAcademicoMod, "Solo se puede agregar a alumnos de pregrado o posgrado.");
         omisoEleccion.setCicloAcademico(cicloAcademicoMod);
         AlumnoOmisoEleccion alumnoOmisoEleccionDB = alumnoOmisoEleccionDAO.findByAlumnoCicloMotivo(omisoEleccion);
@@ -257,54 +256,39 @@ public class OmisoEleccionServiceImp implements OmisoEleccionService {
         omisoEleccion.setUserRegistro(ds.getUsuario());
         alumnoOmisoEleccionDAO.save(omisoEleccion);
 
-
-        BigDecimal montoActual = omisoEleccion.getMulta();
-        for (AlumnoOmisoEleccion omisoEleccione : omisoElecciones) {
-            montoActual = montoActual.add(omisoEleccione.getMulta());
-        }
-
-        Aporte aporte = aporteDAO.findByCode(A04);
-        responseRestService.createToken(ds);
-        JsonResponse jsonResponse = responseRestService.modificarAporte(matriculaResumen, ds, aporte, montoActual);
-
-        Assert.isTrue(jsonResponse.getSuccess(), "Se produjo un error al eliminar la matrícula. Comuniquese con mesa de ayuda.");
-
     }
 
     @Override
     @Transactional
     public void anularOmision(List<AlumnoOmisoEleccion> omisoEleccion, DataSessionPivot ds) {
-        DateTime today = ds.getFechaAccionAudit() == null ? new DateTime() : new DateTime(ds.getFechaAccionAudit());
 
         String motivoAnula = omisoEleccion.get(0).getMotivoAnulacion();
-        Alumno alumno = alumnoDAO.find(omisoEleccion.get(0).getAlumno());
+
+        for (AlumnoOmisoEleccion alumnoOmisoEleccion : omisoEleccion) {
+            if (alumnoOmisoEleccion.getSeleccionado()) {
+                alumnoOmisoEleccion.setEstadoEnum(DeudaEstadoEnum.ANU);
+                alumnoOmisoEleccion.setMotivoAnulacion(motivoAnula);
+                alumnoOmisoEleccion.setFechaAnulacion(new Date());
+                alumnoOmisoEleccion.setUserAnulacion(ds.getUsuario());
+                alumnoOmisoEleccionDAO.updateAnulacion(alumnoOmisoEleccion);
+
+            }
+        }
+
+    }
+
+    @Override
+    public void modificarAporte(Alumno alumno, DataSessionPivot ds) {
         CicloAcademico cicloAcademicoMod = cicloAcademicoDAO.findByCodigoModalidadEstudio(ds.getCicloAcademico().getCodigo(), alumno.getModalidadEstudio());
 
         MatriculaResumen matriculaResumen = matriculaResumenDAO.findByAlumnoCiclo(alumno, cicloAcademicoMod);
-
-        if (matriculaResumen != null) {
-
-            BigDecimal montoActual = BigDecimal.ZERO;
-            for (AlumnoOmisoEleccion alumnoOmisoEleccion : omisoEleccion) {
-                if (alumnoOmisoEleccion.getSeleccionado()) {
-                    alumnoOmisoEleccion.setEstadoEnum(DeudaEstadoEnum.ANU);
-                    alumnoOmisoEleccion.setMotivoAnulacion(motivoAnula);
-                    alumnoOmisoEleccion.setFechaAnulacion(new Date());
-                    alumnoOmisoEleccion.setUserAnulacion(ds.getUsuario());
-                    alumnoOmisoEleccionDAO.updateAnulacion(alumnoOmisoEleccion);
-                    continue;
-                } else if (alumnoOmisoEleccion.getEstadoEnum() == DeudaEstadoEnum.DEU) {
-                    montoActual = montoActual.add(alumnoOmisoEleccion.getMulta());
-                }
-            }
-
-            Aporte aporte = aporteDAO.findByCode(A04);
-            responseRestService.createToken(ds);
-            JsonResponse jsonResponse = responseRestService.modificarAporte(matriculaResumen, ds, aporte, montoActual);
-
-            Assert.isTrue(jsonResponse.getSuccess(), "Se produjo un error al eliminar la matrícula. Comuniquese con mesa de ayuda.");
-
+        if (matriculaResumen == null) {
+            return;
         }
+
+        Aporte aporte = aporteDAO.findByCode(A04);
+
+        aporteAlumnoService.modificarAporte(cicloAcademicoMod, matriculaResumen, aporte, ds);
 
     }
 

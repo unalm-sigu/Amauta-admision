@@ -126,6 +126,8 @@ public class OmisoEleccionController {
         try {
 
             service.saveOmision(omisoEleccion, ds);
+            service.modificarAporte(omisoEleccion.getAlumno(), ds);
+
             response.setSuccess(true);
             response.setMessage("Se realizó el registro.");
         } catch (PhobosException e) {
@@ -145,6 +147,7 @@ public class OmisoEleccionController {
         try {
             alumno.getAlumnoOmisoEleccions().get(0).setMotivoAnulacion(alumno.getMotivoAnulacion());
             service.anularOmision(alumno.getAlumnoOmisoEleccions(), ds);
+            service.modificarAporte(alumno, ds);
             response.setSuccess(true);
             response.setMessage("Se realizó la actualización satisfactoriamente.");
         } catch (PhobosException e) {
