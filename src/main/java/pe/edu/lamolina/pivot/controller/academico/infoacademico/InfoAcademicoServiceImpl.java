@@ -277,6 +277,9 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
                 nodeRequisito.put("tipoDictadoCurso", requisito.getCursoRequisito().getCurso().getTipoCursoEnum().getValue());
 
                 AlumnoCursoCurricula alumnoCurs = mapAlumnoCurso.get(requisito.getCursoRequisito().getId());
+                if (alumnoCurs == null) {
+                    continue;
+                }
                 nodeRequisito.put("estado", alumnoCurs.getEstadoEnum().name());
                 nodeRequisito.put("estadoMatricula", alumnoCurs.getEstadoMatricula());
                 arrayPreRequisitos.add(nodeRequisito);
