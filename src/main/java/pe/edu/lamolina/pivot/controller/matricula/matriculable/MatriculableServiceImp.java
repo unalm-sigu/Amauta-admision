@@ -938,6 +938,8 @@ public class MatriculableServiceImp implements MatriculableService {
         matriculaResumenDAO.save(resumen);
         
         alumno.setEsMatriculaCondicional(alumnoForm.getEsMatriculaCondicional());
+        alumno.setMotivoMatriculable(alumnoForm.getMotivoMatriculable());
+        alumno.setEsMatBeneficioUltCicl(alumnoForm.getEsMatBeneficioUltCicl());
         List<Alumno> alumnos = new ArrayList();
         alumnos.add(alumno);
         
@@ -1440,7 +1442,7 @@ public class MatriculableServiceImp implements MatriculableService {
             for (Alumno alumno : alumnos) {
                 MatriculaResumen matriculable = mapMatriculable.get(alumno.getId());
                 if (situacionesExepcionAptas.contains(alumno.getSituacionAcademica().getCodigo())) {
-                    if (mapReincorporacion.get(alumno.getId()) != null) {
+                    if (mapReincorporacion.get(alumno.getId()) != null || alumno.getEsMatBeneficioUltCicl()) {
                         alumno.setEsMatriculableSuspendido(Boolean.TRUE);
                         this.addMatriculable(matriculable, alumno, cicloActivo, matriculables, mapMatriculable, usuario);
                         continue;
@@ -1491,6 +1493,7 @@ public class MatriculableServiceImp implements MatriculableService {
             matriculable.setSituacionInicio(alumno.getSituacionAcademica());
             matriculable.settingValoresDefecto();
             matriculable.setEsCondicional(alumno.getEsMatriculaCondicional());
+            matriculable.setMotivoMatriculable(alumno.getMotivoMatriculable());
             matriculable.setCreditosPagados(0);
             matriculable.setCreditosConsumidos(0);
             matriculable.setFechaRegistro(new Date());
