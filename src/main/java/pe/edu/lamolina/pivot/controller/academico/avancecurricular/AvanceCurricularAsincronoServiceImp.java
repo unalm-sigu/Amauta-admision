@@ -689,7 +689,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
             List<AlumnoCursoCurricula> alumnoCursosCurriculaNew,
             Map<Long, AlumnoCursoCurricula> mapAluCursoCurriculaOld, Map<Long, List<CursoEquivalente>> mapEquivalentesCurricula, boolean showLogger) {
 
-        Map<Long, AlumnoCursoCurricula> mapAlumnoCursoCurriculaNew = TypesUtil.convertListToMap("curso.id", alumnoCursosCurriculaNew);
+        Map<Long, AlumnoCursoCurricula> mapAlumnoCursoCurriculaNew = TypesUtil.convertListToMap("cursoCurricula.id", alumnoCursosCurriculaNew);
 
         for (AlumnoCursoCurricula aluCursoCurriculaNew : alumnoCursosCurriculaNew) {
             Curso curso = aluCursoCurriculaNew.getCurso();
@@ -702,18 +702,24 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
             // VERIFICAR SI SE APROBÓ EL CURSO CADUCO
             Boolean aproboCaduco = false;
 
-            List<CursoEquivalente> cursoEquivalentes = mapEquivalentesCurricula.get(aluCursoCurriculaNew.getCursoCurricula().getId());
-            for (CursoEquivalente cursoEquivalente : cursoEquivalentes) {
-                if (cursoEquivalente.getCursoCaduco() != null) {
-                    AlumnoCursoCurricula alumnoCursoCurricula = mapAlumnoCursoCurriculaNew.get(cursoEquivalente.getCursoCaduco().getId());
-                    aproboCaduco = Arrays.asList(APR,EQUIV,CONV).contains(alumnoCursoCurricula.getEstadoEnum());
+            if (aluCursoCurriculaNew.getCursoCurricula() != null) {
+                
+                List<CursoEquivalente> cursoEquivalentes = TypesUtil.getListNotNull(mapEquivalentesCurricula.get(aluCursoCurriculaNew.getCursoCurricula().getId()));
+                for (CursoEquivalente cursoEquivalente : cursoEquivalentes) {
+                    if (cursoEquivalente.getCursoCaduco() != null) {
+                        AlumnoCursoCurricula alumnoCursoCurricula = mapAlumnoCursoCurriculaNew.get(cursoEquivalente.getCursoCaduco().getId());
+                        if (alumnoCursoCurricula != null) {
+                            aproboCaduco = Arrays.asList(APR, EQUIV, CONV).contains(alumnoCursoCurricula.getEstadoEnum());
+                            System.out.println("Aprobó");
+                        }
+                    }
+                }
+
+                if (aproboCaduco) {
+                    continue;
                 }
             }
 
-            if (aproboCaduco) {
-                continue;
-            }
-            
             AlumnoCursoCurricula aluCursoCurriculaOld = mapAluCursoCurriculaOld.get(curso.getId());
             if (aluCursoCurriculaOld == null) {
                 alumnoCursoCurriculaDAO.save(aluCursoCurriculaNew);
