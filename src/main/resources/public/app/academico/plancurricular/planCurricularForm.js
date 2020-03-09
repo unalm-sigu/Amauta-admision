@@ -2106,7 +2106,7 @@ $(function () {
             bootbox.confirm({
                 message: '¿Está seguro que desea caducar este curso?',
                 buttons: {
-                    confirm: {label: 'Si, eliminar', className: 'btn-danger'},
+                    confirm: {label: 'Si, caducar', className: 'btn-danger'},
                     cancel: {label: 'Cancel', className: 'btn-link'}
                 },
                 callback(result) {

@@ -195,10 +195,16 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
     public void caducar(Long idCursoCurricula, DataSessionPivot ds) {
 
         CursoCurricula cursoCurricula = cursoCurriculaDAO.find(idCursoCurricula);
-        cursoCurricula.setEstado(CurriculaEstadoEnum.CAD.name());
-        cursoCurricula.setFechaCaduca(new Date());
-        cursoCurricula.setUserCaduca(ds.getUsuario());
-        cursoCurriculaDAO.updateColumns(cursoCurricula, "estado");
+
+        List<CursoCurricula> cursoCurriculasAllPlanes = cursoCurriculaDAO.allByCurso(cursoCurricula.getCurso());
+
+        for (CursoCurricula cursoCurriculasPlan : cursoCurriculasAllPlanes) {
+
+            cursoCurriculasPlan.setEstado(CurriculaEstadoEnum.CAD.name());
+            cursoCurriculasPlan.setFechaCaduca(new Date());
+            cursoCurriculasPlan.setUserCaduca(ds.getUsuario());
+            cursoCurriculaDAO.updateColumns(cursoCurriculasPlan, "estado", "fechaCaduca", "userCaduca");
+        }
 
     }
 
