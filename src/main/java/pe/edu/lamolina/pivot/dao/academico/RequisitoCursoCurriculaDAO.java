@@ -10,7 +10,7 @@ public interface RequisitoCursoCurriculaDAO extends EasyDAO<RequisitoCursoCurric
 
     List<RequisitoCursoCurricula> allByCursoCurricula(CursoCurricula cursoCurricula);
 
-    List<RequisitoCursoCurricula> allByRequisito(CursoCurricula cursoCurricula);
+    List<RequisitoCursoCurricula> allByRequisitoCurriculaDe(CursoCurricula cursoCurricula);
 
     List<RequisitoCursoCurricula> allByCursosCurricula(List<CursoCurricula> cursosCurricula);
 

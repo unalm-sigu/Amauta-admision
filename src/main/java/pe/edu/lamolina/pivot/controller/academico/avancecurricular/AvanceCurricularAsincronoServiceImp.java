@@ -767,43 +767,43 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
             }
         }
         
-        List<CursoEquivalente> cursoEquivalentaes = new ArrayList();
-        for (Map.Entry<Long, List<CursoEquivalente>> entry : mapEquivalentesAll.entrySet()) {
-            cursoEquivalentaes.addAll(entry.getValue());
-        }
-        
-        Map<Long, List<CursoEquivalente>> mapCursosEquiInvertido = TypesUtil.convertListToMapList("cursoEquivalente.id", cursoEquivalentaes);
-        for (AlumnoCursoCurricula aluCursoCurricula : aluCursosCurricula) {
-            CursoCurricula cursoCurricula = aluCursoCurricula.getCursoCurricula();
-            List<CursoEquivalente> cursosEquivalentes = TypesUtil.getListNotNull(mapCursosEquiInvertido.get(cursoCurricula.getCurso().getId()));
-            if (cursosEquivalentes.isEmpty()) {
-                continue;
-            }
-            
-            Map<Integer, List<CursoEquivalente>> mapGruposEquiv = TypesUtil.convertListToMapList("grupo", cursosEquivalentes);
-            
-            for (Map.Entry<Integer, List<CursoEquivalente>> entryGrupos : mapGruposEquiv.entrySet()) {
-                
-                boolean equivalenciaEncontrada = true;
-                List<CursoEquivalente> cursosEquivGrupo = entryGrupos.getValue();
-                
-                for (CursoEquivalente cursoEq : cursosEquivGrupo) {
-                    if (!mapCursosAprobados.containsKey(cursoEq.getCursoCurricula().getCurso().getId())) {
-                        equivalenciaEncontrada = false;
-                        break;
-                    }
-                }
-                
-                if (equivalenciaEncontrada) {
-                    aluCursoCurricula.setEstadoEnum(EQUIV);
-                    aluCursoCurricula.setValidado(true);
-                    if (cursoCurricula.getEstadoEnum() == CurriculaEstadoEnum.CAD) {
-                        aluCursoCurricula.setCaduco(true);
-                    }
-                    break;
-                }
-            }
-        }
+//        List<CursoEquivalente> cursoEquivalentaes = new ArrayList();
+//        for (Map.Entry<Long, List<CursoEquivalente>> entry : mapEquivalentesAll.entrySet()) {
+//            cursoEquivalentaes.addAll(entry.getValue());
+//        }
+//        
+//        Map<Long, List<CursoEquivalente>> mapCursosEquiInvertido = TypesUtil.convertListToMapList("cursoEquivalente.id", cursoEquivalentaes);
+//        for (AlumnoCursoCurricula aluCursoCurricula : aluCursosCurricula) {
+//            CursoCurricula cursoCurricula = aluCursoCurricula.getCursoCurricula();
+//            List<CursoEquivalente> cursosEquivalentes = TypesUtil.getListNotNull(mapCursosEquiInvertido.get(cursoCurricula.getCurso().getId()));
+//            if (cursosEquivalentes.isEmpty()) {
+//                continue;
+//            }
+//            
+//            Map<Integer, List<CursoEquivalente>> mapGruposEquiv = TypesUtil.convertListToMapList("grupo", cursosEquivalentes);
+//            
+//            for (Map.Entry<Integer, List<CursoEquivalente>> entryGrupos : mapGruposEquiv.entrySet()) {
+//                
+//                boolean equivalenciaEncontrada = true;
+//                List<CursoEquivalente> cursosEquivGrupo = entryGrupos.getValue();
+//                
+//                for (CursoEquivalente cursoEq : cursosEquivGrupo) {
+//                    if (!mapCursosAprobados.containsKey(cursoEq.getCursoCurricula().getCurso().getId())) {
+//                        equivalenciaEncontrada = false;
+//                        break;
+//                    }
+//                }
+//                
+//                if (equivalenciaEncontrada) {
+//                    aluCursoCurricula.setEstadoEnum(EQUIV);
+//                    aluCursoCurricula.setValidado(true);
+//                    if (cursoCurricula.getEstadoEnum() == CurriculaEstadoEnum.CAD) {
+//                        aluCursoCurricula.setCaduco(true);
+//                    }
+//                    break;
+//                }
+//            }
+//        }
         
     }
     

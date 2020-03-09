@@ -38,7 +38,7 @@ public class RequisitoCursoCurriculaDAOH extends AbstractEasyDAO<RequisitoCursoC
     }
 
     @Override
-    public List<RequisitoCursoCurricula> allByRequisito(CursoCurricula cursoCurricula) {
+    public List<RequisitoCursoCurricula> allByRequisitoCurriculaDe(CursoCurricula cursoCurricula) {
         Octavia sql = Octavia.query()
                 .from(RequisitoCursoCurricula.class, "rcc")
                 .join("cursoCurricula cCur", "cursoRequisito cr", "cCur.curso cur")
