@@ -1442,7 +1442,7 @@ public class MatriculableServiceImp implements MatriculableService {
             for (Alumno alumno : alumnos) {
                 MatriculaResumen matriculable = mapMatriculable.get(alumno.getId());
                 if (situacionesExepcionAptas.contains(alumno.getSituacionAcademica().getCodigo())) {
-                    if (mapReincorporacion.get(alumno.getId()) != null || alumno.getEsMatBeneficioUltCicl()) {
+                    if (mapReincorporacion.get(alumno.getId()) != null || alumno.getEsMatBeneficioUltCicl() || alumno.getEsMatriculaCondicional()) {
                         alumno.setEsMatriculableSuspendido(Boolean.TRUE);
                         this.addMatriculable(matriculable, alumno, cicloActivo, matriculables, mapMatriculable, usuario);
                         continue;

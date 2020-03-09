@@ -700,14 +700,20 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
             }
 
             // VERIFICAR SI SE APROBÓ EL CURSO CADUCO
-//            List<CursoEquivalente> cursoEquivalentes = mapEquivalentesCurricula.get(aluCursoCurriculaNew.getCursoCurricula().getId());
-//            for (CursoEquivalente cursoEquivalente : cursoEquivalentes) {
-//                if (cursoEquivalente.getCursoCaduco() != null) {
-//                    AlumnoCursoCurricula alumnoCursoCurricula = mapAlumnoCursoCurriculaNew.get(cursoEquivalente.getCursoCaduco().getId());
-//
-//                }
-//            }
+            Boolean aproboCaduco = false;
 
+            List<CursoEquivalente> cursoEquivalentes = mapEquivalentesCurricula.get(aluCursoCurriculaNew.getCursoCurricula().getId());
+            for (CursoEquivalente cursoEquivalente : cursoEquivalentes) {
+                if (cursoEquivalente.getCursoCaduco() != null) {
+                    AlumnoCursoCurricula alumnoCursoCurricula = mapAlumnoCursoCurriculaNew.get(cursoEquivalente.getCursoCaduco().getId());
+                    aproboCaduco = Arrays.asList(APR,EQUIV,CONV).contains(alumnoCursoCurricula.getEstadoEnum());
+                }
+            }
+
+            if (aproboCaduco) {
+                continue;
+            }
+            
             AlumnoCursoCurricula aluCursoCurriculaOld = mapAluCursoCurriculaOld.get(curso.getId());
             if (aluCursoCurriculaOld == null) {
                 alumnoCursoCurriculaDAO.save(aluCursoCurriculaNew);
