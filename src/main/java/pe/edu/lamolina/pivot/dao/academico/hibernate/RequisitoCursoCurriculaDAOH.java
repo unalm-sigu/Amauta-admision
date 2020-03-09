@@ -8,6 +8,7 @@ import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.CursoCurricula;
 import pe.edu.lamolina.model.academico.PlanCurricular;
 import pe.edu.lamolina.model.academico.RequisitoCursoCurricula;
+import static pe.edu.lamolina.model.enums.EstadoEnum.ACT;
 
 @Repository
 public class RequisitoCursoCurriculaDAOH extends AbstractEasyDAO<RequisitoCursoCurricula> implements RequisitoCursoCurriculaDAO {
@@ -22,6 +23,7 @@ public class RequisitoCursoCurriculaDAOH extends AbstractEasyDAO<RequisitoCursoC
         Octavia sql = Octavia.query()
                 .from(RequisitoCursoCurricula.class, "rcc")
                 .join("cursoCurricula cCur", "cursoRequisito cr", "cr.curso cur")
+                .filter("estado", ACT)
                 .filter("cCur.id", cursoCurricula);
 
         return all(sql);
@@ -32,6 +34,7 @@ public class RequisitoCursoCurriculaDAOH extends AbstractEasyDAO<RequisitoCursoC
         Octavia sql = Octavia.query()
                 .from(RequisitoCursoCurricula.class, "rcc")
                 .join("cursoCurricula cCur", "cursoRequisito cr", "cCur.curso cur", "cr.curso", "cCur.planCurricular plan")
+                .filter("estado", ACT)
                 .filter("plan.id", plan);
 
         return all(sql);
@@ -42,6 +45,7 @@ public class RequisitoCursoCurriculaDAOH extends AbstractEasyDAO<RequisitoCursoC
         Octavia sql = Octavia.query()
                 .from(RequisitoCursoCurricula.class, "rcc")
                 .join("cursoCurricula cCur", "cursoRequisito cr", "cCur.curso cur")
+                .filter("estado", ACT)
                 .filter("cr.id", cursoCurricula);
 
         return all(sql);
@@ -52,6 +56,7 @@ public class RequisitoCursoCurriculaDAOH extends AbstractEasyDAO<RequisitoCursoC
         Octavia sql = Octavia.query()
                 .from(RequisitoCursoCurricula.class, "rcc")
                 .join("cursoCurricula cCur", "cursoRequisito cr", "cr.curso cur", "cr.tipoCursoCurricula")
+                .filter("estado", ACT)
                 .in("cCur.id", cursosCurricula);
 
         return all(sql);
@@ -62,6 +67,7 @@ public class RequisitoCursoCurriculaDAOH extends AbstractEasyDAO<RequisitoCursoC
         Octavia sql = Octavia.query()
                 .from(RequisitoCursoCurricula.class, "rcc")
                 .join("cursoCurricula cCur", "cursoRequisito cr", "cCur.curso cur", "cCur.tipoCursoCurricula")
+                .filter("estado", ACT)
                 .in("cr.id", cursosCurricula);
 
         return all(sql);
@@ -72,6 +78,7 @@ public class RequisitoCursoCurriculaDAOH extends AbstractEasyDAO<RequisitoCursoC
         Octavia sql = Octavia.query()
                 .from(RequisitoCursoCurricula.class, "rcc")
                 .join("cursoCurricula cCur", "cursoRequisito cr", "cCur.curso cur", "cr.curso", "cCur.planCurricular plan")
+                .filter("estado", ACT)
                 .in("plan.id", planes);
 
         return all(sql);
