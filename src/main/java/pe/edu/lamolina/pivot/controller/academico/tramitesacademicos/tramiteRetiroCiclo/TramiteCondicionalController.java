@@ -211,7 +211,6 @@ public class TramiteCondicionalController {
 
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            service.createToken(ds);
             MatriculaResumen matriculaResumen = new MatriculaResumen();
             String token = "";
 
@@ -251,7 +250,6 @@ public class TramiteCondicionalController {
 
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            service.createToken(ds);
             service.evaluarEliminarMatriculable(tramite.getAlumno(), ds.getCicloAcademico(), ds);
 
             response.setSuccess(Boolean.TRUE);

@@ -56,10 +56,11 @@ import pe.edu.lamolina.model.enums.TipoOficinaEnum;
 import pe.edu.lamolina.model.finanzas.DeudaAlumno;
 import pe.edu.lamolina.model.general.Parametro;
 import pe.edu.lamolina.model.general.Persona;
+import pe.edu.lamolina.model.seguridad.TokenIngresante;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.controller.academico.alumno.AlumnoResumen;
 import pe.edu.lamolina.pivot.controller.academico.alumno.AlumnoService;
-import pe.edu.lamolina.pivot.controller.academico.tramitesacademicos.tramiteRetiroCiclo.ResponseRestService;
+import pe.edu.lamolina.pivot.controller.responserest.ResponseRestService;
 import pe.edu.lamolina.pivot.controller.seguridad.verificador.VerificadorService;
 import pe.edu.lamolina.pivot.controller.seguridad.verificador.VerificadorServiceImp;
 import pe.edu.lamolina.pivot.controller.visores.RespositorVisor;
@@ -861,12 +862,10 @@ public class MatriculableController {
     @RequestMapping("{idAlumno}/histrialPdf")
     public String goMaipi(@PathVariable("idAlumno") Long idAlumno, Model model, HttpSession session) throws InterruptedException {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-        Usuario usuario = ds.getUsuario();
-        serviceAlumno.goMaipi(idAlumno, usuario);
-        Parametro paramRutaMatricula = serviceAlumno.findParametroByEnum(ParametrosSistemasEnum.REST_INTRANET);
-        JsonResponse jsonResponse = responseRestService.downloadHistorial(new Alumno(idAlumno), usuario, ds.getCicloAcademico(), paramRutaMatricula);
-
-        Assert.isTrue(jsonResponse.getSuccess(), "Se produjo un error al modificar secciones matricula. Comuniquese con mesa de ayuda.");
+        TokenIngresante token = responseRestService.createTokenForAlumno(new Alumno(idAlumno), ds);
+        Parametro paramRutaMatricula = responseRestService.findParametro(ParametrosSistemasEnum.REST_INTRANET);
+        JsonResponse jsonResponse = responseRestService.downloadHistorial(new Alumno(idAlumno), ds.getCicloAcademico(), paramRutaMatricula, ds, token);
+        Assert.isTrue(jsonResponse.getSuccess(), jsonResponse.getMessage());
 
         return "redirect:/";
     }

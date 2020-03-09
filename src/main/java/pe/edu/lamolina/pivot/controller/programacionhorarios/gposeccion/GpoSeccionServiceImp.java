@@ -119,9 +119,10 @@ import pe.edu.lamolina.model.horario.HorarioAula;
 import pe.edu.lamolina.model.horario.HorarioSeccion;
 import pe.edu.lamolina.model.horario.TipoGrupoHoras;
 import pe.edu.lamolina.model.rrhh.ContratoDocente;
+import pe.edu.lamolina.model.seguridad.TokenIngresante;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.vacantes.VacanteAlumno;
-import pe.edu.lamolina.pivot.controller.academico.tramitesacademicos.tramiteRetiroCiclo.ResponseRestService;
+import pe.edu.lamolina.pivot.controller.responserest.ResponseRestService;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoEvaluacionDAO;
 import pe.edu.lamolina.pivot.dao.academico.CarreraDAO;
@@ -369,7 +370,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
                         x.getGrupoHoras().setCuotasGrupoHoras(cuotasGrupoHoras);
                     }
                 });
-        
+
         // Cuotas para grupos sin aula
         secciones.stream()
                 .filter(z -> z.getAula() == null)
@@ -1115,14 +1116,14 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         EstadoMatriculaEnum estadoRet = matriculados.isEmpty() ? EstadoMatriculaEnum.RAN : EstadoMatriculaEnum.RCA;
         for (MatriculaCurso matCurso : matriculasCurso) {
             if (matCurso.isEstadoMAT() || matCurso.isEstadoPMAT()) {
-                responseRestService.createToken(ds);
-                JsonResponse response = responseRestService.retirarMatriculaCurso(matCurso, ds, estadoRet);
+                TokenIngresante token = responseRestService.createToken(ds);
+                JsonResponse response = responseRestService.retirarMatriculaCurso(matCurso, ds, estadoRet, token);
                 Assert.isTrue(response.getSuccess(), response.getMessage());
             }
         }
 
-        responseRestService.createToken(ds);
-        JsonResponse response = responseRestService.ampliarVacante(seccionBD, -seccionBD.getVacantes(), ds);
+        TokenIngresante token = responseRestService.createToken(ds);
+        JsonResponse response = responseRestService.ampliarVacante(seccionBD, -seccionBD.getVacantes(), ds, token);
         Assert.isTrue(response.getSuccess(), response.getMessage());
 
         if (matriculasSeccionAll.isEmpty()) {
@@ -1303,14 +1304,14 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
         for (MatriculaCurso matCurso : matriculasCurso) {
             if (matCurso.isEstadoMAT() || matCurso.isEstadoPMAT()) {
-                responseRestService.createToken(ds);
-                JsonResponse response = responseRestService.retirarMatriculaCurso(matCurso, ds, EstadoMatriculaEnum.RCA);
+                TokenIngresante token = responseRestService.createToken(ds);
+                JsonResponse response = responseRestService.retirarMatriculaCurso(matCurso, ds, EstadoMatriculaEnum.RCA, token);
                 Assert.isTrue(response.getSuccess(), response.getMessage());
             }
         }
 
-        responseRestService.createToken(ds);
-        JsonResponse response = responseRestService.ampliarVacante(seccionBD, -seccionBD.getVacantes(), ds);
+        TokenIngresante token = responseRestService.createToken(ds);
+        JsonResponse response = responseRestService.ampliarVacante(seccionBD, -seccionBD.getVacantes(), ds, token);
         Assert.isTrue(response.getSuccess(), response.getMessage());
 
         horarioAulaDAO.deleteBySecciones(Arrays.asList(seccionBD));
@@ -1598,8 +1599,8 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             throw new PhobosException(String.format("Error. Las matriculas para la sección %s superan la cantidad de vacantes asignadas.", seccionForm.getCodigo2()));
         }
 
-        responseRestService.createToken(ds);
-        JsonResponse response = responseRestService.ampliarVacante(seccioDB, seccionForm.getVacantes() - seccioDB.getVacantes(), ds);
+        TokenIngresante token = responseRestService.createToken(ds);
+        JsonResponse response = responseRestService.ampliarVacante(seccioDB, seccionForm.getVacantes() - seccioDB.getVacantes(), ds, token);
         Assert.isTrue(response.getSuccess(), response.getMessage());
 
         this.actualizarBoletin();

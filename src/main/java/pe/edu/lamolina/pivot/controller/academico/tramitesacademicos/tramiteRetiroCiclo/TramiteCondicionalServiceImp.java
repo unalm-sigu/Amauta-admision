@@ -1,5 +1,6 @@
 package pe.edu.lamolina.pivot.controller.academico.tramitesacademicos.tramiteRetiroCiclo;
 
+import pe.edu.lamolina.pivot.controller.responserest.ResponseRestService;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -32,7 +33,6 @@ import pe.edu.lamolina.model.enums.CursoCurriculaEstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import pe.edu.lamolina.model.enums.EstadoTramiteEnum;
 import pe.edu.lamolina.model.enums.OrigenDataSituacionAcademicaEnum;
-import pe.edu.lamolina.model.enums.OrigenTokenEnum;
 import pe.edu.lamolina.model.enums.ResolucionEstadoEnum;
 import pe.edu.lamolina.model.enums.SituacionAcademicaEnum;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_1;
@@ -51,7 +51,6 @@ import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_TU;
 import pe.edu.lamolina.model.enums.TipoDocumentoCompaniaEnum;
 import pe.edu.lamolina.model.enums.TipoResolucionEnum;
 import pe.edu.lamolina.model.enums.TipoTramiteEnum;
-import pe.edu.lamolina.model.enums.TokenEstadoEnum;
 import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
 import pe.edu.lamolina.model.general.SerieDocumento;
 import pe.edu.lamolina.model.general.TipoDocumentoCompania;
@@ -86,7 +85,6 @@ import pe.edu.lamolina.pivot.dao.academico.MatriculaSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaSimultaneoDAO;
 import pe.edu.lamolina.pivot.dao.academico.SeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.TurnoAtencionDAO;
-import pe.edu.lamolina.pivot.dao.seguridad.TokenIngresanteDAO;
 import pe.edu.lamolina.pivot.dao.tramite.CambioNotaDAO;
 import pe.edu.lamolina.pivot.dao.tramite.EstadoTramiteDAO;
 import pe.edu.lamolina.pivot.dao.tramite.ReincorporacionDAO;
@@ -134,16 +132,15 @@ public class TramiteCondicionalServiceImp implements TramiteCondicionalService {
 
     @Autowired
     AlumnoDAO alumnoDAO;
+
     @Autowired
     TipoResolucionDAO tipoResolucionDAO;
+
     @Autowired
     ResolucionDAO resolucionDAO;
 
     @Autowired
     AlumnoCicloDAO alumnoCicloDAO;
-
-    @Autowired
-    TokenIngresanteDAO tokenIngresanteDAO;
 
     @Autowired
     AporteAlumnoService aporteAlumnoService;
@@ -345,9 +342,9 @@ public class TramiteCondicionalServiceImp implements TramiteCondicionalService {
             matriculaResumen = matriculaResumenDAO.findByAlumnoCiclo(alumno, cicloAcademico);
             if (matriculaResumen != null && !situaciones.contains(matriculaResumen.getAlumno().getSituacionAcademica().getCodigoEnum())) {
 
-                JsonResponse jsonResponse = responseRestService.retirarMatriculaCiclo(matriculaResumen, ds);
-
-                Assert.isTrue(jsonResponse.getSuccess(), "Se produjo un error al eliminar la matrícula. Comuniquese con mesa de ayuda.");
+                TokenIngresante token = responseRestService.createToken(ds);
+                JsonResponse jsonResponse = responseRestService.retirarMatriculaCiclo(matriculaResumen, ds, token);
+                Assert.isTrue(jsonResponse.getSuccess(), jsonResponse.getMessage());
 
                 matriculaResumen.setEstadoEnum(EstadoMatriculaEnum.INH);
                 matriculaResumenDAO.update(matriculaResumen);
@@ -395,22 +392,21 @@ public class TramiteCondicionalServiceImp implements TramiteCondicionalService {
         return alumnoDAO.allByName(nombre);
     }
 
-    @Override
-    @Transactional
-    public void createToken(DataSessionPivot ds) {
-        String valor = RandomStringUtils.randomAlphanumeric(45);
-        TokenIngresante token = new TokenIngresante();
-        token.setOrigenEnum(OrigenTokenEnum.AMAUTA);
-        token.setEstado(TokenEstadoEnum.ACT);
-        token.setFechaRegistro(new Date());
-        token.setFechaVencimiento(new DateTime().plusSeconds(15).toDate());
-        token.setPersona(ds.getPersona());
-        token.setValor(valor);
-        token.setUserRegistro(ds.getUsuario());
-        tokenIngresanteDAO.save(token);
-
-    }
-
+//    @Override
+//    @Transactional
+//    public void createToken(DataSessionPivot ds) {
+//        String valor = RandomStringUtils.randomAlphanumeric(45);
+//        TokenIngresante token = new TokenIngresante();
+//        token.setOrigenEnum(OrigenTokenEnum.AMAUTA);
+//        token.setEstado(TokenEstadoEnum.ACT);
+//        token.setFechaRegistro(new Date());
+//        token.setFechaVencimiento(new DateTime().plusSeconds(15).toDate());
+//        token.setPersona(ds.getPersona());
+//        token.setValor(valor);
+//        token.setUserRegistro(ds.getUsuario());
+//        tokenIngresanteDAO.save(token);
+//
+//    }
     @Override
     public List<TipoTramite> allTipoTramite() {
 
@@ -495,10 +491,9 @@ public class TramiteCondicionalServiceImp implements TramiteCondicionalService {
 
             matriculaResumen = matriculaResumenDAO.findByAlumnoCiclo(alumno, cicloAcademico);
             if (matriculaResumen != null) {
-
-                JsonResponse jsonResponse = responseRestService.retirarMatriculaCiclo(matriculaResumen, ds);
-
-                Assert.isTrue(jsonResponse.getSuccess(), "Se produjo un error al eliminar la matrícula. Comuniquese con mesa de ayuda.");
+                TokenIngresante token = responseRestService.createToken(ds);
+                JsonResponse jsonResponse = responseRestService.retirarMatriculaCiclo(matriculaResumen, ds, token);
+                Assert.isTrue(jsonResponse.getSuccess(), jsonResponse.getMessage());
 
                 matriculaResumen.setEstadoEnum(EstadoMatriculaEnum.INH);
                 matriculaResumenDAO.update(matriculaResumen);
@@ -576,47 +571,6 @@ public class TramiteCondicionalServiceImp implements TramiteCondicionalService {
         cambioNota.setFechaRegistro(new Date());
         cambioNota.setAceptado(Boolean.FALSE);
         cambioNotaDAO.save(cambioNota);
-
-//        MatriculaResumen matriculaResumen = matriculaResumenDAO.findByFilter(ciclo, alumno, EstadoMatriculaEnum.NMAT);
-//        if (matriculaResumen != null) {
-//
-//            if (ciclo.getFechaPrioridades() != null) {
-//                matriculaResumen.setMotivoMatriculable(tramite.getMotivoResolucion());
-//                matriculaResumen.setEsCondicional(true);
-//                matriculaResumen.setFechaCondicional(new Date());
-//
-//                AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findActivoRegularByCicloAlumno(alumno.getCicloActivoRegular(), alumno);
-//                matriculaResumen = matriculableConector.procesarPrioridadAlumno(matriculaResumen, alumnoCiclo);
-//
-//                MatriculaResumen matriculaAnt = matriculaResumenDAO.findByPuntajeMenor(matriculaResumen, ciclo, alumno.getCreditosAprobadosConvalidados() > CAPA_ULTIMO_CICLO ? true : false);
-//                MatriculaResumen matriculaDes = matriculaResumenDAO.findByPuntajeMayor(matriculaResumen, ciclo, alumno.getCreditosAprobadosConvalidados() > CAPA_ULTIMO_CICLO ? true : false);
-//                if (matriculaAnt != null && matriculaDes != null) {
-//
-//                    BigDecimal prioridad = matriculaAnt.getPrioridad().add(matriculaDes.getPrioridad()).divide(new BigDecimal(2));
-//                    matriculaResumen.setPrioridad(prioridad);
-//                    if (ciclo.getFechaTurnosAsignados() != null) {
-//                        EventoAcademicoEnum eventoEnum = ciclo.isTipoRegular() ? MAT_REG : MAT_VER;
-//                        TurnoAtencion turnoAlumno = turnoAtencionDAO.findById(matriculaResumen.getTurnoAtencion().getId());
-//                        TurnoAtencion turnosAtencion = turnoAtencionDAO.findByPrioridad(prioridad, ciclo, eventoEnum);
-//                        if (turnoAlumno.getId() != turnosAtencion.getId()) {
-//                            BigDecimal numPrioridad = turnosAtencion.getPrioridadFin().add(new BigDecimal("0.01"));
-//                            Integer cantAlum = turnosAtencion.getAlumnos() + 1;
-//                            turnosAtencion.setAlumnos(cantAlum);
-//                            turnosAtencion.setPrioridadFin(numPrioridad);
-//                            turnoAtencionDAO.update(turnosAtencion);
-//                        }
-//
-//                        matriculaResumen.setTurnoAtencion(turnosAtencion);
-//
-//                    }
-//                    matriculaResumenDAO.update(matriculaResumen);
-//                }
-//            }
-//
-//        } else {
-//            matriculableService.saveMatriculable(alumno, TipoCondicionalEnum.REI.name(), dx);
-//
-//        }
     }
 
     @Override
@@ -640,10 +594,9 @@ public class TramiteCondicionalServiceImp implements TramiteCondicionalService {
 
             matriculaResumen = matriculaResumenDAO.findByAlumnoCiclo(alumno, cicloAcademico);
             if (matriculaResumen != null && !situaciones.contains(matriculaResumen.getAlumno().getSituacionAcademica().getCodigoEnum())) {
-
-                JsonResponse jsonResponse = responseRestService.retirarMatriculaCiclo(matriculaResumen, ds);
-
-                Assert.isTrue(jsonResponse.getSuccess(), "Se produjo un error al eliminar la matrícula. Comuniquese con mesa de ayuda.");
+                TokenIngresante token = responseRestService.createToken(ds);
+                JsonResponse jsonResponse = responseRestService.retirarMatriculaCiclo(matriculaResumen, ds, token);
+                Assert.isTrue(jsonResponse.getSuccess(), jsonResponse.getMessage());
 
                 matriculaResumen.setEstadoEnum(EstadoMatriculaEnum.INH);
                 matriculaResumenDAO.update(matriculaResumen);
@@ -722,10 +675,9 @@ public class TramiteCondicionalServiceImp implements TramiteCondicionalService {
         if (!situaciones.contains(alumno.getSituacionAcademica().getCodigoEnum())) {
             MatriculaResumen matriculaResumen = matriculaResumenDAO.findByAlumnoCiclo(alumno, cicloAcademico);
             if (matriculaResumen != null) {
-
-                JsonResponse jsonResponse = responseRestService.retirarMatriculaCiclo(matriculaResumen, ds);
-
-                Assert.isTrue(jsonResponse.getSuccess(), "Se produjo un error al eliminar la matrícula. Comuniquese con mesa de ayuda.");
+                TokenIngresante token = responseRestService.createToken(ds);
+                JsonResponse jsonResponse = responseRestService.retirarMatriculaCiclo(matriculaResumen, ds, token);
+                Assert.isTrue(jsonResponse.getSuccess(), jsonResponse.getMessage());
 
                 matriculaResumenDAO.delete(matriculaResumen);
             }

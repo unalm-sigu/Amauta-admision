@@ -16,12 +16,12 @@
                         </button>
                         <ul class="dropdown-menu">
                             <li class="pointer " v-if="ciclo.fechaVerificaNmat == null"><a v-on:click="revisar" >Verificar alumnos NMAT</a></li>
-                            <li  class="pointer " v-if="ciclo.fechaVerificaNmat != null &amp;&amp; ciclo.fechaMatriculables == null" ><a  v-on:click="generarMatriculables" >Generar</a></li>
-                            <li  class="pointer " v-if="ciclo.fechaMatriculables != null &amp;&amp; ciclo.fechaCierreMatriculable == null"><a  v-on:click="limpiarMatriculables" >Limpiar matriculable</a></li>
-                            <li  class="pointer " v-if="ciclo.fechaMatriculables != null &amp;&amp; ciclo.fechaCierreMatriculable == null"><a  v-on:click="finalizarMatriculable" >Finalizar matriculable</a></li>
-                            <li  class="pointer "><a  v-on:click="modal">Agregar Matriculable</a></li>
-                            <li  class="pointer " v-if="ciclo.fechaPrioridades == null &amp;&amp; ciclo.fechaCierrePrioridades==null &amp;&amp; ciclo.fechaCierreMatriculable != null" ><a v-on:click="generarPrioridad">Procesar Prioridad</a></li>
-                            <li  class="pointer " v-if="ciclo.fechaPrioridades != null &amp;&amp; ciclo.fechaCierrePrioridades==null" ><a v-on:click="eliminarPrioridad">Limpiar Prioridades</a></li>
+                            <li class="pointer " v-if="ciclo.fechaVerificaNmat != null &amp;&amp; ciclo.fechaMatriculables == null" ><a  v-on:click="generarMatriculables" >Generar</a></li>
+                            <li class="pointer " v-if="ciclo.fechaMatriculables != null &amp;&amp; ciclo.fechaCierreMatriculable == null"><a  v-on:click="limpiarMatriculables" >Limpiar matriculable</a></li>
+                            <li class="pointer " v-if="ciclo.fechaMatriculables != null &amp;&amp; ciclo.fechaCierreMatriculable == null"><a  v-on:click="finalizarMatriculable" >Finalizar matriculable</a></li>
+                            <li class="pointer "><a  v-on:click="verAddMatriculable">Agregar Matriculable</a></li>
+                            <li class="pointer " v-if="ciclo.fechaPrioridades == null &amp;&amp; ciclo.fechaCierrePrioridades==null &amp;&amp; ciclo.fechaCierreMatriculable != null" ><a v-on:click="generarPrioridad">Procesar Prioridad</a></li>
+                            <li class="pointer " v-if="ciclo.fechaPrioridades != null &amp;&amp; ciclo.fechaCierrePrioridades==null" ><a v-on:click="eliminarPrioridad">Limpiar Prioridades</a></li>
                             <li class="pointer " v-if="ciclo.fechaPrioridades != null &amp;&amp; ciclo.fechaCierrePrioridades==null" ><a v-on:click="finalizarPrioridad">Finalizar Prioridades</a></li>
                             <li class="pointer " v-if="ciclo.fechaCierrePrioridades != null " ><a v-on:click="findConfiguraciones">Asignar Turnos</a></li>
                             <li class="pointer " ><a id="subirEgresado">Subir Egresados</a></li>
@@ -236,6 +236,7 @@
                 var cicloJson = /*[[${ciclo.toString()}]]*/ 'json';
                 var resumenJson = /*[[${resumen.toString()}]]*/ 'json';
                 var tipoCondicionalJson = /*[[${tipoCondicional.toString()}]]*/ 'json';
+                var rutaModulo = 'academico/matriculable';
                 /*]]>*/
             </script>
             <div th:substituteby="_modules/vue-modal"></div>
