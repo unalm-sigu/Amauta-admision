@@ -1501,16 +1501,6 @@ public class ProgDataServiceImp implements ProgDataService {
         Map<String, List<Seccion>> mapSeccionesPCurBD = new LinkedHashMap();
         Map<String, Seccion> mapSeccionesTCurBD = new LinkedHashMap();
 
-        //Collections.sort(secciones, new Seccion.CompareCodigo2());
-//        for (Seccion seccion : secciones) {
-//            System.out.print("seccion.codigo3=" + seccion.getCodigo3());
-//            System.out.print(" ::: seccion.codigo=" + seccion.getCodigo());
-//            System.out.println("::: seccion.codigo2=" + seccion.getCodigo2());
-//        }
-//
-//        if (1 == 1) {
-//            throw new PhobosException("2342-2345-234-52-345-234-52");
-//        }
         int loop = 0;
         for (Seccion seccion : secciones) {
             GrupoSeccion gpoSecc = mapGpoSecciones.get(seccion.getCodigoGrupoSeccion());

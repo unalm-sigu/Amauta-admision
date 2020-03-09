@@ -18,6 +18,7 @@ import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.albatross.zelpers.miscelanea.math.Fraxtion;
+import pe.edu.lamolina.model.academico.AnexoBoletin;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.CursoCicloAcademico;
@@ -141,9 +142,7 @@ public class PrecioSeccionServiceImp implements PrecioSeccionService {
     @Override
     @Transactional
     public void asignarHorasAdicionales(Seccion seccionForm, DataSessionPivot ds) {
-        Seccion seccion = seccionDAO.find(seccionForm);
-        seccion.setHorasAdicionales(seccionForm.getHorasAdicionales());
-        seccionDAO.update(seccion);
+        seccionDAO.updateColumns(seccionForm, "horasAdicionales");
     }
 
     @Override
@@ -154,10 +153,8 @@ public class PrecioSeccionServiceImp implements PrecioSeccionService {
     @Override
     @Transactional
     public void saveTipoCarpetaSeccion(Seccion seccionForm, DataSessionPivot ds) {
-        Seccion seccion = seccionDAO.find(seccionForm);
         ObjectUtil.eliminarAttrSinId(seccionForm, "tipoCarpeta");
-        seccion.setTipoCarpeta(seccionForm.getTipoCarpeta());
-        seccionDAO.update(seccion);
+        seccionDAO.updateColumns(seccionForm, "tipoCarpeta");
     }
 
     @Override
@@ -197,8 +194,7 @@ public class PrecioSeccionServiceImp implements PrecioSeccionService {
         }
 
         if (tipoCarpeta != null && seccion.getTipoCarpeta() == null) {
-            seccion.setTipoCarpeta(tipoCarpeta);
-            seccionDAO.update(seccion);
+            seccionDAO.updateColumns(seccionForm, "tipoCarpeta");
         }
 
         return tipoCarpeta;
@@ -240,29 +236,15 @@ public class PrecioSeccionServiceImp implements PrecioSeccionService {
 
     private void regenerarFechas(GrupoSeccion grupoSeccion) {
 
-        ModalidadEstudio modalidadEstudio = (ModalidadEstudio) ObjectUtil.getParentTree(grupoSeccion, "curso.modalidadEstudio");
-
-        if (modalidadEstudio == null) {
-            return;
-        }
-
-        List<String> modalidadPregrado = new ArrayList();
-        modalidadPregrado.add(ModalidadEstudioEnum.PRE.name());
-        modalidadPregrado.add(ModalidadEstudioEnum.ESP.name());
-        modalidadPregrado.add(ModalidadEstudioEnum.VIS.name());
-
         CicloAcademico cicloAcademico = grupoSeccion.getCicloAcademico();
+        AnexoBoletin anxSup = grupoSeccion.getAnexoBoletin().getAnexoSuperior();
 
-        EventoCicloAcademico eventoCicloAcademico = null;
+        EventoCicloAcademico eventoCicloAcademico;
 
-        if (modalidadPregrado.contains(modalidadEstudio.getCodigo())) {
-            eventoCicloAcademico = eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(cicloAcademico, EventoAcademicoEnum.CLASES_PRE);
-        } else if (ModalidadEstudioEnum.EPG.name().equalsIgnoreCase(modalidadEstudio.getCodigo())) {
+        if (anxSup.isAnexoCursosPostgrado()) {
             eventoCicloAcademico = eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(cicloAcademico, EventoAcademicoEnum.CLASES_EPG);
-        }
-
-        if (eventoCicloAcademico == null) {
-            return;
+        } else {
+            eventoCicloAcademico = eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(cicloAcademico, EventoAcademicoEnum.CLASES_PRE);
         }
 
         List<HorarioSeccion> horariosSeccions = horarioSeccionDAO.allByGrupoSeccion(grupoSeccion);
@@ -290,17 +272,6 @@ public class PrecioSeccionServiceImp implements PrecioSeccionService {
             }
             docentesSecciones.add(docenteSeccion);
             docentesSeccionMap.put(key, docentesSecciones);
-        }
-
-        for (DocenteSeccion docenteSeccione : docenteSecciones) {
-
-            Seccion seccion = docenteSeccione.getSeccion();
-            List<DocenteSeccion> docs = docentesSeccionMap.get(seccion.getId());
-            if (docs != null && docs.size() > 0) {
-                seccion.setSituacionDocente(SituacionDocenteEnum.ERR.name());
-                seccionDAO.update(seccion);
-            }
-
         }
 
         List<Seccion> secciones = seccionDAO.allActivosByGpoSeccion(grupoSeccion);
@@ -356,16 +327,7 @@ public class PrecioSeccionServiceImp implements PrecioSeccionService {
             docentesSecciones.add(docenteSeccion);
             docentesSeccionMap.put(key, docentesSecciones);
         }
-        /*
-        for (DocenteSeccion docenteSeccione : docenteSecciones) {
-            Seccion seccion = docenteSeccione.getSeccion();
-            List<DocenteSeccion> docs = docentesSeccionMap.get(seccion.getId());
-            if (docs != null && docs.size() > 0) {
-                seccion.setSituacionDocente(SituacionDocenteEnum.ERR.name());
-                seccionDAO.update(seccion);
-            }
-        }
-         */
+
         List<Seccion> secciones = seccionDAO.allActivosByGpoSeccion(grupoSeccion);
 
         Map<Long, Aula> aulasMAp = TypesUtil.convertListToMap("aula.id", "aula", secciones);

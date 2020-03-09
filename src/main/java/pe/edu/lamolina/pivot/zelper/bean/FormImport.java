@@ -5,6 +5,7 @@ public class FormImport {
     Long idUsuario;
     Long idAlumno;
     Long idOrientacion;
+    String token;
 
     public Long getIdAlumno() {
         return idAlumno;
@@ -24,6 +25,14 @@ public class FormImport {
 
     public void setIdUsuario(Long idUsuario) {
         this.idUsuario = idUsuario;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
     }
 
 }

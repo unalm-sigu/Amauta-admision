@@ -35,13 +35,17 @@ import pe.edu.lamolina.model.academico.OrientacionCarrera;
 import pe.edu.lamolina.model.academico.PlanCurricular;
 import pe.edu.lamolina.model.academico.RequisitoCursoCurricula;
 import pe.edu.lamolina.model.aporte.BoletaIngresante;
+import pe.edu.lamolina.model.enums.ParametrosSistemasEnum;
 import static pe.edu.lamolina.model.enums.TipoCicloEnum.REG;
 import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
+import pe.edu.lamolina.model.general.Parametro;
 import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.horario.HorarioSeccion;
+import pe.edu.lamolina.model.seguridad.TokenIngresante;
 import pe.edu.lamolina.model.tramite.RetiroCiclo;
 import pe.edu.lamolina.model.tramite.RetiroCurso;
 import pe.edu.lamolina.pivot.controller.academico.plancurricular.PlanCurricularService;
+import pe.edu.lamolina.pivot.controller.responserest.ResponseRestService;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -56,6 +60,9 @@ public class InfoAcademicoController {
 
     @Autowired
     PlanCurricularService planCurricularService;
+
+    @Autowired
+    ResponseRestService responseRestService;
 
     @ResponseBody
     @RequestMapping("{idAlumno}/avance")
@@ -578,12 +585,13 @@ public class InfoAcademicoController {
     public JsonResponse getToken(Model model, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            String token = service.getToken();
-            String url = service.getUrl();
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            TokenIngresante token = responseRestService.createToken(ds);
+            Parametro param = responseRestService.findParametro(ParametrosSistemasEnum.REST_INTRANET);
 
             ObjectNode objectNode = new ObjectNode(JsonNodeFactory.instance);
-            objectNode.put("token", token);
-            objectNode.put("url", url);
+            objectNode.put("token", token.getValor());
+            objectNode.put("url", param.getValor());
             response.setData(objectNode);
             response.setSuccess(Boolean.TRUE);
 

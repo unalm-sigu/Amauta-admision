@@ -12,7 +12,6 @@ import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.OrientacionCarrera;
 import pe.edu.lamolina.model.academico.PlanCurricular;
 import pe.edu.lamolina.model.aporte.BoletaIngresante;
-import pe.edu.lamolina.model.enums.TipoCicloEnum;
 import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.horario.HorarioSeccion;
 import pe.edu.lamolina.model.tramite.RetiroCiclo;
@@ -71,8 +70,7 @@ public interface InfoAcademicoService {
 
     Alumno aplicarRetiroCiclo(RetiroCiclo retiro, DataSessionPivot ds);
 
-    public String getToken();
-
-    public String getUrl();
+//     String getToken();
+//    String getUrl();
 
 }

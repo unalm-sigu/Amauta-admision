@@ -55,10 +55,6 @@ public interface AlumnoService {
 
     List<Carrera> allCarrerasByuser(Usuario usuario, Persona persona);
 
-    Parametro findParametroByEnum(ParametrosSistemasEnum parametrosSistemasEnum);
-
-    String goMatricula(Long idAlumno, Usuario usuario);
-
     List<AlumnoCursoCurricula> allCursosByAlumno(Alumno alumno, DynatableFilter filter);
 
     List<CursoCicloAcademico> allCursoCiclo(String nombre, CicloAcademico cicloAcademico);
@@ -82,8 +78,6 @@ public interface AlumnoService {
     void saveAccesoEspecial(AccesoEspecialBean accesoEspecialBean);
 
     Usuario findUsuarioByPersona(Persona persona);
-
-    TokenIngresante goMaipi(Long idAlumno, Usuario usuario);
 
     List<AlumnoCursoCurricula> allAlumnoCursoByalumno(Alumno alumno, DynatableFilter filter);
 

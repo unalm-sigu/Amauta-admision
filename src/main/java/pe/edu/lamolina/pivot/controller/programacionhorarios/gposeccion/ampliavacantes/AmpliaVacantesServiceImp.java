@@ -17,7 +17,8 @@ import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Colaborador;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.general.Persona;
-import pe.edu.lamolina.pivot.controller.academico.tramitesacademicos.tramiteRetiroCiclo.ResponseRestService;
+import pe.edu.lamolina.model.seguridad.TokenIngresante;
+import pe.edu.lamolina.pivot.controller.responserest.ResponseRestService;
 import pe.edu.lamolina.pivot.controller.general.oficina.OficinaService;
 import pe.edu.lamolina.pivot.dao.academico.SeccionDAO;
 import pe.edu.lamolina.pivot.dao.general.ColaboradorDAO;
@@ -165,8 +166,8 @@ public class AmpliaVacantesServiceImp implements AmpliaVacantesService {
     }
 
     private void rest(Seccion seccion, Integer variacion, DataSessionPivot ds) {
-        responseRestService.createToken(ds);
-        JsonResponse jsonResponse = responseRestService.ampliarVacante(seccion, variacion, ds);
+        TokenIngresante token = responseRestService.createToken(ds);
+        JsonResponse jsonResponse = responseRestService.ampliarVacante(seccion, variacion, ds, token);
         Assert.isTrue(jsonResponse.getSuccess(), jsonResponse.getMessage());
     }
 
