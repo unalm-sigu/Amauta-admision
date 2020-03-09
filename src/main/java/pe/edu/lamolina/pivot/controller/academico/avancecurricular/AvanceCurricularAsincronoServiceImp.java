@@ -686,12 +686,12 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
     }
 
     private void saveAlumnoCursoCurricula(
-            List<AlumnoCursoCurricula> alumnoCursosCurriculaNew,
+            List<AlumnoCursoCurricula> alumnoCursosCurricula,
             Map<Long, AlumnoCursoCurricula> mapAluCursoCurriculaOld, Map<Long, List<CursoEquivalente>> mapEquivalentesCurricula, boolean showLogger) {
 
-        Map<Long, AlumnoCursoCurricula> mapAlumnoCursoCurriculaNew = TypesUtil.convertListToMap("cursoCurricula.id", alumnoCursosCurriculaNew);
+        Map<Long, AlumnoCursoCurricula> mapAlumnoCursoCurriculaNew = TypesUtil.convertListToMap("cursoCurricula.id", alumnoCursosCurricula);
 
-        for (AlumnoCursoCurricula aluCursoCurriculaNew : alumnoCursosCurriculaNew) {
+        for (AlumnoCursoCurricula aluCursoCurriculaNew : alumnoCursosCurricula ){
             Curso curso = aluCursoCurriculaNew.getCurso();
             this.printLogger("\t.save.curso:" + curso.getCodigo() + " estado=" + aluCursoCurriculaNew.getEstado(), showLogger);
 
