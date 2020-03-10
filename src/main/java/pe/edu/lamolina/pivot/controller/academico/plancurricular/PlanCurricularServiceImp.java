@@ -754,6 +754,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
             requisito.setCursoOpcional(cursoOpcional);
             requisito.setUserRegistro(ds.getUsuario());
             requisito.setFechaRegistro(new Date());
+            requisito.setEstado(ACT.name());
         }
 
         cursoOpcional.setUserRegistro(ds.getUsuario());
@@ -789,6 +790,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
 
             nuevo.setSimultaneo(nuevo.getSimultaneo() == null ? 0 : 1);
             nuevo.setCursoOpcional(cursoOpcional);
+            nuevo.setEstado(ACT.name());
             nuevo.setFechaRegistro(new Date());
             nuevo.setUserRegistro(ds.getUsuario());
             requisitoCursoOpcionalDAO.save(nuevo);
