@@ -258,7 +258,6 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
         Integer credAcumAllElect = 0;
         Integer credAcumELCyELE = 0;
 
-        aluCursosCurriculaNew.addAll(aluCursosElectivosNew);
         Collections.sort(aluCursosCurriculaNew, new AlumnoCursoCurricula.CompareCreditos());
         Collections.sort(aluCursosCurriculaNew, new AlumnoCursoCurricula.CompareOrdenTipoCurr());
 
@@ -269,7 +268,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
             if (aluCursoCurricula.getEstadoRegistroEnum() == INA) {
                 continue;
             }
-            
+
             if (aluCursoCurricula.getVecesCursado() == 0) {
                 String key = aluCursoCurricula.getAlumno().getId() + "-" + aluCursoCurricula.getCurso().getId();
                 AlumnoCicloCurso cat = mapCursosVecesLlevado.get(key);
@@ -661,7 +660,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
         this.printLogger("cursosSimultaneosAlu.size.1=" + cursosSimultaneosAlu.size(), showLogger);
         validarCursosSimultaneo(mapAlumCursoCurrByCursoCurri, cursosSimultaneosAlu, mapRequisitosCurricula, ds, showLogger);
         this.printLogger("cursosSimultaneosAlu.size.2=" + cursosSimultaneosAlu.size(), showLogger);
-
+        alumnoCursosCurriculaNew.addAll(alumnoCursosElectivosNew);
         this.saveAlumnoCursoCurricula(alumnoCursosCurriculaNew, mapAluCursoCurriculaOld, mapEquivalentesCurricula, showLogger);
 
         for (AlumnoCursoCurricula alumnoCursoCurricula : alumnoCursoOld) {
@@ -722,6 +721,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
 
                 if (aproboCaduco) {
                     aluCursoCurriculaNew.setEstadoRegistroEnum(INA);
+                    this.printLogger("\t.nosave.curso:" + curso.getCodigo() + " estado=" + aluCursoCurriculaNew.getEstado(), showLogger);
                     continue;
                 }
             }
