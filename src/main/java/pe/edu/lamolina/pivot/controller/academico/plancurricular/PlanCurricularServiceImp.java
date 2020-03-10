@@ -451,6 +451,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
             requisito.setCursoCurricula(cursoCurricula);
             requisito.setUserRegistro(ds.getUsuario());
             requisito.setFechaRegistro(new Date());
+            requisito.setEstado(ACT.name());
         }
 
         cursoCurricula.setNumeroCurso(nroCurso);
@@ -514,6 +515,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
             nuevo.setCursoCurricula(cursoCurricula);
             nuevo.setFechaRegistro(new Date());
             nuevo.setUserRegistro(ds.getUsuario());
+            nuevo.setEstado(ACT.name());
             requisitoCursoCurriculaDAO.save(nuevo);
         }
 
