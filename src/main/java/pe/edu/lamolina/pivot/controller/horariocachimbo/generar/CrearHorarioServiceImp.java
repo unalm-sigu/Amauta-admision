@@ -190,46 +190,46 @@ public class CrearHorarioServiceImp implements CrearHorarioService {
 
         Alumno alumno = alumnoHorario.getAlumno();
 
-        List<VacanteAlumno> vacanteAlumnos = vacanteAlumnosMap.get(seccion.getId());
-
-        if (vacanteAlumnos == null) {
-            vacanteAlumnos = new ArrayList();
-        }
-
-        if (vacanteAlumnos.isEmpty()) {
-            for (int i = 0; i < seccion.getVacantes(); i++) {
-                int conteo = (i + 1);
-                VacanteAlumno vacanteAlumno = new VacanteAlumno();
-                vacanteAlumno.setEstado(AlumnoVacanteEstadoEnum.LIBE.name());
-                vacanteAlumno.setNumero(conteo);
-                vacanteAlumno.setSeccion(seccion);
-                vacanteAlumno.setActivo(1);
-                vacanteAlumno.setUserRegistro(ds.getUsuario());
-                vacanteAlumno.setFechaRegistro(new Date());
-                if (conteo == 1) {
-                    vacanteAlumno.setAlumno(alumno);
-                    vacanteAlumno.setEstado(AlumnoVacanteEstadoEnum.RESV.name());
-                }
-                vacanteAlumnoDAO.save(vacanteAlumno);
-                vacanteAlumnos.add(vacanteAlumno);
-            }
-        } else {
-            Collections.sort(vacanteAlumnos, new VacanteAlumno.CompareOrden());
-            Iterator<VacanteAlumno> vacanteIterator = vacanteAlumnos.iterator();
-            while (vacanteIterator.hasNext()) {
-                VacanteAlumno vacanteAlumno = vacanteIterator.next();
-                if (AlumnoVacanteEstadoEnum.LIBE.name().equals(vacanteAlumno.getEstado())) {
-                    vacanteAlumno.setAlumno(alumno);
-                    vacanteAlumno.setEstado(AlumnoVacanteEstadoEnum.RESV.name());
-                    vacanteAlumnoDAO.update(vacanteAlumno);
-                    break;
-                }
-            }
-        }
-
-        vacanteAlumnosMap.put(seccion.getId(), vacanteAlumnos);
+//        List<VacanteAlumno> vacanteAlumnos = vacanteAlumnosMap.get(seccion.getId());
+//
+//        if (vacanteAlumnos == null) {
+//            vacanteAlumnos = new ArrayList();
+//        }
+//
+//        if (vacanteAlumnos.isEmpty()) {
+//            for (int i = 0; i < seccion.getVacantes(); i++) {
+//                int conteo = (i + 1);
+//                VacanteAlumno vacanteAlumno = new VacanteAlumno();
+//                vacanteAlumno.setEstado(AlumnoVacanteEstadoEnum.LIBE.name());
+//                vacanteAlumno.setNumero(conteo);
+//                vacanteAlumno.setSeccion(seccion);
+//                vacanteAlumno.setActivo(1);
+//                vacanteAlumno.setUserRegistro(ds.getUsuario());
+//                vacanteAlumno.setFechaRegistro(new Date());
+//                if (conteo == 1) {
+//                    vacanteAlumno.setAlumno(alumno);
+//                    vacanteAlumno.setEstado(AlumnoVacanteEstadoEnum.RESV.name());
+//                }
+//                vacanteAlumnoDAO.save(vacanteAlumno);
+//                vacanteAlumnos.add(vacanteAlumno);
+//            }
+//        } else {
+//            Collections.sort(vacanteAlumnos, new VacanteAlumno.CompareOrden());
+//            Iterator<VacanteAlumno> vacanteIterator = vacanteAlumnos.iterator();
+//            while (vacanteIterator.hasNext()) {
+//                VacanteAlumno vacanteAlumno = vacanteIterator.next();
+//                if (AlumnoVacanteEstadoEnum.LIBE.name().equals(vacanteAlumno.getEstado())) {
+//                    vacanteAlumno.setAlumno(alumno);
+//                    vacanteAlumno.setEstado(AlumnoVacanteEstadoEnum.RESV.name());
+//                    vacanteAlumnoDAO.update(vacanteAlumno);
+//                    break;
+//                }
+//            }
+//        }
+//
+//        vacanteAlumnosMap.put(seccion.getId(), vacanteAlumnos);
         seccion.setReservados(seccion.getReservados() + 1);
-        logger.debug("Aumentando la cantidad de reservados {} de la seccion {}", seccion.getReservados(), seccion.getId());
+        logger.debug("Aumentando la cantidad de reservados {} de la seccion {} disponibles {}", seccion.getReservados(), seccion.getId(),seccion.getDisponiblesCachimbos());
         seccionDAO.update(seccion);
     }
 
