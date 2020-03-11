@@ -33,8 +33,10 @@ import pe.edu.lamolina.model.enums.MenuTipoEnum;
 import pe.edu.lamolina.model.enums.RolEnum;
 import pe.edu.lamolina.model.seguridad.Menu;
 import pe.edu.lamolina.model.seguridad.Rol;
+import pe.edu.lamolina.model.seguridad.TokenIngresante;
 import pe.edu.lamolina.pivot.config.DespliegueConfig;
 import pe.edu.lamolina.pivot.controller.academico.ciclo.CicloAcademicoService;
+import pe.edu.lamolina.pivot.controller.restcontroller.RestPivotService;
 import pe.edu.lamolina.pivot.controller.seguridad.menu.VisorMenu;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -48,6 +50,8 @@ public class OAuthController {
     CicloAcademicoService cicloAcademicoService;
     @Autowired
     VisorMenu visorMenu;
+    @Autowired
+    RestPivotService service;
     @Autowired
     DespliegueConfig despliegueConfig;
 
@@ -275,5 +279,28 @@ public class OAuthController {
         CicloAcademico cicloAcademico = cicloAcademicoService.getCicloAcademico(ciclo);
         ds.setCicloAcademico(cicloAcademico);
         session.setAttribute(Constantine.SESSION_USUARIO, ds);
+    }
+
+    @RequestMapping("teentitansgo/{idUsuario}/{token}")
+    public String teentitansgo(@PathVariable("idUsuario") Long idUsuario, @PathVariable("token") String token, HttpSession session, HttpServletRequest servlet) {
+        try {
+
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            if (ds != null) {
+                session.removeAttribute(Constantine.SESSION_USUARIO);
+            }
+
+            TokenIngresante tokenIngresante = service.findToken(token, idUsuario);
+            serviceProvider.loginManually(tokenIngresante.getPersona().getEmailCompania(), session, servlet);
+            ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            serviceProvider.createLogJson(ds, session);
+
+            return "redirect:/route66";
+        } catch (PhobosException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "redirect:/";
     }
 }
