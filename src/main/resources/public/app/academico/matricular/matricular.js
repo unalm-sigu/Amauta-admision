@@ -69,8 +69,8 @@ new Vue({
                 data: {id: turno},
                 success: function (response) {
                     if (response.success) {
-                     
-                        notify(response.message, "Se actualizó satisfactoriamente");
+
+                        notify("Se actualizó satisfactoriamente", "success");
                     } else {
                         notify(response.message, "error");
                     }
