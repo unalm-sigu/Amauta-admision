@@ -179,4 +179,6 @@ public interface NotaAcademicaService {
 
     MatriculaCurso findByCursoResumen(MatriculaResumen matriculaResumen, Curso curso);
 
+    public String reenviarNotas(GrupoSeccion grupoSeccion, DataSessionPivot ds);
+
 }

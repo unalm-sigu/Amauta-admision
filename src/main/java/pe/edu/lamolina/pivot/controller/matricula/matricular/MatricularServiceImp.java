@@ -260,9 +260,9 @@ public class MatricularServiceImp implements MatricularService {
         TurnoAtencion lastTurnoAtencionByConfig = turnoAtencionDAO.findLastByConfiguracion(turnoAtencion.getConfiguracionTurnosAtencion());
         if (lastTurnoAtencionByConfig.getId().compareTo(turnoAtencion.getId()) == 0) {
             logger.debug("Este turno es el ultimo de su configuracion");
-            cicloAcademico.setFechaTurnosAsignados(null);
-            cicloAcademico.setFechaTurnosDisponibles(null);
-            cicloAcademicoDAO.updateFechasTurnosAignadosDisponibles(cicloAcademico);
+//            cicloAcademico.setFechaTurnosAsignados(null);
+//            cicloAcademico.setFechaTurnosDisponibles(null);
+//            cicloAcademicoDAO.updateFechasTurnosAignadosDisponibles(cicloAcademico);
         }
         t2 = System.currentTimeMillis();
         logger.debug("cicloAcademicoDAO.updateFechasTurnosAignadosDisponibles en {} mseg", (t2 - t1));
