@@ -794,6 +794,7 @@ public class MatricularServiceImp implements MatricularService {
     }
 
     @Override
+    @Transactional
     public void blequeoMatricula(CicloAcademico cicloAcademico) {
         cicloAcademico = cicloAcademicoDAO.find(cicloAcademico);
 
