@@ -69,8 +69,8 @@ new Vue({
                 data: {id: turno},
                 success: function (response) {
                     if (response.success) {
-                        vue.alumnosPrematriculados = response.data.alumnosPrematriculados;
-                        vue.seccionesPrematriculados = response.data.seccionesPrematriculados;
+                     
+                        notify(response.message, "Se actualizó satisfactoriamente");
                     } else {
                         notify(response.message, "error");
                     }
