@@ -14,4 +14,6 @@ public interface MatricularService {
 
     void matricular(TurnoAtencion turnoAtencion, DataSessionPivot ds);
 
+    public void blequeoMatricula(CicloAcademico cicloAcademico);
+
 }

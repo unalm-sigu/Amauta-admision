@@ -793,4 +793,30 @@ public class MatricularServiceImp implements MatricularService {
         messagingTemplate.convertAndSendToUser(usuario.getGoogle(), "/monitoreo/notify", notify);
     }
 
+    @Override
+    public void blequeoMatricula(CicloAcademico cicloAcademico) {
+        cicloAcademico = cicloAcademicoDAO.find(cicloAcademico);
+
+        if (cicloAcademico.getVerMatricula()) {
+
+            cicloAcademico.setVerMatricula(Boolean.FALSE);
+
+            List<MatriculaCurso> matriculaCursos = matriculaCursoDAO.allPrematriculadoByCiclo(cicloAcademico);
+            for (MatriculaCurso matriculaCurso : matriculaCursos) {
+                matriculaCurso.setOcultoMaipi(1);
+                matriculaCursoDAO.updateColumns(matriculaCurso, "ocultoMaipi");
+            }
+
+        } else {
+            cicloAcademico.setVerMatricula(Boolean.TRUE);
+
+            List<MatriculaCurso> matriculaCursos = matriculaCursoDAO.allByOcultoMaipi(cicloAcademico);
+            for (MatriculaCurso matriculaCurso : matriculaCursos) {
+                matriculaCurso.setOcultoMaipi(0);
+                matriculaCursoDAO.updateColumns(matriculaCurso, "ocultoMaipi");
+            }
+        }
+        cicloAcademicoDAO.updateColumns(cicloAcademico, "verMatricula");
+    }
+
 }

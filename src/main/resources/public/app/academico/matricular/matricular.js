@@ -21,7 +21,8 @@ new Vue({
             currentSeccion: 0,
             perSeccion: 0,
             totalSeccion: 0,
-        }
+        },
+        blockMat: false
     },
     created() {
         let vue = this;
@@ -34,14 +35,14 @@ new Vue({
         let vue = this;
     },
     watch: {
-        countdown: function(newVal, oldVal) {
+        countdown: function (newVal, oldVal) {
             let vue = this;
             if (newVal === -1) {
                 vue.play();
                 clearInterval(vue.myCountDown);
             }
         },
-        logs: function() {
+        logs: function () {
             let vue = this;
             if (vue.logs.length > 10) {
                 vue.observaciones = vue.logs.slice(vue.minimo, vue.minimo + vue.limite);
@@ -49,7 +50,7 @@ new Vue({
                 vue.observaciones = vue.logs;
             }
         },
-        minimo: function() {
+        minimo: function () {
             let vue = this;
             if (vue.logs.length > 10) {
                 vue.observaciones = vue.logs.slice(vue.minimo, vue.minimo + vue.limite);
@@ -59,7 +60,27 @@ new Vue({
         }
     },
     methods: {
-        on: function() {
+        block() {
+            let vue = this;
+            $.ajax({
+                url: APP.url('academico/matricular/blequeoMatricula'),
+                type: 'POST',
+                async: true,
+                data: {id: turno},
+                success: function (response) {
+                    if (response.success) {
+                        vue.alumnosPrematriculados = response.data.alumnosPrematriculados;
+                        vue.seccionesPrematriculados = response.data.seccionesPrematriculados;
+                    } else {
+                        notify(response.message, "error");
+                    }
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+        },
+        on: function () {
             let vue = this;
             swal({
                 title: "¿Seguro que desea iniciar el proceso de asignación de vacantes?",
@@ -75,7 +96,7 @@ new Vue({
                 }
             });
         },
-        stop: function() {
+        stop: function () {
             let vue = this;
             vue.initProceso = true;
             vue.onProceso = false;
@@ -84,7 +105,7 @@ new Vue({
             clearInterval(vue.myCountDown);
             vue.myCountDown = null;
         },
-        play: function() {
+        play: function () {
             let vue = this;
             vue.initProceso = false;
             vue.onProceso = false;
@@ -94,7 +115,7 @@ new Vue({
                 type: 'POST',
                 async: true,
                 data: {id: turno},
-                success: function(response) {
+                success: function (response) {
                     if (response.success) {
                         vue.updateProceso = true;
                         notify(response.message, "info");
@@ -103,14 +124,14 @@ new Vue({
                         notify(response.message, "error");
                     }
                 },
-                error: function() {
+                error: function () {
                     vue.stop();
                     notify(MESSAGES.errorComunicacion, "error");
                 }
             });
             vue.tracer();
         },
-        update: function() {
+        update: function () {
             let vue = this;
             vue.stop();
             vue.fydata = {
@@ -123,13 +144,13 @@ new Vue({
             };
             vue.getInitData();
         },
-        tracer: function() {
+        tracer: function () {
             let vue = this;
             var socket = new SockJS('/wsconnect');
             stompClient = Stomp.over(socket);
             stompClient.debug = null;
-            stompClient.connect({}, function(frame) {
-                stompClient.subscribe('/user/monitoreo/notify', function(notification) {
+            stompClient.connect({}, function (frame) {
+                stompClient.subscribe('/user/monitoreo/notify', function (notification) {
                     var ntfy = JSON.parse(notification.body);
                     vue.fydata = ntfy;
                     if (!ntfy.state) {
@@ -138,22 +159,22 @@ new Vue({
                 });
             });
         },
-        count: function() {
+        count: function () {
             let vue = this;
             vue.myCountDown = null;
             vue.countdown = 10;
-            vue.myCountDown = window.setInterval(function() {
+            vue.myCountDown = window.setInterval(function () {
                 vue.countdown--;
             }, 1000);
         },
-        getInitData: function() {
+        getInitData: function () {
             let vue = this;
             $.ajax({
                 url: APP.url('academico/matricular/detalle'),
                 type: 'POST',
                 async: true,
                 data: {id: turno},
-                success: function(response) {
+                success: function (response) {
                     if (response.success) {
                         vue.alumnosPrematriculados = response.data.alumnosPrematriculados;
                         vue.seccionesPrematriculados = response.data.seccionesPrematriculados;
@@ -161,12 +182,12 @@ new Vue({
                         notify(response.message, "error");
                     }
                 },
-                error: function() {
+                error: function () {
                     notify(MESSAGES.errorComunicacion, "error");
                 }
             });
         },
-        topLog: function() {
+        topLog: function () {
             console.log('topLog');
             let vue = this;
             vue.minimo;
@@ -176,7 +197,7 @@ new Vue({
             vue.minimo--;
             console.log(vue.minimo);
         },
-        downLog: function() {
+        downLog: function () {
             console.log('downLog');
             let vue = this;
             if (vue.observaciones <= 0) {
