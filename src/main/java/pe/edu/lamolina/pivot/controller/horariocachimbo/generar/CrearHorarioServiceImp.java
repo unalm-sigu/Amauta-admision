@@ -229,7 +229,7 @@ public class CrearHorarioServiceImp implements CrearHorarioService {
 //
 //        vacanteAlumnosMap.put(seccion.getId(), vacanteAlumnos);
         seccion.setReservados(seccion.getReservados() + 1);
-        logger.debug("Aumentando la cantidad de reservados {} de la seccion {} disponibles {}", seccion.getReservados(), seccion.getId(),seccion.getDisponiblesCachimbos());
+        //logger.debug("Aumentando la cantidad de reservados {} de la seccion {} disponibles {}", seccion.getReservados(), seccion.getId(),seccion.getDisponiblesCachimbos());
         seccionDAO.update(seccion);
     }
 

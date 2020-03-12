@@ -510,7 +510,8 @@ public class HorarioCachimboGenerarServiceImp implements HorarioCachimboGenerarS
                             hhh += seccion.getCodigo2();
                         }
                         hhh += "]";
-                        logger.debug("horario previo de {} es {}", alumno.getAlumno().getCodigo(), hhh);
+                        System.out.println(alumno.getAlumno().getCodigo() + ": previo:" + hhh);
+                        //logger.debug("horario previo de {} es {}", alumno.getAlumno().getCodigo(), hhh);
                     }
 
                     long t10 = System.currentTimeMillis();
@@ -524,13 +525,14 @@ public class HorarioCachimboGenerarServiceImp implements HorarioCachimboGenerarS
                             long t20 = System.currentTimeMillis();
                             if (t20 - t10 > 5000) {
                                 alumnoCarr.remove(alumno);
-                                logger.debug("Ya no existen combinaciones de secciones que puedan crear un horario para {}", carrera.getCodigo());
+                                System.out.println(carrera.getCodigo() + ": NO-HAY-COMBINACIONES");
+                                //logger.debug("Ya no existen combinaciones de secciones que puedan crear un horario para {}", carrera.getCodigo());
                                 break BUCLE_CARRERA;
                             }
                         }
                     }
                     mapOrdenBusqueda.put(ordenKey, ordenKey);
-                    logger.debug("Buscando en: {}", ordenKey);
+                    //logger.debug("Buscando en: {}", ordenKey);
 
                     permutarUnico(1, 1, cursos, mapSeccionesCarrera, mapHorasDias, horarioTempo, horariosTotal, mapSeccionesAlumno, mapCursosAlumno, carrera);
                     for (Seccion seccion : horarioTempo) {
@@ -548,10 +550,11 @@ public class HorarioCachimboGenerarServiceImp implements HorarioCachimboGenerarS
                     if (busquedas > 10) {
                         long t2 = System.currentTimeMillis();
                         if (t2 - t1 > 2000) {
-                            logger.info("No se pudo ubicar horario para el alumno {} carrera {} ", alumno.getAlumno().getCodigo(), carrera.getCodigo());
+                            System.out.println(alumno.getAlumno().getCodigo() + ":SIN-HOR carrera:" + carrera.getCodigo());
+                            //logger.info("No se pudo ubicar horario para el alumno {} carrera {} ", alumno.getAlumno().getCodigo(), carrera.getCodigo());
                             break;
                         }
-                        logger.info("Se sigue buscando horario para el alumno {} carrera {} ", alumno.getAlumno().getCodigo(), carrera.getCodigo());
+                        //logger.info("Se sigue buscando horario para el alumno {} carrera {} ", alumno.getAlumno().getCodigo(), carrera.getCodigo());
                     }
                 }
 
@@ -563,7 +566,8 @@ public class HorarioCachimboGenerarServiceImp implements HorarioCachimboGenerarS
                             hhh += seccion.getCodigo2();
                         }
                         hhh += "]";
-                        logger.debug("horario final de {} es {}", alumno.getAlumno().getCodigo(), hhh);
+                        System.out.println(alumno.getAlumno().getCodigo() + ": final:" + hhh);
+                        //logger.debug("horario final de {} es {}", alumno.getAlumno().getCodigo(), hhh);
                     }
                     crearHorarioService.saveHorario(alumno, cursos, horarioTempo, carrera, ciclo, mapHorario, mapCarreraCachimbos, vacanteAlumnosMap, code, ds);
                 }
@@ -651,7 +655,8 @@ public class HorarioCachimboGenerarServiceImp implements HorarioCachimboGenerarS
                 Integer vac = getVacanteMinima(horarioTempo);
                 if (vac > 0) {
                     horariosCarrera.add(horarioTempo);
-                    logger.debug("\tHorario Final {} vacantes: {}", vac, getHorarioString(horarioTempo));
+                    System.out.println("vac:" + vac + " / hor-final:" + getHorarioString(horarioTempo));
+                    //logger.debug("\tHorario Final {} vacantes: {}", vac, getHorarioString(horarioTempo));
                     return;
                 }
             }
