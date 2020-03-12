@@ -3,6 +3,8 @@ package pe.edu.lamolina.pivot.controller.horariocachimbo.generar;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -425,7 +427,6 @@ public class HorarioCachimboGenerarServiceImp implements HorarioCachimboGenerarS
         for (SeccionHorarioCachimbos seccHorarioCachimbo : seccionesHorariosBD) {
             Seccion seccion = mapSeccionMain.get(seccHorarioCachimbo.getSeccion().getId());
             seccHorarioCachimbo.setSeccion(seccion);
-
         }
 
         Map<Long, List<SeccionHorarioCachimbos>> mapSeccionHorario = TypesUtil.convertListToMapList("horarioCachimbos.id", seccionesHorariosBD);
@@ -436,11 +437,12 @@ public class HorarioCachimboGenerarServiceImp implements HorarioCachimboGenerarS
         }
 
         Map<Long, List<Seccion>> mapAlumnoSecciones = TypesUtil.convertListToMapList("matriculaResumen.alumno.id", "seccion", matriculadosSecciones);
-        //Map<Long, List<Seccion>> mapAlumnoCursos = TypesUtil.convertListToMapList("matriculaResumen.alumno.id", "seccion.grupoSeccion.curso", matriculadosSecciones);
-
         Map<String, String> mapOrdenBusqueda = new LinkedHashMap();
-
         Map<String, HorarioCachimbos> mapHorario = mappingHorarios(horariosBD);
+
+        Map<Long, Map<String, String>> mapFallidosCarrera = new HashMap();
+        Map<Long, Map<String, HorarioExitoso>> mapExitososCarreras = new HashMap();
+
         for (;;) {
             boolean noHayAlumnos = true;
             BUCLE_CARRERA:
@@ -459,9 +461,9 @@ public class HorarioCachimboGenerarServiceImp implements HorarioCachimboGenerarS
                     continue;
                 }
 
-                AlumnoHorario alumno = alumnoCarr.get(0);
-                if (alumno.getHorarioCachimbos() != null) {
-                    alumnoCarr.remove(alumno);
+                AlumnoHorario aluHorario = alumnoCarr.get(0);
+                if (aluHorario.getHorarioCachimbos() != null) {
+                    alumnoCarr.remove(aluHorario);
                     continue;
                 }
 
@@ -479,7 +481,7 @@ public class HorarioCachimboGenerarServiceImp implements HorarioCachimboGenerarS
                 Map<Long, Seccion> mapSeccionesAlumno;
                 Map<Long, Curso> mapCursosAlumno;
 
-                List<Seccion> seccionesAlumno = mapAlumnoSecciones.get(alumno.getId());
+                List<Seccion> seccionesAlumno = mapAlumnoSecciones.get(aluHorario.getId());
                 seccionesAlumno = (seccionesAlumno == null) ? new ArrayList() : seccionesAlumno;
 
                 int busquedas = 0;
@@ -488,11 +490,12 @@ public class HorarioCachimboGenerarServiceImp implements HorarioCachimboGenerarS
 
                 for (;;) {
                     busquedas++;
-                    mapHorasDias = new LinkedHashMap();
+                    mapHorasDias = new HashMap();
                     horarioTempo = new ArrayList();
-                    mapCursos = new LinkedHashMap();
-                    mapSeccionesAlumno = new LinkedHashMap();
-                    mapCursosAlumno = new LinkedHashMap();
+                    mapCursos = new HashMap();
+                    mapSeccionesAlumno = new HashMap();
+                    mapCursosAlumno = new HashMap();
+                    boolean sinMatriculaPrevia = true;
 
                     for (Seccion seccion : seccionesAlumno) {
                         mapSeccionesAlumno.put(seccion.getId(), seccion);
@@ -504,13 +507,14 @@ public class HorarioCachimboGenerarServiceImp implements HorarioCachimboGenerarS
                     }
 
                     if (!horarioTempo.isEmpty()) {
+                        sinMatriculaPrevia = false;
                         String hhh = "[";
                         for (Seccion seccion : horarioTempo) {
                             hhh += hhh.equals("[") ? "" : "-";
                             hhh += seccion.getCodigo2();
                         }
                         hhh += "]";
-                        System.out.println(alumno.getAlumno().getCodigo() + ": previo:" + hhh);
+                        System.out.println(aluHorario.getAlumno().getCodigo() + ": horario-matriculado:" + hhh);
                         //logger.debug("horario previo de {} es {}", alumno.getAlumno().getCodigo(), hhh);
                     }
 
@@ -524,7 +528,7 @@ public class HorarioCachimboGenerarServiceImp implements HorarioCachimboGenerarS
                             }
                             long t20 = System.currentTimeMillis();
                             if (t20 - t10 > 5000) {
-                                alumnoCarr.remove(alumno);
+                                alumnoCarr.remove(aluHorario);
                                 System.out.println(carrera.getCodigo() + ": NO-HAY-COMBINACIONES");
                                 //logger.debug("Ya no existen combinaciones de secciones que puedan crear un horario para {}", carrera.getCodigo());
                                 break BUCLE_CARRERA;
@@ -533,8 +537,13 @@ public class HorarioCachimboGenerarServiceImp implements HorarioCachimboGenerarS
                     }
                     mapOrdenBusqueda.put(ordenKey, ordenKey);
                     //logger.debug("Buscando en: {}", ordenKey);
+                    Map<String, String> mapFallidos = mapFallidosCarrera.get(carrera.getId());
+                    if (mapFallidos == null) {
+                        mapFallidos = new HashMap();
+                        mapFallidosCarrera.put(carrera.getId(), mapFallidos);
+                    }
 
-                    permutarUnico(1, 1, cursos, mapSeccionesCarrera, mapHorasDias, horarioTempo, horariosTotal, mapSeccionesAlumno, mapCursosAlumno, carrera);
+                    permutarUnico(1, 1, cursos, mapSeccionesCarrera, mapHorasDias, mapFallidos, horarioTempo, horariosTotal, mapSeccionesAlumno, mapCursosAlumno, carrera, true);
                     for (Seccion seccion : horarioTempo) {
                         Curso curso = seccion.getGrupoSeccion().getCurso();
                         Curso cursoAntes = mapCursosAlumno.get(curso.getId());
@@ -545,12 +554,22 @@ public class HorarioCachimboGenerarServiceImp implements HorarioCachimboGenerarS
                     //if (cursos.size() == mapCursos.size()) {
                     if (cursosExisten(cursos, mapCursos)) {
                         conHorario = true;
+                    }
+
+                    if (sinMatriculaPrevia && conHorario) {
+                        conHorario = saveHorarioExitoso(carrera, horarioTempo, mapExitososCarreras, mapFallidos);
+                    } else if (sinMatriculaPrevia && !conHorario) {
+                        conHorario = getHorarioExitoso(carrera, horarioTempo, mapExitososCarreras, mapFallidos);
+                    }
+
+                    if (conHorario) {
                         break;
                     }
+
                     if (busquedas > 10) {
                         long t2 = System.currentTimeMillis();
                         if (t2 - t1 > 2000) {
-                            System.out.println(alumno.getAlumno().getCodigo() + ":SIN-HOR carrera:" + carrera.getCodigo());
+                            System.out.println(aluHorario.getAlumno().getCodigo() + ":SIN-HOR carrera:" + carrera.getCodigo());
                             //logger.info("No se pudo ubicar horario para el alumno {} carrera {} ", alumno.getAlumno().getCodigo(), carrera.getCodigo());
                             break;
                         }
@@ -559,25 +578,103 @@ public class HorarioCachimboGenerarServiceImp implements HorarioCachimboGenerarS
                 }
 
                 if (conHorario && !horarioTempo.isEmpty()) {
-                    if (!horarioTempo.isEmpty()) {
+                    {
                         String hhh = "[";
                         for (Seccion seccion : horarioTempo) {
                             hhh += hhh.equals("[") ? "" : "-";
                             hhh += seccion.getCodigo2();
                         }
                         hhh += "]";
-                        System.out.println(alumno.getAlumno().getCodigo() + ": final:" + hhh);
+                        System.out.println(aluHorario.getAlumno().getCodigo() + ": final:" + hhh);
                         //logger.debug("horario final de {} es {}", alumno.getAlumno().getCodigo(), hhh);
                     }
-                    crearHorarioService.saveHorario(alumno, cursos, horarioTempo, carrera, ciclo, mapHorario, mapCarreraCachimbos, vacanteAlumnosMap, code, ds);
+                    crearHorarioService.saveHorario(aluHorario, cursos, horarioTempo, carrera, ciclo, mapHorario, mapCarreraCachimbos, vacanteAlumnosMap, code, ds);
                 }
 
-                alumnoCarr.remove(alumno);
+                alumnoCarr.remove(aluHorario);
             }
             if (noHayAlumnos) {
                 break;
             }
         }
+
+        crearHorarioService.saveHorarioFallido(mapFallidosCarrera, carreras, ciclo, ds);
+
+        for (Carrera carrera : carreras) {
+            Map<String, String> mapFallidos = mapFallidosCarrera.get(carrera.getId());
+            if (mapFallidos == null) {
+                continue;
+            }
+
+            System.out.println("horarios fallidos " + carrera.getCodigo());
+            Iterator<Map.Entry<String, String>> iterator = mapFallidos.entrySet().iterator();
+            while (iterator.hasNext()) {
+                Map.Entry<String, String> entry = iterator.next();
+                System.out.println(" Falla=" + entry.getValue() + " :::: " + entry.getKey());
+            }
+        }
+
+    }
+
+    private boolean getHorarioExitoso(Carrera carrera, List<Seccion> horario, Map<Long, Map<String, HorarioExitoso>> mapExitososCarreras, Map<String, String> mapFallidos) {
+        Map<String, HorarioExitoso> mapExitoso = mapExitososCarreras.get(carrera.getId());
+        if (mapExitoso == null) {
+            //System.out.println(carrera.getCodigo() + " No existe horarios-exitosos aun");
+            return false;
+        }
+
+        //String trama = "";
+        for (Map.Entry<String, HorarioExitoso> entry : mapExitoso.entrySet()) {
+            HorarioExitoso exitoso = entry.getValue();
+            if (hayVacantes(exitoso.getHorario())) {
+                horario.clear();
+                List<Seccion> secciones = exitoso.getHorario();
+                horario.addAll(secciones);
+                exitoso.setConsumidos(exitoso.getConsumidos() + 1);
+                System.out.println(carrera.getCodigo() + " Consumo exitoso: vac=" + exitoso.getDisponibles() + " horario=" + entry.getKey());
+                return true;
+            }
+            String key = entry.getKey();
+            String existe = mapFallidos.get(key);
+            if (existe == null) {
+                mapFallidos.put(key, "NVAC");
+            }
+            //trama += "\n\t" + entry.getKey();
+        }
+        //System.out.println(carrera.getCodigo() + " Horarios-exitosos sin disponibles");
+        return false;
+    }
+
+    private boolean saveHorarioExitoso(Carrera carrera, List<Seccion> horario, Map<Long, Map<String, HorarioExitoso>> mapExitososCarreras, Map<String, String> mapFallidos) {
+        Integer vac = getVacanteMinima(horario);
+        Collections.sort(horario, new Seccion.CompareCodigo2());
+        String key = getSecciones(horario);
+        Map<String, HorarioExitoso> mapExitoso = mapExitososCarreras.get(carrera.getId());
+
+        if (mapExitoso == null) {
+            mapExitoso = new HashMap();
+            HorarioExitoso exitoso = new HorarioExitoso(horario, vac, 1);
+            mapExitoso.put(key, exitoso);
+            mapExitososCarreras.put(carrera.getId(), mapExitoso);
+            System.out.println(carrera.getCodigo() + " Exitoso: vac=" + vac + " horario=" + key);
+            return true;
+        }
+
+        HorarioExitoso exitoso = mapExitoso.get(key);
+        if (exitoso == null) {
+            exitoso = new HorarioExitoso(horario, vac, 1);
+            mapExitoso.put(key, exitoso);
+            System.out.println(carrera.getCodigo() + " Exitoso: vac=" + vac + " horario=" + key);
+            return true;
+        }
+
+        if (hayVacantes(exitoso.getHorario())) {
+            exitoso.setConsumidos(exitoso.getConsumidos() + 1);
+            System.out.println(carrera.getCodigo() + " Exitoso: vac=" + exitoso.getDisponibles() + " horario=" + key);
+            return true;
+        }
+        mapFallidos.put(key, "NVAC");
+        return false;
     }
 
     private boolean cursosExisten(List<Curso> cursos, Map<Long, Curso> mapCursos) {
@@ -612,18 +709,25 @@ public class HorarioCachimboGenerarServiceImp implements HorarioCachimboGenerarS
         return mapSecciones;
     }
 
-    @Override
-    @Transactional
-    public void permutarUnico(
-            int ordenCurso, int ordenSeccion,
-            List<Curso> cursos, Map<Long, List<Seccion>> mapSecciones,
-            Map<String, String> mapHorasDias, List<Seccion> horarioTempo, List<List<Seccion>> horariosCarrera,
-            Map<Long, Seccion> mapSeccionesAlumno, Map<Long, Curso> mapCursosAlumno, Carrera carrera) {
+    //@Override
+    //@Transactional
+    private void permutarUnico(
+            int ordenCurso,
+            int ordenSeccion,
+            List<Curso> cursos,
+            Map<Long, List<Seccion>> mapSecciones,
+            Map<String, String> mapHorasDias,
+            Map<String, String> mapFallidos,
+            List<Seccion> horarioTempo,
+            List<List<Seccion>> horariosCarrera,
+            Map<Long, Seccion> mapSeccionesAlumno,
+            Map<Long, Curso> mapCursosAlumno,
+            Carrera carrera, boolean showLog) {
 
         Curso curso = getCursoOrden(cursos, ordenCurso);
         Curso cursoAntes = mapCursosAlumno.get(curso.getId());
         if (cursoAntes != null) {
-            permutarUnico(ordenCurso + 1, 1, cursos, mapSecciones, mapHorasDias, horarioTempo, horariosCarrera, mapSeccionesAlumno, mapCursosAlumno, carrera);
+            permutarUnico(ordenCurso + 1, 1, cursos, mapSecciones, mapHorasDias, mapFallidos, horarioTempo, horariosCarrera, mapSeccionesAlumno, mapCursosAlumno, carrera, showLog);
             return;
         }
 
@@ -632,6 +736,9 @@ public class HorarioCachimboGenerarServiceImp implements HorarioCachimboGenerarS
 
         List<Seccion> seccionesOrden = allSeccionByOrden(seccionesCurso, ordenSeccion);
         if (seccionesOrden.isEmpty()) {
+            return;
+        }
+        if (isFallido(seccionesOrden, horarioTempo, mapFallidos)) {
             return;
         }
 
@@ -646,7 +753,7 @@ public class HorarioCachimboGenerarServiceImp implements HorarioCachimboGenerarS
             }
             if (ordenCurso < cursos.size()) {
                 int inicio = horariosCarrera.size();
-                permutarUnico(ordenCurso + 1, 1, cursos, mapSecciones, mapHorasDias, horarioTempo, horariosCarrera, mapSeccionesAlumno, mapCursosAlumno, carrera);
+                permutarUnico(ordenCurso + 1, 1, cursos, mapSecciones, mapHorasDias, mapFallidos, horarioTempo, horariosCarrera, mapSeccionesAlumno, mapCursosAlumno, carrera, showLog);
                 int fin = horariosCarrera.size();
                 if (inicio != fin) {
                     return;
@@ -655,9 +762,16 @@ public class HorarioCachimboGenerarServiceImp implements HorarioCachimboGenerarS
                 Integer vac = getVacanteMinima(horarioTempo);
                 if (vac > 0) {
                     horariosCarrera.add(horarioTempo);
-                    System.out.println("vac:" + vac + " / hor-final:" + getHorarioString(horarioTempo));
+                    if (showLog) {
+                        System.out.println("vac:" + vac + " / hor-final:" + getHorarioString(horarioTempo));
+                    }
                     //logger.debug("\tHorario Final {} vacantes: {}", vac, getHorarioString(horarioTempo));
                     return;
+                }
+                if (showLog) {
+                    System.out.println(carrera.getCodigo()
+                            + " / falla:VAC-MIN"
+                            + " / hor-falla:" + getHorarioString(horarioTempo));
                 }
             }
 
@@ -665,12 +779,87 @@ public class HorarioCachimboGenerarServiceImp implements HorarioCachimboGenerarS
                 horarioTempo.remove(seccion);
             }
             removeHoraDiaSecciones(mapHorasDias, seccionesOrden, mapSeccionesAlumno);
+
+        } else {
+            if (showLog) {
+                System.out.println(carrera.getCodigo()
+                        + " / candidatos:" + getSecciones(seccionesOrden)
+                        + " / falla:" + getFalla(sinCruceHorario, hayVacantes, noTieneRestricc)
+                        + " / hor-previo:" + getHorarioString(horarioTempo));
+            }
+            saveFallido(seccionesOrden, horarioTempo, mapFallidos, getFalla(sinCruceHorario, hayVacantes, noTieneRestricc), !sinCruceHorario);
         }
 
         ordenSeccion++;
         if (ordenSeccion <= maxSecciones) {
-            permutarUnico(ordenCurso, ordenSeccion, cursos, mapSecciones, mapHorasDias, horarioTempo, horariosCarrera, mapSeccionesAlumno, mapCursosAlumno, carrera);
+            permutarUnico(ordenCurso, ordenSeccion, cursos, mapSecciones, mapHorasDias, mapFallidos, horarioTempo, horariosCarrera, mapSeccionesAlumno, mapCursosAlumno, carrera, showLog);
         }
+    }
+
+    private void saveFallido(List<Seccion> candidatos, List<Seccion> horarioPrevio, Map<String, String> mapFallidos, String falla, boolean hayCruce) {
+        List<Seccion> horarioTest = new ArrayList();
+        horarioTest.addAll(candidatos);
+        horarioTest.addAll(horarioPrevio);
+        Collections.sort(horarioTest, new Seccion.CompareCodigo2());
+        String test = getSecciones(horarioTest);
+
+        if (hayCruce) {
+            mapFallidos.put(test, falla + " => " + getCrucesSecciones(candidatos, horarioPrevio));
+        } else {
+            mapFallidos.put(test, falla);
+        }
+    }
+
+    private String getCrucesSecciones(List<Seccion> candidatos, List<Seccion> horarioPrevio) {
+        Map<String, String> mapCruces = new HashMap();
+        for (Seccion seccCandidato : candidatos) {
+            List<HorarioSeccion> horarioSecc = seccCandidato.getHorarioSeccion();
+            Map<String, String> mapHoraDia = TypesUtil.convertListToMap("horaDia", "horaDia", horarioSecc);
+            for (Seccion seccPrev : horarioPrevio) {
+                List<HorarioSeccion> horarioSeccPrevLista = seccPrev.getHorarioSeccion();
+                for (HorarioSeccion horarioSeccPrev : horarioSeccPrevLista) {
+                    String existe = mapHoraDia.get(horarioSeccPrev.getHoraDia());
+                    if (existe != null) {
+                        mapCruces.put(seccCandidato.getCodigo2() + ":" + seccPrev.getCodigo2(), existe);
+                    }
+                }
+            }
+        }
+
+        String cruces = "";
+        for (Map.Entry<String, String> entry : mapCruces.entrySet()) {
+            cruces += cruces.equals("") ? "" : " / ";
+            cruces += entry.getKey() + "->" + entry.getValue();
+        }
+        return cruces;
+    }
+
+    private boolean isFallido(List<Seccion> candidatos, List<Seccion> horarioPrevio, Map<String, String> mapFallidos) {
+        List<Seccion> horarioTest = new ArrayList();
+        horarioTest.addAll(candidatos);
+        horarioTest.addAll(horarioPrevio);
+        Collections.sort(horarioTest, new Seccion.CompareCodigo2());
+        String test = getSecciones(horarioTest);
+
+        String existe = mapFallidos.get(test);
+        return existe != null;
+    }
+
+    private String getSecciones(List<Seccion> secciones) {
+        String lista = "";
+        for (Seccion secc : secciones) {
+            lista += lista.equals("") ? "" : ",";
+            lista += secc.getCodigo2();
+        }
+        return "[" + lista + "]";
+    }
+
+    private String getFalla(boolean sinCruceHorario, boolean hayVacantes, boolean noTieneRestricc) {
+        String falla = "";
+        falla += (sinCruceHorario) ? "" : "CRU";
+        falla += (hayVacantes) ? "" : ((falla.equals("") ? "" : "-") + "NVAC");
+        falla += (noTieneRestricc) ? "" : ((falla.equals("") ? "" : "-") + "REST");
+        return falla;
     }
 
     private boolean noTieneRestricciones(List<Seccion> secciones, Carrera carrera) {
@@ -735,13 +924,7 @@ public class HorarioCachimboGenerarServiceImp implements HorarioCachimboGenerarS
         Integer vac = 1000;
         for (Seccion seccion : horarioTempo) {
             Integer vacSecc = seccion.getVacantes();
-            Integer matSecc = 0; //seccion.getMatriculados();
-            if (vacSecc == null) {
-                vacSecc = 0;
-            }
-            if (matSecc == null) {
-                matSecc = 0;
-            }
+            Integer matSecc = seccion.getMatriculados() + seccion.getReservados();
             vac = ((vacSecc - matSecc) < vac) ? (vacSecc - matSecc) : vac;
         }
         return vac;
@@ -751,7 +934,7 @@ public class HorarioCachimboGenerarServiceImp implements HorarioCachimboGenerarS
         String horario = "[";
         for (Seccion seccion : horarioTempo) {
             horario += horario.equals("[") ? "" : ",";
-            horario += seccion.getCodigo();
+            horario += seccion.getCodigo2();
         }
         horario += "]";
         return horario;
@@ -796,11 +979,22 @@ public class HorarioCachimboGenerarServiceImp implements HorarioCachimboGenerarS
             for (HorarioSeccion horaDia : horasDias) {
                 String horaDiaMapeada = mapHorasDias.get(horaDia.getHoraDia());
                 if (horaDiaMapeada != null) {
+                    //System.out.println("\tCRUCE:" + seccion.getCodigo2() + " / " + horaDia.getHoraDia() + " / " + getListarHoraDia(mapHorasDias));
                     return false;
                 }
             }
         }
         return true;
+    }
+
+    private String getListarHoraDia(Map<String, String> mapHorasDias) {
+        String hdiaString = "";
+        List<String> hdias = new ArrayList(mapHorasDias.values());
+        for (String hdia : hdias) {
+            hdiaString += hdiaString.equals("") ? "" : ":";
+            hdiaString += hdia;
+        }
+        return "[" + hdiaString + "]";
     }
 
     private Integer cantPermutaSeccion(List<Seccion> secciones) {

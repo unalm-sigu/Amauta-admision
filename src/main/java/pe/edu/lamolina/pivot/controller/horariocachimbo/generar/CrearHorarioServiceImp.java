@@ -24,6 +24,7 @@ import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.AlumnoVacanteEstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoAlumnoHorarioEnum;
 import pe.edu.lamolina.model.horario.HorarioCachimbos;
+import pe.edu.lamolina.model.horario.HorarioFallido;
 import pe.edu.lamolina.model.horario.SeccionHorarioCachimbos;
 import pe.edu.lamolina.model.vacantes.VacanteAlumno;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoHorarioDAO;
@@ -31,6 +32,7 @@ import pe.edu.lamolina.pivot.dao.academico.CarreraCachimbosDAO;
 import pe.edu.lamolina.pivot.dao.academico.CarreraDAO;
 import pe.edu.lamolina.pivot.dao.academico.SeccionDAO;
 import pe.edu.lamolina.pivot.dao.horario.HorarioCachimbosDAO;
+import pe.edu.lamolina.pivot.dao.horario.HorarioFallidoDAO;
 import pe.edu.lamolina.pivot.dao.horario.SeccionHorarioCachimbosDAO;
 import pe.edu.lamolina.pivot.dao.vacante.VacanteAlumnoDAO;
 import pe.edu.lamolina.pivot.zelper.misc.Acumulador;
@@ -42,48 +44,34 @@ public class CrearHorarioServiceImp implements CrearHorarioService {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-//    @Autowired
-//    CursoCachimbosDAO cursoCachimbosDAO;
+    @Autowired
+    AlumnoHorarioDAO alumnoHorarioDAO;
+
+    @Autowired
+    CarreraDAO carreraDAO;
+
+    @Autowired
+    CarreraCachimbosDAO carreraCachimbosDAO;
+
     @Autowired
     HorarioCachimbosDAO horarioCachimbosDAO;
 
     @Autowired
-    AlumnoHorarioDAO alumnoHorarioDAO;
-    @Autowired
-    CarreraDAO carreraDAO;
+    HorarioFallidoDAO horarioFallidoDAO;
 
-//    @Autowired
-//    CursoDAO cursoDAO;
-//    @Autowired
-//    DiaDAO diaDAO;
-//    @Autowired
-//    HoraDAO horaDAO;
-//    @Autowired
-//    HorarioSeccionDAO horarioSeccionDAO;
-    @Autowired
-    SeccionHorarioCachimbosDAO seccionHorarioCachimbosDAO;
-
-//    @Autowired
-//    ModalidadEstudioDAO modalidadEstudioDAO;
     @Autowired
     SeccionDAO seccionDAO;
 
-//    @Autowired
-//    SeccionCursoCachimbosDAO seccionCursoCachimbosDAO;
     @Autowired
-    CarreraCachimbosDAO carreraCachimbosDAO;
+    SeccionHorarioCachimbosDAO seccionHorarioCachimbosDAO;
 
-//    @Autowired
-//    GrupoSeccionDAO grupoSeccionDAO;
-//    @Autowired
-//    DocenteSeccionDAO docenteSeccionDAO;
     @Autowired
     VacanteAlumnoDAO vacanteAlumnoDAO;
 
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void saveHorario(
-            AlumnoHorario alumno,
+            AlumnoHorario aluHorario,
             List<Curso> cursos,
             List<Seccion> horarioTempo,
             Carrera carrera,
@@ -92,24 +80,23 @@ public class CrearHorarioServiceImp implements CrearHorarioService {
             Map<Long, CarreraCachimbos> mapCarreraCachimbos,
             Map<Long, List<VacanteAlumno>> vacanteAlumnosMap,
             Acumulador code, DataSessionPivot ds) {
-        
+
         HorarioCachimbos horario = createHorario(horarioTempo, carrera, ciclo, cursos.size(), mapHorario, code, ds);
-        //HorarioCachimbos horario = createHorario(horarioTempo, carrera, ciclo, cursos.size(), mapHorario, code, ds);
         horario.setSuscritos(horario.getSuscritos() + 1);
-        alumno.setHorarioCachimbos(horario);
-        alumno.setEstado(EstadoAlumnoHorarioEnum.CHOR);
+        aluHorario.setHorarioCachimbos(horario);
+        aluHorario.setEstado(EstadoAlumnoHorarioEnum.CHOR);
         CarreraCachimbos cc = mapCarreraCachimbos.get(carrera.getId());
         cc.setConHorario(cc.getConHorario() + 1);
         cc.setSinHorario(cc.getSinHorario() - 1);
-        
-        alumnoHorarioDAO.update(alumno);
+
+        alumnoHorarioDAO.update(aluHorario);
         carreraCachimbosDAO.update(cc);
 
         List<SeccionHorarioCachimbos> seccHorCachimbos = horario.getSeccionHorarioCachimbos();
         for (SeccionHorarioCachimbos seccHorCachimbo : seccHorCachimbos) {
             Seccion secc = seccHorCachimbo.getSeccion();
 //                        secc.setReservados(secc.getReservados() + 1);
-            this.updateSeccionReserva(secc, alumno, vacanteAlumnosMap, ds);
+            this.updateSeccionReserva(secc, aluHorario, vacanteAlumnosMap, ds);
         }
     }
 
@@ -185,53 +172,45 @@ public class CrearHorarioServiceImp implements CrearHorarioService {
         }
         return vac;
     }
-    
-    private void updateSeccionReserva(Seccion seccion, AlumnoHorario alumnoHorario, Map<Long, List<VacanteAlumno>> vacanteAlumnosMap, DataSessionPivot ds) {
 
-        Alumno alumno = alumnoHorario.getAlumno();
-
-//        List<VacanteAlumno> vacanteAlumnos = vacanteAlumnosMap.get(seccion.getId());
-//
-//        if (vacanteAlumnos == null) {
-//            vacanteAlumnos = new ArrayList();
-//        }
-//
-//        if (vacanteAlumnos.isEmpty()) {
-//            for (int i = 0; i < seccion.getVacantes(); i++) {
-//                int conteo = (i + 1);
-//                VacanteAlumno vacanteAlumno = new VacanteAlumno();
-//                vacanteAlumno.setEstado(AlumnoVacanteEstadoEnum.LIBE.name());
-//                vacanteAlumno.setNumero(conteo);
-//                vacanteAlumno.setSeccion(seccion);
-//                vacanteAlumno.setActivo(1);
-//                vacanteAlumno.setUserRegistro(ds.getUsuario());
-//                vacanteAlumno.setFechaRegistro(new Date());
-//                if (conteo == 1) {
-//                    vacanteAlumno.setAlumno(alumno);
-//                    vacanteAlumno.setEstado(AlumnoVacanteEstadoEnum.RESV.name());
-//                }
-//                vacanteAlumnoDAO.save(vacanteAlumno);
-//                vacanteAlumnos.add(vacanteAlumno);
-//            }
-//        } else {
-//            Collections.sort(vacanteAlumnos, new VacanteAlumno.CompareOrden());
-//            Iterator<VacanteAlumno> vacanteIterator = vacanteAlumnos.iterator();
-//            while (vacanteIterator.hasNext()) {
-//                VacanteAlumno vacanteAlumno = vacanteIterator.next();
-//                if (AlumnoVacanteEstadoEnum.LIBE.name().equals(vacanteAlumno.getEstado())) {
-//                    vacanteAlumno.setAlumno(alumno);
-//                    vacanteAlumno.setEstado(AlumnoVacanteEstadoEnum.RESV.name());
-//                    vacanteAlumnoDAO.update(vacanteAlumno);
-//                    break;
-//                }
-//            }
-//        }
-//
-//        vacanteAlumnosMap.put(seccion.getId(), vacanteAlumnos);
+    private void updateSeccionReserva(
+            Seccion seccion,
+            AlumnoHorario alumnoHorario,
+            Map<Long, List<VacanteAlumno>> vacanteAlumnosMap,
+            DataSessionPivot ds) {
         seccion.setReservados(seccion.getReservados() + 1);
-        //logger.debug("Aumentando la cantidad de reservados {} de la seccion {} disponibles {}", seccion.getReservados(), seccion.getId(),seccion.getDisponiblesCachimbos());
-        seccionDAO.update(seccion);
+        seccionDAO.updateColumns(seccion, "reservados");
     }
 
+    @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void saveHorarioFallido(
+            Map<Long, Map<String, String>> mapFallidosCarrera,
+            List<Carrera> carreras,
+            CicloAcademico ciclo,
+            DataSessionPivot ds) {
+
+        for (Carrera carrera : carreras) {
+            Map<String, String> mapFallidos = mapFallidosCarrera.get(carrera.getId());
+            if (mapFallidos == null) {
+                continue;
+            }
+
+            Iterator<Map.Entry<String, String>> iterator = mapFallidos.entrySet().iterator();
+            while (iterator.hasNext()) {
+                Map.Entry<String, String> entry = iterator.next();
+
+                HorarioFallido horarioFalla = new HorarioFallido();
+                horarioFalla.setCarrera(carrera);
+                horarioFalla.setCicloAcademico(ciclo);
+                horarioFalla.setUserRegistro(ds.getUsuario());
+                horarioFalla.setFechaRegistro(new Date());
+                horarioFalla.setSecciones(entry.getKey());
+                horarioFalla.setFalla(entry.getValue());
+                horarioFallidoDAO.save(horarioFalla);
+
+            }
+        }
+    }
 
 }

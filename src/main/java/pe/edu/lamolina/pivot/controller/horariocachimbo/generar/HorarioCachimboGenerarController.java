@@ -282,15 +282,16 @@ public class HorarioCachimboGenerarController {
     public JsonResponse generar(HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
             ModalidadEstudio modalidad = service.findModalidadPregrado();
             service.generar(cicloAcademico, modalidad, ds);
-            ArrayNode node = new ArrayNode(jsonFactory);
+
+            ArrayNode node = new ArrayNode(JsonNodeFactory.instance);
             response.setData(node);
             response.setMessage("Horario generado satisfactoriamente");
             response.setSuccess(true);
+
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
