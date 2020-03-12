@@ -17,6 +17,15 @@
                     <section class="panel m-b-xs col-sm-8 col-sm-offset-2">
 
                         <section class="panel-body">
+                            <div class="col-md-4 col-sm-1 pad-l-0">
+                                <label>Bloqueo Matricula</label>
+                                <div>
+                                    <label class="switch">
+                                        <input type="checkbox" v-model="blockMat" v-on:click="block" :value="1" />
+                                        <span></span>
+                                    </label>
+                                </div>
+                            </div>   
                             <div class="row">
                                 <div class="col-xs-12">
 

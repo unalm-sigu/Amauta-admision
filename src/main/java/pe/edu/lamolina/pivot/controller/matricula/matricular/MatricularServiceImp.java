@@ -260,9 +260,9 @@ public class MatricularServiceImp implements MatricularService {
         TurnoAtencion lastTurnoAtencionByConfig = turnoAtencionDAO.findLastByConfiguracion(turnoAtencion.getConfiguracionTurnosAtencion());
         if (lastTurnoAtencionByConfig.getId().compareTo(turnoAtencion.getId()) == 0) {
             logger.debug("Este turno es el ultimo de su configuracion");
-            cicloAcademico.setFechaTurnosAsignados(null);
-            cicloAcademico.setFechaTurnosDisponibles(null);
-            cicloAcademicoDAO.updateFechasTurnosAignadosDisponibles(cicloAcademico);
+//            cicloAcademico.setFechaTurnosAsignados(null);
+//            cicloAcademico.setFechaTurnosDisponibles(null);
+//            cicloAcademicoDAO.updateFechasTurnosAignadosDisponibles(cicloAcademico);
         }
         t2 = System.currentTimeMillis();
         logger.debug("cicloAcademicoDAO.updateFechasTurnosAignadosDisponibles en {} mseg", (t2 - t1));
@@ -791,6 +791,33 @@ public class MatricularServiceImp implements MatricularService {
 
     private void notify(Notificacion notify, Usuario usuario) {
         messagingTemplate.convertAndSendToUser(usuario.getGoogle(), "/monitoreo/notify", notify);
+    }
+
+    @Override
+    @Transactional
+    public void blequeoMatricula(CicloAcademico cicloAcademico) {
+        cicloAcademico = cicloAcademicoDAO.find(cicloAcademico);
+
+        if (cicloAcademico.getVerMatricula()) {
+
+            cicloAcademico.setVerMatricula(Boolean.FALSE);
+
+            List<MatriculaCurso> matriculaCursos = matriculaCursoDAO.allPrematriculadoByCiclo(cicloAcademico);
+            for (MatriculaCurso matriculaCurso : matriculaCursos) {
+                matriculaCurso.setOcultoMaipi(1);
+                matriculaCursoDAO.updateColumns(matriculaCurso, "ocultoMaipi");
+            }
+
+        } else {
+            cicloAcademico.setVerMatricula(Boolean.TRUE);
+
+            List<MatriculaCurso> matriculaCursos = matriculaCursoDAO.allByOcultoMaipi(cicloAcademico);
+            for (MatriculaCurso matriculaCurso : matriculaCursos) {
+                matriculaCurso.setOcultoMaipi(0);
+                matriculaCursoDAO.updateColumns(matriculaCurso, "ocultoMaipi");
+            }
+        }
+        cicloAcademicoDAO.updateColumns(cicloAcademico, "verMatricula");
     }
 
 }
