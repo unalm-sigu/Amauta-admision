@@ -42,4 +42,16 @@ public class TokenIngresanteDAOH extends AbstractEasyDAO<TokenIngresante> implem
                 .filter("per.id", persona.getId());
         return (TokenIngresante) sql.find(getCurrentSession());
     }
+
+    @Override
+    public TokenIngresante findByToken(String token) {
+        Octavia sql = Octavia.query()
+                .from(TokenIngresante.class, "tok")
+                .leftJoin("persona per", "userRegistro use")
+                .isNull("tok.fechaUso")
+                .filter("tok.fechaVencimiento", ">", new Date())
+                .filter("tok.valor", token)
+                .filter("tok.estado", TokenEstadoEnum.ACT);
+        return find(sql);
+    }
 }
