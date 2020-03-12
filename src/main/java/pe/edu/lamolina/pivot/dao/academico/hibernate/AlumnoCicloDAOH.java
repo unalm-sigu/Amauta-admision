@@ -832,7 +832,7 @@ public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements Alu
     }
 
     @Override
-    public List<AlumnoCiclo> allByNmatAndInh(List<CicloAcademico> cicloAnt) {
+    public List<AlumnoCiclo> allByNmatAndInh(List<CicloAcademico> ciclo) {
 
         Octavia sqlSub = Octavia.query()
                 .from(Egresado.class, "eg")
@@ -844,10 +844,9 @@ public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements Alu
                 .left("carrera", "orientacionCarrera", "situacionInicio", "situacionFinal", "controlMeritoCiclo")
                 .left("controlMeritoFacultad", "controlMeritoCarrera")
                 .left("alu.situacionAcademica sa")
-                .notIn("sa.codigo", Arrays.asList(S_4.getValue(), S_D.getValue(), S_XD.getValue(), S_4U.getValue()))
                 .notExists(sqlSub)
                 .linkedBy("alu.id", "al.id")
-                .in("ca.id", cicloAnt)
+                .in("ca.id", ciclo)
                 .in("estado", Arrays.asList(NMAT, INH));
 
         return sql.all(getCurrentSession());

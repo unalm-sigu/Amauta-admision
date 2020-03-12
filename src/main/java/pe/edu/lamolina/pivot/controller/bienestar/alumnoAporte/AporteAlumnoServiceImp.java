@@ -10,9 +10,11 @@ import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
+import pe.edu.lamolina.model.aporte.Aporte;
 import pe.edu.lamolina.model.aporte.GeneracionAportes;
 import pe.edu.lamolina.model.enums.GeneracionAportesEstadoEnum;
-import pe.edu.lamolina.pivot.controller.academico.tramitesacademicos.tramiteRetiroCiclo.ResponseRestService;
+import pe.edu.lamolina.model.seguridad.TokenIngresante;
+import pe.edu.lamolina.pivot.controller.responserest.ResponseRestService;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaResumenDAO;
 import pe.edu.lamolina.pivot.dao.aporte.AporteAlumnoCicloDAO;
@@ -65,7 +67,6 @@ public class AporteAlumnoServiceImp implements AporteAlumnoService {
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void generarAportes(Alumno alumno, CicloAcademico ciclo, MatriculaResumen matriculaResumen, DataSessionPivot ds) {
-        responseRestService.createToken(ds);
         GeneracionAportes generador = generacionAportesDAO.findByCicloAcademico(ciclo);
         if (generador == null) {
             return;
@@ -74,15 +75,14 @@ public class AporteAlumnoServiceImp implements AporteAlumnoService {
             return;
         }
 
-        JsonResponse jsonResponse = responseRestService.generarAporte(alumno, ciclo, matriculaResumen, ds);
-
-        Assert.isTrue(jsonResponse.getSuccess(), "Se produjo un error al agregar aportes. Comuniquese con mesa de ayuda.");
+        TokenIngresante token = responseRestService.createToken(ds);
+        JsonResponse jsonResponse = responseRestService.generarAporte(alumno, ciclo, matriculaResumen, ds, token);
+        Assert.isTrue(jsonResponse.getSuccess(), jsonResponse.getMessage());
 
     }
 
     @Override
     public void generarAporteCarnet(CicloAcademico cicloAcademico, MatriculaResumen matriculaResumen, DataSessionPivot ds) {
-        responseRestService.createToken(ds);
         GeneracionAportes generador = generacionAportesDAO.findByCicloAcademico(cicloAcademico);
         if (generador == null) {
             return;
@@ -92,14 +92,13 @@ public class AporteAlumnoServiceImp implements AporteAlumnoService {
             return;
         }
 
-        JsonResponse jsonResponse = responseRestService.generarAporteCarnet(matriculaResumen, ds);
-
-        Assert.isTrue(jsonResponse.getSuccess(), "Se produjo un error al agregar aportes. Comuniquese con mesa de ayuda.");
+        TokenIngresante token = responseRestService.createToken(ds);
+        JsonResponse jsonResponse = responseRestService.generarAporteCarnet(matriculaResumen, ds, token);
+        Assert.isTrue(jsonResponse.getSuccess(), jsonResponse.getMessage());
     }
 
     @Override
     public void generarAporteSegundaCarrera(CicloAcademico cicloAcademico, MatriculaResumen matriculaResumen, DataSessionPivot ds) {
-        responseRestService.createToken(ds);
         GeneracionAportes generador = generacionAportesDAO.findByCicloAcademico(cicloAcademico);
         if (generador == null) {
             return;
@@ -109,14 +108,13 @@ public class AporteAlumnoServiceImp implements AporteAlumnoService {
             return;
         }
 
-        JsonResponse jsonResponse = responseRestService.generarAporteSegundaCarrera(matriculaResumen, ds);
-
-        Assert.isTrue(jsonResponse.getSuccess(), "Se produjo un error al agregar aportes. Comuniquese con mesa de ayuda.");
+        TokenIngresante token = responseRestService.createToken(ds);
+        JsonResponse jsonResponse = responseRestService.generarAporteSegundaCarrera(matriculaResumen, ds, token);
+        Assert.isTrue(jsonResponse.getSuccess(), jsonResponse.getMessage());
     }
 
     @Override
     public void quitarAporteCarnet(CicloAcademico cicloAcademico, MatriculaResumen matriculaResumen, DataSessionPivot ds) {
-        responseRestService.createToken(ds);
         GeneracionAportes generador = generacionAportesDAO.findByCicloAcademico(cicloAcademico);
         if (generador == null) {
             return;
@@ -125,14 +123,13 @@ public class AporteAlumnoServiceImp implements AporteAlumnoService {
             return;
         }
 
-        JsonResponse jsonResponse = responseRestService.eliminarAporteCarnet(matriculaResumen, ds);
-
-        Assert.isTrue(jsonResponse.getSuccess(), "Se produjo un error al agregar aportes. Comuniquese con mesa de ayuda.");
+        TokenIngresante token = responseRestService.createToken(ds);
+        JsonResponse jsonResponse = responseRestService.eliminarAporteCarnet(matriculaResumen, ds, token);
+        Assert.isTrue(jsonResponse.getSuccess(), jsonResponse.getMessage());
     }
 
     @Override
     public void quitarAporteDuplicadoCarnet(CicloAcademico cicloAcademico, MatriculaResumen matriculaResumen, DataSessionPivot ds) {
-        responseRestService.createToken(ds);
         GeneracionAportes generador = generacionAportesDAO.findByCicloAcademico(cicloAcademico);
         if (generador == null) {
             return;
@@ -141,14 +138,14 @@ public class AporteAlumnoServiceImp implements AporteAlumnoService {
             return;
         }
 
-        JsonResponse jsonResponse = responseRestService.eliminarAporteDuplicadoCarnet(matriculaResumen, ds);
+        TokenIngresante token = responseRestService.createToken(ds);
+        JsonResponse jsonResponse = responseRestService.eliminarAporteDuplicadoCarnet(matriculaResumen, ds, token);
+        Assert.isTrue(jsonResponse.getSuccess(), jsonResponse.getMessage());
 
-        Assert.isTrue(jsonResponse.getSuccess(), "Se produjo un error al agregar aportes. Comuniquese con mesa de ayuda.");
     }
 
     @Override
     public void generarAporteDuplicadoCarnet(CicloAcademico cicloAcademico, MatriculaResumen matriculaResumen, DataSessionPivot ds) {
-        responseRestService.createToken(ds);
         GeneracionAportes generador = generacionAportesDAO.findByCicloAcademico(cicloAcademico);
         if (generador == null) {
             return;
@@ -158,9 +155,25 @@ public class AporteAlumnoServiceImp implements AporteAlumnoService {
             return;
         }
 
-        JsonResponse jsonResponse = responseRestService.generarAporteDuplicadoCarnet(matriculaResumen, ds);
+        TokenIngresante token = responseRestService.createToken(ds);
+        JsonResponse jsonResponse = responseRestService.generarAporteDuplicadoCarnet(matriculaResumen, ds, token);
+        Assert.isTrue(jsonResponse.getSuccess(), jsonResponse.getMessage());
+    }
 
-        Assert.isTrue(jsonResponse.getSuccess(), "Se produjo un error al agregar aportes. Comuniquese con mesa de ayuda.");
+    @Override
+    public void modificarAporte(CicloAcademico cicloAcademico, MatriculaResumen matriculaResumen, Aporte aporte, DataSessionPivot ds) {
+        GeneracionAportes generador = generacionAportesDAO.findByCicloAcademico(cicloAcademico);
+        if (generador == null) {
+            return;
+        }
+        if (!Arrays.asList(GeneracionAportesEstadoEnum.BOL, GeneracionAportesEstadoEnum.GEN)
+                .contains(generador.getEstadoEnum())) {
+            return;
+        }
+
+        TokenIngresante token = responseRestService.createToken(ds);
+        JsonResponse jsonResponse = responseRestService.modificarAporte(matriculaResumen, ds, aporte, token);
+        Assert.isTrue(jsonResponse.getSuccess(), jsonResponse.getMessage());
     }
 
 }

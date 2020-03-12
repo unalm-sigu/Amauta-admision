@@ -186,7 +186,8 @@ public class TramiteCondicionalController {
             }
 
             promedioService.calcularSituacionAcademica(tramite.getAlumno(), ds);
-            String token = matriculableService.saveMatriculable(tramite.getAlumno(), ds);
+            tramite.getAlumno().setEsMatriculaCondicional(Boolean.TRUE);
+            String token = matriculableService.saveMatriculable(tramite.getAlumno(), ds.getCicloAcademico(), ds);
             matriculableService.generarAportes(ds, token);
             response.setMessage("Se guardó satisfactoriamente.");
             response.setSuccess(Boolean.TRUE);
@@ -211,7 +212,6 @@ public class TramiteCondicionalController {
 
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            service.createToken(ds);
             MatriculaResumen matriculaResumen = new MatriculaResumen();
             String token = "";
 
@@ -251,7 +251,6 @@ public class TramiteCondicionalController {
 
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            service.createToken(ds);
             service.evaluarEliminarMatriculable(tramite.getAlumno(), ds.getCicloAcademico(), ds);
 
             response.setSuccess(Boolean.TRUE);

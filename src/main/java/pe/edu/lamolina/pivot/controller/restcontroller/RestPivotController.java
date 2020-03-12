@@ -45,7 +45,7 @@ public class RestPivotController {
         try {
             ObjectMapper mapper = new ObjectMapper();
             FormImport json = (FormImport) mapper.readValue(node, FormImport.class);
-            service.validateToken(json);
+            service.consumirToken(json);
 
             Alumno alumno = new Alumno(json.getIdAlumno());
             OrientacionCarrera orientacion = json.getIdOrientacion() != null ? new OrientacionCarrera(json.getIdOrientacion()) : null;
@@ -71,14 +71,38 @@ public class RestPivotController {
         try {
             ObjectMapper mapper = new ObjectMapper();
             FormImport json = (FormImport) mapper.readValue(node, FormImport.class);
-            service.validateToken(json);
+            service.consumirToken(json);
 
             Alumno alumno = new Alumno(json.getIdAlumno());
             DataSessionPivot ds = new DataSessionPivot();
-            ds.setUsuario(new Usuario(json.getIdUsuario()));
+            ds.setUsuario(service.getUsuario(new Usuario(json.getIdUsuario())));
             promedioService.calcularSituacionAcademica(alumno, ds);
 
             response.setSuccess(true);
+        } catch (PhobosException e) {
+            response.setSuccess(false);
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "calcularPromedioAlumnoByToken", method = RequestMethod.POST)
+    public JsonResponse calcularPromedioAlumnoByToken(@RequestBody String node, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            FormImport json = (FormImport) mapper.readValue(node, FormImport.class);
+            service.verificarToken(json);
+
+            Alumno alumno = new Alumno(json.getIdAlumno());
+            DataSessionPivot ds = new DataSessionPivot();
+            ds.setUsuario(service.getUsuario(new Usuario(json.getIdUsuario())));
+            promedioService.calcularSituacionAcademica(alumno, ds);
+            response.setSuccess(true);
+
         } catch (PhobosException e) {
             response.setSuccess(false);
             ExceptionHandler.handlePhobosEx(e, response);

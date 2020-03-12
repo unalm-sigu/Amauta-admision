@@ -473,10 +473,6 @@ public class PromedioServiceImp implements PromedioService {
 
     @Override
     public void calcularSituacionAcademica(Alumno alumno, DataSessionPivot ds) { // USO COMO REST
-        if (ds.getFechaAccionAudit() == null) {
-            ds.setFechaAccionAudit(new Date());
-        }
-
         BeanPromedios bean = promedioLoadDataService.loadDataAlumno(alumno);
         this.promediarAllCicloSync(
                 bean.getAlumno(),
@@ -1197,9 +1193,9 @@ public class PromedioServiceImp implements PromedioService {
                     situacionAcademicaFinal = new SituacionAcademica(SituacionAcademicaEnum.S_N);
                     this.printLogger("Caso 37", showLog);
 
-                } else if (alumnoCiclo.getCreditosAprobadosAcumuladosCurricula() > 200) {
-                    situacionAcademicaFinal = new SituacionAcademica(S_EM);
-                    this.printLogger("Caso 38", showLog);
+//                } else if (alumnoCiclo.getCreditosAprobadosAcumuladosCurricula() > 200) {
+//                    situacionAcademicaFinal = new SituacionAcademica(S_EM);
+//                    this.printLogger("Caso 38", showLog);
 
                 } else {
                     situacionAcademicaFinal = getSituacionByTipoAprobado(alumno, alumnoCiclo, showLog);
@@ -1268,9 +1264,9 @@ public class PromedioServiceImp implements PromedioService {
                     situacionAcademicaFinal = new SituacionAcademica(SituacionAcademicaEnum.S_4T);
                     this.printLogger("Caso 50", showLog);
 
-                } else if (alumnoCiclo.getCreditosAprobadosAcumuladosCurricula() > CREDITOS_MINIMO_APR) {
-                    situacionAcademicaFinal = new SituacionAcademica(S_EM);
-                    this.printLogger("Caso 51", showLog);
+//                } else if (alumnoCiclo.getCreditosAprobadosAcumuladosCurricula() > CREDITOS_MINIMO_APR) {
+//                    situacionAcademicaFinal = new SituacionAcademica(S_EM);
+//                    this.printLogger("Caso 51", showLog);
 
                 } else {
                     situacionAcademicaFinal = getSituacionByTipoAprobado(alumno, alumnoCiclo, showLog);
@@ -1384,7 +1380,7 @@ public class PromedioServiceImp implements PromedioService {
                     this.printLogger("Caso 55.ta", showLog);
 
                 } else if (alumnoCiclo.getSituacionInicio().isSuspendido()) {
-                    situacionAcademicaFinal = new SituacionAcademica(S_4);
+                    situacionAcademicaFinal = new SituacionAcademica(S_2);
                     this.printLogger("Caso 56.ta", showLog);
 
                 } else if (alumnoCiclo.getSituacionInicio().isSeparadoTrika()) {

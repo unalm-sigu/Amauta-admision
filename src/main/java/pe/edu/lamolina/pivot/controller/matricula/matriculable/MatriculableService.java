@@ -57,9 +57,11 @@ public interface MatriculableService {
 
     List<Alumno> allAlumnoByNombre(String nombre, DataSessionPivot ds);
 
-    String saveMatriculable(Alumno alumno, DataSessionPivot ds);
+    String saveMatriculable(Alumno alumno, CicloAcademico ciclo, DataSessionPivot ds);
 
     void generarAportes(DataSessionPivot ds, String token22);
+
+    void generarAportes(Alumno alumno, CicloAcademico cicloAcademico, DataSessionPivot ds);
 
     void generarVerano(CicloAcademico cicloAcademico, DataSessionPivot ds);
 
@@ -99,6 +101,6 @@ public interface MatriculableService {
 
     void quitarAporteDuplicadoCarnet(MatriculaResumen matriculaResumen, DataSessionPivot ds);
 
-    public void habilitarMatriculable(MatriculaResumen matriculaResumen, DataSessionPivot ds);
+    void habilitarMatriculable(MatriculaResumen matriculaResumen, DataSessionPivot ds);
 
 }

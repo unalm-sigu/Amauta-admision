@@ -88,6 +88,7 @@ import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_XD;
 import pe.edu.lamolina.model.enums.TipoCicloEnum;
 import pe.edu.lamolina.model.finanzas.Acreencia;
 import pe.edu.lamolina.model.finanzas.DeudaAlumno;
+import pe.edu.lamolina.model.seguridad.TokenIngresante;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.tramite.CambioNota;
 import pe.edu.lamolina.model.tramite.Reincorporacion;
@@ -99,7 +100,7 @@ import pe.edu.lamolina.pivot.controller.academico.promedio.PromedioLoadDataServi
 import pe.edu.lamolina.pivot.controller.academico.promedio.PromedioReviewService;
 import pe.edu.lamolina.pivot.controller.academico.promedio.PromedioService;
 import pe.edu.lamolina.pivot.controller.academico.promedio.ReincorporadosService;
-import pe.edu.lamolina.pivot.controller.academico.tramitesacademicos.tramiteRetiroCiclo.ResponseRestService;
+import pe.edu.lamolina.pivot.controller.responserest.ResponseRestService;
 import pe.edu.lamolina.pivot.controller.bienestar.alumnoAporte.AporteAlumnoService;
 import pe.edu.lamolina.pivot.controller.matricula.configuracionturno.ConfiguracionMatriculaService;
 import pe.edu.lamolina.pivot.controller.test.VisorCalculoNotas;
@@ -921,112 +922,33 @@ public class MatriculableServiceImp implements MatriculableService {
 
     @Override
     @Transactional
-    public String saveMatriculable(Alumno alumnoForm, DataSessionPivot ds) {
+    public String saveMatriculable(Alumno alumnoForm, CicloAcademico ciclo, DataSessionPivot ds) {
 
-        //CicloAcademico ciclo = cicloAcademicoDAO.find(ds.getCicloAcademico());
         Alumno alumno = alumnoDAO.find(alumnoForm);
+        MatriculaResumen resumen = matriculaResumenDAO.findByAlumnoCiclo(alumno, ciclo);
+        Assert.isNull(resumen, "Este alumno ya es matriculable");
+
+        resumen = new MatriculaResumen();
+        resumen.setAlumno(alumno);
+        resumen.setCicloAcademico(ciclo);
+        resumen.setSituacionInicio(alumno.getSituacionAcademica());
+        resumen.settingValoresDefecto();
+        resumen.setCreditosPagados(0);
+        resumen.setCreditosConsumidos(0);
+        resumen.setEstadoEnum(NMAT);
+        matriculaResumenDAO.save(resumen);
+
         alumno.setEsMatriculaCondicional(alumnoForm.getEsMatriculaCondicional());
         alumno.setMotivoMatriculable(alumnoForm.getMotivoMatriculable());
         alumno.setEsMatBeneficioUltCicl(alumnoForm.getEsMatBeneficioUltCicl());
         List<Alumno> alumnos = new ArrayList();
         alumnos.add(alumno);
+
         String token = RandomStringUtils.randomAlphanumeric(43);
         String tokenMatri = token + TOKEN_MATRICULABLE;
 
         visorCalculoNotas.createToken(tokenMatri, alumnos);
         this.recalcularPrioridad(alumnos, ds.getUsuario(), tokenMatri);
-//        if (tipoCondicional.equals(CAM_NOTA.name())) {
-//            List<SituacionAcademicaEnum> situaciones = Arrays.asList(S_N, S_1, S_2, S_3, S_5, S_8, S_9, S_3U, S_2U, S_4U, S_6U, S_TU, S_EM);
-//            if (!situaciones.contains(alumno.getSituacionAcademica().getCodigoEnum())) {
-//                return null;
-//            }
-//        }
-//        CicloAcademico ciclo = cicloAcademicoDAO.findByCodigoCicloModalidadEnum(ds.getCicloAcademico().getCodigo(), alumno.getModalidadEstudio().getOperativeModalidadEnum());
-//        if (ciclo.getFechaMatriculables() == null && alumno.getModalidadEstudio().isPregrado()) {
-//            return null;
-//        }
-//
-//        MatriculaResumen matri = matriculaResumenDAO.findByAlumnoCiclo(alumno, ciclo);
-//        matri = matri == null ? new MatriculaResumen() : matri;
-//
-//        SituacionAcademica sit = alumno.getSituacionAcademica();
-//
-//        ModalidadEstudio modalidad = alumno.getModalidadEstudio();
-//        List<SituacionAcademicaEnum> situacionIngresantesEnum = Arrays.asList(S_8, S_9);
-//        List<ModalidadEstudioEnum> modalidadesEnum = Arrays.asList(EPG, ESP);
-//
-//        matri.setAlumno(alumno);
-//        matri.setCicloAcademico(ciclo);
-//        matri.setSituacionInicio(alumno.getSituacionAcademica());
-//
-//        matri.setUserRegistro(ds.getUsuario());
-//        matri.setFechaRegistro(new Date());
-//        matri.setCreditosMatriculados(0);
-//        matri.setCreditosRetirados(0);
-//        matri.setCursosMatriculados(0);
-//        matri.setCursosRetirados(0);
-//        matri.setCreditosTrikaPagados(0);
-//        matri.setCreditosTrikaSeparados(0);
-//        matri.setPorcentajeAvance(0);
-//        matri.setNotaAcumulada("0");
-//        matri.setNotaAvance("0");
-//        matri.setNotaFinal("0");
-//        matri.setEstadoEnum(EstadoMatriculaEnum.NMAT);
-//        matri.setMotivoMatriculable(alumnoForm.getMotivoMatriculable());
-//        matri.setEsCondicional(alumnoForm.getEsMatriculaCondicional());
-//
-//        if (!situacionIngresantesEnum.contains(sit.getCodigoEnum()) && !modalidadesEnum.contains(modalidad.getCodigoEnum()) && ciclo.getFechaPrioridades() != null) {
-//            AlumnoCiclo alumnoCiclo = null;
-//            if (tipoCondicional.equals(TipoCondicionalEnum.RETIRO_CICLO.name())) {
-//                List<AlumnoCiclo> alumnoCiclos = alumnoCicloDAO.allByAlumnoDescRegular(alumno);
-//                AlumnoCiclo alumnoCicloPenultimo = alumnoCiclos.get(1);
-//                alumnoCiclo = alumnoCicloDAO.findActivosRegularesByCiclo(alumnoCicloPenultimo.getCicloAcademico(), alumno);
-//
-//            } else {
-//                alumnoCiclo = alumnoCicloDAO.findActivoRegularByCicloAlumno(alumno.getCicloActivoRegular(), alumnoForm);
-//            }
-//
-//            matri = matriculableConector.procesarPrioridadAlumno(matri, alumnoCiclo);
-//
-//            boolean esUltimoCiclo = alumno.getCreditosAprobadosConvalidados() > CAPA_ULTIMO_CICLO;
-//            MatriculaResumen matriculaAnt = matriculaResumenDAO.findByPuntajeMenor(matri, ciclo, esUltimoCiclo);
-//            MatriculaResumen matriculaDes = matriculaResumenDAO.findByPuntajeMayor(matri, ciclo, esUltimoCiclo);
-//            if (matriculaAnt != null && matriculaDes != null) {
-//
-//                BigDecimal prioridad = matriculaAnt.getPrioridad().add(matriculaDes.getPrioridad()).divide(new BigDecimal(2), 4, RoundingMode.FLOOR);
-//                matri.setPrioridad(prioridad);
-//                if (ciclo.getFechaTurnosAsignados() != null) {
-//                    EventoAcademicoEnum eventoEnum = MAT_REG;
-//                    if (!ciclo.isTipoRegular()) {
-//                        eventoEnum = MAT_VER;
-//                    }
-//                    System.out.print("PRIORIDAAADD ----- " + prioridad);
-//                    TurnoAtencion turnosAtencion = turnoAtencionDAO.findByPrioridad(prioridad, ciclo, eventoEnum);
-//                    BigDecimal numPrioridad = turnosAtencion.getPrioridadFin().add(new BigDecimal("0.01"));
-//                    Integer cantAlum = turnosAtencion.getAlumnos() + 1;
-//                    turnosAtencion.setAlumnos(cantAlum);
-//                    turnosAtencion.setPrioridadFin(numPrioridad);
-////                    turnoAtencionDAO.update(turnosAtencion);
-//
-//                    configuracionMatriculaService.updateTurnos(turnosAtencion.getId(), cantAlum.toString());
-//
-//                    matri.setTurnoAtencion(turnosAtencion);
-//
-//                }
-//            }
-//        }
-//
-//        if (matri.getId() != null) {
-//            matriculaResumenDAO.update(matri);
-//            if (ds.getCicloAcademico().getTipoEnum() == TipoCicloEnum.REG) {
-//                aporteAlumnoService.generarAportes(alumno, ciclo, matri, ds);
-//                logger.debug("enviando generar boletas del alumno {} en el ciclo {} con matri-resumen {}", alumno.getId(), ciclo.getId(), matri.getId());
-//            }
-//            matri.setProcesado(1);
-//
-//        } else {
-//            matriculaResumenDAO.save(matri);
-//        }
         return token;
     }
 
@@ -1053,6 +975,14 @@ public class MatriculableServiceImp implements MatriculableService {
             aporteAlumnoService.generarAportes(alumno, ciclo, matriculaResumen, ds);
             logger.debug("enviando generar boletas del alumno {} en el ciclo {} con matri-resumen {}", alumno.getId(), ciclo.getId(), matriculaResumen.getId());
         }
+    }
+
+    @Override
+    public void generarAportes(Alumno alumnoForm, CicloAcademico ciclo, DataSessionPivot ds) {
+        Alumno alumno = alumnoDAO.findAllInfo(alumnoForm.getId());
+        MatriculaResumen matriculaResumen = matriculaResumenDAO.findByAlumnoCiclo(alumno, ciclo);
+        aporteAlumnoService.generarAportes(alumno, ciclo, matriculaResumen, ds);
+
     }
 
     @Override
@@ -1437,10 +1367,9 @@ public class MatriculableServiceImp implements MatriculableService {
                 "El alumno debe tener estado No Matriculado para ser inhabilitado");
 
         if (ds.getCicloAcademico().getTipoEnum() == TipoCicloEnum.REG && academico.getFechaTurnosAsignados() != null) {
-            JsonResponse jsonResponse = responseRestService.anularBoletas(matriculaResumen, ds);
-            if (!jsonResponse.getSuccess()) {
-                throw new PhobosException(jsonResponse.getMessage());
-            }
+            TokenIngresante token = responseRestService.createToken(ds);
+            JsonResponse jsonResponse = responseRestService.anularBoletas(matriculaResumen, ds, token);
+            Assert.isTrue(jsonResponse.getSuccess(), jsonResponse.getMessage());
         }
 
         matriculaResumen.setEstadoEnum(EstadoMatriculaEnum.INH);
@@ -1513,7 +1442,7 @@ public class MatriculableServiceImp implements MatriculableService {
             for (Alumno alumno : alumnos) {
                 MatriculaResumen matriculable = mapMatriculable.get(alumno.getId());
                 if (situacionesExepcionAptas.contains(alumno.getSituacionAcademica().getCodigo())) {
-                    if (mapReincorporacion.get(alumno.getId()) != null || alumno.getEsMatBeneficioUltCicl()) {
+                    if (mapReincorporacion.get(alumno.getId()) != null || alumno.getEsMatBeneficioUltCicl() || alumno.getEsMatriculaCondicional()) {
                         alumno.setEsMatriculableSuspendido(Boolean.TRUE);
                         this.addMatriculable(matriculable, alumno, cicloActivo, matriculables, mapMatriculable, usuario);
                         continue;
@@ -1833,14 +1762,12 @@ public class MatriculableServiceImp implements MatriculableService {
 
         MatriculaResumen matriculaResumen = matriculaResumenDAO.find(matriculaResumenForm.getId());
         Assert.isNotNull(matriculaResumen, "El alumno no es matriculable");
-        Assert.isFalse(matriculaResumen.getEstadoEnum() == EstadoMatriculaEnum.NMAT,
-                "El alumno ya se encontra habilitado");
+        Assert.isFalse(matriculaResumen.getEstadoEnum() == EstadoMatriculaEnum.NMAT, "El alumno ya se encuentra habilitado");
 
         if (ds.getCicloAcademico().getTipoEnum() == TipoCicloEnum.REG && academico.getFechaTurnosAsignados() != null) {
-            JsonResponse jsonResponse = responseRestService.generarAporte(matriculaResumen.getAlumno(), academico, matriculaResumen, ds);
-            if (!jsonResponse.getSuccess()) {
-                throw new PhobosException(jsonResponse.getMessage());
-            }
+            TokenIngresante token = responseRestService.createToken(ds);
+            JsonResponse jsonResponse = responseRestService.generarAporte(matriculaResumen.getAlumno(), academico, matriculaResumen, ds, token);
+            Assert.isTrue(jsonResponse.getSuccess(), jsonResponse.getMessage());
         }
 
         matriculaResumen.setEstadoEnum(EstadoMatriculaEnum.NMAT);
