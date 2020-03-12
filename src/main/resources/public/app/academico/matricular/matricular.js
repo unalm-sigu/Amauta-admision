@@ -22,7 +22,8 @@ new Vue({
             perSeccion: 0,
             totalSeccion: 0,
         },
-        blockMat: false
+        blockMat: false,
+        cicloAcademico: JSON.parse(cicloAcademicoJSON)
     },
     created() {
         let vue = this;
@@ -69,7 +70,7 @@ new Vue({
                 data: {id: turno},
                 success: function (response) {
                     if (response.success) {
-
+                        vue.cicloAcademico = response.data;
                         notify("Se actualizó satisfactoriamente", "success");
                     } else {
                         notify(response.message, "error");

@@ -795,29 +795,35 @@ public class MatricularServiceImp implements MatricularService {
 
     @Override
     @Transactional
-    public void blequeoMatricula(CicloAcademico cicloAcademico) {
+    public CicloAcademico blequeoMatricula(CicloAcademico cicloAcademico) {
         cicloAcademico = cicloAcademicoDAO.find(cicloAcademico);
-
+        List<MatriculaCurso> matriculaCursos = new ArrayList();
         if (cicloAcademico.getVerMatricula()) {
 
             cicloAcademico.setVerMatricula(Boolean.FALSE);
 
-            List<MatriculaCurso> matriculaCursos = matriculaCursoDAO.allPrematriculadoByCiclo(cicloAcademico);
+            matriculaCursos = matriculaCursoDAO.allPrematriculadoByCiclo(cicloAcademico);
             for (MatriculaCurso matriculaCurso : matriculaCursos) {
                 matriculaCurso.setOcultoMaipi(1);
-                matriculaCursoDAO.updateColumns(matriculaCurso, "ocultoMaipi");
             }
 
         } else {
             cicloAcademico.setVerMatricula(Boolean.TRUE);
 
-            List<MatriculaCurso> matriculaCursos = matriculaCursoDAO.allByOcultoMaipi(cicloAcademico);
+            matriculaCursos = matriculaCursoDAO.allByOcultoMaipi(cicloAcademico);
             for (MatriculaCurso matriculaCurso : matriculaCursos) {
                 matriculaCurso.setOcultoMaipi(0);
-                matriculaCursoDAO.updateColumns(matriculaCurso, "ocultoMaipi");
             }
         }
+        matriculaCursoDAO.updateList(matriculaCursos, "ocultoMaipi");
         cicloAcademicoDAO.updateColumns(cicloAcademico, "verMatricula");
+
+        return cicloAcademico;
+    }
+
+    @Override
+    public CicloAcademico findCiclo(CicloAcademico cicloAcademico) {
+        return cicloAcademicoDAO.find(cicloAcademico);
     }
 
 }

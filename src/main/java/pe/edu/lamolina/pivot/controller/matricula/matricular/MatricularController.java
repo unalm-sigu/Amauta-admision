@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
+import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.CicloAcademico;
@@ -64,10 +65,10 @@ public class MatricularController {
     public String index(Model model, HttpSession session, @PathVariable("turno") Long turno) {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-        CicloAcademico cicloAcademico = ds.getCicloAcademico();
+        CicloAcademico cicloAcademico = service.findCiclo(ds.getCicloAcademico());
         TurnoAtencion turnoAtencion = service.findTurnoAtencion(turno);
 
-        model.addAttribute("cicloAcademico", cicloAcademico);
+        model.addAttribute("cicloAcademico", JsonHelper.createJson(cicloAcademico, JsonNodeFactory.instance, new String[]{"*"}));
         model.addAttribute("turnoAtencion", turnoAtencion);
 
         return "academico/matricular/matricular";
@@ -115,8 +116,8 @@ public class MatricularController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
 
-            service.blequeoMatricula(cicloAcademico);
-
+            cicloAcademico = service.blequeoMatricula(cicloAcademico);
+            response.setData(JsonHelper.createJson(cicloAcademico, jsonFactory, new String[]{"*"}));
             response.setSuccess(true);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);

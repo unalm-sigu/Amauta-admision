@@ -69,4 +69,6 @@ public interface MatriculaCursoDAO extends EasyDAO<MatriculaCurso> {
 
     public List<MatriculaCurso> allByOcultoMaipi(CicloAcademico cicloAcademico);
 
+    public int updateList(List<MatriculaCurso> matriculaCursos, String... columns);
+
 }

@@ -9,7 +9,7 @@
 
                 <header class="header b-b padder-lg">
 
-                    <h2 th:inline="text">Turno de atención  [[${turnoAtencion.turno}]]  ( [[${cicloAcademico.descripcion}]] )   </h2>
+                    <h2 th:inline="text">Turno de atención  [[${turnoAtencion.turno}]]   </h2> <h2 v-text="cicloAcademico.descripcion"></h2>
 
                 </header>
 
@@ -138,6 +138,7 @@
         <script  th:inline="javascript" >
             /*<![CDATA[*/
             var turno = /*[[${turnoAtencion.id}]]*/ '';
+            var cicloAcademicoJSON = /*[[${cicloAcademico.toString()}]]*/ '';
             /*]]>*/
         </script>
         <script th:src="@{/vendor/wsockets/sockjs-0.3.4.min.js}" type="text/javascript" ></script>

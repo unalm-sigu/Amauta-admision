@@ -2,13 +2,16 @@ package pe.edu.lamolina.pivot.dao.academico.hibernate;
 
 import java.util.Arrays;
 import java.util.List;
+import org.hibernate.Query;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaCursoDAO;
 import org.springframework.stereotype.Repository;
+import pe.albatross.octavia.Insecto;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
+import pe.edu.lamolina.model.academico.CursoCicloAcademico;
 import pe.edu.lamolina.model.academico.MatriculaCurso;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.enums.CicloAcademicoEstadoEnum;
@@ -383,5 +386,22 @@ public class MatriculaCursoDAOH extends AbstractEasyDAO<MatriculaCurso> implemen
                 .filter("ca.id", cicloAcademico)
                 .filter("mc.ocultoMaipi", 1);
         return all(sql);
+    }
+
+    @Override
+    public int updateList(List<MatriculaCurso> matriculaCursos, String... columnas) {
+        if (matriculaCursos.isEmpty()) {
+            return 0;
+        }
+
+        long t1 = System.currentTimeMillis();
+        Insecto sql = Insecto.createUpdate(CursoCicloAcademico.class)
+                .set(columnas)
+                .with(matriculaCursos);
+
+        Query query = getCurrentSession().createSQLQuery(sql.toString());
+        int rows = query.executeUpdate();
+
+        return rows;
     }
 }
