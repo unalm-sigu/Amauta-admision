@@ -346,12 +346,10 @@ public class HorarioCachimboGenerarServiceImp implements HorarioCachimboGenerarS
         }
 
         List<Curso> cursosTodos = allCursosCarrera(cursoCachimbosTodos);
-
         List<Seccion> secciones = seccionDAO.allActivosByCursosCiclo(cursosTodos, ciclo);
-
         List<SeccionCursoCachimbos> seccionesCachimbos = seccionCursoCachimbosDAO.allByCiclo(ciclo);
-
         List<VacanteAlumno> vacanteAlumnos = vacanteAlumnoDAO.allBySecciones(secciones);
+
         Map<Long, List<VacanteAlumno>> vacanteAlumnosMap = TypesUtil.convertListToMapList("seccion.id", vacanteAlumnos);
         if (vacanteAlumnosMap == null) {
             vacanteAlumnosMap = new LinkedHashMap();
@@ -375,14 +373,11 @@ public class HorarioCachimboGenerarServiceImp implements HorarioCachimboGenerarS
         }
 
         for (Seccion secc : secciones) {
-            int sus = this.getSuscritos(secc, seccionHorarioCachimbosMap);
-            secc.setReservados(sus);
             Seccion sup = secc.getSeccionSuperior();
             if (sup != null) {
                 Seccion superior = mapSeccionMain.get(sup.getId());
                 secc.setSeccionSuperior(superior);
             }
-
         }
 
         List<HorarioSeccion> horaDiaSecciones = horarioSeccionDAO.allBySecciones(secciones);
@@ -1053,10 +1048,13 @@ public class HorarioCachimboGenerarServiceImp implements HorarioCachimboGenerarS
 
     private boolean hayVacantes(List<Seccion> seccionesOrden) {
         for (Seccion seccion : seccionesOrden) {
+            System.out.println(seccion.getCodigo2() + " vac=" + seccion.getVacantes() + " res=" + seccion.getReservados());
             if (seccion.getDisponiblesCachimbos() <= 0) {
+                System.out.println("\tNo cumple");
                 return false;
             }
         }
+        System.out.println("\tSi cumple");
         return true;
     }
 
