@@ -14,7 +14,7 @@ import pe.edu.lamolina.pivot.zelper.misc.Acumulador;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface CrearHorarioService {
-    
+
     void saveHorario(
             AlumnoHorario alumno,
             List<Curso> cursos,
@@ -26,12 +26,10 @@ public interface CrearHorarioService {
             Map<Long, List<VacanteAlumno>> vacanteAlumnosMap,
             Acumulador code, DataSessionPivot ds);
 
-//    HorarioCachimbos createHorario(
-//            List<Seccion> horarioTempo,
-//            Carrera carrera,
-//            CicloAcademico ciclo,
-//            int cursos,
-//            Map<String, HorarioCachimbos> mapHorario,
-//            Acumulador code, DataSessionPivot ds);
+    void saveHorarioFallido(
+            Map<Long, Map<String, String>> mapFallidosCarrera,
+            List<Carrera> carreras,
+            CicloAcademico ciclo,
+            DataSessionPivot ds);
 
 }

@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.zelpers.miscelanea.Assert;
+import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.enums.TokenEstadoEnum;
 import pe.edu.lamolina.model.seguridad.TokenIngresante;
 import pe.edu.lamolina.model.seguridad.Usuario;
@@ -71,5 +72,20 @@ public class RestPivotServiceImp implements RestPivotService {
     @Override
     public Usuario getUsuario(Usuario usuario) {
         return usuarioDAO.find(usuario);
+    }
+
+    @Transactional
+    public TokenIngresante findToken(String token, Long idUsuario) {
+        TokenIngresante tokenCachimbo = tokenDAO.findByToken(token);
+        if (tokenCachimbo == null) {
+            throw new PhobosException("Token Inexistente al Autenticar " + token);
+        }
+        if (tokenCachimbo.getUserRegistro().getId().longValue() != idUsuario) {
+            throw new PhobosException("Token Inexistente al Autenticar " + token);
+        }
+        tokenCachimbo.setEstado(TokenEstadoEnum.USO);
+        tokenCachimbo.setFechaUso(new Date());
+        tokenDAO.update(tokenCachimbo);
+        return tokenCachimbo;
     }
 }

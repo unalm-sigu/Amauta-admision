@@ -57,6 +57,7 @@ import pe.edu.lamolina.pivot.dao.academico.MatriculaCursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaResumenDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.TipoActividadIngresanteDAO;
+import pe.edu.lamolina.pivot.dao.horario.HorarioFallidoDAO;
 import pe.edu.lamolina.pivot.dao.vacante.VacanteAlumnoDAO;
 
 @Service
@@ -66,52 +67,41 @@ public class HorarioCachimboIngresanteServiceImp implements HorarioCachimboIngre
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    AlumnoHorarioDAO alumnoHorarioDAO;
-
+    ActividadIngresanteDAO actividadIngresanteDAO;
     @Autowired
     AlumnoDAO alumnoDAO;
-
     @Autowired
-    HorarioCachimbosDAO horarioCachimbosDAO;
-
-    @Autowired
-    CursoCachimbosDAO cursoCachimbosDAO;
-
-    @Autowired
-    SeccionDAO seccionDAO;
-
-    @Autowired
-    HorarioCachimboGenerarService generarHorarioIngresanteService;
-
-    @Autowired
-    ModalidadEstudioDAO modalidadEstudioDAO;
-
+    AlumnoHorarioDAO alumnoHorarioDAO;
     @Autowired
     CarreraCachimbosDAO carreraCachimbosDAO;
-
+    @Autowired
+    ConfigRecorridoIngresanteDAO configRecorridoIngresanteDAO;
+    @Autowired
+    CursoCachimbosDAO cursoCachimbosDAO;
+    @Autowired
+    HorarioCachimbosDAO horarioCachimbosDAO;
+    @Autowired
+    HorarioFallidoDAO horarioFallidoDAO;
+    @Autowired
+    MatriculaCursoDAO matriculaCursoDAO;
+    @Autowired
+    MatriculaResumenDAO matriculaResumenDAO;
+    @Autowired
+    MatriculaSeccionDAO matriculaSeccionDAO;
+    @Autowired
+    ModalidadEstudioDAO modalidadEstudioDAO;
+    @Autowired
+    SeccionDAO seccionDAO;
     @Autowired
     SeccionHorarioCachimbosDAO seccionHorarioCachimbosDAO;
-
     @Autowired
     VacanteAlumnoDAO vacanteAlumnoDAO;
 
     @Autowired
-    MatriculaResumenDAO matriculaResumenDAO;
-
-    @Autowired
-    MatriculaCursoDAO matriculaCursoDAO;
-
-    @Autowired
-    MatriculaSeccionDAO matriculaSeccionDAO;
-
-    @Autowired
-    ConfigRecorridoIngresanteDAO configRecorridoIngresanteDAO;
-
-    @Autowired
-    ActividadIngresanteDAO actividadIngresanteDAO;
-
-    @Autowired
     TipoActividadIngresanteDAO tipoActividadIngresanteDAO;
+
+    @Autowired
+    HorarioCachimboGenerarService generarHorarioIngresanteService;
 
     @Override
     public List<AlumnoHorario> allAlumnoHorario(DynatableFilter filter, CicloAcademico cicloAcademico) {
@@ -344,6 +334,7 @@ public class HorarioCachimboIngresanteServiceImp implements HorarioCachimboIngre
         vacanteAlumnoDAO.deleteAllByCiclo(cicloAcademico);
         horarioCachimbosDAO.deleteAllByCiclo(cicloAcademico);
         carreraCachimbosDAO.allRegenerateByCiclo(cicloAcademico);
+        horarioFallidoDAO.deleteAllByCiclo(cicloAcademico);
     }
 
     @Override
