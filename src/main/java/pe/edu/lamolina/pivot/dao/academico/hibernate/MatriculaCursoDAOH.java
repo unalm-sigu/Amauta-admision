@@ -374,4 +374,14 @@ public class MatriculaCursoDAOH extends AbstractEasyDAO<MatriculaCurso> implemen
 
         return all(sql);
     }
+
+    @Override
+    public List<MatriculaCurso> allByOcultoMaipi(CicloAcademico cicloAcademico) {
+        Octavia sql = Octavia.query()
+                .from(MatriculaCurso.class, "mc")
+                .join("matriculaResumen mr", "mr.alumno alu", "mr.cicloAcademico ca", "curso cu")
+                .filter("ca.id", cicloAcademico)
+                .filter("mc.ocultoMaipi", 1);
+        return all(sql);
+    }
 }
