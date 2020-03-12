@@ -2,7 +2,7 @@ Vue.component("multiselect", window.VueMultiselect.default);
 new Vue({
     el: '#matriculableVUE',
     data: {
-        matriculaURL: APP.url('academico/matriculable/list'),
+        matriculaURL: APP.url(`${rutaModulo}/list`),
         ciclo: JSON.parse(cicloJson),
         resumen: JSON.parse(resumenJson),
         tiposCondicionales: JSON.parse(tipoCondicionalJson),
@@ -62,7 +62,9 @@ new Vue({
             id: 'modalBoletaAlumno',
             title: 'Boletas del Alumno'
         }),
-        url: null
+        url: null,
+        seleccionado: '',
+        bgColorClass: {pregrado: '', postgrado: '', visitante: '', especial: ''},
     },
     mounted: function () {
 
@@ -85,7 +87,7 @@ new Vue({
         style(item) {
             var colorEstado = {MAT: 'success', PMAT: 'warning', NMAT: 'default'};
             var res = colorEstado[item];
-            if (res == undefined) {
+            if (res === undefined) {
                 return "label label-danger";
             }
             return "label label-" + res;
@@ -112,7 +114,7 @@ new Vue({
             }
             $.ajax({
                 method: 'POST',
-                url: APP.url('academico/matriculable/inhabilitar'),
+                url: APP.url(`${rutaModulo}/inhabilitar`),
                 data: JSON.stringify($vue.matriculableSelected),
                 contentType: "application/json",
                 success: function (response) {
@@ -130,7 +132,7 @@ new Vue({
                 }
             });
         },
-        modal() {
+        verAddMatriculable() {
             let $vue = this;
             $vue.alumno = {};
             $vue.$refs.modalMatriculable.open();
@@ -140,7 +142,7 @@ new Vue({
             MODAL.showWait("Espere un momento por favor");
             $.ajax({
                 method: 'POST',
-                url: APP.url('academico/matriculable/generarPrioridad'),
+                url: APP.url(`${rutaModulo}/generarPrioridad`),
                 success: function (response) {
                     if (response.success) {
                         $vue.findCiclo();
@@ -160,7 +162,7 @@ new Vue({
             MODAL.showWait("Espere un momento por favor");
             $.ajax({
                 method: 'POST',
-                url: APP.url('academico/matriculable/eliminarPrioridad'),
+                url: APP.url(`${rutaModulo}/eliminarPrioridad`),
                 success: function (response) {
                     if (response.success) {
                         $vue.findCiclo();
@@ -178,7 +180,7 @@ new Vue({
             let $vue = this;
             $.ajax({
                 method: 'POST',
-                url: APP.url('academico/matriculable/ciclo'),
+                url: APP.url(`${rutaModulo}/ciclo`),
                 success: function (response) {
                     $vue.ciclo = response.data;
                 },
@@ -192,7 +194,7 @@ new Vue({
             let $vue = this;
             $.ajax({
                 method: 'POST',
-                url: APP.url('academico/matriculable/configuracionesTurno'),
+                url: APP.url(`${rutaModulo}/configuracionesTurno`),
                 success: function (response) {
                     if (response.data.length == 0) {
                         notify("No hay configuración de turnos", "error");
@@ -211,7 +213,7 @@ new Vue({
             let $vue = this;
             $.ajax({
                 method: 'POST',
-                url: APP.url('academico/matriculable/procesarTipoMatricula'),
+                url: APP.url(`${rutaModulo}/procesarTipoMatricula`),
                 data: {
                     confTurnoAtencion: item.id
                 },
@@ -233,7 +235,7 @@ new Vue({
             MODAL.showWait("Espere un momento por favor");
             $.ajax({
                 method: 'POST',
-                url: APP.url('academico/matriculable/finalizarPrioridad'),
+                url: APP.url(`${rutaModulo}/finalizarPrioridad`),
                 success: function (response) {
                     if (response.success) {
                         $vue.findCiclo();
@@ -253,7 +255,7 @@ new Vue({
             MODAL.showWait("Espere un momento por favor");
             $.ajax({
                 method: 'POST',
-                url: APP.url('academico/matriculable/generar'),
+                url: APP.url(`${rutaModulo}/generar`),
                 success: function (response) {
                     if (response.success) {
                         $vue.resumen = response.data;
@@ -274,7 +276,7 @@ new Vue({
             MODAL.showWait("Espere un momento por favor");
             $.ajax({
                 method: 'POST',
-                url: APP.url('academico/matriculable/limpiarMatriculable'),
+                url: APP.url(`${rutaModulo}/limpiarMatriculable`),
                 success: function (response) {
                     if (response.success) {
                         $vue.resumen = response.data;
@@ -295,7 +297,7 @@ new Vue({
             MODAL.showWait("Espere un momento por favor");
             $.ajax({
                 method: 'POST',
-                url: APP.url('academico/matriculable/finalizarMatriculable'),
+                url: APP.url(`${rutaModulo}/finalizarMatriculable`),
                 success: function (response) {
                     if (response.success) {
                         $vue.resumen = response.data;
@@ -321,7 +323,7 @@ new Vue({
             }
             $.ajax({
                 method: 'POST',
-                url: APP.url('academico/matriculable/saveMatriculable/' + $vue.tipoCondicional.name),
+                url: APP.url(`${rutaModulo}/saveMatriculable/${$vue.tipoCondicional.name}`),
                 contentType: "application/json",
                 data: JSON.stringify($vue.alumno),
                 success: function (response) {
@@ -349,7 +351,7 @@ new Vue({
             if (nombre != '' || nombre != null || nombre != undefined) {
 
                 $.ajax({
-                    url: APP.url("academico/matriculable/allAlumnoByNombre"),
+                    url: APP.url(`${rutaModulo}/allAlumnoByNombre`),
                     dataType: 'json',
                     type: 'post',
                     data: {nombre: nombre}
@@ -382,7 +384,7 @@ new Vue({
             MODAL.showWait("Espere un momento por favor");
             $.ajax({
                 method: 'POST',
-                url: APP.url('academico/matriculable/verificarAvance'),
+                url: APP.url(`${rutaModulo}/verificarAvance`),
                 success: function (response) {
                     if (!response.success) {
                         MODAL.hideWait();
@@ -421,7 +423,7 @@ new Vue({
 
             $.ajax({
                 method: 'POST',
-                url: APP.url('academico/matriculable/verificarAlumnosNmat'),
+                url: APP.url(`${rutaModulo}/verificarAlumnosNmat`),
                 success: function (response) {
                     if (!response.success) {
                         $vue.messageAvance = response.message;
@@ -453,7 +455,7 @@ new Vue({
             MODAL.showWait("Espere un momento por favor");
             $.ajax({
                 method: 'POST',
-                url: APP.url('academico/matriculable/beneficiar'),
+                url: APP.url(`${rutaModulo}/beneficiar`),
                 contentType: "application/json",
                 data: JSON.stringify(item),
                 success: function (response) {
@@ -481,7 +483,7 @@ new Vue({
             let $vue = this;
             $.ajax({
                 method: 'POST',
-                url: APP.url('academico/matriculable/agregarAporteCarnet'),
+                url: APP.url(`${rutaModulo}/agregarAporteCarnet`),
                 contentType: "application/json",
                 data: JSON.stringify(item),
                 success: function (response) {
@@ -511,7 +513,7 @@ new Vue({
             let $vue = this;
             $.ajax({
                 method: 'POST',
-                url: APP.url('academico/matriculable/quitarAporteCarnet'),
+                url: APP.url(`${rutaModulo}/quitarAporteCarnet`),
                 contentType: "application/json",
                 data: JSON.stringify(item),
                 success: function (response) {
@@ -541,7 +543,7 @@ new Vue({
             let $vue = this;
             $.ajax({
                 method: 'POST',
-                url: APP.url('academico/matriculable/agregarAporteDuplicadoCarnet'),
+                url: APP.url(`${rutaModulo}/agregarAporteDuplicadoCarnet`),
                 contentType: "application/json",
                 data: JSON.stringify(item),
                 success: function (response) {
@@ -571,7 +573,7 @@ new Vue({
             let $vue = this;
             $.ajax({
                 method: 'POST',
-                url: APP.url('academico/matriculable/quitarAporteDuplicadoCarnet'),
+                url: APP.url(`${rutaModulo}/quitarAporteDuplicadoCarnet`),
                 contentType: "application/json",
                 data: JSON.stringify(item),
                 success: function (response) {
@@ -601,7 +603,7 @@ new Vue({
             let $vue = this;
             $.ajax({
                 method: 'POST',
-                url: APP.url('academico/matriculable/agregarAporteSegundaCarrera'),
+                url: APP.url(`${rutaModulo}/agregarAporteSegundaCarrera`),
                 contentType: "application/json",
                 data: JSON.stringify(item),
                 success: function (response) {
@@ -621,7 +623,7 @@ new Vue({
         },
         urlGoMaipi(item) {
             let $vue = this;
-            return APP.url('academico/alumno/' + item.alumno.id + '/goMaipi') + $vue.getOrigenURL();
+            return APP.url(`academico/alumno/${item.alumno.id}/goMaipi`) + $vue.getOrigenURL();
         },
         verAportes(item) {
             let $vue = this;
@@ -631,7 +633,7 @@ new Vue({
 
             $.ajax({
                 method: 'POST',
-                url: APP.url('academico/matriculable/getInfoAportes/' + item.id),
+                url: APP.url(`${rutaModulo}/getInfoAportes/${item.id}`),
                 contentType: "application/json",
                 success: function (response) {
                     if (response.success) {
@@ -660,7 +662,7 @@ new Vue({
 
             $.ajax({
                 method: 'POST',
-                url: APP.url('academico/matriculable/findBoleta/' + idMatriculaResumen),
+                url: APP.url(`${rutaModulo}/findBoleta/${idMatriculaResumen}`),
                 contentType: "application/json",
                 success: function (response) {
                     if (response.success) {
@@ -688,15 +690,15 @@ new Vue({
         },
         urlHabilitarCursos(item) {
             let $vue = this;
-            return APP.url('academico/alumno/' + item.id + '/configcursos') + $vue.getOrigenURL();
+            return APP.url(`academico/alumno/${item.id}/configcursos`) + $vue.getOrigenURL();
         },
         generarReporte(param) {
             let $vue = this;
             let urll = '';
             $vue.processreporte = true;
 
-            if (param == "candidatosAptPre" || param == "votantesAptPre") {
-                urll = APP.url('academico/matriculable/aptosPregrado');
+            if (param === "candidatosAptPre" || param === "votantesAptPre") {
+                urll = APP.url(`${rutaModulo}/aptosPregrado`);
             }
 
             axios({
@@ -720,6 +722,32 @@ new Vue({
                 $vue.processreporte = false;
                 notify(MESSAGES.errorComunicacion, "error");
             });
+        },
+        verModalidades(tipo) {
+            let $vue = this;
+            if ($vue.seleccionado === '') {
+                $vue.bgColorClass[tipo] = 'bg-light';
+                $vue.seleccionado = tipo;
+
+                $vue.$refs.load.querie.push({name: 'moe.codigo', value: tipo});
+                $vue.$refs.load.loadRemoteData();
+
+            } else if ($vue.seleccionado !== '' && $vue.seleccionado !== tipo) {
+                $vue.bgColorClass[$vue.seleccionado] = '';
+                $vue.bgColorClass[tipo] = 'bg-light';
+                $vue.seleccionado = tipo;
+
+                $vue.$refs.load.querie.push({name: 'moe.codigo', value: tipo});
+                $vue.$refs.load.loadRemoteData();
+
+            } else if ($vue.seleccionado !== '' && $vue.seleccionado === tipo) {
+                $vue.bgColorClass[$vue.seleccionado] = '';
+                $vue.seleccionado = '';
+
+                $vue.$refs.load.querie = [];
+                $vue.$refs.load.changeUrl('queries[moe.codigo]', null);
+                $vue.$refs.load.loadRemoteData();
+            }
         }
     }
 });

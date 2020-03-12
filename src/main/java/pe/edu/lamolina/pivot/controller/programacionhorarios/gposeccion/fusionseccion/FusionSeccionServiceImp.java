@@ -25,7 +25,8 @@ import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 import pe.edu.lamolina.model.horario.HorarioSeccion;
-import pe.edu.lamolina.pivot.controller.academico.tramitesacademicos.tramiteRetiroCiclo.ResponseRestService;
+import pe.edu.lamolina.model.seguridad.TokenIngresante;
+import pe.edu.lamolina.pivot.controller.responserest.ResponseRestService;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.pivot.dao.academico.GrupoSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaCursoDAO;
@@ -136,12 +137,12 @@ public class FusionSeccionServiceImp implements FusionSeccionService {
         int matriculados = origen.getMatriculados();
         for (Alumno alumno : alumnos) {
             MatriculaCurso matCurso = mapMatriculaCurso.get(alumno.getId());
-            responseRestService.createToken(ds);
-            JsonResponse response = responseRestService.retirarMatriculaCurso(matCurso, ds, EstadoMatriculaEnum.TRAS);
+            TokenIngresante token = responseRestService.createToken(ds);
+            JsonResponse response = responseRestService.retirarMatriculaCurso(matCurso, ds, EstadoMatriculaEnum.TRAS, token);
             Assert.isTrue(response.getSuccess(), response.getMessage());
 
-            responseRestService.createToken(ds);
-            response = responseRestService.matricularSeccion(alumno, destino, ds);
+            token = responseRestService.createToken(ds);
+            response = responseRestService.matricularSeccion(alumno, destino, ds, token);
             Assert.isTrue(response.getSuccess(), response.getMessage());
 
             trasladados++;

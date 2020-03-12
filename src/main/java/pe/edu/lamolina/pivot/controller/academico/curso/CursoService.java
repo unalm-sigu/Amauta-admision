@@ -26,7 +26,7 @@ public interface CursoService {
 
     Curso find(Long id);
 
-    void cambiarEstadoCurso(Curso curso);
+    void cambiarEstadoCurso(Curso curso, DataSessionPivot ds);
 
     List<ModalidadEstudio> modalidadesEstudioPrePost(Compania cia);
 

@@ -2399,4 +2399,38 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
 
     }
 
+    @Override
+    public String reenviarNotas(GrupoSeccion grupoSeccion, DataSessionPivot ds) {
+
+        grupoSeccion = this.findGrupo(grupoSeccion.getId());
+        List<MatriculaSeccion> matriculasSeccion = matriculaSeccionDAO.allMatriculadosByGpoSeccion(grupoSeccion);
+
+        Curso curso = grupoSeccion.getCurso();
+        List<MatriculaResumen> matriculasResumen = matriculasSeccion.stream().map(x -> x.getMatriculaResumen()).collect(Collectors.toList());
+        List<MatriculaCurso> matriculasCursoAll = matriculaCursoDAO.allActivosByMatriculaResumenCurso(matriculasResumen, curso);
+
+        List<Alumno> alumnos = matriculasCursoAll.stream().map(x -> x.getMatriculaResumen().getAlumno()).collect(Collectors.toList());
+        List<AlumnoCicloCurso> cursosLlevadosAll = alumnoCicloCursoDAO.allCursadosByAlumnosCurso(alumnos, curso);
+        Map<Long, List<AlumnoCicloCurso>> mapCursoLlevado = TypesUtil.convertListToMapList("alumnoCiclo.alumno.id", cursosLlevadosAll);
+
+        this.verificarTramiteRetiroCicloEPG(alumnos, matriculasResumen, ds.getUsuario(), ds.getCicloAcademico());
+
+        String token = RandomStringUtils.randomAlphanumeric(43);
+        String tokenHisto = token + TOKEN_HISTORIAL;
+        String tokenProm = token + TOKEN_PROMEDIOS;
+        String tokenCurri = token + TOKEN_CURRICULA;
+        visorCalculoNotas.createToken(tokenHisto, alumnos);
+        visorCalculoNotas.createToken(tokenProm, alumnos);
+        visorCalculoNotas.createToken(tokenCurri, alumnos);
+
+        for (MatriculaCurso matriculaCurso : matriculasCursoAll) {
+            MatriculaResumen resumen = matriculaCurso.getMatriculaResumen();
+            List<AlumnoCicloCurso> cursosLlevados = TypesUtil.getListNotNull(mapCursoLlevado.get(resumen.getAlumno().getId()));
+            List<MatriculaCurso> cursosMatriculados = new ArrayList(Arrays.asList(matriculaCurso));
+            promedioService.actasNotasHaciaHistorial(resumen, cursosMatriculados, cursosLlevados, ds, tokenHisto);
+        }
+
+        return token;
+    }
+
 }

@@ -6,9 +6,10 @@ import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoOmisoEleccion;
 import pe.edu.lamolina.model.academico.CicloAcademico;
-import static pe.edu.lamolina.model.enums.EstadoAporteEnum.DEBE;
+import static pe.edu.lamolina.model.enums.DeudaEstadoEnum.DEU;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoOmisoEleccionDAO;
 
 @Repository
@@ -63,8 +64,18 @@ public class AlumnoOmisoEleccionDAOH extends AbstractEasyDAO<AlumnoOmisoEleccion
                 .filter("motivo", omisoEleccion.getMotivo())
                 .filter("al.id", omisoEleccion.getAlumno())
                 .filter("ca.id", omisoEleccion.getCicloAcademico())
-                .filter("estado", DEBE.name());
+                .filter("estado", DEU.name());
         return find(sql);
+    }
+
+    @Override
+    public List<AlumnoOmisoEleccion> findByAlumno(Alumno alumno) {
+        Octavia sql = new Octavia()
+                .from(AlumnoOmisoEleccion.class, "aoe")
+                .join("alumno al", "cicloAcademico ca")
+                .filter("estado", DEU.name())
+                .filter("al.id", alumno);
+        return all(sql);
     }
 
 }

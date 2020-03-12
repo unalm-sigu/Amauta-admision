@@ -175,6 +175,41 @@ $(function () {
                     }
                 }
             });
+        },
+        reenviarActa: function (item, e) {
+            bootbox.confirm({
+                message: "Seguro que desea reenviar el acta",
+                title: 'Reabrir Acta del Grupo',
+                buttons: {
+                    confirm: {label: 'Reenviar'},
+                    cancel: {label: 'Cancelar', className: "btn-link"}
+                },
+                callback: function (result) {
+                    if (result) {
+                        MODAL.showWait("Espere un momento por favor");
+                        $.ajax({
+                            url: APP.url('docente/notasacademica/reenviarNotas'),
+                            type: 'POST',
+                            async: true,
+                            data: {grupo: item.attr('rel')},
+                            success: function (response) {
+                                MODAL.hideWait();
+                                MODAL.hide();
+                                if (response.success) {
+                                    notify(response.message, "info");
+                                    dynatable.process();
+                                } else {
+                                    notify(response.message, "error");
+                                }
+                            },
+                            error: function () {
+                                MODAL.hideWait();
+                                notify(MESSAGES.errorComunicacion, "error");
+                            }
+                        });
+                    }
+                }
+            });
         }, reporteActa: function (item, e) {
             location.href = APP.url('docente/notasacademica/reporteDeActas?seccion=' + item.attr("rel"));
         }
@@ -190,6 +225,9 @@ $(function () {
     });
     $("body").delegate(".ver-modalidades", "click", function () {
         ActaDepartamento.verModalidades($(this));
+    });
+    $("body").delegate(".reenviarActa", "click", function () {
+        ActaDepartamento.reenviarActa($(this));
     });
 
 

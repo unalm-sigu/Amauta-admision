@@ -22,4 +22,6 @@ public interface OmisoEleccionService {
 
     public List<Alumno> allAlumnoByNombre(String nombre, DataSessionPivot ds);
 
+    public void modificarAporte(Alumno alumno, DataSessionPivot ds);
+
 }

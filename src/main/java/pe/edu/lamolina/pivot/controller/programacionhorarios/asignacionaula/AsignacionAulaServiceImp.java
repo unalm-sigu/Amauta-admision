@@ -133,15 +133,8 @@ public class AsignacionAulaServiceImp implements AsignacionAulaService {
         if (asignacionAula.getId() != null) {
             asignacionAula = asignacionAulaDAO.find(asignacionAula.getId());
             List<Seccion> seccionesByCiclo = seccionDAO.allSeccionesAulaAutoByCiclo(asignacionAula.getCicloAcademico());
-            /*   for (Seccion seccion : seccionesByCiclo) {
-                seccion.setAulaAsignadaAuto(Boolean.FALSE);
-                seccion.setAula(null);
-                seccionDAO.update(seccion);
-            }*/
             seccionDAO.resetAsignacionAulaAuto(seccionesByCiclo);
-            // seccionesByCiclo.removeIf(x -> !x.getAulaAsignadaAuto());
             horarioAulaDAO.deleteBySecciones(seccionesByCiclo);
-            //  seccionDAO.updateAulaAignacionAutoByCiclo(asignacionAula.getCicloAcademico(), Boolean.FALSE);
             asignacionAulaDAO.delete(asignacionAula);
         }
     }

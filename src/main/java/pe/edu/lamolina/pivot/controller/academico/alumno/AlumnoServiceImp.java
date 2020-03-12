@@ -11,13 +11,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,7 +36,6 @@ import pe.edu.lamolina.model.academico.CursoOpcionalCurricula;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.SituacionAcademica;
 import pe.edu.lamolina.model.enums.AlumnoEstadoEnum;
-import pe.edu.lamolina.model.enums.AmbienteAplicacionEnum;
 import pe.edu.lamolina.model.enums.ContenidoEmailEnum;
 import pe.edu.lamolina.model.enums.CursoCurriculaEstadoEnum;
 import pe.edu.lamolina.model.enums.CursoHabilEstadoEnum;
@@ -48,18 +44,14 @@ import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.enums.OrigenDataSituacionAcademicaEnum;
-import pe.edu.lamolina.model.enums.OrigenTokenEnum;
-import pe.edu.lamolina.model.enums.ParametrosSistemasEnum;
 import pe.edu.lamolina.model.enums.PersonaEstadoEnum;
 import pe.edu.lamolina.model.enums.RolEnum;
 import pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum;
 import pe.edu.lamolina.model.enums.TipoOficinaEnum;
 import pe.edu.lamolina.model.enums.TipoTramiteTrasladoEnum;
-import pe.edu.lamolina.model.enums.TokenEstadoEnum;
 import pe.edu.lamolina.model.enums.UserEstadoEnum;
 import pe.edu.lamolina.model.general.Colaborador;
 import pe.edu.lamolina.model.general.Oficina;
-import pe.edu.lamolina.model.general.Parametro;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.general.TipoDocIdentidad;
 import pe.edu.lamolina.model.general.TipoOficina;
@@ -67,8 +59,6 @@ import pe.edu.lamolina.model.inscripcion.ContenidoCarta;
 import pe.edu.lamolina.model.matricula.AlumnoCursoCurricula;
 import pe.edu.lamolina.model.posgrado.CursoHabilEscuela;
 import pe.edu.lamolina.model.seguridad.Rol;
-import pe.edu.lamolina.model.seguridad.Sistema;
-import pe.edu.lamolina.model.seguridad.TokenIngresante;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.seguridad.UsuarioRol;
 import pe.edu.lamolina.model.tramite.TramiteTraslado;
@@ -104,7 +94,6 @@ import pe.edu.lamolina.pivot.dao.horario.HorarioSeccionDAO;
 import pe.edu.lamolina.pivot.dao.posgrado.CursoHabilEscuelaDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.RolDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.SistemaDAO;
-import pe.edu.lamolina.pivot.dao.seguridad.TokenIngresanteDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.UsuarioDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.UsuarioRolDAO;
 import pe.edu.lamolina.pivot.dao.tramite.TramiteTrasladoDAO;
@@ -140,8 +129,6 @@ public class AlumnoServiceImp implements AlumnoService {
     UsuarioDAO usuarioDAO;
     @Autowired
     AlumnoCicloCursoDAO alumnoCicloCursoDAO;
-    @Autowired
-    TokenIngresanteDAO tokenIngresanteDAO;
     @Autowired
     MatriculaSeccionDAO matriculaSeccionDAO;
     @Autowired
@@ -676,24 +663,6 @@ public class AlumnoServiceImp implements AlumnoService {
     }
 
     @Override
-    @Transactional
-    public String goMatricula(Long idAlumno, Usuario usuario) {
-
-        Alumno alumno = alumnoDAO.find(new Alumno(idAlumno));
-        String valor = RandomStringUtils.randomAlphanumeric(45);
-        TokenIngresante token = new TokenIngresante();
-        token.setEstado(TokenEstadoEnum.ACT);
-        token.setOrigenEnum(OrigenTokenEnum.AMAUTA);
-        token.setFechaRegistro(new Date());
-        token.setFechaVencimiento(new DateTime().plusMinutes(1).toDate());
-        token.setPersona(alumno.getPersona());
-        token.setValor(valor);
-        token.setUserRegistro(usuario);
-        tokenIngresanteDAO.save(token);
-        return alumno.getCodigo();
-    }
-
-    @Override
     public List<Carrera> allCarrerasByuser(Usuario usuario, Persona persona) {
 
         Colaborador colaborador = colaboradorDAO.findActivoByPersonaOficina(new Oficina(OficinaEnum.OERA.getId()), persona);
@@ -724,18 +693,6 @@ public class AlumnoServiceImp implements AlumnoService {
         all.addAll(carrera2);
         return all;
 
-    }
-
-    @Override
-    public Parametro findParametroByEnum(ParametrosSistemasEnum parametrosSistemasEnum) {
-        AmbienteAplicacionEnum ambiente = AmbienteAplicacionEnum.valueOf(despliegueConfig.getAmbiente().toUpperCase());
-        logger.debug("********************** ambiente name {}", ambiente.name());
-        logger.debug("********************** parametrosSistemasEnum name {}", parametrosSistemasEnum.name());
-        logger.debug("********************** parametrosSistemasEnum contex {}", parametrosSistemasEnum.getContexto());
-        logger.debug("********************** parametrosSistemasEnum param {}", parametrosSistemasEnum.getParametro());
-        Parametro paramRutaIntranet = parametroDAO.findByAmbienteParametroSistema(ambiente, parametrosSistemasEnum);
-        logger.debug("********************** paramRutaMatricula {} path {}", paramRutaIntranet.getId(), paramRutaIntranet.getValor());
-        return paramRutaIntranet;
     }
 
     @Override
@@ -1000,29 +957,6 @@ public class AlumnoServiceImp implements AlumnoService {
             throw new PhobosException("El alumno con " + persona.getApellidosNombres() + " no tiene registro de usuario");
         }
         return usuario;
-    }
-
-    @Override
-    @Transactional
-    public TokenIngresante goMaipi(Long idAlumno, Usuario usuario) {
-        Alumno alumno = alumnoDAO.find(new Alumno(idAlumno));
-        TokenIngresante token = tokenIngresanteDAO.findUltimoVigente(alumno.getPersona());
-
-        if (token == null) {
-            token = new TokenIngresante();
-            token.setOrigenEnum(OrigenTokenEnum.AMAUTA);
-            token.setEstado(TokenEstadoEnum.ACT);
-            token.setFechaRegistro(new Date());
-            token.setFechaVencimiento(new DateTime().plusSeconds(10).toDate());
-            token.setPersona(alumno.getPersona());
-            token.setAlumno(alumno);
-            String valor = RandomStringUtils.randomAlphanumeric(45);
-            token.setValor(valor);
-            token.setUserRegistro(usuario);
-            tokenIngresanteDAO.save(token);
-        }
-
-        return token;
     }
 
     @Override

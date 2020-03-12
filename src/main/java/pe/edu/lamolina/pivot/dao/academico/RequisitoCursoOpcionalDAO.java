@@ -18,4 +18,5 @@ public interface RequisitoCursoOpcionalDAO extends EasyDAO<RequisitoCursoOpciona
 
     List<RequisitoCursoOpcional> allPostRequisitosByCursoElectivo(CursoOpcionalCurricula cursoElectivo);
 
+    List<RequisitoCursoOpcional> allRequisitoOpcionalDe(CursoCurricula cursosCurricula);
 }

@@ -57,6 +57,7 @@ import pe.edu.lamolina.model.tramite.TramiteTraslado;
 import pe.edu.lamolina.pivot.config.DespliegueConfig;
 import pe.edu.lamolina.pivot.controller.academico.avancecurricular.AvanceCurricularService;
 import pe.edu.lamolina.pivot.controller.academico.promedio.PromedioService;
+import pe.edu.lamolina.pivot.controller.responserest.ResponseRestService;
 import pe.edu.lamolina.pivot.controller.academico.visitante.AlumnoHelper;
 import pe.edu.lamolina.pivot.controller.seguridad.verificador.VerificadorService;
 import pe.edu.lamolina.pivot.controller.seguridad.verificador.VerificadorServiceImp;
@@ -74,9 +75,6 @@ public class AlumnoController {
     AlumnoService service;
 
     @Autowired
-    VerificadorService verificadorService;
-
-    @Autowired
     AvanceCurricularService avanceCurricularService;
 
     @Autowired
@@ -84,6 +82,12 @@ public class AlumnoController {
 
     @Autowired
     DespliegueConfig despliegueConfig;
+
+    @Autowired
+    ResponseRestService responseRestService;
+
+    @Autowired
+    VerificadorService verificadorService;
 
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {
@@ -535,14 +539,15 @@ public class AlumnoController {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         Usuario usuario = ds.getUsuario();
-        String codigo = service.goMatricula(idAlumno, usuario);
-        Parametro paramRutaMatricula = service.findParametroByEnum(ParametrosSistemasEnum.SALTO_HACIA_MATRICULA);
+        Alumno alumno = service.findAlumnoFisico(idAlumno);
+        responseRestService.createTokenForAlumno(alumno, ds);
+        Parametro paramRutaMatricula = responseRestService.findParametro(ParametrosSistemasEnum.SALTO_HACIA_MATRICULA);
         if (paramRutaMatricula != null) {
             StringBuilder sb = new StringBuilder();
             sb.append("redirect:");
             sb.append(paramRutaMatricula.getValor());
             sb.append("/amauta/");
-            sb.append(codigo);
+            sb.append(alumno.getCodigo());
             sb.append("/");
             sb.append(usuario.getId());
             sb.append("/");
@@ -769,17 +774,14 @@ public class AlumnoController {
             @RequestParam(value = "origen", required = false) String origen, Model model, HttpSession session) throws InterruptedException {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-        Usuario usuario = ds.getUsuario();
-        TokenIngresante token = service.goMaipi(idAlumno, usuario);
-        Parametro paramRutaMatricula = service.findParametroByEnum(ParametrosSistemasEnum.SALTO_HACIA_INTRANET);
+        TokenIngresante token = responseRestService.createTokenForAlumno(new Alumno(idAlumno), ds);
+        Parametro paramRutaMatricula = responseRestService.findParametro(ParametrosSistemasEnum.SALTO_HACIA_INTRANET);
         if (paramRutaMatricula != null) {
             StringBuilder sb = new StringBuilder();
             sb.append("redirect:");
             sb.append(paramRutaMatricula.getValor());
             sb.append("/mapache/");
             sb.append(token.getValor());
-//            sb.append("?user=").append(ds.getUsuario().getGoogle());
-//            sb.append("?pathh=").append(RutaInicioEnum.FICHA_ING.name());
 
             logger.debug("********************** goMaipi {} ", sb.toString());
 

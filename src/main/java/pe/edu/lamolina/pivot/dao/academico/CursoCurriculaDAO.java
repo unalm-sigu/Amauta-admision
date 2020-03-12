@@ -36,4 +36,13 @@ public interface CursoCurriculaDAO extends EasyDAO<CursoCurricula> {
 
     CursoCurricula findByCursoAndTipo(TipoCursoCurricula tipo, Curso curso);
 
+    public void updateColumns(CursoCurricula cursoCurricula, String... params );
+
+    public List<CursoCurricula> allByCurso(String cursos);
+
+    public List<CursoCurricula> allByPlanCurricularCAD(PlanCurricular planCurricular);
+
+    public List<CursoCurricula> allByCurso(Curso cursoBD);
+
+    List<CursoCurricula> allByPlanCurricularACT(PlanCurricular plan);
 }

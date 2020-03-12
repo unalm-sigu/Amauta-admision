@@ -24,6 +24,7 @@ public class CursoEquivalenteDAOH extends AbstractEasyDAO<CursoEquivalente> impl
         Octavia sql = Octavia.query()
                 .from(CursoEquivalente.class, "ce")
                 .join("cursoCurricula cc", "cursoEquivalente cee", "cc.curso", "cc.planCurricular")
+                .left("cursoCaduco cca", "cca.curso")
                 .filter("cc.id", cursoCurricula)
                 .filter("estado", EstadoEnum.ACT.name());
 
@@ -35,6 +36,7 @@ public class CursoEquivalenteDAOH extends AbstractEasyDAO<CursoEquivalente> impl
         Octavia sql = Octavia.query()
                 .from(CursoEquivalente.class, "ce")
                 .join("cursoCurricula cc", "cursoEquivalente cee", "cc.curso", "cc.planCurricular")
+                .left("cursoCaduco cca", "cca.curso")
                 .in("cc.id", cursosCurricula)
                 .filter("estado", EstadoEnum.ACT.name());
 
@@ -46,6 +48,7 @@ public class CursoEquivalenteDAOH extends AbstractEasyDAO<CursoEquivalente> impl
         Octavia sql = Octavia.query()
                 .from(CursoEquivalente.class, "ce")
                 .join("cursoCurricula cc", "cursoEquivalente cee", "cc.curso", "cc.planCurricular")
+                .left("cursoCaduco cca", "cca.curso")
                 .filter("cc.planCurricular", planCurricular)
                 .filter("estado", EstadoEnum.ACT);
 
@@ -84,6 +87,7 @@ public class CursoEquivalenteDAOH extends AbstractEasyDAO<CursoEquivalente> impl
         Octavia sql = Octavia.query()
                 .from(CursoEquivalente.class, "ce")
                 .join("cursoCurricula cc", "cursoEquivalente cee", "cc.curso", "cc.planCurricular plan")
+                .left("cursoCaduco cca", "cca.curso")
                 .in("plan.id", planes)
                 .filter("estado", EstadoEnum.ACT);
 

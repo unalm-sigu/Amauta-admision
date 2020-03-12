@@ -16,12 +16,12 @@
                         </button>
                         <ul class="dropdown-menu">
                             <li class="pointer " v-if="ciclo.fechaVerificaNmat == null"><a v-on:click="revisar" >Verificar alumnos NMAT</a></li>
-                            <li  class="pointer " v-if="ciclo.fechaVerificaNmat != null &amp;&amp; ciclo.fechaMatriculables == null" ><a  v-on:click="generarMatriculables" >Generar</a></li>
-                            <li  class="pointer " v-if="ciclo.fechaMatriculables != null &amp;&amp; ciclo.fechaCierreMatriculable == null"><a  v-on:click="limpiarMatriculables" >Limpiar matriculable</a></li>
-                            <li  class="pointer " v-if="ciclo.fechaMatriculables != null &amp;&amp; ciclo.fechaCierreMatriculable == null"><a  v-on:click="finalizarMatriculable" >Finalizar matriculable</a></li>
-                            <li  class="pointer "><a  v-on:click="modal">Agregar Matriculable</a></li>
-                            <li  class="pointer " v-if="ciclo.fechaPrioridades == null &amp;&amp; ciclo.fechaCierrePrioridades==null &amp;&amp; ciclo.fechaCierreMatriculable != null" ><a v-on:click="generarPrioridad">Procesar Prioridad</a></li>
-                            <li  class="pointer " v-if="ciclo.fechaPrioridades != null &amp;&amp; ciclo.fechaCierrePrioridades==null" ><a v-on:click="eliminarPrioridad">Limpiar Prioridades</a></li>
+                            <li class="pointer " v-if="ciclo.fechaVerificaNmat != null &amp;&amp; ciclo.fechaMatriculables == null" ><a  v-on:click="generarMatriculables" >Generar</a></li>
+                            <li class="pointer " v-if="ciclo.fechaMatriculables != null &amp;&amp; ciclo.fechaCierreMatriculable == null"><a  v-on:click="limpiarMatriculables" >Limpiar matriculable</a></li>
+                            <li class="pointer " v-if="ciclo.fechaMatriculables != null &amp;&amp; ciclo.fechaCierreMatriculable == null"><a  v-on:click="finalizarMatriculable" >Finalizar matriculable</a></li>
+                            <li class="pointer "><a  v-on:click="verAddMatriculable">Agregar Matriculable</a></li>
+                            <li class="pointer " v-if="ciclo.fechaPrioridades == null &amp;&amp; ciclo.fechaCierrePrioridades==null &amp;&amp; ciclo.fechaCierreMatriculable != null" ><a v-on:click="generarPrioridad">Procesar Prioridad</a></li>
+                            <li class="pointer " v-if="ciclo.fechaPrioridades != null &amp;&amp; ciclo.fechaCierrePrioridades==null" ><a v-on:click="eliminarPrioridad">Limpiar Prioridades</a></li>
                             <li class="pointer " v-if="ciclo.fechaPrioridades != null &amp;&amp; ciclo.fechaCierrePrioridades==null" ><a v-on:click="finalizarPrioridad">Finalizar Prioridades</a></li>
                             <li class="pointer " v-if="ciclo.fechaCierrePrioridades != null " ><a v-on:click="findConfiguraciones">Asignar Turnos</a></li>
                             <li class="pointer " ><a id="subirEgresado">Subir Egresados</a></li>
@@ -38,26 +38,26 @@
                             <!--<pre>{{ciclo}}</pre>-->
                             <div class="col-md-12">
                                 <div class="row">
-                                    <div class="col-md-3 text-center">
-                                        <a class="ver-modalidades text-danger pointer" rel="pregrado">
+                                    <div class="col-md-3 text-center" v-bind:class="bgColorClass['pregrado']">
+                                        <a  v-on:click="verModalidades('pregrado')" class="ver-modalidades text-danger pointer" rel="pregrado">
                                             <span class="h1 block bold" v-text="resumen.pregrado">23</span>
                                             <small class="block m-b-xs">Pregrado</small>
                                         </a>
                                     </div>
-                                    <div class="col-md-3 text-center">
-                                        <a class="ver-modalidades text-black pointer" rel="postgrado">
+                                    <div class="col-md-3 text-center" v-bind:class="bgColorClass['postgrado']" >
+                                        <a v-on:click="verModalidades('postgrado')" class="ver-modalidades text-black pointer" rel="postgrado">
                                             <span class="h1 block bold" v-text="resumen.postgrado">23</span>
                                             <small class="block m-b-xs">Posgrado</small>
                                         </a>
                                     </div>
-                                    <div class="col-md-3 text-center">
-                                        <a class="ver-modalidades text-success pointer" rel="visitante">
+                                    <div class="col-md-3 text-center" v-bind:class="bgColorClass['visitante']">
+                                        <a v-on:click="verModalidades('visitante')" class="ver-modalidades text-success pointer" rel="visitante">
                                             <span class="h1 block bold" v-text="resumen.visitante">23</span>
                                             <small class="block m-b-xs">Visitantes</small>
                                         </a>
                                     </div>
-                                    <div class="col-md-3 text-center">
-                                        <a class="ver-modalidades text-warning pointer" rel="especiales">
+                                    <div class="col-md-3 text-center" v-bind:class="bgColorClass['especial']">
+                                        <a v-on:click="verModalidades('especial')" class="ver-modalidades text-warning pointer" rel="especiales">
                                             <span class="h1 block bold" v-text="resumen.especiales">23</span>
                                             <small class="block m-b-xs">Especiales</small>
                                         </a>
@@ -236,6 +236,7 @@
                 var cicloJson = /*[[${ciclo.toString()}]]*/ 'json';
                 var resumenJson = /*[[${resumen.toString()}]]*/ 'json';
                 var tipoCondicionalJson = /*[[${tipoCondicional.toString()}]]*/ 'json';
+                var rutaModulo = 'academico/matriculable';
                 /*]]>*/
             </script>
             <div th:substituteby="_modules/vue-modal"></div>

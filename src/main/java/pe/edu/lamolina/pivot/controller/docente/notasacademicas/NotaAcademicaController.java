@@ -1486,6 +1486,29 @@ public class NotaAcademicaController {
     }
 
     @ResponseBody
+    @RequestMapping("reenviarNotas")
+    public JsonResponse reenviarNotas(
+            @RequestParam(name = "grupo", required = true) Long gpoSeccionId,
+            HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        ds.setFechaAccionAudit(new Date());
+
+        String token = service.reenviarNotas(new GrupoSeccion(gpoSeccionId), ds);
+        service.calcularPromedios(new GrupoSeccion(gpoSeccionId), ds, token);
+        service.revisarCurriculaAlumnos(new GrupoSeccion(gpoSeccionId), ds, token);
+        service.revisarMatriculables(new GrupoSeccion(gpoSeccionId), ds, token);
+
+        String message = "Acta cerrada correctamente";
+
+        response.setMessage(message);
+        response.setSuccess(true);
+
+        return response;
+    }
+
+    @ResponseBody
     @RequestMapping("desvincularPlanCalificacion")
     public JsonResponse desvincularPlanCalificacion(@RequestParam(name = "grupo", required = true) Long grupoId,
             HttpSession session, Model model,

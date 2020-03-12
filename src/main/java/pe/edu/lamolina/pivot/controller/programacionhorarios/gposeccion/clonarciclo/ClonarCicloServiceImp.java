@@ -280,7 +280,6 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
         for (GrupoSeccion gpoSeccOrigen : gsOrigenes) {
             esCursoPosgrado = gpoSeccOrigen.getAnexoBoletin().getAnexoSuperior().isAnexoCursosPostgrado();
             esCursoPregrado = !esCursoPosgrado;
-            //ModalidadEstudio modalidad = curso.getModalidadEstudio();
             eventoDictadoClases = eventoDictadoVeranoPregrado;
             if (cicloDestino.getTipoEnum() == TipoCicloEnum.REG && esCursoPosgrado) {
                 eventoDictadoClases = eventoDictadoPosgrado;
@@ -319,7 +318,6 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
                     if (curCurriculaMap.get(curso.getId()) != null) {
                         cursoCiclo.setTipoCursoCurricula(tipoCursoGeneral);
                     }
-                    // cursoCicloAcademicoDAO.save(cursoCiclo);
                     cursosCicloGen.add(cursoCiclo);
                     mapCursoCicloGen.put(curso.getId(), cursoCiclo);
                 }
@@ -341,7 +339,6 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
                 precioCurso.setUserPrecio(ds.getUsuario());
                 precioCurso.setEstado(EstadoEnum.ACT.name());
 
-                //precioCursoEstructuraDAO.save(precioCurso);
                 precioCursoGen.add(precioCurso);
             }
 
@@ -362,7 +359,6 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
             gpoSeccNew.setEstado(gpoSeccOrigen.getEstado());
             gpoSeccNew.setTipoDictadoEnum(TipoDictadoGrupoSeccionEnum.SEM);
 
-            //grupoSeccionDAO.save(gpoSeccNew);
             gpoSeccNew.setSecciones(new ArrayList());
             gposSeccionesGen.add(gpoSeccNew);
 
@@ -466,7 +462,6 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
                     if (gpoNew != null && existeAula) {
                         List<String> diasHorasSeccion = diasHorasSecc.stream().map(x -> x.getKey()).collect(Collectors.toList());
                         if (!seccNew.getAula().getPermiteCruceBoolean() && !diasHorasSeccion.isEmpty()) {
-                            //List<HorarioAula> horariosAulasFound = horarioAulaDAO.allRangoDiaAndAulaByDiasHoras(diasHorasSeccion, seccNew.getAula(), eventoDictadoClases.getFechaInicio(), eventoDictadoClases.getFechaFin());
                             List<HorarioAula> horariosAulasFound = new ArrayList();
                             for (String key : diasHorasSeccion) {
                                 String keyHorario = aulaNew.getId() + "-" + key;
@@ -487,7 +482,6 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
                     }
 
                 }
-                //seccionDAO.save(seccNew);
                 seccNew.setHorarioSeccion(new ArrayList());
                 seccNew.setHorariosAula(new ArrayList());
                 seccNew.setDocenteSeccion(new ArrayList());
@@ -511,7 +505,6 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
                         if (ObjectUtil.getParentTree(seccNew, "aula.id") != null) {
                             horarioSecc.setAula(seccNew.getAula());
                         }
-                        //horarioSeccionDAO.save(horarioSecc);
                         seccNew.getHorarioSeccion().add(horarioSecc);
 
                         if (existeAula && !aula.getPermiteCruceBoolean()) {
@@ -524,7 +517,6 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
                             horarioAula.setTipoEnum(TipoHorarioAulaEnum.DICT);
                             horarioAula.setFechaInicio(eventoDictadoClases.getFechaInicio());
                             horarioAula.setFechaFin(eventoDictadoClases.getFechaFin());
-                            //horarioAulaDAO.save(horarioAula);
                             seccNew.getHorariosAula().add(horarioAula);
 
                             String key = horarioAula.getKey();
@@ -551,7 +543,6 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
                             horarioTCUR.add(horarioSecc);
                         }
                     }
-                    // dhgdhd, ver auka de seccionnew
                 }
 
                 List<DocenteSeccion> docenteSeccion = seccOrigen.getDocenteSeccion();
@@ -567,13 +558,11 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
                     profeSeccNew.setSeccion(seccNew);
                     profeSeccNew.setPorcentajeCarga(profeSeccOrigen.getPorcentajeCarga());
 
-                    //docenteSeccionDAO.save(profeSeccNew);
                     seccNew.getDocenteSeccion().add(profeSeccNew);
                 }
 
                 if (docenteSeccion.size() == 1) {
                     seccNew.setSituacionDocenteEnum(SituacionDocenteEnum.COR);
-                    //seccionDAO.update(seccNew);
                 }
 
                 List<RestriccionCarrera> restriccionCarreras = seccOrigen.getRestriccionesCarrera();
@@ -588,7 +577,6 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
                     restriccCarrNew.setSeccion(seccNew);
                     restriccCarrNew.setUsuarioRegistro(ds.getUsuario());
 
-                    //restriccionCarreraDAO.save(restriccCarrNew);
                     seccNew.getRestriccionesCarrera().add(restriccCarrNew);
                 }
 
@@ -604,7 +592,6 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
                     restriccFacNew.setSeccion(seccNew);
                     restriccFacNew.setUsuarioRegistro(ds.getUsuario());
 
-                    //restriccionFacultadDAO.save(restriccFacNew);
                     seccNew.getRestriccionesFacultad().add(restriccFacNew);
                 }
 
@@ -620,7 +607,6 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
                     restriccModalNew.setSeccion(seccNew);
                     restriccModalNew.setUsuarioRegistro(ds.getUsuario());
 
-                    //restriccionModalidadDAO.save(restriccModalNew);
                     seccNew.getRestriccionesModalidad().add(restriccModalNew);
                 }
 
@@ -636,7 +622,6 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
                     restriccRepiteNew.setTipoRepitencia(restriccRepiteOrigen.getTipoRepitencia());
                     restriccRepiteNew.setUsuarioRegistro(ds.getUsuario());
 
-                    //restriccionRepitenciaDAO.save(restriccRepiteNew);
                     seccNew.getRestriccionesRepitencia().add(restriccRepiteNew);
                 }
             }

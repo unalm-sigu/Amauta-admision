@@ -15,8 +15,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.apache.commons.lang3.RandomStringUtils;
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,29 +47,21 @@ import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.academico.SituacionAcademica;
 import pe.edu.lamolina.model.aporte.AporteAlumnoCiclo;
 import pe.edu.lamolina.model.aporte.BoletaIngresante;
-import pe.edu.lamolina.model.constantines.GlobalConstantine;
-
-import pe.edu.lamolina.model.enums.AmbienteAplicacionEnum;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.MAT;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.PMAT;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.RCI;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.RCU;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.RET;
-import pe.edu.lamolina.model.enums.OrigenTokenEnum;
-import pe.edu.lamolina.model.enums.ParametrosSistemasEnum;
 import pe.edu.lamolina.model.enums.RolEnum;
 import pe.edu.lamolina.model.enums.SituacionAcademicaEnum;
-import pe.edu.lamolina.model.enums.TokenEstadoEnum;
 import pe.edu.lamolina.model.finanzas.CuentaBancaria;
 import pe.edu.lamolina.model.general.Dia;
-import pe.edu.lamolina.model.general.Parametro;
 import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.horario.HorarioSeccion;
 import pe.edu.lamolina.model.matricula.AlumnoAvanceCurricular;
 import pe.edu.lamolina.model.matricula.AlumnoCursoCurricula;
 import pe.edu.lamolina.model.seguridad.Rol;
-import pe.edu.lamolina.model.seguridad.TokenIngresante;
 import pe.edu.lamolina.model.tramite.RetiroCiclo;
 import pe.edu.lamolina.model.tramite.RetiroCurso;
 import pe.edu.lamolina.pivot.config.DespliegueConfig;
@@ -99,7 +89,6 @@ import pe.edu.lamolina.pivot.dao.general.DiaDAO;
 import pe.edu.lamolina.pivot.dao.general.ParametroDAO;
 import pe.edu.lamolina.pivot.dao.horario.HoraDAO;
 import pe.edu.lamolina.pivot.dao.horario.HorarioSeccionDAO;
-import pe.edu.lamolina.pivot.dao.seguridad.TokenIngresanteDAO;
 import pe.edu.lamolina.pivot.dao.tramite.RetiroCicloDAO;
 import pe.edu.lamolina.pivot.dao.tramite.RetiroCursoDAO;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
@@ -150,9 +139,6 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
 
     @Autowired
     PromedioService promedioService;
-
-    @Autowired
-    TokenIngresanteDAO tokenIngresanteDAO;
 
     @Autowired
     CicloAcademicoDAO cicloAcademicoDAO;
@@ -277,6 +263,9 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
                 nodeRequisito.put("tipoDictadoCurso", requisito.getCursoRequisito().getCurso().getTipoCursoEnum().getValue());
 
                 AlumnoCursoCurricula alumnoCurs = mapAlumnoCurso.get(requisito.getCursoRequisito().getId());
+                if (alumnoCurs == null) {
+                    continue;
+                }
                 nodeRequisito.put("estado", alumnoCurs.getEstadoEnum().name());
                 nodeRequisito.put("estadoMatricula", alumnoCurs.getEstadoMatricula());
                 arrayPreRequisitos.add(nodeRequisito);
@@ -1070,54 +1059,4 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
         return "-";
     }
 
-//    private String returnFacultadMerito(AlumnoCiclo alumnoCiclo) {
-//        if (alumnoCiclo.getCuadroHonorFacultadNivel() != null) {
-//            return "C.Honor";
-//        } else if (alumnoCiclo.getQuintoSuperiorFacultadNivel() != null) {
-//            return "5to.Super.";
-//
-//        } else if (alumnoCiclo.getTercioSuperiorFacultadNivel() != null) {
-//            return "3cio.Super.";
-//        }
-//        return "-";
-//    }
-//
-//    private String returnCarreraMerito(AlumnoCiclo alumnoCiclo) {
-//        if (alumnoCiclo.getCuadroHonorCarreraNivel() != null) {
-//            return "C.Honor";
-//        } else if (alumnoCiclo.getQuintoSuperiorCarreraNivel() != null) {
-//            return "5to.Super.";
-//
-//        } else if (alumnoCiclo.getTercioSuperiorCarreraNivel() != null) {
-//            return "3cio.Super.";
-//        }
-//        return "-";
-//    }
-
-    @Override
-    @Transactional
-    public String getToken() {
-        String valor = RandomStringUtils.randomAlphanumeric(45);
-
-        TokenIngresante token = new TokenIngresante();
-        token.setOrigenEnum(OrigenTokenEnum.INTRANET);
-        token.setEstado(TokenEstadoEnum.ACT);
-        token.setFechaRegistro(new Date());
-        token.setFechaVencimiento(new DateTime().plusMinutes(25).toDate());
-        token.setPersona(GlobalConstantine.PERSONA_ADMIN);
-        token.setValor(valor);
-        token.setUserRegistro(GlobalConstantine.USUARIO_ADMIN);
-        tokenIngresanteDAO.save(token);
-
-        return valor;
-    }
-
-    @Override
-    @Transactional
-    public String getUrl() {
-
-        Parametro parametro = parametroDAO.findByAmbienteParametroSistema(AmbienteAplicacionEnum.valueOf(despliegueConfig.getAmbiente().toUpperCase()), ParametrosSistemasEnum.REST_INTRANET);
-
-        return parametro.getValor();
-    }
 }

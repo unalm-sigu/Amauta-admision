@@ -56,10 +56,11 @@ import pe.edu.lamolina.model.enums.TipoOficinaEnum;
 import pe.edu.lamolina.model.finanzas.DeudaAlumno;
 import pe.edu.lamolina.model.general.Parametro;
 import pe.edu.lamolina.model.general.Persona;
+import pe.edu.lamolina.model.seguridad.TokenIngresante;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.controller.academico.alumno.AlumnoResumen;
 import pe.edu.lamolina.pivot.controller.academico.alumno.AlumnoService;
-import pe.edu.lamolina.pivot.controller.academico.tramitesacademicos.tramiteRetiroCiclo.ResponseRestService;
+import pe.edu.lamolina.pivot.controller.responserest.ResponseRestService;
 import pe.edu.lamolina.pivot.controller.seguridad.verificador.VerificadorService;
 import pe.edu.lamolina.pivot.controller.seguridad.verificador.VerificadorServiceImp;
 import pe.edu.lamolina.pivot.controller.visores.RespositorVisor;
@@ -500,10 +501,12 @@ public class MatriculableController {
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
-            String token = service.saveMatriculable(alumno, ds);
+            if (TipoCondicionalEnum.OTRO.name().equals(tipoCondicional)) {
+                alumno.setEsMatBeneficioUltCicl(Boolean.TRUE);
+            }
 
-//            service.revisarCurriculaAlumnos(ds, tipoCondicional);
-            service.generarAportes(ds, token);
+            String token = service.saveMatriculable(alumno, ds.getCicloAcademico(), ds);
+            service.generarAportes(alumno, ds.getCicloAcademico(), ds);
 
             response.setMessage("Se agregó al alumno satisfactoriamente.");
             response.setSuccess(true);
@@ -524,6 +527,27 @@ public class MatriculableController {
         try {
 
             service.inhabilitarMatriculable(matriculaResumen, ds);
+            response.setMessage("Se actualizo el matriculable satisfactoriamente.");
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+
+    }
+
+    @ResponseBody
+    @RequestMapping("habilitar")
+    public JsonResponse habilitar(@RequestBody MatriculaResumen matriculaResumen, HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        JsonResponse response = new JsonResponse();
+
+        try {
+
+            service.habilitarMatriculable(matriculaResumen, ds);
             response.setMessage("Se actualizo el matriculable satisfactoriamente.");
             response.setSuccess(true);
 
@@ -838,12 +862,10 @@ public class MatriculableController {
     @RequestMapping("{idAlumno}/histrialPdf")
     public String goMaipi(@PathVariable("idAlumno") Long idAlumno, Model model, HttpSession session) throws InterruptedException {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-        Usuario usuario = ds.getUsuario();
-        serviceAlumno.goMaipi(idAlumno, usuario);
-        Parametro paramRutaMatricula = serviceAlumno.findParametroByEnum(ParametrosSistemasEnum.REST_INTRANET);
-        JsonResponse jsonResponse = responseRestService.downloadHistorial(new Alumno(idAlumno), usuario, ds.getCicloAcademico(), paramRutaMatricula);
-
-        Assert.isTrue(jsonResponse.getSuccess(), "Se produjo un error al modificar secciones matricula. Comuniquese con mesa de ayuda.");
+        TokenIngresante token = responseRestService.createTokenForAlumno(new Alumno(idAlumno), ds);
+        Parametro paramRutaMatricula = responseRestService.findParametro(ParametrosSistemasEnum.REST_INTRANET);
+        JsonResponse jsonResponse = responseRestService.downloadHistorial(new Alumno(idAlumno), ds.getCicloAcademico(), paramRutaMatricula, ds, token);
+        Assert.isTrue(jsonResponse.getSuccess(), jsonResponse.getMessage());
 
         return "redirect:/";
     }

@@ -2099,6 +2099,40 @@ $(function () {
                     notify(MESSAGES.errorComunicacion, "error");
                 }
             });
+        },
+        caducar($this, e) {
+            console.log($this);
+
+            bootbox.confirm({
+                message: '¿Está seguro que desea caducar este curso?',
+                buttons: {
+                    confirm: {label: 'Si, caducar', className: 'btn-danger'},
+                    cancel: {label: 'Cancel', className: 'btn-link'}
+                },
+                callback(result) {
+                    if (result) {
+
+                        $.ajax({
+                            url: APP.url('academico/planCurricular/caducar'),
+                            type: 'POST',
+                            async: true,
+                            data: {idCursoCurricula: $this[0].id},
+                            success: function (response) {
+                                if (response.success) {
+                                    notify(response.message, "info");
+                                    dynatableCursosObl.process();
+
+                                } else {
+                                    notify(response.message, "error");
+                                }
+                            },
+                            error: function () {
+                                notify(MESSAGES.errorComunicacion, "error");
+                            }
+                        });
+                    }
+                }
+            });
         }
     };
 
@@ -2292,6 +2326,9 @@ $(function () {
 
     $("body").delegate(".table-data td.EEP", "click", function (e) {
         NuevaCurricula.editCreditos($(this), e), 'EEP';
+    });
+    $("body").delegate(".caducar", "click", function (e) {
+        NuevaCurricula.caducar($(this), e);
     });
 
     $("body").delegate(".tabledata tr").on('keyup', 'input.editfield', function (e) {
