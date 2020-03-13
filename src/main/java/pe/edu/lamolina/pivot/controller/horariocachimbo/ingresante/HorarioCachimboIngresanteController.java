@@ -359,7 +359,7 @@ public class HorarioCachimboIngresanteController {
 
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
-            service.matricular(cicloAcademico,ds);
+            service.matricular(cicloAcademico, ds);
             response.setMessage("Registro eliminado");
             response.setSuccess(true);
         } catch (PhobosException e) {

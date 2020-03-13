@@ -18,7 +18,8 @@ public class ConfigRecorridoIngresanteDAOH extends AbstractEasyDAO<ConfigRecorri
 
     @Override
     public List<ConfigRecorridoIngresante> allByCicloAcademico(CicloAcademico ciclo) {
-        Octavia sql = Octavia.query(ConfigRecorridoIngresante.class, "cri")
+        Octavia sql = Octavia.query()
+                .from(ConfigRecorridoIngresante.class, "cri")
                 .join("cicloAcademico ci", "tipoActividadIngresante ta")
                 .filter("ci.id", ciclo)
                 .orderBy("cri.numero");

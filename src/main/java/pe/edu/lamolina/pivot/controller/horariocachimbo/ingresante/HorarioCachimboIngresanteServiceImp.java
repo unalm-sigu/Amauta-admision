@@ -518,6 +518,7 @@ public class HorarioCachimboIngresanteServiceImp implements HorarioCachimboIngre
 
         for (ActividadIngresante actIng : actividadesAlumno) {
             TipoActividadIngresante tipo = actIng.getTipoActividadIngresante();
+            ObjectUtil.printAttr(tipo);
             ConfigRecorridoIngresante cfg = mapConfigRecorrido.get(tipo.getId());
             actIng.setOrden(cfg.getOrdenActividad());
         }
