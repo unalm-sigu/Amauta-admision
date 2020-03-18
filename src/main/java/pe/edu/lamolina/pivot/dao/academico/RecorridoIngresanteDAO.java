@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.easydao.EasyDAO;
+import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.RecorridoIngresante;
 import pe.edu.lamolina.model.general.Persona;
@@ -36,5 +37,7 @@ public interface RecorridoIngresanteDAO extends EasyDAO<RecorridoIngresante> {
     List<RecorridoIngresante> allConMuestraByCiclo(CicloAcademico ciclo);
 
     List<RecorridoIngresante> allConMuestraByFechaCiclo(Date fecha, CicloAcademico ciclo);
+
+    RecorridoIngresante findByAlumnoCiclo(Alumno alumno, CicloAcademico cicloAcademico);
 
 }

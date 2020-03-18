@@ -40,7 +40,6 @@ public interface AlumnoDAO extends EasyDAO<Alumno> {
     List<Alumno> allInfoByAlumnos(List<Alumno> alumnos);
 
     //List<Alumno> allInfoByAlumno(List<Alumno> alumnos);
-
     Alumno findSituacionAcademica(Alumno alumno);
 
     Alumno findByPersonaCicloIngreso(Persona persona, CicloAcademico ciclo);
@@ -135,6 +134,10 @@ public interface AlumnoDAO extends EasyDAO<Alumno> {
 
     List<Alumno> allByPlanCarrera(String codigoCarrera);
 
+    List<Alumno> allPregradoPendingPlanCurricula(CicloAcademico cicloIngreso);
+
     void updateColumns(Alumno alumno, String... columns);
+
+    int updateList(List<Alumno> alumnos, String... columns);
 
 }

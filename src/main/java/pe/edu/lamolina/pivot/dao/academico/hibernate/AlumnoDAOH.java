@@ -4,8 +4,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import org.hibernate.Query;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
 import org.springframework.stereotype.Repository;
+import pe.albatross.octavia.Insecto;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
@@ -43,6 +46,8 @@ import pe.edu.lamolina.pivot.controller.matricula.matriculable.MatriculableResum
 
 @Repository
 public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public AlumnoDAOH() {
         super();
@@ -125,7 +130,6 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
 //
 //        return all(sql);
 //    }
-
     @Override
     public Alumno findByCodigo(String codigoAlumno) {
         Octavia sql = Octavia.query()
@@ -1059,10 +1063,42 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
     }
 
     @Override
+    public List<Alumno> allPregradoPendingPlanCurricula(CicloAcademico cicloIngreso) {
+        Octavia sql = Octavia.query()
+                .from(Alumno.class, "alu")
+                .join("modalidadEstudio me", "carrera ca", "ca.facultad", "persona", "situacionAcademica", "cicloIngreso ci")
+                .leftJoin("planCurricular pc", "pc.carrera cap")
+                .filter("me.codigo", ModalidadEstudioEnum.PRE)
+                .filter("ci.codigo", cicloIngreso.getCodigo())
+                .isNull("pc.id");
+
+        return all(sql);
+    }
+
+    @Override
     public void updateColumns(Alumno alumno, String... columns) {
         Octavia octavia = Octavia.update(Alumno.class);
         octavia.set(alumno, columns);
         this.update(octavia);
+    }
+
+    @Override
+    public int updateList(List<Alumno> alumnos, String... columnas) {
+        if (alumnos.isEmpty()) {
+            return 0;
+        }
+
+        long t1 = System.currentTimeMillis();
+        Insecto sql = Insecto.createUpdate(Alumno.class)
+                .set(columnas)
+                .with(alumnos);
+
+        Query query = getCurrentSession().createSQLQuery(sql.toString());
+        int rows = query.executeUpdate();
+
+        long t2 = System.currentTimeMillis();
+        logger.info("{} Alumno's actualizados en {} mseg....", rows, (t2 - t1));
+        return rows;
     }
 
 }

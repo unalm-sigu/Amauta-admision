@@ -3,6 +3,7 @@ package pe.edu.lamolina.pivot.controller.academico.plancurricular;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
@@ -133,6 +134,10 @@ public interface PlanCurricularService {
 
     void asignacionMasivaCursoCurricula(Carrera carrera, DataSessionPivot ds);
 
+    String asignarPlanesToIngresantes(CicloAcademico cicloIngreso, DataSessionPivot ds);
+
+    void revisarAvanceCurricular(String token, DataSessionPivot ds);
+
     void desvincularMasivaCursoCurricula(Carrera carrera, DataSessionPivot ds);
 
     List<Carrera> filtrarByPlanes(List<Carrera> carreras);
@@ -145,8 +150,8 @@ public interface PlanCurricularService {
 
     void allUpdateResumenPost();
 
-    public Carrera getCarreraActiva();
+    Carrera getCarreraActiva();
 
-    public void caducar(Long idCursoCurricula, DataSessionPivot ds);
+    void caducar(Long idCursoCurricula, DataSessionPivot ds);
 
 }

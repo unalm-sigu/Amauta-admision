@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
@@ -150,7 +151,7 @@ public class AvanceCurricularServiceImp implements AvanceCurricularService {
         if (carrera.getModalidadEstudio().isPostgrado()) {
             cursosHabilEscuela = cursoHabilEscuelaDAO.allAlumnos(alumnos);
         }
-        Map<Long, List<CursoHabilEscuela>> mapCursoHabilEscuela = TypesUtil.convertListToMapList("alumno.id", cursosHabilEscuela);
+        //Map<Long, List<CursoHabilEscuela>> mapCursoHabilEscuela = TypesUtil.convertListToMapList("alumno.id", cursosHabilEscuela);
         List<String> codigosCiclosPlanes = new ArrayList<String>(mapCiclosPlanes.keySet());
 
         Collections.sort(codigosCiclosPlanes);
@@ -215,7 +216,7 @@ public class AvanceCurricularServiceImp implements AvanceCurricularService {
         visorAsignaCurricula.putTope(carrera, alumnos.size() * 2);
         for (Alumno alumno : alumnos) {
 
-            List<CursoHabilEscuela> habilEscuelas = mapCursoHabilEscuela.get(alumno.getId());
+            //List<CursoHabilEscuela> habilEscuelas = mapCursoHabilEscuela.get(alumno.getId());
             OrientacionCarrera orientacionCarrera = alumno.getOrientacionCarrera();
 
             List<AlumnoAvanceCurricular> avanceCurriculars = alumnosAvanceCurriculars.stream().filter(x -> Objects.equals(x.getAlumno().getId(), alumno.getId())).collect(Collectors.toList());
@@ -265,7 +266,7 @@ public class AvanceCurricularServiceImp implements AvanceCurricularService {
                     mapCursoOpcionalAll,
                     planesCurriculars,
                     mapCursoCurriculaAllPlanes,
-                    habilEscuelas,
+                    //habilEscuelas,
                     mapRequisitoCursoOpcionals,
                     ds);
         }
@@ -444,11 +445,6 @@ public class AvanceCurricularServiceImp implements AvanceCurricularService {
     @Override
     public void generarAvanceCurricularByAlumnosPregrados(List<Alumno> alumnosForm, DataSessionPivot ds, String token) {
         List<Alumno> alumnosBD = alumnoDAO.allWithAllInfo(alumnosForm);
-//        for (Alumno alumno : alumnosBD) {
-//            if (!alumno.isPregrado()) {
-//                visorCalculoNotas.incrementarToken(token);
-//            }
-//        }
         List<Alumno> alumnos = alumnosBD.stream().filter(x -> x.isPregrado()).collect(Collectors.toList());
 
         List<PlanCurricular> planCurriculars = planCurricularDAO.all();
@@ -511,6 +507,7 @@ public class AvanceCurricularServiceImp implements AvanceCurricularService {
 
         for (Alumno alumno : alumnos) {
             if (alumno.getPlanCurricular() == null) {
+                System.out.println("alumno " + alumno.getCodigo() + " no tiene plan-curricular");
                 visorCalculoNotas.incrementarToken(token);
                 continue;
             }
@@ -610,6 +607,12 @@ public class AvanceCurricularServiceImp implements AvanceCurricularService {
                 alumnoCursoOld,
                 cursoHabilEscuelas,
                 ds);
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void asignarPlanes(List<Alumno> alumnosTmp) {
+        alumnoDAO.updateList(alumnosTmp, "planCurricular");
     }
 
     private void obtenerDataPost(List<CursoCurricula> cursosCurricula, Map<Long, CursoCurricula> mapCursoCurricula, Map<Long, CursoCurricula> mapCursoCurriculaByCurso) {

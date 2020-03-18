@@ -18,12 +18,12 @@ import pe.edu.lamolina.pivot.dao.academico.AlumnoHorarioDAO;
 
 @Repository
 public class AlumnoHorarioDAOH extends AbstractEasyDAO<AlumnoHorario> implements AlumnoHorarioDAO {
-    
+
     public AlumnoHorarioDAOH() {
         super();
         setClazz(AlumnoHorario.class);
     }
-    
+
     @Override
     public List<AlumnoHorario> allByCicloAcademico(CicloAcademico cicloAcademico) {
         Octavia sql = Octavia.query()
@@ -33,7 +33,7 @@ public class AlumnoHorarioDAOH extends AbstractEasyDAO<AlumnoHorario> implements
                 .filter("ciclo.id", cicloAcademico);
         return sql.all(getCurrentSession());
     }
-    
+
     @Override
     public AlumnoHorario findByAlumnoCiclo(Alumno alumno, CicloAcademico cicloAcademico) {
         Octavia sql = Octavia.query()
@@ -44,13 +44,13 @@ public class AlumnoHorarioDAOH extends AbstractEasyDAO<AlumnoHorario> implements
                 .filter("alu.id", alumno);
         return (AlumnoHorario) sql.find(getCurrentSession());
     }
-    
+
     @Override
     public List<AlumnoHorario> allByAlumnoHorario(DynatableFilter filter, CicloAcademico cicloAcademico) {
         DynatableSql sql = new DynatableSql(filter)
                 .from(AlumnoHorario.class, "alu")
-                .join("alumno alum", "alum.persona per", "cicloAcademico ciclo")
-                .leftJoin("horarioCachimbos hora", "alum.orientacionCarrera oca", "alum.carrera ca")
+                .join("alumno alum", "alum.persona per", "cicloAcademico ciclo", "horarioCachimbos hora")
+                .leftJoin("alum.orientacionCarrera oca", "alum.carrera ca")
                 .leftJoin("alum.cicloIngreso ci", "alum.situacionAcademica sia", "alum.modalidadEstudio me", "ca.facultad fac")
                 .leftJoin("per.tipoDocumento")
                 .filter("ciclo.id", cicloAcademico)
@@ -62,7 +62,7 @@ public class AlumnoHorarioDAOH extends AbstractEasyDAO<AlumnoHorario> implements
         this.setEstado(filter, sql);
         return sql.all(getCurrentSession());
     }
-    
+
     private void setEstado(DynatableFilter filter, DynatableSql sql) {
         Map<String, Object> queries = filter.getQueries();
         if (queries == null) {
@@ -73,7 +73,7 @@ public class AlumnoHorarioDAOH extends AbstractEasyDAO<AlumnoHorario> implements
         }
         sql.filter("alu.estado", queries.get("alu.estado"));
     }
-    
+
     @Override
     public List<AlumnoHorario> allAlumnoHorarioByName(String nombre, CicloAcademico cicloAcademico, Carrera carrera) {
         nombre = "%" + nombre.replaceAll(" ", "%") + "%";
@@ -93,7 +93,7 @@ public class AlumnoHorarioDAOH extends AbstractEasyDAO<AlumnoHorario> implements
                 .limit(15);
         return sql.all(getCurrentSession());
     }
-    
+
     @Override
     public AlumnoHorario find(AlumnoHorario alumnoHorario) {
         Octavia sql = Octavia.query()
@@ -103,7 +103,7 @@ public class AlumnoHorarioDAOH extends AbstractEasyDAO<AlumnoHorario> implements
                 .filter("ah.id", alumnoHorario.getId());
         return (AlumnoHorario) sql.find(getCurrentSession());
     }
-    
+
     @Override
     public List<AlumnoHorario> allByHorario(HorarioCachimbos horario) {
         Octavia sql = Octavia.query()
@@ -113,7 +113,7 @@ public class AlumnoHorarioDAOH extends AbstractEasyDAO<AlumnoHorario> implements
                 .filter("hoca.id", horario);
         return sql.all(getCurrentSession());
     }
-    
+
     @Override
     public List<AlumnoHorario> allByCicloHorarios(CicloAcademico cicloAcademico, List<HorarioCachimbos> horarios) {
         Octavia sql = Octavia.query()
@@ -124,7 +124,7 @@ public class AlumnoHorarioDAOH extends AbstractEasyDAO<AlumnoHorario> implements
                 .filter("ciclo.id", cicloAcademico);
         return sql.all(getCurrentSession());
     }
-    
+
     @Override
     public List<AlumnoHorario> allByHorarioCachimbos(HorarioCachimbos horarioCachimbos) {
         Octavia sql = Octavia.query()
@@ -134,7 +134,7 @@ public class AlumnoHorarioDAOH extends AbstractEasyDAO<AlumnoHorario> implements
                 .filter("hoca.id", horarioCachimbos);
         return sql.all(getCurrentSession());
     }
-    
+
     @Override
     public List<AlumnoHorario> allByAlumnoHorarioLikeList(AlumnoHorario alumnoHorario) {
         Octavia sql = Octavia.query()
@@ -144,23 +144,23 @@ public class AlumnoHorarioDAOH extends AbstractEasyDAO<AlumnoHorario> implements
                 .filter("ah.id", alumnoHorario);
         return sql.all(getCurrentSession());
     }
-    
+
     @Override
     public void allSetHorarioNullByCiclo(CicloAcademico cicloAcademico) {
-        
+
         StringBuilder sql = new StringBuilder();
         sql.append("  update ").append(AlumnoHorario.class.getName()).append(" ah ");
         sql.append("  set ah.horarioCachimbos.id=NULL      ");
         sql.append("  ,  ah.estado = :ESTADO      ");
         sql.append("  where ah.cicloAcademico.id = :CICLO ");
-        
+
         Query query = getCurrentSession().createQuery(sql.toString());
         query.setLong("CICLO", cicloAcademico.getId());
         query.setString("ESTADO", EstadoAlumnoHorarioEnum.PEND.name());
         query.executeUpdate();
-        
+
     }
-    
+
     @Override
     public List<AlumnoHorario> allByCicloAcademicoOrder(CicloAcademico cicloAcademico) {
         Octavia sql = Octavia.query()
@@ -171,5 +171,12 @@ public class AlumnoHorarioDAOH extends AbstractEasyDAO<AlumnoHorario> implements
                 .orderBy("carr.id");
         return sql.all(getCurrentSession());
     }
-    
+
+    @Override
+    public void updateColumns(AlumnoHorario aluHorario, String... columns) {
+        Octavia octavia = Octavia.update(AlumnoHorario.class);
+        octavia.set(aluHorario, columns);
+        this.update(octavia);
+    }
+
 }

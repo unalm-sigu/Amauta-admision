@@ -336,10 +336,6 @@ public class MuestrasLabServiceImp implements MuestrasLabService {
         recorridoIngresanteDAO.update(recorrido);
 
         historiaLaboratorioDAO.delete(laboratorioBD);
-
-        TipoActividadIngresante tipoActividad = tipoActividadIngresanteDAO.findCodigo(TipoActividadIngresanteEnum.PAGOEXAMED);
-        ActividadIngresante actividad = actividadIngresanteDAO.findByRecorridoTipoActividad(recorrido, tipoActividad);
-        actividadIngresanteDAO.delete(actividad);
     }
 
     @Override

@@ -28,9 +28,9 @@ public class ActividadIngresanteDAOH extends AbstractEasyDAO<ActividadIngresante
 
     @Override
     public List<ActividadIngresante> allByCicloAcademico(CicloAcademico cicloAcademico) {
-        Octavia sql = Octavia.query(ActividadIngresante.class, "ai")
+        Octavia sql = Octavia.query()
+                .from(ActividadIngresante.class, "ai")
                 .join("recorridoIngresante ri", "tipoActividadIngresante tai", "ri.cicloAcademico ca", "ri.alumno alu")
-                //.filter("estado", ActividadIngresanteEnum.COMP)
                 .filter("ca.id", cicloAcademico);
         return all(sql);
     }

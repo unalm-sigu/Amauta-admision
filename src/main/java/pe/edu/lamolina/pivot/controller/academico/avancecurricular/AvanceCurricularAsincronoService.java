@@ -89,7 +89,7 @@ public interface AvanceCurricularAsincronoService {
             Map<Long, List<CursoOpcionalCurricula>> mapCursoOpcionalAll,
             List<PlanCurricular> planCurriculars,
             Map<Long, List<CursoCurricula>> mapCursoCurriculaAll,
-            List<CursoHabilEscuela> habilEscuelas,
+            //List<CursoHabilEscuela> habilEscuelas,
             Map<Long, List<RequisitoCursoOpcional>> mapRequisitoCursoOpcionals,
             DataSessionPivot ds);
 
