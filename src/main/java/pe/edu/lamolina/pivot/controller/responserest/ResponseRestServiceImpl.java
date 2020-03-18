@@ -64,14 +64,8 @@ public class ResponseRestServiceImpl extends AbstractRestClient<JsonResponse> im
 
     @Override
     public Parametro findParametro(ParametrosSistemasEnum parametrosSistemasEnum) {
-
         AmbienteAplicacionEnum ambiente = AmbienteAplicacionEnum.valueOf(despliegueConfig.getAmbiente().toUpperCase());
-        logger.debug("********************** ambiente name {}", ambiente.name());
-        logger.debug("********************** parametrosSistemasEnum name {}", parametrosSistemasEnum.name());
-        logger.debug("********************** parametrosSistemasEnum contex {}", parametrosSistemasEnum.getContexto());
-        logger.debug("********************** parametrosSistemasEnum param {}", parametrosSistemasEnum.getParametro());
         Parametro paramRutaIntranet = parametroDAO.findByAmbienteParametroSistema(ambiente, parametrosSistemasEnum);
-        logger.debug("********************** paramRutaMatricula {} path {}", paramRutaIntranet.getId(), paramRutaIntranet.getValor());
         return paramRutaIntranet;
     }
 
@@ -155,6 +149,17 @@ public class ResponseRestServiceImpl extends AbstractRestClient<JsonResponse> im
         json.put("idSeccion", seccion.getId());
 
         String url = String.format("%s/matriculaSeccion/matricularSeccion", parametro.getValor());
+        return this.postToBackEnd(url, json);
+    }
+
+    @Override
+    public JsonResponse matricularSeccionReservada(Alumno alumno, Seccion seccion, DataSessionPivot ds, TokenIngresante token) {
+        Parametro parametro = findParametro(ParametrosSistemasEnum.REST_MATRICULA);
+        ObjectNode json = createFormJson(ds, token);
+        json.put("idMatricula", alumno.getId());
+        json.put("idSeccion", seccion.getId());
+
+        String url = String.format("%s/matriculaSeccion/matricularSeccionReservada", parametro.getValor());
         return this.postToBackEnd(url, json);
     }
 

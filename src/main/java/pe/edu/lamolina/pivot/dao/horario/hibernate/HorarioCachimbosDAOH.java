@@ -11,7 +11,6 @@ import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.horario.HorarioCachimbos;
-import pe.edu.lamolina.model.horario.SeccionHorarioCachimbos;
 
 @Repository
 public class HorarioCachimbosDAOH extends AbstractEasyDAO<HorarioCachimbos> implements HorarioCachimbosDAO {
@@ -88,6 +87,13 @@ public class HorarioCachimbosDAOH extends AbstractEasyDAO<HorarioCachimbos> impl
         Query query = getCurrentSession().createQuery(sql.toString());
         query.setLong("CICLO", cicloAcademico.getId());
         query.executeUpdate();
+    }
+
+    @Override
+    public void updateColumns(HorarioCachimbos horario, String... columns) {
+        Octavia octavia = Octavia.update(HorarioCachimbos.class);
+        octavia.set(horario, columns);
+        this.update(octavia);
     }
 
 }

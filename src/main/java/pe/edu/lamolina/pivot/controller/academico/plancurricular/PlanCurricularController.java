@@ -1686,15 +1686,36 @@ public class PlanCurricularController {
     public JsonResponse asignacionmasiva(Carrera carrera, HttpSession session) {
 
         JsonResponse response = new JsonResponse();
-
         try {
 
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             service.verificarAsignacion(carrera);
-//            service.desvincularMasivaCursoCurricula(carrera, ds);
 
             response.setSuccess(true);
             response.setMessage("Asignación masiva en proceso");
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("asignacionMasivaIngresantes")
+    public JsonResponse asignacionMasivaIngresantes(HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+        try {
+
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            String token = service.asignarPlanesToIngresantes(ds.getCicloAcademico(), ds);
+            service.revisarAvanceCurricular(token, ds);
+
+            response.setSuccess(true);
+            response.setMessage("Asignación masiva para ingresantes en proceso");
 
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);

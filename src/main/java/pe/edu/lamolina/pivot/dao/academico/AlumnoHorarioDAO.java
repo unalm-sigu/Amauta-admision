@@ -11,26 +11,28 @@ import pe.edu.lamolina.model.horario.HorarioCachimbos;
 
 public interface AlumnoHorarioDAO extends EasyDAO<AlumnoHorario> {
 
-    public List<AlumnoHorario> allByCicloAcademico(CicloAcademico cicloAcademico);
+    List<AlumnoHorario> allByCicloAcademico(CicloAcademico cicloAcademico);
 
-    public AlumnoHorario findByAlumnoCiclo(Alumno alumno, CicloAcademico cicloAcademico);
+    AlumnoHorario findByAlumnoCiclo(Alumno alumno, CicloAcademico cicloAcademico);
 
-    public List<AlumnoHorario> allByAlumnoHorario(DynatableFilter filter, CicloAcademico cicloAcademico);
+    List<AlumnoHorario> allByAlumnoHorario(DynatableFilter filter, CicloAcademico cicloAcademico);
 
-    public List<AlumnoHorario> allAlumnoHorarioByName(String nombre, CicloAcademico cicloAcademico, Carrera carrera);
+    List<AlumnoHorario> allAlumnoHorarioByName(String nombre, CicloAcademico cicloAcademico, Carrera carrera);
 
-    public AlumnoHorario find(AlumnoHorario alumnoHorario);
+    AlumnoHorario find(AlumnoHorario alumnoHorario);
 
-    public List<AlumnoHorario> allByHorario(HorarioCachimbos horario);
+    List<AlumnoHorario> allByHorario(HorarioCachimbos horario);
 
-    public List<AlumnoHorario> allByCicloHorarios(CicloAcademico cicloAcademico, List<HorarioCachimbos> horarios);
+    List<AlumnoHorario> allByCicloHorarios(CicloAcademico cicloAcademico, List<HorarioCachimbos> horarios);
 
-    public List<AlumnoHorario> allByHorarioCachimbos(HorarioCachimbos horarioCachimbos);
+    List<AlumnoHorario> allByHorarioCachimbos(HorarioCachimbos horarioCachimbos);
 
-    public List<AlumnoHorario> allByAlumnoHorarioLikeList(AlumnoHorario alumnoHorario);
+    List<AlumnoHorario> allByAlumnoHorarioLikeList(AlumnoHorario alumnoHorario);
 
-    public void allSetHorarioNullByCiclo(CicloAcademico cicloAcademico);
+    void allSetHorarioNullByCiclo(CicloAcademico cicloAcademico);
 
-    public List<AlumnoHorario> allByCicloAcademicoOrder(CicloAcademico ciclo);
+    List<AlumnoHorario> allByCicloAcademicoOrder(CicloAcademico ciclo);
+
+    void updateColumns(AlumnoHorario aluHorario, String... columns);
 
 }

@@ -370,8 +370,6 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
             }
         }
 
-        //Integer cred = 0;
-        //Integer cur = 0;
         Integer credCarrera = 0;
         Integer curCarrera = 0;
 
@@ -1240,7 +1238,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
             Map<Long, List<CursoOpcionalCurricula>> mapCursoOpcionalAll,
             List<PlanCurricular> planCurriculars,
             Map<Long, List<CursoCurricula>> mapCursoCurriculaAll,
-            List<CursoHabilEscuela> habilEscuelas,
+            //List<CursoHabilEscuela> habilEscuelas,
             Map<Long, List<RequisitoCursoOpcional>> mapRequisitoCursoOpcionals,
             DataSessionPivot ds) {
 
@@ -1274,19 +1272,19 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
                     ds, null);
         } else {
 
-            this.procesarAlumnoSincronoEPG(
-                    alumno,
-                    mapCursoCurricula,
-                    mapCursosVecesLlevado,
-                    cursosMatriculados,
-                    cursosAprobados,
-                    opcionalCurriculas,
-                    mapResumenPlanCurricular,
-                    tipoCursoCurriculas,
-                    alumnoAvanceCurriculars,
-                    alumnoCursoCurriculaOld,
-                    habilEscuelas,
-                    ds);
+//            this.procesarAlumnoSincronoEPG(
+//                    alumno,
+//                    mapCursoCurricula,
+//                    mapCursosVecesLlevado,
+//                    cursosMatriculados,
+//                    cursosAprobados,
+//                    opcionalCurriculas,
+//                    mapResumenPlanCurricular,
+//                    tipoCursoCurriculas,
+//                    alumnoAvanceCurriculars,
+//                    alumnoCursoCurriculaOld,
+//                    habilEscuelas,
+//                    ds);
         }
         visorAsignaCurricula.incrementar(carrera);
     }

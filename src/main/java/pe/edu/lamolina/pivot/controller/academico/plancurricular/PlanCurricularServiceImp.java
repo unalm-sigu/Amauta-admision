@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,7 +44,6 @@ import pe.edu.lamolina.model.academico.RequisitoCursoOpcional;
 import pe.edu.lamolina.model.academico.ResumenPlanCurricular;
 import pe.edu.lamolina.model.academico.TipoCursoCurricula;
 import pe.edu.lamolina.model.enums.CurriculaEstadoEnum;
-import pe.edu.lamolina.model.posgrado.CursoHabilEscuela;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import static pe.edu.lamolina.model.enums.EstadoEnum.ACT;
 import static pe.edu.lamolina.model.enums.EstadoEnum.CRE;
@@ -78,6 +78,7 @@ import pe.edu.lamolina.model.seguridad.UsuarioRol;
 import pe.edu.lamolina.pivot.controller.academico.avancecurricular.AvanceCurricularAsincronoService;
 import pe.edu.lamolina.pivot.controller.academico.avancecurricular.AvanceCurricularService;
 import pe.edu.lamolina.pivot.controller.seguridad.verificador.VerificadorService;
+import pe.edu.lamolina.pivot.controller.test.VisorCalculoNotas;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoAvanceCurricularDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloCursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoCicloDAO;
@@ -111,85 +112,62 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    CarreraDAO carreraDAO;
-
-    @Autowired
-    OrientacionCarreraDAO orientacionCarreraDAO;
-
-    @Autowired
-    PlanCurricularDAO planCurricularDAO;
-
-    @Autowired
-    CicloAcademicoDAO cicloAcademicoDAO;
-
-    @Autowired
-    TipoCursoCurriculaDAO tipoCursoCurriculaDAO;
-
-    @Autowired
-    CursoCurriculaDAO cursoCurriculaDAO;
-
-    @Autowired
-    CursoDAO cursoDAO;
-
-    @Autowired
-    RequisitoCursoCurriculaDAO requisitoCursoCurriculaDAO;
-
-    @Autowired
-    CursoHabilEscuelaDAO cursoHabilEscuelaDAO;
-
-    @Autowired
-    CursoAdicionalCurriculaDAO cursoAdicionalCurriculaDAO;
-
-    @Autowired
-    CursoOpcionalCurriculaDAO cursoOpcionalCurriculaDAO;
-
-    @Autowired
-    ResumenPlanCurricularDAO resumenPlanCurricularDAO;
-
-    @Autowired
-    RequisitoCursoOpcionalDAO requisitoCursoOpcionalDAO;
-
-    @Autowired
-    AlumnoCicloDAO alumnoCicloDAO;
-
-    @Autowired
     AlumnoDAO alumnoDAO;
-
-    @Autowired
-    CursoEquivalenteDAO cursoEquivalenteDAO;
-
     @Autowired
     AlumnoAvanceCurricularDAO alumnoAvanceCurricularDAO;
-
+    @Autowired
+    AlumnoCicloDAO alumnoCicloDAO;
+    @Autowired
+    AlumnoCicloCursoDAO alumnoCicloCursoDAO;
+    @Autowired
+    AlumnoCursoCurriculaDAO alumnoCursoCurriculaDAO;
+    @Autowired
+    CarreraDAO carreraDAO;
+    @Autowired
+    CicloAcademicoDAO cicloAcademicoDAO;
+    @Autowired
+    CursoDAO cursoDAO;
+    @Autowired
+    CursoAdicionalCurriculaDAO cursoAdicionalCurriculaDAO;
+    @Autowired
+    CursoEquivalenteDAO cursoEquivalenteDAO;
     @Autowired
     CursoEquivalenteElectivoDAO cursoEquivalenteElectivoDAO;
-
+    @Autowired
+    CursoCurriculaDAO cursoCurriculaDAO;
+    @Autowired
+    CursoHabilEscuelaDAO cursoHabilEscuelaDAO;
+    @Autowired
+    CursoOpcionalCurriculaDAO cursoOpcionalCurriculaDAO;
+    @Autowired
+    ColaboradorDAO colaboradorDAO;
+    @Autowired
+    MatriculaCursoDAO matriculaCursoDAO;
+    @Autowired
+    OrientacionCarreraDAO orientacionCarreraDAO;
+    @Autowired
+    PlanCurricularDAO planCurricularDAO;
+    @Autowired
+    ResumenPlanCurricularDAO resumenPlanCurricularDAO;
+    @Autowired
+    RequisitoCursoCurriculaDAO requisitoCursoCurriculaDAO;
+    @Autowired
+    RequisitoCursoOpcionalDAO requisitoCursoOpcionalDAO;
+    @Autowired
+    TipoCursoCurriculaDAO tipoCursoCurriculaDAO;
     @Autowired
     UsuarioRolDAO usuarioRolDAO;
 
     @Autowired
-    ColaboradorDAO colaboradorDAO;
-
-    @Autowired
-    MatriculaCursoDAO matriculaCursoDAO;
-
-    @Autowired
-    AlumnoCicloCursoDAO alumnoCicloCursoDAO;
-
-    @Autowired
-    AlumnoCursoCurriculaDAO alumnoCursoCurriculaDAO;
-
-    @Autowired
     AvanceCurricularService avanceCurricularService;
-
     @Autowired
     AvanceCurricularAsincronoService avanceCurricularAsincronoService;
-
-    @Autowired
-    VisorAsignaCurricula visorAsignaCurricula;
-
     @Autowired
     VerificadorService verificadorService;
+    @Autowired
+    VisorAsignaCurricula visorAsignaCurricula;
+    @Autowired
+    VisorCalculoNotas visorCalculoNotas;
 
     @Override
     public void caducar(Long idCursoCurricula, DataSessionPivot ds) {
@@ -1433,6 +1411,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
     @Override
     public void asignacionMasivaCursoCurricula(Carrera carrera, DataSessionPivot ds) {
         carrera = carreraDAO.find(carrera.getId());
+        Assert.isTrue(carrera.getModalidadEstudio().isPregrado(), "Solo se revisa la asignación masiva para carreras de pregrado");
 
         List<PlanCurricular> planesCurricular = planCurricularDAO.allActivosByCarrera(carrera);
         List<PlanCurricular> planesCurriculars = planCurricularDAO.all();
@@ -1446,11 +1425,6 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
         Map<String, CicloAcademico> mapCiclosPlanes = TypesUtil.convertListToMap("cicloInicioVigencia.codigo", "cicloInicioVigencia", planesCurricular);
 
         List<Alumno> alumnos = alumnoDAO.allByCarreraCicloMayores(carrera, cicloInicia.getCodigo());
-        List<CursoHabilEscuela> cursosHabilEscuela = new ArrayList();
-        if (carrera.getModalidadEstudio().isPostgrado()) {
-            cursosHabilEscuela = cursoHabilEscuelaDAO.allAlumnos(alumnos);
-        }
-        Map<Long, List<CursoHabilEscuela>> mapCursoHabilEscuela = TypesUtil.convertListToMapList("alumno.id", cursosHabilEscuela);
         List<String> codigosCiclosPlanes = new ArrayList<String>(mapCiclosPlanes.keySet());
 
         Collections.sort(codigosCiclosPlanes);
@@ -1516,7 +1490,6 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
         visorAsignaCurricula.putTope(carrera, alumnos.size() * 2);
         for (Alumno alumno : alumnos) {
 
-            List<CursoHabilEscuela> habilEscuelas = mapCursoHabilEscuela.get(alumno.getId());
             OrientacionCarrera orientacionCarrera = alumno.getOrientacionCarrera();
 
             List<AlumnoAvanceCurricular> avanceCurriculars = alumnosAvanceCurriculars.stream().filter(x -> Objects.equals(x.getAlumno().getId(), alumno.getId())).collect(Collectors.toList());
@@ -1566,11 +1539,63 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
                     mapCursoOpcionalAll,
                     planesCurriculars,
                     mapCursoCurriculaAllPlanes,
-                    habilEscuelas,
+                    //habilEscuelas,
                     mapRequisitoCursoOpcionals,
                     ds);
         }
 
+    }
+
+    @Override
+    @Transactional
+    public String asignarPlanesToIngresantes(CicloAcademico cicloIngreso, DataSessionPivot ds) {
+        List<Alumno> alumnos = alumnoDAO.allPregradoPendingPlanCurricula(cicloIngreso);
+        List<PlanCurricular> planes = planCurricularDAO.allActivo();
+
+        Map<Long, List<PlanCurricular>> mapPlanes = TypesUtil.convertListToMapList("carrera.id", planes);
+        for (Long key : mapPlanes.keySet()) {
+            List<PlanCurricular> planesCarrera = mapPlanes.get(key);
+            Collections.sort(planesCarrera, new PlanCurricular.CompareCicloDesc());
+            mapPlanes.put(key, planesCarrera);
+        }
+
+        List<Alumno> alumnosTmp = new ArrayList();
+        for (Alumno alumno : alumnos) {
+            Carrera carrera = alumno.getCarrera();
+            List<PlanCurricular> planesCarrera = TypesUtil.getListNotNull(mapPlanes.get(carrera.getId()));
+            Assert.isFalse(planesCarrera.isEmpty(), "La carrera " + carrera.getNombre() + " no tiene planes curriculares para asignar a los ingresantes");
+            PlanCurricular plan = getPlanForIngresante(alumno, planesCarrera);
+            Assert.isNotNull(plan, "No se puede ubicar un plan curricular para el alumno " + alumno.getCodigo());
+
+            Alumno alumnoTmp = new Alumno(alumno.getId());
+            alumnoTmp.setPlanCurricular(plan);
+            alumnosTmp.add(alumnoTmp);
+        }
+
+        avanceCurricularService.asignarPlanes(alumnosTmp);
+
+        String token = RandomStringUtils.randomAlphanumeric(34);
+        visorCalculoNotas.createToken(token, alumnosTmp);
+        return token;
+    }
+
+    @Async
+    @Override
+    public void revisarAvanceCurricular(String token, DataSessionPivot ds) {
+        TypesUtil.delay(3000);
+        List<Alumno> alumnos = visorCalculoNotas.allAlumnosByToken(token);
+        avanceCurricularService.generarAvanceCurricularByAlumnosPregrados(alumnos, ds, token);
+    }
+
+    private PlanCurricular getPlanForIngresante(Alumno alumno, List<PlanCurricular> planes) {
+        CicloAcademico cicloIngreso = alumno.getCicloIngreso();
+        for (PlanCurricular plan : planes) {
+            CicloAcademico cicloPlan = plan.getCicloInicioVigencia();
+            if (cicloPlan.getCodigo().compareTo(cicloIngreso.getCodigo()) <= 0) {
+                return plan;
+            }
+        }
+        return null;
     }
 
     private String getIndiceCicloAcademico(String codigoCicloAlumno, List<String> codigosCiclosPlanes) {

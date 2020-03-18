@@ -10,10 +10,12 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.Assert;
+import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
@@ -26,19 +28,18 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.ConfigRecorridoIngresante;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.MatriculaCurso;
-import pe.edu.lamolina.model.academico.MatriculaResumen;
-import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.academico.TipoActividadIngresante;
 import pe.edu.lamolina.model.enums.AlumnoVacanteEstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoAlumnoHorarioEnum;
-import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.RecorridoIngresanteEstadoEnum;
 import pe.edu.lamolina.model.enums.TipoActividadIngresanteEnum;
 import pe.edu.lamolina.model.horario.HorarioCachimbos;
 import pe.edu.lamolina.model.horario.SeccionHorarioCachimbos;
+import pe.edu.lamolina.model.matricula.AlumnoCursoCurricula;
+import pe.edu.lamolina.model.seguridad.TokenIngresante;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.vacantes.VacanteAlumno;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
@@ -51,7 +52,9 @@ import pe.edu.lamolina.pivot.dao.horario.HorarioCachimbosDAO;
 import pe.edu.lamolina.pivot.dao.horario.SeccionHorarioCachimbosDAO;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.pivot.controller.horariocachimbo.generar.HorarioCachimboGenerarService;
+import pe.edu.lamolina.pivot.controller.responserest.ResponseRestService;
 import pe.edu.lamolina.pivot.dao.academico.ActividadIngresanteDAO;
+import pe.edu.lamolina.pivot.dao.academico.AlumnoCursoCurriculaDAO;
 import pe.edu.lamolina.pivot.dao.academico.ConfigRecorridoIngresanteDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaCursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaResumenDAO;
@@ -70,6 +73,8 @@ public class HorarioCachimboIngresanteServiceImp implements HorarioCachimboIngre
     ActividadIngresanteDAO actividadIngresanteDAO;
     @Autowired
     AlumnoDAO alumnoDAO;
+    @Autowired
+    AlumnoCursoCurriculaDAO alumnoCursoCurriculaDAO;
     @Autowired
     AlumnoHorarioDAO alumnoHorarioDAO;
     @Autowired
@@ -102,10 +107,31 @@ public class HorarioCachimboIngresanteServiceImp implements HorarioCachimboIngre
 
     @Autowired
     HorarioCachimboGenerarService generarHorarioIngresanteService;
+    @Autowired
+    MatriculaIngresanteService matriculaIngresanteService;
+    @Autowired
+    ResponseRestService responseRestService;
+    @Autowired
+    VisorMatricula visorMatricula;
 
     @Override
     public List<AlumnoHorario> allAlumnoHorario(DynatableFilter filter, CicloAcademico cicloAcademico) {
-        return alumnoHorarioDAO.allByAlumnoHorario(filter, cicloAcademico);
+        List<AlumnoHorario> alumnosHorarios = alumnoHorarioDAO.allByAlumnoHorario(filter, cicloAcademico);
+        List<Alumno> alumnos = alumnosHorarios.stream().map(x -> x.getAlumno()).collect(Collectors.toList());
+        List<MatriculaCurso> cursosMatriculadosAll = matriculaCursoDAO.allActivoByAlumnosCiclo(alumnos, cicloAcademico);
+        Map<Long, List<MatriculaCurso>> mapCursoMatriculado = TypesUtil.convertListToMapList("matriculaResumen.alumno.id", cursosMatriculadosAll);
+
+        for (AlumnoHorario aluHorario : alumnosHorarios) {
+            List<MatriculaCurso> cursosMatriculados = TypesUtil.getListNotNull(mapCursoMatriculado.get(aluHorario.getAlumno().getId()));
+            aluHorario.setCursosMatriculados(cursosMatriculados);
+
+            HorarioCachimbos horario = aluHorario.getHorarioCachimbos();
+            if (horario.getCursos() == null) {
+                horario.setCursos(0);
+            }
+        }
+
+        return alumnosHorarios;
     }
 
     @Override
@@ -372,23 +398,51 @@ public class HorarioCachimboIngresanteServiceImp implements HorarioCachimboIngre
         }
     }
 
+    @Async
     @Override
-    @Transactional
     public void matricular(CicloAcademico cicloAcademico, DataSessionPivot ds) {
         List<ConfigRecorridoIngresante> configRecorridoIngresantes = configRecorridoIngresanteDAO.allByCicloAcademico(cicloAcademico);
         Map<Long, ConfigRecorridoIngresante> mapConfigRecorrido = TypesUtil.convertListToMap("tipoActividadIngresante.id", configRecorridoIngresantes);
 
         List<ActividadIngresante> actividadIngresantes = actividadIngresanteDAO.allByCicloAcademico(cicloAcademico);
-        TipoActividadIngresante tipoActividadIngresante = tipoActividadIngresanteDAO.findCodigo(TipoActividadIngresanteEnum.MATRI);
         Map<Long, List<ActividadIngresante>> mapActividadesIngresantes = TypesUtil.convertListToMapList("recorridoIngresante.alumno.id", actividadIngresantes);
         System.out.println("Total actividades-alumnos :::: " + actividadIngresantes.size());
 
         int actividadesPreMatricula = cantidadActividadesPreMatricula(configRecorridoIngresantes);
 
+        List<Alumno> allAlumnos = new ArrayList();
         List<HorarioCachimbos> horarios = horarioCachimbosDAO.allByCiclo(cicloAcademico);
         for (HorarioCachimbos horario : horarios) {
-            if (horario.getMatriculados().intValue() >= horario.getSuscritos()) {
+            List<AlumnoHorario> alumnosHorario = alumnoHorarioDAO.allByHorario(horario);
+            List<Alumno> alumnosByHorario = alumnosHorario.stream().map(x -> x.getAlumno()).collect(Collectors.toList());
+            allAlumnos.addAll(alumnosByHorario);
+        }
+
+        if (allAlumnos.isEmpty()) {
+            visorMatricula.sinData();
+            return;
+        }
+
+        if (!visorMatricula.iniciarAlumnos(allAlumnos)) {
+            return;
+        }
+
+//        for (Alumno alumno : allAlumnos) {
+//            TypesUtil.delay(750);
+//            visorMatricula.marcarAlumno(alumno);
+//        }
+//
+//        if (1 == 1) {
+//            return;
+//        }
+        for (HorarioCachimbos horario : horarios) {
+            List<AlumnoHorario> alumnosHorario = alumnoHorarioDAO.allByHorario(horario);
+            if (horario.getMatriculados() >= horario.getSuscritos()) {
                 System.out.println("No hay matriculables en el " + horario.getCodigo());
+                for (AlumnoHorario aluHorario : alumnosHorario) {
+                    Alumno alumno = aluHorario.getAlumno();
+                    visorMatricula.marcarAlumno(alumno);
+                }
                 continue;
             }
 
@@ -397,119 +451,107 @@ public class HorarioCachimboIngresanteServiceImp implements HorarioCachimboIngre
             Map<Long, List<Seccion>> mapSeccion = TypesUtil.convertListToMapList("seccion.grupoSeccion.curso.id", "seccion", seccionesHorario);
             List<Curso> cursos = new ArrayList(mapCurso.values());
 
-            List<AlumnoHorario> alumnosHorario = alumnoHorarioDAO.allByHorario(horario);
-
+            horario.setMatriculados(0);
             for (AlumnoHorario aluHorario : alumnosHorario) {
+                Alumno alumno = aluHorario.getAlumno();
+                visorMatricula.iniciarAlumno(alumno);
+
+                List<String> erroresAlu = new ArrayList();
                 if (aluHorario.getEstadoEnum() == EstadoAlumnoHorarioEnum.MATR) {
+                    horario.setMatriculados(horario.getMatriculados() + 1);
+                    matriculaIngresanteService.registrarIncrementoHorario(horario, ds);
+                    visorMatricula.marcarAlumno(alumno);
                     continue;
                 }
 
                 // estados de recorrido tienen que estar activo. menos el de matricula. RecorridoAlumno - ActividadIngresante
-                Alumno alumno = aluHorario.getAlumno();
+                List<ActividadIngresante> actividadesAlumno = TypesUtil.getListNotNull(mapActividadesIngresantes.get(alumno.getId()));
+                if (actividadesAlumno.isEmpty()) {
+                    logger.debug("ALUMNO SIN RECORRIDO {}", alumno.getId());
 
-                List<ActividadIngresante> actividadesAlumno = mapActividadesIngresantes.get(alumno.getId());
-                if (actividadesAlumno != null) {
+                } else {
                     actividadesAlumno = TypesUtil.getListNotNull(mapActividadesIngresantes.get(alumno.getId()));
-
                     int cantActividadAlumnoPreMatri = cantidadActividadesPreMatriculaAlumno(actividadesAlumno, mapConfigRecorrido);
 
                     if (cantActividadAlumnoPreMatri < actividadesPreMatricula) {
-                        //System.out.println("\tNo tiene la cantidad adecuada de actividades");
+                        String msg = "El alumno " + alumno.getCodigo() + " tiene solo "
+                                + cantActividadAlumnoPreMatri + " actividades, pero debería tener "
+                                + actividadesAlumno.size() + ".";
+                        visorMatricula.getMensajes().add(msg);
+                        visorMatricula.marcarAlumno(alumno);
+                        erroresAlu.add(msg);
+                        matriculaIngresanteService.registrarErroresAlumno(aluHorario, erroresAlu, ds);
+                        continue;
+                    }
+                }
+
+                int errores = 0;
+                List<AlumnoCursoCurricula> cursosHabiles = alumnoCursoCurriculaDAO.allByAlumno(alumno);
+                Map<Long, AlumnoCursoCurricula> mapCursoHabil = TypesUtil.convertListToMap("curso.id", cursosHabiles);
+                for (Curso curso : cursos) {
+                    AlumnoCursoCurricula cursoHabil = mapCursoHabil.get(curso.getId());
+                    if (cursoHabil == null) {
+                        String msg = "El curso " + curso.getCodigo() + " no es hábil para el alumno " + alumno.getCodigo();
+                        System.out.println(msg);
+                        visorMatricula.getMensajes().add(msg);
+                        erroresAlu.add(msg);
+                        errores++;
+                    }
+                    //Assert.isNotNull(cursoHabil, "El curso " + curso.getCodigo() + " no es hábil para el alumno " + alumno.getCodigo());
+                }
+
+                if (errores > 0) {
+                    matriculaIngresanteService.registrarErroresAlumno(aluHorario, erroresAlu, ds);
+                    visorMatricula.marcarAlumno(alumno);
+                    continue;
+                }
+
+                List<MatriculaCurso> cursosMatriculados = matriculaCursoDAO.allActivosByAlumnoCicloCursos(alumno, cicloAcademico, cursos);
+                Map<Long, MatriculaCurso> mapCursoMatriculado = TypesUtil.convertListToMap("curso.id", cursosMatriculados);
+
+                boolean ok = true;
+                for (Curso curso : cursos) {
+                    MatriculaCurso matCurso = mapCursoMatriculado.get(curso.getId());
+                    if (matCurso != null) {
+                        System.out.println("\tMatricula " + alumno.getCodigo() + " :::: " + curso.getCodigo() + " :::: Ya se encuentra matriculado");
                         continue;
                     }
 
-                    System.out.println("Alumno :::: " + alumno.getCodigo());
-                    System.out.println("\tingresante con " + actividadesAlumno.size() + " actividades");
-                    System.out.println("\tingresante con " + cantActividadAlumnoPreMatri + " actividades pre-matricula");
-                } else {
-                    logger.debug("ALUMNO SIN RECORRIDO {}", alumno.getId());
-                }
-
-                MatriculaResumen matResumen = matriculaResumenDAO.findByAlumnoCiclo(alumno, cicloAcademico);
-                List<MatriculaCurso> matCursos = matriculaCursoDAO.allByMatriculaResumen(matResumen);
-                List<MatriculaSeccion> matSecciones = matriculaSeccionDAO.allByMatriculaResumen(matResumen);
-                Map<Long, MatriculaCurso> mapMatriCursoAlu = TypesUtil.convertListToMap("curso.id", matCursos);
-                Map<Long, List<MatriculaSeccion>> mapMatriSeccAlu = TypesUtil.convertListToMapList("seccion.grupoSeccion.curso.id", matSecciones);
-
-                matResumen.setEstadoEnum(EstadoMatriculaEnum.MAT);
-
-                for (Curso curso : cursos) {
-                    System.out.println("\tMatricula " + curso.getCodigo() + " :::: " + curso.getNombre());
-                    matResumen.setCreditosMatriculados(matResumen.getCreditosMatriculados() + curso.getCreditos());
-                    matResumen.setCursosMatriculados(matResumen.getCursosMatriculados() + 1);
-
-                    MatriculaCurso matCursoAlu = mapMatriCursoAlu.get(curso.getId());
-                    if (matCursoAlu == null) {
-                        matCursoAlu = new MatriculaCurso();
-                        matCursoAlu.setCreditos(curso.getCreditos());
-                        matCursoAlu.setCreditosAprobados(0);
-                        matCursoAlu.setCurso(curso);
-                        matCursoAlu.setEstadoEnum(EstadoMatriculaEnum.MAT);
-                        matCursoAlu.setMatriculaResumen(matResumen);
-                        matCursoAlu.setNotaAcumulada("0");
-                        matCursoAlu.setNotaAcumuladaFull("0");
-                        matCursoAlu.setNotaAvance("0");
-                        matCursoAlu.setNotaAvanceFull("0");
-                        matCursoAlu.setNotaFinal("0");
-                        matCursoAlu.setPorcentajeAvanceNota(0);
-                        matriculaCursoDAO.save(matCursoAlu);
-
-                    } else {
-                        matCursoAlu.setEstadoEnum(EstadoMatriculaEnum.MAT);
-                        matriculaCursoDAO.update(matCursoAlu);
-                    }
-
-                    List<MatriculaSeccion> matSeccionesAlu = mapMatriSeccAlu.get(curso.getId());
-                    matSeccionesAlu = (matSeccionesAlu == null) ? new ArrayList() : matSeccionesAlu;
-                    for (MatriculaSeccion matSeccAlu : matSeccionesAlu) {
-                        matSeccAlu.setEstadoEnum(EstadoMatriculaEnum.RET);
-                    }
                     List<Seccion> seccionesCurso = mapSeccion.get(curso.getId());
-                    for (Seccion seccion : seccionesCurso) {
-                        MatriculaSeccion matSecCur = null;
-                        for (MatriculaSeccion matSeccAlu : matSeccionesAlu) {
-                            if (seccion.getId().compareTo(matSeccAlu.getSeccion().getId()) == 0) {
-                                matSecCur = matSeccAlu;
-                                break;
-                            }
-                        }
-                        if (matSecCur != null) {
-                            matSecCur.setEstadoEnum(EstadoMatriculaEnum.RET);
-                            matriculaSeccionDAO.update(matSecCur);
+                    Seccion seccion = getSeccionMatriculable(seccionesCurso);
+                    System.out.println("enviando seccion=" + seccion.getCodigo2());
 
-                        } else {
-                            matSecCur = new MatriculaSeccion();
-                            matSecCur.setCreditos(curso.getCreditos());
-                            matSecCur.setEstadoEnum(EstadoMatriculaEnum.MAT);
-                            matSecCur.setMatriculaResumen(matResumen);
-                            matSecCur.setSeccion(seccion);
-                            matSecCur.setUserRegistro(ds.getUsuario());
-                            matSecCur.setFechaRegistro(new Date());
-                            matriculaSeccionDAO.save(matSecCur);
-                        }
-                        seccion.setMatriculados(seccion.getMatriculados() + 1);
-                        seccion.setReservados(seccion.getReservados() - 1);
-                        seccionDAO.update(seccion);
+                    TokenIngresante token = responseRestService.createToken(ds);
+                    JsonResponse json = responseRestService.matricularSeccionReservada(alumno, seccion, ds, token);
+                    System.out.println("Rpta=" + json.getSuccess() + " msg=" + json.getMessage());
+
+                    if (!json.getSuccess()) {
+                        visorMatricula.getMensajes().add("Error con el alumno " + alumno.getCodigo() + ". " + json.getMessage());
+                        erroresAlu.add(json.getMessage());
+                        ok = false;
                     }
-
-                }
-                aluHorario.setEstado(EstadoAlumnoHorarioEnum.MATR);
-                horario.setMatriculados(horario.getMatriculados() + 1);
-                matriculaResumenDAO.update(matResumen);
-
-                if (actividadesAlumno != null) {
-                    ActividadIngresante actividadIngresante = new ActividadIngresante();
-                    actividadIngresante.setEstadoEnum(RecorridoIngresanteEstadoEnum.ACT);
-                    actividadIngresante.setFechaRegistro(new Date());
-                    actividadIngresante.setRecorridoIngresante(actividadesAlumno.get(0).getRecorridoIngresante());
-                    actividadIngresante.setTipoActividadIngresante(tipoActividadIngresante);
-                    actividadIngresante.setUserEjecucion(ds.getUsuario());
-                    actividadIngresanteDAO.save(actividadIngresante);
                 }
 
+                visorMatricula.marcarAlumno(alumno);
+                if (ok) {
+                    matriculaIngresanteService.registrarMatricula(aluHorario, horario, ds);
+                } else {
+                    matriculaIngresanteService.registrarErroresAlumno(aluHorario, erroresAlu, ds);
+                }
             }
-            horarioCachimbosDAO.update(horario);
+            matriculaIngresanteService.registrarIncrementoHorario(horario, ds);
         }
+
+    }
+
+    private Seccion getSeccionMatriculable(List<Seccion> secciones) {
+        for (Seccion secc : secciones) {
+            if (secc.isTipoSeccionTCUR()) {
+            } else {
+                return secc;
+            }
+        }
+        return null;
     }
 
     private int cantidadActividadesPreMatriculaAlumno(

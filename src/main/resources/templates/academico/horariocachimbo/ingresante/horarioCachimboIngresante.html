@@ -1,89 +1,245 @@
 <html layout:decorator="_layout/layout">
     <head>
         <title>Tipo Grupos</title>
-    <div th:substituteby="_layout/includes :: styles-dynatable"></div>
-    <style>
-        .no-top-border > thead > tr:first-child > td,
-        .no-top-border > tbody > tr:first-child > td {
-            border: none;
-        }
-    </style>
-</head>
+        <style>
+            .no-top-border > thead > tr:first-child > td,
+            .no-top-border > tbody > tr:first-child > td {
+                border: none;
+            }
 
-<body>
-    <div layout:fragment="main">
+            .circle-recorrido {
+                display: block;
+                border-radius: 50%;
+                width: 50px;
+                height: 50px;
+                overflow: hidden;
+                margin: 0 auto;
+                line-height: 50px;  
+                /*                text-align: center;*/
+                font-size: 16px;
+                /*                margin-left: 49px;*/
+                text-indent: 0;
+                vertical-align: middle;
+                margin-top: 2px;
+                margin-bottom: 2px;
+            }
 
-        <div  id="main" v-cloak="">
-            <header class="header b-b padder-lg">
-                <div class="btn-group pull-right">
-                    <button type="button" class="btn btn-primary dropdown-toggle pull-right" data-toggle="dropdown">
-                        <i class="fa fa-random fa-lg"/> &nbsp; Acciones &nbsp; <span class="caret"></span>
-                    </button>
-                    <ul class="dropdown-menu">
-                        <li><a href="#" v-on:click="nuevo" >Agregar Alumno</a></li>
-                        <li><a href="#" v-on:click="cargarIngresantes" >Cargar Ingresantes</a></li>
-                        <li><a href="#" v-on:click.prevent="eliminarHorarios" >Eliminar Horarios</a></li>
-                        <li><a href="#" v-on:click="matricularIngresantes" >Matricular Ingresantes</a></li>
-                        <li class="divider"></li>
-                        <li><a th:href="@{/reporte/programacionHorarioAlumno}" >Imprimir Horarios</a></li>
-                    </ul>
-                </div>
+            .circle-recorrido.bgr-success {
+                background-color: #2ECC71;
+                color: #fff;
+            }
 
-                <h2 th:inline="text">Ingresantes con Horario [[${cicloAcademico.descripcion}]] </h2>
-            </header>
-            <section class="wrapper-lg">
+            .circle-recorrido.bgr-danger {
+                background-color: #E74C3C;
+                color: #fff;
+            }
+
+            .circle-recorrido.bgr-warning {
+                background-color: #F1B41E;
+                color: #fff;
+            }
+
+            .circle-recorrido.bgr-black {
+                background-color: #3C4043;
+                color: #fff;
+            }
+
+            .circle-recorrido.bgr-default {
+                background-color: #EBEDEF;
+                color: #000;
+            }
+        </style>
+    </head>
+
+    <body>
+        <div layout:fragment="main">
+
+            <div  id="main" v-cloak="">
+                <header class="header b-b padder-lg">
+                    <div class="btn-group pull-right">
+                        <button type="button" class="btn btn-primary dropdown-toggle pull-right" data-toggle="dropdown">
+                            <i class="fa fa-random fa-lg"/> &nbsp; Acciones &nbsp; <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a href="#" v-on:click="nuevo" >Agregar Alumno</a></li>
+                            <li><a href="#" v-on:click="cargarIngresantes" >Cargar Ingresantes</a></li>
+                            <li><a href="#" v-on:click.prevent="eliminarHorarios" >Eliminar Horarios</a></li>
+                            <li><a href="#" v-on:click="matricularIngresantes" >Matricular Ingresantes</a></li>
+                            <li class="divider"></li>
+                            <li><a th:href="@{/reporte/programacionHorarioAlumno}" >Imprimir Horarios</a></li>
+                        </ul>
+                    </div>
+
+                    <h2 th:inline="text">Ingresantes con Horario [[${cicloAcademico.descripcion}]] </h2>
+                </header>
+                <section class="wrapper-lg">
 
 
-                <section class="panel m-b-xs">
-                    <section class="panel-body">
-                        <div class="col-md-12">
-                            <div class="row">
+                    <section class="panel m-b-xs">
+                        <section class="panel-body">
+                            <!--                            <div class="col-md-12">
+                                                            <div class="row">-->
 
-                                <div class="col-xs-2 text-center"   v-for="item in ingCantidad"  >
+                            <div class="col-xs-2 text-center"
+                                 v-for="item in ingCantidad"  >
 
-                                    <a href="#" v-on:click.prevent="filtrarIngresante" v-bind:rel="item.estado" class="view-count " >
-
-                                        <span class="h1 block bold text-success"
-                                              v-bind:style="{ color: item.color  }"
-                                              v-text="item.cantidad"
-                                              ></span>
-
-                                        <small class="block m-b-xs bold text-muted" v-text="item.nombre" ></small>
-
-                                    </a>
-
-                                </div>
+                                <a href="#" v-on:click.prevent="filtrarIngresante" v-bind:rel="item.estado" class="view-count " >
+                                    <span class="h1 block bold text-success"
+                                          v-bind:style="{ color: item.color  }"
+                                          v-text="item.cantidad">
+                                    </span>
+                                    <small class="block m-b-xs bold text-muted" v-text="item.nombre" ></small>
+                                </a>
                             </div>
 
-                        </div>
+                            <!--                                </div>
+                                                        </div>-->
+                        </section>
+                    </section>
+
+
+                    <section class="panel">
+                        <section class="panel-body">
+                            <div class="alert alert-warning" v-if="avance.estado != 'LIBRE' ">
+                                <h4 class="bold">Proceso de matrícula de ingresantes</h4>
+                                {{avance.mensaje}}
+                            </div>
+                            <div v-if="avance.procesando">
+                                <div class="progress">
+                                    <div class="progress-bar progress-bar-success progress-bar-striped active" role="progressbar" 
+                                         v-bind:aria-valuenow="avance.porcentaje" aria-valuemin="0" aria-valuemax="100" style="min-width: 2em;"
+                                         v-bind:style="{width: avance.porcentaje + '%'}">
+                                        {{avance.porcentaje}}% Completado
+                                    </div>
+                                </div>
+
+                                <table class="table table-condensed"
+                                       v-if="avance.errores.length > 0">
+                                    <thead>
+                                        <tr>
+                                            <th>Error</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr v-for="item in avance.errores">
+                                            <td>{{item.msg}}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div v-else="">
+                                <raptor-table v-bind:url="alumnosURL" ref="alumnosRaptor">
+                                    <div slot="header"></div>
+                                    <template scope="props" >
+                                        <table class="table table-striped">
+                                            <thead>
+                                                <tr>
+                                                    <th class="col-xs-5 v-middle">Estudiante</th>
+                                                    <th class="col-xs-3  text-center v-middle">Carrera</th>
+                                                    <th class="col-xs-1  text-center v-middle">Cursos matriculados</th>
+                                                    <th class="col-xs-1  text-center v-middle">Horario</th>
+                                                    <th class="col-xs-1  text-center v-middle">Errores</th>
+                                                    <th class="col-xs-1  text-center v-middle">Estado</th>
+                                                    <th></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr v-for="horario in props.data">
+
+                                                    <td class="v-middle">
+                                                        <p  class="h5 bold text-primary">
+                                                            {{horario.estudiante}}
+                                                        </p>
+                                                        <span class="text-sm text-muted block">{{horario.codigoMatricula}}</span>
+                                                        <span class="text-sm text-muted block"> {{horario.tipo}}  {{horario.numero}}</span>
+                                                    </td>
+
+                                                    <td class="v-middle">
+                                                        <p class="bold text-primary text-sm">{{horario.carrera}}</p>
+                                                        <span v-if="horario.showfacultad" class="text-muted text-sm">Facultad de {{horario.facultad}}</span>
+                                                    </td>
+                                                    
+                                                    <td class="v-middle text-center">
+                                                        <span v-if="horario.cursosMat == 0"></span>
+                                                        <span v-else-if="horario.estado == 'MATR' " class="circle-recorrido bgr-success">
+                                                              {{horario.cursosMat}}
+                                                        </span>
+                                                        <span v-else-if="horario.cursosMat > 0" class="circle-recorrido bgr-warning">
+                                                              {{horario.cursosMat}}
+                                                        </span>
+                                                    </td>
+
+                                                    <td class="v-middle  text-center">
+                                                        <p class="block">{{horario.horario}}</p>
+                                                        <p v-if="horario.horario!=''" class="text-sm text-muted">{{horario.numCurso}}  cursos</p>
+                                                    </td>
+
+                                                    <td class="v-middle text-center">
+                                                        <span class="circle-recorrido bgr-danger"
+                                                              v-if="horario.errores">
+                                                            23
+                                                        </span>
+                                                    </td>
+
+                                                    <td class="v-middle text-center">
+                                                        <span v-if="horario.estado=='PEND'" class="label label-default" >{{horario.estadoName}}</span>
+                                                        <span v-if="horario.estado=='MATR'" class="label label-success" >{{horario.estadoName}}</span>
+                                                        <span v-if="horario.estado=='CHOR'" class="label label-warning" >{{horario.estadoName}}</span>
+                                                        <span v-if="horario.estado=='SUSP'" class="label label-danger" >{{horario.estadoName}}</span>
+                                                    </td>
+
+
+
+                                                    <td class="v-middle">
+                                                        <div class="dropdown actions">
+                                                            <a class="dropdown-toggle" data-toggle="dropdown">
+                                                                <i class="glyphicon glyphicon-option-vertical"></i>
+                                                            </a>
+                                                            <ul class="dropdown-menu pull-right">
+                                                                <li><a class=""  v-if="horario.estado!='PEND'"  v-on:click.prevent="verHorario(horario.horarioCachimbo)"  href="#">Ver horario</a></li>
+                                                                <li><a class=""  v-if="horario.estado!='PEND'"  v-on:click.prevent="verCurso(horario.horarioCachimbo)"  href="#">Ver cursos</a></li>
+                                                                <li class="divider"></li>
+                                                                <li><a class=""  v-if="horario.estado=='PEND'"  v-on:click.prevent="asignarHorario(horario.id)"  href="#">Asignar horario</a></li>
+                                                                <li><a class=""  v-if="horario.estado=='CHOR'"  v-on:click.prevent="retirarHorario(horario.id)"  href="#">Retirar de horario</a></li>
+                                                                <li class="divider"></li>
+                                                                <li><a class=""  v-if="horario.estado=='CHOR'"  v-on:click.prevent="suspenderMatricula(horario.id)"  href="#">Suspender matricula</a></li>
+                                                                <li><a class=""  v-if="horario.estado=='CHOR'"  v-on:click.prevent="activarMatricula(horario.id)"   href="#">Activar  matricula</a></li>
+                                                                <li><a class=""  v-if="horario.estado=='PEND'"  v-on:click.prevent="deleteAlumno(horario.id)"  href="#">Eliminar</a></li>
+                                                            </ul>
+                                                        </div>
+                                                    </td>
+
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </template>
+                                </raptor-table>
+
+
+                            </div>
+
+                        </section>
                     </section>
                 </section>
 
+                <div th:substituteby="academico/horariocachimbo/ingresante/horarioCachimboIngresanteModal"/>
 
-                <section class="panel">
-                    <section class="panel-body">
-
-                        <dynatable />
-
-                    </section>
-                </section>
-            </section>
-
-            <div th:substituteby="academico/horariocachimbo/ingresante/horarioCachimboIngresanteModal"/>
+            </div>
 
         </div>
 
+        <div layout:fragment="js">
+            <script  th:inline="javascript" >
+                /*<![CDATA[*/
+                var rutaModulo = 'academico/horariocachimbo/ingresante';
+                /*]]>*/
+            </script>
+            <div th:substituteby="_modules/vue-modal"/>
+            <script th:src="@{/vendor/sweetalert/dist/sweetalert.min.js}" charset="utf-8"></script>
+            <div th:substituteby="_modules/vue-raptor-table"></div>
+            <script th:src="@{/app/academico/horariocachimbo/ingresante/horarioCachimboIngresante.js}" charset="utf-8"></script>
+        </div>
 
-        <th:block th:replace="academico/horariocachimbo/ingresante/horarioCachimboIngresanteDynatable"/>
-
-    </div>
-
-    <div layout:fragment="js">
-        <div th:substituteby="_modules/vue-modal"/>
-        <div th:substituteby="_layout/includes :: javascript-dynatable"/>
-        <script th:src="@{/vendor/sweetalert/dist/sweetalert.min.js}" charset="utf-8"></script>
-        <script th:src="@{/app/academico/horariocachimbo/ingresante/horarioCachimboIngresante.js}" charset="utf-8"></script>
-    </div>
-
-</body>
+    </body>
 </html>

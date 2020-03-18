@@ -19,6 +19,8 @@ public interface HorarioCachimbosDAO extends EasyDAO<HorarioCachimbos> {
 
     HorarioCachimbos find(HorarioCachimbos horarioCachimbos);
 
-    public void deleteAllByCiclo(CicloAcademico cicloAcademico);
+    void deleteAllByCiclo(CicloAcademico cicloAcademico);
+
+    void updateColumns(HorarioCachimbos horario, String... columns);
 
 }

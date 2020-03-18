@@ -8,6 +8,7 @@ import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.RecorridoIngresante;
 import pe.edu.lamolina.model.general.Persona;
@@ -252,6 +253,17 @@ public class RecorridoIngresanteDAOH extends AbstractEasyDAO<RecorridoIngresante
                 .linkedBy("per.id", "pp.id");
 
         return all(sql);
+    }
+
+    @Override
+    public RecorridoIngresante findByAlumnoCiclo(Alumno alumno, CicloAcademico cicloAcademico) {
+        Octavia sql = Octavia.query()
+                .from(RecorridoIngresante.class, "ri")
+                .join("cicloAcademico ci", "alumno a", "a.persona per")
+                .filter("ci.id", cicloAcademico)
+                .filter("a.id", alumno);
+
+        return find(sql);
     }
 
 }

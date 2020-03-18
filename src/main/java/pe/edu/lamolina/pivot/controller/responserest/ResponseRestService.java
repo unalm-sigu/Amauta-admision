@@ -28,6 +28,8 @@ public interface ResponseRestService {
 
     JsonResponse matricularSeccion(Alumno alumno, Seccion seccion, DataSessionPivot ds, TokenIngresante token);
 
+    JsonResponse matricularSeccionReservada(Alumno alumno, Seccion seccion, DataSessionPivot ds, TokenIngresante token);
+
     JsonResponse retirarMatriculaCiclo(MatriculaResumen matriculaResumen, DataSessionPivot ds, TokenIngresante token);
 
     JsonResponse generarAporte(Alumno alumno, CicloAcademico ciclo, MatriculaResumen matriculaResumen, DataSessionPivot ds, TokenIngresante token);

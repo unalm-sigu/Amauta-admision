@@ -46,6 +46,8 @@ public class HorarioCachimboIngresanteController {
 
     @Autowired
     HorarioCachimboIngresanteService service;
+    @Autowired
+    VisorMatricula visorMatricula;
 
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {
@@ -87,8 +89,8 @@ public class HorarioCachimboIngresanteController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
             List<AlumnoHorario> alumnosHorario = service.allAlumnoHorario(filter, cicloAcademico);
-            ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
+            ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
             for (AlumnoHorario alumHorario : alumnosHorario) {
 
                 ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
@@ -102,13 +104,15 @@ public class HorarioCachimboIngresanteController {
                 node.put("carrera", alumno.getCarrera().getNombre());
                 node.put("facultad", alumno.getCarrera().getFacultad().getNombre());
                 node.put("horario", hc != null ? hc.getCodigo() : "");
-                node.put("numCurso", hc != null ? hc.getCursos() : 0);
+                node.put("numCurso", hc.getCursos());
+                node.put("cursosMat", alumHorario.getCursosMatriculados().size());
                 node.put("estado", alumHorario.getEstado());
                 node.put("estadoName", EstadoAlumnoHorarioEnum.valueOf(alumHorario.getEstado()).getValue());
 
                 node.put("codigoMatricula", alumno.getCodigo());
                 node.put("tipo", alumno.getPersona().getTipoDocumento().getSimbolo());
                 node.put("numero", alumno.getPersona().getNumeroDocIdentidad());
+                node.put("errores", alumHorario.getErrores());
 
                 node.put("showfacultad", !facultad.getCodigo().equals(carrera.getCodigo()));
                 node.put("horarioCachimbo", (Long) ObjectUtil.getParentTree(alumHorario, "horarioCachimbos.id"));
@@ -354,14 +358,50 @@ public class HorarioCachimboIngresanteController {
     @RequestMapping("matricular")
     public JsonResponse matricular(HttpSession session) {
         JsonResponse response = new JsonResponse();
-        response.setSuccess(false);
         try {
 
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
-            service.matricular(cicloAcademico, ds);
-            response.setMessage("Registro eliminado");
-            response.setSuccess(true);
+            boolean ok = visorMatricula.iniciar();
+            response.setMessage(visorMatricula.getProcesoActual());
+            if (ok) {
+                service.matricular(cicloAcademico, ds);
+            }
+            response.setSuccess(ok);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("getAvanceMatricula")
+    public JsonResponse getAvanceMatricula(HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+
+            ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
+            node.put("porcentaje", visorMatricula.getAvance());
+            node.put("mensaje", visorMatricula.getProcesoActual());
+            node.put("estado", visorMatricula.getEstado());
+            node.put("procesando", visorMatricula.sigueProcesando());
+
+            ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+            List<String> errores = visorMatricula.getErrores();
+            for (String error : errores) {
+                ObjectNode nodeError = new ObjectNode(JsonNodeFactory.instance);
+                nodeError.put("msg", error);
+                array.add(nodeError);
+            }
+
+            node.set("errores", array);
+
+            response.setData(node);
+            response.setSuccess(visorMatricula.sigueProcesando());
+
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
