@@ -40,4 +40,8 @@ public interface RecorridoIngresanteDAO extends EasyDAO<RecorridoIngresante> {
 
     RecorridoIngresante findByAlumnoCiclo(Alumno alumno, CicloAcademico cicloAcademico);
 
+    public void updateActividadesEjecutadas(CicloAcademico cicloAcademico);
+
+    public void updateTotalActividades(CicloAcademico cicloAcademico);
+
 }

@@ -5,6 +5,7 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoHorario;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.RecorridoIngresante;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -37,5 +38,9 @@ public interface HorarioCachimboIngresanteService {
     void deleteIngresante(AlumnoHorario alumnoHorario, CicloAcademico cicloAcademico);
 
     void matricular(CicloAcademico cicloAcademico, DataSessionPivot ds);
+
+    public void revisarActividad(DataSessionPivot ds);
+
+    public List<RecorridoIngresante> allRecorridoIngresante(CicloAcademico cicloAcademico);
 
 }

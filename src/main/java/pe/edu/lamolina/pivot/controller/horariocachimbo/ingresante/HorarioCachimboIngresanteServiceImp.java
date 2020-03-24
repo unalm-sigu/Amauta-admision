@@ -29,6 +29,7 @@ import pe.edu.lamolina.model.academico.ConfigRecorridoIngresante;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.MatriculaCurso;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
+import pe.edu.lamolina.model.academico.RecorridoIngresante;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.academico.TipoActividadIngresante;
 import pe.edu.lamolina.model.enums.AlumnoVacanteEstadoEnum;
@@ -59,6 +60,7 @@ import pe.edu.lamolina.pivot.dao.academico.ConfigRecorridoIngresanteDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaCursoDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaResumenDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaSeccionDAO;
+import pe.edu.lamolina.pivot.dao.academico.RecorridoIngresanteDAO;
 import pe.edu.lamolina.pivot.dao.academico.TipoActividadIngresanteDAO;
 import pe.edu.lamolina.pivot.dao.horario.HorarioFallidoDAO;
 import pe.edu.lamolina.pivot.dao.vacante.VacanteAlumnoDAO;
@@ -96,6 +98,8 @@ public class HorarioCachimboIngresanteServiceImp implements HorarioCachimboIngre
     @Autowired
     ModalidadEstudioDAO modalidadEstudioDAO;
     @Autowired
+    RecorridoIngresanteDAO recorridoIngresanteDAO;
+    @Autowired
     SeccionDAO seccionDAO;
     @Autowired
     SeccionHorarioCachimbosDAO seccionHorarioCachimbosDAO;
@@ -126,7 +130,7 @@ public class HorarioCachimboIngresanteServiceImp implements HorarioCachimboIngre
             aluHorario.setCursosMatriculados(cursosMatriculados);
 
             HorarioCachimbos horario = aluHorario.getHorarioCachimbos();
-            if (horario.getCursos() == null) {
+            if (horario != null && horario.getCursos() == null) {
                 horario.setCursos(0);
             }
         }
@@ -366,18 +370,43 @@ public class HorarioCachimboIngresanteServiceImp implements HorarioCachimboIngre
     @Override
     public List<IngresanteCantidad> allIngresanteCantidad(CicloAcademico cicloAcademico) {
         List<AlumnoHorario> alumnoHorarios = alumnoHorarioDAO.allByCicloAcademico(cicloAcademico);
+        List<RecorridoIngresante> recorridoIngresantes = recorridoIngresanteDAO.allByCiclo(cicloAcademico);
+        Map<String, RecorridoIngresante> recorridoIngresantesMap = TypesUtil.convertListToMap("alumno.id", recorridoIngresantes);
+
+        this.verificarFaltaActividad(alumnoHorarios, recorridoIngresantesMap);
+
         Map<String, List<AlumnoHorario>> alumnoHorariosMap = TypesUtil.convertListToMapList("estado", alumnoHorarios);
+        Map<String, List<AlumnoHorario>> alumnoHorariosErrorMap = TypesUtil.convertListToMapList("errores", alumnoHorarios);
         List<IngresanteCantidad> cantidad = new ArrayList();
         for (EstadoAlumnoHorarioEnum value : EstadoAlumnoHorarioEnum.values()) {
             List<AlumnoHorario> alumnos = alumnoHorariosMap.get(value.name());
             IngresanteCantidad ingresanteCantidad = new IngresanteCantidad();
             ingresanteCantidad.setEstado(value.name());
             ingresanteCantidad.setNombre(value.getValue());
-            ingresanteCantidad.setCantidad(alumnos != null ? alumnos.size() : 0);
+            if (value == EstadoAlumnoHorarioEnum.ERROR) {
+                ingresanteCantidad.setCantidad(alumnoHorariosErrorMap.size());
+            } else if (value == EstadoAlumnoHorarioEnum.FAL_ACT) {
+
+                ingresanteCantidad.setCantidad(Integer.parseInt(alumnoHorarios.stream().filter(x -> x.getFaltaActividad()).count() + ""));
+            } else {
+
+                ingresanteCantidad.setCantidad(alumnos != null ? alumnos.size() : 0);
+            }
             ingresanteCantidad.setIdgen(EstadoAlumnoHorarioEnum.valueOf(value.name()).ordinal());
             cantidad.add(ingresanteCantidad);
         }
         return cantidad;
+    }
+
+    private void verificarFaltaActividad(List<AlumnoHorario> alumnoHorarios, Map<String, RecorridoIngresante> recorridoIngresantesMap) {
+
+        for (AlumnoHorario alumnoHorario : alumnoHorarios) {
+            RecorridoIngresante recorridoIngresante = recorridoIngresantesMap.get(alumnoHorario.getAlumno().getId());
+            if (recorridoIngresante == null) {
+                continue;
+            }
+            alumnoHorario.setFaltaActividad(recorridoIngresante.getTotalActividades() - 2 > recorridoIngresante.getActividadesEjecutadas());
+        }
     }
 
     @Override
@@ -472,11 +501,11 @@ public class HorarioCachimboIngresanteServiceImp implements HorarioCachimboIngre
                 } else {
                     actividadesAlumno = TypesUtil.getListNotNull(mapActividadesIngresantes.get(alumno.getId()));
                     int cantActividadAlumnoPreMatri = cantidadActividadesPreMatriculaAlumno(actividadesAlumno, mapConfigRecorrido);
-
+                    RecorridoIngresante recorridoIngresante = actividadesAlumno.get(0).getRecorridoIngresante();
                     if (cantActividadAlumnoPreMatri < actividadesPreMatricula) {
                         String msg = "El alumno " + alumno.getCodigo() + " tiene solo "
                                 + cantActividadAlumnoPreMatri + " actividades, pero debería tener "
-                                + actividadesAlumno.size() + ".";
+                                + (recorridoIngresante.getTotalActividades() - 1) + ".";
                         visorMatricula.getMensajes().add(msg);
                         visorMatricula.marcarAlumno(alumno);
                         erroresAlu.add(msg);
@@ -591,6 +620,18 @@ public class HorarioCachimboIngresanteServiceImp implements HorarioCachimboIngre
             loop++;
         }
         return loop;
+    }
+
+    @Override
+    public void revisarActividad(DataSessionPivot ds) {
+
+        recorridoIngresanteDAO.updateActividadesEjecutadas(ds.getCicloAcademico());
+        recorridoIngresanteDAO.updateTotalActividades(ds.getCicloAcademico());
+    }
+
+    @Override
+    public List<RecorridoIngresante> allRecorridoIngresante(CicloAcademico cicloAcademico) {
+        return recorridoIngresanteDAO.allByCiclo(cicloAcademico);
     }
 
 }

@@ -2,6 +2,7 @@ package pe.edu.lamolina.pivot.dao.academico.hibernate;
 
 import java.util.Date;
 import java.util.List;
+import org.hibernate.Query;
 import org.joda.time.DateTime;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
@@ -264,6 +265,43 @@ public class RecorridoIngresanteDAOH extends AbstractEasyDAO<RecorridoIngresante
                 .filter("a.id", alumno);
 
         return find(sql);
+    }
+
+    @Override
+    public void updateActividadesEjecutadas(CicloAcademico cicloAcademico) {
+        StringBuilder sql = new StringBuilder();
+        sql.append(" UPDATE aca_recorrido_ingresante as table1 ");
+        sql.append(" inner join ");
+        sql.append(" (SELECT ari.id_alumno,ari.id ariId,  COUNT(ai.id) cant");
+        sql.append(" from aca_recorrido_ingresante ari ");
+        sql.append(" inner join aca_actividad_ingresante ai ");
+        sql.append(" on ai.id_recorrido_ingresante = ari.id ");
+        sql.append(" where  ari.id_ciclo_academico = :CICLO ");
+        sql.append(" and ai.estado = 'ACT' ");
+        sql.append(" GROUP by ari.id_alumno, ari.actividades_ejecutadas) as table2 ");
+        sql.append(" on table1.id = table2.ariId ");
+        sql.append(" set table1.actividades_ejecutadas = table2.cant ");
+
+        Query query = getCurrentSession().createSQLQuery(sql.toString());
+        query.setParameter("CICLO", cicloAcademico.getId());
+        query.executeUpdate();
+
+    }
+
+    @Override
+    public void updateTotalActividades(CicloAcademico cicloAcademico) {
+        StringBuilder sql = new StringBuilder();
+        sql.append(" UPDATE lamolina.aca_recorrido_ingresante as table1  ");
+        sql.append(" inner join (SELECT COUNT(id) cant, cri.id_ciclo_academico ciclo ");
+        sql.append(" from lamolina.aca_config_recorrido_ingresante  cri ");
+        sql.append(" where cri.id_ciclo_academico = :CICLO ");
+        sql.append(" GROUP by cri.id_ciclo_academico) as table2 ");
+        sql.append(" on table1.id_ciclo_academico = table2.ciclo ");
+        sql.append(" set table1.total_actividades = table2.cant ");
+
+        Query query = getCurrentSession().createSQLQuery(sql.toString());
+        query.setParameter("CICLO", cicloAcademico.getId());
+        query.executeUpdate();
     }
 
 }

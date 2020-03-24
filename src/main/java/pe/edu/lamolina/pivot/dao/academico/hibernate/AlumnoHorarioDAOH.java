@@ -12,6 +12,8 @@ import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoHorario;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.ConfigRecorridoIngresante;
+import pe.edu.lamolina.model.academico.RecorridoIngresante;
 import pe.edu.lamolina.model.enums.EstadoAlumnoHorarioEnum;
 import pe.edu.lamolina.model.horario.HorarioCachimbos;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoHorarioDAO;
@@ -47,10 +49,11 @@ public class AlumnoHorarioDAOH extends AbstractEasyDAO<AlumnoHorario> implements
 
     @Override
     public List<AlumnoHorario> allByAlumnoHorario(DynatableFilter filter, CicloAcademico cicloAcademico) {
+
         DynatableSql sql = new DynatableSql(filter)
                 .from(AlumnoHorario.class, "alu")
-                .join("alumno alum", "alum.persona per", "cicloAcademico ciclo", "horarioCachimbos hora")
-                .leftJoin("alum.orientacionCarrera oca", "alum.carrera ca")
+                .join("alumno alum", "alum.persona per", "cicloAcademico ciclo")
+                .leftJoin("alum.orientacionCarrera oca", "alum.carrera ca", "horarioCachimbos hora")
                 .leftJoin("alum.cicloIngreso ci", "alum.situacionAcademica sia", "alum.modalidadEstudio me", "ca.facultad fac")
                 .leftJoin("per.tipoDocumento")
                 .filter("ciclo.id", cicloAcademico)
@@ -59,19 +62,50 @@ public class AlumnoHorarioDAOH extends AbstractEasyDAO<AlumnoHorario> implements
                 .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
                 .orderBy("alu.id desc");
         sql.beginRelativeFilters();
-        this.setEstado(filter, sql);
-        return sql.all(getCurrentSession());
+        this.setEstado(filter, sql, cicloAcademico);
+        return all(sql);
     }
 
-    private void setEstado(DynatableFilter filter, DynatableSql sql) {
+    private void setEstado(DynatableFilter filter, DynatableSql sql, CicloAcademico cicloAcademico) {
         Map<String, Object> queries = filter.getQueries();
         if (queries == null) {
             return;
         }
-        if (queries.get("alu.estado") == null) {
+        if (queries.get("alu.estado") == null
+                && queries.get("alu.errores") == null
+                && queries.get("alu.actividad") == null) {
             return;
         }
-        sql.filter("alu.estado", queries.get("alu.estado"));
+        if (queries.get("alu.estado") != null) {
+            sql.filter("alu.estado", queries.get("alu.estado"));
+        } else if (queries.get("alu.errores") != null) {
+            sql.isNotNull("alu.errores");
+        } else if (queries.get("alu.actividad") != null) {
+            Octavia sqlSub = findRecorridoIngresante(cicloAcademico);
+            sql.exists(sqlSub)
+                    .linkedBy("alum.id", "al.id");
+        }
+    }
+
+    private Octavia findRecorridoIngresante(CicloAcademico cicloAcademico) {
+
+        Octavia sql = new Octavia()
+                .from(RecorridoIngresante.class, "ri")
+                .join("alumno al", "cicloAcademico ca")
+                .filter("actividadesEjecutadas", "<", this.totalActividades(cicloAcademico) - 2)
+                .filter("ca.id", cicloAcademico);
+        return sql;
+    }
+
+    private Long totalActividades(CicloAcademico cicloAcademico) {
+        Octavia sql = new Octavia()
+                .selectCount()
+                .from(ConfigRecorridoIngresante.class, "ci")
+                .join("cicloAcademico ca")
+                .filter("ca.id", cicloAcademico);
+
+        return (Long) sql.find(getCurrentSession());
+
     }
 
     @Override

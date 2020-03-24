@@ -63,6 +63,7 @@
                         <ul class="dropdown-menu">
                             <li><a href="#" v-on:click="nuevo" >Agregar Alumno</a></li>
                             <li><a href="#" v-on:click="cargarIngresantes" >Cargar Ingresantes</a></li>
+                            <li><a href="#" v-on:click="revisarActividad" >Revisar Actividad</a></li>
                             <li><a href="#" v-on:click.prevent="eliminarHorarios" >Eliminar Horarios</a></li>
                             <li><a href="#" v-on:click="matricularIngresantes" >Matricular Ingresantes</a></li>
                             <li class="divider"></li>
@@ -139,6 +140,7 @@
                                                     <th class="col-xs-3  text-center v-middle">Carrera</th>
                                                     <th class="col-xs-1  text-center v-middle">Cursos matriculados</th>
                                                     <th class="col-xs-1  text-center v-middle">Horario</th>
+                                                    <th class="col-xs-1  text-center v-middle">Actividades Realizadas</th>
                                                     <th class="col-xs-1  text-center v-middle">Errores</th>
                                                     <th class="col-xs-1  text-center v-middle">Estado</th>
                                                     <th></th>
@@ -159,14 +161,14 @@
                                                         <p class="bold text-primary text-sm">{{horario.carrera}}</p>
                                                         <span v-if="horario.showfacultad" class="text-muted text-sm">Facultad de {{horario.facultad}}</span>
                                                     </td>
-                                                    
+
                                                     <td class="v-middle text-center">
                                                         <span v-if="horario.cursosMat == 0"></span>
                                                         <span v-else-if="horario.estado == 'MATR' " class="circle-recorrido bgr-success">
-                                                              {{horario.cursosMat}}
+                                                            {{horario.cursosMat}}
                                                         </span>
                                                         <span v-else-if="horario.cursosMat > 0" class="circle-recorrido bgr-warning">
-                                                              {{horario.cursosMat}}
+                                                            {{horario.cursosMat}}
                                                         </span>
                                                     </td>
 
@@ -175,10 +177,16 @@
                                                         <p v-if="horario.horario!=''" class="text-sm text-muted">{{horario.numCurso}}  cursos</p>
                                                     </td>
 
+                                                    <td class="v-middle  text-center">
+                                                        <span class="circle-recorrido " 
+                                                              v-if="horario.actividadesEjecutadas" v-bind:class="styleActividad(horario)" v-text="horario.actividadesEjecutadas">
+
+                                                        </span>
+                                                    </td>
                                                     <td class="v-middle text-center">
                                                         <span class="circle-recorrido bgr-danger"
-                                                              v-if="horario.errores">
-                                                            23
+                                                              v-if="horario.errores" v-text="countErrores(horario.errores)" v-on:click="verErrores(horario.errores)">
+
                                                         </span>
                                                     </td>
 
@@ -224,6 +232,7 @@
                 </section>
 
                 <div th:substituteby="academico/horariocachimbo/ingresante/horarioCachimboIngresanteModal"/>
+                <div th:substituteby="academico/horariocachimbo/ingresante/erroresIngresanteModal"/>
 
             </div>
 

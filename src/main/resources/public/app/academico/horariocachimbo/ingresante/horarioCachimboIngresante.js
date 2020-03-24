@@ -33,6 +33,14 @@ new Vue({
             cancelbtn: 'Aceptar',
             showaccept: false
         },
+        modalErrores: {
+            id: 'modalErrores',
+            header: true,
+            title: 'Errores',
+            modalsize: 'modal-md',
+            cancelbtn: 'Cerrar',
+            showaccept: false
+        },
         verCursoModal: {
             id: 'modalVerCurso',
             header: true,
@@ -41,6 +49,7 @@ new Vue({
             cancelbtn: 'Aceptar',
             showaccept: false
         },
+        errores: []
     },
     created() {
         let $vue = this;
@@ -51,6 +60,45 @@ new Vue({
         vue.verAvanceMatricula();
     },
     methods: {
+        styleActividad(item) {
+            var total = item.totalActividades - 2;
+
+            if (item.actividadesEjecutadas < total) {
+                return " bgr-danger";
+            } else {
+                return " bgr-success";
+            }
+        },
+        verErrores(item) {
+            var vue = this;
+            var cadena = item.split("<br/>");
+            vue.errores = cadena;
+            this.$refs.modalErrores.open();
+
+        },
+        countErrores(item) {
+            var cadena = item.split("<br/>");
+            return cadena.length;
+        },
+        revisarActividad() {
+            var vue = this;
+            MODAL.showWait("Espere un momento por favor");
+            $.ajax({
+                method: 'POST',
+                url: APP.url(`${rutaModulo}/revisarActividad`),
+                success: function (response) {
+                    if (response.success) {
+                        vue.reloadDinatable();
+                        notify(response.message, 'success');
+                    } else {
+                        notify(response.message, 'error');
+                    }
+                }, error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+            MODAL.hideWait();
+        },
         nuevo() {
             var vue = this;
             this.$refs.modalAddAlumno.open();
@@ -344,27 +392,35 @@ new Vue({
 
         },
         filtrarIngresante(e) {
-//            var vue = this;
-//            var self = $(e.currentTarget);
-//            var carrera = self.attr('rel');
-//
-//            e.preventDefault();
-//            var div = self.closest("div");
-//            var classColor = 'bg-light';
-//            var tieneBgColor = div.hasClass(classColor);
-//            dynatable.queries.remove("alu.estado");
-//
-//            if (vue.divElegido != null) {
-//                vue.divElegido.removeClass(classColor);
-//                vue.divElegido = null;
-//            }
-//
-//            if (!tieneBgColor) {
-//                div.addClass(classColor);
-//                vue.divElegido = div;
-//                dynatable.queries.add("alu.estado", carrera);
-//            }
-//            dynatable.process();
+            var vue = this;
+            var self = $(e.currentTarget);
+            var carrera = self.attr('rel');
+
+            e.preventDefault();
+            var div = self.closest("div");
+            var classColor = 'bg-light';
+            var tieneBgColor = div.hasClass(classColor);
+            vue.$refs.alumnosRaptor.querie = [];
+
+            if (vue.divElegido != null) {
+                vue.divElegido.removeClass(classColor);
+                vue.divElegido = null;
+            }
+
+            if (!tieneBgColor) {
+                div.addClass(classColor);
+                vue.divElegido = div;
+                if (carrera == 'ERROR') {
+                    vue.$refs.alumnosRaptor.querie.push({name: 'alu.errores', value: carrera});
+                } else if (carrera == 'FAL_ACT') {
+
+                    vue.$refs.alumnosRaptor.querie.push({name: 'alu.actividad', value: carrera});
+                } else {
+
+                    vue.$refs.alumnosRaptor.querie.push({name: 'alu.estado', value: carrera});
+                }
+            }
+            vue.$refs.alumnosRaptor.loadRemoteData();
 
         },
         verHorario(id) {
