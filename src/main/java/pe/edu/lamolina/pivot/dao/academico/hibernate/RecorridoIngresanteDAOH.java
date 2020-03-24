@@ -291,9 +291,9 @@ public class RecorridoIngresanteDAOH extends AbstractEasyDAO<RecorridoIngresante
     @Override
     public void updateTotalActividades(CicloAcademico cicloAcademico) {
         StringBuilder sql = new StringBuilder();
-        sql.append(" UPDATE lamolina.aca_recorrido_ingresante as table1  ");
+        sql.append(" UPDATE aca_recorrido_ingresante as table1  ");
         sql.append(" inner join (SELECT COUNT(id) cant, cri.id_ciclo_academico ciclo ");
-        sql.append(" from lamolina.aca_config_recorrido_ingresante  cri ");
+        sql.append(" from aca_config_recorrido_ingresante  cri ");
         sql.append(" where cri.id_ciclo_academico = :CICLO ");
         sql.append(" GROUP by cri.id_ciclo_academico) as table2 ");
         sql.append(" on table1.id_ciclo_academico = table2.ciclo ");
