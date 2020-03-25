@@ -110,6 +110,8 @@ public class HorarioCachimboIngresanteServiceImp implements HorarioCachimboIngre
     TipoActividadIngresanteDAO tipoActividadIngresanteDAO;
 
     @Autowired
+    HelperMatriculaIngresanteService helperMatriculaIngresanteService;
+    @Autowired
     HorarioCachimboGenerarService generarHorarioIngresanteService;
     @Autowired
     MatriculaIngresanteService matriculaIngresanteService;
@@ -455,15 +457,6 @@ public class HorarioCachimboIngresanteServiceImp implements HorarioCachimboIngre
         if (!visorMatricula.iniciarAlumnos(allAlumnos)) {
             return;
         }
-
-//        for (Alumno alumno : allAlumnos) {
-//            TypesUtil.delay(750);
-//            visorMatricula.marcarAlumno(alumno);
-//        }
-//
-//        if (1 == 1) {
-//            return;
-//        }
         for (HorarioCachimbos horario : horarios) {
             List<AlumnoHorario> alumnosHorario = alumnoHorarioDAO.allByHorario(horario);
             if (horario.getMatriculados() >= horario.getSuscritos()) {
@@ -487,8 +480,9 @@ public class HorarioCachimboIngresanteServiceImp implements HorarioCachimboIngre
 
                 List<String> erroresAlu = new ArrayList();
                 if (aluHorario.getEstadoEnum() == EstadoAlumnoHorarioEnum.MATR) {
-                    horario.setMatriculados(horario.getMatriculados() + 1);
-                    matriculaIngresanteService.registrarIncrementoHorario(horario, ds);
+                    //horario.setMatriculados(horario.getMatriculados() + 1);
+                    horario.incrementarMatriculados();
+                    helperMatriculaIngresanteService.registrarIncrementoHorario(horario, ds);
                     visorMatricula.marcarAlumno(alumno);
                     continue;
                 }
@@ -496,7 +490,7 @@ public class HorarioCachimboIngresanteServiceImp implements HorarioCachimboIngre
                 // estados de recorrido tienen que estar activo. menos el de matricula. RecorridoAlumno - ActividadIngresante
                 List<ActividadIngresante> actividadesAlumno = TypesUtil.getListNotNull(mapActividadesIngresantes.get(alumno.getId()));
                 if (actividadesAlumno.isEmpty()) {
-                    logger.debug("ALUMNO SIN RECORRIDO {}", alumno.getId());
+                    logger.debug("ALUMNO SIN RECORRIDO {}", alumno.getCodigo());
 
                 } else {
                     actividadesAlumno = TypesUtil.getListNotNull(mapActividadesIngresantes.get(alumno.getId()));
@@ -509,7 +503,7 @@ public class HorarioCachimboIngresanteServiceImp implements HorarioCachimboIngre
                         visorMatricula.getMensajes().add(msg);
                         visorMatricula.marcarAlumno(alumno);
                         erroresAlu.add(msg);
-                        matriculaIngresanteService.registrarErroresAlumno(aluHorario, erroresAlu, ds);
+                        helperMatriculaIngresanteService.registrarErroresAlumno(aluHorario, erroresAlu, ds);
                         continue;
                     }
                 }
@@ -526,49 +520,17 @@ public class HorarioCachimboIngresanteServiceImp implements HorarioCachimboIngre
                         erroresAlu.add(msg);
                         errores++;
                     }
-                    //Assert.isNotNull(cursoHabil, "El curso " + curso.getCodigo() + " no es hábil para el alumno " + alumno.getCodigo());
                 }
 
                 if (errores > 0) {
-                    matriculaIngresanteService.registrarErroresAlumno(aluHorario, erroresAlu, ds);
+                    helperMatriculaIngresanteService.registrarErroresAlumno(aluHorario, erroresAlu, ds);
                     visorMatricula.marcarAlumno(alumno);
                     continue;
                 }
 
-                List<MatriculaCurso> cursosMatriculados = matriculaCursoDAO.allActivosByAlumnoCicloCursos(alumno, cicloAcademico, cursos);
-                Map<Long, MatriculaCurso> mapCursoMatriculado = TypesUtil.convertListToMap("curso.id", cursosMatriculados);
-
-                boolean ok = true;
-                for (Curso curso : cursos) {
-                    MatriculaCurso matCurso = mapCursoMatriculado.get(curso.getId());
-                    if (matCurso != null) {
-                        System.out.println("\tMatricula " + alumno.getCodigo() + " :::: " + curso.getCodigo() + " :::: Ya se encuentra matriculado");
-                        continue;
-                    }
-
-                    List<Seccion> seccionesCurso = mapSeccion.get(curso.getId());
-                    Seccion seccion = getSeccionMatriculable(seccionesCurso);
-                    System.out.println("enviando seccion=" + seccion.getCodigo2());
-
-                    TokenIngresante token = responseRestService.createToken(ds);
-                    JsonResponse json = responseRestService.matricularSeccionReservada(alumno, seccion, ds, token);
-                    System.out.println("Rpta=" + json.getSuccess() + " msg=" + json.getMessage());
-
-                    if (!json.getSuccess()) {
-                        visorMatricula.getMensajes().add("Error con el alumno " + alumno.getCodigo() + ". " + json.getMessage());
-                        erroresAlu.add(json.getMessage());
-                        ok = false;
-                    }
-                }
-
-                visorMatricula.marcarAlumno(alumno);
-                if (ok) {
-                    matriculaIngresanteService.registrarMatricula(aluHorario, horario, ds);
-                } else {
-                    matriculaIngresanteService.registrarErroresAlumno(aluHorario, erroresAlu, ds);
-                }
+                matriculaIngresanteService.matricularAlumno(aluHorario, mapSeccion, cursos, erroresAlu, horario, cicloAcademico, ds);
             }
-            matriculaIngresanteService.registrarIncrementoHorario(horario, ds);
+            // helperMatriculaIngresanteService.registrarIncrementoHorario(horario, ds);
         }
 
     }

@@ -1,22 +1,28 @@
 package pe.edu.lamolina.pivot.controller.horariocachimbo.ingresante;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.model.academico.ActividadIngresante;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoHorario;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.MatriculaCurso;
+import pe.edu.lamolina.model.academico.RecorridoIngresante;
 import pe.edu.lamolina.model.academico.Seccion;
+import pe.edu.lamolina.model.academico.TipoActividadIngresante;
+import pe.edu.lamolina.model.enums.EstadoAlumnoHorarioEnum;
+import pe.edu.lamolina.model.enums.RecorridoIngresanteEstadoEnum;
+import pe.edu.lamolina.model.enums.TipoActividadIngresanteEnum;
 import pe.edu.lamolina.model.horario.HorarioCachimbos;
 import pe.edu.lamolina.model.seguridad.TokenIngresante;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
@@ -43,7 +49,7 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service
 @Transactional(readOnly = true)
-public class MatriculaIngresanteServiceImp implements MatriculaIngresanteService {
+public class HelperMatriculaIngresanteServiceImp implements HelperMatriculaIngresanteService {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -85,89 +91,65 @@ public class MatriculaIngresanteServiceImp implements MatriculaIngresanteService
     VacanteAlumnoDAO vacanteAlumnoDAO;
 
     @Autowired
-    HelperMatriculaIngresanteService helperMatriculaIngresanteService;
-    @Autowired
     HorarioCachimboGenerarService generarHorarioIngresanteService;
     @Autowired
     ResponseRestService responseRestService;
     @Autowired
     VisorMatricula visorMatricula;
 
-    @Async
     @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
-    public void matricularAlumno(
-            AlumnoHorario aluHorario,
-            Map<Long, List<Seccion>> mapSeccion,
-            List<Curso> cursos,
-            List<String> erroresAlu,
-            HorarioCachimbos horario,
-            CicloAcademico cicloAcademico,
-            DataSessionPivot ds) {
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void registrarMatricula(AlumnoHorario aluHorario, HorarioCachimbos horario, DataSessionPivot ds) {
 
-        Alumno alumno = aluHorario.getAlumno();
-        System.out.println("Procesando " + alumno.getCodigo() + " con " + cursos.size() + " cursos para matricularse");
+        aluHorario.setEstado(EstadoAlumnoHorarioEnum.MATR);
+        aluHorario.setErrores(null);
+        alumnoHorarioDAO.updateColumns(aluHorario, "estado", "errores");
 
-        List<MatriculaCurso> cursosMatriculados = matriculaCursoDAO.allActivosByAlumnoCicloCursos(alumno, cicloAcademico, cursos);
-        Map<Long, MatriculaCurso> mapCursoMatriculado = TypesUtil.convertListToMap("curso.id", cursosMatriculados);
+        horario.incrementarMatriculados();
+        horarioCachimbosDAO.updateColumns(horario, "matriculados");
 
-        int existentes = 0;
-        int matriculados = 0;
-        int errores = 0;
-        int loop = 0;
-
-        boolean ok = true;
-        for (Curso curso : cursos) {
-            loop++;
-            MatriculaCurso matCurso = mapCursoMatriculado.get(curso.getId());
-            if (matCurso != null) {
-                System.out.println("\tMatricula " + alumno.getCodigo() + " :::: " + curso.getCodigo() + " :::: Ya se encuentra matriculado");
-                existentes++;
-                continue;
-            }
-
-            List<Seccion> seccionesCurso = mapSeccion.get(curso.getId());
-            Seccion seccion = getSeccionMatriculable(seccionesCurso);
-            System.out.println("\t" + alumno.getCodigo() + " enviando seccion=" + seccion.getCodigo2() + " " + loop + " de " + cursos.size());
-
-            TokenIngresante token = responseRestService.createToken(ds);
-            System.out.println("\t" + alumno.getCodigo() + " token=" + token.getValor() + " " + loop + " de " + cursos.size());
-            long t1 = System.currentTimeMillis();
-            JsonResponse json = responseRestService.matricularSeccionReservada(alumno, seccion, ds, token);
-            long t2 = System.currentTimeMillis();
-            System.out.println("Rpta=" + json.getSuccess() + " msg=" + json.getMessage() + " demora=" + (t2 - t1) + "mseg");
-
-            if (json.getSuccess()) {
-                matriculados++;
-
-            } else if (!json.getSuccess()) {
-                visorMatricula.getMensajes().add("Error con el alumno " + alumno.getCodigo() + ". " + json.getMessage());
-                erroresAlu.add(json.getMessage());
-                ok = false;
-                errores++;
-            }
+        RecorridoIngresante recorrido = recorridoIngresanteDAO.findByAlumnoCiclo(aluHorario.getAlumno(), horario.getCicloAcademico());
+        if (recorrido == null) {
+            return;
         }
 
-        System.out.println("Finalizó " + alumno.getCodigo() + " existentes=" + existentes + " matriculados=" + matriculados + " errores=" + errores);
-
-        visorMatricula.marcarAlumno(alumno);
-        if (ok) {
-            helperMatriculaIngresanteService.registrarMatricula(aluHorario, horario, ds);
-        } else {
-            helperMatriculaIngresanteService.registrarErroresAlumno(aluHorario, erroresAlu, ds);
+        TipoActividadIngresante tipoActividadIngresante = tipoActividadIngresanteDAO.findCodigo(TipoActividadIngresanteEnum.MATRI);
+        ActividadIngresante actividadMatri = actividadIngresanteDAO.findByRecorridoTipoActividad(recorrido, tipoActividadIngresante);
+        if (actividadMatri != null) {
+            if (actividadMatri.getEstadoEnum() != RecorridoIngresanteEstadoEnum.ACT) {
+                actividadMatri.setEstadoEnum(RecorridoIngresanteEstadoEnum.ACT);
+                actividadMatri.setFechaEjecucion(new Date());
+                actividadMatri.setUserEjecucion(ds.getUsuario());
+                actividadIngresanteDAO.update(actividadMatri);
+            }
+            return;
         }
-        helperMatriculaIngresanteService.registrarIncrementoHorario(horario, ds);
 
+        actividadMatri = new ActividadIngresante();
+        actividadMatri.setEstadoEnum(RecorridoIngresanteEstadoEnum.ACT);
+        actividadMatri.setFechaRegistro(new Date());
+        actividadMatri.setRecorridoIngresante(recorrido);
+        actividadMatri.setTipoActividadIngresante(tipoActividadIngresante);
+        actividadMatri.setUserEjecucion(ds.getUsuario());
+        actividadIngresanteDAO.save(actividadMatri);
     }
 
-    private Seccion getSeccionMatriculable(List<Seccion> secciones) {
-        for (Seccion secc : secciones) {
-            if (secc.isTipoSeccionTCUR()) {
-            } else {
-                return secc;
-            }
+    @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void registrarIncrementoHorario(HorarioCachimbos horario, DataSessionPivot ds) {
+        horarioCachimbosDAO.updateColumns(horario, "matriculados");
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void registrarErroresAlumno(AlumnoHorario aluHorario, List<String> erroresAlu, DataSessionPivot ds) {
+        String errores = "";
+        for (String msg : erroresAlu) {
+            errores += errores.equals("") ? "" : "<br/>\n";
+            errores += msg;
         }
-        return null;
+        aluHorario.setErrores(errores);
+        alumnoHorarioDAO.updateColumns(aluHorario, "errores");
     }
 
 }

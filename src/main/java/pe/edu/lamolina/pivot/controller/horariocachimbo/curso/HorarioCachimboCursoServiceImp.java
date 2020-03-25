@@ -52,29 +52,23 @@ public class HorarioCachimboCursoServiceImp implements HorarioCachimboCursoServi
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    CursoCachimbosDAO cursoCachimbosDAO;
-
+    AlumnoHorarioDAO alumnoHorarioDAO;
     @Autowired
     CarreraDAO carreraDAO;
-
-    @Autowired
-    CursoDAO cursoDAO;
-
-    @Autowired
-    SeccionHorarioCachimbosDAO seccionHorarioCachimbosDAO;
-
-    @Autowired
-    SeccionDAO seccionDAO;
-
-    @Autowired
-    AlumnoHorarioDAO alumnoHorarioDAO;
-
-    @Autowired
-    SeccionCursoCachimbosDAO seccionCursoCachimbosDAO;
     @Autowired
     CarreraCachimbosDAO carreraCachimbosDAO;
     @Autowired
+    CursoDAO cursoDAO;
+    @Autowired
+    CursoCachimbosDAO cursoCachimbosDAO;
+    @Autowired
     MatriculaCursoDAO matriculaCursoDAO;
+    @Autowired
+    SeccionDAO seccionDAO;
+    @Autowired
+    SeccionCursoCachimbosDAO seccionCursoCachimbosDAO;
+    @Autowired
+    SeccionHorarioCachimbosDAO seccionHorarioCachimbosDAO;
 
     @Override
     public List<CursoCachimbos> allCursoCachimbos(DynatableFilter filter, CicloAcademico cicloAcademico) {
@@ -84,9 +78,6 @@ public class HorarioCachimboCursoServiceImp implements HorarioCachimboCursoServi
 
         List<CarreraCachimbos> carrerasCachimbos = carreraCachimbosDAO.allByCicloAcademico(cicloAcademico);
         List<SeccionCursoCachimbos> seccionesCachimbos = seccionCursoCachimbosDAO.allByCursoCachimbos(cursosCachimbosVer);
-        List<AlumnoHorario> alumnosHorarios = alumnoHorarioDAO.allByCicloAcademico(cicloAcademico);
-        List<Alumno> alumnos = alumnosHorarios.stream().map(x -> x.getAlumno()).collect(Collectors.toList());
-        List<MatriculaCurso> matriculadosCurso = matriculaCursoDAO.allByAlumnosCursosCiclo(alumnos, cursos, cicloAcademico);
 
         Map<Long, CarreraCachimbos> mapCarrerasCachimbos = TypesUtil.convertListToMap("carrera.id", carrerasCachimbos);
         Map<Long, List<SeccionCursoCachimbos>> mapSeccionesCachimbos = TypesUtil.convertListToMapList("cursoCachimbos.id", seccionesCachimbos);
@@ -95,8 +86,7 @@ public class HorarioCachimboCursoServiceImp implements HorarioCachimboCursoServi
 
         for (CursoCachimbos cursoCachimbo : cursosCachimbos) {
             CarreraCachimbos carreraChm = mapCarrerasCachimbos.get(cursoCachimbo.getCarrera().getId());
-            Integer matriculadosCarrera = countMatriculados(matriculadosCurso, cursoCachimbo.getCurso(), carreraChm.getCarrera());
-            cursoCachimbo.setDemanda(carreraChm.getSinHorario() - matriculadosCarrera);
+            cursoCachimbo.setDemanda(carreraChm.getSinHorario());
 
             Integer oferta = 0;
             List<SeccionCursoCachimbos> seccionesChm = mapSeccionesCachimbos.get(cursoCachimbo.getId());
@@ -113,8 +103,6 @@ public class HorarioCachimboCursoServiceImp implements HorarioCachimboCursoServi
             List<Carrera> carreras = mapCarreras.get(curso.getId());
             for (Carrera carrera : carreras) {
                 CarreraCachimbos carreraChmx = mapCarrerasCachimbos.get(carrera.getId());
-                //matriculadosCarrera = countMatriculados(matriculadosCurso, cursoCachimbo.getCurso(), carrera);
-                //demandaTotal += carreraChmx.getSinHorario() - matriculadosCarrera;
                 demandaTotal += carreraChmx.getSinHorario(); // - matriculadosCarrera;
             }
             cursoCachimbo.setDemandaTotal(demandaTotal);
@@ -138,20 +126,6 @@ public class HorarioCachimboCursoServiceImp implements HorarioCachimboCursoServi
         }
 
         return cursosCachimbos;
-    }
-
-    private Integer countMatriculados(List<MatriculaCurso> matriculadosCurso, Curso curso, Carrera carrera) {
-        Integer conteo = 0;
-        for (MatriculaCurso matriculaCurso : matriculadosCurso) {
-            Carrera carr = matriculaCurso.getMatriculaResumen().getAlumno().getCarrera();
-            Curso cur = matriculaCurso.getCurso();
-            if (curso.getId() == cur.getId().longValue()
-                    && carrera.getId() == carr.getId().longValue()
-                    && matriculaCurso.getEstadoEnum() == EstadoMatriculaEnum.MAT) {
-                conteo++;
-            }
-        }
-        return conteo;
     }
 
     @Override

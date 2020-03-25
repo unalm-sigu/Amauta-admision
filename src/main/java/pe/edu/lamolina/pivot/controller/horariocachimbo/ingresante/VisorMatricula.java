@@ -3,7 +3,6 @@ package pe.edu.lamolina.pivot.controller.horariocachimbo.ingresante;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -105,7 +104,7 @@ public class VisorMatricula {
         }
     }
 
-    public List<String> getMensajes() {
+    public synchronized List<String> getMensajes() {
         if (mensajes == null) {
             this.mensajes = new ArrayList();
         }
@@ -148,7 +147,7 @@ public class VisorMatricula {
         return false;
     }
 
-    public List<String> getErrores() {
+    public synchronized List<String> getErrores() {
         int cant = 0;
         Map<Integer, String> mapErrores = new HashMap();
         for (String msg : getMensajes()) {
