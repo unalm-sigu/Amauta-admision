@@ -113,8 +113,9 @@ public class HorarioCachimboCursoServiceImp implements HorarioCachimboCursoServi
             List<Carrera> carreras = mapCarreras.get(curso.getId());
             for (Carrera carrera : carreras) {
                 CarreraCachimbos carreraChmx = mapCarrerasCachimbos.get(carrera.getId());
-                matriculadosCarrera = countMatriculados(matriculadosCurso, cursoCachimbo.getCurso(), carrera);
-                demandaTotal += carreraChmx.getSinHorario() - matriculadosCarrera;
+                //matriculadosCarrera = countMatriculados(matriculadosCurso, cursoCachimbo.getCurso(), carrera);
+                //demandaTotal += carreraChmx.getSinHorario() - matriculadosCarrera;
+                demandaTotal += carreraChmx.getSinHorario(); // - matriculadosCarrera;
             }
             cursoCachimbo.setDemandaTotal(demandaTotal);
 
