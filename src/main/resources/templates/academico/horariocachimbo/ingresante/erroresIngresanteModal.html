@@ -1,0 +1,33 @@
+
+<modal-vik ref="modalErrores"
+           v-bind="modalErrores">
+
+    <div slot="body">
+
+        <div class="panel padder-v m-b-n-lg">
+
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Item</th>
+                        <th  class="text-center">
+                            Error
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="(item, idx ) in errores" >
+                        <th class="">{{idx+1}} </th>
+                        <td  class="text-center">
+                            <span class="pointer secciones"  >
+                                <span class="text-primary block">{{ item}}</span>
+                            </span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+        </div>
+
+    </div>
+</modal-vik>

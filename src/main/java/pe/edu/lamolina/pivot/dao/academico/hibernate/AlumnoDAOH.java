@@ -1070,7 +1070,8 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
                 .leftJoin("planCurricular pc", "pc.carrera cap")
                 .filter("me.codigo", ModalidadEstudioEnum.PRE)
                 .filter("ci.codigo", cicloIngreso.getCodigo())
-                .isNull("pc.id");
+//                .isNull("pc.id")
+                ;
 
         return all(sql);
     }

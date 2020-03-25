@@ -9,6 +9,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,11 +28,13 @@ import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoHorario;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Facultad;
+import pe.edu.lamolina.model.academico.RecorridoIngresante;
 import pe.edu.lamolina.model.enums.EstadoAlumnoHorarioEnum;
 import pe.edu.lamolina.model.horario.HorarioCachimbos;
 import pe.edu.lamolina.model.seguridad.Usuario;
@@ -89,6 +92,8 @@ public class HorarioCachimboIngresanteController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
             List<AlumnoHorario> alumnosHorario = service.allAlumnoHorario(filter, cicloAcademico);
+            List<RecorridoIngresante> recorridoIngresantes = service.allRecorridoIngresante(cicloAcademico);
+            Map<Long, RecorridoIngresante> map = TypesUtil.convertListToMap("alumno.id", recorridoIngresantes);
 
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
             for (AlumnoHorario alumHorario : alumnosHorario) {
@@ -104,7 +109,7 @@ public class HorarioCachimboIngresanteController {
                 node.put("carrera", alumno.getCarrera().getNombre());
                 node.put("facultad", alumno.getCarrera().getFacultad().getNombre());
                 node.put("horario", hc != null ? hc.getCodigo() : "");
-                node.put("numCurso", hc.getCursos());
+                node.put("numCurso", hc != null ? hc.getCursos() : 0);
                 node.put("cursosMat", alumHorario.getCursosMatriculados().size());
                 node.put("estado", alumHorario.getEstado());
                 node.put("estadoName", EstadoAlumnoHorarioEnum.valueOf(alumHorario.getEstado()).getValue());
@@ -113,6 +118,12 @@ public class HorarioCachimboIngresanteController {
                 node.put("tipo", alumno.getPersona().getTipoDocumento().getSimbolo());
                 node.put("numero", alumno.getPersona().getNumeroDocIdentidad());
                 node.put("errores", alumHorario.getErrores());
+                RecorridoIngresante recorridoIngresante = map.get(alumno.getId());
+                if (recorridoIngresante != null) {
+                    node.put("actividadesEjecutadas", recorridoIngresante.getActividadesEjecutadas());
+                    node.put("totalActividades", recorridoIngresante.getTotalActividades());
+
+                }
 
                 node.put("showfacultad", !facultad.getCodigo().equals(carrera.getCodigo()));
                 node.put("horarioCachimbo", (Long) ObjectUtil.getParentTree(alumHorario, "horarioCachimbos.id"));
@@ -401,6 +412,24 @@ public class HorarioCachimboIngresanteController {
 
             response.setData(node);
             response.setSuccess(visorMatricula.sigueProcesando());
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("revisarActividad")
+    public JsonResponse revisarActividad(HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            service.revisarActividad(ds);
+            response.setMessage("Se verificó las actividades del ingresante.");
+            response.setSuccess(true);
 
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
