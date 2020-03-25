@@ -89,12 +89,13 @@ public class CrearHorarioServiceImp implements CrearHorarioService {
 
         alumnoHorarioDAO.update(aluHorario);
         carreraCachimbosDAO.update(cc);
+        horarioCachimbosDAO.updateColumns(horario, "suscritos");
 
         List<SeccionHorarioCachimbos> seccHorCachimbos = horario.getSeccionHorarioCachimbos();
         for (SeccionHorarioCachimbos seccHorCachimbo : seccHorCachimbos) {
             Seccion secc = seccHorCachimbo.getSeccion();
-//                        secc.setReservados(secc.getReservados() + 1);
-            this.updateSeccionReserva(secc, aluHorario, vacanteAlumnosMap, ds);
+            secc.setReservados(secc.getReservados() + 1);
+            seccionDAO.updateColumns(secc, "reservados");
         }
     }
 
@@ -159,25 +160,13 @@ public class CrearHorarioServiceImp implements CrearHorarioService {
         Integer vac = 1000;
         for (Seccion seccion : horarioTempo) {
             Integer vacSecc = seccion.getVacantes();
-            Integer matSecc = 0; //seccion.getMatriculados();
+            Integer matSecc = 0;
             if (vacSecc == null) {
                 vacSecc = 0;
-            }
-            if (matSecc == null) {
-                matSecc = 0;
             }
             vac = ((vacSecc - matSecc) < vac) ? (vacSecc - matSecc) : vac;
         }
         return vac;
-    }
-
-    private void updateSeccionReserva(
-            Seccion seccion,
-            AlumnoHorario alumnoHorario,
-            Map<Long, List<VacanteAlumno>> vacanteAlumnosMap,
-            DataSessionPivot ds) {
-        seccion.setReservados(seccion.getReservados() + 1);
-        seccionDAO.updateColumns(seccion, "reservados");
     }
 
     @Override
