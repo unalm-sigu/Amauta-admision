@@ -96,7 +96,7 @@ public class HorarioCachimboCursoServiceImp implements HorarioCachimboCursoServi
         for (CursoCachimbos cursoCachimbo : cursosCachimbos) {
             CarreraCachimbos carreraChm = mapCarrerasCachimbos.get(cursoCachimbo.getCarrera().getId());
             Integer matriculadosCarrera = countMatriculados(matriculadosCurso, cursoCachimbo.getCurso(), carreraChm.getCarrera());
-            cursoCachimbo.setDemanda(carreraChm.getSinHorario() - matriculadosCarrera);
+            cursoCachimbo.setDemanda(matriculadosCarrera - carreraChm.getSinHorario());
 
             Integer oferta = 0;
             List<SeccionCursoCachimbos> seccionesChm = mapSeccionesCachimbos.get(cursoCachimbo.getId());
@@ -114,7 +114,7 @@ public class HorarioCachimboCursoServiceImp implements HorarioCachimboCursoServi
             for (Carrera carrera : carreras) {
                 CarreraCachimbos carreraChmx = mapCarrerasCachimbos.get(carrera.getId());
                 matriculadosCarrera = countMatriculados(matriculadosCurso, cursoCachimbo.getCurso(), carrera);
-                demandaTotal += carreraChmx.getSinHorario() - matriculadosCarrera;
+                demandaTotal += matriculadosCarrera - carreraChmx.getSinHorario();
             }
             cursoCachimbo.setDemandaTotal(demandaTotal);
 
@@ -328,7 +328,7 @@ public class HorarioCachimboCursoServiceImp implements HorarioCachimboCursoServi
                         }
                     }
 
-                    sex.setReservados(totalSuscritos);
+//                    sex.setReservados(totalSuscritos);
                     sexs.add(sex);
                 }
                 Collections.sort(sexs, new Seccion.CompareCodigo2());

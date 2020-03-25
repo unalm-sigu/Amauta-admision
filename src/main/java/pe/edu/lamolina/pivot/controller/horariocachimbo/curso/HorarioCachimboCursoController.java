@@ -152,6 +152,9 @@ public class HorarioCachimboCursoController {
 
                     for (Seccion seccion : grupoSeccion.getSecciones()) {
 
+                        if (seccion.getId() == 282034) {
+                            System.err.println("Reservados" + seccion.getReservados());
+                        }
                         SeccionCursoCachimbos scc = null;
                         if (seccionCursoCachimbosMapBySeccion.size() > 0) {
                             scc = seccionCursoCachimbosMapBySeccion.get(seccion.getId());

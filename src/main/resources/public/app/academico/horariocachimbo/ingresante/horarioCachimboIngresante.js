@@ -82,22 +82,33 @@ new Vue({
         },
         revisarActividad() {
             var vue = this;
-            MODAL.showWait("Espere un momento por favor");
-            $.ajax({
-                method: 'POST',
-                url: APP.url(`${rutaModulo}/revisarActividad`),
-                success: function (response) {
-                    if (response.success) {
-                        vue.reloadDinatable();
-                        notify(response.message, 'success');
-                    } else {
-                        notify(response.message, 'error');
+            bootbox.confirm({
+                message: '¿Seguro que desea revisar la actividad de los ingresantes?',
+                buttons: {
+                    confirm: {label: 'Si, revisar', className: "btn-primary"},
+                    cancel: {label: 'Cancelar', className: "btn-link"}
+                },
+                callback: function (result) {
+                    if (result) {
+
+                        MODAL.showWait("Espere un momento por favor");
+                        $.ajax({
+                            method: 'POST',
+                            url: APP.url(`${rutaModulo}/revisarActividad`),
+                            success: function (response) {
+                                if (response.success) {
+                                    vue.reloadDinatable();
+                                    notify(response.message, 'success');
+                                } else {
+                                    notify(response.message, 'error');
+                                }
+                            }, error: function () {
+                                notify(MESSAGES.errorComunicacion, "error");
+                            }
+                        });
+                        MODAL.hideWait();
                     }
-                }, error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
-                }
-            });
-            MODAL.hideWait();
+                }});
         },
         nuevo() {
             var vue = this;
