@@ -1579,7 +1579,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
         return token;
     }
 
-    @Async
+//    @Async
     @Override
     public void revisarAvanceCurricular(String token, DataSessionPivot ds) {
         TypesUtil.delay(3000);

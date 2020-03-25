@@ -60,6 +60,36 @@ new Vue({
         vue.verAvanceMatricula();
     },
     methods: {
+        generarPlan() {
+            var vue = this;
+            bootbox.confirm({
+                message: '¿Seguro que desea generar plan curricular?',
+                buttons: {
+                    confirm: {label: 'Si, generar', className: "btn-primary"},
+                    cancel: {label: 'Cancelar', className: "btn-link"}
+                },
+                callback: function (result) {
+                    if (result) {
+
+                        MODAL.showWait("Espere un momento por favor");
+                        $.ajax({
+                            method: 'POST',
+                            url: APP.url(`academico/planCurricular/asignacionMasivaIngresantes`),
+                            success: function (response) {
+                                if (response.success) {
+                                    vue.reloadDinatable();
+                                    notify(response.message, 'success');
+                                    MODAL.hideWait();
+                                } else {
+                                    notify(response.message, 'error');
+                                }
+                            }, error: function () {
+                                notify(MESSAGES.errorComunicacion, "error");
+                            }
+                        });
+                    }
+                }});
+        },
         styleActividad(item) {
             var total = item.totalActividades - 2;
 
@@ -265,6 +295,7 @@ new Vue({
                                 if (response.success) {
                                     notify(response.message, 'info');
                                     $vue.reloadDinatable();
+                                    $vue.$refs.alumnosRaptor.loadRemoteData();
                                 } else {
                                     notify(response.message, 'error');
                                 }
