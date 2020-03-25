@@ -9,7 +9,6 @@ import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.general.Oficina;
-import pe.edu.lamolina.model.general.PerfilCompania;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.general.PersonaCargo;
 import pe.edu.lamolina.pivot.dao.general.PersonaCargoDAO;
