@@ -106,7 +106,6 @@ public class MatriculaIngresanteServiceImp implements MatriculaIngresanteService
             DataSessionPivot ds) {
 
         Alumno alumno = aluHorario.getAlumno();
-        System.out.println("Procesando " + alumno.getCodigo() + " con " + cursos.size() + " cursos para matricularse");
 
         List<MatriculaCurso> cursosMatriculados = matriculaCursoDAO.allActivosByAlumnoCicloCursos(alumno, cicloAcademico, cursos);
         Map<Long, MatriculaCurso> mapCursoMatriculado = TypesUtil.convertListToMap("curso.id", cursosMatriculados);
@@ -121,21 +120,17 @@ public class MatriculaIngresanteServiceImp implements MatriculaIngresanteService
             loop++;
             MatriculaCurso matCurso = mapCursoMatriculado.get(curso.getId());
             if (matCurso != null) {
-                System.out.println("\tMatricula " + alumno.getCodigo() + " :::: " + curso.getCodigo() + " :::: Ya se encuentra matriculado");
                 existentes++;
                 continue;
             }
 
             List<Seccion> seccionesCurso = mapSeccion.get(curso.getId());
             Seccion seccion = getSeccionMatriculable(seccionesCurso);
-            System.out.println("\t" + alumno.getCodigo() + " enviando seccion=" + seccion.getCodigo2() + " " + loop + " de " + cursos.size());
+            logger.info("Matricula cachimbo {} la seccion {} :::: es el {} de {}", alumno.getCodigo(), seccion.getCodigo2(), loop, cursos.size());
 
             TokenIngresante token = responseRestService.createToken(ds);
-            System.out.println("\t" + alumno.getCodigo() + " token=" + token.getValor() + " " + loop + " de " + cursos.size());
-            long t1 = System.currentTimeMillis();
             JsonResponse json = responseRestService.matricularSeccionReservada(alumno, seccion, ds, token);
-            long t2 = System.currentTimeMillis();
-            System.out.println("Rpta=" + json.getSuccess() + " msg=" + json.getMessage() + " demora=" + (t2 - t1) + "mseg");
+            logger.info("Respuesta cachimbo {}-{} :::: ok={}  msg={}", alumno.getCodigo(), seccion.getCodigo2(), json.getSuccess(), json.getMessage());
 
             if (json.getSuccess()) {
                 matriculados++;
@@ -148,7 +143,7 @@ public class MatriculaIngresanteServiceImp implements MatriculaIngresanteService
             }
         }
 
-        System.out.println("Finalizó " + alumno.getCodigo() + " existentes=" + existentes + " matriculados=" + matriculados + " errores=" + errores);
+        logger.info("Finalizó cachimbo {} existentes={} matriculados={} errores={}", alumno.getCodigo(), existentes, matriculados, errores);
 
         visorMatricula.marcarAlumno(alumno);
         if (ok) {
