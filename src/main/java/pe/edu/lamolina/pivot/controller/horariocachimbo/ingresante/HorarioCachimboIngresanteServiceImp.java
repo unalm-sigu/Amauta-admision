@@ -230,7 +230,7 @@ public class HorarioCachimboIngresanteServiceImp implements HorarioCachimboIngre
 
     @Override
     @Transactional
-    public void retirarHorario(AlumnoHorario alumnoHorario, Usuario usuario) {
+    public void retirarHorario(AlumnoHorario alumnoHorario, DataSessionPivot ds) {
         AlumnoHorario alumnoHorarioDb = alumnoHorarioDAO.find(alumnoHorario);
         if (alumnoHorarioDb == null) {
             return;
@@ -253,17 +253,22 @@ public class HorarioCachimboIngresanteServiceImp implements HorarioCachimboIngre
         carreraCachimbos.setSinHorario(carreraCachimbos.getSinHorario() + 1);
         carreraCachimbosDAO.update(carreraCachimbos);
 
-        List<VacanteAlumno> vacanteAlumnos = vacanteAlumnoDAO.allByAlumno(alumnoHorarioDb.getAlumno());
-        for (VacanteAlumno vacanteAlumno : vacanteAlumnos) {
-            vacanteAlumno.setAlumno(null);
-            vacanteAlumno.setUserRegistro(usuario);
-            vacanteAlumno.setFechaRegistro(new Date());
-            vacanteAlumno.setEstado(AlumnoVacanteEstadoEnum.LIBE.name());
-            Seccion seccion = vacanteAlumno.getSeccion();
+        List<SeccionHorarioCachimbos> seccionHorarioCachimboses = seccionHorarioCachimbosDAO.allByHorario(horarioCachimbos);
+//        List<VacanteAlumno> vacanteAlumnos = vacanteAlumnoDAO.allByAlumno(alumnoHorarioDb.getAlumno());
+        for (SeccionHorarioCachimbos seccionHorario : seccionHorarioCachimboses) {
+//            vacanteAlumno.setAlumno(null);
+//            vacanteAlumno.setUserRegistro(ds.getUsuario());
+//            vacanteAlumno.setFechaRegistro(new Date());
+//            vacanteAlumno.setEstado(AlumnoVacanteEstadoEnum.LIBE.name());
+            Seccion seccion = seccionHorario.getSeccion();
             seccion.setReservados(seccion.getReservados() - 1);
             seccionDAO.update(seccion);
-            vacanteAlumnoDAO.update(vacanteAlumno);
+//            vacanteAlumnoDAO.update(seccionHorario);
         }
+        TokenIngresante token = responseRestService.createToken(ds);
+        JsonResponse json = responseRestService.limpiarCache(ds, token);
+        Assert.isTrue(json.getSuccess(), "Se produjo un error en la limpieza de vacante");
+
     }
 
     @Override

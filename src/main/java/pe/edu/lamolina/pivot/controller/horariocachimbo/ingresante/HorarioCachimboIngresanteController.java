@@ -215,7 +215,7 @@ public class HorarioCachimboIngresanteController {
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             Usuario user = ds.getUsuario();
-            service.retirarHorario(alumnoHorario, user);
+            service.retirarHorario(alumnoHorario, ds);
             response.setMessage("Horario retirado satisfactoriamente");
             response.setSuccess(Boolean.TRUE);
         } catch (PhobosException e) {
