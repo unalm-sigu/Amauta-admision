@@ -4,16 +4,57 @@
            v-bind:showaccept="true">
 
     <div slot="body">
+        <!--        <div class="form-group">
+                    <label>Alumno</label>
+                    <input type="text"
+                           class="form-control"
+                           name="alumno.id"
+                           v-model="alumno.id"
+                           required="true"/>
+                </div>-->
+        <!--        <template  type="text/x-template" id="divBuscarAlumno">
+                    <div>
+                        <p class="block">
+                            <span class="bold">{{item.codigo}}</span>
+                            {{item.persona.nombreCompleto}}
+                        </p>
+                    </div>
+                </template>-->
         <div class="form-group">
             <label>Alumno</label>
-            <input type="text"
-                   class="form-control"
-                   name="alumno.id"
-                   v-model="alumno.id"
-                   required="true"/>
-        </div>
+            <multiselect v-model="alumno" id="ajax" 
+                         label="nombre"
+                         track-by="id" 
+                         placeholder="Ingrese un " 
+                         :options="alumnos" 
+                         :searchable="true" 
+                         :loading="isLoading" 
+                         :internal-search="false"
+                         :options-limit="15" 
+                         :limit="3" 
+                         :max-height="600"
+                         :hide-selected="true" 
+                         :show-labels="false"
+                         :custom-label="customLabel"
+                         v-on:search-change="asyncFind">
+                <template slot="tag" slot-scope="{ option, remove }">
+                    <!--<span class="custom__tag"><span>{{ option.codigoMatricula }} - {{option.nombre}}</span></span>-->
+                    <template slot="singleLabel" slot-scope="props">
+                        <span class="option__desc">
+                            <span class="option__title">{{ props.option.codigoMatricula }}</span>
+                            <span class="option__title">{{ props.option.nombre }}</span>
 
-        <div v-if="alumno.id">
+                        </span>
+                    </template>
+                    <template slot="option" slot-scope="props">
+                        <div class="option__desc"><span class="option__title">{{ props.option.codigoMatricula }}</span><span class="option__small">{{ props.option.nombre }}</span></div>
+                    </template>
+
+                </template>
+            </multiselect>
+            <input class="hidden" v-model="alumno" required=""/>
+        </div>
+        <div v-if="alumno">
 
             <span class="block">
                 <b>Carrera </b>:{{alumno.carrera}}
@@ -106,7 +147,7 @@
                             <span class="block text-primary">{{curso.aula}}</span>
                             <span class="block">{{curso.grupo}}</span>
                         </td>
-                        
+
                         <td class="v-middle" >
                             {{curso.docente}}
                             <span class="block">{{curso.codigoDocente}}</span>
