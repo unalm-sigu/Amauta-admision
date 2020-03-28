@@ -32,6 +32,8 @@ import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.RecorridoIngresante;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.academico.TipoActividadIngresante;
+import pe.edu.lamolina.model.aporte.AporteAlumnoCiclo;
+import pe.edu.lamolina.model.aporte.ResumenAporteAlumno;
 import pe.edu.lamolina.model.enums.EstadoAlumnoHorarioEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.RecorridoIngresanteEstadoEnum;
@@ -60,6 +62,8 @@ import pe.edu.lamolina.pivot.dao.academico.MatriculaResumenDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.RecorridoIngresanteDAO;
 import pe.edu.lamolina.pivot.dao.academico.TipoActividadIngresanteDAO;
+import pe.edu.lamolina.pivot.dao.aporte.AporteAlumnoCicloDAO;
+import pe.edu.lamolina.pivot.dao.aporte.ResumenAporteAlumnoDAO;
 import pe.edu.lamolina.pivot.dao.horario.HorarioFallidoDAO;
 import pe.edu.lamolina.pivot.dao.vacante.VacanteAlumnoDAO;
 import static pe.edu.lamolina.pivot.zelper.constant.Constantine.CANT_MINIMA_MATRICULA_CACHIMBOS;
@@ -107,6 +111,8 @@ public class HorarioCachimboIngresanteServiceImp implements HorarioCachimboIngre
 
     @Autowired
     TipoActividadIngresanteDAO tipoActividadIngresanteDAO;
+    @Autowired
+    AporteAlumnoCicloDAO aporteAlumnoCicloDAO;
 
     @Autowired
     HelperMatriculaIngresanteService helperMatriculaIngresanteService;
@@ -512,6 +518,15 @@ public class HorarioCachimboIngresanteServiceImp implements HorarioCachimboIngre
                     }
                 }
 
+                if (tienePagosPendientes(alumno, cicloAcademico)) {
+                    String msg = "El alumno tiene deuda pendiente";
+                    erroresAlu.add(msg);
+                    visorMatricula.getMensajes().add(msg);
+                    visorMatricula.marcarAlumno(alumno);
+                    helperMatriculaIngresanteService.registrarErroresAlumno(aluHorario, erroresAlu, ds);
+                    continue;
+                }
+
                 int errores = 0;
                 List<AlumnoCursoCurricula> cursosHabiles = alumnoCursoCurriculaDAO.allByAlumno(alumno);
                 Map<Long, AlumnoCursoCurricula> mapCursoHabil = TypesUtil.convertListToMap("curso.id", cursosHabiles);
@@ -598,6 +613,12 @@ public class HorarioCachimboIngresanteServiceImp implements HorarioCachimboIngre
     @Override
     public List<RecorridoIngresante> allRecorridoIngresante(CicloAcademico cicloAcademico) {
         return recorridoIngresanteDAO.allByCiclo(cicloAcademico);
+    }
+
+    private Boolean tienePagosPendientes(Alumno alumno, CicloAcademico cicloAcademico) {
+        List<AporteAlumnoCiclo> aporteAlumnoCiclos = aporteAlumnoCicloDAO.verificarPago(alumno, cicloAcademico);
+
+        return !aporteAlumnoCiclos.isEmpty();
     }
 
 }
