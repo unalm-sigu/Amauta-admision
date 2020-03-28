@@ -32,7 +32,6 @@ import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.RecorridoIngresante;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.academico.TipoActividadIngresante;
-import pe.edu.lamolina.model.enums.AlumnoVacanteEstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoAlumnoHorarioEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.RecorridoIngresanteEstadoEnum;
@@ -42,7 +41,6 @@ import pe.edu.lamolina.model.horario.SeccionHorarioCachimbos;
 import pe.edu.lamolina.model.matricula.AlumnoCursoCurricula;
 import pe.edu.lamolina.model.seguridad.TokenIngresante;
 import pe.edu.lamolina.model.seguridad.Usuario;
-import pe.edu.lamolina.model.vacantes.VacanteAlumno;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoHorarioDAO;
 import pe.edu.lamolina.pivot.dao.academico.CarreraCachimbosDAO;
@@ -64,6 +62,7 @@ import pe.edu.lamolina.pivot.dao.academico.RecorridoIngresanteDAO;
 import pe.edu.lamolina.pivot.dao.academico.TipoActividadIngresanteDAO;
 import pe.edu.lamolina.pivot.dao.horario.HorarioFallidoDAO;
 import pe.edu.lamolina.pivot.dao.vacante.VacanteAlumnoDAO;
+import static pe.edu.lamolina.pivot.zelper.constant.Constantine.CANT_MINIMA_MATRICULA_CACHIMBOS;
 
 @Service
 @Transactional(readOnly = true)
@@ -500,11 +499,11 @@ public class HorarioCachimboIngresanteServiceImp implements HorarioCachimboIngre
                 } else {
                     actividadesAlumno = TypesUtil.getListNotNull(mapActividadesIngresantes.get(alumno.getId()));
                     int cantActividadAlumnoPreMatri = cantidadActividadesPreMatriculaAlumno(actividadesAlumno, mapConfigRecorrido);
-                    RecorridoIngresante recorridoIngresante = actividadesAlumno.get(0).getRecorridoIngresante();
-                    if (cantActividadAlumnoPreMatri < actividadesPreMatricula) {
+
+                    if (cantActividadAlumnoPreMatri < CANT_MINIMA_MATRICULA_CACHIMBOS.intValue()) { //actividadesPreMatricula
                         String msg = "El alumno " + alumno.getCodigo() + " tiene solo "
                                 + cantActividadAlumnoPreMatri + " actividades, pero debería tener "
-                                + (recorridoIngresante.getTotalActividades() - 1) + ".";
+                                + (CANT_MINIMA_MATRICULA_CACHIMBOS) + "."; // actividadesPreMatricula
                         visorMatricula.getMensajes().add(msg);
                         visorMatricula.marcarAlumno(alumno);
                         erroresAlu.add(msg);

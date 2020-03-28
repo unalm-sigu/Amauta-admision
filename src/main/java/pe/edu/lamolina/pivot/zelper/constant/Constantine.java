@@ -137,4 +137,7 @@ public interface Constantine {
     String CODIGO_ALIANZA_ESTRATEGICA = "003";
     String VARIABLE_TABLE = "albLoop";
     String VARIABLE_INCRUSTACION = "albIncrustacion";
+    
+    
+    Integer CANT_MINIMA_MATRICULA_CACHIMBOS = 10;
 }
