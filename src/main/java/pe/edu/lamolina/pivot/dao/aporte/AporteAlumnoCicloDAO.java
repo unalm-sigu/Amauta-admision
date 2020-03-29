@@ -23,6 +23,6 @@ public interface AporteAlumnoCicloDAO extends EasyDAO<AporteAlumnoCiclo> {
 
     public List<AporteAlumnoCiclo> allAporteDuplicadoCarnetByCicloMatriculaResumen(CicloAcademico cicloAcademico, List<MatriculaResumen> matriculaResumens);
 
-    public  List<AporteAlumnoCiclo> verificarPago(Alumno alumno, CicloAcademico cicloAcademico);
+    public  List<AporteAlumnoCiclo> allByAlumnoAndCiclo(Alumno alumno, CicloAcademico cicloAcademico);
 
 }

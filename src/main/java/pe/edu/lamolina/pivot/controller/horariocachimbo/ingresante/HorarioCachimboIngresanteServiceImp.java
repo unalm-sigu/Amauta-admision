@@ -35,6 +35,7 @@ import pe.edu.lamolina.model.academico.TipoActividadIngresante;
 import pe.edu.lamolina.model.aporte.AporteAlumnoCiclo;
 import pe.edu.lamolina.model.aporte.ResumenAporteAlumno;
 import pe.edu.lamolina.model.enums.EstadoAlumnoHorarioEnum;
+import pe.edu.lamolina.model.enums.EstadoAporteEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.RecorridoIngresanteEstadoEnum;
 import pe.edu.lamolina.model.enums.TipoActividadIngresanteEnum;
@@ -518,12 +519,8 @@ public class HorarioCachimboIngresanteServiceImp implements HorarioCachimboIngre
                     }
                 }
 
-                if (tienePagosPendientes(alumno, cicloAcademico)) {
-                    String msg = "El alumno tiene deuda pendiente";
-                    erroresAlu.add(msg);
-                    visorMatricula.getMensajes().add(msg);
-                    visorMatricula.marcarAlumno(alumno);
-                    helperMatriculaIngresanteService.registrarErroresAlumno(aluHorario, erroresAlu, ds);
+                if (verificarDeudas(alumno, cicloAcademico, aluHorario, erroresAlu, ds)) {
+
                     continue;
                 }
 
@@ -615,10 +612,31 @@ public class HorarioCachimboIngresanteServiceImp implements HorarioCachimboIngre
         return recorridoIngresanteDAO.allByCiclo(cicloAcademico);
     }
 
-    private Boolean tienePagosPendientes(Alumno alumno, CicloAcademico cicloAcademico) {
-        List<AporteAlumnoCiclo> aporteAlumnoCiclos = aporteAlumnoCicloDAO.verificarPago(alumno, cicloAcademico);
+    private Boolean verificarDeudas(Alumno alumno, CicloAcademico cicloAcademico, AlumnoHorario aluHorario, List<String> erroresAlu, DataSessionPivot ds) {
+        List<AporteAlumnoCiclo> aporteAlumnoCiclos = aporteAlumnoCicloDAO.allByAlumnoAndCiclo(alumno, cicloAcademico);
+        if (aporteAlumnoCiclos.isEmpty()) {
 
-        return !aporteAlumnoCiclos.isEmpty();
+            String msg = "No se le ha generado Boletas";
+            erroresAlu.add(msg);
+            visorMatricula.getMensajes().add(msg);
+            visorMatricula.marcarAlumno(alumno);
+            helperMatriculaIngresanteService.registrarErroresAlumno(aluHorario, erroresAlu, ds);
+
+            return true;
+        } else {
+            boolean tienePendientes = aporteAlumnoCiclos.stream().anyMatch(x -> x.getEstadoEnum() == EstadoAporteEnum.DEBE);
+
+            if (tienePendientes) {
+                String msg = "Tiene deudas pendientes";
+                erroresAlu.add(msg);
+                visorMatricula.getMensajes().add(msg);
+                visorMatricula.marcarAlumno(alumno);
+                helperMatriculaIngresanteService.registrarErroresAlumno(aluHorario, erroresAlu, ds);
+                return true;
+            }
+        }
+
+        return false;
     }
 
 }

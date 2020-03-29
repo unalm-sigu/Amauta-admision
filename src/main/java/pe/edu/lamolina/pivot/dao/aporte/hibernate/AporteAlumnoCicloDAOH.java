@@ -1,5 +1,6 @@
 package pe.edu.lamolina.pivot.dao.aporte.hibernate;
 
+import static java.math.BigDecimal.ZERO;
 import java.util.Arrays;
 import java.util.List;
 import org.springframework.stereotype.Repository;
@@ -110,7 +111,7 @@ public class AporteAlumnoCicloDAOH extends AbstractEasyDAO<AporteAlumnoCiclo> im
     }
 
     @Override
-    public List<AporteAlumnoCiclo> verificarPago(Alumno alumno, CicloAcademico cicloAcademico) {
+    public List<AporteAlumnoCiclo> allByAlumnoAndCiclo(Alumno alumno, CicloAcademico cicloAcademico) {
         Octavia sql = Octavia.query()
                 .from(AporteAlumnoCiclo.class, "aac")
                 .join("aporteCiclo ac", "ac.aporte apo", "ac.cicloAcademico ca")
@@ -118,7 +119,8 @@ public class AporteAlumnoCicloDAOH extends AbstractEasyDAO<AporteAlumnoCiclo> im
                 .join("resumenAporteAlumno raa", "raa.matriculaResumen mr", "mr.alumno alu")
                 .filter("alu.id", alumno)
                 .filter("ca.id", cicloAcademico)
-                .in("aac.estado", Arrays.asList(EstadoAporteEnum.DEBE))
+                .in("aac.estado", Arrays.asList(EstadoAporteEnum.DEBE, EstadoAporteEnum.PAGO))
+                .filter("aac.monto", "!=", ZERO)
                 .filter("aac.numeroCuota", 1)
                 .filter("aac.estadoRegistro", ACT);
         return all(sql);
