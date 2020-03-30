@@ -284,7 +284,8 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
                 tipoAmpliacion = (String) response.getData();
             } else {
                 //si el docente tcur es el mismo que el pcur
-                ampliacionVacanteRestService.matricularAmpliacionVacante(seccionPCUR, matriculaResumen.getAlumno(), ds);
+                JsonResponse response = ampliacionVacanteRestService.matricularAmpliacionVacante(seccionPCUR, matriculaResumen.getAlumno(), ds);
+                tipoAmpliacion = (String) response.getData();
                 //          matriculaSeccionUpd.setEnSolicitud(Boolean.FALSE);
                 ESTADO_MATRICULA = EstadoMatriculaEnum.MAT;
             }
