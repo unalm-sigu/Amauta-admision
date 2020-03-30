@@ -1,5 +1,6 @@
 package pe.edu.lamolina.pivot.dao.aporte.hibernate;
 
+import static java.math.BigDecimal.ZERO;
 import java.util.Arrays;
 import java.util.List;
 import org.springframework.stereotype.Repository;
@@ -15,6 +16,7 @@ import static pe.edu.lamolina.model.enums.AportesEnum.A51;
 import pe.edu.lamolina.model.enums.EstadoAporteEnum;
 import static pe.edu.lamolina.model.enums.EstadoAporteEnum.DEBE;
 import static pe.edu.lamolina.model.enums.EstadoAporteEnum.PAGO;
+import static pe.edu.lamolina.model.enums.EstadoEnum.ACT;
 import pe.edu.lamolina.model.finanzas.DeudaAlumno;
 import pe.edu.lamolina.pivot.dao.aporte.AporteAlumnoCicloDAO;
 
@@ -105,6 +107,22 @@ public class AporteAlumnoCicloDAOH extends AbstractEasyDAO<AporteAlumnoCiclo> im
                 .in("aac.estado", Arrays.asList(EstadoAporteEnum.DEBE, EstadoAporteEnum.PAGO))
                 .in("mr.id", matriculaResumens)
                 .orderBy("aac.numeroCuota", "apo.nombre");
+        return all(sql);
+    }
+
+    @Override
+    public List<AporteAlumnoCiclo> allByAlumnoAndCiclo(Alumno alumno, CicloAcademico cicloAcademico) {
+        Octavia sql = Octavia.query()
+                .from(AporteAlumnoCiclo.class, "aac")
+                .join("aporteCiclo ac", "ac.aporte apo", "ac.cicloAcademico ca")
+                .join("ac.cuentaBancaria cta")
+                .join("resumenAporteAlumno raa", "raa.matriculaResumen mr", "mr.alumno alu")
+                .filter("alu.id", alumno)
+                .filter("ca.id", cicloAcademico)
+                .in("aac.estado", Arrays.asList(EstadoAporteEnum.DEBE, EstadoAporteEnum.PAGO))
+                .filter("aac.monto", "!=", ZERO)
+                .filter("aac.numeroCuota", 1)
+                .filter("aac.estadoRegistro", ACT);
         return all(sql);
     }
 

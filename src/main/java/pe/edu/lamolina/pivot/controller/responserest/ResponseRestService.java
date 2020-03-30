@@ -55,4 +55,6 @@ public interface ResponseRestService {
     JsonResponse modificarAporte(MatriculaResumen matriculaResumen, DataSessionPivot ds, Aporte aporte, TokenIngresante token);
 
     JsonResponse agregarAporte(Aporte aporte, MatriculaResumen matriculaResumen, DataSessionPivot ds, TokenIngresante token);
+
+    public JsonResponse limpiarCache(DataSessionPivot ds, TokenIngresante token);
 }

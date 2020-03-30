@@ -330,4 +330,13 @@ public class ResponseRestServiceImpl extends AbstractRestClient<JsonResponse> im
         return this.postToBackEnd(url, json);
     }
 
+    @Override
+    public JsonResponse limpiarCache(DataSessionPivot ds, TokenIngresante token) {
+        Parametro parametro = findParametro(ParametrosSistemasEnum.REST_MATRICULA);
+        ObjectNode json = createFormJson(ds, token);
+
+        String url = String.format("%s/matriculaSeccion/limpiarCache", parametro.getValor());
+        return this.postToBackEnd(url, json);
+    }
+
 }
