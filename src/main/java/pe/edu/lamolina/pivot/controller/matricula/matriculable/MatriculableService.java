@@ -93,7 +93,7 @@ public interface MatriculableService {
 
     MatriculaResumen findMatriculaResumen(MatriculaResumen matriculaResumen);
 
-    List<DeudaAlumno> allByAlumnoCiclo(Alumno alumno, CicloAcademico cicloAcademico);
+    List<DeudaAlumno> allDeudasByAlumnoCiclo(Alumno alumno, CicloAcademico cicloAcademico);
 
     List<AptoPreBean> allAptosPregrado(CicloAcademico cicloAcademico, String tipoReporte);
 

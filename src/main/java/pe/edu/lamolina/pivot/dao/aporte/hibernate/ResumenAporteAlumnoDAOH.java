@@ -44,8 +44,7 @@ public class ResumenAporteAlumnoDAOH extends AbstractEasyDAO<ResumenAporteAlumno
                 .from(ResumenAporteAlumno.class, "raa")
                 .join("matriculaResumen mr", "mr.alumno alu", "mr.cicloAcademico ca", "alu.situacionAcademica")
                 .filter("alu.id", alumno)
-                .filter("ca.id", cicloAcademico)
-                .filter("mr.estado", EstadoMatriculaEnum.NMAT);
+                .filter("ca.codigo", cicloAcademico.getCodigo());
         return find(sql);
     }
 

@@ -6,22 +6,28 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoOmisoEleccion;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.MatriculaResumen;
+import pe.edu.lamolina.model.aporte.ResumenAporteAlumno;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 public interface OmisoEleccionService {
 
-    public List<Alumno> allDeudaAlumno(DynatableFilter filter);
+    List<Alumno> allDeudaAlumno(DynatableFilter filter);
 
-    public void saveOmision(AlumnoOmisoEleccion omisoEleccion, DataSessionPivot ds);
+    void saveOmision(AlumnoOmisoEleccion omisoEleccion, DataSessionPivot ds);
 
-    public void anularOmision(List<AlumnoOmisoEleccion> omisoEleccion, DataSessionPivot ds);
+    void anularOmision(Alumno alumno, CicloAcademico ciclo, DataSessionPivot ds);
 
-    public List<String> cargarDeudas(MultipartFile file, String codigoCiclo, DataSessionPivot ds);
+    List<String> cargarDeudas(MultipartFile file, String codigoCiclo, DataSessionPivot ds);
 
-    public List<CicloAcademico> allCicloAcademico(CicloAcademico cicloAcademico);
+    List<CicloAcademico> allCicloAcademico(CicloAcademico cicloAcademico);
 
-    public List<Alumno> allAlumnoByNombre(String nombre, DataSessionPivot ds);
+    List<Alumno> allAlumnoByNombre(String nombre, DataSessionPivot ds);
 
-    public void modificarAporte(Alumno alumno, DataSessionPivot ds);
+    void modificarAporte(Alumno alumno, DataSessionPivot ds);
+
+    ResumenAporteAlumno findResumenAporteAlumno(Alumno alumno, CicloAcademico cicloAcademico);
+
+    MatriculaResumen findMatriculaResumen(Alumno alumno, CicloAcademico cicloAcademico);
 
 }

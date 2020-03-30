@@ -9,14 +9,14 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 
 public interface AlumnoOmisoEleccionDAO extends EasyDAO<AlumnoOmisoEleccion> {
 
-    public List<AlumnoOmisoEleccion> allOrder(DynatableFilter filter);
+    List<AlumnoOmisoEleccion> allOrder(DynatableFilter filter);
 
-    public void updateAnulacion(AlumnoOmisoEleccion alumnoOmisoEleccion);
+    void updateAnulacion(AlumnoOmisoEleccion alumnoOmisoEleccion);
 
-    public List<AlumnoOmisoEleccion> allByCiclo(List<CicloAcademico> cicloAcademicos);
+    List<AlumnoOmisoEleccion> allByCiclo(List<CicloAcademico> cicloAcademicos);
 
-    public AlumnoOmisoEleccion findByAlumnoCicloMotivo(AlumnoOmisoEleccion omisoEleccion);
+    AlumnoOmisoEleccion findByAlumnoCicloMotivo(AlumnoOmisoEleccion omisoEleccion);
 
-    public List<AlumnoOmisoEleccion> findByAlumno(Alumno alumno);
+    List<AlumnoOmisoEleccion> allDeudasByAlumno(Alumno alumno);
 
 }
