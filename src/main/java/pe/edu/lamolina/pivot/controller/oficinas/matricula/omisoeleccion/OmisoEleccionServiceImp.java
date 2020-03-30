@@ -4,7 +4,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -17,7 +16,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,25 +33,14 @@ import pe.edu.lamolina.model.academico.AlumnoOmisoEleccion;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.aporte.Aporte;
-import pe.edu.lamolina.model.aporte.AporteAlumnoCiclo;
 import pe.edu.lamolina.model.aporte.ResumenAporteAlumno;
-import pe.edu.lamolina.model.enums.AportesEnum;
 import static pe.edu.lamolina.model.enums.AportesEnum.A04;
-import static pe.edu.lamolina.model.enums.AportesEnum.A46;
 import pe.edu.lamolina.model.enums.DeudaEstadoEnum;
-import pe.edu.lamolina.model.enums.EstadoAporteEnum;
-import static pe.edu.lamolina.model.enums.EstadoAporteEnum.DEBE;
 import static pe.edu.lamolina.model.enums.MotivoOmisoEnum.NMBR;
 import static pe.edu.lamolina.model.enums.MotivoOmisoEnum.NVOTO;
-import pe.edu.lamolina.model.enums.NombreTablasEnum;
-import pe.edu.lamolina.model.enums.OficinaEnum;
-import pe.edu.lamolina.model.enums.ProcesoMethodEnum;
-import pe.edu.lamolina.model.finanzas.Acreencia;
-import pe.edu.lamolina.model.finanzas.DeudaAlumno;
-import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.seguridad.Usuario;
-import pe.edu.lamolina.pivot.controller.responserest.ResponseRestService;
 import pe.edu.lamolina.pivot.controller.bienestar.alumnoAporte.AporteAlumnoService;
+import pe.edu.lamolina.pivot.controller.matricula.matriculable.MatriculableService;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoOmisoEleccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
@@ -73,34 +60,32 @@ public class OmisoEleccionServiceImp implements OmisoEleccionService {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    AlumnoOmisoEleccionDAO alumnoOmisoEleccionDAO;
-
+    AcreenciaDAO acreenciaDAO;
     @Autowired
-    CicloAcademicoDAO cicloAcademicoDAO;
-
+    AlumnoDAO alumnoDAO;
+    @Autowired
+    AlumnoOmisoEleccionDAO alumnoOmisoEleccionDAO;
+    @Autowired
+    AporteDAO aporteDAO;
     @Autowired
     AporteAlumnoCicloDAO aporteAlumnoCicloDAO;
-
+    @Autowired
+    CicloAcademicoDAO cicloAcademicoDAO;
     @Autowired
     DeudaAlumnoDAO deudaAlumnoDAO;
-
+    @Autowired
+    MatriculaResumenDAO matriculaResumenDAO;
     @Autowired
     ResumenAporteAlumnoDAO resumenAporteAlumnoDAO;
 
     @Autowired
-    AlumnoDAO alumnoDAO;
-
-    @Autowired
-    AcreenciaDAO acreenciaDAO;
-
-    @Autowired
-    AporteDAO aporteDAO;
-
-    @Autowired
-    MatriculaResumenDAO matriculaResumenDAO;
-
-    @Autowired
     AporteAlumnoService aporteAlumnoService;
+
+    @Autowired
+    MatriculableService matriculableService;
+
+    @Autowired
+    NoVotaronService noVotaronService;
 
     @Override
     @Transactional
@@ -259,20 +244,31 @@ public class OmisoEleccionServiceImp implements OmisoEleccionService {
     }
 
     @Override
-    @Transactional
-    public void anularOmision(List<AlumnoOmisoEleccion> omisoEleccion, DataSessionPivot ds) {
+    public void anularOmision(Alumno alumnoForm, CicloAcademico ciclo, DataSessionPivot ds) {
+        List<AlumnoOmisoEleccion> omisionesForm = alumnoForm.getAlumnoOmisoEleccions();
+        noVotaronService.anularOmisosSeleccionados(omisionesForm, ds);
 
-        String motivoAnula = omisoEleccion.get(0).getMotivoAnulacion();
+        Alumno alumnoBD = alumnoDAO.find(alumnoForm);
 
-        for (AlumnoOmisoEleccion alumnoOmisoEleccion : omisoEleccion) {
-            if (alumnoOmisoEleccion.getSeleccionado()) {
-                alumnoOmisoEleccion.setEstadoEnum(DeudaEstadoEnum.ANU);
-                alumnoOmisoEleccion.setMotivoAnulacion(motivoAnula);
-                alumnoOmisoEleccion.setFechaAnulacion(new Date());
-                alumnoOmisoEleccion.setUserAnulacion(ds.getUsuario());
-                alumnoOmisoEleccionDAO.updateAnulacion(alumnoOmisoEleccion);
+        MatriculaResumen matriculaResumen = matriculaResumenDAO.findByAlumnoCiclo(alumnoBD, ciclo);
+        if (matriculaResumen == null) {
+            return;
+        }
 
-            }
+        Aporte aporteNoVotar = aporteDAO.findByCode(A04);
+        List<AlumnoOmisoEleccion> omisionesBD = alumnoOmisoEleccionDAO.allDeudasByAlumno(alumnoForm);
+        CicloAcademico cicloAcademicoMod = cicloAcademicoDAO.findByCodigoModalidadEstudio(ciclo.getCodigo(), alumnoBD.getModalidadEstudio());
+
+        JsonResponse json;
+        if (omisionesBD.isEmpty()) {
+            json = aporteAlumnoService.getEliminarAporte(cicloAcademicoMod, matriculaResumen, aporteNoVotar, ds);
+        } else {
+            json = aporteAlumnoService.getModificarAporte(cicloAcademicoMod, matriculaResumen, aporteNoVotar, ds);
+        }
+
+        if (json != null && !json.getSuccess()) {
+            noVotaronService.deshacerAnuladosOmisosSeleccionados(omisionesForm, ds);
+            Assert.isTrue(json.getSuccess(), json.getMessage());
         }
 
     }
@@ -286,9 +282,14 @@ public class OmisoEleccionServiceImp implements OmisoEleccionService {
             return;
         }
 
-        Aporte aporte = aporteDAO.findByCode(A04);
+        List<AlumnoOmisoEleccion> omisiones = alumnoOmisoEleccionDAO.allDeudasByAlumno(alumno);
 
-        aporteAlumnoService.modificarAporte(cicloAcademicoMod, matriculaResumen, aporte, ds);
+        Aporte aporteNoVotar = aporteDAO.findByCode(A04);
+        if (omisiones.isEmpty()) {
+            aporteAlumnoService.eliminarAporte(cicloAcademicoMod, matriculaResumen, aporteNoVotar, ds);
+        } else {
+            aporteAlumnoService.modificarAporte(cicloAcademicoMod, matriculaResumen, aporteNoVotar, ds);
+        }
 
     }
 
@@ -302,4 +303,33 @@ public class OmisoEleccionServiceImp implements OmisoEleccionService {
 
         return alumnoDAO.allByName(nombre);
     }
+
+    @Override
+    public ResumenAporteAlumno findResumenAporteAlumno(Alumno alumno, CicloAcademico cicloAcademico) {
+        ResumenAporteAlumno resumen = resumenAporteAlumnoDAO.findByAlumnoCicloAcademico(alumno, cicloAcademico);
+        if (resumen == null) {
+            Alumno alumnoBD = alumnoDAO.find(alumno);
+            resumen = new ResumenAporteAlumno();
+            resumen.setMatriculaResumen(new MatriculaResumen());
+            resumen.getMatriculaResumen().setAlumno(alumnoBD);
+            resumen.setAporteAlumnoCiclo(new ArrayList());
+            return resumen;
+        }
+
+        return matriculableService.findResumenAporteAlumno(resumen);
+    }
+
+    @Override
+    public MatriculaResumen findMatriculaResumen(Alumno alumno, CicloAcademico cicloAcademico) {
+        MatriculaResumen resumen = matriculaResumenDAO.findByAlumnoCiclo(alumno, cicloAcademico);
+        if (resumen != null) {
+            return resumen;
+        }
+
+        resumen = new MatriculaResumen();
+        resumen.setAlumno(alumnoDAO.find(alumno));
+        resumen.setCicloAcademico(cicloAcademico);
+        return resumen;
+    }
+
 }

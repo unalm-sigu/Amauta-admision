@@ -1,5 +1,6 @@
 package pe.edu.lamolina.pivot.controller.bienestar.alumnoAporte;
 
+import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
@@ -20,5 +21,11 @@ public interface AporteAlumnoService {
 
     void generarAporteDuplicadoCarnet(CicloAcademico cicloAcademico, MatriculaResumen matriculaResumen, DataSessionPivot ds);
 
+    JsonResponse getModificarAporte(CicloAcademico cicloAcademico, MatriculaResumen matriculaResumen, Aporte aporte, DataSessionPivot ds);
+
+    JsonResponse getEliminarAporte(CicloAcademico cicloAcademico, MatriculaResumen matriculaResumen, Aporte aporte, DataSessionPivot ds);
+
     void modificarAporte(CicloAcademico cicloAcademico, MatriculaResumen matriculaResumen, Aporte aporte, DataSessionPivot ds);
+
+    void eliminarAporte(CicloAcademico cicloAcademico, MatriculaResumen matriculaResumen, Aporte aporte, DataSessionPivot ds);
 }

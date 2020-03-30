@@ -89,6 +89,8 @@
                                                     <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="glyphicon glyphicon-cog"></i></a>
                                                     <ul class="dropdown-menu pull-right">
                                                         <li><a v-on:click="openAnular(item)">Anular Deuda</a></li>
+                                                        <li><a v-on:click="verAportes(item)">Ver aportes</a></li>
+                                                        <li><a v-on:click="verBoletas(item)">Ver boletas</a></li>
                                                     </ul>
                                                 </div>
                                             </td>
@@ -103,6 +105,9 @@
                     </section>
                 </section>
             </section>
+            <div th:replace="academico/matriculable/aporteAlumnoModal"></div>
+            <div th:replace="academico/matriculable/boletaAlumnoModal"></div>
+
             <div th:substituteby="oficinas/matricula/omisoeleccion/omisoEleccionModal"/>
             <div th:substituteby="oficinas/matricula/omisoeleccion/anularOmisoEleccionModal"/>
         </div>
@@ -112,6 +117,7 @@
                 /*<![CDATA[*/
                 var cicloJson = /*[[${ciclos.toString()}]]*/ '';
                 var motivosJson = /*[[${motivos.toString()}]]*/ '';
+                var rutaModulo = /*[[${rutaModulo}]]*/ '';
                 /*]]>*/
             </script>
             <div th:substituteby="_modules/vue-modal"/>
