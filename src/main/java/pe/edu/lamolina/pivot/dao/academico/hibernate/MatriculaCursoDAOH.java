@@ -306,7 +306,7 @@ public class MatriculaCursoDAOH extends AbstractEasyDAO<MatriculaCurso> implemen
     }
 
     @Override
-    public List<MatriculaCurso> allByMatriculaResumenes(List<MatriculaResumen> resumenes) {
+    public List<MatriculaCurso> allByCicloAcademico(CicloAcademico cicloAcademico) {
         Octavia sqlSub = new Octavia()
                 .from(MatriculaSimultaneo.class, "ms")
                 .join("matriculaCurso mcs");
@@ -317,7 +317,7 @@ public class MatriculaCursoDAOH extends AbstractEasyDAO<MatriculaCurso> implemen
                 .join("matriculaResumen mr", "mr.alumno alu", "mr.cicloAcademico ca")
                 .notExists(sqlSub)
                 .linkedBy("mc.id", "mcs.id")
-                .in("mr.id", resumenes)
+                .filter("ca.id", cicloAcademico)
                 .filter("mc.estado", EstadoMatriculaEnum.PMAT)
                 .orderBy("mr.prioridad");
         return all(sql);
@@ -426,6 +426,19 @@ public class MatriculaCursoDAOH extends AbstractEasyDAO<MatriculaCurso> implemen
         int rows = query.executeUpdate();
 
         return rows;
+    }
+
+    @Override
+    public List<MatriculaCurso> allmatriculadoByCiclo(CicloAcademico cicloAcademico) {
+        Octavia sql = Octavia.query()
+                .from(MatriculaCurso.class, "mc")
+                .join("matriculaResumen mr", "curso cu")
+                .join("mr.alumno alu", "mr.cicloAcademico ca")
+                .join("alu.modalidadEstudio", "alu.carrera car", "car.facultad")
+                .leftJoin("alu.orientacionCarrera", "alu.situacionAcademica", "alu.cicloIngreso")
+                .filter("ca.id", cicloAcademico)
+                .filter("mc.estado", MAT);
+        return all(sql);
     }
 
 }
