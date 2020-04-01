@@ -261,7 +261,7 @@ public class CursoDAOH extends AbstractEasyDAO<Curso> implements CursoDAO {
     public Curso findLastByCodigoFacultad(String codigo) {
         Octavia sql = Octavia.query()
                 .from(Curso.class, "cu")
-                .join("departamentoAcademico da", "da.facultad fa")
+                .left("departamentoAcademico da", "da.facultad fa")
                 .filter("cu.codigo", "like", codigo)
                 .orderBy("cu.codigo DESC")
                 .limit(1);

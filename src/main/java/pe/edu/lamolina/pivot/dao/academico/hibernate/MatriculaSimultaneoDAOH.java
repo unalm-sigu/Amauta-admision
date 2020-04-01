@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.MatriculaCurso;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.PMAT;
@@ -42,12 +43,12 @@ public class MatriculaSimultaneoDAOH extends AbstractEasyDAO<MatriculaSimultaneo
     }
 
     @Override
-    public List<MatriculaSimultaneo> allByMatriculaResumen(List<MatriculaResumen> resumenes) {
+    public List<MatriculaSimultaneo> allByCicloAcademico(CicloAcademico cicloAcademico) {
         Octavia sql = Octavia.query()
                 .from(MatriculaSimultaneo.class, "ms")
                 .join("matriculaCurso mc", "matriculaCursoSimultaneo mcs", "mc.matriculaResumen mr")
-                .join("mc.curso cur1", "mcs.curso cur2")
-                .in("mr.id", resumenes)
+                .join("mr.cicloAcademico ca","mc.curso cur1", "mcs.curso cur2")
+                .filter("ca.id", cicloAcademico)
                 .filter("mc.estado", PMAT)
                 .orderBy("mr.prioridad");
         return all(sql);

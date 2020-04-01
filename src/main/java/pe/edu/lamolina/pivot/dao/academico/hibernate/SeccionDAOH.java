@@ -808,6 +808,7 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
     @Override
     public void updateMatriculados(Seccion seccion) {
         Octavia octavia = Octavia.update(Seccion.class);
+        octavia.set(seccion, "prematriculados");
         octavia.set(seccion, "matriculados");
         this.update(octavia);
     }
