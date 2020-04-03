@@ -4,7 +4,7 @@
         
         <form id="frmCancelarSeccion">
             <h3>Alumnos de la Sección</h3>
-            <div class="form-group">
+            <div class="form-group" th:if="${esEditorOera}">
                 <label >Motivo de la cancelación:</label>
                 <textarea v-model="seccion.motivoCancelacion" 
                           v-if="seccion.isEstadoOperativo"
@@ -14,7 +14,7 @@
                 </textarea>
                 <span v-if="seccion.isEstadoCancelado" v-text="seccion.motivoCancelacion" > </span>
             </div>
-            <div class="panel-body">
+            <div class="panel-body" th:if="${esEditorOera}">
 
                 <a class="btn btn-danger btn-sm pull-right m-t-xs"
                    v-if="seccion.isEstadoOperativo"

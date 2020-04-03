@@ -704,6 +704,13 @@ public class OficinaServiceImp implements OficinaService {
 
     }
 
+    @Override
+    public Oficina findOficinaMain(Oficina oficinaHija) {
+        List<Oficina> oficinasTodas = getOficinasOrganizadas();
+        Oficina oficinaHijaBD = oficinaDAO.find(oficinaHija);
+        return findOficinaMain(oficinaHijaBD, oficinasTodas);
+    }
+
     private Oficina findOficinaMain(Oficina oficinaHija, List<Oficina> oficinas) {
         Map<Long, Oficina> mapOficina = TypesUtil.convertListToMap("id", oficinas);
         Oficina oficinaTempo = mapOficina.get(oficinaHija.getId());

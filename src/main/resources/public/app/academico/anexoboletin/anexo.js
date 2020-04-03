@@ -282,6 +282,15 @@ new Vue({
 
             } else if ($vue.seleccionado !== '' && $vue.seleccionado === tipo) {
             }
+        },
+        puedeEditarAnexo(item) {
+            if (item.estado === 'ACT' && puedeEditar) {
+                return true;
+            }
+            if (item.estado === 'ACT' && puedeEditarPosgrado && item.anexoSuperior.codigo === 'G04') {
+                return true;
+            }
+            return false;
         }
     }
 });

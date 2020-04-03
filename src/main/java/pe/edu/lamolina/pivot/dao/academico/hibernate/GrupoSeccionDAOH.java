@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.hibernate.LockOptions;
 import org.hibernate.Query;
 import org.slf4j.Logger;
@@ -304,7 +305,7 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
     }
 
     @Override
-    public List<GrupoSeccion> allByDynatable(DynatableFilter filter, CicloAcademico ciclo) {
+    public List<GrupoSeccion> allByDynatable(DynatableFilter filter, CicloAcademico ciclo, List<AnexoBoletin> anexosUser) {
         Octavia subQuerySearch = Octavia.query()
                 .from(DocenteSeccion.class, "ds")
                 .join("docente doc", "seccion se", "se.grupoSeccion ggss")
@@ -315,6 +316,7 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
                 .join("cicloAcademico ca", "anexoBoletin ab", "curso cu")
                 .leftJoin("ab.anexoSuperior abs", "planCalificacion pc")
                 .filter("ca.id", ciclo)
+                .in("ab.id", anexosUser)
                 .searchFields("cu.nombre", "cu.codigo")
                 .searchSubquery(subQuerySearch)
                 .subqueryLinkedBy("gs.id", "ggss.id")
@@ -484,7 +486,12 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
     }
 
     @Override
-    public GpoSeccionResumen resumenByCiclo(CicloAcademico ciclo) {
+    public GpoSeccionResumen resumenByCiclo(CicloAcademico ciclo, List<AnexoBoletin> anexos) {
+        if (anexos.isEmpty()) {
+            return new GpoSeccionResumen(0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L);
+        }
+        List<Long> idsAnexos = anexos.stream().map(x -> x.getId()).collect(Collectors.toList());
+
         StringBuilder sql = new StringBuilder();
         sql.append("select new ").append(GpoSeccionResumen.class.getName());
         sql.append(" (   ");
@@ -502,6 +509,7 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
         sql.append(" inner join gs.anexoBoletin ab ");
         sql.append(" inner join ab.anexoSuperior abs ");
         sql.append(" where ca.id = :CICLO ");
+        sql.append("   and ab.id in :ANEXOS ");
 
         Query query = getCurrentSession().createQuery(sql.toString());
         query.setParameter("INGRE", GrupoAnexoEnum.INGRESANTE.getValue());
@@ -512,6 +520,7 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
         query.setParameter("SEM", TipoDictadoGrupoSeccionEnum.SEM.name());
         query.setParameter("MOD", TipoDictadoGrupoSeccionEnum.MOD.name());
         query.setParameter("CICLO", ciclo.getId());
+        query.setParameterList("ANEXOS", idsAnexos);
 
         return (GpoSeccionResumen) query.uniqueResult();
     }

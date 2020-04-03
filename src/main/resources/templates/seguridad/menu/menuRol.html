@@ -3,11 +3,10 @@
     <div class="col-sm-12">
 
         <div class="col-sm-12">
-            <label class="h5"><b>Recurso :</b> <p class="h3"   th:text="${menu.nombre}"></p>      </label>
-
+            <label class="h5 m-b-xxs"><span class="h3" th:text="${menu.nombre}"></span></label>
         </div>
 
-        <div class="col-sm-5">
+        <div class="col-sm-12">
 
             <div class="form-group">
                 <label><h5 th:inline="text"><b>Roles Asignados</b></h5></label>
@@ -18,16 +17,16 @@
 
         </div>
 
-        <div class="col-sm-2 v-middle" style="margin-top: 50px;">
-            <button type="button" id="btnRolAsignar" class="btn btn-info m-t-sm" style="margin-left: 10px"><i class="fa fa-chevron-left" aria-hidden="true"></i></button>
-            <button type="button" id="btnRolDesasignar" class="btn btn-danger m-t-sm" style="margin-left: 10px"><i class="fa fa-chevron-right" aria-hidden="true"></i></button>
+        <div class="col-sm-6" vstyle="margin-top: 50px;">
+            <button type="button" id="btnRolAsignar" class="btn btn-info m-t-sm" style="margin-left: 10px"><i class="fa fa-chevron-up" aria-hidden="true"></i></button>
+            <button type="button" id="btnRolDesasignar" class="btn btn-danger m-t-sm" style="margin-left: 10px"><i class="fa fa-chevron-down" aria-hidden="true"></i></button>
         </div>
 
-        <div class="col-sm-5">
+        <div class="col-sm-12">
 
             <div class="form-group">
                 <label><h5><b>Roles Disponibles</b></h5></label>
-                <select class="form-control input-sm" multiple="true" id="rolPorAsignar">
+                <select class="form-control input-sm" multiple="true" id="rolPorAsignar" style="height: 150px;">
                     <option th:each="rol : ${roles}" th:value="${rol.id}" th:text="${rol.nombre}">TITULO</option>
                 </select>
             </div>

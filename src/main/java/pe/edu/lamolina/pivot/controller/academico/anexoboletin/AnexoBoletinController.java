@@ -32,6 +32,7 @@ import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.enums.EstadoEnum;
+import pe.edu.lamolina.pivot.controller.seguridad.verificador.VerificadorService;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -41,6 +42,8 @@ public class AnexoBoletinController {
 
     @Autowired
     AnexoBoletinService service;
+    @Autowired
+    VerificadorService verificadorService;
 
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {
@@ -85,6 +88,8 @@ public class AnexoBoletinController {
         model.addAttribute("anexosSuperJson", anexosSuperJson.toString());
         model.addAttribute("departamentosJson", departamentosJson.toString());
         model.addAttribute("carrerasJson", carrerasJson.toString());
+        model.addAttribute("puedeEditar", verificadorService.puedeEditarAnexos(ds));
+        model.addAttribute("puedeEditarPosgrado", verificadorService.puedeEditarAnexosPosgrado(ds));
         return "academico/anexoboletin/anexo";
     }
 
@@ -276,6 +281,7 @@ public class AnexoBoletinController {
             "carrera.tipoEnum",
             "carrera.nombre",
             "anexoSuperior.id",
+            "anexoSuperior.codigo",
             "anexoSuperior.nombre"
         });
         return node;

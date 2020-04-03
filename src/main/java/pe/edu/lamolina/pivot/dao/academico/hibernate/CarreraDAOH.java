@@ -48,6 +48,17 @@ public class CarreraDAOH extends AbstractEasyDAO<Carrera> implements CarreraDAO 
     }
 
     @Override
+    public List<Carrera> all() {
+        Octavia sql = Octavia.query()
+                .from(Carrera.class, "ca")
+                .join("modalidadEstudio me", "facultad fa")
+                .leftJoin("areaPosgrado ap")
+                .orderBy("ca.codigo desc");
+
+        return all(sql);
+    }
+
+    @Override
     public Carrera findByCodigo(String codigo) {
         Octavia sql = Octavia.query()
                 .from(Carrera.class, "ca")
@@ -163,17 +174,6 @@ public class CarreraDAOH extends AbstractEasyDAO<Carrera> implements CarreraDAO 
                 .in("me.codigo", Arrays.asList(PRE, EPG))
                 .in("ca.id", carreras)
                 .orderBy("ca.nombre");
-
-        return all(sql);
-    }
-
-    @Override
-    public List<Carrera> all() {
-        Octavia sql = Octavia.query()
-                .from(Carrera.class, "ca")
-                .join("modalidadEstudio me", "facultad fa")
-                .leftJoin("areaPosgrado ap")
-                .orderBy("ca.codigo desc");
 
         return all(sql);
     }

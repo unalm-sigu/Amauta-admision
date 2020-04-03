@@ -11,7 +11,6 @@ import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.PlanCalificacion;
-import pe.edu.lamolina.model.encuestaestudiantil.EncuestaAlumno;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.horario.GrupoHoras;
 import pe.edu.lamolina.pivot.controller.academico.acta.ActaResumen;
@@ -36,9 +35,9 @@ public interface GrupoSeccionDAO extends EasyDAO<GrupoSeccion> {
 
     List<DocenteCursoPlan> allDocenteCursoPlanByCiclo(CicloAcademico ciclo);
 
-    List<GrupoSeccion> allByDynatable(DynatableFilter filter, CicloAcademico cicloAcademico);
+    List<GrupoSeccion> allByDynatable(DynatableFilter filter, CicloAcademico cicloAcademico, List<AnexoBoletin> anexosUser);
 
-    GpoSeccionResumen resumenByCiclo(CicloAcademico ciclo);
+    GpoSeccionResumen resumenByCiclo(CicloAcademico ciclo, List<AnexoBoletin> anexos);
 
     GrupoSeccion findLast();
 

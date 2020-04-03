@@ -212,7 +212,7 @@ public class ClonarCicloController {
             ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
             node.set("ciclo", createCicloJson(cicloPregrado));
             node.set("cicloPosgrado", createCicloJson(cicloPosgrado));
-            node.set("resumen", createResumenJson(service.resumenByCiclo(cicloPregrado)));
+            node.set("resumen", createResumenJson(service.resumenByCiclo(cicloPregrado, ds)));
 
             response.setData(node);
             response.setSuccess(true);

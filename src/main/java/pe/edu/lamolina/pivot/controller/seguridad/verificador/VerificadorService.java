@@ -62,6 +62,12 @@ public interface VerificadorService {
 
     List<AnexoBoletin> anexosInferioresByOficina(DataSessionPivot ds, List<AnexoBoletin> anexos);
 
-    Boolean isOperadorActaNotas(DataSessionPivot ds);
+    boolean isOperadorActaNotas(DataSessionPivot ds);
+
+    boolean puedeEditarAnexos(DataSessionPivot ds);
+
+    boolean puedeEditarAnexosPosgrado(DataSessionPivot ds);
+
+    boolean isEditorProgramacionOera(DataSessionPivot ds);
 
 }

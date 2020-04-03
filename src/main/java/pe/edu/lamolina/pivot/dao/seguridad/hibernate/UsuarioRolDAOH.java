@@ -195,6 +195,7 @@ public class UsuarioRolDAOH extends AbstractEasyDAO<UsuarioRol> implements Usuar
         Octavia sql = new Octavia()
                 .from(UsuarioRol.class, "ur")
                 .join("usuario us", "rol rol")
+                .leftJoin("oficina")
                 .filter("us.id", usuario)
                 .filter("ur.estado", ACT);
 
