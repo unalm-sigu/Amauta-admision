@@ -44,9 +44,11 @@ public interface GpoSeccionService {
 
     List<Oficina> allOficinas(Compania compania);
 
-    List<GrupoSeccion> allByDynatable(DynatableFilter filter, CicloAcademico cicloAcademico);
+    List<GrupoSeccion> allByDynatable(DynatableFilter filter, CicloAcademico cicloAcademico, List<AnexoBoletin> anexosUser);
 
     List<GrupoSeccion> allCleanByDynatable(DynatableFilter filter, CicloAcademico cicloAcademico);
+
+    List<GrupoSeccion> allCleanByDynatable(DynatableFilter filter, CicloAcademico cicloAcademico, DataSessionPivot ds);
 
     void cambiarEstadoGpoSeccion(SeccionEstadoEnum estadoEnum, GrupoSeccion grupoSeccion, DataSessionPivot ds);
 
@@ -54,7 +56,7 @@ public interface GpoSeccionService {
 
     List<Curso> allCursosForProgramacion(String nomString);
 
-    List<AnexoBoletin> allAnexoBoletionHijos(CicloAcademico ciclo);
+    List<AnexoBoletin> allAnexoBoletionHijos(CicloAcademico ciclo, DataSessionPivot ds);
 
     List<AnexoBoletin> allAnexoBoletionHijos();
 
@@ -157,7 +159,7 @@ public interface GpoSeccionService {
             CicloAcademico cicloAcademico,
             Seccion seccion);
 
-    GpoSeccionResumen resumenByCiclo(CicloAcademico ciclo);
+    GpoSeccionResumen resumenByCiclo(CicloAcademico ciclo, DataSessionPivot ds);
 
     List<AnexoBoletin> allAnexosBySuperiorCiclo(String anexoSuperior, CicloAcademico ciclo);
 
@@ -213,16 +215,18 @@ public interface GpoSeccionService {
 
     List<RestriccionRepitencia> allRestriccionRepitenciaActivasBySeccion(Seccion seccion);
 
-    public GrupoSeccion findByCursoAndDocenteDirigido(Curso curso, Docente docenteAsignado, CicloAcademico academico);
+    GrupoSeccion findByCursoAndDocenteDirigido(Curso curso, Docente docenteAsignado, CicloAcademico academico);
 
     void eliminarGrupos(List<GrupoSeccion> gruposSeccion, DataSessionPivot ds);
 
     void solucionarCruzados(CicloAcademico cicloAcademico);
 
-    public void saveDescuento(DescuentoSeccionVerano descuentoSeccionVerano, DataSessionPivot ds);
+    void saveDescuento(DescuentoSeccionVerano descuentoSeccionVerano, DataSessionPivot ds);
 
-    public void saveAlumnoelegido(AlumnoPagoVerano alumnoPagoVerano, DataSessionPivot ds);
+    void saveAlumnoelegido(AlumnoPagoVerano alumnoPagoVerano, DataSessionPivot ds);
 
-    public void deleteDescuento(DescuentoSeccionVerano descuentoSeccionVerano, DataSessionPivot ds);
+    void deleteDescuento(DescuentoSeccionVerano descuentoSeccionVerano, DataSessionPivot ds);
+
+    List<AnexoBoletin> allAnexosUser(DataSessionPivot ds);
 
 }

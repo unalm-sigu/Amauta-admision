@@ -9,7 +9,7 @@ public interface ClonarCicloService {
 
     void clonarCiclo(CicloClonacionBean cicloClonacionBean, DataSessionPivot ds);
 
-    GpoSeccionResumen resumenByCiclo(CicloAcademico ciclo);
+    GpoSeccionResumen resumenByCiclo(CicloAcademico ciclo, DataSessionPivot ds);
 
     void reordenar(CicloAcademico ciclo, DataSessionPivot ds);
 

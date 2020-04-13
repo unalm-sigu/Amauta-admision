@@ -147,16 +147,16 @@
                                                 </td> 
 
                                                 <td class="v-middle"> 
-                                                    <div class="dropdown actions">
+                                                    <div class="dropdown actions"
+                                                         th:if="${puedeEditar || puedeEditarPosgrado}">
                                                         <a class="dropdown-toggle" data-toggle="dropdown">
                                                             <i class="glyphicon glyphicon-cog"></i>
                                                         </a> 
                                                         <ul class="dropdown-menu pull-right">
-                                                            <li v-if="item.estado == 'ACT' "><a class="btn-link pointer" v-on:click="verEditar(item)">Editar</a></li>
-                                                            <li v-if="item.estado == 'ACT' "><a class="btn-link pointer" v-on:click="verCambiarEstado(item,'desactivar')">Desactivar</a></li>
-                                                            <li v-if="item.estado == 'INA' || item.estado == 'CRE' " v-on:click="cambiarEstado(item,'activar')"><a class="btn-link pointer" >Activar</a></li>
-                                                            <li v-if="item.estado == 'INA' || item.estado == 'CRE' " v-on:click="cambiarEstado(item,'eliminar')"><a class="btn-link pointer" >Eliminar</a></li>
-                                                            <!--<li><a class="btn-link pointer" v-bind:href="@{'/academico/anexo/editar/{{:id}}'}" rev="{{:estado}}">Editar</a></li>-->
+                                                            <li th:if="${puedeEditar || puedeEditarPosgrado}" v-if="puedeEditarAnexo(item)"><a class="btn-link pointer" v-on:click="verEditar(item)">Editar</a></li>
+                                                            <li th:if="${puedeEditar}" v-if="item.estado == 'ACT' "><a class="btn-link pointer" v-on:click="verCambiarEstado(item,'desactivar')">Desactivar</a></li>
+                                                            <li th:if="${puedeEditar}" v-if="item.estado == 'INA' || item.estado == 'CRE' " v-on:click="cambiarEstado(item,'activar')"><a class="btn-link pointer" >Activar</a></li>
+                                                            <li th:if="${puedeEditar}" v-if="item.estado == 'INA' || item.estado == 'CRE' " v-on:click="cambiarEstado(item,'eliminar')"><a class="btn-link pointer" >Eliminar</a></li>
                                                         </ul>
                                                     </div>
                                                 </td>
@@ -182,6 +182,8 @@
                 var anexosSuperJson = /*[[${anexosSuperJson}]]*/ {};
                 var departamentosJson = /*[[${departamentosJson}]]*/ {};
                 var carrerasJson = /*[[${carrerasJson}]]*/ {};
+                var puedeEditar = /*[[${puedeEditar}]]*/ {};
+                var puedeEditarPosgrado = /*[[${puedeEditarPosgrado}]]*/ {};
             </script>
             <div th:substituteby="_modules/vue-modal"/>
             <div th:substituteby="_modules/vue-raptor-table"></div>

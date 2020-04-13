@@ -102,7 +102,8 @@ public class BoletinAcademicoServiceImp implements BoletinAcademicoService {
 
     @Override
     public GpoSeccionResumen resumenByCiclo(CicloAcademico ciclo) {
-        return grupoSeccionDAO.resumenByCiclo(ciclo);
+        List<AnexoBoletin> anexos = anexoBoletinDAO.allAnexosHijos();
+        return grupoSeccionDAO.resumenByCiclo(ciclo, anexos);
     }
 
     @Override

@@ -1,4 +1,4 @@
-<div class="block">
+<div class="block" th:if="${esEditorOera}">
     <label class="bold text-primary" style="vertical-align: top;">Activar fusión de secciones &nbsp;&nbsp;</label>
     <label class="switch">
         <input type="checkbox" v-model="activarFusion" />
@@ -15,7 +15,7 @@
     <div v-else="" >
         <div class="col-sm-12" >
             <div class="col-sm-2" >
-                <div class="form-group" >
+                <div class="form-group" th:if="${esEditorOera}">
 
                     <label class="control-label">Sección destino</label>
 
@@ -90,16 +90,16 @@
             </div>
 
             <div class="col-sm-1" >
-                <label>Todos</label>
-                <label class="switch">
+                <label th:if="${esEditorOera}">Todos</label>
+                <label th:if="${esEditorOera}" class="switch">
                     <input type="checkbox" value="true" v-model="fusion.todos" v-on:change="todosAlumnos" />
                     <span></span>
                 </label>
             </div>
 
             <div class="col-sm-1" >
-                <label>&nbsp;&nbsp;</label>
-                <a class="btn btn-info btn-sm pull-right" v-on:click="trasladarAlumnos">Trasladar</a>
+                <label th:if="${esEditorOera}">&nbsp;&nbsp;</label>
+                <a th:if="${esEditorOera}" class="btn btn-info btn-sm pull-right" v-on:click="trasladarAlumnos">Trasladar</a>
             </div>
 
         </div>

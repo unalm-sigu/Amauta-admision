@@ -106,4 +106,6 @@ public interface OficinaService {
 
     Oficina findOficinaHija(Persona persona, Oficina oficinaMain);
 
+    Oficina findOficinaMain(Oficina oficinaHija);
+
 }

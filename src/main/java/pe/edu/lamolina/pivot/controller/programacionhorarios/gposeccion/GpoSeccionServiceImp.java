@@ -107,7 +107,6 @@ import pe.edu.lamolina.model.finanzas.Acreencia;
 import pe.edu.lamolina.model.finanzas.AlumnoPagoVerano;
 import pe.edu.lamolina.model.finanzas.CuentaBancaria;
 import pe.edu.lamolina.model.finanzas.DeudaAlumno;
-import pe.edu.lamolina.model.finanzas.PagoHoraDocente;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.general.Dia;
@@ -123,6 +122,7 @@ import pe.edu.lamolina.model.seguridad.TokenIngresante;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.vacantes.VacanteAlumno;
 import pe.edu.lamolina.pivot.controller.responserest.ResponseRestService;
+import pe.edu.lamolina.pivot.controller.seguridad.verificador.VerificadorService;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoEvaluacionDAO;
 import pe.edu.lamolina.pivot.dao.academico.CarreraDAO;
@@ -319,6 +319,8 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
     @Autowired
     ResponseRestService responseRestService;
+    @Autowired
+    VerificadorService verificadorService;
 
     final String PORCENTAJE_CARGA_FRACCION = "100";
     final BigDecimal PORCENTAJE_CARGA = new BigDecimal(100);
@@ -448,8 +450,8 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     }
 
     @Override
-    public List<GrupoSeccion> allByDynatable(DynatableFilter filter, CicloAcademico ciclo) {
-        List<GrupoSeccion> gsecciones = grupoSeccionDAO.allByDynatable(filter, ciclo);
+    public List<GrupoSeccion> allByDynatable(DynatableFilter filter, CicloAcademico ciclo, List<AnexoBoletin> anexosUser) {
+        List<GrupoSeccion> gsecciones = grupoSeccionDAO.allByDynatable(filter, ciclo, anexosUser);
         List<Seccion> secciones = seccionDAO.allByGposSeccion(gsecciones);
 
         Map<Long, List<Seccion>> mapSecciones = TypesUtil.convertListToMapList("grupoSeccion.id", secciones);
@@ -493,7 +495,15 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
     @Override
     public List<GrupoSeccion> allCleanByDynatable(DynatableFilter filter, CicloAcademico ciclo) {
-        return grupoSeccionDAO.allByDynatable(filter, ciclo);
+        List<AnexoBoletin> anexos = anexoBoletinDAO.allAnexosHijos();
+        return grupoSeccionDAO.allByDynatable(filter, ciclo, anexos);
+    }
+
+    @Override
+    public List<GrupoSeccion> allCleanByDynatable(DynatableFilter filter, CicloAcademico ciclo, DataSessionPivot ds) {
+        List<AnexoBoletin> anexosAll = anexoBoletinDAO.allAnexosHijos();
+        List<AnexoBoletin> anexos = verificadorService.anexosInferioresByOficina(ds, anexosAll);
+        return grupoSeccionDAO.allByDynatable(filter, ciclo, anexos);
     }
 
     @Override
@@ -1441,8 +1451,9 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     }
 
     @Override
-    public List<AnexoBoletin> allAnexoBoletionHijos(CicloAcademico ciclo) {
-        List<AnexoBoletin> anexos = anexoBoletinDAO.allAnexosHijos();
+    public List<AnexoBoletin> allAnexoBoletionHijos(CicloAcademico ciclo, DataSessionPivot ds) {
+        List<AnexoBoletin> anexosAll = anexoBoletinDAO.allAnexosHijos();
+        List<AnexoBoletin> anexos = verificadorService.anexosInferioresByOficina(ds, anexosAll);
         List<GrupoSeccion> gpoSecciones = grupoSeccionDAO.allByCiclo(ciclo);
         Map<Long, List<GrupoSeccion>> mapGpoSeccion = TypesUtil.convertListToMapList("anexoBoletin.id", gpoSecciones);
         for (AnexoBoletin anexo : anexos) {
@@ -2644,8 +2655,11 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     }
 
     @Override
-    public GpoSeccionResumen resumenByCiclo(CicloAcademico ciclo) {
-        GpoSeccionResumen resumen = grupoSeccionDAO.resumenByCiclo(ciclo);
+    public GpoSeccionResumen resumenByCiclo(CicloAcademico ciclo, DataSessionPivot ds) {
+        List<AnexoBoletin> anexosAll = anexoBoletinDAO.allAnexosHijos();
+        List<AnexoBoletin> anexos = verificadorService.anexosInferioresByOficina(ds, anexosAll);
+
+        GpoSeccionResumen resumen = grupoSeccionDAO.resumenByCiclo(ciclo, anexos);
         resumen.setActividades(resumen.getActividades() == null ? 0 : resumen.getActividades());
         resumen.setDepartamentos(resumen.getDepartamentos() == null ? 0 : resumen.getDepartamentos());
         resumen.setIngresantes(resumen.getIngresantes() == null ? 0 : resumen.getIngresantes());
@@ -3396,6 +3410,12 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         seccion.setDevolucion(1);
         seccionDAO.updateColumns(seccion, "descuentoPrecio", "devolucion");
 
+    }
+
+    @Override
+    public List<AnexoBoletin> allAnexosUser(DataSessionPivot ds) {
+        List<AnexoBoletin> anexosAll = anexoBoletinDAO.allAnexosHijos();
+        return verificadorService.anexosInferioresByOficina(ds, anexosAll);
     }
 
 }

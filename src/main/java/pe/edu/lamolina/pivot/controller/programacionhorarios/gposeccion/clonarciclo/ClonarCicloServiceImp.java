@@ -21,6 +21,7 @@ import pe.albatross.zelpers.miscelanea.CodeGenerator;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.model.academico.AnexoBoletin;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.CursoCicloAcademico;
@@ -60,6 +61,8 @@ import pe.edu.lamolina.model.horario.HorarioAula;
 import pe.edu.lamolina.model.horario.HorarioSeccion;
 import pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.GpoSeccionResumen;
 import pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.GpoSeccionService;
+import pe.edu.lamolina.pivot.controller.seguridad.verificador.VerificadorService;
+import pe.edu.lamolina.pivot.dao.academico.AnexoBoletinDAO;
 import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.CursoCicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.CursoCurriculaDAO;
@@ -91,73 +94,56 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
+    AnexoBoletinDAO anexoBoletinDAO;
+    @Autowired
     CicloAcademicoDAO cicloAcademicoDAO;
-
-    @Autowired
-    GrupoSeccionDAO grupoSeccionDAO;
-
-    @Autowired
-    SeccionDAO seccionDAO;
-
-    @Autowired
-    DocenteSeccionDAO docenteSeccionDAO;
-
-    @Autowired
-    RestriccionCarreraDAO restriccionCarreraDAO;
-
-    @Autowired
-    RestriccionFacultadDAO restriccionFacultadDAO;
-
-    @Autowired
-    RestriccionModalidadDAO restriccionModalidadDAO;
-
-    @Autowired
-    RestriccionRepitenciaDAO restriccionRepitenciaDAO;
-
-    @Autowired
-    GpoSeccionService gpoSeccionService;
-
-    @Autowired
-    MatriculaSeccionDAO matriculaSeccionDAO;
-
-    @Autowired
-    PrecioCursoEstructuraDAO precioCursoEstructuraDAO;
-
     @Autowired
     CursoCicloAcademicoDAO cursoCicloAcademicoDAO;
-
-    @Autowired
-    EventoCicloAcademicoDAO eventoCicloAcademicoDAO;
-
-    @Autowired
-    DiaHoraGrupoDAO diaHoraGrupoDAO;
-
-    @Autowired
-    HorarioSeccionDAO horarioSeccionDAO;
-
-    @Autowired
-    DiaDAO diaDAO;
-
     @Autowired
     CursoCurriculaDAO cursoCurriculaDAO;
-
+    @Autowired
+    DiaDAO diaDAO;
+    @Autowired
+    DiaHoraGrupoDAO diaHoraGrupoDAO;
+    @Autowired
+    DocenteSeccionDAO docenteSeccionDAO;
+    @Autowired
+    EvaluacionDAO evaluacionDAO;
+    @Autowired
+    EvaluacionExpandidaDAO evaluacionExpandidaDAO;
+    @Autowired
+    EvaluacionSeccionDAO evaluacionSeccionDAO;
+    @Autowired
+    EventoCicloAcademicoDAO eventoCicloAcademicoDAO;
+    @Autowired
+    GrupoSeccionDAO grupoSeccionDAO;
+    @Autowired
+    HorarioAulaDAO horarioAulaDAO;
+    @Autowired
+    HorarioSeccionDAO horarioSeccionDAO;
+    @Autowired
+    MatriculaSeccionDAO matriculaSeccionDAO;
+    @Autowired
+    PrecioCursoEstructuraDAO precioCursoEstructuraDAO;
+    @Autowired
+    RestriccionCarreraDAO restriccionCarreraDAO;
+    @Autowired
+    RestriccionFacultadDAO restriccionFacultadDAO;
+    @Autowired
+    RestriccionModalidadDAO restriccionModalidadDAO;
+    @Autowired
+    RestriccionRepitenciaDAO restriccionRepitenciaDAO;
+    @Autowired
+    SeccionDAO seccionDAO;
     @Autowired
     TipoCursoCurriculaDAO tipoCursoCurriculaDAO;
-
     @Autowired
     VacanteAlumnoDAO vacanteAlumnoDAO;
 
     @Autowired
-    EvaluacionDAO evaluacionDAO;
-
+    GpoSeccionService gpoSeccionService;
     @Autowired
-    EvaluacionSeccionDAO evaluacionSeccionDAO;
-
-    @Autowired
-    EvaluacionExpandidaDAO evaluacionExpandidaDAO;
-
-    @Autowired
-    HorarioAulaDAO horarioAulaDAO;
+    VerificadorService verificadorService;
 
     @Override
     @Transactional
@@ -710,8 +696,10 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
     }
 
     @Override
-    public GpoSeccionResumen resumenByCiclo(CicloAcademico ciclo) {
-        GpoSeccionResumen resumen = grupoSeccionDAO.resumenByCiclo(ciclo);
+    public GpoSeccionResumen resumenByCiclo(CicloAcademico ciclo, DataSessionPivot ds) {
+        List<AnexoBoletin> anexosAll = anexoBoletinDAO.allAnexosHijos();
+        List<AnexoBoletin> anexos = verificadorService.anexosInferioresByOficina(ds, anexosAll);
+        GpoSeccionResumen resumen = grupoSeccionDAO.resumenByCiclo(ciclo, anexos);
         resumen.setActividades(resumen.getActividades() == null ? 0 : resumen.getActividades());
         resumen.setDepartamentos(resumen.getDepartamentos() == null ? 0 : resumen.getDepartamentos());
         resumen.setIngresantes(resumen.getIngresantes() == null ? 0 : resumen.getIngresantes());
