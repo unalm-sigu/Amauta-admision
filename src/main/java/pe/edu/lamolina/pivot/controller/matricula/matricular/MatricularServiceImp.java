@@ -662,11 +662,12 @@ public class MatricularServiceImp implements MatricularService {
             Integer matriculadosSeccion = mapMatriculadosSeccion.get(seccion.getId());
             matriculadosSeccion += 1;
             mapMatriculadosSeccion.replace(seccion.getId(), matriculadosSeccion);
-            if (matriculaSeccion != null) {
-
-                matriculaSeccion.setEstadoEnum(EstadoMatriculaEnum.MAT);
-                matriculaSeccionMatTemp.add(matriculaSeccion);
-            }
+//            if (matriculaSeccion != null) {
+            matriculaSeccion.setFechaMatricula(new Date());
+            matriculaSeccion.setUserMatricula(ds.getUsuario());
+            matriculaSeccion.setEstadoEnum(EstadoMatriculaEnum.MAT);
+            matriculaSeccionMatTemp.add(matriculaSeccion);
+//            }
 
 //            vacante.setAlumno(alumno);
 //            vacante.setEstadoEnum(EstadoVacanteAlumnoEnum.OCUP);
@@ -676,12 +677,12 @@ public class MatricularServiceImp implements MatricularService {
 
             if (seccion.getIsTipoSeccionPCUR()) {
                 vac = mapVacantesDisponibles.get(seccion.getSeccionSuperior().getId());
-                MatriculaSeccion ms = matriculaCurso.getMatriculaSeccion().stream().filter(x -> Objects.equals(x.getSeccion().getId(), seccion.getSeccionSuperior().getId())).findAny().orElse(null);
+                MatriculaSeccion matriculaSeccionSuperior = matriculaCurso.getMatriculaSeccion().stream().filter(x -> Objects.equals(x.getSeccion().getId(), seccion.getSeccionSuperior().getId())).findAny().orElse(null);
                 matricularAll(cumple, vacanteAlumnosMap,
                         seccion.getSeccionSuperior(), matriculaCurso, alumnoCursoCurriculas,
                         alumno, curso, notify, matriculaSeccionMatTemp, matriculaSeccionNvacTemp,
                         mapMatriculadosSeccion, mr, mapVacantesDisponibles, matriculaCursoMatriculados,
-                        noMatriculadosELC, ms, vac, vacantesAlumnoTemp, listMatriculados, listNoMatriculados, ds);
+                        noMatriculadosELC, matriculaSeccionSuperior, vac, vacantesAlumnoTemp, listMatriculados, listNoMatriculados, ds);
             }
         } else {
             matriculaCurso.setEstadoEnum(NVAC);
