@@ -1,6 +1,7 @@
 package pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.aula;
 
 import java.util.List;
+import pe.edu.lamolina.model.academico.AnexoBoletin;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
@@ -15,6 +16,7 @@ public class SeccionDTO {
     List<Dia> dias;
 
     private List<Seccion> secciones;
+    private List<AnexoBoletin> anexosBoletin;
     //deprecated
     private List<ModalidadEstudioEnum> modalidadesEstudioEnum;
     private CicloAcademico cicloAcademico;
@@ -92,6 +94,14 @@ public class SeccionDTO {
 
     public void setModalidadesEstudioCurEnum(List<ModalidadEstudioEnum> modalidadesEstudioCurEnum) {
         this.modalidadesEstudioCurEnum = modalidadesEstudioCurEnum;
+    }
+
+    public List<AnexoBoletin> getAnexosBoletin() {
+        return anexosBoletin;
+    }
+
+    public void setAnexosBoletin(List<AnexoBoletin> anexosBoletin) {
+        this.anexosBoletin = anexosBoletin;
     }
 
 }
