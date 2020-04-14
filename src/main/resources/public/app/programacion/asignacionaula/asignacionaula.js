@@ -39,6 +39,8 @@ var app = new Vue({
                                         MODAL.hideWait();
                                     }
                                 });
+                    } else {
+                        MODAL.hideWait();
                     }
                 }
             });
@@ -67,6 +69,8 @@ var app = new Vue({
                                         MODAL.hideWait();
                                     }
                                 });
+                    } else {
+                        MODAL.hideWait();
                     }
                 }
             });
