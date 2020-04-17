@@ -372,7 +372,7 @@ new Vue({
                         $.ajax({
                             method: 'POST',
                             url: APP.url(`${rutaModulo}/eliminarhorarios`),
-                            data: {id: vue.alumno.id},
+//                            data: {id: vue.alumno.id},
                             success: function (response) {
                                 if (response.success) {
                                     notify(response.message, 'info');
