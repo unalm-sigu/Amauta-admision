@@ -42,7 +42,6 @@ import pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.reporte.
 import pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.reporte.view.ReporteCantidadAlumnosPorSeccionExcelView;
 import pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.reporte.view.ReporteCrucesExcelView;
 import pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.reporte.view.ReporteSeccionesByFilterExcelView;
-import pe.edu.lamolina.pivot.controller.reporte.view.HorarioAlumnoCicloPDF;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.pivot.zelper.pdf.pdfHtml.PDFFormatoEnum;
@@ -53,6 +52,7 @@ import pe.edu.lamolina.pivot.zelper.pdf.pdfHtml.PdfHtmlView;
 public class GpoReporteController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final String rutaModulo = this.getClass().getAnnotation(RequestMapping.class).value()[0];
 
     @Autowired
     GpoReporteService service;
@@ -114,6 +114,7 @@ public class GpoReporteController {
         model.addAttribute("cicloJson", createCicloJson(ciclo).toString());
         model.addAttribute("reportesJson", createReportesJson(reportes).toString());
         model.addAttribute("resumenJson", createResumenJson(service.resumenByCiclo(ciclo)));
+        model.addAttribute("rutaModulo", rutaModulo);
         return "academico/gposeccion/reporte/reporte";
     }
 
@@ -363,7 +364,7 @@ public class GpoReporteController {
         SeccionDTO seccionDTO = new SeccionDTO();
         seccionDTO.setTituloReporte("Matriculados Por Sección");
         seccionDTO.setCicloAcademico(cicloAcademico);
-        seccionDTO.setModalidadesEstudioCurEnum(Arrays.asList(ModalidadEstudioEnum.PRE));
+        seccionDTO.setAnexosBoletin(service.getAnexosInferiores(cicloAcademico, ds));
 
         List<MatriculaSeccion> matriculasSecciones = service.allMatriculadosBySeccion(seccionDTO);
 
@@ -383,7 +384,7 @@ public class GpoReporteController {
         SeccionDTO seccionDTO = new SeccionDTO();
         seccionDTO.setTituloReporte("Cantidad Matriculados Por Sección");
         seccionDTO.setCicloAcademico(cicloAcademico);
-        seccionDTO.setModalidadesEstudioCurEnum(Arrays.asList(ModalidadEstudioEnum.PRE));
+        seccionDTO.setAnexosBoletin(service.getAnexosInferiores(cicloAcademico, ds));
         List<CantidadMatriculadosDTO> cantidadMatriculados = service.allCantidadMatriculados(seccionDTO);
 
         model.addAttribute("formato", formato);

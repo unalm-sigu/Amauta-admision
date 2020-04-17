@@ -70,7 +70,6 @@ public class ReporteAlumnosPorSeccionExcelView extends AbstractView {
 
     private void generateSheet(Workbook wb, List<MatriculaSeccion> matriculados, SeccionDTO seccionDTO) {
         Sheet sheet = wb.getSheet("Hoja1");
-        // Sheet sheet = wb.createSheet("Hoja1");
         sheet.setAutobreaks(true);
         this.createBody(wb, sheet, seccionDTO, matriculados);
     }
@@ -137,8 +136,8 @@ public class ReporteAlumnosPorSeccionExcelView extends AbstractView {
         int column = 0;
         excelUtil.replaceVal(irow - 1, column++, "ANEXO SUPERIOR", estiloCabecera);
         sheet.setColumnWidth((column - 1), this.tamaño(25));
-//        excelUtil.replaceVal(irow - 1, column++, "ANEXO", estiloCabecera);
-//        sheet.setColumnWidth((column - 1), this.tamaño(25));
+        excelUtil.replaceVal(irow - 1, column++, "ANEXO", estiloCabecera);
+        sheet.setColumnWidth((column - 1), this.tamaño(25));
         excelUtil.replaceVal(irow - 1, column++, "DEPARTAMENTO CURSO", estiloCabecera);
         sheet.setColumnWidth((column - 1), this.tamaño(25));
         excelUtil.replaceVal(irow - 1, column++, "CURSO COD", estiloCabecera);
@@ -153,6 +152,8 @@ public class ReporteAlumnosPorSeccionExcelView extends AbstractView {
         sheet.setColumnWidth((column - 1), this.tamaño(15));
         excelUtil.replaceVal(irow - 1, column++, "ALUMNO", estiloCabecera);
         sheet.setColumnWidth((column - 1), this.tamaño(40));
+        excelUtil.replaceVal(irow - 1, column++, "MODALIDAD", estiloCabecera);
+        sheet.setColumnWidth((column - 1), this.tamaño(25));
         excelUtil.replaceVal(irow - 1, column++, "CARRERA ALUMNO", estiloCabecera);
         sheet.setColumnWidth((column - 1), this.tamaño(40));
         //datos
@@ -164,7 +165,7 @@ public class ReporteAlumnosPorSeccionExcelView extends AbstractView {
             Curso curso = grupoSeccion.getCurso();
             Alumno alumno = matriculado.getMatriculaResumen().getAlumno();
             excelUtil.replaceVal(irow, column++, grupoSeccion.getAnexoBoletin().getAnexoSuperior().getNombre(), estiloGeneral);
-//            excelUtil.replaceVal(irow, column++, grupoSeccion.getAnexoBoletin().getNombre(), estiloGeneral);
+            excelUtil.replaceVal(irow, column++, grupoSeccion.getAnexoBoletin().getNombre(), estiloGeneral);
             excelUtil.replaceVal(irow, column++, curso.getDepartamentoAcademico().getNombre(), estiloGeneral);
             excelUtil.replaceVal(irow, column++, curso.getCodigo(), estiloGeneral);
             excelUtil.replaceVal(irow, column++, curso.getNombre(), estiloGeneral);
@@ -181,7 +182,8 @@ public class ReporteAlumnosPorSeccionExcelView extends AbstractView {
             excelUtil.replaceVal(irow, column++, docentePrincipalStr, estiloGeneral);
             excelUtil.replaceVal(irow, column++, alumno.getCodigo(), estiloGeneral);
             excelUtil.replaceVal(irow, column++, alumno.getPersona().getApellidosNombres(), estiloGeneral);
-            excelUtil.replaceVal(irow, column++, alumno.getCarrera().getNombre(), estiloGeneral);
+            excelUtil.replaceVal(irow, column++, alumno.getModalidadEstudio().getNombre(), estiloGeneral);
+            excelUtil.replaceVal(irow, column++, alumno.getCarrera().getNombreSelect(), estiloGeneral);
             irow++;
         }
 

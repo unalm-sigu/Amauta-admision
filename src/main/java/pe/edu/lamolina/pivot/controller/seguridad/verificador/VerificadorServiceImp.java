@@ -36,6 +36,7 @@ import pe.edu.lamolina.model.seguridad.Menu;
 import pe.edu.lamolina.model.seguridad.Rol;
 import pe.edu.lamolina.model.seguridad.UsuarioRol;
 import pe.edu.lamolina.pivot.controller.general.oficina.OficinaService;
+import pe.edu.lamolina.pivot.dao.academico.AnexoBoletinDAO;
 import pe.edu.lamolina.pivot.dao.academico.CarreraDAO;
 import pe.edu.lamolina.pivot.dao.academico.DepartamentoAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.academico.FacultadDAO;
@@ -50,25 +51,21 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 public class VerificadorServiceImp implements VerificadorService {
 
     @Autowired
-    MenuRolDAO menuRolDAO;
-
-    @Autowired
-    UsuarioRolDAO usuarioRolDAO;
-
-    @Autowired
-    OficinaDAO oficinaDAO;
-
-    @Autowired
-    FacultadDAO facultadDAO;
-
+    AnexoBoletinDAO anexoBoletinDAO;
     @Autowired
     CarreraDAO carreraDAO;
-
     @Autowired
     ColaboradorDAO colaboradorDAO;
-
     @Autowired
     DepartamentoAcademicoDAO departamentoAcademicoDAO;
+    @Autowired
+    FacultadDAO facultadDAO;
+    @Autowired
+    MenuRolDAO menuRolDAO;
+    @Autowired
+    OficinaDAO oficinaDAO;
+    @Autowired
+    UsuarioRolDAO usuarioRolDAO;
 
     @Autowired
     OficinaService oficinaService;
@@ -643,66 +640,83 @@ public class VerificadorServiceImp implements VerificadorService {
 
     @Override
     public List<AnexoBoletin> anexosSuperioresByOficina(DataSessionPivot ds) {
-        List<Oficina> oficinasMain = oficinaService.allOficinasMainByPersona(ds.getPersona());
-        for (Oficina oficina : oficinasMain) {
-            if (oficina.getCodigoEnum() == OERA) {
-                return null;
+        List<UsuarioRol> userRolesAll = usuarioRolDAO.allActivosByUser(ds.getUsuario());
+        if (userRolesAll.isEmpty()) {
+            return new ArrayList();
+        }
+
+        List<UsuarioRol> userRoles = new ArrayList();
+        for (UsuarioRol userRol : userRolesAll) {
+            Oficina oficinaUser = userRol.getOficina();
+            if (oficinaUser == null) {
+                continue;
+            }
+            userRoles.add(userRol);
+        }
+
+        Map<Long, Oficina> mapOficinaMain = new HashMap();
+        for (UsuarioRol userRol : userRoles) {
+            Oficina oficinaMain = oficinaService.findOficinaMain(userRol.getOficina());
+            mapOficinaMain.put(userRol.getOficina().getId(), oficinaMain);
+        }
+
+        List<AnexoBoletin> anexosAll = anexoBoletinDAO.allAnexosSuperiores();
+        for (UsuarioRol userRol : userRoles) {
+            Oficina oficinaMain = mapOficinaMain.get(userRol.getOficina().getId());
+            Rol rol = userRol.getRol();
+
+            boolean esORolOERA = rol.getCodigoEnum() == RolEnum.OPER_PROGH_OERA;
+            boolean esOficinaOERA = oficinaMain.getCodigoEnum() == OERA;
+            if (esORolOERA && esOficinaOERA) {
+                System.out.println("Todos los anexos");
+                return anexosAll;
             }
         }
 
         List<AnexoBoletin> anexos = new ArrayList();
-        boolean tieneG04 = false;
-        for (Oficina oficina : oficinasMain) {
-            if (oficina.getCodigoEnum() == EPG) {
-                anexos.add(new AnexoBoletin(CodigoAnexoBoletinEnum.G04));
-                tieneG04 = true;
-                break;
-            }
-        }
+        Map<Long, AnexoBoletin> mapAnexos = new HashMap();
 
-        for (Oficina oficina : oficinasMain) {
-            if (oficina.getCodigoEnum() == OBUAE) {
-                anexos.add(new AnexoBoletin(CodigoAnexoBoletinEnum.G03));
-                break;
-            }
-        }
+        for (UsuarioRol userRol : userRoles) {
+            Oficina oficinaMain = mapOficinaMain.get(userRol.getOficina().getId());
+            Rol rol = userRol.getRol();
 
-        for (Oficina oficina : oficinasMain) {
-            if (oficina.getTipoOficina().getCodigoEnum() == TipoOficinaEnum.DPTO) {
-                anexos.add(new AnexoBoletin(CodigoAnexoBoletinEnum.G02));
-                break;
-            }
-        }
-        for (Oficina oficina : oficinasMain) {
-            if (oficina.getTipoOficina().getCodigoEnum() == TipoOficinaEnum.FAC) {
-                anexos.add(new AnexoBoletin(CodigoAnexoBoletinEnum.G02));
-                break;
-            }
-        }
-
-        for (Oficina oficina : oficinasMain) {
-            if (oficina.getTipoOficina().getCodigoEnum() == TipoOficinaEnum.DUPG) {
-                anexos.add(new AnexoBoletin(CodigoAnexoBoletinEnum.G04));
-                tieneG04 = true;
-                break;
-            }
-        }
-
-        if (!tieneG04) {
-            List<Carrera> carreras = carreraDAO.allActivas();
-            Map<Long, Carrera> mapCarrera = TypesUtil.convertListToMap("id", carreras);
-            for (Oficina oficina : oficinasMain) {
-                if (oficina.getTipoOficina().getCodigoEnum() == TipoOficinaEnum.ESP) {
-                    Carrera carrera = mapCarrera.get(oficina.getInstanciaOficina());
-                    ModalidadEstudio modalidad = carrera.getModalidadEstudio();
-                    if (modalidad.isPostgrado()) {
-                        anexos.add(new AnexoBoletin(CodigoAnexoBoletinEnum.G04));
-                        break;
-                    }
+            boolean esRolEPG = rol.getCodigoEnum() == RolEnum.OPER_PROGH_EPG || rol.getCodigoEnum() == RolEnum.REVISOR_PROGH_EPG;
+            boolean esOficinaEPG = oficinaMain.getCodigoEnum() == EPG;
+            if (esRolEPG && esOficinaEPG) {
+                AnexoBoletin anexoNew = new AnexoBoletin(CodigoAnexoBoletinEnum.G04);
+                AnexoBoletin anexoOld = mapAnexos.get(anexoNew.getId());
+                if (anexoOld == null) {
+                    anexos.add(anexoNew);
+                    mapAnexos.put(anexoNew.getId(), anexoNew);
                 }
             }
         }
 
+        List<Carrera> carrerasAll = carreraDAO.all();
+        List<Carrera> carrerasPosgrado = carrerasAll.stream()
+                .filter(x -> x.getModalidadEstudio().isPostgrado())
+                .collect(Collectors.toList());
+        Map<Long, Carrera> mapCarreraPosgrado = TypesUtil.convertListToMap("id", carrerasPosgrado);
+
+        for (UsuarioRol userRol : userRoles) {
+            Oficina oficinaMain = mapOficinaMain.get(userRol.getOficina().getId());
+            Rol rol = userRol.getRol();
+            Carrera carreraPosgrado = mapCarreraPosgrado.get(oficinaMain.getInstanciaOficina());
+
+            boolean esRolMaestria = rol.getCodigoEnum() == RolEnum.OPER_PROGH_ESP_EPG;
+            boolean esOficinaMaestria = oficinaMain.getTipoOficina().getCodigoEnum() == TipoOficinaEnum.ESP;
+            boolean esCarreraPosgrado = carreraPosgrado != null;
+            if (esRolMaestria && esOficinaMaestria && esCarreraPosgrado) {
+                AnexoBoletin anexoNew = new AnexoBoletin(CodigoAnexoBoletinEnum.G04);
+                AnexoBoletin anexoOld = mapAnexos.get(anexoNew.getId());
+                if (anexoOld == null) {
+                    anexos.add(anexoNew);
+                    mapAnexos.put(anexoNew.getId(), anexoNew);
+                }
+            }
+        }
+
+        System.out.println("Retornando " + anexos.size() + " anexos superiores");
         return anexos;
     }
 
@@ -756,7 +770,7 @@ public class VerificadorServiceImp implements VerificadorService {
             Oficina oficinaMain = mapOficinaMain.get(userRol.getOficina().getId());
             Rol rol = userRol.getRol();
 
-            boolean esRolEPG = rol.getCodigoEnum() == RolEnum.OPER_PROGH_EPG;
+            boolean esRolEPG = rol.getCodigoEnum() == RolEnum.OPER_PROGH_EPG || rol.getCodigoEnum() == RolEnum.REVISOR_PROGH_EPG;
             boolean esOficinaEPG = oficinaMain.getCodigoEnum() == EPG;
             if (esRolEPG && esOficinaEPG) {
                 System.out.println("Add anexos de posgrado");
@@ -781,7 +795,7 @@ public class VerificadorServiceImp implements VerificadorService {
             }
         }
 
-        System.out.println("Retornando " + anexos.size() + " anexos");
+        System.out.println("Retornando " + anexos.size() + " anexos inferiores");
         return anexos;
     }
 

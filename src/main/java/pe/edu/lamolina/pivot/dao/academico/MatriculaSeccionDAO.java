@@ -72,13 +72,13 @@ public interface MatriculaSeccionDAO extends EasyDAO<MatriculaSeccion> {
 
     void deleteAllByCiclo(CicloAcademico ciclo);
 
-    public List<MatriculaSeccion> allByMatriculaResumenes(List<MatriculaResumen> asList);
+    List<MatriculaSeccion> allByMatriculaResumenes(List<MatriculaResumen> asList);
 
     List<MatriculaSeccion> allByGrupoSeccion(List<GrupoSeccion> gruposSeccion, EstadoMatriculaEnum... estadosMatriculaSeccion);
 
     List<MatriculaSeccion> allMatriculadosBySeccion(String seccion, CicloAcademico cicloAcademico);
 
-    public MatriculaSeccion findByAlumnoSeccion(String codigo, String seccion);
+    MatriculaSeccion findByAlumnoSeccion(String codigo, String seccion);
 
     List<MatriculaSeccion> allMatriculadosByMatriculaSeccion(List<MatriculaResumen> matriculasResumen, EstadoMatriculaEnum... estados);
 
@@ -90,5 +90,5 @@ public interface MatriculaSeccionDAO extends EasyDAO<MatriculaSeccion> {
 
     List<CantidadMatriculadosDTO> cantidadMatriculados(SeccionDTO seccionDTO);
 
-    public List<MatriculaSeccion> allBySeccionesMat(List<Seccion> secciones);
+    List<MatriculaSeccion> allBySeccionesMat(List<Seccion> secciones);
 }

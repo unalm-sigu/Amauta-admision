@@ -26,6 +26,7 @@ import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.AmbitoReporteEnum;
+import pe.edu.lamolina.model.enums.CodigoAnexoBoletinEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
@@ -419,6 +420,19 @@ public class GpoReporteServiceImp implements GpoReporteService {
     }
 
     @Override
+    public List<AnexoBoletin> getAnexosInferiores(CicloAcademico ciclo, DataSessionPivot ds) {
+        List<AnexoBoletin> anexosAll = anexoBoletinDAO.all();
+        List<AnexoBoletin> anexosSuperiores = verificadorService.anexosSuperioresByOficina(ds);
+        List<AnexoBoletin> anexosInferiores = verificadorService.anexosInferioresByOficina(ds, anexosAll);
+
+        List<AnexoBoletin> anexos = anexoBoletinDAO.allTodosByCiclo(ciclo, anexosSuperiores, anexosInferiores);
+        Collections.sort(anexos, (a1, a2) -> a1.getOrden().compareTo(a2.getOrden()));
+
+        System.out.println("retornando " + anexos.size() + " anexos-inf para reportes");
+        return anexos;
+    }
+
+    @Override
     public List<Seccion> allSeccionesConCruce(CicloAcademico cicloAcademico) {
         List<Seccion> secciones = seccionDAO.allConCruceHorario(cicloAcademico);
         if (secciones == null || secciones.isEmpty()) {
@@ -512,16 +526,43 @@ public class GpoReporteServiceImp implements GpoReporteService {
         Oficina oficina = new Oficina(OficinaEnum.OERA);
 
         List<ReporteOficina> reportesAll = reporteOficinaDAO.allByOficinaAmbito(oficina, AmbitoReporteEnum.PROGRAMACION_OERA);
+        List<AnexoBoletin> anexosSuper = verificadorService.anexosSuperioresByOficina(ds);
+        Map<String, AnexoBoletin> mapAnexoSuper = TypesUtil.convertListToMap("codigo", anexosSuper);
+
         for (ReporteOficina reporte : reportesAll) {
             if (reporte.getTipoCiclo() != null) {
                 if (ciclo.getTipoEnum() == reporte.getTipoCicloEnum()) {
-                    reportes.add(reporte);
+                } else {
                     continue;
                 }
-                continue;
             }
             if (reporte.getTipoModalidad() != null) {
-                //verificadorService.modalidadesPermitidasForCursos(ds, modalidades);
+                if (reporte.getTipoModalidadEnum() == ModalidadEstudioEnum.PRE) {
+                    AnexoBoletin anexo = mapAnexoSuper.get(CodigoAnexoBoletinEnum.G01.name());
+                    if (anexo != null) {
+                        reportes.add(reporte);
+                        continue;
+                    }
+                    anexo = mapAnexoSuper.get(CodigoAnexoBoletinEnum.G02.name());
+                    if (anexo != null) {
+                        reportes.add(reporte);
+                        continue;
+                    }
+                    anexo = mapAnexoSuper.get(CodigoAnexoBoletinEnum.G03.name());
+                    if (anexo != null) {
+                        reportes.add(reporte);
+                        continue;
+                    }
+
+                } else if (reporte.getTipoModalidadEnum() == ModalidadEstudioEnum.EPG) {
+                    AnexoBoletin anexoEpg = mapAnexoSuper.get(CodigoAnexoBoletinEnum.G04.name());
+                    if (anexoEpg != null) {
+                        reportes.add(reporte);
+                        continue;
+                    }
+                }
+                continue;
+
             }
             reportes.add(reporte);
         }
