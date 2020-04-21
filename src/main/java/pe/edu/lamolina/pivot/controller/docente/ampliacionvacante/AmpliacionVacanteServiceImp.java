@@ -245,6 +245,8 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
         seccionTCUR = seccionesByGrupo.stream().filter(x -> x.isTipoSeccionTCUR()).findFirst().orElse(null);
         Assert.isTrue(seccionTCUR != null, "La sección teoria no configurada.");
         DocenteSeccion docenteSeccionTCUR = mapDocentePrincipalBySeccion.get(seccionTCUR.getId());
+        Assert.isNotNull(docenteSeccionTCUR, "Error, No se asignado un docente en la sección teórica.");
+
         seccionTCUR.setDocentePrincipal(docenteSeccionTCUR.getDocente());
         isDocentePrincipalTcurLogged = docenteLogeado.equals(seccionTCUR.getDocentePrincipal());
         //Seccion tcur info - fin
@@ -282,7 +284,8 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
                 tipoAmpliacion = (String) response.getData();
             } else {
                 //si el docente tcur es el mismo que el pcur
-                ampliacionVacanteRestService.matricularAmpliacionVacante(seccionPCUR, matriculaResumen.getAlumno(), ds);
+                JsonResponse response = ampliacionVacanteRestService.matricularAmpliacionVacante(seccionPCUR, matriculaResumen.getAlumno(), ds);
+                tipoAmpliacion = (String) response.getData();
                 //          matriculaSeccionUpd.setEnSolicitud(Boolean.FALSE);
                 ESTADO_MATRICULA = EstadoMatriculaEnum.MAT;
             }

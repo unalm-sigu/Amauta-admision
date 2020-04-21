@@ -1,6 +1,5 @@
 package pe.edu.lamolina.pivot.dao.academico;
 
-import java.util.Collection;
 import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.easydao.EasyDAO;
@@ -28,8 +27,6 @@ public interface CarreraDAO extends EasyDAO<Carrera> {
     List<Carrera> allByModalidadEstudioNombre(String idModEstudio, String forLike);
 
     CarreraResumen resumen();
-
-    List<Carrera> all();
 
     List<Carrera> allByNombreModalidad(String nombre, ModalidadEstudio modalidadEstudio);
 

@@ -135,8 +135,10 @@ public class ReporteCantidadAlumnosPorSeccionExcelView extends AbstractView {
         sheet.setColumnWidth((column - 1), this.tamaño(10));
         excelUtil.replaceVal(irow - 1, column++, "ANEXO SUPERIOR", estiloCabecera);
         sheet.setColumnWidth((column - 1), this.tamaño(25));
+        excelUtil.replaceVal(irow - 1, column++, "ANEXO", estiloCabecera);
+        sheet.setColumnWidth((column - 1), this.tamaño(35));
         excelUtil.replaceVal(irow - 1, column++, "DEPARTAMENTO CURSO", estiloCabecera);
-        sheet.setColumnWidth((column - 1), this.tamaño(25));
+        sheet.setColumnWidth((column - 1), this.tamaño(35));
         excelUtil.replaceVal(irow - 1, column++, "CURSO", estiloCabecera);
         sheet.setColumnWidth((column - 1), this.tamaño(50));
         excelUtil.replaceVal(irow - 1, column++, "SECCION", estiloCabecera);
@@ -150,6 +152,7 @@ public class ReporteCantidadAlumnosPorSeccionExcelView extends AbstractView {
             excelUtil.replaceVal(irow, column++, matriculado.getCiclo());
             //    sheet.setColumnWidth((column - 1), this.tamaño(10));
             excelUtil.replaceVal(irow, column++, matriculado.getAnexoSuperior(), estiloGeneral);
+            excelUtil.replaceVal(irow, column++, matriculado.getAnexo(), estiloGeneral);
             excelUtil.replaceVal(irow, column++, matriculado.getDepartamentoCurso(), estiloGeneral);
             excelUtil.replaceVal(irow, column++, matriculado.getNombreCurso(), estiloGeneral);
             //  sheet.setColumnWidth((column - 1), this.tamaño(50));

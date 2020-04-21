@@ -1,3 +1,4 @@
+Vue.component("multiselect", window.VueMultiselect.default);
 new Vue({
     el: '#main',
     data: {
@@ -10,8 +11,9 @@ new Vue({
             errores: []
         },
         horario: {},
-        alumno: {},
+        alumno: null,
         cursos: [],
+        alumnos: [],
         horarios: [],
         addAlumnoModal: {
             id: 'modalAddAlumno',
@@ -49,7 +51,8 @@ new Vue({
             cancelbtn: 'Aceptar',
             showaccept: false
         },
-        errores: []
+        errores: [],
+        isLoading: false
     },
     created() {
         let $vue = this;
@@ -143,64 +146,35 @@ new Vue({
         nuevo() {
             var vue = this;
             this.$refs.modalAddAlumno.open();
-            $('[name="alumno.id"]').select2({
-                allowClear: true,
-                placeholder: "Seleccione un alumno",
-                minimumInputLength: 1,
-                ajax: {
-                    url: APP.url(`${rutaModulo}/searchalumno`),
-                    dataType: 'json',
-                    type: 'post',
-                    data: function (term, page) {
-                        return {nombre: term, page: page};
-                    },
-                    results: function (response, page) {
-                        return {results: response.data};
-                    }
-                },
-                initSelection: function (element, callback) {
-                    if (element.val() != "") {
-                        var datos = {
-                            id: element.val(),
-                            nombre: element.attr("rel")
-                        };
-                        callback(datos);
-                    }
-                },
-                formatResult: function (info) {
-                    return $.templates("#divBuscarAlumno").render(info);
-                },
-                formatSelection: function (info) {
-                    vue.printFullData(info);
-                    return info.nombre;
-                },
-                escapeMarkup: function (m) {
-                    return m;
-                }
-            }).on("change.select2", function (e) {
-                if (e && e.removed) {
-                    if (e.val == '') {
-                        vue.clearAlumno(e);
-                    }
-                }
-            });
-            $('[name="alumno.id"]').select2('data', '');
             vue.alumno = [];
         },
-        printFullData(info) {
+        customLabel( { codigoMatricula, nombre }) {
+            return `${codigoMatricula} – ${nombre}`
+        },
+        asyncFind(item) {
             var vue = this;
-            vue.alumno = info;
+            $.ajax({
+                method: 'POST',
+                url: APP.url(`${rutaModulo}/searchalumno`),
+                data: {nombre: item},
+                success: function (response) {
+                    if (response.success) {
+                        vue.alumnos = response.data;
+                    } else {
+                        notify(response.message, 'error');
+                    }
+                }, error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
         },
         clearAlumno(e) {
             var vue = this;
             vue.alumno = [];
         },
-        createAlumno(id) {
+        createAlumno() {
             var vue = this;
-            var valid = $('[name="alumno.id"]').parsley().validate();
-            if (valid != true) {
-                return;
-            }
+
             $.ajax({
                 method: 'POST',
                 url: APP.url(`${rutaModulo}/addalumno`),
@@ -398,7 +372,7 @@ new Vue({
                         $.ajax({
                             method: 'POST',
                             url: APP.url(`${rutaModulo}/eliminarhorarios`),
-                            data: {id: vue.alumno.id},
+//                            data: {id: vue.alumno.id},
                             success: function (response) {
                                 if (response.success) {
                                     notify(response.message, 'info');

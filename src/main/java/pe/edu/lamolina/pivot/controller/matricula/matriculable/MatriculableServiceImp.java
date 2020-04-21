@@ -1709,7 +1709,7 @@ public class MatriculableServiceImp implements MatriculableService {
     }
 
     @Override
-    public List<DeudaAlumno> allByAlumnoCiclo(Alumno alumno, CicloAcademico cicloAcademico) {
+    public List<DeudaAlumno> allDeudasByAlumnoCiclo(Alumno alumno, CicloAcademico cicloAcademico) {
         List<DeudaAlumno> deudasVer = new ArrayList();
         List<DeudaAlumno> deudas = deudaAlumnoDAO.allByAlumnoCiclo(alumno, cicloAcademico);
         for (DeudaAlumno deuda : deudas) {

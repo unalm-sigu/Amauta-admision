@@ -69,7 +69,7 @@ public class AlumnoOmisoEleccionDAOH extends AbstractEasyDAO<AlumnoOmisoEleccion
     }
 
     @Override
-    public List<AlumnoOmisoEleccion> findByAlumno(Alumno alumno) {
+    public List<AlumnoOmisoEleccion> allDeudasByAlumno(Alumno alumno) {
         Octavia sql = new Octavia()
                 .from(AlumnoOmisoEleccion.class, "aoe")
                 .join("alumno al", "cicloAcademico ca")

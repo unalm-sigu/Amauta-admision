@@ -40,4 +40,5 @@ public interface ResumenAporteAlumnoDAO extends EasyDAO<ResumenAporteAlumno> {
     ResumenAporteAlumno find(ResumenAporteAlumno aporteAlumno);
 
     List<ResumenAporteAlumno> allByCicloMatriculaResumen(CicloAcademico cicloAcademico, List<MatriculaResumen> matriculaResumens);
+
 }

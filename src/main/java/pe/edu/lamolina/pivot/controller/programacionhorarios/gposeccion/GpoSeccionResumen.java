@@ -13,8 +13,8 @@ public class GpoSeccionResumen {
 
     public GpoSeccionResumen(
             Long ingresantes, Long departamentos, Long postGrados, Long actividades,
-            Long activos, Long inactivos, Long semestrales, Long modulares
-    ) {
+            Long activos, Long inactivos, Long semestrales, Long modulares) {
+
         this.ingresantes = ingresantes;
         this.departamentos = departamentos;
         this.postGrados = postGrados;

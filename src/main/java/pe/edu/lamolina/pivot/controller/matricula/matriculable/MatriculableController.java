@@ -829,7 +829,7 @@ public class MatriculableController {
             }
             ArrayNode array = new ArrayNode(factory);
 
-            List<DeudaAlumno> boletas = service.allByAlumnoCiclo(alumno, resumen.getCicloAcademico());
+            List<DeudaAlumno> boletas = service.allDeudasByAlumnoCiclo(alumno, resumen.getCicloAcademico());
             int numero = 1;
             for (DeudaAlumno boleta : boletas) {
                 ObjectNode node = JsonHelper.createJson(boleta, factory, true, new String[]{

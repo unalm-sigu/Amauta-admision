@@ -2,7 +2,7 @@ Vue.component("multiselect", window.VueMultiselect.default);
 new Vue({
     el: '#omisioVUE',
     data: {
-        alumnosURL: APP.url('oficinas/matricula/omisoeleccion/list'),
+        alumnosURL: APP.url(`${rutaModulo}/list`),
         ciclos: JSON.parse(cicloJson),
         motivos: JSON.parse(motivosJson),
         modalOmisoEleccion: {
@@ -12,13 +12,13 @@ new Vue({
             okbtn: "Guardar",
             showaccept: true
         },
-        modalAnular: {
+        modalAnular: VUE_MODAL.structFormAjax({
             id: 'modalAnular',
             header: true,
-            title: 'Anular Deuda ',
-            okbtn: "Aceptar",
+            title: 'Anular deuda',
+            okbtn: "Anular deuda",
             showaccept: true
-        },
+        }),
         modalLoadModal: {
             id: 'modalLoadModal',
             header: true,
@@ -30,7 +30,16 @@ new Vue({
         alumnos: [],
         configConfirmAction: VUE_MODAL.structConfirm({}),
         alumnoOmisoEleccion: {},
-        omisionAnular: {}
+        omisionAnular: {},
+        confAporteAlumno: VUE_MODAL.structInfo({
+            id: 'modalAporteAlumno',
+            modalsize: 'modal-lg'
+        }),
+        modalBoletaAlumno: VUE_MODAL.structInfo({
+            id: 'modalBoletaAlumno',
+            title: 'Boletas del Alumno'
+        }),
+        resumenModal: {},
     },
     mounted: function () {
         $(".numeric").numeric({negative: false});
@@ -46,6 +55,18 @@ new Vue({
                 }
             })
             return sum;
+        },
+        modalTitulo() {
+            let $vue = this;
+            return $vue.resumenModal.nombre;
+        },
+        modalSubtitulo() {
+            let $vue = this;
+            if ($vue.resumenModal.modalidadEstudio !== "Visitante" && $vue.resumenModal.modalidadEstudio !== "Especial") {
+                return $vue.resumenModal.carrera + " - " + $vue.resumenModal.modalidadEstudio;
+            } else {
+                return $vue.resumenModal.carrera;
+            }
         }
     },
     methods: {
@@ -70,7 +91,7 @@ new Vue({
             $vue.alumnoOmisoEleccion.motivo = $vue.alumnoOmisoEleccion.motivo.name;
             $.ajax({
                 method: 'POST',
-                url: APP.url('oficinas/matricula/omisoeleccion/saveOmision'),
+                url: APP.url(`${rutaModulo}/saveOmision`),
                 data: JSON.stringify($vue.alumnoOmisoEleccion),
                 contentType: "application/json",
                 success: function (response) {
@@ -91,8 +112,7 @@ new Vue({
         },
         openAnular(item) {
             let $vue = this;
-            $vue.omisionAnular = {};
-            $vue.omisionAnular = Object.assign({}, item);
+            $vue.omisionAnular = JSON.parse(JSON.stringify(item));
             $vue.$refs.modalAnular.open();
         },
         saveAnular() {
@@ -101,6 +121,20 @@ new Vue({
             if (!form.parsley().validate()) {
                 return;
             }
+
+            let loop = 0;
+            for (let i = 0; i < $vue.omisionAnular.alumnoOmisoEleccions.length; i++) {
+                let item = $vue.omisionAnular.alumnoOmisoEleccions[i];
+                if (item.seleccionado) {
+                    loop++;
+                }
+            }
+
+            if (loop === 0) {
+                notify("No ha seleccionado que multas van a ser anuladas", "error");
+                return;
+            }
+
             bootbox.confirm({
                 message: '¿Seguro que desea anular las deudas?',
                 buttons: {
@@ -109,22 +143,23 @@ new Vue({
                 },
                 callback: function (result) {
                     if (result) {
+                        $vue.$refs.modalAnular.beginProcessing();
                         $.ajax({
                             method: 'POST',
-                            url: APP.url('oficinas/matricula/omisoeleccion/anularOmision'),
+                            url: APP.url(`${rutaModulo}/anularOmision`),
                             data: JSON.stringify($vue.omisionAnular),
                             contentType: "application/json",
                             success: function (response) {
+                                $vue.$refs.modalAnular.confirmReaction(response.success);
                                 if (response.success) {
                                     $vue.$refs.load.loadRemoteData();
                                     notify(response.message, "success");
                                 } else {
                                     notify(response.message, "error");
                                 }
-                                $vue.$refs.modalAnular.close();
                             },
                             error: function () {
-                                $vue.$refs.modalAnular.close();
+                                $vue.$refs.modalAnular.confirmReaction(false);
                                 notify(MESSAGES.errorComunicacion, "error");
                             }
                         });
@@ -158,7 +193,7 @@ new Vue({
             if (nombre != '' || nombre != null || nombre != undefined) {
 
                 $.ajax({
-                    url: APP.url("oficinas/matricula/omisoeleccion/allAlumnoByNombre"),
+                    url: APP.url(`${rutaModulo}/allAlumnoByNombre`),
                     dataType: 'json',
                     type: 'post',
                     data: {nombre: nombre}
@@ -166,11 +201,68 @@ new Vue({
                     if (response.success) {
                         $vue.alumnos = response.data;
                     }
-
                     this.isLoading = false;
-                })
+                });
 
             }
-        }
+        },
+        verAportes(item) {
+            let $vue = this;
+            $vue.resumenModal = {};
+            $vue.$refs.modalAporteAlumno.open();
+            $vue.$refs.modalAporteAlumno.showWait("Cargando aportes");
+
+            $.ajax({
+                method: 'POST',
+                url: APP.url(`${rutaModulo}/getInfoAportes/${item.id}`),
+                contentType: "application/json",
+                success: function (response) {
+                    if (response.success) {
+                        $vue.$refs.modalAporteAlumno.hideWait();
+                        $vue.resumenModal = response.data;
+                    } else {
+                        $vue.$refs.modalAporteAlumno.close();
+                        notify(response.message, "error");
+                    }
+
+                },
+                error() {
+                    $vue.$refs.modalAporteAlumno.close();
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+        },
+        verBoletas(item) {
+            let $vue = this;
+
+            $vue.resumenModal = {};
+            $vue.$refs.modalBoletaAlumno.open();
+            $vue.$refs.modalBoletaAlumno.showWait("Buscando boletas..");
+
+            $.ajax({
+                method: 'POST',
+                url: APP.url(`${rutaModulo}/findBoleta/${item.id}`),
+                contentType: "application/json",
+                success: function (response) {
+                    if (response.success) {
+                        $vue.$refs.modalBoletaAlumno.hideWait();
+                        if (response.data.boletas.length == 0) {
+                            $vue.$refs.modalBoletaAlumno.close();
+                            notify("No existen boletas generadas para este alumno", "warning");
+                            return;
+                        }
+                        $vue.resumenModal = response.data;
+
+                    } else {
+                        $vue.$refs.modalBoletaAlumno.close();
+                        notify(response.message, "error");
+                    }
+                },
+                error() {
+                    $vue.$refs.modalBoletaAlumno.close();
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+        },
     }
 });

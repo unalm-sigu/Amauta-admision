@@ -32,8 +32,10 @@ import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.RecorridoIngresante;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.academico.TipoActividadIngresante;
-import pe.edu.lamolina.model.enums.AlumnoVacanteEstadoEnum;
+import pe.edu.lamolina.model.aporte.AporteAlumnoCiclo;
+import pe.edu.lamolina.model.aporte.ResumenAporteAlumno;
 import pe.edu.lamolina.model.enums.EstadoAlumnoHorarioEnum;
+import pe.edu.lamolina.model.enums.EstadoAporteEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.RecorridoIngresanteEstadoEnum;
 import pe.edu.lamolina.model.enums.TipoActividadIngresanteEnum;
@@ -42,7 +44,6 @@ import pe.edu.lamolina.model.horario.SeccionHorarioCachimbos;
 import pe.edu.lamolina.model.matricula.AlumnoCursoCurricula;
 import pe.edu.lamolina.model.seguridad.TokenIngresante;
 import pe.edu.lamolina.model.seguridad.Usuario;
-import pe.edu.lamolina.model.vacantes.VacanteAlumno;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.pivot.dao.academico.AlumnoHorarioDAO;
 import pe.edu.lamolina.pivot.dao.academico.CarreraCachimbosDAO;
@@ -62,8 +63,11 @@ import pe.edu.lamolina.pivot.dao.academico.MatriculaResumenDAO;
 import pe.edu.lamolina.pivot.dao.academico.MatriculaSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.RecorridoIngresanteDAO;
 import pe.edu.lamolina.pivot.dao.academico.TipoActividadIngresanteDAO;
+import pe.edu.lamolina.pivot.dao.aporte.AporteAlumnoCicloDAO;
+import pe.edu.lamolina.pivot.dao.aporte.ResumenAporteAlumnoDAO;
 import pe.edu.lamolina.pivot.dao.horario.HorarioFallidoDAO;
 import pe.edu.lamolina.pivot.dao.vacante.VacanteAlumnoDAO;
+import static pe.edu.lamolina.pivot.zelper.constant.Constantine.CANT_MINIMA_MATRICULA_CACHIMBOS;
 
 @Service
 @Transactional(readOnly = true)
@@ -108,6 +112,8 @@ public class HorarioCachimboIngresanteServiceImp implements HorarioCachimboIngre
 
     @Autowired
     TipoActividadIngresanteDAO tipoActividadIngresanteDAO;
+    @Autowired
+    AporteAlumnoCicloDAO aporteAlumnoCicloDAO;
 
     @Autowired
     HelperMatriculaIngresanteService helperMatriculaIngresanteService;
@@ -500,17 +506,22 @@ public class HorarioCachimboIngresanteServiceImp implements HorarioCachimboIngre
                 } else {
                     actividadesAlumno = TypesUtil.getListNotNull(mapActividadesIngresantes.get(alumno.getId()));
                     int cantActividadAlumnoPreMatri = cantidadActividadesPreMatriculaAlumno(actividadesAlumno, mapConfigRecorrido);
-                    RecorridoIngresante recorridoIngresante = actividadesAlumno.get(0).getRecorridoIngresante();
-                    if (cantActividadAlumnoPreMatri < actividadesPreMatricula) {
+
+                    if (cantActividadAlumnoPreMatri < CANT_MINIMA_MATRICULA_CACHIMBOS.intValue()) { //actividadesPreMatricula
                         String msg = "El alumno " + alumno.getCodigo() + " tiene solo "
                                 + cantActividadAlumnoPreMatri + " actividades, pero debería tener "
-                                + (recorridoIngresante.getTotalActividades() - 1) + ".";
+                                + (CANT_MINIMA_MATRICULA_CACHIMBOS) + "."; // actividadesPreMatricula
                         visorMatricula.getMensajes().add(msg);
                         visorMatricula.marcarAlumno(alumno);
                         erroresAlu.add(msg);
                         helperMatriculaIngresanteService.registrarErroresAlumno(aluHorario, erroresAlu, ds);
                         continue;
                     }
+                }
+
+                if (verificarDeudas(alumno, cicloAcademico, aluHorario, erroresAlu, ds)) {
+
+                    continue;
                 }
 
                 int errores = 0;
@@ -599,6 +610,33 @@ public class HorarioCachimboIngresanteServiceImp implements HorarioCachimboIngre
     @Override
     public List<RecorridoIngresante> allRecorridoIngresante(CicloAcademico cicloAcademico) {
         return recorridoIngresanteDAO.allByCiclo(cicloAcademico);
+    }
+
+    private Boolean verificarDeudas(Alumno alumno, CicloAcademico cicloAcademico, AlumnoHorario aluHorario, List<String> erroresAlu, DataSessionPivot ds) {
+        List<AporteAlumnoCiclo> aporteAlumnoCiclos = aporteAlumnoCicloDAO.allByAlumnoAndCiclo(alumno, cicloAcademico);
+        if (aporteAlumnoCiclos.isEmpty()) {
+
+            String msg = "No se le ha generado Boletas";
+            erroresAlu.add(msg);
+            visorMatricula.getMensajes().add(msg);
+            visorMatricula.marcarAlumno(alumno);
+            helperMatriculaIngresanteService.registrarErroresAlumno(aluHorario, erroresAlu, ds);
+
+            return true;
+        } else {
+            boolean tienePendientes = aporteAlumnoCiclos.stream().anyMatch(x -> x.getEstadoEnum() == EstadoAporteEnum.DEBE);
+
+            if (tienePendientes) {
+                String msg = "Tiene deudas pendientes";
+                erroresAlu.add(msg);
+                visorMatricula.getMensajes().add(msg);
+                visorMatricula.marcarAlumno(alumno);
+                helperMatriculaIngresanteService.registrarErroresAlumno(aluHorario, erroresAlu, ds);
+                return true;
+            }
+        }
+
+        return false;
     }
 
 }

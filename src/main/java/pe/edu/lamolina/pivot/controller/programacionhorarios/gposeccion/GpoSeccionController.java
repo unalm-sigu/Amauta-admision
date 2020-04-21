@@ -81,6 +81,8 @@ import pe.edu.lamolina.model.horario.HorarioSeccion;
 import pe.edu.lamolina.model.horario.TipoGrupoHoras;
 import pe.edu.lamolina.pivot.controller.general.oficina.OficinaService;
 import pe.edu.lamolina.pivot.controller.programacionhorarios.boletinacademico.BoletinAcademicoExcelView;
+import pe.edu.lamolina.pivot.controller.programacionhorarios.loadprogramacion.VerificadorProgramacioService;
+import pe.edu.lamolina.pivot.controller.seguridad.verificador.VerificadorService;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.constant.Messages;
 import pe.edu.lamolina.pivot.zelper.enums.TipoRestriccionEnum;
@@ -103,6 +105,9 @@ public class GpoSeccionController {
 
     @Autowired
     BoletinAcademicoExcelView boletinAcademicoExcelView;
+
+    @Autowired
+    VerificadorService verificadorService;
 
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {
@@ -139,7 +144,8 @@ public class GpoSeccionController {
         model.addAttribute("cantidad", cantidad);
         model.addAttribute("ciclo", cicloPregrado);
         model.addAttribute("cicloJson", createCicloJson(cicloPregrado).toString());
-        model.addAttribute("resumenJson", createResumenJson(service.resumenByCiclo(cicloPregrado)));
+        model.addAttribute("resumenJson", createResumenJson(service.resumenByCiclo(cicloPregrado, ds)));
+        model.addAttribute("esEditorOera", verificadorService.isEditorProgramacionOera(ds));
         return "academico/gposeccion/gpoSeccion";
     }
 
@@ -150,7 +156,8 @@ public class GpoSeccionController {
         try {
             filter.getQueries();
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
-            List<GrupoSeccion> gpoSecciones = service.allByDynatable(filter, ds.getCicloAcademico());
+            List<AnexoBoletin> anexosUser = service.allAnexosUser(ds);
+            List<GrupoSeccion> gpoSecciones = service.allByDynatable(filter, ds.getCicloAcademico(), anexosUser);
             ArrayNode arrayGpoSecc = new ArrayNode(JsonNodeFactory.instance);
 
             for (GrupoSeccion gpoSeccion : gpoSecciones) {
@@ -247,10 +254,11 @@ public class GpoSeccionController {
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
         model.addAttribute("cicloJson", createCicloJson(ds.getCicloAcademico()).toString());
         model.addAttribute("grupoSeccionJson", gpoSeccionJson.toString());
-        model.addAttribute("navigationJson", createNavegationJson(ruta, gpos, gpoSeccId, ds.getCicloAcademico()).toString());
+        model.addAttribute("navigationJson", createNavegationJson(ruta, gpos, gpoSeccId, ds.getCicloAcademico(), ds).toString());
         model.addAttribute("origen", ruta);
         model.addAttribute("oficinasJson", createOficinasJson(oficinas).toString());
         model.addAttribute("oficinas", oficinas);
+        model.addAttribute("esEditorOera", verificadorService.isEditorProgramacionOera(ds));
 
         return "academico/gposeccion/gpoSeccionForm";
     }
@@ -302,7 +310,7 @@ public class GpoSeccionController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
 
             List<AnexoBoletin> anexosSup = service.allAnexosSuperiores();
-            List<AnexoBoletin> anexos = service.allAnexoBoletionHijos(ds.getCicloAcademico());
+            List<AnexoBoletin> anexos = service.allAnexoBoletionHijos(ds.getCicloAcademico(), ds);
 
             ArrayNode anexosJson = new ArrayNode(JsonNodeFactory.instance);
             for (AnexoBoletin anexo : anexos) {
@@ -2631,7 +2639,7 @@ public class GpoSeccionController {
         return nodeJson;
     }
 
-    private ObjectNode createNavegationJson(String ruta, List<GrupoSeccion> ids, Long idGpoSeccEdit, CicloAcademico ciclo) {
+    private ObjectNode createNavegationJson(String ruta, List<GrupoSeccion> ids, Long idGpoSeccEdit, CicloAcademico ciclo, DataSessionPivot ds) {
         ObjectNode nodeJson = new ObjectNode(JsonNodeFactory.instance);
         Integer position = -1;
         Long next = null;
@@ -2642,7 +2650,7 @@ public class GpoSeccionController {
         if (ids.size() > 0) {
             gpoSecciones = service.allCleanByDynatableGruposSeccion(filter, ciclo, ids);
         } else {
-            gpoSecciones = service.allCleanByDynatable(filter, ciclo);
+            gpoSecciones = service.allCleanByDynatable(filter, ciclo, ds);
         }
 
         ArrayNode arrayGpoSeccJson = new ArrayNode(JsonNodeFactory.instance);

@@ -3,6 +3,7 @@ package pe.edu.lamolina.pivot.controller.oficinas.matricula.omisoeleccion;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.util.Arrays;
 import java.util.List;
 import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
@@ -10,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -25,7 +27,16 @@ import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoOmisoEleccion;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.MatriculaResumen;
+import pe.edu.lamolina.model.aporte.AporteAlumnoCiclo;
+import pe.edu.lamolina.model.aporte.ResumenAporteAlumno;
+import static pe.edu.lamolina.model.enums.EstadoAporteEnum.DEBE;
+import static pe.edu.lamolina.model.enums.EstadoAporteEnum.PAGO;
+import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.MotivoOmisoEnum;
+import pe.edu.lamolina.model.finanzas.DeudaAlumno;
+import pe.edu.lamolina.model.general.Persona;
+import pe.edu.lamolina.pivot.controller.matricula.matriculable.MatriculableService;
 import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -34,9 +45,12 @@ import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 public class OmisoEleccionController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final String rutaModulo = this.getClass().getAnnotation(RequestMapping.class).value()[0];
 
     @Autowired
     OmisoEleccionService service;
+    @Autowired
+    MatriculableService matriculableService;
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
@@ -55,6 +69,7 @@ public class OmisoEleccionController {
         }
         model.addAttribute("motivos", arrayEnum);
         model.addAttribute("ciclos", arrayCiclo);
+        model.addAttribute("rutaModulo", rutaModulo);
         return "oficinas/matricula/omisoeleccion/omisoeleccion";
     }
 
@@ -146,8 +161,8 @@ public class OmisoEleccionController {
 
         try {
             alumno.getAlumnoOmisoEleccions().get(0).setMotivoAnulacion(alumno.getMotivoAnulacion());
-            service.anularOmision(alumno.getAlumnoOmisoEleccions(), ds);
-            service.modificarAporte(alumno, ds);
+            service.anularOmision(alumno, ds.getCicloAcademico(), ds);
+
             response.setSuccess(true);
             response.setMessage("Se realizó la actualización satisfactoriamente.");
         } catch (PhobosException e) {
@@ -230,5 +245,111 @@ public class OmisoEleccionController {
             ExceptionHandler.handleException(e, response);
         }
         return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("getInfoAportes/{idAlumno}")
+    public JsonResponse getInfoAportes(@PathVariable("idAlumno") Long idAlumno, HttpSession session) {
+        JsonResponse json = new JsonResponse();
+
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            JsonNodeFactory factory = JsonNodeFactory.instance;
+            ObjectNode info = new ObjectNode(factory);
+            ResumenAporteAlumno resumen = service.findResumenAporteAlumno(new Alumno(idAlumno), ds.getCicloAcademico());
+
+            Alumno alumno = resumen.getMatriculaResumen().getAlumno();
+            Persona persona = alumno.getPersona();
+
+            info.put("nombre", persona.getNombreCompleto());
+            info.put("codigo", alumno.getCodigo());
+            info.put("carrera", alumno.getCarrera().getNombre());
+
+            if (alumno.getModalidadEstudio().getCodigoEnum() == ModalidadEstudioEnum.EPG) {
+                info.put("modalidadEstudio", alumno.getCarrera().getTipoEnum().getValue());
+            } else {
+                info.put("modalidadEstudio", alumno.getModalidadEstudio().getNombre());
+            }
+            ArrayNode array = new ArrayNode(factory);
+
+            for (AporteAlumnoCiclo aporte : resumen.getAporteAlumnoCiclo()) {
+                if (Arrays.asList(DEBE.name(), PAGO.name()).contains(aporte.getEstado())) {
+                    ObjectNode node = JsonHelper.createJson(aporte, factory, true, new String[]{
+                        "monto", "pagado", "saldo", "numeroCuota", "estadoEnum",
+                        "aporteCiclo.aporte.nombre",
+                        "aporteCiclo.cuentaBancaria.nombre",
+                        "aporteCiclo.cuentaBancaria.numero"
+                    });
+                    array.add(node);
+                }
+            }
+
+            info.set("aporteAlumnoCiclo", array);
+
+            json.setData(info);
+            json.setSuccess(Boolean.TRUE);
+            json.setMessage("Datos cargados con éxito");
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, json);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, json);
+        } finally {
+            return json;
+        }
+    }
+
+    @ResponseBody
+    @RequestMapping("findBoleta/{idAlumno}")
+    public JsonResponse findBoleta(@PathVariable("idAlumno") Long idAlumno, HttpSession session) {
+        JsonResponse json = new JsonResponse();
+
+        try {
+
+            JsonNodeFactory factory = JsonNodeFactory.instance;
+            ObjectNode response = new ObjectNode(factory);
+
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            MatriculaResumen resumen = service.findMatriculaResumen(new Alumno(idAlumno), ds.getCicloAcademico());
+
+            Alumno alumno = resumen.getAlumno();
+
+            response.put("nombre", alumno.getPersona().getNombreCompleto());
+            response.put("carrera", alumno.getCarrera().getNombre());
+            if (alumno.getModalidadEstudio().getCodigoEnum() == ModalidadEstudioEnum.EPG) {
+                response.put("modalidadEstudio", alumno.getCarrera().getTipoEnum().getValue());
+            } else {
+                response.put("modalidadEstudio", alumno.getModalidadEstudio().getNombre());
+            }
+            ArrayNode array = new ArrayNode(factory);
+
+            List<DeudaAlumno> boletas = matriculableService.allDeudasByAlumnoCiclo(alumno, resumen.getCicloAcademico());
+            int numero = 1;
+            for (DeudaAlumno boleta : boletas) {
+                ObjectNode node = JsonHelper.createJson(boleta, factory, true, new String[]{
+                    "monto", "estadoEnum", "estado", "fechaEmision", "fechaVencimiento", "numeroCuota",
+                    "alumno.persona.numeroDocIdentidad",
+                    "cuentaBancaria.numero",
+                    "cuentaBancaria.nombre",
+                    "cuentaBancaria.empresa",
+                    "cuentaBancaria.banco"
+                });
+                node.put("numero", numero);
+                node.put("acreencia", boleta.getAcreencia() != null ? boleta.getAcreencia().getId() : 0);
+                array.add(node);
+                numero++;
+            }
+            response.set("boletas", array);
+
+            json.setSuccess(Boolean.TRUE);
+            json.setData(response);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, json);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, json);
+        } finally {
+            return json;
+        }
     }
 }

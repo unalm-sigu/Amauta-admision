@@ -53,7 +53,7 @@ public interface MatriculaCursoDAO extends EasyDAO<MatriculaCurso> {
 
     MatriculaCurso findByMatriculaCurso(MatriculaResumen matriculaResumen, Curso curso);
 
-    List<MatriculaCurso> allByMatriculaResumenes(List<MatriculaResumen> resumenes);
+    List<MatriculaCurso> allByCicloAcademico(CicloAcademico cicloAcademico);
 
     List<MatriculaCurso> allByMatriculaSimResumenes(List<MatriculaResumen> resumenes);
 
@@ -74,5 +74,7 @@ public interface MatriculaCursoDAO extends EasyDAO<MatriculaCurso> {
     List<MatriculaCurso> allActivosByAlumnoCicloCursos(Alumno alumno, CicloAcademico ciclo, List<Curso> cursos);
 
     int updateList(List<MatriculaCurso> matriculaCursos, String... columns);
+
+    public List<MatriculaCurso> allmatriculadoByCiclo(CicloAcademico cicloAcademico);
 
 }

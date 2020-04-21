@@ -25,6 +25,8 @@ public interface GpoReporteService {
 
     List<AnexoBoletin> getAnexosForBoletin(CicloAcademico ciclo, DataSessionPivot ds);
 
+    List<AnexoBoletin> getAnexosInferiores(CicloAcademico cicloAcademico, DataSessionPivot ds);
+
     List<Seccion> allSeccionesConCruce(CicloAcademico cicloAcademico);
 
     List<Seccion> allSeccionesByFilter(CicloAcademico cicloAcademico, SeccionDTO seccionDTO);
@@ -34,4 +36,5 @@ public interface GpoReporteService {
     List<CantidadMatriculadosDTO> allCantidadMatriculados(SeccionDTO seccionDTO);
 
     List<ReporteOficina> allReportesProgramacion(CicloAcademico ciclo, DataSessionPivot ds);
+
 }

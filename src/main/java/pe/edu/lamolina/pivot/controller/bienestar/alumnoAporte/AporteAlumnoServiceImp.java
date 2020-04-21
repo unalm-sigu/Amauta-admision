@@ -161,18 +161,43 @@ public class AporteAlumnoServiceImp implements AporteAlumnoService {
     }
 
     @Override
-    public void modificarAporte(CicloAcademico cicloAcademico, MatriculaResumen matriculaResumen, Aporte aporte, DataSessionPivot ds) {
+    public JsonResponse getModificarAporte(CicloAcademico cicloAcademico, MatriculaResumen matriculaResumen, Aporte aporte, DataSessionPivot ds) {
         GeneracionAportes generador = generacionAportesDAO.findByCicloAcademico(cicloAcademico);
         if (generador == null) {
-            return;
+            return null;
         }
-        if (!Arrays.asList(GeneracionAportesEstadoEnum.BOL, GeneracionAportesEstadoEnum.GEN)
-                .contains(generador.getEstadoEnum())) {
-            return;
+        if (!Arrays.asList(GeneracionAportesEstadoEnum.BOL, GeneracionAportesEstadoEnum.GEN).contains(generador.getEstadoEnum())) {
+            return null;
         }
 
         TokenIngresante token = responseRestService.createToken(ds);
-        JsonResponse jsonResponse = responseRestService.modificarAporte(matriculaResumen, ds, aporte, token);
+        return responseRestService.modificarAporte(matriculaResumen, ds, aporte, token);
+    }
+
+    @Override
+    public JsonResponse getEliminarAporte(CicloAcademico cicloAcademico, MatriculaResumen matriculaResumen, Aporte aporte, DataSessionPivot ds) {
+        GeneracionAportes generador = generacionAportesDAO.findByCicloAcademico(cicloAcademico);
+        if (generador == null) {
+            return null;
+        }
+        if (!Arrays.asList(GeneracionAportesEstadoEnum.BOL, GeneracionAportesEstadoEnum.GEN)
+                .contains(generador.getEstadoEnum())) {
+            return null;
+        }
+
+        TokenIngresante token = responseRestService.createToken(ds);
+        return responseRestService.eliminarAporte(matriculaResumen, ds, aporte, token);
+    }
+
+    @Override
+    public void modificarAporte(CicloAcademico cicloAcademico, MatriculaResumen matriculaResumen, Aporte aporte, DataSessionPivot ds) {
+        JsonResponse jsonResponse = getModificarAporte(cicloAcademico, matriculaResumen, aporte, ds);
+        Assert.isTrue(jsonResponse.getSuccess(), jsonResponse.getMessage());
+    }
+
+    @Override
+    public void eliminarAporte(CicloAcademico cicloAcademico, MatriculaResumen matriculaResumen, Aporte aporte, DataSessionPivot ds) {
+        JsonResponse jsonResponse = getEliminarAporte(cicloAcademico, matriculaResumen, aporte, ds);
         Assert.isTrue(jsonResponse.getSuccess(), jsonResponse.getMessage());
     }
 
