@@ -1,0 +1,583 @@
+package pe.edu.lamolina.amauta.controller.rolexamen.components.moverseccion;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import pe.albatross.zelpers.miscelanea.Assert;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
+import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.academico.Curso;
+import pe.edu.lamolina.model.academico.Docente;
+import pe.edu.lamolina.model.academico.DocenteSeccion;
+import pe.edu.lamolina.model.academico.Seccion;
+import pe.edu.lamolina.model.enums.AlumnoRolExamenEstadoEnum;
+import pe.edu.lamolina.model.enums.DocenteRolExamenEstadoEnum;
+import pe.edu.lamolina.model.enums.EstadoCursoMasivoEnum;
+import pe.edu.lamolina.model.enums.RolExamenesEstadoEnum;
+import pe.edu.lamolina.model.enums.SeccionRolExamenEstadoEnum;
+import pe.edu.lamolina.model.general.Aula;
+import pe.edu.lamolina.model.rolexamen.AlumnoCursoMasivo;
+import pe.edu.lamolina.model.rolexamen.AlumnoGrupoEspecial;
+import pe.edu.lamolina.model.rolexamen.AlumnoGrupoRegular;
+import pe.edu.lamolina.model.rolexamen.CursoMasivoExamen;
+import pe.edu.lamolina.model.rolexamen.DocenteCursoMasivo;
+import pe.edu.lamolina.model.rolexamen.GrupoHorasExamen;
+import pe.edu.lamolina.model.rolexamen.LetraGrupoRegular;
+import pe.edu.lamolina.model.rolexamen.RolExamenes;
+import pe.edu.lamolina.model.rolexamen.SeccionCursoMasivo;
+import pe.edu.lamolina.model.rolexamen.SeccionGrupoEspecial;
+import pe.edu.lamolina.model.rolexamen.SeccionGrupoRegular;
+import pe.edu.lamolina.amauta.controller.rolexamen.components.CambioHorarioExamenSeccion;
+import pe.edu.lamolina.amauta.controller.rolexamen.cursomasivos.CursoMasivosService;
+import pe.edu.lamolina.amauta.controller.rolexamen.gruporegular.GrupoRegularConnector;
+import pe.edu.lamolina.amauta.controller.rolexamen.util.RolExamenesLogger;
+import pe.edu.lamolina.amauta.dao.academico.CursoDAO;
+import pe.edu.lamolina.amauta.dao.academico.DocenteSeccionDAO;
+import pe.edu.lamolina.amauta.dao.academico.SeccionDAO;
+import pe.edu.lamolina.amauta.dao.horario.HorarioAulaDAO;
+import pe.edu.lamolina.amauta.dao.rolexamen.AlumnoCursoMasivoDAO;
+import pe.edu.lamolina.amauta.dao.rolexamen.AlumnoGrupoEspecialDAO;
+import pe.edu.lamolina.amauta.dao.rolexamen.AlumnoGrupoRegularDAO;
+import pe.edu.lamolina.amauta.dao.rolexamen.CursoMasivoExamenDAO;
+import pe.edu.lamolina.amauta.dao.rolexamen.DocenteCursoMasivoDAO;
+import pe.edu.lamolina.amauta.dao.rolexamen.GrupoHorasExamenDAO;
+import pe.edu.lamolina.amauta.dao.rolexamen.LetraGrupoRegularDAO;
+import pe.edu.lamolina.amauta.dao.rolexamen.SeccionCursoMasivoDAO;
+import pe.edu.lamolina.amauta.dao.rolexamen.SeccionGrupoEspecialDAO;
+import pe.edu.lamolina.amauta.dao.rolexamen.SeccionGrupoRegularDAO;
+import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+
+@Service
+@Transactional(readOnly = true)
+public class MoverSeccionExamenServiceImp implements MoverSeccionExamenService {
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    @Autowired
+    SeccionCursoMasivoDAO seccionCursoMasivoDAO;
+
+    @Autowired
+    SeccionGrupoRegularDAO seccionGrupoRegularDAO;
+
+    @Autowired
+    SeccionGrupoEspecialDAO seccionGrupoEspecialDAO;
+
+    @Autowired
+    LetraGrupoRegularDAO letraGrupoRegularDAO;
+
+    @Autowired
+    CursoMasivoExamenDAO cursoMasivoExamenDAO;
+
+    @Autowired
+    GrupoHorasExamenDAO grupoHorasExamenDAO;
+
+    @Autowired
+    AlumnoCursoMasivoDAO alumnoCursoMasivoDAO;
+
+    @Autowired
+    SeccionDAO seccionDAO;
+
+    @Autowired
+    DocenteSeccionDAO docenteSeccionDAO;
+
+    @Autowired
+    GrupoRegularConnector grupoRegularConnector;
+
+    @Autowired
+    CursoMasivosService cursoMasivosService;
+
+    @Autowired
+    RolExamenesLogger rolExamenesLogger;
+
+    @Autowired
+    DocenteCursoMasivoDAO docenteCursoMasivoDAO;
+
+    @Autowired
+    AlumnoGrupoRegularDAO alumnoGrupoRegularDAO;
+
+    @Autowired
+    AlumnoGrupoEspecialDAO alumnoGrupoEspecialDAO;
+
+    @Autowired
+    HorarioAulaDAO horarioAulaDAO;
+    @Autowired
+    CursoDAO cursoDAO;
+
+    @Override
+    public List<CursoMasivoExamen> allActiveCursosMasivosByRolExamenes(RolExamenes rolExamenes) {
+        List<CursoMasivoExamen> cursoMasivos = cursoMasivoExamenDAO.allByRolExamenes(rolExamenes, EstadoCursoMasivoEnum.ACT);
+        return cursoMasivos;
+    }
+
+    @Override
+    public List<LetraGrupoRegular> allLetrasGruposRegularesByRolExamenes(RolExamenes rolExamenes) {
+        List<LetraGrupoRegular> letrasGruposGrupoRegulares = letraGrupoRegularDAO.allByRolExamenes(rolExamenes);
+        return letrasGruposGrupoRegulares;
+    }
+
+    @Override
+    public GrupoHorasExamen findGrupoHorasExamen(GrupoHorasExamen grupoHorasExamen) {
+        if (grupoHorasExamen.getId() == null) {
+            return null;
+        }
+        return grupoHorasExamenDAO.find(grupoHorasExamen.getId());
+    }
+
+    private void checkNoPublicado(RolExamenes rol) {
+        Assert.isTrue(rol.getEstadoEnum() != RolExamenesEstadoEnum.PUB, "El rol de exámenes ya ha sido publicado");
+    }
+
+    @Override
+    @Transactional
+    public void cambioHorarioExamenSeccion(CambioHorarioExamenSeccion cambioHorarioExamenSeccion, DataSessionPivot ds) {
+
+        ObjectUtil.printAttr(cambioHorarioExamenSeccion);
+
+        SeccionCursoMasivo seccionCursoMasivoOrigen = null;
+        SeccionGrupoRegular seccionGrupoRegularOrigen = null;
+        SeccionGrupoEspecial seccionGrupoEspecialOrigen = null;
+
+        LetraGrupoRegular letraGrupoRegularDestino = null;
+        CursoMasivoExamen cursoMasivoExamenDestino = null;
+
+        if (cambioHorarioExamenSeccion.isTipoGrupMasivooOrigen()) {
+            seccionCursoMasivoOrigen = seccionCursoMasivoDAO.find(cambioHorarioExamenSeccion.getIdSeccionRolExamenesOrigen());
+            //this.checkNoPublicado(seccionCursoMasivoOrigen.getCursoMasivoExamen().getRolExamenes());
+        } else if (cambioHorarioExamenSeccion.isTipoGrupoRegularOrigen()) {
+            seccionGrupoRegularOrigen = seccionGrupoRegularDAO.find(cambioHorarioExamenSeccion.getIdSeccionRolExamenesOrigen());
+            //this.checkNoPublicado(seccionGrupoRegularOrigen.getLetraGrupoRegular().getRolExamenes());
+        } else if (cambioHorarioExamenSeccion.isTipoGrupoEspecialOrigen()) {
+            seccionGrupoEspecialOrigen = seccionGrupoEspecialDAO.find(cambioHorarioExamenSeccion.getIdSeccionRolExamenesOrigen());
+            //this.checkNoPublicado(seccionGrupoEspecialOrigen.getRolExamenes());
+        }
+
+        if (cambioHorarioExamenSeccion.isTipoGrupRegularoDestino()) {
+            letraGrupoRegularDestino = letraGrupoRegularDAO.find(cambioHorarioExamenSeccion.getIdTipoGrupoExamenDestino());
+            if (cambioHorarioExamenSeccion.isTipoGrupMasivooOrigen()) {
+                this.validarSeccionOrigenEstadoActivo(seccionCursoMasivoOrigen.isEstadoActivo());
+                this.validarRolExamenesTraslado(seccionCursoMasivoOrigen.getCursoMasivoExamen().getRolExamenes());
+                this.trasladarToLetraGrupoRegular(seccionCursoMasivoOrigen, letraGrupoRegularDestino, ds);
+
+            } else if (cambioHorarioExamenSeccion.isTipoGrupoRegularOrigen()) {
+                this.validarSeccionOrigenEstadoActivo(seccionGrupoRegularOrigen.isEstadoActivo());
+                this.validarRolExamenesTraslado(seccionGrupoRegularOrigen.getLetraGrupoRegular().getRolExamenes());
+                Assert.isFalse(seccionGrupoRegularOrigen.getLetraGrupoRegular().equals(letraGrupoRegularDestino), "Debe elegir una letra distinta.");
+                this.trasladarToLetraGrupoRegular(seccionGrupoRegularOrigen, letraGrupoRegularDestino, ds);
+
+            } else if (cambioHorarioExamenSeccion.isTipoGrupoEspecialOrigen()) {
+                this.validarSeccionOrigenEstadoActivo(seccionGrupoEspecialOrigen.isEstadoActivo());
+                this.validarRolExamenesTraslado(seccionGrupoEspecialOrigen.getRolExamenes());
+                //Assert.isFalse(seccionGrupoEspecialOrigen.getGrupoHorasExamen().equals(letraGrupoRegularDestino.getGrupoHorasExamen()), "Debe elegir una letra distinta.");
+                this.trasladarToLetraGrupoRegular(seccionGrupoEspecialOrigen, letraGrupoRegularDestino, ds);
+            }
+        } else if (cambioHorarioExamenSeccion.isTipoGrupoMasivoDestino()) {
+            cursoMasivoExamenDestino = cursoMasivoExamenDAO.find(cambioHorarioExamenSeccion.getIdTipoGrupoExamenDestino());
+            if (cambioHorarioExamenSeccion.isTipoGrupMasivooOrigen()) {
+                this.validarSeccionOrigenEstadoActivo(seccionCursoMasivoOrigen.isEstadoActivo());
+                this.validarRolExamenesTraslado(cursoMasivoExamenDestino.getRolExamenes());
+                Assert.isFalse(seccionCursoMasivoOrigen.getCursoMasivoExamen().equals(cursoMasivoExamenDestino), "El curso masivo destino debe ser distinto.");
+                this.trasladarToSeccionCursoMasivo(seccionCursoMasivoOrigen, cursoMasivoExamenDestino, ds);
+
+            } else if (cambioHorarioExamenSeccion.isTipoGrupoRegularOrigen()) {
+                this.validarSeccionOrigenEstadoActivo(seccionGrupoRegularOrigen.isEstadoActivo());
+                this.validarRolExamenesTraslado(seccionGrupoRegularOrigen.getLetraGrupoRegular().getRolExamenes());
+                this.trasladarToSeccionCursoMasivo(seccionGrupoRegularOrigen, cursoMasivoExamenDestino, ds);
+
+            } else if (cambioHorarioExamenSeccion.isTipoGrupoEspecialOrigen()) {
+                this.validarSeccionOrigenEstadoActivo(seccionGrupoEspecialOrigen.isEstadoActivo());
+                this.validarRolExamenesTraslado(seccionGrupoEspecialOrigen.getRolExamenes());
+                this.trasladarToSeccionCursoMasivo(seccionGrupoEspecialOrigen, cursoMasivoExamenDestino, ds);
+            }
+
+        } else if (cambioHorarioExamenSeccion.isTipoGrupoRegularOrigen()
+                && cambioHorarioExamenSeccion.isTipoGrupoEspecialDestino()) {
+
+            horarioAulaDAO.deleteBySeccionGrupoRegular(seccionGrupoRegularOrigen);
+
+            SeccionGrupoEspecial seccionGEDestino = new SeccionGrupoEspecial();
+            seccionGEDestino.setEstadoEnum(SeccionRolExamenEstadoEnum.ACT);
+            seccionGEDestino.setSeccion(seccionGrupoRegularOrigen.getSeccion());
+            seccionGEDestino.setDocente(seccionGrupoRegularOrigen.getDocente());
+            seccionGEDestino.setAula(seccionGrupoRegularOrigen.getAula());
+            seccionGEDestino.setRolExamenes(seccionGrupoRegularOrigen.getLetraGrupoRegular().getRolExamenes());
+            seccionGEDestino.setUserRegistro(ds.getUsuario());
+            seccionGEDestino.setFechaRegistro(new Date());
+            seccionGrupoEspecialDAO.save(seccionGEDestino);
+
+            List<AlumnoGrupoRegular> alumnosGpoReg = alumnoGrupoRegularDAO.allBySeccionGrupoRegularAndEstados(seccionGrupoRegularOrigen, AlumnoRolExamenEstadoEnum.ACT);
+            for (AlumnoGrupoRegular agr : alumnosGpoReg) {
+                AlumnoGrupoEspecial alumnoGE = new AlumnoGrupoEspecial();
+                alumnoGE.setAlumno(agr.getAlumno());
+                alumnoGE.setEstadoEnum(AlumnoRolExamenEstadoEnum.ACT);
+                alumnoGE.setSeccionGrupoEspecial(seccionGEDestino);
+                alumnoGE.setUserRegistro(ds.getUsuario());
+                alumnoGE.setFechaRegistro(new Date());
+                alumnoGrupoEspecialDAO.save(alumnoGE);
+            }
+
+            for (AlumnoGrupoRegular agr : alumnosGpoReg) {
+                alumnoGrupoRegularDAO.delete(agr);
+            }
+
+            seccionGrupoRegularOrigen.setEstadoEnum(SeccionRolExamenEstadoEnum.TRA);
+            seccionGrupoRegularDAO.update(seccionGrupoRegularOrigen);
+
+        }
+    }
+
+    public void validarSeccionOrigenEstadoActivo(boolean estadoActivo) {
+        Assert.isTrue(estadoActivo, "El estado de la seccion debe ser activo.");
+    }
+
+    public void validarRolExamenesTraslado(RolExamenes rolExamenes) {
+        //Assert.isFalse(rolExamenes.isSituacionConfigurarGrupoEspecial(), "Los grupos especiales deben estar configurados previamente.");
+    }
+
+    public void trasladarToLetraGrupoRegular(SeccionCursoMasivo seccionCursoMasivoOrigen, LetraGrupoRegular letraGrupoRegular, DataSessionPivot ds) {
+        Seccion seccion = seccionDAO.find(seccionCursoMasivoOrigen.getSeccion());
+        seccion = seccion.clone();
+        List<Aula> aulas = Arrays.asList(seccion.getAula());
+
+        List<DocenteSeccion> docentesPrincipalesOrigen = docenteSeccionDAO.allPrincipalesBySecciones(Arrays.asList(seccion));
+        List<Docente> docentesOrigen = docentesPrincipalesOrigen.stream().map(x -> x.getDocente()).collect(Collectors.toList());
+
+        List<AlumnoCursoMasivo> alumnosCursoMasivosOrigen = alumnoCursoMasivoDAO.allBySeccionCursosMasivos(seccionCursoMasivoOrigen, AlumnoRolExamenEstadoEnum.ACT);
+        List<Alumno> alumnosOrigen = alumnosCursoMasivosOrigen.stream().map(x -> x.getAlumno()).collect(Collectors.toList());
+
+        this.rolExamenesLogger.iniciarTrasladoToGrupoRegular();
+        boolean validacionCursosMasivos = grupoRegularConnector.validarCursosMasivos(letraGrupoRegular.getGrupoHorasExamen(), docentesOrigen, aulas, alumnosOrigen);
+        boolean validacionGruposRegulares = grupoRegularConnector.validarGrupoRegular(letraGrupoRegular.getGrupoHorasExamen(), alumnosOrigen, docentesOrigen, aulas);
+        boolean validacionSeccionesEspeciales = grupoRegularConnector.validarGrupoEspecial(letraGrupoRegular.getGrupoHorasExamen(), docentesOrigen, aulas, alumnosOrigen);
+
+        if (validacionCursosMasivos && validacionGruposRegulares && validacionSeccionesEspeciales) {
+            SeccionGrupoRegular seccionGrupoRegular = grupoRegularConnector.crearObjectSeccionGrupoRegular(seccion, letraGrupoRegular, ds);
+            for (AlumnoCursoMasivo alumnoCursoMasivo : alumnosCursoMasivosOrigen) {
+                AlumnoGrupoRegular alumnoGrupoRegular = grupoRegularConnector.crearObjectAlumnoGrupoRegular(alumnoCursoMasivo.getAlumno(), seccionGrupoRegular, ds);
+                seccionGrupoRegular.getAlumnosGruposRegulares().add(alumnoGrupoRegular);
+            }
+            seccionGrupoRegularDAO.save(seccionGrupoRegular);
+            this.cambiarEstadoSeccionCursoMasivo(seccionCursoMasivoOrigen, alumnosCursoMasivosOrigen);
+        } else {
+            throw new PhobosException("Conflictos encontrados.");
+        }
+    }
+
+    private void trasladarToLetraGrupoRegular(SeccionGrupoRegular seccionGrupoRegularOrigen, LetraGrupoRegular letraGrupoRegularDestino, DataSessionPivot ds) {
+        Seccion seccion = seccionDAO.find(seccionGrupoRegularOrigen.getSeccion());
+        seccion = seccion.clone();
+        List<Aula> aulas = Arrays.asList(seccionGrupoRegularOrigen.getAula());
+
+        List<DocenteSeccion> docentesPrincipalesOrigen = docenteSeccionDAO.allPrincipalesBySecciones(Arrays.asList(seccion));
+        List<Docente> docentesOrigen = docentesPrincipalesOrigen.stream().map(x -> x.getDocente()).collect(Collectors.toList());
+
+        List<AlumnoGrupoRegular> alumnosSeccionRegularOrigen = alumnoGrupoRegularDAO.allBySeccionGrupoRegularAndEstados(seccionGrupoRegularOrigen, AlumnoRolExamenEstadoEnum.ACT);
+        List<Alumno> alumnosOrigen = alumnosSeccionRegularOrigen.stream().map(x -> x.getAlumno()).collect(Collectors.toList());
+
+        this.rolExamenesLogger.iniciarTrasladoToGrupoRegular();
+
+        boolean validacionCursosMasivos = grupoRegularConnector.validarCursosMasivos(letraGrupoRegularDestino.getGrupoHorasExamen(), docentesOrigen, aulas, alumnosOrigen);
+        boolean validacionGruposRegulares = grupoRegularConnector.validarGrupoRegular(letraGrupoRegularDestino.getGrupoHorasExamen(), alumnosOrigen, docentesOrigen, aulas);
+        boolean validacionSeccionesEspeciales = grupoRegularConnector.validarGrupoEspecial(letraGrupoRegularDestino.getGrupoHorasExamen(), docentesOrigen, aulas, alumnosOrigen);
+
+        logger.debug("validacionCursosMasivos {}", validacionCursosMasivos);
+        logger.debug("validacionGruposRegulares {}", validacionGruposRegulares);
+        logger.debug("validacionSeccionesEspeciales {}", validacionSeccionesEspeciales);
+
+        if (validacionCursosMasivos && validacionGruposRegulares && validacionSeccionesEspeciales) {
+            SeccionGrupoRegular seccionGrupoRegular = grupoRegularConnector.crearObjectSeccionGrupoRegular(seccion, letraGrupoRegularDestino, ds);
+            for (AlumnoGrupoRegular alumnoGrupoRegularEach : alumnosSeccionRegularOrigen) {
+                AlumnoGrupoRegular alumnoGrupoRegular = grupoRegularConnector.crearObjectAlumnoGrupoRegular(alumnoGrupoRegularEach.getAlumno(), seccionGrupoRegular, ds);
+                seccionGrupoRegular.getAlumnosGruposRegulares().add(alumnoGrupoRegular);
+            }
+            seccionGrupoRegularDAO.save(seccionGrupoRegular);
+            this.cambiarEstadoSeccionGrupoRegular(seccionGrupoRegularOrigen, alumnosSeccionRegularOrigen);
+        } else {
+            throw new PhobosException("Conflictos encontrados.");
+        }
+    }
+
+    private void trasladarToLetraGrupoRegular(SeccionGrupoEspecial seccionCursoMasivoOrigen, LetraGrupoRegular letraGrupoRegular, DataSessionPivot ds) {
+        Seccion seccion = seccionDAO.find(seccionCursoMasivoOrigen.getSeccion());
+        seccion = seccion.clone();
+        List<Aula> aulaOrigen = Arrays.asList(seccionCursoMasivoOrigen.getAula());
+
+        List<DocenteSeccion> docentesPrincipalesOrigen = docenteSeccionDAO.allPrincipalesBySecciones(Arrays.asList(seccion));
+        List<Docente> docentesOrigen = docentesPrincipalesOrigen.stream().map(x -> x.getDocente()).collect(Collectors.toList());
+
+        List<AlumnoGrupoEspecial> alumnosSeccionEspecialOrigen = alumnoGrupoEspecialDAO.allBySeccionGrupoEspecialAndEstados(seccionCursoMasivoOrigen, AlumnoRolExamenEstadoEnum.ACT);
+        List<Alumno> alumnosOrigen = alumnosSeccionEspecialOrigen.stream().map(x -> x.getAlumno()).collect(Collectors.toList());
+
+        this.rolExamenesLogger.iniciarTrasladoToGrupoRegular();
+
+        boolean validacionCursosMasivos = grupoRegularConnector.validarCursosMasivos(letraGrupoRegular.getGrupoHorasExamen(), docentesOrigen, aulaOrigen, alumnosOrigen);
+        System.out.println("validacionCursosMasivos ::: " + validacionCursosMasivos);
+        boolean validacionGruposRegulares = grupoRegularConnector.validarGrupoRegular(letraGrupoRegular.getGrupoHorasExamen(), alumnosOrigen, docentesOrigen, aulaOrigen);
+        System.out.println("validacionGruposRegulares ::: " + validacionGruposRegulares);
+        boolean validacionSeccionesEspeciales = grupoRegularConnector.validarGrupoEspecial(letraGrupoRegular.getGrupoHorasExamen(), docentesOrigen, aulaOrigen, alumnosOrigen);
+        System.out.println("validacionSeccionesEspeciales ::: " + validacionSeccionesEspeciales);
+
+        if (validacionCursosMasivos && validacionGruposRegulares && validacionSeccionesEspeciales) {
+            SeccionGrupoRegular seccionGrupoRegular = grupoRegularConnector.crearObjectSeccionGrupoRegular(seccion, letraGrupoRegular, ds);
+            for (AlumnoGrupoEspecial alumnoGrupoEspecialEach : alumnosSeccionEspecialOrigen) {
+                AlumnoGrupoRegular alumnoGrupoRegular = grupoRegularConnector.crearObjectAlumnoGrupoRegular(alumnoGrupoEspecialEach.getAlumno(), seccionGrupoRegular, ds);
+                seccionGrupoRegular.getAlumnosGruposRegulares().add(alumnoGrupoRegular);
+            }
+            seccionGrupoRegularDAO.save(seccionGrupoRegular);
+            for (AlumnoGrupoRegular alumnoGpoReg : seccionGrupoRegular.getAlumnosGruposRegulares()) {
+                alumnoGrupoRegularDAO.save(alumnoGpoReg);
+            }
+            this.cambiarEstadoSeccionGrupoEspecial(seccionCursoMasivoOrigen, alumnosSeccionEspecialOrigen);
+
+        } else {
+            throw new PhobosException("Conflictos encontrados.");
+        }
+    }
+
+    public void validaSeccionOrigen(Seccion seccion, RolExamenes rolExamenes) {
+        CursoMasivoExamen cursoMasivoExamen = cursoMasivoExamenDAO.findByCursoAndRolExamenes(seccion.getGrupoSeccion().getCurso(), rolExamenes, EstadoCursoMasivoEnum.ACT);
+        Assert.isNotNull(cursoMasivoExamen, "La seccion que desea mover a grupo masivo debe ser de un curso configurado como masivo.");
+    }
+
+    public void trasladarToSeccionCursoMasivo(SeccionCursoMasivo seccionCursoMasivoOrigen, CursoMasivoExamen cursoMasivoExamenDestino, DataSessionPivot ds) {
+        Seccion seccion = seccionDAO.find(seccionCursoMasivoOrigen.getSeccion());
+        this.validaSeccionOrigen(seccion, seccionCursoMasivoOrigen.getCursoMasivoExamen().getRolExamenes());
+        seccion = seccion.clone();
+        //  List<Aula> aulas = Arrays.asList(seccion.getAula());
+        List<Aula> aulas = new ArrayList();
+
+        List<DocenteSeccion> docentesPrincipalesOrigen = docenteSeccionDAO.allPrincipalesBySecciones(Arrays.asList(seccion));
+        List<Docente> docentesOrigen = docentesPrincipalesOrigen.stream().map(x -> x.getDocente()).collect(Collectors.toList());
+
+        List<AlumnoCursoMasivo> alumnosCursoMasivosOrigen = alumnoCursoMasivoDAO.allBySeccionCursosMasivos(seccionCursoMasivoOrigen, AlumnoRolExamenEstadoEnum.ACT);
+        List<Alumno> alumnosOrigen = alumnosCursoMasivosOrigen.stream().map(x -> x.getAlumno()).collect(Collectors.toList());
+
+        this.rolExamenesLogger.iniciarTrasladoToCursoMasivo();
+        boolean validacionCursosMasivos = cursoMasivosService.validateCruceCursosMasivos(seccionCursoMasivoOrigen.getCursoMasivoExamen(), alumnosOrigen, docentesOrigen, aulas);
+        aulas = Arrays.asList(seccion.getAula());
+        boolean validacionGruposRegulares = grupoRegularConnector.validarGrupoRegular(cursoMasivoExamenDestino.getGrupoHorasExamen(), alumnosOrigen, docentesOrigen, aulas);
+        boolean validacionSeccionesEspeciales = grupoRegularConnector.validarGrupoEspecial(cursoMasivoExamenDestino.getGrupoHorasExamen(), docentesOrigen, aulas, alumnosOrigen);
+
+        if (validacionCursosMasivos && validacionGruposRegulares && validacionSeccionesEspeciales) {
+            DocenteCursoMasivo docenteCursoMasivo = new DocenteCursoMasivo();
+            docenteCursoMasivo.setCursoMasivoExamen(cursoMasivoExamenDestino);
+            docenteCursoMasivo.setDocente(docentesOrigen.get(0));
+            docenteCursoMasivo.setFechaRegistro(ds.getFechaAccionAudit());
+            docenteCursoMasivo.setSecciones(BigDecimal.ZERO.intValue());
+            docenteCursoMasivo.setUserRegistro(ds.getUsuario());
+            docenteCursoMasivo.setEstadoEnum(DocenteRolExamenEstadoEnum.ACT);
+            docenteCursoMasivoDAO.save(docenteCursoMasivo);
+
+            SeccionCursoMasivo seccionCursoMasivo = new SeccionCursoMasivo();
+            seccionCursoMasivo.setCursoMasivoExamen(cursoMasivoExamenDestino);
+            seccionCursoMasivo.setEstadoEnum(SeccionRolExamenEstadoEnum.ACT);
+            seccionCursoMasivo.setSeccion(seccion);
+            seccionCursoMasivo.setFechaRegistro(new Date());
+            seccionCursoMasivo.setUserRegistro(ds.getUsuario());
+
+            seccionCursoMasivoDAO.save(seccionCursoMasivo);
+
+            for (AlumnoCursoMasivo alumnoCursoMasivoEach : alumnosCursoMasivosOrigen) {
+                Alumno alumno = alumnoCursoMasivoEach.getAlumno();
+                AlumnoCursoMasivo alumnoCursoMasivo = new AlumnoCursoMasivo();
+                alumnoCursoMasivo.setAlumno(alumno);
+                alumnoCursoMasivo.setCursoMasivoExamen(cursoMasivoExamenDestino);
+                alumnoCursoMasivo.setSeccionCursoMasivo(seccionCursoMasivo);
+                alumnoCursoMasivo.setEstadoEnum(AlumnoRolExamenEstadoEnum.ACT);
+                alumnoCursoMasivo.setFechaRegistro(new Date());
+                alumnoCursoMasivo.setUserRegistro(ds.getUsuario());
+                alumnoCursoMasivoDAO.save(alumnoCursoMasivo);
+            }
+            this.cambiarEstadoSeccionCursoMasivo(seccionCursoMasivoOrigen, alumnosCursoMasivosOrigen);
+        } else {
+            throw new PhobosException("Conflictos encontrados.");
+        }
+
+    }
+
+    public void trasladarToSeccionCursoMasivo(SeccionGrupoRegular seccionGrupoRegularOrigen, CursoMasivoExamen cursoMasivoExamenDestino, DataSessionPivot ds) {
+        Seccion seccion = seccionDAO.find(seccionGrupoRegularOrigen.getSeccion());
+        this.validaSeccionOrigen(seccion, seccionGrupoRegularOrigen.getLetraGrupoRegular().getRolExamenes());
+        seccion = seccion.clone();
+        //  List<Aula> aulas = Arrays.asList(seccion.getAula());
+        List<Aula> aulas = new ArrayList<Aula>();
+
+        List<DocenteSeccion> docentesPrincipalesOrigen = docenteSeccionDAO.allPrincipalesBySecciones(Arrays.asList(seccion));
+        List<Docente> docentesOrigen = docentesPrincipalesOrigen.stream().map(x -> x.getDocente()).collect(Collectors.toList());
+
+        List<AlumnoGrupoRegular> alumnosGrupoRegularOrigen = alumnoGrupoRegularDAO.allBySeccionGrupoRegularAndEstados(seccionGrupoRegularOrigen, AlumnoRolExamenEstadoEnum.ACT);
+        List<Alumno> alumnosOrigen = alumnosGrupoRegularOrigen.stream().map(x -> x.getAlumno()).collect(Collectors.toList());
+
+        this.rolExamenesLogger.iniciarTrasladoToCursoMasivo();
+        boolean validacionCursosMasivos = cursoMasivosService.validateCruceCursosMasivos(cursoMasivoExamenDestino, alumnosOrigen, docentesOrigen, aulas);
+        boolean validacionGruposRegulares = grupoRegularConnector.validarGrupoRegular(cursoMasivoExamenDestino.getGrupoHorasExamen(), alumnosOrigen, docentesOrigen, aulas);
+        boolean validacionSeccionesEspeciales = grupoRegularConnector.validarGrupoEspecial(cursoMasivoExamenDestino.getGrupoHorasExamen(), docentesOrigen, aulas, alumnosOrigen);
+
+        if (validacionCursosMasivos && validacionGruposRegulares && validacionSeccionesEspeciales) {
+            DocenteCursoMasivo docenteCursoMasivo = new DocenteCursoMasivo();
+            docenteCursoMasivo.setCursoMasivoExamen(cursoMasivoExamenDestino);
+            docenteCursoMasivo.setDocente(docentesOrigen.get(0));
+            docenteCursoMasivo.setFechaRegistro(ds.getFechaAccionAudit());
+            docenteCursoMasivo.setSecciones(BigDecimal.ZERO.intValue());
+            docenteCursoMasivo.setUserRegistro(ds.getUsuario());
+            docenteCursoMasivo.setEstadoEnum(DocenteRolExamenEstadoEnum.ACT);
+            docenteCursoMasivoDAO.save(docenteCursoMasivo);
+
+            SeccionCursoMasivo seccionCursoMasivo = new SeccionCursoMasivo();
+            seccionCursoMasivo.setCursoMasivoExamen(cursoMasivoExamenDestino);
+            seccionCursoMasivo.setEstadoEnum(SeccionRolExamenEstadoEnum.ACT);
+            seccionCursoMasivo.setSeccion(seccion);
+            seccionCursoMasivo.setFechaRegistro(new Date());
+            seccionCursoMasivo.setUserRegistro(ds.getUsuario());
+
+            seccionCursoMasivoDAO.save(seccionCursoMasivo);
+
+            for (AlumnoGrupoRegular alumnoGrupoRegularEach : alumnosGrupoRegularOrigen) {
+                Alumno alumno = alumnoGrupoRegularEach.getAlumno();
+                AlumnoCursoMasivo alumnoCursoMasivo = new AlumnoCursoMasivo();
+                alumnoCursoMasivo.setAlumno(alumno);
+                alumnoCursoMasivo.setCursoMasivoExamen(cursoMasivoExamenDestino);
+                alumnoCursoMasivo.setSeccionCursoMasivo(seccionCursoMasivo);
+                alumnoCursoMasivo.setEstadoEnum(AlumnoRolExamenEstadoEnum.ACT);
+                alumnoCursoMasivo.setFechaRegistro(new Date());
+                alumnoCursoMasivo.setUserRegistro(ds.getUsuario());
+                alumnoCursoMasivoDAO.save(alumnoCursoMasivo);
+            }
+            this.cambiarEstadoSeccionGrupoRegular(seccionGrupoRegularOrigen, alumnosGrupoRegularOrigen);
+        } else {
+            throw new PhobosException("Conflictos encontrados.");
+        }
+    }
+
+    public void trasladarToSeccionCursoMasivo(SeccionGrupoEspecial seccionGrupoEspecialOrigen, CursoMasivoExamen cursoMasivoExamenDestino, DataSessionPivot ds) {
+        Seccion seccion = seccionDAO.find(seccionGrupoEspecialOrigen.getSeccion());
+        this.validaSeccionOrigen(seccion, seccionGrupoEspecialOrigen.getRolExamenes());
+        seccion = seccion.clone();
+        //  List<Aula> aulas = Arrays.asList(seccion.getAula());
+        List<Aula> aulas = new ArrayList<Aula>();
+
+        List<DocenteSeccion> docentesPrincipalesOrigen = docenteSeccionDAO.allPrincipalesBySecciones(Arrays.asList(seccion));
+        List<Docente> docentesOrigen = docentesPrincipalesOrigen.stream().map(x -> x.getDocente()).collect(Collectors.toList());
+
+        List<AlumnoGrupoEspecial> alumnosGrupoEspecialOrigen = alumnoGrupoEspecialDAO.allBySeccionGrupoEspecialAndEstados(seccionGrupoEspecialOrigen, AlumnoRolExamenEstadoEnum.ACT);
+        List<Alumno> alumnosOrigen = alumnosGrupoEspecialOrigen.stream().map(x -> x.getAlumno()).collect(Collectors.toList());
+
+        this.rolExamenesLogger.iniciarTrasladoToCursoMasivo();
+        boolean validacionCursosMasivos = cursoMasivosService.validateCruceCursosMasivos(cursoMasivoExamenDestino, alumnosOrigen, docentesOrigen, aulas);
+        boolean validacionGruposRegulares = grupoRegularConnector.validarGrupoRegular(cursoMasivoExamenDestino.getGrupoHorasExamen(), alumnosOrigen, docentesOrigen, aulas);
+        boolean validacionSeccionesEspeciales = grupoRegularConnector.validarGrupoEspecial(cursoMasivoExamenDestino.getGrupoHorasExamen(), docentesOrigen, aulas, alumnosOrigen);
+
+        if (validacionCursosMasivos && validacionGruposRegulares && validacionSeccionesEspeciales) {
+            DocenteCursoMasivo docenteCursoMasivo = new DocenteCursoMasivo();
+            docenteCursoMasivo.setCursoMasivoExamen(cursoMasivoExamenDestino);
+            docenteCursoMasivo.setDocente(docentesOrigen.get(0));
+            docenteCursoMasivo.setFechaRegistro(ds.getFechaAccionAudit());
+            docenteCursoMasivo.setSecciones(BigDecimal.ZERO.intValue());
+            docenteCursoMasivo.setUserRegistro(ds.getUsuario());
+            docenteCursoMasivo.setEstadoEnum(DocenteRolExamenEstadoEnum.ACT);
+            docenteCursoMasivoDAO.save(docenteCursoMasivo);
+
+            SeccionCursoMasivo seccionCursoMasivo = new SeccionCursoMasivo();
+            seccionCursoMasivo.setCursoMasivoExamen(cursoMasivoExamenDestino);
+            seccionCursoMasivo.setEstadoEnum(SeccionRolExamenEstadoEnum.ACT);
+            seccionCursoMasivo.setSeccion(seccion);
+            seccionCursoMasivo.setFechaRegistro(new Date());
+            seccionCursoMasivo.setUserRegistro(ds.getUsuario());
+
+            seccionCursoMasivoDAO.save(seccionCursoMasivo);
+
+            for (AlumnoGrupoEspecial alumnoGrupoEspecialEach : alumnosGrupoEspecialOrigen) {
+                Alumno alumno = alumnoGrupoEspecialEach.getAlumno();
+                AlumnoCursoMasivo alumnoCursoMasivo = new AlumnoCursoMasivo();
+                alumnoCursoMasivo.setAlumno(alumno);
+                alumnoCursoMasivo.setCursoMasivoExamen(cursoMasivoExamenDestino);
+                alumnoCursoMasivo.setSeccionCursoMasivo(seccionCursoMasivo);
+                alumnoCursoMasivo.setEstadoEnum(AlumnoRolExamenEstadoEnum.ACT);
+                alumnoCursoMasivo.setFechaRegistro(new Date());
+                alumnoCursoMasivo.setUserRegistro(ds.getUsuario());
+                alumnoCursoMasivoDAO.save(alumnoCursoMasivo);
+            }
+            this.cambiarEstadoSeccionGrupoEspecial(seccionGrupoEspecialOrigen, alumnosGrupoEspecialOrigen);
+        } else {
+            throw new PhobosException("Conflictos encontrados.");
+        }
+    }
+
+    public void cambiarEstadoSeccionCursoMasivo(SeccionCursoMasivo seccionCursoMasivo, List<AlumnoCursoMasivo> alumnosCursoMasivosOrigen) {
+        SeccionCursoMasivo seccionCursoMasivoUpd = new SeccionCursoMasivo(seccionCursoMasivo.getId());
+        seccionCursoMasivoUpd.setEstadoEnum(SeccionRolExamenEstadoEnum.TRA);
+        seccionCursoMasivoDAO.updateEstado(seccionCursoMasivoUpd);
+
+        for (AlumnoCursoMasivo alumnosCursoMasivo : alumnosCursoMasivosOrigen) {
+            AlumnoCursoMasivo alumnoCursoMasivoUpd = new AlumnoCursoMasivo(alumnosCursoMasivo.getId());
+            alumnoCursoMasivoDAO.delete(alumnoCursoMasivoUpd);
+        }
+        //todo remove aula and docente from tablas de masivos
+    }
+
+    public void cambiarEstadoSeccionGrupoRegular(SeccionGrupoRegular seccionGrupoRegular, List<AlumnoGrupoRegular> alumnoGrupoRegulars) {
+        SeccionGrupoRegular seccionGrupoRegularUpd = new SeccionGrupoRegular(seccionGrupoRegular.getId());
+        seccionGrupoRegularUpd.setEstadoEnum(SeccionRolExamenEstadoEnum.TRA);
+        seccionGrupoRegularDAO.updateEstado(seccionGrupoRegularUpd);
+
+        for (AlumnoGrupoRegular alumnoGrupoRegular : alumnoGrupoRegulars) {
+            AlumnoGrupoRegular alumnoCursoMasivoUpd = new AlumnoGrupoRegular(alumnoGrupoRegular.getId());
+            alumnoGrupoRegularDAO.delete(alumnoCursoMasivoUpd);
+        }
+        //todo remove aula and docente from tablas de masivos
+    }
+
+    public void cambiarEstadoSeccionGrupoEspecial(SeccionGrupoEspecial seccionGrupoEspecial, List<AlumnoGrupoEspecial> alumnosGrupoEspecial) {
+        SeccionGrupoEspecial seccionGrupoEspecialUpd = new SeccionGrupoEspecial(seccionGrupoEspecial.getId());
+        seccionGrupoEspecialUpd.setEstadoEnum(SeccionRolExamenEstadoEnum.TRA);
+        seccionGrupoEspecialDAO.updateEstado(seccionGrupoEspecialUpd);
+
+        for (AlumnoGrupoEspecial alumnoGrupoEspecial : alumnosGrupoEspecial) {
+            AlumnoGrupoEspecial alumnoGrupoEspecialUpd = new AlumnoGrupoEspecial(alumnoGrupoEspecial.getId());
+            alumnoGrupoEspecialDAO.delete(alumnoGrupoEspecialUpd);
+        }
+        //todo remove aula and docente from tablas de masivos
+    }
+
+    @Override
+    public SeccionCursoMasivo findSeccionCursoMasivoBySeccionRolExamenes(Seccion seccion, RolExamenes rol) {
+        return seccionCursoMasivoDAO.findByRolExamenesSeccion(rol, seccion, SeccionRolExamenEstadoEnum.ACT);
+    }
+
+    @Override
+    public SeccionGrupoEspecial findSeccionGrupoEspecialBySeccionRolExamenes(Seccion seccion, RolExamenes rol) {
+        return seccionGrupoEspecialDAO.findByRolExamanesSeccion(rol, seccion, SeccionRolExamenEstadoEnum.ACT);
+    }
+
+    @Override
+    public SeccionGrupoRegular findSeccionGrupoRegularBySeccionRolExamenes(Seccion seccion, RolExamenes rol) {
+        return seccionGrupoRegularDAO.findByRolExamenesSeccion(rol, seccion, SeccionRolExamenEstadoEnum.ACT);
+    }
+
+    @Override
+    public List<CursoMasivoExamen> allActiveCursosMasivosByGrupoHoras(GrupoHorasExamen grupoHorasExamenOrigen) {
+        return cursoMasivoExamenDAO.allActiveByGrupoHoras(grupoHorasExamenOrigen);
+    }
+
+    @Override
+    public List<CursoMasivoExamen> allActiveCursosMasivosByGrupoEspecial(SeccionGrupoEspecial seccionGrupoEsp) {
+        seccionGrupoEsp = seccionGrupoEspecialDAO.find(seccionGrupoEsp.getId());
+        logger.debug("seccionGrupoEsp {} ", seccionGrupoEsp);
+        logger.debug("seccionGrupoEsp {} ", seccionGrupoEsp.getId());
+        logger.debug("seccionGrupoEsp.getSeccion() {} ", seccionGrupoEsp.getSeccion());
+        logger.debug("seccionGrupoEsp.getSeccion().getGrupoSeccion() {} ", seccionGrupoEsp.getSeccion().getGrupoSeccion());
+        Curso curso = seccionGrupoEsp.getSeccion().getGrupoSeccion().getCurso();
+        logger.debug("CURSO {}", curso.getId());
+        return cursoMasivoExamenDAO.allActiveByGrupoEspecialCurso(seccionGrupoEsp, curso);
+
+    }
+
+}

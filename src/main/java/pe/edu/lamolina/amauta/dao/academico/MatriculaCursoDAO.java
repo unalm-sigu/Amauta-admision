@@ -1,0 +1,80 @@
+package pe.edu.lamolina.amauta.dao.academico;
+
+import java.util.List;
+import pe.albatross.octavia.easydao.EasyDAO;
+import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.Curso;
+import pe.edu.lamolina.model.academico.MatriculaCurso;
+import pe.edu.lamolina.model.academico.MatriculaResumen;
+import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
+
+public interface MatriculaCursoDAO extends EasyDAO<MatriculaCurso> {
+
+    MatriculaCurso findByAlumnoCursoCiclo(Alumno alumno, Curso curso, CicloAcademico ciclo);
+
+    List<MatriculaCurso> allMatriculadosByCursoCiclo(Curso curso, CicloAcademico ciclo);
+
+    List<MatriculaCurso> allByMatriculaResumen(MatriculaResumen resumen);
+
+    List<MatriculaCurso> allByMatriculaResumenCurso(List<MatriculaResumen> resumenes, Curso curso);
+
+    List<MatriculaCurso> allActivosByMatriculaResumenCurso(List<MatriculaResumen> resumenes, Curso curso);
+
+    List<MatriculaCurso> allByAlumno(Long idAlumno);
+
+    List<MatriculaCurso> allByCursoCiclo(Curso curso, CicloAcademico ciclo);
+
+    List<MatriculaCurso> allByCiclo(CicloAcademico ciclo);
+
+    List<MatriculaCurso> allByCicloFull(CicloAcademico ciclo);
+
+    List<MatriculaCurso> allActivosByCiclo(CicloAcademico ciclo);
+
+    List<MatriculaCurso> allByMatriculaResumenFull(MatriculaResumen matriculaResumen);
+
+    List<MatriculaCurso> allMatriculadosByAlumnoCiclo(Alumno alumno, CicloAcademico ciclo);
+
+    List<MatriculaCurso> allActivoByAlumnoCiclo(Alumno alumno, CicloAcademico ciclo);
+
+    List<MatriculaCurso> allActivoByAlumnosCiclo(List<Alumno> alumnos, CicloAcademico cicloAcademico);
+
+    Long countAllAlumnoPrematriculado(CicloAcademico cicloAcademico);
+
+    List<MatriculaCurso> allPrematriculadoByMatriculaResumen(List<MatriculaResumen> matriculaResumens);
+
+    List<MatriculaCurso> allByAlumnosCursosCiclo(List<Alumno> alumnos, List<Curso> cursos, CicloAcademico cicloAcademico);
+
+    List<MatriculaCurso> allPrematriculadoByCiclo(CicloAcademico cicloAcademico);
+
+    List<MatriculaCurso> allActivoByAlumnosCicloActivo(List<Alumno> alumnos);
+
+    List<MatriculaCurso> allActivoByAlumnoCicloActivo(Alumno alumno);
+
+    MatriculaCurso findByMatriculaCurso(MatriculaResumen matriculaResumen, Curso curso);
+
+    List<MatriculaCurso> allByCicloAcademico(CicloAcademico cicloAcademico);
+
+    List<MatriculaCurso> allByMatriculaSimResumenes(List<MatriculaResumen> resumenes);
+
+    void updateInasistencias(MatriculaCurso matCurso);
+
+    void updateColumns(MatriculaCurso matriculaCursoUpd, String... columns);
+
+    MatriculaCurso findByMatriculaCursoAndNotEstado(MatriculaResumen matriculaResumen, Curso curso, EstadoMatriculaEnum... estadoMatriculaEnum);
+
+    List<MatriculaCurso> allByCiclosFull(List<CicloAcademico> ciclos);
+
+    List<MatriculaCurso> allByMatriculaResumenFull(List<MatriculaResumen> matr);
+
+    List<MatriculaCurso> allByAlumnosCicloActivo(List<Alumno> alumnos);
+
+    List<MatriculaCurso> allByOcultoMaipi(CicloAcademico cicloAcademico);
+
+    List<MatriculaCurso> allActivosByAlumnoCicloCursos(Alumno alumno, CicloAcademico ciclo, List<Curso> cursos);
+
+    int updateList(List<MatriculaCurso> matriculaCursos, String... columns);
+
+    public List<MatriculaCurso> allmatriculadoByCiclo(CicloAcademico cicloAcademico);
+
+}

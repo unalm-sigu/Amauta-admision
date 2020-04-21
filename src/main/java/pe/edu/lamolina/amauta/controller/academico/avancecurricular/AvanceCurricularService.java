@@ -1,0 +1,21 @@
+package pe.edu.lamolina.amauta.controller.academico.avancecurricular;
+
+import java.util.List;
+import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.academico.PlanCurricular;
+import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+
+public interface AvanceCurricularService {
+
+    void generarAvanceCurricularByPlanCurricular(PlanCurricular planCurricular, DataSessionPivot ds);
+
+    void generarAvanceCurricularByAlumno(Alumno alumno, DataSessionPivot ds);
+
+    void generarAvanceCurricularByAlumnosPregrados(List<Alumno> alumnos, DataSessionPivot ds, String token);
+
+    void desvincularCursoCurricula(PlanCurricular plan, DataSessionPivot ds);
+
+    void generarAvanceCurricularByAlumnoEPG(Alumno alumnoBD, DataSessionPivot ds);
+
+    void asignarPlanes(List<Alumno> alumnosTmp);
+}

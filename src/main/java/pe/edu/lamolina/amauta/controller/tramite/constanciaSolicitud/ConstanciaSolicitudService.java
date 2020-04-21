@@ -1,0 +1,93 @@
+package pe.edu.lamolina.amauta.controller.tramite.constanciaSolicitud;
+
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import java.util.List;
+import javax.servlet.http.HttpServletResponse;
+import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.academico.AlumnoCiclo;
+import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.MatriculaResumen;
+import pe.edu.lamolina.model.bean.PlantillaIncrustacionGeneralBean;
+import pe.edu.lamolina.model.enums.ContenidoCartaEnum;
+import pe.edu.lamolina.model.general.Colaborador;
+import pe.edu.lamolina.model.general.Idioma;
+import pe.edu.lamolina.model.general.Persona;
+import pe.edu.lamolina.model.inscripcion.ContenidoCarta;
+import pe.edu.lamolina.model.seguridad.Usuario;
+import pe.edu.lamolina.model.tramite.AccionTramiteDocumento;
+import pe.edu.lamolina.model.tramite.EstadoTramite;
+import pe.edu.lamolina.model.tramite.PlantillaDocumentoAcademico;
+import pe.edu.lamolina.model.tramite.PlantillaIncrustacionDocumento;
+import pe.edu.lamolina.model.tramite.PrecioDocumento;
+import pe.edu.lamolina.model.tramite.TipoDocumentoAcademico;
+import pe.edu.lamolina.model.tramite.TramiteDocumentoAcademico;
+import pe.edu.lamolina.model.tramite.VariablePlantilla;
+import pe.edu.lamolina.amauta.controller.tramite.plantillaConstancia.PlantillaGenerica;
+import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+
+public interface ConstanciaSolicitudService {
+
+    void updateHistorialAcademico(Alumno alumnoForm, DataSessionPivot ds);
+
+    List<AlumnoCiclo> allPromediosByAlumno(Alumno alumno);
+
+    void updateTramiteDocumentoAcademico(TramiteDocumentoAcademico solicitudConstanciaForm, DataSessionPivot ds);
+
+    List<MatriculaResumen> allMatriculaResumenByAlumno(Alumno alumno);
+
+    List<Idioma> allIdiomas();
+
+    Alumno findAlumno(Alumno alumnoSesssion);
+
+    List<Alumno> allAlumnoByPersona(Persona persona);
+
+    Persona findPersona(Persona persona);
+
+    void fillTipoDocumentoAcademico(ArrayNode arrayTipoDocumentoAcademico);
+
+    TramiteDocumentoAcademico findTramite(TramiteDocumentoAcademico tramiteDocumentoAcademicoForm);
+
+    ContenidoCarta findContenidoBoletaByCodigoEnum(ContenidoCartaEnum contenidoCartaEnum);
+
+    PrecioDocumento findPrecioDocumentoByTipoIdioma(TipoDocumentoAcademico tipoDocumento, Idioma idioma);
+
+    List<Alumno> allAlumnoByName(String nombre);
+
+    List<Colaborador> allColaboradorByName(String nombre);
+
+    void updateFotoTemporal(TramiteDocumentoAcademico documentoAcademico, DataSessionPivot ds);
+
+    public void save(TramiteDocumentoAcademico documentoAcademico, DataSessionPivot ds);
+
+    public List<TramiteDocumentoAcademico> allTramiteDocumentoAcademico(DynatableFilter filter);
+
+    public List<PrecioDocumento> allPrecioDocumento();
+
+    public List<TipoDocumentoAcademico> allTipoDocumentoAcademico();
+
+    public List<AccionTramiteDocumento> findEstadoByEstadoInicio(TipoDocumentoAcademico tipoDocumento, EstadoTramite estadoTramite);
+
+    public void update(TramiteDocumentoAcademico tramiteDocumentoAcademico, DataSessionPivot ds);
+
+    public void downloadWord(TramiteDocumentoAcademico tramiteDocumentoAcademico, HttpServletResponse ds);
+
+    public PlantillaGenerica findPlantillaHtml(TramiteDocumentoAcademico documentoAcademico, Usuario usuario);
+
+    public List<PlantillaDocumentoAcademico> allPlantillas();
+
+    public void validVariables(PlantillaIncrustacionGeneralBean plantillaGeneralBean, DataSessionPivot ds);
+
+    public List<CicloAcademico> allCicloAcademicoByName(String nombre);
+
+    public List<PlantillaIncrustacionDocumento> allTramiteIncrustaciones(TramiteDocumentoAcademico documentoAcademico);
+
+    TramiteDocumentoAcademico deleteIncrustacion(PlantillaIncrustacionDocumento plantillaIncrustacionDocumento);
+
+    public List<VariablePlantilla> allParametros(PlantillaDocumentoAcademico pid);
+
+    public List<AlumnoCiclo> allAlumnoCiclo(Alumno alumno);
+
+    public List<AlumnoCiclo> allAlumnoCiclo(TramiteDocumentoAcademico tramiteDocumentoAcademico);
+
+}

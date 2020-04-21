@@ -3,11 +3,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>pe.edu.lamolina</groupId>
-    <artifactId>pivot</artifactId>
+    <artifactId>amauta</artifactId>
     <version>1.0</version>
     <packaging>jar</packaging>
 
-    <name>lamolina-pivot</name>
+    <name>lamolina-amauta</name>
 
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -377,7 +377,7 @@
     </dependencies>
 
     <build>
-        <finalName>pivot</finalName>
+        <finalName>amauta</finalName>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>

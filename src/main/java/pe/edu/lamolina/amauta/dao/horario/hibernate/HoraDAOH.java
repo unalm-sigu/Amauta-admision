@@ -1,0 +1,90 @@
+package pe.edu.lamolina.amauta.dao.horario.hibernate;
+
+import java.util.Arrays;
+import java.util.List;
+import pe.edu.lamolina.amauta.dao.horario.HoraDAO;
+import org.springframework.stereotype.Repository;
+import pe.albatross.octavia.Octavia;
+import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import static pe.edu.lamolina.model.enums.TipoHoraEnum.H60;
+import pe.edu.lamolina.model.horario.Hora;
+
+@Repository
+public class HoraDAOH extends AbstractEasyDAO<Hora> implements HoraDAO {
+
+    public HoraDAOH() {
+        super();
+        setClazz(Hora.class);
+    }
+
+    @Override
+    public List<Hora> all() {
+        Octavia sql = Octavia.query()
+                .from(Hora.class, "ho")
+                .join("tipoHora th")
+                .filter("th.codigo", H60)
+                .orderBy("ho.numero");
+
+        return all(sql);
+    }
+
+    @Override
+    public Hora findByNumeroHora(Integer numero) {
+        Octavia sql = Octavia.query()
+                .from(Hora.class, "ho")
+                .filter("numero", numero)
+                .join("tipoHora th")
+                .filter("th.codigo", H60)
+                .orderBy("ho.numero");
+
+        return find(sql);
+    }
+
+    @Override
+    public List<Hora> allHoraInitOcho() {
+        Octavia sql = Octavia.query()
+                .from(Hora.class, "ho")
+                .join("tipoHora th")
+                .filter("th.codigo", H60)
+                .notIn("ho.numero", Arrays.asList(6, 7))
+                .orderBy("ho.numero");
+
+        return all(sql);
+    }
+
+    @Override
+    public List<Hora> allByInicioFin(Hora inicio, Hora fin) {
+        Octavia sql = Octavia.query()
+                .from(Hora.class, "ho")
+                .join("tipoHora th")
+                .filter("th.codigo", H60)
+                .filter("ho.numero", ">=", inicio.getNumero())
+                .filter("ho.numero", "<=", fin.getNumero())
+                .orderBy("ho.numero");
+
+        return all(sql);
+    }
+
+    @Override
+    public List<Hora> allHorasByRango(int min, int max) {
+        Octavia sql = Octavia.query()
+                .from(Hora.class, "ho")
+                .join("tipoHora th")
+                .filter("th.codigo", H60)
+                .between("numero", min, max)
+                .orderBy("ho.numero");
+
+        return all(sql);
+    }
+
+    @Override
+    public List<Hora> allHoras() {
+        Octavia sql = Octavia.query()
+                .from(Hora.class, "ho")
+                .join("tipoHora th")
+                .filter("th.codigo", H60)
+                .orderBy("ho.numero");
+        return all(sql);
+    }
+
+}

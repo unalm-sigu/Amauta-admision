@@ -1,0 +1,23 @@
+package pe.edu.lamolina.amauta.dao.seguridad;
+
+import java.util.List;
+import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.octavia.easydao.EasyDAO;
+import pe.edu.lamolina.model.general.Persona;
+import pe.edu.lamolina.model.seguridad.Usuario;
+
+public interface UsuarioDAO extends EasyDAO<Usuario> {
+
+    Usuario findByGoogleEmail(String email);
+
+    Usuario findActivoByPersona(Persona persona);
+
+    List<Usuario> allByPersonas(List<Persona> personas);
+
+    List<Usuario> allByFilter(DynatableFilter filter);
+
+    Usuario find(Usuario user);
+
+    Usuario findByPersonaId(Persona persona);
+
+}

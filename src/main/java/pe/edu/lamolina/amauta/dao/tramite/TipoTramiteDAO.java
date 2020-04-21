@@ -1,0 +1,10 @@
+package pe.edu.lamolina.amauta.dao.tramite;
+
+import pe.albatross.octavia.easydao.EasyDAO;
+import pe.edu.lamolina.model.tramite.TipoTramite;
+
+public interface TipoTramiteDAO extends EasyDAO<TipoTramite> {
+
+    public TipoTramite findByCodigo(String tipoTramite);
+
+}

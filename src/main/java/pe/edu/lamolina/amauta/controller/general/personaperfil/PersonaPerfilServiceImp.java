@@ -1,0 +1,168 @@
+package pe.edu.lamolina.amauta.controller.general.personaperfil;
+
+import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.edu.lamolina.model.enums.UserEstadoEnum;
+import pe.edu.lamolina.model.general.Compania;
+import pe.edu.lamolina.model.general.PerfilCompania;
+import pe.edu.lamolina.model.general.Persona;
+import pe.edu.lamolina.model.general.PersonaCargo;
+import pe.edu.lamolina.model.seguridad.Usuario;
+import pe.edu.lamolina.amauta.dao.general.CompaniaDAO;
+import pe.edu.lamolina.amauta.dao.general.PerfilCompaniaDAO;
+import pe.edu.lamolina.amauta.dao.general.PersonaDAO;
+import pe.edu.lamolina.amauta.dao.seguridad.UsuarioDAO;
+import pe.edu.lamolina.amauta.dao.seguridad.UsuarioRolDAO;
+import pe.edu.lamolina.amauta.dao.general.PersonaCargoDAO;
+
+@Service
+@Transactional(readOnly = true)
+public class PersonaPerfilServiceImp implements PersonaPerfilService {
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    @Autowired
+    PerfilCompaniaDAO perfilCompaniaDAO;
+
+    @Autowired
+    PersonaCargoDAO personaPerfilDAO;
+
+    @Autowired
+    CompaniaDAO companiaDAO;
+
+    @Autowired
+    PersonaDAO personaDAO;
+
+    @Autowired
+    UsuarioDAO usuarioDAO;
+
+    @Autowired
+    UsuarioRolDAO usuarioRolDAO;
+
+    @Override
+    public List<PerfilCompania> allPerfilCompania() {
+        return perfilCompaniaDAO.all();
+    }
+
+    @Override
+    public List<Compania> allCompania() {
+        return companiaDAO.all();
+    }
+
+    @Override
+    public List<PersonaCargo> allPersonasPefiles(DynatableFilter filter) {
+        return personaPerfilDAO.allByFiltersDynaTable(filter);
+    }
+
+    @Override
+    public List<Persona> allPersonasByNombre(String nombre) {
+        return personaDAO.allByNombre(nombre);
+    }
+
+    @Override
+    public PersonaCargo findPersonaPerfil(PersonaCargo personaPerfil) {
+        return personaPerfilDAO.find(personaPerfil.getId());
+    }
+
+    @Override
+    @Transactional
+    public void save(PersonaCargo personaPerfil, Usuario usuario) {
+
+//        if (personaPerfil.getOficina().getId() == null) {
+//            personaPerfil.setOficina(null);
+//        }
+//
+//        personaPerfil.setEstado(EstadoEnum.ACT);
+//
+//        personaPerfil.setUserRegistro(usuario);
+//        personaPerfil.setFechaRegistro(new Date());
+//        personaPerfilDAO.save(personaPerfil);
+
+    }
+
+    @Override
+    @Transactional
+    public void update(PersonaCargo personaPerfil) {
+//        if (personaPerfil.getOficina().getId() == null) {
+//            personaPerfil.setOficina(null);
+//        }
+//
+//        personaPerfilDAO.update(personaPerfil);
+
+    }
+
+    @Override
+    @Transactional
+    public void activate(Long idPersonaPerfil) {
+
+//        PersonaCargo personaPerfil = personaPerfilDAO.find(idPersonaPerfil);
+//        personaPerfil.setEstado(EstadoEnum.ACT);
+//        personaPerfilDAO.update(personaPerfil);
+//
+//        List<PersonaCargo> allPerfilRol = perfilRolDAO.allByPerfilCompania(personaPerfil.getPerfilCompania());
+//
+//        if (!allPerfilRol.isEmpty()) {
+//            Usuario usuario = this.getExistorCreateUser(personaPerfil.getPersona());
+//
+//            UsuarioRol usuarioRol = null;
+//            for (PersonaCargo rolCargo : allPerfilRol) {
+//
+//                usuarioRol = usuarioRolDAO.findByUsuarioAndRol(usuario, rolCargo.getRol());
+//
+//                if (usuarioRol == null) {
+//                    usuarioRol = new UsuarioRol();
+//                    usuarioRol.setUsuario(usuario);
+//                    usuarioRol.setRol(rolCargo.getRol());
+//                    usuarioRolDAO.save(usuarioRol);
+//                }
+//            }
+//        }
+    }
+
+    @Override
+    @Transactional
+    public void desactivar(Long idPersonaPerfil) {
+
+//        PersonaCargo personaPerfil = personaPerfilDAO.find(idPersonaPerfil);
+//        personaPerfil.setEstado(EstadoEnum.INA);
+//        personaPerfilDAO.update(personaPerfil);
+//
+//        List<PerfilRol> allPerfilRol = perfilRolDAO.allByPerfilCompania(personaPerfil.getPerfilCompania());
+//
+//        if (!allPerfilRol.isEmpty()) {
+//            Usuario usuario = this.getExistorCreateUser(personaPerfil.getPersona());
+//
+//            Set<Long> roles = allPerfilRol.stream()
+//                    .map(PerfilRol::getRol)
+//                    .map(Rol::getId)
+//                    .collect(Collectors.toSet());
+//
+//            usuarioRolDAO.deleteByUsuarioRol(usuario, new ArrayList(roles));
+//
+//        }
+
+    }
+
+    @Transactional
+    private Usuario getExistorCreateUser(Persona persona) {
+
+        Usuario user = usuarioDAO.findActivoByPersona(persona);
+
+        if (user == null) {
+            user = new Usuario();
+            user.setPersona(persona);
+            user.setGoogle(persona.getEmailCompania());
+            user.setEstadoEnum(UserEstadoEnum.ACT);
+
+            usuarioDAO.save(user);
+        }
+
+        return user;
+    }
+
+}
