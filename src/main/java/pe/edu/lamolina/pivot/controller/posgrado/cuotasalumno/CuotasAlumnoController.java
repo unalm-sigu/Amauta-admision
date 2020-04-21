@@ -30,7 +30,8 @@ import pe.edu.lamolina.model.posgrado.AlumnoConceptoMatricula;
 import pe.edu.lamolina.model.posgrado.AlumnoResumenCuotas;
 import pe.edu.lamolina.model.posgrado.TarifaCarrera;
 import pe.edu.lamolina.model.posgrado.TarifaConcepto;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.model.constantines.AcademicoConstantine;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -44,7 +45,7 @@ public class CuotasAlumnoController {
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         model.addAttribute("ciclo", ds.getCicloAcademico());
         return "posgrado/cuotasalumno/generacionCuotas";
     }
@@ -53,7 +54,7 @@ public class CuotasAlumnoController {
     @RequestMapping("list")
     public DynatableResponse list(DynatableFilter filter, HttpSession session, HttpServletRequest request) {
         DynatableResponse json = new DynatableResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         try {
             List<Alumno> alumnos = cuotasAlumnoService.allAlumnosPosgrado(filter, ds.getCicloAcademico());
@@ -107,7 +108,7 @@ public class CuotasAlumnoController {
             Model model,
             HttpSession session) {
         logger.debug("Alumno Id {}", alumnoId);
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         JsonNodeFactory nc = JsonNodeFactory.instance;
 
@@ -191,7 +192,7 @@ public class CuotasAlumnoController {
 
         JsonResponse jsonResponse = new JsonResponse();
         JsonNodeFactory nc = JsonNodeFactory.instance;
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         CicloAcademico cicloSesion = ds.getCicloAcademico();
 
         Alumno alumno = cuotasAlumnoService.findAlumno(new Alumno(alumnoId));
@@ -246,7 +247,7 @@ public class CuotasAlumnoController {
             HttpSession session) {
         JsonResponse response = new JsonResponse();
         response.setSuccess(Boolean.TRUE);
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         logger.debug("generarCuotasAlumno");
         alumnoResumenCuotas = cuotasAlumnoService.generarCuotasAlumno(alumnoResumenCuotas, ds);
@@ -269,7 +270,7 @@ public class CuotasAlumnoController {
             HttpSession session) {
         JsonResponse response = new JsonResponse();
         response.setSuccess(Boolean.TRUE);
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         logger.debug("grabarCuotasAlumno");
         if (ObjectUtil.getParentTree(alumnoResumenCuotas, "id") == null) {

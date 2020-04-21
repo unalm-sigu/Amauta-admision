@@ -26,8 +26,8 @@ import pe.edu.lamolina.model.tramite.AccionTramiteAcademico;
 import pe.edu.lamolina.model.tramite.Tramite;
 import pe.edu.lamolina.model.tramite.TramiteCorreccionHistorial;
 import pe.edu.lamolina.pivot.controller.academico.tramitesacademicos.TramitesAcademicosService;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
-import pe.edu.lamolina.pivot.zelper.constant.Messages;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
+import pe.edu.lamolina.model.constantines.GlobalMessages;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -42,7 +42,7 @@ public class UpdateHistorialController {
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         ArrayNode arrayNode = new ArrayNode(JsonNodeFactory.instance);
         for (TipoDocumentoCompaniaEnum value : TipoDocumentoCompaniaEnum.values()) {
             if (Arrays.asList(CARTA.name(), TipoDocumentoCompaniaEnum.MANUAL.name()).contains(value.name())) {
@@ -71,7 +71,7 @@ public class UpdateHistorialController {
         JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             tramitesAcademicosService.aceptarSolReincorporacion(new Tramite(tramiteId), new AccionTramiteAcademico(accionTramiteId), ds);
             response.setMessage("Solicitud Actualizada.");
@@ -81,7 +81,7 @@ public class UpdateHistorialController {
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
-            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+            ExceptionHandler.handleSpecial(e, response, GlobalMessages.FK_ERROR_UPDATE);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
@@ -92,7 +92,7 @@ public class UpdateHistorialController {
     @RequestMapping("list")
     public DynatableResponse list(DynatableFilter filter, HttpSession session) {
         DynatableResponse response = new DynatableResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         try {
 
             ArrayNode arrayNode = new ArrayNode(JsonNodeFactory.instance);
@@ -149,7 +149,7 @@ public class UpdateHistorialController {
     public JsonResponse save(@RequestBody TramiteCorreccionHistorial correccionHistorial,
             Model model, HttpSession session) {
         JsonResponse json = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         try {
             service.save(correccionHistorial, ds);
@@ -170,7 +170,7 @@ public class UpdateHistorialController {
     public JsonResponse anular(@RequestBody TramiteCorreccionHistorial correccionHistorial,
             Model model, HttpSession session) {
         JsonResponse json = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         try {
             service.anular(correccionHistorial, ds);

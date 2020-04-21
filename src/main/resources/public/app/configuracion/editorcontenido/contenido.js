@@ -60,7 +60,7 @@ $(function () {
                     }
                 },
                 error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                 }
             });
         },
@@ -118,7 +118,7 @@ new Vue({
                             notify(response.data.message, 'error');
                         }
                     }).catch(e => {
-                notify(MESSAGES.errorComunicacion, "error");
+                notify(GlobalMessages.errorComunicacion, "error");
             })
         },
         reloadVariables() {
@@ -135,7 +135,7 @@ new Vue({
                     }
                 },
                 error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                 }
             });
         },
@@ -156,7 +156,7 @@ new Vue({
                     }
                 },
                 error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                 }
             });
 
@@ -176,7 +176,7 @@ new Vue({
                     }
                 },
                 error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                 }
             });
         },
@@ -198,7 +198,7 @@ new Vue({
                     }
                 },
                 error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                 }
             });
         }

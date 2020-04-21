@@ -53,7 +53,6 @@ import pe.edu.lamolina.model.academico.SituacionAcademica;
 import pe.edu.lamolina.model.academico.TurnoAtencion;
 import pe.edu.lamolina.model.aporte.AporteAlumnoCiclo;
 import pe.edu.lamolina.model.aporte.ResumenAporteAlumno;
-import static pe.edu.lamolina.model.constantines.GlobalConstantine.CAPA_ULTIMO_CICLO;
 import static pe.edu.lamolina.model.enums.DeudaEstadoEnum.DEU;
 import static pe.edu.lamolina.model.enums.DeudaEstadoEnum.PAG;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
@@ -130,7 +129,8 @@ import pe.edu.lamolina.pivot.dao.finanza.DeudaAlumnoDAO;
 import pe.edu.lamolina.pivot.dao.tramite.CambioNotaDAO;
 import pe.edu.lamolina.pivot.dao.tramite.ReincorporacionDAO;
 import pe.edu.lamolina.pivot.dao.tramite.RetiroCicloDAO;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import static pe.edu.lamolina.model.constantines.AcademicoConstantine.CAPA_ULTIMO_CICLO;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service

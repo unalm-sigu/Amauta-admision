@@ -33,7 +33,8 @@ import pe.albatross.zelpers.notify.Notificaciones;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.seguridad.Rol;
 import pe.edu.lamolina.pivot.controller.general.foto.FotoHelper;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.model.constantines.AcademicoConstantine;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -84,7 +85,7 @@ public class PersonaController {
         try {
 
             FotoHelper helper = new FotoHelper();
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             List<Persona> personas = service.allByDynatable(filter);
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
@@ -138,7 +139,7 @@ public class PersonaController {
             @PathVariable("persona") Long idPersona,
             @RequestParam("origen") String origen, Model model, HttpSession session) {
 
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         Persona persona = service.find(new Persona(idPersona));
 
         model.addAttribute("persona", persona);
@@ -165,7 +166,7 @@ public class PersonaController {
         ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
 
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             response.setMessage("Usuario modificado satisfactoriamente");
             if (persona.getId() == null) {
                 response.setMessage("Usuario creado satisfactoriamente");
@@ -195,7 +196,7 @@ public class PersonaController {
         ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
 
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             Persona persona = service.findPersona(personaTmp);
 
             node.put("id", persona.getId());
@@ -267,7 +268,7 @@ public class PersonaController {
     public String matriculableOrigen(
             @PathVariable("persona") Long idPersona, Model model, HttpSession session) {
 
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         Persona persona = service.find(new Persona(idPersona));
 
         model.addAttribute("persona", persona);
@@ -279,7 +280,7 @@ public class PersonaController {
     public String editarAlumno(
             @PathVariable("persona") Long idPersona, Model model, HttpSession session) {
 
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         Persona persona = service.find(new Persona(idPersona));
 
         model.addAttribute("persona", persona);
@@ -291,7 +292,7 @@ public class PersonaController {
     public String visualAlumno(
             @PathVariable("persona") Long idPersona, Model model, HttpSession session) {
 
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         Persona persona = service.find(new Persona(idPersona));
 
         model.addAttribute("persona", persona);
@@ -302,7 +303,7 @@ public class PersonaController {
     @RequestMapping("update/alumno/origen")
     public String save(Persona persona,
             RedirectAttributes redirectAttr, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         Rol rol = ds.getRolActivo();
         try {
             String mensaje = "Alumno actualizado.";

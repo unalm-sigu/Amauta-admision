@@ -307,7 +307,7 @@ var app = new Vue({
                     }
                 },
                 error() {
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                     $vue.liberarBtn(dir);
                 }
             });
@@ -352,7 +352,7 @@ var app = new Vue({
                     }
                 },
                 error() {
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                     $vue.liberarBtn(dir);
                 }
             });
@@ -387,7 +387,7 @@ var app = new Vue({
                                 }
                             },
                             error() {
-                                notify(MESSAGES.errorComunicacion, "error");
+                                notify(GlobalMessages.errorComunicacion, "error");
                                 $vue.liberarBtn(dir);
                             }
                         });
@@ -415,7 +415,7 @@ var app = new Vue({
                     }
                 },
                 error() {
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                     $vue.liberarBtn(dir);
                 }
             });
@@ -439,7 +439,7 @@ var app = new Vue({
                         notify(response.message, "error");
                     }
                 }, error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                 }
             });
         },
@@ -498,7 +498,7 @@ var app = new Vue({
                     }
                 },
                 error() {
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                     $vue.liberarBtn(dir);
                 }
             });
@@ -530,7 +530,7 @@ var app = new Vue({
                     if (modalConfirm != undefined) {
                         modalConfirm.modal("hide");
                     }
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                 }
             });
         },
@@ -635,7 +635,7 @@ var app = new Vue({
                     }
                 },
                 error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                 }
             });
         },
@@ -655,7 +655,7 @@ var app = new Vue({
                         notify(response.message, "error");
                     }
                 }, error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                 }
             });
         },
@@ -681,7 +681,7 @@ var app = new Vue({
                         notify(response.message, "error");
                     }
                 }, error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                 }
             });
         },
@@ -713,7 +713,7 @@ var app = new Vue({
                             MODAL.hideWait();
                         }
                     }, error: function () {
-                        notify(MESSAGES.errorComunicacion, "error");
+                        notify(GlobalMessages.errorComunicacion, "error");
                         MODAL.hideWait();
                     }
                 });
@@ -748,7 +748,7 @@ var app = new Vue({
                             }, error: function () {
                                 $(".btn-modal").prop('disabled', false);
                                 $(".btn-procesar").html('Si');
-                                notify(MESSAGES.errorComunicacion, "error");
+                                notify(GlobalMessages.errorComunicacion, "error");
                             }
                         });
 
@@ -787,7 +787,7 @@ var app = new Vue({
                 },
                 error: function () {
                     $vue.$refs.modalConfirmAction.confirmReaction(false);
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                 }
             });
         },
@@ -822,7 +822,7 @@ var app = new Vue({
                 },
                 error: function () {
                     $vue.$refs.modalConfirmAction.confirmReaction(false);
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                 }
             });
         },
@@ -885,7 +885,7 @@ var app = new Vue({
                     }
                 }, error: function () {
                     $vue.$refs.modalConfirmAction.confirmReaction(false);
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                 }
             });
         },
@@ -934,7 +934,7 @@ var app = new Vue({
                     }
                 }, error: function () {
                     $vue.$refs.modalConfirmAction.confirmReaction(false);
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                 }
             });
 
@@ -969,7 +969,7 @@ var app = new Vue({
                             }, error: function () {
                                 $(".btn-modal").prop('disabled', false);
                                 $(".btn-procesar").html('Si');
-                                notify(MESSAGES.errorComunicacion, "error");
+                                notify(GlobalMessages.errorComunicacion, "error");
                             }
                         });
                         return false;
@@ -1068,7 +1068,7 @@ var app = new Vue({
                         }
                     },
                     error: function () {
-                        notify(MESSAGES.errorComunicacion, "error");
+                        notify(GlobalMessages.errorComunicacion, "error");
                     }
                 });
             }
@@ -1113,7 +1113,7 @@ var app = new Vue({
                         }
                     },
                     error: function () {
-                        notify(MESSAGES.errorComunicacion, "error");
+                        notify(GlobalMessages.errorComunicacion, "error");
                     }
                 });
             }
@@ -1233,7 +1233,7 @@ var app = new Vue({
                 },
                 error: function (response) {
                     MODAL.hideWait();
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                 }
             });
 
@@ -1267,7 +1267,7 @@ var app = new Vue({
                 },
                 error: function (response) {
                     MODAL.hideWait();
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                 }
             });
 
@@ -1296,7 +1296,7 @@ var app = new Vue({
                         notify(response.message, "error");
                     }
                 }, error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                     MODAL.hideWait();
                 }
             });
@@ -1324,7 +1324,7 @@ var app = new Vue({
                         target.parsley().addError('forcederror', {message: response.message, updateClass: true});
                     }
                 }, error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                     MODAL.hideWait();
                 }
             });
@@ -1411,7 +1411,7 @@ var app = new Vue({
                     }
                 },
                 error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                 }
             });
 
@@ -1437,7 +1437,7 @@ var app = new Vue({
                     }
                 },
                 error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                 }
             });
 
@@ -1464,7 +1464,7 @@ var app = new Vue({
                     }
                 },
                 error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                 }
             });
 
@@ -1507,7 +1507,7 @@ var app = new Vue({
                 });
 
             }).catch(err => {
-                swal(MESSAGES.errorComunicacion, "error");
+                swal(GlobalMessages.errorComunicacion, "error");
             });
         },
         aceptarSolicitud: function (ampliacion) {
@@ -1548,7 +1548,7 @@ var app = new Vue({
                     }
                 },
                 error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                 }
             });
 
@@ -1577,7 +1577,7 @@ var app = new Vue({
                     }
                 },
                 error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                 }
             });
 
@@ -1634,7 +1634,7 @@ var app = new Vue({
                 });
 
             }).catch(err => {
-                swal(MESSAGES.errorComunicacion, "error");
+                swal(GlobalMessages.errorComunicacion, "error");
             });
 
         },
@@ -1658,7 +1658,7 @@ var app = new Vue({
                     }
                 },
                 error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                 }
             });
         },
@@ -1681,7 +1681,7 @@ var app = new Vue({
                     }
                 },
                 error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                 }
             });
         },
@@ -1705,7 +1705,7 @@ var app = new Vue({
                 },
                 error: function () {
                     $vue.fusion.revisando = false;
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                 }
             });
 
@@ -1802,7 +1802,7 @@ var app = new Vue({
                     $vue.guardaPrecio = false;
                     $(".btn-modal").prop('disabled', false);
                     $(".btn-procesar").html('Si');
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                 }
             });
         },
@@ -1869,7 +1869,7 @@ var app = new Vue({
                     }
                 },
                 error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                 }
             });
 
@@ -1934,7 +1934,7 @@ var app = new Vue({
                     }
                 },
                 error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                 }
             });
 
@@ -1966,7 +1966,7 @@ var app = new Vue({
                     }
                 },
                 error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                 }
             });
 
@@ -2007,7 +2007,7 @@ var app = new Vue({
                             }, error: function () {
                                 $(".btn-modal").prop('disabled', false);
                                 $(".btn-procesar").html('Si');
-                                notify(MESSAGES.errorComunicacion, "error");
+                                notify(GlobalMessages.errorComunicacion, "error");
                             }
                         });
                         return false;
@@ -2050,7 +2050,7 @@ var app = new Vue({
                     }
                 },
                 error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                 }
             });
 
@@ -2108,7 +2108,7 @@ var app = new Vue({
                             }, error: function () {
                                 $(".btn-modal").prop('disabled', false);
                                 $(".btn-procesar").html('Si');
-                                notify(MESSAGES.errorComunicacion, "error");
+                                notify(GlobalMessages.errorComunicacion, "error");
                             }
                         });
                         return false;
@@ -2149,7 +2149,7 @@ var app = new Vue({
                         notify(response.message, "error");
                     }
                 }, error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                 }
             });
 
@@ -2205,7 +2205,7 @@ var app = new Vue({
                             }, error: function () {
                                 $vue.loadGpoSeccionFlash(mm);
                                 mm.modal("hide");
-                                notify(MESSAGES.errorComunicacion, "error");
+                                notify(GlobalMessages.errorComunicacion, "error");
 
                             }
                         });

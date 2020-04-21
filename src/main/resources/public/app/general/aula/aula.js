@@ -77,7 +77,7 @@
 //                    }
 //                },
 //                error: function () {
-//                    notify(MESSAGES.errorComunicacion, "error");
+//                    notify(GlobalMessages.errorComunicacion, "error");
 //                }
 //            });
 //        },
@@ -106,7 +106,7 @@
 //                                }
 //                            },
 //                            error: function () {
-//                                notify(MESSAGES.errorComunicacion, "error");
+//                                notify(GlobalMessages.errorComunicacion, "error");
 //                            }
 //                        });
 //                    }
@@ -188,7 +188,7 @@
 //                    console.log(e);
 //                },
 //                failCallback: function (responseHtml, url) {
-//                    notify(MESSAGES.errorComunicacion, 'error')
+//                    notify(GlobalMessages.errorComunicacion, 'error')
 //                }
 //            });
 //        }
@@ -348,7 +348,7 @@ new Vue({
                     console.log(e);
                 },
                 failCallback: function (responseHtml, url) {
-                    notify(MESSAGES.errorComunicacion, 'error')
+                    notify(GlobalMessages.errorComunicacion, 'error')
                 }
             });
         },
@@ -365,7 +365,7 @@ new Vue({
                     console.log(e);
                 },
                 failCallback: function (responseHtml, url) {
-                    notify(MESSAGES.errorComunicacion, 'error')
+                    notify(GlobalMessages.errorComunicacion, 'error')
                 }
             });
         },
@@ -406,7 +406,7 @@ new Vue({
                             notify(response.data.message, "warning");
                         }
                     }).catch(e => {
-                notify(MESSAGES.errorComunicacion, "error");
+                notify(GlobalMessages.errorComunicacion, "error");
             });
         },
         eliminarAula(item) {
@@ -433,7 +433,7 @@ new Vue({
                                 }
                             },
                             error: function () {
-                                notify(MESSAGES.errorComunicacion, "error");
+                                notify(GlobalMessages.errorComunicacion, "error");
                             }
                         });
                     }

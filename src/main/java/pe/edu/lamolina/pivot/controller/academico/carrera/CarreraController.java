@@ -42,7 +42,8 @@ import pe.edu.lamolina.model.enums.TipoCarreraEnum;
 import static pe.edu.lamolina.model.enums.TipoCarreraEnum.DOC;
 import static pe.edu.lamolina.model.enums.TipoCarreraEnum.MAE;
 import pe.edu.lamolina.model.general.Compania;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.model.constantines.AcademicoConstantine;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -82,7 +83,7 @@ public class CarreraController {
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         CicloAcademico ciclo = ds.getCicloAcademico();
         model.addAttribute("ciclo", ciclo);
         model.addAttribute("tiposEstudio", ModalidadEstudioEnum.values());
@@ -95,7 +96,7 @@ public class CarreraController {
     public DynatableResponse allByDynatable(DynatableFilter filter, HttpSession session) {
         DynatableResponse json = new DynatableResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             List<Carrera> carreras = service.allByDynatable(filter);
 
@@ -186,7 +187,7 @@ public class CarreraController {
 
     @RequestMapping("nuevo")
     public String nuevoRol(Model model, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         Compania cia = ds.getCompania();
 
         Carrera carrera = new Carrera();
@@ -209,7 +210,7 @@ public class CarreraController {
         JsonResponse response = new JsonResponse();
         try {
             //TypesUtil.delay(3000);
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             boolean isSave = carrera.getId() != null;
             Carrera carreraBD = service.save(carrera, ds);
 
@@ -227,7 +228,7 @@ public class CarreraController {
 
     @RequestMapping("{id}/editar")
     public String editarCarrera(@PathVariable("id") Long idCarrera, Model model, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         Compania cia = ds.getCompania();
 
         Carrera carrera = service.find(idCarrera);
@@ -249,7 +250,7 @@ public class CarreraController {
         response.setSuccess(false);
 
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             OrientacionCarrera eliminada = service.deleteOrientacion(orientacion, ds);
 
             response.setSuccess(true);
@@ -273,7 +274,7 @@ public class CarreraController {
 
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             List<OrientacionCarrera> orientaciones = service.saveOrientaciones(carrera, ds);
 
             response.setData(createAllOrientacionesJson(orientaciones));
@@ -295,7 +296,7 @@ public class CarreraController {
 
         try {
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             OrientacionCarrera orientacionBD = service.editarOrientacion(orientacionForm, ds);
 
             response.setData(createOrientacionJson(orientacionBD));
@@ -316,7 +317,7 @@ public class CarreraController {
 
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             OrientacionCarrera orientacionBD = service.activarOrientacion(orientacion, ds);
             response.setMessage("Se activó la Orientación satisfactoriamente.");
             response.setData(createOrientacionJson(orientacionBD));

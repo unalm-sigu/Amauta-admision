@@ -25,6 +25,7 @@ import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.EventoCicloAcademico;
 import pe.edu.lamolina.model.academico.Seccion;
+import pe.edu.lamolina.model.constantines.AcademicoConstantine;
 import pe.edu.lamolina.model.enums.EstadoHorarioAulaEnum;
 import pe.edu.lamolina.model.enums.RolExamenesEstadoEnum;
 import pe.edu.lamolina.model.enums.SituacionRolExamenesEnum;
@@ -57,7 +58,6 @@ import pe.edu.lamolina.pivot.dao.rolexamen.SeccionExcluidoDAO;
 import pe.edu.lamolina.pivot.dao.rolexamen.SeccionGrupoEspecialDAO;
 import pe.edu.lamolina.pivot.dao.rolexamen.SeccionGrupoRegularDAO;
 import pe.edu.lamolina.pivot.dao.rolexamen.SemanaExamenDAO;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service
@@ -142,7 +142,7 @@ public class RolExamenesServiceImp implements RolExamenesService {
         rolExamenes.setEstadoEnum(RolExamenesEstadoEnum.CRE);
         rolExamenes.setFechaRegistro(new Date());
         rolExamenes.setUserRegistro(ds.getUsuario());
-        rolExamenes.setHorasExamen(Constantine.CANTIDAD_HORAS_POR_EXAMEN);
+        rolExamenes.setHorasExamen(AcademicoConstantine.CANTIDAD_HORAS_POR_EXAMEN);
         rolExamenes.setSituacionEnum(SituacionRolExamenesEnum.CFG_ROL);
 
         List<String> errors = new ArrayList<>();

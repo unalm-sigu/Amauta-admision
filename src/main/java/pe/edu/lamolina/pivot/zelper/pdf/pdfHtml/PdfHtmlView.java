@@ -30,7 +30,7 @@ import org.springframework.stereotype.Component;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring4.SpringTemplateEngine;
 import pe.albatross.zelpers.miscelanea.PhobosException;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.pivot.zelper.pdf.PdfImageProvider;
 
 @Component
@@ -72,7 +72,7 @@ public class PdfHtmlView extends AbstractPdfHtmlView {
 
         CSSResolver cssResolver = new StyleAttrCSSResolver();
 
-        InputStream csspathtest = this.getClass().getResourceAsStream(Constantine.PDF_CSS);
+        InputStream csspathtest = this.getClass().getResourceAsStream(GlobalConstantine.PDF_CSS);
 
         CssFile cssfiletest = XMLWorkerHelper.getCSS(csspathtest);
         cssResolver.addCss(cssfiletest);

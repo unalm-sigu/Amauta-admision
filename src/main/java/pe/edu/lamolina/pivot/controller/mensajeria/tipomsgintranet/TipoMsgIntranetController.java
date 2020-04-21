@@ -22,8 +22,8 @@ import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.TipoMensajeIntranet;
 import pe.edu.lamolina.model.enums.TipoMensajeIntranetEnum;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
-import pe.edu.lamolina.pivot.zelper.constant.Messages;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
+import pe.edu.lamolina.model.constantines.GlobalMessages;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -37,7 +37,7 @@ public class TipoMsgIntranetController {
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         ObjectNode cicloJSON = new ObjectNode(JsonNodeFactory.instance);
         cicloJSON.put("descripcion", ds.getCicloAcademico().getDescripcion());
@@ -60,7 +60,7 @@ public class TipoMsgIntranetController {
     public DynatableResponse list(DynatableFilter filter, HttpSession session) {
         DynatableResponse json = new DynatableResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
             List<TipoMensajeIntranet> tiposMsg = service.allByDynatble(filter);
@@ -85,7 +85,7 @@ public class TipoMsgIntranetController {
     @ResponseBody
     @RequestMapping("saveUpdate")
     public JsonResponse saveUpdate(@RequestBody TipoMensajeIntranet tipoMsg, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         JsonResponse response = new JsonResponse();
         response.setSuccess(false);
         try {
@@ -109,7 +109,7 @@ public class TipoMsgIntranetController {
     @ResponseBody
     @RequestMapping("eliminar")
     public JsonResponse eliminar(@RequestBody TipoMensajeIntranet tipoMsg, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         JsonResponse response = new JsonResponse();
         response.setSuccess(false);
         try {

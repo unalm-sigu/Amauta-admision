@@ -26,7 +26,8 @@ import pe.edu.lamolina.model.academico.EventoCicloAcademico;
 import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
 import pe.edu.lamolina.model.rolexamen.SemanaExamen;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.model.constantines.AcademicoConstantine;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -42,7 +43,7 @@ public class RolExamenesController {
     public String index(Model model, HttpSession session) {
         JsonNodeFactory jc = JsonNodeFactory.instance;
 
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
         logger.debug("cicloAcademico {}", ds.getCicloAcademico() != null ? ds.getCicloAcademico().getId() : 0);
 
@@ -72,7 +73,7 @@ public class RolExamenesController {
         DynatableResponse json = new DynatableResponse();
 
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             List<RolExamenes> rolexamenes = service.allRolExamenes(filter, ds.getCicloAcademico());
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
@@ -109,7 +110,7 @@ public class RolExamenesController {
         JsonResponse response = new JsonResponse();
 
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             List<EventoCicloAcademico> eventoCicloAcademicos = service.allEventoCicloAcademicos(ds.getCicloAcademico());
             logger.debug("Estoy fuera del for allEventoCicloAcademico");
             ArrayNode arrayEventosCiclosAcademicos = new ArrayNode(jsonFactory);
@@ -138,7 +139,7 @@ public class RolExamenesController {
         JsonResponse response = new JsonResponse();
 
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             rolExamenes = service.findRolExamenes(rolExamenes.getId());
             response.setData(JsonHelper.createJson(rolExamenes, jsonFactory, false,
                     new String[]{
@@ -208,7 +209,7 @@ public class RolExamenesController {
         JsonResponse response = new JsonResponse();
 
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             if (rolExamenes.getId() == null) {
                 service.save(rolExamenes, ds);
                 response.setMessage("Guardado satisfactoriamnente");
@@ -234,7 +235,7 @@ public class RolExamenesController {
         JsonResponse response = new JsonResponse();
 
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             ds.setFechaAccionAudit(new Date());
             service.publicarRolExamen(rolExamenes, ds);
             response.setSuccess(true);
@@ -255,7 +256,7 @@ public class RolExamenesController {
         JsonResponse response = new JsonResponse();
 
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             ds.setFechaAccionAudit(new Date());
             service.eliminarConfiguracion(rolExamenes, ds);
             response.setSuccess(true);
@@ -275,7 +276,7 @@ public class RolExamenesController {
         JsonResponse response = new JsonResponse();
 
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             ds.setFechaAccionAudit(new Date());
             service.fijarHorarioAula(rolExamenes, ds);
             response.setSuccess(true);
@@ -293,7 +294,7 @@ public class RolExamenesController {
     public JsonResponse cerrar(@RequestBody RolExamenes rolExamenes, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             service.cerrar(rolExamenes, ds);
             response.setMessage("Rol de examenes cerrado");
             response.setSuccess(Boolean.TRUE);
@@ -311,7 +312,7 @@ public class RolExamenesController {
     public JsonResponse modificar(@RequestBody RolExamenes rolExamenes, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             service.modificar(rolExamenes, ds);
             response.setSuccess(Boolean.TRUE);
         } catch (PhobosException pex) {

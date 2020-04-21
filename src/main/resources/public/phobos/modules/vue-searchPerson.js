@@ -28,7 +28,7 @@ Vue.component('search-person', {
                     $vue.personas = response.data;
                 },
                 error: function (error) {
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                 }
             });
         },

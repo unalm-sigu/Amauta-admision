@@ -30,7 +30,8 @@ import pe.edu.lamolina.model.academico.Seccion;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.EPG;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.PRE;
 import pe.edu.lamolina.pivot.controller.reporte.view.ReporteAlumnosExcel;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.model.constantines.AcademicoConstantine;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -47,7 +48,7 @@ public class CargaAcademicaController {
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         model.addAttribute("docente", ds.getDocente());
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
         model.addAttribute("dptoAcad", ds.getDepartamentoAcademico());
@@ -60,7 +61,7 @@ public class CargaAcademicaController {
 
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             ArrayNode arrayPregrado = new ArrayNode(JsonNodeFactory.instance);
             ArrayNode arrayPosgrado = new ArrayNode(JsonNodeFactory.instance);
@@ -141,7 +142,7 @@ public class CargaAcademicaController {
     public ModelAndView reporteDeActasExcel(Model model,
             @RequestParam("seccion") Long idSeccion,
             HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         Seccion seccion = service.findSeccion(idSeccion);
         Curso curso = seccion.getGrupoSeccion().getCurso();

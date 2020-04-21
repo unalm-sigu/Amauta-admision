@@ -15,7 +15,8 @@ import pe.edu.lamolina.model.seguridad.Sistema;
 import pe.edu.lamolina.model.seguridad.Rol;
 import pe.edu.lamolina.pivot.config.DespliegueConfig;
 import pe.edu.lamolina.pivot.dao.interceptor.UserLoggerDAO;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.model.constantines.AcademicoConstantine;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service
@@ -32,7 +33,7 @@ public class InterceptorServiceImpl implements InterceptorService {
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void saveInterceptor(ObjectNode objNode, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         this.saveInterceptor(objNode, ds);
     }
 

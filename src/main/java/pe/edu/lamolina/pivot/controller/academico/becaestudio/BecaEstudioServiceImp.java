@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.Assert;
 import pe.edu.lamolina.model.academico.BecaEstudio;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.model.enums.TipoDocIdentidadEnum;
 import pe.edu.lamolina.model.general.Empresa;
 import pe.edu.lamolina.model.general.Pais;
@@ -16,7 +17,6 @@ import pe.edu.lamolina.model.general.TipoDocIdentidad;
 import pe.edu.lamolina.pivot.dao.academico.BecaEstudioDAO;
 import pe.edu.lamolina.pivot.dao.general.EmpresaDAO;
 import pe.edu.lamolina.pivot.dao.general.TipoDocIdentidadDAO;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service
@@ -59,7 +59,7 @@ public class BecaEstudioServiceImp implements BecaEstudioService {
         TipoDocIdentidad doc = tipoDocIdentidadDAO.findBySimbolo(TipoDocIdentidadEnum.RUC.name());
 
         insticion.setTipoDocIdentidad(doc);
-        insticion.setPaisUbicacion(new Pais(Constantine.ID_PERU));
+        insticion.setPaisUbicacion(new Pais(GlobalConstantine.ID_PERU));
         empresaDAO.save(insticion);
         return insticion;
     }

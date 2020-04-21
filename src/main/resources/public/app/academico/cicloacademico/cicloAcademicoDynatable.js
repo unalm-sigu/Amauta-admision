@@ -42,7 +42,7 @@ var DynatableRowTemplate = Vue.component("dynatableRow", {
                         notify(response.message, 'error');
                     }
                 }, error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                 }
             });
         }

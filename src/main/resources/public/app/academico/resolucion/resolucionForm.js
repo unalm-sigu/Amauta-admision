@@ -41,11 +41,11 @@ var app = new Vue({
                             $vue.loadTramitesConsejo();
                         }
                     } else {
-                        notify(MESSAGES.errorComunicacion, "error");
+                        notify(GlobalMessages.errorComunicacion, "error");
                     }
                 },
                 error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                 }
             });
         }, 
@@ -101,7 +101,7 @@ var app = new Vue({
                     }
                 },
                 error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                 }
             });
 
@@ -130,7 +130,7 @@ var app = new Vue({
                     }
                 },
                 error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                 }
             });
 
@@ -149,10 +149,10 @@ var app = new Vue({
                         $vue.reunionesConsejo = response.data.reunionesConsejo;
 
                     } else {
-                        notify(MESSAGES.errorComunicacion, "error");
+                        notify(GlobalMessages.errorComunicacion, "error");
                     }
                 }, error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                 }
             });
         }, 

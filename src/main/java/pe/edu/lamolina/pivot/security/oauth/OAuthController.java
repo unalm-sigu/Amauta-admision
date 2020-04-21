@@ -38,7 +38,8 @@ import pe.edu.lamolina.pivot.config.DespliegueConfig;
 import pe.edu.lamolina.pivot.controller.academico.ciclo.CicloAcademicoService;
 import pe.edu.lamolina.pivot.controller.restcontroller.RestPivotService;
 import pe.edu.lamolina.pivot.controller.seguridad.menu.VisorMenu;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.model.constantines.AcademicoConstantine;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -109,7 +110,7 @@ public class OAuthController {
     @RequestMapping(value = "lizard/{email:.*}", method = RequestMethod.GET)
     public String loginGoogle(@PathVariable String email, HttpSession session, Model model, HttpServletRequest servlet) {
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             if (ds == null && !despliegueConfig.getLagunas()) {
                 return "redirect:/";
@@ -135,7 +136,7 @@ public class OAuthController {
             }
 
             serviceProvider.loginManually(email, session, servlet);
-            ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             serviceProvider.createLogJson(ds, session);
 
             return "redirect:/route66";
@@ -154,7 +155,7 @@ public class OAuthController {
     @RequestMapping("route66")
     public String route66(HttpSession session, Model model) {
         logger.debug("route66");
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         if (ds == null) {
             logger.debug("return redirect:/login");
             return "redirect:/login";
@@ -190,7 +191,7 @@ public class OAuthController {
     @RequestMapping(value = "rolland", method = RequestMethod.POST)
     public void rolesLanding(HttpSession session, @RequestParam("rol") Long rol) throws Exception {
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             Rol asignar = ds.getMapRoles().get(rol);
             logger.debug("rolland");
             serviceProvider.asignarRolActivo(asignar, ds, session);
@@ -203,10 +204,10 @@ public class OAuthController {
     @RequestMapping("changerol")
     public String changeRol(HttpSession session) {
 
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         ds.setRolActivo(null);
 
-        session.setAttribute(Constantine.SESSION_USUARIO, ds);
+        session.setAttribute(GlobalConstantine.SESSION_USUARIO, ds);
 
         return "security/rolland";
     }
@@ -275,24 +276,24 @@ public class OAuthController {
     @RequestMapping(value = "cicloland", method = RequestMethod.POST)
     public void cicloland(HttpSession session, @RequestParam("ciclo") Long ciclo) throws Exception {
 
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         CicloAcademico cicloAcademico = cicloAcademicoService.getCicloAcademico(ciclo);
         ds.setCicloAcademico(cicloAcademico);
-        session.setAttribute(Constantine.SESSION_USUARIO, ds);
+        session.setAttribute(GlobalConstantine.SESSION_USUARIO, ds);
     }
 
     @RequestMapping("teentitansgo/{idUsuario}/{token}")
     public String teentitansgo(@PathVariable("idUsuario") Long idUsuario, @PathVariable("token") String token, HttpSession session, HttpServletRequest servlet) {
         try {
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             if (ds != null) {
-                session.removeAttribute(Constantine.SESSION_USUARIO);
+                session.removeAttribute(GlobalConstantine.SESSION_USUARIO);
             }
 
             TokenIngresante tokenIngresante = service.findToken(token, idUsuario);
             serviceProvider.loginManually(tokenIngresante.getPersona().getEmailCompania(), session, servlet);
-            ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             serviceProvider.createLogJson(ds, session);
 
             return "redirect:/route66";

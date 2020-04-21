@@ -80,7 +80,8 @@ import pe.edu.lamolina.pivot.dao.tramite.TipoResolucionDAO;
 import pe.edu.lamolina.pivot.dao.tramite.TipoTramiteDAO;
 import pe.edu.lamolina.pivot.dao.tramite.TramiteDAO;
 import pe.edu.lamolina.pivot.dao.tramite.TramiteReunionConsejoDAO;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.model.constantines.AcademicoConstantine;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service
@@ -355,8 +356,8 @@ public class ResolucionServiceImp implements ResolucionService {
         resolucion = resolucionDAO.find(resolucion.getId());
         Resolucion resolucionUpd = new Resolucion(resolucion.getId());
 
-        resolucionUpd.setRutaUrl(Constantine.S3_LINK + Constantine.S3_RESOLUCIONES_DIR + name);
-        swiftService.uploadFileSync(Constantine.S3_DIR, Constantine.S3_RESOLUCIONES_DIR, GlobalConstantine.TMP_DIR, name, true);
+        resolucionUpd.setRutaUrl(AcademicoConstantine.S3_URL_ACADEMICO + AcademicoConstantine.S3_RESOLUCIONES_DIR + name);
+        swiftService.uploadFileSync(AcademicoConstantine.S3_BUCKET_ACADEMICO, AcademicoConstantine.S3_RESOLUCIONES_DIR, GlobalConstantine.TMP_DIR, name, true);
         resolucionUpd.setUserActualizacion(ds.getUsuario());
         resolucionUpd.setFechaActualizacion(today.toDate());
         resolucionUpd.setEstadoEnum(ResolucionEstadoEnum.ACT);

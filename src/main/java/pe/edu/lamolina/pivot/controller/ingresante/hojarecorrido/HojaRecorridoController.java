@@ -19,7 +19,8 @@ import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.RecorridoIngresante;
 import pe.edu.lamolina.model.academico.TipoActividadIngresante;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.model.constantines.AcademicoConstantine;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -32,7 +33,7 @@ public class HojaRecorridoController {
     @RequestMapping(method = RequestMethod.GET)
     public String postulante(Model model, HttpSession session) {
 
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         model.addAttribute("ciclo", ds.getCicloAcademico());
         return "ingresante/hojarecorrido/hojarecorrido";
     }
@@ -43,7 +44,7 @@ public class HojaRecorridoController {
         DynatableResponse json = new DynatableResponse();
         try {
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             List<RecorridoIngresante> recoIngresantes = service.allRecorridoIngresante(filter, ds.getCicloAcademico());
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 

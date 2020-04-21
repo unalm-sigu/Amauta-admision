@@ -55,7 +55,7 @@ import pe.edu.lamolina.pivot.dao.general.PersonaDAO;
 import pe.edu.lamolina.pivot.dao.general.TipoDocIdentidadDAO;
 import pe.edu.lamolina.pivot.dao.general.UniversidadDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.UsuarioDAO;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.model.constantines.AcademicoConstantine;
 import pe.edu.lamolina.pivot.zelper.mail.MailerService;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -161,7 +161,7 @@ public class AlumnosVisitanteServiceImp implements AlumnosVisitanteService {
         
         if (alumno == null) {
             
-            Carrera carrera = carreraDAO.findByCodigo(Constantine.COD_CARRERA_ALUMNO_VISITANTE);
+            Carrera carrera = carreraDAO.findByCodigo(AcademicoConstantine.COD_CARRERA_ALUMNO_VISITANTE);
             ModalidadEstudio modalidadEstudio = modalidadEstudioDAO.findByCodigo(ModalidadEstudioEnum.VIS);
             SituacionAcademica situacion = situacionAcademicaDAO.findByCodigo("N");
             
@@ -224,7 +224,7 @@ public class AlumnosVisitanteServiceImp implements AlumnosVisitanteService {
         usuarioVisitante.setUserRegistro(usuario);
         usuarioDAO.save(usuarioVisitante);
         
-        Carrera carrera = carreraDAO.findByCodigo(Constantine.COD_CARRERA_ALUMNO_VISITANTE);
+        Carrera carrera = carreraDAO.findByCodigo(AcademicoConstantine.COD_CARRERA_ALUMNO_VISITANTE);
         ModalidadEstudio modalidadEstudio = modalidadEstudioDAO.findByCodigo(ModalidadEstudioEnum.VIS);
         SituacionAcademica situacion = situacionAcademicaDAO.findByCodigo("N");
         
@@ -424,7 +424,7 @@ public class AlumnosVisitanteServiceImp implements AlumnosVisitanteService {
         if (personaForm.getNumeroDocIdentidad() == null) {
             throw new PhobosException("Debe indicar el número del documento de identidad");
         }
-        if (personaForm.getNumeroDocIdentidad().equals(Constantine.CODE_POSTULANTE_DUMMY)) {
+        if (personaForm.getNumeroDocIdentidad().equals(AcademicoConstantine.CODE_POSTULANTE_DUMMY)) {
             throw new PhobosException("Este número de documento de identidad no está permitido");
         }
         

@@ -32,7 +32,8 @@ import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.general.TipoDocIdentidad;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.model.constantines.AcademicoConstantine;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 
 @Repository
 public class DocenteSeccionDAOH extends AbstractEasyDAO<DocenteSeccion> implements DocenteSeccionDAO {
@@ -482,7 +483,7 @@ public class DocenteSeccionDAOH extends AbstractEasyDAO<DocenteSeccion> implemen
                 .leftJoin("gs.planCalificacion pc", "cur.planCalificacion pc2", "cur.planCalificacionRegular pcr", "sec.seccionSuperior")
                 .leftJoin("sec.aula au", "sec.grupoHoras gh", "doc.persona per", "per.tipoDocumento")
                 .filter("ca.id", cicloAcademico)
-                .filter("doc.codigo", "<>", Constantine.DOCENTE_INDETERMINADO)
+                .filter("doc.codigo", "<>", AcademicoConstantine.DOCENTE_INDETERMINADO)
                 .filter("ds.estado", EstadoEnum.ACT)
                 .filter("sec.estado", EstadoEnum.ACT);
 
@@ -553,7 +554,7 @@ public class DocenteSeccionDAOH extends AbstractEasyDAO<DocenteSeccion> implemen
                 .leftJoin("sec.aula au", "sec.grupoHoras gh", "doc.persona per", "per.tipoDocumento")
                 .filter("ca.id", cicloAcademico)
                 .filter("doc.estado", DocenteEstadoEnum.ACT)
-                .filter("doc.codigo", "<>", Constantine.DOCENTE_INDETERMINADO)
+                .filter("doc.codigo", "<>", AcademicoConstantine.DOCENTE_INDETERMINADO)
                 .filter("me.id", modalidadEstudio)
                 .filter("ds.estado", EstadoEnum.ACT)
                 .filter("sec.estado", EstadoEnum.ACT);
@@ -661,7 +662,7 @@ public class DocenteSeccionDAOH extends AbstractEasyDAO<DocenteSeccion> implemen
                 .addEntity("td", TipoDocIdentidad.class)
                 .addEntity("anx", AnexoBoletin.class);
 
-        query.setParameter("DOCENTE_NN", Constantine.DOCENTE_INDETERMINADO);
+        query.setParameter("DOCENTE_NN", AcademicoConstantine.DOCENTE_INDETERMINADO);
         query.setParameter("ESTADO", ACT.name());
         query.setParameter("CICLO", ciclo.getId());
 

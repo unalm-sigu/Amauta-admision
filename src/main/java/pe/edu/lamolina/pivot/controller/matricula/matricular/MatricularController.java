@@ -25,7 +25,8 @@ import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.TurnoAtencion;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.model.constantines.AcademicoConstantine;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -64,7 +65,7 @@ public class MatricularController {
     @RequestMapping(value = "{turno}", method = RequestMethod.GET)
     public String index(Model model, HttpSession session, @PathVariable("turno") Long turno) {
 
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         CicloAcademico cicloAcademico = service.findCiclo(ds.getCicloAcademico());
         TurnoAtencion turnoAtencion = service.findTurnoAtencion(turno);
 
@@ -84,7 +85,7 @@ public class MatricularController {
 
         try {
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
 
             Long alumnosPrematriculados = service.countAllAlumnoPrematriculado(cicloAcademico);
@@ -113,7 +114,7 @@ public class MatricularController {
 
         try {
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
 
             cicloAcademico = service.blequeoMatricula(cicloAcademico);
@@ -135,7 +136,7 @@ public class MatricularController {
 
         try {
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             service.matricular(turnoAtencion, ds);
             response.setMessage("Registro actualizado");
             response.setSuccess(true);

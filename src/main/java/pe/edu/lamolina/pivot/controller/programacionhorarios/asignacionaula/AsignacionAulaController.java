@@ -26,7 +26,8 @@ import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.AsignacionAula;
 import pe.edu.lamolina.model.academico.CicloAcademico;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.model.constantines.AcademicoConstantine;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -66,7 +67,7 @@ public class AsignacionAulaController {
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         AsignacionAula asignacionAula = asignacionAulaService.findAsignacionAulaByCiclo(ds.getCicloAcademico());
 
         if (asignacionAula != null) {
@@ -111,7 +112,7 @@ public class AsignacionAulaController {
             HttpSession session, HttpServletRequest request) {
         logger.debug("procesarAsignacionAulas");
         JsonResponse response = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         ds.setFechaAccionAudit(new Date());
         try {
             asignacionAula = asignacionAulaService.procesarAsignacionAulas(asignacionAula, ds);
@@ -138,7 +139,7 @@ public class AsignacionAulaController {
             HttpSession session, HttpServletRequest request) {
         logger.debug("aliminarAsignacion");
         JsonResponse response = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         ds.setFechaAccionAudit(new Date());
         try {
             asignacionAulaService.deleteAsignacion(asignacionAula);

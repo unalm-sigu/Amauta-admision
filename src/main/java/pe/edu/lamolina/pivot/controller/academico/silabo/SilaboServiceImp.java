@@ -16,7 +16,8 @@ import pe.edu.lamolina.model.academico.SilaboCurso;
 import pe.edu.lamolina.model.enums.SilaboCursoEstadoEnum;
 import pe.edu.lamolina.pivot.config.DespliegueConfig;
 import pe.edu.lamolina.pivot.dao.academico.SilaboCursoDAO;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.model.constantines.AcademicoConstantine;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 
 @Service
 @Transactional
@@ -74,12 +75,17 @@ public class SilaboServiceImp implements SilaboService {
         if (silabo.getFileUpdated() != null) {
             String fileName = "Silabo-" + silabo.getCurso().getCodigo() + "-" + silabo.getCicloVigenciaInicio().getCodigo() + ".pdf";
 
-            FileHelper.deleteFromDisk(GlobalConstantine.TMP_DIR + fileName);
+            try {
+                FileHelper.deleteFromDisk(GlobalConstantine.TMP_DIR + fileName);
+            } catch (Exception e) {
+                logger.debug("ELIMINAR ARCHIVO {} {}", fileName, e.getLocalizedMessage());
+            }
+
             FileHelper.renameFile(GlobalConstantine.TMP_DIR + silabo.getRutaDocumento(), GlobalConstantine.TMP_DIR + fileName);
 
             if (despliegueConfig.getStorage()) {
-                swiftService.uploadFileSync(Constantine.S3_DIR, Constantine.S3_DIR_SILABUS, GlobalConstantine.TMP_DIR, fileName, true);
-                String s3Link = Constantine.S3_LINK + Constantine.S3_DIR_SILABUS + fileName;
+                swiftService.uploadFileSync(AcademicoConstantine.S3_BUCKET_ACADEMICO, AcademicoConstantine.S3_DIR_SILABUS, GlobalConstantine.TMP_DIR, fileName, true);
+                String s3Link = AcademicoConstantine.S3_URL_ACADEMICO + AcademicoConstantine.S3_DIR_SILABUS + fileName;
                 silabo.setRutaDocumento(s3Link);
             } else {
                 String ruta = "/comun/archivo/downloadTemp/" + fileName;

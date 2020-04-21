@@ -44,7 +44,8 @@ import pe.edu.lamolina.model.horario.GrupoHoras;
 import pe.edu.lamolina.model.horario.GrupoHorasExcluido;
 import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.horario.TipoGrupoHoras;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.model.constantines.AcademicoConstantine;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -85,7 +86,7 @@ public class GrupoHorasController {
 
     @RequestMapping(method = RequestMethod.GET, value = "{tipo}")
     public String index(@PathVariable("tipo") Long idTipoGrupo, Model model, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         CicloAcademico ciclo = ds.getCicloAcademico();
 
         List<Dia> dias = service.allDia();
@@ -110,7 +111,7 @@ public class GrupoHorasController {
 
         DynatableResponse json = new DynatableResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
 
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
@@ -149,7 +150,7 @@ public class GrupoHorasController {
     public JsonResponse save(@RequestBody GrupoHoras grupoHoras, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
 
             GrupoHoras grupoCode = service.findGrupoHorasByCode(grupoHoras.getCodigo());
@@ -247,7 +248,7 @@ public class GrupoHorasController {
     public JsonResponse delete(@RequestBody GrupoHoras grupoHoras, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             CicloAcademico ciclo = ds.getCicloAcademico();
             service.delete(grupoHoras, ciclo, ds);
 
@@ -269,7 +270,7 @@ public class GrupoHorasController {
     public JsonResponse ocultar(@RequestBody GrupoHoras grupoHoras, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             CicloAcademico ciclo = ds.getCicloAcademico();
             service.ocultar(grupoHoras, ciclo, ds);
 
@@ -290,7 +291,7 @@ public class GrupoHorasController {
         JsonResponse response = new JsonResponse();
         long t1 = System.currentTimeMillis();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
 
             GrupoHoras grupoBD = service.findGrupoHoras(grupoHoras);
@@ -322,7 +323,7 @@ public class GrupoHorasController {
         JsonResponse response = new JsonResponse();
         try {
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
             diaHoraGrupo.setCicloAcademico(cicloAcademico);
             service.saveDiaHoraGrupo(diaHoraGrupo);
@@ -342,7 +343,7 @@ public class GrupoHorasController {
         JsonResponse response = new JsonResponse();
         try {
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
             diaHoraGrupo.setCicloAcademico(cicloAcademico);
             service.desasignarHora(diaHoraGrupo, cicloAcademico);
@@ -362,7 +363,7 @@ public class GrupoHorasController {
         JsonResponse response = new JsonResponse();
         try {
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             service.clonar(cicloOrigen, ds.getCicloAcademico());
             response.setSuccess(Boolean.TRUE);
             response.setMessage("Se clonó el horario satisfactoriamente");
@@ -380,7 +381,7 @@ public class GrupoHorasController {
         JsonResponse response = new JsonResponse();
         try {
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
 
             List<GrupoHoras> gpos = service.allOcultosByCiclo(tipoGpo, cicloAcademico);
@@ -403,7 +404,7 @@ public class GrupoHorasController {
         JsonResponse response = new JsonResponse();
         try {
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
             service.activarGrupos(gpos, cicloAcademico);
 

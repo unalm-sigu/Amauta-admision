@@ -87,7 +87,7 @@ Vue.component("rev-historial-component", {
                 },
                 error: function (response) {
                     // MODAL.hideWait();
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                 }
             });
         },
@@ -286,7 +286,7 @@ Vue.component("rev-historial-component", {
                                 }
                                 $global.$emit('MODAL-WAIT-CLOSE', 'Cargando');
                             }, error: function () {
-                                notify(MESSAGES.errorComunicacion, "error");
+                                notify(GlobalMessages.errorComunicacion, "error");
                                 $global.$emit('MODAL-WAIT-CLOSE', 'Cargando');
                             }
                         });
@@ -363,7 +363,7 @@ Vue.component("rev-historial-component", {
                     }
                     $global.$emit('MODAL-WAIT-CLOSE', 'Cargando');
                 }, error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                     $global.$emit('MODAL-WAIT-CLOSE', 'Cargando');
                 }
             });
@@ -393,7 +393,7 @@ Vue.component("rev-historial-component", {
                                 }
                                 $global.$emit('MODAL-WAIT-CLOSE', 'Cargando');
                             }, error: function () {
-                                notify(MESSAGES.errorComunicacion, "error");
+                                notify(GlobalMessages.errorComunicacion, "error");
                                 $global.$emit('MODAL-WAIT-CLOSE', 'Cargando');
                             }
                         });

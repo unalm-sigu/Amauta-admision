@@ -27,7 +27,8 @@ import pe.edu.lamolina.model.general.Idioma;
 import pe.edu.lamolina.model.tramite.PrecioDocumento;
 import pe.edu.lamolina.model.tramite.TipoDocumentoAcademico;
 import pe.edu.lamolina.pivot.controller.tramite.tipoConstancia.TipoConstanciaService;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.model.constantines.AcademicoConstantine;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -80,7 +81,7 @@ public class CostoDocumentoController {
     @RequestMapping("update")
     public JsonResponse update(@RequestBody PrecioDocumento precioDocumento, HttpSession session) {
         JsonResponse response = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         try {
             service.update(precioDocumento, ds.getUsuario());
             response.setMessage("Se actualizó");
@@ -97,7 +98,7 @@ public class CostoDocumentoController {
     @RequestMapping("save")
     public JsonResponse save(@RequestBody PrecioDocumento precioDocumento, HttpSession session) {
         JsonResponse response = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         try {
             service.save(precioDocumento, ds.getUsuario());
             response.setMessage("Se guardó");
@@ -114,7 +115,7 @@ public class CostoDocumentoController {
     @RequestMapping("list")
     public DynatableResponse all(DynatableFilter filter, HttpSession session) {
         DynatableResponse json = new DynatableResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         try {
             List<PrecioDocumento> list = service.all(filter);
             json.setData(new PrecioDocumento().toJsonArray(list));
@@ -131,7 +132,7 @@ public class CostoDocumentoController {
     @RequestMapping("{id}/find")
     public JsonResponse find(@PathVariable("id") Long id, HttpSession session) {
         JsonResponse response = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         try {
             PrecioDocumento precioDocumento = service.findById(new PrecioDocumento(id));
             response.setData(precioDocumento);

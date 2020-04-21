@@ -56,7 +56,7 @@ new Vue({
                     }
                 },
                 error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                 }
             });
         },
@@ -101,7 +101,7 @@ new Vue({
                     vue.hideLoader();
                 }, error: function () {
                     vue.hideLoader();
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                 }
             });
         },
@@ -133,7 +133,7 @@ new Vue({
                     vue.isprocess = false;
                 }, error: function () {
                     vue.isprocess = false;
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                 }
             });
         },
@@ -163,7 +163,7 @@ new Vue({
                         notify(response.message, 'error');
                     }
                 }, error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                 }
             });
         },

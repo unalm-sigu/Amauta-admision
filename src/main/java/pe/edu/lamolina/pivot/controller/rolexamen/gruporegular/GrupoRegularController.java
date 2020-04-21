@@ -33,7 +33,8 @@ import pe.edu.lamolina.model.rolexamen.RolExamenes;
 import pe.edu.lamolina.model.rolexamen.SeccionGrupoRegular;
 import pe.edu.lamolina.pivot.controller.rolexamen.grupoespecial.GrupoEspecialService;
 import pe.edu.lamolina.pivot.controller.rolexamen.util.RolExamenesLogger;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.model.constantines.AcademicoConstantine;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -60,7 +61,7 @@ public class GrupoRegularController {
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
 
         List<RolExamenes> rolesExamenes = service.allRolExamenesActives(ds.getCicloAcademico());
@@ -101,7 +102,7 @@ public class GrupoRegularController {
 
     @RequestMapping("secciones/{letraGrupoRegular}/letra")
     public String seccionesLetra(@PathVariable("letraGrupoRegular") Long idLetraGrupoRegular, Model model, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
 
         LetraGrupoRegular letraGrupoRegular = service.findLetraGrupoRegular(new LetraGrupoRegular(idLetraGrupoRegular));
@@ -114,7 +115,7 @@ public class GrupoRegularController {
 
     @RequestMapping("secciones/{rolExamenes}/rol")
     public String seccionesRol(@PathVariable("rolExamenes") Long idRolExamenes, Model model, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
 
         RolExamenes rolExamenes = service.findRolExamenes(idRolExamenes);
@@ -130,7 +131,7 @@ public class GrupoRegularController {
     public JsonResponse calcularGruposRegulares(@RequestBody RolExamenes rolExamenes,
             HttpSession session, HttpServletRequest request) {
         JsonResponse response = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         ds.setFechaAccionAudit(new Date());
         try {
             service.calcularExamenesGrupoRegular(rolExamenes, ds.getCicloAcademico(), ds);
@@ -151,7 +152,7 @@ public class GrupoRegularController {
     public JsonResponse eliminarGruposRegulares(@RequestBody RolExamenes rolExamenes,
             HttpSession session, HttpServletRequest request) {
         JsonResponse response = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         ds.setFechaAccionAudit(new Date());
         try {
             service.eliminarGruposRegulares(rolExamenes);
@@ -170,7 +171,7 @@ public class GrupoRegularController {
     public JsonResponse listGruposRegulares(@RequestBody RolExamenes rolExamenes,
             HttpSession session, HttpServletRequest request) {
         JsonResponse response = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         try {
             List<LetraGrupoRegular> letrasGruposRegulares = service.listGruposRegulares(rolExamenes);
 
@@ -205,7 +206,7 @@ public class GrupoRegularController {
     @ResponseBody
     @RequestMapping("{letraGrupoRegular}/listSeccionesLetra")
     public DynatableResponse listSeccionesLetra(@PathVariable("letraGrupoRegular") Long idLetraGrupoRegular, DynatableFilter filter, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         DynatableResponse json = new DynatableResponse();
 
         List<SeccionGrupoRegular> secciones = service.allSeccionesGpoRegByDynatableLetra(filter, new LetraGrupoRegular(idLetraGrupoRegular));
@@ -221,7 +222,7 @@ public class GrupoRegularController {
     @ResponseBody
     @RequestMapping("{rolExamenes}/listSeccionesRol")
     public DynatableResponse listSeccionesRol(@PathVariable("rolExamenes") Long idRolExamenes, DynatableFilter filter, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         DynatableResponse json = new DynatableResponse();
 
         List<SeccionGrupoRegular> secciones = service.allSeccionesGpoRegByDynatableRol(filter, new RolExamenes(idRolExamenes));
@@ -237,7 +238,7 @@ public class GrupoRegularController {
     @ResponseBody
     @RequestMapping(value = "listAlumnoLetraGrupoRegular", method = RequestMethod.GET)
     public DynatableResponse listAlumnoLetraGrupoRegular(DynatableFilter filter, @RequestParam("letraGrupoRegular") Long letraGrupoRegular, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         DynatableResponse json = new DynatableResponse();
 
         List<AlumnoGrupoRegular> list = service.allAlumnosGrupoRegularDynaByLetraGrupoReg(filter, new LetraGrupoRegular(letraGrupoRegular));
@@ -265,7 +266,7 @@ public class GrupoRegularController {
             @RequestBody LetraGrupoRegular letraGrupoRegular,
             HttpSession session, HttpServletRequest request) {
         JsonResponse response = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         try {
             JsonNodeFactory jc = JsonNodeFactory.instance;
             if (TipoAccion.GRUPO.name().equals(tipoAccion)) {
@@ -322,7 +323,7 @@ public class GrupoRegularController {
             @RequestBody ObjectNode objeto,
             HttpSession session, HttpServletRequest request) {
         JsonResponse response = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         ds.setFechaAccionAudit(new Date());
         try {
             ObjectMapper mapper = new ObjectMapper();
@@ -361,7 +362,7 @@ public class GrupoRegularController {
             @RequestBody ObjectNode objeto,
             HttpSession session, HttpServletRequest request) {
         JsonResponse response = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         ds.setFechaAccionAudit(new Date());
         try {
             ObjectMapper mapper = new ObjectMapper();
@@ -399,7 +400,7 @@ public class GrupoRegularController {
         JsonResponse response = new JsonResponse();
 
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             ds.setFechaAccionAudit(new Date());
             service.agregarGruposNuevos(rolExamenes, ds);
             grupoEspecialService.calcularExamenesGrupoEspecial(rolExamenes, ds);
@@ -420,7 +421,7 @@ public class GrupoRegularController {
         JsonResponse response = new JsonResponse();
 
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             List<String> restricciones = service.cambiarAula(seccionGpoReg, ds);
 
             response.setMessage("Cambioa de aula realizado satisfactoriamente");

@@ -589,7 +589,7 @@
 //            throw new PhobosException("No se pudo hallar la operación a extornar que corresponde a la línea " + extornador.getLinea());
 //        }
 //        for (ItemCargaAbono posible : posibles) {
-//            if (posible.getPostulante().getCodigo().equals(AdmisionConstantine.CODE_POSTULANTE_DUMMY)) {
+//            if (posible.getPostulante().getCodigo().equals(AdmisionAcademicoConstantine.CODE_POSTULANTE_DUMMY)) {
 //                posible.setExtornado(1);
 //                posible.setFechaExtornado(new Date());
 //                posible.setUsuarioExtornado(ds.getUsuario());
@@ -632,7 +632,7 @@
 //            String codigo = StringUtils.substring(item.getDescripcion(), -8).trim();
 //            Postulante postulante = item.getPostulante();
 //
-//            if (postulante == null || postulante.getCodigo().equals(AdmisionConstantine.CODE_POSTULANTE_DUMMY)) {
+//            if (postulante == null || postulante.getCodigo().equals(AdmisionAcademicoConstantine.CODE_POSTULANTE_DUMMY)) {
 //                Observado observado = new Observado();
 //                observado.setOperacion(item.getNumeroOperacion());
 //                observado.setDescripcion("Postulante con código " + codigo + " no pudo ser hallado en la línea " + (item.getLinea().intValue() + 1));
@@ -681,7 +681,7 @@
 //            }
 //
 //            if (postulante == null) {
-//                postulante = postulanteDAO.findByCodigoCiclo(AdmisionConstantine.CODE_POSTULANTE_DUMMY, ciclo);
+//                postulante = postulanteDAO.findByCodigoCiclo(AdmisionAcademicoConstantine.CODE_POSTULANTE_DUMMY, ciclo);
 //            }
 //
 //            item.setPostulante(postulante);

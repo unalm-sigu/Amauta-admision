@@ -117,7 +117,7 @@ Vue.component("inicio-tram-component", {
                         notify(response.message, 'error');
                     }
                 }, error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                 }
             });
         },
@@ -143,7 +143,7 @@ Vue.component("inicio-tram-component", {
                     }
                 },
                 error() {
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                 }
             });
         }

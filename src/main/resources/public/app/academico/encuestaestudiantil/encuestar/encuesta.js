@@ -90,7 +90,7 @@ $(function() {
                     }
                 },
                 error: function() {
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                 }
             });
 
@@ -112,7 +112,7 @@ $(function() {
                     }
                 },
                 error: function() {
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                 }
             });
 

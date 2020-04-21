@@ -34,7 +34,7 @@ import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.consejeria.AlumnoConsejero;
 import pe.edu.lamolina.model.general.Oficina;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.pivot.zelper.pdf.PdfService;
 
@@ -86,7 +86,7 @@ public class AlumnosDocenteController {
         JsonResponse json = new JsonResponse();
 
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
             CicloAcademico ciclo = ds.getCicloAcademico();
@@ -136,7 +136,7 @@ public class AlumnosDocenteController {
             @PathVariable("seccion") Long idSeccion, Model model, HttpSession session) {
         logger.debug("la seccion es {}", idSeccion);
 
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         Seccion seccion = service.findSeccion(idSeccion);
 

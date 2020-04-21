@@ -33,7 +33,8 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.EventoAcademico;
 import pe.edu.lamolina.model.academico.EventoCicloAcademico;
 import pe.edu.lamolina.model.seguridad.Usuario;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.model.constantines.AcademicoConstantine;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -71,7 +72,7 @@ public class EventoCicloAcademicoController {
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         CicloAcademico cicloAcademico = ds.getCicloAcademico();
         model.addAttribute("cicloAcademico", cicloAcademico);
         return "academico/eventocicloacademico/eventoCicloAcademico";
@@ -84,7 +85,7 @@ public class EventoCicloAcademicoController {
         DynatableResponse json = new DynatableResponse();
         try {
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             CicloAcademico ciclo = ds.getCicloAcademico();
             List<EventoCicloAcademico> eventos = service.allByDynatable(filter, ciclo);
 
@@ -129,7 +130,7 @@ public class EventoCicloAcademicoController {
 
         try {
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             Usuario usuario = ds.getUsuario();
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
 
@@ -203,7 +204,7 @@ public class EventoCicloAcademicoController {
 
         try {
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             CicloAcademico ciclo = ds.getCicloAcademico();
 
             ArrayNode jsonList = new ArrayNode(jsonFactory);

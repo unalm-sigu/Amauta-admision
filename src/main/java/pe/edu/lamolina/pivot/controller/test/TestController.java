@@ -45,7 +45,8 @@ import pe.edu.lamolina.pivot.dao.academico.MatriculaSeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.ModalidadEstudioDAO;
 import pe.edu.lamolina.pivot.dao.academico.SeccionDAO;
 import pe.edu.lamolina.pivot.dao.academico.SituacionAcademicaDAO;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.model.constantines.AcademicoConstantine;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -177,7 +178,7 @@ public class TestController {
     @RequestMapping("/calcularAllResumenEvaluacion/{seccion}")
     public String calcularAllResumenEvaluacion(@PathVariable("seccion") Long seccionId, HttpSession session) {
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             CicloAcademico ciclo = ds.getCicloAcademico();
             service.calcularAllResumenEvaluacion(seccionId, ciclo, ds);
 
@@ -192,7 +193,7 @@ public class TestController {
     public String calcularAllResumenEvaluacion(HttpSession session) {
         int loop = 1;
 //        visorCalculoNotas.iniciar();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         List<CicloAcademico> ciclosActivos = cicloAcademicoDAO.allActivos();
 
         for (CicloAcademico cicloActivo : ciclosActivos) {
@@ -228,7 +229,7 @@ public class TestController {
     @RequestMapping("promediarciclo/{ciclo}")
     public String promediarAll(@PathVariable("ciclo") Long cicloId, HttpSession session) {
         logger.info("promediarAll");
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         ds.setFechaAccionAudit(new Date());
         service.promediarAll(cicloId, ds);
         return "yeah";
@@ -238,7 +239,7 @@ public class TestController {
     @RequestMapping("promediarfull")
     public String promediarfull(HttpSession session) {
         logger.info("promediarful");
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         ds.setFechaAccionAudit(new Date());
         service.promediarfull(ds, ModalidadEstudioEnum.PRE);
         return "yeah";
@@ -248,7 +249,7 @@ public class TestController {
     @RequestMapping("promediarepgfull")
     public String promediarepgfull(HttpSession session) {
         logger.info("promediarepgfull");
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         service.promediarfull(ds, ModalidadEstudioEnum.EPG);
         return "yeah";
     }
@@ -257,7 +258,7 @@ public class TestController {
     @RequestMapping("revisarCurriculas/{codigo}")
     public String revisarCurriculas(@PathVariable("codigo") String codigoCiclo, HttpSession session) {
         logger.info("revisarCurriculas-{}", codigoCiclo);
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         service.revisarCurriculasCiclo(codigoCiclo, ds);
         return "yeah";
     }
@@ -266,7 +267,7 @@ public class TestController {
     @RequestMapping("revisarCurriculasCarrera/{codigo}")
     public String revisarCurriculasCarrera(@PathVariable("codigo") String codigoCarrera, HttpSession session) {
         logger.info("revisarCurriculas-carrera-{}", codigoCarrera);
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         service.revisarCurriculasCarrera(codigoCarrera, ds);
         return "yeah";
     }
@@ -274,7 +275,7 @@ public class TestController {
     @ResponseBody
     @RequestMapping("promediarfullbysituacion/{sit}")
     public String promediarfullBySituacion(@PathVariable("sit") String sit, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         ds.setFechaAccionAudit(new Date());
         service.promediarfullBySituacion(sit, ds, ModalidadEstudioEnum.PRE);
         return "yeah";
@@ -284,7 +285,7 @@ public class TestController {
     @RequestMapping("promediarepgfullbysituacion/{sit}")
     public String promediarepgfullBySituacion(@PathVariable("sit") String sit, HttpSession session) {
         logger.info("promediarepgfull");
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         service.promediarfullBySituacion(sit, ds, ModalidadEstudioEnum.EPG);
         return "yeah";
     }
@@ -293,7 +294,7 @@ public class TestController {
     @RequestMapping("promediarciclocod/{ciclo}")
     public String promediarciclocod(@PathVariable("ciclo") String cicloCod, HttpSession session) {
         logger.info("promediarciclocod {}", cicloCod);
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         service.promediarciclocod(cicloCod, ds);
         return "yeah";
     }
@@ -302,7 +303,7 @@ public class TestController {
     @RequestMapping("promediarciclocod/{ciclo}/error")
     public String promediarciclocodError(@PathVariable("ciclo") String cicloCod, HttpSession session) {
         logger.info("promediarciclocod {}", cicloCod);
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         service.promediarciclocoderror(cicloCod, ds);
         return "yeah";
     }
@@ -310,7 +311,7 @@ public class TestController {
     @ResponseBody
     @RequestMapping("promediaralumno/{alumno}")
     public String calcularAllPromediosByCiclo(HttpSession session, @PathVariable("alumno") Long alumnoId) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         //  List<CicloAcademico> allCiclosActivos = cicloAcademicoDAO.allActivesByModalidad(alumno.getModalidadEstudio(), new String[]{"ca.year asc", "ca.numeroCiclo asc"});
         //  visorCalculoNotas.setActivo(false);
         ds.setFechaAccionAudit(new Date());
@@ -321,7 +322,7 @@ public class TestController {
     @ResponseBody
     @RequestMapping("trasladarInformcionForHistorialReview/{alumno}")
     public String trasladarInformcionForHistorialReviewAlumno(HttpSession session, @PathVariable(value = "alumno") Long alumnoId) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         ds.setFechaAccionAudit(new Date());
         service.trasladarMatriculaCursoForPromediosAlumno(ds, alumnoId);
         return "yeah";
@@ -330,7 +331,7 @@ public class TestController {
     @ResponseBody
     @RequestMapping("trasladarInformcionForHistorialReview")
     public String trasladarInformcionForHistorialReview(HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         ds.setFechaAccionAudit(new Date());
         service.trasladarMatriculaCursoForPromediosReview(ds, null);
         return "yeah";
@@ -340,7 +341,7 @@ public class TestController {
     @RequestMapping("trasladarInformcionForHistorialCicloReview/{codigo}")
     public String trasladarInformcionForHistorialCicloReview(@PathVariable("codigo") String codigo,
             HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         ds.setFechaAccionAudit(new Date());
 
         service.trasladarMatriculaCursoForPromediosReview(ds, codigo);
@@ -350,7 +351,7 @@ public class TestController {
     @ResponseBody
     @RequestMapping("trasladarInformcionForHistorialCiclo/{codigo}/{mod}")
     public String trasladarMatriculaCursoForPromediosCiclo(@PathVariable("codigo") String codigo, @PathVariable("mod") Long modalidad, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         ds.setFechaAccionAudit(new Date());
 
         service.trasladarMatriculaCursoForPromediosCiclo(ds, codigo, modalidad);
@@ -360,7 +361,7 @@ public class TestController {
     @ResponseBody
     @RequestMapping("trasladarInformcionPromedioForHistorialCiclo/{codigo}/{mod}")
     public String trasladarInformcionPromedioForHistorialCiclo(@PathVariable("codigo") String codigo, @PathVariable("mod") Long modalidad, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         ds.setFechaAccionAudit(new Date());
 
         String token = RandomStringUtils.randomAlphanumeric(43);
@@ -379,7 +380,7 @@ public class TestController {
     @ResponseBody
     @RequestMapping("trasladarInformcionForHistorialAlumno/{alumno}")
     public String trasladarInformcionForHistorialAlumno(HttpSession session, @PathVariable("alumno") Long alumnoId) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         ds.setFechaAccionAudit(new Date());
         service.trasladarMatriculaCursoForPromediosAlumno(ds, alumnoId);
         return "yeah";
@@ -389,7 +390,7 @@ public class TestController {
     @ResponseBody
     @RequestMapping("cleandeudass")
     public String cleanDeudas(HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         ds.setFechaAccionAudit(new Date());
         deudaService.cleanDeudas(ds);
         return "yeah";

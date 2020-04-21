@@ -34,7 +34,8 @@
 //import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 //import pe.edu.lamolina.model.finanzas.ItemCargaAbono;
 //import pe.edu.lamolina.model.inscripcion.CicloPostula;
-//import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+//import pe.edu.lamolina.model.constantines.AcademicoConstantine;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 //
 //@Controller
 //@RequestMapping("facturacion/abono")
@@ -73,7 +74,7 @@
 //
 //    @RequestMapping(method = RequestMethod.GET)
 //    public String index(Model model, HttpSession session) {
-//        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+//        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 //        model.addAttribute("ciclo", ds.getCicloAcademico());
 //        return "facturacion/abono/abono";
 //    }
@@ -83,7 +84,7 @@
 ////    public DynatableResponse list(DynatableFilter filter, HttpSession session) {
 ////        DynatableResponse json = new DynatableResponse();
 ////        try {
-////            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+////            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 ////            List<ItemCargaAbono> abonosPostulante = service.allAbonosByPostulante(ds.getCicloPostula(), filter);
 ////            NumberFormat format = new NumberFormat();
 ////            ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
@@ -121,14 +122,14 @@
 ////    }
 //    @RequestMapping("loadArchivoDiario")
 //    public String loadArchivoDiario(Model model, HttpSession session) {
-//        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+//        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 ////        model.addAttribute("ciclo", ds.getCicloPostula());
 //        return "facturacion/abono/loadArchivoDiario";
 //    }
 //
 //    @RequestMapping("loadArchivoHistorico")
 //    public String loadArchivoHistorico(Model model, HttpSession session) {
-//        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+//        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 ////        model.addAttribute("ciclo", ds.getCicloPostula());
 //        return "facturacion/abono/loadArchivoHistorico";
 //    }
@@ -139,7 +140,7 @@
 //        JsonResponse json = new JsonResponse();
 //
 //        try {
-//            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+//            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 ////            List<Observado> observados = service.loadArchivoDiario(file, ds.getCicloPostula(), ds);
 //            List<Observado> observados = service.loadArchivoDiario(file, ds);
 //
@@ -175,7 +176,7 @@
 ////        JsonResponse json = new JsonResponse();
 ////
 ////        try {
-////            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+////            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 ////            List<Observado> observados = service.loadArchivoHistorico(file, ds.getCicloPostula(), ds);
 ////
 ////            json.setSuccess(true);
@@ -210,7 +211,7 @@
 ////
 ////        JsonResponse response = new JsonResponse();
 ////        try {
-////            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+////            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 ////            CicloPostula ciclo = ds.getCicloPostula();
 ////            service.asignarPostulante(itemCargaAbono, ciclo, ds);
 ////            ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
@@ -240,7 +241,7 @@
 ////    public JsonResponse reasignarExtorno(ItemCargaAbono extornado, HttpSession session) {
 ////        JsonResponse response = new JsonResponse();
 ////        try {
-////            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+////            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 ////            service.reasignarExtorno(extornado, ds);
 ////            ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
 ////            response.setData(node);

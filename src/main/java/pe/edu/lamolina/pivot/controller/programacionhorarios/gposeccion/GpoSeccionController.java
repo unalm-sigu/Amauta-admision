@@ -81,10 +81,10 @@ import pe.edu.lamolina.model.horario.HorarioSeccion;
 import pe.edu.lamolina.model.horario.TipoGrupoHoras;
 import pe.edu.lamolina.pivot.controller.general.oficina.OficinaService;
 import pe.edu.lamolina.pivot.controller.programacionhorarios.boletinacademico.BoletinAcademicoExcelView;
-import pe.edu.lamolina.pivot.controller.programacionhorarios.loadprogramacion.VerificadorProgramacioService;
 import pe.edu.lamolina.pivot.controller.seguridad.verificador.VerificadorService;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
-import pe.edu.lamolina.pivot.zelper.constant.Messages;
+import pe.edu.lamolina.model.constantines.AcademicoConstantine;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
+import pe.edu.lamolina.model.constantines.GlobalMessages;
 import pe.edu.lamolina.pivot.zelper.enums.TipoRestriccionEnum;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -137,7 +137,7 @@ public class GpoSeccionController {
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         CicloAcademico cicloPregrado = service.findCicloPregrado(ds.getCicloAcademico());
         Long cantidad = service.contarGpoSecc(cicloPregrado);
 
@@ -155,7 +155,7 @@ public class GpoSeccionController {
         DynatableResponse json = new DynatableResponse();
         try {
             filter.getQueries();
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             List<AnexoBoletin> anexosUser = service.allAnexosUser(ds);
             List<GrupoSeccion> gpoSecciones = service.allByDynatable(filter, ds.getCicloAcademico(), anexosUser);
             ArrayNode arrayGpoSecc = new ArrayNode(JsonNodeFactory.instance);
@@ -231,7 +231,7 @@ public class GpoSeccionController {
             @RequestParam(value = "ids", required = false) String ids,
             Model model, HttpSession session) {
 
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         GrupoSeccion gpoSeccion = service.findGpoSeccion(gpoSeccId, ds);
 
         String fechaMin = null;
@@ -268,7 +268,7 @@ public class GpoSeccionController {
     public JsonResponse getGpoSeccion(@PathVariable("gruposeccion") Long gpoSeccId, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             GrupoSeccion gpoSeccion = service.findGpoSeccion(gpoSeccId, ds);
 
             String fechaMin = null;
@@ -307,7 +307,7 @@ public class GpoSeccionController {
     public JsonResponse allData(Model model, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             List<AnexoBoletin> anexosSup = service.allAnexosSuperiores();
             List<AnexoBoletin> anexos = service.allAnexoBoletionHijos(ds.getCicloAcademico(), ds);
@@ -361,7 +361,7 @@ public class GpoSeccionController {
     public JsonResponse activarGrupo(@PathVariable("gruposeccion") Long gruposeccionId, Model model, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             service.cambiarEstadoGpoSeccion(SeccionEstadoEnum.ACT, new GrupoSeccion(gruposeccionId), ds);
             response.setMessage("Activado correctamente.");
             response.setSuccess(true);
@@ -379,7 +379,7 @@ public class GpoSeccionController {
     public JsonResponse desactivarGrupo(@PathVariable("gruposeccion") Long gruposeccionId, Model model, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             service.cambiarEstadoGpoSeccion(SeccionEstadoEnum.ANU, new GrupoSeccion(gruposeccionId), ds);
             response.setMessage("Desactivado correctamente.");
             response.setSuccess(true);
@@ -397,7 +397,7 @@ public class GpoSeccionController {
     public JsonResponse loadGpoSeccionForm(@PathVariable("gruposeccion") Long gruposeccionId, HttpSession session) {
         JsonResponse jsonResponse = new JsonResponse();
         JsonNodeFactory nc = JsonNodeFactory.instance;
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         /*
         List<Date> fechas = service.allDatesEventoCicloAcademicoForPeriodo(ds.getCicloAcademico());
@@ -426,7 +426,7 @@ public class GpoSeccionController {
     public JsonResponse loadCambiarAulaGrupo(@PathVariable("seccion") Long seccionId, HttpSession session) {
         JsonResponse jsonResponse = new JsonResponse();
         JsonNodeFactory nc = JsonNodeFactory.instance;
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         ObjectNode result = new ObjectNode(nc);
 
@@ -442,7 +442,7 @@ public class GpoSeccionController {
     @ResponseBody
     @RequestMapping("{gruposeccion}/findSecciones")
     public JsonResponse findSecciones(@PathVariable("gruposeccion") Long gruposeccionId, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         JsonResponse jsonResponse = new JsonResponse();
         JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
         ArrayNode array = new ArrayNode(jsonFactory);
@@ -494,7 +494,7 @@ public class GpoSeccionController {
     @RequestMapping("findTiposGruposHoras")
     public JsonResponse findTiposGruposHoras(HttpSession session) {
         JsonResponse jsonResponse = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
         List<TipoGrupoHoras> tiposGrupoHoras = service.allGrupoHorasActivosTipoAndCiclo(ds.getCicloAcademico(), TipoGrupoHorasEnum.REGULAR);
@@ -518,7 +518,7 @@ public class GpoSeccionController {
             @RequestParam("seccion") Long seccionId,
             HttpSession session) {
 
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         JsonResponse jsonResponse = new JsonResponse();
         ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
         Seccion seccion = service.findSeccion(seccionId);
@@ -546,7 +546,7 @@ public class GpoSeccionController {
                 "docente.persona.apellidosNombres",
                 "docente.persona.emailCompania"
             });
-            node.put("docenteNN", docSeccion.getDocente().getCodigo().equals(Constantine.DOCENTE_INDETERMINADO));
+            node.put("docenteNN", docSeccion.getDocente().getCodigo().equals(AcademicoConstantine.DOCENTE_INDETERMINADO));
             node.put("fechaInicioMin", fechaMin);
             node.put("fechaFinMax", fechaMax);
             array.add(node);
@@ -579,7 +579,7 @@ public class GpoSeccionController {
 
     @RequestMapping("nuevo")
     public String nuevo(Model model, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         model.addAttribute("anexosHijos", service.allAnexoBoletionHijos());
         return "academico/gposeccion/gpoSeccionNuevo";
     }
@@ -594,7 +594,7 @@ public class GpoSeccionController {
         JsonResponse response = new JsonResponse();
 
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             List<Curso> cursos = service.allCursosForProgramacion(nombre);
             ArrayNode jsonList = new ArrayNode(jsonFactory);
@@ -665,7 +665,7 @@ public class GpoSeccionController {
 
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             ds.setFechaAccionAudit(new Date());
             ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
 
@@ -699,7 +699,7 @@ public class GpoSeccionController {
             HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             service.addSeccion(new GrupoSeccion(grupoSeccion), ds);
 
@@ -711,7 +711,7 @@ public class GpoSeccionController {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
             e.printStackTrace();
-            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+            ExceptionHandler.handleSpecial(e, response, GlobalMessages.FK_ERROR_UPDATE);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
@@ -725,7 +725,7 @@ public class GpoSeccionController {
             HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             service.addDocenteSeccion(new Seccion(seccionId), ds.getCicloAcademico());
 
@@ -736,7 +736,7 @@ public class GpoSeccionController {
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
-            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+            ExceptionHandler.handleSpecial(e, response, GlobalMessages.FK_ERROR_UPDATE);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
@@ -750,7 +750,7 @@ public class GpoSeccionController {
             HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             //service.addDocenteSeccion(new Seccion(seccionId), ds.getCicloAcademico());
             service.updateDocenteSecFechaInicio(docenteSeccion, ds.getCicloAcademico());
@@ -761,7 +761,7 @@ public class GpoSeccionController {
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
-            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+            ExceptionHandler.handleSpecial(e, response, GlobalMessages.FK_ERROR_UPDATE);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
@@ -775,7 +775,7 @@ public class GpoSeccionController {
             HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             //service.addDocenteSeccion(new Seccion(seccionId), ds.getCicloAcademico());
             service.updateDocenteSecFechaFin(docenteSeccion, ds.getCicloAcademico());
@@ -786,7 +786,7 @@ public class GpoSeccionController {
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
-            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+            ExceptionHandler.handleSpecial(e, response, GlobalMessages.FK_ERROR_UPDATE);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
@@ -800,7 +800,7 @@ public class GpoSeccionController {
             HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             service.deleteSeccion(new Seccion(seccionId));
             String message = "Sección eliminada.";
             response.setSuccess(true);
@@ -809,7 +809,7 @@ public class GpoSeccionController {
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
-            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+            ExceptionHandler.handleSpecial(e, response, GlobalMessages.FK_ERROR_UPDATE);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
@@ -823,7 +823,7 @@ public class GpoSeccionController {
             HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             service.activarSeccion(new Seccion(seccionId), ds);
             String message = "Sección activada.";
             response.setSuccess(true);
@@ -832,7 +832,7 @@ public class GpoSeccionController {
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
-            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+            ExceptionHandler.handleSpecial(e, response, GlobalMessages.FK_ERROR_UPDATE);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
@@ -847,7 +847,7 @@ public class GpoSeccionController {
         JsonResponse response = new JsonResponse();
         try {
             TypesUtil.delay(3000);
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             service.bloquearSeccion(new Seccion(seccionId), ds);
             String message = "Sección bloqueada.";
             response.setSuccess(true);
@@ -856,7 +856,7 @@ public class GpoSeccionController {
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
-            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+            ExceptionHandler.handleSpecial(e, response, GlobalMessages.FK_ERROR_UPDATE);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
@@ -870,7 +870,7 @@ public class GpoSeccionController {
             HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             GrupoSeccion grupoSeccion = service.anularSeccion(new Seccion(seccionId), ds);
             String message = "redirect";
@@ -884,7 +884,7 @@ public class GpoSeccionController {
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
-            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+            ExceptionHandler.handleSpecial(e, response, GlobalMessages.FK_ERROR_UPDATE);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
@@ -898,7 +898,7 @@ public class GpoSeccionController {
             HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             service.cancelarSeccion(seccion, ds);
             String message = "Sección cancelada.";
@@ -910,7 +910,7 @@ public class GpoSeccionController {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
             e.printStackTrace();
-            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+            ExceptionHandler.handleSpecial(e, response, GlobalMessages.FK_ERROR_UPDATE);
         } catch (Exception e) {
             e.printStackTrace();
             ExceptionHandler.handleException(e, response);
@@ -933,7 +933,7 @@ public class GpoSeccionController {
             HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             service.deleteDocSeccion(new DocenteSeccion(docSeccionId), ds.getCicloAcademico(), ds);
             logger.debug("Docente Seccion {}", docSeccionId);
@@ -945,7 +945,7 @@ public class GpoSeccionController {
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
-            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+            ExceptionHandler.handleSpecial(e, response, GlobalMessages.FK_ERROR_UPDATE);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
@@ -971,7 +971,7 @@ public class GpoSeccionController {
         JsonResponse response = new JsonResponse();
 
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             ArrayNode jsonList = new ArrayNode(jsonFactory);
 
@@ -1011,7 +1011,7 @@ public class GpoSeccionController {
         JsonResponse response = new JsonResponse();
 
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             CicloAcademico ciclo = ds.getCicloAcademico();
             List<Aula> aulas = service.searchAulaByName(nombre, seccionId, ciclo);
             ArrayNode jsonList = new ArrayNode(jsonFactory);
@@ -1059,7 +1059,7 @@ public class GpoSeccionController {
             HttpSession session) {
         JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
         JsonResponse response = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         try {
             service.actualizarDocente(docSeccion, docente, ds.getCicloAcademico());
             response.setSuccess(Boolean.TRUE);
@@ -1078,7 +1078,7 @@ public class GpoSeccionController {
             HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             logger.debug("seccion {}, vacantes {}", seccionId, vacantes);
 
             Seccion seccion = new Seccion(seccionId);
@@ -1090,7 +1090,7 @@ public class GpoSeccionController {
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
-            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+            ExceptionHandler.handleSpecial(e, response, GlobalMessages.FK_ERROR_UPDATE);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
@@ -1106,7 +1106,7 @@ public class GpoSeccionController {
         JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             logger.debug("seccion {}, capa {}", seccionId, capa);
 
             Seccion seccion = new Seccion(seccionId);
@@ -1118,7 +1118,7 @@ public class GpoSeccionController {
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
-            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+            ExceptionHandler.handleSpecial(e, response, GlobalMessages.FK_ERROR_UPDATE);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
@@ -1133,7 +1133,7 @@ public class GpoSeccionController {
             HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             DocenteSeccion docenteSeccion = new DocenteSeccion(docSeccion);
             docenteSeccion.setPorcentajeCargaFraccion(porcentajeFraccion);
             service.updatePorcentajeAvance(docenteSeccion, ds.getCicloAcademico());
@@ -1143,7 +1143,7 @@ public class GpoSeccionController {
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
-            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+            ExceptionHandler.handleSpecial(e, response, GlobalMessages.FK_ERROR_UPDATE);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
@@ -1160,7 +1160,7 @@ public class GpoSeccionController {
         JsonResponse response = new JsonResponse();
         try {
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             Aula aula = new Aula();
             aula.setCodigo(codigoAula);
             service.saveAula(new Seccion(seccionId), aula, ds);
@@ -1170,7 +1170,7 @@ public class GpoSeccionController {
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
-            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+            ExceptionHandler.handleSpecial(e, response, GlobalMessages.FK_ERROR_UPDATE);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
@@ -1186,7 +1186,7 @@ public class GpoSeccionController {
 
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             Seccion seccion = service.findSeccion(seccionId);
             GrupoHoras grupoHoras = service.findGrupoHorasForDirectUpdate(codigoGrupoHor, ds.getCicloAcademico(), seccion);
             service.saveSeccionGrupoHorario(seccion, grupoHoras, ds.getCicloAcademico());
@@ -1196,7 +1196,7 @@ public class GpoSeccionController {
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
-            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+            ExceptionHandler.handleSpecial(e, response, GlobalMessages.FK_ERROR_UPDATE);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
@@ -1237,7 +1237,7 @@ public class GpoSeccionController {
             long t1 = System.currentTimeMillis();
 
             Seccion seccion = service.findSeccion(seccionId);
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
 
             ObjectNode node = new ObjectNode(jsonFactory);
@@ -1308,7 +1308,7 @@ public class GpoSeccionController {
         JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             Oficina oficinaOERA = service.findOficinaOera();
             List<Oficina> oficinas = oficinaContenida(ds.getOficinas(), oficinaOERA) ? service.allOficinas(ds.getCompania()) : ds.getOficinas();
 
@@ -1356,7 +1356,7 @@ public class GpoSeccionController {
                     "id", "codigo", "nombre"
                 });
 
-                if (aula.getOficinaSupervisora().getId().equals(Constantine.ID_OFICINA_OERA)) {
+                if (aula.getOficinaSupervisora().getId().equals(AcademicoConstantine.ID_OFICINA_OERA)) {
                     //OERA
                     Aula moduloOera = modulosOera.stream().filter(req -> req.getId().equals(aula.getAulaSuperior().getId())).findFirst().orElse(null);
                     aulaNode.put("tabAula", "oera");
@@ -1394,7 +1394,7 @@ public class GpoSeccionController {
         JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             ObjectNode nodeResult = new ObjectNode(jsonFactory);
 
             Seccion seccion = service.findSeccionWithRestriccions(seccionId);
@@ -1635,7 +1635,7 @@ public class GpoSeccionController {
 
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
             Seccion seccion = new Seccion(TypesUtil.getLong(restriccionJson.get("seccion")));
@@ -1657,7 +1657,7 @@ public class GpoSeccionController {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
             e.printStackTrace();
-            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+            ExceptionHandler.handleSpecial(e, response, GlobalMessages.FK_ERROR_UPDATE);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
@@ -1672,7 +1672,7 @@ public class GpoSeccionController {
             Model model) {
         JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
         JsonResponse response = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         try {
             Aula aula = service.findAulaFull(aulaId, ds.getCicloAcademico());
 
@@ -1757,7 +1757,7 @@ public class GpoSeccionController {
         JsonResponse response = new JsonResponse();
         try {
             long t1 = System.currentTimeMillis();
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
             Aula aula = null;
 
@@ -1886,7 +1886,7 @@ public class GpoSeccionController {
             @RequestParam(name = "aula", required = false) Long aulaId,
             @RequestParam(name = "seccion", required = false) Long seccionId, Model model, HttpSession session) {
         JsonResponse response = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         try {
             JsonNodeFactory factory = JsonNodeFactory.instance;
 
@@ -2008,7 +2008,7 @@ public class GpoSeccionController {
             @RequestParam(name = "seccion", required = false) Long seccionId, Model model, HttpSession session) {
 
         JsonResponse response = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         try {
 
             JsonNodeFactory factory = JsonNodeFactory.instance;
@@ -2138,7 +2138,7 @@ public class GpoSeccionController {
         try {
             long t1 = System.currentTimeMillis();
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             List<GrupoHoras> gruposHoras = service.allGrupoHorasZetasDyna(filter, ds.getCicloAcademico());
 
             JsonNodeFactory nf = JsonNodeFactory.instance;
@@ -2178,7 +2178,7 @@ public class GpoSeccionController {
 
         try {
             long t1 = System.currentTimeMillis();
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
 
             JsonNodeFactory nf = JsonNodeFactory.instance;
@@ -2229,7 +2229,7 @@ public class GpoSeccionController {
 
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             String message = "Grupo hora asignado correctamente.";
             Seccion seccion = service.findSeccion(seccionId);
@@ -2257,7 +2257,7 @@ public class GpoSeccionController {
             HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             List<TipoRepitencia> tiposRepitencia = new ArrayList();
             for (JsonNode it : tiposRepitencias) {
                 ObjectNode tipoRepitencia = (ObjectNode) it;
@@ -2273,7 +2273,7 @@ public class GpoSeccionController {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
             e.printStackTrace();
-            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+            ExceptionHandler.handleSpecial(e, response, GlobalMessages.FK_ERROR_UPDATE);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
@@ -2290,7 +2290,7 @@ public class GpoSeccionController {
 
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
 
@@ -2305,7 +2305,7 @@ public class GpoSeccionController {
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
-            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+            ExceptionHandler.handleSpecial(e, response, GlobalMessages.FK_ERROR_UPDATE);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
@@ -2322,7 +2322,7 @@ public class GpoSeccionController {
 
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             Oficina oficinaOERA = service.findOficinaOera();
             List<Oficina> oficinas = oficinaContenida(ds.getOficinas(), oficinaOERA) ? service.allOficinas(ds.getCompania()) : ds.getOficinas();
@@ -2340,7 +2340,7 @@ public class GpoSeccionController {
                 ObjectNode aulaJson = JsonHelper.createJson(aulaEach, nc, true, new String[]{"*"});
                 aulaJson.put("seleccionado", Boolean.FALSE);
 
-                if (aulaEach.getOficinaSupervisora().getId().equals(Constantine.ID_OFICINA_OERA)) {
+                if (aulaEach.getOficinaSupervisora().getId().equals(AcademicoConstantine.ID_OFICINA_OERA)) {
                     aulaJson.put("tabAula", "oera");
                 } else if (oficinasAulasSuperiores.contains(aulaEach.getAulaSuperior())) {
                     aulaJson.put("tabAula", "oficina");
@@ -2364,7 +2364,7 @@ public class GpoSeccionController {
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
-            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+            ExceptionHandler.handleSpecial(e, response, GlobalMessages.FK_ERROR_UPDATE);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
@@ -2381,7 +2381,7 @@ public class GpoSeccionController {
 
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             JsonNodeFactory nc = JsonNodeFactory.instance;
             ObjectNode nodeData = new ObjectNode(nc);
 
@@ -2411,7 +2411,7 @@ public class GpoSeccionController {
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
-            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+            ExceptionHandler.handleSpecial(e, response, GlobalMessages.FK_ERROR_UPDATE);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
@@ -2423,7 +2423,7 @@ public class GpoSeccionController {
     public JsonResponse allAnexos(@RequestParam("anexoSuperior") String anexoSuperior, HttpSession session) {
         JsonResponse jsonResponse = new JsonResponse();
 
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
         List<AnexoBoletin> anexos = service.allAnexosBySuperiorCiclo(anexoSuperior, ds.getCicloAcademico());
@@ -2447,7 +2447,7 @@ public class GpoSeccionController {
     public JsonResponse clonar(@PathVariable("gruposeccion") Long gruposeccionId, @PathVariable Integer veces, Model model, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             List<GrupoSeccion> gps = service.clonar(new GrupoSeccion(gruposeccionId), veces, ds);
             ArrayNode arr = new ArrayNode(JsonNodeFactory.instance);
             String ids = String.join(",", gps.stream().map(x -> x.getId().toString()).collect(Collectors.toList()));
@@ -2590,7 +2590,7 @@ public class GpoSeccionController {
                     "contratoDocente.categoria.id", "contratoDocente.categoria.nombre", "contratoDocente.categoria.codigo",
                     "contratoDocente.dedicacion.id", "contratoDocente.dedicacion.nombre", "contratoDocente.dedicacion.codigo",
                     "contratoDocente.situacion.id", "contratoDocente.situacion.codigo", "contratoDocente.situacion.nombre",});
-                nodeProfe.put("docenteNN", docSeccion.getDocente().getCodigo().equals(Constantine.DOCENTE_INDETERMINADO));
+                nodeProfe.put("docenteNN", docSeccion.getDocente().getCodigo().equals(AcademicoConstantine.DOCENTE_INDETERMINADO));
                 nodeProfe.put("fechaInicioMin", fechaMin);
                 nodeProfe.put("fechaFinMax", fechaMax);
                 if (docSeccion.getPagoVerano() != null) {
@@ -2789,7 +2789,7 @@ public class GpoSeccionController {
     public JsonResponse recrearVacanteAlumno(Model model, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             CicloAcademico ciclo = ds.getCicloAcademico();
 
             service.recrearVacanteAlumno(ciclo, ds);
@@ -2820,7 +2820,7 @@ public class GpoSeccionController {
         JsonResponse response = new JsonResponse();
         try {
             response.setSuccess(true);
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
             service.eliminarGrupos(gruposSeccion, ds);
             response.setMessage("Grupos eliminados.");
@@ -2836,7 +2836,7 @@ public class GpoSeccionController {
     @ResponseBody
     @RequestMapping("solucionarcruzados")
     public void solucionarCruzados(HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         service.solucionarCruzados(ds.getCicloAcademico());
     }
 
@@ -2845,7 +2845,7 @@ public class GpoSeccionController {
     public JsonResponse saveDescuento(@RequestBody DescuentoSeccionVerano descuentoSeccionVerano, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             service.saveDescuento(descuentoSeccionVerano, ds);
 
@@ -2865,7 +2865,7 @@ public class GpoSeccionController {
     public JsonResponse deleteDescuento(@RequestBody DescuentoSeccionVerano descuentoSeccionVerano, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             service.deleteDescuento(descuentoSeccionVerano, ds);
 
@@ -2885,7 +2885,7 @@ public class GpoSeccionController {
     public JsonResponse saveAlumnoelegido(@RequestBody AlumnoPagoVerano alumnoPagoVerano, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             service.saveAlumnoelegido(alumnoPagoVerano, ds);
 

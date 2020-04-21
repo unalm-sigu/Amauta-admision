@@ -46,7 +46,8 @@ import pe.edu.lamolina.pivot.controller.academico.resolucion.ResolucionService;
 import pe.edu.lamolina.pivot.controller.academico.resolucion.resolucionExistentes.ResolucionExistenteService;
 import pe.edu.lamolina.pivot.controller.bienestar.alumnoAporte.AporteAlumnoService;
 import pe.edu.lamolina.pivot.controller.matricula.matriculable.MatriculableService;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.model.constantines.AcademicoConstantine;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -104,7 +105,7 @@ public class TramiteCondicionalController {
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         List<CicloAcademico> cicloAcademicos = service.allCiclos(ds.getCicloAcademico());
 
         ArrayNode arrayNode = new ArrayNode(JsonNodeFactory.instance);
@@ -138,7 +139,7 @@ public class TramiteCondicionalController {
     public DynatableResponse listTramites(DynatableFilter filter,
             HttpSession session) {
         DynatableResponse json = new DynatableResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         try {
             List<Tramite> tramites = service.allByCiclo(ds.getCicloAcademico(), filter);
             ArrayNode arrayNode = new ArrayNode(JsonNodeFactory.instance);
@@ -175,7 +176,7 @@ public class TramiteCondicionalController {
         JsonResponse response = new JsonResponse();
 
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             if (tramite.getTipoTramite().getCodigo().equals(RCI.name())) {
                 service.saveRetiroCiclo(tramite, ds);
@@ -211,7 +212,7 @@ public class TramiteCondicionalController {
         JsonResponse response = new JsonResponse();
 
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             MatriculaResumen matriculaResumen = new MatriculaResumen();
             String token = "";
 
@@ -250,7 +251,7 @@ public class TramiteCondicionalController {
         JsonResponse response = new JsonResponse();
 
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             service.evaluarEliminarMatriculable(tramite.getAlumno(), ds.getCicloAcademico(), ds);
 
             response.setSuccess(Boolean.TRUE);
@@ -268,7 +269,7 @@ public class TramiteCondicionalController {
     @RequestMapping("allAlumnoByNombre")
     public JsonResponse allAlumnoByNombre(@RequestParam("nombre") String nombre, HttpSession session) {
         JsonResponse response = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         try {
 
             JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
@@ -312,7 +313,7 @@ public class TramiteCondicionalController {
             @RequestParam(value = "idCiclo", required = true) Long idCiclo,
             HttpSession session) {
         JsonResponse response = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         try {
 
             JsonNodeFactory jsonFactory = JsonNodeFactory.instance;

@@ -23,7 +23,8 @@ import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.TopeMatricula;
 import pe.edu.lamolina.model.enums.TipoAlumnoEnum;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.model.constantines.AcademicoConstantine;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -37,7 +38,7 @@ public class TopeMatriculaController {
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         model.addAttribute("ciclo", ds.getCicloAcademico());
         return "academico/topematricula/topeMatricula";
     }
@@ -47,7 +48,7 @@ public class TopeMatriculaController {
     public DynatableResponse list(DynatableFilter filter, HttpSession session, HttpServletRequest request) {
         DynatableResponse json = new DynatableResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             List<TopeMatricula> topesMatricula = service.allTopeMatricula(filter, ds.getCicloAcademico());
 
@@ -100,7 +101,7 @@ public class TopeMatriculaController {
         JsonResponse response = new JsonResponse();
 
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             service.save(topesMatricula, ds.getCicloAcademico(), ds);
 
             response.setSuccess(true);

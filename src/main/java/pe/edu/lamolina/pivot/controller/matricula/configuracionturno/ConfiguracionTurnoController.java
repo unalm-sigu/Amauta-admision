@@ -37,7 +37,8 @@ import static pe.edu.lamolina.model.enums.EventoAcademicoEnum.MAT_REI;
 import static pe.edu.lamolina.model.enums.EventoAcademicoEnum.MAT_VER;
 import pe.edu.lamolina.model.enums.TipoMatriculaEnum;
 import pe.edu.lamolina.pivot.controller.interceptor.InterceptorService;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.model.constantines.AcademicoConstantine;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -76,7 +77,7 @@ public class ConfiguracionTurnoController {
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) throws ParseException {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         List<EventoCicloAcademico> eventosCiclo = service.allEventoCiclo(ds.getCicloAcademico());
         List<ConfiguracionTurnosAtencion> configuraciones = service.allConfiguraciones(ds.getCicloAcademico());
         ObjectNode objNode = new ObjectNode(JsonNodeFactory.instance);
@@ -138,7 +139,7 @@ public class ConfiguracionTurnoController {
         JsonResponse response = new JsonResponse();
         DateFormat formatter = new SimpleDateFormat("dd/MM");
 
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         try {
             List<TurnoAtencion> turnos = service.allTurnosByConfiguracion(config);
             Map<String, List<TurnoAtencion>> mapTurnos = TypesUtil.convertListToMapList("horaInicio", turnos);
@@ -184,7 +185,7 @@ public class ConfiguracionTurnoController {
     public JsonResponse saveConfiguracion(@RequestBody ConfiguracionTurnosAtencion config, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             Long Id = service.saveConfiguracion(config);
 
             response.setSuccess(true);

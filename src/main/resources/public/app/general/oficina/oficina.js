@@ -118,7 +118,7 @@ new Vue({
                     }
                 },
                 error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                 }
             });
 
@@ -140,7 +140,7 @@ new Vue({
                     }
                 },
                 error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                 }
             });
         },
@@ -213,7 +213,7 @@ new Vue({
                     .catch(function (error) {
                         $vue.$refs.modalAsignarJefe.confirmReaction(false);
                         console.log(error);
-                        notify(MESSAGES.errorComunicacion, "error");
+                        notify(GlobalMessages.errorComunicacion, "error");
                     });
         },
         verAsignarEncargado(item) {
@@ -261,7 +261,7 @@ new Vue({
                     .catch(function (error) {
                         $vue.$refs.modalAsignarEncargado.confirmReaction(false);
                         console.log(error);
-                        notify(MESSAGES.errorComunicacion, "error");
+                        notify(GlobalMessages.errorComunicacion, "error");
                     });
         },
         verRevisarEncargado(item) {
@@ -324,7 +324,7 @@ new Vue({
                     })
                     .catch(function (error) {
                         $vue.$refs.modalRetirarEncargado.confirmReaction(false);
-                        notify(MESSAGES.errorComunicacion, "error");
+                        notify(GlobalMessages.errorComunicacion, "error");
                     });
         },
         previoRetirarJefe(item) {
@@ -363,7 +363,7 @@ new Vue({
                     })
                     .catch(function (error) {
                         $vue.$refs.modalRetirarJefe.confirmReaction(false);
-                        notify(MESSAGES.errorComunicacion, "error");
+                        notify(GlobalMessages.errorComunicacion, "error");
                     });
         },
         allPersonas(nombre) {
@@ -378,7 +378,7 @@ new Vue({
                     })
                     .catch(function (error) {
                         console.log(error);
-                        notify(MESSAGES.errorComunicacion, "error");
+                        notify(GlobalMessages.errorComunicacion, "error");
                     });
         },
         getOrigenURL() {

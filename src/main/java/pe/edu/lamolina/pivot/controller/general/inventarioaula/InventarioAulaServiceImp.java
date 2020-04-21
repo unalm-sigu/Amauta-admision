@@ -34,7 +34,8 @@ import pe.edu.lamolina.pivot.dao.almacen.ResumenInventarioDAO;
 import pe.edu.lamolina.pivot.dao.almacen.TipoProductoDAO;
 import pe.edu.lamolina.pivot.dao.general.ArchivoDAO;
 import pe.edu.lamolina.pivot.dao.general.AulaDAO;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.model.constantines.AcademicoConstantine;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 
 @Service
 @Transactional(readOnly = true)
@@ -101,7 +102,7 @@ public class InventarioAulaServiceImp implements InventarioAulaService {
             Archivo archivo = archivoDAO.findFirstByInstanciasTipoInstancia(inventario.getId(), InstanciaEnum.INVENTARIO);
             this.sendArchivoS3(imagen);
             if (archivo != null) {
-                archivo.setRuta(Constantine.S3_LINK + Constantine.S3_DIR_INVENTARIO + imagen);
+                archivo.setRuta(AcademicoConstantine.S3_URL_ACADEMICO + AcademicoConstantine.S3_DIR_INVENTARIO + imagen);
                 archivo.setNombre(imagen);
                 archivoDAO.update(archivo);
             } else {
@@ -110,7 +111,7 @@ public class InventarioAulaServiceImp implements InventarioAulaService {
                 archivo.setUsuarioRegistro(user);
                 archivo.setIdInstancia(inventario.getId());
                 archivo.setInstancia(InstanciaEnum.INVENTARIO.name());
-                archivo.setRuta(Constantine.S3_LINK + Constantine.S3_DIR_INVENTARIO + imagen);
+                archivo.setRuta(AcademicoConstantine.S3_URL_ACADEMICO + AcademicoConstantine.S3_DIR_INVENTARIO + imagen);
                 archivo.setNombre(imagen);
                 archivoDAO.save(archivo);
             }
@@ -153,7 +154,7 @@ public class InventarioAulaServiceImp implements InventarioAulaService {
             archivo.setUsuarioRegistro(user);
             archivo.setIdInstancia(inventario.getId());
             archivo.setInstancia(InstanciaEnum.INVENTARIO.name());
-            archivo.setRuta(Constantine.S3_LINK + Constantine.S3_DIR_INVENTARIO + imagen);
+            archivo.setRuta(AcademicoConstantine.S3_URL_ACADEMICO + AcademicoConstantine.S3_DIR_INVENTARIO + imagen);
             archivo.setNombre(imagen);
             archivoDAO.save(archivo);
         }
@@ -320,11 +321,11 @@ public class InventarioAulaServiceImp implements InventarioAulaService {
         if (!file.exists()) {
             throw new PhobosException("No existe el archivo en el servidor");
         }
-        swiftService.uploadFile(Constantine.S3_DIR, Constantine.S3_DIR_INVENTARIO, GlobalConstantine.TMP_DIR, nombreArchivo, true);
+        swiftService.uploadFile(AcademicoConstantine.S3_BUCKET_ACADEMICO, AcademicoConstantine.S3_DIR_INVENTARIO, GlobalConstantine.TMP_DIR, nombreArchivo, true);
     }
 
     private void deleteArchivoS3(String nombreArchivo) {
-        swiftService.deleteFile(Constantine.S3_DIR, Constantine.S3_DIR_INVENTARIO, nombreArchivo);
+        swiftService.deleteFile(AcademicoConstantine.S3_BUCKET_ACADEMICO, AcademicoConstantine.S3_DIR_INVENTARIO, nombreArchivo);
     }
 
     @Override

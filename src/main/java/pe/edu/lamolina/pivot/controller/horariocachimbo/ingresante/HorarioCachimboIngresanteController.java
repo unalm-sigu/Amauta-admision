@@ -38,7 +38,8 @@ import pe.edu.lamolina.model.academico.RecorridoIngresante;
 import pe.edu.lamolina.model.enums.EstadoAlumnoHorarioEnum;
 import pe.edu.lamolina.model.horario.HorarioCachimbos;
 import pe.edu.lamolina.model.seguridad.Usuario;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.model.constantines.AcademicoConstantine;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -78,7 +79,7 @@ public class HorarioCachimboIngresanteController {
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
         model.addAttribute("estados", EstadoAlumnoHorarioEnum.values());
         return "academico/horariocachimbo/ingresante/horarioCachimboIngresante";
@@ -89,7 +90,7 @@ public class HorarioCachimboIngresanteController {
     public DynatableResponse list(DynatableFilter filter, HttpSession session) {
         DynatableResponse json = new DynatableResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
             List<AlumnoHorario> alumnosHorario = service.allAlumnoHorario(filter, cicloAcademico);
             List<RecorridoIngresante> recorridoIngresantes = service.allRecorridoIngresante(cicloAcademico);
@@ -146,7 +147,7 @@ public class HorarioCachimboIngresanteController {
         JsonResponse response = new JsonResponse();
         try {
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
             service.addAlumno(alumno, cicloAcademico);
             response.setMessage("Alumno agregado satisfactoriamente");
@@ -196,7 +197,7 @@ public class HorarioCachimboIngresanteController {
     public JsonResponse asignarHorario(AlumnoHorario alumnoHorario, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             service.asignarHorario(alumnoHorario, ds);
             response.setMessage("Horario asignado satisfactoriamente");
             response.setSuccess(Boolean.TRUE);
@@ -213,7 +214,7 @@ public class HorarioCachimboIngresanteController {
     public JsonResponse retirarHorario(AlumnoHorario alumnoHorario, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             Usuario user = ds.getUsuario();
             service.retirarHorario(alumnoHorario, ds);
             response.setMessage("Horario retirado satisfactoriamente");
@@ -232,7 +233,7 @@ public class HorarioCachimboIngresanteController {
         JsonResponse response = new JsonResponse();
         try {
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
             service.buscarHorario(alumno, cicloAcademico);
             response.setMessage("Alumno creado satisfactoriamente");
@@ -252,7 +253,7 @@ public class HorarioCachimboIngresanteController {
         JsonResponse response = new JsonResponse();
         try {
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
             List<Alumno> alumnos = service.allAlumnoIngresantePregradoByNameCiclo(nombre, cicloAcademico);
             ArrayNode jsonList = new ArrayNode(jsonFactory);
@@ -288,7 +289,7 @@ public class HorarioCachimboIngresanteController {
 
         try {
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
             Usuario user = ds.getUsuario();
             service.cargarIngresantes(cicloAcademico, user);
@@ -311,7 +312,7 @@ public class HorarioCachimboIngresanteController {
 
         try {
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
             Usuario user = ds.getUsuario();
             service.eliminarHorarios(cicloAcademico, user);
@@ -331,7 +332,7 @@ public class HorarioCachimboIngresanteController {
         JsonResponse response = new JsonResponse();
         try {
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
             List<IngresanteCantidad> cantidad = service.allIngresanteCantidad(cicloAcademico);
 
@@ -352,7 +353,7 @@ public class HorarioCachimboIngresanteController {
         response.setSuccess(false);
         try {
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
             service.deleteIngresante(alumnoHorario, cicloAcademico);
             response.setMessage("Registro eliminado");
@@ -371,7 +372,7 @@ public class HorarioCachimboIngresanteController {
         JsonResponse response = new JsonResponse();
         try {
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
             boolean ok = visorMatricula.iniciar();
             response.setMessage(visorMatricula.getProcesoActual());
@@ -426,7 +427,7 @@ public class HorarioCachimboIngresanteController {
     public JsonResponse revisarActividad(HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             service.revisarActividad(ds);
             response.setMessage("Se verificó las actividades del ingresante.");
             response.setSuccess(true);

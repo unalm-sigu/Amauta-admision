@@ -32,7 +32,8 @@ import pe.edu.lamolina.model.rolexamen.SeccionGrupoRegular;
 import pe.edu.lamolina.pivot.controller.rolexamen.components.CambioHorarioExamenSeccion;
 import pe.edu.lamolina.model.enums.TipoGrupoRolExamenesEnum;
 import pe.edu.lamolina.pivot.controller.rolexamen.util.RolExamenesLogger;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.model.constantines.AcademicoConstantine;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -51,7 +52,7 @@ public class MoverSeccionExamenController {
     @RequestMapping(value = "listTipoGrupoRolExamenes", method = RequestMethod.GET)
     public JsonResponse listTipoGrupoRolExamenes(HttpSession session, HttpServletRequest request) {
         JsonResponse response = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         try {
             TipoGrupoRolExamenesEnum[] tiposGrupoRolExamenes = TipoGrupoRolExamenesEnum.values();
 
@@ -91,7 +92,7 @@ public class MoverSeccionExamenController {
 
         JsonResponse response = new JsonResponse();
         response.setSuccess(Boolean.TRUE);
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         try {
             Seccion seccion = new Seccion(seccionId);
             RolExamenes rol = new RolExamenes(rolExamenesId);
@@ -173,7 +174,7 @@ public class MoverSeccionExamenController {
         JsonResponse response = new JsonResponse();
         response.setSuccess(Boolean.TRUE);
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             JsonNodeFactory jc = JsonNodeFactory.instance;
 
             grupoHorasExamenOrigen = service.findGrupoHorasExamen(grupoHorasExamenOrigen);
@@ -228,7 +229,7 @@ public class MoverSeccionExamenController {
 
         JsonResponse response = new JsonResponse();
         response.setSuccess(Boolean.TRUE);
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         ds.setFechaAccionAudit(new Date());
         try {
             JsonNodeFactory jc = JsonNodeFactory.instance;
@@ -252,7 +253,7 @@ public class MoverSeccionExamenController {
         JsonResponse response = new JsonResponse();
         response.setSuccess(Boolean.TRUE);
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             JsonNodeFactory jc = JsonNodeFactory.instance;
 
             ObjectNode data = new ObjectNode(jc);

@@ -37,8 +37,8 @@ import pe.edu.lamolina.model.academico.PlanCalificacion;
 import pe.edu.lamolina.model.academico.PlanCalificacionCurso;
 import pe.edu.lamolina.model.enums.EstadoPlanCalificaEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEvalEnum;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
-import pe.edu.lamolina.pivot.zelper.constant.Messages;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
+import pe.edu.lamolina.model.constantines.GlobalMessages;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -79,7 +79,7 @@ public class SistemaController {
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         model.addAttribute("departamentos", ds.getDepartamentos());
         return "academico/systemcalifica/sistema/sistema";
     }
@@ -89,7 +89,7 @@ public class SistemaController {
     public DynatableResponse list(DynatableFilter filter, HttpSession session) {
 
         DynatableResponse json = new DynatableResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         try {
             List<PlanCalificacion> lstPLanCalificacion = service.allPlanesCalificacionByDynatable(filter, ds);
@@ -157,7 +157,7 @@ public class SistemaController {
     public DynatableResponse listCursos(DynatableFilter filter, @RequestParam("planCalificacion") Long planCalificacion, HttpSession session) {
 
         DynatableResponse json = new DynatableResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         try {
             logger.debug("listCursos Plancalificacion {}", planCalificacion);
@@ -205,7 +205,7 @@ public class SistemaController {
 
     @RequestMapping("{sistema}/detalleSistema")
     public String detalleSistema(@PathVariable("sistema") Long idSistema, Model model, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         PlanCalificacion planCalificacion = service.findPlanCalificacion(idSistema);
         /*    List<Curso> cursosByPlan = new ArrayList<>();
         for (PlanCalificacionCurso planCurso : planCalificacion.getPlanCalificacionCursos()) {
@@ -220,7 +220,7 @@ public class SistemaController {
 
     @RequestMapping("{sistema}/cursos")
     public String cursos(@PathVariable("sistema") Long idSistema, Model model, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         PlanCalificacion planCalificacion = service.findPlanCalificacion(idSistema);
         model.addAttribute("planCalificacion", planCalificacion);
@@ -231,7 +231,7 @@ public class SistemaController {
 
     @RequestMapping("{sistema}/detalleSolicitud")
     public String detalleSolicitud(@PathVariable("sistema") Long idSistema, Model model, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         logger.debug("El sistema califica {}", idSistema);
         PlanCalificacion planCalificacion = service.findPlanCalificacion(idSistema);
         model.addAttribute("dptoAcad", ds.getDepartamentoAcademico());
@@ -242,7 +242,7 @@ public class SistemaController {
 
     @RequestMapping("nuevo/{departamento}")
     public String nuevo(@PathVariable("departamento") Long idDepartamento, Model model, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         DepartamentoAcademico departamento = service.buscarDepartamento(idDepartamento, ds);
         if (departamento == null) {
@@ -264,7 +264,7 @@ public class SistemaController {
 
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             String message = "";
             if (planCalificacion.getId() == null) {
@@ -282,7 +282,7 @@ public class SistemaController {
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
-            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+            ExceptionHandler.handleSpecial(e, response, GlobalMessages.FK_ERROR_UPDATE);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
@@ -297,15 +297,15 @@ public class SistemaController {
         JsonResponse response = new JsonResponse();
         try {
             logger.debug("el comentario es {}", comentario);
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             service.changeStatePlanCalificacion(sistema, comentario, EstadoPlanCalificaEnum.ACEP, ds.getUsuario());
-            response.setMessage(Messages.APPROVED);
+            response.setMessage(GlobalMessages.APPROVED);
             response.setSuccess(true);
 
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
-            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+            ExceptionHandler.handleSpecial(e, response, GlobalMessages.FK_ERROR_UPDATE);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
@@ -320,16 +320,16 @@ public class SistemaController {
         JsonResponse response = new JsonResponse();
         try {
             logger.debug("el comentario es {}", comentario);
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             service.changeStatePlanCalificacion(sistema, comentario, EstadoPlanCalificaEnum.RHZ, ds.getUsuario());
-            response.setMessage(Messages.REJECT);
+            response.setMessage(GlobalMessages.REJECT);
             response.setSuccess(true);
 
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
-            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+            ExceptionHandler.handleSpecial(e, response, GlobalMessages.FK_ERROR_UPDATE);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
@@ -343,16 +343,16 @@ public class SistemaController {
             HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             service.changeStatePlanCalificacion(sistema, comentario, EstadoPlanCalificaEnum.OBS, ds.getUsuario());
-            response.setMessage(Messages.OBSERVED);
+            response.setMessage(GlobalMessages.OBSERVED);
             response.setSuccess(true);
 
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
-            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+            ExceptionHandler.handleSpecial(e, response, GlobalMessages.FK_ERROR_UPDATE);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
@@ -364,16 +364,16 @@ public class SistemaController {
     public JsonResponse activar(@RequestParam("sistema") Long sistema, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             service.changeStatePlanCalificacion(sistema, EstadoPlanCalificaEnum.ACT, ds.getUsuario());
-            response.setMessage(Messages.ACTIVATED);
+            response.setMessage(GlobalMessages.ACTIVATED);
             response.setSuccess(true);
 
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
-            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+            ExceptionHandler.handleSpecial(e, response, GlobalMessages.FK_ERROR_UPDATE);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
@@ -385,16 +385,16 @@ public class SistemaController {
     public JsonResponse inactivar(@RequestParam("sistema") Long sistema, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             service.changeStatePlanCalificacion(sistema, EstadoPlanCalificaEnum.INA, ds.getUsuario());
-            response.setMessage(Messages.INACTIVATED);
+            response.setMessage(GlobalMessages.INACTIVATED);
             response.setSuccess(true);
 
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
-            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+            ExceptionHandler.handleSpecial(e, response, GlobalMessages.FK_ERROR_UPDATE);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
@@ -406,15 +406,15 @@ public class SistemaController {
     public JsonResponse anull(@RequestParam("sistema") Long sistema, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             service.changeStatePlanCalificacion(sistema, EstadoPlanCalificaEnum.INA, ds.getUsuario());
-            response.setMessage(Messages.ANNULL);
+            response.setMessage(GlobalMessages.ANNULL);
             response.setSuccess(true);
 
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
-            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+            ExceptionHandler.handleSpecial(e, response, GlobalMessages.FK_ERROR_UPDATE);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
@@ -437,7 +437,7 @@ public class SistemaController {
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
-            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+            ExceptionHandler.handleSpecial(e, response, GlobalMessages.FK_ERROR_UPDATE);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
@@ -452,7 +452,7 @@ public class SistemaController {
             @RequestParam("planCalificacion") Long planCalificacion, HttpSession session) {
 
         JsonResponse response = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         try {
             service.asignarCurso(curso, planCalificacion, ds);
             response.setMessage("Curso asignado.");
@@ -461,7 +461,7 @@ public class SistemaController {
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
-            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+            ExceptionHandler.handleSpecial(e, response, GlobalMessages.FK_ERROR_UPDATE);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
@@ -474,7 +474,7 @@ public class SistemaController {
     public JsonResponse desasignarCurso(@RequestParam("planCurso") Long planCurso, HttpSession session) {
 
         JsonResponse response = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         try {
             service.desasignarCurso(planCurso, ds.getPersona().getId());
             response.setMessage("Curso desasignado.");
@@ -483,7 +483,7 @@ public class SistemaController {
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
-            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+            ExceptionHandler.handleSpecial(e, response, GlobalMessages.FK_ERROR_UPDATE);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }

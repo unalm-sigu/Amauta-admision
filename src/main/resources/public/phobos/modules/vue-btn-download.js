@@ -33,7 +33,7 @@ Vue.component("button-download", {
                 $vue.isactivedownloadbtn = false;
             }).catch(error => {
                 $vue.isactivedownloadbtn = false;
-                notify(MESSAGES.errorComunicacion, "error");
+                notify(GlobalMessages.errorComunicacion, "error");
             });
         }
     }

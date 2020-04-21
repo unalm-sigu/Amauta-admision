@@ -30,7 +30,8 @@ import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.seguridad.UsuarioRol;
 import pe.edu.lamolina.model.tramite.AccionTramiteAcademico;
 import pe.edu.lamolina.model.tramite.AccionTramiteDocumento;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.model.constantines.AcademicoConstantine;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 
 @Repository
 public class OficinaDAOH extends AbstractEasyDAO<Oficina> implements OficinaDAO {
@@ -130,7 +131,7 @@ public class OficinaDAOH extends AbstractEasyDAO<Oficina> implements OficinaDAO 
                 .join("au.oficinaSupervisora ofi")
                 .filter("au.estado", EstadoEnum.ACT.name()).
                 in("ofi.id", oficinas)
-                .notIn("ofi.id", Arrays.asList(Constantine.ID_OFICINA_OERA));
+                .notIn("ofi.id", Arrays.asList(AcademicoConstantine.ID_OFICINA_OERA));
         return all(sql);
     }
 

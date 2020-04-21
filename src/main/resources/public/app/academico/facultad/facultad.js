@@ -55,7 +55,7 @@ $(function () {
                                 }
                             },
                             error: function () {
-                                notify(MESSAGES.errorComunicacion, "error");
+                                notify(GlobalMessages.errorComunicacion, "error");
                             }
                         });
                     }
@@ -114,7 +114,7 @@ $(function () {
                 },
                 error: function () {
                     mimodal.modal('hide');
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                 }
             });
         },
@@ -155,7 +155,7 @@ $(function () {
                                     notify(response.message, 'error');
                                 }
                             }, error: function () {
-                                notify(MESSAGES.errorComunicacion, "error");
+                                notify(GlobalMessages.errorComunicacion, "error");
                             }
                         });
                     }

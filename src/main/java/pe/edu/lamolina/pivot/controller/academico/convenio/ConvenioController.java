@@ -39,10 +39,12 @@ import pe.edu.lamolina.model.academico.CarreraConvenio;
 import pe.edu.lamolina.model.academico.ConvenioBeca;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
+import pe.edu.lamolina.model.constantines.AcademicoConstantine;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.general.Empresa;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
+import pe.edu.lamolina.model.constantines.GlobalMessages;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -91,7 +93,7 @@ public class ConvenioController {
 
         try {
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
             logger.debug("cicloAcademico {} {}", cicloAcademico.getId(), cicloAcademico.getDescripcion());
 
@@ -118,10 +120,10 @@ public class ConvenioController {
                 node.put("nameDocumento", prettyName);
 
                 StringBuilder link = new StringBuilder();
-                link.append(Constantine.S3_LINK);
-                link.append(Constantine.S3_DIR);
-                link.append(Constantine.S3_DIR_CONVENIO);
+                link.append(AcademicoConstantine.S3_URL_ACADEMICO);
+                link.append(AcademicoConstantine.S3_DIR_CONVENIO);
                 link.append(convenio.getRutaDocumento());
+
                 node.put("linkDocumento", link.toString());
 
                 node.put("inicio", convenio.getInicioVigencia() != null
@@ -178,7 +180,7 @@ public class ConvenioController {
 
         try {
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             if (convenioBeca.getId() == null) {
                 service.save(convenioBeca, ds);
@@ -247,7 +249,7 @@ public class ConvenioController {
 
         try {
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             Compania cia = ds.getCompania();
             List<Carrera> carreras = service.allCarreraByName(nombre, cia);
             ArrayNode jsonList = new ArrayNode(jsonFactory);
@@ -331,10 +333,10 @@ public class ConvenioController {
 
         } catch (IOException e) {
             response.setSuccess(false);
-            response.setMessage(Constantine.APP_ERROR_MESSAGE);
+            response.setMessage(GlobalMessages.ERROR_GENERAL);
         } catch (Exception e) {
             response.setSuccess(false);
-            response.setMessage(Constantine.APP_ERROR_MESSAGE);
+            response.setMessage(GlobalMessages.ERROR_GENERAL);
         }
         return response;
 

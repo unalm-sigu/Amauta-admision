@@ -40,7 +40,7 @@ new Vue({
                     .catch(function (error) {
                         MODAL.hideWait();
                         console.log(error);
-                        notify(MESSAGES.errorComunicacion, "error");
+                        notify(GlobalMessages.errorComunicacion, "error");
                     });
         },
         cancelSave() {
@@ -201,7 +201,7 @@ new Vue({
                     })
                     .catch(function (error) {
                         console.log(error);
-                        notify(MESSAGES.errorComunicacion, "error");
+                        notify(GlobalMessages.errorComunicacion, "error");
                     });
         },
         revision(item, st) {
@@ -217,7 +217,7 @@ new Vue({
                     })
                     .catch(function (error) {
                         console.log(error);
-                        notify(MESSAGES.errorComunicacion, "error");
+                        notify(GlobalMessages.errorComunicacion, "error");
                     });
         }
     }

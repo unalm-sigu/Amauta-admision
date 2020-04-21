@@ -37,7 +37,8 @@ import pe.edu.lamolina.model.enums.MotivoOmisoEnum;
 import pe.edu.lamolina.model.finanzas.DeudaAlumno;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.pivot.controller.matricula.matriculable.MatriculableService;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.model.constantines.AcademicoConstantine;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -54,7 +55,7 @@ public class OmisoEleccionController {
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         List<CicloAcademico> cicloAcademicos = service.allCicloAcademico(ds.getCicloAcademico());
         ArrayNode arrayCiclo = new ArrayNode(JsonNodeFactory.instance);
         ArrayNode arrayEnum = new ArrayNode(JsonNodeFactory.instance);
@@ -75,7 +76,7 @@ public class OmisoEleccionController {
 
     @RequestMapping("load")
     public String load(Model model, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         List<CicloAcademico> cicloAcademicos = service.allCicloAcademico(ds.getCicloAcademico());
         ArrayNode arrayCiclo = new ArrayNode(JsonNodeFactory.instance);
 
@@ -136,7 +137,7 @@ public class OmisoEleccionController {
     @RequestMapping("saveOmision")
     public JsonResponse saveOmision(@RequestBody AlumnoOmisoEleccion omisoEleccion, HttpSession session) {
         JsonResponse response = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         try {
 
@@ -157,7 +158,7 @@ public class OmisoEleccionController {
     @RequestMapping("anularOmision")
     public JsonResponse anularOmision(@RequestBody Alumno alumno, HttpSession session) {
         JsonResponse response = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         try {
             alumno.getAlumnoOmisoEleccions().get(0).setMotivoAnulacion(alumno.getMotivoAnulacion());
@@ -179,7 +180,7 @@ public class OmisoEleccionController {
             @RequestParam("cicloAcademico") String codigoCiclo,
             Model model, HttpSession session) {
         JsonResponse json = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         try {
             List<String> observados = service.cargarDeudas(file, codigoCiclo, ds);
@@ -211,7 +212,7 @@ public class OmisoEleccionController {
     @RequestMapping("allAlumnoByNombre")
     public JsonResponse allAlumnoByNombre(@RequestParam("nombre") String nombre, HttpSession session) {
         JsonResponse response = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         try {
 
             JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
@@ -253,7 +254,7 @@ public class OmisoEleccionController {
         JsonResponse json = new JsonResponse();
 
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             JsonNodeFactory factory = JsonNodeFactory.instance;
             ObjectNode info = new ObjectNode(factory);
             ResumenAporteAlumno resumen = service.findResumenAporteAlumno(new Alumno(idAlumno), ds.getCicloAcademico());
@@ -309,7 +310,7 @@ public class OmisoEleccionController {
             JsonNodeFactory factory = JsonNodeFactory.instance;
             ObjectNode response = new ObjectNode(factory);
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             MatriculaResumen resumen = service.findMatriculaResumen(new Alumno(idAlumno), ds.getCicloAcademico());
 
             Alumno alumno = resumen.getAlumno();

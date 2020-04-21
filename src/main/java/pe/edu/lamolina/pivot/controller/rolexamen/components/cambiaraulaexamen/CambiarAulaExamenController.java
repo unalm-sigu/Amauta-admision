@@ -26,7 +26,8 @@ import pe.edu.lamolina.model.rolexamen.SeccionGrupoRegular;
 import pe.edu.lamolina.pivot.controller.rolexamen.components.CambiarAula;
 import pe.edu.lamolina.model.enums.TipoGrupoRolExamenesEnum;
 import pe.edu.lamolina.pivot.controller.rolexamen.util.RolExamenesLogger;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.model.constantines.AcademicoConstantine;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -48,7 +49,7 @@ public class CambiarAulaExamenController {
 
         JsonResponse response = new JsonResponse();
         response.setSuccess(Boolean.TRUE);
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         try {
             Seccion seccion = new Seccion(seccionId);
             List<Aula> aulasOeras = cambiarAulaExamenService.allActivesAulasOeraForSeccion(seccion);
@@ -115,7 +116,7 @@ public class CambiarAulaExamenController {
             @RequestBody CambiarAula cambiarAula) {
         JsonResponse response = new JsonResponse();
         response.setSuccess(Boolean.TRUE);
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         ds.setFechaAccionAudit(new Date());
         try {
             JsonNodeFactory jc = JsonNodeFactory.instance;

@@ -35,8 +35,8 @@ import pe.edu.lamolina.model.rolexamen.GrupoHorasExamen;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
 import pe.edu.lamolina.model.rolexamen.SeccionCursoMasivo;
 import pe.edu.lamolina.pivot.controller.rolexamen.util.RolExamenesLogger;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
-import pe.edu.lamolina.pivot.zelper.constant.Messages;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
+import pe.edu.lamolina.model.constantines.GlobalMessages;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -60,7 +60,7 @@ public class CursoMasivosController {
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
 
         List<RolExamenes> rolexamenes = service.allRolExamenesByCicloActivo(ds.getCicloAcademico());
@@ -106,7 +106,7 @@ public class CursoMasivosController {
 
     @RequestMapping("secciones/{cursoMasivo}")
     public String secciones(@PathVariable("cursoMasivo") Long idCursoMasivo, Model model, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
 
         JsonResponse cursoMasivoExamen = this.findCursoMasivo(model, new CursoMasivoExamen(idCursoMasivo), session);
@@ -122,7 +122,7 @@ public class CursoMasivosController {
         JsonResponse response = new JsonResponse();
 
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             CursoMasivoExamen cursoMasivoExamen = service.findCursoMasivo(cursoMasivosExamen.getId());
             model.addAttribute("cursoMasivoExamen", cursoMasivoExamen);
 
@@ -157,7 +157,7 @@ public class CursoMasivosController {
         JsonResponse response = new JsonResponse();
 
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             service.save(cursoMasivosExamen, ds.getCicloAcademico(), ds.getUsuario());
             response.setSuccess(true);
             response.setMessage("Curso guardado satisfactoriamnente");
@@ -178,7 +178,7 @@ public class CursoMasivosController {
         JsonResponse response = new JsonResponse();
 
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             service.saveAula(cursoMasivosExamen, ds.getCicloAcademico(), ds);
             response.setSuccess(true);
             response.setMessage("Aula guardado satisfactoriamnente");
@@ -197,7 +197,7 @@ public class CursoMasivosController {
     @RequestMapping("list")
     public JsonResponse list(@RequestBody RolExamenes rolExamenes, HttpSession session, HttpServletRequest request) {
         JsonResponse response = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         try {
 
             List<CursoMasivoExamen> cursoMasivosByRolExamenes = service.listCursosMasivosExamenes(rolExamenes);
@@ -249,7 +249,7 @@ public class CursoMasivosController {
         JsonResponse response = new JsonResponse();
 
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             List<Curso> cursos = service.allCursosByCiclo(nombre, new RolExamenes(idRolExamen), ds.getCicloAcademico());
             ArrayNode jCursos = new ArrayNode(JsonNodeFactory.instance);
@@ -316,7 +316,7 @@ public class CursoMasivosController {
         response.setSuccess(false);
 
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             service.eliminarCursoMasivoExamen(cursoMasivoExamen, ds);
 
             response.setMessage("Curso eliminado satisfactoriamente.");
@@ -325,7 +325,7 @@ public class CursoMasivosController {
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
-            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+            ExceptionHandler.handleSpecial(e, response, GlobalMessages.FK_ERROR_UPDATE);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
@@ -365,7 +365,7 @@ public class CursoMasivosController {
             @RequestBody ObjectNode objeto,
             HttpSession session, HttpServletRequest request) {
         JsonResponse response = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         ds.setFechaAccionAudit(new Date());
         try {
             ObjectMapper mapper = new ObjectMapper();
@@ -401,7 +401,7 @@ public class CursoMasivosController {
             @RequestBody ObjectNode objeto,
             HttpSession session, HttpServletRequest request) {
         JsonResponse response = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         ds.setFechaAccionAudit(new Date());
         try {
             ObjectMapper mapper = new ObjectMapper();
@@ -435,7 +435,7 @@ public class CursoMasivosController {
     public JsonResponse eliminarCursosMasivos(@RequestBody RolExamenes rolExamenes,
             HttpSession session, HttpServletRequest request) {
         JsonResponse response = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         ds.setFechaAccionAudit(new Date());
         try {
             service.eliminarCursosMasivos(rolExamenes);
@@ -456,7 +456,7 @@ public class CursoMasivosController {
             HttpSession session, HttpServletRequest request) {
 
         JsonResponse response = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         ds.setFechaAccionAudit(new Date());
         try {
             logger.debug("saveHorarioExamen");
@@ -492,7 +492,7 @@ public class CursoMasivosController {
         JsonNodeFactory jc = JsonNodeFactory.instance;
 
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             ds.setFechaAccionAudit(new Date());
 
             logger.debug("revisarGpoHorasExamenCursoMasivo");
@@ -523,7 +523,7 @@ public class CursoMasivosController {
     @ResponseBody
     @RequestMapping(value = "listDocentesCursosMasivos", method = RequestMethod.GET)
     public DynatableResponse listDocentesCursosMasivos(DynatableFilter filter, @RequestParam("cursoMasivo") Long idCursoMasivo, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         DynatableResponse json = new DynatableResponse();
 
         List<DocenteCursoMasivo> list = service.allDocentesCursosMasivosDynaByCursoMasivo(filter, new CursoMasivoExamen(idCursoMasivo));
@@ -547,7 +547,7 @@ public class CursoMasivosController {
     @ResponseBody
     @RequestMapping(value = "listAlumnosCursosMasivos", method = RequestMethod.GET)
     public DynatableResponse listAlumnosCursosMasivos(DynatableFilter filter, @RequestParam("cursoMasivo") Long idCursoMasivo, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         DynatableResponse json = new DynatableResponse();
 
         List<AlumnoCursoMasivo> list = service.allAlumnosCursoMasivosDynaByCursoMasivo(filter, new CursoMasivoExamen(idCursoMasivo));
@@ -571,7 +571,7 @@ public class CursoMasivosController {
     @ResponseBody
     @RequestMapping(value = "listSeccionesCursosMasivos", method = RequestMethod.GET)
     public DynatableResponse listSeccionesCursosMasivos(DynatableFilter filter, @RequestParam("cursoMasivo") Long idCursoMasivo, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         DynatableResponse json = new DynatableResponse();
 
         List<SeccionCursoMasivo> list = service.allSeccionesCursoMasivosDynaByCursoMasivo(filter, new CursoMasivoExamen(idCursoMasivo));
@@ -599,7 +599,7 @@ public class CursoMasivosController {
     @RequestMapping("allGrupoHE")
     public JsonResponse allGrupoHE(@RequestBody RolExamenes rolExamenes, HttpSession session) {
         JsonResponse response = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         try {
             JsonNodeFactory jc = JsonNodeFactory.instance;
@@ -688,7 +688,7 @@ public class CursoMasivosController {
         JsonResponse response = new JsonResponse();
 
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             List<String> restricciones = service.cambiarAulasGrupoForCursoMasivo(cursoMasivosExamen, ds.getCicloAcademico(), ds);
             response.setMessage("Curso masivo modificado satisfactoriamente");
             response.setSuccess(Boolean.TRUE);
@@ -715,7 +715,7 @@ public class CursoMasivosController {
         JsonResponse response = new JsonResponse();
 
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             List<String> restricciones = service.cambiarCambioAulasGrupoForzado(cursoMasivosExamen, ds.getCicloAcademico(), ds);
             response.setMessage("Curso masivo modificado satisfactoriamente");
             response.setSuccess(Boolean.TRUE);
@@ -743,7 +743,7 @@ public class CursoMasivosController {
 
         try {
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             service.removerHorario(cursoMasivo, ds);
 
             response.setMessage("Horario retirado correctamente");

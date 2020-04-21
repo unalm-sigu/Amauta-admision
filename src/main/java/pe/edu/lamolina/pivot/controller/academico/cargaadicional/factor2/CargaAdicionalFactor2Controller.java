@@ -21,7 +21,8 @@ import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.Factor2CargaAdicional;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.model.constantines.AcademicoConstantine;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -44,7 +45,7 @@ public class CargaAdicionalFactor2Controller {
     public DynatableResponse list(DynatableFilter filter, HttpSession session) {
 
         DynatableResponse json = new DynatableResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         try {
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
@@ -103,7 +104,7 @@ public class CargaAdicionalFactor2Controller {
     @ResponseBody
     @RequestMapping(value = "save", method = RequestMethod.POST)
     public JsonResponse save(@RequestBody Factor2CargaAdicional factor2CargaAdicional, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         JsonResponse response = new JsonResponse();
         try {
@@ -126,7 +127,7 @@ public class CargaAdicionalFactor2Controller {
     @ResponseBody
     @RequestMapping(value = "delete/{id}", method = RequestMethod.POST)
     public JsonResponse delete(@PathVariable Long id, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         JsonResponse response = new JsonResponse();
         try {

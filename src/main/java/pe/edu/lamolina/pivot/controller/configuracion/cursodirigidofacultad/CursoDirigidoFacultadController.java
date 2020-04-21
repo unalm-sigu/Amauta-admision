@@ -28,7 +28,8 @@ import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.enums.TipoOficinaEnum;
 import pe.edu.lamolina.model.tramite.CursoDirigidoFacultad;
 import pe.edu.lamolina.pivot.controller.seguridad.verificador.VerificadorService;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.model.constantines.AcademicoConstantine;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -45,7 +46,7 @@ public class CursoDirigidoFacultadController {
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session, HttpServletRequest request) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         List<Facultad> facultades = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.FAC, request, ds);
 
@@ -126,7 +127,7 @@ public class CursoDirigidoFacultadController {
 
         try {
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             service.save(cursoDirigidoFacultad, ds);
             response.setMessage("El curso fue agregado satisfactoriamente");

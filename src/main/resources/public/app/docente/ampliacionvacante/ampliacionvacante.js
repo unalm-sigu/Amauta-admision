@@ -65,7 +65,7 @@ var app = new Vue({
                 },
                 error() {
                     $vue.hideLoader();
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                 }
             });
 
@@ -114,7 +114,7 @@ var app = new Vue({
                     }
                 },
                 error() {
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                 }
             });
         },
@@ -146,7 +146,7 @@ var app = new Vue({
                     }
                 },
                 error() {
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                 }
             });
         }, aceptarSolicitud(matSeccion) {
@@ -168,7 +168,7 @@ var app = new Vue({
                     }
                 },
                 error() {
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                 }
             });
         }, rechazarSolicitud(matSeccion) {
@@ -189,7 +189,7 @@ var app = new Vue({
                     }
                 },
                 error() {
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                 }
             });
         }

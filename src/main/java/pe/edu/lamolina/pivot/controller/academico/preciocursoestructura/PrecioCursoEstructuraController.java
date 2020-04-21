@@ -18,7 +18,8 @@ import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.PrecioCursoEstructura;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.model.constantines.AcademicoConstantine;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -32,7 +33,7 @@ public class PrecioCursoEstructuraController {
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
 
@@ -43,7 +44,7 @@ public class PrecioCursoEstructuraController {
     @RequestMapping(method = RequestMethod.GET, value = "/list")
     public JsonResponse list(HttpSession session) {
         JsonResponse response = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         try {
             List<PrecioCursoEstructura> list = service.allByCicloAcademico(ds.getCicloAcademico());
@@ -72,7 +73,7 @@ public class PrecioCursoEstructuraController {
     @RequestMapping(method = RequestMethod.POST, value = "/save")
     public JsonResponse save(HttpSession session, @RequestBody List<PrecioCursoEstructura> listForm) {
         JsonResponse response = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         try {
             service.saveAll(listForm, ds.getCicloAcademico(), ds);
             response.setMessage("Precios actualizados");

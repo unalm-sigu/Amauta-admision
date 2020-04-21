@@ -19,7 +19,7 @@ import pe.albatross.zelpers.cloud.storage.StorageService;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.model.constantines.GlobalMessages;
 
 @Controller
 @RequestMapping("comun/archivo")
@@ -73,7 +73,7 @@ public class ArchivoController {
 
         } catch (Exception e) {
             json.setSuccess(false);
-            json.setMessage(Constantine.APP_ERROR_MESSAGE);
+            json.setMessage(GlobalMessages.ERROR_GENERAL);
         }
         return json;
 
@@ -94,7 +94,7 @@ public class ArchivoController {
 
         } catch (Exception e) {
             json.setSuccess(false);
-            json.setMessage(Constantine.APP_ERROR_MESSAGE);
+            json.setMessage(GlobalMessages.ERROR_GENERAL);
         }
         return json;
 

@@ -32,7 +32,8 @@ import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.croacia.HistoGradMy;
 import pe.edu.lamolina.model.croacia.HistoMy;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.MAT;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.model.constantines.AcademicoConstantine;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -55,7 +56,7 @@ public class HistoMigraController {
             @RequestParam("origen") String origen,
             Model model, HttpSession session) {
 
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         Alumno alumno = service.findAlumno(new Alumno(idAlumno));
         model.addAttribute("alumno", createAlumnoJson(alumno));
         model.addAttribute("origen", getOrigen(origen));
@@ -77,7 +78,7 @@ public class HistoMigraController {
         DynatableResponse json = new DynatableResponse();
 
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             List<HistoMy> historias = service.allHistoByAlumno(new Alumno(idAlumno));
             List<HistoGradMy> historiasGrad = service.allHistoGradByAlumno(new Alumno(idAlumno));
 
@@ -101,7 +102,7 @@ public class HistoMigraController {
         response.setSuccess(Boolean.TRUE);
         try {
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             service.migrarCurso(histo, ds);
 
             Alumno alumno = service.findAlumnoByCodigo(histo.getMatricula());

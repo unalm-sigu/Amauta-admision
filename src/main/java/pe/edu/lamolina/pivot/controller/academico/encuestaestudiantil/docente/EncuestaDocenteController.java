@@ -31,7 +31,8 @@ import pe.edu.lamolina.model.encuestaestudiantil.EncuestaEstudiantil;
 import pe.edu.lamolina.model.encuestaestudiantil.PuntajeEncuestaDocente;
 import pe.edu.lamolina.model.encuestaestudiantil.ResumenEncuestaDocente;
 import pe.edu.lamolina.pivot.controller.seguridad.verificador.VerificadorService;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.model.constantines.AcademicoConstantine;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -51,7 +52,7 @@ public class EncuestaDocenteController {
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session, HttpServletRequest request) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         CicloAcademico ciclo = ds.getCicloAcademico();
 
         List<Facultad> facultades = service.allFacultadesFromDocentes(ciclo, ds, request);
@@ -97,7 +98,7 @@ public class EncuestaDocenteController {
         DynatableResponse json = new DynatableResponse();
         try {
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             CicloAcademico ciclo = ds.getCicloAcademico();
 
             List<Facultad> facultades = service.allAccesoFacultades(ds, request);
@@ -152,7 +153,7 @@ public class EncuestaDocenteController {
         JsonResponse response = new JsonResponse();
 
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
             EncuestaEstudiantil encuesta = service.findEncuestaDocenteWithResumen(cicloAcademico, ds, request);
             ObjectNode node = JsonHelper.createJson(encuesta, JsonNodeFactory.instance, true, new String[]{
@@ -181,7 +182,7 @@ public class EncuestaDocenteController {
 
         try {
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             service.activarEncuesta(ds.getCicloAcademico(), ds);
             response.setMessage("Encuesta activada satisfactoriamente");
             response.setSuccess(true);
@@ -202,7 +203,7 @@ public class EncuestaDocenteController {
         JsonResponse response = new JsonResponse();
 
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             CicloAcademico ciclo = ds.getCicloAcademico();
             service.saveDetalleConfigEncuesta(encuestaEstudiantil, ciclo, ds);
             response.setMessage("Encuesta configurada satisfactoriamente");
@@ -224,7 +225,7 @@ public class EncuestaDocenteController {
 
         try {
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             String msg = service.generarEncuesta(ds.getCicloAcademico(), ds);
             response.setSuccess(msg == null);
             response.setMessage(msg == null ? "Se inició proceso de generación en encuestas" : msg);
@@ -268,7 +269,7 @@ public class EncuestaDocenteController {
 
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             service.cambiarEstadoEncuesta(encuesta, ds.getCicloAcademico(), ds);
             response.setMessage("Registro actualizado satisfactoriamente.");
             response.setSuccess(true);
@@ -287,7 +288,7 @@ public class EncuestaDocenteController {
 
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
             EncuestaEstudiantil encuesta = service.findEncuestaDocenteWithResumen(cicloAcademico, ds, request);
 
@@ -400,7 +401,7 @@ public class EncuestaDocenteController {
     public JsonResponse delete(@RequestBody EncuestaEstudiantil encuesta, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             service.delete(encuesta, ds);
             response.setMessage("Encuesta Eliminada.");
             response.setSuccess(true);
@@ -418,7 +419,7 @@ public class EncuestaDocenteController {
     public JsonResponse publicar(@RequestBody EncuestaEstudiantil encuesta, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             service.publicar(encuesta, ds);
             response.setMessage("Encuesta Publicada correctamente.");
             response.setSuccess(true);
@@ -438,7 +439,7 @@ public class EncuestaDocenteController {
         JsonResponse response = new JsonResponse();
 
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             List<DocenteSeccion> docentesSecciones = service.allDocenteSeccionNoProcesados(ds.getCicloAcademico(), encuesta);
 
             ArrayNode array = new ArrayNode(jsonFactory);
@@ -479,7 +480,7 @@ public class EncuestaDocenteController {
         JsonResponse response = new JsonResponse();
 
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             service.addDocenteSeccionToEncuesta(docenteSeccion, ds.getCicloAcademico(), ds);
             response.setMessage("Se agregó satisfactoriamente a la encuesta");
             response.setSuccess(true);

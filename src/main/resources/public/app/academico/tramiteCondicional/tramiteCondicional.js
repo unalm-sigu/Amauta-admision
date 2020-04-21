@@ -116,7 +116,7 @@ var app = new Vue({
                 },
                 error: function () {
                     $vue.$refs.modalTramiteCondicional.close();
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                 }
             });
 
@@ -162,7 +162,7 @@ var app = new Vue({
                     MODAL.hideWait();
                 },
                 error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                     MODAL.hideWait();
                 }
             });
@@ -178,7 +178,7 @@ var app = new Vue({
                    
                 },
                 error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                     MODAL.hideWait();
                 }
             });

@@ -285,7 +285,7 @@ new Vue({
 
                     }).catch(e => {
                 $vue.$refs.cambiarAulamodal.confirmReaction(false);
-                notify(MESSAGES.errorComunicacion, "error");
+                notify(GlobalMessages.errorComunicacion, "error");
             });
         },
         forzarCambio() {
@@ -321,7 +321,7 @@ new Vue({
 
                                 }).catch(e => {
                             $vue.$refs.cambiarAulamodal.confirmReaction(false);
-                            notify(MESSAGES.errorComunicacion, "error");
+                            notify(GlobalMessages.errorComunicacion, "error");
                         });
                     }
                 }
@@ -363,7 +363,7 @@ new Vue({
 
             }).catch(e => {
                 $vue.$refs.modalAddSeccionNueva.confirmReaction(false);
-                notify(MESSAGES.errorComunicacion, "error");
+                notify(GlobalMessages.errorComunicacion, "error");
             });
 
         },
@@ -392,7 +392,7 @@ new Vue({
 
                         }).catch(e => {
                             $vue.$refs.modalAddSeccionNueva.confirmReaction(false);
-                            notify(MESSAGES.errorComunicacion, "error");
+                            notify(GlobalMessages.errorComunicacion, "error");
                         });
                     }
                 }

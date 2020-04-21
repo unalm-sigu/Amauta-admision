@@ -31,7 +31,8 @@ import pe.edu.lamolina.model.rolexamen.RolExamenes;
 import pe.edu.lamolina.model.rolexamen.SemanaExamen;
 import pe.edu.lamolina.pivot.controller.rolexamen.docente.RolExamenDocenteService;
 import pe.edu.lamolina.pivot.controller.rolexamen.plantillahorario.PlantillaHorarioService;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.model.constantines.AcademicoConstantine;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -48,7 +49,7 @@ public class HorarioExamenesController {
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
         model.addAttribute("docente", JsonHelper.createJson(ds.getDocente(), JsonNodeFactory.instance, new String[]{
             "*",
@@ -61,7 +62,7 @@ public class HorarioExamenesController {
     @RequestMapping(value = "plantilla", method = RequestMethod.POST)
     public JsonResponse plantilla(HttpSession session, HttpServletRequest request) {
         JsonResponse response = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         JsonNodeFactory jc = JsonNodeFactory.instance;
         try {
             List<RolExamenDocente> examenDocentes = service.listExamenDocente(ds.getDocente(), ds.getCicloAcademico());

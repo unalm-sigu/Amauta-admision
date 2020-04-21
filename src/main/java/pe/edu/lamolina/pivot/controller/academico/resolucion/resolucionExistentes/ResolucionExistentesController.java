@@ -55,7 +55,8 @@ import pe.edu.lamolina.model.tramite.TramiteTraslado;
 import pe.edu.lamolina.pivot.controller.academico.avancecurricular.AvanceCurricularService;
 import pe.edu.lamolina.pivot.controller.academico.resolucion.ResolucionService;
 import pe.edu.lamolina.pivot.controller.matricula.matriculable.MatriculableService;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.model.constantines.AcademicoConstantine;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -106,7 +107,7 @@ public class ResolucionExistentesController {
 
     @RequestMapping(value = "resolucionExistentes", method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         ArrayNode oficinasJson = new ArrayNode(JsonNodeFactory.instance);
         ArrayNode ciclosJson = new ArrayNode(JsonNodeFactory.instance);
         ArrayNode carrerasJson = new ArrayNode(JsonNodeFactory.instance);
@@ -151,7 +152,7 @@ public class ResolucionExistentesController {
 
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             ArrayNode data = new ArrayNode(JsonNodeFactory.instance);
             List<Alumno> alumnos = service.allAlumnoByOficina(nombre, instanciaOficina);
@@ -181,7 +182,7 @@ public class ResolucionExistentesController {
     public JsonResponse save(@RequestBody Resolucion resolucion, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             ArrayNode data = new ArrayNode(JsonNodeFactory.instance);
             List<String> msg = new ArrayList();
@@ -243,7 +244,7 @@ public class ResolucionExistentesController {
             HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
             Resolucion resolucionDB = service.findByResolucion(resolucion, ds);
@@ -339,7 +340,7 @@ public class ResolucionExistentesController {
             HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
             List<AlumnoCicloCursoBean> alumnoCicloCursoBeans = service.allCiclosRepetido(idAlumno, ds);

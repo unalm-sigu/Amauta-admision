@@ -113,10 +113,10 @@ Vue.component("aula-component", {
                         }
 
                     } else {
-                        notify(MESSAGES.errorComunicacion, "error");
+                        notify(GlobalMessages.errorComunicacion, "error");
                     }
                 }, error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                 }
             });
         },
@@ -158,7 +158,7 @@ Vue.component("aula-component", {
                             error: function (response) {
                                 MODAL.hideWait();
                                 $global.$emit("afterSaveAula", response);
-                                notify(MESSAGES.errorComunicacion, "error");
+                                notify(GlobalMessages.errorComunicacion, "error");
                             }
                         });
                     } else {
@@ -212,7 +212,7 @@ Vue.component("aula-component", {
                         notify(response.message, "error");
                     }
                 }, error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                 }
             });
 
@@ -236,11 +236,11 @@ Vue.component("aula-component", {
                         }
 
                     } else {
-                        notify(MESSAGES.errorComunicacion, "error");
+                        notify(GlobalMessages.errorComunicacion, "error");
                     }
                 },
                 error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                 }
             });
         },
@@ -257,11 +257,11 @@ Vue.component("aula-component", {
                     if (response.success) {
                         $vue.tabAulas['oera'].tblAulas = response.data.aulas;
                     } else {
-                        notify(MESSAGES.errorComunicacion, "error");
+                        notify(GlobalMessages.errorComunicacion, "error");
                     }
                 },
                 error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                 }
             });
 

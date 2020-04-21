@@ -34,7 +34,8 @@ import pe.edu.lamolina.model.inscripcion.ContenidoCarta;
 import pe.edu.lamolina.model.inscripcion.ContenidoCartaVariable;
 import pe.edu.lamolina.model.inscripcion.ContenidoVariable;
 import pe.edu.lamolina.model.seguridad.Sistema;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.model.constantines.AcademicoConstantine;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -158,7 +159,7 @@ public class EditorContenidoController {
     public JsonResponse updateContenido(@RequestBody ContenidoCarta contenidoCarta, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             service.updateContenido(contenidoCarta);
             response.setMessage("Contenido Actualizado");
             response.setSuccess(true);
@@ -204,7 +205,7 @@ public class EditorContenidoController {
     @RequestMapping("save")
     public JsonResponse save(ContenidoCarta contenido, HttpSession session) {
         JsonResponse response = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         try {
             if (contenido.getId() != null) {
@@ -231,7 +232,7 @@ public class EditorContenidoController {
             @PathVariable("idContenido") Long idContenido,
             @RequestBody ContenidoCartaVariable contVariable, HttpSession session) {
         JsonResponse response = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         try {
             service.addVariable(contVariable, idContenido);
@@ -253,7 +254,7 @@ public class EditorContenidoController {
     public JsonResponse deleteVariable(
             @PathVariable("idVariable") Long idContVariable, HttpSession session) {
         JsonResponse response = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         try {
             service.deleteVariable(idContVariable);
@@ -274,7 +275,7 @@ public class EditorContenidoController {
     @RequestMapping("updateVariable")
     public JsonResponse updateContVariable(@RequestBody ContenidoCartaVariable contVariable, HttpSession session) {
         JsonResponse response = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         try {
             service.updateContVariable(contVariable);
@@ -296,7 +297,7 @@ public class EditorContenidoController {
     public JsonResponse allVariables(
             @PathVariable("idContenido") Long idContenido, HttpSession session) {
         JsonResponse response = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         try {
             List<ContenidoCartaVariable> variablesCarta = service.allVariablesCartaByContenido(idContenido);

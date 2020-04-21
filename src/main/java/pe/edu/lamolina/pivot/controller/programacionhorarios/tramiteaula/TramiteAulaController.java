@@ -42,8 +42,8 @@ import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.general.Empresa;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.horario.Hora;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
-import pe.edu.lamolina.pivot.zelper.constant.Messages;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
+import pe.edu.lamolina.model.constantines.GlobalMessages;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -110,7 +110,7 @@ public class TramiteAulaController {
 
         try {
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             if (reservaAula.getId() != null) {
                 service.update(reservaAula, ds);
                 response.setMessage(GlobalMessages.UPDATED);
@@ -170,7 +170,7 @@ public class TramiteAulaController {
 
         try {
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             List<ReservaAula> reservaAulas = service.allDynatableFilter(filter);
             JsonNodeFactory jFactory = JsonNodeFactory.instance;
             ArrayNode array = new ArrayNode(jFactory);
@@ -207,7 +207,7 @@ public class TramiteAulaController {
         DynatableResponse json = new DynatableResponse();
         try {
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             List<Aula> aulas = service.allByDynatableFilterAula(filter, ds);
             JsonNodeFactory jFactory = JsonNodeFactory.instance;
@@ -333,7 +333,7 @@ public class TramiteAulaController {
 
         try {
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             service.aceptartramite(reservaAula);
             response.setMessage(GlobalMessages.UPDATED);
             response.setSuccess(true);
@@ -355,7 +355,7 @@ public class TramiteAulaController {
 
         try {
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             service.rechazartramite(reservaAula);
             response.setMessage(GlobalMessages.UPDATED);
             response.setSuccess(true);
@@ -377,7 +377,7 @@ public class TramiteAulaController {
 
         try {
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
             ArrayNode jsonList = new ArrayNode(jsonFactory);
@@ -403,7 +403,7 @@ public class TramiteAulaController {
     public JsonResponse allAulaModulos(HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
             ArrayNode jsonList = new ArrayNode(jsonFactory);
@@ -430,7 +430,7 @@ public class TramiteAulaController {
 
         try {
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
             ArrayNode jsonList = new ArrayNode(jsonFactory);

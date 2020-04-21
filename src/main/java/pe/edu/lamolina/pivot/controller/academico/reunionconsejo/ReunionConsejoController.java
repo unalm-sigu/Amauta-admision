@@ -38,8 +38,8 @@ import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.tramite.ReunionConsejo;
 import pe.edu.lamolina.pivot.controller.academico.facultad.FacultadService;
 import pe.edu.lamolina.pivot.controller.general.oficina.OficinaService;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
-import pe.edu.lamolina.pivot.zelper.constant.Messages;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
+import pe.edu.lamolina.model.constantines.GlobalMessages;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -87,7 +87,7 @@ public class ReunionConsejoController {
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         List<Oficina> oficinas = new ArrayList();
         oficinas = findOficina(oficinas, ds);
         if (oficinas.isEmpty()) {
@@ -108,7 +108,7 @@ public class ReunionConsejoController {
         JsonResponse response = new JsonResponse();
 
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
 
             ObjectNode node = new ObjectNode(jsonFactory);
@@ -142,7 +142,7 @@ public class ReunionConsejoController {
             @RequestBody ReunionConsejo reunionConsejo, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             logger.debug("fecha " + reunionConsejo.getFecha());
             List<Oficina> oficinas = new ArrayList();
 
@@ -159,7 +159,7 @@ public class ReunionConsejoController {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
             e.printStackTrace();
-            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+            ExceptionHandler.handleSpecial(e, response, GlobalMessages.FK_ERROR_UPDATE);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
@@ -175,7 +175,7 @@ public class ReunionConsejoController {
 
         try {
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             CicloAcademico ciclo = ds.getCicloAcademico();
 
             ArrayNode jsonList = new ArrayNode(jsonFactory);
@@ -208,7 +208,7 @@ public class ReunionConsejoController {
 
         try {
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             List<Oficina> oficinas = new ArrayList();
             oficinas = findOficina(oficinas, ds);
             if (idOficina != 0) {

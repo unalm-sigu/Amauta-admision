@@ -70,8 +70,8 @@ import pe.edu.lamolina.model.enums.TipoOficinaEnum;
 import pe.edu.lamolina.pivot.config.DespliegueConfig;
 import pe.edu.lamolina.pivot.controller.seguridad.verificador.VerificadorService;
 import pe.edu.lamolina.pivot.controller.seguridad.verificador.VerificadorServiceImp;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
-import pe.edu.lamolina.pivot.zelper.constant.Messages;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
+import pe.edu.lamolina.model.constantines.GlobalMessages;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -120,7 +120,7 @@ public class PlanCurricularController {
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session, HttpServletRequest request) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         List<Carrera> carreras = service.filtrarByPlanes(verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.ESP, request, ds));
         ArrayNode carrerasJson = this.createCarrerasJson(carreras);
         model.addAttribute("ambiente", despliegueConfig.getAmbiente());
@@ -138,7 +138,7 @@ public class PlanCurricularController {
         DynatableResponse json = new DynatableResponse();
 
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             List<Carrera> carreras = new ArrayList();
             List<PlanCurricular> curriculas = new ArrayList();
             VerificadorServiceImp.CantidadItemsEnum cantidadEnum = verificadorService.verificarCantidad(TipoOficinaEnum.ESP, request, ds);
@@ -205,7 +205,7 @@ public class PlanCurricularController {
         DynatableResponse json = new DynatableResponse();
 
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             List<CursoCurricula> cursosCurricula = service.allCursosOblByDynatable(filter);
 
             Integer total = 0;
@@ -337,7 +337,7 @@ public class PlanCurricularController {
     @RequestMapping("resumenCurricula")
     public DynatableResponse resumenCurricula(DynatableFilter filter, HttpSession session) {
         DynatableResponse json = new DynatableResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         try {
             List<ResumenPlanCurricular> resumenes = service.allResPlanCurByDynatable(filter);
@@ -390,7 +390,7 @@ public class PlanCurricularController {
         DynatableResponse json = new DynatableResponse();
 
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             List<CursoAdicionalCurricula> cursosAdicionales = service.allCursosAdcByDynatable(filter);
 
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
@@ -424,7 +424,7 @@ public class PlanCurricularController {
         DynatableResponse json = new DynatableResponse();
 
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             List<CursoOpcionalCurricula> cursosOpcionales = service.allCursosElecByDynatable(filter);
 
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
@@ -526,7 +526,7 @@ public class PlanCurricularController {
 
     @RequestMapping("nuevo")
     public String nuevo(@RequestParam("origen") String origen, Model model, HttpSession session, HttpServletRequest request) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         PlanCurricular planCurricular = new PlanCurricular();
         planCurricular.init();
@@ -707,7 +707,7 @@ public class PlanCurricularController {
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
-            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+            ExceptionHandler.handleSpecial(e, response, GlobalMessages.FK_ERROR_UPDATE);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
@@ -720,7 +720,7 @@ public class PlanCurricularController {
 
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             TipoCursoCurricula tipoCursoCurricula = service.findTipoCurricula(tipoCursoCurriculaId);
             List<Curso> cursos = service.allCursosByCodigo(tipoCursoCurricula.getCodigo());
 
@@ -740,7 +740,7 @@ public class PlanCurricularController {
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
-            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+            ExceptionHandler.handleSpecial(e, response, GlobalMessages.FK_ERROR_UPDATE);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
@@ -753,7 +753,7 @@ public class PlanCurricularController {
 
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
             String message = "Creado exitosamente";
 
@@ -779,7 +779,7 @@ public class PlanCurricularController {
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
-            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+            ExceptionHandler.handleSpecial(e, response, GlobalMessages.FK_ERROR_UPDATE);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
@@ -792,7 +792,7 @@ public class PlanCurricularController {
 
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
             String message = "Creado exitosamente";
             service.saveGrupoEquivalenteElectivo(grupoCursoEquivalente, ds);
@@ -817,7 +817,7 @@ public class PlanCurricularController {
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
-            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+            ExceptionHandler.handleSpecial(e, response, GlobalMessages.FK_ERROR_UPDATE);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
@@ -831,7 +831,7 @@ public class PlanCurricularController {
 
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
             String message = "Creado exitosamente.";
 
@@ -853,7 +853,7 @@ public class PlanCurricularController {
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
-            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+            ExceptionHandler.handleSpecial(e, response, GlobalMessages.FK_ERROR_UPDATE);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
@@ -866,7 +866,7 @@ public class PlanCurricularController {
 
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             String message = "Curso agregado exitosamente.";
             ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
 
@@ -884,7 +884,7 @@ public class PlanCurricularController {
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
-            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+            ExceptionHandler.handleSpecial(e, response, GlobalMessages.FK_ERROR_UPDATE);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
@@ -897,7 +897,7 @@ public class PlanCurricularController {
 
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             service.deleteCursoCurricula(cursoCurricula, ds);
 
             response.setSuccess(true);
@@ -906,7 +906,7 @@ public class PlanCurricularController {
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
-            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+            ExceptionHandler.handleSpecial(e, response, GlobalMessages.FK_ERROR_UPDATE);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
@@ -919,7 +919,7 @@ public class PlanCurricularController {
 
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             service.deleteCursoEquivalenteByGrupoCursoCurricula(grupo, new CursoCurricula(idCurso));
             response.setSuccess(true);
             response.setMessage("Grupo eliminado exitosamente");
@@ -927,7 +927,7 @@ public class PlanCurricularController {
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
-            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+            ExceptionHandler.handleSpecial(e, response, GlobalMessages.FK_ERROR_UPDATE);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
@@ -940,7 +940,7 @@ public class PlanCurricularController {
 
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             service.deleteCursoEquivalenteElectivoByGrupoCursoCurricula(grupo, new CursoOpcionalCurricula(idCurso));
             response.setSuccess(true);
             response.setMessage("Grupo eliminado exitosamente");
@@ -948,7 +948,7 @@ public class PlanCurricularController {
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
-            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+            ExceptionHandler.handleSpecial(e, response, GlobalMessages.FK_ERROR_UPDATE);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
@@ -961,7 +961,7 @@ public class PlanCurricularController {
 
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             service.trasladarCiclo(cursoCurricula, ds);
 
             response.setSuccess(true);
@@ -970,7 +970,7 @@ public class PlanCurricularController {
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
-            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+            ExceptionHandler.handleSpecial(e, response, GlobalMessages.FK_ERROR_UPDATE);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
@@ -983,7 +983,7 @@ public class PlanCurricularController {
 
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             service.trasladarToElectivos(cursoCurricula, ds);
 
             response.setSuccess(true);
@@ -992,7 +992,7 @@ public class PlanCurricularController {
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
-            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+            ExceptionHandler.handleSpecial(e, response, GlobalMessages.FK_ERROR_UPDATE);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
@@ -1005,7 +1005,7 @@ public class PlanCurricularController {
 
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             service.trasladarToObligatorios(cursoCurricula, ds);
 
             response.setSuccess(true);
@@ -1014,7 +1014,7 @@ public class PlanCurricularController {
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
-            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+            ExceptionHandler.handleSpecial(e, response, GlobalMessages.FK_ERROR_UPDATE);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
@@ -1027,7 +1027,7 @@ public class PlanCurricularController {
 
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             String message = "Curso agregado exitosamente.";
             ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
             ObjectUtil.eliminarAttrSinId(cursoAdicionalCurricula);
@@ -1046,7 +1046,7 @@ public class PlanCurricularController {
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
-            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+            ExceptionHandler.handleSpecial(e, response, GlobalMessages.FK_ERROR_UPDATE);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
@@ -1081,7 +1081,7 @@ public class PlanCurricularController {
 
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             String message = "Curso agregado exitosamente.";
             ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
 
@@ -1099,7 +1099,7 @@ public class PlanCurricularController {
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
-            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+            ExceptionHandler.handleSpecial(e, response, GlobalMessages.FK_ERROR_UPDATE);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
@@ -1119,7 +1119,7 @@ public class PlanCurricularController {
             @PathVariable("planCurricular") Long planCurricularId,
             @RequestParam("origen") String origen, Model model, HttpSession session) {
 
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         PlanCurricular planCurricular = service.findPlanCurricularById(new PlanCurricular(planCurricularId));
         Carrera carrera = planCurricular.getCarrera();
@@ -1168,7 +1168,7 @@ public class PlanCurricularController {
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
-            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+            ExceptionHandler.handleSpecial(e, response, GlobalMessages.FK_ERROR_UPDATE);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
@@ -1187,7 +1187,7 @@ public class PlanCurricularController {
         JsonResponse response = new JsonResponse();
 
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             ArrayNode jsonList = new ArrayNode(jsonFactory);
             List<TipoCurriculaEnum> tiposCurricula = null;
@@ -1244,7 +1244,7 @@ public class PlanCurricularController {
         JsonResponse response = new JsonResponse();
 
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             ArrayNode jsonList = new ArrayNode(jsonFactory);
             List<CursoCurricula> cursosCurricula = service.allCursoCurriculaByNombre(cursoCurriculaForm);
@@ -1288,7 +1288,7 @@ public class PlanCurricularController {
         JsonResponse response = new JsonResponse();
 
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             ArrayNode jsonList = new ArrayNode(jsonFactory);
             List<Curso> cursos = service.allCursoByNombre(cursoForm);
@@ -1329,7 +1329,7 @@ public class PlanCurricularController {
         JsonResponse response = new JsonResponse();
 
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             cursoCurriculaForm.setNumeroCiclo(2000);
             List<RequisitoCursoOpcional> cursosComodines = service.allCursosObligatoriosAndElectivosByNombre(cursoCurriculaForm);
@@ -1375,7 +1375,7 @@ public class PlanCurricularController {
 
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
             service.deleteCursoAdicional(cursoAdicionalId);
 
@@ -1386,7 +1386,7 @@ public class PlanCurricularController {
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
-            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+            ExceptionHandler.handleSpecial(e, response, GlobalMessages.FK_ERROR_UPDATE);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
@@ -1400,7 +1400,7 @@ public class PlanCurricularController {
 
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
             service.deleteCursoOpcional(cursoElectivo);
 
@@ -1411,7 +1411,7 @@ public class PlanCurricularController {
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
-            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+            ExceptionHandler.handleSpecial(e, response, GlobalMessages.FK_ERROR_UPDATE);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
@@ -1450,7 +1450,7 @@ public class PlanCurricularController {
     public JsonResponse eliminarPlan(@RequestBody PlanCurricular plan, Model model, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             service.deletePlanCurricular(plan);
 
             response.setMessage("Plan curricular eliminado satisfactoriamente");
@@ -1459,7 +1459,7 @@ public class PlanCurricularController {
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
-            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+            ExceptionHandler.handleSpecial(e, response, GlobalMessages.FK_ERROR_UPDATE);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
@@ -1472,7 +1472,7 @@ public class PlanCurricularController {
     public JsonResponse desactivarPlan(@RequestBody PlanCurricular plan, Model model, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             service.desactivarPlanCurricular(plan);
 
             response.setMessage("Plan curricular eliminado satisfactoriamente");
@@ -1481,7 +1481,7 @@ public class PlanCurricularController {
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
-            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+            ExceptionHandler.handleSpecial(e, response, GlobalMessages.FK_ERROR_UPDATE);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
@@ -1494,7 +1494,7 @@ public class PlanCurricularController {
     public JsonResponse activarPlan(@RequestBody PlanCurricular plan, Model model, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             service.activarPlanCurricular(plan);
 
             response.setMessage("Plan curricular eliminado satisfactoriamente");
@@ -1503,7 +1503,7 @@ public class PlanCurricularController {
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
-            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+            ExceptionHandler.handleSpecial(e, response, GlobalMessages.FK_ERROR_UPDATE);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
@@ -1516,7 +1516,7 @@ public class PlanCurricularController {
     public JsonResponse clonarPlan(@RequestBody PlanCurricular plan, Model model, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             PlanCurricular planBD = service.clonarPlanCurricular(plan, ds.getCicloAcademico(), ds);
 
             response.setData(planBD.getId());
@@ -1525,7 +1525,7 @@ public class PlanCurricularController {
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
-            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+            ExceptionHandler.handleSpecial(e, response, GlobalMessages.FK_ERROR_UPDATE);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
@@ -1539,7 +1539,7 @@ public class PlanCurricularController {
         JsonResponse response = new JsonResponse();
         try {
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             if (plan.getId() != null) {
                 PlanCurricular planBD = service.findPlanCurricularById(plan);
@@ -1609,7 +1609,7 @@ public class PlanCurricularController {
             @RequestParam("direccion") String direccion, Model model, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             service.moveCurso(cursoCurricula, direccion, ds);
 
             response.setSuccess(true);
@@ -1629,7 +1629,7 @@ public class PlanCurricularController {
     public JsonResponse generarAvanceCurricular(PlanCurricular planCurricular, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             service.generarAvanceCurricular(planCurricular, ds);
             response.setSuccess(true);
             response.setMessage("Avances curricular generados");
@@ -1648,7 +1648,7 @@ public class PlanCurricularController {
     public JsonResponse desvincularCursos(PlanCurricular planCurricular, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             service.desvincularCursoCurricula(planCurricular, ds);
             response.setSuccess(true);
             response.setMessage("Plan curricular desvinculado satisfactoriamente");
@@ -1688,7 +1688,7 @@ public class PlanCurricularController {
         JsonResponse response = new JsonResponse();
         try {
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             service.verificarAsignacion(carrera);
 
             response.setSuccess(true);
@@ -1710,7 +1710,7 @@ public class PlanCurricularController {
         JsonResponse response = new JsonResponse();
         try {
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             String token = service.asignarPlanesToIngresantes(ds.getCicloAcademico(), ds);
             service.revisarAvanceCurricular(token, ds);
 
@@ -1750,7 +1750,7 @@ public class PlanCurricularController {
         JsonResponse response = new JsonResponse();
         try {
             if (visorAsignaCurricula.procesoMitadCarrera(carrera)) {
-                DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+                DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
                 service.asignacionMasivaCursoCurricula(carrera, ds);
             }
 
@@ -1776,7 +1776,7 @@ public class PlanCurricularController {
 
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             service.updateResumen(minCreditos, totalCreditos, new ResumenPlanCurricular(resumen));
             response.setSuccess(true);
             response.setMessage("Se modifico el resumen exitosamente");
@@ -1784,7 +1784,7 @@ public class PlanCurricularController {
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
-            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+            ExceptionHandler.handleSpecial(e, response, GlobalMessages.FK_ERROR_UPDATE);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
@@ -1797,7 +1797,7 @@ public class PlanCurricularController {
 
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             service.allUpdateResumen();
             response.setSuccess(true);
             response.setMessage("Se modifico el resumen exitosamente");
@@ -1805,7 +1805,7 @@ public class PlanCurricularController {
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
-            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+            ExceptionHandler.handleSpecial(e, response, GlobalMessages.FK_ERROR_UPDATE);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
@@ -1818,7 +1818,7 @@ public class PlanCurricularController {
 
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             service.allUpdateResumenPost();
             response.setSuccess(true);
             response.setMessage("Se modifico el resumen exitosamente");
@@ -1826,7 +1826,7 @@ public class PlanCurricularController {
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
-            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+            ExceptionHandler.handleSpecial(e, response, GlobalMessages.FK_ERROR_UPDATE);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
@@ -1839,7 +1839,7 @@ public class PlanCurricularController {
 
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             service.caducar(idCursoCurricula, ds);
             response.setSuccess(true);
             response.setMessage("Se modifico exitosamente");
@@ -1847,7 +1847,7 @@ public class PlanCurricularController {
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
-            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+            ExceptionHandler.handleSpecial(e, response, GlobalMessages.FK_ERROR_UPDATE);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }

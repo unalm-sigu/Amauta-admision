@@ -23,7 +23,7 @@ import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.finanzas.ItemCargaAbono;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -37,14 +37,14 @@ public class AbonoAlumnoController {
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
         return "abonoalumno/abonoAlumno";
     }
 
     @RequestMapping("loadarchivohistorico")
     public String loadArchivoHistorico(Model model, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
         return "abonoalumno/loadArchivoHistorico";
     }
@@ -55,7 +55,7 @@ public class AbonoAlumnoController {
         JsonResponse json = new JsonResponse();
 
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             List<Observado> observados = service.loadArchivoHistorico(file, ds.getCicloAcademico(), ds.getUsuario());
 
             json.setSuccess(true);
@@ -89,7 +89,7 @@ public class AbonoAlumnoController {
     public DynatableResponse list(DynatableFilter filter, HttpSession session) {
         DynatableResponse json = new DynatableResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             List<ItemCargaAbono> abonosAlumno = service.allAbonosByAlumno(ds.getCicloAcademico(), filter);
             logger.debug("abonos size {}", abonosAlumno.size());
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
@@ -132,7 +132,7 @@ public class AbonoAlumnoController {
     public JsonResponse extorno(@RequestBody ItemCargaAbono form, HttpSession session) {
         JsonResponse json = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             List<ItemCargaAbono> extornados = service.allExtornados(form);
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
             for (ItemCargaAbono abono : extornados) {
@@ -175,7 +175,7 @@ public class AbonoAlumnoController {
     public JsonResponse reasignarExtorno(ItemCargaAbono extornado, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             service.reasignarExtorno(extornado, ds.getUsuario());
             ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
             response.setData(node);
@@ -192,7 +192,7 @@ public class AbonoAlumnoController {
 
     @RequestMapping("loadarchivodiario")
     public String loadArchivoDiario(Model model, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
         return "abonoalumno/loadArchivoDiario";
     }
@@ -203,7 +203,7 @@ public class AbonoAlumnoController {
         JsonResponse json = new JsonResponse();
 
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             List<Observado> observados = service.loadArchivoDiario(file, ds.getCicloAcademico(), ds.getUsuario());
 
             json.setSuccess(true);

@@ -44,8 +44,8 @@ import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
 import pe.edu.lamolina.pivot.controller.academico.acta.reporte.RecordDeActasExcelView;
 import pe.edu.lamolina.pivot.controller.seguridad.verificador.VerificadorService;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
-import pe.edu.lamolina.pivot.zelper.constant.Messages;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
+import pe.edu.lamolina.model.constantines.GlobalMessages;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -89,7 +89,7 @@ public class ActaController {
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         //   model.addAttribute("docente", ds.getDocente());
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
         //    model.addAttribute("dptoAcad", ds.getDepartamentoAcademico());
@@ -103,7 +103,7 @@ public class ActaController {
         DynatableResponse json = new DynatableResponse();
 
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             CicloAcademico ciclo = ds.getCicloAcademico();
 
             logger.debug("Departamentos count {}", ds.getOficinaMain().getCodigo());
@@ -165,7 +165,7 @@ public class ActaController {
     @RequestMapping("{departamento}/departamento")
     public String departamento(@PathVariable("departamento") Long idDepartamento, Model model, HttpSession session, RedirectAttributes redirect) {
 
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         DepartamentoAcademico depAcademico = service.findDepartamento(idDepartamento);
         List<GrupoSeccion> allGruposSeccion = service.allGrupoSeccionByFilter(ds.getCicloAcademico(), new DepartamentoAcademico(idDepartamento), EstadoEnum.ACT);
         ActaResumen resumen = service.findResumenByDepartamento(ds.getCicloAcademico(), depAcademico);
@@ -188,7 +188,7 @@ public class ActaController {
 
         try {
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             DepartamentoAcademico dpto = new DepartamentoAcademico(idDepartamento);
             CicloAcademico ciclo = ds.getCicloAcademico();
 
@@ -298,7 +298,7 @@ public class ActaController {
     public JsonResponse reabrir(@RequestParam("grupo") Long idGrupo, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             logger.debug("El grupo seleccionado es {}", idGrupo);
 
             service.reabrirGrupo(new GrupoSeccion(idGrupo), ds.getUsuario());
@@ -309,7 +309,7 @@ public class ActaController {
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
-            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+            ExceptionHandler.handleSpecial(e, response, GlobalMessages.FK_ERROR_UPDATE);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
@@ -319,7 +319,7 @@ public class ActaController {
     @RequestMapping("exportExcel/recordActas")
     public ModelAndView recordActas(HttpSession session, Model model, RedirectAttributes redirectAttr) {
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             List<GrupoSeccion> gpoSecciones = service.allGrupoSeccionByCiclo(ds.getCicloAcademico());
             model.addAttribute("gruposSecciones", gpoSecciones);
@@ -343,7 +343,7 @@ public class ActaController {
     @RequestMapping("exportExcel/raPostGrado")
     public ModelAndView postGrado(HttpSession session, Model model, RedirectAttributes redirectAttr) {
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             List<GrupoSeccion> gpoSecciones = service.allGrupoSeccionByCiclo(ds.getCicloAcademico());
             model.addAttribute("gruposSecciones", gpoSecciones);

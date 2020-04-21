@@ -22,7 +22,8 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.horario.GrupoHoras;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.model.constantines.AcademicoConstantine;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -84,7 +85,7 @@ public class CambioAulaGrupoController {
         
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             service.saveCambioAulaGrupo(cambioAulaGrupo, ds);
             response.setMessage("Cambio de aula / grupo fue registrada satisfactoriamente");
             response.setSuccess(true);
@@ -108,7 +109,7 @@ public class CambioAulaGrupoController {
 
         try {
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             service.aceptarCambioAulaGrupo(cambioAulaGrupo, ds);
             response.setMessage("Cambio de aula / grupo aceptada");
@@ -131,7 +132,7 @@ public class CambioAulaGrupoController {
 
         try {
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             service.rechazarCambioAulaGrupo(cambioAulaGrupo, ds);
             response.setMessage("Cambio de aula / grupo rechazada");
@@ -153,7 +154,7 @@ public class CambioAulaGrupoController {
         JsonResponse response = new JsonResponse();
 
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             service.deleteCambioAulaGrupo(cambioAulaGrupo, ds);
             response.setMessage("Cambio de aula / grupo anulada");
             response.setSuccess(true);
@@ -177,7 +178,7 @@ public class CambioAulaGrupoController {
         JsonResponse response = new JsonResponse();
 
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             CicloAcademico ciclo = ds.getCicloAcademico();
             List<Aula> aulas = service.searchCambioAulaByName(nombre, ciclo);
             ArrayNode jsonList = new ArrayNode(jsonFactory);
@@ -210,7 +211,7 @@ public class CambioAulaGrupoController {
         JsonResponse response = new JsonResponse();
 
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             CicloAcademico ciclo = ds.getCicloAcademico();
             List<GrupoHoras> gruposHoras = service.searchCambioGrupoByName(nombre, ciclo);
             ArrayNode jsonList = new ArrayNode(jsonFactory);

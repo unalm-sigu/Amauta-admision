@@ -26,7 +26,8 @@ import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.AnexoBoletin;
 import pe.edu.lamolina.model.academico.CuotasGrupoHoras;
 import pe.edu.lamolina.model.horario.GrupoHoras;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.model.constantines.AcademicoConstantine;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -40,7 +41,7 @@ public class CuotaGpoHorasController {
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         model.addAttribute("ciclo", ds.getCicloAcademico());
         return "academico/cuotagpohoras/cuotagpohoras";
     }
@@ -54,7 +55,7 @@ public class CuotaGpoHorasController {
         DynatableResponse json = new DynatableResponse();
 
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             List<CuotasGrupoHoras> cuotagpohoras = service.allCuotasGpoHoras(filter, new AnexoBoletin(idAnexo), ds.getCicloAcademico());
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
@@ -160,7 +161,7 @@ public class CuotaGpoHorasController {
 
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             service.save(cuotas, ds.getCicloAcademico(), ds);
             service.updateUtilizados(ds.getCicloAcademico(), cuotas, ds);
 
@@ -183,7 +184,7 @@ public class CuotaGpoHorasController {
         JsonResponse response = new JsonResponse();
 
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             List<CuotasGrupoHoras> cuotasGrupoHoras = service.allCuotasByAnexo(new AnexoBoletin(idAnexo), ds.getCicloAcademico());
 
             ArrayNode arrayCuotasByAnexo = new ArrayNode(jsonFactory);
@@ -209,7 +210,7 @@ public class CuotaGpoHorasController {
 
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             service.updateUtilizados(ds.getCicloAcademico(), null, ds);
 
             response.setSuccess(true);

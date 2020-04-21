@@ -35,7 +35,8 @@ import pe.edu.lamolina.model.examen.ExamenVirtual;
 import pe.edu.lamolina.model.examen.OpcionPregunta;
 import pe.edu.lamolina.model.examen.PreguntaExamen;
 import pe.edu.lamolina.model.examen.TemaExamenVirtual;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.model.constantines.AcademicoConstantine;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -52,7 +53,7 @@ public class PreguntaEncuestaController {
     
     @RequestMapping(method = RequestMethod.GET, path = "{encuesta}")
     public String index(Model model, @PathVariable("encuesta") Long idEncuesta, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         CicloAcademico cicloAcademico = ds.getCicloAcademico();
         model.addAttribute("cicloAcademico", cicloAcademico);
         ExamenVirtual encuesta = service.findEncuesta(idEncuesta);
@@ -119,7 +120,7 @@ public class PreguntaEncuestaController {
     @RequestMapping("{encuesta}/nuevo")
     public String nuevo(@PathVariable("encuesta") Long idEncuesta, Model model, HttpSession session) {
         
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         CicloAcademico cicloAcademico = ds.getCicloAcademico();
         
         ExamenVirtual encuesta = service.findEncuesta(idEncuesta);
@@ -137,7 +138,7 @@ public class PreguntaEncuestaController {
     @RequestMapping("{pregunta}/update")
     public String update(@PathVariable("pregunta") Long idPregunta, Model model, HttpSession session) {
         
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         CicloAcademico cicloAcademico = ds.getCicloAcademico();
         PreguntaExamen pregunta = service.findPregunta(idPregunta);
         List<TemaExamenVirtual> categorias = service.allTemaExamenVirtualByExamenVirtual(pregunta.getExamenVirtual());
@@ -155,7 +156,7 @@ public class PreguntaEncuestaController {
     public String save(PreguntaExamen pregunta, RedirectAttributes redirectAttr, Model model, HttpSession session) {
         ExamenVirtual encuesta = pregunta.getExamenVirtual();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             if (pregunta.getId() == null) {
                 service.savePregunta(pregunta, ds);
                 Notificaciones.crearMsg("Registro creado", redirectAttr);
@@ -225,7 +226,7 @@ public class PreguntaEncuestaController {
         JsonResponse response = new JsonResponse();
         
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             service.cambiarEstadoPregunta(pregunta, ds);
             response.setMessage("Se actualizó el estado satisfactoriamente.");
             response.setSuccess(true);

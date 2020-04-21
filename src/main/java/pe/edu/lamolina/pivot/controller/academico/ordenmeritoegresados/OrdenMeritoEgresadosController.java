@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.List;
-import java.util.Map;
 import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,12 +24,12 @@ import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.Alumno;
-import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.ControlMeritoEgresado;
 import pe.edu.lamolina.model.academico.Egresado;
 import pe.edu.lamolina.model.academico.Facultad;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.model.constantines.AcademicoConstantine;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -48,7 +47,7 @@ public class OrdenMeritoEgresadosController {
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         CicloAcademico ciclo = findCicloAcademico(ds, session);
         CicloAcademico cicloActivo = service.findCicloActivo();
@@ -86,7 +85,7 @@ public class OrdenMeritoEgresadosController {
         DynatableResponse json = new DynatableResponse();
         try {
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             List<ControlMeritoEgresado> list = service.allByDynatable(filter, findCicloAcademico(ds, session));
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
@@ -121,7 +120,7 @@ public class OrdenMeritoEgresadosController {
         DynatableResponse json = new DynatableResponse();
         try {
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             List<Egresado> list = service.allAlumnoCicloByControl(filter, new ControlMeritoEgresado(id));
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
@@ -170,7 +169,7 @@ public class OrdenMeritoEgresadosController {
     @ResponseBody
     @RequestMapping(value = "/generardatos", method = RequestMethod.POST)
     public JsonResponse generarDatos(@RequestBody CicloAcademico cicloAcademico, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         JsonResponse response = new JsonResponse();
         try {
             service.generarDatos(findCicloAcademico(ds, session), ds);
@@ -187,7 +186,7 @@ public class OrdenMeritoEgresadosController {
     @ResponseBody
     @RequestMapping(value = "/calcularmeritos", method = RequestMethod.POST)
     public JsonResponse calcularMeritos(@RequestBody CicloAcademico cicloAcademico, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         JsonResponse response = new JsonResponse();
         try {
             service.calcularMeritos(findCicloAcademico(ds, session), ds);
@@ -208,7 +207,7 @@ public class OrdenMeritoEgresadosController {
         JsonResponse json = new JsonResponse();
         try {
             CicloAcademico ciclo = service.findCicloAcademico(new CicloAcademico(idCiclo));
-            session.setAttribute(Constantine.CICLO_ORDEN_MERITO, ciclo);
+            session.setAttribute(AcademicoConstantine.CICLO_ORDEN_MERITO, ciclo);
             json.setSuccess(true);
             json.setMessage("Se cambio el ciclo académico satisfactoriamente");
         } catch (PhobosException e) {
@@ -256,7 +255,7 @@ public class OrdenMeritoEgresadosController {
         JsonResponse response = new JsonResponse();
 
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             service.saveEgresado(egresado, ds.getUsuario());
             response.setMessage("El alumno fue registrado satisfactoriamente.");
             response.setSuccess(true);
@@ -271,7 +270,7 @@ public class OrdenMeritoEgresadosController {
 
     @RequestMapping("reportePdfOrdenMeritoCiclo")
     public ModelAndView reportePdfOrdenMeritoCiclo(@RequestParam("cicloId") Long cicloId, Model model, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         try {
             CicloAcademico cicloAcademico = service.findCicloAcademico(new CicloAcademico(cicloId));
 
@@ -331,10 +330,10 @@ public class OrdenMeritoEgresadosController {
     }
 
     private CicloAcademico findCicloAcademico(DataSessionPivot ds, HttpSession session) {
-        CicloAcademico ciclo = (CicloAcademico) session.getAttribute(Constantine.CICLO_ORDEN_MERITO);
+        CicloAcademico ciclo = (CicloAcademico) session.getAttribute(AcademicoConstantine.CICLO_ORDEN_MERITO);
         if (ciclo == null) {
             ciclo = service.findCicloAcademico(ds.getCicloAcademico());
-            session.setAttribute(Constantine.CICLO_ORDEN_MERITO, ciclo);
+            session.setAttribute(AcademicoConstantine.CICLO_ORDEN_MERITO, ciclo);
         }
         return ciclo;
     }

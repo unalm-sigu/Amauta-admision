@@ -34,7 +34,7 @@ new Vue({
                     notify(response.message, 'error');
                 }
             }, error => {
-                notify(MESSAGES.errorComunicacion, 'error');
+                notify(GlobalMessages.errorComunicacion, 'error');
             });
 
 

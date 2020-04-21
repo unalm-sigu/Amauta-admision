@@ -87,7 +87,7 @@ new Vue({
                 }
                 MODAL.hideWait();
             }, error => {
-                notify(MESSAGES.errorComunicacion, 'error');
+                notify(GlobalMessages.errorComunicacion, 'error');
             });
         }, loadCursosMasivosByRoleExamen() {
 
@@ -108,7 +108,7 @@ new Vue({
                     notify(response.message, 'error');
                 }
             }, error => {
-                notify(MESSAGES.errorComunicacion, 'error');
+                notify(GlobalMessages.errorComunicacion, 'error');
             });
         }, loadSecciones(nombre) {
             let $vue = this;
@@ -127,7 +127,7 @@ new Vue({
                     notify(response.message, 'error');
                 }
             }, error => {
-                notify(MESSAGES.errorComunicacion, 'error');
+                notify(GlobalMessages.errorComunicacion, 'error');
             });
         }, loadCursosExcluidosByRoleExamen() {
             let $vue = this;
@@ -146,7 +146,7 @@ new Vue({
                     notify(response.message, 'error');
                 }
             }, error => {
-                notify(MESSAGES.errorComunicacion, 'error');
+                notify(GlobalMessages.errorComunicacion, 'error');
             });
         }, anular(cursoExcluido) {
             let $vue = this;
@@ -171,7 +171,7 @@ new Vue({
                                 notify(response.message, 'error');
                             }
                         }, error => {
-                            notify(MESSAGES.errorComunicacion, 'error');
+                            notify(GlobalMessages.errorComunicacion, 'error');
                         });
                     }
                 }

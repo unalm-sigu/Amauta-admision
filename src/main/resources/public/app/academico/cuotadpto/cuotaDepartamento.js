@@ -34,7 +34,7 @@ new Vue({
                     notify(response.message, 'error');
                 }
             }, error => {
-                notify(MESSAGES.errorComunicacion, 'error');
+                notify(GlobalMessages.errorComunicacion, 'error');
             });
         }, redirectGpo(item, tipo) {
             console.dir(item);
@@ -64,7 +64,7 @@ new Vue({
                     notify(response.message, 'error');
                 }
             }, error => {
-                notify(MESSAGES.errorComunicacion, 'error');
+                notify(GlobalMessages.errorComunicacion, 'error');
             });
         }, getOrigenURL() {
             var url = window.location.href;

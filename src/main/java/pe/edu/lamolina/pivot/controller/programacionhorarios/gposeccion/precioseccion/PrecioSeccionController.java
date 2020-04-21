@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
@@ -31,8 +30,8 @@ import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.finanzas.PagoHoraDocente;
 import pe.edu.lamolina.model.general.TipoCarpeta;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
-import pe.edu.lamolina.pivot.zelper.constant.Messages;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
+import pe.edu.lamolina.model.constantines.GlobalMessages;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -76,7 +75,7 @@ public class PrecioSeccionController {
 
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             service.savePrecioSeccion(precioSeccion, ds);
             response.setMessage(GlobalMessages.UPDATED);
             response.setSuccess(true);
@@ -96,7 +95,7 @@ public class PrecioSeccionController {
         JsonResponse response = new JsonResponse();
         try {
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             service.asignarHorasAdicionales(seccion, ds);
             response.setMessage(GlobalMessages.UPDATED);
             response.setSuccess(true);
@@ -147,7 +146,7 @@ public class PrecioSeccionController {
 
         try {
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             service.saveTipoCarpetaSeccion(seccion, ds);
             response.setMessage(GlobalMessages.UPDATED);
             response.setSuccess(true);
@@ -194,7 +193,7 @@ public class PrecioSeccionController {
 
         try {
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             service.asignarGrupoSeccionModular(grupoSeccion, ds);
             response.setMessage(GlobalMessages.UPDATED);
             response.setSuccess(true);
@@ -213,7 +212,7 @@ public class PrecioSeccionController {
 
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             List<PagoHoraDocente> pagosDocenteByHora = service.allPagosDocenteByCiclo(ds.getCicloAcademico());
             DocenteSeccion docenteSeccionBD = service.findDocenteSeccion(docenteSeccionForm);
             CursoCicloAcademico cursoCiclo = service.findCursoCiclo(docenteSeccionBD.getSeccion().getGrupoSeccion().getCurso(), ds.getCicloAcademico());
@@ -237,7 +236,7 @@ public class PrecioSeccionController {
 
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             service.generarPagoDocenteCiclo(ds.getCicloAcademico(), ds);
             response.setMessage("Se generó el pago de los docentes satisfactoriamente.");
             response.setSuccess(true);

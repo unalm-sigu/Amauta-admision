@@ -90,12 +90,12 @@ public class DespliegueConfig {
         this.lagunas = lagunas;
     }
 
-    public Boolean getS3() {
-        return s3;
+    public Boolean getStorage() {
+        return storage;
     }
 
-    public void setS3(Boolean s3) {
-        this.s3 = s3;
+    public void setStorage(Boolean storage) {
+        this.storage = storage;
     }
 
     public Boolean getTawkto() {

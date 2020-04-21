@@ -42,7 +42,8 @@ import pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.reporte.
 import pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.reporte.view.ReporteCantidadAlumnosPorSeccionExcelView;
 import pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.reporte.view.ReporteCrucesExcelView;
 import pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.reporte.view.ReporteSeccionesByFilterExcelView;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.model.constantines.AcademicoConstantine;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.pivot.zelper.pdf.pdfHtml.PDFFormatoEnum;
 import pe.edu.lamolina.pivot.zelper.pdf.pdfHtml.PdfHtmlView;
@@ -106,7 +107,7 @@ public class GpoReporteController {
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         CicloAcademico ciclo = service.findCiclo(ds.getCicloAcademico());
 
         List<ReporteOficina> reportes = service.allReportesProgramacion(ciclo, ds);
@@ -139,7 +140,7 @@ public class GpoReporteController {
     @RequestMapping("reporteVeranoPagoPorDocente")
     public ModelAndView reporteVeranoPagoPorDocente(Model model, HttpSession session) {
 
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         CicloAcademico cicloAcademico = ds.getCicloAcademico();
 
         Date date = new Date();
@@ -161,7 +162,7 @@ public class GpoReporteController {
     @RequestMapping("reporteVeranoDocenteDepartamento")
     public ModelAndView reporteVeranoDocenteDepartamento(Model model, HttpSession session) {
 
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         CicloAcademico cicloAcademico = ds.getCicloAcademico();
 
         Date date = new Date();
@@ -183,7 +184,7 @@ public class GpoReporteController {
     @RequestMapping("reporteVeranoPagoCurso")
     public ModelAndView reporteVeranoPagoCurso(TramiteDocumentoAcademico tramiteDocumentoAcademicoForm, Model model, HttpSession session) {
 
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         CicloAcademico cicloAcademico = ds.getCicloAcademico();
 
         Date date = new Date();
@@ -205,7 +206,7 @@ public class GpoReporteController {
     @RequestMapping("reporteVeranoPagoPorDocenteFacultad")
     public ModelAndView reporteVeranoPagoPorDocenteFacultad(Model model, HttpSession session) {
 
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         CicloAcademico cicloAcademico = ds.getCicloAcademico();
 
         Date date = new Date();
@@ -226,7 +227,7 @@ public class GpoReporteController {
 
     @RequestMapping("boletinPDF")
     public ModelAndView boletinPDF(Model model, HttpSession session, HttpServletResponse response) throws Exception {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         CicloAcademico ciclo = ds.getCicloAcademico();
 
         List<AnexoBoletin> anexosSuper = service.getAnexosForBoletin(ciclo, ds);
@@ -239,7 +240,7 @@ public class GpoReporteController {
 
     @RequestMapping("reporteBoletinExcel")
     public ModelAndView reporteBoletinExcel(Model model, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
         model.addAttribute("dataSession", ds);
         return new ModelAndView(boletinAcademicoExcelView);
@@ -253,7 +254,7 @@ public class GpoReporteController {
     @RequestMapping("reporteCrucesSecciones")
     public ModelAndView reporteCrucesSecciones(Model model, HttpSession session) {
 
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         CicloAcademico cicloAcademico = ds.getCicloAcademico();
 
         InputStream formato = this.getClass().getResourceAsStream("/templates/excel/formatoSeccionesConCruce.xlsx");
@@ -269,7 +270,7 @@ public class GpoReporteController {
     @RequestMapping("reporteSeccionesSinAulas")
     public ModelAndView reporteSeccionesSinAulas(Model model, HttpSession session) {
 
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         CicloAcademico cicloAcademico = ds.getCicloAcademico();
 
         InputStream formato = this.getClass().getResourceAsStream("/templates/excel/formatoSeccionesSinAula.xlsx");
@@ -291,7 +292,7 @@ public class GpoReporteController {
     @RequestMapping("reporteSeccionesConAulas")
     public ModelAndView reporteSeccionesConAulas(Model model, HttpSession session) {
 
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         CicloAcademico cicloAcademico = ds.getCicloAcademico();
 
         InputStream formato = this.getClass().getResourceAsStream("/templates/excel/formatoSeccionesSinAula.xlsx");
@@ -313,7 +314,7 @@ public class GpoReporteController {
     @RequestMapping("reporteSeccionesConHorario")
     public ModelAndView reporteSeccionesConHorario(Model model, HttpSession session) {
 
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         CicloAcademico cicloAcademico = ds.getCicloAcademico();
 
         InputStream formato = this.getClass().getResourceAsStream("/templates/excel/formatoSeccionesSinAula.xlsx");
@@ -335,7 +336,7 @@ public class GpoReporteController {
     @RequestMapping("reporteSeccionesSinHorario")
     public ModelAndView reporteSeccionesSinHorario(Model model, HttpSession session) {
 
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         CicloAcademico cicloAcademico = ds.getCicloAcademico();
 
         InputStream formato = this.getClass().getResourceAsStream("/templates/excel/formatoSeccionesSinAula.xlsx");
@@ -357,7 +358,7 @@ public class GpoReporteController {
     @RequestMapping("reporteAlumnosPorClave")
     public ModelAndView reporteAlumnosPorClave(Model model, HttpSession session) {
 
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         CicloAcademico cicloAcademico = ds.getCicloAcademico();
 
         InputStream formato = this.getClass().getResourceAsStream("/templates/excel/formatoProgramacion.xlsx");
@@ -377,7 +378,7 @@ public class GpoReporteController {
     @RequestMapping("reporteCantidadAlumnosPorSeccion")
     public ModelAndView reporteCantidadAlumnosPorSeccion(Model model, HttpSession session) {
 
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         CicloAcademico cicloAcademico = ds.getCicloAcademico();
 
         InputStream formato = this.getClass().getResourceAsStream("/templates/excel/formatoProgramacion.xlsx");

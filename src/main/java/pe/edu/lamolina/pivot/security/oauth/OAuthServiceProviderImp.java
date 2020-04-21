@@ -68,7 +68,8 @@ import pe.edu.lamolina.pivot.dao.general.OficinaDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.MenuDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.RolDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.UsuarioDAO;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.model.constantines.AcademicoConstantine;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service
@@ -201,7 +202,7 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
         Compania compania = companiaDAO.find(1L);
         ds.setCompania(compania);
 
-        session.setAttribute(Constantine.SESSION_USUARIO, ds);
+        session.setAttribute(GlobalConstantine.SESSION_USUARIO, ds);
     }
 
     @Async
@@ -489,7 +490,7 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
         ds.setMenu(menus);
         ds.setRolActivo(rol);
 
-        session.setAttribute(Constantine.SESSION_USUARIO, ds);
+        session.setAttribute(GlobalConstantine.SESSION_USUARIO, ds);
 
     }
 

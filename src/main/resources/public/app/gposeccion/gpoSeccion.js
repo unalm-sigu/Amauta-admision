@@ -200,7 +200,7 @@ new Vue({
                 },
                 error: function () {
                     $vue.$refs.modalNuevoGpoSecc.confirmReaction(false);
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                 }
             });
         },
@@ -281,7 +281,7 @@ new Vue({
                     }
                 },
                 error() {
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                 }
             });
         },
@@ -484,7 +484,7 @@ new Vue({
                 },
                 error: function () {
                     $vue.$refs.modalCloneCiclo.confirmReaction(false);
-                    notifyBootbox(MESSAGES.errorComunicacion, "error");
+                    notifyBootbox(GlobalMessages.errorComunicacion, "error");
                 }
             });
         },
@@ -504,7 +504,7 @@ new Vue({
                     }
                 },
                 error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                 }
             });
 
@@ -537,7 +537,7 @@ new Vue({
                 },
                 error: function () {
                     $vue.$refs.modalConfirmAction.confirmReaction(false);
-                    notifyBootbox(MESSAGES.errorComunicacion, "error");
+                    notifyBootbox(GlobalMessages.errorComunicacion, "error");
                 }
             });
         },
@@ -571,7 +571,7 @@ new Vue({
                 },
                 error: function () {
                     $vue.$refs.modalConfirmAction.confirmReaction(false);
-                    notifyBootbox(MESSAGES.errorComunicacion, "error");
+                    notifyBootbox(GlobalMessages.errorComunicacion, "error");
                 }
             });
         },
@@ -599,7 +599,7 @@ new Vue({
                         },
                         error: function () {
                             $vue.$refs.modalConfirmAction.confirmReaction(false);
-                            notify(MESSAGES.errorComunicacion, 'error');
+                            notify(GlobalMessages.errorComunicacion, 'error');
                         }
                     });
                 }
@@ -631,7 +631,7 @@ new Vue({
                         },
                         error: function () {
                             $vue.$refs.modalConfirmAction.confirmReaction(false);
-                            notify(MESSAGES.errorComunicacion, 'error');
+                            notify(GlobalMessages.errorComunicacion, 'error');
                         }
                     });
                 }
@@ -664,7 +664,7 @@ new Vue({
                         },
                         error: function () {
                             $vue.$refs.modalConfirmAction.confirmReaction(false);
-                            notify(MESSAGES.errorComunicacion, 'error');
+                            notify(GlobalMessages.errorComunicacion, 'error');
                         }
                     });
                 },
@@ -696,7 +696,7 @@ new Vue({
                         },
                         error: function () {
                             $vue.$refs.modalConfirmAction.confirmReaction(false);
-                            notify(MESSAGES.errorComunicacion, 'error');
+                            notify(GlobalMessages.errorComunicacion, 'error');
                         }
                     });
                 },

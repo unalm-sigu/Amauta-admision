@@ -59,10 +59,10 @@ Vue.component("restriccion-component", {
                             $vue.cambiarTipoRestriccion();
                         }
                     } else {
-                        notify(MESSAGES.errorComunicacion, "error");
+                        notify(GlobalMessages.errorComunicacion, "error");
                     }
                 }, error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                 }
             });
         },
@@ -97,12 +97,12 @@ Vue.component("restriccion-component", {
                         MODAL.hideWait();
                         $global.$emit("afterSaveRestriccion", response);
                     } else {
-                        notify(MESSAGES.errorComunicacion, "error");
+                        notify(GlobalMessages.errorComunicacion, "error");
                     }
                 }, error: function () {
                     MODAL.hideWait();
                     $global.$emit("afterSaveRestriccion", response);
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                 }
             });
 
@@ -131,10 +131,10 @@ Vue.component("restriccion-component", {
                         $vue.tipoRestriccion.esModalidad = response.data.esModalidad;
 
                     } else {
-                        notify(MESSAGES.errorComunicacion, "error");
+                        notify(GlobalMessages.errorComunicacion, "error");
                     }
                 }, error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                 }
             });
         },

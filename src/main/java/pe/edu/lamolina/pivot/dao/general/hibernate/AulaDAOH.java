@@ -1,12 +1,10 @@
 package pe.edu.lamolina.pivot.dao.general.hibernate;
 
 import com.google.common.base.Strings;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pe.edu.lamolina.pivot.dao.general.AulaDAO;
@@ -14,17 +12,14 @@ import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
-import pe.albatross.zelpers.miscelanea.JsonHelper;
+import pe.edu.lamolina.model.constantines.AcademicoConstantine;
 import pe.edu.lamolina.model.enums.EstadoEnum;
-import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.enums.TipoAulaEnum;
 import pe.edu.lamolina.model.enums.TipoOficinaEnum;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Oficina;
-import pe.edu.lamolina.model.general.TipoAula;
 
 @Repository
 public class AulaDAOH extends AbstractEasyDAO<Aula> implements AulaDAO {
@@ -211,7 +206,7 @@ public class AulaDAOH extends AbstractEasyDAO<Aula> implements AulaDAO {
                 .join("au.oficinaSupervisora ofi", "au.aulaSuperior aus")
                 .filter("au.estado", EstadoEnum.ACT.name())
                 .in("ofi.id", oficinas)
-                .notIn("ofi.id", Arrays.asList(Constantine.ID_OFICINA_OERA));
+                .notIn("ofi.id", Arrays.asList(AcademicoConstantine.ID_OFICINA_OERA));
         return sql.all(getCurrentSession());
     }
 

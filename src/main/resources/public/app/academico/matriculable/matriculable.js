@@ -127,7 +127,7 @@ new Vue({
                     }
                 },
                 error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                     MODAL.hideWait();
                 }
             });
@@ -152,7 +152,7 @@ new Vue({
                     }
                 },
                 error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                     MODAL.hideWait();
                 }
             });
@@ -171,7 +171,7 @@ new Vue({
                     }
                 },
                 error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                     MODAL.hideWait();
                 }
             });
@@ -185,7 +185,7 @@ new Vue({
                     $vue.ciclo = response.data;
                 },
                 error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                     MODAL.hideWait();
                 }
             });
@@ -204,7 +204,7 @@ new Vue({
                     }
                 },
                 error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                     MODAL.hideWait();
                 }
             });
@@ -226,7 +226,7 @@ new Vue({
                     }
                 },
                 error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                 }
             });
         },
@@ -245,7 +245,7 @@ new Vue({
                     }
                 },
                 error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                     MODAL.hideWait();
                 }
             });
@@ -266,7 +266,7 @@ new Vue({
                     }
                 },
                 error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                     MODAL.hideWait();
                 }
             });
@@ -287,7 +287,7 @@ new Vue({
                     }
                 },
                 error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                     MODAL.hideWait();
                 }
             });
@@ -308,7 +308,7 @@ new Vue({
                     }
                 },
                 error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                     MODAL.hideWait();
                 }
             });
@@ -339,7 +339,7 @@ new Vue({
                     }
                 },
                 error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                     MODAL.hideWait();
                 }
             });
@@ -409,7 +409,7 @@ new Vue({
                     }
                 },
                 error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                     MODAL.hideWait();
                 }
             });
@@ -445,7 +445,7 @@ new Vue({
                     }
                 },
                 error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                     MODAL.hideWait();
                 }
             });
@@ -466,7 +466,7 @@ new Vue({
                     }
                 },
                 error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                     MODAL.hideWait();
                 }
             });
@@ -496,7 +496,7 @@ new Vue({
                     }
                 },
                 error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                     $vue.$refs.modalConfirmAction.confirmReaction(false);
                 }
             });
@@ -526,7 +526,7 @@ new Vue({
                     }
                 },
                 error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                     $vue.$refs.modalConfirmAction.confirmReaction(false);
                 }
             });
@@ -556,7 +556,7 @@ new Vue({
                     }
                 },
                 error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                     $vue.$refs.modalConfirmAction.confirmReaction(false);
                 }
             });
@@ -586,7 +586,7 @@ new Vue({
                     }
                 },
                 error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                     $vue.$refs.modalConfirmAction.confirmReaction(false);
                 }
             });
@@ -616,7 +616,7 @@ new Vue({
                     }
                 },
                 error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                     $vue.$refs.modalConfirmAction.confirmReaction(false);
                 }
             });
@@ -647,7 +647,7 @@ new Vue({
                 },
                 error() {
                     $vue.$refs.modalAporteAlumno.close();
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                 }
             });
         },
@@ -681,7 +681,7 @@ new Vue({
                 },
                 error() {
                     $vue.$refs.modalBoletaAlumno.close();
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                 }
             });
         },
@@ -720,7 +720,7 @@ new Vue({
                 $vue.processreporte = false;
             }).catch(error => {
                 $vue.processreporte = false;
-                notify(MESSAGES.errorComunicacion, "error");
+                notify(GlobalMessages.errorComunicacion, "error");
             });
         },
         verModalidades(tipo) {

@@ -1,6 +1,6 @@
 package pe.edu.lamolina.pivot.controller.horariocachimbo.ingresante;
 
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 
 public class IngresanteCantidad {
 
@@ -36,7 +36,7 @@ public class IngresanteCantidad {
         if (this.idgen > 12) {
             this.idgen = this.idgen % 12;
         }
-        return Constantine.MORE_FLAT_COLOR[this.idgen];
+        return GlobalConstantine.MORE_FLAT_COLOR[this.idgen];
     }
 
     public Integer getIdgen() {

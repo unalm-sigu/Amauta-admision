@@ -42,7 +42,8 @@ import pe.edu.lamolina.model.general.Empresa;
 import pe.edu.lamolina.model.general.Pais;
 import pe.edu.lamolina.model.general.Ubicacion;
 import pe.edu.lamolina.model.general.Universidad;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.model.constantines.AcademicoConstantine;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -89,7 +90,7 @@ public class BuscarController {
         DynatableResponse json = new DynatableResponse();
         try {
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             CicloAcademico ciclo = ds.getCicloAcademico();
             List<Curso> cursos = buscarService.allCursosSCA(nombre, new PlanCalificacion(idPlanCalifica), ciclo);
 
@@ -468,7 +469,7 @@ public class BuscarController {
         logger.debug("curso {}", curso);
 
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             CicloAcademico ciclo = ds.getCicloAcademico();
             ArrayNode jsonList = new ArrayNode(jsonFactory);
             List<GrupoSeccion> grupoSecciones = buscarService.allGrupoSeccionesByCiclo(ciclo, codigo, curso);
@@ -499,7 +500,7 @@ public class BuscarController {
         JsonResponse response = new JsonResponse();
 
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             ArrayNode jsonList = new ArrayNode(jsonFactory);
             List<Curso> cursos = buscarService.allCurso(codigo, ds.getCicloAcademico());
             for (Curso curso : cursos) {
@@ -530,7 +531,7 @@ public class BuscarController {
         logger.debug("Codigo {}", codigo);
 
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             ArrayNode jsonList = new ArrayNode(jsonFactory);
             List<Seccion> secciones = buscarService.allSeccionByCodigo(codigo, ds.getCicloAcademico());
             logger.debug("Size sec {}", secciones.size());
@@ -564,7 +565,7 @@ public class BuscarController {
         JsonResponse response = new JsonResponse();
 
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             ArrayNode jsonList = new ArrayNode(jsonFactory);
             List<CicloAcademico> ciclos = buscarService.allCicloByDescripcion(nombre);
             for (CicloAcademico ciclo : ciclos) {
@@ -595,7 +596,7 @@ public class BuscarController {
         JsonResponse response = new JsonResponse();
 
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             ArrayNode jsonList = new ArrayNode(jsonFactory);
             List<PlanCalificacion> planes = buscarService.allPlanCalificacionByDescripcion(nombre);
             for (PlanCalificacion plan : planes) {
@@ -658,7 +659,7 @@ public class BuscarController {
         JsonResponse response = new JsonResponse();
 
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             ArrayNode jsonList = new ArrayNode(jFactory);
             List<CicloAcademico> ciclos = buscarService.allCicloByDescripcionDescendent(nombre);
             for (CicloAcademico ciclo : ciclos) {

@@ -27,7 +27,8 @@ import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.rolexamen.CursoExcluido;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
 import pe.edu.lamolina.model.rolexamen.SeccionExcluido;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.model.constantines.AcademicoConstantine;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -41,7 +42,7 @@ public class CursosExcluidosController {
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         List<RolExamenes> rolexamenes = service.allRolExamenesByCicloActivo(ds.getCicloAcademico());
         ArrayNode jRolesxamenes = new ArrayNode(JsonNodeFactory.instance);
@@ -89,7 +90,7 @@ public class CursosExcluidosController {
         JsonResponse response = new JsonResponse();
 
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             ds.setFechaAccionAudit(new Date());
             service.excluirCurso(cursoExcluido, ds);
             response.setSuccess(true);
@@ -110,7 +111,7 @@ public class CursosExcluidosController {
         JsonResponse response = new JsonResponse();
 
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             ds.setFechaAccionAudit(new Date());
             service.excluirSeccion(seccionExcluido, ds);
             response.setSuccess(true);
@@ -131,7 +132,7 @@ public class CursosExcluidosController {
         JsonResponse response = new JsonResponse();
 
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             ds.setFechaAccionAudit(new Date());
             service.anularExclusion(cursoExcluido, ds);
             response.setSuccess(true);
@@ -149,7 +150,7 @@ public class CursosExcluidosController {
     @RequestMapping("listCursoExcluido")
     public JsonResponse listCursoExcluido(@RequestBody RolExamenes rolExamenes, HttpSession session, HttpServletRequest request) {
         JsonResponse response = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         try {
 
             List<CursoExcluido> cursosExcluidos = service.allCursosExcluidosByRolExamenes(rolExamenes);
@@ -190,7 +191,7 @@ public class CursosExcluidosController {
         JsonResponse response = new JsonResponse();
 
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             List<Seccion> secciones = service.allSeccionesByCicloAndNombreLimit(ds.getCicloAcademico(), new RolExamenes(idRolExamen), nombre);
             ArrayNode jSecciones = new ArrayNode(JsonNodeFactory.instance);
@@ -223,7 +224,7 @@ public class CursosExcluidosController {
         JsonResponse response = new JsonResponse();
 
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             ds.setFechaAccionAudit(new Date());
             List<SeccionExcluido> seccionesExcluidas = service.allSeccionesExcluidas(cursoExcluido);
 
@@ -258,7 +259,7 @@ public class CursosExcluidosController {
         JsonResponse response = new JsonResponse();
 
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             ds.setFechaAccionAudit(new Date());
 
             seccionExcluido.setEstadoEnum(EstadoEnum.ACT);
@@ -283,7 +284,7 @@ public class CursosExcluidosController {
         JsonResponse response = new JsonResponse();
 
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             ds.setFechaAccionAudit(new Date());
 
             seccionExcluido.setEstadoEnum(EstadoEnum.ANU);

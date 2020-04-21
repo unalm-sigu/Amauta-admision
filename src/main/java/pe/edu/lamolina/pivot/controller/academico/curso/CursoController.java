@@ -55,8 +55,8 @@ import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.general.Idioma;
 import pe.edu.lamolina.model.general.TipoCarpeta;
 import pe.edu.lamolina.pivot.controller.academico.curso.view.AlumnoCursoExcelView;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
-import pe.edu.lamolina.pivot.zelper.constant.Messages;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
+import pe.edu.lamolina.model.constantines.GlobalMessages;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -99,7 +99,7 @@ public class CursoController {
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         CicloAcademico ciclo = ds.getCicloAcademico();
 
         model.addAttribute("ciclo", ciclo);
@@ -112,7 +112,7 @@ public class CursoController {
         DynatableResponse json = new DynatableResponse();
 
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             List<Curso> cursos = service.allByDynatable(filter, ds.getCicloAcademico(), ds, request);
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
@@ -138,7 +138,7 @@ public class CursoController {
         JsonResponse response = new JsonResponse();
         response.setSuccess(false);
 
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         try {
             String mensaje = curso.getId() != null ? GlobalMessages.UPDATED : GlobalMessages.CREATED;
             Curso cursoBD = service.save(curso, ds);
@@ -160,7 +160,7 @@ public class CursoController {
         JsonResponse response = new JsonResponse();
         response.setSuccess(false);
 
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         try {
             NombreCurso nombreCursoBD = nombreCurso.getId() == null
                     ? service.saveIdioma(nombreCurso, ds)
@@ -192,7 +192,7 @@ public class CursoController {
         JsonResponse response = new JsonResponse();
         response.setSuccess(false);
 
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         try {
             service.deleteIdioma(nombreCurso, ds);
             response.setMessage("Nombre de curso eliminado satisfactoriamente");
@@ -208,7 +208,7 @@ public class CursoController {
 
     @RequestMapping("nuevo")
     public String nuevo(@RequestParam(value = "origen", required = false) String origen, Model model, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         Curso curso = new Curso();
         Compania cia = ds.getCompania();
 
@@ -235,7 +235,7 @@ public class CursoController {
     public String editar(
             @PathVariable("id") Long id,
             @RequestParam(value = "origen", required = false) String origen, Model model, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         Compania cia = ds.getCompania();
         Curso curso = service.find(id);
 
@@ -396,7 +396,7 @@ public class CursoController {
         response.setSuccess(false);
 
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             service.cambiarEstadoCurso(curso, ds);
 
@@ -525,7 +525,7 @@ public class CursoController {
 
     @RequestMapping("reproteAlumnos")
     public ModelAndView reporteAlumnos(@RequestParam("curso") Long cursoId, Model model, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         List<MatriculaSeccion> alumnosPorCurso = service.allMatriculasSecciones(Arrays.asList(new Curso(cursoId)), ds.getCicloAcademico());
         List<Seccion> secciones = alumnosPorCurso.stream().map(MatriculaSeccion::getSeccion).distinct().collect(Collectors.toList());

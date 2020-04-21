@@ -20,9 +20,10 @@ import pe.edu.lamolina.pivot.dao.general.ContenidoCartaDAO;
 import pe.edu.lamolina.pivot.dao.general.ContenidoVariableDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.SistemaDAO;
 import pe.edu.lamolina.pivot.dao.sip.ContenidoCartaVariableDAO;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
-import static pe.edu.lamolina.pivot.zelper.constant.Constantine.S3_PUBLIC_DIR;
-import static pe.edu.lamolina.pivot.zelper.constant.Constantine.S3_TMP;
+import pe.edu.lamolina.model.constantines.AcademicoConstantine;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
+import static pe.edu.lamolina.model.constantines.GlobalConstantine.S3_PUBLIC_DIR;
+import static pe.edu.lamolina.model.constantines.GlobalConstantine.S3_TMP;
 
 @Service
 @Transactional(readOnly = true)
@@ -121,12 +122,12 @@ public class EditorContenidoServiceImp implements EditorContenidoService {
 
         if (despliegueConfig.getStorage() && nuevo.exists()) {
             logger.debug("TRYIN' TO UPLOAD {} TO S3", fileName);
-            this.uploadS3(Constantine.S3_PUBLIC_DIR, GlobalConstantine.TMP_DIR, fileName, true);
-            absoluteName = Constantine.S3_LINK + S3_PUBLIC_DIR + fileName;
+            this.uploadS3(GlobalConstantine.S3_PUBLIC_DIR, GlobalConstantine.TMP_DIR, fileName, true);
+            absoluteName = AcademicoConstantine.S3_URL_ACADEMICO + S3_PUBLIC_DIR + fileName;
             logger.debug("LINK ? {}", absoluteName);
         } else {
-            this.uploadS3(Constantine.S3_TMP, GlobalConstantine.TMP_DIR, fileName, true);
-            absoluteName = Constantine.S3_LINK + S3_TMP + fileName;
+            this.uploadS3(GlobalConstantine.S3_TMP, GlobalConstantine.TMP_DIR, fileName, true);
+            absoluteName = AcademicoConstantine.S3_URL_ACADEMICO + S3_TMP + fileName;
             logger.debug("LINK ? {}", absoluteName);
         }
 
@@ -135,7 +136,7 @@ public class EditorContenidoServiceImp implements EditorContenidoService {
     }
 
     private void uploadS3(String remoteDirectory, String localDirectory, String fileName, Boolean publico) {
-        swiftService.uploadFileSync(Constantine.S3_DIR, remoteDirectory, localDirectory, fileName, publico);
+        swiftService.uploadFileSync(AcademicoConstantine.S3_BUCKET_ACADEMICO, remoteDirectory, localDirectory, fileName, publico);
     }
 
     @Override

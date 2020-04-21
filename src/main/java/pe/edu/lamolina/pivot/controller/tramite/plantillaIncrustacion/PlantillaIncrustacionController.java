@@ -31,7 +31,8 @@ import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.enums.TipoPlantillaDocumentoEnum;
 import pe.edu.lamolina.model.general.Idioma;
 import pe.edu.lamolina.model.tramite.PlantillaDocumentoAcademico;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.model.constantines.AcademicoConstantine;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.pivot.zelper.pdf.pdfHtml.PdfHtmlView;
 
@@ -98,7 +99,7 @@ public class PlantillaIncrustacionController {
     @RequestMapping("list")
     public DynatableResponse all(DynatableFilter filter, HttpSession session) {
         DynatableResponse json = new DynatableResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         try {
             List<PlantillaDocumentoAcademico> list = service.all(filter);
             ArrayNode arrayNode = new ArrayNode(JsonNodeFactory.instance);
@@ -122,7 +123,7 @@ public class PlantillaIncrustacionController {
     @RequestMapping("save")
     public JsonResponse update(@RequestBody PlantillaDocumentoAcademico plantillaDocumentoAcademico, HttpSession session) {
         JsonResponse response = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         response.setSuccess(false);
         try {
 
@@ -147,7 +148,7 @@ public class PlantillaIncrustacionController {
     @RequestMapping("delete/{id}")
     public JsonResponse delete(@PathVariable(value = "id") Long id, HttpSession session) {
         JsonResponse response = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         response.setSuccess(false);
         try {
 

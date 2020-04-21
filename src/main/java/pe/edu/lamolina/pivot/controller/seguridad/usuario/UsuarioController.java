@@ -34,7 +34,8 @@ import pe.edu.lamolina.model.general.TipoDocIdentidad;
 import pe.edu.lamolina.model.seguridad.Rol;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.seguridad.UsuarioRol;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.model.constantines.AcademicoConstantine;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -86,7 +87,7 @@ public class UsuarioController {
 
         DynatableResponse json = new DynatableResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             List<Usuario> usuarios = service.allByDynatable(filter);
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
             FotoHelper helper = new FotoHelper();
@@ -156,7 +157,7 @@ public class UsuarioController {
             @PathVariable("usuario") Long idUsuario,
             @RequestParam("origen") String origen, Model model, HttpSession session) {
 
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         Usuario usuario = service.findUsuario(new Usuario(idUsuario));
 
         model.addAttribute("usuario", usuario);
@@ -179,7 +180,7 @@ public class UsuarioController {
         JsonResponse response = new JsonResponse();
         try {
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             service.deshabilitarPerfil(new UsuarioRol(idUsuarioRol), ds);
             response.setMessage("Registro actualizado satisfactoriamente");
             response.setSuccess(true);
@@ -200,7 +201,7 @@ public class UsuarioController {
         ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
 
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             response.setMessage("Usuario modificado satisfactoriamente");
             if (usuario.getId() == null) {
                 response.setMessage("Usuario creado satisfactoriamente");
@@ -233,7 +234,7 @@ public class UsuarioController {
         ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
 
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             Persona personaTmp = new Persona(new TipoDocIdentidad(idTipoDNI), numeroDNI);
             Persona persona = service.findPersona(personaTmp);
 
@@ -265,7 +266,7 @@ public class UsuarioController {
     public JsonResponse desactivaUsuario(@RequestParam("usuario") Long idUsuario, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             service.desactivaUsuario(new Usuario(idUsuario), ds);
             response.setMessage("Usuario deshabilitado satisfactoriamente");
             response.setSuccess(true);
@@ -282,7 +283,7 @@ public class UsuarioController {
     public JsonResponse activaUsuario(@RequestParam("usuario") Long idUsuario, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             service.activaUsuario(new Usuario(idUsuario), ds);
             response.setMessage("Usuario habilitado satisfactoriamente");
             response.setSuccess(true);
@@ -300,7 +301,7 @@ public class UsuarioController {
 
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             service.saveUserRol(userRol, ds);
             response.setMessage("Perfíl asignado satisfactoriamente");
             response.setSuccess(true);
@@ -316,7 +317,7 @@ public class UsuarioController {
     @RequestMapping(value = "usuarioRol", method = RequestMethod.GET)
     public String index(@RequestParam("usuario") Long idUsuario, Model model, HttpSession session) {
 
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         Usuario user = service.findUsuario(new Usuario(idUsuario));
         model.addAttribute("usuario", user);
         model.addAttribute("roles", service.allRolesWithoutUser(user));

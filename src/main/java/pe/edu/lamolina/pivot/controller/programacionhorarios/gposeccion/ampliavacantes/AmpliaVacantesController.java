@@ -17,8 +17,8 @@ import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.AmpliacionVacantes;
 import pe.edu.lamolina.model.academico.Seccion;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
-import pe.edu.lamolina.pivot.zelper.constant.Messages;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
+import pe.edu.lamolina.model.constantines.GlobalMessages;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -77,7 +77,7 @@ public class AmpliaVacantesController {
 
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             service.saveAmpliacionVacante(ampliacionVacante, ds);
             response.setMessage("Solictud de ampliación registrada satisfactoriamente");
             response.setSuccess(true);
@@ -123,7 +123,7 @@ public class AmpliaVacantesController {
         JsonResponse response = new JsonResponse();
 
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             service.deleteAmpliacionVacante(ampliacionVacante, ds);
             response.setMessage("Ampliación anulada");
             response.setSuccess(true);
@@ -145,7 +145,7 @@ public class AmpliaVacantesController {
 
         try {
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             service.aceptarAmpliacionVacante(ampliacionVacante, ds);
             response.setMessage("Ampliación aceptada");
@@ -168,7 +168,7 @@ public class AmpliaVacantesController {
 
         try {
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             service.rechazarAmpliacionVacante(ampliacionVacante, ds);
             response.setMessage("Ampliación rechazada");

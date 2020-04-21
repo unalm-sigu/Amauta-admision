@@ -43,6 +43,7 @@ import pe.edu.lamolina.model.academico.RequisitoCursoCurricula;
 import pe.edu.lamolina.model.academico.RequisitoCursoOpcional;
 import pe.edu.lamolina.model.academico.ResumenPlanCurricular;
 import pe.edu.lamolina.model.academico.TipoCursoCurricula;
+import static pe.edu.lamolina.model.constantines.AcademicoConstantine.CODIGO_CURSO_DEP;
 import pe.edu.lamolina.model.enums.CurriculaEstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import static pe.edu.lamolina.model.enums.EstadoEnum.ACT;
@@ -102,7 +103,6 @@ import pe.edu.lamolina.pivot.dao.academico.TipoCursoCurriculaDAO;
 import pe.edu.lamolina.pivot.dao.general.ColaboradorDAO;
 import pe.edu.lamolina.pivot.dao.posgrado.CursoHabilEscuelaDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.UsuarioRolDAO;
-import static pe.edu.lamolina.pivot.zelper.constant.Constantine.CODIGO_CURSO_DEP;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service

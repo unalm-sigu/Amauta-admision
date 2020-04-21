@@ -45,7 +45,8 @@ import pe.edu.lamolina.model.tramite.CursoDirigido;
 import pe.edu.lamolina.model.tramite.Tramite;
 import pe.edu.lamolina.pivot.controller.academico.tramitesacademicos.TramitesAcademicosService;
 import pe.edu.lamolina.pivot.controller.seguridad.verificador.VerificadorService;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.model.constantines.AcademicoConstantine;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -89,7 +90,7 @@ public class CursoDirigidoController {
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session, HttpServletRequest request) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         List<Facultad> facultades = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.FAC, request, ds);
         model.addAttribute("facultades", createFacultadesJson(facultades).toString());
         model.addAttribute("ciclo", ds.getCicloAcademico());
@@ -101,7 +102,7 @@ public class CursoDirigidoController {
     public DynatableResponse list(DynatableFilter filter,
             HttpSession session, HttpServletRequest request) {
         DynatableResponse json = new DynatableResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         try {
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
             List<CursoDirigido> cursoDirigidos = service.allByFacultades(filter, ds.getCicloAcademico());
@@ -145,7 +146,7 @@ public class CursoDirigidoController {
     @ResponseBody
     @RequestMapping("update")
     public JsonResponse update(@RequestBody CursoDirigido cursoDirigido, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         JsonResponse response = new JsonResponse();
         try {
             service.update(cursoDirigido, ds);
@@ -162,7 +163,7 @@ public class CursoDirigidoController {
     @ResponseBody
     @RequestMapping("anular")
     public JsonResponse anular(@RequestBody CursoDirigido cursoDirigido, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         JsonResponse response = new JsonResponse();
         try {
             service.anular(cursoDirigido, ds);
@@ -178,7 +179,7 @@ public class CursoDirigidoController {
 
     @RequestMapping("repFacDirigido/{id}/reporte")
     public void cursoDirigidoReporte(Model model, HttpSession session, HttpServletResponse response, @PathVariable Long id) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         try {
 
@@ -195,7 +196,7 @@ public class CursoDirigidoController {
 
     @RequestMapping("listFacDirigido/{id}/reporte")
     public void listFacDirigido(Model model, HttpSession session, HttpServletResponse response, @PathVariable Long id) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         try {
 
@@ -231,7 +232,7 @@ public class CursoDirigidoController {
             DateTime hoy = new DateTime();
 
             response.reset();
-            response.setBufferSize(Constantine.DEFAULT_BUFFER_SIZE_DOWNLOAD);
+            response.setBufferSize(GlobalConstantine.DEFAULT_BUFFER_SIZE_DOWNLOAD);
             response.setContentType("application/octet-stream");
             response.setHeader("Content-Disposition", "inline; filename=\"" + outputFile + "\"");
 
@@ -239,8 +240,8 @@ public class CursoDirigidoController {
             BufferedOutputStream output = null;
 
             try {
-                input = new BufferedInputStream(new FileInputStream(filex), Constantine.DEFAULT_BUFFER_SIZE_DOWNLOAD);
-                output = new BufferedOutputStream(response.getOutputStream(), Constantine.DEFAULT_BUFFER_SIZE_DOWNLOAD);
+                input = new BufferedInputStream(new FileInputStream(filex), GlobalConstantine.DEFAULT_BUFFER_SIZE_DOWNLOAD);
+                output = new BufferedOutputStream(response.getOutputStream(), GlobalConstantine.DEFAULT_BUFFER_SIZE_DOWNLOAD);
                 IOUtils.copy(input, output);
                 response.flushBuffer();
             } finally {

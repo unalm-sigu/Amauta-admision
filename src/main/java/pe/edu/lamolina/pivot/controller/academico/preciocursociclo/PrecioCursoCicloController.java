@@ -23,8 +23,8 @@ import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.CursoCicloAcademico;
 import pe.edu.lamolina.model.general.TipoCarpeta;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
-import pe.edu.lamolina.pivot.zelper.constant.Messages;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
+import pe.edu.lamolina.model.constantines.GlobalMessages;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -38,7 +38,7 @@ public class PrecioCursoCicloController {
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         List<TipoCarpeta> tipoCarpeta = service.allTipoCarpeta();
         CicloAcademico ciclo = service.findCiclo(ds.getCicloAcademico());
@@ -62,7 +62,7 @@ public class PrecioCursoCicloController {
         DynatableResponse json = new DynatableResponse();
 
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             List<CursoCicloAcademico> cursosCiclo = service.allCursoCiclo(filter, ds.getCicloAcademico());
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
@@ -103,7 +103,7 @@ public class PrecioCursoCicloController {
     public JsonResponse save(@RequestBody List<CursoCicloAcademico> precioCursoCiclos, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             service.save(precioCursoCiclos, ds.getCicloAcademico(), ds);
             response.setMessage("Guardado satisfactoriamente");
             response.setSuccess(true);
@@ -121,7 +121,7 @@ public class PrecioCursoCicloController {
     public JsonResponse update(@RequestBody CursoCicloAcademico cursoCicloAcademico, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             service.update(cursoCicloAcademico, ds);
             response.setMessage("El registro fue actualizado satisfactoriamente");
             response.setSuccess(true);
@@ -140,7 +140,7 @@ public class PrecioCursoCicloController {
         JsonResponse response = new JsonResponse();
         try {
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             service.configurarcantidad(cantidadAlumno, ds.getCicloAcademico());
             response.setMessage(GlobalMessages.UPDATED);
             response.setSuccess(true);

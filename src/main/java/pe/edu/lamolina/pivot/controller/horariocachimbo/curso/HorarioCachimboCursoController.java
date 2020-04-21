@@ -42,7 +42,8 @@ import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.horario.HorarioCachimbos;
 import pe.edu.lamolina.model.horario.SeccionCursoCachimbos;
 import pe.edu.lamolina.model.seguridad.Usuario;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.model.constantines.AcademicoConstantine;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -80,7 +81,7 @@ public class HorarioCachimboCursoController {
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         CicloAcademico cicloAcademico = ds.getCicloAcademico();
         ModalidadEstudio modalidadEstudio = new ModalidadEstudio(1);
         List<CarreraCursoCachimbo> carreras = service.allCarrera(modalidadEstudio, cicloAcademico);
@@ -96,7 +97,7 @@ public class HorarioCachimboCursoController {
 
         try {
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
             logger.debug("cicloAcademico {} {}", cicloAcademico.getId(), cicloAcademico.getDescripcion());
             List<CursoCachimbos> cursoCachimbos = service.allCursoCachimbos(filter, cicloAcademico);
@@ -199,7 +200,7 @@ public class HorarioCachimboCursoController {
             @RequestParam("carrera.id") Long carrera, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
             logger.debug("curso {} ", cursos.size());
             Usuario user = ds.getUsuario();
@@ -313,7 +314,7 @@ public class HorarioCachimboCursoController {
 
         try {
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             Usuario usuario = ds.getUsuario();
             service.updateSeccionCursoCachimbo(carreraCursoCachimbo, usuario);
             response.setMessage("Curso actualizado satisfactoriamente");

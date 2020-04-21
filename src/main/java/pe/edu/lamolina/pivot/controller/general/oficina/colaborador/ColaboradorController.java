@@ -42,7 +42,8 @@ import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.general.TipoDocIdentidad;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.controller.seguridad.verificador.VerificadorService;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.model.constantines.AcademicoConstantine;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -88,7 +89,7 @@ public class ColaboradorController {
             @PathVariable("idOficina") Long idOficina,
             @PathVariable("idColaborador") Long idColaborador, Model model, HttpSession session) {
 
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         boolean puedeVerOficina = verificadorService.puedeVerOficina(new Oficina(idOficina), ds);
         if (!puedeVerOficina) {
             return "redirect:" + verificadorService.getOrigen(origen, "/");
@@ -109,7 +110,7 @@ public class ColaboradorController {
             @PathVariable("idOficina") Long idOficina,
             @RequestParam(value = "origen", required = false) String origen, Model model, HttpSession session) {
 
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         boolean puedeVerOficina = verificadorService.puedeVerOficina(new Oficina(idOficina), ds);
         if (!puedeVerOficina) {
             return "redirect:" + verificadorService.getOrigen(origen, "/");
@@ -144,7 +145,7 @@ public class ColaboradorController {
     @RequestMapping("updateColaborador")
     public JsonResponse saveUpdateColaborador(@RequestBody ColaboradorBean colaboradorBean, HttpSession session) {
         JsonResponse response = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         try {
 
             Colaborador colaborador = colaboradorBean.getColaborador();
@@ -174,7 +175,7 @@ public class ColaboradorController {
     public JsonResponse saveColaborador(@RequestBody ColaboradorBean colaboradorBean, HttpSession session) {
         JsonResponse response = new JsonResponse();
         response.setSuccess(false);
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         try {
             ArrayList<FuncionColaborador> funciones = new ArrayList();
             Colaborador colaborador = colaboradorBean.getColaborador();
@@ -209,7 +210,7 @@ public class ColaboradorController {
         JsonResponse response = new JsonResponse();
         try {
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             Usuario usu = service.verificarEmail(persona);
             if (usu == null) {
                 response.setSuccess(true);
@@ -256,7 +257,7 @@ public class ColaboradorController {
             @RequestParam(value = "origen", required = false) String origen,
             Model model, HttpSession session) {
 
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         boolean puedeVerOficina = verificadorService.puedeVerOficina(new Oficina(idOficina), ds);
         if (!puedeVerOficina) {
             return "redirect:" + verificadorService.getOrigen(origen, "/");
@@ -282,7 +283,7 @@ public class ColaboradorController {
             @PathVariable("oficina") Long idOficina, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             Oficina oficina = service.findOficina(new Oficina(idOficina));
             ResumenColaborador resumen = service.getResumenColoboradores(oficina);
             response.setData(JsonHelper.createJson(resumen, JsonNodeFactory.instance, true, new String[]{"*"}));
@@ -303,7 +304,7 @@ public class ColaboradorController {
 
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             service.updateEstado(colaborador, new Oficina(idOficina), ds);
 
             response.setMessage("Se cambio satisfactoriamente el estado del colaborador");
@@ -325,7 +326,7 @@ public class ColaboradorController {
         DynatableResponse response = new DynatableResponse();
         try {
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             List<Colaborador> colaboradores = new ArrayList();
             boolean puedeVerOficina = verificadorService.puedeVerOficina(new Oficina(idOficina), ds);
             if (puedeVerOficina) {
@@ -394,7 +395,7 @@ public class ColaboradorController {
 
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             List<PerfilCompania> perfiles = service.allCargoByOficina(new Oficina(idOficina), ds);
             response.setData(createPerfilesJson(perfiles));
             response.setSuccess(Boolean.TRUE);
@@ -415,7 +416,7 @@ public class ColaboradorController {
 
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             List<PerfilCompania> perfiles = service.allFuncionByOficina(new Oficina(idOficina), ds);
             response.setData(createPerfilesJson(perfiles));
             response.setSuccess(Boolean.TRUE);
@@ -434,7 +435,7 @@ public class ColaboradorController {
             @PathVariable("idOficina") Long idOficina,
             @RequestBody PerfilCompania perfilCompania, HttpSession session) {
         JsonResponse response = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         try {
             service.addFuncion(perfilCompania, new Oficina(idOficina), ds);
             response.setMessage("Función creada satisfactoriamente");
@@ -453,7 +454,7 @@ public class ColaboradorController {
             @PathVariable("idOficina") Long idOficina,
             @RequestBody PerfilCompania perfilCompania, HttpSession session) {
         JsonResponse response = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         try {
             service.addCargo(perfilCompania, new Oficina(idOficina), ds);
             response.setMessage("Función creada satisfactoriamente");

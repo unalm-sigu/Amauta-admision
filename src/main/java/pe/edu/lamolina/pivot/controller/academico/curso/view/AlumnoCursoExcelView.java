@@ -32,7 +32,8 @@ import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.Seccion;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.model.constantines.AcademicoConstantine;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Component
@@ -57,7 +58,7 @@ public class AlumnoCursoExcelView extends AbstractView {
     }
 
     protected void buildExcelDocument(Map<String, Object> model, Workbook wb, HttpServletRequest request, HttpServletResponse response) throws Exception {
-        DataSessionPivot ds = (DataSessionPivot) request.getSession().getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) request.getSession().getAttribute(GlobalConstantine.SESSION_USUARIO);
         List<MatriculaSeccion> matriculasSecciones = (List<MatriculaSeccion>) model.get("alumnosPorCurso");
         List<DocenteSeccion> docenteSecciones = (List<DocenteSeccion>) model.get("docenteSecciones");
         Map<Long, Docente> mapDocenteXseccion = TypesUtil.convertListToMap("seccion.id", "docente", docenteSecciones);
@@ -187,7 +188,7 @@ public class AlumnoCursoExcelView extends AbstractView {
             Seccion seccion = matriculaSeccion.getSeccion();
             Docente docente = mapDocenteXseccion.get(seccion.getId());
             String docStr = (String) ObjectUtil.getParentTree(docente, "persona.nombreCompleto");
-            docStr = Constantine.DOCENTE_INDETERMINADO.equalsIgnoreCase(docente.getCodigo()) ? "Docente Indeterminado" : docStr ;
+            docStr = AcademicoConstantine.DOCENTE_INDETERMINADO.equalsIgnoreCase(docente.getCodigo()) ? "Docente Indeterminado" : docStr ;
             Curso curso = seccion.getGrupoSeccion().getCurso();
             column = 0;
             BigDecimal prioridad = null;

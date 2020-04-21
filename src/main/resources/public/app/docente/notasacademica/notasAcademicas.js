@@ -32,7 +32,7 @@ $(function () {
                         }
                     },
                     error: function () {
-                        notify(MESSAGES.errorComunicacion, "error");
+                        notify(GlobalMessages.errorComunicacion, "error");
                     }
                 });
             }
@@ -177,7 +177,7 @@ $(function () {
                     }
                 },
                 error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                 }
             });
         },
@@ -235,7 +235,7 @@ $(function () {
 
                 },
                 error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                 }
             });
         },
@@ -289,7 +289,7 @@ $(function () {
                     MODAL.hide();
                 },
                 error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                     MODAL.hide();
                 }
             });
@@ -350,7 +350,7 @@ $(function () {
                     MODAL.hide();
                 },
                 error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                     MODAL.hide();
                 }
             });
@@ -417,7 +417,7 @@ $(function () {
                                 MODAL.hideWait();
                             },
                             error: function () {
-                                notify(MESSAGES.errorComunicacion, "error");
+                                notify(GlobalMessages.errorComunicacion, "error");
                                 MODAL.hide();
                                 MODAL.hideWait();
                             }
@@ -571,7 +571,7 @@ $(function () {
 
                 },
                 error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
 
                 }
 
@@ -589,7 +589,7 @@ $(function () {
                     NotasAcademicas.revisarNotas();
                 },
                 error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                 }
 
             });
@@ -618,7 +618,7 @@ $(function () {
                     
                 },
                 error: function (error) {
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                 }
 
             });
@@ -667,7 +667,7 @@ $(function () {
                     }
                 },
                 error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                 }
 
             }

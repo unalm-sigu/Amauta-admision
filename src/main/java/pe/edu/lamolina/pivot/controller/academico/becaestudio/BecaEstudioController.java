@@ -25,7 +25,8 @@ import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.BecaEstudio;
 import pe.edu.lamolina.model.general.Empresa;
 import pe.edu.lamolina.model.general.Pais;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.model.constantines.AcademicoConstantine;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -39,7 +40,7 @@ public class BecaEstudioController {
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         return "academico/becaestudio/becaestudio";
     }
@@ -48,7 +49,7 @@ public class BecaEstudioController {
     @RequestMapping("list")
     public DynatableResponse list(DynatableFilter filter, HttpSession session, HttpServletRequest request) {
         DynatableResponse json = new DynatableResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         try {
             List<BecaEstudio> becaestudio = service.allByDynatable(filter);
@@ -82,7 +83,7 @@ public class BecaEstudioController {
         JsonResponse response = new JsonResponse();
 
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             if (becaestudio.getId() == null) {
                 service.save(becaestudio, ds);
             } else {
@@ -108,7 +109,7 @@ public class BecaEstudioController {
         JsonResponse response = new JsonResponse();
 
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             service.delete(becaestudio, ds);
 
@@ -132,7 +133,7 @@ public class BecaEstudioController {
         response.setSuccess(false);
 
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             Empresa institucionBD = service.saveInstitucion(insticion);
             ObjectNode node = JsonHelper.createJson(institucionBD, JsonNodeFactory.instance, true,

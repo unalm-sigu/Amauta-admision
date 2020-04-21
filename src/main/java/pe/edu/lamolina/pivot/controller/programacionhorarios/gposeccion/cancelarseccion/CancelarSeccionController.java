@@ -17,7 +17,8 @@ import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.Seccion;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.model.constantines.AcademicoConstantine;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -37,7 +38,7 @@ public class CancelarSeccionController {
         JsonResponse response = new JsonResponse();
         try {
             JsonNodeFactory jc = JsonNodeFactory.instance;
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             List<MatriculaSeccion> matriculasSeccion = service.allMatriculaSeccionBySeccion(new Seccion(seccionId));
             ArrayNode jMatriculasSeccion = new ArrayNode(jc);
             for (MatriculaSeccion matriculaSeccion : matriculasSeccion) {

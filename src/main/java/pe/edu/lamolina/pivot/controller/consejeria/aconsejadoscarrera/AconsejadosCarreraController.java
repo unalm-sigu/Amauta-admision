@@ -29,7 +29,8 @@ import pe.edu.lamolina.model.consejeria.AlumnoConsejero;
 import pe.edu.lamolina.model.consejeria.ConsejeriaResumen;
 import pe.edu.lamolina.model.consejeria.Consejero;
 import pe.edu.lamolina.pivot.controller.academico.carrera.CarreraService;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.model.constantines.AcademicoConstantine;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -47,7 +48,7 @@ public class AconsejadosCarreraController {
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         List<Carrera> carreras = consejeroService.allCarreraByPersonaCiclo(ds.getPersona(), ds.getCicloAcademico());
 
         model.addAttribute("ciclo", JsonHelper.createJson(ds.getCicloAcademico(), JsonNodeFactory.instance, new String[]{"*"}));
@@ -65,7 +66,7 @@ public class AconsejadosCarreraController {
         DynatableResponse json = new DynatableResponse();
 
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             consejeroService.revisarConsejeria(new Carrera(idCarrera), ds.getCicloAcademico(), false, ds);
             List<AlumnoConsejero> alumnosTutores = service.allAconsejadoByDynatable(new Carrera(idCarrera), filter, ds.getCicloAcademico());
@@ -119,7 +120,7 @@ public class AconsejadosCarreraController {
             @RequestParam String nombre,
             @RequestParam Long idCarrera, HttpSession session) {
 
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         JsonResponse json = new JsonResponse();
         try {
 
@@ -152,7 +153,7 @@ public class AconsejadosCarreraController {
 
         JsonResponse json = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             ConsejeriaResumen resumen = service.getResumenByCarreraCiclo(new Carrera(idCarrera), ds.getCicloAcademico());
             ObjectNode consejeroJson = JsonHelper.createJson(resumen, JsonNodeFactory.instance, true, new String[]{"*"});
@@ -170,7 +171,7 @@ public class AconsejadosCarreraController {
     @ResponseBody
     @RequestMapping("update")
     public JsonResponse saveConsejero(@RequestBody AlumnoConsejero alumnoConsejeroForm, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         JsonResponse json = new JsonResponse();
 
         try {

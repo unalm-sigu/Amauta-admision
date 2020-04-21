@@ -228,7 +228,7 @@ Vue.component("avance-component", {
                     MODAL.hideWait();
                 },
                 error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                 }
             });
         },

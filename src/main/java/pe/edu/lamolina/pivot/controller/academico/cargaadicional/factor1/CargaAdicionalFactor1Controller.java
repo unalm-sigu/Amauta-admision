@@ -23,7 +23,8 @@ import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.Factor1CargaAdicional;
 import pe.edu.lamolina.model.rrhh.CategoriaDocente;
 import pe.edu.lamolina.model.rrhh.SituacionDocente;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.model.constantines.AcademicoConstantine;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -62,7 +63,7 @@ public class CargaAdicionalFactor1Controller {
     public DynatableResponse list(DynatableFilter filter, HttpSession session) {
 
         DynatableResponse json = new DynatableResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         try {
 
@@ -132,7 +133,7 @@ public class CargaAdicionalFactor1Controller {
     @ResponseBody
     @RequestMapping(value = "save", method = RequestMethod.POST)
     public JsonResponse save(@RequestBody Factor1CargaAdicional factor1CargaAdicional, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         JsonResponse response = new JsonResponse();
         try {
@@ -155,7 +156,7 @@ public class CargaAdicionalFactor1Controller {
     @ResponseBody
     @RequestMapping(value = "delete/{id}", method = RequestMethod.POST)
     public JsonResponse delete(@PathVariable Long id, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         JsonResponse response = new JsonResponse();
         try {

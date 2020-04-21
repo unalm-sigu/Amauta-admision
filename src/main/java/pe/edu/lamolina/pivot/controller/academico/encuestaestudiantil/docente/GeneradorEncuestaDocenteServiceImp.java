@@ -62,7 +62,8 @@ import pe.edu.lamolina.pivot.dao.encuesta.EncuestaEstudiantilDAO;
 import pe.edu.lamolina.pivot.dao.encuesta.PeriodoEncuestaDAO;
 import pe.edu.lamolina.pivot.dao.encuesta.PuntajeEncuestaDocenteModalidadDAO;
 import pe.edu.lamolina.pivot.dao.encuesta.TemaExamenVirtualDAO;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.model.constantines.AcademicoConstantine;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service
@@ -467,7 +468,7 @@ public class GeneradorEncuestaDocenteServiceImp implements GeneradorEncuestaDoce
         }
 
         Docente docente = docenteSeccionBD.getDocente();
-        boolean esNN = docente.getCodigo().equals(Constantine.DOCENTE_INDETERMINADO);
+        boolean esNN = docente.getCodigo().equals(AcademicoConstantine.DOCENTE_INDETERMINADO);
         Assert.isFalse(esNN, "No se genera encuestas para docentes N.N.");
 
         List<EncuestaAlumno> encuestasAlumnos = new ArrayList();

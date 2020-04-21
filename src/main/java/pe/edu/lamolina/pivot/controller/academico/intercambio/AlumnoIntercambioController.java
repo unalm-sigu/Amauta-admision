@@ -40,7 +40,8 @@ import pe.edu.lamolina.model.enums.TipoGestionEnum;
 import pe.edu.lamolina.model.general.Empresa;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.seguridad.Usuario;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.model.constantines.AcademicoConstantine;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -133,7 +134,7 @@ public class AlumnoIntercambioController {
 
         try {
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
             logger.debug("cicloAcademico {} {}", cicloAcademico.getId(), cicloAcademico.getDescripcion());
             List<AlumnoIntercambio> becados = service.allAlumnoBecado(filter, cicloAcademico);
@@ -181,7 +182,7 @@ public class AlumnoIntercambioController {
     public JsonResponse save(AlumnoIntercambio alumnoBecado, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             if (alumnoBecado.getId() == null) {
                 Usuario user = ds.getUsuario();
                 service.save(alumnoBecado, user);
@@ -302,7 +303,7 @@ public class AlumnoIntercambioController {
     public JsonResponse saveBeca(@RequestBody BecaEstudio becaEstudio, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             BecaEstudio beca = service.saveBeca(becaEstudio);
             response.setMessage("Beca agregada satisfactoriamente");

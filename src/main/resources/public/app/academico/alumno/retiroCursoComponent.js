@@ -54,7 +54,7 @@ Vue.component("retiro-curso-component", {
                     }
                 },
                 error() {
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                 }
             });
         },

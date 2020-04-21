@@ -50,7 +50,8 @@ import pe.edu.lamolina.model.horario.HorarioCachimbos;
 import pe.edu.lamolina.model.horario.HorarioSeccion;
 import pe.edu.lamolina.model.horario.SeccionHorarioCachimbos;
 import pe.edu.lamolina.model.seguridad.Usuario;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.model.constantines.AcademicoConstantine;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -88,7 +89,7 @@ public class HorarioCachimboGenerarController {
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
         return "academico/horariocachimbo/generar/horarioCachimboGenerar";
     }
@@ -99,7 +100,7 @@ public class HorarioCachimboGenerarController {
         DynatableResponse json = new DynatableResponse();
         try {
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
             List<HorarioCachimbos> horarioCachimbos = service.allHorarioCachimbos(filter, cicloAcademico);
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
@@ -130,7 +131,7 @@ public class HorarioCachimboGenerarController {
     public JsonResponse delete(HorarioCachimbos horarioCachimbos, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             Usuario usuario = ds.getUsuario();
             service.delete(horarioCachimbos, ds.getCicloAcademico(), usuario);
             response.setMessage("Horario eliminado satisfactoriamente");
@@ -148,7 +149,7 @@ public class HorarioCachimboGenerarController {
     public JsonResponse deleteGrupo(HorarioCachimboForm form, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             Usuario usuario = ds.getUsuario();
             service.delete(form, ds.getCicloAcademico(), usuario);
             response.setMessage("Horarios eliminado satisfactoriamente");
@@ -163,7 +164,7 @@ public class HorarioCachimboGenerarController {
 
     @RequestMapping("generador")
     public String generador(Model model, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         ModalidadEstudio modalidadEstudio = new ModalidadEstudio(1);
         CicloAcademico cicloAcademico = ds.getCicloAcademico();
@@ -181,7 +182,7 @@ public class HorarioCachimboGenerarController {
         try {
 
             JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
             ArrayNode array = new ArrayNode(jsonFactory);
 
@@ -247,7 +248,7 @@ public class HorarioCachimboGenerarController {
         try {
 
             JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
             List<AlumnoHorario> alumnos = service.allAlumnoHorarioByName(nombre, cicloAcademico, horario);
             ArrayNode jsonList = new ArrayNode(jsonFactory);
@@ -282,7 +283,7 @@ public class HorarioCachimboGenerarController {
     public JsonResponse generar(HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
             ModalidadEstudio modalidad = service.findModalidadPregrado();
             service.generar(cicloAcademico, modalidad, ds);
@@ -309,7 +310,7 @@ public class HorarioCachimboGenerarController {
         try {
 
             JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
 
             List<HorarioCachimbos> horarioCachimbos = service.allHorarioCachimbosByCicloAcademico(cicloAcademico, carrera);
@@ -504,7 +505,7 @@ public class HorarioCachimboGenerarController {
     public JsonResponse verCurso(HorarioCachimbos horario, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
             List<GrupoSeccion> gpoSecciones = service.allGrupoSeccionByHorario(horario, cicloAcademico);
             ArrayNode arrayGpoSecc = new ArrayNode(JsonNodeFactory.instance);

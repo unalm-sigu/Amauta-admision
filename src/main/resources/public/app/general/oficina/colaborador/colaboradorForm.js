@@ -84,7 +84,7 @@ new Vue({
                     })
                     .catch(function (error) {
                         console.log(error);
-                        notify(MESSAGES.errorComunicacion, "error");
+                        notify(GlobalMessages.errorComunicacion, "error");
                     });
 
 //            $.ajax({

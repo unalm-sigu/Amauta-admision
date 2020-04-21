@@ -28,8 +28,8 @@ import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.Seccion;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
-import pe.edu.lamolina.pivot.zelper.constant.Messages;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
+import pe.edu.lamolina.model.constantines.GlobalMessages;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -44,7 +44,7 @@ public class AmpliacionVacanteController {
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
 
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         model.addAttribute("docente", ds.getDocente());
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
@@ -62,7 +62,7 @@ public class AmpliacionVacanteController {
 
         try {
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             JsonNodeFactory factory = JsonNodeFactory.instance;
 
             ArrayNode array = new ArrayNode(factory);
@@ -156,7 +156,7 @@ public class AmpliacionVacanteController {
             JsonNodeFactory jFactory = JsonNodeFactory.instance;
 
             ArrayNode jsonList = new ArrayNode(jFactory);
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
             List<Alumno> alumnos = service.allAlumnoByName(nombre, cicloAcademico, seccion);
@@ -192,7 +192,7 @@ public class AmpliacionVacanteController {
     public JsonResponse matricular(@RequestBody AmpliacionVacanteForm ampliacionVacanteForm, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             ds.setFechaAccionAudit(new Date());
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
             service.matricular(ampliacionVacanteForm, cicloAcademico, ds);
@@ -211,7 +211,7 @@ public class AmpliacionVacanteController {
     public JsonResponse loadModalSolicitudes(@RequestBody Seccion seccion, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             ds.setFechaAccionAudit(new Date());
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
             //service.matricular(ampliacionVacanteForm, cicloAcademico, ds);
@@ -251,7 +251,7 @@ public class AmpliacionVacanteController {
     public JsonResponse aceptarSolicitudMatricula(@RequestBody MatriculaSeccion matriculaSeccion, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             ds.setFechaAccionAudit(new Date());
             service.aceptarSolicitudMatricula(matriculaSeccion, ds);
             response.setMessage("Solicitud aceptada.");
@@ -269,7 +269,7 @@ public class AmpliacionVacanteController {
     public JsonResponse rechazarSolicitudMatricula(@RequestBody MatriculaSeccion matriculaSeccion, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             ds.setFechaAccionAudit(new Date());
             service.rechazarSolicitudMatricula(matriculaSeccion, ds);
             response.setMessage("Solicitud rechazada.");

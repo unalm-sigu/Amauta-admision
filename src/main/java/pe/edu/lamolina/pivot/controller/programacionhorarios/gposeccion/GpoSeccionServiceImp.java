@@ -32,7 +32,7 @@ import pe.edu.lamolina.pivot.dao.horario.DiaHoraGrupoDAO;
 import pe.edu.lamolina.pivot.dao.horario.GrupoHorasDAO;
 import pe.edu.lamolina.pivot.dao.horario.HoraDAO;
 import pe.edu.lamolina.pivot.dao.horario.TipoGrupoHorasDAO;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.model.constantines.AcademicoConstantine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Propagation;
@@ -73,6 +73,8 @@ import pe.edu.lamolina.model.academico.RestriccionRepitencia;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.academico.TipoCursoCurricula;
 import pe.edu.lamolina.model.academico.TipoRepitencia;
+import static pe.edu.lamolina.model.constantines.AcademicoConstantine.GRUPO_ZPRA;
+import static pe.edu.lamolina.model.constantines.AcademicoConstantine.GRUPO_ZTEO;
 import pe.edu.lamolina.model.encuestaestudiantil.ConfiguraEncuesta;
 import pe.edu.lamolina.model.encuestaestudiantil.EncuestaDocente;
 import pe.edu.lamolina.model.encuestaestudiantil.PeriodoEncuesta;
@@ -165,8 +167,6 @@ import pe.edu.lamolina.pivot.dao.rrhh.ContratoDocenteDAO;
 import pe.edu.lamolina.pivot.dao.academico.CursoCurriculaDAO;
 import pe.edu.lamolina.pivot.dao.academico.TipoCursoCurriculaDAO;
 
-import static pe.edu.lamolina.pivot.zelper.constant.Constantine.GRUPO_ZPRA;
-import static pe.edu.lamolina.pivot.zelper.constant.Constantine.GRUPO_ZTEO;
 
 @Service
 @Transactional(readOnly = true)
@@ -632,12 +632,12 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
         Docente docenteDefault;
         if (!grupoSeccion.getCursoDirigido()) {
-            docenteDefault = docenteDAO.findByCode(Constantine.DOCENTE_INDETERMINADO);
+            docenteDefault = docenteDAO.findByCode(AcademicoConstantine.DOCENTE_INDETERMINADO);
         } else {
             docenteDefault = grupoSeccion.getDocenteResponsable();
         }
         if (docenteDefault == null) {
-            docenteDefault = docenteDAO.findByCode(Constantine.DOCENTE_INDETERMINADO);
+            docenteDefault = docenteDAO.findByCode(AcademicoConstantine.DOCENTE_INDETERMINADO);
         }
 
         grupoSeccion.setSecciones(new ArrayList());
@@ -753,7 +753,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         Curso curso = grupoSeccion.getCurso();
         CicloAcademico ciclo = grupoSeccion.getCicloAcademico();
         CursoCicloAcademico cursoCiclo = cursoCicloAcademicoDAO.findByCursoCiclo(curso, ciclo);
-        Docente docenteDefault = docenteDAO.findByCode(Constantine.DOCENTE_INDETERMINADO);
+        Docente docenteDefault = docenteDAO.findByCode(AcademicoConstantine.DOCENTE_INDETERMINADO);
         List<Seccion> secciones = seccionDAO.allByGposSeccion(grupoSeccion);
         DateTime today = new DateTime();
 
@@ -813,7 +813,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         //Curso curso = seccion.getGrupoSeccion().getCurso();
         EventoCicloAcademico eventoDictadoClases = getEventoDictadoClases(cicloAcademico, seccion.getGrupoSeccion().getAnexoBoletin().getAnexoSuperior());
 
-        Docente docenteDefault = docenteDAO.findByCode(Constantine.DOCENTE_INDETERMINADO);
+        Docente docenteDefault = docenteDAO.findByCode(AcademicoConstantine.DOCENTE_INDETERMINADO);
         List<DocenteSeccion> docenteSeccions = docenteSeccionDAO.allActivosBySeccion(seccion);
 
         Fraxtion fraxtion100 = new Fraxtion(100);
@@ -2846,7 +2846,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         int horasTeoria = getHorasCurso(curso, ciclo, TipoSeccionEnum.TEO);
         int horasPractica = getHorasCurso(curso, ciclo, TipoSeccionEnum.PRA);
 
-        Docente docenteDefault = docenteDAO.findByCode(Constantine.DOCENTE_INDETERMINADO);
+        Docente docenteDefault = docenteDAO.findByCode(AcademicoConstantine.DOCENTE_INDETERMINADO);
 
         List<GrupoSeccion> gpoSeccClones = new ArrayList<>();
         for (int i = 0; i < veces; i++) {

@@ -169,7 +169,7 @@ $(function () {
                             },
                             error: function () {
                                 MODAL.hideWait();
-                                notify(MESSAGES.errorComunicacion, "error");
+                                notify(GlobalMessages.errorComunicacion, "error");
                             }
                         });
                     }
@@ -204,7 +204,7 @@ $(function () {
                             },
                             error: function () {
                                 MODAL.hideWait();
-                                notify(MESSAGES.errorComunicacion, "error");
+                                notify(GlobalMessages.errorComunicacion, "error");
                             }
                         });
                     }

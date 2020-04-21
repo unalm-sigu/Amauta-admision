@@ -1,14 +1,10 @@
 package pe.edu.lamolina.pivot.controller.tramite.plantillaConstancia;
 
-import com.itextpdf.text.Document;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.poi.xwpf.usermodel.XWPFDocument;
-import org.jsoup.Jsoup;
-import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +30,7 @@ import pe.edu.lamolina.pivot.dao.tramite.ConstanciaPlantillaDAO;
 import pe.edu.lamolina.pivot.dao.tramite.VariableGenericaDAO;
 import pe.edu.lamolina.pivot.dao.tramite.VariablePlantillaDAO;
 import pe.edu.lamolina.pivot.dao.tramite.PlantillaDocumentoAcademicoDAO;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 
 @Service
 @Transactional(readOnly = true)
@@ -67,7 +63,7 @@ public class PlantillaConstanciaServiceImpl implements PlantillaConstanciaServic
     @Transactional
     public PlantillaDocumentoAcademico updateContenido(PlantillaDocumentoAcademico plantillaDoc, Usuario usuario) {
         PlantillaDocumentoAcademico plantilla = plantillaConstanciaDAO.find(plantillaDoc.getId());
-        plantilla.setContenido(Constantine.HTML_PRE + plantillaDoc.getContenido() + Constantine.HTML_SUB);
+        plantilla.setContenido(GlobalConstantine.HTML_PRE + plantillaDoc.getContenido() + GlobalConstantine.HTML_SUB);
         plantillaConstanciaDAO.update(plantilla);
         Map<String, String> mapVariables = this.getConstants(plantillaDoc.getContenido());
         List<String> formVariable = new ArrayList(mapVariables.values());

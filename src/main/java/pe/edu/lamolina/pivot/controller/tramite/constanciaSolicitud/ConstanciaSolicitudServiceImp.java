@@ -109,18 +109,19 @@ import pe.edu.lamolina.pivot.dao.tramite.TipoTramiteDAO;
 import pe.edu.lamolina.pivot.dao.tramite.TramiteDAO;
 import pe.edu.lamolina.pivot.dao.tramite.TramiteDocumentoAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.tramite.VariablePlantillaDAO;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.model.constantines.AcademicoConstantine;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.pivot.zelper.mail.MailerService;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.pivot.dao.tramite.PlantillaIncrustacionDAO;
 import pe.edu.lamolina.pivot.dao.tramite.TramiteDocumentoParametroDAO;
-import static pe.edu.lamolina.pivot.zelper.constant.Constantine.VARIABLE_TABLE;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import static pe.edu.lamolina.model.constantines.AcademicoConstantine.CODIGO_ALIANZA_ESTRATEGICA;
+import static pe.edu.lamolina.model.constantines.GlobalConstantine.VARIABLE_INCRUSTACION;
+import static pe.edu.lamolina.model.constantines.GlobalConstantine.VARIABLE_TABLE;
 import pe.edu.lamolina.pivot.dao.general.OficinaDAO;
-import static pe.edu.lamolina.pivot.zelper.constant.Constantine.CODIGO_ALIANZA_ESTRATEGICA;
-import static pe.edu.lamolina.pivot.zelper.constant.Constantine.VARIABLE_INCRUSTACION;
 
 @Service
 @Transactional(readOnly = true)
@@ -456,7 +457,7 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
 
     @Override
     public List<Idioma> allIdiomas() {
-        return idiomaDAO.allByCodigo(Arrays.asList(Constantine.CODE_IDIOMA_ESPANOL, Constantine.CODE_IDIOMA_INGLES));
+        return idiomaDAO.allByCodigo(Arrays.asList(AcademicoConstantine.CODE_IDIOMA_ESPANOL, AcademicoConstantine.CODE_IDIOMA_INGLES));
     }
 
     @Override
@@ -541,10 +542,10 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
     }
 
     public void uploadS3(String fileName) {
-        logger.debug("upload to s3    {}  {}   {}  {} {}", Constantine.S3_BUCKET, Constantine.S3_DIR_FOTO_TMP, GlobalConstantine.TMP_DIR, fileName, true);
+        logger.debug("upload to s3    {}  {}   {}  {} {}", AcademicoConstantine.S3_BUCKET_ACADEMICO, AcademicoConstantine.S3_DIR_FOTO_TMP, GlobalConstantine.TMP_DIR, fileName, true);
         File f = new File(GlobalConstantine.TMP_DIR + fileName);
         if (f.exists() && !f.isDirectory()) {
-            swiftService.uploadFile(Constantine.S3_BUCKET, Constantine.S3_DIR_FOTO_TMP, GlobalConstantine.TMP_DIR, fileName, true);
+            swiftService.uploadFile(AcademicoConstantine.S3_BUCKET_ACADEMICO, AcademicoConstantine.S3_DIR_FOTO_TMP, GlobalConstantine.TMP_DIR, fileName, true);
         }
     }
 
@@ -742,12 +743,12 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
 
         try {
 
-            response.setBufferSize(Constantine.DEFAULT_BUFFER_SIZE_DOWNLOAD);
+            response.setBufferSize(GlobalConstantine.DEFAULT_BUFFER_SIZE_DOWNLOAD);
             response.setContentType("application/msword");
             response.setHeader("Content-Disposition", "inline; filename=\"" + generica.getNombre() + ".doc\"");
 
             OutputStream outputStream = response.getOutputStream();
-            outputStream.write((Constantine.HTML_PRE + generica.getContenido() + Constantine.HTML_SUB).getBytes());
+            outputStream.write((GlobalConstantine.HTML_PRE + generica.getContenido() + GlobalConstantine.HTML_SUB).getBytes());
             outputStream.flush();
             outputStream.close();
         } catch (IOException ex) {

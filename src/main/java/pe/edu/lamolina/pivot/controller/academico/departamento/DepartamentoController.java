@@ -40,7 +40,8 @@ import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.enums.TipoOficinaEnum;
 import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.pivot.controller.seguridad.verificador.VerificadorService;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.model.constantines.AcademicoConstantine;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -92,7 +93,7 @@ public class DepartamentoController {
         DynatableResponse json = new DynatableResponse();
         try {
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             List<DepartamentoAcademico> departamentosUser = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.DPTO, request, ds);
             
             List<DepartamentoAcademico> departamentos = service.allDepartamentoAcademico(filter, departamentosUser);
@@ -223,7 +224,7 @@ public class DepartamentoController {
 
         try {
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             Compania compania = ds.getCompania();
 
             List<DepartamentoAcademico> departamentos = service.allDepartemento(nombre, compania);
@@ -259,7 +260,7 @@ public class DepartamentoController {
 
         try {
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             Compania compania = ds.getCompania();
 
             List<Facultad> facultades = service.allFacultad(nombre, compania);
@@ -296,7 +297,7 @@ public class DepartamentoController {
 
         try {
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             List<Docente> docentes = service.allDocenteByDptoEstado(idDpto, estado);
 
@@ -332,7 +333,7 @@ public class DepartamentoController {
 
         try {
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             List<Curso> cursos = service.allCursoByDptoEstado(idDpto, estado);
 

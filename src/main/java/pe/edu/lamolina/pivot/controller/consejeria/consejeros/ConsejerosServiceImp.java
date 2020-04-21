@@ -55,7 +55,7 @@ import pe.edu.lamolina.pivot.dao.consejeria.AlumnoConsejeroDAO;
 import pe.edu.lamolina.pivot.dao.consejeria.ConsejeriaResumenDAO;
 import pe.edu.lamolina.pivot.dao.consejeria.ConsejeroDAO;
 import pe.edu.lamolina.pivot.dao.general.ColaboradorDAO;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service
@@ -202,7 +202,7 @@ public class ConsejerosServiceImp implements ConsejerosService {
             return;
         }
 
-        Consejero consejeroNN = new Consejero(Constantine.ID_CONSEJERO_NN);
+        Consejero consejeroNN = new Consejero(GlobalConstantine.ID_CONSEJERO_NN);
         List<AlumnoConsejero> alumnoConsejeros = alumnoConsejeroDAO.allByConsejeroCiclo(consejeroBD, ciclo);
         for (AlumnoConsejero alumnoConsejero : alumnoConsejeros) {
             Alumno alumno = alumnoConsejero.getAlumno();
@@ -252,7 +252,7 @@ public class ConsejerosServiceImp implements ConsejerosService {
     @Transactional
     public void asignarAlumnosAleatorio(Carrera carrera, CicloAcademico ciclo, DataSessionPivot ds) {
 
-        Consejero consejeroNN = new Consejero(Constantine.ID_CONSEJERO_NN);
+        Consejero consejeroNN = new Consejero(GlobalConstantine.ID_CONSEJERO_NN);
         List<AlumnoConsejero> alumnosConsejeros = alumnoConsejeroDAO.allActivosByConsejeroCarreraCiclo(consejeroNN, carrera, ciclo);
         Assert.isFalse(alumnosConsejeros.isEmpty(), "No existe alumnos a quienes asignar aleatoriamente un tutor de la especialidad");
 
@@ -310,7 +310,7 @@ public class ConsejerosServiceImp implements ConsejerosService {
         List<AlumnoConsejero> alumnosConsejeros = new ArrayList();
         for (AlumnoConsejero alumnoTutor : alumnosConsejerosTotal) {
             Consejero consejero = alumnoTutor.getConsejero();
-            if (consejero.getId().longValue() != Constantine.ID_CONSEJERO_NN) {
+            if (consejero.getId().longValue() != GlobalConstantine.ID_CONSEJERO_NN) {
                 alumnosConsejeros.add(alumnoTutor);
             }
         }
@@ -322,7 +322,7 @@ public class ConsejerosServiceImp implements ConsejerosService {
 
         for (AlumnoConsejero alumnoTutor : alumnosConsejeros) {
             Consejero consejero = alumnoTutor.getConsejero();
-            if (consejero.getId().longValue() == Constantine.ID_CONSEJERO_NN) {
+            if (consejero.getId().longValue() == GlobalConstantine.ID_CONSEJERO_NN) {
                 continue;
             }
             Consejero consejeroMap = mapConsejero.get(consejero.getId());
@@ -335,7 +335,7 @@ public class ConsejerosServiceImp implements ConsejerosService {
 
         }
 
-        Consejero consejeroNN = new Consejero(Constantine.ID_CONSEJERO_NN);
+        Consejero consejeroNN = new Consejero(GlobalConstantine.ID_CONSEJERO_NN);
         for (AlumnoConsejero alumnoTutor : alumnosConsejeros) {
             alumnoTutor.setConsejero(consejeroNN);
             alumnoConsejeroDAO.update(alumnoTutor);
@@ -404,7 +404,7 @@ public class ConsejerosServiceImp implements ConsejerosService {
                 AlumnoConsejero alumnoTutor = new AlumnoConsejero();
                 alumnoTutor.setAlumno(mtble.getAlumno());
                 alumnoTutor.setCicloAcademico(ciclo);
-                alumnoTutor.setConsejero(new Consejero(Constantine.ID_CONSEJERO_NN));
+                alumnoTutor.setConsejero(new Consejero(GlobalConstantine.ID_CONSEJERO_NN));
                 alumnoTutor.setEstadoEnum(ACT);
                 alumnoTutor.setFechaAsigna(today.toDate());
                 alumnoTutor.setUserAsigna(ds.getUsuario());

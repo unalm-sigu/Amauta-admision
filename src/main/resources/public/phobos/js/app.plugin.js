@@ -181,7 +181,7 @@
 
         // Ajax Event
         // $(document).ajaxError(function () {
-        //      notify(MESSAGES.errorComunicacion, "error");
+        //      notify(GlobalMessages.errorComunicacion, "error");
         // });
     });
 }(window.jQuery);

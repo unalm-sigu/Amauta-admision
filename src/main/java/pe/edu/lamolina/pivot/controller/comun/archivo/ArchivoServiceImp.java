@@ -21,7 +21,8 @@ import org.springframework.web.multipart.MultipartFile;
 import pe.albatross.zelpers.file.system.FileHelper;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.model.constantines.AcademicoConstantine;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 
 @Service
 @Transactional(readOnly = true)
@@ -91,7 +92,7 @@ public class ArchivoServiceImp implements ArchivoService {
             }
 
             response.reset();
-            response.setBufferSize(Constantine.DEFAULT_BUFFER_SIZE_DOWNLOAD);
+            response.setBufferSize(GlobalConstantine.DEFAULT_BUFFER_SIZE_DOWNLOAD);
             response.setContentType("application/octet-stream");
             response.setHeader("Content-Disposition", "inline; filename=\"" + fileName + "\"");
             response.setHeader("Cache-Control", "max-age=604800");

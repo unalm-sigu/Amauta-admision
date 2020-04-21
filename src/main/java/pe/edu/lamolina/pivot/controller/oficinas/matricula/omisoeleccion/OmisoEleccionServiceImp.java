@@ -50,7 +50,8 @@ import pe.edu.lamolina.pivot.dao.aporte.AporteDAO;
 import pe.edu.lamolina.pivot.dao.aporte.ResumenAporteAlumnoDAO;
 import pe.edu.lamolina.pivot.dao.finanza.AcreenciaDAO;
 import pe.edu.lamolina.pivot.dao.finanza.DeudaAlumnoDAO;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.model.constantines.AcademicoConstantine;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service

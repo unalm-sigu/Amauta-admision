@@ -139,7 +139,7 @@ Vue.component("grupohorario-component", {
                     }
                 },
                 error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                     $("#tablaHorario").html('');
                 }
             });
@@ -184,7 +184,7 @@ Vue.component("grupohorario-component", {
                     }
                 },
                 error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                     $("#tablaHorario").html('');
                 }
             });
@@ -219,7 +219,7 @@ Vue.component("grupohorario-component", {
                     }
                 },
                 error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                     $("#tblHorarioEsp").html('');
                 }
             });
@@ -245,7 +245,7 @@ Vue.component("grupohorario-component", {
                     }
                 },
                 error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                     $("#tablaHorario").html('');
                 }
             });

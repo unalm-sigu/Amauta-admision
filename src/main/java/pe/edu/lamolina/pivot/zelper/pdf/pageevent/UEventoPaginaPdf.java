@@ -21,7 +21,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.HeaderFooter;
-import pe.albatross.zelpers.pdf.document.PdfDocumentGenerator;
+import pe.albatross.zelpers.file.pdf.PdfDocumentGenerator;
 import pe.edu.lamolina.model.general.Oficina;
 
 public class UEventoPaginaPdf extends PdfPageEventHelper {

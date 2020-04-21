@@ -26,7 +26,8 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.enums.AmbitoTarifaEnum;
 import pe.edu.lamolina.model.posgrado.ConceptoPosgrado;
 import pe.edu.lamolina.model.posgrado.TarifaCarrera;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.model.constantines.AcademicoConstantine;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -38,7 +39,7 @@ public class TarifaController {
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         List<Carrera> carreras = service.allCarreraMaestria();
         ArrayNode carrerasJson = new ArrayNode(JsonNodeFactory.instance);
@@ -70,7 +71,7 @@ public class TarifaController {
     @ResponseBody
     @RequestMapping(value = "list", method = RequestMethod.GET)
     public DynatableResponse list(DynatableFilter filter, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         DynatableResponse json = new DynatableResponse();
 
         List<TarifaCarrera> list = service.allByDynatable(filter);
@@ -125,7 +126,7 @@ public class TarifaController {
     @ResponseBody
     @RequestMapping(value = "save", method = RequestMethod.POST)
     public JsonResponse save(@RequestBody TarifaCarrera tarifa, HttpSession session, HttpServletRequest request) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         JsonResponse response = new JsonResponse();
         try {
             if (tarifa.getId() != null) {
@@ -148,7 +149,7 @@ public class TarifaController {
     @ResponseBody
     @RequestMapping(value = "activar", method = RequestMethod.POST)
     public JsonResponse activar(@RequestBody TarifaCarrera tarifa, HttpSession session, HttpServletRequest request) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         JsonResponse response = new JsonResponse();
         try {
             service.activar(tarifa, ds);
@@ -166,7 +167,7 @@ public class TarifaController {
     @ResponseBody
     @RequestMapping(value = "eliminar", method = RequestMethod.POST)
     public JsonResponse eliminar(@RequestBody TarifaCarrera tarifa, HttpSession session, HttpServletRequest request) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         JsonResponse response = new JsonResponse();
         try {
             service.eliminar(tarifa, ds);

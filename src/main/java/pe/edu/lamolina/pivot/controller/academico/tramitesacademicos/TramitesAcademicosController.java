@@ -60,8 +60,8 @@ import pe.edu.lamolina.model.tramite.TipoTramite;
 import pe.edu.lamolina.model.tramite.Tramite;
 import pe.edu.lamolina.model.tramite.TramiteReunionConsejo;
 import pe.edu.lamolina.pivot.controller.academico.reunionconsejo.ReunionConsejoService;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
-import pe.edu.lamolina.pivot.zelper.constant.Messages;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
+import pe.edu.lamolina.model.constantines.GlobalMessages;
 import pe.edu.lamolina.pivot.controller.academico.infoacademico.InfoAcademicoService;
 import pe.edu.lamolina.pivot.controller.academico.resolucion.ResolucionService;
 import pe.edu.lamolina.pivot.controller.general.oficina.OficinaService;
@@ -151,7 +151,7 @@ public class TramitesAcademicosController {
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         ArrayNode oficinasJson = new ArrayNode(JsonNodeFactory.instance);
         List<Oficina> oficinas = resolucionService.allOFicinasByUser(ds);
         for (Oficina oficina : oficinas) {
@@ -168,7 +168,7 @@ public class TramitesAcademicosController {
     public DynatableResponse listTramites(DynatableFilter filter,
             HttpSession session) {
         DynatableResponse json = new DynatableResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         try {
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
             CicloAcademico ciclo = ds.getCicloAcademico();
@@ -261,7 +261,7 @@ public class TramitesAcademicosController {
 
     @RequestMapping("agendareuniones")
     public String agendareuniones(Model model, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         List<Oficina> oficinas = new ArrayList();
         oficinas = findOficina(oficinas, ds);
         if (oficinas.isEmpty()) {
@@ -281,7 +281,7 @@ public class TramitesAcademicosController {
         JsonResponse response = new JsonResponse();
 
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
 
             ObjectNode node = new ObjectNode(jsonFactory);
@@ -314,7 +314,7 @@ public class TramitesAcademicosController {
 
         try {
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             List<Oficina> oficinas = new ArrayList();
             oficinas = findOficina(oficinas, ds);
             if (idOficina != 0) {
@@ -355,7 +355,7 @@ public class TramitesAcademicosController {
         JsonResponse response = new JsonResponse();
 
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
 
             // tramitesAcademicosService.agendarSolicitud(new Tramite(tramiteId), new ReunionConsejo(reunionConsejoId), ds.getUsuario());
@@ -382,7 +382,7 @@ public class TramitesAcademicosController {
         JsonResponse response = new JsonResponse();
 
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
 
             tramitesAcademicosService.revertTramiteAcademico(tramite, ds);
@@ -403,7 +403,7 @@ public class TramitesAcademicosController {
     public String procesarTramite(Model model,
             @PathVariable("tramite") Long tramiteId,
             HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         ObjectNode tramiteJson = JsonHelper.createJson(new Tramite(tramiteId), JsonNodeFactory.instance);
 
@@ -428,7 +428,7 @@ public class TramitesAcademicosController {
     @RequestMapping("procesarNota")
     public String procesarNota(Model model,
             HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         ArrayNode horasJson = new ArrayNode(JsonNodeFactory.instance);
         List<Hora> horas = infoAcademicoService.allHoras();
@@ -453,7 +453,7 @@ public class TramitesAcademicosController {
         JsonResponse response = new JsonResponse();
 
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
 
             ObjectNode node = new ObjectNode(jsonFactory);
@@ -527,7 +527,7 @@ public class TramitesAcademicosController {
         JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             tramitesAcademicosService.aceptarSolReincorporacion(new Tramite(tramiteId), new AccionTramiteAcademico(accionTramiteId), ds);
             response.setMessage("Solicitud Procesada.");
@@ -537,7 +537,7 @@ public class TramitesAcademicosController {
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
-            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+            ExceptionHandler.handleSpecial(e, response, GlobalMessages.FK_ERROR_UPDATE);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
@@ -551,7 +551,7 @@ public class TramitesAcademicosController {
             HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             Tramite tramite = new Tramite(tramiteNode.get("tramite").asLong());
             AccionTramiteAcademico accionTramiteAcademico = null;
@@ -577,7 +577,7 @@ public class TramitesAcademicosController {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
             e.printStackTrace();
-            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+            ExceptionHandler.handleSpecial(e, response, GlobalMessages.FK_ERROR_UPDATE);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
@@ -603,7 +603,7 @@ public class TramitesAcademicosController {
 
     @RequestMapping("cursodirigido/{id}/reporte")
     public void cursoDirigidoReporte(Model model, HttpSession session, HttpServletResponse response, @PathVariable Long id) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         try {
             String fileName = tramitesAcademicosService.cursoDirigidoReporte(new Tramite(id), ds);
@@ -625,7 +625,7 @@ public class TramitesAcademicosController {
             DateTime hoy = new DateTime();
 
             response.reset();
-            response.setBufferSize(Constantine.DEFAULT_BUFFER_SIZE_DOWNLOAD);
+            response.setBufferSize(GlobalConstantine.DEFAULT_BUFFER_SIZE_DOWNLOAD);
             response.setContentType("application/octet-stream");
             response.setHeader("Content-Disposition", "inline; filename=\"" + outputFile + "\"");
 
@@ -633,8 +633,8 @@ public class TramitesAcademicosController {
             BufferedOutputStream output = null;
 
             try {
-                input = new BufferedInputStream(new FileInputStream(filex), Constantine.DEFAULT_BUFFER_SIZE_DOWNLOAD);
-                output = new BufferedOutputStream(response.getOutputStream(), Constantine.DEFAULT_BUFFER_SIZE_DOWNLOAD);
+                input = new BufferedInputStream(new FileInputStream(filex), GlobalConstantine.DEFAULT_BUFFER_SIZE_DOWNLOAD);
+                output = new BufferedOutputStream(response.getOutputStream(), GlobalConstantine.DEFAULT_BUFFER_SIZE_DOWNLOAD);
                 IOUtils.copy(input, output);
                 response.flushBuffer();
             } finally {
@@ -713,7 +713,7 @@ public class TramitesAcademicosController {
         JsonResponse response = new JsonResponse();
 
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             List<Curso> cursos = tramitesAcademicosService.allCursosByName(nombreCurso, 10);
             ArrayNode jsonList = new ArrayNode(jsonFactory);
 
@@ -745,7 +745,7 @@ public class TramitesAcademicosController {
         JsonResponse response = new JsonResponse();
 
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             List<CicloAcademico> ciclos = tramitesAcademicosService.allCiclosAcademicosByName(nombreCiclo, new Alumno(alumnoId));
             ArrayNode jsonList = new ArrayNode(jsonFactory);
 
@@ -830,7 +830,7 @@ public class TramitesAcademicosController {
 
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             String message = "Save Seccion Grupo.";
 
             tramitesAcademicosService.saveAlumnoCicloFromRevision(alumnoCiclo, idTramite, ds);
@@ -841,7 +841,7 @@ public class TramitesAcademicosController {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
             e.printStackTrace();
-            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+            ExceptionHandler.handleSpecial(e, response, GlobalMessages.FK_ERROR_UPDATE);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
@@ -856,7 +856,7 @@ public class TramitesAcademicosController {
 
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             String message = "Se actualizó el historial.";
 
             tramitesAcademicosService.revertirCambioHistorial(alumnoCiclo, ds);
@@ -867,7 +867,7 @@ public class TramitesAcademicosController {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
             e.printStackTrace();
-            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+            ExceptionHandler.handleSpecial(e, response, GlobalMessages.FK_ERROR_UPDATE);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
@@ -883,7 +883,7 @@ public class TramitesAcademicosController {
 
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             String message = "Se actualizó el historial.";
 
             tramitesAcademicosService.deleteCicloCurso(alumnoCicloCurso, idTramite, ds);
@@ -894,7 +894,7 @@ public class TramitesAcademicosController {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
             e.printStackTrace();
-            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+            ExceptionHandler.handleSpecial(e, response, GlobalMessages.FK_ERROR_UPDATE);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
@@ -936,7 +936,7 @@ public class TramitesAcademicosController {
             HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             ArrayNode arrDocentes = new ArrayNode(JsonNodeFactory.instance);
             List<Docente> docentes = tramitesAcademicosService.allByNombre(nombre);
             for (Docente docente : docentes) {

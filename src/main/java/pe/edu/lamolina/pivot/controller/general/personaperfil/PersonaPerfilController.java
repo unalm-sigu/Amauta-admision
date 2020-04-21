@@ -38,8 +38,8 @@ import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.general.PerfilCompania;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.general.PersonaCargo;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
-import pe.edu.lamolina.pivot.zelper.constant.Messages;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
+import pe.edu.lamolina.model.constantines.GlobalMessages;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -155,7 +155,7 @@ public class PersonaPerfilController {
     @RequestMapping("save")
     public String save(@ModelAttribute("personaPerfil") PersonaCargo personaPerfil, RedirectAttributes redirectAttr, HttpSession session) {
 
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         logger.debug("Persona {}", personaPerfil.getPersona().getId());
         logger.debug("Cargo {}", personaPerfil.getPerfilCompania().getId());

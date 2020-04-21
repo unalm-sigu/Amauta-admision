@@ -245,7 +245,7 @@ new Vue({
                                     }
                                 },
                                 error: function () {
-                                    notify(MESSAGES.errorComunicacion, "error");
+                                    notify(GlobalMessages.errorComunicacion, "error");
                                 }
                             });
                         }
@@ -282,7 +282,7 @@ new Vue({
                                     notify(response.message, 'error');
                                 }
                             }, error: function () {
-                                notify(MESSAGES.errorComunicacion, "error");
+                                notify(GlobalMessages.errorComunicacion, "error");
                             }
                         });
                     }
@@ -337,7 +337,7 @@ new Vue({
                             }, error: function () {
                                 $(".btn-modal").prop('disabled', false);
                                 $(".btn-procesar").html('Si, asignar aleatoriamente');
-                                notify(MESSAGES.errorComunicacion, "error");
+                                notify(GlobalMessages.errorComunicacion, "error");
                             }
                         });
 
@@ -384,7 +384,7 @@ new Vue({
                                 }, error: function () {
                                     $(".btn-modal").prop('disabled', false);
                                     $(".btn-procesar").html('Si, retirar tutores');
-                                    notify(MESSAGES.errorComunicacion, "error");
+                                    notify(GlobalMessages.errorComunicacion, "error");
                                 }
                             });
 
@@ -434,7 +434,7 @@ new Vue({
                     console.log(e);
                 },
                 failCallback: function (responseHtml, url) {
-                    notify(MESSAGES.errorComunicacion, 'error')
+                    notify(GlobalMessages.errorComunicacion, 'error')
                 }
             });
         }, searchAlumnos(search) {
@@ -453,7 +453,7 @@ new Vue({
                     }
                 },
                 error() {
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                 }
             });
         },
@@ -486,7 +486,7 @@ new Vue({
                 },
                 error() {
                     $vue.hideLoader();
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                 }
             });
         }, consejerosPorEspecialidad() {
@@ -504,7 +504,7 @@ new Vue({
                     console.log(e);
                 },
                 failCallback: function (responseHtml, url) {
-                    notify(MESSAGES.errorComunicacion, 'error')
+                    notify(GlobalMessages.errorComunicacion, 'error')
                 }
             });
         }, tutoradosPorCondicion(item) {
@@ -523,7 +523,7 @@ new Vue({
                     console.log(e);
                 },
                 failCallback: function (responseHtml, url) {
-                    notify(MESSAGES.errorComunicacion, 'error')
+                    notify(GlobalMessages.errorComunicacion, 'error')
                 }
             });
         }, reporteTutoradosOtraEspecialidad() {
@@ -540,7 +540,7 @@ new Vue({
                     console.log(e);
                 },
                 failCallback: function (responseHtml, url) {
-                    notify(MESSAGES.errorComunicacion, 'error')
+                    notify(GlobalMessages.errorComunicacion, 'error')
                 }
             });
         }

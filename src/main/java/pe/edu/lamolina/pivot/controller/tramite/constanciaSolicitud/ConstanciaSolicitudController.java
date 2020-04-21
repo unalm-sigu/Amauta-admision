@@ -54,7 +54,8 @@ import pe.edu.lamolina.model.tramite.Tramite;
 import pe.edu.lamolina.model.tramite.TramiteDocumentoAcademico;
 import pe.edu.lamolina.model.tramite.VariablePlantilla;
 import pe.edu.lamolina.pivot.controller.tramite.plantillaConstancia.PlantillaGenerica;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.model.constantines.AcademicoConstantine;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.pivot.zelper.pdf.pdfHtml.PDFFormatoEnum;
 import pe.edu.lamolina.pivot.zelper.pdf.pdfHtml.PdfHtmlView;
@@ -288,58 +289,58 @@ public class ConstanciaSolicitudController {
 //                formatook = Boolean.FALSE;
 //                nocumplerequisito.append(Constantine.IMAGE_DPIHEIGHT_MSG);
 //                nocumplerequisito.append(" , ");
-//                logger.debug("{}", Constantine.IMAGE_DPIHEIGHT_MSG);
+//                logger.debug("{}", AcademicoConstantine.IMAGE_DPIHEIGHT_MSG);
 //            }
 //            logger.debug("DpiWidth {}", metadata.getDpiWidth());
 //            if (Constantine.IMAGE_DPIWIDTH > metadata.getDpiWidth()) {
 //                formatook = Boolean.FALSE;
 //                nocumplerequisito.append(Constantine.IMAGE_DPIWIDTH_MSG);
 //                nocumplerequisito.append(" , ");
-//                logger.debug("{}", Constantine.IMAGE_DPIWIDTH_MSG);
+//                logger.debug("{}", AcademicoConstantine.IMAGE_DPIWIDTH_MSG);
 //            }
 //            logger.debug("Height {}", metadata.getHeight());
 //            int sizeHeight = Math.abs(Constantine.IMAGE_HEIGHT - metadata.getHeight());
-//            if (sizeHeight > Constantine.IMAGE_DELTA_SIZE) {
+//            if (sizeHeight > AcademicoConstantine.IMAGE_DELTA_SIZE) {
 //                formatook = Boolean.FALSE;
 //                nocumplerequisito.append(Constantine.IMAGE_HEIGHT_MSG);
 //                nocumplerequisito.append(" , ");
-//                logger.debug("{}", Constantine.IMAGE_HEIGHT_MSG);
+//                logger.debug("{}", AcademicoConstantine.IMAGE_HEIGHT_MSG);
 //            }
 //            logger.debug("Width {}", metadata.getWidth());
 //            int sizeWidth = Math.abs(Constantine.IMAGE_WIDTH - metadata.getWidth());
-//            if (sizeWidth > Constantine.IMAGE_DELTA_SIZE) {
+//            if (sizeWidth > AcademicoConstantine.IMAGE_DELTA_SIZE) {
 //                formatook = Boolean.FALSE;
 //                nocumplerequisito.append(Constantine.IMAGE_WIDTH_MSG);
 //                nocumplerequisito.append(" , ");
-//                logger.debug("{}", Constantine.IMAGE_WIDTH_MSG);
+//                logger.debug("{}", AcademicoConstantine.IMAGE_WIDTH_MSG);
 //            }
 //            logger.debug("Format {}", metadata.getFormat());
 //            if (!Arrays.asList(Constantine.IMAGE_FORMAT).contains(metadata.getFormat().toString())) {
 //                formatook = Boolean.FALSE;
 //                nocumplerequisito.append(Constantine.IMAGE_FORMAT_MSG);
 //                nocumplerequisito.append(" , ");
-//                logger.debug("{}", Constantine.IMAGE_FORMAT_MSG);
+//                logger.debug("{}", AcademicoConstantine.IMAGE_FORMAT_MSG);
 //            }
 //            logger.debug("ColorType {}", metadata.getColorType());
 //            if (!Constantine.IMAGE_COLORTYPE.equalsIgnoreCase(metadata.getColorType().toString())) {
 //                formatook = Boolean.FALSE;
 //                nocumplerequisito.append(Constantine.IMAGE_COLORTYPE_MSG);
 //                nocumplerequisito.append(" , ");
-//                logger.debug("{}", Constantine.IMAGE_COLORTYPE_MSG);
+//                logger.debug("{}", AcademicoConstantine.IMAGE_COLORTYPE_MSG);
 //            }
 //            logger.debug("BitsPerPixel {}", metadata.getBitsPerPixel());
 //            if (Constantine.IMAGE_BITSPERPIXEL > metadata.getBitsPerPixel()) {
 //                formatook = Boolean.FALSE;
 //                nocumplerequisito.append(Constantine.IMAGE_BITSPERPIXEL_MSG);
 //                nocumplerequisito.append(" , ");
-//                logger.debug("{}", Constantine.IMAGE_BITSPERPIXEL_MSG);
+//                logger.debug("{}", AcademicoConstantine.IMAGE_BITSPERPIXEL_MSG);
 //            }
 //            logger.debug("Transparent {}", metadata.isTransparent());
 //            if (metadata.isTransparent()) {
 //                formatook = Boolean.FALSE;
 //                nocumplerequisito.append(Constantine.IMAGE_TRANSPARENT_MSG);
 //                nocumplerequisito.append(" , ");
-//                logger.debug("{}", Constantine.IMAGE_TRANSPARENT_MSG);
+//                logger.debug("{}", AcademicoConstantine.IMAGE_TRANSPARENT_MSG);
 //            }
 
             json.put("ok", formatook);
@@ -368,7 +369,7 @@ public class ConstanciaSolicitudController {
         JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             if (documentoAcademico.getId() == null) {
 
                 service.save(documentoAcademico, ds);
@@ -388,7 +389,7 @@ public class ConstanciaSolicitudController {
     @RequestMapping("onlyfoto")
     public JsonResponse onlyfoto(@RequestBody TramiteDocumentoAcademico tramiteDocumentoAcademico, HttpSession session) {
         JsonResponse response = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         try {
             service.updateFotoTemporal(tramiteDocumentoAcademico, ds);
             response.setSuccess(Boolean.TRUE);
@@ -402,7 +403,7 @@ public class ConstanciaSolicitudController {
     @RequestMapping("update")
     public JsonResponse update(@RequestBody TramiteDocumentoAcademico tramiteDocumentoAcademico, HttpSession session) {
         JsonResponse response = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         try {
             service.update(tramiteDocumentoAcademico, ds);
             response.setSuccess(Boolean.TRUE);
@@ -420,7 +421,7 @@ public class ConstanciaSolicitudController {
 
     @RequestMapping("downloadPdf/{id}")
     public ModelAndView downloadPdf(@PathVariable Long id, HttpSession session, HttpServletResponse respons, Model model) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         CicloAcademico ciclo = ds.getCicloAcademico();
         TramiteDocumentoAcademico documentoAcademico = service.findTramite(new TramiteDocumentoAcademico(id));
         List<AlumnoCiclo> alumnoCiclo = service.allAlumnoCiclo(documentoAcademico);
@@ -491,7 +492,7 @@ public class ConstanciaSolicitudController {
 
     @RequestMapping("view/{idSolicitud}")
     public String view(@PathVariable(value = "idSolicitud") Long idSolicitud, Model model, HttpSession session, RedirectAttributes redirectAttr) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         try {
             ArrayNode node = new ArrayNode(JsonNodeFactory.instance);
             String[] mapperTramite = new String[]{
@@ -552,7 +553,7 @@ public class ConstanciaSolicitudController {
     @RequestMapping("validVariables")
     public JsonResponse validVariables(@RequestBody PlantillaIncrustacionGeneralBean plantillaGeneralBean, HttpSession session) {
         JsonResponse response = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         try {
             service.validVariables(plantillaGeneralBean, ds);
             PlantillaGenerica plantilla = service.findPlantillaHtml(plantillaGeneralBean.getTramiteDocumentoAcademico(), ds.getUsuario());
@@ -628,7 +629,7 @@ public class ConstanciaSolicitudController {
     @ResponseBody
     @RequestMapping("deleteIncrustacion")
     public JsonResponse deleteIncrustacion(@RequestBody PlantillaIncrustacionDocumento pid, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         JsonResponse response = new JsonResponse();
 
         try {

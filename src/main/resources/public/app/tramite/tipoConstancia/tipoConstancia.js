@@ -55,7 +55,7 @@ new Vue({
                                     notify(response.message, 'error');
                                 }
                             }, error: function() {
-                                notify(MESSAGES.errorComunicacion, "error");
+                                notify(GlobalMessages.errorComunicacion, "error");
                             }
                         });
                     }
@@ -82,7 +82,7 @@ new Vue({
                         notify(response.message, 'error');
                     }
                 }, error: function() {
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                 }
             });
             vue.$refs.modalAddTipoConstancia.open();
@@ -154,7 +154,7 @@ new Vue({
                     self.btnEnable();
                 }, error: function() {
                     vue.$refs.modalAddTipoConstancia.close();
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                     self.btnEnable();
                 }
             });

@@ -34,7 +34,8 @@ import pe.edu.lamolina.model.rolexamen.FechaHoraGrupoExamen;
 import pe.edu.lamolina.model.rolexamen.GrupoHorasExamen;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
 import pe.edu.lamolina.model.rolexamen.SemanaExamen;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.model.constantines.AcademicoConstantine;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -48,7 +49,7 @@ public class PlantillaHorarioController {
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
 
         List<RolExamenes> rolesExamenes = service.allRolExamenesActives(ds.getCicloAcademico());
@@ -90,7 +91,7 @@ public class PlantillaHorarioController {
     public JsonResponse changeRolExamen(@RequestBody RolExamenes rolExamenes,
             HttpSession session, HttpServletRequest request) {
         JsonResponse response = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         try {
             rolExamenes = service.findRolExamenes(rolExamenes);
             response.setData(JsonHelper.createJson(rolExamenes, JsonNodeFactory.instance, false, new String[]{
@@ -122,7 +123,7 @@ public class PlantillaHorarioController {
         JsonNodeFactory jc = JsonNodeFactory.instance;
 
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             if (idRolExamenes == null) {
                 response.setData(new ArrayNode(jc));
@@ -173,7 +174,7 @@ public class PlantillaHorarioController {
             HttpSession session, HttpServletRequest request) {
 
         JsonResponse response = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         JsonNodeFactory jc = JsonNodeFactory.instance;
         try {
             List<Dia> dias = service.allDias();
@@ -270,7 +271,7 @@ public class PlantillaHorarioController {
     public JsonResponse changeSemanaExamen(@RequestBody SemanaExamen semanaExamen,
             HttpSession session, HttpServletRequest request) {
         JsonResponse response = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         try {
             logger.debug("changeSemanaExamen");
             response.setSuccess(Boolean.TRUE);
@@ -287,7 +288,7 @@ public class PlantillaHorarioController {
     public JsonResponse calcularPlantillaHorario(@RequestBody RolExamenes rolExamenes,
             HttpSession session, HttpServletRequest request) {
         JsonResponse response = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         try {
             service.calcularPlantillaHorario(rolExamenes);
             logger.debug("changeSemanaExamen");
@@ -306,7 +307,7 @@ public class PlantillaHorarioController {
     public JsonResponse deleteFechaHoraGrupoExamen(@RequestBody FechaHoraGrupoExamen fechaHoraGrupoExamen,
             HttpSession session, HttpServletRequest request) {
         JsonResponse response = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         try {
             service.deleteFechaHoraGrupoExamen(fechaHoraGrupoExamen);
             GrupoHorasExamen grupoHorasExamen = service.findGrupoHorasExamen(fechaHoraGrupoExamen.getGrupoHorasExamen());
@@ -337,7 +338,7 @@ public class PlantillaHorarioController {
     public JsonResponse deleteGrupoHoraExamen(@RequestBody GrupoHorasExamen grupoHoraExamen,
             HttpSession session, HttpServletRequest request) {
         JsonResponse response = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         try {
             service.deleteGrupoHoraExamen(grupoHoraExamen);
 
@@ -356,7 +357,7 @@ public class PlantillaHorarioController {
     public JsonResponse agregarFechaHoraGrupoExamen(@RequestBody FechaHoraGrupoExamen fechaHoraGrupoExamen,
             HttpSession session, HttpServletRequest request) {
         JsonResponse response = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         try {
             response.setSuccess(Boolean.TRUE);
             service.agregarFechoHoraGrupoExamen(fechaHoraGrupoExamen);
@@ -389,7 +390,7 @@ public class PlantillaHorarioController {
     public JsonResponse confirmarPlantillaHorario(@RequestBody RolExamenes rolExamenes,
             HttpSession session, HttpServletRequest request) {
         JsonResponse response = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         try {
             service.confirmarPlantillaHorario(rolExamenes, ds);
             logger.debug("changeSemanaExamen");
@@ -410,7 +411,7 @@ public class PlantillaHorarioController {
         JsonResponse response = new JsonResponse();
 
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             JsonNodeFactory jc = JsonNodeFactory.instance;
             ObjectNode data = new ObjectNode(jc);
 
@@ -466,7 +467,7 @@ public class PlantillaHorarioController {
         JsonResponse response = new JsonResponse();
 
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             service.saveGrupoHorasExamen(gpoHorasExamen, ds);
 

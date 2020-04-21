@@ -20,6 +20,8 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.bienestar.TipoSubvencion;
+import static pe.edu.lamolina.model.constantines.AcademicoConstantine.ID_TIPO_SUBVENCION_INVESTIGACION;
+import static pe.edu.lamolina.model.constantines.AcademicoConstantine.ID_TIPO_TRAMITE_SUBVENCION;
 import pe.edu.lamolina.model.enums.AlumnoBolsaInvestigacionEstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import pe.edu.lamolina.model.enums.FichaSocioeconomicaEstadoEnum;
@@ -47,8 +49,6 @@ import pe.edu.lamolina.pivot.dao.tramite.BolsaInvestigacionDAO;
 import pe.edu.lamolina.pivot.dao.tramite.TipoDocumentoCompaniaDAO;
 import pe.edu.lamolina.pivot.dao.tramite.TramiteDAO;
 import pe.edu.lamolina.pivot.dao.tramite.TramiteSubvencionDAO;
-import static pe.edu.lamolina.pivot.zelper.constant.Constantine.ID_TIPO_SUBVENCION_INVESTIGACION;
-import static pe.edu.lamolina.pivot.zelper.constant.Constantine.ID_TIPO_TRAMITE_SUBVENCION;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service

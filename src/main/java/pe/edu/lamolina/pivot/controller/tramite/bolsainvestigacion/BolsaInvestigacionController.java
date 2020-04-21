@@ -30,7 +30,8 @@ import pe.edu.lamolina.model.general.Colaborador;
 import pe.edu.lamolina.model.tramite.AlumnoBolsaInvestigacion;
 import pe.edu.lamolina.model.tramite.BolsaInvestigacion;
 import pe.edu.lamolina.pivot.controller.seguridad.verificador.VerificadorService;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.model.constantines.AcademicoConstantine;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -47,7 +48,7 @@ public class BolsaInvestigacionController {
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         model.addAttribute("ciclo", ds.getCicloAcademico().getDescripcion());
         return "tramite/bolsainvestigacion/bolsainvestigacion";
     }
@@ -55,7 +56,7 @@ public class BolsaInvestigacionController {
     @ResponseBody
     @RequestMapping(value = "/find", method = RequestMethod.GET)
     public JsonResponse find(HttpSession session, HttpServletRequest request) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         List<Facultad> facultades = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.FAC, request, ds);
         JsonResponse response = new JsonResponse();
         try {
@@ -75,7 +76,7 @@ public class BolsaInvestigacionController {
     @ResponseBody
     @RequestMapping(value = "/list", method = RequestMethod.GET)
     public DynatableResponse list(DynatableFilter filter, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         Facultad facultad = new Facultad(6L);
         DynatableResponse json = new DynatableResponse();
 
@@ -118,7 +119,7 @@ public class BolsaInvestigacionController {
     @ResponseBody
     @RequestMapping(value = "/alumnos", method = RequestMethod.POST)
     public JsonResponse alumnos(@RequestBody String nombre, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         JsonResponse response = new JsonResponse();
         try {
             CicloAcademico ciclo = ds.getCicloAcademico();
@@ -163,7 +164,7 @@ public class BolsaInvestigacionController {
     @ResponseBody
     @RequestMapping(value = "/supervisores", method = RequestMethod.POST)
     public JsonResponse supervisores(@RequestBody String nombre, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         JsonResponse response = new JsonResponse();
         try {
             Facultad facultad = new Facultad(6L);
@@ -199,7 +200,7 @@ public class BolsaInvestigacionController {
     @ResponseBody
     @RequestMapping(value = "/alumnos/save", method = RequestMethod.POST)
     public JsonResponse saveAlumno(@RequestBody AlumnoBolsaInvestigacion alumnoBolsa, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         JsonResponse response = new JsonResponse();
         try {
             Facultad facultad = new Facultad(6L);
@@ -222,7 +223,7 @@ public class BolsaInvestigacionController {
     @ResponseBody
     @RequestMapping(value = "/alumnos/{id}/find", method = RequestMethod.GET)
     public JsonResponse findAlumno(@PathVariable Long id, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         JsonResponse response = new JsonResponse();
         try {
             AlumnoBolsaInvestigacion abi = service.findAlumnoBolsaInvestigacion(id);
@@ -277,7 +278,7 @@ public class BolsaInvestigacionController {
     @ResponseBody
     @RequestMapping(value = "/alumnos/{id}/eliminar", method = RequestMethod.POST)
     public JsonResponse eliminarAlumno(@PathVariable Long id, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         JsonResponse response = new JsonResponse();
         try {
             Facultad facultad = new Facultad(6L);
@@ -295,7 +296,7 @@ public class BolsaInvestigacionController {
     @ResponseBody
     @RequestMapping(value = "/alumnos/{id}/checkear", method = RequestMethod.POST)
     public JsonResponse checkearAlumno(@PathVariable Long id, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         JsonResponse response = new JsonResponse();
         try {
             List<String> errores = service.checkearAlumno(new Alumno(id), ds.getCicloAcademico());
@@ -318,7 +319,7 @@ public class BolsaInvestigacionController {
     @ResponseBody
     @RequestMapping(value = "/enviarinvitaciones", method = RequestMethod.POST)
     public JsonResponse enviarInvitaciones(HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         JsonResponse response = new JsonResponse();
         try {
             Facultad facultad = new Facultad(6L);

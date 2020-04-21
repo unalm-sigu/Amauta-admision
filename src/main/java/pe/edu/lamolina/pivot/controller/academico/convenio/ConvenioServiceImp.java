@@ -29,7 +29,8 @@ import pe.edu.lamolina.pivot.dao.academico.CarreraDAO;
 import pe.edu.lamolina.pivot.dao.academico.ConvenioBecaDAO;
 import pe.edu.lamolina.pivot.dao.academico.ModalidadEstudioDAO;
 import pe.edu.lamolina.pivot.dao.general.EmpresaDAO;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.model.constantines.AcademicoConstantine;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service
@@ -157,14 +158,14 @@ public class ConvenioServiceImp implements ConvenioService {
         File file = new File(GlobalConstantine.TMP_DIR + rutaDocumento);
         logger.debug("el archivo {} existe {} ", (GlobalConstantine.TMP_DIR + rutaDocumento), (file.exists()));
         if (file.exists()) {
-            swiftService.uploadFile(Constantine.S3_DIR, Constantine.S3_DIR_CONVENIO, GlobalConstantine.TMP_DIR, rutaDocumento, true);
+            swiftService.uploadFile(AcademicoConstantine.S3_BUCKET_ACADEMICO, AcademicoConstantine.S3_DIR_CONVENIO, GlobalConstantine.TMP_DIR, rutaDocumento, true);
         }
     }
 
     private void deleteArchivoS3(ConvenioBeca convenioBecaDB, ConvenioBeca convenioBeca) {
         boolean requiereDelete = convenioBecaDB.getRutaDocumento().equalsIgnoreCase(convenioBeca.getRutaDocumento());
         if (!requiereDelete) {
-            swiftService.deleteFile(Constantine.S3_DIR, Constantine.S3_DIR_CONVENIO, convenioBecaDB.getRutaDocumento());
+            swiftService.deleteFile(AcademicoConstantine.S3_BUCKET_ACADEMICO, AcademicoConstantine.S3_DIR_CONVENIO, convenioBecaDB.getRutaDocumento());
         }
     }
 

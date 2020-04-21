@@ -36,7 +36,8 @@ import pe.edu.lamolina.model.examen.ExamenVirtual;
 import pe.edu.lamolina.model.examen.PreguntaExamen;
 import pe.edu.lamolina.model.examen.TipoExamenVirtual;
 import pe.edu.lamolina.model.inscripcion.CicloPostula;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.model.constantines.AcademicoConstantine;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -50,7 +51,7 @@ public class EditorEncuestaController {
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         CicloAcademico cicloAcademico = ds.getCicloAcademico();
         model.addAttribute("cicloAcademico", cicloAcademico);
         return "academico/encuestaestudiantil/editor/encuestaEditor";
@@ -118,7 +119,7 @@ public class EditorEncuestaController {
 
     @RequestMapping("nuevo")
     public String nuevo(Model model, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         CicloAcademico cicloAcademico = ds.getCicloAcademico();
         List<TipoExamenVirtual> tipos = service.allTipoEncuesta();
         model.addAttribute("cicloAcademico", cicloAcademico);
@@ -131,7 +132,7 @@ public class EditorEncuestaController {
     public String update(@PathVariable("encuesta") Long idEncuesta, Model model, HttpSession session) {
         ExamenVirtual evaluacionVirtual = service.findEncuesta(idEncuesta);
         List<TipoExamenVirtual> tipos = service.allTipoEncuesta();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         CicloAcademico cicloAcademico = ds.getCicloAcademico();
         model.addAttribute("cicloAcademico", cicloAcademico);
         model.addAttribute("encuesta", evaluacionVirtual);
@@ -155,7 +156,7 @@ public class EditorEncuestaController {
     @RequestMapping("save")
     public String save(ExamenVirtual encuesta, RedirectAttributes redirectAttr, Model model, HttpSession session) {
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             if (encuesta.getId() == null) {
                 service.saveEncuesta(encuesta, ds);
                 Notificaciones.crearMsg("Registro creado", redirectAttr);
@@ -200,7 +201,7 @@ public class EditorEncuestaController {
 
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             service.duplicar(encuesta, ds);
             response.setMessage("Registro eliminado satisfactoriamente");
             response.setSuccess(true);
@@ -222,7 +223,7 @@ public class EditorEncuestaController {
         JsonResponse response = new JsonResponse();
 
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             service.cambiarEstadoEncuesta(encuesta, ds);
             response.setMessage("Registro actualizado satisfactoriamente.");
             response.setSuccess(true);
@@ -242,7 +243,7 @@ public class EditorEncuestaController {
         JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             CicloAcademico ciclo = ds.getCicloAcademico();
 
             List<Curso> cursos = service.allCursoByNameCiclo(nombre, ciclo);
@@ -281,7 +282,7 @@ public class EditorEncuestaController {
         JsonResponse response = new JsonResponse();
 
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             List<Curso> cursos = service.allCursoSinEncuesta(encuesta, ds);
             List<Seccion> secciones = service.allSeccionesByCicloCursos(ds.getCicloAcademico(), cursos);
             Map<Long, List<Seccion>> mapSeccion = TypesUtil.convertListToMapList("grupoSeccion.curso.id", secciones);
@@ -317,7 +318,7 @@ public class EditorEncuestaController {
     public JsonResponse addcursosinencuesta(@RequestBody CursoSinEncuesta cursoSinEncuesta, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             service.addCursoSinEncuesta(cursoSinEncuesta, ds);
             response.setMessage("Registro creado satisfactoriamente");
             response.setSuccess(true);
@@ -335,7 +336,7 @@ public class EditorEncuestaController {
     public JsonResponse removeCursoSinEncuesta(@RequestBody CursoSinEncuesta cursoSinEncuesta, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             service.removeCursoSinEncuesta(cursoSinEncuesta, ds);
             response.setMessage("Registro removido");
             response.setSuccess(true);

@@ -33,7 +33,8 @@ import pe.albatross.zelpers.miscelanea.NumberFormat;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.ConfiguraCargaAdicional;
 import pe.edu.lamolina.model.academico.DocenteCiclo;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.model.constantines.AcademicoConstantine;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -47,7 +48,7 @@ public class CargaAdicionalDocenteController {
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
         return "academico/cargaadicional/cargaadicionaldocente/cargaadicionaldocente";
     }
@@ -55,7 +56,7 @@ public class CargaAdicionalDocenteController {
     @ResponseBody
     @RequestMapping("list")
     public DynatableResponse list(DynatableFilter filter, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         DynatableResponse json = new DynatableResponse();
 
         try {
@@ -104,7 +105,7 @@ public class CargaAdicionalDocenteController {
     @ResponseBody
     @RequestMapping(value = "configuracion", method = RequestMethod.GET)
     public JsonResponse findConfiguracion(HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         JsonResponse response = new JsonResponse();
 
         try {
@@ -127,7 +128,7 @@ public class CargaAdicionalDocenteController {
     @ResponseBody
     @RequestMapping(value = "configuracion/save", method = RequestMethod.POST)
     public JsonResponse findConfiguracion(@RequestBody ConfiguraCargaAdicional configuraCargaAdicional, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         JsonResponse response = new JsonResponse();
 
         try {
@@ -146,7 +147,7 @@ public class CargaAdicionalDocenteController {
     @ResponseBody
     @RequestMapping(value = "generar/carga", method = RequestMethod.POST)
     public JsonResponse generarCarga(HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         JsonResponse response = new JsonResponse();
 
         try {
@@ -165,7 +166,7 @@ public class CargaAdicionalDocenteController {
     @ResponseBody
     @RequestMapping(value = "generar/montos", method = RequestMethod.POST)
     public JsonResponse generarMontos(HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         JsonResponse response = new JsonResponse();
 
         try {
@@ -184,7 +185,7 @@ public class CargaAdicionalDocenteController {
     @ResponseBody
     @RequestMapping(value = "eliminar/carga", method = RequestMethod.POST)
     public JsonResponse eliminarCarga(HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         JsonResponse response = new JsonResponse();
 
         try {
@@ -203,7 +204,7 @@ public class CargaAdicionalDocenteController {
     @ResponseBody
     @RequestMapping(value = "eliminar/montos", method = RequestMethod.POST)
     public JsonResponse eliminarMontos(HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         JsonResponse response = new JsonResponse();
 
         try {
@@ -222,7 +223,7 @@ public class CargaAdicionalDocenteController {
     @ResponseBody
     @RequestMapping(value = "cerrar", method = RequestMethod.POST)
     public JsonResponse cerrar(HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         JsonResponse response = new JsonResponse();
 
         try {
@@ -240,7 +241,7 @@ public class CargaAdicionalDocenteController {
 
     @RequestMapping("reporte")
     public void reporteTodos(Model model, HttpSession session, HttpServletResponse response) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         try {
             String fileName = service.reporte(ds.getCicloAcademico());
@@ -262,7 +263,7 @@ public class CargaAdicionalDocenteController {
             DateTime hoy = new DateTime();
 
             response.reset();
-            response.setBufferSize(Constantine.DEFAULT_BUFFER_SIZE_DOWNLOAD);
+            response.setBufferSize(GlobalConstantine.DEFAULT_BUFFER_SIZE_DOWNLOAD);
             response.setContentType("application/octet-stream");
             response.setHeader("Content-Disposition", "inline; filename=\"" + outputFile + "\"");
 
@@ -270,8 +271,8 @@ public class CargaAdicionalDocenteController {
             BufferedOutputStream output = null;
 
             try {
-                input = new BufferedInputStream(new FileInputStream(filex), Constantine.DEFAULT_BUFFER_SIZE_DOWNLOAD);
-                output = new BufferedOutputStream(response.getOutputStream(), Constantine.DEFAULT_BUFFER_SIZE_DOWNLOAD);
+                input = new BufferedInputStream(new FileInputStream(filex), GlobalConstantine.DEFAULT_BUFFER_SIZE_DOWNLOAD);
+                output = new BufferedOutputStream(response.getOutputStream(), GlobalConstantine.DEFAULT_BUFFER_SIZE_DOWNLOAD);
                 IOUtils.copy(input, output);
                 response.flushBuffer();
             } finally {

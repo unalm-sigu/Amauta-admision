@@ -19,6 +19,7 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.consejeria.AlumnoConsejero;
 import pe.edu.lamolina.model.consejeria.Consejero;
+import static pe.edu.lamolina.model.constantines.GlobalConstantine.ID_CONSEJERO_NN;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.MAT;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.NMAT;
@@ -28,7 +29,6 @@ import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.controller.consejeria.consejeros.Aconsejado;
 import pe.edu.lamolina.pivot.dao.consejeria.AlumnoConsejeroDAO;
-import static pe.edu.lamolina.pivot.zelper.constant.Constantine.ID_CONSEJERO_NN;
 
 @Service
 public class AlumnoConsejeroDAOH extends AbstractEasyDAO<AlumnoConsejero> implements AlumnoConsejeroDAO {

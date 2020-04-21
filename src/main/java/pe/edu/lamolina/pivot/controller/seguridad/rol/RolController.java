@@ -40,8 +40,8 @@ import pe.edu.lamolina.model.seguridad.Rol;
 import pe.edu.lamolina.model.seguridad.Sistema;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.config.DespliegueConfig;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
-import pe.edu.lamolina.pivot.zelper.constant.Messages;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
+import pe.edu.lamolina.model.constantines.GlobalMessages;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -99,7 +99,7 @@ public class RolController {
         try {
 
             JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             List<Rol> roles = service.allRolByDynatable(filter, new Sistema(despliegueConfig.getSistema()));
             List<FuncionRol> funcionesRol = service.allFuncionRol(roles);
             Map<Long, List<FuncionRol>> funcionesRolMap = TypesUtil.convertListToMapList("rol.id", funcionesRol);
@@ -258,7 +258,7 @@ public class RolController {
 
         try {
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             Compania compania = ds.getCompania();
 
             List<PerfilCompania> perfilesCompania = service.allPerfilCompaniaByTipo(perfilCompaniaForm, compania);
@@ -332,7 +332,7 @@ public class RolController {
 
         try {
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             Usuario usuario = ds.getUsuario();
 
             service.saveFuncionRol(funcionRol, usuario);
@@ -357,7 +357,7 @@ public class RolController {
 
         try {
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             Usuario usuario = ds.getUsuario();
 
             service.cambiarEstado(funcionRol, usuario);

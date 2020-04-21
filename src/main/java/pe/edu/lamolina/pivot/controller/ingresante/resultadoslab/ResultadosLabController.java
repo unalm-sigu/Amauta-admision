@@ -32,7 +32,8 @@ import pe.edu.lamolina.model.enums.TipoSangreEnum;
 import pe.edu.lamolina.model.inscripcion.TurnoEntrevistaObuae;
 import pe.edu.lamolina.model.medico.HistoriaLaboratorio;
 import pe.edu.lamolina.pivot.controller.reporte.view.ResultadoTurnoMuestraLabView;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.model.constantines.AcademicoConstantine;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.pivot.zelper.pdf.pdfHtml.PDFFormatoEnum;
 import pe.edu.lamolina.pivot.zelper.pdf.pdfHtml.PdfHtmlView;
@@ -67,7 +68,7 @@ public class ResultadosLabController {
         DynatableResponse json = new DynatableResponse();
         try {
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             CicloAcademico ciclo = service.findCicloActivoAdmision();
 
             List<RecorridoIngresante> recorridos = null;
@@ -118,7 +119,7 @@ public class ResultadosLabController {
 
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             service.saveSangre(laboratorio);
 
             ObjectNode json = JsonHelper.createJson(laboratorio, JsonNodeFactory.instance, new String[]{"*"});
@@ -140,7 +141,7 @@ public class ResultadosLabController {
 
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             service.saveOtherColumns(laboratorio);
 
             ObjectNode json = JsonHelper.createJson(laboratorio, JsonNodeFactory.instance, new String[]{"*"});
@@ -195,7 +196,7 @@ public class ResultadosLabController {
     @RequestMapping("reporte")
     public ModelAndView reporte(HttpSession session, HttpServletResponse respons, RedirectAttributes redirectAttr, Model model) {
 
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         CicloAcademico ciclo = service.findCicloActivoAdmision();
         List<RecorridoIngresante> lista = service.ingresantesCiclo(ds.getCicloAcademico());
 //
@@ -240,7 +241,7 @@ public class ResultadosLabController {
     @RequestMapping("listaExcelTurno")
     public ModelAndView listaExcelTurno(@RequestParam("turno") Long idTurno, Model model, HttpSession session) {
 
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         TurnoEntrevistaObuae turno = service.findTurno(idTurno);
         CicloAcademico ciclo = service.findCicloActivoAdmision();
         List<RecorridoIngresante> ingresantes = service.allRecorridosConMuestra(turno, ciclo);

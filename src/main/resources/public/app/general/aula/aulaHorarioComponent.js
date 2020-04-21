@@ -42,10 +42,10 @@ var AulaHorarioVue = Vue.component("aula-horario-component", {
                         $vue.horas = response.data.horas;
                         $vue.aula = response.data.aula;
                     } else {
-                        notify(MESSAGES.errorComunicacion, "error");
+                        notify(GlobalMessages.errorComunicacion, "error");
                     }
                 }, error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                 }
             });
         },

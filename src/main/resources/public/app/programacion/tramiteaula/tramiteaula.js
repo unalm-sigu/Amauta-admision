@@ -76,7 +76,7 @@ new Vue({
                 },
                 error() {
                     $vue.hideLoader();
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                 }
             });
         },
@@ -105,7 +105,7 @@ new Vue({
                 },
                 error() {
                     $vue.hideLoader();
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                 }
             });
         },
@@ -143,7 +143,7 @@ new Vue({
                 },
                 error() {
                     $vue.hideLoader();
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                 }
             });
         },
@@ -167,7 +167,7 @@ new Vue({
                 },
                 error() {
                     $vue.hideLoader();
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                 }
             });
         }

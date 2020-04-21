@@ -22,7 +22,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.edu.lamolina.model.tramite.Tramite;
 import pe.edu.lamolina.pivot.controller.academico.tramitesacademicos.TramitesAcademicosService;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.model.constantines.AcademicoConstantine;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -63,7 +64,7 @@ public class ProcesarTramiteController {
     @RequestMapping("{tramite}")
     public String index(Model model, HttpSession session,
             @PathVariable("tramite") Long tramiteId) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         
         Tramite tramite = tramitesAcademicosService.findTramite(tramiteId);
         String[] mapperTramite = new String[]{
@@ -118,7 +119,7 @@ public class ProcesarTramiteController {
 
     @RequestMapping("procesarTramite")
     public String procesarTramite(Model model, @RequestParam("tramite") Long tramite, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         //   return "academico/tramitescademicos/procesarTramite";
         return "redirect:/someOtherURL";
     }

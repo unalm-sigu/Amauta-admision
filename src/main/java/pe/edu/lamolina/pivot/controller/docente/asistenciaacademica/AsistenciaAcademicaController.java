@@ -44,8 +44,8 @@ import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.horario.HorarioSeccion;
 import pe.edu.lamolina.model.horario.LeccionReprogramada;
 import pe.edu.lamolina.pivot.controller.docente.notasacademicas.NotaAcademicaService;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
-import pe.edu.lamolina.pivot.zelper.constant.Messages;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
+import pe.edu.lamolina.model.constantines.GlobalMessages;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -86,7 +86,7 @@ public class AsistenciaAcademicaController {
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         model.addAttribute("docente", ds.getDocente());
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
         logger.debug("el docente logeado es {}", ds.getDocente().getId());
@@ -100,7 +100,7 @@ public class AsistenciaAcademicaController {
     @RequestMapping("listGruposSecciones")
     public DynatableResponse listGruposSecciones(DynatableFilter filter, HttpSession session) {
         DynatableResponse json = new DynatableResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         try {
 
@@ -156,7 +156,7 @@ public class AsistenciaAcademicaController {
             @RequestParam(name = "seccion", required = true) Long seccionId,
             HttpSession session) {
         DynatableResponse json = new DynatableResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         try {
 
@@ -201,7 +201,7 @@ public class AsistenciaAcademicaController {
             @PathVariable("seccion") Long idSeccion,
             Model model, HttpSession session) {
         logger.debug("la seccion es {}", idSeccion);
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         DateTime today = new DateTime();
 
         Seccion seccion = service.findSeccionDia(new Seccion(idSeccion), today);
@@ -282,7 +282,7 @@ public class AsistenciaAcademicaController {
             Model model, HttpSession session) {
 
         logger.debug("la seccion es {}", idSeccion);
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         DateTime today = new DateTime();
 
         TemaLeccion temaLeccion = service.findTemaLeccionSeccionDocenteFecha(new Seccion(idSeccion), ds.getDocente(), today);
@@ -333,7 +333,7 @@ public class AsistenciaAcademicaController {
         JsonNodeFactory nc = JsonNodeFactory.instance;
         ObjectNode data = new ObjectNode(nc);
 
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         jsonResponse.setSuccess(true);
         jsonResponse.setData(data);
@@ -348,7 +348,7 @@ public class AsistenciaAcademicaController {
             @RequestParam(name = "temaLeccion", required = false) Long temaLeccionId,
             HttpSession session) {
         DynatableResponse json = new DynatableResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         try {
             DateTime today = new DateTime();
@@ -404,7 +404,7 @@ public class AsistenciaAcademicaController {
             HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             if (temaLeccion.getId() == null) {
                 service.saveInasistencia(temaLeccion, ds.getDocente(), ds.getCicloAcademico(), ds);
@@ -420,7 +420,7 @@ public class AsistenciaAcademicaController {
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
-            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+            ExceptionHandler.handleSpecial(e, response, GlobalMessages.FK_ERROR_UPDATE);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
@@ -435,7 +435,7 @@ public class AsistenciaAcademicaController {
             HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             service.saveReprogramacion(leccionReprogramada, ds.getUsuario(), ds.getDocente(), ds.getCicloAcademico());
             String message = "Lección reprogramada.";
             response.setSuccess(true);
@@ -459,7 +459,7 @@ public class AsistenciaAcademicaController {
             HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             List<Date> fechaInicioFin = service.findStartEndDateReschedule(
                     new Seccion(seccionId), ds.getDocente(), ds.getCicloAcademico());
 

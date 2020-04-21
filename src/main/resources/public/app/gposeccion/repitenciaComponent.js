@@ -42,12 +42,12 @@ Vue.component("repitencia-component", {
                             $vue.tiposRepitenciaArr = response.data.restriccionesRepitencia;
                         }
                     } else {
-                        notify(MESSAGES.errorComunicacion, "error");
+                        notify(GlobalMessages.errorComunicacion, "error");
                     }
                 },
                 error: function (error) {
                     MODAL.hideWait();
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                 }
             });
         },
@@ -78,12 +78,12 @@ Vue.component("repitencia-component", {
                         MODAL.hideWait();
                         $global.$emit("afterSaveTipoRepRestriccion", response);
                     } else {
-                        notify(MESSAGES.errorComunicacion, "error");
+                        notify(GlobalMessages.errorComunicacion, "error");
                     }
                 }, error: function () {
                     MODAL.hideWait();
                     $global.$emit("afterSaveTipoRepRestriccion", response);
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                 }
             });
 
@@ -111,10 +111,10 @@ Vue.component("repitencia-component", {
                         $vue.tipoRestriccion.esModalidad = response.data.esModalidad;
 
                     } else {
-                        notify(MESSAGES.errorComunicacion, "error");
+                        notify(GlobalMessages.errorComunicacion, "error");
                     }
                 }, error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                 }
             });
         }, nameWithCodeEspecialidad( { codigo, nombre, tipoDescripcion, modalidadEstudio, esTipoDOC, esTipoMAE }) {

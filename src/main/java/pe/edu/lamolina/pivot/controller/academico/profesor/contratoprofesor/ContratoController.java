@@ -23,7 +23,8 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.rrhh.ContratoDocente;
 import pe.edu.lamolina.model.tramite.Resolucion;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.model.constantines.AcademicoConstantine;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -85,7 +86,7 @@ public class ContratoController {
     @RequestMapping(value = "/{id}/contratos/save", method = RequestMethod.POST)
     public JsonResponse save(@PathVariable Long id, ContratoDocente contratoDocente, HttpSession session) {
 
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         JsonResponse response = new JsonResponse();
 
         try {
@@ -178,7 +179,7 @@ public class ContratoController {
     @RequestMapping("/contrato/{id}/resolucionfacultad")
     public JsonResponse resolucionfacultad(@PathVariable Long id, Resolucion resolucionFacultad, HttpSession session) {
 
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         JsonResponse response = new JsonResponse();
         try {
             service.addResolucionFacultad(new ContratoDocente(id), resolucionFacultad, ds);
@@ -197,7 +198,7 @@ public class ContratoController {
     @RequestMapping("/contrato/{id}/resolucionconsejo")
     public JsonResponse resolucionconsejo(@PathVariable Long id, Resolucion resolucionConsejo, HttpSession session) {
 
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         JsonResponse response = new JsonResponse();
 
         try {
@@ -217,7 +218,7 @@ public class ContratoController {
     @RequestMapping("/contrato/{id}/vistobueno")
     public JsonResponse vistobueno(@PathVariable Long id, HttpSession session) {
 
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         JsonResponse response = new JsonResponse();
 
         try {
@@ -237,7 +238,7 @@ public class ContratoController {
     @RequestMapping("/contrato/{id}/finalizar")
     public JsonResponse finalizar(@PathVariable Long id, HttpSession session) {
 
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         JsonResponse response = new JsonResponse();
 
         try {

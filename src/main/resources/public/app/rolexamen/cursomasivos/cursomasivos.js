@@ -106,7 +106,7 @@ new Vue({
                     notify(response.message, 'error');
                 }
             }, error => {
-                notify(MESSAGES.errorComunicacion, 'error');
+                notify(GlobalMessages.errorComunicacion, 'error');
             });
         },
         loadModulos() {
@@ -122,7 +122,7 @@ new Vue({
                     notify(response.message, 'error');
                 }
             }, error => {
-                notify(MESSAGES.errorComunicacion, 'error');
+                notify(GlobalMessages.errorComunicacion, 'error');
             });
         },
         allAulasModulo(nombre) {
@@ -165,7 +165,7 @@ new Vue({
                 }
                 MODAL.hideWait();
             }, error => {
-                notify(MESSAGES.errorComunicacion, 'error');
+                notify(GlobalMessages.errorComunicacion, 'error');
             });
         },
         eliminarGruposMasivos() {
@@ -208,7 +208,7 @@ new Vue({
                     notify(response.message, 'error');
                 }
             }, error => {
-                notify(MESSAGES.errorComunicacion, 'error');
+                notify(GlobalMessages.errorComunicacion, 'error');
             });
         },
         verAsignarAulas(item) {
@@ -268,7 +268,7 @@ new Vue({
                             }
                             MODAL.hideWait();
                         }, error => {
-                            notify(MESSAGES.errorComunicacion, 'error');
+                            notify(GlobalMessages.errorComunicacion, 'error');
                         });
                     }
                 }
@@ -302,7 +302,7 @@ new Vue({
                                 MODAL.hideWait();
                             },
                             error: function () {
-                                notify(MESSAGES.errorComunicacion, "error");
+                                notify(GlobalMessages.errorComunicacion, "error");
                             }
                         });
                     }
@@ -690,7 +690,7 @@ new Vue({
                         }
                     }).catch(e => {
                 $vue.$refs.modalCambioAulasGpo.confirmReaction(false);
-                notify(MESSAGES.errorComunicacion, "error");
+                notify(GlobalMessages.errorComunicacion, "error");
             });
         },
         addAulaCM(aula) {
@@ -755,7 +755,7 @@ new Vue({
                 }
             }).catch(e => {
                 $vue.$refs.modalCambioAulasGpo.confirmReaction(false);
-                notify(MESSAGES.errorComunicacion, "error");
+                notify(GlobalMessages.errorComunicacion, "error");
             });
         },
         forzarCambio() {
@@ -782,7 +782,7 @@ new Vue({
                 }
             }).catch(e => {
                 $vue.$refs.modalCambioAulasGpo.confirmReaction(false);
-                notify(MESSAGES.errorComunicacion, "error");
+                notify(GlobalMessages.errorComunicacion, "error");
             });
         },
         styleAulaDisponible(aula) {
@@ -813,7 +813,7 @@ new Vue({
                 }
             }).catch(e => {
                 $vue.$refs.modalConfirmAction.confirmReaction(false);
-                notify(MESSAGES.errorComunicacion, "error");
+                notify(GlobalMessages.errorComunicacion, "error");
             });
         }
 

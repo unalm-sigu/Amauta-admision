@@ -13,7 +13,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.pivot.controller.academico.infoacademico.InfoAcademicoService;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.model.constantines.AcademicoConstantine;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -26,7 +27,7 @@ public class HorarioDocenteController {
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
 
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         model.addAttribute("docente", ds.getDocente());
         model.addAttribute("ciclo", ds.getCicloAcademico());

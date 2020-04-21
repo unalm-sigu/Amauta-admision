@@ -96,7 +96,7 @@ $(function () {
                     });
                 },
                 error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                 }
             });
         },
@@ -130,7 +130,7 @@ $(function () {
                                 }
                             },
                             error: function () {
-                                notify(MESSAGES.errorComunicacion, "error");
+                                notify(GlobalMessages.errorComunicacion, "error");
                             }
                         });
 
@@ -178,7 +178,7 @@ $(function () {
                     });
                 },
                 error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                 }
             });
         },
@@ -208,7 +208,7 @@ $(function () {
                                 notify(response.message, "info");
                             },
                             error: function () {
-                                notify(MESSAGES.errorComunicacion, "error");
+                                notify(GlobalMessages.errorComunicacion, "error");
                             }
                         });
 
@@ -261,7 +261,7 @@ $(function () {
                             },
                             error: function (error) {
                                 console.dir(error);
-                                notify(MESSAGES.errorComunicacion, "error");
+                                notify(GlobalMessages.errorComunicacion, "error");
                             }
                         });
 
@@ -314,7 +314,7 @@ $(function () {
                             },
                             error: function () {
                                 MODAL.hideWait();
-                                notify(MESSAGES.errorComunicacion, "error");
+                                notify(GlobalMessages.errorComunicacion, "error");
                             }
                         });
 
@@ -356,7 +356,7 @@ $(function () {
                                 }
                             },
                             error: function () {
-                                notify(MESSAGES.errorComunicacion, "error");
+                                notify(GlobalMessages.errorComunicacion, "error");
                             }
                         });
 
@@ -394,7 +394,7 @@ $(function () {
                             },
                             error: function () {
                                 MODAL.hideWait();
-                                notify(MESSAGES.errorComunicacion, "error");
+                                notify(GlobalMessages.errorComunicacion, "error");
                             }
                         });
                     }
@@ -432,7 +432,7 @@ $(function () {
                                 }
                             },
                             error: function () {
-                                notify(MESSAGES.errorComunicacion, "error");
+                                notify(GlobalMessages.errorComunicacion, "error");
                             }
                         });
                     }
@@ -503,7 +503,7 @@ $(function () {
                             }
                         },
                         error: function () {
-                            notify(MESSAGES.errorComunicacion, "error");
+                            notify(GlobalMessages.errorComunicacion, "error");
                         }
                     });
                     /*
@@ -516,7 +516,7 @@ $(function () {
                      */
                 },
                 error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                 }
             });
 

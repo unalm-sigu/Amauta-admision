@@ -41,7 +41,8 @@ import pe.edu.lamolina.pivot.dao.tramite.TipoDocumentoCompaniaDAO;
 import pe.edu.lamolina.pivot.dao.tramite.TipoTramiteDAO;
 import pe.edu.lamolina.pivot.dao.tramite.TramiteCorreccionHistorialDAO;
 import pe.edu.lamolina.pivot.dao.tramite.TramiteDAO;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.model.constantines.AcademicoConstantine;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service

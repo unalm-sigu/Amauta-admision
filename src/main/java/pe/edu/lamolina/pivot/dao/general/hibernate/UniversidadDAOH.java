@@ -5,9 +5,9 @@ import pe.edu.lamolina.pivot.dao.general.UniversidadDAO;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.model.general.Pais;
 import pe.edu.lamolina.model.general.Universidad;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 
 @Repository
 public class UniversidadDAOH extends AbstractEasyDAO<Universidad> implements UniversidadDAO {
@@ -63,7 +63,7 @@ public class UniversidadDAOH extends AbstractEasyDAO<Universidad> implements Uni
         Octavia sql = Octavia.query()
                 .from(Universidad.class, "uni")
                 .join("pais pa")
-                .filter("pa.id", "<>", Constantine.ID_PERU)
+                .filter("pa.id", "<>", GlobalConstantine.ID_PERU)
                 .like("uni.codigo", "EXT%")
                 .orderBy("uni.codigo desc")
                 .limit(1);

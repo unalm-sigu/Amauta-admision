@@ -23,8 +23,8 @@ import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.DetalleGrupoAlumno;
 import pe.edu.lamolina.model.academico.GrupoAlumno;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
-import pe.edu.lamolina.pivot.zelper.constant.Messages;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
+import pe.edu.lamolina.model.constantines.GlobalMessages;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -38,7 +38,7 @@ public class GpoAlumnoController {
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         ObjectNode cicloJSON = new ObjectNode(JsonNodeFactory.instance);
         cicloJSON.put("descripcion", ds.getCicloAcademico().getDescripcion());
@@ -53,7 +53,7 @@ public class GpoAlumnoController {
     public DynatableResponse list(DynatableFilter filter, HttpSession session) {
         DynatableResponse json = new DynatableResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
             List<GrupoAlumno> gpoAlumnos = service.allByDynatble(filter);
@@ -78,7 +78,7 @@ public class GpoAlumnoController {
     @ResponseBody
     @RequestMapping("saveUpdate")
     public JsonResponse saveUpdate(@RequestBody GrupoAlumno gpoAlumno, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         JsonResponse response = new JsonResponse();
         response.setSuccess(false);
         try {
@@ -102,7 +102,7 @@ public class GpoAlumnoController {
     @ResponseBody
     @RequestMapping("eliminar")
     public JsonResponse eliminar(@RequestBody GrupoAlumno gpoAlumno, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         JsonResponse response = new JsonResponse();
         response.setSuccess(false);
         try {
@@ -132,7 +132,7 @@ public class GpoAlumnoController {
     public DynatableResponse detalleList(DynatableFilter filter, @PathVariable("id") Long id, HttpSession session) {
         DynatableResponse json = new DynatableResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
             GrupoAlumno grupo = new GrupoAlumno(id);
@@ -207,7 +207,7 @@ public class GpoAlumnoController {
     @ResponseBody
     @RequestMapping("detalle/save")
     public JsonResponse saveDetalleGrupo(@RequestBody DetalleGrupoAlumno detalleGrupo, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         JsonResponse response = new JsonResponse();
         response.setSuccess(false);
         try {

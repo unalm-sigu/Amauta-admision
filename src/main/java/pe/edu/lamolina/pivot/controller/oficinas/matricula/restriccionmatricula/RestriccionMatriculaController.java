@@ -24,7 +24,8 @@ import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.DeudaMaterialAlumno;
 import pe.edu.lamolina.model.general.Oficina;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.model.constantines.AcademicoConstantine;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -38,7 +39,7 @@ public class RestriccionMatriculaController {
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         List<Oficina> oficinas = ds.getOficinas();
         if (oficinas.stream().filter(x -> x.isOficinaOera()).findAny().orElse(null) != null) {
             oficinas = service.allOficina();
@@ -58,7 +59,7 @@ public class RestriccionMatriculaController {
     @RequestMapping("list")
     public DynatableResponse list(DynatableFilter filter, HttpSession session) {
         DynatableResponse json = new DynatableResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         try {
             JsonNodeFactory factory = JsonNodeFactory.instance;
             ArrayNode array = new ArrayNode(factory);
@@ -91,7 +92,7 @@ public class RestriccionMatriculaController {
     @RequestMapping("levantar")
     public JsonResponse levantar(@RequestParam("id") Long id, HttpSession session) {
         JsonResponse response = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         try {
             DeudaMaterialAlumno deuda = new DeudaMaterialAlumno(id);
@@ -110,7 +111,7 @@ public class RestriccionMatriculaController {
     @RequestMapping("anular")
     public JsonResponse deuda(@RequestBody DeudaMaterialAlumno deuda, HttpSession session) {
         JsonResponse response = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         try {
             service.anularDeuda(deuda, ds);
@@ -145,7 +146,7 @@ public class RestriccionMatriculaController {
     public JsonResponse save(@RequestBody DeudaMaterialAlumno deuda, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             service.save(deuda, ds);
             response.setSuccess(true);
             response.setMessage("Restricción actualizada");
@@ -159,7 +160,7 @@ public class RestriccionMatriculaController {
 
     @RequestMapping("upload")
     public String upload(Model model, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         List<Oficina> Oficinas = ds.getOficinas();
 
         model.addAttribute("oficinas", Oficinas);
@@ -174,7 +175,7 @@ public class RestriccionMatriculaController {
             @RequestParam("idOficina") Long oficinaId,
             Model model, HttpSession session) {
         JsonResponse json = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         try {
             List<String> observados = service.cargarDeudas(file, new Oficina(oficinaId), ds);

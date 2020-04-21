@@ -23,7 +23,6 @@ import pe.albatross.zelpers.file.system.FileHelper;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
-import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.atencion.MensajeTicketAyuda;
@@ -32,8 +31,9 @@ import pe.edu.lamolina.model.atencion.TrasladoAtencionTicket;
 import pe.edu.lamolina.model.general.Colaborador;
 import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.general.Oficina;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
-import pe.edu.lamolina.pivot.zelper.constant.Messages;
+import pe.edu.lamolina.model.constantines.AcademicoConstantine;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
+import pe.edu.lamolina.model.constantines.GlobalMessages;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -48,7 +48,7 @@ public class TicketAyudaController {
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
 
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         Oficina oficina = ds.getOficinaMain();
         logger.debug("OFICINA MAIN {}",oficina.getId());
         model.addAttribute("resumen", service.findResumen(oficina));
@@ -63,7 +63,7 @@ public class TicketAyudaController {
 
         try {
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             Oficina oficina = ds.getOficinaMain();
 
             JsonNodeFactory jFactory = JsonNodeFactory.instance;
@@ -110,7 +110,7 @@ public class TicketAyudaController {
         try {
 
             JsonNodeFactory jFactory = JsonNodeFactory.instance;
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             MensajeTicketAyuda mensajeDb = service.saverespuesta(mensaje, ds);
 
             ObjectNode node = JsonHelper.createJson(mensajeDb, jFactory, true, new String[]{
@@ -179,11 +179,11 @@ public class TicketAyudaController {
 
             }
 
-            jTicket.put("basepath", Constantine.S3_LINK + Constantine.S3_DIR_ARCHIVO_ATENCION);
+            jTicket.put("basepath", AcademicoConstantine.S3_URL_ACADEMICO + AcademicoConstantine.S3_DIR_ARCHIVO_ATENCION);
 
             data.set("ticket", jTicket);
 
-            response.setMessage(Messages.APPROVED);
+            response.setMessage(GlobalMessages.APPROVED);
             response.setData(data);
             response.setSuccess(true);
 
@@ -258,7 +258,7 @@ public class TicketAyudaController {
 
             data.set("oficinas", jOficinas);
 
-            response.setMessage(Messages.APPROVED);
+            response.setMessage(GlobalMessages.APPROVED);
             response.setData(data);
             response.setSuccess(true);
 
@@ -278,7 +278,7 @@ public class TicketAyudaController {
 
         try {
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             service.asignarme(ticket, ds);
 
@@ -301,7 +301,7 @@ public class TicketAyudaController {
 
         try {
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             service.asignarColaborador(ticket, ds);
 
@@ -325,7 +325,7 @@ public class TicketAyudaController {
         try {
 
             JsonNodeFactory jFactory = JsonNodeFactory.instance;
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             MensajeTicketAyuda mensajeDb = service.saverespuesta(mensaje, ds);
 
             ObjectNode node = JsonHelper.createJson(mensajeDb, jFactory, true, new String[]{
@@ -354,7 +354,7 @@ public class TicketAyudaController {
 
         try {
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             Compania compania = ds.getCompania();
 
             List<Oficina> oficinas = service.findoficina(nombre, compania);
@@ -387,7 +387,7 @@ public class TicketAyudaController {
 
         try {
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             service.trasladooficina(traslado, ds);
             response.setMessage(GlobalMessages.UPDATED);
             response.setSuccess(true);
@@ -408,7 +408,7 @@ public class TicketAyudaController {
 
         try {
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             service.trasladocolaborador(traslado, ds);
             response.setMessage(GlobalMessages.UPDATED);
             response.setSuccess(true);
@@ -451,7 +451,7 @@ public class TicketAyudaController {
 
             data.set("colaboradores", arrayColaboradores);
 
-            response.setMessage(Messages.APPROVED);
+            response.setMessage(GlobalMessages.APPROVED);
             response.setData(data);
             response.setSuccess(true);
 

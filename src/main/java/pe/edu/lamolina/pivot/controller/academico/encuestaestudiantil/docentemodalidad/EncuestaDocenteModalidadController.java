@@ -35,7 +35,8 @@ import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.encuestaestudiantil.EncuestaDocenteModalidad;
 import pe.edu.lamolina.model.encuestaestudiantil.PuntajeEncuestaDocenteModalidad;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.model.constantines.AcademicoConstantine;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -49,7 +50,7 @@ public class EncuestaDocenteModalidadController {
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         CicloAcademico ciclo = ds.getCicloAcademico();
         model.addAttribute("cicloAcademico", ciclo);
         return "academico/encuestaestudiantil/docentemodalidad/encuestadocentemodalidad";
@@ -61,7 +62,7 @@ public class EncuestaDocenteModalidadController {
         DynatableResponse json = new DynatableResponse();
         try {
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             CicloAcademico ciclo = ds.getCicloAcademico();
 
             List<Facultad> facultades = service.allAccesoFacultades(ds, request);
@@ -135,7 +136,7 @@ public class EncuestaDocenteModalidadController {
 
     @RequestMapping("reporte/todos")
     public void reporteTodos(Model model, HttpSession session, HttpServletResponse response) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         try {
             String fileName = service.reporteTodos(ds.getCicloAcademico());
@@ -157,7 +158,7 @@ public class EncuestaDocenteModalidadController {
             DateTime hoy = new DateTime();
 
             response.reset();
-            response.setBufferSize(Constantine.DEFAULT_BUFFER_SIZE_DOWNLOAD);
+            response.setBufferSize(GlobalConstantine.DEFAULT_BUFFER_SIZE_DOWNLOAD);
             response.setContentType("application/octet-stream");
             response.setHeader("Content-Disposition", "inline; filename=\"" + name + "\"");
 
@@ -165,8 +166,8 @@ public class EncuestaDocenteModalidadController {
             BufferedOutputStream output = null;
 
             try {
-                input = new BufferedInputStream(new FileInputStream(filex), Constantine.DEFAULT_BUFFER_SIZE_DOWNLOAD);
-                output = new BufferedOutputStream(response.getOutputStream(), Constantine.DEFAULT_BUFFER_SIZE_DOWNLOAD);
+                input = new BufferedInputStream(new FileInputStream(filex), GlobalConstantine.DEFAULT_BUFFER_SIZE_DOWNLOAD);
+                output = new BufferedOutputStream(response.getOutputStream(), GlobalConstantine.DEFAULT_BUFFER_SIZE_DOWNLOAD);
                 IOUtils.copy(input, output);
                 response.flushBuffer();
             } finally {

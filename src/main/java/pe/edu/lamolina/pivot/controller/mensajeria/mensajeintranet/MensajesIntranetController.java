@@ -22,8 +22,8 @@ import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.GrupoAlumno;
 import pe.edu.lamolina.model.academico.MensajeIntranet;
 import pe.edu.lamolina.model.academico.TipoMensajeIntranet;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
-import pe.edu.lamolina.pivot.zelper.constant.Messages;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
+import pe.edu.lamolina.model.constantines.GlobalMessages;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -35,7 +35,7 @@ public class MensajesIntranetController {
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         List<GrupoAlumno> grupos = service.allGruposAlumnos();
         List<TipoMensajeIntranet> tipos = service.allTiposMensajes();
@@ -70,7 +70,7 @@ public class MensajesIntranetController {
     public DynatableResponse list(DynatableFilter filter, HttpSession session) {
         DynatableResponse json = new DynatableResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
             List<MensajeIntranet> mensajes = service.allByDynatble(filter);
@@ -105,7 +105,7 @@ public class MensajesIntranetController {
     @ResponseBody
     @RequestMapping("edit")
     public JsonResponse edit(@RequestBody MensajeIntranet mensajeria, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         JsonResponse response = new JsonResponse();
         response.setSuccess(false);
         try {
@@ -135,7 +135,7 @@ public class MensajesIntranetController {
     @ResponseBody
     @RequestMapping("saveUpdate")
     public JsonResponse saveUpdateMensajeria(@RequestBody MensajeIntranet mensajeria, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         JsonResponse response = new JsonResponse();
         response.setSuccess(false);
         try {
@@ -159,7 +159,7 @@ public class MensajesIntranetController {
     @ResponseBody
     @RequestMapping("eliminar")
     public JsonResponse eliminar(@RequestBody MensajeIntranet mensajeria, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         JsonResponse response = new JsonResponse();
         response.setSuccess(false);
         try {

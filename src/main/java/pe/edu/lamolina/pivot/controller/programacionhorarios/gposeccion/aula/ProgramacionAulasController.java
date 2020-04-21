@@ -18,7 +18,8 @@ import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.edu.lamolina.model.almacen.ResumenInventario;
 import pe.edu.lamolina.model.general.Aula;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.model.constantines.AcademicoConstantine;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -32,7 +33,7 @@ public class ProgramacionAulasController {
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         return "posgrado/tarifa/tarifa";
     }
@@ -42,7 +43,7 @@ public class ProgramacionAulasController {
     public DynatableResponse listAulasSinHorario(DynatableFilter filter, HttpSession session) {
         DynatableResponse json = new DynatableResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             List<Aula> aulas = service.allAulasSinHorarioDyna(filter);
             JsonNodeFactory jFactory = JsonNodeFactory.instance;

@@ -21,7 +21,8 @@ import static pe.edu.lamolina.model.enums.GrupoAnexoEnum.DPTO;
 import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
 import pe.edu.lamolina.pivot.controller.academico.anexoboletin.AnexoResumen;
 import pe.edu.lamolina.pivot.dao.academico.AnexoBoletinDAO;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.model.constantines.AcademicoConstantine;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 
 @Repository
 public class AnexoBoletinDAOH extends AbstractEasyDAO<AnexoBoletin> implements AnexoBoletinDAO {
@@ -192,7 +193,7 @@ public class AnexoBoletinDAOH extends AbstractEasyDAO<AnexoBoletin> implements A
                 .from(AnexoBoletin.class, "ab")
                 .join("anexoSuperior abs", "departamentoAcademico da")
                 .filter("ab.estado", EstadoEnum.ACT)
-                .filter("abs.id", Constantine.ANEXO_SUP_DEP_ACAD)
+                .filter("abs.id", AcademicoConstantine.ANEXO_SUP_DEP_ACAD)
                 .filter("da.id", departamentoAcademico);
 
         return find(sql);

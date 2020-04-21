@@ -65,7 +65,7 @@ Vue.component("inicio-component", {
                 },
                 error() {
                     vue.alumno.orientacionCarrera = vue.orientacionTmp;
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                 }
             });
         },

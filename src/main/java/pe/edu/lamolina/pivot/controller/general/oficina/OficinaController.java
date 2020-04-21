@@ -44,7 +44,8 @@ import pe.edu.lamolina.model.general.PerfilCompania;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.general.TipoOficina;
 import pe.edu.lamolina.pivot.controller.seguridad.verificador.VerificadorService;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.model.constantines.AcademicoConstantine;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -86,7 +87,7 @@ public class OficinaController {
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         model.addAttribute("puedeEditarOficinas", verificadorService.puedeEditarOficinas(ds));
         return "general/oficina/oficina";
     }
@@ -99,7 +100,7 @@ public class OficinaController {
 
         try {
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             Compania compania = ds.getCompania();
 
             List<Oficina> oficinas = new ArrayList();
@@ -152,7 +153,7 @@ public class OficinaController {
     @RequestMapping("cargo")
     public JsonResponse cargo(@RequestBody PerfilCompania perfilCompania, HttpSession session) {
         JsonResponse response = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         try {
             service.addCargo(perfilCompania, ds);
             response.setMessage("Se agregó el cargo satisfactoriamente");
@@ -170,7 +171,7 @@ public class OficinaController {
             @RequestParam(value = "origen", required = false) String origen,
             Model model, HttpSession session) {
 
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         boolean puedeCrearOficina = verificadorService.puedeEditarOficinas(ds);
         if (!puedeCrearOficina) {
             return "redirect:" + verificadorService.getOrigen(origen, "/");
@@ -198,7 +199,7 @@ public class OficinaController {
             @PathVariable("oficina") Long idOficina,
             @RequestParam(value = "origen", required = false) String origen, Model model, HttpSession session) {
 
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         boolean puedeVerOficina = verificadorService.puedeVerOficina(new Oficina(idOficina), ds);
         if (!puedeVerOficina) {
             return "redirect:" + verificadorService.getOrigen(origen, "/");
@@ -229,7 +230,7 @@ public class OficinaController {
         JsonResponse response = new JsonResponse();
         try {
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             Compania compania = ds.getCompania();
             oficina.setCompania(compania);
 
@@ -260,7 +261,7 @@ public class OficinaController {
 
         try {
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             Compania compania = ds.getCompania();
 
             List<Oficina> oficinas = service.allUnidadSuperior(nombre, compania);
@@ -296,7 +297,7 @@ public class OficinaController {
 
             String columnas = "id,codigo,nombre,estado,estadoEnum";
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             Compania compania = ds.getCompania();
             ArrayNode array = new ArrayNode(jsonFactory);
             TipoOficina tipoOficina = service.findTipoById(tipo);
@@ -467,7 +468,7 @@ public class OficinaController {
         JsonResponse response = new JsonResponse();
         try {
             TypesUtil.delay(1000);
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             service.asignarJefe(oficina, ds);
             response.setMessage("Jefe asignado satisfactoriamente.");
             response.setSuccess(Boolean.TRUE);
@@ -486,7 +487,7 @@ public class OficinaController {
         JsonResponse response = new JsonResponse();
         try {
             TypesUtil.delay(1000);
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             service.actualizarJefe(oficina, ds);
             response.setMessage("Jefe asignado satisfactoriamente.");
             response.setSuccess(Boolean.TRUE);
@@ -505,7 +506,7 @@ public class OficinaController {
         JsonResponse response = new JsonResponse();
         try {
             TypesUtil.delay(5000);
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             service.asignarEncargado(oficina, ds);
             response.setMessage("Encargado asignado satisfactoriamente.");
@@ -524,7 +525,7 @@ public class OficinaController {
         JsonResponse response = new JsonResponse();
         try {
             TypesUtil.delay(5000);
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             service.actualizarEncargado(oficina, ds);
             response.setMessage("Jefe asignado satisfactoriamente.");
             response.setSuccess(Boolean.TRUE);
@@ -543,7 +544,7 @@ public class OficinaController {
         JsonResponse response = new JsonResponse();
         try {
             TypesUtil.delay(1000);
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             service.retirarJefe(oficina, ds);
             response.setMessage("Jefe retirado satisfactoriamente.");
@@ -562,7 +563,7 @@ public class OficinaController {
         JsonResponse response = new JsonResponse();
         try {
             TypesUtil.delay(1000);
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             service.retirarEncargado(ausencia, ds);
             response.setMessage("Encargado retirado satisfactoriamente.");

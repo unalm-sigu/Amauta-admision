@@ -31,7 +31,8 @@ import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.general.TipoOficina;
 import pe.edu.lamolina.model.tramite.ConfiguracionFirmaDocumento;
 import pe.edu.lamolina.model.tramite.TipoDocumentoAcademico;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.model.constantines.AcademicoConstantine;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -77,7 +78,7 @@ public class TipoConstanciaController {
     @RequestMapping("save")
     public JsonResponse save(TipoDocumentoAcademico tramiteDocumentoAcademico, HttpSession session) {
         JsonResponse response = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         try {
 
             if (tramiteDocumentoAcademico.getId() == null) {
@@ -100,7 +101,7 @@ public class TipoConstanciaController {
     @RequestMapping("list")
     public DynatableResponse all(DynatableFilter filter, HttpSession session) {
         DynatableResponse json = new DynatableResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         try {
             List<TipoDocumentoAcademico> list = service.all(filter);
             json.setData(new TipoDocumentoAcademico().toArrayJson(list));
@@ -117,7 +118,7 @@ public class TipoConstanciaController {
     @RequestMapping("{id}/find")
     public JsonResponse find(@PathVariable("id") Long id, HttpSession session) {
         JsonResponse response = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         try {
             TipoDocumentoAcademico tipoDocumentoAcademico = service.findById(new TipoDocumentoAcademico(id));
             response.setData(tipoDocumentoAcademico);
@@ -134,7 +135,7 @@ public class TipoConstanciaController {
     @RequestMapping("delete")
     public JsonResponse delete(TipoDocumentoAcademico tipoDocumento, HttpSession session) {
         JsonResponse response = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         try {
             service.delete(tipoDocumento);
             response.setMessage("Registro removido satisfactoriamente");

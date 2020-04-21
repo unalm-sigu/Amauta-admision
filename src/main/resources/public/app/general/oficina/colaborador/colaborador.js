@@ -100,7 +100,7 @@ new Vue({
                         }
                     }).catch(e => {
                 vue.$refs.modalAddCargo.confirmReaction(false);
-                notify(MESSAGES.errorComunicacion, "error");
+                notify(GlobalMessages.errorComunicacion, "error");
             });
 
         },
@@ -128,7 +128,7 @@ new Vue({
                         }
                     }).catch(e => {
                 vue.$refs.modalAddFuncion.confirmReaction(false);
-                notify(MESSAGES.errorComunicacion, "error");
+                notify(GlobalMessages.errorComunicacion, "error");
             });
 
         },
@@ -145,7 +145,7 @@ new Vue({
                             notify(response.data.message, "error");
                         }
                     }).catch(e => {
-                notify(MESSAGES.errorComunicacion, "error");
+                notify(GlobalMessages.errorComunicacion, "error");
             });
         },
         verFuncion() {
@@ -161,7 +161,7 @@ new Vue({
                             notify(response.data.message, "error");
                         }
                     }).catch(e => {
-                notify(MESSAGES.errorComunicacion, "error");
+                notify(GlobalMessages.errorComunicacion, "error");
             });
 
         },
@@ -237,7 +237,7 @@ new Vue({
                         }
                     }).catch(e => {
                 $vue.$refs.modalConfirmAction.confirmReaction(false);
-                notify(MESSAGES.errorComunicacion, "error");
+                notify(GlobalMessages.errorComunicacion, "error");
             });
 
         },
@@ -262,7 +262,7 @@ new Vue({
                         }
                     }).catch(e => {
                 $vue.$refs.modalDespedirEmpleado.confirmReaction(false);
-                notify(MESSAGES.errorComunicacion, "error");
+                notify(GlobalMessages.errorComunicacion, "error");
             });
         },
         activarEmpleado() {
@@ -286,7 +286,7 @@ new Vue({
                         }
                     }).catch(e => {
                 $vue.$refs.modalActivarEmpleado.confirmReaction(false);
-                notify(MESSAGES.errorComunicacion, "error");
+                notify(GlobalMessages.errorComunicacion, "error");
             });
         },
         getResumen() {
@@ -301,7 +301,7 @@ new Vue({
                     }
                 },
                 error: function (error) {
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                 }
             });
         },
@@ -326,7 +326,7 @@ new Vue({
                             notify(response.data.message, "error");
                         }
                     }).catch(e => {
-                notify(MESSAGES.errorComunicacion, "error");
+                notify(GlobalMessages.errorComunicacion, "error");
             });
 
         },

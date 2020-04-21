@@ -64,7 +64,8 @@ import pe.edu.lamolina.pivot.dao.horario.HoraDAO;
 import pe.edu.lamolina.pivot.dao.horario.HorarioAulaDAO;
 import pe.edu.lamolina.pivot.dao.tramite.TipoDocumentoCompaniaDAO;
 import pe.edu.lamolina.pivot.dao.tramite.TramiteDAO;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.model.constantines.AcademicoConstantine;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.pivot.zelper.mail.MailerService;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -259,7 +260,7 @@ public class TramiteAulaServiceImp implements TramiteAulaService {
     @Override
     @Transactional
     public Empresa saveInstitucion(Empresa institucion) {
-        TipoDocIdentidad doc = tipoDocIdentidadDAO.findBySimboloAndPais(TipoDocIdentidadEnum.RUC.name(),new Pais(Constantine.ID_PERU));
+        TipoDocIdentidad doc = tipoDocIdentidadDAO.findBySimboloAndPais(TipoDocIdentidadEnum.RUC.name(),new Pais(GlobalConstantine.ID_PERU));
         institucion.setTipoDocIdentidad(doc);
         empresaDAO.save(institucion);
         return institucion;

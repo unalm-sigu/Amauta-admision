@@ -233,7 +233,7 @@ new Vue({
                                         notify(response.data.message, "warning");
                                     }
                                 }).catch(e => {
-                            notify(MESSAGES.errorComunicacion, "error");
+                            notify(GlobalMessages.errorComunicacion, "error");
                         });
 
                     }

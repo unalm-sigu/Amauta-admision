@@ -73,8 +73,8 @@ import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 import pe.edu.lamolina.model.enums.TipoSeccionEvalEnum;
 import pe.edu.lamolina.pivot.controller.matricula.matriculable.MatriculableService;
 import pe.edu.lamolina.pivot.controller.reporte.view.ReporteActasView;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
-import pe.edu.lamolina.pivot.zelper.constant.Messages;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
+import pe.edu.lamolina.model.constantines.GlobalMessages;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.pivot.zelper.pdf.PdfService;
 
@@ -122,7 +122,7 @@ public class NotaAcademicaController {
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         model.addAttribute("docente", ds.getDocente());
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
         logger.debug("el docente logeado es {}", ds.getDocente().getId());
@@ -133,7 +133,7 @@ public class NotaAcademicaController {
 
     @RequestMapping("sistemaCurso")
     public String sistemaCurso(Model model, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         return "docente/notaacademica/sistemaCurso";
     }
@@ -143,7 +143,7 @@ public class NotaAcademicaController {
     public DynatableResponse list(DynatableFilter filter, HttpSession session) {
 
         DynatableResponse json = new DynatableResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         try {
 
@@ -268,7 +268,7 @@ public class NotaAcademicaController {
             HttpSession session) {
         logger.debug("evaluacion seccion id {}", evaluacionSeccionId);
         DynatableResponse json = new DynatableResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         logger.debug("la evaluacion seccion {}", evaluacionSeccionId);
         try {
@@ -402,7 +402,7 @@ public class NotaAcademicaController {
             @PathVariable("sistemaCalificacion") Long idSistemaCalificacion,
             @PathVariable("grupoSeccion") Long idGrupoSeccion, Model model, HttpSession session) {
 
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         logger.debug("plan calificacion {}, grupo seccion {}", idSistemaCalificacion, idGrupoSeccion);
         GrupoSeccion grupoSeccion = service.findGrupo(idGrupoSeccion);
         PlanCalificacion planCalificacion = service.findPlanCalificacion(idSistemaCalificacion);
@@ -423,7 +423,7 @@ public class NotaAcademicaController {
             @RequestParam(name = "planCalificacion", required = false) Long planCalificacion,
             Model model, HttpSession session) {
 
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         logger.debug("grupo seccion {}", idGrupoSeccion);
         logger.debug("planCalificacion {}", planCalificacion);
         GrupoSeccion grupoSeccion = service.findGrupo(idGrupoSeccion);
@@ -447,7 +447,7 @@ public class NotaAcademicaController {
 
     @RequestMapping("expandir/{grupoSeccion}")
     public String expandir(Model model, HttpSession session, @PathVariable("grupoSeccion") Long grupoSeccionId) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         GrupoSeccion grupoSeccion = service.findGrupo(grupoSeccionId);
         logger.debug("El grupo seccion es {}", grupoSeccion.getId());
@@ -499,7 +499,7 @@ public class NotaAcademicaController {
 
     @RequestMapping("nuevo/{grupo}")
     public String nuevo(Model model, HttpSession session, @PathVariable("grupo") Long idGrupo) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         GrupoSeccion grupoSeccion = service.findGrupo(idGrupo);
 
@@ -534,7 +534,7 @@ public class NotaAcademicaController {
 
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             service.saveExpansionEvaluacion(evaluacion, ds);
 
             service.saveEstructuraEvaluacion(evaluacion, LoggerAccionEnum.ESTRUCTURA_EVALUACION_UPD, session);
@@ -545,7 +545,7 @@ public class NotaAcademicaController {
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
-            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+            ExceptionHandler.handleSpecial(e, response, GlobalMessages.FK_ERROR_UPDATE);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
@@ -560,7 +560,7 @@ public class NotaAcademicaController {
 
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             service.saveAsignacionDocentes(evaluacionExpandida, ds);
 
@@ -571,7 +571,7 @@ public class NotaAcademicaController {
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
-            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+            ExceptionHandler.handleSpecial(e, response, GlobalMessages.FK_ERROR_UPDATE);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
@@ -586,7 +586,7 @@ public class NotaAcademicaController {
 
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             logger.debug("Grupo Seccon Id {}", grupoSeccionId);
             String message = "";
             if (planCalificacion.getId() == null) {
@@ -608,7 +608,7 @@ public class NotaAcademicaController {
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
-            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+            ExceptionHandler.handleSpecial(e, response, GlobalMessages.FK_ERROR_UPDATE);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
@@ -624,7 +624,7 @@ public class NotaAcademicaController {
 
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             logger.debug("Sistema Notas {}", idSistemaNotas);
 
             SistemaNotas sistemaNotas = service.findSistemaNotaById(idSistemaNotas);
@@ -660,7 +660,7 @@ public class NotaAcademicaController {
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
-            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+            ExceptionHandler.handleSpecial(e, response, GlobalMessages.FK_ERROR_UPDATE);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
@@ -715,7 +715,7 @@ public class NotaAcademicaController {
     @RequestMapping("detalleExpandirEvaluacion")
     public String detalleExapandirEva(Model model, HttpSession session,
             @RequestParam(value = "evaluacion", required = false) Long evaluacionId) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         logger.debug("la evaluacion expandida es {}", evaluacionId);
         EvaluacionExpandida evaluacionExp = service.findEvaluacionExpandida(evaluacionId);
         List<TipoEvaluacion> lstTipoEvas = service.allTipoEvaluacion();
@@ -743,7 +743,7 @@ public class NotaAcademicaController {
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
-            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+            ExceptionHandler.handleSpecial(e, response, GlobalMessages.FK_ERROR_UPDATE);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
@@ -755,7 +755,7 @@ public class NotaAcademicaController {
             @RequestParam(value = "evaluacion", required = false) Long evaluacionId,
             @RequestParam(value = "grupoSeccionId", required = false) Long grupoSeccionId) {
 
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         logger.debug("detalleAsignarDocente, evaluacion expandida es {}", evaluacionId);
 
         EvaluacionExpandida evaluacionExpandida = service.findEvaluacionExpandida(evaluacionId);
@@ -817,7 +817,7 @@ public class NotaAcademicaController {
 
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             String message = "Evaluación eliminada exitosamente.";
             service.deleteEvaluacionExpandida(evaluacion);
@@ -828,7 +828,7 @@ public class NotaAcademicaController {
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
-            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+            ExceptionHandler.handleSpecial(e, response, GlobalMessages.FK_ERROR_UPDATE);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
@@ -841,7 +841,7 @@ public class NotaAcademicaController {
             Model model, HttpSession session) {
         logger.debug("la seccion es {}", idSeccion);
 
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         Seccion seccion = service.findSeccion(idSeccion);
         logger.debug("Seccion {}, Grupo Seccion {}", seccion.getId(), seccion.getGrupoSeccion().getId());
@@ -910,7 +910,7 @@ public class NotaAcademicaController {
             Model model, HttpSession session) {
         logger.debug("la seccion es {}", idSeccion);
 
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         Seccion seccion = service.findSeccion(idSeccion);
         logger.debug("Seccion {}, Grupo Seccion {}", seccion.getId(), seccion.getGrupoSeccion().getId());
@@ -959,7 +959,7 @@ public class NotaAcademicaController {
 
         logger.debug("la seccion es {}", idSeccion);
 
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         Seccion seccion = service.findSeccion(idSeccion);
         GrupoSeccion grupoSeccion = service.findGrupo(seccion.getGrupoSeccion().getId());
         EvaluacionSeccion evaluacionSeccion = service.findEvalSeccByPlanCalGrupoSec(null, grupoSeccion.getId(), null);
@@ -993,7 +993,7 @@ public class NotaAcademicaController {
             HttpSession session) throws IOException {
 
         logger.debug("docente seccion {}", idSeccion);
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         Seccion secc = service.findSeccion(idSeccion);
         Curso cur = secc.getGrupoSeccion().getCurso();
@@ -1010,7 +1010,7 @@ public class NotaAcademicaController {
             }
 
             response.reset();
-            response.setBufferSize(Constantine.DEFAULT_BUFFER_SIZE_DOWNLOAD);
+            response.setBufferSize(GlobalConstantine.DEFAULT_BUFFER_SIZE_DOWNLOAD);
             response.setContentType("application/octet-stream");
             response.setHeader("Content-Disposition", "inline; filename=\"" + nom + ".pdf\"");
 
@@ -1018,8 +1018,8 @@ public class NotaAcademicaController {
             BufferedOutputStream output = null;
 
             try {
-                input = new BufferedInputStream(new FileInputStream(filex), Constantine.DEFAULT_BUFFER_SIZE_DOWNLOAD);
-                output = new BufferedOutputStream(response.getOutputStream(), Constantine.DEFAULT_BUFFER_SIZE_DOWNLOAD);
+                input = new BufferedInputStream(new FileInputStream(filex), GlobalConstantine.DEFAULT_BUFFER_SIZE_DOWNLOAD);
+                output = new BufferedOutputStream(response.getOutputStream(), GlobalConstantine.DEFAULT_BUFFER_SIZE_DOWNLOAD);
                 IOUtils.copy(input, output);
                 response.flushBuffer();
 
@@ -1035,7 +1035,7 @@ public class NotaAcademicaController {
     public ModelAndView reporteDeActasExcel(Model model,
             @RequestParam("seccion") Long idSeccion,
             HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         Seccion secc = service.findSeccion(idSeccion);
         Curso cur = secc.getGrupoSeccion().getCurso();
@@ -1050,7 +1050,7 @@ public class NotaAcademicaController {
 
     @RequestMapping("{evaluacion}/evaluacion")
     public String evaluacion(@PathVariable("evaluacion") Long idEvaluacion, Model model, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         Evaluacion evaluacion = service.findEvaluacion(idEvaluacion);
         model.addAttribute("evaluacion", evaluacion);
@@ -1061,7 +1061,7 @@ public class NotaAcademicaController {
     public String detalleCambioNota(Model model, HttpSession session,
             @RequestParam(name = "matriculaSeccion") Long matriculaSeccionId,
             @RequestParam(name = "nsp") boolean nsp) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         CicloAcademico cicloAcademico = ds.getCicloAcademico();
 
         logger.debug("matricula seccion {}", matriculaSeccionId);
@@ -1116,7 +1116,7 @@ public class NotaAcademicaController {
     public String detalleNotasAcademicas(Model model,
             @RequestParam(name = "evaluacion", required = true) Long evaluacionId,
             HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         logger.debug("evaluacion {}", evaluacionId);
 
         return "docente/notaacademica/detalleNotasAcademicas";
@@ -1129,7 +1129,7 @@ public class NotaAcademicaController {
 
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             String message = "Expandido correctamente.";
             service.aceptarExpansion(evaluacionSeccionId, ds);
@@ -1140,7 +1140,7 @@ public class NotaAcademicaController {
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
-            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+            ExceptionHandler.handleSpecial(e, response, GlobalMessages.FK_ERROR_UPDATE);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
@@ -1156,7 +1156,7 @@ public class NotaAcademicaController {
 
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             logger.debug("Curso {}, Grupo {}", cursoId, grupoId);
             String message = "Rechazado correctamente.";
 
@@ -1169,7 +1169,7 @@ public class NotaAcademicaController {
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
-            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+            ExceptionHandler.handleSpecial(e, response, GlobalMessages.FK_ERROR_UPDATE);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
@@ -1186,7 +1186,7 @@ public class NotaAcademicaController {
 
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             logger.debug("Curso {}, Grupo {}", cursoId, grupoId);
             String message = "Aceptado correctamente.";
             GrupoSeccion grupoSeccion = service.findGrupo(grupoId);
@@ -1204,7 +1204,7 @@ public class NotaAcademicaController {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
             e.printStackTrace();
-            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+            ExceptionHandler.handleSpecial(e, response, GlobalMessages.FK_ERROR_UPDATE);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
@@ -1222,7 +1222,7 @@ public class NotaAcademicaController {
         JsonResponse response = new JsonResponse();
         response.setSuccess(false);
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             ObjectNode node = service.getDetalleEvaluacion(evaluacionId, seccionId);
 
@@ -1250,7 +1250,7 @@ public class NotaAcademicaController {
         JsonResponse response = new JsonResponse();
         logger.debug("activacion {}", activacion);
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             logger.debug("evaluacion {}, Fecha evauacion {}", evaluacionId, fechaEvaluacion);
             Evaluacion evaluacion = null;
             if (fechaEvaluacion != null) {
@@ -1288,7 +1288,7 @@ public class NotaAcademicaController {
 
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             logger.debug("evaluacion {}", evaluacionId);
 
             Evaluacion evaluacion = service.findEvaluacion(evaluacionId);
@@ -1319,7 +1319,7 @@ public class NotaAcademicaController {
         JsonResponse response = new JsonResponse();
 
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             logger.debug("Notas {}", alumnoEvaluaciones.length);
 
             Evaluacion evaluacion = new Evaluacion(alumnoEvaluaciones[0].getEvaluacion().getId());
@@ -1352,7 +1352,7 @@ public class NotaAcademicaController {
         JsonResponse response = new JsonResponse();
 
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             logger.debug("Alumno {}", reclamoNota.getAlumno().getId());
             logger.debug("Evaluacion {}", reclamoNota.getEvaluacion().getId());
             logger.debug("Motivo {}", reclamoNota.getMotivo());
@@ -1385,7 +1385,7 @@ public class NotaAcademicaController {
         JsonResponse response = new JsonResponse();
 
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             logger.debug("la evaluacion es {}", evaluacionId);
 
             ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
@@ -1422,7 +1422,7 @@ public class NotaAcademicaController {
         JsonResponse response = new JsonResponse();
 
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             service.deletePlanCalificacion(idPlanCalifica, ds);
 
             response.setMessage("Plan de Calificacion eliminado satisfactoriamente");
@@ -1446,7 +1446,7 @@ public class NotaAcademicaController {
         JsonResponse response = new JsonResponse();
 
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             service.saveAceptarExpandir(evaluacionesExpandidas);
 
@@ -1469,7 +1469,7 @@ public class NotaAcademicaController {
             HttpSession session) {
 
         JsonResponse response = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         ds.setFechaAccionAudit(new Date());
 
         String token = service.saveCerrarActa(new GrupoSeccion(gpoSeccionId), ds);
@@ -1492,7 +1492,7 @@ public class NotaAcademicaController {
             HttpSession session) {
 
         JsonResponse response = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         ds.setFechaAccionAudit(new Date());
 
         String token = service.reenviarNotas(new GrupoSeccion(gpoSeccionId), ds);
@@ -1514,7 +1514,7 @@ public class NotaAcademicaController {
             HttpSession session, Model model,
             RedirectAttributes redirectAttr) {
 
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         JsonResponse response = new JsonResponse();
         response.setSuccess(false);
         service.desvincularPlanCalificacion(new GrupoSeccion(grupoId));

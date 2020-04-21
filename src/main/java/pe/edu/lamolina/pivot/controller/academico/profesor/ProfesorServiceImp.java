@@ -57,7 +57,8 @@ import pe.edu.lamolina.pivot.dao.general.TipoDocIdentidadDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.RolDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.UsuarioDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.UsuarioRolDAO;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.model.constantines.AcademicoConstantine;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service
@@ -578,7 +579,7 @@ public class ProfesorServiceImp implements ProfesorService {
 
 //    private void saveFoto(String avatar) {
 //        String oldName = GlobalConstantine.TMP_DIR + avatar;
-//        String newName = Constantine.AVATAR_DIR + avatar;
+//        String newName = AcademicoConstantine.AVATAR_DIR + avatar;
 //        File directorio = new File(Constantine.AVATAR_DIR);
 //        if (!directorio.isDirectory()) {
 //            directorio.mkdirs();
@@ -594,7 +595,7 @@ public class ProfesorServiceImp implements ProfesorService {
     public String getRutaFoto(String foto, String sexo) {
 
         if (!StringUtils.isEmpty(foto)) {
-            return Constantine.S3_RUTA + Constantine.S3_FOLDER + foto;
+            return AcademicoConstantine.S3_URL_ACADEMICO + AcademicoConstantine.S3_FOLDER + foto;
         }
 
         if (!StringUtils.isEmpty(sexo)) {
@@ -610,10 +611,10 @@ public class ProfesorServiceImp implements ProfesorService {
     }
 
     private void uploadS3(String fileName) {
-        logger.debug("upload to s3 args   {}  {}   {}  {} {}", Constantine.S3_BUCKET, "public-unalm/profile/", GlobalConstantine.TMP_DIR, fileName, true);
+        logger.debug("upload to s3 args   {}  {}   {}  {} {}", AcademicoConstantine.S3_BUCKET_ACADEMICO, "public-unalm/profile/", GlobalConstantine.TMP_DIR, fileName, true);
         File f = new File(GlobalConstantine.TMP_DIR + fileName);
         if (f.exists() && !f.isDirectory()) {
-            swiftService.uploadFile(Constantine.S3_BUCKET, Constantine.S3_FOLDER, GlobalConstantine.TMP_DIR, fileName, true);
+            swiftService.uploadFile(AcademicoConstantine.S3_BUCKET_ACADEMICO, AcademicoConstantine.S3_FOLDER, GlobalConstantine.TMP_DIR, fileName, true);
         }
     }
 

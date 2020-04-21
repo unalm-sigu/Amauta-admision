@@ -314,7 +314,7 @@ new Vue({
                     }
                 }
             }).catch(function (error) {
-                notify(MESSAGES.errorComunicacion, "error");
+                notify(GlobalMessages.errorComunicacion, "error");
             });
 
         },
@@ -363,7 +363,7 @@ new Vue({
                 }
             }).catch(function (error) {
                 console.log(error);
-                notify(MESSAGES.errorComunicacion, "error");
+                notify(GlobalMessages.errorComunicacion, "error");
             });
         },
         activarEncuesta() {
@@ -387,7 +387,7 @@ new Vue({
                                 })
                                 .catch(function (error) {
                                     console.log(error);
-                                    notify(MESSAGES.errorComunicacion, "error");
+                                    notify(GlobalMessages.errorComunicacion, "error");
                                 });
                     }
                 }
@@ -414,7 +414,7 @@ new Vue({
                                 })
                                 .catch(function (error) {
                                     console.log(error);
-                                    notify(MESSAGES.errorComunicacion, "error");
+                                    notify(GlobalMessages.errorComunicacion, "error");
                                 });
                     }
                 }
@@ -445,7 +445,7 @@ new Vue({
                     })
                     .catch(function (error) {
                         vue.generando = false;
-                        notify(MESSAGES.errorComunicacion, "error");
+                        notify(GlobalMessages.errorComunicacion, "error");
                     });
 
         },
@@ -564,7 +564,7 @@ new Vue({
                         .catch(function (error) {
                             $vue.$refs.modalConfirmAction.confirmReaction(false);
                             console.log(error);
-                            notify(MESSAGES.errorComunicacion, "error");
+                            notify(GlobalMessages.errorComunicacion, "error");
                         });
             };
             $vue.$refs.modalConfirmAction.open();
@@ -589,7 +589,7 @@ new Vue({
 
                         }).catch(function (error) {
                             console.log(error);
-                            notify(MESSAGES.errorComunicacion, "error");
+                            notify(GlobalMessages.errorComunicacion, "error");
                         });
                     }
                 }
@@ -619,7 +619,7 @@ new Vue({
                     notify(response.data.message, 'error');
                 }
             }).catch(function (error) {
-                notify(MESSAGES.errorComunicacion, "error");
+                notify(GlobalMessages.errorComunicacion, "error");
             });
 
         },
@@ -655,7 +655,7 @@ new Vue({
                             }
                         }).catch(function (error) {
                             $vue.processingCursos = false;
-                            notify(MESSAGES.errorComunicacion, "error");
+                            notify(GlobalMessages.errorComunicacion, "error");
                         });
                     }, 1000);
 
@@ -665,7 +665,7 @@ new Vue({
 
             }).catch(function (error) {
                 $vue.$refs.modalAddCurso.confirmReaction(false);
-                notify(MESSAGES.errorComunicacion, "error");
+                notify(GlobalMessages.errorComunicacion, "error");
             });
 
             $vue.curso = null;
@@ -696,7 +696,7 @@ new Vue({
                             }
                         }).catch(function (error) {
                             $vue.processingCursos = false;
-                            notify(MESSAGES.errorComunicacion, "error");
+                            notify(GlobalMessages.errorComunicacion, "error");
                         });
                     }, 1000);
                 } else {
@@ -705,7 +705,7 @@ new Vue({
 
             }).catch(function (error) {
                 $vue.$refs.modalConfirmAction.confirmReaction(false);
-                notify(MESSAGES.errorComunicacion, "error");
+                notify(GlobalMessages.errorComunicacion, "error");
             });
         },
         removeCurso(curso) {
@@ -874,7 +874,7 @@ new Vue({
                         }
                     }).catch(function (error) {
                         $vue.$refs.modalConfirmAction.confirmReaction(false);
-                        notify(MESSAGES.errorComunicacion, "error");
+                        notify(GlobalMessages.errorComunicacion, "error");
                     });
                 };
             }
@@ -906,7 +906,7 @@ new Vue({
                 }
             }).catch(function (error) {
                 $vue.$refs.modalDesactivarEncu.confirmReaction(false);
-                notify(MESSAGES.errorComunicacion, "error");
+                notify(GlobalMessages.errorComunicacion, "error");
             });
 
         },
@@ -927,7 +927,7 @@ new Vue({
                 }
             }).catch(function (error) {
                 $vue.cfgNoProcesados.waiting = false;
-                notify(MESSAGES.errorComunicacion, "error");
+                notify(GlobalMessages.errorComunicacion, "error");
             });
         },
         changePageNoProcesados() {
@@ -976,7 +976,7 @@ new Vue({
                             }
                         }).catch(function (error) {
                             $vue.cfgNoProcesados.waiting = false;
-                            notify(MESSAGES.errorComunicacion, "error");
+                            notify(GlobalMessages.errorComunicacion, "error");
                         });
 
                     } else {
@@ -984,7 +984,7 @@ new Vue({
                     }
                 }).catch(function (error) {
                     $vue.$refs.modalConfirmAction.confirmReaction(false);
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                 });
             }
 

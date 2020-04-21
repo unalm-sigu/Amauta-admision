@@ -27,7 +27,8 @@ import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.pivot.controller.visores.RespositorVisor;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.model.constantines.AcademicoConstantine;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -71,7 +72,7 @@ public class SeccionPrioridadController {
 
         ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         return "academico/seccionprioridad/seccionprioridad";
     }
@@ -82,7 +83,7 @@ public class SeccionPrioridadController {
         JsonResponse response = new JsonResponse();
 
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             List<MatriculaSeccion> matriculaSecc = service.allMatMatriculaSeccion(codigo, seccion, ds.getCicloAcademico());
             ArrayNode arrayNode = new ArrayNode(JsonNodeFactory.instance);
             for (MatriculaSeccion matriculaSeccion : matriculaSecc) {
@@ -108,7 +109,7 @@ public class SeccionPrioridadController {
     @RequestMapping("findSeccion")
     public JsonResponse findSeccion(@RequestParam("nombre") String nombre, HttpSession session) {
         JsonResponse response = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         try {
 
             JsonNodeFactory jsonFactory = JsonNodeFactory.instance;

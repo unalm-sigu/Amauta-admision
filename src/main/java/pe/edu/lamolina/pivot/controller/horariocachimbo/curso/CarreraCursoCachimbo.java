@@ -5,7 +5,7 @@ import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CarreraCachimbos;
 import pe.edu.lamolina.model.academico.CursoCachimbos;
 import pe.edu.lamolina.model.academico.Seccion;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 
 public class CarreraCursoCachimbo {
 
@@ -51,7 +51,7 @@ public class CarreraCursoCachimbo {
         if (indice > 12) {
             indice = indice % 12;
         }
-        return Constantine.MORE_FLAT_COLOR[indice];
+        return GlobalConstantine.MORE_FLAT_COLOR[indice];
     }
 
     public CursoCachimbos getCurso() {

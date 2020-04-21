@@ -57,15 +57,13 @@ import pe.edu.lamolina.model.finanzas.DeudaAlumno;
 import pe.edu.lamolina.model.general.Parametro;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.seguridad.TokenIngresante;
-import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.pivot.controller.academico.alumno.AlumnoResumen;
 import pe.edu.lamolina.pivot.controller.academico.alumno.AlumnoService;
 import pe.edu.lamolina.pivot.controller.responserest.ResponseRestService;
 import pe.edu.lamolina.pivot.controller.seguridad.verificador.VerificadorService;
 import pe.edu.lamolina.pivot.controller.seguridad.verificador.VerificadorServiceImp;
 import pe.edu.lamolina.pivot.controller.visores.RespositorVisor;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
-import pe.edu.lamolina.pivot.zelper.constant.Messages;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -121,7 +119,7 @@ public class MatriculableController {
 
         ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         CicloAcademico cicloAcademico = service.findCicloAcademico(ds.getCicloAcademico());
         AlumnoResumen resumen = service.allResumenAlumnosByCicloRol(ds.getCicloAcademico(), null, null);
 
@@ -152,7 +150,7 @@ public class MatriculableController {
         DynatableResponse json = new DynatableResponse();
 
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             List<Carrera> carreras = new ArrayList();
             List<MatriculaResumen> matriculables = new ArrayList();
 
@@ -221,7 +219,7 @@ public class MatriculableController {
 
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             if (ds.getCicloAcademico().getTipoEnum() == TipoCicloEnum.NIV) {
                 service.generarVerano(ds.getCicloAcademico(), ds);
             } else {
@@ -246,7 +244,7 @@ public class MatriculableController {
 
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             CicloAcademico c = service.findCicloAcademico(ds.getCicloAcademico());
             response.setData(JsonHelper.createJson(c, JsonNodeFactory.instance, new String[]{
                 "*"
@@ -268,7 +266,7 @@ public class MatriculableController {
 
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             service.generarPrioridad(ds.getCicloAcademico());
             response.setMessage("Prioridad generadas correctamente");
             response.setSuccess(true);
@@ -287,7 +285,7 @@ public class MatriculableController {
 
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             service.eliminarPrioridad(ds.getCicloAcademico());
             AlumnoResumen resumen = service.allResumenAlumnosByCicloRol(ds.getCicloAcademico(), null, null);
@@ -309,7 +307,7 @@ public class MatriculableController {
 
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             service.finalizarPrioridad(ds.getCicloAcademico());
             AlumnoResumen resumen = service.allResumenAlumnosByCicloRol(ds.getCicloAcademico(), null, null);
@@ -331,7 +329,7 @@ public class MatriculableController {
 
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             service.finalizarMatriculable(ds.getCicloAcademico());
             AlumnoResumen resumen = service.allResumenAlumnosByCicloRol(ds.getCicloAcademico(), null, null);
@@ -353,7 +351,7 @@ public class MatriculableController {
 
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             service.limpiarMatriculable(ds.getCicloAcademico());
             AlumnoResumen resumen = service.allResumenAlumnosByCicloRol(ds.getCicloAcademico(), null, null);
             response.setData(JsonHelper.createJson(resumen, JsonNodeFactory.instance, new String[]{"*"}));
@@ -376,7 +374,7 @@ public class MatriculableController {
 
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             logger.debug("confTurnoAtencion {}", confTurnoAtencion);
             String message = "Rechazado correctamente.";
@@ -390,7 +388,7 @@ public class MatriculableController {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
             e.printStackTrace();
-            ExceptionHandler.handleSpecial(e, response, Messages.FK_ERROR);
+            ExceptionHandler.handleSpecial(e, response, GlobalMessages.FK_ERROR_UPDATE);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
@@ -401,7 +399,7 @@ public class MatriculableController {
     @RequestMapping("configuracionesTurno")
     public JsonResponse modalAsignarTurno(HttpSession session) {
         JsonResponse response = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         ArrayNode an = new ArrayNode(JsonNodeFactory.instance);
         try {
             List<ConfiguracionTurnosAtencion> configuracionesTurnoAtencion = service.allConfiguracionTurnoByCiclo(ds.getCicloAcademico());
@@ -425,7 +423,7 @@ public class MatriculableController {
 
     @RequestMapping("modalSubirEgresados")
     public String modalSubirEgresados(Model model, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         return "academico/matriculable/modalSubirEgresados";
     }
@@ -458,7 +456,7 @@ public class MatriculableController {
     @RequestMapping("allAlumnoByNombre")
     public JsonResponse allAlumnoByNombre(@RequestParam("nombre") String nombre, HttpSession session) {
         JsonResponse response = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         try {
 
             JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
@@ -499,7 +497,7 @@ public class MatriculableController {
     public JsonResponse saveMatriculable(@PathVariable String tipoCondicional, @RequestBody Alumno alumno, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             if (TipoCondicionalEnum.OTRO.name().equals(tipoCondicional)) {
                 alumno.setEsMatBeneficioUltCicl(Boolean.TRUE);
@@ -521,7 +519,7 @@ public class MatriculableController {
     @ResponseBody
     @RequestMapping("inhabilitar")
     public JsonResponse inhabilitar(@RequestBody MatriculaResumen matriculaResumen, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         JsonResponse response = new JsonResponse();
 
         try {
@@ -542,7 +540,7 @@ public class MatriculableController {
     @ResponseBody
     @RequestMapping("habilitar")
     public JsonResponse habilitar(@RequestBody MatriculaResumen matriculaResumen, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         JsonResponse response = new JsonResponse();
 
         try {
@@ -563,7 +561,7 @@ public class MatriculableController {
     @ResponseBody
     @RequestMapping("verificarAlumnosNmat")
     public JsonResponse verificarAlumnosNmat(HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         JsonResponse response = new JsonResponse();
 
         try {
@@ -586,7 +584,7 @@ public class MatriculableController {
     @ResponseBody
     @RequestMapping("verificarAvance")
     public JsonResponse verificarAvance(HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         JsonResponse response = new JsonResponse();
 
         try {
@@ -605,7 +603,7 @@ public class MatriculableController {
     @ResponseBody
     @RequestMapping("beneficiar")
     public JsonResponse beneficiar(@RequestBody MatriculaResumen matriculaResumen, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         JsonResponse response = new JsonResponse();
 
         try {
@@ -630,7 +628,7 @@ public class MatriculableController {
 
         try {
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             service.agregarAporteCarnet(matriculaResumen, ds);
             response.setMessage("Se actualizó satisfactoriamente.");
             response.setSuccess(true);
@@ -651,7 +649,7 @@ public class MatriculableController {
 
         try {
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             service.quitarAporteCarnet(matriculaResumen, ds);
             response.setMessage("Se actualizó satisfactoriamente.");
             response.setSuccess(true);
@@ -672,7 +670,7 @@ public class MatriculableController {
 
         try {
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             service.agregarAporteDuplicadoCarnet(matriculaResumen, ds);
             response.setMessage("Se actualizó satisfactoriamente.");
             response.setSuccess(true);
@@ -693,7 +691,7 @@ public class MatriculableController {
 
         try {
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             service.quitarAporteDuplicadoCarnet(matriculaResumen, ds);
             response.setMessage("Se actualizó satisfactoriamente.");
             response.setSuccess(true);
@@ -714,7 +712,7 @@ public class MatriculableController {
 
         try {
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             service.agregarAporteSegundaCarrera(matriculaResumen, ds);
             response.setMessage("Se actualizó satisfactoriamente.");
             response.setSuccess(true);
@@ -735,7 +733,7 @@ public class MatriculableController {
 
         try {
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             service.actualizarPrioridadCero(ds);
             response.setMessage("Se actualizó satisfactoriamente.");
@@ -861,7 +859,7 @@ public class MatriculableController {
 
     @RequestMapping("{idAlumno}/histrialPdf")
     public String goMaipi(@PathVariable("idAlumno") Long idAlumno, Model model, HttpSession session) throws InterruptedException {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         TokenIngresante token = responseRestService.createTokenForAlumno(new Alumno(idAlumno), ds);
         Parametro paramRutaMatricula = responseRestService.findParametro(ParametrosSistemasEnum.REST_INTRANET);
         JsonResponse jsonResponse = responseRestService.downloadHistorial(new Alumno(idAlumno), ds.getCicloAcademico(), paramRutaMatricula, ds, token);
@@ -873,7 +871,7 @@ public class MatriculableController {
     @RequestMapping("aptosPregrado")
     public ModelAndView aptosPregrado(@RequestParam("tipoReporte") String tipoReporte, Model model, HttpSession session) {
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             List<AptoPreBean> listAptoPreBean = service.allAptosPregrado(ds.getCicloAcademico(), tipoReporte);
             model.addAttribute("listAptoPreBean", listAptoPreBean);
             model.addAttribute("tipoReporte", tipoReporte);
@@ -895,7 +893,7 @@ public class MatriculableController {
         JsonResponse json = new JsonResponse();
 
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             CicloAcademico ciclo = ds.getCicloAcademico();
             service.revisarPrioridad(ciclo, ds);
             json.setSuccess(Boolean.TRUE);

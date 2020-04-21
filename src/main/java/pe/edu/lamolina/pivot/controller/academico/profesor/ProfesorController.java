@@ -61,7 +61,8 @@ import pe.edu.lamolina.pivot.controller.academico.profesor.view.ProfesoresPDF;
 import pe.edu.lamolina.pivot.controller.academico.visitante.AlumnoHelper;
 import pe.edu.lamolina.pivot.controller.docente.notasacademicas.NotaAcademicaService;
 import pe.edu.lamolina.pivot.controller.seguridad.verificador.VerificadorService;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.model.constantines.AcademicoConstantine;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -113,7 +114,7 @@ public class ProfesorController {
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session, HttpServletRequest request) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         List<DepartamentoAcademico> departamentos = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.DPTO, request, ds);
         List<Facultad> facultades = departamentos.stream().map(x -> x.getFacultad()).distinct().collect(Collectors.toList());
 
@@ -135,7 +136,7 @@ public class ProfesorController {
     public DynatableResponse allDocente(DynatableFilter filter, HttpSession session, HttpServletRequest request) {
 
         DynatableResponse json = new DynatableResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         try {
 
@@ -205,7 +206,7 @@ public class ProfesorController {
     @RequestMapping("nuevo")
     public String nuevo(Model model, HttpSession session) {
 
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         Compania compania = ds.getCompania();
 
         Docente docente = new Docente();
@@ -221,7 +222,7 @@ public class ProfesorController {
     @RequestMapping("{docente}/update")
     public String update(@PathVariable("docente") Long idDocente, Model model, HttpSession session) {
 
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         Compania compania = ds.getCompania();
 
         Docente docente = service.find(new Docente(idDocente));
@@ -242,7 +243,7 @@ public class ProfesorController {
         ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
 
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             if (docente.getId() == null) {
                 service.save(docente, ds);
@@ -296,7 +297,7 @@ public class ProfesorController {
         ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
         try {
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             Persona persona = service.findPersonaByDocIdentidad(docente.getPersona());
             Compania compania = ds.getCompania();
 
@@ -465,7 +466,7 @@ public class ProfesorController {
     @RequestMapping("{idDocente}/cargaacademica")
     public String index(@PathVariable("idDocente") Long idDocente, Model model, HttpSession session) {
 
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         Docente docente = service.find(new Docente(idDocente));
 
@@ -482,7 +483,7 @@ public class ProfesorController {
     public DynatableResponse list(@PathVariable("idDocente") Long idDocente, DynatableFilter filter, HttpSession session) {
 
         DynatableResponse json = new DynatableResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         Docente docente = service.find(new Docente(idDocente));
 
@@ -529,7 +530,7 @@ public class ProfesorController {
     public ModelAndView reporteEntregaMateriales(@RequestParam(value = "facultad", required = false) Long facultadId,
             Model model, HttpSession session, HttpServletResponse response, HttpServletRequest request) throws Exception {
         logger.debug("facultad " + facultadId);
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         List<DepartamentoAcademico> departamentos = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.DPTO, request, ds);
 

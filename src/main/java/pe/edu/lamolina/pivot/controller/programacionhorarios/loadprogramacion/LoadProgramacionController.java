@@ -27,7 +27,8 @@ import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.pivot.controller.academico.plancalificacurso.PlanCalificaCursoService;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.model.constantines.AcademicoConstantine;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -73,7 +74,7 @@ public class LoadProgramacionController {
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         model.addAttribute("ciclo", ds.getCicloAcademico());
         model.addAttribute("visor", visor);
         return "academico/loadprogramacion/loadProgramacion";
@@ -81,7 +82,7 @@ public class LoadProgramacionController {
 
     @RequestMapping(value = "alumnos", method = RequestMethod.GET)
     public String indexAlumno(Model model, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         model.addAttribute("ciclo", ds.getCicloAcademico());
         model.addAttribute("visor", visor);
         return "academico/loadprogramacion/loadProgramacionAlumnos";
@@ -89,7 +90,7 @@ public class LoadProgramacionController {
 
     @RequestMapping("colgados")
     public String colgados(Model model, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         model.addAttribute("ciclo", ds.getCicloAcademico());
         model.addAttribute("alumnos", visor.getAlumnos());
         return "academico/loadprogramacion/colgados";
@@ -101,7 +102,7 @@ public class LoadProgramacionController {
         JsonResponse json = new JsonResponse();
 
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             Map<String, String> rutas = service.loadArchivosHorario(files);
             service.inicioProcesarArchivos(rutas, ds.getCicloAcademico(), ds);
 
@@ -124,7 +125,7 @@ public class LoadProgramacionController {
         JsonResponse json = new JsonResponse();
 
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             Map<String, String> rutas = service.loadArchivosAlumnos(file);
             service.inicioProcesarArchivoAlumno(rutas, ds.getCicloAcademico(), ds);
 
@@ -147,7 +148,7 @@ public class LoadProgramacionController {
         JsonResponse json = new JsonResponse();
 
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             evaluacionExpandidaService.analizarLogCarga();
 
             json.setSuccess(true);
@@ -170,7 +171,7 @@ public class LoadProgramacionController {
         JsonResponse json = new JsonResponse();
 
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             evaluacionExpandidaService.recalcularNivel(ds.getCicloAcademico(), ds);
 
             json.setSuccess(true);
@@ -193,7 +194,7 @@ public class LoadProgramacionController {
         JsonResponse json = new JsonResponse();
 
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             planCalificaCursoService.reasignarPlanDocenteCurso(ds.getCicloAcademico(), ds);
 
             json.setSuccess(true);
@@ -216,7 +217,7 @@ public class LoadProgramacionController {
         JsonResponse json = new JsonResponse();
 
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
             List<String> logs = visor.reporte();

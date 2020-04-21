@@ -14,7 +14,8 @@ import pe.edu.lamolina.pivot.controller.programacionhorarios.gposeccion.reporte.
 import pe.edu.lamolina.pivot.controller.reporte.view.HorarioAlumnoCicloPDF;
 import pe.edu.lamolina.pivot.zelper.pdf.PdfService;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.model.constantines.AcademicoConstantine;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 
 @Controller
 @RequestMapping("reporte")
@@ -39,7 +40,7 @@ public class ReporteController {
 //            Model model,
 //            HttpSession session) throws IOException {
 //
-//        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+//        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 //
 //        CicloAcademico ciclo = ds.getCicloAcademico();
 //        List<String> lstPdfFiles = pdfService.reporteProgramacion(ciclo);
@@ -78,7 +79,7 @@ public class ReporteController {
 
     @RequestMapping("programacionHorarios")
     public ModelAndView generatorpdf(Model model, HttpSession session, HttpServletResponse response) throws Exception {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         CicloAcademico ciclo = ds.getCicloAcademico();
 
@@ -88,7 +89,7 @@ public class ReporteController {
 
     @RequestMapping("programacionHorarioAlumno")
     public ModelAndView programacionHorarioAlumno(Model model, HttpSession session, HttpServletResponse response) throws Exception {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         CicloAcademico ciclo = ds.getCicloAcademico();
 
         model.addAttribute("cicloAcademico", ciclo);

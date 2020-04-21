@@ -40,8 +40,8 @@ import pe.edu.lamolina.model.enums.CondicionInventarioEnum;
 import pe.edu.lamolina.model.enums.TipoArticuloEnum;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.seguridad.Usuario;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
-import pe.edu.lamolina.pivot.zelper.constant.Messages;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
+import pe.edu.lamolina.model.constantines.GlobalMessages;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -197,7 +197,7 @@ public class InventarioAulaController {
     public JsonResponse save(Inventario inventario, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             Usuario user = ds.getUsuario();
             if (inventario.getId() == null) {
                 service.save(inventario, user);
@@ -282,7 +282,7 @@ public class InventarioAulaController {
     public JsonResponse saveProducto(Producto producto, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             if (producto.getId() == null) {
                 Usuario user = ds.getUsuario();
                 service.saveProducto(producto, user);
@@ -307,7 +307,7 @@ public class InventarioAulaController {
     public JsonResponse updateInventarioCode(@RequestBody List<Inventario> inventarios, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             Usuario user = ds.getUsuario();
             service.updateInventarioCode(inventarios, user);
             response.setMessage(GlobalMessages.UPDATED);

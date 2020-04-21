@@ -30,7 +30,8 @@ import static pe.edu.lamolina.model.enums.PermisoProgramacionNivelEnum.GPOSECC;
 import static pe.edu.lamolina.model.enums.PermisoProgramacionNivelEnum.SECCION;
 import pe.edu.lamolina.model.permisoprogramacion.PermisoProgramacion;
 import pe.edu.lamolina.model.permisoprogramacion.PermisosProgramacionHorarios;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.model.constantines.AcademicoConstantine;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -43,7 +44,7 @@ public class PermisoProgramacionController {
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
 
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         CicloAcademico cicloAcademico = ds.getCicloAcademico();
         List<PermisoProgramacion> programacions = service.allPermisosPrograma();
         Map<String, List<PermisoProgramacion>> map = TypesUtil.convertListToMapList("nivel", programacions);
@@ -111,7 +112,7 @@ public class PermisoProgramacionController {
 
         try {
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             Map<Long, String> mapFichados = new LinkedHashMap();
 
             List<ColaboradorAnexoBean> colaboradorAnexoBeans = service.allPermisos(filter);
@@ -211,7 +212,7 @@ public class PermisoProgramacionController {
         JsonResponse response = new JsonResponse();
         response.setSuccess(Boolean.FALSE);
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             service.save(colaboradorAnexo, ds);
 
             response.setMessage("Se registró satisfactoriamente");
@@ -231,7 +232,7 @@ public class PermisoProgramacionController {
         JsonResponse response = new JsonResponse();
         response.setSuccess(Boolean.FALSE);
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             service.savepermiso(colaboradorAnexo, ds);
 
             response.setMessage("Se registró satisfactoriamente");
@@ -251,7 +252,7 @@ public class PermisoProgramacionController {
         JsonResponse response = new JsonResponse();
         response.setSuccess(Boolean.FALSE);
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             service.update(colaboradorAnexo, ds);
 
             response.setMessage("Se actualizó satisfactoriamente");
@@ -271,7 +272,7 @@ public class PermisoProgramacionController {
         JsonResponse response = new JsonResponse();
         response.setSuccess(Boolean.FALSE);
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             service.updatepermiso(colaboradorAnexo, ds);
 
             response.setMessage("Se actualizó satisfactoriamente");

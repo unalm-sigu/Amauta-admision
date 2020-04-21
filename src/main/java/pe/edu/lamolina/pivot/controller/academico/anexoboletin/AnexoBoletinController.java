@@ -31,9 +31,10 @@ import pe.edu.lamolina.model.academico.AnexoBoletin;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
+import pe.edu.lamolina.model.constantines.AcademicoConstantine;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.pivot.controller.seguridad.verificador.VerificadorService;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -73,7 +74,7 @@ public class AnexoBoletinController {
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         List<AnexoBoletin> anexosSup = service.allAnexosSuperiores();
         List<DepartamentoAcademico> departamentos = service.allDepartamentosAcademicos();
         List<Carrera> carreras = service.allCarrerasPosgrado();
@@ -98,7 +99,7 @@ public class AnexoBoletinController {
     public DynatableResponse allByDynatable(DynatableFilter filter, HttpSession session) {
         DynatableResponse json = new DynatableResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             CicloAcademico ciclo = findCicloAnexo(ds, session);
 
             List<AnexoBoletin> anexos = service.allByDynatable(filter, ciclo);
@@ -132,7 +133,7 @@ public class AnexoBoletinController {
 
     @RequestMapping("nuevo")
     public String nuevo(Model model, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         AnexoBoletin anexo = new AnexoBoletin();
 
         model.addAttribute("anexo", anexo);
@@ -145,7 +146,7 @@ public class AnexoBoletinController {
     public JsonResponse save(@RequestBody AnexoBoletin anexo, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             service.save(anexo, ds.getUsuario());
             response.setMessage("Se guardo el anexo satisfactoriamente");
             response.setSuccess(true);
@@ -243,7 +244,7 @@ public class AnexoBoletinController {
         try {
 
             CicloAcademico cicloBD = service.findCiclo(ciclo);
-            session.setAttribute(Constantine.CICLO_ANEXO_BOLETIN, cicloBD);
+            session.setAttribute(AcademicoConstantine.CICLO_ANEXO_BOLETIN, cicloBD);
 
             response.setMessage("Se cambio de ciclo satisfactoriamente");
             response.setSuccess(true);
@@ -257,10 +258,10 @@ public class AnexoBoletinController {
     }
 
     private CicloAcademico findCicloAnexo(DataSessionPivot ds, HttpSession session) {
-        CicloAcademico ciclo = (CicloAcademico) session.getAttribute(Constantine.CICLO_ANEXO_BOLETIN);
+        CicloAcademico ciclo = (CicloAcademico) session.getAttribute(AcademicoConstantine.CICLO_ANEXO_BOLETIN);
         if (ciclo == null) {
             ciclo = ds.getCicloAcademico();
-            session.setAttribute(Constantine.CICLO_ANEXO_BOLETIN, ciclo);
+            session.setAttribute(AcademicoConstantine.CICLO_ANEXO_BOLETIN, ciclo);
         }
         return ciclo;
     }

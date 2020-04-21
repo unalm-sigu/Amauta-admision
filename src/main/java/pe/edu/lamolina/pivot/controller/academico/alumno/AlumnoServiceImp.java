@@ -97,7 +97,8 @@ import pe.edu.lamolina.pivot.dao.seguridad.SistemaDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.UsuarioDAO;
 import pe.edu.lamolina.pivot.dao.seguridad.UsuarioRolDAO;
 import pe.edu.lamolina.pivot.dao.tramite.TramiteTrasladoDAO;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.model.constantines.AcademicoConstantine;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.pivot.zelper.mail.MailerService;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
@@ -422,7 +423,7 @@ public class AlumnoServiceImp implements AlumnoService {
         if (personaForm.getNumeroDocIdentidad() == null) {
             throw new PhobosException("Debe indicar el número del documento de identidad");
         }
-        if (personaForm.getNumeroDocIdentidad().equals(Constantine.CODE_POSTULANTE_DUMMY)) {
+        if (personaForm.getNumeroDocIdentidad().equals(AcademicoConstantine.CODE_POSTULANTE_DUMMY)) {
             throw new PhobosException("Este número de documento de identidad no está permitido");
         }
 
@@ -634,7 +635,7 @@ public class AlumnoServiceImp implements AlumnoService {
     @Override
     @Transactional
     public void updateAlumnoEspecial(Alumno alumno, Usuario usuarioRegistra) {
-        Carrera carrera = carreraDAO.findByCodigo(Constantine.COD_CARRERA_ALUMNO_ESPECIAL);
+        Carrera carrera = carreraDAO.findByCodigo(AcademicoConstantine.COD_CARRERA_ALUMNO_ESPECIAL);
         ModalidadEstudio modalidadEstudio = modalidadEstudioDAO.findByCodigo(ModalidadEstudioEnum.ESP);
         alumno.setCarrera(carrera);
         alumno.setModalidadEstudio(modalidadEstudio);
@@ -644,7 +645,7 @@ public class AlumnoServiceImp implements AlumnoService {
     @Override
     @Transactional
     public void saveAlumnoEspecial(Alumno alumno, Usuario usuarioRegistra) {
-        Carrera carrera = carreraDAO.findByCodigo(Constantine.COD_CARRERA_ALUMNO_ESPECIAL);
+        Carrera carrera = carreraDAO.findByCodigo(AcademicoConstantine.COD_CARRERA_ALUMNO_ESPECIAL);
         ModalidadEstudio modalidadEstudio = modalidadEstudioDAO.findByCodigo(ModalidadEstudioEnum.ESP);
         alumno.setCarrera(carrera);
         alumno.setModalidadEstudio(modalidadEstudio);
@@ -1016,8 +1017,8 @@ public class AlumnoServiceImp implements AlumnoService {
         File file = new File(GlobalConstantine.TMP_DIR + nombreArchivo);
         logger.debug("el archivo {} existe {} ", (GlobalConstantine.TMP_DIR + nombreArchivo), (file.exists()));
         Assert.isTrue(file.exists(), "No existe el archivo en el servidor");
-        uploadFileS3.uploadSync(Constantine.S3_DIR_FOTO_CARNET, GlobalConstantine.TMP_DIR, nombreArchivo, true);
-        String path = uploadFileS3.getPathFile(Constantine.S3_DIR_FOTO_CARNET, nombreArchivo);
+        uploadFileS3.uploadSync(AcademicoConstantine.S3_DIR_FOTO_CARNET, GlobalConstantine.TMP_DIR, nombreArchivo, true);
+        String path = uploadFileS3.getPathFile(AcademicoConstantine.S3_DIR_FOTO_CARNET, nombreArchivo);
         alumnoBD.getPersona().setFoto(path);
         personaDAO.update(alumnoBD.getPersona());
 

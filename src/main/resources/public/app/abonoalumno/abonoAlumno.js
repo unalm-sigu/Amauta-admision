@@ -41,7 +41,7 @@ new Vue({
                             console.log(response.data.data);
                             $vue.extornos = response.data.data;
                         } else {
-                            notify(MESSAGES.errorComunicacion, 'error');
+                            notify(GlobalMessages.errorComunicacion, 'error');
                         }
                     });
         },

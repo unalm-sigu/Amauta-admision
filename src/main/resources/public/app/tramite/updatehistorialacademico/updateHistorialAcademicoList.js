@@ -56,7 +56,7 @@ new Vue({
                                     notify(response.message, 'error');
                                 }
                             }, error: function () {
-                                notify(MESSAGES.errorComunicacion, "error");
+                                notify(GlobalMessages.errorComunicacion, "error");
                             }
                         });
                     }
@@ -86,7 +86,7 @@ new Vue({
                                     notify(response.message, 'error');
                                 }
                             }, error: function () {
-                                notify(MESSAGES.errorComunicacion, "error");
+                                notify(GlobalMessages.errorComunicacion, "error");
                             }
                         });
                     }
@@ -114,7 +114,7 @@ new Vue({
                     self.find('i').removeClass('fa-spinner fa-spin').addClass('fa-print');
                     self.removeProp("disabled");
                 }, 2000);
-                notify(MESSAGES.errorComunicacion, "error");
+                notify(GlobalMessages.errorComunicacion, "error");
             });
 
         },
@@ -176,7 +176,7 @@ new Vue({
                         notify(response.message, 'error');
                     }
                 }, error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                 }
             });
         },
@@ -204,7 +204,7 @@ new Vue({
                     $global.$emit('MODAL-WAIT-CLOSE', 'Cargando');
                 }, error: function () {
                     $global.$emit('MODAL-WAIT-CLOSE', 'Cargando');
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                 }
             });
 

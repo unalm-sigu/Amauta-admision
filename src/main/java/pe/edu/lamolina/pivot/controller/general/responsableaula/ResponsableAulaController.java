@@ -35,7 +35,8 @@ import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.general.ResponsableAula;
 import pe.edu.lamolina.model.general.TurnoAtencionAula;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.model.constantines.AcademicoConstantine;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -75,7 +76,7 @@ public class ResponsableAulaController {
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         CicloAcademico ciclo = ds.getCicloAcademico();
         model.addAttribute("ciclo", ciclo);
 
@@ -110,7 +111,7 @@ public class ResponsableAulaController {
     public DynatableResponse list(DynatableFilter filter, HttpSession session) {
         DynatableResponse json = new DynatableResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             List<ResponsableAula> responsables = service.allResponsablesByRaptor(filter, ds.getCicloAcademico());
             JsonNodeFactory jFactory = JsonNodeFactory.instance;
@@ -174,7 +175,7 @@ public class ResponsableAulaController {
             JsonNodeFactory jFactory = JsonNodeFactory.instance;
 
             ArrayNode jsonList = new ArrayNode(jFactory);
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
             List<Persona> personas = service.allPersonasByName(nombre);
@@ -216,7 +217,7 @@ public class ResponsableAulaController {
             JsonNodeFactory jFactory = JsonNodeFactory.instance;
 
             ArrayNode jsonList = new ArrayNode(jFactory);
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             List<Aula> aulas = service.allAulasByName(nombre);
 
@@ -249,7 +250,7 @@ public class ResponsableAulaController {
         try {
             JsonNodeFactory jFactory = JsonNodeFactory.instance;
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             List<TurnoAtencionAula> turnosAtencionAulas = service.allTurnoAtenconAula();
             turnosAtencionAulas.forEach(x -> x.setAulas(new ArrayList<>()));
@@ -290,7 +291,7 @@ public class ResponsableAulaController {
         try {
 
             JsonNodeFactory jFactory = JsonNodeFactory.instance;
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             ds.setFechaAccionAudit(new Date());
             service.saveResponsableAula(responsableAula, ds);
             response.setSuccess(true);
@@ -312,7 +313,7 @@ public class ResponsableAulaController {
         try {
 
             JsonNodeFactory jFactory = JsonNodeFactory.instance;
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             ds.setFechaAccionAudit(new Date());
             responsableAula = service.findResponsableAula(responsableAula, ds);
 

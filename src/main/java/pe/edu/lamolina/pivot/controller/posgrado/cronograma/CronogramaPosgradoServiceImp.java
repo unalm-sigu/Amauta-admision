@@ -12,10 +12,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.constantines.GlobalMessages;
 import pe.edu.lamolina.model.posgrado.CronogramaCuota;
 import pe.edu.lamolina.pivot.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.pivot.dao.posgrado.CronogramaCuotaDAO;
-import pe.edu.lamolina.pivot.zelper.constant.Messages;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Service
@@ -40,13 +40,13 @@ public class CronogramaPosgradoServiceImp implements CronogramaPosgradoService {
     public void generar(CronogramaCuota cronograma, DataSessionPivot ds) {
 
         if (cronograma.getCicloAcademico().getId() == null) {
-            throw new PhobosException(Messages.FORBIDEN);
+            throw new PhobosException(GlobalMessages.FORBIDEN);
         }
 
         CicloAcademico cicloSession = ds.getCicloAcademico();
 
         if (cronograma.getCicloAcademico().getId() != cicloSession.getId().longValue()) {
-            throw new PhobosException(Messages.FORBIDEN);
+            throw new PhobosException(GlobalMessages.FORBIDEN);
         }
 
         CicloAcademico ciclo = cicloAcademicoDAO.find(cronograma.getCicloAcademico().getId());
@@ -99,13 +99,13 @@ public class CronogramaPosgradoServiceImp implements CronogramaPosgradoService {
     public void deleteAll(CicloAcademico ciclo, DataSessionPivot ds) {
 
         if (ciclo.getId() == null) {
-            throw new PhobosException(Messages.FORBIDEN);
+            throw new PhobosException(GlobalMessages.FORBIDEN);
         }
 
         CicloAcademico cicloSession = ds.getCicloAcademico();
 
         if (ciclo.getId() != cicloSession.getId().longValue()) {
-            throw new PhobosException(Messages.FORBIDEN);
+            throw new PhobosException(GlobalMessages.FORBIDEN);
         }
 
         cronogramaCuotaDAO.deleteAllByCiclo(ciclo);
@@ -118,13 +118,13 @@ public class CronogramaPosgradoServiceImp implements CronogramaPosgradoService {
         CronogramaCuota cronograma = cronogramaCuotaDAO.find(cronogramaForm);
 
         if (cronograma.getCicloAcademico().getId() == null) {
-            throw new PhobosException(Messages.FORBIDEN);
+            throw new PhobosException(GlobalMessages.FORBIDEN);
         }
 
         CicloAcademico cicloSession = ds.getCicloAcademico();
 
         if (cronograma.getCicloAcademico().getId() != cicloSession.getId().longValue()) {
-            throw new PhobosException(Messages.FORBIDEN);
+            throw new PhobosException(GlobalMessages.FORBIDEN);
         }
 
         cronograma.setFechaEmision(cronogramaForm.getFechaEmision());

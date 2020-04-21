@@ -35,7 +35,8 @@ import pe.edu.lamolina.model.tramite.TipoDocumentoAcademico;
 import pe.edu.lamolina.model.tramite.VariableGenerica;
 import pe.edu.lamolina.model.tramite.VariablePlantilla;
 import pe.edu.lamolina.pivot.controller.tramite.tipoConstancia.TipoConstanciaService;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.model.constantines.AcademicoConstantine;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.pivot.zelper.pdf.pdfHtml.PdfHtmlView;
 
@@ -127,7 +128,7 @@ public class PlantillaConstanciaController {
 
             JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
             response.setSuccess(false);
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             PlantillaDocumentoAcademico psa = service.updateContenido(documentoAcademico, ds.getUsuario());
 
             ObjectNode jPlantillaDocumentoAcademico = JsonHelper.createJson(psa, jsonFactory, true, new String[]{
@@ -152,7 +153,7 @@ public class PlantillaConstanciaController {
     @RequestMapping("update")
     public JsonResponse update(@RequestBody PlantillaDocumentoAcademico plantillaDocumentoAcademico, HttpSession session) {
         JsonResponse response = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         response.setSuccess(false);
         try {
 
@@ -172,7 +173,7 @@ public class PlantillaConstanciaController {
     @RequestMapping("updateVariable")
     public JsonResponse updateVariable(@RequestBody VariablePlantilla variablePlantilla, HttpSession session) {
         JsonResponse response = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         response.setSuccess(false);
         try {
             if (variablePlantilla.getId() != null) {
@@ -193,7 +194,7 @@ public class PlantillaConstanciaController {
     @RequestMapping("saveVariable")
     public JsonResponse saveVariable(@RequestBody VariablePlantilla variablePlantilla, HttpSession session) {
         JsonResponse response = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         response.setSuccess(false);
         try {
             service.saveVariable(variablePlantilla, ds.getUsuario());
@@ -212,7 +213,7 @@ public class PlantillaConstanciaController {
     @RequestMapping("{idPlantilla}/allVariable")
     public JsonResponse allVariable(@PathVariable("idPlantilla") Long idPlantilla, HttpSession session) {
         JsonResponse response = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         response.setSuccess(false);
         try {
             List<VariablePlantilla> variablePlantilla = service.allVariablePlantilla(new PlantillaDocumentoAcademico(idPlantilla));
@@ -238,7 +239,7 @@ public class PlantillaConstanciaController {
     @RequestMapping("{idVariablePlantilla}/deleteVariable")
     public JsonResponse delete(@PathVariable("idVariablePlantilla") Integer idVariablePlantilla, HttpSession session) {
         JsonResponse response = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         response.setSuccess(false);
         try {
             service.deleteVariable(idVariablePlantilla);
@@ -258,7 +259,7 @@ public class PlantillaConstanciaController {
     @RequestMapping("save")
     public JsonResponse save(@RequestBody PlantillaDocumentoAcademico plantillaDocumentoAcademico, HttpSession session) {
         JsonResponse response = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         try {
             service.save(plantillaDocumentoAcademico, ds.getUsuario());
             response.setMessage("Se guardó");
@@ -275,7 +276,7 @@ public class PlantillaConstanciaController {
     @RequestMapping("delete")
     public JsonResponse delete(@RequestBody PlantillaDocumentoAcademico plantillaDocumentoAcademico, HttpSession session) {
         JsonResponse response = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         try {
             service.deleteVariables(plantillaDocumentoAcademico, ds.getUsuario());
 //            service.deletePlantilla(plantillaDocumentoAcademico, ds.getUsuario());
@@ -294,7 +295,7 @@ public class PlantillaConstanciaController {
     @RequestMapping("list")
     public DynatableResponse all(DynatableFilter filter, HttpSession session) {
         DynatableResponse json = new DynatableResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         try {
             List<PlantillaDocumentoAcademico> list = service.all(filter);
             json.setData(new PlantillaDocumentoAcademico().toArrayJson(list));
@@ -311,7 +312,7 @@ public class PlantillaConstanciaController {
     @RequestMapping("{id}/find")
     public JsonResponse find(@PathVariable("id") Long id, HttpSession session) {
         JsonResponse response = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         try {
             PlantillaDocumentoAcademico documentoAcademico = service.find(new PlantillaDocumentoAcademico(id));
             response.setData(documentoAcademico);

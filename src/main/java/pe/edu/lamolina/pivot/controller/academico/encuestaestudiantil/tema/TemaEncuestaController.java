@@ -27,7 +27,8 @@ import pe.edu.lamolina.model.examen.BloquePreguntas;
 import pe.edu.lamolina.model.examen.ExamenVirtual;
 import pe.edu.lamolina.model.examen.SubTituloExamen;
 import pe.edu.lamolina.model.examen.TemaExamenVirtual;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.model.constantines.AcademicoConstantine;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -44,7 +45,7 @@ public class TemaEncuestaController {
 
     @RequestMapping(method = RequestMethod.GET, path = "{encuesta}")
     public String index(Model model, @PathVariable("encuesta") Long idEncuesta, HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         CicloAcademico cicloAcademico = ds.getCicloAcademico();
         ExamenVirtual encuesta = service.findEncuesta(idEncuesta);
         model.addAttribute("encuesta", encuesta);

@@ -32,7 +32,8 @@ import pe.edu.lamolina.model.medico.HistoriaLaboratorio;
 import pe.edu.lamolina.pivot.controller.reporte.view.AtendidosMuestraLabView;
 import pe.edu.lamolina.pivot.controller.reporte.view.IngresanteMuestraLabView;
 import pe.edu.lamolina.pivot.controller.reporte.view.IngresanteTurnoMuestraLabView;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
+import pe.edu.lamolina.model.constantines.AcademicoConstantine;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
 
 @Controller
@@ -57,7 +58,7 @@ public class MuestrasLabController {
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
 
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         ObjectNode jsonLab = new ObjectNode(JsonNodeFactory.instance);
         jsonLab.put("numero", visorMuestrasLab.getNumeroLab());
@@ -73,7 +74,7 @@ public class MuestrasLabController {
         DynatableResponse json = new DynatableResponse();
         try {
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             CicloAcademico ciclo = service.findCicloActivoAdmision();
 
             List<RecorridoIngresante> recorridos = service.allRecorridosByDynatable(filter, ciclo, ds);
@@ -96,7 +97,7 @@ public class MuestrasLabController {
         DynatableResponse json = new DynatableResponse();
         try {
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             TurnoEntrevistaObuae turno = new TurnoEntrevistaObuae(idTurno);
             CicloAcademico ciclo = service.findCicloActivoAdmision();
 
@@ -120,7 +121,7 @@ public class MuestrasLabController {
         DynatableResponse json = new DynatableResponse();
         try {
 
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             TurnoEntrevistaObuae turno = service.findTurno(idTurno);
             CicloAcademico ciclo = service.findCicloActivoAdmision();
 
@@ -163,7 +164,7 @@ public class MuestrasLabController {
 
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             service.saveLaboratorio(laboratorio, ds);
             ObjectNode json = JsonHelper.createJson(laboratorio, JsonNodeFactory.instance, new String[]{"*"});
 
@@ -183,7 +184,7 @@ public class MuestrasLabController {
     public JsonResponse borrarLaboratorio(@RequestBody HistoriaLaboratorio laboratorio, HttpSession session) {
 
         JsonResponse response = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         try {
 
             service.deleteLaboratorio(laboratorio);
@@ -203,7 +204,7 @@ public class MuestrasLabController {
     @RequestMapping("listaExcel")
     public ModelAndView listaExcel(Model model, HttpSession session) {
 
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         CicloAcademico ciclo = service.findCicloActivoAdmision();
         List<RecorridoIngresante> ingresantes = service.allIngresantesConTurno(ciclo);
 
@@ -219,7 +220,7 @@ public class MuestrasLabController {
     @RequestMapping("listaExcelTurno")
     public ModelAndView listaExcelTurno(@RequestParam("turno") Long idTurno, Model model, HttpSession session) {
 
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         TurnoEntrevistaObuae turno = service.findTurno(idTurno);
         CicloAcademico ciclo = service.findCicloActivoAdmision();
         List<RecorridoIngresante> ingresantes = service.allIngresantesConTurno(turno, ciclo);
@@ -237,7 +238,7 @@ public class MuestrasLabController {
     @RequestMapping("listaExcelAtendidos")
     public ModelAndView listaExcelAtendidos(@RequestParam("turno") Long idTurno, Model model, HttpSession session) {
 
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         TurnoEntrevistaObuae turno = service.findTurno(idTurno);
         CicloAcademico ciclo = service.findCicloActivoAdmision();
         List<RecorridoIngresante> ingresantes = service.allAtendidos(turno, ciclo);

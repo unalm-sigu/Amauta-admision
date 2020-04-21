@@ -86,7 +86,7 @@ var app = new Vue({
                             error: function (response) {
                                 MODAL.hideWait();
                                 $vue.$refs.modalReunionConsejo.close();
-                                notify(MESSAGES.errorComunicacion, "error");
+                                notify(GlobalMessages.errorComunicacion, "error");
                             }
                         });
 
@@ -141,7 +141,7 @@ var app = new Vue({
                         notify(response.message, 'error');
                     }
                 }, error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
+                    notify(GlobalMessages.errorComunicacion, "error");
                 }
             });
         }

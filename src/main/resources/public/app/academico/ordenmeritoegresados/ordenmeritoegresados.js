@@ -129,7 +129,7 @@ new Vue({
                 $vue.processreporte = false;
             }).catch(error => {
                 $vue.processreporte = false;
-                notify(MESSAGES.errorComunicacion, "error");
+                notify(GlobalMessages.errorComunicacion, "error");
             });
         }
     }

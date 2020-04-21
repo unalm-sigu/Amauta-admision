@@ -35,8 +35,8 @@ import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.ControlOrdenMerito;
 import pe.edu.lamolina.model.academico.Facultad;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.pivot.controller.general.view.HeaderReportePdf;
-import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 import pe.edu.lamolina.pivot.zelper.misc.Acumulador;
 import pe.edu.lamolina.pivot.zelper.pdf.AbstractOnlyPdfView;
 
@@ -94,7 +94,7 @@ public class ReportePdfOrdenMeritoEspecialidad extends AbstractOnlyPdfView {
         tablePdf.setSpacingBefore(0);
         tablePdf.setPaddingTop(0);
 
-        Image img = Image.getInstance(this.getClass().getResource(Constantine.LOGOUNALM));
+        Image img = Image.getInstance(this.getClass().getResource(GlobalConstantine.PDF_LOGO_UNALM));
         img.scalePercent(50F);
         cell = new PdfPCell(img);
         cell.setHorizontalAlignment(PdfPCell.ALIGN_CENTER);
