@@ -119,7 +119,7 @@ public class CronogramaPosgradoController {
             service.generar(cronograma,ds);
             
             response.setSuccess(true);
-            response.setMessage(Messages.CREATED);
+            response.setMessage(GlobalMessages.CREATED);
 
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
@@ -140,7 +140,7 @@ public class CronogramaPosgradoController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             service.deleteAll(ciclo,ds);
             
-            response.setMessage(Messages.DELETED);
+            response.setMessage(GlobalMessages.DELETED);
             response.setSuccess(true);
 
         } catch (PhobosException e) {
@@ -162,7 +162,7 @@ public class CronogramaPosgradoController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             service.update(cronograma,ds);
             
-            response.setMessage(Messages.UPDATED);
+            response.setMessage(GlobalMessages.UPDATED);
             response.setSuccess(true);
 
         } catch (PhobosException e) {

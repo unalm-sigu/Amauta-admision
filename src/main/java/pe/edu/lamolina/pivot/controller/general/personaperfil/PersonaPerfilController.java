@@ -163,11 +163,11 @@ public class PersonaPerfilController {
         if (personaPerfil.getId() == null) {
             perfilService.save(personaPerfil, ds.getUsuario());
 
-            Notificaciones.crearMsg(Messages.CREATED, redirectAttr);
+            Notificaciones.crearMsg(GlobalMessages.CREATED, redirectAttr);
 
         } else {
             perfilService.update(personaPerfil);
-            Notificaciones.crearMsg(Messages.UPDATED, redirectAttr);
+            Notificaciones.crearMsg(GlobalMessages.UPDATED, redirectAttr);
         }
 
         return "redirect:/general/personaperfil";
@@ -182,7 +182,7 @@ public class PersonaPerfilController {
         try {
 
             perfilService.activate(personaPerfil);
-            response.setMessage(Messages.UPDATED);
+            response.setMessage(GlobalMessages.UPDATED);
             response.setSuccess(true);
 
         } catch (PhobosException e) {
@@ -200,7 +200,7 @@ public class PersonaPerfilController {
         try {
 
             perfilService.desactivar(personaPerfil);
-            response.setMessage(Messages.UPDATED);
+            response.setMessage(GlobalMessages.UPDATED);
             response.setSuccess(true);
 
         } catch (PhobosException e) {

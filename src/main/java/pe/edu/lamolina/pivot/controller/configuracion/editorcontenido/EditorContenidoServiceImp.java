@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
-import pe.albatross.zelpers.aws.S3Service;
+import pe.albatross.zelpers.cloud.storage.StorageService;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.inscripcion.ContenidoCarta;
 import pe.edu.lamolina.model.inscripcion.ContenidoCartaVariable;
@@ -38,7 +38,7 @@ public class EditorContenidoServiceImp implements EditorContenidoService {
     SistemaDAO sistemaDAO;
 
     @Autowired
-    S3Service s3Service;
+    StorageService swiftService;
     @Autowired
     DespliegueConfig despliegueConfig;
 
@@ -116,16 +116,16 @@ public class EditorContenidoServiceImp implements EditorContenidoService {
             return;
         }
 
-        String absoluteName = Constantine.TMP_DIR + fileName;
+        String absoluteName = GlobalConstantine.TMP_DIR + fileName;
         File nuevo = new File(absoluteName);
 
-        if (despliegueConfig.getS3() && nuevo.exists()) {
+        if (despliegueConfig.getStorage() && nuevo.exists()) {
             logger.debug("TRYIN' TO UPLOAD {} TO S3", fileName);
-            this.uploadS3(Constantine.S3_PUBLIC_DIR, Constantine.TMP_DIR, fileName, true);
+            this.uploadS3(Constantine.S3_PUBLIC_DIR, GlobalConstantine.TMP_DIR, fileName, true);
             absoluteName = Constantine.S3_LINK + S3_PUBLIC_DIR + fileName;
             logger.debug("LINK ? {}", absoluteName);
         } else {
-            this.uploadS3(Constantine.S3_TMP, Constantine.TMP_DIR, fileName, true);
+            this.uploadS3(Constantine.S3_TMP, GlobalConstantine.TMP_DIR, fileName, true);
             absoluteName = Constantine.S3_LINK + S3_TMP + fileName;
             logger.debug("LINK ? {}", absoluteName);
         }
@@ -135,7 +135,7 @@ public class EditorContenidoServiceImp implements EditorContenidoService {
     }
 
     private void uploadS3(String remoteDirectory, String localDirectory, String fileName, Boolean publico) {
-        s3Service.uploadFileSync(Constantine.S3_DIR, remoteDirectory, localDirectory, fileName, publico);
+        swiftService.uploadFileSync(Constantine.S3_DIR, remoteDirectory, localDirectory, fileName, publico);
     }
 
     @Override

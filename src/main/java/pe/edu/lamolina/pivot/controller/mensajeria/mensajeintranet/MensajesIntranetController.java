@@ -141,10 +141,10 @@ public class MensajesIntranetController {
         try {
             if (mensajeria.getId() == null) {
                 service.saveMensajeria(mensajeria, ds.getCicloAcademico(), ds.getUsuario());
-                response.setMessage(Messages.CREATED);
+                response.setMessage(GlobalMessages.CREATED);
             } else {
                 service.updateMensajeria(mensajeria, ds.getCicloAcademico(), ds.getUsuario());
-                response.setMessage(Messages.UPDATED);
+                response.setMessage(GlobalMessages.UPDATED);
             }
             response.setSuccess(true);
 
@@ -164,7 +164,7 @@ public class MensajesIntranetController {
         response.setSuccess(false);
         try {
             service.eliminar(mensajeria);
-            response.setMessage(Messages.DELETED);
+            response.setMessage(GlobalMessages.DELETED);
             response.setSuccess(true);
 
         } catch (PhobosException e) {

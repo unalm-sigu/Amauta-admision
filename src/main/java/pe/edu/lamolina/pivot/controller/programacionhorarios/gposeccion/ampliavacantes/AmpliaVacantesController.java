@@ -58,7 +58,7 @@ public class AmpliaVacantesController {
             }
 
             response.setData(array);
-            response.setMessage(Messages.UPDATED);
+            response.setMessage(GlobalMessages.UPDATED);
             response.setSuccess(true);
 
         } catch (PhobosException e) {
@@ -104,7 +104,7 @@ public class AmpliaVacantesController {
             ObjectNode node = JsonHelper.createJson(ampliacion, jFactory, true, new String[]{"*", "seccion.id", "oficina.id"});
 
             response.setData(node);
-            response.setMessage(Messages.UPDATED);
+            response.setMessage(GlobalMessages.UPDATED);
             response.setSuccess(true);
 
         } catch (PhobosException e) {

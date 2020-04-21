@@ -140,7 +140,7 @@ public class CursoController {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         try {
-            String mensaje = curso.getId() != null ? Messages.UPDATED : Messages.CREATED;
+            String mensaje = curso.getId() != null ? GlobalMessages.UPDATED : GlobalMessages.CREATED;
             Curso cursoBD = service.save(curso, ds);
             response.setData(cursoBD.getId());
             response.setMessage(mensaje);

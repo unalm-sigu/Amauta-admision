@@ -273,7 +273,7 @@ public class ConstanciaSolicitudController {
 
             String fileExt = TypesUtil.getClean(FilenameUtils.getExtension(archivo.getOriginalFilename())).toLowerCase();
             String fileName = TypesUtil.getUnixTime() + "." + fileExt;
-            String absoluteName = Constantine.TMP_DIR + fileName;
+            String absoluteName = GlobalConstantine.TMP_DIR + fileName;
             logger.debug("guardando imagen ...");
             FileHelper.saveToDisk(archivo, absoluteName);
             Boolean formatook = Boolean.TRUE;

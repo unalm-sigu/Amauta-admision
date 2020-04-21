@@ -16,7 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
-import pe.albatross.zelpers.aws.S3Service;
+import pe.albatross.zelpers.cloud.storage.StorageService;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
@@ -92,7 +92,7 @@ public class ProfesorServiceImp implements ProfesorService {
     DocenteSeccionDAO docenteSeccionDAO;
 
     @Autowired
-    S3Service s3Service;
+    StorageService swiftService;
 
     @Autowired
     ContenidoCartaDAO contenidoCartaDAO;
@@ -577,7 +577,7 @@ public class ProfesorServiceImp implements ProfesorService {
     }
 
 //    private void saveFoto(String avatar) {
-//        String oldName = Constantine.TMP_DIR + avatar;
+//        String oldName = GlobalConstantine.TMP_DIR + avatar;
 //        String newName = Constantine.AVATAR_DIR + avatar;
 //        File directorio = new File(Constantine.AVATAR_DIR);
 //        if (!directorio.isDirectory()) {
@@ -610,10 +610,10 @@ public class ProfesorServiceImp implements ProfesorService {
     }
 
     private void uploadS3(String fileName) {
-        logger.debug("upload to s3 args   {}  {}   {}  {} {}", Constantine.S3_BUCKET, "public-unalm/profile/", Constantine.TMP_DIR, fileName, true);
-        File f = new File(Constantine.TMP_DIR + fileName);
+        logger.debug("upload to s3 args   {}  {}   {}  {} {}", Constantine.S3_BUCKET, "public-unalm/profile/", GlobalConstantine.TMP_DIR, fileName, true);
+        File f = new File(GlobalConstantine.TMP_DIR + fileName);
         if (f.exists() && !f.isDirectory()) {
-            s3Service.uploadFile(Constantine.S3_BUCKET, Constantine.S3_FOLDER, Constantine.TMP_DIR, fileName, true);
+            swiftService.uploadFile(Constantine.S3_BUCKET, Constantine.S3_FOLDER, GlobalConstantine.TMP_DIR, fileName, true);
         }
     }
 

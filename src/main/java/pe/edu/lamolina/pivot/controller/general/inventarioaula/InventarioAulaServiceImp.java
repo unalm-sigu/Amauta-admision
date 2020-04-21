@@ -12,7 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
-import pe.albatross.zelpers.aws.S3Service;
+import pe.albatross.zelpers.cloud.storage.StorageService;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.almacen.Almacen;
@@ -62,7 +62,7 @@ public class InventarioAulaServiceImp implements InventarioAulaService {
     ArchivoDAO archivoDAO;
 
     @Autowired
-    S3Service s3Service;
+    StorageService swiftService;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -315,16 +315,16 @@ public class InventarioAulaServiceImp implements InventarioAulaService {
     }
 
     private void sendArchivoS3(String nombreArchivo) {
-        File file = new File(Constantine.TMP_DIR + nombreArchivo);
-        logger.debug("el archivo {} existe {} ", (Constantine.TMP_DIR + nombreArchivo), (file.exists()));
+        File file = new File(GlobalConstantine.TMP_DIR + nombreArchivo);
+        logger.debug("el archivo {} existe {} ", (GlobalConstantine.TMP_DIR + nombreArchivo), (file.exists()));
         if (!file.exists()) {
             throw new PhobosException("No existe el archivo en el servidor");
         }
-        s3Service.uploadFile(Constantine.S3_DIR, Constantine.S3_DIR_INVENTARIO, Constantine.TMP_DIR, nombreArchivo, true);
+        swiftService.uploadFile(Constantine.S3_DIR, Constantine.S3_DIR_INVENTARIO, GlobalConstantine.TMP_DIR, nombreArchivo, true);
     }
 
     private void deleteArchivoS3(String nombreArchivo) {
-        s3Service.deleteFile(Constantine.S3_DIR, Constantine.S3_DIR_INVENTARIO, nombreArchivo);
+        swiftService.deleteFile(Constantine.S3_DIR, Constantine.S3_DIR_INVENTARIO, nombreArchivo);
     }
 
     @Override

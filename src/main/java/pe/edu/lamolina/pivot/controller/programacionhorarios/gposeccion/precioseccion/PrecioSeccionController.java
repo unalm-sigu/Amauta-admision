@@ -78,7 +78,7 @@ public class PrecioSeccionController {
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             service.savePrecioSeccion(precioSeccion, ds);
-            response.setMessage(Messages.UPDATED);
+            response.setMessage(GlobalMessages.UPDATED);
             response.setSuccess(true);
 
         } catch (PhobosException e) {
@@ -98,7 +98,7 @@ public class PrecioSeccionController {
 
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             service.asignarHorasAdicionales(seccion, ds);
-            response.setMessage(Messages.UPDATED);
+            response.setMessage(GlobalMessages.UPDATED);
             response.setSuccess(true);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
@@ -149,7 +149,7 @@ public class PrecioSeccionController {
 
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             service.saveTipoCarpetaSeccion(seccion, ds);
-            response.setMessage(Messages.UPDATED);
+            response.setMessage(GlobalMessages.UPDATED);
             response.setSuccess(true);
 
         } catch (PhobosException e) {
@@ -175,7 +175,7 @@ public class PrecioSeccionController {
                     new String[]{"*", "tipoCarpetaSuperior.*"});
 
             response.setData(json);
-            response.setMessage(Messages.UPDATED);
+            response.setMessage(GlobalMessages.UPDATED);
             response.setSuccess(true);
 
         } catch (PhobosException e) {
@@ -196,7 +196,7 @@ public class PrecioSeccionController {
 
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             service.asignarGrupoSeccionModular(grupoSeccion, ds);
-            response.setMessage(Messages.UPDATED);
+            response.setMessage(GlobalMessages.UPDATED);
             response.setSuccess(true);
 
         } catch (PhobosException e) {
@@ -224,7 +224,7 @@ public class PrecioSeccionController {
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
-            ExceptionHandler.handleSpecial(e, response, Messages.ERROR_GENERAL);
+            ExceptionHandler.handleSpecial(e, response, GlobalMessages.ERROR_GENERAL);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
@@ -245,7 +245,7 @@ public class PrecioSeccionController {
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
-            ExceptionHandler.handleSpecial(e, response, Messages.ERROR_GENERAL);
+            ExceptionHandler.handleSpecial(e, response, GlobalMessages.ERROR_GENERAL);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }

@@ -1110,7 +1110,7 @@ public class PlanCurricularController {
     public String succesSave(
             @RequestParam("origen") String origen,
             @PathVariable("planCurricular") Long planCurricularId, RedirectAttributes redirectAttr, HttpSession session) {
-        Notificaciones.crearMsg(Messages.CREATED, redirectAttr);
+        Notificaciones.crearMsg(GlobalMessages.CREATED, redirectAttr);
         return "redirect:/academico/planCurricular/" + planCurricularId + "/editarPlanCurricular?origen=" + origen;
     }
 

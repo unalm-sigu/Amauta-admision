@@ -196,7 +196,7 @@ public class AmpliacionVacanteController {
             ds.setFechaAccionAudit(new Date());
             CicloAcademico cicloAcademico = ds.getCicloAcademico();
             service.matricular(ampliacionVacanteForm, cicloAcademico, ds);
-            response.setMessage(Messages.UPDATED);
+            response.setMessage(GlobalMessages.UPDATED);
             response.setSuccess(true);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
@@ -236,7 +236,7 @@ public class AmpliacionVacanteController {
                 jSolicitudes.add(jMatriculaSeccion);
             }
             response.setData(jSolicitudes);
-            response.setMessage(Messages.UPDATED);
+            response.setMessage(GlobalMessages.UPDATED);
             response.setSuccess(true);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);

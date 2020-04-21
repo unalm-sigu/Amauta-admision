@@ -118,7 +118,7 @@ public class TicketAyudaController {
             });
 
             response.setData(node);
-            response.setMessage(Messages.CREATED);
+            response.setMessage(GlobalMessages.CREATED);
             response.setSuccess(true);
 
         } catch (PhobosException e) {
@@ -209,7 +209,7 @@ public class TicketAyudaController {
 
             String fileExt = TypesUtil.getClean(FilenameUtils.getExtension(archivo.getOriginalFilename())).toLowerCase();
             String fileName = TypesUtil.getUnixTime() + "." + fileExt;
-            String absoluteName = Constantine.TMP_DIR + fileName;
+            String absoluteName = GlobalConstantine.TMP_DIR + fileName;
 
             logger.debug("guardando imagen ...");
 
@@ -282,7 +282,7 @@ public class TicketAyudaController {
 
             service.asignarme(ticket, ds);
 
-            response.setMessage(Messages.UPDATED);
+            response.setMessage(GlobalMessages.UPDATED);
             response.setSuccess(true);
 
         } catch (PhobosException e) {
@@ -305,7 +305,7 @@ public class TicketAyudaController {
 
             service.asignarColaborador(ticket, ds);
 
-            response.setMessage(Messages.UPDATED);
+            response.setMessage(GlobalMessages.UPDATED);
             response.setSuccess(true);
 
         } catch (PhobosException e) {
@@ -333,7 +333,7 @@ public class TicketAyudaController {
             });
 
             response.setData(node);
-            response.setMessage(Messages.CREATED);
+            response.setMessage(GlobalMessages.CREATED);
             response.setSuccess(true);
 
         } catch (PhobosException e) {
@@ -389,7 +389,7 @@ public class TicketAyudaController {
 
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             service.trasladooficina(traslado, ds);
-            response.setMessage(Messages.UPDATED);
+            response.setMessage(GlobalMessages.UPDATED);
             response.setSuccess(true);
 
         } catch (PhobosException e) {
@@ -410,7 +410,7 @@ public class TicketAyudaController {
 
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             service.trasladocolaborador(traslado, ds);
-            response.setMessage(Messages.UPDATED);
+            response.setMessage(GlobalMessages.UPDATED);
             response.setSuccess(true);
 
         } catch (PhobosException e) {

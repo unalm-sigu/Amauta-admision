@@ -454,7 +454,7 @@ public class AlumnoController {
             ObjectNode json = new ObjectNode(jsonFactory);
             //String fileExt = TypesUtil.getClean(FilenameUtils.getExtension(archivo.getOriginalFilename())).toLowerCase();
             String fileName = RandomStringUtils.randomAlphanumeric(40);
-            String absoluteName = Constantine.TMP_DIR + fileName;
+            String absoluteName = GlobalConstantine.TMP_DIR + fileName;
             FileHelper.saveToDisk(archivo, absoluteName);
             json.put("name", archivo.getOriginalFilename());
             json.put("ruta", fileName);

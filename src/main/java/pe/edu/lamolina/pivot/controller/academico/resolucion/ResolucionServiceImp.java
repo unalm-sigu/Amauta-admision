@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import pe.albatross.octavia.dynatable.DynatableFilter;
-import pe.albatross.zelpers.aws.S3Service;
+import pe.albatross.zelpers.cloud.storage.StorageService;
 import pe.albatross.zelpers.file.system.FileHelper;
 import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
@@ -105,7 +105,7 @@ public class ResolucionServiceImp implements ResolucionService {
     TramiteDAO tramiteDAO;
 
     @Autowired
-    S3Service s3service;
+    StorageService swiftService;
 
     @Autowired
     EstadoTramiteDAO estadoTramiteDAO;
@@ -347,7 +347,7 @@ public class ResolucionServiceImp implements ResolucionService {
         String name;
         try {
             name = TypesUtil.getUnixTime() + file.getOriginalFilename();
-            absoluteName = Constantine.TMP_DIR + name;
+            absoluteName = GlobalConstantine.TMP_DIR + name;
             FileHelper.saveToDisk(file, absoluteName);
         } catch (Exception e) {
             throw new PhobosException("Error al guardar el archivo");
@@ -356,7 +356,7 @@ public class ResolucionServiceImp implements ResolucionService {
         Resolucion resolucionUpd = new Resolucion(resolucion.getId());
 
         resolucionUpd.setRutaUrl(Constantine.S3_LINK + Constantine.S3_RESOLUCIONES_DIR + name);
-        s3service.uploadFileSync(Constantine.S3_DIR, Constantine.S3_RESOLUCIONES_DIR, Constantine.TMP_DIR, name, true);
+        swiftService.uploadFileSync(Constantine.S3_DIR, Constantine.S3_RESOLUCIONES_DIR, GlobalConstantine.TMP_DIR, name, true);
         resolucionUpd.setUserActualizacion(ds.getUsuario());
         resolucionUpd.setFechaActualizacion(today.toDate());
         resolucionUpd.setEstadoEnum(ResolucionEstadoEnum.ACT);

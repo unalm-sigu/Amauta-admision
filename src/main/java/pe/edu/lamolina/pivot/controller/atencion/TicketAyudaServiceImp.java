@@ -8,7 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
-import pe.albatross.zelpers.aws.S3Service;
+import pe.albatross.zelpers.cloud.storage.StorageService;
 import pe.edu.lamolina.pivot.dao.atencion.MensajeTicketAyudaDAO;
 import pe.edu.lamolina.pivot.dao.atencion.TicketAyudaDAO;
 import pe.edu.lamolina.model.atencion.MensajeTicketAyuda;
@@ -58,7 +58,7 @@ public class TicketAyudaServiceImp implements TicketAyudaService {
     ArchivoDAO archivoDAO;
 
     @Autowired
-    S3Service s3Service;
+    StorageService swiftService;
 
     @Autowired
     ContenidoCartaDAO contenidoCartaDAO;

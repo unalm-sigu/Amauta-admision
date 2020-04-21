@@ -1013,10 +1013,10 @@ public class AlumnoServiceImp implements AlumnoService {
     public Alumno saveFotoCarnet(Alumno alumnoForm, DataSessionPivot ds) {
         Alumno alumnoBD = alumnoDAO.find(alumnoForm);
         String nombreArchivo = alumnoForm.getPersona().getFoto();
-        File file = new File(Constantine.TMP_DIR + nombreArchivo);
-        logger.debug("el archivo {} existe {} ", (Constantine.TMP_DIR + nombreArchivo), (file.exists()));
+        File file = new File(GlobalConstantine.TMP_DIR + nombreArchivo);
+        logger.debug("el archivo {} existe {} ", (GlobalConstantine.TMP_DIR + nombreArchivo), (file.exists()));
         Assert.isTrue(file.exists(), "No existe el archivo en el servidor");
-        uploadFileS3.uploadSync(Constantine.S3_DIR_FOTO_CARNET, Constantine.TMP_DIR, nombreArchivo, true);
+        uploadFileS3.uploadSync(Constantine.S3_DIR_FOTO_CARNET, GlobalConstantine.TMP_DIR, nombreArchivo, true);
         String path = uploadFileS3.getPathFile(Constantine.S3_DIR_FOTO_CARNET, nombreArchivo);
         alumnoBD.getPersona().setFoto(path);
         personaDAO.update(alumnoBD.getPersona());

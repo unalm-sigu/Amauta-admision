@@ -91,10 +91,10 @@ public class TipoMsgIntranetController {
         try {
             if (tipoMsg.getId() == null) {
                 service.save(tipoMsg, ds.getCicloAcademico(), ds.getUsuario());
-                response.setMessage(Messages.CREATED);
+                response.setMessage(GlobalMessages.CREATED);
             } else {
                 service.update(tipoMsg, ds.getCicloAcademico(), ds.getUsuario());
-                response.setMessage(Messages.UPDATED);
+                response.setMessage(GlobalMessages.UPDATED);
             }
             response.setSuccess(true);
 
@@ -114,7 +114,7 @@ public class TipoMsgIntranetController {
         response.setSuccess(false);
         try {
             service.eliminar(tipoMsg);
-            response.setMessage(Messages.DELETED);
+            response.setMessage(GlobalMessages.DELETED);
             response.setSuccess(true);
 
         } catch (PhobosException e) {

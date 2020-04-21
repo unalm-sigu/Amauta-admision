@@ -14,7 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
-import pe.albatross.zelpers.aws.S3Service;
+import pe.albatross.zelpers.cloud.storage.StorageService;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.CarreraConvenio;
@@ -54,7 +54,7 @@ public class ConvenioServiceImp implements ConvenioService {
     CarreraConvenioDAO carreraConvenioDAO;
 
     @Autowired
-    S3Service s3Service;
+    StorageService swiftService;
 
     @Override
     @Transactional
@@ -154,17 +154,17 @@ public class ConvenioServiceImp implements ConvenioService {
     }
 
     private void saveArchivoS3(String rutaDocumento) {
-        File file = new File(Constantine.TMP_DIR + rutaDocumento);
-        logger.debug("el archivo {} existe {} ", (Constantine.TMP_DIR + rutaDocumento), (file.exists()));
+        File file = new File(GlobalConstantine.TMP_DIR + rutaDocumento);
+        logger.debug("el archivo {} existe {} ", (GlobalConstantine.TMP_DIR + rutaDocumento), (file.exists()));
         if (file.exists()) {
-            s3Service.uploadFile(Constantine.S3_DIR, Constantine.S3_DIR_CONVENIO, Constantine.TMP_DIR, rutaDocumento, true);
+            swiftService.uploadFile(Constantine.S3_DIR, Constantine.S3_DIR_CONVENIO, GlobalConstantine.TMP_DIR, rutaDocumento, true);
         }
     }
 
     private void deleteArchivoS3(ConvenioBeca convenioBecaDB, ConvenioBeca convenioBeca) {
         boolean requiereDelete = convenioBecaDB.getRutaDocumento().equalsIgnoreCase(convenioBeca.getRutaDocumento());
         if (!requiereDelete) {
-            s3Service.deleteFile(Constantine.S3_DIR, Constantine.S3_DIR_CONVENIO, convenioBecaDB.getRutaDocumento());
+            swiftService.deleteFile(Constantine.S3_DIR, Constantine.S3_DIR_CONVENIO, convenioBecaDB.getRutaDocumento());
         }
     }
 

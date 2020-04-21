@@ -417,7 +417,7 @@ public class ProfesorController {
 
             String fileExt = TypesUtil.getClean(FilenameUtils.getExtension(archivo.getOriginalFilename())).toLowerCase();
             String fileName = TypesUtil.getUnixTime() + "." + fileExt;
-            String absoluteName = Constantine.TMP_DIR + fileName;
+            String absoluteName = GlobalConstantine.TMP_DIR + fileName;
             FileHelper.saveToDisk(archivo, absoluteName);
             json.put("name", archivo.getOriginalFilename());
             json.put("ruta", fileName);
@@ -443,7 +443,7 @@ public class ProfesorController {
 
         FileInputStream in;
         try {
-            String foto = Constantine.TMP_DIR + file;
+            String foto = GlobalConstantine.TMP_DIR + file;
             in = new FileInputStream(foto);
 
             File photo = new File(foto);

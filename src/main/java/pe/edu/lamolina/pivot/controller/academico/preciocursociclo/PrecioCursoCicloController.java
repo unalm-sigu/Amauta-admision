@@ -142,7 +142,7 @@ public class PrecioCursoCicloController {
 
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             service.configurarcantidad(cantidadAlumno, ds.getCicloAcademico());
-            response.setMessage(Messages.UPDATED);
+            response.setMessage(GlobalMessages.UPDATED);
             response.setSuccess(true);
 
         } catch (PhobosException e) {

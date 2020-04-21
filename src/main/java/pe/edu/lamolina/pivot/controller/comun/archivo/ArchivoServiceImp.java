@@ -37,8 +37,8 @@ public class ArchivoServiceImp implements ArchivoService {
 
         String fileName = TypesUtil.getUnixTime() + "." + TypesUtil.getClean(FilenameUtils.getExtension(multipartFile.getOriginalFilename()));
 
-        FileHelper.createDirectory(Constantine.TMP_DIR);
-        String absoluteName = Constantine.TMP_DIR + fileName;
+        FileHelper.createDirectory(GlobalConstantine.TMP_DIR);
+        String absoluteName = GlobalConstantine.TMP_DIR + fileName;
         try {
             FileHelper.saveToDisk(multipartFile, absoluteName);
         } catch (Exception e) {
@@ -64,7 +64,7 @@ public class ArchivoServiceImp implements ArchivoService {
             bis.close();
 
             String fileName = TypesUtil.getUnixTime() + ".jpeg";
-            absoluteName = Constantine.TMP_DIR + fileName;
+            absoluteName = GlobalConstantine.TMP_DIR + fileName;
             File nuevo = new File(absoluteName);
             ImageIO.write(image, "jpeg", nuevo);
 
@@ -83,7 +83,7 @@ public class ArchivoServiceImp implements ArchivoService {
         BufferedOutputStream out = null;
 
         try {
-            File file = new File(Constantine.TMP_DIR + fileName);
+            File file = new File(GlobalConstantine.TMP_DIR + fileName);
 
             if (!file.exists()) {
                 response.sendError(HttpServletResponse.SC_NOT_FOUND);

@@ -149,7 +149,7 @@ public class DistanciaPabellonController {
         try {
 
             service.saveDistancia(departamentoAcademico);
-            response.setMessage(Messages.UPDATED);
+            response.setMessage(GlobalMessages.UPDATED);
             response.setSuccess(Boolean.TRUE);
 
         } catch (PhobosException e) {

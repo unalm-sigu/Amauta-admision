@@ -681,7 +681,7 @@ public class NotaAcademicaController {
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
-            ExceptionHandler.handleSpecial(e, response, Messages.ERROR_GENERAL);
+            ExceptionHandler.handleSpecial(e, response, GlobalMessages.ERROR_GENERAL);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }
@@ -705,7 +705,7 @@ public class NotaAcademicaController {
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
-            ExceptionHandler.handleSpecial(e, response, Messages.ERROR_GENERAL);
+            ExceptionHandler.handleSpecial(e, response, GlobalMessages.ERROR_GENERAL);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }

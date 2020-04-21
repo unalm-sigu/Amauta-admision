@@ -25,8 +25,8 @@ public class DespliegueConfig {
     @Value("${copias}")
     String copias;
 
-    @Value("${s3}")
-    Boolean s3;
+    @Value("${storage}")
+    Boolean storage;
 
     @Value("${tawkto}")
     Boolean tawkto;

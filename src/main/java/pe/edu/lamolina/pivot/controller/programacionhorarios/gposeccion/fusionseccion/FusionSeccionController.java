@@ -57,7 +57,7 @@ public class FusionSeccionController {
             }
 
             response.setData(array);
-            response.setMessage(Messages.UPDATED);
+            response.setMessage(GlobalMessages.UPDATED);
             response.setSuccess(true);
 
         } catch (PhobosException e) {
@@ -82,7 +82,7 @@ public class FusionSeccionController {
 
             service.trasladar(fusion, cicloActivo, ds);
 
-            response.setMessage(Messages.UPDATED);
+            response.setMessage(GlobalMessages.UPDATED);
             response.setSuccess(true);
 
         } catch (PhobosException e) {
@@ -128,7 +128,7 @@ public class FusionSeccionController {
             }
 
             response.setData(array);
-            response.setMessage(Messages.UPDATED);
+            response.setMessage(GlobalMessages.UPDATED);
             response.setSuccess(true);
 
         } catch (PhobosException e) {
@@ -167,7 +167,7 @@ public class FusionSeccionController {
             }
 
             response.setData(array);
-            response.setMessage(Messages.UPDATED);
+            response.setMessage(GlobalMessages.UPDATED);
             response.setSuccess(true);
 
         } catch (PhobosException e) {

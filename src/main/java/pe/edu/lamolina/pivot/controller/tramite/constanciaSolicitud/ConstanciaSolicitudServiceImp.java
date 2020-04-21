@@ -24,7 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
-import pe.albatross.zelpers.aws.S3Service;
+import pe.albatross.zelpers.cloud.storage.StorageService;
 import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
@@ -234,7 +234,7 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
     OficinaDAO oficinaDAO;
 
     @Autowired
-    S3Service s3Service;
+    StorageService swiftService;
 
     @Override
     @Transactional
@@ -541,10 +541,10 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
     }
 
     public void uploadS3(String fileName) {
-        logger.debug("upload to s3    {}  {}   {}  {} {}", Constantine.S3_BUCKET, Constantine.S3_DIR_FOTO_TMP, Constantine.TMP_DIR, fileName, true);
-        File f = new File(Constantine.TMP_DIR + fileName);
+        logger.debug("upload to s3    {}  {}   {}  {} {}", Constantine.S3_BUCKET, Constantine.S3_DIR_FOTO_TMP, GlobalConstantine.TMP_DIR, fileName, true);
+        File f = new File(GlobalConstantine.TMP_DIR + fileName);
         if (f.exists() && !f.isDirectory()) {
-            s3Service.uploadFile(Constantine.S3_BUCKET, Constantine.S3_DIR_FOTO_TMP, Constantine.TMP_DIR, fileName, true);
+            swiftService.uploadFile(Constantine.S3_BUCKET, Constantine.S3_DIR_FOTO_TMP, GlobalConstantine.TMP_DIR, fileName, true);
         }
     }
 

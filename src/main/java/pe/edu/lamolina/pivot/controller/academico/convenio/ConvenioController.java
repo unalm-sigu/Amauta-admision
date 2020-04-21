@@ -321,8 +321,8 @@ public class ConvenioController {
         try {
 
             String cleanName = service.getCleanName(file.getOriginalFilename());
-            FileHelper.createDirectory(Constantine.TMP_DIR);
-            String absoluteName = Constantine.TMP_DIR + cleanName;
+            FileHelper.createDirectory(GlobalConstantine.TMP_DIR);
+            String absoluteName = GlobalConstantine.TMP_DIR + cleanName;
             FileHelper.saveToDisk(file, absoluteName);
 
             response.setMessage("Importación finalizada.");

@@ -948,7 +948,7 @@ public class GpoSeccionController {
     public String succesSave(@PathVariable("gruposeccion") Long grupoSeccionId,
             RedirectAttributes redirectAttr,
             Model model, HttpSession session) {
-        Notificaciones.crearMsg(Messages.CREATED, redirectAttr);
+        Notificaciones.crearMsg(GlobalMessages.CREATED, redirectAttr);
         return "redirect:/academico/gposeccion/" + grupoSeccionId + "/editar";
     }
 

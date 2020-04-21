@@ -43,7 +43,7 @@ import pe.edu.lamolina.pivot.zelper.constant.Constantine;
 public class PdfGeneratorImp implements PdfGenerator {
 
     private final String PDF_CSS = "public/pdf/css/pdf.css";
-    private final String PDF_SAVE_PATH = Constantine.TMP_DIR;
+    private final String PDF_SAVE_PATH = GlobalConstantine.TMP_DIR;
 
     @Autowired
     private SpringTemplateEngine templateEngine;

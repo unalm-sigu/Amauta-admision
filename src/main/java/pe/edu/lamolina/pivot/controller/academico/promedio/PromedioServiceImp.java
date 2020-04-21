@@ -30,7 +30,6 @@ import pe.edu.lamolina.model.academico.Egresado;
 import pe.edu.lamolina.model.academico.MatriculaCurso;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.SituacionAcademica;
-import pe.edu.lamolina.model.constantines.EstudiosConstantine;
 import pe.edu.lamolina.model.enums.CicloAcademicoEstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.ANCI;
@@ -82,6 +81,7 @@ import pe.edu.lamolina.pivot.dao.academico.ModalidadEstudioDAO;
 import pe.edu.lamolina.pivot.dao.academico.SituacionAcademicaDAO;
 import pe.edu.lamolina.pivot.dao.tramite.ReincorporacionDAO;
 import pe.edu.lamolina.pivot.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.constantines.AcademicoConstantine;
 
 @Service
 @Transactional(readOnly = true)
@@ -896,7 +896,7 @@ public class PromedioServiceImp implements PromedioService {
 
         AlumnoCiclo alumnoCiclo = findAlumnoCiclo(alumnosCiclosByAlumno, cicloIngreso);
         if (alumnoCiclo != null) {
-            if (cicloIngreso.getYear() > EstudiosConstantine.YEAR_ALL_APPROVE && alumno.isPregrado()) {
+            if (cicloIngreso.getYear() > AcademicoConstantine.YEAR_ALL_APPROVE && alumno.isPregrado()) {
                 alumnoCiclo.setSituacionInicio(new SituacionAcademica(S_8));
             } else {
                 alumnoCiclo.setSituacionInicio(new SituacionAcademica(S_N));

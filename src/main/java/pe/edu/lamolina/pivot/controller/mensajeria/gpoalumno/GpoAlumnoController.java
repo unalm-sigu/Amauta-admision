@@ -84,10 +84,10 @@ public class GpoAlumnoController {
         try {
             if (gpoAlumno.getId() == null) {
                 service.save(gpoAlumno, ds.getCicloAcademico(), ds.getUsuario());
-                response.setMessage(Messages.CREATED);
+                response.setMessage(GlobalMessages.CREATED);
             } else {
                 service.update(gpoAlumno, ds.getCicloAcademico(), ds.getUsuario());
-                response.setMessage(Messages.UPDATED);
+                response.setMessage(GlobalMessages.UPDATED);
             }
             response.setSuccess(true);
 
@@ -107,7 +107,7 @@ public class GpoAlumnoController {
         response.setSuccess(false);
         try {
             service.eliminar(gpoAlumno);
-            response.setMessage(Messages.DELETED);
+            response.setMessage(GlobalMessages.DELETED);
             response.setSuccess(true);
 
         } catch (PhobosException e) {
@@ -213,10 +213,10 @@ public class GpoAlumnoController {
         try {
             if (detalleGrupo.getId() == null) {
                 service.saveDetalleGrupo(detalleGrupo);
-                response.setMessage(Messages.CREATED);
+                response.setMessage(GlobalMessages.CREATED);
             } else {
                 service.saveDetalleGrupo(detalleGrupo);
-                response.setMessage(Messages.UPDATED);
+                response.setMessage(GlobalMessages.UPDATED);
             }
             response.setSuccess(true);
 
@@ -235,7 +235,7 @@ public class GpoAlumnoController {
         response.setSuccess(false);
         try {
             service.eliminarDetalle(detalleGrupo);
-            response.setMessage(Messages.DELETED);
+            response.setMessage(GlobalMessages.DELETED);
             response.setSuccess(true);
 
         } catch (PhobosException e) {

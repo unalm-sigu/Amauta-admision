@@ -247,7 +247,7 @@ public class EncuestaDocenteModalidadServiceImp implements EncuestaDocenteModali
             PRStream stream = (PRStream) xobjects.getAsStream(imgRef);
             PdfImage image = new PdfImage(Image.getInstance(buildPlot(puntajes)), "", null);
             replaceStream(stream, image);
-            dest = String.format("%s%d.pdf", Constantine.TMP_DIR, TypesUtil.getUnixTime());
+            dest = String.format("%s%d.pdf", GlobalConstantine.TMP_DIR, TypesUtil.getUnixTime());
 
             PdfStamper stamper = new PdfStamper(reader, new FileOutputStream(dest));
             stamper.close();
@@ -358,7 +358,7 @@ public class EncuestaDocenteModalidadServiceImp implements EncuestaDocenteModali
             int width = 1200;
             int height = 600;
 
-            String fileName = String.format("%s%d.png", Constantine.TMP_DIR, TypesUtil.getUnixTime());
+            String fileName = String.format("%s%d.png", GlobalConstantine.TMP_DIR, TypesUtil.getUnixTime());
             ChartUtilities.writeChartAsPNG(new FileOutputStream(fileName), chart, width, height);
             return fileName;
 

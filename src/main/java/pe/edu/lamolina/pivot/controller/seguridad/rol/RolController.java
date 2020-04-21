@@ -184,10 +184,10 @@ public class RolController {
 
             if (rol.getId() == null) {
                 service.save(rol, new Sistema(despliegueConfig.getSistema()));
-                response.setMessage(Messages.CREATED);
+                response.setMessage(GlobalMessages.CREATED);
             } else {
                 service.update(rol);
-                response.setMessage(Messages.UPDATED);
+                response.setMessage(GlobalMessages.UPDATED);
             }
 
             response.setSuccess(true);
@@ -209,7 +209,7 @@ public class RolController {
 
         try {
             service.delete(rol, new Sistema(despliegueConfig.getSistema()));
-            response.setMessage(Messages.DELETED);
+            response.setMessage(GlobalMessages.DELETED);
             response.setSuccess(true);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
@@ -336,7 +336,7 @@ public class RolController {
             Usuario usuario = ds.getUsuario();
 
             service.saveFuncionRol(funcionRol, usuario);
-            response.setMessage(Messages.CREATED);
+            response.setMessage(GlobalMessages.CREATED);
             response.setSuccess(true);
 
         } catch (PhobosException e) {
@@ -361,7 +361,7 @@ public class RolController {
             Usuario usuario = ds.getUsuario();
 
             service.cambiarEstado(funcionRol, usuario);
-            response.setMessage(Messages.UPDATED);
+            response.setMessage(GlobalMessages.UPDATED);
             response.setSuccess(true);
 
         } catch (PhobosException e) {

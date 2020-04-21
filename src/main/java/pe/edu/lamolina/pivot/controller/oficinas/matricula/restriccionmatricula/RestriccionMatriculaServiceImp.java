@@ -132,8 +132,8 @@ public class RestriccionMatriculaServiceImp implements RestriccionMatriculaServi
     private String guardarArchivo(MultipartFile file) {
         try {
             String fileName = TypesUtil.getUnixTime() + "." + TypesUtil.getClean(file.getOriginalFilename());
-            FileHelper.createDirectory(Constantine.TMP_DIR);
-            String absoluteName = Constantine.TMP_DIR + fileName;
+            FileHelper.createDirectory(GlobalConstantine.TMP_DIR);
+            String absoluteName = GlobalConstantine.TMP_DIR + fileName;
 
             FileHelper.saveToDisk(file, absoluteName);
             return absoluteName;

@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
-import pe.albatross.zelpers.aws.S3Service;
+import pe.albatross.zelpers.cloud.storage.StorageService;
 import pe.albatross.zelpers.file.system.FileHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
@@ -29,7 +29,7 @@ public class SilaboServiceImp implements SilaboService {
     @Autowired
     DespliegueConfig despliegueConfig;
     @Autowired
-    S3Service s3Service;
+    StorageService swiftService;
 
     @Override
     public List<SilaboCurso> allSilabo(DynatableFilter filter) {
@@ -74,11 +74,11 @@ public class SilaboServiceImp implements SilaboService {
         if (silabo.getFileUpdated() != null) {
             String fileName = "Silabo-" + silabo.getCurso().getCodigo() + "-" + silabo.getCicloVigenciaInicio().getCodigo() + ".pdf";
 
-            FileHelper.deleteFromDisk(Constantine.TMP_DIR + fileName);
-            FileHelper.renameFile(Constantine.TMP_DIR + silabo.getRutaDocumento(), Constantine.TMP_DIR + fileName);
+            FileHelper.deleteFromDisk(GlobalConstantine.TMP_DIR + fileName);
+            FileHelper.renameFile(GlobalConstantine.TMP_DIR + silabo.getRutaDocumento(), GlobalConstantine.TMP_DIR + fileName);
 
-            if (despliegueConfig.getS3()) {
-                s3Service.uploadFileSync(Constantine.S3_DIR, Constantine.S3_DIR_SILABUS, Constantine.TMP_DIR, fileName, true);
+            if (despliegueConfig.getStorage()) {
+                swiftService.uploadFileSync(Constantine.S3_DIR, Constantine.S3_DIR_SILABUS, GlobalConstantine.TMP_DIR, fileName, true);
                 String s3Link = Constantine.S3_LINK + Constantine.S3_DIR_SILABUS + fileName;
                 silabo.setRutaDocumento(s3Link);
             } else {

@@ -221,7 +221,7 @@ public class InventarioAulaController {
         JsonResponse response = new JsonResponse();
         try {
             if (resumen.getId() == null) {
-                throw new PhobosException(Messages.ERROR_GENERAL);
+                throw new PhobosException(GlobalMessages.ERROR_GENERAL);
             } else {
                 service.updateResumen(resumen);
                 response.setMessage("Inventario actualizado satisfactoriamente");
@@ -310,7 +310,7 @@ public class InventarioAulaController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             Usuario user = ds.getUsuario();
             service.updateInventarioCode(inventarios, user);
-            response.setMessage(Messages.UPDATED);
+            response.setMessage(GlobalMessages.UPDATED);
             response.setSuccess(Boolean.TRUE);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
@@ -333,7 +333,7 @@ public class InventarioAulaController {
 
             String fileExt = TypesUtil.getClean(FilenameUtils.getExtension(archivo.getOriginalFilename())).toLowerCase();
             String fileName = TypesUtil.getUnixTime() + "." + fileExt;
-            String absoluteName = Constantine.TMP_DIR + fileName;
+            String absoluteName = GlobalConstantine.TMP_DIR + fileName;
             FileHelper.saveToDisk(archivo, absoluteName);
 
             json.put("name", archivo.getOriginalFilename());

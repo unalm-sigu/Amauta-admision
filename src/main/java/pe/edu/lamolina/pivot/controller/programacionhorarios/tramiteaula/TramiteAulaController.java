@@ -113,10 +113,10 @@ public class TramiteAulaController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             if (reservaAula.getId() != null) {
                 service.update(reservaAula, ds);
-                response.setMessage(Messages.UPDATED);
+                response.setMessage(GlobalMessages.UPDATED);
             } else {
                 service.save(reservaAula, ds);
-                response.setMessage(Messages.CREATED);
+                response.setMessage(GlobalMessages.CREATED);
             }
 
             response.setSuccess(true);
@@ -250,7 +250,7 @@ public class TramiteAulaController {
                     });
             response.setData(node);
             response.setSuccess(true);
-            response.setMessage(Messages.CREATED);
+            response.setMessage(GlobalMessages.CREATED);
 
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
@@ -335,7 +335,7 @@ public class TramiteAulaController {
 
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             service.aceptartramite(reservaAula);
-            response.setMessage(Messages.UPDATED);
+            response.setMessage(GlobalMessages.UPDATED);
             response.setSuccess(true);
 
         } catch (PhobosException e) {
@@ -357,7 +357,7 @@ public class TramiteAulaController {
 
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
             service.rechazartramite(reservaAula);
-            response.setMessage(Messages.UPDATED);
+            response.setMessage(GlobalMessages.UPDATED);
             response.setSuccess(true);
 
         } catch (PhobosException e) {

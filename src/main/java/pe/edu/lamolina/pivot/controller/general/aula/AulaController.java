@@ -269,7 +269,7 @@ public class AulaController {
     public String save(Aula aula, RedirectAttributes redirectAttr, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
         try {
-            String mensaje = aula.getId() != null ? Messages.UPDATED : Messages.CREATED;
+            String mensaje = aula.getId() != null ? GlobalMessages.UPDATED : GlobalMessages.CREATED;
             if (aula.getId() == null) {
                 logger.debug(" tipo carpeta  {}", aula.getTipoCarpeta().getId());
                 logger.debug(" tipo AMBIENTE  {}", aula.getTipoAmbiente());
