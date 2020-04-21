@@ -229,4 +229,6 @@ public interface GpoSeccionService {
 
     List<AnexoBoletin> allAnexosUser(DataSessionPivot ds);
 
+    public void eliminarAllGrupos(DataSessionPivot ds);
+
 }

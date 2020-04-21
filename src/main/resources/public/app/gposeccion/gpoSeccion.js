@@ -732,12 +732,43 @@ new Vue({
             });
             $vue.$refs.modalConfirmAction.open();
         },
+        verEliminarAllGruposSecciones() {
+            let $vue = this;
+            $vue.configConfirmAction = VUE_MODAL.structConfirm({
+                message: "¿Desea eliminar todos los grupos(s) sección(es)?",
+                okbtn: "Si, Eliminar todo",
+                okclass: "btn-danger",
+                okaction: $vue.eliminarAllGrupos,
+                okbtnprocessing: '<i class="fa fa-spinner fa-pulse fa-fw"></i> Ordenando...'
+            });
+            $vue.$refs.modalConfirmAction.open();
+        },
         eliminarGrupos() {
             console.log("eliminar grupos");
             let $vue = this;
             console.dir($vue.gpoSeccionesSelects);
 
             axios.post(APP.url(rutaModulo + '/eliminarGrupos'), $vue.gpoSeccionesSelects)
+                    .then(function (response) {
+                        $vue.$refs.modalConfirmAction.confirmReaction(response.data.success);
+                        if (response.data.success) {
+                            $vue.listCicloAcademico = response.data.data;
+                            notify(response.data.message, "success");
+                            $vue.gpoSeccionesSelects = [];
+                            $vue.$refs.raptorGpoSecc.loadRemoteData();
+                        } else {
+                            notify(response.data.message, "error");
+                        }
+                    })
+                    .catch(function (error) {
+                        notify(error.errorComunicacion, "error");
+                    });
+        },
+        eliminarAllGrupos() {
+            console.log("eliminar all grupos");
+            let $vue = this;
+
+            axios.post(APP.url(rutaModulo + '/eliminarAllGrupos'))
                     .then(function (response) {
                         $vue.$refs.modalConfirmAction.confirmReaction(response.data.success);
                         if (response.data.success) {

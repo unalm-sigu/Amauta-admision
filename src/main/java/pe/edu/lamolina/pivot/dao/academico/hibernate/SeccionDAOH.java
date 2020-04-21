@@ -196,16 +196,16 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
         List<SeccionEstadoEnum> lEstados = Arrays.asList(estados);
         Octavia sql = Octavia.query()
                 .from(Seccion.class, "sec")
-                .join("grupoSeccion gs", "gs.curso cur", "gs.cicloAcademico ca")
+                .join("grupoSeccion gs", "gs.curso cur", "gs.cicloAcademico ca","tipoCarpeta")
                 .leftJoin("cur.tipoCarpetaTeoria tct", "cur.tipoCarpetaPractica tcp")
                 .leftJoin("aula", "grupoHoras", "tipoCarpeta")
                 .filter("ca.id", ciclo)
-                .beginBlock()
-                .isNotNull("tct.id")
-                .endBlock()
-                .beginBlock()
-                .isNotNull("tcp.id")
-                .endBlock()
+//                .beginBlock()
+//                .isNotNull("tct.id")
+//                .endBlock()
+//                .beginBlock()
+//                .isNotNull("tcp.id")
+//                .endBlock()
                 .in("sec.estado", lEstados);
         return all(sql);
     }

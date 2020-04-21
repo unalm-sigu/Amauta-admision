@@ -2834,6 +2834,26 @@ public class GpoSeccionController {
     }
 
     @ResponseBody
+    @RequestMapping("eliminarAllGrupos")
+    public JsonResponse eliminarAllGrupos(HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+        try {
+            response.setSuccess(true);
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);
+            ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
+            service.eliminarAllGrupos(ds);
+            response.setMessage("Grupos eliminados.");
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
     @RequestMapping("solucionarcruzados")
     public void solucionarCruzados(HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(Constantine.SESSION_USUARIO);

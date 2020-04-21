@@ -76,9 +76,11 @@ import pe.edu.lamolina.model.academico.TipoRepitencia;
 import pe.edu.lamolina.model.encuestaestudiantil.ConfiguraEncuesta;
 import pe.edu.lamolina.model.encuestaestudiantil.EncuestaDocente;
 import pe.edu.lamolina.model.encuestaestudiantil.PeriodoEncuesta;
+import static pe.edu.lamolina.model.enums.CodigoAnexoBoletinEnum.G01;
 import pe.edu.lamolina.model.enums.DeudaEstadoEnum;
 import pe.edu.lamolina.model.enums.EncuestaEstudiantilEstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoEnum;
+import static pe.edu.lamolina.model.enums.EstadoEnum.ACT;
 import pe.edu.lamolina.model.enums.EstadoGrupoSeccionEnum;
 import pe.edu.lamolina.model.enums.EstadoHorarioAulaEnum;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
@@ -2198,6 +2200,9 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             }
             return;
         }
+        // INICIO CAMBIO REALIZADO POR DAVID PINEDA
+        Assert.isTrue(aula.getEstadoEnum() == ACT, "El aula se encuentra inactiva.");
+        // FIN CAMBIO REALIZADO POR DAVID PINEDA
 
         Assert.isNotNull(aula.getCapacidadAula(), "Esta aula no tiene configurado la capacidad");
 
@@ -3078,11 +3083,11 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             vacAluSecc = (vacAluSecc == null) ? new ArrayList() : vacAluSecc;
             Map<Integer, VacanteAlumno> mapVacAluSecc = TypesUtil.convertListToMap("numero", vacAluSecc);
             for (int i = 1; i < secc.getVacantes() + 1; i++) {
-                VacanteAlumno va  = mapVacAluSecc.get(i);
-                if (va  != null) {
+                VacanteAlumno va = mapVacAluSecc.get(i);
+                if (va != null) {
                     continue;
                 }
-                va  = new VacanteAlumno();
+                va = new VacanteAlumno();
                 va.setNumero(i);
                 va.setSeccion(secc);
                 va.setEstadoEnum(EstadoVacanteAlumnoEnum.DISP);
@@ -3202,6 +3207,76 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             }
         }
         for (GrupoSeccion grupoSeccion : gruposSeccion) {
+            evaluacionExpandidaDAO.deleteByGrupoSeccion(grupoSeccion);
+            evaluacionSeccionDAO.deleteByGrupoSeccion(grupoSeccion);
+            GrupoSeccion gs = grupoSeccionDAO.find(grupoSeccion.getId());
+            grupoSeccionDAO.delete(gs);
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = false)
+    public void eliminarAllGrupos(DataSessionPivot ds) {
+        List<String> errors = new ArrayList<>();
+
+        List<GrupoSeccion> grupoSeccions = grupoSeccionDAO.allByCiclo(ds.getCicloAcademico());
+        grupoSeccions = grupoSeccions.stream().filter(x -> x.getCurso().getModalidadEstudio().isPregrado() && !x.getAnexoBoletin().getAnexoSuperior().getCodigo().equals(G01.name())).collect(Collectors.toList());
+
+        List<MatriculaSeccion> matriculasSeccion = matriculaSeccionDAO.allByGrupoSeccion(grupoSeccions, EstadoMatriculaEnum.MAT, EstadoMatriculaEnum.RET);
+        List<Seccion> seccionesWithMatriculados = matriculasSeccion.stream().map(x -> x.getSeccion()).distinct().collect(Collectors.toList());
+        for (Seccion seccionMat : seccionesWithMatriculados) {
+            String message = "Seccion %s, ya tiene matriculados";
+            message = String.format(message, seccionMat.getCodigo2());
+            errors.add(message);
+        }
+        if (!errors.isEmpty()) {
+            throw new PhobosException(String.join("\n", errors));
+        }
+
+        List<AlumnoEvaluacion> alumnosEvaluacion = alumnoEvaluacionDAO.allByGrupoSeccion(grupoSeccions);
+        List<Seccion> seccionesWithAlumnoEvaluacion = alumnosEvaluacion.stream().map(x -> x.getEvaluacion().getSeccionResponsable()).collect(Collectors.toList());
+        for (Seccion seccionWithEva : seccionesWithAlumnoEvaluacion) {
+            String message = "Seccion %s, tiene notas registradas";
+            message = String.format(message, seccionWithEva.getCodigo2());
+            errors.add(message);
+        }
+        if (!errors.isEmpty()) {
+            throw new PhobosException(String.join("\n", errors));
+        }
+
+        List<Evaluacion> evaluacionesByGrupos = evaluacionDAO.allByGruposSecciones(grupoSeccions);
+        for (Evaluacion evaluacion : evaluacionesByGrupos) {
+            evaluacionDAO.delete(evaluacion);
+        }
+
+        List<Seccion> secciones = seccionDAO.allByGrupoSecciones(grupoSeccions);
+        List<AmpliacionVacantes> ampliacionVacanteses = ampliacionVacanteDAO.allBySecciones(secciones);
+
+        Map<Long, AmpliacionVacantes> mapAmpliacion = TypesUtil.convertListToMap("seccion.id", ampliacionVacanteses);
+        Map<Long, List<Seccion>> seccionesGroupByGrupoSeccion = TypesUtil.convertListToMapList("grupoSeccion.id", secciones);
+
+        for (GrupoSeccion grupoSeccion : grupoSeccions) {
+            List<Seccion> seccionesByGpoSeccion = seccionesGroupByGrupoSeccion.get(grupoSeccion.getId());
+            Seccion seccionTCUR = null;
+            if (grupoSeccion.getCurso().isTipoCursoTEOPRA()) {
+                Seccion seccionTCURR = seccionesByGpoSeccion.stream().filter(x -> x.getIsTipoSeccionTCUR()).findFirst().orElse(null);
+                seccionTCUR = seccionTCURR;
+                seccionesByGpoSeccion.removeIf(x -> x.equals(seccionTCURR));
+            }
+            for (Seccion seccion : seccionesByGpoSeccion) {
+                this.deleteHorarioSeccion(seccion);
+                this.deleteDependenciasSeccion(seccion);
+                this.deleteAmpliacionVacantes(mapAmpliacion.get(seccion.getId()));
+                seccionDAO.delete(seccion);
+            }
+            if (seccionTCUR != null) {
+                this.deleteHorarioSeccion(seccionTCUR);
+                this.deleteDependenciasSeccion(seccionTCUR);
+                this.deleteAmpliacionVacantes(mapAmpliacion.get(seccionTCUR.getId()));
+                seccionDAO.delete(seccionTCUR);
+            }
+        }
+        for (GrupoSeccion grupoSeccion : grupoSeccions) {
             evaluacionExpandidaDAO.deleteByGrupoSeccion(grupoSeccion);
             evaluacionSeccionDAO.deleteByGrupoSeccion(grupoSeccion);
             GrupoSeccion gs = grupoSeccionDAO.find(grupoSeccion.getId());
@@ -3416,6 +3491,12 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     public List<AnexoBoletin> allAnexosUser(DataSessionPivot ds) {
         List<AnexoBoletin> anexosAll = anexoBoletinDAO.allAnexosHijos();
         return verificadorService.anexosInferioresByOficina(ds, anexosAll);
+    }
+
+    private void deleteAmpliacionVacantes(AmpliacionVacantes ampliacionVacantes) {
+        if (ampliacionVacantes != null) {
+            ampliacionVacanteDAO.delete(ampliacionVacantes);
+        }
     }
 
 }

@@ -194,7 +194,12 @@ public class PrecioSeccionServiceImp implements PrecioSeccionService {
         }
 
         if (tipoCarpeta != null && seccion.getTipoCarpeta() == null) {
-            seccionDAO.updateColumns(seccionForm, "tipoCarpeta");
+            // ANTES
+//            seccionDAO.updateColumns(seccionForm, "tipoCarpeta");
+            // INICIO AHORA CAMBIO HECHO POR DAVID PINEDA
+            seccion.setTipoCarpeta(tipoCarpeta);
+            seccionDAO.updateColumns(seccion, "tipoCarpeta");
+            // FIN AHORA CAMBIO HECHO POR DAVID PINEDA
         }
 
         return tipoCarpeta;

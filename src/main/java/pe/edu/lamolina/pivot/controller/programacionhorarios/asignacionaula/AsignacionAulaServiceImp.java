@@ -3,11 +3,15 @@ package pe.edu.lamolina.pivot.controller.programacionhorarios.asignacionaula;
 import java.beans.Transient;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -150,8 +154,11 @@ public class AsignacionAulaServiceImp implements AsignacionAulaService {
         Map<Long, List<HorarioSeccion>> mapHorariosBySeccion = TypesUtil.convertListToMapList("seccion.id", horarios);
 
         // INICIO CAMBIO HECHO POR DAVID PINEDA
-        List<HorarioAula> horarioAulas = horarioAulaDAO.allByCiclo(ds.getCicloAcademico());
-        Map<String, HorarioAula> mapAulaDiaHora = TypesUtil.convertListToMap("key", horarioAulas);
+//        List<HorarioAula> horarioAulas = horarioAulaDAO.allByCiclo(ds.getCicloAcademico());
+//        for (HorarioAula horarioAula : horarioAulas) {
+//            logger.debug("AULA {}, DIA {}, HORA {}, ESTADO {}, TIPO {}", horarioAula.getAula().getId(), horarioAula.getDia().getId(), horarioAula.getHora().getId(), horarioAula.getEstado(), horarioAula.getTipo());
+//        }
+//        Map<String, List<HorarioAula>> mapAulaDiaHora = TypesUtil.convertListToMapList("key", horarioAulas);
         // FIN CAMBIO HECHO POR DAVID PINEDA
         int seccionesProgramadas = seccionesByCiclo.size();
 
@@ -160,7 +167,8 @@ public class AsignacionAulaServiceImp implements AsignacionAulaService {
                 .collect(Collectors.toList());
 
         //Ordernar por horas semanalaes de mayor a menor
-        Collections.sort(seccionesByCiclo, (p1, p2) -> p2.getHorasSemanales().compareTo(p1.getHorasSemanales()));
+//        Collections.sort(seccionesByCiclo, (p1, p2) -> p2.getHorasSemanales().compareTo(p1.getHorasSemanales()));
+        Collections.sort(seccionesByCiclo, (p1, p2) -> p2.getVacantes().compareTo(p1.getVacantes()));
 
         EventoCicloAcademico eventoCicloDictado = eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(ds.getCicloAcademico(), EventoAcademicoEnum.CLASES_PRE);
         List<Aula> aulas = aulaDAO.allByOficinaSupervisora(OficinaEnum.OERA, EstadoEnum.ACT);
@@ -171,7 +179,7 @@ public class AsignacionAulaServiceImp implements AsignacionAulaService {
         logger.debug("Modulos Encontrados Por Aula (id´'s) {}", new ArrayList(mapAulasByModulo.keySet()));
 
         List<HorarioAula> horarioAulasDictado = horarioAulaDAO.allByRango(eventoCicloDictado.getFechaInicio(), eventoCicloDictado.getFechaFin());
-        Map<Long, List<HorarioAula>> mapsHorarioAulaByAulaForDictado = TypesUtil.convertListToMapList("aula.id", horarioAulasDictado);
+        Map<String, List<HorarioAula>> mapsHorarioAulaByAulaForDictado = TypesUtil.convertListToMapList("key", horarioAulasDictado);
 
         List<DocenteSeccion> docentesSeccionPrincipalesByCiclo
                 = docenteSeccionDAO.allByCiclo(ds.getCicloAcademico(), EstadoEnum.ACT);
@@ -193,12 +201,24 @@ public class AsignacionAulaServiceImp implements AsignacionAulaService {
         int seccionesAsignadas = 0;
 
         for (Seccion seccion : seccionesByCiclo) {
+
+            logger.debug("Seccion {} Horas semanales {} Vacantes {} ", seccion.getCodigo2(), seccion.getHorasSemanales(), seccion.getVacantes());
+
+            if (seccion.getGrupoSeccion().getCurso().getModalidadEstudio().isPostgrado()) {
+
+                System.err.println("---- Seccion Post grado");
+                continue;
+            }
+
             TipoCarpeta tipoCarpeta = this.getTipoCarpeta(seccion, cursosCiclosAcademicos);
             List<HorarioSeccion> horariosSecciones = mapHorariosBySeccion.get(seccion.getId());
             seccion.setHorarioSeccion(horariosSecciones);
             if (seccion.getHorarioSeccion() == null) {
+
+                System.err.println("---- Seccion No tiene horario");
                 continue;
             }
+            Boolean esDocenteConDiscapacidad = false;
             Map<Long, List<HorarioAula>> mapsHorarioAulaByAulaForFechasModular = null;
             if (seccion.getGrupoSeccion().getFechaInicioModular() != null && seccion.getGrupoSeccion().getFechaFinModular() != null) {
                 List<HorarioAula> horariosAulas = horarioAulaDAO.allByRango(seccion.getGrupoSeccion().getFechaInicioModular(), seccion.getGrupoSeccion().getFechaFinModular());
@@ -207,23 +227,31 @@ public class AsignacionAulaServiceImp implements AsignacionAulaService {
             DocenteSeccion docenteSeccionPrincipal = mapDocentesSeccionPrincipalesBySeccion.get(seccion.getId());
             DepartamentoAcademico departamentoAcademicoDocente = docenteSeccionPrincipal.getDocente().getDepartamentoAcademico();
             if (departamentoAcademicoDocente == null) {
-                continue;
+                departamentoAcademicoDocente = seccion.getGrupoSeccion().getCurso().getDepartamentoAcademico();
+                if (departamentoAcademicoDocente == null) {
+                    System.err.println("---- Seccion sin departamento");
+                    continue;
+                }
+            } else {
+
+                esDocenteConDiscapacidad = docenteSeccionPrincipal.getDocente().getPersona().getConDiscapacidad() == 1;
+                seccion.settDocenteSeccion(docenteSeccionPrincipal);
             }
-            Boolean esDocenteConDiscapacidad = docenteSeccionPrincipal.getDocente().getPersona().getConDiscapacidad() == 1;
-            seccion.settDocenteSeccion(docenteSeccionPrincipal);
 
             List<DistanciaPabellon> distanciaPabellonByDepartamento = mapDistanciaPabellones.get(departamentoAcademicoDocente.getId());
             if (distanciaPabellonByDepartamento == null) {
+                System.err.println("---- Seccion No hay distancias");
                 continue;
             }
             FOR_DIST_PAB:
             for (DistanciaPabellon distanciaPabellon : distanciaPabellonByDepartamento) {
-                List<Aula> aulasByPabellon = mapAulasByModulo.get(distanciaPabellon.getPabellon().getId());
-                aulasByPabellon = aulas.stream()
-                        .filter(x -> x.getAforo() >= seccion.getMatriculados())
+
+                List<Aula> aulasByPabellon = TypesUtil.getListNotNull(mapAulasByModulo.get(distanciaPabellon.getPabellon().getId()));
+                aulasByPabellon = aulasByPabellon.stream()
+                        .filter(x -> x.getAforo() >= seccion.getVacantes())
                         .filter(x -> tipoCarpeta.getId().compareTo(x.getTipoCarpeta().getId()) == 0)
                         .collect(Collectors.toList());
-                //Ordenamos las aulas por aforo de menor a mayor
+                //Ordenamos las aulas por aforo de mayor a menor
                 Collections.sort(aulasByPabellon, (p1, p2) -> p1.getAforo().compareTo(p2.getAforo()));
                 FOR_AULA:
                 for (Aula aula : aulasByPabellon) {
@@ -237,44 +265,57 @@ public class AsignacionAulaServiceImp implements AsignacionAulaService {
                     }
                     aula.setHorariosAula(horariosAula);
                      */
-                    this.fillHorarioAula(aula, mapsHorarioAulaByAulaForDictado, mapsHorarioAulaByAulaForFechasModular);
+
+//                    this.fillHorarioAula(aula, mapsHorarioAulaByAulaForDictado, mapsHorarioAulaByAulaForFechasModular);
                     Integer piso = aula.getPiso() == null ? BigDecimal.ONE.intValue() : aula.getPiso();
                     if (esDocenteConDiscapacidad && piso != BigDecimal.ONE.intValue()) {
+                        System.err.println("---- Seccion discapacitado sin primer piso");
                         continue;
                     }
 
                     for (HorarioSeccion horarioSeccion : seccion.getHorarioSeccion()) {
-                        HorarioAula horarioAula = aula.getHorariosAula()
-                                .stream()
-                                .filter(x -> x.getHoraDia().equals(horarioSeccion.getHoraDia()))
-                                .filter(x -> x.getDia().equals(horarioSeccion.getDia()))
-                                .filter(x -> x.getHora().equals(horarioSeccion.getHora()))
-                                .findFirst().orElse(null);
-                        if (horarioAula != null) {
-                            continue FOR_AULA;
-                        }
-                        // INICIO CAMBIO HECHO POR DAVID PINEDA 
-                        String key = aula.getId() + "-" + horarioSeccion.getDia().getId() + "-" + horarioSeccion.getHora().getId();
-//                        System.out.println("KEY ---" + key);
-                        if (key.equals("1563-1-11")) {
-                            System.out.println("Fecha ---" + eventoCicloDictado.getFechaInicio().toString());
-//                            System.out.println("Fecha2 ---" + seccion.getGrupoSeccion().getFechaInicioModular().toString());
-                        }
-                        HorarioAula ha = mapAulaDiaHora.get(key);
-                        if (ha != null) {
 
-                            if (mapsHorarioAulaByAulaForFechasModular != null) {
-                                if (ha.getFechaInicio().equals(seccion.getGrupoSeccion().getFechaInicioModular())) {
-                                    continue FOR_AULA;
+                        String key = aula.getId() + "-" + horarioSeccion.getDia().getId() + "-" + horarioSeccion.getHora().getId();
+//                        HorarioAula horarioAula = aula.getHorariosAula()
+//                                .stream()
+//                                .filter(x -> x.getHoraDia().equals(horarioSeccion.getHoraDia()))
+//                                .findFirst().orElse(null);
+//                        if (horarioAula != null) {
+                        System.err.println("---- Seccion cruce horario");
+//                            continue FOR_AULA;
+//                        }
+                        // INICIO CAMBIO HECHO POR DAVID PINEDA 
+//                        String key = aula.getId() + "-" + horarioSeccion.getDia().getId() + "-" + horarioSeccion.getHora().getId();
+                        List<HorarioAula> ha = TypesUtil.getListNotNull(mapsHorarioAulaByAulaForDictado.get(key));
+                        if (!ha.isEmpty()) {
+//                            logger.debug("AULA {}, DIA {}, HORA {}", aula.getId(), horarioSeccion.getDia().getId(), horarioSeccion.getHora().getId());
+                            Boolean error = false;
+                            for (HorarioAula horarioAu : aula.getHorariosAula()) {
+//                                logger.debug("AULA {}, DIA {}, HORA {}, ESTADO {}, TIPO {}", horarioAu.getAula().getId(), horarioAu.getDia().getId(), horarioAu.getHora().getId(), horarioAu.getEstado(), horarioAu.getTipo());
+//
+                                if (horarioAu != null) {
+                                    if (mapsHorarioAulaByAulaForFechasModular != null) {
+                                        if (TypesUtil.getStringDate(horarioAu.getFechaInicio(), "yyyy/MM/dd").equals(TypesUtil.getStringDate(seccion.getGrupoSeccion().getFechaInicioModular(), "yyyy/MM/dd"))) {
+                                            System.err.println("---- Seccion fecha modular");
+                                            error = true;
+                                            break;
+                                        }
+                                    } else {
+
+                                        if (TypesUtil.getStringDate(horarioAu.getFechaInicio(), "yyyy/MM/dd").equals(TypesUtil.getStringDate(eventoCicloDictado.getFechaInicio(), "yyyy/MM/dd"))) {
+                                            System.err.println("---- Seccion fecha evento");
+                                            error = true;
+                                            break;
+                                        }
+                                    }
                                 }
-                            } else {
-                                if (ha.getFechaInicio().equals(eventoCicloDictado.getFechaInicio())) {
-                                    continue FOR_AULA;
-                                }
+                            }
+                            if (error) {
+                                continue FOR_AULA;
                             }
                         }
                         //CAMBIO HECHO POR DAVID PINEDA SE AGREGÓ key Y mapAulaDiaHora AL SIGUIENTE METODO
-                        this.saveHorarioAula(aula, seccion, horarioSeccion, eventoCicloDictado, mapsHorarioAulaByAulaForFechasModular, key, mapAulaDiaHora);
+                        this.saveHorarioAula(aula, seccion, horarioSeccion, eventoCicloDictado, mapsHorarioAulaByAulaForFechasModular, mapsHorarioAulaByAulaForDictado, key);
                         // FIN HECHO POR DAVID PINEDA
                         /*  HorarioAula horarioAulaSave = new HorarioAula(seccion, horarioSeccion.getDia(), horarioSeccion.getHora(), aula);
                         horarioAulaSave.setTipoEnum(TipoHorarioAulaEnum.DICT);
@@ -317,6 +358,7 @@ public class AsignacionAulaServiceImp implements AsignacionAulaService {
                 }
             }
         }
+
         if (asignacionAula != null) {
             asignacionAula = new AsignacionAula();
         }
@@ -346,27 +388,46 @@ public class AsignacionAulaServiceImp implements AsignacionAulaService {
 
     public void saveHorarioAula(Aula aula, Seccion seccion, HorarioSeccion horarioSeccion,
             EventoCicloAcademico eventoCicloDictado,
-            Map<Long, List<HorarioAula>> mapsHorarioAulaByAulaForFechasModular, String key, Map<String, HorarioAula> mapAulaDiaHora) {
+            Map<Long, List<HorarioAula>> mapsHorarioAulaByAulaForFechasModular, Map<String, List<HorarioAula>> mapsHorarioAulaByAulaForDictado, String key) {
         HorarioAula horarioAulaSave = new HorarioAula(seccion, horarioSeccion.getDia(), horarioSeccion.getHora(), aula);
         horarioAulaSave.setTipoEnum(TipoHorarioAulaEnum.DICT);
         horarioAulaSave.setEstadoEnum(EstadoHorarioAulaEnum.ACT);
         if (mapsHorarioAulaByAulaForFechasModular != null) {
-            horarioAulaSave.setFechaInicio(seccion.getGrupoSeccion().getFechaInicioModular());
+            Date fechaInicioClases = new DateTime(seccion.getGrupoSeccion().getFechaInicioModular()).withDayOfWeek(1).toDate();
+            Date hoy = new LocalDate().toDate();
+            Date lunes = new DateTime(hoy).withDayOfWeek(1).toDate();
+//            if (lunes.after(fechaInicioClases)) {
+//                fechaInicioClases = lunes;
+//            }
+
+            horarioAulaSave.setFechaInicio(fechaInicioClases);
             horarioAulaSave.setFechaFin(seccion.getGrupoSeccion().getFechaFinModular());
-            System.out.println("-------" + horarioAulaSave.toString());
+            System.out.println("------- Modular" + horarioAulaSave.toString());
             horarioAulaDAO.save(horarioAulaSave);
         } else {
-            horarioAulaSave.setFechaInicio(eventoCicloDictado.getFechaInicio());
+
+            Date fechaInicioClases = new DateTime(eventoCicloDictado.getFechaInicio()).withDayOfWeek(1).toDate();
+            Date hoy = new LocalDate().toDate();
+            Date lunes = new DateTime(hoy).withDayOfWeek(1).toDate();
+//            if (lunes.after(fechaInicioClases)) {
+//                fechaInicioClases = lunes;
+//            }
+
+            horarioAulaSave.setFechaInicio(fechaInicioClases);
             horarioAulaSave.setFechaFin(eventoCicloDictado.getFechaFin());
             if (aula.getHorariosAula() == null) {
                 aula.setHorarioReservaAula(new ArrayList<>());
             }
             aula.getHorariosAula().add(horarioAulaSave.clone());
-            System.out.println("-------" + horarioAulaSave.toString());
+            System.out.println("------- Evento" + horarioAulaSave.toString());
             horarioAulaDAO.save(horarioAulaSave);
         }
         //INICIO CAMBIO HECHO POR DAVID PINEDA
-        mapAulaDiaHora.put(key, horarioAulaSave);
+        if (TypesUtil.getListNotNull(mapsHorarioAulaByAulaForDictado.get(key)).isEmpty()) {
+            mapsHorarioAulaByAulaForDictado.put(key, Arrays.asList(horarioAulaSave));
+        } else {
+            mapsHorarioAulaByAulaForDictado.get(key).add(horarioAulaSave);
+        }
         //FIN CAMBIO HECHO POR DAVID PINEDA
 
     }
