@@ -15,13 +15,13 @@ import pe.edu.lamolina.amauta.controller.ingresante.muestraslab.MuestrasLabServi
 import pe.edu.lamolina.amauta.controller.seguridad.menu.MenuService;
 
 @EnableAsync
-@SpringBootApplication
 @EnableCaching
-@ComponentScan(basePackages = {"pe.edu.lamolina.pivot", "pe.albatross.zelpers"})
-public class PivotApplication extends WebMvcConfigurerAdapter {
+@SpringBootApplication
+@ComponentScan(basePackages = {"pe.edu.lamolina.amauta", "pe.albatross.zelpers"})
+public class AmautaApplication extends WebMvcConfigurerAdapter {
 
     public static void main(String[] args) {
-        ConfigurableApplicationContext context = SpringApplication.run(PivotApplication.class, args);
+        ConfigurableApplicationContext context = SpringApplication.run(AmautaApplication.class, args);
         context.getBean(MenuService.class).inicializarMenus();
         context.getBean(MuestrasLabService.class).inicializarVisor();
     }
