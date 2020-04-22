@@ -77,7 +77,7 @@ new Vue({
                     }
                 },
                 error: function () {
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                 }
             });
         },
@@ -127,7 +127,7 @@ new Vue({
                 },
                 error: function () {
                     vue.stop();
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                 }
             });
             vue.tracer();
@@ -184,7 +184,7 @@ new Vue({
                     }
                 },
                 error: function () {
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                 }
             });
         },

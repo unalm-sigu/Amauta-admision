@@ -95,11 +95,11 @@ var app = new Vue({
                         $vue.$refs.modalResolucion.open();
                         console.dir(response.data);
                     } else {
-                        notify(GlobalMessages.errorComunicacion, "error");
+                        notify(Messages.errorComunicacion, "error");
                     }
                 },
                 error: function () {
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                 }
             });
 
@@ -134,7 +134,7 @@ var app = new Vue({
                     }
                 },
                 error: function () {
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                 }
             });
         },
@@ -242,11 +242,11 @@ var app = new Vue({
                         $vue.$refs.tblTramites.loadRemoteData();
                         $vue.$refs.modalConfirmar.open();
                     } else {
-                        notify(GlobalMessages.errorComunicacion, "error");
+                        notify(Messages.errorComunicacion, "error");
                     }
                 },
                 error: function () {
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                 }
             });
         }, 
@@ -283,7 +283,7 @@ var app = new Vue({
                     }
                 },
                 error: function () {
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                 }
             });
         }, 
@@ -319,7 +319,7 @@ var app = new Vue({
                     }
                 },
                 error: function () {
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                 }
             });
         },

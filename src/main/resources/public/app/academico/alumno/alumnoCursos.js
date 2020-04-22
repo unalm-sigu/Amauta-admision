@@ -41,7 +41,7 @@ new Vue({
                         }
                     }).
                     catch(err => {
-                        notify(GlobalMessages.errorComunicacion, "error");
+                        notify(Messages.errorComunicacion, "error");
                     });
         },
         opencursoCurrila() {
@@ -73,7 +73,7 @@ new Vue({
                     }).
                     catch(err => {
                         $vue.$refs.cursoCurriculaModal.processing = false;
-                        notify(GlobalMessages.errorComunicacion, "error");
+                        notify(Messages.errorComunicacion, "error");
                     });
         }
     }

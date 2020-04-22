@@ -72,7 +72,7 @@ new Vue({
                             notify("El alumno " + item.persona.apellidosNombres + " no tiene resolución de traslado externo", "warning");
                         }
                     }).catch(e => {
-                notify(GlobalMessages.errorComunicacion, "error");
+                notify(Messages.errorComunicacion, "error");
             });
         },
         asignarAccesoEspecial(item) {
@@ -141,7 +141,7 @@ new Vue({
                             notify(response.data.message, "warning")
                         }
                     }).catch(e => {
-                notify(GlobalMessages.errorComunicacion, "error");
+                notify(Messages.errorComunicacion, "error");
             });
         },
         getOrigenURL() {

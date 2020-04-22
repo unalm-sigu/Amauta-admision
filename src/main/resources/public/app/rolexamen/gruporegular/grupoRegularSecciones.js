@@ -168,7 +168,7 @@ new Vue({
 
             }).catch(e => {
                 $vue.$refs.modalCambioAula.confirmReaction(false);
-                notify(GlobalMessages.errorComunicacion, "error");
+                notify(Messages.errorComunicacion, "error");
             });
         }
     }

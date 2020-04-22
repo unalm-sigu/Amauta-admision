@@ -29,7 +29,7 @@ Vue.component("aula-horario-component", {
                     }
                 },
                 error() {
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                 }
             });
         },

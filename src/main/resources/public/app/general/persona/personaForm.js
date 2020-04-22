@@ -60,7 +60,7 @@ $(function () {
                     }
                 },
                 error: function () {
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                 }
             });
         },
@@ -95,7 +95,7 @@ $(function () {
                         }
                     },
                     error: function () {
-                        notify(GlobalMessages.errorComunicacion, "error");
+                        notify(Messages.errorComunicacion, "error");
                     }
                 });
             }
@@ -130,7 +130,7 @@ $(function () {
                     }
                 },
                 error: function () {
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                 }
             });
         },
@@ -161,7 +161,7 @@ $(function () {
                 },
                 error: function () {
                     window.ParsleyUI.updateError(inputEmail, "errorValidacionEmail", "Este correo no se pudo validar");
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                     $("#footerEditPersona").find("a").each(function (i, item) {
                         $(item).removeAttr("disabled");
                     });
@@ -196,7 +196,7 @@ $(function () {
                 },
                 error: function () {
                     window.ParsleyUI.updateError(inputEmail, "errorValidacionEmail", "Este correo no se pudo validar");
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                     $("#footerEditPersona").find("a").each(function (i, item) {
                         $(item).removeAttr("disabled");
                     });
@@ -270,7 +270,7 @@ $(function () {
                     MODAL.hideWait();
                     tipo.select2("val", PersonaForm.tipoDNI);
                     dni.val(PersonaForm.numeroDNI);
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                 }
             });
 

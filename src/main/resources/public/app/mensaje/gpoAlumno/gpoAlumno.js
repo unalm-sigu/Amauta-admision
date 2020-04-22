@@ -58,7 +58,7 @@ new Vue({
                     }
                 },
                 error: function (error) {
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                 }
             });
 
@@ -99,7 +99,7 @@ new Vue({
                             }
                         },
                         error: function (error) {
-                            notify(GlobalMessages.errorComunicacion, "error");
+                            notify(Messages.errorComunicacion, "error");
                         }
                     });
 

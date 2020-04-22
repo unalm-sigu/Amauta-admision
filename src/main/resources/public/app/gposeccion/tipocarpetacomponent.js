@@ -25,7 +25,7 @@ Vue.component("tipo-carpeta-component", {
                     }
                 },
                 error() {
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                 }
             });
         },
@@ -48,7 +48,7 @@ Vue.component("tipo-carpeta-component", {
                 },
                 error() {
                     $vue.isSearchingTipoCarpeta = false;
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                 }
             });
         },
@@ -87,7 +87,7 @@ Vue.component("tipo-carpeta-component", {
                                 }
                             },
                             error() {
-                                notify(GlobalMessages.errorComunicacion, "error");
+                                notify(Messages.errorComunicacion, "error");
                             }
                         });
                         return false;

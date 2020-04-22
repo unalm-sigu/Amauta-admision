@@ -24,7 +24,7 @@ new Vue({
                     }
                 },
                 error() {
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                 }
             });
         },
@@ -60,7 +60,7 @@ new Vue({
                             notify(response.data.message, "warning");
                         }
                     }).catch(e => {
-                notify(GlobalMessages.errorComunicacion, "error");
+                notify(Messages.errorComunicacion, "error");
             });
 
         }

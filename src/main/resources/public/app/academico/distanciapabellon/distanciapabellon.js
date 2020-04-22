@@ -36,7 +36,7 @@ new Vue({
                     }
                     $vue.hideLoader();
                 }, error: function () {
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                     $vue.hideLoader();
                 }
             });
@@ -60,7 +60,7 @@ new Vue({
                     }
                     $vue.hideLoader();
                 }, error: function () {
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                     $vue.hideLoader();
                 }
             });

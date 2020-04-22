@@ -183,7 +183,7 @@ new Vue({
                 },
                 error: function () {
                     self.btnEnable();
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                 }
             });
         },
@@ -255,7 +255,7 @@ new Vue({
                 }
             }).catch(e => {
                 $vue.guardandoFoto = false;
-                notify(GlobalMessages.errorComunicacion, "error");
+                notify(Messages.errorComunicacion, "error");
             });
         },
         deshacerFoto() {

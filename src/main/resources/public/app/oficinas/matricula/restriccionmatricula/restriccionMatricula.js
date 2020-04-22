@@ -68,7 +68,7 @@
 //                    }
 //                },
 //                error: function () {
-//                    notify(GlobalMessages.errorComunicacion, "error");
+//                    notify(Messages.errorComunicacion, "error");
 //                }
 //            });
 //            console.log(form.serialize());
@@ -105,7 +105,7 @@
 //                            }
 //                        },
 //                        error: function () {
-//                            notify(GlobalMessages.errorComunicacion, "error");
+//                            notify(Messages.errorComunicacion, "error");
 //                        }
 //                    });
 //                }
@@ -134,7 +134,7 @@
 //                    }
 //                },
 //                error: function () {
-//                    notify(GlobalMessages.errorComunicacion, "error");
+//                    notify(Messages.errorComunicacion, "error");
 //                }
 //            });
 //        },
@@ -283,7 +283,7 @@ new Vue({
                     }
                 },
                 error: function () {
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                 }
             });
             $vue.$refs.modalEdit.close();
@@ -315,7 +315,7 @@ new Vue({
                             }
                         },
                         error: function () {
-                            notify(GlobalMessages.errorComunicacion, "error");
+                            notify(Messages.errorComunicacion, "error");
                         }
                     });
                 }
@@ -340,7 +340,7 @@ new Vue({
                     }
                 },
                 error: function () {
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                 }
             });
             $vue.$refs.modalAnular.close();
@@ -381,7 +381,7 @@ new Vue({
                     }
                 },
                 error: function () {
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                 }
             });
             $vue.$refs.modalNuevo.close();

@@ -62,10 +62,10 @@ new Vue({
                         $vue.horas = response.data.horas;
                         $vue.aula = response.data.aula;
                     } else {
-                        notify(GlobalMessages.errorComunicacion, "error");
+                        notify(Messages.errorComunicacion, "error");
                     }
                 }, error: function () {
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                 }
             });
         },

@@ -45,7 +45,7 @@ new Vue({
                     }
                 },
                 error() {
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                 }
             });
         },
@@ -77,7 +77,7 @@ new Vue({
                                 }
                             },
                             error() {
-                                notify(GlobalMessages.errorComunicacion, "error");
+                                notify(Messages.errorComunicacion, "error");
                             }
                         });
                         MODAL.hideWait();

@@ -430,7 +430,7 @@ Vue.component("historial-component", {
                                 $global.$emit('MODAL-WAIT-CLOSE', 'Cargando');
                             },
                             error: function () {
-                                notify(GlobalMessages.errorComunicacion, "error");
+                                notify(Messages.errorComunicacion, "error");
                                 $global.$emit('MODAL-WAIT-CLOSE', 'Cargando');
                             }
                         });
@@ -452,7 +452,7 @@ Vue.component("historial-component", {
                     }
                 },
                 error: function () {
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                 }
             });
         }

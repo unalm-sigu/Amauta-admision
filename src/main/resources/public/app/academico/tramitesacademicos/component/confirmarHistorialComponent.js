@@ -231,7 +231,7 @@ Vue.component("conf-historial-component", {
                                 }
                                 $global.$emit('MODAL-WAIT-CLOSE', 'Cargando');
                             }, error: function () {
-                                notify(GlobalMessages.errorComunicacion, "error");
+                                notify(Messages.errorComunicacion, "error");
                                 $global.$emit('MODAL-WAIT-CLOSE', 'Cargando');
                             }
                         });

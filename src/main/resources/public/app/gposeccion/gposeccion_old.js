@@ -123,14 +123,14 @@ $(function () {
                                 $("#tpcCur").html(curso.cursoTpc);
                             },
                             error: function () {
-                                notify(GlobalMessages.errorComunicacion, "error");
+                                notify(Messages.errorComunicacion, "error");
                             }
                         });
                     });
 
                 },
                 error: function () {
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                 }
             });
         }, buscarCursoSel: {
@@ -171,7 +171,7 @@ $(function () {
                             $("#spnCategoria").html(anexo.anexoCodigo + " - " + anexo.anexoNombre);
                         },
                         error: function () {
-                            notify(GlobalMessages.errorComunicacion, "error");
+                            notify(Messages.errorComunicacion, "error");
                         }
                     });
                 }
@@ -218,7 +218,7 @@ $(function () {
                             error: function () {
                                 MODAL.hideWait();
                                 MODAL.hide();
-                                notify(GlobalMessages.errorComunicacion, "error");
+                                notify(Messages.errorComunicacion, "error");
                             }
                         });
 
@@ -250,7 +250,7 @@ $(function () {
                     }
                 },
                 error: function () {
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                 }
             });
         }, activarGpoSeccion: function ($this, e) {
@@ -271,7 +271,7 @@ $(function () {
                     }
                 },
                 error: function () {
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                 }
             });
         },

@@ -161,7 +161,7 @@ new Vue({
                     }
                 },
                 error: function () {
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                 }
             });
 
@@ -210,7 +210,7 @@ new Vue({
                     notify(response.data.message, "error");
                 }
             }).catch(function (error) {
-                notify(GlobalMessages.errorComunicacion, "error");
+                notify(Messages.errorComunicacion, "error");
             });
         },
         desasignarHora(dia, hora) {
@@ -236,7 +236,7 @@ new Vue({
                     notify(response.data.message, "error");
                 }
             }).catch(function (error) {
-                notify(GlobalMessages.errorComunicacion, "error");
+                notify(Messages.errorComunicacion, "error");
             });
         },
         conterObjHdia(dia, hora) {
@@ -297,7 +297,7 @@ new Vue({
                     notify(response.data.message, "error");
                 }
             }).catch(function (error) {
-                notify(GlobalMessages.errorComunicacion, "error");
+                notify(Messages.errorComunicacion, "error");
             });
 
         },
@@ -335,7 +335,7 @@ new Vue({
 
             }).catch(function (error) {
                 $vue.$refs.modalEditGrupo.confirmReaction(false);
-                notify(GlobalMessages.errorComunicacion, "error");
+                notify(Messages.errorComunicacion, "error");
             });
         },
         verColores() {
@@ -424,7 +424,7 @@ new Vue({
                 }).catch(function (error) {
                     $vue.$refs.modalConfirmAction.confirmReaction(false);
                     console.log(error);
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                 });
             };
             $vue.$refs.modalConfirmAction.open();
@@ -447,7 +447,7 @@ new Vue({
                 }).catch(function (error) {
                     $vue.$refs.modalConfirmAction.confirmReaction(false);
                     console.log(error);
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                 });
             };
             $vue.$refs.modalConfirmAction.open();
@@ -487,7 +487,7 @@ new Vue({
 
             }).catch(function (error) {
                 $vue.cfgActivarGrupo.waiting = false;
-                notify(GlobalMessages.errorComunicacion, "error");
+                notify(Messages.errorComunicacion, "error");
             });
         },
         selectGpoHide(item) {
@@ -535,7 +535,7 @@ new Vue({
 
             }).catch(function (error) {
                 $vue.$refs.modalActivarGrupo.confirmReaction(false);
-                notify(GlobalMessages.errorComunicacion, "error");
+                notify(Messages.errorComunicacion, "error");
             });
 
         }

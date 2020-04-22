@@ -21,7 +21,7 @@ $(function() {
                     }
                 },
                 error: function() {
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                 }
             });
         },
@@ -89,7 +89,7 @@ $(function() {
                         }
                     },
                     error: function() {
-                        notify(GlobalMessages.errorComunicacion, "error");
+                        notify(Messages.errorComunicacion, "error");
                     }
                 });
             },
@@ -135,7 +135,7 @@ $(function() {
                     },
                     error: function() {
                         $('#formulario').html('');
-                        notify(GlobalMessages.errorComunicacion, "error");
+                        notify(Messages.errorComunicacion, "error");
                     }
                 });
 
@@ -168,7 +168,7 @@ $(function() {
                                     }
                                 },
                                 error: function() {
-                                    notify(GlobalMessages.errorComunicacion, "error");
+                                    notify(Messages.errorComunicacion, "error");
                                 }
                             });
 
@@ -223,7 +223,7 @@ $(function() {
                         }
                     },
                     error: function() {
-                        notify(GlobalMessages.errorComunicacion, "error");
+                        notify(Messages.errorComunicacion, "error");
                     }
                 });
             },
@@ -269,7 +269,7 @@ $(function() {
                         }
                     },
                     error: function() {
-                        notify(GlobalMessages.errorComunicacion, "error");
+                        notify(Messages.errorComunicacion, "error");
                         $('#formulario').html('');
                     }
                 });
@@ -302,7 +302,7 @@ $(function() {
                                     }
                                 },
                                 error: function() {
-                                    notify(GlobalMessages.errorComunicacion, "error");
+                                    notify(Messages.errorComunicacion, "error");
                                 }
                             });
 
@@ -402,7 +402,7 @@ $(function() {
                         }
                     },
                     error: function() {
-                        notify(GlobalMessages.errorComunicacion, "error");
+                        notify(Messages.errorComunicacion, "error");
                     }
                 });
             },
@@ -490,7 +490,7 @@ $(function() {
                         }
                     },
                     error: function() {
-                        notify(GlobalMessages.errorComunicacion, "error");
+                        notify(Messages.errorComunicacion, "error");
                         $('#formulario').html('');
                     },
                 });
@@ -524,7 +524,7 @@ $(function() {
                                     }
                                 },
                                 error: function() {
-                                    notify(GlobalMessages.errorComunicacion, "error");
+                                    notify(Messages.errorComunicacion, "error");
                                 }
                             });
 
@@ -555,7 +555,7 @@ $(function() {
                     }
                 },
                 error: function() {
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                 }
             });
 
@@ -589,7 +589,7 @@ $(function() {
                                 }
                             },
                             error: function() {
-                                notify(GlobalMessages.errorComunicacion, "error");
+                                notify(Messages.errorComunicacion, "error");
                             }
                         });
                     }

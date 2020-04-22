@@ -194,7 +194,7 @@ $(function() {
                         }
                     },
                     error: function() {
-                        notify(GlobalMessages.errorComunicacion, "error");
+                        notify(Messages.errorComunicacion, "error");
                     }
                 });
                 this.$refs.modalAddAlumno.close();
@@ -247,7 +247,7 @@ $(function() {
                             }
                         },
                         error: function() {
-                            notify(GlobalMessages.errorComunicacion, "error");
+                            notify(Messages.errorComunicacion, "error");
                             return  swal({text: MESSAGES.errorComunicacion, icon: "error", dangerMode: true, button: {text: "Aceptar"}});
                         }
                     });
@@ -275,7 +275,7 @@ $(function() {
                         }
                     },
                     error: function() {
-                        notify(GlobalMessages.errorComunicacion, "error");
+                        notify(Messages.errorComunicacion, "error");
                     }
                 });
                 this.$refs.modalVerHorario.open();
@@ -300,7 +300,7 @@ $(function() {
                         }
                     },
                     error: function() {
-                        notify(GlobalMessages.errorComunicacion, "error");
+                        notify(Messages.errorComunicacion, "error");
                     }
                 });
                 this.$refs.modalVerCurso.open();
@@ -319,7 +319,7 @@ $(function() {
                         }
                     },
                     error: function() {
-                        notify(GlobalMessages.errorComunicacion, "error");
+                        notify(Messages.errorComunicacion, "error");
                     }
                 });
                 this.$refs.modalVerAlumno.open();
@@ -361,7 +361,7 @@ $(function() {
                             }
                         },
                         error: function() {
-                            notify(GlobalMessages.errorComunicacion, "error");
+                            notify(Messages.errorComunicacion, "error");
                             return  swal({text: MESSAGES.errorComunicacion, icon: "error", dangerMode: true, button: {text: "Aceptar"}});
                         }
                     });

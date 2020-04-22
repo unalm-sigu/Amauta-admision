@@ -72,7 +72,7 @@ var app = new Vue({
                     MODAL.hideWait();
                 },
                 error: function () {
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                     MODAL.hideWait();
                 }
             });
@@ -94,11 +94,11 @@ var app = new Vue({
 
                         $vue.$refs.modalReprogramacion.open();
                     } else {
-                        notify(GlobalMessages.errorComunicacion, "error");
+                        notify(Messages.errorComunicacion, "error");
                     }
                 },
                 error: function () {
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                 }
             });
 
@@ -147,7 +147,7 @@ var app = new Vue({
              notify(response.message, "error");
              }
              }, error: function () {
-             notify(GlobalMessages.errorComunicacion, "error");
+             notify(Messages.errorComunicacion, "error");
              }
              });
              */

@@ -48,7 +48,7 @@ $(function () {
                     MODAL.show();
                 },
                 error: function () {
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                 }
             });
         },

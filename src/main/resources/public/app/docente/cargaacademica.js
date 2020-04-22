@@ -23,7 +23,7 @@ new Vue({
                                 creditos: response.data.data.creditosPosgrado
                             });
                         } else {
-                            notify(GlobalMessages.errorComunicacion, 'error');
+                            notify(Messages.errorComunicacion, 'error');
                         }
                     });
         },
@@ -52,7 +52,7 @@ new Vue({
 //                        if (response.data.success) {
 //
 //                        } else {
-//                            notify(GlobalMessages.errorComunicacion, 'error');
+//                            notify(Messages.errorComunicacion, 'error');
 //                        }
 //                    });
         }

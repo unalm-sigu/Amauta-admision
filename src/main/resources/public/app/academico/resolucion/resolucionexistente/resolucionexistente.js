@@ -225,7 +225,7 @@ var app = new Vue({
                     MODAL.hideWait();
                 },
                 error: function () {
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                 }
             });
         },

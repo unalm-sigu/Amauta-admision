@@ -854,7 +854,7 @@ AXIOS.interceptors.response.use(function (response) {
     }
     return response;
 }, function (error) {
-    notify(GlobalMessages.errorComunicacion, 'error');
+    notify(Messages.errorComunicacion, 'error');
     return Promise.reject(error);
 });
 

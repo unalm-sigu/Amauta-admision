@@ -103,7 +103,7 @@ new Vue({
                                     notify(response.message, 'error');
                                 }
                             }, error: function () {
-                                notify(GlobalMessages.errorComunicacion, "error");
+                                notify(Messages.errorComunicacion, "error");
                             }
                         });
                     }

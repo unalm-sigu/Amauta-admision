@@ -95,7 +95,7 @@ $(function() {
                                 }
                             },
                             error: function() {
-                                notify(GlobalMessages.errorComunicacion, "error");
+                                notify(Messages.errorComunicacion, "error");
                                 modalEstado.modal('hide');
                             }
                         });
@@ -135,7 +135,7 @@ $(function() {
                                 }
                             },
                             error: function() {
-                                notify(GlobalMessages.errorComunicacion, "error");
+                                notify(Messages.errorComunicacion, "error");
                                 modalDelete.modal('hide');
                             }
                         });
@@ -176,7 +176,7 @@ $(function() {
                     }
                 },
                 error: function() {
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                 }
             });
         }

@@ -28,7 +28,7 @@ $(function () {
                             },
                             error: function () {
                                 MODAL.hideWait();
-                                notify(GlobalMessages.errorComunicacion, "error");
+                                notify(Messages.errorComunicacion, "error");
                             }
                         });
                     }
@@ -62,7 +62,7 @@ $(function () {
                             },
                             error: function () {
                                 MODAL.hideWait();
-                                notify(GlobalMessages.errorComunicacion, "error");
+                                notify(Messages.errorComunicacion, "error");
                             }
                         });
                     }

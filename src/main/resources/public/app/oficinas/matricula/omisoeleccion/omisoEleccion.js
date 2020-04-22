@@ -106,7 +106,7 @@ new Vue({
                 },
                 error: function () {
                     $vue.$refs.modalOmisoEleccion.close();
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                 }
             });
         },
@@ -160,7 +160,7 @@ new Vue({
                             },
                             error: function () {
                                 $vue.$refs.modalAnular.confirmReaction(false);
-                                notify(GlobalMessages.errorComunicacion, "error");
+                                notify(Messages.errorComunicacion, "error");
                             }
                         });
                     }
@@ -228,7 +228,7 @@ new Vue({
                 },
                 error() {
                     $vue.$refs.modalAporteAlumno.close();
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                 }
             });
         },
@@ -260,7 +260,7 @@ new Vue({
                 },
                 error() {
                     $vue.$refs.modalBoletaAlumno.close();
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                 }
             });
         },

@@ -69,7 +69,7 @@ new Vue({
                 },
                 error: function (response) {
                     MODAL.hideWait();
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                 }
             });
 
@@ -87,7 +87,7 @@ new Vue({
                     }
                 },
                 error() {
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                 }
             });
         }, searchAula(search) {
@@ -104,7 +104,7 @@ new Vue({
                     }
                 },
                 error() {
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                 }
             });
         }, changePersonaResponsable() {
@@ -133,7 +133,7 @@ new Vue({
                     }
                 },
                 error() {
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                 }
             });
         }, changeTurnoAtencion() {
@@ -174,7 +174,7 @@ new Vue({
                 error: function (response) {
                     console.dir(response);
                     MODAL.hideWait();
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                 }
             });
         }

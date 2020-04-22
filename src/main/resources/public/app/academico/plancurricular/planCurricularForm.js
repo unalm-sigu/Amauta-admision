@@ -253,7 +253,7 @@ $(function () {
                     $("#cboTipoCursoCurricula").select2({placeholder: "Seleccione un tipo curso"});
                 },
                 error: function () {
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                 }
             });
         },
@@ -314,13 +314,13 @@ $(function () {
                             }
                         },
                         error: function () {
-                            notify(GlobalMessages.errorComunicacion, "error");
+                            notify(Messages.errorComunicacion, "error");
                         }
                     });
 
                 },
                 error: function () {
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                 }
             });
         },
@@ -343,7 +343,7 @@ $(function () {
                     $("#cboCursosEquiObli").select2(NuevaCurricula.select2Cursos);
                 },
                 error: function () {
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                 }
             });
         },
@@ -366,7 +366,7 @@ $(function () {
                     $("#cboCursosEquiObli").select2(NuevaCurricula.select2Cursos);
                 },
                 error: function () {
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                 }
             });
         },
@@ -396,7 +396,7 @@ $(function () {
 
                 },
                 error: function () {
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                 }
             });
         },
@@ -480,7 +480,7 @@ $(function () {
                             })
                 },
                 error: function () {
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                 }
             });
         },
@@ -513,7 +513,7 @@ $(function () {
                                 }
                             },
                             error: function () {
-                                notify(GlobalMessages.errorComunicacion, "error");
+                                notify(Messages.errorComunicacion, "error");
                             }
                         });
                     }
@@ -624,7 +624,7 @@ $(function () {
                 error: function () {
                     MODAL.activateButtons();
                     $("#" + record.idSelect).select2("readonly", false);
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                 }
             });
 
@@ -712,7 +712,7 @@ $(function () {
                 error: function () {
                     MODAL.activateButtons();
                     $("#" + record.idSelect).select2("readonly", false);
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                 }
             });
         },
@@ -752,7 +752,7 @@ $(function () {
                 error: function () {
                     MODAL.activateButtons();
                     $("#" + record.idSelect).select2("readonly", false);
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                 }
             });
         },
@@ -780,7 +780,7 @@ $(function () {
 
                 },
                 error: function () {
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                 }
             });
         },
@@ -849,7 +849,7 @@ $(function () {
 
                 },
                 error: function () {
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                 }
             });
         },
@@ -956,7 +956,7 @@ $(function () {
                             }
                         },
                         error: function () {
-                            notify(GlobalMessages.errorComunicacion, "error");
+                            notify(Messages.errorComunicacion, "error");
                         }
                     });
                 }
@@ -1028,7 +1028,7 @@ $(function () {
                     }
                 },
                 error: function () {
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                 }
             });
 
@@ -1158,7 +1158,7 @@ $(function () {
                             error: function () {
                                 MODAL.hideWait();
                                 MODAL.hide();
-                                notify(GlobalMessages.errorComunicacion, "error");
+                                notify(Messages.errorComunicacion, "error");
                             }
                         });
                     }
@@ -1185,7 +1185,7 @@ $(function () {
                     MODAL.hideWait();
                 },
                 error: function () {
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                     MODAL.hideWait();
                 }
             });
@@ -1210,7 +1210,7 @@ $(function () {
                     MODAL.hideWait();
                 },
                 error: function () {
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                     MODAL.hideWait();
                 }
             });
@@ -1257,7 +1257,7 @@ $(function () {
                             },
                             error: function () {
                                 MODAL.hideWait();
-                                notify(GlobalMessages.errorComunicacion, "error");
+                                notify(Messages.errorComunicacion, "error");
                             }
                         });
                     }
@@ -1296,7 +1296,7 @@ $(function () {
                     }
                 },
                 error: function () {
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                 }
             });
         },
@@ -1335,7 +1335,7 @@ $(function () {
                     }
                 },
                 error: function () {
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                 }
             });
             console.log('guardarGrupoEquivalenteElectivo() SALE');
@@ -1368,7 +1368,7 @@ $(function () {
                 },
                 error: function () {
                     MODAL.activateButtons();
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                 }
             });
         },
@@ -1395,7 +1395,7 @@ $(function () {
                 },
                 error: function () {
                     MODAL.activateButtons();
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                 }
             });
         },
@@ -1613,7 +1613,7 @@ $(function () {
                             },
                             error: function () {
                                 MODAL.hide();
-                                notify(GlobalMessages.errorComunicacion, "error");
+                                notify(Messages.errorComunicacion, "error");
                             }
                         });
                     }
@@ -1656,7 +1656,7 @@ $(function () {
                             },
                             error: function () {
                                 MODAL.hide();
-                                notify(GlobalMessages.errorComunicacion, "error");
+                                notify(Messages.errorComunicacion, "error");
                             }
                         });
                     }
@@ -1692,7 +1692,7 @@ $(function () {
                     }
                 },
                 error: function () {
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                 }
             });
         },
@@ -1925,7 +1925,7 @@ $(function () {
                 },
                 error: function () {
                     MODAL.hideWait();
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                 }
             });
         },
@@ -1972,7 +1972,7 @@ $(function () {
                                 }
                             },
                             error: function () {
-                                notify(GlobalMessages.errorComunicacion, "error");
+                                notify(Messages.errorComunicacion, "error");
                             }
                         });
                     }
@@ -2017,7 +2017,7 @@ $(function () {
                                 }
                             },
                             error: function () {
-                                notify(GlobalMessages.errorComunicacion, "error");
+                                notify(Messages.errorComunicacion, "error");
                             }
                         });
                     }
@@ -2096,7 +2096,7 @@ $(function () {
                     }
                 },
                 error: function () {
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                 }
             });
         },
@@ -2127,7 +2127,7 @@ $(function () {
                                 }
                             },
                             error: function () {
-                                notify(GlobalMessages.errorComunicacion, "error");
+                                notify(Messages.errorComunicacion, "error");
                             }
                         });
                     }

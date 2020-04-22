@@ -51,7 +51,7 @@ Vue.component("alumno-merito-component", {
                     }
                 },
                 error() {
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                 }
             });
         }

@@ -83,7 +83,7 @@ new Vue({
                 error: function () {
                     $vue.configEstado.okbtn = okBtn;
                     $vue.configEstado.disabledBtns = false;
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                 }
             });
         },
@@ -101,7 +101,7 @@ new Vue({
                     console.log(e);
                 },
                 failCallback: function (responseHtml, url) {
-                    notify(GlobalMessages.errorComunicacion, 'error')
+                    notify(Messages.errorComunicacion, 'error')
                 }
             });
         }

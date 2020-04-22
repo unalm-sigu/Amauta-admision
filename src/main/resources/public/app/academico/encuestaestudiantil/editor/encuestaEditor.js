@@ -92,7 +92,7 @@ new Vue({
                                 }
                             },
                             error: function() {
-                                notify(GlobalMessages.errorComunicacion, "error");
+                                notify(Messages.errorComunicacion, "error");
                             }
                         });
                     }
@@ -122,7 +122,7 @@ new Vue({
                                 }
                             },
                             error: function() {
-                                notify(GlobalMessages.errorComunicacion, "error");
+                                notify(Messages.errorComunicacion, "error");
                             }
                         });
                     }
@@ -155,7 +155,7 @@ new Vue({
                                 }
                             },
                             error: function() {
-                                notify(GlobalMessages.errorComunicacion, "error");
+                                notify(Messages.errorComunicacion, "error");
                             }
                         });
                     }
@@ -181,7 +181,7 @@ new Vue({
                         notify(response.message, 'error');
                     }
                 }, error: function() {
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                 }
             });
 
@@ -224,7 +224,7 @@ new Vue({
                         notify(response.message, 'error');
                     }
                 }, error: function() {
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                 }
             });
 
@@ -286,7 +286,7 @@ new Vue({
                     vue.btnAgregar = false;
                 }, error: function() {
                     vue.btnAgregar = false;
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                 }
             });
 
@@ -313,7 +313,7 @@ new Vue({
                             notify(response.message, 'error');
                         }
                     }, error: function() {
-                        notify(GlobalMessages.errorComunicacion, "error");
+                        notify(Messages.errorComunicacion, "error");
                     }
                 });
             }
@@ -359,7 +359,7 @@ new Vue({
                         notify(response.message, 'error');
                     }
                 }, error: function() {
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                 }
             });
 

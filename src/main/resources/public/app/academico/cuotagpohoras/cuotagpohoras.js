@@ -92,7 +92,7 @@ new Vue({
                     notify(response.message, 'error');
                 }
             }, error => {
-                notify(GlobalMessages.errorComunicacion, 'error');
+                notify(Messages.errorComunicacion, 'error');
             });
         },
         getCuotaGrupo(gpo, cuotas) {
@@ -141,7 +141,7 @@ new Vue({
                     notify(response.message, 'error');
                 }
             }, error => {
-                notify(GlobalMessages.errorComunicacion, 'error');
+                notify(Messages.errorComunicacion, 'error');
             });
         },
         verNuevoAnexo() {
@@ -167,7 +167,7 @@ new Vue({
                     notify(response.message, 'error');
                 }
             }, error => {
-                notify(GlobalMessages.errorComunicacion, 'error');
+                notify(Messages.errorComunicacion, 'error');
             });
         },
         loadGrupos() {
@@ -184,7 +184,7 @@ new Vue({
                     notify(response.message, 'error');
                 }
             }, error => {
-                notify(GlobalMessages.errorComunicacion, 'error');
+                notify(Messages.errorComunicacion, 'error');
             });
         },
         loadDepartamentos() {
@@ -202,7 +202,7 @@ new Vue({
                     notify(response.message, 'error');
                 }
             }, error => {
-                notify(GlobalMessages.errorComunicacion, 'error');
+                notify(Messages.errorComunicacion, 'error');
             });
         },
         editarGpoSecciones(item, tipoSeccion) {

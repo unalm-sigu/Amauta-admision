@@ -25,7 +25,7 @@ $(function () {
             }
         },
         error: function (error) {
-            notify(GlobalMessages.errorComunicacion, 'error');
+            notify(Messages.errorComunicacion, 'error');
         }
     });
 
@@ -83,7 +83,7 @@ $(function () {
                     }, 1000);
                 },
                 error: function () {
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                 }
             });
         },
@@ -127,7 +127,7 @@ $(function () {
                     }
                 },
                 error: function () {
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                 }
             });
         }

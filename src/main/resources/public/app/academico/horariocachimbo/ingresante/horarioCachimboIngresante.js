@@ -87,7 +87,7 @@ new Vue({
                                     notify(response.message, 'error');
                                 }
                             }, error: function () {
-                                notify(GlobalMessages.errorComunicacion, "error");
+                                notify(Messages.errorComunicacion, "error");
                             }
                         });
                     }
@@ -136,7 +136,7 @@ new Vue({
                                     notify(response.message, 'error');
                                 }
                             }, error: function () {
-                                notify(GlobalMessages.errorComunicacion, "error");
+                                notify(Messages.errorComunicacion, "error");
                             }
                         });
                         MODAL.hideWait();
@@ -164,7 +164,7 @@ new Vue({
                         notify(response.message, 'error');
                     }
                 }, error: function () {
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                 }
             });
         },
@@ -188,7 +188,7 @@ new Vue({
                         notify(response.message, 'error');
                     }
                 }, error: function () {
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                 }
             });
         },
@@ -354,7 +354,7 @@ new Vue({
                     self.btnEnable();
                 }, error: function () {
                     self.btnEnable();
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                 }
             });
         },
@@ -381,7 +381,7 @@ new Vue({
                                     notify(response.message, 'error');
                                 }
                             }, error: function () {
-                                notify(GlobalMessages.errorComunicacion, "error");
+                                notify(Messages.errorComunicacion, "error");
                             }
                         });
 
@@ -402,7 +402,7 @@ new Vue({
                         notify(response.message, 'error');
                     }
                 }, error: function () {
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                 }
             });
 
@@ -453,7 +453,7 @@ new Vue({
                     }
                 },
                 error: function () {
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                 }
             });
             this.$refs.modalVerHorario.open();
@@ -477,7 +477,7 @@ new Vue({
                     }
                 },
                 error: function () {
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                 }
             });
             this.$refs.modalVerCurso.open();
@@ -525,7 +525,7 @@ new Vue({
                         notify(response.message, 'error');
                     }
                 }, error: function () {
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                 }
             });
         },
@@ -543,7 +543,7 @@ new Vue({
                         }, 1000);
                     }
                 }, error: function () {
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                 }
             });
         }

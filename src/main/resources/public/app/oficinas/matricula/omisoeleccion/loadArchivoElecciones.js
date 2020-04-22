@@ -40,7 +40,7 @@ new Vue({
                 }
                 console.log($vue.datos);
             }).catch(err => {
-                notify(GlobalMessages.errorComunicacion, "error");
+                notify(Messages.errorComunicacion, "error");
             });
         },
         getImage(event) {

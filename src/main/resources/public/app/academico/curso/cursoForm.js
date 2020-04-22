@@ -208,7 +208,7 @@ var app = new Vue({
                     }
                 },
                 error() {
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                 }
             });
 
@@ -325,7 +325,7 @@ var app = new Vue({
                     }
                 },
                 error(response) {
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                 }
             });
 
@@ -360,7 +360,7 @@ var app = new Vue({
                     }
                 },
                 error(response) {
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                 }
             });
 
@@ -394,7 +394,7 @@ var app = new Vue({
                                 }
                             },
                             error(response) {
-                                notify(GlobalMessages.errorComunicacion, "error");
+                                notify(Messages.errorComunicacion, "error");
                             }
                         });
                     }
@@ -429,7 +429,7 @@ var app = new Vue({
                                 }
                             },
                             error(response) {
-                                notify(GlobalMessages.errorComunicacion, "error");
+                                notify(Messages.errorComunicacion, "error");
                             }
                         });
                     }

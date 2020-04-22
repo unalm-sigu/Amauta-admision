@@ -32,7 +32,7 @@ new Vue({
                     notify(response.message, 'error');
                 }
             }, error => {
-                notify(GlobalMessages.errorComunicacion, 'error');
+                notify(Messages.errorComunicacion, 'error');
             });
         },
         loadMatriculas() {
@@ -58,7 +58,7 @@ new Vue({
                     }
                 }
             }, error => {
-                notify(GlobalMessages.errorComunicacion, 'error');
+                notify(Messages.errorComunicacion, 'error');
             });
         },
         getAlumnos(al, matricula) {
@@ -112,7 +112,7 @@ new Vue({
                 }
             }, error => {
                 $vue.guardando = false;
-                notify(GlobalMessages.errorComunicacion, 'error');
+                notify(Messages.errorComunicacion, 'error');
             });
         }
     }

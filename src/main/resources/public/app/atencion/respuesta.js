@@ -46,7 +46,7 @@ new Vue({
                         notify(response.message, "error");
                     }
                 }, error: function () {
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                 }
             });
 
@@ -86,7 +86,7 @@ new Vue({
                     vue.estadoButton = false;
                 }, error: function () {
                     vue.estadoButton = false;
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                 }
             });
 
@@ -249,7 +249,7 @@ new Vue({
                     vue.estadoButtonComentar = false;
                 }, error: function () {
                     vue.estadoButtonComentar = false;
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                 }
             });
 

@@ -331,7 +331,7 @@ new Vue({
                 }
 
             }).catch(e => {
-                notify(GlobalMessages.errorComunicacion, "error");
+                notify(Messages.errorComunicacion, "error");
             });
 
         },
@@ -370,7 +370,7 @@ new Vue({
 
                         }).catch(e => {
                             $vue.$refs.modalAddLetra.confirmReaction(false);
-                            notify(GlobalMessages.errorComunicacion, "error");
+                            notify(Messages.errorComunicacion, "error");
                         });
                     }
                 }

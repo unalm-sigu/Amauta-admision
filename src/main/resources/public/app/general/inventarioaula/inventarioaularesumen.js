@@ -30,7 +30,7 @@ new Vue({
                     vue.hideLoader();
                 }, error: function () {
                     vue.hideLoader();
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                 }
             });
         }

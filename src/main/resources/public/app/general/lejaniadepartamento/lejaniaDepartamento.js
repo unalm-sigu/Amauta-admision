@@ -57,7 +57,7 @@ new Vue({
                     notify(response.message, 'error');
                 }
             }, error => {
-                notify(GlobalMessages.errorComunicacion, 'error');
+                notify(Messages.errorComunicacion, 'error');
             });
         },
         verFactorDistanciaByDepartamentos(item) {
@@ -87,7 +87,7 @@ new Vue({
                     notify(response.message, 'error');
                 }
             }, error => {
-                notify(GlobalMessages.errorComunicacion, 'error');
+                notify(Messages.errorComunicacion, 'error');
             });
         },
         getFactorModulo(pa, factordist) {
@@ -113,7 +113,7 @@ new Vue({
                     notify(response.message, 'error');
                 }
             }, error => {
-                notify(GlobalMessages.errorComunicacion, 'error');
+                notify(Messages.errorComunicacion, 'error');
             });
         },
         loadModulos() {
@@ -130,7 +130,7 @@ new Vue({
                     notify(response.message, 'error');
                 }
             }, error => {
-                notify(GlobalMessages.errorComunicacion, 'error');
+                notify(Messages.errorComunicacion, 'error');
             });
         }
     }

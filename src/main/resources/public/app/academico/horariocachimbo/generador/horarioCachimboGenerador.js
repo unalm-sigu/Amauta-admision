@@ -94,7 +94,7 @@ $(function() {
                         self.btnEnable();
                     },
                     error: function() {
-                        notify(GlobalMessages.errorComunicacion, "error");
+                        notify(Messages.errorComunicacion, "error");
                         self.btnEnable();
                     }
                 });
@@ -153,7 +153,7 @@ $(function() {
                         }
                     },
                     error: function() {
-                        notify(GlobalMessages.errorComunicacion, "error");
+                        notify(Messages.errorComunicacion, "error");
                     }
                 });
 
@@ -186,7 +186,7 @@ $(function() {
                         }
                     },
                     error: function() {
-                        notify(GlobalMessages.errorComunicacion, "error");
+                        notify(Messages.errorComunicacion, "error");
                     }
                 });
 

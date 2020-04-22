@@ -72,7 +72,7 @@ new Vue({
                         console.log("catch(function (error)")
                         console.log(error)
                         $vue.$refs.modalConfirmAction.confirmReaction(false);
-                        notifyBootbox(GlobalMessages.errorComunicacion, "error");
+                        notifyBootbox(Messages.errorComunicacion, "error");
                     });
 
         },
@@ -124,7 +124,7 @@ new Vue({
                     .catch(function (error) {
                         console.log(error);
                         $vue.$refs.modalAnulaOrientacion.stopProcessing();
-                        notify(GlobalMessages.errorComunicacion, "error");
+                        notify(Messages.errorComunicacion, "error");
                     });
         },
         remover(ori, index) {
@@ -180,7 +180,7 @@ new Vue({
                     })
                     .catch(function (error) {
                         console.log(error);
-                        notify(GlobalMessages.errorComunicacion, "error");
+                        notify(Messages.errorComunicacion, "error");
                     });
         },
         incluir(ori, index) {
@@ -212,7 +212,7 @@ new Vue({
                     .catch(function (error) {
                         console.log(error);
                         $vue.$refs.modalConfirmAction.confirmReaction(false);
-                        notifyBootbox(GlobalMessages.errorComunicacion, "error");
+                        notifyBootbox(Messages.errorComunicacion, "error");
                     });
         },
         updateOrientacion(ori, index) {
@@ -248,7 +248,7 @@ new Vue({
                     .catch(function (error) {
                         $vue.$refs.modalConfirmAction.confirmReaction(false);
                         console.log(error);
-                        notifyBootbox(GlobalMessages.errorComunicacion, "error");
+                        notifyBootbox(Messages.errorComunicacion, "error");
                     });
 
         },
@@ -299,7 +299,7 @@ new Vue({
                     .catch(function (error) {
                         $vue.$refs.modalConfirmAction.confirmReaction(false);
                         console.log(error);
-                        notifyBootbox(GlobalMessages.errorComunicacion, "error");
+                        notifyBootbox(Messages.errorComunicacion, "error");
                     });
         },
         revisar(tipo, ofi, campo) {

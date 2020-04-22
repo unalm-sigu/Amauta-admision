@@ -93,7 +93,7 @@ new Vue({
                                     mbb.modal("hide");
                                     $(".btn-modal").prop('disabled', false);
                                     $(".btn-procesar").html('Si, asignar');
-                                    bootbox.alert(GlobalMessages.errorComunicacion);
+                                    bootbox.alert(Messages.errorComunicacion);
                                 }
                             });
 
@@ -136,7 +136,7 @@ new Vue({
                 },
                 error() {
                     $vue.$refs.modalAsignacionMasiva.close();
-                    bootbox.alert(GlobalMessages.errorComunicacion);
+                    bootbox.alert(Messages.errorComunicacion);
                 }
             });
 
@@ -194,7 +194,7 @@ new Vue({
                 },
                 error() {
                     $vue.$refs.modalAsignacionMasiva.close();
-                    bootbox.alert(GlobalMessages.errorComunicacion);
+                    bootbox.alert(Messages.errorComunicacion);
                 }
             });
         },
@@ -230,7 +230,7 @@ new Vue({
                     }
                 }).catch(e => {
                     $vue.$refs.modalConfirmAction.confirmReaction(false);
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                 });
             }
             $vue.$refs.modalConfirmAction.open();
@@ -251,7 +251,7 @@ new Vue({
                     }
                 }).catch(e => {
                     $vue.$refs.modalConfirmAction.confirmReaction(false);
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                 });
             }
             $vue.$refs.modalConfirmAction.open();
@@ -272,7 +272,7 @@ new Vue({
                     }
                 }).catch(e => {
                     $vue.$refs.modalConfirmAction.confirmReaction(false);
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                 });
             }
             $vue.$refs.modalConfirmAction.open();
@@ -293,7 +293,7 @@ new Vue({
                     }
                 }).catch(e => {
                     $vue.$refs.modalConfirmAction.confirmReaction(false);
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                 });
             }
             $vue.$refs.modalConfirmAction.open();

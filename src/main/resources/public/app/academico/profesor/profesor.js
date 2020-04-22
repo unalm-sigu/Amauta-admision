@@ -83,7 +83,7 @@ $(function () {
                 },
                 error: function () {
                     mimodal.modal('hide');
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                 }
             });
         },
@@ -123,7 +123,7 @@ $(function () {
                 console.log(e);
             },
             failCallback: function (responseHtml, url) {
-                notify(GlobalMessages.errorComunicacion, 'error')
+                notify(Messages.errorComunicacion, 'error')
             }
         });
     });
@@ -174,7 +174,7 @@ new Vue({
                     console.log(e);
                 },
                 failCallback: function (responseHtml, url) {
-                    notify(GlobalMessages.errorComunicacion, 'error')
+                    notify(Messages.errorComunicacion, 'error')
                 }
             });
         }

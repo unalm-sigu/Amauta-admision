@@ -35,10 +35,10 @@ Vue.component("aula-horario-component", {
                         $vue.jsonHorarioAula = response.data.jsonHorarioAula;
                         console.dir($vue.jsonHorarioAula);
                     } else {
-                        notify(GlobalMessages.errorComunicacion, "error");
+                        notify(Messages.errorComunicacion, "error");
                     }
                 }, error: function () {
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                 }
             });
 

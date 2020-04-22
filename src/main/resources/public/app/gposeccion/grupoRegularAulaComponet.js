@@ -155,7 +155,7 @@ Vue.component("grupo-regular-aula-component", {
                     }
                 },
                 error: function () {
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                     $("#tablaHorario").html('');
                 }
             });
@@ -192,7 +192,7 @@ Vue.component("grupo-regular-aula-component", {
                     }
                 },
                 error: function () {
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                     $("#tablaHorario").html('');
                 }
             });
@@ -227,7 +227,7 @@ Vue.component("grupo-regular-aula-component", {
                     }
                 },
                 error: function () {
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                     $("#tblHorarioEsp").html('');
                 }
             });
@@ -253,7 +253,7 @@ Vue.component("grupo-regular-aula-component", {
                     }
                 },
                 error: function () {
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                     $("#tablaHorario").html('');
                 }
             });

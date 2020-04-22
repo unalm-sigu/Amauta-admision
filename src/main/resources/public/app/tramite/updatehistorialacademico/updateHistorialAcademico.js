@@ -98,7 +98,7 @@ new Vue({
                     vue.guardando = false;
                 }, error: function() {
                     vue.guardando = false;
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                 }
             });
         },
@@ -117,7 +117,7 @@ new Vue({
                         notify(response.message, 'error');
                     }
                 }, error: function() {
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                 }
             });
         },

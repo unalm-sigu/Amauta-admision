@@ -115,7 +115,7 @@ new Vue({
                     }
                     //  $global.$emit('MODAL-WAIT-CLOSE');
                 }, error: function () {
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                     //   $global.$emit('MODAL-WAIT-CLOSE');
                 }
             });
@@ -250,7 +250,7 @@ new Vue({
                 },
                 error: function () {
                     self.btnEnable();
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                 }
             });
         },

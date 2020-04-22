@@ -54,7 +54,7 @@ Vue.component("retiro-ciclo-component", {
                     }
                 },
                 error() {
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                 }
             });
         },
@@ -89,7 +89,7 @@ Vue.component("retiro-ciclo-component", {
                             },
                             error() {
                                 MODAL.hideWait();
-                                notify(GlobalMessages.errorComunicacion, "error");
+                                notify(Messages.errorComunicacion, "error");
                             }
                         });
 

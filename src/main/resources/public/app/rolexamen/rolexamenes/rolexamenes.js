@@ -59,7 +59,7 @@ new Vue({
                     notify(response.message, 'error');
                 }
             }, error => {
-                notify(GlobalMessages.errorComunicacion, 'error');
+                notify(Messages.errorComunicacion, 'error');
             });
         },
         guardarRol() {
@@ -87,7 +87,7 @@ new Vue({
                     }
                 },
                 error: function () {
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                 }
             });
 
@@ -127,7 +127,7 @@ new Vue({
                             }
                             MODAL.hideWait();
                         }, error => {
-                            notify(GlobalMessages.errorComunicacion, 'error');
+                            notify(Messages.errorComunicacion, 'error');
                         });
                     }
                 }
@@ -157,7 +157,7 @@ new Vue({
                             }
                             MODAL.hideWait();
                         }, error => {
-                            notify(GlobalMessages.errorComunicacion, 'error');
+                            notify(Messages.errorComunicacion, 'error');
                         });
                     }
                 }
@@ -189,7 +189,7 @@ new Vue({
                                 MODAL.hideWait();
                             },
                             error: function () {
-                                notify(GlobalMessages.errorComunicacion, 'error');
+                                notify(Messages.errorComunicacion, 'error');
                             }
                         });
 

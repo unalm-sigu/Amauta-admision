@@ -52,7 +52,7 @@ var app = new Vue({
                     $vue.btnSaveTexto = 'Guardar Asistencia';
                 },
                 error: function () {
-                    notify(GlobalMessages.errorComunicacion, "error");
+                    notify(Messages.errorComunicacion, "error");
                 }
             });
         },

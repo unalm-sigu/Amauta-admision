@@ -82,7 +82,7 @@ new Vue({
             }, error => {
                 $vue.verTabla = true;
                 $vue.guardaPrecio = false;
-                notify(GlobalMessages.errorComunicacion, 'error');
+                notify(Messages.errorComunicacion, 'error');
             });
         },
         configurarCantidadAlumno() {
