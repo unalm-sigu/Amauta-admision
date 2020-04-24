@@ -21,6 +21,7 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+import pe.albatross.zelpers.file.pdf.AbstractOnlyPdfView;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.edu.lamolina.model.academico.AnexoBoletin;
 import pe.edu.lamolina.model.academico.CicloAcademico;
@@ -32,7 +33,6 @@ import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
 import static pe.edu.lamolina.model.enums.TipoSeccionEnum.TCUR;
 import static pe.edu.lamolina.model.enums.TipoSeccionEnum.TEO;
 import pe.edu.lamolina.model.misc.Acumulador;
-import pe.edu.lamolina.amauta.zelper.pdf.AbstractOnlyPdfView;
 
 @Component
 public class BoletinPDF extends AbstractOnlyPdfView {

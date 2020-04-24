@@ -20,6 +20,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+import pe.albatross.zelpers.file.pdf.AbstractOnlyPdfView;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoHorario;
@@ -27,7 +28,6 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.amauta.controller.reporte.dto.HoraDTO;
 import pe.edu.lamolina.amauta.controller.reporte.dto.HorarioDTO;
-import pe.edu.lamolina.amauta.zelper.pdf.AbstractOnlyPdfView;
 
 @Component
 public class HorarioAlumnoCicloPDF extends AbstractOnlyPdfView {

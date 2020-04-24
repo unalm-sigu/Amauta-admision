@@ -18,12 +18,12 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+import pe.albatross.zelpers.file.pdf.AbstractOnlyPdfView;
 import pe.edu.lamolina.amauta.controller.programacionhorarios.gposeccion.reporte.HeaderFooterBoletinPDFEvent;
 import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
 import pe.edu.lamolina.model.misc.Acumulador;
 import pe.edu.lamolina.model.tramite.TramiteDocumentoAcademico;
-import pe.edu.lamolina.amauta.zelper.pdf.AbstractOnlyPdfView;
 
 @Component
 public class ConstanciasPDF extends AbstractOnlyPdfView {

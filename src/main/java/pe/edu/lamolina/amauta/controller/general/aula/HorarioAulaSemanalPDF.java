@@ -25,8 +25,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import pe.albatross.zelpers.file.pdf.AbstractOnlyPdfView;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.bienestar.ReservaAula;
@@ -35,7 +35,6 @@ import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.tramite.Tramite;
-import pe.edu.lamolina.amauta.zelper.pdf.AbstractOnlyPdfView;
 
 @Component
 public class HorarioAulaSemanalPDF extends AbstractOnlyPdfView {

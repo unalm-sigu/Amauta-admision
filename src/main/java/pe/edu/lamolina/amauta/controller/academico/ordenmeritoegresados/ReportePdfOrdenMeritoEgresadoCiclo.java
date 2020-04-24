@@ -27,6 +27,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.joda.time.DateTime;
 import org.springframework.stereotype.Component;
+import pe.albatross.zelpers.file.pdf.AbstractOnlyPdfView;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
@@ -35,7 +36,6 @@ import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.amauta.controller.general.view.HeaderReportePdf;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.misc.Acumulador;
-import pe.edu.lamolina.amauta.zelper.pdf.AbstractOnlyPdfView;
 
 @Component
 public class ReportePdfOrdenMeritoEgresadoCiclo extends AbstractOnlyPdfView {

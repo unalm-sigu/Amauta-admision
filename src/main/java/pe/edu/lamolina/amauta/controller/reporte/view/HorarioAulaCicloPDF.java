@@ -25,7 +25,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import pe.albatross.zelpers.file.pdf.PdfDocumentGenerator;
+import pe.albatross.zelpers.file.pdf.AbstractOnlyPdfView;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
@@ -47,7 +47,7 @@ import pe.edu.lamolina.model.horario.DiaHoraGrupo;
 import pe.edu.lamolina.model.horario.Hora;
 import pe.edu.lamolina.model.horario.HorarioAula;
 import pe.edu.lamolina.model.tramite.Tramite;
-import pe.edu.lamolina.amauta.zelper.pdf.AbstractOnlyPdfView;
+import pe.edu.lamolina.model.zelper.pdfgenerator.PdfDocumentGenerator;
 
 @Component
 public class HorarioAulaCicloPDF extends AbstractOnlyPdfView {

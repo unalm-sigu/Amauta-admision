@@ -24,7 +24,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import pe.albatross.octavia.dynatable.DynatableFilter;
-import pe.albatross.zelpers.file.pdf.PdfDocumentGenerator;
+import pe.albatross.zelpers.file.pdf.AbstractOnlyPdfView;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Docente;
@@ -34,10 +34,10 @@ import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.inscripcion.ContenidoCarta;
 import pe.edu.lamolina.amauta.controller.academico.profesor.ProfesorService;
-import pe.edu.lamolina.amauta.zelper.pdf.AbstractOnlyPdfView;
-import pe.edu.lamolina.amauta.zelper.pdf.pageevent.FooterTypeEnum;
-import pe.edu.lamolina.amauta.zelper.pdf.pageevent.HeaderTypeEnum;
-import pe.edu.lamolina.amauta.zelper.pdf.pageevent.UEventoPaginaPdf;
+import pe.edu.lamolina.model.zelper.pdfgenerator.FooterTypeEnum;
+import pe.edu.lamolina.model.zelper.pdfgenerator.HeaderTypeEnum;
+import pe.edu.lamolina.model.zelper.pdfgenerator.PdfDocumentGenerator;
+import pe.edu.lamolina.model.zelper.pdfgenerator.UEventoPaginaPdf;
 
 @Component
 public class ProfesoresPDF extends AbstractOnlyPdfView {

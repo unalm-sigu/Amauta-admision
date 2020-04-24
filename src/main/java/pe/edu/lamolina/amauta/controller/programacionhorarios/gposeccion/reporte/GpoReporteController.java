@@ -42,7 +42,6 @@ import pe.edu.lamolina.amauta.controller.programacionhorarios.gposeccion.reporte
 import pe.edu.lamolina.amauta.controller.programacionhorarios.gposeccion.reporte.view.ReporteCantidadAlumnosPorSeccionExcelView;
 import pe.edu.lamolina.amauta.controller.programacionhorarios.gposeccion.reporte.view.ReporteCrucesExcelView;
 import pe.edu.lamolina.amauta.controller.programacionhorarios.gposeccion.reporte.view.ReporteSeccionesByFilterExcelView;
-import pe.edu.lamolina.model.constantines.AcademicoConstantine;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.amauta.zelper.pdf.pdfHtml.PDFFormatoEnum;

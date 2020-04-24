@@ -14,7 +14,6 @@ import pe.edu.lamolina.amauta.controller.programacionhorarios.gposeccion.reporte
 import pe.edu.lamolina.amauta.controller.reporte.view.HorarioAlumnoCicloPDF;
 import pe.edu.lamolina.amauta.zelper.pdf.PdfService;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
-import pe.edu.lamolina.model.constantines.AcademicoConstantine;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 
 @Controller
