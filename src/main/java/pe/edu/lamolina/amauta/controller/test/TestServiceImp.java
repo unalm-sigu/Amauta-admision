@@ -600,9 +600,9 @@ public class TestServiceImp implements TestService {
         List<RetiroCiclo> retiroCiclos = retiroCicloDAO.allByRetiroCiclo(alumno);
         List<RetiroCurso> retiroCursos = retiroCursoDAO.allByAlumno(alumno);
         Map<Long, RetiroCiclo> mapRetiro = TypesUtil.convertListToMap("cicloAcademico.id", retiroCiclos);
-        Map<String, RetiroCurso> mapRetiroCurso = TypesUtil.convertListToMap("key", retiroCursos);
+//        Map<String, RetiroCurso> mapRetiroCurso = TypesUtil.convertListToMap("key", retiroCursos);
 
-        SituacionAcademica situacionAcademicaComodin = situacionAcademicaDAO.findByCodigo(SituacionAcademicaEnum.S_00.getValue());
+//        SituacionAcademica situacionAcademicaComodin = situacionAcademicaDAO.findByCodigo(SituacionAcademicaEnum.S_00.getValue());
 
         List<MatriculaResumen> matriculasResumenes = matriculaResumenDAO.allByAlumnoCiclos(alumno, ciclos);
         List<MatriculaCurso> matriculasCurso = matriculaCursoDAO.allByMatriculaResumenFull(matriculasResumenes);
@@ -612,13 +612,14 @@ public class TestServiceImp implements TestService {
         Map<Long, List<MatriculaCurso>> mapMatriculaCursoByMr = TypesUtil.convertListToMapList("matriculaResumen.id", matriculasCurso);
         Map<Long, List<MatriculaSeccion>> mapMatriculaSeccByMr = TypesUtil.convertListToMapList("matriculaResumen.id", matriculasSeccion);
 
-        List<AlumnoCiclo> alumnosCiclos = alumnoCicloDAO.allByAlumno(alumno);
-        Map<Long, AlumnoCiclo> mapAlumnoCiclos = TypesUtil.convertListToMap("cicloAcademico.id", alumnosCiclos);
+//        List<AlumnoCiclo> alumnosCiclos = alumnoCicloDAO.allByAlumno(alumno);
+//        Map<Long, AlumnoCiclo> mapAlumnoCiclos = TypesUtil.convertListToMap("cicloAcademico.id", alumnosCiclos);
 
-        List<AlumnoCicloCurso> alumnoCicloCurso = alumnoCicloCursoDAO.allActivosByAlumno(alumno);
-        Map<Long, List<AlumnoCicloCurso>> mapAlumnoCicloCursoByAlumCi = TypesUtil.convertListToMapList("alumnoCiclo.id", alumnoCicloCurso);
+//        List<AlumnoCicloCurso> alumnoCicloCurso = alumnoCicloCursoDAO.allActivosByAlumno(alumno);
+//        Map<Long, List<AlumnoCicloCurso>> mapAlumnoCicloCursoByAlumCi = TypesUtil.convertListToMapList("alumnoCiclo.id", alumnoCicloCurso);
 
         for (CicloAcademico cicloAcademicoEach : ciclos) {
+            logger.debug("CICLO: {} - {}",cicloAcademicoEach.getId() , cicloAcademicoEach.getCodigo());
             MatriculaResumen matriculaResumen = mapMatriculaResumen.get(cicloAcademicoEach.getId());
             if (matriculaResumen == null) {
                 continue;
