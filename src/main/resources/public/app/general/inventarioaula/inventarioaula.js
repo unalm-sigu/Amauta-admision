@@ -16,7 +16,8 @@ new Vue({
         dataNuevoProducto: {
             id: 'modalNuevoProducto',
             header: false,
-            cancelbtn: 'cancelar'
+            cancelbtn: 'cancelar',
+            showaccept: true
         },
         isprocess: false,
         isactiveprogressbar: false,
@@ -310,7 +311,7 @@ new Vue({
             if (vue.$refs.editable.length > idx) {
                 vue.$refs.editable[idx].focus()
             } else {
-                swal({text: "Ya llegó al último registro", icon: "warning",  button: {text: "Aceptar"}});
+                swal({text: "Ya llegó al último registro", icon: "warning", button: {text: "Aceptar"}});
             }
         }
     }
