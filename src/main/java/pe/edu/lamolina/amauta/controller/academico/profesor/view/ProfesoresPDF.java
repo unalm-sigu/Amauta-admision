@@ -45,6 +45,7 @@ public class ProfesoresPDF extends AbstractOnlyPdfView {
     @Autowired
     ProfesorService service;
 
+    @Override
     protected void renderMergedOutputModel(Map<String, Object> model, HttpServletRequest request, HttpServletResponse response) throws Exception {
         // IE workaround: write into byte array first.
         ByteArrayOutputStream baos = createTemporaryOutputStream();
