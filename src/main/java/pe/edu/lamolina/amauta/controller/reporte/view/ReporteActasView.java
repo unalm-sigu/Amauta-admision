@@ -7,12 +7,16 @@ import java.util.StringTokenizer;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.VerticalAlignment;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
@@ -230,14 +234,14 @@ public class ReporteActasView extends AbstractPOIExcelView {
     private CellStyle getStyleHeader(Workbook workBook) {
         Font fontTitle = workBook.createFont();
         fontTitle.setFontName("Arial");
-        fontTitle.setBoldweight(Font.BOLDWEIGHT_BOLD);
+        fontTitle.setBold(true);
         fontTitle.setColor(IndexedColors.WHITE.getIndex());
 
         CellStyle cellHeader = workBook.createCellStyle();
         cellHeader.setFillForegroundColor(IndexedColors.GREY_50_PERCENT.getIndex());
-        cellHeader.setFillPattern(CellStyle.SOLID_FOREGROUND);
-        cellHeader.setVerticalAlignment(CellStyle.VERTICAL_CENTER);
-        cellHeader.setAlignment(CellStyle.ALIGN_CENTER);
+        cellHeader.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        cellHeader.setVerticalAlignment(VerticalAlignment.CENTER);
+        cellHeader.setAlignment(HorizontalAlignment.CENTER);
         cellHeader.setFont(fontTitle);
 
         return cellHeader;
@@ -248,12 +252,12 @@ public class ReporteActasView extends AbstractPOIExcelView {
         Font fontBody = workBook.createFont();
         fontBody.setFontName("Arial");
         fontBody.setColor(IndexedColors.BLACK.getIndex());
-        short border = CellStyle.BORDER_THIN;
+        BorderStyle border = BorderStyle.THIN;
 
         CellStyle cellBody = workBook.createCellStyle();
         cellBody.setFont(fontBody);
         cellBody.setWrapText(true);
-        cellBody.setVerticalAlignment(CellStyle.VERTICAL_CENTER);
+        cellBody.setVerticalAlignment(VerticalAlignment.CENTER);
         cellBody.setBorderBottom(border);
         cellBody.setBorderLeft(border);
         cellBody.setBorderRight(border);

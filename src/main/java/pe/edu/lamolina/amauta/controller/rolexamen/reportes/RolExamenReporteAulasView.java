@@ -45,7 +45,7 @@ public class RolExamenReporteAulasView extends AbstractPOIExcelView {
     public final static Integer ROW_HORAS = 5;
     public final static Integer COL_INICIO_MATRIZ = 3;
     public final static List<IndexedColors> COLORES = Arrays.asList(IndexedColors.LIGHT_YELLOW, IndexedColors.LIGHT_GREEN, IndexedColors.LIGHT_TURQUOISE, IndexedColors.LIGHT_CORNFLOWER_BLUE);
-    public final static Short border = CellStyle.BORDER_THIN;
+    public final static BorderStyle border = BorderStyle.THIN;
 
     @Autowired
     GrupoSeccionDAO grupoSeccionDAO;
@@ -138,7 +138,7 @@ public class RolExamenReporteAulasView extends AbstractPOIExcelView {
             Cell cell = row.createCell(currentColumn);
             cell.setCellValue(StringUtils.capitalize(sdf.format(fecha)));
             CellStyle style = (ExcelStyles.getStyleHeader(wb));
-            style.setAlignment(CellStyle.ALIGN_LEFT);
+            style.setAlignment(HorizontalAlignment.LEFT);
             cell.setCellStyle(style);
             currentColumn = currentColumn + cantidadHoras;
         }
@@ -156,16 +156,16 @@ public class RolExamenReporteAulasView extends AbstractPOIExcelView {
             ExcelHelper.replaceVal(sheet, rowNum, 0, modulo.getNombre());
             setBorder(rowNum, 0, sheet, wb);
 
-            CellUtil.setCellStyleProperty(sheet.getRow(rowNum).getCell(0), wb, CellUtil.ALIGNMENT, CellStyle.ALIGN_CENTER);
-            CellUtil.setCellStyleProperty(sheet.getRow(rowNum).getCell(0), wb, CellUtil.VERTICAL_ALIGNMENT, CellStyle.ALIGN_CENTER);
+            CellUtil.setCellStyleProperty(sheet.getRow(rowNum).getCell(0), CellUtil.ALIGNMENT, HorizontalAlignment.CENTER);
+            CellUtil.setCellStyleProperty(sheet.getRow(rowNum).getCell(0), CellUtil.VERTICAL_ALIGNMENT, HorizontalAlignment.CENTER);
 
             for (Aula aula : aulas) {
                 ExcelHelper.replaceVal(sheet, rowNum, 1, aula.getCodigo());
-                CellUtil.setCellStyleProperty(sheet.getRow(rowNum).getCell(1), wb, CellUtil.ALIGNMENT, CellStyle.ALIGN_CENTER);
+                CellUtil.setCellStyleProperty(sheet.getRow(rowNum).getCell(1), CellUtil.ALIGNMENT, HorizontalAlignment.CENTER);
 
                 if (aula.getAforo() != null) {
                     ExcelHelper.replaceVal(sheet, rowNum, 2, aula.getAforo());
-                    CellUtil.setCellStyleProperty(sheet.getRow(rowNum).getCell(2), wb, CellUtil.ALIGNMENT, CellStyle.ALIGN_CENTER);
+                    CellUtil.setCellStyleProperty(sheet.getRow(rowNum).getCell(2), CellUtil.ALIGNMENT, HorizontalAlignment.CENTER);
                 }
 
                 setBorder(rowNum, 1, sheet, wb);
@@ -179,18 +179,18 @@ public class RolExamenReporteAulasView extends AbstractPOIExcelView {
                         List ocupantes = getOcupantes(aula, fecha, nroHora, mapOcupacion);
                         if (ocupantes.size() > 1) {
                             ExcelHelper.replaceVal(sheet, rowNum, col, ocupantes.size());
-                            CellUtil.setCellStyleProperty(sheet.getRow(rowNum).getCell(col), wb, CellUtil.ALIGNMENT, CellStyle.ALIGN_CENTER);
+                            CellUtil.setCellStyleProperty(sheet.getRow(rowNum).getCell(col), CellUtil.ALIGNMENT, HorizontalAlignment.CENTER);
                         } else if (ocupantes.size() == 1) {
                             Object obj = ocupantes.get(0);
                             if (obj instanceof CursoMasivoExamen) {
                                 ExcelHelper.replaceVal(sheet, rowNum, col, "M");
-                                CellUtil.setCellStyleProperty(sheet.getRow(rowNum).getCell(col), wb, CellUtil.ALIGNMENT, CellStyle.ALIGN_CENTER);
+                                CellUtil.setCellStyleProperty(sheet.getRow(rowNum).getCell(col), CellUtil.ALIGNMENT, HorizontalAlignment.CENTER);
                             } else if (obj instanceof SeccionGrupoEspecial) {
                                 ExcelHelper.replaceVal(sheet, rowNum, col, "E");
-                                CellUtil.setCellStyleProperty(sheet.getRow(rowNum).getCell(col), wb, CellUtil.ALIGNMENT, CellStyle.ALIGN_CENTER);
+                                CellUtil.setCellStyleProperty(sheet.getRow(rowNum).getCell(col), CellUtil.ALIGNMENT, HorizontalAlignment.CENTER);
                             } else if (obj instanceof SeccionGrupoRegular) {
                                 ExcelHelper.replaceVal(sheet, rowNum, col, "R");
-                                CellUtil.setCellStyleProperty(sheet.getRow(rowNum).getCell(col), wb, CellUtil.ALIGNMENT, CellStyle.ALIGN_CENTER);
+                                CellUtil.setCellStyleProperty(sheet.getRow(rowNum).getCell(col), CellUtil.ALIGNMENT, HorizontalAlignment.CENTER);
                             } else {
                                 ExcelHelper.replaceVal(sheet, rowNum, col, "?");
                             }
@@ -200,8 +200,8 @@ public class RolExamenReporteAulasView extends AbstractPOIExcelView {
 
                         Integer indexColor = numeroDia % COLORES.size();
                         IndexedColors color = COLORES.get(indexColor);
-                        CellUtil.setCellStyleProperty(sheet.getRow(rowNum).getCell(col), wb, CellUtil.FILL_FOREGROUND_COLOR, color.getIndex());
-                        CellUtil.setCellStyleProperty(sheet.getRow(rowNum).getCell(col), wb, CellUtil.FILL_PATTERN, CellStyle.SOLID_FOREGROUND);
+                        CellUtil.setCellStyleProperty(sheet.getRow(rowNum).getCell(col), CellUtil.FILL_FOREGROUND_COLOR, color.getIndex());
+                        CellUtil.setCellStyleProperty(sheet.getRow(rowNum).getCell(col), CellUtil.FILL_PATTERN, FillPatternType.SOLID_FOREGROUND);
                         setBorder(rowNum, col, sheet, wb);
                         col++;
                     }
@@ -244,10 +244,10 @@ public class RolExamenReporteAulasView extends AbstractPOIExcelView {
             sheet.getRow(row).createCell(col);
         }
 
-        CellUtil.setCellStyleProperty(sheet.getRow(row).getCell(col), wb, CellUtil.BORDER_BOTTOM, border);
-        CellUtil.setCellStyleProperty(sheet.getRow(row).getCell(col), wb, CellUtil.BORDER_LEFT, border);
-        CellUtil.setCellStyleProperty(sheet.getRow(row).getCell(col), wb, CellUtil.BORDER_RIGHT, border);
-        CellUtil.setCellStyleProperty(sheet.getRow(row).getCell(col), wb, CellUtil.BORDER_TOP, border);
+        CellUtil.setCellStyleProperty(sheet.getRow(row).getCell(col), CellUtil.BORDER_BOTTOM, border);
+        CellUtil.setCellStyleProperty(sheet.getRow(row).getCell(col), CellUtil.BORDER_LEFT, border);
+        CellUtil.setCellStyleProperty(sheet.getRow(row).getCell(col), CellUtil.BORDER_RIGHT, border);
+        CellUtil.setCellStyleProperty(sheet.getRow(row).getCell(col), CellUtil.BORDER_TOP, border);
     }
 
     private void setHeaderStyle(Integer row, Integer col, Sheet sheet, Workbook wb, Font font) {
@@ -262,8 +262,8 @@ public class RolExamenReporteAulasView extends AbstractPOIExcelView {
         this.setBorder(row, col, sheet, wb);
         Cell cell = sheet.getRow(row).getCell(col);
         cell.getCellStyle().setFont(font);
-        CellUtil.setCellStyleProperty(sheet.getRow(row).getCell(col), wb, CellUtil.FILL_FOREGROUND_COLOR, IndexedColors.GREY_25_PERCENT.getIndex());
-        CellUtil.setCellStyleProperty(sheet.getRow(row).getCell(col), wb, CellUtil.FILL_PATTERN, CellStyle.SOLID_FOREGROUND);
+        CellUtil.setCellStyleProperty(sheet.getRow(row).getCell(col), CellUtil.FILL_FOREGROUND_COLOR, IndexedColors.GREY_25_PERCENT.getIndex());
+        CellUtil.setCellStyleProperty(sheet.getRow(row).getCell(col), CellUtil.FILL_PATTERN, FillPatternType.SOLID_FOREGROUND);
     }
 
     private Integer buildHeader(List<Date> dias, Map<Date, List<Integer>> horasPorDia, Integer row, Font headerFont, Sheet sheet, Workbook wb) {

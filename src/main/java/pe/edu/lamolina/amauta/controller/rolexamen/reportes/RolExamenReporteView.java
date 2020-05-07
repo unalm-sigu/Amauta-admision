@@ -90,8 +90,8 @@ public class RolExamenReporteView extends AbstractPOIExcelView {
             ExcelHelper.replaceVal(sheet, cont, 2, regular.getGrupoHorasExamen().getHoraInicio().getDescripcion());
 
             for (int i = 0; i < 3; i++) {
-                CellUtil.setCellStyleProperty(sheet.getRow(cont).getCell(i), wb, CellUtil.ALIGNMENT, CellStyle.ALIGN_CENTER);
-                CellUtil.setCellStyleProperty(sheet.getRow(cont).getCell(i), wb, CellUtil.VERTICAL_ALIGNMENT, CellStyle.VERTICAL_CENTER);
+                CellUtil.setCellStyleProperty(sheet.getRow(cont).getCell(i), CellUtil.ALIGNMENT, HorizontalAlignment.CENTER);
+                CellUtil.setCellStyleProperty(sheet.getRow(cont).getCell(i), CellUtil.VERTICAL_ALIGNMENT, VerticalAlignment.CENTER);
             }
 
             cont++;
@@ -116,7 +116,7 @@ public class RolExamenReporteView extends AbstractPOIExcelView {
             ExcelHelper.replaceVal(sheet, cont, 2, (String) ObjectUtil.getParentTree(masivo, "seccion.grupoHoras.codigo"));
             ExcelHelper.replaceVal(sheet, cont, 3, (String) ObjectUtil.getParentTree(masivo, "aula.codigo"));
 
-            CellUtil.setCellStyleProperty(sheet.getRow(cont).getCell(3), wb, CellUtil.ALIGNMENT, CellStyle.ALIGN_CENTER);
+            CellUtil.setCellStyleProperty(sheet.getRow(cont).getCell(3), CellUtil.ALIGNMENT, HorizontalAlignment.CENTER);
 
             if (masivo.getGrupoHorasExamen() != null && masivo.getGrupoHorasExamen().getFecha() != null) {
                 ExcelHelper.replaceVal(sheet, cont, 4, StringUtils.capitalize(sdf.format(masivo.getGrupoHorasExamen().getFecha())));
@@ -145,10 +145,10 @@ public class RolExamenReporteView extends AbstractPOIExcelView {
             ExcelHelper.replaceVal(sheet, cont, 0, (String) ObjectUtil.getParentTree(masivo, "curso.codigo"));
             ExcelHelper.replaceVal(sheet, cont, 1, (String) ObjectUtil.getParentTree(masivo, "curso.nombre"));
 
-            CellUtil.setCellStyleProperty(sheet.getRow(cont).getCell(0), wb, CellUtil.ALIGNMENT, CellStyle.ALIGN_CENTER);
-            CellUtil.setCellStyleProperty(sheet.getRow(cont).getCell(0), wb, CellUtil.VERTICAL_ALIGNMENT, CellStyle.VERTICAL_CENTER);
+            CellUtil.setCellStyleProperty(sheet.getRow(cont).getCell(0), CellUtil.ALIGNMENT, HorizontalAlignment.CENTER);
+            CellUtil.setCellStyleProperty(sheet.getRow(cont).getCell(0), CellUtil.VERTICAL_ALIGNMENT, VerticalAlignment.CENTER);
 
-            CellUtil.setCellStyleProperty(sheet.getRow(cont).getCell(1), wb, CellUtil.VERTICAL_ALIGNMENT, CellStyle.VERTICAL_CENTER);
+            CellUtil.setCellStyleProperty(sheet.getRow(cont).getCell(1), CellUtil.VERTICAL_ALIGNMENT, VerticalAlignment.CENTER);
 
             if (masivo.getGrupoHorasExamen() != null) {
                 if (masivo.getGrupoHorasExamen().getHoraInicio() != null) {
@@ -158,12 +158,12 @@ public class RolExamenReporteView extends AbstractPOIExcelView {
                 }
             }
 
-            CellUtil.setCellStyleProperty(sheet.getRow(cont).getCell(2), wb, CellUtil.ALIGNMENT, CellStyle.ALIGN_CENTER);
-            CellUtil.setCellStyleProperty(sheet.getRow(cont).getCell(2), wb, CellUtil.VERTICAL_ALIGNMENT, CellStyle.VERTICAL_CENTER);
+            CellUtil.setCellStyleProperty(sheet.getRow(cont).getCell(2), CellUtil.ALIGNMENT, HorizontalAlignment.CENTER);
+            CellUtil.setCellStyleProperty(sheet.getRow(cont).getCell(2), CellUtil.VERTICAL_ALIGNMENT, VerticalAlignment.CENTER);
 
             ExcelHelper.replaceVal(sheet, cont, 3, String.join(", ", aulas));
-            CellUtil.setCellStyleProperty(sheet.getRow(cont).getCell(3), wb, CellUtil.ALIGNMENT, CellStyle.ALIGN_CENTER);
-            CellUtil.setCellStyleProperty(sheet.getRow(cont).getCell(3), wb, CellUtil.VERTICAL_ALIGNMENT, CellStyle.VERTICAL_CENTER);
+            CellUtil.setCellStyleProperty(sheet.getRow(cont).getCell(3), CellUtil.ALIGNMENT, HorizontalAlignment.CENTER);
+            CellUtil.setCellStyleProperty(sheet.getRow(cont).getCell(3), CellUtil.VERTICAL_ALIGNMENT, VerticalAlignment.CENTER);
 
             cont++;
         }

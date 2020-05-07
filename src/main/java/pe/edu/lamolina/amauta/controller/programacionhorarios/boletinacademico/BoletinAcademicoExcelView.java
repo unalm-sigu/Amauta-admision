@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Font;
@@ -174,9 +175,9 @@ public class BoletinAcademicoExcelView extends AbstractPOIExcelView {
                                     cell = row.createCell(i);
                                 }
                                 CellStyle cellStyle = cell.getCellStyle();
-                                cellStyle.setBorderBottom((short) 1);
+                                cellStyle.setBorderBottom(BorderStyle.THIN);
                                 if (cell.getColumnIndex() == (row.getLastCellNum() - 1)) {
-                                    cellStyle.setBorderRight((short) 1);
+                                    cellStyle.setBorderRight(BorderStyle.THIN);
                                 }
                                 cell.setCellStyle(cs);
                             }
@@ -198,7 +199,7 @@ public class BoletinAcademicoExcelView extends AbstractPOIExcelView {
         // Row row = sheet.createRow(0);
         Font fontTitle = wb.createFont();
         fontTitle.setFontName("Arial");
-        fontTitle.setBoldweight(Font.BOLDWEIGHT_BOLD);
+        fontTitle.setBold(true);
         fontTitle.setColor(IndexedColors.BLACK.getIndex());
 
         CellStyle cellStyle = ExcelStyles.getStyleHeader(wb);
@@ -223,7 +224,7 @@ public class BoletinAcademicoExcelView extends AbstractPOIExcelView {
         // Row row = sheet.createRow(0);
         Font fontTitle = wb.createFont();
         fontTitle.setFontName("Arial");
-        fontTitle.setBoldweight(Font.BOLDWEIGHT_BOLD);
+        fontTitle.setBold(true);
         fontTitle.setColor(IndexedColors.BLACK.getIndex());
 
         CellStyle cellStyle = ExcelStyles.getStyleHeader(wb);

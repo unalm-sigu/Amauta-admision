@@ -6,10 +6,11 @@ import java.util.Map;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.joda.time.DateTime;
@@ -62,8 +63,8 @@ public class AptosPregradoView extends AbstractView {
     }
 
     private void createHeader(ExcelHelper excelUtil, Workbook workbook, String tipoReporte) {
-        CellStyle estiloCabecera = getStyleCabecera(workbook, CellStyle.ALIGN_CENTER);
-        CellStyle estiloCabeceraLeft = getStyleCabecera(workbook, CellStyle.ALIGN_LEFT);
+        CellStyle estiloCabecera = getStyleCabecera(workbook, HorizontalAlignment.CENTER);
+        CellStyle estiloCabeceraLeft = getStyleCabecera(workbook, HorizontalAlignment.LEFT);
         this.setWidthColumn(excelUtil.getSheet(), 1, 12500);
         this.setWidthColumn(excelUtil.getSheet(), 2, 10000);
         this.setWidthColumn(excelUtil.getSheet(), 3, 10000);
@@ -97,30 +98,30 @@ public class AptosPregradoView extends AbstractView {
         }
     }
 
-    private CellStyle getStyleCabecera(Workbook workbook, short posicion) {
+    private CellStyle getStyleCabecera(Workbook workbook, HorizontalAlignment posicion) {
         Font font = workbook.createFont();
         font.setFontName("Arial");
-        font.setBoldweight(Font.BOLDWEIGHT_BOLD);
+        font.setBold(true);
         CellStyle cell = workbook.createCellStyle();
         cell.setAlignment(posicion);
         cell.setFont(font);
-        cell.setBorderTop(HSSFCellStyle.BORDER_MEDIUM);
-        cell.setBorderBottom(HSSFCellStyle.BORDER_MEDIUM);
-        cell.setBorderRight(HSSFCellStyle.BORDER_MEDIUM);
-        cell.setBorderLeft(HSSFCellStyle.BORDER_MEDIUM);
+        cell.setBorderTop(BorderStyle.MEDIUM);
+        cell.setBorderBottom(BorderStyle.MEDIUM);
+        cell.setBorderRight(BorderStyle.MEDIUM);
+        cell.setBorderLeft(BorderStyle.MEDIUM);
         return cell;
     }
 
-    private CellStyle getStyleGeneral(Workbook workbook, short posicion) {
+    private CellStyle getStyleGeneral(Workbook workbook, HorizontalAlignment posicion) {
         Font font = workbook.createFont();
         font.setFontName("Arial");
         CellStyle cell = workbook.createCellStyle();
         cell.setAlignment(posicion);
         cell.setFont(font);
-        cell.setBorderTop(HSSFCellStyle.BORDER_THIN);
-        cell.setBorderBottom(HSSFCellStyle.BORDER_THIN);
-        cell.setBorderRight(HSSFCellStyle.BORDER_THIN);
-        cell.setBorderLeft(HSSFCellStyle.BORDER_THIN);
+        cell.setBorderTop(BorderStyle.THIN);
+        cell.setBorderBottom(BorderStyle.THIN);
+        cell.setBorderRight(BorderStyle.THIN);
+        cell.setBorderLeft(BorderStyle.THIN);
         return cell;
     }
 
@@ -129,8 +130,8 @@ public class AptosPregradoView extends AbstractView {
     }
 
     private void createBody(ExcelHelper excelUtil, int irow, List<AptoPreBean> listAptoPreBean, Workbook workbook, String tipoReporte) {
-        CellStyle estiloGeneral = getStyleGeneral(workbook, CellStyle.ALIGN_CENTER);
-        CellStyle estiloLeft = getStyleGeneral(workbook, CellStyle.ALIGN_LEFT);
+        CellStyle estiloGeneral = getStyleGeneral(workbook, HorizontalAlignment.CENTER);
+        CellStyle estiloLeft = getStyleGeneral(workbook, HorizontalAlignment.LEFT);
         for (AptoPreBean item : listAptoPreBean) {
             excelUtil.replaceStyle(irow - 1, 0, estiloGeneral);
             excelUtil.replaceStyle(irow - 1, 1, estiloLeft);

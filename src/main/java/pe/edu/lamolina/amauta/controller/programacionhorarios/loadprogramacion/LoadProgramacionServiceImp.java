@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -86,7 +87,6 @@ import pe.edu.lamolina.amauta.dao.horario.GrupoHorasDAO;
 import pe.edu.lamolina.amauta.dao.horario.HoraDAO;
 import pe.edu.lamolina.amauta.dao.horario.HorarioAulaDAO;
 import pe.edu.lamolina.amauta.dao.horario.HorarioSeccionDAO;
-import pe.edu.lamolina.model.constantines.AcademicoConstantine;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.misc.MapUtil;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
@@ -1171,7 +1171,7 @@ public class LoadProgramacionServiceImp implements LoadProgramacionService {
         if (cell == null) {
             return null;
         }
-        cell.setCellType(Cell.CELL_TYPE_STRING);
+        cell.setCellType(CellType.STRING);
         String dato = cell.getStringCellValue();
         if (dato == null) {
             return null;
@@ -1203,11 +1203,11 @@ public class LoadProgramacionServiceImp implements LoadProgramacionService {
         if (cell == null) {
             return null;
         }
-        if (cell.getCellType() == Cell.CELL_TYPE_NUMERIC) {
+        if (cell.getCellType() == CellType.NUMERIC) {
             return new BigDecimal(cell.getNumericCellValue()).intValue();
         }
 
-        cell.setCellType(Cell.CELL_TYPE_STRING);
+        cell.setCellType(CellType.STRING);
         String dato = cell.getStringCellValue();
         if (dato == null) {
             return null;
@@ -1242,11 +1242,11 @@ public class LoadProgramacionServiceImp implements LoadProgramacionService {
         if (cell == null) {
             return null;
         }
-        if (cell.getCellType() == Cell.CELL_TYPE_NUMERIC) {
+        if (cell.getCellType() == CellType.NUMERIC) {
             return new BigDecimal(cell.getNumericCellValue());
         }
 
-        cell.setCellType(Cell.CELL_TYPE_STRING);
+        cell.setCellType(CellType.STRING);
         String dato = cell.getStringCellValue();
         if (dato == null) {
             return null;
@@ -1281,7 +1281,7 @@ public class LoadProgramacionServiceImp implements LoadProgramacionService {
         if (cell == null) {
             return null;
         }
-        if (cell.getCellType() == Cell.CELL_TYPE_STRING) {
+        if (cell.getCellType() == CellType.STRING) {
             if (cell.getStringCellValue().equals("")) {
                 return null;
             }

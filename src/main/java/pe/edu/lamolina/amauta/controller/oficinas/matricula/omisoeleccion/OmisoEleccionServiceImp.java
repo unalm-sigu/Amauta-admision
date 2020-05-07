@@ -14,6 +14,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
@@ -50,7 +51,6 @@ import pe.edu.lamolina.amauta.dao.aporte.AporteDAO;
 import pe.edu.lamolina.amauta.dao.aporte.ResumenAporteAlumnoDAO;
 import pe.edu.lamolina.amauta.dao.finanza.AcreenciaDAO;
 import pe.edu.lamolina.amauta.dao.finanza.DeudaAlumnoDAO;
-import pe.edu.lamolina.model.constantines.AcademicoConstantine;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 
@@ -201,7 +201,7 @@ public class OmisoEleccionServiceImp implements OmisoEleccionService {
         if (cell == null) {
             return null;
         }
-        cell.setCellType(Cell.CELL_TYPE_STRING);
+        cell.setCellType(CellType.STRING);
         String dato = cell.getStringCellValue();
         if (dato != null) {
             dato = StringUtils.replaceChars(dato, '\t', ' ');

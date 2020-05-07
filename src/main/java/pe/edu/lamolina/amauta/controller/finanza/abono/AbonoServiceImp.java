@@ -915,7 +915,7 @@ package pe.edu.lamolina.amauta.controller.finanza.abono;
 //        if (cell == null) {
 //            return null;
 //        }
-//        cell.setCellType(Cell.CELL_TYPE_STRING);
+//        cell.setCellType(CellType.STRING);
 //        String dato = cell.getStringCellValue();
 //        if (dato != null) {
 //            dato = StringUtils.replaceChars(dato, '\t', ' ');
