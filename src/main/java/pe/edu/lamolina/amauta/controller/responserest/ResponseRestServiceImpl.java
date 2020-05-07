@@ -134,7 +134,7 @@ public class ResponseRestServiceImpl extends AbstractRestClient<JsonResponse> im
         estadoEnum = (estadoEnum == null) ? EstadoMatriculaEnum.RET : estadoEnum;
         Parametro parametro = findParametro(ParametrosSistemasEnum.REST_MATRICULA);
         ObjectNode json = createFormJson(ds, token);
-        json.put("idMatricula", matriculaCurso.getId());
+        json.put("idMatriculaCurso", matriculaCurso.getId());
         json.put("estado", estadoEnum.name());
 
         String url = String.format("%s/matriculaSeccion/deleteMatriculaCurso", parametro.getValor());

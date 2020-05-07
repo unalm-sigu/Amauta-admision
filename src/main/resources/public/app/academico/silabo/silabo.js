@@ -8,7 +8,8 @@ new Vue({
         modalSilabo: {
             id: 'modalSilabo',
             modalsize: 'modal-md',
-            header: false
+            header: false,
+            showaccept:true
         },
         cursos: [],
         ciclos: [],
