@@ -380,7 +380,7 @@ public class OficinaServiceImp implements OficinaService {
             }
 
             UsuarioRol usuarioRol = new UsuarioRol();
-            usuarioRol.setEstado(UserEstadoEnum.ACT);
+            usuarioRol.setEstadoEnum(UserEstadoEnum.ACT);
             usuarioRol.setFechaInicio(colaborador.getFechaInicio());
             usuarioRol.setFechaRegistro(new Date());
             usuarioRol.setOficina(oficinaBD);
@@ -488,7 +488,7 @@ public class OficinaServiceImp implements OficinaService {
             List<UsuarioRol> userRolBD = TypesUtil.getListNotNull(mapUserRol.get(rol.getId()));
             for (UsuarioRol ur : userRolBD) {
                 if (ur.getOficina().getId() == oficinaBD.getId().longValue()) {
-                    ur.setEstado(UserEstadoEnum.INA);
+                    ur.setEstadoEnum(UserEstadoEnum.INA);
                     ur.setFechaFin(oficinaForm.getFechaFinJefatura());
                     ur.setFechaFinaliza(new Date());
                     ur.setUserFinaliza(ds.getUsuario());
@@ -601,7 +601,7 @@ public class OficinaServiceImp implements OficinaService {
             if (userRol == null) {
                 logger.debug("creando rol");
                 userRol = new UsuarioRol();
-                userRol.setEstado(UserEstadoEnum.ACT);
+                userRol.setEstadoEnum(UserEstadoEnum.ACT);
                 userRol.setFechaInicio(new Date());
                 userRol.setUserRegistro(ds.getUsuario());
                 userRol.setUsuario(usuarioDb);
@@ -1068,7 +1068,7 @@ public class OficinaServiceImp implements OficinaService {
             }
             for (Rol rol : roless) {
                 UsuarioRol usuarioRol = new UsuarioRol();
-                usuarioRol.setEstado(UserEstadoEnum.ACT);
+                usuarioRol.setEstadoEnum(UserEstadoEnum.ACT);
                 usuarioRol.setFechaInicio(colaborador.getFechaInicio());
                 usuarioRol.setFechaRegistro(new Date());
                 usuarioRol.setOficina(oficinaMean);
@@ -1215,7 +1215,7 @@ public class OficinaServiceImp implements OficinaService {
             if (mapRolNuevos.get(usuarioRol.getRol().getId()) == null) {
                 usuarioRol.setFechaFin(new Date());
                 usuarioRol.setUsuario(usuarioColaborador);
-                usuarioRol.setEstado(UserEstadoEnum.INA);
+                usuarioRol.setEstadoEnum(UserEstadoEnum.INA);
                 usuarioRolDAO.update(usuarioRol);
             }
         }
@@ -1226,7 +1226,7 @@ public class OficinaServiceImp implements OficinaService {
                 logger.info("ENTRA AL IF");
 
                 UsuarioRol usuarioRol = new UsuarioRol();
-                usuarioRol.setEstado(UserEstadoEnum.ACT);
+                usuarioRol.setEstadoEnum(UserEstadoEnum.ACT);
                 usuarioRol.setFechaInicio(colaborador.getFechaInicio());
                 usuarioRol.setFechaRegistro(new Date());
                 usuarioRol.setOficina(oficinaMean);

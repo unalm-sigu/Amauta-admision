@@ -701,7 +701,7 @@ public class ColaboradorServiceImp implements ColaboradorService {
 
         List<UsuarioRol> userRoles = usuarioRolDAO.allByUserOficina(userEmpleado, empleadoBD.getOficina());
         for (UsuarioRol ur : userRoles) {
-            ur.setEstado(UserEstadoEnum.INA);
+            ur.setEstadoEnum(UserEstadoEnum.INA);
             ur.setFechaFin(new Date());
             ur.setUserFinaliza(ds.getUsuario());
             usuarioRolDAO.update(ur);
@@ -981,7 +981,7 @@ public class ColaboradorServiceImp implements ColaboradorService {
                 }
 
                 UsuarioRol usuarioRol = new UsuarioRol();
-                usuarioRol.setEstado(UserEstadoEnum.ACT);
+                usuarioRol.setEstadoEnum(UserEstadoEnum.ACT);
                 usuarioRol.setFechaInicio(colaborador.getFechaInicio());
                 usuarioRol.setFechaRegistro(new Date());
                 usuarioRol.setOficina(oficinaMain);
@@ -1134,7 +1134,7 @@ public class ColaboradorServiceImp implements ColaboradorService {
             if (mapRolNuevos.get(usuarioRol.getRol().getId()) == null) {
                 usuarioRol.setFechaFin(new Date());
                 usuarioRol.setUsuario(usuarioColaborador);
-                usuarioRol.setEstado(UserEstadoEnum.INA);
+                usuarioRol.setEstadoEnum(UserEstadoEnum.INA);
                 usuarioRolDAO.update(usuarioRol);
             }
         }
@@ -1145,7 +1145,7 @@ public class ColaboradorServiceImp implements ColaboradorService {
                 logger.info("ENTRA AL IF");
 
                 UsuarioRol usuarioRol = new UsuarioRol();
-                usuarioRol.setEstado(UserEstadoEnum.ACT);
+                usuarioRol.setEstadoEnum(UserEstadoEnum.ACT);
                 usuarioRol.setFechaInicio(colaborador.getFechaInicio());
                 usuarioRol.setFechaRegistro(new Date());
                 usuarioRol.setOficina(oficinaMain);

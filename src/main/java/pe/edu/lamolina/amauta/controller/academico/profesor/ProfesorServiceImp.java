@@ -245,7 +245,7 @@ public class ProfesorServiceImp implements ProfesorService {
         UsuarioRol userRol = usuarioRolDAO.findByUsuarioAndRol(usuarioDb, rol);
         if (userRol == null) {
             userRol = new UsuarioRol();
-            userRol.setEstado(UserEstadoEnum.ACT);
+            userRol.setEstadoEnum(UserEstadoEnum.ACT);
             userRol.setFechaInicio(new Date());
             userRol.setRol(rol);
             userRol.setUsuario(usuarioDb);
@@ -329,7 +329,7 @@ public class ProfesorServiceImp implements ProfesorService {
         if (userRolDB == null) {
             logger.debug("-> Asignando Rol de Docente");
             userRolDB = new UsuarioRol();
-            userRolDB.setEstado(UserEstadoEnum.ACT);
+            userRolDB.setEstadoEnum(UserEstadoEnum.ACT);
             userRolDB.setFechaInicio(new Date());
             userRolDB.setRol(rol);
             userRolDB.setUsuario(usuarioDb);

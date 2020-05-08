@@ -92,7 +92,7 @@ public class UsuarioServiceImp implements UsuarioService {
         List<UsuarioRol> userRoles = usuarioRolDAO.allByUser(usuario);
         for (UsuarioRol userRol : userRoles) {
             if (userRol.getEstadoEnum() == UserEstadoEnum.ACT) {
-                userRol.setEstado(UserEstadoEnum.INA);
+                userRol.setEstadoEnum(UserEstadoEnum.INA);
                 userRol.setFechaFin(new Date());
 
                 userRol.setFechaFinaliza(new Date());
@@ -320,7 +320,7 @@ public class UsuarioServiceImp implements UsuarioService {
             throw new PhobosException("El rol seleccionado ya se encuentra asignado");
         }
 
-        userRol.setEstado(UserEstadoEnum.ACT);
+        userRol.setEstadoEnum(UserEstadoEnum.ACT);
         userRol.setUserRegistro(ds.getUsuario());
         userRol.setFechaRegistro(new Date());
         usuarioRolDAO.save(userRol);
@@ -341,7 +341,7 @@ public class UsuarioServiceImp implements UsuarioService {
         }
 
         usuarioRol.setFechaFin(new Date());
-        usuarioRol.setEstado(UserEstadoEnum.INA);
+        usuarioRol.setEstadoEnum(UserEstadoEnum.INA);
         usuarioRol.setUserFinaliza(ds.getUsuario());
         usuarioRol.setFechaFinaliza(new Date());
         usuarioRolDAO.update(usuarioRol);

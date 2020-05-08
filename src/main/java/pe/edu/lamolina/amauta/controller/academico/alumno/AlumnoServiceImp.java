@@ -306,7 +306,7 @@ public class AlumnoServiceImp implements AlumnoService {
 
         Rol rol = rolDAO.findByCode(RolEnum.ALU);
         UsuarioRol ur = new UsuarioRol();
-        ur.setEstado(UserEstadoEnum.ACT);
+        ur.setEstadoEnum(UserEstadoEnum.ACT);
         ur.setFechaInicio(new Date());
         ur.setFechaRegistro(new Date());
         ur.setRol(rol);
@@ -582,7 +582,7 @@ public class AlumnoServiceImp implements AlumnoService {
 
             if (userRoles.isEmpty()) {
                 UsuarioRol userRol = new UsuarioRol();
-                userRol.setEstado(UserEstadoEnum.ACT);
+                userRol.setEstadoEnum(UserEstadoEnum.ACT);
                 userRol.setFechaInicio(new Date());
                 userRol.setFechaRegistro(new Date());
                 userRol.setRol(rol);
@@ -600,7 +600,7 @@ public class AlumnoServiceImp implements AlumnoService {
                 }
                 if (noTiene) {
                     for (UsuarioRol userRol : userRoles) {
-                        userRol.setEstado(UserEstadoEnum.ACT);
+                        userRol.setEstadoEnum(UserEstadoEnum.ACT);
                         usuarioRolDAO.update(userRol);
                         break;
                     }
