@@ -11,6 +11,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFDataFormat;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -235,7 +236,7 @@ public class RecordDeActasExcelView extends AbstractPOIExcelView {
     private void createCellNumber(Row row, int cellNumber, String value, CellStyle style) {
         Cell cell = row.createCell(cellNumber);
         cell.setCellValue(Integer.parseInt(value));
-        cell.setCellType(Cell.CELL_TYPE_NUMERIC);
+        cell.setCellType(CellType.NUMERIC);
         if (style != null) {
             cell.setCellStyle(style);
         }

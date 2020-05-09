@@ -7,9 +7,10 @@ import java.util.Map;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.apache.poi.hssf.usermodel.HSSFCellStyle;
+import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -101,7 +102,7 @@ public class ReporteAlumnosExcel extends AbstractView {
         CellStyle estiloNumero = getStyleNumero(wb);
         CellStyle estiloGeneral = getStyleGeneral(wb);
         CellStyle titulo3Left = ExcelStyles.getStyleBody(wb);
-        titulo3Left.setAlignment(CellStyle.ALIGN_LEFT);
+        titulo3Left.setAlignment(HorizontalAlignment.LEFT);
 
         int irow = 1;
         String firstLetter = "C";
@@ -191,7 +192,7 @@ public class ReporteAlumnosExcel extends AbstractView {
         cell = row.createCell(region.getFirstColumn());
         cell.setCellValue("La Molina, " + fecha);
         cell.setCellStyle(ExcelStyles.getStyleBody(wb));
-        cell.getCellStyle().setAlignment(CellStyle.ALIGN_RIGHT);
+        cell.getCellStyle().setAlignment(HorizontalAlignment.RIGHT);
         irow++;
 
         int column = 0;
@@ -269,20 +270,20 @@ public class ReporteAlumnosExcel extends AbstractView {
 
     private CellStyle getStyleNumero(Workbook workBook) {
         CellStyle cell = workBook.createCellStyle();
-        cell.setAlignment(CellStyle.ALIGN_RIGHT);
-        cell.setBorderTop(HSSFCellStyle.BORDER_THIN);
-        cell.setBorderBottom(HSSFCellStyle.BORDER_THIN);
-        cell.setBorderRight(HSSFCellStyle.BORDER_THIN);
-        cell.setBorderLeft(HSSFCellStyle.BORDER_THIN);
+        cell.setAlignment(HorizontalAlignment.RIGHT);
+        cell.setBorderTop(BorderStyle.THIN);
+        cell.setBorderBottom(BorderStyle.THIN);
+        cell.setBorderRight(BorderStyle.THIN);
+        cell.setBorderLeft(BorderStyle.THIN);
         return cell;
     }
 
     private CellStyle getStyleGeneral(Workbook workBook) {
         CellStyle cell = workBook.createCellStyle();
-        cell.setBorderTop(HSSFCellStyle.BORDER_THIN);
-        cell.setBorderBottom(HSSFCellStyle.BORDER_THIN);
-        cell.setBorderRight(HSSFCellStyle.BORDER_THIN);
-        cell.setBorderLeft(HSSFCellStyle.BORDER_THIN);
+        cell.setBorderTop(BorderStyle.THIN);
+        cell.setBorderBottom(BorderStyle.THIN);
+        cell.setBorderRight(BorderStyle.THIN);
+        cell.setBorderLeft(BorderStyle.THIN);
         return cell;
     }
 

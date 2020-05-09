@@ -5,7 +5,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -18,6 +17,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -2753,7 +2753,7 @@ public class ProgDataServiceImp implements ProgDataService {
         if (cell == null) {
             return null;
         }
-        cell.setCellType(Cell.CELL_TYPE_STRING);
+        cell.setCellType(CellType.STRING);
         String dato = cell.getStringCellValue();
         if (dato == null) {
             return null;
@@ -2785,11 +2785,11 @@ public class ProgDataServiceImp implements ProgDataService {
         if (cell == null) {
             return null;
         }
-        if (cell.getCellType() == Cell.CELL_TYPE_NUMERIC) {
+        if (cell.getCellType() == CellType.NUMERIC) {
             return new BigDecimal(cell.getNumericCellValue()).intValue();
         }
 
-        cell.setCellType(Cell.CELL_TYPE_STRING);
+        cell.setCellType(CellType.STRING);
         String dato = cell.getStringCellValue();
         if (dato == null) {
             return null;

@@ -15,6 +15,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
@@ -34,7 +35,6 @@ import pe.edu.lamolina.model.enums.DeudaAlumnoEstadoEnum;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoDAO;
-import pe.edu.lamolina.model.constantines.AcademicoConstantine;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.amauta.dao.academico.DeudaMaterialAlumnoDAO;
@@ -203,9 +203,7 @@ public class RestriccionMatriculaServiceImp implements RestriccionMatriculaServi
             throw new PhobosException("Archivo no puede ser ubicado en el servidor");
         } catch (IOException ex) {
             throw new PhobosException("El archivo no puede ser leido");
-        } catch (InvalidFormatException ex) {
-            throw new PhobosException("El formato del archivo no es el correcto");
-        }
+        } 
     }
 
     private String getCellValue(int pos, Row row) {
@@ -213,7 +211,7 @@ public class RestriccionMatriculaServiceImp implements RestriccionMatriculaServi
         if (cell == null) {
             return null;
         }
-        cell.setCellType(Cell.CELL_TYPE_STRING);
+        cell.setCellType(CellType.STRING);
         String dato = cell.getStringCellValue();
         if (dato != null) {
             dato = StringUtils.replaceChars(dato, '\t', ' ');
