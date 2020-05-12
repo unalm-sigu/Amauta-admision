@@ -504,7 +504,12 @@
                                                                 Asignar Horas Adicionales
                                                             </a>
                                                         </li>
-
+                                                        <li role="presentation" v-for="enums in  modosDictados">
+                                                            <a href="#" v-if="seccion.modoDictadoEnum.name != enums.name"
+                                                               v-on:click="cambiarModoDictado(seccion , enums.name)">
+                                                                {{enums.value}}
+                                                            </a>
+                                                        </li>
                                                     </ul>
 
                                                     <a class="dropdown-toggle" href="#" data-toggle="dropdown"
@@ -517,17 +522,14 @@
                                                                 Asignar Horas Adicionales
                                                             </a>
                                                         </li>
-
-                                                    </ul>
-                                                    <ul class="dropdown-menu pull-right" >
                                                         <li role="presentation" v-for="enums in  modosDictados">
-                                                            <a href="#" v-if="seccion.modoDictadoEnum.name == enums.name"
+                                                            <a href="#" v-if="seccion.modoDictadoEnum.name != enums.name"
                                                                v-on:click="cambiarModoDictado(seccion , enums.name)">
                                                                 {{enums.value}}
                                                             </a>
                                                         </li>
-
                                                     </ul>
+
                                                 </div>
 
                                             </td>
