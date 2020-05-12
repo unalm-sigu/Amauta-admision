@@ -23,7 +23,6 @@ import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.TopeMatricula;
 import pe.edu.lamolina.model.enums.TipoAlumnoEnum;
-import pe.edu.lamolina.model.constantines.AcademicoConstantine;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 
@@ -97,7 +96,6 @@ public class TopeMatriculaController {
     @RequestMapping("save")
     public JsonResponse save(@RequestBody List<TopeMatricula> topesMatricula, HttpSession session) {
 
-        JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
         JsonResponse response = new JsonResponse();
 
         try {
