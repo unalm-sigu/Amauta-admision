@@ -87,6 +87,7 @@ import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.model.constantines.GlobalMessages;
 import pe.edu.lamolina.amauta.zelper.enums.TipoRestriccionEnum;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.enums.ModoDictadoSeccionEnum;
 
 @Controller
 @RequestMapping("academico/gposeccion")
@@ -251,6 +252,14 @@ public class GpoSeccionController {
             gpos.add(gpoSeccion);
         }
 
+        ArrayNode arrayNode = new ArrayNode(JsonNodeFactory.instance);
+        for (ModoDictadoSeccionEnum emuns : ModoDictadoSeccionEnum.values()) {
+            ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
+            node.put("name", emuns.name());
+            node.put("value", emuns.getValue());
+            arrayNode.add(node);
+        }
+        model.addAttribute("modosDictadosJson", arrayNode.toString());
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
         model.addAttribute("cicloJson", createCicloJson(ds.getCicloAcademico()).toString());
         model.addAttribute("grupoSeccionJson", gpoSeccionJson.toString());
@@ -2908,6 +2917,26 @@ public class GpoSeccionController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             service.saveAlumnoelegido(alumnoPagoVerano, ds);
+
+            response.setMessage("Se creó la boleta para el alumno satisfactoriamente");
+            response.setSuccess(true);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        } finally {
+            return response;
+        }
+    }
+
+    @ResponseBody
+    @RequestMapping("updateModoDictado")
+    public JsonResponse updateModoDictado(@RequestBody Seccion seccion, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+
+            service.updateModoDictado(seccion, ds);
 
             response.setMessage("Se creó la boleta para el alumno satisfactoriamente");
             response.setSuccess(true);

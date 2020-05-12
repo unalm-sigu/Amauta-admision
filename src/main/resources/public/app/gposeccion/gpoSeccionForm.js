@@ -196,7 +196,8 @@ var app = new Vue({
         configConfirmAction: VUE_MODAL.structConfirm({}),
         seccionWorking: {},
         descuentoSeccion: {},
-        alumnoPagoVerano: {}
+        alumnoPagoVerano: {},
+        modosDictados: [],
     },
     watch: {
         seccionSeleccionada: function (val) {
@@ -217,6 +218,7 @@ var app = new Vue({
         },
     },
     created: function () {
+        this.modosDictados = JSON.parse(modosDictadosJson);
         this.grupoSeccion = JSON.parse(gpoSeccionJson);
         this.navega = JSON.parse(navigationJson);
         this.ciclo = JSON.parse(cicloJson);
@@ -280,6 +282,28 @@ var app = new Vue({
         }
     },
     methods: {
+        cambiarModoDictado(secc, item) {
+
+            secc.modoDictado = item;
+            $.ajax({
+                method: 'POST',
+                url: APP.url("academico/gposeccion/updateModoDictado"),
+                contentType: "application/json",
+                data: JSON.stringify(secc),
+                success(response) {
+                    if (response.success) {
+                        $vue.loadGpoSeccionFlash();
+                        notify(response.message, "success");
+                    } else {
+                        notify(response.message, "error");
+                    }
+                },
+                error() {
+                    notify(Messages.errorComunicacion, "error");
+                    $vue.liberarBtn(dir);
+                }
+            });
+        },
         customAlumno( { codigo, persona }) {
             if (persona == null) {
                 return "";

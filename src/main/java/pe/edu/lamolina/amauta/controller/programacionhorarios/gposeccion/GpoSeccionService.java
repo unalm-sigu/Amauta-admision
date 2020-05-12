@@ -231,4 +231,6 @@ public interface GpoSeccionService {
 
     public void eliminarAllGrupos(DataSessionPivot ds);
 
+    public void updateModoDictado(Seccion secc, DataSessionPivot ds);
+
 }

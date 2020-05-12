@@ -244,6 +244,9 @@
                                                 <div>
                                                     {{ seccion.tipoSeccionEvaluacionValue }}
                                                 </div>
+                                                <div>
+                                                    <span class="label label-success">  {{ seccion.modoDictadoEnum.value }} </span>
+                                                </div>
                                                 <input type="hidden" v-bind:value="seccion.tipoSeccion"/>
                                             </td>
 
@@ -516,6 +519,15 @@
                                                         </li>
 
                                                     </ul>
+                                                    <ul class="dropdown-menu pull-right" >
+                                                        <li role="presentation" v-for="enums in  modosDictados">
+                                                            <a href="#" v-if="seccion.modoDictadoEnum.name == enums.name"
+                                                               v-on:click="cambiarModoDictado(seccion , enums.name)">
+                                                                {{enums.value}}
+                                                            </a>
+                                                        </li>
+
+                                                    </ul>
                                                 </div>
 
                                             </td>
@@ -634,6 +646,7 @@
     <div layout:fragment="js">
         <div th:substituteby="_layout/includes :: javascript-dynatable"/>
         <script th:inline="javascript">
+            var modosDictadosJson = /*[[${modosDictadosJson}]]*/ {};
             var gpoSeccionJson = /*[[${grupoSeccionJson}]]*/ {};
             var navigationJson = /*[[${navigationJson}]]*/ {};
             var cicloJson = /*[[${cicloJson}]]*/ {};

@@ -169,7 +169,6 @@ import pe.edu.lamolina.amauta.dao.rrhh.ContratoDocenteDAO;
 import pe.edu.lamolina.amauta.dao.academico.CursoCurriculaDAO;
 import pe.edu.lamolina.amauta.dao.academico.TipoCursoCurriculaDAO;
 
-
 @Service
 @Transactional(readOnly = true)
 public class GpoSeccionServiceImp implements GpoSeccionService {
@@ -3497,6 +3496,12 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         if (ampliacionVacantes != null) {
             ampliacionVacanteDAO.delete(ampliacionVacantes);
         }
+    }
+
+    @Override
+    @Transactional
+    public void updateModoDictado(Seccion seccion, DataSessionPivot ds) {
+        seccionDAO.updateColumns(seccion, "modoSeccion");
     }
 
 }
