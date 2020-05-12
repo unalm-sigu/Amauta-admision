@@ -284,12 +284,14 @@ var app = new Vue({
     methods: {
         cambiarModoDictado(secc, item) {
 
-            secc.modoDictado = item;
+            var data = {};
+            data.id = secc.id;
+            data.modoDictado = item;
             $.ajax({
                 method: 'POST',
                 url: APP.url("academico/gposeccion/updateModoDictado"),
                 contentType: "application/json",
-                data: JSON.stringify(secc),
+                data: JSON.stringify(data),
                 success(response) {
                     if (response.success) {
                         $vue.loadGpoSeccionFlash();

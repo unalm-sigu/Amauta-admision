@@ -504,9 +504,9 @@
                                                                 Asignar Horas Adicionales
                                                             </a>
                                                         </li>
-                                                        <li role="presentation" v-for="enums in  modosDictados">
-                                                            <a href="#" v-if="seccion.modoDictadoEnum.name != enums.name"
-                                                               v-on:click="cambiarModoDictado(seccion , enums.name)">
+                                                        <li role="presentation" v-for="enums in  modosDictados" class="pointer">
+                                                            <a  v-if="seccion.modoDictadoEnum.name != enums.name"
+                                                                v-on:click="cambiarModoDictado(seccion , enums.name)">
                                                                 {{enums.value}}
                                                             </a>
                                                         </li>
@@ -522,9 +522,9 @@
                                                                 Asignar Horas Adicionales
                                                             </a>
                                                         </li>
-                                                        <li role="presentation" v-for="enums in  modosDictados">
-                                                            <a href="#" v-if="seccion.modoDictadoEnum.name != enums.name"
-                                                               v-on:click="cambiarModoDictado(seccion , enums.name)">
+                                                        <li role="presentation" v-for="enums in  modosDictados"  class="pointer">
+                                                            <a  v-if="seccion.modoDictadoEnum.name != enums.name"
+                                                                v-on:click="cambiarModoDictado(seccion , enums.name)">
                                                                 {{enums.value}}
                                                             </a>
                                                         </li>
