@@ -387,7 +387,7 @@ public class ResolucionController {
             ArrayNode reincorporaciones = null;
             ArrayNode cursoDirigidos = null;
             for (TramiteReunionConsejo tramiteReunionConsejo : alumnosReunionConsejo) {
-                if (tramiteReunionConsejo.getTramite().getTipoTramite().getEsTipoTramiteRei()) {
+                if (tramiteReunionConsejo.getTramite().getTipoTramite().getEsReincorporacionPregrado()) {
 
                     if (resolucionId == null) {
                         tramiteReunionConsejo.setSeleccionado(Boolean.TRUE);
@@ -403,7 +403,7 @@ public class ResolucionController {
                             reincorporaciones.addPOJO(JsonHelper.createJson(reincorporacionEach, JsonNodeFactory.instance, false, mapperReincorporacion));
                         }
                     }
-                } else if (tramiteReunionConsejo.getTramite().getTipoTramite().getEsTipoTramiteCurDir()) {
+                } else if (tramiteReunionConsejo.getTramite().getTipoTramite().getEsCursoDirigido()) {
                     if (resolucionId == null) {
                         tramiteReunionConsejo.setSeleccionado(Boolean.TRUE);
                     } else {

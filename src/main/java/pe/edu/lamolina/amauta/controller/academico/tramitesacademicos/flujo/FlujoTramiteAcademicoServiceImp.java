@@ -93,7 +93,7 @@ public class FlujoTramiteAcademicoServiceImp implements FlujoTramiteAcademicoSer
     @Override
     public List<AccionTramiteAcademico> allAccionesTramiteByTramite(Tramite tramite) {
         EstadoTramite estadoTramite = null;
-        if (tramite.getTipoTramite().getEsTipoTramiteRei()) {
+        if (tramite.getTipoTramite().getEsReincorporacionPregrado()) {
             List<Reincorporacion> reincorporaciones = reincorporacionDAO.allByTramite(tramite);
             Reincorporacion reincorporacion = reincorporaciones.get(0);
             estadoTramite = reincorporacion.getEstadoTramite();

@@ -303,7 +303,7 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
     public void revertTramiteAcademico(Tramite tramite, DataSessionPivot ds) {
         DateTime today = new DateTime();
         tramite = tramiteDAO.find(tramite.getId());
-        if (tramite.getTipoTramite().getEsTipoTramiteRei()) {
+        if (tramite.getTipoTramite().getEsReincorporacionPregrado()) {
             List<Reincorporacion> reincorporaciones = reincorporacionDAO.allByTramite(tramite);
             Reincorporacion reincorporacion = reincorporaciones.get(0);
             if (reincorporacion.getEstadoTramite().getEsSolicitudReincorporacion()) {
@@ -323,18 +323,18 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
     @Override
     public Tramite findTramite(Long tramiteId) {
         Tramite tramite = tramiteDAO.findById(new Tramite(tramiteId));
-        if (tramite.getTipoTramite().getEsTipoTramiteRei()) {
+        if (tramite.getTipoTramite().getEsReincorporacionPregrado()) {
             List<Reincorporacion> reincorporaciones = reincorporacionDAO.allByTramite(tramite);
             if (!reincorporaciones.isEmpty()) {
                 tramite.setEstadoTramite(reincorporaciones.get(0).getEstadoTramite());
             }
-        } else if (tramite.getTipoTramite().getEsTramiteDocumento()) {
+        } else if (tramite.getTipoTramite().getEsTramiteConstancia()) {
             TramiteDocumentoAcademico documentoAcademico = tramiteDocumentoAcademicoDAO.findTramite(tramite);
             if (documentoAcademico != null) {
                 tramite.setEstadoTramite(documentoAcademico.getEstadoTramite());
                 tramite.setTipoDocumentoAcademico(documentoAcademico.getTipoDocumentoAcademico());
             }
-        } else if (tramite.getTipoTramite().getEsTramiteCorrHisto()) {
+        } else if (tramite.getTipoTramite().getEsCorreccionHistorial()) {
             TramiteCorreccionHistorial tramiteCorrecionHisto = correccionHistorialDAO.findTramite(tramite);
             if (tramiteCorrecionHisto != null) {
                 tramite.setEstadoTramite(tramiteCorrecionHisto.getEstadoTramite());
@@ -423,7 +423,7 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
                 }
             }
         }
-        if (tramite.getTipoTramite().getEsTipoTramiteCurDir()) {
+        if (tramite.getTipoTramite().getEsCursoDirigido()) {
             CursoDirigido cursoDirigido = cursoDirigidoDAO.findByTramite(tramite);
             Oficina oficinaDestino = oficinaDAO.findByTipoAndFacultad(FAC, cursoDirigido.getFacultad());
             accionTramiteAcademico.setOficinaDestino(oficinaDestino);
@@ -501,22 +501,22 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
             flujoTramiteDocumentoDAO.save(flujoTramiteDocumento);
         }
 
-        if (tramite.getTipoTramite().getEsTipoTramiteRei()) {
+        if (tramite.getTipoTramite().getEsReincorporacionPregrado()) {
             List<Reincorporacion> reincorporaciones = reincorporacionDAO.allByTramite(tramite);
             Reincorporacion reincorporacion = reincorporaciones.get(0);
             Reincorporacion reincorporacionUpd = new Reincorporacion();
             reincorporacionUpd.setId(reincorporacion.getId());
             reincorporacionUpd.setEstadoTramite(accionTramiteAcademico.getEstadoTramiteFinal());
             reincorporacionDAO.updateEstado(reincorporacionUpd);
-        } else if (tramite.getTipoTramite().getEsTipoTramiteCurDir()) {
+        } else if (tramite.getTipoTramite().getEsCursoDirigido()) {
             CursoDirigido cd = cursoDirigidoDAO.findByTramite(tramite);
             cd.setEstado(accionTramiteAcademico.getEstadoTramiteFinal());
             cursoDirigidoDAO.update(cd);
-        } else if (tramite.getTipoTramite().getEsTramiteDocumento()) {
+        } else if (tramite.getTipoTramite().getEsTramiteConstancia()) {
 
             tramiteDocumentoAcademico.setEstadoTramite(accionTramiteDocumento.getEstadoTramiteFinal());
             tramiteDocumentoAcademicoDAO.updateColumns(tramiteDocumentoAcademico, "estadoTramite");
-        } else if (tramite.getTipoTramite().getEsTramiteCorrHisto()) {
+        } else if (tramite.getTipoTramite().getEsCorreccionHistorial()) {
             TramiteCorreccionHistorial tramiteCorrecion = correccionHistorialDAO.findTramite(tramite);
             tramiteCorrecion.setEstadoTramite(accionTramiteAcademico.getEstadoTramiteFinal());
             tramiteCorrecion.setFechaModificacion(new Date());
@@ -866,11 +866,11 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
                     alumnoCursoNew.setNota(alumnoCicloCursoForm.getNota());
                     alumnoCursoNew.setEstaAprobado(promedioService.evaluateEstaAprobado(alumnoCursoNew, alumno));
                     alumnoCursoNew.setCreditos(alumnoCicloCursoForm.getCreditos());
-                    if (tramite.getTipoTramite().getEsTipoTramiteRei()) {
+                    if (tramite.getTipoTramite().getEsReincorporacionPregrado()) {
                         alumnoCursoNew.setOrigenData(OrigenDataSituacionAcademicaEnum.TA_REI);
-                    } else if (tramite.getTipoTramite().getEsTramiteCorrHisto()) {
+                    } else if (tramite.getTipoTramite().getEsCorreccionHistorial()) {
                         alumnoCursoNew.setOrigenData(OrigenDataSituacionAcademicaEnum.TA_CORR_HISTO);
-                    } else if (tramite.getTipoTramite().getEsTramiteDocumento()) {
+                    } else if (tramite.getTipoTramite().getEsTramiteConstancia()) {
                         alumnoCursoNew.setOrigenData(OrigenDataSituacionAcademicaEnum.TR_DOCUMENTO);
                     }
                     alumnoCursoNew.setAlumnoCicloCursoOrigen(alumnoCicloCursoDB);
