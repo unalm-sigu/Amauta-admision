@@ -83,7 +83,7 @@ public class ProcesarTramiteController {
             "cicloAcademico.*",
             "tipoTramite.codigo",
             "tipoTramite.nombre",
-            "tipoTramite.esTipoTramiteRei",
+            "tipoTramite.esReincorporacionPregrado",
             "userRegistro.*",
             "userRegistro.persona.*",
             "userRespuesta.*",
