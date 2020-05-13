@@ -18,7 +18,8 @@
             <div  class="tabbable-line">
                 <ul class="nav nav-tabs special-tabs" >
                     <li v-for="(tab, index) in lstTabs" v-on:click="carga(tab)" v-bind:class="active(index)">
-                        <a href="#" data-toggle="tab"  v-text="tab.tipo" >
+                        <a href="#" data-toggle="tab"  v-text="tab.nombre != '' ? tab.nombre + ' - ' +tab.tipo : tab.eventoCicloAcademico.eventoAcademico.nombre + ' - ' +tab.tipo"  >
+                        
                         </a>
                         <span class="fa fa-times padder-right" v-on:click="eliminar"></span>
                     </li>
