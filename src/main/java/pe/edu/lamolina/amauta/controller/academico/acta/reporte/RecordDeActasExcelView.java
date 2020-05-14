@@ -15,7 +15,7 @@ import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.streaming.SXSSFWorkbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,7 +43,7 @@ public class RecordDeActasExcelView extends AbstractPOIExcelView {
 
     @Override
     protected Workbook createWorkbook() {
-        return new SXSSFWorkbook();
+        return new XSSFWorkbook();
     }
 
     @Override
@@ -175,6 +175,7 @@ public class RecordDeActasExcelView extends AbstractPOIExcelView {
 
     private void createSheet(Workbook workBook, List<String> rows, int columnas, String sheetName, CellStyle cellHeader, CellStyle cellBody) {
         Sheet sheet = workBook.createSheet(sheetName);
+
         boolean autosize = false;
 
         for (int i = 0; i < rows.size(); i++) {
@@ -210,16 +211,17 @@ public class RecordDeActasExcelView extends AbstractPOIExcelView {
                 j++;
             }
             if (i == 20) {
-                for (int ii = 0; ii < columnas; ii++) {
-                    sheet.autoSizeColumn((short) ii);
+                for (int m = 0; m < 10; m++) {
+
+                    sheet.autoSizeColumn(m);
                 }
                 autosize = true;
             }
         }
 
         if (!autosize) {
-            for (int i = 0; i < columnas; i++) {
-                sheet.autoSizeColumn((short) i);
+            for (int i = 0; i < 10; i++) {
+                sheet.autoSizeColumn(i);
             }
         }
 
