@@ -27,7 +27,7 @@ public class RestPivotServiceImp implements RestPivotService {
     UsuarioDAO usuarioDAO;
 
     @Autowired
-    TokenIngresanteDAO tokenDAO;
+    TokenIngresanteDAO tokenIngresanteDAO;
 
     @Override
     public Boolean verificarToken(FormImport formImport) {
@@ -35,7 +35,7 @@ public class RestPivotServiceImp implements RestPivotService {
 
         Date hoy = new Date();
         List<TokenIngresante> tokensValidos = new ArrayList();
-        List<TokenIngresante> tokenx = tokenDAO.allActivos(usuario.getPersona(), usuario);
+        List<TokenIngresante> tokenx = tokenIngresanteDAO.allActivos(usuario.getPersona(), usuario);
         for (TokenIngresante token : tokenx) {
             if (token.getFechaVencimiento().after(hoy) && formImport.getToken().equals(token.getValor())) {
                 tokensValidos.add(token);
@@ -49,22 +49,15 @@ public class RestPivotServiceImp implements RestPivotService {
     @Override
     @Transactional
     public Boolean consumirToken(FormImport formImport) {
-        Usuario usuario = usuarioDAO.find(formImport.getIdUsuario());
+        logger.debug("consumir.token={}", formImport.getToken());
 
-        Date hoy = new Date();
-        List<TokenIngresante> tokensValidos = new ArrayList();
-        List<TokenIngresante> tokenx = tokenDAO.allActivos(usuario.getPersona(), usuario);
-        for (TokenIngresante token : tokenx) {
-            if (token.getFechaVencimiento().after(hoy) && formImport.getToken().equals(token.getValor())) {
-                tokensValidos.add(token);
-            }
-        }
+        TokenIngresante token = tokenIngresanteDAO.findByToken(formImport.getToken());
+        System.out.println("token=" + token);
+        Assert.isNotNull(token, "Token inválido");
 
-        Assert.isFalse(tokensValidos.isEmpty(), "Token no valido");
-
-        tokensValidos.get(0).setEstado(TokenEstadoEnum.USO);
-        tokensValidos.get(0).setFechaUso(new Date());
-        tokenDAO.update(tokensValidos.get(0));
+        token.setEstado(TokenEstadoEnum.USO);
+        token.setFechaUso(new Date());
+        tokenIngresanteDAO.update(token);
 
         return true;
     }
@@ -76,7 +69,7 @@ public class RestPivotServiceImp implements RestPivotService {
 
     @Transactional
     public TokenIngresante findToken(String token, Long idUsuario) {
-        TokenIngresante tokenCachimbo = tokenDAO.findByToken(token);
+        TokenIngresante tokenCachimbo = tokenIngresanteDAO.findByToken(token);
         if (tokenCachimbo == null) {
             throw new PhobosException("Token Inexistente al Autenticar " + token);
         }
@@ -85,7 +78,7 @@ public class RestPivotServiceImp implements RestPivotService {
         }
         tokenCachimbo.setEstado(TokenEstadoEnum.USO);
         tokenCachimbo.setFechaUso(new Date());
-        tokenDAO.update(tokenCachimbo);
+        tokenIngresanteDAO.update(tokenCachimbo);
         return tokenCachimbo;
     }
 }

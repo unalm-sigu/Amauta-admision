@@ -7,14 +7,14 @@ import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Curso;
-import static pe.edu.lamolina.model.enums.EstadoTramiteEnum.EPG_TRAM_GRADO_AGEN;
-import static pe.edu.lamolina.model.enums.EstadoTramiteEnum.EPG_TRAM_GRADO_PEND;
-import static pe.edu.lamolina.model.enums.EstadoTramiteEnum.EPG_TRAM_GRADO_SOL;
 import pe.edu.lamolina.model.tramite.CambioNotaMasBaja;
 import pe.edu.lamolina.model.tramite.EstadoTramite;
 import pe.edu.lamolina.model.tramite.Resolucion;
 import pe.edu.lamolina.model.tramite.Tramite;
 import pe.edu.lamolina.amauta.dao.posgrado.CambioNotaMasBajaDAO;
+import static pe.edu.lamolina.model.enums.TramiteEstadoEnum.EPG_TRAM_GRADO_AGEN;
+import static pe.edu.lamolina.model.enums.TramiteEstadoEnum.EPG_TRAM_GRADO_PEND;
+import static pe.edu.lamolina.model.enums.TramiteEstadoEnum.EPG_TRAM_GRADO_SOL;
 
 @Repository
 public class CambioNotaMasBajaDAOH extends AbstractEasyDAO<CambioNotaMasBaja> implements CambioNotaMasBajaDAO {

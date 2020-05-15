@@ -238,7 +238,7 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
         List<Reincorporacion> reincorporacions = reincorporacionDAO.allByCicloReincorporacion(ds.getCicloAcademico());
         Map<Long, Reincorporacion> map = TypesUtil.convertListToMap("alumno.id", reincorporacions);
 
-        EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigo(EstadoTramiteEnum.SOL_ACEP);
+        EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.SOL_ACEP);
         for (Reincorporacion reincorporacione : resolucionForm.getReincorporaciones()) {
             reincorporacione.setCicloReincorporacion(resolucionForm.getCicloAplica());
 
@@ -328,7 +328,7 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
         resolucionDAO.save(resolucion);
 
         Assert.isFalse(resolucionForm.getRetiroCiclo().isEmpty(), "Debe Agregar alumnos.");
-        EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigo(EstadoTramiteEnum.SOL_ACEP);
+        EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.SOL_ACEP);
 
         for (RetiroCiclo retiroCicloForm : resolucionForm.getRetiroCiclo()) {
 
@@ -467,7 +467,7 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
         resolucionDAO.save(resolucion);
 
         Assert.isFalse(resolucionForm.getCambioNota().isEmpty(), "Debe Agregar alumnos.");
-        EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigo(EstadoTramiteEnum.SOL_ACEP);
+        EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.SOL_ACEP);
         for (CambioNota cambioNota : resolucionForm.getCambioNota()) {
             cambioNota.setCicloAcademico(resolucionForm.getCicloAplica());
 
@@ -576,8 +576,8 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
         Assert.isFalse(resolucionForm.getCursoDirigido().isEmpty(), "Debe Agregar alumnos.");
         List<CursoDirigido> cursoDirigidos = cursoDirigidoDAO.allByCicloAcademicoSol(ds.getCicloAcademico());
         Map<Long, CursoDirigido> map = TypesUtil.convertListToMap("tramite.alumno.id", cursoDirigidos);
-        EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigo(EstadoTramiteEnum.RES_FAC);
-        EstadoTramite estadoTramiteRech = estadoTramiteDAO.findByCodigo(EstadoTramiteEnum.RHZ_SOL);
+        EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.RES_FAC);
+        EstadoTramite estadoTramiteRech = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.RHZ_SOL);
 
         List<Alumno> alumnos = resolucionForm.getCursoDirigido().stream().map(x -> x.getAlumno()).collect(Collectors.toList());
         List<MatriculaCurso> matriculaCursos = matriculaCursoDAO.allByAlumnosCicloActivo(alumnos);
@@ -749,8 +749,8 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
         resolucionDAO.save(resolucion);
 
         Assert.isFalse(resolucionForm.getTramiteTraslado().isEmpty(), "Debe Agregar alumnos.");
-        EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigo(EstadoTramiteEnum.SOL_ACEP);
-        EstadoTramite estadoTramiteRech = estadoTramiteDAO.findByCodigo(EstadoTramiteEnum.RHZ_SOL);
+        EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.SOL_ACEP);
+        EstadoTramite estadoTramiteRech = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.RHZ_SOL);
         for (TramiteTraslado tramiteTraslado : resolucionForm.getTramiteTraslado()) {
             tramiteTraslado.setCicloAcademico(resolucionForm.getCicloAplica());
 
@@ -858,7 +858,7 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
         resolucionDAO.save(resolucion);
 
         Assert.isFalse(resolucionForm.getTramiteTraslado().isEmpty(), "Debe Agregar alumnos.");
-        EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigo(EstadoTramiteEnum.SOL_ACEP);
+        EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.SOL_ACEP);
     }
 
     @Override
@@ -910,7 +910,7 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
         resolucion.setCicloAplica(resolucionForm.getCicloAplica());
         resolucionDAO.save(resolucion);
 
-        EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigo(EstadoTramiteEnum.SOL_ACEP);
+        EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.SOL_ACEP);
         List<Alumno> alumnos = new ArrayList<>();
         for (CambioNotaMasBaja cambioNotaMasBaja : resolucionForm.getCambioNotaMasBajas()) {
             Alumno alumno = alumnoDAO.find(cambioNotaMasBaja.getAlumno());

@@ -8,14 +8,13 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.CicloAcademico;
-import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.academico.Facultad;
-import static pe.edu.lamolina.model.enums.EstadoTramiteEnum.SOL_ANU;
-import static pe.edu.lamolina.model.enums.EstadoTramiteEnum.SOL_CUR_DIR;
 import pe.edu.lamolina.model.tramite.CursoDirigido;
 import pe.edu.lamolina.model.tramite.Resolucion;
 import pe.edu.lamolina.model.tramite.Tramite;
 import pe.edu.lamolina.amauta.dao.tramite.CursoDirigidoDAO;
+import static pe.edu.lamolina.model.enums.TramiteEstadoEnum.SOL_ANU;
+import static pe.edu.lamolina.model.enums.TramiteEstadoEnum.SOL_CUR_DIR;
 
 @Repository
 public class CursoDirigidoDAOH extends AbstractEasyDAO<CursoDirigido> implements CursoDirigidoDAO {
@@ -127,7 +126,7 @@ public class CursoDirigidoDAOH extends AbstractEasyDAO<CursoDirigido> implements
                 .join("tramite tra", "facultad fac", "curso ", "estado es")
                 .join("tra.tipoTramite")
                 .left("tra.alumno al", "tra.cicloAcademico ca", "userRegistro ur")
-                .filter("es.codigo", SOL_CUR_DIR.name())
+                .filter("es.codigo", SOL_CUR_DIR)
                 .filter("ca.id", cicloAcademico);
 
         return all(sql);
@@ -143,7 +142,7 @@ public class CursoDirigidoDAOH extends AbstractEasyDAO<CursoDirigido> implements
                 .join("al.carrera car", "car.facultad fa")
                 .leftJoin("per.tipoDocumento td", "al.cicloActivo cia", "al.cicloIngreso ci", "al.modalidadEstudio me", "al.situacionAcademica situ")
                 .leftJoin("per.paisNacer", "al.orientacionCarrera")
-                .filter("es.codigo", "!=", SOL_ANU.name())
+                .filter("es.codigo", "!=", SOL_ANU)
                 .filter("fa.id", facultad)
                 .orderBy("per.paterno asc");
 

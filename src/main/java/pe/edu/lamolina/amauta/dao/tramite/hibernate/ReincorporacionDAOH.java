@@ -9,13 +9,12 @@ import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
-import pe.edu.lamolina.model.enums.EstadoTramiteEnum;
-import static pe.edu.lamolina.model.enums.EstadoTramiteEnum.SOL_ACEP;
-import pe.edu.lamolina.model.tramite.EstadoTramite;
 import pe.edu.lamolina.model.tramite.Reincorporacion;
 import pe.edu.lamolina.model.tramite.Resolucion;
 import pe.edu.lamolina.model.tramite.Tramite;
 import pe.edu.lamolina.amauta.dao.tramite.ReincorporacionDAO;
+import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
+import static pe.edu.lamolina.model.enums.TramiteEstadoEnum.SOL_ACEP;
 
 @Repository
 public class ReincorporacionDAOH extends AbstractEasyDAO<Reincorporacion> implements ReincorporacionDAO {
@@ -72,9 +71,12 @@ public class ReincorporacionDAOH extends AbstractEasyDAO<Reincorporacion> implem
                 .from(Reincorporacion.class, "rei")
                 .join("alumno alu", "estadoTramite et", "cicloReincorporacion cr")
                 .left("tramite tra", "facultad fac", "resolucion res")
-                .filter("et.codigo", EstadoTramiteEnum.SOL_ACEP)
                 .filter("cr.codigo", "<", ciclo.getCodigo())
-                .filter("alu.id", alumno);
+                .filter("alu.id", alumno)
+                .beginBlock()
+                .__().filter("et.codigo", TramiteEstadoEnum.SOL_ACEP)
+                .__().filter("rei.aceptado", 1)
+                .endBlock();
         return all(sql);
     }
 
@@ -84,9 +86,12 @@ public class ReincorporacionDAOH extends AbstractEasyDAO<Reincorporacion> implem
                 .from(Reincorporacion.class, "rei")
                 .join("alumno alu", "estadoTramite et", "cicloReincorporacion cr")
                 .left("tramite tra", "facultad fac", "resolucion res")
-                .in("et.codigo", Arrays.asList(EstadoTramiteEnum.SOL_ACEP, EstadoTramiteEnum.SOL_REI))
                 .filter("cr.id", ciclo)
-                .filter("alu.id", alumno);
+                .filter("alu.id", alumno)
+                .beginBlock()
+                .__().in("et.codigo", Arrays.asList(TramiteEstadoEnum.SOL_ACEP, TramiteEstadoEnum.SOL_REI))
+                .__().filter("rei.aceptado", 1)
+                .endBlock();
         return all(sql);
     }
 
@@ -96,9 +101,12 @@ public class ReincorporacionDAOH extends AbstractEasyDAO<Reincorporacion> implem
                 .from(Reincorporacion.class, "rei")
                 .join("alumno alu", "estadoTramite et", "cicloReincorporacion cr")
                 .left("tramite tra", "facultad fac", "resolucion res")
-                .filter("et.codigo", EstadoTramiteEnum.SOL_ACEP)
                 .filter("cr.codigo", "<", ciclo.getCodigo())
-                .in("alu.id", alumnos);
+                .in("alu.id", alumnos)
+                .beginBlock()
+                .__().filter("et.codigo", TramiteEstadoEnum.SOL_ACEP)
+                .__().filter("rei.aceptado", 1)
+                .endBlock();
         return all(sql);
     }
 
@@ -108,14 +116,17 @@ public class ReincorporacionDAOH extends AbstractEasyDAO<Reincorporacion> implem
                 .from(Reincorporacion.class, "rei")
                 .join("alumno alu", "estadoTramite et", "cicloReincorporacion cr")
                 .left("tramite tra", "facultad fac", "resolucion res")
-                .in("et.codigo", Arrays.asList(EstadoTramiteEnum.SOL_ACEP, EstadoTramiteEnum.SOL_REI))
                 .filter("cr.id", ciclo)
-                .in("alu.id", alumnos);
+                .in("alu.id", alumnos)
+                .beginBlock()
+                .__().in("et.codigo", Arrays.asList(TramiteEstadoEnum.SOL_ACEP, TramiteEstadoEnum.SOL_REI))
+                .__().filter("rei.aceptado", 1)
+                .endBlock();
         return all(sql);
     }
 
     @Override
-    public Reincorporacion findByTramiteEstadoTram(Tramite tramite, EstadoTramiteEnum estadoTramiteEnum) {
+    public Reincorporacion findByTramiteEstadoTram(Tramite tramite, TramiteEstadoEnum estadoTramiteEnum) {
         Octavia sql = Octavia.query()
                 .from(Reincorporacion.class, "rei")
                 .join("tramite tra", "facultad fac", "estadoTramite et", "cicloReincorporacion cr")

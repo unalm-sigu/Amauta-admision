@@ -5,7 +5,7 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.easydao.EasyDAO;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
-import pe.edu.lamolina.model.enums.EstadoTramiteEnum;
+import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
 import pe.edu.lamolina.model.tramite.Reincorporacion;
 import pe.edu.lamolina.model.tramite.Resolucion;
 import pe.edu.lamolina.model.tramite.Tramite;
@@ -18,7 +18,7 @@ public interface ReincorporacionDAO extends EasyDAO<Reincorporacion> {
 
     List<Reincorporacion> allByResolucion(Resolucion resolucion);
 
-    Reincorporacion findByTramiteEstadoTram(Tramite tramite, EstadoTramiteEnum estadoTramiteEnum);
+    Reincorporacion findByTramiteEstadoTram(Tramite tramite, TramiteEstadoEnum estadoTramiteEnum);
 
     void updateEstado(Reincorporacion reincorporacion);
 

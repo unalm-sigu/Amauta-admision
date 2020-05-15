@@ -95,7 +95,7 @@ public class RestPivotController {
         try {
             ObjectMapper mapper = new ObjectMapper();
             FormImport json = (FormImport) mapper.readValue(node, FormImport.class);
-            service.verificarToken(json);
+            service.consumirToken(json);
 
             Alumno alumno = new Alumno(json.getIdAlumno());
             DataSessionPivot ds = new DataSessionPivot();
