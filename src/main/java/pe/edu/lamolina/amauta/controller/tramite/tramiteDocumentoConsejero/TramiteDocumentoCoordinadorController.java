@@ -57,7 +57,7 @@ public class TramiteDocumentoCoordinadorController {
                 "cicloAcademico.*",
                 "tipoTramite.codigo",
                 "tipoTramite.nombre",
-                "tipoTramite.esTipoTramiteRei",
+                "tipoTramite.esReincorporacionPregrado",
                 "tipoTramite.esTipoTramiteCurDir",
                 "tipoTramite.oficina.*",
                 "userRegistro.*",

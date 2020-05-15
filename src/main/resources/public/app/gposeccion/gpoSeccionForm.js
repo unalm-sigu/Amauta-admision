@@ -283,7 +283,7 @@ var app = new Vue({
     },
     methods: {
         cambiarModoDictado(secc, item) {
-
+            let $vue = this;
             var data = {};
             data.id = secc.id;
             data.modoDictado = item;

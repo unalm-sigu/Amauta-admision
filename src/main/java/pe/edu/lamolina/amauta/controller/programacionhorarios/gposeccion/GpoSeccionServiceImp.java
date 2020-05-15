@@ -3501,7 +3501,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     @Override
     @Transactional
     public void updateModoDictado(Seccion seccion, DataSessionPivot ds) {
-        seccionDAO.updateColumns(seccion, "modoSeccion");
+        seccionDAO.updateColumns(seccion, "modoDictado");
     }
 
 }

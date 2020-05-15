@@ -37,7 +37,6 @@ import static pe.edu.lamolina.model.enums.EventoAcademicoEnum.MAT_REI;
 import static pe.edu.lamolina.model.enums.EventoAcademicoEnum.MAT_VER;
 import pe.edu.lamolina.model.enums.TipoMatriculaEnum;
 import pe.edu.lamolina.amauta.controller.interceptor.InterceptorService;
-import pe.edu.lamolina.model.constantines.AcademicoConstantine;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 

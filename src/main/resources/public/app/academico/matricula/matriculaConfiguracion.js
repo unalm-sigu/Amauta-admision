@@ -26,7 +26,7 @@ new Vue({
             format: "DD/MM/YYYY",
             useCurrent: false
         },
-        configTime:{
+        configTime: {
             format: "HH:mm",
             useCurrent: false
         }
@@ -111,8 +111,7 @@ new Vue({
         },
         tabs() {
             let $vue = this;
-            console.log("lstTabs");
-            console.dir($vue.lstTabs);
+
             $vue.lstTabs.splice(0, $vue.lstTabs.length);
             $vue.Arryconfig.forEach(function (elem) {
                 $vue.lstTabs.push(elem);
