@@ -510,6 +510,7 @@ public class MatriculaSeccionDAOH extends AbstractEasyDAO<MatriculaSeccion> impl
                 .filter("ca.codigo", seccionDTO.getCicloAcademico().getCodigo())
                 .in("ab.id", seccionDTO.getAnexosBoletin())
                 .filter("ms.estado", EstadoMatriculaEnum.MAT);
+
         if (seccionDTO.getSecciones() != null && !seccionDTO.getSecciones().isEmpty()) {
             sql.in("sec.id", seccionDTO.getSecciones());
         }
@@ -520,7 +521,7 @@ public class MatriculaSeccionDAOH extends AbstractEasyDAO<MatriculaSeccion> impl
     @Override
     public List<CantidadMatriculadosDTO> cantidadMatriculados(SeccionDTO seccionDTO) {
         Octavia sql = Octavia.query()
-                .select("ca.descripcion", "absup.nombre", "ab.nombre", "depcur.nombre", "cur.nombre", "sec.codigo2", " count(*) ")
+                .select("ca.descripcion", "absup.nombre", "ab.nombre", "depcur.nombre", "cur.codigo", "cur.nombre", "sec.codigo2", " count(*) ")
                 .from(MatriculaSeccion.class, "ms")
                 .into(CantidadMatriculadosDTO.class)
                 .join("matriculaResumen mr", "mr.alumno alu", "mr.cicloAcademico ca", "alu.persona per")

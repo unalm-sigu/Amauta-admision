@@ -133,40 +133,43 @@ public class ReporteCantidadAlumnosPorSeccionExcelView extends AbstractView {
 
         int column = 0;
         excelUtil.replaceVal(irow - 1, column++, "CICLO", estiloCabecera);
-        sheet.setColumnWidth((column - 1), this.tamaño(10));
+        sheet.setColumnWidth((column - 1), this.tamagno(10));
         excelUtil.replaceVal(irow - 1, column++, "ANEXO SUPERIOR", estiloCabecera);
-        sheet.setColumnWidth((column - 1), this.tamaño(25));
+        sheet.setColumnWidth((column - 1), this.tamagno(25));
         excelUtil.replaceVal(irow - 1, column++, "ANEXO", estiloCabecera);
-        sheet.setColumnWidth((column - 1), this.tamaño(35));
+        sheet.setColumnWidth((column - 1), this.tamagno(35));
         excelUtil.replaceVal(irow - 1, column++, "DEPARTAMENTO CURSO", estiloCabecera);
-        sheet.setColumnWidth((column - 1), this.tamaño(35));
+        sheet.setColumnWidth((column - 1), this.tamagno(35));
+        excelUtil.replaceVal(irow - 1, column++, "CODIGO", estiloCabecera);
+        sheet.setColumnWidth((column - 1), this.tamagno(15));
         excelUtil.replaceVal(irow - 1, column++, "CURSO", estiloCabecera);
-        sheet.setColumnWidth((column - 1), this.tamaño(50));
-        excelUtil.replaceVal(irow - 1, column++, "SECCION", estiloCabecera);
-        sheet.setColumnWidth((column - 1), this.tamaño(20));
+        sheet.setColumnWidth((column - 1), this.tamagno(50));
+        excelUtil.replaceVal(irow - 1, column++, "SECCIÓN", estiloCabecera);
+        sheet.setColumnWidth((column - 1), this.tamagno(20));
         excelUtil.replaceVal(irow - 1, column++, "MATRICULADOS", estiloCabecera);
-        sheet.setColumnWidth((column - 1), this.tamaño(20));
+        sheet.setColumnWidth((column - 1), this.tamagno(20));
 
         int num = 1;
         for (CantidadMatriculadosDTO matriculado : matriculados) {
             column = 0;
             excelUtil.replaceVal(irow, column++, matriculado.getCiclo());
-            //    sheet.setColumnWidth((column - 1), this.tamaño(10));
+            //    sheet.setColumnWidth((column - 1), this.tamagno(10));
             excelUtil.replaceVal(irow, column++, matriculado.getAnexoSuperior(), estiloGeneral);
             excelUtil.replaceVal(irow, column++, matriculado.getAnexo(), estiloGeneral);
             excelUtil.replaceVal(irow, column++, matriculado.getDepartamentoCurso(), estiloGeneral);
+            excelUtil.replaceVal(irow, column++, matriculado.getCodigoCurso(), estiloGeneral);
             excelUtil.replaceVal(irow, column++, matriculado.getNombreCurso(), estiloGeneral);
-            //  sheet.setColumnWidth((column - 1), this.tamaño(50));
+            //  sheet.setColumnWidth((column - 1), this.tamagno(50));
             excelUtil.replaceVal(irow, column++, matriculado.getNombreSeccion(), estiloGeneral);
-            //    sheet.setColumnWidth((column - 1), this.tamaño(20));
+            //    sheet.setColumnWidth((column - 1), this.tamagno(20));
             excelUtil.replaceVal(irow, column++, matriculado.getCantidad(), estiloNumero);
-            //    sheet.setColumnWidth((column - 1), this.tamaño(20));
+            //    sheet.setColumnWidth((column - 1), this.tamagno(20));
             irow++;
         }
 
     }
 
-    public int tamaño(int caracteres) {
+    public int tamagno(int caracteres) {
         return caracteres * 256;
     }
 

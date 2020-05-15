@@ -196,16 +196,16 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
         List<SeccionEstadoEnum> lEstados = Arrays.asList(estados);
         Octavia sql = Octavia.query()
                 .from(Seccion.class, "sec")
-                .join("grupoSeccion gs", "gs.curso cur", "gs.cicloAcademico ca","tipoCarpeta")
+                .join("grupoSeccion gs", "gs.curso cur", "gs.cicloAcademico ca", "tipoCarpeta")
                 .leftJoin("cur.tipoCarpetaTeoria tct", "cur.tipoCarpetaPractica tcp")
                 .leftJoin("aula", "grupoHoras", "tipoCarpeta")
                 .filter("ca.id", ciclo)
-//                .beginBlock()
-//                .isNotNull("tct.id")
-//                .endBlock()
-//                .beginBlock()
-//                .isNotNull("tcp.id")
-//                .endBlock()
+                //                .beginBlock()
+                //                .isNotNull("tct.id")
+                //                .endBlock()
+                //                .beginBlock()
+                //                .isNotNull("tcp.id")
+                //                .endBlock()
                 .in("sec.estado", lEstados);
         return all(sql);
     }
@@ -408,6 +408,22 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
                 .filter("sec.estado", SeccionEstadoEnum.ACT)
                 .in("cur.id", cursos)
                 .orderBy("sec.codigo2");
+
+        return all(sql);
+    }
+
+    @Override
+    public List<Seccion> allActivosBySeccionDTO(SeccionDTO seccionDTO) {
+        Octavia sql = Octavia.query()
+                .from(Seccion.class, "sec")
+                .join("grupoSeccion gs", "gs.cicloAcademico ca", "gs.curso cur", "gs.anexoBoletin ab", "ab.anexoSuperior absup")
+                .leftJoin("seccionSuperior")
+                .leftJoin("sec.aula", "sec.grupoHoras", "sec.aula", "cur.carrera carr")
+                .filter("ca.codigo", seccionDTO.getCicloAcademico().getCodigo())
+                .in("ab.id", seccionDTO.getAnexosBoletin())
+                .filter("gs.estado", SeccionEstadoEnum.ACT)
+                .filter("sec.estado", SeccionEstadoEnum.ACT)
+                .orderBy("absup.orden", "ab.orden", "cur.nombre", "sec.codigo2");
 
         return all(sql);
     }

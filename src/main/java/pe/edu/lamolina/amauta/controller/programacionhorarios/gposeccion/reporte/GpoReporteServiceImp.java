@@ -492,7 +492,7 @@ public class GpoReporteServiceImp implements GpoReporteService {
 
     @Override
     public List<MatriculaSeccion> allMatriculadosBySeccion(SeccionDTO seccionDTO) {
-        List<DocenteSeccion> docentesSecciones = new ArrayList<>();
+        List<DocenteSeccion> docentesSecciones;
         if (seccionDTO.getSecciones() != null && !seccionDTO.getSecciones().isEmpty()) {
             docentesSecciones = docenteSeccionDAO.allBySecciones(seccionDTO.getSecciones());
         } else {
@@ -504,12 +504,9 @@ public class GpoReporteServiceImp implements GpoReporteService {
             Seccion seccion = matriculado.getSeccion();
             DocenteSeccion docenteSeccion = docentesSecciones.stream()
                     .filter(x -> x.getSeccion().equals(seccion))
+                    .filter(x -> x.getEstadoEnum() == SeccionEstadoEnum.ACT)
+                    .filter(x -> x.getPrincipal() == 1)
                     .findFirst().orElse(null);
-//            if (docenteSeccion == null) {
-//                docenteSeccion = new DocenteSeccion();
-//                docenteSeccion.setDocente(new Docente());
-//                docenteSeccion.getDocente().setPersona(new Persona());
-//            }
             seccion.setDocentePrincipal(docenteSeccion.getDocente());
         }
         return matriculados;
@@ -517,7 +514,25 @@ public class GpoReporteServiceImp implements GpoReporteService {
 
     @Override
     public List<CantidadMatriculadosDTO> allCantidadMatriculados(SeccionDTO seccionDTO) {
-        return matriculaSeccionDAO.cantidadMatriculados(seccionDTO);
+        List<CantidadMatriculadosDTO> cantidades = new ArrayList();
+        List<Seccion> secciones = seccionDAO.allActivosBySeccionDTO(seccionDTO);
+        for (Seccion seccion : secciones) {
+            GrupoSeccion gpoSeccion = seccion.getGrupoSeccion();
+            CicloAcademico ciclo = gpoSeccion.getCicloAcademico();
+            AnexoBoletin anexo = gpoSeccion.getAnexoBoletin();
+            AnexoBoletin anexoSup = anexo.getAnexoSuperior();
+            Curso curso = gpoSeccion.getCurso();
+            DepartamentoAcademico departamento = curso.getDepartamentoAcademico();
+
+            CantidadMatriculadosDTO cantidad = new CantidadMatriculadosDTO(ciclo.getDescripcion(),
+                    anexoSup.getNombre(), anexo.getNombre(),
+                    departamento.getNombre(), curso.getCodigo(), curso.getNombre(), seccion.getCodigo2(),
+                    seccion.getMatriculados().longValue());
+
+            cantidades.add(cantidad);
+        }
+        return cantidades;
+        //return matriculaSeccionDAO.cantidadMatriculados(seccionDTO);
     }
 
     @Override
