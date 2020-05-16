@@ -182,7 +182,6 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
 
 //    @Autowired
 //    VisorCalculoNotas visorCalculoNotas;
-
     @Autowired
     MailerService mailerService;
 

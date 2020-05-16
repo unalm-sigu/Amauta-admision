@@ -11,11 +11,13 @@ import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFRichTextString;
 import org.joda.time.DateTime;
@@ -72,16 +74,13 @@ public class BoletinAcademicoExcelView extends AbstractPOIExcelView {
         int totalColumns = 11;
         int rowIndice = 0;
 
-//        logger.debug("Anexo Boletin Padre {} id {}", anexoBoletin.getNombre(), anexoBoletin.getId());
-//        Row row = sheet.createRow(rowIndice++);
-//        this.createHeader(workBook, sheet, row, 0, "Anexo " + anexoBoletin.getNombre());
-//        sheet.addMergedRegion(new CellRangeAddress(row.getRowNum(), row.getRowNum(), 0, 10));
         for (AnexoBoletin anexosBoletinHijo : anexoBoletin.getAnexosBoletinHijos()) {
             logger.debug("          Anexo Boletin Hijo {} id {}", anexosBoletinHijo.getNombre(), anexosBoletinHijo.getId());
             Row row = sheet.createRow(rowIndice++);
-            this.createHeader1(workBook, sheet, row, 0, "Anexo: " + anexosBoletinHijo.getNombre() + " Ciclo: " + ciclo.getDescripcion());
+
+            this.createHeaderAnexo(workBook, sheet, row, 0, "Anexo: " + anexosBoletinHijo.getNombre() + " Ciclo: " + ciclo.getDescripcion());
             sheet.addMergedRegion(new CellRangeAddress(row.getRowNum(), row.getRowNum(), 0, totalColumns));
-            //
+
             row = sheet.createRow(rowIndice++);
             int col = 0;
             this.createHeader(workBook, sheet, row, col++, "CÓDIGO");
@@ -96,12 +95,16 @@ public class BoletinAcademicoExcelView extends AbstractPOIExcelView {
             this.createHeader(workBook, sheet, row, col++, "HORARIO");
             this.createHeader(workBook, sheet, row, col++, "PERIODO");
             this.createHeader(workBook, sheet, row, col, "VAC");
+
             for (Curso curso : anexosBoletinHijo.getCursos()) {
                 logger.debug("                     Curso {}", curso.getNombre());
                 rowIndice++;
                 row = sheet.createRow(rowIndice++);
-                this.createHeader3(workBook, sheet, row, 0, curso.getCodigo() + " " + curso.getNombre());
-                sheet.addMergedRegion(new CellRangeAddress(row.getRowNum(), row.getRowNum(), 0, totalColumns));
+
+                this.createHeaderCurso(workBook, sheet, row, 0, curso.getCodigo());
+                this.createHeaderCurso(workBook, sheet, row, 1, curso.getNombre());
+                sheet.addMergedRegion(new CellRangeAddress(row.getRowNum(), row.getRowNum(), 1, totalColumns));
+
                 for (GrupoSeccion grupoSeccion : curso.getGrupoSeccion()) {
                     int indiceSeccion = 0;
                     for (Seccion seccion : grupoSeccion.getSecciones()) {
@@ -110,7 +113,7 @@ public class BoletinAcademicoExcelView extends AbstractPOIExcelView {
                         Optional<Aula> aulaOpt = Optional.ofNullable(seccion.getAula());
                         String aula = aulaOpt.isPresent() ? aulaOpt.get().getCodigo() : "";
                         row = sheet.createRow(rowIndice++);
-                        logger.debug("                      Seccion {} tipo {}", seccion.getCodigo2(), seccion.getTipoSeccion());
+
                         col = 0;
                         String tpc = !seccion.isTipoSeccionPCUR() ? curso.getTpc() : "";
 
@@ -128,6 +131,7 @@ public class BoletinAcademicoExcelView extends AbstractPOIExcelView {
                         String docentesSeccion = "";
                         String porcentaje = "";
                         String fechas = "";
+
                         for (DocenteSeccion doc : seccion.getDocenteSeccion()) {
                             docentesSeccion += ObjectUtil.getParentTree(doc, "docente.codigo") + "  " + ObjectUtil.getParentTree(doc, "docente.persona.nomPaternoMat") + "\n";
                             porcentaje += ObjectUtil.getParentTree(doc, "porcentajeCarga") + "\n";
@@ -141,11 +145,9 @@ public class BoletinAcademicoExcelView extends AbstractPOIExcelView {
                             if (ObjectUtil.getParentTree(doc, "fechaFin") != null) {
                                 fechaFin = sdf.format(doc.getFechaFin());
                             }
-                            fechas += String.format("%s al %s", fechaIni, fechaFin) + "\n";;
+                            fechas += String.format("%s al %s", fechaIni, fechaFin) + "\n";
                         }
 
-//                            this.createBody(workBook, row, col++, "");//profesores
-//                            this.createBody(workBook, row, col++, "");//porcentajes
                         CellStyle cs = workBook.createCellStyle();
                         cs.setWrapText(true);
 
@@ -166,7 +168,6 @@ public class BoletinAcademicoExcelView extends AbstractPOIExcelView {
                         fechasCell.setCellValue(richStringFechas);
                         fechasCell.setCellStyle(cs);
 
-                        //    ExcelHelper.replaceVal(sheet, row.getRowNum(), col++, seccion.getHorarioTexto());
                         ExcelHelper.replaceVal(sheet, row.getRowNum(), col, seccion.getVacantes());
                         if (indiceSeccion == (grupoSeccion.getSecciones().size() - 1)) {
                             for (int i = row.getFirstCellNum(); i < row.getLastCellNum(); i++) {
@@ -188,14 +189,14 @@ public class BoletinAcademicoExcelView extends AbstractPOIExcelView {
             }
         }
 
+        ((SXSSFSheet) sheet).trackAllColumnsForAutoSizing();
         for (int i = 0; i <= 10; i++) {
-            // sheet.setColumnWidth(i, 1024);
             sheet.autoSizeColumn(i);
         }
 
     }
 
-    private void createHeader1(Workbook wb, Sheet sheet, Row row, int column, String title) {
+    private void createHeaderAnexo(Workbook wb, Sheet sheet, Row row, int column, String title) {
         // Row row = sheet.createRow(0);
         Font fontTitle = wb.createFont();
         fontTitle.setFontName("Arial");
@@ -211,17 +212,12 @@ public class BoletinAcademicoExcelView extends AbstractPOIExcelView {
     }
 
     private void createHeader(Workbook wb, Sheet sheet, Row row, int column, String title) {
-        // Row row = sheet.createRow(0);
         CellStyle fontTitle = ExcelStyles.getStyleHeader(wb);
-//        ExcelHelper.createCell(row, column, title, fontTitle);
-        //  CellRangeAddress mergedRegion = new CellRangeAddress(0, 0, 0, 10);
-        //   sheet.addMergedRegion(mergedRegion);
         ExcelHelper.replaceVal(sheet, row.getRowNum(), column, title);
         ExcelHelper.findCell(sheet, row.getRowNum(), column).setCellStyle(fontTitle);
     }
 
-    private void createHeader3(Workbook wb, Sheet sheet, Row row, int column, String title) {
-        // Row row = sheet.createRow(0);
+    private void createHeaderCurso(Workbook wb, Sheet sheet, Row row, int column, String title) {
         Font fontTitle = wb.createFont();
         fontTitle.setFontName("Arial");
         fontTitle.setBold(true);
@@ -229,6 +225,7 @@ public class BoletinAcademicoExcelView extends AbstractPOIExcelView {
 
         CellStyle cellStyle = ExcelStyles.getStyleHeader(wb);
         cellStyle.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
+        cellStyle.setAlignment(HorizontalAlignment.LEFT);
         cellStyle.setFont(fontTitle);
 
         ExcelHelper.replaceVal(sheet, row.getRowNum(), column, title);

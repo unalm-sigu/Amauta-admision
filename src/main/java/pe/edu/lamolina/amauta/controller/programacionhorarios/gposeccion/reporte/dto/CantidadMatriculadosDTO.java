@@ -7,6 +7,7 @@ public class CantidadMatriculadosDTO {
     private String anexo;
     private String departamentoCurso;
     private String ciclo;
+    private String codigoCurso;
     private String nombreCurso;
     private String nombreSeccion;
     private Long cantidad;
@@ -19,8 +20,9 @@ public class CantidadMatriculadosDTO {
         this.cantidad = cantidad;
     }
 
-    public CantidadMatriculadosDTO(String ciclo, String anexoSuperior, String anexo, String departamentoCurso, String nombreCurso, String seccion, Long cantidad) {
+    public CantidadMatriculadosDTO(String ciclo, String anexoSuperior, String anexo, String departamentoCurso, String codigoCurso, String nombreCurso, String seccion, Long cantidad) {
         this.ciclo = ciclo;
+        this.codigoCurso = codigoCurso;
         this.nombreCurso = nombreCurso;
         this.nombreSeccion = seccion;
         this.cantidad = cantidad;
@@ -91,6 +93,14 @@ public class CantidadMatriculadosDTO {
 
     public void setAnexo(String anexo) {
         this.anexo = anexo;
+    }
+
+    public String getCodigoCurso() {
+        return codigoCurso;
+    }
+
+    public void setCodigoCurso(String codigoCurso) {
+        this.codigoCurso = codigoCurso;
     }
 
 }

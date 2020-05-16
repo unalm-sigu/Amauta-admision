@@ -172,22 +172,22 @@ public class ResolucionServiceImp implements ResolucionService {
     VisorCalculoNotas visorCalculoNotas;
 
     @Override
-    public List<Resolucion> allResolucionesByFilter(DynatableFilter filter, DataSessionPivot dsp) {
+    public List<Resolucion> allResolucionesByFilter(DynatableFilter filter, DataSessionPivot ds) {
         List<Resolucion> resoluciones = resolucionDAO.allByDyna(filter);
-        for (Resolucion resolucione : resoluciones) {
-            List<Oficina> oficinas = this.allOFicinasByUser(dsp);
-            resolucione.setAutorizado(Boolean.FALSE);
-            if (resolucione.getAplicacionDirecta() == 1) {
-                resolucione.setAutorizado(Boolean.TRUE);
+        for (Resolucion resolucion : resoluciones) {
+            List<Oficina> oficinas = this.allOFicinasByUser(ds);
+            resolucion.setAutorizado(Boolean.FALSE);
+            if (resolucion.getAplicacionDirecta() == 1) {
+                resolucion.setAutorizado(Boolean.TRUE);
                 continue;
             }
-            if (resolucione.getIsEstadoDocConf()) {
-                if (dsp.getOficinaMain() != null && dsp.getOficinaMain().isOficinaOera()) {
-                    resolucione.setAutorizado(Boolean.TRUE);
+            if (resolucion.getIsEstadoDocConf()) {
+                if (ds.getOficinaMain() != null && ds.getOficinaMain().isOficinaOera()) {
+                    resolucion.setAutorizado(Boolean.TRUE);
                 }
             } else {
-                if (oficinas.stream().anyMatch(x -> Objects.equals(x.getId(), resolucione.getOficina().getId()) && (dsp.getOficinaMain() == null || !dsp.getOficinaMain().isOficinaOera()))) {
-                    resolucione.setAutorizado(Boolean.TRUE);
+                if (oficinas.stream().anyMatch(x -> Objects.equals(x.getId(), resolucion.getOficina().getId()) && (ds.getOficinaMain() == null || !ds.getOficinaMain().isOficinaOera()))) {
+                    resolucion.setAutorizado(Boolean.TRUE);
                 }
             }
 
@@ -250,7 +250,7 @@ public class ResolucionServiceImp implements ResolucionService {
             Tramite tramite = new Tramite();
             if (resolucion.getTipoResolucion().isReincorporacion()) {
 
-                Reincorporacion reincorporacion = reincorporacionDAO.findByTramiteEstadoTram(tramiteReunionConsejo.getTramite(), EstadoTramiteEnum.AGE_CON_FAC);
+                Reincorporacion reincorporacion = reincorporacionDAO.findByTramiteEstadoTram(tramiteReunionConsejo.getTramite(), TramiteEstadoEnum.AGE_CON_FAC);
                 tramite = reincorporacion.getTramite();
                 accionesTramitesAcademicos = accionTramiteAcademicoDAO.allByTipoTramiteAndEstadoTramiteInicial(tramite.getTipoTramite(), reincorporacion.getEstadoTramite());
                 if (accionesTramitesAcademicos.isEmpty() || accionesTramitesAcademicos.size() > 1) {

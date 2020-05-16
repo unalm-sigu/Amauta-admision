@@ -325,9 +325,9 @@ public class TramiteCondicionalServiceImp implements TramiteCondicionalService {
 
         EstadoTramite estadoTramite = null;
         if (tramiteForm.getEstadoEnum() == TramiteEstadoEnum.ACEP) {
-            estadoTramite = estadoTramiteDAO.findByCodigo(EstadoTramiteEnum.SOL_ACEP);
+            estadoTramite = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.SOL_ACEP);
         } else {
-            estadoTramite = estadoTramiteDAO.findByCodigo(EstadoTramiteEnum.RHZ_SOL);
+            estadoTramite = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.RHZ_SOL);
         }
         Tramite tramite = tramiteDAO.findById(tramiteForm);
         tramite.setEstadoTramite(estadoTramite);
@@ -435,7 +435,7 @@ public class TramiteCondicionalServiceImp implements TramiteCondicionalService {
         alumno = alumnoDAO.find(tramite.getAlumno());
         alumno.setEsMatriculaCondicional(Boolean.TRUE);
 
-        EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigo(EstadoTramiteEnum.SOL_REI);
+        EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.SOL_REI);
 
         tramite.setActivo(true);
         tramite.setCompania(dx.getCompania());
@@ -472,16 +472,16 @@ public class TramiteCondicionalServiceImp implements TramiteCondicionalService {
     public String updateReincorporacion(Tramite tramiteForm, DataSessionPivot ds) {
         EstadoTramite estadoTramite = null;
         if (tramiteForm.getEstadoEnum() == TramiteEstadoEnum.ACEP) {
-            estadoTramite = estadoTramiteDAO.findByCodigo(EstadoTramiteEnum.SOL_ACEP);
+            estadoTramite = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.SOL_ACEP);
         } else {
-            estadoTramite = estadoTramiteDAO.findByCodigo(EstadoTramiteEnum.RHZ_SOL);
+            estadoTramite = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.RHZ_SOL);
         }
         Tramite tramite = tramiteDAO.findById(tramiteForm);
         tramite.setEstadoTramite(estadoTramite);
         tramite.setEstadoEnum(TramiteEstadoEnum.valueOf(tramiteForm.getEstado()));
         tramiteDAO.update(tramite);
 
-        Reincorporacion reincorporacion = reincorporacionDAO.findByTramiteEstadoTram(tramiteForm, EstadoTramiteEnum.SOL_REI);
+        Reincorporacion reincorporacion = reincorporacionDAO.findByTramiteEstadoTram(tramiteForm, TramiteEstadoEnum.SOL_REI);
         reincorporacion.setEstadoTramite(estadoTramite);
 
         Alumno alumno = alumnoDAO.find(reincorporacion.getAlumno());
@@ -587,7 +587,7 @@ public class TramiteCondicionalServiceImp implements TramiteCondicionalService {
         List<SituacionAcademicaEnum> situaciones = Arrays.asList(S_N, S_1, S_2, S_3, S_5, S_8, S_9, S_3U, S_2U, S_4U, S_6U, S_TU, S_EM);
         MatriculaResumen matriculaResumen = new MatriculaResumen();
         if (tramiteForm.getEstadoEnum() != TramiteEstadoEnum.ACEP) {
-            EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigo(EstadoTramiteEnum.RHZ_SOL);
+            EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.RHZ_SOL);
             tramite.setEstadoEnum(TramiteEstadoEnum.valueOf(tramiteForm.getEstado()));
             tramite.setEstadoTramite(estadoTramite);
             tramiteDAO.update(tramite);
@@ -603,7 +603,7 @@ public class TramiteCondicionalServiceImp implements TramiteCondicionalService {
             }
 
         } else {
-            EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigo(EstadoTramiteEnum.SOL_ACEP);
+            EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.SOL_ACEP);
 
             tramite.setEstadoEnum(TramiteEstadoEnum.valueOf(tramiteForm.getEstado()));
             tramite.setEstadoTramite(estadoTramite);

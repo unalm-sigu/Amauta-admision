@@ -63,9 +63,9 @@ public interface SeccionDAO extends EasyDAO<Seccion> {
 
     void updateRestriccionCapa(Seccion seccion);
 
-    //void updateSeccionVacantes(Seccion seccion);
-
     List<Seccion> allActivosByCursosCiclo(List<Curso> cursos, CicloAcademico cicloAcademico);
+
+    List<Seccion> allActivosBySeccionDTO(SeccionDTO seccionDTO);
 
     List<Seccion> allMatriculablesBySecciones(List<Seccion> secciones);
 

@@ -7,8 +7,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.edu.lamolina.model.academico.CicloAcademico;
-import pe.edu.lamolina.model.academico.Docente;
-import static pe.edu.lamolina.model.enums.EstadoTramiteEnum.SOL_ANU;
 import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
 import pe.edu.lamolina.model.tramite.AccionTramiteAcademico;
 import pe.edu.lamolina.model.tramite.CursoDirigido;
@@ -19,6 +17,7 @@ import pe.edu.lamolina.amauta.dao.tramite.CursoDirigidoDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TipoTramiteDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TramiteDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import static pe.edu.lamolina.model.enums.TramiteEstadoEnum.SOL_ANU;
 
 @Service
 @Transactional(readOnly = true)

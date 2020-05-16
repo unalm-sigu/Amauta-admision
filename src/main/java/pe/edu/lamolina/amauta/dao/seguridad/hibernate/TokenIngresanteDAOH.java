@@ -39,8 +39,9 @@ public class TokenIngresanteDAOH extends AbstractEasyDAO<TokenIngresante> implem
                 .isNull("ti.fechaUso")
                 .filter("fechaVencimiento", ">", new Date())
                 .filter("ti.estado", "ACT")
-                .filter("per.id", persona.getId());
-        return (TokenIngresante) sql.find(getCurrentSession());
+                .filter("per.id", persona);
+
+        return find(sql);
     }
 
     @Override
@@ -49,9 +50,9 @@ public class TokenIngresanteDAOH extends AbstractEasyDAO<TokenIngresante> implem
                 .from(TokenIngresante.class, "tok")
                 .leftJoin("persona per", "userRegistro use")
                 .isNull("tok.fechaUso")
-                .filter("tok.fechaVencimiento", ">", new Date())
                 .filter("tok.valor", token)
                 .filter("tok.estado", TokenEstadoEnum.ACT);
+
         return find(sql);
     }
 }
