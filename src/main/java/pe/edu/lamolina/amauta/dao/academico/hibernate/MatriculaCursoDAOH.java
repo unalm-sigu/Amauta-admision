@@ -213,7 +213,7 @@ public class MatriculaCursoDAOH extends AbstractEasyDAO<MatriculaCurso> implemen
                 .join("matriculaResumen mr", "mr.alumno alu", "mr.cicloAcademico ca")
                 .join("curso cu", "cu.departamentoAcademico")
                 .filter("ca.id", cicloAcademico)
-                .in("mc.estado", Arrays.asList(EstadoMatriculaEnum.PMAT.name(), EstadoMatriculaEnum.NMAT.name()));
+                .in("mc.estado", Arrays.asList(EstadoMatriculaEnum.PMAT.name()));
         return (Long) sql.find(getCurrentSession());
     }
 

@@ -301,7 +301,7 @@ public class MatriculaSeccionDAOH extends AbstractEasyDAO<MatriculaSeccion> impl
                 .join("seccion s", "s.grupoSeccion gs", "gs.curso")
                 .left("s.aula")
                 .filter("ca.id", cicloAcademico)
-                .in("ms.estado", Arrays.asList(EstadoMatriculaEnum.PMAT.name(), EstadoMatriculaEnum.NMAT.name()));
+                .in("ms.estado", Arrays.asList(EstadoMatriculaEnum.PMAT.name()));
         return (Long) sql.find(getCurrentSession());
     }
 
