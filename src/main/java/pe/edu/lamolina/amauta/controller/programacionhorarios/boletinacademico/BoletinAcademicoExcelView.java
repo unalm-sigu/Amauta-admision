@@ -71,7 +71,7 @@ public class BoletinAcademicoExcelView extends AbstractPOIExcelView {
 
     private void createSheet(Workbook workBook, CicloAcademico ciclo, AnexoBoletin anexoBoletin, Sheet sheet) {
 
-        int totalColumns = 11;
+        int totalColumns = 12;
         int rowIndice = 0;
 
         for (AnexoBoletin anexosBoletinHijo : anexoBoletin.getAnexosBoletinHijos()) {
@@ -94,7 +94,8 @@ public class BoletinAcademicoExcelView extends AbstractPOIExcelView {
             this.createHeader(workBook, sheet, row, col++, "%");
             this.createHeader(workBook, sheet, row, col++, "HORARIO");
             this.createHeader(workBook, sheet, row, col++, "PERIODO");
-            this.createHeader(workBook, sheet, row, col, "VAC");
+            this.createHeader(workBook, sheet, row, col++, "VAC");
+            this.createHeader(workBook, sheet, row, col, "DICTADO");
 
             for (Curso curso : anexosBoletinHijo.getCursos()) {
                 logger.debug("                     Curso {}", curso.getNombre());
@@ -168,7 +169,8 @@ public class BoletinAcademicoExcelView extends AbstractPOIExcelView {
                         fechasCell.setCellValue(richStringFechas);
                         fechasCell.setCellStyle(cs);
 
-                        ExcelHelper.replaceVal(sheet, row.getRowNum(), col, seccion.getVacantes());
+                        ExcelHelper.replaceVal(sheet, row.getRowNum(), col++, seccion.getVacantes());
+                        ExcelHelper.replaceVal(sheet, row.getRowNum(), col, seccion.getModoDictado());
                         if (indiceSeccion == (grupoSeccion.getSecciones().size() - 1)) {
                             for (int i = row.getFirstCellNum(); i < row.getLastCellNum(); i++) {
                                 Cell cell = row.getCell(i);
@@ -190,7 +192,7 @@ public class BoletinAcademicoExcelView extends AbstractPOIExcelView {
         }
 
         ((SXSSFSheet) sheet).trackAllColumnsForAutoSizing();
-        for (int i = 0; i <= 10; i++) {
+        for (int i = 0; i <= 12; i++) {
             sheet.autoSizeColumn(i);
         }
 
