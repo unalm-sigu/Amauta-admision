@@ -359,7 +359,7 @@ public class AsignacionAulaServiceImp implements AsignacionAulaService {
             }
         }
 
-        if (asignacionAula != null) {
+        if (asignacionAula == null) {
             asignacionAula = new AsignacionAula();
         }
         asignacionAula.setCicloAcademico(ds.getCicloAcademico());
