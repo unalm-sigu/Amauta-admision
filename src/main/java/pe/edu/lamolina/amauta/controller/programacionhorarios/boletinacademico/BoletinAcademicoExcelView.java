@@ -38,6 +38,7 @@ import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.horario.GrupoHoras;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.enums.ModoDictadoSeccionEnum;
 
 @Component
 public class BoletinAcademicoExcelView extends AbstractPOIExcelView {
@@ -170,7 +171,7 @@ public class BoletinAcademicoExcelView extends AbstractPOIExcelView {
                         fechasCell.setCellStyle(cs);
 
                         ExcelHelper.replaceVal(sheet, row.getRowNum(), col++, seccion.getVacantes());
-                        ExcelHelper.replaceVal(sheet, row.getRowNum(), col, seccion.getModoDictado());
+                        ExcelHelper.replaceVal(sheet, row.getRowNum(), col, ModoDictadoSeccionEnum.valueOf(seccion.getModoDictado()).getValue());
                         if (indiceSeccion == (grupoSeccion.getSecciones().size() - 1)) {
                             for (int i = row.getFirstCellNum(); i < row.getLastCellNum(); i++) {
                                 Cell cell = row.getCell(i);
