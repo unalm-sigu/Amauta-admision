@@ -38,7 +38,9 @@ import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.horario.GrupoHoras;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.ModoDictadoSeccionEnum;
+import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
 
 @Component
 public class BoletinAcademicoExcelView extends AbstractPOIExcelView {
@@ -72,7 +74,7 @@ public class BoletinAcademicoExcelView extends AbstractPOIExcelView {
 
     private void createSheet(Workbook workBook, CicloAcademico ciclo, AnexoBoletin anexoBoletin, Sheet sheet) {
 
-        int totalColumns = 12;
+        int totalColumns = 13;
         int rowIndice = 0;
 
         for (AnexoBoletin anexosBoletinHijo : anexoBoletin.getAnexosBoletinHijos()) {
@@ -96,7 +98,8 @@ public class BoletinAcademicoExcelView extends AbstractPOIExcelView {
             this.createHeader(workBook, sheet, row, col++, "HORARIO");
             this.createHeader(workBook, sheet, row, col++, "PERIODO");
             this.createHeader(workBook, sheet, row, col++, "VAC");
-            this.createHeader(workBook, sheet, row, col, "DICTADO");
+            this.createHeader(workBook, sheet, row, col++, "DICTADO");
+            this.createHeader(workBook, sheet, row, col, "ESTADO");
 
             for (Curso curso : anexosBoletinHijo.getCursos()) {
                 logger.debug("                     Curso {}", curso.getNombre());
@@ -171,7 +174,8 @@ public class BoletinAcademicoExcelView extends AbstractPOIExcelView {
                         fechasCell.setCellStyle(cs);
 
                         ExcelHelper.replaceVal(sheet, row.getRowNum(), col++, seccion.getVacantes());
-                        ExcelHelper.replaceVal(sheet, row.getRowNum(), col, ModoDictadoSeccionEnum.valueOf(seccion.getModoDictado()).getValue());
+                        ExcelHelper.replaceVal(sheet, row.getRowNum(), col++, ModoDictadoSeccionEnum.valueOf(seccion.getModoDictado()).getValue());
+                        ExcelHelper.replaceVal(sheet, row.getRowNum(), col, SeccionEstadoEnum.valueOf(seccion.getEstado()).getValue());
                         if (indiceSeccion == (grupoSeccion.getSecciones().size() - 1)) {
                             for (int i = row.getFirstCellNum(); i < row.getLastCellNum(); i++) {
                                 Cell cell = row.getCell(i);
@@ -193,7 +197,7 @@ public class BoletinAcademicoExcelView extends AbstractPOIExcelView {
         }
 
         ((SXSSFSheet) sheet).trackAllColumnsForAutoSizing();
-        for (int i = 0; i <= 12; i++) {
+        for (int i = 0; i <= 13; i++) {
             sheet.autoSizeColumn(i);
         }
 
