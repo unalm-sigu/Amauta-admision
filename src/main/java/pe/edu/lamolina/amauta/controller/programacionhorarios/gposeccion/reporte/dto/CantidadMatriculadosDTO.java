@@ -10,6 +10,8 @@ public class CantidadMatriculadosDTO {
     private String codigoCurso;
     private String nombreCurso;
     private String nombreSeccion;
+    private String codigoDocente;
+    private String nombreDocente;
     private Long cantidad;
 
     public CantidadMatriculadosDTO() {
@@ -20,7 +22,13 @@ public class CantidadMatriculadosDTO {
         this.cantidad = cantidad;
     }
 
-    public CantidadMatriculadosDTO(String ciclo, String anexoSuperior, String anexo, String departamentoCurso, String codigoCurso, String nombreCurso, String seccion, Long cantidad) {
+    public CantidadMatriculadosDTO(
+            String ciclo,
+            String anexoSuperior, String anexo,
+            String departamentoCurso, String codigoCurso, String nombreCurso,
+            String codigoDocente, String nombreDocente,
+            String seccion, Long cantidad) {
+
         this.ciclo = ciclo;
         this.codigoCurso = codigoCurso;
         this.nombreCurso = nombreCurso;
@@ -29,6 +37,8 @@ public class CantidadMatriculadosDTO {
         this.anexoSuperior = anexoSuperior;
         this.anexo = anexo;
         this.departamentoCurso = departamentoCurso;
+        this.codigoDocente = codigoDocente;
+        this.nombreDocente = nombreDocente;
     }
 
     public String getCiclo() {
@@ -101,6 +111,22 @@ public class CantidadMatriculadosDTO {
 
     public void setCodigoCurso(String codigoCurso) {
         this.codigoCurso = codigoCurso;
+    }
+
+    public String getCodigoDocente() {
+        return codigoDocente;
+    }
+
+    public void setCodigoDocente(String codigoDocente) {
+        this.codigoDocente = codigoDocente;
+    }
+
+    public String getNombreDocente() {
+        return nombreDocente;
+    }
+
+    public void setNombreDocente(String nombreDocente) {
+        this.nombreDocente = nombreDocente;
     }
 
 }

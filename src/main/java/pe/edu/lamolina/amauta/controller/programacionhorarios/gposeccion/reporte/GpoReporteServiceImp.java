@@ -53,6 +53,7 @@ import pe.edu.lamolina.amauta.dao.horario.DiaHoraGrupoDAO;
 import pe.edu.lamolina.amauta.dao.horario.HorarioAulaDAO;
 import pe.edu.lamolina.amauta.dao.horario.HorarioSeccionDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.general.Persona;
 
 @Service
 @Transactional(readOnly = true)
@@ -516,6 +517,9 @@ public class GpoReporteServiceImp implements GpoReporteService {
     public List<CantidadMatriculadosDTO> allCantidadMatriculados(SeccionDTO seccionDTO) {
         List<CantidadMatriculadosDTO> cantidades = new ArrayList();
         List<Seccion> secciones = seccionDAO.allActivosBySeccionDTO(seccionDTO);
+        List<DocenteSeccion> docenteSecciones = docenteSeccionDAO.allPrincipalesBySecciones(secciones);
+        Map<Long, DocenteSeccion> mapDocenteSeccion = TypesUtil.convertListToMap("seccion.id", docenteSecciones);
+
         for (Seccion seccion : secciones) {
             GrupoSeccion gpoSeccion = seccion.getGrupoSeccion();
             CicloAcademico ciclo = gpoSeccion.getCicloAcademico();
@@ -523,10 +527,15 @@ public class GpoReporteServiceImp implements GpoReporteService {
             AnexoBoletin anexoSup = anexo.getAnexoSuperior();
             Curso curso = gpoSeccion.getCurso();
             DepartamentoAcademico departamento = curso.getDepartamentoAcademico();
+            DocenteSeccion profeSeccion = mapDocenteSeccion.get(seccion.getId());
+            Docente docente = profeSeccion.getDocente();
+            Persona persona = docente.getPersona();
 
             CantidadMatriculadosDTO cantidad = new CantidadMatriculadosDTO(ciclo.getDescripcion(),
                     anexoSup.getNombre(), anexo.getNombre(),
-                    departamento.getNombre(), curso.getCodigo(), curso.getNombre(), seccion.getCodigo2(),
+                    departamento.getNombre(), curso.getCodigo(), curso.getNombre(),
+                    docente.getCodigo(), persona == null ? "Desconocido" : persona.getApellidosNombres(),
+                    seccion.getCodigo2(),
                     seccion.getMatriculados().longValue());
 
             cantidades.add(cantidad);
