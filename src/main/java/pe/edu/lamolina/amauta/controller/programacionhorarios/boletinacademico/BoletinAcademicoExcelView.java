@@ -175,7 +175,13 @@ public class BoletinAcademicoExcelView extends AbstractPOIExcelView {
 
                         ExcelHelper.replaceVal(sheet, row.getRowNum(), col++, seccion.getVacantes());
                         ExcelHelper.replaceVal(sheet, row.getRowNum(), col++, ModoDictadoSeccionEnum.valueOf(seccion.getModoDictado()).getValue());
-                        ExcelHelper.replaceVal(sheet, row.getRowNum(), col, SeccionEstadoEnum.valueOf(seccion.getEstado()).getValue());
+
+                        if (seccion.getEstadoEnum() == SeccionEstadoEnum.BLO) {                            
+                            this.createStyleEstadoBloqueado(workBook, sheet, row, col, SeccionEstadoEnum.valueOf(seccion.getEstado()).getValue(),cs);
+                        } else {
+                            ExcelHelper.replaceVal(sheet, row.getRowNum(), col, SeccionEstadoEnum.valueOf(seccion.getEstado()).getValue());
+                        }
+
                         if (indiceSeccion == (grupoSeccion.getSecciones().size() - 1)) {
                             for (int i = row.getFirstCellNum(); i < row.getLastCellNum(); i++) {
                                 Cell cell = row.getCell(i);
@@ -236,6 +242,19 @@ public class BoletinAcademicoExcelView extends AbstractPOIExcelView {
         cellStyle.setFont(fontTitle);
 
         ExcelHelper.replaceVal(sheet, row.getRowNum(), column, title);
+        ExcelHelper.findCell(sheet, row.getRowNum(), column).setCellStyle(cellStyle);
+    }
+
+    private void createStyleEstadoBloqueado(Workbook wb, Sheet sheet, Row row, int column, String title,CellStyle cellStyle) {
+        Font fontTitle = wb.createFont();
+        fontTitle.setFontName("Arial");
+        fontTitle.setBold(true);
+        fontTitle.setColor(IndexedColors.RED.getIndex());
+
+        cellStyle.setFillForegroundColor(IndexedColors.YELLOW.getIndex());
+        cellStyle.setFont(fontTitle);
+ 
+        ExcelHelper.createCell(row, column, title, cellStyle);
         ExcelHelper.findCell(sheet, row.getRowNum(), column).setCellStyle(cellStyle);
     }
 
