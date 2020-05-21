@@ -31,7 +31,6 @@ import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.enums.CursoCurriculaEstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
-import pe.edu.lamolina.model.enums.EstadoTramiteEnum;
 import pe.edu.lamolina.model.enums.OrigenDataSituacionAcademicaEnum;
 import pe.edu.lamolina.model.enums.ResolucionEstadoEnum;
 import pe.edu.lamolina.model.enums.SituacionAcademicaEnum;
@@ -368,7 +367,7 @@ public class TramiteCondicionalServiceImp implements TramiteCondicionalService {
             List<AlumnoCicloCurso> alumnoCicloCursos = alumnoCicloCursoDAO.allActivoByAlumnoCiclo(alumnoCiclo);
             for (AlumnoCicloCurso alumnoCicloCurso : alumnoCicloCursos) {
                 alumnoCicloCurso.setVecesCursado(alumnoCicloCurso.getVecesCursado() - 1);
-                alumnoCicloCurso.setEstado(EstadoMatriculaEnum.RCI);
+                alumnoCicloCurso.setEstadoEnum(EstadoMatriculaEnum.RCI);
                 alumnoCicloCursoDAO.update(alumnoCicloCurso);
             }
 
@@ -622,7 +621,7 @@ public class TramiteCondicionalServiceImp implements TramiteCondicionalService {
             alumnoCicloCursosMod.setCurso(alumnoCicloCurso.getCurso());
             alumnoCicloCursosMod.setCursoEquivalente(alumnoCicloCurso.getCursoEquivalente());
             alumnoCicloCursosMod.setEstaAprobado(evaluateEstaAprobado(tramiteForm.getNotaResolucion(), alumno));
-            alumnoCicloCursosMod.setEstado(alumnoCicloCurso.getEstadoEnum());
+            alumnoCicloCursosMod.setEstadoEnum(alumnoCicloCurso.getEstadoEnum());
             alumnoCicloCursosMod.setFechaMigracion(alumnoCicloCurso.getFechaMigracion());
             alumnoCicloCursosMod.setFechaRegistro(new Date());
             alumnoCicloCursosMod.setNota(tramiteForm.getNotaResolucion().toString());
@@ -633,7 +632,7 @@ public class TramiteCondicionalServiceImp implements TramiteCondicionalService {
             alumnoCicloCursosMod.setOrigenData(OrigenDataSituacionAcademicaEnum.MOD);
             alumnoCicloCursoDAO.save(alumnoCicloCursosMod);
 
-            alumnoCicloCurso.setEstado(EstadoMatriculaEnum.NMOD);
+            alumnoCicloCurso.setEstadoEnum(EstadoMatriculaEnum.NMOD);
             alumnoCicloCurso.setFechaModificacion(new Date());
             alumnoCicloCurso.setUserModificacion(ds.getUsuario());
             alumnoCicloCurso.setRegistroActivo(0);

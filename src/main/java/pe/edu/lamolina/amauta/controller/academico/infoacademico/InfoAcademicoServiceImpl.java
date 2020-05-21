@@ -1002,7 +1002,7 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
                 if (alumnoCiclo.getEstadoEnum() == MAT) {
                     List<AlumnoCicloCurso> alumnoCicloCursos = alumnoCicloCursoDAO.allByAlumnoCiclo(alumnoCiclo);
                     for (AlumnoCicloCurso aluCicloCurso : alumnoCicloCursos) {
-                        aluCicloCurso.setEstado(RCI);
+                        aluCicloCurso.setEstadoEnum(RCI);
                         aluCicloCurso.setUserModificacion(ds.getUsuario());
                         aluCicloCurso.setFechaModificacion(new Date());
                         alumnoCicloCursoDAO.update(aluCicloCurso);

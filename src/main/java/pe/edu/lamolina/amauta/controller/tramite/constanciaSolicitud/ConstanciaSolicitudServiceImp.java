@@ -352,7 +352,7 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
                     alumnoCicloCurso.setCurso(curso);
                     alumnoCicloCurso.setEstaAprobado(BigDecimal.ZERO.intValue());
 
-                    alumnoCicloCurso.setEstado(EstadoMatriculaEnum.MAT);
+                    alumnoCicloCurso.setEstadoEnum(EstadoMatriculaEnum.MAT);
                     alumnoCicloCurso.setFechaModificacion(today.toDate());
                     alumnoCicloCurso.setFechaRegistro(today.toDate());
 

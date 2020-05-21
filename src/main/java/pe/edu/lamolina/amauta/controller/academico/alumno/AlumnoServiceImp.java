@@ -871,7 +871,7 @@ public class AlumnoServiceImp implements AlumnoService {
         alumnoCicloCurso.setCurso(cursoConvalidado.getCurso());
         alumnoCicloCurso.setCreditos(cursoConvalidado.getCreditos());
         alumnoCicloCurso.setNota(cursoConvalidado.getNota() == null ? "TE" : cursoConvalidado.getNota());
-        alumnoCicloCurso.setEstado(EstadoMatriculaEnum.MAT);
+        alumnoCicloCurso.setEstadoEnum(EstadoMatriculaEnum.MAT);
         alumnoCicloCurso.setEstaAprobado(1);
         alumnoCicloCurso.setRegistroActivo(1);
         alumnoCicloCurso.setOrigenData(OrigenDataSituacionAcademicaEnum.TE);

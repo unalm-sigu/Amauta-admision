@@ -529,7 +529,7 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
         List<AlumnoCicloCurso> alumnoCicloCursos = alumnoCicloCursoDAO.allByAutorizacionRegistro(autorizacionRegistro);
         for (AlumnoCicloCurso alumnoCicloCurso : alumnoCicloCursos) {
             if (alumnoCicloCurso.getIsEstadoMatriculado()) {
-                alumnoCicloCurso.setEstado(EstadoMatriculaEnum.MAT);
+                alumnoCicloCurso.setEstadoEnum(EstadoMatriculaEnum.MAT);
                 alumnoCicloCurso.setRegistroActivo(BigDecimal.ONE.intValue());
                 alumnoCicloCursoDAO.updateEstadoRegistroActivo(alumnoCicloCurso);
             }
@@ -846,12 +846,12 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
                         || alumnoCicloCursoForm.getCreditos().compareTo(alumnoCicloCursoDB.getCreditos()) != 0) {
 
                     if (alumnoCicloCursoForm.getIsEstadoMatriculado()) {
-                        alumnoCicloCursoDB.setEstado(EstadoMatriculaEnum.NMOD);
+                        alumnoCicloCursoDB.setEstadoEnum(EstadoMatriculaEnum.NMOD);
                         alumnoCicloCursoDB.setRegistroActivo(BigDecimal.ZERO.intValue());
                         alumnoCicloCursoDB.setUserModificacion(ds.getUsuario());
                         alumnoCicloCursoDB.setAutorizacionRegistro(autorizacionRegistro);
                         if (!alumnoCicloCursoForm.getEstaActivo()) {
-                            alumnoCicloCursoDB.setEstado(EstadoMatriculaEnum.MAT);
+                            alumnoCicloCursoDB.setEstadoEnum(EstadoMatriculaEnum.MAT);
                             alumnoCicloCursoDB.setNota(alumnoCicloCursoForm.getNota());
                             alumnoCicloCursoDB.setCreditos(alumnoCicloCursoForm.getCreditos());
                         }
@@ -877,7 +877,7 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
                     alumnoCursoNew.setFechaRegistro(today.toDate());
                     alumnoCursoNew.setUsuarioRegistro(ds.getUsuario());
                     alumnoCursoNew.setRegistroActivo(BigDecimal.ZERO.intValue());
-                    alumnoCursoNew.setEstado(EstadoMatriculaEnum.MAT);
+                    alumnoCursoNew.setEstadoEnum(EstadoMatriculaEnum.MAT);
                     alumnoCursoNew.setAutorizacionRegistro(autorizacionRegistro);
                     Integer vecesEstudiadoCurso = alumnoCicloCursoDAO.countByCursoAlumnoAnterioresCiclo(alumnoCicloCursoForm.getCurso(), alumnoCiclo.getAlumno(), alumnoCiclo.getCicloAcademico()).intValue();
                     alumnoCursoNew.setVecesCursado(vecesEstudiadoCurso);
@@ -891,7 +891,7 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
                 alumnoCursoNew.setCreditos(alumnoCicloCursoForm.getCreditos());
                 alumnoCursoNew.setCurso(alumnoCicloCursoForm.getCurso());
                 //  alumnoCursoNew.setEstaAprobado(Integer.MAX_VALUE);
-                alumnoCursoNew.setEstado(EstadoMatriculaEnum.MAT);
+                alumnoCursoNew.setEstadoEnum(EstadoMatriculaEnum.MAT);
                 alumnoCursoNew.setFechaRegistro(today.toDate());
                 alumnoCursoNew.setNota(alumnoCicloCursoForm.getNota());
                 alumnoCursoNew.setOrigenData(OrigenDataSituacionAcademicaEnum.CARTA);
@@ -1013,7 +1013,7 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
             if (alumnoCicloCurso.getAutorizacionRegistro() != null && alumnoCicloCurso.getAutorizacionRegistro().getEstadoEnum() == EstadoEnum.CRE) {
                 autorizacionRegistro = alumnoCicloCurso.getAutorizacionRegistro();
                 alumnoCicloCurso.setRegistroActivo(alumnoCicloCurso.getIsEstadoNotaModificada() || alumnoCicloCurso.getIsEstadoNotaEliminada() ? 1 : 0);
-                alumnoCicloCurso.setEstado(alumnoCicloCurso.getIsEstadoNotaModificada() || alumnoCicloCurso.getIsEstadoNotaEliminada() ? EstadoMatriculaEnum.MAT : EstadoMatriculaEnum.RHZ);
+                alumnoCicloCurso.setEstadoEnum(alumnoCicloCurso.getIsEstadoNotaModificada() || alumnoCicloCurso.getIsEstadoNotaEliminada() ? EstadoMatriculaEnum.MAT : EstadoMatriculaEnum.RHZ);
                 alumnoCicloCurso.setFechaModificacion(new Date());
                 alumnoCicloCurso.setUserModificacion(ds.getUsuario());
                 alumnoCicloCursoDAO.updateColumns(alumnoCicloCurso, "estado", "registroActivo", "fechaModificacion", "userModificacion");
@@ -1034,7 +1034,7 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
 
         alumnoCicloCurso.setAutorizacionRegistro(autorizacionRegistro);
         alumnoCicloCurso.setRegistroActivo(0);
-        alumnoCicloCurso.setEstado(EstadoMatriculaEnum.NELI);
+        alumnoCicloCurso.setEstadoEnum(EstadoMatriculaEnum.NELI);
         alumnoCicloCurso.setFechaModificacion(new Date());
         alumnoCicloCurso.setUserModificacion(ds.getUsuario());
         alumnoCicloCursoDAO.updateColumns(alumnoCicloCurso, "registroActivo", "estado", "fechaModificacion", "userModificacion", "autorizacionRegistro");

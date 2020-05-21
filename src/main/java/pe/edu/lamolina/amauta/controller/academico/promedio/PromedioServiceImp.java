@@ -53,7 +53,6 @@ import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_8;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_9;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_D;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_E;
-import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_EM;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_N;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_T;
 import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_X;
@@ -1196,7 +1195,6 @@ public class PromedioServiceImp implements PromedioService {
 //                } else if (alumnoCiclo.getCreditosAprobadosAcumuladosCurricula() > 200) {
 //                    situacionAcademicaFinal = new SituacionAcademica(S_EM);
 //                    this.printLogger("Caso 38", showLog);
-
                 } else {
                     situacionAcademicaFinal = getSituacionByTipoAprobado(alumno, alumnoCiclo, showLog);
                 }
@@ -1236,6 +1234,15 @@ public class PromedioServiceImp implements PromedioService {
                     situacionAcademicaFinal = new SituacionAcademica(SituacionAcademicaEnum.S_D);
                     this.printLogger("Caso 44", showLog);
 
+                } else if (alumnoCiclo.getSituacionInicio().isSeparado()) {
+                    situacionAcademicaFinal = new SituacionAcademica(SituacionAcademicaEnum.S_X);
+                    this.printLogger("Caso 44.b", showLog);
+
+                } else if (alumnoCiclo.getSituacionInicio().isSuspendido()) {
+                    alumnoCiclo.setEstadoEnum(INH);
+                    situacionAcademicaFinal = new SituacionAcademica(SituacionAcademicaEnum.S_3);
+                    this.printLogger("Caso 44.c", showLog);
+
                 } else {
                     situacionAcademicaFinal = alumnoCiclo.getSituacionInicio();
                     this.printLogger("Caso 45", showLog);
@@ -1267,7 +1274,6 @@ public class PromedioServiceImp implements PromedioService {
 //                } else if (alumnoCiclo.getCreditosAprobadosAcumuladosCurricula() > CREDITOS_MINIMO_APR) {
 //                    situacionAcademicaFinal = new SituacionAcademica(S_EM);
 //                    this.printLogger("Caso 51", showLog);
-
                 } else {
                     situacionAcademicaFinal = getSituacionByTipoAprobado(alumno, alumnoCiclo, showLog);
                 }
@@ -1533,7 +1539,7 @@ public class PromedioServiceImp implements PromedioService {
 
                 AlumnoCicloCurso alumnoCicloCursoTmp = new AlumnoCicloCurso();
                 alumnoCicloCursoTmp.setNota(matriculaCurso.getNotaFinal());
-                alumnoCicloCursoTmp.setEstado(matriculaCurso.getEstadoEnum());
+                alumnoCicloCursoTmp.setEstadoEnum(matriculaCurso.getEstadoEnum());
                 alumnoCicloCursoTmp.setEstaAprobado(aprobado);
                 alumnoCicloCursoTmp.setCreditos(creditos);
 

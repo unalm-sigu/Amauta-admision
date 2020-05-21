@@ -132,9 +132,9 @@ public class HistoMigraServiceImp implements HistoMigraService {
             acc.setRegistroActivo(1);
 
             if (Arrays.asList("1", "3").contains(histo.getMov())) {
-                acc.setEstado(MAT);
+                acc.setEstadoEnum(MAT);
             } else {
-                acc.setEstado(RET);
+                acc.setEstadoEnum(RET);
             }
 
             acc.setFechaMigracion(new Date());
@@ -150,9 +150,9 @@ public class HistoMigraServiceImp implements HistoMigraService {
             acc.setCreditos(modalidaEnum == EPG ? histoPosgrado.getCurCredit() : histoPregrado.getCurCredit());
             acc.setNota(modalidaEnum == EPG ? histoPosgrado.getNota() : histoPregrado.getNota());
             if (Arrays.asList("1", "3").contains(histo.getMov())) {
-                acc.setEstado(MAT);
+                acc.setEstadoEnum(MAT);
             } else {
-                acc.setEstado(RET);
+                acc.setEstadoEnum(RET);
             }
             acc.setEstaAprobado(promedioService.evaluateEstaAprobado(acc, alumno));
 

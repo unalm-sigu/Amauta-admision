@@ -40,7 +40,6 @@ import pe.edu.lamolina.model.bean.AlumnoCicloCursoBean;
 import pe.edu.lamolina.model.enums.CursoCurriculaEstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
-import pe.edu.lamolina.model.enums.EstadoTramiteEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.enums.OrigenDataSituacionAcademicaEnum;
@@ -413,9 +412,9 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
                 Integer count = alumnoCicloCurso.getVecesCursado() - 1;
                 alumnoCicloCurso.setVecesCursado(count);
                 if (resolucion.isTipoRetiroCiclo()) {
-                    alumnoCicloCurso.setEstado(EstadoMatriculaEnum.RCI);
+                    alumnoCicloCurso.setEstadoEnum(EstadoMatriculaEnum.RCI);
                 } else if (resolucion.isTipoAnulacionCiclo()) {
-                    alumnoCicloCurso.setEstado(EstadoMatriculaEnum.ANCI);
+                    alumnoCicloCurso.setEstadoEnum(EstadoMatriculaEnum.ANCI);
                 }
                 alumnoCicloCursoDAO.update(alumnoCicloCurso);
             }
@@ -516,7 +515,7 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
             alumnoCicloCursosMod.setCurso(alumnoCicloCurso.getCurso());
             alumnoCicloCursosMod.setCursoEquivalente(alumnoCicloCurso.getCursoEquivalente());
             alumnoCicloCursosMod.setEstaAprobado(evaluateEstaAprobado(cambioNota.getNota(), alumno));
-            alumnoCicloCursosMod.setEstado(alumnoCicloCurso.getEstadoEnum());
+            alumnoCicloCursosMod.setEstadoEnum(alumnoCicloCurso.getEstadoEnum());
             alumnoCicloCursosMod.setFechaMigracion(alumnoCicloCurso.getFechaMigracion());
             alumnoCicloCursosMod.setFechaRegistro(new Date());
             alumnoCicloCursosMod.setNota(cambioNota.getNota().toString());
@@ -527,7 +526,7 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
             alumnoCicloCursosMod.setOrigenData(OrigenDataSituacionAcademicaEnum.MOD);
             alumnoCicloCursoDAO.save(alumnoCicloCursosMod);
 
-            alumnoCicloCurso.setEstado(EstadoMatriculaEnum.NMOD);
+            alumnoCicloCurso.setEstadoEnum(EstadoMatriculaEnum.NMOD);
             alumnoCicloCurso.setFechaModificacion(new Date());
             alumnoCicloCurso.setUserModificacion(ds.getUsuario());
             alumnoCicloCurso.setRegistroActivo(0);
@@ -945,7 +944,7 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
             cambioNotaMasBajaDAO.save(cambioNotaMasBaja);
 
             AlumnoCicloCurso alumnoCicloCurso = alumnoCicloCursoDAO.findByAlumnoCicloCurso(alumno, cambioNotaMasBaja.getCicloAcademico(), cambioNotaMasBaja.getCurso());
-            alumnoCicloCurso.setEstado(EstadoMatriculaEnum.ANMB);
+            alumnoCicloCurso.setEstadoEnum(EstadoMatriculaEnum.ANMB);
             alumnoCicloCurso.setUserModificacion(usuario);
             alumnoCicloCurso.setFechaModificacion(new Date());
             alumnoCicloCursoDAO.updateColumns(alumnoCicloCurso, "estado", "userModificacion", "fechaModificacion");
