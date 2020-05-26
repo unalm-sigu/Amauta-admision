@@ -27,6 +27,7 @@ import java.util.StringTokenizer;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.util.CellUtil;
+import org.apache.poi.xssf.streaming.SXSSFSheet;
 import pe.albatross.zelpers.file.excel.ExcelHelper;
 
 @Component
@@ -77,7 +78,7 @@ public class RolExamenReporteView extends AbstractPOIExcelView {
     }
 
     private void crearHojaRegulares(Workbook wb, List<LetraGrupoRegular> regulares) {
-        Sheet sheet = wb.createSheet("REGULARES");
+        SXSSFSheet sheet = (SXSSFSheet) wb.createSheet("REGULARES");
         SimpleDateFormat sdf = new SimpleDateFormat("EEEE dd 'de' MMMMM", new Locale("es", "ES"));
 
         this.createHeader("GRUPO|FECHA|HORA", 2, sheet, wb);
@@ -98,13 +99,14 @@ public class RolExamenReporteView extends AbstractPOIExcelView {
         }
 
         for (int i = 0; i < 3; i++) {
+            sheet.trackAllColumnsForAutoSizing();
             sheet.autoSizeColumn(i);
         }
 
     }
 
     private void crearHojaEspeciales(Workbook wb, List<SeccionGrupoEspecial> especiales) {
-        Sheet sheet = wb.createSheet("ESPECIALES");
+        SXSSFSheet sheet = (SXSSFSheet) wb.createSheet("ESPECIALES");
         SimpleDateFormat sdf = new SimpleDateFormat("EEEE dd 'de' MMMMM", new Locale("es", "ES"));
 
         this.createHeader("CURSO|CLAVE|GR.|AULA|FECHA|HORA|PROFESOR", 2, sheet, wb);
@@ -129,12 +131,13 @@ public class RolExamenReporteView extends AbstractPOIExcelView {
         }
 
         for (int i = 0; i < 7; i++) {
+            sheet.trackAllColumnsForAutoSizing();
             sheet.autoSizeColumn(i);
         }
     }
 
     private void crearHojaMasivos(Workbook wb, List<CursoMasivoExamen> masivos) {
-        Sheet sheet = wb.createSheet("MASIVOS");
+        SXSSFSheet sheet = (SXSSFSheet) wb.createSheet("MASIVOS");
         SimpleDateFormat sdf = new SimpleDateFormat("EEEE dd 'de' MMMMM", new Locale("es", "ES"));
 
         this.createHeader("CODIGO|CURSO|FECHA Y HORA|AULAS", 2, sheet, wb);
@@ -169,9 +172,9 @@ public class RolExamenReporteView extends AbstractPOIExcelView {
         }
 
         for (int i = 0; i < 4; i++) {
+            sheet.trackAllColumnsForAutoSizing();
             sheet.autoSizeColumn(i);
         }
-
     }
 
     private void createCell(Integer cellRow, int cellNumber, String value, Sheet sheet, CellStyle style) {

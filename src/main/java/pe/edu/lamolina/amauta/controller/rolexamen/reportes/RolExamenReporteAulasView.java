@@ -25,7 +25,6 @@ import java.util.Map;
 import java.util.StringTokenizer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.openxml4j.util.ZipSecureFile;
-import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.ss.util.CellUtil;
 import pe.albatross.zelpers.file.excel.ExcelHelper;
 import pe.albatross.zelpers.miscelanea.NumberFormat;
@@ -133,14 +132,16 @@ public class RolExamenReporteAulasView extends AbstractPOIExcelView {
 
         for (Date fecha : fechas) {
             Integer cantidadHoras = horasPorDia.get(fecha).size();
-            CellRangeAddress mergedRegion = new CellRangeAddress(ROW_DIAS, ROW_DIAS, currentColumn, currentColumn + cantidadHoras - 1);
-            sheet.addMergedRegion(mergedRegion);
-            Cell cell = row.createCell(currentColumn);
-            cell.setCellValue(StringUtils.capitalize(sdf.format(fecha)));
+            ExcelHelper.mergeCell(sheet,ROW_DIAS, ROW_DIAS, currentColumn, currentColumn + cantidadHoras - 1);
+
             CellStyle style = (ExcelStyles.getStyleHeader(wb));
             style.setAlignment(HorizontalAlignment.LEFT);
-            cell.setCellStyle(style);
+
+            ExcelHelper.replaceVal(sheet, ROW_DIAS, currentColumn, StringUtils.capitalize(sdf.format(fecha)));
+            ExcelHelper.createCell(row, currentColumn, StringUtils.capitalize(sdf.format(fecha)), style);
+
             currentColumn = currentColumn + cantidadHoras;
+
         }
 
         Integer cols = this.buildHeader(fechas, horasPorDia, ROW_HORAS, headerFont, sheet, wb);
@@ -150,14 +151,13 @@ public class RolExamenReporteAulasView extends AbstractPOIExcelView {
         for (Aula modulo : modulos) {
             List<Aula> aulas = aulasPorModulo.get(modulo);
 
-            CellRangeAddress mergedRegion = new CellRangeAddress(rowNum, rowNum + aulas.size() - 1, 0, 0);
-            sheet.addMergedRegion(mergedRegion);
+            ExcelHelper.mergeCell(sheet, rowNum, rowNum + aulas.size() - 1, 0, 0);
+            sheet.setColumnWidth(0, 5000);
 
             ExcelHelper.replaceVal(sheet, rowNum, 0, modulo.getNombre());
             setBorder(rowNum, 0, sheet, wb);
 
             CellUtil.setCellStyleProperty(sheet.getRow(rowNum).getCell(0), CellUtil.ALIGNMENT, HorizontalAlignment.CENTER);
-            CellUtil.setCellStyleProperty(sheet.getRow(rowNum).getCell(0), CellUtil.VERTICAL_ALIGNMENT, HorizontalAlignment.CENTER);
 
             for (Aula aula : aulas) {
                 ExcelHelper.replaceVal(sheet, rowNum, 1, aula.getCodigo());
@@ -211,10 +211,6 @@ public class RolExamenReporteAulasView extends AbstractPOIExcelView {
             }
 
         }
-
-        sheet.autoSizeColumn(0);
-        sheet.autoSizeColumn(1);
-        sheet.autoSizeColumn(2);
 
         for (int i = 3; i < cols + 3; i++) {
             sheet.setColumnWidth(i, 1024);
