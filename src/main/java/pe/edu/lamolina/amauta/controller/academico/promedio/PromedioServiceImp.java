@@ -351,6 +351,7 @@ public class PromedioServiceImp implements PromedioService {
                                 "creditosCursadosCiclo", "cursosInscritos", "cursosAprobados",
                                 "creditosAprobadosAcumulados", "creditosAprobadosCiclo",
                                 "creditosAcumulados", "creditosConvalidados",
+                                "creditosConvalidadosAcumulados",/////add
                                 "puntajeCiclo", "puntajeAcumulado",
                                 "promedioCiclo", "promedioAcumulado",
                                 "ciclosRegularesEstudiados", "ciclosAlternosSinEstudiar", "ciclosConsecutivosSinEstudiar",
@@ -364,6 +365,7 @@ public class PromedioServiceImp implements PromedioService {
                             "creditosCursadosCiclo", "cursosInscritos", "cursosAprobados",
                             "creditosAprobadosAcumulados", "creditosAprobadosCiclo",
                             "creditosAcumulados", "creditosConvalidados",
+                            "creditosConvalidadosAcumulados",/////add
                             "puntajeCiclo", "puntajeAcumulado",
                             "promedioCiclo", "promedioAcumulado",
                             "ciclosRegularesEstudiados", "ciclosAlternosSinEstudiar", "ciclosConsecutivosSinEstudiar",
