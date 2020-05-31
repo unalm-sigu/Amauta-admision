@@ -1554,9 +1554,10 @@ var app = new Vue({
 
             let $vue = this;
 
-            if ($('#formAmpliarVacante').parsley().validate() !== true) {
-                return;
-            }
+//            if ($('#formAmpliarVacante').parsley().validate() !== true) {
+//                console.dir($('#formAmpliarVacante'));
+//                return;
+//            }
 
             $.ajax({
                 method: 'POST',
