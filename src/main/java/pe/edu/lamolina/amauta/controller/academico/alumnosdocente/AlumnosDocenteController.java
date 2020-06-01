@@ -100,17 +100,14 @@ public class AlumnosDocenteController {
             Map<Long, Oficina> mapConsejeria = TypesUtil.convertListToMap("instanciaOficina", consejerias);
 
             for (MatriculaSeccion matSecc : matriculados) {
-//                ObjectNode node = JaneHelper.createJson()
-//                        .from(matSecc, "id")
-//                        .putJoin("alumno", "matriculaResumen.alumno", "codigo")
-//                        .putJoin("modalidad", "matriculaResumen.alumno.modalidadEstudio", "codigo")
-//                        .putJoin("carrera", "matriculaResumen.alumno.carrera", "nombre,tipo,tipoEnum")
-//                        .putJoin("facultad", "matriculaResumen.alumno.carrera.facultad", "nombre")
-//                        .putJoin("persona", "matriculaResumen.alumno.persona",
-//                                "tipoFoto,rutaFoto,apellidosNombres,numeroDocIdentidad,emailCompania,tipoDocumento.simbolo")
-//                        .getNode();
-// ARREGLAR JOSE
-                ObjectNode node = null;
+
+                ObjectNode node = JaneHelper.from(matSecc)
+                        .join("matriculaResumen.alumno alumno", true)
+                        .join("matriculaResumen.alumno.modalidadEstudio modalidad", "codigo")
+                        .join("matriculaResumen.alumno.carrera", "nombre,tipo,tipoEnum")
+                        .join("matriculaResumen.alumno.carrera.facultad", "nombre")
+                        .join("matriculaResumen.alumno.persona", "tipoFoto,rutaFoto,apellidosNombres,numeroDocIdentidad,emailCompania,tipoDocumento.simbolo")
+                        .json();
 
                 Alumno alumno = matSecc.getMatriculaResumen().getAlumno();
                 AlumnoConsejero aconsejado = mapAconsejado.get(alumno.getId());
@@ -161,36 +158,33 @@ public class AlumnosDocenteController {
     }
 
     private ObjectNode createConsejeriaJson(Oficina consejeria) {
-// ARREGLAR JOSE
-//        ObjectNode node = JaneHelper.createJson()
-//                .from(consejeria, "id")
-//                .putJoin("persona", "personaJefe", "apellidosNombres,emailCompania")
-//                .getNode();
-//
-//        return node;
-        return null;
+
+        ObjectNode node = JaneHelper.from(consejeria)
+                .join("personaJefe persona", "apellidosNombres,emailCompania")
+                .json();
+
+        return node;
     }
 
     private ObjectNode createConsejeroJson(AlumnoConsejero aconsejado) {
-// ARREGLAR JOSE
-//        ObjectNode node = JaneHelper.createJson()
-//                .from(aconsejado, "id")
-//                .putJoin("persona", "consejero.colaborador.persona", "apellidosNombres,emailCompania")
-//                .getNode();
-//        return node;
-        return null;
+
+        ObjectNode node = JaneHelper.from(aconsejado)
+                .join("consejero.colaborador.persona", "apellidosNombres,emailCompania")
+                .json();
+
+        return node;
     }
 
     private ObjectNode createSeccionJson(Seccion seccion) {
-        // ARREGLAR JOSE
-//        ObjectNode node = JaneHelper.createJson()
-//                .from(seccion, "id,codigo2,tipoSeccionEnum")
-//                .join("grupoHoras", "codigo")
-//                .join("aula", "codigo,nombre")
-//                .putJoin("curso", "grupoSeccion.curso", "tpc,codigo,nombre")
-//                .getNode();
-//        return node;
-        return null;
+
+        ObjectNode node = JaneHelper.from(seccion)
+                .only("id,codigo2,tipoSeccionEnum")
+                .join("grupoHoras", "codigo")
+                .join("aula", "codigo,nombre")
+                .join("grupoSeccion.curso", "tpc,codigo,nombre")
+                .json();
+
+        return node;
     }
 
 }
