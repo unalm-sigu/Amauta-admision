@@ -6,6 +6,7 @@ new Vue({
     },
     mounted: function () {
         let $vue = this;
+        console.log(seccionJson);
         $vue.loadMatriculados();
     },
     methods: {

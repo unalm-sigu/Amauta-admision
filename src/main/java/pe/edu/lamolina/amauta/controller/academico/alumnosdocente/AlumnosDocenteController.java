@@ -103,10 +103,10 @@ public class AlumnosDocenteController {
 
                 ObjectNode node = JaneHelper.from(matSecc)
                         .join("matriculaResumen.alumno alumno", true)
-                        .join("matriculaResumen.alumno.modalidadEstudio modalidad", "codigo")
-                        .join("matriculaResumen.alumno.carrera", "nombre,tipo,tipoEnum")
-                        .join("matriculaResumen.alumno.carrera.facultad", "nombre")
-                        .join("matriculaResumen.alumno.persona", "tipoFoto,rutaFoto,apellidosNombres,numeroDocIdentidad,emailCompania,tipoDocumento.simbolo")
+                        .join("matriculaResumen.alumno.modalidadEstudio modalidad", "codigo", true)
+                        .join("matriculaResumen.alumno.carrera", "nombre,tipo,tipoEnum", true)
+                        .join("matriculaResumen.alumno.carrera.facultad", "nombre", true)
+                        .join("matriculaResumen.alumno.persona", "tipoFoto,rutaFoto,apellidosNombres,numeroDocIdentidad,emailCompania,tipoDocumento.simbolo", true)
                         .json();
 
                 Alumno alumno = matSecc.getMatriculaResumen().getAlumno();
@@ -169,7 +169,7 @@ public class AlumnosDocenteController {
     private ObjectNode createConsejeroJson(AlumnoConsejero aconsejado) {
 
         ObjectNode node = JaneHelper.from(aconsejado)
-                .join("consejero.colaborador.persona", "apellidosNombres,emailCompania")
+                .join("consejero.colaborador.persona", "apellidosNombres,emailCompania", true)
                 .json();
 
         return node;
@@ -181,7 +181,7 @@ public class AlumnosDocenteController {
                 .only("id,codigo2,tipoSeccionEnum")
                 .join("grupoHoras", "codigo")
                 .join("aula", "codigo,nombre")
-                .join("grupoSeccion.curso", "tpc,codigo,nombre")
+                .join("grupoSeccion.curso", "tpc,codigo,nombre", true)
                 .json();
 
         return node;
