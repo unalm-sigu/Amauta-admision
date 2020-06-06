@@ -32,7 +32,6 @@ new Vue({
     },
     created() {
         let $vue = this;
-        console.dir($vue.alumno)
         $vue.flag = true;
         $vue.facu = true;
         $vue.tabs = [
