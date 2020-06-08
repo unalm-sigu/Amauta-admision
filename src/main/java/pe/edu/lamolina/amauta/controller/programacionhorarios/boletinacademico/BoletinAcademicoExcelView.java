@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.usermodel.IndexedColors;
@@ -38,7 +39,6 @@ import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.horario.GrupoHoras;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
-import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.ModoDictadoSeccionEnum;
 import pe.edu.lamolina.model.enums.SeccionEstadoEnum;
 
@@ -74,14 +74,14 @@ public class BoletinAcademicoExcelView extends AbstractPOIExcelView {
 
     private void createSheet(Workbook workBook, CicloAcademico ciclo, AnexoBoletin anexoBoletin, Sheet sheet) {
 
-        int totalColumns = 13;
+        int totalColumns = 14;
         int rowIndice = 0;
 
         for (AnexoBoletin anexosBoletinHijo : anexoBoletin.getAnexosBoletinHijos()) {
             logger.debug("          Anexo Boletin Hijo {} id {}", anexosBoletinHijo.getNombre(), anexosBoletinHijo.getId());
             Row row = sheet.createRow(rowIndice++);
 
-            this.createHeaderAnexo(workBook, sheet, row, 0, "Anexo: " + anexosBoletinHijo.getNombre() + " Ciclo: " + ciclo.getDescripcion());
+            this.createHeaderAnexo(workBook, sheet, row, 0, anexosBoletinHijo.getNombre() + " Ciclo: " + ciclo.getDescripcion());
             sheet.addMergedRegion(new CellRangeAddress(row.getRowNum(), row.getRowNum(), 0, totalColumns));
 
             row = sheet.createRow(rowIndice++);
@@ -98,12 +98,13 @@ public class BoletinAcademicoExcelView extends AbstractPOIExcelView {
             this.createHeader(workBook, sheet, row, col++, "HORARIO");
             this.createHeader(workBook, sheet, row, col++, "PERIODO");
             this.createHeader(workBook, sheet, row, col++, "VAC");
+            this.createHeader(workBook, sheet, row, col++, "MAT");
             this.createHeader(workBook, sheet, row, col++, "DICTADO");
             this.createHeader(workBook, sheet, row, col, "ESTADO");
 
             for (Curso curso : anexosBoletinHijo.getCursos()) {
                 logger.debug("                     Curso {}", curso.getNombre());
-                rowIndice++;
+//                rowIndice++;
                 row = sheet.createRow(rowIndice++);
 
                 this.createHeaderCurso(workBook, sheet, row, 0, curso.getCodigo());
@@ -174,13 +175,10 @@ public class BoletinAcademicoExcelView extends AbstractPOIExcelView {
                         fechasCell.setCellStyle(cs);
 
                         ExcelHelper.replaceVal(sheet, row.getRowNum(), col++, seccion.getVacantes());
+                        ExcelHelper.replaceVal(sheet, row.getRowNum(), col++, seccion.getMatriculados());
                         ExcelHelper.replaceVal(sheet, row.getRowNum(), col++, ModoDictadoSeccionEnum.valueOf(seccion.getModoDictado()).getValue());
+                        ExcelHelper.replaceVal(sheet, row.getRowNum(), col, SeccionEstadoEnum.valueOf(seccion.getEstado()).getValue());
 
-                        if (seccion.getEstadoEnum() == SeccionEstadoEnum.BLO) {                            
-                            this.createStyleEstadoBloqueado(workBook, sheet, row, col, SeccionEstadoEnum.valueOf(seccion.getEstado()).getValue(),cs);
-                        } else {
-                            ExcelHelper.replaceVal(sheet, row.getRowNum(), col, SeccionEstadoEnum.valueOf(seccion.getEstado()).getValue());
-                        }
 
                         if (indiceSeccion == (grupoSeccion.getSecciones().size() - 1)) {
                             for (int i = row.getFirstCellNum(); i < row.getLastCellNum(); i++) {
@@ -190,20 +188,47 @@ public class BoletinAcademicoExcelView extends AbstractPOIExcelView {
                                 }
                                 CellStyle cellStyle = cell.getCellStyle();
                                 cellStyle.setBorderBottom(BorderStyle.THIN);
-                                if (cell.getColumnIndex() == (row.getLastCellNum() - 1)) {
-                                    cellStyle.setBorderRight(BorderStyle.THIN);
-                                }
+
+                                logger.debug("cell.getColumnIndex():: {}", cell.getColumnIndex());
+                                logger.debug("row.getLastCellNum():: {}", row.getLastCellNum());
+                                int index = cell.getColumnIndex();
+                                int lastCell = row.getLastCellNum() - 1;
+
+                                logger.debug("comparación11:: {}", index == lastCell);
                                 cell.setCellStyle(cs);
+//                                if (cell.getColumnIndex() == (int) (row.getLastCellNum() - 1)) {
+//                                    logger.debug("ingreso 1:: {}");
+//                                    if (seccion.getEstadoEnum() == SeccionEstadoEnum.BLO) {
+//                                        logger.debug("ingreso BLOOO:: {}");
+//                                        Font fontTitle = workBook.createFont();
+//                                        fontTitle.setFontName("Arial");
+//                                        fontTitle.setBold(true);
+//                                        fontTitle.setColor(IndexedColors.RED.getIndex());
+////                                        CellStyle cellStyle = cell;
+//                                        cellStyle.setFillForegroundColor(IndexedColors.YELLOW.getIndex());
+//                                        cellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+//                                        cellStyle.setFont(fontTitle);
+////                                        cellStyle.setBorderBottom(BorderStyle.THIN);
+//                                        ExcelHelper.findCell(sheet, row.getRowNum(), col).setCellStyle(cellStyle);
+//                                        cell.setCellStyle(cellStyle);
+//                                    }
+//
+//                                }
+//                                cellStyle.setBorderRight(BorderStyle.THIN);
                             }
                         }
                         indiceSeccion++;
+
+                        if (seccion.getEstadoEnum() == SeccionEstadoEnum.BLO) {
+                            this.createStyleEstadoBloqueado(workBook, sheet, row, col);
+                        }
                     }
                 }
             }
         }
 
         ((SXSSFSheet) sheet).trackAllColumnsForAutoSizing();
-        for (int i = 0; i <= 13; i++) {
+        for (int i = 0; i <= 14; i++) {
             sheet.autoSizeColumn(i);
         }
 
@@ -225,9 +250,27 @@ public class BoletinAcademicoExcelView extends AbstractPOIExcelView {
     }
 
     private void createHeader(Workbook wb, Sheet sheet, Row row, int column, String title) {
-        CellStyle fontTitle = ExcelStyles.getStyleHeader(wb);
+        CellStyle fontTitle = this.styleSubHeader(wb);
         ExcelHelper.replaceVal(sheet, row.getRowNum(), column, title);
         ExcelHelper.findCell(sheet, row.getRowNum(), column).setCellStyle(fontTitle);
+    }
+
+    private CellStyle styleSubHeader(Workbook workBook) {
+
+        Font fontTitle = workBook.createFont();
+        fontTitle.setFontName("Arial");
+        fontTitle.setBold(true);
+        fontTitle.setColor(IndexedColors.WHITE.getIndex());
+        fontTitle.setFontHeightInPoints((short) 10);
+
+        CellStyle cellHeader = workBook.createCellStyle();
+        cellHeader.setFillForegroundColor(IndexedColors.BLACK.getIndex());
+        cellHeader.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        cellHeader.setAlignment(HorizontalAlignment.CENTER);
+        cellHeader.setFont(fontTitle);
+
+        return cellHeader;
+
     }
 
     private void createHeaderCurso(Workbook wb, Sheet sheet, Row row, int column, String title) {
@@ -245,17 +288,17 @@ public class BoletinAcademicoExcelView extends AbstractPOIExcelView {
         ExcelHelper.findCell(sheet, row.getRowNum(), column).setCellStyle(cellStyle);
     }
 
-    private void createStyleEstadoBloqueado(Workbook wb, Sheet sheet, Row row, int column, String title,CellStyle cellStyle) {
+    private void createStyleEstadoBloqueado(Workbook wb, Sheet sheet, Row row, int col) {
         Font fontTitle = wb.createFont();
         fontTitle.setFontName("Arial");
         fontTitle.setBold(true);
         fontTitle.setColor(IndexedColors.RED.getIndex());
-
+        CellStyle cellStyle = wb.createCellStyle();
         cellStyle.setFillForegroundColor(IndexedColors.YELLOW.getIndex());
+        cellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
         cellStyle.setFont(fontTitle);
- 
-        ExcelHelper.createCell(row, column, title, cellStyle);
-        ExcelHelper.findCell(sheet, row.getRowNum(), column).setCellStyle(cellStyle);
+        cellStyle.setBorderBottom(BorderStyle.THIN);
+        ExcelHelper.findCell(sheet, row.getRowNum(), col).setCellStyle(cellStyle);
     }
 
     private void createBody(Workbook wb, Row row, int column, String value) {
