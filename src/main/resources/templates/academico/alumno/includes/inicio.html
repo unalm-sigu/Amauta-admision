@@ -155,7 +155,7 @@
                                 <strong> Ciclos Cursados Regulares </strong>
                             </td>
                             <td>
-                                <span th:text="${alumnoTmp.ciclosRegularesTransient}"></span>
+                                <span v-text="alumno.ciclosRegularesTransient"></span>
                             </td>
                         </tr>
 
@@ -231,7 +231,7 @@
                                 <strong> Ciclos cursados verano  </strong>
                             </td>
                             <td>
-                                <span th:text='${alumnoTmp.ciclosVeranosTransient}'></span>
+                                <span v-text='alumno.ciclosVeranosTransient'></span>
                             </td>
                         </tr>
                     </tbody>
