@@ -92,6 +92,7 @@ import pe.edu.lamolina.amauta.dao.horario.HorarioSeccionDAO;
 import pe.edu.lamolina.amauta.dao.tramite.RetiroCicloDAO;
 import pe.edu.lamolina.amauta.dao.tramite.RetiroCursoDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.enums.TipoCicloEnum;
 
 @Service
 @Transactional(readOnly = true)
@@ -340,6 +341,22 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
     @Override
     public Alumno findWithallInfo(Alumno alumno) {
         Alumno alu = alumnoDAO.findAllInfo(alumno.getId());
+        List<AlumnoCiclo> alumnoCiclos = alumnoCicloDAO.allByAlumno(alumno);
+        long ciclosRegular = alumnoCiclos.stream()
+                .filter(ac -> ac.getEstadoEnum() == EstadoMatriculaEnum.MAT)
+                .filter(ac -> ac.getCicloAcademico().getTipoEnum() == TipoCicloEnum.REG)
+                .count();
+
+        long ciclosVerano = alumnoCiclos.stream()
+                .filter(ac -> ac.getEstadoEnum() == EstadoMatriculaEnum.MAT)
+                .filter(ac -> ac.getCicloAcademico().getTipoEnum() == TipoCicloEnum.NIV)
+                .count();
+
+        logger.debug("ciclosRegular {}", ciclosRegular);
+        logger.debug("ciclosVerano {}", ciclosVerano);
+        alu.setCiclosRegularesTransient(ciclosRegular);
+        alu.setCiclosVeranosTransient(ciclosVerano);
+
         Carrera carrera = alu.getCarrera();
         List<OrientacionCarrera> orientaciones = orientacionCarreraDAO.allByCarrera(carrera);
         carrera.setOrientacionCarrera(orientaciones);

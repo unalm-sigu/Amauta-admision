@@ -135,8 +135,8 @@ public class UpdateHistorialController {
             }
             response.setData(arrayNode);
 
-            response.setTotal(arrayNode.size());
-            response.setFiltered(arrayNode.size());
+            response.setTotal(filter.getTotal());
+            response.setFiltered(filter.getFiltered());
         } catch (Exception e) {
             e.printStackTrace();
             response.setTotal(0);

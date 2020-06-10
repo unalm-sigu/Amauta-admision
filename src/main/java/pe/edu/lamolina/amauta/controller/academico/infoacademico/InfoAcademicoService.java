@@ -17,6 +17,7 @@ import pe.edu.lamolina.model.horario.HorarioSeccion;
 import pe.edu.lamolina.model.tramite.RetiroCiclo;
 import pe.edu.lamolina.model.tramite.RetiroCurso;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.academico.AlumnoCiclo;
 
 public interface InfoAcademicoService {
 

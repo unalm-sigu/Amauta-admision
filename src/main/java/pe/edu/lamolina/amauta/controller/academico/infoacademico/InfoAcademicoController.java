@@ -96,7 +96,9 @@ public class InfoAcademicoController {
 
         Alumno alumno = service.findWithallInfo(new Alumno(idAlumno));
         List<PlanCurricular> planes = service.allPlanCurricularByAlumno(alumno);
-
+        
+        logger.debug("ciclosRegular =  {}", alumno.getCiclosRegularesTransient());
+        logger.debug("ciclosVerano  =  {}", alumno.getCiclosVeranosTransient());
         ObjectNode alumnoJson = createAlumnoJson(alumno);
         ArrayNode planesJson = createPlanesJson(planes);
         ObjectNode cicloJson = createCicloJson(ciclo);
@@ -104,6 +106,7 @@ public class InfoAcademicoController {
         boolean puedeCalcular = service.usuarioPuedeCalcular(ds);
 
         model.addAttribute("alumno", alumnoJson);
+        model.addAttribute("alumnoTmp", alumno);
         model.addAttribute("ciclo", cicloJson);
         model.addAttribute("planes", planesJson);
         model.addAttribute("puedeCalcular", puedeCalcular);
@@ -609,6 +612,7 @@ public class InfoAcademicoController {
     private ObjectNode createAlumnoJson(Alumno alumno) {
         ObjectNode alumnoJson = JsonHelper.createJson(alumno, JsonNodeFactory.instance, true, new String[]{
             "id", "codigo",
+            "ciclosRegularesTransient", "ciclosVeranosTransient",
             "promedioCarreraAcumulado", "promedioAcumulado",
             "creditosCarreraAprobados", "creditosCarreraCursados",
             "creditosAprobados", "creditosCursados",

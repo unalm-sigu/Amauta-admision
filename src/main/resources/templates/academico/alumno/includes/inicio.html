@@ -150,6 +150,14 @@
                                 <span v-text="alumno.postulantePregrado.modalidadIngreso.nombre"></span>
                             </td>
                         </tr>
+                        <tr>
+                            <td>
+                                <strong> Ciclos Cursados Regulares </strong>
+                            </td>
+                            <td>
+                                <span v-text="alumno.ciclosRegularesTransient"></span>
+                            </td>
+                        </tr>
 
                     </tbody>
                 </table>
@@ -216,6 +224,14 @@
                             </td>
                             <td>
                                 <span v-text='alumno.creditosCursados'></span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <strong> Ciclos cursados verano  </strong>
+                            </td>
+                            <td>
+                                <span v-text='alumno.ciclosVeranosTransient'></span>
                             </td>
                         </tr>
                     </tbody>
