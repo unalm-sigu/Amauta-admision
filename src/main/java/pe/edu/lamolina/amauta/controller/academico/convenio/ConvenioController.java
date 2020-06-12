@@ -136,9 +136,18 @@ public class ConvenioController {
                 logger.debug("***cantidad {}", carreraConvenios.size());
                 ArrayNode arrayCarrera = new ArrayNode(jsonFactory);
                 for (CarreraConvenio carreraConvenio : carreraConvenios) {
+                    Carrera carrera = carreraConvenio.getCarrera();
+                    ModalidadEstudio modalidad = carrera.getModalidadEstudio();
+
                     ObjectNode objectCarrera = new ObjectNode(jsonFactory);
                     objectCarrera.put("id", carreraConvenio.getId());
-                    objectCarrera.put("nombre", carreraConvenio.getCarrera().getNombreCorto());
+                    if (modalidad.isPregrado()) {
+                        objectCarrera.put("nombre", carrera.getNombreCorto());
+                    } else if (modalidad.isPostgrado()) {
+                        objectCarrera.put("nombre", carrera.getTipo() + " - " + carrera.getNombre());
+                    } else {
+                        objectCarrera.put("nombre", modalidad.getCodigo() + ": " + carrera.getNombre());
+                    }
                     arrayCarrera.add(objectCarrera);
                 }
                 node.put("carreras", arrayCarrera);
@@ -259,12 +268,9 @@ public class ConvenioController {
 
                 ObjectNode json = new ObjectNode(jsonFactory);
                 json.put("id", carrera.getId());
-                json.put("nombre", carrera.getNombre());
+                json.put("descripcionCarreraFacultad", carrera.getDescripcionCarreraFacultad());
                 json.put("codigo", carrera.getCodigo());
                 json.put("modalidad", modalidadEstudio.getNombre());
-                if (modalidadEstudio.getCodigo().equalsIgnoreCase(ModalidadEstudioEnum.EPG.name())) {
-                    json.put("tipo", carrera.getTipoEnum().getValue());
-                }
                 jsonList.add(json);
             }
 
@@ -296,12 +302,9 @@ public class ConvenioController {
                 ModalidadEstudio modalidad = carrera.getModalidadEstudio();
                 ObjectNode json = new ObjectNode(jsonFactory);
                 json.put("id", carrera.getId());
-                json.put("nombre", carrera.getNombre());
+                json.put("descripcionCarreraFacultad", carrera.getDescripcionCarreraFacultad());
                 json.put("codigo", carrera.getCodigo());
                 json.put("modalidad", modalidad.getNombre());
-                if (modalidad.getCodigo().equalsIgnoreCase(ModalidadEstudioEnum.EPG.name())) {
-                    json.put("tipo", carrera.getTipoEnum().getValue());
-                }
                 jsonList.add(json);
             }
 

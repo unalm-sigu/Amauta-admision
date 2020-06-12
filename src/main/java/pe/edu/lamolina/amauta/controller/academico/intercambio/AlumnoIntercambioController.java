@@ -40,7 +40,6 @@ import pe.edu.lamolina.model.enums.TipoGestionEnum;
 import pe.edu.lamolina.model.general.Empresa;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.seguridad.Usuario;
-import pe.edu.lamolina.model.constantines.AcademicoConstantine;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 

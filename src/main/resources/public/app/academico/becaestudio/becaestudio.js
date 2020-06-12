@@ -4,13 +4,12 @@ new Vue({
     el: '#becaestudioVUE',
     data: {
         becaestudioURL: APP.url('academico/becaestudio/list'),
-        confirmarModal: {
+        confirmarModal: VUE_MODAL.structFormAjax({
             id: 'modalConfirmar',
             header: true,
             title: '',
-            okbtn: 'Guardar',
-            modalsize: 'modal-md'
-        },
+            okbtn: 'Guardar'
+        }),
         becaestudioEdit: {},
         becaestudioSelect: {},
         modalInstitucion: {

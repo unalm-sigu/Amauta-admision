@@ -20,15 +20,14 @@ new Vue({
             universidadDestino: {id: null},
             becaEstudio: {id: null, institucion: {id: null, razonSocial: null}}
         },
-        dataNuevaUniversidadExtranjera: {
-            id: 'modalNuevaUniversidadExtranjera',
-            header: false,
-        },
-        modalNuevaBeca: {
+        dataNuevaUniversidadExtranjera: VUE_MODAL.structFormAjax({
+            id: 'modalNuevaUniversidadExtranjera'
+        }),
+        modalNuevaBeca: VUE_MODAL.structFormAjax({
             id: 'modalNuevaBeca',
             header: true,
-            title:'Nueva Beca de Estudio'
-        },
+            title: 'Nueva Beca de Estudio'
+        }),
         nuevauniversidad: {},
         isprocess: false,
         instituciones: JSON.parse(institucionesJson),
@@ -40,7 +39,7 @@ new Vue({
     },
     mounted: function () {
         var vue = this;
-        $('[name="monto"]').numeric({negative:false});
+        $('[name="monto"]').numeric({negative: false});
         console.log(idalumno)
         if (idalumno) {
             vue.editar(idalumno)

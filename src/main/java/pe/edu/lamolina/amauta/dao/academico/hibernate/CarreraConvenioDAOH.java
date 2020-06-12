@@ -34,7 +34,7 @@ public class CarreraConvenioDAOH extends AbstractEasyDAO<CarreraConvenio> implem
     public List<CarreraConvenio> allByCarreraConvenio(List<ConvenioBeca> convenios) {
         Octavia sql = Octavia.query()
                 .from(CarreraConvenio.class, "alu")
-                .join("convenioBeca cb", "carrera car")
+                .join("convenioBeca cb", "carrera car", "car.modalidadEstudio")
                 .in("cb.id", convenios);
         return all(sql);
     }

@@ -2,7 +2,7 @@ var $global = new Vue({});
 
 var ItemCarreraTemplate = Vue.component("itemCarrera", {
     template: "#itemCarreraTemplate",
-    data: function() {
+    data: function () {
         return {carrera: {}};
     },
     methods: {
@@ -16,20 +16,20 @@ new Vue({
     el: '#main',
     data: {
         convenio: {},
-        addInstitucionModal: {
+        addInstitucionModal: VUE_MODAL.structFormAjax({
             id: 'modalAddInstitucion',
             header: true,
             title: 'Crear Institución',
             okbtn: 'Guardar'
-        },
+        }),
         showspinner: false,
     },
-    created: function() {
+    created: function () {
         let vue = this;
     },
-    mounted: function() {
+    mounted: function () {
         let vue = this;
-        $global.$on("deleteItem", function(id) {
+        $global.$on("deleteItem", function (id) {
             vue.deleteItem(id);
         });
         $(".date").bootstrapDP();
@@ -43,7 +43,7 @@ new Vue({
             url: APP.url('academico/convenio/uploadFile'),
             maxNumberOfFiles: 1,
             dataType: 'json',
-            add: function(e, data) {
+            add: function (e, data) {
                 if (data.files[0].size / 1000000 > 410) {
                     notify("El archivo es demasiado grande.", "error");
                     return;
@@ -55,9 +55,9 @@ new Vue({
                 data.submit();
                 vue.showspinner = true;
             },
-            progress: function(e, data) {
+            progress: function (e, data) {
             },
-            done: function(e, data) {
+            done: function (e, data) {
                 if (data.result.success) {
                     $("#pdfname").text(data.result.data);
                     $("[name='rutaDocumento']").val(data.result.data);
@@ -68,7 +68,7 @@ new Vue({
                 $("[name='rutaDocumento']").parsley().validate();
                 vue.showspinner = false;
             },
-            fail: function(e, data) {
+            fail: function (e, data) {
                 vue.showspinner = false;
                 notify(Messages.errorComunicacion, "error");
             }
@@ -76,44 +76,44 @@ new Vue({
 
     },
     methods: {
-        buscarPais: function() {
+        buscarPais: function () {
             return {
                 minimumInputLength: 2,
                 ajax: {
                     url: APP.url("comun/buscar/allPaises"),
                     dataType: 'json',
                     type: 'post',
-                    data: function(term, page) {
+                    data: function (term, page) {
                         return {nombre: term, page: page};
                     },
-                    results: function(response, page) {
+                    results: function (response, page) {
                         return {results: response.data};
                     }
                 },
-                initSelection: function(element, callback) {
+                initSelection: function (element, callback) {
                     if (element.val() != "") {
                         callback({id: element.val(), nombre: element.attr("rel"), codigo: element.attr("codigo")});
                     }
                 },
-                formatResult: function(info) {
+                formatResult: function (info) {
                     return info.nombre + " | " + info.codigo;
                 },
-                formatSelection: function(info) {
+                formatSelection: function (info) {
                     return info.nombre;
                 },
-                escapeMarkup: function(m) {
+                escapeMarkup: function (m) {
                     return m;
                 }
             };
         },
-        buscarEmpresa: function() {
+        buscarEmpresa: function () {
             return {
                 minimumInputLength: 2,
                 ajax: {
                     url: APP.url("comun/buscar/allEmpresa"),
                     dataType: 'json',
                     type: 'post',
-                    data: function(term, page) {
+                    data: function (term, page) {
                         var pais = $('[name="pais.id"]').select2('val');
                         console.log(pais);
                         if (pais == '') {
@@ -121,27 +121,27 @@ new Vue({
                         }
                         return {nombre: term, page: page, idPais: pais};
                     },
-                    results: function(response, page) {
+                    results: function (response, page) {
                         return {results: response.data};
                     }
                 },
-                initSelection: function(element, callback) {
+                initSelection: function (element, callback) {
                     if (element.val() != "") {
                         callback({id: element.val(), razonSocial: element.attr("rel")});
                     }
                 },
-                formatResult: function(info) {
+                formatResult: function (info) {
                     return info.razonSocial;
                 },
-                formatSelection: function(info) {
+                formatSelection: function (info) {
                     return info.razonSocial;
                 },
-                escapeMarkup: function(m) {
+                escapeMarkup: function (m) {
                     return m;
                 }
             };
         },
-        buscarCarrera: function(self) {
+        buscarCarrera: function (self) {
             return {
                 allowClear: true,
                 placeholder: "Seleccione un carrera",
@@ -150,31 +150,31 @@ new Vue({
                     url: APP.url("academico/convenio/allCarrera"),
                     dataType: 'json',
                     type: 'post',
-                    data: function(term, page) {
+                    data: function (term, page) {
                         return {nombre: term, page: page};
                     },
-                    results: function(response, page) {
+                    results: function (response, page) {
                         return {results: response.data};
                     }
                 },
-                initSelection: function(element, callback) {
+                initSelection: function (element, callback) {
                     if (element.val() != "") {
                         callback(self.carrera);
                     }
                 },
-                formatResult: function(info) {
+                formatResult: function (info) {
                     return $.templates("#divBuscarCarrera").render(info);
                 },
-                formatSelection: function(info) {
+                formatSelection: function (info) {
                     self.carrera = info;
-                    return info.nombre;
+                    return info.descripcionCarreraFacultad;
                 },
-                escapeMarkup: function(m) {
+                escapeMarkup: function (m) {
                     return m;
                 }
             };
         },
-        submitForm: function(e) {
+        submitForm: function (e) {
 
             var self = $(e.currentTarget);
             self.btnDisabled();
@@ -189,7 +189,7 @@ new Vue({
                 type: 'POST',
                 async: true,
                 data: $("#formConvenioBeca").serialize(),
-                success: function(response) {
+                success: function (response) {
                     if (response.success) {
                         notify(response.message, "info");
                         $(location).attr('href', APP.url('academico/convenio'));
@@ -198,18 +198,18 @@ new Vue({
                         self.btnEnable();
                     }
                 },
-                error: function() {
+                error: function () {
                     self.btnEnable();
                     notify(Messages.errorComunicacion, "error");
                 }
             });
 
         },
-        addInstitucion: function(e) {
+        addInstitucion: function (e) {
             let vue = this;
             vue.$refs.modalAddInstitucion.open();
         },
-        addCarreraAfin: function(dato) {
+        addCarreraAfin: function (dato) {
             var vue = this;
             var carrera = {};
             if (dato) {
@@ -220,7 +220,7 @@ new Vue({
             var component = itemCarreraTemplate.$mount();
             $('#carreraAfin tbody').append(component.$el);
             $('#carreraAfin tbody tr:last').find('.carreraItem').
-                    select2(vue.buscarCarrera(itemCarreraTemplate)).on("change.select2", function(e) {
+                    select2(vue.buscarCarrera(itemCarreraTemplate)).on("change.select2", function (e) {
                 if (e && e.removed) {
                     if (e.val == '') {
                         itemCarreraTemplate.carrera = {};
@@ -229,7 +229,7 @@ new Vue({
             });
             vue.reindexitem();
         },
-        createInstitucion: function(e) {
+        createInstitucion: function (e) {
             let vue = this;
             var self = $(e.currentTarget);
             self.btnDisabled();
@@ -242,7 +242,7 @@ new Vue({
                 type: 'POST',
                 async: false,
                 data: $("#formInstitucion").serialize(),
-                success: function(response) {
+                success: function (response) {
                     if (response.success) {
                         notify(response.message, "info");
                         vue.setInstitucion(response.data);
@@ -253,13 +253,13 @@ new Vue({
                         self.btnEnable();
                     }
                 },
-                error: function() {
+                error: function () {
                     self.btnEnable();
                     notify(Messages.errorComunicacion, "error");
                 }
             });
         },
-        setInstitucion: function(institucion) {
+        setInstitucion: function (institucion) {
             var idPais = $('[name="pais.id"]').select2('val');
             var test = (idPais == institucion.paisUbicacion);
             if (test) {
@@ -273,24 +273,24 @@ new Vue({
             tr.remove();
             vue.reindexitem();
         },
-        reindexitem: function() {
+        reindexitem: function () {
             var itemss = $('#carreraAfin').find('input.carreraItem');
-            $.each(itemss, function(i, v) {
+            $.each(itemss, function (i, v) {
                 $(v).prop('name', "carreraConvenio[" + i + "].carrera.id");
             });
         },
-        allCarrerasAfines: function() {
+        allCarrerasAfines: function () {
             var vue = this;
             $.ajax({
                 url: APP.url('academico/convenio/allCarrerasAfines'),
                 type: 'POST',
                 async: true,
                 data: $("#formConvenioBeca").serialize(),
-                success: function(response) {
+                success: function (response) {
                     if (response.success) {
 
                         if (response.total > 0) {
-                            $.each(response.data, function(i, v) {
+                            $.each(response.data, function (i, v) {
                                 vue.addCarreraAfin(v);
                             });
                         } else {
@@ -301,12 +301,12 @@ new Vue({
                         notify(response.message, "error");
                     }
                 },
-                error: function() {
+                error: function () {
                     notify(Messages.errorComunicacion, "error");
                 }
             });
         },
-        adjuntarArchivo: function(e) {
+        adjuntarArchivo: function (e) {
             $('#fileupload').trigger('click');
         }
     }

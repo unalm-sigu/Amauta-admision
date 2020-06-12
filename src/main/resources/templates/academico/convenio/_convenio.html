@@ -5,7 +5,7 @@
                    class="form-control carreraItem"
                    name="carreraConvenio[0].carrera.id"
                    v-bind:value="carrera.id"
-                   v-bind:rel="carrera.nombre"
+                   v-bind:rel="carrera.descripcionCarreraFacultad"
                    required="true"/>
         </td>
         <td class="text-center v-middle" >
@@ -21,8 +21,5 @@
 </template>
 
 <div id="divBuscarCarrera" type="text/x-jsrender" class="hide" >
-    <span class="block bold h5 m-b-xs m-t-xs">{{:nombre}}</span>
-    <small class="block">
-        Facultad de &nbsp; {{:facultad}} &nbsp;
-    </small>
+    <span class="block bold h5 m-b-xs m-t-xs">{{:descripcionCarreraFacultad}}</span>
 </div>
