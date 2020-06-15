@@ -54,7 +54,7 @@
                                                     <td class="v-middle"> 
                                                         <div class="dropdown actions">
                                                             <a class="dropdown-toggle" data-toggle="dropdown">
-                                                                <i class="glyphicon glyphicon-cog"></i>
+                                                                <i class="fa fa-cog"></i>
                                                             </a> 
                                                             <ul class="dropdown-menu pull-right">
                                                                 <li><a class="" v-on:click="editar(item)" >Editar</a></li>
@@ -86,7 +86,7 @@
                 /*]]>*/
             </script>
             <div th:substituteby="_modules/vue-modal"></div>
-            <script th:src="@{/vendor/sweetalert/dist/sweetalert.min.js}" charset="utf-8"></script>
+            
             <div th:substituteby="_layout/includes :: javascript-bootstrap-datetimepicker"></div>
             <div th:substituteby="_layout/includes :: javacsript-vue-bootstrap-datetimepicker"></div>
             <script th:src="@{/app/mensaje/mensajesintranet/mensajesIntranet.js}" charset="utf-8"></script>

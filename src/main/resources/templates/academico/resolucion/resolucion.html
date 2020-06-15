@@ -87,7 +87,7 @@
                                         <span class="label" v-bind:class="getEstadoClass(item.estado)">{{item.estadoEnum.value}}</span>
                                     </td>
                                     <td>
-                                        <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="glyphicon glyphicon-cog"></i></a>
+                                        <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="fa fa-cog"></i></a>
                                         <ul class="dropdown-menu pull-right" >
                                             <li role="presentation" v-if='item.autorizado'>
                                                 <a class="aceptar-expandir-sistema"  
@@ -308,9 +308,9 @@
 
     <div layout:fragment="js">
         <div th:substituteby="_modules/vue-modal"/>
-        <div th:substituteby="_layout/includes :: javascript-vue-upload"></div>
-        <script type="text/javascript" th:src="@{/phobos/modules/vue-generalComponents.js}"></script>
-        <script type="text/javascript" th:src="@{/phobos/modules/datePickerComponent.js}" charset="utf-8"></script>
+       
+        <script type="text/javascript" th:src="@{/vue/vue-generalComponents.js}"></script>
+        <script type="text/javascript" th:src="@{/vue/datePickerComponent.js}" charset="utf-8"></script>
 
         <div th:substituteby="_modules/vue-raptor-table"/>
         <div th:substituteby="_layout/includes :: javascript-dynatable"/>

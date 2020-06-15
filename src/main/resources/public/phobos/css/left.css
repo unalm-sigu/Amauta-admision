@@ -191,7 +191,7 @@ input[type="submit"]:focus {
     top: -12px;
     left: 49%;
     margin-left: -18.5px;
-    background-image: url("popover-arrow.png");
+    background-image: url("../images/popover-arrow.png");
     background-size: 100% 100%;
 }
 @media (min-width: 768px) and (max-width: 991px) {

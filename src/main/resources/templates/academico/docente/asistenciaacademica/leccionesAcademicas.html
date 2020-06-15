@@ -53,7 +53,7 @@
                                             <td>
                                                 <div class="dropdown actions" v-if="item.allowEdit">
                                                     <a class="dropdown-toggle" data-toggle="dropdown">
-                                                        <i class="glyphicon glyphicon-cog"></i>
+                                                        <i class="fa fa-cog"></i>
                                                     </a> 
                                                     <ul class="dropdown-menu pull-right"> 
                                                         <li><a class="btn-link pointer" 
@@ -172,7 +172,7 @@
 
     <div layout:fragment="js" th:remove="tag">
         <div th:substituteby="_modules/vue-modal"/>
-        <script type="text/javascript" th:src="@{/phobos/modules/datePickerComponent.js}" charset="utf-8"></script>
+        <script type="text/javascript" th:src="@{/vue/datePickerComponent.js}" charset="utf-8"></script>
 
         <div th:substituteby="_modules/vue-raptor-table"/>
         <script th:inline="javascript">

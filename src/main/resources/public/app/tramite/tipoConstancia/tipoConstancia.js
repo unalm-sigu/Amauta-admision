@@ -20,7 +20,7 @@ new Vue({
     },
     computed: {
         orderedFirmasDocumento: function() {
-            return _.orderBy(this.firmasDocumento, 'orden');
+            return this.firmasDocumento;
         }
     },
     mounted: function() {

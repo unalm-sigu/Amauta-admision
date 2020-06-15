@@ -370,7 +370,7 @@ APP = {
         $(".select2").select2();
     },
     url: function (relative) {
-        return contextPath + relative;
+        return "/" + relative;
     },
     timePicker: {
         minuteStep: 5,

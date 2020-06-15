@@ -127,7 +127,7 @@
                                         <td v-if="accionesDisponibles">
                                             <div class="dropdown actions pointer">
                                                 <a class="dropdown-toggle" data-toggle="dropdown">
-                                                    <i class="glyphicon glyphicon-option-vertical"></i>
+                                                    <i class="fa fa-cog"></i>
                                                 </a> 
                                                 <ul class="dropdown-menu pull-right">
                                                     <li><a v-if="sec.isEstadoActivo"  v-on:click.prevent="excluir(sec,'SECCION')">Excluir</a></li>
@@ -177,7 +177,7 @@
             </script>
             <div th:substituteby="_modules/vue-modal"/>
             <div th:substituteby="_modules/vue-raptor-table"></div>
-            <script th:src="@{/phobos/modules/vue-generalComponents.js}" charset="utf-8"></script>
+            <script th:src="@{/vue/vue-generalComponents.js}" charset="utf-8"></script>
             <div th:substituteby="rolexamen/components/mover-seccion-examen"/>
             <script th:src="@{/app/rolexamen/cursomasivos/cursoMasivoSecciones.js}" charset="utf-8"></script>
         </div>

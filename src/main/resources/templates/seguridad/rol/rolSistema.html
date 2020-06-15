@@ -61,7 +61,7 @@
 
                                                     <div class="dropdown actions">
                                                         <a class="dropdown-toggle" data-toggle="dropdown">
-                                                            <i class="glyphicon glyphicon-cog"></i>
+                                                            <i class="fa fa-cog"></i>
                                                         </a>
                                                         <ul class="dropdown-menu pull-right">
                                                             <li><a class="btn-link" href="#" v-on:click.prevent="editarRol(item)">Editar</a></li>
@@ -128,7 +128,7 @@
             <div th:substituteby="_modules/vue-modal"/>
             <div th:substituteby="_modules/vue-raptor-table"></div>
             <!--<div th:substituteby="_layout/includes :: sweetalert"/>-->
-            <div th:substituteby="_layout/includes :: vue-loader"/>
+        
             <script th:src="@{/app/seguridad/rol/rolbuscarcargo.js}" charset="utf-8"></script>
             <script th:src="@{/app/seguridad/rol/rolbuscarfuncion.js}" charset="utf-8"></script>
             <script th:src="@{/app/seguridad/rol/superrolbuscar.js}" charset="utf-8"></script>

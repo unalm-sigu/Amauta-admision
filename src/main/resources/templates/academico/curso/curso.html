@@ -72,7 +72,7 @@
                                                 <td class="v-middle"> 
                                                     <div class="dropdown actions">
                                                         <a class="dropdown-toggle" data-toggle="dropdown">
-                                                            <i class="glyphicon glyphicon-cog"></i>
+                                                            <i class="fa fa-cog"></i>
                                                         </a> 
 
                                                         <ul class="dropdown-menu pull-right">
@@ -114,7 +114,6 @@
         </div>
 
         <div layout:fragment="js">
-            <div th:substituteby="_layout/includes :: javascript-filedownload"/>
             <div th:substituteby="_modules/vue-modal"/>
             <div th:substituteby="_modules/vue-raptor-table"></div>
             <script th:src="@{/app/academico/curso/curso.js}" charset="utf-8"></script>

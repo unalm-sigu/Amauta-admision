@@ -89,7 +89,7 @@
                                                 <td class="v-middle"> 
                                                     <div class="dropdown actions">
                                                         <a class="dropdown-toggle" data-toggle="dropdown">
-                                                            <i class="glyphicon glyphicon-cog"></i>
+                                                            <i class="fa fa-cog"></i>
                                                         </a> 
 
                                                         <ul class="dropdown-menu pull-right">
@@ -215,7 +215,7 @@
                                                                         <td class="v-middle"> 
                                                                             <div class="dropdown actions">
                                                                                 <a class="dropdown-toggle" data-toggle="dropdown">
-                                                                                    <i class="glyphicon glyphicon-cog"></i>
+                                                                                    <i class="fa fa-cog"></i>
                                                                                 </a> 
                             
                                                                                 <ul class="dropdown-menu pull-right">
@@ -251,9 +251,8 @@
                 /*]]>*/
             </script>
             <div th:substituteby="_modules/vue-modal"/>
-            <div th:substituteby="_layout/includes :: javascript-filedownload"/>
             <div th:substituteby="_modules/vue-raptor-table"></div>
-            <!--<div th:substituteby="_layout/includes :: javascript-dynatable"/>-->
+            
             <script th:src="@{/app/general/aula/aulaHorarioComponent.js}" charset="utf-8"></script>
             <script th:src="@{/app/general/aula/aula.js}" charset="utf-8"></script>
         </div>

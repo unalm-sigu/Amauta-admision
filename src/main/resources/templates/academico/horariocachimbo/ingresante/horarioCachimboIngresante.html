@@ -203,7 +203,7 @@
                                                     <td class="v-middle">
                                                         <div class="dropdown actions">
                                                             <a class="dropdown-toggle" data-toggle="dropdown">
-                                                                <i class="glyphicon glyphicon-option-vertical"></i>
+                                                                <i class="fa fa-cog"></i>
                                                             </a>
                                                             <ul class="dropdown-menu pull-right">
                                                                 <li><a class=""  v-if="horario.estado!='PEND'"  v-on:click.prevent="verHorario(horario.horarioCachimbo)"  href="#">Ver horario</a></li>
@@ -246,7 +246,7 @@
                 /*]]>*/
             </script>
             <div th:substituteby="_modules/vue-modal"/>
-            <script th:src="@{/vendor/sweetalert/dist/sweetalert.min.js}" charset="utf-8"></script>
+            
             <div th:substituteby="_modules/vue-raptor-table"></div>
             <script th:src="@{/app/academico/horariocachimbo/ingresante/horarioCachimboIngresante.js}" charset="utf-8"></script>
         </div>

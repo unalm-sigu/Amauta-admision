@@ -43,7 +43,6 @@
                 font-weight: bold;
             }
         </style>
-        <!--<div th:substituteby="_layout/includes :: styles-bootstrap-colorpicker"></div>-->
     </head>
 
     <body>
@@ -231,8 +230,7 @@
             </script>
             <div th:substituteby="_modules/vue-modal"/>
             <div th:substituteby="_modules/vue-raptor-table"></div>
-            <script type="text/javascript" th:src="@{/phobos/modules/vuelect2.js}"></script>
-            <div th:substituteby="_layout/includes :: bootstrap-colorpicker"/>
+            <script type="text/javascript" th:src="@{/vue/vuelect2.js}"></script>
             <script th:src="@{/app/academico/horario/grupo/grupo.js}" charset="utf-8"></script>
         </div>
 

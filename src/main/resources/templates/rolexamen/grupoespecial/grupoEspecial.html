@@ -127,7 +127,7 @@
                                         <td class="v-middle" >
                                             <div class="dropdown actions" >
                                                 <a class="dropdown-toggle" data-toggle="dropdown">
-                                                    <i class="glyphicon glyphicon-option-vertical"></i>
+                                                    <i class="fa fa-cog"></i>
                                                 </a>
                                                 <ul v-if="accionesSeccionDisponibles" class="dropdown-menu pull-right" >
                                                     <li><a class="pointer" v-if="item.isEstadoActivo" 
@@ -164,7 +164,7 @@
         <div layout:fragment="js">
             <div th:substituteby="_modules/vue-raptor-table"></div>
             <div th:substituteby="_modules/vue-modal"/>
-            <script th:src="@{/phobos/modules/vue-generalComponents.js}" charset="utf-8"></script>
+            <script th:src="@{/vue/vue-generalComponents.js}" charset="utf-8"></script>
             <div th:substituteby="rolexamen/components/mover-seccion-examen"/>
             <script th:inline="javascript">
                 var jRolesExamenes = /*[[${jRolesExamenes}]]*/ {};

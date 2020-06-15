@@ -106,7 +106,7 @@
                                             <input  type="text" class="form-control" data-parsley-errors-container="#errorfechaNacimiento" 
                                                     name="persona.fechaNacer" id="fechaNacer" 
                                                     th:value="${usuario.persona!=null} ? ${usuario.persona.fechaNacer!=null ? #dates.format(usuario.persona.fechaNacer,'dd/MM/yyyy'):''}"/>
-                                            <span class="input-group-addon glyphicon glyphicon-calendar pointer"></span>
+                                            <span class="input-group-addon fa fa-calendar pointer"></span>
                                         </div>
                                         <span id="errorfechaNacimiento"></span>
                                     </div>
@@ -190,7 +190,7 @@
                                         <td>
                                             <div class="actions" th:unless="${rolUser.fechaFin}" >
                                                 <a data-toggle="dropdown" class="dropdown-toggle" href="#">
-                                                    <i class="glyphicon glyphicon-cog"></i> 
+                                                    <i class="fa fa-cog"></i> 
                                                 </a>
                                                 <ul class="dropdown-menu pull-right" role="menu">
                                                     <li><a href="#" class="delete" th:rel="${rolUser.id}">Inhabilitar</a></li>
@@ -211,7 +211,6 @@
         </section>
 
         <div layout:fragment="js">
-            <script type="text/javascript" th:src="@{/phobos/js/wizard/jquery.bootstrap.wizard.js}"/>  
             <script th:src="@{/app/seguridad/usuario/usuarioForm.js}" charset="utf-8"></script>
         </div>
 

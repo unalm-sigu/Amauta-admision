@@ -132,8 +132,6 @@
                 var sistemasJson = /*[[${sistemasJson}]]*/ {};
                 var contenidoJson = /*[[${contenidoJson}]]*/ {};
             </script>
-            <div th:substituteby="_layout/includes :: javascript-upload" th:remove='tag'></div>
-            <div th:substituteby="_layout/includes :: javascript-ckeditor" th:remove="tag"></div>
             <script th:src="@{/app/configuracion/editorcontenido/contenido.js}" charset="utf-8"></script>
         </div>
     </body>

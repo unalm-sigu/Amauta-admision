@@ -1,0 +1,17 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title>Editor de Escalafón</title>
+    </head>
+
+    <body>
+        <section layout:fragment="main">
+
+        </section>
+
+        <div layout:fragment="js" th:remove="tag">
+            <div th:substituteby="_modules/vue-raptor-table"></div>
+            <script th:src="@{/app/escalafon/editorEscalafon.js}" charset="utf-8"></script>
+        </div>
+
+    </body>
+</html>

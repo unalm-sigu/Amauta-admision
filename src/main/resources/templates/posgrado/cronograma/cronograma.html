@@ -66,7 +66,7 @@
                                         <td class="v-middle">
                                             <div class="actions">
 
-                                                <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="glyphicon glyphicon-cog"></i></a>
+                                                <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="fa fa-cog"></i></a>
 
                                                 <ul class="dropdown-menu pull-right">
                                                     <li><a href="#" v-on:click.prevent="modificar(item)">Modificar Fecha Cuota</a></li>
@@ -202,7 +202,7 @@
                 var ciclo = /*[[${session.SESSION_USUARIO.cicloAcademico.id}]]*/ '';
                 /*]]>*/
             </script>
-            <script th:src="@{/vendor/sweetalert/dist/sweetalert.min.js}" charset="utf-8"></script>
+            
             <div th:substituteby="_modules/vue-modal"/>
             <script th:src="@{/app/posgrado/cronograma/cronograma.js}" charset="utf-8"></script>
         </div>
