@@ -1,6 +1,6 @@
 <html layout:decorator="_layout/layout">
     <head>
-        <title th:text="${tipoDocumentoNombre}">Título</title>
+        <title></title>
         <style>
             .div-variable {
                 border-radius: 5px;
@@ -21,11 +21,14 @@
     <body>
         <div layout:fragment="main">
             <div id="main" v-cloak="">
+                
                 <header class="header b-b padder-lg">
-                    <a v-if="tipoDocumentoNombre != ''" th:href="@{/tramite/plantillaconstancia}" class="btn btn-default btn-sm pull-right">Regresar</a>
+                    
+                    <a v-if="contenido.tipoDocumentoAcademico.nombre" th:href="@{/tramite/plantillaconstancia}" class="btn btn-default btn-sm pull-right">Regresar</a>
                     <a v-else="" th:href="@{/tramite/plantillainscrustacion}" class="btn btn-default btn-sm pull-right">Regresar</a>
-                    <h2 v-text=" tipoDocumentoNombre">Titulo</h2>
-                    <p  class="block text-primary h4 m-t-n-xs" th:text="|Idioma ${idioma}|">Idioma</p>
+                    <h2 v-text="contenido.tipoDocumentoAcademico.nombre">Titulo</h2>
+                    <p  class="block text-primary h4 m-t-n-xs" v-text="'Idioma '+contenido.idioma.nombre">Idioma</p>
+                    
                 </header>
 
                 <section class="wrapper-lg">
@@ -33,21 +36,23 @@
                     <section  class="panel">
 
                         <section class="panel-body">
-                            <form id="form" method="POST" >
+                            <form id="form"   >
 
                                 <input  type="hidden" name="idalumno" v-bind:value="alumno.id"/>
 
                                 <input  type="hidden" name="id" th:value="${id}"/>
-                                <textarea class="form-control vresize"  name="contenido" placeholder="Escribe Aquí" th:text="${contenido}"></textarea>
+
+                                <ckeditor v-model="contenido.contenido" v-bind:config="editorConfig"></ckeditor>
 
                             </form>
                         </section>
 
                         <section class="panel-body text-center v-middle">
-                            <button v-on:click="updateContenido" class="btn btn-primary" id="updateContenido">Guardar</button>
-                            <button type="button" v-on:click.prevent="previewHtml" class="btn btn-warning btn-sm ">Visualización</button>
+                            <button type="button" v-on:click="updateContenido" class="btn btn-primary" id="updateContenido">Guardar</button>
+                            <button type="button" v-on:click="previewHtml" class="btn btn-warning btn-sm ">Visualización</button>
                         </section>
                     </section>
+                    
                     <section class="panel">
                         <section class="panel-body">
 
@@ -120,8 +125,7 @@
             <script th:inline="javascript">
                 var variablePlantillaJson = /*[[${variablePlantilla}]]*/ {};
                 var variablesJson = /*[[${variables}]]*/ {};
-                var id = /*[[${id}]]*/ {};
-                var tipoDocumento = /*[[${tipoDocumentoNombre}]]*/ {};
+                var documentoAcademico = /*[[${plantillaDocumentoAcademico}]]*/ {};
             </script>
             <div th:substituteby="_modules/vue-modal"></div>
             <script th:src="@{/app/tramite/editorContenido/contenidoalumno.js}" charset="utf-8"></script>

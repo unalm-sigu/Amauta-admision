@@ -18,21 +18,68 @@
                     <h2>Plantilla Constancia</h2>
 
                 </header>
+                
                 <section class="wrapper-lg m-b-xs">
                     <section class="panel  ">
                         <section class="panel-body ">
-                            <dynatable/>
+
+                            <raptor-table 
+                                v-bind:url="raptorURL" 
+                                ref="raptor"  >
+                                
+                                <div slot="header">
+                                </div>
+                                <template scope="props" >
+                                    <table class="table table-striped">
+                                        <thead> 
+                                            <tr>
+                                                <th class="v-middle col-xs-9">Tipo Documento</th>
+                                                <th class="v-middlecol-xs-3">Idioma</th>
+                                                <th class="v-middle"></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr v-for="item in props.data">
+                                                <td class="v-middle ">
+                                                    <span >{{item.tipoDocumentoAcademico.nombre}}</span> 
+                                                </td>
+                                                <td class="v-middle ">
+                                                    <span >{{item.idioma.nombre}}</span> 
+                                                </td>
+                                                <td class="v-middle"> 
+
+                                                    <div class="dropdown actions">
+                                                        <a class="dropdown-toggle" data-toggle="dropdown">
+                                                            <i class="fa fa-cog"></i>
+                                                        </a> 
+                                                        <ul class="dropdown-menu pull-right" >                
+                                                            <li><a href="#" v-on:click.prevent="modalUpdate(item)" >Actualizar</a></li>
+                                                            <li><a href="#" v-on:click.prevent="contenido(item)" >Contenido</a></li>
+                                                            <li><a href="#" v-on:click.prevent="eliminar(item)" >Eliminar</a></li>
+                                                        </ul>
+                                                    </div>
+
+                                                </td>
+                                            </tr>
+                                            
+                                        </tbody>
+                                    </table>
+                                </template>
+                            </raptor-table>
+
+
                         </section>
                     </section>
                 </section>
-                <!--MODAL INICIO-->
+
+
                 <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
                     <div class="modal-dialog" role="document">
                         <form data-parsley-validate="true" id="formConfig"  method="post">
                             <div class="modal-content">
                                 <div class="modal-header">
                                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                                    <h4 class="modal-title" id="myModalLabel" v-if="plantilla.id == null"> Nueva Plantilla </h4>
+                                    <h4 class="modal-title" id="myModalLabel" v-if="plantilla.id"> Nueva Plantilla </h4>
                                     <h4 class="modal-title" id="myModalLabel" v-else=""> Actualizar Plantilla </h4>
                                 </div>
                                 <div class="modal-body">
@@ -67,8 +114,8 @@
                                         </div>
                                         <div class="modal-footer">
                                             <button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
-                                            <button type="button" class="btn btn-success " v-on:click.prevent="save" v-if="isNew" v-text="'Guardar'"></button>
-                                            <button type="button" class="btn btn-success " v-on:click.prevent="update" v-if="isOld" v-text="'Actualizar'"></button>
+                                            <button type="button" class="btn btn-success " v-on:click.prevent="update" v-if="plantilla.id" >Actualizar</button>
+                                            <button type="button" class="btn btn-success " v-on:click.prevent="save" v-else="" >Guardar</button>
                                         </div>
                                     </div>
                                 </div>
@@ -76,9 +123,10 @@
                         </form>
                     </div>
                 </div>
-                <!--MODAL FIN -->
+                
+                
+
             </div>
-            <th:block th:replace="tramite/plantillaConstancia/plantillaDynatable"/>
         </div>
         <div layout:fragment="js">
             <script th:inline="javascript">
@@ -87,7 +135,8 @@
                 var idiomasJson = /*[[${idiomas.toString()}]]*/ 'json';
                 /*]]>*/
             </script>
-            <div th:substituteby="_layout/includes :: javascript-dynatable"/>
+            <div th:replace="_modules/vue-modal"></div>
+            <div th:substituteby="_modules/vue-raptor-table"></div>
             <script th:src="@{/app/tramite/plantillaConstancia/plantillaConstancia.js}" charset="utf-8"></script>
         </div>
 

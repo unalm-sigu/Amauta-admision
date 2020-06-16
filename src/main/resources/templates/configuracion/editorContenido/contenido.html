@@ -21,7 +21,8 @@
     <body>
         <div layout:fragment="main">
             <div id="contenidoVUE" v-cloak="">
-
+                
+                
                 <header class="header b-b padder-lg">
                     <h2 v-text="contenido.nombre" class="m-b-n">Titulo</h2>
                     <small v-text="contenido.codigo" class="block bold m-t-xs m-b-xs text-primary"></small>
@@ -47,8 +48,9 @@
 
                         <section class="panel-body">
                             <input id="idCont" type="hidden" :value="contenido.id"/>
-                            <textarea id="contenido" class="form-control vresize" name="contenido" 
-                                      placeholder="Escribe Aquí" v-model="contenido.contenido"></textarea>
+
+                            <ckeditor v-model="contenido.contenido" v-bind:config="editorConfig"></ckeditor>
+
                         </section>
 
                         <section class="panel-body text-center v-middle">

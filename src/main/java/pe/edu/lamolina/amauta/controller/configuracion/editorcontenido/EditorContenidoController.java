@@ -34,7 +34,6 @@ import pe.edu.lamolina.model.inscripcion.ContenidoCarta;
 import pe.edu.lamolina.model.inscripcion.ContenidoCartaVariable;
 import pe.edu.lamolina.model.inscripcion.ContenidoVariable;
 import pe.edu.lamolina.model.seguridad.Sistema;
-import pe.edu.lamolina.model.constantines.AcademicoConstantine;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 

@@ -1,9 +1,6 @@
 $(function () {
     Contenido = {
         Init: function () {
-            if ($("#tipo").val() == 'CONT') {
-                CKEDITOR.replace('contenido', {height: 380});
-            }
             $('#fileupload').fileupload({
                 url: APP.url('archivo/upload'),
                 maxNumberOfFiles: 1,
@@ -69,7 +66,7 @@ $(function () {
             var url = location.protocol + '//' + location.host + APP.url('configuracion/editorcontenido/' + idCont + '/ver');
             MODAL.init("lg");
             MODAL.title("");
-            MODAL.body('<iframe src="' + url + '" width="100%" frameborder="0" style="border:1px solid #AEBDCD;"></iframe>');
+            MODAL.body('<iframe src="' + url + '" width="100%" frameborder="0" style="border:1px solid #AEBDCD;min-height: 650px;"></iframe>');
             MODAL.show();
         }
 
@@ -87,6 +84,7 @@ $(function () {
 });
 
 Vue.component("multiselect", window.VueMultiselect.default);
+Vue.use(CKEditor);
 new Vue({
     el: '#contenidoVUE',
     data: {
@@ -96,7 +94,12 @@ new Vue({
         sistemas: JSON.parse(sistemasJson),
         contVariable: {},
         variable: {},
-        sistema: {}
+        sistema: {},
+        editorConfig: {
+            language: 'es',
+            removePlugins:'about',
+            height: 500,
+        }
     },
     mounted: function () {
         let $vue = this;
@@ -105,11 +108,6 @@ new Vue({
     methods: {
         updateContenido() {
             let $vue = this;
-            for (instance in CKEDITOR.instances) {
-                CKEDITOR.instances[instance].updateElement();
-            }
-            let contenido = $("#contenido").val();
-            $vue.contenido.contenido = contenido;
             axios.post(APP.url('configuracion/editorcontenido/updateContenido'), $vue.contenido)
                     .then(response => {
                         if (response.data.success) {

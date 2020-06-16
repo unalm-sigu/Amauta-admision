@@ -1,4 +1,5 @@
 Vue.component("multiselect", window.VueMultiselect.default);
+Vue.use(CKEditor);
 new Vue({
     el: '#main',
     data: {
@@ -6,8 +7,7 @@ new Vue({
         contenidoPreview: null,
         variablePlantilla: JSON.parse(variablePlantillaJson),
         variables: JSON.parse(variablesJson),
-        id: JSON.parse(id),
-        tipoDocumentoNombre: tipoDocumento,
+        contenido: JSON.parse(documentoAcademico),
         dataModalPreview: {
             id: 'modalPreview',
             header: true,
@@ -17,34 +17,28 @@ new Vue({
             modalscroll: 'modal-scroll-600',
             showaccept: false
         },
-        contVariable: {}
-    },
-    mounted() {
-        let vue = this;
-        CKEDITOR.replace('contenido', {height: 380});
+        contVariable: {},
+        editorConfig: {
+            language: 'es',
+            removePlugins: 'about',
+            height: 500,
+        }
     },
     methods: {
         updateContenido: function () {
             let vue = this;
-            for (instance in CKEDITOR.instances) {
-                CKEDITOR.instances[instance].updateElement();
-            }
-            $.ajax({
-                method: 'POST',
-                url: APP.url('tramite/plantillaconstancia/updateContenido'),
-                data: $('form').serialize(),
-                success: function (response) {
-                    if (response.success) {
-                        notify(response.message, 'info');
-                        vue.variablePlantilla = response.data.variablePlantilla;
-                    } else {
-                        notify(response.message, 'error');
-                    }
-                },
-                error: function () {
-                    notify(Messages.errorComunicacion, "error");
-                }
-            });
+            axios.post("/tramite/plantillaconstancia/updateContenido", vue.contenido)
+                    .then(response => {
+                        if (response.data.success) {
+                            notify(response.data.message, 'info');
+                            vue.variablePlantilla = response.data.data.variablePlantilla;
+                        } else {
+                            notify(response.message, 'error');
+                        }
+                    })
+                    .catch(() => {
+                        notify(Messages.errorComunicacion, "error");
+                    });
         },
         previewHtml: function () {
 
@@ -78,7 +72,7 @@ new Vue({
             let $vue = this;
             $.ajax({
                 method: 'POST',
-                url: APP.url('tramite/plantillaconstancia/' + $vue.id + '/allVariable'),
+                url: APP.url('tramite/plantillaconstancia/' + $vue.contenido.id + '/allVariable'),
                 success: function (response) {
                     if (response.success) {
                         $vue.contVariable = {};
@@ -95,7 +89,7 @@ new Vue({
         addVariable() {
             let $vue = this;
             $vue.contVariable.plantillaDocumentoAcademico = {};
-            $vue.contVariable.plantillaDocumentoAcademico.id = $vue.id;
+            $vue.contVariable.plantillaDocumentoAcademico.id = $vue.contenido.id;
             $.ajax({
                 method: 'POST',
                 url: APP.url('tramite/plantillaconstancia/saveVariable'),
@@ -138,7 +132,7 @@ new Vue({
             let $vue = this;
             console.log(item);
             item.plantillaDocumentoAcademico = {};
-            item.plantillaDocumentoAcademico.id = $vue.id;
+            item.plantillaDocumentoAcademico.id = $vue.contenido.id;
             $.ajax({
                 method: 'POST',
                 url: APP.url('tramite/plantillaconstancia/updateVariable'),
@@ -158,8 +152,5 @@ new Vue({
                 }
             });
         },
-        saveModalPreview: function () {
-
-        }
     }
 });

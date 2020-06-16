@@ -7,7 +7,6 @@ import java.beans.PropertyEditorSupport;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import javax.servlet.http.HttpSession;
@@ -35,7 +34,6 @@ import pe.edu.lamolina.model.tramite.TipoDocumentoAcademico;
 import pe.edu.lamolina.model.tramite.VariableGenerica;
 import pe.edu.lamolina.model.tramite.VariablePlantilla;
 import pe.edu.lamolina.amauta.controller.tramite.tipoConstancia.TipoConstanciaService;
-import pe.edu.lamolina.model.constantines.AcademicoConstantine;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.amauta.zelper.pdf.pdfHtml.PdfHtmlView;
@@ -83,9 +81,11 @@ public class PlantillaConstanciaController {
 
     @RequestMapping(value = "{id}", method = RequestMethod.GET)
     public String editarContenido(@PathVariable("id") Long idPlantilla, Model model) {
+
         PlantillaDocumentoAcademico documentoAcademico = service.find(new PlantillaDocumentoAcademico(idPlantilla));
         List<VariablePlantilla> variablePlantilla = service.allVariablePlantilla(documentoAcademico);
         List<VariableGenerica> variableGeneral = service.allVariableGeneral();
+
         ArrayNode arrayNode = new ArrayNode(JsonNodeFactory.instance);
         for (VariablePlantilla variablePlant : variablePlantilla) {
             arrayNode.add(JsonHelper.createJson(variablePlant, JsonNodeFactory.instance, new String[]{
@@ -93,6 +93,7 @@ public class PlantillaConstanciaController {
                 "variableGenerica.*"
             }));
         }
+
         ArrayNode arrayVariable = new ArrayNode(JsonNodeFactory.instance);
         for (VariableGenerica variablePlant : variableGeneral) {
             arrayVariable.add(JsonHelper.createJson(variablePlant, JsonNodeFactory.instance, new String[]{
@@ -100,12 +101,14 @@ public class PlantillaConstanciaController {
             }));
         }
 
-        model.addAttribute("id", documentoAcademico.getId());
+        ObjectNode nodePlantillaDocumentoAcademico = JsonHelper.createJson(documentoAcademico, JsonNodeFactory.instance, new String[]{
+            "*",
+            "tipoDocumentoAcademico.*",
+            "idioma.*",});
+
+        model.addAttribute("plantillaDocumentoAcademico", nodePlantillaDocumentoAcademico.toString());
         model.addAttribute("variables", arrayVariable.toString());
         model.addAttribute("variablePlantilla", arrayNode.toString());
-        model.addAttribute("contenido", documentoAcademico.getContenido());
-        model.addAttribute("tipoDocumentoNombre", documentoAcademico.getTipoDocumentoAcademico() != null ? documentoAcademico.getTipoDocumentoAcademico().getNombre() : "");
-        model.addAttribute("idioma", documentoAcademico.getIdioma().getNombre());
 
         return "tramite/editarContenido/contenido";
     }
@@ -122,12 +125,12 @@ public class PlantillaConstanciaController {
 
     @ResponseBody
     @RequestMapping("updateContenido")
-    public JsonResponse updateContenido(PlantillaDocumentoAcademico documentoAcademico, HttpSession session) {
+    public JsonResponse updateContenido(@RequestBody PlantillaDocumentoAcademico documentoAcademico, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
 
             JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
-            response.setSuccess(false);
+
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             PlantillaDocumentoAcademico psa = service.updateContenido(documentoAcademico, ds.getUsuario());
 
@@ -280,7 +283,7 @@ public class PlantillaConstanciaController {
         try {
             service.deleteVariables(plantillaDocumentoAcademico, ds.getUsuario());
 //            service.deletePlantilla(plantillaDocumentoAcademico, ds.getUsuario());
-            
+
             response.setMessage("Se eliminó");
             response.setSuccess(Boolean.TRUE);
         } catch (PhobosException e) {
