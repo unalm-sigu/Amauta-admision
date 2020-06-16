@@ -1779,6 +1779,10 @@ div.notas {
     margin-top: 30px;
 }
 
+.tabbable-line.no-top {
+    margin-top: 0px;
+}
+
 /*modal scroll max height 500px*/
 .modal-scroll-500{
     max-height: 500px;
@@ -2192,3 +2196,6 @@ only screen and (                min-resolution: 2dppx) {
 
 }
 
+.table>tbody+tbody.editor{
+    border-top: 0px solid #ddd;
+}
