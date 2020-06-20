@@ -2,16 +2,59 @@
     <head>
         <title>Escalafón</title>
     </head>
-
     <body>
-        <section layout:fragment="main">
-
-        </section>
-
-        <div layout:fragment="js" th:remove="tag">
+        <div layout:fragment="main">
+            <div id="main" v-cloak="">
+                <header class="header b-b padder-lg">
+                    <div class="btn-group pull-right"> 
+                        <button class="btn btn-primary" v-on:click="openMolda">Nuevo</button>
+                    </div>
+                    <h2>Listado de Escalafón</h2>
+                </header>
+                <section class="wrapper-lg">
+                    <section class="panel">
+                        <section class="panel-body">
+                            <raptor-table v-bind:url="escalafonURL" ref="raptorEscalafon">
+                                <div slot="header"></div>
+                                <template scope="props">
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr class="">
+                                                <th class="col-md-5 v-middle">Persona</th>
+                                                <th class=""></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr v-for="item in props.data">
+                                                <td  class="v-middle">
+                                                    <span v-text="item.persona.apellidosNombres"></span>
+                                                </td>
+                                                <td  class="v-middle">
+                                                    <div class="dropdown actions">
+                                                        <a class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-cog"></i></a>
+                                                        <ul class="dropdown-menu pull-right">
+                                                            <li><a class="pointer" v-on:click="editar(item)">Editar</a></li>
+                                                            <li><a class="pointer" v-on:click="ver(item)">Ver Escalafón</a></li>
+                                                            <li><a class="pointer" v-on:click="eliminar(item)">Eliminar</a></li>
+                                                        </ul>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </template>
+                            </raptor-table>
+                        </section>
+                    </section>
+                </section> 
+                <div th:replace="escalafon/escalafonNuevo"></div>
+                <div th:substituteby="_modules/vue-modal-confirm"></div>
+            </div>
+        </div>
+        <div layout:fragment="js">
+            <div th:substituteby="_modules/vue-modal"></div>
             <div th:substituteby="_modules/vue-raptor-table"></div>
             <script th:src="@{/app/escalafon/listaEscalafon.js}" charset="utf-8"></script>
         </div>
-
     </body>
 </html>
