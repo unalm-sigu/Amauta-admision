@@ -3,9 +3,6 @@ Vue.component("vueselect", {
     props: {
         valor: {type: Object, default: {id: null}},
     },
-    data() {
-        return {valor: {id: null}};
-    },
     mounted: function () {
         let vue = this;
         let self = $(vue.$el);

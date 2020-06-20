@@ -1,12 +1,5 @@
 Vue.component("paissearh", {
-    template: "#paisTemp",
-    data: function () {
-        return {
-            pais: {
-                id: null
-            }
-        }
-    },
+    template: "#paisTemp",    
     props: {
         pais: {id: null},
         nombre: {type: String, default: ''},

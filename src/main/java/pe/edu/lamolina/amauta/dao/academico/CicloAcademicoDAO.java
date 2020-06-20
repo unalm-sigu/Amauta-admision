@@ -124,4 +124,6 @@ public interface CicloAcademicoDAO extends EasyDAO<CicloAcademico> {
 
     List<CicloAcademico> allMenorIgual(int ciclos, CicloAcademico ciclo);
 
+    public CicloAcademico findByCodigoAndModalidad(String string, ModalidadEstudioEnum modalidadEstudioEnum);
+
 }

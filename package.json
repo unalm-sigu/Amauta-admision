@@ -22,7 +22,7 @@
         "http-vue-loader": "https://github.com/FranckFreiburger/http-vue-loader",
         "image-compressor.js": "^1.1.4",
         "izitoast": "^1.4.0",
-        "jquery": "^3.3.1",
+        "jquery": "1.12.4",
         "jquery-bootstrap-wizard": "^1.4.2",
         "jquery-file-download": "^1.4.6",
         "jquery-form": "^3.50.0",
