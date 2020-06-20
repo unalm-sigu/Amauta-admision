@@ -42,19 +42,19 @@
                 </div>
                 <div class="form-group">
                     <label>Fecha Aceptación (día/mes/año)</label> PENDIENTE
-                    <!--                    <div class="input-group">
-                                            <date-picker 
-                                                style="height: 40px;"
-                                                v-bind:config="configDate"
-                                                class="float-left"
-                                                v-model="experienciaAsesor.fechaAceptacion">
-                                            </date-picker>                  
-                                            <div class="input-group-append">
-                                                <span class="input-group-text align-middle">
-                                                    <i class="fas fa-calendar-alt"></i>
-                                                </span>
-                                            </div>
-                                        </div>-->
+                    <div class="input-group">
+                        <date-picker 
+                            style="height: 40px;"
+                            v-bind:config="configDate"
+                            class="float-left"
+                            v-model="experienciaAsesor.fechaAceptacion">
+                        </date-picker>                  
+                        <div class="input-group-append">
+                            <span class="input-group-text align-middle">
+                                <i class="fas fa-calendar-alt"></i>
+                            </span>
+                        </div>
+                    </div>
                 </div>
             </form>
         </template>

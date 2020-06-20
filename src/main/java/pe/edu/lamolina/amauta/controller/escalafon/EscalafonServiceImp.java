@@ -179,7 +179,7 @@ public class EscalafonServiceImp implements EscalafonService {
         Boolean isChange = false;
         Escalafon escalafonBD = escalafonDAO.find(escalafonForm.getId());
 
-        if (!urlArchivoForm.equals(escalafonBD.getArchivoCurriculum())) {
+        if (urlArchivoForm != null && !urlArchivoForm.equals(escalafonBD.getArchivoCurriculum())) {
             File file = new File(GlobalConstantine.TMP_DIR + urlArchivoForm);
             System.out.println("el archivo {} existe {} " + (GlobalConstantine.TMP_DIR + urlArchivoForm) + (file.exists()));
             Assert.isTrue(file.exists(), "No existe el archivo en el servidor");
@@ -205,7 +205,7 @@ public class EscalafonServiceImp implements EscalafonService {
         escalafonBD.setFechaActualizacion(new Date());
         escalafonDAO.update(escalafonBD);
 
-        if (isChange && !urlArchivoForm.isEmpty()) {
+        if (isChange && urlArchivoForm != null && !urlArchivoForm.isEmpty()) {
             uploadFileS3.deleteFile(urlArchivoForm);
         }
         return escalafonBD;
