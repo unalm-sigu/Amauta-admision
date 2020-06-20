@@ -25,7 +25,7 @@ public class HeaderFooterBoletinPDFEvent extends PdfPageEventHelper {
 
     public void onStartPage(PdfWriter writer, Document document) {
         Font font = new Font(Font.FontFamily.HELVETICA, 6, Font.NORMAL, BaseColor.BLACK);
-        ColumnText.showTextAligned(writer.getDirectContent(), Element.ALIGN_LEFT, new Phrase("Programación de horarios " + this.ciclo, font), 30, 820, 0);
+        ColumnText.showTextAligned(writer.getDirectContent(), Element.ALIGN_LEFT, new Phrase("Alumnos Matriculados " + this.ciclo, font), 30, 820, 0);
         ColumnText.showTextAligned(writer.getDirectContent(), Element.ALIGN_RIGHT, new Phrase(this.anexo, font), 550, 820, 0);
     }
 
