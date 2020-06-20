@@ -27,7 +27,6 @@
 
         <input type="text"
                v-model="docente.persona.numeroDocIdentidad"
-               v-bind:value="docente.persona.numeroDocIdentidad"
                name="persona.numeroDocIdentidad"
                class="form-control" required="true"/>
 
@@ -41,7 +40,6 @@
 
         <input type="text"
                name="persona.paterno"
-               v-bind:value="docente.persona.paterno"
                v-model="docente.persona.paterno"
                v-on:change="nombrePersona"
                class="form-control"/>
@@ -56,7 +54,6 @@
 
         <input type="text"
                name="persona.materno"
-               v-bind:value="docente.persona.materno"
                v-model="docente.persona.materno"
                v-on:change="nombrePersona"
                class="form-control"/>
@@ -72,7 +69,6 @@
                name="persona.nombres"
                required="true"
                v-model="docente.persona.nombres"
-               v-bind:value="docente.persona.nombres"
                v-on:change="nombrePersona"
                class="form-control"/>
 
@@ -88,7 +84,6 @@
                 data-trim-value="true"
                 v-model="docente.persona.emailCompania"
                 name="persona.emailCompania" id="emailCompania"
-                v-bind:value="docente.persona.emailCompania"
                 />
     </div>
 </div>

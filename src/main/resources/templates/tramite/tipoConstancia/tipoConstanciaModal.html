@@ -77,8 +77,7 @@
                                 <input
                                     v-bind:name=" 'configuracionFirmaDocumento['+index+'].orden' "
                                     type="hidden"
-                                    v-model="firma.orden"
-                                    v-bind:value="firma.orden" />
+                                    v-model="firma.orden" />
 
                                 <p v-text="firma.orden"></p>
 
@@ -90,7 +89,6 @@
                                     v-bind:name=" 'configuracionFirmaDocumento['+index+'].oficina.id' "
                                     type="text"
                                     v-model="firma.oficina.id"
-                                    v-bind:value="firma.oficina.id"
                                     v-bind:rev="firma.orden"
                                     v-bind:rel="firma.oficina.nombre"
                                     class="form-control oficina" />
@@ -103,7 +101,6 @@
                                     v-bind:name=" 'configuracionFirmaDocumento['+index+'].tipoOficina.id' "
                                     type="text"
                                     v-model="firma.tipoOficina.id"
-                                    v-bind:value="firma.tipoOficina.id"
                                     v-bind:rev="firma.orden"
                                     v-bind:rel="firma.tipoOficina.nombre"
                                     class="form-control tipoOficina" />

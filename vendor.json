@@ -41,6 +41,7 @@
         "bootstrap-colorpicker/dist/js/bootstrap-colorpicker.js",
         "bootstrap-timepicker/js/bootstrap-timepicker.js",
         "bootstrap-datepicker/dist/js/bootstrap-datepicker.js",
+        "bootstrap-datepicker/dist/locales/bootstrap-datepicker.es.min.js",
         "blueimp-md5/js/md5.js",
         "highcharts/js/highcharts.js",
         "highcharts/js/highcharts-3d.js",

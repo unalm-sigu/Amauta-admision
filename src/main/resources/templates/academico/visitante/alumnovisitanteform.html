@@ -411,7 +411,6 @@
                                            class="form-control input-sm"
                                            name="nombre"
                                            v-model="nuevauniversidad.nombre"
-                                           v-bind:value="nuevauniversidad.nombre"
                                            required="true"/>
                                 </div>
                                 <div class="form-group" v-if='alumnoVisitante.paisUniversidad.id == 178'>
@@ -420,7 +419,6 @@
                                            class="form-control input-sm"
                                            name="codigo"
                                            v-model="nuevauniversidad.codigo"
-                                           v-bind:value="nuevauniversidad.codigo"
                                            required="true"/>
                                 </div>
                                 <div class="form-group">
@@ -429,7 +427,6 @@
                                            class="form-control input-sm"
                                            name="siglas"
                                            v-model="nuevauniversidad.siglas"
-                                           v-bind:value="nuevauniversidad.siglas"
                                            required="true"/>
                                 </div>
                                 <div class="form-group" v-if='alumnoVisitante.paisUniversidad.id == 178'>
@@ -463,7 +460,7 @@
 
         <div layout:fragment="js">
             <div th:substituteby="_modules/vue-modal"/>
-        
+            
             <script th:src="@{/vue/vuelect2.js}" charset="utf-8"></script>
             <script th:src="@{/vue/vuelect3.js}" charset="utf-8"></script>
             <script th:src="@{/app/academico/visitante/alumnoVisitantePais.js}" charset="utf-8"></script>
