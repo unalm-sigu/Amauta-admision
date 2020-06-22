@@ -551,7 +551,7 @@ public class MatriculaSeccionDAOH extends AbstractEasyDAO<MatriculaSeccion> impl
     }
     
     @Override
-    public List<MatriculaSeccion> allByReporte(String seccion) {
+    public List<MatriculaSeccion> allByReporte(String seccion, CicloAcademico cicloAcademico) {
         
         Octavia sql = Octavia.query()
                 .from(MatriculaSeccion.class, "ms")
@@ -560,7 +560,7 @@ public class MatriculaSeccionDAOH extends AbstractEasyDAO<MatriculaSeccion> impl
                 .join("mr.cicloAcademico acad", "seccion sec")
                 .join("sec.grupoSeccion gs")
                 .join("gs.curso cur")
-                .filter("acad.codigo", "202010")
+                .filter("acad.codigo", cicloAcademico.getCodigo())
                 .filter("sec.codigo2", seccion)
                 .filter("cur.estado", ACT)
                 .filter("ms.estado", EstadoMatriculaEnum.MAT)
