@@ -1,5 +1,5 @@
 <template>
-    <modal-vik id="investigacionEscalafonModal" ref="investigacionEscalafonModal" v-bind:okaction="save">
+    <modal-vik  v-bind:showaccept="true" id="investigacionEscalafonModal" ref="investigacionEscalafonModal" v-bind:okaction="save">
         <template v-slot:body>
             <form id="form-validar-investigacion-escalafon">
                 <div class="form-group">
@@ -70,9 +70,9 @@
     Vue.component("multiselect", window.VueMultiselect.default);
     Vue.component('date-picker', VueBootstrapDatetimePicker.default);
 
-    const ModalVik = httpVueLoader('/_vue/modules/ModalVik.vue');
+    
     module.exports = {
-        components: {ModalVik},
+       
         data() {
             return{
                 investigacionEscalafon: {pais: null},

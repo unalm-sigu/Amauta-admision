@@ -1,5 +1,5 @@
 <template>
-    <modal-vik id="academicoEscalafonModal" ref="academicoEscalafonModal" v-bind:okaction="save">
+    <modal-vik  v-bind:showaccept="true"  id="academicoEscalafonModal" ref="academicoEscalafonModal" v-bind:okaction="save">
         <template v-slot:body>
             <form id="form-validar-academico-escalafon">
                 <div class="form-group">
@@ -94,9 +94,9 @@
     Vue.component("multiselect", window.VueMultiselect.default);
     Vue.component('date-picker', VueBootstrapDatetimePicker.default);
 
-    const ModalVik = httpVueLoader('/_vue/modules/ModalVik.vue');
+    
     module.exports = {
-        components: {ModalVik},
+       
         data() {
             return{
                 listGradoEnum: JSON.parse(listGradoEscalafonEnumJson),

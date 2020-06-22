@@ -1,5 +1,5 @@
 <template>
-    <modal-vik id="confirmEscalafonModal" ref="confirmEscalafonModal" v-bind:okaction="save">
+    <modal-vik  v-bind:showaccept="true" id="confirmEscalafonModal" ref="confirmEscalafonModal" v-bind:okaction="save">
         <template v-slot:body>
             <form id="form-validar-escalafon-confirm">
                 <div class="form-group">
@@ -12,9 +12,9 @@
 </template>
 <script>
 
-    const ModalVik = httpVueLoader('/_vue/modules/ModalVik.vue');
+    
     module.exports = {
-        components: {ModalVik},
+       
         data() {
             return{
                 escalafonConfirm: {}

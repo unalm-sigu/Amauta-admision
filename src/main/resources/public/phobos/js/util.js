@@ -1022,3 +1022,8 @@ function barProgress(progressLineObject, direction) {
     }
     progressLineObject.attr('style', 'width: ' + newValue + '%;').data('now-value', newValue);
 }
+
+
+
+// FALSE PARA MOSTRAR LOS WARNINGS
+Vue.config.silent = true;

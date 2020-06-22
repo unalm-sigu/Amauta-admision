@@ -54,12 +54,12 @@
                 var reportesJson = /*[[${reportesJson}]]*/ '';
                 /*]]>*/
             </script>
-            <div th:substituteby="_layout/includes :: sweetalert"/>
+            
             <div th:substituteby="_modules/vue-raptor-table"></div>
         
             <script type="text/javascript" th:src="@{/vue/vue-btn-download.js}"></script>
             <script type="text/javascript" th:src="@{/vue/vuelect2.js}"></script>
-            <div th:substituteby="_modules/vue-modal"/>
+            
             <script th:src="@{/app/gposeccion/reporte/reporte.js}" charset="utf-8"></script>
         </div>
 
