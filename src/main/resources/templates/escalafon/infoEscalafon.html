@@ -1,0 +1,271 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title>Información de Escalafón</title>
+    </head>
+    <body>
+        <div layout:fragment="main">
+            <div id="main" v-cloak="">
+                <header class="header b-b padder-lg"> 
+                    <h3>Información de Escalafón</h3>
+                    <div class="pull-right m-t-md">                 
+                        <a class="btn btn-info btn-sm" href='/escalafon'>Regresar</a>
+                    </div> 
+                </header>
+                <section class="wrapper">
+                    <section class="panel">
+                        <section class="panel-body">
+                            <h3 class="page-header text-center"> Datos Personales </h3>
+                            <table class="table table-striped">
+                                <tr>
+                                    <th>Apellidos:</th>
+                                    <th><span v-text='escalafon.persona.apellidos'></span></th>
+                                </tr>
+                                <tr>
+                                    <th>Nombres:</th>
+                                    <th><span v-text='escalafon.persona.nombres'></span></th>
+                                </tr>
+                                <tr>
+                                    <th>País de Nacimiento:</th>
+                                    <th><span v-text='escalafon.paisNacimiento.nombre'></span></th>
+                                </tr>
+                                <tr>
+                                    <th>Correo Electrónico Personal:</th>
+                                    <th><span v-text='escalafon.emailPersonal'></span></th>
+                                </tr> 
+                                <tr>
+                                    <th>Celular:</th>
+                                    <th><span v-text='escalafon.celular'></span></th>
+                                </tr> 
+                            </table>
+                        </section>
+                    </section>
+                    <section class="panel">
+                        <section class="panel-body">
+                            <h3 class="page-header text-center"> Experiencia </h3>
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Institución</th>
+                                        <th>Cargo</th>
+                                        <th>Fecha</th>
+                                    </tr>
+                                </thead>
+                                <tbody v-for="(item, index) in escalafon.experienciaEscalafon" class="editor">
+                                    <tr>
+                                        <td>
+                                            {{item.universidad.id != null ? item.universidad.nombre : item.institucion }}
+                                        </td>  
+                                        <td>
+                                            {{item.cargo}}
+                                        </td>
+                                        <td>
+                                            <small class="block text-muted"> Fecha Inicio: {{item.fechaInicio}}</small>
+                                            <small class="block text-muted">Fecha Final: {{item.fechaFin}}</small>
+                                        </td> 
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </section>
+                    </section>
+                    <section class="panel" style="margin-top: -20px">
+                        <section class="panel-body">
+                            <h3 class="page-header text-center"> Experiencia como Asesor de Tesis </h3>
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Universidad</th>
+                                        <th>Tesis</th>
+                                        <th>Tesista</th>
+                                        <th>Repositorio</th>
+                                        <th>Fecha Aceptado</th>
+                                    </tr>
+                                </thead>
+                                <tbody v-for="(item, index) in escalafon.experienciaAsesor" class="editor">
+                                    <tr>
+                                        <td>
+                                            {{ item.universidad.nombre }}
+                                        </td>  
+                                        <td>
+                                            {{item.tipoTesisEnum.descripcion}}
+                                        </td>
+                                        <td>
+                                            {{item.tesista}}
+                                        </td>
+                                        <td>
+                                            <a class="pointer" target="_blank" v-bind:href='item.urlRepositorio'>{{item.urlRepositorio}} </a>
+                                        </td>
+                                        <td>
+                                            {{item.fechaAceptacion}}
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </section>
+                    </section>
+                    <section class="panel" style="margin-top: -20px">
+                        <section class="panel-body">
+                            <h3 class="page-header text-center"> Académico </h3>
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Grado</th>
+                                        <th>Centro de Estudio</th>
+                                        <th>País</th>
+                                    </tr>
+                                </thead>
+                                <tbody v-for="(item, index) in escalafon.academicoEscalafon" class="editor">
+                                    <tr>
+                                        <td>
+                                            {{ item.gradoEnum.descripcion  }}
+                                        </td>
+                                        <td>
+                                            {{item.universidad.id != null ? item.universidad.nombre : item.institucion }}
+                                        </td>  
+                                        <td>
+                                            {{item.pais.nombre}}
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </section>
+                    </section>
+                    <section class="panel" style="margin-top: -20px">
+                        <section class="panel-body">
+                            <h3 class="page-header text-center"> Idiomas </h3>
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th class="text-left">Idioma</th>
+                                        <th class="text-center">Materno</th>
+                                        <th class="text-center">Nivel Conversación</th>
+                                        <th class="text-center">Nivel Lectura</th>
+                                        <th class="text-center">Nivel Escritura</th>
+                                    </tr>
+                                </thead>
+                                <tbody v-for="(item, index) in escalafon.idiomaEscalafon" class="editor">
+                                    <tr>
+                                        <td class="text-left">
+                                            {{item.idioma.nombre == "Otros" ? item.idiomaOtro : item.idioma.nombre}}
+                                        </td>
+                                        <td class="text-center">
+                                            <i v-if="item.lenguaMaterna" class="fas fa-check fa-lg"></i>
+                                        </td>
+                                        <td class="text-center">
+                                            {{item.conversacion}}
+                                        </td>
+                                        <td class="text-center">
+                                            {{item.lectura}}
+                                        </td>
+                                        <td class="text-center">
+                                            {{item.escritura}}
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </section>
+                    </section>
+                    <section class="panel" style="margin-top: -20px">
+                        <section class="panel-body">
+                            <h3 class="page-header text-center"> Producción </h3>
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th class="text-left">Título</th>
+                                        <th class="text-center">Tipo Producción</th>
+                                        <th class="text-center">Año Producción</th>
+                                        <th class="text-left">Fuente</th>
+                                    </tr>
+                                </thead>
+                                <tbody v-for="(item, index) in escalafon.produccionEscalafon" class="editor">
+                                    <tr>
+                                        <td class="text-left v-middle">
+                                            <small class='h6'>{{ item.titulo  }}</small>
+                                        </td>
+                                        <td class="text-center">
+                                            {{item.tipo}}
+                                        </td>
+                                        <td class="text-center">
+                                            {{item.anioProduccion}}
+                                        </td>  
+                                        <td class="text-left">
+                                            {{item.tituloFuente}}
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </section>
+                    </section>
+                    <section class="panel" style="margin-top: -20px">
+                        <section class="panel-body">
+                            <h3 class="page-header text-center"> Investigación </h3>
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th class="text-left">Título</th>
+                                        <th class="text-left">Investigadores</th>
+                                        <th class="text-left">Área</th>
+                                        <th class="text-left">Repositorio</th>
+                                        <th class="text-left">Fecha</th>
+                                    </tr>
+                                </thead>
+                                <tbody v-for="(item, index) in escalafon.investigacionEscalafon" class="editor">
+                                    <tr>
+                                        <td class="text-left">
+                                            {{ item.titulo  }}
+                                        </td>
+                                        <td class="text-left">
+                                            {{item.investigadores}}
+                                        </td>
+                                        <td class="text-left">
+                                            {{item.area.descripcion}}
+                                        </td>
+                                        <td class="text-left">
+                                            <a class="pointer" target="_blank" v-bind:href='item.urlRepositorio'>{{item.urlRepositorio}} </a>
+                                        </td>
+                                        <td class="text-left">
+                                            <small class="block text-muted"> Fecha Inicio: {{item.fechaInicio}}</small>
+                                            <small class="block text-muted">Fecha Final: {{item.fechaFin}}</small>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </section>
+                    </section>
+                    <section class="panel" style="margin-top: -20px">
+                        <section class="panel-body">
+                            <h3 class="page-header text-center"> Distinción </h3>
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th class="col-md-4 text-left">Distinción</th>
+                                        <th class="col-md-6 text-left">Descripción</th>
+                                        <th class="col-md-2 text-left">País</th>
+                                    </tr>
+                                </thead>
+                                <tbody v-for="(item, index) in escalafon.distincionEscalafon" class="editor">
+                                    <tr>
+                                        <td class="text-left">
+                                            <small>  {{ item.titulo  }}</small>
+                                        </td>
+                                        <td class="text-left">
+                                            <small> {{item.descripcion}}</small>
+                                        </td>
+                                        <td class="text-left">
+                                            {{item.pais.nombre}}
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </section>
+                    </section>
+                </section>
+            </div>
+        </div>
+        <div layout:fragment="js">
+            <script th:inline="javascript">
+                var escalafonJson = /*[[${escalafon}]]*/ '';
+            </script>
+            <script th:src="@{/app/escalafon/infoEscalafon.js}" charset="utf-8"></script>
+        </div>
+    </body>
+</html>

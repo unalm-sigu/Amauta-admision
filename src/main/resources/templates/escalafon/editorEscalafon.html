@@ -2,18 +2,26 @@
     <head>
         <title>Editor de Escalafón</title>
     </head>
-
     <body>
         <section layout:fragment="main">
             <div id="escalafonvue">
                 <router-view></router-view> 
             </div>
         </section>
-
         <div layout:fragment="js" th:remove="tag">
+            <script th:inline="javascript">
+                var escalafonJson = /*[[${escalafon}]]*/ '';
+                var listIdiomaJson = /*[[${listIdioma}]]*/ '';
+                var listAreaInvestigacionJson = /*[[${listAreaInvestigacion}]]*/ '';
+                var listNivelEnumJson = /*[[${listNivelesEnum}]]*/ '';
+                var listTipoProduccionEnumJson = /*[[${listTipoProduccionEnum}]]*/ '';
+                var listGradoEscalafonEnumJson = /*[[${listGradoEscalafonEnum}]]*/ '';
+                var listTipoDocenteEnumJson = /*[[${listTipoDocenteEnum}]]*/ '';
+            </script>
             <div th:substituteby="_modules/vue-raptor-table"></div>
+            <div th:substituteby="_layout/includes :: javascript-bootstrap-datetimepicker"></div>
+            <div th:substituteby="_layout/includes :: javacsript-vue-bootstrap-datetimepicker"></div>
             <script th:src="@{/app/escalafon/editorEscalafon.js}" charset="utf-8"></script>
         </div>
-
     </body>
 </html>

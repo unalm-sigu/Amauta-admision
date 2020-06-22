@@ -5,7 +5,7 @@
     </head>
     <body>
         <div layout:fragment="main">
-            <div id="main">
+            <div id="main" v-cloak="">
 
                 <header class="header b-b padder-lg">
 
@@ -39,7 +39,7 @@
                 var tiposJson = /*[[${tipos.toString()}]]*/ '';
                 /*]]>*/
             </script>
-            <div th:substituteby="_modules/vue-modal"/>
+            
             <div th:substituteby="_layout/includes :: javascript-dynatable"/>
             <script th:src="@{/app/tramite/tipoConstancia/tipoConstanciaDynatable.js}" charset="utf-8"></script>
             <script th:src="@{/app/tramite/tipoConstancia/tipoConstancia.js}" charset="utf-8"></script>

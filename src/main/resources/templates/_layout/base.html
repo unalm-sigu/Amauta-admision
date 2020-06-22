@@ -10,10 +10,10 @@
         <section  layout:fragment="body"> </section>
 
         <div th:substituteby="_layout/includes :: javascript"/>
-
-        <section layout:fragment="js"> JAVASCRIPTS </section>
         <div th:substituteby="_modules/vue-modal"/>
         <div th:substituteby="_modules/vue-modal-wait"/>
         <div th:substituteby="_layout/includes :: notify"/>
+
+        <section layout:fragment="js"> JAVASCRIPTS </section>
     </body>
 </html>

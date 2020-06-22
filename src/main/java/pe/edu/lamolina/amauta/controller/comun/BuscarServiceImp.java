@@ -33,8 +33,10 @@ import pe.edu.lamolina.amauta.dao.academico.SeccionDAO;
 import pe.edu.lamolina.amauta.dao.academico.SituacionAcademicaDAO;
 import pe.edu.lamolina.amauta.dao.general.EmpresaDAO;
 import pe.edu.lamolina.amauta.dao.general.PaisDAO;
+import pe.edu.lamolina.amauta.dao.general.PersonaDAO;
 import pe.edu.lamolina.amauta.dao.general.UbicacionDAO;
 import pe.edu.lamolina.amauta.dao.general.UniversidadDAO;
+import pe.edu.lamolina.model.general.Persona;
 
 @Service
 @Transactional(readOnly = true)
@@ -77,6 +79,8 @@ public class BuscarServiceImp implements BuscarService {
     GrupoSeccionDAO grupoSeccionDAO;
     @Autowired
     CicloAcademicoDAO cicloAcademicoDAO;
+    @Autowired
+    PersonaDAO personaDAO;
 
     @Override
     public List<Curso> allCursosSCA(String nombre, PlanCalificacion plan, CicloAcademico ciclo) {
@@ -181,6 +185,11 @@ public class BuscarServiceImp implements BuscarService {
     @Override
     public List<Universidad> allUniversidadByNamePais(String nombre, Long pais) {
         return universidadDAO.allUniversidadByNamePais(this.forLike(nombre), new Pais(pais));
+    }
+
+    @Override
+    public List<Persona> allPersonaByNombre(String nombre) {
+        return personaDAO.allByNombre(nombre);
     }
 
 }

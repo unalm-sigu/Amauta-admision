@@ -15,6 +15,7 @@ import pe.edu.lamolina.model.academico.SituacionAcademica;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.general.Empresa;
 import pe.edu.lamolina.model.general.Pais;
+import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.general.Ubicacion;
 import pe.edu.lamolina.model.general.Universidad;
 
@@ -57,5 +58,7 @@ public interface BuscarService {
     List<CicloAcademico> allCicloByDescripcionDescendent(String nombre);
 
     List<Universidad> allUniversidadByNamePais(String nombre, Long pais);
+
+    List<Persona> allPersonaByNombre(String nombre);
 
 }

@@ -1,0 +1,26 @@
+<modal-vik ref="escalofonModal" v-bind="escalofonModal" v-bind:okaction="save">
+    <div slot="body">
+        <section class="panel-body">
+            <form id="form-validar-escalafon">
+                <h4 class="m-t-n">Nuevo Escalafón</h4>
+                <div class="form-group">
+                    <label>Persona</label>
+                    <multiselect 
+                        v-model="escalafon.persona"
+                        label='apellidosNombres'
+                        track-by='id'
+                        v-bind:options='listPersona'
+                        placeholder="Ingrese y selecciona la persona"
+                        v-on:search-change="searchPersona"
+                        v-bind:allow-empty="false"
+                        v-bind:show-labels="false"
+                        v-bind:hide-selected="false"> 
+                        <template slot="noOptions">La lista se encuentra vacía</template>
+                        <template slot="noResult">No se encontraron resultados</template>
+                    </multiselect>
+                    <input v-model="escalafon.persona"  class="form-control hide" required="true"/>
+                </div> 
+            </form>
+        </section>
+    </div>
+</modal-vik>

@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import pe.albatross.zelpers.dynatable.DynatableFilter;
 import pe.albatross.zelpers.dynatable.DynatableResponse;
+import pe.albatross.zelpers.json.JaneHelper;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
@@ -42,9 +43,9 @@ import pe.edu.lamolina.model.general.Empresa;
 import pe.edu.lamolina.model.general.Pais;
 import pe.edu.lamolina.model.general.Ubicacion;
 import pe.edu.lamolina.model.general.Universidad;
-import pe.edu.lamolina.model.constantines.AcademicoConstantine;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.general.Persona;
 
 @Controller
 @RequestMapping("comun/buscar")
@@ -333,7 +334,7 @@ public class BuscarController {
                     "pais.*",});
                 jsonList.add(jUniversidad);
             }
-            
+
             response.setData(jsonList);
             response.setTotal(jsonList.size());
             response.setSuccess(true);
@@ -678,4 +679,24 @@ public class BuscarController {
         }
         return response;
     }
+
+    @ResponseBody
+    @RequestMapping("allPersona")
+    public JsonResponse allPersona(@RequestParam("nombre") String nombre) {
+        JsonResponse response = new JsonResponse();
+        ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+        try {
+            List<Persona> listPersonsa = buscarService.allPersonaByNombre(nombre);
+            for (Persona persona : listPersonsa) {
+                array.add(JaneHelper.from(persona).json());
+            }
+            response.setData(array);
+            response.setTotal(array.size());
+            response.setSuccess(true);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
 }
