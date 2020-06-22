@@ -4,6 +4,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pe.edu.lamolina.amauta.controller.escalafon.EscalafonService;
 import pe.edu.lamolina.amauta.dao.escalafon.InvestigacionEscalafonDAO;
 import pe.edu.lamolina.model.escalafon.Escalafon;
 import pe.edu.lamolina.model.escalafon.InvestigacionEscalafon;
@@ -15,6 +16,9 @@ public class InvestigacionServiceImp implements InvestigacionService {
     @Autowired
     InvestigacionEscalafonDAO investigacionEscalafonDAO;
 
+    @Autowired
+    EscalafonService escalafonService;
+
     @Override
     public List<InvestigacionEscalafon> allInvestigacionEscalafonByEscalafon(Escalafon escalafon) {
         return investigacionEscalafonDAO.allByEscalafon(escalafon);
@@ -22,6 +26,7 @@ public class InvestigacionServiceImp implements InvestigacionService {
 
     @Override
     public void save(InvestigacionEscalafon investigacionEscalafonForm) {
+        escalafonService.verificarFecha(investigacionEscalafonForm.getFechaInicio(), investigacionEscalafonForm.getFechaFin());
         if (investigacionEscalafonForm.getId() != null) {
             InvestigacionEscalafon investigacionEscalafonBD = investigacionEscalafonDAO.find(investigacionEscalafonForm.getId());
             investigacionEscalafonBD.setArea(investigacionEscalafonForm.getArea());

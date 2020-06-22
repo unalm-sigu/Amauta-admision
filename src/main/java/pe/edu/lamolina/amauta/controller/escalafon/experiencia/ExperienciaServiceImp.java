@@ -4,6 +4,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pe.edu.lamolina.amauta.controller.escalafon.EscalafonService;
 import pe.edu.lamolina.amauta.dao.escalafon.ExperienciaEscalafonDAO;
 import pe.edu.lamolina.model.escalafon.Escalafon;
 import pe.edu.lamolina.model.escalafon.ExperienciaEscalafon;
@@ -16,6 +17,9 @@ public class ExperienciaServiceImp implements ExperienciaService {
     @Autowired
     ExperienciaEscalafonDAO experienciaEscalafonDAO;
 
+    @Autowired
+    EscalafonService escalafonService;
+
     @Override
     public List<ExperienciaEscalafon> allExperienciaByEscalafon(Escalafon escalafon) {
         return experienciaEscalafonDAO.allByEscalafon(escalafon);
@@ -23,6 +27,7 @@ public class ExperienciaServiceImp implements ExperienciaService {
 
     @Override
     public void save(ExperienciaEscalafon experienciaEscalafonForm) {
+        escalafonService.verificarFecha(experienciaEscalafonForm.getFechaInicio(), experienciaEscalafonForm.getFechaFin());
         if (experienciaEscalafonForm.getId() != null) {
             ExperienciaEscalafon experienciaEscalafonBD = experienciaEscalafonDAO.find(experienciaEscalafonForm.getId());
             if (experienciaEscalafonForm.getTipoExperienciaEnum().equals(TipoExperienciaEnum.DOCENTE)) {

@@ -31,36 +31,30 @@
                     <input type="text" class="form-control" v-model="investigacionEscalafon.urlRepositorio"/>
                 </div>
                 <div class="form-group">
-                    <label>Fecha Inicio (día/mes/año)</label> PENDIENTE
-                    <!--                    <div class="input-group">
-                                            <date-picker 
-                                                style="height: 40px;"
-                                                v-bind:config="configDate"
-                                                class="float-left"
-                                                v-model="investigacionEscalafon.fechaInicio">
-                                            </date-picker>                  
-                                            <div class="input-group-append">
-                                                <span class="input-group-text align-middle">
-                                                    <i class="fas fa-calendar-alt"></i>
-                                                </span>
-                                            </div>
-                                        </div>-->
+                    <label>Fecha Inicio (día/mes/año)</label>
+                    <div class="input-group date">
+                        <input type="date"
+                               id="fechaInicio"
+                               class="form-control"
+                               v-on:input="getFormatFecha"
+                               required="true" />
+                        <span class="input-group-addon">
+                            <i class="fa fa-calendar" aria-hidden="true"></i>
+                        </span>
+                    </div>
                 </div>
                 <div class="form-group">
-                    <label>Fecha Fin (día/mes/año)</label> PENDIENTE
-                    <!--                    <div class="input-group">
-                                            <date-picker 
-                                                style="height: 40px;"
-                                                v-bind:config="configDate"
-                                                class="float-left"
-                                                v-model="investigacionEscalafon.fechaFin">
-                                            </date-picker>                  
-                                            <div class="input-group-append">
-                                                <span class="input-group-text align-middle">
-                                                    <i class="fas fa-calendar-alt"></i>
-                                                </span>
-                                            </div>
-                                        </div>-->
+                    <label>Fecha Fin (día/mes/año)</label>
+                    <div class="input-group date">
+                        <input type="date"
+                               id="fechaFin"
+                               class="form-control"
+                               v-on:input="getFormatFecha"
+                               required="true" />
+                        <span class="input-group-addon">
+                            <i class="fa fa-calendar" aria-hidden="true"></i>
+                        </span>
+                    </div>
                 </div>
             </form>
         </template>
@@ -70,9 +64,9 @@
     Vue.component("multiselect", window.VueMultiselect.default);
     Vue.component('date-picker', VueBootstrapDatetimePicker.default);
 
-    
+
     module.exports = {
-       
+
         data() {
             return{
                 investigacionEscalafon: {pais: null},
@@ -87,11 +81,31 @@
             }
         },
         methods: {
+            setFechaInput(fechaParam, fechaModel) {
+                if (fechaParam == null) {
+                    return;
+                }
+                let day = fechaParam.substr(0, 2);
+                let mount = fechaParam.substr(3, 2);
+                let year = fechaParam.substr(6, 5);
+                document.getElementById(fechaModel).value = year + "-" + mount + "-" + day;
+            },
+            getFormatFecha() {
+                let fechaInicioMoment = moment($('#fechaInicio').val());
+                let fechaFinMoment = moment($('#fechaFin').val());
+                this.investigacionEscalafon.fechaInicio = fechaInicioMoment.format("DD/MM/YYYY");
+                this.investigacionEscalafon.fechaFin = fechaFinMoment.format("DD/MM/YYYY");
+            },
             open(item) {
                 let $vue = this;
+                $('#form-validar-investigacion-escalafon').parsley().destroy();
+                document.getElementById('fechaInicio').value = null;
+                document.getElementById('fechaFin').value = null;
                 $vue.investigacionEscalafon = {escalafon: {id: $vue.escalafon.id}, area: null};
                 if (item.id != null) {
                     $vue.investigacionEscalafon = {...item};
+                    $vue.setFechaInput($vue.investigacionEscalafon.fechaInicio, "fechaInicio");
+                    $vue.setFechaInput($vue.investigacionEscalafon.fechaFin, "fechaFin");
                 }
                 $vue.$refs.investigacionEscalafonModal.open();
             },

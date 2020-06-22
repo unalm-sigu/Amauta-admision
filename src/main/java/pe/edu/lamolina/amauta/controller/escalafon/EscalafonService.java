@@ -1,5 +1,6 @@
 package pe.edu.lamolina.amauta.controller.escalafon;
 
+import java.util.Date;
 import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.edu.lamolina.model.escalafon.AreaInvestigacion;
@@ -27,5 +28,7 @@ public interface EscalafonService {
     Escalafon findEscalafon(Escalafon escalafon);
 
     void confirmarEscalafon(EscalafonConfirmBean escalafonConfirmBean);
+
+    void verificarFecha(Date fechaInicio, Date fechaFinal);
 
 }

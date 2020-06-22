@@ -4,6 +4,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pe.edu.lamolina.amauta.controller.escalafon.EscalafonService;
 import pe.edu.lamolina.amauta.dao.escalafon.AcademicoEscalafonDAO;
 import pe.edu.lamolina.model.escalafon.AcademicoEscalafon;
 import pe.edu.lamolina.model.escalafon.Escalafon;
@@ -15,6 +16,9 @@ public class AcademicoServiceImp implements AcademicoService {
     @Autowired
     AcademicoEscalafonDAO academicoEscalafonDAO;
 
+    @Autowired
+    EscalafonService escalafonService;
+
     @Override
     public List<AcademicoEscalafon> allAcademicoByEscalafon(Escalafon escalafon) {
         return academicoEscalafonDAO.allByEscalafon(escalafon);
@@ -22,6 +26,7 @@ public class AcademicoServiceImp implements AcademicoService {
 
     @Override
     public void save(AcademicoEscalafon academicoEscalafonForm) {
+        escalafonService.verificarFecha(academicoEscalafonForm.getFechaInicio(), academicoEscalafonForm.getFechaFin());
         if (academicoEscalafonForm.getId() != null) {
             AcademicoEscalafon academicoEscalafonBD = academicoEscalafonDAO.find(academicoEscalafonForm.getId());
             academicoEscalafonBD.setConfirmado(academicoEscalafonForm.getConfirmado());

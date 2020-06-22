@@ -87,7 +87,7 @@
                     },
                     callback: function (result) {
                         if (result) {
-                            axios.post($vue.rutaModulo + "/eliminar", item)
+                            axios.post($vue.rutaModulo + "/eliminar", {id: item.id})
                                     .then(function (response) {
                                         if (response.data.success) {
                                             notify(response.data.message, "success");

@@ -28,20 +28,17 @@
                     <textarea type="text" required="true" class="form-control" rows="5" v-model="distincionEscalafon.descripcion" ></textarea>
                 </div>
                 <div class="form-group">
-                    <label>Fecha Premio (día/mes/año)</label> PENDIENTE
-                    <!--                    <div class="input-group">
-                                            <date-picker 
-                                                style="height: 40px;"
-                                                v-bind:config="configDate"
-                                                class="float-left"
-                                                v-model="distincionEscalafon.fechaPremio">
-                                            </date-picker>                  
-                                            <div class="input-group-append">
-                                                <span class="input-group-text align-middle">
-                                                    <i class="fas fa-calendar-alt"></i>
-                                                </span>
-                                            </div>
-                                        </div>-->
+                    <label>Fecha Premio (día/mes/año)</label>
+                    <div class="input-group date">
+                        <input type="date"
+                               id="fechaPremio"
+                               class="form-control"
+                               v-on:input="getFormatFecha"
+                               required="true" />
+                        <span class="input-group-addon">
+                            <i class="fa fa-calendar" aria-hidden="true"></i>
+                        </span>
+                    </div>
                 </div>
             </form>
         </template>
@@ -51,9 +48,9 @@
     Vue.component("multiselect", window.VueMultiselect.default);
     Vue.component('date-picker', VueBootstrapDatetimePicker.default);
 
-    
+
     module.exports = {
-       
+
         data() {
             return{
                 distincionEscalafon: {pais: null},
@@ -68,11 +65,27 @@
             }
         },
         methods: {
+            setFechaInput(fechaParam, fechaModel) {
+                if (fechaParam == null) {
+                    return;
+                }
+                let day = fechaParam.substr(0, 2);
+                let mount = fechaParam.substr(3, 2);
+                let year = fechaParam.substr(6, 5);
+                document.getElementById(fechaModel).value = year + "-" + mount + "-" + day;
+            },
+            getFormatFecha() {
+                let fechaPremioMoment = moment($('#fechaPremio').val());
+                this.distincionEscalafon.fechaPremio = fechaPremioMoment.format("DD/MM/YYYY");
+            },
             open(item) {
                 let $vue = this;
+                $('#form-validar-distincion-escalafon').parsley().destroy();
+                document.getElementById('fechaPremio').value = null;
                 $vue.distincionEscalafon = {escalafon: {id: $vue.escalafon.id}, pais: null};
                 if (item.id != null) {
                     $vue.distincionEscalafon = {...item};
+                    $vue.setFechaInput($vue.distincionEscalafon.fechaPremio, "fechaPremio");
                 }
                 $vue.$refs.distincionEscalafonModal.open();
             },

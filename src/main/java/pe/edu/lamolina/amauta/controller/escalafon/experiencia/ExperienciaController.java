@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
+import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.escalafon.Escalafon;
 import pe.edu.lamolina.model.escalafon.ExperienciaEscalafon;
 
@@ -54,6 +55,8 @@ public class ExperienciaController {
             } else {
                 response.setMessage("Se registro fue creado satisfactoriamente");
             }
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
             ExceptionHandler.handleException(e, response);
         }

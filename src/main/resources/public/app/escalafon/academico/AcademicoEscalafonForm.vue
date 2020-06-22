@@ -55,36 +55,30 @@
                     <input type="text" required="true" class="hide" v-model="academicoEscalafon.grado"/>         
                 </div>
                 <div class="form-group">
-                    <label>Fecha Inicio (día/mes/año)</label> PENDIENTE
-                    <!--                    <div class="input-group">
-                                            <date-picker 
-                                                style="height: 40px;"
-                                                v-bind:config="configDate"
-                                                class="float-left"
-                                                v-model="academicoEscalafon.fechaInicio">
-                                            </date-picker>                  
-                                            <div class="input-group-append">
-                                                <span class="input-group-text align-middle">
-                                                    <i class="fas fa-calendar-alt"></i>
-                                                </span>
-                                            </div>
-                                        </div>-->
+                    <label>Fecha Inicio (día/mes/año)</label> 
+                    <div class="input-group date">
+                        <input type="date"
+                               id="fechaInicio"
+                               class="form-control"
+                               v-on:input="getFormatFecha"
+                               required="true" />
+                        <span class="input-group-addon">
+                            <i class="fa fa-calendar" aria-hidden="true"></i>
+                        </span>
+                    </div>
                 </div>
                 <div class="form-group">
-                    <label>Fecha Fin (día/mes/año)</label> PENDIENTE
-                    <!--                    <div class="input-group">
-                                            <date-picker 
-                                                style="height: 40px;"
-                                                v-bind:config="configDate"
-                                                class="float-left"
-                                                v-model="academicoEscalafon.fechaFin">
-                                            </date-picker>                  
-                                            <div class="input-group-append">
-                                                <span class="input-group-text align-middle">
-                                                    <i class="fas fa-calendar-alt"></i>
-                                                </span>
-                                            </div>
-                                        </div>-->
+                    <label>Fecha Fin (día/mes/año)</label>
+                    <div class="input-group date">
+                        <input type="date"
+                               id="fechaFin"
+                               class="form-control"
+                               v-on:input="getFormatFecha"
+                               required="true" />
+                        <span class="input-group-addon">
+                            <i class="fa fa-calendar" aria-hidden="true"></i>
+                        </span>
+                    </div>
                 </div>
             </form>
         </template>
@@ -94,9 +88,7 @@
     Vue.component("multiselect", window.VueMultiselect.default);
     Vue.component('date-picker', VueBootstrapDatetimePicker.default);
 
-    
     module.exports = {
-       
         data() {
             return{
                 listGradoEnum: JSON.parse(listGradoEscalafonEnumJson),
@@ -115,8 +107,26 @@
         mounted() {
         },
         methods: {
+            setFechaInput(fechaParam, fechaModel) {
+                if (fechaParam == null) {
+                    return;
+                }
+                let day = fechaParam.substr(0, 2);
+                let mount = fechaParam.substr(3, 2);
+                let year = fechaParam.substr(6, 5);
+                document.getElementById(fechaModel).value = year + "-" + mount + "-" + day;
+            },
+            getFormatFecha() {
+                let fechaInicioMoment = moment($('#fechaInicio').val());
+                let fechaFinMoment = moment($('#fechaFin').val());
+                this.academicoEscalafon.fechaInicio = fechaInicioMoment.format("DD/MM/YYYY");
+                this.academicoEscalafon.fechaFin = fechaFinMoment.format("DD/MM/YYYY");
+            },
             open(item) {
                 let $vue = this;
+                $('#form-validar-academico-escalafon').parsley().destroy();
+                document.getElementById('fechaInicio').value = null;
+                document.getElementById('fechaFin').value = null;
                 $vue.academicoEscalafon = {escalafon: {id: $vue.escalafon.id}, pais: null, universidad: null};
                 if (item.id != null) {
                     $vue.academicoEscalafon = {...item};
@@ -124,6 +134,8 @@
                     if ($vue.academicoEscalafon.universidad.id == null) {
                         $vue.academicoEscalafon.universidad = null;
                     }
+                    $vue.setFechaInput($vue.academicoEscalafon.fechaInicio, "fechaInicio");
+                    $vue.setFechaInput($vue.academicoEscalafon.fechaFin, "fechaFin");
                 }
                 $vue.$refs.academicoEscalafonModal.open();
             },

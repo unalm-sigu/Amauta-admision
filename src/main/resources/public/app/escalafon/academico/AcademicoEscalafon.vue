@@ -8,6 +8,7 @@
                     <th>Grado</th>
                     <th>Centro de Estudio</th>
                     <th>País</th>
+                    <th>Fecha</th>
                     <th></th>
                 </tr>
             </thead>
@@ -21,6 +22,10 @@
                     </td>  
                     <td>
                         {{item.pais.nombre}}
+                    </td>
+                    <td>
+                        <small class="block text-muted"> Fecha Inicio: {{item.fechaInicio}}</small>
+                        <small class="block text-muted">Fecha Final: {{item.fechaFin}}</small>
                     </td>
                     <td class="text-center">
                         <div class="dropdown actions">

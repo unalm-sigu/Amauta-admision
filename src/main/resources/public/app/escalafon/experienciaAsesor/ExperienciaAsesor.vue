@@ -9,7 +9,7 @@
                     <th>Tesis</th>
                     <th>Tesista</th>
                     <th>Repositorio</th>
-                    <th>Fecha Aceptado</th>
+                    <th class="text-center">Fecha Aceptado</th>
                     <th></th>
                 </tr>
             </thead>
@@ -27,7 +27,7 @@
                     <td>
                         <a class="pointer" target="_blank" v-bind:href='item.urlRepositorio'>{{item.urlRepositorio}} </a>
                     </td>
-                    <td>
+                    <td class="text-center">
                         {{item.fechaAceptacion}}
                     </td>
                     <td class="text-center">

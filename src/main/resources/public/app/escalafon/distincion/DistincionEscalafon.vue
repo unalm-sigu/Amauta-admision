@@ -6,8 +6,9 @@
             <thead>
                 <tr>
                     <th class="col-md-4 text-left">Distinción</th>
-                    <th class="col-md-6 text-left">Descripción</th>
+                    <th class="col-md-5 text-left">Descripción</th>
                     <th class="col-md-2 text-left">País</th>
+                    <th class="col-md-1 text-center">Fecha Premio</th>
                     <th></th>
                 </tr>
             </thead>
@@ -21,6 +22,9 @@
                     </td>
                     <td class="text-left">
                         {{item.pais.nombre}}
+                    </td>   
+                    <td class="text-center">
+                        {{item.fechaPremio}}
                     </td>   
                     <td class="text-center">
                         <div class="dropdown actions">

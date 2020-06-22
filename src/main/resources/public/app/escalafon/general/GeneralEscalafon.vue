@@ -111,9 +111,7 @@
             };
         },
         computed: {
-            escalafon() {
-                return this.$store.state.escalafon;
-            }
+            ...Vuex.mapState(['escalafon'])
         },
         mounted() {
         },
@@ -170,7 +168,7 @@
             },
             updateGeneral() {
                 let $vue = this;
-                if (!$("#form-validar-escalafon").parsley().validate()) {
+                if (!$("#form-validar-escalafon").parsley().validate() || $vue.isLoading) {
                     return;
                 }
                 $vue.isLoading = true;

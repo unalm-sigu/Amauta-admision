@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.Assert;
+import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.amauta.controller.comun.s3.UploadFileS3;
 import pe.edu.lamolina.amauta.dao.escalafon.AcademicoEscalafonDAO;
 import pe.edu.lamolina.amauta.dao.escalafon.AreaInvestigacionDAO;
@@ -184,10 +185,7 @@ public class EscalafonServiceImp implements EscalafonService {
             System.out.println("el archivo {} existe {} " + (GlobalConstantine.TMP_DIR + urlArchivoForm) + (file.exists()));
             Assert.isTrue(file.exists(), "No existe el archivo en el servidor");
             uploadFileS3.uploadSync(AcademicoConstantine.S3_ESCALAFON_CURRICULUM, GlobalConstantine.TMP_DIR, urlArchivoForm, true);
-
-//            String path = uploadFileS3.getPathFile(AcademicoConstantine.S3_ESCALAFON_CURRICULUM, urlArchivoForm);  /// ENUM FALTA DEFINIR EL DIRECTORIO
-            String path = uploadFileS3.getPathFile(GlobalConstantine.S3_PUBLIC_DIR, urlArchivoForm);  /// ENUM FALTA DEFINIR EL DIRECTORIO
-
+            String path = uploadFileS3.getPathFile(AcademicoConstantine.S3_ESCALAFON_CURRICULUM, urlArchivoForm);  /// ENUM FALTA DEFINIR EL DIRECTORIO
             escalafonBD.setArchivoCurriculum(path);
             isChange = true;
         }
@@ -205,7 +203,7 @@ public class EscalafonServiceImp implements EscalafonService {
         escalafonBD.setFechaActualizacion(new Date());
         escalafonDAO.update(escalafonBD);
 
-        if (isChange && urlArchivoForm != null && !urlArchivoForm.isEmpty()) {
+        if (isChange) {
             uploadFileS3.deleteFile(urlArchivoForm);
         }
         return escalafonBD;
@@ -260,6 +258,13 @@ public class EscalafonServiceImp implements EscalafonService {
                 break;
             default:
                 break;
+        }
+    }
+
+    @Override
+    public void verificarFecha(Date fechaInicio, Date fechaFinal) {
+        if (fechaFinal.before(fechaInicio)) {
+            throw new PhobosException("Ingrese las fechas de manera correcta");
         }
     }
 
