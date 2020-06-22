@@ -10,6 +10,7 @@ import pe.edu.lamolina.amauta.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.amauta.dao.academico.DocenteSeccionDAO;
 import pe.edu.lamolina.amauta.dao.academico.MatriculaSeccionDAO;
 import pe.edu.lamolina.amauta.dao.academico.SeccionDAO;
+import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
@@ -33,11 +34,11 @@ public class ReporteAlumnoCursosMatServiceImp implements ReporteAlumnoCursosMatS
     SeccionDAO seccionDAO;
 
     @Override
-    public List<MatriculaSeccion> downloadReporte(String seccionCode) {
-        CicloAcademico cicloAcademico = cicloAcademicoDAO.findByCodigoAndModalidad("202010", PRE);
+    public List<MatriculaSeccion> downloadReporte(String seccionCode, DataSessionPivot ds) {
+        CicloAcademico cicloAcademico = ds.getCicloAcademico();
         Seccion seccion = seccionDAO.findByCode2Ciclo(seccionCode, cicloAcademico);
 
-        List<MatriculaSeccion> lista = matriculaSeccionDAO.allByReporte(seccionCode);
+        List<MatriculaSeccion> lista = matriculaSeccionDAO.allByReporte(seccionCode, cicloAcademico);
         List<DocenteSeccion> docenteSeccions = docenteSeccionDAO.allBySeccion(seccion);
         Map<Long, List<DocenteSeccion>> mapDocente = TypesUtil.convertListToMapList("seccion.id", docenteSeccions);
 

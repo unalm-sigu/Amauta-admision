@@ -92,7 +92,7 @@ public interface MatriculaSeccionDAO extends EasyDAO<MatriculaSeccion> {
 
     List<MatriculaSeccion> allBySeccionesMat(List<Seccion> secciones);
 
-    public List<MatriculaSeccion> allByReporte(String string);
+    public List<MatriculaSeccion> allByReporte(String seccion, CicloAcademico cicloAcademico);
 
     List<MatriculaSeccion> allDataByReporte(String ciclo);
 }
