@@ -44,7 +44,8 @@ public class EscalafonDAOH extends AbstractEasyDAO<Escalafon> implements Escalaf
     public Escalafon findByPersona(Persona persona) {
         Octavia sql = new Octavia()
                 .from(Escalafon.class, "es")
-                .join("persona p", "paisNacimiento")
+                .join("persona p")
+                .leftJoin("paisNacimiento")
                 .filter("p.id", persona);
 
         return find(sql);

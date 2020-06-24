@@ -83,7 +83,7 @@
             eliminar(item, index) {
                 let $vue = this;
                 bootbox.confirm({
-                    message: MESSAGES.confirmDelete,
+                    message: Messages.confirmDelete,
                     buttons: {
                         confirm: {label: "Si, eliminar", className: "btn-danger"},
                         cancel: {label: "Cancelar", className: "btn-link"}

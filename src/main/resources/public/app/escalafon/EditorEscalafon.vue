@@ -3,7 +3,7 @@
         <header class="header padder-lg">
             <h2>Actualizar Escalafón</h2>
             <div class="pull-right m-t-md">                 
-                <a class="btn btn-info btn-sm" href='/escalafon'>Regresar</a>
+                <a class="btn btn-info btn-sm" v-bind:href="origen">Regresar</a>
             </div>  
         </header>
         <div class="tabbable-xpanel no-padxder">
@@ -32,7 +32,8 @@
         components: {},
         data() {
             return{
-                escalafon: JSON.parse(escalafonJson)
+                escalafon: JSON.parse(escalafonJson),
+                origen: origen
             };
         },
         computed: {
