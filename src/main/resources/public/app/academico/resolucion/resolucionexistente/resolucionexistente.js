@@ -5,7 +5,7 @@ Vue.component('file-upload', VueUploadComponent);
 var app = new Vue({
     el: '#resolucionReinForm',
     data: {
-        resolucion: {reincorporaciones: [], retiroCiclo: [], cambioNota: [], cursoDirigido: [], tramiteTraslado: [], cambioNotaMasBajas: []},
+        resolucion: resolucionJson != null ? JSON.parse(resolucionJson) : {reincorporaciones: [], retiroCiclo: [], cambioNota: [], cursoDirigido: [], tramiteTraslado: [], cambioNotaMasBajas: []},
         oficinas: JSON.parse(oficinasJson),
         ciclos: JSON.parse(ciclosJson),
         tiposResolucion: JSON.parse(tiposResolucionJson),
@@ -33,12 +33,31 @@ var app = new Vue({
             showaccept: false,
             confirm: false
         },
-        errores: []
+        errores: [],
+        isEdicion: false
     }, created: function () {
 
     }, mounted: function () {
         let $vue = this;
         $(".numerico").numeric({negative: false});
+
+        if ($vue.resolucion.id != null) {
+            $vue.isEdicion = true;
+            if ($vue.resolucion.isTipoRetiroCiclo) {
+                $vue.isRetiroCiclo = true;
+            } else if ($vue.resolucion.isTipoReincorporacion) {
+                $vue.isReincorporacion = true;
+            } else if ($vue.resolucion.isTipoCambioNota) {
+                $vue.isCambioNota = true;
+            } else if ($vue.resolucion.isTipoCursoDirigido) {
+                $vue.isCursoDirigido = true;
+            } else if ($vue.resolucion.isTipoTrasladoExterno) {
+                $vue.isTraslado = true;
+            } else if ($vue.resolucion.isTipoTrasladoInterno) {
+                $vue.isTrasladoInt = true;
+            }
+        }
+
     }, methods: {
         tipoResolucionSelect(item) {
             let $vue = this;

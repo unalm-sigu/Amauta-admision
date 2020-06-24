@@ -22,4 +22,6 @@ public interface ResolucionDAO extends EasyDAO<Resolucion> {
     Resolucion findById(Long resolucion);
 
     List<Resolucion> allByNombre(String nombre);
+
+    public void updateColumns(Resolucion resolucionBD, String... string);
 }

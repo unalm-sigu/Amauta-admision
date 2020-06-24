@@ -42,7 +42,7 @@ public interface ResolucionExistenteService {
 
     List<String> saveCursoDirigido(Resolucion resolucion, Usuario usuario, DataSessionPivot ds);
 
-    void saveTramiteTraslado(Resolucion resolucion, Usuario usuario, CicloAcademico cicloAcademico, Compania compania);
+    void saveTramiteTraslado(Resolucion resolucion, Usuario usuario, DataSessionPivot ds);
 
     List<TramiteTraslado> allTramiteTraslado(Resolucion resolucionDB);
 
@@ -52,8 +52,10 @@ public interface ResolucionExistenteService {
 
     public void generarNuevoPlan(Resolucion resolucion, DataSessionPivot ds);
 
-    String saveNotaMasBaja(Resolucion resolucionForm, Usuario usuario, CicloAcademico cicloAcademico, Compania compania);
+    String saveNotaMasBaja(Resolucion resolucionForm, Usuario usuario, DataSessionPivot ds);
 
     public List<AlumnoCicloCursoBean> allCiclosRepetido(Long idAlumno, DataSessionPivot ds);
+
+    public  List<String> updateResolucion(Resolucion resolucion, Usuario usuario, DataSessionPivot ds);
 
 }

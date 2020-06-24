@@ -7,11 +7,8 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import static pe.edu.lamolina.model.enums.ResolucionEstadoEnum.ACT;
-import pe.edu.lamolina.model.tramite.CambioNotaMasBaja;
 import pe.edu.lamolina.model.tramite.Reincorporacion;
 import pe.edu.lamolina.model.tramite.Resolucion;
-import pe.edu.lamolina.model.tramite.RetiroCiclo;
-import pe.edu.lamolina.model.tramite.RetiroCurso;
 import pe.edu.lamolina.amauta.dao.tramite.ResolucionDAO;
 
 @Repository
@@ -121,7 +118,7 @@ public class ResolucionDAOH extends AbstractEasyDAO<Resolucion> implements Resol
         Octavia sql = new Octavia()
                 .from(Resolucion.class)
                 .join("oficina ofi", "tipoResolucion tr", "userRegistro ur", "ur.persona")
-                .left("reunionConsejo re")
+                .left("reunionConsejo re", "cicloAplica")
                 .filter("id", resolucion);
         return this.find(sql);
     }
@@ -137,6 +134,15 @@ public class ResolucionDAOH extends AbstractEasyDAO<Resolucion> implements Resol
                 .__().filter("r.numero", "like", nombre)
                 .endBlock();
         return all(sql);
+    }
+
+    @Override
+    public void updateColumns(Resolucion resolucionBD, String... columns) {
+        Octavia octavia = Octavia.update(Resolucion.class);
+        for (String colum : columns) {
+            octavia.set(resolucionBD, colum);
+        }
+        this.update(octavia);
     }
 
 }

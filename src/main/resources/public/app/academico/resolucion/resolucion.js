@@ -47,14 +47,14 @@ var app = new Vue({
         alumnosCursoDirigido: [],
         alumnoTramiteTraslado: {},
         tipo: ""
-    }, 
+    },
     created: function () {
 
-    }, 
+    },
     mounted: function () {
         let $vue = this;
 
-    }, 
+    },
     methods: {
         cambiarEstadoReincorporacion: function (tramite, estadoDestino, event) {
             event.preventDefault();
@@ -103,16 +103,20 @@ var app = new Vue({
                 }
             });
 
-        }, 
+        },
         editarResolucion: function (resolucion, e) {
             e.preventDefault();
             location.href = APP.url("academico/resolucion/" + resolucion.id + "/editar");
-        }, 
+        },
+        editarResolucionOther: function (resolucion, e) {
+            e.preventDefault();
+            location.href = APP.url("academico/resolucion/updateresolucionExistentes/" + resolucion.id);
+        },
         loadModalSubirDoc: function (resolucion, e) {
             e.preventDefault();
             this.resolucion = resolucion;
             this.$refs.modalResolucion.open();
-        }, 
+        },
         saveResolucion(event) {
             if (event) {
                 event.preventDefault();
@@ -219,14 +223,14 @@ var app = new Vue({
                     newFile.url = URL.createObjectURL(newFile.file)
                 }
             }
-        }, 
+        },
         changeFile(value) {
             console.log("changeFile");
             console.dir(this.files);
-        }, 
+        },
         getEstadoClass: function (estadoCode) {
             return "label-" + this.colorEstado[estadoCode];
-        }, 
+        },
         loadModalConfirmar(resolucion, event) {
             event.preventDefault();
             let $vue = this;
@@ -249,7 +253,7 @@ var app = new Vue({
                     notify(Messages.errorComunicacion, "error");
                 }
             });
-        }, 
+        },
         saveConfirmarSubirDocumento(event) {
             let $vue = this;
             if (event) {
@@ -286,7 +290,7 @@ var app = new Vue({
                     notify(Messages.errorComunicacion, "error");
                 }
             });
-        }, 
+        },
         customLabelCiclosRei( { descripcion, tipo}) {
             if (descripcion != '' && tipo != '') {
                 return `${descripcion} - ${tipo}`;
