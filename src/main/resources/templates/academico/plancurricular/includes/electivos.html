@@ -23,7 +23,7 @@
     </tbody>
 </table>
 
-<div id="templateTrasladarObligatorios" type="text/x-jsrender" class="hide">
+<script id="templateTrasladarObligatorios" type="text/x-jsrender" class="hide">
     <form id="{{:form}}">
         <input type="hidden" name="id" value="{{:id}}"/>
         <input type="hidden" name="planCurricular.id" value="{{:idPlan}}"/>
@@ -50,7 +50,7 @@
             </select>
         </div>
     </form>
-</div>
+</script>
 
 <script id="templateCursoCurriculaElec" 
 type="text/x-jsrender" class="hide"><div th:substituteby="academico/plancurricular/includes/electivosTemplate"/></script>

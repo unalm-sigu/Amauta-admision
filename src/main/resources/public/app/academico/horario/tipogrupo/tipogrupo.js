@@ -10,7 +10,8 @@ new Vue({
             id: 'refTipoGrupo',
             header: true,
             title: 'Nuevo Tipo Grupo',
-            modalsize: 'modal-md'
+            modalsize: 'modal-md',
+            showaccept: true
         },
         tipoGrupoHoras: {},
         tiposCiclo: [],

@@ -42,7 +42,7 @@
             <div th:substituteby="academico/departamento/departamentoTemplate"></div>
         </script>
 
-        <div id="motivoDesactivacionTemplate" type="text/x-jsrender" class="hide">
+        <script id="motivoDesactivacionTemplate" type="text/x-jsrender" class="hide">
             <div class="panel-body" >
                 <form data-parsley-validate="true" method="POST" >
                     <div class="row" >
@@ -55,10 +55,10 @@
                     </div>
                 </form>
             </div>
-        </div>
+        </script>
         <div th:substituteby="templates/modal"/>
 
-        <div id="divListaDocente" type="text/x-jsrender" class="hide">
+        <script id="divListaDocente" type="text/x-jsrender" class="hide">
             <div class="panel-body">
                 {{for docentes}}
                 <div class="col-sm-4">
@@ -66,8 +66,8 @@
                 </div>
                 {{/for}}
             </div>
-        </div>
-        <div id="divListaCurso" type="text/x-jsrender" class="hide">
+        </script>
+        <script id="divListaCurso" type="text/x-jsrender" class="hide">
             <div class="panel-body">
                 {{for cursos}}
                 <div class="col-sm-4">
@@ -75,7 +75,7 @@
                 </div>
                 {{/for}}
             </div>
-        </div>
+        </script>
 
     </div>
 

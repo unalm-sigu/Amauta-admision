@@ -6,7 +6,7 @@ $(function () {
 
     });
 });
-Vue.component('date-picker', VueBootstrapDatetimePicker.default);
+Vue.component('date-picker', VueBootstrapDatetimePicker);
 new Vue({
     el: '#configuracion',
     data: {

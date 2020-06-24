@@ -746,7 +746,7 @@ new Vue({
         eliminarGrupos() {
             console.log("eliminar grupos");
             let $vue = this;
-            console.dir($vue.gpoSeccionesSelects);
+
 
             axios.post(APP.url(rutaModulo + '/eliminarGrupos'), $vue.gpoSeccionesSelects)
                     .then(function (response) {

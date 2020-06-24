@@ -734,7 +734,7 @@ VUE_MODAL = {
     }
 }
 
-MESSAGES = {
+const Messages = {
     errorComunicacion: 'Error de conexión con el servidor.',
     confirmDelete: '¿Seguro que desea eliminar?',
     confirmActive: '¿Seguro que desea activar?',
@@ -1024,6 +1024,6 @@ function barProgress(progressLineObject, direction) {
 }
 
 
-
-// FALSE PARA MOSTRAR LOS WARNINGS
+// Anular Warnings de Librerias
+Vue.config.productionTip = false;
 Vue.config.silent = true;
