@@ -1,6 +1,6 @@
 Vue.component("multiselect", window.VueMultiselect.default);
 Vue.component('file-upload', VueUploadComponent);
-Vue.component('date-picker', VueBootstrapDatetimePicker.default);
+Vue.component('date-picker', VueBootstrapDatetimePicker);
 new Vue({
     el: '#main',
     mixins: [VueLoader],

@@ -62,14 +62,18 @@ new Vue({
                     });
         },
         editar(item) {
-            return location.href = '/escalafon/update/' + item.id;
+            return APP.url('escalafon/update/' + item.id) + this.getOrigenURL();
         },
         ver(item) {
             return location.href = '/escalafon/info/' + item.id;
         },
+        getOrigenURL() {
+            var url = window.location.href;
+            return "?origen=" + Base64.encode(url);
+        },
         eliminar(item) {
             let $vue = this;
-            $vue.configConfirmAction.message = MESSAGES.confirmDelete;
+            $vue.configConfirmAction.message = Messages.confirmDelete;
             $vue.configConfirmAction.okbtn = "Si, eliminar";
             $vue.configConfirmAction.okclass = "btn-danger";
             $vue.configConfirmAction.okaction = function () {

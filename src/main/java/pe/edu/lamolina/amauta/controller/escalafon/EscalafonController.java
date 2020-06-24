@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
@@ -20,6 +21,7 @@ import pe.albatross.zelpers.json.JaneHelper;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
+import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorService;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.model.enums.NivelIdiomaEnum;
@@ -37,6 +39,9 @@ public class EscalafonController {
 
     @Autowired
     EscalafonService service;
+
+    @Autowired
+    VerificadorService verificadorService;
 
     @RequestMapping(method = RequestMethod.GET)
     public String index() {
@@ -126,7 +131,7 @@ public class EscalafonController {
     }
 
     @RequestMapping("update/{idEscalafon}")
-    public String editor(@PathVariable Long idEscalafon, Model model) {
+    public String editor(@PathVariable Long idEscalafon, Model model, @RequestParam("origen") String origen) {
         Escalafon escalafon = service.loadEscalafon(idEscalafon);
         model.addAttribute("escalafon", this.createEscalafonJson(escalafon).toString());
         model.addAttribute("listNivelesEnum", this.createNivelesJson().toString());
@@ -135,6 +140,7 @@ public class EscalafonController {
         model.addAttribute("listTipoProduccionEnum", this.createTipoProduccionJson().toString());
         model.addAttribute("listIdioma", this.createIdiomasJson(service.allIdioma()).toString());
         model.addAttribute("listAreaInvestigacion", this.createListAreaInvestigacionJson(service.allAreaInvestigacion()).toString());
+        model.addAttribute("origen", verificadorService.getOrigen(origen, "/"));
         return "escalafon/editorEscalafon";
     }
 
@@ -142,6 +148,16 @@ public class EscalafonController {
     public String info(@PathVariable Long idEscalafon, Model model) {
         Escalafon escalafon = service.loadEscalafon(idEscalafon);
         model.addAttribute("escalafon", this.createEscalafonJson(escalafon).toString());
+        model.addAttribute("isPerfil", false);
+        return "escalafon/infoEscalafon";
+    }
+
+    @RequestMapping("perfil")
+    public String perfil(Model model, HttpSession session) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        Escalafon escalafon = service.loadEscalafonByPersona(ds.getPersona(), ds.getUsuario());
+        model.addAttribute("escalafon", this.createEscalafonJson(escalafon).toString());
+        model.addAttribute("isPerfil", true);
         return "escalafon/infoEscalafon";
     }
 

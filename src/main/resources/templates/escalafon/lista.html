@@ -33,7 +33,7 @@
                                                     <div class="dropdown actions">
                                                         <a class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-cog"></i></a>
                                                         <ul class="dropdown-menu pull-right">
-                                                            <li><a class="pointer" v-on:click="editar(item)">Editar</a></li>
+                                                            <li><a class="pointer" v-bind:href="editar(item)">Editar</a></li>
                                                             <li><a class="pointer" v-on:click="ver(item)">Ver Escalafón</a></li>
                                                             <li><a class="pointer" v-on:click="eliminar(item)">Eliminar</a></li>
                                                         </ul>

@@ -7,6 +7,7 @@ import pe.edu.lamolina.model.escalafon.AreaInvestigacion;
 import pe.edu.lamolina.model.escalafon.Escalafon;
 import pe.edu.lamolina.model.escalafon.EscalafonConfirmBean;
 import pe.edu.lamolina.model.general.Idioma;
+import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.seguridad.Usuario;
 
 public interface EscalafonService {
@@ -30,5 +31,7 @@ public interface EscalafonService {
     void confirmarEscalafon(EscalafonConfirmBean escalafonConfirmBean);
 
     void verificarFecha(Date fechaInicio, Date fechaFinal);
+
+    Escalafon loadEscalafonByPersona(Persona persona, Usuario usuario);
 
 }

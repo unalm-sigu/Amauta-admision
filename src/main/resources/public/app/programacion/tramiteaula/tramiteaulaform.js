@@ -1,5 +1,6 @@
 Vue.component("multiselect", window.VueMultiselect.default);
-Vue.component('date-picker', VueBootstrapDatetimePicker.default);
+Vue.component('date-picker', VueBootstrapDatetimePicker);
+
 new Vue({
     el: '#main',
     data: {
@@ -12,7 +13,7 @@ new Vue({
             id: 'idInstitucionModal',
             header: true,
             title: 'Agregar Institución',
-            showaccept :true,
+            showaccept: true,
             okbtn: 'Agregar Institución'
         },
         rangofecha: true,

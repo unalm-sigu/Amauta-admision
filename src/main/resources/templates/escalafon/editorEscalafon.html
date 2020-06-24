@@ -10,6 +10,7 @@
         </section>
         <div layout:fragment="js" th:remove="tag">
             <script th:inline="javascript">
+                var origen = /*[[${origen}]]*/ '';
                 var escalafonJson = /*[[${escalafon}]]*/ '';
                 var listIdiomaJson = /*[[${listIdioma}]]*/ '';
                 var listAreaInvestigacionJson = /*[[${listAreaInvestigacion}]]*/ '';

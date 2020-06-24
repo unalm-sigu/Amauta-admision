@@ -35,6 +35,7 @@ import pe.edu.lamolina.model.escalafon.IdiomaEscalafon;
 import pe.edu.lamolina.model.escalafon.InvestigacionEscalafon;
 import pe.edu.lamolina.model.escalafon.ProduccionEscalafon;
 import pe.edu.lamolina.model.general.Idioma;
+import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.seguridad.Usuario;
 
 @Service
@@ -266,6 +267,21 @@ public class EscalafonServiceImp implements EscalafonService {
         if (fechaFinal.before(fechaInicio)) {
             throw new PhobosException("Ingrese las fechas de manera correcta");
         }
+    }
+
+    @Override
+    public Escalafon loadEscalafonByPersona(Persona persona, Usuario usuario) {
+        Escalafon escalafon = escalafonDAO.findByPersona(persona);
+        if (escalafon != null) {
+            escalafon = this.loadEscalafon(escalafon.getId());
+        } else {
+            escalafon = new Escalafon();
+            escalafon.setUsuarioRegistro(usuario.getId());
+            escalafon.setFechaCreacion(new Date());
+            escalafon.setPersona(persona);
+            escalafonDAO.save(escalafon);
+        }
+        return escalafon;
     }
 
 }

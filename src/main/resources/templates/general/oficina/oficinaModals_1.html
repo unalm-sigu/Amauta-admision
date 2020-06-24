@@ -1,4 +1,4 @@
-<div id="colaboradorTemplate" type="text/x-jsrender" class="hide" >
+<script id="colaboradorTemplate" type="text/x-jsrender" class="hide" >
     <div class="row">
         <div class="col-sm-3">
             {{:cargo}}
@@ -7,9 +7,9 @@
             {{:nombre}}
         </div>
     </div>
-</div>
+</script>
 
-<div id="jefeTemplate" type="text/x-jsrender" class="hide" >
+<script id="jefeTemplate" type="text/x-jsrender" class="hide" >
     <form id="{{:form}}">
         <input type="hidden" name="id" value="{{:id}}"/>
         <p class="m-b h5">
@@ -45,9 +45,9 @@
             <span id="errorFechaInicio"></span>
         </div>
     </form>
-</div>
+</script>
 
-<div id="encargadoTemplate" type="text/x-jsrender" class="hide" >
+<script id="encargadoTemplate" type="text/x-jsrender" class="hide" >
     <form id="{{:form}}">
         <input type="hidden" name="id" value="{{:id}}"/>
         <p class="m-b h5">
@@ -91,9 +91,9 @@
             </div>
         {{/if}}
     </form>
-</div>
+</script>
 
-<div id="finEncargoTemplate" type="text/x-jsrender" class="hide" >
+<script id="finEncargoTemplate" type="text/x-jsrender" class="hide" >
     <form id="{{:form}}">
         <input type="hidden" name="oficina.id" value="{{:id}}"/>
         <input type="hidden" name="encargado.id" value="{{:idEncargado}}"/>
@@ -128,9 +128,9 @@
             <span id="errorFechaInicio"></span>
         </div>
     </form>
-</div>
+</script>
 
-<div id="finJefaturaTemplate" type="text/x-jsrender" class="hide" >
+<script id="finJefaturaTemplate" type="text/x-jsrender" class="hide" >
     <form id="{{:form}}">
         <input type="hidden" name="id" value="{{:id}}"/>
         <input type="hidden" name="personaJefe.id" value="{{:idJefe}}"/>
@@ -165,4 +165,4 @@
             <span id="errorFecha"></span>
         </div>
     </form>
-</div>
+</script>

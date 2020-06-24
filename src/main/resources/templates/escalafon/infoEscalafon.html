@@ -8,7 +8,8 @@
                 <header class="header b-b padder-lg"> 
                     <h3>Información de Escalafón</h3>
                     <div class="pull-right m-t-md">                 
-                        <a class="btn btn-info btn-sm" href='/escalafon'>Regresar</a>
+                        <a class="btn btn-primary btn-sm" v-on:click="editar">Editar</a>
+                        <a class="btn btn-info btn-sm" v-if="!isPerfil" href='/escalafon'>Regresar</a>
                     </div> 
                 </header>
                 <section class="wrapper">
@@ -264,6 +265,7 @@
         <div layout:fragment="js">
             <script th:inline="javascript">
                 var escalafonJson = /*[[${escalafon}]]*/ '';
+                var isPerfil = /*[[${isPerfil}]]*/ '';
             </script>
             <script th:src="@{/app/escalafon/infoEscalafon.js}" charset="utf-8"></script>
         </div>

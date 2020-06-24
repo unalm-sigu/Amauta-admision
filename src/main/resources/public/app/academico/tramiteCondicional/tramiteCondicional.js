@@ -1,5 +1,5 @@
 Vue.component("multiselect", window.VueMultiselect.default);
-Vue.component('date-picker', VueBootstrapDatetimePicker.default);
+Vue.component('date-picker', VueBootstrapDatetimePicker);
 
 var app = new Vue({
     el: '#condicional',
