@@ -430,9 +430,18 @@ public class ResolucionExistentesController {
         } else if (resolucionDB.getTipoResolucion().getCodigo().equals(CURDIR.name())) {
             cursoDirigidos = service.allCursodirigido(resolucionDB);
             for (CursoDirigido cursoDir : cursoDirigidos) {
+
+                cursoDir.setAlumno(cursoDir.getTramite().getAlumno());
                 ObjectNode node = JsonHelper.createJson(cursoDir, JsonNodeFactory.instance, new String[]{
                     "*",
+                    "alumno.id",
+                    "alumno.codigo",
+                    "alumno.persona.*",
                     "curso.*",
+                    "docenteAsignado.*",
+                    "docenteAsignado.*",
+                    "docenteAsignado.persona.*",
+                    "tramite.*",
                     "tramite.alumno.*",
                     "tramite.alumno.persona.*",
                     "tramite.alumno.persona.tipoDocumento.*", //                        "cicloAcademico.*"
@@ -444,8 +453,12 @@ public class ResolucionExistentesController {
         } else if (Arrays.asList(TRAS.name(), INTES.name(), ING_HIS.name(), TRAS_INT.name()).contains(resolucionDB.getTipoResolucion().getCodigo())) {
             List<TramiteTraslado> tramiteTraslados = service.allTramiteTraslado(resolucionDB);
             for (TramiteTraslado tramiteTras : tramiteTraslados) {
+                tramiteTras.setAlumno(tramiteTras.getTramite().getAlumno());
                 ObjectNode node = JsonHelper.createJson(tramiteTras, JsonNodeFactory.instance, new String[]{
                     "*",
+                    "alumno.id",
+                    "alumno.codigo",
+                    "alumno.persona.*",
                     "tramite.cicloAcademico.id", "tramite.cicloAcademico.descripcion",
                     "tramite.alumno.*",
                     "tramite.alumno.persona.*",

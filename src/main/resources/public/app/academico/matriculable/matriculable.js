@@ -107,6 +107,31 @@ new Vue({
             $vue.matriculableSelected = item;
             $vue.$refs.modalInhabilitarMatriculable.open();
         },
+        habilitar() {
+            let $vue = this;
+            if (!$("#formInhabilitar").parsley().validate()) {
+                return;
+            }
+            $.ajax({
+                method: 'POST',
+                url: APP.url(`${rutaModulo}/habilitar`),
+                data: JSON.stringify($vue.matriculableSelected),
+                contentType: "application/json",
+                success: function (response) {
+                    if (response.success) {
+                        $vue.$refs.load.loadRemoteData();
+                        $vue.$refs.modalInhabilitarMatriculable.close();
+                        notify(response.message, "success");
+                    } else {
+                        notify(response.message, "error");
+                    }
+                },
+                error: function () {
+                    notify(Messages.errorComunicacion, "error");
+                    MODAL.hideWait();
+                }
+            });
+        },
         inhabilitar() {
             let $vue = this;
             if (!$("#formInhabilitar").parsley().validate()) {

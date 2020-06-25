@@ -51,11 +51,12 @@ var app = new Vue({
                 $vue.isCambioNota = true;
             } else if ($vue.resolucion.isTipoCursoDirigido) {
                 $vue.isCursoDirigido = true;
-            } else if ($vue.resolucion.isTipoTrasladoExterno) {
+            } else if ($vue.resolucion.isTipoTrasladoExterno || $vue.resolucion.isTipoIntercambioEstudiantil || $vue.resolucion.isTipoIngresoFisicoHistorial) {
                 $vue.isTraslado = true;
             } else if ($vue.resolucion.isTipoTrasladoInterno) {
                 $vue.isTrasladoInt = true;
             }
+            console.log($vue.resolucion);
         }
 
     }, methods: {
@@ -132,13 +133,13 @@ var app = new Vue({
 
             }
         },
-        cicloCambioNota(ciclo, item) {
+        cicloCambioNota(alumno, resolucion) {
             let $vue = this;
             $.ajax({
                 url: APP.url("academico/tramitecondicional/allCursosAlumnoByName"),
                 dataType: 'json',
                 type: 'post',
-                data: {idAlumno: item.alumno.id, idCiclo: ciclo.id}
+                data: {idAlumno: alumno.id, idCiclo: resolucion.cicloAplica.id}
             }).then(response => {
                 if (response.success) {
                     $vue.cursos = response.data;
@@ -219,6 +220,7 @@ var app = new Vue({
             }
             MODAL.showWait("Espere un momento por favor");
             $vue.errores = [];
+
             $.ajax({
                 url: APP.url('academico/resolucion/save'),
                 dataType: "json",
@@ -247,6 +249,61 @@ var app = new Vue({
                     notify(Messages.errorComunicacion, "error");
                 }
             });
+        },
+        updateResolucion() {
+            let $vue = this;
+            var valid = $('#form').parsley().validate();
+
+            if (!valid) {
+                return;
+            }
+
+            MODAL.showWait("Espere un momento por favor");
+            $vue.errores = [];
+
+
+            bootbox.confirm({
+                message: '¿Seguro que desea actualizar la resolución? ',
+                buttons: {
+                    confirm: {label: 'Sí, aceptar', className: "btn-warning"},
+                    cancel: {label: 'Cancelar', className: "btn-link"}
+                },
+                callback: function (result) {
+                    if (result) {
+                        $.ajax({
+                            url: APP.url('academico/resolucion/resolucionExistente/update'),
+                            dataType: "json",
+                            contentType: "application/json",
+                            type: 'POST',
+                            data: JSON.stringify($vue.resolucion),
+                            success: function (response) {
+                                if (response.success && response.data.length == 0) {
+                                    notify(response.message, 'info');
+                                    location.href = APP.url('academico/resolucion');
+
+                                } else {
+                                    if (response.data != null && response.data.length > 0) {
+                                        $vue.errores = response.data;
+                                        $vue.$refs.modalError.open();
+//                            $vue.resolucion = {reincorporaciones: [], retiroCiclo: [], cambioNota: [], cursoDirigido: [], tramiteTraslado: []};
+//                            $vue.alumnos = [];
+                                        notify("Algunos alumnos no pudieron ser matriculados.", 'error');
+                                    } else {
+                                        notify(response.message, 'error');
+                                    }
+                                }
+                                MODAL.hideWait();
+                            },
+                            error: function () {
+                                notify(Messages.errorComunicacion, "error");
+                            }
+                        });
+
+                    }
+                }
+            });
+
+
         },
         findDocente(nombre) {
             let $vue = this;

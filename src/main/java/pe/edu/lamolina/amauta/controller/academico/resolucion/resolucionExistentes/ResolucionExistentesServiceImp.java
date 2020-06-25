@@ -988,13 +988,19 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
     }
 
     @Override
+    @Transactional
     public List<String> updateResolucion(Resolucion resolucionForm, Usuario usuario, DataSessionPivot ds) {
         Resolucion resolucionBD = resolucionDAO.findById(resolucionForm.getId());
         resolucionBD.setFecha(resolucionForm.getFecha());
         resolucionBD.setSerie(resolucionForm.getSerie());
         resolucionBD.setNumero(resolucionForm.getNumero());
         resolucionBD.setOficina(resolucionForm.getOficina());
-        resolucionDAO.updateColumns(resolucionBD, "fecha", "serie", "numero", "oficina");
+        if (Arrays.asList(TRAS_INT.name(), TRAS.name(), INTES.name(), ING_HIS.name()).contains(resolucionBD.getTipoResolucion().getCodigo())) {
+            resolucionBD.setCicloAplica(resolucionForm.getCicloAplica());
+            resolucionDAO.updateColumns(resolucionBD, "fecha", "serie", "numero", "oficina", "cicloAplica");
+        } else {
+            resolucionDAO.updateColumns(resolucionBD, "fecha", "serie", "numero", "oficina");
+        }
 
         if (resolucionBD.isTipoReincorporacion()) {
             return Arrays.asList(this.saveReincorporaciones(resolucionForm, resolucionBD, ds));
@@ -1173,6 +1179,10 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
             for (AlumnoCicloCurso alumnoCicloCurso : alumnoCicloCursos) {
                 Integer count = alumnoCicloCurso.getVecesCursado() - 1;
                 alumnoCicloCurso.setVecesCursado(count);
+                if (cicloRetiro.isTipoRegular()) {
+                    Integer countRegu = alumnoCicloCurso.getVecesCursadoRegular() - 1;
+                    alumnoCicloCurso.setVecesCursadoRegular(countRegu);
+                }
                 if (resolucionBD.isTipoRetiroCiclo()) {
                     alumnoCicloCurso.setEstadoEnum(EstadoMatriculaEnum.RCI);
                 } else if (resolucionBD.isTipoAnulacionCiclo()) {
@@ -1196,6 +1206,11 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
         List<Alumno> alumnos = new ArrayList<>();
         EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.SOL_ACEP);
         for (CambioNota cambioNota : resolucionForm.getCambioNota()) {
+
+            if (cambioNota.getId() != null) {
+                continue;
+            }
+
             cambioNota.setCicloAcademico(resolucionForm.getCicloAplica());
 
             Tramite tramite = new Tramite();
@@ -1276,11 +1291,11 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
         EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.SOL_ACEP);
         EstadoTramite estadoTramiteRech = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.RHZ_SOL);
         for (TramiteTraslado tramiteTraslado : resolucionForm.getTramiteTraslado()) {
+            tramiteTraslado.setCicloAcademico(resolucionForm.getCicloAplica());
             if (tramiteTraslado.getId() != null) {
+//                tramiteTrasladoDAO.update(tramiteTraslado);
                 continue;
             }
-
-            tramiteTraslado.setCicloAcademico(resolucionForm.getCicloAplica());
 
             Tramite tramite = new Tramite();
             DateTime today = new DateTime();

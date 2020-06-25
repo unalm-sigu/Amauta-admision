@@ -124,7 +124,7 @@
                                                 required="true"
                                                 v-bind:allow-empty="true"
                                                 deselect-label="No se puede eliminar este valor" 
-                                                >
+                                                v-bind:disabled="isEdicion">
                                             </multiselect>
                                             <input v-model="resolucion.cicloAplica" required="true" type="text" class="hide"/>
                                         </div>
@@ -173,7 +173,7 @@
                                                                      deselect-label="No se puede eliminar este valor"
                                                                      v-bind:internal-search='false'
                                                                      placeholder="Ingresa un caracter como mínimo" 
-                                                                     v-bind:disabled="isEdicion">
+                                                                     v-bind:disabled="isEdicion &amp;&amp; reincorporacion.id != null">
                                                             <template slot="option" slot-scope="props">
                                                                 <div class="option__desc">
                                                                     <span class="option__title block bold">{{ props.option.persona.nombreCompleto }} </span>
@@ -192,7 +192,7 @@
                                             </td>
                                             <td class="v-middle text-center">
                                                 <div class="form-group">
-                                                    <input class="form-control" v-model="reincorporacion.motivoDesercion" required="true" type="text" v-bind:disabled="isEdicion"/>
+                                                    <input class="form-control" v-model="reincorporacion.motivoDesercion" required="true" type="text" v-bind:disabled="isEdicion &amp;&amp; reincorporacion.id != null"/>
                                                 </div>
                                             </td>
                                             <!--                                            <td class="v-middle text-left">
@@ -230,7 +230,9 @@
                                                                      v-bind:allow-empty="false"
                                                                      deselect-label="No se puede eliminar este valor"
                                                                      v-bind:internal-search='false'
-                                                                     placeholder="Ingresa un caracter como mínimo" >
+                                                                     placeholder="Ingresa un caracter como mínimo" 
+                                                                     v-bind:disabled="isEdicion &amp;&amp; retiroCiclo.id != null"
+                                                                     >
                                                             <template slot="option" slot-scope="props">
                                                                 <div class="option__desc">
                                                                     <span class="option__title block bold">{{ props.option.persona.nombreCompleto }} </span>
@@ -283,7 +285,9 @@
                                                                      v-bind:allow-empty="false"
                                                                      deselect-label="No se puede eliminar este valor"
                                                                      v-bind:internal-search='false'
-                                                                     placeholder="Ingresa un caracter como mínimo" >
+                                                                     v-on:select="cicloCambioNota($event,resolucion)"
+                                                                     placeholder="Ingresa un caracter como mínimo" 
+                                                                     v-bind:disabled="isEdicion &amp;&amp; cambioNota.id != null">
                                                             <template slot="option" slot-scope="props">
                                                                 <div class="option__desc">
                                                                     <span class="option__title block bold">{{ props.option.persona.nombreCompleto }} </span>
@@ -299,7 +303,7 @@
                                                 <span v-if="resolucion.tipoResolucion != null" class="block text-muted" v-text="resolucion.tipoResolucion.nombre"></span>
                                             </td>
                                             <td class="v-middle text-left">
-                                                <input class="form-control" v-model="cambioNota.motivo" required="true" type="text"/>
+                                                <input class="form-control" v-model="cambioNota.motivo" required="true" type="text"  v-bind:disabled="isEdicion &amp;&amp; cambioNota.id != null"/>
                                             </td>
                                             <!--                                            <td class="v-middle text-left">
                                                                                             <div class="col-md-12">
@@ -332,7 +336,8 @@
                                                                      v-bind:allow-empty="false"
                                                                      v-bind:internal-search='true'
                                                                      placeholder="Ingresa un caracter"                                         
-                                                                     required="true"  >
+                                                                     required="true"  
+                                                                     v-bind:disabled="isEdicion &amp;&amp; cambioNota.id != null">
                                                         </multiselect>
                                                     </div>
                                                 </div>
@@ -340,11 +345,11 @@
                                             </td>
                                             <td  class="v-middle text-left">                                                
                                                 <div class="col-md-12">
-                                                    <input class="form-control numerico" v-model="cambioNota.nota" required=""></input>
+                                                    <input class="form-control numerico" v-model="cambioNota.nota" required=""  v-bind:disabled="isEdicion &amp;&amp; cambioNota.id != null"></input>
                                                 </div>
                                             </td>
                                             <td>
-                                                <button v-on:click="deleteItem(index)" class="btn btn-danger" v-bind:disabled="isEdicion">
+                                                <button v-on:click="deleteItem(index)" class="btn btn-danger"  v-bind:disabled="isEdicion &amp;&amp; cambioNota.id != null">
                                                     <i class="fa fa-trash-o " aria-hidden="true"></i>
                                                 </button>
                                             </td>
@@ -362,7 +367,9 @@
                                                                      v-bind:allow-empty="false"
                                                                      deselect-label="No se puede eliminar este valor"
                                                                      v-bind:internal-search='false'
-                                                                     placeholder="Ingresa un caracter como mínimo" >
+                                                                     placeholder="Ingresa un caracter como mínimo" 
+                                                                     v-bind:disabled="isEdicion &amp;&amp; cursoDirigido.id != null"
+                                                                     >
                                                             <template slot="option" slot-scope="props">
                                                                 <div class="option__desc">
                                                                     <span class="option__title block bold">{{ props.option.persona.nombreCompleto }} </span>
@@ -378,7 +385,7 @@
                                                 <span v-if="resolucion.tipoResolucion != null" class="block text-muted" v-text="resolucion.tipoResolucion.nombre"></span>
                                             </td>
                                             <td class="v-middle text-left">
-                                                <input class="form-control" v-if="!cursoDirigido.seleccionado" v-model="cursoDirigido.motivoRechazo" required="true" type="text"/>
+                                                <input class="form-control" v-if="!cursoDirigido.seleccionado" v-model="cursoDirigido.motivoRechazo" required="true" type="text"  v-bind:disabled="isEdicion &amp;&amp; cursoDirigido.id != null"/>
                                             </td>
                                             <td class="v-middle text-left">
                                                 <div class="col-md-12" v-if="cursoDirigido.seleccionado">
@@ -395,6 +402,7 @@
                                                             deselect-label="No se puede eliminar este valor"
                                                             track-by="id" 
                                                             required="true"
+                                                            v-bind:disabled="isEdicion &amp;&amp; cursoDirigido.id != null"
                                                             >
                                                         </multiselect>
                                                         <input v-model="cursoDirigido.docenteAsignado" required="true" type="text" class="hide"/>
@@ -405,14 +413,15 @@
                                                 <label class="switch">
                                                     <input type="checkbox" 
                                                            v-model="cursoDirigido.seleccionado"
-                                                           checked="1"/>
+                                                           checked="1"
+                                                           v-bind:disabled="isEdicion &amp;&amp; cursoDirigido.id != null"/>
                                                     <span class="slider round"></span>
                                                 </label>
                                             </td>
                                             <td>
-                                                <button v-on:click="deleteItem(index)" class="btn btn-danger" v-bind:disabled="isEdicion">
+                                                <button v-on:click="deleteItem(index)" class="btn btn-danger"  v-bind:disabled="isEdicion &amp;&amp; cursoDirigido.id != null">
                                                     <i class="fa fa-trash-o " aria-hidden="true"></i>
-                                                </button>>
+                                                </button>
                                             </td>
                                         </tr>
                                         <tr v-for="(tramiteTraslado , index) in resolucion.tramiteTraslado" v-if="isTraslado || isTrasladoInt"> 
@@ -428,7 +437,8 @@
                                                                      v-bind:allow-empty="false"
                                                                      deselect-label="No se puede eliminar este valor"
                                                                      v-bind:internal-search='false'
-                                                                     placeholder="Ingresa un caracter como mínimo" >
+                                                                     placeholder="Ingresa un caracter como mínimo" 
+                                                                     v-bind:disabled="isEdicion &amp;&amp; tramiteTraslado.id != null">
                                                             <template slot="option" slot-scope="props">
                                                                 <div class="option__desc">
                                                                     <span class="option__title block bold">{{ props.option.persona.nombreCompleto }} </span>
@@ -470,6 +480,7 @@
                                                         required="true"
                                                         v-bind:allow-empty="true"
                                                         deselect-label="No se puede eliminar este valor" 
+                                                        v-bind:disabled="isEdicion &amp;&amp; tramiteTraslado.id != null"
                                                         >
                                                     </multiselect>
                                                     <!--<input v-model="tramiteTraslado.carrera" required="true" type="text" class="hide"/>-->
@@ -479,14 +490,14 @@
                                                 <label class="switch" >
                                                     <input type="checkbox" 
                                                            v-model="tramiteTraslado.seleccionado"
-                                                           checked="1"/>
+                                                           checked="1" v-bind:disabled="isEdicion &amp;&amp; tramiteTraslado.id != null"/>
                                                     <span class="slider round"></span>
                                                 </label>
                                             </td>
                                             <td class="v-middle text-center">
-                                                <button v-on:click="deleteItem(index)" class="btn btn-danger" v-bind:disabled="isEdicion">
+                                                <button v-on:click="deleteItem(index)" class="btn btn-danger" v-bind:disabled="isEdicion &amp;&amp; tramiteTraslado.id != null">
                                                     <i class="fa fa-trash-o " aria-hidden="true"></i>
-                                                </button>>
+                                                </button>
                                             </td>
                                         </tr>
                                         <tr v-if="isNotaBaja " v-for="(tramiteNotabaja , index) in resolucion.cambioNotaMasBajas">
@@ -545,7 +556,8 @@
                                 </table>
 
                                 <button type="button" v-on:click="addResolucion" class="btn btn-primary pull-right m-t-md">Agregar Alumno</button>
-                                <button type="button" v-on:click="save" class="btn btn-primary pull-left m-t-md">Guardar</button>
+                                <button v-if="resolucion.id == null" type="button" v-on:click="save" class="btn btn-primary pull-left m-t-md">Guardar</button>
+                                <button v-else="" type="button" v-on:click="updateResolucion" class="btn btn-primary pull-left m-t-md">Actualizar</button>
                                 <!--                                <button type="button" v-on:click="saveResolucion($event)" 
                                                                         th:unless="${resolucion.isEstadoDocConf}"
                                                                         class="btn btn-success pull-right m-t-xs">Guardar</button>
@@ -576,8 +588,8 @@
 
         <div th:substituteby="_modules/vue-raptor-table"/>
 
-        
-        
+
+
         <script th:src="@{/app/academico/resolucion/resolucionexistente/resolucionexistente.js}" charset="utf-8"></script> 
     </div>
 </body>

@@ -1,6 +1,6 @@
 <modal-vik ref="modalInhabilitarMatriculable"
            v-bind="modalInhabilitarMatriculable"
-           v-bind:okaction="inhabilitar">
+           v-bind:okaction="matriculableSelected.estado == 'NMAT' ? inhabilitar : habilitar">
     <div slot="body">
         <div class="modal-body">
             <form id="formInhabilitar" data-parsley-validate="true"><!-- method="POST" th:action="@{/academico/matriculable/save}"-->

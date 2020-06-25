@@ -119,7 +119,6 @@ public class ResolucionController {
             HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
-            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             response.setSuccess(Boolean.TRUE);
 

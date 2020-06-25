@@ -1449,7 +1449,7 @@ public class MatriculableServiceImp implements MatriculableService {
                         continue;
                     }
                 }
-                if (situacionesNoAptas.contains(alumno.getSituacionAcademica().getCodigo())) {
+                if (situacionesNoAptas.contains(alumno.getSituacionAcademica().getCodigo()) && !alumno.getEsMatriculaCondicional()) {
                     if (matriculable != null && Arrays.asList(NMAT, MAT).contains(matriculable.getEstadoEnum())) {
                         matriculable.setEstadoEnum(INH);
                         matriculaResumenDAO.update(matriculable);
