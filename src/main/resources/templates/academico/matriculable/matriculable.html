@@ -197,7 +197,7 @@
                                                             <li th:if="${puedeMatricular OR puedeEditarAlumno}" role="separator" class="divider"></li>
                                                             <!--<li><a class="ver-cursos pointer" >Ver Cursos</a></li>rel="{{:id}}"-->
                                                             <li th:if="${puedeMatricular}" v-if="item.estado == 'NMAT'"><a v-on:click="inhabilitarModal(item)" href="#">Inhabilitar</a></li>
-                                                            <li th:if="${puedeMatricular}" v-if="item.estado == 'INH'"><a v-on:click="inhabilitarModal(item)" href="#">Habilitar</a></li>
+                                                            <!--<li th:if="${puedeMatricular}" v-if="item.estado == 'INH'"><a v-on:click="inhabilitarModal(item)" href="#">Habilitar</a></li>-->
                                                             <li><a v-bind:href="urlAcademico(item)">Información académica</a></li>
                                                             <li th:if="${puedeMatricular OR puedeEditarAlumno}"><a class="modificar-datos" href="#">Modificar datos</a></li>
                                                             <li th:if="${puedeMatricular OR puedeMatricularPosgrado}"><a v-if='isPosgrado(item.alumno.modalidadEstudio)' v-bind:href="urlHabilitarCursos(item.alumno)">Habilitar Curso</a></li>
