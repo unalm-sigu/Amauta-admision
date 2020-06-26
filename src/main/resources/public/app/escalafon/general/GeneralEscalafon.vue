@@ -2,7 +2,7 @@
     <div class="panel-body">
         <h3 class="page-header"> Datos Generales </h3>
         <form id="form-validar-escalafon">
-            <div class="col-xs-6">
+            <div class="form-group col-xs-6">
                 <label>Persona</label>
                 <multiselect 
                     v-model="escalafon.persona"
@@ -19,7 +19,7 @@
                 </multiselect>
                 <input v-model="escalafon.persona"  class="form-control hide" required="true"/>
             </div>
-            <div class="col-xs-6">
+            <div class="form-group col-xs-6">
                 <label>País</label>
                 <multiselect  
                     v-model="escalafon.paisNacimiento"
@@ -36,32 +36,32 @@
                 </multiselect>                 
                 <input type="text" required="true" class="hide" v-model="escalafon.paisNacimiento"/>      
             </div>
-            <div class="col-xs-6">
+            <div class="form-group  col-xs-6">
                 <label>Correo Electrónico Personal</label>
                 <input style='height: 40px' type="email" v-model="escalafon.emailPersonal" class="form-control verificar-email"/>
             </div>
-            <div class="col-xs-6">
+            <div class="form-group  col-xs-6">
                 <label>Celular</label>
                 <input  style='height: 40px' type="text" v-model="escalafon.celular" class="form-control sin-espacios numerico"/>
             </div>
-            <div class="col-xs-4">
+            <div class="form-group  col-xs-4">
                 <label>Código Dina</label>
                 <input  style='height: 40px' type="text" v-model="escalafon.codigoDina" class="form-control"/>
             </div>
-            <div class="col-xs-4">
+            <div class="form-group  col-xs-4">
                 <label>Código Scopus</label>
                 <input  style='height: 40px' type="text" v-model="escalafon.codigoScopus" class="form-control"/>
             </div>
-            <div class="col-xs-4">
+            <div class="form-group  col-xs-4">
                 <label>Código Orcid</label>
                 <input  style='height: 40px' type="text" v-model="escalafon.codigoOrcid" class="form-control"/>
             </div>
-            <div class="col-xs-6">
+            <div class="form-group col-xs-6">
                 <label>Website</label>
                 <input style='height: 40px' type="text" v-model="escalafon.website" class="form-control"/>
             </div>
             <div class="col-xs-2"></div>
-            <div class="col-xs-6">
+            <div class="form-group col-xs-6">
                 <label>Archivo Curriculum <a v-if="escalafon.archivoCurriculum != null &amp;&amp; escalafon.archivoCurriculum.substr(0,4) == 'http'" class="pointer" v-bind:href="escalafon.archivoCurriculum" target="_blank">(Ver Archivo)</a></label>
                 <div class="row">
                     <div class="col-xs-6">
