@@ -36,7 +36,7 @@
         </section>
 
         <div th:substituteby="templates/modal"/>
-        <script id="templateCargaAcademicaDocente" type="text/x-jsrender" class="hide"><div th:substituteby="academico/profesor/templateCargaAcademicaProfesor"/></script>
+        <script id="templateCargaAcademicaDocente" type="text/x-template" class="hide"><div th:substituteby="academico/profesor/templateCargaAcademicaProfesor"/></script>
     </div>
     <div layout:fragment="js">
         <div th:substituteby="_layout/includes :: javascript-dynatable"/>

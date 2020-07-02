@@ -62,7 +62,7 @@
 
 </section>
 
-<script id="templateTrasladarCiclos" type="text/x-jsrender" class="hide">
+<script id="templateTrasladarCiclos" type="text/x-template" class="hide">
     <form id="{{:form}}">
         <input type="hidden" name="id" value="{{:id}}"/>
         <input type="hidden" name="planCurricular.id" value="{{:idPlan}}"/>
@@ -86,7 +86,7 @@
     </form>
 </script>
 
-<script id="templateTrasladarElectivos" type="text/x-jsrender" class="hide">
+<script id="templateTrasladarElectivos" type="text/x-template" class="hide">
     <form id="{{:form}}">
         <input type="hidden" name="id" value="{{:id}}"/>
         <input type="hidden" name="planCurricular.id" value="{{:idPlan}}"/>
@@ -106,9 +106,9 @@
     </form>
 </script>
 
-<script id="preRequisitosTemplate" type="text/x-jsrender" class="hide"><div th:substituteby="academico/plancurricular/includes/preRequisitosTemplate"></div></script>
+<script id="preRequisitosTemplate" type="text/x-template" class="hide"><div th:substituteby="academico/plancurricular/includes/preRequisitosTemplate"></div></script>
 
-<script id="equivalentesTemplate" type="text/x-jsrender" class="hide"><div th:substituteby="academico/plancurricular/includes/equivalentesTemplate"></div></script>
+<script id="equivalentesTemplate" type="text/x-template" class="hide"><div th:substituteby="academico/plancurricular/includes/equivalentesTemplate"></div></script>
     
 <script id="templateCursoCurricula" 
-type="text/x-jsrender" class="hide"><div th:substituteby="academico/plancurricular/includes/obligatoriosTemplate"/></script>
+type="text/x-template" class="hide"><div th:substituteby="academico/plancurricular/includes/obligatoriosTemplate"/></script>

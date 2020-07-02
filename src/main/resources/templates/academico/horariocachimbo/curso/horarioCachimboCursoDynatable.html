@@ -1,4 +1,4 @@
-<template id="dynatableTemplate">
+<script  type="text/x-template"  id="dynatableTemplate">
     <transition name="fade">
 
         <div class="panel padder-v">
@@ -25,9 +25,9 @@
         </div>
 
     </transition>
-</template>
+</script>
 
-<template  type="text/x-template" id="dynatableRowTemplate">
+<script  type="text/x-template" id="dynatableRowTemplate">
     <tr>
 
         <td class="v-middle">
@@ -83,9 +83,9 @@
         </td>
 
     </tr>
-</template>
+</script>
 
-<template  type="text/x-template" id="itemCursoTemplate">
+<script  type="text/x-template" id="itemCursoTemplate">
     <tr>
         <td>
             <input type="text"
@@ -101,9 +101,9 @@
             <i class="fa fa-times pointer"  v-on:click.prevent="deleteItem" :rel="curso.creditos"  aria-hidden="true"></i>
         </td>
     </tr>
-</template>
+</script>
 
-<script id="divBuscarCurso" type="text/x-jsrender" class="hide" >
+<script id="divBuscarCurso" type="text/x-template" class="hide" >
     <span class="block bold h5 m-b-xs m-t-xs">{{:curso}}</span>
     <small class="block">
         {{:codigo}} &nbsp; <i class="fa fa-bookmark-o"></i> {{:tpc}} &nbsp;
@@ -120,7 +120,7 @@
     {{/if}}
 </script>
 
-<script id="divBuscarCarrera" type="text/x-jsrender" class="hide" >
+<script id="divBuscarCarrera" type="text/x-template" class="hide" >
     <span class="block bold h5 m-b-xs m-t-xs">{{:nombre}}</span>
     <small class="block">
         Facultad de &nbsp; {{:facultad}} &nbsp;
