@@ -16,7 +16,7 @@
         "bootstrap-timepicker": "^0.5.2",
         "ckeditor4-vue": "^1.0.0",
         "cropperjs": "^1.5.7",
-        "fontawesome-iconpicker": "^3.2.0",
+        "fontawesome-iconpicker": "1.4.1",
         "fullcalendar": "^2.9.1",
         "highcharts": "6",
         "http-vue-loader": "https://github.com/FranckFreiburger/http-vue-loader",
