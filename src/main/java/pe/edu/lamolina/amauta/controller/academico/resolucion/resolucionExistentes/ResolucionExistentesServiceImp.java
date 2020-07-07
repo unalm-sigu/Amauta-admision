@@ -1317,8 +1317,8 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
             tramite.setCompania(ds.getCompania());
             tramite.setAlumno(alumno);
             tramite.setCicloAcademico(ds.getCicloAcademico());
-            tramite.setEstadoEnum(tramiteTraslado.getSeleccionado() ? TramiteEstadoEnum.ACEP : TramiteEstadoEnum.RCHZ);
             tramite.setEstadoTramite(tramiteTraslado.getSeleccionado() ? estadoTramite : estadoTramiteRech);
+            tramite.setEstadoEnum(tramiteTraslado.getSeleccionado() ? TramiteEstadoEnum.ACEP : TramiteEstadoEnum.RCHZ);
             tramite.setFechaRegistro(new Date());
             tramite.setPersona(alumno.getPersona());
             tramite.setTipoTramite(tipoTramite);
