@@ -1,4 +1,4 @@
-<template  type="text/x-template" id="itemCarreraTemplate">
+<script  type="text/x-template" id="itemCarreraTemplate">
     <tr>
         <td>
             <input type="text"
@@ -18,8 +18,8 @@
             <i class="fa fa-times pointer"  v-on:click="deleteItem"  aria-hidden="true"></i>
         </td>
     </tr>
-</template>
+</script>
 
-<script id="divBuscarCarrera" type="text/x-jsrender" class="hide" >
+<script id="divBuscarCarrera" type="text/x-template" class="hide" >
     <span class="block bold h5 m-b-xs m-t-xs">{{:descripcionCarreraFacultad}}</span>
 </script>

@@ -1,4 +1,4 @@
-<template id="dynatableTemplate">
+<script type="text/x-template" id="dynatableTemplate">
     <transition name="fade">
 
 
@@ -20,9 +20,9 @@
 
 
     </transition>
-</template>
+</script>
 
-<template  type="text/x-template" id="dynatableRowTemplate">
+<script  type="text/x-template" id="dynatableRowTemplate">
     <tr v-bind:class="{'text-primary':encuesta.tipoCodigo=='ENC_DOC','text-success':encuesta.tipoCodigo=='ENC_CUR'}">
 
         <td class="v-middle text-center"> {{encuesta.codigo}} </td>
@@ -73,10 +73,10 @@
         </td>
 
     </tr>
-</template>
+</script>
 
 
-<script id="divBuscarCurso" type="text/x-jsrender" class="hide" >
+<script id="divBuscarCurso" type="text/x-template" class="hide" >
     <div >
         <span class="block bold h5 m-b-xs m-t-xs">{{info.curso}}</span>
 

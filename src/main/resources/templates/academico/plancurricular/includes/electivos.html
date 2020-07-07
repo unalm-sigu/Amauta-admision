@@ -23,7 +23,7 @@
     </tbody>
 </table>
 
-<script id="templateTrasladarObligatorios" type="text/x-jsrender" class="hide">
+<script id="templateTrasladarObligatorios" type="text/x-template" class="hide">
     <form id="{{:form}}">
         <input type="hidden" name="id" value="{{:id}}"/>
         <input type="hidden" name="planCurricular.id" value="{{:idPlan}}"/>
@@ -53,6 +53,6 @@
 </script>
 
 <script id="templateCursoCurriculaElec" 
-type="text/x-jsrender" class="hide"><div th:substituteby="academico/plancurricular/includes/electivosTemplate"/></script>
+type="text/x-template" class="hide"><div th:substituteby="academico/plancurricular/includes/electivosTemplate"/></script>
 
-<script id="equivalentesElectivoTemplate" type="text/x-jsrender" class="hide"><div th:substituteby="academico/plancurricular/includes/equivalentesElectivoTemplate"></div></script>
+<script id="equivalentesElectivoTemplate" type="text/x-template" class="hide"><div th:substituteby="academico/plancurricular/includes/equivalentesElectivoTemplate"></div></script>

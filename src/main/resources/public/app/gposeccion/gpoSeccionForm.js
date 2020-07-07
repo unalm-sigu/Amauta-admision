@@ -1332,6 +1332,7 @@ var app = new Vue({
             let target = $(event.target);
             target.parsley().destroy();
             target.parsley();
+
             if (target.parsley().validate() !== true) {
                 return;
             }

@@ -56,10 +56,10 @@
 </div>
 
 <script id="templateEquivalenteCursoObligatorio" 
-type="text/x-jsrender" class="hide"><div th:substituteby="academico/plancurricular/agregarCursoEquiElecTemplate"/></script>
+type="text/x-template" class="hide"><div th:substituteby="academico/plancurricular/agregarCursoEquiElecTemplate"/></script>
 
 
-<script id="templateEquivalentesCursos" type="text/x-jsrender" class="hide">
+<script id="templateEquivalentesCursos" type="text/x-template" class="hide">
     {{for array ~grupo=grupo ~cursoOpcionalCurricula=cursoOpcionalCurricula}}
     <tr>
     {{if #index == 0}}

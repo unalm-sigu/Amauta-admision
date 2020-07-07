@@ -300,7 +300,7 @@
 
             </div>
 
-            <template  type="text/x-template" id="divBuscarAlumno">
+            <script  type="text/x-template" id="divBuscarAlumno">
                 <div>
                     <span class="block bold">{{item.persona.nombreCompleto}}</span>
                     <span class="block">{{item.carrera.nombre}}
@@ -309,7 +309,7 @@
                     <small class="block">{{item.codigo}} </small>
                     <small v-if="item.nroDocumento != undefined " class="block">{{item.persona.tipoDocumento.simbolo}} {{item.persona.numeroDocIdentidad}} </small>
                 </div>
-            </template>
+            </script>
 
 
         </div>

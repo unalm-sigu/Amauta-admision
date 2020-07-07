@@ -1,4 +1,4 @@
-<script id="colaboradorTemplate" type="text/x-jsrender" class="hide" >
+<script id="colaboradorTemplate" type="text/x-template" class="hide" >
     <div class="row">
         <div class="col-sm-3">
             {{:cargo}}
@@ -9,7 +9,7 @@
     </div>
 </script>
 
-<script id="jefeTemplate" type="text/x-jsrender" class="hide" >
+<script id="jefeTemplate" type="text/x-template" class="hide" >
     <form id="{{:form}}">
         <input type="hidden" name="id" value="{{:id}}"/>
         <p class="m-b h5">
@@ -47,7 +47,7 @@
     </form>
 </script>
 
-<script id="encargadoTemplate" type="text/x-jsrender" class="hide" >
+<script id="encargadoTemplate" type="text/x-template" class="hide" >
     <form id="{{:form}}">
         <input type="hidden" name="id" value="{{:id}}"/>
         <p class="m-b h5">
@@ -93,7 +93,7 @@
     </form>
 </script>
 
-<script id="finEncargoTemplate" type="text/x-jsrender" class="hide" >
+<script id="finEncargoTemplate" type="text/x-template" class="hide" >
     <form id="{{:form}}">
         <input type="hidden" name="oficina.id" value="{{:id}}"/>
         <input type="hidden" name="encargado.id" value="{{:idEncargado}}"/>
@@ -130,7 +130,7 @@
     </form>
 </script>
 
-<script id="finJefaturaTemplate" type="text/x-jsrender" class="hide" >
+<script id="finJefaturaTemplate" type="text/x-template" class="hide" >
     <form id="{{:form}}">
         <input type="hidden" name="id" value="{{:id}}"/>
         <input type="hidden" name="personaJefe.id" value="{{:idJefe}}"/>
