@@ -1365,7 +1365,7 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
                             alumno.setOrientacionCarrera(null);
                             break;
                         } else {
-                            if (orientacionCarrera != null && planCurricular.getOrientacionCarrera().getId() == orientacionCarrera.getId()) {
+                            if (orientacionCarrera != null && Objects.equals(planCurricular.getOrientacionCarrera().getId(), orientacionCarrera.getId())) {
                                 alumno.setOrientacionCarrera(planCurricular.getOrientacionCarrera());
                                 planCurricularBD = planCurricular;
                             }
