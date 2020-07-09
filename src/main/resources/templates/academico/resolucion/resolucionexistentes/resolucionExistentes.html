@@ -483,14 +483,15 @@
                                                         v-bind:disabled="isEdicion &amp;&amp; tramiteTraslado.id != null"
                                                         >
                                                     </multiselect>
-                                                    <!--<input v-model="tramiteTraslado.carrera" required="true" type="text" class="hide"/>-->
+                                                    <input v-model="tramiteTraslado.carrera" required="true" type="text" class="hide"/>
                                                 </div>
                                             </td>
                                             <td>
-                                                <label class="switch" >
+                                                <label class="switch">
                                                     <input type="checkbox" 
                                                            v-model="tramiteTraslado.seleccionado"
-                                                           checked="1" v-bind:disabled="isEdicion &amp;&amp; tramiteTraslado.id != null"/>
+                                                           id="tramiteTraslado"
+                                                           checked="1" />
                                                     <span class="slider round"></span>
                                                 </label>
                                             </td>

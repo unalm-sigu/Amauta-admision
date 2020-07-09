@@ -176,10 +176,10 @@ var app = new Vue({
                 var cambioNota = {};
                 $vue.resolucion.cambioNota.push(cambioNota);
             } else if ($vue.isCursoDirigido) {
-                var cursoDirigido = {};
+                var cursoDirigido = {seleccionado: true};
                 $vue.resolucion.cursoDirigido.push(cursoDirigido);
             } else if ($vue.isTraslado || $vue.isTrasladoInt) {
-                var traslado = {};
+                var traslado = {seleccionado: true};
                 $vue.resolucion.tramiteTraslado.push(traslado);
             } else if ($vue.isNotaBaja) {
                 var notaBaja = {alumnoCicloCursoBeans: []};
