@@ -19,6 +19,7 @@ Vue.component("horario-component", {
             horarios: [],
             secciones: [],
             coloresCurso: [],
+            classInit: 'curso size-1 ',
             horas: [],
             allHoras: JSON.parse(horasJson),
         }
@@ -76,18 +77,27 @@ Vue.component("horario-component", {
             });
         },
         getColorBySeccion(seccion) {
+//            let vue = this;
+//            let classDiv = "";
+//            vue.coloresCurso.map(function (data, index) {
+//                if (seccion.codigo2 === data.seccion) {
+//                    classDiv = data.color;
+//                }
+//            });
+//            if (seccion.horasContinuas == 1) {
+//                return  "curso size-1 " + classDiv;
+//            } else {
+//                return "curso size-" + seccion.horasContinuas + "-horas " + classDiv;
+//            }
             let vue = this;
             let classDiv = "";
+
             vue.coloresCurso.map(function (data, index) {
-                if (seccion.codigo2 === data.seccion) {
+                if (seccion === data.seccion) {
                     classDiv = data.color;
                 }
             });
-            if (seccion.horasContinuas == 1) {
-                return  "curso size-1 " + classDiv;
-            } else {
-                return "curso size-" + seccion.horasContinuas + "-horas " + classDiv;
-            }
+            return  vue.classInit + classDiv;
         },
         settingHoras() {
             let vue = this;
