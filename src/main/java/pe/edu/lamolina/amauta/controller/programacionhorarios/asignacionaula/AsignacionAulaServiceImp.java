@@ -167,8 +167,8 @@ public class AsignacionAulaServiceImp implements AsignacionAulaService {
                 .collect(Collectors.toList());
 
         //Ordernar por horas semanalaes de mayor a menor
-//        Collections.sort(seccionesByCiclo, (p1, p2) -> p2.getHorasSemanales().compareTo(p1.getHorasSemanales()));
         Collections.sort(seccionesByCiclo, (p1, p2) -> p2.getVacantes().compareTo(p1.getVacantes()));
+        Collections.sort(seccionesByCiclo, (p1, p2) -> p2.getHorasSemanales().compareTo(p1.getHorasSemanales()));
 
         EventoCicloAcademico eventoCicloDictado = eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(ds.getCicloAcademico(), EventoAcademicoEnum.CLASES_PRE);
         List<Aula> aulas = aulaDAO.allByOficinaSupervisora(OficinaEnum.OERA, EstadoEnum.ACT);

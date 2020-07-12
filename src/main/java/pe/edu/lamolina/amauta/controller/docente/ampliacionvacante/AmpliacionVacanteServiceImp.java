@@ -483,7 +483,7 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
 //        }
 //        if (seccion.isTipoSeccionTCUR()) {
         Seccion seccionTCUR = matriculaSeccion.getSeccion().getSeccionSuperior();
-        MatriculaSeccion matriculaSeccionTCUR = matriculaSeccionDAO.findByMatriculaMatSeccionAndNoEstado(matriculaCurso.getMatriculaResumen(), seccionTCUR, EstadoMatriculaEnum.RHZ);
+        MatriculaSeccion matriculaSeccionTCUR = matriculaSeccionDAO.findByMatriculaMatSeccion(matriculaCurso.getMatriculaResumen(), seccionTCUR, SOL);
         this.aceptarMatriculaSeccion(matriculaSeccionTCUR, ds);
 //        }
         this.calcularMatriculaResumenInfoMatriculas(matriculaCurso.getMatriculaResumen(), matriculaCurso, EstadoMatriculaEnum.MAT);
