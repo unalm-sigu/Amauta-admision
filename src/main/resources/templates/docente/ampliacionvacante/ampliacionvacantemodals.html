@@ -61,7 +61,7 @@
                             <div class="col-sm-5">
                                 <p class="text-primary block">{{props.option.persona.nombreCompleto}}</p> 
                                 <p class="block">{{props.option.codigo}}</p>
-                                <span v-if="props.option.situacion=='0' " class="text-xs bold text-danger">No Matriculable</span>
+                                <span v-if="props.option.situacion=='0' " class="text-xs bold text-danger">{{props.option.motivoMatriculable}}</span>
                                 <span v-if="props.option.situacion=='1' " class="text-xs bold text-primary">Matriculable</span>
                             </div>
 
