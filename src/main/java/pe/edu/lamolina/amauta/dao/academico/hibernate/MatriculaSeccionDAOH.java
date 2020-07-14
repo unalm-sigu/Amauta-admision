@@ -20,8 +20,9 @@ import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.MAT;
 import pe.edu.lamolina.model.enums.TipoSeccionEnum;
 import pe.edu.lamolina.amauta.controller.programacionhorarios.gposeccion.aula.SeccionDTO;
 import pe.edu.lamolina.amauta.controller.programacionhorarios.gposeccion.reporte.dto.CantidadMatriculadosDTO;
-import pe.edu.lamolina.amauta.controller.reporte.alumnoCursoMatriculado.ReporteAlumnosBean;
 import static pe.edu.lamolina.model.enums.EstadoEnum.ACT;
+import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.RHZ;
+import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.SOL;
 
 @Repository
 public class MatriculaSeccionDAOH extends AbstractEasyDAO<MatriculaSeccion> implements MatriculaSeccionDAO {
@@ -350,6 +351,7 @@ public class MatriculaSeccionDAOH extends AbstractEasyDAO<MatriculaSeccion> impl
                 .join("matriculaResumen mr", "mr.alumno alu", "mr.cicloAcademico ca")
                 .join("seccion sec", "sec.grupoSeccion gs", "gs.curso")
                 .left("sec.aula", "sec.grupoHoras")
+                .in("ms.estado", Arrays.asList(SOL, MAT, RHZ))
                 .filter("mr.id", matriculaResumen)
                 .filter("sec.id", seccion);
         return all(sqlUtil);

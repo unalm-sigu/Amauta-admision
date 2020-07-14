@@ -390,7 +390,7 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
 
             } else {
                 Assert.isFalse(matriculaCurso.getEstadoEnum() == EstadoMatriculaEnum.MAT, alumnoYaMatriculado);
-                Assert.isTrue(Arrays.asList(EstadoMatriculaEnum.RET, EstadoMatriculaEnum.NVAC, EstadoMatriculaEnum.RHZ).contains(
+                Assert.isTrue(Arrays.asList(EstadoMatriculaEnum.RCA, EstadoMatriculaEnum.RET, EstadoMatriculaEnum.NVAC, EstadoMatriculaEnum.RHZ).contains(
                         matriculaCurso.getEstadoEnum()),
                         alumnoNoMatriculable);
 
