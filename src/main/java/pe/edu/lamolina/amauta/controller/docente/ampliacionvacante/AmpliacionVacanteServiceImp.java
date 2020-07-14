@@ -93,6 +93,8 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
     @Autowired
     EventoCicloAcademicoDAO eventoCicloAcademicoDAO;
 
+    EstadoMatriculaEnum ESTADO_MATRICULA = EstadoMatriculaEnum.SOL;
+
     @Override
     public List<GrupoSeccion> allGrupoByDocente(Docente docente, CicloAcademico ciclo, DataSessionPivot ds) {
 
@@ -225,6 +227,7 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
 
     @Override
     public void solicitarAmpliacion(Seccion seccionPCUR, AmpliacionVacanteForm ampliacionVacanteForm, CicloAcademico cicloAcademico, DataSessionPivot ds) {
+
         Docente docenteLogeado = ds.getDocente();
         logger.debug("seccion {} ", seccionPCUR.getId());
 
@@ -256,6 +259,9 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
         }
 
         List<Alumno> alumnos = alumnoDAO.allByAlumnos(ampliacionVacanteForm.getAlumnos());
+
+        String tipoAmpliacion = this.validadMatricula(seccionPCUR, seccionTCUR, alumnos, isDocentePrincipalTcurLogged, ds);
+
         for (Alumno alumno : alumnos) {
             MatriculaResumen matriculaResumen = matriculaResumenDAO.findByAlumnoCiclo(alumno, cicloAcademico);
 
@@ -276,18 +282,6 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
 
                 matriculaCurso.setEstadoEnum(EstadoMatriculaEnum.SOL);
                 //   matriculaCursoDAO.update(matriculaCurso);
-            }
-            String tipoAmpliacion = null;
-            EstadoMatriculaEnum ESTADO_MATRICULA = EstadoMatriculaEnum.SOL;
-            if (!seccionTCUR.getDocentePrincipal().equals(seccionPCUR.getDocentePrincipal())) {
-                JsonResponse response = ampliacionVacanteRestService.solicitarAmpliacionVacante(seccionPCUR, matriculaResumen.getAlumno(), isDocentePrincipalTcurLogged, ds);
-                tipoAmpliacion = (String) response.getData();
-            } else {
-                //si el docente tcur es el mismo que el pcur
-                JsonResponse response = ampliacionVacanteRestService.matricularAmpliacionVacante(seccionPCUR, matriculaResumen.getAlumno(), ds);
-                tipoAmpliacion = (String) response.getData();
-                //          matriculaSeccionUpd.setEnSolicitud(Boolean.FALSE);
-                ESTADO_MATRICULA = EstadoMatriculaEnum.MAT;
             }
 
             if (matriculaCurso == null) {
@@ -372,6 +366,11 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
 
         List<Alumno> alumnos = alumnoDAO.allByAlumnos(ampliacionVacanteForm.getAlumnos());
 
+        JsonResponse responseRest = ampliacionVacanteRestService.matricularAmpliacionVacante(seccion, alumnos, ds);
+        if (!responseRest.getSuccess()) {
+            throw new PhobosException(responseRest.getMessage());
+        }
+
         for (Alumno alumno : alumnos) {
             String alumnoNoMatriculable = String.format("El alumno de código de matricula %s, no es matriculable", alumno.getPersona().getApellidosNombres());
             String alumnoYaMatriculado = String.format("El alumno de código de matricula %s, ya esta matriculado", alumno.getPersona().getApellidosNombres());
@@ -384,11 +383,6 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
             );
 
             MatriculaCurso matriculaCurso = matriculaCursoDAO.findByMatriculaCurso(matriculaResumen, curso);
-
-            JsonResponse responseRest = ampliacionVacanteRestService.matricularAmpliacionVacante(seccion, matriculaResumen.getAlumno(), ds);
-            if (!responseRest.getSuccess()) {
-                throw new PhobosException(responseRest.getMessage());
-            }
 
             if (matriculaCurso == null) {
                 matriculaCurso = new MatriculaCurso(curso, matriculaResumen, EstadoMatriculaEnum.MAT);
@@ -601,6 +595,22 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
         matriculaResumenUpd.setCreditosMatriculados(creditosMatriculados);
         matriculaResumenUpd.setEstadoEnum(estadoMatricula);
         matriculaResumenDAO.updateColumns(matriculaResumenUpd, "cursosMatriculados", "creditosMatriculados", "estado");
+    }
+
+    public String validadMatricula(Seccion seccionPCUR, Seccion seccionTCUR, List<Alumno> alumnos, Boolean isDocentePrincipalTcurLogged, DataSessionPivot ds) {
+        JsonResponse response = null;
+        if (!seccionTCUR.getDocentePrincipal().equals(seccionPCUR.getDocentePrincipal())) {
+            response = ampliacionVacanteRestService.solicitarAmpliacionVacante(seccionPCUR, alumnos, isDocentePrincipalTcurLogged, ds);
+
+        } else {
+            //si el docente tcur es el mismo que el pcur
+            response = ampliacionVacanteRestService.matricularAmpliacionVacante(seccionPCUR, alumnos, ds);
+            //          matriculaSeccionUpd.setEnSolicitud(Boolean.FALSE);
+            ESTADO_MATRICULA = EstadoMatriculaEnum.MAT;
+        }
+
+        return (String) response.getData();
+
     }
 
 }
