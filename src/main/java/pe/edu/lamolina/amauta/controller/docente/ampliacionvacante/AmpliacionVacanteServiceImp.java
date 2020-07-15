@@ -277,10 +277,10 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
                         String.format("alumno %s ya se matriculo", alumno.getPersona().getApellidosNombres()));
                 Assert.isFalse(matriculaCurso.getEstadoEnum() == EstadoMatriculaEnum.SOL,
                         String.format("alumno %s ya solicito matricularse anteriormente", alumno.getPersona().getApellidosNombres()));
-                Assert.isTrue(Arrays.asList(EstadoMatriculaEnum.RET, EstadoMatriculaEnum.NVAC).contains(matriculaCurso.getEstadoEnum()),
+                Assert.isTrue(Arrays.asList(EstadoMatriculaEnum.RET, EstadoMatriculaEnum.NVAC, EstadoMatriculaEnum.RCA).contains(matriculaCurso.getEstadoEnum()),
                         String.format("alumno %s no es matriculable", alumno.getPersona().getApellidosNombres()));
 
-                matriculaCurso.setEstadoEnum(EstadoMatriculaEnum.SOL);
+//                matriculaCurso.setEstadoEnum(EstadoMatriculaEnum.SOL);
                 //   matriculaCursoDAO.update(matriculaCurso);
             }
 
@@ -341,8 +341,8 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
 //                "No se permite ampliar vacante en este momento");
         Assert.isTrue(fechaAudit.isAfter(eventoCicloAcademico.getFechaInicioDateTime()),
                 "No se permite ampliar vacante en este momento");
-        Assert.isTrue(fechaAudit.isBefore(eventoCicloAcademico.getFechaFinDateTime()),
-                "No se permite ampliar vacante en este momento");
+//        Assert.isTrue(fecha.compareTo(eventoCicloAcademico.getFechaFin()) <= 0,
+//                "No se permite ampliar vacante en este momento");
     }
 
     @Override
@@ -449,7 +449,7 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
             Seccion seccionTCUR = seccion.getSeccionSuperior();
             DocenteSeccion docenteSeccionTCUR = docenteSeccionDAO.findPrincipalBySeccion(seccionTCUR);
             seccionTCUR.setDocentePrincipal(docenteSeccionTCUR.getDocente());
-            esDocenteTcurLogged = seccionTCUR.getDocentePrincipal().equals(ds.getDocente());
+            esDocenteTcurLogged = seccionTCUR.getDocentePrincipal().getId().equals(ds.getDocente().getId());
         } else {
             matriculaSeccion = matriculaSeccionDAO.findByMatResumenAndTipoSecAndEstado(matriculaSeccion.getMatriculaResumen(), TipoSeccionEnum.PCUR, SOL);
         }
