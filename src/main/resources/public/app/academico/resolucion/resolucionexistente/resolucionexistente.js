@@ -102,7 +102,7 @@ var app = new Vue({
             }
             if (nombre != '' || nombre != null || nombre != undefined) {
 
-                if ($vue.isTrasladoInt) {
+                if ($vue.isTrasladoInt || $vue.isTraslado) {
                     $.ajax({
                         url: APP.url("academico/resolucion/findAlumno"),
                         dataType: 'json',
