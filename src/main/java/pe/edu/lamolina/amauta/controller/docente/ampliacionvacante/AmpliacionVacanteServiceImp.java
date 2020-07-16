@@ -534,7 +534,7 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
             this.rechazarMatriculaSeccion(matriculaSeccionPCUR, ds);
         }
 
-        this.calcularSeccionInfoMatriculas(seccion);
+//        this.calcularSeccionInfoMatriculas(seccion);
     }
 
     public void rechazarMatriculaSeccion(MatriculaSeccion matriculaSeccion, DataSessionPivot ds) {
