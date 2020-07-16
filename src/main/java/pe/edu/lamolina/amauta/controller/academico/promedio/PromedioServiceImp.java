@@ -660,10 +660,10 @@ public class PromedioServiceImp implements PromedioService {
             this.printSystem("Fin ciclo=" + ciclo.getCodigo()
                     + ", reg-val=" + alumnoCicloEach.isRegistroValido()
                     + ", estado-ciclo=" + alumnoCicloEach.getEstado()
-                    + ", sit-inicio=" + alumnoCicloEach.getSituacionInicio().getCodigo()
+//                    + ", sit-inicio=" + alumnoCicloEach.getSituacionInicio() != null ? alumnoCicloEach.getSituacionInicio().getCodigo() : "cachimbo sin situación"
                     + ", prom=" + alumnoCicloEach.getPromedioCiclo()
-                    + ", ap=" + alumnoCicloEach.getEstaAprobado()
-                    + ", sit-final=" + alumnoCicloEach.getSituacionFinal().getCodigo(),
+                    + ", ap=" + alumnoCicloEach.getEstaAprobado(),
+//                    + ", sit-final=" + alumnoCicloEach.getSituacionFinal() != null ? alumnoCicloEach.getSituacionFinal().getCodigo() : "cachimbo sin situación",
                     showError);
         }
         this.printSystem("++++++++++++++++++++++++++++++++++++++++++++++++", showError);
