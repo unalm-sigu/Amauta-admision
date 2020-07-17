@@ -93,8 +93,6 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
     @Autowired
     EventoCicloAcademicoDAO eventoCicloAcademicoDAO;
 
-    EstadoMatriculaEnum ESTADO_MATRICULA = EstadoMatriculaEnum.SOL;
-
     @Override
     public List<GrupoSeccion> allGrupoByDocente(Docente docente, CicloAcademico ciclo, DataSessionPivot ds) {
 
@@ -259,9 +257,20 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
         }
 
         List<Alumno> alumnos = alumnoDAO.allByAlumnos(ampliacionVacanteForm.getAlumnos());
+        EstadoMatriculaEnum ESTADO_MATRICULA = EstadoMatriculaEnum.SOL;
+        String tipoAmpliacion = null;
+        JsonResponse response = null;
+        if (!seccionTCUR.getDocentePrincipal().equals(seccionPCUR.getDocentePrincipal())) {
+            response = ampliacionVacanteRestService.solicitarAmpliacionVacante(seccionPCUR, alumnos, isDocentePrincipalTcurLogged, ds);
 
-        String tipoAmpliacion = this.validadMatricula(seccionPCUR, seccionTCUR, alumnos, isDocentePrincipalTcurLogged, ds);
-
+        } else {
+            //si el docente tcur es el mismo que el pcur
+            response = ampliacionVacanteRestService.matricularAmpliacionVacante(seccionPCUR, alumnos, ds);
+            //          matriculaSeccionUpd.setEnSolicitud(Boolean.FALSE);
+            ESTADO_MATRICULA = EstadoMatriculaEnum.MAT;
+        }
+        tipoAmpliacion = (String) response.getData();
+        
         for (Alumno alumno : alumnos) {
             MatriculaResumen matriculaResumen = matriculaResumenDAO.findByAlumnoCiclo(alumno, cicloAcademico);
 
@@ -595,22 +604,6 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
         matriculaResumenUpd.setCreditosMatriculados(creditosMatriculados);
         matriculaResumenUpd.setEstadoEnum(estadoMatricula);
         matriculaResumenDAO.updateColumns(matriculaResumenUpd, "cursosMatriculados", "creditosMatriculados", "estado");
-    }
-
-    public String validadMatricula(Seccion seccionPCUR, Seccion seccionTCUR, List<Alumno> alumnos, Boolean isDocentePrincipalTcurLogged, DataSessionPivot ds) {
-        JsonResponse response = null;
-        if (!seccionTCUR.getDocentePrincipal().equals(seccionPCUR.getDocentePrincipal())) {
-            response = ampliacionVacanteRestService.solicitarAmpliacionVacante(seccionPCUR, alumnos, isDocentePrincipalTcurLogged, ds);
-
-        } else {
-            //si el docente tcur es el mismo que el pcur
-            response = ampliacionVacanteRestService.matricularAmpliacionVacante(seccionPCUR, alumnos, ds);
-            //          matriculaSeccionUpd.setEnSolicitud(Boolean.FALSE);
-            ESTADO_MATRICULA = EstadoMatriculaEnum.MAT;
-        }
-
-        return (String) response.getData();
-
     }
 
 }
