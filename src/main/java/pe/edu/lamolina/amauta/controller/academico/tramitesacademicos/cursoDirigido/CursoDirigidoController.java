@@ -1,6 +1,5 @@
 package pe.edu.lamolina.amauta.controller.academico.tramitesacademicos.cursoDirigido;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -39,13 +38,9 @@ import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.enums.TipoOficinaEnum;
-import pe.edu.lamolina.model.session.DataSessionMaipi;
-import pe.edu.lamolina.model.tramite.AccionTramiteAcademico;
 import pe.edu.lamolina.model.tramite.CursoDirigido;
-import pe.edu.lamolina.model.tramite.Tramite;
 import pe.edu.lamolina.amauta.controller.academico.tramitesacademicos.TramitesAcademicosService;
 import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorService;
-import pe.edu.lamolina.model.constantines.AcademicoConstantine;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 
