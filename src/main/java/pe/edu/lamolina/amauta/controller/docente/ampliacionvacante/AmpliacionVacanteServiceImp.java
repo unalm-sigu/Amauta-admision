@@ -395,6 +395,7 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
 
             if (matriculaCurso == null) {
                 matriculaCurso = new MatriculaCurso(curso, matriculaResumen, EstadoMatriculaEnum.MAT);
+                matriculaCurso.setFechaMatricula(new Date());
                 matriculaCursoDAO.save(matriculaCurso);
 
             } else {
@@ -402,7 +403,7 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
                 Assert.isTrue(Arrays.asList(EstadoMatriculaEnum.RCA, EstadoMatriculaEnum.RET, EstadoMatriculaEnum.NVAC, EstadoMatriculaEnum.RHZ).contains(
                         matriculaCurso.getEstadoEnum()),
                         alumnoNoMatriculable);
-
+                matriculaCurso.setFechaMatricula(new Date());
                 matriculaCurso.setEstadoEnum(EstadoMatriculaEnum.MAT);
                 matriculaCursoDAO.update(matriculaCurso);
             }
@@ -431,6 +432,7 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
                     EstadoMatriculaEnum.MAT,
                     ds.getUsuario(),
                     ds.getFechaAccionAudit());
+            matriculaSeccion.setFechaMatricula(new Date());
             matriculaSeccion.setEsAmpliacionVacante(Boolean.TRUE);
             matriculaSeccionDAO.save(matriculaSeccion);
             this.calcularMatriculaResumenInfoMatriculas(matriculaResumen, null, EstadoMatriculaEnum.MAT);
