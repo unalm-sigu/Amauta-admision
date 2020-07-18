@@ -391,7 +391,7 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
 //                "No se permite ampliar vacante en este momento");
         Assert.isTrue(fechaAudit.isAfter(eventoCicloAcademico.getFechaInicioDateTime()),
                 "No se permite ampliar vacante en este momento");
-        Assert.isTrue(fecha.compareTo(eventoCicloAcademico.getFechaFin()) <= 0,
+        Assert.isTrue(fecha.compareTo(eventoCicloAcademico.getFechaFin()) > 0,
                 "No se permite ampliar vacante en este momento");
     }
 
