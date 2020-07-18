@@ -295,9 +295,17 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
 
             if (matriculaCurso == null) {
                 matriculaCurso = new MatriculaCurso(curso, matriculaResumen, ESTADO_MATRICULA);
+                if (ESTADO_MATRICULA == EstadoMatriculaEnum.MAT) {
+                    matriculaCurso.setFechaMatricula(new Date());
+                    matriculaCurso.setUserMatricula(ds.getUsuario());
+                }
                 matriculaCursoDAO.save(matriculaCurso);
             } else {
                 matriculaCurso.setEstadoEnum(ESTADO_MATRICULA);
+                if (ESTADO_MATRICULA == EstadoMatriculaEnum.MAT) {
+                    matriculaCurso.setFechaMatricula(new Date());
+                    matriculaCurso.setUserMatricula(ds.getUsuario());
+                }
                 matriculaCursoDAO.update(matriculaCurso);
             }
 
@@ -310,6 +318,10 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
             if (isDocentePrincipalTcurLogged && !seccionPCUR.getDocentePrincipal().equals(seccionTCUR.getDocentePrincipal())) {
                 matriculaSeccionPCUR.setEnSolicitud(Boolean.TRUE);
             }
+            if (ESTADO_MATRICULA == EstadoMatriculaEnum.MAT) {
+                matriculaSeccionPCUR.setFechaMatricula(new Date());
+                matriculaSeccionPCUR.setUserMatricula(ds.getUsuario());
+            }
             matriculaSeccionDAO.save(matriculaSeccionPCUR);
 
             MatriculaSeccion matriculaSeccionTCUR = matriculaSeccionDAO.findByMatriculaMatSeccion(matriculaResumen, seccionTCUR);
@@ -320,13 +332,12 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
             if (!isDocentePrincipalTcurLogged) {
                 matriculaSeccionTCUR.setEnSolicitud(Boolean.TRUE);
             }
+            if (ESTADO_MATRICULA == EstadoMatriculaEnum.MAT) {
+                matriculaSeccionTCUR.setFechaMatricula(new Date());
+                matriculaSeccionTCUR.setUserMatricula(ds.getUsuario());
+            }
             matriculaSeccionDAO.save(matriculaSeccionTCUR);
 
-//            if (!seccionTCUR.getDocentePrincipal().equals(seccionPCUR.getDocentePrincipal())) {
-//                matriculaSeccionPCUR = matriculaSeccionDAO.find(matriculaSeccionPCUR.getId());
-//                matriculaSeccionPCUR.setTipoAmpliacionEnum(TipoAmpliacionEnum.valueOf(tipoAmpliacion));
-//                matriculaSeccionDAO.update(matriculaSeccionPCUR);
-//            }
             this.calcularMatriculaResumenInfoMatriculas(matriculaResumen, null, ESTADO_MATRICULA);
         }
     }
@@ -396,6 +407,7 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
             if (matriculaCurso == null) {
                 matriculaCurso = new MatriculaCurso(curso, matriculaResumen, EstadoMatriculaEnum.MAT);
                 matriculaCurso.setFechaMatricula(new Date());
+                matriculaCurso.setUserMatricula(ds.getUsuario());
                 matriculaCursoDAO.save(matriculaCurso);
 
             } else {
@@ -405,6 +417,7 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
                         alumnoNoMatriculable);
                 matriculaCurso.setFechaMatricula(new Date());
                 matriculaCurso.setEstadoEnum(EstadoMatriculaEnum.MAT);
+                matriculaCurso.setUserMatricula(ds.getUsuario());
                 matriculaCursoDAO.update(matriculaCurso);
             }
 
@@ -432,6 +445,7 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
                     EstadoMatriculaEnum.MAT,
                     ds.getUsuario(),
                     ds.getFechaAccionAudit());
+            matriculaSeccion.setUserMatricula(ds.getUsuario());
             matriculaSeccion.setFechaMatricula(new Date());
             matriculaSeccion.setEsAmpliacionVacante(Boolean.TRUE);
             matriculaSeccionDAO.save(matriculaSeccion);
@@ -478,7 +492,9 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
 
         MatriculaCurso matriculaCursoUpd = new MatriculaCurso(matriculaCurso.getId());
         matriculaCursoUpd.setEstadoEnum(EstadoMatriculaEnum.MAT);
-        matriculaCursoDAO.updateColumns(matriculaCursoUpd, "estado");
+        matriculaCursoUpd.setFechaMatricula(new Date());
+        matriculaCursoUpd.setUserMatricula(ds.getUsuario());
+        matriculaCursoDAO.updateColumns(matriculaCursoUpd, "estado", "fechaMatricula", "userMatricula");
         this.aceptarMatriculaSeccion(matriculaSeccion, ds);
 
 //        if (seccion.isTipoSeccionPCUR()) {
@@ -503,6 +519,7 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
         matriculaSeccionUpd.setEnSolicitud(Boolean.FALSE);
         matriculaSeccionUpd.setEstadoEnum(EstadoMatriculaEnum.MAT);
         matriculaSeccionUpd.setFechaMatricula(new Date());
+        matriculaSeccionUpd.setUserMatricula(ds.getUsuario());
         matriculaSeccionDAO.updateColumns(matriculaSeccionUpd, "enSolicitud", "estado", "fechaMatricula");
     }
 
