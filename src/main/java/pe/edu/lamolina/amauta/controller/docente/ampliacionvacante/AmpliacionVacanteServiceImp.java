@@ -270,7 +270,7 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
             ESTADO_MATRICULA = EstadoMatriculaEnum.MAT;
         }
         tipoAmpliacion = (String) response.getData();
-        
+
         for (Alumno alumno : alumnos) {
             MatriculaResumen matriculaResumen = matriculaResumenDAO.findByAlumnoCiclo(alumno, cicloAcademico);
 
@@ -500,7 +500,8 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
         matriculaSeccionUpd.setId(matriculaSeccion.getId());
         matriculaSeccionUpd.setEnSolicitud(Boolean.FALSE);
         matriculaSeccionUpd.setEstadoEnum(EstadoMatriculaEnum.MAT);
-        matriculaSeccionDAO.updateColumns(matriculaSeccionUpd, "enSolicitud", "estado");
+        matriculaSeccionUpd.setFechaMatricula(new Date());
+        matriculaSeccionDAO.updateColumns(matriculaSeccionUpd, "enSolicitud", "estado", "fechaMatricula");
     }
 
     @Override
