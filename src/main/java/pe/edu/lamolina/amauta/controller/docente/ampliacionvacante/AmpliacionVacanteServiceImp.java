@@ -386,11 +386,6 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
 
         List<Alumno> alumnos = alumnoDAO.allByAlumnos(ampliacionVacanteForm.getAlumnos());
 
-        JsonResponse responseRest = ampliacionVacanteRestService.matricularAmpliacionVacante(seccion, alumnos, ds);
-        if (!responseRest.getSuccess()) {
-            throw new PhobosException(responseRest.getMessage());
-        }
-
         for (Alumno alumno : alumnos) {
             String alumnoNoMatriculable = String.format("El alumno de código de matricula %s, no es matriculable", alumno.getPersona().getApellidosNombres());
             String alumnoYaMatriculado = String.format("El alumno de código de matricula %s, ya esta matriculado", alumno.getPersona().getApellidosNombres());
@@ -451,6 +446,12 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
             matriculaSeccionDAO.save(matriculaSeccion);
             this.calcularMatriculaResumenInfoMatriculas(matriculaResumen, null, EstadoMatriculaEnum.MAT);
         }
+        
+        JsonResponse responseRest = ampliacionVacanteRestService.matricularAmpliacionVacante(seccion, alumnos, ds);
+        if (!responseRest.getSuccess()) {
+            throw new PhobosException(responseRest.getMessage());
+        }
+
     }
 
     @Override
