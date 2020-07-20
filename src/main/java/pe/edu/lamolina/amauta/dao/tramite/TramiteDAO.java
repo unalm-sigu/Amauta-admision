@@ -25,6 +25,6 @@ public interface TramiteDAO extends EasyDAO<Tramite> {
 
     public List<Tramite> allReiAndRetByCiclo(CicloAcademico cicloAcademico, DynatableFilter filter);
 
-    public List<Tramite> allByFacultad(Facultad facultad);
+    public List<Tramite> allByFacultad(Facultad facultad, CicloAcademico cicloAcademico);
 
 }

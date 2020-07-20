@@ -963,7 +963,7 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
 
     @Override
     public List<Tramite> allTramitesByFac(Facultad facultad, DataSessionPivot ds) {
-        List<Tramite> tramites = tramiteDAO.allByFacultad(facultad);
+        List<Tramite> tramites = tramiteDAO.allByFacultad(facultad, ds.getCicloAcademico());
         return tramites;
     }
 
@@ -980,7 +980,7 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
     @Override
     public String alllistCursoDirigidoFac(Facultad facultad, DataSessionPivot ds) {
         facultad = facultadDAO.find(facultad.getId());
-        List<CursoDirigido> cursoDirigidos = cursoDirigidoDAO.allByfacultades(facultad);
+        List<CursoDirigido> cursoDirigidos = cursoDirigidoDAO.allByfacultades(facultad, ds.getCicloAcademico());
 
         Context ctx = new Context();
 

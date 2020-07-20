@@ -117,7 +117,7 @@ public class TramiteDAOH extends AbstractEasyDAO<Tramite> implements TramiteDAO 
     }
     
     @Override
-    public List<Tramite> allByFacultad(Facultad facultad) {
+    public List<Tramite> allByFacultad(Facultad facultad, CicloAcademico cicloAcademico) {
         Octavia sql = new Octavia()
                 .from(Tramite.class, "tram")
                 .join("cicloAcademico aca", "compania", "tipoTramite tt")
@@ -126,6 +126,7 @@ public class TramiteDAOH extends AbstractEasyDAO<Tramite> implements TramiteDAO 
                 .filter("tt.codigo", CURDIR.name())
                 .filter("tram.estado", "!=", ANU.name())
                 .filter("fac.id", facultad)
+                .filter("aca.id", cicloAcademico)
                 .orderBy("per.paterno asc");
         
         return all(sql);
