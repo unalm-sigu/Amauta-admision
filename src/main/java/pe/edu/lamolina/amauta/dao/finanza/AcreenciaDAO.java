@@ -3,13 +3,13 @@ package pe.edu.lamolina.amauta.dao.finanza;
 import java.util.List;
 import org.joda.time.DateTime;
 import pe.albatross.octavia.easydao.EasyDAO;
-import pe.edu.lamolina.model.bienestar.TallerCiclo;
 import pe.edu.lamolina.model.enums.DeudaEstadoEnum;
 import pe.edu.lamolina.model.finanzas.Acreencia;
 import pe.edu.lamolina.model.finanzas.DeudaAlumno;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.amauta.controller.deuda.DeudaDTO;
+import pe.edu.lamolina.model.extensionobu.TallerCiclo;
 
 public interface AcreenciaDAO extends EasyDAO<Acreencia> {
 

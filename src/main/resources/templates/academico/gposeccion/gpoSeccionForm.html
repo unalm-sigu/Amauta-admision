@@ -240,6 +240,12 @@
                                                 <a class="lnk-seccion" style="cursor:pointer;"
                                                    v-on:click="seleccionarSeccion(index)">
                                                     {{ seccion.codigo2 }}
+
+
+                                                </a>
+                                                <a v-if="seccion.linkZoom"
+                                                   href="#" data-toggle="tooltip" data-html="true" data-placement="left" v-bind:title='seccion.linkZoom'>
+<!--                                                    <span class="label label-danger" >{{item.estadoEnum.value}} </span>-->
                                                 </a>
                                                 <div>
                                                     {{ seccion.tipoSeccionEvaluacionValue }}

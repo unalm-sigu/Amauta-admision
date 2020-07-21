@@ -2302,7 +2302,7 @@ var app = new Vue({
         },
         asignarLinkZoom(itemSeccion) {
             let $vue = this;
-            $vue.seccionLink = Object.assign(itemSeccion, {});
+            $vue.seccionLink = Object.assign({}, itemSeccion);
             $vue.$refs.modalLinkZoom.open();
         },
         saveLinkZoom() {
@@ -2325,6 +2325,7 @@ var app = new Vue({
                             data: JSON.stringify($vue.seccionLink),
                             success: function (response) {
                                 if (response.success) {
+                                    mm.modal("hide");
                                     notify(response.message, "info");
                                 } else {
                                     mm.modal("hide");
