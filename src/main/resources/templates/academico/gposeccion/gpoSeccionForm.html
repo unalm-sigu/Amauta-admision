@@ -243,10 +243,12 @@
 
 
                                                 </a>
-                                                <a v-if="seccion.linkZoom"
-                                                   href="#" data-toggle="tooltip" data-html="true" data-placement="left" v-bind:title='seccion.linkZoom'>
-<!--                                                    <span class="label label-danger" >{{item.estadoEnum.value}} </span>-->
-                                                </a>
+                                                <div>                                                    
+                                                    <a v-if="seccion.linkZoom"
+                                                       href="#" data-toggle="tooltip" data-html="true" data-placement="top" v-bind:title='seccion.linkZoom' v-on:click="asignarLinkZoom(seccion )">
+                                                        <span class="label label-primary" >Link Zoom </span>
+                                                    </a>
+                                                </div>
                                                 <div>
                                                     {{ seccion.tipoSeccionEvaluacionValue }}
                                                 </div>
