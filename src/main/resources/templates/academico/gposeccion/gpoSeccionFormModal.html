@@ -387,3 +387,16 @@
         </form>
     </div>
 </modal-vik>
+
+<modal-vik ref="modalLinkZoom"
+           v-bind="modalLinkZoom"
+           v-bind:okaction="saveLinkZoom">
+    <div slot="body">
+        <form class="panel-body" id="formLinkZoom"  data-parsley-validate="true">            
+            <div class="form-group">
+                <label> Link Zoom </label>
+                <input class="form-control" v-model="seccionLink.linkZoom" required=""/>
+            </div>
+        </form>
+    </div>
+</modal-vik>

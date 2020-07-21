@@ -510,6 +510,12 @@
                                                                 {{enums.value}}
                                                             </a>
                                                         </li>
+                                                        <li role="presentation">
+                                                            <a href="#"
+                                                               v-on:click="asignarLinkZoom(seccion )">
+                                                                Asignar Link Zoom
+                                                            </a>
+                                                        </li>
                                                     </ul>
 
                                                     <a class="dropdown-toggle" href="#" data-toggle="dropdown"
@@ -526,6 +532,12 @@
                                                             <a  v-if="seccion.modoDictadoEnum.name != enums.name"
                                                                 v-on:click="cambiarModoDictado(seccion , enums.name)">
                                                                 {{enums.value}}
+                                                            </a>
+                                                        </li>
+                                                        <li role="presentation">
+                                                            <a href="#"
+                                                               v-on:click="asignarLinkZoom(seccion)">
+                                                                Asignar Link Zoom
                                                             </a>
                                                         </li>
                                                     </ul>
@@ -655,8 +667,8 @@
             var oficinasJson = /*[[${oficinasJson}]]*/ {};
             var rutaModulo = 'academico/gposeccion';
         </script>
-        
-        
+
+
         <script th:src="@{/app/gposeccion/dynatableComponents.js}" charset="utf-8"></script>
         <script th:src="@{/app/gposeccion/aulaComponent.js}" charset="utf-8"></script>
         <script th:src="@{/app/gposeccion/aulaHorarioComponent.js}" charset="utf-8"></script>

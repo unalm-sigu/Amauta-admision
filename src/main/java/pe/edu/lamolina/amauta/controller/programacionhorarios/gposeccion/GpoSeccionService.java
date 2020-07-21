@@ -233,4 +233,6 @@ public interface GpoSeccionService {
 
     public void updateModoDictado(Seccion secc, DataSessionPivot ds);
 
+    public void updateLinkZoom(Seccion seccion, DataSessionPivot ds);
+
 }

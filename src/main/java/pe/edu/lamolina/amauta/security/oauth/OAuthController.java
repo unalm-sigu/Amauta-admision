@@ -38,7 +38,6 @@ import pe.edu.lamolina.amauta.config.DespliegueConfig;
 import pe.edu.lamolina.amauta.controller.academico.ciclo.CicloAcademicoService;
 import pe.edu.lamolina.amauta.controller.restcontroller.RestPivotService;
 import pe.edu.lamolina.amauta.controller.seguridad.menu.VisorMenu;
-import pe.edu.lamolina.model.constantines.AcademicoConstantine;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 

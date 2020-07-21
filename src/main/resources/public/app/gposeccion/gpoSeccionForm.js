@@ -63,6 +63,14 @@ var app = new Vue({
             okbtn: 'Aceptar',
             modalsize: 'modal-lg'
         },
+        modalLinkZoom: {
+            id: 'modalLinkZoom',
+            header: true,
+            title: 'Link Zoom',
+            okbtn: 'Aceptar',
+            showaccept: true,
+            modalsize: 'modal-md'
+        },
         restriccionModal: VUE_MODAL.structFormAjax({
             id: 'modalRestriccion',
             header: true,
@@ -198,6 +206,7 @@ var app = new Vue({
         descuentoSeccion: {},
         alumnoPagoVerano: {},
         modosDictados: [],
+        seccionLink: {}
     },
     watch: {
         seccionSeleccionada: function (val) {
@@ -2290,6 +2299,50 @@ var app = new Vue({
                 }
             }
             return "";
+        },
+        asignarLinkZoom(itemSeccion) {
+            let $vue = this;
+            $vue.seccionLink = Object.assign(itemSeccion, {});
+            $vue.$refs.modalLinkZoom.open();
+        },
+        saveLinkZoom() {
+            let $vue = this;
+            let mm = bootbox.confirm({
+                message: "¿Seguro que desea asignar este link a la sección?",
+                buttons: {
+                    confirm: {label: 'Si, Asignar', className: "btn-danger btn-modal btn-procesar"},
+                    cancel: {label: 'Cancelar', className: "btn-link btn-modal"}
+                },
+                callback: function (result) {
+                    if (result) {
+                        $(".btn-procesar").html('<i class="fa fa-spinner fa-pulse"></i> Procesando...');
+                        $(".btn-modal").prop('disabled', true);
+                        $.ajax({
+                            method: 'POST',
+                            url: APP.url('academico/gposeccion/asignarLinkZoom'),
+                            dataType: "json",
+                            contentType: "application/json",
+                            data: JSON.stringify($vue.seccionLink),
+                            success: function (response) {
+                                if (response.success) {
+                                    notify(response.message, "info");
+                                } else {
+                                    mm.modal("hide");
+                                    notify(response.message, "error");
+                                }
+                                $vue.$refs.modalLinkZoom.close();
+                            }, error: function () {
+                                mm.modal("hide");
+                                notify(Messages.errorComunicacion, "error");
+
+                            }
+                        });
+
+                        return false;
+                    }
+                }
+            });
+
         }
     }
 });

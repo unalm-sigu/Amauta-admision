@@ -2949,4 +2949,24 @@ public class GpoSeccionController {
         }
     }
 
+    @ResponseBody
+    @RequestMapping("asignarLinkZoom")
+    public JsonResponse asignarLinkZoom(@RequestBody Seccion seccion, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+
+            service.updateLinkZoom(seccion, ds);
+
+            response.setMessage("Se el link satisfactoriamente");
+            response.setSuccess(true);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        } finally {
+            return response;
+        }
+    }
+
 }

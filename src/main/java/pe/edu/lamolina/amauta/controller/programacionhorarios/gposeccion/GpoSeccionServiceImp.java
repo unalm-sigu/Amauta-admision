@@ -3082,11 +3082,11 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             vacAluSecc = (vacAluSecc == null) ? new ArrayList() : vacAluSecc;
             Map<Integer, VacanteAlumno> mapVacAluSecc = TypesUtil.convertListToMap("numero", vacAluSecc);
             for (int i = 1; i < secc.getVacantes() + 1; i++) {
-                VacanteAlumno va = mapVacAluSecc.get(i);
-                if (va != null) {
+                VacanteAlumno va  = mapVacAluSecc.get(i);
+                if (va  != null) {
                     continue;
                 }
-                va = new VacanteAlumno();
+                va  = new VacanteAlumno();
                 va.setNumero(i);
                 va.setSeccion(secc);
                 va.setEstadoEnum(EstadoVacanteAlumnoEnum.DISP);
@@ -3502,6 +3502,11 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     @Transactional
     public void updateModoDictado(Seccion seccion, DataSessionPivot ds) {
         seccionDAO.updateColumns(seccion, "modoDictado");
+    }
+
+    @Override
+    public void updateLinkZoom(Seccion seccion, DataSessionPivot ds) {
+        seccionDAO.updateColumns(seccion, "linkZoom");
     }
 
 }
