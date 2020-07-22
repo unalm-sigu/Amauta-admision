@@ -2959,7 +2959,7 @@ public class GpoSeccionController {
 
             service.updateLinkZoom(seccion, ds);
 
-            response.setMessage("Se el link satisfactoriamente");
+            response.setMessage("Se asignó el link satisfactoriamente");
             response.setSuccess(true);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
