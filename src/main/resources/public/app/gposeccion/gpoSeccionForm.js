@@ -2331,7 +2331,7 @@ var app = new Vue({
                                             x.linkZoom = $vue.seccionLink.linkZoom;
                                         }
                                     })
-                                    $vue.loadGpoSeccionFlash(mm);
+                                    $vue.loadGpoSeccionFlash();
                                     notify(response.message, "info");
                                 } else {
                                     mm.modal("hide");
