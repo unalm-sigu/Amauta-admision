@@ -2332,6 +2332,7 @@ var app = new Vue({
                                         }
                                     })
                                     $vue.loadGpoSeccionFlash();
+                                    mm.modal("hide");
                                     notify(response.message, "info");
                                 } else {
                                     mm.modal("hide");
@@ -2354,7 +2355,7 @@ var app = new Vue({
         validLinkZoom() {
             let $vue = this;
             if ($vue.grupoSeccion.anexoBoletin != null && $vue.grupoSeccion.anexoBoletin.anexoSuperior.codigo == 'G01' ||
-                    $vue.grupoSeccion.anexoBoletin.anexoSuperior.codigo == 'G02'||
+                    $vue.grupoSeccion.anexoBoletin.anexoSuperior.codigo == 'G02' ||
                     $vue.grupoSeccion.anexoBoletin.anexoSuperior.codigo == 'G03') {
                 return true;
             }
