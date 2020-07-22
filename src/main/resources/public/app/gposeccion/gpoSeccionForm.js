@@ -2350,6 +2350,15 @@ var app = new Vue({
                 }
             });
 
+        },
+        validLinkZoom() {
+            let $vue = this;
+            if ($vue.grupoSeccion.anexoBoletin != null && $vue.grupoSeccion.anexoBoletin.anexoSuperior.codigo == 'G01' ||
+                    $vue.grupoSeccion.anexoBoletin.anexoSuperior.codigo == 'G02'||
+                    $vue.grupoSeccion.anexoBoletin.anexoSuperior.codigo == 'G03') {
+                return true;
+            }
+            return false;
         }
     }
 });
