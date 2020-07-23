@@ -159,6 +159,8 @@
                                     <td class="v-middle text-center">
                                         <span class="block" v-if="seccion.aula.codigo != '' "><i class="fa fa-home text-primary"></i> {{seccion.aula.codigo}}</span>
                                         <span class="block" v-if="seccion.grupoHoras.codigo != '' "><i class="fa fa-calendar text-success"></i> {{seccion.grupoHoras.codigo}}</span>
+                                        <span v-if="seccion.aula.usuarioZoom" class="block bold label label-primary pointer" v-on:click="dataZoomModal(seccion.aula)">Data Zoom</span>
+
                                     </td>
 
                                     <td class="v-middle" v-html="verHorario(seccion.horarioTexto)"></td>
