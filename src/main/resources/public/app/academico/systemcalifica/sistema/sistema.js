@@ -93,7 +93,7 @@ $(function () {
         },
         aprobar: function (el) {
             bootbox.confirm({
-                message: MESSAGES.confirmApprove,
+                message: Messages.confirmApprove,
                 title: 'Aprobar Sistema Calificación',
                 buttons: {
                     confirm: {label: 'Aprobar'},
@@ -128,7 +128,7 @@ $(function () {
         },
         observar: function (el) {
             bootbox.confirm({
-                message: MESSAGES.confirmObserve,
+                message: Messages.confirmObserve,
                 title: 'Observar Sistema Calificación',
                 buttons: {
                     confirm: {label: 'Observar'},
@@ -166,7 +166,7 @@ $(function () {
         },
         rechazar: function (el) {
             bootbox.confirm({
-                message: MESSAGES.confirmReject,
+                message: Messages.confirmReject,
                 title: 'Rechazar Sistema Calificación',
                 buttons: {
                     confirm: {label: 'Rechazar'},
@@ -201,7 +201,7 @@ $(function () {
         },
         activar: function (el) {
             bootbox.confirm({
-                message: MESSAGES.confirmActive,
+                message: Messages.confirmActive,
                 title: 'Activar Sistema Calificación',
                 buttons: {
                     confirm: {label: 'Activar'},
@@ -235,7 +235,7 @@ $(function () {
         },
         inactivar: function (el) {
             bootbox.confirm({
-                message: MESSAGES.confirmDesActive,
+                message: Messages.confirmDesActive,
                 title: 'Desactivar Sistema Calificación',
                 buttons: {
                     confirm: {label: 'Inactivar'},
@@ -269,7 +269,7 @@ $(function () {
         },
         anull: function (el) {
             bootbox.confirm({
-                message: MESSAGES.confirmActive,
+                message: Messages.confirmActive,
                 title: 'Activar Grupo',
                 buttons: {
                     confirm: {label: 'Activar'},
