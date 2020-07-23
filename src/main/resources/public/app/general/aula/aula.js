@@ -238,6 +238,7 @@ new Vue({
     data: {
         aulasURL: APP.url(rutaModulo + '/list'),
         aula: {},
+        aulaZoom: {},
         tipoAulas: JSON.parse(tipoAulasJson),
         tipoAula: null,
         modalCambioEstado: {
@@ -259,6 +260,16 @@ new Vue({
             id: 'modalInventario',
             header: true,
             cancelbtn: 'Cerrar',
+            cancelclass: 'btn btn-link',
+        },
+        modalDataZoom: {
+            id: 'modalDataZoom',
+            header: true,
+            title: "Data Zoom",
+            cancelbtn: 'Cerrar',
+            showaccept: true,
+            okbtn: 'Guardar',
+            form: "formDataZoom",
             cancelclass: 'btn btn-link',
         }
     },
@@ -440,6 +451,53 @@ new Vue({
                 }
             });
         },
+        dataZoom(item) {
+            let $vue = this;
+            $vue.aulaZoom = Object.assign({}, item);
+            $vue.$refs.modalDataZoom.open();
+        },
+        saveDataZoom() {
+            let $vue = this;
+            if ($("#" + $vue.modalDataZoom.form).parsley().validate() !== true) {
+                notify("Debe completar todos los campos requeridos", "error");
+                return;
+            }
+
+            var data = {};
+            data.id = $vue.aulaZoom.id;
+            data.usuarioZoom = $vue.aulaZoom.usuarioZoom;
+            data.passZoom = $vue.aulaZoom.passZoom;
+            bootbox.confirm({
+                message: '¿Está seguro que desea agregar estos datos al aula?',
+                buttons: {
+                    confirm: {label: 'Si, agregar', className: 'btn-danger'},
+                    cancel: {label: 'Cancelar', className: 'btn-link'}
+                },
+                callback: function (result) {
+                    if (result) {
+                        $.ajax({
+                            url: APP.url('general/aula/agregarZoom'),
+                            type: 'POST',
+                            dataType: "json",
+                            contentType: "application/json",
+                            data: JSON.stringify(data),
+                            success: function (response) {
+                                if (response.success) {
+                                    notify(response.message, "info");
+                                    $vue.$refs.raptorAulas.loadRemoteData();
+                                } else {
+                                    notify(response.message, "error");
+                                }
+                                $vue.$refs.modalDataZoom.close();
+                            },
+                            error: function () {
+                                notify(Messages.errorComunicacion, "error");
+                            }
+                        });
+                    }
+                }
+            });
+        }
     }
 });
  

@@ -3505,6 +3505,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     }
 
     @Override
+    @Transactional
     public void updateLinkZoom(Seccion seccion, DataSessionPivot ds) {
         seccionDAO.updateColumns(seccion, "linkZoom");
     }

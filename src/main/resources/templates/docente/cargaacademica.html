@@ -89,6 +89,7 @@
                                             <span class="block m-b-xs">
                                                 {{item.curso.codigo}} &nbsp;<i class="fa fa-bookmark-o"></i> {{item.curso.tpc}}
                                             </span>
+
                                         </td>
                                 <template v-for="(seccion,idx) in item.secciones"
                                           v-if="idx==0">
@@ -106,6 +107,8 @@
                                     <td class="v-middle text-center">
                                         <span class="block" v-if="seccion.aula.codigo != '' "><i class="fa fa-home text-primary"></i> {{seccion.aula.codigo}}</span>
                                         <span class="block" v-if="seccion.grupoHoras.codigo != '' "><i class="fa fa-calendar text-success"></i> {{seccion.grupoHoras.codigo}}</span>
+                                        <span v-if="seccion.aula.usuarioZoom" class="block bold label label-primary pointer" v-on:click="dataZoomModal(seccion.aula)">Data Zoom</span>
+
                                     </td>
 
                                     <td class="v-middle" v-html="verHorario(seccion.horarioTexto)"></td>
@@ -204,9 +207,10 @@
                         </section>
                     </section>
                 </section>
+                <div th:substituteby="docente/dataZoomModal"></div>
             </div>
+            <div th:substituteby="templates/modal"/>
         </section>
-
         <div layout:fragment="js">
             <script  th:inline="javascript" >
                 /*<![CDATA[*/

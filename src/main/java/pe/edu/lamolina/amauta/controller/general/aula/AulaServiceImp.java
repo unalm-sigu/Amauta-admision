@@ -615,4 +615,10 @@ public class AulaServiceImp implements AulaService {
         return oficina;
     }
 
+    @Override
+    @Transactional
+    public void agregarZoom(Aula aula, DataSessionPivot ds) {
+        aulaDAO.updateColumns(aula, "usuarioZoom", "passZoom");
+    }
+
 }

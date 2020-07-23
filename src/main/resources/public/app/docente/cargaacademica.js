@@ -1,7 +1,16 @@
 new Vue({
     el: '#main',
     data: {
-        cursos: []
+        cursos: [],
+        modalDataZoom: {
+            id: 'modalDataZoom',
+            header: true,
+            title:"Data Zoom",
+            showaccept: false,
+            cancelbtn: 'Cerrar',
+            cancelclass: 'btn btn-link'
+        },
+        aulaDataZoom:{}
     },
     mounted: function () {
         let $vue = this;
@@ -55,6 +64,11 @@ new Vue({
 //                            notify(Messages.errorComunicacion, 'error');
 //                        }
 //                    });
+        },
+        dataZoomModal(item) {
+            let $vue = this;
+            $vue.aulaDataZoom = item;
+            $vue.$refs.modalDataZoom.open();
         }
     }
 

@@ -2325,12 +2325,6 @@ var app = new Vue({
                             data: JSON.stringify($vue.seccionLink),
                             success: function (response) {
                                 if (response.success) {
-//                                    mm.modal("hide");
-                                    $vue.grupoSeccion.secciones.forEach(function (x) {
-                                        if (x.id == $vue.seccionLink.id) {
-                                            x.linkZoom = $vue.seccionLink.linkZoom;
-                                        }
-                                    })
                                     $vue.loadGpoSeccionFlash();
                                     mm.modal("hide");
                                     notify(response.message, "info");
