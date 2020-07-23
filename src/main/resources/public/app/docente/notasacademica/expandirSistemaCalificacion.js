@@ -368,7 +368,7 @@ $(function () {
         aceptarExpansion: function (el) {
             el.preventDefault();
             bootbox.confirm({
-                message: MESSAGES.confirmAccept,
+                message: Messages.confirmAccept,
                 title: 'Aceptar Expansión',
                 buttons: {
                     confirm: {label: 'Aceptar'},
@@ -403,7 +403,7 @@ $(function () {
         },
         cambiarTipoSecEval: function ($this) {
             bootbox.confirm({
-                message: MESSAGES.confirmAccept,
+                message: Messages.confirmAccept,
                 title: 'Aceptar Cambio Seccion',
                 buttons: {
                     confirm: {label: 'Aceptar'},

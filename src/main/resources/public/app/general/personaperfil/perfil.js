@@ -3,7 +3,7 @@ $(function () {
     Perfil = {
         activar: function (el) {
             bootbox.confirm({
-                message: MESSAGES.confirmActive,
+                message: Messages.confirmActive,
                 title: 'Activar Perfil',
                 buttons: {
                     confirm: {label: 'Activar'},
@@ -37,7 +37,7 @@ $(function () {
         },
         inactivar: function (el) {
             bootbox.confirm({
-                message: MESSAGES.confirmActive,
+                message: Messages.confirmActive,
                 title: 'Desactivar Perfil',
                 buttons: {
                     confirm: {label: 'Desactivar'},

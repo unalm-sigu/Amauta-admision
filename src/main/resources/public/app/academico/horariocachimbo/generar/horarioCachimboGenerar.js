@@ -248,7 +248,7 @@ $(function() {
                         },
                         error: function() {
                             notify(Messages.errorComunicacion, "error");
-                            return  swal({text: MESSAGES.errorComunicacion, icon: "error", dangerMode: true, button: {text: "Aceptar"}});
+                            return  swal({text: Messages.errorComunicacion, icon: "error", dangerMode: true, button: {text: "Aceptar"}});
                         }
                     });
                 }).catch(err => {
@@ -362,7 +362,7 @@ $(function() {
                         },
                         error: function() {
                             notify(Messages.errorComunicacion, "error");
-                            return  swal({text: MESSAGES.errorComunicacion, icon: "error", dangerMode: true, button: {text: "Aceptar"}});
+                            return  swal({text: Messages.errorComunicacion, icon: "error", dangerMode: true, button: {text: "Aceptar"}});
                         }
                     });
                 }).catch(err => {
