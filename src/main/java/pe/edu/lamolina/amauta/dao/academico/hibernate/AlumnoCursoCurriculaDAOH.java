@@ -20,6 +20,7 @@ import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.EEP;
 import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.ELE;
 import pe.edu.lamolina.model.matricula.AlumnoCursoCurricula;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoCursoCurriculaDAO;
+import static pe.edu.lamolina.model.enums.EstadoEnum.ACT;
 
 @Repository
 public class AlumnoCursoCurriculaDAOH extends AbstractEasyDAO<AlumnoCursoCurricula> implements AlumnoCursoCurriculaDAO {
@@ -144,6 +145,7 @@ public class AlumnoCursoCurriculaDAOH extends AbstractEasyDAO<AlumnoCursoCurricu
                 .leftJoin("cicloAprobado ci", "cursoCurricula cc", "cursoOpcional co", "tipoCursoCurriculaOrigen")
                 .filter("al.id", alumno)
                 .filter("cu.id", curso)
+                .filter("acc.estadoRegistro", ACT)
                 .orderBy("cu.nombre");
         return (AlumnoCursoCurricula) sql.find(getCurrentSession());
     }
@@ -175,8 +177,8 @@ public class AlumnoCursoCurriculaDAOH extends AbstractEasyDAO<AlumnoCursoCurricu
         Octavia sql = Octavia.query()
                 .from(AlumnoCursoCurricula.class, "acc")
                 .join("alumno alu", "curso cur")
-//                .isNotNull("cursoCurricula")
-//                .isNull("cursoOpcional")
+                //                .isNotNull("cursoCurricula")
+                //                .isNull("cursoOpcional")
                 .in("alu.id", alumnos)
                 .filter("cur.id", curso)
                 .orderBy("acc.numeroCiclo");
