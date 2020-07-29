@@ -3036,7 +3036,12 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         TipoCursoCurricula tipoCursoGeneral = tipoCursoCurriculaDAO.findByCodigo(TipoCursoCurriculaEnum.GEN);
         TipoCursoCurricula tipoCursoObligatorio = tipoCursoCurriculaDAO.findByCodigo(TipoCursoCurriculaEnum.OBL);
 
-        PrecioCursoEstructura precioTpc = precioCursoEstructuraDAO.findByTpcCiclo(cursoBD.getTpc(), cicloBD);
+        PrecioCursoEstructura precioTpc = null;
+        if (cursoBD.getTpc() != null) {
+            precioTpc = precioCursoEstructuraDAO.findByTpcCiclo(cursoBD.getTpc(), cicloBD);
+
+        }
+        
         TipoCursoCurricula tipoCurr = tipoCursoObligatorio;
         int minimoAlumnos = cicloBD.getAlumnosMinimoTipoObligatorio() == null ? 0 : cicloBD.getAlumnosMinimoTipoObligatorio();
         if (cursosCurricula.isEmpty()) {
