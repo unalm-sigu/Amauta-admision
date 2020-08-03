@@ -1051,8 +1051,10 @@ public class GpoSeccionController {
             HttpSession session) {
         JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
         JsonResponse response = new JsonResponse();
+         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+       
         try {
-            service.cambiarDocentePrincipal(new DocenteSeccion(docSeccion));
+            service.cambiarDocentePrincipal(new DocenteSeccion(docSeccion), ds.getUsuario());
             response.setSuccess(Boolean.TRUE);
             response.setMessage("Docente principal actualizado");
         } catch (Exception e) {
@@ -1071,7 +1073,7 @@ public class GpoSeccionController {
         JsonResponse response = new JsonResponse();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         try {
-            service.actualizarDocente(docSeccion, docente, ds.getCicloAcademico());
+            service.actualizarDocente(docSeccion, docente, ds.getCicloAcademico(), ds.getUsuario());
             response.setSuccess(Boolean.TRUE);
             response.setMessage("Docente actualizado");
         } catch (Exception e) {

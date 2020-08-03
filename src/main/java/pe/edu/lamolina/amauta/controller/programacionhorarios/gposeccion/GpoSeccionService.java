@@ -33,6 +33,7 @@ import pe.edu.lamolina.model.horario.HorarioSeccion;
 import pe.edu.lamolina.model.horario.TipoGrupoHoras;
 import pe.edu.lamolina.amauta.zelper.enums.TipoRestriccionEnum;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.seguridad.Usuario;
 
 public interface GpoSeccionService {
 
@@ -92,9 +93,9 @@ public interface GpoSeccionService {
 
     List<Docente> allDocenterByNombre(String nombre, String codigoDep);
 
-    void cambiarDocentePrincipal(DocenteSeccion docenteSeccion);
+    void cambiarDocentePrincipal(DocenteSeccion docenteSeccion, Usuario usuario);
 
-    void actualizarDocente(Long docenteSeccionId, Long docenteId, CicloAcademico cicloAcademico);
+    void actualizarDocente(Long docenteSeccionId, Long docenteId, CicloAcademico cicloAcademico, Usuario usuario);
 
     void actualizarSeccionVacantes(Seccion seccion, DataSessionPivot ds);
 
