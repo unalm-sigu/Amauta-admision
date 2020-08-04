@@ -9,23 +9,8 @@
     </td>
 
 
-    <td class="v-middle text-center"
+    <td class="v-middle text-center">
 
-        >
-        <!-- 
-        {{if estadoGrupoCerrado!=true}}
-        {{if editarPorcentaje==true}}
-        <input value="{{:pesoEvaluacion}}"
-               rel="{{:evaPlanId}}"
-               name="{{:classArg}}"
-               class="form-control"
-               required="true"
-               data-parsley-type="number"
-               />
-        (de {{:evaluacionPlan.pesoTotal}} % )
-        {{/if}}
-        {{/if}}
-        -->
 
         <div><span class="block" style="{{:styleAbuelo}}">{{:pesoEvaluacion}}
                 {{if esAbuelo==true}}
@@ -33,12 +18,6 @@
                 {{/if}}
             </span></div>
 
-
-        <!--
-        {{if esHijo}}  
-            (de {{:evaluacionPlan.pesoTotal}}%)
-        {{/if}}
-        -->
     </td>
 
     <td class="v-middle text-center">
@@ -52,9 +31,7 @@
         {{if permiteAsign}}
         {{if desagregado==false}}
         <select class="select2 cboTipoSecEval input-s-md" 
-                rel="{{:evaPlanId}}"
-
-                >
+                rel="{{:evaPlanId}}">
             {{for tipoSeccionesEval}}
             {{if #data.selected==true}}
             <option selected="true" value="{{:#data.codigo}}">{{:#data.nombre}}</option>
