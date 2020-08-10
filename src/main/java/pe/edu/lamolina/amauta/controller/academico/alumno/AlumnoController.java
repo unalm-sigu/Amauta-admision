@@ -153,7 +153,6 @@ public class AlumnoController {
             List<Carrera> carrerasOfFacultadEconomia = new ArrayList();
             if (rolCodigos.contains(RolEnum.REVISOR_FAC_ECONOMIA)) {
                 carrerasOfFacultadEconomia = service.allCarrerasOfFacultadEconomia();
-                alumnos = service.allAlumnosbyDynatable(filter, carreras);
                 logger.info("Rol especial {}", RolEnum.REVISOR_FAC_ECONOMIA.name());
             }///
 
@@ -170,6 +169,11 @@ public class AlumnoController {
                 alumnos = service.allAlumnosbyDynatable(filter, carreras, cantidadEnum.name());
                 logger.info("Se extrajeron {} alumnos", alumnos.size());
             }
+
+            if (rolCodigos.contains(RolEnum.REVISOR_FAC_ECONOMIA) && carreras.isEmpty()) {////tmp
+                carreras = carrerasOfFacultadEconomia;
+                alumnos = service.allAlumnosbyDynatable(filter, carreras);
+            }////
 
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
