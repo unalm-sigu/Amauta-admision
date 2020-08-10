@@ -151,7 +151,7 @@ public class AlumnoController {
             }
 
             if (rolCodigos.contains(RolEnum.REVISOR_FAC_ECONOMIA)) {
-                carreras = service.allCarrerasOfFacultadEconomia(ds);
+                carreras = service.allCarrerasOfFacultadEconomia();
                 alumnos = service.allAlumnosbyDynatable(filter, carreras);
                 logger.info("Rol especial {}", RolEnum.REVISOR_FAC_ECONOMIA.name());
             }

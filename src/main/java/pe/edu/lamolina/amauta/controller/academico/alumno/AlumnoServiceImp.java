@@ -78,6 +78,7 @@ import pe.edu.lamolina.amauta.dao.academico.CursoDAO;
 import pe.edu.lamolina.amauta.dao.academico.CursoOpcionalCurriculaDAO;
 import pe.edu.lamolina.amauta.dao.academico.DocenteDAO;
 import pe.edu.lamolina.amauta.dao.academico.DocenteSeccionDAO;
+import pe.edu.lamolina.amauta.dao.academico.FacultadDAO;
 import pe.edu.lamolina.amauta.dao.academico.MatriculaCursoDAO;
 import pe.edu.lamolina.amauta.dao.academico.MatriculaSeccionDAO;
 import pe.edu.lamolina.amauta.dao.academico.ModalidadEstudioDAO;
@@ -182,7 +183,7 @@ public class AlumnoServiceImp implements AlumnoService {
     @Autowired
     CursoOpcionalCurriculaDAO cursoOpcionalCurriculaDAO;
     @Autowired
-    DocenteDAO docenteDAO;
+    FacultadDAO facultadDAO;
 
     @Autowired
     UploadFileS3 uploadFileS3;
@@ -1031,10 +1032,9 @@ public class AlumnoServiceImp implements AlumnoService {
     }
 
     @Override
-    public List<Carrera> allCarrerasOfFacultadEconomia(DataSessionPivot ds) {
-        List<Docente> docentes = docenteDAO.allByPersona(ds.getPersona());
-        Facultad facultad = docentes.get(0).getDepartamentoAcademico().getFacultad();
-
+    public List<Carrera> allCarrerasOfFacultadEconomia() {
+        String codigoFacultadEconomia = "040";
+        Facultad facultad = facultadDAO.findByCodigo(codigoFacultadEconomia);
         return carreraDAO.allCarrerasOfFacultadEconomia(facultad);
     }
 

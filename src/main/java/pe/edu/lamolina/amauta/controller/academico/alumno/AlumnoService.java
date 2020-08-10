@@ -86,7 +86,7 @@ public interface AlumnoService {
 
     Alumno saveFotoCarnet(Alumno alumnoForm, DataSessionPivot ds);
 
-    List<Carrera> allCarrerasOfFacultadEconomia(DataSessionPivot ds);
+    List<Carrera> allCarrerasOfFacultadEconomia();
 
     List<Alumno> allAlumnosbyDynatable(DynatableFilter filter, List<Carrera> carreras);
 
