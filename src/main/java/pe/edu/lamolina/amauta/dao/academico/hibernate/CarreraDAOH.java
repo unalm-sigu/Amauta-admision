@@ -384,4 +384,17 @@ public class CarreraDAOH extends AbstractEasyDAO<Carrera> implements CarreraDAO 
         return all(sql);
     }
 
+    @Override
+    public List<Carrera> allCarrerasOfFacultadEconomia(Facultad facultad) {
+        Octavia sql = Octavia.query()
+                .from(Carrera.class, "car")
+                .join("modalidadEstudio me", "facultad fa")
+                .leftJoin("areaPosgrado ap")
+                .filter("me.codigo", PRE)
+                .filter("fa.id", facultad)
+                .orderBy("car.nombre");
+
+        return all(sql);
+    }
+
 }

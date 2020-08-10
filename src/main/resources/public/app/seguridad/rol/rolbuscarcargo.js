@@ -17,7 +17,7 @@ Vue.component("cargosearh", {
     methods: {
         buscar: function (vue) {
             return {
-                minimumInputLength: 2,
+                minimumInputLength: -1,
                 allowClear: true,
                 placeholder: "Seleccione un cargo para agregar",
                 ajax: {

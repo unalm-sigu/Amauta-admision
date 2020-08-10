@@ -62,4 +62,6 @@ public interface CarreraDAO extends EasyDAO<Carrera> {
 
     List<Carrera> allPosGrado();
 
+    List<Carrera> allCarrerasOfFacultadEconomia(Facultad facultad);
+
 }

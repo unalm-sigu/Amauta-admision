@@ -909,4 +909,18 @@ public class VerificadorServiceImp implements VerificadorService {
         return false;
     }
 
+    @Override
+    public boolean puedeVerHeadAlumno(DataSessionPivot ds) {
+        boolean puedeVerHead = true;
+        List<RolEnum> rolCodigos = new ArrayList();
+        for (Rol rol : ds.getRoles()) {
+            rolCodigos.add(rol.getCodigoEnum());
+        }
+        
+        if (rolCodigos.contains(RolEnum.REVISOR_FAC_ECONOMIA)) {
+            puedeVerHead = false;
+        }
+        return puedeVerHead;
+    }
+
 }

@@ -11,12 +11,9 @@ import pe.edu.lamolina.model.academico.CursoConvalidado;
 import pe.edu.lamolina.model.academico.CursoOpcionalCurricula;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.SituacionAcademica;
-import pe.edu.lamolina.model.enums.ParametrosSistemasEnum;
-import pe.edu.lamolina.model.general.Parametro;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.general.TipoDocIdentidad;
 import pe.edu.lamolina.model.matricula.AlumnoCursoCurricula;
-import pe.edu.lamolina.model.seguridad.TokenIngresante;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.tramite.TramiteTraslado;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
@@ -88,5 +85,9 @@ public interface AlumnoService {
     void agregarAlumnoCursoCurricula(CursoOpcionalCurricula cursoOpcional, Alumno alumno);
 
     Alumno saveFotoCarnet(Alumno alumnoForm, DataSessionPivot ds);
+
+    List<Carrera> allCarrerasOfFacultadEconomia(DataSessionPivot ds);
+
+    List<Alumno> allAlumnosbyDynatable(DynatableFilter filter, List<Carrera> carreras);
 
 }

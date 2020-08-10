@@ -12,17 +12,18 @@ new Vue({
         dataModalCargo: {
             id: "idModalCaargo",
             title: 'Relacionar Cargo',
-            showaccept: false,
             modalscroll: 'modal-scroll-fix-500'
         },
         dataModalFuncion: VUE_MODAL.structFormAjax({
             id: 'idModalFunciones',
             title: 'Relacionar Función',
-            showaccept: false,
             modalscroll: 'modal-scroll-fix-500'
         }),
         dataModalRol: {
             title: 'Nuevo Rol',
+            id: 'idModalRol',
+            showaccept: true,
+            header:true
         }
     },
     computed: {
@@ -178,8 +179,9 @@ new Vue({
             let vue = this;
             vue.rolSuperior = {id: null};
             vue.rol = {id: null};
-            vue.dataModalRol.title = "Nuevo Rol";
+//            vue.dataModalRol.title = "Nuevo Rol";
             vue.$refs.nuevorolmodal.open();
+            
         },
         saveRol: function () {
 
@@ -222,7 +224,6 @@ new Vue({
 
         },
         editarRol: function (rol) {
-
             let vue = this;
             vue.rol = {id: null};
             vue.rolSuperior = {id: null};
@@ -248,10 +249,10 @@ new Vue({
             });
 
             vue.$refs.nuevorolmodal.open();
+            console.log("EditarRol")
 
         },
         eliminarRol: function (rol) {
-
             let vue = this;
             swal({
                 text: "¿Está seguro que desea eliminar el rol  " + rol.nombre + "?",

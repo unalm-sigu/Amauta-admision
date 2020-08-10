@@ -89,9 +89,10 @@
                     </section>
                 </section>
 
-                <div th:substituteby="seguridad/rol/rolSistemaCargoTemplate"/>
+                <div th:substituteby="seguridad/rol/rolSistemaCargoTemplate"></div>
 
             </div>
+
 
             <template id="funcionsearhtemp">
                 <input type="text"
@@ -122,13 +123,14 @@
                        />
             </template>
 
+            <!--<div th:substituteby="_modules/vue-modal"></div>-->
         </div>
 
         <div layout:fragment="js" th:remove="tag">
-            
+
             <div th:substituteby="_modules/vue-raptor-table"></div>
-            
-        
+
+
             <script th:src="@{/app/seguridad/rol/rolbuscarcargo.js}" charset="utf-8"></script>
             <script th:src="@{/app/seguridad/rol/rolbuscarfuncion.js}" charset="utf-8"></script>
             <script th:src="@{/app/seguridad/rol/superrolbuscar.js}" charset="utf-8"></script>
