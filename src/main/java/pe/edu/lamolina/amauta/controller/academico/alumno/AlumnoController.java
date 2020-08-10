@@ -64,6 +64,7 @@ import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorServic
 import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorServiceImp;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.enums.RolEnum;
 import pe.edu.lamolina.model.seguridad.Rol;
 
@@ -143,22 +144,26 @@ public class AlumnoController {
             VerificadorServiceImp.CantidadItemsEnum cantidadEnum = verificadorService.verificarCantidad(TipoOficinaEnum.ESP, request, ds);
 
             logger.info("cantidadEnum {}", cantidadEnum.name());
-            List<RolEnum> rolCodigos = new ArrayList();
+            List<RolEnum> rolCodigos = new ArrayList();///tmp
 
             for (Rol rol : ds.getRoles()) {
                 rolCodigos.add(rol.getCodigoEnum());
                 logger.debug("Rol {} {}", rol.getCodigo(), rol.getNombre());
             }
-
+            List<Carrera> carrerasOfFacultadEconomia = new ArrayList();
             if (rolCodigos.contains(RolEnum.REVISOR_FAC_ECONOMIA)) {
-                carreras = service.allCarrerasOfFacultadEconomia();
+                carrerasOfFacultadEconomia = service.allCarrerasOfFacultadEconomia();
                 alumnos = service.allAlumnosbyDynatable(filter, carreras);
                 logger.info("Rol especial {}", RolEnum.REVISOR_FAC_ECONOMIA.name());
-            }
+            }///
 
-//            logger.info("Acceso alumnos {}", cantidadEnum.name());
             if (cantidadEnum == VerificadorServiceImp.CantidadItemsEnum.PARCIAL) {
                 carreras = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.ESP, request, ds);
+                Docente docente = service.finDocenteAccesoEspecial();//temporal
+                if (docente.getId() != null) {
+                    carrerasOfFacultadEconomia = service.allCarrerasOfFacultadEconomia();
+                    carreras.addAll(carrerasOfFacultadEconomia);
+                }//
                 logger.info("Acceso a {} carreras", carreras.size());
             }
             if (cantidadEnum != VerificadorServiceImp.CantidadItemsEnum.SIN_PERMISO) {

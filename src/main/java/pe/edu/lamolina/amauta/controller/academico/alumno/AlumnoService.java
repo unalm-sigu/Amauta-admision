@@ -17,6 +17,7 @@ import pe.edu.lamolina.model.matricula.AlumnoCursoCurricula;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.model.tramite.TramiteTraslado;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.academico.Docente;
 
 public interface AlumnoService {
 
@@ -89,5 +90,7 @@ public interface AlumnoService {
     List<Carrera> allCarrerasOfFacultadEconomia();
 
     List<Alumno> allAlumnosbyDynatable(DynatableFilter filter, List<Carrera> carreras);
+
+    Docente finDocenteAccesoEspecial();
 
 }

@@ -184,6 +184,8 @@ public class AlumnoServiceImp implements AlumnoService {
     CursoOpcionalCurriculaDAO cursoOpcionalCurriculaDAO;
     @Autowired
     FacultadDAO facultadDAO;
+    @Autowired
+    DocenteDAO docenteDAO;
 
     @Autowired
     UploadFileS3 uploadFileS3;
@@ -1041,6 +1043,11 @@ public class AlumnoServiceImp implements AlumnoService {
     @Override
     public List<Alumno> allAlumnosbyDynatable(DynatableFilter filter, List<Carrera> carreras) {
         return alumnoDAO.allAlumnosbyDynatable(filter, carreras);
+    }
+
+    @Override
+    public Docente finDocenteAccesoEspecial() {
+        return docenteDAO.findByCode("1272");//tmp
     }
 
 }
