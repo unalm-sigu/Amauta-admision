@@ -42,7 +42,6 @@ import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.general.TipoDocIdentidad;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorService;
-import pe.edu.lamolina.model.constantines.AcademicoConstantine;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 
@@ -85,7 +84,7 @@ public class ColaboradorController {
 
     @RequestMapping("{idOficina}/updateColaborador/{idColaborador}")
     public String updateColaborador(
-            @RequestParam(value = "origen", required = false) String origen,
+            @RequestParam("origen") String origen,
             @PathVariable("idOficina") Long idOficina,
             @PathVariable("idColaborador") Long idColaborador, Model model, HttpSession session) {
 

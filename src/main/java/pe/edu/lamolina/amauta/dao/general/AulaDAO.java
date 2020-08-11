@@ -64,4 +64,6 @@ public interface AulaDAO extends EasyDAO<Aula> {
 
     List<Aula> allAulasByName(String nombre, Integer limit);
 
+    public void updateColumns(Aula aula, String... params);
+
 }

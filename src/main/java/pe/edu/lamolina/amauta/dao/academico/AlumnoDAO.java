@@ -140,4 +140,6 @@ public interface AlumnoDAO extends EasyDAO<Alumno> {
 
     int updateList(List<Alumno> alumnos, String... columns);
 
+    List<Alumno> allAlumnosbyDynatable(DynatableFilter filter, List<Carrera> carreras);
+
 }

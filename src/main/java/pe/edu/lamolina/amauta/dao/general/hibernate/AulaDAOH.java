@@ -13,6 +13,7 @@ import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.constantines.AcademicoConstantine;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.OficinaEnum;
@@ -406,6 +407,13 @@ public class AulaDAOH extends AbstractEasyDAO<Aula> implements AulaDAO {
                 .orderBy("aus.nombre");
 
         return all(sql);
+    }
+
+    @Override
+    public void updateColumns(Aula aula, String... params) {
+        Octavia sql = Octavia.update(Aula.class, "au");
+        sql.set(aula, params);
+        this.update(sql);
     }
 
 }

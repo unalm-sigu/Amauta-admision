@@ -17,7 +17,7 @@ Vue.component("funcionsearh", {
     methods: {
         buscar: function (vue) {
             return {
-                minimumInputLength: 2,
+                minimumInputLength: -1,
                 allowClear: true,
                 placeholder: "Seleccione una función para agregar",
                 ajax: {

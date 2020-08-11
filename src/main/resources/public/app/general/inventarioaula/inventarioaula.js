@@ -197,7 +197,7 @@ new Vue({
                         }
                     },
                     error: function () {
-                        return  swal({text: MESSAGES.errorComunicacion, icon: "error", dangerMode: true, button: {text: "Aceptar"}});
+                        return  swal({text: Messages.errorComunicacion, icon: "error", dangerMode: true, button: {text: "Aceptar"}});
                     }
                 });
             }).catch(err => {
@@ -291,7 +291,7 @@ new Vue({
                         }
                     },
                     error: function () {
-                        return  swal({text: MESSAGES.errorComunicacion, icon: "error", dangerMode: true, button: {text: "Aceptar"}});
+                        return  swal({text: Messages.errorComunicacion, icon: "error", dangerMode: true, button: {text: "Aceptar"}});
                     }
                 });
 

@@ -1538,7 +1538,7 @@ var app = new Vue({
                         }
                     },
                     error: function () {
-                        swal({text: MESSAGES.errorComunicacion, icon: "error", dangerMode: true, button: {text: "Aceptar"}});
+                        swal({text: Messages.errorComunicacion, icon: "error", dangerMode: true, button: {text: "Aceptar"}});
                     }
                 });
 
@@ -1666,7 +1666,7 @@ var app = new Vue({
                         }
                     },
                     error: function () {
-                        swal({text: MESSAGES.errorComunicacion, icon: "error", dangerMode: true, button: {text: "Aceptar"}});
+                        swal({text: Messages.errorComunicacion, icon: "error", dangerMode: true, button: {text: "Aceptar"}});
                     }
                 });
 

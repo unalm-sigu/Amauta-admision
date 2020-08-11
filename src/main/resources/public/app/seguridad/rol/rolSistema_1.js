@@ -68,7 +68,7 @@ $(function () {
             var rol = self.attr('rel');
 
             bootbox.confirm({
-                message: MESSAGES.confirmDelete,
+                message: Messages.confirmDelete,
                 buttons: {
                     confirm: {label: "Si, eliminar", className: "btn-danger"},
                     cancel: {label: "Cancelar", className: "btn-link"}

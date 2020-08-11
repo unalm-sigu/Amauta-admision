@@ -8,7 +8,7 @@
             <div id="alumnosVUE" v-cloak="">
 
                 <header class="header b-b padder-lg">
-                    <div class="btn-group pull-right">
+                    <div class="btn-group pull-right" v-if="puedeVerHead">
                         <button type="button" class="btn btn-success btn-sm dropdown-toggle" data-toggle="dropdown">
                             <i class="fa fa-file-text-o"/> &nbsp; Acciones &nbsp; <span class="caret"></span>
                         </button>
@@ -21,7 +21,7 @@
                 </header>
 
                 <section class="wrapper-lg">
-                    <section class="panel m-b-md">
+                    <section class="panel m-b-md" th:if="${puedeVerHead}">
                         <section class="panel-body">
                             <div class="col-md-12">
                                 <div class="row">

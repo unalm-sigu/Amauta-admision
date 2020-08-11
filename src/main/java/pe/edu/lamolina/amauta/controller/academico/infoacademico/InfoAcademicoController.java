@@ -96,7 +96,7 @@ public class InfoAcademicoController {
 
         Alumno alumno = service.findWithallInfo(new Alumno(idAlumno));
         List<PlanCurricular> planes = service.allPlanCurricularByAlumno(alumno);
-        
+
         logger.debug("ciclosRegular =  {}", alumno.getCiclosRegularesTransient());
         logger.debug("ciclosVerano  =  {}", alumno.getCiclosVeranosTransient());
         ObjectNode alumnoJson = createAlumnoJson(alumno);
@@ -408,7 +408,8 @@ public class InfoAcademicoController {
             ObjectNode node = new ObjectNode(factory);
 
             List<RetiroCurso> retiroCursos = service.allRetiroCursoByAlumno(alumno);
-            Long totalContable = retiroCursos.stream().filter(x -> x.getEsContado()).count();
+            Long totalContable = retiroCursos.stream().filter(x -> x.getEsContado() && x.getEstadoEnum() == TramiteEstadoEnum.ACEP).count();
+            Long total = retiroCursos.stream().filter(x -> x.getEstadoEnum() == TramiteEstadoEnum.ACEP).count();
 
             ArrayNode arrayRetiroCurso = new ArrayNode(factory);
             for (RetiroCurso retiroCurso : retiroCursos) {
@@ -428,7 +429,7 @@ public class InfoAcademicoController {
             node.set("retirosCurso", arrayRetiroCurso);
             node.put("totalContable", totalContable);
 
-            response.setTotal(retiroCursos.size());
+            response.setTotal(total.intValue());
             response.setSuccess(true);
             response.setData(node);
 

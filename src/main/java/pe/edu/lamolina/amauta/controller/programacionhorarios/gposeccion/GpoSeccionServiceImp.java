@@ -1565,10 +1565,12 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
     @Override
     @Transactional
-    public void cambiarDocentePrincipal(DocenteSeccion docenteSeccion) {
+    public void cambiarDocentePrincipal(DocenteSeccion docenteSeccion, Usuario usuario) {
         docenteSeccion = docenteSeccionDAO.find(docenteSeccion.getId());
         List<DocenteSeccion> docentesSeccion = docenteSeccionDAO.allBySeccion(docenteSeccion.getSeccion());
         for (DocenteSeccion docenteSeccionEach : docentesSeccion) {
+            docenteSeccionEach.setFechaModifica(new Date());
+            docenteSeccionEach.setUserModifica(usuario);
             docenteSeccionEach.setPrincipal(BigDecimal.ZERO.intValue());
             docenteSeccionDAO.updatePrincipal(docenteSeccionEach);
         }
@@ -1579,9 +1581,11 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
     @Override
     @Transactional
-    public void actualizarDocente(Long docenteSeccionId, Long docenteId, CicloAcademico cicloAcademico) {
+    public void actualizarDocente(Long docenteSeccionId, Long docenteId, CicloAcademico cicloAcademico, Usuario usuario) {
         DocenteSeccion docenteSeccion = docenteSeccionDAO.find(docenteSeccionId);
         docenteSeccion.setDocente(new Docente(docenteId));
+        docenteSeccion.setUserModifica(usuario);
+        docenteSeccion.setFechaModifica(new Date());
         docenteSeccionDAO.updateDocente(docenteSeccion);
 
         List<DocenteSeccion> docentesSeccion = docenteSeccionDAO.allBySeccion(docenteSeccion.getSeccion());
@@ -3036,7 +3040,12 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         TipoCursoCurricula tipoCursoGeneral = tipoCursoCurriculaDAO.findByCodigo(TipoCursoCurriculaEnum.GEN);
         TipoCursoCurricula tipoCursoObligatorio = tipoCursoCurriculaDAO.findByCodigo(TipoCursoCurriculaEnum.OBL);
 
-        PrecioCursoEstructura precioTpc = precioCursoEstructuraDAO.findByTpcCiclo(cursoBD.getTpc(), cicloBD);
+        PrecioCursoEstructura precioTpc = null;
+        if (cursoBD.getTpc() != null) {
+            precioTpc = precioCursoEstructuraDAO.findByTpcCiclo(cursoBD.getTpc(), cicloBD);
+
+        }
+        
         TipoCursoCurricula tipoCurr = tipoCursoObligatorio;
         int minimoAlumnos = cicloBD.getAlumnosMinimoTipoObligatorio() == null ? 0 : cicloBD.getAlumnosMinimoTipoObligatorio();
         if (cursosCurricula.isEmpty()) {
@@ -3505,6 +3514,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     }
 
     @Override
+    @Transactional
     public void updateLinkZoom(Seccion seccion, DataSessionPivot ds) {
         seccionDAO.updateColumns(seccion, "linkZoom");
     }

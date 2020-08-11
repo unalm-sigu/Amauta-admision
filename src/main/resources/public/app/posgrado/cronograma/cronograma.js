@@ -95,7 +95,7 @@ new Vue({
                     }
                 }, error: function () {
 
-                    swal({text: MESSAGES.errorComunicacion, icon: "error", button: false, timer: 1000});
+                    swal({text: Messages.errorComunicacion, icon: "error", button: false, timer: 1000});
                 }
             });
 

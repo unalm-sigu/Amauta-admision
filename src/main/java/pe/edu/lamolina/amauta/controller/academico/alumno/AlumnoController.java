@@ -34,6 +34,7 @@ import pe.albatross.zelpers.file.system.FileHelper;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Carrera;
@@ -61,9 +62,11 @@ import pe.edu.lamolina.amauta.controller.responserest.ResponseRestService;
 import pe.edu.lamolina.amauta.controller.academico.visitante.AlumnoHelper;
 import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorService;
 import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorServiceImp;
-import pe.edu.lamolina.model.constantines.AcademicoConstantine;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.academico.Docente;
+import pe.edu.lamolina.model.enums.RolEnum;
+import pe.edu.lamolina.model.seguridad.Rol;
 
 @Controller
 @RequestMapping("academico/alumno")
@@ -122,6 +125,7 @@ public class AlumnoController {
         model.addAttribute("resumen", service.findResumen());
         model.addAttribute("puedeMatricular", verificadorService.puedeOperarMatricula(ds));
         model.addAttribute("puedeEditarAlumno", verificadorService.puedeEditarAlumno(ds));
+        model.addAttribute("puedeVerHead", verificadorService.puedeVerHeadAlumno(ds));//no ven los de ROL REVISOR_FAC_ECONOMIA
 
         return "academico/alumno/alumno";
     }
@@ -138,15 +142,38 @@ public class AlumnoController {
             List<Carrera> carreras = new ArrayList();
             List<Alumno> alumnos = new ArrayList();
             VerificadorServiceImp.CantidadItemsEnum cantidadEnum = verificadorService.verificarCantidad(TipoOficinaEnum.ESP, request, ds);
-            logger.info("Acceso alumnos {}", cantidadEnum.name());
+
+            logger.info("cantidadEnum {}", cantidadEnum.name());
+            List<RolEnum> rolCodigos = new ArrayList();///tmp
+
+            for (Rol rol : ds.getRoles()) {
+                rolCodigos.add(rol.getCodigoEnum());
+                logger.debug("Rol {} {}", rol.getCodigo(), rol.getNombre());
+            }
+            List<Carrera> carrerasOfFacultadEconomia = new ArrayList();
+            if (rolCodigos.contains(RolEnum.REVISOR_FAC_ECONOMIA)) {
+                carrerasOfFacultadEconomia = service.allCarrerasOfFacultadEconomia();
+                logger.info("Rol especial {}", RolEnum.REVISOR_FAC_ECONOMIA.name());
+            }///
+
             if (cantidadEnum == VerificadorServiceImp.CantidadItemsEnum.PARCIAL) {
                 carreras = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.ESP, request, ds);
+                Docente docente = service.finDocenteAccesoEspecial();//temporal
+                if (docente.getId() != null) {
+                    carrerasOfFacultadEconomia = service.allCarrerasOfFacultadEconomia();
+                    carreras.addAll(carrerasOfFacultadEconomia);
+                }//
                 logger.info("Acceso a {} carreras", carreras.size());
             }
             if (cantidadEnum != VerificadorServiceImp.CantidadItemsEnum.SIN_PERMISO) {
                 alumnos = service.allAlumnosbyDynatable(filter, carreras, cantidadEnum.name());
                 logger.info("Se extrajeron {} alumnos", alumnos.size());
             }
+
+            if (rolCodigos.contains(RolEnum.REVISOR_FAC_ECONOMIA) && carreras.isEmpty()) {////tmp
+                carreras = carrerasOfFacultadEconomia;
+                alumnos = service.allAlumnosbyDynatable(filter, carreras);
+            }////
 
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 

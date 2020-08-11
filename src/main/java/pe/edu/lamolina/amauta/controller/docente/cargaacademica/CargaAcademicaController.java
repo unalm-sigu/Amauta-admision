@@ -104,6 +104,8 @@ public class CargaAcademicaController {
                     "secciones.matriculados",
                     "secciones.aula.codigo",
                     "secciones.aula.nombre",
+                    "secciones.aula.usuarioZoom",
+                    "secciones.aula.passZoom",
                     "secciones.grupoHoras.codigo",
                     "secciones.docenteSeccion.id",
                     "secciones.docenteSeccion.estado",

@@ -76,7 +76,9 @@ import pe.edu.lamolina.amauta.dao.academico.CursoConvalidadoDAO;
 import pe.edu.lamolina.amauta.dao.academico.CursoCurriculaDAO;
 import pe.edu.lamolina.amauta.dao.academico.CursoDAO;
 import pe.edu.lamolina.amauta.dao.academico.CursoOpcionalCurriculaDAO;
+import pe.edu.lamolina.amauta.dao.academico.DocenteDAO;
 import pe.edu.lamolina.amauta.dao.academico.DocenteSeccionDAO;
+import pe.edu.lamolina.amauta.dao.academico.FacultadDAO;
 import pe.edu.lamolina.amauta.dao.academico.MatriculaCursoDAO;
 import pe.edu.lamolina.amauta.dao.academico.MatriculaSeccionDAO;
 import pe.edu.lamolina.amauta.dao.academico.ModalidadEstudioDAO;
@@ -101,6 +103,8 @@ import pe.edu.lamolina.model.constantines.AcademicoConstantine;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.mail.MailerService;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.academico.Docente;
+import pe.edu.lamolina.model.academico.Facultad;
 
 @Service
 @Transactional(readOnly = true)
@@ -178,6 +182,10 @@ public class AlumnoServiceImp implements AlumnoService {
     AlumnoCicloDAO alumnoCicloDAO;
     @Autowired
     CursoOpcionalCurriculaDAO cursoOpcionalCurriculaDAO;
+    @Autowired
+    FacultadDAO facultadDAO;
+    @Autowired
+    DocenteDAO docenteDAO;
 
     @Autowired
     UploadFileS3 uploadFileS3;
@@ -1023,6 +1031,23 @@ public class AlumnoServiceImp implements AlumnoService {
         personaDAO.update(alumnoBD.getPersona());
 
         return alumnoBD;
+    }
+
+    @Override
+    public List<Carrera> allCarrerasOfFacultadEconomia() {
+        String codigoFacultadEconomia = "040";
+        Facultad facultad = facultadDAO.findByCodigo(codigoFacultadEconomia);
+        return carreraDAO.allCarrerasOfFacultadEconomia(facultad);
+    }
+
+    @Override
+    public List<Alumno> allAlumnosbyDynatable(DynatableFilter filter, List<Carrera> carreras) {
+        return alumnoDAO.allAlumnosbyDynatable(filter, carreras);
+    }
+
+    @Override
+    public Docente finDocenteAccesoEspecial() {
+        return docenteDAO.findByCode("1272");//tmp
     }
 
 }

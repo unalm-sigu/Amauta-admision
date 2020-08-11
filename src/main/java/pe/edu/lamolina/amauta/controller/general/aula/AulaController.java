@@ -126,7 +126,7 @@ public class AulaController {
 
             for (Aula aula : aulas) {
                 ObjectNode node = JsonHelper.createJson(aula, jFactory, true, new String[]{
-                    "id", "codigo", "nombre", "tipoAmbienteEnum", "tipoAmbiente", "piso", "pisos",
+                    "id", "codigo", "nombre", "tipoAmbienteEnum", "tipoAmbiente", "piso", "pisos", "usuarioZoom", "passZoom",
                     "aforo", "capacidadAula", "capacidadExtra", "estado", "estadoEnum", "motivoAnulacion",
                     "aulaSuperior.id", "aulaSuperior.nombre",
                     "sede.id", "sede.nombre",
@@ -383,6 +383,27 @@ public class AulaController {
             service.cambioEstado(aula, ds);
 
             response.setMessage("Se cambio de estado satisfactoriamente.");
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("agregarZoom")
+    public JsonResponse agregarZoom(@RequestBody Aula aula, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        response.setSuccess(false);
+
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+            service.agregarZoom(aula, ds);
+
+            response.setMessage("Se agregó la información del zoom satisfactoriamente.");
             response.setSuccess(true);
 
         } catch (PhobosException e) {

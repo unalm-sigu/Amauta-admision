@@ -79,6 +79,8 @@
                                                     <span class="block" v-if="item.oficinaSupervisora.oficinaOera">
                                                         <span v-text="'Secciones programdas '+item.secciones"></span>
                                                     </span>
+                                                    <span v-if="item.usuarioZoom" class="block bold">Usuario Zoom: {{item.usuarioZoom}}</span>
+                                                    <span v-if="item.passZoom" class="block bold">Contraseña Zoom: {{item.passZoom}}</span>
                                                 </td>
 
                                                 <td class="v-middle text-center">
@@ -134,6 +136,7 @@
                                                             <li v-if="item.estado == 'ACT' "><a v-on:click="cambiarEstado(item, 'INA')">Desactivar</a></li>
                                                             <li v-if="item.estado == 'CRE' "><a v-on:click="cambiarEstado(item, 'ACT')">Activar</a></li>
                                                             <li v-if="item.estado == 'ACT' "><a href="#" v-on:click.prevent="verHorarioAula(item)">Ver horario</a></li>
+                                                            <li v-if="item.estado == 'ACT' "><a href="#" v-on:click.prevent="dataZoom(item)">Data Zoom</a></li>
                                                             <li><a v-on:click='eliminarAula(item)'>Eliminar</a></li>
 
                                                             <template v-if="item.tipoAmbiente != 'EDI' ">
@@ -288,8 +291,8 @@
                 var tipoAulasJson = /*[[${tipoAulasJson}]]*/ {};
                 /*]]>*/
             </script>
-            
-            
+
+
             <div th:substituteby="_modules/vue-raptor-table"></div>
             <script th:src="@{/app/general/aula/aulaHorarioComponent.js}" charset="utf-8"></script>
             <script th:src="@{/app/general/aula/aula.js}" charset="utf-8"></script>

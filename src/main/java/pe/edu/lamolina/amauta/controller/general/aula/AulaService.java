@@ -74,4 +74,6 @@ public interface AulaService {
 
     List<ResponsableAulaAsignacion> allResponsablesAulasAsignadas(EstadoEnum... estado);
 
+    public void agregarZoom(Aula aula, DataSessionPivot ds);
+
 }
