@@ -153,7 +153,7 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
         DynatableSql sql = new DynatableSql(filter);
         sql.from(MatriculaResumen.class, "mr")
                 .join("alumno al", "cicloAcademico ca", "al.persona per", "al.carrera car", "al.situacionAcademica sita")
-                .join("ca.modalidadEstudio moe", "car.facultad fac")
+                .join("al.modalidadEstudio moe", "car.facultad fac")
                 .leftJoin("al.cicloIngreso ci", "al.cicloActivo cia", "turnoAtencion ta", "cicloAcademicoInfo", "per.tipoDocumento tdoc")
                 .filter("ca.codigo", ciclo.getCodigo())
                 .searchFields("car.nombre", "fac.nombre", "al.codigo", "per.numeroDocIdentidad")
@@ -183,6 +183,7 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
                 continue;
             }
             String values = (String) queries.get(key);
+            logger.info("moe.codigo=[{}]", values);
             if (values.equals("pregrado")) {
                 sql.filter("moe.codigo", PRE);
             } else if (values.equals("postgrado")) {
