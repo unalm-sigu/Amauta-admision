@@ -438,18 +438,18 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
     }
 
     private void validarCursosELC(
-            List<AlumnoCursoCurricula> alumnoCursosElectivosNewQQ,
+            List<AlumnoCursoCurricula> alumnoCursosElectivosNew,
             List<AlumnoCursoCurricula> alumnoCursosCurriculaNew, Alumno alumno) {
 
-        List<AlumnoCursoCurricula> cursosELC = alumnoCursosCurriculaNew.stream().filter(x -> Arrays.asList(ELC, ELE, PROD, CULT, TECIND).contains(x.getTipoCursoCurricula().getCodigoEnum()) && x.getCicloAprobado() != null).collect(Collectors.toList());
-        List<AlumnoCursoCurricula> cursosPRO = alumnoCursosCurriculaNew.stream().filter(x -> Arrays.asList(PROD).contains(x.getTipoCursoCurricula().getCodigoEnum()) && x.getCicloAprobado() != null).collect(Collectors.toList());
-        List<AlumnoCursoCurricula> cursosCULT = alumnoCursosCurriculaNew.stream().filter(x -> Arrays.asList(CULT).contains(x.getTipoCursoCurricula().getCodigoEnum()) && x.getCicloAprobado() != null).collect(Collectors.toList());
-        List<AlumnoCursoCurricula> cursosTECIND = alumnoCursosCurriculaNew.stream().filter(x -> Arrays.asList(TECIND).contains(x.getTipoCursoCurricula().getCodigoEnum()) && x.getCicloAprobado() != null).collect(Collectors.toList());
+        List<AlumnoCursoCurricula> cursosELC = alumnoCursosElectivosNew.stream().filter(x -> Arrays.asList(ELC, ELE, PROD, CULT, TECIND).contains(x.getTipoCursoCurricula().getCodigoEnum()) && x.getCicloAprobado() != null).collect(Collectors.toList());
+        List<AlumnoCursoCurricula> cursosPRO = alumnoCursosElectivosNew.stream().filter(x -> Arrays.asList(PROD).contains(x.getTipoCursoCurricula().getCodigoEnum()) && x.getCicloAprobado() != null).collect(Collectors.toList());
+        List<AlumnoCursoCurricula> cursosCULT = alumnoCursosElectivosNew.stream().filter(x -> Arrays.asList(CULT).contains(x.getTipoCursoCurricula().getCodigoEnum()) && x.getCicloAprobado() != null).collect(Collectors.toList());
+        List<AlumnoCursoCurricula> cursosTECIND = alumnoCursosElectivosNew.stream().filter(x -> Arrays.asList(TECIND).contains(x.getTipoCursoCurricula().getCodigoEnum()) && x.getCicloAprobado() != null).collect(Collectors.toList());
 
-        List<AlumnoCursoCurricula> cursosComodinELC = alumnoCursosCurriculaNew.stream().filter(x -> x.getCurso().getCodigo().equals("ELC")).collect(Collectors.toList());
-        List<AlumnoCursoCurricula> cursosComodinPRO = alumnoCursosCurriculaNew.stream().filter(x -> x.getCurso().getCodigo().equals("PROD")).collect(Collectors.toList());
-        List<AlumnoCursoCurricula> cursosComodinCULT = alumnoCursosCurriculaNew.stream().filter(x -> x.getCurso().getCodigo().equals("CULT")).collect(Collectors.toList());
-        List<AlumnoCursoCurricula> cursosComodinTECIND = alumnoCursosCurriculaNew.stream().filter(x -> x.getCurso().getCodigo().equals("TECIND")).collect(Collectors.toList());
+        List<AlumnoCursoCurricula> cursosComodinELC = alumnoCursosCurriculaNew.stream().filter(x -> x.getCurso().getCodigo().equals(ELC.name())).collect(Collectors.toList());
+        List<AlumnoCursoCurricula> cursosComodinPRO = alumnoCursosCurriculaNew.stream().filter(x -> x.getCurso().getCodigo().equals(PROD.name())).collect(Collectors.toList());
+        List<AlumnoCursoCurricula> cursosComodinCULT = alumnoCursosCurriculaNew.stream().filter(x -> x.getCurso().getCodigo().equals(CULT.name())).collect(Collectors.toList());
+        List<AlumnoCursoCurricula> cursosComodinTECIND = alumnoCursosCurriculaNew.stream().filter(x -> x.getCurso().getCodigo().equals(TECIND.name())).collect(Collectors.toList());
 
         Integer creditosELC = cursosELC.stream().mapToInt(AlumnoCursoCurricula::getCreditos).sum();
         Integer creditosPRO = cursosPRO.stream().mapToInt(AlumnoCursoCurricula::getCreditos).sum();
