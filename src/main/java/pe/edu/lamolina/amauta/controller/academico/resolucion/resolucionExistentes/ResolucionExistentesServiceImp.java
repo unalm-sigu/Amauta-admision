@@ -1103,6 +1103,15 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
             Alumno alumno = retiroCicloForm.getAlumno();
             Alumno alumnoDB = alumnoDAO.find(alumno);
 
+            MatriculaResumen matriculaResumen = matriculaResumenDAO.findByAlumnoCiclo(alumno, resolucionForm.getCicloAplica());
+
+            if (resolucionBD.isTipoRetiroCiclo()) {
+                matriculaResumen.setEstadoEnum(EstadoMatriculaEnum.RCI);
+            } else if (resolucionBD.isTipoAnulacionCiclo()) {
+                matriculaResumen.setEstadoEnum(EstadoMatriculaEnum.ANCI);
+            }
+            matriculaResumenDAO.updateColumns(matriculaResumen, "estado");
+
             RetiroCiclo retiroCiclo = retiroCicloDAO.findByAlumnoCicloRegistro(alumno, retiroCicloForm.getCicloAcademico());
             Assert.isNull(retiroCiclo, "El alumno " + alumnoDB.getPersona().getApellidosNombres() + " ya cuenta con un trámite retiro ciclo.");
 
