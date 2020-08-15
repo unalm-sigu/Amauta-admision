@@ -187,9 +187,9 @@ public class FotoCarneServiceImp implements FotoCarneService {
                     file.close();
                     zous.closeEntry();
                     zous.close();
-                    response.getOutputStream().flush();
-                    response.getOutputStream().close();
                 }
+                response.getOutputStream().flush();
+                response.getOutputStream().close();
                 System.out.println("Directorio de salida: " + rutaArchivos);
             }
         } catch (Exception ex) {
