@@ -190,9 +190,12 @@ public class FotoCarneServiceImp implements FotoCarneService {
         if (cant == 0) {
             return component;
         }
-        BigDecimal perAvance = new BigDecimal(cant.toString()).divide(new BigDecimal(component.getMatriculaResumens().size() + ""));
-        
-        logger.debug("porcentaje de avance {}" , perAvance.toString());
+        logger.debug("cantidad {}", cant);
+        logger.debug("cantidad total {}", component.getMatriculaResumens().size());
+
+        BigDecimal perAvance = new BigDecimal(cant).divide(new BigDecimal(component.getMatriculaResumens().size()));
+
+        logger.debug("porcentaje de avance {}", perAvance.toString());
         component.setPerAvance(perAvance);
         return component;
     }
