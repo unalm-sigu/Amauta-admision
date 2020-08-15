@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import pe.edu.lamolina.amauta.dao.academico.MatriculaResumenDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 
 @Service
 @Transactional(readOnly = true)
@@ -69,7 +70,7 @@ public class FotoCarneServiceImp implements FotoCarneService {
                 logger.debug("error 1");
             }
 
-            String folder = "C:/tmp/";
+            String folder = GlobalConstantine.TMP_DIR;
 
             File dir = new File(folder);
 
@@ -80,6 +81,7 @@ public class FotoCarneServiceImp implements FotoCarneService {
             }
             InputStream in = null;
             OutputStream out = null;
+            logger.debug("bucle {} ", matriculaResumens.size());
             for (MatriculaResumen matriculaResumen : matriculaResumens) {
                 String name = matriculaResumen.getAlumno().getCodigo() + ".jpg";
                 logger.debug("Nombre {}", name);
