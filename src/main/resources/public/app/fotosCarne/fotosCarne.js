@@ -28,6 +28,7 @@ new Vue({
                     if (response.success) {
                         $vue.info = response.data;
                         if ($vue.info.estado == 'ACT') {
+                            $vue.bloq = true;
                             setTimeout($vue.obtenerInfo, 3000);
                         } else {
                             $vue.bloq = false;
