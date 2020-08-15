@@ -1,7 +1,8 @@
 new Vue({
     el: '#main',
     data: {
-        info: {perAvance: 0}
+        info: {perAvance: 0},
+        bloq: false
     },
     computed: {
     },
@@ -12,6 +13,7 @@ new Vue({
     methods: {
         descagarFoto() {
             let $vue = this;
+            $vue.bloq = true;
             location.href = APP.url('fotos/carne/descargarFotos');
             setTimeout($vue.obtenerInfo, 3000);
 
@@ -25,9 +27,10 @@ new Vue({
                 success: function (response) {
                     if (response.success) {
                         $vue.info = response.data;
-                        console.log($vue.info);
                         if ($vue.info.estado == 'ACT') {
                             setTimeout($vue.obtenerInfo, 3000);
+                        } else {
+                            $vue.bloq = false;
                         }
 
                     } else {

@@ -212,7 +212,7 @@ public class FotoCarneServiceImp implements FotoCarneService {
             component.setEstado("ACT");
             return component;
         }
-        Assert.isTrue(Boolean.FALSE, "Existe en un proceso de descarga");
+   
         return component;
     }
 

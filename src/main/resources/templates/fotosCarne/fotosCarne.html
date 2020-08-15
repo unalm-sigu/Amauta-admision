@@ -18,9 +18,10 @@
                             <div class="col-md-12 col-md-offset-0">
 
                                 <div class="btn-group pull-right">
-                                    <a class="btn btn-info pull-right btn-sm"
+                                    <button class="btn btn-info pull-right btn-sm"
                                        v-on:click.prevent="descagarFoto"
-                                       href="#" >Descargar</a>
+                                       v-bind:disabled='bloq'
+                                       href="#" >Descargar</button>
 
                                 </div>
                                 <div class="col-xs-12 m-t-xl">
