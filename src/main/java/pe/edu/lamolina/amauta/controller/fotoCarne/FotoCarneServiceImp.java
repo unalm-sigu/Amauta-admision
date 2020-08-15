@@ -39,18 +39,23 @@ public class FotoCarneServiceImp implements FotoCarneService {
     public void descargarFotos(DataSessionPivot ds) {
         List<MatriculaResumen> matriculaResumens = component.getMatriculaResumens();
         try {
+            System.out.println("\ndownload: \n");
+            logger.debug("Entre");
             TrustManager[] trustAllCerts = new TrustManager[]{
                 new X509TrustManager() {
                     public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+                        logger.debug("Entre 1");
                         return null;
                     }
 
                     public void checkClientTrusted(
                             java.security.cert.X509Certificate[] certs, String authType) {
+                        logger.debug("Entre 2");
                     }
 
                     public void checkServerTrusted(
                             java.security.cert.X509Certificate[] certs, String authType) {
+                        logger.debug("Entre 3");
                     }
                 }
             };
@@ -118,7 +123,7 @@ public class FotoCarneServiceImp implements FotoCarneService {
             out.close();
             in.close();
         } catch (MalformedURLException ex) {
-            logger.debug("error 3 {}" , ex.toString());
+            logger.debug("error 3 {}", ex.toString());
         } catch (IOException ex) {
             logger.debug("error 3 {}", ex.toString());
         }
