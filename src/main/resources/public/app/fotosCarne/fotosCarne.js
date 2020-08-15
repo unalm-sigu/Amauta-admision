@@ -10,18 +10,18 @@ new Vue({
         $vue.obtenerInfo();
     },
     methods: {
-        descagarFoto() {
+        async   descagarFoto() {
             let $vue = this;
 //            location.href = APP.url();
-            axios.get('/fotos/carne/descargarFotos', {responseType: 'arraybuffer'})
-                    .then(response => {
-                        if (response.status) {
-
-                            $vue.obtenerInfo();
-                        } else {
-                            notify(Messages.errorComunicacion, 'error');
-                        }
-                    });
+            let response = await   axios.get('/fotos/carne/descargarFotos', {responseType: 'arraybuffer'});
+//                    .then(response => {
+//            if (response.status) {
+            console.log(response);
+            $vue.obtenerInfo();
+//            } else {
+//                notify(Messages.errorComunicacion, 'error');
+//            }
+//                    });
 
         },
         obtenerInfo() {

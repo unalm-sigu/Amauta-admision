@@ -41,7 +41,6 @@ public class FotoCarneServiceImp implements FotoCarneService {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
-    @Async
     public void descargarFotos(DataSessionPivot ds, HttpServletResponse response) {
         this.activar(ds);
         List<MatriculaResumen> matriculaResumens = component.getMatriculaResumens();
@@ -143,24 +142,17 @@ public class FotoCarneServiceImp implements FotoCarneService {
 
         try {
             if (carpetaComprimir.exists()) {
-// lista los archivos que hay dentro del directorio
                 ZipOutputStream zous = new ZipOutputStream(response.getOutputStream());
                 File[] ficheros = carpetaComprimir.listFiles();
                 System.out.println("Número de ficheros encontrados: " + ficheros.length);
 
-                // ciclo para recorrer todos los archivos a comprimir
                 for (int i = 0; i < ficheros.length; i++) {
-                    System.out.println("Nombre del fichero: " + ficheros[i].getName());
+                    logger.debug("Nombre del fichero: " + ficheros[i].getName());
                     try {
-                        // crea un buffer temporal para ir poniendo los archivos a comprimir
-
-                        //nombre con el que se va guardar el archivo dentro del zip
                         ZipEntry entrada = new ZipEntry(ficheros[i].getName());
                         zous.putNextEntry(entrada);
 
-                        //System.out.println("Nombre del Archivo: " + entrada.getName());
                         logger.debug("Comprimiendo..... {} ", ficheros[i].getName());
-                        //obtiene el archivo para irlo comprimiendo
                         FileInputStream file = new FileInputStream(rutaArchivos + entrada.getName());
                         int leer;
                         byte[] buffer = new byte[1024];
@@ -183,7 +175,7 @@ public class FotoCarneServiceImp implements FotoCarneService {
                 System.out.println("Directorio de salida: " + rutaArchivos);
             }
         } catch (Exception ex) {
-            logger.error("Error Descarga de Archivo: {}, fileName: {}", ex.getLocalizedMessage(), rutaArchivos);
+            logger.error("Error Descarga de Archivo: {}, fileName: {}", ex, rutaArchivos);
         } finally {
             logger.debug("Final correctamente, fileName: {}", rutaArchivos);
 
