@@ -60,6 +60,7 @@ public class FotoCarneServiceImp implements FotoCarneService {
                 sc.init(null, trustAllCerts, new java.security.SecureRandom());
                 HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
             } catch (Exception e) {
+                Logger.getLogger("Errorr");
             }
 
             String folder = "C:/tmp/";
