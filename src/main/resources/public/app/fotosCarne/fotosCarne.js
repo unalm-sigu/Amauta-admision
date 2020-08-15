@@ -14,7 +14,8 @@ new Vue({
         descagarFoto() {
             let $vue = this;
             $vue.bloq = true;
-            location.href = APP.url('fotos/carne/descargarFotos');
+            window.open(APP.url('fotos/carne/descargarFotos'), '_blank');
+//            location.href = APP.url('fotos/carne/descargarFotos');
             setTimeout($vue.obtenerInfo, 3000);
 
         },
