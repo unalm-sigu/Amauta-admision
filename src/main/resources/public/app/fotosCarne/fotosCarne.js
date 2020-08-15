@@ -12,17 +12,10 @@ new Vue({
     methods: {
         descagarFoto() {
             let $vue = this;
-//            location.href = APP.url();
-            axios.get('/fotos/carne/descargarFotos', {responseType: 'arraybuffer'})
-                    .then(response => {
-                        if (response.status) {
-
-                        } else {
-                            notify(Messages.errorComunicacion, 'error');
-                        }
-                    });
-
+//            location.href = ;
+            window.open(APP.url('fotos/carne/descargarFotos'), '_blank');
             $vue.obtenerInfo();
+
         },
         obtenerInfo() {
             let $vue = this;
