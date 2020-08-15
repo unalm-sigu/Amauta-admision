@@ -9,12 +9,12 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -32,6 +32,7 @@ public class FotoCarneServiceImp implements FotoCarneService {
 
     @Autowired
     MatriculaResumenDAO matriculaResumenDAO;
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
     @Async
@@ -60,7 +61,7 @@ public class FotoCarneServiceImp implements FotoCarneService {
                 sc.init(null, trustAllCerts, new java.security.SecureRandom());
                 HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
             } catch (Exception e) {
-                Logger.getLogger("Errorr");
+                logger.debug("error 1");
             }
 
             String folder = "C:/tmp/";
@@ -76,7 +77,7 @@ public class FotoCarneServiceImp implements FotoCarneService {
             OutputStream out = null;
             for (MatriculaResumen matriculaResumen : matriculaResumens) {
                 String name = matriculaResumen.getAlumno().getCodigo() + ".jpg";
-                Logger.getLogger("Entre {}", name);
+                logger.debug("Nombre {}", name);
                 File file = new File(folder + name);
 // And as before now you can use URL and URLConnection
                 if (matriculaResumen.getAlumno().getPersona().getRutaFoto() == null) {
@@ -87,7 +88,7 @@ public class FotoCarneServiceImp implements FotoCarneService {
 
                     url = new URL(matriculaResumen.getAlumno().getPersona().getRutaFoto());
                 } catch (Exception e) {
-                    Logger.getLogger("Errorr 2");
+                    logger.debug("error 2");
                     continue;
                 }
                 URLConnection connection = url.openConnection();
@@ -117,9 +118,9 @@ public class FotoCarneServiceImp implements FotoCarneService {
             out.close();
             in.close();
         } catch (MalformedURLException ex) {
-            Logger.getLogger(FotoCarneServiceImp.class.getName()).log(Level.SEVERE, null, ex);
+            logger.debug("error 3 {}" , ex.toString());
         } catch (IOException ex) {
-            Logger.getLogger(FotoCarneServiceImp.class.getName()).log(Level.SEVERE, null, ex);
+            logger.debug("error 3 {}", ex.toString());
         }
     }
 
