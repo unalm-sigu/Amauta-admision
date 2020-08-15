@@ -13,9 +13,9 @@ new Vue({
         descagarFoto() {
             let $vue = this;
 //            location.href = APP.url();
-            axios.get('fotos/carne/descargarFotos')
+            axios.get('/fotos/carne/descargarFotos', {responseType: 'arraybuffer'})
                     .then(response => {
-                        if (response.data.success) {
+                        if (response.status) {
 
                             $vue.obtenerInfo();
                         } else {

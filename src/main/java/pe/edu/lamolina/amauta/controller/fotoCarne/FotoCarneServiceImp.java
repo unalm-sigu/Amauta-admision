@@ -120,6 +120,9 @@ public class FotoCarneServiceImp implements FotoCarneService {
 
             }
             component.setEstado("INA");
+            component.setCantidadTotal(0);
+            component.setMatriculaResumens(null);
+            component.setAvance(0);
             out.close();
             in.close();
             comprimirArchivo(response, folder);
