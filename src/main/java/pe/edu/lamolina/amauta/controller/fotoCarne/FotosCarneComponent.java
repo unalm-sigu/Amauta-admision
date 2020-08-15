@@ -12,7 +12,7 @@ public class FotosCarneComponent {
     Integer avance = 0;
     String estado = "INA";
     List<MatriculaResumen> matriculaResumens;
-    BigDecimal perAvance = BigDecimal.ZERO;
+    BigDecimal perAvance ;
 
     public Integer getCantidadTotal() {
         return cantidadTotal;
@@ -47,8 +47,6 @@ public class FotosCarneComponent {
     }
 
     public BigDecimal getPerAvance() {
-        Integer cant = this.avance * 100;
-        this.perAvance = new BigDecimal(this.matriculaResumens.size() + "").divide(new BigDecimal(cant.toString()));
         return this.perAvance;
     }
 

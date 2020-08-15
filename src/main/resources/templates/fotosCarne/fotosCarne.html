@@ -16,7 +16,7 @@
                     <section class="panel">
                         <section class="panel-body m-t-sm">
                             <div class="col-md-12 col-md-offset-0">
-                                
+
                                 <div class="btn-group pull-right">
                                     <a class="btn btn-info pull-right btn-sm"
                                        v-on:click.prevent="descagarFoto"
@@ -24,11 +24,15 @@
 
                                 </div>
                                 <div class="col-xs-12 m-t-xl">
+                                    <div>
+                                        <p class="pull-right"> <span v-text='info.perAvance'></span>%</p>
+                                        <p>Fotos ( <span v-text='info.avance'></span> / <span v-text='info.cantidadTotal'></span>  )</p>
+                                    </div>
                                     <div class="progress" style="height: 3px;">
                                         <div class="progress-bar" role="progressbar" v-bind:style="{width : info.perAvance+'%'}" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
                                     </div>
                                 </div>
-                              
+
                             </div>
                         </section>
                     </section>
