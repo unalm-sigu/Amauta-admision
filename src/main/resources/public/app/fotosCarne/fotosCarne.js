@@ -12,8 +12,8 @@ new Vue({
     methods: {
         descagarFoto() {
             let $vue = this;
-//            location.href = APP.url();
-            setTimeout($vue.obtenerInfo, 4000);
+            location.href = APP.url('fotos/carne/descargarFotos');
+            setTimeout($vue.obtenerInfo, 3000);
 
         },
         obtenerInfo() {

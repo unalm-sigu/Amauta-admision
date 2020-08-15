@@ -71,7 +71,7 @@ public class FotoCarneController {
     public void descargarFotos(HttpSession session, HttpServletResponse response) {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-        response.setContentType("application/zip");
+        response.setContentType("application/octet-stream");
         response.setHeader("Content-Disposition", "attachment;filename=fotos.zip");
         service.descargarFotos(ds, response);
 
