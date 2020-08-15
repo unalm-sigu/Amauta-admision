@@ -120,6 +120,9 @@ public class FotoCarneServiceImp implements FotoCarneService {
                     }
                 }
                 component.setAvance(component.getAvance() + 1);
+                if (component.getAvance() == 50) {
+                    break;
+                }
             }
             component.setEstado("INA");
             out.close();
