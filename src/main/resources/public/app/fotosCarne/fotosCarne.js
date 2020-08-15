@@ -12,8 +12,17 @@ new Vue({
     methods: {
         descagarFoto() {
             let $vue = this;
-            location.href = APP.url('fotos/carne/descargarFotos');
-            $vue.obtenerInfo();
+//            location.href = APP.url();
+            axios.get('fotos/carne/descargarFotos')
+                    .then(response => {
+                        if (response.data.success) {
+
+                            $vue.obtenerInfo();
+                        } else {
+                            notify(Messages.errorComunicacion, 'error');
+                        }
+                    });
+
         },
         obtenerInfo() {
             let $vue = this;
