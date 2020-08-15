@@ -12,20 +12,7 @@ new Vue({
     methods: {
         descagarFoto() {
             let $vue = this;
-            $.ajax({
-                url: APP.url('fotos/carne/descargarFotos'),
-                type: 'GET',
-                success: function (response) {
-                    $vue.obtenerInfo();
-//                    if (response.success) {
-//                    } else {
-//                        notify(response.message, "error");
-//                    }
-                },
-                error: function () {
-                    notify(Messages.errorComunicacion, "error");
-                }
-            });
+            location.href = APP.url('fotos/carne/descargarFotos');
         },
         obtenerInfo() {
             let $vue = this;

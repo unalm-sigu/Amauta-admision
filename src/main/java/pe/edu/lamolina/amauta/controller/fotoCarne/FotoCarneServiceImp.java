@@ -36,7 +36,6 @@ public class FotoCarneServiceImp implements FotoCarneService {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
-    @Async
     public void descargarFotos(DataSessionPivot ds) {
         List<MatriculaResumen> matriculaResumens = component.getMatriculaResumens();
         try {
