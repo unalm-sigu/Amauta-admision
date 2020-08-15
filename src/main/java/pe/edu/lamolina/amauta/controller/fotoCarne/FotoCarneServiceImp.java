@@ -177,6 +177,7 @@ public class FotoCarneServiceImp implements FotoCarneService {
                         }
 
                         file.close();
+                        zous.closeEntry();
 
                     } catch (FileNotFoundException e) {
                         e.printStackTrace();
@@ -184,7 +185,6 @@ public class FotoCarneServiceImp implements FotoCarneService {
                         e.printStackTrace();
                     }
                 }
-                zous.closeEntry();
                 zous.close();
                 response.getOutputStream().flush();
                 response.getOutputStream().close();
