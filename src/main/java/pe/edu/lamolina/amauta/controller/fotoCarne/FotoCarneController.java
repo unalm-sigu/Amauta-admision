@@ -70,23 +70,12 @@ public class FotoCarneController {
 
     @ResponseBody
     @RequestMapping(value = "descargarFotos", method = RequestMethod.GET)
-    public JsonResponse descargarFotos(HttpSession session) {
+    public void descargarFotos(HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-        JsonResponse response = new JsonResponse();
-        try {
-            service.activar(ds);
-            service.descargarFotos(ds);
-            response.setSuccess(Boolean.TRUE);
-            return response;
-        } catch (PhobosException e) {
-            ExceptionHandler.handlePhobosEx(e, response);
-        } catch (RuntimeException e) {
-            ExceptionHandler.handleSpecial(e, response, e.getLocalizedMessage());
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, response);
-        }
 
-        return response;
+        service.activar(ds);
+        service.descargarFotos(ds);
+
     }
 
     @ResponseBody
