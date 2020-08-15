@@ -7,6 +7,7 @@ import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,11 +70,11 @@ public class FotoCarneController {
     }
 
     @RequestMapping(value = "descargarFotos", method = RequestMethod.GET)
-    public void descargarFotos(HttpSession session) {
+    public void descargarFotos(HttpSession session,HttpServletResponse response) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         service.activar(ds);
-        service.descargarFotos(ds);
+        service.descargarFotos(ds,response);
 
     }
 
