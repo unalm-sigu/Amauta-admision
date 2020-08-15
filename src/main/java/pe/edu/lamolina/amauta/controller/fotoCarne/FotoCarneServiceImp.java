@@ -1,8 +1,5 @@
 package pe.edu.lamolina.amauta.controller.fotoCarne;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -10,8 +7,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import static java.lang.System.in;
-import static java.lang.System.out;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
@@ -23,7 +18,6 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 import javax.servlet.http.HttpServletResponse;
-import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,28 +44,22 @@ public class FotoCarneServiceImp implements FotoCarneService {
         this.activar(ds);
         List<MatriculaResumen> matriculaResumens = component.getMatriculaResumens();
         try {
-            System.out.println("\ndownload: \n");
-            logger.debug("Entre");
             TrustManager[] trustAllCerts = new TrustManager[]{
                 new X509TrustManager() {
                     public java.security.cert.X509Certificate[] getAcceptedIssuers() {
-                        logger.debug("Entre 1");
                         return null;
                     }
 
                     public void checkClientTrusted(
                             java.security.cert.X509Certificate[] certs, String authType) {
-                        logger.debug("Entre 2");
                     }
 
                     public void checkServerTrusted(
                             java.security.cert.X509Certificate[] certs, String authType) {
-                        logger.debug("Entre 3");
                     }
                 }
             };
 
-// Activate the new trust manager
             try {
                 SSLContext sc = SSLContext.getInstance("SSL");
                 sc.init(null, trustAllCerts, new java.security.SecureRandom());
@@ -88,15 +76,14 @@ public class FotoCarneServiceImp implements FotoCarneService {
                 if (!dir.mkdir()) {
                     return;
                 }
+            } else {
+                dir.delete();
             }
             InputStream in = null;
             OutputStream out = null;
-            logger.debug("bucle {} ", matriculaResumens.size());
             for (MatriculaResumen matriculaResumen : matriculaResumens) {
                 String name = matriculaResumen.getAlumno().getCodigo() + ".jpg";
-                logger.debug("Nombre {}", name);
                 File file = new File(folder + name);
-// And as before now you can use URL and URLConnection
                 if (matriculaResumen.getAlumno().getPersona().getRutaFoto() == null) {
                     continue;
                 }
@@ -130,9 +117,7 @@ public class FotoCarneServiceImp implements FotoCarneService {
                     }
                 }
                 component.setAvance(component.getAvance() + 1);
-                if (component.getAvance() == 50) {
-                    break;
-                }
+
             }
             component.setEstado("INA");
             out.close();
@@ -190,23 +175,12 @@ public class FotoCarneServiceImp implements FotoCarneService {
                 System.out.println("Directorio de salida: " + rutaArchivos);
             }
         } catch (Exception ex) {
-            logger.error("(downloadTemporal)Error Descarga de Archivo: {}, fileName: {}", ex.getLocalizedMessage(), rutaArchivos);
+            logger.error("Error Descarga de Archivo: {}, fileName: {}", ex.getLocalizedMessage(), rutaArchivos);
         } finally {
             logger.debug("Final correctamente, fileName: {}", rutaArchivos);
 
         }
-        // valida si existe el directorio
 
-    }
-
-    private void close(Closeable resource) {
-        if (resource != null) {
-            try {
-                resource.close();
-            } catch (IOException e) {
-                logger.error("Error al cerrar el Out/In: {}", e.getLocalizedMessage());
-            }
-        }
     }
 
     @Override

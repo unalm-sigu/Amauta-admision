@@ -27,15 +27,15 @@ import pe.edu.lamolina.model.constantines.GlobalConstantine;
 @Controller
 @RequestMapping("fotos/carne")
 public class FotoCarneController {
-    
+
     @Autowired
     FotoCarneService service;
-    
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    
+
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {
-        
+
         dataBinder.registerCustomEditor(Date.class, new PropertyEditorSupport() {
             @Override
             public void setAsText(String value) {
@@ -46,7 +46,7 @@ public class FotoCarneController {
                 }
             }
         });
-        
+
         dataBinder.registerCustomEditor(BigDecimal.class, new PropertyEditorSupport() {
             @Override
             public void setAsText(String value) {
@@ -58,29 +58,25 @@ public class FotoCarneController {
             }
         });
     }
-    
+
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-        
+
         model.addAttribute("ciclo", ds.getCicloAcademico());
         return "fotosCarne/fotosCarne";
     }
-    
+
     @RequestMapping(value = "descargarFotos", method = RequestMethod.GET)
     public void descargarFotos(HttpSession session, HttpServletResponse response) {
-        logger.debug("que chucha pasa");
+
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-        
         response.setContentType("application/zip");
-        // Indicate that a file is being sent back:
         response.setHeader("Content-Disposition", "attachment;filename=fotos.zip");
-//        response.setHeader("Cache-Control", "max-age=604800");
-//        service.activar(ds);
         service.descargarFotos(ds, response);
-        
+
     }
-    
+
     @ResponseBody
     @RequestMapping(value = "info", method = RequestMethod.GET)
     public JsonResponse info(HttpSession session) {
@@ -92,5 +88,5 @@ public class FotoCarneController {
         response.setSuccess(Boolean.TRUE);
         return response;
     }
-    
+
 }
