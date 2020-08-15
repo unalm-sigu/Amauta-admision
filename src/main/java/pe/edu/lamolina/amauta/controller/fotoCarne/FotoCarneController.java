@@ -68,7 +68,6 @@ public class FotoCarneController {
         return "fotosCarne/fotosCarne";
     }
 
-    @ResponseBody
     @RequestMapping(value = "descargarFotos", method = RequestMethod.GET)
     public void descargarFotos(HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);

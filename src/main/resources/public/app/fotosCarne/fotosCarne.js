@@ -16,11 +16,11 @@ new Vue({
                 url: APP.url('fotos/carne/descargarFotos'),
                 type: 'GET',
                 success: function (response) {
-                    if (response.success) {
-                        $vue.obtenerInfo();
-                    } else {
-                        notify(response.message, "error");
-                    }
+                    $vue.obtenerInfo();
+//                    if (response.success) {
+//                    } else {
+//                        notify(response.message, "error");
+//                    }
                 },
                 error: function () {
                     notify(Messages.errorComunicacion, "error");
