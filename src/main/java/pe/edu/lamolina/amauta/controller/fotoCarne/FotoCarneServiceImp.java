@@ -21,6 +21,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.edu.lamolina.amauta.dao.academico.MatriculaResumenDAO;
@@ -40,6 +41,7 @@ public class FotoCarneServiceImp implements FotoCarneService {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
+    @Async
     public void descargarFotos(DataSessionPivot ds, HttpServletResponse response) {
         this.activar(ds);
         List<MatriculaResumen> matriculaResumens = component.getMatriculaResumens();
