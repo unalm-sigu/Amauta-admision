@@ -148,7 +148,6 @@ public class FotoCarneServiceImp implements FotoCarneService {
     private void comprimirArchivo(HttpServletResponse response, String rutaArchivos) {
         File carpetaComprimir = new File(rutaArchivos);
 
-        ZipOutputStream zous = null;
         try {
             if (carpetaComprimir.exists()) {
 // lista los archivos que hay dentro del directorio
@@ -160,7 +159,7 @@ public class FotoCarneServiceImp implements FotoCarneService {
                     System.out.println("Nombre del fichero: " + ficheros[i].getName());
                     try {
                         // crea un buffer temporal para ir poniendo los archivos a comprimir
-                        zous = new ZipOutputStream(response.getOutputStream());
+                        ZipOutputStream zous = new ZipOutputStream(response.getOutputStream());
 
                         //nombre con el que se va guardar el archivo dentro del zip
                         ZipEntry entrada = new ZipEntry(ficheros[i].getName());
@@ -178,6 +177,7 @@ public class FotoCarneServiceImp implements FotoCarneService {
 
                         file.close();
                         zous.closeEntry();
+                        zous.close();
 
                     } catch (FileNotFoundException e) {
                         e.printStackTrace();
@@ -185,7 +185,6 @@ public class FotoCarneServiceImp implements FotoCarneService {
                         e.printStackTrace();
                     }
                 }
-                zous.close();
                 response.getOutputStream().flush();
                 response.getOutputStream().close();
                 System.out.println("Directorio de salida: " + rutaArchivos);
