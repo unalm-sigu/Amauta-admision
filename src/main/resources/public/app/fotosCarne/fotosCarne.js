@@ -13,6 +13,7 @@ new Vue({
         descagarFoto() {
             let $vue = this;
             location.href = APP.url('fotos/carne/descargarFotos');
+            $vue.obtenerInfo();
         },
         obtenerInfo() {
             let $vue = this;
