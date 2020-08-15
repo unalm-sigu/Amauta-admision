@@ -1,0 +1,45 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title> Fotos Carne</title>
+    </head>
+    <body>
+
+        <div layout:fragment="main">
+            <div id="main" v-cloak="">
+
+                <header class="header b-b padder-lg">
+                    <h1 v-text="'Fotos Carne'"></h1>  <h1 th:text="${ciclo.descripcion}"></h1>
+
+                </header>
+
+                <section class="wrapper-lg m-b-xs">
+                    <section class="panel">
+                        <section class="panel-body m-t-sm">
+                            <div class="col-md-12 col-md-offset-0">
+                                
+                                <div class="btn-group pull-right">
+                                    <a class="btn btn-info pull-right btn-sm"
+                                       v-on:click.prevent="descagarFoto"
+                                       href="#" >Descargar</a>
+
+                                </div>
+                                <div class="col-xs-12 m-t-xl">
+                                    <div class="progress" style="height: 3px;">
+                                        <div class="progress-bar" role="progressbar" v-bind:style="{width : info.perAvance+'%'}" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                </div>
+                              
+                            </div>
+                        </section>
+                    </section>
+                </section>
+            </div>
+        </div>
+
+        <div layout:fragment="js">
+
+            <div th:substituteby="_layout/includes :: vuejs"/>
+            <script th:src="@{/app/fotosCarne/fotosCarne.js}" charset="utf-8"></script>
+        </div>
+    </body>
+</html>
