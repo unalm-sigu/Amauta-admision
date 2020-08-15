@@ -86,7 +86,7 @@ public class FotoCarneServiceImp implements FotoCarneService {
 
                     url = new URL(matriculaResumen.getAlumno().getPersona().getRutaFoto());
                 } catch (Exception e) {
-                    System.err.println("Erro");
+                    Logger.getLogger("Errorr 2");
                     continue;
                 }
                 URLConnection connection = url.openConnection();
