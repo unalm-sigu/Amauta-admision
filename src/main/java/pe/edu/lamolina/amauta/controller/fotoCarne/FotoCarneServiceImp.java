@@ -76,6 +76,7 @@ public class FotoCarneServiceImp implements FotoCarneService {
             OutputStream out = null;
             for (MatriculaResumen matriculaResumen : matriculaResumens) {
                 String name = matriculaResumen.getAlumno().getCodigo() + ".jpg";
+                Logger.getLogger("Entre {}", name);
                 File file = new File(folder + name);
 // And as before now you can use URL and URLConnection
                 if (matriculaResumen.getAlumno().getPersona().getRutaFoto() == null) {
