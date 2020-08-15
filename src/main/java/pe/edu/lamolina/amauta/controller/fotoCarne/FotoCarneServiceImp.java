@@ -151,6 +151,7 @@ public class FotoCarneServiceImp implements FotoCarneService {
         try {
             if (carpetaComprimir.exists()) {
 // lista los archivos que hay dentro del directorio
+                ZipOutputStream zous = new ZipOutputStream(response.getOutputStream());
                 File[] ficheros = carpetaComprimir.listFiles();
                 System.out.println("Número de ficheros encontrados: " + ficheros.length);
 
@@ -159,7 +160,6 @@ public class FotoCarneServiceImp implements FotoCarneService {
                     System.out.println("Nombre del fichero: " + ficheros[i].getName());
                     try {
                         // crea un buffer temporal para ir poniendo los archivos a comprimir
-                        ZipOutputStream zous = new ZipOutputStream(response.getOutputStream());
 
                         //nombre con el que se va guardar el archivo dentro del zip
                         ZipEntry entrada = new ZipEntry(ficheros[i].getName());
