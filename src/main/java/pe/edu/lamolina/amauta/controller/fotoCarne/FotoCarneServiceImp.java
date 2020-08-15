@@ -187,6 +187,9 @@ public class FotoCarneServiceImp implements FotoCarneService {
     @Override
     public FotosCarneComponent info(DataSessionPivot ds) {
         Integer cant = component.getAvance() * 100;
+        if (cant == 0) {
+            return component;
+        }
         BigDecimal perAvance = new BigDecimal(cant.toString()).divide(new BigDecimal(component.getMatriculaResumens().size() + ""));
         
         logger.debug("porcentaje de avance {}" , perAvance.toString());
