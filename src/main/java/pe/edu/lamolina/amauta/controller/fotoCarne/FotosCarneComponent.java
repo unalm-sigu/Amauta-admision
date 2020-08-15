@@ -1,6 +1,7 @@
 package pe.edu.lamolina.amauta.controller.fotoCarne;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import org.springframework.stereotype.Component;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
@@ -39,6 +40,9 @@ public class FotosCarneComponent {
     }
 
     public List<MatriculaResumen> getMatriculaResumens() {
+        if (matriculaResumens == null) {
+            return new ArrayList();
+        }
         return matriculaResumens;
     }
 
