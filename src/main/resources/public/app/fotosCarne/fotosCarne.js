@@ -12,9 +12,8 @@ new Vue({
     methods: {
         descagarFoto() {
             let $vue = this;
-//            location.href = ;
-            window.open(APP.url('fotos/carne/descargarFotos'), '_blank');
-            $vue.obtenerInfo();
+//            location.href = APP.url();
+            setTimeout($vue.obtenerInfo, 4000);
 
         },
         obtenerInfo() {
