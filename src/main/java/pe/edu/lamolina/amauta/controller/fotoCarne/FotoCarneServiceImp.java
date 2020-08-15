@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
@@ -193,7 +194,7 @@ public class FotoCarneServiceImp implements FotoCarneService {
         logger.debug("cantidad {}", cant);
         logger.debug("cantidad total {}", component.getMatriculaResumens().size());
 
-        BigDecimal perAvance = new BigDecimal(cant).divide(new BigDecimal(component.getMatriculaResumens().size()));
+        BigDecimal perAvance = new BigDecimal(cant).divide(new BigDecimal(component.getMatriculaResumens().size()), 2, RoundingMode.HALF_UP);
 
         logger.debug("porcentaje de avance {}", perAvance.toString());
         component.setPerAvance(perAvance);
