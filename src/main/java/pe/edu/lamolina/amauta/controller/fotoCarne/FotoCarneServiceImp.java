@@ -158,35 +158,32 @@ public class FotoCarneServiceImp implements FotoCarneService {
                 // ciclo para recorrer todos los archivos a comprimir
                 for (int i = 0; i < ficheros.length; i++) {
                     System.out.println("Nombre del fichero: " + ficheros[i].getName());
-                    String extension = "";
-                    for (int j = 0; j < ficheros[i].getName().length(); j++) {
-                        //obtiene la extensión del archivo
-                        if (ficheros[i].getName().charAt(j) == '.') {
-                            extension = ficheros[i].getName().substring(j, (int) ficheros[i].getName().length());
-                            //System.out.println(extension);
+                    try {
+                        // crea un buffer temporal para ir poniendo los archivos a comprimir
+                        zous = new ZipOutputStream(response.getOutputStream());
+
+                        //nombre con el que se va guardar el archivo dentro del zip
+                        ZipEntry entrada = new ZipEntry(ficheros[i].getName());
+                        zous.putNextEntry(entrada);
+
+                        //System.out.println("Nombre del Archivo: " + entrada.getName());
+                        logger.debug("Comprimiendo..... {} ", ficheros[i].getName());
+                        //obtiene el archivo para irlo comprimiendo
+                        FileInputStream file = new FileInputStream(rutaArchivos + entrada.getName());
+                        int leer;
+                        byte[] buffer = new byte[1024];
+                        while (0 < (leer = file.read(buffer))) {
+                            zous.write(buffer, 0, leer);
                         }
+
+                        file.close();
+                        zous.closeEntry();
+                        zous.close();
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
-
-                    // crea un buffer temporal para ir poniendo los archivos a comprimir
-                    zous = new ZipOutputStream(response.getOutputStream());
-
-                    //nombre con el que se va guardar el archivo dentro del zip
-                    ZipEntry entrada = new ZipEntry(ficheros[i].getName());
-                    zous.putNextEntry(entrada);
-
-                    //System.out.println("Nombre del Archivo: " + entrada.getName());
-                    logger.debug("Comprimiendo.....");
-                    //obtiene el archivo para irlo comprimiendo
-                    FileInputStream file = new FileInputStream(rutaArchivos + entrada.getName());
-                    int leer;
-                    byte[] buffer = new byte[1024];
-                    while (0 < (leer = file.read(buffer))) {
-                        zous.write(buffer, 0, leer);
-                    }
-
-                    file.close();
-                    zous.closeEntry();
-                    zous.close();
                 }
                 response.getOutputStream().flush();
                 response.getOutputStream().close();
