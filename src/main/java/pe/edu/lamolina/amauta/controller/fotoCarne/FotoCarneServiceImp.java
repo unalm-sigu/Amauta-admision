@@ -7,6 +7,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.math.BigDecimal;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
@@ -118,7 +119,7 @@ public class FotoCarneServiceImp implements FotoCarneService {
                     }
                 }
                 component.setAvance(component.getAvance() + 1);
-                if (component.getAvance() == 50) {
+                if (component.getAvance() == 200) {
                     break;
                 }
 
@@ -185,7 +186,11 @@ public class FotoCarneServiceImp implements FotoCarneService {
 
     @Override
     public FotosCarneComponent info(DataSessionPivot ds) {
-
+        Integer cant = component.getAvance() * 100;
+        BigDecimal perAvance = new BigDecimal(cant.toString()).divide(new BigDecimal(component.getMatriculaResumens().size() + ""));
+        
+        logger.debug("porcentaje de avance {}" , perAvance.toString());
+        component.setPerAvance(perAvance);
         return component;
     }
 

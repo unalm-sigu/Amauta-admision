@@ -47,8 +47,6 @@ public class FotosCarneComponent {
     }
 
     public BigDecimal getPerAvance() {
-        Integer cant = this.avance * 100;
-        this.perAvance = new BigDecimal(cant.toString()).divide(new BigDecimal(this.matriculaResumens.size() + ""));
         return this.perAvance;
     }
 
