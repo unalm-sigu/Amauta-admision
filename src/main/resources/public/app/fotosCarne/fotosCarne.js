@@ -10,19 +10,19 @@ new Vue({
         $vue.obtenerInfo();
     },
     methods: {
-        async   descagarFoto() {
+        descagarFoto() {
             let $vue = this;
 //            location.href = APP.url();
-            let response = await   axios.get('/fotos/carne/descargarFotos', {responseType: 'arraybuffer'});
-//                    .then(response => {
-//            if (response.status) {
-            console.log(response);
-            $vue.obtenerInfo();
-//            } else {
-//                notify(Messages.errorComunicacion, 'error');
-//            }
-//                    });
+            axios.get('/fotos/carne/descargarFotos', {responseType: 'arraybuffer'})
+                    .then(response => {
+                        if (response.status) {
 
+                        } else {
+                            notify(Messages.errorComunicacion, 'error');
+                        }
+                    });
+
+            $vue.obtenerInfo();
         },
         obtenerInfo() {
             let $vue = this;
