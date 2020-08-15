@@ -1,5 +1,6 @@
 package pe.edu.lamolina.amauta.controller.fotoCarne;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.Closeable;
 import java.io.File;
@@ -46,6 +47,7 @@ public class FotoCarneServiceImp implements FotoCarneService {
 
     @Override
     public void descargarFotos(DataSessionPivot ds, HttpServletResponse response) {
+        this.activar(ds);
         List<MatriculaResumen> matriculaResumens = component.getMatriculaResumens();
         try {
             System.out.println("\ndownload: \n");
@@ -78,7 +80,7 @@ public class FotoCarneServiceImp implements FotoCarneService {
                 logger.debug("error 1");
             }
 
-            String folder = GlobalConstantine.TMP_DIR + "fotosCarne";
+            String folder = GlobalConstantine.TMP_DIR + "fotosCarne/";
 
             File dir = new File(folder);
 
@@ -145,8 +147,8 @@ public class FotoCarneServiceImp implements FotoCarneService {
 
     private void comprimirArchivo(HttpServletResponse response, String rutaArchivos) {
         File carpetaComprimir = new File(rutaArchivos);
-        FileInputStream fis = null;
-        BufferedOutputStream out = null;
+
+        ZipOutputStream zous = null;
         try {
             if (carpetaComprimir.exists()) {
 // lista los archivos que hay dentro del directorio
@@ -166,7 +168,7 @@ public class FotoCarneServiceImp implements FotoCarneService {
                     }
 
                     // crea un buffer temporal para ir poniendo los archivos a comprimir
-                    ZipOutputStream zous = new ZipOutputStream(new FileOutputStream(rutaArchivos + ficheros[i].getName().replace(extension, ".zip")));
+                    zous = new ZipOutputStream(response.getOutputStream());
 
                     //nombre con el que se va guardar el archivo dentro del zip
                     ZipEntry entrada = new ZipEntry(ficheros[i].getName());
@@ -175,36 +177,25 @@ public class FotoCarneServiceImp implements FotoCarneService {
                     //System.out.println("Nombre del Archivo: " + entrada.getName());
                     logger.debug("Comprimiendo.....");
                     //obtiene el archivo para irlo comprimiendo
+                    FileInputStream file = new FileInputStream(rutaArchivos + entrada.getName());
                     int leer;
                     byte[] buffer = new byte[1024];
-                    while (0 < (leer = fis.read(buffer))) {
+                    while (0 < (leer = file.read(buffer))) {
                         zous.write(buffer, 0, leer);
                     }
 
-                    response.reset();
-                    response.setBufferSize(GlobalConstantine.DEFAULT_BUFFER_SIZE_DOWNLOAD);
-                    response.setContentType("application/octet-stream");
-                    response.setHeader("Content-Disposition", "inline; filename=\"" + "fotos.zip" + "\"");
-                    response.setHeader("Cache-Control", "max-age=604800");
-
-                    fis = new FileInputStream(rutaArchivos + entrada.getName());
-                    out = new BufferedOutputStream(response.getOutputStream());
-
-                    fis.close();
-
-                    IOUtils.copy(fis, out);
-                    response.flushBuffer();
+                    file.close();
                     zous.closeEntry();
                     zous.close();
-
+                    response.getOutputStream().flush();
+                    response.getOutputStream().close();
                 }
                 System.out.println("Directorio de salida: " + rutaArchivos);
             }
         } catch (Exception ex) {
             logger.error("(downloadTemporal)Error Descarga de Archivo: {}, fileName: {}", ex.getLocalizedMessage(), rutaArchivos);
         } finally {
-            this.close(fis);
-            this.close(out);
+            logger.debug("Final correctamente, fileName: {}", rutaArchivos);
 
         }
         // valida si existe el directorio
