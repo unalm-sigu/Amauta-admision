@@ -23,9 +23,9 @@ import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pe.albatross.zelpers.miscelanea.Assert;
 import pe.edu.lamolina.amauta.dao.academico.MatriculaResumenDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
@@ -211,6 +211,7 @@ public class FotoCarneServiceImp implements FotoCarneService {
             component.setEstado("ACT");
             return component;
         }
+        Assert.isTrue(Boolean.FALSE, "Existe en un proceso de descarga");
         return component;
     }
 
