@@ -5,12 +5,12 @@ new Vue({
         modalDataZoom: {
             id: 'modalDataZoom',
             header: true,
-            title:"Data Zoom",
+            title: "Data Zoom",
             showaccept: false,
             cancelbtn: 'Cerrar',
             cancelclass: 'btn btn-link'
         },
-        aulaDataZoom:{}
+        aulaDataZoom: {}
     },
     mounted: function () {
         let $vue = this;
@@ -64,6 +64,9 @@ new Vue({
 //                            notify(Messages.errorComunicacion, 'error');
 //                        }
 //                    });
+        },
+        downloadOfFoto(seccion) {
+            location.href = APP.url('reporte/cursos/matriculados/' + seccion.codigo2)
         },
         dataZoomModal(item) {
             let $vue = this;

@@ -17,16 +17,19 @@ import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
 import java.io.IOException;
 import java.net.URL;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import static org.springframework.web.servlet.mvc.method.annotation.SseEmitter.event;
 import pe.albatross.zelpers.file.pdf.AbstractOnlyPdfView;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
@@ -35,9 +38,8 @@ import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
 import pe.edu.lamolina.model.academico.Seccion;
-import static pe.edu.lamolina.model.constantines.GlobalConstantine.PDF_LOGO_EPG_ALFA;
 import static pe.edu.lamolina.model.constantines.GlobalConstantine.PDF_LOGO_UNALM;
-import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
+import pe.edu.lamolina.model.general.Persona;
 
 @Component
 public class AlumnosMatriculadosPDF extends AbstractOnlyPdfView {
@@ -179,6 +181,7 @@ public class AlumnosMatriculadosPDF extends AbstractOnlyPdfView {
                 } else {
                     this.tituloData(PdfPCell.ALIGN_LEFT, docenteSeccion.getDocente().getCodigo(), 4, tableTitulo, font);
                 }
+                i++;
             }
             tableTitulo.setSpacingBefore(2f);
             tableTitulo.setSpacingAfter(2f);
@@ -197,16 +200,16 @@ public class AlumnosMatriculadosPDF extends AbstractOnlyPdfView {
             for (MatriculaSeccion matriculaSeccion : matSecciones) {
                 Alumno alumno = matriculaSeccion.getMatriculaResumen().getAlumno();
 
-                table.addCell(getImagenUrl(25, 20, alumno.getPersona().getFoto()));
-                addCelda(alumno.getCodigo(), 1, table, fontAnexo, 1);
+                table.addCell(getImagenUrl(25, 20, alumno.getPersona().getRutaFoto()));
+                addCelda(alumno.getCodigo(), "C", table, fontAnexo, 1);
                 StringBuilder st = new StringBuilder();
                 st.append(alumno.getPersona().getApellidosNombres() + "\n");
                 st.append(alumno.getCarrera().getNombre() + "\n");
-                if (!alumno.getCarrera().getCodigo().equals(alumno.getCarrera().getFacultad().getCodigo())) {
-                    st.append(alumno.getCarrera().getFacultad().getNombre() + "\n");
-                }
+                st.append(alumno.getCarrera().getFacultad().getNombre() + "\n");
+//                if (!alumno.getCarrera().getCodigo().equals(alumno.getCarrera().getFacultad().getCodigo())) {
+//                }
                 st.append(alumno.getPersona().getEmailCompania() + "\n");
-                addCelda(st.toString(), 1, table, fontAnexo, 1);
+                addCelda(st.toString(), "L", table, fontAnexo, 1);
             }
         }
         document.add(table);
@@ -214,10 +217,36 @@ public class AlumnosMatriculadosPDF extends AbstractOnlyPdfView {
     }
 
     private PdfPCell getImagenUrl(int scaleWidth, int scaleHeight, String url) throws Exception {
+
+        TrustManager[] trustAllCerts = new TrustManager[]{
+            new X509TrustManager() {
+                public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+                    return null;
+                }
+
+                public void checkClientTrusted(
+                        java.security.cert.X509Certificate[] certs, String authType) {
+                }
+
+                public void checkServerTrusted(
+                        java.security.cert.X509Certificate[] certs, String authType) {
+                }
+            }
+        };
+
+        try {
+            SSLContext sc = SSLContext.getInstance("SSL");
+            sc.init(null, trustAllCerts, new java.security.SecureRandom());
+            HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.debug("error 1");
+        }
+
         Image image = Image.getInstance(new URL(url));
         image.scaleToFit(scaleWidth, scaleHeight);
         PdfPCell pdfPCell = new PdfPCell(image, true);
-        pdfPCell.setBorderColor(BaseColor.BLACK);
+
         return pdfPCell;
     }
 
@@ -231,20 +260,23 @@ public class AlumnosMatriculadosPDF extends AbstractOnlyPdfView {
         return font;
     }
 
-    private void addCelda(String contenido, int colspan, PdfPTable table, Font bodyFont, int rolSpan) {
+    private void addCelda(String contenido, String posicion, PdfPTable table, Font bodyFont, int rolSpan) {
         Phrase phr = new Phrase(contenido, bodyFont);
         PdfPCell cell = new PdfPCell(phr);
 
+        if (posicion.equals("C")) {
+            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+        } else if (posicion.equals("L")) {
+            cell.setHorizontalAlignment(Element.ALIGN_LEFT);
+        }
         cell.setVerticalAlignment(Element.ALIGN_CENTER);
-        cell.setHorizontalAlignment(Element.ALIGN_LEFT);
-//        cell.setBackgroundColor(baseColor);
-//        cell.setBorderColor(BaseColor.DARK_GRAY);
-        cell.setPaddingLeft(2f);
-        cell.setPaddingRight(0f);
-        cell.setPaddingTop(10f);
-        cell.setPaddingBottom(0f);
-        cell.setColspan(colspan);
-        cell.setRowspan(rolSpan);
+//        cell.setBorder(1);
+//        cell.setPaddingLeft(2f);
+//        cell.setPaddingRight(0f);
+//        cell.setPaddingTop(10f);
+//        cell.setPaddingBottom(0f);
+//        cell.setColspan(colspan);
+//        cell.setRowspan(rolSpan);
         table.addCell(cell);
     }
 
