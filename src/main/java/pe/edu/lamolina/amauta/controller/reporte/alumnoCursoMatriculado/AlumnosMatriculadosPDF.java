@@ -1,5 +1,6 @@
 package pe.edu.lamolina.amauta.controller.reporte.alumnoCursoMatriculado;
 
+import com.google.common.base.Strings;
 import com.itextpdf.text.BadElementException;
 import com.itextpdf.text.BaseColor;
 import com.itextpdf.text.Chunk;
@@ -12,6 +13,7 @@ import com.itextpdf.text.PageSize;
 import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.Phrase;
 import com.itextpdf.text.Rectangle;
+import com.itextpdf.text.pdf.PdfName;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
@@ -199,8 +201,13 @@ public class AlumnosMatriculadosPDF extends AbstractOnlyPdfView {
 
             for (MatriculaSeccion matriculaSeccion : matSecciones) {
                 Alumno alumno = matriculaSeccion.getMatriculaResumen().getAlumno();
-
-                table.addCell(getImagenUrl(25, 20, alumno.getPersona().getRutaFoto()));
+                String url = "";
+                if (!Strings.isNullOrEmpty(alumno.getPersona().getFoto())) {
+                    url = alumno.getPersona().getFoto();
+                    table.addCell(getImagenUrl(25, 20, url));
+                } else {
+                    table.addCell(getImagenUrl(25, 20, url));
+                }
                 addCelda(alumno.getCodigo(), "C", table, fontAnexo, 1);
                 StringBuilder st = new StringBuilder();
                 st.append(alumno.getPersona().getApellidosNombres() + "\n");
@@ -242,11 +249,15 @@ public class AlumnosMatriculadosPDF extends AbstractOnlyPdfView {
             e.printStackTrace();
             logger.debug("error 1");
         }
+        
+        PdfPCell pdfPCell = new PdfPCell();
+        if (!url.equals("")) {
+            Image image = Image.getInstance(new URL(url));
+            image.scaleToFit(scaleWidth, scaleHeight);
+            pdfPCell.setImage(image);
+        }
 
-        Image image = Image.getInstance(new URL(url));
-        image.scaleToFit(scaleWidth, scaleHeight);
-        PdfPCell pdfPCell = new PdfPCell(image, true);
-
+        pdfPCell.setMinimumHeight(70);
         return pdfPCell;
     }
 
@@ -270,7 +281,7 @@ public class AlumnosMatriculadosPDF extends AbstractOnlyPdfView {
             cell.setHorizontalAlignment(Element.ALIGN_LEFT);
         }
         cell.setVerticalAlignment(Element.ALIGN_CENTER);
-//        cell.setBorder(1);
+        cell.setMinimumHeight(75);
 //        cell.setPaddingLeft(2f);
 //        cell.setPaddingRight(0f);
 //        cell.setPaddingTop(10f);
