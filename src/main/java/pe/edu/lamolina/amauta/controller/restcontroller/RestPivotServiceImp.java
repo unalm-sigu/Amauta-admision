@@ -10,12 +10,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.edu.lamolina.amauta.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.model.enums.TokenEstadoEnum;
 import pe.edu.lamolina.model.seguridad.TokenIngresante;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.amauta.dao.seguridad.TokenIngresanteDAO;
 import pe.edu.lamolina.amauta.dao.seguridad.UsuarioDAO;
 import pe.edu.lamolina.amauta.zelper.bean.FormImport;
+import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 
 @Service
 @Transactional(readOnly = true)
@@ -23,6 +26,8 @@ public class RestPivotServiceImp implements RestPivotService {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    @Autowired
+    CicloAcademicoDAO cicloAcademicoDAO;
     @Autowired
     UsuarioDAO usuarioDAO;
 
@@ -81,4 +86,10 @@ public class RestPivotServiceImp implements RestPivotService {
         tokenIngresanteDAO.update(tokenCachimbo);
         return tokenCachimbo;
     }
+
+    @Override
+    public CicloAcademico findCicloActivoPregrado() {
+        return cicloAcademicoDAO.findActivo(ModalidadEstudioEnum.PRE);
+    }
+
 }

@@ -281,10 +281,14 @@ public class OAuthController {
         session.setAttribute(GlobalConstantine.SESSION_USUARIO, ds);
     }
 
-    @RequestMapping("teentitansgo/{idUsuario}/{token}")
-    public String teentitansgo(@PathVariable("idUsuario") Long idUsuario, @PathVariable("token") String token, HttpSession session, HttpServletRequest servlet) {
-        try {
+    @RequestMapping("teentitansgo/{destino}/{idUsuario}/{token}")
+    public String teentitansgo(
+            @PathVariable("destino") String destino,
+            @PathVariable("idUsuario") Long idUsuario,
+            @PathVariable("token") String token,
+            HttpSession session, HttpServletRequest servlet) {
 
+        try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             if (ds != null) {
                 session.removeAttribute(GlobalConstantine.SESSION_USUARIO);
@@ -295,7 +299,27 @@ public class OAuthController {
             ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             serviceProvider.createLogJson(ds, session);
 
-            return "redirect:/route66";
+            if (ds.getCicloAcademico() == null) {
+                CicloAcademico ciclo = service.findCicloActivoPregrado();
+                ds.setCicloAcademico(ciclo);
+            }
+
+            if (ds.getRolesMain().size() == 1) {
+                Rol rolActivo = ds.getRolesMain().get(0);
+                logger.debug("rol-activo: {} {}", rolActivo.getId(), rolActivo.getNombre());
+                serviceProvider.asignarRolActivo(rolActivo, ds, session);
+            }
+
+            if (ds.getRolesMain().size() != 1) {
+                return "redirect:/route66";
+
+            } else if (destino.equals("OFICINA")) {
+                return "redirect:/general/oficina";
+
+            } else {
+                return "redirect:/route66";
+            }
+
         } catch (PhobosException e) {
             e.printStackTrace();
         } catch (Exception e) {
