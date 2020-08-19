@@ -1136,8 +1136,9 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
         TokenIngresante token = responseRestService.createToken(ds);
         JsonResponse response = responseRestService.ampliarVacante(seccionBD, -seccionBD.getVacantes(), ds, token);
         Assert.isTrue(response.getSuccess(), response.getMessage());
+        List<AmpliacionVacantes> ampliacioness = ampliacionVacanteDAO.allBySeccion(seccionBD);
 
-        if (matriculasSeccionAll.isEmpty()) {
+        if (matriculasSeccionAll.isEmpty() && ampliacioness.isEmpty()) {
             this.deleteDependenciasSeccion(seccionBD);
             seccionDAO.delete(seccionBD);
 
@@ -3045,7 +3046,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
             precioTpc = precioCursoEstructuraDAO.findByTpcCiclo(cursoBD.getTpc(), cicloBD);
 
         }
-        
+
         TipoCursoCurricula tipoCurr = tipoCursoObligatorio;
         int minimoAlumnos = cicloBD.getAlumnosMinimoTipoObligatorio() == null ? 0 : cicloBD.getAlumnosMinimoTipoObligatorio();
         if (cursosCurricula.isEmpty()) {
