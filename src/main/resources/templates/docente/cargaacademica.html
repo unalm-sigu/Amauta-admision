@@ -79,6 +79,7 @@
                                         <th class="text-center v-middle">Créditos<br/>Carga</th>
                                         <th class="col-md-2 text-center v-middle">Periodo Clases</th>
                                         <th class="col-md-1 text-center v-middle">Listado Alumnos</th>
+                                        <th class="col-md-1 text-center v-middle">Listado con Foto</th>
                                     </tr>
                                 </thead>
                                 <tbody v-for="item in cm.cursosModalidad">
@@ -140,6 +141,15 @@
                                                 </span>
                                             </div>
                                         </td>
+
+                                        <td class="text-center v-middle">
+                                            <div class="pointer " v-on:click="downloadOfFoto(seccion)">
+                                                <span class="fa-stack fa-2x text-danger">
+                                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                                    <i class="fa fa-file-pdf-o fa-stack-1x fa-inverse"></i>
+                                                </span>
+                                            </div>
+                                        </td>
                                     </template>
                                 </template>
                                 </tr>
@@ -192,6 +202,14 @@
                                             </span>
                                         </div>
                                     </td>
+                                    <td class="text-center v-middle">
+                                            <div class="pointer " v-on:click="downloadOfFoto(seccion)">
+                                                <span class="fa-stack fa-2x text-danger">
+                                                    <i class="fa fa-circle fa-stack-2x"></i>
+                                                    <i class="fa fa-file-pdf-o fa-stack-1x fa-inverse"></i>
+                                                </span>
+                                            </div>
+                                        </td>
                                 </template>
                                 </tr>
                                 </tbody>
