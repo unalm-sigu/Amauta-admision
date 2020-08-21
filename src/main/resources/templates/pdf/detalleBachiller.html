@@ -1,0 +1,212 @@
+<html>
+    <head>
+        <title th:inline="text"> Tramite Bachiller</title>
+        <style>
+            body{
+                font-size: 14px !important;	
+            }
+
+            .fecha {
+                font-size: 10px;
+                font-style: italic;
+            }
+
+            .table{
+                font-size:14px !important;
+                border: solid .25px;
+                border-collapse: collapse;
+            }
+            .tabled{
+                font-size:14px !important;
+                border-collapse: collapse;
+            }
+
+            .text-center {
+                text-align: center;
+            }
+
+            .text-right{
+                text-align: right;
+            }
+
+            table td {
+                padding: 8px !important;
+            }
+
+            .table-plan {
+                width: 100%;
+            }
+            .table-dirigido {
+                width: 50%;
+            }
+            .tableCred {
+                width: 80%;
+            }
+            div {
+                padding-top: 15px;
+            }
+            .table-cretidos > tbody > tr > td, .table-plan > thead > tr > td  {
+                border-bottom: solid .25px;
+            }
+            .table-dirigido > tbody > tr > td, .table-plan > thead > tr > td  {
+                border-bottom: solid .25px;
+            }
+            .table-plan > tbody > tr > td, .table-plan > thead > tr > td  {
+                border-top: solid .25px;
+                border-bottom: solid .25px;
+            }
+        </style>
+
+
+    </head>
+    <body>
+        <span class="fecha" th:text="${fecha}">La Molina, miércoles 8 de agosto de 2018</span>
+        <div style="text-align: center">
+            <b class="block" th:inline="text"> INFORME ACADEMICO PARA LA OBTENCION DEL
+                GRADO DE BACHILLER, FECHA PRIMERA MATRICULA Y CICLO
+                DE EGRESO 
+            </b>
+        </div>
+        <div style="text-align: right; padding-top: 20px; padding-bottom: 20px;">
+            <table  cellspacing="0" cellpadding="0" width="100%">
+                <tr>
+                    <td width="200" style="text-center">
+                        <img height= "80px" src="logo-min.jpg" />
+                    </td>
+                    <td width="80%" style="text-align: center; padding-bottom: 20px;">
+                        <b style="font-size: 16px;"> UNIVERSIDAD NACIONAL AGRARIA LA MOLINA </b>
+                        <p style="font-family: serif; font-size: 12px;"> OFICINA DE ESTUDIOS Y REGISTROS ACADÉMICOS </p>
+                    </td>
+                    <td width="200">
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div >            
+            <table class="tabled table-dirigido" align="center">
+                <tbody >
+                    <tr >
+                        <td> 
+                            <span >Informe N°: </span>
+                        </td>
+                        <td>
+                            <span th:text="${bachiller.tramite.numero}"></span>/<span th:text="${bachiller.tramite.serie}"></span>
+                        </td>
+
+                    </tr>
+                    <tr >
+                        <td >
+                            <span >De: </span>
+                        </td>
+                        <td>
+                            <span th:text="'Unidad de Registro'"></span>
+                        </td>
+                    </tr>
+                    <tr >
+                        <td>
+                            <span >Al </span>
+                        </td>
+                        <td>
+                            <span th:text="'Decano de la facultad de '+${alumno.carrera.facultad.nombre}"></span>
+                        </td>
+                    </tr>
+                    <tr >
+                        <td> 
+                            <span >Asunto: </span>
+                        </td>
+                        <td>
+                            <span th:text=" 'GRADO DE BACHILLER'"></span>
+                        </td>
+
+                    </tr>
+                    <tr >
+                        <td> 
+                            <span >Fecha: </span>
+                        </td>
+                        <td>
+                            <span > La Molina,    <span th:text=" ${fecha}"></span> </span>
+                        </td>
+
+                    </tr>
+
+
+                </tbody>
+            </table>
+        </div>
+        <br/>
+        <div>
+            <span > Con relación a la solicitud sobre <b>GRADO DE BACHILLER</b>, presentado por: <b th:text="${alumno.persona.apellidosNombres}"></b> con matricula <b th:text="${alumno.codigo}"></b> de la especialidad de <b th:text="${alumno.carrera.nombre}"></b>
+                , informo a usted, lo siguiente: </span>
+        </div>
+
+        <div >            
+            <table  >
+                <tbody >
+
+
+                    <tr >
+                        <td >
+                            <span >Fecha Primer Matricula: </span>
+                        </td>
+                        <td >
+                            <span th:text=" ${fechaPrimaMatricula}"></span> 
+                        </td>
+                    </tr>
+                    <tr >
+                        <td >
+                            <span >Total Creditos Aprobados: </span>
+                        </td>
+                        <td >
+                            <span th:text="${alumno.creditosAprobados}"></span>
+                        </td>
+                    </tr>
+                    <tr >
+                        <td >
+                            <span >Profesor Consejero: </span>
+                        </td>
+                        <td >
+                            <span th:if="${alumno.consejero.colaborador} != null" th:text="${alumno.consejero.colaborador.persona.apellidosNombres}"></span>
+
+                        </td>
+                    </tr>
+                    <tr >
+                        <td >
+                            <span >Ciclo Egreso: </span>
+                        </td>
+                        <td >
+                            <span th:text="${alumnoCiclo.cicloAcademico.codigo}"></span>
+                        </td>
+                    </tr>
+                    <tr >
+                        <td >
+                            <span >Fecha Egreso: </span>
+                        </td>
+                        <td >
+                        </td>
+                    </tr>
+                    <tr >
+                        <td >
+                            <span >Se Adjunta: </span>
+                        </td>
+                        <td >
+                            Copia del Historial Académico
+                        </td>
+                    </tr>
+
+                </tbody>
+            </table>
+        </div>
+
+        <div style="text-align: center">
+            <!--            <pre >Atentamente,</pre>-->
+
+            <br/>
+            <br/>
+            <br/>
+            <br/>
+
+            <img height= "100px" src="firmaSelloVmurillo.png" />
+
+        </div>
+    </body>
+</html>

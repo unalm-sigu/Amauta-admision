@@ -179,6 +179,10 @@ var app = new Vue({
         urlReporteDirigido(item) {
             let $vue = this;
             return APP.url('academico/tramiteacademico/cursodirigido/' + item.id + '/reporte');
+        },
+        urlReporteBachiller(item) {
+            let $vue = this;
+            return APP.url('academico/tramiteacademico/bachiller/' + item.id + '/reporte');
         }
     }
 })

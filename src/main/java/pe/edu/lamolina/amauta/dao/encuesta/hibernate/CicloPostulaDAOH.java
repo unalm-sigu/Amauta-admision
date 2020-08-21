@@ -57,6 +57,7 @@ public class CicloPostulaDAOH extends AbstractEasyDAO<CicloPostula> implements C
         Octavia sql = Octavia.query()
                 .from(CicloPostula.class, "cp")
                 .join("cicloAcademico ca", "ca.modalidadEstudio me")
+                .filter("cp.esSimulacro", 0)
                 .filter("ca.id", cicloAcad);
 
         return find(sql);

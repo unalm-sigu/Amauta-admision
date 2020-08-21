@@ -197,7 +197,7 @@ public class AulaServiceImp implements AulaService {
         aula.setCodigo(aula.getCodigo().toUpperCase().replaceAll("\\s+", ""));
         Aula aulaTmp = aulaDAO.findByCode(aula.getCodigo());
         Assert.isNull(aulaTmp, "Este código ya fue asignado a otro ambiente");
-//        TipoCarpeta tipocarpeta = tipoCarpetaDAO.find(aula.getTipoCarpeta().getId());
+        TipoCarpeta tipocarpeta = tipoCarpetaDAO.find(aula.getTipoCarpeta().getId());
 
         if (aula.getTipoAmbienteEnum() == TipoAmbienteEnum.EDI) {
             aula.setAforo(0);
@@ -218,7 +218,7 @@ public class AulaServiceImp implements AulaService {
         revisarNombre(aula);
         aula.setEstadoEnum(EstadoEnum.CRE);
         aula.setUserRegistro(usuario);
-//        aula.setTipoCarpeta(tipocarpeta);
+        aula.setTipoCarpeta(tipocarpeta);
         aula.setFechaRegistro(new Date());
         aulaDAO.save(aula);
     }

@@ -190,7 +190,7 @@ public class TramitesAcademicosController {
                 "tipoTramite.codigo",
                 "tipoTramite.nombre",
                 "tipoTramite.esReincorporacionPregrado",
-                "tipoTramite.esTipoTramiteCurDir",
+                "tipoTramite.esCursoDirigido",
                 "tipoTramite.oficina.*",
                 "userRegistro.*",
                 "userRegistro.persona.*",
@@ -607,6 +607,19 @@ public class TramitesAcademicosController {
 
         try {
             String fileName = tramitesAcademicosService.cursoDirigidoReporte(new Tramite(id), ds);
+            pdfResponse(fileName, "Información.pdf", response);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, model);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, model);
+        }
+    }
+    @RequestMapping("bachiller/{id}/reporte")
+    public void bachillerReporte(Model model, HttpSession session, HttpServletResponse response, @PathVariable Long id) {
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+
+        try {
+            String fileName = tramitesAcademicosService.bachillerReporte(new Tramite(id), ds);
             pdfResponse(fileName, "Información.pdf", response);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, model);

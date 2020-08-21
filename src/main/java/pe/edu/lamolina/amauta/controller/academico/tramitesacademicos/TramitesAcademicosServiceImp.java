@@ -105,8 +105,10 @@ import pe.edu.lamolina.amauta.dao.academico.FacultadDAO;
 import pe.edu.lamolina.amauta.dao.academico.TipoCursoCurriculaDAO;
 import pe.edu.lamolina.amauta.dao.tramite.AccionTramiteDocumentoDAO;
 import pe.edu.lamolina.amauta.dao.tramite.FlujoTramiteDocumentoDAO;
+import pe.edu.lamolina.amauta.dao.tramite.TramiteBachillerDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TramiteCorreccionHistorialDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TramiteDocumentoAcademicoDAO;
+import pe.edu.lamolina.model.tramite.TramiteBachiller;
 
 @Service
 @Transactional(readOnly = true)
@@ -172,6 +174,9 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
     AlumnoCicloCursoDAO alumnoCicloCursoDAO;
 
     @Autowired
+    TramiteBachillerDAO tramiteBachillerDAO;
+
+    @Autowired
     PdfGenerator pdfGenerator;
 
     @Autowired
@@ -228,13 +233,16 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
         List<FormularioEstadoTramite> formulariosEstadoTramite = formularioEstadoTramiteDAO.all();
         List<Reincorporacion> reincorporacions = reincorporacionDAO.allByTramite(tramites);
         List<CursoDirigido> cursosDirigidos = cursoDirigidoDAO.allByTramites(tramites);
+        List<TramiteBachiller> bachillers = tramiteBachillerDAO.allByTramites(tramites);
         List<Oficina> oficinas = new ArrayList();
         for (Tramite tramite : tramites) {
 
             List<Reincorporacion> reincorporacionesTramite = reincorporacions.stream().filter(x -> Objects.equals(x.getTramite().getId(), tramite.getId())).collect(Collectors.toList());
             List<CursoDirigido> cursosDirigidosTramite = cursosDirigidos.stream().filter(x -> Objects.equals(x.getTramite().getId(), tramite.getId())).collect(Collectors.toList());
+            List<TramiteBachiller> bachillersTramite = bachillers.stream().filter(x -> Objects.equals(x.getTramite().getId(), tramite.getId())).collect(Collectors.toList());
             tramite.setReincorporaciones(reincorporacionesTramite);
             tramite.setCursoDirigido(cursosDirigidosTramite);
+            tramite.setTramiteBachiller(bachillersTramite);;
 
             TramiteReunionConsejo tramiteReunionConsejo = tramiteReunionConsejoDAO.findByTramite(tramite);
 
@@ -589,11 +597,11 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
 
     @Override
     public String cursoDirigidoReporte(Tramite tramite, DataSessionPivot ds) {
-        List<String> pdfs = createInfoPDF(tramite, ds);
+        List<String> pdfs = createInfoCursoDirigidoPDF(tramite, ds);
         return pdfGenerator.concatPDFs(pdfs, "CursoDirigido", true);
     }
 
-    private List<String> createInfoPDF(Tramite tramite, DataSessionPivot ds) {
+    private List<String> createInfoCursoDirigidoPDF(Tramite tramite, DataSessionPivot ds) {
         tramite = tramiteDAO.find(tramite.getId());
         CursoDirigido cursoDirigido = cursoDirigidoDAO.findByTramite(tramite);
 
@@ -608,13 +616,7 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
         Map<GrupoSeccion, List<Seccion>> gpoSecciones = matriculados.stream().map(MatriculaSeccion::getSeccion).collect(Collectors.groupingBy(x -> x.getGrupoSeccion()));
 
         Curso curso = cursoDirigido.getCurso();
-//        PlanCurricular planCurricular = alumno.getPlanCurricular();
 
-//        Map<Integer, List<CursoCurricula>> cursosPlanCurricular = planCurricular.getCursoCurricula().stream().filter(cc -> cc.getNumeroCiclo() != null).collect(Collectors.groupingBy(cc -> cc.getNumeroCiclo()));
-//
-//        Map<Integer, List<AlumnoCursoCurricula>> avanceCurricular = alumnoCursoCurriculaDAO.allCiclosAlumno(alumno)
-//                .stream()
-//                .collect(Collectors.groupingBy(x -> x.getNumeroCiclo()));
         TipoCursoCurricula tipoCursoCurricula = tipoCursoCurriculaDAO.findByCodigo(TipoCursoCurriculaEnum.DEP);
         List<AlumnoCicloCurso> alumnoCicloCursos = alumnoCicloCursoDAO.allActivosByAlumno(alumno);
         for (AlumnoCicloCurso alumnoCicloCurso : alumnoCicloCursos) {
@@ -649,10 +651,7 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
         ctx.setVariable("alumno", alumno);
         ctx.setVariable("ciclo", cicloAcademico);
         ctx.setVariable("curso", curso);
-//        ctx.setVariable("avanceCurricular", avanceCurricular);
         ctx.setVariable("historial", historialSorted);
-//        ctx.setVariable("planCurricular", planCurricular);
-//        ctx.setVariable("planCurricularCursos", cursosPlanCurricular);
         ctx.setVariable("alumnoCiclo", alumnoCiclo.get(0));
         ctx.setVariable("matriculados", matriculados);
         ctx.setVariable("gpoSecciones", gpoSecciones);
@@ -669,14 +668,8 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
 
         PdfContent pdfHistorial = new PdfContent();
         pdfHistorial.setContext(ctx);
-        pdfHistorial.setTipoPdfEnum(TipoPdfEnum.HISTORIAL_ACADEMICO_CURDIR);
+        pdfHistorial.setTipoPdfEnum(TipoPdfEnum.HISTORIAL_ACADEMICO_TRAMITE);
 
-//        PdfContent pdfHistorialListado = new PdfContent();
-//        pdfHistorialListado.setContext(ctx);
-//        pdfHistorialListado.setTipoPdfEnum(TipoPdfEnum.HISTORIAL_ACADEMICO_LISTADO);
-//        PdfContent pdfPlanCurricular = new PdfContent();
-//        pdfPlanCurricular.setContext(ctx);
-//        pdfPlanCurricular.setTipoPdfEnum(TipoPdfEnum.PLAN_CURRICULAR);
         PdfContent pdfHorario = new PdfContent();
         pdfHorario.setContext(ctx);
         pdfHorario.setTipoPdfEnum(TipoPdfEnum.HORARIO);
@@ -694,9 +687,7 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
 
         List<String> pdfs = Arrays.asList(
                 pdfGenerator.generateDocument(pdfCursoDirigido),
-                //                pdfGenerator.generateDocument(pdfPlanCurricular),
                 pdfGenerator.generateDocument(pdfHistorial),
-                //                pdfGenerator.generateDocument(pdfHistorialListado),
                 pdfGenerator.generateDocument(pdfMatriculados),
                 pdfGenerator.generateDocument(pdfHorario)
         );
@@ -972,7 +963,7 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
         List<Tramite> tramites = allTramitesByFac(fac, ds);
         List<String> pdfs = new ArrayList();
         for (Tramite tramite : tramites) {
-            pdfs.addAll(createInfoPDF(tramite, ds));
+            pdfs.addAll(createInfoCursoDirigidoPDF(tramite, ds));
         }
         return pdfGenerator.concatPDFs(pdfs, "CursoDirigido", true);
     }
@@ -1046,4 +1037,82 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
         return tramiteDAO.find(id).getTipoTramite();
     }
 
+    @Override
+    public String bachillerReporte(Tramite tramite, DataSessionPivot ds) {
+        List<String> pdfs = createInfoBachillerPDF(tramite, ds);
+        return pdfGenerator.concatPDFs(pdfs, "bachiller", true);
+    }
+
+    private List<String> createInfoBachillerPDF(Tramite tramite, DataSessionPivot ds) {
+        tramite = tramiteDAO.find(tramite.getId());
+        TramiteBachiller tramiteBachiller = tramiteBachillerDAO.findByTramite(tramite);
+
+        Alumno alumno = tramite.getAlumno();
+        CicloAcademico cicloAcademico = ds.getCicloAcademico();
+
+        TipoCursoCurricula tipoCursoCurricula = tipoCursoCurriculaDAO.findByCodigo(TipoCursoCurriculaEnum.DEP);
+        List<AlumnoCicloCurso> alumnoCicloCursos = alumnoCicloCursoDAO.allActivosByAlumno(alumno);
+        for (AlumnoCicloCurso alumnoCicloCurso : alumnoCicloCursos) {
+            if (alumnoCicloCurso.getTipoCursoCurricula() == null) {
+                alumnoCicloCurso.setTipoCursoCurricula(tipoCursoCurricula);
+            }
+        }
+        Map<TipoCursoCurricula, List<AlumnoCicloCurso>> historial = alumnoCicloCursos
+                .stream()
+                .filter(x -> x.isAprobado())
+                .collect(Collectors.groupingBy(acc -> acc.getTipoCursoCurricula()));
+
+        Context ctx = new Context();
+
+        SortedMap<TipoCursoCurricula, List<AlumnoCicloCurso>> historialSorted = new TreeMap<>(Comparator.comparing(TipoCursoCurricula::getOrden));
+        historialSorted.putAll(historial);
+
+        List< AlumnoCiclo> alumnoCiclo = alumnoCicloCursos.stream().map(x -> x.getAlumnoCiclo()).collect(Collectors.toList());
+
+        int creditosConvalidados = 0;
+
+        List<AlumnoCicloCurso> listAlumnoCicloCurso = alumnoCicloCursoDAO.allByAlumnoOrderByTipoCurso(alumno);
+
+        for (AlumnoCicloCurso alumnoCicloCurso : listAlumnoCicloCurso) {
+            if (alumnoCicloCurso.getNota().equals("TE")) {
+                creditosConvalidados = creditosConvalidados + alumnoCicloCurso.getCreditos();
+            }
+        }
+
+        alumno.setCreditosConvalidadosTransient(creditosConvalidados);
+
+        MatriculaResumen matriculaResumen = matriculaResumenDAO.findByAlumnoCiclo(alumno, alumnoCiclo.get(alumnoCiclo.size() - 1).getCicloAcademico());
+        ctx.setVariable("alumno", alumno);
+        ctx.setVariable("ciclo", cicloAcademico);
+        ctx.setVariable("historial", historialSorted);
+        ctx.setVariable("alumnoCiclo", alumnoCiclo.get(0));
+        ctx.setVariable("bachiller", tramiteBachiller);
+        ctx.setVariable("fechaPrimaMatricula", TypesUtil.getStringDate(matriculaResumen.getFechaRegistro(), " dd'/'MM'/'yyyy", "es"));
+
+        ctx.setVariable("fecha", TypesUtil.getStringDate(new DateTime().toDate(), " dd 'de' MMMM 'del' yyyy", "es"));
+//        ctx.setVariable("alumnoCicloCurso", listAlumnoCicloCurso);
+
+        PdfContent pdfMatriculados = new PdfContent();
+        pdfMatriculados.setContext(ctx);
+        pdfMatriculados.setTipoPdfEnum(TipoPdfEnum.CURSOS_MATRICULADOS);
+
+        PdfContent pdfHistorial = new PdfContent();
+        pdfHistorial.setContext(ctx);
+        pdfHistorial.setTipoPdfEnum(TipoPdfEnum.HISTORIAL_ACADEMICO_TRAMITE);
+
+        PdfContent pdfHorario = new PdfContent();
+        pdfHorario.setContext(ctx);
+        pdfHorario.setTipoPdfEnum(TipoPdfEnum.HORARIO);
+
+        PdfContent pdfBachiller = new PdfContent();
+        pdfBachiller.setContext(ctx);
+        pdfBachiller.setTipoPdfEnum(TipoPdfEnum.DETALLE_BACHILLER);
+
+        List<String> pdfs = Arrays.asList(
+                pdfGenerator.generateDocument(pdfBachiller),
+                pdfGenerator.generateDocument(pdfHistorial)
+        );
+
+        return pdfs;
+    }
 }
