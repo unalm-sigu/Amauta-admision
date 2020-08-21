@@ -184,6 +184,8 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
             cursoCurriculaDAO.updateColumns(cursoCurriculasPlan, "estado", "fechaCaduca", "userCaduca");
         }
 
+        this.allUpdateResumenPost();
+
     }
 
     private enum NivelEnum {
@@ -1748,26 +1750,30 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
         List<PlanCurricular> planCurriculars = planCurricularDAO.allActivo();
         List<ResumenPlanCurricular> resumenPlanCurriculars = resumenPlanCurricularDAO.allByPlanes(planCurriculars);
         for (PlanCurricular planCurricular : planCurriculars) {
-            ResumenPlanCurricular rpcs = resumenPlanCurriculars.stream()
-                    .filter(x -> Objects.equals(x.getPlanCurricular().getId(), planCurricular.getId()) && x.getTipoCursoCurricula().getCodigoEnum() == DEP).findAny().orElse(null);
+            List< ResumenPlanCurricular> respcs = resumenPlanCurriculars.stream()
+                    .filter(x -> Objects.equals(x.getPlanCurricular().getId(), planCurricular.getId())).collect(Collectors.toList());
             List<CursoCurricula> cursoCurriculas = cursoCurriculaDAO.allByPlanCurricular(planCurricular);
-            cursoCurriculas = cursoCurriculas.stream().filter(x -> x.getCurso().getCodigo().equals(CODIGO_CURSO_DEP)).collect(Collectors.toList());
-            int count = cursoCurriculas.stream().mapToInt(x -> x.getCreditos()).sum();
-            if (!cursoCurriculas.isEmpty() && rpcs == null) {
-                TipoCursoCurricula tipoCursoCurricula = tipoCursoCurriculaDAO.findByCodigo(DEP);
-                rpcs = new ResumenPlanCurricular();
-                rpcs.setCreditos(count);
-                rpcs.setCursos(cursoCurriculas.size());
-                rpcs.setMinimoCreditos(count);
-                rpcs.setPlanCurricular(planCurricular);
-                rpcs.setTipoCursoCurricula(tipoCursoCurricula);
-                resumenPlanCurricularDAO.save(rpcs);
-            }
-            if (!cursoCurriculas.isEmpty() && rpcs != null) {
-                rpcs.setCreditos(count);
-                rpcs.setMinimoCreditos(cursoCurriculas.size());
-                rpcs.setCursos(cursoCurriculas.size());
-                resumenPlanCurricularDAO.update(rpcs);
+
+            for (ResumenPlanCurricular rpcs : respcs) {
+                TipoCursoCurriculaEnum tipoCursoCurriculaEnum = rpcs.getTipoCursoCurriculaEnum();
+                List<CursoCurricula> cc = cursoCurriculas.stream().filter(x -> x.getTipoCursoCurriculaEnum().equals(tipoCursoCurriculaEnum)).collect(Collectors.toList());
+                int count = cc.stream().mapToInt(x -> x.getCreditos()).sum();
+//                if (cc.isEmpty()) {
+//                    TipoCursoCurricula tipoCursoCurricula = tipoCursoCurriculaDAO.findByCodigo(DEP);
+//                    rpcs = new ResumenPlanCurricular();
+//                    rpcs.setCreditos(count);
+//                    rpcs.setCursos(cursoCurriculas.size());
+//                    rpcs.setMinimoCreditos(count);
+//                    rpcs.setPlanCurricular(planCurricular);
+//                    rpcs.setTipoCursoCurricula(tipoCursoCurricula);
+//                    resumenPlanCurricularDAO.save(rpcs);
+//                }
+                if (!cc.isEmpty()) {
+                    rpcs.setCreditos(count);
+                    rpcs.setMinimoCreditos(cursoCurriculas.size());
+                    rpcs.setCursos(cursoCurriculas.size());
+                    resumenPlanCurricularDAO.update(rpcs);
+                }
             }
         }
     }
