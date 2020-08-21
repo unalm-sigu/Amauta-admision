@@ -1752,7 +1752,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
         for (PlanCurricular planCurricular : planCurriculars) {
             List< ResumenPlanCurricular> respcs = resumenPlanCurriculars.stream()
                     .filter(x -> Objects.equals(x.getPlanCurricular().getId(), planCurricular.getId())).collect(Collectors.toList());
-            List<CursoCurricula> cursoCurriculas = cursoCurriculaDAO.allByPlanCurricular(planCurricular);
+            List<CursoCurricula> cursoCurriculas = cursoCurriculaDAO.allByPlanCurricularACT(planCurricular);
 
             for (ResumenPlanCurricular rpcs : respcs) {
                 TipoCursoCurriculaEnum tipoCursoCurriculaEnum = rpcs.getTipoCursoCurriculaEnum();
