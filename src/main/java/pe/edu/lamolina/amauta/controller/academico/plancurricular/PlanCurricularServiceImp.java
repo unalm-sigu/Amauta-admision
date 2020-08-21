@@ -184,7 +184,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
             cursoCurriculaDAO.updateColumns(cursoCurriculasPlan, "estado", "fechaCaduca", "userCaduca");
         }
 
-        this.allUpdateResumenPost();
+        this.allUpdateResumen();
 
     }
 
@@ -1771,7 +1771,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
                 if (!cc.isEmpty()) {
                     
                     rpcs.setCreditos(count);
-                    rpcs.setMinimoCreditos(cursoCurriculas.size());
+                    rpcs.setMinimoCreditos(count);
                     rpcs.setCursos(cc.size());
                     resumenPlanCurricularDAO.update(rpcs);
                 }
