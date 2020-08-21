@@ -1769,6 +1769,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
 //                    resumenPlanCurricularDAO.save(rpcs);
 //                }
                 if (!cc.isEmpty()) {
+                    
                     rpcs.setCreditos(count);
                     rpcs.setMinimoCreditos(cursoCurriculas.size());
                     rpcs.setCursos(cc.size());
