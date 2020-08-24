@@ -5,7 +5,7 @@ Vue.component('file-upload', VueUploadComponent);
 var app = new Vue({
     el: '#resolucionReinForm',
     data: {
-        resolucion: resolucionJson != null ? JSON.parse(resolucionJson) : {reincorporaciones: [], retiroCiclo: [], cambioNota: [], cursoDirigido: [], tramiteTraslado: [], cambioNotaMasBajas: []},
+        resolucion: resolucionJson != null ? JSON.parse(resolucionJson) : {reincorporaciones: [], retiroCiclo: [], cambioNota: [], cursoDirigido: [], tramiteTraslado: [], cambioNotaMasBajas: [], tramiteBachiller: []},
         oficinas: JSON.parse(oficinasJson),
         ciclos: JSON.parse(ciclosJson),
         tiposResolucion: JSON.parse(tiposResolucionJson),
@@ -69,6 +69,7 @@ var app = new Vue({
             $vue.isTraslado = false;
             $vue.isTrasladoInt = false;
             $vue.isNotaBaja = false;
+            $vue.isBachiller = false;
             if (item.codigo == "RCI") {
                 $vue.isRetiroCiclo = true;
             } else if (item.codigo == "ANCI") {
@@ -83,6 +84,8 @@ var app = new Vue({
                 $vue.isTrasladoInt = true;
             } else if (item.codigo == "NOTA_BAJA") {
                 $vue.isNotaBaja = true;
+            } else if (item.codigo == "BACHI") {
+                $vue.isBachiller = true;
             } else {
                 $vue.isCursoDirigido = true;
             }
@@ -184,6 +187,9 @@ var app = new Vue({
             } else if ($vue.isNotaBaja) {
                 var notaBaja = {alumnoCicloCursoBeans: []};
                 $vue.resolucion.cambioNotaMasBajas.push(notaBaja);
+            } else if ($vue.isBachiller) {
+                var tramiteBachiller = {};
+                $vue.resolucion.tramiteBachiller.push(tramiteBachiller);
             }
         },
         deleteItem(index) {
@@ -200,6 +206,8 @@ var app = new Vue({
                 $vue.resolucion.tramiteTraslado.splice(index, 1);
             } else if ($vue.isNotaBaja) {
                 $vue.resolucion.tramiteTraslado.splice(index, 1);
+            } else if ($vue.isBachiller) {
+                $vue.resolucion.tramiteBachiller.splice(index, 1);
             }
         },
         oficinaSelect(ofi) {
@@ -230,7 +238,7 @@ var app = new Vue({
                 success: function (response) {
                     if (response.success && response.data.length == 0) {
                         notify(response.message, 'info');
-                        $vue.resolucion = {reincorporaciones: [], retiroCiclo: [], cambioNota: [], cursoDirigido: [], tramiteTraslado: [], cambioNotaMasBajas: []};
+                        $vue.resolucion = {reincorporaciones: [], retiroCiclo: [], cambioNota: [], cursoDirigido: [], tramiteTraslado: [], cambioNotaMasBajas: [], tramiteBachiller: []};
                         $vue.alumnos = [];
                     } else {
                         if (response.data != null && response.data.length > 0) {

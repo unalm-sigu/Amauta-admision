@@ -55,9 +55,9 @@ import pe.edu.lamolina.model.tramite.TramiteTraslado;
 import pe.edu.lamolina.amauta.controller.academico.avancecurricular.AvanceCurricularService;
 import pe.edu.lamolina.amauta.controller.academico.resolucion.ResolucionService;
 import pe.edu.lamolina.amauta.controller.matricula.matriculable.MatriculableService;
-import pe.edu.lamolina.model.constantines.AcademicoConstantine;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import static pe.edu.lamolina.model.enums.TipoTramiteEnum.BACHI;
 
 @Controller
 @RequestMapping("academico/resolucion")
@@ -115,7 +115,7 @@ public class ResolucionExistentesController {
 
         List<TipoResolucion> tipoResolucions = service.allTipoResolucion();
         for (TipoResolucion tipoResolucion : tipoResolucions) {
-            if (Arrays.asList(TRAS_INT.name(), RCI.name(), ANCI.name(), REIC.name(), CAM_NOTA.name(), CURDIR.name(), TRAS.name(), INTES.name(), ING_HIS.name(), NOTA_BAJA.name()).contains(tipoResolucion.getCodigo())) {
+            if (Arrays.asList(TRAS_INT.name(), RCI.name(), ANCI.name(), REIC.name(), CAM_NOTA.name(), CURDIR.name(), TRAS.name(), INTES.name(), ING_HIS.name(), NOTA_BAJA.name(), BACHI.name()).contains(tipoResolucion.getCodigo())) {
                 tipoResolucionJson.add(JsonHelper.createJson(tipoResolucion, JsonNodeFactory.instance, new String[]{"*"}));
             }
         }
