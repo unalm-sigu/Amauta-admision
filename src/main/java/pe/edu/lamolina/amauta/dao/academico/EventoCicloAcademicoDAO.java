@@ -27,4 +27,6 @@ public interface EventoCicloAcademicoDAO extends EasyDAO<EventoCicloAcademico> {
 
     public List<EventoCicloAcademico> allActivoByCicloTipoEvento(List<CicloAcademico> cicloAcademicos, EventoAcademicoEnum eventoAcademicoEnum);
 
+    public EventoCicloAcademico findByCicloAndEvento(CicloAcademico cicloAcademico, EventoAcademicoEnum eventoAcademicoEnum);
+
 }

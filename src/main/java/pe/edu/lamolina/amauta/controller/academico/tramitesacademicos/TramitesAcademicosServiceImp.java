@@ -109,6 +109,9 @@ import pe.edu.lamolina.amauta.dao.tramite.FlujoTramiteDocumentoDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TramiteBachillerDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TramiteCorreccionHistorialDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TramiteDocumentoAcademicoDAO;
+import pe.edu.lamolina.model.academico.EventoCicloAcademico;
+import pe.edu.lamolina.model.enums.EventoAcademicoEnum;
+import pe.edu.lamolina.model.inscripcion.Evento;
 import pe.edu.lamolina.model.tramite.TramiteBachiller;
 
 @Service
@@ -991,7 +994,7 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
                 pdfGenerator.generateDocument(pdfList)
         );
         return pdfGenerator.concatPDFs(pdfs, "ListCursoDirigido", true);
-    }|
+    }
 
     private void vistoBuenoUR(AutorizacionRegistro autorizacionRegistro, Usuario usuario) {
         autorizacionRegistro.setFechaAutorizacion(new Date());
@@ -1085,14 +1088,15 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
 
         alumno.setCreditosConvalidadosTransient(creditosConvalidados);
 
-//        EventoCicloAcademico evento = eventoCicloAcademicoDAO.findByCicloAndEvento(cicloAcademico , Evento);
+        EventoCicloAcademico evento = eventoCicloAcademicoDAO.findByCicloAndEvento(cicloAcademico , EventoAcademicoEnum.FECHAS_BACH);
         MatriculaResumen matriculaResumen = matriculaResumenDAO.findByAlumnoCiclo(alumno, alumnoCiclo.get(alumnoCiclo.size() - 1).getCicloAcademico());
         ctx.setVariable("alumno", alumno);
         ctx.setVariable("ciclo", cicloAcademico);
         ctx.setVariable("historial", historialSorted);
         ctx.setVariable("alumnoCiclo", alumnoCiclo.get(0));
         ctx.setVariable("bachiller", tramiteBachiller);
-        ctx.setVariable("fechaPrimaMatricula", TypesUtil.getStringDate(matriculaResumen.getFechaRegistro(), " dd'/'MM'/'yyyy", "es"));
+        ctx.setVariable("fechaPrimaMatricula", TypesUtil.getStringDate(evento.getFechaInicio(), " dd'/'MM'/'yyyy", "es"));
+        ctx.setVariable("fechaEgreso", TypesUtil.getStringDate(evento.getFechaFin(), " dd'/'MM'/'yyyy", "es"));
 
         ctx.setVariable("fecha", TypesUtil.getStringDate(new DateTime().toDate(), " dd 'de' MMMM 'del' yyyy", "es"));
 //        ctx.setVariable("alumnoCicloCurso", listAlumnoCicloCurso);
