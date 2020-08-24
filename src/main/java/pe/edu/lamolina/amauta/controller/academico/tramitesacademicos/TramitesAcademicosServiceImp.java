@@ -101,6 +101,7 @@ import pe.edu.lamolina.amauta.controller.academico.reunionconsejo.ReunionConsejo
 import pe.edu.lamolina.amauta.controller.general.oficina.OficinaService;
 import pe.edu.lamolina.amauta.controller.matricula.matriculable.MatriculableService;
 import pe.edu.lamolina.amauta.dao.academico.DocenteDAO;
+import pe.edu.lamolina.amauta.dao.academico.EventoCicloAcademicoDAO;
 import pe.edu.lamolina.amauta.dao.academico.FacultadDAO;
 import pe.edu.lamolina.amauta.dao.academico.TipoCursoCurriculaDAO;
 import pe.edu.lamolina.amauta.dao.tramite.AccionTramiteDocumentoDAO;
@@ -223,6 +224,9 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
 
     @Autowired
     ReunionConsejoService reunionConsejoService;
+    
+    @Autowired
+    EventoCicloAcademicoDAO eventoCicloAcademicoDAO;
 
     private DateTime today = new DateTime();
 
@@ -987,7 +991,7 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
                 pdfGenerator.generateDocument(pdfList)
         );
         return pdfGenerator.concatPDFs(pdfs, "ListCursoDirigido", true);
-    }
+    }|
 
     private void vistoBuenoUR(AutorizacionRegistro autorizacionRegistro, Usuario usuario) {
         autorizacionRegistro.setFechaAutorizacion(new Date());
@@ -1081,6 +1085,7 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
 
         alumno.setCreditosConvalidadosTransient(creditosConvalidados);
 
+//        EventoCicloAcademico evento = eventoCicloAcademicoDAO.findByCicloAndEvento(cicloAcademico , Evento);
         MatriculaResumen matriculaResumen = matriculaResumenDAO.findByAlumnoCiclo(alumno, alumnoCiclo.get(alumnoCiclo.size() - 1).getCicloAcademico());
         ctx.setVariable("alumno", alumno);
         ctx.setVariable("ciclo", cicloAcademico);
