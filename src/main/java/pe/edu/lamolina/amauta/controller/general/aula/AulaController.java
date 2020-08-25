@@ -271,7 +271,7 @@ public class AulaController {
         try {
             String mensaje = aula.getId() != null ? GlobalMessages.UPDATED : GlobalMessages.CREATED;
             if (aula.getId() == null) {
-                logger.debug(" tipo carpeta  {}", aula.getTipoCarpeta().getId());
+//                logger.debug(" tipo carpeta  {}", aula.getTipoCarpeta().getId());
                 logger.debug(" tipo AMBIENTE  {}", aula.getTipoAmbiente());
 
                 service.save(aula, ds.getUsuario());

@@ -197,7 +197,11 @@ public class AulaServiceImp implements AulaService {
         aula.setCodigo(aula.getCodigo().toUpperCase().replaceAll("\\s+", ""));
         Aula aulaTmp = aulaDAO.findByCode(aula.getCodigo());
         Assert.isNull(aulaTmp, "Este código ya fue asignado a otro ambiente");
-        TipoCarpeta tipocarpeta = tipoCarpetaDAO.find(aula.getTipoCarpeta().getId());
+        TipoCarpeta tipocarpeta = null;
+        if (aula.getTipoCarpeta().getId() != null) {
+
+            tipocarpeta = tipoCarpetaDAO.find(aula.getTipoCarpeta().getId());
+        }
 
         if (aula.getTipoAmbienteEnum() == TipoAmbienteEnum.EDI) {
             aula.setAforo(0);
