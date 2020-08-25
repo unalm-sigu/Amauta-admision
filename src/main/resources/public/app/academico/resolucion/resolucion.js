@@ -45,6 +45,7 @@ var app = new Vue({
         alumnosRetiroCiclo: [],
         alumnosCambioNota: [],
         alumnosCursoDirigido: [],
+        alumnoTramiteBachiller: [],
         alumnoTramiteTraslado: {},
         tipo: ""
     },
@@ -316,6 +317,8 @@ var app = new Vue({
                             $vue.alumnosCursoDirigido = response.data;
                         } else if ($vue.tipo == "TRAS") {
                             $vue.alumnoTramiteTraslado = response.data[0]; ///retorn solo 1 registro
+                        }else if ($vue.tipo == "BACHI") {
+                            $vue.alumnoTramiteBachiller = response.data; ///retorn solo 1 registro
                         }
                         $vue.$refs.modalAlumnos.open();
                     } else {

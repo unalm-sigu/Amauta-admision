@@ -27,4 +27,18 @@
     <td class="v-middle text-center">
         <span v-if="resolucion.tipoResolucion != null" class="block text-muted" v-text="resolucion.tipoResolucion.nombre"></span>
     </td>
+    <td>
+        <label class="switch">
+            <input type="checkbox" 
+                   v-model="bachiller.seleccionado"
+                   checked="1"
+                   v-bind:disabled="isEdicion &amp;&amp; bachiller.id != null"/>
+            <span class="slider round"></span>
+        </label>
+    </td>
+    <td>
+        <button v-on:click="deleteItem(index)" class="btn btn-danger"  v-bind:disabled="isEdicion &amp;&amp; bachiller.id != null">
+            <i class="fa fa-trash-o " aria-hidden="true"></i>
+        </button>
+    </td>
 </tr>

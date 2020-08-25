@@ -25,6 +25,7 @@ var app = new Vue({
         isTraslado: false,
         isTrasladoInt: false,
         isNotaBaja: false,
+        isBachiller: false,
         modalError: {
             id: 'modalError',
             header: true,
@@ -55,6 +56,8 @@ var app = new Vue({
                 $vue.isTraslado = true;
             } else if ($vue.resolucion.isTipoTrasladoInterno) {
                 $vue.isTrasladoInt = true;
+            } else if ($vue.resolucion.isBachiller) {
+                $vue.isBachiller = true;
             }
             console.log($vue.resolucion);
         }
@@ -188,7 +191,7 @@ var app = new Vue({
                 var notaBaja = {alumnoCicloCursoBeans: []};
                 $vue.resolucion.cambioNotaMasBajas.push(notaBaja);
             } else if ($vue.isBachiller) {
-                var tramiteBachiller = {};
+                var tramiteBachiller = {seleccionado: true};
                 $vue.resolucion.tramiteBachiller.push(tramiteBachiller);
             }
         },

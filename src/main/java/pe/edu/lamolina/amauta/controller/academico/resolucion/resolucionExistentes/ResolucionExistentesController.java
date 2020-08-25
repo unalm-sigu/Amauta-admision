@@ -58,6 +58,7 @@ import pe.edu.lamolina.amauta.controller.matricula.matriculable.MatriculableServ
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import static pe.edu.lamolina.model.enums.TipoTramiteEnum.BACHI;
+import pe.edu.lamolina.model.tramite.TramiteBachiller;
 
 @Controller
 @RequestMapping("academico/resolucion")
@@ -266,6 +267,8 @@ public class ResolucionExistentesController {
                 matriculableService.revisarCurriculaAlumnos(ds, token);
                 matriculableService.revisarMatriculables(ds, token);
                 matriculableService.generarAportes(ds, token);
+            } else if (resolucion.isTipoTramiteBachiller()) {
+                service.saveTramiteBachiller(resolucion, ds);
             }
 
             response.setMessage("Se realizó el registro satisfactoriamente.");
@@ -492,6 +495,7 @@ public class ResolucionExistentesController {
         List<RetiroCiclo> retiroCiclos = new ArrayList();
         List<CambioNota> cambioNotas = new ArrayList();
         List<CursoDirigido> cursoDirigidos = new ArrayList();
+        List<TramiteBachiller> tramiteBachillers = new ArrayList();
 
         ObjectNode objectNode = new ObjectNode(JsonNodeFactory.instance);
         if (resolucionDB.getTipoResolucion().getCodigo().equals(REIC.name())) {
@@ -559,6 +563,20 @@ public class ResolucionExistentesController {
                     "tramite.alumno.persona.tipoDocumento.*"
                 });
                 objectNode.put("tipo", TRAS.name());
+                array.add(objectNode);
+            }
+        } else if (resolucionDB.getTipoResolucion().getCodigo().equals(BACHI.name())) {
+            tramiteBachillers = service.allTramiteBachiller(resolucionDB);
+            for (TramiteBachiller bachiller : tramiteBachillers) {
+                objectNode = JsonHelper.createJson(bachiller, JsonNodeFactory.instance, new String[]{
+                    "*",
+                    "tramite.cicloAcademico.id",
+                    "tramite.cicloAcademico.descripcion",
+                    "tramite.alumno.*",
+                    "tramite.alumno.persona.*",
+                    "tramite.alumno.persona.tipoDocumento.*", //                        "cicloAcademico.*"
+                });
+                objectNode.put("tipo", BACHI.name());
                 array.add(objectNode);
             }
         }

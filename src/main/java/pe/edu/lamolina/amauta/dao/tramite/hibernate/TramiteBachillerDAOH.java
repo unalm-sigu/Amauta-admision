@@ -5,6 +5,9 @@ import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TramiteBachillerDAO;
+import pe.edu.lamolina.model.academico.Alumno;
+import static pe.edu.lamolina.model.enums.TramiteEstadoEnum.SOL;
+import pe.edu.lamolina.model.tramite.Resolucion;
 import pe.edu.lamolina.model.tramite.Tramite;
 import pe.edu.lamolina.model.tramite.TramiteBachiller;
 
@@ -34,6 +37,29 @@ public class TramiteBachillerDAOH extends AbstractEasyDAO<TramiteBachiller> impl
         sql.from(TramiteBachiller.class)
                 .join("tramite tr", "tr.alumno al", "al.persona")
                 .in("tr.id", tramites);
+        
+        return all(sql);
+    }
+    
+    @Override
+    public TramiteBachiller findByAlumnoAct(Alumno alumno) {
+        Octavia sql = new Octavia();
+        sql.from(TramiteBachiller.class, "tb")
+                .join("tramite tr", "tr.alumno al", "al.persona")
+                .filter("tb.estado", SOL)
+                .filter("al.id", alumno);
+        
+        return find(sql);
+    }
+    
+    @Override
+    public List<TramiteBachiller> allByResolucion(Resolucion resolucionDB) {
+        Octavia sql = new Octavia();
+        sql.from(TramiteBachiller.class)
+                .join("resolucion res")
+                .join("tramite tr", "tr.alumno al", "al.persona per")
+                .join("per.tipoDocumento", "tr.cicloAcademico")
+                .filter("res.id", resolucionDB);
         
         return all(sql);
     }

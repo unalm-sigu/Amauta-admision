@@ -109,7 +109,7 @@
                                             <input v-model="resolucion.tipoResolucion" required="true" type="text" class="hide"/>
                                         </div>
                                     </div> 
-                                    <div class="col-lg-6" v-if=" !isNotaBaja">
+                                    <div class="col-lg-6" v-if=" !isNotaBaja  &amp;&amp; !isBachiller">
                                         <label>Ciclo 
                                             <span v-if='isRetiroCiclo'> a retirar</span>
                                             <span v-if='isReincorporacion'> a reincorporar</span>
@@ -139,9 +139,9 @@
                                     <thead>
                                         <tr>
                                             <th class="col-md-3 text-center">Persona</th>
-                                            <th class="col-md-3 text-center" v-if="!isCambioNota">Tipo Tramite</th>
+                                            <th class="col-md-3 text-center" v-if="!isCambioNota ">Tipo Tramite</th>
                                             <th class="col-md-2 text-center" v-if="isCambioNota">Tipo Tramite</th>
-                                            <th class="col-md-3 text-center" v-if="!isCambioNota &amp;&amp; !isTraslado &amp;&amp; !isTrasladoInt &amp;&amp; !isNotaBaja">Motivo</th>
+                                            <th class="col-md-3 text-center" v-if="!isCambioNota &amp;&amp; !isTraslado &amp;&amp; !isTrasladoInt &amp;&amp; !isNotaBaja  &amp;&amp; !isBachiller">Motivo</th>
                                             <th class="col-md-2 text-center" v-if="isCambioNota ">Motivo</th>
                                             <!--                                            <th class="col-md-3 text-center" v-if="!isCambioNota &amp;&amp; !isCursoDirigido &amp;&amp; !isTrasladoInt">Ciclo
                                                                                             <span v-if='isRetiroCiclo'> a retirar</span>
@@ -153,7 +153,7 @@
                                             <th class="col-md-2 text-center" v-if="isCambioNota">Curso</th>
                                             <th class="col-md-1 text-center" v-if="isCambioNota">Nota</th>
                                             <th class="col-md-3 text-center" v-if="isCursoDirigido">Docente</th>
-                                            <th v-if="!isReincorporacion &amp;&amp; !isRetiroCiclo &amp;&amp; !isCambioNota &amp;&amp; !isNotaBaja">Aprobado</th>
+                                            <th v-if="!isReincorporacion &amp;&amp; !isRetiroCiclo &amp;&amp; !isCambioNota &amp;&amp; !isNotaBaja ">Aprobado</th>
                                             <!--<th  v-if="!isCursoDirigido "></th>-->
                                             <th ></th>
                                         </tr>

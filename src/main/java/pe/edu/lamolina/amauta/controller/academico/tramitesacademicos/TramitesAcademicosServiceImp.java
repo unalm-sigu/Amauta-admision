@@ -1089,7 +1089,6 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
         alumno.setCreditosConvalidadosTransient(creditosConvalidados);
 
         EventoCicloAcademico evento = eventoCicloAcademicoDAO.findByCicloAndEvento(cicloAcademico , EventoAcademicoEnum.FECHAS_BACH);
-        MatriculaResumen matriculaResumen = matriculaResumenDAO.findByAlumnoCiclo(alumno, alumnoCiclo.get(alumnoCiclo.size() - 1).getCicloAcademico());
         ctx.setVariable("alumno", alumno);
         ctx.setVariable("ciclo", cicloAcademico);
         ctx.setVariable("historial", historialSorted);

@@ -1,6 +1,5 @@
 package pe.edu.lamolina.amauta.dao.tramite.hibernate;
 
-import java.util.List;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
@@ -15,10 +14,11 @@ public class TipoResolucionDAOH extends AbstractEasyDAO<TipoResolucion> implemen
         super();
         setClazz(TipoResolucion.class);
     }
+
     @Override
-    public TipoResolucion finByCodigo(TipoResolucionEnum tipoResolucionEnum){
+    public TipoResolucion finByCodigo(TipoResolucionEnum tipoResolucionEnum) {
         Octavia sql = new Octavia()
-                .from(TipoResolucion.class ,"tr")
+                .from(TipoResolucion.class, "tr")
                 .filter("codigo", tipoResolucionEnum);
         return find(sql);
     }

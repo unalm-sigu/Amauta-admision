@@ -75,6 +75,17 @@
                             <span class="block" v-text="alumnoTramiteTraslado.tramite.cicloAcademico.descripcion"></span>
                         </td>
                     </tr>
+                    <tr v-for="item in alumnoTramiteBachiller" v-if="tipo == 'BACHI'">
+                        <td>
+                            <a class="block" v-text="item.tramite.alumno.persona.nombreCompleto"></a>
+                            <span class="block">Código: {{item.tramite.alumno.codigo}}</span>
+                            
+                            <span v-if="item.tramite.alumno.persona.numeroDocIdentidad != null"> {{item.tramite.alumno.persona.tipoDocumento.simbolo}} - {{item.tramite.alumno.persona.numeroDocIdentidad}}</span>
+                        </td>
+                        <td>
+                            <span class="block" v-text="item.tramite.cicloAcademico.descripcion"></span>
+                        </td>
+                    </tr>
                 </tbody>
             </table>
         </div>
