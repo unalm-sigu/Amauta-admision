@@ -28,6 +28,7 @@ import org.apache.poi.openxml4j.util.ZipSecureFile;
 import org.apache.poi.ss.util.CellUtil;
 import pe.albatross.zelpers.file.excel.ExcelHelper;
 import pe.albatross.zelpers.miscelanea.NumberFormat;
+import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.enums.EventoAcademicoEnum;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.rolexamen.CursoMasivoExamen;
@@ -132,7 +133,7 @@ public class RolExamenReporteAulasView extends AbstractPOIExcelView {
 
         for (Date fecha : fechas) {
             Integer cantidadHoras = horasPorDia.get(fecha).size();
-            ExcelHelper.mergeCell(sheet,ROW_DIAS, ROW_DIAS, currentColumn, currentColumn + cantidadHoras - 1);
+            ExcelHelper.mergeCell(sheet, ROW_DIAS, ROW_DIAS, currentColumn, currentColumn + cantidadHoras - 1);
 
             CellStyle style = (ExcelStyles.getStyleHeader(wb));
             style.setAlignment(HorizontalAlignment.LEFT);
@@ -151,7 +152,7 @@ public class RolExamenReporteAulasView extends AbstractPOIExcelView {
         for (Aula modulo : modulos) {
             List<Aula> aulas = aulasPorModulo.get(modulo);
 
-            ExcelHelper.mergeCell(sheet, rowNum, rowNum + aulas.size() - 1, 0, 0);
+//            ExcelHelper.mergeCell(sheet, rowNum, rowNum + aulas.size() - 1, 0, 0);
             sheet.setColumnWidth(0, 5000);
 
             ExcelHelper.replaceVal(sheet, rowNum, 0, modulo.getNombre());
@@ -176,10 +177,35 @@ public class RolExamenReporteAulasView extends AbstractPOIExcelView {
                 for (Date fecha : fechas) {
                     List<Integer> horas = horasPorDia.get(fecha);
                     for (Integer nroHora : horas) {
+                        Boolean cruce = false;
                         List ocupantes = getOcupantes(aula, fecha, nroHora, mapOcupacion);
                         if (ocupantes.size() > 1) {
-                            ExcelHelper.replaceVal(sheet, rowNum, col, ocupantes.size());
+
+                            String tipo = "";
+                            for (int i = 0; i < ocupantes.size(); i++) {
+
+                                Object obj = ocupantes.get(i);
+                                Curso curso = null;
+                                if (obj instanceof CursoMasivoExamen) {
+                                    curso = ((CursoMasivoExamen) obj).getCurso();
+                                    tipo = tipo + "M - " + curso.getCodigo();
+                                } else if (obj instanceof SeccionGrupoEspecial) {
+                                    curso = ((SeccionGrupoEspecial) obj).getSeccion().getGrupoSeccion().getCurso();
+                                    tipo = tipo + "E - " + curso.getCodigo();
+                                } else if (obj instanceof SeccionGrupoRegular) {
+                                    curso = ((SeccionGrupoRegular) obj).getSeccion().getGrupoSeccion().getCurso();
+                                    tipo = tipo + "R - " + curso.getCodigo();
+                                } else {
+                                    tipo = tipo + "?";
+                                }
+                                if (i != ocupantes.size() - 1) {
+                                    tipo = tipo + ", ";
+                                }
+                            }
+                            String text = tipo;
+                            ExcelHelper.replaceVal(sheet, rowNum, col, text);
                             CellUtil.setCellStyleProperty(sheet.getRow(rowNum).getCell(col), CellUtil.ALIGNMENT, HorizontalAlignment.CENTER);
+                            cruce = true;
                         } else if (ocupantes.size() == 1) {
                             Object obj = ocupantes.get(0);
                             if (obj instanceof CursoMasivoExamen) {
@@ -199,7 +225,7 @@ public class RolExamenReporteAulasView extends AbstractPOIExcelView {
                         }
 
                         Integer indexColor = numeroDia % COLORES.size();
-                        IndexedColors color = COLORES.get(indexColor);
+                        IndexedColors color = !cruce ? COLORES.get(indexColor) : IndexedColors.RED;
                         CellUtil.setCellStyleProperty(sheet.getRow(rowNum).getCell(col), CellUtil.FILL_FOREGROUND_COLOR, color.getIndex());
                         CellUtil.setCellStyleProperty(sheet.getRow(rowNum).getCell(col), CellUtil.FILL_PATTERN, FillPatternType.SOLID_FOREGROUND);
                         setBorder(rowNum, col, sheet, wb);

@@ -111,9 +111,9 @@
                             <multiselect   
                                 placeholder="Seleccione" 
                                 v-model="seccTmp.poDestinoGrupoExamenes" 
-                                v-bind:options="tiposGrupoExamenes"
-                                label="value" 
-                                track-by="code" 
+                                v-bind:options="gruposHorariosDestino"
+                                label="letra" 
+                                track-by="id" 
                                 v-bind:allow-empty="false" 
                                 deselect-label=""
                                 select-label="" 

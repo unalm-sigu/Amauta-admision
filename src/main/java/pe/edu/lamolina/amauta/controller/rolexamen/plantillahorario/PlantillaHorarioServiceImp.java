@@ -408,8 +408,8 @@ public class PlantillaHorarioServiceImp implements PlantillaHorarioService {
             grupoHorasExamenUpd.setHoraInicio(fechasHorasGrupos.get(0).getHora());
             grupoHorasExamenUpd.setHoraFin(fechasHorasGrupos.get(fechasHorasGrupos.size() - 1).getHora());
 
-            Hora horaVisual = horaDAO.findByNumeroHora(grupoHorasExamenUpd.getHoraFin().getNumero() + 1);
-            grupoHorasExamenUpd.setHoraFin(horaVisual);
+//            Hora horaVisual = horaDAO.findByNumeroHora(grupoHorasExamenUpd.getHoraFin().getNumero() + 1);
+//            grupoHorasExamenUpd.setHoraFin(horaVisual);
 
             grupoHorasExamenDAO.updateFechaExamen(grupoHorasExamenUpd);
         }
