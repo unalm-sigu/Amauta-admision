@@ -2209,7 +2209,7 @@ public class ProgDataServiceImp implements ProgDataService {
             }
             visor.inicializar("cur", loop);
 
-            loop = 0;
+            //loop = 0;
             rowIterator = mySheet.iterator();
             while (rowIterator.hasNext()) {
                 Row row = rowIterator.next();
@@ -2224,6 +2224,10 @@ public class ProgDataServiceImp implements ProgDataService {
                 }
 
                 String curCodigo = getCellStringValue(1, row);
+                if (StringUtils.isEmpty(curCodigo)) {
+                    break;
+                }
+
                 String curNuevo = getCellStringValue(2, row);
                 String nombre = getCellStringValue(3, row);
                 String depCodigo = getCellStringValue(4, row);
@@ -2497,7 +2501,7 @@ public class ProgDataServiceImp implements ProgDataService {
                                 nuevo2.setFechaFin(entryFecha.getValue());
                                 nuevo2.setEstadoEnum(EstadoHorarioAulaEnum.ACT);
                                 nuevo2.setTipoEnum(TipoHorarioAulaEnum.DICT);
-                                horarioAulaDAO.save(nuevo);
+                                horarioAulaDAO.save(nuevo2);
                             }
                         }
                     }
