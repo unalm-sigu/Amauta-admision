@@ -227,7 +227,7 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
 
     @Autowired
     ReunionConsejoService reunionConsejoService;
-    
+
     @Autowired
     EventoCicloAcademicoDAO eventoCicloAcademicoDAO;
 
@@ -1088,14 +1088,15 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
 
         alumno.setCreditosConvalidadosTransient(creditosConvalidados);
 
-        EventoCicloAcademico evento = eventoCicloAcademicoDAO.findByCicloAndEvento(cicloAcademico , EventoAcademicoEnum.FECHAS_BACH);
+        EventoCicloAcademico eventoActual = eventoCicloAcademicoDAO.findByCicloAndEvento(cicloAcademico, EventoAcademicoEnum.FECHAS_BACH);
+        EventoCicloAcademico eventoIngreso = eventoCicloAcademicoDAO.findByCicloAndEvento(alumnoCiclo.get(0).getCicloAcademico(), EventoAcademicoEnum.FECHAS_BACH);
         ctx.setVariable("alumno", alumno);
         ctx.setVariable("ciclo", cicloAcademico);
         ctx.setVariable("historial", historialSorted);
         ctx.setVariable("alumnoCiclo", alumnoCiclo.get(0));
         ctx.setVariable("bachiller", tramiteBachiller);
-        ctx.setVariable("fechaPrimaMatricula", TypesUtil.getStringDate(evento.getFechaInicio(), " dd'/'MM'/'yyyy", "es"));
-        ctx.setVariable("fechaEgreso", TypesUtil.getStringDate(evento.getFechaFin(), " dd'/'MM'/'yyyy", "es"));
+        ctx.setVariable("fechaPrimaMatricula", TypesUtil.getStringDate(eventoIngreso.getFechaInicio(), " dd'/'MM'/'yyyy", "es"));
+        ctx.setVariable("fechaEgreso", TypesUtil.getStringDate(eventoActual.getFechaFin(), " dd'/'MM'/'yyyy", "es"));
 
         ctx.setVariable("fecha", TypesUtil.getStringDate(new DateTime().toDate(), " dd 'de' MMMM 'del' yyyy", "es"));
 //        ctx.setVariable("alumnoCicloCurso", listAlumnoCicloCurso);
