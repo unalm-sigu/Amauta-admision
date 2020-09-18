@@ -1,0 +1,80 @@
+<modal-vik ref="modalAlumnoCurso"
+           v-bind="modalAlumnoCurso"
+           v-bind:okaction="saveAlumnoCurso">
+    <div slot="body">
+        <div class="modal-body">
+            <form id="form" data-parsley-validate="true"><!-- method="POST" th:action="@{/academico/matriculable/save}"-->
+                <div class="row m-b-md">
+                    <div class="form-group row">
+                        <div class="col-md-12">
+                            <label>Sección</label>
+                            <multiselect v-model="cursoPropedeuticoBean.seccion" 
+                                         v-bind:options='secciones'
+                                         v-on:search-change="loadSeccion"
+                                         v-bind:custom-label="customLabel"
+                                         track-by='id'
+                                         v-bind:show-labels="false"
+                                         v-bind:allow-empty="false"
+                                         v-bind:internal-search='false'
+                                         placeholder="Ingresa un caracter como mínimo"
+                                         required="true" >
+                            </multiselect>
+                            <input v-model="cursoPropedeuticoBean.seccion" required="true" type="text" class="hide"/>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-md-12">
+                            <label>Precio</label>
+                            <input v-model="cursoPropedeuticoBean.precio" required=""  placeholder="Ingresa un precio" class="form-control"/>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-md-12">
+                            <label>Alumno</label>
+                            <multiselect v-model="matriculaResumen" 
+                                         v-bind:options='matriculaResumenes'
+                                         v-on:search-change="loadAlumno"
+                                         v-bind:custom-label='customLabelAlumno'
+                                         track-by='id'
+                                         v-bind:show-labels="false"
+                                         v-bind:allow-empty="false"
+                                         v-bind:internal-search='false'
+                                         placeholder="Ingresa un caracter como mínimo"       
+                                         v-on:select="selectAlumno"                                       
+                                         required="true" >
+                                <template slot="option" slot-scope="props">
+                                    <div class="option__desc">
+                                        <span class="option__title block bold">{{ props.option.alumno.persona.nombreCompleto }} </span>
+                                        <span class="option__small">{{ props.option.alumno.codigo }}</span>
+                                    </div>
+                                </template>
+                            </multiselect>
+                            <input v-model="matriculaResumen" required="true" type="text" class="hide"/>
+                        </div>
+                    </div>
+                    <div class="form-group row" v-if="cursoPropedeuticoBean.matriculaResumens.length > 0">
+                        <div class="col-md-12">
+                            <table class="table table-bordered">
+                                <tbody>
+                                <template v-for="(item, idx) in cursoPropedeuticoBean.matriculaResumens">
+                                    <tr>
+                                        <td class="text-center">
+                                            <span>{{item.alumno.codigo}}</span>
+                                        </td>
+                                        <td class="text-center">
+                                            <span>{{item.alumno.persona.nombreCompleto}}</span>
+                                        </td>
+                                        <td class="text-center">
+                                            <a class="btn btn-danger" v-on:click="removeAlumno(idx)"><i class=" fa fa-times"></i></a>
+                                        </td>
+                                    </tr>
+                                </template>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</modal-vik>

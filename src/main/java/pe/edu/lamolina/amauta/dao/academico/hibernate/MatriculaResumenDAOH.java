@@ -846,4 +846,23 @@ public class MatriculaResumenDAOH extends AbstractEasyDAO<MatriculaResumen> impl
         return rows;
     }
     
+    @Override
+    public List<MatriculaResumen> allByNombreAndCiclo(String nombre, CicloAcademico cicloAcademico) {
+        nombre = "%" + nombre.replaceAll(" ", "%") + "%";
+        Octavia sql = Octavia.query(MatriculaResumen.class, "mr")
+                .join("cicloAcademico ca", "alumno al", "al.carrera car")
+                .join("al.persona per ")
+                .filter("ca.id", cicloAcademico.getId())
+                .beginBlock()
+                .__().complexFilter("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))", "like", nombre)
+                .__().complexFilter("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))", "like", nombre)
+                .__().filter("per.numeroDocIdentidad", "like", nombre)
+                .__().filter("al.codigo", "like", nombre)
+                .endBlock()
+                .in("mr.estado", Arrays.asList(NMAT, MAT))
+                .limit(15);
+        return all(sql);
+        
+    }
+    
 }
