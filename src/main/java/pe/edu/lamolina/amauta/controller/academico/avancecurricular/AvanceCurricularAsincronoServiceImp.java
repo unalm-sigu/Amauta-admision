@@ -662,7 +662,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
         this.saveAlumnoCursoCurricula(alumnoCursosCurriculaNew, mapAluCursoCurriculaOld, mapEquivalentesCurricula, showLogger);
 
         for (AlumnoCursoCurricula alumnoCursoCurricula : alumnoCursoOld) {
-            if (!alumnoCursoCurricula.isValidado()) {
+            if (!alumnoCursoCurricula.isValidado() && alumnoCursoCurricula.getTipoCursoCurricula().getCodigoEnum() != TipoCursoCurriculaEnum.CPRO) {
                 alumnoCursoCurricula.setEstadoRegistro(INA.name());
                 alumnoCursoCurriculaDAO.updateColumns(alumnoCursoCurricula, "estadoRegistro");
             }
@@ -1055,7 +1055,6 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
         for (Map.Entry<Long, AlumnoCursoCurricula> entry : mapCursosCurriculaAlu.entrySet()) {
 
             AlumnoCursoCurricula evaluado = entry.getValue();
-         
 
             if (evaluado.getCicloAprobado() != null) {
                 continue;
