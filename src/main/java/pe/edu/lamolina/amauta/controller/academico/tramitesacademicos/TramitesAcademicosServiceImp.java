@@ -1088,8 +1088,20 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
 
         alumno.setCreditosConvalidadosTransient(creditosConvalidados);
 
+        String codigo = "10000000";
+        CicloAcademico cicloInicio = new CicloAcademico();
+        for (AlumnoCiclo alumnoCic : alumnoCiclo) {
+            Integer cod = Integer.parseInt(codigo);
+            Integer coda = Integer.parseInt(alumnoCic.getCicloAcademico().getCodigo());
+            if (coda < cod) {
+                cicloInicio = alumnoCic.getCicloAcademico();
+                codigo = alumnoCic.getCicloAcademico().getCodigo();
+            }
+        }
+
         EventoCicloAcademico eventoActual = eventoCicloAcademicoDAO.findByCicloAndEvento(cicloAcademico, EventoAcademicoEnum.FECHAS_BACH);
-        EventoCicloAcademico eventoIngreso = eventoCicloAcademicoDAO.findByCicloAndEvento(alumnoCiclo.get(0).getCicloAcademico(), EventoAcademicoEnum.FECHAS_BACH);
+        EventoCicloAcademico eventoIngreso = eventoCicloAcademicoDAO.findByCicloAndEvento(cicloInicio, EventoAcademicoEnum.FECHAS_BACH);
+
         ctx.setVariable("alumno", alumno);
         ctx.setVariable("ciclo", cicloAcademico);
         ctx.setVariable("historial", historialSorted);
