@@ -152,7 +152,7 @@ public class ContratoServiceImp implements ContratoService {
             docenteBD.setCicloFinContrato(cicloFin);
 
             docenteBD.setCategoria(contratoDocente.getCategoria());
-            docenteBD.setEstado(DocenteEstadoEnum.ACT);
+            docenteBD.setEstadoEnum(DocenteEstadoEnum.ACT);
 
             docenteDAO.update(docenteBD);
         }

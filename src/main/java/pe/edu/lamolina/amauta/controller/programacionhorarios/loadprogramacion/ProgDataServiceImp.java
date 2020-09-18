@@ -622,7 +622,7 @@ public class ProgDataServiceImp implements ProgDataService {
             DepartamentoAcademico dpto = mapDptos.get(docente.getCodigoDepartamento());
             profeBD = new Docente();
             profeBD.setCodigo(docente.getCodigo());
-            profeBD.setEstado(DocenteEstadoEnum.ACT);
+            profeBD.setEstadoEnum(DocenteEstadoEnum.ACT);
             profeBD.setDepartamentoAcademico(dpto);
             profeBD.setModalidadEstudio(modalidad);
             profeBD.setPersona(persona);
@@ -633,7 +633,7 @@ public class ProgDataServiceImp implements ProgDataService {
             visor.agregarLog("doc", "saveDocente", "Profesor " + profeBD.getCodigo() + " es nuevo", true, "info");
 
         } else if (profeBD.getEstadoEnum() != DocenteEstadoEnum.ACT) {
-            profeBD.setEstado(DocenteEstadoEnum.ACT);
+            profeBD.setEstadoEnum(DocenteEstadoEnum.ACT);
             profeBD.setFechaModifica(new Date());
             profeBD.setUserModifica(ds.getUsuario());
             docenteDAO.update(profeBD);
@@ -655,7 +655,7 @@ public class ProgDataServiceImp implements ProgDataService {
         for (Docente docente : docentesActivos) {
             Docente profe = mapDocentes.get(docente.getCodigo());
             if (profe == null) {
-                docente.setEstado(DocenteEstadoEnum.INA);
+                docente.setEstadoEnum(DocenteEstadoEnum.INA);
                 docente.setFechaModifica(new Date());
                 docente.setUserModifica(ds.getUsuario());
                 docenteDAO.update(docente);
