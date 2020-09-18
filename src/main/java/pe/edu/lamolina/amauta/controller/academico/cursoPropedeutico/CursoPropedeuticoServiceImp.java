@@ -162,6 +162,8 @@ public class CursoPropedeuticoServiceImp implements CursoPropedeuticoService {
             acreencia.setFechaRegistro(new Date());
             acreenciaDAO.save(acreencia);
 
+            
+            aporteAlumnoCicloDAO.save(aporteAlumnoCiclo);
         }
 
     }
