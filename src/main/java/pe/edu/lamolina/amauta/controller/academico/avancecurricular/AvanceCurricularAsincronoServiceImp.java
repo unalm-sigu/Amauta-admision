@@ -1164,7 +1164,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
 
                     } else {
                         tipoCursoCurricula = mapTipoCursoCurricula.get(ELE);
-                        if (cursoMatriculado.getTipoCursoCurricula().getCodigoEnum() == CPRO) {
+                        if (cursoMatriculado.getTipoCursoCurricula() != null && cursoMatriculado.getTipoCursoCurricula().getCodigoEnum() == CPRO) {
                             tipoCursoCurricula = cursoMatriculado.getTipoCursoCurricula();
                         }
                         cursoOpcionalNew.setNumeroCiclo(10);
