@@ -232,7 +232,7 @@ public class ConsejeroDAOH extends AbstractEasyDAO<Consejero> implements Conseje
         strb.append("  inner join aca_consejero con on con.id=ac.id_consejero    ");
         strb.append("  inner join  aca_carrera carcon on carcon.id=con.id_carrera    ");
         strb.append("  where ac.id_ciclo_academico=:CICLO and ac.estado IN (:ESTADOS) and con.id IN (:CONSEJEROS)   ");
-        strb.append("  group by ac.id_consejero,carcon.id;    ");
+        strb.append("  group by ac.id_consejero,carcon.id");
 
         Query query = getCurrentSession().createSQLQuery(strb.toString())
                 .addScalar("id", LongType.INSTANCE)
