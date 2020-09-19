@@ -1074,7 +1074,7 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
         SortedMap<TipoCursoCurricula, List<AlumnoCicloCurso>> historialSorted = new TreeMap<>(Comparator.comparing(TipoCursoCurricula::getOrden));
         historialSorted.putAll(historial);
 
-        List< AlumnoCiclo> alumnoCiclo = alumnoCicloCursos.stream().map(x -> x.getAlumnoCiclo()).collect(Collectors.toList());
+        List< AlumnoCiclo> alumnosCiclos = alumnoCicloCursos.stream().map(x -> x.getAlumnoCiclo()).collect(Collectors.toList());
 
         int creditosConvalidados = 0;
 
@@ -1089,13 +1089,20 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
         alumno.setCreditosConvalidadosTransient(creditosConvalidados);
 
         String codigo = "10000000";
+        String codigoFin = "1";
         CicloAcademico cicloInicio = new CicloAcademico();
-        for (AlumnoCiclo alumnoCic : alumnoCiclo) {
+        AlumnoCiclo alumnoCiclo = null;
+        for (AlumnoCiclo alumnoCic : alumnosCiclos) {
             Integer cod = Integer.parseInt(codigo);
+            Integer codFin = Integer.parseInt(codigoFin);
             Integer coda = Integer.parseInt(alumnoCic.getCicloAcademico().getCodigo());
             if (coda < cod) {
                 cicloInicio = alumnoCic.getCicloAcademico();
                 codigo = alumnoCic.getCicloAcademico().getCodigo();
+            }
+            if (coda > codFin) {
+                codigoFin = alumnoCic.getCicloAcademico().getCodigo();
+                alumnoCiclo = alumnoCic;
             }
         }
 
@@ -1105,7 +1112,7 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
         ctx.setVariable("alumno", alumno);
         ctx.setVariable("ciclo", cicloAcademico);
         ctx.setVariable("historial", historialSorted);
-        ctx.setVariable("alumnoCiclo", alumnoCiclo.get(0));
+        ctx.setVariable("alumnoCiclo", alumnoCiclo);
         ctx.setVariable("bachiller", tramiteBachiller);
         ctx.setVariable("fechaPrimaMatricula", TypesUtil.getStringDate(eventoIngreso.getFechaInicio(), " dd'/'MM'/'yyyy", "es"));
         ctx.setVariable("fechaEgreso", TypesUtil.getStringDate(eventoActual.getFechaFin(), " dd'/'MM'/'yyyy", "es"));

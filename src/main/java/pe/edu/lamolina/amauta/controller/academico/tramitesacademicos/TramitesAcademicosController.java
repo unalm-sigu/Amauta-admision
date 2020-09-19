@@ -171,11 +171,6 @@ public class TramitesAcademicosController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         try {
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
-            CicloAcademico ciclo = ds.getCicloAcademico();
-            Docente docente = ds.getDocente();
-            DateTime dateTime = new DateTime();
-            List<Oficina> oficinas = new ArrayList();
-
             List<Tramite> tramites = tramitesAcademicosService.allTramitesByFilter(filter, ds);
 
             String[] mapperTramite = new String[]{
@@ -614,6 +609,7 @@ public class TramitesAcademicosController {
             ExceptionHandler.handleException(e, model);
         }
     }
+
     @RequestMapping("bachiller/{id}/reporte")
     public void bachillerReporte(Model model, HttpSession session, HttpServletResponse response, @PathVariable Long id) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);

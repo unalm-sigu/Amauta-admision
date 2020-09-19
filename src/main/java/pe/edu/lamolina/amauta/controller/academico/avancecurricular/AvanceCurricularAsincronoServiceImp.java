@@ -865,11 +865,13 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
                         }
                     }
                 }
-                
+
+           
                 AlumnoCursoCurricula alumnoCursoCurricula = mapAluCursoCurriculaOld.get(cursoAprobado.getCurso().getId());
-                addAlumnoCursoCurricula(alumno, cursoAprobado, null, null, aluCursosElectivosNew, alumnoCursoCurricula.getTipoCursoCurricula());
-                
-                this.printLogger("\tCurso libre no ubicado en otros planes curriculares ", !ubicado && showLogger);
+                if (alumnoCursoCurricula != null) {                    
+                    addAlumnoCursoCurricula(alumno, cursoAprobado, null, null, aluCursosElectivosNew, alumnoCursoCurricula.getTipoCursoCurricula());
+                }
+                    this.printLogger("\tCurso libre no ubicado en otros planes curriculares ", !ubicado && showLogger);
 
             } else {
                 cursoAprobado.setCursoEquivalente(cursoEquivalenteElectivo.getCursoOpcionalCurricula().getCurso());
