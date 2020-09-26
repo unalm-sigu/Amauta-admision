@@ -22,6 +22,7 @@ new Vue({
             language: 'es',
             removePlugins: 'about',
             height: 500,
+            extraPlugins: 'justify'
         }
     },
     methods: {
