@@ -18,6 +18,7 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.NumberFormat;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.CicloAcademico;
@@ -101,7 +102,6 @@ public class EditorEncuestaServiceImp implements EditorEncuestaService {
     @Override
     @Transactional
     public void saveEncuesta(ExamenVirtual encuesta, DataSessionPivot ds) {
-
         encuesta.setEstado(ExamenVirtualEstadoEnum.CRE);
         encuesta.setPreguntasDisponibles(0);
         encuesta.setPreguntasVisibles(0);
@@ -156,6 +156,7 @@ public class EditorEncuestaServiceImp implements EditorEncuestaService {
 
         ExamenVirtual encuestaNew = new ExamenVirtual();
         encuestaNew.setNombre("Encuesta nueva copia del " + encuestaBD.getCodigo());
+        encuestaNew.setTipoExamen(encuestaBD.getTipoExamen());
         this.saveEncuesta(encuestaNew, ds);
 
         Map<Integer, PreguntaExamen> mapPreguntasNew = new LinkedHashMap();
