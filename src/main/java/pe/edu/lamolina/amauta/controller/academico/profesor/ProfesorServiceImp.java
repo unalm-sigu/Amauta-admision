@@ -217,7 +217,7 @@ public class ProfesorServiceImp implements ProfesorService {
         }
 
         logger.debug("guardando docente ...");
-        docente.setEstado(DocenteEstadoEnum.ACT);
+        docente.setEstadoEnum(DocenteEstadoEnum.ACT);
         docente.setCodigo(this.getCodigo());
         docente.setFechaRegistro(new Date());
         docente.setUserRegistro(user);
@@ -551,9 +551,9 @@ public class ProfesorServiceImp implements ProfesorService {
         Docente docenteBD = docenteDAO.find(docente.getId());
 
         if (DocenteEstadoEnum.INA.name().equalsIgnoreCase(docenteBD.getEstado())) {
-            docenteBD.setEstado(DocenteEstadoEnum.ACT);
+            docenteBD.setEstadoEnum(DocenteEstadoEnum.ACT);
         } else {
-            docenteBD.setEstado(DocenteEstadoEnum.INA);
+            docenteBD.setEstadoEnum(DocenteEstadoEnum.INA);
         }
         docenteDAO.update(docenteBD);
     }

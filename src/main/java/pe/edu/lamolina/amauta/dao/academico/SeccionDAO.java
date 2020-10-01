@@ -149,4 +149,6 @@ public interface SeccionDAO extends EasyDAO<Seccion> {
 
     int saveList(List<Seccion> secciones);
 
+    public List<Seccion> allByNombreAndCiclo(String nombre, CicloAcademico cicloAcademico);
+
 }

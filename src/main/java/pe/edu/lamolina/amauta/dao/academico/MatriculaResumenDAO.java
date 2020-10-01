@@ -100,4 +100,6 @@ public interface MatriculaResumenDAO extends EasyDAO<MatriculaResumen> {
 
     int saveList(List<MatriculaResumen> matriculables);
 
+    public List<MatriculaResumen> allByNombreAndCiclo(String nombre, CicloAcademico cicloAcademico);
+
 }

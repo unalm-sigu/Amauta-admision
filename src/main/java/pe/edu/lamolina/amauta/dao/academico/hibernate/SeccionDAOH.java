@@ -1072,4 +1072,23 @@ public class SeccionDAOH extends AbstractEasyDAO<Seccion> implements SeccionDAO 
         return rows;
     }
 
+    @Override
+    public List<Seccion> allByNombreAndCiclo(String nombre, CicloAcademico cicloAcademico) {
+        nombre = "%" + nombre.replaceAll(" ", "%") + "%";
+        Octavia sql = Octavia.query()
+                .from(Seccion.class, "secc")
+                .join("grupoSeccion grse", "grse.cicloAcademico ca")
+                .join("grse.curso cur")
+                .filter("secc.estado", SeccionEstadoEnum.ACT)
+                .filter("grse.estado", SeccionEstadoEnum.ACT)
+                .filter("ca.id", cicloAcademico)
+                .beginBlock()
+                .__().complexFilter("secc.codigo2", "like", nombre)
+                .__().complexFilter("cur.nombre", "like", nombre)
+                .__().complexFilter("cur.codigo", "like", nombre)
+                .endBlock()
+                .limit(15);
+        return all(sql);
+    }
+
 }
