@@ -21,4 +21,6 @@ public interface TramiteBachillerDAO extends EasyDAO<TramiteBachiller> {
 
     public List<TramiteBachiller> allByDynatable(DynatableFilter filter, CicloAcademico cicloAcademico);
 
+    TramiteBachiller findByAlumnoACEP(Alumno alumno);
+
 }
