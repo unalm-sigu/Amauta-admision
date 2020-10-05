@@ -77,6 +77,7 @@ public class EditorEncuestaController {
                 node.put("preguntasVisibles", encuesta.getPreguntasVisibles());
 //                node.put("cicloInicio", (String) ObjectUtil.getParentTree(encuesta, "cicloAcademicoInicio.descripcion"));
 //                node.put("cicloFin", (String) ObjectUtil.getParentTree(encuesta, "cicloAcademicoFin.descripcion"));
+                
                 node.put("tipoName", (String) ObjectUtil.getParentTree(encuesta, "tipoExamen.nombre"));
                 node.put("tipoCodigo", (String) ObjectUtil.getParentTree(encuesta, "tipoExamen.codigo"));
 

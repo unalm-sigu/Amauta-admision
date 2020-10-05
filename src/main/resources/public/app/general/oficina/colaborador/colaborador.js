@@ -182,8 +182,7 @@ new Vue({
         },
         verEmpleadosEstado(nroPanel, estado) {
             let $vue = this;
-            console.log(nroPanel)
-            console.log($vue.divElegido)
+     
             $vue.$refs.raptorColaboran.querie = [];
             if ($vue.divElegido == nroPanel) {
                 $vue.divElegido = 0;
@@ -198,7 +197,7 @@ new Vue({
 
             $vue.empleado = Object.assign({}, item, {});
             $vue.empleado.estado = estado.name;
-
+            
             var msg = "¿Seguro desea cambiar a <strong>" + item.persona.nombreCompleto
                     + "</strong> al estado <strong class='text-danger'>"
                     + estado.value + "</strong>?";

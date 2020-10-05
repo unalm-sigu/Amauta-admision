@@ -580,6 +580,7 @@ public class CicloAcademicoDAOH extends AbstractEasyDAO<CicloAcademico> implemen
         return all(sql);
     }
 
+    @Override
     public List<CicloAcademico> allCicloOrdenMerito(CicloAcademico cicloActivo, CicloAcademico cicloDesde) {
         Octavia sql = Octavia.query()
                 .from(CicloAcademico.class, "ca")

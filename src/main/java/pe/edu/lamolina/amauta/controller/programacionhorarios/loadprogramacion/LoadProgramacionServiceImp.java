@@ -264,7 +264,7 @@ public class LoadProgramacionServiceImp implements LoadProgramacionService {
 
         List<Persona> personasDB = personaDAO.all();
         Map<String, List<Persona>> mapKeyPersonas = TypesUtil.convertListToMapList("key", personasDB);
-        Map<Long, Persona> mapIdPersonas = TypesUtil.convertListToMap("id", personasDB);
+//        Map<Long, Persona> mapIdPersonas = TypesUtil.convertListToMap("id", personasDB);
         Map<String, Persona> mapDNIPersonas = new LinkedHashMap();
         for (Persona persona : personasDB) {
             if (visor.isStop()) {
@@ -294,7 +294,7 @@ public class LoadProgramacionServiceImp implements LoadProgramacionService {
 //                mapIdPersonas.put(persona.getId(), persona);
 //            }
 //        }
-        List<Alumno> alumnosDB = alumnoDAO.all();
+//        List<Alumno> alumnosDB = alumnoDAO.all();
 //        Map<String, Alumno> mapAlumnos = TypesUtil.convertListToMap("codigo", alumnosDB);
 //        for (Alumno alumno : alumnosDB) {
 //            Persona persona = mapIdPersonas.get(alumno.getPersona().getId());
@@ -302,8 +302,8 @@ public class LoadProgramacionServiceImp implements LoadProgramacionService {
 //                alumno.setPersona(persona);
 //            }
 //        }
-        List<SituacionAcademica> situaciones = situacionAcademicaDAO.all();
-        Map<String, SituacionAcademica> mapSituaciones = TypesUtil.convertListToMap("codigo", situaciones);
+//        List<SituacionAcademica> situaciones = situacionAcademicaDAO.all();
+//        Map<String, SituacionAcademica> mapSituaciones = TypesUtil.convertListToMap("codigo", situaciones);
 
         t1 = System.currentTimeMillis();
         Map<String, Curso> mapCursos = cursoDAO.all().stream().filter(x -> x.getCodigo() != null).collect(Collectors.toMap(x -> x.getCodigo(), x -> x, (a, b) -> a));

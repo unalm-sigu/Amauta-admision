@@ -11,6 +11,7 @@ import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.EPG;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.ESP;
+import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.IDIOM;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.PRE;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.VIS;
 import pe.edu.lamolina.model.general.Compania;
@@ -84,6 +85,18 @@ public class ModalidadEstudioDAOH extends AbstractEasyDAO<ModalidadEstudio> impl
                 .filter("cia.id", cia)
                 .filter("me.estado", EstadoEnum.ACT)
                 .in("me.codigo", Arrays.asList(PRE, EPG));
+
+        return all(sql);
+    }
+
+    @Override
+    public List<ModalidadEstudio> allForBoletin(Compania cia) {
+        Octavia sql = Octavia.query()
+                .from(ModalidadEstudio.class, "me")
+                .join("compania cia")
+                .filter("cia.id", cia)
+                .filter("me.estado", EstadoEnum.ACT)
+                .in("me.codigo", Arrays.asList(PRE, EPG, IDIOM));
 
         return all(sql);
     }

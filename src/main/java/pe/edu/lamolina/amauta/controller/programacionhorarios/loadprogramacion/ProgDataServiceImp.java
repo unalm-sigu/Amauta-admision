@@ -21,6 +21,7 @@ import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +29,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.CodeGenerator;
 import pe.albatross.zelpers.miscelanea.ListsInspector;
 import pe.albatross.zelpers.miscelanea.NumberFormat;
@@ -104,6 +106,7 @@ import pe.edu.lamolina.amauta.dao.academico.CursoCurriculaDAO;
 import pe.edu.lamolina.amauta.dao.academico.CursoDAO;
 import pe.edu.lamolina.amauta.dao.academico.DocenteDAO;
 import pe.edu.lamolina.amauta.dao.academico.DocenteSeccionDAO;
+import pe.edu.lamolina.amauta.dao.academico.EventoAcademicoDAO;
 import pe.edu.lamolina.amauta.dao.academico.EventoCicloAcademicoDAO;
 import pe.edu.lamolina.amauta.dao.academico.GrupoSeccionDAO;
 import pe.edu.lamolina.amauta.dao.academico.MatriculaCursoDAO;
@@ -130,6 +133,9 @@ import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.amauta.dao.general.PersonaCargoDAO;
 import pe.edu.lamolina.amauta.dao.horario.HorarioAulaDAO;
 import pe.edu.lamolina.amauta.zelper.misc.Acumulador;
+import pe.edu.lamolina.model.academico.EventoAcademico;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
+import pe.edu.lamolina.model.general.Color;
 
 @Service
 @Transactional(readOnly = true)
@@ -201,6 +207,8 @@ public class ProgDataServiceImp implements ProgDataService {
     TipoCursoCurriculaDAO tipoCursoCurriculaDAO;
     @Autowired
     EventoCicloAcademicoDAO eventoCicloAcademicoDAO;
+    @Autowired
+    EventoAcademicoDAO eventoAcademicoDAO;
     @Autowired
     ModalidadEstudioDAO modalidadEstudioDAO;
 
@@ -353,13 +361,12 @@ public class ProgDataServiceImp implements ProgDataService {
             Map<String, List<Persona>> mapKeyPersonas,
             Map<String, Persona> mapDNIPersonas, DataSessionPivot ds) {
 
-        String kk = "miranda/ubaldo/alfides-teodoro";
-
+//        String kk = "miranda/ubaldo/alfides-teodoro";
         TipoDocIdentidad tipoDoc = persona.getTipoDocumento();
         if (tipoDoc != null && !StringUtils.isEmpty(persona.getNumeroDocIdentidad())) {
-            if (persona.getKey().equals(kk)) {
-                System.out.println("  " + persona.getIdentificacion());
-            }
+//            if (persona.getKey().equals(kk)) {
+//                System.out.println("  " + persona.getIdentificacion());
+//            }
             Persona tempo = mapDNIPersonas.get(persona.getIdentificacion());
 
             if (tempo == null) {
@@ -386,13 +393,13 @@ public class ProgDataServiceImp implements ProgDataService {
             }
 
             Persona perzoma = revisarPersona(persona, personasVinculadas, mapKeyPersonas, mapDNIPersonas, ds);
-            if (persona.getKey().equals(kk)) {
-                //ObjectUtil.printAttr(persona);
-            }
+//            if (persona.getKey().equals(kk)) {
+//                //ObjectUtil.printAttr(persona);
+//            }
             copiarDatosPersonales(perzoma, persona);
-            if (persona.getKey().equals(kk)) {
-                //ObjectUtil.printAttr(persona);
-            }
+//            if (persona.getKey().equals(kk)) {
+//                //ObjectUtil.printAttr(persona);
+//            }
             personaDAO.update(perzoma);
             System.out.println("return perzoma 222 " + perzoma.getId());
             return perzoma;
@@ -675,21 +682,26 @@ public class ProgDataServiceImp implements ProgDataService {
         if (personas == null) {
             personas = new ArrayList();
         }
+
         logger.debug("\texisten {} personas por key {}", personas.size(), persona.getKey());
         if (!StringUtils.isEmpty(persona.getNumeroDocIdentidad())) {
             Persona per = mapDNIPersonas.get(persona.getIdentificacion());
             if (per != null) {
-                boolean ok = false;
-                for (Persona pp : personas) {
-                    if (pp.getId() == per.getId().longValue()) {
-                        ok = true;
-                        break;
-                    }
-                }
-                if (!ok) {
-                    logger.debug("\tagregamos a personas por DNI {}", persona.getIdentificacion());
-                    personas.add(per);
-                }
+//                boolean ok = false;
+//                for (Persona pp : personas) {
+//                    if (pp.getId() == per.getId().longValue()) {
+//                        ok = true;
+//                        break;
+//                    }
+//                }
+//                if (!ok) {
+//                    logger.debug("\tagregamos a personas por DNI {}", persona.getIdentificacion());
+//                    personas.add(per);
+//                }
+
+                personas = new ArrayList();
+                personas.add(per);
+                return personas;
             }
         }
 
@@ -1149,6 +1161,16 @@ public class ProgDataServiceImp implements ProgDataService {
         List<String> codigosByCiclo = grupoSeccionDAO.allCodigoByCiclo(ciclo);
         List<String> codigos2ByCiclo = grupoSeccionDAO.allCodigo2ByCiclo(ciclo);
 
+        List<PrecioCursoEstructura> cursoPreciosByTpc = precioCursoEstructuraDAO.allByCiclo(ciclo);
+        List<CursoCicloAcademico> cursosByCiclo = cursoCicloAcademicoDAO.allByCiclo(ciclo);
+        Set<String> setCursoTpc = cursoPreciosByTpc.stream().map(PrecioCursoEstructura::getTpc).collect(Collectors.toSet());
+        Set<Curso> setCursosByCiclo = cursosByCiclo.stream().map(CursoCicloAcademico::getCurso).collect(Collectors.toSet());
+
+        List<CursoCurricula> cursosCurricula = cursoCurriculaDAO.allByTipoCursoCurriculaEnum(TipoCursoCurriculaEnum.GEN);
+        TipoCursoCurricula tipoCursoGral = tipoCursoCurriculaDAO.findByCodigo(TipoCursoCurriculaEnum.GEN);
+        TipoCursoCurricula tipoCursoOblig = tipoCursoCurriculaDAO.findByCodigo(TipoCursoCurriculaEnum.OBL);
+        Map<Long, CursoCurricula> curCurriculaMap = TypesUtil.convertListToMap("curso.id", cursosCurricula);
+
         int loop = 0;
         for (GrupoSeccion gpoSecc : gruposSecciones) {
             if (visor.isStop()) {
@@ -1160,6 +1182,8 @@ public class ProgDataServiceImp implements ProgDataService {
             AnexoBoletin anexo = mapAnexos.get(gpoSecc.getCodigoAnexo());
 
             logger.debug("procesando el gpoSecc {}", gpoSecc.getCodigo3());
+            logger.debug("\t gpoSecc {} anexo {}", gpoSecc.getCodigo3(), anexo);
+            logger.debug("\t gpoSecc {} anexo {}", gpoSecc.getCodigo3(), anexo.getId());
             //logger.debug("\tbuscando curso {} resultado es {}", gpoSecc.getCodigoCurso(), curso);
             //logger.debug("\ttiene {} creditos - {} creditosVariables", curso.getCreditos(), curso.getCreditosVariables());
 
@@ -1270,16 +1294,10 @@ public class ProgDataServiceImp implements ProgDataService {
 //                    gpoSeccBD.getCurso().getId(), gpoSeccBD.getCurso().getCodigo(),
 //                    gpoSeccBD.getAnexoBoletin().getId(),
 //                    gpoSeccBD.getAnexoBoletin().getAnexoSuperior().getId());
+//
             if (ciclo.getTipoEnum() == TipoCicloEnum.NIV) {
-                List<CursoCurricula> cursosCurricula = cursoCurriculaDAO.allByTipoCursoCurriculaEnum(TipoCursoCurriculaEnum.GEN);
-                TipoCursoCurricula tipocursogeneral = tipoCursoCurriculaDAO.findByCodigo(TipoCursoCurriculaEnum.GEN);
-                TipoCursoCurricula tipocursoobligatorio = tipoCursoCurriculaDAO.findByCodigo(TipoCursoCurriculaEnum.OBL);
-                Map<Long, CursoCurricula> curCurriculaMap = TypesUtil.convertListToMap("curso.id", cursosCurricula);
-                List<PrecioCursoEstructura> precioCursoEstructura = precioCursoEstructuraDAO.allByCiclo(ciclo);
-                List<CursoCicloAcademico> cursoCicloAcademico = cursoCicloAcademicoDAO.allByCiclo(ciclo);
-                Set<String> tpcs = precioCursoEstructura.stream().map(PrecioCursoEstructura::getTpc).collect(Collectors.toSet());
-                if (curso.getTpc() != null && !tpcs.contains(curso.getTpc())) {
-                    tpcs.add(curso.getTpc());
+                if (curso.getTpc() != null && !setCursoTpc.contains(curso.getTpc())) {
+                    setCursoTpc.add(curso.getTpc());
 
                     PrecioCursoEstructura pce = new PrecioCursoEstructura();
                     pce.setCicloAcademico(ciclo);
@@ -1292,13 +1310,13 @@ public class ProgDataServiceImp implements ProgDataService {
 
                     precioCursoEstructuraDAO.save(pce);
                 }
-                Set<Curso> cursos = cursoCicloAcademico.stream().map(CursoCicloAcademico::getCurso).collect(Collectors.toSet());
+
                 int factorHoras = 3;
                 int horasTeoria = curso.getHorasTeoria() * factorHoras;
                 int horasPractica = curso.getHorasPractica() * factorHoras;
 
-                if (!cursos.contains(curso)) {
-                    cursos.add(curso);
+                if (!setCursosByCiclo.contains(curso)) {
+                    setCursosByCiclo.add(curso);
 
                     CursoCicloAcademico cca = new CursoCicloAcademico();
                     cca.setCicloAcademico(ciclo);
@@ -1311,9 +1329,9 @@ public class ProgDataServiceImp implements ProgDataService {
                     cca.setCurso(curso);
                     cca.setMinimoAlumnos(BigDecimal.ZERO);
 
-                    cca.setTipoCursoCurricula(tipocursoobligatorio);
+                    cca.setTipoCursoCurricula(tipoCursoOblig);
                     if (curCurriculaMap.get(curso.getId()) != null) {
-                        cca.setTipoCursoCurricula(tipocursogeneral);
+                        cca.setTipoCursoCurricula(tipoCursoGral);
                     }
                     cursoCicloAcademicoDAO.save(cca);
                 }
@@ -1754,7 +1772,7 @@ public class ProgDataServiceImp implements ProgDataService {
 //            mapEvento.put(modalidad.getId(), eventoDictadoClases);
 //        }
 
-        List<ModalidadEstudio> modalidadesDB = modalidadEstudioDAO.allPrePostgrado(new Compania(1L));
+        List<ModalidadEstudio> modalidadesDB = modalidadEstudioDAO.allForBoletin(new Compania(1L));
 
         //Map<Long, EventoCicloAcademico> mapEvento = new HashMap();
         for (ModalidadEstudio modalidad : modalidadesDB) {
@@ -1772,6 +1790,7 @@ public class ProgDataServiceImp implements ProgDataService {
         mapModalidadAnexo.put(2L, mapModalidadCodigo.get(ModalidadEstudioEnum.PRE.name()));
         mapModalidadAnexo.put(3L, mapModalidadCodigo.get(ModalidadEstudioEnum.PRE.name()));
         mapModalidadAnexo.put(4L, mapModalidadCodigo.get(ModalidadEstudioEnum.EPG.name()));
+        mapModalidadAnexo.put(5L, mapModalidadCodigo.get(ModalidadEstudioEnum.IDIOM.name()));
 
         int loop = 0;
         Map<String, DocenteSeccion> mapDocenteSecciones = new LinkedHashMap();
@@ -1926,7 +1945,7 @@ public class ProgDataServiceImp implements ProgDataService {
                     visor.agregarLog("aluSecc", "saveAluSecc", "Alumno-Seccion " + matriSecc.getCodigoAlumno() + "-" + matriSecc.getCodigoSeccion()
                             + " produjo error: " + e.getLocalizedMessage(),
                             false, "error-proceso");
-                    e.printStackTrace();
+
                     break;
                 } else {
                     intentos++;
@@ -2209,7 +2228,7 @@ public class ProgDataServiceImp implements ProgDataService {
             }
             visor.inicializar("cur", loop);
 
-            loop = 0;
+            //loop = 0;
             rowIterator = mySheet.iterator();
             while (rowIterator.hasNext()) {
                 Row row = rowIterator.next();
@@ -2224,6 +2243,10 @@ public class ProgDataServiceImp implements ProgDataService {
                 }
 
                 String curCodigo = getCellStringValue(1, row);
+                if (StringUtils.isEmpty(curCodigo)) {
+                    break;
+                }
+
                 String curNuevo = getCellStringValue(2, row);
                 String nombre = getCellStringValue(3, row);
                 String depCodigo = getCellStringValue(4, row);
@@ -2322,7 +2345,7 @@ public class ProgDataServiceImp implements ProgDataService {
             Sheet mySheet = myWorkBook.getSheetAt(0);
 
             Map<String, List<HorarioSeccion>> mapSeccHorarios = new LinkedHashMap();
-            Map<String, List<HorarioAula>> mapAulaHorarios = new LinkedHashMap();
+//            Map<String, List<HorarioAula>> mapAulaHorarios = new LinkedHashMap();
 
             Iterator<Row> rowIterator = mySheet.iterator();
             int loop = 0;
@@ -2369,34 +2392,33 @@ public class ProgDataServiceImp implements ProgDataService {
                 HorarioSeccion horario = new HorarioSeccion(seccion, dia, hora, aula);
                 horarioSecc.add(horario);
 
-                if (aula != null) {
-                    List<HorarioAula> horariosAula = mapAulaHorarios.get(clave);
-                    if (horariosAula == null) {
-                        horariosAula = new ArrayList();
-                        mapAulaHorarios.put(clave, horariosAula);
-                    }
-
-                    HorarioAula horarioAula = new HorarioAula(seccion, dia, hora, aula);
-                    if (gpoSeccion.getTipoDictadoEnum() == TipoDictadoGrupoSeccionEnum.MOD) {
-                        horarioAula.setFechaInicio(gpoSeccion.getFechaInicioModular());
-                        horarioAula.setFechaFin(gpoSeccion.getFechaFinModular());
-                    }
-                    horariosAula.add(horarioAula);
-                }
+//                if (aula != null) {
+//                    List<HorarioAula> horariosAula = mapAulaHorarios.get(clave);
+//                    if (horariosAula == null) {
+//                        horariosAula = new ArrayList();
+//                        mapAulaHorarios.put(clave, horariosAula);
+//                    }
+//
+//                    HorarioAula horarioAula = new HorarioAula(seccion, dia, hora, aula);
+//                    if (gpoSeccion.getTipoDictadoEnum() == TipoDictadoGrupoSeccionEnum.MOD) {
+//                        horarioAula.setFechaInicio(gpoSeccion.getFechaInicioModular());
+//                        horarioAula.setFechaFin(gpoSeccion.getFechaFinModular());
+//                    }
+//                    horariosAula.add(horarioAula);
+//                }
             }
 
-            visor.inicializar("horSecc", mapSeccHorarios.size());
-            visor.inicializar("horAula", mapAulaHorarios.size());
-
+//            visor.inicializar("horSecc", mapSeccHorarios.size());
+//            visor.inicializar("horAula", mapAulaHorarios.size());
             logger.debug("{} horarioSeccion leídos", mapSeccHorarios.size());
-            logger.debug("{} horarioAula leídos", mapAulaHorarios.size());
+//            logger.debug("{} horarioAula leídos", mapAulaHorarios.size());
 
             List<HorarioSeccion> horarioSeccCicloBD = horarioSeccionDAO.allByCiclo(cicloAcademico);
-            List<HorarioAula> horarioAulaCicloBD = horarioAulaDAO.allByCiclo(cicloAcademico);
+//            List<HorarioAula> horarioAulaCicloBD = horarioAulaDAO.allByCiclo(cicloAcademico);
 
             Map<Long, List<HorarioSeccion>> mapHorariosSecciones = TypesUtil.convertListToMapList("seccion.id", horarioSeccCicloBD);
-            Map<Long, List<HorarioAula>> mapHorariosAulas = TypesUtil.convertListToMapList("seccion.id", horarioAulaCicloBD);
-            Map<Long, List<HorarioAula>> mapHorariosAulasByKey = TypesUtil.convertListToMapList("key", horarioAulaCicloBD);
+//            Map<Long, List<HorarioAula>> mapHorariosAulas = TypesUtil.convertListToMapList("seccion.id", horarioAulaCicloBD);
+//            Map<Long, List<HorarioAula>> mapHorariosAulasByKey = TypesUtil.convertListToMapList("key", horarioAulaCicloBD);
 
             //List<ModalidadEstudio> modalidadesEtudio = modalidadEstudioDAO.allByCodigos(Arrays.asList(ModalidadEstudioEnum.PRE.name(), ModalidadEstudioEnum.EPG.name()));
             List<ModalidadEstudio> modalidadesDB = modalidadEstudioDAO.allPrePostgrado(new Compania(1L));
@@ -2424,90 +2446,84 @@ public class ProgDataServiceImp implements ProgDataService {
 
                 List<HorarioSeccion> horarioSecc = TypesUtil.getListNotNull(mapSeccHorarios.get(clave));
                 List<HorarioSeccion> horarioSeccBD = TypesUtil.getListNotNull(mapHorariosSecciones.get(seccion.getId()));
-                List<HorarioAula> horarioAulaBD = TypesUtil.getListNotNull(mapHorariosAulas.get(seccion.getId()));
+//                List<HorarioAula> horarioAulaBD = TypesUtil.getListNotNull(mapHorariosAulas.get(seccion.getId()));
 
                 if (horarioSecc.isEmpty()) {
                     for (HorarioSeccion hs : horarioSeccBD) {
                         horarioSeccionDAO.delete(hs);
                     }
-                    for (HorarioAula ha : horarioAulaBD) {
-                        horarioAulaDAO.delete(ha);
-                    }
+//                    for (HorarioAula ha : horarioAulaBD) {
+//                        horarioAulaDAO.delete(ha);
+//                    }
                     continue;
                 }
 
                 ModalidadEstudio modalidadAnexo = mapModalidadAnexo.get(seccion.getGrupoSeccion().getAnexoBoletin().getAnexoSuperior().getId());
                 EventoCicloAcademico eventoDictadoClases = mapEvento.get(modalidadAnexo.getId());
 
-                List<HorarioAula> horarioAula = TypesUtil.getListNotNull(mapAulaHorarios.get(clave));
-                ListsInspector inspectorHorAul = TypesUtil.analizeLists(horarioAulaBD, horarioAula, "key");
-
-                List<HorarioAula> nuevosHorAul = inspectorHorAul.getNewList();
-                List<HorarioAula> muertosHorAul = inspectorHorAul.getDeadList();
-                List<HorarioAula> antiguosHorAul = inspectorHorAul.getOldListDB();
-
-                boolean tieneCruces = false;
-                for (HorarioAula nuevo : nuevosHorAul) {
-                    if (eventoDictadoClases != null) {
-                        List<HorarioAula> horarioAulaKeys = TypesUtil.getListNotNull(mapHorariosAulasByKey.get(nuevo.getKey()));
-                        for (HorarioAula haKey : horarioAulaKeys) {
-                            boolean esMismaFecha = haKey.getFechaInicio().compareTo(eventoDictadoClases.getFechaInicio()) == 0;
-                            boolean esMismaSeccion = haKey.getSeccion().getId().compareTo(seccion.getId()) == 0;
-                            if (esMismaFecha && !esMismaSeccion) {
-                                tieneCruces = true;
-                            }
-                        }
-                    }
-                }
-                if (tieneCruces) {
-                    continue;
-                }
-
-                horarioAulaDAO.deleteAllInList(muertosHorAul);
-
-                Map<Date, Date> mapPeriodoHorarioAula = new LinkedHashMap();
-                if (!antiguosHorAul.isEmpty()) {
-                    for (HorarioAula ha : antiguosHorAul) {
-                        mapPeriodoHorarioAula.put(ha.getFechaInicio(), ha.getFechaFin());
-                    }
-                }
-
-                int contador = 0;
-                for (HorarioAula nuevo : nuevosHorAul) {
-                    logger.debug("\t ( {} / {} ) Agregando horario-aula {} {} {}", contador++, nuevosHorAul.size(), nuevo.getDia().getNumeroDia(), nuevo.getHora().getNumero(), nuevo.getSeccion().getCodigo());
-                    if (eventoDictadoClases != null) {
-                        if (antiguosHorAul.isEmpty()) {
-                            nuevo.setFechaInicio(eventoDictadoClases.getFechaInicio());
-                            nuevo.setFechaFin(eventoDictadoClases.getFechaFin());
-                            nuevo.setEstadoEnum(EstadoHorarioAulaEnum.ACT);
-                            nuevo.setTipoEnum(TipoHorarioAulaEnum.DICT);
-                            horarioAulaDAO.save(nuevo);
-
-                        } else if (mapPeriodoHorarioAula.isEmpty()) {
-                            nuevo.setFechaInicio(eventoDictadoClases.getFechaInicio());
-                            nuevo.setFechaFin(eventoDictadoClases.getFechaFin());
-                            nuevo.setEstadoEnum(EstadoHorarioAulaEnum.ACT);
-                            nuevo.setTipoEnum(TipoHorarioAulaEnum.DICT);
-                            horarioAulaDAO.save(nuevo);
-
-                        } else {
-                            for (Map.Entry<Date, Date> entryFecha : mapPeriodoHorarioAula.entrySet()) {
-                                HorarioAula nuevo2 = nuevo.clone();
-                                nuevo2.setFechaInicio(entryFecha.getKey());
-                                nuevo2.setFechaFin(entryFecha.getValue());
-                                nuevo2.setEstadoEnum(EstadoHorarioAulaEnum.ACT);
-                                nuevo2.setTipoEnum(TipoHorarioAulaEnum.DICT);
-                                horarioAulaDAO.save(nuevo);
-                            }
-                        }
-                    }
-                }
-
+//                List<HorarioAula> horarioAula = TypesUtil.getListNotNull(mapAulaHorarios.get(clave));
+//                ListsInspector inspectorHorAul = TypesUtil.analizeLists(horarioAulaBD, horarioAula, "key");
+//                List<HorarioAula> nuevosHorAul = inspectorHorAul.getNewList();
+//                List<HorarioAula> muertosHorAul = inspectorHorAul.getDeadList();
+//                List<HorarioAula> antiguosHorAul = inspectorHorAul.getOldListDB();
+//                boolean tieneCruces = false;
+//                for (HorarioAula nuevo : nuevosHorAul) {
+//                    if (eventoDictadoClases != null) {
+//                        List<HorarioAula> horarioAulaKeys = TypesUtil.getListNotNull(mapHorariosAulasByKey.get(nuevo.getKey()));
+//                        for (HorarioAula haKey : horarioAulaKeys) {
+//                            boolean esMismaFecha = haKey.getFechaInicio().compareTo(eventoDictadoClases.getFechaInicio()) == 0;
+//                            boolean esMismaSeccion = haKey.getSeccion().getId().compareTo(seccion.getId()) == 0;
+//                            if (esMismaFecha && !esMismaSeccion) {
+//                                tieneCruces = true;
+//                            }
+//                        }
+//                    }
+//                }
+//                if (tieneCruces) {
+//                    continue;
+//                }
+//                horarioAulaDAO.deleteAllInList(muertosHorAul);
+//                Map<Date, Date> mapPeriodoHorarioAula = new LinkedHashMap();
+//                if (!antiguosHorAul.isEmpty()) {
+//                    for (HorarioAula ha : antiguosHorAul) {
+//                        mapPeriodoHorarioAula.put(ha.getFechaInicio(), ha.getFechaFin());
+//                    }
+//                }
+//                int contador = 0;
+//                for (HorarioAula nuevo : nuevosHorAul) {
+//                    logger.debug("\t ( {} / {} ) Agregando horario-aula {} {} {}", contador++, nuevosHorAul.size(), nuevo.getDia().getNumeroDia(), nuevo.getHora().getNumero(), nuevo.getSeccion().getCodigo());
+//                    if (eventoDictadoClases != null) {
+//                        if (antiguosHorAul.isEmpty()) {
+//                            nuevo.setFechaInicio(eventoDictadoClases.getFechaInicio());
+//                            nuevo.setFechaFin(eventoDictadoClases.getFechaFin());
+//                            nuevo.setEstadoEnum(EstadoHorarioAulaEnum.ACT);
+//                            nuevo.setTipoEnum(TipoHorarioAulaEnum.DICT);
+//                            horarioAulaDAO.save(nuevo);
+//
+//                        } else if (mapPeriodoHorarioAula.isEmpty()) {
+//                            nuevo.setFechaInicio(eventoDictadoClases.getFechaInicio());
+//                            nuevo.setFechaFin(eventoDictadoClases.getFechaFin());
+//                            nuevo.setEstadoEnum(EstadoHorarioAulaEnum.ACT);
+//                            nuevo.setTipoEnum(TipoHorarioAulaEnum.DICT);
+//                            horarioAulaDAO.save(nuevo);
+//
+//                        } else {
+//                            for (Map.Entry<Date, Date> entryFecha : mapPeriodoHorarioAula.entrySet()) {
+//                                HorarioAula nuevo2 = nuevo.clone();
+//                                nuevo2.setFechaInicio(entryFecha.getKey());
+//                                nuevo2.setFechaFin(entryFecha.getValue());
+//                                nuevo2.setEstadoEnum(EstadoHorarioAulaEnum.ACT);
+//                                nuevo2.setTipoEnum(TipoHorarioAulaEnum.DICT);
+//                                horarioAulaDAO.save(nuevo2);
+//                            }
+//                        }
+//                    }
+//                }
                 ListsInspector inspectorHorSec = TypesUtil.analizeLists(horarioSeccBD, horarioSecc, "key");
                 List<HorarioSeccion> nuevosHorSec = inspectorHorSec.getNewList();
                 List<HorarioSeccion> muertosHorSec = inspectorHorSec.getDeadList();
 
-                contador = 0;
+                int contador = 0;
                 for (HorarioSeccion nuevo : nuevosHorSec) {
                     logger.debug("\t ( {} / {} ) Agregando horario-seccion {} {} {}", contador++, nuevosHorSec.size(), nuevo.getDia().getNumeroDia(), nuevo.getHora().getNumero(), nuevo.getSeccion().getCodigo());
                     if (eventoDictadoClases != null) {
@@ -2592,49 +2608,48 @@ public class ProgDataServiceImp implements ProgDataService {
                 visor.agregarLog("horSecc", "saveHorSecc", "horarios-seccion actualizados para " + seccion.getCodigo(), true, "info");
             }
 
-            for (Map.Entry<String, List<HorarioAula>> entry : mapAulaHorarios.entrySet()) {
-                String clave = entry.getKey();
-                logger.debug("clave {} de horarioSeccion", clave);
-                Seccion seccion = mapSecciones.get(clave);
-                if (seccion == null) {
-                    visor.agregarLog("horSecc", "saveHorSecc", "Horario-aula no se puede grabar para seccion " + clave + " no existente", false, "error");
-                    logger.debug("\tNo existe PTM!!!!");
-                }
-                //ModalidadEstudio modalidadAnexo = seccion.getGrupoSeccion().getCurso().getModalidadEstudio();
-                ModalidadEstudio modalidadAnexo = mapModalidadAnexo.get(seccion.getGrupoSeccion().getAnexoBoletin().getAnexoSuperior().getId());
-                EventoCicloAcademico eventoDictadoClases = this.getEventoClases(cicloAcademico, modalidadAnexo);
+//            for (Map.Entry<String, List<HorarioAula>> entry : mapAulaHorarios.entrySet()) {
+//                String clave = entry.getKey();
+//                logger.debug("clave {} de horarioSeccion", clave);
+//                Seccion seccion = mapSecciones.get(clave);
+//                if (seccion == null) {
+//                    visor.agregarLog("horSecc", "saveHorSecc", "Horario-aula no se puede grabar para seccion " + clave + " no existente", false, "error");
+//                    logger.debug("\tNo existe PTM!!!!");
+//                }
+            //ModalidadEstudio modalidadAnexo = seccion.getGrupoSeccion().getCurso().getModalidadEstudio();
+//                ModalidadEstudio modalidadAnexo = mapModalidadAnexo.get(seccion.getGrupoSeccion().getAnexoBoletin().getAnexoSuperior().getId());
+//                EventoCicloAcademico eventoDictadoClases = this.getEventoClases(cicloAcademico, modalidadAnexo);
+//
+//                List<HorarioAula> horarioAula = entry.getValue();
+//                List<HorarioAula> horarioAulaBD = mapHorariosAulas.get(seccion.getId());
+//                horarioAulaBD = (horarioAulaBD == null) ? new ArrayList() : horarioAulaBD;
+//                ListsInspector inspectorHorAul = TypesUtil.analizeLists(horarioAulaBD, horarioAula, "key");
+//
+//                List<HorarioAula> nuevosHorAul = inspectorHorAul.getNewList();
+//                List<HorarioAula> muertosHorAul = inspectorHorAul.getDeadList();
+//
+//                int contador = 0;
+//                for (HorarioAula nuevo : nuevosHorAul) {
+//                    logger.debug("\t ( {} / {} ) Agregando horario-aula {} {} {}", contador++, nuevosHorAul.size(), nuevo.getDia().getNumeroDia(), nuevo.getHora().getNumero(), nuevo.getSeccion().getCodigo());
+//                    if (eventoDictadoClases != null) {
+//                        nuevo.setFechaInicio(eventoDictadoClases.getFechaInicio());
+//                        nuevo.setFechaFin(eventoDictadoClases.getFechaFin());
+//                        nuevo.setEstadoEnum(EstadoHorarioAulaEnum.ACT);
+//                        nuevo.setTipoEnum(TipoHorarioAulaEnum.DICT);
+//                        horarioAulaDAO.save(nuevo);
+//                    }
+//                }
+//
+//                horarioAulaDAO.deleteAllInList(muertosHorAul);
+//
+//                List<HorarioAula> existentesBD = inspectorHorAul.getOldListDB();
+//                List<HorarioAula> existentesForm = inspectorHorAul.getOldListForm();
+            //Map<String, HorarioAula> mapHorarioAulaBD = existentesBD.stream().collect(Collectors.toMap(x -> x.getKey(), x -> x));
+            //Map<String, HorarioAula> mapHorarioAulaForm = existentesForm.stream().collect(Collectors.toMap(x -> x.getKey(), x -> x));
+            //Map<String, HorarioAula> mapHorarioAulaBD = TypesUtil.convertListToMap("key", existentesBD);
+            //Map<String, HorarioAula> mapHorarioAulaForm = TypesUtil.convertListToMap("key", existentesForm);
 
-                List<HorarioAula> horarioAula = entry.getValue();
-                List<HorarioAula> horarioAulaBD = mapHorariosAulas.get(seccion.getId());
-                horarioAulaBD = (horarioAulaBD == null) ? new ArrayList() : horarioAulaBD;
-                ListsInspector inspectorHorAul = TypesUtil.analizeLists(horarioAulaBD, horarioAula, "key");
-
-                List<HorarioAula> nuevosHorAul = inspectorHorAul.getNewList();
-                List<HorarioAula> muertosHorAul = inspectorHorAul.getDeadList();
-
-                int contador = 0;
-                for (HorarioAula nuevo : nuevosHorAul) {
-                    logger.debug("\t ( {} / {} ) Agregando horario-aula {} {} {}", contador++, nuevosHorAul.size(), nuevo.getDia().getNumeroDia(), nuevo.getHora().getNumero(), nuevo.getSeccion().getCodigo());
-                    if (eventoDictadoClases != null) {
-                        nuevo.setFechaInicio(eventoDictadoClases.getFechaInicio());
-                        nuevo.setFechaFin(eventoDictadoClases.getFechaFin());
-                        nuevo.setEstadoEnum(EstadoHorarioAulaEnum.ACT);
-                        nuevo.setTipoEnum(TipoHorarioAulaEnum.DICT);
-                        horarioAulaDAO.save(nuevo);
-                    }
-                }
-
-                horarioAulaDAO.deleteAllInList(muertosHorAul);
-
-                List<HorarioAula> existentesBD = inspectorHorAul.getOldListDB();
-                List<HorarioAula> existentesForm = inspectorHorAul.getOldListForm();
-                //Map<String, HorarioAula> mapHorarioAulaBD = existentesBD.stream().collect(Collectors.toMap(x -> x.getKey(), x -> x));
-                //Map<String, HorarioAula> mapHorarioAulaForm = existentesForm.stream().collect(Collectors.toMap(x -> x.getKey(), x -> x));
-
-                //Map<String, HorarioAula> mapHorarioAulaBD = TypesUtil.convertListToMap("key", existentesBD);
-                //Map<String, HorarioAula> mapHorarioAulaForm = TypesUtil.convertListToMap("key", existentesForm);
-
-                /*
+            /*
                 for (Map.Entry<String, HorarioAula> entry2 : mapHorarioAulaBD.entrySet()) {
                     HorarioAula hsBD = entry2.getValue();
                     HorarioAula hsForm = mapHorarioAulaForm.get(entry2.getKey());
@@ -2642,9 +2657,8 @@ public class ProgDataServiceImp implements ProgDataService {
                     logger.debug("\tActualizando horario-aula {} {} {}", hsBD.getDia().getNumeroDia(), hsBD.getHora().getNumero(), hsBD.getAula().getCodigo());
                     horarioAulaDAO.update(hsBD);
                 } //*/
-                visor.agregarLog("horAula", "saveHorAula", "horarios-aula actualizados para " + seccion.getCodigo(), true, "info");
-            }
-
+//                visor.agregarLog("horAula", "saveHorAula", "horarios-aula actualizados para " + seccion.getCodigo(), true, "info");
+//            }
             return horarios;
         } catch (FileNotFoundException ex) {
             ex.printStackTrace();
@@ -2822,12 +2836,66 @@ public class ProgDataServiceImp implements ProgDataService {
     private EventoCicloAcademico getEventoClases(CicloAcademico cicloAcademico, ModalidadEstudio modalidad) {
         EventoAcademicoEnum eventoEnum = cicloAcademico.getTipoEnum() == TipoCicloEnum.NIV
                 ? CLASES_VER
-                : (modalidad.isPregrado() ? CLASES_PRE : (modalidad.isPostgrado() ? CLASES_EPG : null));
+                : (modalidad.isPregrado() ? CLASES_PRE : (modalidad.isPostgrado() ? CLASES_EPG : (modalidad.isIdiomas() ? CLASES_PRE : null)));
         if (eventoEnum == null) {
             throw new PhobosException("No esta considerado el Dictado de clases para la modalidad " + modalidad.getNombre());
         }
 
         EventoCicloAcademico eventoCiclo = eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(cicloAcademico, eventoEnum);
+        if (eventoCiclo == null) {
+            int year = cicloAcademico.getYear();
+            double nroCiclo = Double.valueOf(cicloAcademico.getNumeroCiclo());
+            EventoAcademico evento = eventoAcademicoDAO.findByCodigo(eventoEnum);
+            CicloAcademico ciclo = cicloAcademico;
+            if (modalidad.getCodigoEnum() != cicloAcademico.getModalidadEstudio().getCodigoEnum()) {
+                ciclo = cicloAcademicoDAO.findByCodigoModalidadEstudio(cicloAcademico.getCodigo(), modalidad);
+            }
+
+            eventoCiclo = new EventoCicloAcademico();
+            eventoCiclo.setCicloAcademico(ciclo);
+            eventoCiclo.setEstado("CRE");
+            eventoCiclo.setEventoAcademico(evento);
+            eventoCiclo.setColor(new Color(2));
+            eventoCiclo.setUserRegistro(GlobalConstantine.USUARIO_ADMIN);
+            eventoCiclo.setFechaRegistro(new Date());
+
+            if (eventoEnum == CLASES_VER) {
+                if (nroCiclo == 0) {
+                    eventoCiclo.setFechaInicio(new DateTime(year + "-01-13").toDate());
+                    eventoCiclo.setFechaFin(new DateTime(year + "-02-14").toDate());
+
+                } else if (nroCiclo == 1.5) {
+                    eventoCiclo.setFechaInicio(new DateTime(year + "-08-01").toDate());
+                    eventoCiclo.setFechaFin(new DateTime(year + "-08-16").toDate());
+                }
+
+            } else if (eventoEnum == CLASES_PRE) {
+                if (nroCiclo == 1) {
+                    eventoCiclo.setFechaInicio(new DateTime(year + "-03-18").toDate());
+                    eventoCiclo.setFechaFin(new DateTime(year + "-07-06").toDate());
+
+                } else if (nroCiclo == 2) {
+                    eventoCiclo.setFechaInicio(new DateTime(year + "-08-20").toDate());
+                    eventoCiclo.setFechaFin(new DateTime(year + "-12-07").toDate());
+                }
+
+            } else if (eventoEnum == CLASES_EPG) {
+
+                if (nroCiclo == 1) {
+                    eventoCiclo.setFechaInicio(new DateTime(year + "-03-25").toDate());
+                    eventoCiclo.setFechaFin(new DateTime(year + "-07-14").toDate());
+
+                } else if (nroCiclo == 2) {
+                    eventoCiclo.setFechaInicio(new DateTime(year + "-09-04").toDate());
+                    eventoCiclo.setFechaFin(new DateTime(year + "-12-24").toDate());
+                }
+
+            }
+
+            Assert.isNotNull(eventoCiclo.getFechaInicio(), "No se pudo crear el evento-dictado-clases generico");
+            eventoCicloAcademicoDAO.save(eventoCiclo);
+        }
+
         return eventoCiclo;
     }
 

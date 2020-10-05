@@ -291,7 +291,7 @@ public class ProfesorServiceImp implements ProfesorService {
         //me indican que solo se debe actualizar foto documento
         Persona personaUpd = new Persona(personaForm.getId());
         personaUpd.setRutaFotoDocumento(personaForm.getFullRutaFotoTemporalDocumento());
-       // personaUpd.setRutaFotoTemporal(personaForm.getRutaFotoTemporal()); //     
+        // personaUpd.setRutaFotoTemporal(personaForm.getRutaFotoTemporal()); //     
         personaDAO.updateColumns(personaUpd, "rutaFotoDocumento");
         this.uploadS3(personaUpd.getFoto());
 
@@ -477,10 +477,13 @@ public class ProfesorServiceImp implements ProfesorService {
 
         Persona personaBD = personaDAO.find(persona.getId());
         boolean sinCambios = ObjectUtil.verificarIgualdad(personaBD, persona, Arrays.asList("paterno", "materno", "nombres", "numeroDocIdentidad"));
-        sinCambios = sinCambios && (persona.getTipoDocumento().getId() == personaBD.getTipoDocumento().getId().longValue());
-        if (sinCambios) {
-            logger.debug("No se encontró cambios de datos en la persona {}", personaBD.getId());
-            return personaBD;
+       
+        if (sinCambios && personaBD.getTipoDocumento() != null) {
+            sinCambios = sinCambios && (persona.getTipoDocumento().getId() == personaBD.getTipoDocumento().getId().longValue());
+            if (sinCambios) {
+                logger.debug("No se encontró cambios de datos en la persona {}", personaBD.getId());
+                return personaBD;
+            }
         }
 
         personaBD.setTipoDocumento(persona.getTipoDocumento());
@@ -609,10 +612,10 @@ public class ProfesorServiceImp implements ProfesorService {
     }
 
     @Override
-    public List<GrupoSeccion> allGpoSecciones(Docente docente, CicloAcademico ciclo, DataSessionPivot ds) {    
+    public List<GrupoSeccion> allGpoSecciones(Docente docente, CicloAcademico ciclo, DataSessionPivot ds) {
         Map<Long, GrupoSeccion> mapGpoSecc = new LinkedHashMap();
 
-        List<DocenteSeccion> profeSecciones = docenteSeccionDAO.allActivosByDocenteCiclo(docente, ciclo);  
+        List<DocenteSeccion> profeSecciones = docenteSeccionDAO.allActivosByDocenteCiclo(docente, ciclo);
         for (DocenteSeccion profeSecc : profeSecciones) {
             Seccion secc = profeSecc.getSeccion();
             secc.setDocenteSeccion(new ArrayList());
