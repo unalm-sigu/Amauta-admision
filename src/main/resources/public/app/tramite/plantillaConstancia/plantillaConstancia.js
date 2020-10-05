@@ -44,10 +44,9 @@ new Vue({
                 data: JSON.stringify($vue.plantilla),
                 success: function (response) {
                     if (response.success) {
-                        $global.$emit("reloadDyntable");
+                        $vue.$refs.raptor.loadRemoteData();
                         notify(response.message, 'info');
                         $vue.plantilla = {};
-                        console.log($vue.isNew);
                     }
                 }
             });
@@ -73,7 +72,7 @@ new Vue({
                 data: JSON.stringify($vue.plantilla),
                 success: function (response) {
                     if (response.success) {
-                        $global.$emit("reloadDyntable");
+                        $vue.$refs.raptor.loadRemoteData();
                         notify(response.message, 'info');
                     } else {
                         notify(response.message, 'error');
@@ -103,7 +102,7 @@ new Vue({
                             data: JSON.stringify($vue.plantilla),
                             success: function (response) {
                                 if (response.success) {
-                                    $global.$emit("reloadDyntable");
+                                    $vue.$refs.raptor.loadRemoteData();
                                     notify(response.message, 'info');
                                 } else {
                                     notify(response.message, 'error');
