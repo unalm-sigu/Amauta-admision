@@ -362,7 +362,6 @@ public class ProgDataServiceImp implements ProgDataService {
             Map<String, Persona> mapDNIPersonas, DataSessionPivot ds) {
 
 //        String kk = "miranda/ubaldo/alfides-teodoro";
-
         TipoDocIdentidad tipoDoc = persona.getTipoDocumento();
         if (tipoDoc != null && !StringUtils.isEmpty(persona.getNumeroDocIdentidad())) {
 //            if (persona.getKey().equals(kk)) {
@@ -1173,6 +1172,8 @@ public class ProgDataServiceImp implements ProgDataService {
             AnexoBoletin anexo = mapAnexos.get(gpoSecc.getCodigoAnexo());
 
             logger.debug("procesando el gpoSecc {}", gpoSecc.getCodigo3());
+            logger.debug("\t gpoSecc {} anexo {}", gpoSecc.getCodigo3(), anexo);
+            logger.debug("\t gpoSecc {} anexo {}", gpoSecc.getCodigo3(), anexo.getId());
             //logger.debug("\tbuscando curso {} resultado es {}", gpoSecc.getCodigoCurso(), curso);
             //logger.debug("\ttiene {} creditos - {} creditosVariables", curso.getCreditos(), curso.getCreditosVariables());
 
@@ -1767,7 +1768,7 @@ public class ProgDataServiceImp implements ProgDataService {
 //            mapEvento.put(modalidad.getId(), eventoDictadoClases);
 //        }
 
-        List<ModalidadEstudio> modalidadesDB = modalidadEstudioDAO.allPrePostgrado(new Compania(1L));
+        List<ModalidadEstudio> modalidadesDB = modalidadEstudioDAO.allForBoletin(new Compania(1L));
 
         //Map<Long, EventoCicloAcademico> mapEvento = new HashMap();
         for (ModalidadEstudio modalidad : modalidadesDB) {
@@ -1785,6 +1786,7 @@ public class ProgDataServiceImp implements ProgDataService {
         mapModalidadAnexo.put(2L, mapModalidadCodigo.get(ModalidadEstudioEnum.PRE.name()));
         mapModalidadAnexo.put(3L, mapModalidadCodigo.get(ModalidadEstudioEnum.PRE.name()));
         mapModalidadAnexo.put(4L, mapModalidadCodigo.get(ModalidadEstudioEnum.EPG.name()));
+        mapModalidadAnexo.put(5L, mapModalidadCodigo.get(ModalidadEstudioEnum.IDIOM.name()));
 
         int loop = 0;
         Map<String, DocenteSeccion> mapDocenteSecciones = new LinkedHashMap();
@@ -1939,7 +1941,7 @@ public class ProgDataServiceImp implements ProgDataService {
                     visor.agregarLog("aluSecc", "saveAluSecc", "Alumno-Seccion " + matriSecc.getCodigoAlumno() + "-" + matriSecc.getCodigoSeccion()
                             + " produjo error: " + e.getLocalizedMessage(),
                             false, "error-proceso");
-                    e.printStackTrace();
+
                     break;
                 } else {
                     intentos++;
@@ -2830,7 +2832,7 @@ public class ProgDataServiceImp implements ProgDataService {
     private EventoCicloAcademico getEventoClases(CicloAcademico cicloAcademico, ModalidadEstudio modalidad) {
         EventoAcademicoEnum eventoEnum = cicloAcademico.getTipoEnum() == TipoCicloEnum.NIV
                 ? CLASES_VER
-                : (modalidad.isPregrado() ? CLASES_PRE : (modalidad.isPostgrado() ? CLASES_EPG : null));
+                : (modalidad.isPregrado() ? CLASES_PRE : (modalidad.isPostgrado() ? CLASES_EPG : (modalidad.isIdiomas() ? CLASES_PRE : null)));
         if (eventoEnum == null) {
             throw new PhobosException("No esta considerado el Dictado de clases para la modalidad " + modalidad.getNombre());
         }

@@ -261,7 +261,7 @@ public class GrupoSeccionDAOH extends AbstractEasyDAO<GrupoSeccion> implements G
                 .from(GrupoSeccion.class, "gs")
                 .join("curso cur", "cicloAcademico ca", "anexoBoletin anx", "anx.anexoSuperior ans")
                 .leftJoin("cur.modalidadEstudio")
-                .filter("ans.id", 4L)
+                //.filter("ans.id", 4L)
                 .filter("ca.id", ciclo);
         
         return all(sql);
