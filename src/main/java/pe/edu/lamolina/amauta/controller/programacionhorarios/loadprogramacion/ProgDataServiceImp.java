@@ -1161,6 +1161,16 @@ public class ProgDataServiceImp implements ProgDataService {
         List<String> codigosByCiclo = grupoSeccionDAO.allCodigoByCiclo(ciclo);
         List<String> codigos2ByCiclo = grupoSeccionDAO.allCodigo2ByCiclo(ciclo);
 
+        List<PrecioCursoEstructura> cursoPreciosByTpc = precioCursoEstructuraDAO.allByCiclo(ciclo);
+        List<CursoCicloAcademico> cursosByCiclo = cursoCicloAcademicoDAO.allByCiclo(ciclo);
+        Set<String> setCursoTpc = cursoPreciosByTpc.stream().map(PrecioCursoEstructura::getTpc).collect(Collectors.toSet());
+        Set<Curso> setCursosByCiclo = cursosByCiclo.stream().map(CursoCicloAcademico::getCurso).collect(Collectors.toSet());
+
+        List<CursoCurricula> cursosCurricula = cursoCurriculaDAO.allByTipoCursoCurriculaEnum(TipoCursoCurriculaEnum.GEN);
+        TipoCursoCurricula tipoCursoGral = tipoCursoCurriculaDAO.findByCodigo(TipoCursoCurriculaEnum.GEN);
+        TipoCursoCurricula tipoCursoOblig = tipoCursoCurriculaDAO.findByCodigo(TipoCursoCurriculaEnum.OBL);
+        Map<Long, CursoCurricula> curCurriculaMap = TypesUtil.convertListToMap("curso.id", cursosCurricula);
+
         int loop = 0;
         for (GrupoSeccion gpoSecc : gruposSecciones) {
             if (visor.isStop()) {
@@ -1284,16 +1294,10 @@ public class ProgDataServiceImp implements ProgDataService {
 //                    gpoSeccBD.getCurso().getId(), gpoSeccBD.getCurso().getCodigo(),
 //                    gpoSeccBD.getAnexoBoletin().getId(),
 //                    gpoSeccBD.getAnexoBoletin().getAnexoSuperior().getId());
+//
             if (ciclo.getTipoEnum() == TipoCicloEnum.NIV) {
-                List<CursoCurricula> cursosCurricula = cursoCurriculaDAO.allByTipoCursoCurriculaEnum(TipoCursoCurriculaEnum.GEN);
-                TipoCursoCurricula tipocursogeneral = tipoCursoCurriculaDAO.findByCodigo(TipoCursoCurriculaEnum.GEN);
-                TipoCursoCurricula tipocursoobligatorio = tipoCursoCurriculaDAO.findByCodigo(TipoCursoCurriculaEnum.OBL);
-                Map<Long, CursoCurricula> curCurriculaMap = TypesUtil.convertListToMap("curso.id", cursosCurricula);
-                List<PrecioCursoEstructura> precioCursoEstructura = precioCursoEstructuraDAO.allByCiclo(ciclo);
-                List<CursoCicloAcademico> cursoCicloAcademico = cursoCicloAcademicoDAO.allByCiclo(ciclo);
-                Set<String> tpcs = precioCursoEstructura.stream().map(PrecioCursoEstructura::getTpc).collect(Collectors.toSet());
-                if (curso.getTpc() != null && !tpcs.contains(curso.getTpc())) {
-                    tpcs.add(curso.getTpc());
+                if (curso.getTpc() != null && !setCursoTpc.contains(curso.getTpc())) {
+                    setCursoTpc.add(curso.getTpc());
 
                     PrecioCursoEstructura pce = new PrecioCursoEstructura();
                     pce.setCicloAcademico(ciclo);
@@ -1306,13 +1310,13 @@ public class ProgDataServiceImp implements ProgDataService {
 
                     precioCursoEstructuraDAO.save(pce);
                 }
-                Set<Curso> cursos = cursoCicloAcademico.stream().map(CursoCicloAcademico::getCurso).collect(Collectors.toSet());
+
                 int factorHoras = 3;
                 int horasTeoria = curso.getHorasTeoria() * factorHoras;
                 int horasPractica = curso.getHorasPractica() * factorHoras;
 
-                if (!cursos.contains(curso)) {
-                    cursos.add(curso);
+                if (!setCursosByCiclo.contains(curso)) {
+                    setCursosByCiclo.add(curso);
 
                     CursoCicloAcademico cca = new CursoCicloAcademico();
                     cca.setCicloAcademico(ciclo);
@@ -1325,9 +1329,9 @@ public class ProgDataServiceImp implements ProgDataService {
                     cca.setCurso(curso);
                     cca.setMinimoAlumnos(BigDecimal.ZERO);
 
-                    cca.setTipoCursoCurricula(tipocursoobligatorio);
+                    cca.setTipoCursoCurricula(tipoCursoOblig);
                     if (curCurriculaMap.get(curso.getId()) != null) {
-                        cca.setTipoCursoCurricula(tipocursogeneral);
+                        cca.setTipoCursoCurricula(tipoCursoGral);
                     }
                     cursoCicloAcademicoDAO.save(cca);
                 }
