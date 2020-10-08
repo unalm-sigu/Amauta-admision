@@ -2064,7 +2064,7 @@ public class ProgDataServiceImp implements ProgDataService {
             }
 
             GrupoSeccion grupoSeccion = mapGrupoSecciones.get(gpoSecc.getId());
-            logger.debug("\tanalizando anulacion del gpo-sección {}", gpoSecc.getCodigo3());
+            logger.debug("\tanalizando anulacion del gpo-sección {} :::: id {}", gpoSecc.getCodigo3(), gpoSecc.getId());
             visor.agregarLog("gpoSeccBD", "revisarGpoSecc", "revisando gpoSeccion " + gpoSecc.getCodigo3(), false, "info");
 
             if (grupoSeccion == null) {

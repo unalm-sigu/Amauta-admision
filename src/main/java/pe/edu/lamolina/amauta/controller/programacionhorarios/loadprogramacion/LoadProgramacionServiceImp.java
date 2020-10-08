@@ -737,7 +737,12 @@ public class LoadProgramacionServiceImp implements LoadProgramacionService {
 
                 String codigoAlumno = getCellStringValue(2, row);
                 String codigoSeccion = getCellStringValue(3, row);
-                Integer creditos = Integer.valueOf(getCellStringValue(4, row));
+                String credXls = getCellStringValue(4, row);
+                //System.out.println("credXls = <<" + credXls + ">>");
+                if (StringUtils.isEmpty(credXls)) {
+                    credXls = "0";
+                }
+                Integer creditos = Integer.valueOf(credXls);
 
                 MatriculaSeccion alumnoSecc = new MatriculaSeccion(codigoAlumno, codigoSeccion, creditos);
                 if (rev.contains(codigoAlumno)) {
