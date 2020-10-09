@@ -37,14 +37,7 @@ public class SituacionAcademicaServiceImp implements SituacionAcademicaService {
             Integer ciclosEstudiados,
             Integer capa,
             CicloAcademico cicloAcademico) {
-        /* if (situacionAcademicaIni == null) {
-            alumno = alumnoDAO.find(alumno);
-            if (alumno.getModalidadEstudio().isPregrado()) {
-                situacionAcademicaIni = situacionAcademicaDAO.findByCodigo(SituacionAcademicaEnum.S_8.getValue());
-            } else {
-                situacionAcademicaIni = situacionAcademicaDAO.findByCodigo(SituacionAcademicaEnum.S_N.getValue());
-            }
-        }*/
+
         SituacionConfig config = new SituacionConfig();
         config.setSituacionInicial(situacionAcademicaIni);
         config.setAprobado(alumnoCiclo.getEstaAprobado());
@@ -54,12 +47,7 @@ public class SituacionAcademicaServiceImp implements SituacionAcademicaService {
         config.setSiguienteCiclo(BigDecimal.ONE.intValue());
         config.setTramite(-1);
         config.setCicloRegular(cicloAcademico.isTipoRegular() ? BigDecimal.ONE.intValue() : BigDecimal.ZERO.intValue());
-        /*
-        logger.debug("Situacion Inicial {}, Esta Aprobado {}, Ciclos Estudiados {}, Capa {}, Ciclo Regular {}",
-                situacionAcademicaIni.getId(), alumnoCiclo.getEstaAprobado(),
-                ciclosEstudiados, situacionConfig.getCapa(), situacionConfig.getCicloRegular());
-         */
-        //   SituacionConfig situacionFinal = situacionConfigDAO.findForSituacionFinal(situacionConfig);
+
         SituacionConfig situacionFinal = situacionConfigDAO.findsSituacionConfig(config);
         if (situacionFinal == null) {
             ObjectUtil.printAttr(config);

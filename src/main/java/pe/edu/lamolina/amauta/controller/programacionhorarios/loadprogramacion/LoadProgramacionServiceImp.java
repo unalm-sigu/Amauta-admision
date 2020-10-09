@@ -285,26 +285,6 @@ public class LoadProgramacionServiceImp implements LoadProgramacionService {
         long t2 = System.currentTimeMillis();
         logger.debug("\tsavePersonas ejecutado en {} mseg", (t2 - t1));
 
-//        for (Persona persona : personas) {
-//            if (visor.isStop()) {
-//                throw new PhobosException("Carga detenida intespestivamente");
-//            }
-//
-//            if (mapIdPersonas.get(persona.getId()) == null) {
-//                mapIdPersonas.put(persona.getId(), persona);
-//            }
-//        }
-//        List<Alumno> alumnosDB = alumnoDAO.all();
-//        Map<String, Alumno> mapAlumnos = TypesUtil.convertListToMap("codigo", alumnosDB);
-//        for (Alumno alumno : alumnosDB) {
-//            Persona persona = mapIdPersonas.get(alumno.getPersona().getId());
-//            if (persona != null) {
-//                alumno.setPersona(persona);
-//            }
-//        }
-//        List<SituacionAcademica> situaciones = situacionAcademicaDAO.all();
-//        Map<String, SituacionAcademica> mapSituaciones = TypesUtil.convertListToMap("codigo", situaciones);
-
         t1 = System.currentTimeMillis();
         Map<String, Curso> mapCursos = cursoDAO.all().stream().filter(x -> x.getCodigo() != null).collect(Collectors.toMap(x -> x.getCodigo(), x -> x, (a, b) -> a));
         Map<String, DepartamentoAcademico> mapDepartamentosAcademicos = departamentoAcademicoDAO.all().stream().filter(x -> x.getCodigo() != null).collect(Collectors.toMap(x -> x.getCodigo(), x -> x, (a, b) -> a));
@@ -757,7 +737,12 @@ public class LoadProgramacionServiceImp implements LoadProgramacionService {
 
                 String codigoAlumno = getCellStringValue(2, row);
                 String codigoSeccion = getCellStringValue(3, row);
-                Integer creditos = Integer.valueOf(getCellStringValue(4, row));
+                String credXls = getCellStringValue(4, row);
+                //System.out.println("credXls = <<" + credXls + ">>");
+                if (StringUtils.isEmpty(credXls)) {
+                    credXls = "0";
+                }
+                Integer creditos = Integer.valueOf(credXls);
 
                 MatriculaSeccion alumnoSecc = new MatriculaSeccion(codigoAlumno, codigoSeccion, creditos);
                 if (rev.contains(codigoAlumno)) {

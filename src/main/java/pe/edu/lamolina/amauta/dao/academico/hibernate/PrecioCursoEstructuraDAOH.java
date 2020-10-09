@@ -29,25 +29,28 @@ public class PrecioCursoEstructuraDAOH extends AbstractEasyDAO<PrecioCursoEstruc
         StringBuilder sql = new StringBuilder();
 
         sql.append(" select new PrecioCursoEstructura ( ");
-        sql.append(" pce.id, ");
-        sql.append(" pce.tpc, ");
-        sql.append(" pce.creditos, ");
-        sql.append(" pce.precio, ");
-        sql.append(" pce.estado, ");
-        sql.append(" count(*) )");
+        sql.append("   pce.id, ");
+        sql.append("   pce.tpc, ");
+        sql.append("   pce.creditos, ");
+        sql.append("   pce.precio, ");
+        sql.append("   pce.estado, ");
+        sql.append("   ( ");
+        sql.append("      select count(*) ");
+        sql.append("        from GrupoSeccion as gs ");
+        sql.append("       inner join gs.curso cu ");
+        sql.append("       inner join gs.cicloAcademico ci ");
+        sql.append("       where ci.id = ci2.id ");
+        sql.append("         and concat(cu.horasTeoria, '-', cu.horasPractica, '-', ");
+        sql.append("             case cu.tipoCredito when 'FIJO' then cu.creditos else concat('[0 a ',cu.creditosVariables,']') end ) ");
+        sql.append("             = pce.tpc ");
+        sql.append("   ) ");
+        sql.append(" ) ");
 
-        sql.append(" from GrupoSeccion as gs ");
-        sql.append("        inner join gs.curso cur ");
-        sql.append("        inner join gs.cicloAcademico ca, ");
-        sql.append("      PrecioCursoEstructura as pce ");
-        sql.append("        inner join pce.cicloAcademico ca2 ");
+        sql.append(" from PrecioCursoEstructura as pce ");
+        sql.append("      inner join pce.cicloAcademico ci2 ");
 
-        sql.append(" where ca.id = :CICLO and ");
-        sql.append("       ca2.id =  :CICLO and ");
-        sql.append("       pce.estado = :ESTADO and ");
-        sql.append("       concat(cur.horasTeoria, '-', cur.horasPractica, '-', cur.creditos) = pce.tpc ");
-
-        sql.append(" group by pce.id ");
+        sql.append(" where ci2.id =  :CICLO ");
+        sql.append("   and pce.estado = :ESTADO ");
 
         Query query = getCurrentSession().createQuery(sql.toString());
 
