@@ -76,6 +76,7 @@ public class CicloAcademicoServiceImp implements CicloAcademicoService {
             cicloAcademicoNew.setUserRegistro(usuario);
             cicloAcademicoNew.setYear(cicloAcademico.getYear());
             cicloAcademicoNew.setModalidadEstudio(cicloAcademico.getModalidadEstudio());
+            cicloAcademicoNew.setFechaEntregaActas(cicloAcademico.getFechaEntregaActas());
             cicloAcademicoDAO.save(cicloAcademicoNew);
         }
     }
@@ -96,6 +97,7 @@ public class CicloAcademicoServiceImp implements CicloAcademicoService {
         cicloAcademicoDB.setDescripcion2(numeroCicloAcademicoEnum.getDescripcion2().replace("XXXX", cicloAcademico.getYear().toString()));
         cicloAcademicoDB.setDescripcion3(numeroCicloAcademicoEnum.getDescripcion3().replace("XXXX", cicloAcademico.getYear().toString()));
         cicloAcademicoDB.setCodigo(numeroCicloAcademicoEnum.getCodigo().replace("XXXX", cicloAcademico.getYear().toString()));
+        cicloAcademicoDB.setFechaEntregaActas(cicloAcademico.getFechaEntregaActas());
         cicloAcademicoDAO.update(cicloAcademicoDB);
     }
 

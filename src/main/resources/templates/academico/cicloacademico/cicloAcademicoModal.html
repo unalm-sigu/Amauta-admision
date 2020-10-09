@@ -45,12 +45,12 @@
                 <label for="fechaNacimiento" class="col-sm-3 control-label">Fecha de entrega Actas</label>
                 <div class="col-sm-9">
                     <div class="input-group date" >
-                        <input  type="text" class="form-control" data-parsley-errors-container="#errorfechaEntragaActas" 
-                                name="fechaEntragaActas" id="fechaEntragaActas" 
-                                th:value="${cicloAcademico!=null} ? ${cicloAcademico.fechaEntragaActas!=null ? #dates.format(cicloAcademico.fechaEntragaActas,'dd/MM/yyyy'):''}"/>
+                        <input  type="text" class="form-control" data-parsley-errors-container="#errorfechaEntregaActas" 
+                                name="fechaEntregaActas" id="fechaEntregaActas" 
+                                th:value="${cicloAcademico!=null} ? ${cicloAcademico.fechaEntregaActas!=null ? #dates.format(cicloAcademico.fechaEntregaActas,'dd/MM/yyyy'):''}"/>
                         <span class="input-group-addon pointer"><i class="fa fa-calendar" aria-hidden="true"></i></span>
                     </div>
-                    <span id="errorfechaEntragaActas"></span>
+                    <span id="errorfechaEntregaActas"></span>
                 </div>
             </div>
 

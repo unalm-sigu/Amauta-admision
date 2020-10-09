@@ -10,7 +10,8 @@ new Vue({
             id: 'modalAddCicloAcademico',
             header: true,
             title: 'Ciclo académico',
-            okbtn: 'Guardar'
+            okbtn: 'Guardar',
+            showaccept: true
         },
         addAnularCicloModal: {
             id: 'modalAddAnularCiclo',
@@ -94,6 +95,7 @@ new Vue({
                         vue.cicloAcademico = response.data;
                         $('[name="modalidadEstudio.id"]').select2('val', response.data.modalidadEstudio.id);
                         $('[name="numeroCiclo"]').select2('val', response.data.numeroCiclo);
+                        $('[name="fechaEntregaActas"]').val(response.data.fechaEntregaActas);
                     } else {
                         notify(response.message, 'error');
                     }
