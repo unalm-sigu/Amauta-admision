@@ -660,10 +660,10 @@ public class PromedioServiceImp implements PromedioService {
             this.printSystem("Fin ciclo=" + ciclo.getCodigo()
                     + ", reg-val=" + alumnoCicloEach.isRegistroValido()
                     + ", estado-ciclo=" + alumnoCicloEach.getEstado()
-//                    + ", sit-inicio=" + alumnoCicloEach.getSituacionInicio() != null ? alumnoCicloEach.getSituacionInicio().getCodigo() : "cachimbo sin situación"
+                    //                    + ", sit-inicio=" + alumnoCicloEach.getSituacionInicio() != null ? alumnoCicloEach.getSituacionInicio().getCodigo() : "cachimbo sin situación"
                     + ", prom=" + alumnoCicloEach.getPromedioCiclo()
                     + ", ap=" + alumnoCicloEach.getEstaAprobado(),
-//                    + ", sit-final=" + alumnoCicloEach.getSituacionFinal() != null ? alumnoCicloEach.getSituacionFinal().getCodigo() : "cachimbo sin situación",
+                    //                    + ", sit-final=" + alumnoCicloEach.getSituacionFinal() != null ? alumnoCicloEach.getSituacionFinal().getCodigo() : "cachimbo sin situación",
                     showError);
         }
         this.printSystem("++++++++++++++++++++++++++++++++++++++++++++++++", showError);
@@ -890,8 +890,8 @@ public class PromedioServiceImp implements PromedioService {
                 cicloIngreso = primerCicloCursado;
             }
         }
-
-        if (cicloIngreso.getCodigoInt() >= cicloActivo.getCodigoInt()) {
+        Date hoy = new Date();
+        if (cicloIngreso.getCodigoInt() >= cicloActivo.getCodigoInt() && (cicloActivo.getFechaEntregaActas() != null && cicloActivo.getFechaEntregaActas().compareTo(hoy) > 0)) {
             return null;
         }
 

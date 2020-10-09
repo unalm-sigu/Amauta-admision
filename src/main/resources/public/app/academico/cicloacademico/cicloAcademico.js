@@ -54,6 +54,8 @@ new Vue({
         $global.$on("configurarCiclo", function (id) {
             vue.configurarCiclo(id);
         });
+
+        $(".date").datepicker();
         vue.margen = margen;
         vue.filtroInicial();
 
