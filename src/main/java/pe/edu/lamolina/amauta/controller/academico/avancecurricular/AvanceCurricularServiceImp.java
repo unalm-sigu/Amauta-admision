@@ -58,6 +58,7 @@ import pe.edu.lamolina.amauta.dao.academico.ResumenPlanCurricularDAO;
 import pe.edu.lamolina.amauta.dao.academico.TipoCursoCurriculaDAO;
 import pe.edu.lamolina.amauta.dao.posgrado.CursoHabilEscuelaDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 
 @Service
 @Transactional(readOnly = true)
@@ -446,7 +447,20 @@ public class AvanceCurricularServiceImp implements AvanceCurricularService {
     public void generarAvanceCurricularByAlumnosPregrados(List<Alumno> alumnosForm, DataSessionPivot ds, String token) {
         List<Alumno> alumnosBD = alumnoDAO.allWithAllInfo(alumnosForm);
         List<Alumno> alumnos = alumnosBD.stream().filter(x -> x.isPregrado()).collect(Collectors.toList());
+        List<Alumno> alumnosPosgrado = new ArrayList();
 
+        // se realiza de esta manera por que sale un error de serialización
+        for (Alumno alumno : alumnosBD) {
+            if (alumno.getModalidadEstudio().getCodigoEnum() == ModalidadEstudioEnum.EPG) {
+                System.out.println("alumno " + alumno.getCodigo() + " no tiene plan-curricular");
+                visorCalculoNotas.incrementarToken(token);
+                alumnosPosgrado.add(alumno);
+                continue;
+            }
+        }
+        if (visorCalculoNotas.allAlumnosByToken(token).size() == alumnosPosgrado.size()) {
+            return;
+        }
         List<PlanCurricular> planCurriculars = planCurricularDAO.all();
         Map<Long, PlanCurricular> mapPlanes = TypesUtil.convertListToMap("id", planCurriculars);
 

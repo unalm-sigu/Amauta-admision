@@ -232,7 +232,7 @@ public class PromedioServiceImp implements PromedioService {
                     allReincorporacionesByAlumno, ds,
                     throwError, showError);
         } catch (Exception e) {
-            e.printStackTrace();
+             throw new PhobosException(e.getLocalizedMessage());
         }
 
         visorCalculoNotas.incrementarToken(token);

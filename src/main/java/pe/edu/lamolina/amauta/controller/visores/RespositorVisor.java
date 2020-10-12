@@ -38,6 +38,7 @@ public class RespositorVisor {
         if (this.contador != null) {
             this.contador = this.contador + 1;
             this.cantidadTotalTemp = this.cantidadTotalTemp - 1;
+            logger.info("Ingrementar al {} ", contador);
         }
     }
 

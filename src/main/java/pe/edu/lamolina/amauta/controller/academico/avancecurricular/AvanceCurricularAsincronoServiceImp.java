@@ -204,7 +204,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
                     mapCursoCurriculaAll,
                     mapRequisitoCursoOpcionals,
                     ds, false);
-            logger.info("Finalizo revision avance curricular del alumno {}", alumno.getCodigo());
+            logger.debug("Finalizo revision avance curricular del alumno {}", alumno.getCodigo());
             visorCalculoNotas.incrementarToken(token);
 
         } catch (Exception e) {

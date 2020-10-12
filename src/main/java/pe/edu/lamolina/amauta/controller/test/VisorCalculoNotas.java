@@ -1,5 +1,6 @@
 package pe.edu.lamolina.amauta.controller.test;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -72,6 +73,9 @@ public class VisorCalculoNotas {
     }
 
     public List<Alumno> allAlumnosByToken(String token) {
+        if (token == null) {
+            return new ArrayList<>();
+        }
         return mapTokenAlumnos.get(token);
     }
 
