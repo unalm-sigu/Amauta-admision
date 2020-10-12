@@ -2181,7 +2181,7 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
                     alumnoCiclosCursosAllByAlu,
                     reincorporacionesByAlumno,
                     ds,
-                    tokenProm, true, true);
+                    tokenProm, false, false);
         }
     }
 
