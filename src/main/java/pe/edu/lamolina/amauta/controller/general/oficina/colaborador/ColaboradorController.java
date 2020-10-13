@@ -548,7 +548,7 @@ public class ColaboradorController {
 
         for (Colaborador colaborador : colaboradores) {
             ObjectNode node = JsonHelper.createJson(colaborador, JsonNodeFactory.instance, new String[]{
-                "id", "estado", "estadoEnum", "codigo",
+                "id", "estado", "estadoEnum", "codigo", "esJefeOficina",
                 "oficina.id",
                 "oficina.nombre",
                 "cargo.id",

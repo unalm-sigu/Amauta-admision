@@ -5,6 +5,7 @@ new Vue({
     el: '#pageOficinasVUE',
     data: {
         oficinasURL: APP.url(rutaModulo + '/all'),
+        tiposOficinas: JSON.parse(tiposOficinasJson),
         oficina: {personaJefe: {}, jefeEncargado: {}},
         ausencia: {oficina: {}, jefe: {}, encargado: {}},
         cfgColaboradores: VUE_MODAL.structInfo({
@@ -30,6 +31,7 @@ new Vue({
         }),
         configConfirmAction: VUE_MODAL.structConfirm({}),
         oficinaSelect: {},
+        tipoOficinaSelect: null,
         personas: [],
         colaboradores: [],
         modalBootbox: {},
@@ -42,6 +44,18 @@ new Vue({
 
     },
     methods: {
+        getParameterQuery(param) {
+            let $vue = this;
+            let value = $vue.$refs.raptorOficinas.getParameterByName('queries[' + param + ']');
+            value = (value === null) ? '' : value;
+            return value;
+        },
+        setParameterQuery(param, value) {
+            let $vue = this;
+            if (value !== '') {
+                $vue.$refs.raptorOficinas.querie.push({name: param, value: value});
+            }
+        },
         classEstado(item) {
             var classesEstado = {ACT: "label-success", INA: "label-danger"};
             return classesEstado[item.estado];
@@ -380,6 +394,20 @@ new Vue({
                         console.log(error);
                         notify(Messages.errorComunicacion, "error");
                     });
+        },
+        loadRegistros() {
+            let $vue = this;
+            $vue.$refs.raptorOficinas.querie = [];
+            $vue.$refs.raptorOficinas.changeUrl('queries[tipo-oficina]', null);
+            if ($vue.tipoOficinaSelect !== null) {
+                $vue.setParameterQuery('tipo-oficina', $vue.tipoOficinaSelect.id);
+            }
+            $vue.$refs.raptorOficinas.loadRemoteData(true);
+        },
+        clearTipoOficina() {
+            let $vue = this;
+            $vue.tipoOficinaSelect = null;
+            $vue.loadRegistros();
         },
         getOrigenURL() {
             var url = window.location.href;

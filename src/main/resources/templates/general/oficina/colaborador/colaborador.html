@@ -113,11 +113,23 @@
                                                     <small v-if="item.codigo != '' " class="block">
                                                         <strong>Email:</strong> {{item.persona.emailCompania}}
                                                     </small> 
+
                                                 </td>
 
                                                 <td class="v-middle">
                                                     <span class="block"><strong>Oficina:</strong> {{item.oficina.nombre}}</span> 
                                                     <span><strong>Cargo:</strong> {{item.cargo.nombre}}</span> 
+                                                    <div class="block" v-if="item.esJefeOficina " >
+                                                        <div v-if="item.estado == 'RET' " class="label label-default">
+                                                            Era jefe de esta unidad administrativa
+                                                        </div> 
+                                                        <div v-else-if="item.estado == 'DESP' " class="label label-default">
+                                                            Era jefe de esta unidad administrativa
+                                                        </div> 
+                                                        <div v-else="" class="label label-danger">
+                                                            Jefe de esta unidad administrativa
+                                                        </div> 
+                                                    </div> 
                                                 </td>
 
                                                 <td class="v-middle text-center">
@@ -142,7 +154,7 @@
                                                                     <a v-text="estado.value" class="pointer"
                                                                        v-on:click="verChangeEstado(item,estado)">Changex</a>
                                                                 </li>
-                                                                
+
                                                             </template>
                                                             <li v-else="">
                                                                 <a v-for="estado in estadosEmp"
@@ -151,8 +163,8 @@
                                                                    class="pointer">Activar</a>
                                                             </li>
                                                             <li class="divider"></li>
-                                                                <li><a class="pointer" v-on:click="updateColaborador(item)">Editar funciones</a></li>
-                                                                <li><a class="pointer" v-on:click="updatePersona(item)">Editar info personal</a></li>
+                                                            <li><a class="pointer" v-on:click="updateColaborador(item)">Editar funciones</a></li>
+                                                            <li><a class="pointer" v-on:click="updatePersona(item)">Editar info personal</a></li>
                                                         </ul>
                                                     </div>
 
@@ -186,11 +198,11 @@
             var rutaModulo = 'general/oficina/' + /*[[${oficina.id}]]*/ json;
             /*]]>*/
         </script>
-        
+
         <div th:substituteby="_modules/vue-raptor-table"></div>
-    
-        
-        
+
+
+
         <script th:src="@{/app/general/oficina/colaborador/colaborador.js}" charset="utf-8"></script>
     </div>
 </html>

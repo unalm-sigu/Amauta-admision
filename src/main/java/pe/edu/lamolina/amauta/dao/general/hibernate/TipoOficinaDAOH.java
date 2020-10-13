@@ -16,10 +16,18 @@ public class TipoOficinaDAOH extends AbstractEasyDAO<TipoOficina> implements Tip
     }
 
     @Override
+    public List<TipoOficina> all() {
+        Octavia sql = Octavia.query()
+                .from(TipoOficina.class, "t")
+                .orderBy("t.nombre");
+        return all(sql);
+    }
+
+    @Override
     public TipoOficina findByCodigo(String codigo) {
         Octavia sql = Octavia.query()
-                .from(TipoOficina.class, "ofi")
-                .filter("codigo", codigo);
+                .from(TipoOficina.class, "t")
+                .filter("t.codigo", codigo);
         return find(sql);
     }
 
@@ -27,8 +35,8 @@ public class TipoOficinaDAOH extends AbstractEasyDAO<TipoOficina> implements Tip
     public List<TipoOficina> allByName(String nombre) {
         nombre = "%" + nombre.replaceAll(" ", "%") + "%";
         Octavia sql = Octavia.query()
-                .from(TipoOficina.class, "tipo")
-                .filter("tipo.nombre", "like", nombre);
+                .from(TipoOficina.class, "t")
+                .filter("t.nombre", "like", nombre);
         return all(sql);
     }
 }

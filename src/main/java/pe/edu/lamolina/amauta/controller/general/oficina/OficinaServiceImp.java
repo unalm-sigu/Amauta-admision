@@ -352,6 +352,7 @@ public class OficinaServiceImp implements OficinaService {
         colaborador.setUserRegistro(ds.getUsuario());
         colaborador.setCargo(oficinaBD.getCargoJefe());
         colaborador.setCodigo(getCodigoColaborador() + "");
+        colaborador.setEsJefeOficina(true);
         colaboradorDAO.save(colaborador);
 
         PerfilCompania perfil = oficinaBD.getCargoJefe();
@@ -823,7 +824,6 @@ public class OficinaServiceImp implements OficinaService {
 
     @Override
     public List<TipoOficina> allTipoOficina() {
-
         return tipoOficinaDAO.all();
     }
 

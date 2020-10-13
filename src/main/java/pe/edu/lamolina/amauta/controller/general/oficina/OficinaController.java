@@ -87,6 +87,9 @@ public class OficinaController {
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        List<TipoOficina> tiposOficina = service.allTipoOficina();
+
+        model.addAttribute("tiposOficinasJson", createAllTiposOficinaJson(tiposOficina).toString());
         model.addAttribute("puedeEditarOficinas", verificadorService.puedeEditarOficinas(ds));
         return "general/oficina/oficina";
     }
@@ -668,6 +671,15 @@ public class OficinaController {
         ArrayNode arrayNode = new ArrayNode(JsonNodeFactory.instance);
         for (Persona persona : personas) {
             ObjectNode node = createPersonaJson(persona);
+            arrayNode.add(node);
+        }
+        return arrayNode;
+    }
+
+    private ArrayNode createAllTiposOficinaJson(List<TipoOficina> tiposOficinas) {
+        ArrayNode arrayNode = new ArrayNode(JsonNodeFactory.instance);
+        for (TipoOficina tipo : tiposOficinas) {
+            ObjectNode node = JsonHelper.createJson(tipo, JsonNodeFactory.instance, true, new String[]{"*"});
             arrayNode.add(node);
         }
         return arrayNode;
