@@ -72,4 +72,6 @@ public interface VerificadorService {
 
     boolean puedeVerHeadAlumno(DataSessionPivot ds);
 
+    boolean isTrabajadorOera(DataSessionPivot ds);
+
 }

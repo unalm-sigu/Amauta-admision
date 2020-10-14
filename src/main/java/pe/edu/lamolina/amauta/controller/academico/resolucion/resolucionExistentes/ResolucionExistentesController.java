@@ -36,11 +36,6 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.bean.AlumnoCicloCursoBean;
 import static pe.edu.lamolina.model.enums.TipoCondicionalEnum.TRAS;
 import static pe.edu.lamolina.model.enums.TipoCondicionalEnum.TRAS_INT;
-import static pe.edu.lamolina.model.enums.TipoResolucionEnum.ANCI;
-import static pe.edu.lamolina.model.enums.TipoResolucionEnum.CAM_NOTA;
-import static pe.edu.lamolina.model.enums.TipoResolucionEnum.CURDIR;
-import static pe.edu.lamolina.model.enums.TipoResolucionEnum.RCI;
-import static pe.edu.lamolina.model.enums.TipoResolucionEnum.REIC;
 import static pe.edu.lamolina.model.enums.TipoTramiteEnum.ING_HIS;
 import static pe.edu.lamolina.model.enums.TipoTramiteEnum.INTES;
 import static pe.edu.lamolina.model.enums.TipoTramiteEnum.NOTA_BAJA;
@@ -57,8 +52,16 @@ import pe.edu.lamolina.amauta.controller.academico.resolucion.ResolucionService;
 import pe.edu.lamolina.amauta.controller.matricula.matriculable.MatriculableService;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
-import static pe.edu.lamolina.model.enums.TipoTramiteEnum.BACHI;
-import pe.edu.lamolina.model.tramite.TramiteBachiller;
+import pe.edu.lamolina.model.enums.TipoResolucionEnum;
+import static pe.edu.lamolina.model.enums.TipoResolucionEnum.ANCI;
+import static pe.edu.lamolina.model.enums.TipoResolucionEnum.BACHI;
+import static pe.edu.lamolina.model.enums.TipoResolucionEnum.CAM_NOTA;
+import static pe.edu.lamolina.model.enums.TipoResolucionEnum.CURDIR;
+import static pe.edu.lamolina.model.enums.TipoResolucionEnum.OBTE_GRADO;
+import static pe.edu.lamolina.model.enums.TipoResolucionEnum.RCI;
+import static pe.edu.lamolina.model.enums.TipoResolucionEnum.REIC;
+import static pe.edu.lamolina.model.enums.TipoResolucionEnum.TITUL;
+import pe.edu.lamolina.model.tramite.ObtencionGrado;
 
 @Controller
 @RequestMapping("academico/resolucion")
@@ -350,18 +353,19 @@ public class ResolucionExistentesController {
 
     @ResponseBody
     @RequestMapping("alumnos/{idResolucion}")
-    public JsonResponse alumnos(@PathVariable(value = "idResolucion") Long resolucion,
-            HttpSession session) {
+    public JsonResponse alumnos(@PathVariable("idResolucion") Long idResolucion, HttpSession session) {
+
         JsonResponse response = new JsonResponse();
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
-            Resolucion resolucionDB = service.findByResolucion(resolucion, ds);
+            Resolucion resolucionDB = service.findByResolucion(idResolucion, ds);
             this.findData(array, resolucionDB);
 
             response.setSuccess(Boolean.TRUE);
             response.setData(array);
+
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (RuntimeException e) {
@@ -490,17 +494,13 @@ public class ResolucionExistentesController {
         return objectNode;
     }
 
-    private ArrayNode findData(ArrayNode array, Resolucion resolucionDB) {
-        List<Reincorporacion> reincorporacions = new ArrayList();
-        List<RetiroCiclo> retiroCiclos = new ArrayList();
-        List<CambioNota> cambioNotas = new ArrayList();
-        List<CursoDirigido> cursoDirigidos = new ArrayList();
-        List<TramiteBachiller> tramiteBachillers = new ArrayList();
+    private ArrayNode findData(ArrayNode array, Resolucion resolucion) {
+        TipoResolucionEnum tipoEnum = resolucion.getTipoResolucion().getTipoEnum();
 
-        ObjectNode objectNode = new ObjectNode(JsonNodeFactory.instance);
-        if (resolucionDB.getTipoResolucion().getCodigo().equals(REIC.name())) {
-            reincorporacions = service.allReincorporacionByResolucion(resolucionDB);
-            for (Reincorporacion reicorporacion : reincorporacions) {
+        ObjectNode objectNode;
+        if (tipoEnum == REIC) {
+            List<Reincorporacion> reincorporados = service.allReincorporacionByResolucion(resolucion);
+            for (Reincorporacion reicorporacion : reincorporados) {
                 objectNode = JsonHelper.createJson(reicorporacion, JsonNodeFactory.instance, new String[]{
                     "*",
                     "facultad.*",
@@ -512,9 +512,10 @@ public class ResolucionExistentesController {
                 objectNode.put("tipo", REIC.name());
                 array.add(objectNode);
             }
-        } else if (resolucionDB.getTipoResolucion().getCodigo().equals(RCI.name())) {
-            retiroCiclos = service.allRetiroCicloByResolucion(resolucionDB);
-            for (RetiroCiclo retiroCiclo : retiroCiclos) {
+
+        } else if (tipoEnum == RCI) {
+            List<RetiroCiclo> retiradosCiclos = service.allRetiroCicloByResolucion(resolucion);
+            for (RetiroCiclo retiroCiclo : retiradosCiclos) {
                 objectNode = JsonHelper.createJson(retiroCiclo, JsonNodeFactory.instance, new String[]{
                     "*",
                     "alumno.*",
@@ -525,9 +526,10 @@ public class ResolucionExistentesController {
                 objectNode.put("tipo", RCI.name());
                 array.add(objectNode);
             }
-        } else if (resolucionDB.getTipoResolucion().getCodigo().equals(CAM_NOTA.name())) {
-            cambioNotas = service.allCambioNota(resolucionDB);
-            for (CambioNota cambioNota : cambioNotas) {
+
+        } else if (tipoEnum == CAM_NOTA) {
+            List<CambioNota> cambiosNotas = service.allCambioNota(resolucion);
+            for (CambioNota cambioNota : cambiosNotas) {
                 objectNode = JsonHelper.createJson(cambioNota, JsonNodeFactory.instance, new String[]{
                     "*",
                     "curso.*",
@@ -539,9 +541,10 @@ public class ResolucionExistentesController {
                 objectNode.put("tipo", CAM_NOTA.name());
                 array.add(objectNode);
             }
-        } else if (resolucionDB.getTipoResolucion().getCodigo().equals(CURDIR.name())) {
-            cursoDirigidos = service.allCursodirigido(resolucionDB);
-            for (CursoDirigido cursoDir : cursoDirigidos) {
+
+        } else if (tipoEnum == CURDIR) {
+            List<CursoDirigido> cursosDirigidos = service.allCursodirigido(resolucion);
+            for (CursoDirigido cursoDir : cursosDirigidos) {
                 objectNode = JsonHelper.createJson(cursoDir, JsonNodeFactory.instance, new String[]{
                     "*",
                     "curso.*",
@@ -552,10 +555,11 @@ public class ResolucionExistentesController {
                 objectNode.put("tipo", CURDIR.name());
                 array.add(objectNode);
             }
-        } else if (Arrays.asList(TRAS.name(), INTES.name(), ING_HIS.name(), TRAS_INT.name()).contains(resolucionDB.getTipoResolucion().getCodigo())) {
-            List<TramiteTraslado> tramiteTraslados = service.allTramiteTraslado(resolucionDB);
-            for (TramiteTraslado tramiteTras : tramiteTraslados) {
-                objectNode = JsonHelper.createJson(tramiteTras, JsonNodeFactory.instance, new String[]{
+
+        } else if (Arrays.asList(TRAS, INTES, ING_HIS, TRAS_INT).contains(tipoEnum)) {
+            List<TramiteTraslado> trasladados = service.allTramiteTraslado(resolucion);
+            for (TramiteTraslado traslado : trasladados) {
+                objectNode = JsonHelper.createJson(traslado, JsonNodeFactory.instance, new String[]{
                     "*",
                     "tramite.cicloAcademico.id", "tramite.cicloAcademico.descripcion",
                     "tramite.alumno.*",
@@ -565,16 +569,19 @@ public class ResolucionExistentesController {
                 objectNode.put("tipo", TRAS.name());
                 array.add(objectNode);
             }
-        } else if (resolucionDB.getTipoResolucion().getCodigo().equals(BACHI.name())) {
-            tramiteBachillers = service.allTramiteBachiller(resolucionDB);
-            for (TramiteBachiller bachiller : tramiteBachillers) {
-                objectNode = JsonHelper.createJson(bachiller, JsonNodeFactory.instance, new String[]{
+
+        } else if (Arrays.asList(BACHI, TITUL, OBTE_GRADO).contains(tipoEnum)) {
+            List<ObtencionGrado> graduados = service.allTramiteBachiller(resolucion);
+            for (ObtencionGrado gradux : graduados) {
+                objectNode = JsonHelper.createJson(gradux, JsonNodeFactory.instance, new String[]{
                     "*",
-                    "tramite.cicloAcademico.id",
-                    "tramite.cicloAcademico.descripcion",
-                    "tramite.alumno.*",
-                    "tramite.alumno.persona.*",
-                    "tramite.alumno.persona.tipoDocumento.*", //                        "cicloAcademico.*"
+                    "cicloAcademico.id",
+                    "cicloAcademico.descripcion",
+                    "gradoAcademico.nombre",
+                    "alumno.codigo",
+                    "alumno.persona.numeroDocIdentidad",
+                    "alumno.persona.nombreCompleto",
+                    "alumno.persona.tipoDocumento.simbolo"
                 });
                 objectNode.put("tipo", BACHI.name());
                 array.add(objectNode);

@@ -31,9 +31,6 @@ import pe.edu.lamolina.model.seguridad.UsuarioRol;
 import pe.edu.lamolina.model.tramite.AccionTramiteAcademico;
 import pe.edu.lamolina.model.tramite.AccionTramiteDocumento;
 import pe.edu.lamolina.model.constantines.AcademicoConstantine;
-import pe.edu.lamolina.model.constantines.GlobalConstantine;
-import static pe.edu.lamolina.model.enums.EstadoGrupoSeccionEnum.ABI;
-import static pe.edu.lamolina.model.enums.EstadoGrupoSeccionEnum.CER;
 
 @Repository
 public class OficinaDAOH extends AbstractEasyDAO<Oficina> implements OficinaDAO {

@@ -6,9 +6,10 @@
                 <thead>
                     <tr>
                         <th>Alumno</th>
-                        <th  v-if="tipo!='CURDIR'">Ciclo</th>
-                        <th v-if="tipo=='CAM_NOTA' || tipo=='CURDIR'">Curso</th>
-                        <th v-if="tipo=='CAM_NOTA'">Nota</th>
+                        <th v-if="tipo == 'BACHI' ">Grado/Título</th>
+                        <th v-if="tipo != 'CURDIR' " class="text-center">Ciclo</th>
+                        <th v-if="tipo == 'CAM_NOTA' || tipo == 'CURDIR' ">Curso</th>
+                        <th v-if="tipo == 'CAM_NOTA' ">Nota</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -68,7 +69,7 @@
                         <td>
                             <a class="block" v-text="alumnoTramiteTraslado.tramite.alumno.persona.nombreCompleto"></a>
                             <span class="block">Código: {{alumnoTramiteTraslado.tramite.alumno.codigo}}</span>
-                            
+
                             <span v-if="alumnoTramiteTraslado.tramite.alumno.persona.numeroDocIdentidad != null"> {{alumnoTramiteTraslado.tramite.alumno.persona.tipoDocumento.simbolo}} - {{alumnoTramiteTraslado.tramite.alumno.persona.numeroDocIdentidad}}</span>
                         </td>
                         <td>
@@ -76,14 +77,21 @@
                         </td>
                     </tr>
                     <tr v-for="item in alumnoTramiteBachiller" v-if="tipo == 'BACHI'">
-                        <td>
-                            <a class="block" v-text="item.tramite.alumno.persona.nombreCompleto"></a>
-                            <span class="block">Código: {{item.tramite.alumno.codigo}}</span>
-                            
-                            <span v-if="item.tramite.alumno.persona.numeroDocIdentidad != null"> {{item.tramite.alumno.persona.tipoDocumento.simbolo}} - {{item.tramite.alumno.persona.numeroDocIdentidad}}</span>
+                        <td class="v-middle">
+                            <span class="block text-primary h5 m-t-xxs m-b-xxs" v-text="item.alumno.persona.nombreCompleto"></span>
+                            <span class="block">
+                                {{item.alumno.codigo}} |
+                                <span v-if="item.alumno.persona.numeroDocIdentidad != null"> 
+                                    <strong>{{item.alumno.persona.tipoDocumento.simbolo}}</strong> 
+                                    {{item.alumno.persona.numeroDocIdentidad}}
+                                </span>
+                            </span>
                         </td>
-                        <td>
-                            <span class="block" v-text="item.tramite.cicloAcademico.descripcion"></span>
+                        <td class="v-middle">
+                            <span class="block" v-text="item.gradoAcademico.nombre"></span>
+                        </td>
+                        <td class="v-middle text-center">
+                            <span class="block" v-text="item.cicloAcademico.descripcion"></span>
                         </td>
                     </tr>
                 </tbody>

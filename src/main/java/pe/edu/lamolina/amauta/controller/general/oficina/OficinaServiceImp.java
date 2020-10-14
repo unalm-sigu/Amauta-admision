@@ -513,8 +513,8 @@ public class OficinaServiceImp implements OficinaService {
         Date hoy = new DateTime().withTimeAtStartOfDay().toDate();
         Assert.isFalse(oficina.getFechaEncargatura().after(hoy), "No puede poner como fecha de inicio un día futuro");
 
+        Persona jefeEncargadoBD = personaDAO.find(oficina.getJefeEncargado().getId());
         if (oficina.getJefeEncargado().getTituloAcademico() != null) {
-            Persona jefeEncargadoBD = personaDAO.find(oficina.getJefeEncargado().getId());
             jefeEncargadoBD.setTituloAcademico(oficina.getJefeEncargado().getTituloAcademico());
             personaDAO.update(jefeEncargadoBD);
         }

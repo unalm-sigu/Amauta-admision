@@ -915,11 +915,23 @@ public class VerificadorServiceImp implements VerificadorService {
         for (Rol rol : ds.getRoles()) {
             rolCodigos.add(rol.getCodigoEnum());
         }
-        
+
         if (rolCodigos.contains(RolEnum.REVISOR_FAC_ECONOMIA)) {
             puedeVerHead = false;
         }
         return puedeVerHead;
+    }
+
+    @Override
+    public boolean isTrabajadorOera(DataSessionPivot ds) {
+        boolean esTrabajadorOERA = false;
+        List<Oficina> oficinasMain = oficinaService.allOficinasMainByPersona(ds.getPersona());
+        for (Oficina oficina : oficinasMain) {
+            if (oficina.getCodigoEnum() == OERA) {
+                esTrabajadorOERA = true;
+            }
+        }
+        return esTrabajadorOERA;
     }
 
 }
