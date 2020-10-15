@@ -349,6 +349,7 @@ public class ColaboradorServiceImp implements ColaboradorService {
         colaborador.setEstadoEnum(ColaboradorEstadoEnum.ACT);
         colaborador.setCodigo(getCodigoColaborador() + "");
         colaborador.setPersona(persona);
+        colaborador.setEsJefeOficina(false);
         colaboradorDAO.save(colaborador);
 
         ColaboradorEstado colaboradorEstado = new ColaboradorEstado();
@@ -400,6 +401,7 @@ public class ColaboradorServiceImp implements ColaboradorService {
         colaboradorForm.setUserRegistro(ds.getUsuario());
         colaboradorForm.setEstado(ColaboradorEstadoEnum.ACT.name());
         colaboradorForm.setCodigo(getCodigoColaborador() + "");
+        colaboradorForm.setEsJefeOficina(false);
         colaboradorDAO.save(colaboradorForm);
 
         ColaboradorEstado colaboradorEstado = new ColaboradorEstado();

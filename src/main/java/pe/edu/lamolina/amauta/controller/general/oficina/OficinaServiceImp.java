@@ -889,6 +889,7 @@ public class OficinaServiceImp implements OficinaService {
         colaborador.setEstado(ColaboradorEstadoEnum.ACT.name());
         colaborador.setCodigo(getCodigoColaborador() + "");
         colaborador.setPersona(persona);
+        colaborador.setEsJefeOficina(false);
         colaboradorDAO.save(colaborador);
 
         ColaboradorEstado colaboradorEstado = new ColaboradorEstado();
