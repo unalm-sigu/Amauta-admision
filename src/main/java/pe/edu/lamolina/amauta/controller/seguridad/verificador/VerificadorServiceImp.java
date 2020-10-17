@@ -481,6 +481,9 @@ public class VerificadorServiceImp implements VerificadorService {
             if (rol.getCodigoEnum() == RolEnum.EDITOR_CURRICULA_EPG) {
                 return true;
             }
+            if (rol.getCodigoEnum() == RolEnum.EDITOR_CURRICULA_ESP_EPG) {
+                return true;
+            }
             if (rol.getCodigoEnum() == RolEnum.REVISOR_CURRICULA_EPG) {
                 return true;
             }
@@ -557,6 +560,45 @@ public class VerificadorServiceImp implements VerificadorService {
                 if (rol.getCodigoEnum() == RolEnum.EDITOR_CURRICULA_EPG) {
                     return true;
                 }
+            }
+        }
+
+        List<UsuarioRol> userRolesAll = usuarioRolDAO.allActivosByUser(ds.getUsuario());
+        if (userRolesAll.isEmpty()) {
+            return false;
+        }
+
+        List<UsuarioRol> userRoles = new ArrayList();
+        for (UsuarioRol userRol : userRolesAll) {
+            Oficina oficinaUser = userRol.getOficina();
+            if (oficinaUser == null) {
+                continue;
+            }
+            userRoles.add(userRol);
+        }
+
+        Map<Long, Oficina> mapOficinaMain = new HashMap();
+        for (UsuarioRol userRol : userRoles) {
+            Oficina oficinaMain = oficinaService.findOficinaMain(userRol.getOficina());
+            mapOficinaMain.put(userRol.getOficina().getId(), oficinaMain);
+        }
+
+        List<Carrera> carrerasAll = carreraDAO.all();
+        List<Carrera> carrerasPosgrado = carrerasAll.stream()
+                .filter(x -> x.getModalidadEstudio().isPostgrado())
+                .collect(Collectors.toList());
+        Map<Long, Carrera> mapCarreraPosgrado = TypesUtil.convertListToMap("id", carrerasPosgrado);
+
+        for (UsuarioRol userRol : userRoles) {
+            Oficina oficinaMain = mapOficinaMain.get(userRol.getOficina().getId());
+            Rol rol = userRol.getRol();
+            Carrera carreraPosgrado = mapCarreraPosgrado.get(oficinaMain.getInstanciaOficina());
+
+            boolean esRolMaestria = rol.getCodigoEnum() == RolEnum.OPER_PROGH_ESP_EPG;
+            boolean esOficinaMaestria = oficinaMain.getTipoOficina().getCodigoEnum() == TipoOficinaEnum.ESP;
+            boolean esCarreraPosgrado = carreraPosgrado != null;
+            if (esRolMaestria && esOficinaMaestria && esCarreraPosgrado) {
+                return true;
             }
         }
 
