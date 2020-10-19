@@ -214,6 +214,7 @@ public class ColaboradorServiceImp implements ColaboradorService {
         Assert.isTrue(puedeVerOficina, "No tiene permiso de modificar los estados de los colaboradores en esta oficina");
 
         Colaborador empleadoBD = colaboradorDAO.find(empleadoForm.getId());
+        Assert.isFalse(empleadoBD.getEsJefeOficina(), "No puede modificar el estado del jefe de esta unidad por esta opción");
         Assert.isNotNull(empleadoBD, "No existe el colaborador que desea modificar su estado");
         Assert.isFalse(empleadoBD.getEstadoEnum() == empleadoForm.getEstadoEnum(),
                 "El estado del colaborador ya es " + empleadoForm.getEstadoEnum().getValue());
@@ -348,6 +349,7 @@ public class ColaboradorServiceImp implements ColaboradorService {
         colaborador.setEstadoEnum(ColaboradorEstadoEnum.ACT);
         colaborador.setCodigo(getCodigoColaborador() + "");
         colaborador.setPersona(persona);
+        colaborador.setEsJefeOficina(false);
         colaboradorDAO.save(colaborador);
 
         ColaboradorEstado colaboradorEstado = new ColaboradorEstado();
@@ -399,6 +401,7 @@ public class ColaboradorServiceImp implements ColaboradorService {
         colaboradorForm.setUserRegistro(ds.getUsuario());
         colaboradorForm.setEstado(ColaboradorEstadoEnum.ACT.name());
         colaboradorForm.setCodigo(getCodigoColaborador() + "");
+        colaboradorForm.setEsJefeOficina(false);
         colaboradorDAO.save(colaboradorForm);
 
         ColaboradorEstado colaboradorEstado = new ColaboradorEstado();

@@ -57,6 +57,7 @@ import pe.edu.lamolina.amauta.controller.academico.tramitesacademicos.flujo.Fluj
 import pe.edu.lamolina.amauta.controller.general.oficina.OficinaService;
 import pe.edu.lamolina.amauta.controller.matricula.matriculable.MatriculableService;
 import pe.edu.lamolina.amauta.controller.programacionhorarios.gposeccion.GpoSeccionService;
+import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorService;
 import pe.edu.lamolina.amauta.controller.test.VisorCalculoNotas;
 import static pe.edu.lamolina.amauta.controller.test.VisorCalculoNotas.TOKEN_CURRICULA;
 import static pe.edu.lamolina.amauta.controller.test.VisorCalculoNotas.TOKEN_PROMEDIOS;
@@ -169,25 +170,33 @@ public class ResolucionServiceImp implements ResolucionService {
     GpoSeccionService gpoSeccionService;
 
     @Autowired
+    VerificadorService verificadorService;
+
+    @Autowired
     VisorCalculoNotas visorCalculoNotas;
 
     @Override
     public List<Resolucion> allResolucionesByFilter(DynatableFilter filter, DataSessionPivot ds) {
+        List<Oficina> oficinas = oficinaService.allOficinasMainByPersona(ds.getPersona());
+        boolean esTrabajadorOera = verificadorService.isTrabajadorOera(ds);
+
         List<Resolucion> resoluciones = resolucionDAO.allByDyna(filter);
         for (Resolucion resolucion : resoluciones) {
-            List<Oficina> oficinas = this.allOFicinasByUser(ds);
             resolucion.setAutorizado(Boolean.FALSE);
+            if (esTrabajadorOera) {
+                resolucion.setAutorizado(Boolean.TRUE);
+                continue;
+            }
+
             if (resolucion.getAplicacionDirecta() == 1) {
                 resolucion.setAutorizado(Boolean.TRUE);
                 continue;
             }
-            if (resolucion.getIsEstadoDocConf()) {
-                if (ds.getOficinaMain() != null && ds.getOficinaMain().isOficinaOera()) {
+
+            for (Oficina ofi : oficinas) {
+                if (ofi.getId() == resolucion.getOficina().getId().longValue()) {
                     resolucion.setAutorizado(Boolean.TRUE);
-                }
-            } else {
-                if (oficinas.stream().anyMatch(x -> Objects.equals(x.getId(), resolucion.getOficina().getId()) && (ds.getOficinaMain() == null || !ds.getOficinaMain().isOficinaOera()))) {
-                    resolucion.setAutorizado(Boolean.TRUE);
+                    break;
                 }
             }
 

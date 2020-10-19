@@ -57,7 +57,7 @@ var app = new Vue({
 
     },
     methods: {
-        cambiarEstadoReincorporacion: function (tramite, estadoDestino, event) {
+        cambiarEstadoReincorporacion(tramite, estadoDestino, event) {
             event.preventDefault();
             let $vue = this;
             console.log("cambiarEstadoReincorporacion");
@@ -300,7 +300,7 @@ var app = new Vue({
         allAlumnos(item) {
             let $vue = this;
             $.ajax({
-                url: APP.url('academico/resolucion/alumnos/' + item),
+                url: APP.url('academico/resolucion/alumnos/' + item.id),
                 dataType: "json",
                 contentType: "application/json",
                 type: 'POST',
@@ -317,7 +317,7 @@ var app = new Vue({
                             $vue.alumnosCursoDirigido = response.data;
                         } else if ($vue.tipo == "TRAS") {
                             $vue.alumnoTramiteTraslado = response.data[0]; ///retorn solo 1 registro
-                        }else if ($vue.tipo == "BACHI") {
+                        } else if ($vue.tipo == "BACHI") {
                             $vue.alumnoTramiteBachiller = response.data; ///retorn solo 1 registro
                         }
                         $vue.$refs.modalAlumnos.open();

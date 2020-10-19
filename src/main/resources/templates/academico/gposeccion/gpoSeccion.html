@@ -186,7 +186,7 @@
                                             </template>
                                             <template slot="clear" slot-scope="props">
                                                 <div class="multiselect__clear" v-if="anexoSelect" 
-                                                     v-on:mousedown="clearAnexo(props.search)"></div>
+                                                     v-on:mousedown.prevent.stop="clearAnexo(props.search)"></div>
                                             </template>
                                         </multiselect>
                                     </div>

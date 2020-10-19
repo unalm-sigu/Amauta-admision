@@ -15,6 +15,7 @@ import pe.edu.lamolina.model.tramite.RetiroCiclo;
 import pe.edu.lamolina.model.tramite.TipoResolucion;
 import pe.edu.lamolina.model.tramite.TramiteTraslado;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.tramite.ObtencionGrado;
 import pe.edu.lamolina.model.tramite.TramiteBachiller;
 
 public interface ResolucionExistenteService {
@@ -49,18 +50,18 @@ public interface ResolucionExistenteService {
 
     void saveIngresoHisto(Resolucion resolucion, Usuario usuario, DataSessionPivot ds);
 
-    public List<Carrera> allCarrera();
+    List<Carrera> allCarrera();
 
-    public void generarNuevoPlan(Resolucion resolucion, DataSessionPivot ds);
+    void generarNuevoPlan(Resolucion resolucion, DataSessionPivot ds);
 
     String saveNotaMasBaja(Resolucion resolucionForm, Usuario usuario, DataSessionPivot ds);
 
-    public List<AlumnoCicloCursoBean> allCiclosRepetido(Long idAlumno, DataSessionPivot ds);
+    List<AlumnoCicloCursoBean> allCiclosRepetido(Long idAlumno, DataSessionPivot ds);
 
-    public  List<String> updateResolucion(Resolucion resolucion, Usuario usuario, DataSessionPivot ds);
+    List<String> updateResolucion(Resolucion resolucion, Usuario usuario, DataSessionPivot ds);
 
-    public void saveTramiteBachiller(Resolucion resolucion, DataSessionPivot ds);
+    void saveTramiteBachiller(Resolucion resolucion, DataSessionPivot ds);
 
-    public List<TramiteBachiller> allTramiteBachiller(Resolucion resolucionDB);
+    List<ObtencionGrado> allTramiteBachiller(Resolucion resolucion);
 
 }

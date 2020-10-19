@@ -1,4 +1,4 @@
-package pe.edu.lamolina.amauta.controller.academico.egresado;
+package pe.edu.lamolina.amauta.controller.academico.graduado;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -23,28 +23,30 @@ import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.Carrera;
-import pe.edu.lamolina.model.academico.Egresado;
 import pe.edu.lamolina.model.enums.TipoOficinaEnum;
 import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorService;
 import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorServiceImp;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.tramite.ObtencionGrado;
 
 @Controller
-@RequestMapping("academico/egresado")
-public class EgresadoController {
+@RequestMapping("academico/graduado")
+public class GraduadoController {
 
     @Autowired
-    EgresadoService service;
+    GraduadoService service;
 
     @Autowired
     VerificadorService verificadorService;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final String rutaModulo = this.getClass().getAnnotation(RequestMapping.class).value()[0];
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
-        return "academico/egresado/egresado";
+        model.addAttribute("rutaModulo", rutaModulo);
+        return "academico/graduado/graduado";
     }
 
     @ResponseBody
@@ -57,7 +59,7 @@ public class EgresadoController {
 
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             List<Carrera> carreras = new ArrayList();
-            List<Egresado> egresados = new ArrayList();
+            List<ObtencionGrado> graduadosLista = new ArrayList();
 
             VerificadorServiceImp.CantidadItemsEnum cantidadEnum = verificadorService.verificarCantidad(TipoOficinaEnum.ESP, request, ds);
             if (cantidadEnum == VerificadorServiceImp.CantidadItemsEnum.PARCIAL) {
@@ -65,25 +67,26 @@ public class EgresadoController {
             }
 
             if (cantidadEnum != VerificadorServiceImp.CantidadItemsEnum.SIN_PERMISO) {
-                egresados = service.allEgresadoByDynatable(filter, carreras, cantidadEnum.name());
+                graduadosLista = service.allEgresadoByDynatable(filter, carreras, cantidadEnum.name());
             }
 
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
 
-            for (Egresado egresado : egresados) {
+            for (ObtencionGrado graduado : graduadosLista) {
                 ObjectNode node = JaneHelper
-                        .from(egresado)
-                        .only("id,promedioGraduacion")
+                        .from(graduado)
+                        .only("id")
                         .join("cicloAcademico", "descripcion")
                         .join("alumno", "id,codigo,estado,estadoEnum,promedioAcumulado,creditosCursados,creditosAprobados")
-                        .join("alumno.persona", "id,apellidosNombres,rutaFoto,tipoFoto,numeroDocIdentidad,telefono,celular,email,emailCompania")
+                        .join("alumno.persona", "id,apellidosNombres,rutaFoto,tipoFoto,numeroDocIdentidad,email,emailCompania")
                         .join("alumno.persona.tipoDocumento", "simbolo")
-                        .join("alumno.carrera", "nombre,codigo,tipoEnum,tipo")
+                        .join("alumno.carrera", "nombre,codigo,tipoEnum,tipo,descripcionCarreraFacultad")
                         .join("alumno.carrera.facultad", "codigo,nombre")
                         .join("alumno.modalidadEstudio", "codigo,nombre")
                         .join("alumno.situacionAcademica", "codigo,nombre")
-                        .join("alumno.cicloIngreso", "descripcion")
-                        .join("alumno.cicloActivo", "descripcion")
+                        .join("gradoAcademico", "nombre,tipo")
+                        .join("estadoTramite", "nombre,codigo")
+                        .join("resolucion", "descripcion,rutaUrl")
                         .json();
 
                 array.add(node);
@@ -116,13 +119,14 @@ public class EgresadoController {
                 carreras = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.ESP, request, ds);
             }
 
-            EgresadoResumen resumen = new EgresadoResumen();
+            GraduadoResumen resumen = new GraduadoResumen();
             if (cantidadEnum != VerificadorServiceImp.CantidadItemsEnum.SIN_PERMISO) {
                 resumen = service.findResumenEgresado(carreras, cantidadEnum.name());
             }
 
             response.setData(JsonHelper.createJson(resumen, JsonNodeFactory.instance, true, new String[]{"*"}));
             response.setSuccess(true);
+
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {

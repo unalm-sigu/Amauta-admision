@@ -272,27 +272,29 @@ public class ResolucionController {
 
     @ResponseBody
     @RequestMapping("listTramitesToConfirm")
-    public DynatableResponse listTramitesToConfirm(DynatableFilter filter,
+    public DynatableResponse listTramitesToConfirm(
+            DynatableFilter filter,
             @RequestParam(name = "resolucion", required = false) Long resolucionId,
             HttpSession session) {
+
         DynatableResponse json = new DynatableResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
-            CicloAcademico ciclo = ds.getCicloAcademico();
-            DateTime today = new DateTime();
+//            CicloAcademico ciclo = ds.getCicloAcademico();
+//            DateTime today = new DateTime();
+
             if (resolucionId == null) {
                 json.setTotal(0);
                 return json;
             }
+
             Resolucion resolucion = service.findResolucion(resolucionId);
             if (resolucion.getTipoResolucion().isReincorporacion()) {
-
                 List<Reincorporacion> reincorporaciones = service.allReincorporacionByFilter(filter, new Resolucion(resolucionId));
                 logger.debug("cantidad de reincorporaciones " + reincorporaciones.size());
 
                 for (Reincorporacion reincorporacion : reincorporaciones) {
-
                     ObjectNode reincorporacionJson = JsonHelper.createJson(reincorporacion, JsonNodeFactory.instance,
                             new String[]{
                                 "*",
@@ -307,6 +309,7 @@ public class ResolucionController {
                             });
                     array.add(reincorporacionJson);
                 }
+
             } else if (resolucion.getTipoResolucion().isCursoDirigido()) {
                 List<CursoDirigido> list = service.allCursoDirigido(filter, resolucion);
                 for (CursoDirigido cursoDirigido : list) {

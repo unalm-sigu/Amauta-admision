@@ -178,6 +178,7 @@ public class EgresadoDAOH extends AbstractEasyDAO<Egresado> implements EgresadoD
         DynatableSql sql = new DynatableSql(filter)
                 .from(Egresado.class, "egr")
                 .join("alumno al", "al.persona per", "al.carrera ca", "ca.modalidadEstudio moe", "ca.facultad fac")
+                .join("cicloAcademico")
                 .leftJoin("al.situacionAcademica sita", "per.tipoDocumento tdoc", "al.cicloIngreso ci", "al.cicloActivo cia")
                 .searchFields("ca.nombre", "al.estado", "al.codigo", "per.numeroDocIdentidad")
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")

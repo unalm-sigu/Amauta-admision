@@ -22,7 +22,25 @@
                         <section class="panel-body">
 
                             <raptor-table v-bind:url="oficinasURL" ref="raptorOficinas">
-                                <div slot="header"></div>
+                                <div slot="header">
+                                    <div class="col-md-6">
+                                        <multiselect v-model='tipoOficinaSelect'
+                                                     v-bind:options='tiposOficinas'
+                                                     label='nombre'
+                                                     placeholder="Seleccione un tipo de oficina"
+                                                     deselect-label=""
+                                                     select-label=""
+                                                     track-by='id'
+                                                     v-on:input="loadRegistros">
+                                            <template slot="clear" slot-scope="props">
+                                                <div class="multiselect__clear" 
+                                                     v-if="tipoOficinaSelect" 
+                                                     v-on:mousedown.prevent.stop="clearTipoOficina(props.search)"></div>
+                                            </template>
+                                        </multiselect>
+                                    </div>
+                                </div>
+
                                 <template scope="props" >
 
                                     <table class="table table-striped">
@@ -155,12 +173,13 @@
             <script  th:inline="javascript" >
                 /*<![CDATA[*/
                 var rutaModulo = 'general/oficina';
+                var tiposOficinasJson = /*[[${tiposOficinasJson}]]*/ '';
                 /*]]>*/
             </script>
-            
+
             <div th:substituteby="_modules/vue-raptor-table"></div>
-            
-            
+
+
             <script th:src="@{/app/general/oficina/oficina.js}" charset="utf-8"></script>
         </div>
 

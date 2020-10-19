@@ -85,6 +85,7 @@ public class TramitesAcademicosController {
     OficinaService oficinaService;
     @Autowired
     ResolucionService resolucionService;
+
     private String[] alumnoCicloMapper = new String[]{"*",
         "alumno.id",
         "alumno.codigo",

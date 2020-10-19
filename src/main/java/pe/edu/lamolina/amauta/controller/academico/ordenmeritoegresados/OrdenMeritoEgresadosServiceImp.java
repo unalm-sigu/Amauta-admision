@@ -386,7 +386,7 @@ public class OrdenMeritoEgresadosServiceImp implements OrdenMeritoEgresadosServi
         }
 
         egresado.setEsPrincipal(0);
-        egresado.setUserRegistroEgresado(usuario.getId());
+        egresado.setUserRegistroEgresado(usuario);
         egresado.setFechaRegistroEgresado(new Date());
         egresado.setCarrera(almForm.getCarrera());
 //        egresado.setFechaEgresado(fechaEgresado);

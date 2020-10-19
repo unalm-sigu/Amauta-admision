@@ -31,7 +31,6 @@ import pe.edu.lamolina.model.seguridad.UsuarioRol;
 import pe.edu.lamolina.model.tramite.AccionTramiteAcademico;
 import pe.edu.lamolina.model.tramite.AccionTramiteDocumento;
 import pe.edu.lamolina.model.constantines.AcademicoConstantine;
-import pe.edu.lamolina.model.constantines.GlobalConstantine;
 
 @Repository
 public class OficinaDAOH extends AbstractEasyDAO<Oficina> implements OficinaDAO {
@@ -77,7 +76,7 @@ public class OficinaDAOH extends AbstractEasyDAO<Oficina> implements OficinaDAO 
 
         DynatableSql sql = new DynatableSql(filter)
                 .from(Oficina.class, "ofi")
-                .join("tipoOficina", "compania cia")
+                .join("tipoOficina tof", "compania cia")
                 .leftJoin("oficinaSuperior sup", "personaJefe pj", "jefeEncargado pje", "cargoJefe ca")
                 .filter("cia.id", compania)
                 .searchFields("ofi.codigo", "ofi.nombre", "ofi.tipoOficina", "ca.nombre", "sup.nombre")
@@ -87,11 +86,26 @@ public class OficinaDAOH extends AbstractEasyDAO<Oficina> implements OficinaDAO 
                 .searchComplexField("concat(coalesce(pje.nombres,''),' ',coalesce(pje.paterno,''),' ',coalesce(pje.materno,''))")
                 .orderBy("ofi.id DESC");
 
+        verificarParametros(filter, sql);
         if (!oficinasAcceso.isEmpty()) {
             sql.in("ofi.id", oficinasAcceso);
         }
 
         return all(sql);
+    }
+
+    private void verificarParametros(DynatableFilter filter, DynatableSql sql) {
+        Map<String, Object> queries = filter.getQueries();
+        if (queries == null) {
+            return;
+        }
+
+        for (String key : queries.keySet()) {
+            if (key.equals("tipo-oficina")) {
+                String value = (String) queries.get(key);
+                sql.filter("tof.id", value);
+            }
+        }
     }
 
     @Override

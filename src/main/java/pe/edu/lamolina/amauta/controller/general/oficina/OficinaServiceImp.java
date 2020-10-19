@@ -352,6 +352,7 @@ public class OficinaServiceImp implements OficinaService {
         colaborador.setUserRegistro(ds.getUsuario());
         colaborador.setCargo(oficinaBD.getCargoJefe());
         colaborador.setCodigo(getCodigoColaborador() + "");
+        colaborador.setEsJefeOficina(true);
         colaboradorDAO.save(colaborador);
 
         PerfilCompania perfil = oficinaBD.getCargoJefe();
@@ -512,8 +513,8 @@ public class OficinaServiceImp implements OficinaService {
         Date hoy = new DateTime().withTimeAtStartOfDay().toDate();
         Assert.isFalse(oficina.getFechaEncargatura().after(hoy), "No puede poner como fecha de inicio un día futuro");
 
+        Persona jefeEncargadoBD = personaDAO.find(oficina.getJefeEncargado().getId());
         if (oficina.getJefeEncargado().getTituloAcademico() != null) {
-            Persona jefeEncargadoBD = personaDAO.find(oficina.getJefeEncargado().getId());
             jefeEncargadoBD.setTituloAcademico(oficina.getJefeEncargado().getTituloAcademico());
             personaDAO.update(jefeEncargadoBD);
         }
@@ -823,7 +824,6 @@ public class OficinaServiceImp implements OficinaService {
 
     @Override
     public List<TipoOficina> allTipoOficina() {
-
         return tipoOficinaDAO.all();
     }
 
@@ -889,6 +889,7 @@ public class OficinaServiceImp implements OficinaService {
         colaborador.setEstado(ColaboradorEstadoEnum.ACT.name());
         colaborador.setCodigo(getCodigoColaborador() + "");
         colaborador.setPersona(persona);
+        colaborador.setEsJefeOficina(false);
         colaboradorDAO.save(colaborador);
 
         ColaboradorEstado colaboradorEstado = new ColaboradorEstado();
