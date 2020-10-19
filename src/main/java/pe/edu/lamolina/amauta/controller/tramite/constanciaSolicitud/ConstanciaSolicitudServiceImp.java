@@ -130,8 +130,6 @@ import pe.edu.lamolina.model.enums.TipoGradoAcademicoEnum;
 import static pe.edu.lamolina.model.enums.VariableGenericaEnum.INCRUSTACION;
 import pe.edu.lamolina.model.general.Archivo;
 import pe.edu.lamolina.model.tramite.ObtencionGrado;
-import pe.edu.lamolina.model.tramite.Resolucion;
-import pe.edu.lamolina.model.tramite.TramiteBachiller;
 
 @Service
 @Transactional(readOnly = true)
@@ -948,6 +946,11 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
 
                     htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), alumnoCiclos.get(idx).getCicloAcademico().getDescripcion());
                     break;
+                case NIVEL_ACADEMICO:
+
+                    htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), alumnoCiclos.get(idx).getNivel() + "");
+
+                    break;
                 case CICLO_MATRICULA:
                     if (alumnoCiclos.get(idx).getCicloAcademico().getCodigo().equals(cicloAcademicoAct.getCodigo())) {
 
@@ -1043,11 +1046,6 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
                 case MEJOR_PROMEDIO_PONDERADO_GRADUACION:
 
                     htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), egresado.getPromedioGraduacion().toString());
-
-                    break;
-                case NIVEL_ACADEMICO:
-
-                    htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), "2");
 
                     break;
 
