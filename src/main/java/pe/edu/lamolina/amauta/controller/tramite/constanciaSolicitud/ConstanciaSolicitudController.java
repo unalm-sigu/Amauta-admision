@@ -679,7 +679,7 @@ public class ConstanciaSolicitudController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         try {
 
-            Archivo archivo = service.descargarBoletas(idTramiteDocumento);
+            Archivo archivo = service.findBoletas(idTramiteDocumento);
             response.setSuccess(Boolean.TRUE);
             response.setData(JsonHelper.createJson(archivo, JsonNodeFactory.instance, new String[]{"*"}));
         } catch (PhobosException e) {

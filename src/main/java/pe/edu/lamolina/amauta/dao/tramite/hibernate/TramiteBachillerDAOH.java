@@ -49,7 +49,7 @@ public class TramiteBachillerDAOH extends AbstractEasyDAO<TramiteBachiller> impl
     public TramiteBachiller findByAlumnoAct(Alumno alumno) {
         Octavia sql = new Octavia();
         sql.from(TramiteBachiller.class, "tb")
-                .join("tramite tr", "tr.alumno al", "al.persona")
+                .join("tramite tr", "tr.alumno al", "al.persona","al.carrera")
                 .filter("tb.estado", SOL)
                 .filter("al.id", alumno);
         

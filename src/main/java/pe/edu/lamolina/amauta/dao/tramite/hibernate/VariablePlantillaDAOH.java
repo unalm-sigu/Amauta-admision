@@ -35,4 +35,13 @@ public class VariablePlantillaDAOH extends AbstractEasyDAO<VariablePlantilla> im
         return all(sql);
     }
 
+    @Override
+    public List<VariablePlantilla> allByPlantillas(List<PlantillaDocumentoAcademico> plantillaDocumentoIncrustacion) {
+        Octavia sql = Octavia.query()
+                .from(VariablePlantilla.class, "vp")
+                .join("plantillaDocumentoAcademico pda", "variableGenerica vg")
+                .in("pda.id", plantillaDocumentoIncrustacion);
+        return all(sql);
+    }
+
 }

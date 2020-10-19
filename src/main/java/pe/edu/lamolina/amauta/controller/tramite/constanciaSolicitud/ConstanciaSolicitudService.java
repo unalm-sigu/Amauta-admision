@@ -91,6 +91,6 @@ public interface ConstanciaSolicitudService {
 
     public List<AlumnoCiclo> allAlumnoCiclo(TramiteDocumentoAcademico tramiteDocumentoAcademico);
 
-    public Archivo descargarBoletas(Long idTramiteDocumento);
+    public Archivo findBoletas(Long idTramiteDocumento);
 
 }

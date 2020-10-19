@@ -90,6 +90,7 @@ import pe.edu.lamolina.amauta.dao.academico.AnexoBoletinDAO;
 import pe.edu.lamolina.amauta.dao.academico.CarreraDAO;
 import pe.edu.lamolina.amauta.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.amauta.dao.academico.CursoOpcionalCurriculaDAO;
+import pe.edu.lamolina.amauta.dao.academico.GradoAcademicoDAO;
 import pe.edu.lamolina.amauta.dao.academico.MatriculaCursoDAO;
 import pe.edu.lamolina.amauta.dao.academico.MatriculaResumenDAO;
 import pe.edu.lamolina.amauta.dao.academico.MatriculaSeccionDAO;
@@ -113,6 +114,8 @@ import pe.edu.lamolina.amauta.dao.tramite.TramiteBachillerDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TramiteDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TramiteTrasladoDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.academico.GradoAcademico;
+import pe.edu.lamolina.model.enums.TipoGradoAcademicoEnum;
 import static pe.edu.lamolina.model.enums.TipoTramiteEnum.INTES;
 import pe.edu.lamolina.model.tramite.ObtencionGrado;
 import pe.edu.lamolina.model.tramite.TramiteBachiller;
@@ -200,6 +203,10 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
 
     @Autowired
     VisorCalculoNotas visorCalculoNotas;
+    
+    @Autowired
+    GradoAcademicoDAO gradoAcademicoDAO;
+
 
     @Override
     public List<Alumno> allAlumnoByOficina(String nombre, Long instanciaOficina) {
@@ -1548,6 +1555,7 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
         resolucion.setFecha(resolucionForm.getFecha());
         resolucion.setNumero(resolucionForm.getNumero());
         resolucion.setSerie(resolucionForm.getSerie());
+        resolucion.setNumeroVisible(resolucion.getDescripcion());
         resolucion.setCicloAplica(resolucionForm.getCicloAplica());
         resolucion.setEstadoEnum(ResolucionEstadoEnum.VB_RES);
         resolucion.setFechaRegistro(new Date());
@@ -1573,6 +1581,23 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
             tramite.setEstadoEnum(bachiller.getSeleccionado() ? TramiteEstadoEnum.ACEP : TramiteEstadoEnum.RCHZ);
             tramite.setEstadoTramite(bachiller.getSeleccionado() ? estadoTramite : estadoTramiteRech);
             tramiteDAO.update(tramite);
+            
+            
+            
+            if (tramite.getEstadoEnum() == TramiteEstadoEnum.ACEP ) {
+                GradoAcademico gradoAcademico = gradoAcademicoDAO.findByTipoAndCarrera(TipoGradoAcademicoEnum.BACH , tramiteBachiller.getAlumno().getCarrera());
+                ObtencionGrado obtencionGrado = new ObtencionGrado();
+                obtencionGrado.setAlumno(tramiteBachiller.getAlumno());
+                obtencionGrado.setCicloAcademico(ds.getCicloAcademico());
+                obtencionGrado.setEstadoTramite(tramite.getEstadoTramite());
+                obtencionGrado.setFechaRegistro(new Date());
+                obtencionGrado.setGradoAcademico(gradoAcademico);
+                obtencionGrado.setResolucion(resolucion);
+                obtencionGrado.setTramite(tramite);
+                obtencionGrado.setUserObtencion(ds.getUsuario());
+                obtencionGrado.setUserRegistro(ds.getUsuario());
+                obtencionGradoDAO.save(obtencionGrado);
+            }
         }
     }
 

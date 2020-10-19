@@ -11,13 +11,11 @@ import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
-import pe.edu.lamolina.amauta.controller.academico.egresado.EgresadoResumen;
 import pe.edu.lamolina.amauta.controller.academico.graduado.GraduadoResumen;
 import pe.edu.lamolina.amauta.dao.tramite.ObtencionGradoDAO;
+import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Carrera;
-import pe.edu.lamolina.model.academico.Egresado;
-import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.EPG;
-import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.PRE;
+import pe.edu.lamolina.model.enums.TipoGradoAcademicoEnum;
 import static pe.edu.lamolina.model.enums.TipoGradoAcademicoEnum.BACH;
 import static pe.edu.lamolina.model.enums.TipoGradoAcademicoEnum.DOC;
 import static pe.edu.lamolina.model.enums.TipoGradoAcademicoEnum.MAE;
@@ -127,6 +125,18 @@ public class ObtencionGradoDAOH extends AbstractEasyDAO<ObtencionGrado> implemen
         }
 
         return (GraduadoResumen) query.uniqueResult();
+    }
+
+    @Override
+    public ObtencionGrado findByAlumnoAndTipo(Alumno alumno, TipoGradoAcademicoEnum tipoGradoAcademicoEnum) {
+        Octavia sql = Octavia.query()
+                .from(ObtencionGrado.class, "og")
+                .join("resolucion re", "alumno alu", "alu.persona per", "alu.carrera ca", "ca.facultad")
+                .join("cicloAcademico", "gradoAcademico ga")
+                .filter("ga.tipo", tipoGradoAcademicoEnum)
+                .filter("alu.id", alumno);
+
+        return find(sql);
     }
 
 }

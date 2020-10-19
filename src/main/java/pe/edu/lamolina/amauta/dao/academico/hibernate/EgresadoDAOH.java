@@ -37,7 +37,8 @@ public class EgresadoDAOH extends AbstractEasyDAO<Egresado> implements EgresadoD
     public Egresado findByAlumno(Alumno alumno) {
         Octavia sql = Octavia.query()
                 .from(Egresado.class, "e")
-                .join("alumno alu")
+                .join("alumno alu", "cicloAcademico")
+                .left("controlMeritoFacultad", "controlMeritoCiclo", "controlMeritoCarrera")
                 .filter("alu.id", alumno);
 
         return find(sql);

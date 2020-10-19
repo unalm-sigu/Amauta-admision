@@ -5,23 +5,16 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.base.Strings;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
+import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletResponse;
-import static org.apache.poi.hssf.usermodel.HeaderFooter.file;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.slf4j.Logger;
@@ -122,15 +115,22 @@ import pe.edu.lamolina.amauta.dao.tramite.TramiteDocumentoParametroDAO;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import pe.edu.lamolina.amauta.controller.tramite.constanciaSolicitud.verificadorSolicitud.VerificadorSolicitudService;
 import pe.edu.lamolina.amauta.dao.general.ArchivoDAO;
 import static pe.edu.lamolina.model.constantines.AcademicoConstantine.CODIGO_ALIANZA_ESTRATEGICA;
-import static pe.edu.lamolina.model.constantines.GlobalConstantine.VARIABLE_INCRUSTACION;
 import static pe.edu.lamolina.model.constantines.GlobalConstantine.VARIABLE_TABLE;
 import pe.edu.lamolina.amauta.dao.general.OficinaDAO;
+import pe.edu.lamolina.amauta.dao.tramite.ObtencionGradoDAO;
+import pe.edu.lamolina.amauta.dao.tramite.ResolucionDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TramiteBachillerDAO;
 import pe.edu.lamolina.model.enums.InstanciaEnum;
+import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.SexoEnum;
+import pe.edu.lamolina.model.enums.TipoGradoAcademicoEnum;
+import static pe.edu.lamolina.model.enums.VariableGenericaEnum.INCRUSTACION;
 import pe.edu.lamolina.model.general.Archivo;
+import pe.edu.lamolina.model.tramite.ObtencionGrado;
+import pe.edu.lamolina.model.tramite.Resolucion;
 import pe.edu.lamolina.model.tramite.TramiteBachiller;
 
 @Service
@@ -251,6 +251,15 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
 
     @Autowired
     ArchivoDAO archivoDAO;
+
+    @Autowired
+    ResolucionDAO resolucionDAO;
+
+    @Autowired
+    VerificadorSolicitudService verificadorSolicitudService;
+
+    @Autowired
+    ObtencionGradoDAO obtencionGradoDAO;
 
     @Override
     @Transactional
@@ -753,22 +762,23 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
 
     @Override
     public void downloadWord(TramiteDocumentoAcademico tramiteDocumentoAcademico, HttpServletResponse response) throws PhobosException {
+
         tramiteDocumentoAcademico = tramiteDocumentoAcademicoDAO.find(tramiteDocumentoAcademico);
         PlantillaGenerica generica = findPlantillaHtml(tramiteDocumentoAcademico, null);
 
         try {
-
             response.setBufferSize(GlobalConstantine.DEFAULT_BUFFER_SIZE_DOWNLOAD);
             response.setContentType("application/msword");
-            response.setHeader("Content-Disposition", "inline; filename=\"" + generica.getNombre() + ".doc\"");
+            response.setHeader("Content-Disposition", "inline; filename=" + generica.getNombre() + ".doc");
 
             OutputStream outputStream = response.getOutputStream();
-            outputStream.write((GlobalConstantine.HTML_PRE + generica.getContenido() + GlobalConstantine.HTML_SUB).getBytes());
+            outputStream.write((generica.getContenido()).getBytes());
             outputStream.flush();
             outputStream.close();
         } catch (IOException ex) {
             logger.error("(downloadTemporal)Error Descarga de Archivo: {}, fileName: {}", ex.getLocalizedMessage(), generica.getNombre());
         }
+
     }
 
     private String remplazarTablas(String htmlContent, Alumno alumno, List<VariablePlantilla> variable) {
@@ -829,41 +839,21 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
 
         String htmlContent = plantilla.getContenido();
         List<PlantillaIncrustacionDocumento> incrustacionDocumentos = plantillaIncrustacionDAO.allIncrustacionesByTramite(documentoAcademico);
-
+        List<PlantillaDocumentoAcademico> plantillaDocumentoIncrustacion = incrustacionDocumentos.stream().map(x -> x.getPlatillaIncrustacion()).collect(Collectors.toList());
+        List<VariablePlantilla> variablePlantillasIncrustacion = variablePlantillaDAO.allByPlantillas(plantillaDocumentoIncrustacion);
         List<VariablePlantilla> variables = variablePlantillaDAO.allByPlantilla(plantilla);
+        variables.addAll(variablePlantillasIncrustacion);
         Alumno alumno = alumnoDAO.findAllInfo(documentoAcademico.getTramite().getAlumno().getId());
         List<AlumnoCiclo> alumnoCiclos = alumnoCicloDAO.allActivesByAlumnoAsc(alumno);
 
         Egresado egresado = egresadoDAO.findByAlumno(alumno);
-
-        htmlContent = this.recorrerVariables(htmlContent, variables, alumno, egresado, alumnoCiclos, documentoAcademico, usuario);
+        CicloAcademico cicloAcademicoAct = cicloAcademicoDAO.findActivo(ModalidadEstudioEnum.PRE);
+        htmlContent = this.addIncrustaciones(htmlContent, incrustacionDocumentos);
+        htmlContent = this.recorrerVariables(htmlContent, variables, alumno, egresado, alumnoCiclos, documentoAcademico, cicloAcademicoAct, usuario);
         htmlContent = this.remplazarTablas(htmlContent, alumno, variables);
 
         Document html = Jsoup.parse(htmlContent);
-        if (!incrustacionDocumentos.isEmpty()) {
-            int idx = 0;
-            for (PlantillaIncrustacionDocumento incrustacionDocumento : incrustacionDocumentos) {
 
-                if (html.getElementById(VARIABLE_INCRUSTACION) != null) {
-                    String tableOrigin = html.getElementById(VARIABLE_INCRUSTACION).html();
-                    String tableClone = html.getElementById(VARIABLE_INCRUSTACION).html();
-                    List<Element> divs = html.select("div");
-                    Element elementDiv = null;
-                    for (Element div : divs) {
-                        if (div.hasAttr("id")) {
-                            elementDiv = div;
-                        }
-                    }
-                    Document htmlInc = Jsoup.parse(incrustacionDocumento.getContenido());
-                    tableOrigin = htmlInc.select("body").html();
-
-                    Element element = new Element("div");
-                    element.append(tableOrigin);
-                    elementDiv.insertChildren(idx, element);
-                    idx++;
-                }
-            }
-        }
         PlantillaGenerica plantillaGene = new PlantillaGenerica();
         plantillaGene.setContenido(html.html());
         plantillaGene.setNombre(documentoAcademico.getTipoDocumentoAcademico().getNombre());
@@ -871,12 +861,32 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
     }
 
     private String recorrerVariables(String htmlContent, List<VariablePlantilla> variables, Alumno alumno, Egresado egresado,
-            List<AlumnoCiclo> alumnoCiclos, TramiteDocumentoAcademico documentoAcademico, Usuario usuario) {
+            List<AlumnoCiclo> alumnoCiclos, TramiteDocumentoAcademico documentoAcademico, CicloAcademico cicloAcademicoAct, Usuario usuario) {
         OficinaEnum oficinaEnum = documentoAcademico.getTipoDocumentoAcademico().getTipoConstanciaEnum() == TipoConstanciaEnum.CONS ? OficinaEnum.UR : OficinaEnum.OERA;
         Oficina oficina = oficinaDAO.findByCode(oficinaEnum.name());
-
+//        TramiteBachiller tramiteBachiller = tramiteBachillerDAO.findByAlumnoACEP(alumno);
+        ObtencionGrado obtencionGradoBachi = obtencionGradoDAO.findByAlumnoAndTipo(alumno, TipoGradoAcademicoEnum.BACH);
+        ObtencionGrado obtencionGradoTitulo = obtencionGradoDAO.findByAlumnoAndTipo(alumno, TipoGradoAcademicoEnum.TIT);
+        int idx = alumnoCiclos.size() - 1;
         for (VariablePlantilla var : variables) {
             switch (var.getVariableGenerica().getCodigoVaribleEnum()) {
+                case JEFE_OFICINA_OERA:
+                case JEFE_URA:
+                    htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), oficina.getJefeEncargado() == null ? oficina.getPersonaJefe().getNombreCompleto() : oficina.getJefeEncargado().getNombreCompleto());
+                    break;
+                case CORRELATIVO_DOC:
+                    if (documentoAcademico.getCorrelativoDocumento() == null) {
+                        DateTime today = new DateTime();
+
+                        TipoDocumentoCompaniaEnum tipoConEnum = documentoAcademico.getTipoDocumentoAcademico().getTipoConstanciaEnum() == TipoConstanciaEnum.CONS ? TipoDocumentoCompaniaEnum.DOC_CONS : TipoDocumentoCompaniaEnum.DOC_CERT;
+                        TipoDocumentoCompania tipoDocumentoCompania = tipoDocumentoCompaniaDAO.findByCodigo(tipoConEnum);
+                        SerieDocumento serieDocumento = serieDocumentoService.getCorrelativo(tipoDocumentoCompania, Long.valueOf(today.getYear()), usuario);
+
+                        documentoAcademico.setCorrelativoDocumento(serieDocumento.getNumeroDocumento() + "-" + oficina.getCodigoDocumento() + "/" + serieDocumento.getNumeroSerie());
+                        tramiteDocumentoAcademicoDAO.updateColumns(documentoAcademico, "correlativoDocumento");
+                    }
+                    htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), documentoAcademico.getCorrelativoDocumento());
+                    break;
                 case SEX_IDENT:
                     htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), alumno.getPersona().getEstimado());
                     break;
@@ -895,10 +905,7 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
                 case FACULTAD:
                     htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), alumno.getCarrera().getFacultad().getNombre());
                     break;
-                case RESOL_EGRESO:
-                    TramiteBachiller tramiteBachiller = tramiteBachillerDAO.findByAlumnoACEP(alumno);
-                    htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), tramiteBachiller.getResolucion().getSerie() + tramiteBachiller.getResolucion().getNumero());
-                    break;
+
                 case ESPECIALIDAD:
                     if (!alumno.getCarrera().getFacultad().getCodigo().equals(alumno.getCarrera().getCodigo())) {
                         htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), "Carrera de " + alumno.getCarrera().getNombre());
@@ -912,11 +919,6 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
                 case NOMBRE_PERSONA:
                     htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), alumno.getPersona().getNombreCompleto());
                     break;
-                case TITULO_PROFESIONAL:
-                    if (egresado.getTitulo() != null) {
-                        htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), egresado.getTitulo().getNombre());
-                    }
-                    break;
 
                 case FECHA_CONSTANCIA:
                     htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), TypesUtil.getStringDate(new Date(), "dd 'de' MMMM 'del' yyyy", "es"));
@@ -927,28 +929,14 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
                 case SENOR_A:
                     htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), alumno.getPersona().getSenior());
                     break;
-                case CICLO_PROMOCION:
-                    htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), egresado.getCicloAcademico().getCodigo());
-                    break;
-//                case EPG_PROMEDIO_PONDERADO:
-//                    htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), egresado.returnPromedioGraduacionTrunc(2).toString());
-//                    break;
-                case JEFE_OFICINA_OERA:
-                case JEFE_URA:
-                    htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), oficina.getJefeEncargado() == null ? oficina.getPersonaJefe().getNombreCompleto() : oficina.getJefeEncargado().getNombreCompleto());
-                    break;
-                case CORRELATIVO_DOC:
-                    if (documentoAcademico.getCorrelativoDocumento() == null) {
-                        DateTime today = new DateTime();
-
-                        TipoDocumentoCompaniaEnum tipoConEnum = documentoAcademico.getTipoDocumentoAcademico().getTipoConstanciaEnum() == TipoConstanciaEnum.CONS ? TipoDocumentoCompaniaEnum.DOC_CONS : TipoDocumentoCompaniaEnum.DOC_CERT;
-                        TipoDocumentoCompania tipoDocumentoCompania = tipoDocumentoCompaniaDAO.findByCodigo(tipoConEnum);
-                        SerieDocumento serieDocumento = serieDocumentoService.getCorrelativo(tipoDocumentoCompania, Long.valueOf(today.getYear()), usuario);
-
-                        documentoAcademico.setCorrelativoDocumento(serieDocumento.getNumeroDocumento() + "-" + oficina.getCodigoDocumento() + "/" + serieDocumento.getNumeroSerie());
-                        tramiteDocumentoAcademicoDAO.updateColumns(documentoAcademico, "correlativoDocumento");
+                case ALUMNO_REGULAR:
+                    MatriculaResumen matriculaResumen = matriculaResumenDAO.findByAlumnoCiclo(alumno, cicloAcademicoAct);
+                    if (matriculaResumen != null && matriculaResumen.getCreditosMatriculados() >= 12) {
+                        htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), "regular");
+                    } else {
+                        htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), "");
                     }
-                    htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), documentoAcademico.getCorrelativoDocumento());
+
                     break;
                 case PRIMER_CICLO_MATRICULADO:
                     htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), alumnoCiclos.get(0).getCicloAcademico().getDescripcion());
@@ -957,19 +945,24 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
                     htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), alumnoCiclos.get(0).getCicloAcademico().getDescripcion());
                     break;
                 case ULTIMO_CICLO_MATRICULADO:
-                    int idx = alumnoCiclos.size() - 1;
+
                     htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), alumnoCiclos.get(idx).getCicloAcademico().getDescripcion());
                     break;
-                case FECHA_ULTIMA_MATRICULA:
-                    htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), alumnoCiclos.get(0).getCicloAcademico().getDescripcion());
-                    break;
-                case CICLO_EGRESO:
-                    htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), egresado.getCicloAcademico().getDescripcion());
+                case CICLO_MATRICULA:
+                    if (alumnoCiclos.get(idx).getCicloAcademico().getCodigo().equals(cicloAcademicoAct.getCodigo())) {
+
+                        htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), "Se encuentra matriculado en el Ciclo " + alumnoCiclos.get(idx).getCicloAcademico().getDescripcion());
+                    } else {
+                        htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), "Estuvo matriculado en el Ciclo " + alumnoCiclos.get(idx).getCicloAcademico().getDescripcion());
+
+                    }
                     break;
                 case CANTIDAD_CREDITOS_APROBADOS:
                     htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), alumnoCiclos.get(0).getCreditosAprobadosAcumulados().toString());
                     break;
-
+                case FECHA_ULTIMA_MATRICULA:
+                    htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), alumnoCiclos.get(0).getCicloAcademico().getDescripcion());
+                    break;
                 case CICLOS_CURSADOS:
 
                     String ciclos = alumnoCiclos.size() > 2 ? "los ciclos " : "el ciclo ";
@@ -984,6 +977,17 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
                     }
                     htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), ciclos);
                     break;
+                case TITULO_PROFESIONAL:
+
+                    htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), egresado.getTitulo().getNombre());
+
+                    break;
+                case CICLO_PROMOCION:
+                    htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), egresado.getCicloAcademico().getCodigo());
+                    break;
+                case CICLO_EGRESO:
+                    htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), egresado.getCicloAcademico().getDescripcion());
+                    break;
 
                 case PROGRAMA:
                     String programa = "";
@@ -997,10 +1001,56 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
                     htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), programa);
                     break;
                 case FECHA_EGRESO:
-                    if (egresado.getFechaEgresado() != null) {
-                        htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), TypesUtil.getStringDate(egresado.getFechaEgresado(), "dd/MM/yyyy"));
-                    }
+
+                    htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), TypesUtil.getStringDate(egresado.getFechaEgresado(), "dd/MM/yyyy"));
+
                     break;
+                case RESOL_EGRESO:
+
+                    htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), obtencionGradoBachi.getResolucion().getDescripcion());
+
+                    break;
+                case RESOL_FECHA:
+
+                    htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), TypesUtil.getStringDate(obtencionGradoBachi.getResolucion().getFecha(), "dd/MM/yyyy"));
+
+                    break;
+                case RESOL_TITULO:
+
+                    htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), obtencionGradoTitulo.getResolucion().getDescripcion());
+
+                    break;
+                case RESOL_TITULO_FECHA:
+
+                    htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), TypesUtil.getStringDate(obtencionGradoTitulo.getResolucion().getFecha(), "dd/MM/yyyy"));
+
+                    break;
+                case ORDEN_MERITO_EGRESADO:
+
+                    htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), egresado.getOrdenMeritoFacultad() + "");
+
+                    break;
+                case CANTIDAD_ALUMNOS:
+
+                    htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), egresado.getControlMeritoFacultad().getTotalAlumnos() + "");
+
+                    break;
+                case PROMEDIO_PONDERADO_GRADUACION:
+
+                    htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), egresado.getPromedioGraduacion().toString());
+
+                    break;
+                case MEJOR_PROMEDIO_PONDERADO_GRADUACION:
+
+                    htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), egresado.getPromedioGraduacion().toString());
+
+                    break;
+                case NIVEL_ACADEMICO:
+
+                    htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), "2");
+
+                    break;
+
             }
         }
         return htmlContent;
@@ -1017,6 +1067,7 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
         Assert.isNull(pid, "Ya se agregó la incrustación " + plantillaGeneralBean.getPlantillaDocumentoAcademico().getNombre() + " para este Tramite");
 
         TramiteDocumentoAcademico academico = tramiteDocumentoAcademicoDAO.find(plantillaGeneralBean.getTramiteDocumentoAcademico());
+        verificadorSolicitudService.verificarDocumentoAlumno(plantillaGeneralBean.getPlantillaDocumentoAcademico(), academico, academico.getTramite().getAlumno());
 //        List<VariablePlantilla> variables = variablePlantillaDAO.allByPlantilla(plantillaGeneralBean.getPlantillaDocumentoAcademico());
 //        String htmlContent = plantillaGeneralBean.getPlantillaDocumentoAcademico().getContenido();
 
@@ -1077,8 +1128,6 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
         pid = plantillaDocumentoAcademicoDAO.findTipoDocumento(tipoDocumentoAcademico, pid.getIdioma());
         if (tipoDocumentoAcademico.getTipoConstanciaEnum() == TipoConstanciaEnum.CONS) {
             Assert.isNotNull(pid, "No existe una plantilla para el documento.");
-        } else {
-            return new ArrayList<VariablePlantilla>();
         }
         return variablePlantillaDAO.allByPlantillaParametro(pid);
     }
@@ -1105,10 +1154,19 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
     }
 
     @Override
-    public Archivo descargarBoletas(Long idTramiteDocumento) {
+    public Archivo findBoletas(Long idTramiteDocumento) {
 
         Archivo archivo = archivoDAO.findFirstByInstanciasTipoInstancia(idTramiteDocumento, InstanciaEnum.TRAM_DOCUMENTO);
         return archivo;
+    }
+
+    private String addIncrustaciones(String htmlContent, List<PlantillaIncrustacionDocumento> incrustacionDocumentos) {
+        String htmlIncrustacion = "";
+        for (PlantillaIncrustacionDocumento incrustacionDocumento : incrustacionDocumentos) {
+            htmlIncrustacion = htmlIncrustacion + incrustacionDocumento.getContenido() + "\n";
+        }
+        htmlContent = htmlContent.replace(INCRUSTACION.getValue(), htmlIncrustacion);
+        return htmlContent;
     }
 
 }
