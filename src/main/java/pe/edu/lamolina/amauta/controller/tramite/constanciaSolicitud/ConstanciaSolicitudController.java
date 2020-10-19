@@ -54,11 +54,11 @@ import pe.edu.lamolina.model.tramite.Tramite;
 import pe.edu.lamolina.model.tramite.TramiteDocumentoAcademico;
 import pe.edu.lamolina.model.tramite.VariablePlantilla;
 import pe.edu.lamolina.amauta.controller.tramite.plantillaConstancia.PlantillaGenerica;
-import pe.edu.lamolina.model.constantines.AcademicoConstantine;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.amauta.zelper.pdf.pdfHtml.PDFFormatoEnum;
 import pe.edu.lamolina.amauta.zelper.pdf.pdfHtml.PdfHtmlView;
+import pe.edu.lamolina.model.general.Archivo;
 
 @Controller
 @RequestMapping("tramite/solicitudconstancia")
@@ -101,8 +101,6 @@ public class ConstanciaSolicitudController {
                 "cicloAcademico.*",
                 "tipoTramite.codigo",
                 "tipoTramite.nombre",
-                "tipoTramite.esReincorporacionPregrado",
-                "tipoTramite.esTipoTramiteCurDir",
                 "tipoTramite.oficina.*",
                 "userRegistro.*",
                 "userRegistro.persona.*",
@@ -127,11 +125,11 @@ public class ConstanciaSolicitudController {
                 List<AccionTramiteDocumento> acciones = service.findEstadoByEstadoInicio(tramiteDoc.getTipoDocumentoAcademico(), tramiteDoc.getEstadoTramite());
                 ArrayNode arrayAcciones = new ArrayNode(JsonNodeFactory.instance);
                 for (AccionTramiteDocumento accion : acciones) {
-                    if (!accion.getEstadoTramiteFinal().getCodigo().equals("PAG")) {
-                        arrayAcciones.add(JsonHelper.createJson(accion, JsonNodeFactory.instance, new String[]{
-                            "*",
-                            "estadoTramiteFinal.*"}));
-                    }
+
+                    arrayAcciones.add(JsonHelper.createJson(accion, JsonNodeFactory.instance, new String[]{
+                        "*",
+                        "estadoTramite.*",
+                        "estadoTramiteFinal.*"}));
                 }
                 ObjectNode tramiteJson = JsonHelper.createJson(tramiteDoc.getTramite(), JsonNodeFactory.instance, false, mapperTramite);
                 node.set("estados", arrayAcciones);
@@ -671,6 +669,24 @@ public class ConstanciaSolicitudController {
             ExceptionHandler.handleException(e, response);
         }
 
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "verBoleta/{idTramiteDocumento}", method = RequestMethod.GET)
+    public JsonResponse verBoleta(@PathVariable Long idTramiteDocumento, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        try {
+
+            Archivo archivo = service.descargarBoletas(idTramiteDocumento);
+            response.setSuccess(Boolean.TRUE);
+            response.setData(JsonHelper.createJson(archivo, JsonNodeFactory.instance, new String[]{"*"}));
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
         return response;
     }
 

@@ -6,12 +6,20 @@ new Vue({
         solicitud: {},
         tramiteDocumento: {},
         colaborador: {},
+        archivo: {},
         mensajeerror: "",
         dataCargarFoto: VUE_MODAL.structFormAjax({
             id: 'modalCargarFoto',
             header: true,
             title: 'Cargar Fotografía',
             okbtn: 'Aceptar'
+        }),
+        viewBoleta: VUE_MODAL.structFormAjax({
+            id: 'viewBoleta',
+            header: true,
+            title: 'Boleta',
+            showaccept: false
+
         }),
         dataEnviarRevision: VUE_MODAL.structFormAjax({
             id: 'modalEnviarRevision',
@@ -20,19 +28,13 @@ new Vue({
             okbtn: 'Aceptar'
         })
     },
-    computed: {
-
-    },
-    created() {
-
-    },
     mounted: function () {
 
     },
     methods: {
         classEstado(value) {
             switch (value) {
-                case 'ACEP':                
+                case 'ACEP':
                 case 'DEV':
                 case 'ENV':
                 case 'CRE':
@@ -167,6 +169,27 @@ new Vue({
             event.preventDefault();
 
             location.href = APP.url("academico/procesar/" + item.id);
+        },
+        verBoleta(item) {
+            var $vue = this;
+            $global.$emit('MODAL-WAIT-OPEN', 'Cargando');
+            $.ajax({
+                method: 'GET',
+                url: APP.url('tramite/solicitudconstancia/verBoleta/' + item.id),
+                contentType: "application/json",
+                success: function (response) {
+                    if (response.success) {
+                        $vue.archivo = response.data;
+                        $vue.$refs.viewBoleta.open();
+                    } else {
+                        notify(response.message, 'error');
+                    }
+                    $global.$emit('MODAL-WAIT-CLOSE', 'Cargando');
+                }, error: function () {
+                    $global.$emit('MODAL-WAIT-CLOSE', 'Cargando');
+                    notify(Messages.errorComunicacion, "error");
+                }
+            });
         }
     }
 });

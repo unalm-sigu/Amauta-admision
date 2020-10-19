@@ -25,6 +25,7 @@ import pe.edu.lamolina.model.tramite.TramiteDocumentoAcademico;
 import pe.edu.lamolina.model.tramite.VariablePlantilla;
 import pe.edu.lamolina.amauta.controller.tramite.plantillaConstancia.PlantillaGenerica;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.general.Archivo;
 
 public interface ConstanciaSolicitudService {
 
@@ -89,5 +90,7 @@ public interface ConstanciaSolicitudService {
     public List<AlumnoCiclo> allAlumnoCiclo(Alumno alumno);
 
     public List<AlumnoCiclo> allAlumnoCiclo(TramiteDocumentoAcademico tramiteDocumentoAcademico);
+
+    public Archivo descargarBoletas(Long idTramiteDocumento);
 
 }

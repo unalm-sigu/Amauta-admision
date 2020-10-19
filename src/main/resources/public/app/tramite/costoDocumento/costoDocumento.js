@@ -82,6 +82,7 @@ new Vue({
         },
         modalUpdate: function (id, lista) {
             let $vue = this;
+            $vue.costoDocumento = {};
             lista.forEach(function (elem) {
                 if (id == elem.id) {
                     $vue.costoDocumento = elem;
@@ -106,7 +107,6 @@ new Vue({
             }
             self.btnEnable();
             let $vue = this;
-            console.log($vue.costoDocumento);
             $vue.costoDocumento.tipoDocumento.tipo = $vue.costoDocumento.tipoDocumento.tipo.name;
             $vue.costoDocumento.tipoDocumento.costoCiclo = $vue.costoDocumento.tipoDocumento.costoCiclo == true ? 1 : 0;
             $.ajax({
@@ -118,7 +118,6 @@ new Vue({
                     if (response.success) {
                         $global.$emit("reloadDyntable");
                         notify(response.message, 'info');
-                        $vue.costoDocumento = {}
                     }
                 }
             });
@@ -147,7 +146,7 @@ new Vue({
                     if (response.success) {
                         $global.$emit("reloadDyntable");
                         notify(response.message, 'info');
-                        $vue.costoDocumento = {}
+
                     } else {
                         notify(response.message, 'error');
                     }
@@ -156,7 +155,7 @@ new Vue({
             $("#myModal").modal('hide');
         },
         nameWithCodeEspecial(tipo) {
-            return tipo.tipo.value + " " + tipo.nombre;
+            return tipo.nombre;
         }
     }
 });
