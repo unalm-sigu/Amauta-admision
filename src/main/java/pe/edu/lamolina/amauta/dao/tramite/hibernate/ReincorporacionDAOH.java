@@ -14,7 +14,9 @@ import pe.edu.lamolina.model.tramite.Resolucion;
 import pe.edu.lamolina.model.tramite.Tramite;
 import pe.edu.lamolina.amauta.dao.tramite.ReincorporacionDAO;
 import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
+import static pe.edu.lamolina.model.enums.TramiteEstadoEnum.EPG_TRAM_GRADO_SOL;
 import static pe.edu.lamolina.model.enums.TramiteEstadoEnum.SOL_ACEP;
+import static pe.edu.lamolina.model.enums.TramiteEstadoEnum.SOL_REI;
 
 @Repository
 public class ReincorporacionDAOH extends AbstractEasyDAO<Reincorporacion> implements ReincorporacionDAO {
@@ -74,7 +76,7 @@ public class ReincorporacionDAOH extends AbstractEasyDAO<Reincorporacion> implem
                 .filter("cr.codigo", "<", ciclo.getCodigo())
                 .filter("alu.id", alumno)
                 .beginBlock()
-                .__().filter("et.codigo", TramiteEstadoEnum.SOL_ACEP)
+                .__().filter("et.codigo", SOL_ACEP)
                 .__().filter("rei.aceptado", 1)
                 .endBlock();
         return all(sql);
@@ -89,7 +91,7 @@ public class ReincorporacionDAOH extends AbstractEasyDAO<Reincorporacion> implem
                 .filter("cr.id", ciclo)
                 .filter("alu.id", alumno)
                 .beginBlock()
-                .__().in("et.codigo", Arrays.asList(TramiteEstadoEnum.SOL_ACEP, TramiteEstadoEnum.SOL_REI))
+                .__().in("et.codigo", Arrays.asList(SOL_ACEP, SOL_REI, EPG_TRAM_GRADO_SOL))
                 .__().filter("rei.aceptado", 1)
                 .endBlock();
         return all(sql);
@@ -104,7 +106,7 @@ public class ReincorporacionDAOH extends AbstractEasyDAO<Reincorporacion> implem
                 .filter("cr.codigo", "<", ciclo.getCodigo())
                 .in("alu.id", alumnos)
                 .beginBlock()
-                .__().filter("et.codigo", TramiteEstadoEnum.SOL_ACEP)
+                .__().filter("et.codigo", SOL_ACEP)
                 .__().filter("rei.aceptado", 1)
                 .endBlock();
         return all(sql);
@@ -119,7 +121,7 @@ public class ReincorporacionDAOH extends AbstractEasyDAO<Reincorporacion> implem
                 .filter("cr.id", ciclo)
                 .in("alu.id", alumnos)
                 .beginBlock()
-                .__().in("et.codigo", Arrays.asList(TramiteEstadoEnum.SOL_ACEP, TramiteEstadoEnum.SOL_REI))
+                .__().in("et.codigo", Arrays.asList(SOL_ACEP, SOL_REI, EPG_TRAM_GRADO_SOL))
                 .__().filter("rei.aceptado", 1)
                 .endBlock();
         return all(sql);

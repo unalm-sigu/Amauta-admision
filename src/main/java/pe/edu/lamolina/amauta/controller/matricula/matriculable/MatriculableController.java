@@ -569,9 +569,11 @@ public class MatriculableController {
                 List<AlumnoCiclo> alumnoCiclos = service.allAlumnosCicloNmat(ds.getCicloAcademico());
                 service.verificarAlumnosNmat(ds, alumnoCiclos);
             }
+
             response.setData(repositorVisor.porcentajeAvance());
             response.setMessage(repositorVisor.getMessage());
             response.setSuccess(repositorVisor.isLibre());
+
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
@@ -584,13 +586,15 @@ public class MatriculableController {
     @ResponseBody
     @RequestMapping("verificarAvance")
     public JsonResponse verificarAvance(HttpSession session) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         JsonResponse response = new JsonResponse();
 
         try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+
             response.setData(repositorVisor.porcentajeAvance());
             response.setMessage(repositorVisor.getMessage());
             response.setSuccess(repositorVisor.isLibre());
+
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
