@@ -88,11 +88,12 @@
                                                             <li>  <a class="btn-link pointer" 
                                                                      v-on:click="procesarTramite(item.tramite,$event)" v-if="item.tramite.formularioEstadoTramite.id">
                                                                     Procesaar</a></li>
-                                                            <li v-for="estado in item.estados">
-                                                                <a v-if="estado.url !=null" v-bind:href="estado.url + item.id">{{estado.opcion}}</a>
-                                                                <a v-if="item.tramite.formularioEstadoTramite.id == null &amp;&amp; estado.url == null" v-on:click="accion(estado,item)">{{estado.opcion}}</a>
+                                                            <li v-for="accionTemp in item.estados">
+                                                                <a v-if="accionTemp.url !=null" v-bind:href="accionTemp.url + item.id">{{accionTemp.opcion}}</a>
+                                                                <a class="pointer"
+                                                                    v-if="item.tramite.formularioEstadoTramite.id == null &amp;&amp; accionTemp.url == null &amp;&amp; accionTemp.estadoTramite.visibilidadBandeja" v-on:click="accion(accionTemp,item)">{{accionTemp.opcion}}</a>
                                                             </li>
-                                                            <!--<li> <a v-on:click.prevent="cargarfoto(item)"  href="#">Cargar fotografía</a></li>-->
+                                                            <li> <a v-on:click.prevent="verBoleta(item)"  href="#">Ver Boleta</a></li>
                                                             <!--                                                                <li> <a v-on:click.prevent="enviarrevision(solicitud)"  href="#">Enviar a Revisión</a></li>
                                                                                                                             <li class="divider"></li>
                                                                                                                             <li> <a v-on:click.prevent="cancelar(solicitud.id)"  href="#">Cancelar Solicitud Documento</a></li>-->

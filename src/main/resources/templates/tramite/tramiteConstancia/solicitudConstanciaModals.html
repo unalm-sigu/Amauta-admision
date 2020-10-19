@@ -1,23 +1,16 @@
-<!--<modal-vik ref="enviarRevision"
-           v-bind="dataEnviarRevision"
-           v-bind:okaction="createEnviarRevision">
+<modal-vik ref="viewBoleta"
+           v-bind="viewBoleta" >
 
     <div slot="body">
-
-        <form id="formEnviarRevision"  data-parsley-validate="true">
-
-            <div class="form-group">
-                <label>Colaborador</label>
-                <input type="text"
-                       class="form-control"
-                       name="colaborador.id"
-                       v-model="colaborador.id"
-                       required="true"/>
+        <template >
+            <div class="v-bottom m-t" style="width: 180px;" v-if="archivo != null">
+                <img alt=""    class="img-responsive img-thumbnail img-circle" style="width: 200px;border-radius: 20%;"
+                     v-bind:src="archivo.ruta"
+                     data-holder-rendered="true" />
             </div>
-        </form>
-
+        </template>
     </div>
-</modal-vik>-->
+</modal-vik>
 
 <modal-vik ref="cargarFoto"
            v-bind="dataCargarFoto"

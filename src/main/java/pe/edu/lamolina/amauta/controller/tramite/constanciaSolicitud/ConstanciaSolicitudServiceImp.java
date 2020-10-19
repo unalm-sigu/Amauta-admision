@@ -5,17 +5,23 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.base.Strings;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 import javax.servlet.http.HttpServletResponse;
+import static org.apache.poi.hssf.usermodel.HeaderFooter.file;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.slf4j.Logger;
@@ -34,7 +40,6 @@ import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
 import pe.edu.lamolina.model.academico.CicloAcademico;
-import pe.edu.lamolina.model.academico.ControlOrdenMerito;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.Egresado;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
@@ -52,7 +57,6 @@ import pe.edu.lamolina.model.enums.TipoDocumentoCompaniaEnum;
 import pe.edu.lamolina.model.enums.TipoSolicitanteEnum;
 import pe.edu.lamolina.model.enums.TipoTramiteEnum;
 import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
-import static pe.edu.lamolina.model.enums.VariableGenericaEnum.CICLO_ACADEMICO;
 import pe.edu.lamolina.model.finanzas.Acreencia;
 import pe.edu.lamolina.model.finanzas.AcreenciaTramiteDocumento;
 import pe.edu.lamolina.model.finanzas.CuentaBancaria;
@@ -118,12 +122,15 @@ import pe.edu.lamolina.amauta.dao.tramite.TramiteDocumentoParametroDAO;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import pe.edu.lamolina.amauta.dao.general.ArchivoDAO;
 import static pe.edu.lamolina.model.constantines.AcademicoConstantine.CODIGO_ALIANZA_ESTRATEGICA;
 import static pe.edu.lamolina.model.constantines.GlobalConstantine.VARIABLE_INCRUSTACION;
 import static pe.edu.lamolina.model.constantines.GlobalConstantine.VARIABLE_TABLE;
 import pe.edu.lamolina.amauta.dao.general.OficinaDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TramiteBachillerDAO;
+import pe.edu.lamolina.model.enums.InstanciaEnum;
 import pe.edu.lamolina.model.enums.SexoEnum;
+import pe.edu.lamolina.model.general.Archivo;
 import pe.edu.lamolina.model.tramite.TramiteBachiller;
 
 @Service
@@ -241,6 +248,9 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
 
     @Autowired
     StorageService swiftService;
+
+    @Autowired
+    ArchivoDAO archivoDAO;
 
     @Override
     @Transactional
@@ -891,7 +901,7 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
                     break;
                 case ESPECIALIDAD:
                     if (!alumno.getCarrera().getFacultad().getCodigo().equals(alumno.getCarrera().getCodigo())) {
-                        htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), "Esp. de " + alumno.getCarrera().getNombre());
+                        htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), "Carrera de " + alumno.getCarrera().getNombre());
                     } else {
                         htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), "");
                     }
@@ -1092,6 +1102,13 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
         }
 
         return alumnoCiclos;
+    }
+
+    @Override
+    public Archivo descargarBoletas(Long idTramiteDocumento) {
+
+        Archivo archivo = archivoDAO.findFirstByInstanciasTipoInstancia(idTramiteDocumento, InstanciaEnum.TRAM_DOCUMENTO);
+        return archivo;
     }
 
 }
