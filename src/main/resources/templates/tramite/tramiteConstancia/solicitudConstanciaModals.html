@@ -3,10 +3,13 @@
 
     <div slot="body">
         <template >
-            <div class="v-bottom m-t" style="width: 180px;" v-if="archivo != null">
-                <img alt=""    class="img-responsive img-thumbnail img-circle" style="width: 200px;border-radius: 20%;"
-                     v-bind:src="archivo.ruta"
-                     data-holder-rendered="true" />
+            <div class="v-bottom m-t"  v-if="archivo != null">
+
+
+                <a v-bind:href="archivo.ruta" target="_blank"> <img alt="" class="img-responsive img-thumbnail pointer"
+                                                                    v-bind:src="archivo.ruta"
+                                                                    data-holder-rendered="true" /></a>
+
             </div>
         </template>
     </div>
