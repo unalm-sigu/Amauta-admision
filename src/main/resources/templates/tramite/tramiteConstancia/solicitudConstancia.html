@@ -8,9 +8,9 @@
             <div id="solicitudVue" v-cloak="">
 
                 <header class="header b-b padder-lg">
-<!--                    <a class="pull-right btn btn-success btn-sm" type="button"    th:href="@{/tramite/solicitudconstancia/solicitud/0}" >
-                        Agregar Trámite
-                    </a>-->
+                    <!--                    <a class="pull-right btn btn-success btn-sm" type="button"    th:href="@{/tramite/solicitudconstancia/solicitud/0}" >
+                                            Agregar Trámite
+                                        </a>-->
                     <h1>Trámites documentarios</h1>
                 </header>
                 <section class="panel">
@@ -59,11 +59,15 @@
                                                     <p  class="bold" > {{item.personaContacto}}  </p>
                                                     <p  class="bold" > Teléfono: {{item.telefono}}  </p>
                                                     <p  class="bold" > Email: {{item.email}}  </p>
-                                                    
+
                                                 </td>
                                                 <td class="v-middle">
                                                     <p  class="" > {{item.tramite.serie}} - {{item.tramite.numero}} </p>
                                                     <p v-if="item.correlativoDocumento" class="bold"> Código Documento: {{item.correlativoDocumento}} </p>
+                                                    <span v-if="item.comentario" >
+                                                        <label class=" bold">Mensaje</label>
+                                                        <p v-text="item.comentario"></p>
+                                                    </span>
                                                 </td>
 
                                                 <td class="v-middle">
@@ -91,7 +95,7 @@
                                                             <li v-for="accionTemp in item.estados">
                                                                 <a v-if="accionTemp.url !=null" v-bind:href="accionTemp.url + item.id">{{accionTemp.opcion}}</a>
                                                                 <a class="pointer"
-                                                                    v-if="item.tramite.formularioEstadoTramite.id == null &amp;&amp; accionTemp.url == null &amp;&amp; accionTemp.estadoTramite.visibilidadBandeja" v-on:click="accion(accionTemp,item)">{{accionTemp.opcion}}</a>
+                                                                   v-if="item.tramite.formularioEstadoTramite.id == null &amp;&amp; accionTemp.url == null &amp;&amp; accionTemp.estadoTramite.visibilidadBandeja" v-on:click="accion(accionTemp,item)">{{accionTemp.opcion}}</a>
                                                             </li>
                                                             <li> <a v-on:click.prevent="verBoleta(item)"  href="#">Ver Boleta</a></li>
                                                             <!--                                                                <li> <a v-on:click.prevent="enviarrevision(solicitud)"  href="#">Enviar a Revisión</a></li>
@@ -113,9 +117,9 @@
 
         </div>
         <div layout:fragment="js">
-            
+
             <div th:substituteby="_layout/includes :: javascript-dynatable"/>
-            
+
             <div th:substituteby="_layout/includes :: javascript-upload"/>
             <div th:substituteby="_modules/vue-raptor-table"></div>
             <script th:src="@{/app/tramite/updatehistorialacademico/updateHistorialAcademicoUploadFoto.js}" charset="utf-8"></script>

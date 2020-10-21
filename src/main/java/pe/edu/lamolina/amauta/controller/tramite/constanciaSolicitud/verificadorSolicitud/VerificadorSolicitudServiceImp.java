@@ -193,6 +193,7 @@ public class VerificadorSolicitudServiceImp implements VerificadorSolicitudServi
                     break;
                 case ULTIMO_CICLO_MATRICULADO:
                 case CICLO_MATRICULA:
+                case NIVEL_ACADEMICO:
                     Assert.isNotNull(alumnoCiclos.get(idx), "El alumno no tiene historial.");
                     break;
 
@@ -261,11 +262,6 @@ public class VerificadorSolicitudServiceImp implements VerificadorSolicitudServi
                 case MEJOR_PROMEDIO_PONDERADO_GRADUACION:
                     Assert.isNotNull(egresado, "El alumno no es egresado. Comuniquese con mesa de ayuda.");
                     Assert.isNotNull(egresado.getPromedioGraduacion(), "El alumno no tiene promedio graduación. Comuniquese con mesa de ayuda.");
-
-                    break;
-                case NIVEL_ACADEMICO:
-
-                    htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), "2");
 
                     break;
 
