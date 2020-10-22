@@ -128,8 +128,13 @@ public class VerificadorSolicitudServiceImp implements VerificadorSolicitudServi
         ObtencionGrado obtencionGradoBachi = obtencionGradoDAO.findByAlumnoAndTipo(alumno, TipoGradoAcademicoEnum.BACH);
         ObtencionGrado obtencionGradoTitulo = obtencionGradoDAO.findByAlumnoAndTipo(alumno, TipoGradoAcademicoEnum.TIT);
         CicloAcademico cicloAcademicoAct = cicloAcademicoDAO.findActivo(ModalidadEstudioEnum.PRE);
-        EventoCicloAcademico eventoAcademico = eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(alumnoCiclos.get(0).getCicloAcademico(), FECHAS_BACH);
-        EventoCicloAcademico eventoFinAcademico = eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(alumnoCiclos.get(idx).getCicloAcademico(), FECHAS_BACH);
+        EventoCicloAcademico eventoAcademico = null;
+        EventoCicloAcademico eventoFinAcademico = null;
+
+        if (!alumnoCiclos.isEmpty()) {
+            eventoAcademico = eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(alumnoCiclos.get(0).getCicloAcademico(), FECHAS_BACH);
+            eventoFinAcademico = eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(alumnoCiclos.get(idx).getCicloAcademico(), FECHAS_BACH);
+        }
 
         for (VariablePlantilla var : variables) {
             switch (var.getVariableGenerica().getCodigoVaribleEnum()) {
