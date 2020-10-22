@@ -206,6 +206,7 @@ public class VerificadorSolicitudServiceImp implements VerificadorSolicitudServi
                 case ULTIMO_CICLO_MATRICULADO:
                 case CICLO_MATRICULA:
                 case NIVEL_ACADEMICO:
+                    idx = idx == -1 ? 0 : idx;
                     Assert.isNotNull(alumnoCiclos.get(idx), "El alumno no tiene historial.");
                     break;
 
