@@ -911,7 +911,7 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
 
                 case ESPECIALIDAD:
                     if (!alumno.getCarrera().getFacultad().getCodigo().equals(alumno.getCarrera().getCodigo())) {
-                        htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), "Carrera de " + alumno.getCarrera().getNombre());
+                        htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), " - Carrera de " + alumno.getCarrera().getNombre());
                     } else {
                         htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), "");
                     }
@@ -987,7 +987,7 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
                     break;
                 case TITULO_PROFESIONAL:
 
-                    htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), egresado.getTitulo().getNombre());
+                    htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), obtencionGradoTitulo.getGradoAcademico().getNombre());
 
                     break;
                 case CICLO_PROMOCION:
