@@ -20,6 +20,7 @@ import static pe.edu.lamolina.model.enums.TipoGradoAcademicoEnum.BACH;
 import static pe.edu.lamolina.model.enums.TipoGradoAcademicoEnum.DOC;
 import static pe.edu.lamolina.model.enums.TipoGradoAcademicoEnum.MAE;
 import static pe.edu.lamolina.model.enums.TipoGradoAcademicoEnum.TIT;
+import static pe.edu.lamolina.model.enums.TramiteEstadoEnum.ACEP;
 import pe.edu.lamolina.model.tramite.ObtencionGrado;
 import pe.edu.lamolina.model.tramite.Resolucion;
 
@@ -38,7 +39,8 @@ public class ObtencionGradoDAOH extends AbstractEasyDAO<ObtencionGrado> implemen
         Octavia sql = Octavia.query()
                 .from(ObtencionGrado.class, "og")
                 .join("resolucion re", "alumno alu", "alu.persona per", "alu.carrera ca", "ca.facultad")
-                .join("cicloAcademico", "gradoAcademico")
+                .join("cicloAcademico", "gradoAcademico", "tramite tr")
+                .filter("tr.estado", ACEP)
                 .leftJoin("per.tipoDocumento")
                 .filter("re.id", resolucion);
 

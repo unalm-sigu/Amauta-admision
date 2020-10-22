@@ -16,6 +16,7 @@ import pe.edu.lamolina.amauta.dao.academico.AlumnoCicloDAO;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.amauta.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.amauta.dao.academico.EgresadoDAO;
+import pe.edu.lamolina.amauta.dao.academico.EventoCicloAcademicoDAO;
 import pe.edu.lamolina.amauta.dao.academico.MatriculaResumenDAO;
 import pe.edu.lamolina.amauta.dao.general.OficinaDAO;
 import pe.edu.lamolina.amauta.dao.tramite.ObtencionGradoDAO;
@@ -33,9 +34,11 @@ import pe.edu.lamolina.model.tramite.VariablePlantilla;
 
 import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.EventoCicloAcademico;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
 import static pe.edu.lamolina.model.constantines.AcademicoConstantine.CODIGO_ALIANZA_ESTRATEGICA;
 import static pe.edu.lamolina.model.constantines.GlobalConstantine.VARIABLE_TABLE;
+import static pe.edu.lamolina.model.enums.EventoAcademicoEnum.FECHAS_BACH;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.enums.SexoEnum;
@@ -87,6 +90,9 @@ public class VerificadorSolicitudServiceImp implements VerificadorSolicitudServi
     @Autowired
     CicloAcademicoDAO cicloAcademicoDAO;
 
+    @Autowired
+    EventoCicloAcademicoDAO eventoCicloAcademicoDAO;
+
     @Override
     public void verificarDocumentoAlumno(PlantillaDocumentoAcademico plantillaDocumentoAcademico, TramiteDocumentoAcademico tramiteDocumentoAcademico, Alumno alumno) {
         this.findPlantillaHtml(plantillaDocumentoAcademico, tramiteDocumentoAcademico, alumno);
@@ -116,12 +122,19 @@ public class VerificadorSolicitudServiceImp implements VerificadorSolicitudServi
     }
 
     private String recorrerVariables(String htmlContent, List<VariablePlantilla> variables, Alumno alumno, Egresado egresado, List<AlumnoCiclo> alumnoCiclos, TramiteDocumentoAcademico documentoAcademico) {
+        int idx = alumnoCiclos.size() - 1;
         OficinaEnum oficinaEnum = documentoAcademico.getTipoDocumentoAcademico().getTipoConstanciaEnum() == TipoConstanciaEnum.CONS ? OficinaEnum.UR : OficinaEnum.OERA;
         Oficina oficina = oficinaDAO.findByCode(oficinaEnum.name());
         ObtencionGrado obtencionGradoBachi = obtencionGradoDAO.findByAlumnoAndTipo(alumno, TipoGradoAcademicoEnum.BACH);
         ObtencionGrado obtencionGradoTitulo = obtencionGradoDAO.findByAlumnoAndTipo(alumno, TipoGradoAcademicoEnum.TIT);
         CicloAcademico cicloAcademicoAct = cicloAcademicoDAO.findActivo(ModalidadEstudioEnum.PRE);
-        int idx = alumnoCiclos.size() - 1;
+        EventoCicloAcademico eventoAcademico = null;
+        EventoCicloAcademico eventoFinAcademico = null;
+
+        if (!alumnoCiclos.isEmpty()) {
+            eventoAcademico = eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(alumnoCiclos.get(0).getCicloAcademico(), FECHAS_BACH);
+            eventoFinAcademico = eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(alumnoCiclos.get(idx).getCicloAcademico(), FECHAS_BACH);
+        }
 
         for (VariablePlantilla var : variables) {
             switch (var.getVariableGenerica().getCodigoVaribleEnum()) {
@@ -186,14 +199,14 @@ public class VerificadorSolicitudServiceImp implements VerificadorSolicitudServi
 
                     break;
                 case PRIMER_CICLO_MATRICULADO:
-                case FECHA_PRIMERA_MATRICULA:
-                case FECHA_ULTIMA_MATRICULA:
+
                 case CANTIDAD_CREDITOS_APROBADOS:
                     Assert.isNotNull(alumnoCiclos.get(0), "El alumno no tiene historial.");
                     break;
                 case ULTIMO_CICLO_MATRICULADO:
                 case CICLO_MATRICULA:
                 case NIVEL_ACADEMICO:
+                    idx = idx == -1 ? 0 : idx;
                     Assert.isNotNull(alumnoCiclos.get(idx), "El alumno no tiene historial.");
                     break;
 
@@ -212,15 +225,22 @@ public class VerificadorSolicitudServiceImp implements VerificadorSolicitudServi
                     htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), ciclos);
                     break;
                 case TITULO_PROFESIONAL:
-                    Assert.isNotNull(egresado.getTitulo(), "El alumno no tiene titulo. Comuniquese con mesa de ayuda.");
+                    Assert.isTrue((obtencionGradoTitulo != null && obtencionGradoTitulo.getGradoAcademico() != null)
+                            || (obtencionGradoBachi != null && obtencionGradoBachi.getGradoAcademico() != null)
+                            || (egresado != null && egresado.getTitulo() != null), "El alumno no tiene titulo o bachiller. Comuniquese con mesa de ayuda.");
 
                     break;
                 case CICLO_PROMOCION:
                 case CICLO_EGRESO:
-                case FECHA_EGRESO:
                     Assert.isNotNull(egresado, "El alumno no es egresado. Comuniquese con mesa de ayuda.");
                     break;
-
+                case FECHA_PRIMERA_MATRICULA:
+                case FECHA_EGRESO:
+                    Assert.isNotNull(eventoAcademico, "El alumno no es egresado. Comuniquese con mesa de ayuda.");
+                    break;
+                case FECHA_ULTIMA_MATRICULA:
+                    Assert.isNotNull(eventoFinAcademico, "El alumno no es egresado. Comuniquese con mesa de ayuda.");
+                    break;
                 case PROGRAMA:
                     String programa = "";
                     if (alumno.getCarrera().getCodigo().equals(CODIGO_ALIANZA_ESTRATEGICA)) {

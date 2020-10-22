@@ -1151,7 +1151,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
                 }
                 evaluacionExpandidaDAO.deleteByGrupoSeccion(grupoSeccion);
                 evaluacionSeccionDAO.deleteByGrupoSeccion(grupoSeccion);
-                grupoSeccionDAO.deleteGrupoSeccion(grupoSeccion);
+                grupoSeccionDAO.delete(grupoSeccion.getId());
 
                 this.actualizarBoletin();
 

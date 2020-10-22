@@ -123,6 +123,8 @@ import pe.edu.lamolina.amauta.dao.general.OficinaDAO;
 import pe.edu.lamolina.amauta.dao.tramite.ObtencionGradoDAO;
 import pe.edu.lamolina.amauta.dao.tramite.ResolucionDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TramiteBachillerDAO;
+import pe.edu.lamolina.model.academico.EventoCicloAcademico;
+import static pe.edu.lamolina.model.enums.EventoAcademicoEnum.FECHAS_BACH;
 import pe.edu.lamolina.model.enums.InstanciaEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.SexoEnum;
@@ -860,12 +862,21 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
 
     private String recorrerVariables(String htmlContent, List<VariablePlantilla> variables, Alumno alumno, Egresado egresado,
             List<AlumnoCiclo> alumnoCiclos, TramiteDocumentoAcademico documentoAcademico, CicloAcademico cicloAcademicoAct, Usuario usuario) {
+        int idx = alumnoCiclos.size() - 1;
+
         OficinaEnum oficinaEnum = documentoAcademico.getTipoDocumentoAcademico().getTipoConstanciaEnum() == TipoConstanciaEnum.CONS ? OficinaEnum.UR : OficinaEnum.OERA;
         Oficina oficina = oficinaDAO.findByCode(oficinaEnum.name());
-//        TramiteBachiller tramiteBachiller = tramiteBachillerDAO.findByAlumnoACEP(alumno);
         ObtencionGrado obtencionGradoBachi = obtencionGradoDAO.findByAlumnoAndTipo(alumno, TipoGradoAcademicoEnum.BACH);
         ObtencionGrado obtencionGradoTitulo = obtencionGradoDAO.findByAlumnoAndTipo(alumno, TipoGradoAcademicoEnum.TIT);
-        int idx = alumnoCiclos.size() - 1;
+
+        EventoCicloAcademico eventoAcademico = null;
+        EventoCicloAcademico eventoFinAcademico = null;
+
+        if (!alumnoCiclos.isEmpty()) {
+            eventoAcademico = eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(alumnoCiclos.get(0).getCicloAcademico(), FECHAS_BACH);
+            eventoFinAcademico = eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(alumnoCiclos.get(idx).getCicloAcademico(), FECHAS_BACH);
+        }
+
         for (VariablePlantilla var : variables) {
             switch (var.getVariableGenerica().getCodigoVaribleEnum()) {
                 case JEFE_OFICINA_OERA:
@@ -905,8 +916,9 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
                     break;
 
                 case ESPECIALIDAD:
+                case CARRERA:
                     if (!alumno.getCarrera().getFacultad().getCodigo().equals(alumno.getCarrera().getCodigo())) {
-                        htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), "Carrera de " + alumno.getCarrera().getNombre());
+                        htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), " - Carrera de " + alumno.getCarrera().getNombre());
                     } else {
                         htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), "");
                     }
@@ -940,7 +952,7 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
                     htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), alumnoCiclos.get(0).getCicloAcademico().getDescripcion());
                     break;
                 case FECHA_PRIMERA_MATRICULA:
-                    htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), alumnoCiclos.get(0).getCicloAcademico().getDescripcion());
+                    htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), TypesUtil.getStringDate(eventoAcademico.getFechaInicio(), "dd/MM/yyyy"));
                     break;
                 case ULTIMO_CICLO_MATRICULADO:
 
@@ -964,7 +976,7 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
                     htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), alumnoCiclos.get(0).getCreditosAprobadosAcumulados().toString());
                     break;
                 case FECHA_ULTIMA_MATRICULA:
-                    htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), alumnoCiclos.get(0).getCicloAcademico().getDescripcion());
+                    htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), TypesUtil.getStringDate(eventoFinAcademico.getFechaFin(), "dd/MM/yyyy"));
                     break;
                 case CICLOS_CURSADOS:
 
@@ -981,8 +993,16 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
                     htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), ciclos);
                     break;
                 case TITULO_PROFESIONAL:
+                    if (obtencionGradoTitulo != null && obtencionGradoTitulo.getGradoAcademico() != null) {
 
-                    htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), egresado.getTitulo().getNombre());
+                        htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), obtencionGradoTitulo.getGradoAcademico().getNombre());
+                    } else if (obtencionGradoBachi != null && obtencionGradoBachi.getGradoAcademico() != null) {
+                        htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), obtencionGradoBachi.getGradoAcademico().getNombre());
+
+                    } else if (egresado != null && egresado.getTitulo() != null) {
+                        htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), egresado.getTitulo().getNombre());
+
+                    }
 
                     break;
                 case CICLO_PROMOCION:
@@ -1005,7 +1025,7 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
                     break;
                 case FECHA_EGRESO:
 
-                    htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), TypesUtil.getStringDate(egresado.getFechaEgresado(), "dd/MM/yyyy"));
+                    htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), TypesUtil.getStringDate(eventoFinAcademico.getFechaFin(), "dd/MM/yyyy"));
 
                     break;
                 case RESOL_EGRESO:
