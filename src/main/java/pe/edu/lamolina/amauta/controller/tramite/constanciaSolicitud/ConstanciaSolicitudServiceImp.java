@@ -868,8 +868,14 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
         Oficina oficina = oficinaDAO.findByCode(oficinaEnum.name());
         ObtencionGrado obtencionGradoBachi = obtencionGradoDAO.findByAlumnoAndTipo(alumno, TipoGradoAcademicoEnum.BACH);
         ObtencionGrado obtencionGradoTitulo = obtencionGradoDAO.findByAlumnoAndTipo(alumno, TipoGradoAcademicoEnum.TIT);
-        EventoCicloAcademico eventoAcademico = eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(alumnoCiclos.get(0).getCicloAcademico(), FECHAS_BACH);
-        EventoCicloAcademico eventoFinAcademico = eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(alumnoCiclos.get(idx).getCicloAcademico(), FECHAS_BACH);
+
+        EventoCicloAcademico eventoAcademico = null;
+        EventoCicloAcademico eventoFinAcademico = null;
+
+        if (!alumnoCiclos.isEmpty()) {
+            eventoAcademico = eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(alumnoCiclos.get(0).getCicloAcademico(), FECHAS_BACH);
+            eventoFinAcademico = eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(alumnoCiclos.get(idx).getCicloAcademico(), FECHAS_BACH);
+        }
 
         for (VariablePlantilla var : variables) {
             switch (var.getVariableGenerica().getCodigoVaribleEnum()) {
@@ -910,6 +916,7 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
                     break;
 
                 case ESPECIALIDAD:
+                case CARRERA:
                     if (!alumno.getCarrera().getFacultad().getCodigo().equals(alumno.getCarrera().getCodigo())) {
                         htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), " - Carrera de " + alumno.getCarrera().getNombre());
                     } else {
@@ -986,8 +993,16 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
                     htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), ciclos);
                     break;
                 case TITULO_PROFESIONAL:
+                    if (obtencionGradoTitulo != null && obtencionGradoTitulo.getGradoAcademico() != null) {
 
-                    htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), obtencionGradoTitulo.getGradoAcademico().getNombre());
+                        htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), obtencionGradoTitulo.getGradoAcademico().getNombre());
+                    } else if (obtencionGradoBachi != null && obtencionGradoBachi.getGradoAcademico() != null) {
+                        htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), obtencionGradoBachi.getGradoAcademico().getNombre());
+
+                    } else if (egresado != null && egresado.getTitulo() != null) {
+                        htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), egresado.getTitulo().getNombre());
+
+                    }
 
                     break;
                 case CICLO_PROMOCION:

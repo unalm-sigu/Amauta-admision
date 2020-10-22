@@ -225,7 +225,9 @@ public class VerificadorSolicitudServiceImp implements VerificadorSolicitudServi
                     htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), ciclos);
                     break;
                 case TITULO_PROFESIONAL:
-                    Assert.isNotNull(egresado.getTitulo(), "El alumno no tiene titulo. Comuniquese con mesa de ayuda.");
+                    Assert.isTrue((obtencionGradoTitulo != null && obtencionGradoTitulo.getGradoAcademico() != null)
+                            || (obtencionGradoBachi != null && obtencionGradoBachi.getGradoAcademico() != null)
+                            || (egresado != null && egresado.getTitulo() != null), "El alumno no tiene titulo o bachiller. Comuniquese con mesa de ayuda.");
 
                     break;
                 case CICLO_PROMOCION:
