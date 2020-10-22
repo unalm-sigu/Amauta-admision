@@ -1,7 +1,6 @@
 package pe.edu.lamolina.amauta.dao.posgrado.hibernate;
 
 import java.util.List;
-import org.hibernate.Query;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
@@ -26,13 +25,6 @@ public class TarifaConceptoDAOH extends AbstractEasyDAO<TarifaConcepto> implemen
                 .orderBy("cp.nombre asc");
 
         return all(sql);
-    }
-
-    @Override
-    public void deleteAllByTarifaCarrera(TarifaCarrera tarifaCarrera) {
-        Query query = getCurrentSession().createQuery("delete from TarifaConcepto where tarifaCarrera = :TARIFACARRERA");
-        query.setParameter("TARIFACARRERA", tarifaCarrera);
-        query.executeUpdate();
     }
 
     @Override

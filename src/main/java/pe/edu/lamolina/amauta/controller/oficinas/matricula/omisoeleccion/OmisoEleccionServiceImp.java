@@ -53,6 +53,7 @@ import pe.edu.lamolina.amauta.dao.finanza.AcreenciaDAO;
 import pe.edu.lamolina.amauta.dao.finanza.DeudaAlumnoDAO;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 
 @Service
 @Transactional(readOnly = true)
@@ -301,18 +302,20 @@ public class OmisoEleccionServiceImp implements OmisoEleccionService {
 
     @Override
     public List<Alumno> allAlumnoByNombre(String nombre, DataSessionPivot ds) {
-
         return alumnoDAO.allByName(nombre);
     }
 
     @Override
-    public ResumenAporteAlumno findResumenAporteAlumno(Alumno alumno, CicloAcademico cicloAcademico) {
-        ResumenAporteAlumno resumen = resumenAporteAlumnoDAO.findByAlumnoCicloAcademico(alumno, cicloAcademico);
+    public ResumenAporteAlumno findResumenAporteAlumno(Alumno alumnoForm) {
+        Alumno alumno = alumnoDAO.findAllInfo(alumnoForm.getId());
+        ModalidadEstudioEnum modalidadEnum = alumno.getModalidadEstudio().getOperativeModalidadEnum();
+        CicloAcademico ciclo = cicloAcademicoDAO.findActivo(modalidadEnum);
+        ResumenAporteAlumno resumen = resumenAporteAlumnoDAO.findByAlumnoCicloAcademico(alumno, ciclo);
         if (resumen == null) {
-            Alumno alumnoBD = alumnoDAO.find(alumno);
             resumen = new ResumenAporteAlumno();
             resumen.setMatriculaResumen(new MatriculaResumen());
-            resumen.getMatriculaResumen().setAlumno(alumnoBD);
+            resumen.getMatriculaResumen().setAlumno(alumno);
+            resumen.getMatriculaResumen().setCicloAcademico(ciclo);
             resumen.setAporteAlumnoCiclo(new ArrayList());
             return resumen;
         }

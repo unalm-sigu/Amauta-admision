@@ -181,6 +181,10 @@ public class ClonarCicloServiceImp implements ClonarCicloService {
 
         List<GrupoSeccion> gsOrigenes = grupoSeccionDAO.allWithDocenteSeccionActivosByCiclo(cicloOrigen);
         logger.debug("GrupoSeccion size  {}", gsOrigenes.size());
+        for (GrupoSeccion gpoSeccion : gsOrigenes) {
+            Curso curso = gpoSeccion.getCurso();
+            Assert.isTrue(curso.getEstadoEnum() == EstadoEnum.ACT, "El curso " + curso.getCodigo() + " no se encuentra activo");
+        }
 
         List<Seccion> secciones = seccionDAO.allWithMatriculadosByGposSeccion(gsOrigenes);
         logger.debug("Seccion size  {}", secciones.size());

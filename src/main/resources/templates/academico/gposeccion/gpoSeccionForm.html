@@ -226,7 +226,8 @@
                                             <th class="col-md-1 text-center v-middle" th:if="${false}">Docentes</th>
                                             <th class="col-md-1 text-center v-middle">Estado</th>
                                             <th class="text-center">
-                                                <input type="checkbox"
+                                                <input th:if="${esEditorOera}" 
+                                                       type="checkbox"
                                                        v-model="directEditSecciones"
                                                        v-on:click="directAulaChange($event)"/>
                                             </th>
@@ -245,7 +246,7 @@
                                                 </a>
                                                 <div>                                                    
                                                     <a v-if="seccion.linkZoom " class="pointer"
-                                                      data-html="true" data-placement="top" v-bind:title='seccion.linkZoom' v-on:click="asignarLinkZoom(seccion )">
+                                                       data-html="true" data-placement="top" v-bind:title='seccion.linkZoom' v-on:click="asignarLinkZoom(seccion )">
                                                         <span class="label label-primary" >Link Zoom </span>
                                                     </a>
                                                 </div>
@@ -260,72 +261,97 @@
 
                                             <td class="text-center v-middle">
 
-                                                <a v-if="seccion.aula.id=='' &amp;&amp;  ( seccion.matriculados > 0 || !directEditSecciones)"
-                                                   v-on:click="showModalAula(seccion)" 
-                                                   style="cursor:pointer;">
-                                                    Sin Aula
-                                                </a>
+                                                <div th:if="${esEditorOera}">
+                                                    <a v-if="seccion.aula.id=='' &amp;&amp;  ( seccion.matriculados > 0 || !directEditSecciones)"
+                                                       v-on:click="showModalAula(seccion)" 
+                                                       style="cursor:pointer;">
+                                                        Sin Aula
+                                                    </a>
 
-                                                <div v-if="seccion.aula.id!='' &amp;&amp;  ( seccion.matriculados > 0 || !directEditSecciones)">
-                                                    <div class="block">
-                                                        <a v-on:click="showModalAula(seccion)" 
-                                                           style="cursor:pointer;">{{seccion.aula.codigo}}</a>
-                                                        &nbsp;
-                                                        <a v-on:click="showModalAulaHorario(seccion.aula)"
-                                                           style="cursor:pointer;">
-                                                            <i class="fa fa-calendar text-success"></i>
-                                                        </a>
+                                                    <div v-if="seccion.aula.id!='' &amp;&amp;  ( seccion.matriculados > 0 || !directEditSecciones)">
+                                                        <div class="block">
+                                                            <a v-on:click="showModalAula(seccion)" 
+                                                               style="cursor:pointer;">{{seccion.aula.codigo}}</a>
+                                                            &nbsp;
+                                                            <a v-on:click="showModalAulaHorario(seccion.aula)"
+                                                               style="cursor:pointer;">
+                                                                <i class="fa fa-calendar text-success"></i>
+                                                            </a>
+                                                        </div>
+
+                                                        <div class="block">
+                                                            <small v-if="seccion.aula.capacidadAula != ''">
+                                                                (Cap. {{ seccion.aula.capacidadAula }})
+                                                            </small>
+                                                        </div>
                                                     </div>
-
-                                                    <div class="block">
-                                                        <small v-if="seccion.aula.capacidadAula != ''">
-                                                            (Cap. {{ seccion.aula.capacidadAula }})
-                                                        </small>
+                                                    <!-- v-on:keyup.enter="directEditAula(seccion,$event)" -->
+                                                    <!--  &amp;&amp; seccion.matriculados == 0 -->
+                                                    <input v-if="directEditSecciones"
+                                                           v-on:blur="directEditAula(seccion,$event)"
+                                                           v-bind:value="seccion.aula!=null ? seccion.aula.codigo : ''"
+                                                           class="form-control"/>
+                                                </div>
+                                                <div th:unless="${esEditorOera}">
+                                                    <div v-if="seccion.aula.id=='' &amp;&amp;  ( seccion.matriculados > 0 || !directEditSecciones)">
+                                                        Sin Aula
+                                                    </div>
+                                                    <div v-else="">
+                                                        {{seccion.aula.codigo}}
+                                                        <div class="block">
+                                                            <small v-if="seccion.aula.capacidadAula != ''">
+                                                                (Cap. {{ seccion.aula.capacidadAula }})
+                                                            </small>
+                                                        </div>
                                                     </div>
                                                 </div>
-                                                <!-- v-on:keyup.enter="directEditAula(seccion,$event)" -->
-                                                <!--  &amp;&amp; seccion.matriculados == 0 -->
-                                                <input v-if="directEditSecciones"
-                                                       v-on:blur="directEditAula(seccion,$event)"
-                                                       v-bind:value="seccion.aula!=null ? seccion.aula.codigo : ''"
-                                                       class="form-control"/>
                                             </td>
                                             <td class="text-center v-middle">
 
-                                                <a v-on:click="showModalGrupos(seccion)" 
-                                                   v-if="seccion.grupoHoras.id=='' &amp;&amp; ( seccion.matriculados > 0 || !directEditSecciones)"
-                                                   style="cursor:pointer;">
-                                                    Sin Grupo
-                                                </a>
+                                                <div th:if="${esEditorOera}">
+                                                    <a v-on:click="showModalGrupos(seccion)" 
+                                                       v-if="seccion.grupoHoras.id=='' &amp;&amp; ( seccion.matriculados > 0 || !directEditSecciones)"
+                                                       style="cursor:pointer;">
+                                                        Sin Grupo
+                                                    </a>
 
-                                                <div v-bind:style='getStyleDivGpoHoras(seccion)'
-                                                     v-if="seccion.grupoHoras.id &amp;&amp; ( seccion.matriculados > 0 || !directEditSecciones)"
-                                                     v-on:click="showModalGrupos(seccion)" 
-                                                     style="cursor:pointer;">
-                                                    <div>{{ seccion.grupoHoras.codigo }} </div>
+                                                    <div v-bind:style='getStyleDivGpoHoras(seccion)'
+                                                         v-if="seccion.grupoHoras.id &amp;&amp; ( seccion.matriculados > 0 || !directEditSecciones)"
+                                                         v-on:click="showModalGrupos(seccion)" 
+                                                         style="cursor:pointer;">
+                                                        <div>{{ seccion.grupoHoras.codigo }} </div>
 
+                                                    </div>
+
+                                                    <small v-if="mostrarCuotasExedidas(seccion)">
+                                                        <span v-if="seccion.grupoHoras.tipoSeccion == 'TEO' ">
+                                                            ({{seccion.grupoHoras.cuotasGrupoHoras.utilizadasTeoria}}/{{seccion.grupoHoras.cuotasGrupoHoras.cuotasTeoria}}
+                                                            - {{seccion.grupoHoras.letra}} Teo)
+                                                        </span>
+                                                        <span v-if="seccion.grupoHoras.tipoSeccion == 'PRA' ">
+                                                            ({{seccion.grupoHoras.cuotasGrupoHoras.utilizadasPractica}}/{{seccion.grupoHoras.cuotasGrupoHoras.cuotasPractica}}
+                                                            - {{seccion.grupoHoras.letra}} Pra)
+                                                        </span>
+
+                                                    </small>
+                                                    <!--
+                                                           v-on:keyup.enter="directEditGrupoHor(seccion,$event)"
+                                                              &amp;&amp; seccion.matriculados == 0
+                                                    -->
+                                                    <input v-if="directEditSecciones"
+                                                           v-on:blur="directEditGrupoHor(seccion,$event)"
+                                                           v-bind:value="seccion.grupoHoras.id!=null ? seccion.grupoHoras.codigo : ''"
+                                                           v-on:input="upper($event)"
+                                                           class="form-control"/>
                                                 </div>
-
-                                                <small v-if="mostrarCuotasExedidas(seccion)">
-                                                    <span v-if="seccion.grupoHoras.tipoSeccion == 'TEO' ">
-                                                        ({{seccion.grupoHoras.cuotasGrupoHoras.utilizadasTeoria}}/{{seccion.grupoHoras.cuotasGrupoHoras.cuotasTeoria}}
-                                                        - {{seccion.grupoHoras.letra}} Teo)
-                                                    </span>
-                                                    <span v-if="seccion.grupoHoras.tipoSeccion == 'PRA' ">
-                                                        ({{seccion.grupoHoras.cuotasGrupoHoras.utilizadasPractica}}/{{seccion.grupoHoras.cuotasGrupoHoras.cuotasPractica}}
-                                                        - {{seccion.grupoHoras.letra}} Pra)
-                                                    </span>
-
-                                                </small>
-                                                <!--
-                                                       v-on:keyup.enter="directEditGrupoHor(seccion,$event)"
-                                                          &amp;&amp; seccion.matriculados == 0
-                                                -->
-                                                <input v-if="directEditSecciones"
-                                                       v-on:blur="directEditGrupoHor(seccion,$event)"
-                                                       v-bind:value="seccion.grupoHoras.id!=null ? seccion.grupoHoras.codigo : ''"
-                                                       v-on:input="upper($event)"
-                                                       class="form-control"/>
+                                                <div th:unless="${esEditorOera}">
+                                                    <div v-if="seccion.grupoHoras.id=='' &amp;&amp; ( seccion.matriculados > 0 || !directEditSecciones)">
+                                                        Sin Grupo
+                                                    </div>
+                                                    <div v-else="">
+                                                        <div>{{ seccion.grupoHoras.codigo }} </div>
+                                                    </div>
+                                                </div>
 
                                             </td>
 
@@ -414,8 +440,6 @@
                                             </td>
                                             <td class="text-center v-middle">
                                                 <div v-if="seccion.matriculados >0">
-
-
                                                     <div v-if="!seccion.isTipoSeccionTCUR &amp;&amp; seccion.restriccionCapa!='' " >
                                                         <span class="pointer"> {{ seccion.restriccionCapa }} </span>
                                                     </div>
@@ -482,7 +506,7 @@
                                             </td>
                                             <td class="v-middle">
                                                 <input type="hidden" v-bind:value="seccion.id"/>
-                                                <div class="dropdown actions">
+                                                <div class="dropdown actions" th:if="${esEditorOera}">
 
                                                     <a class="dropdown-toggle" href="#" data-toggle="dropdown"
                                                        v-if="!seccion.isTipoSeccionTCUR"><i class="fa fa-cog"></i></a>
@@ -557,8 +581,12 @@
                                     </tbody>
                                 </table>
 
-                                <a class="btn btn-info btn-sm pull-right m-t-xs"
-                                   th:if="${esEditorOera}"
+                                <a th:if="${esEditorOera}" class="btn btn-info btn-sm pull-right m-t-xs"
+                                   v-if="grupoSeccion.curso.tipoCursoEnum.name == 'TEOPRA' &amp;&amp; grupoSeccion.estado == 'ACT' "
+                                   v-on:click="addSeccion">
+                                    <i class="fa fa-plus add-seccion" aria-hidden="true"></i> <strong> Agregar Sección</strong>
+                                </a>
+                                <a th:unless="${esEditorOera}" th:if="${esEditorMaestria}" class="btn btn-info btn-sm pull-right m-t-xs"
                                    v-if="grupoSeccion.curso.tipoCursoEnum.name == 'TEOPRA' &amp;&amp; grupoSeccion.estado == 'ACT' "
                                    v-on:click="addSeccion">
                                     <i class="fa fa-plus add-seccion" aria-hidden="true"></i> <strong> Agregar Sección</strong>
@@ -572,10 +600,8 @@
 
                                     <header class="page-header m-t-xs m-b-xs" style="border-bottom: 1px solid white;">
 
-                                        <h4 class="text-primary">Configuración sección {{seccionSeleccionada.codigo2}}
+                                        <h4 class="text-primary">Configuración sección {{seccionSeleccionada.codigo2}}</h4>
 
-
-                                        </h4>
                                         <div class="tabbable-line" style="margin-top: 8px;">	
                                             <ul class="nav nav-tabs">
                                                 <li v-bind:class="getClassTab('DOCENTES')" v-on:click="verTab('DOCENTES')">

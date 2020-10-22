@@ -76,7 +76,7 @@ public class ReincorporacionDAOH extends AbstractEasyDAO<Reincorporacion> implem
                 .filter("cr.codigo", "<", ciclo.getCodigo())
                 .filter("alu.id", alumno)
                 .beginBlock()
-                .__().filter("et.codigo", SOL_ACEP)
+                .__().in("et.codigo", Arrays.asList(SOL_ACEP, EPG_TRAM_GRADO_SOL))
                 .__().filter("rei.aceptado", 1)
                 .endBlock();
         return all(sql);
@@ -106,7 +106,7 @@ public class ReincorporacionDAOH extends AbstractEasyDAO<Reincorporacion> implem
                 .filter("cr.codigo", "<", ciclo.getCodigo())
                 .in("alu.id", alumnos)
                 .beginBlock()
-                .__().filter("et.codigo", SOL_ACEP)
+                .__().in("et.codigo", Arrays.asList(SOL_ACEP, EPG_TRAM_GRADO_SOL))
                 .__().filter("rei.aceptado", 1)
                 .endBlock();
         return all(sql);

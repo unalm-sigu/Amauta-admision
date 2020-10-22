@@ -257,7 +257,7 @@ public class OmisoEleccionController {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             JsonNodeFactory factory = JsonNodeFactory.instance;
             ObjectNode info = new ObjectNode(factory);
-            ResumenAporteAlumno resumen = service.findResumenAporteAlumno(new Alumno(idAlumno), ds.getCicloAcademico());
+            ResumenAporteAlumno resumen = service.findResumenAporteAlumno(new Alumno(idAlumno));
 
             Alumno alumno = resumen.getMatriculaResumen().getAlumno();
             Persona persona = alumno.getPersona();
@@ -265,6 +265,7 @@ public class OmisoEleccionController {
             info.put("nombre", persona.getNombreCompleto());
             info.put("codigo", alumno.getCodigo());
             info.put("carrera", alumno.getCarrera().getNombre());
+            info.put("ciclo", resumen.getMatriculaResumen().getCicloAcademico().getDescripcion());
 
             if (alumno.getModalidadEstudio().getCodigoEnum() == ModalidadEstudioEnum.EPG) {
                 info.put("modalidadEstudio", alumno.getCarrera().getTipoEnum().getValue());

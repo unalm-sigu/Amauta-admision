@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.slf4j.Logger;
@@ -35,6 +36,7 @@ import pe.edu.lamolina.amauta.dao.horario.GrupoHorasDAO;
 import pe.edu.lamolina.amauta.dao.horario.HorarioAulaDAO;
 import pe.edu.lamolina.amauta.dao.horario.HorarioSeccionDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.enums.TipoHorarioAulaEnum;
 
 @Service
 @Transactional(readOnly = true)
@@ -77,7 +79,7 @@ public class CambioAulaGrupoServiceImp implements CambioAulaGrupoService {
 
     @Override
     @Transactional
-    public void saveCambioAulaGrupo(CambioAulaGrupo cambioAulaGrupo, DataSessionPivot ds) {
+    public void saveCambioAulaGrupo(CambioAulaGrupo cambioAulaGrupo, CicloAcademico ciclo, DataSessionPivot ds) {
 
         Persona persona = ds.getPersona();
         Oficina oficinaMain = cambioAulaGrupo.getOficina();
@@ -92,6 +94,12 @@ public class CambioAulaGrupoServiceImp implements CambioAulaGrupoService {
         Seccion seccionForm = cambioAulaGrupo.getSeccion();
         Seccion seccionBD = seccionDAO.find(seccionForm);
 
+        boolean esOtraAula = existeCambioAula(seccionBD, cambioAulaGrupo);
+        boolean esOtroGrupo = existeCambioGrupo(seccionBD, cambioAulaGrupo);
+        if (!esOtraAula && !esOtroGrupo) {
+            Assert.isTrue(false, "No está indicando ningún cambio de aula o grupo");
+        }
+
         cambioAulaGrupo.setAulaInicio(seccionBD.getAula());
         cambioAulaGrupo.setGrupoHorasInicio(seccionBD.getGrupoHoras());
 
@@ -101,11 +109,6 @@ public class CambioAulaGrupoServiceImp implements CambioAulaGrupoService {
         cambioAulaGrupo.setEstadoEnum(CambioAulaGrupoEstadoEnum.PENDIENTE);
 
         cambioAulaGrupoDAO.save(cambioAulaGrupo);
-
-        if (cambioAulaGrupo.getGrupoHorasFin().getId().longValue() == cambioAulaGrupo.getGrupoHorasInicio().getId()) {
-            throw new PhobosException("No puede asignarle el mismo grupo sección. ");
-        }
-
         System.out.println("horas::" + cambioAulaGrupo.getGrupoHorasFin().getDiaHoraGrupo().size());
 
         if (cambioAulaGrupo.getGrupoHorasFin().getDiaHoraGrupo() != null) {
@@ -122,7 +125,7 @@ public class CambioAulaGrupoServiceImp implements CambioAulaGrupoService {
         logger.debug("seccion {}", seccionBD.getId());
         logger.debug("seccion horas semanales {}", seccionBD.getHorasSemanales());
         logger.debug("grupo seccion {}", seccionBD.getGrupoSeccion().getId());
-        logger.debug("ciclo academico {}", ds.getCicloAcademico().getId());
+        logger.debug("ciclo academico {}", ciclo.getId());
 
         GrupoHoras grupoHoraFin = cambioAulaGrupo.getGrupoHorasFin();
 
@@ -182,7 +185,6 @@ public class CambioAulaGrupoServiceImp implements CambioAulaGrupoService {
         for (HorarioAula horarioAula : horariosAula) {
 
             if (hoy.after(fechaInicio)) {
-
                 HorarioAula horAulaPend = new HorarioAula();
                 horAulaPend.setEstadoEnum(EstadoHorarioAulaEnum.PEND);
                 horAulaPend.setDia(horarioAula.getDia());
@@ -202,7 +204,6 @@ public class CambioAulaGrupoServiceImp implements CambioAulaGrupoService {
                 logger.debug("updated horario aula {}", horarioAula.getId());
 
             } else {
-
                 horarioAula.setEstadoEnum(EstadoHorarioAulaEnum.PEND);
                 horarioAula.setReservado("Y");
                 horarioAulaDAO.update(horarioAula);
@@ -216,7 +217,9 @@ public class CambioAulaGrupoServiceImp implements CambioAulaGrupoService {
         if (grupoHoraFin.getDiaHoraGrupo() != null) {
             logger.debug("grupoHoraFin.getDiaHoraGrupo size {}", grupoHoraFin.getDiaHoraGrupo().size());
 
-            List<DiaHoraGrupo> diaHoraGrupos = diaHoraGrupoDAO.allByDiaHoraGrupo(grupoHoraFin.getDiaHoraGrupo());
+            //List<DiaHoraGrupo> diaHoraGrupos = diaHoraGrupoDAO.allByDiaHoraGrupo(grupoHoraFin.getDiaHoraGrupo());
+            List<String> idsDiasHoras = grupoHoraFin.getDiaHoraGrupo().stream().map(x -> x.getKey()).collect(Collectors.toList());
+            List<DiaHoraGrupo> diaHoraGrupos = diaHoraGrupoDAO.allByIdsDiasHoras(idsDiasHoras, ciclo);
             for (DiaHoraGrupo diaHoraGrupo : diaHoraGrupos) {
                 logger.debug("***** new DiaHoraGrupo {}", diaHoraGrupo.getId());
 
@@ -240,10 +243,45 @@ public class CambioAulaGrupoServiceImp implements CambioAulaGrupoService {
                 horAula.setFechaInicio(hoy);
                 horAula.setFechaFin(fechaFin);
                 horAula.setReservado("Y");
+                horAula.setTipoEnum(TipoHorarioAulaEnum.DICT);
                 horarioAulaDAO.save(horAula);
 
             }
         }
+    }
+
+    private boolean existeCambioAula(Seccion seccion, CambioAulaGrupo cambioAulaGrupo) {
+        Aula aulaFin = cambioAulaGrupo.getAulaFin();
+        Aula aulaInicio = seccion.getAula();
+
+        if (aulaFin == null && aulaInicio != null) {
+            return true;
+        }
+        if (aulaFin != null && aulaInicio == null) {
+            return true;
+        }
+        if (aulaFin == null && aulaInicio == null) {
+            return false;
+        }
+
+        return aulaFin.getId().longValue() == aulaInicio.getId();
+    }
+
+    private boolean existeCambioGrupo(Seccion seccion, CambioAulaGrupo cambioAulaGrupo) {
+        GrupoHoras gpoFin = cambioAulaGrupo.getGrupoHorasFin();
+        GrupoHoras gpoInicio = seccion.getGrupoHoras();
+
+        if (gpoFin == null && gpoInicio != null) {
+            return true;
+        }
+        if (gpoFin != null && gpoInicio == null) {
+            return true;
+        }
+        if (gpoFin == null && gpoInicio == null) {
+            return false;
+        }
+
+        return gpoFin.getId().longValue() == gpoInicio.getId();
     }
 
     @Override

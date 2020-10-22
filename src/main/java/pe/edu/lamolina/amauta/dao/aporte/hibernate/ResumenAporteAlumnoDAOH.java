@@ -263,6 +263,8 @@ public class ResumenAporteAlumnoDAOH extends AbstractEasyDAO<ResumenAporteAlumno
     public ResumenAporteAlumno find(ResumenAporteAlumno aporteAlumno) {
         Octavia sql = new Octavia()
                 .from(ResumenAporteAlumno.class, "raa")
+                .join("matriculaResumen mr", "mr.alumno a", "a.carrera", "a.modalidadEstudio")
+                .join("mr.cicloAcademico")
                 .filter("raa.id", aporteAlumno);
         return find(sql);
 

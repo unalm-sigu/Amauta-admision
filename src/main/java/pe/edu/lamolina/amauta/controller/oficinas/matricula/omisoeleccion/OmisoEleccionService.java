@@ -26,7 +26,7 @@ public interface OmisoEleccionService {
 
     void modificarAporte(Alumno alumno, DataSessionPivot ds);
 
-    ResumenAporteAlumno findResumenAporteAlumno(Alumno alumno, CicloAcademico cicloAcademico);
+    ResumenAporteAlumno findResumenAporteAlumno(Alumno alumno);
 
     MatriculaResumen findMatriculaResumen(Alumno alumno, CicloAcademico cicloAcademico);
 
