@@ -58,6 +58,7 @@ import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.amauta.zelper.pdf.pdfHtml.PDFFormatoEnum;
 import pe.edu.lamolina.amauta.zelper.pdf.pdfHtml.PdfHtmlView;
+import static pe.edu.lamolina.model.enums.TramiteEstadoEnum.CRE;
 import pe.edu.lamolina.model.general.Archivo;
 
 @Controller
@@ -125,11 +126,12 @@ public class ConstanciaSolicitudController {
                 List<AccionTramiteDocumento> acciones = service.findEstadoByEstadoInicio(tramiteDoc.getTipoDocumentoAcademico(), tramiteDoc.getEstadoTramite());
                 ArrayNode arrayAcciones = new ArrayNode(JsonNodeFactory.instance);
                 for (AccionTramiteDocumento accion : acciones) {
-
-                    arrayAcciones.add(JsonHelper.createJson(accion, JsonNodeFactory.instance, new String[]{
-                        "*",
-                        "estadoTramite.*",
-                        "estadoTramiteFinal.*"}));
+                    if (tramiteDoc.getEstadoTramite().getCodigoEnum() != CRE) {
+                        arrayAcciones.add(JsonHelper.createJson(accion, JsonNodeFactory.instance, new String[]{
+                            "*",
+                            "estadoTramite.*",
+                            "estadoTramiteFinal.*"}));
+                    }
                 }
                 ObjectNode tramiteJson = JsonHelper.createJson(tramiteDoc.getTramite(), JsonNodeFactory.instance, false, mapperTramite);
                 node.set("estados", arrayAcciones);

@@ -11,6 +11,10 @@
                                                                     data-holder-rendered="true" /></a>
 
             </div>
+            <div v-if="archivo != null">
+                <label>N° de Boleta</label>
+                <span>{{archivo.numeroBoleta}}</span>
+            </div>
         </template>
     </div>
 </modal-vik>

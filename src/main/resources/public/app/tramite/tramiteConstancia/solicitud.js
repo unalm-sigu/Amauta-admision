@@ -33,6 +33,9 @@ new Vue({
             {id: 1, name: "Inicio"},
             {id: 2, name: "Tramite"},
             {id: 3, name: "Orden Merito"},
+            {id: 4, name: "Historial"},
+            {id: 5, name: "Matricula"},
+            {id: 6, name: "Retiro Ciclo"}
         ],
         alumno: {},
         ordenesMerdito: []
@@ -41,10 +44,38 @@ new Vue({
     mounted: function () {
         let $vue = this;
         if ($vue.solicitud.tramite != null) {
-            $vue.tramite = $vue.solicitud.tramite;            
+            $vue.tramite = $vue.solicitud.tramite;
         }
+        $global.$on("reset-loading-data-alumno", function () {
+            $vue.resetLoadingData();
+        });
+
     },
     methods: {
+        resetLoadingData() {
+            let $vue = this;
+            $vue.loadPages.historial = false;
+            $vue.loadPages.avance = false;
+            $vue.loadPages.matricula = false;
+            $vue.loadPages.horario = false;
+            $vue.loadPages.malla = false;
+            $vue.loadPages.retirociclo = false;
+            $vue.loadPages.retirocurso = false;
+            $vue.reloadAlumno();
+        },
+        reloadAlumno() {
+            let $vue = this;
+            $.ajax({
+                method: 'GET',
+                url: APP.url('academico/alumno/' + this.alumno.id + '/data'),
+                contentType: "application/json",
+                success: function (response) {
+                    if (response.success) {
+                        $vue.alumno = response.data;
+                    }
+                }
+            });
+        },
         updateTabs: function (tab) {
 
             let $vue = this;
@@ -57,14 +88,29 @@ new Vue({
             if ($vue.tabId === 1) {
 //                $vue.$refs.loadInicio.findAlumno($vue.tramite.alumno.id);
             }
-        },
+            $vue.tabId = tab.id;
+            if ($vue.tabId === 4 && !$vue.loadPages.historial) {
+                $vue.$refs.loadHistorial.cargaHistorial();
+                $vue.loadPages.historial = true;
+            }
+            if ($vue.tabId === 5 && !$vue.loadPages.matricula) {
+                $vue.$refs.loadMatricula.obtenerDatos();
+                $vue.loadPages.matricula = true;
+            }
+            if ($vue.tabId === 6 && !$vue.loadPages.retirociclo) {
+                $vue.$refs.compRetiroCiclo.obtenerDatos();
+                $vue.loadPages.retirociclo = true;
+            }
+        }
+        ,
         styleMenu(index) {
             let $vue = this;
             let id = $vue.tabId;
             if (index == id) {
                 return "active";
             }
-        },
+        }
+        ,
         createCargarFoto: function () {
             var $vue = this;
             $global.$emit('MODAL-WAIT-OPEN', 'Cargando');
@@ -86,7 +132,8 @@ new Vue({
                     notify(Messages.errorComunicacion, "error");
                 }
             });
-        },
+        }
+        ,
         getImage(event) {
             var $vue = this;
             $vue.file = event.target.files[0];

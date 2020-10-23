@@ -39,6 +39,15 @@
                                         <div v-show="3 == tabId">
                                             <alumno-merito-component v-bind:alumno="alumno"  ></alumno-merito-component>
                                         </div>
+                                        <div v-show="4 == tabId" >
+                                            <historial-component v-bind:alumno="alumno" ref="loadHistorial" v-bind:showactions="true"></historial-component>
+                                        </div>
+                                        <div v-show="5 == tabId" >
+                                            <matricula-component v-bind:alumno="alumno" ref="loadMatricula"></matricula-component>
+                                        </div>
+                                        <div v-show="6 == tabId">
+                                            <retiro-ciclo-component v-bind:alumno="alumno" ref="compRetiroCiclo"></retiro-ciclo-component>
+                                        </div>
                                     </section>
                                 </section> 
                             </div>
@@ -52,6 +61,9 @@
             <div th:substituteby="tramite/tramiteConstancia/inicioTramite"/>
             <div th:substituteby="academico/alumno/includes/inicio"/>
             <div th:substituteby="academico/alumno/includes/alumnoMeritos"/>
+            <div th:substituteby="academico/alumno/includes/historial"/>
+            <div th:substituteby="academico/alumno/includes/matricula"/>
+            <div th:substituteby="academico/alumno/includes/retiroCiclo"/>
         </div>
 
         <div layout:fragment="js">
@@ -61,10 +73,13 @@
                 var solicitudJson = /*[[${solicitud.toString()}]]*/ 'json';
                 /*]]>*/
             </script>
-            
+
             <div th:substituteby="_layout/includes :: vuejs"/>
             <script th:src="@{/app/tramite/tramiteConstancia/inicioTramiteComponent.js}" charset="utf-8"></script>
             <script th:src="@{/app/academico/alumno/inicioComponent.js}" charset="utf-8"></script>
+            <script th:src="@{/app/academico/alumno/historialComponent.js}" charset="utf-8"></script>
+            <script th:src="@{/app/academico/alumno/matriculaComponent.js}" charset="utf-8"></script>
+            <script th:src="@{/app/academico/alumno/retiroCicloComponent.js}" charset="utf-8"></script>
             <script th:src="@{/app/academico/alumno/alumnoMeritos.js}" charset="utf-8"></script>
             <script th:src="@{/app/tramite/tramiteConstancia/solicitud.js}" charset="utf-8"></script>
         </div>

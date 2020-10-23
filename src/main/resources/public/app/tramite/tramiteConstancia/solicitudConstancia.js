@@ -180,6 +180,7 @@ new Vue({
                 success: function (response) {
                     if (response.success) {
                         $vue.archivo = response.data;
+                        $vue.archivo.numeroBoleta = item.numeroBoleta;
                         $vue.$refs.viewBoleta.open();
                     } else {
                         notify(response.message, 'error');
