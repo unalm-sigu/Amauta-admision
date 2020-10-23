@@ -81,6 +81,7 @@ import pe.edu.lamolina.amauta.dao.academico.SituacionAcademicaDAO;
 import pe.edu.lamolina.amauta.dao.tramite.ReincorporacionDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.constantines.AcademicoConstantine;
+import pe.edu.lamolina.model.enums.TipoCreditoEnum;
 
 @Service
 @Transactional(readOnly = true)
@@ -1750,7 +1751,6 @@ public class PromedioServiceImp implements PromedioService {
         CicloAcademico siguienteCiclo = findCicloSiguienteRegularActivo(cicloAcademico, modalidadEstudioEnum, mapCiclo);
 
         AlumnoCiclo alumnoCiclo = findAlumnoCiclo(alumnoCiclos, cicloAcademico);
-        //logger.debug("Ciclo Academico {}", cicloAcademico.getCodigo());
         this.printSystem("ciclo.estado.00=" + ObjectUtil.getParentTree(alumnoCiclo, "estado"), showError);
 
         AlumnoCiclo alumnoCicloAnterior = findAlumnoCicloAnterior(alumno, alumnoCiclos, cicloAcademico);
@@ -1912,6 +1912,7 @@ public class PromedioServiceImp implements PromedioService {
         alumnoCiclo.setPuntajeCiclo(BigDecimal.ZERO.intValue());
         alumnoCiclo.setPuntajeAcumulado(BigDecimal.ZERO.intValue());
 
+        int cursosCreditosVar = 0;
         for (AlumnoCicloCurso cursoAluCicloEach : alumnosCicloCursoActual) {
             Curso curso = cursoAluCicloEach.getCurso();
             if (!cursoAluCicloEach.getNota().equals("TE")) {
@@ -1943,6 +1944,10 @@ public class PromedioServiceImp implements PromedioService {
 
             if (cursoAluCicloEach.isAprobado()) {
                 alumnoCiclo.setCreditosAprobadosAcumuladosCurricula(alumnoCiclo.getCreditosAprobadosAcumuladosCurricula() + cursoAluCicloEach.getCreditos());
+            }
+
+            if (curso.getTipoCreditoEnum() == TipoCreditoEnum.VAR) {
+                cursosCreditosVar++;
             }
 
             BigDecimal notaBig = TypesUtil.getBigDecimal(cursoAluCicloEach.getNota());
@@ -2024,8 +2029,12 @@ public class PromedioServiceImp implements PromedioService {
         alumnoCiclo.setPromedioCiclo(promedio);
         alumnoCiclo.setPromedioAcumulado(promedioAcumulado);
 
-        if (alumnosCicloCursoActual.size() == BigDecimal.ONE.intValue()) {
+        if (alumnosCicloCursoActual.size() == cursosCreditosVar && (alumno.isPostgrado() || alumno.isEspecial())) {
+            alumnoCiclo.setEstaAprobado(1);
+
+        } else if (alumnosCicloCursoActual.size() == BigDecimal.ONE.intValue()) {
             alumnoCiclo.setEstaAprobado(alumnosCicloCursoActual.get(0).getEstaAprobado());
+
         } else {
             Integer aprobado = evaluateEstaAprobado(promedio, alumno);
             alumnoCiclo.setEstaAprobado(aprobado);
