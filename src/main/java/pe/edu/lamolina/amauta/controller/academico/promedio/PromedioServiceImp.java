@@ -2029,7 +2029,7 @@ public class PromedioServiceImp implements PromedioService {
         alumnoCiclo.setPromedioCiclo(promedio);
         alumnoCiclo.setPromedioAcumulado(promedioAcumulado);
 
-        if (alumnosCicloCursoActual.size() == cursosCreditosVar && (alumno.isPostgrado() || alumno.isEspecial())) {
+        if (cursosCreditosVar > 0 && alumnosCicloCursoActual.size() == cursosCreditosVar && (alumno.isPostgrado() || alumno.isEspecial())) {
             alumnoCiclo.setEstaAprobado(1);
 
         } else if (alumnosCicloCursoActual.size() == BigDecimal.ONE.intValue()) {
