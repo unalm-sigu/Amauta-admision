@@ -175,8 +175,8 @@ public class AporteAlumnoServiceImp implements AporteAlumnoService {
     }
 
     @Override
-    public JsonResponse getEliminarAporte(CicloAcademico cicloAcademico, MatriculaResumen matriculaResumen, Aporte aporte, DataSessionPivot ds) {
-        GeneracionAportes generador = generacionAportesDAO.findByCicloAcademico(cicloAcademico);
+    public JsonResponse getEliminarAporte(CicloAcademico ciclo, MatriculaResumen matriculaResumen, Aporte aporte, DataSessionPivot ds) {
+        GeneracionAportes generador = generacionAportesDAO.findByCicloAcademico(ciclo);
         if (generador == null) {
             return null;
         }

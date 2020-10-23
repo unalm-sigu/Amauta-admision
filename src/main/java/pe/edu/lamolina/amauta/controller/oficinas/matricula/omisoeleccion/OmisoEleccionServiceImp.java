@@ -246,11 +246,13 @@ public class OmisoEleccionServiceImp implements OmisoEleccionService {
     }
 
     @Override
-    public void anularOmision(Alumno alumnoForm, CicloAcademico ciclo, DataSessionPivot ds) {
+    public void anularOmision(Alumno alumnoForm, DataSessionPivot ds) {
         List<AlumnoOmisoEleccion> omisionesForm = alumnoForm.getAlumnoOmisoEleccions();
         noVotaronService.anularOmisosSeleccionados(omisionesForm, ds);
 
         Alumno alumnoBD = alumnoDAO.find(alumnoForm);
+        ModalidadEstudioEnum modalidadEnum = alumnoBD.getModalidadEstudio().getOperativeModalidadEnum();
+        CicloAcademico ciclo = cicloAcademicoDAO.findActivo(modalidadEnum);
 
         MatriculaResumen matriculaResumen = matriculaResumenDAO.findByAlumnoCiclo(alumnoBD, ciclo);
         if (matriculaResumen == null) {
@@ -259,13 +261,13 @@ public class OmisoEleccionServiceImp implements OmisoEleccionService {
 
         Aporte aporteNoVotar = aporteDAO.findByCode(A04);
         List<AlumnoOmisoEleccion> omisionesBD = alumnoOmisoEleccionDAO.allDeudasByAlumno(alumnoForm);
-        CicloAcademico cicloAcademicoMod = cicloAcademicoDAO.findByCodigoModalidadEstudio(ciclo.getCodigo(), alumnoBD.getModalidadEstudio());
+        CicloAcademico cicloModalidad = cicloAcademicoDAO.findByCodigoModalidadEstudio(ciclo.getCodigo(), alumnoBD.getModalidadEstudio());
 
         JsonResponse json;
         if (omisionesBD.isEmpty()) {
-            json = aporteAlumnoService.getEliminarAporte(cicloAcademicoMod, matriculaResumen, aporteNoVotar, ds);
+            json = aporteAlumnoService.getEliminarAporte(cicloModalidad, matriculaResumen, aporteNoVotar, ds);
         } else {
-            json = aporteAlumnoService.getModificarAporte(cicloAcademicoMod, matriculaResumen, aporteNoVotar, ds);
+            json = aporteAlumnoService.getModificarAporte(cicloModalidad, matriculaResumen, aporteNoVotar, ds);
         }
 
         if (json != null && !json.getSuccess()) {
@@ -276,21 +278,23 @@ public class OmisoEleccionServiceImp implements OmisoEleccionService {
     }
 
     @Override
-    public void modificarAporte(Alumno alumno, DataSessionPivot ds) {
-        CicloAcademico cicloAcademicoMod = cicloAcademicoDAO.findByCodigoModalidadEstudio(ds.getCicloAcademico().getCodigo(), alumno.getModalidadEstudio());
+    public void modificarAporte(Alumno alumnoForm, DataSessionPivot ds) {
+        Alumno alumno = alumnoDAO.find(alumnoForm);
+        ModalidadEstudioEnum modalidadEnum = alumno.getModalidadEstudio().getOperativeModalidadEnum();
+        CicloAcademico ciclo = cicloAcademicoDAO.findActivo(modalidadEnum);
 
-        MatriculaResumen matriculaResumen = matriculaResumenDAO.findByAlumnoCiclo(alumno, cicloAcademicoMod);
+        MatriculaResumen matriculaResumen = matriculaResumenDAO.findByAlumnoCiclo(alumno, ciclo);
         if (matriculaResumen == null) {
             return;
         }
 
         List<AlumnoOmisoEleccion> omisiones = alumnoOmisoEleccionDAO.allDeudasByAlumno(alumno);
-
         Aporte aporteNoVotar = aporteDAO.findByCode(A04);
+
         if (omisiones.isEmpty()) {
-            aporteAlumnoService.eliminarAporte(cicloAcademicoMod, matriculaResumen, aporteNoVotar, ds);
+            aporteAlumnoService.eliminarAporte(ciclo, matriculaResumen, aporteNoVotar, ds);
         } else {
-            aporteAlumnoService.modificarAporte(cicloAcademicoMod, matriculaResumen, aporteNoVotar, ds);
+            aporteAlumnoService.modificarAporte(ciclo, matriculaResumen, aporteNoVotar, ds);
         }
 
     }

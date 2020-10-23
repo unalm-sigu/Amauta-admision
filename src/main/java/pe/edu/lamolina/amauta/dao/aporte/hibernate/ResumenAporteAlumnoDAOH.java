@@ -16,7 +16,6 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.aporte.ResumenAporteAlumno;
-import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.MAT;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.NMAT;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.EPG;

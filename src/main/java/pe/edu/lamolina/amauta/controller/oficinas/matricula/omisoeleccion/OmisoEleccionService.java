@@ -16,7 +16,7 @@ public interface OmisoEleccionService {
 
     void saveOmision(AlumnoOmisoEleccion omisoEleccion, DataSessionPivot ds);
 
-    void anularOmision(Alumno alumno, CicloAcademico ciclo, DataSessionPivot ds);
+    void anularOmision(Alumno alumno, DataSessionPivot ds);
 
     List<String> cargarDeudas(MultipartFile file, String codigoCiclo, DataSessionPivot ds);
 

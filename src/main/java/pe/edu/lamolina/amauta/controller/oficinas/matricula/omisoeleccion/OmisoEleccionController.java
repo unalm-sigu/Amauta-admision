@@ -158,11 +158,11 @@ public class OmisoEleccionController {
     @RequestMapping("anularOmision")
     public JsonResponse anularOmision(@RequestBody Alumno alumno, HttpSession session) {
         JsonResponse response = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
             alumno.getAlumnoOmisoEleccions().get(0).setMotivoAnulacion(alumno.getMotivoAnulacion());
-            service.anularOmision(alumno, ds.getCicloAcademico(), ds);
+            service.anularOmision(alumno, ds);
 
             response.setSuccess(true);
             response.setMessage("Se realizó la actualización satisfactoriamente.");

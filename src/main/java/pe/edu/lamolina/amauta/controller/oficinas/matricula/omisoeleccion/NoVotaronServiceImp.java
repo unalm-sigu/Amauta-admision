@@ -27,7 +27,7 @@ public class NoVotaronServiceImp implements NoVotaronService {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = false)
     public void anularOmisosSeleccionados(List<AlumnoOmisoEleccion> omisosElecciones, DataSessionPivot ds) {
         if (omisosElecciones.isEmpty()) {
             logger.info("No se enviaron registros para anular alumnos omisos votantes");
@@ -45,6 +45,7 @@ public class NoVotaronServiceImp implements NoVotaronService {
                 omiso.setMotivoAnulacion(motivoAnula);
                 omiso.setFechaAnulacion(new Date());
                 omiso.setUserAnulacion(ds.getUsuario());
+
                 alumnoOmisoEleccionDAO.updateAnulacion(omiso);
                 loop++;
             }

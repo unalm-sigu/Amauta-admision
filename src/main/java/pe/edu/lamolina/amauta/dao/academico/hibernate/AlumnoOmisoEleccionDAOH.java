@@ -37,13 +37,11 @@ public class AlumnoOmisoEleccionDAOH extends AbstractEasyDAO<AlumnoOmisoEleccion
     }
 
     @Override
-    public void updateAnulacion(AlumnoOmisoEleccion alumnoOmisoEleccion) {
+    public void updateAnulacion(AlumnoOmisoEleccion omision) {
         Octavia sql = Octavia
                 .update(AlumnoOmisoEleccion.class)
-                .set(alumnoOmisoEleccion, "estado")
-                .set(alumnoOmisoEleccion, "motivoAnulacion")
-                .set(alumnoOmisoEleccion, "fechaAnulacion")
-                .set(alumnoOmisoEleccion, "userAnulacion");
+                .set(omision, "estado", "motivoAnulacion", "fechaAnulacion", "userAnulacion");
+        System.out.println("sql: " + sql.toString());
         this.update(sql);
     }
 
