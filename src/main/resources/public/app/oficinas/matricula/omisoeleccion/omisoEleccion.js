@@ -264,5 +264,12 @@ new Vue({
                 }
             });
         },
+        commas(n) {
+            var options = {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            };
+            return Number(n).toLocaleString('en', options);
+        }
     }
 });

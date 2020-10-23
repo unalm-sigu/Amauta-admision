@@ -22,7 +22,6 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.general.Aula;
 import pe.edu.lamolina.model.horario.GrupoHoras;
-import pe.edu.lamolina.model.constantines.AcademicoConstantine;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 
@@ -49,7 +48,7 @@ public class CambioAulaGrupoController {
 
             for (CambioAulaGrupo aulaGrupo : aulaGrupos) {
                 ObjectNode node = JsonHelper.createJson(aulaGrupo, jFactory, true,
-                        new String[]{ 
+                        new String[]{
                             "*",
                             "colaborador.*",
                             "colaborador.persona.*",
@@ -82,11 +81,11 @@ public class CambioAulaGrupoController {
     public JsonResponse savecambioaulagrupo(@RequestBody CambioAulaGrupo cambioAulaGrupo, HttpSession session) {
 
         logger.debug("Estoy en save CambioAulaGrupo ");
-        
+
         JsonResponse response = new JsonResponse();
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-            service.saveCambioAulaGrupo(cambioAulaGrupo, ds);
+            service.saveCambioAulaGrupo(cambioAulaGrupo, ds.getCicloAcademico(), ds);
             response.setMessage("Cambio de aula / grupo fue registrada satisfactoriamente");
             response.setSuccess(true);
 
@@ -146,7 +145,7 @@ public class CambioAulaGrupoController {
 
         return response;
     }
-    
+
     @ResponseBody
     @RequestMapping("deletecambioaulagrupo")
     public JsonResponse deletecambioaulagrupo(CambioAulaGrupo cambioAulaGrupo, HttpSession session) {
@@ -167,7 +166,7 @@ public class CambioAulaGrupoController {
 
         return response;
     }
-    
+
     @ResponseBody
     @RequestMapping("asyncFindCambioAulas")
     public JsonResponse asyncFindCambioAulas(

@@ -269,6 +269,7 @@ public class GpoSeccionController {
         model.addAttribute("oficinasJson", createOficinasJson(oficinas).toString());
         model.addAttribute("oficinas", oficinas);
         model.addAttribute("esEditorOera", verificadorService.isEditorProgramacionOera(ds));
+        model.addAttribute("esEditorMaestria", verificadorService.isEditorProgramacionMaestria(ds));
 
         return "academico/gposeccion/gpoSeccionForm";
     }
@@ -1051,8 +1052,8 @@ public class GpoSeccionController {
             HttpSession session) {
         JsonNodeFactory jsonFactory = JsonNodeFactory.instance;
         JsonResponse response = new JsonResponse();
-         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-       
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+
         try {
             service.cambiarDocentePrincipal(new DocenteSeccion(docSeccion), ds.getUsuario());
             response.setSuccess(Boolean.TRUE);

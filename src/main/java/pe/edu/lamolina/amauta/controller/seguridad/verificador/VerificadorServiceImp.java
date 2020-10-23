@@ -951,6 +951,51 @@ public class VerificadorServiceImp implements VerificadorService {
     }
 
     @Override
+    public boolean isEditorProgramacionMaestria(DataSessionPivot ds) {
+        List<UsuarioRol> userRolesAll = usuarioRolDAO.allActivosByUser(ds.getUsuario());
+        if (userRolesAll.isEmpty()) {
+            return false;
+        }
+
+        List<UsuarioRol> userRoles = new ArrayList();
+        for (UsuarioRol userRol : userRolesAll) {
+            Oficina oficinaUser = userRol.getOficina();
+            if (oficinaUser == null) {
+                continue;
+            }
+            userRoles.add(userRol);
+        }
+
+        Map<Long, Oficina> mapOficinaMain = new HashMap();
+        for (UsuarioRol userRol : userRoles) {
+            Oficina oficinaMain = oficinaService.findOficinaMain(userRol.getOficina());
+            mapOficinaMain.put(userRol.getOficina().getId(), oficinaMain);
+        }
+
+        List<Carrera> carrerasAll = carreraDAO.all();
+        Map<Long, Carrera> mapCarrera = TypesUtil.convertListToMap("id", carrerasAll);
+
+        for (UsuarioRol userRol : userRoles) {
+            Oficina oficinaMain = mapOficinaMain.get(userRol.getOficina().getId());
+            Rol rol = userRol.getRol();
+
+            boolean esProgramadorMaestria = rol.getCodigoEnum() == RolEnum.OPER_PROGH_ESP_EPG;
+            boolean esOficinaEspecialidad = oficinaMain.getTipoOficina().getCodigoEnum() == ESP;
+            boolean esMaestria = false;
+
+            if (esOficinaEspecialidad) {
+                Carrera carrera = mapCarrera.get(oficinaMain.getInstanciaOficina());
+                esMaestria = carrera.getModalidadEstudio().isPostgrado();
+            }
+
+            if (esProgramadorMaestria && esOficinaEspecialidad && esMaestria) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
     public boolean puedeVerHeadAlumno(DataSessionPivot ds) {
         boolean puedeVerHead = true;
         List<RolEnum> rolCodigos = new ArrayList();

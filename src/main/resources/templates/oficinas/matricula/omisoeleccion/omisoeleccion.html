@@ -77,12 +77,12 @@
                                                 <span v-text="deudas.motivoEnum.value"></span>
                                             </td>
 
-                                            <td class="v-middle" >
-                                                <span v-text="deudas.cicloAcademico.codigo"></span>
+                                            <td class="v-middle text-center" >
+                                                <span v-text="deudas.cicloAcademico.descripcion"></span>
                                             </td>
 
                                             <td class="text-center v-middle" >
-                                                <span v-text="deudas.multa"></span>
+                                                <span v-text="commas(deudas.multa)"></span>
                                             </td>
                                             <td class="v-middle" v-bind:rowspan="getRows(item)" v-if="idx == 0">
                                                 <div class="actions">

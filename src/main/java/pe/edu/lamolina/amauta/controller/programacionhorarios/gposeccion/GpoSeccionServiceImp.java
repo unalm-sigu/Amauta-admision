@@ -586,6 +586,7 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
 
         Integer horasTeoria = getHorasCurso(curso, cicloBD, TipoSeccionEnum.TEO);
         Integer horasPractica = getHorasCurso(curso, cicloBD, TipoSeccionEnum.PRA);
+        Assert.isTrue(curso.getEstadoEnum() == ACT, "El curso no se encuentra Activado");
 
         List<GrupoSeccion> gpoSecciones = new ArrayList();
         Integer cantidad = gpoSeccForm.getCantidad();
@@ -2845,6 +2846,8 @@ public class GpoSeccionServiceImp implements GpoSeccionService {
     public List<GrupoSeccion> clonar(GrupoSeccion grupoSeccion, Integer veces, DataSessionPivot ds) {
         GrupoSeccion gpoSeccBD = grupoSeccionDAO.find(grupoSeccion.getId());
         Curso curso = gpoSeccBD.getCurso();
+        Assert.isTrue(curso.getEstadoEnum() == ACT, "El curso no se encuentra Activado");
+
         CicloAcademico ciclo = gpoSeccBD.getCicloAcademico();
         CursoCicloAcademico cursoCiclo = this.findCursoCicloAcademico(curso, ciclo);
 

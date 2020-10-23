@@ -10,8 +10,6 @@ public interface TarifaConceptoDAO extends EasyDAO<TarifaConcepto> {
 
     List<TarifaConcepto> allByTarifaCarrera(TarifaCarrera tarifaCarrera);
 
-    void deleteAllByTarifaCarrera(TarifaCarrera tarifaCarrera);
-
     TarifaConcepto findByConceptoPosgrado(ConceptoPosgrado conceptoPosgrado);
 
 }

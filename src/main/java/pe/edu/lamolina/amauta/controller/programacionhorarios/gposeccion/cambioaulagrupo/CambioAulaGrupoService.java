@@ -12,7 +12,7 @@ public interface CambioAulaGrupoService {
 
     List<CambioAulaGrupo> allAulaGrupos(Seccion seccion);
 
-    void saveCambioAulaGrupo(CambioAulaGrupo cambioAulaGrupo, DataSessionPivot ds);
+    void saveCambioAulaGrupo(CambioAulaGrupo cambioAulaGrupo, CicloAcademico ciclo, DataSessionPivot ds);
 
     void rechazarCambioAulaGrupo(CambioAulaGrupo cambioAulaGrupo, DataSessionPivot ds);
 

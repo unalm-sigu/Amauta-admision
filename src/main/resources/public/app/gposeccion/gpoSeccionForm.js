@@ -131,13 +131,13 @@ var app = new Vue({
             okbtn: 'Si, aceptar',
             modalsize: 'modal-md'
         },
-        rechazarCambioAulaGrupoModal: {
+        rechazarCambioAulaGrupoModal: VUE_MODAL.structFormAjax({
             id: 'rechazarCambioAulaGrupoModal',
             header: true,
             title: 'Rechazar cambio de aula / grupo',
             okbtn: 'Rechazar',
             modalsize: 'modal-md'
-        },
+        }),
         ampliaciones: [],
         ampliacionVacante: {
             id: 'ampliacionVacanteId',

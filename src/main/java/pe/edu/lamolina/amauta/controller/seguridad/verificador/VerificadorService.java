@@ -70,6 +70,8 @@ public interface VerificadorService {
 
     boolean isEditorProgramacionOera(DataSessionPivot ds);
 
+    boolean isEditorProgramacionMaestria(DataSessionPivot ds);
+
     boolean puedeVerHeadAlumno(DataSessionPivot ds);
 
     boolean isTrabajadorOera(DataSessionPivot ds);

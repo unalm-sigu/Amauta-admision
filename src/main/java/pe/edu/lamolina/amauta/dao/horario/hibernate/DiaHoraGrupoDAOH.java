@@ -1,12 +1,16 @@
 package pe.edu.lamolina.amauta.dao.horario.hibernate;
 
+import java.util.ArrayList;
 import java.util.List;
 import org.hibernate.Query;
 import pe.edu.lamolina.amauta.dao.horario.DiaHoraGrupoDAO;
 import org.springframework.stereotype.Repository;
 import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.SituacionAcademica;
 import pe.edu.lamolina.model.enums.TipoGrupoHorasEnum;
 import pe.edu.lamolina.model.general.Dia;
 import pe.edu.lamolina.model.horario.DiaHoraGrupo;
@@ -107,27 +111,6 @@ public class DiaHoraGrupoDAOH extends AbstractEasyDAO<DiaHoraGrupo> implements D
         return all(sql);
     }
 
-    public void adad(CicloAcademico cicloAcademico) {
-        Octavia sql = Octavia.query()
-                .select("pc.id", "count(cc)")
-                .from(DiaHoraGrupo.class, "dhg")
-                .join("grupoHorario gh", "cicloAcademico ca", "dia d", "hora h")
-                .filter("ca.id", cicloAcademico)
-                .groupBy("gh.id", "d.id");
-
-    }
-
-//    @Override
-//    public List<DiaHoraGrupo> allByGrupo(GrupoHoras grupo, CicloAcademico ciclo) {
-//        Octavia sql = Octavia.query()
-//                .from(DiaHoraGrupo.class, "dhg")
-//                .join("grupoHorario gh", "gh.tipoGrupoHoras tgh", "cicloAcademico ciclo", "dia dia", "hora hora")
-//                .filter("gh.id", grupo)
-//                .filter("ciclo.id", ciclo);
-//
-//        return all(sql);
-//    }
-//    
     @Override
     public List<DiaHoraGrupo> allByCiclo(CicloAcademico ciclo) {
         Octavia sql = Octavia.query()
@@ -156,6 +139,47 @@ public class DiaHoraGrupoDAOH extends AbstractEasyDAO<DiaHoraGrupo> implements D
                 .in("dhg.id", diaHoraGrupo);
 
         return all(sql);
+    }
+
+    @Override
+    public List<DiaHoraGrupo> allByIdsDiasHoras(List<String> idsDiasHoras, CicloAcademico ciclo) {
+        StringBuilder sql = new StringBuilder();
+        sql.append(" select {dh.*},{dd.*},{hh.*},{ci.*},{gh.*} ");
+        sql.append("   from hor_dia_hora_grupo as dh ");
+        sql.append("   join gen_dia as dd on dd.id = dh.id_dia ");
+        sql.append("   join hor_hora as hh on hh.id = dh.id_hora ");
+        sql.append("   join hor_grupo_horas gh on gh.id = dh.id_grupo_horario ");
+        sql.append("   join aca_ciclo_academico ci on ci.id = dh.id_ciclo_academico ");
+        sql.append("   where concat(dd.id,'-',hh.id) in :IDS_DIA_HORA ");
+        sql.append("     and ci.id = :CICLO ");
+
+        Query query = getCurrentSession().createSQLQuery(sql.toString())
+                .addEntity("dh", DiaHoraGrupo.class)
+                .addEntity("dd", Dia.class)
+                .addEntity("hh", Hora.class)
+                .addEntity("ci", CicloAcademico.class)
+                .addEntity("gh", GrupoHoras.class);
+
+        query.setParameter("CICLO", ciclo.getId());
+        query.setParameterList("IDS_DIA_HORA", idsDiasHoras);
+
+        List<DiaHoraGrupo> diasHorasGrupo = new ArrayList();
+        List<Object[]> rows = query.list();
+        for (Object[] row : rows) {
+            DiaHoraGrupo dh = (DiaHoraGrupo) row[0];
+            Dia dd = (Dia) row[1];
+            Hora hh = (Hora) row[2];
+            CicloAcademico ci = (CicloAcademico) row[3];
+            GrupoHoras gh = (GrupoHoras) row[4];
+
+            dh.setDia(dd);
+            dh.setHora(hh);
+            dh.setCicloAcademico(ci);
+            dd.setGrupohoras(gh);
+            diasHorasGrupo.add(dh);
+        }
+
+        return diasHorasGrupo;
     }
 
     @Override

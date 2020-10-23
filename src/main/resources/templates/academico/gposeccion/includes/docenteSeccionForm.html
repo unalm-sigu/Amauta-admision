@@ -1,4 +1,4 @@
-<div class="row" th:if="${esEditorOera}">
+<div class="row" th:if="${esEditorOera or esEditorMaestria}">
     <div class="col-md-0">
         <span class="v-middle"> 
             <label class="switch">
@@ -36,8 +36,7 @@
                         v-bind:internal-search="false"
                         v-on:search-change="buscarDocente"
                         v-on:input="indexSelect(index)"
-                        v-on:select="docenteSelected"
-                        >
+                        v-on:select="docenteSelected">
                         <template slot="option" slot-scope="props">
                             <div class="option__desc">
                                 <span class="option__title bold block">{{ props.option.apellidosNombres }}</span>
@@ -54,7 +53,7 @@
                 </span>
             </td>
             <td class="text-center v-middle">
-                <div th:if="${esEditorOera}" th:remove="tag">
+                <div th:if="${esEditorOera or esEditorMaestria}" th:remove="tag">
                     <label v-if="docSeccion.estado == 'ACT'" class="switch">
                         <input type="checkbox" 
                                value="1" 
@@ -67,7 +66,7 @@
                     <i v-else-if="docSeccion.principal==1" class="fa fa-check-square-o fa-2x text-dark"></i>
                     <i v-else="" class="fa fa-times-circle-o fa-2x text-dark"></i>
                 </div>
-                <div th:unless="${esEditorOera}" th:remove="tag">
+                <div th:unless="${esEditorOera or esEditorMaestria}" th:remove="tag">
                     <i v-if="docSeccion.estado == 'ACT' &amp;&amp; docSeccion.principal==1" class="fa fa-check-square-o fa-2x text-success"></i>
                     <i v-else-if="docSeccion.estado == 'ACT' " class="fa fa-times-circle-o fa-2x text-danger"></i>
                     <i v-else-if="docSeccion.principal==1" class="fa fa-check-square-o fa-2x text-dark"></i>
@@ -75,7 +74,7 @@
                 </div>
             </td>
             <td class="text-center v-middle">
-                <div th:if="${esEditorOera}" th:remove="tag">
+                <div th:if="${esEditorOera or esEditorMaestria}" th:remove="tag">
                     <div v-if="docSeccion.estado == 'ACT'" class="input-group" >
                         <input type="text" 
                                v-model="docSeccion.porcentajeCargaFraccion"
@@ -89,7 +88,7 @@
                     </div>
                     <div v-else="">{{docSeccion.porcentajeCarga}}%</div>
                 </div>
-                <div th:unless="${esEditorOera}" th:remove="tag">
+                <div th:unless="${esEditorOera or esEditorMaestria}" th:remove="tag">
                     <div >{{docSeccion.porcentajeCarga}}%</div>
                 </div>
             </td>
@@ -100,7 +99,7 @@
                             <tr>
                                 <td width="15%">Desde</td>
                                 <td width="75%">
-                                    <div th:if="${esEditorOera}" th:remove="tag">
+                                    <div th:if="${esEditorOera or esEditorMaestria}" th:remove="tag">
                                         <span>
                                             <v-date-picker v-model="docSeccion.fechaInicio"
                                                            v-bind:id="'fechaInicio'+index"
@@ -114,13 +113,13 @@
                                             <input type="text" readonly="" class="form-control" v-model="docSeccion.fechaInicio"/>
                                         </div>
                                     </div>
-                                    <div th:unless="${esEditorOera}" v-text="docSeccion.fechaInicio"></div>
+                                    <div th:unless="${esEditorOera or esEditorMaestria}" v-text="docSeccion.fechaInicio"></div>
                                 </td>
                             </tr>
                             <tr>
                                 <td width="15%">Hasta</td>
                                 <td width="75%">
-                                    <div th:if="${esEditorOera}" th:remove="tag">
+                                    <div th:if="${esEditorOera or esEditorMaestria}" th:remove="tag">
                                         <span>
                                             <v-date-picker v-model="docSeccion.fechaFin"
                                                            v-bind:id="'fechaFin'+index"
@@ -134,7 +133,7 @@
                                                    v-model="docSeccion.fechaFin"/>
                                         </div>
                                     </div>
-                                    <div th:unless="${esEditorOera}" v-text="docSeccion.fechaFin"></div>
+                                    <div th:unless="${esEditorOera or esEditorMaestria}" v-text="docSeccion.fechaFin"></div>
                                 </td>
                             </tr>
                         </tbody>
@@ -209,8 +208,7 @@
     </tbody>
 </table>
 
-<a class="btn btn-info btn-sm pull-right m-t-xs"
-   th:if="${esEditorOera}"
+<a th:if="${esEditorOera or esEditorMaestria}" class="btn btn-info btn-sm pull-right m-t-xs"
    v-if="grupoSeccion.estado == 'ACT' "
    v-on:click="addDocSeccion">
     <i class="fa fa-plus add-seccion" aria-hidden="true"></i> <strong> Agregar Docente</strong>
