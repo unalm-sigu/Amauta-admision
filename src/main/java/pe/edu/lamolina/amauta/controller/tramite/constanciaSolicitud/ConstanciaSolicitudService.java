@@ -71,8 +71,6 @@ public interface ConstanciaSolicitudService {
 
     public void update(TramiteDocumentoAcademico tramiteDocumentoAcademico, DataSessionPivot ds);
 
-    public void downloadWord(TramiteDocumentoAcademico tramiteDocumentoAcademico, HttpServletResponse ds);
-
     public PlantillaGenerica findPlantillaHtml(TramiteDocumentoAcademico documentoAcademico, Usuario usuario);
 
     public List<PlantillaDocumentoAcademico> allPlantillas();

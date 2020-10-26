@@ -28,14 +28,14 @@ import pe.edu.lamolina.amauta.dao.general.OficinaDAO;
 import pe.edu.lamolina.amauta.dao.general.TipoOficinaDAO;
 import pe.edu.lamolina.amauta.dao.tramite.AccionTramiteDocumentoDAO;
 import pe.edu.lamolina.amauta.dao.tramite.PrecioDocumentoDAO;
-import pe.edu.lamolina.amauta.dao.tramite.TipoConstanciaDAO;
+import pe.edu.lamolina.amauta.dao.tramite.TipoDocumentoAcademicoDAO;
 
 @Service
 @Transactional(readOnly = true)
 public class TipoConstanciaServiceImpl implements TipoConstanciaService {
 
     @Autowired
-    TipoConstanciaDAO tipoConstanciaDAO;
+    TipoDocumentoAcademicoDAO tipoConstanciaDAO;
 
     @Autowired
     OficinaDAO oficinaDAO;

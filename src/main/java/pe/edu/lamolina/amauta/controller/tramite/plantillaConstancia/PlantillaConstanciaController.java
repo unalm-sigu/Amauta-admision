@@ -21,13 +21,18 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
+import pe.albatross.zelpers.file.system.FileHelper;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.amauta.controller.tramite.constanciaSolicitud.descargaWord.GeneradorWordSolicitudService;
 import pe.edu.lamolina.model.general.Idioma;
 import pe.edu.lamolina.model.tramite.PlantillaDocumentoAcademico;
 import pe.edu.lamolina.model.tramite.TipoDocumentoAcademico;
@@ -37,6 +42,7 @@ import pe.edu.lamolina.amauta.controller.tramite.tipoConstancia.TipoConstanciaSe
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.amauta.zelper.pdf.pdfHtml.PdfHtmlView;
+import pe.edu.lamolina.model.general.Archivo;
 
 @Controller
 @RequestMapping("tramite/plantillaconstancia")
@@ -50,6 +56,9 @@ public class PlantillaConstanciaController {
 
     @Autowired
     PdfHtmlView pdfHtmlView;
+
+    @Autowired
+    GeneradorWordSolicitudService generadorWordSolicitudService;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -348,4 +357,49 @@ public class PlantillaConstanciaController {
         return response;
     }
 
+    @ResponseBody
+    @RequestMapping("uploadWordFile")
+    public JsonResponse uploadBoletaFile(@RequestParam("file") MultipartFile archivo, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            JsonNodeFactory jFactory = JsonNodeFactory.instance;
+            String fileName = TypesUtil.getUnixTime() + archivo.getOriginalFilename();
+            String absoluteName = GlobalConstantine.TMP_DIR + fileName;
+            FileHelper.saveToDisk(archivo, absoluteName);
+            ObjectNode json = new ObjectNode(jFactory);
+            json.put("name", fileName);
+            json.put("originalFilename", archivo.getOriginalFilename());
+            json.put("contentType", archivo.getContentType());
+            json.put("size", archivo.getSize());
+            json.put("ruta", absoluteName);
+            response.setData(json);
+            response.setSuccess(true);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("saveWordPlantilla")
+    public JsonResponse saveWordPlantilla(@RequestBody Archivo archivo, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        response.setSuccess(false);
+        try {
+
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+
+            generadorWordSolicitudService.saveWordTramiteDocumento(archivo, ds);
+            response.setMessage("Archivo subido satisfactoriamente");
+            response.setSuccess(true);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
 }

@@ -32,6 +32,7 @@ import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.amauta.controller.tramite.constanciaSolicitud.descargaWord.GeneradorWordSolicitudService;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.CicloAcademico;
@@ -60,6 +61,7 @@ import pe.edu.lamolina.amauta.zelper.pdf.pdfHtml.PDFFormatoEnum;
 import pe.edu.lamolina.amauta.zelper.pdf.pdfHtml.PdfHtmlView;
 import static pe.edu.lamolina.model.enums.TramiteEstadoEnum.CRE;
 import pe.edu.lamolina.model.general.Archivo;
+import pe.edu.lamolina.model.session.DataSessionMaipi;
 
 @Controller
 @RequestMapping("tramite/solicitudconstancia")
@@ -75,6 +77,9 @@ public class ConstanciaSolicitudController {
 
     @Autowired
     ConstanciasPDF constanciasPDF;
+
+    @Autowired
+    GeneradorWordSolicitudService generadorWordSolicitudService;
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
@@ -416,7 +421,7 @@ public class ConstanciaSolicitudController {
     @RequestMapping("downloadWord/{id}")
     public void downloadWord(@PathVariable Long id, HttpSession session, HttpServletResponse respons, RedirectAttributes redirectAttr) {
 
-        service.downloadWord(new TramiteDocumentoAcademico(id), respons);
+        generadorWordSolicitudService.downloadWord(new TramiteDocumentoAcademico(id), respons);
     }
 
     @RequestMapping("downloadPdf/{id}")
@@ -706,4 +711,5 @@ public class ConstanciaSolicitudController {
         }
         return node;
     }
+
 }

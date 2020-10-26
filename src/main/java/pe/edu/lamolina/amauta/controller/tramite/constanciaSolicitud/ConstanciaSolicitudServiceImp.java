@@ -4,7 +4,9 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.base.Strings;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.math.BigDecimal;
@@ -13,8 +15,15 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletResponse;
+import lombok.var;
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.openxml4j.opc.OPCPackage;
+import org.apache.poi.xwpf.usermodel.XWPFDocument;
+import org.apache.poi.xwpf.usermodel.XWPFParagraph;
+import org.apache.poi.xwpf.usermodel.XWPFRun;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.slf4j.Logger;
@@ -100,7 +109,6 @@ import pe.edu.lamolina.amauta.dao.tramite.FlujoTramiteDocumentoDAO;
 import pe.edu.lamolina.amauta.dao.tramite.FormularioEstadoTramiteDAO;
 import pe.edu.lamolina.amauta.dao.tramite.PlantillaDocumentoAcademicoDAO;
 import pe.edu.lamolina.amauta.dao.tramite.PrecioDocumentoDAO;
-import pe.edu.lamolina.amauta.dao.tramite.TipoConstanciaDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TipoDocumentoCompaniaDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TipoTramiteDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TramiteDAO;
@@ -129,9 +137,49 @@ import pe.edu.lamolina.model.enums.InstanciaEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.SexoEnum;
 import pe.edu.lamolina.model.enums.TipoGradoAcademicoEnum;
+import pe.edu.lamolina.model.enums.VariableGenericaEnum;
+import static pe.edu.lamolina.model.enums.VariableGenericaEnum.ALUMNO_REGULAR;
+import static pe.edu.lamolina.model.enums.VariableGenericaEnum.APELLIDOS;
+import static pe.edu.lamolina.model.enums.VariableGenericaEnum.APELLIDO_PERSONA;
+import static pe.edu.lamolina.model.enums.VariableGenericaEnum.CANTIDAD_ALUMNOS;
+import static pe.edu.lamolina.model.enums.VariableGenericaEnum.CANTIDAD_CREDITOS_APROBADOS;
+import static pe.edu.lamolina.model.enums.VariableGenericaEnum.CARRERA;
+import static pe.edu.lamolina.model.enums.VariableGenericaEnum.CICLOS_CURSADOS;
+import static pe.edu.lamolina.model.enums.VariableGenericaEnum.CICLO_EGRESO;
+import static pe.edu.lamolina.model.enums.VariableGenericaEnum.CICLO_MATRICULA;
+import static pe.edu.lamolina.model.enums.VariableGenericaEnum.CICLO_PROMOCION;
+import static pe.edu.lamolina.model.enums.VariableGenericaEnum.CORRELATIVO_DOC;
+import static pe.edu.lamolina.model.enums.VariableGenericaEnum.ESPECIALIDAD;
+import static pe.edu.lamolina.model.enums.VariableGenericaEnum.FACULTAD;
+import static pe.edu.lamolina.model.enums.VariableGenericaEnum.FECHA_CONSTANCIA;
+import static pe.edu.lamolina.model.enums.VariableGenericaEnum.FECHA_EGRESO;
+import static pe.edu.lamolina.model.enums.VariableGenericaEnum.FECHA_PRIMERA_MATRICULA;
+import static pe.edu.lamolina.model.enums.VariableGenericaEnum.FECHA_ULTIMA_MATRICULA;
 import static pe.edu.lamolina.model.enums.VariableGenericaEnum.INCRUSTACION;
+import static pe.edu.lamolina.model.enums.VariableGenericaEnum.JEFE_OFICINA_OERA;
+import static pe.edu.lamolina.model.enums.VariableGenericaEnum.JEFE_URA;
+import static pe.edu.lamolina.model.enums.VariableGenericaEnum.MATRICULA;
+import static pe.edu.lamolina.model.enums.VariableGenericaEnum.MEJOR_PROMEDIO_PONDERADO_GRADUACION;
+import static pe.edu.lamolina.model.enums.VariableGenericaEnum.NIVEL_ACADEMICO;
+import static pe.edu.lamolina.model.enums.VariableGenericaEnum.NOMBRE_PERSONA;
+import static pe.edu.lamolina.model.enums.VariableGenericaEnum.NUMERO_DOCUMENTO;
+import static pe.edu.lamolina.model.enums.VariableGenericaEnum.ORDEN_MERITO_EGRESADO;
+import static pe.edu.lamolina.model.enums.VariableGenericaEnum.PRIMER_CICLO_MATRICULADO;
+import static pe.edu.lamolina.model.enums.VariableGenericaEnum.PROGRAMA;
+import static pe.edu.lamolina.model.enums.VariableGenericaEnum.PROMEDIO_PONDERADO_GRADUACION;
+import static pe.edu.lamolina.model.enums.VariableGenericaEnum.RESOL_EGRESO;
+import static pe.edu.lamolina.model.enums.VariableGenericaEnum.RESOL_FECHA;
+import static pe.edu.lamolina.model.enums.VariableGenericaEnum.RESOL_TITULO;
+import static pe.edu.lamolina.model.enums.VariableGenericaEnum.RESOL_TITULO_FECHA;
+import static pe.edu.lamolina.model.enums.VariableGenericaEnum.SENOR_A;
+import static pe.edu.lamolina.model.enums.VariableGenericaEnum.SEX_ALUM;
+import static pe.edu.lamolina.model.enums.VariableGenericaEnum.SEX_IDENT;
+import static pe.edu.lamolina.model.enums.VariableGenericaEnum.TIPO_DOCUMENTO;
+import static pe.edu.lamolina.model.enums.VariableGenericaEnum.TITULO_PROFESIONAL;
+import static pe.edu.lamolina.model.enums.VariableGenericaEnum.ULTIMO_CICLO_MATRICULADO;
 import pe.edu.lamolina.model.general.Archivo;
 import pe.edu.lamolina.model.tramite.ObtencionGrado;
+import pe.edu.lamolina.amauta.dao.tramite.TipoDocumentoAcademicoDAO;
 
 @Service
 @Transactional(readOnly = true)
@@ -167,7 +215,7 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
     IdiomaDAO idiomaDAO;
 
     @Autowired
-    TipoConstanciaDAO tipoDocumentoAcademicoDAO;
+    TipoDocumentoAcademicoDAO tipoDocumentoAcademicoDAO;
 
     @Autowired
     PersonaDAO personaDAO;
@@ -757,27 +805,6 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
         flujo.setTramiteDocumentoAcademico(tramiteDocumentoAcademico);
         flujo.setFechaRegistro(new Date());
         flujoTramiteDocumentoDAO.save(flujo);
-
-    }
-
-    @Override
-    public void downloadWord(TramiteDocumentoAcademico tramiteDocumentoAcademico, HttpServletResponse response) throws PhobosException {
-
-        tramiteDocumentoAcademico = tramiteDocumentoAcademicoDAO.find(tramiteDocumentoAcademico);
-        PlantillaGenerica generica = findPlantillaHtml(tramiteDocumentoAcademico, null);
-
-        try {
-            response.setBufferSize(GlobalConstantine.DEFAULT_BUFFER_SIZE_DOWNLOAD);
-            response.setContentType("application/msword");
-            response.setHeader("Content-Disposition", "inline; filename=" + generica.getNombre() + ".doc");
-
-            OutputStream outputStream = response.getOutputStream();
-            outputStream.write((generica.getContenido()).getBytes());
-            outputStream.flush();
-            outputStream.close();
-        } catch (IOException ex) {
-            logger.error("(downloadTemporal)Error Descarga de Archivo: {}, fileName: {}", ex.getLocalizedMessage(), generica.getNombre());
-        }
 
     }
 

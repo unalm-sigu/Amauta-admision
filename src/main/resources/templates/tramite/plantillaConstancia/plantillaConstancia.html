@@ -5,7 +5,7 @@
     </head>
     <body>
         <div layout:fragment="main">
-            <div id="colaboradorVue">
+            <div id="plantillaVue" v-cloak="">
 
                 <header class="header b-b padder-lg">
 
@@ -18,7 +18,7 @@
                     <h2>Plantilla Constancia</h2>
 
                 </header>
-                
+
                 <section class="wrapper-lg m-b-xs">
                     <section class="panel  ">
                         <section class="panel-body ">
@@ -26,7 +26,7 @@
                             <raptor-table 
                                 v-bind:url="raptorURL" 
                                 ref="raptor"  >
-                                
+
                                 <div slot="header">
                                 </div>
                                 <template scope="props" >
@@ -54,6 +54,8 @@
                                                         </a> 
                                                         <ul class="dropdown-menu pull-right" >                
                                                             <li><a href="#" v-on:click.prevent="modalUpdate(item)" >Actualizar</a></li>
+
+                                                            <li> <a href="#" v-on:click.prevent="loadPlantillaWord(item)">Subir Plantilla Word</a></li>
                                                             <li><a href="#" v-on:click.prevent="contenido(item)" >Contenido</a></li>
                                                             <li><a href="#" v-on:click.prevent="eliminar(item)" >Eliminar</a></li>
                                                         </ul>
@@ -61,7 +63,7 @@
 
                                                 </td>
                                             </tr>
-                                            
+
                                         </tbody>
                                     </table>
                                 </template>
@@ -123,8 +125,8 @@
                         </form>
                     </div>
                 </div>
-                
-                
+
+                <th:block  th:replace="tramite/plantillaConstancia/plantillaWord"/>
 
             </div>
         </div>
@@ -135,7 +137,7 @@
                 var idiomasJson = /*[[${idiomas.toString()}]]*/ 'json';
                 /*]]>*/
             </script>
-            <div th:replace="_modules/vue-modal"></div>
+            <!--<div th:replace="_modules/vue-modal"></div>-->
             <div th:substituteby="_modules/vue-raptor-table"></div>
             <script th:src="@{/app/tramite/plantillaConstancia/plantillaConstancia.js}" charset="utf-8"></script>
         </div>

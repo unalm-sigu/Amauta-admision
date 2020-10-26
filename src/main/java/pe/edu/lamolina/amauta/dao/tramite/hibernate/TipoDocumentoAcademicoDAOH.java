@@ -7,17 +7,14 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.enums.OficinaEnum;
-import static pe.edu.lamolina.model.enums.OficinaEnum.EPG;
-import pe.edu.lamolina.model.tramite.ConfiguracionFirmaDocumento;
 import pe.edu.lamolina.model.tramite.PrecioDocumento;
 import pe.edu.lamolina.model.tramite.TipoDocumentoAcademico;
-import pe.edu.lamolina.model.tramite.VariablePlantilla;
-import pe.edu.lamolina.amauta.dao.tramite.TipoConstanciaDAO;
+import pe.edu.lamolina.amauta.dao.tramite.TipoDocumentoAcademicoDAO;
 
 @Repository
-public class TipoConstanciaDAOH extends AbstractEasyDAO<TipoDocumentoAcademico> implements TipoConstanciaDAO {
+public class TipoDocumentoAcademicoDAOH extends AbstractEasyDAO<TipoDocumentoAcademico> implements TipoDocumentoAcademicoDAO {
 
-    public TipoConstanciaDAOH() {
+    public TipoDocumentoAcademicoDAOH() {
         super();
         setClazz(TipoDocumentoAcademico.class);
     }

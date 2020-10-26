@@ -19,7 +19,6 @@ new Vue({
             header: true,
             title: 'Boleta',
             showaccept: false
-
         }),
         dataEnviarRevision: VUE_MODAL.structFormAjax({
             id: 'modalEnviarRevision',
