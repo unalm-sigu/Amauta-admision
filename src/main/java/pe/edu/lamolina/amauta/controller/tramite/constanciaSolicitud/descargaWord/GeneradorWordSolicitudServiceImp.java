@@ -2,16 +2,15 @@ package pe.edu.lamolina.amauta.controller.tramite.constanciaSolicitud.descargaWo
 
 import com.google.common.base.Objects;
 import java.io.ByteArrayOutputStream;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.URL;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
-import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 import org.apache.poi.xwpf.usermodel.XWPFRun;
@@ -62,7 +61,6 @@ import static pe.edu.lamolina.model.constantines.AcademicoConstantine.CODIGO_ALI
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import static pe.edu.lamolina.model.constantines.GlobalConstantine.VARIABLE_TABLE;
 import static pe.edu.lamolina.model.enums.EventoAcademicoEnum.FECHAS_BACH;
-import static pe.edu.lamolina.model.enums.InstanciaEnum.TRAM_DOCUMENTO;
 import static pe.edu.lamolina.model.enums.InstanciaEnum.TRAM_PLANTILLA_DOCUMENTO_ACADEMICO;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.OficinaEnum;
@@ -186,7 +184,7 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
 
         try {
 
-            XWPFDocument doc = new XWPFDocument(OPCPackage.open(new FileInputStream(plantilla.getArchivo().getRuta())));
+            XWPFDocument doc = new XWPFDocument(new URL(plantilla.getArchivo().getRuta()).openStream());
             this.generateWord(doc, tramiteDocumentoAcademico, plantilla, null);
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             doc.write(out);
@@ -203,8 +201,6 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
             outputStream.close();
         } catch (IOException ex) {
             logger.error("(downloadTemporal)Error Descarga de Archivo: {}, fileName: {}", ex.getLocalizedMessage(), "prueba");
-        } catch (InvalidFormatException ex) {
-            java.util.logging.Logger.getLogger(ConstanciaSolicitudServiceImp.class.getName()).log(Level.SEVERE, null, ex);
         }
 
     }
