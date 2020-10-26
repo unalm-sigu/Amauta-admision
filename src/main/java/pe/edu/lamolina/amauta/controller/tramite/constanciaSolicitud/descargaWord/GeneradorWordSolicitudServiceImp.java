@@ -132,7 +132,7 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
 
     @Autowired
     TipoDocumentoCompaniaDAO tipoDocumentoCompaniaDAO;
-    
+
     @Autowired
     TipoDocumentoAcademicoDAO documentoAcademicoDAO;
 
@@ -160,7 +160,7 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
 
         Archivo newarchivo = new Archivo();
         newarchivo.setFechaRegistro(new Date());
-        newarchivo.setInstancia(TRAM_DOCUMENTO.name());
+        newarchivo.setInstancia(TRAM_PLANTILLA_DOCUMENTO_ACADEMICO.name());
         newarchivo.setIdInstancia(plantilla.getId());
         newarchivo.setTipo(archivo.getTipo());
         newarchivo.setUsuarioRegistro(ds.getUsuario());
@@ -170,7 +170,7 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
 
         plantilla.setArchivo(newarchivo);
         plantillaDocumentoAcademicoDAO.update(plantilla);
-        
+
         TipoDocumentoAcademico documentoAcademico = plantilla.getTipoDocumentoAcademico();
         documentoAcademico.setConfigurado(1l);
         documentoAcademicoDAO.update(documentoAcademico);
@@ -181,11 +181,13 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
     public void downloadWord(TramiteDocumentoAcademico tramiteDocumentoAcademico, HttpServletResponse response) throws PhobosException {
 
         tramiteDocumentoAcademico = tramiteDocumentoAcademicoDAO.find(tramiteDocumentoAcademico);
+        tramiteDocumentoAcademico = tramiteDocumentoAcademicoDAO.find(tramiteDocumentoAcademico);
+        PlantillaDocumentoAcademico plantilla = plantillaDocumentoAcademicoDAO.findTipoDocumento(tramiteDocumentoAcademico.getTipoDocumentoAcademico(), tramiteDocumentoAcademico.getIdioma());
 
         try {
 
-            XWPFDocument doc = new XWPFDocument(OPCPackage.open(new FileInputStream("C:\\tmp\\CORRELATIVO.docx")));
-            this.generateWord(doc, tramiteDocumentoAcademico, null);
+            XWPFDocument doc = new XWPFDocument(OPCPackage.open(new FileInputStream(plantilla.getArchivo().getRuta())));
+            this.generateWord(doc, tramiteDocumentoAcademico, plantilla, null);
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             doc.write(out);
 
@@ -207,15 +209,14 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
 
     }
 
-    private void generateWord(XWPFDocument doc, TramiteDocumentoAcademico documentoAcademico, Usuario usuario) {
-        documentoAcademico = tramiteDocumentoAcademicoDAO.find(documentoAcademico);
+    private void generateWord(XWPFDocument doc, TramiteDocumentoAcademico documentoAcademico, PlantillaDocumentoAcademico plantilla, Usuario usuario) {
+
         Alumno alumno = alumnoDAO.findAllInfo(documentoAcademico.getTramite().getAlumno().getId());
         List<AlumnoCiclo> alumnoCiclos = alumnoCicloDAO.allActivesByAlumnoAsc(alumno);
 
         Egresado egresado = egresadoDAO.findByAlumno(alumno);
         CicloAcademico cicloAcademicoAct = cicloAcademicoDAO.findActivo(ModalidadEstudioEnum.PRE);
 
-        PlantillaDocumentoAcademico plantilla = plantillaDocumentoAcademicoDAO.findTipoDocumento(documentoAcademico.getTipoDocumentoAcademico(), documentoAcademico.getIdioma());
         List<PlantillaIncrustacionDocumento> incrustacionDocumentos = plantillaIncrustacionDAO.allIncrustacionesByTramite(documentoAcademico);
         List<PlantillaDocumentoAcademico> plantillaDocumentoIncrustacion = incrustacionDocumentos.stream().map(x -> x.getPlatillaIncrustacion()).collect(Collectors.toList());
         List<VariablePlantilla> variablePlantillasIncrustacion = variablePlantillaDAO.allByPlantillas(plantillaDocumentoIncrustacion);
