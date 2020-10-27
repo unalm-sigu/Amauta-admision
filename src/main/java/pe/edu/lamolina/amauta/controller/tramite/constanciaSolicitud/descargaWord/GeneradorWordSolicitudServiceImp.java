@@ -496,7 +496,7 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
 
         for (XWPFTable fTable : tbl) {
             int countRowsInicial = fTable.getRows().size();
-            int lineAll = 36;
+            int lineAll = 30;
             for (AlumnoCiclo alumnoCiclo : alumnoCiclos) {
 
                 List<AlumnoCicloCurso> cicloCursos = TypesUtil.getListNotNull(mapalumnoCicloCursos.get(alumnoCiclo.getCicloAcademico().getId()));
@@ -507,7 +507,7 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
                         newrow.getCell(0).setText("");
                         fTable.addRow(newrow);
                     }
-                    lineAll = 36;
+                    lineAll = 30;
                 }
                 XWPFTableRow oldRowCiclo = fTable.getRow(0);
                 CTRow ctrowCiclo = CTRow.Factory.parse(oldRowCiclo.getCtRow().newInputStream());
