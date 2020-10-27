@@ -328,7 +328,7 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
                         case ESPECIALIDAD:
                         case CARRERA:
                             if (!alumno.getCarrera().getFacultad().getCodigo().equals(alumno.getCarrera().getCodigo())) {
-                                text = text.replace(enums.getValue(), " - Carrera de " + alumno.getCarrera().getNombre());
+                                text = text.replace(enums.getValue(), " - Carrera de " + alumno.getCarrera().getNombre().toUpperCase());
                             } else {
                                 text = text.replace(enums.getValue(), "");
                             }
