@@ -494,14 +494,9 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
         Map<Long, List<AlumnoCicloCurso>> mapalumnoCicloCursos = TypesUtil.convertListToMapList("alumnoCiclo.cicloAcademico.id", alumnoCicloCursos);
         List<XWPFTable> tbl = doc.getTables();
 
-//        tbl.addAll(fTables);
-//        String tableOrigin = html.getElementsByClass(VARIABLE_TABLE).html();
-//        String tableClone = html.getElementsByClass(VARIABLE_TABLE).html();
-//        for (AlumnoCiclo ac : alumnoCiclos) {
-//        }
         for (XWPFTable fTable : tbl) {
             int countRowsInicial = fTable.getRows().size();
-            int lineAll = 38;
+            int lineAll = 36;
             for (AlumnoCiclo alumnoCiclo : alumnoCiclos) {
 
                 List<AlumnoCicloCurso> cicloCursos = TypesUtil.getListNotNull(mapalumnoCicloCursos.get(alumnoCiclo.getCicloAcademico().getId()));
@@ -512,14 +507,14 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
                         newrow.getCell(0).setText("");
                         fTable.addRow(newrow);
                     }
-                    lineAll = 38;
+                    lineAll = 36;
                 }
                 XWPFTableRow oldRowCiclo = fTable.getRow(0);
                 CTRow ctrowCiclo = CTRow.Factory.parse(oldRowCiclo.getCtRow().newInputStream());
                 XWPFTableRow newRowCiclo = new XWPFTableRow(ctrowCiclo, fTable);
                 this.switchValue(null, newRowCiclo, variables, alumnoCiclo);
                 fTable.addRow(newRowCiclo);
-                lineAll = lineAll - cicloCursos.size();
+                lineAll = lineAll - cicloCursos.size() + 1;
                 for (AlumnoCicloCurso alumnoCicloCurso : cicloCursos) {
                     XWPFTableRow oldRow = fTable.getRow(1);
                     CTRow ctrow = CTRow.Factory.parse(oldRow.getCtRow().newInputStream());
