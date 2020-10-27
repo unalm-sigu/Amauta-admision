@@ -1,6 +1,9 @@
 package pe.edu.lamolina.amauta.controller.tramite.constanciaSolicitud.descargaWord;
 
 import com.google.common.base.Objects;
+import java.awt.geom.AffineTransform;
+import java.awt.Font;
+import java.awt.font.FontRenderContext;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -11,6 +14,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletResponse;
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 import org.apache.poi.xwpf.usermodel.XWPFRun;
@@ -191,9 +195,12 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
 
             out.close();
             doc.close();
+
+            String codigoAlumno = tramiteDocumentoAcademico.getTramite().getAlumno().getCodigo();
+            String nombreTramite = tramiteDocumentoAcademico.getTipoDocumentoAcademico().getNombre();
             response.setBufferSize(GlobalConstantine.DEFAULT_BUFFER_SIZE_DOWNLOAD);
             response.setContentType("application/msword");
-            response.setHeader("Content-Disposition", "inline; filename=" + "Prueba.docx");
+            response.setHeader("Content-Disposition", "inline; filename=" + codigoAlumno + " - " + nombreTramite + ".docx");
 
             OutputStream outputStream = response.getOutputStream();
             outputStream.write(out.toByteArray());
@@ -315,7 +322,7 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
                             text = text.replace(enums.getValue(), alumno.getCodigo());
                             break;
                         case FACULTAD:
-                            text = text.replace(enums.getValue(), alumno.getCarrera().getFacultad().getNombre());
+                            text = text.replace(enums.getValue(), alumno.getCarrera().getFacultad().getNombre().toUpperCase());
                             break;
 
                         case ESPECIALIDAD:
@@ -327,7 +334,7 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
                             }
                             break;
                         case APELLIDO_PERSONA:
-                            text = text.replace(enums.getValue(), alumno.getPersona().getApellidosNombres());
+                            text = text.replace(enums.getValue(), alumno.getPersona().getApellidosNombres().toUpperCase());
                             break;
                         case NOMBRE_PERSONA:
                             text = text.replace(enums.getValue(), alumno.getPersona().getNombreCompleto());
@@ -418,10 +425,10 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
                         case PROGRAMA:
                             String programa = "";
                             if (alumno.getCarrera().getCodigo().equals(CODIGO_ALIANZA_ESTRATEGICA)) {
-                                programa = programa.concat("por el Convenio de la " + alumno.getCarrera().getNombre());
+                                programa = programa.concat("por el Convenio de la " + alumno.getCarrera().getNombre().toUpperCase());
                             } else {
 
-                                programa = programa.concat("como " + alumno.getPersona().getGeneroAlumno("alter") + " " + alumno.getCarrera().getNombre());
+                                programa = programa.concat("como " + alumno.getPersona().getGeneroAlumno("alter") + " " + alumno.getCarrera().getNombre().toUpperCase());
                             }
 
                             text = text.replace(enums.getValue(), programa);
@@ -494,17 +501,18 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
 //        }
         for (XWPFTable fTable : tbl) {
             int countRowsInicial = fTable.getRows().size();
-            int lineAll = 34;
+            int lineAll = 38;
             for (AlumnoCiclo alumnoCiclo : alumnoCiclos) {
 
                 List<AlumnoCicloCurso> cicloCursos = TypesUtil.getListNotNull(mapalumnoCicloCursos.get(alumnoCiclo.getCicloAcademico().getId()));
                 if (lineAll < cicloCursos.size()) {
+                    lineAll = lineAll < 0 ? 0 : lineAll;
                     for (int i = 0; i <= lineAll; i++) {
                         XWPFTableRow newrow = fTable.createRow();
-                        newrow.getCell(0).setText("Libre");
+                        newrow.getCell(0).setText("");
                         fTable.addRow(newrow);
                     }
-                    lineAll = 36;
+                    lineAll = 38;
                 }
                 XWPFTableRow oldRowCiclo = fTable.getRow(0);
                 CTRow ctrowCiclo = CTRow.Factory.parse(oldRowCiclo.getCtRow().newInputStream());
@@ -517,14 +525,14 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
                     CTRow ctrow = CTRow.Factory.parse(oldRow.getCtRow().newInputStream());
                     XWPFTableRow newRow = new XWPFTableRow(ctrow, fTable);
                     this.switchValue(alumnoCicloCurso, newRow, variables, alumnoCiclo);
+                    if (alumnoCicloCurso.getCurso().getNombre().length() >= 30) {
+                        lineAll = lineAll - 1;
+                    }
                     fTable.addRow(newRow);
                 }
             }
-
-            for (int i = 0; i < countRowsInicial; i++) {
-                for (int j = 0; j < fTable.getRow(i).getTableCells().size(); j++) {
-                    fTable.getRow(i).removeCell(j);
-                }
+            for (int i = countRowsInicial - 1; i >= 0; i--) {
+                fTable.removeRow(i);
             }
 
         }
@@ -534,6 +542,7 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
     private void switchValue(AlumnoCicloCurso alumnoCicloCurso, XWPFTableRow pFTableRow, List<VariablePlantilla> variables, AlumnoCiclo alumnoCiclo) {
 
         for (XWPFTableCell tableCell : pFTableRow.getTableCells()) {
+
             for (XWPFParagraph paragraph : tableCell.getParagraphs()) {
                 for (XWPFRun run : paragraph.getRuns()) {
                     String text = run.getText(0);
@@ -547,13 +556,13 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
                     switch (enums) {
                         case TABLA_CODIGO_CURSO:
                             if (alumnoCicloCurso != null) {
-                                run.setText(alumnoCicloCurso.getCurso().getCodigo(), 0);
+                                run.setText(alumnoCicloCurso.getCurso().getCodigo().toUpperCase(), 0);
                             }
 
                             break;
                         case TABLA_CURSO:
                             if (alumnoCicloCurso != null) {
-                                text = text.replace(enums.getValue(), alumnoCicloCurso.getCurso().getNombre());
+                                text = text.replace(enums.getValue(), alumnoCicloCurso.getCurso().getNombre().toUpperCase());
                                 run.setText(text, 0);
                             }
                             break;
@@ -570,7 +579,7 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
                             }
                             break;
                         case TABLA_CICLO_CURSADO:
-                            text = text.replace(enums.getValue(), alumnoCiclo.getCicloAcademico().getDescripcion2());
+                            text = text.replace(enums.getValue(), alumnoCiclo.getCicloAcademico().getDescripcion2().toUpperCase());
                             run.setText(text, 0);
                             break;
                     }
@@ -580,5 +589,13 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
 //                        }
         }
 
+    }
+
+    public int measureText(String text) {
+        AffineTransform affinetransform = new AffineTransform();
+        FontRenderContext frc = new FontRenderContext(affinetransform, true, true);
+        Font font = new Font("Arial", Font.PLAIN, 10);
+        int textwidth = (int) (font.getStringBounds(text, frc).getWidth());
+        return textwidth;
     }
 }
