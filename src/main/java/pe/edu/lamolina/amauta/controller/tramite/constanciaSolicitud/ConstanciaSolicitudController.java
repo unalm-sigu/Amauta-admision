@@ -61,7 +61,6 @@ import pe.edu.lamolina.amauta.zelper.pdf.pdfHtml.PDFFormatoEnum;
 import pe.edu.lamolina.amauta.zelper.pdf.pdfHtml.PdfHtmlView;
 import static pe.edu.lamolina.model.enums.TramiteEstadoEnum.CRE;
 import pe.edu.lamolina.model.general.Archivo;
-import pe.edu.lamolina.model.session.DataSessionMaipi;
 
 @Controller
 @RequestMapping("tramite/solicitudconstancia")

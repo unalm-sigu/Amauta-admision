@@ -33,6 +33,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.amauta.config.DespliegueConfig;
 import pe.edu.lamolina.amauta.controller.comun.s3.UploadFileS3;
 import pe.edu.lamolina.amauta.controller.seriedocumento.SerieDocumentoService;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoCicloCursoDAO;
@@ -84,12 +85,16 @@ import pe.edu.lamolina.model.tramite.ObtencionGrado;
 import pe.edu.lamolina.model.tramite.PlantillaIncrustacionDocumento;
 import pe.edu.lamolina.model.tramite.TipoDocumentoAcademico;
 import pe.edu.lamolina.amauta.dao.tramite.TipoDocumentoAcademicoDAO;
+import static pe.edu.lamolina.model.enums.AmbienteAplicacionEnum.DESA;
 
 @Service
 @Transactional(readOnly = true)
 public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudService {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    @Autowired
+    DespliegueConfig despliegueConfig;
 
     @Autowired
     EgresadoDAO egresadoDAO;
@@ -188,9 +193,12 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
         PlantillaDocumentoAcademico plantilla = plantillaDocumentoAcademicoDAO.findTipoDocumento(tramiteDocumentoAcademico.getTipoDocumentoAcademico(), tramiteDocumentoAcademico.getIdioma());
 
         try {
-
-//            XWPFDocument doc = new XWPFDocument(new URL(plantilla.getArchivo().getRuta()).openStream());
-            XWPFDocument doc = new XWPFDocument(OPCPackage.open(new FileInputStream("C:\\tmp\\Certificado.docx")));
+            XWPFDocument doc = null;
+            if (despliegueConfig.getAmbiente().toUpperCase().equals(DESA.name())) {
+                doc = new XWPFDocument(OPCPackage.open(new FileInputStream("C:\\tmp\\Certificado.docx")));
+            } else {
+                doc = new XWPFDocument(new URL(plantilla.getArchivo().getRuta()).openStream());
+            }
             this.generateWord(doc, tramiteDocumentoAcademico, plantilla, null);
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             doc.write(out);
