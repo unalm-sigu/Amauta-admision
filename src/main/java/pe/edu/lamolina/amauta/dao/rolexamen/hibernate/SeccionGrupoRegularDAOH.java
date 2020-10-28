@@ -340,6 +340,7 @@ public class SeccionGrupoRegularDAOH extends AbstractEasyDAO<SeccionGrupoRegular
                 .join("lgr.rolExamenes re", "re.eventoCicloAcademico eca", "eca.cicloAcademico ca")
                 .join("lgr.grupoHorasExamen ghe", "ghe.dia di", "ghe.horaInicio hi", "ghe.horaFin hf")
                 .in("sec.id", listSeccion)
+                .filter("sgr.estado", SeccionRolExamenEstadoEnum.ACT)
                 .filter("re.id", rolExam);
 
         return sql.all(getCurrentSession());

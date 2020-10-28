@@ -274,6 +274,7 @@
             </th:block>
             <td class="text-center">
                 <span th:text="${#numbers.formatDecimal(mapDocenteSeccion.get(item.key).puntajeBase10, 1, 'DEFAULT', 2, 'DEFAULT')}"> 1 </span>
+                <!--<span > 1111 </span>-->
             </td>
         </tr>
         <tr>
@@ -281,6 +282,7 @@
         <th:block th:each="item : ${puntajes}">
             <td class="text-center">
                 <span th:text="${#numbers.formatDecimal(item.puntaje, 1, 'DEFAULT', 2, 'DEFAULT')}"> puntaje </span>
+                <!--<span >000</span>-->
             </td>
             <td class="text-center">
                 <span th:text="${#numbers.formatDecimal(item.desviacionStandar, 1, 'DEFAULT', 2, 'DEFAULT')}"> sd </span>
