@@ -381,18 +381,6 @@ public class EncuestaDocenteController {
             List<PuntajeEncuestaDocente> resumenes = service.resumenPuntajeTemas(new EncuestaDocente(id));
             ArrayNode arr = new ArrayNode(JsonNodeFactory.instance);
             for (PuntajeEncuestaDocente resumen : resumenes) {
-//                ObjectNode detalleEncu = new ObjectNode(JsonNodeFactory.instance);
-//                detalleEncu.put("puntaje", resumen.getPuntaje());
-//                detalleEncu.put("desviacionStandar", resumen.getDesviacionStandar());
-//
-//                ObjectNode encuDocente = new ObjectNode(JsonNodeFactory.instance);
-//                encuDocente.put("puntajeBase10", resumen.getEncuestaDocente().getPuntajeBase10());
-//
-//                ObjectNode temaEncuesta = new ObjectNode(JsonNodeFactory.instance);
-//                temaEncuesta.put("nombre", resumen.getTemaEncuesta().getNombre());
-//
-//                detalleEncu.set("encuDocente", encuDocente);
-//                detalleEncu.set("temaEncuesta", temaEncuesta);
                 ObjectNode node = JsonHelper.createJson(resumen, JsonNodeFactory.instance, true,
                         new String[]{
                             "encuestaDocente.puntajeBase10",
