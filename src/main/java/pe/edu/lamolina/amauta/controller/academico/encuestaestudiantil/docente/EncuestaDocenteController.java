@@ -3,6 +3,7 @@ package pe.edu.lamolina.amauta.controller.academico.encuestaestudiantil.docente;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.math.BigDecimal;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -380,11 +381,14 @@ public class EncuestaDocenteController {
             List<PuntajeEncuestaDocente> resumenes = service.resumenPuntajeTemas(new EncuestaDocente(id));
             ArrayNode arr = new ArrayNode(JsonNodeFactory.instance);
             for (PuntajeEncuestaDocente resumen : resumenes) {
-                arr.add(JsonHelper.createJson(resumen, JsonNodeFactory.instance, new String[]{
-                    "puntaje",
-                    "desviacionStandar",
-                    "temaEncuesta.nombre"
-                }));
+                ObjectNode node = JsonHelper.createJson(resumen, JsonNodeFactory.instance, true,
+                        new String[]{
+                            "encuestaDocente.puntajeBase10",
+                            "puntaje",
+                            "desviacionStandar",
+                            "temaEncuesta.nombre"
+                        });
+                arr.add(node);
             }
             response.setData(arr);
             response.setSuccess(true);

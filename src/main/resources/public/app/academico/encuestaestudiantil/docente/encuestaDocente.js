@@ -3,6 +3,7 @@ Vue.component("multiselect", window.VueMultiselect.default);
 new Vue({
     el: '#main',
     data: {
+        indicadorClave: 0,
         generando: false,
         encuestaURL: APP.url(`${rutaModulo}/list`),
         docentesSecciones: [],
@@ -118,6 +119,7 @@ new Vue({
     },
     mounted: function () {
         let $vue = this;
+
         if ($vue.estadoVisor == 'INICIADO' || $vue.estadoVisor == 'OCUPADO') {
             setTimeout(function () {
                 $vue.$refs.modalVerProgreso.open();
@@ -482,12 +484,14 @@ new Vue({
                     });
         },
         findTemas(item) {
+            let $vue = this;
             AXIOS.get(`/${rutaModulo}/${item.id}/resumen/temas`)
                     .then(response => {
                         if (response.data.success) {
-                            this.temas = response.data.data;
-                            this.$refs.modalTemas.open();
-                            this.generateChart(response.data.data);
+                            $vue.temas = response.data.data;
+                            $vue.indicadorClave = $vue.temas[0].encuestaDocente.puntajeBase10;
+                            $vue.$refs.modalTemas.open();
+                            $vue.generateChart(response.data.data);
                         }
                     });
         },

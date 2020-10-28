@@ -107,6 +107,7 @@ public class EncuestaDocenteModalidadController {
 
             for (PuntajeEncuestaDocenteModalidad item : lista) {
                 arr.add(JsonHelper.createJson(item, JsonNodeFactory.instance, new String[]{
+                    "encuestaDocente.puntajeBase10",
                     "puntaje",
                     "desviacionStandar",
                     "temaEncuesta.nombre"

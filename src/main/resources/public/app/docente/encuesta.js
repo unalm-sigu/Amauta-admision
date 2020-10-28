@@ -34,6 +34,7 @@ new Vue({
         temas: [],
         cursos: [],
         cursosNoEnc: [],
+        indicadorClave: 0
     },
     mounted: function () {
         let $vue = this;
@@ -105,6 +106,7 @@ new Vue({
                     .then(response => {
                         if (response.data.success) {
                             this.temas = response.data.data;
+                            this.indicadorClave = this.temas[0].encuestaDocente.puntajeBase10;
                             this.$refs.modalTemas.open();
                             this.generateChart(response.data.data);
                         }

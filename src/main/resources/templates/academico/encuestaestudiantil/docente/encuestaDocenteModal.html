@@ -175,7 +175,8 @@
 <modal-vik ref="modalTemas"
            v-bind="modalTemas">
     <div slot="body">
-        <table class="table table-condensed table-striped table-hover">
+        <!--<table class="table table-condensed table-striped table-hover">-->
+        <table class="table table-striped table-hover">
             <thead>
                 <tr>
                     <th class="text-center" colspan="12">
@@ -185,7 +186,7 @@
                 <tr class="text-center">
                     <th colspan="2" class="text-center v-middle col-md-2" 
                         v-for="tema in temas">{{ tema.temaEncuesta.nombre }}</th>
-                    <td rowspan="2" class="text-center v-middle col-md-1">Indicador del desempeño por clave</td>
+                    <th rowspan="2" class="text-center v-middle col-md-1">Indicador del desempeño por clave</th>
                 </tr>
                 <tr>
                     <th class="text-center v-middle">Prom</th>
@@ -204,9 +205,10 @@
                 <tr>
             <template v-for="tema in temas">
                 <td class="text-center v-middle">{{ tema.puntaje.toFixed(2) }}</td>
-                <td class="text-center v-middle">0.00</td>
-            </template>
-            <td class="text-center v-middle">7.00</td>
+                <td class="text-center v-middle">{{ tema.desviacionStandar.toFixed(2) }}</td>
+            </template>  
+            <td class="text-center v-middle">{{ indicadorClave.toFixed(2) }}</td>
+         
             </tr>
             </tbody>
         </table>
