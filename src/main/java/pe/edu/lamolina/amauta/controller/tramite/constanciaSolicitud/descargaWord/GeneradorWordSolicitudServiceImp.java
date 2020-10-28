@@ -5,6 +5,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.Font;
 import java.awt.font.FontRenderContext;
 import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URL;
@@ -15,6 +16,7 @@ import java.util.logging.Level;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 import org.apache.poi.xwpf.usermodel.XWPFRun;
@@ -187,8 +189,8 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
 
         try {
 
-            XWPFDocument doc = new XWPFDocument(new URL(plantilla.getArchivo().getRuta()).openStream());
-//            XWPFDocument doc = new XWPFDocument(OPCPackage.open(new FileInputStream("C:\\tmp\\Certificado.docx")));
+//            XWPFDocument doc = new XWPFDocument(new URL(plantilla.getArchivo().getRuta()).openStream());
+            XWPFDocument doc = new XWPFDocument(OPCPackage.open(new FileInputStream("C:\\tmp\\Certificado.docx")));
             this.generateWord(doc, tramiteDocumentoAcademico, plantilla, null);
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             doc.write(out);
@@ -209,6 +211,8 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
         } catch (IOException ex) {
             logger.error("(downloadTemporal)Error Descarga de Archivo: {}, fileName: {}", ex.getLocalizedMessage(), "prueba");
         } catch (XmlException ex) {
+            java.util.logging.Logger.getLogger(GeneradorWordSolicitudServiceImp.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (InvalidFormatException ex) {
             java.util.logging.Logger.getLogger(GeneradorWordSolicitudServiceImp.class.getName()).log(Level.SEVERE, null, ex);
         }
 
@@ -495,34 +499,31 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
         List<XWPFTable> tbl = doc.getTables();
 
         for (XWPFTable fTable : tbl) {
-            int countRowsInicial = fTable.getRows().size();
-            int lineAll = 30;
-            for (AlumnoCiclo alumnoCiclo : alumnoCiclos) {
 
+            int countRowsInicial = fTable.getRows().size();
+            int lineAll = 35;
+            for (AlumnoCiclo alumnoCiclo : alumnoCiclos) {
+                System.out.println("----" + fTable.getNumberOfRows());
                 List<AlumnoCicloCurso> cicloCursos = TypesUtil.getListNotNull(mapalumnoCicloCursos.get(alumnoCiclo.getCicloAcademico().getId()));
-                if (lineAll < cicloCursos.size()) {
-                    lineAll = lineAll < 0 ? 0 : lineAll;
-                    for (int i = 0; i <= lineAll; i++) {
+                int num = lineAll - fTable.getNumberOfRows();
+                if (num <= cicloCursos.size() + 1) {
+                    for (int i = 0; i <= num; i++) {
                         XWPFTableRow newrow = fTable.createRow();
-                        newrow.getCell(0).setText("");
                         fTable.addRow(newrow);
                     }
-                    lineAll = 30;
+                    lineAll = 70;
                 }
                 XWPFTableRow oldRowCiclo = fTable.getRow(0);
                 CTRow ctrowCiclo = CTRow.Factory.parse(oldRowCiclo.getCtRow().newInputStream());
                 XWPFTableRow newRowCiclo = new XWPFTableRow(ctrowCiclo, fTable);
                 this.switchValue(null, newRowCiclo, variables, alumnoCiclo);
                 fTable.addRow(newRowCiclo);
-                lineAll = lineAll - cicloCursos.size() + 1;
                 for (AlumnoCicloCurso alumnoCicloCurso : cicloCursos) {
                     XWPFTableRow oldRow = fTable.getRow(1);
                     CTRow ctrow = CTRow.Factory.parse(oldRow.getCtRow().newInputStream());
                     XWPFTableRow newRow = new XWPFTableRow(ctrow, fTable);
                     this.switchValue(alumnoCicloCurso, newRow, variables, alumnoCiclo);
-                    if (alumnoCicloCurso.getCurso().getNombre().length() >= 30) {
-                        lineAll = lineAll - 1;
-                    }
+
                     fTable.addRow(newRow);
                 }
             }
