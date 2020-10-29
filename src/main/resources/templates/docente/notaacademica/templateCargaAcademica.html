@@ -18,7 +18,11 @@
         <input type="hidden" value="{{:id}}"/>
         <input type="hidden" value="{{:idSistemaCalificacion}}"/>
         {{if sistemas==""}}
+            {{if idSistemaCalificacion}}
             <a href="#" class="label label-warning sistema-calificacion" rel="{{:idSistemaCalificacion}}">{{:sistemaCalificacion}}</a>
+            {{else}}
+            <a href="#" class="label label-danger crear-sis-calificacion" rel="{{:id}}">Crear nuevo</a>
+            {{/if}}
         {{/if}}
 
         {{if sistemas!=""}}
