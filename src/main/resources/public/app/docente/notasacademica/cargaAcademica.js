@@ -224,6 +224,11 @@ $(function () {
             e.preventDefault();
             location.href = APP.url("docente/notasacademica/nuevo/" + $("#txtGrupo").val());
         },
+        crearNuevoSC: function ($this, e) {
+            e.preventDefault();
+            var idx = $this.attr("rel");
+            location.href = APP.url("docente/notasacademica/nuevo/" + idx);
+        },
         noVerAlumnos: function ($this, e) {
             notify("Usted no es docente de esta clave", "error");
         },
@@ -447,6 +452,9 @@ $(function () {
     });
     $("body").delegate(".new-sis-calificacion", "click", function (e) {
         CargaAcademica.verNuevoSC(e);
+    });
+    $("body").delegate(".crear-sis-calificacion", "click", function (e) {
+        CargaAcademica.crearNuevoSC($(this), e);
     });
     $("body").delegate(".add-tipo-evaluacion", "click", function (e) {
         CargaAcademica.addTipoEvaluacion(e);
