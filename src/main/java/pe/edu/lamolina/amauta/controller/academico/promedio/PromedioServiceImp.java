@@ -588,7 +588,11 @@ public class PromedioServiceImp implements PromedioService {
                     showError);
 
             if (Arrays.asList(PRE, EPG).contains(modalidadEnum) && ciclo.getTipoEnum() == REG) {
-                if (alumnoCicloEach.getEstadoEnum() == NMAT) {
+                if (alumnoCicloEach.getEstadoEnum() == NMAT && alumnoCicloEach.getSituacionInicio().isDesertor()) {
+                    ciclosConsecutivosSinEstudiar = 0;
+                    ciclosAlternosSinEstudiar = 0;
+
+                } else if (alumnoCicloEach.getEstadoEnum() == NMAT) {
                     ciclosConsecutivosSinEstudiar++;
                     ciclosAlternosSinEstudiar++;
                 }
@@ -738,6 +742,28 @@ public class PromedioServiceImp implements PromedioService {
                     }
                 }
 
+            } else if (reincorporacion != null && !esCicloReincorporaPosterior
+                    && alumnoCiclo != null && alumnoCiclo.getEstadoEnum() == INH) {
+
+                this.printSystem("Tiene Reincorporacion tipo 3 .... ", showError);
+                alumnoCiclo.defaultValuesToCreate(alumno, reincorporacion.getCicloReincorporacion(), ds.getUsuario());
+                alumnoCiclo.setCreditosConvalidados(BigDecimal.ZERO.intValue());
+                alumnoCiclo.setCreditosConvalidadosAcumulados(BigDecimal.ZERO.intValue());
+                alumnoCiclo.setEstadoEnum(EstadoMatriculaEnum.NMAT);
+                alumnoCiclo.setRegistroValido(true);
+
+                if (reincorporacion.getCicloReincorporacion().getCodigoInt() >= cicloActivo.getCodigoInt()) {
+                    alumnoCiclo.setRegistroXReinCicloActi(true);
+                }
+
+                if (!validarConCicloEgreso(alumnoCiclo, egresado)) {
+                    this.printSystem("Error: ciclo reincorporacion posterior a su ciclo de egreso", showError);
+                    return null;
+                }
+
+                alumnosCiclosByAlumno.add(alumnoCiclo);
+                return alumnoCiclo;
+
             } else if (reincorporacion != null && !esCicloReincorporaPosterior && alumnoCiclo != null) {
                 this.printSystem("Tiene Reincorporacion tipo 1.... ", showError);
                 if (reincorporacion.getCicloReincorporacion().getCodigoInt() < cicloActivo.getCodigoInt()) {
@@ -778,10 +804,6 @@ public class PromedioServiceImp implements PromedioService {
                 this.printSystem("Contexto que no puede ser analizado", showError);
                 return alumnoCiclo;
             }
-        }
-
-        if (alumnoCiclo != null && alumnoCiclo.getEstadoEnum() == INH) {
-
         }
 
         if (alumnoCiclo != null) {
