@@ -37,4 +37,6 @@ public interface RetiroCicloDAO extends EasyDAO<RetiroCiclo> {
 
     public void updateColumns(RetiroCiclo retiro, String... columns);
 
+    public List<RetiroCiclo> allByDynatableExcepcional(DynatableFilter filter, CicloAcademico cicloAcademico);
+
 }

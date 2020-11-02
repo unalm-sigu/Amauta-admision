@@ -611,20 +611,6 @@ public class TramitesAcademicosController {
         }
     }
 
-    @RequestMapping("bachiller/{id}/reporte")
-    public void bachillerReporte(Model model, HttpSession session, HttpServletResponse response, @PathVariable Long id) {
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-
-        try {
-            String fileName = tramitesAcademicosService.bachillerReporte(new Tramite(id), ds);
-            pdfResponse(fileName, "Información.pdf", response);
-        } catch (PhobosException e) {
-            ExceptionHandler.handlePhobosEx(e, model);
-        } catch (Exception e) {
-            ExceptionHandler.handleException(e, model);
-        }
-    }
-
     private void pdfResponse(String name, String outputFile, HttpServletResponse response) throws IOException {
         if (!name.isEmpty()) {
             File filex = new File(name);

@@ -10,10 +10,10 @@ import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import static pe.edu.lamolina.model.enums.TipoRetiroCicloEnum.EXCEP;
 import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
 import static pe.edu.lamolina.model.enums.TramiteEstadoEnum.ACEP;
 import static pe.edu.lamolina.model.enums.TramiteEstadoEnum.PEND;
-import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.tramite.Resolucion;
 import pe.edu.lamolina.model.tramite.RetiroCiclo;
 import pe.edu.lamolina.model.tramite.Tramite;
@@ -182,6 +182,23 @@ public class RetiroCicloDAOH extends AbstractEasyDAO<RetiroCiclo> implements Ret
             sql.set(retiro, column);
         }
         this.update(sql);
+    }
+
+    @Override
+    public List<RetiroCiclo> allByDynatableExcepcional(DynatableFilter filter, CicloAcademico cicloAcademico) {
+        DynatableSql sql = new DynatableSql(filter)
+                .from(RetiroCiclo.class, "rc")
+                .join("tramite tr", "tr.alumno al", "al.persona per")
+                .join("al.carrera car", "car.facultad", "cicloAcademico", "cicloRegistro cr")
+                .left("resolucion")
+                .searchFields("per.numeroDocIdentidad", "al.codigo")
+                .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
+                .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
+                .filter("rc.tipo", EXCEP)
+                .filter("cr.id", cicloAcademico)
+                .orderBy("rc.id desc");
+
+        return all(sql);
     }
 
 }

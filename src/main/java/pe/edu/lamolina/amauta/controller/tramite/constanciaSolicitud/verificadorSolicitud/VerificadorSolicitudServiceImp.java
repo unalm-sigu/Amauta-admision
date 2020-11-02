@@ -203,6 +203,9 @@ public class VerificadorSolicitudServiceImp implements VerificadorSolicitudServi
                 case CANTIDAD_CREDITOS_APROBADOS:
                     Assert.isNotNull(alumnoCiclos.get(0), "El alumno no tiene historial.");
                     break;
+                case CANTIDAD_CURSOS_APROBADOS:
+                    Assert.isNotNull(alumno.getCursosAprobados(), "El alumno no tiene historial.");
+                    break;
                 case ULTIMO_CICLO_MATRICULADO:
                 case CICLO_MATRICULA:
                 case NIVEL_ACADEMICO:

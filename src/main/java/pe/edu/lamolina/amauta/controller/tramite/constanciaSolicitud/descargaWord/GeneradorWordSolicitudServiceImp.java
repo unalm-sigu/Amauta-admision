@@ -86,6 +86,7 @@ import pe.edu.lamolina.model.tramite.PlantillaIncrustacionDocumento;
 import pe.edu.lamolina.model.tramite.TipoDocumentoAcademico;
 import pe.edu.lamolina.amauta.dao.tramite.TipoDocumentoAcademicoDAO;
 import static pe.edu.lamolina.model.enums.AmbienteAplicacionEnum.DESA;
+import static pe.edu.lamolina.model.enums.TipoConstanciaEnum.CERT;
 
 @Service
 @Transactional(readOnly = true)
@@ -243,6 +244,9 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
         List<XWPFParagraph> paragraphList = doc.getParagraphs();
         this.addIncrustaciones(paragraphList, incrustacionDocumentos);
         this.recorrerVariableWord(alumno, alumnoCiclos, documentoAcademico, usuario, cicloAcademicoAct, egresado, paragraphList, variables);
+        if (documentoAcademico.getTipoDocumentoAcademico().getTipoConstanciaEnum() == CERT) {
+            this.remplazarTablasCertificados(doc, alumno, variables, alumnoCiclos);
+        }
         this.remplazarTablas(doc, alumno, variables, alumnoCiclos);
     }
 
@@ -397,11 +401,13 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
                         case CANTIDAD_CREDITOS_APROBADOS:
                             text = text.replace(enums.getValue(), alumnoCiclos.get(idx).getCreditosAprobadosAcumulados().toString());
                             break;
+                        case CANTIDAD_CURSOS_APROBADOS:
+                            text = text.replace(enums.getValue(), alumno.getCursosAprobados().toString());
+                            break;
                         case FECHA_ULTIMA_MATRICULA:
                             text = text.replace(enums.getValue(), TypesUtil.getStringDate(eventoFinAcademico.getFechaFin(), "dd/MM/yyyy"));
                             break;
                         case CICLOS_CURSADOS:
-
                             String ciclos = alumnoCiclos.size() > 2 ? "los ciclos " : "el ciclo ";
                             int i = 1;
                             for (AlumnoCiclo ac : alumnoCiclos) {
@@ -501,7 +507,7 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
 
     }
 
-    private void remplazarTablas(XWPFDocument doc, Alumno alumno, List<VariablePlantilla> variables, List<AlumnoCiclo> alumnoCiclos) throws XmlException, IOException {
+    private void remplazarTablasCertificados(XWPFDocument doc, Alumno alumno, List<VariablePlantilla> variables, List<AlumnoCiclo> alumnoCiclos) throws XmlException, IOException {
         List<AlumnoCicloCurso> alumnoCicloCursos = alumnoCicloCursoDAO.allOperativesByAlumno(alumno);
         Map<Long, List<AlumnoCicloCurso>> mapalumnoCicloCursos = TypesUtil.convertListToMapList("alumnoCiclo.cicloAcademico.id", alumnoCicloCursos);
         List<XWPFTable> tbl = doc.getTables();
@@ -511,7 +517,6 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
             int countRowsInicial = fTable.getRows().size();
             int lineAll = 35;
             for (AlumnoCiclo alumnoCiclo : alumnoCiclos) {
-                System.out.println("----" + fTable.getNumberOfRows());
                 List<AlumnoCicloCurso> cicloCursos = TypesUtil.getListNotNull(mapalumnoCicloCursos.get(alumnoCiclo.getCicloAcademico().getId()));
                 int num = lineAll - fTable.getNumberOfRows();
                 if (num <= cicloCursos.size() + 1) {
@@ -538,9 +543,32 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
             for (int i = countRowsInicial - 1; i >= 0; i--) {
                 fTable.removeRow(i);
             }
-
         }
+    }
 
+    private void remplazarTablas(XWPFDocument doc, Alumno alumno, List<VariablePlantilla> variables, List<AlumnoCiclo> alumnoCiclos) throws XmlException, IOException {
+        List<AlumnoCicloCurso> alumnoCicloCursos = alumnoCicloCursoDAO.allOperativesByAlumno(alumno);
+        Map<Long, List<AlumnoCicloCurso>> mapalumnoCicloCursos = TypesUtil.convertListToMapList("alumnoCiclo.cicloAcademico.id", alumnoCicloCursos);
+        List<XWPFTable> tbl = doc.getTables();
+
+        for (XWPFTable fTable : tbl) {
+            for (AlumnoCiclo alumnoCiclo : alumnoCiclos) {
+                List<AlumnoCicloCurso> cicloCursos = TypesUtil.getListNotNull(mapalumnoCicloCursos.get(alumnoCiclo.getCicloAcademico().getId()));
+
+                XWPFTableRow oldRowCiclo = fTable.getRow(1);
+                CTRow ctrowCiclo = CTRow.Factory.parse(oldRowCiclo.getCtRow().newInputStream());
+                XWPFTableRow newRowCiclo = new XWPFTableRow(ctrowCiclo, fTable);
+
+                this.switchValue(null, newRowCiclo, variables, alumnoCiclo);
+
+                for (AlumnoCicloCurso alumnoCicloCurso : cicloCursos) {
+
+                    this.switchValue(alumnoCicloCurso, newRowCiclo, variables, alumnoCiclo);
+
+                }
+            }
+            fTable.removeRow(1);
+        }
     }
 
     private void switchValue(AlumnoCicloCurso alumnoCicloCurso, XWPFTableRow pFTableRow, List<VariablePlantilla> variables, AlumnoCiclo alumnoCiclo) {
@@ -586,6 +614,14 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
                             text = text.replace(enums.getValue(), alumnoCiclo.getCicloAcademico().getDescripcion2().toUpperCase());
                             run.setText(text, 0);
                             break;
+                        case TABLA_CICLO_ROM_CURSADO:
+                            text = text.replace(enums.getValue(), alumnoCiclo.getCicloAcademico().getDescripcion());
+                            run.setText(text, 0);
+                            break;
+                        case NIVEL_ACADEMICO:
+                            text = text.replace(enums.getValue(), alumnoCiclo.getNivel().toString());
+                            run.setText(text, 0);
+                            break;
                     }
                 }
             }
@@ -595,11 +631,4 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
 
     }
 
-    public int measureText(String text) {
-        AffineTransform affinetransform = new AffineTransform();
-        FontRenderContext frc = new FontRenderContext(affinetransform, true, true);
-        Font font = new Font("Arial", Font.PLAIN, 10);
-        int textwidth = (int) (font.getStringBounds(text, frc).getWidth());
-        return textwidth;
-    }
 }
