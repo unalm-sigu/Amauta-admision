@@ -701,7 +701,7 @@ public class PromedioServiceImp implements PromedioService {
             this.printSystem("Ciclo.egreso=" + (egresado.getCicloAcademico().getDescripcion()), showError);
         }
 
-        if (cicloAnalizar == null) {
+        if (cicloAnalizar == null || (alumnoCiclo != null && alumnoCiclo.getEstadoEnum() == INH)) {
             this.printLogger("No tiene ciclo para analizar", showError);
             Reincorporacion reincorporacion = findReincorporacion(allReincorporaciones, cicloNumerico);
             boolean esCicloReincorporaPosterior = verificarCicloReincorporaPosterior(reincorporacion, alumnoCiclo);
@@ -778,6 +778,10 @@ public class PromedioServiceImp implements PromedioService {
                 this.printSystem("Contexto que no puede ser analizado", showError);
                 return alumnoCiclo;
             }
+        }
+
+        if (alumnoCiclo != null && alumnoCiclo.getEstadoEnum() == INH) {
+
         }
 
         if (alumnoCiclo != null) {
