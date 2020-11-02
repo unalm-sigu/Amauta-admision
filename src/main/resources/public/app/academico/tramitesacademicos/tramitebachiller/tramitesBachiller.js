@@ -21,7 +21,7 @@ var app = new Vue({
         },
         urlReporteBachiller(item) {
             let $vue = this;
-            return APP.url('academico/tramiteacademico/bachiller/' + item.tramite.id + '/reporte');
+            return APP.url('academico/tramiteacademico/tramitebachiller/' + item.tramite.id + '/reporte');
         }
     }
 })

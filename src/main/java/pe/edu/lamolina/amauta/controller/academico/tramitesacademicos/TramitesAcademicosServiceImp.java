@@ -109,9 +109,6 @@ import pe.edu.lamolina.amauta.dao.tramite.FlujoTramiteDocumentoDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TramiteBachillerDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TramiteCorreccionHistorialDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TramiteDocumentoAcademicoDAO;
-import pe.edu.lamolina.model.academico.EventoCicloAcademico;
-import pe.edu.lamolina.model.enums.EventoAcademicoEnum;
-import pe.edu.lamolina.model.inscripcion.Evento;
 import pe.edu.lamolina.model.tramite.TramiteBachiller;
 
 @Service
@@ -1044,103 +1041,6 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
         return tramiteDAO.find(id).getTipoTramite();
     }
 
-    @Override
-    public String bachillerReporte(Tramite tramite, DataSessionPivot ds) {
-        List<String> pdfs = createInfoBachillerPDF(tramite, ds);
-        return pdfGenerator.concatPDFs(pdfs, "bachiller", true);
-    }
+    
 
-    private List<String> createInfoBachillerPDF(Tramite tramite, DataSessionPivot ds) {
-        tramite = tramiteDAO.find(tramite.getId());
-        TramiteBachiller tramiteBachiller = tramiteBachillerDAO.findByTramite(tramite);
-
-        Alumno alumno = tramite.getAlumno();
-        CicloAcademico cicloAcademico = ds.getCicloAcademico();
-
-        TipoCursoCurricula tipoCursoCurricula = tipoCursoCurriculaDAO.findByCodigo(TipoCursoCurriculaEnum.DEP);
-        List<AlumnoCicloCurso> alumnoCicloCursos = alumnoCicloCursoDAO.allActivosByAlumno(alumno);
-        for (AlumnoCicloCurso alumnoCicloCurso : alumnoCicloCursos) {
-            if (alumnoCicloCurso.getTipoCursoCurricula() == null) {
-                alumnoCicloCurso.setTipoCursoCurricula(tipoCursoCurricula);
-            }
-        }
-        Map<TipoCursoCurricula, List<AlumnoCicloCurso>> historial = alumnoCicloCursos
-                .stream()
-                .filter(x -> x.isAprobado())
-                .collect(Collectors.groupingBy(acc -> acc.getTipoCursoCurricula()));
-
-        Context ctx = new Context();
-
-        SortedMap<TipoCursoCurricula, List<AlumnoCicloCurso>> historialSorted = new TreeMap<>(Comparator.comparing(TipoCursoCurricula::getOrden));
-        historialSorted.putAll(historial);
-
-        List< AlumnoCiclo> alumnosCiclos = alumnoCicloCursos.stream().map(x -> x.getAlumnoCiclo()).collect(Collectors.toList());
-
-        int creditosConvalidados = 0;
-
-        List<AlumnoCicloCurso> listAlumnoCicloCurso = alumnoCicloCursoDAO.allByAlumnoOrderByTipoCurso(alumno);
-
-        for (AlumnoCicloCurso alumnoCicloCurso : listAlumnoCicloCurso) {
-            if (alumnoCicloCurso.getNota().equals("TE")) {
-                creditosConvalidados = creditosConvalidados + alumnoCicloCurso.getCreditos();
-            }
-        }
-
-        alumno.setCreditosConvalidadosTransient(creditosConvalidados);
-
-        String codigo = "10000000";
-        String codigoFin = "1";
-        CicloAcademico cicloInicio = new CicloAcademico();
-        AlumnoCiclo alumnoCiclo = null;
-        for (AlumnoCiclo alumnoCic : alumnosCiclos) {
-            Integer cod = Integer.parseInt(codigo);
-            Integer codFin = Integer.parseInt(codigoFin);
-            Integer coda = Integer.parseInt(alumnoCic.getCicloAcademico().getCodigo());
-            if (coda < cod) {
-                cicloInicio = alumnoCic.getCicloAcademico();
-                codigo = alumnoCic.getCicloAcademico().getCodigo();
-            }
-            if (coda > codFin) {
-                codigoFin = alumnoCic.getCicloAcademico().getCodigo();
-                alumnoCiclo = alumnoCic;
-            }
-        }
-
-        EventoCicloAcademico eventoActual = eventoCicloAcademicoDAO.findByCicloAndEvento(cicloAcademico, EventoAcademicoEnum.FECHAS_BACH);
-        EventoCicloAcademico eventoIngreso = eventoCicloAcademicoDAO.findByCicloAndEvento(cicloInicio, EventoAcademicoEnum.FECHAS_BACH);
-
-        ctx.setVariable("alumno", alumno);
-        ctx.setVariable("ciclo", cicloAcademico);
-        ctx.setVariable("historial", historialSorted);
-        ctx.setVariable("alumnoCiclo", alumnoCiclo);
-        ctx.setVariable("bachiller", tramiteBachiller);
-        ctx.setVariable("fechaPrimaMatricula", TypesUtil.getStringDate(eventoIngreso.getFechaInicio(), " dd'/'MM'/'yyyy", "es"));
-        ctx.setVariable("fechaEgreso", TypesUtil.getStringDate(eventoActual.getFechaFin(), " dd'/'MM'/'yyyy", "es"));
-
-        ctx.setVariable("fecha", TypesUtil.getStringDate(new DateTime().toDate(), " dd 'de' MMMM 'del' yyyy", "es"));
-//        ctx.setVariable("alumnoCicloCurso", listAlumnoCicloCurso);
-
-        PdfContent pdfMatriculados = new PdfContent();
-        pdfMatriculados.setContext(ctx);
-        pdfMatriculados.setTipoPdfEnum(TipoPdfEnum.CURSOS_MATRICULADOS);
-
-        PdfContent pdfHistorial = new PdfContent();
-        pdfHistorial.setContext(ctx);
-        pdfHistorial.setTipoPdfEnum(TipoPdfEnum.HISTORIAL_ACADEMICO_TRAMITE);
-
-        PdfContent pdfHorario = new PdfContent();
-        pdfHorario.setContext(ctx);
-        pdfHorario.setTipoPdfEnum(TipoPdfEnum.HORARIO);
-
-        PdfContent pdfBachiller = new PdfContent();
-        pdfBachiller.setContext(ctx);
-        pdfBachiller.setTipoPdfEnum(TipoPdfEnum.DETALLE_BACHILLER);
-
-        List<String> pdfs = Arrays.asList(
-                pdfGenerator.generateDocument(pdfBachiller),
-                pdfGenerator.generateDocument(pdfHistorial)
-        );
-
-        return pdfs;
-    }
 }

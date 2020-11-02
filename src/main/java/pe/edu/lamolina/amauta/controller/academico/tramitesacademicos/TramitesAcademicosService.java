@@ -70,6 +70,4 @@ public interface TramitesAcademicosService {
 
     public TipoTramite findTipoTramite(Long id);
 
-    public String bachillerReporte(Tramite alumno, DataSessionPivot ds);
-
 }
