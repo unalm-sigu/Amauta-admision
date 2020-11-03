@@ -33,7 +33,6 @@ import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
-import pe.edu.lamolina.model.tramite.Resolucion;
 import pe.edu.lamolina.model.tramite.RetiroCiclo;
 import pe.edu.lamolina.model.tramite.Tramite;
 
@@ -133,7 +132,6 @@ public class TramiteRetiroExcepcionalController {
                 response.sendError(HttpServletResponse.SC_NOT_FOUND);
                 return;
             }
-            DateTime hoy = new DateTime();
 
             response.reset();
             response.setBufferSize(GlobalConstantine.DEFAULT_BUFFER_SIZE_DOWNLOAD);

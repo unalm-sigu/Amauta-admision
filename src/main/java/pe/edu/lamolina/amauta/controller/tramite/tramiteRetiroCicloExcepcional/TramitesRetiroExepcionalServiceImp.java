@@ -1,6 +1,7 @@
 package pe.edu.lamolina.amauta.controller.tramite.tramiteRetiroCicloExcepcional;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -126,11 +127,11 @@ public class TramitesRetiroExepcionalServiceImp implements TramiteRetiroExcepcio
 
     @Override
     public String reporte(Tramite tramite, DataSessionPivot ds) {
-        List<String> pdfs = createInfoBachillerPDF(tramite, ds);
+        List<String> pdfs = createInfoRetiroExcepcionalPDF(tramite, ds);
         return pdfGenerator.concatPDFs(pdfs, "bachiller", true);
     }
 
-    private List<String> createInfoBachillerPDF(Tramite tramite, DataSessionPivot ds) {
+    private List<String> createInfoRetiroExcepcionalPDF(Tramite tramite, DataSessionPivot ds) {
         tramite = tramiteDAO.find(tramite.getId());
         Alumno alumno = tramite.getAlumno();
         Context ctx = new Context();
@@ -176,10 +177,12 @@ public class TramitesRetiroExepcionalServiceImp implements TramiteRetiroExcepcio
             i++;
         }
 
+        BigDecimal relacionEficacion = new BigDecimal(ac.getCreditosAprobadosAcumulados()).divide(new BigDecimal(ac.getCreditosAcumulados()), 2, RoundingMode.FLOOR);
         infoRetiroExcepcional.setCaa(ac.getCreditosAprobadosAcumulados());
         infoRetiroExcepcional.setCca(ac.getCreditosAcumulados());
         infoRetiroExcepcional.setPpa(ac.getPromedioAcumulado());
         infoRetiroExcepcional.setPps(ac.getPromedioCiclo());
+        infoRetiroExcepcional.setRelacionEficiencia(relacionEficacion);
         infoRetiroExcepcional.setSituacion(ac.getSituacionFinal().getNombre().toUpperCase());
 
         ctx.setVariable("tramite", tramite);

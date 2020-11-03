@@ -120,212 +120,208 @@
         <div >
             <span style="font-size: 13px !important;	">Adjunto al presente enviamos el resultado final de los cursos matriculados en el semestre
                 <b th:text="${ciclo.descripcion}"></b> y el historial académico de <span th:if="${alumno.persona.sexo == 'F'}">la</span> <span th:if="${alumno.persona.sexo == 'M'}">el</span> alumn<span th:if="${alumno.persona.sexo == 'F'}">a</span><span th:if="${alumno.persona.sexo == 'M'}">o</span> <b th:text="${alumno.persona.apellidosNombres}"></b>
-                                identificad<span th:if="${alumno.persona.sexo == 'F'}">a</span><span th:if="${alumno.persona.sexo == 'M'}">o</span> con matricula No <b th:text="${alumno.codigo}"></b> quien ha solicitado RETIRO TOTAL DE CURSOS(*).</span>
-                            </div>
-                            <div >            
-                                <table  class="table table-striped " align="center" style="margin-top: 20px">
-                                    <thead>
-                                        <tr>                        
-                                            <th colspan="6" class="text-center" >CONSOLIDADO DE NOTAS DEL HISTORIAL  </th>
-                                        </tr>
-                                        <tr>                        
-                                            <th>Código </th>
-                                            <th>Nombre del curso </th>
-                                            <th>Nota </th>
-                                            <th>NF </th>
-                                            <th>EF </th>
-                                            <th>Créditos </th>
-                                        </tr>
-                                    </thead>
-                                    <tbody >
-                                        <tr th:each="item : ${matriculaCursos}">
-                                            <td >
-                                                <span th:text=" ${item.curso.codigo}"></span> 
-                                            </td>
-                                            <td >
-                                                <span th:text=" ${item.curso.nombre}"></span> 
-                                            </td>
-                                            <td >
-                                                <span th:text=" ${item.notaAvance}"></span> 
-                                            </td>
-                                            <td >
-                                                <span th:text=" ${notaFinal}"></span> 
-                                            </td>
-                                            <td >
-                                                <!--<span th:text=" ${fechaPrimaMatricula}"></span>--> 
-                                            </td>
-                                            <td >
-                                                <span th:text=" ${item.creditos}"></span> 
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                            <div >            
-                                <table   class="table table-striped " align="center" style="margin-top: 20px">
-                                    <thead>
-                                        <tr>                        
-                                            <th colspan="2" class="text-center">ÚLTIMO PUNTAJE ALCANZADO </th>
-                                        </tr>
-                                        <tr>                        
-                                            <th class="text-center" colspan="2" th:text=" ${alumnoCiclo.cicloAcademico.descripcion2}" ></th>
+                identificad<span th:if="${alumno.persona.sexo == 'F'}">a</span><span th:if="${alumno.persona.sexo == 'M'}">o</span> con matricula No <b th:text="${alumno.codigo}"></b> quien ha solicitado RETIRO TOTAL DE CURSOS(*).</span>
+        </div>
+        <div >            
+            <table  class="table table-striped " align="center" style="margin-top: 20px">
+                <thead>
+                    <tr>                        
+                        <th colspan="5" class="text-center" >CONSOLIDADO DE NOTAS DEL HISTORIAL  </th>
+                    </tr>
+                    <tr>                        
+                        <th>Código </th>
+                        <th>Nombre del curso </th>
+                        <th>Nota  </th>
+                        <th>EF </th>
+                        <th>Créditos </th>
+                    </tr>
+                </thead>
+                <tbody >
+                    <tr th:each="item : ${matriculaCursos}">
+                        <td >
+                            <span th:text=" ${item.curso.codigo}"></span> 
+                        </td>
+                        <td >
+                            <span th:text=" ${item.curso.nombre}"></span> 
+                        </td>
+                        <td >
+                                <span th:text=" ${#numbers.formatDecimal(item.notaAvance, 0, 'DEFAULT', 2, 'DEFAULT')}"></span> 
+                        </td>
+                        <td >
+                            <span th:text=" ${#numbers.formatDecimal(item.notaFinal, 0, 'DEFAULT', 2, 'DEFAULT')}"></span> 
+                        </td>
+                        <td >
+                            <span th:text=" ${item.creditos}"></span> 
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div >            
+            <table   class="table table-striped " align="center" style="margin-top: 20px">
+                <thead>
+                    <tr>                        
+                        <th colspan="2" class="text-center">ÚLTIMO PUNTAJE ALCANZADO </th>
+                    </tr>
+                    <tr>                        
+                        <th class="text-center" colspan="2" th:text=" ${alumnoCiclo.cicloAcademico.descripcion2}" ></th>
 
-                                        </tr>
-                                    </thead>
-                                    <tbody >
-                                        <tr>
-                                            <td >
-                                                <b >Promedio Ponderado Semestral</b> 
-                                            </td>
-                                            <td >
-                                                <span th:text=" ${infoRetiroExcepcional.pps}"></span> 
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td >
-                                                <b >Creditos Cursados Acumulado</b> 
-                                            </td>
-                                            <td >
-                                                <span th:text=" ${infoRetiroExcepcional.cca}"></span> 
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td >
-                                                <b >Creditos Aprobados Acumulado</b> 
-                                            </td>
-                                            <td >
-                                                <span th:text=" ${infoRetiroExcepcional.caa}"></span> 
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td >
-                                                <b >Promedio Ponderado Acumulado</b> 
-                                            </td>
-                                            <td >
-                                                <span th:text=" ${infoRetiroExcepcional.ppa}"></span> 
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td >
-                                                <b >Situación Acumulado</b> 
-                                            </td>
-                                            <td >
-                                                <span th:text=" ${infoRetiroExcepcional.situacion}"></span> 
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td >
-                                                <b >Relación Eficiencia</b> 
-                                            </td>
-                                            <td >
-                                                <span ></span> 
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td >
-                                                <b >Veces Suspendida</b> 
-                                            </td>
-                                            <td >
-                                                <span th:text=" ${infoRetiroExcepcional.vecesSuspendido}"></span> 
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td >
-                                                <b >Veces Observado</b> 
-                                            </td>
-                                            <td >
-                                                <span th:text=" ${infoRetiroExcepcional.vecesObservado}"></span> 
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td >
-                                                <b >Veces Normal</b> 
-                                            </td>
-                                            <td >
-                                                <span th:text=" ${infoRetiroExcepcional.vecesNormal}"></span> 
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td >
-                                                <b >Ciclos Regulares Cursados Aprobados</b> 
-                                            </td>
-                                            <td >
-                                                <span th:text=" ${infoRetiroExcepcional.ciclosRegularesApro}"></span> 
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td >
-                                                <b >Ciclos Regulares Cursados Desaprobados</b> 
-                                            </td>
-                                            <td >
-                                                <span th:text=" ${infoRetiroExcepcional.ciclosRegularesApro}"></span> 
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td >
-                                                <b >Ciclos Verano Cursados Aprobados</b> 
-                                            </td>
-                                            <td >
-                                                <span th:text=" ${infoRetiroExcepcional.ciclosVeranoApro}"></span> 
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td >
-                                                <b >Ciclos Verano Cursados Desaprobados</b> 
-                                            </td>
-                                            <td >
-                                                <span th:text=" ${infoRetiroExcepcional.ciclosVeranoDesap}"></span> 
-                                            </td>
-                                        </tr>
+                    </tr>
+                </thead>
+                <tbody >
+                    <tr>
+                        <td >
+                            <b >Promedio Ponderado Semestral</b> 
+                        </td>
+                        <td >
+                            <span th:text=" ${#numbers.formatDecimal(infoRetiroExcepcional.pps, 0, 'COMMA', 2, 'POINT')}"></span> 
+                        </td>
+                    </tr>
+                    <tr>
+                        <td >
+                            <b >Creditos Cursados Acumulado</b> 
+                        </td>
+                        <td >
+                            <span th:text=" ${infoRetiroExcepcional.cca}"></span> 
+                        </td>
+                    </tr>
+                    <tr>
+                        <td >
+                            <b >Creditos Aprobados Acumulado</b> 
+                        </td>
+                        <td >
+                            <span th:text=" ${infoRetiroExcepcional.caa}"></span> 
+                        </td>
+                    </tr>
+                    <tr>
+                        <td >
+                            <b >Promedio Ponderado Acumulado</b> 
+                        </td>
+                        <td >
+                            <span th:text=" ${#numbers.formatDecimal(infoRetiroExcepcional.ppa, 0, 'COMMA', 2, 'POINT')}"></span> 
+                        </td>
+                    </tr>
+                    <tr>
+                        <td >
+                            <b >Situación Acumulado</b> 
+                        </td>
+                        <td >
+                            <span th:text=" ${infoRetiroExcepcional.situacion}"></span> 
+                        </td>
+                    </tr>
+                    <tr>
+                        <td >
+                            <b >Relación Eficiencia</b> 
+                        </td>
+                        <td >
+                            <span th:text=" ${infoRetiroExcepcional.relacionEficiencia}"></span> 
+                        </td>
+                    </tr>
+                    <tr>
+                        <td >
+                            <b >Veces Suspendida</b> 
+                        </td>
+                        <td >
+                            <span th:text=" ${infoRetiroExcepcional.vecesSuspendido}"></span> 
+                        </td>
+                    </tr>
+                    <tr>
+                        <td >
+                            <b >Veces Observado</b> 
+                        </td>
+                        <td >
+                            <span th:text=" ${infoRetiroExcepcional.vecesObservado}"></span> 
+                        </td>
+                    </tr>
+                    <tr>
+                        <td >
+                            <b >Veces Normal</b> 
+                        </td>
+                        <td >
+                            <span th:text=" ${infoRetiroExcepcional.vecesNormal}"></span> 
+                        </td>
+                    </tr>
+                    <tr>
+                        <td >
+                            <b >Ciclos Regulares Cursados Aprobados</b> 
+                        </td>
+                        <td >
+                            <span th:text=" ${infoRetiroExcepcional.ciclosRegularesApro}"></span> 
+                        </td>
+                    </tr>
+                    <tr>
+                        <td >
+                            <b >Ciclos Regulares Cursados Desaprobados</b> 
+                        </td>
+                        <td >
+                            <span th:text=" ${infoRetiroExcepcional.ciclosRegularesApro}"></span> 
+                        </td>
+                    </tr>
+                    <tr>
+                        <td >
+                            <b >Ciclos Verano Cursados Aprobados</b> 
+                        </td>
+                        <td >
+                            <span th:text=" ${infoRetiroExcepcional.ciclosVeranoApro}"></span> 
+                        </td>
+                    </tr>
+                    <tr>
+                        <td >
+                            <b >Ciclos Verano Cursados Desaprobados</b> 
+                        </td>
+                        <td >
+                            <span th:text=" ${infoRetiroExcepcional.ciclosVeranoDesap}"></span> 
+                        </td>
+                    </tr>
 
-                                    </tbody>
-                                </table>
-                            </div>
-                            <div >            
-                                <table  class="table table-striped " align="center" style="margin-top: 20px">
-                                    <thead>
-                                        <tr>                        
-                                            <th colspan="4" class="text-center" >ATECEDENTES DE RETIRO DE CICLO  </th>
-                                        </tr>
-                                        <tr>                        
-                                            <th>Ciclo </th>
-                                            <th>Retiro / Modo </th>
-                                            <th>Motivo</th>
-                                            <th>Fecha de Resolución </th>
-                                        </tr>
-                                    </thead>
-                                    <tbody >
-                                        <tr th:each="item : ${retiroCiclos}">
-                                            <td >
-                                                <span th:text=" ${item.cicloAcademico.descripcion}"></span> 
-                                            </td>
-                                            <td >
-                                                <span th:text=" ${item.tipoEnum.value}"></span> 
-                                            </td>
-                                            <td >
-                                                <span th:text=" ${item.motivo}"></span> 
-                                            </td>
-                                            <td >
-                                                <span th:if="${item.resolucion}" th:text=" ${item.resolucion.fecha}"></span> 
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
+                </tbody>
+            </table>
+        </div>
+        <div >            
+            <table  class="table table-striped " align="center" style="margin-top: 20px">
+                <thead>
+                    <tr>                        
+                        <th colspan="4" class="text-center" >ATECEDENTES DE RETIRO DE CICLO  </th>
+                    </tr>
+                    <tr>                        
+                        <th>Ciclo </th>
+                        <th>Retiro / Modo </th>
+                        <th>Motivo</th>
+                        <th>Fecha de Resolución </th>
+                    </tr>
+                </thead>
+                <tbody >
+                    <tr th:each="item : ${retiroCiclos}">
+                        <td >
+                            <span th:text=" ${item.cicloAcademico.descripcion}"></span> 
+                        </td>
+                        <td >
+                            <span th:text=" ${item.tipoEnum.value}"></span> 
+                        </td>
+                        <td >
+                            <span th:text=" ${item.motivo}"></span> 
+                        </td>
+                        <td >
+                            <span th:if="${item.resolucion}" th:text=" ${item.resolucion.fecha}"></span> 
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
 
-                            <div style="text-align: center">
-                                <pre >Atentamente,</pre>
+        <div style="text-align: center; font-size: 11px">
+            <pre >Atentamente,</pre>
 
-                                <br/>
-                                <br/>
-                                <br/>
-                                <pre >___________________________</pre>
-                                <br/>
-                                <pre >Victor Murillo Febres,</pre>
-                                <br/>
-                                <pre >Jefe (e) Unidad de Registro</pre>
-                                <!--<img height= "100px" src="firmaSelloVmurillo.png" />-->
+            <br/>
+            <br/>
+            <br/>
+            <pre >___________________________</pre>
+            <br/>
+            <pre >Victor Murillo Febres,</pre>
+            <br/>
+            <pre >Jefe (e) Unidad de Registro</pre>
+            <!--<img height= "100px" src="firmaSelloVmurillo.png" />-->
 
-                            </div>
-                            </body>
-                            </html>
+        </div>
+    </body>
+</html>
