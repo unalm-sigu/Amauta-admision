@@ -588,7 +588,10 @@ public class PromedioServiceImp implements PromedioService {
                     showError);
 
             if (Arrays.asList(PRE, EPG).contains(modalidadEnum) && ciclo.getTipoEnum() == REG) {
-                if (alumnoCicloEach.getEstadoEnum() == NMAT && alumnoCicloEach.getSituacionInicio().isDesertor()) {
+
+                if (alumnoCicloEach.getEstadoEnum() == NMAT
+                        && alumnoCicloEach.getSituacionInicio() != null
+                        && alumnoCicloEach.getSituacionInicio().isDesertor()) {
                     ciclosConsecutivosSinEstudiar = 0;
                     ciclosAlternosSinEstudiar = 0;
 
