@@ -38,8 +38,12 @@
                                 th:text="${item.nombre}"
                                 th:selected="${planCurricular.orientacionCarrera}? ${item.id == planCurricular.orientacionCarrera.id}">Agro Investigacion</option>
                     </select>
-                    <span th:unless="${planCurricular.estado=='CRE'}" class="form-control text-primary"
-                          th:text="${planCurricular.orientacionCarrera.nombre}"></span>
+                    <span th:unless="${planCurricular.estado=='CRE'}">
+                        <span th:if="${planCurricular.orientacionCarrera != null}"
+                            class="form-control text-primary" th:text="${planCurricular.orientacionCarrera.nombre}"></span>
+                        <span th:unless="${planCurricular.orientacionCarrera != null}"
+                            class="form-control text-primary">Sin orientación</span>
+                    </span>
                 </div>
             </div>
             <div class="form-group">
