@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -1620,6 +1622,8 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
         BigDecimal notaminima = BigDecimal.valueOf(1000L);
         BigDecimal notaMaxima = BigDecimal.ZERO;
         BigDecimal sumatoriaNotas = BigDecimal.ZERO;
+        BigDecimal sumaNotaAlCuadrado = BigDecimal.ZERO;
+        BigDecimal desvEstandar = BigDecimal.ZERO;
         int cantidadNsp = 0;
         int cantidadEvaluados = 0;
 
@@ -1627,10 +1631,13 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
             if (!alumnosEvaluacionEach.getEvaluacion().getId().equals(evaluacion.getId())) {
                 continue;
             }
-            //  if (sistemaNotas.isNumerico()) {
+//              if (sistemaNotas.isNumerico()) {
             if (alumnosEvaluacionEach.getValorNumerico().compareTo(notaminima) < 0) {
-                notaminima = alumnosEvaluacionEach.getValorNumerico();
+                if (!alumnosEvaluacionEach.getNota().equalsIgnoreCase(AlumnoEvaluacion.NSP)) {
+                    notaminima = alumnosEvaluacionEach.getValorNumerico();
+                }
             }
+
             if (alumnosEvaluacionEach.getValorNumerico().compareTo(notaMaxima) > 0) {
                 notaMaxima = alumnosEvaluacionEach.getValorNumerico();
             }
@@ -1639,9 +1646,15 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
             } else {
                 cantidadEvaluados++;
                 sumatoriaNotas = sumatoriaNotas.add(alumnosEvaluacionEach.getValorNumerico());
+
+                sumaNotaAlCuadrado = sumaNotaAlCuadrado.add(BigDecimal.valueOf(Math.pow(alumnosEvaluacionEach.getValorNumerico().doubleValue(), 2)));
             }
 
             //  }
+        }
+
+        if (cantidadEvaluados > 0) {
+            desvEstandar = this.getDesviacionEstandar(sumaNotaAlCuadrado, sumatoriaNotas, cantidadEvaluados);
         }
 
         ObjectNode node = new ObjectNode(JsonNodeFactory.instance);
@@ -1659,6 +1672,7 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
             node.put("evaFechaIngresoNota", evaluacion.getFechaIngresoNota() != null ? new DateTime(evaluacion.getFechaIngresoNota()).toString("dd/MM/yyyy") : "");
             node.put("evaFechaRealizada", evaluacion.getFechaRealizada() != null ? new DateTime(evaluacion.getFechaRealizada()).toString("dd/MM/yyyy") : "");
             node.put("notaminima", 0);
+
             if (BigDecimal.valueOf(1000L).compareTo(notaminima) != 0) {
                 node.put("notaminima", notaminima);
             }
@@ -1670,9 +1684,37 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
             if (sumatoriaNotas.compareTo(BigDecimal.ZERO) != 0) {
                 node.put("promedioNotas", sumatoriaNotas.divide(new BigDecimal(cantidadEvaluados), 2, RoundingMode.CEILING));
             }
+            node.put("desvEstandar", desvEstandar);
         }
 
         return node;
+    }
+
+    private BigDecimal getDesviacionEstandar(BigDecimal sumaNotaAlCuadrado, BigDecimal sumatoriaNotas, int cantidadEvaluados) {
+        BigDecimal desvEstandar = BigDecimal.ZERO;
+
+        float diviFloat = 0l;
+        float multiFloat = 0l;
+        float restaFloat = 0l;
+        float divi2Float = 0l;
+        BigDecimal divi = BigDecimal.ZERO;
+        BigDecimal cantidadEvaluadosMinusOne = BigDecimal.valueOf(cantidadEvaluados).subtract(BigDecimal.ONE);
+
+//        =RAIZ( ( SUMA_NOTA_CUADRADOS  -  SUMA_NOTA * SUMA_NOTA / CANTIDAD_DE_EVALUADOS ) / CANTIDAD_DE_EVALUADOS - 1)
+        diviFloat = sumatoriaNotas.floatValue() / cantidadEvaluados;
+
+        multiFloat = diviFloat * sumatoriaNotas.floatValue();
+        
+        restaFloat = sumaNotaAlCuadrado.floatValue() - multiFloat;
+
+        divi2Float = restaFloat / cantidadEvaluadosMinusOne.floatValue();
+
+        divi = new BigDecimal(divi2Float);
+
+        desvEstandar = BigDecimal.valueOf(Math.sqrt(divi.doubleValue()));
+
+        return desvEstandar.setScale(2, RoundingMode.CEILING);
+
     }
 
     @Override

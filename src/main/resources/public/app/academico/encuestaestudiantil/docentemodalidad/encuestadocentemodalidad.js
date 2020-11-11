@@ -13,8 +13,7 @@ new Vue({
             header: true,
             footer: false,
             showaccept: false
-        },
-        indicadorClave: 0
+        }
     },
     methods: {
         findTemas(item) {
@@ -22,7 +21,6 @@ new Vue({
                     .then(response => {
                         if (response.data.success) {
                             this.puntajeDocenteModalidad = response.data.data;
-                            this.indicadorClave = this.puntajeDocenteModalidad[0].encuestaDocente.puntajeBase10;
                             this.$refs.modalTemas.open();
                         }
                     })

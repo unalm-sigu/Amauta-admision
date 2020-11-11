@@ -35,7 +35,6 @@ import pe.edu.lamolina.model.academico.DepartamentoAcademico;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.encuestaestudiantil.EncuestaDocenteModalidad;
 import pe.edu.lamolina.model.encuestaestudiantil.PuntajeEncuestaDocenteModalidad;
-import pe.edu.lamolina.model.constantines.AcademicoConstantine;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 
@@ -107,7 +106,6 @@ public class EncuestaDocenteModalidadController {
 
             for (PuntajeEncuestaDocenteModalidad item : lista) {
                 arr.add(JsonHelper.createJson(item, JsonNodeFactory.instance, new String[]{
-                    "encuestaDocente.puntajeBase10",
                     "puntaje",
                     "desviacionStandar",
                     "temaEncuesta.nombre"

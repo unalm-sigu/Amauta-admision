@@ -200,6 +200,7 @@ $(function () {
                 },
                 success: function (response) {
                     var data = response.data;
+                    
                     MODAL.init("lg");
 
                     if (data.estaAbierto == true || data.estaReabierto) {
