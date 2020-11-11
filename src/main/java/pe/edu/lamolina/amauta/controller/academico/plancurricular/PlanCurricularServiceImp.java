@@ -1496,19 +1496,19 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
 
             List<AlumnoAvanceCurricular> avanceCurriculars = alumnosAvanceCurriculars.stream().filter(x -> Objects.equals(x.getAlumno().getId(), alumno.getId())).collect(Collectors.toList());
 
-            String codigoCicloAlumno = (String) ObjectUtil.getParentTree(alumno, "cicloIngreso.codigo");
+//            String codigoCicloAlumno = (String) ObjectUtil.getParentTree(alumno, "cicloIngreso.codigo");
 
-            count++;
-            String codigoCicloPlan = this.getIndiceCicloAcademico(codigoCicloAlumno, codigosCiclosPlanes);
-            List<PlanCurricular> planesBD = mapPlanesByCiclo.get(codigoCicloPlan);
-            PlanCurricular planCurricularBD = null;
-            if (orientacionCarrera != null) {
-                planCurricularBD = planesBD.stream().filter(x -> Objects.equals(x.getOrientacionCarrera().getId(), orientacionCarrera.getId())).findAny().orElse(null);
-            } else {
-                planCurricularBD = planesBD.get(0);
-            }
+//            count++;
+//            String codigoCicloPlan = this.getIndiceCicloAcademico(codigoCicloAlumno, codigosCiclosPlanes);
+//            List<PlanCurricular> planesBD = mapPlanesByCiclo.get(codigoCicloPlan);
+//            PlanCurricular planCurricularBD = null;
+//            if (orientacionCarrera != null) {
+//                planCurricularBD = planesBD.stream().filter(x -> Objects.equals(x.getOrientacionCarrera().getId(), orientacionCarrera.getId())).findAny().orElse(null);
+//            } else {
+//                planCurricularBD = planesBD.get(0);
+//            }
 
-            PlanCurricular planBD = planCurricularBD;
+            PlanCurricular planBD = alumno.getPlanCurricular();
 
             List<ResumenPlanCurricular> resumenPlanCurriculars = mapResumenPlanCurriculaAll.get(planBD.getId());
             Map<TipoCursoCurriculaEnum, ResumenPlanCurricular> mapResumenPlanCurricular = TypesUtil.convertListToMap("tipoCursoCurricula.codigoEnum", resumenPlanCurriculars);
