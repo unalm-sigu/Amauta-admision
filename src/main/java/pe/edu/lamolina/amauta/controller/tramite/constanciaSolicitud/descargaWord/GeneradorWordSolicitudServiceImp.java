@@ -49,6 +49,7 @@ import pe.edu.lamolina.amauta.dao.academico.EventoCicloAcademicoDAO;
 import pe.edu.lamolina.amauta.dao.academico.MatriculaResumenDAO;
 import pe.edu.lamolina.amauta.dao.academico.NombreCarreraDAO;
 import pe.edu.lamolina.amauta.dao.academico.NombreCicloDAO;
+import pe.edu.lamolina.amauta.dao.academico.NombreCursoDAO;
 import pe.edu.lamolina.amauta.dao.academico.NombreFacultadDAO;
 import pe.edu.lamolina.amauta.dao.academico.NombreGradoDAO;
 import pe.edu.lamolina.amauta.dao.academico.NombreTituloAcademicoDAO;
@@ -97,11 +98,13 @@ import pe.edu.lamolina.amauta.dao.tramite.TipoDocumentoAcademicoDAO;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.NombreCarrera;
 import pe.edu.lamolina.model.academico.NombreCiclo;
+import pe.edu.lamolina.model.academico.NombreCurso;
 import pe.edu.lamolina.model.academico.NombreFacultad;
 import pe.edu.lamolina.model.academico.NombreGrado;
 import pe.edu.lamolina.model.academico.NombreTituloAcademico;
 import static pe.edu.lamolina.model.enums.AmbienteAplicacionEnum.DESA;
 import static pe.edu.lamolina.model.enums.TipoConstanciaEnum.CERT;
+import pe.edu.lamolina.model.enums.TipoOficinaEnum;
 
 @Service
 @Transactional(readOnly = true)
@@ -171,6 +174,9 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
 
     @Autowired
     NombreGradoDAO nombreGradoDAO;
+
+    @Autowired
+    NombreCursoDAO nombreCursoDAO;
 
     @Autowired
     NombreTituloAcademicoDAO nombreTituloAcademicoDAO;
@@ -274,12 +280,15 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
         NombreFacultad nombreFacultads = null;
         List<NombreTituloAcademico> nombresTituloAcademico = null;
         List<NombreGrado> nombreGrados = null;
+        List<NombreCurso> nombreCurso = null;
         List<NombreCiclo> nombresCiclos = null;
         Map<String, NombreCiclo> mapNombreCiclo = null;
         Map<Long, NombreTituloAcademico> mapNombreTitulo = null;
+        Map<Long, NombreCurso> mapNombreCurso = null;
         Map<Long, NombreGrado> mapNombreGrados = null;
         NombreCarrera nombresCarrera = null;
         if (!isEspanol) {
+            nombreCurso = nombreCursoDAO.allByIdioma(plantilla.getIdioma());
             nombreFacultads = nombreFacultadDAO.findByIdioma(facultadAlumno, plantilla.getIdioma());
             nombresCarrera = nombreCarreraDAO.findByIdioma(alumno.getCarrera(), plantilla.getIdioma());
             nombresCiclos = nombreCicloDAO.allByIdioma(plantilla.getIdioma());
@@ -288,6 +297,7 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
             nombreGrados = nombreGradoDAO.allByIdioma(plantilla.getIdioma());
             mapNombreGrados = TypesUtil.convertListToMap("gradoAcademico.id", nombreGrados);
             mapNombreCiclo = TypesUtil.convertListToMap("codigoCiclo", nombresCiclos);
+            mapNombreCurso = TypesUtil.convertListToMap("curso.id", nombreCurso);
         }
         variables.addAll(variablePlantillasIncrustacion);
 
@@ -297,9 +307,11 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
                 nombreFacultads, nombresCarrera, mapNombreTitulo, mapNombreGrados, mapNombreCiclo, isEspanol, facultadAlumno
         );
         if (documentoAcademico.getTipoDocumentoAcademico().getTipoConstanciaEnum() == CERT) {
-            this.remplazarTablasCertificados(doc, alumno, variables, alumnoCiclos);
+            this.remplazarTablasCertificados(doc, alumno, variables, alumnoCiclos,
+                    nombreFacultads, nombresCarrera, mapNombreTitulo, mapNombreGrados, mapNombreCiclo, mapNombreCurso, isEspanol, facultadAlumno);
         }
-        this.remplazarTablas(doc, alumno, variables, alumnoCiclos);
+        this.remplazarTablas(doc, alumno, variables, alumnoCiclos,
+                nombreFacultads, nombresCarrera, mapNombreTitulo, mapNombreGrados, mapNombreCiclo, mapNombreCurso, isEspanol, facultadAlumno);
     }
 
     private void addIncrustaciones(List<XWPFParagraph> paragraphList, List<PlantillaIncrustacionDocumento> incrustacionDocumentos) {
@@ -332,8 +344,9 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
 
         int idx = alumnoCiclos.size() - 1;
 
-        OficinaEnum oficinaEnum = documentoAcademico.getTipoDocumentoAcademico().getTipoConstanciaEnum() == TipoConstanciaEnum.CONS ? OficinaEnum.UR : OficinaEnum.OERA;
-        Oficina oficina = oficinaDAO.findByCode(oficinaEnum.name());
+        Oficina oficinaUR = oficinaDAO.findByCode(OficinaEnum.UR.name());
+        Oficina oficinaOREA = oficinaDAO.findByCode(OficinaEnum.OERA.name());
+        Oficina oficinaFacultad = oficinaDAO.findByTipoAndFacultad(TipoOficinaEnum.FAC, alumno.getCarrera().getFacultad());
         ObtencionGrado obtencionGradoBachi = obtencionGradoDAO.findByAlumnoAndTipo(alumno, TipoGradoAcademicoEnum.BACH);
         ObtencionGrado obtencionGradoTitulo = obtencionGradoDAO.findByAlumnoAndTipo(alumno, TipoGradoAcademicoEnum.TIT);
 
@@ -365,11 +378,12 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
                     enums = VariableGenericaEnum.valueOf(variablePlantilla.getVariableGenerica().getCodigoEnum());
                     switch (enums) {
                         case FIRMA_JEFE_FACULTAD:
-
+                            text = text.replace(enums.getValue(), oficinaFacultad.getJefeEncargado() == null ? oficinaFacultad.getPersonaJefe().getNombreCompleto() : oficinaFacultad.getJefeEncargado().getNombreCompleto());
                             break;
                         case JEFE_OFICINA_OERA:
+                            text = text.replace(enums.getValue(), oficinaOREA.getJefeEncargado() == null ? oficinaOREA.getPersonaJefe().getNombreCompleto() : oficinaOREA.getJefeEncargado().getNombreCompleto());
                         case JEFE_URA:
-                            text = text.replace(enums.getValue(), oficina.getJefeEncargado() == null ? oficina.getPersonaJefe().getNombreCompleto() : oficina.getJefeEncargado().getNombreCompleto());
+                            text = text.replace(enums.getValue(), oficinaUR.getJefeEncargado() == null ? oficinaUR.getPersonaJefe().getNombreCompleto() : oficinaUR.getJefeEncargado().getNombreCompleto());
                             break;
                         case CORRELATIVO_DOC:
                             if (documentoAcademico.getCorrelativoDocumento() == null) {
@@ -379,7 +393,7 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
                                 TipoDocumentoCompania tipoDocumentoCompania = tipoDocumentoCompaniaDAO.findByCodigo(tipoConEnum);
                                 SerieDocumento serieDocumento = serieDocumentoService.getCorrelativo(tipoDocumentoCompania, Long.valueOf(today.getYear()), usuario);
 
-                                documentoAcademico.setCorrelativoDocumento(serieDocumento.getNumeroDocumento() + "-" + oficina.getCodigoDocumento() + "/" + serieDocumento.getNumeroSerie());
+                                documentoAcademico.setCorrelativoDocumento(serieDocumento.getNumeroDocumento() + "-" + oficinaUR.getCodigoDocumento() + "/" + serieDocumento.getNumeroSerie());
                                 tramiteDocumentoAcademicoDAO.updateColumns(documentoAcademico, "correlativoDocumento");
                             }
                             text = text.replace(enums.getValue(), documentoAcademico.getCorrelativoDocumento());
@@ -614,7 +628,16 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
 
     }
 
-    private void remplazarTablasCertificados(XWPFDocument doc, Alumno alumno, List<VariablePlantilla> variables, List<AlumnoCiclo> alumnoCiclos) throws XmlException, IOException {
+    private void remplazarTablasCertificados(XWPFDocument doc, Alumno alumno, List<VariablePlantilla> variables, List<AlumnoCiclo> alumnoCiclos,
+            NombreFacultad nombreFacultads,
+            NombreCarrera nombresCarrera,
+            Map<Long, NombreTituloAcademico> mapNombreTitulo,
+            Map<Long, NombreGrado> mapNombreGrados,
+            Map<String, NombreCiclo> mapNombreCiclo,
+            Map<Long, NombreCurso> mapNombreCurso,
+            Boolean isEspanol,
+            Facultad facultadAlumno
+    ) throws XmlException, IOException {
         List<AlumnoCicloCurso> alumnoCicloCursos = alumnoCicloCursoDAO.allOperativesByAlumno(alumno);
         Map<Long, List<AlumnoCicloCurso>> mapalumnoCicloCursos = TypesUtil.convertListToMapList("alumnoCiclo.cicloAcademico.id", alumnoCicloCursos);
         List<XWPFTable> tbl = doc.getTables();
@@ -655,7 +678,15 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
 
     }
 
-    private void remplazarTablas(XWPFDocument doc, Alumno alumno, List<VariablePlantilla> variables, List<AlumnoCiclo> alumnoCiclos) throws XmlException, IOException {
+    private void remplazarTablas(XWPFDocument doc, Alumno alumno, List<VariablePlantilla> variables, List<AlumnoCiclo> alumnoCiclos,
+            NombreFacultad nombreFacultads,
+            NombreCarrera nombresCarrera,
+            Map<Long, NombreTituloAcademico> mapNombreTitulo,
+            Map<Long, NombreGrado> mapNombreGrados,
+            Map<String, NombreCiclo> mapNombreCiclo,
+            Map<Long, NombreCurso> mapNombreCurso,
+            Boolean isEspanol,
+            Facultad facultadAlumno) throws XmlException, IOException {
         List<AlumnoCicloCurso> alumnoCicloCursos = alumnoCicloCursoDAO.allOperativesByAlumno(alumno);
         Map<Long, List<AlumnoCicloCurso>> mapalumnoCicloCursos = TypesUtil.convertListToMapList("alumnoCiclo.cicloAcademico.id", alumnoCicloCursos);
         List<XWPFTable> tbl = doc.getTables();

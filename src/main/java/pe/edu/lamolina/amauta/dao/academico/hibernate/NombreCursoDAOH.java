@@ -7,6 +7,7 @@ import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.NombreCurso;
+import pe.edu.lamolina.model.general.Idioma;
 
 @Repository
 public class NombreCursoDAOH extends AbstractEasyDAO<NombreCurso> implements NombreCursoDAO {
@@ -32,6 +33,16 @@ public class NombreCursoDAOH extends AbstractEasyDAO<NombreCurso> implements Nom
                 .from(NombreCurso.class, "nc")
                 .join("curso cu", "idioma id")
                 .filter("cu.id", curso);
+
+        return all(sql);
+    }
+
+    @Override
+    public List<NombreCurso> allByIdioma(Idioma idioma) {
+        Octavia sql = Octavia.query()
+                .from(NombreCurso.class, "nc")
+                .join("curso cu", "idioma idi")
+                .filter("idi.id", idioma);
 
         return all(sql);
     }

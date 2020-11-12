@@ -1492,7 +1492,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
         visorAsignaCurricula.putTope(carrera, alumnos.size() * 2);
         for (Alumno alumno : alumnos) {
 
-            OrientacionCarrera orientacionCarrera = alumno.getOrientacionCarrera();
+//            OrientacionCarrera orientacionCarrera = alumno.getOrientacionCarrera();
 
             List<AlumnoAvanceCurricular> avanceCurriculars = alumnosAvanceCurriculars.stream().filter(x -> Objects.equals(x.getAlumno().getId(), alumno.getId())).collect(Collectors.toList());
 
