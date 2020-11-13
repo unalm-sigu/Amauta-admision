@@ -276,7 +276,7 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
         List<VariablePlantilla> variablePlantillasIncrustacion = variablePlantillaDAO.allByPlantillas(plantillaDocumentoIncrustacion);
         List<VariablePlantilla> variables = variablePlantillaDAO.allByPlantilla(plantilla);
         Facultad facultadAlumno = alumno.getCarrera().getFacultad();
-        Boolean isEspanol = plantilla.getIdioma().getCodigo().equals(IdiomaEnum.ES.name());
+        Boolean isEspanol = plantilla.getIdioma().getCodigo().equals(IdiomaEnum.ES.getAcronimo());
         NombreFacultad nombreFacultads = null;
         List<NombreTituloAcademico> nombresTituloAcademico = null;
         List<NombreGrado> nombreGrados = null;
@@ -609,7 +609,7 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
                             break;
                         case PROMEDIO_PONDERADO_GRADUACION:
 
-                            text = text.replace(enums.getValue(), egresado.getPromedioGraduacion().toString());
+                            text = text.replace(enums.getValue(), egresado.getPromedioGraduacion() != null ? egresado.getPromedioGraduacion().toString() : alumnoCiclos.size() + "");
 
                             break;
                         case MEJOR_PROMEDIO_PONDERADO_GRADUACION:
