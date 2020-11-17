@@ -232,7 +232,7 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
         try {
             XWPFDocument doc = null;
             if (despliegueConfig.getAmbiente().toUpperCase().equals(DESA.name())) {
-                doc = new XWPFDocument(OPCPackage.open(new FileInputStream("C:\\tmp\\CertificadoIngles.docx")));
+                doc = new XWPFDocument(OPCPackage.open(new FileInputStream("C:\\tmp\\Certificado.docx")));
             } else {
                 doc = new XWPFDocument(new URL(plantilla.getArchivo().getRuta()).openStream());
             }
@@ -679,7 +679,7 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
         CTDocument1 ctDocument = doc.getDocument();
         CTBody ctBody = ctDocument.getBody();
         ctSectPr = ctBody.addNewSectPr();
-        ctSectPr.addNewType().setVal(STSectionMark.CONTINUOUS);
+        ctSectPr.addNewType().setVal(STSectionMark.NEXT_PAGE);
         ctColumns = ctSectPr.addNewCols();
         ctColumns.setNum(BigInteger.valueOf(0));
 
