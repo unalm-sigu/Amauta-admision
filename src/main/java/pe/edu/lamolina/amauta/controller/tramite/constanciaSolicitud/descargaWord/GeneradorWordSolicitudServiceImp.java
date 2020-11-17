@@ -232,7 +232,7 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
         try {
             XWPFDocument doc = null;
             if (despliegueConfig.getAmbiente().toUpperCase().equals(DESA.name())) {
-                doc = new XWPFDocument(OPCPackage.open(new FileInputStream("C:\\tmp\\Certificado.docx")));
+                doc = new XWPFDocument(OPCPackage.open(new FileInputStream("C:\\tmp\\AlumnoRegular.docx")));
             } else {
                 doc = new XWPFDocument(new URL(plantilla.getArchivo().getRuta()).openStream());
             }
@@ -345,6 +345,7 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
 
         int idx = alumnoCiclos.size() - 1;
 
+        Oficina oficinaEPG = oficinaDAO.findByCode(OficinaEnum.EPG.name());
         Oficina oficinaUR = oficinaDAO.findByCode(OficinaEnum.UR.name());
         Oficina oficinaOREA = oficinaDAO.findByCode(OficinaEnum.OERA.name());
         Oficina oficinaFacultad = oficinaDAO.findByTipoAndFacultad(TipoOficinaEnum.FAC, alumno.getCarrera().getFacultad());
@@ -385,6 +386,9 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
                             text = text.replace(enums.getValue(), oficinaOREA.getJefeEncargado() == null ? oficinaOREA.getPersonaJefe().getNombreConTitulo() : oficinaOREA.getJefeEncargado().getNombreConTitulo());
                         case JEFE_URA:
                             text = text.replace(enums.getValue(), oficinaUR.getJefeEncargado() == null ? oficinaUR.getPersonaJefe().getNombreConTitulo() : oficinaUR.getJefeEncargado().getNombreConTitulo());
+                            break;
+                        case JEFE_POS_GRADO:
+                            text = text.replace(enums.getValue(), oficinaEPG.getJefeEncargado() == null ? oficinaEPG.getPersonaJefe().getNombreConTitulo() : oficinaEPG.getJefeEncargado().getNombreConTitulo());
                             break;
                         case CORRELATIVO_DOC:
                             if (documentoAcademico.getCorrelativoDocumento() == null) {
@@ -617,6 +621,11 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
                         case PROMEDIO_PONDERADO_GRADUACION:
 
                             text = text.replace(enums.getValue(), egresado.getPromedioGraduacion() != null ? egresado.getPromedioGraduacion().toString() : alumnoCiclos.size() + "No hay data");
+
+                            break;
+                        case EPG_PROMEDIO_PONDERADO:
+
+                            text = text.replace(enums.getValue(), alumno.getPromedioAcumulado().toString());
 
                             break;
                         case MEJOR_PROMEDIO_PONDERADO_GRADUACION:
