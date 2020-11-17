@@ -751,11 +751,10 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
 
                                 } else {
                                     if (mapNombreCurso.get(alumnoCicloCurso.getCurso().getId()) != null) {
-
-                                        run.setText(mapNombreCurso.get(alumnoCicloCurso.getCurso().getId()).getNombre().toUpperCase(), 0);
+                                        text = text.replace(enums.getValue(), mapNombreCurso.get(alumnoCicloCurso.getCurso().getId()).getNombre().toUpperCase());
                                     } else {
 
-                                        run.setText("no data", 0);
+                                        text = text.replace(enums.getValue(), "no data");
                                     }
                                 }
 
