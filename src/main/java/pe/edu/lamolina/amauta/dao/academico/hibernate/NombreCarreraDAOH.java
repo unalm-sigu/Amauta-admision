@@ -21,7 +21,7 @@ public class NombreCarreraDAOH extends AbstractEasyDAO<NombreCarrera> implements
         Octavia sql = new Octavia()
                 .from(NombreCarrera.class, "nc")
                 .join("carrera car", "idioma idi")
-                .filter("idi", idioma)
+                .filter("idi.id", idioma)
                 .filter("car.id", carrera);
 
         return find(sql);

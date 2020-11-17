@@ -232,7 +232,7 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
         try {
             XWPFDocument doc = null;
             if (despliegueConfig.getAmbiente().toUpperCase().equals(DESA.name())) {
-                doc = new XWPFDocument(OPCPackage.open(new FileInputStream("C:\\tmp\\Certificado.docx")));
+                doc = new XWPFDocument(OPCPackage.open(new FileInputStream("C:\\tmp\\CertificadoIngles.docx")));
             } else {
                 doc = new XWPFDocument(new URL(plantilla.getArchivo().getRuta()).openStream());
             }
@@ -309,9 +309,10 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
         if (documentoAcademico.getTipoDocumentoAcademico().getTipoConstanciaEnum() == CERT) {
             this.remplazarTablasCertificados(doc, alumno, variables, alumnoCiclos,
                     nombreFacultads, nombresCarrera, mapNombreTitulo, mapNombreGrados, mapNombreCiclo, mapNombreCurso, isEspanol, facultadAlumno);
+        } else {
+            this.remplazarTablas(doc, alumno, variables, alumnoCiclos,
+                    nombreFacultads, nombresCarrera, mapNombreTitulo, mapNombreGrados, mapNombreCiclo, mapNombreCurso, isEspanol, facultadAlumno);
         }
-        this.remplazarTablas(doc, alumno, variables, alumnoCiclos,
-                nombreFacultads, nombresCarrera, mapNombreTitulo, mapNombreGrados, mapNombreCiclo, mapNombreCurso, isEspanol, facultadAlumno);
     }
 
     private void addIncrustaciones(List<XWPFParagraph> paragraphList, List<PlantillaIncrustacionDocumento> incrustacionDocumentos) {
@@ -378,12 +379,12 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
                     enums = VariableGenericaEnum.valueOf(variablePlantilla.getVariableGenerica().getCodigoEnum());
                     switch (enums) {
                         case FIRMA_JEFE_FACULTAD:
-                            text = text.replace(enums.getValue(), oficinaFacultad.getJefeEncargado() == null ? oficinaFacultad.getPersonaJefe().getNombreCompleto() : oficinaFacultad.getJefeEncargado().getNombreCompleto());
+                            text = text.replace(enums.getValue(), oficinaFacultad.getJefeEncargado() == null ? oficinaFacultad.getPersonaJefe().getNombreConTitulo() : oficinaFacultad.getJefeEncargado().getNombreConTitulo());
                             break;
                         case JEFE_OFICINA_OERA:
-                            text = text.replace(enums.getValue(), oficinaOREA.getJefeEncargado() == null ? oficinaOREA.getPersonaJefe().getNombreCompleto() : oficinaOREA.getJefeEncargado().getNombreCompleto());
+                            text = text.replace(enums.getValue(), oficinaOREA.getJefeEncargado() == null ? oficinaOREA.getPersonaJefe().getNombreConTitulo() : oficinaOREA.getJefeEncargado().getNombreConTitulo());
                         case JEFE_URA:
-                            text = text.replace(enums.getValue(), oficinaUR.getJefeEncargado() == null ? oficinaUR.getPersonaJefe().getNombreCompleto() : oficinaUR.getJefeEncargado().getNombreCompleto());
+                            text = text.replace(enums.getValue(), oficinaUR.getJefeEncargado() == null ? oficinaUR.getPersonaJefe().getNombreConTitulo() : oficinaUR.getJefeEncargado().getNombreConTitulo());
                             break;
                         case CORRELATIVO_DOC:
                             if (documentoAcademico.getCorrelativoDocumento() == null) {
@@ -422,6 +423,12 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
                             break;
 
                         case ESPECIALIDAD:
+                            if (isEspanol) {
+                                text = text.replace(enums.getValue(), alumno.getCarrera().getNombre().toUpperCase());
+                            } else {
+                                text = text.replace(enums.getValue(), nombresCarrera.getNombre().toUpperCase());
+                            }
+                            break;
                         case CARRERA:
                             if (!facultadAlumno.getCodigo().equals(alumno.getCarrera().getCodigo()) && isEspanol) {
                                 text = text.replace(enums.getValue(), " - Carrera de " + alumno.getCarrera().getNombre().toUpperCase());
@@ -609,7 +616,7 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
                             break;
                         case PROMEDIO_PONDERADO_GRADUACION:
 
-                            text = text.replace(enums.getValue(), egresado.getPromedioGraduacion() != null ? egresado.getPromedioGraduacion().toString() : alumnoCiclos.size() + "");
+                            text = text.replace(enums.getValue(), egresado.getPromedioGraduacion() != null ? egresado.getPromedioGraduacion().toString() : alumnoCiclos.size() + "No hay data");
 
                             break;
                         case MEJOR_PROMEDIO_PONDERADO_GRADUACION:
@@ -652,13 +659,13 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
                 XWPFTableRow oldRowCiclo = fTable.getRow(0);
                 CTRow ctrowCiclo = CTRow.Factory.parse(oldRowCiclo.getCtRow().newInputStream());
                 XWPFTableRow newRowCiclo = new XWPFTableRow(ctrowCiclo, fTable);
-                this.switchValue(null, newRowCiclo, variables, alumnoCiclo);
+                this.switchValue(null, newRowCiclo, variables, alumnoCiclo, mapNombreCurso, mapNombreCiclo, isEspanol);
                 fTable.addRow(newRowCiclo);
                 for (AlumnoCicloCurso alumnoCicloCurso : cicloCursos) {
                     XWPFTableRow oldRow = fTable.getRow(1);
                     CTRow ctrow = CTRow.Factory.parse(oldRow.getCtRow().newInputStream());
                     XWPFTableRow newRow = new XWPFTableRow(ctrow, fTable);
-                    this.switchValue(alumnoCicloCurso, newRow, variables, alumnoCiclo);
+                    this.switchValue(alumnoCicloCurso, newRow, variables, alumnoCiclo, mapNombreCurso, mapNombreCiclo, isEspanol);
 
                     fTable.addRow(newRow);
                 }
@@ -674,7 +681,7 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
         ctSectPr = ctBody.addNewSectPr();
         ctSectPr.addNewType().setVal(STSectionMark.CONTINUOUS);
         ctColumns = ctSectPr.addNewCols();
-        ctColumns.setNum(BigInteger.valueOf(1));
+        ctColumns.setNum(BigInteger.valueOf(0));
 
     }
 
@@ -699,19 +706,23 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
                 CTRow ctrowCiclo = CTRow.Factory.parse(oldRowCiclo.getCtRow().newInputStream());
                 XWPFTableRow newRowCiclo = new XWPFTableRow(ctrowCiclo, fTable);
 
-                this.switchValue(null, newRowCiclo, variables, alumnoCiclo);
+                this.switchValue(null, newRowCiclo, variables, alumnoCiclo, mapNombreCurso, mapNombreCiclo, isEspanol);
 
                 for (AlumnoCicloCurso alumnoCicloCurso : cicloCursos) {
 
-                    this.switchValue(alumnoCicloCurso, newRowCiclo, variables, alumnoCiclo);
+                    this.switchValue(alumnoCicloCurso, newRowCiclo, variables, alumnoCiclo, mapNombreCurso, mapNombreCiclo, isEspanol);
 
                 }
             }
-//            fTable.removeRow(1);
+            fTable.removeRow(1);
         }
     }
 
-    private void switchValue(AlumnoCicloCurso alumnoCicloCurso, XWPFTableRow pFTableRow, List<VariablePlantilla> variables, AlumnoCiclo alumnoCiclo) {
+    private void switchValue(AlumnoCicloCurso alumnoCicloCurso, XWPFTableRow pFTableRow, List<VariablePlantilla> variables, AlumnoCiclo alumnoCiclo,
+            Map<Long, NombreCurso> mapNombreCurso,
+            Map<String, NombreCiclo> mapNombreCiclo,
+            Boolean isEspanol
+    ) {
 
         for (XWPFTableCell tableCell : pFTableRow.getTableCells()) {
 
@@ -728,13 +739,26 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
                     switch (enums) {
                         case TABLA_CODIGO_CURSO:
                             if (alumnoCicloCurso != null) {
+
                                 run.setText(alumnoCicloCurso.getCurso().getCodigo().toUpperCase(), 0);
                             }
 
                             break;
                         case TABLA_CURSO:
                             if (alumnoCicloCurso != null) {
-                                text = text.replace(enums.getValue(), alumnoCicloCurso.getCurso().getNombre().toUpperCase());
+                                if (isEspanol) {
+                                    text = text.replace(enums.getValue(), alumnoCicloCurso.getCurso().getNombre().toUpperCase());
+
+                                } else {
+                                    if (mapNombreCurso.get(alumnoCicloCurso.getCurso().getId()) != null) {
+
+                                        run.setText(mapNombreCurso.get(alumnoCicloCurso.getCurso().getId()).getNombre().toUpperCase(), 0);
+                                    } else {
+
+                                        run.setText("no data", 0);
+                                    }
+                                }
+
                                 run.setText(text, 0);
                             }
                             break;
@@ -751,7 +775,13 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
                             }
                             break;
                         case TABLA_CICLO_CURSADO:
-                            text = text.replace(enums.getValue(), alumnoCiclo.getCicloAcademico().getDescripcion2().toUpperCase());
+                            if (isEspanol) {
+
+                                text = text.replace(enums.getValue(), alumnoCiclo.getCicloAcademico().getDescripcion2().toUpperCase());
+                            } else {
+                                text = text.replace(enums.getValue(), mapNombreCiclo.get(alumnoCiclo.getCicloAcademico().getCodigo()).getNombre().toUpperCase());
+
+                            }
                             run.setText(text, 0);
                             break;
                         case TABLA_CICLO_ROM_CURSADO:
