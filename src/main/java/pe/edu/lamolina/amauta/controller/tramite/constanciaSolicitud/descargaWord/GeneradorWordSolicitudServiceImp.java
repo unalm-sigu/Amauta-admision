@@ -404,7 +404,7 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
                             text = text.replace(enums.getValue(), documentoAcademico.getCorrelativoDocumento());
                             break;
                         case SEX_IDENT:
-                            text = text.replace(enums.getValue(), alumno.getPersona().getEstimado());
+                            text = text.replace(enums.getValue(), alumno.getPersona().getIdentificacion());
                             break;
                         case SEX_ALUM:
                             text = text.replace(enums.getValue(), alumno.getPersona().getSexoEnum() == SexoEnum.F ? "a" : "o");
