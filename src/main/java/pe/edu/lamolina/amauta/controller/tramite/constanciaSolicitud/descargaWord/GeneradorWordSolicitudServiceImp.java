@@ -671,6 +671,9 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
                 this.switchValue(null, newRowCiclo, variables, alumnoCiclo, mapNombreCurso, mapNombreCiclo, isEspanol);
                 fTable.addRow(newRowCiclo);
                 for (AlumnoCicloCurso alumnoCicloCurso : cicloCursos) {
+                    if (alumnoCicloCurso.getEstaAprobado() != 1) {
+                        continue;
+                    }
                     XWPFTableRow oldRow = fTable.getRow(1);
                     CTRow ctrow = CTRow.Factory.parse(oldRow.getCtRow().newInputStream());
                     XWPFTableRow newRow = new XWPFTableRow(ctrow, fTable);
