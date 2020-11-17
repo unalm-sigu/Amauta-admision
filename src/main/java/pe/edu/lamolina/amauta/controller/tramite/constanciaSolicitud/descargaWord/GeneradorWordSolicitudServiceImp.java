@@ -664,23 +664,26 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
 
             for (AlumnoCiclo alumnoCiclo : alumnoCiclos) {
                 List<AlumnoCicloCurso> cicloCursos = TypesUtil.getListNotNull(mapalumnoCicloCursos.get(alumnoCiclo.getCicloAcademico().getId()));
+                if (cicloCursos.stream().anyMatch(x -> x.getEstaAprobado() == 1)) {
 
-                XWPFTableRow oldRowCiclo = fTable.getRow(0);
-                CTRow ctrowCiclo = CTRow.Factory.parse(oldRowCiclo.getCtRow().newInputStream());
-                XWPFTableRow newRowCiclo = new XWPFTableRow(ctrowCiclo, fTable);
-                this.switchValue(null, newRowCiclo, variables, alumnoCiclo, mapNombreCurso, mapNombreCiclo, isEspanol);
-                fTable.addRow(newRowCiclo);
-                for (AlumnoCicloCurso alumnoCicloCurso : cicloCursos) {
-                    if (alumnoCicloCurso.getEstaAprobado() != 1) {
-                        continue;
+                    XWPFTableRow oldRowCiclo = fTable.getRow(0);
+                    CTRow ctrowCiclo = CTRow.Factory.parse(oldRowCiclo.getCtRow().newInputStream());
+                    XWPFTableRow newRowCiclo = new XWPFTableRow(ctrowCiclo, fTable);
+                    this.switchValue(null, newRowCiclo, variables, alumnoCiclo, mapNombreCurso, mapNombreCiclo, isEspanol);
+                    fTable.addRow(newRowCiclo);
+                    for (AlumnoCicloCurso alumnoCicloCurso : cicloCursos) {
+                        if (alumnoCicloCurso.getEstaAprobado() != 1) {
+                            continue;
+                        }
+                        XWPFTableRow oldRow = fTable.getRow(1);
+                        CTRow ctrow = CTRow.Factory.parse(oldRow.getCtRow().newInputStream());
+                        XWPFTableRow newRow = new XWPFTableRow(ctrow, fTable);
+                        this.switchValue(alumnoCicloCurso, newRow, variables, alumnoCiclo, mapNombreCurso, mapNombreCiclo, isEspanol);
+
+                        fTable.addRow(newRow);
                     }
-                    XWPFTableRow oldRow = fTable.getRow(1);
-                    CTRow ctrow = CTRow.Factory.parse(oldRow.getCtRow().newInputStream());
-                    XWPFTableRow newRow = new XWPFTableRow(ctrow, fTable);
-                    this.switchValue(alumnoCicloCurso, newRow, variables, alumnoCiclo, mapNombreCurso, mapNombreCiclo, isEspanol);
-
-                    fTable.addRow(newRow);
                 }
+
             }
             for (int i = countRowsInicial - 1; i >= 0; i--) {
                 fTable.removeRow(i);
