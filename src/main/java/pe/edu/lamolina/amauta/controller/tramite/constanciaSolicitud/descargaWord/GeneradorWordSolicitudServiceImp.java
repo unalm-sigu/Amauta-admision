@@ -103,6 +103,7 @@ import pe.edu.lamolina.model.academico.NombreFacultad;
 import pe.edu.lamolina.model.academico.NombreGrado;
 import pe.edu.lamolina.model.academico.NombreTituloAcademico;
 import static pe.edu.lamolina.model.enums.AmbienteAplicacionEnum.DESA;
+import pe.edu.lamolina.model.enums.TipoCarreraEnum;
 import static pe.edu.lamolina.model.enums.TipoConstanciaEnum.CERT;
 import pe.edu.lamolina.model.enums.TipoOficinaEnum;
 
@@ -232,7 +233,7 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
         try {
             XWPFDocument doc = null;
             if (despliegueConfig.getAmbiente().toUpperCase().equals(DESA.name())) {
-                doc = new XWPFDocument(OPCPackage.open(new FileInputStream("C:\\tmp\\AlumnoRegular.docx")));
+                doc = new XWPFDocument(OPCPackage.open(new FileInputStream("C:\\tmp\\CertificadoPos.docx")));
             } else {
                 doc = new XWPFDocument(new URL(plantilla.getArchivo().getRuta()).openStream());
             }
@@ -428,7 +429,8 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
 
                         case ESPECIALIDAD:
                             if (isEspanol) {
-                                text = text.replace(enums.getValue(), alumno.getCarrera().getNombre().toUpperCase());
+                                String tipo = TipoCarreraEnum.valueOf(alumno.getCarrera().getTipo()).getValue();
+                                text = text.replace(enums.getValue(), tipo + " en " + alumno.getCarrera().getNombre().toUpperCase());
                             } else {
                                 text = text.replace(enums.getValue(), nombresCarrera.getNombre().toUpperCase());
                             }

@@ -1441,6 +1441,9 @@ public class MatriculableServiceImp implements MatriculableService {
 
         if (cicloActivo.getFechaMatriculables() != null) {
             for (Alumno alumno : alumnos) {
+                if (alumno.isPostgrado()) {
+                    continue;
+                }
                 MatriculaResumen matriculable = mapMatriculable.get(alumno.getId());
                 if (situacionesExepcionAptas.contains(alumno.getSituacionAcademica().getCodigo())) {
                     if (mapReincorporacion.get(alumno.getId()) != null || alumno.getEsMatBeneficioUltCicl() || alumno.getEsMatriculaCondicional()) {

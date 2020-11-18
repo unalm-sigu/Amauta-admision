@@ -4,8 +4,6 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -107,6 +105,7 @@ import pe.edu.lamolina.amauta.dao.academico.SistemaNotasDAO;
 import pe.edu.lamolina.amauta.dao.academico.TipoEvaluacionDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.amauta.dao.academico.EvaluacionExpandidaDAO;
+import pe.edu.lamolina.amauta.dao.academico.EventoCicloAcademicoDAO;
 import pe.edu.lamolina.amauta.dao.academico.MatriculaCursoDAO;
 import pe.edu.lamolina.amauta.dao.academico.MatriculaResumenDAO;
 import pe.edu.lamolina.amauta.dao.academico.MatriculaSeccionDAO;
@@ -118,6 +117,8 @@ import pe.edu.lamolina.amauta.dao.tramite.ReincorporacionDAO;
 import pe.edu.lamolina.amauta.dao.tramite.RetiroCicloDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TramiteDAO;
 import pe.edu.lamolina.amauta.zelper.misc.MapUtil;
+import pe.edu.lamolina.model.academico.EventoCicloAcademico;
+import pe.edu.lamolina.model.enums.EventoAcademicoEnum;
 
 @Service
 @Transactional(readOnly = true)
@@ -205,6 +206,9 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
 
     @Autowired
     RetiroCicloDAO retiroCicloDAO;
+
+    @Autowired
+    EventoCicloAcademicoDAO eventoCicloAcademicoDAO;
 
     @Autowired
     TramiteDAO tramiteDAO;
@@ -1704,7 +1708,7 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
         diviFloat = sumatoriaNotas.floatValue() / cantidadEvaluados;
 
         multiFloat = diviFloat * sumatoriaNotas.floatValue();
-        
+
         restaFloat = sumaNotaAlCuadrado.floatValue() - multiFloat;
 
         divi2Float = restaFloat / cantidadEvaluadosMinusOne.floatValue();
@@ -2260,10 +2264,14 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
 
         List<Alumno> alumnos = visorCalculoNotas.allAlumnosByToken(tokenCurri);
         visorCalculoNotas.destroyToken(tokenCurri);
-
-        TypesUtil.delay(2000);
-        logger.info("Iniciar revision de matriculables de {} alumnos del grupo-seccion {}", alumnos.size(), grupoSeccion.getId());
-        matriculableService.recalcularPrioridad(grupoSeccion, ds.getUsuario());
+        CicloAcademico cicloAcademicoActivo = cicloAcademicoDAO.findActivo(PRE);
+        EventoCicloAcademico eventoCicloAcademico = eventoCicloAcademicoDAO.findByCicloAndEvento(cicloAcademicoActivo, EventoAcademicoEnum.MAT_REG);
+        Date today = new Date();
+        if (eventoCicloAcademico != null && eventoCicloAcademico.getFechaFin().compareTo(today) >= 0) {
+            TypesUtil.delay(2000);
+            logger.info("Iniciar revision de matriculables de {} alumnos del grupo-seccion {}", alumnos.size(), grupoSeccion.getId());
+            matriculableService.recalcularPrioridad(grupoSeccion, ds.getUsuario());
+        }
     }
 
     @Override
