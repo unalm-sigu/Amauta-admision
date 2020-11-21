@@ -203,10 +203,9 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
 
     @Autowired
     VisorCalculoNotas visorCalculoNotas;
-    
+
     @Autowired
     GradoAcademicoDAO gradoAcademicoDAO;
-
 
     @Override
     public List<Alumno> allAlumnoByOficina(String nombre, Long instanciaOficina) {
@@ -1044,53 +1043,54 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
         List<Reincorporacion> reincorporacions = reincorporacionDAO.allByCicloReincorporacion(ds.getCicloAcademico());
         Map<Long, Reincorporacion> map = TypesUtil.convertListToMap("alumno.id", reincorporacions);
 
-        EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.SOL_ACEP);
-        for (Reincorporacion reincorporacione : resolucionForm.getReincorporaciones()) {
-            if (reincorporacione.getId() != null) {
+        EstadoTramite estadoTramiteAceptado = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.SOL_ACEP);
+        EstadoTramite estadoTramiteRechazado = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.RCHR);
+        for (Reincorporacion reincorporacioneForm : resolucionForm.getReincorporaciones()) {
+            if (reincorporacioneForm.getId() != null) {
                 continue;
             }
 
-            reincorporacione.setCicloReincorporacion(resolucionForm.getCicloAplica());
-
-            Reincorporacion reincorporacion = map.get(reincorporacione.getAlumno().getId());
-            if (reincorporacion != null) {
-                throw new PhobosException("El alumno" + reincorporacione.getAlumno().getCodigo() + " ya cuenta con una resolución para el ciclo activo");
+//            reincorporacioneForm.setCicloReincorporacion(resolucionForm.getCicloAplica());
+            Reincorporacion reincorporacion = map.get(reincorporacioneForm.getAlumno().getId());
+            if (reincorporacion == null) {
+//                reincorporacion.setMotivoDesercion(reincorporacione.getMotivoDesercion());
+                throw new PhobosException("El alumno " + reincorporacioneForm.getAlumno().getCodigo() + " no cuenta con un trámite de reincorporación.");
             }
-            if (!Objects.equals(reincorporacione.getCicloReincorporacion().getId(), ds.getCicloAcademico().getId())) {
-                throw new PhobosException("El alumno debe reincorporarce en el ciclo actual.");
-            }
-            DateTime today = new DateTime();
-            TipoDocumentoCompania tipoDocumentoCompania = tipoDocumentoCompaniaDAO.findByCodigo(TipoDocumentoCompaniaEnum.TRAM);
-            SerieDocumento serieDocumento = serieDocumentoService.getCorrelativo(tipoDocumentoCompania, Long.valueOf(today.getYear()), ds.getUsuario());
-            TipoTramite tipoTramite = tipoTramiteDAO.findByCodigo(TipoTramiteEnum.REI.name());
-            Alumno alumno = alumnoDAO.find(reincorporacione.getAlumno());
+//            if (!Objects.equals(reincorporacione.getCicloReincorporacion().getId(), ds.getCicloAcademico().getId())) {
+//                throw new PhobosException("El alumno debe reincorporarce en el ciclo actual.");
+//            }
+//            DateTime today = new DateTime();
+//            TipoDocumentoCompania tipoDocumentoCompania = tipoDocumentoCompaniaDAO.findByCodigo(TipoDocumentoCompaniaEnum.TRAM);
+//            SerieDocumento serieDocumento = serieDocumentoService.getCorrelativo(tipoDocumentoCompania, Long.valueOf(today.getYear()), ds.getUsuario());
+//            TipoTramite tipoTramite = tipoTramiteDAO.findByCodigo(TipoTramiteEnum.REI.name());
+//            Alumno alumno = alumnoDAO.find(reincorporacione.getAlumno());
+//
+//            Tramite tramite = new Tramite();
+//            tramite.setActivo(true);
+//            tramite.setCompania(ds.getCompania());
+//            tramite.setAlumno(alumno);
+//            tramite.setCicloAcademico(ds.getCicloAcademico());
+//            tramite.setEstadoEnum(reincorporacione.isSeleccionado() ? TramiteEstadoEnum.ACEP : TramiteEstadoEnum.RCHZ);
+//            tramite.setFechaRegistro(new Date());
+//            tramite.setPersona(alumno.getPersona());
+//            tramite.setEstadoTramite(estadoTramite);
+//            tramite.setTipoTramite(tipoTramite);
+//            tramite.setNumero(Long.valueOf(serieDocumento.getNumeroDocumento()));
+//            tramite.setSerie(Long.valueOf(serieDocumento.getNumeroSerie()));
+//            tramite.setUserRegistro(ds.getUsuario());
+//            tramiteDAO.save(tramite);
 
-            Tramite tramite = new Tramite();
-            tramite.setActivo(true);
-            tramite.setCompania(ds.getCompania());
-            tramite.setAlumno(alumno);
-            tramite.setCicloAcademico(ds.getCicloAcademico());
-            tramite.setEstadoEnum(TramiteEstadoEnum.ACEP);
-            tramite.setFechaRegistro(new Date());
-            tramite.setPersona(alumno.getPersona());
-            tramite.setEstadoTramite(estadoTramite);
-            tramite.setTipoTramite(tipoTramite);
-            tramite.setNumero(Long.valueOf(serieDocumento.getNumeroDocumento()));
-            tramite.setSerie(Long.valueOf(serieDocumento.getNumeroSerie()));
-            tramite.setUserRegistro(ds.getUsuario());
-            tramiteDAO.save(tramite);
+//                Facultad facultad = reincorporacione.getAlumno().getCarrera().getFacultad();
+            reincorporacion.setAceptado(reincorporacioneForm.isSeleccionado() ? 1 : 0);
+            reincorporacion.setResolucion(resolucionBD);
+            reincorporacion.setEstadoTramite(reincorporacioneForm.isSeleccionado() ? estadoTramiteAceptado : estadoTramiteRechazado);
+            reincorporacionDAO.update(reincorporacion);
 
-            Facultad facultad = reincorporacione.getAlumno().getCarrera().getFacultad();
-            reincorporacione.setAceptado(1);
-            reincorporacione.setFechaRegistro(new Date());
-            reincorporacione.setResolucion(resolucionBD);
-            reincorporacione.setEstadoTramite(estadoTramite);
-            reincorporacione.setUserRegistro(ds.getUsuario());
-            reincorporacione.setFacultad(facultad);
-            reincorporacione.setEsCondicional(Boolean.FALSE);
-            reincorporacione.setTramite(tramite);
-            reincorporacionDAO.save(reincorporacione);
-            alumnos.add(alumno);
+            Tramite tramite = reincorporacion.getTramite();
+            tramite.setEstadoEnum(reincorporacioneForm.isSeleccionado() ? TramiteEstadoEnum.ACEP : TramiteEstadoEnum.RCHR);
+            tramite.setEstadoTramite(reincorporacioneForm.isSeleccionado() ? estadoTramiteAceptado : estadoTramiteRechazado);
+            tramiteDAO.update(tramite);
+            alumnos.add(reincorporacion.getAlumno());
         }
 
         String token = RandomStringUtils.randomAlphanumeric(43);
@@ -1107,92 +1107,113 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
 
     private String saveRetirosCiclos(Resolucion resolucionForm, Resolucion resolucionBD, DataSessionPivot ds) {
         List<Alumno> alumnos = new ArrayList<>();
-        EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.SOL_ACEP);
+        EstadoTramite estadoTramiteAcep = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.SOL_ACEP);
+        EstadoTramite estadoTramiteRechz = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.RCHR);
 
+//        Map<Long, RetiroCiclo> mapRetiroCiclo = TypesUtil.convertListToMap("alumno", retiroCiclos);
         for (RetiroCiclo retiroCicloForm : resolucionForm.getRetiroCiclo()) {
-
+            CicloAcademico cicloAplica = null;
             if (retiroCicloForm.getId() != null) {
                 continue;
             }
-
-            retiroCicloForm.setCicloAcademico(resolucionForm.getCicloAplica());
-            Alumno alumno = retiroCicloForm.getAlumno();
-            Alumno alumnoDB = alumnoDAO.find(alumno);
-
-            MatriculaResumen matriculaResumen = matriculaResumenDAO.findByAlumnoCiclo(alumno, resolucionForm.getCicloAplica());
-
+            Alumno alumnoDB = alumnoDAO.find(retiroCicloForm.getAlumno());
+            RetiroCiclo retiroCicloDB = null;
+            MatriculaResumen matriculaResumen = null;
             if (resolucionBD.isTipoRetiroCiclo()) {
-                matriculaResumen.setEstadoEnum(EstadoMatriculaEnum.RCI);
-            } else if (resolucionBD.isTipoAnulacionCiclo()) {
+                retiroCicloDB = retiroCicloDAO.findByExcepcional(alumnoDB);
+                if (retiroCicloDB == null) {
+                    throw new PhobosException("El alumno " + retiroCicloForm.getAlumno().getCodigo() + " no cuenta con un trámite de retiro ciclo.");
+                }
+                cicloAplica = retiroCicloDB.getCicloAcademico();
+                matriculaResumen = matriculaResumenDAO.findByAlumnoCiclo(alumnoDB, cicloAplica);
+                if (retiroCicloForm.getSeleccionado()) {
+
+                    matriculaResumen.setEstadoEnum(EstadoMatriculaEnum.RCI);
+                    matriculaResumenDAO.updateColumns(matriculaResumen, "estado");
+
+                    ModalidadEstudioEnum modalidadEnum = alumnoDB.getModalidadEstudio().getOperativeModalidadEnum();
+                    cicloAplica = cicloAcademicoDAO.findByCodigoCicloModalidadEnum(cicloAplica.getCodigo(), modalidadEnum);
+                    retiroCicloDB.setEstadoEnum(ACEP);
+                    retiroCicloDB.setEstadoTramite(estadoTramiteAcep);
+                    retiroCicloDB.setCicloAcademico(cicloAplica);
+
+                    Tramite tramite = retiroCicloDB.getTramite();
+                    tramite.setEstadoEnum(TramiteEstadoEnum.ACEP);
+                    tramite.setEstadoTramite(estadoTramiteAcep);
+                    tramite.setFechaModificacion(new Date());
+                    tramite.setUserModificacion(ds.getUsuario());
+                    tramiteDAO.update(tramite);
+                } else {
+                    retiroCicloDB.setEstadoEnum(TramiteEstadoEnum.RCHR);
+                    retiroCicloDB.setEstadoTramite(estadoTramiteRechz);
+
+                    Tramite tramite = retiroCicloDB.getTramite();
+                    tramite.setEstadoEnum(TramiteEstadoEnum.RCHR);
+                    tramite.setEstadoTramite(estadoTramiteRechz);
+                    tramite.setFechaModificacion(new Date());
+                    tramite.setUserModificacion(ds.getUsuario());
+                    tramiteDAO.update(tramite);
+
+                    continue;
+                }
+            } else {
+                cicloAplica = resolucionForm.getCicloAplica();
+                retiroCicloDB = retiroCicloDAO.findByAlumnoCicloRetiro(alumnoDB, cicloAplica);
+                if (retiroCicloDB != null) {
+                    throw new PhobosException("El alumno " + retiroCicloForm.getAlumno().getCodigo() + "ya no cuenta con un trámite de anulación de ciclo.");
+                }
+                matriculaResumen = matriculaResumenDAO.findByAlumnoCiclo(alumnoDB, cicloAplica);
                 matriculaResumen.setEstadoEnum(EstadoMatriculaEnum.ANCI);
+                matriculaResumenDAO.updateColumns(matriculaResumen, "estado");
+
+                DateTime today = new DateTime();
+                TipoDocumentoCompania tipoDocumentoCompania = tipoDocumentoCompaniaDAO.findByCodigo(TipoDocumentoCompaniaEnum.TRAM_ANU_CICLO);
+                SerieDocumento serieDocumento = serieDocumentoService.getCorrelativo(tipoDocumentoCompania, Long.valueOf(today.getYear()), ds.getUsuario());
+
+                TipoTramite tipoTramite = tipoTramiteDAO.findByCodigo(TipoTramiteEnum.ANCI.name());
+
+                Tramite tramite = new Tramite();
+                tramite.setActivo(true);
+                tramite.setCompania(ds.getCompania());
+                tramite.setAlumno(alumnoDB);
+                tramite.setCicloAcademico(ds.getCicloAcademico());
+                tramite.setEstadoEnum(TramiteEstadoEnum.ACEP);
+                tramite.setEstadoTramite(estadoTramiteAcep);
+                tramite.setFechaRegistro(new Date());
+                tramite.setPersona(alumnoDB.getPersona());
+                tramite.setTipoTramite(tipoTramite);
+                tramite.setNumero(Long.valueOf(serieDocumento.getNumeroDocumento()));
+                tramite.setSerie(Long.valueOf(serieDocumento.getNumeroSerie()));
+                tramite.setUserRegistro(ds.getUsuario());
+                tramiteDAO.save(tramite);
+
+                retiroCicloDB = new RetiroCiclo();
+                retiroCicloDB.setAlumno(retiroCicloForm.getAlumno());
+                retiroCicloDB.setMotivo(retiroCicloForm.getMotivo());
+                retiroCicloDB.setCicloAcademico(cicloAplica);
+                retiroCicloDB.setTipoEnum(TipoRetiroCicloEnum.RESEPG);
+                retiroCicloDB.setEstadoEnum(TramiteEstadoEnum.ACEP);
+                retiroCicloDB.setCicloRegistro(ds.getCicloAcademico());
+                retiroCicloDB.setUsuario(ds.getUsuario());
+                retiroCicloDB.setEsCondicional(false);
+                retiroCicloDB.setTramite(tramite);
+                retiroCicloDB.setResolucion(resolucionBD);
+                retiroCicloDB.setFechaRegistro(new Date());
+                retiroCicloDAO.save(retiroCicloDB);
             }
-            matriculaResumenDAO.updateColumns(matriculaResumen, "estado");
 
-            RetiroCiclo retiroCiclo = retiroCicloDAO.findByAlumnoCicloRegistro(alumno, retiroCicloForm.getCicloAcademico());
-            Assert.isNull(retiroCiclo, "El alumno " + alumnoDB.getPersona().getApellidosNombres() + " ya cuenta con un trámite retiro ciclo.");
-
-            ModalidadEstudioEnum modalidadEnum = alumnoDB.getModalidadEstudio().getOperativeModalidadEnum();
-            CicloAcademico cicloRetiro = cicloAcademicoDAO.findByCodigoCicloModalidadEnum(retiroCicloForm.getCicloAcademico().getCodigo(), modalidadEnum);
-            retiroCicloForm.setCicloAcademico(cicloRetiro);
-
-            List<AlumnoCiclo> alumnoCiclos = alumnoCicloDAO.allByAlumnoDescRegular(alumno);
+            List<AlumnoCiclo> alumnoCiclos = alumnoCicloDAO.allByAlumnoDescRegular(alumnoDB);
             List<CicloAcademico> ciclo = alumnoCiclos.stream().map(x -> x.getCicloAcademico()).collect(Collectors.toList());
             Boolean exist = false;
             for (CicloAcademico cicloAcademico : ciclo) {
-                if (Objects.equals(cicloAcademico.getId(), retiroCicloForm.getCicloAcademico().getId())) {
+                if (Objects.equals(cicloAcademico.getId(), cicloAplica.getId())) {
                     exist = true;
                     break;
                 }
             }
-            Assert.isTrue(exist, "El alumno " + alumnoDB.getPersona().getApellidosNombres() + " no tiene actividad en el ciclo " + retiroCicloForm.getCicloAcademico().getDescripcion());
+            Assert.isTrue(exist, "El alumno " + alumnoDB.getPersona().getApellidosNombres() + " no tiene actividad en el ciclo " + cicloAplica.getDescripcion());
 
-            DateTime today = new DateTime();
-            TipoDocumentoCompania tipoDocumentoCompania = tipoDocumentoCompaniaDAO.findByCodigo(TipoDocumentoCompaniaEnum.TRAM);
-            SerieDocumento serieDocumento = serieDocumentoService.getCorrelativo(tipoDocumentoCompania, Long.valueOf(today.getYear()), ds.getUsuario());
-
-            TipoTramite tipoTramite = null;
-            if (resolucionBD.isTipoRetiroCiclo()) {
-                tipoTramite = tipoTramiteDAO.findByCodigo(TipoTramiteEnum.RCI.name());
-            } else if (resolucionBD.isTipoAnulacionCiclo()) {
-                tipoTramite = tipoTramiteDAO.findByCodigo(TipoTramiteEnum.ANCI.name());
-            }
-
-            Tramite tramite = new Tramite();
-            tramite.setActivo(true);
-            tramite.setCompania(ds.getCompania());
-            tramite.setAlumno(alumnoDB);
-            tramite.setCicloAcademico(ds.getCicloAcademico());
-            tramite.setEstadoEnum(TramiteEstadoEnum.ACEP);
-            tramite.setEstadoTramite(estadoTramite);
-            tramite.setFechaRegistro(new Date());
-            tramite.setPersona(alumnoDB.getPersona());
-            tramite.setTipoTramite(tipoTramite);
-            tramite.setNumero(Long.valueOf(serieDocumento.getNumeroDocumento()));
-            tramite.setSerie(Long.valueOf(serieDocumento.getNumeroSerie()));
-            tramite.setUserRegistro(ds.getUsuario());
-            tramiteDAO.save(tramite);
-
-            retiroCiclo = retiroCicloForm;
-            if (alumnoDB.isPregrado()) {
-                retiroCiclo.setTipoEnum(TipoRetiroCicloEnum.EXCEP);
-            } else if (alumnoDB.isPostgrado()) {
-                retiroCiclo.setTipoEnum(TipoRetiroCicloEnum.RESEPG);
-            }
-
-            retiroCiclo.setEstadoEnum(TramiteEstadoEnum.ACEP);
-            retiroCiclo.setCicloRegistro(ds.getCicloAcademico());
-            retiroCiclo.setUsuario(ds.getUsuario());
-            retiroCiclo.setEsCondicional(false);
-            retiroCiclo.setTramite(tramite);
-            retiroCiclo.setResolucion(resolucionBD);
-            retiroCicloDAO.save(retiroCiclo);
-
-            List<AlumnoCursoCurricula> alumnoCursoCurriculas = alumnoCursoCurriculaDAO.allByAlumnoCicloRegularAct(alumnoDB, cicloRetiro);
-            for (AlumnoCursoCurricula alumnoCursoCurricula : alumnoCursoCurriculas) {
-                alumnoCursoCurricula.setEstadoEnum(CursoCurriculaEstadoEnum.NREQ);
-                alumnoCursoCurriculaDAO.update(alumnoCursoCurricula);
-            }
-            AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findByAlumnoCiclo(alumno, cicloRetiro);
+            AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findByAlumnoCiclo(alumnoDB, cicloAplica);
             if (resolucionBD.isTipoRetiroCiclo()) {
                 alumnoCiclo.setEstadoEnum(EstadoMatriculaEnum.RCI);
             } else if (resolucionBD.isTipoAnulacionCiclo()) {
@@ -1204,7 +1225,7 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
             for (AlumnoCicloCurso alumnoCicloCurso : alumnoCicloCursos) {
                 Integer count = alumnoCicloCurso.getVecesCursado() - 1;
                 alumnoCicloCurso.setVecesCursado(count);
-                if (cicloRetiro.isTipoRegular()) {
+                if (cicloAplica.isTipoRegular()) {
                     Integer countRegu = alumnoCicloCurso.getVecesCursadoRegular() - 1;
                     alumnoCicloCurso.setVecesCursadoRegular(countRegu);
                 }
@@ -1581,11 +1602,9 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
             tramite.setEstadoEnum(bachiller.getSeleccionado() ? TramiteEstadoEnum.ACEP : TramiteEstadoEnum.RCHZ);
             tramite.setEstadoTramite(bachiller.getSeleccionado() ? estadoTramite : estadoTramiteRech);
             tramiteDAO.update(tramite);
-            
-            
-            
-            if (tramite.getEstadoEnum() == TramiteEstadoEnum.ACEP ) {
-                GradoAcademico gradoAcademico = gradoAcademicoDAO.findByTipoAndCarrera(TipoGradoAcademicoEnum.BACH , tramiteBachiller.getAlumno().getCarrera());
+
+            if (tramite.getEstadoEnum() == TramiteEstadoEnum.ACEP) {
+                GradoAcademico gradoAcademico = gradoAcademicoDAO.findByTipoAndCarrera(TipoGradoAcademicoEnum.BACH, tramiteBachiller.getAlumno().getCarrera());
                 ObtencionGrado obtencionGrado = new ObtencionGrado();
                 obtencionGrado.setAlumno(tramiteBachiller.getAlumno());
                 obtencionGrado.setCicloAcademico(ds.getCicloAcademico());

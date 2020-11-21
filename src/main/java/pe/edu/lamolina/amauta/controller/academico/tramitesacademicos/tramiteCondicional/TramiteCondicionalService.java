@@ -1,4 +1,4 @@
-package pe.edu.lamolina.amauta.controller.academico.tramitesacademicos.tramiteRetiroCiclo;
+package pe.edu.lamolina.amauta.controller.academico.tramitesacademicos.tramiteCondicional;
 
 import java.util.List;
 import pe.albatross.octavia.dynatable.DynatableFilter;

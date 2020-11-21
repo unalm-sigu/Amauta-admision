@@ -1,4 +1,4 @@
-package pe.edu.lamolina.amauta.controller.academico.tramitesacademicos.tramiteRetiroCiclo;
+package pe.edu.lamolina.amauta.controller.academico.tramitesacademicos.tramiteCondicional;
 
 import pe.edu.lamolina.amauta.controller.responserest.ResponseRestService;
 import java.math.BigDecimal;
@@ -95,6 +95,7 @@ import pe.edu.lamolina.amauta.dao.tramite.TipoTramiteDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TramiteDAO;
 import pe.edu.lamolina.amauta.dao.vacante.VacanteAlumnoDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.enums.TipoRetiroCicloEnum;
 
 @Service
 @Transactional(readOnly = true)
@@ -198,11 +199,20 @@ public class TramiteCondicionalServiceImp implements TramiteCondicionalService {
 
     @Override
     public List<Tramite> allByCiclo(CicloAcademico cicloAcademico, DynatableFilter filter) {
-        List<Tramite> tramites = tramiteDAO.allReiAndRetByCiclo(cicloAcademico, filter);
-        List<RetiroCiclo> retiroCiclos = retiroCicloDAO.allByTramites(tramites);
-        List<Reincorporacion> reincorporacions = reincorporacionDAO.allByTramitesCondicional(tramites);
-        List<CambioNota> cambioNotas = cambioNotaDAO.allByTramites(tramites);
-
+        List<Tramite> tramites = new ArrayList();
+        List<RetiroCiclo> retiroCiclos = retiroCicloDAO.allByTramitesCondicional(cicloAcademico);
+        List<Reincorporacion> reincorporacions = reincorporacionDAO.allByTramitesCondicional(cicloAcademico);
+        List<CambioNota> cambioNotas = cambioNotaDAO.allByTramitesCondicional(cicloAcademico);
+        for (RetiroCiclo retiroCiclo : retiroCiclos) {
+            tramites.add(retiroCiclo.getTramite());
+        }
+        for (Reincorporacion reincorporacion : reincorporacions) {
+            tramites.add(reincorporacion.getTramite());
+        }
+        for (CambioNota cambioNota : cambioNotas) {
+            tramites.add(cambioNota.getTramite());
+        }
+        tramites = tramiteDAO.allByTramitesFilter(tramites, filter);
         for (Tramite tram : tramites) {
             CicloAcademico academico = null;
             if (tram.getTipoTramite().getCodigo().equals(TipoTramiteEnum.RCI.name())) {
@@ -262,6 +272,7 @@ public class TramiteCondicionalServiceImp implements TramiteCondicionalService {
         retiro.setCicloRegistro(ciclo);
         retiro.setUsuario(dx.getUsuario());
         retiro.setMotivo(tremite.getMotivoResolucion());
+        retiro.setTipoEnum(TipoRetiroCicloEnum.EXCEP);
         retiro.setTramite(tramite);
         retiro.setEsCondicional(Boolean.TRUE);
         retiroCicloDAO.save(retiro);
@@ -421,14 +432,14 @@ public class TramiteCondicionalServiceImp implements TramiteCondicionalService {
         }
 
         List<Reincorporacion> reincorporacions = reincorporacionDAO.allByCicloReincorporacion(ciclo);
-        Map<Long, Alumno> map = TypesUtil.convertListToMap("alumno", reincorporacions);
+        Map<Long, Alumno> mapReincorporacion = TypesUtil.convertListToMap("alumno", reincorporacions);
 
-        Alumno alumno = map.get(tramite.getAlumno().getId());
+        Alumno alumno = mapReincorporacion.get(tramite.getAlumno().getId());
         if (alumno != null) {
-            throw new PhobosException("El alumno" + alumno.getCodigo() + " ya cuenta con una resolución para el ciclo activo");
+            throw new PhobosException("El alumno" + alumno.getCodigo() + " ya cuenta con un tramite para el ciclo activo");
         }
         DateTime today = new DateTime();
-        TipoDocumentoCompania tipoDocumentoCompania = tipoDocumentoCompaniaDAO.findByCodigo(TipoDocumentoCompaniaEnum.TRAM);
+        TipoDocumentoCompania tipoDocumentoCompania = tipoDocumentoCompaniaDAO.findByCodigo(TipoDocumentoCompaniaEnum.TRAM_REIN);
         SerieDocumento serieDocumento = serieDocumentoService.getCorrelativo(tipoDocumentoCompania, Long.valueOf(today.getYear()), dx.getUsuario());
         TipoTramite tipoTramite = tipoTramiteDAO.findByCodigo(TipoTramiteEnum.REI.name());
         alumno = alumnoDAO.find(tramite.getAlumno());
@@ -518,6 +529,7 @@ public class TramiteCondicionalServiceImp implements TramiteCondicionalService {
 
     private Resolucion createResolucion(Resolucion resolucionForm, TipoResolucionEnum tipoResolucionEnum, DataSessionPivot dsp) {
         TipoResolucion tipoResolucion = tipoResolucionDAO.finByCodigo(tipoResolucionEnum);
+
         Resolucion resolucion = new Resolucion();
         resolucion.setOficina(resolucionForm.getOficina());
         resolucion.setFecha(resolucionForm.getFecha());

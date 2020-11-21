@@ -11,7 +11,7 @@ public interface CambioNotaDAO extends EasyDAO<CambioNota> {
 
     public CambioNota findByTramite(Tramite tramiteForm);
 
-    public List<CambioNota> allByTramites(List<Tramite> tramites);
+    public List<CambioNota> allByTramitesCondicional(CicloAcademico cicloAcademico);
 
     public List<CambioNota> allByResolucion(Resolucion resolucionDB);
 

@@ -173,10 +173,10 @@ var app = new Vue({
         addResolucion() {
             let $vue = this;
             if ($vue.isReincorporacion) {
-                var reincorporacion = {};
+                var reincorporacion = {seleccionado: true};
                 $vue.resolucion.reincorporaciones.push(reincorporacion);
             } else if ($vue.isRetiroCiclo) {
-                var retiroCiclo = {};
+                var retiroCiclo = {seleccionado: true};
                 $vue.resolucion.retiroCiclo.push(retiroCiclo);
             } else if ($vue.isCambioNota) {
                 var cambioNota = {};

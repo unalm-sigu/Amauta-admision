@@ -2,16 +2,16 @@ Vue.component("multiselect", window.VueMultiselect.default);
 var app = new Vue({
     el: '#retiroExcepcional',
     data: {
-        URL_TRAMITES: APP.url('academico/tramiteacademico/tramiteRetiroExcepcional/list'),
+        URL_TRAMITES: APP.url('academico/tramiteacademico/tramiteReincorporacion/list'),
         ciclos: JSON.parse(ciclosJson),
-        modalRetiroExcep: {
-            id: 'modalRetiroExcep',
+        modalResolucion: {
+            id: 'modalResolucion',
             header: true,
-            title: 'Agregar Retiro Excepcional ',
+            title: 'Agregar Reincorporación ',
             okbtn: "Guardar",
             showaccept: true
         },
-        retiroExcepcional: {},
+        reincorporacion: {},
         alumnos: [],
         isLoading: false
 
@@ -33,12 +33,12 @@ var app = new Vue({
         },
         urlReporte(item) {
             let $vue = this;
-            return APP.url('academico/tramiteacademico/tramiteRetiroExcepcional/' + item.tramite.id + '/reporte');
+            return APP.url('academico/tramiteacademico/tramiteReincorporacion/' + item.tramite.id + '/reporte');
         },
         nuevo() {
             let $vue = this;
-            $vue.retiroExcepcional = {};
-            $vue.$refs.modalRetiroExcep.open();
+            $vue.reincorporacion = {};
+            $vue.$refs.modalResolucion.open();
         },
         customLabel( {persona, codigo}){
             if (persona != null) {
@@ -75,8 +75,8 @@ var app = new Vue({
             MODAL.showWait("Espere un momento por favor");
             $.ajax({
                 method: 'POST',
-                url: APP.url('academico/tramiteacademico/tramiteRetiroExcepcional/save'),
-                data: JSON.stringify($vue.retiroExcepcional),
+                url: APP.url('academico/tramiteacademico/tramiteReincorporacion/save'),
+                data: JSON.stringify($vue.reincorporacion),
                 contentType: "application/json",
                 success: function (response) {
                     if (response.success) {
@@ -85,11 +85,11 @@ var app = new Vue({
                     } else {
                         notify(response.message, "error");
                     }
-                    $vue.$refs.modalRetiroExcep.close();
+                    $vue.$refs.modalResolucion.close();
                     MODAL.hideWait();
                 },
                 error: function () {
-                    $vue.$refs.modalRetiroExcep.close();
+                    $vue.$refs.modalResolucion.close();
                     notify(Messages.errorComunicacion, "error");
                 }
             });

@@ -33,11 +33,11 @@ public class CambioNotaDAOH extends AbstractEasyDAO<CambioNota> implements Cambi
     }
 
     @Override
-    public List<CambioNota> allByTramites(List<Tramite> tramites) {
+    public List<CambioNota> allByTramitesCondicional(CicloAcademico cicloRegistro) {
         Octavia sql = new Octavia()
                 .from(CambioNota.class, "cn")
-                .join("tramite tr", "curso", "alumno", "cicloRegistro", "cicloAcademico")
-                .in("tr.id", tramites)
+                .join("tramite tr", "curso", "alumno", "cicloRegistro cr", "cicloAcademico")
+                .filter("cr.id", cicloRegistro)
                 .filter("esCondicional", 1);
 
         return all(sql);

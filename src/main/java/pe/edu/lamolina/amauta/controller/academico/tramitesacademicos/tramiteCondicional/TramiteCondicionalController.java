@@ -1,4 +1,4 @@
-package pe.edu.lamolina.amauta.controller.academico.tramitesacademicos.tramiteRetiroCiclo;
+package pe.edu.lamolina.amauta.controller.academico.tramitesacademicos.tramiteCondicional;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -46,7 +46,6 @@ import pe.edu.lamolina.amauta.controller.academico.resolucion.ResolucionService;
 import pe.edu.lamolina.amauta.controller.academico.resolucion.resolucionExistentes.ResolucionExistenteService;
 import pe.edu.lamolina.amauta.controller.bienestar.alumnoAporte.AporteAlumnoService;
 import pe.edu.lamolina.amauta.controller.matricula.matriculable.MatriculableService;
-import pe.edu.lamolina.model.constantines.AcademicoConstantine;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 

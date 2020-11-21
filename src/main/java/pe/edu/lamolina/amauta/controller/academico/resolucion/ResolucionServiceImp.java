@@ -6,7 +6,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.joda.time.DateTime;
@@ -60,6 +59,7 @@ import pe.edu.lamolina.amauta.controller.programacionhorarios.gposeccion.GpoSecc
 import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorService;
 import pe.edu.lamolina.amauta.controller.test.VisorCalculoNotas;
 import static pe.edu.lamolina.amauta.controller.test.VisorCalculoNotas.TOKEN_CURRICULA;
+import static pe.edu.lamolina.amauta.controller.test.VisorCalculoNotas.TOKEN_MATRICULABLE;
 import static pe.edu.lamolina.amauta.controller.test.VisorCalculoNotas.TOKEN_PROMEDIOS;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoCicloDAO;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoCursoCurriculaDAO;
@@ -494,11 +494,13 @@ public class ResolucionServiceImp implements ResolucionService {
                     String token = RandomStringUtils.randomAlphanumeric(43);
                     String tokenProm = token + TOKEN_PROMEDIOS;
                     String tokenCurri = token + TOKEN_CURRICULA;
+                    String tokenMatri = token + TOKEN_MATRICULABLE;
                     List<Alumno> alumnos = new ArrayList<>();
                     alumnos.add(alumno);
 
                     visorCalculoNotas.createToken(tokenProm, alumnos);
                     visorCalculoNotas.createToken(tokenCurri, alumnos);
+                    visorCalculoNotas.createToken(tokenMatri, alumnos);
 
                     matriculableService.calcularPromedios(token, ds);
                     matriculableService.revisarCurriculaAlumnos(ds, token);

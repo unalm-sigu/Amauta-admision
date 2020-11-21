@@ -5,6 +5,8 @@ import java.math.RoundingMode;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.context.Context;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.amauta.controller.seriedocumento.SerieDocumentoService;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoCicloDAO;
@@ -29,6 +32,7 @@ import pe.edu.lamolina.amauta.zelper.pdf.PdfGenerator;
 import pe.edu.lamolina.amauta.zelper.pdf.TipoPdfEnum;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCiclo;
+import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.MatriculaCurso;
 import pe.edu.lamolina.model.enums.TipoDocumentoCompaniaEnum;
 import pe.edu.lamolina.model.enums.TipoRetiroCicloEnum;
@@ -87,6 +91,17 @@ public class TramitesRetiroExepcionalServiceImp implements TramiteRetiroExcepcio
     @Override
     @Transactional
     public void saveRetiro(RetiroCiclo retiroForm, DataSessionPivot ds) {
+        Alumno alumnoDB = alumnoDAO.find(retiroForm.getAlumno());
+        List<AlumnoCiclo> alumnoCiclos = alumnoCicloDAO.allByAlumnoDescRegular(alumnoDB);
+        List<CicloAcademico> ciclo = alumnoCiclos.stream().map(x -> x.getCicloAcademico()).collect(Collectors.toList());
+        Boolean exist = false;
+        for (CicloAcademico cicloAcademico : ciclo) {
+            if (Objects.equals(cicloAcademico.getId(), retiroForm.getCicloAcademico().getId())) {
+                exist = true;
+                break;
+            }
+        }
+        Assert.isTrue(exist, "El alumno " + alumnoDB.getPersona().getApellidosNombres() + " no tiene actividad en el ciclo " + retiroForm.getCicloAcademico().getDescripcion());
 
         DateTime today = new DateTime();
         EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.SOL);
@@ -94,7 +109,7 @@ public class TramitesRetiroExepcionalServiceImp implements TramiteRetiroExcepcio
         TipoDocumentoCompania tipoDocumentoCompania = tipoDocumentoCompaniaDAO.findByCodigo(TipoDocumentoCompaniaEnum.TRAM);
         SerieDocumento serieDocumento = serieDocumentoService.getCorrelativo(tipoDocumentoCompania, Long.valueOf(today.getYear()), ds.getUsuario());
         TipoTramite tipoTramite = tipoTramiteDAO.findByCodigo(TipoTramiteEnum.RCI.name());
-        Alumno alumnoDB = alumnoDAO.find(retiroForm.getAlumno());
+
         Tramite tramite = new Tramite();
         tramite.setActivo(true);
         tramite.setCompania(ds.getCompania());
@@ -112,7 +127,7 @@ public class TramitesRetiroExepcionalServiceImp implements TramiteRetiroExcepcio
 
         RetiroCiclo retiroCiclo = new RetiroCiclo();
         retiroCiclo.setAlumno(alumnoDB);
-        retiroCiclo.setCicloAcademico(ds.getCicloAcademico());
+        retiroCiclo.setCicloAcademico(retiroForm.getCicloAcademico());
         retiroCiclo.setCicloRegistro(ds.getCicloAcademico());
         retiroCiclo.setEsCondicional(false);
         retiroCiclo.setEstadoEnum(TramiteEstadoEnum.SOL);
