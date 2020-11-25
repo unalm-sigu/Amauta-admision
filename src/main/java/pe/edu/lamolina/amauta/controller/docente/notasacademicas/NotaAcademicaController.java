@@ -860,7 +860,6 @@ public class NotaAcademicaController {
 
         boolean esDocentePrincipal = false;
         for (Seccion sec : grupoSeccion.getSecciones()) {
-
             if (sec.isTipoSeccionPRA() || sec.isTipoSeccionTCUR() || sec.isTipoSeccionTEO()) {
                 DocenteSeccion docenteSeccion = service.findDocenteSeccionByFilter(ds.getDocente(), sec);
                 if (docenteSeccion != null && docenteSeccion.getEstadoEnum().equals(SeccionEstadoEnum.ACT)) {
@@ -869,7 +868,6 @@ public class NotaAcademicaController {
                     }
                 }
             }
-
         }
 
         model.addAttribute("seccion", seccion);
