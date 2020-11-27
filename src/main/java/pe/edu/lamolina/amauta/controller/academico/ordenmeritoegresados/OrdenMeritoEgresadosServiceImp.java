@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -17,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.amauta.dao.academico.AlumnoCicloDAO;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Egresado;
 import pe.edu.lamolina.model.academico.Carrera;
@@ -37,6 +39,7 @@ import pe.edu.lamolina.amauta.dao.academico.FacultadDAO;
 import pe.edu.lamolina.amauta.dao.academico.MatriculaResumenDAO;
 import pe.edu.lamolina.amauta.dao.academico.ModalidadEstudioDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.academico.AlumnoCiclo;
 
 @Service
 @Transactional(readOnly = true)
@@ -60,6 +63,8 @@ public class OrdenMeritoEgresadosServiceImp implements OrdenMeritoEgresadosServi
     CarreraDAO carreraDAO;
     @Autowired
     AlumnoDAO alumnoDAO;
+    @Autowired
+    AlumnoCicloDAO alumnoCicloDAO;
 
     @Override
     @Transactional
@@ -103,7 +108,14 @@ public class OrdenMeritoEgresadosServiceImp implements OrdenMeritoEgresadosServi
 
         Map<Long, List<Egresado>> mapAlumnosByIdFac = TypesUtil.convertListToMapList("carrera.facultad.id", alumnoCiclos);
         Map<Long, List<Egresado>> mapAlumnosByIdCarr = TypesUtil.convertListToMapList("carrera.id", alumnoCiclos);
+        
+        List<AlumnoCiclo> alusCiclo = alumnoCicloDAO.allByCicloAcademico(cicloAcademico);
+        Map<Long, AlumnoCiclo> mapAlumnosCiclo = new HashMap();
+        for (AlumnoCiclo alumnoCiclo : alusCiclo) {
+            mapAlumnosCiclo.put(alumnoCiclo.getAlumno().getId(), alumnoCiclo);
+        }
 
+        
         Integer total = 0;
         for (Map.Entry<Facultad, List<Egresado>> entry : mapAlumnoByFacultad.entrySet()) {
             total += entry.getValue().size();
@@ -179,6 +191,7 @@ public class OrdenMeritoEgresadosServiceImp implements OrdenMeritoEgresadosServi
             BigDecimal promedio = alumnoCiclo.getAlumno().getPromedioAcumulado();
             promedio = promedio.setScale(2, RoundingMode.HALF_UP);
             alumnoCiclo.setPromedioAcumulado(promedio);
+            alumnoCiclo.setCreditosAcumulados(mapAlumnosCiclo.get(alumnoCiclo.getAlumno().getId()).getCreditosAcumulados());
             egresadoDAO.update(alumnoCiclo);
         }
     }
