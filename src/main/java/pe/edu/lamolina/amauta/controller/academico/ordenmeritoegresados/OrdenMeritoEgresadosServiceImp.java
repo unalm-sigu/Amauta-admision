@@ -348,7 +348,7 @@ public class OrdenMeritoEgresadosServiceImp implements OrdenMeritoEgresadosServi
     public List<CicloAcademico> allCicloAcademicoForSelect() {
         List<CicloAcademico> cicloAcademicos = new ArrayList<>();
         CicloAcademico cicloActivo = findCicloActivo();
-        List<CicloAcademico> ciclosAnterioes = cicloAcademicoDAO.allAnteriores(10, cicloActivo);
+        List<CicloAcademico> ciclosAnterioes = cicloAcademicoDAO.allAnteriores(150, cicloActivo);//era 10
         cicloAcademicos.add(cicloActivo);
         cicloAcademicos.addAll(ciclosAnterioes);
         return cicloAcademicos;
