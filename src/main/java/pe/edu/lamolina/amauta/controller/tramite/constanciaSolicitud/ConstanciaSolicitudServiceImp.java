@@ -3,6 +3,7 @@ package pe.edu.lamolina.amauta.controller.tramite.constanciaSolicitud;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.common.base.Objects;
 import com.google.common.base.Strings;
 import java.io.File;
 import java.math.BigDecimal;
@@ -13,7 +14,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.joda.time.DateTime;
-import org.joda.time.LocalDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,11 +34,7 @@ import pe.edu.lamolina.model.academico.Egresado;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.bean.PlantillaIncrustacionGeneralBean;
 import pe.edu.lamolina.model.enums.ContenidoCartaEnum;
-import pe.edu.lamolina.model.enums.CuentaBancariaEnum;
-import pe.edu.lamolina.model.enums.DeudaEstadoEnum;
-import pe.edu.lamolina.model.enums.EstadoAcreenciaTramiteEnum;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
-import pe.edu.lamolina.model.enums.NombreTablasEnum;
 import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.enums.OrigenDataSituacionAcademicaEnum;
 import pe.edu.lamolina.model.enums.TipoConstanciaEnum;
@@ -46,9 +42,6 @@ import pe.edu.lamolina.model.enums.TipoDocumentoCompaniaEnum;
 import pe.edu.lamolina.model.enums.TipoSolicitanteEnum;
 import pe.edu.lamolina.model.enums.TipoTramiteEnum;
 import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
-import pe.edu.lamolina.model.finanzas.Acreencia;
-import pe.edu.lamolina.model.finanzas.AcreenciaTramiteDocumento;
-import pe.edu.lamolina.model.finanzas.CuentaBancaria;
 import pe.edu.lamolina.model.general.Colaborador;
 import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.general.Idioma;
@@ -110,6 +103,7 @@ import pe.edu.lamolina.amauta.dao.tramite.TramiteDocumentoParametroDAO;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import pe.edu.lamolina.amauta.controller.comun.s3.UploadFileS3;
 import pe.edu.lamolina.amauta.controller.tramite.constanciaSolicitud.verificadorSolicitud.VerificadorSolicitudService;
 import pe.edu.lamolina.amauta.dao.general.ArchivoDAO;
 import static pe.edu.lamolina.model.constantines.AcademicoConstantine.CODIGO_ALIANZA_ESTRATEGICA;
@@ -166,6 +160,8 @@ import static pe.edu.lamolina.model.enums.VariableGenericaEnum.ULTIMO_CICLO_MATR
 import pe.edu.lamolina.model.general.Archivo;
 import pe.edu.lamolina.model.tramite.ObtencionGrado;
 import pe.edu.lamolina.amauta.dao.tramite.TipoDocumentoAcademicoDAO;
+import static pe.edu.lamolina.model.enums.InstanciaEnum.TRAM_DOCUMENTO;
+import pe.edu.lamolina.model.session.DataSessionMaipi;
 
 @Service
 @Transactional(readOnly = true)
@@ -294,6 +290,9 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
 
     @Autowired
     ObtencionGradoDAO obtencionGradoDAO;
+
+    @Autowired
+    UploadFileS3 uploadFileS3;
 
     @Override
     @Transactional
@@ -648,6 +647,11 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
     @Transactional
     public void save(TramiteDocumentoAcademico tramiteDocumentoAcademico, DataSessionPivot ds) {
 
+        Tramite tramite = tramiteDocumentoAcademico.getTramite();
+        Alumno alumno = alumnoDAO.find(tramite.getAlumno());
+
+        verificadorSolicitudService.verificarDocumentoAlumno(tramiteDocumentoAcademico, alumno);
+
         Usuario usuario = ds.getUsuario();
         CicloAcademico cicloAcademico = ds.getCicloAcademico();
         Compania compania = ds.getCompania();
@@ -660,8 +664,6 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
         SerieDocumento serieDocumento = serieDocumentoService.getCorrelativo(tipoDocumentoCompania, Long.valueOf(today.getYear()), usuario);
         TipoTramite tipoTramite = tipoTramiteDAO.findByCodigo(TipoTramiteEnum.CONS.name());
 
-        Tramite tramite = tramiteDocumentoAcademico.getTramite();
-        Alumno alumno = alumnoDAO.find(tramite.getAlumno());
         Persona persona = alumno.getPersona();
 
         String rutaFotoTemporal = (String) ObjectUtil.getParentTree(alumno, "persona.rutaFotoTemporal");
@@ -694,50 +696,46 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
 
         TipoDocumentoAcademico tipo = tipoDocumentoAcademicoDAO.find(tramiteDocumentoAcademico.getTipoDocumentoAcademico());
         Idioma idioma = tramiteDocumentoAcademico.getIdioma();
-        PrecioDocumento precio = precioDocumentoDAO.findByTipoIdioma(tipo, idioma);
+//        PrecioDocumento precio = precioDocumentoDAO.findByTipoIdioma(tipo, idioma);
 
-        BigDecimal monto = new BigDecimal(precio.getPrecio());
-        if (tipo.getTipoConstanciaEnum() == TipoConstanciaEnum.CERT) {
-            Long count = alumnoCicloDAO.countCiclosRegular(alumno);
-            monto = new BigDecimal(precio.getPrecio()).multiply(new BigDecimal(count));
-        }
-
-        AcreenciaTramiteDocumento acreenciaTram = new AcreenciaTramiteDocumento();
-        acreenciaTram.setEstado(EstadoAcreenciaTramiteEnum.ACT.name());
-        acreenciaTram.setTramiteDocumentoAcademico(tramiteDocumentoAcademico);
-        acreenciaTram.setUserRegistro(usuario);
-        acreenciaTram.setFechaRegistro(new Date());
-        LocalDate localDate = LocalDate.now();
-        LocalDate fechaVencimiento = localDate.plusDays(7);
-        acreenciaTram.setFechaVencimiento(fechaVencimiento.toDate());
-        acreenciaTram.setPrecio(BigDecimal.ZERO);
-        acreenciaTram.setPrecio(monto);
-        acreenciaTramiteDocumentoDAO.save(acreenciaTram);
-
-        CuentaBancaria ctaBanco = precio.getCuentaBancaria();
-
-        Acreencia acreencia = new Acreencia();
-        if (ctaBanco.getCodigo().equals(CuentaBancariaEnum.MAT_UNALM.getCodigoServ())) {//credipago matricula
-            acreencia.setDescripcion("Deuda Académica");
-        } else if (ctaBanco.getCodigo().equals(CuentaBancariaEnum.MAT_FDA.getCodigoServ())) {//credipago bienestar
-            acreencia.setDescripcion("Deuda Bienestar");
-        }
-
-        acreencia.setOficina(new Oficina(OficinaEnum.OBUAE.getId()));
-        acreencia.setTablaEnum(NombreTablasEnum.FIN_ACREENCIA_TRAMITE_DOCUMENTO);
-        acreencia.setInstanciaTabla(acreenciaTram.getId());
-        acreencia.setEstadoEnum(DeudaEstadoEnum.DEU);
-
-        acreencia.setMonto(monto);
-        acreencia.setAbono(BigDecimal.ZERO);
-        acreencia.setPersona(alumno.getPersona());
-        acreencia.setCuentaBancaria(ctaBanco);
-        acreencia.setFechaDocumento(new Date());
-        acreencia.setUsuarioRegistro(ds.getUsuario());
-        acreencia.setFechaVencimiento(fechaVencimiento.toDate());
-        acreencia.setFechaRegistro(new Date());
-        acreenciaDAO.save(acreencia);
-
+//        BigDecimal monto = new BigDecimal(precio.getPrecio());
+//        if (tipo.getTipoConstanciaEnum() == TipoConstanciaEnum.CERT) {
+//            Long count = alumnoCicloDAO.countCiclosRegular(alumno);
+//            monto = new BigDecimal(precio.getPrecio()).multiply(new BigDecimal(count));
+//        }
+//        AcreenciaTramiteDocumento acreenciaTram = new AcreenciaTramiteDocumento();
+//        acreenciaTram.setEstado(EstadoAcreenciaTramiteEnum.ACT.name());
+//        acreenciaTram.setTramiteDocumentoAcademico(tramiteDocumentoAcademico);
+//        acreenciaTram.setUserRegistro(usuario);
+//        acreenciaTram.setFechaRegistro(new Date());
+//        LocalDate localDate = LocalDate.now();
+//        LocalDate fechaVencimiento = localDate.plusDays(7);
+//        acreenciaTram.setFechaVencimiento(fechaVencimiento.toDate());
+//        acreenciaTram.setPrecio(BigDecimal.ZERO);
+//        acreenciaTram.setPrecio(monto);
+//        acreenciaTramiteDocumentoDAO.save(acreenciaTram);
+//        CuentaBancaria ctaBanco = precio.getCuentaBancaria();
+//        Acreencia acreencia = new Acreencia();
+//        if (ctaBanco.getCodigo().equals(CuentaBancariaEnum.MAT_UNALM.getCodigoServ())) {//credipago matricula
+//            acreencia.setDescripcion("Deuda Académica");
+//        } else if (ctaBanco.getCodigo().equals(CuentaBancariaEnum.MAT_FDA.getCodigoServ())) {//credipago bienestar
+//            acreencia.setDescripcion("Deuda Bienestar");
+//        }
+//
+//        acreencia.setOficina(new Oficina(OficinaEnum.OBUAE.getId()));
+//        acreencia.setTablaEnum(NombreTablasEnum.FIN_ACREENCIA_TRAMITE_DOCUMENTO);
+//        acreencia.setInstanciaTabla(acreenciaTram.getId());
+//        acreencia.setEstadoEnum(DeudaEstadoEnum.DEU);
+//
+//        acreencia.setMonto(monto);
+//        acreencia.setAbono(BigDecimal.ZERO);
+//        acreencia.setPersona(alumno.getPersona());
+//        acreencia.setCuentaBancaria(ctaBanco);
+//        acreencia.setFechaDocumento(new Date());
+//        acreencia.setUsuarioRegistro(ds.getUsuario());
+//        acreencia.setFechaVencimiento(fechaVencimiento.toDate());
+//        acreencia.setFechaRegistro(new Date());
+//        acreenciaDAO.save(acreencia);
         FlujoTramiteDocumento flujo = new FlujoTramiteDocumento();
         flujo.setEstadoTramite(estadoTramite);
         flujo.setOficinaOrigen(ds.getOficinaMain());
@@ -759,7 +757,7 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
             documentoParametro.setVariableGenerica(plantillas.get(0).getVariableGenerica());
             tramiteDocumentoParamtroDAO.save(documentoParametro);
         }
-        this.enviarNotificacionSolicitudConstanciaCreacion(tramiteDocumentoAcademico);
+//        this.enviarNotificacionSolicitudConstanciaCreacion(tramiteDocumentoAcademico);
     }
 
     @Override
@@ -1201,6 +1199,46 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
         }
         htmlContent = htmlContent.replace(INCRUSTACION.getValue(), htmlIncrustacion);
         return htmlContent;
+    }
+
+    @Override
+    public void saveArchivoTramite(Archivo archivo, Alumno alumno, DataSessionPivot ds) {
+
+        TramiteDocumentoAcademico documentoAcademico = tramiteDocumentoAcademicoDAO.find(archivo.getIdInstancia());
+
+        AccionTramiteDocumento accionTramiteDocumento = accionTramiteDocumentoDAO.findOrderOneByTipoDocumento(documentoAcademico.getTipoDocumentoAcademico(), 1l);
+        Archivo archivoDB = archivoDAO.findFirstByInstanciasTipoInstancia(documentoAcademico.getId(), TRAM_DOCUMENTO);
+        if (!Objects.equal(archivoDB, null)) {
+            archivoDAO.delete(archivoDB);
+        }
+
+        uploadFileS3.uploadSync(AcademicoConstantine.S3_BUCKET_ACADEMICO, GlobalConstantine.TMP_DIR, archivo.getNombre(), true);
+        String path = uploadFileS3.getPathFile(AcademicoConstantine.S3_TRAMITE_DOCUMENTO, archivo.getNombre());
+
+        Archivo newarchivo = new Archivo();
+        newarchivo.setFechaRegistro(new Date());
+        newarchivo.setInstancia(TRAM_DOCUMENTO.name());
+        newarchivo.setIdInstancia(documentoAcademico.getId());
+        newarchivo.setTipo(archivo.getTipo());
+        newarchivo.setUsuarioRegistro(ds.getUsuario());
+        newarchivo.setNombre(archivo.getNombre());
+        newarchivo.setRuta(path);
+        archivoDAO.save(newarchivo);
+
+        documentoAcademico.setArchivo(newarchivo);
+        documentoAcademico.setEstadoTramite(accionTramiteDocumento.getEstadoTramiteFinal());
+        documentoAcademico.setNumeroBoleta(archivo.getNumeroBoleta());
+        tramiteDocumentoAcademicoDAO.update(documentoAcademico);
+
+        FlujoTramiteDocumento flujo = new FlujoTramiteDocumento();
+        flujo.setEstadoTramite(accionTramiteDocumento.getEstadoTramiteFinal());
+        flujo.setOficinaOrigen(documentoAcademico.getTipoDocumentoAcademico().getOficinaEmisora());
+        flujo.setOficinaDestino(documentoAcademico.getTipoDocumentoAcademico().getOficinaEmisora());
+        flujo.setUserRegistro(ds.getUsuario());
+        flujo.setTramiteDocumentoAcademico(documentoAcademico);
+        flujo.setFechaRegistro(new Date());
+        flujoTramiteDocumentoDAO.save(flujo);
+
     }
 
 }

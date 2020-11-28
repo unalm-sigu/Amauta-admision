@@ -652,6 +652,9 @@ public class InfoAcademicoController {
             "persona.numeroDocIdentidad",
             "persona.rutaFoto",
             "persona.tipoFoto",
+            "persona.telefono",
+            "persona.celular",
+            "persona.email",
             "persona.tipoDocumento.simbolo"
         });
         return alumnoJson;

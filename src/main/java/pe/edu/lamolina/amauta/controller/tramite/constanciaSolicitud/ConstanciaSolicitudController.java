@@ -61,6 +61,7 @@ import pe.edu.lamolina.amauta.zelper.pdf.pdfHtml.PDFFormatoEnum;
 import pe.edu.lamolina.amauta.zelper.pdf.pdfHtml.PdfHtmlView;
 import static pe.edu.lamolina.model.enums.TramiteEstadoEnum.CRE;
 import pe.edu.lamolina.model.general.Archivo;
+import pe.edu.lamolina.model.session.DataSessionMaipi;
 
 @Controller
 @RequestMapping("tramite/solicitudconstancia")
@@ -130,16 +131,17 @@ public class ConstanciaSolicitudController {
                 List<AccionTramiteDocumento> acciones = service.findEstadoByEstadoInicio(tramiteDoc.getTipoDocumentoAcademico(), tramiteDoc.getEstadoTramite());
                 ArrayNode arrayAcciones = new ArrayNode(JsonNodeFactory.instance);
                 for (AccionTramiteDocumento accion : acciones) {
-                    if (tramiteDoc.getEstadoTramite().getCodigoEnum() != CRE) {
-                        arrayAcciones.add(JsonHelper.createJson(accion, JsonNodeFactory.instance, new String[]{
-                            "*",
-                            "estadoTramite.*",
-                            "estadoTramiteFinal.*"}));
-                    }
+//                    if (tramiteDoc.getEstadoTramite().getCodigoEnum() != CRE) {
+                    arrayAcciones.add(JsonHelper.createJson(accion, JsonNodeFactory.instance, new String[]{
+                        "*",
+                        "estadoTramite.*",
+                        "estadoTramiteFinal.*"}));
+//                    }
                 }
                 ObjectNode tramiteJson = JsonHelper.createJson(tramiteDoc.getTramite(), JsonNodeFactory.instance, false, mapperTramite);
                 node.set("estados", arrayAcciones);
                 node.set("tramite", tramiteJson);
+                node.set("tramiteDocumento", JsonHelper.createJson(tramiteDoc, JsonNodeFactory.instance, new String[]{"*"}));
                 array.add(node);
             }
             json.setData(array);
@@ -679,10 +681,56 @@ public class ConstanciaSolicitudController {
     }
 
     @ResponseBody
+    @RequestMapping("uploadBoletaFile")
+    public JsonResponse uploadBoletaFile(@RequestParam("file") MultipartFile archivo, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            JsonNodeFactory jFactory = JsonNodeFactory.instance;
+
+            String fileName = TypesUtil.getUnixTime() + archivo.getOriginalFilename();
+            String absoluteName = GlobalConstantine.TMP_DIR + fileName;
+            FileHelper.saveToDisk(archivo, absoluteName);
+            ObjectNode json = new ObjectNode(jFactory);
+            json.put("name", fileName);
+            json.put("originalFilename", archivo.getOriginalFilename());
+            json.put("contentType", archivo.getContentType());
+            json.put("size", archivo.getSize());
+            json.put("ruta", absoluteName);
+            response.setData(json);
+            response.setSuccess(true);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("saveArchivoTramite")
+    public JsonResponse saveArchivoTramite(@RequestBody Archivo archivo, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        response.setSuccess(false);
+        try {
+
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+
+            service.saveArchivoTramite(archivo, new Alumno(archivo.getIdAlumno()), ds);
+            response.setMessage("Archivo subido satisfactoriamente");
+            response.setSuccess(true);
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
     @RequestMapping(value = "verBoleta/{idTramiteDocumento}", method = RequestMethod.GET)
     public JsonResponse verBoleta(@PathVariable Long idTramiteDocumento, HttpSession session) {
         JsonResponse response = new JsonResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         try {
 
             Archivo archivo = service.findBoletas(idTramiteDocumento);

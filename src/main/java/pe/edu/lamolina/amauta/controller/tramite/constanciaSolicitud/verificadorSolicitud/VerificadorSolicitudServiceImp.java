@@ -98,6 +98,13 @@ public class VerificadorSolicitudServiceImp implements VerificadorSolicitudServi
         this.findPlantillaHtml(plantillaDocumentoAcademico, tramiteDocumentoAcademico, alumno);
     }
 
+    @Override
+    public void verificarDocumentoAlumno(TramiteDocumentoAcademico documentoAcademico, Alumno alumno) {
+        PlantillaDocumentoAcademico plantilla = plantillaDocumentoAcademicoDAO.findTipoDocumento(documentoAcademico.getTipoDocumentoAcademico(), documentoAcademico.getIdioma());
+
+        this.findPlantillaHtml(plantilla, documentoAcademico, alumno);
+    }
+
     private PlantillaGenerica findPlantillaHtml(PlantillaDocumentoAcademico plantillaDocumentoAcademico, TramiteDocumentoAcademico documentoAcademico, Alumno alumno) {
 //        documentoAcademico = tramiteDocumentoAcademicoDAO.find(documentoAcademico.getId());
 //        PlantillaDocumentoAcademico plantilla = plantillaDocumentoAcademicoDAO.findTipoDocumento(documentoAcademico.getTipoDocumentoAcademico(), documentoAcademico.getIdioma());

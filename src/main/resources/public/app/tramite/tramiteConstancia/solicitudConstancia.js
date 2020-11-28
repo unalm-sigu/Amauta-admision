@@ -1,3 +1,4 @@
+Vue.component('file-upload', VueUploadComponent);
 new Vue({
     el: '#solicitudVue',
     data: {
@@ -7,6 +8,8 @@ new Vue({
         tramiteDocumento: {},
         colaborador: {},
         archivo: {},
+        files: [],
+        idSolicitud: null,
         mensajeerror: "",
         dataCargarFoto: VUE_MODAL.structFormAjax({
             id: 'modalCargarFoto',
@@ -19,6 +22,16 @@ new Vue({
             header: true,
             title: 'Boleta',
             showaccept: false
+        }),
+        btnFileColor: 'btn-outline-info',
+        modalLoadBoleta: VUE_MODAL.structFormAjax({
+            id: 'modalLoadBoleta',
+            header: true,
+            title: 'Boleta de Pago',
+            okbtn: 'Aceptar',
+            cancelbtn: 'Cancelar',
+            modalsize: 'modal-md',
+            processing: false
         }),
         dataEnviarRevision: VUE_MODAL.structFormAjax({
             id: 'modalEnviarRevision',
@@ -65,10 +78,9 @@ new Vue({
         },
         cargarfoto: function (item) {
             var $vue = this;
-            $vue.persona = item.tramite.alumno.persona;
-            $vue.tramiteDocumento = item;
-            $vue.dataCargarFoto.title = 'Cargar fotografía para ' + item.tramite.alumno.persona.apellidosNombres;
-            $vue.$refs.cargarFoto.open();
+            $vue.archivo = {idAlumno: item.tramite.alumno.id};
+            $vue.idSolicitud = item.tramiteDocumento.id;
+            $vue.$refs.modalLoadBoleta.open();
         },
         createEnviarRevision: function () {
             var vue = this;
@@ -158,7 +170,7 @@ new Vue({
         },
         accion(estado, item) {
             console.log(estado);
-            if (estado.estadoTramiteFinal.codigo == 'FVAL') {
+            if (estado.estadoTramiteFinal.codigo == 'VERPAGO') {
                 this.cargarfoto(item);
             } else {
                 this.update(item, estado);
@@ -190,6 +202,66 @@ new Vue({
                     notify(Messages.errorComunicacion, "error");
                 }
             });
+        },
+        inputFilter(newFile, oldFile, prevent) {
+            let $vue = this;
+            if (newFile && !oldFile) {
+                if (!/\.(jpg|png|jpeg)$/i.test(newFile.name)) {
+                    swal('¡Este tipo de  archivo no esta permitido!', ' ', 'error', {buttons: {ok: "Aceptar"}});
+                    return prevent();
+                }
+            }
+        },
+        saveLoadBoleta() {
+            let $vue = this;
+            axios.post(APP.url('tramite/solicitudconstancia/saveArchivoTramite'),
+                    $vue.archivo).then(response => {
+                if (response.data.success) {
+                    $vue.$refs.modalLoadBoleta.close();
+                    $vue.$refs.load.loadRemoteData();
+                    notify(response.data.message, "success");
+                } else {
+                    notify(response.data.message, "error");
+                }
+            }).catch(err => {
+                notify(MESSAGES.errorComunicacion, "error");
+            });
+        },
+        inputFile(newFile, oldFile) {
+            let $vue = this;
+            if (newFile) {
+                $('#progress-bar').css('width', newFile.progress + '%');
+                if (Boolean(newFile) !== Boolean(oldFile) || oldFile.error !== newFile.error) {
+                    if (!$vue.$refs.upload.active) {
+                        $vue.$refs.upload.active = true;
+                    }
+                }
+            }
+
+            if (oldFile && newFile) {
+                if (newFile.success) {
+                    let URL = window.URL || window.webkitURL;
+                    if (URL && URL.createObjectURL) {
+//                        let itemCoAsesor = $vue.miembros[$vue.indiceForArchivo];
+                        $vue.archivo.rutaTemporal = URL.createObjectURL(newFile.file);
+                        $vue.archivo.nombre = newFile.response.data.name;
+                        $vue.archivo.tipo = newFile.response.data.contentType;
+                        $vue.archivo.ruta = newFile.response.data.ruta;
+                        $vue.archivo.idInstancia = $vue.idSolicitud;
+                    }
+                }
+
+                if (newFile.success !== oldFile.success) {
+                    $vue.btnFileColor = "btn-success";
+                    notify("Archivo cargado satisfactoriamente", "success");
+                }
+            }
+
+            if (Boolean(newFile) !== Boolean(oldFile) || oldFile.error !== newFile.error) {
+                if (!this.$refs.upload.active) {
+                    this.$refs.upload.active = true;
+                }
+            }
         }
     }
 });
