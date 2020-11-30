@@ -1202,6 +1202,7 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
     }
 
     @Override
+    @Transactional
     public void saveArchivoTramite(Archivo archivo, Alumno alumno, DataSessionPivot ds) {
 
         TramiteDocumentoAcademico documentoAcademico = tramiteDocumentoAcademicoDAO.find(archivo.getIdInstancia());
