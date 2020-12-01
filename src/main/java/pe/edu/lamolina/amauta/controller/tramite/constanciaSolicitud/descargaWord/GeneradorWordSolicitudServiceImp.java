@@ -201,7 +201,7 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
             archivoDAO.delete(archivoDB);
         }
 
-        uploadFileS3.uploadSync(AcademicoConstantine.S3_BUCKET_ACADEMICO, GlobalConstantine.TMP_DIR, archivo.getNombre(), true);
+        uploadFileS3.uploadSync(AcademicoConstantine.S3_BUCKET_ACADEMICO, AcademicoConstantine.S3_PLANTILLA_WORD, archivo.getNombre(), true);
         String path = uploadFileS3.getPathFile(AcademicoConstantine.S3_PLANTILLA_WORD, archivo.getNombre());
 
         Archivo newarchivo = new Archivo();
