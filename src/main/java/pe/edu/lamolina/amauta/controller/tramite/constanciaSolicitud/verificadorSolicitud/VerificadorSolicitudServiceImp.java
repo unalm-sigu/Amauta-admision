@@ -290,6 +290,7 @@ public class VerificadorSolicitudServiceImp implements VerificadorSolicitudServi
                     break;
                 case MEJOR_PROMEDIO_PONDERADO_GRADUACION:
                     Assert.isNotNull(egresado, "El alumno no es egresado. Comuniquese con mesa de ayuda.");
+                    Assert.isNotNull(egresado.getPromedioGraduacion(), "El alumno no tiene promedio graduación. Comuniquese con mesa de ayuda.");
 
                     break;
 
