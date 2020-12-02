@@ -1,0 +1,115 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title> Solicitudes de beneficio de ultimo ciclo </title>
+
+    </head>
+
+    <body>
+        <div id="tutorSolicitudVUE" layout:fragment="main">
+            <header class="header b-b padder-lg">
+                <h2 th:text="|Tutor - Solicitudes de beneficio de último ${ciclo.descripcion2}|"> </h2>
+                
+            </header>
+
+            <section class="wrapper-lg">
+                <section class="panel">
+                    <section class="panel-body">
+                        <raptor-table v-bind:url="tutorSolicitudURL" v-bind:preload="true" ref="load">
+                            <template scope="props" >
+                                <table class="table table-striped table-hover">
+                                    <thead> 
+                                        <tr>
+                                            <th class="col-md-4 text-center v-middle" colspan="2">Información Alumno</th><!--  //-->
+                                            <th class="col-md-3 text-left">Tutor</th>
+                                            <th class="col-md-3 text-left v-middle">Carrera</th>
+                                            <th class="col-md-1 text-center v-middle">Estado</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        
+                                        <tr v-for="item in props.data">
+                                            <td class="v-middle">
+                                                <div class="pull-left">
+                                                    <div v-if="item.alumnoConsejero.alumno.persona.tipoFoto == 'POSTUL'"
+                                                         class="img-responsive img-thumbnail img-circle div-foto-list">
+                                                        <img class="img-foto-list" v-bind:src="item.alumnoConsejero.alumno.persona.rutaFoto" />
+                                                    </div>
+
+                                                    <img v-else-if="item.alumnoConsejero.alumno.persona.tipoFoto == 'COMUN'"
+                                                         class="img-responsive img-thumbnail img-circle div-foto-alumno-list" 
+                                                         v-bind:src="item.alumnoConsejero.alumno.persona.rutaFoto" />
+                                                    <img v-else=""
+                                                         class="img-foto-tempo img-responsive img-thumbnail img-circle" 
+                                                         v-bind:src="item.alumnoConsejero.alumno.persona.rutaFoto" />
+                                                </div>
+                                            </td>
+                                            <td class="v-middle">
+                                                <div class="v-middle clear">
+                                                    <span class="block text-success bold" v-text="item.alumnoConsejero.alumno.persona.apellidosNombres"></span>
+                                                    <span class="block" >
+                                                        <span class="bold">Matrícula:</span> {{item.alumnoConsejero.alumno.codigo}}
+                                                    </span>
+                                                    <span class="block" >
+                                                        <span class="bold">{{item.alumnoConsejero.alumno.persona.tipoDocumento.simbolo}}:</span> {{item.alumnoConsejero.alumno.persona.numeroDocIdentidad}}
+                                                    </span>
+                                                </div>
+                                            </td>
+                                            <td class="v-middle">
+                                                <div class="v-middle clear">
+                                                    <span class="block text-primary bold" v-text="item.alumnoConsejero.consejero.colaborador.persona.apellidosNombres"></span>
+
+                                                </div>
+                                            </td>
+                                            <td class="v-middle">
+                                                <div class="v-middle">
+                                                    <span class="block" v-if="item.alumnoConsejero.alumno.carrera.nombre != item.alumnoConsejero.alumno.carrera.facultad.nombre ">
+                                                        {{item.alumnoConsejero.alumno.carrera.facultad.nombre}}
+                                                    </span>
+                                                    <span class="block">
+                                                        {{item.alumnoConsejero.alumno.carrera.nombre}}
+                                                    </span>
+                                                    <span class="block bold text-primary">
+                                                        {{item.alumnoConsejero.alumno.modalidadEstudio.nombre}}
+                                                    </span>
+                                                </div>
+                                            </td>
+                                            <td class="text-center v-middle">
+                                                <span class="clear">
+                                                    <span v-bind:class="style(item.estado)" v-text='estadoValue(item.estado)'> </span>
+                                                </span>
+                                            </td>
+                                            <td class="v-middle">
+                                                <div class="actions">
+                                                    <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="fa fa-cog"></i></a>
+                                                    <ul class="dropdown-menu pull-right">
+                                                        <li v-if="item.estado == 'PEN'" class='pointer'><a v-on:click="updateEstado(item)">Aceptar</a></li>
+                                                        <li v-if="item.estado == 'ACT'" class='pointer'><a v-on:click="updateEstado(item)">Cancelar</a></li>
+                                                    </ul>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </template>
+                        </raptor-table>
+
+                    </section>
+                </section>
+            </section>
+            <!--<div th:replace="academico/matriculable/aporteAlumnoModal"></div>-->
+        </div>
+
+        <div layout:fragment="js">
+<!--            <script  th:inline="javascript" >
+                /*<![CDATA[*/
+                var cicloJson = /*[[${ciclo.toString()}]]*/ '';
+                /*]]>*/
+            </script>-->
+
+            <div th:substituteby="_modules/vue-raptor-table"></div>
+            <script th:src="@{/app/academico/tutorsolicitud/tutorsolicitud.js}" charset="utf-8"></script>
+        </div>
+
+    </body>
+</html>
