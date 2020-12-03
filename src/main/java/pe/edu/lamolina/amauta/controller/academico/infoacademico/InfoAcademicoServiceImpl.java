@@ -616,7 +616,8 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
                 /* --- */
                 "cicloAcademico.descripcion",
                 "cicloAcademico.descripcion2",
-                "cicloAcademico.tipoEnum"
+                "cicloAcademico.tipoEnum",
+                "cicloAcademico.id",
             });
             promediosCicloJson.add(promedioJson);
         }

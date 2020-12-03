@@ -41,10 +41,15 @@ Vue.component("historial-component", {
             let $vue = this;
 
             let allAprobado = false;
+            let soloUnCiclo = false;
 
             if ($vue.typeSearch) {
                 allAprobado = true;
             }
+            if ($vue.typeSearch3) {
+                soloUnCiclo = true;
+            }
+
             var tipo = "";
             if ($vue.typeSearch2) { // listado general de cursos
                 tipo = 'LIST';
@@ -64,7 +69,7 @@ Vue.component("historial-component", {
                         var token = response.data.token;
                         var url = response.data.url;
 
-                        location.href = url + "/publico/historialPdf/" + $vue.alumno.id + "?notas=" + allAprobado + "&tipo=" + tipo + "&token=" + token;
+                        location.href = url + "/publico/historialPdf/" + $vue.alumno.id + "/" + $vue.cicloSelect.cicloAcademico.id + "?notas=" + allAprobado + "&soloUnCiclo=" + soloUnCiclo + "&tipo=" + tipo + "&token=" + token;
 
                     }
                 }
