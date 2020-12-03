@@ -4,6 +4,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import org.hibernate.Query;
+import org.hibernate.transform.Transformers;
+import org.hibernate.type.LongType;
+import org.hibernate.type.StringType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoDAO;
@@ -43,6 +46,8 @@ import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.tramite.RetiroCiclo;
 import pe.edu.lamolina.amauta.controller.academico.alumno.AlumnoResumen;
 import pe.edu.lamolina.amauta.controller.matricula.matriculable.MatriculableResumen;
+import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
+import pe.edu.lamolina.model.enums.NotaLetraEnum;
 
 @Repository
 public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
@@ -1117,6 +1122,46 @@ public class AlumnoDAOH extends AbstractEasyDAO<Alumno> implements AlumnoDAO {
         setCondicionModalidad(filter, sql);
 
         return all(sql);
+    }
+
+    @Override
+    public List<Alumno> pendientesHistorial(CicloAcademico cicloAcademico) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(" select alu.id ");
+        sb.append(" from aca_alumno_ciclo ac ");
+        sb.append(" join aca_alumno alu on ac.id_alumno = alu.id ");
+        sb.append(" join aca_modalidad_estudio me on alu.id_modalidad_estudio =  me.id ");
+        sb.append(" join aca_ciclo_academico ca on ac.id_ciclo_academico = ca.id ");
+        sb.append(" join ( ");
+        sb.append("        select acc2.id_alumno_ciclo id_alu_ciclo, sum(acc2.creditos) creditos  ");
+        sb.append("        from aca_alumno_ciclo_curso acc2  ");
+        sb.append("        join aca_alumno_ciclo ac2 on acc2.id_alumno_ciclo = ac2.id  ");
+        sb.append("        join aca_alumno alu2 on ac2.id_alumno = alu2.id  ");
+        sb.append("        join aca_modalidad_estudio me2 on alu2.id_modalidad_estudio = me2.id  ");
+        sb.append("        join aca_ciclo_academico ca2 on ac2.id_ciclo_academico = ca2.id ");
+        sb.append("        where  acc2.esta_aprobado = true  and ");
+        sb.append("        acc2.registro_activo = true and  ");
+        sb.append("        ca2.id = :CICLO_SESSION  ");
+        sb.append("        and ac2.estado = :ESTADO_MAT  ");//MAT
+        sb.append("        and acc2.estado = :ESTADO_MAT  ");//MAT
+        sb.append("        and acc2.nota <> 'TE' ");//TRASLADO EXTERNO
+        sb.append("        and me2.codigo  = :MODALIDAD ");//PRE
+        sb.append("        group by acc2.id_alumno_ciclo ");
+        sb.append("      ) xx on xx.id_alu_ciclo = ac.id ");
+        sb.append("  where  ca.id = :CICLO_SESSION ");
+        sb.append("  and ac.estado = :ESTADO_MAT ");//MAT
+        sb.append("  and me.codigo = :MODALIDAD ");//MAT
+        sb.append("  and xx.creditos <> creditos_aprobados_ciclo ");
+
+        Query query = getCurrentSession().createSQLQuery(sb.toString())
+//                .addEntity("alu",Alumno.class)
+//                .addJoin("me", "alu.id_modalidad_estudio")
+                .addScalar("id", LongType.INSTANCE)
+                .setResultTransformer(Transformers.aliasToBean(Alumno.class));//falto hacer el join con modalidad de estudio
+        query.setParameter("CICLO_SESSION", cicloAcademico.getId());
+        query.setParameter("ESTADO_MAT", EstadoMatriculaEnum.MAT.name());
+        query.setParameter("MODALIDAD", ModalidadEstudioEnum.PRE.name());
+        return query.list();
     }
 
 }

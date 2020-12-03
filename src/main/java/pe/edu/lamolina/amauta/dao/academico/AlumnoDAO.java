@@ -142,4 +142,6 @@ public interface AlumnoDAO extends EasyDAO<Alumno> {
 
     List<Alumno> allAlumnosbyDynatable(DynatableFilter filter, List<Carrera> carreras);
 
+    List<Alumno> pendientesHistorial(CicloAcademico cicloAcademico);
+
 }

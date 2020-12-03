@@ -657,6 +657,19 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
     }
 
     @Override
+    public void calcularPromedios(DataSessionPivot ds) {
+        Boolean puedeCalcular = usuarioPuedeCalcular(ds);
+        Assert.isTrue(puedeCalcular, "Usted no está autorizado para ejecutar esta acción");
+        List<Alumno> alumnos = alumnoDAO.pendientesHistorial(ds.getCicloAcademico());
+
+        logger.debug("alumnos:::: {}", alumnos.size());
+        for (Alumno alumno : alumnos) {
+            promedioService.calcularSituacionAcademica(alumno, ds);
+        }
+
+    }
+
+    @Override
     public List<BoletaIngresante> allAportesAlumno(Alumno alumno, CicloAcademico ciclo) {
         Alumno alumnoBD = alumnoDAO.find(alumno);
         CicloAcademico cicloModalidad = findCicloByModalidad(alumnoBD.getModalidadEstudio(), ciclo);
