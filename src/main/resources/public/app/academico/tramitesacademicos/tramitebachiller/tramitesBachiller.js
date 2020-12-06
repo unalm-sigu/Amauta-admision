@@ -2,12 +2,14 @@ var app = new Vue({
     el: '#tramitesAcademicos',
     data: {
         URL_TRAMITES: APP.url('academico/tramiteacademico/tramitebachiller/list'),
-
     }, created: function () {
 
     }, mounted: function () {
 
     }, methods: {
+        nuevo() {
+
+        },
         getEstadoClass(estado) {
             return "label " + APP.getEstadoClass(estado);
         },

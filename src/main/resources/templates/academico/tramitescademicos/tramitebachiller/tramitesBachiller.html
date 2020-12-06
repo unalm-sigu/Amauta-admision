@@ -19,7 +19,10 @@
     <div layout:fragment="main">
         <div id="tramitesAcademicos">
             <header class="header b-b padder-lg">
-                <h2 >Trámites Bachiller</h2>
+                <h2 >Tramtie Bachiller</h2>
+                <div class="pull-right m-t-md">  
+                    <a class="btn btn-info" type="button"    v-on:click.prevent="nuevo"   href="#" >Nuevo</a>
+                </div> 
             </header>
             <section  class="wrapper-lg">
                 <section class="panel">
@@ -93,8 +96,7 @@
                     </section>
                 </section>
             </section>
-
-
+            <div th:substituteby="academico/tramitescademicos/tramiteRetiroExcepcional/tramiteRetiroExcepcionalModal"/>
 
         </div>
 
