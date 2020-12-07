@@ -28,25 +28,16 @@
     <td class="v-middle text-center">
         <span v-if="resolucion.tipoResolucion != null" class="block text-muted" v-text="resolucion.tipoResolucion.nombre"></span>
     </td>
-    <td class="v-middle text-left">
-        <input class="form-control" v-model="retiroCiclo.motivo" required="true" type="text"/>
+
+    <td>
+        <label class="switch">
+            <input type="checkbox" 
+                   v-model="retiroCiclo.seleccionado"
+                   checked="1"
+                   v-bind:disabled="isEdicion &amp;&amp; retiroCiclo.id != null"/>
+            <span class="slider round"></span>
+        </label>
     </td>
-    <!--                                            <td class="v-middle text-left">
-                                                    <div class="form-group">
-                                                        <multiselect 
-                                                            v-model="retiroCiclo.cicloAcademico" 
-                                                            v-bind:options="ciclos"
-                                                            placeholder="Seleccione un ciclo"
-                                                            label="descripcion"
-                                                            track-by="id" 
-                                                            required="true"
-                                                            v-bind:allow-empty="true"
-                                                            deselect-label="No se puede eliminar este valor" 
-                                                            >
-                                                        </multiselect>
-                                                        <input v-model="retiroCiclo.cicloAcademico" required="true" type="text" class="hide"/>
-                                                    </div>
-                                                </td>-->
     <td>
         <button v-on:click="deleteItem(index)" class="btn btn-danger" v-bind:disabled="isEdicion &amp;&amp; retiroCiclo.id != null">
             <i class="fa fa-trash-o " aria-hidden="true"></i>

@@ -26,7 +26,7 @@
                 <section class="wrapper-lg ">
                     <section class="panel">
                         <section class="panel-body ">
-                            <raptor-table v-bind:url="URL_RETIROS" ref="load" class="col-md-8 col-md-offset-2">
+                            <raptor-table v-bind:url="URL_RETIROS" ref="load" >
 
                                 <template scope="props">
                                     <table class="table table-striped " >
@@ -90,17 +90,18 @@
                                                     <span v-if="item.estado == 'PEND'" class="label label-warning">{{item.estadoEnum.value}}</span>
                                                     <span v-if="item.estado == 'ACEP'" class="label label-primary">{{item.estadoEnum.value}}</span>
                                                     <span v-if="item.estado == 'RCHZ'" class="label label-danger">{{item.estadoEnum.value}}</span>
+                                                    <span v-if="item.estado == 'RCHR'" class="label label-danger">{{item.estadoEnum.value}}</span>
 
                                                 </td> 
                                                 <td class="v-middle">
-                                                    <div class="actions">
-                                                        <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="fa fa-cog"></i></a>
-                                                        <ul class="dropdown-menu pull-right">
-                                                            <li v-if="item.estado == 'PEND'" ><a class=" pointer" v-on:click="openTramiteResol(item,1)" >Aceptar</a></li><!--rel="{{:id}}"-->
-                                                            <li v-if="item.estado == 'PEND'" ><a class=" pointer" v-on:click="openTramiteResol(item,0)" >Rechazar</a></li><!--rel="{{:id}}"-->
-
-                                                        </ul>
-                                                    </div>
+                                                    <!--                                                    <div class="actions">
+                                                                                                            <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="fa fa-cog"></i></a>
+                                                                                                            <ul class="dropdown-menu pull-right">
+                                                                                                                <li v-if="item.estado == 'PEND'" ><a class=" pointer" v-on:click="openTramiteResol(item,1)" >Aceptar</a></li>rel="{{:id}}"
+                                                                                                                <li v-if="item.estado == 'PEND'" ><a class=" pointer" v-on:click="openTramiteResol(item,0)" >Rechazar</a></li>rel="{{:id}}"
+                                                    
+                                                                                                            </ul>
+                                                                                                        </div>-->
                                                 </td> 
                                             </tr>
                                         </tbody>
@@ -125,10 +126,10 @@
                 var oficinasJson = /*[[${oficinas.toString()}]]*/ 'json';
                 /*]]>*/
             </script>
-            
+
             <div th:substituteby="_modules/vue-raptor-table"/>
-            
-            
+
+
             <script th:src="@{/app/academico/tramiteCondicional/tramiteCondicional.js}" charset="utf-8"></script>
         </div>
 

@@ -1,4 +1,4 @@
-package pe.edu.lamolina.amauta.controller.tramite.tramiteRetiroCicloExcepcional;
+package pe.edu.lamolina.amauta.controller.tramite.tramiteReincorporacion;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -14,7 +14,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ArrayUtils;
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,21 +30,17 @@ import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
-import pe.edu.lamolina.amauta.controller.tramite.tramiteReincorporacion.TramiteReincorporacionService;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
-import pe.edu.lamolina.model.tramite.RetiroCiclo;
+import pe.edu.lamolina.model.tramite.Reincorporacion;
 import pe.edu.lamolina.model.tramite.Tramite;
 
 @Controller
-@RequestMapping("academico/tramiteacademico/tramiteRetiroExcepcional")
-public class TramiteRetiroExcepcionalController {
+@RequestMapping("academico/tramiteacademico/tramiteReincorporacion")
+public class TramiteReincorporacionController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
-    @Autowired
-    TramiteRetiroExcepcionalService retiroExcepcionalService;
 
     @Autowired
     TramiteReincorporacionService reincorporacionService;
@@ -62,7 +57,7 @@ public class TramiteRetiroExcepcionalController {
             }));
         }
         model.addAttribute("ciclos", arr);
-        return "academico/tramitescademicos/tramiteRetiroExcepcional/tramiteRetiroExcepcional";
+        return "academico/tramitescademicos/tramiteReincorporacion/tramiteReincorporacion";
     }
 
     @ResponseBody
@@ -73,16 +68,18 @@ public class TramiteRetiroExcepcionalController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         try {
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
-            List<RetiroCiclo> trCiclos = retiroExcepcionalService.allTramitesByFilter(filter, ds);
+            List<Reincorporacion> trReincorporacion = reincorporacionService.allTramitesByFilter(filter, ds);
 
             String[] mapperTramite = new String[]{
-                "*",
+                "cicloReincorporacion.*",
+                "resolucion.*",
+                "facultad.*",
                 "tramite.*",
                 "tramite.persona.*",
                 "tramite.alumno.*",
                 "tramite.alumno.carrera.*",
                 "tramite.alumno.carrera.facultad.*",
-                "cicloAcademico.*"
+                "tramite.cicloAcademico.*"
             };
 
             String[] mapperEstadoTramite = new String[]{
@@ -94,7 +91,7 @@ public class TramiteRetiroExcepcionalController {
             String[] mapperTramiteComplex = (String[]) ArrayUtils.addAll(mapperTramite, mapperEstadoTramite);
 
             JsonNodeFactory jc = JsonNodeFactory.instance;
-            for (RetiroCiclo rc : trCiclos) {
+            for (Reincorporacion rc : trReincorporacion) {
                 ObjectNode retiroJson = JsonHelper.createJson(rc, jc, false, mapperTramiteComplex);
 
                 array.add(retiroJson);
@@ -113,11 +110,11 @@ public class TramiteRetiroExcepcionalController {
 
     @ResponseBody
     @RequestMapping("save")
-    public JsonResponse save(@RequestBody RetiroCiclo retiro, HttpSession session) {
+    public JsonResponse save(@RequestBody Reincorporacion reincorporacion, HttpSession session) {
         JsonResponse response = new JsonResponse();
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-            retiroExcepcionalService.saveRetiro(retiro, ds);
+            reincorporacionService.saveReincorporacion(reincorporacion, ds);
             response.setMessage("Se registró el tramite satisfactoriamente.");
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);
@@ -130,7 +127,7 @@ public class TramiteRetiroExcepcionalController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         try {
-            String fileName = retiroExcepcionalService.reporte(new Tramite(id), ds);
+            String fileName = reincorporacionService.reporte(new Tramite(id), ds);
             pdfResponse(fileName, "Información.pdf", response);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, model);

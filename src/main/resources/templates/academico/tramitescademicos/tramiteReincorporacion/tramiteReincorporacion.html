@@ -1,13 +1,13 @@
 <html layout:decorator="_layout/layout">
     <head>
-        <title>Tramtie Retiro Excepcional</title>
+        <title>Tramite Reincorporación</title>
     </head>
 
     <body>
         <div layout:fragment="main">
-            <div id="retiroExcepcional">
+            <div id="retiroExcepcional" v-cloak="">
                 <header class="header b-b padder-lg">
-                    <h2 >Tramtie Retiro Excepcional</h2>
+                    <h2 >Tramtie Reincorporación</h2>
                     <div class="pull-right m-t-md">  
                         <a class="btn btn-info" type="button"    v-on:click.prevent="nuevo"   href="#" >Nuevo</a>
                     </div> 
@@ -22,10 +22,10 @@
                                         <thead>
                                             <tr>
                                                 <th class="col-md-2">Trámite</th>
-                                                <th class="col-md-col-md-3">Persona</th>
+                                                <th class="col-md-3">Persona</th>
+                                                <th class="col-md-3">Resolución</th>
                                                 <th class="">Estado</th>
-                                                <th class="text-center">
-                                                </th>
+                                                <th class="text-center"></th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -49,9 +49,13 @@
                                                     </div>
 
                                                 </td>
+                                                <td class="v-middle ">
+                                                    <a class="text-success" > {{ item.resolucion.descripcion}}</a>
+                                                </td>
                                                 <td class="v-middle text-left">
                                                     <small class="block text-muted" v-bind:class="labelColor(item.tramite.estadoEnum.name)"> {{ item.tramite.estadoEnum.value}}</small>
                                                 </td>
+                                                
                                                 <td>
                                                     <div class="dropdown actions" >
                                                         <a class="dropdown-toggle" data-toggle="dropdown">
@@ -76,7 +80,7 @@
 
 
 
-                <div th:substituteby="academico/tramitescademicos/tramiteRetiroExcepcional/tramiteRetiroExcepcionalModal"/>
+                <div th:substituteby="academico/tramitescademicos/tramiteReincorporacion/tramiteReincorporacionModal"/>
             </div>
 
 
@@ -88,7 +92,7 @@
                 var ciclosJson = /*[[${ciclos.toString()}]]*/ 'json';
             </script>
             <div th:substituteby="_modules/vue-raptor-table"/>
-            <script th:src="@{/app/academico/tramitesacademicos/tramiteRetiroExcepcional/tramiteRetiroExcepcional.js}" charset="utf-8"></script>
+            <script th:src="@{/app/academico/tramitesacademicos/tramiteReincorporacion/tramiteReincorporacion.js}" charset="utf-8"></script>
 
         </div>
 

@@ -36,8 +36,10 @@ public interface ReincorporacionDAO extends EasyDAO<Reincorporacion> {
 
     List<Reincorporacion> allByCicloReincorporacion(CicloAcademico cicloAcademico);
 
-    List<Reincorporacion> allByTramitesCondicional(List<Tramite> tramites);
+    List<Reincorporacion> allByTramitesCondicional(CicloAcademico cicloAcademico);
 
     List<Reincorporacion> allByTramite(List<Tramite> tramite);
+
+    List<Reincorporacion> allByDynatableCiclo(DynatableFilter filter, CicloAcademico cicloAcademico);
 
 }

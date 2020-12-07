@@ -167,19 +167,36 @@ public class ReincorporacionDAOH extends AbstractEasyDAO<Reincorporacion> implem
     public List<Reincorporacion> allByCicloReincorporacion(CicloAcademico ciclo) {
         Octavia sql = Octavia.query()
                 .from(Reincorporacion.class, "rei")
-                .join("cicloReincorporacion cr", "rei.alumno al", "al.persona")
+                .join("tramite", "cicloReincorporacion cr", "rei.alumno al", "al.persona")
                 .join("al.cicloActivoRegular ", "al.modalidadEstudio")
                 .filter("cr.id", ciclo);
         return all(sql);
     }
 
     @Override
-    public List<Reincorporacion> allByTramitesCondicional(List<Tramite> tramites) {
+    public List<Reincorporacion> allByTramitesCondicional(CicloAcademico cicloAcademico) {
         Octavia sql = Octavia.query()
                 .from(Reincorporacion.class, "rei")
                 .join("tramite tra", "facultad fac", "estadoTramite et", "cicloReincorporacion cr")
-                .in("tra.id", tramites)
+                .join("tra.cicloAcademico ca")
+                .filter("ca.id", cicloAcademico)
                 .filter("esCondicional", 1);
+
+        return all(sql);
+    }
+
+    @Override
+    public List<Reincorporacion> allByDynatableCiclo(DynatableFilter filter, CicloAcademico cicloAcademico) {
+
+        DynatableSql sql = new DynatableSql(filter)
+                .from(Reincorporacion.class, "rei")
+                .join("tramite tra", "facultad fac", "estadoTramite et", "cicloReincorporacion cr")
+                .join("tra.cicloAcademico ca", "tra.alumno al", "al.persona per")
+                .left("resolucion")
+                .searchFields("cr.descripcion", "et.nombre", "al.codigo", "per.numeroDocIdentidad")
+                .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
+                .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
+                .filter("ca.id", cicloAcademico);
 
         return all(sql);
     }

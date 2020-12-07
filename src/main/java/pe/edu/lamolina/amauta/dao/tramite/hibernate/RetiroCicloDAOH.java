@@ -10,22 +10,24 @@ import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.enums.TipoRetiroCicloEnum;
 import static pe.edu.lamolina.model.enums.TipoRetiroCicloEnum.EXCEP;
 import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
 import static pe.edu.lamolina.model.enums.TramiteEstadoEnum.ACEP;
 import static pe.edu.lamolina.model.enums.TramiteEstadoEnum.PEND;
+import static pe.edu.lamolina.model.enums.TramiteEstadoEnum.SOL;
 import pe.edu.lamolina.model.tramite.Resolucion;
 import pe.edu.lamolina.model.tramite.RetiroCiclo;
 import pe.edu.lamolina.model.tramite.Tramite;
 
 @Repository
 public class RetiroCicloDAOH extends AbstractEasyDAO<RetiroCiclo> implements RetiroCicloDAO {
-
+    
     public RetiroCicloDAOH() {
         super();
         setClazz(RetiroCiclo.class);
     }
-
+    
     @Override
     public RetiroCiclo find(long id) {
         Octavia sql = new Octavia()
@@ -33,12 +35,12 @@ public class RetiroCicloDAOH extends AbstractEasyDAO<RetiroCiclo> implements Ret
                 .join("alumno al", "cicloAcademico ca")
                 .left("cicloRegistro cr")
                 .filter("rc.id", id);
-
+        
         return find(sql);
     }
-
+    
     @Override
-    public List<RetiroCiclo> allByCiclo(CicloAcademico cicloAcademico, DynatableFilter filter) {
+    public List<RetiroCiclo> allByCicloDynatable(CicloAcademico cicloAcademico, DynatableFilter filter) {
         DynatableSql sql = new DynatableSql(filter)
                 .from(RetiroCiclo.class, "rc")
                 .join("cicloRegistro cr", "alumno al", "cicloAcademico ca")
@@ -47,10 +49,10 @@ public class RetiroCicloDAOH extends AbstractEasyDAO<RetiroCiclo> implements Ret
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                 .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
                 .filter("cr.id", cicloAcademico);
-
+        
         return all(sql);
     }
-
+    
     @Override
     public RetiroCiclo findByAlumnoCicloRegistro(Alumno alumno, CicloAcademico ciclo) {
         Octavia sql = new Octavia()
@@ -58,10 +60,10 @@ public class RetiroCicloDAOH extends AbstractEasyDAO<RetiroCiclo> implements Ret
                 .left("alumno al", "cicloRegistro cr", "cicloAcademico ca")
                 .filter("al.id", alumno)
                 .filter("ca.codigo", ciclo.getCodigo());
-
+        
         return find(sql);
     }
-
+    
     @Override
     public RetiroCiclo findByAlumnoCicloRetiro(Alumno alumno, CicloAcademico ciclo) {
         Octavia sql = new Octavia()
@@ -69,10 +71,10 @@ public class RetiroCicloDAOH extends AbstractEasyDAO<RetiroCiclo> implements Ret
                 .join("alumno al", "cicloRegistro cr", "cicloAcademico ca")
                 .filter("al.id", alumno)
                 .filter("ca.id", ciclo);
-
+        
         return find(sql);
     }
-
+    
     @Override
     public List<RetiroCiclo> allByCicloCondicional(CicloAcademico ciclo) {
         Octavia sql = new Octavia()
@@ -82,10 +84,10 @@ public class RetiroCicloDAOH extends AbstractEasyDAO<RetiroCiclo> implements Ret
                 .filter("esCondicional", 1)
                 .in("rc.estado", Arrays.asList(PEND.name()))
                 .filter("cr.id", ciclo);
-
+        
         return all(sql);
     }
-
+    
     @Override
     public List<RetiroCiclo> allAlumnosByCicloCondicional(List<Alumno> alumnos, CicloAcademico ciclo) {
         Octavia sql = new Octavia()
@@ -94,10 +96,10 @@ public class RetiroCicloDAOH extends AbstractEasyDAO<RetiroCiclo> implements Ret
                 .in("al.id", alumnos)
                 .filter("esCondicional", 1)
                 .filter("cr.id", ciclo);
-
+        
         return all(sql);
     }
-
+    
     @Override
     public List<RetiroCiclo> allAlumnosByCiclo(List<Alumno> alumnos, CicloAcademico ciclo) {
         Octavia sql = new Octavia()
@@ -106,10 +108,10 @@ public class RetiroCicloDAOH extends AbstractEasyDAO<RetiroCiclo> implements Ret
                 .in("al.id", alumnos)
                 .filter("esCondicional", 0)
                 .filter("cr.id", ciclo);
-
+        
         return all(sql);
     }
-
+    
     @Override
     public List<RetiroCiclo> allByRetiroCiclo(Alumno alumno) {
         Octavia sql = new Octavia()
@@ -117,10 +119,10 @@ public class RetiroCicloDAOH extends AbstractEasyDAO<RetiroCiclo> implements Ret
                 .join("alumno al", "cicloAcademico ca", "cicloRegistro cr")
                 .filter("estado", TramiteEstadoEnum.ACEP)
                 .filter("al.id", alumno);
-
+        
         return all(sql);
     }
-
+    
     @Override
     public List<RetiroCiclo> allByResolucion(Resolucion resolucion) {
         Octavia sql = new Octavia()
@@ -129,42 +131,42 @@ public class RetiroCicloDAOH extends AbstractEasyDAO<RetiroCiclo> implements Ret
                 .join("al.situacionAcademica", "al.persona per")
                 .left("per.tipoDocumento")
                 .filter("re.id", resolucion);
-
+        
         return all(sql);
-
+        
     }
-
+    
     @Override
-    public List<RetiroCiclo> allByTramites(List<Tramite> tramites) {
+    public List<RetiroCiclo> allByTramitesCondicional(CicloAcademico cicloAcademico) {
         Octavia sql = new Octavia()
                 .from(RetiroCiclo.class, "rc")
-                .join("tramite tram", "cicloAcademico ")
-                .in("tram.id", tramites)
+                .join("tramite tram", "cicloAcademico ", "cicloRegistro cr")
+                .filter("cr.id", cicloAcademico)
                 .filter("esCondicional", 1);
-
+        
         return all(sql);
     }
-
+    
     @Override
     public RetiroCiclo findByTramite(Tramite tramite) {
         Octavia sql = new Octavia()
                 .from(RetiroCiclo.class, "rc")
                 .join("tramite tram", "cicloAcademico ")
                 .filter("tram.id", tramite);
-
+        
         return find(sql);
     }
-
+    
     @Override
     public List<RetiroCiclo> allInfo() {
         Octavia sql = new Octavia()
                 .from(RetiroCiclo.class, "rc")
                 .left("alumno al", "cicloRegistro cr", "cicloAcademico ca")
                 .filter("rc.estado", ACEP.name());
-
+        
         return all(sql);
     }
-
+    
     @Override
     public List<RetiroCiclo> allRetiroCicloByAlumno(Alumno alumno) {
         Octavia sql = new Octavia()
@@ -174,7 +176,7 @@ public class RetiroCicloDAOH extends AbstractEasyDAO<RetiroCiclo> implements Ret
                 .filter("al.id", alumno);
         return all(sql);
     }
-
+    
     @Override
     public void updateColumns(RetiroCiclo retiro, String... columns) {
         Octavia sql = Octavia.update(RetiroCiclo.class, "ret");
@@ -183,7 +185,7 @@ public class RetiroCicloDAOH extends AbstractEasyDAO<RetiroCiclo> implements Ret
         }
         this.update(sql);
     }
-
+    
     @Override
     public List<RetiroCiclo> allByDynatableExcepcional(DynatableFilter filter, CicloAcademico cicloAcademico) {
         DynatableSql sql = new DynatableSql(filter)
@@ -197,8 +199,33 @@ public class RetiroCicloDAOH extends AbstractEasyDAO<RetiroCiclo> implements Ret
                 .filter("rc.tipo", EXCEP)
                 .filter("cr.id", cicloAcademico)
                 .orderBy("rc.id desc");
-
+        
         return all(sql);
     }
-
+    
+    @Override
+    public List<RetiroCiclo> allByCiclo(CicloAcademico cicloAplica) {
+        Octavia sql = new Octavia()
+                .from(RetiroCiclo.class, "rc")
+                .join("tramite tram", "cicloAcademico ca", "cicloRegistro cr")
+                .join("tram.alumno")
+                .filter("ca.id", cicloAplica);
+        
+        return all(sql);
+    }
+    
+    @Override
+    public RetiroCiclo findByExcepcional(Alumno alumnoDB) {
+        Octavia sql = new Octavia()
+                .from(RetiroCiclo.class, "rc")
+                .join("tramite tram", "cicloAcademico ", "tram.alumno al")
+                .filter("tipo", TipoRetiroCicloEnum.EXCEP)
+                .beginBlock()
+                .in("rc.estado", Arrays.asList(PEND, SOL))
+                .endBlock()
+                .filter("al.id", alumnoDB);
+        
+        return find(sql);
+    }
+    
 }

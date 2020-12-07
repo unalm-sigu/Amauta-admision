@@ -769,7 +769,7 @@ public class PromedioServiceImp implements PromedioService {
 
             } else if (reincorporacion != null && !esCicloReincorporaPosterior && alumnoCiclo != null) {
                 this.printSystem("Tiene Reincorporacion tipo 1.... ", showError);
-                if (reincorporacion.getCicloReincorporacion().getCodigoInt() < cicloActivo.getCodigoInt()) {
+                if (reincorporacion.getCicloReincorporacion().getCodigoInt() <= cicloActivo.getCodigoInt()) {
                     alumnoCiclo.setRegistroValido(true);
                 } else {
                     alumnoCiclo.setRegistroXReinCicloActi(true);

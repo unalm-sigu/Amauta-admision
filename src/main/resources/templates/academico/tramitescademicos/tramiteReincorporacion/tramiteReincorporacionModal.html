@@ -1,6 +1,6 @@
-<modal-vik ref="modalRetiroExcep"
-           v-bind="modalRetiroExcep"
-           v-bind:okaction="saveRetiro">
+<modal-vik ref="modalResolucion"
+           v-bind="modalResolucion"
+           v-bind:okaction="saveResolucion">
     <div slot="body">
         <div class="modal-body">
             <form id="form" data-parsley-validate="true"><!-- method="POST" th:action="@{/academico/matriculable/save}"-->
@@ -8,7 +8,7 @@
                     <div class="form-group row">
                         <div class="col-md-12">
                             <label>Alumno</label>
-                            <multiselect v-model="retiroExcepcional.alumno" 
+                            <multiselect v-model="reincorporacion.alumno" 
                                          v-bind:options='alumnos'
                                          v-on:search-change="loadAlumno"
                                          v-bind:custom-label='customLabel'
@@ -25,13 +25,13 @@
                                     </div>
                                 </template>
                             </multiselect>
-                            <input v-model="retiroExcepcional.alumno" required="true" type="text" class="hide"/>
+                            <input v-model="reincorporacion.alumno" required="true" type="text" class="hide"/>
                         </div>
                     </div>
                     <div class="form-group row">
                         <div class="col-md-12">
-                            <label>Ciclo a retirar</label>
-                            <multiselect v-model="retiroExcepcional.cicloAcademico" 
+                            <label>Ciclo de reincorporación</label>
+                            <multiselect v-model="reincorporacion.cicloReincorporacion" 
                                          v-bind:options='ciclos'
                                          track-by='id'
                                          v-bind:allow-empty="false"
@@ -39,13 +39,13 @@
                                          label="descripcion"
                                          required="true" >
                             </multiselect>
-                            <input v-model="retiroExcepcional.cicloAcademico" required="true" type="text" class="hide"/>
+                            <input v-model="reincorporacion.cicloReincorporacion" required="true" type="text" class="hide"/>
                         </div>
                     </div>
                     <div class="form-group row">
                         <div class="col-md-12">
-                            <label>Motivo</label>
-                            <textarea class="form-control textarea" v-model="retiroExcepcional.motivo" minlength="15" required=""></textarea>
+                            <label>Motivo de deserción</label>
+                            <textarea class="form-control textarea" v-model="reincorporacion.motivoDesercion" minlength="15" required=""></textarea>
                         </div>
                     </div>
                 </div>

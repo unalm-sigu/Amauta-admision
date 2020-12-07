@@ -126,4 +126,6 @@ public interface CicloAcademicoDAO extends EasyDAO<CicloAcademico> {
 
     public CicloAcademico findByCodigoAndModalidad(String string, ModalidadEstudioEnum modalidadEstudioEnum);
 
+    public List<CicloAcademico> allUltimosByModalidadEnum(ModalidadEstudioEnum modalidadEstudioEnum, int i);
+
 }

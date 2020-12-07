@@ -11,7 +11,7 @@ import pe.edu.lamolina.model.tramite.Tramite;
 
 public interface RetiroCicloDAO extends EasyDAO<RetiroCiclo> {
 
-    List<RetiroCiclo> allByCiclo(CicloAcademico cicloAcademico, DynatableFilter filter);
+    List<RetiroCiclo> allByCicloDynatable(CicloAcademico cicloAcademico, DynatableFilter filter);
 
     RetiroCiclo findByAlumnoCicloRegistro(Alumno alumno, CicloAcademico ciclo);
 
@@ -25,7 +25,7 @@ public interface RetiroCicloDAO extends EasyDAO<RetiroCiclo> {
 
     List<RetiroCiclo> allByResolucion(Resolucion resolucion);
 
-    List<RetiroCiclo> allByTramites(List<Tramite> tramites);
+    List<RetiroCiclo> allByTramitesCondicional(CicloAcademico cicloRegistro);
 
     RetiroCiclo findByTramite(Tramite tramite);
 
@@ -38,5 +38,9 @@ public interface RetiroCicloDAO extends EasyDAO<RetiroCiclo> {
     public void updateColumns(RetiroCiclo retiro, String... columns);
 
     public List<RetiroCiclo> allByDynatableExcepcional(DynatableFilter filter, CicloAcademico cicloAcademico);
+
+    public List<RetiroCiclo> allByCiclo(CicloAcademico cicloAplica);
+
+    public RetiroCiclo findByExcepcional(Alumno alumnoDB);
 
 }

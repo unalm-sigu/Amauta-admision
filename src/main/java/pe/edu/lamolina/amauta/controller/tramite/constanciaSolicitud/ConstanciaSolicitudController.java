@@ -92,7 +92,7 @@ public class ConstanciaSolicitudController {
         DynatableResponse json = new DynatableResponse();
         try {
             List<TramiteDocumentoAcademico> tipos = service.allTramiteDocumentoAcademico(filter);
-            List<PrecioDocumento> precios = service.allPrecioDocumento();
+//            List<PrecioDocumento> precios = service.allPrecioDocumento();
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
             String[] mapperTramite = new String[]{
                 "*",

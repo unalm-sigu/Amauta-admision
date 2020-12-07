@@ -133,6 +133,8 @@ import pe.edu.lamolina.amauta.dao.tramite.RetiroCicloDAO;
 import static pe.edu.lamolina.model.constantines.AcademicoConstantine.CAPA_ULTIMO_CICLO;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.academico.EventoCicloAcademico;
+import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.PRE;
 
 @Service
 @Transactional(readOnly = true)
@@ -569,9 +571,14 @@ public class MatriculableServiceImp implements MatriculableService {
         alumnos = alumnoDAO.allByAlumnos(alumnos);
         visorCalculoNotas.destroyToken(tokenCurri);
 
-        String tokenMat = token22 + TOKEN_MATRICULABLE;
-        this.recalcularPrioridad(alumnos, ds.getUsuario(), tokenMat);
-        logger.info("Se terminó el ingreso a matriculables ... ");
+        CicloAcademico cicloAcademicoActivo = cicloAcademicoDAO.findActivo(PRE);
+        EventoCicloAcademico eventoCicloAcademico = eventoCicloAcademicoDAO.findByCicloAndEvento(cicloAcademicoActivo, EventoAcademicoEnum.MAT_REG);
+        Date today = new Date();
+        if (eventoCicloAcademico != null && eventoCicloAcademico.getFechaFin().compareTo(today) >= 0) {
+            String tokenMat = token22 + TOKEN_MATRICULABLE;
+            this.recalcularPrioridad(alumnos, ds.getUsuario(), tokenMat);
+            logger.info("Se terminó el ingreso a matriculables ... ");
+        }
     }
 
     @Override
@@ -966,6 +973,9 @@ public class MatriculableServiceImp implements MatriculableService {
         List<Alumno> alumnos = visorCalculoNotas.allAlumnosByToken(tokenMatricula);
 
         visorCalculoNotas.destroyToken(tokenMatricula);
+        if (alumnos.isEmpty()) {
+            return;
+        }
         List<MatriculaResumen> matriculaResumens = matriculaResumenDAO.allByAlumnosCiclo(alumnos, ds.getCicloAcademico());
         Map<Long, MatriculaResumen> mapMatriculables = TypesUtil.convertListToMap("alumno.id", matriculaResumens);
         for (Alumno alumno : alumnos) {
@@ -1441,6 +1451,9 @@ public class MatriculableServiceImp implements MatriculableService {
 
         if (cicloActivo.getFechaMatriculables() != null) {
             for (Alumno alumno : alumnos) {
+                if (alumno.isPostgrado()) {
+                    continue;
+                }
                 MatriculaResumen matriculable = mapMatriculable.get(alumno.getId());
                 if (situacionesExepcionAptas.contains(alumno.getSituacionAcademica().getCodigo())) {
                     if (mapReincorporacion.get(alumno.getId()) != null || alumno.getEsMatBeneficioUltCicl() || alumno.getEsMatriculaCondicional()) {
