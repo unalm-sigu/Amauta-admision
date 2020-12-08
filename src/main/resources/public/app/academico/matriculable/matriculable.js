@@ -465,6 +465,7 @@ new Vue({
                             message: 'Proceso finalizado',
                             callback: function () {
                                 $vue.$refs.modalProcesos.close();
+                                $vue.$refs.load.loadRemoteData();
                             }
                         });
                     }

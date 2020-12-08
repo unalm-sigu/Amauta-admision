@@ -1644,7 +1644,6 @@ public class MatriculableServiceImp implements MatriculableService {
         List<CicloAcademico> cicloAnt = cicloAcademicoDAO.findAnteriorRegular(cicloActivo);
 //        List<AlumnoCiclo> alumnoCiclos = alumnoCicloDAO.allByNmatAndInh(cicloAnt);
         List<Alumno> alumnos = alumnoDAO.allByNoMatriculableCicloAnt(cicloAnt);
-        System.out.println("Alumnos totales " + alumnos.size());
         respositorVisor.iniciar(alumnos.size());
         return alumnos;
     }
