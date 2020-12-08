@@ -32,6 +32,7 @@ public class RespositorVisor {
         this.cantidadTotalTemp = cantidadTotal;
         this.estadoEnum = EstadoEnum.OCUPADO;
         this.inicioTime = System.currentTimeMillis();
+        logger.info("Inicias con {} ", cantidadTotal);
     }
 
     public synchronized void incrementar() {

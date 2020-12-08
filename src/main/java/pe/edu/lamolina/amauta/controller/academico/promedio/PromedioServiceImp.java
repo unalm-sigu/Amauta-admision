@@ -233,7 +233,7 @@ public class PromedioServiceImp implements PromedioService {
                     allReincorporacionesByAlumno, ds,
                     throwError, showError);
         } catch (Exception e) {
-            throw new PhobosException(e.getLocalizedMessage());
+            throw new PhobosException(e.getLocalizedMessage() + alumno.getCodigo());
         }
 
         visorCalculoNotas.incrementarToken(token);
@@ -542,6 +542,7 @@ public class PromedioServiceImp implements PromedioService {
         Collections.sort(allReincorporaciones, new Reincorporacion.CompareCiclo());
 
         for (;;) {
+
             if (cicloNumerico >= cicloActivo.getCodigoInt()) {
                 System.out.println("cicloNumerico " + cicloNumerico + " YA NO SE ANALIZA");
                 break;
