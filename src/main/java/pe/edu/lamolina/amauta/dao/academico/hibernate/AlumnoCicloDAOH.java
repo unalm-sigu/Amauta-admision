@@ -1,6 +1,5 @@
 package pe.edu.lamolina.amauta.dao.academico.hibernate;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -32,13 +31,12 @@ import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.INH;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.NMAT;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.SituacionAcademicaEnum;
-import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_4;
-import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_4U;
-import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_D;
-import static pe.edu.lamolina.model.enums.SituacionAcademicaEnum.S_XD;
 import pe.edu.lamolina.model.enums.TipoCicloEnum;
 import static pe.edu.lamolina.model.enums.TipoCicloEnum.REG;
 import pe.edu.lamolina.amauta.controller.matricula.matriculable.AptoPreBean;
+import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.RCI;
+import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.PRE;
+import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.VIS;
 
 @Repository
 public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements AlumnoCicloDAO {
@@ -840,14 +838,15 @@ public class AlumnoCicloDAOH extends AbstractEasyDAO<AlumnoCiclo> implements Alu
 
         Octavia sql = Octavia.query()
                 .from(AlumnoCiclo.class, "ac")
-                .join("cicloAcademico ca", "alumno alu")
+                .join("cicloAcademico ca", "alumno alu", "alu.modalidadEstudio me")
                 .left("carrera", "orientacionCarrera", "situacionInicio", "situacionFinal", "controlMeritoCiclo")
                 .left("controlMeritoFacultad", "controlMeritoCarrera")
                 .left("alu.situacionAcademica sa")
                 .notExists(sqlSub)
                 .linkedBy("alu.id", "al.id")
                 .in("ca.id", ciclo)
-                .in("estado", Arrays.asList(NMAT, INH));
+                .in("estado", Arrays.asList(NMAT, INH, RCI))
+                .in("me.codigo", Arrays.asList(PRE.name(), VIS.name()));
 
         return sql.all(getCurrentSession());
     }

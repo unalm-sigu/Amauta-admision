@@ -2,12 +2,22 @@ var app = new Vue({
     el: '#tramitesAcademicos',
     data: {
         URL_TRAMITES: APP.url('academico/tramiteacademico/tramitebachiller/list'),
+        modalRetiroExcep: {
+            id: 'modalTramBachiller',
+            header: true,
+            title: 'Agregar Tramite Bachiller ',
+            okbtn: "Guardar",
+            showaccept: true
+        }, 
     }, created: function () {
 
     }, mounted: function () {
 
     }, methods: {
         nuevo() {
+
+        },
+        saveTramiteBachiller() {
 
         },
         getEstadoClass(estado) {

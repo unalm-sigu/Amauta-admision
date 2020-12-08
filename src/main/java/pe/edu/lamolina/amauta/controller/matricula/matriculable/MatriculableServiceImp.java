@@ -1550,9 +1550,9 @@ public class MatriculableServiceImp implements MatriculableService {
 
     @Async
     @Override
-    public void verificarAlumnosNmat(DataSessionPivot ds, List<AlumnoCiclo> alumnoCiclosForm) {
+    public void verificarAlumnosNmat(DataSessionPivot ds, List<Alumno> alumnoCiclosForm) {
 
-        List<Alumno> alumnos = alumnoCiclosForm.stream().map(x -> x.getAlumno()).collect(Collectors.toList());
+        List<Alumno> alumnos = alumnoCiclosForm;
         alumnos = alumnoDAO.allInfoByAlumnos(alumnos);
         TypesUtil.delay(2000);
 
@@ -1640,11 +1640,13 @@ public class MatriculableServiceImp implements MatriculableService {
     }
 
     @Override
-    public List<AlumnoCiclo> allAlumnosCicloNmat(CicloAcademico cicloActivo) {
+    public List<Alumno> allAlumnosCicloNmat(CicloAcademico cicloActivo) {
         List<CicloAcademico> cicloAnt = cicloAcademicoDAO.findAnteriorRegular(cicloActivo);
-        List<AlumnoCiclo> alumnoCiclos = alumnoCicloDAO.allByNmatAndInh(cicloAnt);
-        respositorVisor.iniciar(alumnoCiclos.size());
-        return alumnoCiclos;
+//        List<AlumnoCiclo> alumnoCiclos = alumnoCicloDAO.allByNmatAndInh(cicloAnt);
+        List<Alumno> alumnos = alumnoDAO.allByNoMatriculableCicloAnt(cicloAnt);
+        System.out.println("Alumnos totales " + alumnos.size());
+        respositorVisor.iniciar(alumnos.size());
+        return alumnos;
     }
 
     @Override
