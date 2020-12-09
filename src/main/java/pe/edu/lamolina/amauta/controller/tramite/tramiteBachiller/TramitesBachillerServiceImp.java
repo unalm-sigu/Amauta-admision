@@ -111,7 +111,7 @@ public class TramitesBachillerServiceImp implements TramitesBachillerService {
         tramite = tramiteDAO.find(tramite.getId());
         TramiteBachiller tramiteBachiller = tramiteBachillerDAO.findByTramite(tramite);
 
-        Alumno alumno = tramite.getAlumno();
+        Alumno alumno = alumnoDAO.find(tramite.getAlumno());
         CicloAcademico cicloAcademico = ds.getCicloAcademico();
 
         TipoCursoCurricula tipoCursoCurricula = tipoCursoCurriculaDAO.findByCodigo(TipoCursoCurriculaEnum.DEP);
