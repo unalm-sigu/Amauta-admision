@@ -163,7 +163,7 @@ public class TramitesBachillerServiceImp implements TramitesBachillerService {
             }
         }
 
-        EventoCicloAcademico eventoActual = eventoCicloAcademicoDAO.findByCicloAndEvento(cicloAcademico, EventoAcademicoEnum.FECHAS_BACH);
+        EventoCicloAcademico eventoActual = eventoCicloAcademicoDAO.findByCicloAndEvento(alumno.getCicloActivo(), EventoAcademicoEnum.FECHAS_BACH);
         EventoCicloAcademico eventoIngreso = eventoCicloAcademicoDAO.findByCicloAndEvento(cicloInicio, EventoAcademicoEnum.FECHAS_BACH);
 
         ctx.setVariable("alumno", alumno);
