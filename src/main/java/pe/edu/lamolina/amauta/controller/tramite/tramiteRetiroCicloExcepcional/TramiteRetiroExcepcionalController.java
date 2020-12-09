@@ -131,7 +131,7 @@ public class TramiteRetiroExcepcionalController {
 
         try {
             String fileName = retiroExcepcionalService.reporte(new Tramite(id), ds);
-            pdfResponse(fileName, "Información.pdf", response);
+            pdfResponse(fileName, "Información Retiro Excepcional.pdf", response);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, model);
         } catch (Exception e) {

@@ -135,7 +135,7 @@
         </div>
         <br/>
         <div>
-            <span >Adjunto al presente remito el Historial Académico del alumno(a) <b th:text="${alumno.persona.apellidosNombres}"></b> identificado(a) con el N° <b th:text="${alumno.codigo}"></b> en el registro
+            <span >Adjunto al presente remito el Historial Académico del alumno(a) <b th:text="${alumno.persona.apellidosNombres.toUpperCase()}"></b> identificado(a) con el N° <b th:text="${alumno.codigo}"></b> en el registro
                 de matricula, quien ha realizado estudios hasta el <b th:text="${alumno.cicloActivo.descripcion}"></b> y ha obtenido el siguiente resultado:</span>
         </div>
 
@@ -152,7 +152,7 @@
                             <span >PROMEDIO PONDERADO SEMESTRAL: </span>
                         </td>
                         <td >
-                            <span th:text=" ${alumno.promedioUltimoCiclo}"></span> 
+                            <span th:text="${#numbers.formatDecimal(alumno.promedioUltimoCiclo, 0, 'DEFAULT', 2, 'DEFAULT')} "></span> 
                         </td>
                     </tr>
                     <tr >
@@ -160,7 +160,7 @@
                             <span >PROMEDIO PONDERADO ACUMULADO: </span>
                         </td>
                         <td >
-                            <span th:text="${alumno.promedioAcumulado}"></span>
+                            <span th:text="${#numbers.formatDecimal(alumno.promedioAcumulado, 0, 'DEFAULT', 2, 'DEFAULT')}"></span>
                         </td>
                     </tr>
                     <tr >
@@ -176,7 +176,7 @@
                             <span >TOTAL DE CREDITOS APROBADOS: </span>
                         </td>
                         <td >
-                            <span th:text="${alumno.creditosAprobados}"></span>
+                            <span th:text="${alumnoCiclo.creditosAprobadosAcumulados}"></span>
                         </td>
                     </tr>
                     <tr >

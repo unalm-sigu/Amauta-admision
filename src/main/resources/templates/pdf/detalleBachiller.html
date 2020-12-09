@@ -135,7 +135,7 @@
         </div>
         <br/>
         <div>
-            <span > Con relación a la solicitud sobre <b>GRADO DE BACHILLER</b>, presentado por: <b th:text="${alumno.persona.apellidosNombres}"></b> con matricula <b th:text="${alumno.codigo}"></b> de la especialidad de <b th:text="${alumno.carrera.nombre}"></b>
+            <span > Con relación a la solicitud sobre <b>GRADO DE BACHILLER</b>, presentado por: <b class="" th:text="${alumno.persona.apellidosNombres.toUpperCase()}"></b> con matricula <b th:text="${alumno.codigo}"></b> de la especialidad de <b th:text="${alumno.carrera.nombre.toUpperCase()}"></b>
                 , informo a usted, lo siguiente: </span>
         </div>
 
@@ -157,14 +157,14 @@
                             <span >Total Creditos Aprobados: </span>
                         </td>
                         <td >
-                            <span th:text="${alumnoCiclo.creditosAcumulados}"></span>
+                            <span th:text="${alumnoCiclo.creditosAprobadosAcumulados}"></span>
                         </td>
                     </tr>
                     <tr >
                         <td >
                             <span >Profesor Consejero: </span>
                         </td>
-                        <td >
+                        <td th:if='${alumno.consejero}'>
                             <span th:if="${alumno.consejero.colaborador} != null" th:text="${alumno.consejero.colaborador.persona.apellidosNombres}"></span>
 
                         </td>
@@ -174,7 +174,7 @@
                             <span >Ciclo Egreso: </span>
                         </td>
                         <td >
-                            <span th:text="${alumnoCiclo.cicloAcademico.codigo}"></span>
+                            <span th:text="${alumnoCiclo.cicloAcademico.descripcion2}"></span>
                         </td>
                     </tr>
                     <tr >
@@ -199,7 +199,7 @@
         </div>
 
         <div style="text-align: center">
-            <!--            <pre >Atentamente,</pre>-->
+                        <pre >Atentamente,</pre>
 
             <br/>
             <br/>

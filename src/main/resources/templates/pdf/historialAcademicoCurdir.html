@@ -125,6 +125,12 @@
                         </td>
                     </tr>
                     <tr>
+                        <td class="text-center" th:if='${alumnoCiclo.alumno.creditosConvalidados != 0}'> 
+                            <span >Créditos Convalidado:</span>
+                            <span th:text="${alumnoCiclo.alumno.creditosConvalidados}"> creditos cursados semestral </span>
+                        </td>
+                    </tr>
+                    <tr>
                         <td class="text-center"> 
                             <span > Promedio Ponderado: </span>
                             <span th:text="${alumnoCiclo.promedioAcumulado}"> creditos cursados semestral </span>

@@ -137,7 +137,7 @@ public class TramitesBachillerController {
 
         try {
             String fileName = tramitesBachillerService.bachillerReporte(new Tramite(id), ds);
-            pdfResponse(fileName, "Información.pdf", response);
+            pdfResponse(fileName, "Información Bachiller.pdf", response);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, model);
         } catch (Exception e) {

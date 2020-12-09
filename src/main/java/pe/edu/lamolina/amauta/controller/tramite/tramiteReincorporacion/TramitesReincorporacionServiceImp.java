@@ -27,6 +27,7 @@ import pe.edu.lamolina.amauta.zelper.pdf.PdfContent;
 import pe.edu.lamolina.amauta.zelper.pdf.PdfGenerator;
 import pe.edu.lamolina.amauta.zelper.pdf.TipoPdfEnum;
 import pe.edu.lamolina.model.academico.Alumno;
+import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
@@ -137,9 +138,11 @@ public class TramitesReincorporacionServiceImp implements TramiteReincorporacion
     private List<String> createInfoReincorporacionPDF(Tramite tramite, DataSessionPivot ds) {
         tramite = tramiteDAO.find(tramite.getId());
         Alumno alumno = alumnoDAO.find(tramite.getAlumno());
+        AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findLastByAlumno(alumno);
         Context ctx = new Context();
 
         ctx.setVariable("alumno", alumno);
+        ctx.setVariable("alumnoCiclo", alumnoCiclo);
         ctx.setVariable("tramite", tramite);
         ctx.setVariable("ciclo", ds.getCicloAcademico());
         ctx.setVariable("fecha", TypesUtil.getStringDate(new DateTime().toDate(), " dd 'de' MMMM 'del' yyyy", "es"));
