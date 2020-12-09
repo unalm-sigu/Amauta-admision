@@ -485,11 +485,10 @@ public class MatriculableServiceImp implements MatriculableService {
         List<Alumno> alumnos = visorCalculoNotas.allAlumnosByToken(tokenProm);
 
         TypesUtil.delay(2000);
-
+        alumnos = alumnoDAO.allByAlumnos(alumnos);
         ListBeanPromedios bean = promedioLoadDataService.loadDataAlumno(alumnos);
 
         List<CicloAcademico> ciclos = bean.getCiclos();
-        List<CicloAcademico> ciclosActivos = bean.getCiclosActivos();
         CicloAcademico cicloPregrado = bean.getCicloPregrado();
         CicloAcademico cicloPosgrado = bean.getCicloPosgrado();
 
