@@ -2,12 +2,14 @@ package pe.edu.lamolina.amauta.controller.tramite.tramiteBachiller;
 
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,10 +17,16 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.context.Context;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
+import pe.edu.lamolina.amauta.controller.seriedocumento.SerieDocumentoService;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoCicloCursoDAO;
+import pe.edu.lamolina.amauta.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.amauta.dao.academico.EventoCicloAcademicoDAO;
 import pe.edu.lamolina.amauta.dao.academico.TipoCursoCurriculaDAO;
+import pe.edu.lamolina.amauta.dao.general.OficinaDAO;
+import pe.edu.lamolina.amauta.dao.tramite.TipoDocumentoCompaniaDAO;
+import pe.edu.lamolina.amauta.dao.tramite.TipoTramiteDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TramiteBachillerDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TramiteDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
@@ -32,7 +40,16 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.EventoCicloAcademico;
 import pe.edu.lamolina.model.academico.TipoCursoCurricula;
 import pe.edu.lamolina.model.enums.EventoAcademicoEnum;
+import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum;
+import pe.edu.lamolina.model.enums.TipoDocumentoCompaniaEnum;
+import pe.edu.lamolina.model.enums.TipoSolicitanteEnum;
+import pe.edu.lamolina.model.enums.TipoTramiteEnum;
+import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
+import pe.edu.lamolina.model.general.Oficina;
+import pe.edu.lamolina.model.general.SerieDocumento;
+import pe.edu.lamolina.model.general.TipoDocumentoCompania;
+import pe.edu.lamolina.model.tramite.TipoTramite;
 import pe.edu.lamolina.model.tramite.Tramite;
 import pe.edu.lamolina.model.tramite.TramiteBachiller;
 
@@ -61,6 +78,21 @@ public class TramitesBachillerServiceImp implements TramitesBachillerService {
 
     @Autowired
     EventoCicloAcademicoDAO eventoCicloAcademicoDAO;
+
+    @Autowired
+    TipoDocumentoCompaniaDAO tipoDocumentoCompaniaDAO;
+
+    @Autowired
+    SerieDocumentoService serieDocumentoService;
+
+    @Autowired
+    OficinaDAO oficinaDAO;
+
+    @Autowired
+    TipoTramiteDAO tipoTramiteDAO;
+
+    @Autowired
+    AlumnoDAO alumnoDAO;
 
     @Override
     public List<TramiteBachiller> allTramitesByFilter(DynatableFilter filter, DataSessionPivot ds) {
@@ -167,6 +199,44 @@ public class TramitesBachillerServiceImp implements TramitesBachillerService {
         );
 
         return pdfs;
+    }
+
+    @Override
+    public void saveBachiller(TramiteBachiller tramiteBachillerForm, DataSessionPivot ds) {
+        LocalDate today = new LocalDate();
+
+        logger.debug("PAse 1");
+        Alumno alumno = alumnoDAO.find(tramiteBachillerForm.getAlumno());
+        TipoDocumentoCompania tipoDocumentoCompania = tipoDocumentoCompaniaDAO.findByCodigo(TipoDocumentoCompaniaEnum.TRAM_BACHI);
+        SerieDocumento serieDocumento = serieDocumentoService.getCorrelativo(tipoDocumentoCompania, Long.valueOf(today.getYear()), ds.getUsuario());
+
+        Oficina oficina = oficinaDAO.findByCode(OficinaEnum.OERA.name());
+        logger.debug("PAse 2");
+        TipoTramite tipoTramite = tipoTramiteDAO.findByCodigo(TipoTramiteEnum.BACHI.name());
+        Tramite tramite = tramiteDAO.findByAlumnoTipoTramEstado(alumno, tipoTramite, TramiteEstadoEnum.SOL);
+        logger.debug("PAse 3");
+        Assert.isNull(tramite, "Ya cuenta con un tramite bachiller en proceso.");
+        tramite = new Tramite();
+        tramite.setUserRegistro(ds.getUsuario());
+        tramite.setCompania(ds.getCompania());
+        tramite.setNumero(Long.valueOf(serieDocumento.getNumeroDocumento()));
+        tramite.setSerie(Long.valueOf(serieDocumento.getNumeroSerie()));
+        tramite.setTipoSolicitante(TipoSolicitanteEnum.ALU.name());
+        tramite.setPersona(alumno.getPersona());
+        tramite.setAlumno(alumno);
+        tramite.setTipoTramite(tipoTramite);
+        tramite.setCicloAcademico(ds.getCicloAcademico());
+        tramite.setOficina(oficina);
+        tramite.setEstadoEnum(TramiteEstadoEnum.SOL);
+        tramite.setFechaRegistro(new Date());
+        tramiteDAO.save(tramite);
+
+        TramiteBachiller bachiller = new TramiteBachiller();
+        bachiller.setTramite(tramite);
+        bachiller.setEstado(TramiteEstadoEnum.SOL.name());
+        bachiller.setFechaRegistro(new Date());
+        bachiller.setUsuario(ds.getUsuario());
+        tramiteBachillerDAO.save(bachiller);
     }
 
 }

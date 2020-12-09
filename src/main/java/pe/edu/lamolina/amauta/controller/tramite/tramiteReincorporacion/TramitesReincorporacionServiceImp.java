@@ -1,5 +1,6 @@
 package pe.edu.lamolina.amauta.controller.tramite.tramiteReincorporacion;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import org.joda.time.DateTime;
@@ -8,7 +9,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.thymeleaf.context.Context;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.amauta.controller.seriedocumento.SerieDocumentoService;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoCicloDAO;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoDAO;
@@ -20,7 +23,9 @@ import pe.edu.lamolina.amauta.dao.tramite.TipoDocumentoCompaniaDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TipoTramiteDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TramiteDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.amauta.zelper.pdf.PdfContent;
 import pe.edu.lamolina.amauta.zelper.pdf.PdfGenerator;
+import pe.edu.lamolina.amauta.zelper.pdf.TipoPdfEnum;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Facultad;
@@ -107,13 +112,13 @@ public class TramitesReincorporacionServiceImp implements TramiteReincorporacion
         tramite.setUserRegistro(ds.getUsuario());
         tramiteDAO.save(tramite);
 
-        Facultad facultad = tramite.getAlumno().getCarrera().getFacultad();
+        Facultad facultad = alumnoDB.getCarrera().getFacultad();
         Reincorporacion reincorporacione = new Reincorporacion();
         reincorporacione.setAceptado(0);
         reincorporacione.setFechaRegistro(new Date());
         reincorporacione.setEstadoTramite(estadoTramite);
         reincorporacione.setUserRegistro(ds.getUsuario());
-        reincorporacione.setAlumno(tramite.getAlumno());
+        reincorporacione.setAlumno(alumnoDB);
         reincorporacione.setCicloReincorporacion(reincorporacionForm.getCicloReincorporacion());
         reincorporacione.setMotivoDesercion(reincorporacionForm.getMotivoDesercion());
         reincorporacione.setFacultad(facultad);
@@ -125,82 +130,29 @@ public class TramitesReincorporacionServiceImp implements TramiteReincorporacion
 
     @Override
     public String reporte(Tramite tramite, DataSessionPivot ds) {
-        List<String> pdfs = createInfoRetiroExcepcionalPDF(tramite, ds);
+        List<String> pdfs = createInfoReincorporacionPDF(tramite, ds);
         return pdfGenerator.concatPDFs(pdfs, "reincorporacion", true);
     }
 
-    private List<String> createInfoRetiroExcepcionalPDF(Tramite tramite, DataSessionPivot ds) {
-//        tramite = tramiteDAO.find(tramite.getId());
-//        Alumno alumno = tramite.getAlumno();
-//        Context ctx = new Context();
-//        List<MatriculaCurso> matriculaCursos = matriculaCursoDAO.allActivoByAlumnoCiclo(alumno, ds.getCicloAcademico());
-//        List<AlumnoCiclo> alumnoCiclos = alumnoCicloDAO.allActivesByAlumnoAsc(alumno);
-//        List<RetiroCiclo> retiroCiclos = retiroCicloDAO.allByRetiroCiclo(alumno);
-//        AlumnoCiclo ac = null;
+    private List<String> createInfoReincorporacionPDF(Tramite tramite, DataSessionPivot ds) {
+        tramite = tramiteDAO.find(tramite.getId());
+        Alumno alumno = alumnoDAO.find(tramite.getAlumno());
+        Context ctx = new Context();
+
+        ctx.setVariable("alumno", alumno);
+        ctx.setVariable("tramite", tramite);
+        ctx.setVariable("ciclo", ds.getCicloAcademico());
+        ctx.setVariable("fecha", TypesUtil.getStringDate(new DateTime().toDate(), " dd 'de' MMMM 'del' yyyy", "es"));
 //
-//        InfoRetiroExcepcional infoRetiroExcepcional = new InfoRetiroExcepcional();
-//        int i = 1;
-//        for (AlumnoCiclo alumnoCiclo : alumnoCiclos) {
-//            switch (alumnoCiclo.getSituacionFinal().getCodigoEnum()) {
-//                case S_N:
-//                case S_A:
-//                case S_5:
-//                    infoRetiroExcepcional.setVecesNormal(infoRetiroExcepcional.getVecesNormal() + 1);
-//                    break;
-//                case S_1:
-//                case S_2:
-//                    infoRetiroExcepcional.setVecesObservado(infoRetiroExcepcional.getVecesObservado() + 1);
-//                    break;
-//                case S_U:
-//                case S_2U:
-//                    infoRetiroExcepcional.setVecesSuspendido(infoRetiroExcepcional.getVecesSuspendido() + 1);
-//                    break;
-//            }
-//            if (alumnoCiclo.getCicloAcademico().isTipoRegular()) {
-//                if (alumnoCiclo.isAprobado()) {
-//                    infoRetiroExcepcional.setCiclosRegularesApro(infoRetiroExcepcional.getCiclosRegularesApro() + 1);
-//                } else {
-//                    infoRetiroExcepcional.setCiclosRegularesDesap(infoRetiroExcepcional.getCiclosRegularesDesap() + 1);
-//                }
-//            } else {
-//                if (alumnoCiclo.isAprobado()) {
-//                    infoRetiroExcepcional.setCiclosVeranoApro(infoRetiroExcepcional.getCiclosVeranoApro() + 1);
-//                } else {
-//                    infoRetiroExcepcional.setCiclosVeranoDesap(infoRetiroExcepcional.getCiclosVeranoDesap() + 1);
-//                }
-//            }
-//            if (i == alumnoCiclos.size()) {
-//                ac = alumnoCiclo;
-//            }
-//            i++;
-//        }
+        PdfContent pdfRetiroExcepcional = new PdfContent();
+        pdfRetiroExcepcional.setContext(ctx);
+        pdfRetiroExcepcional.setTipoPdfEnum(TipoPdfEnum.DETALLE_REINCORPORACION);
 //
-//        BigDecimal relacionEficacion = new BigDecimal(ac.getCreditosAprobadosAcumulados()).divide(new BigDecimal(ac.getCreditosAcumulados()), 2, RoundingMode.FLOOR);
-//        infoRetiroExcepcional.setCaa(ac.getCreditosAprobadosAcumulados());
-//        infoRetiroExcepcional.setCca(ac.getCreditosAcumulados());
-//        infoRetiroExcepcional.setPpa(ac.getPromedioAcumulado());
-//        infoRetiroExcepcional.setPps(ac.getPromedioCiclo());
-//        infoRetiroExcepcional.setRelacionEficiencia(relacionEficacion);
-//        infoRetiroExcepcional.setSituacion(ac.getSituacionFinal().getNombre().toUpperCase());
+        List<String> pdfs = Arrays.asList(
+                pdfGenerator.generateDocument(pdfRetiroExcepcional)
+        );
 //
-//        ctx.setVariable("tramite", tramite);
-//        ctx.setVariable("infoRetiroExcepcional", infoRetiroExcepcional);
-//        ctx.setVariable("alumno", alumno);
-//        ctx.setVariable("alumnoCiclo", ac);
-//        ctx.setVariable("ciclo", ds.getCicloAcademico());
-//        ctx.setVariable("matriculaCursos", matriculaCursos);
-//        ctx.setVariable("retiroCiclos", retiroCiclos);
-//        ctx.setVariable("fecha", TypesUtil.getStringDate(new DateTime().toDate(), " dd 'de' MMMM 'del' yyyy", "es"));
-//
-//        PdfContent pdfRetiroExcepcional = new PdfContent();
-//        pdfRetiroExcepcional.setContext(ctx);
-//        pdfRetiroExcepcional.setTipoPdfEnum(TipoPdfEnum.DETALLE_RETIRO_EXCEPCIONAL);
-//
-//        List<String> pdfs = Arrays.asList(
-//                pdfGenerator.generateDocument(pdfRetiroExcepcional)
-//        );
-//
-        return null;
+        return pdfs;
     }
 
     @Override

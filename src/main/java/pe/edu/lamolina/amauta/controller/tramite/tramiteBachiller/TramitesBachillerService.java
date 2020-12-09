@@ -12,4 +12,6 @@ public interface TramitesBachillerService {
 
     public String bachillerReporte(Tramite tramite, DataSessionPivot ds);
 
+    public void saveBachiller(TramiteBachiller tramiteBachiller, DataSessionPivot ds);
+
 }

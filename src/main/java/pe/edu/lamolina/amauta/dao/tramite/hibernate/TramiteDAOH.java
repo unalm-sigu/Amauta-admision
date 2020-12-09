@@ -8,6 +8,7 @@ import pe.albatross.octavia.Octavia;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableSql;
 import pe.albatross.octavia.easydao.AbstractEasyDAO;
+import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Facultad;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.RCI;
@@ -17,8 +18,10 @@ import pe.edu.lamolina.model.enums.TipoTramiteEnum;
 import static pe.edu.lamolina.model.enums.TipoTramiteEnum.CAM_NOTA;
 import static pe.edu.lamolina.model.enums.TipoTramiteEnum.CURDIR;
 import static pe.edu.lamolina.model.enums.TipoTramiteEnum.REI;
+import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
 import static pe.edu.lamolina.model.enums.TramiteEstadoEnum.ANU;
 import pe.edu.lamolina.model.tramite.Reincorporacion;
+import pe.edu.lamolina.model.tramite.TipoTramite;
 import pe.edu.lamolina.model.tramite.Tramite;
 
 @Repository
@@ -146,5 +149,17 @@ public class TramiteDAOH extends AbstractEasyDAO<Tramite> implements TramiteDAO 
                 .orderBy("tram.id desc");
 
         return all(sql);
+    }
+
+    @Override
+    public Tramite findByAlumnoTipoTramEstado(Alumno alumno, TipoTramite tipoTramite, TramiteEstadoEnum estadoEnum) {
+        Octavia sql = Octavia.query()
+                .from(Tramite.class, "tr")
+                .join("persona per", "alumno alum", "alum.carrera car", "alum.situacionAcademica sia", "car.facultad", "car.modalidadEstudio")
+                .join("cicloAcademico ca", "tipoTramite tt", "tt.oficina ofic")
+                .filter("alum.id", alumno)
+                .filter("tr.estado", estadoEnum)
+                .filter("tt.id", tipoTramite);
+        return find(sql);
     }
 }

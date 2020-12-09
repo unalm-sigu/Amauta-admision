@@ -128,7 +128,7 @@ public class TramiteReincorporacionController {
 
         try {
             String fileName = reincorporacionService.reporte(new Tramite(id), ds);
-            pdfResponse(fileName, "Información.pdf", response);
+            pdfResponse(fileName, "Informe Reincorporacion.pdf", response);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, model);
         } catch (Exception e) {
