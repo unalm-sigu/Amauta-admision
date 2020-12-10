@@ -458,7 +458,7 @@ public class AvanceCurricularServiceImp implements AvanceCurricularService {
                 continue;
             }
         }
-        if (visorCalculoNotas.allAlumnosByToken(token).size() == alumnosPosgrado.size()) {
+        if (token != null && visorCalculoNotas.allAlumnosByToken(token).size() == alumnosPosgrado.size()) {
             return;
         }
         List<PlanCurricular> planCurriculars = planCurricularDAO.all();

@@ -616,7 +616,8 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
                 /* --- */
                 "cicloAcademico.descripcion",
                 "cicloAcademico.descripcion2",
-                "cicloAcademico.tipoEnum"
+                "cicloAcademico.tipoEnum",
+                "cicloAcademico.id",
             });
             promediosCicloJson.add(promedioJson);
         }
@@ -653,6 +654,19 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
 
         Alumno alumno = alumnoDAO.find(alumnoForm);
         promedioService.calcularSituacionAcademica(alumno, ds);
+    }
+
+    @Override
+    public void calcularPromedios(DataSessionPivot ds) {
+        Boolean puedeCalcular = usuarioPuedeCalcular(ds);
+        Assert.isTrue(puedeCalcular, "Usted no está autorizado para ejecutar esta acción");
+        List<Alumno> alumnos = alumnoDAO.pendientesHistorial(ds.getCicloAcademico());
+
+        logger.debug("alumnos:::: {}", alumnos.size());
+        for (Alumno alumno : alumnos) {
+            promedioService.calcularSituacionAcademica(alumno, ds);
+        }
+
     }
 
     @Override

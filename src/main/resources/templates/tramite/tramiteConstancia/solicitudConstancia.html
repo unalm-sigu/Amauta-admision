@@ -8,9 +8,9 @@
             <div id="solicitudVue" v-cloak="">
 
                 <header class="header b-b padder-lg">
-                    <!--                    <a class="pull-right btn btn-success btn-sm" type="button"    th:href="@{/tramite/solicitudconstancia/solicitud/0}" >
-                                            Agregar Trámite
-                                        </a>-->
+                    <a class="pull-right btn btn-success btn-sm" type="button"    th:href="@{/tramite/solicitudconstancia/solicitud/0}" >
+                        Agregar Trámite
+                    </a>
                     <h1>Trámites documentarios</h1>
                 </header>
                 <section class="panel">
@@ -49,7 +49,7 @@
                                                 </td>
                                                 <td  class="v-middle"  >
                                                     <p  class="h5 bold text-primary" v-text="item.tramite.alumno.persona.apellidosNombres"></p>
-                                                    <span class="block"> Especialida de {{item.tramite.alumno.carrera.nombre}}</span>
+                                                    <span class="block"> Especialidad de {{item.tramite.alumno.carrera.nombre}}</span>
                                                     <span v-if="item.tramite.alumno.carrera.codigo != item.tramite.alumno.carrera.facultad.codigo" class="block">Facultad de {{item.tramite.alumno.carrera.facultad.nombre}}</span>
                                                     <small class="block bold">{{item.tramite.alumno.persona.tipoDocumento.simbolo}} {{item.tramite.alumno.persona.numeroDocIdentidad}}</small>
                                                     <small class="block bold"> Matrícula: {{item.tramite.alumno.codigo}}</small>
@@ -123,7 +123,7 @@
 
             <div th:substituteby="_layout/includes :: javascript-upload"/>
             <div th:substituteby="_modules/vue-raptor-table"></div>
-            <script th:src="@{/app/tramite/updatehistorialacademico/updateHistorialAcademicoUploadFoto.js}" charset="utf-8"></script>
+            <!--<script th:src="@{/app/tramite/updatehistorialacademico/updateHistorialAcademicoUploadFoto.js}" charset="utf-8"></script>-->
             <script th:src="@{/app/tramite/tramiteConstancia/solicitudConstancia.js}" charset="utf-8"></script>
         </div>
     </body>

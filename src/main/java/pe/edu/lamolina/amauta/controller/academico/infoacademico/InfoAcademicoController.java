@@ -276,6 +276,26 @@ public class InfoAcademicoController {
     }
 
     @ResponseBody
+    @RequestMapping("corrigecalculopromedios")
+    public JsonResponse corrigecalculopromedios(HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        try {
+            service.calcularPromedios(ds);
+//alumnos de PREGRADO que no tienen los creditos aprobados de (aca_alumno_ciclo)  
+//igual que en su historial(aca_alumno_ciclo_curso) y 
+//arregla la situación academica en aca_alumno_ciclo_curso cuando no calculo su situación
+            response.setSuccess(true);
+            response.setMessage("Se calculó el promedio satisfactoriamente");
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+        return response;
+    }
+
+    @ResponseBody
     @RequestMapping("{idAlumno}/aportes")
     public JsonResponse aportes(@PathVariable("idAlumno") Long idAlumno, Model model, HttpSession session) {
         JsonResponse response = new JsonResponse();
@@ -652,6 +672,9 @@ public class InfoAcademicoController {
             "persona.numeroDocIdentidad",
             "persona.rutaFoto",
             "persona.tipoFoto",
+            "persona.telefono",
+            "persona.celular",
+            "persona.email",
             "persona.tipoDocumento.simbolo"
         });
         return alumnoJson;

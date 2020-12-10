@@ -98,6 +98,13 @@ public class VerificadorSolicitudServiceImp implements VerificadorSolicitudServi
         this.findPlantillaHtml(plantillaDocumentoAcademico, tramiteDocumentoAcademico, alumno);
     }
 
+    @Override
+    public void verificarDocumentoAlumno(TramiteDocumentoAcademico documentoAcademico, Alumno alumno) {
+        PlantillaDocumentoAcademico plantilla = plantillaDocumentoAcademicoDAO.findTipoDocumento(documentoAcademico.getTipoDocumentoAcademico(), documentoAcademico.getIdioma());
+
+        this.findPlantillaHtml(plantilla, documentoAcademico, alumno);
+    }
+
     private PlantillaGenerica findPlantillaHtml(PlantillaDocumentoAcademico plantillaDocumentoAcademico, TramiteDocumentoAcademico documentoAcademico, Alumno alumno) {
 //        documentoAcademico = tramiteDocumentoAcademicoDAO.find(documentoAcademico.getId());
 //        PlantillaDocumentoAcademico plantilla = plantillaDocumentoAcademicoDAO.findTipoDocumento(documentoAcademico.getTipoDocumentoAcademico(), documentoAcademico.getIdioma());
@@ -283,6 +290,7 @@ public class VerificadorSolicitudServiceImp implements VerificadorSolicitudServi
                     break;
                 case MEJOR_PROMEDIO_PONDERADO_GRADUACION:
                     Assert.isNotNull(egresado, "El alumno no es egresado. Comuniquese con mesa de ayuda.");
+                    Assert.isNotNull(egresado.getPromedioGraduacion(), "El alumno no tiene promedio graduación. Comuniquese con mesa de ayuda.");
 
                     break;
 

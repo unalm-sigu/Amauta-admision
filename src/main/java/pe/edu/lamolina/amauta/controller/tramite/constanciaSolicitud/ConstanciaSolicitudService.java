@@ -26,6 +26,7 @@ import pe.edu.lamolina.model.tramite.VariablePlantilla;
 import pe.edu.lamolina.amauta.controller.tramite.plantillaConstancia.PlantillaGenerica;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.general.Archivo;
+import pe.edu.lamolina.model.session.DataSessionMaipi;
 
 public interface ConstanciaSolicitudService {
 
@@ -90,5 +91,7 @@ public interface ConstanciaSolicitudService {
     public List<AlumnoCiclo> allAlumnoCiclo(TramiteDocumentoAcademico tramiteDocumentoAcademico);
 
     public Archivo findBoletas(Long idTramiteDocumento);
+
+    public void saveArchivoTramite(Archivo archivo, Alumno alumno, DataSessionPivot ds);
 
 }

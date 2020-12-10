@@ -67,11 +67,9 @@ Vue.component("inicio-tram-component", {
             let $vue = this;
             $vue.temp = {};
             $vue.temp.plantillaDocumentoAcademico = {};
-
             $vue.temp.alumno = $vue.tramite.alumno;
             $vue.temp.plantillaDocumentoAcademico.tipoDocumentoAcademico = $vue.solicitud.tipoDocumentoAcademico;
             $vue.temp.plantillaDocumentoAcademico.idioma = value;
-
             axios.post('/tramite/solicitudconstancia/allParametros', $vue.temp)
                     .then(response => {
                         if (response.data.success) {
@@ -80,7 +78,7 @@ Vue.component("inicio-tram-component", {
                                     $vue.$parent.ciclos = response.data.data.lista;
                                     $vue.$parent.haveParams = response.data.data.haveParams;
                                     $vue.$parent.$refs.ciclosModal.open();
-                                } 
+                                }
                             }
                         } else {
                             notify(response.data.message, "error");
@@ -91,7 +89,6 @@ Vue.component("inicio-tram-component", {
                     if (item.idioma.id == value.id) {
                         $vue.showCostoDocumento = true;
                         $vue.costoDocumento = item.precio;
-
                     }
                 });
             }
@@ -100,7 +97,7 @@ Vue.component("inicio-tram-component", {
             let $vue = this;
             $vue.solicitud.tramite = $vue.tramite;
             $vue.solicitud.valorParametro = $vue.ciclo.descripcion;
-            console.log($vue.solicitud);
+
             var valid = $('#formSolicitudConstancia').parsley().validate();
             if (valid != true) {
                 return;
@@ -127,8 +124,7 @@ Vue.component("inicio-tram-component", {
             $vue.$parent.$refs.cargarFoto.open();
         },
         findAlumno(id) {
-            let vue = this;
-
+            let $vue = this;
             $.ajax({
                 method: 'POST',
                 async: true,
@@ -136,7 +132,11 @@ Vue.component("inicio-tram-component", {
                 contentType: "application/json",
                 success: function (response) {
                     if (response.success) {
-                        vue.$parent.alumno = response.data;
+                        Vue.set($vue.solicitud, "personaContacto", response.data.persona.nombreCompleto);
+                        Vue.set($vue.solicitud, "telefono", response.data.persona.telefono);
+                        Vue.set($vue.solicitud, "celular", response.data.persona.celular);
+                        Vue.set($vue.solicitud, "email", response.data.persona.email);
+                        $vue.$parent.alumno = response.data;
 //                        notify(response.message, "info");
                     } else {
                         notify(response.message, "error");

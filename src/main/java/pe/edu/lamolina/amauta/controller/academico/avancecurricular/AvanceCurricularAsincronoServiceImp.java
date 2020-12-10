@@ -866,12 +866,11 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
                     }
                 }
 
-           
                 AlumnoCursoCurricula alumnoCursoCurricula = mapAluCursoCurriculaOld.get(cursoAprobado.getCurso().getId());
-                if (alumnoCursoCurricula != null) {                    
+                if (alumnoCursoCurricula != null) {
                     addAlumnoCursoCurricula(alumno, cursoAprobado, null, null, aluCursosElectivosNew, alumnoCursoCurricula.getTipoCursoCurricula());
                 }
-                    this.printLogger("\tCurso libre no ubicado en otros planes curriculares ", !ubicado && showLogger);
+                this.printLogger("\tCurso libre no ubicado en otros planes curriculares ", !ubicado && showLogger);
 
             } else {
                 cursoAprobado.setCursoEquivalente(cursoEquivalenteElectivo.getCursoOpcionalCurricula().getCurso());
@@ -1150,7 +1149,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
             Map<Long, List<RequisitoCursoOpcional>> mapRequisitoCursoOpcionals) {
 
         for (MatriculaCurso cursoMatriculado : cursosMatriculados) {
-            if (cursoMatriculado.isEstadoMAT()) {
+            if (cursoMatriculado.isEstadoMAT() && cursoMatriculado.getPorcentajeAvanceNota() != 100) {
                 AlumnoCursoCurricula cursoCurriAlu = mapCursoCurriculaAluByCurso.get(cursoMatriculado.getCurso().getId());
                 if (cursoCurriAlu != null) {
                     cursoCurriAlu.setEstadoMatriculaEnum(cursoMatriculado.getEstadoEnum());

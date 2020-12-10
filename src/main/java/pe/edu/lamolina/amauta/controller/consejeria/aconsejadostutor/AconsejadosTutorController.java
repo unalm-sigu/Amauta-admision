@@ -23,6 +23,7 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
+import pe.edu.lamolina.amauta.controller.matricula.tutorsolicitud.TutorSolicitudService;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.Carrera;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
@@ -41,6 +42,9 @@ public class AconsejadosTutorController {
 
     @Autowired
     AconsejadosTutorService service;
+    
+    @Autowired
+    TutorSolicitudService tutorSolicitudservice;
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
@@ -78,6 +82,7 @@ public class AconsejadosTutorController {
                             "alumno.situacionAcademica.nombre",
                             "alumno.persona.emailCompania",
                             "alumno.persona.tipoFoto",
+                            "alumno.persona.sexo",
                             "alumno.persona.rutaFoto",
                             "alumno.persona.apellidosNombres",
                             "alumno.persona.numeroDocIdentidad",
@@ -88,7 +93,8 @@ public class AconsejadosTutorController {
                             "consejero.colaborador.persona.emailCompania",
                             "consejero.colaborador.persona.numeroDocIdentidad",
                             "consejero.colaborador.persona.apellidosNombres",
-                            "consejero.colaborador.persona.tipoDocumento.simbolo"
+                            "consejero.colaborador.persona.tipoDocumento.simbolo",
+                            "cicloAcademico.descripcion"
                         });
 
                 array.add(node);
@@ -140,6 +146,24 @@ public class AconsejadosTutorController {
         } catch (Exception e) {
             e.printStackTrace();
             json.setTotal(0);
+        }
+        return json;
+    }
+
+    @ResponseBody
+    @RequestMapping("solicitudBeneficio")
+    public JsonResponse matriculaAutorizacion(@RequestBody AlumnoConsejero alumnoConsejero, HttpSession session) {
+
+        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        JsonResponse json = new JsonResponse();
+        json.setSuccess(false);
+        try {
+            tutorSolicitudservice.solicitudBeneficio(alumnoConsejero, ds);
+            json.setMessage("Se envio la solicitud de beneficio de último ciclo");
+            json.setSuccess(true);
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         return json;
     }

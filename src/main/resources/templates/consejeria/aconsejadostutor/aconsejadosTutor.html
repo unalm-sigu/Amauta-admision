@@ -88,6 +88,7 @@
                                         </thead>
                                         <tbody>
                                             <tr v-for="item in props.data">
+                                        
                                                 <td class="v-middle">
                                                     <div class="pull-left">
                                                         <div v-if="item.alumno.persona.tipoFoto=='POSTUL' "
@@ -106,6 +107,7 @@
                                                 </td>
 
                                                 <td class="v-middle">
+                                                    
                                                     <a v-bind:href="urlAcademico(item.alumno)"
                                                        class="block text-primary bold h5 m-b-xs m-t-xs" >
                                                         {{item.alumno.persona.apellidosNombres}}
@@ -125,6 +127,7 @@
                                                     <small class="block" v-if="item.alumno.carrera.nombre != item.alumno.carrera.facultad.nombre ">
                                                         Facultad de {{item.alumno.carrera.facultad.nombre}}
                                                     </small>
+                                                    <span v-if="item.beneficioUtlimoCiclo == 1" class="label label-success">Solicitó Beneficio de Útimo Ciclo</span>
                                                 </td>
 
                                                 <td class="v-middle">
@@ -168,6 +171,7 @@
                                                         </a>
                                                         <ul class="dropdown-menu pull-right">
                                                             <li><a v-bind:href="urlAcademico(item.alumno)">Información académica</a></li>
+                                                            <li v-if='item.beneficioUtlimoCiclo == 0' class="pointer"><a v-on:click="solicitudBeneficio(item)">Beneficio útimo ciclo</a></li>
                                                         </ul>
                                                     </div>
                                                 </td>
