@@ -15,6 +15,7 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.consejeria.AlumnoConsejero;
 import pe.edu.lamolina.model.consejeria.TutorSolicitud;
 import pe.edu.lamolina.model.enums.EstadoEnum;
+import pe.edu.lamolina.model.enums.TutorSolicitudEnum;
 import pe.edu.lamolina.model.seguridad.Usuario;
 
 @Service
@@ -36,13 +37,9 @@ public class TutorSolicitudServiceImp implements TutorSolicitudService {
 
     @Override
     @Transactional
-    public void updateEstado(TutorSolicitud solicitud, Usuario usuario) {
-        TutorSolicitud tutorSolicitud = tutorSolicitudDAO.find(solicitud.getId());
-        if (tutorSolicitud.getEstadoEnum() == EstadoEnum.PEN) {
-            tutorSolicitud.setEstadoEnum(EstadoEnum.ACT);
-        } else {
-            tutorSolicitud.setEstadoEnum(EstadoEnum.PEN);
-        }
+    public void updateEstado(Long idAlumnoConsejero, String estado, Usuario usuario) {
+        TutorSolicitud tutorSolicitud = tutorSolicitudDAO.find(idAlumnoConsejero);
+        tutorSolicitud.setEstado(estado);
         tutorSolicitud.setUsuarioVerifica(usuario);
         tutorSolicitud.setFechaVerifica(new Date());
         tutorSolicitudDAO.update(tutorSolicitud);
@@ -57,8 +54,8 @@ public class TutorSolicitudServiceImp implements TutorSolicitudService {
         solicitud.setAlumnoConsejero(alumnoConsejero);
         solicitud.setUsuarioRegistra(ds.getUsuario());
         solicitud.setFechaRegistro(new Date());
-        solicitud.setEstadoEnum(EstadoEnum.PEN);
-        solicitud.setTipoSolicitud("BULT");//por si necesitan otra solicitud se crearia el enum
+        solicitud.setEstadoEnum(TutorSolicitudEnum.PEN);
+        solicitud.setTipoSolicitud("BULT");//BULT(Beneficio de Ultimo ciclo)por si necesitan otra solicitud se crearia el enum
         tutorSolicitudDAO.save(solicitud);
 
         AlumnoConsejero aluConsejero = alumnoConsejeroDAO.find(alumnoConsejero.getId());

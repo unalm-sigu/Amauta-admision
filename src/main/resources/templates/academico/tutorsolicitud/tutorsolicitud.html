@@ -83,8 +83,8 @@
                                                 <div class="actions">
                                                     <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="fa fa-cog"></i></a>
                                                     <ul class="dropdown-menu pull-right">
-                                                        <li v-if="item.estado == 'PEN'" class='pointer'><a v-on:click="updateEstado(item)">Aceptar</a></li>
-                                                        <li v-if="item.estado == 'ACT'" class='pointer'><a v-on:click="updateEstado(item)">Cancelar</a></li>
+                                                        <li v-if="item.estado == 'PEN'" class='pointer'><a v-on:click="updateEstado(item,'ACEP')">Aceptar</a></li>
+                                                        <li v-if="item.estado == 'PEN'" class='pointer'><a v-on:click="updateEstado(item,'NACEP')">No Procede</a></li>
                                                     </ul>
                                                 </div>
                                             </td>

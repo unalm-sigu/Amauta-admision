@@ -118,7 +118,7 @@ new Vue({
             var ciclo = item.cicloAcademico.descripcion;
 
 
-            swal('¿Esta seguro que desea dar el beneficio de último ciclo ' + alumno + ' en el ciclo ' + ciclo + ' ?', {
+            swal('¿Esta seguro que desea asignar el beneficio de último ciclo ' + alumno + ' en el ciclo ' + ciclo + ' ?', {
                 icon: "warning",
                 closeOnClickOutside: false,
                 closeOnEsc: false,
