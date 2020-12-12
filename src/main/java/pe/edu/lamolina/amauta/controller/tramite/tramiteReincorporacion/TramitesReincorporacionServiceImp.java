@@ -1,8 +1,13 @@
 package pe.edu.lamolina.amauta.controller.tramite.tramiteReincorporacion;
 
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
+import java.util.stream.Collectors;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,10 +18,12 @@ import org.thymeleaf.context.Context;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.amauta.controller.seriedocumento.SerieDocumentoService;
+import pe.edu.lamolina.amauta.dao.academico.AlumnoCicloCursoDAO;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoCicloDAO;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.amauta.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.amauta.dao.academico.MatriculaCursoDAO;
+import pe.edu.lamolina.amauta.dao.academico.TipoCursoCurriculaDAO;
 import pe.edu.lamolina.amauta.dao.tramite.EstadoTramiteDAO;
 import pe.edu.lamolina.amauta.dao.tramite.ReincorporacionDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TipoDocumentoCompaniaDAO;
@@ -28,9 +35,13 @@ import pe.edu.lamolina.amauta.zelper.pdf.PdfGenerator;
 import pe.edu.lamolina.amauta.zelper.pdf.TipoPdfEnum;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCiclo;
+import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Facultad;
+import pe.edu.lamolina.model.academico.TipoCursoCurricula;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
+import pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum;
+import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.DEP;
 import pe.edu.lamolina.model.enums.TipoDocumentoCompaniaEnum;
 import pe.edu.lamolina.model.enums.TipoTramiteEnum;
 import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
@@ -79,6 +90,12 @@ public class TramitesReincorporacionServiceImp implements TramiteReincorporacion
 
     @Autowired
     CicloAcademicoDAO cicloAcademicoDAO;
+
+    @Autowired
+    TipoCursoCurriculaDAO tipoCursoCurriculaDAO;
+
+    @Autowired
+    AlumnoCicloCursoDAO alumnoCicloCursoDAO;
 
     @Override
     public List<Reincorporacion> allTramitesByFilter(DynatableFilter filter, DataSessionPivot ds) {
@@ -141,18 +158,59 @@ public class TramitesReincorporacionServiceImp implements TramiteReincorporacion
         AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findLastByAlumno(alumno);
         Context ctx = new Context();
 
+        TipoCursoCurricula tipoCursoCurriculaDeporte = tipoCursoCurriculaDAO.findByCodigo(TipoCursoCurriculaEnum.DEP);
+        TipoCursoCurricula tipoCursoCurriculaGen = tipoCursoCurriculaDAO.findByCodigo(TipoCursoCurriculaEnum.GEN);
+        List<AlumnoCicloCurso> alumnoCicloCursos = alumnoCicloCursoDAO.allActivosByAlumno(alumno);
+        for (AlumnoCicloCurso alumnoCicloCurso : alumnoCicloCursos) {
+            if (alumnoCicloCurso.getTipoCursoCurricula() != null && alumnoCicloCurso.getTipoCursoCurricula().getCodigoEnum() == DEP) {
+                if (alumnoCicloCurso.getCreditos() > 0) {
+
+                    alumnoCicloCurso.setTipoCursoCurricula(tipoCursoCurriculaGen);
+                }
+            }
+            if (alumnoCicloCurso.getTipoCursoCurricula() == null) {
+                alumnoCicloCurso.setTipoCursoCurricula(tipoCursoCurriculaDeporte);
+            }
+        }
+        Map<TipoCursoCurricula, List<AlumnoCicloCurso>> historial = alumnoCicloCursos
+                .stream()
+                .filter(x -> x.isAprobado())
+                .collect(Collectors.groupingBy(acc -> acc.getTipoCursoCurricula()));
+
+        SortedMap<TipoCursoCurricula, List<AlumnoCicloCurso>> historialSorted = new TreeMap<>(Comparator.comparing(TipoCursoCurricula::getOrden));
+        historialSorted.putAll(historial);
+
+        int creditosConvalidados = 0;
+
+        List<AlumnoCicloCurso> listAlumnoCicloCurso = alumnoCicloCursoDAO.allByAlumnoOrderByTipoCurso(alumno);
+
+        for (AlumnoCicloCurso alumnoCicloCurso : listAlumnoCicloCurso) {
+            if (alumnoCicloCurso.getNota().equals("TE")) {
+                creditosConvalidados = creditosConvalidados + alumnoCicloCurso.getCreditos();
+            }
+        }
+
+        alumno.setCreditosConvalidadosTransient(creditosConvalidados);
+        
         ctx.setVariable("alumno", alumno);
         ctx.setVariable("alumnoCiclo", alumnoCiclo);
+        ctx.setVariable("historial", historialSorted);
         ctx.setVariable("tramite", tramite);
         ctx.setVariable("ciclo", ds.getCicloAcademico());
         ctx.setVariable("fecha", TypesUtil.getStringDate(new DateTime().toDate(), " dd 'de' MMMM 'del' yyyy", "es"));
 //
+
+        PdfContent pdfHistorial = new PdfContent();
+        pdfHistorial.setContext(ctx);
+        pdfHistorial.setTipoPdfEnum(TipoPdfEnum.HISTORIAL_ACADEMICO_TRAMITE);
+
         PdfContent pdfRetiroExcepcional = new PdfContent();
         pdfRetiroExcepcional.setContext(ctx);
         pdfRetiroExcepcional.setTipoPdfEnum(TipoPdfEnum.DETALLE_REINCORPORACION);
 //
         List<String> pdfs = Arrays.asList(
-                pdfGenerator.generateDocument(pdfRetiroExcepcional)
+                pdfGenerator.generateDocument(pdfRetiroExcepcional),
+                pdfGenerator.generateDocument(pdfHistorial)
         );
 //
         return pdfs;

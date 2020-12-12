@@ -185,17 +185,9 @@ public class TramitesBachillerServiceImp implements TramitesBachillerService {
         ctx.setVariable("fecha", TypesUtil.getStringDate(new DateTime().toDate(), " dd 'de' MMMM 'del' yyyy", "es"));
 //        ctx.setVariable("alumnoCicloCurso", listAlumnoCicloCurso);
 
-        PdfContent pdfMatriculados = new PdfContent();
-        pdfMatriculados.setContext(ctx);
-        pdfMatriculados.setTipoPdfEnum(TipoPdfEnum.CURSOS_MATRICULADOS);
-
         PdfContent pdfHistorial = new PdfContent();
         pdfHistorial.setContext(ctx);
         pdfHistorial.setTipoPdfEnum(TipoPdfEnum.HISTORIAL_ACADEMICO_TRAMITE);
-
-        PdfContent pdfHorario = new PdfContent();
-        pdfHorario.setContext(ctx);
-        pdfHorario.setTipoPdfEnum(TipoPdfEnum.HORARIO);
 
         PdfContent pdfBachiller = new PdfContent();
         pdfBachiller.setContext(ctx);

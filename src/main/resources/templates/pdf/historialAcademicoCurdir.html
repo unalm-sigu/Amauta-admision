@@ -73,7 +73,10 @@
         <table class="table table-plan" style="margin-bottom: 30px">
             <thead>
                 <tr>
-                    <td colspan="28" style="background-color: black; color: white" class="text-center"><b th:inline="text"> Cursos [[${item.key.nombre}]]</b></td>
+                    <td colspan="28" style="background-color: black; color: white" class="text-center">
+                        <b th:inline="text" th:if="${item.key.codigo != 'DEP'}"> Cursos [[${item.key.nombre}]]</b>
+                        <b th:inline="text" th:if="${item.key.codigo == 'DEP'}"> Cursos Talleres Propedeútico</b>
+                    </td>
                 </tr>
                 <tr>
                     <td style="width: 66.56%" colspan="16" ><b> Nombre del curso  </b></td>
