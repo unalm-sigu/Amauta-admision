@@ -20,19 +20,18 @@ new Vue({
     },
     methods: {
         style(item) {
-            var colorEstado = {PEN: 'warning', ACT: 'success'};
+            var colorEstado = {PEN: 'warning', ACEP: 'success', NACEP: 'danger'};
             var res = colorEstado[item];
-            if (res === undefined) {
-                return "label label-danger";
-            }
+
             return "label label-" + res;
         },
         estadoValue(item) {
-            var estadoEnum = {PEN: 'Pendiente', ACT: 'Aceptado'};
+            var estadoEnum = {PEN: 'Pendiente', ACEP: 'Aceptado', NACEP: 'No Procede'};
             return estadoEnum[item];
         },
-        updateEstado(item) {
+        updateEstado(item, estado) {
             let $vue = this;
+
             bootbox.confirm({
                 message: "Esta seguro de dar el beneficio de ultimo ciclo?",
                 buttons: {
@@ -50,8 +49,7 @@ new Vue({
                         $.ajax({
                             method: 'POST',
                             url: APP.url("academico/tutorsolicitud/updateEstado"),
-                            data: JSON.stringify(item),
-                            contentType: "application/json",
+                            data: {id: item.id, estado: estado},
                         }).then(response => {
                             notify(response.message, 'info');
                             $vue.$refs.load.loadRemoteData();

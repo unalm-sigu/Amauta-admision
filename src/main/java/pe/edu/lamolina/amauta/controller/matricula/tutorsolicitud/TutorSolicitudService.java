@@ -12,7 +12,7 @@ public interface TutorSolicitudService {
 
     List<TutorSolicitud> allTutorSolicitudByFilter(DynatableFilter filter, CicloAcademico ciclo);
 
-    void updateEstado(TutorSolicitud solicitud, Usuario usuario);
+    void updateEstado(Long idAlumnoConsejero, String estado, Usuario usuario);
 
     void solicitudBeneficio(AlumnoConsejero alumnoConsejero, DataSessionPivot ds);
 

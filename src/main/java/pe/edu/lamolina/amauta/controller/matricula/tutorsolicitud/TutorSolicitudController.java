@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
@@ -29,6 +30,7 @@ import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.consejeria.AlumnoConsejero;
 import pe.edu.lamolina.model.consejeria.TutorSolicitud;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.model.seguridad.Usuario;
@@ -119,7 +121,7 @@ public class TutorSolicitudController {
 
     @ResponseBody
     @RequestMapping("updateEstado")
-    public JsonResponse updateEstado(@RequestBody TutorSolicitud solicitud, HttpSession session) {
+    public JsonResponse updateEstado(@RequestParam("id") Long idAlumnoConsejero, @RequestParam("estado") String estado, HttpSession session) {
 
         JsonResponse response = new JsonResponse();
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
@@ -127,7 +129,7 @@ public class TutorSolicitudController {
         response.setSuccess(false);
 
         try {
-            service.updateEstado(solicitud,usuario);
+            service.updateEstado(idAlumnoConsejero, estado, usuario);
             response.setMessage("Se actualizó correctamente.");
             response.setSuccess(true);
 
