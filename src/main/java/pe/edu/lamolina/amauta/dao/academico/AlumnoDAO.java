@@ -144,4 +144,6 @@ public interface AlumnoDAO extends EasyDAO<Alumno> {
 
     List<Alumno> pendientesHistorial(CicloAcademico cicloAcademico);
 
+    List<Alumno> allByNoMatriculableCicloAnt(List<CicloAcademico> cicloAnt);
+
 }

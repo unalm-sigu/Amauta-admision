@@ -73,7 +73,10 @@
         <table class="table table-plan" style="margin-bottom: 30px">
             <thead>
                 <tr>
-                    <td colspan="28" style="background-color: black; color: white" class="text-center"><b th:inline="text"> [[${item.key.nombre}]]</b></td>
+                    <td colspan="28" style="background-color: black; color: white" class="text-center">
+                        <b th:inline="text" th:if="${item.key.codigo != 'DEP'}"> Cursos [[${item.key.nombre}]]</b>
+                        <b th:inline="text" th:if="${item.key.codigo == 'DEP'}"> Cursos Talleres Propedeútico</b>
+                    </td>
                 </tr>
                 <tr>
                     <td style="width: 66.56%" colspan="16" ><b> Nombre del curso  </b></td>
@@ -125,9 +128,15 @@
                         </td>
                     </tr>
                     <tr>
+                        <td class="text-center" th:if='${alumnoCiclo.alumno.creditosConvalidados != 0}'> 
+                            <span >Créditos Convalidado:</span>
+                            <span th:text="${alumnoCiclo.alumno.creditosConvalidados}"> creditos cursados semestral </span>
+                        </td>
+                    </tr>
+                    <tr>
                         <td class="text-center"> 
                             <span > Promedio Ponderado: </span>
-                            <span th:text="${alumnoCiclo.promedioAcumulado}"> creditos cursados semestral </span>
+                            <span th:text="${#numbers.formatDecimal(alumnoCiclo.promedioAcumulado, 0, 'DEFAULT', 2, 'DEFAULT')}"> creditos cursados semestral </span>
                         </td>
                     </tr>
                 </tbody>

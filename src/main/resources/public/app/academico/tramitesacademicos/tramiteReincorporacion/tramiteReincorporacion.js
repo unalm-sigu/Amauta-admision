@@ -4,8 +4,8 @@ var app = new Vue({
     data: {
         URL_TRAMITES: APP.url('academico/tramiteacademico/tramiteReincorporacion/list'),
         ciclos: JSON.parse(ciclosJson),
-        modalResolucion: {
-            id: 'modalResolucion',
+        modalRincorporacion: {
+            id: 'modalRincorporacion',
             header: true,
             title: 'Agregar Reincorporación ',
             okbtn: "Guardar",
@@ -38,7 +38,7 @@ var app = new Vue({
         nuevo() {
             let $vue = this;
             $vue.reincorporacion = {};
-            $vue.$refs.modalResolucion.open();
+            $vue.$refs.modalRincorporacion.open();
         },
         customLabel( {persona, codigo}){
             if (persona != null) {
@@ -67,7 +67,7 @@ var app = new Vue({
 
             }
         },
-        saveRetiro() {
+        saveRincorporacion() {
             let $vue = this;
             if (!$("#form").parsley().validate()) {
                 return;
@@ -85,11 +85,11 @@ var app = new Vue({
                     } else {
                         notify(response.message, "error");
                     }
-                    $vue.$refs.modalResolucion.close();
+                    $vue.$refs.modalRincorporacion.close();
                     MODAL.hideWait();
                 },
                 error: function () {
-                    $vue.$refs.modalResolucion.close();
+                    $vue.$refs.modalRincorporacion.close();
                     notify(Messages.errorComunicacion, "error");
                 }
             });

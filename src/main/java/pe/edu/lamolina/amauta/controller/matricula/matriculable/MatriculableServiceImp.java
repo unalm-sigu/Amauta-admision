@@ -485,11 +485,10 @@ public class MatriculableServiceImp implements MatriculableService {
         List<Alumno> alumnos = visorCalculoNotas.allAlumnosByToken(tokenProm);
 
         TypesUtil.delay(2000);
-
+        alumnos = alumnoDAO.allByAlumnos(alumnos);
         ListBeanPromedios bean = promedioLoadDataService.loadDataAlumno(alumnos);
 
         List<CicloAcademico> ciclos = bean.getCiclos();
-        List<CicloAcademico> ciclosActivos = bean.getCiclosActivos();
         CicloAcademico cicloPregrado = bean.getCicloPregrado();
         CicloAcademico cicloPosgrado = bean.getCicloPosgrado();
 
@@ -1550,9 +1549,9 @@ public class MatriculableServiceImp implements MatriculableService {
 
     @Async
     @Override
-    public void verificarAlumnosNmat(DataSessionPivot ds, List<AlumnoCiclo> alumnoCiclosForm) {
+    public void verificarAlumnosNmat(DataSessionPivot ds, List<Alumno> alumnoCiclosForm) {
 
-        List<Alumno> alumnos = alumnoCiclosForm.stream().map(x -> x.getAlumno()).collect(Collectors.toList());
+        List<Alumno> alumnos = alumnoCiclosForm;
         alumnos = alumnoDAO.allInfoByAlumnos(alumnos);
         TypesUtil.delay(2000);
 
@@ -1564,8 +1563,8 @@ public class MatriculableServiceImp implements MatriculableService {
         CicloAcademico ciclo = ds.getCicloAcademico();
 
         List<CicloAcademico> ciclosAcademicos = bean.getCiclos();
-        List<CicloAcademico> ciclosActivos = bean.getCiclosActivos();
-        Map<String, CicloAcademico> mapCiclo = TypesUtil.convertListToMap("modalidadEstudio.codigo", ciclosActivos);
+//        List<CicloAcademico> ciclosActivos = bean.getCiclosActivos();
+//        Map<String, CicloAcademico> mapCiclo = TypesUtil.convertListToMap("modalidadEstudio.codigo", ciclosActivos);
 
         List<Egresado> egresados = bean.getEgresados();
         List<AlumnoCiclo> alumnosCiclosAll = bean.getAlumnosCiclosAll();
@@ -1580,7 +1579,7 @@ public class MatriculableServiceImp implements MatriculableService {
         Map<Long, Egresado> mapEgresados = TypesUtil.convertListToMap("alumno.id", egresados);
 
         for (Alumno alumno : alumnos) {
-            CicloAcademico cicloActivo = mapCiclo.get(alumno.getModalidadEstudio().getCodigo());
+//            CicloAcademico cicloActivo = mapCiclo.get(alumno.getModalidadEstudio().getCodigo());
             List<AlumnoCiclo> allAlumnoCiclos = TypesUtil.getListNotNull(mapAlumnoCiclo.get(alumno.getId()));
             List<AlumnoCicloCurso> alumnoCicloCursosActivos = TypesUtil.getListNotNull(mapAlumnoCicloCursoActivos.get(alumno.getId()));
             List<AlumnoCicloCurso> alumnoCicloCursosAll = TypesUtil.getListNotNull(mapAlumnoCicloCursoAll.get(alumno.getId()));
@@ -1591,7 +1590,7 @@ public class MatriculableServiceImp implements MatriculableService {
 
             promedioService.promediarAllCicloAsync(
                     alumno,
-                    cicloActivo,
+                    ciclo,
                     egresado,
                     ciclosAcademicos,
                     allAlumnoCiclos,
@@ -1605,7 +1604,7 @@ public class MatriculableServiceImp implements MatriculableService {
             for (;;) {
                 if (respositorVisor.getContador() < visorCalculoNotas.getCantidadByToken(token)) {
                     System.out.println("Ya van " + visorCalculoNotas.getCantidadByToken(token) + " alumnos procesados");
-                    respositorVisor.incrementar();
+//                    respositorVisor.incrementar();
                     logger.info("Cantidad de {} total {}", respositorVisor.getContador(), respositorVisor.getCantidadTotal());
                 } else {
                     break;
@@ -1640,11 +1639,12 @@ public class MatriculableServiceImp implements MatriculableService {
     }
 
     @Override
-    public List<AlumnoCiclo> allAlumnosCicloNmat(CicloAcademico cicloActivo) {
+    public List<Alumno> allAlumnosCicloNmat(CicloAcademico cicloActivo) {
         List<CicloAcademico> cicloAnt = cicloAcademicoDAO.findAnteriorRegular(cicloActivo);
-        List<AlumnoCiclo> alumnoCiclos = alumnoCicloDAO.allByNmatAndInh(cicloAnt);
-        respositorVisor.iniciar(alumnoCiclos.size());
-        return alumnoCiclos;
+//        List<AlumnoCiclo> alumnoCiclos = alumnoCicloDAO.allByNmatAndInh(cicloAnt);
+        List<Alumno> alumnos = alumnoDAO.allByNoMatriculableCicloAnt(cicloAnt);
+        respositorVisor.iniciar(alumnos.size());
+        return alumnos;
     }
 
     @Override

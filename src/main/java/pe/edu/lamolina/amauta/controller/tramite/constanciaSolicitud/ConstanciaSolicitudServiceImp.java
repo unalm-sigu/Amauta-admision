@@ -989,6 +989,9 @@ public class ConstanciaSolicitudServiceImp implements ConstanciaSolicitudService
                 case CANTIDAD_CURSOS_APROBADOS:
                     htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), alumno.getCursosAprobados().toString());
                     break;
+                case PROMEDIO_PONDERADO_ACADEMICO:
+                    htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), alumno.getPromedioAcumulado().toString());
+                    break;
                 case FECHA_ULTIMA_MATRICULA:
                     htmlContent = htmlContent.replace(var.getVariableGenerica().getCodigo(), TypesUtil.getStringDate(eventoFinAcademico.getFechaFin(), "dd/MM/yyyy"));
                     break;

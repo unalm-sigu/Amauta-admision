@@ -90,7 +90,7 @@
                             <span >Informe N°: </span>
                         </td>
                         <td>
-                            <span th:text="${bachiller.tramite.numero}"></span>/<span th:text="${bachiller.tramite.serie}"></span>
+                            <span th:text="${tramite.numero}"></span>/<span th:text="${tramite.serie}"></span>
                         </td>
 
                     </tr>
@@ -115,7 +115,7 @@
                             <span >Asunto: </span>
                         </td>
                         <td>
-                            <span th:text=" 'GRADO DE BACHILLER'"></span>
+                            <span th:text=" 'Solicita REINCORPORACIÓN (Art. 142)'"></span>
                         </td>
 
                     </tr>
@@ -135,26 +135,45 @@
         </div>
         <br/>
         <div>
-            <span > Con relación a la solicitud sobre <b>GRADO DE BACHILLER</b>, presentado por: <b class="" th:text="${alumno.persona.apellidosNombres.toUpperCase()}"></b> con matricula <b th:text="${alumno.codigo}"></b> de la especialidad de <b th:text="${alumno.carrera.nombre.toUpperCase()}"></b>
-                , informo a usted, lo siguiente: </span>
+            <span >Adjunto al presente remito el Historial Académico del alumno(a) <b th:text="${alumno.persona.apellidosNombres.toUpperCase()}"></b> identificado(a) con el N° <b th:text="${alumno.codigo}"></b> en el registro
+                de matricula, quien ha realizado estudios hasta el <b th:text="${alumno.cicloActivo.descripcion}"></b> y ha obtenido el siguiente resultado:</span>
         </div>
 
         <div >            
-            <table  >
+            <table  align="center">
+                <thead >
+                    <tr  >
+                        <th colspan="2" style="text-align: center"><b>SITUACIÓN ACADEMICO CICLO <span th:text="${alumno.cicloActivo.descripcion}"></span></b></th>
+                    </tr>
+                </thead>
                 <tbody >
-
-
                     <tr >
                         <td >
-                            <span >Fecha Primer Matricula: </span>
+                            <span >PROMEDIO PONDERADO SEMESTRAL: </span>
                         </td>
                         <td >
-                            <span th:text=" ${fechaPrimaMatricula}"></span> 
+                            <span th:text="${#numbers.formatDecimal(alumno.promedioUltimoCiclo, 0, 'DEFAULT', 2, 'DEFAULT')} "></span> 
                         </td>
                     </tr>
                     <tr >
                         <td >
-                            <span >Total Creditos Aprobados: </span>
+                            <span >PROMEDIO PONDERADO ACUMULADO: </span>
+                        </td>
+                        <td >
+                            <span th:text="${#numbers.formatDecimal(alumno.promedioAcumulado, 0, 'DEFAULT', 2, 'DEFAULT')}"></span>
+                        </td>
+                    </tr>
+                    <tr >
+                        <td >
+                            <span >TOTAL DE CRÉDITOS CURSADOS: </span>
+                        </td>
+                        <td >
+                            <span th:text="${alumno.creditosCursados}"></span>
+                        </td>
+                    </tr>
+                    <tr >
+                        <td >
+                            <span >TOTAL DE CREDITOS APROBADOS: </span>
                         </td>
                         <td >
                             <span th:text="${alumnoCiclo.creditosAprobadosAcumulados}"></span>
@@ -162,35 +181,19 @@
                     </tr>
                     <tr >
                         <td >
-                            <span >Profesor Consejero: </span>
+                            <span >SITUACIÓN ACADÉMICA: </span>
                         </td>
-                        <td th:if='${alumno.consejero}'>
+                        <td >
+                            <span th:text="${alumnoCiclo.situacionInicio.nombre}"></span>
+                        </td>
+                    </tr>
+                    <tr >
+                        <td >
+                            <span >TUTOR: </span>
+                        </td>
+                        <td >
                             <span th:if="${alumno.consejero.colaborador} != null" th:text="${alumno.consejero.colaborador.persona.apellidosNombres}"></span>
 
-                        </td>
-                    </tr>
-                    <tr >
-                        <td >
-                            <span >Ciclo Egreso: </span>
-                        </td>
-                        <td >
-                            <span th:text="${alumnoCiclo.cicloAcademico.descripcion2}"></span>
-                        </td>
-                    </tr>
-                    <tr >
-                        <td >
-                            <span >Fecha Egreso: </span>
-                        </td>
-                        <td >
-                            <span th:text="${fechaEgreso}"></span>
-                        </td>
-                    </tr>
-                    <tr >
-                        <td >
-                            <span >Se Adjunta: </span>
-                        </td>
-                        <td >
-                            Copia del Historial Académico
                         </td>
                     </tr>
 
@@ -199,7 +202,7 @@
         </div>
 
         <div style="text-align: center">
-                        <pre >Atentamente,</pre>
+            <!--            <pre >Atentamente,</pre>-->
 
             <br/>
             <br/>

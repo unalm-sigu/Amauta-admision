@@ -1,0 +1,35 @@
+<modal-vik ref="modalTramBachiller"
+           v-bind="modalTramBachiller"
+           v-bind:okaction="saveTramiteBachiller">
+    <div slot="body">
+        <div class="modal-body">
+            <form id="form" data-parsley-validate="true">
+                <div class="row m-b-md">
+                    <div class="form-group row">
+                        <div class="col-md-12">
+                            <label>Alumno</label>
+                            <multiselect v-model="tramiteBachiller.alumno" 
+                                         v-bind:options='alumnos'
+                                         v-on:search-change="loadAlumno"
+                                         v-bind:custom-label='customLabel'
+                                         track-by='id'
+                                         v-bind:show-labels="false"
+                                         v-bind:allow-empty="false"
+                                         v-bind:internal-search='false'
+                                         placeholder="Ingresa un caracter como mínimo"                                         
+                                         required="true" >
+                                <template slot="option" slot-scope="props">
+                                    <div class="option__desc">
+                                        <span class="option__title block bold">{{ props.option.persona.nombreCompleto }} </span>
+                                        <span class="option__small">{{ props.option.persona.tipoDocumento.simbolo }} - {{ props.option.persona.numeroDocIdentidad }}</span>
+                                    </div>
+                                </template>
+                            </multiselect>
+                            <input v-model="tramiteBachiller.alumno" required="true" type="text" class="hide"/>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</modal-vik>
