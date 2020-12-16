@@ -1493,11 +1493,9 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
         for (Alumno alumno : alumnos) {
 
 //            OrientacionCarrera orientacionCarrera = alumno.getOrientacionCarrera();
-
             List<AlumnoAvanceCurricular> avanceCurriculars = alumnosAvanceCurriculars.stream().filter(x -> Objects.equals(x.getAlumno().getId(), alumno.getId())).collect(Collectors.toList());
 
 //            String codigoCicloAlumno = (String) ObjectUtil.getParentTree(alumno, "cicloIngreso.codigo");
-
 //            count++;
 //            String codigoCicloPlan = this.getIndiceCicloAcademico(codigoCicloAlumno, codigosCiclosPlanes);
 //            List<PlanCurricular> planesBD = mapPlanesByCiclo.get(codigoCicloPlan);
@@ -1507,7 +1505,6 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
 //            } else {
 //                planCurricularBD = planesBD.get(0);
 //            }
-
             PlanCurricular planBD = alumno.getPlanCurricular();
 
             List<ResumenPlanCurricular> resumenPlanCurriculars = mapResumenPlanCurriculaAll.get(planBD.getId());
@@ -1736,6 +1733,16 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
                 restoCreditosELC = restoCreditosELC - resumenTEC.getMinimoCreditos();
             }
 
+            if (resumenELE == null) {
+                resumenELE = new ResumenPlanCurricular();
+                resumenELE.setPlanCurricular(resumenForm.getPlanCurricular());
+                resumenELE.setTipoCursoCurricula(tipoCurriculaELE);
+                resumenELE.setCreditos(0);
+                resumenELE.setCursos(0);
+                resumenELE.setMinimoCreditos(0);
+                resumenPlanCurricularDAO.save(resumenELE);
+            }
+
             resumenELE.setMinimoCreditos(0);
             resumenELE.setCreditos(restoCreditosELC);
             resumenPlanCurricularDAO.update(resumenELE);
@@ -1769,7 +1776,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
 //                    resumenPlanCurricularDAO.save(rpcs);
 //                }
                 if (!cc.isEmpty()) {
-                    
+
                     rpcs.setCreditos(count);
                     rpcs.setMinimoCreditos(count);
                     rpcs.setCursos(cc.size());

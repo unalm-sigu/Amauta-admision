@@ -27,22 +27,21 @@
     <td class="v-middle text-center">
         <span v-if="resolucion.tipoResolucion != null" class="block text-muted" v-text="resolucion.tipoResolucion.nombre"></span>
     </td> 
-    <!--                                            <td class="v-middle text-left" v-if="!isTrasladoInt">
-                                                    <div class="form-group">
-                                                        <multiselect 
-                                                            v-model="tramiteTraslado.cicloAcademico" 
-                                                            v-bind:options="ciclos"
-                                                            placeholder="Seleccione un ciclo"
-                                                            label="descripcion"
-                                                            track-by="id" 
-                                                            required="true"
-                                                            v-bind:allow-empty="true"
-                                                            deselect-label="No se puede eliminar este valor" 
-                                                            >
-                                                        </multiselect>
-                                                        <input v-model="tramiteTraslado.cicloAcademico" required="true" type="text" class="hide"/>
-                                                    </div>
-                                                </td>-->
+    <td class="v-middle text-left" v-if="!isTrasladoInt">
+        <div class="form-group">
+            <multiselect 
+                v-model="tramiteTraslado.cicloAcademico" 
+                v-bind:options="ciclos"
+                placeholder="Seleccione un ciclo"
+                label="descripcion"
+                track-by="id" 
+                required="true"
+                v-bind:allow-empty="true"
+                >
+            </multiselect>
+            <input v-model="tramiteTraslado.cicloAcademico" required="true" type="text" class="hide"/>
+        </div>
+    </td>
     <td class="v-middle text-left" v-if="isTrasladoInt">
         <div class="form-group">
             <multiselect 
