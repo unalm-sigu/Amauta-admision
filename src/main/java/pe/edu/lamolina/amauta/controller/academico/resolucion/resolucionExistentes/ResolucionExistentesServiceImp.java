@@ -51,7 +51,6 @@ import pe.edu.lamolina.model.enums.TipoOficinaEnum;
 import pe.edu.lamolina.model.enums.TipoResolucionEnum;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.ING_HIS;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.TRAS;
-import static pe.edu.lamolina.model.enums.TipoResolucionEnum.TRAS_INT;
 import pe.edu.lamolina.model.enums.TipoRetiroCicloEnum;
 import pe.edu.lamolina.model.enums.TipoTramiteEnum;
 import pe.edu.lamolina.model.enums.TipoTramiteTrasladoEnum;
@@ -90,6 +89,8 @@ import pe.edu.lamolina.amauta.dao.academico.AnexoBoletinDAO;
 import pe.edu.lamolina.amauta.dao.academico.CarreraDAO;
 import pe.edu.lamolina.amauta.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.amauta.dao.academico.CursoOpcionalCurriculaDAO;
+import pe.edu.lamolina.amauta.dao.academico.EgresadoDAO;
+import pe.edu.lamolina.amauta.dao.academico.EventoCicloAcademicoDAO;
 import pe.edu.lamolina.amauta.dao.academico.GradoAcademicoDAO;
 import pe.edu.lamolina.amauta.dao.academico.MatriculaCursoDAO;
 import pe.edu.lamolina.amauta.dao.academico.MatriculaResumenDAO;
@@ -114,7 +115,11 @@ import pe.edu.lamolina.amauta.dao.tramite.TramiteBachillerDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TramiteDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TramiteTrasladoDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.academico.Egresado;
+import pe.edu.lamolina.model.academico.EventoCicloAcademico;
 import pe.edu.lamolina.model.academico.GradoAcademico;
+import pe.edu.lamolina.model.enums.EventoAcademicoEnum;
+import static pe.edu.lamolina.model.enums.TipoCondicionalEnum.TRAS_INT;
 import pe.edu.lamolina.model.enums.TipoGradoAcademicoEnum;
 import static pe.edu.lamolina.model.enums.TipoTramiteEnum.INTES;
 import pe.edu.lamolina.model.tramite.ObtencionGrado;
@@ -207,6 +212,12 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
     @Autowired
     GradoAcademicoDAO gradoAcademicoDAO;
 
+    @Autowired
+    EventoCicloAcademicoDAO eventoCicloAcademicoDAO;
+
+    @Autowired
+    EgresadoDAO egresadoDAO;
+
     @Override
     public List<Alumno> allAlumnoByOficina(String nombre, Long instanciaOficina) {
         Oficina oficina = instanciaOficina == null ? null : oficinaDAO.find(instanciaOficina);
@@ -244,67 +255,6 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
 
         Assert.isFalse(resolucionForm.getReincorporaciones().isEmpty(), "Debe Agregar alumnos.");
 
-//        
-//        Map<Long, Long> couterMap = resolucionForm.getReincorporaciones().stream().collect(Collectors.groupingBy(e -> e.getAlumno().getId(), Collectors.counting()));
-//        for (Long count : couterMap.values()) {
-//            Assert.isFalse(count > 1, "Está repitiendo alumno");
-//        }
-//        List<Reincorporacion> reincorporacions = reincorporacionDAO.allByCicloReincorporacion(ds.getCicloAcademico());
-//        Map<Long, Reincorporacion> map = TypesUtil.convertListToMap("alumno.id", reincorporacions);
-//
-//        EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.SOL_ACEP);
-//        for (Reincorporacion reincorporacione : resolucionForm.getReincorporaciones()) {
-//            reincorporacione.setCicloReincorporacion(resolucionForm.getCicloAplica());
-//
-//            Reincorporacion reincorporacion = map.get(reincorporacione.getAlumno().getId());
-//            if (reincorporacion != null) {
-//                throw new PhobosException("El alumno" + reincorporacione.getAlumno().getCodigo() + " ya cuenta con una resolución para el ciclo activo");
-//            }
-//            if (!Objects.equals(reincorporacione.getCicloReincorporacion().getId(), ds.getCicloAcademico().getId())) {
-//                throw new PhobosException("El alumno debe reincorporarce en el ciclo actual.");
-//            }
-//            DateTime today = new DateTime();
-//            TipoDocumentoCompania tipoDocumentoCompania = tipoDocumentoCompaniaDAO.findByCodigo(TipoDocumentoCompaniaEnum.TRAM);
-//            SerieDocumento serieDocumento = serieDocumentoService.getCorrelativo(tipoDocumentoCompania, Long.valueOf(today.getYear()), ds.getUsuario());
-//            TipoTramite tipoTramite = tipoTramiteDAO.findByCodigo(TipoTramiteEnum.REI.name());
-//            Alumno alumno = alumnoDAO.find(reincorporacione.getAlumno());
-//
-//            Tramite tramite = new Tramite();
-//            tramite.setActivo(true);
-//            tramite.setCompania(ds.getCompania());
-//            tramite.setAlumno(alumno);
-//            tramite.setCicloAcademico(ds.getCicloAcademico());
-//            tramite.setEstadoEnum(TramiteEstadoEnum.ACEP);
-//            tramite.setFechaRegistro(new Date());
-//            tramite.setPersona(alumno.getPersona());
-//            tramite.setEstadoTramite(estadoTramite);
-//            tramite.setTipoTramite(tipoTramite);
-//            tramite.setNumero(Long.valueOf(serieDocumento.getNumeroDocumento()));
-//            tramite.setSerie(Long.valueOf(serieDocumento.getNumeroSerie()));
-//            tramite.setUserRegistro(ds.getUsuario());
-//            tramiteDAO.save(tramite);
-//
-//            Facultad facultad = reincorporacione.getAlumno().getCarrera().getFacultad();
-//            reincorporacione.setAceptado(1);
-//            reincorporacione.setFechaRegistro(new Date());
-//            reincorporacione.setResolucion(resolucion);
-//            reincorporacione.setEstadoTramite(estadoTramite);
-//            reincorporacione.setUserRegistro(usuario);
-//            reincorporacione.setFacultad(facultad);
-//            reincorporacione.setEsCondicional(Boolean.FALSE);
-//            reincorporacione.setTramite(tramite);
-//            reincorporacionDAO.save(reincorporacione);
-//            alumnos.add(alumno);
-//        }
-//
-//        String token = RandomStringUtils.randomAlphanumeric(43);
-//        String tokenProm = token + TOKEN_PROMEDIOS;
-//        String tokenCurri = token + TOKEN_CURRICULA;
-//        String tokenMatri = token + TOKEN_MATRICULABLE;
-//
-//        visorCalculoNotas.createToken(tokenProm, alumnos);
-//        visorCalculoNotas.createToken(tokenCurri, alumnos);
-//        visorCalculoNotas.createToken(tokenMatri, alumnos);
         return this.saveReincorporaciones(resolucionForm, resolucion, ds);
     }
 
@@ -340,105 +290,6 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
         resolucionDAO.save(resolucion);
 
         Assert.isFalse(resolucionForm.getRetiroCiclo().isEmpty(), "Debe Agregar alumnos.");
-//        EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.SOL_ACEP);
-//
-//        for (RetiroCiclo retiroCicloForm : resolucionForm.getRetiroCiclo()) {
-//
-//            retiroCicloForm.setCicloAcademico(resolucionForm.getCicloAplica());
-//            Alumno alumno = retiroCicloForm.getAlumno();
-//            Alumno alumnoDB = alumnoDAO.find(alumno);
-//
-//            RetiroCiclo retiroCiclo = retiroCicloDAO.findByAlumnoCicloRegistro(alumno, retiroCicloForm.getCicloAcademico());
-//            Assert.isNull(retiroCiclo, "El alumno " + alumnoDB.getPersona().getApellidosNombres() + " ya cuenta con un trámite retiro ciclo.");
-//
-//            ModalidadEstudioEnum modalidadEnum = alumnoDB.getModalidadEstudio().getOperativeModalidadEnum();
-//            CicloAcademico cicloRetiro = cicloAcademicoDAO.findByCodigoCicloModalidadEnum(retiroCicloForm.getCicloAcademico().getCodigo(), modalidadEnum);
-//            retiroCicloForm.setCicloAcademico(cicloRetiro);
-//
-//            List<AlumnoCiclo> alumnoCiclos = alumnoCicloDAO.allByAlumnoDescRegular(alumno);
-//            List<CicloAcademico> ciclo = alumnoCiclos.stream().map(x -> x.getCicloAcademico()).collect(Collectors.toList());
-//            Boolean exist = false;
-//            for (CicloAcademico cicloAcademico : ciclo) {
-//                if (Objects.equals(cicloAcademico.getId(), retiroCicloForm.getCicloAcademico().getId())) {
-//                    exist = true;
-//                    break;
-//                }
-//            }
-//            Assert.isTrue(exist, "El alumno " + alumnoDB.getPersona().getApellidosNombres() + " no tiene actividad en el ciclo " + retiroCicloForm.getCicloAcademico().getDescripcion());
-//
-//            DateTime today = new DateTime();
-//            TipoDocumentoCompania tipoDocumentoCompania = tipoDocumentoCompaniaDAO.findByCodigo(TipoDocumentoCompaniaEnum.TRAM);
-//            SerieDocumento serieDocumento = serieDocumentoService.getCorrelativo(tipoDocumentoCompania, Long.valueOf(today.getYear()), ds.getUsuario());
-//
-//            TipoTramite tipoTramite = null;
-//            if (resolucion.isTipoRetiroCiclo()) {
-//                tipoTramite = tipoTramiteDAO.findByCodigo(TipoTramiteEnum.RCI.name());
-//            } else if (resolucion.isTipoAnulacionCiclo()) {
-//                tipoTramite = tipoTramiteDAO.findByCodigo(TipoTramiteEnum.ANCI.name());
-//            }
-//
-//            Tramite tramite = new Tramite();
-//            tramite.setActivo(true);
-//            tramite.setCompania(ds.getCompania());
-//            tramite.setAlumno(alumnoDB);
-//            tramite.setCicloAcademico(ds.getCicloAcademico());
-//            tramite.setEstadoEnum(TramiteEstadoEnum.ACEP);
-//            tramite.setEstadoTramite(estadoTramite);
-//            tramite.setFechaRegistro(new Date());
-//            tramite.setPersona(alumnoDB.getPersona());
-//            tramite.setTipoTramite(tipoTramite);
-//            tramite.setNumero(Long.valueOf(serieDocumento.getNumeroDocumento()));
-//            tramite.setSerie(Long.valueOf(serieDocumento.getNumeroSerie()));
-//            tramite.setUserRegistro(ds.getUsuario());
-//            tramiteDAO.save(tramite);
-//
-//            retiroCiclo = retiroCicloForm;
-//            if (alumnoDB.isPregrado()) {
-//                retiroCiclo.setTipoEnum(TipoRetiroCicloEnum.EXCEP);
-//            } else if (alumnoDB.isPostgrado()) {
-//                retiroCiclo.setTipoEnum(TipoRetiroCicloEnum.RESEPG);
-//            }
-//
-//            retiroCiclo.setEstadoEnum(TramiteEstadoEnum.ACEP);
-//            retiroCiclo.setCicloRegistro(ds.getCicloAcademico());
-//            retiroCiclo.setUsuario(ds.getUsuario());
-//            retiroCiclo.setEsCondicional(false);
-//            retiroCiclo.setTramite(tramite);
-//            retiroCiclo.setResolucion(resolucion);
-//            retiroCicloDAO.save(retiroCiclo);
-//
-//            List<AlumnoCursoCurricula> alumnoCursoCurriculas = alumnoCursoCurriculaDAO.allByAlumnoCicloRegularAct(alumnoDB, cicloRetiro);
-//            for (AlumnoCursoCurricula alumnoCursoCurricula : alumnoCursoCurriculas) {
-//                alumnoCursoCurricula.setEstadoEnum(CursoCurriculaEstadoEnum.NREQ);
-//                alumnoCursoCurriculaDAO.update(alumnoCursoCurricula);
-//            }
-//            AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findByAlumnoCiclo(alumno, cicloRetiro);
-//            if (resolucion.isTipoRetiroCiclo()) {
-//                alumnoCiclo.setEstadoEnum(EstadoMatriculaEnum.RCI);
-//            } else if (resolucion.isTipoAnulacionCiclo()) {
-//                alumnoCiclo.setEstadoEnum(EstadoMatriculaEnum.ANCI);
-//            }
-//            alumnoCicloDAO.update(alumnoCiclo);
-//
-//            List<AlumnoCicloCurso> alumnoCicloCursos = alumnoCicloCursoDAO.allActivoByAlumnoCiclo(alumnoCiclo);
-//            for (AlumnoCicloCurso alumnoCicloCurso : alumnoCicloCursos) {
-//                Integer count = alumnoCicloCurso.getVecesCursado() - 1;
-//                alumnoCicloCurso.setVecesCursado(count);
-//                if (resolucion.isTipoRetiroCiclo()) {
-//                    alumnoCicloCurso.setEstadoEnum(EstadoMatriculaEnum.RCI);
-//                } else if (resolucion.isTipoAnulacionCiclo()) {
-//                    alumnoCicloCurso.setEstadoEnum(EstadoMatriculaEnum.ANCI);
-//                }
-//                alumnoCicloCursoDAO.update(alumnoCicloCurso);
-//            }
-//            alumnos.add(alumnoDB);
-//        }
-//        String token = RandomStringUtils.randomAlphanumeric(43);
-//        String tokenProm = token + TOKEN_PROMEDIOS;
-//        String tokenCurri = token + TOKEN_CURRICULA;
-//
-//        visorCalculoNotas.createToken(tokenProm, alumnos);
-//        visorCalculoNotas.createToken(tokenCurri, alumnos);
 
         return this.saveRetirosCiclos(resolucionForm, resolucion, ds);
     }
@@ -478,80 +329,6 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
         resolucionDAO.save(resolucion);
 
         Assert.isFalse(resolucionForm.getCambioNota().isEmpty(), "Debe Agregar alumnos.");
-//        EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.SOL_ACEP);
-//        for (CambioNota cambioNota : resolucionForm.getCambioNota()) {
-//            cambioNota.setCicloAcademico(resolucionForm.getCicloAplica());
-//
-//            Tramite tramite = new Tramite();
-//            DateTime today = new DateTime();
-//            TipoDocumentoCompania tipoDocumentoCompania = tipoDocumentoCompaniaDAO.findByCodigo(TipoDocumentoCompaniaEnum.TRAM);
-//            SerieDocumento serieDocumento = serieDocumentoService.getCorrelativo(tipoDocumentoCompania, Long.valueOf(today.getYear()), ds.getUsuario());
-//            TipoTramite tipoTramite = tipoTramiteDAO.findByCodigo(TipoTramiteEnum.CAM_NOTA.name());
-//            Alumno alumno = alumnoDAO.find(cambioNota.getAlumno());
-//
-//            tramite.setActivo(true);
-//            tramite.setCompania(ds.getCompania());
-//            tramite.setAlumno(alumno);
-//            tramite.setCicloAcademico(ds.getCicloAcademico());
-//            tramite.setEstadoEnum(TramiteEstadoEnum.ACEP);
-//            tramite.setEstadoTramite(estadoTramite);
-//            tramite.setFechaRegistro(new Date());
-//            tramite.setPersona(alumno.getPersona());
-//            tramite.setTipoTramite(tipoTramite);
-//            tramite.setNumero(Long.valueOf(serieDocumento.getNumeroDocumento()));
-//            tramite.setSerie(Long.valueOf(serieDocumento.getNumeroSerie()));
-//            tramite.setUserRegistro(ds.getUsuario());
-//            tramiteDAO.save(tramite);
-//
-//            CambioNota cambioNotaNew = new CambioNota();
-//            cambioNotaNew.setAlumno(alumno);
-//            cambioNotaNew.setCicloRegistro(ds.getCicloAcademico());
-//            cambioNotaNew.setEstado(TramiteEstadoEnum.ACEP);
-//            cambioNotaNew.setMotivo(cambioNota.getMotivo());
-//            cambioNotaNew.setTramite(tramite);
-//            cambioNotaNew.setUsuario(ds.getUsuario());
-//            cambioNotaNew.setCurso(cambioNota.getCurso());
-//            cambioNotaNew.setNota(cambioNota.getNota());
-//            cambioNotaNew.setCicloAcademico(cambioNota.getCicloAcademico());
-//            cambioNotaNew.setResolucion(resolucion);
-//            cambioNotaNew.setFechaRegistro(new Date());
-//            cambioNotaNew.setAceptado(Boolean.TRUE);
-//            cambioNotaNew.setEsCondicional(Boolean.FALSE);
-//            cambioNotaDAO.save(cambioNotaNew);
-//
-//            AlumnoCicloCurso alumnoCicloCurso = alumnoCicloCursoDAO.findByAlumnoCicloCurso(alumno, cambioNota.getCicloAcademico(), cambioNota.getCurso());
-//
-//            AlumnoCicloCurso alumnoCicloCursosMod = new AlumnoCicloCurso();
-//            alumnoCicloCursosMod.setAlumnoCiclo(alumnoCicloCurso.getAlumnoCiclo());
-//            alumnoCicloCursosMod.setCreditos(alumnoCicloCurso.getCreditos());
-//            alumnoCicloCursosMod.setCurso(alumnoCicloCurso.getCurso());
-//            alumnoCicloCursosMod.setCursoEquivalente(alumnoCicloCurso.getCursoEquivalente());
-//            alumnoCicloCursosMod.setEstaAprobado(evaluateEstaAprobado(cambioNota.getNota(), alumno));
-//            alumnoCicloCursosMod.setEstadoEnum(alumnoCicloCurso.getEstadoEnum());
-//            alumnoCicloCursosMod.setFechaMigracion(alumnoCicloCurso.getFechaMigracion());
-//            alumnoCicloCursosMod.setFechaRegistro(new Date());
-//            alumnoCicloCursosMod.setNota(cambioNota.getNota().toString());
-//            alumnoCicloCursosMod.setRegistroActivo(1);
-//            alumnoCicloCursosMod.setTipoCursoCurricula(alumnoCicloCurso.getTipoCursoCurricula());
-//            alumnoCicloCursosMod.setUsuarioRegistro(ds.getUsuario());
-//            alumnoCicloCursosMod.setVecesCursado(alumnoCicloCurso.getVecesCursado());
-//            alumnoCicloCursosMod.setOrigenData(OrigenDataSituacionAcademicaEnum.MOD);
-//            alumnoCicloCursoDAO.save(alumnoCicloCursosMod);
-//
-//            alumnoCicloCurso.setEstadoEnum(EstadoMatriculaEnum.NMOD);
-//            alumnoCicloCurso.setFechaModificacion(new Date());
-//            alumnoCicloCurso.setUserModificacion(ds.getUsuario());
-//            alumnoCicloCurso.setRegistroActivo(0);
-//            alumnoCicloCursoDAO.update(alumnoCicloCurso);
-//
-//            alumnos.add(alumno);
-//        }
-//        String token = RandomStringUtils.randomAlphanumeric(43);
-//        String tokenProm = token + TOKEN_PROMEDIOS;
-//        String tokenCurri = token + TOKEN_CURRICULA;
-//
-//        visorCalculoNotas.createToken(tokenProm, alumnos);
-//        visorCalculoNotas.createToken(tokenCurri, alumnos);
 
         return this.saveCambioNotas(resolucionForm, resolucion, ds);
     }
@@ -746,6 +523,8 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
     @Transactional
     public void saveTramiteTraslado(Resolucion resolucionForm, Usuario usuario, DataSessionPivot ds) {
 
+        Assert.isFalse(resolucionForm.getTramiteTraslado().isEmpty(), "Debe Agregar alumnos.");
+
         Resolucion resolucion = new Resolucion();
         resolucion.setOficina(resolucionForm.getOficina());
         resolucion.setFecha(resolucionForm.getFecha());
@@ -756,103 +535,14 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
         resolucion.setUserRegistro(usuario);
         resolucion.setTipoResolucion(resolucionForm.getTipoResolucion());
         resolucion.setAplicacionDirecta(1l);
-        resolucion.setCicloAplica(resolucionForm.getCicloAplica());
+        if (resolucionForm.getTipoResolucion().getCodigo().equals(TRAS_INT.name())) {
+            resolucion.setCicloAplica(resolucionForm.getCicloAplica());
+        } else {
+            resolucion.setCicloAplica(ds.getCicloAcademico());
+        }
         resolucionDAO.save(resolucion);
 
-        Assert.isFalse(resolucionForm.getTramiteTraslado().isEmpty(), "Debe Agregar alumnos.");
-
         this.saveTramitesTraslado(resolucionForm, resolucion, ds);
-//        EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.SOL_ACEP);
-//        EstadoTramite estadoTramiteRech = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.RHZ_SOL);
-//        for (TramiteTraslado tramiteTraslado : resolucionForm.getTramiteTraslado()) {
-//            tramiteTraslado.setCicloAcademico(resolucionForm.getCicloAplica());
-//
-//            Tramite tramite = new Tramite();
-//            DateTime today = new DateTime();
-//            TipoDocumentoCompania tipoDocumentoCompania = tipoDocumentoCompaniaDAO.findByCodigo(TipoDocumentoCompaniaEnum.TRAM);
-//            SerieDocumento serieDocumento = serieDocumentoService.getCorrelativo(tipoDocumentoCompania, Long.valueOf(today.getYear()), usuario);
-//            TipoTramite tipoTramite = null;
-//            if (resolucionForm.getTipoResolucion().getCodigo().equals(INTES.name())) {
-//                tipoTramite = tipoTramiteDAO.findByCodigo(TipoTramiteEnum.INTES.name());
-//            } else if (resolucionForm.getTipoResolucion().getCodigo().equals(TRAS.name())) {
-//                tipoTramite = tipoTramiteDAO.findByCodigo(TipoTramiteEnum.TRAS.name());
-//            } else if (resolucionForm.getTipoResolucion().getCodigo().equals(ING_HIS.name())) {
-//                tipoTramite = tipoTramiteDAO.findByCodigo(TipoTramiteEnum.ING_HIS.name());
-//            } else if (resolucionForm.getTipoResolucion().getCodigo().equals(TRAS_INT.name())) {
-//                tipoTramite = tipoTramiteDAO.findByCodigo(TipoTramiteEnum.TRAS_INT.name());
-//            }
-//            Alumno alumno = alumnoDAO.find(tramiteTraslado.getAlumno());
-//
-//            tramite.setActivo(true);
-//            tramite.setCompania(compania);
-//            tramite.setAlumno(alumno);
-//            tramite.setCicloAcademico(cicloAcademico);
-//            tramite.setEstadoEnum(tramiteTraslado.getSeleccionado() ? TramiteEstadoEnum.ACEP : TramiteEstadoEnum.RCHZ);
-//            tramite.setEstadoTramite(tramiteTraslado.getSeleccionado() ? estadoTramite : estadoTramiteRech);
-//            tramite.setFechaRegistro(new Date());
-//            tramite.setPersona(alumno.getPersona());
-//            tramite.setTipoTramite(tipoTramite);
-//            tramite.setNumero(Long.valueOf(serieDocumento.getNumeroDocumento()));
-//            tramite.setSerie(Long.valueOf(serieDocumento.getNumeroSerie()));
-//            tramite.setUserRegistro(usuario);
-//            tramiteDAO.save(tramite);
-//
-//            tramiteTraslado.setTramite(tramite);
-//            tramiteTraslado.setResolucion(resolucion);
-//            tramiteTraslado.setFechaRegistro(new Date());
-//            if (resolucionForm.getTipoResolucion().getCodigo().equals(TipoResolucionEnum.TRAS.name())) {
-//                tramiteTraslado.setTipoTramiteTrasladoEnum(TipoTramiteTrasladoEnum.TRAS);
-//            } else if (resolucionForm.getTipoResolucion().getCodigo().equals(TipoResolucionEnum.INTES.name())) {
-//                tramiteTraslado.setTipoTramiteTrasladoEnum(TipoTramiteTrasladoEnum.INTES);
-//            } else if (resolucionForm.getTipoResolucion().getCodigo().equals(TipoResolucionEnum.ING_HIS.name())) {
-//                tramiteTraslado.setTipoTramiteTrasladoEnum(TipoTramiteTrasladoEnum.ING_HIS);
-//            } else if (resolucionForm.getTipoResolucion().getCodigo().equals(TipoResolucionEnum.TRAS_INT.name())) {
-//
-//                tramiteTraslado.setTipoTramiteTrasladoEnum(TipoTramiteTrasladoEnum.TRAS_INT);
-//
-//                if (tramiteTraslado.getSeleccionado()) {
-//
-//                    tramiteTraslado.setCarreraOrigen(alumno.getCarrera());
-//                    alumno.setCarrera(tramiteTraslado.getCarrera());
-//
-//                    OrientacionCarrera orientacionCarrera = alumno.getOrientacionCarrera();
-//                    List<PlanCurricular> planCurriculars = planCurricularDAO.allActivoByCarreraOrientacion(tramiteTraslado.getCarrera());
-//                    Map<String, List<PlanCurricular>> mapPlanesByCiclo = TypesUtil.convertListToMapList("cicloInicioVigencia.codigo", planCurriculars);
-//                    Map<String, CicloAcademico> mapCiclosPlanes = TypesUtil.convertListToMap("cicloInicioVigencia.codigo", "cicloInicioVigencia", planCurriculars);
-//                    String codigoCicloAlumno = (String) ObjectUtil.getParentTree(alumno, "cicloIngreso.codigo");
-//
-//                    List<String> codigosCiclosPlanes = new ArrayList<String>(mapCiclosPlanes.keySet());
-//
-//                    Collections.sort(codigosCiclosPlanes);
-//                    Collections.reverse(codigosCiclosPlanes);
-//
-//                    String codigoCicloPlan = this.getIndiceCicloAcademico(codigoCicloAlumno, codigosCiclosPlanes);
-//                    List<PlanCurricular> planesBD = mapPlanesByCiclo.get(codigoCicloPlan);
-//                    PlanCurricular planCurricularBD = null;
-//                    for (PlanCurricular planCurricular : planesBD) {
-//                        if (planCurricular.getOrientacionCarrera() == null) {
-//                            planCurricularBD = planCurricular;
-//                            alumno.setOrientacionCarrera(null);
-//                            break;
-//                        } else {
-//                            if (orientacionCarrera != null && planCurricular.getOrientacionCarrera().getId() == orientacionCarrera.getId()) {
-//                                alumno.setOrientacionCarrera(planCurricular.getOrientacionCarrera());
-//                                planCurricularBD = planCurricular;
-//                            }
-//                        }
-//                    }
-////                    if (orientacionCarrera != null) {
-////                    } else {
-////                        planCurricularBD = planesBD.get(0);
-////                    }
-//                    alumno.setPlanCurricular(planCurricularBD);
-//                    alumnoDAO.updateColumns(alumno, "carrera", "planCurricular");
-//                }
-//            }
-//            tramiteTraslado.setUserRegistro(usuario);
-//            tramiteTraslado.setEstado(tramiteTraslado.getSeleccionado() ? ACEP.name() : RCHZ.name());
-//            tramiteTrasladoDAO.save(tramiteTraslado);
-//        }
 
     }
 
@@ -923,57 +613,6 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
         resolucion.setCicloAplica(resolucionForm.getCicloAplica());
         resolucionDAO.save(resolucion);
 
-//        EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.SOL_ACEP);
-//        List<Alumno> alumnos = new ArrayList<>();
-//        for (CambioNotaMasBaja cambioNotaMasBaja : resolucionForm.getCambioNotaMasBajas()) {
-//            Alumno alumno = alumnoDAO.find(cambioNotaMasBaja.getAlumno());
-//
-//            Tramite tramite = new Tramite();
-//            DateTime today = new DateTime();
-//            TipoDocumentoCompania tipoDocumentoCompania = tipoDocumentoCompaniaDAO.findByCodigo(TipoDocumentoCompaniaEnum.TRAM);
-//            SerieDocumento serieDocumento = serieDocumentoService.getCorrelativo(tipoDocumentoCompania, Long.valueOf(today.getYear()), usuario);
-//            TipoTramite tipoTramite = tipoTramiteDAO.findByCodigo(TipoTramiteEnum.NOTA_BAJA.name());
-//
-//            tramite.setActivo(true);
-//            tramite.setCompania(compania);
-//            tramite.setAlumno(alumno);
-//            tramite.setCicloAcademico(cicloAcademico);
-//            tramite.setEstadoEnum(TramiteEstadoEnum.ACEP);
-//            tramite.setEstadoTramite(estadoTramite);
-//            tramite.setFechaRegistro(new Date());
-//            tramite.setPersona(alumno.getPersona());
-//            tramite.setTipoTramite(tipoTramite);
-//            tramite.setNumero(Long.valueOf(serieDocumento.getNumeroDocumento()));
-//            tramite.setSerie(Long.valueOf(serieDocumento.getNumeroSerie()));
-//            tramite.setUserRegistro(usuario);
-//            tramiteDAO.save(tramite);
-//
-//            cambioNotaMasBaja.setCicloAcademico(cambioNotaMasBaja.getAlumnoCicloCursoBean().getCicloAcademico());
-//            cambioNotaMasBaja.setCurso(cambioNotaMasBaja.getAlumnoCicloCursoBean().getCurso());
-//            cambioNotaMasBaja.setAlumno(cambioNotaMasBaja.getAlumno());
-//            cambioNotaMasBaja.setEstadoTramite(estadoTramite);
-//            cambioNotaMasBaja.setNotaAnulada(cambioNotaMasBaja.getAlumnoCicloCursoBean().getNota());
-//            cambioNotaMasBaja.setResolucion(resolucion);
-//            cambioNotaMasBaja.setTramite(tramite);
-//            cambioNotaMasBajaDAO.save(cambioNotaMasBaja);
-//
-//            AlumnoCicloCurso alumnoCicloCurso = alumnoCicloCursoDAO.findByAlumnoCicloCurso(alumno, cambioNotaMasBaja.getCicloAcademico(), cambioNotaMasBaja.getCurso());
-//            alumnoCicloCurso.setEstadoEnum(EstadoMatriculaEnum.ANMB);
-//            alumnoCicloCurso.setUserModificacion(usuario);
-//            alumnoCicloCurso.setFechaModificacion(new Date());
-//            alumnoCicloCursoDAO.updateColumns(alumnoCicloCurso, "estado", "userModificacion", "fechaModificacion");
-//
-//            alumnos.add(alumno);
-//        }
-//
-//        String token = RandomStringUtils.randomAlphanumeric(43);
-//        String tokenProm = token + TOKEN_PROMEDIOS;
-//        String tokenCurri = token + TOKEN_CURRICULA;
-//
-//        visorCalculoNotas.createToken(tokenProm, alumnos);
-//        visorCalculoNotas.createToken(tokenCurri, alumnos);
-//
-//        return token;
         return this.saveNotasMasBajas(resolucionForm, resolucion, usuario, ds);
     }
 
@@ -1053,34 +692,9 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
 //            reincorporacioneForm.setCicloReincorporacion(resolucionForm.getCicloAplica());
             Reincorporacion reincorporacion = map.get(reincorporacioneForm.getAlumno().getId());
             if (reincorporacion == null) {
-//                reincorporacion.setMotivoDesercion(reincorporacione.getMotivoDesercion());
                 throw new PhobosException("El alumno " + reincorporacioneForm.getAlumno().getCodigo() + " no cuenta con un trámite de reincorporación.");
             }
-//            if (!Objects.equals(reincorporacione.getCicloReincorporacion().getId(), ds.getCicloAcademico().getId())) {
-//                throw new PhobosException("El alumno debe reincorporarce en el ciclo actual.");
-//            }
-//            DateTime today = new DateTime();
-//            TipoDocumentoCompania tipoDocumentoCompania = tipoDocumentoCompaniaDAO.findByCodigo(TipoDocumentoCompaniaEnum.TRAM);
-//            SerieDocumento serieDocumento = serieDocumentoService.getCorrelativo(tipoDocumentoCompania, Long.valueOf(today.getYear()), ds.getUsuario());
-//            TipoTramite tipoTramite = tipoTramiteDAO.findByCodigo(TipoTramiteEnum.REI.name());
-//            Alumno alumno = alumnoDAO.find(reincorporacione.getAlumno());
-//
-//            Tramite tramite = new Tramite();
-//            tramite.setActivo(true);
-//            tramite.setCompania(ds.getCompania());
-//            tramite.setAlumno(alumno);
-//            tramite.setCicloAcademico(ds.getCicloAcademico());
-//            tramite.setEstadoEnum(reincorporacione.isSeleccionado() ? TramiteEstadoEnum.ACEP : TramiteEstadoEnum.RCHZ);
-//            tramite.setFechaRegistro(new Date());
-//            tramite.setPersona(alumno.getPersona());
-//            tramite.setEstadoTramite(estadoTramite);
-//            tramite.setTipoTramite(tipoTramite);
-//            tramite.setNumero(Long.valueOf(serieDocumento.getNumeroDocumento()));
-//            tramite.setSerie(Long.valueOf(serieDocumento.getNumeroSerie()));
-//            tramite.setUserRegistro(ds.getUsuario());
-//            tramiteDAO.save(tramite);
 
-//                Facultad facultad = reincorporacione.getAlumno().getCarrera().getFacultad();
             reincorporacion.setAceptado(reincorporacioneForm.isSeleccionado() ? 1 : 0);
             reincorporacion.setResolucion(resolucionBD);
             reincorporacion.setEstadoTramite(reincorporacioneForm.isSeleccionado() ? estadoTramiteAceptado : estadoTramiteRechazado);
@@ -1110,7 +724,6 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
         EstadoTramite estadoTramiteAcep = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.SOL_ACEP);
         EstadoTramite estadoTramiteRechz = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.RCHR);
 
-//        Map<Long, RetiroCiclo> mapRetiroCiclo = TypesUtil.convertListToMap("alumno", retiroCiclos);
         for (RetiroCiclo retiroCicloForm : resolucionForm.getRetiroCiclo()) {
             CicloAcademico cicloAplica = null;
             if (retiroCicloForm.getId() != null) {
@@ -1130,6 +743,14 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
 
                     matriculaResumen.setEstadoEnum(EstadoMatriculaEnum.RCI);
                     matriculaResumenDAO.updateColumns(matriculaResumen, "estado");
+
+                    List<MatriculaCurso> matriculaCursos = matriculaCursoDAO.allActivoByAlumnoCiclo(alumnoDB, cicloAplica);
+                    for (MatriculaCurso matriculaCurso : matriculaCursos) {
+                        matriculaCurso.setFechaAnula(new Date());
+                        matriculaCurso.setUserAnula(ds.getUsuario());
+                        matriculaCurso.setEstadoEnum(EstadoMatriculaEnum.RCI);
+                        matriculaCursoDAO.update(matriculaCurso);
+                    }
 
                     ModalidadEstudioEnum modalidadEnum = alumnoDB.getModalidadEstudio().getOperativeModalidadEnum();
                     cicloAplica = cicloAcademicoDAO.findByCodigoCicloModalidadEnum(cicloAplica.getCodigo(), modalidadEnum);
@@ -1165,6 +786,15 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
                 matriculaResumen = matriculaResumenDAO.findByAlumnoCiclo(alumnoDB, cicloAplica);
                 matriculaResumen.setEstadoEnum(EstadoMatriculaEnum.ANCI);
                 matriculaResumenDAO.updateColumns(matriculaResumen, "estado");
+
+                List<MatriculaCurso> matriculaCursos = matriculaCursoDAO.allMatriculadosByAlumnoCiclo(alumnoDB, cicloAplica);
+
+                for (MatriculaCurso matriculaCurso : matriculaCursos) {
+                    matriculaCurso.setFechaAnula(new Date());
+                    matriculaCurso.setUserAnula(ds.getUsuario());
+                    matriculaCurso.setEstadoEnum(EstadoMatriculaEnum.ANCI);
+                    matriculaCursoDAO.update(matriculaCurso);
+                }
 
                 DateTime today = new DateTime();
                 TipoDocumentoCompania tipoDocumentoCompania = tipoDocumentoCompaniaDAO.findByCodigo(TipoDocumentoCompaniaEnum.TRAM_ANU_CICLO);
@@ -1236,6 +866,7 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
                 }
                 alumnoCicloCursoDAO.update(alumnoCicloCurso);
             }
+
             alumnos.add(alumnoDB);
         }
         String token = RandomStringUtils.randomAlphanumeric(43);
@@ -1337,7 +968,7 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
         EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.SOL_ACEP);
         EstadoTramite estadoTramiteRech = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.RHZ_SOL);
         for (TramiteTraslado tramiteTraslado : resolucionForm.getTramiteTraslado()) {
-            tramiteTraslado.setCicloAcademico(resolucionForm.getCicloAplica());
+
             if (tramiteTraslado.getId() != null) {
 //                tramiteTrasladoDAO.update(tramiteTraslado);
                 continue;
@@ -1356,6 +987,7 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
                 tipoTramite = tipoTramiteDAO.findByCodigo(TipoTramiteEnum.ING_HIS.name());
             } else if (resolucionForm.getTipoResolucion().getCodigo().equals(TRAS_INT.name())) {
                 tipoTramite = tipoTramiteDAO.findByCodigo(TipoTramiteEnum.TRAS_INT.name());
+                tramiteTraslado.setCicloAcademico(resolucionForm.getCicloAplica());
             }
             Alumno alumno = alumnoDAO.find(tramiteTraslado.getAlumno());
 
@@ -1588,6 +1220,8 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
         EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.SOL_ACEP);
         EstadoTramite estadoTramiteRech = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.RHZ_SOL);
 
+        EventoCicloAcademico eventoCicloAcademico = eventoCicloAcademicoDAO.findByCicloAndEvento(ds.getCicloAcademico(), EventoAcademicoEnum.FECHAS_BACH);
+
         for (TramiteBachiller bachiller : resolucionForm.getTramiteBachiller()) {
 
             TramiteBachiller tramiteBachiller = tramiteBachillerDAO.findByAlumnoAct(bachiller.getAlumno());
@@ -1616,6 +1250,15 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
                 obtencionGrado.setUserObtencion(ds.getUsuario());
                 obtencionGrado.setUserRegistro(ds.getUsuario());
                 obtencionGradoDAO.save(obtencionGrado);
+
+                Egresado egresado = new Egresado();
+                egresado.setAlumno(tramiteBachiller.getAlumno());
+                egresado.setCarrera(tramiteBachiller.getAlumno().getCarrera());
+                egresado.setCicloAcademico(ds.getCicloAcademico());
+                egresado.setFacultad(tramiteBachiller.getAlumno().getCarrera().getFacultad());
+                egresado.setFechaRegistroEgresado(new Date());
+                egresado.setFechaEgresado(eventoCicloAcademico.getFechaFin());
+                egresadoDAO.save(egresado);
             }
         }
     }
