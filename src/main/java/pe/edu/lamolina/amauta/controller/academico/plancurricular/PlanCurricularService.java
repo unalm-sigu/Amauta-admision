@@ -152,6 +152,6 @@ public interface PlanCurricularService {
 
     Carrera getCarreraActiva();
 
-    void caducar(Long idCursoCurricula, DataSessionPivot ds);
+    void caducar(Long idCursoCurricula, String caduco, DataSessionPivot ds);
 
 }

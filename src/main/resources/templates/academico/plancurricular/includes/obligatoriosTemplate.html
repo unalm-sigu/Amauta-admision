@@ -77,7 +77,9 @@
                 </li>
                 <li role="presentation" >
                     {{if estado == 'ACT'}}
-                    <a class="caducar" id="{{:id}}" href="#">Caducar</a>
+                    <a class="caducar" rel="SI" id="{{:id}}" href="#">Caducar</a>
+                    {{else}}
+                    <a class="caducar" rel="NO" id="{{:id}}" href="#">Quitar Caduco</a>
                     {{/if}}
                 </li>
             </ul>
