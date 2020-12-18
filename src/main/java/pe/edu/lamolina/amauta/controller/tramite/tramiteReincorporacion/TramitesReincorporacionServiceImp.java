@@ -24,6 +24,7 @@ import pe.edu.lamolina.amauta.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.amauta.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.amauta.dao.academico.MatriculaCursoDAO;
 import pe.edu.lamolina.amauta.dao.academico.TipoCursoCurriculaDAO;
+import pe.edu.lamolina.amauta.dao.general.OficinaDAO;
 import pe.edu.lamolina.amauta.dao.tramite.EstadoTramiteDAO;
 import pe.edu.lamolina.amauta.dao.tramite.ReincorporacionDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TipoDocumentoCompaniaDAO;
@@ -45,6 +46,7 @@ import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.DEP;
 import pe.edu.lamolina.model.enums.TipoDocumentoCompaniaEnum;
 import pe.edu.lamolina.model.enums.TipoTramiteEnum;
 import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
+import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.general.SerieDocumento;
 import pe.edu.lamolina.model.general.TipoDocumentoCompania;
 import pe.edu.lamolina.model.tramite.EstadoTramite;
@@ -96,6 +98,9 @@ public class TramitesReincorporacionServiceImp implements TramiteReincorporacion
 
     @Autowired
     AlumnoCicloCursoDAO alumnoCicloCursoDAO;
+
+    @Autowired
+    OficinaDAO oficinaDAO;
 
     @Override
     public List<Reincorporacion> allTramitesByFilter(DynatableFilter filter, DataSessionPivot ds) {
@@ -191,8 +196,12 @@ public class TramitesReincorporacionServiceImp implements TramiteReincorporacion
         }
 
         alumno.setCreditosConvalidadosTransient(creditosConvalidados);
-        
+        Oficina oficinaColaborador = null;
+        if (alumno.getConsejero() == null) {
+            oficinaColaborador = oficinaDAO.findByCode("CT-" + alumno.getCarrera().getCodigo());
+        }
         ctx.setVariable("alumno", alumno);
+        ctx.setVariable("oficinaColaborador", oficinaColaborador);
         ctx.setVariable("alumnoCiclo", alumnoCiclo);
         ctx.setVariable("historial", historialSorted);
         ctx.setVariable("tramite", tramite);

@@ -160,12 +160,16 @@
                             <span th:text="${alumnoCiclo.creditosAprobadosAcumulados}"></span>
                         </td>
                     </tr>
-                    <tr >
+                    <tr>
                         <td >
                             <span >Profesor Consejero: </span>
                         </td>
                         <td th:if='${alumno.consejero}'>
                             <span th:if="${alumno.consejero.colaborador} != null" th:text="${alumno.consejero.colaborador.persona.apellidosNombres}"></span>
+
+                        </td>
+                        <td th:else="">
+                            <span th:if="${oficinaColaborador} != null" th:text="${oficinaColaborador.personaJefe.apellidosNombres}"></span>
 
                         </td>
                     </tr>
@@ -199,7 +203,7 @@
         </div>
 
         <div style="text-align: center">
-                        <pre >Atentamente,</pre>
+            <pre >Atentamente,</pre>
 
             <br/>
             <br/>

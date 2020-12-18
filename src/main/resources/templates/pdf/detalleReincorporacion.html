@@ -191,8 +191,12 @@
                         <td >
                             <span >TUTOR: </span>
                         </td>
-                        <td >
+                        <td th:if='${alumno.consejero}'>
                             <span th:if="${alumno.consejero.colaborador} != null" th:text="${alumno.consejero.colaborador.persona.apellidosNombres}"></span>
+
+                        </td>
+                        <td th:else="">
+                            <span th:if="${oficinaColaborador} != null" th:text="${oficinaColaborador.personaJefe.apellidosNombres}"></span>
 
                         </td>
                     </tr>

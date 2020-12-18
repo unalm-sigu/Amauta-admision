@@ -87,7 +87,7 @@ public class TramiteTituloDAOH extends AbstractEasyDAO<TramiteTitulo> implements
                 .from(TramiteTitulo.class, "tb")
                 .join("tramite tr", "tr.cicloAcademico ca")
                 .join("tr.compania", "tr.persona per", "tr.alumno al", "tr.tipoTramite tt", "al.planCurricular")
-                .left("al.carrera car", "car.facultad ")
+                .left("al.carrera car", "car.facultad ", "resolucion")
                 .searchFields("al.estado", "al.codigo", "per.numeroDocIdentidad")
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                 .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
