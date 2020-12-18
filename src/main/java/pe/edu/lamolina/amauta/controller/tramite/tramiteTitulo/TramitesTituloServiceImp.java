@@ -1,4 +1,4 @@
-package pe.edu.lamolina.amauta.controller.tramite.tramiteBachiller;
+package pe.edu.lamolina.amauta.controller.tramite.tramiteTitulo;
 
 import java.util.Arrays;
 import java.util.Comparator;
@@ -26,10 +26,11 @@ import pe.edu.lamolina.amauta.dao.academico.EgresadoDAO;
 import pe.edu.lamolina.amauta.dao.academico.EventoCicloAcademicoDAO;
 import pe.edu.lamolina.amauta.dao.academico.TipoCursoCurriculaDAO;
 import pe.edu.lamolina.amauta.dao.general.OficinaDAO;
+import pe.edu.lamolina.amauta.dao.tramite.ObtencionGradoDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TipoDocumentoCompaniaDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TipoTramiteDAO;
-import pe.edu.lamolina.amauta.dao.tramite.TramiteBachillerDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TramiteDAO;
+import pe.edu.lamolina.amauta.dao.tramite.TramiteTituloDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.amauta.zelper.pdf.PdfContent;
 import pe.edu.lamolina.amauta.zelper.pdf.PdfGenerator;
@@ -38,7 +39,6 @@ import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
 import pe.edu.lamolina.model.academico.CicloAcademico;
-import pe.edu.lamolina.model.academico.Egresado;
 import pe.edu.lamolina.model.academico.EventoCicloAcademico;
 import pe.edu.lamolina.model.academico.TipoCursoCurricula;
 import pe.edu.lamolina.model.enums.EventoAcademicoEnum;
@@ -46,19 +46,21 @@ import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum;
 import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.DEP;
 import pe.edu.lamolina.model.enums.TipoDocumentoCompaniaEnum;
+import pe.edu.lamolina.model.enums.TipoGradoAcademicoEnum;
 import pe.edu.lamolina.model.enums.TipoSolicitanteEnum;
 import pe.edu.lamolina.model.enums.TipoTramiteEnum;
 import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.general.SerieDocumento;
 import pe.edu.lamolina.model.general.TipoDocumentoCompania;
+import pe.edu.lamolina.model.tramite.ObtencionGrado;
 import pe.edu.lamolina.model.tramite.TipoTramite;
 import pe.edu.lamolina.model.tramite.Tramite;
-import pe.edu.lamolina.model.tramite.TramiteBachiller;
+import pe.edu.lamolina.model.tramite.TramiteTitulo;
 
 @Service
 @Transactional(readOnly = true)
-public class TramitesBachillerServiceImp implements TramitesBachillerService {
+public class TramitesTituloServiceImp implements TramitesTituloService {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -68,7 +70,7 @@ public class TramitesBachillerServiceImp implements TramitesBachillerService {
     TramiteDAO tramiteDAO;
 
     @Autowired
-    TramiteBachillerDAO tramiteBachillerDAO;
+    TramiteTituloDAO tramiteTituloDAO;
 
     @Autowired
     PdfGenerator pdfGenerator;
@@ -99,23 +101,26 @@ public class TramitesBachillerServiceImp implements TramitesBachillerService {
 
     @Autowired
     EgresadoDAO egresadoDAO;
+    
+    @Autowired
+    ObtencionGradoDAO obtencionGradoDAO;
 
     @Override
-    public List<TramiteBachiller> allTramitesByFilter(DynatableFilter filter, DataSessionPivot ds) {
+    public List<TramiteTitulo> allTramitesByFilter(DynatableFilter filter, DataSessionPivot ds) {
 
-        List<TramiteBachiller> bachillers = tramiteBachillerDAO.allByDynatable(filter, ds.getCicloAcademico());
-        return bachillers;
+        List<TramiteTitulo> titulos = tramiteTituloDAO.allByDynatable(filter, ds.getCicloAcademico());
+        return titulos;
     }
 
     @Override
-    public String bachillerReporte(Tramite tramite, DataSessionPivot ds) {
+    public String TituloReporte(Tramite tramite, DataSessionPivot ds) {
         List<String> pdfs = createInfoBachillerPDF(tramite, ds);
         return pdfGenerator.concatPDFs(pdfs, "bachiller", true);
     }
 
     private List<String> createInfoBachillerPDF(Tramite tramite, DataSessionPivot ds) {
         tramite = tramiteDAO.find(tramite.getId());
-        TramiteBachiller tramiteBachiller = tramiteBachillerDAO.findByTramite(tramite);
+        TramiteTitulo tramiteTitulo = tramiteTituloDAO.findByTramite(tramite);
 
         Alumno alumno = alumnoDAO.find(tramite.getAlumno());
         CicloAcademico cicloAcademico = ds.getCicloAcademico();
@@ -178,49 +183,52 @@ public class TramitesBachillerServiceImp implements TramitesBachillerService {
 
         EventoCicloAcademico eventoActual = eventoCicloAcademicoDAO.findByCicloAndEvento(alumno.getCicloActivo(), EventoAcademicoEnum.FECHAS_BACH);
         EventoCicloAcademico eventoIngreso = eventoCicloAcademicoDAO.findByCicloAndEvento(cicloInicio, EventoAcademicoEnum.FECHAS_BACH);
-
+        
+        ObtencionGrado obtencionGrado = obtencionGradoDAO.findByAlumnoAndTipo(alumno, TipoGradoAcademicoEnum.BACH);
+        
         ctx.setVariable("alumno", alumno);
         ctx.setVariable("ciclo", cicloAcademico);
         ctx.setVariable("historial", historialSorted);
         ctx.setVariable("alumnoCiclo", alumnoCiclo);
-        ctx.setVariable("bachiller", tramiteBachiller);
+        ctx.setVariable("titulo", tramiteTitulo);
+        ctx.setVariable("obtencionGrado", obtencionGrado);
         ctx.setVariable("fechaPrimaMatricula", TypesUtil.getStringDate(eventoIngreso.getFechaInicio(), " dd'/'MM'/'yyyy", "es"));
         ctx.setVariable("fechaEgreso", TypesUtil.getStringDate(eventoActual.getFechaFin(), " dd'/'MM'/'yyyy", "es"));
 
         ctx.setVariable("fecha", TypesUtil.getStringDate(new DateTime().toDate(), " dd 'de' MMMM 'del' yyyy", "es"));
 //        ctx.setVariable("alumnoCicloCurso", listAlumnoCicloCurso);
 
-        PdfContent pdfHistorial = new PdfContent();
-        pdfHistorial.setContext(ctx);
-        pdfHistorial.setTipoPdfEnum(TipoPdfEnum.HISTORIAL_ACADEMICO_TRAMITE);
+//        PdfContent pdfHistorial = new PdfContent();
+//        pdfHistorial.setContext(ctx);
+//        pdfHistorial.setTipoPdfEnum(TipoPdfEnum.HISTORIAL_ACADEMICO_TRAMITE);
 
         PdfContent pdfBachiller = new PdfContent();
         pdfBachiller.setContext(ctx);
-        pdfBachiller.setTipoPdfEnum(TipoPdfEnum.DETALLE_BACHILLER);
+        pdfBachiller.setTipoPdfEnum(TipoPdfEnum.DETALLE_TITULO);
 
         List<String> pdfs = Arrays.asList(
-                pdfGenerator.generateDocument(pdfBachiller),
-                pdfGenerator.generateDocument(pdfHistorial)
+                pdfGenerator.generateDocument(pdfBachiller)
+//                pdfGenerator.generateDocument(pdfHistorial)
         );
 
         return pdfs;
     }
 
     @Override
-    public void saveBachiller(TramiteBachiller tramiteBachillerForm, DataSessionPivot ds) {
+    public void saveTitulo(TramiteTitulo tramiteTituloForm, DataSessionPivot ds) {
         LocalDate today = new LocalDate();
 
         logger.debug("PAse 1");
-        Alumno alumnoDB = alumnoDAO.find(tramiteBachillerForm.getAlumno());
-        TipoDocumentoCompania tipoDocumentoCompania = tipoDocumentoCompaniaDAO.findByCodigo(TipoDocumentoCompaniaEnum.TRAM_BACHI);
+        Alumno alumnoDB = alumnoDAO.find(tramiteTituloForm.getAlumno());
+        TipoDocumentoCompania tipoDocumentoCompania = tipoDocumentoCompaniaDAO.findByCodigo(TipoDocumentoCompaniaEnum.TRAM_TITULO);
         SerieDocumento serieDocumento = serieDocumentoService.getCorrelativo(tipoDocumentoCompania, Long.valueOf(today.getYear()), ds.getUsuario());
 
         Oficina oficina = oficinaDAO.findByCode(OficinaEnum.OERA.name());
         logger.debug("PAse 2");
-        TipoTramite tipoTramite = tipoTramiteDAO.findByCodigo(TipoTramiteEnum.BACHI.name());
+        TipoTramite tipoTramite = tipoTramiteDAO.findByCodigo(TipoTramiteEnum.TIT.name());
         Tramite tramite = tramiteDAO.findByAlumnoTipoTramEstado(alumnoDB, tipoTramite, TramiteEstadoEnum.SOL);
         logger.debug("PAse 3");
-        Assert.isNull(tramite, "Ya cuenta con un tramite bachiller en proceso.");
+        Assert.isNull(tramite, "Ya cuenta con un tramite titulo en proceso.");
         tramite = new Tramite();
         tramite.setUserRegistro(ds.getUsuario());
         tramite.setCompania(ds.getCompania());
@@ -236,19 +244,13 @@ public class TramitesBachillerServiceImp implements TramitesBachillerService {
         tramite.setFechaRegistro(new Date());
         tramiteDAO.save(tramite);
 
-        TramiteBachiller bachiller = new TramiteBachiller();
-        bachiller.setTramite(tramite);
-        bachiller.setEstado(TramiteEstadoEnum.SOL.name());
-        bachiller.setFechaRegistro(new Date());
-        bachiller.setUsuario(ds.getUsuario());
-        tramiteBachillerDAO.save(bachiller);
+        TramiteTitulo titulo = new TramiteTitulo();
+        titulo.setTramite(tramite);
+        titulo.setEstado(TramiteEstadoEnum.SOL.name());
+        titulo.setFechaRegistro(new Date());
+        titulo.setUsuario(ds.getUsuario());
+        tramiteTituloDAO.save(titulo);
 
-        Egresado egresado = new Egresado();
-        egresado.setAlumno(alumnoDB);
-        egresado.setCarrera(alumnoDB.getCarrera());
-        egresado.setCicloAcademico(ds.getCicloAcademico());
-        egresado.setFacultad(alumnoDB.getCarrera().getFacultad());
-        egresadoDAO.save(egresado);
     }
 
 }

@@ -72,7 +72,7 @@ public class OrdenMeritoEgresadosServiceImp implements OrdenMeritoEgresadosServi
         egresadoDAO.deleteInfoOrdenMeritoByCicloAcademico(cicloAcademico);
         controlOrdenMeritoDAO.deleteByCicloAcademico(cicloAcademico);
 
-        List<Egresado> alumnoCiclos = egresadoDAO.allByCicloAcademico(cicloAcademico);
+        List<Egresado> egresadosDB = egresadoDAO.allByCicloAcademico(cicloAcademico);
 
         Date now = new Date();
 
@@ -103,19 +103,18 @@ public class OrdenMeritoEgresadosServiceImp implements OrdenMeritoEgresadosServi
         List<Facultad> noFacultadUnica = facultades.stream().filter(fac -> fac.getCarrera().size() > 1).collect(Collectors.toList());
         Collections.sort(noFacultadUnica, new Facultad.CompareCodigo());
 
-        Map<Facultad, List<Egresado>> mapAlumnoByFacultad = alumnoCiclos.stream().filter(ac -> facultadUnica.contains(ac.getCarrera().getFacultad())).collect(Collectors.groupingBy(ac -> ac.getCarrera().getFacultad()));
-        Map<Carrera, List<Egresado>> mapAlumnosByCarrera = alumnoCiclos.stream().filter(ac -> noFacultadUnica.contains(ac.getCarrera().getFacultad())).collect(Collectors.groupingBy(ac -> ac.getCarrera()));
+        Map<Facultad, List<Egresado>> mapAlumnoByFacultad = egresadosDB.stream().filter(ac -> facultadUnica.contains(ac.getCarrera().getFacultad())).collect(Collectors.groupingBy(ac -> ac.getCarrera().getFacultad()));
+        Map<Carrera, List<Egresado>> mapAlumnosByCarrera = egresadosDB.stream().filter(ac -> noFacultadUnica.contains(ac.getCarrera().getFacultad())).collect(Collectors.groupingBy(ac -> ac.getCarrera()));
 
-        Map<Long, List<Egresado>> mapAlumnosByIdFac = TypesUtil.convertListToMapList("carrera.facultad.id", alumnoCiclos);
-        Map<Long, List<Egresado>> mapAlumnosByIdCarr = TypesUtil.convertListToMapList("carrera.id", alumnoCiclos);
-        
+        Map<Long, List<Egresado>> mapAlumnosByIdFac = TypesUtil.convertListToMapList("carrera.facultad.id", egresadosDB);
+        Map<Long, List<Egresado>> mapAlumnosByIdCarr = TypesUtil.convertListToMapList("carrera.id", egresadosDB);
+
         List<AlumnoCiclo> alusCiclo = alumnoCicloDAO.allByCicloAcademico(cicloAcademico);
         Map<Long, AlumnoCiclo> mapAlumnosCiclo = new HashMap();
         for (AlumnoCiclo alumnoCiclo : alusCiclo) {
             mapAlumnosCiclo.put(alumnoCiclo.getAlumno().getId(), alumnoCiclo);
         }
 
-        
         Integer total = 0;
         for (Map.Entry<Facultad, List<Egresado>> entry : mapAlumnoByFacultad.entrySet()) {
             total += entry.getValue().size();
@@ -128,24 +127,24 @@ public class OrdenMeritoEgresadosServiceImp implements OrdenMeritoEgresadosServi
 
         for (Facultad fac : facultadUnica) {
             ControlMeritoEgresado com = new ControlMeritoEgresado();
-            List<Egresado> alumnosCiclo = mapAlumnosByIdFac.get(fac.getId());
+            List<Egresado> egresados = mapAlumnosByIdFac.get(fac.getId());
 
-            if (alumnosCiclo == null) {
-                alumnosCiclo = new ArrayList<>();
+            if (egresados == null) {
+                egresados = new ArrayList<>();
             }
 
             com.setFacultad(fac);
             com.setCicloAcademico(cicloAcademico);
             com.setEscala(ControlOrdenMeritoEscalaEnum.FAC);
             com.setEstado(ControlOrdenMeritoEstadoEnum.CRE);
-            com.setTotalAlumnos(alumnosCiclo.size());
+            com.setTotalAlumnos(egresados.size());
 
             com.setUserRegistro(ds.getUsuario());
             com.setFechaRegistro(now);
 
             controlOrdenMeritoDAO.save(com);
 
-            for (Egresado egresado : alumnosCiclo) {
+            for (Egresado egresado : egresados) {
                 egresado.setControlMeritoFacultad(com);
                 egresado.setControlMeritoCiclo(comCiclo);
             }
@@ -187,12 +186,12 @@ public class OrdenMeritoEgresadosServiceImp implements OrdenMeritoEgresadosServi
 
         controlOrdenMeritoDAO.update(comCiclo);
 
-        for (Egresado alumnoCiclo : alumnoCiclos) {
-            BigDecimal promedio = alumnoCiclo.getAlumno().getPromedioAcumulado();
+        for (Egresado egresado : egresadosDB) {
+            BigDecimal promedio = egresado.getAlumno().getPromedioAcumulado();
             promedio = promedio.setScale(2, RoundingMode.HALF_UP);
-            alumnoCiclo.setPromedioAcumulado(promedio);
-            alumnoCiclo.setCreditosAcumulados(mapAlumnosCiclo.get(alumnoCiclo.getAlumno().getId()).getCreditosAcumulados());
-            egresadoDAO.update(alumnoCiclo);
+            egresado.setPromedioAcumulado(promedio);
+            egresado.setCreditosAcumulados(mapAlumnosCiclo.get(egresado.getAlumno().getId()).getCreditosAcumulados());
+            egresadoDAO.update(egresado);
         }
     }
 
@@ -210,46 +209,46 @@ public class OrdenMeritoEgresadosServiceImp implements OrdenMeritoEgresadosServi
             com.setUserCalculo(ds.getUsuario());
         }
 
-        List<Egresado> alumnoCiclos = egresadoDAO.allByControlesOrdenMerito(coms);
+        List<Egresado> egresados = egresadoDAO.allByControlesOrdenMerito(coms);
 
-        Collections.sort(alumnoCiclos, Comparator.comparing(Egresado::getPromedioAcumulado).reversed());
+        Collections.sort(egresados, Comparator.comparing(Egresado::getPromedioAcumulado).reversed());
 
         Integer puesto = 0;
         Integer puestoActual = 0;
         BigDecimal promedio = null;
-        for (Egresado alumnoCiclo : alumnoCiclos) {
+        for (Egresado egresado : egresados) {
             puestoActual++;
-            if (promedio == null || alumnoCiclo.getPromedioAcumulado().compareTo(promedio) < 0) {
-                promedio = alumnoCiclo.getPromedioAcumulado();
+            if (promedio == null || egresado.getPromedioAcumulado().compareTo(promedio) < 0) {
+                promedio = egresado.getPromedioAcumulado();
                 puesto = puestoActual;
             }
-            alumnoCiclo.setOrdenMeritoCiclo(puesto);
+            egresado.setOrdenMeritoCiclo(puesto);
         }
 
         Integer cuadroCiclo = Math.max(1, puesto / 10);
         Integer quintoCiclo = Math.max(1, puesto / 5);
         Integer tercioCiclo = Math.max(1, puesto / 3);
 
-        List<Alumno> alumnos = alumnoCiclos.stream().map(Egresado::getAlumno).collect(Collectors.toList());
+//        List<Alumno> alumnos = egresados.stream().map(Egresado::getAlumno).collect(Collectors.toList());
 
-        for (Egresado alumnoCiclo : alumnoCiclos) {
-            Integer puestoAlumno = alumnoCiclo.getOrdenMeritoCiclo();
+        for (Egresado egresado : egresados) {
+            Integer puestoAlumno = egresado.getOrdenMeritoCiclo();
             if (puestoAlumno <= cuadroCiclo) {
-                alumnoCiclo.setCuadroHonorCiclo(puestoAlumno);
-                alumnoCiclo.setQuintoSuperiorCiclo(puestoAlumno);
-                alumnoCiclo.setTercioSuperiorCiclo(puestoAlumno);
+                egresado.setCuadroHonorCiclo(puestoAlumno);
+                egresado.setQuintoSuperiorCiclo(puestoAlumno);
+                egresado.setTercioSuperiorCiclo(puestoAlumno);
             } else if (puestoAlumno <= quintoCiclo) {
-                alumnoCiclo.setQuintoSuperiorCiclo(puestoAlumno);
-                alumnoCiclo.setTercioSuperiorCiclo(puestoAlumno);
+                egresado.setQuintoSuperiorCiclo(puestoAlumno);
+                egresado.setTercioSuperiorCiclo(puestoAlumno);
             } else if (puestoAlumno <= tercioCiclo) {
-                alumnoCiclo.setTercioSuperiorCiclo(puestoAlumno);
+                egresado.setTercioSuperiorCiclo(puestoAlumno);
             }
         }
 
         ControlMeritoEgresado comCiclo = coms.stream().filter(com -> com.getEscalaEnum() == ControlOrdenMeritoEscalaEnum.CICLO).findFirst().get();
 
-        Map<ControlMeritoEgresado, List<Egresado>> alumnosByFacultades = alumnoCiclos.stream().filter(ac -> ac.getControlMeritoFacultad() != null).collect(Collectors.groupingBy(ac -> ac.getControlMeritoFacultad()));
-        Map<ControlMeritoEgresado, List<Egresado>> alumnosByCarreras = alumnoCiclos.stream().filter(ac -> ac.getControlMeritoCarrera() != null).collect(Collectors.groupingBy(ac -> ac.getControlMeritoCarrera()));
+        Map<ControlMeritoEgresado, List<Egresado>> alumnosByFacultades = egresados.stream().filter(ac -> ac.getControlMeritoFacultad() != null).collect(Collectors.groupingBy(ac -> ac.getControlMeritoFacultad()));
+        Map<ControlMeritoEgresado, List<Egresado>> alumnosByCarreras = egresados.stream().filter(ac -> ac.getControlMeritoCarrera() != null).collect(Collectors.groupingBy(ac -> ac.getControlMeritoCarrera()));
 
         for (Map.Entry<ControlMeritoEgresado, List<Egresado>> entry : alumnosByFacultades.entrySet()) {
             Collections.sort(entry.getValue(), Comparator.comparing(Egresado::getPromedioAcumulado).reversed());
@@ -257,30 +256,30 @@ public class OrdenMeritoEgresadosServiceImp implements OrdenMeritoEgresadosServi
             puestoActual = 0;
             promedio = null;
 
-            for (Egresado alumnoCiclo : entry.getValue()) {
+            for (Egresado egresado : entry.getValue()) {
                 puestoActual++;
-                if (promedio == null || alumnoCiclo.getPromedioAcumulado().compareTo(promedio) < 0) {
-                    promedio = alumnoCiclo.getPromedioAcumulado();
+                if (promedio == null || egresado.getPromedioAcumulado().compareTo(promedio) < 0) {
+                    promedio = egresado.getPromedioAcumulado();
                     puesto = puestoActual;
                 }
-                alumnoCiclo.setOrdenMeritoFacultad(puesto);
+                egresado.setOrdenMeritoFacultad(puesto);
             }
 
             Integer cuadro = Math.max(1, puesto / 10);
             Integer quinto = Math.max(1, puesto / 5);
             Integer tercio = Math.max(1, puesto / 3);
 
-            for (Egresado alumnoCiclo : entry.getValue()) {
-                Integer puestoAlumno = alumnoCiclo.getOrdenMeritoFacultad();
+            for (Egresado egresado : entry.getValue()) {
+                Integer puestoAlumno = egresado.getOrdenMeritoFacultad();
                 if (puestoAlumno <= cuadro) {
-                    alumnoCiclo.setCuadroHonorFacultad(puestoAlumno);
-                    alumnoCiclo.setQuintoSuperiorFacultad(puestoAlumno);
-                    alumnoCiclo.setTercioSuperiorFacultad(puestoAlumno);
+                    egresado.setCuadroHonorFacultad(puestoAlumno);
+                    egresado.setQuintoSuperiorFacultad(puestoAlumno);
+                    egresado.setTercioSuperiorFacultad(puestoAlumno);
                 } else if (puestoAlumno <= quinto) {
-                    alumnoCiclo.setQuintoSuperiorFacultad(puestoAlumno);
-                    alumnoCiclo.setTercioSuperiorFacultad(puestoAlumno);
+                    egresado.setQuintoSuperiorFacultad(puestoAlumno);
+                    egresado.setTercioSuperiorFacultad(puestoAlumno);
                 } else if (puestoAlumno <= tercio) {
-                    alumnoCiclo.setTercioSuperiorFacultad(puestoAlumno);
+                    egresado.setTercioSuperiorFacultad(puestoAlumno);
                 }
             }
 
@@ -306,17 +305,17 @@ public class OrdenMeritoEgresadosServiceImp implements OrdenMeritoEgresadosServi
             Integer quinto = Math.max(1, puesto / 5);
             Integer tercio = Math.max(1, puesto / 3);
 
-            for (Egresado alumnoCiclo : entry.getValue()) {
-                Integer puestoAlumno = alumnoCiclo.getOrdenMeritoCarrera();
+            for (Egresado egresado : entry.getValue()) {
+                Integer puestoAlumno = egresado.getOrdenMeritoCarrera();
                 if (puestoAlumno <= cuadro) {
-                    alumnoCiclo.setCuadroHonorCarrera(puestoAlumno);
-                    alumnoCiclo.setQuintoSuperiorCarrera(puestoAlumno);
-                    alumnoCiclo.setTercioSuperiorCarrera(puestoAlumno);
+                    egresado.setCuadroHonorCarrera(puestoAlumno);
+                    egresado.setQuintoSuperiorCarrera(puestoAlumno);
+                    egresado.setTercioSuperiorCarrera(puestoAlumno);
                 } else if (puestoAlumno <= quinto) {
-                    alumnoCiclo.setQuintoSuperiorCarrera(puestoAlumno);
-                    alumnoCiclo.setTercioSuperiorCarrera(puestoAlumno);
+                    egresado.setQuintoSuperiorCarrera(puestoAlumno);
+                    egresado.setTercioSuperiorCarrera(puestoAlumno);
                 } else if (puestoAlumno <= tercio) {
-                    alumnoCiclo.setTercioSuperiorCarrera(puestoAlumno);
+                    egresado.setTercioSuperiorCarrera(puestoAlumno);
                 }
             }
 
@@ -329,8 +328,8 @@ public class OrdenMeritoEgresadosServiceImp implements OrdenMeritoEgresadosServi
             controlOrdenMeritoDAO.update(com);
         }
 
-        for (Egresado alumnoCiclo : alumnoCiclos) {
-            egresadoDAO.update(alumnoCiclo);
+        for (Egresado egresado : egresados) {
+            egresadoDAO.update(egresado);
         }
     }
 

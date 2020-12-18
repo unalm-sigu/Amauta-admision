@@ -1,5 +1,6 @@
 package pe.edu.lamolina.amauta.dao.academico.hibernate;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -49,7 +50,7 @@ public class EgresadoDAOH extends AbstractEasyDAO<Egresado> implements EgresadoD
         Octavia sql = Octavia.query()
                 .from(Egresado.class, "e")
                 .join("alumno alu", "cicloAcademico")
-                //.filter("esPrincipal", BigDecimal.ONE.intValue())
+                .filter("esPrincipal", BigDecimal.ONE.intValue())
                 .filter("alu.id", alumno);
         return find(sql);
     }
@@ -168,6 +169,7 @@ public class EgresadoDAOH extends AbstractEasyDAO<Egresado> implements EgresadoD
         Octavia sql = Octavia.query()
                 .from(Egresado.class, "e")
                 .join("alumno alu", "cicloAcademico")
+                .filter("e.esPrincipal", 1)
                 .in("alu.id", alumnos);
 
         return all(sql);

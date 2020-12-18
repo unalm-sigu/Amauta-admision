@@ -17,6 +17,7 @@ public enum TipoPdfEnum {
     LIST_CURSOS_DIRIGIDOS("ListCursosDirigidos", "pdf/listDetalleCursoDirigido", "Lista Cursos Dirigidos", "Lista Cursos Dirigidos"),
     DETALLE_CURSO_DIRIGIDO("DetalleCursoDirigido", "pdf/detalleCursoDirigido", "Curso Dirigido", "Curso Dirigido"),
     DETALLE_BACHILLER("DetalleBachillet", "pdf/detalleBachiller", "Bachiller", "Bachiller"),
+    DETALLE_TITULO("DetalleBachillet", "pdf/detalleTitulo", "Bachiller", "Bachiller"),
     DETALLE_RETIRO_EXCEPCIONAL("DetallerRetiroExcelcional", "pdf/retiroExcepcional", "Retiro Excepcional", "Retiro Excepcional"),
     DETALLE_REINCORPORACION("DetallerReincorporacion", "pdf/detalleReincorporacion", "Reincorporación", "Reincorporación"),
     HORARIO("Horario", "pdf/horario", "Horario", "Horario"),

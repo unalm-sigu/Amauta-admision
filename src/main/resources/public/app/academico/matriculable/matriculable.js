@@ -38,6 +38,13 @@ new Vue({
             okbtn: "Aceptar",
             showaccept: true
         },
+        modalSubirEgresado: {
+            id: 'modalSubirEgresado',
+            header: true,
+            title: 'Subir Egresado',
+            okbtn: "Aceptar",
+            showaccept: true
+        },
         modalProcesos: {
             id: 'modalProcesos',
             styleModal: {'background-color': '#D8D8D8'},
@@ -64,6 +71,7 @@ new Vue({
         }),
         url: null,
         seleccionado: '',
+        files: [],
         bgColorClass: {pregrado: '', postgrado: '', visitante: '', especial: ''},
     },
     mounted: function () {
@@ -774,8 +782,128 @@ new Vue({
                 $vue.$refs.load.changeUrl('queries[moe.codigo]', null);
                 $vue.$refs.load.loadRemoteData();
             }
+        },
+        subirEgresados() {
+            let $vue = this;
+            $vue.file = [];
+            $vue.$refs.modalSubirEgresado.open();
+        },
+        getFile(event) {
+            var $vue = this;
+            $vue.file = event.target.files[0];
+
+        },
+        loadEgresados() {
+            let $vue = this;
+            var form = $("#frmSubirEgresados");
+            if (!form.parsley().validate()) {
+                return;
+            }
+            $vue.$refs.modalSubirEgresado.showWait("Registrando egresados...");
+            let formData = new FormData();
+            formData.append('file', $vue.file);
+            AXIOS.post('/academico/matriculable/subirEgresados',
+                    formData,
+                    {
+                        headers: {
+                            'Content-Type': 'multipart/form-data'
+                        }
+                    }
+            ).then(response => {
+
+                if (response.data.success) {
+                    notify(response.data.message, "success");
+                } else {
+                    $vue.datos = response.data.data;
+                    notify(response.data.message, "error");
+                }
+                $vue.$refs.modalSubirEgresado.hideWait();
+                $vue.$refs.modalSubirEgresado.close();
+            }).catch(err => {
+                notify(Messages.errorComunicacion, "error");
+            });
         }
     }
 });
 
+$(function () {
 
+    $('#frmSubirEgresados').ajaxForm({
+        beforeSend: function () {
+            $('#progress .progress-bar').css('width', 0 + '%');
+        },
+        uploadProgress: function (e, position, total, percent) {
+            $('#progress .progress-bar').css('width', percent + '%');
+        },
+        success: function () {
+            $('#progress .progress-bar').css('width', 100 + '%');
+        },
+        complete: function (response) {
+            var json = response.responseJSON;
+            if (json.success) {
+                $("#cmbSubirEgresados").html('Carga finalizada');
+
+                alert("subio bien");
+            } else {
+                alert("subio mal");
+                $("#cmbSubirEgresados").html('Iniciar Carga');
+                $('#mensajeRespuesta').text(json.message).addClass("alert-danger").removeClass("alert-success").removeClass("hide");
+                $("#footerLoadAbonos").find("a").each(function (i, item) {
+                    $(item).removeAttr("disabled");
+                });
+            }
+        },
+        error: function (error) {
+            alert("error");
+            /*  $('#mensajeRespuesta').text("Error de comunicacion con el servidor").addClass("alert-danger");
+             $("#footerLoadAbonos").find("a").each(function (i, item) {
+             $(item).removeAttr("disabled");
+             });*/
+        }
+    });
+
+    Matriculable = {
+        modalMatriculable: $("#modalMatriculable"),
+        divElegido: null,
+        modalSubirEgresado: function (e, $this) {
+            //  e.preventDefault();
+            MODAL.init("lg");
+            MODAL.title("Subir Egresados");
+            MODAL.show();
+            $.ajax({
+                method: 'POST',
+                url: APP.url('academico/matriculable/modalSubirEgresados'),
+                success: function (response) {
+                    MODAL.buttons('<a class="btn btn-success" id="cmbSubirEgresados">Iniciar Carga</a>');
+                    MODAL.body(response);
+                },
+                error: function () {
+                    notify(MESSAGES.errorComunicacion, "error");
+                }
+            });
+        },
+        initLoadEgresados() {
+            if (!$('#frmSubirEgresados').parsley().validate()) {
+                return;
+            }
+
+            $("#footerLoadAbonos").find("a").each(function (i, item) {
+                $(item).attr("disabled", "disabled");
+            });
+
+            $('#mensajeRespuesta').addClass("hide");
+
+            $("#cmbSubirEgresados").html('<i class="fa fa-spinner fa-spin fa-lg"></i> Cargando datos');
+            $('#frmSubirEgresados').submit();
+        },
+    };
+
+    $("body").delegate("#subirEgresado", "click", function (e) {
+        Matriculable.modalSubirEgresado(e, $(this));
+    });
+
+    $("body").delegate("#cmbSubirEgresados", "click", function () {
+        Matriculable.initLoadEgresados();
+    });
+
+});

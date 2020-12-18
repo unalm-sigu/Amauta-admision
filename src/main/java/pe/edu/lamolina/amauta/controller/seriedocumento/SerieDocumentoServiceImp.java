@@ -40,16 +40,13 @@ public class SerieDocumentoServiceImp implements SerieDocumentoService {
 
         } else {
             serie = new SerieDocumento(tipo, nroSerie.toString());
-            serie.setNumeroDocumento("2");
+            serie.setNumeroDocumento("1");
             serie.setEstado("ACT");
             serie.setFechaRegistro(new Date());
             serie.setUserRegistro(user);
             serieDocumentoDAO.save(serie);
 
-            SerieDocumento serieDoc = new SerieDocumento(tipo, nroSerie.toString());
-            serieDoc.setNumeroDocumento("1");
-
-            return serieDoc;
+            return serie;
         }
     }
 
