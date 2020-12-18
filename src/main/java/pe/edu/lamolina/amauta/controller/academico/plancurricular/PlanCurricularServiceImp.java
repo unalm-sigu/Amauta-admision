@@ -170,15 +170,26 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
     VisorCalculoNotas visorCalculoNotas;
 
     @Override
-    public void caducar(Long idCursoCurricula, DataSessionPivot ds) {
+    @Transactional
+    public void caducar(Long idCursoCurricula, String caduco, DataSessionPivot ds) {
 
         CursoCurricula cursoCurricula = cursoCurriculaDAO.find(idCursoCurricula);
 
-        List<CursoCurricula> cursoCurriculasAllPlanes = cursoCurriculaDAO.allByCurso(cursoCurricula.getCurso());
+        List<CursoCurricula> cursoCurriculasAllPlanes = new ArrayList();
 
+        if (caduco.equals("SI")) {
+            cursoCurriculasAllPlanes = cursoCurriculaDAO.allByCurso(cursoCurricula.getCurso());
+        } else {
+            cursoCurriculasAllPlanes = cursoCurriculaDAO.allByPlanCurricularCAD(cursoCurricula.getPlanCurricular());
+        }
+
+//        List<CursoCurricula> cursoCurriculasCaducos = cursoCurriculaDAO.allByPlanCurricularCAD(cursoCurricula.getPlanCurricular());
         for (CursoCurricula cursoCurriculasPlan : cursoCurriculasAllPlanes) {
-
-            cursoCurriculasPlan.setEstado(CurriculaEstadoEnum.CAD.name());
+            if (caduco.equals("SI")) {
+                cursoCurriculasPlan.setEstado(CurriculaEstadoEnum.CAD.name());
+            } else {
+                cursoCurriculasPlan.setEstado(CurriculaEstadoEnum.ACT.name());
+            }
             cursoCurriculasPlan.setFechaCaduca(new Date());
             cursoCurriculasPlan.setUserCaduca(ds.getUsuario());
             cursoCurriculaDAO.updateColumns(cursoCurriculasPlan, "estado", "fechaCaduca", "userCaduca");

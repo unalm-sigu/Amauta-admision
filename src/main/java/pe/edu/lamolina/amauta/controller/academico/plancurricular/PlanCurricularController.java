@@ -1843,12 +1843,12 @@ public class PlanCurricularController {
 
     @ResponseBody
     @RequestMapping("caducar")
-    public JsonResponse caducar(@RequestParam("idCursoCurricula") Long idCursoCurricula, HttpSession session) {
+    public JsonResponse caducar(@RequestParam("idCursoCurricula") Long idCursoCurricula, @RequestParam("caduco") String caduco, HttpSession session) {
 
         JsonResponse response = new JsonResponse();
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-            service.caducar(idCursoCurricula, ds);
+            service.caducar(idCursoCurricula, caduco, ds);
             response.setSuccess(true);
             response.setMessage("Se modifico exitosamente");
 

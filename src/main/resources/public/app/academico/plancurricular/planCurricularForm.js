@@ -2101,12 +2101,13 @@ $(function () {
             });
         },
         caducar($this, e) {
-            console.log($this);
-
+            var caduco = $this.attr("rel");
+            var mensaje = caduco == 'NO' ? '¿Está seguro que desea de quitar el estado caduco de este curso?' : '¿Está seguro que desea caducar este curso?';
+            var boton = caduco == 'NO' ? 'Si, quitar caduco' : 'Si, caducar';
             bootbox.confirm({
-                message: '¿Está seguro que desea caducar este curso?',
+                message: mensaje,
                 buttons: {
-                    confirm: {label: 'Si, caducar', className: 'btn-danger'},
+                    confirm: {label: boton, className: 'btn-danger'},
                     cancel: {label: 'Cancel', className: 'btn-link'}
                 },
                 callback(result) {
@@ -2116,7 +2117,7 @@ $(function () {
                             url: APP.url('academico/planCurricular/caducar'),
                             type: 'POST',
                             async: true,
-                            data: {idCursoCurricula: $this[0].id},
+                            data: {idCursoCurricula: $this[0].id, caduco: caduco},
                             success: function (response) {
                                 if (response.success) {
                                     notify(response.message, "info");
