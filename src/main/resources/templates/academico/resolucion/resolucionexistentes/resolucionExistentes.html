@@ -140,7 +140,7 @@
                                         <tr>
                                             <th class=" text-center">Persona</th>
                                             <th class=" text-center" >Tipo Tramite</th>
-                                            <th class=" text-center" v-if=" !isRetiroCiclo &amp;&amp; !isTraslado &amp;&amp; !isTrasladoInt  &amp;&amp; !isNotaBaja  &amp;&amp; !isBachiller">Motivo Rechazo</th>
+                                            <th class=" text-center" v-if=" !isRetiroCiclo &amp;&amp; !isTraslado &amp;&amp; !isTrasladoInt  &amp;&amp; !isNotaBaja  &amp;&amp; !isBachiller &amp;&amp; !isTitulo">Motivo Rechazo</th>
                                             <!--                                                                                        <th class="col-md-3 text-center" v-if="!isCambioNota &amp;&amp; !isCursoDirigido &amp;&amp; !isTrasladoInt">Ciclo
                                                                                                                                         <span v-if='isRetiroCiclo'> a retirar</span>
                                                                                                                                         <span v-if='isReincorporacion'> a reincorporar</span>
@@ -176,6 +176,9 @@
                                     </template>
                                     <template>
                                         <div th:substituteby="academico/resolucion/resolucionexistentes/resolucionBachiller"></div>
+                                    </template>
+                                    <template>
+                                        <div th:substituteby="academico/resolucion/resolucionexistentes/resolucionTitulo"></div>
                                     </template>
 
                                     </tbody>

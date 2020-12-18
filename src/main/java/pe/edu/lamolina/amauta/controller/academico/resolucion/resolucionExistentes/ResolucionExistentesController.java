@@ -119,7 +119,7 @@ public class ResolucionExistentesController {
 
         List<TipoResolucion> tipoResolucions = service.allTipoResolucion();
         for (TipoResolucion tipoResolucion : tipoResolucions) {
-            if (Arrays.asList(TRAS_INT.name(), RCI.name(), ANCI.name(), REIC.name(), CAM_NOTA.name(), CURDIR.name(), TRAS.name(), INTES.name(), ING_HIS.name(), NOTA_BAJA.name(), BACHI.name()).contains(tipoResolucion.getCodigo())) {
+            if (Arrays.asList(TRAS_INT.name(), RCI.name(), ANCI.name(), REIC.name(), CAM_NOTA.name(), CURDIR.name(), TRAS.name(), INTES.name(), ING_HIS.name(), NOTA_BAJA.name(), BACHI.name(), TITUL.name()).contains(tipoResolucion.getCodigo())) {
                 tipoResolucionJson.add(JsonHelper.createJson(tipoResolucion, JsonNodeFactory.instance, new String[]{"*"}));
             }
         }
@@ -272,6 +272,8 @@ public class ResolucionExistentesController {
                 matriculableService.generarAportes(ds, token);
             } else if (resolucion.isTipoTramiteBachiller()) {
                 service.saveTramiteBachiller(resolucion, ds);
+            } else if (resolucion.isTipoTramiteTitulo()) {
+                service.saveTramiteTitulo(resolucion, ds);
             }
 
             response.setMessage("Se realizó el registro satisfactoriamente.");
