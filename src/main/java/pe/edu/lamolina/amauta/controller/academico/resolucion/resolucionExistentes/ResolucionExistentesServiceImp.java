@@ -1235,6 +1235,7 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
             TramiteBachiller tramiteBachiller = tramiteBachillerDAO.findByAlumnoAct(bachiller.getAlumno());
             Assert.isNotNull(tramiteBachiller, "El alumno no tiene un trámite bachiller");
 
+            tramiteBachiller.setResolucion(resolucion);
             tramiteBachiller.setEstado(bachiller.getSeleccionado() ? TramiteEstadoEnum.ACEP.name() : TramiteEstadoEnum.RCHZ.name());
             tramiteBachiller.setFechaResolucion(new Date());
             tramiteBachiller.setUsuarioResolucion(ds.getUsuario());
@@ -1335,6 +1336,7 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
             tramiteTitulo.setEstado(titulo.getSeleccionado() ? TramiteEstadoEnum.ACEP.name() : TramiteEstadoEnum.RCHZ.name());
             tramiteTitulo.setFechaResolucion(new Date());
             tramiteTitulo.setUsuarioResolucion(ds.getUsuario());
+            tramiteTitulo.setResolucion(resolucion);
             tramiteTituloDAO.update(tramiteTitulo);
 
             Tramite tramite = tramiteTitulo.getTramite();
