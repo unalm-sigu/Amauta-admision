@@ -1247,15 +1247,16 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
             tramiteDAO.update(tramite);
 
             if (tramite.getEstadoEnum() == TramiteEstadoEnum.ACEP) {
-
-                GradoAcademico gradoAcademico = gradoAcademicoDAO.findByTipoAndCarrera(TipoGradoAcademicoEnum.BACH, tramiteBachiller.getAlumno().getCarrera());
+                Alumno alumno = tramiteBachiller.getTramite().getAlumno();
+                GradoAcademico gradoAcademico = gradoAcademicoDAO.findByTipoAndCarrera(TipoGradoAcademicoEnum.BACH, alumno.getCarrera());
                 ObtencionGrado obtencionGrado = new ObtencionGrado();
-                obtencionGrado.setAlumno(tramiteBachiller.getAlumno());
+                obtencionGrado.setAlumno(alumno);
                 obtencionGrado.setCicloAcademico(ds.getCicloAcademico());
                 obtencionGrado.setEstadoTramite(tramite.getEstadoTramite());
                 obtencionGrado.setFechaRegistro(new Date());
                 obtencionGrado.setGradoAcademico(gradoAcademico);
                 obtencionGrado.setResolucion(resolucion);
+                obtencionGrado.setFechaObtencion(resolucion.getFecha());
                 obtencionGrado.setTramite(tramite);
                 obtencionGrado.setUserObtencion(ds.getUsuario());
                 obtencionGrado.setUserRegistro(ds.getUsuario());
@@ -1264,7 +1265,7 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
                 BigDecimal sumNotasCreditos = BigDecimal.ZERO;
                 BigDecimal sumCreditos = BigDecimal.ZERO;
 
-                List<AlumnoCicloCurso> alumnoCicloCursos = mapAlumnoCicloCurso.get(tramiteBachiller.getAlumno().getId());
+                List<AlumnoCicloCurso> alumnoCicloCursos = mapAlumnoCicloCurso.get(alumno.getId());
                 AlumnoCiclo alumnoCiclo = new AlumnoCiclo();
                 for (AlumnoCicloCurso cursoAluCicloEach : alumnoCicloCursos) {
                     alumnoCiclo = cursoAluCicloEach.getAlumnoCiclo();
@@ -1281,12 +1282,12 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
                     }
                 }
                 BigDecimal ppg = sumNotasCreditos.divide(sumCreditos);
-                Egresado egresado = egresadoDAO.findByAlumno(tramiteBachiller.getAlumno());
-                egresado.setAlumno(tramiteBachiller.getAlumno());
-                egresado.setCarrera(tramiteBachiller.getAlumno().getCarrera());
+                Egresado egresado = egresadoDAO.findByAlumno(alumno);
+                egresado.setAlumno(alumno);
+                egresado.setCarrera(alumno.getCarrera());
                 egresado.setCicloAcademico(ds.getCicloAcademico());
-                egresado.setFacultad(tramiteBachiller.getAlumno().getCarrera().getFacultad());
-                egresado.setFechaRegistroEgresado(resolucionForm.getFecha());
+                egresado.setFacultad(alumno.getCarrera().getFacultad());
+                egresado.setFechaRegistroEgresado(resolucion.getFecha());
                 egresado.setUserRegistroEgresado(ds.getUsuario());
                 egresado.setFechaEgresado(eventoCicloAcademico.getFechaFin());
                 egresado.setGrado(gradoAcademico);
@@ -1344,10 +1345,10 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
             tramite.setEstadoTramite(titulo.getSeleccionado() ? estadoTramite : estadoTramiteRech);
             tramiteDAO.update(tramite);
             if (tramite.getEstadoEnum() == TramiteEstadoEnum.ACEP) {
-
-                GradoAcademico gradoAcademico = gradoAcademicoDAO.findByTipoAndCarrera(TipoGradoAcademicoEnum.TIT, tramiteTitulo.getAlumno().getCarrera());
+                Alumno alumno = tramiteTitulo.getTramite().getAlumno();
+                GradoAcademico gradoAcademico = gradoAcademicoDAO.findByTipoAndCarrera(TipoGradoAcademicoEnum.TIT, alumno.getCarrera());
                 ObtencionGrado obtencionGrado = new ObtencionGrado();
-                obtencionGrado.setAlumno(tramiteTitulo.getAlumno());
+                obtencionGrado.setAlumno(alumno);
                 obtencionGrado.setCicloAcademico(ds.getCicloAcademico());
                 obtencionGrado.setEstadoTramite(tramite.getEstadoTramite());
                 obtencionGrado.setFechaRegistro(new Date());
@@ -1356,11 +1357,12 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
                 obtencionGrado.setTramite(tramite);
                 obtencionGrado.setUserObtencion(ds.getUsuario());
                 obtencionGrado.setUserRegistro(ds.getUsuario());
+                obtencionGrado.setFechaObtencion(resolucion.getFecha());
                 obtencionGradoDAO.save(obtencionGrado);
 
-                Egresado egresado = egresadoDAO.findByAlumno(tramiteTitulo.getAlumno());
+                Egresado egresado = egresadoDAO.findByAlumno(alumno);
 
-                egresado.setFechaTitulacion(new Date());
+                egresado.setFechaTitulacion(resolucion.getFecha());
                 egresado.setUserRegistroTitulado(ds.getUsuario());
                 egresado.setTitulo(gradoAcademico);
                 egresadoDAO.update(egresado);
