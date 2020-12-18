@@ -800,4 +800,15 @@ public class CicloAcademicoDAOH extends AbstractEasyDAO<CicloAcademico> implemen
         return all(sql);
     }
 
+    @Override
+    public CicloAcademico findConfiguradoPregrado() {
+        Octavia sql = Octavia.query()
+                .from(CicloAcademico.class, "ca")
+                .join("modalidadEstudio me")
+                .filter("estado", CFG)
+                .filter("me.codigo", ModalidadEstudioEnum.PRE);
+        return find(sql);
+    }
+
+    
 }
