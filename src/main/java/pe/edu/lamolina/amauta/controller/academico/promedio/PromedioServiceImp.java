@@ -255,6 +255,8 @@ public class PromedioServiceImp implements PromedioService {
             boolean throwError, boolean showError) {
 
         long t1 = System.currentTimeMillis();
+        logger.debug("Inicia calculo de promedios de {} en el momento {} time", alumnix.getCodigo(), t1);
+
         Alumno alumno = alumnix.clone();
         CicloAcademico cicloIngreso = alumno.getCicloIngreso();
         List<AlumnoCicloCurso> alumnoCiclosCursosUpd = new ArrayList();
