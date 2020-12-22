@@ -63,7 +63,7 @@
         <span class="fecha" th:text="${fecha}">La Molina, miércoles 8 de agosto de 2018</span>
         <div style="text-align: center">
             <b class="block" th:inline="text"> INFORME ACADEMICO PARA LA OBTENCION DEL
-                GRADO DE BACHILLER, FECHA PRIMERA MATRICULA Y CICLO
+                TITULO PROFESIONAL, FECHA PRIMERA MATRICULA Y CICLO
                 DE EGRESO 
             </b>
         </div>
@@ -90,7 +90,7 @@
                             <span >Informe N°: </span>
                         </td>
                         <td>
-                            <span th:text="${tramite.numero}"></span>/<span th:text="${tramite.serie}"></span>
+                            <span th:text="${titulo.tramite.numero}"></span>/<span th:text="${titulo.tramite.serie}"></span>
                         </td>
 
                     </tr>
@@ -115,7 +115,7 @@
                             <span >Asunto: </span>
                         </td>
                         <td>
-                            <span th:text=" 'Solicita REINCORPORACIÓN (Art. 142)'"></span>
+                            <span th:text=" 'TITULO PROFESIONAL'"></span>
                         </td>
 
                     </tr>
@@ -135,69 +135,39 @@
         </div>
         <br/>
         <div>
-            <span >Adjunto al presente remito el Historial Académico del alumno(a) <b th:text="${alumno.persona.apellidosNombres.toUpperCase()}"></b> identificado(a) con el N° <b th:text="${alumno.codigo}"></b> en el registro
-                de matricula, quien ha realizado estudios hasta el <b th:text="${alumno.cicloActivo.descripcion}"></b> y ha obtenido el siguiente resultado:</span>
+            <span > Comunico a usted que a  <b class="" th:text="${alumno.persona.apellidosNombres.toUpperCase()}"></b> con matricula N° <b th:text="${alumno.codigo}"></b> de la facultad de <b th:text="${alumno.carrera.facultad.nombre.toUpperCase()}"></b>
+                se le ha otorgado el Grado de <b class="" th:text="${obtencionGrado.gradoAcademico.nombre.toUpperCase()}"></b> de acuerdo a la resolución N°
+                <b class="" th:text="${obtencionGrado.resolucion.numeroVisible.toUpperCase()}"></b> del  <b class="" th:text="${obtencionGrado.resolucion.fecha}"></b>
+            </span>  
         </div>
 
         <div >            
-            <table  align="center">
-                <thead >
-                    <tr  >
-                        <th colspan="2" style="text-align: center"><b>SITUACIÓN ACADEMICO CICLO <span th:text="${alumno.cicloActivo.descripcion}"></span></b></th>
-                    </tr>
-                </thead>
+            <table  >
                 <tbody >
-                    <tr >
-                        <td >
-                            <span >PROMEDIO PONDERADO SEMESTRAL: </span>
-                        </td>
-                        <td >
-                            <span th:text="${#numbers.formatDecimal(alumno.promedioUltimoCiclo, 0, 'DEFAULT', 2, 'DEFAULT')} "></span> 
-                        </td>
-                    </tr>
-                    <tr >
-                        <td >
-                            <span >PROMEDIO PONDERADO ACUMULADO: </span>
-                        </td>
-                        <td >
-                            <span th:text="${#numbers.formatDecimal(alumno.promedioAcumulado, 0, 'DEFAULT', 2, 'DEFAULT')}"></span>
-                        </td>
-                    </tr>
-                    <tr >
-                        <td >
-                            <span >TOTAL DE CRÉDITOS CURSADOS: </span>
-                        </td>
-                        <td >
-                            <span th:text="${alumno.creditosCursados}"></span>
-                        </td>
-                    </tr>
-                    <tr >
-                        <td >
-                            <span >TOTAL DE CREDITOS APROBADOS: </span>
-                        </td>
-                        <td >
-                            <span th:text="${alumnoCiclo.creditosAprobadosAcumulados}"></span>
-                        </td>
-                    </tr>
-                    <tr >
-                        <td >
-                            <span >SITUACIÓN ACADÉMICA: </span>
-                        </td>
-                        <td >
-                            <span th:text="${alumnoCiclo.situacionInicio.nombre}"></span>
-                        </td>
-                    </tr>
-                    <tr >
-                        <td >
-                            <span >TUTOR: </span>
-                        </td>
-                        <td th:if='${alumno.consejero}'>
-                            <span th:if="${alumno.consejero.colaborador} != null" th:text="${alumno.consejero.colaborador.persona.apellidosNombres}"></span>
 
-                        </td>
-                        <td th:else="">
-                            <span th:if="${oficinaColaborador} != null" th:text="${oficinaColaborador.personaJefe.apellidosNombres}"></span>
 
+                    <tr >
+                        <td >
+                            <span >Fecha Primer Matricula: </span>
+                        </td>
+                        <td >
+                            <span th:text=" ${fechaPrimaMatricula}"></span> 
+                        </td>
+                    </tr>
+                    <tr >
+                        <td >
+                            <span >Ciclo Egreso: </span>
+                        </td>
+                        <td >
+                            <span th:text="${alumnoCiclo.cicloAcademico.descripcion2}"></span>
+                        </td>
+                    </tr>
+                    <tr >
+                        <td >
+                            <span >Fecha Egreso: </span>
+                        </td>
+                        <td >
+                            <span th:text="${fechaEgreso}"></span>
                         </td>
                     </tr>
 
@@ -206,7 +176,7 @@
         </div>
 
         <div style="text-align: center">
-            <!--            <pre >Atentamente,</pre>-->
+            <pre >Atentamente,</pre>
 
             <br/>
             <br/>

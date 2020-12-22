@@ -5,8 +5,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -103,6 +105,7 @@ import pe.edu.lamolina.model.academico.NombreFacultad;
 import pe.edu.lamolina.model.academico.NombreGrado;
 import pe.edu.lamolina.model.academico.NombreTituloAcademico;
 import static pe.edu.lamolina.model.enums.AmbienteAplicacionEnum.DESA;
+import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.MAT;
 import pe.edu.lamolina.model.enums.TipoCarreraEnum;
 import static pe.edu.lamolina.model.enums.TipoConstanciaEnum.CERT;
 import pe.edu.lamolina.model.enums.TipoOficinaEnum;
@@ -621,7 +624,9 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
 
                             break;
                         case PROMEDIO_PONDERADO_GRADUACION:
-
+                            if (egresado != null && egresado.getPromedioGraduacion() == null) {
+                                this.generarPromedioGraduacion(egresado, alumno);
+                            }
                             text = text.replace(enums.getValue(), egresado.getPromedioGraduacion() != null ? egresado.getPromedioGraduacion().toString() : alumnoCiclos.size() + "No hay data");
 
                             break;
@@ -815,6 +820,31 @@ public class GeneradorWordSolicitudServiceImp implements GeneradorWordSolicitudS
 //                        }
         }
 
+    }
+
+    private void generarPromedioGraduacion(Egresado egresado, Alumno alumno) {
+
+        BigDecimal sumNotasCreditos = BigDecimal.ZERO;
+        BigDecimal sumCreditos = BigDecimal.ZERO;
+
+        List<AlumnoCicloCurso> alumnoCicloCursos = alumnoCicloCursoDAO.allActivosByAlumno(alumno);
+        for (AlumnoCicloCurso cursoAluCicloEach : alumnoCicloCursos) {
+            if (cursoAluCicloEach.getCreditos() > 0
+                    && cursoAluCicloEach.isAprobado()
+                    && cursoAluCicloEach.getEstadoEnum()==MAT
+                    && !Arrays.asList("AP", "TE").contains(cursoAluCicloEach.getNota())) {
+
+                BigDecimal notaBig = TypesUtil.getBigDecimal(cursoAluCicloEach.getNota());
+                BigDecimal creditosBig = TypesUtil.getBigDecimal(cursoAluCicloEach.getCreditos());
+
+                sumNotasCreditos = sumNotasCreditos.add(notaBig.multiply(creditosBig));
+                sumCreditos = sumCreditos.add(creditosBig);
+
+            }
+        }
+        BigDecimal ppg = sumNotasCreditos.divide(sumCreditos);
+        egresado.setPromedioGraduacion(ppg);
+        egresadoDAO.update(egresado);
     }
 
 }

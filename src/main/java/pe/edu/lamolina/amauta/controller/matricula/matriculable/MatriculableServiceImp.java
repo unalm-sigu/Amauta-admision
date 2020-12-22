@@ -767,29 +767,29 @@ public class MatriculableServiceImp implements MatriculableService {
                 }
 
                 String codigoAlumno = getCellValue(1, row);
-                String codigoCarrera = getCellValue(3, row);
                 String codigoFacultad = getCellValue(2, row);
-                String codigoCiclo = getCellValue(5, row);
-                Integer creditosAcumulados = TypesUtil.getInt(getCellValue(5, row));
-                Integer creditosAprobadosAcumulados = TypesUtil.getInt(getCellValue(8, row));
-                Integer puntajeAcumulado = TypesUtil.getInt(StringUtils.isNotBlank(getCellValue(9, row)) ? getCellValue(9, row) : null);
-                BigDecimal promedioPonderadoAcumulado = TypesUtil.getBigDecimal(getCellValue(10, row));
-                //  BigDecimal promedioAcumuladoMerito= TypesUtil.getBigDecimal(getCellValue(10, row));
-                BigDecimal promedioGraduacion = TypesUtil.getBigDecimal(StringUtils.isNotBlank(getCellValue(11, row)) ? getCellValue(11, row) : null);
-                Integer omg = TypesUtil.getInt(getCellValue(14, row));
-                Integer omgf = TypesUtil.getInt(getCellValue(12, row));
-                Integer omgCarrera = TypesUtil.getInt(getCellValue(13, row));
-                Integer cuadrohonorCiclo = TypesUtil.getInt(StringUtils.isNotBlank(getCellValue(28, row)) ? getCellValue(28, row) : null);
-                Integer quintoSuperiorCiclo = TypesUtil.getInt(StringUtils.isNotBlank(getCellValue(27, row)) ? getCellValue(27, row) : null);
-                Integer tercioSuperiorCiclo = TypesUtil.getInt(StringUtils.isNotBlank(getCellValue(26, row)) ? getCellValue(26, row) : null);
-
-                Integer cuadroHonorFacultad = TypesUtil.getInt(StringUtils.isNotBlank(getCellValue(25, row)) ? getCellValue(25, row) : null);
-                Integer quintoSupFacultad = TypesUtil.getInt(StringUtils.isNotBlank(getCellValue(18, row)) ? getCellValue(18, row) : null);
-                Integer tercioSupFacultad = TypesUtil.getInt(StringUtils.isNotBlank(getCellValue(15, row)) ? getCellValue(15, row) : null);
-
-                Integer cuadroHonorCarrera = TypesUtil.getInt(StringUtils.isNotBlank(getCellValue(24, row)) ? getCellValue(24, row) : null);
-                Integer quintoSupCarrera = TypesUtil.getInt(StringUtils.isNotBlank(getCellValue(19, row)) ? getCellValue(19, row) : null);
-                Integer tercioSupCarrera = TypesUtil.getInt(StringUtils.isNotBlank(getCellValue(15, row)) ? getCellValue(15, row) : null);
+                String codigoCarrera = getCellValue(3, row);
+                String codigoCiclo = getCellValue(4, row);
+//                Integer creditosAcumulados = TypesUtil.getInt(getCellValue(5, row));
+//                Integer creditosAprobadosAcumulados = TypesUtil.getInt(getCellValue(8, row));
+//                Integer puntajeAcumulado = TypesUtil.getInt(StringUtils.isNotBlank(getCellValue(9, row)) ? getCellValue(9, row) : null);
+//                BigDecimal promedioPonderadoAcumulado = TypesUtil.getBigDecimal(getCellValue(10, row));
+//                //  BigDecimal promedioAcumuladoMerito= TypesUtil.getBigDecimal(getCellValue(10, row));
+//                BigDecimal promedioGraduacion = TypesUtil.getBigDecimal(StringUtils.isNotBlank(getCellValue(11, row)) ? getCellValue(11, row) : null);
+//                Integer omg = TypesUtil.getInt(getCellValue(14, row));
+//                Integer omgf = TypesUtil.getInt(getCellValue(12, row));
+//                Integer omgCarrera = TypesUtil.getInt(getCellValue(13, row));
+//                Integer cuadrohonorCiclo = TypesUtil.getInt(StringUtils.isNotBlank(getCellValue(28, row)) ? getCellValue(28, row) : null);
+//                Integer quintoSuperiorCiclo = TypesUtil.getInt(StringUtils.isNotBlank(getCellValue(27, row)) ? getCellValue(27, row) : null);
+//                Integer tercioSuperiorCiclo = TypesUtil.getInt(StringUtils.isNotBlank(getCellValue(26, row)) ? getCellValue(26, row) : null);
+//
+//                Integer cuadroHonorFacultad = TypesUtil.getInt(StringUtils.isNotBlank(getCellValue(25, row)) ? getCellValue(25, row) : null);
+//                Integer quintoSupFacultad = TypesUtil.getInt(StringUtils.isNotBlank(getCellValue(18, row)) ? getCellValue(18, row) : null);
+//                Integer tercioSupFacultad = TypesUtil.getInt(StringUtils.isNotBlank(getCellValue(15, row)) ? getCellValue(15, row) : null);
+//
+//                Integer cuadroHonorCarrera = TypesUtil.getInt(StringUtils.isNotBlank(getCellValue(24, row)) ? getCellValue(24, row) : null);
+//                Integer quintoSupCarrera = TypesUtil.getInt(StringUtils.isNotBlank(getCellValue(19, row)) ? getCellValue(19, row) : null);
+//                Integer tercioSupCarrera = TypesUtil.getInt(StringUtils.isNotBlank(getCellValue(15, row)) ? getCellValue(15, row) : null);
                 /*
                 Date fechaEgresado;
                 GradoAcademico grado;
@@ -807,11 +807,11 @@ public class MatriculableServiceImp implements MatriculableService {
 
                 Egresado egresado = new Egresado();
 
-                egresado.setCreditosAcumulados(creditosAcumulados);
-                egresado.setCreditosAprobadosAcumulados(creditosAprobadosAcumulados);
-                egresado.setCuadroHonorCarrera(cuadroHonorCarrera);
-                egresado.setCuadroHonorCiclo(cuadrohonorCiclo);
-                egresado.setCuadroHonorFacultad(cuadroHonorFacultad);
+//                egresado.setCreditosAcumulados(creditosAcumulados);
+//                egresado.setCreditosAprobadosAcumulados(creditosAprobadosAcumulados);
+//                egresado.setCuadroHonorCarrera(cuadroHonorCarrera);
+//                egresado.setCuadroHonorCiclo(cuadrohonorCiclo);
+//                egresado.setCuadroHonorFacultad(cuadroHonorFacultad);
                 egresado.setEsPrincipal(BigDecimal.ZERO.intValue());
 
                 // egresado.setFechaEgresado(fechaEgresado);
@@ -821,19 +821,19 @@ public class MatriculableServiceImp implements MatriculableService {
                 //egresado.setFechaRegistroTitulado(fechaRegistroTitulado);
                 // egresado.setFechaTitulacion(fechaTitulacion);
                 // egresado.setGrado(grado);
-                egresado.setOrdenMeritoCarrera(omgCarrera);
-                egresado.setOrdenMeritoCiclo(omg);
-                egresado.setOrdenMeritoFacultad(omgf);
-                egresado.setPromedioAcumulado(promedioPonderadoAcumulado);
+//                egresado.setOrdenMeritoCarrera(omgCarrera);
+//                egresado.setOrdenMeritoCiclo(omg);
+//                egresado.setOrdenMeritoFacultad(omgf);
+//                egresado.setPromedioAcumulado(promedioPonderadoAcumulado);
                 //  egresado.setPromedioAcumuladoMerito(promedioGraduacion);
-                egresado.setPromedioGraduacion(promedioGraduacion);
-                egresado.setPuntajeAcumulado(puntajeAcumulado);
-                egresado.setQuintoSuperiorCarrera(quintoSupCarrera);
-                egresado.setQuintoSuperiorCiclo(quintoSuperiorCiclo);
-                egresado.setQuintoSuperiorFacultad(quintoSupFacultad);
-                egresado.setTercioSuperiorCarrera(tercioSupCarrera);
-                egresado.setTercioSuperiorCiclo(tercioSuperiorCiclo);
-                egresado.setTercioSuperiorFacultad(tercioSupFacultad);
+//                egresado.setPromedioGraduacion(promedioGraduacion);
+//                egresado.setPuntajeAcumulado(puntajeAcumulado);
+//                egresado.setQuintoSuperiorCarrera(quintoSupCarrera);
+//                egresado.setQuintoSuperiorCiclo(quintoSuperiorCiclo);
+//                egresado.setQuintoSuperiorFacultad(quintoSupFacultad);
+//                egresado.setTercioSuperiorCarrera(tercioSupCarrera);
+//                egresado.setTercioSuperiorCiclo(tercioSuperiorCiclo);
+//                egresado.setTercioSuperiorFacultad(tercioSupFacultad);
 
                 // egresado.setTitulo(titulo);
                 // egresado.setUserRegistroEgresado(Long.MIN_VALUE);

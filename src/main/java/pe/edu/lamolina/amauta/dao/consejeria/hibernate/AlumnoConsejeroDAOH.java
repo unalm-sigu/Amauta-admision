@@ -332,5 +332,80 @@ public class AlumnoConsejeroDAOH extends AbstractEasyDAO<AlumnoConsejero> implem
                 .filterSpecial("carco.id", "!=", "caralu.id");
         return all(sql);
     }
+    
+    
+    @Override
+    public List<AlumnoConsejero> allByDynatablePersonaTutor(DynatableFilter filter, CicloAcademico cicloAcademico, Persona tutor) {
+        DynatableSql sql = new DynatableSql(filter)
+                .from(AlumnoConsejero.class, "ac")
+                .join("alumno al", "consejero con", "con.colaborador col", "col.persona perc")
+                .join("al.persona per", "al.carrera car", "car.facultad")
+                .join("al.situacionAcademica ", "cicloAcademico ca")
+                .leftJoin("per.tipoDocumento", "al.cicloIngreso", "perc.tipoDocumento")
+                .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
+                .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
+                .searchFields("al.codigo")
+                .filter("estado", EstadoEnum.ACT)
+                .filter("perc.id", tutor)
+                .filter("ca.id", cicloAcademico)
+                .orderBy("ac.id desc");
+        sql.beginRelativeFilters();
+        setCondicionDynatablePersonaTutor(filter, sql, cicloAcademico);
+        return all(sql);
+    }
+ 
+                      
+  
+    private void setCondicionDynatablePersonaTutor(DynatableFilter filter, DynatableSql sql, CicloAcademico ciclo) {
+        Map<String, Object> queries = filter.getQueries();
+        if (queries == null) {
+            return;
+        }
+
+        Octavia subqueryMat = Octavia.query()
+                .from(MatriculaResumen.class, "mr")
+                .join("alumno almr","cicloAcademico ciac")
+                .filter("ciac.id", ciclo)
+                .filter("mr.estado", MAT);
+        Octavia subqueryNmat = Octavia.query()
+                .from(MatriculaResumen.class, "mr")
+                .join("alumno almr","cicloAcademico ciac")
+                .filter("ciac.id", ciclo)
+                .filter("mr.estado", NMAT);
+        Octavia subqueryRCI = Octavia.query()
+                .from(MatriculaResumen.class, "mr")
+                .join("alumno almr","cicloAcademico ciac")
+                .filter("ciac.id", ciclo)
+                .filter("mr.estado", RCI);
+
+        for (String key : queries.keySet()) {
+            if (key.equals("search")) {
+                continue;
+            }
+            if (key.equals("estado")) {
+                String value = (String) queries.get(key);
+                switch (value) {
+                    case "matriculado":
+                        sql.exists(subqueryMat);
+                        sql.linkedBy("al.id", "almr.id");
+                        sql.linkedBy("ca.id", "ciac.id");
+                        break;
+
+                    case "noMatriculado":
+                        sql.exists(subqueryNmat);
+                        sql.linkedBy("al.id", "almr.id");
+                        sql.linkedBy("ca.id", "ciac.id");
+                        break;
+
+                    case "retirado":
+                        sql.exists(subqueryRCI);
+                        sql.linkedBy("al.id", "almr.id");
+                        sql.linkedBy("ca.id", "ciac.id");
+                        break;
+                }
+            }
+
+        }
+    }
 
 }

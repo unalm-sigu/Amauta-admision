@@ -1,4 +1,4 @@
-package pe.edu.lamolina.amauta.controller.tramite.tramiteBachiller;
+package pe.edu.lamolina.amauta.controller.tramite.tramiteTitulo;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -34,21 +34,21 @@ import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.model.tramite.Tramite;
-import pe.edu.lamolina.model.tramite.TramiteBachiller;
+import pe.edu.lamolina.model.tramite.TramiteTitulo;
 
 @Controller
-@RequestMapping("academico/tramiteacademico/tramitebachiller")
-public class TramitesBachillerController {
+@RequestMapping("academico/tramiteacademico/tramitetitulo")
+public class TramitesTituloController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    TramitesBachillerService tramitesBachillerService;
+    TramitesTituloService tramitesTituloService;
 
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
 
-        return "academico/tramitescademicos/tramitebachiller/tramitesBachiller";
+        return "academico/tramitescademicos/tramiteTitulo/tramitesTitulo";
     }
 
     @ResponseBody
@@ -59,7 +59,7 @@ public class TramitesBachillerController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         try {
             ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
-            List<TramiteBachiller> tramitesBachiller = tramitesBachillerService.allTramitesByFilter(filter, ds);
+            List<TramiteTitulo> tramitesTitulos = tramitesTituloService.allTramitesByFilter(filter, ds);
 
             String[] mapperTramite = new String[]{
                 "*",
@@ -91,7 +91,7 @@ public class TramitesBachillerController {
             String[] mapperTramiteComplex = (String[]) ArrayUtils.addAll(mapperTramite, mapperEstadoTramite);
 
             JsonNodeFactory jc = JsonNodeFactory.instance;
-            for (TramiteBachiller tramite : tramitesBachiller) {
+            for (TramiteTitulo tramite : tramitesTitulos) {
                 ObjectNode tramiteJson = JsonHelper.createJson(tramite, jc, false, mapperTramiteComplex);
 
                 array.add(tramiteJson);
@@ -110,7 +110,7 @@ public class TramitesBachillerController {
 
     @ResponseBody
     @RequestMapping("save")
-    public JsonResponse bachiller(@RequestBody TramiteBachiller tramiteBachiller, HttpSession session) {
+    public JsonResponse saveTitulo(@RequestBody TramiteTitulo tramiteTitulo, HttpSession session) {
 
         JsonResponse response = new JsonResponse();
 
@@ -118,8 +118,8 @@ public class TramitesBachillerController {
 
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
-            tramitesBachillerService.saveBachiller(tramiteBachiller, ds);
-            response.setMessage("Tramite registrado correctamente.");
+            tramitesTituloService.saveTitulo(tramiteTitulo, ds);
+            response.setMessage("Tramite registrado correctamente");
             response.setSuccess(Boolean.TRUE);
 
         } catch (PhobosException e) {
@@ -136,8 +136,8 @@ public class TramitesBachillerController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
         try {
-            String fileName = tramitesBachillerService.bachillerReporte(new Tramite(id), ds);
-            pdfResponse(fileName, "Información Bachiller.pdf", response);
+            String fileName = tramitesTituloService.TituloReporte(new Tramite(id), ds);
+            pdfResponse(fileName, "Información Titulo.pdf", response);
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, model);
         } catch (Exception e) {

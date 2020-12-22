@@ -24,7 +24,7 @@
                             <li class="pointer " v-if="ciclo.fechaPrioridades != null &amp;&amp; ciclo.fechaCierrePrioridades==null" ><a v-on:click="eliminarPrioridad">Limpiar Prioridades</a></li>
                             <li class="pointer " v-if="ciclo.fechaPrioridades != null &amp;&amp; ciclo.fechaCierrePrioridades==null" ><a v-on:click="finalizarPrioridad">Finalizar Prioridades</a></li>
                             <li class="pointer " v-if="ciclo.fechaCierrePrioridades != null " ><a v-on:click="findConfiguraciones">Asignar Turnos</a></li>
-                            <li class="pointer " ><a id="subirEgresado">Subir Egresados</a></li>
+                            <li class="pointer " ><a v-on:click="subirEgresados">Subir Egresados</a></li>
                             <li class="divider"></li>
                             <li class="pointer " ><a v-on:click.prevent="generarReporte('candidatosAptPre')">Candidatos Aptos Pregrado</a></li>
                             <li class="pointer " ><a v-on:click.prevent="generarReporte('votantesAptPre')">Votantes Aptos Pregrado</a></li>
@@ -221,6 +221,7 @@
                     </section>
                 </section>
 
+                <div th:substituteby="academico/matriculable/modalSubirEgresados"></div>
                 <div th:substituteby="academico/matriculable/modalAsignarTurno"></div>
                 <div th:substituteby="academico/matriculable/matriculableModal"></div>
                 <div th:substituteby="academico/matriculable/inhabilitarMatriculable"></div>

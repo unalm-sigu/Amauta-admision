@@ -124,7 +124,7 @@ public class MatriculableConmectorImp implements MatriculableConnector {
         if (StringUtils.isNotBlank(codigoCiclo)) {
             cicloAcademico = cicloAcademicoDAO.findByCodigo(codigoCiclo + "0");
         }
-
+        logger.error(" alumno , codigo {} ", codigoAlumno);
         egresado.setAlumno(alumno);
         egresado.setCarrera(carrera);
         egresado.setCicloAcademico(cicloAcademico);

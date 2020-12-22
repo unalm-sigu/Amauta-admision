@@ -25,22 +25,22 @@ import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 @Service
 @Transactional(readOnly = true)
 public class AconsejadosTutorServiceImpl implements AconsejadosTutorService {
-
+    
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
+    
     @Autowired
     AlumnoConsejeroDAO alumnoConsejeroDAO;
     @Autowired
     MatriculaResumenDAO matriculaResumenDAO;
-
+    
     @Override
     public List<AlumnoConsejero> allByDynatable(DynatableFilter filter, CicloAcademico cicloAcademico, Persona tutor) {
-        List<AlumnoConsejero> alumnoConsejeros = alumnoConsejeroDAO.allByPersonaTutor(filter, cicloAcademico, tutor);
+        List<AlumnoConsejero> alumnoConsejeros = alumnoConsejeroDAO.allByDynatablePersonaTutor(filter, cicloAcademico, tutor);
         List<Alumno> alumnos = alumnoConsejeros.stream().map(x -> x.getAlumno()).collect(Collectors.toList());
         List<MatriculaResumen> matriculaResumen = matriculaResumenDAO.allByAlumnosCiclo(alumnos, cicloAcademico);
         Map<Long, MatriculaResumen> mapMatriculaResumen = TypesUtil.convertListToMap("alumno.id", matriculaResumen);
         logger.debug("alumno consejero {}", alumnoConsejeros.size());
-
+        
         for (AlumnoConsejero alumnoTutor : alumnoConsejeros) {
             MatriculaResumen matResumen = mapMatriculaResumen.get(alumnoTutor.getAlumno().getId());
             if (matResumen != null) {
@@ -54,7 +54,7 @@ public class AconsejadosTutorServiceImpl implements AconsejadosTutorService {
         }
         return alumnoConsejeros;
     }
-
+    
     @Override
     public AconsejadoEstadoBean allByPersona(Persona persona, CicloAcademico cicloAcademico) {
         Long countMatriculable = matriculaResumenDAO.countMatriculablesByConsejero(persona, cicloAcademico);
@@ -66,7 +66,7 @@ public class AconsejadosTutorServiceImpl implements AconsejadosTutorService {
         aconsejadoEstadoBean.setRetiroCiclo(countRetiroCiclo);
         return aconsejadoEstadoBean;
     }
-
+    
     @Override
     @Transactional
     public void matriculaAutorizacion(MatriculaResumen matriculaResumen, DataSessionPivot ds) {

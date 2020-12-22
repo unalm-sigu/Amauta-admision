@@ -64,4 +64,6 @@ public interface ResolucionExistenteService {
 
     List<ObtencionGrado> allTramiteBachiller(Resolucion resolucion);
 
+    public void saveTramiteTitulo(Resolucion resolucion, DataSessionPivot ds);
+
 }
