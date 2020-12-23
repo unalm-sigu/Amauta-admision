@@ -112,7 +112,13 @@ new Vue({
         inhabilitarModal(item) {
             let $vue = this;
             $vue.matriculableSelected = {};
-            $vue.matriculableSelected = item;
+            $vue.matriculableSelected = Object.assign({}, item);
+            if (item.estado == 'INH') {
+                $vue.modalInhabilitarMatriculable.title = 'Habilitar Matriculable';
+            } else {
+                $vue.modalInhabilitarMatriculable.title = 'Inhabilitar Matriculable';
+            }
+
             $vue.$refs.modalInhabilitarMatriculable.open();
         },
         habilitar() {
@@ -822,88 +828,32 @@ new Vue({
             }).catch(err => {
                 notify(Messages.errorComunicacion, "error");
             });
+        },
+        verificarPrioridad(item) {
+            let $vue = this;
+
+            MODAL.showWait("Espere un momento por favor");
+
+            $.ajax({
+                method: 'POST',
+                url: APP.url(`${rutaModulo}/verificarPrioridad/` + item.id),
+                contentType: "application/json",
+                success: function (response) {
+                    if (response.success) {
+
+                        MODAL.hideWait();
+                        $vue.$refs.load.loadRemoteData();
+
+                        notify(response.message, "success");
+                    } else {
+                        notify(response.message, "error");
+                    }
+                },
+                error() {
+                    notify(Messages.errorComunicacion, "error");
+                }
+            });
         }
     }
 });
 
-$(function () {
-
-    $('#frmSubirEgresados').ajaxForm({
-        beforeSend: function () {
-            $('#progress .progress-bar').css('width', 0 + '%');
-        },
-        uploadProgress: function (e, position, total, percent) {
-            $('#progress .progress-bar').css('width', percent + '%');
-        },
-        success: function () {
-            $('#progress .progress-bar').css('width', 100 + '%');
-        },
-        complete: function (response) {
-            var json = response.responseJSON;
-            if (json.success) {
-                $("#cmbSubirEgresados").html('Carga finalizada');
-
-                alert("subio bien");
-            } else {
-                alert("subio mal");
-                $("#cmbSubirEgresados").html('Iniciar Carga');
-                $('#mensajeRespuesta').text(json.message).addClass("alert-danger").removeClass("alert-success").removeClass("hide");
-                $("#footerLoadAbonos").find("a").each(function (i, item) {
-                    $(item).removeAttr("disabled");
-                });
-            }
-        },
-        error: function (error) {
-            alert("error");
-            /*  $('#mensajeRespuesta').text("Error de comunicacion con el servidor").addClass("alert-danger");
-             $("#footerLoadAbonos").find("a").each(function (i, item) {
-             $(item).removeAttr("disabled");
-             });*/
-        }
-    });
-
-    Matriculable = {
-        modalMatriculable: $("#modalMatriculable"),
-        divElegido: null,
-        modalSubirEgresado: function (e, $this) {
-            //  e.preventDefault();
-            MODAL.init("lg");
-            MODAL.title("Subir Egresados");
-            MODAL.show();
-            $.ajax({
-                method: 'POST',
-                url: APP.url('academico/matriculable/modalSubirEgresados'),
-                success: function (response) {
-                    MODAL.buttons('<a class="btn btn-success" id="cmbSubirEgresados">Iniciar Carga</a>');
-                    MODAL.body(response);
-                },
-                error: function () {
-                    notify(MESSAGES.errorComunicacion, "error");
-                }
-            });
-        },
-        initLoadEgresados() {
-            if (!$('#frmSubirEgresados').parsley().validate()) {
-                return;
-            }
-
-            $("#footerLoadAbonos").find("a").each(function (i, item) {
-                $(item).attr("disabled", "disabled");
-            });
-
-            $('#mensajeRespuesta').addClass("hide");
-
-            $("#cmbSubirEgresados").html('<i class="fa fa-spinner fa-spin fa-lg"></i> Cargando datos');
-            $('#frmSubirEgresados').submit();
-        },
-    };
-
-    $("body").delegate("#subirEgresado", "click", function (e) {
-        Matriculable.modalSubirEgresado(e, $(this));
-    });
-
-    $("body").delegate("#cmbSubirEgresados", "click", function () {
-        Matriculable.initLoadEgresados();
-    });
-
-});

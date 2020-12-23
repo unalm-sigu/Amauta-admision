@@ -102,4 +102,6 @@ public interface MatriculableService {
 
     void habilitarMatriculable(MatriculaResumen matriculaResumen, DataSessionPivot ds);
 
+    public void verificarPrioridad(Long idMatriculaResumen);
+
 }

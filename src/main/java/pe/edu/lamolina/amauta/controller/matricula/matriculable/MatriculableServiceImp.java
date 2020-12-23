@@ -834,7 +834,6 @@ public class MatriculableServiceImp implements MatriculableService {
 //                egresado.setTercioSuperiorCarrera(tercioSupCarrera);
 //                egresado.setTercioSuperiorCiclo(tercioSuperiorCiclo);
 //                egresado.setTercioSuperiorFacultad(tercioSupFacultad);
-
                 // egresado.setTitulo(titulo);
                 // egresado.setUserRegistroEgresado(Long.MIN_VALUE);
                 // egresado.setUserRegistroGraduado(Long.MIN_VALUE);
@@ -1771,6 +1770,7 @@ public class MatriculableServiceImp implements MatriculableService {
     }
 
     @Override
+    @Transactional
     public void habilitarMatriculable(MatriculaResumen matriculaResumenForm, DataSessionPivot ds) {
         CicloAcademico academico = cicloAcademicoDAO.find(ds.getCicloAcademico());
 
@@ -1787,6 +1787,33 @@ public class MatriculableServiceImp implements MatriculableService {
         matriculaResumen.setEstadoEnum(EstadoMatriculaEnum.NMAT);
         matriculaResumen.setMotivoMatriculable(matriculaResumenForm.getMotivoMatriculable());
         matriculaResumenDAO.update(matriculaResumen);
+    }
+
+    @Override
+    @Transactional
+    public void verificarPrioridad(Long idMatriculaResumen) {
+        MatriculaResumen matriculaResumen = matriculaResumenDAO.find(idMatriculaResumen);
+        CicloAcademico cicloActivo = cicloAcademicoDAO.find(matriculaResumen.getCicloAcademico().getId());
+        List<MatriculaResumen> matriculables = matriculaResumenDAO.allByCiclo(cicloActivo);
+        Map<Long, MatriculaResumen> mapMatriculable = TypesUtil.convertListToMap("alumno.id", matriculables);
+        Collections.sort(matriculables, new MatriculaResumen.ComparePrioridadAsc());
+
+        List<AlumnoCiclo> alumnosCiclos = alumnoCicloDAO.allActivosRegularesByCicloResumen(cicloActivo);
+        Map<Long, AlumnoCiclo> mapAlumnoCiclo = TypesUtil.convertListToMap("alumno.id", alumnosCiclos);
+
+        Alumno alumno = matriculaResumen.getAlumno();
+        if (cicloActivo.getFechaPrioridades() != null) {
+            EventoAcademicoEnum eventoEnum = cicloActivo.isTipoRegular() ? MAT_REG : MAT_VER;
+            List<TurnoAtencion> turnos = turnoAtencionDAO.allByCicloEventoEnum(cicloActivo, eventoEnum);
+
+            asignarPrioridad(alumno, cicloActivo, matriculables, mapMatriculable, turnos, mapAlumnoCiclo);
+
+            matriculaResumenDAO.update(matriculaResumen);
+
+            for (TurnoAtencion turno : turnos) {
+                turnoAtencionDAO.update(turno);
+            }
+        }
     }
 
 }
