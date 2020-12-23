@@ -564,10 +564,7 @@ public class PromedioServiceImp implements PromedioService {
                 if (cicloSgte != null) {
                     this.printSystem("Revisando1 ciclo=" + cicloSgte.getCodigo() + " registros=" + alumnosCiclosByAlumno.size(), showError);
                 }
-                if (cicloSgte == null) {
-                    this.printSystem("Sin ciclo que analizar ", showError);
-                    break;
-                }
+
                 alumnoCicloEach = getAlumnoCicloSgte(
                         alumno,
                         egresado,
