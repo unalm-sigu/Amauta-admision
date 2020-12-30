@@ -71,7 +71,6 @@ $(function () {
             console.log("email: " + emailEmpresa);
             if ($this.parsley().isValid()) {
 
-                //var email = $this.val();
                 var email = emailEmpresa;
                 $.ajax({
                     url: APP.url('general/persona/validarEmail'),
@@ -80,11 +79,8 @@ $(function () {
                     data: {email: email},
                     success: function (response) {
                         if (response.success) {
-
                             if (response.data.validate == true) {
-
                                 if (response.data.persona != $('#id').val()) {
-
                                     notify("El email ingresado ya esta asociado a una persona.", "error");
                                     $("#email").val("");
                                 }

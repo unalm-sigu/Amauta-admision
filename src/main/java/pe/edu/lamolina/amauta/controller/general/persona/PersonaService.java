@@ -6,12 +6,18 @@ import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.general.TipoDocIdentidad;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.general.EmpresaEtiquetada;
+import pe.edu.lamolina.model.general.PersonaCuentaBancaria;
 
 public interface PersonaService {
 
     List<Persona> allByDynatable(DynatableFilter filter);
 
     Persona find(Persona persona);
+
+    List<PersonaCuentaBancaria> allCtasBancarias(Persona persona);
+
+    List<EmpresaEtiquetada> allBancos();
 
     List<TipoDocIdentidad> allDocumentos();
 
@@ -26,5 +32,11 @@ public interface PersonaService {
     String validarEmailCompaniaByPersona(String email, Persona persona);
 
     void updatePersonaAlumno(Persona persona, Usuario usuario);
+
+    void saveCtaBanco(PersonaCuentaBancaria cuentaBanco, DataSessionPivot ds);
+
+    void deleteCtaBanco(PersonaCuentaBancaria cuentaBanco, DataSessionPivot ds);
+
+    void activarCtaBanco(PersonaCuentaBancaria cuentaBanco, DataSessionPivot ds);
 
 }

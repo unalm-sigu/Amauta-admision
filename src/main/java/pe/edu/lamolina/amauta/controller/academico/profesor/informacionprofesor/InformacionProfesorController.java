@@ -22,16 +22,17 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import pe.albatross.zelpers.json.JaneHelper;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorService;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Docente;
 import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.horario.Hora;
-import pe.edu.lamolina.model.constantines.AcademicoConstantine;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 
@@ -41,6 +42,8 @@ public class InformacionProfesorController {
 
     @Autowired
     InformacionProfesorService service;
+    @Autowired
+    VerificadorService verificadorService;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -77,10 +80,7 @@ public class InformacionProfesorController {
         Compania compania = ds.getCompania();
 
         CicloAcademico cicloAcademico = ds.getCicloAcademico();
-        ObjectNode jCiclo = JsonHelper.createJson(cicloAcademico, JsonNodeFactory.instance, false,
-                new String[]{
-                    "*"
-                });
+        ObjectNode cicloJson = JaneHelper.from(cicloAcademico).json();
 
         ArrayNode horasJson = new ArrayNode(JsonNodeFactory.instance);
         List<Hora> horas = service.allHoras();
@@ -95,7 +95,9 @@ public class InformacionProfesorController {
         model.addAttribute("categorias", service.allCategorias());
         model.addAttribute("situaciones", service.allSituaciones());
         model.addAttribute("dedicaciones", service.allDedicaciones());
-        model.addAttribute("ciclo", jCiclo.toString());
+        model.addAttribute("ciclo", cicloJson.toString());
+        model.addAttribute("esOperadorGastoEPG", verificadorService.isOperadorGastoPosgrado(ds));
+
         return "academico/profesor/informacion/informacion";
     }
 

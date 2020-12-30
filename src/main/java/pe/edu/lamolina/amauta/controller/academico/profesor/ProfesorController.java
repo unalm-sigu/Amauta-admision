@@ -40,6 +40,7 @@ import org.thymeleaf.spring4.SpringTemplateEngine;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
 import pe.albatross.zelpers.file.system.FileHelper;
+import pe.albatross.zelpers.json.JaneHelper;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
@@ -58,10 +59,14 @@ import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.misc.FotoHelper;
 import pe.edu.lamolina.amauta.controller.academico.profesor.view.ProfesoresPDF;
 import pe.edu.lamolina.amauta.controller.academico.visitante.AlumnoHelper;
+import pe.edu.lamolina.amauta.controller.docente.cargaacademica.CargaAcademicaService;
 import pe.edu.lamolina.amauta.controller.docente.notasacademicas.NotaAcademicaService;
 import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorService;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.academico.AnexoBoletin;
+import pe.edu.lamolina.model.academico.DocenteSeccion;
+import pe.edu.lamolina.model.academico.Seccion;
 
 @Controller
 @RequestMapping("academico/profesor")
@@ -72,6 +77,9 @@ public class ProfesorController {
 
     @Autowired
     SpringTemplateEngine springHtml;
+
+    @Autowired
+    CargaAcademicaService cargaAcademicaService;
 
     @Autowired
     NotaAcademicaService notaAcademicaService;
@@ -115,9 +123,11 @@ public class ProfesorController {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         List<DepartamentoAcademico> departamentos = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.DPTO, request, ds);
         List<Facultad> facultades = departamentos.stream().map(x -> x.getFacultad()).distinct().collect(Collectors.toList());
+        boolean puedeActivar = verificadorService.isTrabajadorOera(ds);
 
         model.addAttribute("cicloAcademico", ds.getCicloAcademico());
         model.addAttribute("departamentos", departamentos);
+        model.addAttribute("puedeActivar", puedeActivar);
 
         ArrayNode jFacultades = new ArrayNode(JsonNodeFactory.instance);
         for (Facultad facultad : facultades) {
@@ -477,51 +487,93 @@ public class ProfesorController {
     }
 
     @ResponseBody
-    @RequestMapping("{idDocente}/listCargaAcademicaDocente")
-    public DynatableResponse list(@PathVariable("idDocente") Long idDocente, DynatableFilter filter, HttpSession session) {
+    @RequestMapping("{idDocente}/cargaAcademicaSeparada")
+    public JsonResponse cargaAcademicaSeparada(@PathVariable("idDocente") Long idDocente, HttpSession session) {
 
-        DynatableResponse json = new DynatableResponse();
-        DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-
-        Docente docente = service.find(new Docente(idDocente));
-
+        JsonResponse response = new JsonResponse();
         try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
 
-            ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
+            ArrayNode arrayPregrado = new ArrayNode(JsonNodeFactory.instance);
+            ArrayNode arrayPosgrado = new ArrayNode(JsonNodeFactory.instance);
+            ObjectNode data = new ObjectNode(JsonNodeFactory.instance);
+
             CicloAcademico ciclo = ds.getCicloAcademico();
+            Docente docente = service.find(new Docente(idDocente));
+            List<GrupoSeccion> gruposSeccion = cargaAcademicaService.allGpoSecciones(docente, ciclo);
 
-            List<GrupoSeccion> gruposSeccion = service.allGpoSecciones(docente, ciclo, ds);
+            BigDecimal creditosPregrado = BigDecimal.ZERO;
+            BigDecimal creditosPosgrado = BigDecimal.ZERO;
 
             for (GrupoSeccion grupoSeccion : gruposSeccion) {
-                ObjectNode node = JsonHelper.createJson(grupoSeccion, JsonNodeFactory.instance, true, new String[]{
-                    "id", "estadoEnum", "estadoGrupoEnum",
-                    "cicloAcademico.tipoEnum",
-                    "curso.codigo",
-                    "curso.nombre",
-                    "curso.tpc",
-                    "planCalificacion.id",
-                    "secciones.tipoSeccionEnum",
-                    "secciones.codigo2",
-                    "secciones.matriculados",
-                    "secciones.aula.codigo",
-                    "secciones.aula.nombre",
-                    "secciones.grupoHoras.codigo",
-                    "secciones.docenteSeccion.*",
-                    "secciones.verInformacion"
-                });
+                AnexoBoletin anexoSup = grupoSeccion.getAnexoBoletin().getAnexoSuperior();
 
-                array.add(node);
+                List<Seccion> secciones = grupoSeccion.getSecciones();
+                for (Seccion seccion : secciones) {
+                    List<DocenteSeccion> profesSeccion = seccion.getDocenteSeccion();
+                    for (DocenteSeccion profeSecc : profesSeccion) {
+                        if (profeSecc.getCreditosCarga() == null) {
+                            continue;
+                        }
+                        if (anexoSup.isAnexoCursosPostgrado()) {
+                            creditosPosgrado = creditosPosgrado.add(profeSecc.getCreditosCarga());
+                        } else {
+                            creditosPregrado = creditosPregrado.add(profeSecc.getCreditosCarga());
+                        }
+                    }
+                }
+
+                ObjectNode node = JaneHelper
+                        .from(grupoSeccion)
+                        .only("id,estadoEnum,estadoGrupoEnum")
+                        .join("cicloAcademico", "tipoEnum")
+                        .join("curso", "codigo,nombre,tpc")
+                        .join("planCalificacion", "id")
+                        .json();
+
+                List<Seccion> seccionesByGpoSecc = grupoSeccion.getSecciones();
+                ArrayNode seccionesArray = new ArrayNode(JsonNodeFactory.instance);
+                for (Seccion seccion : seccionesByGpoSecc) {
+                    ObjectNode nodeSeccion = JaneHelper
+                            .from(seccion)
+                            .only("id,tipoSeccionEnum,codigo2,matriculados,verInformacion,horarioTexto")
+                            .join("aula", "codigo,nombre,usuarioZoom,passZoom")
+                            .join("grupoHoras", "codigo")
+                            .json();
+
+                    List<DocenteSeccion> docentesSecc = seccion.getDocenteSeccion();
+                    ArrayNode docSeccArray = JaneHelper
+                            .from(docentesSecc)
+                            .only("id,estado,porcentajeCarga,fechaInicio,fechaFin,creditosCarga")
+                            .array();
+
+                    nodeSeccion.set("docenteSeccion", docSeccArray);
+                    seccionesArray.add(nodeSeccion);
+                }
+
+                node.set("secciones", seccionesArray);
+
+                if (anexoSup.isAnexoCursosPostgrado()) {
+                    arrayPosgrado.add(node);
+                } else {
+                    arrayPregrado.add(node);
+                }
             }
 
-            json.setData(array);
-            json.setTotal(gruposSeccion.size());
-            json.setFiltered(gruposSeccion.size());
+            data.set("cargaPregrado", arrayPregrado);
+            data.set("cargaPosgrado", arrayPosgrado);
+            data.put("creditosPregrado", creditosPregrado);
+            data.put("creditosPosgrado", creditosPosgrado);
 
+            response.setData(data);
+            response.setSuccess(Boolean.TRUE);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
         } catch (Exception e) {
-            e.printStackTrace();
-            json.setTotal(0);
+            ExceptionHandler.handleException(e, response);
         }
-        return json;
+        return response;
     }
 
     @RequestMapping("reporteEntregaMateriales")

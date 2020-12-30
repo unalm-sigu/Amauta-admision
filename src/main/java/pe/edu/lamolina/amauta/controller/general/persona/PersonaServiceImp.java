@@ -1,5 +1,6 @@
 package pe.edu.lamolina.amauta.controller.general.persona;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -13,6 +14,8 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.edu.lamolina.amauta.dao.general.EmpresaEtiquetadaDAO;
+import pe.edu.lamolina.amauta.dao.general.PersonaCuentaBancariaDAO;
 import pe.edu.lamolina.model.enums.UserEstadoEnum;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.general.TipoDocIdentidad;
@@ -22,20 +25,24 @@ import pe.edu.lamolina.amauta.dao.general.TipoDocIdentidadDAO;
 import pe.edu.lamolina.amauta.dao.seguridad.RolDAO;
 import pe.edu.lamolina.amauta.dao.seguridad.UsuarioDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.enums.EstadoEnum;
+import pe.edu.lamolina.model.general.EmpresaEtiquetada;
+import pe.edu.lamolina.model.general.PersonaCuentaBancaria;
 
 @Service
 @Transactional(readOnly = true)
 public class PersonaServiceImp implements PersonaService {
 
     @Autowired
+    EmpresaEtiquetadaDAO empresaEtiquetadaDAO;
+    @Autowired
     PersonaDAO personaDAO;
-
+    @Autowired
+    PersonaCuentaBancariaDAO personaCuentaBancariaDAO;
     @Autowired
     RolDAO rolDAO;
-
     @Autowired
     TipoDocIdentidadDAO tipoDocIdentidadDAO;
-
     @Autowired
     UsuarioDAO usuarioDAO;
 
@@ -66,6 +73,29 @@ public class PersonaServiceImp implements PersonaService {
     @Override
     public Persona find(Persona persona) {
         return personaDAO.find(persona.getId());
+    }
+
+    @Override
+    public List<PersonaCuentaBancaria> allCtasBancarias(Persona persona) {
+        List<PersonaCuentaBancaria> ctasOrden = new ArrayList();
+        List<PersonaCuentaBancaria> ctas = personaCuentaBancariaDAO.allByPersona(persona);
+        for (PersonaCuentaBancaria cta : ctas) {
+            if (cta.getEstadoEnum() == EstadoEnum.ACT) {
+                ctasOrden.add(cta);
+                break;
+            }
+        }
+        for (PersonaCuentaBancaria cta : ctas) {
+            if (cta.getEstadoEnum() != EstadoEnum.ACT) {
+                ctasOrden.add(cta);
+            }
+        }
+        return ctasOrden;
+    }
+
+    @Override
+    public List<EmpresaEtiquetada> allBancos() {
+        return empresaEtiquetadaDAO.allBancos();
     }
 
     @Override
@@ -305,14 +335,67 @@ public class PersonaServiceImp implements PersonaService {
         return msg;
     }
 
-    @Transactional
     @Override
+    @Transactional
     public void updatePersonaAlumno(Persona persona, Usuario usuario) {
         Persona personaDB = personaDAO.find(persona.getId());
-
         personaDB.setNombres(persona.getNombres());
 
         personaDAO.update(personaDB);
+    }
+
+    @Override
+    @Transactional
+    public void saveCtaBanco(PersonaCuentaBancaria cuentaBanco, DataSessionPivot ds) {
+        boolean sinCta = StringUtils.isBlank(cuentaBanco.getNumeroCuenta());
+        boolean sinCci = StringUtils.isBlank(cuentaBanco.getCuentaInterbancaria());
+        Assert.isFalse(sinCci && sinCta, "Debe indicar el Nº de la cuenta bancaria o el CCI");
+
+        EmpresaEtiquetada banco = empresaEtiquetadaDAO.find(cuentaBanco.getBanco().getId());
+        boolean esBCP = banco.getEmpresa().getNumeroDocIdentidad().equals("20100047218");
+        if (esBCP) {
+            Assert.isFalse(sinCta, "Es obligatorio indicar el Nº de la cuenta bancaria si son del BCP");
+        } else {
+            Assert.isFalse(sinCci, "Es obligatorio indicar el CCI para bancos diferentes del BCP");
+        }
+
+        PersonaCuentaBancaria ctaBancoActiva = personaCuentaBancariaDAO.findActivo(cuentaBanco.getPersona());
+        if (ctaBancoActiva == null) {
+            cuentaBanco.setEstadoEnum(EstadoEnum.ACT);
+        } else {
+            cuentaBanco.setEstadoEnum(EstadoEnum.INA);
+        }
+
+        cuentaBanco.setNumeroCuenta(sinCta ? null : cuentaBanco.getNumeroCuenta().trim());
+        cuentaBanco.setCuentaInterbancaria(sinCci ? null : cuentaBanco.getCuentaInterbancaria().trim());
+        cuentaBanco.setUserRegistro(ds.getUsuario());
+        cuentaBanco.setFechaRegistro(new Date());
+        personaCuentaBancariaDAO.save(cuentaBanco);
+    }
+
+    @Override
+    @Transactional
+    public void deleteCtaBanco(PersonaCuentaBancaria cuentaBanco, DataSessionPivot ds) {
+        PersonaCuentaBancaria cuentaBancoBD = personaCuentaBancariaDAO.find(cuentaBanco.getId());
+        Assert.isNotNull(cuentaBancoBD, "No se pudo ubicar el registro de esta cuenta bancaria");
+        personaCuentaBancariaDAO.delete(cuentaBancoBD);
+    }
+
+    @Override
+    @Transactional
+    public void activarCtaBanco(PersonaCuentaBancaria cuentaBanco, DataSessionPivot ds) {
+        PersonaCuentaBancaria cuentaBancoBD = personaCuentaBancariaDAO.find(cuentaBanco.getId());
+        Assert.isNotNull(cuentaBancoBD, "No se pudo ubicar el registro de esta cuenta bancaria");
+
+        PersonaCuentaBancaria ctaBancoActiva = personaCuentaBancariaDAO.findActivo(cuentaBancoBD.getPersona());
+        if (ctaBancoActiva == null) {
+        } else {
+            ctaBancoActiva.setEstadoEnum(EstadoEnum.INA);
+            personaCuentaBancariaDAO.update(ctaBancoActiva);
+        }
+        cuentaBancoBD.setEstadoEnum(EstadoEnum.ACT);
+        personaCuentaBancariaDAO.update(cuentaBancoBD);
+
     }
 
 }

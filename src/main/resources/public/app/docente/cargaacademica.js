@@ -56,14 +56,6 @@ new Vue({
         download(item) {
             console.log(item);
             location.href = APP.url('docente/cargaacademica/reporteAlumno?seccion=') + item.id;
-//            axios.get('docente/cargaacademica/reepoteAlumnro')
-//                    .then(response => {
-//                        if (response.data.success) {
-//
-//                        } else {
-//                            notify(Messages.errorComunicacion, 'error');
-//                        }
-//                    });
         },
         downloadOfFoto(seccion) {
             location.href = APP.url('reporte/cursos/matriculados/' + seccion.codigo2)

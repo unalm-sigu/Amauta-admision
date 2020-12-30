@@ -16,8 +16,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
+import pe.albatross.zelpers.json.JaneHelper;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
-import pe.albatross.zelpers.miscelanea.JsonHelper;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.CicloAcademico;
@@ -25,14 +25,11 @@ import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.academico.DocenteSeccion;
 import pe.edu.lamolina.model.academico.GrupoSeccion;
 import pe.edu.lamolina.model.academico.MatriculaSeccion;
-import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.academico.Seccion;
-import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.EPG;
-import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.PRE;
 import pe.edu.lamolina.amauta.controller.reporte.view.ReporteAlumnosExcel;
-import pe.edu.lamolina.model.constantines.AcademicoConstantine;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.academico.AnexoBoletin;
 
 @Controller
 @RequestMapping("docente/cargaacademica")
@@ -74,7 +71,7 @@ public class CargaAcademicaController {
             BigDecimal creditosPosgrado = BigDecimal.ZERO;
 
             for (GrupoSeccion grupoSeccion : gruposSeccion) {
-                ModalidadEstudio modalidad = grupoSeccion.getCurso().getModalidadEstudio();
+                AnexoBoletin anexoSup = grupoSeccion.getAnexoBoletin().getAnexoSuperior();
 
                 List<Seccion> secciones = grupoSeccion.getSecciones();
                 for (Seccion seccion : secciones) {
@@ -83,44 +80,48 @@ public class CargaAcademicaController {
                         if (profeSecc.getCreditosCarga() == null) {
                             continue;
                         }
-                        if (modalidad.getCodigoEnum() == PRE) {
-                            creditosPregrado = creditosPregrado.add(profeSecc.getCreditosCarga());
-                        } else if (modalidad.getCodigoEnum() == EPG) {
+                        if (anexoSup.isAnexoCursosPostgrado()) {
                             creditosPosgrado = creditosPosgrado.add(profeSecc.getCreditosCarga());
+                        } else {
+                            creditosPregrado = creditosPregrado.add(profeSecc.getCreditosCarga());
                         }
                     }
                 }
 
-                ObjectNode node = JsonHelper.createJson(grupoSeccion, JsonNodeFactory.instance, true, new String[]{
-                    "id", "estadoEnum", "estadoGrupoEnum",
-                    "cicloAcademico.tipoEnum",
-                    "curso.codigo",
-                    "curso.nombre",
-                    "curso.tpc",
-                    "planCalificacion.id",
-                    "secciones.id",
-                    "secciones.tipoSeccionEnum",
-                    "secciones.codigo2",
-                    "secciones.matriculados",
-                    "secciones.aula.codigo",
-                    "secciones.aula.nombre",
-                    "secciones.aula.usuarioZoom",
-                    "secciones.aula.passZoom",
-                    "secciones.grupoHoras.codigo",
-                    "secciones.docenteSeccion.id",
-                    "secciones.docenteSeccion.estado",
-                    "secciones.docenteSeccion.porcentajeCarga",
-                    "secciones.docenteSeccion.fechaInicio",
-                    "secciones.docenteSeccion.fechaFin",
-                    "secciones.docenteSeccion.creditosCarga",
-                    "secciones.verInformacion",
-                    "secciones.horarioTexto"
-                });
+                ObjectNode node = JaneHelper
+                        .from(grupoSeccion)
+                        .only("id,estadoEnum,estadoGrupoEnum")
+                        .join("cicloAcademico", "tipoEnum")
+                        .join("curso", "codigo,nombre,tpc")
+                        .join("planCalificacion", "id")
+                        .json();
 
-                if (modalidad.getCodigoEnum() == PRE) {
-                    arrayPregrado.add(node);
-                } else if (modalidad.getCodigoEnum() == EPG) {
+                List<Seccion> seccionesByGpoSecc = grupoSeccion.getSecciones();
+                ArrayNode seccionesArray = new ArrayNode(JsonNodeFactory.instance);
+                for (Seccion seccion : seccionesByGpoSecc) {
+                    ObjectNode nodeSeccion = JaneHelper
+                            .from(seccion)
+                            .only("id,tipoSeccionEnum,codigo2,matriculados,verInformacion,horarioTexto")
+                            .join("aula", "codigo,nombre,usuarioZoom,passZoom")
+                            .join("grupoHoras", "codigo")
+                            .json();
+
+                    List<DocenteSeccion> docentesSecc = seccion.getDocenteSeccion();
+                    ArrayNode docSeccArray = JaneHelper
+                            .from(docentesSecc)
+                            .only("id,estado,porcentajeCarga,fechaInicio,fechaFin,creditosCarga")
+                            .array();
+
+                    nodeSeccion.set("docenteSeccion", docSeccArray);
+                    seccionesArray.add(nodeSeccion);
+                }
+
+                node.set("secciones", seccionesArray);
+
+                if (anexoSup.isAnexoCursosPostgrado()) {
                     arrayPosgrado.add(node);
+                } else {
+                    arrayPregrado.add(node);
                 }
             }
 

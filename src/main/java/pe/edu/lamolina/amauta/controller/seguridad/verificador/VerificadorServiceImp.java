@@ -69,6 +69,10 @@ public class VerificadorServiceImp implements VerificadorService {
     @Autowired
     OficinaService oficinaService;
 
+    public enum CantidadItemsEnum {
+        TODOS, PARCIAL, SIN_PERMISO
+    };
+
     @Override
     public boolean isOperadorActaNotas(DataSessionPivot ds) {
         boolean esTrabajadorEPG = false;
@@ -101,9 +105,26 @@ public class VerificadorServiceImp implements VerificadorService {
         return false;
     }
 
-    public enum CantidadItemsEnum {
-        TODOS, PARCIAL, SIN_PERMISO
-    };
+    @Override
+    public boolean isOperadorGastoPosgrado(DataSessionPivot ds) {
+        boolean esTrabajadorEPG = false;
+        List<Oficina> oficinasMain = oficinaService.allOficinasMainByPersona(ds.getPersona());
+        for (Oficina oficina : oficinasMain) {
+            if (oficina.getCodigoEnum() == EPG) {
+                esTrabajadorEPG = true;
+            }
+        }
+        if (!esTrabajadorEPG) {
+            return false;
+        }
+        for (Rol rol : ds.getRoles()) {
+            if (rol.getCodigoEnum() == RolEnum.OPER_GASTOS_EPG) {
+                return true;
+            }
+        }
+        return false;
+
+    }
 
     @Override
     public void revisarPermiso(HttpServletRequest request, DataSessionPivot ds) {
@@ -144,6 +165,7 @@ public class VerificadorServiceImp implements VerificadorService {
     public List<Object> allInstanciasByMenuRol(TipoOficinaEnum tipoSolicitud, HttpServletRequest request, DataSessionPivot ds) {
         List<Object> lista = new ArrayList();
         List<Oficina> oficinasMain = oficinaService.allOficinasMainByPersona(ds.getPersona());
+
         for (Oficina oficina : oficinasMain) {
             if (oficina.getCodigoEnum() == OERA) {
                 if (tipoSolicitud == DPTO) {
@@ -154,6 +176,12 @@ public class VerificadorServiceImp implements VerificadorService {
                     return lista;
                 }
 
+            }
+            if (oficina.getCodigoEnum() == EPG) {
+                if (tipoSolicitud == DPTO) {
+                    lista.addAll(departamentoAcademicoDAO.all());
+                    return lista;
+                }
             }
             if (oficina.getCodigoEnum() == EPG) {
                 if (tipoSolicitud == ESP) {
