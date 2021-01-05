@@ -245,37 +245,7 @@ public class TramiteCondicionalServiceImp implements TramiteCondicionalService {
         Assert.isNotNull(alumnoCiclo, "El alumno no tiene actividad en el ciclo " + tremite.getCicloAcademicoResolucion().getDescripcion());
 
         RetiroCiclo retiro = retiroCicloDAO.findByAlumnoCicloRetiro(alumno, tremite.getCicloAcademicoResolucion());
-        Assert.isNull(retiro, "El alumno ya cuenta con un trámite de retiro para el ciclo " + tremite.getCicloAcademicoResolucion().getDescripcion());
-
-        DateTime today = new DateTime();
-        TipoDocumentoCompania tipoDocumentoCompania = tipoDocumentoCompaniaDAO.findByCodigo(TipoDocumentoCompaniaEnum.TRAM);
-        SerieDocumento serieDocumento = serieDocumentoService.getCorrelativo(tipoDocumentoCompania, Long.valueOf(today.getYear()), dx.getUsuario());
-        TipoTramite tipoTramite = tipoTramiteDAO.findByCodigo(TipoTramiteEnum.RCI.name());
-        Tramite tramite = new Tramite();
-        tramite.setActivo(true);
-        tramite.setCompania(dx.getCompania());
-        tramite.setAlumno(alumno);
-        tramite.setCicloAcademico(ciclo);
-        tramite.setEstadoEnum(TramiteEstadoEnum.PEND);
-        tramite.setFechaRegistro(new Date());
-        tramite.setPersona(alumno.getPersona());
-        tramite.setTipoTramite(tipoTramite);
-        tramite.setNumero(Long.valueOf(serieDocumento.getNumeroDocumento()));
-        tramite.setSerie(Long.valueOf(serieDocumento.getNumeroSerie()));
-        tramite.setUserRegistro(dx.getUsuario());
-        tramiteDAO.save(tramite);
-
-        retiro = new RetiroCiclo();
-        retiro.setEstadoEnum(TramiteEstadoEnum.PEND);
-        retiro.setAlumno(tremite.getAlumno());
-        retiro.setCicloAcademico(tremite.getCicloAcademicoResolucion());
-        retiro.setCicloRegistro(ciclo);
-        retiro.setUsuario(dx.getUsuario());
-        retiro.setMotivo(tremite.getMotivoResolucion());
-        retiro.setTipoEnum(TipoRetiroCicloEnum.EXCEP);
-        retiro.setTramite(tramite);
-        retiro.setEsCondicional(Boolean.TRUE);
-        retiroCicloDAO.save(retiro);
+       
 
 //        por ver 
         //        MatriculaResumen matriculaResumen = matriculaResumenDAO.findByFilter(ciclo, alumno, EstadoMatriculaEnum.NMAT);
