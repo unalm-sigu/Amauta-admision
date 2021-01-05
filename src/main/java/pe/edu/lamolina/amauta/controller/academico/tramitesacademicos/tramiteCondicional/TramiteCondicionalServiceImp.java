@@ -193,10 +193,10 @@ public class TramiteCondicionalServiceImp implements TramiteCondicionalService {
 
     @Autowired
     VisorCalculoNotas visorCalculoNotas;
-    
+
     @Autowired
     TramiteRetiroExcepcionalService retiroExcepcionalService;
-    
+
     @Autowired
     TramiteReincorporacionService tramiteReincorporacionService;
 
@@ -253,14 +253,12 @@ public class TramiteCondicionalServiceImp implements TramiteCondicionalService {
 
         RetiroCiclo retiro = retiroCicloDAO.findByAlumnoCicloRetiro(alumno, tremite.getCicloAcademicoResolucion());
         Assert.isNull(retiro, "El alumno ya cuenta con un trámite de retiro para el ciclo " + tremite.getCicloAcademicoResolucion().getDescripcion());
-
+        retiro = RetiroCiclo();
         retiro.setAlumno(alumno);
         retiro.setMotivo(tremite.getMotivoResolucion());
         retiro.setCicloAcademico(tremite.getCicloAcademicoResolucion());
         retiroExcepcionalService.saveRetiro(retiro, dx);
-        
-        
-      
+
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -385,7 +383,6 @@ public class TramiteCondicionalServiceImp implements TramiteCondicionalService {
         reincorporacion.setCicloReincorporacion(tramite.getCicloAcademicoResolucion());
         reincorporacion.setMotivoDesercion(tramite.getMotivoResolucion());
         tramiteReincorporacionService.saveReincorporacion(reincorporacion, dx);
-       
 
     }
 
