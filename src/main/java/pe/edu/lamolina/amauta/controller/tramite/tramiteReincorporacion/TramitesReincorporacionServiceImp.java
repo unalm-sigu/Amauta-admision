@@ -112,7 +112,7 @@ public class TramitesReincorporacionServiceImp implements TramiteReincorporacion
     @Override
     @Transactional
     public void saveReincorporacion(Reincorporacion reincorporacionForm, DataSessionPivot ds) {
-
+        Boolean esCondicional = reincorporacionForm.getAlumno().getEsMatriculaCondicional();
         DateTime today = new DateTime();
         EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.SOL);
 
@@ -146,8 +146,7 @@ public class TramitesReincorporacionServiceImp implements TramiteReincorporacion
         reincorporacione.setMotivoDesercion(reincorporacionForm.getMotivoDesercion());
         reincorporacione.setFacultad(facultad);
         reincorporacione.setTramite(tramite);
-        reincorporacione.setAceptado(0);
-        reincorporacione.setEsCondicional(Boolean.FALSE);
+        reincorporacione.setEsCondicional(esCondicional);
         reincorporacionDAO.save(reincorporacione);
     }
 

@@ -94,14 +94,13 @@
 
                                                 </td> 
                                                 <td class="v-middle">
-                                                    <!--                                                    <div class="actions">
-                                                                                                            <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="fa fa-cog"></i></a>
-                                                                                                            <ul class="dropdown-menu pull-right">
-                                                                                                                <li v-if="item.estado == 'PEND'" ><a class=" pointer" v-on:click="openTramiteResol(item,1)" >Aceptar</a></li>rel="{{:id}}"
-                                                                                                                <li v-if="item.estado == 'PEND'" ><a class=" pointer" v-on:click="openTramiteResol(item,0)" >Rechazar</a></li>rel="{{:id}}"
-                                                    
-                                                                                                            </ul>
-                                                                                                        </div>-->
+                                                    <div class="actions">
+                                                        <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="fa fa-cog"></i></a>
+                                                        <ul class="dropdown-menu pull-right">
+                                                            <li v-if="item.estado == 'PEND'" ><a class=" pointer" v-on:click="openTramiteResol(item,0)" >Rechazar</a></li>
+
+                                                        </ul>
+                                                    </div>
                                                 </td> 
                                             </tr>
                                         </tbody>
@@ -113,7 +112,7 @@
                     </section>
                 </section>
                 <div th:substituteby="academico/tramiteCondicional/tramiteCondicionalModal"/>
-                <div th:substituteby="academico/tramiteCondicional/tramiteResolucionModal"/>
+                <!--<div th:substituteby="academico/tramiteCondicional/tramiteResolucionModal"/>-->
 
             </div>
         </div>

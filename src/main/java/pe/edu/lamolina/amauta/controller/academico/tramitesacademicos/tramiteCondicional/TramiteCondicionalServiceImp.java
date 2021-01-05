@@ -364,6 +364,9 @@ public class TramiteCondicionalServiceImp implements TramiteCondicionalService {
     @Override
     @Transactional
     public void saveReincorporacion(Tramite tramite, DataSessionPivot dx) {
+        Alumno alumno = tramite.getAlumno();
+        alumno = alumnoDAO.find(alumno);
+        alumno.setEsMatriculaCondicional(Boolean.TRUE);
         CicloAcademico ciclo = cicloAcademicoDAO.find(dx.getCicloAcademico());
         if (!Objects.equals(tramite.getCicloAcademicoResolucion().getId(), ciclo.getId())) {
             throw new PhobosException("El alumno debe reincorporarce en el ciclo actual.");
@@ -372,12 +375,12 @@ public class TramiteCondicionalServiceImp implements TramiteCondicionalService {
         List<Reincorporacion> reincorporacions = reincorporacionDAO.allByCicloReincorporacion(ciclo);
         Map<Long, Alumno> mapReincorporacion = TypesUtil.convertListToMap("alumno", reincorporacions);
 
-        Alumno alumno = mapReincorporacion.get(tramite.getAlumno().getId());
-        if (alumno != null) {
+        Alumno alumnoRein = mapReincorporacion.get(alumno.getId());
+        if (alumnoRein != null) {
             throw new PhobosException("El alumno" + alumno.getCodigo() + " ya cuenta con un tramite para el ciclo activo");
         }
         Reincorporacion reincorporacion = new Reincorporacion();
-        reincorporacion.setAlumno(tramite.getAlumno());
+        reincorporacion.setAlumno(alumno);
         reincorporacion.setCicloReincorporacion(tramite.getCicloAcademicoResolucion());
         reincorporacion.setMotivoDesercion(tramite.getMotivoResolucion());
         tramiteReincorporacionService.saveReincorporacion(reincorporacion, dx);

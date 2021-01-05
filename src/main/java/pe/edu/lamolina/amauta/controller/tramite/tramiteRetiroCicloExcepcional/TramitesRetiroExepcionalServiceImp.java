@@ -91,6 +91,7 @@ public class TramitesRetiroExepcionalServiceImp implements TramiteRetiroExcepcio
     @Override
     @Transactional
     public void saveRetiro(RetiroCiclo retiroForm, DataSessionPivot ds) {
+        Boolean esCondicional = retiroForm.getAlumno().getEsMatriculaCondicional();
         Alumno alumnoDB = alumnoDAO.find(retiroForm.getAlumno());
         List<AlumnoCiclo> alumnoCiclos = alumnoCicloDAO.allByAlumnoDescRegular(alumnoDB);
         List<CicloAcademico> ciclo = alumnoCiclos.stream().map(x -> x.getCicloAcademico()).collect(Collectors.toList());
@@ -129,7 +130,7 @@ public class TramitesRetiroExepcionalServiceImp implements TramiteRetiroExcepcio
         retiroCiclo.setAlumno(alumnoDB);
         retiroCiclo.setCicloAcademico(retiroForm.getCicloAcademico());
         retiroCiclo.setCicloRegistro(ds.getCicloAcademico());
-        retiroCiclo.setEsCondicional(false);
+        retiroCiclo.setEsCondicional(esCondicional);
         retiroCiclo.setEstadoEnum(TramiteEstadoEnum.SOL);
         retiroCiclo.setEstadoTramite(estadoTramite);
         retiroCiclo.setFechaRegistro(new Date());
