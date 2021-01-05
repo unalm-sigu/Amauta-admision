@@ -64,6 +64,8 @@ public interface VerificadorService {
 
     boolean isOperadorActaNotas(DataSessionPivot ds);
 
+    boolean isOperadorGastoPosgrado(DataSessionPivot ds);
+
     boolean puedeEditarAnexos(DataSessionPivot ds);
 
     boolean puedeEditarAnexosPosgrado(DataSessionPivot ds);

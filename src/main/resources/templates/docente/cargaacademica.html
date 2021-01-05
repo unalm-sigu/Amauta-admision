@@ -106,9 +106,9 @@
                                     </td>
 
                                     <td class="v-middle text-center">
-                                        <span class="block" v-if="seccion.aula.codigo != '' "><i class="fa fa-home text-primary"></i> {{seccion.aula.codigo}}</span>
-                                        <span class="block" v-if="seccion.grupoHoras.codigo != '' "><i class="fa fa-calendar text-success"></i> {{seccion.grupoHoras.codigo}}</span>
-                                        <span v-if="seccion.aula.usuarioZoom" class="block bold label label-primary pointer" v-on:click="dataZoomModal(seccion.aula)">Data Zoom</span>
+                                        <span class="block" v-if="seccion.aula "><i class="fa fa-home text-primary"></i> {{seccion.aula.codigo}}</span>
+                                        <span class="block" v-if="seccion.grupoHoras"><i class="fa fa-calendar text-success"></i> {{seccion.grupoHoras.codigo}}</span>
+                                        <span v-if="seccion.aula &amp;&amp; seccion.aula.usuarioZoom" class="block bold label label-primary pointer" v-on:click="dataZoomModal(seccion.aula)">Data Zoom</span>
 
                                     </td>
 
@@ -167,9 +167,9 @@
                                         <small class="block text-muted" v-text="tipoSeccion(seccion)"></small>
                                     </td>
                                     <td class="v-middle text-center">
-                                        <span class="block" v-if="seccion.aula.codigo != '' "><i class="fa fa-home text-primary"></i> {{seccion.aula.codigo}}</span>
+                                        <span class="block" v-if="seccion.aula"><i class="fa fa-home text-primary"></i> {{seccion.aula.codigo}}</span>
                                         <span class="block" v-if="seccion.grupoHoras.codigo != '' "><i class="fa fa-calendar text-success"></i> {{seccion.grupoHoras.codigo}}</span>
-                                        <span v-if="seccion.aula.usuarioZoom" class="block bold label label-primary pointer" v-on:click="dataZoomModal(seccion.aula)">Data Zoom</span>
+                                        <span v-if="seccion.aula &amp;&amp; seccion.aula.usuarioZoom" class="block bold label label-primary pointer" v-on:click="dataZoomModal(seccion.aula)">Data Zoom</span>
 
                                     </td>
 
@@ -215,7 +215,7 @@
                                 </tbody>
                                 <tbody>
                                     <tr>
-                                        <td colspan="8" class="text-right bold h4">Total créditos carga</td>
+                                        <td colspan="7" class="text-right bold h4">Total créditos carga</td>
                                         <td class="text-right bold text-primary h4">
                                             {{cm.creditos.toFixed(2)}}
                                         </td>

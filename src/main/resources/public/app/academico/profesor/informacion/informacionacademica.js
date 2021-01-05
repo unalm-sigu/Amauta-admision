@@ -48,21 +48,26 @@ new Vue({
             cancelbtn: 'Cancelar',
             cancelclass: 'btn btn-link',
             showaccept: true
-        }
+        },
+//        creditosPregrado: 0,
+//        creditosPosgrado: 0,
+//        cargaPregrado: [],
+//        cargaPosgrado: [],
+        cargaAcademica: []
     },
     mounted: function () {
+        let $vue = this;
+        let self = $($vue.$el);
 
-        let vue = this;
-        let self = $(vue.$el);
         self.find(".numerico").numeric({negative: false});
         self.find(".date").datepickerBoot().on('changeDate', function (e) {
             var ella = $(e.currentTarget);
-            vue.docente.persona.fechaNacer = ella.find('input').val();
+            $vue.docente.persona.fechaNacer = ella.find('input').val();
         });
         self.find('[name="persona.tipoDocumento.id"]').
                 select2({minimumResultsForSearch: -1}).
                 on("change.select2", function (el) {
-                    vue.docente.persona.tipoDocumento.id = el.val;
+                    $vue.docente.persona.tipoDocumento.id = el.val;
                 });
         self.find("[name='modalidadEstudio.id']").select2({minimumResultsForSearch: -1});
         self.find("[name='categoria.id']").select2({minimumResultsForSearch: -1});
@@ -158,10 +163,11 @@ new Vue({
             }
         });
 
-        if (vue.docente.id !== null) {
-            vue.updateDocente(vue.docente.id);
+        if ($vue.docente.id !== null) {
+            $vue.updateDocente($vue.docente.id);
         }
-        this.$refs.loadHorario.cargaHorario();
+        $vue.$refs.loadHorario.cargaHorario();
+        $vue.loadCargaAcademica();
     },
     updated: function () {
         let vue = this;
@@ -354,11 +360,59 @@ new Vue({
                     }
                 }
             });
-        }, cargarHorario() {
+        },
+        cargarHorario() {
             console.log("cargarHorario");
             this.stepactivo = 5;
             //    $vue.loadPages.horario = true;
             this.$refs.loadHorario.cargaHorario();
+        },
+        loadCargaAcademica() {
+            var $vue = this;
+            $vue.cargaAcademica = [];
+
+            axios.post(`/academico/profesor/${$vue.docente.id}/cargaAcademicaSeparada`).then(response => {
+                if (response.data.success) {
+                    let data = response.data.data;
+//                    $vue.cargaPregrado = response.data.data.cargaPregrado;
+//                    $vue.cargaPosgrado = response.data.data.cargaPosgrado;
+//                    $vue.creditosPregrado = response.data.data.creditosPregrado;
+//                    $vue.creditosPosgrado = response.data.data.creditosPosgrado;
+
+                    if (data.cargaPregrado.length > 0) {
+                        let infoCarga = {};
+                        infoCarga.isPregrado = true;
+                        infoCarga.isPosgrado = false;
+                        infoCarga.creditos = data.creditosPregrado;
+                        infoCarga.cursosModalidad = data.cargaPregrado;
+
+                        $vue.cargaAcademica.push(infoCarga);
+                    }
+                    if (data.cargaPosgrado.length > 0) {
+                        let infoCarga = {};
+                        infoCarga.isPregrado = false;
+                        infoCarga.isPosgrado = true;
+                        infoCarga.creditos = data.creditosPosgrado;
+                        infoCarga.cursosModalidad = data.cargaPosgrado;
+
+                        $vue.cargaAcademica.push(infoCarga);
+                    }
+
+
+                } else {
+                    notify(Messages.errorComunicacion, 'error');
+                }
+            });
+        },
+        verHorario(text) {
+            return text.replace(" y ", "<br/>");
+        },
+        download(item) {
+            console.log(item);
+            location.href = APP.url('docente/cargaacademica/reporteAlumno?seccion=') + item.id;
+        },
+        downloadOfFoto(seccion) {
+            location.href = APP.url('reporte/cursos/matriculados/' + seccion.codigo2)
         }
-    },
+    }
 });

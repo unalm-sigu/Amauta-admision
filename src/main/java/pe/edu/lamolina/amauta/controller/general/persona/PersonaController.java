@@ -19,6 +19,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -26,6 +27,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.octavia.dynatable.DynatableResponse;
+import pe.albatross.zelpers.json.JaneHelper;
 import pe.albatross.zelpers.miscelanea.ExceptionHandler;
 import pe.albatross.zelpers.miscelanea.JsonResponse;
 import pe.albatross.zelpers.miscelanea.PhobosException;
@@ -33,13 +35,16 @@ import pe.albatross.zelpers.notify.Notificaciones;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.seguridad.Rol;
 import pe.edu.lamolina.amauta.controller.general.foto.FotoHelper;
-import pe.edu.lamolina.model.constantines.AcademicoConstantine;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.general.EmpresaEtiquetada;
+import pe.edu.lamolina.model.general.PersonaCuentaBancaria;
 
 @Controller
 @RequestMapping("general/persona")
 public class PersonaController {
+
+    private final String rutaModulo = this.getClass().getAnnotation(RequestMapping.class).value()[0];
 
     @Autowired
     PersonaService service;
@@ -141,12 +146,39 @@ public class PersonaController {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         Persona persona = service.find(new Persona(idPersona));
+        List<PersonaCuentaBancaria> cuentasBancarias = service.allCtasBancarias(persona);
+        List<EmpresaEtiquetada> bancos = service.allBancos();
+        ObjectNode personaJson = JaneHelper.from(persona).only("id,nombreCompleto").json();
 
         model.addAttribute("persona", persona);
+        model.addAttribute("personaJson", personaJson);
         model.addAttribute("documentos", service.allDocumentos());
+        model.addAttribute("cuentasBancarias", createCtasBancariasJson(cuentasBancarias));
+        model.addAttribute("bancos", createBancosJson(bancos));
         model.addAttribute("fotoHelper", new FotoHelper());
         model.addAttribute("origen", getOrigen(origen));
+        model.addAttribute("rutaModulo", rutaModulo);
+
         return "general/persona/personaForm";
+    }
+
+    private ArrayNode createCtasBancariasJson(List<PersonaCuentaBancaria> ctasBancos) {
+        return JaneHelper
+                .from(ctasBancos)
+                .join("banco", "id")
+                .join("banco.empresa", "id,razonSocial,nombreComercial,numeroDocIdentidad")
+                .join("banco.empresa.tipoDocIdentidad", "simbolo")
+                .join("banco.etiqueta", "id,codigo,nombre")
+                .array();
+    }
+
+    private ArrayNode createBancosJson(List<EmpresaEtiquetada> bancos) {
+        return JaneHelper
+                .from(bancos)
+                .join("empresa", "id,razonSocial,nombreComercial,numeroDocIdentidad")
+                .join("empresa.tipoDocIdentidad", "simbolo")
+                .join("etiqueta", "id,codigo,nombre")
+                .array();
     }
 
     private String getOrigen(String origen) {
@@ -254,6 +286,87 @@ public class PersonaController {
             node.put("respuesta", msg);
             response.setData(node);
             response.setSuccess(StringUtils.isEmpty(msg));
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("{idPersona}/allCuentasBancarias")
+    public JsonResponse allCuentasBancarias(@PathVariable Long idPersona, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+            Persona persona = service.find(new Persona(idPersona));
+            List<PersonaCuentaBancaria> cuentasBancarias = service.allCtasBancarias(persona);
+
+            response.setData(createCtasBancariasJson(cuentasBancarias));
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("saveCtaBanco")
+    public JsonResponse saveCtaBanco(@RequestBody PersonaCuentaBancaria cuentaBanco, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+            service.saveCtaBanco(cuentaBanco, ds);
+
+            response.setSuccess(true);
+            response.setMessage("Se agregó satisfactoriamente la cuenta bancaria");
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("deleteCtaBanco")
+    public JsonResponse deleteCtaBanco(@RequestBody PersonaCuentaBancaria cuentaBanco, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+            service.deleteCtaBanco(cuentaBanco, ds);
+
+            response.setSuccess(true);
+            response.setMessage("Se eliminó satisfactoriamente la cuenta bancaria");
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("activarCtaBanco")
+    public JsonResponse activarCtaBanco(@RequestBody PersonaCuentaBancaria cuentaBanco, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+            service.activarCtaBanco(cuentaBanco, ds);
+
+            response.setSuccess(true);
+            response.setMessage("Se activar satisfactoriamente la cuenta bancaria");
 
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);

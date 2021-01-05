@@ -1,0 +1,39 @@
+<modal-vik ref="modalAddCtaBanco"
+           v-bind="modalAddCtaBanco"
+           v-bind:okaction="saveCtaBanco">
+    <div slot="body">
+
+        <div class="form-group">
+            <label>Banco</label>
+            <multiselect 
+                v-model="ctaBanco.banco" 
+                v-bind:options='bancos'
+                label='nombre'
+                placeholder=""
+                track-by='id'
+                v-bind:internal-search="true"
+                v-bind:allow-empty="false"
+                v-bind:show-labels="false"
+                v-bind:hide-selected="false">
+
+                <template slot="option" slot-scope="props">
+                    {{ props.option.nombre }}
+                </template>
+
+                <template slot="noOptions">La lista se encuentra vacía</template>
+                <template slot="noResult">No se encontraron resultados</template>
+            </multiselect>
+        </div>
+
+        <div class="form-group">
+            <label>Número de cuenta</label>
+            <input v-model="ctaBanco.numeroCuenta" type="text" class="form-control" maxlength="50"/>
+        </div>
+
+        <div class="form-group">
+            <label>Código de cuenta interbancaria (CCI)</label>
+            <input v-model="ctaBanco.cuentaInterbancaria" type="text" class="form-control" maxlength="50"/>
+        </div>
+
+    </div>
+</modal-vik>

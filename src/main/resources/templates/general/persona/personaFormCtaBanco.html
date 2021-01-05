@@ -1,0 +1,77 @@
+
+<div id="personaCtaBancoVUE" v-cloak="">
+
+    <form id="form-cuenta-banco" class="form-horizontal m-t-lg" data-parsley-validate="true">
+
+        <div class="row m-b-lg">
+            <div class="col-sm-2"></div>
+            <div class="col-sm-8 text-right">
+                <button v-on:click="verAddCtaBanco" type="button" class="btn btn-primary">Agregar cuenta</button>
+            </div>
+            <div class="col-sm-2">
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-2"></div>
+            <div class="col-sm-8">
+                <div v-if="cuentasBancarias.length > 0">
+                    <h4 class="text-primary">Cuentas bancarias</h4>
+                    <table class="table table-condensed">
+                        <thead>
+                            <tr>
+                                <th class="col-md-1">Estado</th>
+                                <th>Banco</th>
+                                <th>Número de cuenta</th>
+                                <th>Cuenta interbancaria</th>
+                                <th class="col-md-2"></th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            <tr v-for="item in cuentasBancarias">
+                                <td class="v-middle">
+                                    <span v-if="item.estado == 'ACT' ">
+                                        <i class="fa fa-check-square-o fa-lg text-success" aria-hidden="true"></i>
+                                    </span>
+                                    <span v-else="">
+                                        <i class="fa fa-times-circle fa-lg text-danger" aria-hidden="true"></i>
+                                    </span>
+                                </td>
+                                <td class="v-middle">
+                                    {{item.banco.empresa.nombreComercial}}
+                                </td>
+                                <td class="v-middle">
+                                    {{item.numeroCuenta}}
+                                </td>
+                                <td class="v-middle">
+                                    {{item.cuentaInterbancaria}}
+                                </td>
+                                <td class="v-middle">
+                                    <a v-on:click="verEliminar(item)" class="btn btn-danger btn-sm">
+                                        <i class="fa fa-trash-o fa-lg" aria-hidden="true"></i>
+                                    </a>
+                                    <a v-on:click="verActivar(item)" class="btn btn-success btn-sm" v-if="item.estado != 'ACT' ">
+                                        <i class="fa fa-thumbs-up fa-lg" aria-hidden="true"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        </tbody>
+
+                    </table>
+                </div>
+
+                <div v-else="" class="alert alert-danger">
+                    <h4>No tiene cuentas bancarias</h4>
+                </div>
+            </div>
+            <div class="col-sm-2"></div>
+        </div>
+
+
+    </form>
+
+    <div th:substituteby="general/persona/_modalAddCtaBanco"></div>
+    <div th:substituteby="_modules/vue-modal-confirm"></div>
+
+</div>
