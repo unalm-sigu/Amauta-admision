@@ -27,7 +27,6 @@ import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Curso;
-import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.MatriculaResumen;
 import pe.edu.lamolina.model.enums.CursoCurriculaEstadoEnum;
 import pe.edu.lamolina.model.enums.EstadoMatriculaEnum;
@@ -97,7 +96,6 @@ import pe.edu.lamolina.amauta.dao.tramite.TipoTramiteDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TramiteDAO;
 import pe.edu.lamolina.amauta.dao.vacante.VacanteAlumnoDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
-import pe.edu.lamolina.model.enums.TipoRetiroCicloEnum;
 
 @Service
 @Transactional(readOnly = true)
@@ -253,7 +251,7 @@ public class TramiteCondicionalServiceImp implements TramiteCondicionalService {
 
         RetiroCiclo retiro = retiroCicloDAO.findByAlumnoCicloRetiro(alumno, tremite.getCicloAcademicoResolucion());
         Assert.isNull(retiro, "El alumno ya cuenta con un trámite de retiro para el ciclo " + tremite.getCicloAcademicoResolucion().getDescripcion());
-        retiro = RetiroCiclo();
+        retiro = new RetiroCiclo();
         retiro.setAlumno(alumno);
         retiro.setMotivo(tremite.getMotivoResolucion());
         retiro.setCicloAcademico(tremite.getCicloAcademicoResolucion());
