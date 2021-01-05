@@ -73,6 +73,8 @@ import pe.edu.lamolina.amauta.controller.seriedocumento.SerieDocumentoService;
 import pe.edu.lamolina.amauta.controller.test.VisorCalculoNotas;
 import static pe.edu.lamolina.amauta.controller.test.VisorCalculoNotas.TOKEN_CURRICULA;
 import static pe.edu.lamolina.amauta.controller.test.VisorCalculoNotas.TOKEN_PROMEDIOS;
+import pe.edu.lamolina.amauta.controller.tramite.tramiteReincorporacion.TramiteReincorporacionService;
+import pe.edu.lamolina.amauta.controller.tramite.tramiteRetiroCicloExcepcional.TramiteRetiroExcepcionalService;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoCicloCursoDAO;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoCicloDAO;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoCursoCurriculaDAO;
@@ -191,6 +193,12 @@ public class TramiteCondicionalServiceImp implements TramiteCondicionalService {
 
     @Autowired
     VisorCalculoNotas visorCalculoNotas;
+    
+    @Autowired
+    TramiteRetiroExcepcionalService retiroExcepcionalService;
+    
+    @Autowired
+    TramiteReincorporacionService tramiteReincorporacionService;
 
     @Override
     public List<CicloAcademico> allCiclos(CicloAcademico academico) {
@@ -235,7 +243,6 @@ public class TramiteCondicionalServiceImp implements TramiteCondicionalService {
     @Override
     @Transactional
     public void saveRetiroCiclo(Tramite tremite, DataSessionPivot dx) {
-        CicloAcademico ciclo = cicloAcademicoDAO.find(dx.getCicloAcademico());
         Alumno alumno = tremite.getAlumno();
         alumno = alumnoDAO.find(alumno);
         alumno.setEsMatriculaCondicional(Boolean.TRUE);
@@ -245,50 +252,15 @@ public class TramiteCondicionalServiceImp implements TramiteCondicionalService {
         Assert.isNotNull(alumnoCiclo, "El alumno no tiene actividad en el ciclo " + tremite.getCicloAcademicoResolucion().getDescripcion());
 
         RetiroCiclo retiro = retiroCicloDAO.findByAlumnoCicloRetiro(alumno, tremite.getCicloAcademicoResolucion());
-       
+        Assert.isNull(retiro, "El alumno ya cuenta con un trámite de retiro para el ciclo " + tremite.getCicloAcademicoResolucion().getDescripcion());
 
-//        por ver 
-        //        MatriculaResumen matriculaResumen = matriculaResumenDAO.findByFilter(ciclo, alumno, EstadoMatriculaEnum.NMAT);
-        //        if (matriculaResumen != null) {
-        //
-        //            if (ciclo.getFechaPrioridades() != null) {
-        //                matriculaResumen.setMotivoMatriculable(tremite.getMotivoResolucion());
-        //                matriculaResumen.setEsCondicional(true);
-        //                matriculaResumen.setFechaCondicional(new Date());
-        //
-        //                AlumnoCiclo alumnoCicloPenultimo = alumnoCiclos.get(1);
-        //                alumnoCiclo = alumnoCicloDAO.findActivosRegularesByCiclo(alumnoCicloPenultimo.getCicloAcademico(), alumno);
-        //                matriculaResumen = matriculableConector.procesarPrioridadAlumno(matriculaResumen, alumnoCiclo);
-        //
-        //                MatriculaResumen matriculaAnt = matriculaResumenDAO.findByPuntajeMenor(matriculaResumen, ciclo, alumno.getCreditosAprobadosConvalidados() > CAPA_ULTIMO_CICLO ? true : false);
-        //                MatriculaResumen matriculaDes = matriculaResumenDAO.findByPuntajeMayor(matriculaResumen, ciclo, alumno.getCreditosAprobadosConvalidados() > CAPA_ULTIMO_CICLO ? true : false);
-        //                if (matriculaAnt != null && matriculaDes != null) {
-        //
-        //                    BigDecimal prioridad = matriculaAnt.getPrioridad().add(matriculaDes.getPrioridad()).divide(new BigDecimal(2));
-        //                    matriculaResumen.setPrioridad(prioridad);
-        //                    if (ciclo.getFechaTurnosAsignados() != null) {
-        //                        EventoAcademicoEnum eventoEnum = ciclo.isTipoRegular() ? MAT_REG : MAT_VER;
-        //                        TurnoAtencion turnoAlumno = turnoAtencionDAO.findById(matriculaResumen.getTurnoAtencion().getId());
-        //                        TurnoAtencion turnosAtencion = turnoAtencionDAO.findByPrioridad(prioridad, ciclo, eventoEnum);
-        //                        if (turnoAlumno.getId() != turnosAtencion.getId().longValue()) {
-        //                            BigDecimal numPrioridad = turnosAtencion.getPrioridadFin().add(new BigDecimal("0.01"));
-        //                            Integer cantAlum = turnosAtencion.getAlumnos() + 1;
-        //                            turnosAtencion.setAlumnos(cantAlum);
-        //                            turnosAtencion.setPrioridadFin(numPrioridad);
-        //                            turnoAtencionDAO.update(turnosAtencion);
-        //                        }
-        //
-        //                        matriculaResumen.setTurnoAtencion(turnosAtencion);
-        //
-        //                    }
-        //                    matriculaResumenDAO.update(matriculaResumen);
-        //                }
-        //            }
-        //
-        //        } else {
-        //
-        //            matriculableService.saveMatriculable(alumno, TipoCondicionalEnum.RETIRO_CICLO.name(), dx);
-        //        }
+        retiro.setAlumno(alumno);
+        retiro.setMotivo(tremite.getMotivoResolucion());
+        retiro.setCicloAcademico(tremite.getCicloAcademicoResolucion());
+        retiroExcepcionalService.saveRetiro(retiro, dx);
+        
+        
+      
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -408,42 +380,12 @@ public class TramiteCondicionalServiceImp implements TramiteCondicionalService {
         if (alumno != null) {
             throw new PhobosException("El alumno" + alumno.getCodigo() + " ya cuenta con un tramite para el ciclo activo");
         }
-        DateTime today = new DateTime();
-        TipoDocumentoCompania tipoDocumentoCompania = tipoDocumentoCompaniaDAO.findByCodigo(TipoDocumentoCompaniaEnum.TRAM_REIN);
-        SerieDocumento serieDocumento = serieDocumentoService.getCorrelativo(tipoDocumentoCompania, Long.valueOf(today.getYear()), dx.getUsuario());
-        TipoTramite tipoTramite = tipoTramiteDAO.findByCodigo(TipoTramiteEnum.REI.name());
-        alumno = alumnoDAO.find(tramite.getAlumno());
-        alumno.setEsMatriculaCondicional(Boolean.TRUE);
-
-        EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.SOL_REI);
-
-        tramite.setActivo(true);
-        tramite.setCompania(dx.getCompania());
-        tramite.setAlumno(alumno);
-        tramite.setCicloAcademico(ciclo);
-        tramite.setEstadoEnum(TramiteEstadoEnum.PEND);
-        tramite.setFechaRegistro(new Date());
-        tramite.setPersona(alumno.getPersona());
-        tramite.setTipoTramite(tipoTramite);
-        tramite.setNumero(Long.valueOf(serieDocumento.getNumeroDocumento()));
-        tramite.setSerie(Long.valueOf(serieDocumento.getNumeroSerie()));
-        tramite.setUserRegistro(dx.getUsuario());
-        tramiteDAO.save(tramite);
-
-        Facultad facultad = tramite.getAlumno().getCarrera().getFacultad();
-        Reincorporacion reincorporacione = new Reincorporacion();
-        reincorporacione.setAceptado(0);
-        reincorporacione.setFechaRegistro(new Date());
-        reincorporacione.setEstadoTramite(estadoTramite);
-        reincorporacione.setUserRegistro(dx.getUsuario());
-        reincorporacione.setAlumno(alumno);
-        reincorporacione.setCicloReincorporacion(tramite.getCicloAcademicoResolucion());
-        reincorporacione.setMotivoDesercion(tramite.getMotivoResolucion());
-        reincorporacione.setFacultad(facultad);
-        reincorporacione.setTramite(tramite);
-        reincorporacione.setAceptado(0);
-        reincorporacione.setEsCondicional(Boolean.TRUE);
-        reincorporacionDAO.save(reincorporacione);
+        Reincorporacion reincorporacion = new Reincorporacion();
+        reincorporacion.setAlumno(tramite.getAlumno());
+        reincorporacion.setCicloReincorporacion(tramite.getCicloAcademicoResolucion());
+        reincorporacion.setMotivoDesercion(tramite.getMotivoResolucion());
+        tramiteReincorporacionService.saveReincorporacion(reincorporacion, dx);
+       
 
     }
 
