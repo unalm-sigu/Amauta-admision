@@ -1807,7 +1807,7 @@ public class MatriculableServiceImp implements MatriculableService {
             List<TurnoAtencion> turnos = turnoAtencionDAO.allByCicloEventoEnum(cicloActivo, eventoEnum);
 
             asignarPrioridad(alumno, cicloActivo, matriculables, mapMatriculable, turnos, mapAlumnoCiclo);
-
+            matriculaResumen = mapMatriculable.get(alumno.getId());
             matriculaResumenDAO.update(matriculaResumen);
 
             for (TurnoAtencion turno : turnos) {
