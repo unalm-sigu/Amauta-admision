@@ -1,6 +1,7 @@
 package pe.edu.lamolina.amauta.controller.horariocachimbo.ingresante;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedHashMap;
@@ -66,6 +67,12 @@ import pe.edu.lamolina.amauta.dao.academico.TipoActividadIngresanteDAO;
 import pe.edu.lamolina.amauta.dao.aporte.AporteAlumnoCicloDAO;
 import pe.edu.lamolina.amauta.dao.horario.HorarioFallidoDAO;
 import pe.edu.lamolina.amauta.dao.vacante.VacanteAlumnoDAO;
+import static pe.edu.lamolina.model.enums.TipoActividadIngresanteEnum.CAREO;
+import static pe.edu.lamolina.model.enums.TipoActividadIngresanteEnum.DOCS;
+import static pe.edu.lamolina.model.enums.TipoActividadIngresanteEnum.ENTREV;
+import static pe.edu.lamolina.model.enums.TipoActividadIngresanteEnum.FISOEC;
+import static pe.edu.lamolina.model.enums.TipoActividadIngresanteEnum.PAGOEXAMED;
+import static pe.edu.lamolina.model.enums.TipoActividadIngresanteEnum.RPAGOADM;
 
 @Service
 @Transactional(readOnly = true)
@@ -503,7 +510,7 @@ public class HorarioCachimboIngresanteServiceImp implements HorarioCachimboIngre
 
                 } else {
                     actividadesAlumno = TypesUtil.getListNotNull(mapActividadesIngresantes.get(alumno.getId()));
-                    int cantActividadAlumnoPreMatri = cantidadActividadesPreMatriculaAlumno(actividadesAlumno, mapConfigRecorrido);
+                    int cantActividadAlumnoPreMatri = cantidadActividadesObligatoriasPreMatriculaAlumno(actividadesAlumno, mapConfigRecorrido);
 
                     if (cantActividadAlumnoPreMatri < CANT_MINIMA_MATRICULA_CACHIMBOS.intValue()) { //actividadesPreMatricula
                         String msg = "El alumno " + alumno.getCodigo() + " tiene solo "
@@ -559,7 +566,7 @@ public class HorarioCachimboIngresanteServiceImp implements HorarioCachimboIngre
         return null;
     }
 
-    private int cantidadActividadesPreMatriculaAlumno(
+    private int cantidadActividadesObligatoriasPreMatriculaAlumno(
             List<ActividadIngresante> actividadesAlumno,
             Map<Long, ConfigRecorridoIngresante> mapConfigRecorrido) {
 
@@ -570,7 +577,7 @@ public class HorarioCachimboIngresanteServiceImp implements HorarioCachimboIngre
         }
 
         Collections.sort(actividadesAlumno, new ActividadIngresante.CompareOrden());
-
+        List<TipoActividadIngresanteEnum> actividadesOblig = Arrays.asList(CAREO, DOCS, RPAGOADM, FISOEC, ENTREV, PAGOEXAMED);
         int loop = 0;
         for (ActividadIngresante actIng : actividadesAlumno) {
             if (actIng.getEstadoEnum() != RecorridoIngresanteEstadoEnum.ACT) {
@@ -578,10 +585,10 @@ public class HorarioCachimboIngresanteServiceImp implements HorarioCachimboIngre
             }
 
             TipoActividadIngresante tipo = actIng.getTipoActividadIngresante();
-            if (tipo.getCodigoEnum() == TipoActividadIngresanteEnum.MATRI) {
-                break;
+            if (actividadesOblig.contains(tipo.getCodigoEnum())) {
+//                break;
+                loop++;
             }
-            loop++;
         }
         return loop;
 
