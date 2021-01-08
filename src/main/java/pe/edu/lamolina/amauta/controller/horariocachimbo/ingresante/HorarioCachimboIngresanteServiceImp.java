@@ -72,6 +72,7 @@ import static pe.edu.lamolina.model.enums.TipoActividadIngresanteEnum.DOCS;
 import static pe.edu.lamolina.model.enums.TipoActividadIngresanteEnum.ENTREV;
 import static pe.edu.lamolina.model.enums.TipoActividadIngresanteEnum.FISOEC;
 import static pe.edu.lamolina.model.enums.TipoActividadIngresanteEnum.PAGOEXAMED;
+import static pe.edu.lamolina.model.enums.TipoActividadIngresanteEnum.PAGOMATRI;
 import static pe.edu.lamolina.model.enums.TipoActividadIngresanteEnum.RPAGOADM;
 
 @Service
@@ -577,7 +578,7 @@ public class HorarioCachimboIngresanteServiceImp implements HorarioCachimboIngre
         }
 
         Collections.sort(actividadesAlumno, new ActividadIngresante.CompareOrden());
-        List<TipoActividadIngresanteEnum> actividadesOblig = Arrays.asList(CAREO, DOCS, RPAGOADM, FISOEC, ENTREV, PAGOEXAMED);
+        List<TipoActividadIngresanteEnum> actividadesOblig = Arrays.asList(CAREO, DOCS, RPAGOADM, FISOEC, ENTREV, PAGOMATRI);
         int loop = 0;
         for (ActividadIngresante actIng : actividadesAlumno) {
             if (actIng.getEstadoEnum() != RecorridoIngresanteEstadoEnum.ACT) {
