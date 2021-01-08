@@ -456,8 +456,6 @@ public class HorarioCachimboIngresanteServiceImp implements HorarioCachimboIngre
         Map<Long, List<ActividadIngresante>> mapActividadesIngresantes = TypesUtil.convertListToMapList("recorridoIngresante.alumno.id", actividadIngresantes);
         System.out.println("Total actividades-alumnos :::: " + actividadIngresantes.size());
 
-        int actividadesPreMatricula = cantidadActividadesPreMatricula(configRecorridoIngresantes);
-
         List<Alumno> allAlumnos = new ArrayList();
         List<HorarioCachimbos> horarios = horarioCachimbosDAO.allByCiclo(cicloAcademico);
         for (HorarioCachimbos horario : horarios) {
