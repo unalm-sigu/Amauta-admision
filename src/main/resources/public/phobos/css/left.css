@@ -440,7 +440,7 @@ input[type="submit"]:focus {
 }
 
 .sidebar-flat .menu-section ul li > .submenu li a {
-    padding-left: 54px;
+    padding-left: 34px;
 }
 
 @media (min-width: 768px) and (max-width: 991px) {

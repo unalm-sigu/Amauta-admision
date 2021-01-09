@@ -113,19 +113,23 @@
                             <div v-show="stepactivo==5"  >
                                 <horario-component v-bind:docente="docente" tipo="DOC" v-bind:ciclo="ciclo" ref="loadHorario"></horario-component>
                             </div>
-                            
+
                             <div v-show="stepactivo==6"  >
-                                <!--<th:block th:replace="academico/profesor/informacion/informacioncarga"/>-->
+                                <th:block th:replace="academico/profesor/informacion/informacionCtaBanco"/>
                             </div>
 
                         </section>
                     </section>
                 </section>
 
+                <div th:substituteby="academico/profesor/informacion/_modalProfeAddCtaBanco"></div>
+                <div th:substituteby="_modules/vue-modal-confirm"></div>
+
             </div>
 
             <th:block th:replace="academico/profesor/informacion/informacionacademicatemp"/>
             <div th:substituteby="academico/alumno/includes/horario"/>
+
 
             <script  th:inline="javascript" >
                 /*<![CDATA[*/
@@ -145,6 +149,11 @@
                 /*<![CDATA[*/
                 var cicloJson = /*[[${ciclo}]]*/ 'json';
                 var horasJson = /*[[${horasBD}]]*/ 'json';
+
+                var cuentasBancarias = /*[[${cuentasBancarias.toString()}]]*/'';
+                var bancos = /*[[${bancos.toString()}]]*/'';
+                var personaJson = /*[[${personaJson.toString()}]]*/'';
+                var rutaModulo = /*[[${rutaModulo}]]*/'';
                 /*]]>*/
             </script>
 
