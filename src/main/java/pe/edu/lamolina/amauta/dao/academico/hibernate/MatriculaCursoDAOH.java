@@ -418,7 +418,7 @@ public class MatriculaCursoDAOH extends AbstractEasyDAO<MatriculaCurso> implemen
         }
 
         long t1 = System.currentTimeMillis();
-        Insecto sql = Insecto.createUpdate(CursoCicloAcademico.class)
+        Insecto sql = Insecto.createUpdate(MatriculaCurso.class)
                 .set(columnas)
                 .with(matriculaCursos);
 

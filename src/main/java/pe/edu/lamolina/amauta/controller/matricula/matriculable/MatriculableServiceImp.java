@@ -941,6 +941,7 @@ public class MatriculableServiceImp implements MatriculableService {
         resumen.settingValoresDefecto();
         resumen.setCreditosPagados(0);
         resumen.setCreditosConsumidos(0);
+        resumen.setEsCondicional(alumnoForm.getEsMatriculaCondicional());
         resumen.setEstadoEnum(NMAT);
         matriculaResumenDAO.save(resumen);
 
@@ -1063,7 +1064,7 @@ public class MatriculableServiceImp implements MatriculableService {
         }
 
         SituacionAcademica situacion = alumno.getSituacionAcademica();
-        if (situacionesNoAptas.contains(situacion.getCodigo()) && !alumno.getEsMatriculableSuspendido()) {
+        if (situacionesNoAptas.contains(situacion.getCodigo()) && !alumno.getEsMatriculableSuspendido() && !matriculable.getEsCondicional() ) {
             matriculable.setPrioridad(null);
             matriculable.setTurnoAtencion(null);
             matriculable.setEstadoEnum(INH);
@@ -1454,13 +1455,13 @@ public class MatriculableServiceImp implements MatriculableService {
                 }
                 MatriculaResumen matriculable = mapMatriculable.get(alumno.getId());
                 if (situacionesExepcionAptas.contains(alumno.getSituacionAcademica().getCodigo())) {
-                    if (mapReincorporacion.get(alumno.getId()) != null || alumno.getEsMatBeneficioUltCicl() || alumno.getEsMatriculaCondicional()) {
+                    if (mapReincorporacion.get(alumno.getId()) != null || alumno.getEsMatBeneficioUltCicl() || matriculable.getEsCondicional()) {
                         alumno.setEsMatriculableSuspendido(Boolean.TRUE);
                         this.addMatriculable(matriculable, alumno, cicloActivo, matriculables, mapMatriculable, usuario);
                         continue;
                     }
                 }
-                if (situacionesNoAptas.contains(alumno.getSituacionAcademica().getCodigo()) && !alumno.getEsMatriculaCondicional()) {
+                if (situacionesNoAptas.contains(alumno.getSituacionAcademica().getCodigo()) && !matriculable.getEsCondicional()) {
                     if (matriculable != null && Arrays.asList(NMAT, MAT).contains(matriculable.getEstadoEnum())) {
                         matriculable.setEstadoEnum(INH);
                         matriculaResumenDAO.update(matriculable);
@@ -1807,7 +1808,6 @@ public class MatriculableServiceImp implements MatriculableService {
             List<TurnoAtencion> turnos = turnoAtencionDAO.allByCicloEventoEnum(cicloActivo, eventoEnum);
 
             asignarPrioridad(alumno, cicloActivo, matriculables, mapMatriculable, turnos, mapAlumnoCiclo);
-
             matriculaResumenDAO.update(matriculaResumen);
 
             for (TurnoAtencion turno : turnos) {
