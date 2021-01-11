@@ -422,9 +422,9 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
             throw new PhobosException(responseRest.getMessage());
         }
         for (Alumno alumno : alumnos) {
-         
+
             MatriculaResumen matriculaResumen = matriculaResumenDAO.findByAlumnoCiclo(alumno, cicloAcademico);
-          
+
             this.calcularMatriculaResumenInfoMatriculas(matriculaResumen, null, EstadoMatriculaEnum.MAT);
         }
 
@@ -453,7 +453,7 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
             seccionTCUR.setDocentePrincipal(docenteSeccionTCUR.getDocente());
             esDocenteTcurLogged = seccionTCUR.getDocentePrincipal().getId().equals(ds.getDocente().getId());
         } else {
-            matriculaSeccion = matriculaSeccionDAO.findByMatResumenAndTipoSecAndEstado(matriculaSeccion.getMatriculaResumen(), TipoSeccionEnum.PCUR, SOL);
+            matriculaSeccion = matriculaSeccionDAO.findByMatResumenAndTipoSecAndEstado(matriculaSeccion.getMatriculaResumen(), TipoSeccionEnum.PCUR, seccion, SOL);
         }
         /* if (seccion.isTipoSeccionTCUR()) {
             esDocenteTcurLogged = true;
@@ -536,7 +536,7 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
             this.rechazarMatriculaSeccion(matriculaSeccionTCUR, ds);
         }
         if (seccion.isTipoSeccionTCUR()) {
-            MatriculaSeccion matriculaSeccionPCUR = matriculaSeccionDAO.findByMatResumenAndTipoSecAndNoEstado(matriculaCurso.getMatriculaResumen(), TipoSeccionEnum.PCUR, EstadoMatriculaEnum.RHZ);
+            MatriculaSeccion matriculaSeccionPCUR = matriculaSeccionDAO.findByMatResumenAndTipoSecAndNoEstado(matriculaCurso.getMatriculaResumen(), TipoSeccionEnum.PCUR, seccion, EstadoMatriculaEnum.RHZ);
             this.rechazarMatriculaSeccion(matriculaSeccionPCUR, ds);
         }
 

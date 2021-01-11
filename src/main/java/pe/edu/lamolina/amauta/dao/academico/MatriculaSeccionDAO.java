@@ -62,9 +62,9 @@ public interface MatriculaSeccionDAO extends EasyDAO<MatriculaSeccion> {
 
     void updateColumns(MatriculaSeccion matriculaSeccion, String... columns);
 
-    MatriculaSeccion findByMatResumenAndTipoSecAndEstado(MatriculaResumen matriculaResumen, TipoSeccionEnum tipoSeccionEnum, EstadoMatriculaEnum... estadoMatriculaEnum);
+    MatriculaSeccion findByMatResumenAndTipoSecAndEstado(MatriculaResumen matriculaResumen, TipoSeccionEnum tipoSeccionEnum, Seccion seccion, EstadoMatriculaEnum... estadoMatriculaEnum);
 
-    MatriculaSeccion findByMatResumenAndTipoSecAndNoEstado(MatriculaResumen matriculaResumen, TipoSeccionEnum tipoSeccionEnum, EstadoMatriculaEnum... estadoMatriculaEnum);
+    MatriculaSeccion findByMatResumenAndTipoSecAndNoEstado(MatriculaResumen matriculaResumen, TipoSeccionEnum tipoSeccionEnum,Seccion seccion, EstadoMatriculaEnum... estadoMatriculaEnum);
 
     MatriculaSeccion findByMatriculaMatSeccion(MatriculaResumen matriculaResumen, Seccion seccion, EstadoMatriculaEnum... estado);
 
