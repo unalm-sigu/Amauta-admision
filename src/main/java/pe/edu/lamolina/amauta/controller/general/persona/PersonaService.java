@@ -8,6 +8,7 @@ import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.general.EmpresaEtiquetada;
 import pe.edu.lamolina.model.general.PersonaCuentaBancaria;
+import pe.edu.lamolina.model.general.PersonaFoto;
 
 public interface PersonaService {
 
@@ -16,6 +17,8 @@ public interface PersonaService {
     Persona find(Persona persona);
 
     List<PersonaCuentaBancaria> allCtasBancarias(Persona persona);
+
+    List<PersonaFoto> allFotosPersonaByTipo(Persona persona, String tipo);
 
     List<EmpresaEtiquetada> allBancos();
 
@@ -38,5 +41,9 @@ public interface PersonaService {
     void deleteCtaBanco(PersonaCuentaBancaria cuentaBanco, DataSessionPivot ds);
 
     void activarCtaBanco(PersonaCuentaBancaria cuentaBanco, DataSessionPivot ds);
+
+    void saveFirma(PersonaFoto personaFirma, DataSessionPivot ds);
+
+    void anularFirma(PersonaFoto personaFoto, DataSessionPivot ds);
 
 }

@@ -35,10 +35,12 @@ import pe.albatross.zelpers.notify.Notificaciones;
 import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.seguridad.Rol;
 import pe.edu.lamolina.amauta.controller.general.foto.FotoHelper;
+import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorService;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.general.EmpresaEtiquetada;
 import pe.edu.lamolina.model.general.PersonaCuentaBancaria;
+import pe.edu.lamolina.model.general.PersonaFoto;
 
 @Controller
 @RequestMapping("general/persona")
@@ -48,6 +50,8 @@ public class PersonaController {
 
     @Autowired
     PersonaService service;
+    @Autowired
+    VerificadorService verificadorService;
 
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {
@@ -158,6 +162,7 @@ public class PersonaController {
         model.addAttribute("fotoHelper", new FotoHelper());
         model.addAttribute("origen", getOrigen(origen));
         model.addAttribute("rutaModulo", rutaModulo);
+        model.addAttribute("esOperadorGastoPosgrado", verificadorService.isOperadorGastoPosgrado(ds));
 
         return "general/persona/personaForm";
     }
@@ -307,6 +312,75 @@ public class PersonaController {
 
             response.setData(createCtasBancariasJson(cuentasBancarias));
             response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("{idPersona}/allFirmas")
+    public JsonResponse allFirmas(@PathVariable Long idPersona, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+            Persona persona = service.find(new Persona(idPersona));
+            List<PersonaFoto> firmasByPersona = service.allFotosPersonaByTipo(persona, "FIRMA");
+
+            response.setData(createFotosJson(firmasByPersona));
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
+    }
+
+    private ArrayNode createFotosJson(List<PersonaFoto> personasFotos) {
+        return JaneHelper
+                .from(personasFotos)
+                .join("persona", "id")
+                .join("archivo", "id,ruta")
+                .array();
+    }
+
+    @ResponseBody
+    @RequestMapping("anularFirma")
+    public JsonResponse anularFirma(@RequestBody PersonaFoto personaFoto, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+            service.anularFirma(personaFoto, ds);
+
+            response.setSuccess(true);
+            response.setMessage("Se eliminó satisfactoriamente la cuenta bancaria");
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("saveFirma")
+    public JsonResponse saveFirma(@RequestBody PersonaFoto personaFirma, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+            service.saveFirma(personaFirma, ds);
+
+            response.setSuccess(true);
+            response.setMessage("Se agregó satisfactoriamente la cuenta bancaria");
 
         } catch (PhobosException e) {
             ExceptionHandler.handlePhobosEx(e, response);

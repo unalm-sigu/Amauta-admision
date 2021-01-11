@@ -145,7 +145,8 @@ public class ColaboradorDAOH extends AbstractEasyDAO<Colaborador> implements Col
                 .searchFields("ofi.nombre", "ca.nombre", "per.numeroDocIdentidad")
                 .searchComplexField("concat(coalesce(per.paterno,''),' ',coalesce(per.materno,''),' ',coalesce(per.nombres,''))")
                 .searchComplexField("concat(coalesce(per.nombres,''),' ',coalesce(per.paterno,''),' ',coalesce(per.materno,''))")
-                .orderBy("co.id desc");
+                .orderBy("case co.estado when 'ACT' then 1 when 'PER' then 1 when 'VAC' then 2 when 'DSC' then 2 else 3 end","co.id desc");
+
         setCondicionEstado(filter, sql);
 
         return all(sql);

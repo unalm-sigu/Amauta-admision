@@ -1,0 +1,73 @@
+
+<div id="personaFirmaVUE" v-cloak="">
+
+    <form id="form-firma-persona" class="form-horizontal m-t-lg" data-parsley-validate="true">
+
+        <div class="row m-b-lg" th:if="${esOperadorGastoPosgrado}">
+            <div class="col-sm-2"></div>
+            <div class="col-sm-8 text-right">
+                <button v-on:click="verAddFirma" type="button" class="btn btn-success">Agregar firma</button>
+            </div>
+            <div class="col-sm-2">
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-2"></div>
+            <div class="col-sm-8">
+                <div v-if="firmas.length > 0">
+                    <h4 class="text-primary">Firmas cargadas de la persona</h4>
+                    <table class="table table-condensed">
+                        <thead>
+                            <tr>
+                                <th class="col-md-6 v-middle">Foto</th>
+                                <th class="col-md-2 text-center v-middle">Estado</th>
+                                <th class="col-md-2 text-center v-middle">Fecha activación</th>
+                                <th class="col-md-2 text-center v-middle">Fecha desactivación</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="item in firmas">
+                                <td>
+                                    <img v-bind:src="item.archivo.ruta" style="width:100%;"/>
+                                </td>
+                                <td class="v-middle text-center">
+                                    <span v-if="item.estado == 'ACT' ">
+                                        <i class="fa fa-check-square-o fa-lg text-success" aria-hidden="true"></i>
+                                    </span>
+                                    <span v-else="">
+                                        <i class="fa fa-times-circle fa-lg text-danger" aria-hidden="true"></i>
+                                    </span>
+                                </td>
+                                <td class="v-middle text-center">
+                                    {{item.fechaRegistro}}
+                                </td>
+                                <td class="v-middle text-center">
+                                    {{item.fechaDesactivacion}}
+                                </td>
+                                <td class="v-middle text-center">
+                                    <a v-on:click="verEliminar(item)" class="btn btn-danger btn-sm"
+                                       th:if="${esOperadorGastoPosgrado}">
+                                        <i class="fa fa-trash-o fa-lg" aria-hidden="true"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        </tbody>
+
+                    </table>
+                </div>
+
+                <div v-else="" class="alert alert-danger">
+                    <h4>No tiene firmas cargadas</h4>
+                </div>
+            </div>
+            <div class="col-sm-2"></div>
+        </div>
+
+    </form>
+
+    <div th:substituteby="general/persona/_modalAddFirma"></div>
+    <div th:substituteby="_modules/vue-modal-confirm"></div>
+
+</div>

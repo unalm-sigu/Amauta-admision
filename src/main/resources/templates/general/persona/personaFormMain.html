@@ -28,7 +28,7 @@
     </div>
 
     <div class="form-group">
-        <label for="emailEmpresa" class="col-sm-2 control-label">Email Principal</label>
+        <label for="emailEmpresa" class="col-sm-2 control-label">Email institucional</label>
         <div class="col-sm-6">
 
             <input  class="inline form-control validar-email-empresa" 
@@ -58,7 +58,6 @@
         <div class="col-sm-1"></div>
     </div>
 
-    <!--<div class="row">-->
     <div class="form-group">
         <label for="tituloAcademico" class="col-sm-2 control-label">Título Académico</label>
         <div class="col-sm-3">
@@ -67,8 +66,6 @@
         </div>
         <div class="col-sm-7"></div>
     </div>
-    <!--</div>-->
-
 
     <div class="form-group">
         <label for="sexo" class="col-sm-2 control-label">Sexo</label>
@@ -105,7 +102,7 @@
     </div>
 
     <div class="form-group">
-        <label for="distrito" class="col-sm-2 control-label">Distrito</label>
+        <label for="distrito" class="col-sm-2 control-label">Distrito domicilio</label>
         <div class="col-sm-4">
             <input type="text" class="form-control input-s-full buscar-distrito" id="buscarDistrito" name="ubicacionDomicilio.id" data-trigger="change" 
                    th:rel="${persona.ubicacionDomicilio != null}? ${persona.ubicacionDomicilio.distrito}"

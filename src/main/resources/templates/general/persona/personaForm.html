@@ -32,18 +32,19 @@
                     <div>
                         <ul class="nav nav-tabs">
                             <li role="presentation" class="active"><a href="#inicio" role="tab" data-toggle="tab">Datos principales</a></li>
-                            <li role="presentation"><a href="#ctasbanco" role="tab" data-toggle="tab">Cuenta Bancaria</a></li>
+                            <li role="presentation" th:if="${esOperadorGastoPosgrado}"><a href="#ctasbanco" role="tab" data-toggle="tab">Cuenta Bancaria</a></li>
+                            <li role="presentation"><a href="#firmapersona" role="tab" data-toggle="tab">Firma</a></li>
                         </ul>
 
                         <div class="tab-content">
                             <div role="tabpanel" class="tab-pane fade in active" id="inicio">
-
                                 <div th:substituteby="general/persona/personaFormMain"/>
-
                             </div>
                             <div role="tabpanel" class="tab-pane fade" id="ctasbanco">
-
                                 <div th:substituteby="general/persona/personaFormCtaBanco"/>
+                            </div>
+                            <div role="tabpanel" class="tab-pane fade" id="firmapersona">
+                                <div th:substituteby="general/persona/personaFirma"/>
                             </div>
                         </div>
                     </div>
@@ -67,9 +68,11 @@
                 var rutaModulo = /*[[${rutaModulo}]]*/'';
                 /*]]>*/
             </script>
-            <script th:src="@{/app/general/persona/personaForm.js}" charset="utf-8"></script>
             <div th:replace="_modules/vue-modal"></div>
+            <div th:replace="_layout/includes :: javascript-vue-upload"/>
+            <script th:src="@{/app/general/persona/personaForm.js}" charset="utf-8"></script>
             <script th:src="@{/app/general/persona/personaFormVue.js}" charset="utf-8"></script>
+            <script th:src="@{/app/general/persona/personaFirmaVue.js}" charset="utf-8"></script>
         </div>
 
     </body>

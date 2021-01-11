@@ -1,0 +1,51 @@
+<modal-vik ref="modalAddFirma"
+           v-bind="modalAddFirma"
+           v-bind:okaction="saveFirma">
+    <div slot="body">
+
+        <div class="row">
+            <div class="col-md-10">
+                <div class="form-group">
+                    <label class="block">Foto de la firma</label>
+
+                    <div class="form-group">
+                        <div class="input-group">
+                            <input type="text"
+                                   m-style="height: 42px;"
+                                   v-model="archivo.nombre"
+                                   class="form-control"
+                                   disabled="true"/>
+                            <span class="input-group-addon pointer">
+                                <file-upload
+                                    extensions="jpg,jpeg,png"
+                                    accept="image/png,image/jpeg"
+                                    name="file"
+                                    class="text-center pointer"
+                                    post-action="/comun/archivo/upload"
+                                    v-model="files"
+                                    chunk-enabled="true"
+                                    v-on:input-filter="inputFilter"
+                                    v-on:input-file="inputFile"
+                                    ref="uploadFirma">
+                                    <div class="pointer text-success">
+                                        <i class="fa fa-cloud-upload fa-lg"></i> Click aquí
+                                    </div>
+                                </file-upload>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2 text-left" v-if="existeArchivo(archivo)">
+                <label>Verificar</label>
+                <div  class="">
+                    <a v-on:click="verTemporal(archivo)" class="pointer" >
+                        <i class="fa fa fa-external-link fa-2x" v-bind:class="classByArchivo()"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+</modal-vik>

@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
+import org.joda.time.LocalDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,9 @@ import pe.albatross.octavia.dynatable.DynatableFilter;
 import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
+import pe.edu.lamolina.amauta.controller.comun.s3.UploadFileS3;
+import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorService;
+import pe.edu.lamolina.amauta.dao.general.ArchivoDAO;
 import pe.edu.lamolina.amauta.dao.general.EmpresaEtiquetadaDAO;
 import pe.edu.lamolina.amauta.dao.general.PersonaCuentaBancariaDAO;
 import pe.edu.lamolina.model.enums.UserEstadoEnum;
@@ -21,18 +25,26 @@ import pe.edu.lamolina.model.general.Persona;
 import pe.edu.lamolina.model.general.TipoDocIdentidad;
 import pe.edu.lamolina.model.seguridad.Usuario;
 import pe.edu.lamolina.amauta.dao.general.PersonaDAO;
+import pe.edu.lamolina.amauta.dao.general.PersonaFotoDAO;
 import pe.edu.lamolina.amauta.dao.general.TipoDocIdentidadDAO;
 import pe.edu.lamolina.amauta.dao.seguridad.RolDAO;
 import pe.edu.lamolina.amauta.dao.seguridad.UsuarioDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.constantines.AcademicoConstantine;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.model.enums.EstadoEnum;
+import pe.edu.lamolina.model.enums.InstanciaEnum;
+import pe.edu.lamolina.model.general.Archivo;
 import pe.edu.lamolina.model.general.EmpresaEtiquetada;
 import pe.edu.lamolina.model.general.PersonaCuentaBancaria;
+import pe.edu.lamolina.model.general.PersonaFoto;
 
 @Service
 @Transactional(readOnly = true)
 public class PersonaServiceImp implements PersonaService {
 
+    @Autowired
+    ArchivoDAO archivoDAO;
     @Autowired
     EmpresaEtiquetadaDAO empresaEtiquetadaDAO;
     @Autowired
@@ -40,11 +52,18 @@ public class PersonaServiceImp implements PersonaService {
     @Autowired
     PersonaCuentaBancariaDAO personaCuentaBancariaDAO;
     @Autowired
+    PersonaFotoDAO personaFotoDAO;
+    @Autowired
     RolDAO rolDAO;
     @Autowired
     TipoDocIdentidadDAO tipoDocIdentidadDAO;
     @Autowired
     UsuarioDAO usuarioDAO;
+
+    @Autowired
+    VerificadorService verificadorService;
+    @Autowired
+    UploadFileS3 uploadFileS3;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -91,6 +110,11 @@ public class PersonaServiceImp implements PersonaService {
             }
         }
         return ctasOrden;
+    }
+
+    @Override
+    public List<PersonaFoto> allFotosPersonaByTipo(Persona persona, String tipo) {
+        return personaFotoDAO.allByTipo(persona, tipo);
     }
 
     @Override
@@ -347,6 +371,9 @@ public class PersonaServiceImp implements PersonaService {
     @Override
     @Transactional
     public void saveCtaBanco(PersonaCuentaBancaria cuentaBanco, DataSessionPivot ds) {
+        boolean esOperadoGastoPosgrado = verificadorService.isOperadorGastoPosgrado(ds);
+        Assert.isTrue(esOperadoGastoPosgrado, "No tiene permiso para efectuar esta operación");
+
         boolean sinCta = StringUtils.isBlank(cuentaBanco.getNumeroCuenta());
         boolean sinCci = StringUtils.isBlank(cuentaBanco.getCuentaInterbancaria());
         Assert.isFalse(sinCci && sinCta, "Debe indicar el Nº de la cuenta bancaria o el CCI");
@@ -376,6 +403,9 @@ public class PersonaServiceImp implements PersonaService {
     @Override
     @Transactional
     public void deleteCtaBanco(PersonaCuentaBancaria cuentaBanco, DataSessionPivot ds) {
+        boolean esOperadoGastoPosgrado = verificadorService.isOperadorGastoPosgrado(ds);
+        Assert.isTrue(esOperadoGastoPosgrado, "No tiene permiso para efectuar esta operación");
+
         PersonaCuentaBancaria cuentaBancoBD = personaCuentaBancariaDAO.find(cuentaBanco.getId());
         Assert.isNotNull(cuentaBancoBD, "No se pudo ubicar el registro de esta cuenta bancaria");
         personaCuentaBancariaDAO.delete(cuentaBancoBD);
@@ -384,6 +414,9 @@ public class PersonaServiceImp implements PersonaService {
     @Override
     @Transactional
     public void activarCtaBanco(PersonaCuentaBancaria cuentaBanco, DataSessionPivot ds) {
+        boolean esOperadoGastoPosgrado = verificadorService.isOperadorGastoPosgrado(ds);
+        Assert.isTrue(esOperadoGastoPosgrado, "No tiene permiso para efectuar esta operación");
+
         PersonaCuentaBancaria cuentaBancoBD = personaCuentaBancariaDAO.find(cuentaBanco.getId());
         Assert.isNotNull(cuentaBancoBD, "No se pudo ubicar el registro de esta cuenta bancaria");
 
@@ -395,6 +428,62 @@ public class PersonaServiceImp implements PersonaService {
         }
         cuentaBancoBD.setEstadoEnum(EstadoEnum.ACT);
         personaCuentaBancariaDAO.update(cuentaBancoBD);
+
+    }
+
+    @Override
+    @Transactional
+    public void saveFirma(PersonaFoto personaFirma, DataSessionPivot ds) {
+        boolean esOperadoGastoPosgrado = verificadorService.isOperadorGastoPosgrado(ds);
+        Assert.isTrue(esOperadoGastoPosgrado, "No tiene permiso para efectuar esta operación");
+
+        String tipoFoto = "FIRMA";
+        PersonaFoto firmaActiva = personaFotoDAO.findActiva(personaFirma.getPersona(), tipoFoto);
+        Assert.isNull(firmaActiva, "Antes de agregar una firma, primero debe desactivar la firma actual");
+
+        Archivo archivo = personaFirma.getArchivo();
+        uploadFileS3.uploadSync(AcademicoConstantine.S3_DIR_FOTO_CARNET, GlobalConstantine.TMP_DIR, archivo.getNombre(), true);
+        String path = uploadFileS3.getPathFile(AcademicoConstantine.S3_DIR_FOTO_CARNET, archivo.getNombre());
+        archivo.setRuta(path);
+        archivo.setIdInstancia(123L);
+        archivo.setInstancia(InstanciaEnum.PERSONA_FOTO.name());
+        archivo.setUsuarioRegistro(ds.getUsuario());
+        archivo.setFechaRegistro(new Date());
+        archivoDAO.save(archivo);
+
+        personaFirma.setEstadoEnum(EstadoEnum.ACT);
+        personaFirma.setTipoFoto(tipoFoto);
+        personaFirma.setUserRegistro(ds.getUsuario());
+        personaFirma.setFechaRegistro(new Date());
+        personaFotoDAO.save(personaFirma);
+
+        archivo.setIdInstancia(personaFirma.getId());
+        archivoDAO.update(archivo);
+    }
+
+    @Override
+    @Transactional
+    public void anularFirma(PersonaFoto firmaPersonaForm, DataSessionPivot ds) {
+        boolean esOperadoGastoPosgrado = verificadorService.isOperadorGastoPosgrado(ds);
+        Assert.isTrue(esOperadoGastoPosgrado, "No tiene permiso para efectuar esta operación");
+
+        String tipoFoto = "FIRMA";
+        PersonaFoto firmaPersonaBD = personaFotoDAO.find(firmaPersonaForm.getId());
+        Assert.isNotNull(firmaPersonaBD, "No se ubicó el registro indicado");
+        Assert.isTrue(firmaPersonaBD.getTipoFoto().equals(tipoFoto), "El registro no pertenece a una foto de firma");
+        Assert.isTrue(firmaPersonaBD.getEstadoEnum() == EstadoEnum.ACT, "El registro no se encuentra activo");
+
+        LocalDate ayer = new LocalDate().minusDays(5);
+
+        if (firmaPersonaBD.getFechaRegistro().before(ayer.toDate())) {
+            firmaPersonaBD.setEstadoEnum(EstadoEnum.INA);
+            firmaPersonaBD.setFechaDesactivacion(new Date());
+            firmaPersonaBD.setUserDesactivacion(ds.getUsuario());
+            personaFotoDAO.update(firmaPersonaBD);
+
+        } else {
+            personaFotoDAO.delete(firmaPersonaBD);
+        }
 
     }
 

@@ -227,13 +227,13 @@
             <groupId>com.github.albatrosscloud</groupId>
             <!--<groupId>pe.albatross</groupId>-->
             <artifactId>octavia</artifactId>
-            <version>1.0.22</version>
+            <version>1.1.2</version>
         </dependency>
 
         <dependency>
             <groupId>pe.edu.lamolina</groupId>  
             <artifactId>model</artifactId>
-            <version>0.27.03</version>
+            <version>0.27.05</version>
         </dependency>        
       
     </dependencies>

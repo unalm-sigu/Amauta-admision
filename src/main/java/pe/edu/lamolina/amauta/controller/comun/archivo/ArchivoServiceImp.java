@@ -8,6 +8,7 @@ import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.Date;
 import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.bind.DatatypeConverter;
@@ -21,8 +22,8 @@ import org.springframework.web.multipart.MultipartFile;
 import pe.albatross.zelpers.file.system.FileHelper;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
-import pe.edu.lamolina.model.constantines.AcademicoConstantine;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
+import pe.edu.lamolina.model.general.Archivo;
 
 @Service
 @Transactional(readOnly = true)
@@ -120,6 +121,33 @@ public class ArchivoServiceImp implements ArchivoService {
             } catch (IOException e) {
                 logger.error("Error al cerrar el Out/In: {}", e.getLocalizedMessage());
             }
+        }
+    }
+
+    @Override
+    public Archivo upload(MultipartFile multipartFile) {
+        logger.debug("getContentType {}", multipartFile.getContentType());
+        logger.debug("getOriginalFilename {}", multipartFile.getOriginalFilename());
+        logger.debug("getSize {}", multipartFile.getSize());
+
+        FileHelper.createDirectory(GlobalConstantine.TMP_DIR);
+
+        String fileName = TypesUtil.getUnixTime() + "." + TypesUtil.getClean(FilenameUtils.getExtension(multipartFile.getOriginalFilename()));
+        String absoluteName = GlobalConstantine.TMP_DIR + fileName;
+
+        try {
+            FileHelper.saveToDisk(multipartFile, absoluteName);
+
+            Archivo archivo = new Archivo();
+            archivo.setNombre(fileName);
+            archivo.setRuta(absoluteName);
+            archivo.setTipo(multipartFile.getContentType());
+            archivo.setFechaRegistro(new Date());
+
+            return archivo;
+
+        } catch (Exception e) {
+            throw new PhobosException("ERROR AL GUARDAR EL ARCHIVO {}", absoluteName);
         }
     }
 
