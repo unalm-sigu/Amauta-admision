@@ -289,53 +289,6 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
         for (Alumno alumno : alumnos) {
             MatriculaResumen matriculaResumen = mapMatriculaResumen.get(alumno.getId());
 
-            MatriculaCurso matriculaCurso = mapMatriculaCurso.get(matriculaResumen.getId());
-
-            if (matriculaCurso == null) {
-                matriculaCurso = new MatriculaCurso(curso, matriculaResumen, ESTADO_MATRICULA);
-                if (ESTADO_MATRICULA == EstadoMatriculaEnum.MAT) {
-                    matriculaCurso.setFechaMatricula(new Date());
-                    matriculaCurso.setUserMatricula(ds.getUsuario());
-                }
-                matriculaCursoDAO.save(matriculaCurso);
-            } else {
-                matriculaCurso.setEstadoEnum(ESTADO_MATRICULA);
-                if (ESTADO_MATRICULA == EstadoMatriculaEnum.MAT) {
-                    matriculaCurso.setFechaMatricula(new Date());
-                    matriculaCurso.setUserMatricula(ds.getUsuario());
-                }
-                matriculaCursoDAO.update(matriculaCurso);
-            }
-
-            MatriculaSeccion matriculaSeccionPCUR = mapMatriculaSeccionPCUR.get(matriculaResumen.getId());
-//            Assert.isTrue(matriculaSeccionPCUR == null, String.format("alumno %S ya se matriculo", alumno.getPersona().getApellidosNombres()));
-            matriculaSeccionPCUR = new MatriculaSeccion(curso, matriculaResumen, seccionPCUR, ESTADO_MATRICULA, ds.getUsuario(), ds.getFechaAccionAudit());
-            matriculaSeccionPCUR.setEsAmpliacionVacante(Boolean.TRUE);
-            matriculaSeccionPCUR.setTipoAmpliacionEnum(TipoAmpliacionEnum.valueOf(tipoAmpliacion));
-            //si el docente principal tcur es el logeado y no es el mismo profe de la seccione pcur seleccionada
-            if (isDocentePrincipalTcurLogged && !seccionPCUR.getDocentePrincipal().equals(seccionTCUR.getDocentePrincipal())) {
-                matriculaSeccionPCUR.setEnSolicitud(Boolean.TRUE);
-            }
-            if (ESTADO_MATRICULA == EstadoMatriculaEnum.MAT) {
-                matriculaSeccionPCUR.setFechaMatricula(new Date());
-                matriculaSeccionPCUR.setUserMatricula(ds.getUsuario());
-            }
-            matriculaSeccionDAO.save(matriculaSeccionPCUR);
-
-            MatriculaSeccion matriculaSeccionTCUR = mapMatriculaSeccionTCUR.get(matriculaResumen.getId());
-//            Assert.isTrue(matriculaSeccionTCUR == null, String.format("alumno %s ya se matriculo", alumno.getPersona().getApellidosNombres()));
-            matriculaSeccionTCUR = new MatriculaSeccion(curso, matriculaResumen, seccionTCUR, ESTADO_MATRICULA, ds.getUsuario(), ds.getFechaAccionAudit());
-            matriculaSeccionTCUR.setEsAmpliacionVacante(Boolean.TRUE);
-            matriculaSeccionTCUR.setTipoAmpliacionEnum(TipoAmpliacionEnum.valueOf(tipoAmpliacion));
-            if (!isDocentePrincipalTcurLogged) {
-                matriculaSeccionTCUR.setEnSolicitud(Boolean.TRUE);
-            }
-            if (ESTADO_MATRICULA == EstadoMatriculaEnum.MAT) {
-                matriculaSeccionTCUR.setFechaMatricula(new Date());
-                matriculaSeccionTCUR.setUserMatricula(ds.getUsuario());
-            }
-            matriculaSeccionDAO.save(matriculaSeccionTCUR);
-
             this.calcularMatriculaResumenInfoMatriculas(matriculaResumen, null, ESTADO_MATRICULA);
         }
     }
