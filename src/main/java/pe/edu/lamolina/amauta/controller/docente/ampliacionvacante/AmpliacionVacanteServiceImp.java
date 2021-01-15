@@ -552,7 +552,9 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
         MatriculaResumen matriculaResumenUpd = new MatriculaResumen(matriculaResumen.getId());
         matriculaResumenUpd.setCursosMatriculados(matriculados != null ? matriculados.size() : BigDecimal.ZERO.intValue());
         matriculaResumenUpd.setCreditosMatriculados(creditosMatriculados);
-        matriculaResumenUpd.setEstadoEnum(estadoMatricula);
+        if (estadoMatricula != SOL) {
+            matriculaResumenUpd.setEstadoEnum(estadoMatricula);
+        }
         matriculaResumenDAO.updateColumns(matriculaResumenUpd, "cursosMatriculados", "creditosMatriculados", "estado");
     }
 
