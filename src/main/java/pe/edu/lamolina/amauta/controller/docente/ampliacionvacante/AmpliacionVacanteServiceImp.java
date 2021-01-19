@@ -311,11 +311,11 @@ public class AmpliacionVacanteServiceImp implements AmpliacionVacanteService {
                         String.format("alumno %s ya se matriculo", alumno.getPersona().getApellidosNombres()));
                 Assert.isFalse(matriculaCurso.getEstadoEnum() == EstadoMatriculaEnum.SOL,
                         String.format("alumno %s ya solicito matricularse anteriormente", alumno.getPersona().getApellidosNombres()));
-                Assert.isTrue(Arrays.asList(EstadoMatriculaEnum.RET, EstadoMatriculaEnum.NVAC, EstadoMatriculaEnum.RCA).contains(matriculaCurso.getEstadoEnum()),
-                        String.format("alumno %s no es matriculable", alumno.getPersona().getApellidosNombres()));
+//                Assert.isTrue(Arrays.asList(EstadoMatriculaEnum.RET, EstadoMatriculaEnum.NVAC, EstadoMatriculaEnum.RCA).contains(matriculaCurso.getEstadoEnum()),
+//                        String.format("alumno %s no es matriculable", alumno.getPersona().getApellidosNombres()));
 
-//                matriculaCurso.setEstadoEnum(EstadoMatriculaEnum.SOL);
-                //   matriculaCursoDAO.update(matriculaCurso);
+                matriculaCurso.setEstadoEnum(EstadoMatriculaEnum.SOL);
+                matriculaCursoDAO.update(matriculaCurso);
             }
 
             MatriculaSeccion matriculaSeccionPCUR = mapMatriculaSeccionPCUR.get(matriculaResumen.getId());
