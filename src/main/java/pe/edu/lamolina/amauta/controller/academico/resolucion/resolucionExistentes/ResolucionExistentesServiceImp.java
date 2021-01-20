@@ -1,6 +1,7 @@
 package pe.edu.lamolina.amauta.controller.academico.resolucion.resolucionExistentes;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -1222,11 +1223,11 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
         resolucion.setAplicacionDirecta(1l);
         resolucionDAO.save(resolucion);
 
-        EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.SOL_ACEP);
+        EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.ACEP);
         EstadoTramite estadoTramiteRech = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.RHZ_SOL);
 
         EventoCicloAcademico eventoCicloAcademico = eventoCicloAcademicoDAO.findByCicloAndEvento(ds.getCicloAcademico(), EventoAcademicoEnum.FECHAS_BACH);
-
+        Assert.isNotNull(eventoCicloAcademico, "No se ha configurado las fechas de inicio y fin de ciclo");
         List<Alumno> alumnos = resolucionForm.getTramiteBachiller().stream().map(x -> x.getAlumno()).collect(Collectors.toList());
         List<AlumnoCicloCurso> alumnosCiclosCursosActivos = alumnoCicloCursoDAO.allOperativesByAlumnos(alumnos);
         Map<Long, List<AlumnoCicloCurso>> mapAlumnoCicloCurso = TypesUtil.convertListToMapList("alumnoCiclo.alumno.id", alumnosCiclosCursosActivos);
@@ -1281,7 +1282,7 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
 
                     }
                 }
-                BigDecimal ppg = sumNotasCreditos.divide(sumCreditos);
+                BigDecimal ppg = sumNotasCreditos.divide(sumCreditos, 2, RoundingMode.HALF_UP);
                 Egresado egresado = egresadoDAO.findByAlumno(alumno);
                 egresado.setAlumno(alumno);
                 egresado.setCarrera(alumno.getCarrera());

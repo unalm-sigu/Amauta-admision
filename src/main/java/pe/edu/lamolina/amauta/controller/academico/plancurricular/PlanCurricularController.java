@@ -1133,14 +1133,14 @@ public class PlanCurricularController {
         Carrera carrera = planCurricular.getCarrera();
         List<CicloAcademico> ciclos = service.allUltimosCiclosByModalidad(carrera.getModalidadEstudio(), 20);
         List<OrientacionCarrera> orientaciones = service.allOrientacionByCarreraEstado(carrera, EstadoEnum.ACT);
-        //List<TipoCursoCurricula> tiposCursoCurriculas = service.allTiposCursoCurriculasElectivosByPlan();
+        List<TipoCursoCurricula> tiposCursoCurriculas = service.allTiposCursoCurriculasElectivosByPlan(planCurricular);
         List<TipoCursoCurricula> tiposCursoCurriculasObli = service.allTiposCursoCurriculasObligatorios();
         Integer cantAlumnos = service.countAlumnosByPlanCurricular(planCurricular).intValue();
         model.addAttribute("ciclos", ciclos);
         model.addAttribute("planCurricular", planCurricular);
         model.addAttribute("orientaciones", orientaciones);
         model.addAttribute("format", new NumberFormat());
-        // model.addAttribute("tiposCursoCurriculas", tiposCursoCurriculas);
+         model.addAttribute("tiposCursoCurriculas", tiposCursoCurriculas);
         model.addAttribute("tiposCursoCurriculasObli", tiposCursoCurriculasObli);
         model.addAttribute("cantAlumnos", cantAlumnos);
 
