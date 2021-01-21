@@ -364,7 +364,7 @@ public class CursoController {
 
     private ArrayNode getModalidadesJson(Compania cia) {
         ArrayNode array = new ArrayNode(JsonNodeFactory.instance);
-        List<ModalidadEstudio> modalidades = service.modalidadesEstudioPrePost(cia);
+        List<ModalidadEstudio> modalidades = service.modalidadesEstudioPrePostDiplo(cia);
         for (ModalidadEstudio mod : modalidades) {
             ObjectNode node = JsonHelper.createJson(mod, JsonNodeFactory.instance, true, new String[]{"*"});
             array.add(node);

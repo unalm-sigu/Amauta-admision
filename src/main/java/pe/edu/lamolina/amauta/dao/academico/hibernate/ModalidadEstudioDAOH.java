@@ -9,6 +9,7 @@ import pe.albatross.octavia.easydao.AbstractEasyDAO;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
+import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.DIPLO;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.EPG;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.ESP;
 import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.IDIOM;
@@ -106,6 +107,18 @@ public class ModalidadEstudioDAOH extends AbstractEasyDAO<ModalidadEstudio> impl
         Octavia sql = Octavia.query()
                 .from(ModalidadEstudio.class)
                 .in("codigo", codigos);
+
+        return all(sql);
+    }
+
+    @Override
+    public List<ModalidadEstudio> allPrePostDiplomado(Compania cia) {
+        Octavia sql = Octavia.query()
+                .from(ModalidadEstudio.class, "me")
+                .join("compania cia")
+                .filter("cia.id", cia)
+                .filter("me.estado", EstadoEnum.ACT)
+                .in("me.codigo", Arrays.asList(PRE, EPG, DIPLO));
 
         return all(sql);
     }

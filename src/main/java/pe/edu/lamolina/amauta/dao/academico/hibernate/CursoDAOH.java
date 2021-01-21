@@ -31,6 +31,7 @@ import pe.edu.lamolina.model.enums.EstadoPlanCalificaEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.rolexamen.CursoMasivoExamen;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
+import sun.awt.ModalExclude;
 
 @Repository
 public class CursoDAOH extends AbstractEasyDAO<Curso> implements CursoDAO {
@@ -187,7 +188,7 @@ public class CursoDAOH extends AbstractEasyDAO<Curso> implements CursoDAO {
 
         if (modalidades == null || modalidades.isEmpty()) {
             sql.__().beginBlock()
-                    .__().in("me.codigo", Arrays.asList(ModalidadEstudioEnum.EPG, ModalidadEstudioEnum.PRE))
+                    .__().in("me.codigo", Arrays.asList(ModalidadEstudioEnum.EPG, ModalidadEstudioEnum.PRE, ModalidadEstudioEnum.DIPLO))
                     .__().isNull("me.id")
                     .endBlock();
         } else {

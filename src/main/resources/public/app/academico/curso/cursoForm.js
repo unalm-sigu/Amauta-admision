@@ -20,6 +20,7 @@ var app = new Vue({
         nivelesCurso: [],
         nivelesPregrado: [],
         nivelesPosgrado: [],
+        nivelesDiplomado: [],
         modalidadCurso: {id: ""},
         dptoCurso: {id: ""},
         carreraCurso: {id: ""},
@@ -36,8 +37,11 @@ var app = new Vue({
         for (var i = 1; i < 7; i++) {
             $vue.nivelesPregrado.push({id: i});
         }
-        for (var i = 6; i < 10; i++) {
+        for (var i = 6; i < 9; i++) {
             $vue.nivelesPosgrado.push({id: i});
+        }
+        for (var i = 9; i < 10; i++) {
+            $vue.nivelesDiplomado.push({id: i});
         }
 
         $vue.tipoCarpetaTeoria = $vue.curso.tipoCarpetaTeoria;
@@ -271,11 +275,14 @@ var app = new Vue({
             return item.tipoEnum.value + " - " + item.nombre;
         },
         changeModalidad(item) {
+            
             let $vue = this;
-            if (item.id == 1) {
+            if (item.codigo == 'PRE') {
                 $vue.nivelesCurso = $vue.nivelesPregrado;
-            } else if (item.id == 2) {
+            } else if (item.codigo == 'EPG') {
                 $vue.nivelesCurso = $vue.nivelesPosgrado;
+            } else if (item.codigo = 'DIPLO') {
+                $vue.nivelesCurso = $vue.nivelesDiplomado;
             }
 
             let existe = false;

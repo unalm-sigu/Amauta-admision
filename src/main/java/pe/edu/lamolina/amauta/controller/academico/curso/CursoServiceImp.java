@@ -54,6 +54,7 @@ import pe.edu.lamolina.amauta.dao.academico.NombreCursoDAO;
 import pe.edu.lamolina.amauta.dao.general.IdiomaDAO;
 import pe.edu.lamolina.amauta.dao.general.TipoCarpetaDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.DIPLO;
 
 @Service
 @Transactional
@@ -99,7 +100,8 @@ public class CursoServiceImp implements CursoService {
 
     @Override
     public List<Curso> allByDynatable(DynatableFilter filter, CicloAcademico cicloAcademico, DataSessionPivot ds, HttpServletRequest request) {
-        List<ModalidadEstudio> modalidades = modalidadEstudioDAO.allPrePostgrado(new Compania(1));
+//        List<ModalidadEstudio> modalidades = modalidadEstudioDAO.allPrePostgrado(new Compania(1));
+        List<ModalidadEstudio> modalidades = modalidadEstudioDAO.allPrePostDiplomado(new Compania(1));
         List<ModalidadEstudio> modalidadesCurso = verificadorService.modalidadesPermitidasForCursos(ds, modalidades);
         List<DepartamentoAcademico> departamentos = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.DPTO, request, ds);
         List<Carrera> carreras = verificadorService.allInstanciasByMenuRol(TipoOficinaEnum.ESP, request, ds);
@@ -188,7 +190,12 @@ public class CursoServiceImp implements CursoService {
         String curCodFacultad = dpto.getFacultad().getCodigoCurso();
 
         String codigo = curCodFacultad + curso.getNivel();
+        logger.debug("curCodFacultad curso.getNivel {} {}", curCodFacultad, curso.getNivel());
         Curso cursoBD = cursoDAO.findLastByCodigoFacultad(codigo.concat("%"));
+
+        if (cursoBD == null) {
+            return this.getCodigoInicio(codigo, 3);// cuando es nuevo 
+        }
 
         String codCurso = cursoBD.getCodigo();
         String numero = codCurso.substring(3);
@@ -200,6 +207,18 @@ public class CursoServiceImp implements CursoService {
             codigo += NumberFormat.codigo(correlativo, 3);
         }
         return codigo;
+    }
+
+    public String getCodigoInicio(String value, int ancho) {
+        if (value == null) {
+            return null;
+        }
+
+        StringBuilder cod = new StringBuilder();
+        for (int i = 0; i < ancho; i++) {
+            cod.append("0");
+        }
+        return value.concat(cod.toString());
     }
 
     private void validarDatosCurso(Curso curso) {
@@ -272,10 +291,12 @@ public class CursoServiceImp implements CursoService {
             Assert.isTrue(curso.getNivel() != null, "Debe indicar el nivel del curso");
             Assert.isTrue(curso.getDepartamentoAcademico() != null, "Debe indicar el departamento académico del curso");
             Assert.isTrue(curso.getModalidadEstudio() != null, "Debe indicar la modalidad de estudio");
-            Assert.isTrue(Arrays.asList(EPG, PRE).contains(curso.getModalidadEstudio().getCodigoEnum()), "Solo se aceptan las modalidades de pregrado y posgrado");
+            Assert.isTrue(Arrays.asList(EPG, PRE, DIPLO).contains(curso.getModalidadEstudio().getCodigoEnum()), "Solo se aceptan las modalidades de pregrado, posgrado y diplomado.");
             if (curso.getModalidadEstudio().getCodigoEnum() == ModalidadEstudioEnum.EPG) {
                 Assert.isTrue(curso.getCarrera() != null, "Debe indicar la especialidad de posgrado del curso");
                 Assert.isTrue(curso.getNivel() >= 6, "El nivel del curso debe ser mayor o igual a SEIS");
+            } else if (curso.getModalidadEstudio().getCodigoEnum() == ModalidadEstudioEnum.DIPLO) {
+                Assert.isTrue(curso.getNivel() == 9, "El nivel del curso debe ser igual a NUEVE");
             } else {
                 Assert.isTrue(curso.getNivel() < 7, "El nivel del curso debe ser menor o igual a SEIS");
             }
@@ -326,8 +347,8 @@ public class CursoServiceImp implements CursoService {
     }
 
     @Override
-    public List<ModalidadEstudio> modalidadesEstudioPrePost(Compania cia) {
-        return modalidadEstudioDAO.allPrePostgrado(cia);
+    public List<ModalidadEstudio> modalidadesEstudioPrePostDiplo(Compania cia) {
+        return modalidadEstudioDAO.allPrePostDiplomado(cia);
     }
 
     @Override

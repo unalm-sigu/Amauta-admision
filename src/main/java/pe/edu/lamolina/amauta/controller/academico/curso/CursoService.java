@@ -28,7 +28,7 @@ public interface CursoService {
 
     void cambiarEstadoCurso(Curso curso, DataSessionPivot ds);
 
-    List<ModalidadEstudio> modalidadesEstudioPrePost(Compania cia);
+    List<ModalidadEstudio> modalidadesEstudioPrePostDiplo(Compania cia);
 
     List<Carrera> allByModalidadEstudioNombre(String codigoEstudio, String nombre);
 

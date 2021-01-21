@@ -24,4 +24,6 @@ public interface ModalidadEstudioDAO extends EasyDAO<ModalidadEstudio> {
 
     List<ModalidadEstudio> allForBoletin(Compania cia);
 
+    public List<ModalidadEstudio> allPrePostDiplomado(Compania cia);
+
 }
