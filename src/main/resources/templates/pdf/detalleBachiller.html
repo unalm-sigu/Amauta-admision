@@ -164,7 +164,7 @@
                         <td >
                             <span >Profesor Consejero: </span>
                         </td>
-                        <td th:if='${alumno.consejero}'>
+                        <td th:if='${alumno.consejero != null and alumno.consejero.colaborador != null} '>
                             <span th:if="${alumno.consejero.colaborador} != null" th:text="${alumno.consejero.colaborador.persona.apellidosNombres}"></span>
 
                         </td>
