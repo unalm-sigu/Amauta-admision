@@ -379,7 +379,7 @@ public class PersonaServiceImp implements PersonaService {
         Assert.isFalse(sinCci && sinCta, "Debe indicar el Nº de la cuenta bancaria o el CCI");
 
         EmpresaEtiquetada banco = empresaEtiquetadaDAO.find(cuentaBanco.getBanco().getId());
-        boolean esBCP = banco.getEmpresa().getNumeroDocIdentidad().equals("20100047218");
+        boolean esBCP = banco.getEmpresa().getNumeroDocIdentidad().equals(GlobalConstantine.RUC_BCP);
         if (esBCP) {
             Assert.isFalse(sinCta, "Es obligatorio indicar el Nº de la cuenta bancaria si son del BCP");
         } else {

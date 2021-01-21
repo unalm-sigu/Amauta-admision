@@ -34,6 +34,7 @@ import pe.edu.lamolina.amauta.dao.seguridad.RolDAO;
 import pe.edu.lamolina.amauta.dao.seguridad.UsuarioDAO;
 import pe.edu.lamolina.amauta.dao.seguridad.UsuarioRolDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.general.EmpresaEtiquetada;
 import pe.edu.lamolina.model.general.PersonaCuentaBancaria;
@@ -198,7 +199,7 @@ public class InformacionProfesorServiceImp implements InformacionProfesorService
         Assert.isFalse(sinCci && sinCta, "Debe indicar el Nº de la cuenta bancaria o el CCI");
 
         EmpresaEtiquetada banco = empresaEtiquetadaDAO.find(cuentaBanco.getBanco().getId());
-        boolean esBCP = banco.getEmpresa().getNumeroDocIdentidad().equals("20100047218");
+        boolean esBCP = banco.getEmpresa().getNumeroDocIdentidad().equals(GlobalConstantine.RUC_BCP);
         if (esBCP) {
             Assert.isFalse(sinCta, "Es obligatorio indicar el Nº de la cuenta bancaria si son del BCP");
         } else {
