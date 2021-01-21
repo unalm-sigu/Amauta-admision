@@ -215,6 +215,7 @@ public class TramitesTituloServiceImp implements TramitesTituloService {
     }
 
     @Override
+    @Transactional
     public void saveTitulo(TramiteTitulo tramiteTituloForm, DataSessionPivot ds) {
         LocalDate today = new LocalDate();
 
