@@ -561,7 +561,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
         }
         Map<Long, AlumnoCicloCurso> mapCursoAprobadoOld = TypesUtil.convertListToMap("id", cursosAprobadosPrevio);
 
-        cursosAprobados = cursosAprobados.stream().filter(x -> x.getEstadoEnum() != EstadoMatriculaEnum.RCI).collect(Collectors.toList());
+        cursosAprobados = cursosAprobados.stream().filter(x -> x.getEstadoEnum() != EstadoMatriculaEnum.RCI && x.isAprobado()).collect(Collectors.toList());
         Map<TipoCursoCurriculaEnum, TipoCursoCurricula> mapTipoCursoCurricula = TypesUtil.convertListToMap("codigoEnum", tipoCursoCurriculax);
 
         List<CursoCurricula> cursosCurriculaPlan = new ArrayList(mapCursosCurricula.values());

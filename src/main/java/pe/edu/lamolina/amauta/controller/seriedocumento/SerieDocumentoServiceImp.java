@@ -27,13 +27,13 @@ public class SerieDocumentoServiceImp implements SerieDocumentoService {
             serie = serieDocumentoDAO.findLock(serie.getId());
 
             if (serie.getEstado().equals("ACT")) {
-                SerieDocumento serieDoc = new SerieDocumento(tipo, nroSerie.toString());
-                serieDoc.setNumeroDocumento(serie.getNumeroDocumento());
+//                SerieDocumento serieDoc = new SerieDocumento(tipo, nroSerie.toString());
+//                serieDoc.setNumeroDocumento(serie.getNumeroDocumento());
 
                 serie.setNumeroDocumento((Long.valueOf(serie.getNumeroDocumento()) + 1L) + "");
                 serieDocumentoDAO.update(serie);
 
-                return serieDoc;
+                return serie;
             }
 
             return null;
