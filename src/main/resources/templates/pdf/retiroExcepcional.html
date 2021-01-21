@@ -65,7 +65,7 @@
                             <b >Informe N°: </b>
                         </td>
                         <td>
-                            <span th:text="${tramite.numero}"></span>-UR-<span th:text="${tramite.serie}"></span>
+                            <span th:text="${tramite.numeroVisible}"></span>
                         </td>
 
                     </tr>
@@ -145,7 +145,7 @@
                             <span th:text=" ${item.curso.nombre}"></span> 
                         </td>
                         <td >
-                                <span th:text=" ${#numbers.formatDecimal(item.notaAvance, 0, 'DEFAULT', 2, 'DEFAULT')}"></span> 
+                            <span th:text=" ${#numbers.formatDecimal(item.notaAvance, 0, 'DEFAULT', 2, 'DEFAULT')}"></span> 
                         </td>
                         <td >
                             <span th:text=" ${#numbers.formatDecimal(item.notaFinal, 0, 'DEFAULT', 2, 'DEFAULT')}"></span> 
