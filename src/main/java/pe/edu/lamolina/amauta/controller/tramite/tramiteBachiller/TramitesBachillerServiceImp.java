@@ -26,6 +26,7 @@ import pe.edu.lamolina.amauta.dao.academico.EgresadoDAO;
 import pe.edu.lamolina.amauta.dao.academico.EventoCicloAcademicoDAO;
 import pe.edu.lamolina.amauta.dao.academico.TipoCursoCurriculaDAO;
 import pe.edu.lamolina.amauta.dao.general.OficinaDAO;
+import pe.edu.lamolina.amauta.dao.tramite.SerieDocumentoDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TipoDocumentoCompaniaDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TipoTramiteDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TramiteBachillerDAO;
@@ -99,6 +100,9 @@ public class TramitesBachillerServiceImp implements TramitesBachillerService {
 
     @Autowired
     EgresadoDAO egresadoDAO;
+
+    @Autowired
+    SerieDocumentoDAO serieDocumentoDAO;
 
     @Override
     public List<TramiteBachiller> allTramitesByFilter(DynatableFilter filter, DataSessionPivot ds) {
@@ -212,6 +216,7 @@ public class TramitesBachillerServiceImp implements TramitesBachillerService {
     }
 
     @Override
+    @Transactional
     public void saveBachiller(TramiteBachiller tramiteBachillerForm, DataSessionPivot ds) {
         LocalDate today = new LocalDate();
 
