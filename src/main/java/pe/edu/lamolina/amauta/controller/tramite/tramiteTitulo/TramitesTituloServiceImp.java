@@ -101,7 +101,7 @@ public class TramitesTituloServiceImp implements TramitesTituloService {
 
     @Autowired
     EgresadoDAO egresadoDAO;
-    
+
     @Autowired
     ObtencionGradoDAO obtencionGradoDAO;
 
@@ -183,9 +183,9 @@ public class TramitesTituloServiceImp implements TramitesTituloService {
 
         EventoCicloAcademico eventoActual = eventoCicloAcademicoDAO.findByCicloAndEvento(alumno.getCicloActivo(), EventoAcademicoEnum.FECHAS_BACH);
         EventoCicloAcademico eventoIngreso = eventoCicloAcademicoDAO.findByCicloAndEvento(cicloInicio, EventoAcademicoEnum.FECHAS_BACH);
-        
+
         ObtencionGrado obtencionGrado = obtencionGradoDAO.findByAlumnoAndTipo(alumno, TipoGradoAcademicoEnum.BACH);
-        
+
         ctx.setVariable("alumno", alumno);
         ctx.setVariable("ciclo", cicloAcademico);
         ctx.setVariable("historial", historialSorted);
@@ -201,14 +201,13 @@ public class TramitesTituloServiceImp implements TramitesTituloService {
 //        PdfContent pdfHistorial = new PdfContent();
 //        pdfHistorial.setContext(ctx);
 //        pdfHistorial.setTipoPdfEnum(TipoPdfEnum.HISTORIAL_ACADEMICO_TRAMITE);
-
         PdfContent pdfBachiller = new PdfContent();
         pdfBachiller.setContext(ctx);
         pdfBachiller.setTipoPdfEnum(TipoPdfEnum.DETALLE_TITULO);
 
         List<String> pdfs = Arrays.asList(
                 pdfGenerator.generateDocument(pdfBachiller)
-//                pdfGenerator.generateDocument(pdfHistorial)
+        //                pdfGenerator.generateDocument(pdfHistorial)
         );
 
         return pdfs;
@@ -224,7 +223,7 @@ public class TramitesTituloServiceImp implements TramitesTituloService {
         TipoDocumentoCompania tipoDocumentoCompania = tipoDocumentoCompaniaDAO.findByCodigo(TipoDocumentoCompaniaEnum.TRAM_TITULO);
         SerieDocumento serieDocumento = serieDocumentoService.getCorrelativo(tipoDocumentoCompania, Long.valueOf(today.getYear()), ds.getUsuario());
 
-        Oficina oficina = oficinaDAO.findByCode(OficinaEnum.OERA.name());
+        Oficina oficina = oficinaDAO.findByCode(OficinaEnum.UR.name());
         logger.debug("PAse 2");
         TipoTramite tipoTramite = tipoTramiteDAO.findByCodigo(TipoTramiteEnum.TIT.name());
         Tramite tramite = tramiteDAO.findByAlumnoTipoTramEstado(alumnoDB, tipoTramite, TramiteEstadoEnum.SOL);
@@ -243,6 +242,7 @@ public class TramitesTituloServiceImp implements TramitesTituloService {
         tramite.setOficina(oficina);
         tramite.setEstadoEnum(TramiteEstadoEnum.SOL);
         tramite.setFechaRegistro(new Date());
+        tramite.setNumeroVisible(tramite.getDescripcion());
         tramiteDAO.save(tramite);
 
         TramiteTitulo titulo = new TramiteTitulo();

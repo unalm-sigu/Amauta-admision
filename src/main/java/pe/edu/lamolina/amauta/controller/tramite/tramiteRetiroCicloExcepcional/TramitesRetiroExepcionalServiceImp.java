@@ -21,6 +21,7 @@ import pe.edu.lamolina.amauta.controller.seriedocumento.SerieDocumentoService;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoCicloDAO;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.amauta.dao.academico.MatriculaCursoDAO;
+import pe.edu.lamolina.amauta.dao.general.OficinaDAO;
 import pe.edu.lamolina.amauta.dao.tramite.EstadoTramiteDAO;
 import pe.edu.lamolina.amauta.dao.tramite.RetiroCicloDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TipoDocumentoCompaniaDAO;
@@ -34,10 +35,12 @@ import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.MatriculaCurso;
+import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.enums.TipoDocumentoCompaniaEnum;
 import pe.edu.lamolina.model.enums.TipoRetiroCicloEnum;
 import pe.edu.lamolina.model.enums.TipoTramiteEnum;
 import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
+import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.general.SerieDocumento;
 import pe.edu.lamolina.model.general.TipoDocumentoCompania;
 import pe.edu.lamolina.model.tramite.EstadoTramite;
@@ -81,6 +84,9 @@ public class TramitesRetiroExepcionalServiceImp implements TramiteRetiroExcepcio
     @Autowired
     AlumnoCicloDAO alumnoCicloDAO;
 
+    @Autowired
+    OficinaDAO oficinaDAO;
+
     @Override
     public List<RetiroCiclo> allTramitesByFilter(DynatableFilter filter, DataSessionPivot ds) {
 
@@ -106,7 +112,7 @@ public class TramitesRetiroExepcionalServiceImp implements TramiteRetiroExcepcio
 
         DateTime today = new DateTime();
         EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.SOL);
-
+        Oficina oficina = oficinaDAO.findByCode(OficinaEnum.UR.name());
         TipoDocumentoCompania tipoDocumentoCompania = tipoDocumentoCompaniaDAO.findByCodigo(TipoDocumentoCompaniaEnum.TRAM);
         SerieDocumento serieDocumento = serieDocumentoService.getCorrelativo(tipoDocumentoCompania, Long.valueOf(today.getYear()), ds.getUsuario());
         TipoTramite tipoTramite = tipoTramiteDAO.findByCodigo(TipoTramiteEnum.RCI.name());
@@ -124,6 +130,8 @@ public class TramitesRetiroExepcionalServiceImp implements TramiteRetiroExcepcio
         tramite.setNumero(Long.valueOf(serieDocumento.getNumeroDocumento()));
         tramite.setSerie(Long.valueOf(serieDocumento.getNumeroSerie()));
         tramite.setUserRegistro(ds.getUsuario());
+        tramite.setOficina(oficina);
+        tramite.setNumeroVisible(tramite.getDescripcion());
         tramiteDAO.save(tramite);
 
         RetiroCiclo retiroCiclo = new RetiroCiclo();

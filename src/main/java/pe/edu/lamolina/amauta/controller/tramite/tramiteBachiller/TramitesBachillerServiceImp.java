@@ -225,7 +225,7 @@ public class TramitesBachillerServiceImp implements TramitesBachillerService {
         TipoDocumentoCompania tipoDocumentoCompania = tipoDocumentoCompaniaDAO.findByCodigo(TipoDocumentoCompaniaEnum.TRAM_BACHI);
         SerieDocumento serieDocumento = serieDocumentoService.getCorrelativo(tipoDocumentoCompania, Long.valueOf(today.getYear()), ds.getUsuario());
 
-        Oficina oficina = oficinaDAO.findByCode(OficinaEnum.OERA.name());
+        Oficina oficina = oficinaDAO.findByCode(OficinaEnum.UR.name());
         logger.debug("PAse 2");
         TipoTramite tipoTramite = tipoTramiteDAO.findByCodigo(TipoTramiteEnum.BACHI.name());
         Tramite tramite = tramiteDAO.findByAlumnoTipoTramEstado(alumnoDB, tipoTramite, TramiteEstadoEnum.SOL);
@@ -244,6 +244,7 @@ public class TramitesBachillerServiceImp implements TramitesBachillerService {
         tramite.setOficina(oficina);
         tramite.setEstadoEnum(TramiteEstadoEnum.SOL);
         tramite.setFechaRegistro(new Date());
+        tramite.setNumeroVisible(tramite.getDescripcion());
         tramiteDAO.save(tramite);
 
         TramiteBachiller bachiller = new TramiteBachiller();

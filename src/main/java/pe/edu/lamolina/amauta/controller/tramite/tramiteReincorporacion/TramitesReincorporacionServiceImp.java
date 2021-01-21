@@ -41,6 +41,7 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.TipoCursoCurricula;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
+import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum;
 import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.DEP;
 import pe.edu.lamolina.model.enums.TipoDocumentoCompaniaEnum;
@@ -120,6 +121,8 @@ public class TramitesReincorporacionServiceImp implements TramiteReincorporacion
         SerieDocumento serieDocumento = serieDocumentoService.getCorrelativo(tipoDocumentoCompania, Long.valueOf(today.getYear()), ds.getUsuario());
         TipoTramite tipoTramite = tipoTramiteDAO.findByCodigo(TipoTramiteEnum.REI.name());
         Alumno alumnoDB = alumnoDAO.find(reincorporacionForm.getAlumno());
+
+        Oficina oficina = oficinaDAO.findByCode(OficinaEnum.UR.name());
         Tramite tramite = new Tramite();
         tramite.setActivo(true);
         tramite.setCompania(ds.getCompania());
@@ -133,6 +136,8 @@ public class TramitesReincorporacionServiceImp implements TramiteReincorporacion
         tramite.setNumero(Long.valueOf(serieDocumento.getNumeroDocumento()));
         tramite.setSerie(Long.valueOf(serieDocumento.getNumeroSerie()));
         tramite.setUserRegistro(ds.getUsuario());
+        tramite.setOficina(oficina);
+        tramite.setNumeroVisible(tramite.getDescripcion());
         tramiteDAO.save(tramite);
 
         Facultad facultad = alumnoDB.getCarrera().getFacultad();
