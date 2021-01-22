@@ -188,7 +188,8 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
             if (caduco.equals("SI")) {
                 cursoCurriculasPlan.setEstado(CurriculaEstadoEnum.CAD.name());
             } else {
-                cursoCurriculasPlan.setEstado(CurriculaEstadoEnum.ACT.name());
+//                cursoCurriculasPlan.setEstado(CurriculaEstadoEnum.ACT.name());
+                continue;
             }
             cursoCurriculasPlan.setFechaCaduca(new Date());
             cursoCurriculasPlan.setUserCaduca(ds.getUsuario());

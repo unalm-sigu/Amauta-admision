@@ -80,6 +80,7 @@ import pe.edu.lamolina.amauta.dao.academico.ResumenPlanCurricularDAO;
 import pe.edu.lamolina.amauta.dao.academico.TipoCursoCurriculaDAO;
 import pe.edu.lamolina.amauta.dao.tramite.RetiroCicloDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import static pe.edu.lamolina.model.enums.EstadoEnum.ACT;
 import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.CPRO;
 
 @Service
@@ -371,9 +372,6 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
             }
         }
 
-        Integer credCarrera = 0;
-        Integer curCarrera = 0;
-
         for (TipoCursoCurricula tipoCurr : mapTipoCursoCurrila.values()) {
 
             AlumnoAvanceCurricular avance = avances.get(tipoCurr.getCodigoEnum());
@@ -395,9 +393,15 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
 
             //cred = cred + mapCreditosByTipo.get(tipo.getCodigoEnum());
             //cur = cur + mapCursosByTipo.get(tipo.getCodigoEnum());
-            if (tipoCurr.getCodigoEnum() != EEP) {
-                credCarrera = credCarrera + mapCreditosByTipo.get(tipoCurr.getCodigoEnum());
-                curCarrera = +mapCursosByTipo.get(tipoCurr.getCodigoEnum());
+        }
+        Integer credCarrera = 0;
+        Integer curCarrera = 0;
+        for (AlumnoCursoCurricula alumnoCursoCurricula : aluCursosCurriculaNew) {
+            if (alumnoCursoCurricula.getTipoCursoCurricula().getCodigoEnum() != EEP
+                    && alumnoCursoCurricula.getEstadoEnum() == APR
+                    && alumnoCursoCurricula.getEstadoRegistroEnum() == ACT) {
+                credCarrera += alumnoCursoCurricula.getCreditos();
+                curCarrera += 1;
             }
         }
 
@@ -566,6 +570,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
 
         List<CursoCurricula> cursosCurriculaPlan = new ArrayList(mapCursosCurricula.values());
         for (CursoCurricula cursocurricula : cursosCurriculaPlan) {
+            System.out.println("2---------------------------------------- " + cursocurricula.getCurso().getNombre() + " " + cursocurricula.getCreditos() + " " + cursocurricula.getEstado());
 
             AlumnoCursoCurricula aluCursoCurrNew = new AlumnoCursoCurricula();
             aluCursoCurrNew.setAlumno(alumno);
@@ -766,6 +771,8 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
         Map<Long, AlumnoCicloCurso> mapCursosAprobados = TypesUtil.convertListToMap("curso.id", cursosAprobados);
 
         List<AlumnoCursoCurricula> aluCursosCurricula = new ArrayList(mapAluCursoCurriculaByIdCursoCurricula.values());
+        Map<Long, AlumnoCursoCurricula> mapCursosEquivalenteAct = TypesUtil.convertListToMap("curso.id", aluCursosCurricula);
+
         for (AlumnoCursoCurricula aluCursoCurricula : aluCursosCurricula) {
             CursoCurricula cursoCurricula = aluCursoCurricula.getCursoCurricula();
             List<CursoEquivalente> cursosEquivalentes = TypesUtil.getListNotNull(mapEquivalentesAll.get(cursoCurricula.getId()));
@@ -784,6 +791,12 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
                     if (!mapCursosAprobados.containsKey(cursoEq.getCursoEquivalente().getId())) {
                         equivalenciaEncontrada = false;
                         break;
+                    }
+                    if (mapCursosEquivalenteAct.containsKey(cursoCurricula.getCurso().getId())
+                            && mapCursosEquivalenteAct.get(cursoEq.getCursoEquivalente().getId()) != null) {
+                        aluCursoCurricula.setEstadoRegistroEnum(INA);
+                        equivalenciaEncontrada = false;
+
                     }
                 }
 
@@ -867,7 +880,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
                 }
 
                 AlumnoCursoCurricula alumnoCursoCurricula = mapAluCursoCurriculaOld.get(cursoAprobado.getCurso().getId());
-                if (alumnoCursoCurricula != null) {
+                if (alumnoCursoCurricula != null && !ubicado) {
                     addAlumnoCursoCurricula(alumno, cursoAprobado, null, null, aluCursosElectivosNew, alumnoCursoCurricula.getTipoCursoCurricula());
                 }
                 this.printLogger("\tCurso libre no ubicado en otros planes curriculares ", !ubicado && showLogger);
