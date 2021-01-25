@@ -24,6 +24,7 @@ import pe.edu.lamolina.amauta.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.amauta.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.amauta.dao.academico.MatriculaCursoDAO;
 import pe.edu.lamolina.amauta.dao.academico.TipoCursoCurriculaDAO;
+import pe.edu.lamolina.amauta.dao.consejeria.AlumnoConsejeroDAO;
 import pe.edu.lamolina.amauta.dao.general.OficinaDAO;
 import pe.edu.lamolina.amauta.dao.tramite.EstadoTramiteDAO;
 import pe.edu.lamolina.amauta.dao.tramite.ReincorporacionDAO;
@@ -40,6 +41,7 @@ import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.TipoCursoCurricula;
+import pe.edu.lamolina.model.consejeria.AlumnoConsejero;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum;
@@ -99,6 +101,9 @@ public class TramitesReincorporacionServiceImp implements TramiteReincorporacion
 
     @Autowired
     AlumnoCicloCursoDAO alumnoCicloCursoDAO;
+
+    @Autowired
+    AlumnoConsejeroDAO alumnoConsejeroDAO;
 
     @Autowired
     OficinaDAO oficinaDAO;
@@ -204,6 +209,10 @@ public class TramitesReincorporacionServiceImp implements TramiteReincorporacion
         if (alumno.getConsejero() == null || alumno.getConsejero().getColaborador() != null) {
             oficinaColaborador = oficinaDAO.findByCode("CT-" + alumno.getCarrera().getCodigo());
         }
+
+        AlumnoConsejero alumnoConsejero = alumnoConsejeroDAO.findByAlumnoCiclo(alumno, ds.getCicloAcademico());
+        alumno.setConsejero(alumnoConsejero.getConsejero());
+
         ctx.setVariable("alumno", alumno);
         ctx.setVariable("oficinaColaborador", oficinaColaborador);
         ctx.setVariable("alumnoCiclo", alumnoCiclo);

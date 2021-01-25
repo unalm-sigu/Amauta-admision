@@ -25,6 +25,7 @@ import pe.edu.lamolina.amauta.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.amauta.dao.academico.EgresadoDAO;
 import pe.edu.lamolina.amauta.dao.academico.EventoCicloAcademicoDAO;
 import pe.edu.lamolina.amauta.dao.academico.TipoCursoCurriculaDAO;
+import pe.edu.lamolina.amauta.dao.consejeria.AlumnoConsejeroDAO;
 import pe.edu.lamolina.amauta.dao.general.OficinaDAO;
 import pe.edu.lamolina.amauta.dao.tramite.SerieDocumentoDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TipoDocumentoCompaniaDAO;
@@ -42,6 +43,7 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Egresado;
 import pe.edu.lamolina.model.academico.EventoCicloAcademico;
 import pe.edu.lamolina.model.academico.TipoCursoCurricula;
+import pe.edu.lamolina.model.consejeria.AlumnoConsejero;
 import pe.edu.lamolina.model.enums.EventoAcademicoEnum;
 import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum;
@@ -103,6 +105,9 @@ public class TramitesBachillerServiceImp implements TramitesBachillerService {
 
     @Autowired
     SerieDocumentoDAO serieDocumentoDAO;
+
+    @Autowired
+    AlumnoConsejeroDAO alumnoConsejeroDAO;
 
     @Override
     public List<TramiteBachiller> allTramitesByFilter(DynatableFilter filter, DataSessionPivot ds) {
@@ -183,6 +188,10 @@ public class TramitesBachillerServiceImp implements TramitesBachillerService {
         EventoCicloAcademico eventoActual = eventoCicloAcademicoDAO.findByCicloAndEvento(alumno.getCicloActivo(), EventoAcademicoEnum.FECHAS_BACH);
         EventoCicloAcademico eventoIngreso = eventoCicloAcademicoDAO.findByCicloAndEvento(cicloInicio, EventoAcademicoEnum.FECHAS_BACH);
         Oficina oficinaColaborador = null;
+
+        AlumnoConsejero alumnoConsejero = alumnoConsejeroDAO.findByAlumnoCiclo(alumno, ds.getCicloAcademico());
+        alumno.setConsejero(alumnoConsejero.getConsejero());
+
         if (alumno.getConsejero() == null || alumno.getConsejero().getColaborador() == null) {
             oficinaColaborador = oficinaDAO.findByCode("CT-" + alumno.getCarrera().getCodigo());
         }

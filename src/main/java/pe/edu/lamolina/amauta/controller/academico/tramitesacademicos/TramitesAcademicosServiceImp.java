@@ -104,11 +104,13 @@ import pe.edu.lamolina.amauta.dao.academico.DocenteDAO;
 import pe.edu.lamolina.amauta.dao.academico.EventoCicloAcademicoDAO;
 import pe.edu.lamolina.amauta.dao.academico.FacultadDAO;
 import pe.edu.lamolina.amauta.dao.academico.TipoCursoCurriculaDAO;
+import pe.edu.lamolina.amauta.dao.consejeria.AlumnoConsejeroDAO;
 import pe.edu.lamolina.amauta.dao.tramite.AccionTramiteDocumentoDAO;
 import pe.edu.lamolina.amauta.dao.tramite.FlujoTramiteDocumentoDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TramiteBachillerDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TramiteCorreccionHistorialDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TramiteDocumentoAcademicoDAO;
+import pe.edu.lamolina.model.consejeria.AlumnoConsejero;
 import pe.edu.lamolina.model.tramite.TramiteBachiller;
 
 @Service
@@ -227,6 +229,9 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
 
     @Autowired
     EventoCicloAcademicoDAO eventoCicloAcademicoDAO;
+
+    @Autowired
+    AlumnoConsejeroDAO alumnoConsejeroDAO;
 
     private DateTime today = new DateTime();
 
@@ -668,6 +673,8 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
         }
 
         alumno.setCreditosConvalidadosTransient(creditosConvalidados);
+        AlumnoConsejero alumnoConsejero = alumnoConsejeroDAO.findByAlumnoCiclo(alumno, cicloAcademico);
+        alumno.setConsejero(alumnoConsejero.getConsejero());
 
         ctx.setVariable("alumno", alumno);
         ctx.setVariable("ciclo", cicloAcademico);
