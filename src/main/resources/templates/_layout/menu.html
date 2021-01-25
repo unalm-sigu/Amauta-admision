@@ -36,6 +36,13 @@
                     SERVIDOR DE PRUEBAS
                 </button>
             </div>
+            <div class="current-user" th:if="${session.SESSION_USUARIO.encuestaSunedu}">
+                <a th:href="${session.SESSION_USUARIO.rutaEncuentaSunedu}" 
+                   class="btn btn-sm btn-warning btn-block  " target="_blank">
+                    <i class="fa fa-cubes  text-black"></i>
+                    <span class="hidden-folded d-inline  text-black bold">Encuesta Psicológica</span>
+                </a>
+            </div>
 
             <div class="section-container">
 

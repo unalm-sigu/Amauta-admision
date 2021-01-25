@@ -65,6 +65,10 @@ public class DataSessionPivot implements Serializable {
 
     private Date fechaAccionAudit;
 
+    private Boolean encuestaSunedu;
+
+    private String rutaEncuentaSunedu;
+
     public List<Colaborador> getColaborador() {
         return colaborador;
     }
@@ -245,6 +249,22 @@ public class DataSessionPivot implements Serializable {
 
     public void setFechaAccionAudit(Date fechaAccionAudit) {
         this.fechaAccionAudit = fechaAccionAudit;
+    }
+
+    public Boolean getEncuestaSunedu() {
+        return encuestaSunedu;
+    }
+
+    public void setEncuestaSunedu(Boolean encuestaSunedu) {
+        this.encuestaSunedu = encuestaSunedu;
+    }
+
+    public String getRutaEncuentaSunedu() {
+        return rutaEncuentaSunedu;
+    }
+
+    public void setRutaEncuentaSunedu(String rutaEncuentaSunedu) {
+        this.rutaEncuentaSunedu = rutaEncuentaSunedu;
     }
 
 }

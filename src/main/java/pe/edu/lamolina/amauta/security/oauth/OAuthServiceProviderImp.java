@@ -7,6 +7,7 @@ import com.github.scribejava.core.builder.ServiceBuilder;
 import com.github.scribejava.core.oauth.OAuth20Service;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,6 +15,7 @@ import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import javax.servlet.http.HttpSession;
+import org.joda.time.LocalDate;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
@@ -59,17 +61,24 @@ import pe.edu.lamolina.amauta.dao.academico.CarreraDAO;
 import pe.edu.lamolina.amauta.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.amauta.dao.academico.DepartamentoAcademicoDAO;
 import pe.edu.lamolina.amauta.dao.academico.DocenteDAO;
+import pe.edu.lamolina.amauta.dao.academico.EventoCicloAcademicoDAO;
 import pe.edu.lamolina.amauta.dao.academico.FacultadDAO;
 import pe.edu.lamolina.amauta.dao.academico.ModalidadEstudioDAO;
 import pe.edu.lamolina.amauta.dao.general.ColaboradorDAO;
 import pe.edu.lamolina.amauta.dao.general.CompaniaDAO;
 import pe.edu.lamolina.amauta.dao.general.InstanciaEntidadDAO;
 import pe.edu.lamolina.amauta.dao.general.OficinaDAO;
+import pe.edu.lamolina.amauta.dao.general.ParametroDAO;
 import pe.edu.lamolina.amauta.dao.seguridad.MenuDAO;
 import pe.edu.lamolina.amauta.dao.seguridad.RolDAO;
 import pe.edu.lamolina.amauta.dao.seguridad.UsuarioDAO;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.academico.EventoCicloAcademico;
+import pe.edu.lamolina.model.enums.AmbienteAplicacionEnum;
+import pe.edu.lamolina.model.enums.EventoAcademicoEnum;
+import pe.edu.lamolina.model.enums.ParametrosSistemasEnum;
+import pe.edu.lamolina.model.general.Parametro;
 
 @Service
 @Transactional(readOnly = false)
@@ -113,6 +122,12 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
 
     @Autowired
     InstanciaEntidadDAO instanciaEntidadDAO;
+
+    @Autowired
+    EventoCicloAcademicoDAO eventoCicloAcademicoDAO;
+
+    @Autowired
+    ParametroDAO parametroDAO;
 
     @Autowired
     OAuthServiceConfig config;
@@ -201,6 +216,18 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
         Compania compania = companiaDAO.find(1L);
         ds.setCompania(compania);
 
+        EventoCicloAcademico eventoCicloAcademico = eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(cicloAcademico, EventoAcademicoEnum.ENCU_PSI);
+        Date today = LocalDate.now().toDate();
+
+        if (eventoCicloAcademico != null && today.compareTo(eventoCicloAcademico.getFechaInicio()) >= 0
+                && eventoCicloAcademico.getFechaFin().compareTo(today) >= 0) {
+            AmbienteAplicacionEnum ambiente = AmbienteAplicacionEnum.valueOf(despliegueConfig.getAmbiente().toUpperCase());
+
+            Parametro paramRutaEncuenta = parametroDAO.findByAmbienteParametroSistema(ambiente, ParametrosSistemasEnum.ENCUESTA_DOC);
+
+            ds.setEncuestaSunedu(true);
+            ds.setRutaEncuentaSunedu(paramRutaEncuenta.getValor());
+        }
         session.setAttribute(GlobalConstantine.SESSION_USUARIO, ds);
     }
 
