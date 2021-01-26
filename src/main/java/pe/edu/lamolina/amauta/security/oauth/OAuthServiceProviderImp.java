@@ -216,18 +216,6 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
         Compania compania = companiaDAO.find(1L);
         ds.setCompania(compania);
 
-        EventoCicloAcademico eventoCicloAcademico = eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(cicloAcademico, EventoAcademicoEnum.ENCU_PSI);
-        Date today = LocalDate.now().toDate();
-
-        if (eventoCicloAcademico != null && today.compareTo(eventoCicloAcademico.getFechaInicio()) >= 0
-                && eventoCicloAcademico.getFechaFin().compareTo(today) >= 0) {
-            AmbienteAplicacionEnum ambiente = AmbienteAplicacionEnum.valueOf(despliegueConfig.getAmbiente().toUpperCase());
-
-            Parametro paramRutaEncuenta = parametroDAO.findByAmbienteParametroSistema(ambiente, ParametrosSistemasEnum.ENCUESTA_DOC);
-
-            ds.setEncuestaSunedu(true);
-            ds.setRutaEncuentaSunedu(paramRutaEncuenta.getValor());
-        }
         session.setAttribute(GlobalConstantine.SESSION_USUARIO, ds);
     }
 
@@ -503,6 +491,19 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
                     ds.setDepartamentoAcademico(docente.getDepartamentoAcademico());
                     break;
                 }
+            }
+
+            EventoCicloAcademico eventoCicloAcademico = eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(ds.getCicloAcademico(), EventoAcademicoEnum.ENCU_PSI);
+            Date today = LocalDate.now().toDate();
+
+            if (eventoCicloAcademico != null && today.compareTo(eventoCicloAcademico.getFechaInicio()) >= 0
+                    && eventoCicloAcademico.getFechaFin().compareTo(today) >= 0) {
+                AmbienteAplicacionEnum ambiente = AmbienteAplicacionEnum.valueOf(despliegueConfig.getAmbiente().toUpperCase());
+
+                Parametro paramRutaEncuenta = parametroDAO.findByAmbienteParametroSistema(ambiente, ParametrosSistemasEnum.ENCUESTA_DOC);
+
+                ds.setEncuestaSunedu(true);
+                ds.setRutaEncuentaSunedu(paramRutaEncuenta.getValor());
             }
         }
 
