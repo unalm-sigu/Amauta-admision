@@ -194,6 +194,7 @@ public class TramitesTituloServiceImp implements TramitesTituloService {
         ctx.setVariable("obtencionGrado", obtencionGrado);
         ctx.setVariable("fechaPrimaMatricula", TypesUtil.getStringDate(eventoIngreso.getFechaInicio(), " dd'/'MM'/'yyyy", "es"));
         ctx.setVariable("fechaEgreso", TypesUtil.getStringDate(eventoActual.getFechaFin(), " dd'/'MM'/'yyyy", "es"));
+        ctx.setVariable("fechaResolucion", TypesUtil.getStringDate(obtencionGrado.getResolucion().getFecha(), " dd'/'MM'/'yyyy", "es"));
 
         ctx.setVariable("fecha", TypesUtil.getStringDate(new DateTime().toDate(), " dd 'de' MMMM 'del' yyyy", "es"));
 //        ctx.setVariable("alumnoCicloCurso", listAlumnoCicloCurso);
