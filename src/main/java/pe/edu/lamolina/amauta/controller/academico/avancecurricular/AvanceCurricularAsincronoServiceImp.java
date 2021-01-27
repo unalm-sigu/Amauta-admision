@@ -813,11 +813,21 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
     private void validarCreditosAprobados(
             CursoCurricula cursoCurri,
             AlumnoCursoCurricula cursoCurriAlu,
-            int creditosAprobados) {
+            int creditosAprobados,
+            Boolean cumpleCursosRequisito) {
 
         Integer creditosAprobadosRequisito = fillInteger(cursoCurri.getCreditosRequisito(), 0);
-        if (creditosAprobadosRequisito > creditosAprobados) {
-            cursoCurriAlu.setEstadoEnum(NREQ);
+        boolean cumpleCreditos = creditosAprobados > creditosAprobadosRequisito;
+        if (!cumpleCreditos) {
+            if (cursoCurri.getCreditosRequisitosOr() && cumpleCursosRequisito) {
+                cursoCurriAlu.setEstadoEnum(HAB);
+                cursoCurriAlu.setValidado(true);
+            } else {
+                cursoCurriAlu.setEstadoEnum(NREQ);
+                cursoCurriAlu.setValidado(true);
+            }
+        } else if (cumpleCreditos && cursoCurri.getCreditosRequisitosOr() && !cumpleCursosRequisito) {
+            cursoCurriAlu.setEstadoEnum(HAB);
             cursoCurriAlu.setValidado(true);
         }
     }
@@ -1014,7 +1024,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
             if (estadosAprobados.contains(evaluado.getEstadoEnum())) {
                 continue;
             }
-
+            Boolean cumpleRequisito = true;
             List<RequisitoCursoCurricula> requisitos = TypesUtil.getListNotNull(mapRequisitos.get(evaluado.getCursoCurricula().getId()));
             if (requisitos.isEmpty() || cumpleRequisitos(requisitos, mapAluCursoCurriculaByIdCursoCurricula, evaluado)) {
                 if (!tipoCursoELCEnums.contains(evaluado.getCurso().getCodigo())
@@ -1029,13 +1039,13 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
                     evaluado.setEstadoEnum(NREQ);
                 }
                 evaluado.setValidado(true);
-
+                cumpleRequisito = false;
             }
             if (evaluado.getCursoCurricula().getEstadoEnum() == CurriculaEstadoEnum.CAD) {
                 System.out.println("EL CURSO HA CADUCADO");
                 evaluado.setCaduco(true);
             }
-            validarCreditosAprobados(evaluado.getCursoCurricula(), evaluado, alumno.getCreditosAprobadosConvalidados());
+            validarCreditosAprobados(evaluado.getCursoCurricula(), evaluado, alumno.getCreditosAprobadosConvalidados(), cumpleRequisito);
             mapAluCursoCurriculaByIdCursoCurricula.replace(evaluado.getCursoCurricula().getId(), evaluado);
         }
 

@@ -450,6 +450,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
         cursoCurricula.setUserRegistro(ds.getUsuario());
         cursoCurricula.setFechaRegistro(new Date());
         cursoCurricula.setRequisitosOr(cursoCurricula.getRequisitosOr() == null ? false : cursoCurricula.getRequisitosOr());
+        cursoCurricula.setCreditosRequisitosOr(cursoCurricula.getCreditosRequisitosOr());
         cursoCurricula.setEstado(CurriculaEstadoEnum.ACT.name());
         cursoCurriculaDAO.save(cursoCurricula);
         for (RequisitoCursoCurricula requisito : requisitos) {
@@ -491,6 +492,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
 
         cursoCurriculaBD.setRequisitosOr(cursoCurricula.getRequisitosOr());
         cursoCurriculaBD.setCreditosRequisito(cursoCurricula.getCreditosRequisito());
+        cursoCurriculaBD.setCreditosRequisitosOr(cursoCurricula.getCreditosRequisitosOr());
         cursoCurriculaDAO.update(cursoCurriculaBD);
 
         List<RequisitoCursoCurricula> requisitosDB = requisitoCursoCurriculaDAO.allByCursoCurricula(cursoCurricula);
@@ -754,6 +756,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
         cursoOpcional.setUserRegistro(ds.getUsuario());
         cursoOpcional.setFechaRegistro(new Date());
         cursoOpcional.setRequisitosOr(cursoOpcional.getRequisitosOr() == null ? false : cursoOpcional.getRequisitosOr());
+        cursoOpcional.setCreditosRequisitosOr(cursoOpcional.getCreditosRequisitosOr());
         cursoOpcionalCurriculaDAO.save(cursoOpcional);
         for (RequisitoCursoOpcional requisito : requisitos) {
             requisitoCursoOpcionalDAO.save(requisito);
@@ -767,6 +770,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
         CursoOpcionalCurricula cursoOpcionalBD = cursoOpcionalCurriculaDAO.find(cursoOpcional.getId());
         cursoOpcionalBD.setCreditosRequisito(cursoOpcional.getCreditosRequisito());
         cursoOpcionalBD.setRequisitosOr(cursoOpcional.getRequisitosOr());
+        cursoOpcionalBD.setCreditosRequisitosOr(cursoOpcional.getCreditosRequisitosOr());
         cursoOpcionalCurriculaDAO.update(cursoOpcionalBD);
 
         List<RequisitoCursoOpcional> requisitosDB = requisitoCursoOpcionalDAO.allByCursoElectivo(cursoOpcional);
