@@ -10,12 +10,14 @@ import com.github.scribejava.core.model.Response;
 import com.github.scribejava.core.model.Verb;
 import com.github.scribejava.core.oauth.OAuth20Service;
 import java.io.IOException;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import org.joda.time.LocalDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +29,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import pe.albatross.zelpers.miscelanea.JsonHelper;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.enums.MenuTipoEnum;
@@ -38,8 +41,15 @@ import pe.edu.lamolina.amauta.config.DespliegueConfig;
 import pe.edu.lamolina.amauta.controller.academico.ciclo.CicloAcademicoService;
 import pe.edu.lamolina.amauta.controller.restcontroller.RestPivotService;
 import pe.edu.lamolina.amauta.controller.seguridad.menu.VisorMenu;
+import pe.edu.lamolina.amauta.dao.academico.EventoCicloAcademicoDAO;
+import pe.edu.lamolina.amauta.dao.general.ParametroDAO;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.academico.EventoCicloAcademico;
+import pe.edu.lamolina.model.enums.AmbienteAplicacionEnum;
+import pe.edu.lamolina.model.enums.EventoAcademicoEnum;
+import pe.edu.lamolina.model.enums.ParametrosSistemasEnum;
+import pe.edu.lamolina.model.general.Parametro;
 
 @Controller
 public class OAuthController {
@@ -54,6 +64,10 @@ public class OAuthController {
     RestPivotService service;
     @Autowired
     DespliegueConfig despliegueConfig;
+    @Autowired
+    EventoCicloAcademicoDAO eventoCicloAcademicoDAO;
+    @Autowired
+    ParametroDAO parametroDAO;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -175,6 +189,7 @@ public class OAuthController {
             e.printStackTrace();
         }
         if (ds.getCicloAcademico() == null) {
+
             List<CicloAcademico> cicloAcademicos = serviceProvider.findCiclosVisibles();
             ArrayNode arrayNode = new ArrayNode(JsonNodeFactory.instance);
             for (CicloAcademico cicloAcademico : cicloAcademicos) {
@@ -182,6 +197,7 @@ public class OAuthController {
             }
             model.addAttribute("cicloAcademico", arrayNode);
             return "academico/cicloacademico/cicloland";
+
         }
         return this.getRedirect(ds, session);
     }
@@ -277,8 +293,23 @@ public class OAuthController {
 
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         CicloAcademico cicloAcademico = cicloAcademicoService.getCicloAcademico(ciclo);
+
+        EventoCicloAcademico eventoCicloAcademico = eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(cicloAcademico, EventoAcademicoEnum.ENCU_PSI);
+        Date today = LocalDate.now().toDate();
+
+        if (ds.getRolActivo().getCodigoEnum() == RolEnum.DOC && eventoCicloAcademico != null && today.compareTo(eventoCicloAcademico.getFechaInicio()) >= 0
+                && eventoCicloAcademico.getFechaFin().compareTo(today) >= 0) {
+            AmbienteAplicacionEnum ambiente = AmbienteAplicacionEnum.valueOf(despliegueConfig.getAmbiente().toUpperCase());
+
+            Parametro paramRutaEncuenta = parametroDAO.findByAmbienteParametroSistema(ambiente, ParametrosSistemasEnum.ENCUESTA_DOC);
+
+            ds.setEncuestaSunedu(true);
+            ds.setRutaEncuentaSunedu(paramRutaEncuenta.getValor());
+        }
+
         ds.setCicloAcademico(cicloAcademico);
         session.setAttribute(GlobalConstantine.SESSION_USUARIO, ds);
+
     }
 
     @RequestMapping("teentitansgo/{destino}/{idUsuario}/{token}")

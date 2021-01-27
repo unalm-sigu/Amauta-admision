@@ -28,6 +28,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.PhobosException;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Carrera;
@@ -493,18 +494,22 @@ public class OAuthServiceProviderImp implements OAuthServiceProvider {
                 }
             }
 
-            EventoCicloAcademico eventoCicloAcademico = eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(ds.getCicloAcademico(), EventoAcademicoEnum.ENCU_PSI);
-            Date today = LocalDate.now().toDate();
-
-            if (eventoCicloAcademico != null && today.compareTo(eventoCicloAcademico.getFechaInicio()) >= 0
-                    && eventoCicloAcademico.getFechaFin().compareTo(today) >= 0) {
-                AmbienteAplicacionEnum ambiente = AmbienteAplicacionEnum.valueOf(despliegueConfig.getAmbiente().toUpperCase());
-
-                Parametro paramRutaEncuenta = parametroDAO.findByAmbienteParametroSistema(ambiente, ParametrosSistemasEnum.ENCUESTA_DOC);
-
-                ds.setEncuestaSunedu(true);
-                ds.setRutaEncuentaSunedu(paramRutaEncuenta.getValor());
-            }
+//                System.out.println("ds.getCicloAcademico().getId():::::  " + ds.getCicloAcademico().getId());
+//                ObjectUtil.printAttr(ds.getCicloAcademico());
+//            if (ds.getCicloAcademico() != null) {
+//                EventoCicloAcademico eventoCicloAcademico = eventoCicloAcademicoDAO.findActivoByCicloTipoEvento(ds.getCicloAcademico(), EventoAcademicoEnum.ENCU_PSI);
+//                Date today = LocalDate.now().toDate();
+//
+//                if (eventoCicloAcademico != null && today.compareTo(eventoCicloAcademico.getFechaInicio()) >= 0
+//                        && eventoCicloAcademico.getFechaFin().compareTo(today) >= 0) {
+//                    AmbienteAplicacionEnum ambiente = AmbienteAplicacionEnum.valueOf(despliegueConfig.getAmbiente().toUpperCase());
+//
+//                    Parametro paramRutaEncuenta = parametroDAO.findByAmbienteParametroSistema(ambiente, ParametrosSistemasEnum.ENCUESTA_DOC);
+//
+//                    ds.setEncuestaSunedu(true);
+//                    ds.setRutaEncuentaSunedu(paramRutaEncuenta.getValor());
+//                }
+//            }
         }
 
         if (rol.getCodigoEnum() == RolEnum.ALU) {
