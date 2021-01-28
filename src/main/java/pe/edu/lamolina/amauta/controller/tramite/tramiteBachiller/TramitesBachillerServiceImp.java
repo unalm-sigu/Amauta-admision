@@ -190,7 +190,9 @@ public class TramitesBachillerServiceImp implements TramitesBachillerService {
         Oficina oficinaColaborador = null;
 
         AlumnoConsejero alumnoConsejero = alumnoConsejeroDAO.findByAlumnoCiclo(alumno, ds.getCicloAcademico());
-        alumno.setConsejero(alumnoConsejero.getConsejero());
+        if (alumnoConsejero != null) {
+            alumno.setConsejero(alumnoConsejero.getConsejero());
+        }
 
         if (alumno.getConsejero() == null || alumno.getConsejero().getColaborador() == null) {
             oficinaColaborador = oficinaDAO.findByCode("CT-" + alumno.getCarrera().getCodigo());
