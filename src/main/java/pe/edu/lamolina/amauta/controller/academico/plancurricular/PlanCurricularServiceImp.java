@@ -510,6 +510,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
             nuevo.setFechaRegistro(new Date());
             nuevo.setUserRegistro(ds.getUsuario());
             nuevo.setEstado(ACT.name());
+            nuevo.setRequisitosObligatorio(nuevo.getRequisitosObligatorio());
             requisitoCursoCurriculaDAO.save(nuevo);
         }
 
@@ -520,6 +521,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
         for (RequisitoCursoCurricula existenteBD : existentes) {
             RequisitoCursoCurricula existenteForm = mapRequisitos.get(existenteBD.getCursoRequisito().getId());
             existenteBD.setSimultaneo(existenteForm.getSimultaneo() == null ? 0 : 1);
+            existenteBD.setRequisitosObligatorio(existenteForm.getRequisitosObligatorio());
             requisitoCursoCurriculaDAO.update(existenteBD);
         }
 
@@ -751,6 +753,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
             requisito.setUserRegistro(ds.getUsuario());
             requisito.setFechaRegistro(new Date());
             requisito.setEstado(ACT.name());
+            requisito.setRequisitosObligatorio(requisito.getRequisitosObligatorio());
         }
 
         cursoOpcional.setUserRegistro(ds.getUsuario());
@@ -791,6 +794,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
             nuevo.setEstado(ACT.name());
             nuevo.setFechaRegistro(new Date());
             nuevo.setUserRegistro(ds.getUsuario());
+            nuevo.setRequisitosObligatorio(nuevo.getRequisitosObligatorio());
             requisitoCursoOpcionalDAO.save(nuevo);
         }
 
@@ -804,6 +808,7 @@ public class PlanCurricularServiceImp implements PlanCurricularService {
 
             RequisitoCursoOpcional existenteForm = mapRequisitos.get(existenteBD.getCursoRequisito().getId());
             existenteBD.setSimultaneo(existenteForm.getSimultaneo() == null ? 0 : 1);
+            existenteBD.setRequisitosObligatorio(existenteForm.getRequisitosObligatorio());
             requisitoCursoOpcionalDAO.update(existenteBD);
         }
     }

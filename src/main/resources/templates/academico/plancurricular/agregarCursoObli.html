@@ -114,7 +114,8 @@
                 <thead> 
                     <tr class=""> 
                         <th class="col-md-2 text-center v-middle">Código </th>
-                        <th class="col-md-7 v-middle">Nombre</th>
+                        <th class="col-md-6 v-middle">Nombre</th>
+                        <th class="col-md-1 text-center v-middle">Obligatorio</th>
                         <th class="col-md-1 text-center v-middle">Simultáneo</th>
                         <th class="col-md-2 text-center v-middle">Ciclo Origen</th>
                         <th class=""></th>
@@ -131,6 +132,15 @@
                                    th:text="${item.cursoRequisito.curso.codigoAnterior1}">FT505</small>
                         </td>
                         <td class="v-middle" th:text="${item.cursoRequisito.curso.nombre}">Quimica</td>
+                        <td class="v-middle  text-center" >
+                            <label class="switch">
+                                <input  type="checkbox" 
+                                        th:name="|cursosCurricula[${iter.index}].requisitosObligatorio|"
+                                        value="1"
+                                        th:attr="checked=${item.requisitosObligatorio}"/>
+                                <span></span>
+                            </label>
+                        </td>
                         <td class="v-middle text-center">
                             <label class="switch">
                                 <input  type="checkbox" 
