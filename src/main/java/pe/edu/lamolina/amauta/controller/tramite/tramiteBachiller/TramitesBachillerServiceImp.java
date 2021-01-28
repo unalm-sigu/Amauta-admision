@@ -21,6 +21,7 @@ import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.amauta.controller.seriedocumento.SerieDocumentoService;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoCicloCursoDAO;
+import pe.edu.lamolina.amauta.dao.academico.AlumnoCicloDAO;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.amauta.dao.academico.EgresadoDAO;
 import pe.edu.lamolina.amauta.dao.academico.EventoCicloAcademicoDAO;
@@ -109,6 +110,9 @@ public class TramitesBachillerServiceImp implements TramitesBachillerService {
     @Autowired
     AlumnoConsejeroDAO alumnoConsejeroDAO;
 
+    @Autowired
+    AlumnoCicloDAO alumnoCicloDAO;
+
     @Override
     public List<TramiteBachiller> allTramitesByFilter(DynatableFilter filter, DataSessionPivot ds) {
 
@@ -189,6 +193,7 @@ public class TramitesBachillerServiceImp implements TramitesBachillerService {
         EventoCicloAcademico eventoIngreso = eventoCicloAcademicoDAO.findByCicloAndEvento(cicloInicio, EventoAcademicoEnum.FECHAS_BACH);
         Oficina oficinaColaborador = null;
 
+        alumnoCiclo = alumnoCicloDAO.find(alumnoCiclo.getId());
         AlumnoConsejero alumnoConsejero = alumnoConsejeroDAO.findByAlumnoCiclo(alumno, ds.getCicloAcademico());
         if (alumnoConsejero != null) {
             alumno.setConsejero(alumnoConsejero.getConsejero());
