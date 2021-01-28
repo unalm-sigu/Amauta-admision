@@ -570,7 +570,6 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
 
         List<CursoCurricula> cursosCurriculaPlan = new ArrayList(mapCursosCurricula.values());
         for (CursoCurricula cursocurricula : cursosCurriculaPlan) {
-            System.out.println("2---------------------------------------- " + cursocurricula.getCurso().getNombre() + " " + cursocurricula.getCreditos() + " " + cursocurricula.getEstado());
 
             AlumnoCursoCurricula aluCursoCurrNew = new AlumnoCursoCurricula();
             aluCursoCurrNew.setAlumno(alumno);
@@ -1057,8 +1056,21 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
             AlumnoCursoCurricula evaluado) {
 
         boolean requisitosCumplidos = false;
+        boolean requisitosObigatorios = true;
 
-        for (RequisitoCursoCurricula requisito : requisitos) {
+        List<RequisitoCursoCurricula> cursosObligatorios = requisitos.stream().filter(x -> x.getRequisitosObligatorio()).collect(Collectors.toList());
+        List<RequisitoCursoCurricula> cursosNoObligatorios = requisitos.stream().filter(x -> !x.getRequisitosObligatorio()).collect(Collectors.toList());
+//
+        if (!cursosObligatorios.isEmpty()) {
+            for (RequisitoCursoCurricula cursoObligatorio : cursosObligatorios) {
+                AlumnoCursoCurricula cursoRequisito = mapAluCursoCurriculaByIdCursoCurricula.get(cursoObligatorio.getCursoRequisito().getId());
+                if (!estadosAprobados.contains(cursoRequisito.getEstadoEnum())) {
+                    requisitosObigatorios = false;
+                }
+            }
+        }
+
+        for (RequisitoCursoCurricula requisito : cursosNoObligatorios) {
             AlumnoCursoCurricula cursoRequisito = mapAluCursoCurriculaByIdCursoCurricula.get(requisito.getCursoRequisito().getId());
             if (cursoRequisito == null || !estadosAprobados.contains(cursoRequisito.getEstadoEnum())) {
                 if (!evaluado.getCursoCurricula().getRequisitosOr()) {
@@ -1071,7 +1083,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
 
         }
 
-        return requisitosCumplidos;
+        return requisitosCumplidos && requisitosObigatorios;
     }
 
     private void validarCursosSimultaneo(
