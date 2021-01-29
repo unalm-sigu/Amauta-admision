@@ -206,7 +206,7 @@ public class TramitesReincorporacionServiceImp implements TramiteReincorporacion
 
         alumno.setCreditosConvalidadosTransient(creditosConvalidados);
         Oficina oficinaColaborador = null;
-        if (alumno.getConsejero() == null || alumno.getConsejero().getColaborador() != null) {
+        if (alumno.getConsejero() == null || alumno.getConsejero().getColaborador() == null) {
             oficinaColaborador = oficinaDAO.findByCode("CT-" + alumno.getCarrera().getCodigo());
         }
 
