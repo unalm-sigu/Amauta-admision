@@ -169,7 +169,7 @@ public class TramitesReincorporacionServiceImp implements TramiteReincorporacion
     private List<String> createInfoReincorporacionPDF(Tramite tramite, DataSessionPivot ds) {
         tramite = tramiteDAO.find(tramite.getId());
         Alumno alumno = alumnoDAO.find(tramite.getAlumno());
-        AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findLastByAlumno(alumno);
+        AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findLastActiveRegByAlumno(alumno);
         Context ctx = new Context();
 
         TipoCursoCurricula tipoCursoCurriculaDeporte = tipoCursoCurriculaDAO.findByCodigo(TipoCursoCurriculaEnum.DEP);
