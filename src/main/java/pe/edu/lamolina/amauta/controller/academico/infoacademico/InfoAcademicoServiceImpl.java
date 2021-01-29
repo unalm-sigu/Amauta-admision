@@ -617,8 +617,7 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
                 "cicloAcademico.descripcion",
                 "cicloAcademico.descripcion2",
                 "cicloAcademico.tipoEnum",
-                "cicloAcademico.id",
-            });
+                "cicloAcademico.id",});
             promediosCicloJson.add(promedioJson);
         }
         return promediosCicloJson;
@@ -974,6 +973,10 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
                 break;
             }
             if (rol.getCodigoEnum() == RolEnum.IOREA) {
+                puedeCalcular = true;
+                break;
+            }
+            if (rol.getCodigoEnum() == RolEnum.CALCULO_PROM_AVANCE) {
                 puedeCalcular = true;
                 break;
             }
