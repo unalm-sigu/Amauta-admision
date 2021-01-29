@@ -45,6 +45,7 @@ import pe.edu.lamolina.model.academico.Egresado;
 import pe.edu.lamolina.model.academico.EventoCicloAcademico;
 import pe.edu.lamolina.model.academico.TipoCursoCurricula;
 import pe.edu.lamolina.model.consejeria.AlumnoConsejero;
+import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.MAT;
 import pe.edu.lamolina.model.enums.EventoAcademicoEnum;
 import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum;
@@ -135,7 +136,7 @@ public class TramitesBachillerServiceImp implements TramitesBachillerService {
 
         TipoCursoCurricula tipoCursoCurriculaDeporte = tipoCursoCurriculaDAO.findByCodigo(TipoCursoCurriculaEnum.DEP);
         TipoCursoCurricula tipoCursoCurriculaGen = tipoCursoCurriculaDAO.findByCodigo(TipoCursoCurriculaEnum.GEN);
-        List<AlumnoCicloCurso> alumnoCicloCursos = alumnoCicloCursoDAO.allActivosByAlumno(alumno);
+        List<AlumnoCicloCurso> alumnoCicloCursos = alumnoCicloCursoDAO.allOperativesByAlumno(alumno);
         for (AlumnoCicloCurso alumnoCicloCurso : alumnoCicloCursos) {
             if (alumnoCicloCurso.getTipoCursoCurricula() != null && alumnoCicloCurso.getTipoCursoCurricula().getCodigoEnum() == DEP) {
                 if (alumnoCicloCurso.getCreditos() > 0) {
@@ -176,6 +177,7 @@ public class TramitesBachillerServiceImp implements TramitesBachillerService {
         CicloAcademico cicloInicio = new CicloAcademico();
         AlumnoCiclo alumnoCiclo = null;
         for (AlumnoCiclo alumnoCic : alumnosCiclos) {
+
             Integer cod = Integer.parseInt(codigo);
             Integer codFin = Integer.parseInt(codigoFin);
             Integer coda = Integer.parseInt(alumnoCic.getCicloAcademico().getCodigo());
