@@ -211,7 +211,10 @@ public class TramitesReincorporacionServiceImp implements TramiteReincorporacion
         }
 
         AlumnoConsejero alumnoConsejero = alumnoConsejeroDAO.findByAlumnoCiclo(alumno, ds.getCicloAcademico());
-        alumno.setConsejero(alumnoConsejero.getConsejero());
+        if (alumnoConsejero != null) {
+            alumno.setConsejero(alumnoConsejero.getConsejero());
+
+        }
 
         ctx.setVariable("alumno", alumno);
         ctx.setVariable("oficinaColaborador", oficinaColaborador);

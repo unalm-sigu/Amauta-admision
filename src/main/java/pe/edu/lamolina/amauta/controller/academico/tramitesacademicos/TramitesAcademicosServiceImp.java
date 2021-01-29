@@ -674,7 +674,9 @@ public class TramitesAcademicosServiceImp implements TramitesAcademicosService {
 
         alumno.setCreditosConvalidadosTransient(creditosConvalidados);
         AlumnoConsejero alumnoConsejero = alumnoConsejeroDAO.findByAlumnoCiclo(alumno, cicloAcademico);
-        alumno.setConsejero(alumnoConsejero.getConsejero());
+        if (alumnoConsejero != null) {
+            alumno.setConsejero(alumnoConsejero.getConsejero());
+        }
 
         ctx.setVariable("alumno", alumno);
         ctx.setVariable("ciclo", cicloAcademico);
