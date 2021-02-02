@@ -417,7 +417,7 @@ public class AvanceCurricularAsincronoServiceImp implements AvanceCurricularAsin
             Map<TipoCursoCurriculaEnum, ResumenPlanCurricular> mapResumenPlanCurricular,
             TipoCursoCurricula tipoCursoCurricula) {
 
-        List<AlumnoCursoCurricula> cursosComodinNew = alumnoCursosCurriculaNew.stream().filter(x -> x.getCurso().getCodigo().equals("EG1006")).collect(Collectors.toList());
+        List<AlumnoCursoCurricula> cursosComodinNew = alumnoCursosCurriculaNew.stream().filter(x -> Arrays.asList("EG1006", DEP.name()).contains(x.getCurso().getCodigo())).collect(Collectors.toList());
         List<Long> ids = new ArrayList();
         ResumenPlanCurricular resumenPlanCurricularDep = mapResumenPlanCurricular.get(DEP);
         Integer cred = resumenPlanCurricularDep.getCreditos();
