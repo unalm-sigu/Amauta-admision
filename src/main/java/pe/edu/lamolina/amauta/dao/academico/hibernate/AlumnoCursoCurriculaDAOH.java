@@ -20,16 +20,18 @@ import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.EEP;
 import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.ELE;
 import pe.edu.lamolina.model.matricula.AlumnoCursoCurricula;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoCursoCurriculaDAO;
-import static pe.edu.lamolina.model.enums.EstadoEnum.ACT;
+import pe.edu.lamolina.model.enums.CurriculaEstadoEnum;
+import static pe.edu.lamolina.model.enums.CurriculaEstadoEnum.ACT;
+import static pe.edu.lamolina.model.enums.CursoCurriculaEstadoEnum.HAB;
 
 @Repository
 public class AlumnoCursoCurriculaDAOH extends AbstractEasyDAO<AlumnoCursoCurricula> implements AlumnoCursoCurriculaDAO {
-
+    
     public AlumnoCursoCurriculaDAOH() {
         super();
         setClazz(AlumnoCursoCurricula.class);
     }
-
+    
     @Override
     public List<AlumnoCursoCurricula> allByAlumnoCursosCurricula(Alumno alumno, List<CursoCurricula> cursosCurricula) {
         Octavia sql = Octavia.query()
@@ -45,10 +47,10 @@ public class AlumnoCursoCurriculaDAOH extends AbstractEasyDAO<AlumnoCursoCurricu
                 .endBlock()
                 .filter("tcc.codigo", "!=", EEP.name())
                 .orderBy("acc.numeroCiclo", "cur.nombre");
-
+        
         return all(sql);
     }
-
+    
     @Override
     public List<AlumnoCursoCurricula> allByAlumnoCursosOpcional(Alumno alumno) {
         Octavia sql = Octavia.query()
@@ -64,10 +66,10 @@ public class AlumnoCursoCurriculaDAOH extends AbstractEasyDAO<AlumnoCursoCurricu
                 .endBlock()
                 //.filter("tc.codigo", "!=", EEP.name())
                 .orderBy("acc.numeroCiclo", "cur.nombre");
-
+        
         return all(sql);
     }
-
+    
     @Override
     public List<AlumnoCursoCurricula> allByAlumnoComodin(Alumno alumno) {
         Octavia sql = Octavia.query()
@@ -82,10 +84,10 @@ public class AlumnoCursoCurriculaDAOH extends AbstractEasyDAO<AlumnoCursoCurricu
                 .endBlock()
                 .filter("alumno", alumno)
                 .orderBy("acc.numeroCiclo", "cur.nombre");
-
+        
         return all(sql);
     }
-
+    
     @Override
     public List<AlumnoCursoCurricula> allObligatoriosByAlumno(Alumno alumno) {
         Octavia sql = Octavia.query()
@@ -95,10 +97,10 @@ public class AlumnoCursoCurriculaDAOH extends AbstractEasyDAO<AlumnoCursoCurricu
                 .isNull("cursoOpcional")
                 .filter("alumno", alumno)
                 .orderBy("acc.numeroCiclo");
-
+        
         return all(sql);
     }
-
+    
     @Override
     public List<AlumnoCursoCurricula> allByAlumnoAprob(Alumno alumno, CicloAcademico ciclo) {
         Octavia sql = Octavia.query()
@@ -110,7 +112,7 @@ public class AlumnoCursoCurriculaDAOH extends AbstractEasyDAO<AlumnoCursoCurricu
                 .filter("ca.id", ciclo);
         return all(sql);
     }
-
+    
     @Override
     public List<AlumnoCursoCurricula> allCiclosAlumno(Alumno alumno) {
         Octavia sql = Octavia.query()
@@ -125,17 +127,17 @@ public class AlumnoCursoCurriculaDAOH extends AbstractEasyDAO<AlumnoCursoCurricu
                 .orderBy("acc.numeroCiclo");
         return all(sql);
     }
-
+    
     @Override
     public void deleteAllByAlumno(Alumno alumno) {
         StringBuilder sql = new StringBuilder();
         sql.append("delete AlumnoCursoCurricula acs where acs.alumno.id =:ALUMNO ");
-
+        
         Query query = getCurrentSession().createQuery(sql.toString());
         query.setParameter("ALUMNO", alumno.getId());
         query.executeUpdate();
     }
-
+    
     @Override
     public AlumnoCursoCurricula findByAlumnoCurso(Alumno alumno, Curso curso) {
         Octavia sql = Octavia.query()
@@ -149,7 +151,7 @@ public class AlumnoCursoCurriculaDAOH extends AbstractEasyDAO<AlumnoCursoCurricu
                 .orderBy("cu.nombre");
         return (AlumnoCursoCurricula) sql.find(getCurrentSession());
     }
-
+    
     @Override
     public void updateEstado(AlumnoCursoCurricula alumnoCursoCurricula) {
         Octavia octavia = Octavia.update(AlumnoCursoCurricula.class);
@@ -160,7 +162,7 @@ public class AlumnoCursoCurriculaDAOH extends AbstractEasyDAO<AlumnoCursoCurricu
         }
         this.update(octavia);
     }
-
+    
     @Override
     public List<AlumnoCursoCurricula> allByAlumnoCicloRegularAct(Alumno alumno, CicloAcademico cicloAcademico) {
         Octavia sql = Octavia.query()
@@ -171,7 +173,7 @@ public class AlumnoCursoCurriculaDAOH extends AbstractEasyDAO<AlumnoCursoCurricu
                 .orderBy("acc.numeroCiclo");
         return all(sql);
     }
-
+    
     @Override
     public List<AlumnoCursoCurricula> allByAlumnosCurso(List<Alumno> alumnos, Curso curso) {
         Octavia sql = Octavia.query()
@@ -184,7 +186,7 @@ public class AlumnoCursoCurriculaDAOH extends AbstractEasyDAO<AlumnoCursoCurricu
                 .orderBy("acc.numeroCiclo");
         return all(sql);
     }
-
+    
     @Override
     public List<AlumnoCursoCurricula> allByAlumnosApr(List<Alumno> alumnos) {
         Octavia sql = Octavia.query()
@@ -195,7 +197,7 @@ public class AlumnoCursoCurriculaDAOH extends AbstractEasyDAO<AlumnoCursoCurricu
                 .orderBy("acc.numeroCiclo");
         return all(sql);
     }
-
+    
     @Override
     public List<AlumnoCursoCurricula> allByAlumnoApro(Alumno alumnoBD) {
         Octavia sql = Octavia.query()
@@ -205,7 +207,7 @@ public class AlumnoCursoCurriculaDAOH extends AbstractEasyDAO<AlumnoCursoCurricu
                 .orderBy("acc.numeroCiclo");
         return all(sql);
     }
-
+    
     @Override
     public List<AlumnoCursoCurricula> allByAlumnos(List<Alumno> alumnos) {
         Octavia sql = Octavia.query()
@@ -215,7 +217,7 @@ public class AlumnoCursoCurriculaDAOH extends AbstractEasyDAO<AlumnoCursoCurricu
                 .orderBy("acc.numeroCiclo");
         return all(sql);
     }
-
+    
     @Override
     public List<AlumnoCursoCurricula> allByAlumnoAndModalidad(Alumno alumno, DynatableFilter filter) {
         DynatableSql sql = new DynatableSql(filter)
@@ -227,7 +229,7 @@ public class AlumnoCursoCurriculaDAOH extends AbstractEasyDAO<AlumnoCursoCurricu
                 .searchFields("acc.creditos", "acc.numeroCiclo", "cur.codigo", "cur.nombre");
         return all(sql);
     }
-
+    
     @Override
     public List<AlumnoCursoCurricula> all(Alumno alumno) {
         Octavia sql = Octavia.query()
@@ -236,11 +238,11 @@ public class AlumnoCursoCurriculaDAOH extends AbstractEasyDAO<AlumnoCursoCurricu
                 .filter("alu.id", alumno)
                 .filter("acc.estadoRegistro", "!=", INA)
                 .orderBy("acc.numeroCiclo");
-
+        
         return all(sql);
-
+        
     }
-
+    
     @Override
     public List<AlumnoCursoCurricula> allDynaTable(Alumno alumno, DynatableFilter filter) {
         DynatableSql sql = new DynatableSql(filter)
@@ -250,10 +252,10 @@ public class AlumnoCursoCurriculaDAOH extends AbstractEasyDAO<AlumnoCursoCurricu
                 .searchFields("cur.nombre", "cur.codigo")
                 .filter("acc.estadoRegistro", "!=", INA)
                 .orderBy("acc.numeroCiclo");
-
+        
         return all(sql);
     }
-
+    
     @Override
     public List<AlumnoCursoCurricula> allByAlumno(Alumno alumno) {
         Octavia sql = Octavia.query()
@@ -261,14 +263,28 @@ public class AlumnoCursoCurriculaDAOH extends AbstractEasyDAO<AlumnoCursoCurricu
                 .join("alumno alu", "curso cur", "tipoCursoCurricula tcc")
                 .filter("alu.id", alumno)
                 .orderBy("acc.numeroCiclo");
-
+        
         return all(sql);
     }
-
+    
     @Override
     public void updateColumns(AlumnoCursoCurricula alumnoCursoCurricula, String... columns) {
         Octavia octavia = Octavia.update(AlumnoCursoCurricula.class);
         octavia.set(alumnoCursoCurricula, columns);
         this.update(octavia);
+    }
+    
+    @Override
+    public AlumnoCursoCurricula findPracticaPreProfesional(Alumno alumno) {
+        Octavia sql = Octavia.query()
+                .from(AlumnoCursoCurricula.class, "acc")
+                .join("alumno alu", "curso cur", "cursoCurricula cc")
+                .filter("alu.id", alumno)
+                .filter("cc.estado", CurriculaEstadoEnum.ACT)
+                .filter("acc.estado", HAB)
+                .like("cur.nombre", "Practica%")
+                .orderBy("acc.numeroCiclo")
+                .limit(1);
+        return find(sql);
     }
 }

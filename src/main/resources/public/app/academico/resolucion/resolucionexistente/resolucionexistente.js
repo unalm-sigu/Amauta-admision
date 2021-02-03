@@ -5,7 +5,7 @@ Vue.component('file-upload', VueUploadComponent);
 var app = new Vue({
     el: '#resolucionReinForm',
     data: {
-        resolucion: resolucionJson != null ? JSON.parse(resolucionJson) : {reincorporaciones: [], retiroCiclo: [], cambioNota: [], cursoDirigido: [], tramiteTraslado: [], cambioNotaMasBajas: [], tramiteBachiller: [], tramiteTitulos: []},
+        resolucion: resolucionJson != null ? JSON.parse(resolucionJson) : {reincorporaciones: [], retiroCiclo: [], cambioNota: [], cursoDirigido: [], tramiteTraslado: [], cambioNotaMasBajas: [], tramiteBachiller: [], tramiteTitulos: [], tramitePracticasPreProfesionales: []},
         oficinas: JSON.parse(oficinasJson),
         ciclos: JSON.parse(ciclosJson),
         tiposResolucion: JSON.parse(tiposResolucionJson),
@@ -27,6 +27,7 @@ var app = new Vue({
         isNotaBaja: false,
         isBachiller: false,
         isTitulo: false,
+        isPracticas: false,
         modalError: {
             id: 'modalError',
             header: true,
@@ -61,8 +62,9 @@ var app = new Vue({
                 $vue.isBachiller = true;
             } else if ($vue.resolucion.isTitulo) {
                 $vue.isTitulo = true;
+            } else if ($vue.resolucion.isTramitePracticas) {
+                $vue.isPracticas = true;
             }
-            console.log($vue.resolucion);
         }
 
     }, methods: {
@@ -77,6 +79,7 @@ var app = new Vue({
             $vue.isNotaBaja = false;
             $vue.isBachiller = false;
             $vue.isTitulo = false;
+            $vue.isPracticas = false;
             if (item.codigo == "RCI") {
                 $vue.isRetiroCiclo = true;
             } else if (item.codigo == "ANCI") {
@@ -95,6 +98,8 @@ var app = new Vue({
                 $vue.isBachiller = true;
             } else if (item.codigo == "TITUL") {
                 $vue.isTitulo = true;
+            } else if (item.codigo == "PRACTICAS") {
+                $vue.isPracticas = true;
             } else {
                 $vue.isCursoDirigido = true;
             }
@@ -202,6 +207,9 @@ var app = new Vue({
             } else if ($vue.isTitulo) {
                 var tramiteTitulo = {seleccionado: true};
                 $vue.resolucion.tramiteTitulos.push(tramiteTitulo);
+            } else if ($vue.isPracticas) {
+                var tramitePracticas = {};
+                $vue.resolucion.tramitePracticasPreProfesionales.push(tramitePracticas);
             }
         },
         deleteItem(index) {
@@ -222,6 +230,8 @@ var app = new Vue({
                 $vue.resolucion.tramiteBachiller.splice(index, 1);
             } else if ($vue.isTitulo) {
                 $vue.resolucion.tramiteTitulos.splice(index, 1);
+            } else if ($vue.isPracticas) {
+                $vue.resolucion.tramitePracticasPreProfesionales.splice(index, 1);
             }
         },
         oficinaSelect(ofi) {
@@ -252,7 +262,7 @@ var app = new Vue({
                 success: function (response) {
                     if (response.success && response.data.length == 0) {
                         notify(response.message, 'info');
-                        $vue.resolucion = {reincorporaciones: [], retiroCiclo: [], cambioNota: [], cursoDirigido: [], tramiteTraslado: [], cambioNotaMasBajas: [], tramiteBachiller: [], tramiteTitulos: []};
+                        $vue.resolucion = {reincorporaciones: [], retiroCiclo: [], cambioNota: [], cursoDirigido: [], tramiteTraslado: [], cambioNotaMasBajas: [], tramiteBachiller: [], tramiteTitulos: [], tramitePracticasPreProfesionales: []};
                         $vue.alumnos = [];
                     } else {
                         if (response.data != null && response.data.length > 0) {

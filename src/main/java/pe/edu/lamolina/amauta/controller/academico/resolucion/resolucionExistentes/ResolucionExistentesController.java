@@ -58,6 +58,7 @@ import static pe.edu.lamolina.model.enums.TipoResolucionEnum.BACHI;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.CAM_NOTA;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.CURDIR;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.OBTE_GRADO;
+import static pe.edu.lamolina.model.enums.TipoResolucionEnum.PRACTICAS;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.RCI;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.REIC;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.TITUL;
@@ -68,6 +69,8 @@ import pe.edu.lamolina.model.tramite.ObtencionGrado;
 public class ResolucionExistentesController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    static List<String> TIPO_RESOLUCION = Arrays.asList(TRAS_INT.name(), RCI.name(), ANCI.name(), REIC.name(), CAM_NOTA.name(), CURDIR.name(), TRAS.name(), INTES.name(), ING_HIS.name(), NOTA_BAJA.name(), BACHI.name(), TITUL.name(), PRACTICAS.name());
 
     @Autowired
     ResolucionExistenteService service;
@@ -119,7 +122,7 @@ public class ResolucionExistentesController {
 
         List<TipoResolucion> tipoResolucions = service.allTipoResolucion();
         for (TipoResolucion tipoResolucion : tipoResolucions) {
-            if (Arrays.asList(TRAS_INT.name(), RCI.name(), ANCI.name(), REIC.name(), CAM_NOTA.name(), CURDIR.name(), TRAS.name(), INTES.name(), ING_HIS.name(), NOTA_BAJA.name(), BACHI.name(), TITUL.name()).contains(tipoResolucion.getCodigo())) {
+            if (TIPO_RESOLUCION.contains(tipoResolucion.getCodigo())) {
                 tipoResolucionJson.add(JsonHelper.createJson(tipoResolucion, JsonNodeFactory.instance, new String[]{"*"}));
             }
         }
@@ -274,6 +277,10 @@ public class ResolucionExistentesController {
                 service.saveTramiteBachiller(resolucion, ds);
             } else if (resolucion.isTipoTramiteTitulo()) {
                 service.saveTramiteTitulo(resolucion, ds);
+            } else if (resolucion.isTipoTramitePracticas()) {
+                String token = service.saveTramitePracticas(resolucion, ds);
+                matriculableService.calcularPromedios(token, ds);
+                matriculableService.revisarCurriculaAlumnos(ds, token);
             }
 
             response.setMessage("Se realizó el registro satisfactoriamente.");

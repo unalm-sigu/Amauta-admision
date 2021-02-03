@@ -31,7 +31,6 @@ import pe.edu.lamolina.model.enums.EstadoPlanCalificaEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.rolexamen.CursoMasivoExamen;
 import pe.edu.lamolina.model.rolexamen.RolExamenes;
-import sun.awt.ModalExclude;
 
 @Repository
 public class CursoDAOH extends AbstractEasyDAO<Curso> implements CursoDAO {

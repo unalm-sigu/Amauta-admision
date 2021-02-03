@@ -66,4 +66,6 @@ public interface ResolucionExistenteService {
 
     public void saveTramiteTitulo(Resolucion resolucion, DataSessionPivot ds);
 
+    public String saveTramitePracticas(Resolucion resolucion, DataSessionPivot ds);
+
 }

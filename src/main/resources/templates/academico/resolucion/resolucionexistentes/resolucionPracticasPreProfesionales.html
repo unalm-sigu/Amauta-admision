@@ -1,0 +1,35 @@
+<tr v-if="isPracticas" v-for="(practicas , index) in resolucion.tramitePracticasPreProfesionales">
+    <td class="v-middle text-center">
+        <div class="form-group">
+            <div class="col-md-12">
+                <multiselect v-model="practicas.alumno" 
+                             v-bind:options='alumnos'
+                             v-on:search-change="loadAlumno"
+                             v-bind:custom-label='customLabel'
+                             track-by='id'
+                             v-bind:show-labels="false"
+                             v-bind:allow-empty="false"
+                             deselect-label="No se puede eliminar este valor"
+                             v-bind:internal-search='false'
+                             placeholder="Ingresa un caracter como mínimo" 
+                             v-bind:disabled="isEdicion &amp;&amp; bachiller.id != null">
+                    <template slot="option" slot-scope="props">
+                        <div class="option__desc">
+                            <span class="option__title block bold">{{ props.option.persona.nombreCompleto }} </span>
+                            <span class="option__small">{{ props.option.persona.tipoDocumento.simbolo }} - {{ props.option.persona.numeroDocIdentidad }}</span>
+                        </div>
+                    </template>
+                </multiselect>
+                <input v-model="practicas.alumno" required="true" type="text" class="hide"/>
+            </div>
+        </div>
+    </td>
+    <td class="v-middle text-center">
+        <span v-if="resolucion.tipoResolucion != null" class="block text-muted" v-text="resolucion.tipoResolucion.nombre"></span>
+    </td>
+    <td>
+        <button v-on:click="deleteItem(index)" class="btn btn-danger"  v-bind:disabled="isEdicion &amp;&amp; titulo.id != null">
+            <i class="fa fa-trash-o " aria-hidden="true"></i>
+        </button>
+    </td>
+</tr>
