@@ -128,7 +128,7 @@ import static pe.edu.lamolina.model.enums.TipoCondicionalEnum.TRAS_INT;
 import pe.edu.lamolina.model.enums.TipoGradoAcademicoEnum;
 import static pe.edu.lamolina.model.enums.TipoTramiteEnum.INTES;
 import pe.edu.lamolina.model.tramite.ObtencionGrado;
-import pe.edu.lamolina.model.tramite.PracticasPreProfesionales;
+import pe.edu.lamolina.model.tramite.PracticasPreProfesional;
 import pe.edu.lamolina.model.tramite.TramiteBachiller;
 import pe.edu.lamolina.model.tramite.TramiteTitulo;
 
@@ -1403,7 +1403,7 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
         EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.SOL_ACEP);
 
         List<Alumno> alumnos = new ArrayList<>();
-        for (PracticasPreProfesionales practicasForm : resolucionForm.getTramitePracticasPreProfesionales()) {
+        for (PracticasPreProfesional practicasForm : resolucionForm.getTramitePracticasPreProfesionales()) {
 
             DateTime today = new DateTime();
             TipoDocumentoCompania tipoDocumentoCompania = tipoDocumentoCompaniaDAO.findByCodigo(TipoDocumentoCompaniaEnum.TRAM_PRAC_PROF);
@@ -1428,7 +1428,7 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
 
             AlumnoCursoCurricula alumnoCursoCurricula = alumnoCursoCurriculaDAO.findPracticaPreProfesional(alumno);
             CursoCurricula cursoCurricula = alumnoCursoCurricula.getCursoCurricula();
-            PracticasPreProfesionales preProfesionales = new PracticasPreProfesionales();
+            PracticasPreProfesional preProfesionales = new PracticasPreProfesional();
             preProfesionales.setAlumno(practicasForm.getAlumno());
             preProfesionales.setCurso(cursoCurricula.getCurso());
             preProfesionales.setResolucion(resolucion);
