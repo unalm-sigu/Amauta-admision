@@ -103,13 +103,15 @@
                                                            !item.isTipoTrasladoInterno  &amp;&amp;
                                                            !item.isTipoNotaBaja &amp;&amp;
                                                            !item.isTipoAnulacionCiclo &amp;&amp;
-                                                           !item.isTipoIngresoFisicoHistorial "
+                                                           !item.isTipoIngresoFisicoHistorial &amp;&amp;
+                                                           !item.isTipoTramitePracticas
+                                                            "
                                                            >
                                                             Editar
                                                         </a>
-                                                        <a class="aceptar-expandir-sistema" v-if="item.esEstadoCre || item.esEstadoAct || item.aplicacionDirecta == 1" v-on:click="loadModalSubirDoc(item,$event)" href="#">Subir PDF</a>
-                                                        <a v-if="item.esEstadoAct &amp;&amp; (item.aplicacionDirecta == null || item.aplicacionDirecta == 0 )"  v-on:click="loadModalConfirmar(item,$event)" href="#">Confirmar</a>
-                                                        <a v-if="item.isEstadoDocConf &amp;&amp; (item.aplicacionDirecta == null || item.aplicacionDirecta == 0 )"  v-on:click="editarResolucion(item,$event)" href="#">V.B. Resolución</a>
+                                                        <a class="aceptar-expandir-sistema" v-if="item.esEstadoCre || item.esEstadoAct " v-on:click="loadModalSubirDoc(item,$event)" href="#">Subir PDF</a>
+                                                        <!--<a v-if="item.esEstadoAct &amp;&amp; (item.aplicacionDirecta == null || item.aplicacionDirecta == 0 )"  v-on:click="loadModalConfirmar(item,$event)" href="#">Confirmar</a>-->
+                                                        <!--<a v-if="item.isEstadoDocConf &amp;&amp; (item.aplicacionDirecta == null || item.aplicacionDirecta == 0 )"  v-on:click="editarResolucion(item,$event)" href="#">V.B. Resolución</a>-->
                                                     </li>
                                                 </ul>
                                             </td>
