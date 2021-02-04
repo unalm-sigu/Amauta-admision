@@ -1397,7 +1397,7 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
         resolucion.setFechaRegistro(new Date());
         resolucion.setTipoResolucion(tipoResolucion);
         resolucion.setUserRegistro(ds.getUsuario());
-        resolucion.setAplicacionDirecta(0l);
+        resolucion.setAplicacionDirecta(1l);
         resolucionDAO.save(resolucion);
 
         EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.SOL_ACEP);
