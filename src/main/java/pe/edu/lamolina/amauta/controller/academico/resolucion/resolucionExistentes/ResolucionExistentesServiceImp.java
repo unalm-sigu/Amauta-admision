@@ -1427,6 +1427,7 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
             tramiteDAO.save(tramite);
 
             AlumnoCursoCurricula alumnoCursoCurricula = alumnoCursoCurriculaDAO.findPracticaPreProfesional(alumno);
+            Assert.isNotNull(alumnoCursoCurricula, "El alumno no tiene Practicas habilitadas");
             CursoCurricula cursoCurricula = alumnoCursoCurricula.getCursoCurricula();
             PracticasPreProfesional preProfesionales = new PracticasPreProfesional();
             preProfesionales.setAlumno(practicasForm.getAlumno());
@@ -1438,7 +1439,7 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
             preProfesionales.setFechaRegistro(new Date());
             practicaPreProfesionalesDAO.save(preProfesionales);
 
-            AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findLastByAlumno(alumno);
+            AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findLastActiveRegByAlumno(alumno);
             AlumnoCicloCurso alumnoCicloCurso = new AlumnoCicloCurso();
             alumnoCicloCurso.setAlumnoCiclo(alumnoCiclo);
             alumnoCicloCurso.setCreditos(cursoCurricula.getCreditos());
