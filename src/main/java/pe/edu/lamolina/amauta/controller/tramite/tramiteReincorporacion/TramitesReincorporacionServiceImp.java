@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.context.Context;
 import pe.albatross.octavia.dynatable.DynatableFilter;
+import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.amauta.controller.seriedocumento.SerieDocumentoService;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoCicloCursoDAO;
@@ -49,6 +50,7 @@ import static pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum.DEP;
 import pe.edu.lamolina.model.enums.TipoDocumentoCompaniaEnum;
 import pe.edu.lamolina.model.enums.TipoTramiteEnum;
 import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
+import static pe.edu.lamolina.model.enums.TramiteEstadoEnum.SOL;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.general.SerieDocumento;
 import pe.edu.lamolina.model.general.TipoDocumentoCompania;
@@ -127,6 +129,9 @@ public class TramitesReincorporacionServiceImp implements TramiteReincorporacion
         TipoTramite tipoTramite = tipoTramiteDAO.findByCodigo(TipoTramiteEnum.REI.name());
         Alumno alumnoDB = alumnoDAO.find(reincorporacionForm.getAlumno());
 
+        Reincorporacion reincorporacione = reincorporacionDAO.findByAlumnoCiclo(alumnoDB, reincorporacionForm.getCicloReincorporacion());
+        Assert.isFalse(reincorporacione != null && reincorporacione.getEstadoTramite().getCodigoEnum() == SOL, "");
+
         Oficina oficina = oficinaDAO.findByCode(OficinaEnum.UR.name());
         Tramite tramite = new Tramite();
         tramite.setActivo(true);
@@ -146,7 +151,7 @@ public class TramitesReincorporacionServiceImp implements TramiteReincorporacion
         tramiteDAO.save(tramite);
 
         Facultad facultad = alumnoDB.getCarrera().getFacultad();
-        Reincorporacion reincorporacione = new Reincorporacion();
+        reincorporacione = new Reincorporacion();
         reincorporacione.setAceptado(0);
         reincorporacione.setFechaRegistro(new Date());
         reincorporacione.setEstadoTramite(estadoTramite);
