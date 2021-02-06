@@ -130,7 +130,7 @@ public class TramitesReincorporacionServiceImp implements TramiteReincorporacion
         Alumno alumnoDB = alumnoDAO.find(reincorporacionForm.getAlumno());
 
         Reincorporacion reincorporacione = reincorporacionDAO.findByAlumnoCiclo(alumnoDB, reincorporacionForm.getCicloReincorporacion());
-        Assert.isFalse(reincorporacione != null && reincorporacione.getEstadoTramite().getCodigoEnum() == SOL, "");
+        Assert.isTrue(reincorporacione != null && reincorporacione.getEstadoTramite().getCodigoEnum() == SOL, "EL alumno ya tiene tramite pendiente");
 
         Oficina oficina = oficinaDAO.findByCode(OficinaEnum.UR.name());
         Tramite tramite = new Tramite();
