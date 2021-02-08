@@ -275,7 +275,7 @@ public class TramitesBachillerServiceImp implements TramitesBachillerService {
         Egresado egresado = new Egresado();
         egresado.setAlumno(alumnoDB);
         egresado.setCarrera(alumnoDB.getCarrera());
-        egresado.setCicloAcademico(ds.getCicloAcademico());
+        egresado.setCicloAcademico(alumnoDB.getCicloActivoRegular());
         egresado.setFacultad(alumnoDB.getCarrera().getFacultad());
         egresado.setEsPrincipal(0);
         egresadoDAO.save(egresado);

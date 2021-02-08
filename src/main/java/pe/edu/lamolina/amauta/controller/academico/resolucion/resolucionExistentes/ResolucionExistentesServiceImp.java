@@ -1258,7 +1258,7 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
             tramiteDAO.update(tramite);
 
             if (tramite.getEstadoEnum() == TramiteEstadoEnum.ACEP) {
-                Alumno alumno = tramiteBachiller.getTramite().getAlumno();
+                Alumno alumno = alumnoDAO.find(tramiteBachiller.getTramite().getAlumno());
                 GradoAcademico gradoAcademico = gradoAcademicoDAO.findByTipoAndCarrera(TipoGradoAcademicoEnum.BACH, alumno.getCarrera());
                 ObtencionGrado obtencionGrado = new ObtencionGrado();
                 obtencionGrado.setAlumno(alumno);
@@ -1296,7 +1296,7 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
                 Egresado egresado = egresadoDAO.findByAlumno(alumno);
                 egresado.setAlumno(alumno);
                 egresado.setCarrera(alumno.getCarrera());
-                egresado.setCicloAcademico(ds.getCicloAcademico());
+                egresado.setCicloAcademico(alumno.getCicloActivoRegular());
                 egresado.setFacultad(alumno.getCarrera().getFacultad());
                 egresado.setFechaRegistroEgresado(resolucion.getFecha());
                 egresado.setUserRegistroEgresado(ds.getUsuario());
