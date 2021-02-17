@@ -109,7 +109,7 @@
                                             <input v-model="resolucion.tipoResolucion" required="true" type="text" class="hide"/>
                                         </div>
                                     </div> 
-                                    <div class="col-lg-6" v-if=" !isNotaBaja  &amp;&amp; !isBachiller &amp;&amp; !isTitulo &amp;&amp;  !isRetiroCiclo &amp;&amp; !isReincorporacion &amp;&amp; !isTraslado &amp;&amp; !isPracticas">
+                                    <div class="col-lg-6" v-if=" !isNotaBaja  &amp;&amp; !isBachiller &amp;&amp; !isTitulo &amp;&amp;  !isRetiroCiclo &amp;&amp; !isReincorporacion &amp;&amp; !isTraslado &amp;&amp; !isPracticas  &amp;&amp; !isTrasladoInt">
                                         <label>Ciclo 
                                             <span v-if='isRetiroCiclo'> a retirar</span>
                                             <span v-if='isReincorporacion'> a reincorporar</span>
@@ -145,7 +145,7 @@
                                                                                                                                         <span v-if='isRetiroCiclo'> a retirar</span>
                                                                                                                                         <span v-if='isReincorporacion'> a reincorporar</span>
                                                                                                                                     </th>-->
-                                            <th class=" text-center" v-if="isTrasladoInt">Carrera</th>
+                                            <!--<th class=" text-center" v-if="isTrasladoInt">Carrera</th>-->
                                             <th class="col-md-2 text-center" v-if="isTraslado">Ciclo                                               
                                             </th>
                                             <th class=" text-center" v-if="isCambioNota || isNotaBaja">Curso</th>

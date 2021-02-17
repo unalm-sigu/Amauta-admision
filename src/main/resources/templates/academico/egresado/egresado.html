@@ -7,6 +7,14 @@
             <div id="alumnosVUE" v-cloak="">
                 <header class="header b-b padder-lg">
                     <h2>Egresados</h2>
+                    <!--<div class="btn-group pull-right"  >
+                                            <button  type="button" class="btn btn-success btn-sm dropdown-toggle" data-toggle="dropdown">
+                                                &nbsp; Acciones &nbsp; <span class="caret"></span>
+                                            </button>
+                                            <ul class="dropdown-menu">
+                                                <li class="pointer "><a v-on:click="openModal" > Reporte</a></li>
+                                            </ul>
+                                        </div>-->
                 </header>
                 <section class="wrapper-lg">
                     <section class="panel m-b-md">
@@ -102,7 +110,7 @@
                                                 <td class="v-middle text-center">
                                                     <span class="block h5 text-primary m-t-xs m-b-xs">{{item.alumno.situacionAcademica.nombre}}</span>
                                                     <span class="block"><b>Ingresó:</b> {{item.alumno.cicloIngreso.descripcion}}</span>
-                                                    <span v-if="item.alumno.cicloActivo.descripcion != '' "
+                                                    <span v-if="item.alumno.cicloActivo != null && item.alumno.cicloActivo.descripcion != '' "
                                                           class="block"><b>Último ciclo:</b> {{item.alumno.cicloActivo.descripcion}}</span>
                                                 </td>
 
@@ -124,9 +132,16 @@
                         </section>
                     </section>
                 </section>
+                <div th:substituteby="academico/egresado/modalReporte"></div>
             </div>
         </div>
         <div layout:fragment="js">
+            <script th:inline="javascript">
+                /*<![CDATA[*/
+                var tiposBusquedaJson = /*[[${tiposBusqueda.toString()}]]*/ 'json';
+
+                /*]]>*/
+            </script>
             <div th:replace="_modules/vue-modal"></div>
             <div th:substituteby="_modules/vue-raptor-table"></div>
             <script th:src="@{/app/academico/egresado/egresado.js}" charset="utf-8"></script>

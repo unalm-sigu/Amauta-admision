@@ -1,0 +1,98 @@
+<modal-vik ref="modalReporte"
+           v-bind="modalReporte"
+            v-bind:okaction="loadEgresados">
+    <div slot="body">
+        <div class="modal-body">
+
+            <form id="frmDownload"  th:action="@{/academico/egresado/reporte}">
+                <div class="row m-b-md ">
+                    <div class="form-group row">
+
+                        <div class="col-md-12">
+                            <label>Tipo de búsqueda</label>
+                            <multiselect v-model="busquedaBean.tipoBusquedaEnum" 
+                                         v-bind:options='tiposBusqueda'
+                                         label='value'
+                                         track-by='name'
+                                         v-bind:internal-search='true'
+                                         placeholder="Seleccione una o más opción"
+                                         v-bind:multiple="true"  
+                                         v-bind:taggable="true"
+                                         v-on:select="validBusqueda">
+                                <template slot="option" slot-scope="props">
+                                    <div class="option__desc">
+                                        <span class="option__title block bold" >{{ props.option.value }} </span>
+                                    </div>
+                                </template>
+                            </multiselect>
+                        </div>
+                    </div>
+                    <div class="form-group row" v-if="verifyContains('CICLO')">
+                        <div class="col-md-12">
+                            <label>Ciclo Académico</label>
+                            <multiselect v-model="busquedaBean.cicloAcademico" 
+                                         v-bind:options='ciclos'
+                                         v-on:search-change="loadCiclo"
+                                         label='descripcion2'
+                                         track-by='id'
+                                         v-bind:show-labels="false"
+                                         v-bind:allow-empty="false"
+                                         v-bind:internal-search='false'
+                                         placeholder="Ingresa un caracter como mínimo"
+                                         required="true" >
+                                <template slot="option" slot-scope="props">
+                                    <div class="option__desc">
+                                        <span class="option__title block bold">{{ props.option.descripcion2 }} </span>
+                                    </div>
+                                </template>
+                            </multiselect>
+                        </div>
+                    </div>
+                    <div class="form-group row" v-if="verifyContains('FAC')">
+                        <div class="col-md-12">
+                            <label>Facultad</label>
+                            <multiselect v-model="busquedaBean.facultad" 
+                                         v-bind:options='facultades'
+                                         v-on:search-change="loadFacultades"
+                                         label='nombre'
+                                         track-by='id'
+                                         v-bind:show-labels="false"
+                                         v-bind:allow-empty="false"
+                                         v-bind:internal-search='false'
+                                         placeholder="Ingresa un caracter como mínimo"
+                                         required="true" >
+                                <template slot="option" slot-scope="props">
+                                    <div class="option__desc">
+                                        <span class="option__title block bold">{{ props.option.nombre }} </span>
+                                    </div>
+                                </template>
+                            </multiselect>
+                        </div>
+                    </div>
+                    <div class="form-group row" v-if="verifyContains('CAR')">
+                        <div class="col-md-12">
+                            <label>Carrera</label>
+                            <multiselect v-model="busquedaBean.carrera" 
+                                         v-bind:options='carreras'
+                                         v-on:search-change="loadCarreras"
+                                         label='nombre'
+                                         track-by='id'
+                                         v-bind:show-labels="false"
+                                         v-bind:allow-empty="false"
+                                         v-bind:internal-search='false'
+                                         placeholder="Ingresa un caracter como mínimo"
+                                         required="true" >
+                                <template slot="option" slot-scope="props">
+                                    <div class="option__desc">
+                                        <span class="option__title block bold">{{ props.option.nombre }} </span>
+                                    </div>
+                                </template>
+                            </multiselect>
+                        </div>
+                    </div>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</modal-vik>

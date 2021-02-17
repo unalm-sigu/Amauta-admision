@@ -13,6 +13,7 @@ import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.Seccion;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.EnteAcademicoEstadoEnum;
+import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.general.Compania;
 
 @Repository

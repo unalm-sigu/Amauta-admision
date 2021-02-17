@@ -20,6 +20,7 @@ public enum TipoPdfEnum {
     DETALLE_TITULO("DetalleTitulo", "pdf/detalleTitulo", "Titulo", "Titulo"),
     DETALLE_RETIRO_EXCEPCIONAL("DetallerRetiroExcelcional", "pdf/retiroExcepcional", "Retiro Excepcional", "Retiro Excepcional"),
     DETALLE_REINCORPORACION("DetallerReincorporacion", "pdf/detalleReincorporacion", "Reincorporación", "Reincorporación"),
+    DETALLE_TRASLADO_INTERO("DetallerTrasladoInterno", "pdf/detalleTrasladoInterno", "Traslado Interno", "Traslado Interno"),
     HORARIO("Horario", "pdf/horario", "Horario", "Horario"),
     PROGRAMACION_HORARIOS("ProgramacionHorarios", "pdf/programacionHorarios", "Programacion de Horarios", "Programacion de Horarios");
 

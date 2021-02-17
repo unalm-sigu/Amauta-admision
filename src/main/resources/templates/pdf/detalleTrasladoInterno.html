@@ -78,7 +78,7 @@
             </table>
         </div>
         <div style="text-align: center">
-            <b class="block" th:inline="text"> INFORME ACADÉMICO PARA REINCORPORACIÓN
+            <b class="block" th:inline="text"> INFORME ACADÉMICO PARA TRASLADO INTERNO
             </b>
         </div>
         <div >            
@@ -106,7 +106,7 @@
                             <span >Al </span>
                         </td>
                         <td>
-                            <span th:text="'Decano de la facultad de '+${alumno.carrera.facultad.nombre}"></span>
+                            <span th:text="'Decano de la facultad de '+${traslado.carrera.nombre}"></span>
                         </td>
                     </tr>
                     <tr >
@@ -114,7 +114,7 @@
                             <span >Asunto: </span>
                         </td>
                         <td>
-                            <span th:text=" 'Solicita REINCORPORACIÓN (Art. 142)'"></span>
+                            <span th:text=" 'Traslado de facultad'"></span>
                         </td>
 
                     </tr>
@@ -134,8 +134,9 @@
         </div>
         <br/>
         <div>
-            <span >Adjunto al presente remito el Historial Académico del alumno(a) <b th:text="${alumno.persona.apellidosNombres.toUpperCase()}"></b> identificado(a) con el N° <b th:text="${alumno.codigo}"></b> en el registro
-                de matricula, quien ha realizado estudios hasta el <b th:text="${alumno.cicloActivo.descripcion}"></b> y ha obtenido el siguiente resultado:</span>
+            <span >Comunico a usted de que <span th:if="${alumno.persona.sexo == 'F'}">la alumna </span><span th:if="${alumno.persona.sexo == 'M'}">el alumno </span> <b th:text="${alumno.persona.apellidosNombres.toUpperCase()}"></b> de la 
+                facultad de <b th:text='${alumno.carrera.facultad.nombre.toUpperCase()}'></b> y con matricula <b th:text='${alumno.codigo}'></b> solicita traslado a la Facultad que usted dirige.
+            </span>
         </div>
 
         <div >            
@@ -190,18 +191,20 @@
                         <td >
                             <span >TUTOR: </span>
                         </td>
-                        <td th:if='${alumno.consejero != null  and alumno.consejero.colaborador != null}'>
-                            <span th:if="${alumno.consejero.colaborador} != null" th:text="${alumno.consejero.colaborador.persona.apellidosNombres}"></span>
+                        <td >
+                            <span th:if="${alumno.consejero != null and alumno.consejero.colaborador != null} " th:text="${alumno.consejero.colaborador.persona.apellidosNombres}"></span>
+                            <span th:else="" >
+                                <span th:if='${oficinaColaborador} != null' th:text="${oficinaColaborador.personaJefe.apellidosNombres}"></span>
+                            </span>
 
                         </td>
-                        <td th:else="">
-                            <span th:if="${oficinaColaborador} != null" th:text="${oficinaColaborador.personaJefe.apellidosNombres}"></span>
 
-                        </td>
                     </tr>
 
                 </tbody>
             </table>
+
+            <span>Lo informo a usted para los fines del caso.</span>
         </div>
 
         <div style="text-align: center">

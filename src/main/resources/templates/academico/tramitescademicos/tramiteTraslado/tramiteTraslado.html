@@ -1,0 +1,109 @@
+<html layout:decorator="_layout/layout">
+    <head>
+        <title>Tramite Traslado</title>
+    </head>
+
+    <body>
+        <div layout:fragment="main">
+            <div id="tramiteTraslado" v-cloak="">
+                <header class="header b-b padder-lg">
+                    <h2 >Tramtie Traslado</h2>
+                    <div class="pull-right m-t-md">  
+                        <a class="btn btn-info" type="button"    v-on:click.prevent="nuevo"   href="#" >Nuevo</a>
+                    </div> 
+                </header>
+                <section  class="wrapper-lg">
+                    <section class="panel">
+                        <section class="panel-body">
+                            <raptor-table ref="load"
+                                          v-bind:url="URL_TRAMITES" >
+                                <template scope="props">
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th class="col-md-2">Trámite</th>
+                                                <th class="col-md-3">Persona</th>
+                                                <th class="col-md-3">Resolución</th>
+                                                <th class="">Estado</th>
+                                                <th class="text-center"></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr v-for="item in props.data"> 
+                                                <td> 
+                                                    <small class="block text-muted">Serie: {{item.tramite.serie}}</small>
+                                                    <small class="block text-muted">Número: {{item.tramite.numero}}</small>
+                                                </td>
+                                                <td class="v-middle text-left">
+                                                    <div class="bock " >
+                                                        {{ item.tramite.persona.apellidosNombres}}
+
+                                                    </div>
+                                                    <div class="bock bold text-primary">
+                                                        {{ item.tramite.alumno.codigo}}
+                                                    </div>
+                                                    <div class="bock " v-if="item.tramite.alumno.carrera != null">
+                                                        <span class="bold">Facultad</span>
+                                                        {{ item.tramite.alumno.carrera.facultad.nombre}}
+
+                                                    </div>
+                                                    <div class="bock text-danger" v-if="item.carreraOrigen != null &amp;&amp; item.carreraOrigen.id != item.tramite.alumno.carrera.id">
+                                                        <span class="bold">Carrera Origen</span>
+                                                        {{ item.carreraOrigen.nombre}}
+                                                    </div>
+                                                    <div class="bock text-danger" v-if="item.carrera != null &amp;&amp; item.carrera.id != item.tramite.alumno.carrera.id">
+                                                        <span class="bold">Carrera Destino</span>
+                                                        {{ item.carrera.nombre}}
+                                                    </div>
+
+                                                </td>
+                                                <td class="v-middle ">
+                                                    <a class="text-success" > {{ item.resolucion.descripcion}}</a>
+                                                </td>
+                                                <td class="v-middle text-left">
+                                                    <small class="block text-muted" v-bind:class="labelColor(item.tramite.estadoEnum.name)"> {{ item.tramite.estadoEnum.value}}</small>
+                                                </td>
+
+                                                <td>
+                                                    <div class="dropdown actions" >
+                                                        <a class="dropdown-toggle" data-toggle="dropdown">
+                                                            <i class="fa fa-cog"></i>
+                                                        </a> 
+                                                        <ul class="dropdown-menu pull-right" > 
+                                                            <li><a v-bind:href="urlAcademico(item)">Información académica</a></li>
+                                                            <li ><a v-bind:href="urlReporte(item)">Reporte</a></li>
+                                                        </ul>
+
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </template>
+                            </raptor-table>
+
+                        </section>
+                    </section>
+                </section>
+
+
+
+                <div th:substituteby="academico/tramitescademicos/tramiteTraslado/tramiteTrasladoModal"/>
+            </div>
+
+
+
+        </div>
+
+        <div layout:fragment="js">
+            <script th:inline="javascript">
+                var carrerasJson = /*[[${carreras.toString()}]]*/ 'json';
+            </script>
+            <div th:substituteby="_modules/vue-raptor-table"/>
+            <script th:src="@{/app/academico/tramitesacademicos/tramiteTraslado/tramiteTraslado.js}" charset="utf-8"></script>
+
+        </div>
+
+
+    </body>
+</html>
