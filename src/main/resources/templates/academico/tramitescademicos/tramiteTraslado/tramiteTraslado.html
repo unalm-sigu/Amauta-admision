@@ -44,7 +44,7 @@
                                                     </div>
                                                     <div class="bock " v-if="item.tramite.alumno.carrera != null">
                                                         <span class="bold">Facultad</span>
-                                                        {{ item.tramite.alumno.carrera.facultad.nombre}}
+                                                        {{ item.tramite.alumno.carrera.facultad.nombre}} <span>- {{item.tramite.alumno.carrera.nombre}}</span>
 
                                                     </div>
                                                     <div class="bock text-danger" v-if="item.carreraOrigen != null &amp;&amp; item.carreraOrigen.id != item.tramite.alumno.carrera.id">
