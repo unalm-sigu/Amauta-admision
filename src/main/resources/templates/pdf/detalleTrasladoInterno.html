@@ -135,7 +135,7 @@
         <br/>
         <div>
             <span >Comunico a usted de que <span th:if="${alumno.persona.sexo == 'F'}">la alumna </span><span th:if="${alumno.persona.sexo == 'M'}">el alumno </span> <b th:text="${alumno.persona.apellidosNombres.toUpperCase()}"></b> de la 
-                facultad de <b th:text='${alumno.carrera.facultad.nombre.toUpperCase()}'></b> y con matricula <b th:text='${alumno.codigo}'></b> solicita traslado a la Facultad que usted dirige.
+                facultad de <b th:text='${alumno.carrera.facultad.nombre.toUpperCase()}'></b> y con matricula <b th:text='${alumno.codigo}'></b> solicita traslado a la <span th:if="${especificarCarrera}">Carrera de <b th:text="${traslado.carrera.nombre.toUpperCase()}"></b> de la </span>Facultad que usted dirige.
             </span>
         </div>
 

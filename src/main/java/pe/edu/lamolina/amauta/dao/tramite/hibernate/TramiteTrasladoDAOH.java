@@ -88,7 +88,7 @@ public class TramiteTrasladoDAOH extends AbstractEasyDAO<TramiteTraslado> implem
         Octavia sql = new Octavia()
                 .from(TramiteTraslado.class, "tras")
                 .join("tramite tra", "cicloAcademico cic")
-                .left("carrera car", "car.facultad", "carreraOrigen", "resolucion res")
+                .left("carrera car", "car.facultad", "carreraOrigen car2", "car2.facultad", "resolucion res")
                 .leftJoin("tra.alumno al", "res.tipoResolucion", "res.oficina", "userRegistro ur", "ur.persona per")
                 .filter("tra.id", tramite)
                 .orderBy("tras.id desc");

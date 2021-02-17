@@ -5,6 +5,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
@@ -46,6 +47,7 @@ import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.Facultad;
 import pe.edu.lamolina.model.academico.TipoCursoCurricula;
 import pe.edu.lamolina.model.consejeria.AlumnoConsejero;
+import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.enums.OficinaEnum;
 import pe.edu.lamolina.model.enums.TipoCursoCurriculaEnum;
@@ -229,6 +231,13 @@ public class TramitesTrasladoServiceImp implements TramiteTrasladoService {
         if (alumno.getConsejero() == null || alumno.getConsejero().getColaborador() == null) {
             oficinaColaborador = oficinaDAO.findByCode("CT-" + alumno.getCarrera().getCodigo());
         }
+        List<Carrera> carreras = carreraDAO.allByFilter(traslado.getCarrera().getFacultad(), EstadoEnum.ACT);
+        boolean especificarCarrera = false;
+        if (carreras.size() > 1 || Objects.equals(traslado.getCarrera().getFacultad().getId(), traslado.getCarreraOrigen().getFacultad().getId())) {
+            especificarCarrera = true;
+        }
+
+        ctx.setVariable("especificarCarrera", especificarCarrera);
         ctx.setVariable("traslado", traslado);
         ctx.setVariable("alumno", alumno);
         ctx.setVariable("oficinaColaborador", oficinaColaborador);
