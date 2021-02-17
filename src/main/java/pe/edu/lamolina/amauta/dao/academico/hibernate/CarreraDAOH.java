@@ -158,8 +158,9 @@ public class CarreraDAOH extends AbstractEasyDAO<Carrera> implements CarreraDAO 
     public List<Carrera> allByFilter(Facultad facultad, EstadoEnum estadoEnum) {
         Octavia sql = Octavia.query()
                 .from(Carrera.class, "ca")
-                .join("facultad fa")
+                .join("facultad fa", "modalidadEstudio me")
                 .filter("fa.id", facultad)
+                .filter("me.codigo", PRE)
                 .filter("ca.estado", estadoEnum);
 
         return all(sql);

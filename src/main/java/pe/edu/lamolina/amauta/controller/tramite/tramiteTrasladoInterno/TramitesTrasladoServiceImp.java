@@ -236,8 +236,14 @@ public class TramitesTrasladoServiceImp implements TramiteTrasladoService {
         if (carreras.size() > 1 || Objects.equals(traslado.getCarrera().getFacultad().getId(), traslado.getCarreraOrigen().getFacultad().getId())) {
             especificarCarrera = true;
         }
+        List<Carrera> carrerasOrigen = carreraDAO.allByFilter(traslado.getCarreraOrigen().getFacultad(), EstadoEnum.ACT);
+        boolean especificarCarreraOrigen = false;
+        if (carrerasOrigen.size() > 1 || Objects.equals(traslado.getCarrera().getFacultad().getId(), traslado.getCarreraOrigen().getFacultad().getId())) {
+            especificarCarreraOrigen = true;
+        }
 
         ctx.setVariable("especificarCarrera", especificarCarrera);
+        ctx.setVariable("especificarCarreraOrigen", especificarCarreraOrigen);
         ctx.setVariable("traslado", traslado);
         ctx.setVariable("alumno", alumno);
         ctx.setVariable("oficinaColaborador", oficinaColaborador);
