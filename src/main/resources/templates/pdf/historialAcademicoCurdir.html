@@ -136,15 +136,12 @@
                     <tr>
                         <td class="text-center"> 
                             <span > Promedio Ponderado: </span>
-                            <span th:text="${#numbers.formatDecimal(alumnoCiclo.promedioAcumulado, 0, 'DEFAULT', 2, 'DEFAULT')}"> creditos cursados semestral </span>
+                            <span th:with="numStr=(${alumnoCiclo.promedioAcumulado + ''})" th:text="${#strings.substring(numStr,0,5)}" > creditos cursados semestral </span>
                         </td>
                     </tr>
                 </tbody>
             </th:block>
         </table>
     </th:block>
-
-
-
 </body>
 </html>

@@ -152,7 +152,8 @@
                             <span >PROMEDIO PONDERADO SEMESTRAL: </span>
                         </td>
                         <td >
-                            <span th:text="${#numbers.formatDecimal(alumno.promedioUltimoCiclo, 0, 'DEFAULT', 2, 'DEFAULT')} "></span> 
+
+                            <span th:with="numStr=(${alumno.promedioUltimoCiclo + ''})" th:text="${#strings.substring(numStr,0,5)}"></span> 
                         </td>
                     </tr>
                     <tr >
@@ -160,7 +161,7 @@
                             <span >PROMEDIO PONDERADO ACUMULADO: </span>
                         </td>
                         <td >
-                            <span th:text="${#numbers.formatDecimal(alumno.promedioAcumulado, 0, 'DEFAULT', 2, 'DEFAULT')}"></span>
+                            <span th:with="numStr=(${alumno.promedioAcumulado + ''})" th:text="${#strings.substring(numStr,0,5)}"></span>
                         </td>
                     </tr>
                     <tr >
