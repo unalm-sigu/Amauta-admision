@@ -710,7 +710,7 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
 //            reincorporacioneForm.setCicloReincorporacion(resolucionForm.getCicloAplica());
             Reincorporacion reincorporacion = map.get(reincorporacioneForm.getAlumno().getId());
             if (reincorporacion == null) {
-                throw new PhobosException("El alumno " + reincorporacioneForm.getAlumno().getCodigo() + " no cuenta con un trámite de reincorporación.");
+                throw new PhobosException("El alumno " + reincorporacioneForm.getAlumno().getCodigo() + " no cuenta con un trámite de reincorporación en el ciclo" + ds.getCicloAcademico().getCodigo());
             }
 
             reincorporacion.setAceptado(reincorporacioneForm.isSeleccionado() ? 1 : 0);
