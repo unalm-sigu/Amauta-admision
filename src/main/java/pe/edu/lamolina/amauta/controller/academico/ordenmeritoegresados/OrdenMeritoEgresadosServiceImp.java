@@ -188,7 +188,8 @@ public class OrdenMeritoEgresadosServiceImp implements OrdenMeritoEgresadosServi
 
         for (Egresado egresado : egresadosDB) {
             BigDecimal promedio = egresado.getAlumno().getPromedioAcumulado();
-            promedio = promedio.setScale(2, RoundingMode.HALF_UP);
+            promedio = promedio.setScale(2, RoundingMode.DOWN);
+            logger.debug("Alumno {} promedio {}, promedio egreso {}", egresado.getAlumno().getCodigo(), egresado.getAlumno().getPromedioAcumulado(), promedio);
             egresado.setPromedioAcumulado(promedio);
             egresado.setCreditosAcumulados(mapAlumnosCiclo.get(egresado.getAlumno().getId()).getCreditosAcumulados());
             egresadoDAO.update(egresado);
@@ -230,7 +231,6 @@ public class OrdenMeritoEgresadosServiceImp implements OrdenMeritoEgresadosServi
         Integer tercioCiclo = Math.max(1, puesto / 3);
 
 //        List<Alumno> alumnos = egresados.stream().map(Egresado::getAlumno).collect(Collectors.toList());
-
         for (Egresado egresado : egresados) {
             Integer puestoAlumno = egresado.getOrdenMeritoCiclo();
             if (puestoAlumno <= cuadroCiclo) {
