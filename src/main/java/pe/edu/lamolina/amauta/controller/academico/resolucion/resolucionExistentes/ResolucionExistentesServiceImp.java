@@ -1369,7 +1369,7 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
                 obtencionGradoDAO.save(obtencionGrado);
 
                 Egresado egresado = egresadoDAO.findByAlumno(alumno);
-
+                egresado.setPromedioAcumulado(alumno.getPromedioAcumulado());
                 egresado.setFechaTitulacion(resolucion.getFecha());
                 egresado.setUserRegistroTitulado(ds.getUsuario());
                 egresado.setTitulo(gradoAcademico);
