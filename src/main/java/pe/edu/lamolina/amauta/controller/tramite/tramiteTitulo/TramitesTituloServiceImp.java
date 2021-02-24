@@ -114,11 +114,11 @@ public class TramitesTituloServiceImp implements TramitesTituloService {
 
     @Override
     public String TituloReporte(Tramite tramite, DataSessionPivot ds) {
-        List<String> pdfs = createInfoBachillerPDF(tramite, ds);
+        List<String> pdfs = createInfoTituloPDF(tramite, ds);
         return pdfGenerator.concatPDFs(pdfs, "bachiller", true);
     }
 
-    private List<String> createInfoBachillerPDF(Tramite tramite, DataSessionPivot ds) {
+    private List<String> createInfoTituloPDF(Tramite tramite, DataSessionPivot ds) {
         tramite = tramiteDAO.find(tramite.getId());
         TramiteTitulo tramiteTitulo = tramiteTituloDAO.findByTramite(tramite);
 
@@ -141,7 +141,6 @@ public class TramitesTituloServiceImp implements TramitesTituloService {
         }
         Map<TipoCursoCurricula, List<AlumnoCicloCurso>> historial = alumnoCicloCursos
                 .stream()
-                .filter(x -> x.isAprobado())
                 .collect(Collectors.groupingBy(acc -> acc.getTipoCursoCurricula()));
 
         Context ctx = new Context();

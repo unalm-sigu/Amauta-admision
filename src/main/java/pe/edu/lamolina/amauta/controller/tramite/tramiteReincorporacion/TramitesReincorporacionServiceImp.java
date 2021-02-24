@@ -194,7 +194,6 @@ public class TramitesReincorporacionServiceImp implements TramiteReincorporacion
         }
         Map<TipoCursoCurricula, List<AlumnoCicloCurso>> historial = alumnoCicloCursos
                 .stream()
-                .filter(x -> x.isAprobado())
                 .collect(Collectors.groupingBy(acc -> acc.getTipoCursoCurricula()));
 
         SortedMap<TipoCursoCurricula, List<AlumnoCicloCurso>> historialSorted = new TreeMap<>(Comparator.comparing(TipoCursoCurricula::getOrden));
