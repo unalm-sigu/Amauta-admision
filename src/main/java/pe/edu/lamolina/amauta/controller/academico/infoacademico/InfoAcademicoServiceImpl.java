@@ -75,6 +75,7 @@ import pe.edu.lamolina.amauta.dao.academico.AlumnoCursoSimultaneoDAO;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.amauta.dao.academico.CicloAcademicoDAO;
 import pe.edu.lamolina.amauta.dao.academico.CursoCurriculaDAO;
+import pe.edu.lamolina.amauta.dao.academico.CursoEquivalenteDAO;
 import pe.edu.lamolina.amauta.dao.academico.DocenteSeccionDAO;
 import pe.edu.lamolina.amauta.dao.academico.EgresadoDAO;
 import pe.edu.lamolina.amauta.dao.academico.MatriculaCursoDAO;
@@ -92,6 +93,7 @@ import pe.edu.lamolina.amauta.dao.horario.HorarioSeccionDAO;
 import pe.edu.lamolina.amauta.dao.tramite.RetiroCicloDAO;
 import pe.edu.lamolina.amauta.dao.tramite.RetiroCursoDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.academico.CursoEquivalente;
 import pe.edu.lamolina.model.enums.TipoCicloEnum;
 
 @Service
@@ -180,6 +182,9 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
     @Autowired
     DespliegueConfig despliegueConfig;
 
+    @Autowired
+    CursoEquivalenteDAO cursoEquivalenteDAO;
+
     @Override
     public Alumno findAlumno(Long idAlumno) {
         return alumnoDAO.find(new Alumno(idAlumno));
@@ -233,6 +238,7 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
         List<AlumnoCursoCurricula> cursosComodin = alumnoCursoCurriculaDAO.allByAlumnoComodin(alumno);
         for (AlumnoCursoCurricula alumnoCursoCurricula : cursosPlanAlumno) {
             ObjectNode objNode = JsonHelper.createJson(alumnoCursoCurricula, JsonNodeFactory.instance, true, new String[]{
+                "id",
                 "numeroCiclo", "estado", "estadoEnum", "vecesCursado", "nota", "creditos", "estadoMatricula", "estadoMatriculaEnum",
                 "estadoRegistro",
                 "curso.codigo",
@@ -1091,6 +1097,23 @@ public class InfoAcademicoServiceImpl implements InfoAcademicoService {
             return "3cio.Super.";
         }
         return "-";
+    }
+
+    @Override
+    public List<AlumnoCicloCurso> dataEquivalente(AlumnoCursoCurricula alumnoCursoCurricula) {
+        alumnoCursoCurricula = alumnoCursoCurriculaDAO.findById(alumnoCursoCurricula.getId());
+        List<CursoEquivalente> cursoEquivalente = cursoEquivalenteDAO.allActivoByCursoCurricula(alumnoCursoCurricula.getCursoCurricula());
+        List<Curso> cursos = cursoEquivalente.stream().map(x -> x.getCursoEquivalente()).collect(Collectors.toList());
+        List<AlumnoCicloCurso> alumnoCicloCurso = alumnoCicloCursoDAO.allByAlumnoCursosApr(alumnoCursoCurricula.getAlumno(), cursos);
+        List<AlumnoCicloCurso> cursosEquiv = new ArrayList<>();
+        for (AlumnoCicloCurso acc : alumnoCicloCurso) {
+            for (Curso cur : cursos) {
+                if (cur.getId().equals(acc.getCurso().getId())) {
+                    cursosEquiv.add(acc);
+                }
+            }
+        }
+        return cursosEquiv;
     }
 
 }

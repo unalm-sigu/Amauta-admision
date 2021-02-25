@@ -69,7 +69,7 @@
                             <small class="block bold text-primary" v-text="item.curso.codigoAnterior1"> </small>
                         </td>
                         <td  class="v-middle text-left" > 
-                            <span v-text="item.curso.nombre"></span>
+                            <span v-text="item.curso.nombre" v-bind:class="styleEquivalente(item.estado)" v-on:click="modalEqui(item)"></span>
                         </td>
                         <td  class="v-middle text-left" > 
                             <span v-if="item.cursoCurricula.creditosRequisito != null" class="estado-gray" v-text="item.cursoCurricula.creditosRequisito"></span>

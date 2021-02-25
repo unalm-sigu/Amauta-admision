@@ -50,4 +50,6 @@ public interface AlumnoCursoCurriculaDAO extends EasyDAO<AlumnoCursoCurricula> {
     void updateColumns(AlumnoCursoCurricula alumnoCursoCurricula, String... columns);
 
     public AlumnoCursoCurricula findPracticaPreProfesional(Alumno alumno);
+
+    public AlumnoCursoCurricula findById(Long id);
 }

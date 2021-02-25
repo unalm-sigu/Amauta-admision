@@ -10,15 +10,16 @@ import pe.edu.lamolina.model.academico.CursoEquivalente;
 import pe.edu.lamolina.model.academico.PlanCurricular;
 import pe.edu.lamolina.model.enums.EstadoEnum;
 import pe.edu.lamolina.amauta.dao.academico.CursoEquivalenteDAO;
+import pe.edu.lamolina.model.academico.Curso;
 
 @Repository
 public class CursoEquivalenteDAOH extends AbstractEasyDAO<CursoEquivalente> implements CursoEquivalenteDAO {
-
+    
     public CursoEquivalenteDAOH() {
         super();
         setClazz(CursoEquivalente.class);
     }
-
+    
     @Override
     public List<CursoEquivalente> allActivoByCursoCurricula(CursoCurricula cursoCurricula) {
         Octavia sql = Octavia.query()
@@ -27,10 +28,10 @@ public class CursoEquivalenteDAOH extends AbstractEasyDAO<CursoEquivalente> impl
                 .left("cursoCaduco cca", "cca.curso")
                 .filter("cc.id", cursoCurricula)
                 .filter("estado", EstadoEnum.ACT.name());
-
+        
         return sql.all(getCurrentSession());
     }
-
+    
     @Override
     public List<CursoEquivalente> allActivoByCursosCurriculas(List<CursoCurricula> cursosCurricula) {
         Octavia sql = Octavia.query()
@@ -39,10 +40,10 @@ public class CursoEquivalenteDAOH extends AbstractEasyDAO<CursoEquivalente> impl
                 .left("cursoCaduco cca", "cca.curso")
                 .in("cc.id", cursosCurricula)
                 .filter("estado", EstadoEnum.ACT.name());
-
+        
         return sql.all(getCurrentSession());
     }
-
+    
     @Override
     public List<CursoEquivalente> allActivoByPlanCurricular(PlanCurricular planCurricular) {
         Octavia sql = Octavia.query()
@@ -51,10 +52,10 @@ public class CursoEquivalenteDAOH extends AbstractEasyDAO<CursoEquivalente> impl
                 .left("cursoCaduco cca", "cca.curso")
                 .filter("cc.planCurricular", planCurricular)
                 .filter("estado", EstadoEnum.ACT);
-
+        
         return sql.all(getCurrentSession());
     }
-
+    
     @Override
     public void deleteByGrupoCursoCurricula(Integer grupo, CursoCurricula curso) {
         StringBuilder sql = new StringBuilder();
@@ -64,7 +65,7 @@ public class CursoEquivalenteDAOH extends AbstractEasyDAO<CursoEquivalente> impl
         query.setParameter("GRUPO", grupo);
         query.executeUpdate();
     }
-
+    
     @Override
     public Integer findMaxGrupoByCursoCurricula(CursoCurricula curso) {
         Octavia sql = Octavia.query()
@@ -72,16 +73,16 @@ public class CursoEquivalenteDAOH extends AbstractEasyDAO<CursoEquivalente> impl
                 .orderBy("grupo desc")
                 .filter("cursoCurricula", curso)
                 .limit(1);
-
+        
         CursoEquivalente cursoEquivalente = (CursoEquivalente) sql.find(getCurrentSession());
-
+        
         if (cursoEquivalente == null) {
             return 0;
         }
-
+        
         return cursoEquivalente.getGrupo();
     }
-
+    
     @Override
     public List<CursoEquivalente> allActivoByPlanes(List<PlanCurricular> planes) {
         Octavia sql = Octavia.query()
@@ -90,9 +91,22 @@ public class CursoEquivalenteDAOH extends AbstractEasyDAO<CursoEquivalente> impl
                 .left("cursoCaduco cca", "cca.curso")
                 .in("plan.id", planes)
                 .filter("estado", EstadoEnum.ACT);
-
+        
         return all(sql);
-
+        
     }
-
+    
+    @Override
+    public CursoEquivalente findByCursoAndPlan(Curso curso, PlanCurricular planCurricular) {
+        Octavia sql = Octavia.query()
+                .from(CursoEquivalente.class, "ce")
+                .join("cursoCurricula cc", "cursoEquivalente cee", "cc.curso", "cc.planCurricular pc")
+                .left("cursoCaduco cca", "cca.curso")
+                .filter("pc.id", planCurricular)
+                .filter("ce.estado", EstadoEnum.ACT)
+                .filter("cee.id", curso);
+        
+        return find(sql);
+    }
+    
 }

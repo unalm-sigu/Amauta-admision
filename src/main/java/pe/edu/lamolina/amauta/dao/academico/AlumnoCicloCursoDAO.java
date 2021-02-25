@@ -112,4 +112,6 @@ public interface AlumnoCicloCursoDAO extends EasyDAO<AlumnoCicloCurso> {
 
     void updateColumns(AlumnoCicloCurso alumnoCicloCursoFound, String... columns);
 
+    List<AlumnoCicloCurso> allByAlumnoCursosApr(Alumno alumno, List<Curso> cursos);
+
 }

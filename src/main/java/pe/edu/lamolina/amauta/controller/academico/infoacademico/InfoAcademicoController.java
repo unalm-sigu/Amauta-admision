@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -48,6 +49,7 @@ import pe.edu.lamolina.amauta.controller.academico.plancurricular.PlanCurricular
 import pe.edu.lamolina.amauta.controller.responserest.ResponseRestService;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.matricula.AlumnoCursoCurricula;
 
 @Controller
 @RequestMapping("academico/alumno")
@@ -593,6 +595,31 @@ public class InfoAcademicoController {
             ObjectNode node = service.allDataAlumnoMerito(new Alumno(idAlumno));
 
             response.setData(node);
+            response.setSuccess(true);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
+    }
+
+    @ResponseBody
+    @RequestMapping("dataEquivalente")
+    public JsonResponse dataEquivalente(@RequestBody AlumnoCursoCurricula alumnoCursoCurricula, HttpSession session) {
+        JsonResponse response = new JsonResponse();
+        try {
+
+            List<AlumnoCicloCurso> alumnoCicloCurso = service.dataEquivalente(alumnoCursoCurricula);
+            ArrayNode arrayNode = new ArrayNode(JsonNodeFactory.instance);
+            for (AlumnoCicloCurso curso : alumnoCicloCurso) {
+                ObjectNode node = JsonHelper.createJson(curso, JsonNodeFactory.instance, new String[]{
+                    "*", "curso.*", "alumnoCiclo.*", "alumnoCiclo.cicloAcademico.*"});
+                arrayNode.add(node);
+            }
+            response.setData(arrayNode);
             response.setSuccess(true);
 
         } catch (PhobosException e) {

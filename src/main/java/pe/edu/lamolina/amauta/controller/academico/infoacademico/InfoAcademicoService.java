@@ -17,6 +17,8 @@ import pe.edu.lamolina.model.horario.HorarioSeccion;
 import pe.edu.lamolina.model.tramite.RetiroCiclo;
 import pe.edu.lamolina.model.tramite.RetiroCurso;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.academico.Curso;
+import pe.edu.lamolina.model.matricula.AlumnoCursoCurricula;
 
 public interface InfoAcademicoService {
 
@@ -72,7 +74,8 @@ public interface InfoAcademicoService {
 
 //     String getToken();
 //    String getUrl();
-
     void calcularPromedios(DataSessionPivot ds);
+
+    public List<AlumnoCicloCurso> dataEquivalente(AlumnoCursoCurricula alumnoCursoCurricula);
 
 }

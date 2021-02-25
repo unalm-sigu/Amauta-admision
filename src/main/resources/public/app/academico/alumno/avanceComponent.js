@@ -261,6 +261,47 @@ Vue.component("avance-component", {
             let $vue = this;
             console.log(cursoCurricula.prerrequisitos);
             $vue.$root.modalPreRequisitos(cursoCurricula);
+        },
+        styleEquivalente(estado) {
+            if (estado === 'EQUIV') {
+                return "text-primary pointer";
+            }
+        },
+        modalEqui(item) {
+           
+            if (item.estado === 'EQUIV') {
+                $.ajax({
+                    method: 'POST',
+                    async: true,
+                    url: APP.url('academico/alumno/dataEquivalente'),
+                    contentType: "application/json",
+                    data: JSON.stringify(item),
+                    success: function (response) {
+                        if (response.success) {
+                            var table = "<table class='table table-striped'> \n\
+                                            <thead class='panel panel-heading'> \n\
+                                            <tr> <th class='col-md-1 v-middle text-center'>Código</th> \n\
+                                            <th class='col-md-6 v-middle'>Curso</th> \n\
+                                            <th class='col-md-2 v-middle'>Nota</th> \n\
+                                            <th class='col-md-3 v-middle'>Ciclo Apr.</th>  \n\
+                                            </tr></thead>  \n\
+                                            <tbody> value </tbody>\n\
+                                          </table>";
+                            var msg = "";
+                            for (var i = 0; i < response.data.length; i++) {
+                                msg = msg + "<tr><td>" + response.data[i].curso.codigo + "</td><td>" + response.data[i].curso.nombre + "</td><td>" + response.data[i].nota + "</td><td>" + response.data[i].alumnoCiclo.cicloAcademico.descripcion + "</td></tr>"
+                            }
+                            table = table.replace("value", msg);
+                            bootbox.alert({
+                                title: "Equivalencia con ...",
+                                message: table,
+                                size: 'large'
+                            });
+                        }
+                    }
+                });
+
+            }
         }
     }
 });
