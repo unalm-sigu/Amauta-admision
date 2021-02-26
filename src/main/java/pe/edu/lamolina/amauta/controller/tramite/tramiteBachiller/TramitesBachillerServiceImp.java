@@ -150,6 +150,7 @@ public class TramitesBachillerServiceImp implements TramitesBachillerService {
         }
         Map<TipoCursoCurricula, List<AlumnoCicloCurso>> historial = alumnoCicloCursos
                 .stream()
+                .filter(x->x.isAprobado())
                 .collect(Collectors.groupingBy(acc -> acc.getTipoCursoCurricula()));
 
         Context ctx = new Context();
