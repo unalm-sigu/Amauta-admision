@@ -32,7 +32,6 @@ import pe.edu.lamolina.model.academico.Curso;
 import pe.edu.lamolina.model.croacia.HistoGradMy;
 import pe.edu.lamolina.model.croacia.HistoMy;
 import static pe.edu.lamolina.model.enums.EstadoMatriculaEnum.MAT;
-import pe.edu.lamolina.model.constantines.AcademicoConstantine;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 
