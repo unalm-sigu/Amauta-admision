@@ -159,10 +159,9 @@ public class RolExamenReporteView extends AbstractPOIExcelView {
                 } else {
                     ExcelHelper.replaceVal(sheet, cont, 2, StringUtils.capitalize(sdf.format(masivo.getGrupoHorasExamen().getFecha())));
                 }
+                CellUtil.setCellStyleProperty(sheet.getRow(cont).getCell(2), CellUtil.ALIGNMENT, HorizontalAlignment.CENTER);
+                CellUtil.setCellStyleProperty(sheet.getRow(cont).getCell(2), CellUtil.VERTICAL_ALIGNMENT, VerticalAlignment.CENTER);
             }
-
-            CellUtil.setCellStyleProperty(sheet.getRow(cont).getCell(2), CellUtil.ALIGNMENT, HorizontalAlignment.CENTER);
-            CellUtil.setCellStyleProperty(sheet.getRow(cont).getCell(2), CellUtil.VERTICAL_ALIGNMENT, VerticalAlignment.CENTER);
 
             ExcelHelper.replaceVal(sheet, cont, 3, String.join(", ", aulas));
             CellUtil.setCellStyleProperty(sheet.getRow(cont).getCell(3), CellUtil.ALIGNMENT, HorizontalAlignment.CENTER);
