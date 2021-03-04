@@ -161,6 +161,14 @@
                             <span th:text="${alumnoCiclo.creditosAprobadosAcumulados}"></span>
                         </td>
                     </tr>
+                    <tr th:if="${alumno.creditosConvalidadosTransient >0}">
+                        <td >
+                            <span >Total Creditos Convalidados: </span>
+                        </td>
+                        <td > 
+                            <span th:text="${alumno.creditosConvalidadosTransient}"></span>
+                        </td>
+                    </tr>
                     <tr>
                         <td >
                             <span >Profesor Consejero: </span>
