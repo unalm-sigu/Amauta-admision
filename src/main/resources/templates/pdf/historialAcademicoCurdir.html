@@ -128,9 +128,15 @@
                         </td>
                     </tr>
                     <tr>
-                        <td class="text-center" th:if='${alumnoCiclo.alumno.creditosConvalidados != 0}'> 
+                        <td class="text-center" th:if='${alumnoCiclo.creditosConvalidadosAcumulados != 0}'> 
                             <span >Créditos Convalidado:</span>
-                            <span th:text="${alumnoCiclo.alumno.creditosConvalidados}"> creditos cursados semestral </span>
+                            <span th:text="${alumnoCiclo.creditosConvalidadosAcumulados}"> creditos cursados semestral </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="text-center" th:if='${alumnoCiclo.creditosConvalidadosAcumulados != 0}'> 
+                            <span >Total de Créditos:</span>
+                            <span th:text="${alumnoCiclo.creditosConvalidadosAcumulados +  alumnoCiclo.creditosAprobadosAcumulados}"> creditos cursados semestral </span>
                         </td>
                     </tr>
                     <tr>
