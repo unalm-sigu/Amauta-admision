@@ -55,8 +55,26 @@ import pe.edu.lamolina.amauta.dao.consejeria.AlumnoConsejeroDAO;
 import pe.edu.lamolina.amauta.dao.consejeria.ConsejeriaResumenDAO;
 import pe.edu.lamolina.amauta.dao.consejeria.ConsejeroDAO;
 import pe.edu.lamolina.amauta.dao.general.ColaboradorDAO;
+import pe.edu.lamolina.amauta.dao.general.ColaboradorEstadoDAO;
+import pe.edu.lamolina.amauta.dao.general.FuncionColaboradorDAO;
+import pe.edu.lamolina.amauta.dao.general.OficinaDAO;
+import pe.edu.lamolina.amauta.dao.general.PerfilCompaniaDAO;
+import pe.edu.lamolina.amauta.dao.general.PersonaCargoDAO;
+import pe.edu.lamolina.amauta.dao.seguridad.FuncionRolDAO;
+import pe.edu.lamolina.amauta.dao.seguridad.RolDAO;
+import pe.edu.lamolina.amauta.dao.seguridad.UsuarioDAO;
+import pe.edu.lamolina.amauta.dao.seguridad.UsuarioRolDAO;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.enums.ColaboradorEstadoEnum;
+import pe.edu.lamolina.model.enums.PerfilEstadoEnum;
+import pe.edu.lamolina.model.enums.RolEnum;
+import pe.edu.lamolina.model.enums.UserEstadoEnum;
+import pe.edu.lamolina.model.general.ColaboradorEstado;
+import pe.edu.lamolina.model.general.PersonaCargo;
+import pe.edu.lamolina.model.seguridad.Rol;
+import pe.edu.lamolina.model.seguridad.Usuario;
+import pe.edu.lamolina.model.seguridad.UsuarioRol;
 
 @Service
 @Transactional(readOnly = true)
@@ -82,6 +100,24 @@ public class ConsejerosServiceImp implements ConsejerosService {
     DepartamentoAcademicoDAO departamentoAcademicoDAO;
     @Autowired
     CicloAcademicoDAO cicloAcademicoDAO;
+    @Autowired
+    ColaboradorEstadoDAO colaboradorEstadoDAO;
+    @Autowired
+    PersonaCargoDAO personaCargoDAO;
+    @Autowired
+    OficinaDAO oficinaDAO;
+    @Autowired
+    PerfilCompaniaDAO perfilDAO;
+    @Autowired
+    FuncionColaboradorDAO funcionColaboradorDAO;
+    @Autowired
+    UsuarioDAO usuarioDAO;
+    @Autowired
+    FuncionRolDAO funcionRolDAO;
+    @Autowired
+    UsuarioRolDAO usuarioRolDAO;
+    @Autowired
+    RolDAO rolDAO;
 
     @Autowired
     OficinaService oficinaService;
@@ -246,6 +282,72 @@ public class ConsejerosServiceImp implements ConsejerosService {
         consejeroDAO.save(consejero);
 
         revisarConsejeria(carrera, ciclo, true, ds);
+
+        ColaboradorEstado colaboradorEstado = new ColaboradorEstado();
+        colaboradorEstado.setColaborador(colaborador);
+        colaboradorEstado.setEstadoEnum(ColaboradorEstadoEnum.ACT);
+        colaboradorEstado.setUserRegistro(ds.getUsuario());
+        colaboradorEstado.setFechaRegistro(new Date());
+        colaboradorEstadoDAO.save(colaboradorEstado);
+
+        PersonaCargo personaCargo = new PersonaCargo();
+        personaCargo.setCompania(ds.getCompania());
+        personaCargo.setEstadoEnum(PerfilEstadoEnum.ACT);
+        personaCargo.setFechaInicio(colaborador.getFechaInicio());
+        personaCargo.setFechaRegistro(new Date());
+        personaCargo.setOficina(colaborador.getOficina());
+        personaCargo.setPerfilCompania(colaborador.getCargo());
+        personaCargo.setPersona(docente.getPersona());
+        personaCargo.setUserRegistro(ds.getUsuario());
+        personaCargoDAO.save(personaCargo);
+
+        Oficina oficinaColaborador = oficinaDAO.find(colaborador.getOficina().getId());
+        revisarPerfiles(colaborador, docente.getPersona(), oficinaColaborador, ds);
+    }
+
+    private void revisarPerfiles(Colaborador colaborador, Persona persona, Oficina oficinaColaborador, DataSessionPivot ds) {
+
+        Usuario user = usuarioDAO.findActivoByPersona(persona);
+        if (user == null) {
+            if (colaborador.getPersona().getEmailCompania() != null) {
+                user = addUser(persona, ds);
+                addUserRoll(oficinaColaborador, user, colaborador, ds);
+            }
+        } else {
+            addUserRoll( oficinaColaborador, user, colaborador, ds);
+        }
+    }
+
+    private Usuario addUser(Persona personaForm, DataSessionPivot ds) {
+        Usuario user = new Usuario();
+        user.setEstadoEnum(UserEstadoEnum.ACT);
+        user.setGoogle(personaForm.getEmailCompania());
+        user.setPersona(personaForm);
+        user.setUserRegistro(ds.getUsuario());
+        user.setFechaRegistro(new Date());
+        usuarioDAO.save(user);
+
+        return user;
+    }
+
+    private void addUserRoll(
+            Oficina oficinaMain,
+            Usuario userColaborador,
+            Colaborador colaborador, DataSessionPivot ds) {
+
+                Rol rol= rolDAO.findByCode(RolEnum.TUTO);
+                UsuarioRol usuarioRol = new UsuarioRol();
+                usuarioRol.setEstadoEnum(UserEstadoEnum.ACT);
+                usuarioRol.setFechaInicio(colaborador.getFechaInicio());
+                usuarioRol.setFechaRegistro(new Date());
+                usuarioRol.setOficina(oficinaMain);
+                usuarioRol.setIdInstancia(oficinaMain.getInstanciaOficina());
+                usuarioRol.setTipoOficina(oficinaMain.getTipoOficina().getCodigo());
+                usuarioRol.setRol(rol);
+                usuarioRol.setUserRegistro(ds.getUsuario());
+                usuarioRol.setUsuario(userColaborador);
+                usuarioRolDAO.save(usuarioRol);
+
     }
 
     @Override
