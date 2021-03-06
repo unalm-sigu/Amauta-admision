@@ -136,8 +136,8 @@
         </div>
         <br/>
         <div>
-            <span > Con relación a la solicitud sobre <b>GRADO DE BACHILLER</b>, presentado por: <b class="" th:text="${alumno.persona.apellidosNombres.toUpperCase()}"></b> con matricula <b th:text="${alumno.codigo}"></b> de la especialidad de <b th:text="${alumno.carrera.nombre.toUpperCase()}"></b>
-                , informo a usted, lo siguiente: </span>
+            <span > Con relación a la solicitud sobre <b>GRADO DE BACHILLER</b>, presentado por: <b class="" th:text="${alumno.persona.apellidosNombres.toUpperCase()}"></b> con matricula <b th:text="${alumno.codigo}"></b> de la Facultad de <b th:text="${alumno.carrera.facultad.nombre.toUpperCase()}"></b>,
+                <span th:if="${alumno.carrera.codigo != alumno.carrera.facultad.codigo}"> especialidad de <b th:text="${alumno.carrera.nombre.toUpperCase()}"></b>,</span> informo a usted lo siguiente: </span>
         </div>
 
         <div >            
