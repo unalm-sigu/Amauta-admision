@@ -226,7 +226,7 @@ public class TramitesTituloServiceImp implements TramitesTituloService {
         Oficina oficina = oficinaDAO.findByCode(OficinaEnum.UR.name());
         logger.debug("PAse 2");
         TipoTramite tipoTramite = tipoTramiteDAO.findByCodigo(TipoTramiteEnum.TIT.name());
-        Tramite tramite = tramiteDAO.findByAlumnoTipoTramEstado(alumnoDB, tipoTramite, TramiteEstadoEnum.SOL);
+        Tramite tramite = tramiteDAO.findByAlumnoTipoTramEstado(alumnoDB, tipoTramite);
         logger.debug("PAse 3");
         Assert.isNull(tramite, "Ya cuenta con un tramite titulo en proceso.");
         tramite = new Tramite();

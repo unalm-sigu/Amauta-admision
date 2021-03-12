@@ -152,13 +152,12 @@ public class TramiteDAOH extends AbstractEasyDAO<Tramite> implements TramiteDAO 
     }
 
     @Override
-    public Tramite findByAlumnoTipoTramEstado(Alumno alumno, TipoTramite tipoTramite, TramiteEstadoEnum estadoEnum) {
+    public Tramite findByAlumnoTipoTramEstado(Alumno alumno, TipoTramite tipoTramite) {
         Octavia sql = Octavia.query()
                 .from(Tramite.class, "tr")
                 .join("persona per", "alumno alum", "alum.carrera car", "alum.situacionAcademica sia", "car.facultad", "car.modalidadEstudio")
                 .join("cicloAcademico ca", "tipoTramite tt", "tt.oficina ofic")
                 .filter("alum.id", alumno)
-                .filter("tr.estado", estadoEnum)
                 .filter("tt.id", tipoTramite);
         return find(sql);
     }

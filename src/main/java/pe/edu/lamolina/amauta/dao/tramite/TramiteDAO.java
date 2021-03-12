@@ -32,6 +32,6 @@ public interface TramiteDAO extends EasyDAO<Tramite> {
 
     public List<Tramite> allByTramitesFilter(List<Tramite> tramites, DynatableFilter filter);
 
-    public Tramite findByAlumnoTipoTramEstado(Alumno alumno, TipoTramite tipoTramite, TramiteEstadoEnum estadoEnum);
+    public Tramite findByAlumnoTipoTramEstado(Alumno alumno, TipoTramite tipoTramite);
 
 }
