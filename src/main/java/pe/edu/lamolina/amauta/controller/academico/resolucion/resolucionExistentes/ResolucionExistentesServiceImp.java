@@ -1241,7 +1241,7 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
         for (TramiteBachiller bachiller : resolucionForm.getTramiteBachiller()) {
 
             TramiteBachiller tramiteBachiller = tramiteBachillerDAO.findByAlumnoAct(bachiller.getAlumno());
-            Assert.isNotNull(tramiteBachiller, "El alumno no tiene un trámite bachiller");
+            Assert.isNotNull(tramiteBachiller, "El alumno" + bachiller.getAlumno().getCodigo() + " no tiene un trámite bachiller");
 
             tramiteBachiller.setResolucion(resolucion);
             tramiteBachiller.setEstado(bachiller.getSeleccionado() ? TramiteEstadoEnum.ACEP.name() : TramiteEstadoEnum.RCHZ.name());
