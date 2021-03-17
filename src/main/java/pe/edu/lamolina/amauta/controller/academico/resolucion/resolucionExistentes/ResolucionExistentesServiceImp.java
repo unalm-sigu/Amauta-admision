@@ -1353,7 +1353,7 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
 
     private void saveTramiteTitulo(Resolucion resolucionForm, Resolucion resolucionBD, DataSessionPivot ds) {
 
-        EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.SOL_ACEP);
+        EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.ACEP);
         EstadoTramite estadoTramiteRech = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.RHZ_SOL);
 
         for (TramiteTitulo titulo : resolucionForm.getTramiteTitulos()) {

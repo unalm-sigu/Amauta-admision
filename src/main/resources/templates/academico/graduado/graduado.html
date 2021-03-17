@@ -109,7 +109,7 @@
                                                 </td>
 
                                                 <td class="v-middle">
-                                                    <div class="actions" v-if="item.estadoTramite.codigo === 'ACEP'">
+                                                    <div class="actions" v-if="item.estadoTramite.codigo === 'ACEP' || item.estadoTramite.codigo === 'PEND'">
                                                         <a class="dropdown-toggle" href="#" data-toggle="dropdown"><i class="fa fa-cog"></i></a>
                                                         <ul class="dropdown-menu pull-right">
                                                             <li ><a  v-on:click="anularTramite(item)">Anular grado</a></li>
