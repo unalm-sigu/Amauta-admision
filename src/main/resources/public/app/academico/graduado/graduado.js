@@ -58,6 +58,41 @@ new Vue({
                 return "text-primary";
             }
             return "";
+        },
+        anularTramite(item) {
+            let $vue = this;
+
+            bootbox.confirm({
+                message: '¿Desea anular el grado académico del alumno?',
+                callback: function (result) {
+                    console.log(result)
+                    if (result) {
+                        MODAL.showWait("Espere un momento por favor");
+                        $.ajax({
+                            method: 'POST',
+                            url: APP.url(`${rutaModulo}/anular`),
+                            data: JSON.stringify(item),
+                            contentType: "application/json",
+                            success: function (response) {
+                                if (response.success) {
+
+                                    $vue.$refs.raptorGraduados.loadRemoteData();
+                                    notify(response.message, "success");
+                                } else {
+                                    notify(response.message, "error");
+                                }
+
+                            },
+                            error: function () {
+                                notify(Messages.errorComunicacion, "error");
+                            }
+                        });
+                        MODAL.hideWait();
+                    }
+
+                }
+            });
+
         }
     }
 });

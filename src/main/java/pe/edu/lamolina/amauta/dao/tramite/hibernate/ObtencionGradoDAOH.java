@@ -21,6 +21,7 @@ import static pe.edu.lamolina.model.enums.TipoGradoAcademicoEnum.DOC;
 import static pe.edu.lamolina.model.enums.TipoGradoAcademicoEnum.MAE;
 import static pe.edu.lamolina.model.enums.TipoGradoAcademicoEnum.TIT;
 import static pe.edu.lamolina.model.enums.TramiteEstadoEnum.ACEP;
+import static pe.edu.lamolina.model.enums.TramiteEstadoEnum.ANU;
 import pe.edu.lamolina.model.tramite.ObtencionGrado;
 import pe.edu.lamolina.model.tramite.Resolucion;
 
@@ -135,7 +136,9 @@ public class ObtencionGradoDAOH extends AbstractEasyDAO<ObtencionGrado> implemen
                 .from(ObtencionGrado.class, "og")
                 .join("resolucion re", "alumno alu", "alu.persona per", "alu.carrera ca", "ca.facultad")
                 .join("cicloAcademico", "gradoAcademico ga")
+                .join("estadoTramite et")
                 .filter("ga.tipo", tipoGradoAcademicoEnum)
+                .filter("et.codigo", ANU)
                 .filter("alu.id", alumno);
 
         return find(sql);
