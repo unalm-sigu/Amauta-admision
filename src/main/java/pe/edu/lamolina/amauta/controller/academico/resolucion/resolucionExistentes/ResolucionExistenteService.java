@@ -17,6 +17,7 @@ import pe.edu.lamolina.model.tramite.TramiteTraslado;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.tramite.ObtencionGrado;
 import pe.edu.lamolina.model.tramite.TramiteBachiller;
+import pe.edu.lamolina.model.tramite.TramiteTitulo;
 
 public interface ResolucionExistenteService {
 
@@ -60,12 +61,16 @@ public interface ResolucionExistenteService {
 
     List<String> updateResolucion(Resolucion resolucion, Usuario usuario, DataSessionPivot ds);
 
-    void saveTramiteBachiller(Resolucion resolucion, DataSessionPivot ds);
+    void saveResolucionTramiteBachiller(Resolucion resolucion, DataSessionPivot ds);
 
-    List<ObtencionGrado> allTramiteBachiller(Resolucion resolucion);
+    List<ObtencionGrado> allObtencionGrado(Resolucion resolucion);
 
     public void saveTramiteTitulo(Resolucion resolucion, DataSessionPivot ds);
 
     public String saveTramitePracticas(Resolucion resolucion, DataSessionPivot ds);
+
+    public List<TramiteBachiller> allTramiteBachiller(Resolucion resolucionDB);
+
+    public List<TramiteTitulo> allTramiteTitulo(Resolucion resolucionDB);
 
 }

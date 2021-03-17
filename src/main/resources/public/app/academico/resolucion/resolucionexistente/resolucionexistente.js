@@ -58,13 +58,14 @@ var app = new Vue({
                 $vue.isTraslado = true;
             } else if ($vue.resolucion.isTipoTrasladoInterno) {
                 $vue.isTrasladoInt = true;
-            } else if ($vue.resolucion.isBachiller) {
+            } else if ($vue.resolucion.isTipoTramiteBachiller) {
                 $vue.isBachiller = true;
             } else if ($vue.resolucion.isTitulo) {
                 $vue.isTitulo = true;
             } else if ($vue.resolucion.isTramitePracticas) {
                 $vue.isPracticas = true;
             }
+            console.log($vue.resolucion);
         }
 
     }, methods: {

@@ -63,6 +63,9 @@ import static pe.edu.lamolina.model.enums.TipoResolucionEnum.RCI;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.REIC;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.TITUL;
 import pe.edu.lamolina.model.tramite.ObtencionGrado;
+import pe.edu.lamolina.model.tramite.Tramite;
+import pe.edu.lamolina.model.tramite.TramiteBachiller;
+import pe.edu.lamolina.model.tramite.TramiteTitulo;
 
 @Controller
 @RequestMapping("academico/resolucion")
@@ -274,7 +277,7 @@ public class ResolucionExistentesController {
                 matriculableService.revisarMatriculables(ds, token);
                 matriculableService.generarAportes(ds, token);
             } else if (resolucion.isTipoTramiteBachiller()) {
-                service.saveTramiteBachiller(resolucion, ds);
+                service.saveResolucionTramiteBachiller(resolucion, ds);
             } else if (resolucion.isTipoTramiteTitulo()) {
                 service.saveTramiteTitulo(resolucion, ds);
             } else if (resolucion.isTipoTramitePracticas()) {
@@ -345,6 +348,8 @@ public class ResolucionExistentesController {
                 matriculableService.revisarCurriculaAlumnos(ds, token);
                 matriculableService.revisarMatriculables(ds, token);
                 matriculableService.generarAportes(ds, token);
+            } else if (resolucion.isTipoTramiteBachiller()) {
+                service.updateResolucion(resolucion, ds.getUsuario(), ds);
             }
 
             response.setMessage("Se realizó el registro satisfactoriamente.");
@@ -494,10 +499,43 @@ public class ResolucionExistentesController {
                     "tramite.alumno.persona.*",
                     "tramite.alumno.persona.tipoDocumento.*"
                 });
-                node.put("tipo", TRAS.name());
+                node.put("tipo", NOTA_BAJA.name());
                 array.add(node);
             }
-            objectNode.set("tramiteTraslado", array);
+            objectNode.set("cambioNotaMasBajas", array);
+        } else if (resolucionDB.getTipoResolucion().getCodigo().equals(BACHI.name())) {
+            List<TramiteBachiller> bachillers = service.allTramiteBachiller(resolucionDB);
+            for (TramiteBachiller bachiller : bachillers) {
+                Tramite tramite = bachiller.getTramite();
+                bachiller.setAlumno(tramite.getAlumno());
+                ObjectNode node = JsonHelper.createJson(bachiller, JsonNodeFactory.instance, new String[]{
+                    "*",
+                    "alumno.*",
+                    "alumno.persona.*",
+                    "alumno.persona.tipoDocumento.*",
+                    "tramite.*"
+                });
+                node.put("tipo", BACHI.name());
+                array.add(node);
+            }
+            objectNode.set("tramiteBachiller", array);
+        } else if (resolucionDB.getTipoResolucion().getCodigo().equals(TITUL.name())) {
+            List<TramiteTitulo> titulo = service.allTramiteTitulo(resolucionDB);
+
+            for (TramiteTitulo tit : titulo) {
+                Tramite tramite = tit.getTramite();
+                tit.setAlumno(tramite.getAlumno());
+                ObjectNode node = JsonHelper.createJson(tit, JsonNodeFactory.instance, new String[]{
+                    "*",
+                    "alumno.*",
+                    "alumno.persona.*",
+                    "alumno.persona.tipoDocumento.*",
+                    "tramite.*"
+                });
+                node.put("tipo", TITUL.name());
+                array.add(node);
+            }
+            objectNode.set("tramiteTitulos", array);
         }
 
         return objectNode;
@@ -580,7 +618,7 @@ public class ResolucionExistentesController {
             }
 
         } else if (Arrays.asList(BACHI, TITUL, OBTE_GRADO).contains(tipoEnum)) {
-            List<ObtencionGrado> graduados = service.allTramiteBachiller(resolucion);
+            List<ObtencionGrado> graduados = service.allObtencionGrado(resolucion);
             for (ObtencionGrado gradux : graduados) {
                 objectNode = JsonHelper.createJson(gradux, JsonNodeFactory.instance, new String[]{
                     "*",

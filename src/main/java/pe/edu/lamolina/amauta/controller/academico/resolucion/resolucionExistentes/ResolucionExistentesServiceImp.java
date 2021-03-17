@@ -126,6 +126,7 @@ import pe.edu.lamolina.model.academico.GradoAcademico;
 import pe.edu.lamolina.model.enums.EventoAcademicoEnum;
 import static pe.edu.lamolina.model.enums.TipoCondicionalEnum.TRAS_INT;
 import pe.edu.lamolina.model.enums.TipoGradoAcademicoEnum;
+import static pe.edu.lamolina.model.enums.TipoResolucionEnum.BACHI;
 import static pe.edu.lamolina.model.enums.TipoTramiteEnum.INTES;
 import pe.edu.lamolina.model.tramite.ObtencionGrado;
 import pe.edu.lamolina.model.tramite.PracticasPreProfesional;
@@ -687,7 +688,10 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
             return this.updateCursosDirigidos(resolucionForm, resolucionBD, usuario, ds);
         } else if (resolucionBD.isTipoNotaBaja()) {
             return Arrays.asList(this.saveNotasMasBajas(resolucionForm, resolucionBD, usuario, ds));
+        } else if (resolucionBD.isTipoTramiteBachiller()) {
+            this.saveTramiteBachiller(resolucionForm, resolucionBD, ds);
         }
+
         return Arrays.asList("");
     }
 
@@ -1213,23 +1217,27 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
 
     @Override
     @Transactional
-    public void saveTramiteBachiller(Resolucion resolucionForm, DataSessionPivot ds) {
+    public void saveResolucionTramiteBachiller(Resolucion resolucionForm, DataSessionPivot ds) {
 
         TipoResolucion tipoResolucion = tipoResolucionDAO.finByCodigo(TipoResolucionEnum.BACHI);
-        Resolucion resolucion = new Resolucion();
-        resolucion.setOficina(resolucionForm.getOficina());
-        resolucion.setFecha(resolucionForm.getFecha());
-        resolucion.setNumero(resolucionForm.getNumero());
-        resolucion.setSerie(resolucionForm.getSerie());
-        resolucion.setNumeroVisible(resolucion.getDescripcion());
-        resolucion.setCicloAplica(resolucionForm.getCicloAplica());
-        resolucion.setEstadoEnum(ResolucionEstadoEnum.VB_RES);
-        resolucion.setFechaRegistro(new Date());
-        resolucion.setTipoResolucion(tipoResolucion);
-        resolucion.setUserRegistro(ds.getUsuario());
-        resolucion.setAplicacionDirecta(1l);
-        resolucionDAO.save(resolucion);
+        Resolucion resolucionBD = new Resolucion();
+        resolucionBD.setOficina(resolucionForm.getOficina());
+        resolucionBD.setFecha(resolucionForm.getFecha());
+        resolucionBD.setNumero(resolucionForm.getNumero());
+        resolucionBD.setSerie(resolucionForm.getSerie());
+        resolucionBD.setNumeroVisible(resolucionBD.getDescripcion());
+        resolucionBD.setCicloAplica(resolucionForm.getCicloAplica());
+        resolucionBD.setEstadoEnum(ResolucionEstadoEnum.VB_RES);
+        resolucionBD.setFechaRegistro(new Date());
+        resolucionBD.setTipoResolucion(tipoResolucion);
+        resolucionBD.setUserRegistro(ds.getUsuario());
+        resolucionBD.setAplicacionDirecta(1l);
+        resolucionDAO.save(resolucionBD);
 
+        this.saveTramiteBachiller(resolucionForm, resolucionBD, ds);
+    }
+
+    void saveTramiteBachiller(Resolucion resolucionForm, Resolucion resolucionBD, DataSessionPivot ds) {
         EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.ACEP);
         EstadoTramite estadoTramiteRech = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.RHZ_SOL);
 
@@ -1240,10 +1248,14 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
         Map<Long, List<AlumnoCicloCurso>> mapAlumnoCicloCurso = TypesUtil.convertListToMapList("alumnoCiclo.alumno.id", alumnosCiclosCursosActivos);
         for (TramiteBachiller bachiller : resolucionForm.getTramiteBachiller()) {
 
+            if (bachiller.getId() != null) {
+                continue;
+            }
+
             TramiteBachiller tramiteBachiller = tramiteBachillerDAO.findByAlumnoAct(bachiller.getAlumno());
             Assert.isNotNull(tramiteBachiller, "El alumno " + bachiller.getAlumno().getCodigo() + " no tiene un trámite bachiller");
 
-            tramiteBachiller.setResolucion(resolucion);
+            tramiteBachiller.setResolucion(resolucionBD);
             tramiteBachiller.setEstado(bachiller.getSeleccionado() ? TramiteEstadoEnum.ACEP.name() : TramiteEstadoEnum.RCHZ.name());
             tramiteBachiller.setFechaResolucion(new Date());
             tramiteBachiller.setUsuarioResolucion(ds.getUsuario());
@@ -1263,8 +1275,8 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
                 obtencionGrado.setEstadoTramite(tramite.getEstadoTramite());
                 obtencionGrado.setFechaRegistro(new Date());
                 obtencionGrado.setGradoAcademico(gradoAcademico);
-                obtencionGrado.setResolucion(resolucion);
-                obtencionGrado.setFechaObtencion(resolucion.getFecha());
+                obtencionGrado.setResolucion(resolucionBD);
+                obtencionGrado.setFechaObtencion(resolucionBD.getFecha());
                 obtencionGrado.setTramite(tramite);
                 obtencionGrado.setUserObtencion(ds.getUsuario());
                 obtencionGrado.setUserRegistro(ds.getUsuario());
@@ -1295,7 +1307,7 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
                 egresado.setCarrera(alumno.getCarrera());
                 egresado.setCicloAcademico(alumno.getCicloActivoRegular());
                 egresado.setFacultad(alumno.getCarrera().getFacultad());
-                egresado.setFechaRegistroEgresado(resolucion.getFecha());
+                egresado.setFechaRegistroEgresado(resolucionBD.getFecha());
                 egresado.setUserRegistroEgresado(ds.getUsuario());
                 egresado.setFechaEgresado(eventoCicloAcademico.getFechaFin());
                 egresado.setGrado(gradoAcademico);
@@ -1311,7 +1323,7 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
     }
 
     @Override
-    public List<ObtencionGrado> allTramiteBachiller(Resolucion resolucion) {
+    public List<ObtencionGrado> allObtencionGrado(Resolucion resolucion) {
         return obtencionGradoDAO.allByResolucion(resolucion);
     }
 
@@ -1524,6 +1536,19 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
             }
 
         }
+    }
+
+    @Override
+    public List<TramiteBachiller> allTramiteBachiller(Resolucion resolucionDB) {
+
+        List<TramiteBachiller> tramiteBachillers = tramiteBachillerDAO.allByResolucion(resolucionDB);
+
+        return tramiteBachillers;
+    }
+
+    @Override
+    public List<TramiteTitulo> allTramiteTitulo(Resolucion resolucionDB) {
+        return tramiteTituloDAO.allByResolucion(resolucionDB);
     }
 
 }

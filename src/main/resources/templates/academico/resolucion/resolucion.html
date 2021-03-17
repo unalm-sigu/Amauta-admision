@@ -99,13 +99,7 @@
                                                         </a>
                                                         <a class="aceptar-expandir-sistema"  
                                                            v-on:click="editarResolucionOther(item,$event)" href="#"
-                                                           v-if="!item.isTipoTrasladoInterno &amp;&amp; 
-                                                           !item.isTipoTrasladoInterno  &amp;&amp;
-                                                           !item.isTipoNotaBaja &amp;&amp;
-                                                           !item.isTipoAnulacionCiclo &amp;&amp;
-                                                           !item.isTipoIngresoFisicoHistorial  &amp;&amp;
-                                                           !item.isTipoTramitePracticas
-                                                           "
+                                                           v-if="item.isTipoTramiteBachiller"
                                                            >
                                                             Editar
                                                         </a>
