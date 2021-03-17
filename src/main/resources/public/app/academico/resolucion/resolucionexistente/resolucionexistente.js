@@ -60,7 +60,7 @@ var app = new Vue({
                 $vue.isTrasladoInt = true;
             } else if ($vue.resolucion.isTipoTramiteBachiller) {
                 $vue.isBachiller = true;
-            } else if ($vue.resolucion.isTitulo) {
+            } else if ($vue.resolucion.isTipoTramiteTitulo) {
                 $vue.isTitulo = true;
             } else if ($vue.resolucion.isTramitePracticas) {
                 $vue.isPracticas = true;

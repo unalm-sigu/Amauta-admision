@@ -690,6 +690,8 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
             return Arrays.asList(this.saveNotasMasBajas(resolucionForm, resolucionBD, usuario, ds));
         } else if (resolucionBD.isTipoTramiteBachiller()) {
             this.saveTramiteBachiller(resolucionForm, resolucionBD, ds);
+        } else if (resolucionBD.isTipoTramiteTitulo()) {
+            this.saveTramiteTitulo(resolucionForm, resolucionBD, ds);
         }
 
         return Arrays.asList("");
@@ -1332,19 +1334,24 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
     public void saveTramiteTitulo(Resolucion resolucionForm, DataSessionPivot ds) {
 
         TipoResolucion tipoResolucion = tipoResolucionDAO.finByCodigo(TipoResolucionEnum.TITUL);
-        Resolucion resolucion = new Resolucion();
-        resolucion.setOficina(resolucionForm.getOficina());
-        resolucion.setFecha(resolucionForm.getFecha());
-        resolucion.setNumero(resolucionForm.getNumero());
-        resolucion.setSerie(resolucionForm.getSerie());
-        resolucion.setNumeroVisible(resolucion.getDescripcion());
-        resolucion.setCicloAplica(resolucionForm.getCicloAplica());
-        resolucion.setEstadoEnum(ResolucionEstadoEnum.VB_RES);
-        resolucion.setFechaRegistro(new Date());
-        resolucion.setTipoResolucion(tipoResolucion);
-        resolucion.setUserRegistro(ds.getUsuario());
-        resolucion.setAplicacionDirecta(1l);
-        resolucionDAO.save(resolucion);
+        Resolucion resolucionBD = new Resolucion();
+        resolucionBD.setOficina(resolucionForm.getOficina());
+        resolucionBD.setFecha(resolucionForm.getFecha());
+        resolucionBD.setNumero(resolucionForm.getNumero());
+        resolucionBD.setSerie(resolucionForm.getSerie());
+        resolucionBD.setNumeroVisible(resolucionBD.getDescripcion());
+        resolucionBD.setCicloAplica(resolucionForm.getCicloAplica());
+        resolucionBD.setEstadoEnum(ResolucionEstadoEnum.VB_RES);
+        resolucionBD.setFechaRegistro(new Date());
+        resolucionBD.setTipoResolucion(tipoResolucion);
+        resolucionBD.setUserRegistro(ds.getUsuario());
+        resolucionBD.setAplicacionDirecta(1l);
+        resolucionDAO.save(resolucionBD);
+
+        this.saveTramiteTitulo(resolucionForm, resolucionBD, ds);
+    }
+
+    private void saveTramiteTitulo(Resolucion resolucionForm, Resolucion resolucionBD, DataSessionPivot ds) {
 
         EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.SOL_ACEP);
         EstadoTramite estadoTramiteRech = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.RHZ_SOL);
@@ -1357,7 +1364,7 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
             tramiteTitulo.setEstado(titulo.getSeleccionado() ? TramiteEstadoEnum.ACEP.name() : TramiteEstadoEnum.RCHZ.name());
             tramiteTitulo.setFechaResolucion(new Date());
             tramiteTitulo.setUsuarioResolucion(ds.getUsuario());
-            tramiteTitulo.setResolucion(resolucion);
+            tramiteTitulo.setResolucion(resolucionBD);
             tramiteTituloDAO.update(tramiteTitulo);
 
             Tramite tramite = tramiteTitulo.getTramite();
@@ -1373,22 +1380,21 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
                 obtencionGrado.setEstadoTramite(tramite.getEstadoTramite());
                 obtencionGrado.setFechaRegistro(new Date());
                 obtencionGrado.setGradoAcademico(gradoAcademico);
-                obtencionGrado.setResolucion(resolucion);
+                obtencionGrado.setResolucion(resolucionBD);
                 obtencionGrado.setTramite(tramite);
                 obtencionGrado.setUserObtencion(ds.getUsuario());
                 obtencionGrado.setUserRegistro(ds.getUsuario());
-                obtencionGrado.setFechaObtencion(resolucion.getFecha());
+                obtencionGrado.setFechaObtencion(resolucionBD.getFecha());
                 obtencionGradoDAO.save(obtencionGrado);
 
                 Egresado egresado = egresadoDAO.findByAlumno(alumno);
                 egresado.setPromedioAcumulado(alumno.getPromedioAcumulado());
-                egresado.setFechaTitulacion(resolucion.getFecha());
+                egresado.setFechaTitulacion(resolucionBD.getFecha());
                 egresado.setUserRegistroTitulado(ds.getUsuario());
                 egresado.setTitulo(gradoAcademico);
                 egresadoDAO.update(egresado);
             }
         }
-
     }
 
     @Override

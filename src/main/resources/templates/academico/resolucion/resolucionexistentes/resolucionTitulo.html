@@ -12,7 +12,7 @@
                              deselect-label="No se puede eliminar este valor"
                              v-bind:internal-search='false'
                              placeholder="Ingresa un caracter como mínimo" 
-                             v-bind:disabled="isEdicion &amp;&amp; bachiller.id != null">
+                             v-bind:disabled="isEdicion &amp;&amp; titulo.id != null">
                     <template slot="option" slot-scope="props">
                         <div class="option__desc">
                             <span class="option__title block bold">{{ props.option.persona.nombreCompleto }} </span>

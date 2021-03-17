@@ -350,6 +350,8 @@ public class ResolucionExistentesController {
                 matriculableService.generarAportes(ds, token);
             } else if (resolucion.isTipoTramiteBachiller()) {
                 service.updateResolucion(resolucion, ds.getUsuario(), ds);
+            } else if (resolucion.isTipoTramiteTitulo()) {
+                service.updateResolucion(resolucion, ds.getUsuario(), ds);
             }
 
             response.setMessage("Se realizó el registro satisfactoriamente.");
