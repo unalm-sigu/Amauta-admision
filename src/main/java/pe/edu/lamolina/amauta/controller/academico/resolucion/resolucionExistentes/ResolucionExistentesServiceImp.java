@@ -1352,7 +1352,7 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
         for (TramiteTitulo titulo : resolucionForm.getTramiteTitulos()) {
 
             TramiteTitulo tramiteTitulo = tramiteTituloDAO.findByAlumnoAct(titulo.getAlumno());
-            Assert.isNotNull(tramiteTitulo, "El alumno no tiene un trámite titulo");
+            Assert.isNotNull(tramiteTitulo, "El alumno " + titulo.getAlumno().getCodigo() + " no tiene un trámite titulo");
 
             tramiteTitulo.setEstado(titulo.getSeleccionado() ? TramiteEstadoEnum.ACEP.name() : TramiteEstadoEnum.RCHZ.name());
             tramiteTitulo.setFechaResolucion(new Date());
