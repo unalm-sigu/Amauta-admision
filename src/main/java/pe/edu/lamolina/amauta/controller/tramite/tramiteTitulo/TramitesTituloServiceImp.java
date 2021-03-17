@@ -220,6 +220,8 @@ public class TramitesTituloServiceImp implements TramitesTituloService {
 
         logger.debug("PAse 1");
         Alumno alumnoDB = alumnoDAO.find(tramiteTituloForm.getAlumno());
+        Assert.isTrue(alumnoDB.getModalidadEstudio().isOperativePRE(), "El trámite es solo para alumnos de pre grado");
+        
         TipoDocumentoCompania tipoDocumentoCompania = tipoDocumentoCompaniaDAO.findByCodigo(TipoDocumentoCompaniaEnum.TRAM_TITULO);
         SerieDocumento serieDocumento = serieDocumentoService.getCorrelativo(tipoDocumentoCompania, Long.valueOf(today.getYear()), ds.getUsuario());
 

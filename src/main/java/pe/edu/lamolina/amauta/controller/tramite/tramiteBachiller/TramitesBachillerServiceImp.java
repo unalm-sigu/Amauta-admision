@@ -240,6 +240,8 @@ public class TramitesBachillerServiceImp implements TramitesBachillerService {
 
         logger.debug("PAse 1");
         Alumno alumnoDB = alumnoDAO.find(tramiteBachillerForm.getAlumno());
+        Assert.isTrue(alumnoDB.getModalidadEstudio().isOperativePRE(), "El trámite es solo para alumnos de pre grado");
+
         TipoDocumentoCompania tipoDocumentoCompania = tipoDocumentoCompaniaDAO.findByCodigo(TipoDocumentoCompaniaEnum.TRAM_BACHI);
         SerieDocumento serieDocumento = serieDocumentoService.getCorrelativo(tipoDocumentoCompania, Long.valueOf(today.getYear()), ds.getUsuario());
 
