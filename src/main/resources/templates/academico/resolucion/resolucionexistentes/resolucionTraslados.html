@@ -15,8 +15,9 @@
                              v-bind:disabled="isEdicion &amp;&amp; tramiteTraslado.id != null">
                     <template slot="option" slot-scope="props">
                         <div class="option__desc">
-                            <span class="option__title block bold">{{ props.option.persona.nombreCompleto }} </span>
+                            <span class="option__title block bold">{{ props.option.codigo }} - {{ props.option.persona.nombreCompleto }} </span>
                             <span class="option__small">{{ props.option.persona.tipoDocumento.simbolo }} - {{ props.option.persona.numeroDocIdentidad }}</span>
+                            <span class="option__small block bold text-success">{{ props.option.carrera.nombre }} </span>
                         </div>
                     </template>
                 </multiselect>
@@ -42,23 +43,23 @@
             <input v-model="tramiteTraslado.cicloAcademico" required="true" type="text" class="hide"/>
         </div>
     </td>
-<!--    <td class="v-middle text-left" v-if="isTrasladoInt">
-        <div class="form-group">
-            <multiselect 
-                v-model="tramiteTraslado.carrera" 
-                v-bind:options="carreras"
-                placeholder="Seleccione una carrera"
-                label="nombre"
-                track-by="id" 
-                required="true"
-                v-bind:allow-empty="true"
-                deselect-label="No se puede eliminar este valor" 
-                v-bind:disabled="isEdicion &amp;&amp; tramiteTraslado.id != null"
-                >
-            </multiselect>
-            <input v-model="tramiteTraslado.carrera" required="true" type="text" class="hide"/>
-        </div>
-    </td>-->
+    <!--    <td class="v-middle text-left" v-if="isTrasladoInt">
+            <div class="form-group">
+                <multiselect 
+                    v-model="tramiteTraslado.carrera" 
+                    v-bind:options="carreras"
+                    placeholder="Seleccione una carrera"
+                    label="nombre"
+                    track-by="id" 
+                    required="true"
+                    v-bind:allow-empty="true"
+                    deselect-label="No se puede eliminar este valor" 
+                    v-bind:disabled="isEdicion &amp;&amp; tramiteTraslado.id != null"
+                    >
+                </multiselect>
+                <input v-model="tramiteTraslado.carrera" required="true" type="text" class="hide"/>
+            </div>
+        </td>-->
     <td>
         <label class="switch">
             <input type="checkbox" 

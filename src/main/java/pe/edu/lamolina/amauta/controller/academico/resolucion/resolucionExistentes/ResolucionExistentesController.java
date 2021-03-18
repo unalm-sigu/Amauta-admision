@@ -216,6 +216,7 @@ public class ResolucionExistentesController {
                     "persona.nombreCompleto",
                     "persona.numeroDocIdentidad",
                     "persona.tipoDocumento.*",
+                    "carrera.*",
                     "carrera.facultad.*",}));
             }
             response.setSuccess(Boolean.TRUE);

@@ -15,8 +15,9 @@
                              v-bind:disabled="isEdicion &amp;&amp; reincorporacion.id != null">
                     <template slot="option" slot-scope="props">
                         <div class="option__desc">
-                            <span class="option__title block bold">{{ props.option.persona.nombreCompleto }} </span>
+                            <span class="option__title block bold">{{ props.option.codigo }} - {{ props.option.persona.nombreCompleto }} </span>
                             <span class="option__small">{{ props.option.persona.tipoDocumento.simbolo }} - {{ props.option.persona.numeroDocIdentidad }}</span>
+                            <span class="option__small block bold text-success">{{ props.option.carrera.nombre }} </span>
                         </div>
                     </template>
                 </multiselect>
