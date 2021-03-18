@@ -314,6 +314,7 @@ public class OficinaServiceImp implements OficinaService {
         Oficina oficinaBD = oficinaDAO.find(oficina.getId());
         Assert.isNull(oficinaBD.getPersonaJefe(), "Esta Unidad ya tiene asignado un jefe");
         Assert.isNotNull(oficinaBD.getCargoJefe(), "Falta definir el Cargo de la Jefatura de esta Unidad");
+        Assert.isNull(oficinaBD.getJefeEncargado(), "Antes debe retirar al jefe encargado");
 
         TipoOficina tipo = oficinaBD.getTipoOficina();
         boolean requiereJefeDocente = tipo.getNivelEnum() == NivelOficinaEnum.OFI;
