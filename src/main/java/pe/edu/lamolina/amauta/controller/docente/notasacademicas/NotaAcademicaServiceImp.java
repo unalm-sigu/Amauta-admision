@@ -1711,6 +1711,9 @@ public class NotaAcademicaServiceImp implements NotaAcademicaService {
 
         restaFloat = sumaNotaAlCuadrado.floatValue() - multiFloat;
 
+        if (restaFloat == 0f && cantidadEvaluadosMinusOne.equals(BigDecimal.ZERO)) {
+            return BigDecimal.ZERO;
+        }
         divi2Float = restaFloat / cantidadEvaluadosMinusOne.floatValue();
 
         divi = new BigDecimal(divi2Float);
