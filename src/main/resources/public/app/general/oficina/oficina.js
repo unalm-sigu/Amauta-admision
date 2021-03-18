@@ -41,7 +41,6 @@ new Vue({
         }
     },
     mounted() {
-
     },
     methods: {
         getParameterQuery(param) {
