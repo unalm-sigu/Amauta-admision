@@ -489,7 +489,7 @@ public class EncuestaDocenteController {
 
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-            service.addDocenteSeccionToEncuesta(docenteSeccion, ds.getCicloAcademico(), docenteSeccion.getEncuentarModalidad(), ds);
+            service.addDocenteSeccionToEncuesta(docenteSeccion, ds.getCicloAcademico(), docenteSeccion.getEncuestarModalidad(), ds);
             response.setMessage("Se agregó satisfactoriamente a la encuesta");
             response.setSuccess(true);
 
