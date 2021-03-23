@@ -138,7 +138,7 @@ public class OmisoEleccionServiceImp implements OmisoEleccionService {
             while (rowIterator.hasNext()) {
                 Row row = rowIterator.next();
                 fila = row.getRowNum() + 1;
-                if (row.getRowNum() < 1) {
+                if (row.getRowNum() < 4) {
                     continue;
                 }
 

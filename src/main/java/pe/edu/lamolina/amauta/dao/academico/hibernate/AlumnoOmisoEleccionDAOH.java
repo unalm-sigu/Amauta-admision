@@ -55,7 +55,7 @@ public class AlumnoOmisoEleccionDAOH extends AbstractEasyDAO<AlumnoOmisoEleccion
     }
 
     @Override
-    public AlumnoOmisoEleccion findByAlumnoCicloMotivo(AlumnoOmisoEleccion omisoEleccion) {
+    public AlumnoOmisoEleccion findDeudaByAlumnoCicloMotivo(AlumnoOmisoEleccion omisoEleccion) {
         Octavia sql = new Octavia()
                 .from(AlumnoOmisoEleccion.class, "aoe")
                 .join("alumno al", "cicloAcademico ca")
@@ -63,6 +63,17 @@ public class AlumnoOmisoEleccionDAOH extends AbstractEasyDAO<AlumnoOmisoEleccion
                 .filter("al.id", omisoEleccion.getAlumno())
                 .filter("ca.id", omisoEleccion.getCicloAcademico())
                 .filter("estado", DEU.name());
+        return find(sql);
+    }
+
+    @Override
+    public AlumnoOmisoEleccion findByAlumnoCicloMotivo(AlumnoOmisoEleccion omisoEleccion) {
+        Octavia sql = new Octavia()
+                .from(AlumnoOmisoEleccion.class, "aoe")
+                .join("alumno al", "cicloAcademico ca")
+                .filter("motivo", omisoEleccion.getMotivo())
+                .filter("al.id", omisoEleccion.getAlumno())
+                .filter("ca.id", omisoEleccion.getCicloAcademico());
         return find(sql);
     }
 

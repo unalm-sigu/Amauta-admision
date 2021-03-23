@@ -19,7 +19,7 @@
 
                                 <div class="panel-body">
                                     <form id="formLoadFiles" enctype="multipart/form-data" method="POST" th:action="@{/oficinas/matricula/omisoeleccion/}">
-                                        <div class="form-group col-md-4">
+                                        <div class="form-group col-md-6">
                                             <label> Ciclo </label>
                                             <multiselect v-model="cicloAcademico" 
                                                          v-bind:options='ciclos'
@@ -33,6 +33,7 @@
                                         <div class="row m-b-md">
                                             <div class="col-md-9"> 
 
+                                                <span class="block">Descarga el ejemplo <strong><a href="https://cdn.lamolina.edu.pe/v1/AUTH_90afa410262f41f1af475ed599eeb798/lamolina-academico/archivo/omisionElectoral/Omisión de elecciones.xlsx">aquí </a></strong>.</span>
                                                 <span class="block">Seleccionar un archivo y presione el botón <strong>Iniciar Carga</strong>.</span>
 
                                                 <div class="form-group">

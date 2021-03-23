@@ -73,6 +73,14 @@ new Vue({
             footer: false,
             showaccept: false
         },
+        modalModalidadEncuenta: {
+            id: 'modalModalidadEncuenta',
+            title: 'Modalidad Estudiantil de encuesta',
+            modalsize: 'modal-md',
+            header: true,
+            footer: true,
+            showaccept: true
+        },
         temas: [],
         cursos: [],
         cursosNoEnc: [],
@@ -101,6 +109,7 @@ new Vue({
         facultades: JSON.parse(facultadesJson),
         departamentos: JSON.parse(departamentosJson),
         departamentosVer: JSON.parse(departamentosJson),
+        modalidadesEstudios: JSON.parse(modalidadEstudiosJson),
         processingCursos: false,
         cursosLista: [],
         pageCursos: {currentPage: 1},
@@ -116,6 +125,7 @@ new Vue({
         docentesSeccionesNoEncuLista: [],
         pageNoProcesados: {currentPage: 1},
         paginationNoProcesados: {'total-items': 0, 'items-per-page': 10, 'max-size': 3, 'boundary-link-numbers': true},
+        modalidadEstudio: null
     },
     mounted: function () {
         let $vue = this;
@@ -395,8 +405,13 @@ new Vue({
                 }
             });
         },
+        openSelectModalidad() {
+            let $vue = this;
+            $vue.$refs.modalModalidadEncuenta.open();
+        },
         generarEncuesta() {
             let vue = this;
+            console.log(vue.modalidadEstudio);
             bootbox.confirm({
                 message: '¿Está seguro que desea generar las encuestas de docentes para este ciclo?',
                 buttons: {
@@ -405,7 +420,7 @@ new Vue({
                 },
                 callback: function (result) {
                     if (result) {
-                        axios.post(`/${rutaModulo}/generar`)
+                        axios.post(`/${rutaModulo}/generar`, vue.modalidadEstudio)
                                 .then(response => {
                                     if (response.data.success) {
                                         vue.$refs.modalVerProgreso.open();
@@ -418,6 +433,7 @@ new Vue({
                                     console.log(error);
                                     notify(Messages.errorComunicacion, "error");
                                 });
+                        vue.$refs.modalModalidadEncuenta.close();
                     }
                 }
             });

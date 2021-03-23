@@ -15,6 +15,26 @@
     </div>
 </modal-vik>
 
+<modal-vik ref="modalModalidadEncuenta"
+           v-bind="modalModalidadEncuenta"
+           v-bind:okaction="generarEncuesta">
+
+    <div slot="body">
+        <div class="modal-body">
+            <form id="formMatriculable" data-parsley-validate="true">
+                <label>Modalidad Estudio</label>
+                <multiselect v-model='modalidadEstudio'               
+                             v-bind:options='modalidadesEstudios'
+                             placeholder="Elije un opción"
+                             label='nombre'
+                             v-bind:limit='15'
+                             track-by='id'>
+                </multiselect>
+            </form>
+        </div>
+    </div>
+</modal-vik>
+
 <modal-vik ref="modalEncuestaConfig"
            v-bind="cfgEncuestaConfig"
            v-bind:okaction="saveConfiguracion"
@@ -208,7 +228,7 @@
                 <td class="text-center v-middle">{{ tema.desviacionStandar.toFixed(2) }}</td>
             </template>  
             <td class="text-center v-middle">{{ indicadorClave.toFixed(2) }}</td>
-         
+
             </tr>
             </tbody>
         </table>

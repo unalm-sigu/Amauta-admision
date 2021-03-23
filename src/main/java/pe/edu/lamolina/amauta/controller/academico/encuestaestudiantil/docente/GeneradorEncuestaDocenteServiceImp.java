@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.util.StringUtils;
 import pe.albatross.zelpers.miscelanea.Assert;
-import pe.albatross.zelpers.miscelanea.ObjectUtil;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AnexoBoletin;
@@ -63,7 +62,6 @@ import pe.edu.lamolina.amauta.dao.encuesta.PeriodoEncuestaDAO;
 import pe.edu.lamolina.amauta.dao.encuesta.PuntajeEncuestaDocenteModalidadDAO;
 import pe.edu.lamolina.amauta.dao.encuesta.TemaExamenVirtualDAO;
 import pe.edu.lamolina.model.constantines.AcademicoConstantine;
-import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 
 @Service
@@ -109,7 +107,8 @@ public class GeneradorEncuestaDocenteServiceImp implements GeneradorEncuestaDoce
     @Async
     @Override
     @Transactional
-    public void generarEncuesta(CicloAcademico ciclo, DataSessionPivot ds) {
+    public void generarEncuesta(CicloAcademico ciclo, ModalidadEstudio encuentarModalidad, DataSessionPivot ds) {
+
         visorEncuestaDocente.setEstado("Obteniendo información de matriculados");
         List<MatriculaSeccion> matriculasSecciones = matriculaSeccionDAO.allMatriculadosByCiclo(ciclo);
         Map<Long, List<Alumno>> mapAlumnos = TypesUtil.convertListToMapList("seccion.id", "matriculaResumen.alumno", matriculasSecciones);
@@ -157,7 +156,7 @@ public class GeneradorEncuestaDocenteServiceImp implements GeneradorEncuestaDoce
                     periodosEncuesta,
                     encuestaDocente,
                     encuestasAlumnos,
-                    mapModalidad, ds);
+                    mapModalidad, encuentarModalidad, ds);
             visorEncuestaDocente.incrementar();
         }
 
@@ -178,6 +177,7 @@ public class GeneradorEncuestaDocenteServiceImp implements GeneradorEncuestaDoce
             EncuestaEstudiantil encuestaEstudiantil,
             List<EncuestaAlumno> encuestasAlumnos,
             Map<String, ModalidadEstudio> mapModalidad,
+            ModalidadEstudio encuestarModalidad,
             DataSessionPivot ds) {
 
         EncuestaDocente encuProfe = mapEncuestaByProfeSecc.get(profeSecc.getId());
@@ -194,6 +194,9 @@ public class GeneradorEncuestaDocenteServiceImp implements GeneradorEncuestaDoce
         Docente docente = profeSecc.getDocente();
         Curso curso = gpoSeccion.getCurso();
         ModalidadEstudioEnum modaEnum = anexoSup.isAnexoCursosPostgrado() ? ModalidadEstudioEnum.EPG : ModalidadEstudioEnum.PRE;
+        if (modaEnum != encuestarModalidad.getCodigoEnum()) {
+            return;
+        }
         ModalidadEstudio modalidad = mapModalidad.get(modaEnum.name());
         CicloAcademico ciclo = profeSecc.getSeccion().getGrupoSeccion().getCicloAcademico();
 
@@ -458,7 +461,7 @@ public class GeneradorEncuestaDocenteServiceImp implements GeneradorEncuestaDoce
 
     @Override
     @Transactional
-    public void generarEncuestaDocente(DocenteSeccion docenteSeccionForm, CicloAcademico ciclo, DataSessionPivot ds) {
+    public void generarEncuestaDocente(DocenteSeccion docenteSeccionForm, CicloAcademico ciclo, ModalidadEstudio encuentarModalidad, DataSessionPivot ds) {
         DocenteSeccion docenteSeccionBD = docenteSeccionDAO.find(docenteSeccionForm.getId());
         List<MatriculaSeccion> matriculasSecciones = matriculaSeccionDAO.allMatriculadosBySeccion(docenteSeccionBD.getSeccion());
         Map<Long, List<Alumno>> mapAlumnos = TypesUtil.convertListToMapList("seccion.id", "matriculaResumen.alumno", matriculasSecciones);
@@ -511,7 +514,7 @@ public class GeneradorEncuestaDocenteServiceImp implements GeneradorEncuestaDoce
                     periodosEncuesta,
                     encuestaDocente,
                     encuestasAlumnos,
-                    mapModalidad, ds);
+                    mapModalidad, encuentarModalidad, ds);
             visorEncuestaDocente.incrementar();
         }
 
