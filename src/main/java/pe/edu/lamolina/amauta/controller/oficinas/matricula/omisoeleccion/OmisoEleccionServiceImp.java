@@ -163,7 +163,9 @@ public class OmisoEleccionServiceImp implements OmisoEleccionService {
 
                 if (alumnoBD == null) {
                     Persona persona = personaDAO.findByDocIdentidad(nroMatricula);
-                    alumnoBD = alumnoDAO.findByPersona(persona);
+                    List<Alumno> alumnosBD = alumnoDAO.allByPersona(persona);
+                    MatriculaResumen matriculaResumens = matriculaResumenDAO.findByAlumnosCiclo(alumnosBD, cicloAcademicos);
+                    alumnoBD = matriculaResumens.getAlumno();
                     if (alumnoBD == null) {
                         mapObservados.put(Long.parseLong("" + fila), "La matricula  " + nroMatricula + " no existe. ( Fila " + fila + ")");
                         continue;
