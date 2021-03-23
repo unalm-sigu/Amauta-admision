@@ -247,4 +247,14 @@ public class PersonaDAOH extends AbstractEasyDAO<Persona> implements PersonaDAO 
         this.update(sql);
     }
 
+    @Override
+    public Persona findByDocIdentidad(String nroDocumento) {
+        Octavia sql = Octavia.query()
+                .from(Persona.class, "per")
+                .leftJoin("tipoDocumento td")
+                .filter("per.numeroDocIdentidad", nroDocumento);
+        return find(sql);
+
+    }
+
 }

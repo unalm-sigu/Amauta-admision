@@ -42,4 +42,6 @@ public interface PersonaDAO extends EasyDAO<Persona> {
 
     void updateColumns(Persona persona, String... columns);
 
+    public Persona findByDocIdentidad(String nroDocumento);
+
 }
