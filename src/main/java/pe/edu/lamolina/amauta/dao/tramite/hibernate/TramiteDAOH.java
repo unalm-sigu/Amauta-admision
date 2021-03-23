@@ -158,7 +158,8 @@ public class TramiteDAOH extends AbstractEasyDAO<Tramite> implements TramiteDAO 
                 .join("persona per", "alumno alum", "alum.carrera car", "alum.situacionAcademica sia", "car.facultad", "car.modalidadEstudio")
                 .join("cicloAcademico ca", "tipoTramite tt", "tt.oficina ofic")
                 .filter("alum.id", alumno)
-                .filter("tt.id", tipoTramite);
+                .filter("tt.id", tipoTramite)
+                .filter("tr.estado", "!=", ANU);
         return find(sql);
     }
 }
