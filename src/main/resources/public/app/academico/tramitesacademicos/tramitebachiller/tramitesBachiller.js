@@ -89,8 +89,33 @@ var app = new Vue({
             return "?origen=" + Base64.encode(url);
         },
         urlReporteBachiller(item) {
-            let $vue = this;
+
             return APP.url('academico/tramiteacademico/tramitebachiller/' + item.tramite.id + '/reporte');
+        },
+        anular(item) {
+            let $vue = this;
+            bootbox.confirm({
+                message: '¿Desea anular el tramite bachiller del alumno?',
+                callback: function (result) {
+                    if (result) {
+                        MODAL.showWait("Espere un momento por favor");
+                        $.ajax({
+                            url: APP.url("academico/tramiteacademico/tramitebachiller/anular"),
+                            contentType: "application/json",
+                            method: 'POST',
+                            data: JSON.stringify(item)
+                        }).then(response => {
+                            if (response.success) {
+                                $vue.$refs.tblTramitesAcademicos.loadRemoteData();
+                                notify(response.message, "success");
+                            } else {
+                                notify(response.message, "error");
+                            }
+                            MODAL.hideWait();
+                        })
+                    }
+                }
+            });
         }
     }
 })

@@ -26,6 +26,7 @@ import pe.edu.lamolina.amauta.dao.academico.EgresadoDAO;
 import pe.edu.lamolina.amauta.dao.academico.EventoCicloAcademicoDAO;
 import pe.edu.lamolina.amauta.dao.academico.TipoCursoCurriculaDAO;
 import pe.edu.lamolina.amauta.dao.general.OficinaDAO;
+import pe.edu.lamolina.amauta.dao.tramite.EstadoTramiteDAO;
 import pe.edu.lamolina.amauta.dao.tramite.ObtencionGradoDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TipoDocumentoCompaniaDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TipoTramiteDAO;
@@ -53,6 +54,7 @@ import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.general.SerieDocumento;
 import pe.edu.lamolina.model.general.TipoDocumentoCompania;
+import pe.edu.lamolina.model.tramite.EstadoTramite;
 import pe.edu.lamolina.model.tramite.ObtencionGrado;
 import pe.edu.lamolina.model.tramite.TipoTramite;
 import pe.edu.lamolina.model.tramite.Tramite;
@@ -104,6 +106,9 @@ public class TramitesTituloServiceImp implements TramitesTituloService {
 
     @Autowired
     ObtencionGradoDAO obtencionGradoDAO;
+
+    @Autowired
+    EstadoTramiteDAO estadoTramiteDAO;
 
     @Override
     public List<TramiteTitulo> allTramitesByFilter(DynatableFilter filter, DataSessionPivot ds) {
@@ -221,7 +226,7 @@ public class TramitesTituloServiceImp implements TramitesTituloService {
         logger.debug("PAse 1");
         Alumno alumnoDB = alumnoDAO.find(tramiteTituloForm.getAlumno());
         Assert.isTrue(alumnoDB.getModalidadEstudio().isOperativePRE(), "El trámite es solo para alumnos de pre grado");
-        
+
         TipoDocumentoCompania tipoDocumentoCompania = tipoDocumentoCompaniaDAO.findByCodigo(TipoDocumentoCompaniaEnum.TRAM_TITULO);
         SerieDocumento serieDocumento = serieDocumentoService.getCorrelativo(tipoDocumentoCompania, Long.valueOf(today.getYear()), ds.getUsuario());
 
@@ -254,6 +259,29 @@ public class TramitesTituloServiceImp implements TramitesTituloService {
         titulo.setUsuario(ds.getUsuario());
         tramiteTituloDAO.save(titulo);
 
+    }
+
+    @Override
+    public void anularTitulo(TramiteTitulo tramiteTitulo, DataSessionPivot ds) {
+        tramiteTitulo = tramiteTituloDAO.find(tramiteTitulo.getId());
+        EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.ANU);
+        ObtencionGrado obtencionGrado = obtencionGradoDAO.findByAlumnoAndTipo(tramiteTitulo.getTramite().getAlumno(), TipoGradoAcademicoEnum.BACH);
+        if (obtencionGrado != null) {
+
+            obtencionGrado.setEstadoTramite(estadoTramite);
+            obtencionGrado.setFechaAnula(new Date());
+            obtencionGrado.setUserAnula(ds.getUsuario());
+            obtencionGradoDAO.updateColumns(obtencionGrado, "estadoTramite", "fechaAnula", "userAnula");
+        }
+
+        Tramite tramite = tramiteTitulo.getTramite();
+        tramite.setFechaModificacion(new Date());
+        tramite.setUserModificacion(ds.getUsuario());
+        tramite.setEstadoEnum(TramiteEstadoEnum.ANU);
+        tramiteDAO.updateEstado(tramite);
+
+        tramiteTitulo.setEstado(TramiteEstadoEnum.ANU.name());
+        tramiteTituloDAO.updateColumns(tramiteTitulo, "estado");
     }
 
 }
