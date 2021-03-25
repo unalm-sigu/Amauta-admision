@@ -164,7 +164,8 @@ public class EncuestaDocenteController {
             ObjectNode node = JsonHelper.createJson(encuesta, JsonNodeFactory.instance, true, new String[]{
                 "*",
                 "configuraEncuesta.*",
-                "periodosEncuesta.*"
+                "periodosEncuesta.*",
+                "periodosEncuesta.modalidadEstudio.*"
             });
             response.setData(node);
             response.setMessage("Encuesta activada satisfactoriamente");
@@ -231,6 +232,7 @@ public class EncuestaDocenteController {
         try {
 
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+            service.validarCursosNoEncuestar(ds);
             String msg = service.generarEncuesta(ds.getCicloAcademico(), encuentarModalidad, ds);
             response.setSuccess(msg == null);
             response.setMessage(msg == null ? "Se inició proceso de generación en encuestas" : msg);

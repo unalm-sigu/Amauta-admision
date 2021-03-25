@@ -11,21 +11,22 @@ import pe.edu.lamolina.amauta.dao.encuesta.PeriodoEncuestaDAO;
 
 @Repository
 public class PeriodoEncuestaDAOH extends AbstractEasyDAO<PeriodoEncuesta> implements PeriodoEncuestaDAO {
-
+    
     public PeriodoEncuestaDAOH() {
         super();
         setClazz(PeriodoEncuesta.class);
     }
-
+    
     @Override
     public List<PeriodoEncuesta> allByEncuesta(EncuestaEstudiantil encuestaEstudiantil) {
         Octavia sql = Octavia.query()
                 .from(PeriodoEncuesta.class, "ec")
                 .join("encuestaEstudiantil ee", "ee.encuesta en", "ee.cicloAcademico ciclo")
+                .join("modalidadEstudio")
                 .filter("ee.id", encuestaEstudiantil);
         return all(sql);
     }
-
+    
     @Override
     public void deleteByEncuestaEstudiantil(EncuestaEstudiantil encuesta) {
         String strQuery = "delete from PeriodoEncuesta ea where ea.encuestaEstudiantil.id = :ENCUESTA ";
@@ -33,5 +34,5 @@ public class PeriodoEncuestaDAOH extends AbstractEasyDAO<PeriodoEncuesta> implem
         query.setLong("ENCUESTA", encuesta.getId());
         query.executeUpdate();
     }
-
+    
 }

@@ -37,6 +37,14 @@ new Vue({
             dataBackdrop: 'static',
             dataKeyboard: 'false'
         },
+        modalModalidadEncuenta: {
+            id: 'modalModalidadEncuenta',
+            title: 'Modalidad Estudiantil de encuesta',
+            modalsize: 'modal-md',
+            header: true,
+            footer: true,
+            showaccept: true
+        },
         mensajeProgreso: "Calculado Información a procesar",
         porcentajeProgreso: 0,
         docentesSecciones: [],
@@ -74,9 +82,11 @@ new Vue({
         facultades: JSON.parse(facultadesJson),
         departamentos: JSON.parse(departamentosJson),
         departamentosVer: JSON.parse(departamentosJson),
+        modalidadesEstudios: JSON.parse(modalidadEstudiosJson),
         configConfirmAction: VUE_MODAL.structConfirm({
             id: "idModalConfirm"
         }),
+        modalidadEstudio: null
     },
     mounted: function () {
         let $vue = this;
@@ -265,7 +275,7 @@ new Vue({
                 },
                 callback: function (result) {
                     if (result) {
-                        axios.post(`/${rutaModulo}/generar`)
+                        axios.post(`/${rutaModulo}/generar`, vue.modalidadEstudio)
                                 .then(response => {
                                     if (response.data.success) {
                                         vue.$refs.modalVerProgreso.open();
@@ -278,6 +288,7 @@ new Vue({
                                     console.log(error);
                                     notify(Messages.errorComunicacion, "error");
                                 });
+                        vue.$refs.modalModalidadEncuenta.close();
                     }
                 }
             });
@@ -699,11 +710,9 @@ new Vue({
             return false;
 
         },
-        findPreguntas(item) {
-
-        },
-        findComentarios(item) {
-
+        openSelectModalidad() {
+            let $vue = this;
+            $vue.$refs.modalModalidadEncuenta.open();
         }
 
     }

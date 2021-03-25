@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +44,7 @@ import pe.edu.lamolina.amauta.dao.encuesta.EncuestaDocenteDAO;
 import pe.edu.lamolina.amauta.dao.encuesta.EncuestaEstudiantilDAO;
 import pe.edu.lamolina.amauta.dao.encuesta.PeriodoEncuestaDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.EPG;
 
 @Service
 @Transactional(readOnly = true)
@@ -79,13 +81,13 @@ public class GeneradorEncuestaCursoServiceImp implements GeneradorEncuestaCursoS
     @Async
     @Override
     @Transactional
-    public void generarEncuesta(CicloAcademico cicloAcademico, DataSessionPivot ds) {
+    public void generarEncuesta(ModalidadEstudio encuentarModalidad, CicloAcademico cicloAcademico, DataSessionPivot ds) {
         visorEncuestaCurso.setEstado("Obteniendo información de matriculados");
         List<MatriculaSeccion> matriculasSecciones = matriculaSeccionDAO.allMatriculadosByCiclo(cicloAcademico);
         List<EncuestaAlumno> encuestasAlumnos = new ArrayList();
 
         visorEncuestaCurso.setEstado("Obteniendo información de cursos-secciones");
-
+        matriculasSecciones = matriculasSecciones.stream().filter(x -> encuentarModalidad.getCodigoEnum() == EPG ? x.getSeccion().getGrupoSeccion().getAnexoBoletin().getAnexoSuperior().isAnexoCursosPostgrado() : !x.getSeccion().getGrupoSeccion().getAnexoBoletin().getAnexoSuperior().isAnexoCursosPostgrado()).collect(Collectors.toList());
         Map<Long, GrupoSeccion> mapGposSeccion = TypesUtil.convertListToMap("seccion.grupoSeccion.id", "seccion.grupoSeccion", matriculasSecciones);
 
         EncuestaEstudiantil encuestaTipoCurso = encuestaEstudiantilDAO.findByCicloTipo(cicloAcademico, TipoExamenVirtualEnum.ENC_CUR);
@@ -103,7 +105,7 @@ public class GeneradorEncuestaCursoServiceImp implements GeneradorEncuestaCursoS
 
             EncuestaEstudiantil encuestaEstudiantilDocente = encuestaEstudiantilDAO.findByCicloTipo(cicloAcademico, TipoExamenVirtualEnum.ENC_DOC);
             List<EncuestaDocente> listEncuestaDocente = encuestaDocenteDAO.allByEncuestaEstudiantilCiclo(encuestaEstudiantilDocente, cicloAcademico);
-
+            listEncuestaDocente = listEncuestaDocente.stream().filter(x -> encuentarModalidad.getCodigoEnum() == EPG ? x.getDocenteSeccion().getSeccion().getGrupoSeccion().getAnexoBoletin().getAnexoSuperior().isAnexoCursosPostgrado() : !x.getDocenteSeccion().getSeccion().getGrupoSeccion().getAnexoBoletin().getAnexoSuperior().isAnexoCursosPostgrado()).collect(Collectors.toList());
             visorEncuestaCurso.iniciarConteo(listEncuestaDocente.size());
             for (EncuestaDocente encuestaDocente : listEncuestaDocente) {
                 Seccion seccion = encuestaDocente.getDocenteSeccion().getSeccion();

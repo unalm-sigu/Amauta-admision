@@ -54,4 +54,6 @@ public interface EncuestaDocenteService {
 
     public List<ModalidadEstudio> allModalidadEstudio();
 
+    public void validarCursosNoEncuestar(DataSessionPivot ds);
+
 }

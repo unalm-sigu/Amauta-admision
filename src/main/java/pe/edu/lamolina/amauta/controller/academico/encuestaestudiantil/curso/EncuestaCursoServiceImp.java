@@ -2,6 +2,7 @@ package pe.edu.lamolina.amauta.controller.academico.encuestaestudiantil.curso;
 
 import com.google.common.base.Strings;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -55,6 +56,9 @@ import pe.edu.lamolina.amauta.dao.encuesta.ExamenVirtualDAO;
 import pe.edu.lamolina.amauta.dao.encuesta.PeriodoEncuestaDAO;
 import pe.edu.lamolina.amauta.dao.encuesta.TipoExamenVirtualDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.academico.ModalidadEstudio;
+import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.EPG;
+import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.PRE;
 
 @Service
 @Transactional(readOnly = true)
@@ -392,7 +396,7 @@ public class EncuestaCursoServiceImp implements EncuestaCursoService {
     }
 
     @Override
-    public String generarEncuesta(CicloAcademico cicloAcademico, DataSessionPivot ds) {
+    public String generarEncuesta(ModalidadEstudio encuentarModalidad, CicloAcademico cicloAcademico, DataSessionPivot ds) {
         if (visorEncuestaCurso.iniciar()) {
             TipoExamenVirtual tipoEncuesta = tipoExamenVirtualDAO.findByEnum(TipoExamenVirtualEnum.ENC_CUR);
             ExamenVirtual encuestaModelo = examenVirtualDAO.findEncuestaActivaByTipo(tipoEncuesta);
@@ -405,7 +409,7 @@ public class EncuestaCursoServiceImp implements EncuestaCursoService {
             ConfiguraEncuesta configuraEncuesta = configuraEncuestaDAO.findByEncuesta(encuesta);
             Assert.isFalse(configuraEncuesta == null, "Falta configurar la encuesta");
 
-            generadorEncuestaCursoService.generarEncuesta(cicloAcademico, ds);
+            generadorEncuestaCursoService.generarEncuesta(encuentarModalidad, cicloAcademico, ds);
             return null;
 
         } else {
@@ -479,4 +483,34 @@ public class EncuestaCursoServiceImp implements EncuestaCursoService {
         return departamentoAcademicoDAO.allFromCursosByCiclo(cicloAcademico);
     }
 
+    @Override
+    public List<ModalidadEstudio> allModalidadEstudio() {
+        return modalidadEstudioDAO.allByCodigos(Arrays.asList(PRE.name(), EPG.name()));
+    }
+
+    @Override
+    @Transactional
+    public void validarCursosNoEncuestar(DataSessionPivot ds) {
+
+        TipoExamenVirtual tipoEncuesta = tipoExamenVirtualDAO.findByEnum(TipoExamenVirtualEnum.ENC_CUR);
+        ExamenVirtual encuestaModelo = examenVirtualDAO.findEncuestaActivaByTipo(tipoEncuesta);
+        EncuestaEstudiantil encuestaBD = encuestaEstudiantilDAO.findByCicloEncuesta(ds.getCicloAcademico(), encuestaModelo);
+
+        List<Curso> cursosNoEncuestar = cursoDAO.allNoEncuestar();
+        List<CursoSinEncuesta> cursosSinEncuesta = cursoSinEncuestaDAO.allByEncuestaEstudiantil(encuestaBD);
+        Map<Long, Curso> mapCursosNoEncuestar = TypesUtil.convertListToMap("curso.id", "curso", cursosSinEncuesta);
+
+        for (Curso curso : cursosNoEncuestar) {
+            Curso cur = mapCursosNoEncuestar.get(curso.getId());
+            if (cur == null) {
+                CursoSinEncuesta cus = new CursoSinEncuesta();
+                cus.setCurso(curso);
+                cus.setEncuestaEstudiantil(encuestaBD);
+                cus.setFechaCreacion(new Date());
+                cus.setUserCreacion(ds.getUsuario());
+                cursoSinEncuestaDAO.save(cus);
+            }
+        }
+
+    }
 }

@@ -47,71 +47,96 @@
         </div>
 
         <div class="row">
-            <div class="col-md-6">
+            <div class="col-md-12">
                 <div class="panel-body">
 
                     <form id='formConfiguraEncuesta' class="form-horizontal" data-parsley-validate="true">
-                        <div class="form-group">
-                            <label>Cantidad mínima de alumnos por sección - Pregrado</label>
-                            <input type="text"
-                                   class="form-control input-sm"
-                                   name="cantidadMinimaAlumnos"
-                                   v-model="configuraEncuesta.cantidadMinimaAlumnosPregrado"
-                                   required="true"/>
+                        <div class="form-group ">
+                            <div class="col-md-6">
+                                <label>Cantidad mínima de alumnos por sección - Pregrado</label>
+                                <input type="text"
+                                       class="form-control input-sm"
+                                       name="cantidadMinimaAlumnos"
+                                       v-model="configuraEncuesta.cantidadMinimaAlumnosPregrado"
+                                       required="true"/>
+                            </div>
+                            <div class="col-md-6">
+                                <label>Cantidad mínima de alumnos por sección - Posgrado</label>
+                                <input type="text"
+                                       class="form-control input-sm"
+                                       name="cantidadMinimaAlumnos"
+                                       v-model="configuraEncuesta.cantidadMinimaAlumnosPosgrado"
+                                       required="true"/>
+                            </div>
                         </div>
                         <div class="form-group">
-                            <label>Cantidad mínima de alumnos por sección - Posgrado</label>
-                            <input type="text"
-                                   class="form-control input-sm"
-                                   name="cantidadMinimaAlumnos"
-                                   v-model="configuraEncuesta.cantidadMinimaAlumnosPosgrado"
-                                   required="true"/>
+                            <div class="col-md-6">
+                                <label>Cantidad máxima de docentes por sección</label>
+                                <input type="text"
+                                       class="form-control input-sm"
+                                       name="cantidadMaximaDocentes"
+                                       v-model="configuraEncuesta.cantidadMaximaDocentes"
+                                       required="true"/>
+                            </div>
+                            <div class="col-md-6">
+                                <div>Solo una encuesta para el docente que dicta la teoría 
+                                    y la práctica</div>
+                                <label class="switch">
+                                    <input type="checkbox"
+                                           name="encuestaTeoriaPractica"
+                                           v-model="configuraEncuesta.encuestaTeoriaPractica"
+                                           />
+                                    <span></span>
+                                </label>
+                            </div>
                         </div>
+
                         <div class="form-group">
-                            <label>Cantidad máxima de docentes por sección</label>
-                            <input type="text"
-                                   class="form-control input-sm"
-                                   name="cantidadMaximaDocentes"
-                                   v-model="configuraEncuesta.cantidadMaximaDocentes"
-                                   required="true"/>
-                        </div>
-                        <div class="form-group">
-                            <div>Solo una encuesta para el docente que dicta la teoría 
-                                y la práctica</div>
-                            <label class="switch">
-                                <input type="checkbox"
-                                       name="encuestaTeoriaPractica"
-                                       v-model="configuraEncuesta.encuestaTeoriaPractica"
-                                       />
-                                <span></span>
-                            </label>
-                        </div>
-                        <div class="form-group">
-                            <label>Días de encuesta antes del última día de clases
-                                para secciones polidocentes</label>
-                            <input type="text"
-                                   class="form-control input-sm"
-                                   name="diasEncuesta"
-                                   v-model="configuraEncuesta.diasEncuesta"
-                                   required="true"/>
+                            <div class="col-md-6">
+                                <label>Días de encuesta antes del última día de clases
+                                    para secciones polidocentes - Pregrado</label>
+                                <input type="text"
+                                       class="form-control input-sm"
+                                       name="diasEncuesta"
+                                       v-model="configuraEncuesta.diasEncuesta"
+                                       required="true"/>
+                            </div>
+                            <div class="col-md-6">
+                                <label>Días de encuesta antes del última día de clases
+                                    para secciones polidocentes - Posgrado</label>
+                                <input type="text"
+                                       class="form-control input-sm"
+                                       name="diasEncuesta"
+                                       v-model="configuraEncuesta.diasEncuestaPosgrado"
+                                       required="true"/>
+                            </div>
                         </div>
                     </form>
                 </div>
-            </div>
-
-            <div class="col-md-6">
                 <div class="panel-body">
                     Fechas en que se efectuarán las encuestas para secciones con un solo docente
                     <table class="table table-condensed m-t">
                         <thead>
                             <tr>
-                                <th class="col-md-6 text-center">Fecha inicio</th>
-                                <th class="col-md-6 text-center">Fecha fin</th>
+                                <th class="col-md-4 text-center">Modalidad</th>
+                                <th class="col-md-4 text-center">Fecha inicio</th>
+                                <th class="col-md-4 text-center">Fecha fin</th>
                                 <th></th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr v-for="(periodo,idx) in periodosEncuesta">
+                                <td>
+                                    <div>
+                                        <multiselect v-model='periodo.modalidadEstudio'               
+                                                     v-bind:options='modalidadesEstudios'
+                                                     label='nombre'
+                                                     v-bind:limit='15'
+                                                     :show-labels="false"
+                                                     track-by='id'>
+                                        </multiselect>
+                                    </div>
+                                </td>
                                 <td>
                                     <div class="input-group">
                                         <date-picker v-bind:config="configDate" v-bind:wrap="false" v-model="periodo.fechaInicio"></date-picker>

@@ -329,6 +329,7 @@ public class EncuestaDocenteServiceImp implements EncuestaDocenteService {
             configuraEncuestaBD.setCantidadMaximaDocentes(configuraEncuestaForm.getCantidadMaximaDocentes());
             configuraEncuestaBD.setCantidadMinimaAlumnosPregrado(configuraEncuestaForm.getCantidadMinimaAlumnosPregrado());
             configuraEncuestaBD.setCantidadMinimaAlumnosPosgrado(configuraEncuestaForm.getCantidadMinimaAlumnosPosgrado());
+            configuraEncuestaBD.setDiasEncuestaPosgrado(configuraEncuestaForm.getDiasEncuestaPosgrado());
             configuraEncuestaBD.setEncuestaTeoriaPractica(configuraEncuestaForm.getEncuestaTeoriaPractica() == null ? 0L : 1L);
             configuraEncuestaBD.setFechaModificacion(new Date());
             configuraEncuestaBD.setUserModificacion(ds.getUsuario());
@@ -656,6 +657,37 @@ public class EncuestaDocenteServiceImp implements EncuestaDocenteService {
     public List<ModalidadEstudio> allModalidadEstudio() {
 
         return modalidadEstudioDAO.allByCodigos(Arrays.asList(PRE.name(), EPG.name()));
+    }
+
+    @Override
+    @Transactional
+    public void validarCursosNoEncuestar(DataSessionPivot ds) {
+        CicloAcademico cicloAcademico = ds.getCicloAcademico();
+        TipoExamenVirtual tipoEncuesta = tipoExamenVirtualDAO.findByEnum(TipoExamenVirtualEnum.ENC_DOC);
+        ExamenVirtual encuestaModelo = examenVirtualDAO.findEncuestaActivaByTipo(tipoEncuesta);
+        EncuestaEstudiantil encuestaTipoDocente = encuestaEstudiantilDAO.findByCicloEncuesta(cicloAcademico, encuestaModelo);
+
+        List<Curso> cursosNoEncuestar = cursoDAO.allNoEncuestar();
+        List<CursoSinEncuesta> cursosSinEncuesta = cursoSinEncuestaDAO.allByEncuestaEstudiantil(encuestaTipoDocente);
+        Map<Long, Curso> mapCursoNoEncuestar = TypesUtil.convertListToMap("id", cursosNoEncuestar);
+        Map<Long, Curso> mapCursoSinEncuesta = TypesUtil.convertListToMap("curso.id", "curso", cursosSinEncuesta);
+        List<Curso> cursosProgramados = cursoDAO.allProgramadosByCiclo(cicloAcademico);
+
+        for (Curso curso : cursosProgramados) {
+            Curso cursoNoProgramado = mapCursoNoEncuestar.get(curso.getId());
+            Curso cursoSinEncuesta = mapCursoSinEncuesta.get(curso.getId());
+            if (cursoNoProgramado != null && cursoSinEncuesta == null) {
+                CursoSinEncuesta cus = new CursoSinEncuesta();
+                cus.setCurso(curso);
+                cus.setEncuestaEstudiantil(encuestaTipoDocente);
+                cus.setFechaCreacion(new Date());
+                cus.setUserCreacion(ds.getUsuario());
+                cursoSinEncuestaDAO.save(cus);
+
+                mapCursoSinEncuesta.put(curso.getId(), curso);
+            }
+        }
+
     }
 
 }

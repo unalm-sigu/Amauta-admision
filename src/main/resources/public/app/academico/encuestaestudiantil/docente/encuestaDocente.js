@@ -323,6 +323,7 @@ new Vue({
                     $vue.configuraEncuesta = {};
                     if ($vue.encuesta.configuraEncuesta.length > 0) {
                         $vue.configuraEncuesta = $vue.encuesta.configuraEncuesta[0];
+                        $vue.periodosEncuesta = $vue.encuesta.periodosEncuesta;
                     }
                 }
             }).catch(function (error) {

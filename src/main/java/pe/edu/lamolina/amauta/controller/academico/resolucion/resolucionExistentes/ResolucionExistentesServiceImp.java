@@ -1444,7 +1444,7 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
             tramiteDAO.save(tramite);
 
             AlumnoCursoCurricula alumnoCursoCurricula = alumnoCursoCurriculaDAO.findPracticaPreProfesional(alumno);
-            Assert.isNotNull(alumnoCursoCurricula, "El alumno no tiene Practicas habilitadas");
+            Assert.isNotNull(alumnoCursoCurricula, "El alumno "alumno.getCodigo() + " no tiene Practicas habilitadas");
             CursoCurricula cursoCurricula = alumnoCursoCurricula.getCursoCurricula();
             PracticasPreProfesional preProfesionales = new PracticasPreProfesional();
             preProfesionales.setAlumno(practicasForm.getAlumno());
