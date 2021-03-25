@@ -1454,24 +1454,33 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
             preProfesionales.setUsuario(ds.getUsuario());
             preProfesionales.setEstado(EstadoEnum.ACT.name());
             preProfesionales.setFechaRegistro(new Date());
+            preProfesionales.setCreditos(practicasForm.getCreditos());
             practicaPreProfesionalesDAO.save(preProfesionales);
 
             AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findLastActiveRegByAlumno(alumno);
-            AlumnoCicloCurso alumnoCicloCurso = new AlumnoCicloCurso();
-            alumnoCicloCurso.setAlumnoCiclo(alumnoCiclo);
-            alumnoCicloCurso.setCreditos(cursoCurricula.getCreditos());
-            alumnoCicloCurso.setCurso(cursoCurricula.getCurso());
-            alumnoCicloCurso.setEstaAprobado(1);
-            alumnoCicloCurso.setEstadoEnum(EstadoMatriculaEnum.MAT);
-            alumnoCicloCurso.setFechaRegistro(new Date());
-            alumnoCicloCurso.setNota("AP");
-            alumnoCicloCurso.setOrigenData(OrigenDataSituacionAcademicaEnum.RES);
-            alumnoCicloCurso.setRegistroActivo(1);
-            alumnoCicloCurso.setTipoCursoCurricula(cursoCurricula.getTipoCursoCurricula());
-            alumnoCicloCurso.setVecesCursado(1);
-            alumnoCicloCurso.setVecesCursadoRegular(1);
-            alumnoCicloCurso.setUsuarioRegistro(ds.getUsuario());
-            alumnoCicloCursoDAO.save(alumnoCicloCurso);
+            AlumnoCicloCurso alumnoCicloCurso = alumnoCicloCursoDAO.findByAlumnoCurso(alumno, cursoCurricula.getCurso());
+            if (alumnoCicloCurso == null) {
+                alumnoCicloCurso = new AlumnoCicloCurso();
+                alumnoCicloCurso.setAlumnoCiclo(alumnoCiclo);
+                alumnoCicloCurso.setCreditos(practicasForm.getCreditos());
+                alumnoCicloCurso.setCurso(cursoCurricula.getCurso());
+                alumnoCicloCurso.setEstaAprobado(1);
+                alumnoCicloCurso.setEstadoEnum(EstadoMatriculaEnum.MAT);
+                alumnoCicloCurso.setFechaRegistro(new Date());
+                alumnoCicloCurso.setNota("AP");
+                alumnoCicloCurso.setOrigenData(OrigenDataSituacionAcademicaEnum.RES);
+                alumnoCicloCurso.setRegistroActivo(1);
+                alumnoCicloCurso.setTipoCursoCurricula(cursoCurricula.getTipoCursoCurricula());
+                alumnoCicloCurso.setVecesCursado(1);
+                alumnoCicloCurso.setVecesCursadoRegular(1);
+                alumnoCicloCurso.setUsuarioRegistro(ds.getUsuario());
+                alumnoCicloCursoDAO.save(alumnoCicloCurso);
+            } else {
+                alumnoCicloCurso.setCreditos(alumnoCicloCurso.getCreditos() + practicasForm.getCreditos());
+                alumnoCicloCurso.setUserModificacion(ds.getUsuario());
+                alumnoCicloCurso.setFechaModificacion(new Date());
+                alumnoCicloCursoDAO.updateColumns(alumnoCicloCurso, "creditos", "userModificacion", "fechaModificacion");
+            }
 
             alumnos.add(alumno);
         }

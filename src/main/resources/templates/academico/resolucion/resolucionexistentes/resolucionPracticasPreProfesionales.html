@@ -28,6 +28,9 @@
     <td class="v-middle text-center">
         <span v-if="resolucion.tipoResolucion != null" class="block text-muted" v-text="resolucion.tipoResolucion.nombre"></span>
     </td>
+    <td class="v-middle text-center">
+        <input  class="form-control" v-model="practicas.creditos" />
+    </td>
     <td>
         <button v-on:click="deleteItem(index)" class="btn btn-danger"  v-bind:disabled="isEdicion &amp;&amp; titulo.id != null">
             <i class="fa fa-trash-o " aria-hidden="true"></i>
