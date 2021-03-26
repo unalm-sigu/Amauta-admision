@@ -118,15 +118,13 @@ public interface CicloAcademicoDAO extends EasyDAO<CicloAcademico> {
 
     List<CicloAcademico> allCicloOrdenMerito(CicloAcademico cicloActivo, CicloAcademico cicloDesde);
 
-    void updateColumns(CicloAcademico ciclo, String... columns);
-
     List<CicloAcademico> allAnterioresRegistroActivoPre(int i, CicloAcademico cicloAcademico);
 
     List<CicloAcademico> allMenorIgual(int ciclos, CicloAcademico ciclo);
 
-    public CicloAcademico findByCodigoAndModalidad(String string, ModalidadEstudioEnum modalidadEstudioEnum);
+    CicloAcademico findByCodigoAndModalidad(String string, ModalidadEstudioEnum modalidadEstudioEnum);
 
-    public List<CicloAcademico> allUltimosByModalidadEnum(ModalidadEstudioEnum modalidadEstudioEnum, int i);
+    List<CicloAcademico> allUltimosByModalidadEnum(ModalidadEstudioEnum modalidadEstudioEnum, int i);
 
     CicloAcademico findConfiguradoPregrado();
 
