@@ -1428,6 +1428,9 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
         List<Alumno> alumnos = new ArrayList<>();
         for (PracticasPreProfesional practicasForm : resolucionForm.getTramitePracticasPreProfesionales()) {
 
+            if (practicasForm.getId() != null) {
+                continue;
+            }
             DateTime today = new DateTime();
             TipoDocumentoCompania tipoDocumentoCompania = tipoDocumentoCompaniaDAO.findByCodigo(TipoDocumentoCompaniaEnum.TRAM_PRAC_PROF);
             SerieDocumento serieDocumento = serieDocumentoService.getCorrelativo(tipoDocumentoCompania, Long.valueOf(today.getYear()), ds.getUsuario());
