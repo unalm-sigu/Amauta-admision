@@ -40,7 +40,6 @@ import pe.edu.lamolina.model.academico.ConvenioBeca;
 import pe.edu.lamolina.model.academico.CicloAcademico;
 import pe.edu.lamolina.model.academico.ModalidadEstudio;
 import pe.edu.lamolina.model.constantines.AcademicoConstantine;
-import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
 import pe.edu.lamolina.model.general.Compania;
 import pe.edu.lamolina.model.general.Empresa;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
