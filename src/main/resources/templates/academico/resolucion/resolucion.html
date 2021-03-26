@@ -95,7 +95,8 @@
                                                     
                                                         <a class="aceptar-expandir-sistema"  
                                                            v-on:click="editarResolucionOther(item,$event)" href="#"
-                                                           v-if="item.isTipoTramiteBachiller || item.isTipoTramiteTitulo"
+                                                           v-if="item.isTipoTramiteBachiller || item.isTipoTramiteTitulo || 
+                                                           item.isTipoTramitePracticas"
                                                            >
                                                             Editar
                                                         </a>

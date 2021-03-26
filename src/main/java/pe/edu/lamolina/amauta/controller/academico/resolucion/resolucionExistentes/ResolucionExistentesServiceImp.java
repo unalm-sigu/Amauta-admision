@@ -692,6 +692,8 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
             this.saveTramiteBachiller(resolucionForm, resolucionBD, ds);
         } else if (resolucionBD.isTipoTramiteTitulo()) {
             this.saveTramiteTitulo(resolucionForm, resolucionBD, ds);
+        } else if (resolucionBD.isTipoTramitePracticas()) {
+            return Arrays.asList(this.saveTramitePracticas(resolucionForm, resolucionBD, ds));
         }
 
         return Arrays.asList("");
@@ -1401,22 +1403,26 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
 
     @Override
     @Transactional
-    public String saveTramitePracticas(Resolucion resolucionForm, DataSessionPivot ds) {
+    public String saveResolucionTramitePracticas(Resolucion resolucionForm, DataSessionPivot ds) {
         TipoResolucion tipoResolucion = tipoResolucionDAO.finByCodigo(TipoResolucionEnum.PRACTICAS);
-        Resolucion resolucion = new Resolucion();
-        resolucion.setOficina(resolucionForm.getOficina());
-        resolucion.setFecha(resolucionForm.getFecha());
-        resolucion.setNumero(resolucionForm.getNumero());
-        resolucion.setSerie(resolucionForm.getSerie());
-        resolucion.setNumeroVisible(resolucion.getDescripcion());
-        resolucion.setCicloAplica(resolucionForm.getCicloAplica());
-        resolucion.setEstadoEnum(ResolucionEstadoEnum.VB_RES);
-        resolucion.setFechaRegistro(new Date());
-        resolucion.setTipoResolucion(tipoResolucion);
-        resolucion.setUserRegistro(ds.getUsuario());
-        resolucion.setAplicacionDirecta(1l);
-        resolucionDAO.save(resolucion);
+        Resolucion resolucionBD = new Resolucion();
+        resolucionBD.setOficina(resolucionForm.getOficina());
+        resolucionBD.setFecha(resolucionForm.getFecha());
+        resolucionBD.setNumero(resolucionForm.getNumero());
+        resolucionBD.setSerie(resolucionForm.getSerie());
+        resolucionBD.setNumeroVisible(resolucionBD.getDescripcion());
+        resolucionBD.setCicloAplica(resolucionForm.getCicloAplica());
+        resolucionBD.setEstadoEnum(ResolucionEstadoEnum.VB_RES);
+        resolucionBD.setFechaRegistro(new Date());
+        resolucionBD.setTipoResolucion(tipoResolucion);
+        resolucionBD.setUserRegistro(ds.getUsuario());
+        resolucionBD.setAplicacionDirecta(1l);
+        resolucionDAO.save(resolucionBD);
 
+        return saveTramitePracticas(resolucionForm, resolucionBD, ds);
+    }
+
+    private String saveTramitePracticas(Resolucion resolucionForm, Resolucion resolucionBD, DataSessionPivot ds) {
         EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.SOL_ACEP);
 
         List<Alumno> alumnos = new ArrayList<>();
@@ -1449,7 +1455,7 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
             PracticasPreProfesional preProfesionales = new PracticasPreProfesional();
             preProfesionales.setAlumno(practicasForm.getAlumno());
             preProfesionales.setCurso(cursoCurricula.getCurso());
-            preProfesionales.setResolucion(resolucion);
+            preProfesionales.setResolucion(resolucionBD);
             preProfesionales.setTramite(tramite);
             preProfesionales.setUsuario(ds.getUsuario());
             preProfesionales.setEstado(EstadoEnum.ACT.name());
@@ -1459,10 +1465,11 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
 
             AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findLastActiveRegByAlumno(alumno);
             AlumnoCicloCurso alumnoCicloCurso = alumnoCicloCursoDAO.findByAlumnoCurso(alumno, cursoCurricula.getCurso());
+            Integer creditos = practicasForm.getCreditos() == null ? alumnoCicloCurso.getCreditos() : practicasForm.getCreditos();
             if (alumnoCicloCurso == null) {
                 alumnoCicloCurso = new AlumnoCicloCurso();
                 alumnoCicloCurso.setAlumnoCiclo(alumnoCiclo);
-                alumnoCicloCurso.setCreditos(practicasForm.getCreditos());
+                alumnoCicloCurso.setCreditos(creditos);
                 alumnoCicloCurso.setCurso(cursoCurricula.getCurso());
                 alumnoCicloCurso.setEstaAprobado(1);
                 alumnoCicloCurso.setEstadoEnum(EstadoMatriculaEnum.MAT);
@@ -1476,6 +1483,7 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
                 alumnoCicloCurso.setUsuarioRegistro(ds.getUsuario());
                 alumnoCicloCursoDAO.save(alumnoCicloCurso);
             } else {
+                Assert.isNotNull(practicasForm.getCreditos(), "Hay inconsistencia con el alumno " + alumno.getCodigo() + ". Facultad no permite ingreso de créditos por separado.");
                 alumnoCicloCurso.setCreditos(alumnoCicloCurso.getCreditos() + practicasForm.getCreditos());
                 alumnoCicloCurso.setUserModificacion(ds.getUsuario());
                 alumnoCicloCurso.setFechaModificacion(new Date());
@@ -1566,6 +1574,11 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
     @Override
     public List<TramiteTitulo> allTramiteTitulo(Resolucion resolucionDB) {
         return tramiteTituloDAO.allByResolucion(resolucionDB);
+    }
+
+    @Override
+    public List<PracticasPreProfesional> allPracticasPreProfesionales(Resolucion resolucionDB) {
+        return practicaPreProfesionalesDAO.allByResolucion(resolucionDB);
     }
 
 }

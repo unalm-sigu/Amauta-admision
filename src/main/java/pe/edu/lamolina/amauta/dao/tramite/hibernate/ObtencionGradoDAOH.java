@@ -138,7 +138,7 @@ public class ObtencionGradoDAOH extends AbstractEasyDAO<ObtencionGrado> implemen
                 .join("cicloAcademico", "gradoAcademico ga")
                 .join("estadoTramite et")
                 .filter("ga.tipo", tipoGradoAcademicoEnum)
-                .filter("et.codigo", ANU)
+                .filter("et.codigo", "!=", ANU)
                 .filter("alu.id", alumno);
 
         return find(sql);

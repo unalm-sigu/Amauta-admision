@@ -22,6 +22,7 @@ import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.amauta.controller.seriedocumento.SerieDocumentoService;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoCicloCursoDAO;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoCicloDAO;
+import pe.edu.lamolina.amauta.dao.academico.AlumnoCursoCurriculaDAO;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.amauta.dao.academico.EgresadoDAO;
 import pe.edu.lamolina.amauta.dao.academico.EventoCicloAcademicoDAO;
@@ -55,18 +56,16 @@ import pe.edu.lamolina.model.enums.TipoDocumentoCompaniaEnum;
 import pe.edu.lamolina.model.enums.TipoGradoAcademicoEnum;
 import pe.edu.lamolina.model.enums.TipoSolicitanteEnum;
 import pe.edu.lamolina.model.enums.TipoTramiteEnum;
-import static pe.edu.lamolina.model.enums.TipoTramiteEnum.BACHI;
-import static pe.edu.lamolina.model.enums.TipoTramiteEnum.TIT;
 import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.general.SerieDocumento;
 import pe.edu.lamolina.model.general.TipoDocumentoCompania;
+import pe.edu.lamolina.model.matricula.AlumnoCursoCurricula;
 import pe.edu.lamolina.model.tramite.EstadoTramite;
 import pe.edu.lamolina.model.tramite.ObtencionGrado;
 import pe.edu.lamolina.model.tramite.TipoTramite;
 import pe.edu.lamolina.model.tramite.Tramite;
 import pe.edu.lamolina.model.tramite.TramiteBachiller;
-import pe.edu.lamolina.model.tramite.TramiteTitulo;
 
 @Service
 @Transactional(readOnly = true)
@@ -127,6 +126,9 @@ public class TramitesBachillerServiceImp implements TramitesBachillerService {
     @Autowired
     ObtencionGradoDAO obtencionGradoDAO;
 
+    @Autowired
+    AlumnoCursoCurriculaDAO alumnoCursoCurriculaDAO;
+
     @Override
     public List<TramiteBachiller> allTramitesByFilter(DynatableFilter filter, DataSessionPivot ds) {
 
@@ -150,6 +152,10 @@ public class TramitesBachillerServiceImp implements TramitesBachillerService {
         TipoCursoCurricula tipoCursoCurriculaDeporte = tipoCursoCurriculaDAO.findByCodigo(TipoCursoCurriculaEnum.DEP);
         TipoCursoCurricula tipoCursoCurriculaGen = tipoCursoCurriculaDAO.findByCodigo(TipoCursoCurriculaEnum.GEN);
         List<AlumnoCicloCurso> alumnoCicloCursos = alumnoCicloCursoDAO.allOperativesByAlumno(alumno);
+
+        List<AlumnoCursoCurricula> alumnoCursoCurriculas = alumnoCursoCurriculaDAO.allByAlumno(alumno);
+        Map<Long, TipoCursoCurricula> mapAlumnoCursoCurricula = TypesUtil.convertListToMap("curso.id", "tipoCursoCurricula", alumnoCursoCurriculas);
+
         for (AlumnoCicloCurso alumnoCicloCurso : alumnoCicloCursos) {
             if (alumnoCicloCurso.getTipoCursoCurricula() != null && alumnoCicloCurso.getTipoCursoCurricula().getCodigoEnum() == DEP) {
                 if (alumnoCicloCurso.getCreditos() > 0) {
@@ -158,7 +164,12 @@ public class TramitesBachillerServiceImp implements TramitesBachillerService {
                 }
             }
             if (alumnoCicloCurso.getTipoCursoCurricula() == null) {
-                alumnoCicloCurso.setTipoCursoCurricula(tipoCursoCurriculaDeporte);
+                TipoCursoCurricula tipoCursoCurricula = mapAlumnoCursoCurricula.get(alumnoCicloCurso.getCurso().getId());
+                if (tipoCursoCurricula == null) {
+                    alumnoCicloCurso.setTipoCursoCurricula(tipoCursoCurriculaDeporte);
+                } else {
+                    alumnoCicloCurso.setTipoCursoCurricula(tipoCursoCurricula);
+                }
             }
         }
         Map<TipoCursoCurricula, List<AlumnoCicloCurso>> historial = alumnoCicloCursos

@@ -22,6 +22,7 @@ import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.amauta.controller.seriedocumento.SerieDocumentoService;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoCicloCursoDAO;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoCicloDAO;
+import pe.edu.lamolina.amauta.dao.academico.AlumnoCursoCurriculaDAO;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.amauta.dao.academico.CarreraDAO;
 import pe.edu.lamolina.amauta.dao.academico.CicloAcademicoDAO;
@@ -60,6 +61,7 @@ import static pe.edu.lamolina.model.enums.TramiteEstadoEnum.SOL;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.general.SerieDocumento;
 import pe.edu.lamolina.model.general.TipoDocumentoCompania;
+import pe.edu.lamolina.model.matricula.AlumnoCursoCurricula;
 import pe.edu.lamolina.model.tramite.EstadoTramite;
 import pe.edu.lamolina.model.tramite.Reincorporacion;
 import pe.edu.lamolina.model.tramite.TipoTramite;
@@ -120,6 +122,9 @@ public class TramitesTrasladoServiceImp implements TramiteTrasladoService {
 
     @Autowired
     TramiteTrasladoDAO tramiteTrasladoDAO;
+
+    @Autowired
+    AlumnoCursoCurriculaDAO alumnoCursoCurriculaDAO;
 
     @Override
     public List<TramiteTraslado> allTramitesByFilter(DynatableFilter filter, DataSessionPivot ds) {
@@ -190,6 +195,10 @@ public class TramitesTrasladoServiceImp implements TramiteTrasladoService {
         TipoCursoCurricula tipoCursoCurriculaDeporte = tipoCursoCurriculaDAO.findByCodigo(TipoCursoCurriculaEnum.DEP);
         TipoCursoCurricula tipoCursoCurriculaGen = tipoCursoCurriculaDAO.findByCodigo(TipoCursoCurriculaEnum.GEN);
         List<AlumnoCicloCurso> alumnoCicloCursos = alumnoCicloCursoDAO.allActivosByAlumno(alumno);
+
+        List<AlumnoCursoCurricula> alumnoCursoCurriculas = alumnoCursoCurriculaDAO.allByAlumno(alumno);
+        Map<Long, TipoCursoCurricula> mapAlumnoCursoCurricula = TypesUtil.convertListToMap("curso.id", "tipoCursoCurricula", alumnoCursoCurriculas);
+
         for (AlumnoCicloCurso alumnoCicloCurso : alumnoCicloCursos) {
             if (alumnoCicloCurso.getTipoCursoCurricula() != null && alumnoCicloCurso.getTipoCursoCurricula().getCodigoEnum() == DEP) {
                 if (alumnoCicloCurso.getCreditos() > 0) {
@@ -198,7 +207,12 @@ public class TramitesTrasladoServiceImp implements TramiteTrasladoService {
                 }
             }
             if (alumnoCicloCurso.getTipoCursoCurricula() == null) {
-                alumnoCicloCurso.setTipoCursoCurricula(tipoCursoCurriculaDeporte);
+                TipoCursoCurricula tipoCursoCurricula = mapAlumnoCursoCurricula.get(alumnoCicloCurso.getCurso().getId());
+                if (tipoCursoCurricula == null) {
+                    alumnoCicloCurso.setTipoCursoCurricula(tipoCursoCurriculaDeporte);
+                } else {
+                    alumnoCicloCurso.setTipoCursoCurricula(tipoCursoCurricula);
+                }
             }
         }
         Map<TipoCursoCurricula, List<AlumnoCicloCurso>> historial = alumnoCicloCursos

@@ -63,6 +63,7 @@ import static pe.edu.lamolina.model.enums.TipoResolucionEnum.RCI;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.REIC;
 import static pe.edu.lamolina.model.enums.TipoResolucionEnum.TITUL;
 import pe.edu.lamolina.model.tramite.ObtencionGrado;
+import pe.edu.lamolina.model.tramite.PracticasPreProfesional;
 import pe.edu.lamolina.model.tramite.Tramite;
 import pe.edu.lamolina.model.tramite.TramiteBachiller;
 import pe.edu.lamolina.model.tramite.TramiteTitulo;
@@ -282,7 +283,7 @@ public class ResolucionExistentesController {
             } else if (resolucion.isTipoTramiteTitulo()) {
                 service.saveTramiteTitulo(resolucion, ds);
             } else if (resolucion.isTipoTramitePracticas()) {
-                String token = service.saveTramitePracticas(resolucion, ds);
+                String token = service.saveResolucionTramitePracticas(resolucion, ds);
                 matriculableService.calcularPromedios(token, ds);
                 matriculableService.revisarCurriculaAlumnos(ds, token);
             }
@@ -353,6 +354,11 @@ public class ResolucionExistentesController {
                 service.updateResolucion(resolucion, ds.getUsuario(), ds);
             } else if (resolucion.isTipoTramiteTitulo()) {
                 service.updateResolucion(resolucion, ds.getUsuario(), ds);
+            } else if (resolucion.isTipoTramitePracticas()) {
+                respuestas = service.updateResolucion(resolucion, ds.getUsuario(), ds);
+                String token = respuestas.get(0);
+                matriculableService.calcularPromedios(token, ds);
+                matriculableService.revisarCurriculaAlumnos(ds, token);
             }
 
             response.setMessage("Se realizó el registro satisfactoriamente.");
@@ -406,107 +412,108 @@ public class ResolucionExistentesController {
             "oficina.*",
             "cicloAplica.*"
         });
-        if (resolucionDB.getTipoResolucion().getCodigo().equals(REIC.name())) {
-            reincorporacions = service.allReincorporacionByResolucion(resolucionDB);
-            for (Reincorporacion reicorporacion : reincorporacions) {
-                ObjectNode node = JsonHelper.createJson(reicorporacion, JsonNodeFactory.instance, new String[]{
-                    "*",
-                    "facultad.*",
-                    "alumno.*",
-                    "alumno.persona.*",
-                    "alumno.persona.tipoDocumento.*",
-                    "cicloReincorporacion.*"
-                });
-                node.put("tipo", REIC.name());
-                array.add(node);
-            }
-            objectNode.set("reincorporaciones", array);
-        } else if (resolucionDB.getTipoResolucion().getCodigo().equals(RCI.name())) {
-
-            retiroCiclos = service.allRetiroCicloByResolucion(resolucionDB);
-            for (RetiroCiclo retiroCiclo : retiroCiclos) {
-                ObjectNode node = JsonHelper.createJson(retiroCiclo, JsonNodeFactory.instance, new String[]{
-                    "*",
-                    "alumno.*",
-                    "alumno.persona.*",
-                    "alumno.persona.tipoDocumento.*",
-                    "cicloAcademico.*"
-                });
-                node.put("tipo", RCI.name());
-                array.add(node);
-            }
-            objectNode.set("retiroCiclo", array);
-        } else if (resolucionDB.getTipoResolucion().getCodigo().equals(CAM_NOTA.name())) {
-            cambioNotas = service.allCambioNota(resolucionDB);
-            for (CambioNota cambioNota : cambioNotas) {
-                ObjectNode node = JsonHelper.createJson(cambioNota, JsonNodeFactory.instance, new String[]{
-                    "*",
-                    "curso.*",
-                    "alumno.*",
-                    "alumno.persona.*",
-                    "alumno.persona.tipoDocumento.*",
-                    "cicloAcademico.*"
-                });
-                node.put("tipo", CAM_NOTA.name());
-                array.add(node);
-            }
-            objectNode.set("cambioNota", array);
-        } else if (resolucionDB.getTipoResolucion().getCodigo().equals(CURDIR.name())) {
-            cursoDirigidos = service.allCursodirigido(resolucionDB);
-            for (CursoDirigido cursoDir : cursoDirigidos) {
-
-                cursoDir.setAlumno(cursoDir.getTramite().getAlumno());
-                ObjectNode node = JsonHelper.createJson(cursoDir, JsonNodeFactory.instance, new String[]{
-                    "*",
-                    "alumno.id",
-                    "alumno.codigo",
-                    "alumno.persona.*",
-                    "curso.*",
-                    "docenteAsignado.*",
-                    "docenteAsignado.*",
-                    "docenteAsignado.persona.*",
-                    "tramite.*",
-                    "tramite.alumno.*",
-                    "tramite.alumno.persona.*",
-                    "tramite.alumno.persona.tipoDocumento.*", //                        "cicloAcademico.*"
-                });
-                node.put("tipo", CURDIR.name());
-                array.add(node);
-            }
-            objectNode.set("cursoDirigido", array);
-        } else if (Arrays.asList(TRAS.name(), INTES.name(), ING_HIS.name(), TRAS_INT.name()).contains(resolucionDB.getTipoResolucion().getCodigo())) {
-            List<TramiteTraslado> tramiteTraslados = service.allTramiteTraslado(resolucionDB);
-            for (TramiteTraslado tramiteTras : tramiteTraslados) {
-                tramiteTras.setAlumno(tramiteTras.getTramite().getAlumno());
-                ObjectNode node = JsonHelper.createJson(tramiteTras, JsonNodeFactory.instance, new String[]{
-                    "*",
-                    "alumno.id",
-                    "alumno.codigo",
-                    "alumno.persona.*",
-                    "tramite.cicloAcademico.id", "tramite.cicloAcademico.descripcion",
-                    "tramite.alumno.*",
-                    "tramite.alumno.persona.*",
-                    "tramite.alumno.persona.tipoDocumento.*"
-                });
-                node.put("tipo", TRAS.name());
-                array.add(node);
-            }
-            objectNode.set("tramiteTraslado", array);
-        } else if (resolucionDB.getTipoResolucion().getCodigo().equals(NOTA_BAJA.name())) {
-            List<TramiteTraslado> tramiteTraslados = service.allTramiteTraslado(resolucionDB);
-            for (TramiteTraslado tramiteTras : tramiteTraslados) {
-                ObjectNode node = JsonHelper.createJson(tramiteTras, JsonNodeFactory.instance, new String[]{
-                    "*",
-                    "tramite.cicloAcademico.id", "tramite.cicloAcademico.descripcion",
-                    "tramite.alumno.*",
-                    "tramite.alumno.persona.*",
-                    "tramite.alumno.persona.tipoDocumento.*"
-                });
-                node.put("tipo", NOTA_BAJA.name());
-                array.add(node);
-            }
-            objectNode.set("cambioNotaMasBajas", array);
-        } else if (resolucionDB.getTipoResolucion().getCodigo().equals(BACHI.name())) {
+//        if (resolucionDB.getTipoResolucion().getCodigo().equals(REIC.name())) {
+//            reincorporacions = service.allReincorporacionByResolucion(resolucionDB);
+//            for (Reincorporacion reicorporacion : reincorporacions) {
+//                ObjectNode node = JsonHelper.createJson(reicorporacion, JsonNodeFactory.instance, new String[]{
+//                    "*",
+//                    "facultad.*",
+//                    "alumno.*",
+//                    "alumno.persona.*",
+//                    "alumno.persona.tipoDocumento.*",
+//                    "cicloReincorporacion.*"
+//                });
+//                node.put("tipo", REIC.name());
+//                array.add(node);
+//            }
+//            objectNode.set("reincorporaciones", array);
+//        } else if (resolucionDB.getTipoResolucion().getCodigo().equals(RCI.name())) {
+//
+//            retiroCiclos = service.allRetiroCicloByResolucion(resolucionDB);
+//            for (RetiroCiclo retiroCiclo : retiroCiclos) {
+//                ObjectNode node = JsonHelper.createJson(retiroCiclo, JsonNodeFactory.instance, new String[]{
+//                    "*",
+//                    "alumno.*",
+//                    "alumno.persona.*",
+//                    "alumno.persona.tipoDocumento.*",
+//                    "cicloAcademico.*"
+//                });
+//                node.put("tipo", RCI.name());
+//                array.add(node);
+//            }
+//            objectNode.set("retiroCiclo", array);
+//        } else if (resolucionDB.getTipoResolucion().getCodigo().equals(CAM_NOTA.name())) {
+//            cambioNotas = service.allCambioNota(resolucionDB);
+//            for (CambioNota cambioNota : cambioNotas) {
+//                ObjectNode node = JsonHelper.createJson(cambioNota, JsonNodeFactory.instance, new String[]{
+//                    "*",
+//                    "curso.*",
+//                    "alumno.*",
+//                    "alumno.persona.*",
+//                    "alumno.persona.tipoDocumento.*",
+//                    "cicloAcademico.*"
+//                });
+//                node.put("tipo", CAM_NOTA.name());
+//                array.add(node);
+//            }
+//            objectNode.set("cambioNota", array);
+//        } else if (resolucionDB.getTipoResolucion().getCodigo().equals(CURDIR.name())) {
+//            cursoDirigidos = service.allCursodirigido(resolucionDB);
+//            for (CursoDirigido cursoDir : cursoDirigidos) {
+//
+//                cursoDir.setAlumno(cursoDir.getTramite().getAlumno());
+//                ObjectNode node = JsonHelper.createJson(cursoDir, JsonNodeFactory.instance, new String[]{
+//                    "*",
+//                    "alumno.id",
+//                    "alumno.codigo",
+//                    "alumno.persona.*",
+//                    "curso.*",
+//                    "docenteAsignado.*",
+//                    "docenteAsignado.*",
+//                    "docenteAsignado.persona.*",
+//                    "tramite.*",
+//                    "tramite.alumno.*",
+//                    "tramite.alumno.persona.*",
+//                    "tramite.alumno.persona.tipoDocumento.*", //                        "cicloAcademico.*"
+//                });
+//                node.put("tipo", CURDIR.name());
+//                array.add(node);
+//            }
+//            objectNode.set("cursoDirigido", array);
+//        } else if (Arrays.asList(TRAS.name(), INTES.name(), ING_HIS.name(), TRAS_INT.name()).contains(resolucionDB.getTipoResolucion().getCodigo())) {
+//            List<TramiteTraslado> tramiteTraslados = service.allTramiteTraslado(resolucionDB);
+//            for (TramiteTraslado tramiteTras : tramiteTraslados) {
+//                tramiteTras.setAlumno(tramiteTras.getTramite().getAlumno());
+//                ObjectNode node = JsonHelper.createJson(tramiteTras, JsonNodeFactory.instance, new String[]{
+//                    "*",
+//                    "alumno.id",
+//                    "alumno.codigo",
+//                    "alumno.persona.*",
+//                    "tramite.cicloAcademico.id", "tramite.cicloAcademico.descripcion",
+//                    "tramite.alumno.*",
+//                    "tramite.alumno.persona.*",
+//                    "tramite.alumno.persona.tipoDocumento.*"
+//                });
+//                node.put("tipo", TRAS.name());
+//                array.add(node);
+//            }
+//            objectNode.set("tramiteTraslado", array);
+//        } else if (resolucionDB.getTipoResolucion().getCodigo().equals(NOTA_BAJA.name())) {
+//            List<TramiteTraslado> tramiteTraslados = service.allTramiteTraslado(resolucionDB);
+//            for (TramiteTraslado tramiteTras : tramiteTraslados) {
+//                ObjectNode node = JsonHelper.createJson(tramiteTras, JsonNodeFactory.instance, new String[]{
+//                    "*",
+//                    "tramite.cicloAcademico.id", "tramite.cicloAcademico.descripcion",
+//                    "tramite.alumno.*",
+//                    "tramite.alumno.persona.*",
+//                    "tramite.alumno.persona.tipoDocumento.*"
+//                });
+//                node.put("tipo", NOTA_BAJA.name());
+//                array.add(node);
+//            }
+//            objectNode.set("cambioNotaMasBajas", array);
+//        } 
+        if (resolucionDB.getTipoResolucion().getCodigo().equals(BACHI.name())) {
             List<TramiteBachiller> bachillers = service.allTramiteBachiller(resolucionDB);
             for (TramiteBachiller bachiller : bachillers) {
                 Tramite tramite = bachiller.getTramite();
@@ -514,6 +521,7 @@ public class ResolucionExistentesController {
                 ObjectNode node = JsonHelper.createJson(bachiller, JsonNodeFactory.instance, new String[]{
                     "*",
                     "alumno.*",
+                    "alumno.carrera.*",
                     "alumno.persona.*",
                     "alumno.persona.tipoDocumento.*",
                     "tramite.*"
@@ -531,6 +539,7 @@ public class ResolucionExistentesController {
                 ObjectNode node = JsonHelper.createJson(tit, JsonNodeFactory.instance, new String[]{
                     "*",
                     "alumno.*",
+                    "alumno.carrera.*",
                     "alumno.persona.*",
                     "alumno.persona.tipoDocumento.*",
                     "tramite.*"
@@ -539,6 +548,24 @@ public class ResolucionExistentesController {
                 array.add(node);
             }
             objectNode.set("tramiteTitulos", array);
+        } else if (resolucionDB.getTipoResolucion().getCodigo().equals(PRACTICAS.name())) {
+            List<PracticasPreProfesional> practicas = service.allPracticasPreProfesionales(resolucionDB);
+
+            for (PracticasPreProfesional prac : practicas) {
+                Tramite tramite = prac.getTramite();
+                prac.setAlumno(tramite.getAlumno());
+                ObjectNode node = JsonHelper.createJson(prac, JsonNodeFactory.instance, new String[]{
+                    "*",
+                    "alumno.*",
+                    "alumno.carrera.*",
+                    "alumno.persona.*",
+                    "alumno.persona.tipoDocumento.*",
+                    "tramite.*"
+                });
+                node.put("tipo", PRACTICAS.name());
+                array.add(node);
+            }
+            objectNode.set("tramitePracticasPreProfesionales", array);
         }
 
         return objectNode;

@@ -62,10 +62,10 @@ var app = new Vue({
                 $vue.isBachiller = true;
             } else if ($vue.resolucion.isTipoTramiteTitulo) {
                 $vue.isTitulo = true;
-            } else if ($vue.resolucion.isTramitePracticas) {
+            } else if ($vue.resolucion.isTipoTramitePracticas) {
                 $vue.isPracticas = true;
             }
-            console.log($vue.resolucion);
+            console.log($vue.isPracticas);
         }
 
     }, methods: {
@@ -359,5 +359,11 @@ var app = new Vue({
         customLabelDocente( { persona }){
             return `${persona.nombreCompleto} `;
         },
+        validColumCreditos(item) {
+            if (item.oficina.codigo == "F040") {
+                return true;
+            }
+            return false;
+        }
     }
 })
