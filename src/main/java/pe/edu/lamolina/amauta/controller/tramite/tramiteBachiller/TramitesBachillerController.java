@@ -131,6 +131,29 @@ public class TramitesBachillerController {
         return response;
     }
 
+    @ResponseBody
+    @RequestMapping("anular")
+    public JsonResponse anular(@RequestBody TramiteBachiller tramiteBachiller, HttpSession session) {
+
+        JsonResponse response = new JsonResponse();
+
+        try {
+
+            DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+
+            tramitesBachillerService.anular(tramiteBachiller, ds);
+            response.setMessage("Tramite anulado correctamente.");
+            response.setSuccess(Boolean.TRUE);
+
+        } catch (PhobosException e) {
+            ExceptionHandler.handlePhobosEx(e, response);
+        } catch (Exception e) {
+            ExceptionHandler.handleException(e, response);
+        }
+
+        return response;
+    }
+
     @RequestMapping("{id}/reporte")
     public void bachillerReporte(Model model, HttpSession session, HttpServletResponse response, @PathVariable Long id) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);

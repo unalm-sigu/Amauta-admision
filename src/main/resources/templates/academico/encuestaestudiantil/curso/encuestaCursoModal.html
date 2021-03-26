@@ -14,6 +14,25 @@
 
     </div>
 </modal-vik>
+<modal-vik ref="modalModalidadEncuenta"
+           v-bind="modalModalidadEncuenta"
+           v-bind:okaction="generarEncuesta">
+
+    <div slot="body">
+        <div class="modal-body">
+            <form id="formMatriculable" data-parsley-validate="true">
+                <label>Modalidad Estudio</label>
+                <multiselect v-model='modalidadEstudio'               
+                             v-bind:options='modalidadesEstudios'
+                             placeholder="Elije un opción"
+                             label='nombre'
+                             v-bind:limit='15'
+                             track-by='id'>
+                </multiselect>
+            </form>
+        </div>
+    </div>
+</modal-vik>
 
 <modal-vik ref="modalEncuestaConfig"
            v-bind="cfgEncuestaConfig"
@@ -21,7 +40,7 @@
            v-bind:cancelaction="cancelConfiguracion">
 
     <div slot="body" vclass="panel">
-        <div class="col-md-12 row">
+        <div class="form-group">
             <div class="col-md-4 text-left">
                 <span>¿Encuesta simultáneo con la de docentes?</span>
                 <div class="col-md-3">
@@ -41,44 +60,53 @@
         </div>
 
         <div class="row">
-            <div class="col-md-6">
+            <div class="col-md-12">
                 <div class="panel-body">
-
                     <form id='formConfiguraEncuesta' class="form-horizontal" data-parsley-validate="true">
-
-                        <div class="col-md-12 row m-b">
-                            <label>Cantidad mínima de alumnos por sección - Pregrado</label>
-                            <input type="text"
-                                   class="form-control input-sm"
-                                   name="cantidadMinimaAlumnosPregrado"
-                                   v-model="configuraEncuesta.cantidadMinimaAlumnosPregrado"
-                                   required="true"/>
-                        </div>
-                        <div class="col-md-12 row m-b">
-                            <label>Cantidad mínima de alumnos por sección - Posgrado</label>
-                            <input type="text"
-                                   class="form-control input-sm"
-                                   name="cantidadMinimaAlumnosPosgrado"
-                                   v-model="configuraEncuesta.cantidadMinimaAlumnosPosgrado"
-                                   required="true"/>
+                        <div class="form-group">
+                            <div class="col-md-6 ">
+                                <label>Cantidad mínima de alumnos por sección - Pregrado</label>
+                                <input type="text"
+                                       class="form-control input-sm"
+                                       name="cantidadMinimaAlumnosPregrado"
+                                       v-model="configuraEncuesta.cantidadMinimaAlumnosPregrado"
+                                       required="true"/>
+                            </div>
+                            <div class="col-md-6">
+                                <label>Cantidad mínima de alumnos por sección - Posgrado</label>
+                                <input type="text"
+                                       class="form-control input-sm"
+                                       name="cantidadMinimaAlumnosPosgrado"
+                                       v-model="configuraEncuesta.cantidadMinimaAlumnosPosgrado"
+                                       required="true"/>
+                            </div>
                         </div>
                     </form>
                 </div>
-            </div>
-
-            <div class="col-md-6">
                 <div class="panel-body">
                     Fechas en que se efectuarán las encuestas para secciones con un solo curso
                     <table class="table table-condensed m-t">
                         <thead>
                             <tr>
-                                <th class="col-md-6 text-center">Fecha inicio</th>
-                                <th class="col-md-6 text-center">Fecha fin</th>
+                                <th class="col-md-4 text-center">Modalidad</th>
+                                <th class="col-md-4 text-center">Fecha inicio</th>
+                                <th class="col-md-4 text-center">Fecha fin</th>
                                 <th></th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr v-for="(periodo,idx) in periodosEncuesta">
+                                <td>
+                                    <div>
+                                        <multiselect v-model='periodo.modalidadEstudio'               
+                                                     v-bind:options='modalidadesEstudios'
+                                                     label='nombre'
+                                                     v-bind:limit='15'
+                                                     :show-labels="false"
+                                                     track-by='id'>
+                                        </multiselect>
+                                    </div>
+                                </td>
                                 <td>
                                     <div class="input-group">
                                         <date-picker v-bind:config="configDate" v-bind:wrap="false" v-model="periodo.fechaInicio"></date-picker>
@@ -106,6 +134,7 @@
                     </div>
                 </div>
             </div>
+
         </div>
 
     </div>

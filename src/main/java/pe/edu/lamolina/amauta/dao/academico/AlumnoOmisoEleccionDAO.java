@@ -15,8 +15,10 @@ public interface AlumnoOmisoEleccionDAO extends EasyDAO<AlumnoOmisoEleccion> {
 
     List<AlumnoOmisoEleccion> allByCiclo(List<CicloAcademico> cicloAcademicos);
 
-    AlumnoOmisoEleccion findByAlumnoCicloMotivo(AlumnoOmisoEleccion omisoEleccion);
+    AlumnoOmisoEleccion findDeudaByAlumnoCicloMotivo(AlumnoOmisoEleccion omisoEleccion);
 
     List<AlumnoOmisoEleccion> allDeudasByAlumno(Alumno alumno);
+
+    AlumnoOmisoEleccion findByAlumnoCicloMotivo(AlumnoOmisoEleccion omisoEleccion);
 
 }

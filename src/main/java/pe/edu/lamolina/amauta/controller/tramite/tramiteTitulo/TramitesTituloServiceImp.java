@@ -21,11 +21,13 @@ import pe.albatross.zelpers.miscelanea.Assert;
 import pe.albatross.zelpers.miscelanea.TypesUtil;
 import pe.edu.lamolina.amauta.controller.seriedocumento.SerieDocumentoService;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoCicloCursoDAO;
+import pe.edu.lamolina.amauta.dao.academico.AlumnoCursoCurriculaDAO;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoDAO;
 import pe.edu.lamolina.amauta.dao.academico.EgresadoDAO;
 import pe.edu.lamolina.amauta.dao.academico.EventoCicloAcademicoDAO;
 import pe.edu.lamolina.amauta.dao.academico.TipoCursoCurriculaDAO;
 import pe.edu.lamolina.amauta.dao.general.OficinaDAO;
+import pe.edu.lamolina.amauta.dao.tramite.EstadoTramiteDAO;
 import pe.edu.lamolina.amauta.dao.tramite.ObtencionGradoDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TipoDocumentoCompaniaDAO;
 import pe.edu.lamolina.amauta.dao.tramite.TipoTramiteDAO;
@@ -53,6 +55,8 @@ import pe.edu.lamolina.model.enums.TramiteEstadoEnum;
 import pe.edu.lamolina.model.general.Oficina;
 import pe.edu.lamolina.model.general.SerieDocumento;
 import pe.edu.lamolina.model.general.TipoDocumentoCompania;
+import pe.edu.lamolina.model.matricula.AlumnoCursoCurricula;
+import pe.edu.lamolina.model.tramite.EstadoTramite;
 import pe.edu.lamolina.model.tramite.ObtencionGrado;
 import pe.edu.lamolina.model.tramite.TipoTramite;
 import pe.edu.lamolina.model.tramite.Tramite;
@@ -105,6 +109,12 @@ public class TramitesTituloServiceImp implements TramitesTituloService {
     @Autowired
     ObtencionGradoDAO obtencionGradoDAO;
 
+    @Autowired
+    EstadoTramiteDAO estadoTramiteDAO;
+
+    @Autowired
+    AlumnoCursoCurriculaDAO alumnoCursoCurriculaDAO;
+
     @Override
     public List<TramiteTitulo> allTramitesByFilter(DynatableFilter filter, DataSessionPivot ds) {
 
@@ -128,6 +138,9 @@ public class TramitesTituloServiceImp implements TramitesTituloService {
         TipoCursoCurricula tipoCursoCurriculaDeporte = tipoCursoCurriculaDAO.findByCodigo(TipoCursoCurriculaEnum.DEP);
         TipoCursoCurricula tipoCursoCurriculaGen = tipoCursoCurriculaDAO.findByCodigo(TipoCursoCurriculaEnum.GEN);
         List<AlumnoCicloCurso> alumnoCicloCursos = alumnoCicloCursoDAO.allActivosByAlumno(alumno);
+        List<AlumnoCursoCurricula> alumnoCursoCurriculas = alumnoCursoCurriculaDAO.allByAlumno(alumno);
+        Map<Long, TipoCursoCurricula> mapAlumnoCursoCurricula = TypesUtil.convertListToMap("curso.id", "tipoCursoCurricula", alumnoCursoCurriculas);
+
         for (AlumnoCicloCurso alumnoCicloCurso : alumnoCicloCursos) {
             if (alumnoCicloCurso.getTipoCursoCurricula() != null && alumnoCicloCurso.getTipoCursoCurricula().getCodigoEnum() == DEP) {
                 if (alumnoCicloCurso.getCreditos() > 0) {
@@ -136,7 +149,12 @@ public class TramitesTituloServiceImp implements TramitesTituloService {
                 }
             }
             if (alumnoCicloCurso.getTipoCursoCurricula() == null) {
-                alumnoCicloCurso.setTipoCursoCurricula(tipoCursoCurriculaDeporte);
+                TipoCursoCurricula tipoCursoCurricula = mapAlumnoCursoCurricula.get(alumnoCicloCurso.getCurso().getId());
+                if (tipoCursoCurricula == null) {
+                    alumnoCicloCurso.setTipoCursoCurricula(tipoCursoCurriculaDeporte);
+                } else {
+                    alumnoCicloCurso.setTipoCursoCurricula(tipoCursoCurricula);
+                }
             }
         }
         Map<TipoCursoCurricula, List<AlumnoCicloCurso>> historial = alumnoCicloCursos
@@ -221,7 +239,7 @@ public class TramitesTituloServiceImp implements TramitesTituloService {
         logger.debug("PAse 1");
         Alumno alumnoDB = alumnoDAO.find(tramiteTituloForm.getAlumno());
         Assert.isTrue(alumnoDB.getModalidadEstudio().isOperativePRE(), "El trámite es solo para alumnos de pre grado");
-        
+
         TipoDocumentoCompania tipoDocumentoCompania = tipoDocumentoCompaniaDAO.findByCodigo(TipoDocumentoCompaniaEnum.TRAM_TITULO);
         SerieDocumento serieDocumento = serieDocumentoService.getCorrelativo(tipoDocumentoCompania, Long.valueOf(today.getYear()), ds.getUsuario());
 
@@ -254,6 +272,29 @@ public class TramitesTituloServiceImp implements TramitesTituloService {
         titulo.setUsuario(ds.getUsuario());
         tramiteTituloDAO.save(titulo);
 
+    }
+
+    @Override
+    public void anularTitulo(TramiteTitulo tramiteTitulo, DataSessionPivot ds) {
+        tramiteTitulo = tramiteTituloDAO.find(tramiteTitulo.getId());
+        EstadoTramite estadoTramite = estadoTramiteDAO.findByCodigoEnum(TramiteEstadoEnum.ANU);
+        ObtencionGrado obtencionGrado = obtencionGradoDAO.findByAlumnoAndTipo(tramiteTitulo.getTramite().getAlumno(), TipoGradoAcademicoEnum.TIT);
+        if (obtencionGrado != null) {
+
+            obtencionGrado.setEstadoTramite(estadoTramite);
+            obtencionGrado.setFechaAnula(new Date());
+            obtencionGrado.setUserAnula(ds.getUsuario());
+            obtencionGradoDAO.updateColumns(obtencionGrado, "estadoTramite", "fechaAnula", "userAnula");
+        }
+
+        Tramite tramite = tramiteTitulo.getTramite();
+        tramite.setFechaModificacion(new Date());
+        tramite.setUserModificacion(ds.getUsuario());
+        tramite.setEstadoEnum(TramiteEstadoEnum.ANU);
+        tramiteDAO.updateEstado(tramite);
+
+        tramiteTitulo.setEstado(TramiteEstadoEnum.ANU.name());
+        tramiteTituloDAO.updateColumns(tramiteTitulo, "estado");
     }
 
 }

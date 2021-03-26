@@ -282,7 +282,7 @@ public class AlumnoCursoCurriculaDAOH extends AbstractEasyDAO<AlumnoCursoCurricu
                 .join("alumno alu", "curso cur", "cursoCurricula cc")
                 .filter("alu.id", alumno)
                 .filter("cc.estado", CurriculaEstadoEnum.ACT)
-                .filter("acc.estado", HAB)
+                .in("acc.estado", Arrays.asList(HAB, APR))
                 .like("cur.nombre", "Practica%")
                 .orderBy("acc.numeroCiclo")
                 .limit(1);

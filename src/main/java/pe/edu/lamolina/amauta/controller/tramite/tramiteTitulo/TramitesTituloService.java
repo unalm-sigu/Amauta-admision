@@ -14,4 +14,6 @@ public interface TramitesTituloService {
 
     public void saveTitulo(TramiteTitulo tramiteBachiller, DataSessionPivot ds);
 
+    public void anularTitulo(TramiteTitulo tramiteTitulo, DataSessionPivot ds);
+
 }

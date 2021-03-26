@@ -30,6 +30,7 @@ import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorServic
 import pe.edu.lamolina.model.constantines.AcademicoConstantine;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.academico.ModalidadEstudio;
 
 @Controller
 @RequestMapping("academico/encuestaestudiantil/curso")
@@ -49,8 +50,15 @@ public class EncuestaCursoController {
     @RequestMapping(method = RequestMethod.GET)
     public String index(Model model, HttpSession session) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
+        List<ModalidadEstudio> modalidadEstudios = service.allModalidadEstudio();
         CicloAcademico cicloAcademico = ds.getCicloAcademico();
 
+        ArrayNode arr = new ArrayNode(JsonNodeFactory.instance);
+        for (ModalidadEstudio modalidadEstudio : modalidadEstudios) {
+            arr.add(JsonHelper.createJson(modalidadEstudio, JsonNodeFactory.instance, new String[]{"*"}));
+        }
+
+        model.addAttribute("modalidadEstudios", arr);
         model.addAttribute("cicloAcademico", cicloAcademico);
         model.addAttribute("visor", visorEncuestaCurso);
         model.addAttribute("facultadesJson", createFacultadesJson(cicloAcademico));
@@ -176,14 +184,15 @@ public class EncuestaCursoController {
 
     @ResponseBody
     @RequestMapping("generar")
-    public JsonResponse generar(HttpSession session) {
+    public JsonResponse generar(@RequestBody ModalidadEstudio encuentarModalidad, HttpSession session) {
 
         JsonResponse response = new JsonResponse();
 
         try {
 
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-            String msg = service.generarEncuesta(ds.getCicloAcademico(), ds);
+            service.validarCursosNoEncuestar(ds);
+            String msg = service.generarEncuesta(encuentarModalidad, ds.getCicloAcademico(), ds);
             response.setSuccess(msg == null);
             response.setMessage(msg == null ? "Se inició proceso de generación en encuestas" : msg);
 

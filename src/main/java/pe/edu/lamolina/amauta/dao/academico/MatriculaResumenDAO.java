@@ -102,4 +102,6 @@ public interface MatriculaResumenDAO extends EasyDAO<MatriculaResumen> {
 
     public List<MatriculaResumen> allByNombreAndCiclo(String nombre, CicloAcademico cicloAcademico);
 
+    public MatriculaResumen findByAlumnosCiclo(List<Alumno> alumnoBD, List<CicloAcademico> cicloAcademicos);
+
 }

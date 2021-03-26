@@ -51,9 +51,11 @@ import pe.edu.lamolina.amauta.dao.aporte.AporteDAO;
 import pe.edu.lamolina.amauta.dao.aporte.ResumenAporteAlumnoDAO;
 import pe.edu.lamolina.amauta.dao.finanza.AcreenciaDAO;
 import pe.edu.lamolina.amauta.dao.finanza.DeudaAlumnoDAO;
+import pe.edu.lamolina.amauta.dao.general.PersonaDAO;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
 import pe.edu.lamolina.model.enums.ModalidadEstudioEnum;
+import pe.edu.lamolina.model.general.Persona;
 
 @Service
 @Transactional(readOnly = true)
@@ -79,6 +81,8 @@ public class OmisoEleccionServiceImp implements OmisoEleccionService {
     MatriculaResumenDAO matriculaResumenDAO;
     @Autowired
     ResumenAporteAlumnoDAO resumenAporteAlumnoDAO;
+    @Autowired
+    PersonaDAO personaDAO;
 
     @Autowired
     AporteAlumnoService aporteAlumnoService;
@@ -138,7 +142,7 @@ public class OmisoEleccionServiceImp implements OmisoEleccionService {
             while (rowIterator.hasNext()) {
                 Row row = rowIterator.next();
                 fila = row.getRowNum() + 1;
-                if (row.getRowNum() < 1) {
+                if (row.getRowNum() < 4) {
                     continue;
                 }
 
@@ -158,8 +162,14 @@ public class OmisoEleccionServiceImp implements OmisoEleccionService {
                 Alumno alumnoBD = alumnoDAO.findByCodigo(nroMatricula);
 
                 if (alumnoBD == null) {
-                    mapObservados.put(Long.parseLong("" + fila), "La matricula  " + nroMatricula + " no existe. ( Fila " + fila + ")");
-                    continue;
+                    Persona persona = personaDAO.findByDocIdentidad(nroMatricula);
+                    List<Alumno> alumnosBD = alumnoDAO.allByPersona(persona);
+                    MatriculaResumen matriculaResumens = matriculaResumenDAO.findByAlumnosCiclo(alumnosBD, cicloAcademicos);
+                    alumnoBD = matriculaResumens.getAlumno();
+                    if (alumnoBD == null) {
+                        mapObservados.put(Long.parseLong("" + fila), "La matricula  " + nroMatricula + " no existe. ( Fila " + fila + ")");
+                        continue;
+                    }
                 }
                 CicloAcademico cicloAcademico = mapCiclos.get(alumnoBD.getModalidadEstudio().getId());
                 String key = alumnoBD.getId() + "-" + cicloAcademico.getId() + "-" + motivo;

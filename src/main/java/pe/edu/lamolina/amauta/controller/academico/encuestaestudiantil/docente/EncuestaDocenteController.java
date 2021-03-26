@@ -3,7 +3,6 @@ package pe.edu.lamolina.amauta.controller.academico.encuestaestudiantil.docente;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import java.math.BigDecimal;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -32,9 +31,9 @@ import pe.edu.lamolina.model.encuestaestudiantil.EncuestaEstudiantil;
 import pe.edu.lamolina.model.encuestaestudiantil.PuntajeEncuestaDocente;
 import pe.edu.lamolina.model.encuestaestudiantil.ResumenEncuestaDocente;
 import pe.edu.lamolina.amauta.controller.seguridad.verificador.VerificadorService;
-import pe.edu.lamolina.model.constantines.AcademicoConstantine;
 import pe.edu.lamolina.model.constantines.GlobalConstantine;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.academico.ModalidadEstudio;
 
 @Controller
 @RequestMapping("academico/encuestaestudiantil/docente")
@@ -55,10 +54,15 @@ public class EncuestaDocenteController {
     public String index(Model model, HttpSession session, HttpServletRequest request) {
         DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
         CicloAcademico ciclo = ds.getCicloAcademico();
-
+        List<ModalidadEstudio> modalidadEstudios = service.allModalidadEstudio();
         List<Facultad> facultades = service.allFacultadesFromDocentes(ciclo, ds, request);
         List<DepartamentoAcademico> departamentos = service.allDepartamentosFromDocentes(ciclo, facultades, ds, request);
+        ArrayNode arr = new ArrayNode(JsonNodeFactory.instance);
+        for (ModalidadEstudio modalidadEstudio : modalidadEstudios) {
+            arr.add(JsonHelper.createJson(modalidadEstudio, JsonNodeFactory.instance, new String[]{"*"}));
+        }
 
+        model.addAttribute("modalidadEstudios", arr);
         model.addAttribute("cicloAcademico", ciclo);
         model.addAttribute("visor", visorEncuestaDocente);
         model.addAttribute("facultadesJson", createFacultadesJson(facultades));
@@ -160,7 +164,8 @@ public class EncuestaDocenteController {
             ObjectNode node = JsonHelper.createJson(encuesta, JsonNodeFactory.instance, true, new String[]{
                 "*",
                 "configuraEncuesta.*",
-                "periodosEncuesta.*"
+                "periodosEncuesta.*",
+                "periodosEncuesta.modalidadEstudio.*"
             });
             response.setData(node);
             response.setMessage("Encuesta activada satisfactoriamente");
@@ -220,14 +225,15 @@ public class EncuestaDocenteController {
 
     @ResponseBody
     @RequestMapping("generar")
-    public JsonResponse generar(HttpSession session) {
+    public JsonResponse generar(@RequestBody ModalidadEstudio encuentarModalidad, HttpSession session) {
 
         JsonResponse response = new JsonResponse();
 
         try {
 
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-            String msg = service.generarEncuesta(ds.getCicloAcademico(), ds);
+            service.validarCursosNoEncuestar(ds);
+            String msg = service.generarEncuesta(ds.getCicloAcademico(), encuentarModalidad, ds);
             response.setSuccess(msg == null);
             response.setMessage(msg == null ? "Se inició proceso de generación en encuestas" : msg);
 
@@ -485,7 +491,7 @@ public class EncuestaDocenteController {
 
         try {
             DataSessionPivot ds = (DataSessionPivot) session.getAttribute(GlobalConstantine.SESSION_USUARIO);
-            service.addDocenteSeccionToEncuesta(docenteSeccion, ds.getCicloAcademico(), ds);
+            service.addDocenteSeccionToEncuesta(docenteSeccion, ds.getCicloAcademico(), docenteSeccion.getEncuestarModalidad(), ds);
             response.setMessage("Se agregó satisfactoriamente a la encuesta");
             response.setSuccess(true);
 

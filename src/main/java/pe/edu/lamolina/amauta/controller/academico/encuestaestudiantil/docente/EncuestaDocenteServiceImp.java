@@ -1,6 +1,7 @@
 package pe.edu.lamolina.amauta.controller.academico.encuestaestudiantil.docente;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedHashMap;
@@ -53,6 +54,7 @@ import pe.edu.lamolina.amauta.dao.academico.DepartamentoAcademicoDAO;
 import pe.edu.lamolina.amauta.dao.academico.DocenteSeccionDAO;
 import pe.edu.lamolina.amauta.dao.academico.FacultadDAO;
 import pe.edu.lamolina.amauta.dao.academico.MatriculaSeccionDAO;
+import pe.edu.lamolina.amauta.dao.academico.ModalidadEstudioDAO;
 import pe.edu.lamolina.amauta.dao.encuesta.ConfiguraEncuestaDAO;
 import pe.edu.lamolina.amauta.dao.encuesta.CursoSinEncuestaDAO;
 import pe.edu.lamolina.amauta.dao.encuesta.EncuestaAlumnoDAO;
@@ -66,6 +68,9 @@ import pe.edu.lamolina.amauta.dao.encuesta.RespuestaEncuestaAlumnoDAO;
 import pe.edu.lamolina.amauta.dao.encuesta.ResumenEncuestaDocenteDAO;
 import pe.edu.lamolina.amauta.dao.encuesta.TipoExamenVirtualDAO;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.academico.ModalidadEstudio;
+import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.EPG;
+import static pe.edu.lamolina.model.enums.ModalidadEstudioEnum.PRE;
 
 @Service
 @Transactional(readOnly = true)
@@ -109,6 +114,8 @@ public class EncuestaDocenteServiceImp implements EncuestaDocenteService {
     CursoDAO cursoDAO;
     @Autowired
     MatriculaSeccionDAO matriculaSeccionDAO;
+    @Autowired
+    ModalidadEstudioDAO modalidadEstudioDAO;
 
     @Autowired
     VerificadorService verificadorService;
@@ -254,7 +261,7 @@ public class EncuestaDocenteServiceImp implements EncuestaDocenteService {
     }
 
     @Override
-    public String generarEncuesta(CicloAcademico cicloAcademico, DataSessionPivot ds) {
+    public String generarEncuesta(CicloAcademico cicloAcademico, ModalidadEstudio modalidadEncuesta, DataSessionPivot ds) {
         if (!verificadorService.isEditorEncuestas(ds)) {
             return "No tiene permiso para ejecutar esta operación";
         }
@@ -271,7 +278,7 @@ public class EncuestaDocenteServiceImp implements EncuestaDocenteService {
             ConfiguraEncuesta configuraEncuesta = configuraEncuestaDAO.findByEncuesta(encuesta);
             Assert.isFalse(configuraEncuesta == null, "Falta configurar la encuesta");
 
-            generadorEncuestaDocenteService.generarEncuesta(cicloAcademico, ds);
+            generadorEncuestaDocenteService.generarEncuesta(cicloAcademico, modalidadEncuesta, ds);
             return null;
         } else {
             return "No se puede iniciar la generación de encuestas de docentes";
@@ -322,6 +329,7 @@ public class EncuestaDocenteServiceImp implements EncuestaDocenteService {
             configuraEncuestaBD.setCantidadMaximaDocentes(configuraEncuestaForm.getCantidadMaximaDocentes());
             configuraEncuestaBD.setCantidadMinimaAlumnosPregrado(configuraEncuestaForm.getCantidadMinimaAlumnosPregrado());
             configuraEncuestaBD.setCantidadMinimaAlumnosPosgrado(configuraEncuestaForm.getCantidadMinimaAlumnosPosgrado());
+            configuraEncuestaBD.setDiasEncuestaPosgrado(configuraEncuestaForm.getDiasEncuestaPosgrado());
             configuraEncuestaBD.setEncuestaTeoriaPractica(configuraEncuestaForm.getEncuestaTeoriaPractica() == null ? 0L : 1L);
             configuraEncuestaBD.setFechaModificacion(new Date());
             configuraEncuestaBD.setUserModificacion(ds.getUsuario());
@@ -637,11 +645,48 @@ public class EncuestaDocenteServiceImp implements EncuestaDocenteService {
 
     @Override
     @Transactional
-    public void addDocenteSeccionToEncuesta(DocenteSeccion docenteSeccion, CicloAcademico ciclo, DataSessionPivot ds) {
+    public void addDocenteSeccionToEncuesta(DocenteSeccion docenteSeccion, CicloAcademico ciclo, ModalidadEstudio modalidadEncuesta, DataSessionPivot ds) {
         EncuestaDocente encuProfeSecc = encuestaDocenteDAO.findByDocenteSeccion(docenteSeccion);
         Assert.isNull(encuProfeSecc, "Este docente-sección ya se encuentra procesado en la encuesta");
 
-        generadorEncuestaDocenteService.generarEncuestaDocente(docenteSeccion, ciclo, ds);
+        generadorEncuestaDocenteService.generarEncuestaDocente(docenteSeccion, ciclo, modalidadEncuesta, ds);
+
+    }
+
+    @Override
+    public List<ModalidadEstudio> allModalidadEstudio() {
+
+        return modalidadEstudioDAO.allByCodigos(Arrays.asList(PRE.name(), EPG.name()));
+    }
+
+    @Override
+    @Transactional
+    public void validarCursosNoEncuestar(DataSessionPivot ds) {
+        CicloAcademico cicloAcademico = ds.getCicloAcademico();
+        TipoExamenVirtual tipoEncuesta = tipoExamenVirtualDAO.findByEnum(TipoExamenVirtualEnum.ENC_DOC);
+        ExamenVirtual encuestaModelo = examenVirtualDAO.findEncuestaActivaByTipo(tipoEncuesta);
+        EncuestaEstudiantil encuestaTipoDocente = encuestaEstudiantilDAO.findByCicloEncuesta(cicloAcademico, encuestaModelo);
+
+        List<Curso> cursosNoEncuestar = cursoDAO.allNoEncuestar();
+        List<CursoSinEncuesta> cursosSinEncuesta = cursoSinEncuestaDAO.allByEncuestaEstudiantil(encuestaTipoDocente);
+        Map<Long, Curso> mapCursoNoEncuestar = TypesUtil.convertListToMap("id", cursosNoEncuestar);
+        Map<Long, Curso> mapCursoSinEncuesta = TypesUtil.convertListToMap("curso.id", "curso", cursosSinEncuesta);
+        List<Curso> cursosProgramados = cursoDAO.allProgramadosByCiclo(cicloAcademico);
+
+        for (Curso curso : cursosProgramados) {
+            Curso cursoNoProgramado = mapCursoNoEncuestar.get(curso.getId());
+            Curso cursoSinEncuesta = mapCursoSinEncuesta.get(curso.getId());
+            if (cursoNoProgramado != null && cursoSinEncuesta == null) {
+                CursoSinEncuesta cus = new CursoSinEncuesta();
+                cus.setCurso(curso);
+                cus.setEncuestaEstudiantil(encuestaTipoDocente);
+                cus.setFechaCreacion(new Date());
+                cus.setUserCreacion(ds.getUsuario());
+                cursoSinEncuestaDAO.save(cus);
+
+                mapCursoSinEncuesta.put(curso.getId(), curso);
+            }
+        }
 
     }
 

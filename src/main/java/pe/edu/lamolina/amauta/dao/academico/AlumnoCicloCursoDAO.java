@@ -114,4 +114,6 @@ public interface AlumnoCicloCursoDAO extends EasyDAO<AlumnoCicloCurso> {
 
     List<AlumnoCicloCurso> allByAlumnoCursosApr(Alumno alumno, List<Curso> cursos);
 
+    public AlumnoCicloCurso findByAlumnoCurso(Alumno alumno, Curso curso);
+
 }

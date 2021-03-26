@@ -14,4 +14,6 @@ public interface TramitesBachillerService {
 
     public void saveBachiller(TramiteBachiller tramiteBachiller, DataSessionPivot ds);
 
+    public void anular(TramiteBachiller tramiteBachiller, DataSessionPivot ds);
+
 }

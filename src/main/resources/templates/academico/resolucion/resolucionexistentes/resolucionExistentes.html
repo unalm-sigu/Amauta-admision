@@ -152,6 +152,7 @@
                                             <th class="col-sm-1 text-center" v-if="isCambioNota">Nota</th>
                                             <th class=" text-center" v-if="isCursoDirigido">Docente</th>
                                             <th v-if=" !isCambioNota &amp;&amp; !isNotaBaja &amp;&amp; !isPracticas ">Aprobado</th>
+                                            <th v-if=" isPracticas &amp;&amp; validColumCreditos(resolucion)">Créditos</th>
                                             <th class="col-sm-1 text-center"></th>
                                         </tr>
                                     </thead>

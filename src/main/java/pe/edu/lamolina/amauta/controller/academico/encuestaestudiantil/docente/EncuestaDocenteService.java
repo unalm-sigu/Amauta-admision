@@ -12,6 +12,7 @@ import pe.edu.lamolina.model.encuestaestudiantil.EncuestaEstudiantil;
 import pe.edu.lamolina.model.encuestaestudiantil.PuntajeEncuestaDocente;
 import pe.edu.lamolina.model.encuestaestudiantil.ResumenEncuestaDocente;
 import pe.edu.lamolina.amauta.zelper.model.DataSessionPivot;
+import pe.edu.lamolina.model.academico.ModalidadEstudio;
 
 public interface EncuestaDocenteService {
 
@@ -23,7 +24,7 @@ public interface EncuestaDocenteService {
 
     void activarEncuesta(CicloAcademico cicloAcademico, DataSessionPivot ds);
 
-    String generarEncuesta(CicloAcademico cicloAcademico, DataSessionPivot ds);
+    String generarEncuesta(CicloAcademico cicloAcademico, ModalidadEstudio modalidadEncuesta, DataSessionPivot ds);
 
     void cambiarEstadoEncuesta(EncuestaDocente encuesta, CicloAcademico ciclo, DataSessionPivot ds);
 
@@ -49,6 +50,10 @@ public interface EncuestaDocenteService {
 
     List<DocenteSeccion> allDocenteSeccionNoProcesados(CicloAcademico ciclo, EncuestaEstudiantil encuesta);
 
-    void addDocenteSeccionToEncuesta(DocenteSeccion docenteSeccion, CicloAcademico cicloAcademico, DataSessionPivot ds);
+    void addDocenteSeccionToEncuesta(DocenteSeccion docenteSeccion, CicloAcademico cicloAcademico, ModalidadEstudio modalidadEncuesta, DataSessionPivot ds);
+
+    public List<ModalidadEstudio> allModalidadEstudio();
+
+    public void validarCursosNoEncuestar(DataSessionPivot ds);
 
 }
