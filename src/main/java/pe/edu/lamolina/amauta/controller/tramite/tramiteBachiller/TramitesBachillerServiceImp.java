@@ -24,6 +24,7 @@ import pe.edu.lamolina.amauta.dao.academico.AlumnoCicloCursoDAO;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoCicloDAO;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoCursoCurriculaDAO;
 import pe.edu.lamolina.amauta.dao.academico.AlumnoDAO;
+import pe.edu.lamolina.amauta.dao.academico.CursoCurriculaDAO;
 import pe.edu.lamolina.amauta.dao.academico.EgresadoDAO;
 import pe.edu.lamolina.amauta.dao.academico.EventoCicloAcademicoDAO;
 import pe.edu.lamolina.amauta.dao.academico.TipoCursoCurriculaDAO;
@@ -44,6 +45,7 @@ import pe.edu.lamolina.model.academico.Alumno;
 import pe.edu.lamolina.model.academico.AlumnoCiclo;
 import pe.edu.lamolina.model.academico.AlumnoCicloCurso;
 import pe.edu.lamolina.model.academico.CicloAcademico;
+import pe.edu.lamolina.model.academico.CursoCurricula;
 import pe.edu.lamolina.model.academico.Egresado;
 import pe.edu.lamolina.model.academico.EventoCicloAcademico;
 import pe.edu.lamolina.model.academico.TipoCursoCurricula;
@@ -129,6 +131,9 @@ public class TramitesBachillerServiceImp implements TramitesBachillerService {
     @Autowired
     AlumnoCursoCurriculaDAO alumnoCursoCurriculaDAO;
 
+    @Autowired
+    CursoCurriculaDAO cursoCurriculaDAO;
+
     @Override
     public List<TramiteBachiller> allTramitesByFilter(DynatableFilter filter, DataSessionPivot ds) {
 
@@ -152,7 +157,10 @@ public class TramitesBachillerServiceImp implements TramitesBachillerService {
         TipoCursoCurricula tipoCursoCurriculaDeporte = tipoCursoCurriculaDAO.findByCodigo(TipoCursoCurriculaEnum.DEP);
         TipoCursoCurricula tipoCursoCurriculaGen = tipoCursoCurriculaDAO.findByCodigo(TipoCursoCurriculaEnum.GEN);
         List<AlumnoCicloCurso> alumnoCicloCursos = alumnoCicloCursoDAO.allOperativesByAlumno(alumno);
-
+        
+        List<CursoCurricula> cursoCurriculas = cursoCurriculaDAO.allByPlanCurricularCAD(alumno.getPlanCurricular());
+        Map<Long, CursoCurricula> mapCursoCurricula = TypesUtil.convertListToMap("curso.id", cursoCurriculas);
+        
         List<AlumnoCursoCurricula> alumnoCursoCurriculas = alumnoCursoCurriculaDAO.allByAlumno(alumno);
         Map<Long, TipoCursoCurricula> mapAlumnoCursoCurricula = TypesUtil.convertListToMap("curso.id", "tipoCursoCurricula", alumnoCursoCurriculas);
 
@@ -172,9 +180,11 @@ public class TramitesBachillerServiceImp implements TramitesBachillerService {
                 }
             }
         }
+
+        validadCaducos(mapCursoCurricula, alumnoCicloCursos);
         Map<TipoCursoCurricula, List<AlumnoCicloCurso>> historial = alumnoCicloCursos
                 .stream()
-                .filter(x -> x.isAprobado())
+                .filter(x -> x.isAprobado() && x.getEsCaduco() == 0)
                 .collect(Collectors.groupingBy(acc -> acc.getTipoCursoCurricula()));
 
         Context ctx = new Context();
@@ -338,6 +348,15 @@ public class TramitesBachillerServiceImp implements TramitesBachillerService {
         tramiteBachiller.setEstado(TramiteEstadoEnum.ANU.name());
         tramiteBachillerDAO.updateColumns(tramiteBachiller, "estado");
 
+    }
+
+    private void validadCaducos(Map<Long, CursoCurricula> mapCursoCurricula, List<AlumnoCicloCurso> alumnoCicloCursos) {
+
+        for (AlumnoCicloCurso alumnoCicloCurso : alumnoCicloCursos) {
+            if (mapCursoCurricula.get(alumnoCicloCurso.getCurso().getId()) != null) {
+                alumnoCicloCurso.setEsCaduco(1);
+            }
+        }
     }
 
 }

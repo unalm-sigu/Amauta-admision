@@ -1455,6 +1455,11 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
             AlumnoCursoCurricula alumnoCursoCurricula = alumnoCursoCurriculaDAO.findPracticaPreProfesional(alumno);
             Assert.isNotNull(alumnoCursoCurricula, "El alumno " + alumno.getCodigo() + " no tiene Practicas habilitadas");
             CursoCurricula cursoCurricula = alumnoCursoCurricula.getCursoCurricula();
+
+            AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findLastActiveRegByAlumno(alumno);
+            AlumnoCicloCurso alumnoCicloCurso = alumnoCicloCursoDAO.findByAlumnoCurso(alumno, cursoCurricula.getCurso());
+            Integer creditos = practicasForm.getCreditos() == null ? alumnoCicloCurso.getCreditos() : practicasForm.getCreditos();
+
             PracticasPreProfesional preProfesionales = new PracticasPreProfesional();
             preProfesionales.setAlumno(practicasForm.getAlumno());
             preProfesionales.setCurso(cursoCurricula.getCurso());
@@ -1463,12 +1468,9 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
             preProfesionales.setUsuario(ds.getUsuario());
             preProfesionales.setEstado(EstadoEnum.ACT.name());
             preProfesionales.setFechaRegistro(new Date());
-            preProfesionales.setCreditos(practicasForm.getCreditos());
+            preProfesionales.setCreditos(creditos);
             practicaPreProfesionalesDAO.save(preProfesionales);
 
-            AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findLastActiveRegByAlumno(alumno);
-            AlumnoCicloCurso alumnoCicloCurso = alumnoCicloCursoDAO.findByAlumnoCurso(alumno, cursoCurricula.getCurso());
-            Integer creditos = practicasForm.getCreditos() == null ? alumnoCicloCurso.getCreditos() : practicasForm.getCreditos();
             if (alumnoCicloCurso == null) {
                 alumnoCicloCurso = new AlumnoCicloCurso();
                 alumnoCicloCurso.setAlumnoCiclo(alumnoCiclo);
