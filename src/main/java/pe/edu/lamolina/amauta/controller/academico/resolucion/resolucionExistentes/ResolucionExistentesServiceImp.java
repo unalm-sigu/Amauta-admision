@@ -1456,9 +1456,7 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
             Assert.isNotNull(alumnoCursoCurricula, "El alumno " + alumno.getCodigo() + " no tiene Practicas habilitadas");
             CursoCurricula cursoCurricula = alumnoCursoCurricula.getCursoCurricula();
 
-            AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findLastActiveRegByAlumno(alumno);
-            AlumnoCicloCurso alumnoCicloCurso = alumnoCicloCursoDAO.findByAlumnoCurso(alumno, cursoCurricula.getCurso());
-            Integer creditos = practicasForm.getCreditos() == null ? alumnoCicloCurso.getCreditos() : practicasForm.getCreditos();
+            Integer creditos = practicasForm.getCreditos() == null ? cursoCurricula.getCreditos() : practicasForm.getCreditos();
 
             PracticasPreProfesional preProfesionales = new PracticasPreProfesional();
             preProfesionales.setAlumno(practicasForm.getAlumno());
@@ -1471,7 +1469,10 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
             preProfesionales.setCreditos(creditos);
             practicaPreProfesionalesDAO.save(preProfesionales);
 
+            AlumnoCiclo alumnoCiclo = alumnoCicloDAO.findLastActiveRegByAlumno(alumno);
+            AlumnoCicloCurso alumnoCicloCurso = alumnoCicloCursoDAO.findByAlumnoCurso(alumno, cursoCurricula.getCurso());
             if (alumnoCicloCurso == null) {
+
                 alumnoCicloCurso = new AlumnoCicloCurso();
                 alumnoCicloCurso.setAlumnoCiclo(alumnoCiclo);
                 alumnoCicloCurso.setCreditos(creditos);
@@ -1488,8 +1489,8 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
                 alumnoCicloCurso.setUsuarioRegistro(ds.getUsuario());
                 alumnoCicloCursoDAO.save(alumnoCicloCurso);
             } else {
-                Assert.isNotNull(practicasForm.getCreditos(), "Hay inconsistencia con el alumno " + alumno.getCodigo() + ". Facultad no permite ingreso de créditos por separado.");
-                alumnoCicloCurso.setCreditos(alumnoCicloCurso.getCreditos() + practicasForm.getCreditos());
+//                Assert.isNotNull(practicasForm.getCreditos(), "Hay inconsistencia con el alumno " + alumno.getCodigo() + ". Facultad no permite ingreso de créditos por separado.");
+                alumnoCicloCurso.setCreditos(alumnoCicloCurso.getCreditos() + creditos);
                 alumnoCicloCurso.setUserModificacion(ds.getUsuario());
                 alumnoCicloCurso.setFechaModificacion(new Date());
                 alumnoCicloCursoDAO.updateColumns(alumnoCicloCurso, "creditos", "userModificacion", "fechaModificacion");

@@ -360,7 +360,7 @@ var app = new Vue({
             return `${persona.nombreCompleto} `;
         },
         validColumCreditos(item) {
-            if (item.oficina.codigo == "F040") {
+            if (item.oficina != null && item.oficina.codigo == "F040") {
                 return true;
             }
             return false;
