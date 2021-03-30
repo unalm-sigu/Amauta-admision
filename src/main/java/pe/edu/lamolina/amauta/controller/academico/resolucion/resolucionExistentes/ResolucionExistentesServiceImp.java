@@ -1489,7 +1489,7 @@ public class ResolucionExistentesServiceImp implements ResolucionExistenteServic
                 alumnoCicloCurso.setUsuarioRegistro(ds.getUsuario());
                 alumnoCicloCursoDAO.save(alumnoCicloCurso);
             } else {
-//                Assert.isNotNull(practicasForm.getCreditos(), "Hay inconsistencia con el alumno " + alumno.getCodigo() + ". Facultad no permite ingreso de créditos por separado.");
+                Assert.isNotNull(practicasForm.getCreditos(), "Hay inconsistencia con el alumno " + alumno.getCodigo() + ". Facultad no permite ingreso de créditos por separado.");
                 alumnoCicloCurso.setCreditos(alumnoCicloCurso.getCreditos() + creditos);
                 alumnoCicloCurso.setUserModificacion(ds.getUsuario());
                 alumnoCicloCurso.setFechaModificacion(new Date());
